@@ -20,9 +20,9 @@ datetime,open,high,low,close,volume
 
 ## 已加到 `yaml_panel.html` 的功能
 
-页面顶部现在有一个“价格查询助手”：
+页面现在内置一个“价格查询助手”浮窗：
 
-- 导入一个较小的 CSV 片段
+- 可收起、展开、吸边收纳
 - 选择 `Today / Query Day + 时间 + 周期(1m/5m/15m/30m/1h/4h/1D) + OHLC`
 - 直接查询对应价格
 - 一键回填到这些时间驱动的字段：
@@ -40,12 +40,20 @@ datetime,open,high,low,close,volume
 - 导入前会二次确认
 - 会先校验 YAML 结构，校验通过后才回填到页面继续修改
 
+页面现在也支持“图片记录”：
+
+- 基本信息支持整体图片记录
+- 隔夜关键点、行情段、ORR、执行观察点、Reversals、入场记录都支持多张图片
+- 每张图片支持 `url`、`title`、`note`
+- 支持上移、下移、删除、缩略图预览
+- YAML 导入导出会保留这些图片字段
+
 建议工作流：
 
-1. 先从大 CSV 裁剪出单日或片段数据。
-2. 在页面里导入这个小 CSV。
-3. 选择例如 `1m / open` 或 `5m / high`。
-4. 点击各字段下方的“填价”按钮。
+1. 先把大 CSV 导入 DuckDB。
+2. 启动本地查价 API。
+3. 打开 `yaml_panel.html`，用右下角查价浮窗查价并回填。
+4. 如需二次修改，导入以前导出的 YAML 再继续编辑。
 
 ## 从大 CSV 裁剪片段
 
@@ -169,19 +177,14 @@ from bars;
 
 ## 推荐落地路线
 
-短期：
-
-- 保持 `yaml_panel.html` 纯前端
-- 用 `extract_time_segment.py` 先裁剪成小 CSV
-- 在页面中导入并查价
-
-中期：
+当前推荐：
 
 - 把 `NQ_full_1min.csv` 导入 DuckDB
-- 写一个很薄的查询 API，例如 `/price?instrument=NQ&date=2008-01-02&time=09:30&tf=5&field=high`
-- 让 `yaml_panel.html` 直接请求这个 API
+- 启动本地查询 API
+- 让 `yaml_panel.html` 通过本地 API 查价
+- 用页面内的图片记录功能保存结构图、setup 图和复盘截图
 
-长期：
+后续可继续扩展：
 
 - 增加多品种支持
 - 增加预聚合表，例如 `futures_5m`, `futures_15m`
@@ -191,9 +194,10 @@ from bars;
 
 如果目标是尽快减少手工查价时间，最实用的路径是：
 
-1. 先用当前页面里的“价格查询助手”处理小 CSV 片段。
-2. 再把全量 `NQ_full_1min.csv` 迁到 DuckDB。
-3. 最后接一个轻量 API，让页面自动查价，不再手动导入文件。
+1. 先把全量 `NQ_full_1min.csv` 迁到 DuckDB。
+2. 启动本地 API。
+3. 在页面里用浮动查价助手直接查并回填。
+4. 用 YAML 导入功能继续修改旧复盘。
 
 ## 本地 API + 页面
 
@@ -229,3 +233,27 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 ```
 
 页面中的“价格查询助手”现在已经改成通过本地 API 查 DuckDB，不再依赖单独的数据库服务。
+
+## Windows 使用
+
+Windows 端最稳的方式是使用 `windows_bundle`：
+
+- 导入数据：
+
+```powershell
+python duckdb_import_nq_1m.py --input NQ_full_1min.csv --db-file trading_data.duckdb --create-table --truncate
+```
+
+- 启动 API：
+
+```powershell
+python price_lookup_api.py --db-file trading_data.duckdb
+```
+
+- 打开页面：
+
+```text
+http://127.0.0.1:8000/yaml_panel.html
+```
+
+如果这次只是页面样式或交互更新，而 Python 文件没变，通常只需要把最新的 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 覆盖到 Windows 目录即可。
