@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+
+# Local data / database exports
+*.csv
+*.sqlite
+*.db
+*.dump
+*.sql.gz
+
+# Local environment files
+.codex
