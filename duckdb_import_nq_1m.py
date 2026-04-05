@@ -62,6 +62,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--create-table", action="store_true", help="导入前自动创建表和索引。")
     parser.add_argument("--truncate", action="store_true", help="导入前先删除 instrument 对应的数据。")
     parser.add_argument("--skip-bad-rows", action="store_true", help="跳过无法解析的坏行。")
+    parser.add_argument("--progress-every", type=int, default=100000, help="每导入多少行打印一次进度，默认 100000。设为 0 可关闭。")
     return parser
 
 
@@ -145,6 +146,7 @@ def import_to_duckdb(
     instrument: str,
     create_table: bool,
     truncate: bool,
+    progress_every: int,
 ) -> int:
     count = 0
     conn = duckdb.connect(db_file)
@@ -153,6 +155,7 @@ def import_to_duckdb(
             conn.execute(CREATE_TABLE_SQL.replace("futures_1m", table_name))
         if truncate:
             conn.execute(f"delete from {table_name} where instrument = ?", [instrument])
+            print(f"已清空 {table_name} 中 instrument={instrument} 的旧数据")
 
         batch: list[NormalizedRow] = []
         for row in rows:
@@ -160,7 +163,11 @@ def import_to_duckdb(
             if len(batch) >= 5000:
                 count += insert_batch(conn, table_name, batch)
                 batch.clear()
+                if progress_every > 0 and count % progress_every == 0:
+                    print(f"已导入 {count} rows...")
         count += insert_batch(conn, table_name, batch)
+        if progress_every > 0 and count > 0:
+            print(f"导入完成前最后计数: {count} rows")
     finally:
         conn.close()
     return count
@@ -203,6 +210,7 @@ def main() -> int:
             instrument=args.instrument,
             create_table=args.create_table,
             truncate=args.truncate,
+            progress_every=args.progress_every,
         )
         print(f"已导入 DuckDB 表 {args.table}: {imported} rows")
 

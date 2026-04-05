@@ -48,6 +48,9 @@ Run this in the project folder:
 python duckdb_import_nq_1m.py --input NQ_full_1min.csv --db-file trading_data.duckdb --create-table --truncate
 ```
 
+For a multi-million-row CSV, this may run for several minutes in PowerShell. That is normal.
+The importer now prints progress periodically while it works.
+
 That creates:
 
 - `trading_data.duckdb`

@@ -1,4 +1,253 @@
 <!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http: https:; connect-src 'self' http: https: ws: wss:; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self';"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script>window.exports = window.exports || {}; function __iconBase(props, children) { var p = props || {}; return window.React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', className: p.className || '', width: p.width || 24, height: p.height || 24 }, children); } function __checkIcon(props) { return __iconBase(props, [window.React.createElement('polyline', { key: 'a', points: '20 6 9 17 4 12' })]); } function __copyIcon(props) { return __iconBase(props, [window.React.createElement('rect', { key: 'a', x: 9, y: 9, width: 13, height: 13, rx: 2, ry: 2 }), window.React.createElement('path', { key: 'b', d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })]); } function __chevronLeftIcon(props) { return __iconBase(props, [window.React.createElement('polyline', { key: 'a', points: '15 18 9 12 15 6' })]); } function __chevronRightIcon(props) { return __iconBase(props, [window.React.createElement('polyline', { key: 'a', points: '9 18 15 12 9 6' })]); } window.__lucideFallback = { Check: __checkIcon, Copy: __copyIcon, ChevronLeft: __chevronLeftIcon, ChevronRight: __chevronRightIcon }; if (typeof window.require !== 'function') { window.require = function(name) { if (name === 'react') return window.React; if (name === 'react-dom') return window.ReactDOM; if (name === 'lucide-react') return window.__lucideFallback; throw new Error('Unsupported module: ' + name); }; }</script><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <style>
+      :root {
+        --page-bg: #1f293d;
+        --panel-bg: #243149;
+        --panel-bg-soft: #293750;
+        --panel-bg-strong: #202c42;
+        --line-soft: #33435f;
+        --line-strong: #415274;
+        --text-main: #f1f1fe;
+        --text-muted: #abacf8;
+        --text-dim: #8f98b2;
+        --accent: #6467f2;
+        --accent-strong: #1e21eb;
+        --accent-soft: rgba(100, 103, 242, 0.18);
+      }
+
+      .theme-shell {
+        background:
+          radial-gradient(circle at top left, rgba(100, 103, 242, 0.16), transparent 28%),
+          radial-gradient(circle at top right, rgba(171, 172, 248, 0.08), transparent 24%),
+          linear-gradient(180deg, #202c42 0%, #1f293d 100%);
+        color: var(--text-main);
+      }
+
+      .theme-shell .bg-white,
+      .theme-shell .bg-gray-50 {
+        background-color: var(--panel-bg) !important;
+      }
+
+      .theme-shell .bg-slate-50 {
+        background-color: var(--panel-bg-soft) !important;
+      }
+
+      .theme-shell .bg-gray-100,
+      .theme-shell .bg-slate-100 {
+        background-color: var(--panel-bg-strong) !important;
+      }
+
+      .theme-shell .border-gray-200,
+      .theme-shell .border-slate-200 {
+        border-color: var(--line-soft) !important;
+      }
+
+      .theme-shell .border-gray-300,
+      .theme-shell .border-slate-300 {
+        border-color: var(--line-strong) !important;
+      }
+
+      .theme-shell .text-gray-800,
+      .theme-shell .text-gray-700,
+      .theme-shell .text-gray-600,
+      .theme-shell .text-gray-900,
+      .theme-shell .text-slate-700,
+      .theme-shell .text-slate-600 {
+        color: var(--text-main) !important;
+      }
+
+      .theme-shell .text-gray-500,
+      .theme-shell .text-gray-400,
+      .theme-shell .text-slate-500,
+      .theme-shell .text-slate-400 {
+        color: var(--text-dim) !important;
+      }
+
+      .theme-shell .bg-blue-50,
+      .theme-shell .bg-sky-50,
+      .theme-shell .bg-indigo-50,
+      .theme-shell .bg-purple-50,
+      .theme-shell .bg-emerald-50,
+      .theme-shell .bg-orange-50,
+      .theme-shell .bg-amber-50,
+      .theme-shell .bg-red-50,
+      .theme-shell .bg-green-50,
+      .theme-shell .bg-cyan-50 {
+        background-color: var(--panel-bg-soft) !important;
+      }
+
+      .theme-shell .border-blue-200,
+      .theme-shell .border-sky-200,
+      .theme-shell .border-indigo-200,
+      .theme-shell .border-purple-200,
+      .theme-shell .border-emerald-200,
+      .theme-shell .border-orange-200,
+      .theme-shell .border-amber-200,
+      .theme-shell .border-red-200,
+      .theme-shell .border-green-200,
+      .theme-shell .border-cyan-200 {
+        border-color: rgba(100, 103, 242, 0.32) !important;
+      }
+
+      .theme-shell .bg-blue-100,
+      .theme-shell .bg-sky-100,
+      .theme-shell .bg-indigo-100,
+      .theme-shell .bg-purple-100,
+      .theme-shell .bg-emerald-100,
+      .theme-shell .bg-orange-100,
+      .theme-shell .bg-amber-100,
+      .theme-shell .bg-red-100,
+      .theme-shell .bg-green-100,
+      .theme-shell .bg-cyan-100 {
+        background-color: var(--accent-soft) !important;
+      }
+
+      .theme-shell .border-blue-300,
+      .theme-shell .border-sky-300,
+      .theme-shell .border-indigo-300,
+      .theme-shell .border-purple-300,
+      .theme-shell .border-emerald-300,
+      .theme-shell .border-orange-300,
+      .theme-shell .border-amber-300,
+      .theme-shell .border-red-300,
+      .theme-shell .border-green-300,
+      .theme-shell .border-cyan-300 {
+        border-color: rgba(171, 172, 248, 0.38) !important;
+      }
+
+      .theme-shell .border-green-400,
+      .theme-shell .border-emerald-400,
+      .theme-shell .border-red-400,
+      .theme-shell .border-amber-400,
+      .theme-shell .border-gray-400,
+      .theme-shell .border-cyan-400 {
+        border-color: rgba(100, 103, 242, 0.56) !important;
+      }
+
+      .theme-shell .text-blue-700,
+      .theme-shell .text-sky-700,
+      .theme-shell .text-indigo-700,
+      .theme-shell .text-purple-700,
+      .theme-shell .text-emerald-700,
+      .theme-shell .text-orange-700,
+      .theme-shell .text-amber-700,
+      .theme-shell .text-red-700,
+      .theme-shell .text-green-700,
+      .theme-shell .text-cyan-700 {
+        color: var(--text-main) !important;
+      }
+
+      .theme-shell .text-blue-600,
+      .theme-shell .text-sky-600,
+      .theme-shell .text-indigo-600,
+      .theme-shell .text-purple-600,
+      .theme-shell .text-emerald-600,
+      .theme-shell .text-orange-600,
+      .theme-shell .text-amber-600,
+      .theme-shell .text-red-600,
+      .theme-shell .text-green-600,
+      .theme-shell .text-cyan-600 {
+        color: var(--text-muted) !important;
+      }
+
+      .theme-shell .bg-blue-500,
+      .theme-shell .bg-sky-500,
+      .theme-shell .bg-green-500 {
+        background: linear-gradient(135deg, var(--accent-strong), var(--accent)) !important;
+      }
+
+      .theme-shell .bg-sky-300,
+      .theme-shell .bg-blue-300 {
+        background-color: #4d57bf !important;
+      }
+
+      .theme-shell .bg-cyan-500,
+      .theme-shell .bg-emerald-500,
+      .theme-shell .bg-red-500 {
+        background-color: var(--accent) !important;
+      }
+
+      .theme-shell .from-amber-50,
+      .theme-shell .from-slate-50,
+      .theme-shell .from-gray-50 {
+        --tw-gradient-from: var(--panel-bg-soft) var(--tw-gradient-from-position) !important;
+        --tw-gradient-to: rgba(41, 55, 80, 0) var(--tw-gradient-to-position) !important;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+      }
+
+      .theme-shell .to-yellow-50,
+      .theme-shell .to-gray-50 {
+        --tw-gradient-to: var(--panel-bg-strong) var(--tw-gradient-to-position) !important;
+      }
+
+      .theme-shell .hover\:bg-blue-600:hover,
+      .theme-shell .hover\:bg-sky-600:hover,
+      .theme-shell .hover\:bg-green-600:hover {
+        background: linear-gradient(135deg, var(--accent), #7a7cf6) !important;
+      }
+
+      .theme-shell .hover\:bg-gray-100:hover,
+      .theme-shell .hover\:bg-gray-200:hover,
+      .theme-shell .hover\:bg-slate-100:hover,
+      .theme-shell .hover\:bg-red-50:hover,
+      .theme-shell .hover\:bg-green-50:hover {
+        background-color: var(--panel-bg-soft) !important;
+      }
+
+      .theme-shell input,
+      .theme-shell select,
+      .theme-shell textarea {
+        background-color: var(--panel-bg-soft) !important;
+        color: var(--text-main) !important;
+        border-color: var(--line-strong) !important;
+      }
+
+      .theme-shell input::placeholder,
+      .theme-shell textarea::placeholder {
+        color: var(--text-dim) !important;
+      }
+
+      .theme-shell .rounded-xl.border,
+      .theme-shell .rounded-lg.border,
+      .theme-shell .rounded-xl.border-2,
+      .theme-shell .rounded-lg.border-2 {
+        box-shadow:
+          0 10px 26px rgba(12, 18, 34, 0.26),
+          inset 0 1px 0 rgba(171, 172, 248, 0.04);
+      }
+
+      .theme-shell .bg-gradient-to-r {
+        background-image: linear-gradient(to right, var(--panel-bg-soft), var(--panel-bg-strong)) !important;
+      }
+
+      .theme-shell .border-dashed {
+        border-color: rgba(171, 172, 248, 0.28) !important;
+      }
+
+      .theme-shell .border-b {
+        border-bottom-color: var(--line-soft) !important;
+      }
+
+      .theme-shell .bg-gray-900 {
+        background-color: #111a2c !important;
+      }
+
+      .theme-shell .text-green-400 {
+        color: #cfd1ff !important;
+      }
+
+      .theme-shell .text-white {
+        color: var(--text-main) !important;
+      }
+
+      .theme-shell .ring-2 {
+        --tw-ring-color: rgba(100, 103, 242, 0.28) !important;
+      }
+
+      .theme-shell .ring-offset-1 {
+        --tw-ring-offset-color: transparent !important;
+      }
+    </style>
     <meta charset="utf-8">
     <title>Trading Journal YAML Builder</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -464,6 +713,142 @@ function MultiSelect({ options, selected, onChange, allowCustom = false, dropUp 
   );
 }
 
+function makeImageItem() {
+  return {
+    id: nid(),
+    url: '',
+    title: '',
+    note: ''
+  };
+}
+
+function normalizeImportedImages(images) {
+  if (!Array.isArray(images)) return [];
+  return images.map(item => ({
+    id: nid(),
+    url: item && item.url != null ? String(item.url) : '',
+    title: item && item.title != null ? String(item.title) : '',
+    note: item && item.note != null ? String(item.note) : ''
+  })).filter(item => item.url || item.title || item.note);
+}
+
+function yamlQuote(value) {
+  return '"' + String(value == null ? '' : value).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+}
+
+function pushImagesYaml(lines, indent, images) {
+  if (!Array.isArray(images) || images.length === 0) return;
+  var validImages = images.filter(img => img && (img.url || img.title || img.note));
+  if (validImages.length === 0) return;
+  var pad = ' '.repeat(indent);
+  lines.push(pad + 'images:');
+  validImages.forEach((img, index) => {
+    lines.push(pad + '  - url: ' + yamlQuote(img.url || ''));
+    if (img.title) lines.push(pad + '    title: ' + yamlQuote(img.title));
+    if (img.note) lines.push(pad + '    note: ' + yamlQuote(img.note));
+    lines.push(pad + '    sort: ' + (index + 1));
+  });
+}
+
+function ImageListEditor({ images, onChange, title = '图片记录', hint = '支持多张图片，可填写 URL、标题和备注。', defaultOpen = false }) {
+  var [open, setOpen] = _react.useState.call(void 0, defaultOpen);
+  var count = Array.isArray(images) ? images.filter(img => img && (img.url || img.title || img.note)).length : 0;
+  var [failedPreviewIds, setFailedPreviewIds] = _react.useState.call(void 0, []);
+
+  function updateImage(id, field, value) {
+    onChange((images || []).map(img => img.id === id ? { ...img, [field]: value } : img));
+  }
+
+  function removeImage(id) {
+    onChange((images || []).filter(img => img.id !== id));
+  }
+
+  function moveImage(id, direction) {
+    var list = [...(images || [])];
+    var index = list.findIndex(img => img.id === id);
+    var nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= list.length) return;
+    var temp = list[index];
+    list[index] = list[nextIndex];
+    list[nextIndex] = temp;
+    onChange(list);
+  }
+
+  function addImage() {
+    onChange([...(images || []), makeImageItem()]);
+    setOpen(true);
+  }
+
+  function markPreviewFailed(id) {
+    setFailedPreviewIds(prev => prev.indexOf(id) >= 0 ? prev : prev.concat(id));
+  }
+
+  function clearPreviewFailed(id) {
+    setFailedPreviewIds(prev => prev.filter(x => x !== id));
+  }
+
+  return (
+    _react2.default.createElement('div', { className: defaultOpen ? "mt-4 border border-slate-200 rounded-lg bg-slate-50 overflow-hidden" : "mt-2 border border-slate-200 rounded-lg bg-slate-50 overflow-hidden" ,}
+      , _react2.default.createElement('button', { type: "button", onClick: () => setOpen(!open), className: open ? "w-full px-4 py-2.5 flex items-center justify-between text-left bg-slate-100 transition-colors" : "w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-slate-100 transition-colors" ,}
+        , _react2.default.createElement('div', { className: "min-w-0" ,}
+          , _react2.default.createElement('div', { className: "flex items-center gap-2" ,}
+            , _react2.default.createElement('div', { className: "text-sm font-medium text-slate-700" ,}, title)
+            , _react2.default.createElement('span', { className: count > 0 ? "inline-flex items-center px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-[11px] font-semibold" : "inline-flex items-center px-2 py-0.5 rounded-full bg-slate-200 text-slate-500 text-[11px] font-semibold" ,}, count, " 张")
+          )
+          , _react2.default.createElement('div', { className: "text-xs text-slate-500 mt-0.5" ,}, hint)
+        )
+        , open ? _react2.default.createElement(_lucidereact.ChevronUp, { className: "w-4 h-4 text-slate-400" ,} ) : _react2.default.createElement(_lucidereact.ChevronDown, { className: "w-4 h-4 text-slate-400" ,} )
+      )
+      , open && (
+        _react2.default.createElement('div', { className: "px-4 pb-4 border-t border-slate-200 bg-white" ,}
+          , count === 0 && _react2.default.createElement('div', { className: "mt-3 text-xs text-slate-400 italic" ,}, "暂无图片")
+          , (images || []).map((img, index) => (
+            _react2.default.createElement('div', { key: img.id, className: "mt-3 border border-slate-200 rounded-lg p-3 bg-slate-50/40" ,}
+              , _react2.default.createElement('div', { className: "flex items-center justify-between mb-2" ,}
+                , _react2.default.createElement('span', { className: "text-xs font-medium text-slate-500" ,}, "图片 ", index + 1)
+                , _react2.default.createElement('div', { className: "flex items-center gap-1" ,}
+                  , _react2.default.createElement('button', { type: "button", disabled: index === 0, onClick: () => moveImage(img.id, -1), className: index === 0 ? "px-2 py-1 text-xs rounded border border-slate-200 text-slate-300 cursor-not-allowed" : "px-2 py-1 text-xs rounded border border-slate-300 text-slate-600 hover:bg-slate-50" ,}, "上移")
+                  , _react2.default.createElement('button', { type: "button", disabled: index === (images || []).length - 1, onClick: () => moveImage(img.id, 1), className: index === (images || []).length - 1 ? "px-2 py-1 text-xs rounded border border-slate-200 text-slate-300 cursor-not-allowed" : "px-2 py-1 text-xs rounded border border-slate-300 text-slate-600 hover:bg-slate-50" ,}, "下移")
+                  , _react2.default.createElement('button', { type: "button", onClick: () => removeImage(img.id), className: "px-2 py-1 text-xs rounded border border-red-200 text-red-600 hover:bg-red-50" ,}, "删除")
+                )
+              )
+              , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_96px] gap-3" ,}
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('div', { className: "mb-2" ,}
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-500 mb-1" ,}, "URL")
+                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "http://127.0.0.1:8000/journal_images/...", className: "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" ,} )
+                  )
+                  , _react2.default.createElement('div', { className: "mb-2" ,}
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-500 mb-1" ,}, "标题")
+                    , _react2.default.createElement('input', { type: "text", value: img.title, onChange: e => updateImage(img.id, 'title', e.target.value), placeholder: "例如：Entry Setup", className: "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" ,} )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-500 mb-1" ,}, "备注")
+                    , _react2.default.createElement('textarea', { value: img.note, onChange: e => updateImage(img.id, 'note', e.target.value), placeholder: "补充这张图记录了什么...", rows: 2, className: "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 resize-y" ,} )
+                  )
+                )
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('div', { className: "text-xs text-slate-500 mb-1" ,}, "缩略图")
+                  , img.url ? (
+                    _react2.default.createElement('a', { href: img.url, target: "_blank", rel: "noreferrer", className: "block w-24 h-24 border border-slate-200 rounded-lg overflow-hidden bg-slate-100 hover:border-sky-300 relative" ,}
+                      , !failedPreviewIds.includes(img.id) && _react2.default.createElement('img', { src: img.url, alt: img.title || 'image preview', className: "w-full h-full object-cover", onError: () => markPreviewFailed(img.id), onLoad: () => clearPreviewFailed(img.id) ,} )
+                      , failedPreviewIds.includes(img.id) && _react2.default.createElement('div', { className: "absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 text-center px-2 bg-slate-50" ,}, "无法预览")
+                    )
+                  ) : (
+                    _react2.default.createElement('div', { className: "w-24 h-24 border border-dashed border-slate-300 rounded-lg bg-slate-50 text-[11px] text-slate-400 flex items-center justify-center text-center px-2" ,}, "填写 URL 后预览")
+                  )
+                  , img.url && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" ,}, "点击打开原图")
+                )
+              )
+            )
+          ))
+          , _react2.default.createElement('button', { type: "button", onClick: addImage, className: "mt-3 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-sky-50 text-sky-700 text-sm font-medium border border-sky-200 hover:bg-sky-100" ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加图片")
+        )
+      )
+    )
+  );
+}
+
 function makeEntry() {
   return {
     id: nid(),
@@ -486,28 +871,29 @@ function makeEntry() {
     outcome: '',
     positive: [],
     negative: [],
-    resultOpen: false
+    resultOpen: false,
+    images: []
   };
 }
 
 function makeInitialPts() {
-  return [{ id: nid(), label: '', customLabel: '', time: '', price: '' }];
+  return [{ id: nid(), label: '', customLabel: '', time: '', price: '', images: [] }];
 }
 
 function makeInitialSegs() {
-  return [{ id: nid(), st: '', et: '', dir: '', consBias: '', note: '' }];
+  return [{ id: nid(), st: '', et: '', dir: '', consBias: '', note: '', images: [] }];
 }
 
 function makeInitialOrr() {
-  return { st: '', et: '', note: '' };
+  return { st: '', et: '', note: '', images: [] };
 }
 
 function makeInitialExecs() {
-  return [{ id: nid(), time: '', price: '', note: '' }];
+  return [{ id: nid(), time: '', price: '', note: '', images: [] }];
 }
 
 function makeInitialRevs() {
-  return [{ id: nid(), execRef: '', shape: '', reasons: [], smt: false, note: '' }];
+  return [{ id: nid(), execRef: '', shape: '', reasons: [], smt: false, note: '', images: [] }];
 }
 
 function makeInitialEntries() {
@@ -616,6 +1002,7 @@ function parseSimpleYaml(text) {
   var [tab, setTab] = _react.useState.call(void 0, 0);
   var [date, setDate] = _react.useState.call(void 0, DEFAULT_DATE);
   var [inst, setInst] = _react.useState.call(void 0, 'NQ');
+  var [basicInfoImages, setBasicInfoImages] = _react.useState.call(void 0, []);
   var [news, setNews] = _react.useState.call(void 0, []);
   var [pts, setPts] = _react.useState.call(void 0, makeInitialPts);
   var [segs, setSegs] = _react.useState.call(void 0, makeInitialSegs);
@@ -786,6 +1173,7 @@ function parseSimpleYaml(text) {
       action = () => {
         setDate(DEFAULT_DATE);
         setInst('NQ');
+        setBasicInfoImages([]);
         setNews([]);
       };
     } else if (tab === 1) {
@@ -822,6 +1210,7 @@ function parseSimpleYaml(text) {
       setTab(0);
       setDate(DEFAULT_DATE);
       setInst('NQ');
+      setBasicInfoImages([]);
       setNews([]);
       setPts(makeInitialPts());
       setSegs(makeInitialSegs());
@@ -842,6 +1231,7 @@ function parseSimpleYaml(text) {
   function applyImportedYamlData(parsed, rawText) {
     var importedDate = typeof parsed.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(parsed.date) ? parsed.date : DEFAULT_DATE;
     var importedInstrument = typeof parsed.instrument === 'string' && parsed.instrument.trim() ? parsed.instrument.trim() : 'NQ';
+    var importedBasicInfoImages = normalizeImportedImages(parsed.basic_info_images);
     var importedNews = Array.isArray(parsed.red_folder_news) ? parsed.red_folder_news.map(item => ({
       time: item && typeof item.time === 'string' ? item.time : '',
       event: item && typeof item.event === 'string' ? item.event : ''
@@ -856,9 +1246,10 @@ function parseSimpleYaml(text) {
         label: labelValue,
         customLabel: labelValue === 'other' ? labelText : '',
         time: item && typeof item.time === 'string' ? item.time : '',
-        price: item && item.price != null ? String(item.price) : ''
+        price: item && item.price != null ? String(item.price) : '',
+        images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.time || item.price || item.customLabel || item.label) : makeInitialPts();
+    }).filter(item => item.time || item.price || item.customLabel || item.label || item.images.length > 0) : makeInitialPts();
 
     var importedSegs = Array.isArray(overnight.market_segments) ? overnight.market_segments.map(item => ({
       id: nid(),
@@ -866,14 +1257,16 @@ function parseSimpleYaml(text) {
       et: item && typeof item.end === 'string' ? item.end : '',
       dir: item && typeof item.direction === 'string' ? item.direction : '',
       consBias: item && typeof item.bias === 'string' ? item.bias : '',
-      note: item && typeof item.note === 'string' ? item.note : ''
-    })).filter(item => item.st || item.et || item.dir || item.consBias || item.note) : makeInitialSegs();
+      note: item && typeof item.note === 'string' ? item.note : '',
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => item.st || item.et || item.dir || item.consBias || item.note || item.images.length > 0) : makeInitialSegs();
 
     var importedOrr = overnight.open_reference_range && typeof overnight.open_reference_range === 'object'
       ? {
           st: typeof overnight.open_reference_range.start === 'string' ? overnight.open_reference_range.start : '',
           et: typeof overnight.open_reference_range.end === 'string' ? overnight.open_reference_range.end : '',
-          note: typeof overnight.open_reference_range.note === 'string' ? overnight.open_reference_range.note : ''
+          note: typeof overnight.open_reference_range.note === 'string' ? overnight.open_reference_range.note : '',
+          images: normalizeImportedImages(overnight.open_reference_range.images)
         }
       : makeInitialOrr();
 
@@ -882,8 +1275,9 @@ function parseSimpleYaml(text) {
       id: nid(),
       time: item && typeof item.time === 'string' ? item.time : '',
       price: item && item.price != null ? String(item.price) : '',
-      note: item && typeof item.note === 'string' ? item.note : ''
-    })).filter(item => item.time || item.price || item.note) : makeInitialExecs();
+      note: item && typeof item.note === 'string' ? item.note : '',
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => item.time || item.price || item.note || item.images.length > 0) : makeInitialExecs();
 
     var importedRevsRaw = Array.isArray(execution.reversals) ? execution.reversals : [];
     var reversalRefMap = {};
@@ -897,9 +1291,10 @@ function parseSimpleYaml(text) {
         shape: item && typeof item.shape === 'string' ? item.shape : '',
         reasons: item && Array.isArray(item.reasons) ? item.reasons.map(String) : [],
         smt: !!(item && item.smt),
-        note: item && typeof item.note === 'string' ? item.note : ''
+        note: item && typeof item.note === 'string' ? item.note : '',
+        images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.execRef || item.shape || item.reasons.length > 0 || item.smt || item.note);
+    }).filter(item => item.execRef || item.shape || item.reasons.length > 0 || item.smt || item.note || item.images.length > 0);
 
     var importedEntries = Array.isArray(parsed.entry) ? parsed.entry.map(item => {
       var result = item && typeof item.result === 'object' ? item.result : {};
@@ -925,13 +1320,15 @@ function parseSimpleYaml(text) {
         outcome: typeof result.outcome === 'string' ? result.outcome : '',
         positive: Array.isArray(result.positive) ? result.positive.map(String) : [],
         negative: Array.isArray(result.negative) ? result.negative.map(String) : [],
-        resultOpen: !!(result.exit_time || result.exit_price || result.exit_type || result.outcome || (Array.isArray(result.positive) && result.positive.length) || (Array.isArray(result.negative) && result.negative.length))
+        resultOpen: !!(result.exit_time || result.exit_price || result.exit_type || result.outcome || (Array.isArray(result.positive) && result.positive.length) || (Array.isArray(result.negative) && result.negative.length)),
+        images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.time || item.entryPrice || item.stop || item.targetInternal || item.targetSwing || item.targetExternal || item.basedOn || item.exitTime || item.exitPrice) : makeInitialEntries();
+    }).filter(item => item.time || item.entryPrice || item.stop || item.targetInternal || item.targetSwing || item.targetExternal || item.basedOn || item.exitTime || item.exitPrice || item.images.length > 0) : makeInitialEntries();
 
     setDate(importedDate);
     setLookupDate(importedDate);
     setInst(importedInstrument);
+    setBasicInfoImages(importedBasicInfoImages);
     setNews(importedNews);
     setPts(importedPts.length ? importedPts : makeInitialPts());
     setSegs(importedSegs.length ? importedSegs : makeInitialSegs());
@@ -1154,6 +1551,7 @@ function parseSimpleYaml(text) {
     var L = [];
     L.push('date: ' + date);
     L.push('instrument: ' + inst);
+    pushImagesYaml(L, 0, basicInfoImages);
     if (news.length > 0 && news.some(n => n.event)) {
       L.push('red_folder_news:');
       news.forEach(n => {
@@ -1172,6 +1570,7 @@ function parseSimpleYaml(text) {
         L.push('    - label: ' + (lb || '""'));
         L.push('      time: "' + p.time + '"');
         if (p.price) L.push('      price: ' + p.price);
+        pushImagesYaml(L, 6, p.images);
       }
     });
     if (segs.some(s => s.st || s.et)) {
@@ -1187,6 +1586,7 @@ function parseSimpleYaml(text) {
             L.push('      direction: ' + s.dir);
           }
           if (s.note) L.push('      note: ' + s.note);
+          pushImagesYaml(L, 6, s.images);
         }
       });
     }
@@ -1194,6 +1594,7 @@ function parseSimpleYaml(text) {
     L.push('    start: "' + orr.st + '"');
     L.push('    end: "' + orr.et + '"');
     if (orr.note) L.push('    note: ' + orr.note);
+    pushImagesYaml(L, 4, orr.images);
     L.push('');
     L.push('execution_observation:');
     if (execs.some(e => e.time)) {
@@ -1203,6 +1604,7 @@ function parseSimpleYaml(text) {
           L.push('    - time: "' + e.time + '"');
           if (e.price) L.push('      price: ' + e.price);
           if (e.note) L.push('      note: ' + e.note);
+          pushImagesYaml(L, 6, e.images);
         }
       });
     }
@@ -1223,6 +1625,7 @@ function parseSimpleYaml(text) {
             r.reasons.forEach(rr => L.push('        - ' + rr));
           }
           if (r.note) L.push('      note: ' + r.note);
+          pushImagesYaml(L, 6, r.images);
         }
       });
     }
@@ -1251,6 +1654,7 @@ function parseSimpleYaml(text) {
         } else if (en.reversalRef === 'none') {
           L.push('    reversal_ref: none');
         }
+        pushImagesYaml(L, 4, en.images);
         var hasResult = en.exitTime || en.exitPrice || en.exitType || en.outcome || en.positive.length > 0 || en.negative.length > 0;
         if (hasResult) {
           L.push('    result:');
@@ -1409,6 +1813,7 @@ function parseSimpleYaml(text) {
             )
           ))
         )
+        , _react2.default.createElement(ImageListEditor, { images: basicInfoImages, onChange: setBasicInfoImages, title: "整体图片记录", hint: "用于保存整体视角、日内总览、HTF 背景图。", defaultOpen: true } )
       )
     );
   }
@@ -1446,10 +1851,13 @@ function parseSimpleYaml(text) {
                     , _react2.default.createElement('input', { type: "text", value: pt.customLabel || '', onChange: e => updPt(pt.id, 'customLabel', e.target.value), placeholder: "输入自定义标签...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"         ,} )
                   )
                 )
+                , _react2.default.createElement('div', { className: "ml-7" ,}
+                  , _react2.default.createElement(ImageListEditor, { images: pt.images, onChange: v => updPt(pt.id, 'images', v), title: "图片记录", hint: "记录这个关键点相关的截图或图示。" } )
+                )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setPts(p => [...p, { id: nid(), label: '', customLabel: '', time: '', price: '' }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
+          , _react2.default.createElement('button', { onClick: () => setPts(p => [...p, { id: nid(), label: '', customLabel: '', time: '', price: '', images: [] }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4"     ,}
@@ -1537,10 +1945,11 @@ function parseSimpleYaml(text) {
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: seg.note, onChange: e => updSeg(seg.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
                 )
+                , _react2.default.createElement(ImageListEditor, { images: seg.images, onChange: v => updSeg(seg.id, 'images', v), title: "图片记录", hint: "记录这个行情段对应的结构图或标注图。" } )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setSegs(p => [...p, { id: nid(), st: '', et: '', dir: '', consBias: '', note: '' }]), className: "flex items-center gap-1 text-sm text-emerald-500 hover:text-emerald-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加行情段" )
+          , _react2.default.createElement('button', { onClick: () => setSegs(p => [...p, { id: nid(), st: '', et: '', dir: '', consBias: '', note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-emerald-500 hover:text-emerald-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加行情段" )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5"    ,}
@@ -1581,6 +1990,7 @@ function parseSimpleYaml(text) {
             , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
             , _react2.default.createElement('input', { type: "text", value: orr.note, onChange: e => setOrr({ ...orr, note: e.target.value }), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
           )
+          , _react2.default.createElement(ImageListEditor, { images: orr.images, onChange: v => setOrr({ ...orr, images: v }), title: "图片记录", hint: "记录 ORR 区间图、范围标注图等。" } )
         )
       )
     );
@@ -1624,10 +2034,11 @@ function parseSimpleYaml(text) {
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: pt.note, onChange: e => updExec(pt.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
                 )
+                , _react2.default.createElement(ImageListEditor, { images: pt.images, onChange: v => updExec(pt.id, 'images', v), title: "图片记录", hint: "记录这个执行观察点对应的截图。" } )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setExecs(p => [...p, { id: nid(), time: '', price: '', note: '' }]), className: "flex items-center gap-1 text-sm text-orange-500 hover:text-orange-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
+          , _react2.default.createElement('button', { onClick: () => setExecs(p => [...p, { id: nid(), time: '', price: '', note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-orange-500 hover:text-orange-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5"    ,}
@@ -1726,10 +2137,11 @@ function parseSimpleYaml(text) {
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: rev.note, onChange: e => updRev(rev.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
                 )
+                , _react2.default.createElement(ImageListEditor, { images: rev.images, onChange: v => updRev(rev.id, 'images', v), title: "图片记录", hint: "记录这个 reversal 的结构图、确认图或 SMT 图。" } )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setRevs(p => [...p, { id: nid(), execRef: '', shape: '', reasons: [], smt: false, note: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 Reversal"  )
+          , _react2.default.createElement('button', { onClick: () => setRevs(p => [...p, { id: nid(), execRef: '', shape: '', reasons: [], smt: false, note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 Reversal"  )
         )
       )
     );
@@ -1911,6 +2323,7 @@ function parseSimpleYaml(text) {
                     )
                   )
                 )
+                , _react2.default.createElement(ImageListEditor, { images: en.images, onChange: v => updEntry(en.id, 'images', v), title: "图片记录", hint: "建议放 setup、进场、出场和复盘截图。", defaultOpen: true } )
 
                 , _react2.default.createElement('div', { className: "border border-gray-200 rounded-lg overflow-visible"   ,}
                   , _react2.default.createElement('button', { onClick: () => updEntry(en.id, 'resultOpen', !en.resultOpen), className: "w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors rounded-t-lg"         ,}
@@ -2062,21 +2475,21 @@ function parseSimpleYaml(text) {
   var content = [renderTab0, renderTab1, renderTab2, renderTab3, renderTab4][tab]();
 
   return (
-    _react2.default.createElement('div', { className: "min-h-screen bg-gray-50 p-4"  ,}
-      , _react2.default.createElement('div', { className: "max-w-3xl mx-auto" ,}
+    _react2.default.createElement('div', { className: "theme-shell min-h-screen p-6"  ,}
+      , _react2.default.createElement('div', { className: "max-w-5xl mx-auto rounded-[28px] border border-slate-200 px-6 py-7 shadow-2xl" ,}
         , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-5"   ,}
-          , _react2.default.createElement('div', { className: "w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"      ,}
-            , _react2.default.createElement('span', { className: "text-blue-600 text-sm font-bold"  ,}, "📋")
+          , _react2.default.createElement('div', { className: "w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center border border-indigo-200"      ,}
+            , _react2.default.createElement('span', { className: "text-blue-600 text-base font-bold"  ,}, "📋")
           )
           , _react2.default.createElement('h1', { className: "text-xl font-bold text-gray-800"  ,}, "Trading Journal YAML Builder"   )
         )
 
-        , _react2.default.createElement('div', { className: "flex gap-1 mb-5 border-b border-gray-200 overflow-x-auto"     ,}
+        , _react2.default.createElement('div', { className: "flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto pb-1"     ,}
           , TABS.map((t, idx) => {
             var active = tab === idx;
             var dot = (idx === 0 && !step0ok) || (idx === 1 && !step1ok);
             return (
-              _react2.default.createElement('button', { key: idx, onClick: () => setTab(idx), className: active ? "px-4 py-2.5 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap relative" : "px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap relative",}
+              _react2.default.createElement('button', { key: idx, onClick: () => setTab(idx), className: active ? "px-4 py-2.5 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap relative bg-blue-50 rounded-t-lg" : "px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap relative rounded-t-lg",}
                 , t
                 , dot && _react2.default.createElement('span', { className: "absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"      ,})
               )
