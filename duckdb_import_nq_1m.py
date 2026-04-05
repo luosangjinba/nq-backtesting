@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -139,6 +140,84 @@ def insert_batch(
     return len(batch)
 
 
+def import_to_duckdb_fast(
+    input_path: Path,
+    db_file: str,
+    table_name: str,
+    instrument: str,
+    create_table: bool,
+    truncate: bool,
+) -> int:
+    conn = duckdb.connect(db_file)
+    started_at = time.time()
+    try:
+        if create_table:
+            conn.execute(CREATE_TABLE_SQL.replace("futures_1m", table_name))
+
+        if truncate:
+            conn.execute(f"delete from {table_name} where instrument = ?", [instrument])
+            print(f"已清空 {table_name} 中 instrument={instrument} 的旧数据")
+
+        source_sql = """
+select
+  coalesce(
+    try_strptime(datetime, '%m/%d/%Y %H:%M:%S'),
+    try_strptime(datetime, '%m/%d/%Y %H:%M'),
+    try_strptime(datetime, '%Y-%m-%d %H:%M:%S'),
+    try_strptime(datetime, '%Y-%m-%d %H:%M'),
+    try_strptime(datetime, '%Y/%m/%d %H:%M:%S'),
+    try_strptime(datetime, '%Y/%m/%d %H:%M')
+  ) as ts,
+  try_cast(open as double) as open,
+  try_cast(high as double) as high,
+  try_cast(low as double) as low,
+  try_cast(close as double) as close,
+  try_cast(nullif(volume, '') as bigint) as volume
+from read_csv(
+  ?,
+  header=false,
+  skip=1,
+  columns={
+    'datetime': 'VARCHAR',
+    'open': 'VARCHAR',
+    'high': 'VARCHAR',
+    'low': 'VARCHAR',
+    'close': 'VARCHAR',
+    'volume': 'VARCHAR'
+  }
+)
+""".strip()
+
+        estimated_rows = conn.execute(f"select count(*) from ({source_sql}) src", [str(input_path)]).fetchone()[0]
+        print(f"已识别输入数据约 {estimated_rows} rows，开始快速导入...")
+
+        insert_sql = f"""
+insert into {table_name} (instrument, ts, open, high, low, close, volume)
+select
+  ? as instrument,
+  ts,
+  open,
+  high,
+  low,
+  close,
+  volume
+from ({source_sql}) src
+where ts is not null
+  and open is not null
+  and high is not null
+  and low is not null
+  and close is not null
+""".strip()
+        conn.execute(insert_sql, [instrument, str(input_path)])
+
+        imported = conn.execute(f"select count(*) from {table_name} where instrument = ?", [instrument]).fetchone()[0]
+        elapsed = time.time() - started_at
+        print(f"快速导入完成，用时 {elapsed:.1f}s")
+        return int(imported)
+    finally:
+        conn.close()
+
+
 def import_to_duckdb(
     rows: Iterable[NormalizedRow],
     db_file: str,
@@ -194,24 +273,26 @@ def main() -> int:
         output_path = Path(args.output)
         written = write_normalized_csv(normalized_rows, output_path)
         print(f"已写入标准化 CSV: {output_path} ({written} rows)")
-        if args.db_file:
-            normalized_rows = iter_normalized_rows(
-                input_path=input_path,
-                instrument=args.instrument,
-                encoding=args.encoding,
-                skip_bad_rows=args.skip_bad_rows,
-            )
 
     if args.db_file:
-        imported = import_to_duckdb(
-            rows=normalized_rows,
-            db_file=args.db_file,
-            table_name=args.table,
-            instrument=args.instrument,
-            create_table=args.create_table,
-            truncate=args.truncate,
-            progress_every=args.progress_every,
-        )
+        if args.output:
+            imported = import_to_duckdb_fast(
+                input_path=input_path,
+                db_file=args.db_file,
+                table_name=args.table,
+                instrument=args.instrument,
+                create_table=args.create_table,
+                truncate=args.truncate,
+            )
+        else:
+            imported = import_to_duckdb_fast(
+                input_path=input_path,
+                db_file=args.db_file,
+                table_name=args.table,
+                instrument=args.instrument,
+                create_table=args.create_table,
+                truncate=args.truncate,
+            )
         print(f"已导入 DuckDB 表 {args.table}: {imported} rows")
 
     return 0
