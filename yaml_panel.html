@@ -419,6 +419,8 @@ const LOOKUP_FIELD_OPTIONS = [
   { value: 'low', label: 'Low' },
   { value: 'close', label: 'Close' }
 ];
+const LOOKUP_PANEL_STORAGE_KEY = 'yaml_builder_lookup_panel_open';
+const LOOKUP_PANEL_DOCKED_KEY = 'yaml_builder_lookup_panel_docked';
 
 const DEFAULT_DATE = '2012-01-05';
 
@@ -788,61 +790,61 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
   }
 
   return (
-    _react2.default.createElement('div', { className: defaultOpen ? "mt-4 border border-slate-200 rounded-lg bg-slate-50 overflow-hidden" : "mt-2 border border-slate-200 rounded-lg bg-slate-50 overflow-hidden" ,}
-      , _react2.default.createElement('button', { type: "button", onClick: () => setOpen(!open), className: open ? "w-full px-4 py-2.5 flex items-center justify-between text-left bg-slate-100 transition-colors" : "w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-slate-100 transition-colors" ,}
+    _react2.default.createElement('div', { className: defaultOpen ? "mt-4 border border-slate-700 rounded-lg overflow-hidden" : "mt-2 border border-slate-700 rounded-lg overflow-hidden" , style: { backgroundColor: 'rgba(17, 26, 44, 0.42)' } }
+      , _react2.default.createElement('button', { type: "button", onClick: () => setOpen(!open), className: open ? "w-full px-4 py-2.5 flex items-center justify-between text-left transition-colors" : "w-full px-4 py-2.5 flex items-center justify-between text-left transition-colors" , style: { backgroundColor: open ? 'rgba(17, 26, 44, 0.62)' : 'transparent' } }
         , _react2.default.createElement('div', { className: "min-w-0" ,}
           , _react2.default.createElement('div', { className: "flex items-center gap-2" ,}
-            , _react2.default.createElement('div', { className: "text-sm font-medium text-slate-700" ,}, title)
-            , _react2.default.createElement('span', { className: count > 0 ? "inline-flex items-center px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-[11px] font-semibold" : "inline-flex items-center px-2 py-0.5 rounded-full bg-slate-200 text-slate-500 text-[11px] font-semibold" ,}, count, " 张")
+            , _react2.default.createElement('div', { className: "text-sm font-medium text-slate-100" ,}, title)
+            , _react2.default.createElement('span', { className: count > 0 ? "inline-flex items-center px-2 py-0.5 rounded-full text-indigo-100 text-[11px] font-semibold border" : "inline-flex items-center px-2 py-0.5 rounded-full text-slate-300 text-[11px] font-semibold border border-slate-600" , style: count > 0 ? { backgroundColor: 'rgba(99, 102, 241, 0.18)', borderColor: 'rgba(129, 140, 248, 0.32)' } : { backgroundColor: '#243149' } }, count, " 张")
           )
-          , _react2.default.createElement('div', { className: "text-xs text-slate-500 mt-0.5" ,}, hint)
+          , _react2.default.createElement('div', { className: "text-xs text-slate-400 mt-0.5" ,}, hint)
         )
         , open ? _react2.default.createElement(_lucidereact.ChevronUp, { className: "w-4 h-4 text-slate-400" ,} ) : _react2.default.createElement(_lucidereact.ChevronDown, { className: "w-4 h-4 text-slate-400" ,} )
       )
       , open && (
-        _react2.default.createElement('div', { className: "px-4 pb-4 border-t border-slate-200 bg-white" ,}
+        _react2.default.createElement('div', { className: "px-4 pb-4 border-t border-slate-700" , style: { backgroundColor: 'rgba(17, 26, 44, 0.3)' } }
           , count === 0 && _react2.default.createElement('div', { className: "mt-3 text-xs text-slate-400 italic" ,}, "暂无图片")
           , (images || []).map((img, index) => (
-            _react2.default.createElement('div', { key: img.id, className: "mt-3 border border-slate-200 rounded-lg p-3 bg-slate-50/40" ,}
+            _react2.default.createElement('div', { key: img.id, className: "mt-3 border border-slate-700 rounded-lg p-3" , style: { backgroundColor: '#243149' } }
               , _react2.default.createElement('div', { className: "flex items-center justify-between mb-2" ,}
-                , _react2.default.createElement('span', { className: "text-xs font-medium text-slate-500" ,}, "图片 ", index + 1)
+                , _react2.default.createElement('span', { className: "text-xs font-medium text-slate-300" ,}, "图片 ", index + 1)
                 , _react2.default.createElement('div', { className: "flex items-center gap-1" ,}
-                  , _react2.default.createElement('button', { type: "button", disabled: index === 0, onClick: () => moveImage(img.id, -1), className: index === 0 ? "px-2 py-1 text-xs rounded border border-slate-200 text-slate-300 cursor-not-allowed" : "px-2 py-1 text-xs rounded border border-slate-300 text-slate-600 hover:bg-slate-50" ,}, "上移")
-                  , _react2.default.createElement('button', { type: "button", disabled: index === (images || []).length - 1, onClick: () => moveImage(img.id, 1), className: index === (images || []).length - 1 ? "px-2 py-1 text-xs rounded border border-slate-200 text-slate-300 cursor-not-allowed" : "px-2 py-1 text-xs rounded border border-slate-300 text-slate-600 hover:bg-slate-50" ,}, "下移")
-                  , _react2.default.createElement('button', { type: "button", onClick: () => removeImage(img.id), className: "px-2 py-1 text-xs rounded border border-red-200 text-red-600 hover:bg-red-50" ,}, "删除")
+                  , _react2.default.createElement('button', { type: "button", disabled: index === 0, onClick: () => moveImage(img.id, -1), className: index === 0 ? "px-2 py-1 text-xs rounded border border-slate-700 text-slate-500 cursor-not-allowed" : "px-2 py-1 text-xs rounded border border-slate-600 text-slate-200 hover:bg-slate-700" ,}, "上移")
+                  , _react2.default.createElement('button', { type: "button", disabled: index === (images || []).length - 1, onClick: () => moveImage(img.id, 1), className: index === (images || []).length - 1 ? "px-2 py-1 text-xs rounded border border-slate-700 text-slate-500 cursor-not-allowed" : "px-2 py-1 text-xs rounded border border-slate-600 text-slate-200 hover:bg-slate-700" ,}, "下移")
+                  , _react2.default.createElement('button', { type: "button", onClick: () => removeImage(img.id), className: "px-2 py-1 text-xs rounded border text-rose-200 hover:bg-slate-700" , style: { borderColor: 'rgba(251, 113, 133, 0.32)' } }, "删除")
                 )
               )
               , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_96px] gap-3" ,}
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('div', { className: "mb-2" ,}
-                    , _react2.default.createElement('label', { className: "block text-xs text-slate-500 mb-1" ,}, "URL")
-                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "http://127.0.0.1:8000/journal_images/...", className: "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" ,} )
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "URL")
+                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "http://127.0.0.1:8000/journal_images/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
                   )
                   , _react2.default.createElement('div', { className: "mb-2" ,}
-                    , _react2.default.createElement('label', { className: "block text-xs text-slate-500 mb-1" ,}, "标题")
-                    , _react2.default.createElement('input', { type: "text", value: img.title, onChange: e => updateImage(img.id, 'title', e.target.value), placeholder: "例如：Entry Setup", className: "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" ,} )
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "标题")
+                    , _react2.default.createElement('input', { type: "text", value: img.title, onChange: e => updateImage(img.id, 'title', e.target.value), placeholder: "例如：Entry Setup", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
                   )
                   , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-xs text-slate-500 mb-1" ,}, "备注")
-                    , _react2.default.createElement('textarea', { value: img.note, onChange: e => updateImage(img.id, 'note', e.target.value), placeholder: "补充这张图记录了什么...", rows: 2, className: "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 resize-y" ,} )
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "备注")
+                    , _react2.default.createElement('textarea', { value: img.note, onChange: e => updateImage(img.id, 'note', e.target.value), placeholder: "补充这张图记录了什么...", rows: 2, className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-y" , style: { backgroundColor: '#2d3d5a' } } )
                   )
                 )
                 , _react2.default.createElement('div', null
-                  , _react2.default.createElement('div', { className: "text-xs text-slate-500 mb-1" ,}, "缩略图")
+                  , _react2.default.createElement('div', { className: "text-xs text-slate-400 mb-1" ,}, "缩略图")
                   , img.url ? (
-                    _react2.default.createElement('a', { href: img.url, target: "_blank", rel: "noreferrer", className: "block w-24 h-24 border border-slate-200 rounded-lg overflow-hidden bg-slate-100 hover:border-sky-300 relative" ,}
+                    _react2.default.createElement('a', { href: img.url, target: "_blank", rel: "noreferrer", className: "block w-24 h-24 border border-slate-600 rounded-lg overflow-hidden hover:border-indigo-400 relative" , style: { backgroundColor: '#2d3d5a' } }
                       , !failedPreviewIds.includes(img.id) && _react2.default.createElement('img', { src: img.url, alt: img.title || 'image preview', className: "w-full h-full object-cover", onError: () => markPreviewFailed(img.id), onLoad: () => clearPreviewFailed(img.id) ,} )
-                      , failedPreviewIds.includes(img.id) && _react2.default.createElement('div', { className: "absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 text-center px-2 bg-slate-50" ,}, "无法预览")
+                      , failedPreviewIds.includes(img.id) && _react2.default.createElement('div', { className: "absolute inset-0 flex items-center justify-center text-[11px] text-slate-300 text-center px-2" , style: { backgroundColor: 'rgba(17, 26, 44, 0.82)' } }, "无法预览")
                     )
                   ) : (
-                    _react2.default.createElement('div', { className: "w-24 h-24 border border-dashed border-slate-300 rounded-lg bg-slate-50 text-[11px] text-slate-400 flex items-center justify-center text-center px-2" ,}, "填写 URL 后预览")
+                    _react2.default.createElement('div', { className: "w-24 h-24 border border-dashed border-slate-600 rounded-lg text-[11px] text-slate-400 flex items-center justify-center text-center px-2" , style: { backgroundColor: '#2d3d5a' } }, "填写 URL 后预览")
                   )
                   , img.url && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" ,}, "点击打开原图")
                 )
               )
             )
           ))
-          , _react2.default.createElement('button', { type: "button", onClick: addImage, className: "mt-3 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-sky-50 text-sky-700 text-sm font-medium border border-sky-200 hover:bg-sky-100" ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加图片")
+          , _react2.default.createElement('button', { type: "button", onClick: addImage, className: "mt-3 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-800 text-slate-100 text-sm font-medium border hover:bg-slate-700" , style: { borderColor: 'rgba(129, 140, 248, 0.32)' } }, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加图片")
         )
       )
     )
@@ -998,6 +1000,29 @@ function parseSimpleYaml(text) {
   return 'http://' + host + ':8765';
 }
 
+function loadLookupPanelPreference() {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem(LOOKUP_PANEL_STORAGE_KEY) === '1';
+    }
+  } catch (err) {}
+  return false;
+}
+
+function loadLookupPanelDockedPreference() {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem(LOOKUP_PANEL_DOCKED_KEY) === '1';
+    }
+  } catch (err) {}
+  return false;
+}
+
+function getViewportWidth() {
+  if (typeof window !== 'undefined' && window.innerWidth) return window.innerWidth;
+  return 1440;
+}
+
  function App() {
   var [tab, setTab] = _react.useState.call(void 0, 0);
   var [date, setDate] = _react.useState.call(void 0, DEFAULT_DATE);
@@ -1025,11 +1050,39 @@ function parseSimpleYaml(text) {
   var [lookupResult, setLookupResult] = _react.useState.call(void 0, null);
   var [lookupError, setLookupError] = _react.useState.call(void 0, '');
   var [lookupLoading, setLookupLoading] = _react.useState.call(void 0, false);
+  var [lookupPanelOpen, setLookupPanelOpen] = _react.useState.call(void 0, loadLookupPanelPreference);
+  var [lookupPanelDocked, setLookupPanelDocked] = _react.useState.call(void 0, loadLookupPanelDockedPreference);
+  var [viewportWidth, setViewportWidth] = _react.useState.call(void 0, getViewportWidth);
   var importFileRef = _react.useRef.call(void 0, null);
 
   _react.useEffect.call(void 0, () => {
     checkApiHealth();
   }, [apiBaseUrl]);
+
+  _react.useEffect.call(void 0, () => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(LOOKUP_PANEL_STORAGE_KEY, lookupPanelOpen ? '1' : '0');
+      }
+    } catch (err) {}
+  }, [lookupPanelOpen]);
+
+  _react.useEffect.call(void 0, () => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(LOOKUP_PANEL_DOCKED_KEY, lookupPanelDocked ? '1' : '0');
+      }
+    } catch (err) {}
+  }, [lookupPanelDocked]);
+
+  _react.useEffect.call(void 0, () => {
+    if (typeof window === 'undefined') return;
+    function handleResize() {
+      setViewportWidth(window.innerWidth || 1440);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   var todayWeekday = getWeekdayLabel(date);
   var lookupWeekday = getWeekdayLabel(lookupDate);
@@ -1691,89 +1744,130 @@ function parseSimpleYaml(text) {
   }
 
   function renderPriceLookupPanel() {
+    var statusTone = apiStatus && apiStatus.ok ? "bg-emerald-500 shadow-emerald-500/40" : "bg-amber-400 shadow-amber-400/40";
+    var summaryText = lookupTime ? lookupTime + " / " + lookupTimeframe + "m / " + lookupField.toUpperCase() : lookupTimeframe + "m / " + lookupField.toUpperCase();
+    var floatingLabel = lookupTime ? lookupTime + " · " + lookupField.toUpperCase() : lookupField.toUpperCase();
+    var wrapperClass = lookupPanelDocked ? "fixed right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-end gap-3 pointer-events-none" : "fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 pointer-events-none";
+    var panelWidth = lookupPanelDocked ? 'min(21rem, calc(100vw - 1rem))' : 'min(24rem, calc(100vw - 1.5rem))';
+    var panelMaxHeight = lookupPanelDocked ? 'calc(100vh - 4rem)' : 'calc(100vh - 2rem)';
+    var launcherClass = lookupPanelOpen ? "pointer-events-auto flex items-center gap-3 rounded-2xl border border-slate-500/70 bg-slate-900/95 px-4 py-3 shadow-2xl shadow-slate-950/45 backdrop-blur-xl hover:bg-slate-800/95" : "pointer-events-auto flex items-center gap-2 rounded-full border border-slate-500/70 bg-slate-900/95 px-3 py-2.5 shadow-2xl shadow-slate-950/45 backdrop-blur-xl hover:bg-slate-800/95";
     return (
-      _react2.default.createElement('div', { className: "bg-white rounded-xl border border-sky-200 p-5 mb-4 shadow-sm"    ,}
-        , _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-3"   ,}
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('h3', { className: "text-sm font-semibold text-sky-800 mb-1"   ,}, "价格查询助手")
-            , _react2.default.createElement('p', { className: "text-xs text-gray-500"  ,}, "输入日期、时间、周期和 OHLC，页面会请求本地 DuckDB 查价服务，并可回填到带时间的价格字段。")
+      _react2.default.createElement('div', { className: wrapperClass    ,}
+        , lookupPanelOpen && _react2.default.createElement('div', { className: "pointer-events-auto rounded-2xl border border-slate-500/70 bg-slate-900/95 shadow-2xl shadow-slate-950/45 backdrop-blur-xl overflow-hidden"  , style: { width: panelWidth, maxHeight: panelMaxHeight } }
+          , _react2.default.createElement('div', { className: "px-4 py-3 border-b border-slate-700/80 bg-slate-900/90"  ,}
+            , _react2.default.createElement('div', { className: "flex items-start justify-between gap-3"   ,}
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-1"  ,}
+                  , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
+                  , _react2.default.createElement('h3', { className: "text-sm font-semibold text-slate-100"   ,}, "价格查询助手")
+                )
+                , _react2.default.createElement('p', { className: "text-xs text-slate-400 leading-5"  ,}, lookupPanelDocked ? "已切到侧边吸附模式，尽量避免挡住主输入区。" : "浮窗会一直跟着页面，改时间、周期和 OHLC 不用再滚回顶部。")
+              )
+              , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
+                , _react2.default.createElement('button', { onClick: checkApiHealth, className: "px-3 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs font-medium border border-slate-600 hover:bg-slate-700"    ,}, "检查连接")
+                , _react2.default.createElement('button', { onClick: () => setLookupPanelOpen(false), className: "w-9 h-9 rounded-lg border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm font-medium"    ,}, "×")
+              )
+            )
           )
-          , _react2.default.createElement('button', { onClick: checkApiHealth, className: "px-3 py-2 rounded-lg bg-sky-50 text-sky-700 text-xs font-medium border border-sky-200 hover:bg-sky-100"    ,}, "检查连接")
-        )
 
-        , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_auto] gap-3 mb-3"   ,}
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "API 地址")
-            , _react2.default.createElement('input', { type: "text", value: apiBaseUrl, onChange: e => setApiBaseUrl(e.target.value), placeholder: "http://127.0.0.1:8765", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"         ,} )
-          )
-          , _react2.default.createElement('div', { className: "flex items-end" ,}
+          , _react2.default.createElement('div', { className: "p-4 overflow-y-auto space-y-3"  , style: { maxHeight: lookupPanelDocked ? 'calc(100vh - 11rem)' : 'calc(100vh - 9rem)' } }
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_auto] gap-3"   ,}
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "API 地址")
+                , _react2.default.createElement('input', { type: "text", value: apiBaseUrl, onChange: e => setApiBaseUrl(e.target.value), placeholder: "http://127.0.0.1:8765", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"         ,} )
+              )
+              , _react2.default.createElement('div', { className: "flex items-end" ,}
+                , apiStatus && apiStatus.ok ? (
+                  _react2.default.createElement('span', { className: "inline-flex items-center px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-200 text-xs font-medium border border-emerald-400/30"    ,}, "已连接")
+                ) : (
+                  _react2.default.createElement('span', { className: "inline-flex items-center px-3 py-2 rounded-lg bg-amber-400/15 text-amber-100 text-xs font-medium border border-amber-300/30"    ,}, "未连接")
+                )
+              )
+            )
+
             , apiStatus && apiStatus.ok ? (
-              _react2.default.createElement('span', { className: "inline-flex items-center px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200"    ,}, "已连接")
+              _react2.default.createElement('div', { className: "bg-emerald-500/10 border border-emerald-400/25 rounded-xl px-4 py-3 text-xs text-emerald-100"    ,}
+                , _react2.default.createElement('div', { className: "font-medium mb-1" ,}, "本地查价服务在线")
+                , _react2.default.createElement('div', { className: "break-all text-emerald-200/90"  ,}, apiStatus.details || 'health ok')
+              )
             ) : (
-              _react2.default.createElement('span', { className: "inline-flex items-center px-3 py-2 rounded-lg bg-amber-50 text-amber-700 text-xs font-medium border border-amber-200"    ,}, "未连接")
+              _react2.default.createElement('div', { className: "bg-amber-400/10 border border-amber-300/25 rounded-xl px-4 py-3 text-xs text-amber-100"    ,}
+                , _react2.default.createElement('div', { className: "font-medium mb-1" ,}, "请先启动本地查价服务")
+                , apiStatus && apiStatus.error ? _react2.default.createElement('div', { className: "mb-2 break-all text-amber-50/90"  ,}, apiStatus.error) : null
+                , apiStatus && apiStatus.details ? _react2.default.createElement('div', { className: "mb-2 font-mono text-[11px] break-all text-amber-50/75"  ,}, apiStatus.details) : null
+                , _react2.default.createElement('div', { className: "font-mono text-[11px] break-all text-amber-50/75"  ,}, "python price_lookup_api.py --db-file trading_data.duckdb")
+              )
+            )
+
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-3"   ,}
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "Today")
+                , _react2.default.createElement('input', { type: "date", value: date, onChange: e => handleTodayDateChange(e.target.value), className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"         ,} )
+                , _react2.default.createElement('div', { className: "mt-1 text-xs text-slate-500"  ,}, todayWeekday || '--')
+              )
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "Query Day")
+                , _react2.default.createElement('input', { type: "date", value: lookupDate, onChange: e => setLookupDate(e.target.value), className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"         ,} )
+                , _react2.default.createElement('div', { className: "mt-1 flex items-center justify-between gap-2"  ,}
+                  , _react2.default.createElement('div', { className: "text-xs text-slate-500"  ,}, lookupWeekday || '--')
+                  , lookupDate !== date && _react2.default.createElement('button', { type: "button", onClick: resetLookupDateToToday, className: "text-xs text-indigo-300 hover:text-indigo-200 font-medium"    ,}, "回到 Today")
+                )
+              )
+            )
+
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-3"   ,}
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "时间")
+                , _react2.default.createElement('input', { type: "text", value: lookupTime, onChange: e => setLookupTime(fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"         ,} )
+              )
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "周期")
+                , _react2.default.createElement('select', { value: lookupTimeframe, onChange: e => setLookupTimeframe(e.target.value), className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"       ,}
+                  , LOOKUP_TIMEFRAME_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value,}, o.label))
+                )
+              )
+            )
+
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-3 items-end"   ,}
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "OHLC")
+                , _react2.default.createElement('select', { value: lookupField, onChange: e => setLookupField(e.target.value), className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"       ,}
+                  , LOOKUP_FIELD_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value,}, o.label))
+                )
+              )
+              , _react2.default.createElement('button', { onClick: handleLookupSubmit, className: lookupLoading ? "px-4 py-2.5 bg-indigo-400/60 text-slate-100 rounded-lg text-sm font-medium cursor-wait" : "px-4 py-2.5 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-400"      ,}, lookupLoading ? '查询中...' : '查询价格')
+            )
+
+            , lookupError && _react2.default.createElement('div', { className: "text-xs text-rose-100 bg-rose-500/10 border border-rose-400/25 rounded-xl px-4 py-3"    ,}, lookupError)
+
+            , lookupResult && (
+              _react2.default.createElement('div', { className: "bg-emerald-500/10 border border-emerald-400/25 rounded-xl px-4 py-3"   ,}
+                , _react2.default.createElement('div', { className: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs"   ,}
+                  , _react2.default.createElement('span', { className: "text-emerald-200"  ,}, "结果:")
+                  , _react2.default.createElement('strong', { className: "font-mono text-emerald-100 text-sm"  ,}, lookupResult.value)
+                  , _react2.default.createElement('span', { className: "text-emerald-200"  ,}, lookupDate, " (" , (lookupWeekday || '--') , ") " , lookupTime || '--:--', " / " , lookupTimeframe, "m / " , lookupField.toUpperCase())
+                )
+                , _react2.default.createElement('div', { className: "mt-1 text-xs text-emerald-200/85"  ,}
+                  , "窗口: " , lookupResult.startKey, " -> " , lookupResult.endKey, "，匹配 " , lookupResult.foundBars, "/" , lookupResult.expectedBars, " 根"
+                  , lookupResult.missingBars > 0 ? "，有缺失分钟" : ""
+                )
+              )
             )
           )
         )
 
-        , apiStatus && apiStatus.ok ? (
-          _react2.default.createElement('div', { className: "bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3 mb-3 text-xs text-emerald-800"    ,}
-            , _react2.default.createElement('div', { className: "font-medium mb-1" ,}, "本地查价服务在线")
-            , _react2.default.createElement('div', null, apiStatus.details || 'health ok')
+        , lookupPanelDocked ? (
+          !lookupPanelOpen && _react2.default.createElement('button', { type: "button", onClick: () => setLookupPanelOpen(true), className: "pointer-events-auto flex flex-col items-center gap-2 rounded-l-2xl border border-r-0 border-slate-500/70 bg-slate-900/95 px-2.5 py-4 shadow-2xl shadow-slate-950/45 backdrop-blur-xl hover:bg-slate-800/95"    ,}
+            , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
+            , _react2.default.createElement('span', { className: "text-[11px] font-semibold tracking-[0.22em] text-slate-100 [writing-mode:vertical-rl] [text-orientation:mixed]"  ,}, "查价助手")
+            , _react2.default.createElement('span', { className: "text-[10px] text-slate-400 [writing-mode:vertical-rl] [text-orientation:mixed]"  ,}, floatingLabel)
           )
         ) : (
-          _react2.default.createElement('div', { className: "bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-3 text-xs text-amber-700"    ,}
-            , _react2.default.createElement('div', { className: "font-medium mb-1" ,}, "请先启动本地查价服务")
-            , apiStatus && apiStatus.error ? _react2.default.createElement('div', { className: "mb-2 break-all"  ,}, apiStatus.error) : null
-            , apiStatus && apiStatus.details ? _react2.default.createElement('div', { className: "mb-2 font-mono text-[11px] break-all"  ,}, apiStatus.details) : null
-            , _react2.default.createElement('div', { className: "font-mono text-[11px] break-all"  ,}, "python price_lookup_api.py --db-file trading_data.duckdb")
-          )
-        )
-
-        , _react2.default.createElement('div', { className: "grid grid-cols-2 md:grid-cols-6 gap-3 items-end"   ,}
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "Today")
-            , _react2.default.createElement('input', { type: "date", value: date, onChange: e => handleTodayDateChange(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"         ,} )
-            , _react2.default.createElement('div', { className: "mt-1 text-xs text-gray-500"  ,}, todayWeekday || '--')
-          )
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "Query Day")
-            , _react2.default.createElement('input', { type: "date", value: lookupDate, onChange: e => setLookupDate(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"         ,} )
-            , _react2.default.createElement('div', { className: "mt-1 flex items-center justify-between gap-2"  ,}
-              , _react2.default.createElement('div', { className: "text-xs text-gray-500"  ,}, lookupWeekday || '--')
-              , lookupDate !== date && _react2.default.createElement('button', { type: "button", onClick: resetLookupDateToToday, className: "text-xs text-sky-600 hover:text-sky-700 font-medium"    ,}, "回到 Today")
-            )
-          )
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "时间")
-            , _react2.default.createElement('input', { type: "text", value: lookupTime, onChange: e => setLookupTime(fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"         ,} )
-          )
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "周期")
-            , _react2.default.createElement('select', { value: lookupTimeframe, onChange: e => setLookupTimeframe(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"       ,}
-              , LOOKUP_TIMEFRAME_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value,}, o.label))
-            )
-          )
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "OHLC")
-            , _react2.default.createElement('select', { value: lookupField, onChange: e => setLookupField(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"       ,}
-              , LOOKUP_FIELD_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value,}, o.label))
-            )
-          )
-          , _react2.default.createElement('button', { onClick: handleLookupSubmit, className: lookupLoading ? "px-4 py-2.5 bg-sky-300 text-white rounded-lg text-sm font-medium cursor-wait" : "px-4 py-2.5 bg-sky-500 text-white rounded-lg text-sm font-medium hover:bg-sky-600"      ,}, lookupLoading ? '查询中...' : '查询价格')
-        )
-
-        , lookupError && _react2.default.createElement('div', { className: "mt-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"    ,}, lookupError)
-
-        , lookupResult && (
-          _react2.default.createElement('div', { className: "mt-3 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3"   ,}
-            , _react2.default.createElement('div', { className: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs"   ,}
-              , _react2.default.createElement('span', { className: "text-emerald-700"  ,}, "结果:")
-              , _react2.default.createElement('strong', { className: "font-mono text-emerald-800 text-sm"  ,}, lookupResult.value)
-              , _react2.default.createElement('span', { className: "text-emerald-700"  ,}, lookupDate, " (" , (lookupWeekday || '--') , ") " , lookupTime || '--:--', " / " , lookupTimeframe, "m / " , lookupField.toUpperCase())
-            )
-            , _react2.default.createElement('div', { className: "mt-1 text-xs text-emerald-700"  ,}
-              , "窗口: " , lookupResult.startKey, " -> " , lookupResult.endKey, "，匹配 " , lookupResult.foundBars, "/" , lookupResult.expectedBars, " 根"
-              , lookupResult.missingBars > 0 ? "，有缺失分钟" : ""
+          _react2.default.createElement('button', { type: "button", onClick: () => setLookupPanelOpen(v => !v), className: launcherClass    ,}
+            , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
+            , _react2.default.createElement('div', { className: "text-left"  ,}
+              , _react2.default.createElement('div', { className: lookupPanelOpen ? "text-sm font-semibold text-slate-100 leading-none" : "text-xs font-semibold text-slate-100 leading-none"  ,}, lookupPanelOpen ? "收起查价助手" : "查价")
+              , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 leading-none"  ,}, lookupPanelOpen ? summaryText : floatingLabel)
             )
           )
         )
@@ -2476,7 +2570,7 @@ function parseSimpleYaml(text) {
 
   return (
     _react2.default.createElement('div', { className: "theme-shell min-h-screen p-6"  ,}
-      , _react2.default.createElement('div', { className: "max-w-5xl mx-auto rounded-[28px] border border-slate-200 px-6 py-7 shadow-2xl" ,}
+      , _react2.default.createElement('div', { className: "max-w-5xl mx-auto rounded-[28px] border border-slate-200 px-6 py-7 shadow-2xl"  ,}
         , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-5"   ,}
           , _react2.default.createElement('div', { className: "w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center border border-indigo-200"      ,}
             , _react2.default.createElement('span', { className: "text-blue-600 text-base font-bold"  ,}, "📋")
@@ -2487,11 +2581,9 @@ function parseSimpleYaml(text) {
         , _react2.default.createElement('div', { className: "flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto pb-1"     ,}
           , TABS.map((t, idx) => {
             var active = tab === idx;
-            var dot = (idx === 0 && !step0ok) || (idx === 1 && !step1ok);
             return (
               _react2.default.createElement('button', { key: idx, onClick: () => setTab(idx), className: active ? "px-4 py-2.5 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap relative bg-blue-50 rounded-t-lg" : "px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap relative rounded-t-lg",}
                 , t
-                , dot && _react2.default.createElement('span', { className: "absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"      ,})
               )
             );
           })
