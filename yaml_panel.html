@@ -1292,7 +1292,7 @@ function parseSimpleYaml(text) {
         , _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-3"   ,}
           , _react2.default.createElement('div', null
             , _react2.default.createElement('h3', { className: "text-sm font-semibold text-sky-800 mb-1"   ,}, "价格查询助手")
-            , _react2.default.createElement('p', { className: "text-xs text-gray-500"  ,}, "输入日期、时间、周期和 OHLC，页面会请求本地 PostgreSQL 查价服务，并可回填到带时间的价格字段。")
+            , _react2.default.createElement('p', { className: "text-xs text-gray-500"  ,}, "输入日期、时间、周期和 OHLC，页面会请求本地 DuckDB 查价服务，并可回填到带时间的价格字段。")
           )
           , _react2.default.createElement('button', { onClick: checkApiHealth, className: "px-3 py-2 rounded-lg bg-sky-50 text-sky-700 text-xs font-medium border border-sky-200 hover:bg-sky-100"    ,}, "检查连接")
         )
@@ -1321,7 +1321,7 @@ function parseSimpleYaml(text) {
             , _react2.default.createElement('div', { className: "font-medium mb-1" ,}, "请先启动本地查价服务")
             , apiStatus && apiStatus.error ? _react2.default.createElement('div', { className: "mb-2 break-all"  ,}, apiStatus.error) : null
             , apiStatus && apiStatus.details ? _react2.default.createElement('div', { className: "mb-2 font-mono text-[11px] break-all"  ,}, apiStatus.details) : null
-            , _react2.default.createElement('div', { className: "font-mono text-[11px] break-all"  ,}, "python3 price_lookup_api.py --database trading_data")
+            , _react2.default.createElement('div', { className: "font-mono text-[11px] break-all"  ,}, "python price_lookup_api.py --db-file trading_data.duckdb")
           )
         )
 

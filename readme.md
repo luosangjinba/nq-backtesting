@@ -62,166 +62,79 @@ python3 extract_time_segment.py \
 
 如果后面要从 `NQ_full_1min.csv` 里裁日内数据，命令也是同样形式，只要改输入路径和时间区间。
 
-## PostgreSQL 可行性
+## DuckDB 方案
 
-可行，而且很适合这个场景。
+DuckDB 很适合这套“本地单机 + 可移植到 Windows”的场景。
 
-相比直接查 CSV，PostgreSQL 的优势：
+相对单独部署数据库服务，它的优势是：
 
-- 可以对 `datetime` 建索引，按时间点查询会快很多
-- 可以按日、按时间段、按分钟窗口聚合
-- 后续可以做 API，让 `yaml_panel.html` 不再依赖手动导入 CSV
-- 可以继续扩展到 ES、YM、新闻标签、复盘结果等结构化数据
+- 不需要单独部署数据库服务
+- 一个 `.duckdb` 文件就能带着走，迁移更轻
+- 仍然支持按时间点、按时间段、按分钟窗口聚合
+- 很适合本地分析型查询和中小规模行情数据
 
 ### 推荐表结构
 
+仓库里已经提供 DuckDB 版 schema：
+
+- [duckdb_schema.sql](/home/leo/myworkspace/trading/backtesting/duckdb_schema.sql)
+
+核心表结构如下：
+
 ```sql
-create table nq_1m (
-  ts timestamp not null primary key,
-  open numeric(10, 2) not null,
-  high numeric(10, 2) not null,
-  low numeric(10, 2) not null,
-  close numeric(10, 2) not null,
+create table if not exists futures_1m (
+  instrument varchar not null,
+  ts timestamp not null,
+  open double not null,
+  high double not null,
+  low double not null,
+  close double not null,
   volume bigint
 );
 
-create index idx_nq_1m_ts on nq_1m (ts);
+create index if not exists idx_futures_1m_instrument_ts
+  on futures_1m (instrument, ts);
 ```
 
-如果后面会存多个品种，更推荐：
+## 导入 DuckDB 的建议流程
 
-```sql
-create table futures_1m (
-  instrument text not null,
-  ts timestamp not null,
-  open numeric(10, 2) not null,
-  high numeric(10, 2) not null,
-  low numeric(10, 2) not null,
-  close numeric(10, 2) not null,
-  volume bigint,
-  primary key (instrument, ts)
-);
+仓库里现在已经有两个直接可用的 DuckDB 文件：
 
-create index idx_futures_1m_instrument_ts on futures_1m (instrument, ts);
-```
+- [duckdb_import_nq_1m.py](/home/leo/myworkspace/trading/backtesting/duckdb_import_nq_1m.py)
+- [duckdb_schema.sql](/home/leo/myworkspace/trading/backtesting/duckdb_schema.sql)
 
-## 导入 PostgreSQL 的建议流程
-
-仓库里现在已经有两个文件可直接用：
-
-- [postgres_import_nq_1m.py](/home/leo/myworkspace/ICT Trading System/Backtesting/postgres_import_nq_1m.py)
-- [postgres_schema.sql](/home/leo/myworkspace/ICT Trading System/Backtesting/postgres_schema.sql)
-
-### 1. 先建表
-
-```sql
-create table futures_1m (
-  instrument text not null,
-  ts timestamp not null,
-  open numeric(10, 2) not null,
-  high numeric(10, 2) not null,
-  low numeric(10, 2) not null,
-  close numeric(10, 2) not null,
-  volume bigint,
-  primary key (instrument, ts)
-);
-```
-
-### 2. 先导入到 staging 表
-
-因为原始时间格式是 `1/2/2008 6:01`，最稳的方式是先把原始字符串导入 staging：
-
-```sql
-create table futures_1m_staging (
-  raw_datetime text,
-  open text,
-  high text,
-  low text,
-  close text,
-  volume text
-);
-```
-
-### 3. 用 `\copy` 导入 CSV
+### 1. 直接把原始 CSV 导入 DuckDB
 
 ```bash
-\copy futures_1m_staging from '/path/to/NQ_full_1min.csv' with (format csv, header true)
-```
-
-### 4. 转成正式表
-
-```sql
-insert into futures_1m (instrument, ts, open, high, low, close, volume)
-select
-  'NQ' as instrument,
-  to_timestamp(raw_datetime, 'MM/DD/YYYY HH24:MI') as ts,
-  open::numeric(10, 2),
-  high::numeric(10, 2),
-  low::numeric(10, 2),
-  close::numeric(10, 2),
-  nullif(volume, '')::bigint
-from futures_1m_staging;
-```
-
-## 直接可用的迁移脚本
-
-### 方案 A：先生成 PostgreSQL 友好的标准化 CSV
-
-这个方案不依赖 PostgreSQL 驱动，当前环境就能运行：
-
-```bash
-cd '/home/leo/myworkspace/ICT Trading System/Backtesting'
-python3 postgres_import_nq_1m.py \
+cd '/home/leo/myworkspace/trading/backtesting'
+python3 duckdb_import_nq_1m.py \
   --input 'NQ_full_1min.csv' \
-  --instrument NQ \
-  --output 'NQ_full_1min.postgres.csv'
-```
-
-输出文件会是这种结构：
-
-```csv
-instrument,ts,open,high,low,close,volume
-NQ,2008-01-02 06:01:00,2112.0,2113.0,2112.0,2113.0,83
-```
-
-然后在 PostgreSQL 里直接导：
-
-```bash
-\copy futures_1m (instrument, ts, open, high, low, close, volume) \
-from '/path/to/NQ_full_1min.postgres.csv' with (format csv, header true)
-```
-
-### 方案 B：Python 直接导入 PostgreSQL
-
-如果你的环境装好了 `psycopg`，可以直接流式导入，不需要先生成中间文件：
-
-```bash
-pip install psycopg[binary]
-
-python3 postgres_import_nq_1m.py \
-  --input 'NQ_full_1min.csv' \
-  --instrument NQ \
-  --dsn 'postgresql://USER:PASSWORD@HOST:5432/DBNAME' \
-  --create-table
-```
-
-如果要重导 NQ 数据：
-
-```bash
-python3 postgres_import_nq_1m.py \
-  --input 'NQ_full_1min.csv' \
-  --instrument NQ \
-  --dsn 'postgresql://USER:PASSWORD@HOST:5432/DBNAME' \
+  --db-file 'trading_data.duckdb' \
   --create-table \
   --truncate
 ```
 
-也可以直接用仓库里的包装脚本：
+这会创建或更新：
+
+```text
+trading_data.duckdb
+```
+
+### 2. 如果需要，也可以先生成标准化 CSV
 
 ```bash
-cd '/home/leo/myworkspace/ICT Trading System/Backtesting'
-export DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DBNAME'
-bash import_into_postgres.sh
+cd '/home/leo/myworkspace/trading/backtesting'
+python3 duckdb_import_nq_1m.py \
+  --input 'NQ_full_1min.csv' \
+  --instrument NQ \
+  --output 'NQ_full_1min.normalized.csv'
+```
+
+输出结构会是：
+
+```csv
+instrument,ts,open,high,low,close,volume
+NQ,2008-01-02 06:01:00,2112.0,2113.0,2112.0,2113.0,83
 ```
 
 ## 查询示例
@@ -247,10 +160,10 @@ with bars as (
   order by ts
 )
 select
-  (array_agg(open order by ts asc))[1] as open,
+  first(open order by ts asc) as open,
   max(high) as high,
   min(low) as low,
-  (array_agg(close order by ts desc))[1] as close
+  first(close order by ts desc) as close
 from bars;
 ```
 
@@ -264,7 +177,7 @@ from bars;
 
 中期：
 
-- 把 `NQ_full_1min.csv` 导入 PostgreSQL
+- 把 `NQ_full_1min.csv` 导入 DuckDB
 - 写一个很薄的查询 API，例如 `/price?instrument=NQ&date=2008-01-02&time=09:30&tf=5&field=high`
 - 让 `yaml_panel.html` 直接请求这个 API
 
@@ -279,21 +192,28 @@ from bars;
 如果目标是尽快减少手工查价时间，最实用的路径是：
 
 1. 先用当前页面里的“价格查询助手”处理小 CSV 片段。
-2. 再把全量 `NQ_full_1min.csv` 迁到 PostgreSQL。
+2. 再把全量 `NQ_full_1min.csv` 迁到 DuckDB。
 3. 最后接一个轻量 API，让页面自动查价，不再手动导入文件。
 
 ## 本地 API + 页面
 
 仓库里现在已经提供：
 
-- [price_lookup_api.py](/home/leo/myworkspace/ICT Trading System/Backtesting/price_lookup_api.py)
-- [yaml_panel.html](/home/leo/myworkspace/ICT Trading System/Backtesting/yaml_panel.html)
+- [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)
+- [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html)
+
+先把 CSV 导入 DuckDB：
+
+```bash
+cd '/home/leo/myworkspace/trading/backtesting'
+python3 duckdb_import_nq_1m.py --input NQ_full_1min.csv --db-file trading_data.duckdb --create-table --truncate
+```
 
 启动本地查价 API：
 
 ```bash
-cd '/home/leo/myworkspace/ICT Trading System/Backtesting'
-python3 price_lookup_api.py --database trading_data
+cd '/home/leo/myworkspace/trading/backtesting'
+python3 price_lookup_api.py --db-file trading_data.duckdb
 ```
 
 健康检查：
@@ -308,4 +228,4 @@ curl -s 'http://127.0.0.1:8765/health'
 curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf=5&field=high'
 ```
 
-页面中的“价格查询助手”现在已经改成通过本地 API 查 PostgreSQL，不再依赖导入 CSV。
+页面中的“价格查询助手”现在已经改成通过本地 API 查 DuckDB，不再依赖单独的数据库服务。

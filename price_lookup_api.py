@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Small local HTTP API for querying PostgreSQL minute bars via psql."""
+"""Small local HTTP API for querying DuckDB minute bars."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import re
-import subprocess
+from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Dict
 from urllib.parse import parse_qs, urlparse
+
+import duckdb
 
 
 VALID_FIELDS = {"open", "high", "low", "close"}
@@ -19,9 +22,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Local price lookup API for yaml_panel.html")
     parser.add_argument("--host", default="127.0.0.1", help="Bind host, default 127.0.0.1")
     parser.add_argument("--port", type=int, default=8765, help="Bind port, default 8765")
-    parser.add_argument("--database", default="trading_data", help="PostgreSQL database name")
+    parser.add_argument("--db-file", default="trading_data.duckdb", help="DuckDB file path")
     parser.add_argument("--table", default="futures_1m", help="Target table name")
     return parser
+
+
+def resolve_db_path(db_file: str) -> str:
+    value = db_file.strip()
+    if not value:
+        raise ValueError("db file path cannot be empty")
+    if any(sep in value for sep in ("/", "\\")) or value.lower().endswith(".duckdb"):
+        return value
+    return value + ".duckdb"
 
 
 def validate_date(date_str: str) -> str:
@@ -65,55 +77,57 @@ def validate_table(value: str) -> str:
     return value
 
 
-def run_psql(database: str, sql: str) -> str:
-    proc = subprocess.run(
-        ["psql", "-d", database, "-At", "-F", "\t", "-c", sql],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(proc.stderr.strip() or "psql query failed")
-    return proc.stdout.strip()
+def open_db(db_path: str) -> duckdb.DuckDBPyConnection:
+    return duckdb.connect(db_path, read_only=False)
 
 
-def make_sql(database: str, table: str, instrument: str, date_str: str, time_str: str, tf: int) -> str:
-    _ = database
-    start_ts = f"{date_str} {time_str}:00"
-    return f"""
-with bars as (
-  select ts, open, high, low, close
-  from {table}
-  where instrument = '{instrument}'
-    and ts >= timestamp '{start_ts}'
-    and ts < timestamp '{start_ts}' + interval '{tf} minute'
-  order by ts
-)
-select
-  (array_agg(open order by ts asc))[1] as open,
-  max(high) as high,
-  min(low) as low,
-  (array_agg(close order by ts desc))[1] as close,
-  count(*) as found_bars,
-  min(ts)::text as start_ts,
-  max(ts)::text as end_ts
-from bars;
+def ensure_table_exists(db_path: str, table: str) -> None:
+    with open_db(db_path) as conn:
+        exists = conn.execute(
+            "select count(*) from information_schema.tables where table_name = ?",
+            [table],
+        ).fetchone()
+    if not exists or exists[0] == 0:
+        raise RuntimeError(f"table not found: {table}")
+
+
+def query_price(
+    db_path: str,
+    table: str,
+    instrument: str,
+    date_str: str,
+    time_str: str,
+    tf: int,
+    field: str,
+) -> Dict[str, object]:
+    start_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+    end_dt = start_dt + timedelta(minutes=tf)
+
+    sql = f"""
+select ts, open, high, low, close
+from {table}
+where instrument = ?
+  and ts >= ?
+  and ts < ?
+order by ts
 """.strip()
 
+    with open_db(db_path) as conn:
+        rows = conn.execute(sql, [instrument, start_dt, end_dt]).fetchall()
 
-def query_price(database: str, table: str, instrument: str, date_str: str, time_str: str, tf: int, field: str) -> Dict[str, object]:
-    sql = make_sql(database, table, instrument, date_str, time_str, tf)
-    raw = run_psql(database, sql)
-    cols = raw.split("\t") if raw else []
-    if len(cols) != 7 or cols[0] == "":
-      raise LookupError("no data found for requested time window")
+    if not rows:
+        raise LookupError("no data found for requested time window")
 
-    found = int(cols[4])
+    opens = float(rows[0][1])
+    highs = max(float(row[2]) for row in rows)
+    lows = min(float(row[3]) for row in rows)
+    closes = float(rows[-1][4])
+    found = len(rows)
     values = {
-        "open": float(cols[0]),
-        "high": float(cols[1]),
-        "low": float(cols[2]),
-        "close": float(cols[3]),
+        "open": opens,
+        "high": highs,
+        "low": lows,
+        "close": closes,
     }
     return {
         "instrument": instrument,
@@ -125,14 +139,14 @@ def query_price(database: str, table: str, instrument: str, date_str: str, time_
         "ohlc": values,
         "foundBars": found,
         "expectedBars": tf,
-        "missingBars": tf - found,
-        "startTs": cols[5],
-        "endTs": cols[6],
+        "missingBars": max(tf - found, 0),
+        "startTs": rows[0][0].strftime("%Y-%m-%d %H:%M:%S"),
+        "endTs": rows[-1][0].strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
 class Handler(BaseHTTPRequestHandler):
-    database = "trading_data"
+    db_path = "trading_data.duckdb"
     table = "futures_1m"
 
     def _send_cors_headers(self) -> None:
@@ -159,8 +173,9 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/health":
             try:
-                output = run_psql(self.database, "select current_database(), current_user")
-                self._send_json(200, {"ok": True, "database": self.database, "details": output})
+                ensure_table_exists(self.db_path, self.table)
+                details = f"db={self.db_path}\ttable={self.table}"
+                self._send_json(200, {"ok": True, "database": self.db_path, "details": details})
             except Exception as exc:
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
@@ -177,7 +192,7 @@ class Handler(BaseHTTPRequestHandler):
             tf = validate_timeframe(params.get("tf", ["1"])[0])
             field = validate_field(params.get("field", ["close"])[0])
             table = validate_table(self.table)
-            result = query_price(self.database, table, instrument, date_str, time_str, tf, field)
+            result = query_price(self.db_path, table, instrument, date_str, time_str, tf, field)
             self._send_json(200, {"ok": True, "result": result})
         except KeyError as exc:
             self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
@@ -194,10 +209,14 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> int:
     args = build_parser().parse_args()
-    Handler.database = args.database
+    db_path = resolve_db_path(args.db_file)
+    if not Path(db_path).exists():
+        raise SystemExit(f"duckdb file not found: {db_path}")
+
+    Handler.db_path = db_path
     Handler.table = args.table
     server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"price lookup api listening on http://{args.host}:{args.port} (db={args.database}, table={args.table})")
+    print(f"price lookup api listening on http://{args.host}:{args.port} (db={db_path}, table={args.table})")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
