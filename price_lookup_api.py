@@ -62,8 +62,8 @@ def validate_time(time_str: str) -> str:
 
 def validate_timeframe(value: str) -> int:
     tf = int(value)
-    if tf not in (1, 5, 15, 30, 60, 240, 1440):
-        raise ValueError("tf must be one of 1, 5, 15, 30, 60, 240, 1440")
+    if tf <= 0:
+        raise ValueError("tf must be a positive integer")
     return tf
 
 

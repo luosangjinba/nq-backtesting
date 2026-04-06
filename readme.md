@@ -259,6 +259,97 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 - 上传接口由 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py) 提供
 - 图片会保存到：
 
+## 最近新增
+
+页面最近又补了几块结构化复盘能力：
+
+- 隔夜关键点支持更细的标签体系：
+  - `Asia / LDN / Transition / PM` 的 `High / Low / Swing High / Swing Low`
+  - `Prev Day High / Low / Swing High / Swing Low`
+  - `Globex High / Low`
+- 关键点的 `in session / out of session` 会按具体标签族判断，不再只按泛化的 `high / low` 判定
+- 行情段支持自动按起止关键点价格推算方向，跨交易日区间也可正常工作
+- 行情段支持“这段主要做了什么”的结构化记录：
+  - `Sweep 某个关键点`
+  - `与关键点形成 EQH`
+  - `与关键点形成 EQL`
+  - `Tap 某个 FVG`
+- 左侧新增实时统计面板，实时显示：
+  - `Red Folder News`
+  - 基本信息图片数
+  - 隔夜关键点数 / 图片数
+  - 盘前关键 FVG 数
+  - 行情段数 / 图片数
+  - `Open Reference Range` 是否填写 / 图片数
+  - 执行关键点数 / 图片数
+  - `Reversals` 数量 / 图片数
+  - 入场记录数 / 图片数
+
+## FVG 结构
+
+现在页面支持两组 FVG：
+
+- `隔夜结构 -> 盘前关键 FVG`
+- `执行观察 -> 盘中 FVG`
+
+两者字段和计算逻辑相同，都支持：
+
+- `T日`
+- 周期：拆成两个下拉框
+  - 左侧 `1-30`
+  - 右侧 `m / h / d`
+- `中间K线时间`
+- `direction`
+- `FVG high`
+- `FVG low`
+- `自动计算 FVG`
+
+### FVG 自动计算逻辑
+
+自动计算会根据：
+
+- `T日`
+- 周期
+- 中间K线时间
+
+定位三根同周期 K 线：
+
+- 前一根
+- 中间根
+- 后一根
+
+然后按下面规则计算：
+
+- `bullish FVG`
+  - 条件：`后一根.low > 前一根.high`
+  - `FVG high = 后一根.low`
+  - `FVG low = 前一根.high`
+- `bearish FVG`
+  - 条件：`前一根.low > 后一根.high`
+  - `FVG high = 前一根.low`
+  - `FVG low = 后一根.high`
+
+如果这三根 K 线不满足上述条件，页面会提示“未形成有效 FVG”，不会写入错误结果。
+
+### FVG 与 YAML
+
+导出时会新增：
+
+- `overnight_structure.premarket_key_fvgs`
+- `execution_observation.intraday_fvgs`
+
+行情段里的 `tap 某个 FVG` 会引用 `盘前关键 FVG`，并在 YAML 中带上：
+
+- `fvg_day_offset`
+- `fvg_timeframe`
+- `fvg_middle_candle_time`
+
+## API 变更
+
+为了支持 `1-30 + m/h/d` 的 FVG 周期自动计算，本地查价 API 的 `tf` 校验已放宽为“任意正整数分钟数”，不再只限制在固定枚举值。
+
+如果本地已经启动过旧版 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)，更新代码后需要重启 API，新的 FVG 自动计算才会生效。
+
 ```text
 backtesting-images/<year>/<yyyy-mm-dd>/
 ```

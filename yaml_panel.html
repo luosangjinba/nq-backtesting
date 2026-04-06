@@ -247,6 +247,21 @@
       .theme-shell .ring-offset-1 {
         --tw-ring-offset-color: transparent !important;
       }
+
+      .stats-dock {
+        width: min(19rem, calc(100vw - 1.5rem));
+      }
+
+      @media (min-width: 1280px) {
+        .stats-dock {
+          position: fixed;
+          left: 1rem;
+          top: 1.5rem;
+          bottom: 1.5rem;
+          z-index: 30;
+          overflow-y: auto;
+        }
+      }
     </style>
     <meta charset="utf-8">
     <title>Trading Journal YAML Builder</title>
@@ -284,18 +299,26 @@ const KEYPOINT_LABELS = [
   { value: 'midnight_open', label: 'Midnight Open' },
   { value: 'asia_high', label: 'Asia High' },
   { value: 'asia_low', label: 'Asia Low' },
+  { value: 'asia_swing_high', label: 'Asia Swing High' },
+  { value: 'asia_swing_low', label: 'Asia Swing Low' },
   { value: 'ldn_high', label: 'LDN High' },
   { value: 'ldn_low', label: 'LDN Low' },
-  { value: 'pm_high', label: 'PM High' },
-  { value: 'pm_low', label: 'PM Low' },
+  { value: 'ldn_swing_high', label: 'LDN Swing High' },
+  { value: 'ldn_swing_low', label: 'LDN Swing Low' },
   { value: 'transition_high', label: 'Transition High' },
   { value: 'transition_low', label: 'Transition Low' },
+  { value: 'transition_swing_high', label: 'Transition Swing High' },
+  { value: 'transition_swing_low', label: 'Transition Swing Low' },
+  { value: 'pm_high', label: 'PM High' },
+  { value: 'pm_low', label: 'PM Low' },
+  { value: 'pm_swing_high', label: 'PM Swing High' },
+  { value: 'pm_swing_low', label: 'PM Swing Low' },
   { value: 'prev_day_high', label: 'Prev Day High' },
   { value: 'prev_day_low', label: 'Prev Day Low' },
+  { value: 'prev_day_swing_high', label: 'Prev Day Swing High' },
+  { value: 'prev_day_swing_low', label: 'Prev Day Swing Low' },
   { value: 'globex_high', label: 'Globex High' },
   { value: 'globex_low', label: 'Globex Low' },
-  { value: 'orr_high', label: 'ORR High' },
-  { value: 'orr_low', label: 'ORR Low' },
   { value: 'other', label: '其他 (自定义)' }
 ];
 
@@ -315,6 +338,20 @@ const SESSION_MAP = [
 const SHAPE_OPTIONS = [
   { value: 'v_reversal', label: 'V Reversal' },
   { value: 'normal_reversal', label: 'Normal Reversal' }
+];
+
+const SEGMENT_ACTION_OPTIONS = [
+  { value: 'sweep', label: 'Sweep 某个关键点' },
+  { value: 'eqh', label: '与关键点形成 EQH' },
+  { value: 'eql', label: '与关键点形成 EQL' },
+  { value: 'tap_fvg', label: 'Tap 某个 FVG' }
+];
+
+const FVG_TIMEFRAME_NUM_OPTIONS = Array.from({ length: 30 }, (_, index) => String(index + 1));
+const FVG_TIMEFRAME_UNIT_OPTIONS = [
+  { value: 'm', label: 'm' },
+  { value: 'h', label: 'h' },
+  { value: 'd', label: 'd' }
 ];
 
 const REASON_OPTIONS = [
@@ -1070,11 +1107,19 @@ function makeInitialPts() {
 }
 
 function makeInitialSegs() {
-  return [{ id: nid(), st: '', et: '', dir: '', consBias: '', note: '', images: [] }];
+  return [{ id: nid(), st: '', et: '', dir: '', consBias: '', note: '', actions: [], images: [] }];
 }
 
 function makeInitialOrr() {
   return { st: '', et: '', note: '', images: [] };
+}
+
+function makeInitialPremarketFvgs() {
+  return [{ id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+}
+
+function makeInitialIntradayFvgs() {
+  return [{ id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
 }
 
 function makeInitialExecs() {
@@ -1097,18 +1142,107 @@ function inferLookupFieldForKeyPoint(labelValue) {
   return '';
 }
 
-function inferSuggestedKeyPointLabel(dayOffset, timeStr, field) {
-  var normalizedField = String(field || '').toLowerCase();
+function parseFvgTimeframe(raw) {
+  var value = String(raw || '').trim().toLowerCase();
+  var m = value.match(/^(\d{1,2})\s*([mhd])$/);
+  if (!m) return { num: '', unit: 'm' };
+  var num = Number(m[1]);
+  if (!num || num < 1 || num > 30) return { num: '', unit: 'm' };
+  return { num: String(num), unit: m[2] };
+}
+
+function formatFvgTimeframe(num, unit) {
+  var n = String(num || '').trim();
+  var u = String(unit || '').trim().toLowerCase();
+  if (!n || !u) return '';
+  return n + u;
+}
+
+function fvgTimeframeToMinutes(num, unit) {
+  var n = parseInt(String(num || '').trim(), 10);
+  var u = String(unit || '').trim().toLowerCase();
+  if (!n || n <= 0) return 0;
+  if (u === 'm') return n;
+  if (u === 'h') return n * 60;
+  if (u === 'd') return n * 1440;
+  return 0;
+}
+
+function inferSuggestedKeyPointLabel(labelValue, dayOffset, timeStr) {
+  var normalizedLabel = String(labelValue || '').toLowerCase();
   var offset = normalizeDayOffset(dayOffset);
   var minute = timeToMin(timeStr);
-  if (minute < 0 || !normalizedField) return 'Other Label';
+  if (minute < 0 || !normalizedLabel) return 'Other Label';
 
-  if (normalizedField === 'open') {
+  if (normalizedLabel === 'ny_open') {
+    return offset === 0 && timeStr === '09:30' ? 'NY Open' : 'Other Label';
+  }
+
+  if (normalizedLabel === 'midnight_open') {
+    return offset === 0 && timeStr === '00:00' ? 'Midnight Open' : 'Other Label';
+  }
+
+  function inOvernightWindow(startMinute, endMinute) {
+    return offset === 0 && minute >= startMinute && minute <= endMinute;
+  }
+
+  function inGlobexWindow() {
+    return (offset === -1 && minute >= 18 * 60) || (offset === 0 && minute <= 9 * 60 + 29);
+  }
+
+  if (normalizedLabel.indexOf('asia_') === 0) {
+    if ((offset === -1 && minute >= 18 * 60) || (offset === 0 && minute <= 1 * 60 + 59)) {
+      return normalizedLabel.indexOf('_high') >= 0 ? 'Asia High' : 'Asia Low';
+    }
+    return 'Other Label';
+  }
+
+  if (normalizedLabel.indexOf('ldn_') === 0) {
+    if (inOvernightWindow(2 * 60, 4 * 60 + 59)) {
+      return normalizedLabel.indexOf('_high') >= 0 ? 'LDN High' : 'LDN Low';
+    }
+    return 'Other Label';
+  }
+
+  if (normalizedLabel.indexOf('transition_') === 0) {
+    if (inOvernightWindow(5 * 60, 6 * 60 + 59)) {
+      return normalizedLabel.indexOf('_high') >= 0 ? 'Transition High' : 'Transition Low';
+    }
+    return 'Other Label';
+  }
+
+  if (normalizedLabel.indexOf('pm_') === 0) {
+    if (inOvernightWindow(7 * 60, 9 * 60 + 29)) {
+      return normalizedLabel.indexOf('_high') >= 0 ? 'PM High' : 'PM Low';
+    }
+    return 'Other Label';
+  }
+
+  if (normalizedLabel.indexOf('globex_') === 0) {
+    if (inGlobexWindow()) {
+      return normalizedLabel.indexOf('_high') >= 0 ? 'Globex High' : 'Globex Low';
+    }
+    return 'Other Label';
+  }
+
+  if (normalizedLabel.indexOf('prev_day_') === 0) {
+    if (offset === -1) {
+      return normalizedLabel.indexOf('_high') >= 0 ? 'Prev Day High' : 'Prev Day Low';
+    }
+    return 'Other Label';
+  }
+
+  if (normalizedLabel === 'other') {
+    return 'Other Label';
+  }
+
+  if (inferLookupFieldForKeyPoint(normalizedLabel) === 'open') {
     if (offset === 0 && timeStr === '09:30') return 'NY Open';
     if (offset === 0 && timeStr === '00:00') return 'Midnight Open';
     return 'Other Label';
   }
 
+  var normalizedField = inferLookupFieldForKeyPoint(normalizedLabel);
   if (normalizedField !== 'high' && normalizedField !== 'low') {
     return 'Other Label';
   }
@@ -1119,6 +1253,13 @@ function inferSuggestedKeyPointLabel(dayOffset, timeStr, field) {
   if (offset === 0 && minute >= 5 * 60 && minute <= 6 * 60 + 59) return 'Transition ' + suffix;
   if (offset === 0 && minute >= 7 * 60 && minute <= 9 * 60 + 29) return 'PM ' + suffix;
   return 'Other Label';
+}
+
+function getKeyPointSessionStatus(labelValue, dayOffset, timeStr) {
+  if (!okTime(timeStr) || !labelValue) return '';
+  return inferSuggestedKeyPointLabel(labelValue, dayOffset, timeStr) === 'Other Label'
+    ? 'out of session'
+    : 'in session';
 }
 
 function parseYamlScalar(raw) {
@@ -1251,6 +1392,8 @@ function getViewportWidth() {
   var [pts, setPts] = _react.useState.call(void 0, makeInitialPts);
   var [segs, setSegs] = _react.useState.call(void 0, makeInitialSegs);
   var [orr, setOrr] = _react.useState.call(void 0, makeInitialOrr);
+  var [premarketFvgs, setPremarketFvgs] = _react.useState.call(void 0, makeInitialPremarketFvgs);
+  var [intradayFvgs, setIntradayFvgs] = _react.useState.call(void 0, makeInitialIntradayFvgs);
   var [execs, setExecs] = _react.useState.call(void 0, makeInitialExecs);
   var [revs, setRevs] = _react.useState.call(void 0, makeInitialRevs);
   var [entries, setEntries] = _react.useState.call(void 0, makeInitialEntries);
@@ -1321,11 +1464,81 @@ function getViewportWidth() {
     return 'other';
   }
 
+  function formatDayOffsetLabel(dayOffset) {
+    return 'T' + (dayOffset < 0 ? dayOffset : '-0');
+  }
+
+  function findPtBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < pts.length; i++) {
+      if (String(pts[i].id) === raw && okTime(pts[i].time)) return pts[i];
+    }
+    for (var j = 0; j < pts.length; j++) {
+      if (pts[j].time === raw && okTime(pts[j].time)) return pts[j];
+    }
+    return null;
+  }
+
   function findPtByTime(timeVal) {
     for (var i = 0; i < pts.length; i++) {
       if (pts[i].time === timeVal && okTime(pts[i].time)) return pts[i];
     }
     return null;
+  }
+
+  function getPtTimeValue(selectionVal) {
+    var pt = findPtBySelection(selectionVal);
+    if (pt && okTime(pt.time)) return pt.time;
+    return okTime(selectionVal) ? selectionVal : '';
+  }
+
+  function getPtSelectValue(selectionVal) {
+    var pt = findPtBySelection(selectionVal);
+    return pt ? String(pt.id) : String(selectionVal || '');
+  }
+
+  function findPremarketFvgBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < premarketFvgs.length; i++) {
+      if (String(premarketFvgs[i].id) === raw) return premarketFvgs[i];
+    }
+    return null;
+  }
+
+  function getPremarketFvgSelectValue(selectionVal) {
+    var fvg = findPremarketFvgBySelection(selectionVal);
+    return fvg ? String(fvg.id) : String(selectionVal || '');
+  }
+
+  function findIntradayFvgBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < intradayFvgs.length; i++) {
+      if (String(intradayFvgs[i].id) === raw) return intradayFvgs[i];
+    }
+    return null;
+  }
+
+  function getIntradayFvgSelectValue(selectionVal) {
+    var fvg = findIntradayFvgBySelection(selectionVal);
+    return fvg ? String(fvg.id) : String(selectionVal || '');
+  }
+
+  function getFvgLabel(fvg) {
+    if (!fvg) return '';
+    var parts = [];
+    parts.push(formatDayOffsetLabel(normalizeDayOffset(fvg.dayOffset)));
+    var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
+    if (timeframe) parts.push(timeframe);
+    if (fvg.middleTime) parts.push('@ ' + fvg.middleTime);
+    if (fvg.direction) parts.push(fvg.direction);
+    var range = [];
+    if (fvg.high) range.push('H ' + fvg.high);
+    if (fvg.low) range.push('L ' + fvg.low);
+    if (range.length > 0) parts.push(range.join(' / '));
+    return parts.join('  ');
   }
 
   function findExecByTime(timeVal) {
@@ -1336,8 +1549,8 @@ function getViewportWidth() {
   }
 
   function autoDetectDir(stTime, etTime) {
-    var stPt = findPtByTime(stTime);
-    var etPt = findPtByTime(etTime);
+    var stPt = findPtBySelection(stTime);
+    var etPt = findPtBySelection(etTime);
     if (stPt && etPt && stPt.price && etPt.price) {
       var sp = parseFloat(stPt.price);
       var ep = parseFloat(etPt.price);
@@ -1350,8 +1563,8 @@ function getViewportWidth() {
   }
 
   var tps = pts.filter(p => p.time && okTime(p.time)).map(p => ({
-    value: p.time,
-    label: (getLabelText(p) || p.time) + (getLabelText(p) ? ' (' + p.time + ')' : ''),
+    value: String(p.id),
+    label: (getLabelText(p) || p.time) + (getLabelText(p) ? ' (' + formatDayOffsetLabel(normalizeDayOffset(p.dayOffset)) + ' ' + p.time + ')' : ''),
     price: p.price
   }));
   var noTp = tps.length === 0;
@@ -1367,6 +1580,67 @@ function getViewportWidth() {
     };
   });
   var noExecOpts = execOpts.length === 0;
+  var premarketFvgOptions = premarketFvgs.filter(fvg => fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)).map(fvg => ({
+    value: String(fvg.id),
+    label: getFvgLabel(fvg)
+  }));
+  var noPremarketFvg = premarketFvgOptions.length === 0;
+  var intradayFvgOptions = intradayFvgs.filter(fvg => fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)).map(fvg => ({
+    value: String(fvg.id),
+    label: getFvgLabel(fvg)
+  }));
+  var noIntradayFvg = intradayFvgOptions.length === 0;
+
+  var validNewsCount = news.filter(n => n && n.event).length;
+  var basicInfoImageCount = basicInfoImages.length;
+  var validPtsCount = pts.filter(p => p && p.time && okTime(p.time)).length;
+  var ptImageCount = pts.reduce((sum, p) => sum + ((p && Array.isArray(p.images)) ? p.images.length : 0), 0);
+  var validPremarketFvgCount = premarketFvgs.filter(fvg => fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)).length;
+  var validSegsCount = segs.filter(s => s && (s.st || s.et || s.dir || s.consBias || s.note || (Array.isArray(s.actions) && s.actions.length > 0) || (Array.isArray(s.images) && s.images.length > 0))).length;
+  var segImageCount = segs.reduce((sum, s) => sum + ((s && Array.isArray(s.images)) ? s.images.length : 0), 0);
+  var orrFilled = !!(orr && (orr.st || orr.et || orr.note || (Array.isArray(orr.images) && orr.images.length > 0)));
+  var orrImageCount = orr && Array.isArray(orr.images) ? orr.images.length : 0;
+  var validExecsCount = execs.filter(e => e && (e.time || e.price || e.note || (Array.isArray(e.images) && e.images.length > 0))).length;
+  var execImageCount = execs.reduce((sum, e) => sum + ((e && Array.isArray(e.images)) ? e.images.length : 0), 0);
+  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.length > 0) || r.smt || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
+  var revImageCount = revs.reduce((sum, r) => sum + ((r && Array.isArray(r.images)) ? r.images.length : 0), 0);
+  var validEntriesCount = entries.filter(en => en && (en.time || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
+  var entryImageCount = entries.reduce((sum, en) => sum + ((en && Array.isArray(en.images)) ? en.images.length : 0), 0);
+  var statsSections = [
+    {
+      title: '基本信息',
+      accent: 'rgba(123, 167, 255, 0.9)',
+      items: [
+        { label: 'Red Folder News', value: validNewsCount + ' 条' },
+        { label: '整体图片记录', value: basicInfoImageCount + ' 张' }
+      ]
+    },
+    {
+      title: '隔夜结构',
+      accent: 'rgba(168, 145, 255, 0.9)',
+      items: [
+        { label: '隔夜关键点', value: validPtsCount + ' 个' },
+        { label: '关键点图片', value: ptImageCount + ' 张' },
+        { label: '盘前关键 FVG', value: validPremarketFvgCount + ' 个' },
+        { label: '行情段', value: validSegsCount + ' 段' },
+        { label: '行情段图片', value: segImageCount + ' 张' },
+        { label: 'Open Ref Range', value: orrFilled ? '已填写' : '未填写' },
+        { label: 'ORR 图片', value: orrImageCount + ' 张' }
+      ]
+    },
+    {
+      title: '执行与入场',
+      accent: 'rgba(244, 196, 110, 0.95)',
+      items: [
+        { label: '执行关键点', value: validExecsCount + ' 个' },
+        { label: '执行点图片', value: execImageCount + ' 张' },
+        { label: 'Reversals', value: validRevsCount + ' 个' },
+        { label: 'Reversal 图片', value: revImageCount + ' 张' },
+        { label: '入场记录', value: validEntriesCount + ' 笔' },
+        { label: '入场图片', value: entryImageCount + ' 张' }
+      ]
+    }
+  ];
 
   var reversalOptions = revs.filter(r => r.execRef).map((r, idx) => {
     var sess = calcSession(r.execRef);
@@ -1405,6 +1679,28 @@ function getViewportWidth() {
   }
 
   function updSeg(id, f, v) { setSegs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
+  function updPremarketFvg(id, field, value) { setPremarketFvgs(p => p.map(x => x.id === id ? { ...x, [field]: value } : x)); }
+  function updIntradayFvg(id, field, value) { setIntradayFvgs(p => p.map(x => x.id === id ? { ...x, [field]: value } : x)); }
+  function updSegAction(segId, actionId, field, value) {
+    setSegs(p => p.map(seg => seg.id === segId
+      ? { ...seg, actions: (seg.actions || []).map(action => action.id === actionId ? { ...action, [field]: value } : action) }
+      : seg
+    ));
+  }
+
+  function addSegAction(segId) {
+    setSegs(p => p.map(seg => seg.id === segId
+      ? { ...seg, actions: [...(seg.actions || []), { id: nid(), type: '', ref: '', note: '' }] }
+      : seg
+    ));
+  }
+
+  function removeSegAction(segId, actionId) {
+    setSegs(p => p.map(seg => seg.id === segId
+      ? { ...seg, actions: (seg.actions || []).filter(action => action.id !== actionId) }
+      : seg
+    ));
+  }
   function updExec(id, f, v) { setExecs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
   function updRev(id, f, v) { setRevs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
   function updEntry(id, f, v) { setEntries(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
@@ -1473,10 +1769,12 @@ function getViewportWidth() {
         setPts(makeInitialPts());
         setSegs(makeInitialSegs());
         setOrr(makeInitialOrr());
+        setPremarketFvgs(makeInitialPremarketFvgs());
       };
     } else if (tab === 2) {
       action = () => {
         setExecs(makeInitialExecs());
+        setIntradayFvgs(makeInitialIntradayFvgs());
         setRevs(makeInitialRevs());
       };
     } else if (tab === 3) {
@@ -1507,6 +1805,8 @@ function getViewportWidth() {
       setPts(makeInitialPts());
       setSegs(makeInitialSegs());
       setOrr(makeInitialOrr());
+      setPremarketFvgs(makeInitialPremarketFvgs());
+      setIntradayFvgs(makeInitialIntradayFvgs());
       setExecs(makeInitialExecs());
       setRevs(makeInitialRevs());
       setEntries(makeInitialEntries());
@@ -1544,6 +1844,24 @@ function getViewportWidth() {
       };
     }).filter(item => item.time || item.price || item.customLabel || item.label || item.images.length > 0) : makeInitialPts();
 
+    var importedPremarketFvgs = Array.isArray(overnight.premarket_key_fvgs) ? overnight.premarket_key_fvgs.map(item => ({
+      id: nid(),
+      dayOffset: normalizeDayOffset(item && item.day_offset),
+      timeframeNum: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
+      timeframeUnit: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
+      middleTime: item && typeof item.middle_candle_time === 'string' ? item.middle_candle_time : '',
+      direction: item && typeof item.direction === 'string' ? item.direction : '',
+      high: item && item.fvg_high != null ? String(item.fvg_high) : '',
+      low: item && item.fvg_low != null ? String(item.fvg_low) : ''
+    })).filter(item => item.timeframeNum || item.middleTime || item.direction || item.high || item.low) : makeInitialPremarketFvgs();
+
+    var importedFvgRefMap = {};
+    importedPremarketFvgs.forEach(item => {
+      importedFvgRefMap[
+        normalizeDayOffset(item.dayOffset) + '|' + formatFvgTimeframe(item.timeframeNum, item.timeframeUnit) + '|' + (item.middleTime || '')
+      ] = String(item.id);
+    });
+
     var importedSegs = Array.isArray(overnight.market_segments) ? overnight.market_segments.map(item => ({
       id: nid(),
       st: item && typeof item.start === 'string' ? item.start : '',
@@ -1551,8 +1869,20 @@ function getViewportWidth() {
       dir: item && typeof item.direction === 'string' ? item.direction : '',
       consBias: item && typeof item.bias === 'string' ? item.bias : '',
       note: item && typeof item.note === 'string' ? item.note : '',
+      actions: item && Array.isArray(item.actions) ? item.actions.map(action => ({
+        id: nid(),
+        type: action && typeof action.type === 'string' ? action.type : '',
+        ref: action && typeof action.type === 'string' && action.type === 'tap_fvg'
+          ? (importedFvgRefMap[
+              normalizeDayOffset(action && action.fvg_day_offset) + '|' +
+              (action && typeof action.fvg_timeframe === 'string' ? action.fvg_timeframe : '') + '|' +
+              (action && typeof action.fvg_middle_candle_time === 'string' ? action.fvg_middle_candle_time : '')
+            ] || '')
+          : (action && typeof action.key_point === 'string' ? action.key_point : ''),
+        note: action && typeof action.note === 'string' ? action.note : ''
+      })).filter(action => action.type || action.ref || action.note) : [],
       images: normalizeImportedImages(item && item.images)
-    })).filter(item => item.st || item.et || item.dir || item.consBias || item.note || item.images.length > 0) : makeInitialSegs();
+    })).filter(item => item.st || item.et || item.dir || item.consBias || item.note || item.actions.length > 0 || item.images.length > 0) : makeInitialSegs();
 
     var importedOrr = overnight.open_reference_range && typeof overnight.open_reference_range === 'object'
       ? {
@@ -1564,6 +1894,16 @@ function getViewportWidth() {
       : makeInitialOrr();
 
     var execution = parsed.execution_observation || {};
+    var importedIntradayFvgs = Array.isArray(execution.intraday_fvgs) ? execution.intraday_fvgs.map(item => ({
+      id: nid(),
+      dayOffset: normalizeDayOffset(item && item.day_offset),
+      timeframeNum: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
+      timeframeUnit: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
+      middleTime: item && typeof item.middle_candle_time === 'string' ? item.middle_candle_time : '',
+      direction: item && typeof item.direction === 'string' ? item.direction : '',
+      high: item && item.fvg_high != null ? String(item.fvg_high) : '',
+      low: item && item.fvg_low != null ? String(item.fvg_low) : ''
+    })).filter(item => item.dayOffset || item.timeframeNum || item.middleTime || item.direction || item.high || item.low) : makeInitialIntradayFvgs();
     var importedExecs = Array.isArray(execution.key_points) ? execution.key_points.map(item => ({
       id: nid(),
       time: item && typeof item.time === 'string' ? item.time : '',
@@ -1624,8 +1964,10 @@ function getViewportWidth() {
     setBasicInfoImages(importedBasicInfoImages);
     setNews(importedNews);
     setPts(importedPts.length ? importedPts : makeInitialPts());
+    setPremarketFvgs(importedPremarketFvgs.length ? importedPremarketFvgs : makeInitialPremarketFvgs());
     setSegs(importedSegs.length ? importedSegs : makeInitialSegs());
     setOrr(importedOrr);
+    setIntradayFvgs(importedIntradayFvgs.length ? importedIntradayFvgs : makeInitialIntradayFvgs());
     setExecs(importedExecs.length ? importedExecs : makeInitialExecs());
     setRevs(importedRevs.length ? importedRevs : makeInitialRevs());
     setEntries(importedEntries.length ? importedEntries : makeInitialEntries());
@@ -1722,6 +2064,142 @@ function getViewportWidth() {
     return ep ? ep.price : '';
   }
 
+  function getSegmentActionLabel(type) {
+    for (var i = 0; i < SEGMENT_ACTION_OPTIONS.length; i++) {
+      if (SEGMENT_ACTION_OPTIONS[i].value === type) return SEGMENT_ACTION_OPTIONS[i].label;
+    }
+    return '';
+  }
+
+  async function computeFvg(target, saveRecord) {
+    if (!target) return;
+
+    var timeframe = fvgTimeframeToMinutes(target.timeframeNum, target.timeframeUnit);
+    if (!timeframe) {
+      setLookupError('请先为 FVG 选择有效周期。');
+      return;
+    }
+    if (!okTime(target.middleTime)) {
+      setLookupError('请先填写 FVG 的中间K线时间。');
+      return;
+    }
+
+    var effectiveDate = shiftIsoDate(date, target.dayOffset);
+    if (!effectiveDate || !/^\d{4}-\d{2}-\d{2}$/.test(effectiveDate)) {
+      setLookupError('FVG 的有效日期无效。');
+      return;
+    }
+
+    var middleParts = parseLookupDateTime(effectiveDate, target.middleTime);
+    var middleMinuteId = minuteIdFromParts(middleParts);
+    if (middleMinuteId == null) {
+      setLookupError('盘前 FVG 的时间无法解析。');
+      return;
+    }
+
+    function minuteIdToDateTime(minuteId) {
+      var d = new Date(minuteId * 60000);
+      return {
+        date: d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()),
+        time: pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes())
+      };
+    }
+
+    var prevInfo = minuteIdToDateTime(middleMinuteId - timeframe);
+    var nextInfo = minuteIdToDateTime(middleMinuteId + timeframe);
+
+    setLookupLoading(true);
+    var prevResult = await runPriceLookup(prevInfo.date, prevInfo.time, String(timeframe), 'close');
+    if (prevResult.error) {
+      setLookupError('前一根K线查询失败：' + prevResult.error);
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+    var nextResult = await runPriceLookup(nextInfo.date, nextInfo.time, String(timeframe), 'close');
+    if (nextResult.error) {
+      setLookupError('后一根K线查询失败：' + nextResult.error);
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+
+    var prevOhlc = prevResult.ohlc || {};
+    var nextOhlc = nextResult.ohlc || {};
+    var prevHigh = parseFloat(prevOhlc.high);
+    var prevLow = parseFloat(prevOhlc.low);
+    var nextHigh = parseFloat(nextOhlc.high);
+    var nextLow = parseFloat(nextOhlc.low);
+
+    if ([prevHigh, prevLow, nextHigh, nextLow].some(isNaN)) {
+      setLookupError('FVG 自动计算失败：前后K线 OHLC 数据不完整。');
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+
+    var direction = '';
+    var high = '';
+    var low = '';
+    if (nextLow > prevHigh) {
+      direction = 'bullish';
+      high = String(nextLow);
+      low = String(prevHigh);
+    } else if (prevLow > nextHigh) {
+      direction = 'bearish';
+      high = String(prevLow);
+      low = String(nextHigh);
+    } else {
+      setLookupError('这组三根K线没有形成有效 FVG。');
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+
+    saveRecord(direction, high, low);
+    setLookupError('');
+    setLookupResult({
+      field: 'fvg',
+      timeframe: timeframe,
+      value: direction,
+      foundBars: (prevResult.foundBars || 0) + (nextResult.foundBars || 0),
+      expectedBars: (prevResult.expectedBars || 0) + (nextResult.expectedBars || 0),
+      startKey: prevResult.startKey,
+      endKey: nextResult.endKey,
+      missingBars: (prevResult.missingBars || 0) + (nextResult.missingBars || 0),
+      ohlc: { prev: prevOhlc, next: nextOhlc }
+    });
+    setLookupDate(effectiveDate);
+    setLookupTime(target.middleTime);
+    setLookupLoading(false);
+  }
+
+  async function computePremarketFvg(id) {
+    var target = null;
+    for (var i = 0; i < premarketFvgs.length; i++) {
+      if (premarketFvgs[i].id === id) {
+        target = premarketFvgs[i];
+        break;
+      }
+    }
+    await computeFvg(target, (direction, high, low) => {
+      setPremarketFvgs(p => p.map(fvg => fvg.id === id ? { ...fvg, direction: direction, high: high, low: low } : fvg));
+    });
+  }
+
+  async function computeIntradayFvg(id) {
+    var target = null;
+    for (var i = 0; i < intradayFvgs.length; i++) {
+      if (intradayFvgs[i].id === id) {
+        target = intradayFvgs[i];
+        break;
+      }
+    }
+    await computeFvg(target, (direction, high, low) => {
+      setIntradayFvgs(p => p.map(fvg => fvg.id === id ? { ...fvg, direction: direction, high: high, low: low } : fvg));
+    });
+  }
+
   function calcRR(en) {
     var ep = parseFloat(en.entryPrice);
     var sl = parseFloat(en.stop);
@@ -1775,6 +2253,7 @@ function getViewportWidth() {
         value: result.value,
         field: result.field,
         timeframe: result.timeframe,
+        ohlc: result.ohlc,
         foundBars: result.foundBars,
         expectedBars: result.expectedBars,
         startKey: result.startTs,
@@ -1872,17 +2351,50 @@ function getViewportWidth() {
         pushImagesYaml(L, 6, p.images);
       }
     });
-    if (segs.some(s => s.st || s.et)) {
+    if (premarketFvgs.some(fvg => fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
+      L.push('  premarket_key_fvgs:');
+      premarketFvgs.forEach(fvg => {
+        var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
+        if (fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
+          L.push('    - timeframe: ' + (timeframe || '""'));
+          L.push('      day_offset: ' + normalizeDayOffset(fvg.dayOffset));
+          L.push('      middle_candle_time: "' + (fvg.middleTime || '') + '"');
+          if (fvg.direction) L.push('      direction: ' + fvg.direction);
+          if (fvg.high) L.push('      fvg_high: ' + fvg.high);
+          if (fvg.low) L.push('      fvg_low: ' + fvg.low);
+        }
+      });
+    }
+    if (segs.some(s => s.st || s.et || (s.actions && s.actions.length > 0))) {
       L.push('  market_segments:');
       segs.forEach(s => {
-        if (s.st || s.et) {
-          L.push('    - start: "' + s.st + '"');
-          L.push('      end: "' + s.et + '"');
+        if (s.st || s.et || (s.actions && s.actions.length > 0)) {
+          L.push('    - start: "' + getPtTimeValue(s.st) + '"');
+          L.push('      end: "' + getPtTimeValue(s.et) + '"');
           if (s.dir === 'consolidation') {
             L.push('      direction: consolidation');
             if (s.consBias) L.push('      bias: ' + s.consBias);
           } else if (s.dir) {
             L.push('      direction: ' + s.dir);
+          }
+          if (s.actions && s.actions.length > 0) {
+            var validActions = s.actions.filter(action => action && (action.type || action.ref || action.note));
+            if (validActions.length > 0) {
+                L.push('      actions:');
+              validActions.forEach(action => {
+                L.push('        - type: ' + (action.type || '""'));
+                if (action.type === 'tap_fvg') {
+                  var actionFvg = findPremarketFvgBySelection(action.ref);
+                  var actionFvgTimeframe = actionFvg ? formatFvgTimeframe(actionFvg.timeframeNum, actionFvg.timeframeUnit) : '';
+                  if (actionFvg) L.push('          fvg_day_offset: ' + normalizeDayOffset(actionFvg.dayOffset));
+                  if (actionFvgTimeframe) L.push('          fvg_timeframe: ' + actionFvgTimeframe);
+                  if (actionFvg && actionFvg.middleTime) L.push('          fvg_middle_candle_time: "' + actionFvg.middleTime + '"');
+                } else if (action.ref) {
+                  L.push('          key_point: "' + getPtTimeValue(action.ref) + '"');
+                }
+                if (action.note) L.push('          note: ' + action.note);
+              });
+            }
           }
           if (s.note) L.push('      note: ' + s.note);
           pushImagesYaml(L, 6, s.images);
@@ -1890,8 +2402,8 @@ function getViewportWidth() {
       });
     }
     L.push('  open_reference_range:');
-    L.push('    start: "' + orr.st + '"');
-    L.push('    end: "' + orr.et + '"');
+    L.push('    start: "' + getPtTimeValue(orr.st) + '"');
+    L.push('    end: "' + getPtTimeValue(orr.et) + '"');
     if (orr.note) L.push('    note: ' + orr.note);
     pushImagesYaml(L, 4, orr.images);
     L.push('');
@@ -1904,6 +2416,20 @@ function getViewportWidth() {
           if (e.price) L.push('      price: ' + e.price);
           if (e.note) L.push('      note: ' + e.note);
           pushImagesYaml(L, 6, e.images);
+        }
+      });
+    }
+    if (intradayFvgs.some(fvg => fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
+      L.push('  intraday_fvgs:');
+      intradayFvgs.forEach(fvg => {
+        var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
+        if (fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
+          L.push('    - timeframe: ' + (timeframe || '""'));
+          L.push('      day_offset: ' + normalizeDayOffset(fvg.dayOffset));
+          L.push('      middle_candle_time: "' + (fvg.middleTime || '') + '"');
+          if (fvg.direction) L.push('      direction: ' + fvg.direction);
+          if (fvg.high) L.push('      fvg_high: ' + fvg.high);
+          if (fvg.low) L.push('      fvg_low: ' + fvg.low);
         }
       });
     }
@@ -2176,6 +2702,7 @@ function getViewportWidth() {
   function renderTab1() {
     var overnightTheme = getSectionTheme('overnight');
     var segmentTheme = getSectionTheme('segment');
+    var fvgTheme = getSectionTheme('reversal');
     var orrTheme = getSectionTheme('orr');
     return (
       _react2.default.createElement('div', null
@@ -2186,6 +2713,7 @@ function getViewportWidth() {
             var bad = pt.time !== '' && !okTime(pt.time);
             var inferredField = inferLookupFieldForKeyPoint(pt.label);
             var effectiveDate = shiftIsoDate(date, pt.dayOffset);
+            var sessionStatus = getKeyPointSessionStatus(pt.label, pt.dayOffset, pt.time);
             return (
               _react2.default.createElement('div', { key: pt.id, className: "mb-3",}
                 , _react2.default.createElement('div', { className: "flex items-start gap-2"  ,}
@@ -2211,6 +2739,7 @@ function getViewportWidth() {
                     , _react2.default.createElement('input', { type: "text", value: pt.price, onChange: e => updPt(pt.id, 'price', e.target.value), placeholder: "价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"          ,} )
                     , _react2.default.createElement('button', { onClick: () => applyLookupResult(effectiveDate, pt.time, v => updPt(pt.id, 'price', v), inferredField ? { field: inferredField, date: effectiveDate } : { date: effectiveDate }), className: "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"     ,}, inferredField ? "自动填 " + inferredField.toUpperCase() : "用当前查询设置填价")
                     , inferredField && _react2.default.createElement('p', { className: "mt-1 text-[10px] text-gray-400 whitespace-nowrap leading-none" ,}, "OHLC ", _react2.default.createElement('span', { className: "text-indigo-500 font-medium uppercase" ,}, inferredField))
+                    , sessionStatus && _react2.default.createElement('p', { className: `mt-1 text-[10px] whitespace-nowrap leading-none font-medium ${sessionStatus === 'in session' ? 'text-emerald-400' : 'text-rose-400'}` }, sessionStatus)
                   )
                   , _react2.default.createElement('button', { onClick: () => { if (pts.length > 1) setPts(p => p.filter(x => x.id !== pt.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5"   ,}, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} ))
                 )
@@ -2226,6 +2755,65 @@ function getViewportWidth() {
             );
           })
           , _react2.default.createElement('button', { onClick: () => setPts(p => [...p, { id: nid(), label: '', customLabel: '', dayOffset: 0, time: '', price: '', images: [] }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
+        )
+
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: fvgTheme.card }
+          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: fvgTheme.title }, "盘前关键 FVG")
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "记录盘前值得关注的 FVG，供下面行情段里的 tap FVG 直接引用。")
+          , premarketFvgs.map((fvg, idx) => (
+            _react2.default.createElement('div', { key: fvg.id, className: "mb-3" }
+              , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-6 gap-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "T日")
+                    , _react2.default.createElement('select', { value: String(normalizeDayOffset(fvg.dayOffset)), onChange: e => updPremarketFvg(fvg.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'fvg_' + o.label, value: String(o.value) }, o.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
+                    , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-2" }
+                      , _react2.default.createElement('select', { value: fvg.timeframeNum, onChange: e => updPremarketFvg(fvg.id, 'timeframeNum', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , _react2.default.createElement('option', { value: "" }, "数字")
+                        , FVG_TIMEFRAME_NUM_OPTIONS.map(num => _react2.default.createElement('option', { key: num, value: num }, num))
+                      )
+                      , _react2.default.createElement('select', { value: fvg.timeframeUnit || 'm', onChange: e => updPremarketFvg(fvg.id, 'timeframeUnit', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , FVG_TIMEFRAME_UNIT_OPTIONS.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
+                      )
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "中间K线时间")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.middleTime, onChange: e => updPremarketFvg(fvg.id, 'middleTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "方向")
+                    , _react2.default.createElement('select', { value: fvg.direction, onChange: e => updPremarketFvg(fvg.id, 'direction', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "自动计算")
+                      , _react2.default.createElement('option', { value: "bullish" }, "bullish")
+                      , _react2.default.createElement('option', { value: "bearish" }, "bearish")
+                    )
+                    , _react2.default.createElement('button', { type: "button", onClick: () => computePremarketFvg(fvg.id), className: lookupLoading ? "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-200 text-indigo-700 border border-indigo-200 cursor-wait" : "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '自动计算 FVG')
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG High")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.high, onChange: e => updPremarketFvg(fvg.id, 'high', e.target.value), placeholder: "高点价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG Low")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.low, onChange: e => updPremarketFvg(fvg.id, 'low', e.target.value), placeholder: "低点价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                )
+                , _react2.default.createElement('button', { onClick: () => { if (premarketFvgs.length > 1) setPremarketFvgs(p => p.filter(x => x.id !== fvg.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }
+                  , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
+                )
+              )
+            )
+          ))
+          , _react2.default.createElement('button', { onClick: () => setPremarketFvgs(p => [...p, { id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
+            , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 FVG"
+          )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: segmentTheme.card }
@@ -2254,14 +2842,14 @@ function getViewportWidth() {
                 , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-3 mb-3"   ,}
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "起始时间")
-                    , _react2.default.createElement('select', { disabled: noTp, value: seg.st, onChange: e => handleSegTimeChange(seg.id, 'st', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400"         ,}
+                    , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(seg.st), onChange: e => handleSegTimeChange(seg.id, 'st', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400"         ,}
                       , _react2.default.createElement('option', { value: "",}, "选择关键点...")
                       , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value,}, t.label))
                     )
                   )
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "结束时间")
-                    , _react2.default.createElement('select', { disabled: noTp, value: seg.et, onChange: e => handleSegTimeChange(seg.id, 'et', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400"         ,}
+                    , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(seg.et), onChange: e => handleSegTimeChange(seg.id, 'et', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400"         ,}
                       , _react2.default.createElement('option', { value: "",}, "选择关键点...")
                       , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value,}, t.label))
                     )
@@ -2316,6 +2904,53 @@ function getViewportWidth() {
                     )
                   )
                 )
+                , _react2.default.createElement('div', { className: "mb-3 p-3 rounded-lg border border-indigo-200 bg-indigo-50" ,}
+                  , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-2" ,}
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-xs font-medium text-indigo-700" ,}, "这段主要做了什么")
+                      , _react2.default.createElement('p', { className: "text-[11px] mt-1 text-indigo-500" ,}, "可记录 sweep 某个关键点、与关键点形成 EQH/EQL，或者 tap 了某个 FVG。")
+                    )
+                    , _react2.default.createElement('button', { type: "button", onClick: () => addSegAction(seg.id), className: "flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 whitespace-nowrap" }
+                      , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" ,} ), "添加动作"
+                    )
+                  )
+                  , (!seg.actions || seg.actions.length === 0) && _react2.default.createElement('p', { className: "text-xs text-indigo-400 italic" ,}, "还没有记录动作。")
+                  , (seg.actions || []).map(action => (
+                    _react2.default.createElement('div', { key: action.id, className: "rounded-lg border border-indigo-200 bg-white px-3 py-3 mb-2 last:mb-0" ,}
+                      , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] gap-3 items-start" ,}
+                        , _react2.default.createElement('div', null
+                          , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "动作类型")
+                          , _react2.default.createElement('select', { value: action.type, onChange: e => updSegAction(seg.id, action.id, 'type', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                            , _react2.default.createElement('option', { value: "" }, "选择动作...")
+                            , SEGMENT_ACTION_OPTIONS.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
+                          )
+                        )
+                        , action.type !== 'tap_fvg'
+                          ? _react2.default.createElement('div', null
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, action.type === 'sweep' ? "关键点" : "对应关键点")
+                              , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                                , _react2.default.createElement('option', { value: "" }, "选择关键点...")
+                                , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value }, t.label))
+                              )
+                            )
+                          : _react2.default.createElement('div', null
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "盘前关键 FVG")
+                              , _react2.default.createElement('select', { disabled: noPremarketFvg, value: getPremarketFvgSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                                , _react2.default.createElement('option', { value: "" }, noPremarketFvg ? "请先录入盘前 FVG..." : "选择 FVG...")
+                                , premarketFvgOptions.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
+                              )
+                            )
+                        , _react2.default.createElement('button', { type: "button", onClick: () => removeSegAction(seg.id, action.id), className: "p-2 text-gray-400 hover:text-red-500 mt-5" }
+                          , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
+                        )
+                      )
+                      , action.type && _react2.default.createElement('div', { className: "mt-2" ,}
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "补充说明")
+                        , _react2.default.createElement('input', { type: "text", value: action.note, onChange: e => updSegAction(seg.id, action.id, 'note', e.target.value), placeholder: getSegmentActionLabel(action.type), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                      )
+                    )
+                  ))
+                )
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: seg.note, onChange: e => updSeg(seg.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
@@ -2324,7 +2959,7 @@ function getViewportWidth() {
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setSegs(p => [...p, { id: nid(), st: '', et: '', dir: '', consBias: '', note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-emerald-500 hover:text-emerald-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加行情段" )
+          , _react2.default.createElement('button', { onClick: () => setSegs(p => [...p, { id: nid(), st: '', et: '', dir: '', consBias: '', note: '', actions: [], images: [] }]), className: "flex items-center gap-1 text-sm text-emerald-500 hover:text-emerald-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加行情段" )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: orrTheme.card }
@@ -2339,14 +2974,14 @@ function getViewportWidth() {
           , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-3 mb-3"   ,}
             , _react2.default.createElement('div', null
               , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "起始时间")
-              , _react2.default.createElement('select', { disabled: noTp, value: orr.st, onChange: e => setOrr({ ...orr, st: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100"        ,}
+              , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(orr.st), onChange: e => setOrr({ ...orr, st: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100"        ,}
                 , _react2.default.createElement('option', { value: "",}, "选择关键点...")
                 , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value,}, t.label))
               )
             )
             , _react2.default.createElement('div', null
               , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "结束时间")
-              , _react2.default.createElement('select', { disabled: noTp, value: orr.et, onChange: e => setOrr({ ...orr, et: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100"        ,}
+              , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(orr.et), onChange: e => setOrr({ ...orr, et: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100"        ,}
                 , _react2.default.createElement('option', { value: "",}, "选择关键点...")
                 , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value,}, t.label))
               )
@@ -2356,8 +2991,8 @@ function getViewportWidth() {
             _react2.default.createElement('div', { className: "bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 mb-3"      ,}
               , _react2.default.createElement('p', { className: "text-xs text-blue-600 font-medium mb-1"   ,}, "引用价格：")
               , _react2.default.createElement('div', { className: "flex gap-6 text-xs text-blue-700"   ,}
-                , orr.st && (() => { var p = findPtByTime(orr.st); return p ? _react2.default.createElement('span', null, "起始: " , _react2.default.createElement('strong', null, getLabelText(p) || orr.st), " → "  , p.price || '(未填)') : null; })()
-                , orr.et && (() => { var p = findPtByTime(orr.et); return p ? _react2.default.createElement('span', null, "结束: " , _react2.default.createElement('strong', null, getLabelText(p) || orr.et), " → "  , p.price || '(未填)') : null; })()
+                , orr.st && (() => { var p = findPtBySelection(orr.st); return p ? _react2.default.createElement('span', null, "起始: " , _react2.default.createElement('strong', null, getLabelText(p) || getPtTimeValue(orr.st)), " → "  , p.price || '(未填)') : null; })()
+                , orr.et && (() => { var p = findPtBySelection(orr.et); return p ? _react2.default.createElement('span', null, "结束: " , _react2.default.createElement('strong', null, getLabelText(p) || getPtTimeValue(orr.et)), " → "  , p.price || '(未填)') : null; })()
               )
             )
           )
@@ -2373,6 +3008,7 @@ function getViewportWidth() {
 
   function renderTab2() {
     var execTheme = getSectionTheme('exec');
+    var intradayFvgTheme = getSectionTheme('segment');
     var reversalTheme = getSectionTheme('reversal');
     return (
       _react2.default.createElement('div', null
@@ -2421,6 +3057,65 @@ function getViewportWidth() {
             );
           })
           , _react2.default.createElement('button', { onClick: () => setExecs(p => [...p, { id: nid(), time: '', price: '', note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-orange-500 hover:text-orange-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
+        )
+
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: intradayFvgTheme.card }
+          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: intradayFvgTheme.title }, "盘中 FVG")
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "记录执行观察阶段识别到的盘中 FVG，计算逻辑与盘前关键 FVG 相同。")
+          , intradayFvgs.map((fvg, idx) => (
+            _react2.default.createElement('div', { key: fvg.id, className: "mb-3" }
+              , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-6 gap-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "T日")
+                    , _react2.default.createElement('select', { value: String(normalizeDayOffset(fvg.dayOffset)), onChange: e => updIntradayFvg(fvg.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'ifvg_' + o.label, value: String(o.value) }, o.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
+                    , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-2" }
+                      , _react2.default.createElement('select', { value: fvg.timeframeNum, onChange: e => updIntradayFvg(fvg.id, 'timeframeNum', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , _react2.default.createElement('option', { value: "" }, "数字")
+                        , FVG_TIMEFRAME_NUM_OPTIONS.map(num => _react2.default.createElement('option', { key: 'ifvg_num_' + fvg.id + '_' + num, value: num }, num))
+                      )
+                      , _react2.default.createElement('select', { value: fvg.timeframeUnit || 'm', onChange: e => updIntradayFvg(fvg.id, 'timeframeUnit', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , FVG_TIMEFRAME_UNIT_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'ifvg_unit_' + fvg.id + '_' + opt.value, value: opt.value }, opt.label))
+                      )
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "中间K线时间")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.middleTime, onChange: e => updIntradayFvg(fvg.id, 'middleTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "方向")
+                    , _react2.default.createElement('select', { value: fvg.direction, onChange: e => updIntradayFvg(fvg.id, 'direction', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "自动计算")
+                      , _react2.default.createElement('option', { value: "bullish" }, "bullish")
+                      , _react2.default.createElement('option', { value: "bearish" }, "bearish")
+                    )
+                    , _react2.default.createElement('button', { type: "button", onClick: () => computeIntradayFvg(fvg.id), className: lookupLoading ? "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-200 text-indigo-700 border border-indigo-200 cursor-wait" : "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '自动计算 FVG')
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG High")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.high, onChange: e => updIntradayFvg(fvg.id, 'high', e.target.value), placeholder: "高点价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG Low")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.low, onChange: e => updIntradayFvg(fvg.id, 'low', e.target.value), placeholder: "低点价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                )
+                , _react2.default.createElement('button', { onClick: () => { if (intradayFvgs.length > 1) setIntradayFvgs(p => p.filter(x => x.id !== fvg.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }
+                  , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
+                )
+              )
+            )
+          ))
+          , _react2.default.createElement('button', { onClick: () => setIntradayFvgs(p => [...p, { id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
+            , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘中 FVG"
+          )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: reversalTheme.card }
@@ -2876,6 +3571,37 @@ function getViewportWidth() {
 
   return (
     _react2.default.createElement('div', { className: "theme-shell min-h-screen p-6"  ,}
+      , _react2.default.createElement('aside', { className: "stats-dock mb-6 xl:mb-0"  ,}
+        , _react2.default.createElement('div', { className: "rounded-[28px] border border-slate-200 px-5 py-5 shadow-2xl"  , style: { background: 'linear-gradient(180deg, rgba(29, 36, 57, 0.95), rgba(20, 28, 45, 0.98))', borderColor: 'rgba(171, 172, 248, 0.24)' } }
+          , _react2.default.createElement('div', { className: "flex items-center gap-3 mb-4" ,}
+            , _react2.default.createElement('div', { className: "w-10 h-10 rounded-2xl flex items-center justify-center border" , style: { backgroundColor: 'rgba(123, 167, 255, 0.12)', borderColor: 'rgba(123, 167, 255, 0.26)' } }
+              , _react2.default.createElement('span', { className: "text-lg" ,}, "📈")
+            )
+            , _react2.default.createElement('div', null
+              , _react2.default.createElement('h2', { className: "text-sm font-semibold tracking-[0.24em] uppercase" , style: { color: '#d9dbff' } }, "实时统计")
+              , _react2.default.createElement('p', { className: "text-xs leading-5 mt-1" , style: { color: '#8d99b8' } }, "表单一变更，这里会立即更新。")
+            )
+          )
+          , _react2.default.createElement('div', { className: "space-y-3" ,}
+            , statsSections.map(section => (
+              _react2.default.createElement('div', { key: section.title, className: "rounded-2xl border px-4 py-3" , style: { backgroundColor: 'rgba(62, 72, 104, 0.36)', borderColor: 'rgba(159, 174, 219, 0.18)' } }
+                , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-3" ,}
+                  , _react2.default.createElement('span', { className: "inline-flex h-2.5 w-2.5 rounded-full" , style: { backgroundColor: section.accent } })
+                  , _react2.default.createElement('h3', { className: "text-xs font-semibold tracking-[0.2em] uppercase" , style: { color: '#edf1ff' } }, section.title)
+                )
+                , _react2.default.createElement('div', { className: "space-y-2" ,}
+                  , section.items.map(item => (
+                    _react2.default.createElement('div', { key: section.title + item.label, className: "flex items-center justify-between gap-3 text-sm" ,}
+                      , _react2.default.createElement('span', { style: { color: '#9eabd2' } }, item.label)
+                      , _react2.default.createElement('span', { className: "font-semibold" , style: { color: '#f7f1d8' } }, item.value)
+                    )
+                  ))
+                )
+              )
+            ))
+          )
+        )
+      )
       , _react2.default.createElement('div', { className: "max-w-5xl mx-auto rounded-[28px] border border-slate-200 px-6 py-7 shadow-2xl"  ,}
         , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-5"   ,}
           , _react2.default.createElement('div', { className: "w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center border border-indigo-200"      ,}
