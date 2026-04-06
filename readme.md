@@ -282,17 +282,29 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
   - `Sweep 某个关键点`
   - `与关键点形成 EQH`
   - `与关键点形成 EQL`
+  - `Sweep 某个 EQH/EQL`
   - `Tap 某个 FVG`
+  - `Fill 某个 FVG`
+  - `Tap 某个 NDOG/NWOG`
+  - `Tap 某个 NDOG/NWOG C.E.`
+  - `Fill 某个 NDOG/NWOG`
+- 隔夜结构新增 `EQH / EQL` 录入：
+  - 可从“隔夜关键点”中选择 `2 个或以上` 的关键点组成 `EQH/EQL`
+  - 支持图片上传
+  - 会进入左侧实时统计
+  - 可被行情段动作和 `Reversals -> Reasons` 直接引用
 - 左侧新增实时统计面板，实时显示：
   - `Red Folder News`
   - 基本信息图片数
   - 隔夜关键点数 / 图片数
+  - 隔夜 `EQH/EQL` 数 / 图片数
   - 盘前关键 FVG 数
   - 行情段数 / 图片数
   - `Open Reference Range` 是否填写 / 图片数
   - 执行关键点数 / 图片数
   - `Reversals` 数量 / 图片数
   - 入场记录数 / 图片数
+  - 所有这些区块都会按 `绿/黄/红` badge 区分已完成、部分待处理、空白占位
 
 ## FVG 结构
 
@@ -352,6 +364,49 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 - `fvg_day_offset`
 - `fvg_timeframe`
 - `fvg_middle_candle_time`
+
+## EQH / EQL 结构
+
+现在页面支持在 `隔夜结构` 中直接录入 `EQH / EQL`：
+
+- 字段：
+  - `type`: `eqh / eql`
+  - `key_points`: 由两个或以上隔夜关键点组成
+  - `images`
+- 导出 YAML 时会写到：
+  - `overnight_structure.eq_levels`
+
+示例结构：
+
+```yaml
+overnight_structure:
+  eq_levels:
+    - type: eqh
+      key_points:
+        - "T-1 18:32"
+        - "T-1 23:10"
+      images:
+        - url: "http://127.0.0.1:8765/images/..."
+          title: "EQH 标注"
+```
+
+行情段动作新增：
+
+- `sweep_eq_level`
+
+导出 YAML 时会带上：
+
+- `eq_level_type`
+- `eq_key_points`
+
+同时，`Reversals -> Reasons` 会动态汇总：
+
+- 隔夜关键点
+- 隔夜 `EQH/EQL`
+- 盘前关键 FVG
+- 关键 `NWOG/NDOG`
+- 执行关键点
+- 盘中 FVG
 
 ## API 变更
 

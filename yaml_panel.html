@@ -344,7 +344,17 @@ const SEGMENT_ACTION_OPTIONS = [
   { value: 'sweep', label: 'Sweep 某个关键点' },
   { value: 'eqh', label: '与关键点形成 EQH' },
   { value: 'eql', label: '与关键点形成 EQL' },
-  { value: 'tap_fvg', label: 'Tap 某个 FVG' }
+  { value: 'sweep_eq_level', label: 'Sweep 某个 EQH/EQL' },
+  { value: 'tap_fvg', label: 'Tap 某个 FVG' },
+  { value: 'fill_fvg', label: 'Fill 某个 FVG' },
+  { value: 'tap_gap', label: 'Tap 某个 NDOG/NWOG' },
+  { value: 'tap_gap_ce', label: 'Tap 某个 NDOG/NWOG C.E.' },
+  { value: 'fill_gap', label: 'Fill 某个 NDOG/NWOG' }
+];
+
+const EQ_LEVEL_TYPE_OPTIONS = [
+  { value: 'eqh', label: 'EQH' },
+  { value: 'eql', label: 'EQL' }
 ];
 
 const FVG_TIMEFRAME_NUM_OPTIONS = Array.from({ length: 30 }, (_, index) => String(index + 1));
@@ -1107,6 +1117,10 @@ function makeInitialPremarketFvgs() {
   return [{ id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
 }
 
+function makeInitialEqLevels() {
+  return [{ id: nid(), type: '', pointRefs: [], images: [] }];
+}
+
 function makeInitialOvernightGaps() {
   return [{ id: nid(), type: 'ndog', dayOffset: 0, startDate: '', startTime: '', endDate: '', endTime: '', direction: '', high: '', low: '' }];
 }
@@ -1386,6 +1400,7 @@ function getViewportWidth() {
   var [segs, setSegs] = _react.useState.call(void 0, makeInitialSegs);
   var [orr, setOrr] = _react.useState.call(void 0, makeInitialOrr);
   var [premarketFvgs, setPremarketFvgs] = _react.useState.call(void 0, makeInitialPremarketFvgs);
+  var [eqLevels, setEqLevels] = _react.useState.call(void 0, makeInitialEqLevels);
   var [overnightGaps, setOvernightGaps] = _react.useState.call(void 0, makeInitialOvernightGaps);
   var [intradayFvgs, setIntradayFvgs] = _react.useState.call(void 0, makeInitialIntradayFvgs);
   var [execs, setExecs] = _react.useState.call(void 0, makeInitialExecs);
@@ -1481,6 +1496,14 @@ function getViewportWidth() {
     return null;
   }
 
+  function findPtByDayOffsetAndTime(dayOffset, timeVal) {
+    var normalizedDayOffset = normalizeDayOffset(dayOffset);
+    for (var i = 0; i < pts.length; i++) {
+      if (normalizeDayOffset(pts[i].dayOffset) === normalizedDayOffset && pts[i].time === timeVal && okTime(pts[i].time)) return pts[i];
+    }
+    return null;
+  }
+
   function getPtTimeValue(selectionVal) {
     var pt = findPtBySelection(selectionVal);
     if (pt && okTime(pt.time)) return pt.time;
@@ -1504,6 +1527,97 @@ function getViewportWidth() {
   function getPremarketFvgSelectValue(selectionVal) {
     var fvg = findPremarketFvgBySelection(selectionVal);
     return fvg ? String(fvg.id) : String(selectionVal || '');
+  }
+
+  function findOvernightGapBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < overnightGaps.length; i++) {
+      if (String(overnightGaps[i].id) === raw) return overnightGaps[i];
+    }
+    return null;
+  }
+
+  function getOvernightGapSelectValue(selectionVal) {
+    var gap = findOvernightGapBySelection(selectionVal);
+    return gap ? String(gap.id) : String(selectionVal || '');
+  }
+
+  function normalizeEqLevelPointRefs(pointRefs) {
+    if (!Array.isArray(pointRefs)) return [];
+    var seen = {};
+    return pointRefs
+      .map(ref => {
+        var pt = findPtBySelection(ref);
+        return pt ? String(pt.id) : '';
+      })
+      .filter(ref => {
+        if (!ref || seen[ref]) return false;
+        seen[ref] = true;
+        return true;
+      });
+  }
+
+  function getEqLevelPointToken(pt) {
+    if (!pt || !okTime(pt.time)) return '';
+    return formatDayOffsetLabel(normalizeDayOffset(pt.dayOffset)) + ' ' + pt.time;
+  }
+
+  function getEqLevelSignatureFromTokens(type, tokens) {
+    return String(type || '').trim() + '|' + tokens.filter(Boolean).sort().join('||');
+  }
+
+  function getEqLevelSignatureFromRefs(type, pointRefs) {
+    return getEqLevelSignatureFromTokens(type, normalizeEqLevelPointRefs(pointRefs).map(ref => {
+      var pt = findPtBySelection(ref);
+      return getEqLevelPointToken(pt);
+    }));
+  }
+
+  function getEqLevelTypeLabel(type) {
+    for (var i = 0; i < EQ_LEVEL_TYPE_OPTIONS.length; i++) {
+      if (EQ_LEVEL_TYPE_OPTIONS[i].value === type) return EQ_LEVEL_TYPE_OPTIONS[i].label;
+    }
+    return '';
+  }
+
+  function isMeaningfulEqLevel(level) {
+    return !!(level && (
+      level.type ||
+      (Array.isArray(level.pointRefs) && level.pointRefs.length > 0) ||
+      (Array.isArray(level.images) && level.images.length > 0)
+    ));
+  }
+
+  function isCompleteEqLevel(level) {
+    return !!(level && level.type && normalizeEqLevelPointRefs(level.pointRefs).length >= 2);
+  }
+
+  function getEqLevelLabel(level) {
+    if (!level) return '';
+    var typeLabel = getEqLevelTypeLabel(level.type) || 'EQH/EQL';
+    var pointLabels = normalizeEqLevelPointRefs(level.pointRefs).map(ref => {
+      var pt = findPtBySelection(ref);
+      if (!pt) return '';
+      var name = getLabelText(pt) || pt.time || '未命名关键点';
+      var token = getEqLevelPointToken(pt);
+      return token ? name + ' (' + token + ')' : name;
+    }).filter(Boolean);
+    return typeLabel + (pointLabels.length > 0 ? ' · ' + pointLabels.join(' + ') : '');
+  }
+
+  function findEqLevelBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < eqLevels.length; i++) {
+      if (String(eqLevels[i].id) === raw) return eqLevels[i];
+    }
+    return null;
+  }
+
+  function getEqLevelSelectValue(selectionVal) {
+    var eqLevel = findEqLevelBySelection(selectionVal);
+    return eqLevel ? String(eqLevel.id) : String(selectionVal || '');
   }
 
   function findIntradayFvgBySelection(selectionVal) {
@@ -1571,6 +1685,38 @@ function getViewportWidth() {
     ));
   }
 
+  function isMeaningfulFvg(fvg) {
+    return !!(fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low));
+  }
+
+  function getCompletionBadgeMeta(filledCount, totalCount, labels) {
+    var filled = Number(filledCount || 0);
+    var total = Number(totalCount || 0);
+    var textLabels = labels || {};
+    if (total <= 0) {
+      return {
+        text: '0/0 ' + (textLabels.done || '已完成'),
+        style: { backgroundColor: 'rgba(52, 211, 153, 0.16)', borderColor: 'rgba(110, 231, 183, 0.42)', color: '#d8fff0' }
+      };
+    }
+    if (filled <= 0) {
+      return {
+        text: filled + '/' + total + ' ' + (textLabels.empty || '待处理'),
+        style: { backgroundColor: 'rgba(239, 68, 68, 0.16)', borderColor: 'rgba(252, 165, 165, 0.42)', color: '#ffe1e1' }
+      };
+    }
+    if (filled < total) {
+      return {
+        text: filled + '/' + total + ' ' + (textLabels.partial || '部分待处理'),
+        style: { backgroundColor: 'rgba(245, 158, 11, 0.16)', borderColor: 'rgba(252, 211, 77, 0.42)', color: '#fff0c7' }
+      };
+    }
+    return {
+      text: filled + '/' + total + ' ' + (textLabels.done || '已完成'),
+      style: { backgroundColor: 'rgba(52, 211, 153, 0.16)', borderColor: 'rgba(110, 231, 183, 0.42)', color: '#d8fff0' }
+    };
+  }
+
   function getExecPointReasonLabel(execPt) {
     if (!execPt) return '';
     var parts = ['执行关键点'];
@@ -1620,11 +1766,16 @@ function getViewportWidth() {
     };
   });
   var noExecOpts = execOpts.length === 0;
-  var premarketFvgOptions = premarketFvgs.filter(fvg => fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)).map(fvg => ({
+  var premarketFvgOptions = premarketFvgs.filter(isMeaningfulFvg).map(fvg => ({
     value: String(fvg.id),
     label: getFvgLabel(fvg)
   }));
   var noPremarketFvg = premarketFvgOptions.length === 0;
+  var eqLevelOptions = eqLevels.filter(isCompleteEqLevel).map(level => ({
+    value: String(level.id),
+    label: getEqLevelLabel(level)
+  }));
+  var noEqLevel = eqLevelOptions.length === 0;
   var overnightGapOptions = overnightGaps.filter(isMeaningfulOvernightGap).map(gap => ({
     value: String(gap.id),
     label: getOvernightGapLabel(gap)
@@ -1645,6 +1796,12 @@ function getViewportWidth() {
     .concat(
       premarketFvgOptions.map(opt => {
         var label = '盘前关键FVG · ' + opt.label;
+        return { value: label, label: label };
+      })
+    )
+    .concat(
+      eqLevelOptions.map(opt => {
+        var label = '隔夜 EQH/EQL · ' + opt.label;
         return { value: label, label: label };
       })
     )
@@ -1671,7 +1828,9 @@ function getViewportWidth() {
   var basicInfoImageCount = basicInfoImages.length;
   var validPtsCount = pts.filter(p => p && p.time && okTime(p.time)).length;
   var ptImageCount = pts.reduce((sum, p) => sum + ((p && Array.isArray(p.images)) ? p.images.length : 0), 0);
-  var validPremarketFvgCount = premarketFvgs.filter(fvg => fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)).length;
+  var validPremarketFvgCount = premarketFvgs.filter(isMeaningfulFvg).length;
+  var validEqLevelCount = eqLevels.filter(isCompleteEqLevel).length;
+  var eqLevelImageCount = eqLevels.reduce((sum, level) => sum + ((level && Array.isArray(level.images)) ? level.images.length : 0), 0);
   var validOvernightGapCount = overnightGaps.filter(isMeaningfulOvernightGap).length;
   var validSegsCount = segs.filter(s => s && (s.st || s.et || s.dir || s.consBias || s.note || (Array.isArray(s.actions) && s.actions.length > 0) || (Array.isArray(s.images) && s.images.length > 0))).length;
   var segImageCount = segs.reduce((sum, s) => sum + ((s && Array.isArray(s.images)) ? s.images.length : 0), 0);
@@ -1698,6 +1857,8 @@ function getViewportWidth() {
       items: [
         { label: '隔夜关键点', value: validPtsCount + ' 个' },
         { label: '关键点图片', value: ptImageCount + ' 张' },
+        { label: '隔夜 EQH/EQL', value: validEqLevelCount + ' 个' },
+        { label: 'EQH/EQL 图片', value: eqLevelImageCount + ' 张' },
         { label: '盘前关键 FVG', value: validPremarketFvgCount + ' 个' },
         { label: '关键 NWOG/NDOG', value: validOvernightGapCount + ' 个' },
         { label: '行情段', value: validSegsCount + ' 段' },
@@ -1758,6 +1919,12 @@ function getViewportWidth() {
 
   function updSeg(id, f, v) { setSegs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
   function updPremarketFvg(id, field, value) { setPremarketFvgs(p => p.map(x => x.id === id ? { ...x, [field]: value } : x)); }
+  function updEqLevel(id, field, value) {
+    setEqLevels(p => p.map(x => x.id === id
+      ? { ...x, [field]: field === 'pointRefs' ? normalizeEqLevelPointRefs(value) : value }
+      : x
+    ));
+  }
   function updOvernightGap(id, field, value) {
     setOvernightGaps(p => p.map(x => {
       if (x.id !== id) return x;
@@ -1777,7 +1944,11 @@ function getViewportWidth() {
   function updIntradayFvg(id, field, value) { setIntradayFvgs(p => p.map(x => x.id === id ? { ...x, [field]: value } : x)); }
   function updSegAction(segId, actionId, field, value) {
     setSegs(p => p.map(seg => seg.id === segId
-      ? { ...seg, actions: (seg.actions || []).map(action => action.id === actionId ? { ...action, [field]: value } : action) }
+      ? { ...seg, actions: (seg.actions || []).map(action => action.id === actionId ? {
+          ...action,
+          [field]: value,
+          ...(field === 'type' ? { ref: '' } : {})
+        } : action) }
       : seg
     ));
   }
@@ -1864,6 +2035,7 @@ function getViewportWidth() {
         setSegs(makeInitialSegs());
         setOrr(makeInitialOrr());
         setPremarketFvgs(makeInitialPremarketFvgs());
+        setEqLevels(makeInitialEqLevels());
         setOvernightGaps(makeInitialOvernightGaps());
       };
     } else if (tab === 2) {
@@ -1901,6 +2073,7 @@ function getViewportWidth() {
       setSegs(makeInitialSegs());
       setOrr(makeInitialOrr());
       setPremarketFvgs(makeInitialPremarketFvgs());
+      setEqLevels(makeInitialEqLevels());
       setOvernightGaps(makeInitialOvernightGaps());
       setIntradayFvgs(makeInitialIntradayFvgs());
       setExecs(makeInitialExecs());
@@ -1940,7 +2113,48 @@ function getViewportWidth() {
       };
     }).filter(item => item.time || item.price || item.customLabel || item.label || item.images.length > 0) : makeInitialPts();
 
-    var importedPremarketFvgs = Array.isArray(overnight.premarket_key_fvgs) ? overnight.premarket_key_fvgs.map(item => ({
+    function findImportedPtBySelection(selectionVal) {
+      var raw = String(selectionVal || '').trim();
+      if (!raw) return null;
+      for (var i = 0; i < importedPts.length; i++) {
+        if (String(importedPts[i].id) === raw && okTime(importedPts[i].time)) return importedPts[i];
+      }
+      for (var j = 0; j < importedPts.length; j++) {
+        if (importedPts[j].time === raw && okTime(importedPts[j].time)) return importedPts[j];
+      }
+      return null;
+    }
+
+    function findImportedPtByDayOffsetAndTime(dayOffset, timeVal) {
+      var normalizedDayOffset = normalizeDayOffset(dayOffset);
+      for (var i = 0; i < importedPts.length; i++) {
+        if (normalizeDayOffset(importedPts[i].dayOffset) === normalizedDayOffset && importedPts[i].time === timeVal && okTime(importedPts[i].time)) return importedPts[i];
+      }
+      return null;
+    }
+
+    function normalizeImportedEqLevelPointRefs(pointRefs) {
+      if (!Array.isArray(pointRefs)) return [];
+      var seen = {};
+      return pointRefs.map(ref => {
+        var pt = findImportedPtBySelection(ref);
+        return pt ? String(pt.id) : '';
+      }).filter(ref => {
+        if (!ref || seen[ref]) return false;
+        seen[ref] = true;
+        return true;
+      });
+    }
+
+    function getImportedEqLevelSignatureFromRefs(type, pointRefs) {
+      return getEqLevelSignatureFromTokens(type, normalizeImportedEqLevelPointRefs(pointRefs).map(ref => {
+        var pt = findImportedPtBySelection(ref);
+        return pt ? getEqLevelPointToken(pt) : '';
+      }));
+    }
+
+    var rawPremarketFvgs = Array.isArray(overnight.premarket_key_fvgs) ? overnight.premarket_key_fvgs : [];
+    var importedPremarketFvgs = rawPremarketFvgs.map(item => ({
       id: nid(),
       dayOffset: normalizeDayOffset(item && item.day_offset),
       timeframeNum: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
@@ -1949,7 +2163,24 @@ function getViewportWidth() {
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.fvg_high != null ? String(item.fvg_high) : '',
       low: item && item.fvg_low != null ? String(item.fvg_low) : ''
-    })).filter(item => item.timeframeNum || item.middleTime || item.direction || item.high || item.low) : makeInitialPremarketFvgs();
+    })).filter(item => item.timeframeNum || item.middleTime || item.direction || item.high || item.low) ;
+    if (!Array.isArray(overnight.premarket_key_fvgs)) importedPremarketFvgs = makeInitialPremarketFvgs();
+
+    var importedEqLevels = Array.isArray(overnight.eq_levels) ? overnight.eq_levels.map(item => ({
+      id: nid(),
+      type: item && typeof item.type === 'string' ? item.type : '',
+      pointRefs: Array.isArray(item && item.key_points) ? item.key_points.map(pointToken => {
+        var rawToken = String(pointToken || '').trim();
+        var match = rawToken.match(/^T(-?\d+)\s+(\d{2}:\d{2})$/);
+        if (match) {
+          var byDayOffset = findImportedPtByDayOffsetAndTime(Number(match[1]), match[2]);
+          if (byDayOffset) return String(byDayOffset.id);
+        }
+        var fallbackByTime = findImportedPtBySelection(rawToken.replace(/^T-?\d+\s+/, ''));
+        return fallbackByTime ? String(fallbackByTime.id) : '';
+      }).filter(Boolean) : [],
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => isMeaningfulEqLevel(item)) : makeInitialEqLevels();
 
     var importedOvernightGaps = Array.isArray(overnight.key_nwog_ndog) ? overnight.key_nwog_ndog.map(item => ({
       id: nid(),
@@ -1971,6 +2202,18 @@ function getViewportWidth() {
       ] = String(item.id);
     });
 
+    var importedEqLevelRefMap = {};
+    importedEqLevels.forEach(item => {
+      importedEqLevelRefMap[getImportedEqLevelSignatureFromRefs(item.type, item.pointRefs)] = String(item.id);
+    });
+
+    var importedGapRefMap = {};
+    importedOvernightGaps.forEach(item => {
+      importedGapRefMap[
+        (item.type || 'ndog') + '|' + normalizeDayOffset(item.dayOffset) + '|' + (item.startDate || '') + '|' + (item.startTime || '') + '|' + (item.endDate || '') + '|' + (item.endTime || '')
+      ] = String(item.id);
+    });
+
     var importedSegs = Array.isArray(overnight.market_segments) ? overnight.market_segments.map(item => ({
       id: nid(),
       st: item && typeof item.start === 'string' ? item.start : '',
@@ -1981,11 +2224,27 @@ function getViewportWidth() {
       actions: item && Array.isArray(item.actions) ? item.actions.map(action => ({
         id: nid(),
         type: action && typeof action.type === 'string' ? action.type : '',
-        ref: action && typeof action.type === 'string' && action.type === 'tap_fvg'
+        ref: action && typeof action.type === 'string' && (action.type === 'tap_fvg' || action.type === 'fill_fvg')
           ? (importedFvgRefMap[
               normalizeDayOffset(action && action.fvg_day_offset) + '|' +
               (action && typeof action.fvg_timeframe === 'string' ? action.fvg_timeframe : '') + '|' +
               (action && typeof action.fvg_middle_candle_time === 'string' ? action.fvg_middle_candle_time : '')
+            ] || '')
+          : action && typeof action.type === 'string' && action.type === 'sweep_eq_level'
+          ? (importedEqLevelRefMap[
+              getEqLevelSignatureFromTokens(
+                action && typeof action.eq_level_type === 'string' ? action.eq_level_type : '',
+                Array.isArray(action && action.eq_key_points) ? action.eq_key_points.map(pointToken => String(pointToken || '').trim()) : []
+              )
+            ] || '')
+          : action && typeof action.type === 'string' && (action.type === 'tap_gap' || action.type === 'tap_gap_ce' || action.type === 'fill_gap')
+          ? (importedGapRefMap[
+              ((action && typeof action.gap_type === 'string' ? action.gap_type : 'ndog')) + '|' +
+              normalizeDayOffset(action && action.gap_day_offset) + '|' +
+              (action && typeof action.gap_start_date === 'string' ? action.gap_start_date : '') + '|' +
+              (action && typeof action.gap_start_time === 'string' ? action.gap_start_time : '') + '|' +
+              (action && typeof action.gap_end_date === 'string' ? action.gap_end_date : '') + '|' +
+              (action && typeof action.gap_end_time === 'string' ? action.gap_end_time : '')
             ] || '')
           : (action && typeof action.key_point === 'string' ? action.key_point : ''),
         note: action && typeof action.note === 'string' ? action.note : ''
@@ -2074,6 +2333,7 @@ function getViewportWidth() {
     setNews(importedNews);
     setPts(importedPts.length ? importedPts : makeInitialPts());
     setPremarketFvgs(importedPremarketFvgs.length ? importedPremarketFvgs : makeInitialPremarketFvgs());
+    setEqLevels(importedEqLevels.length ? importedEqLevels : makeInitialEqLevels());
     setOvernightGaps(importedOvernightGaps.length ? importedOvernightGaps : makeInitialOvernightGaps());
     setSegs(importedSegs.length ? importedSegs : makeInitialSegs());
     setOrr(importedOrr);
@@ -2595,6 +2855,24 @@ function getViewportWidth() {
         }
       });
     }
+    if (eqLevels.some(isMeaningfulEqLevel)) {
+      L.push('  eq_levels:');
+      eqLevels.forEach(level => {
+        var pointRefs = normalizeEqLevelPointRefs(level.pointRefs);
+        if (level.type || pointRefs.length > 0 || (Array.isArray(level.images) && level.images.length > 0)) {
+          L.push('    - type: ' + (level.type || '""'));
+          if (pointRefs.length > 0) {
+            L.push('      key_points:');
+            pointRefs.forEach(ref => {
+              var point = findPtBySelection(ref);
+              if (!point) return;
+              L.push('        - ' + yamlQuote(getEqLevelPointToken(point)));
+            });
+          }
+          pushImagesYaml(L, 6, level.images);
+        }
+      });
+    }
     if (overnightGaps.some(isMeaningfulOvernightGap)) {
       L.push('  key_nwog_ndog:');
       overnightGaps.forEach(gap => {
@@ -2629,12 +2907,34 @@ function getViewportWidth() {
                 L.push('      actions:');
               validActions.forEach(action => {
                 L.push('        - type: ' + (action.type || '""'));
-                if (action.type === 'tap_fvg') {
+                if (action.type === 'tap_fvg' || action.type === 'fill_fvg') {
                   var actionFvg = findPremarketFvgBySelection(action.ref);
                   var actionFvgTimeframe = actionFvg ? formatFvgTimeframe(actionFvg.timeframeNum, actionFvg.timeframeUnit) : '';
                   if (actionFvg) L.push('          fvg_day_offset: ' + normalizeDayOffset(actionFvg.dayOffset));
                   if (actionFvgTimeframe) L.push('          fvg_timeframe: ' + actionFvgTimeframe);
                   if (actionFvg && actionFvg.middleTime) L.push('          fvg_middle_candle_time: "' + actionFvg.middleTime + '"');
+                } else if (action.type === 'sweep_eq_level') {
+                  var actionEqLevel = findEqLevelBySelection(action.ref);
+                  var actionEqRefs = actionEqLevel ? normalizeEqLevelPointRefs(actionEqLevel.pointRefs) : [];
+                  if (actionEqLevel && actionEqLevel.type) L.push('          eq_level_type: ' + actionEqLevel.type);
+                  if (actionEqRefs.length > 0) {
+                    L.push('          eq_key_points:');
+                    actionEqRefs.forEach(ref => {
+                      var eqPoint = findPtBySelection(ref);
+                      if (!eqPoint) return;
+                      L.push('            - ' + yamlQuote(getEqLevelPointToken(eqPoint)));
+                    });
+                  }
+                } else if (action.type === 'tap_gap' || action.type === 'tap_gap_ce' || action.type === 'fill_gap') {
+                  var actionGap = findOvernightGapBySelection(action.ref);
+                  if (actionGap) {
+                    L.push('          gap_type: ' + (actionGap.type || 'ndog'));
+                    L.push('          gap_day_offset: ' + normalizeDayOffset(actionGap.dayOffset));
+                    if (actionGap.startDate) L.push('          gap_start_date: ' + yamlQuote(actionGap.startDate));
+                    if (actionGap.startTime) L.push('          gap_start_time: ' + yamlQuote(actionGap.startTime));
+                    if (actionGap.endDate) L.push('          gap_end_date: ' + yamlQuote(actionGap.endDate));
+                    if (actionGap.endTime) L.push('          gap_end_time: ' + yamlQuote(actionGap.endTime));
+                  }
                 } else if (action.ref) {
                   L.push('          key_point: "' + getPtTimeValue(action.ref) + '"');
                 }
@@ -2953,7 +3253,10 @@ function getViewportWidth() {
     return (
       _react2.default.createElement('div', null
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: overnightTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: overnightTheme.title }, "隔夜关键点")
+          , (() => { var badge = getCompletionBadgeMeta(validPtsCount, pts.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: overnightTheme.title }, "隔夜关键点")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "定义关键时间点 (HH:MM) 及价格。选择 NY Open 时时间自动填入 09:30。T日可选 T-0 到 T-30，其中 T-0 表示交易日本日。"      )
           , pts.map((pt, idx) => {
             var bad = pt.time !== '' && !okTime(pt.time);
@@ -3003,14 +3306,78 @@ function getViewportWidth() {
           , _react2.default.createElement('button', { onClick: () => setPts(p => [...p, { id: nid(), label: '', customLabel: '', dayOffset: 0, time: '', price: '', images: [] }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
         )
 
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg", style: overnightTheme.card }
+          , (() => { var badge = getCompletionBadgeMeta(validEqLevelCount, eqLevels.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide", style: overnightTheme.title }, "隔夜 EQH / EQL")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4" }, "选择两个或以上隔夜关键点，组成 EQH / EQL，并可上传对应图片。")
+          , eqLevels.map((level, idx) => {
+            var complete = isCompleteEqLevel(level);
+            var meaningful = isMeaningfulEqLevel(level);
+            var cardStyle = complete
+              ? { backgroundColor: 'rgba(36, 96, 68, 0.24)', borderColor: 'rgba(94, 234, 161, 0.32)' }
+              : meaningful
+              ? { backgroundColor: 'rgba(120, 90, 22, 0.22)', borderColor: 'rgba(250, 204, 21, 0.3)' }
+              : { backgroundColor: 'rgba(72, 34, 34, 0.18)', borderColor: 'rgba(248, 113, 113, 0.2)' };
+            var badgeStyle = complete
+              ? { backgroundColor: 'rgba(52, 211, 153, 0.14)', borderColor: 'rgba(110, 231, 183, 0.34)', color: '#d8fff0' }
+              : meaningful
+              ? { backgroundColor: 'rgba(245, 158, 11, 0.14)', borderColor: 'rgba(252, 211, 77, 0.34)', color: '#fff0c7' }
+              : { backgroundColor: 'rgba(239, 68, 68, 0.14)', borderColor: 'rgba(252, 165, 165, 0.3)', color: '#ffe1e1' };
+            var badgeText = complete ? '已完成' : (meaningful ? '部分待处理' : '空白占位');
+            return (
+              _react2.default.createElement('div', { key: level.id, className: "mb-3 rounded-xl border p-3", style: cardStyle }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.22em]", style: complete ? { color: '#c8ffe5' } : meaningful ? { color: '#ffe7a3' } : { color: '#ffb3b3' } }, "EQ LEVEL ", idx + 1)
+                  , _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-[11px] font-semibold border", style: badgeStyle }, badgeText)
+                )
+                , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                  , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                  , _react2.default.createElement('div', { className: "flex-1" }
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)] gap-3 mb-3" }
+                      , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "类型")
+                        , _react2.default.createElement('select', { value: level.type, onChange: e => updEqLevel(level.id, 'type', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , _react2.default.createElement('option', { value: "" }, "选择 EQH/EQL...")
+                          , EQ_LEVEL_TYPE_OPTIONS.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
+                        )
+                      )
+                      , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "组成关键点")
+                        , noTp
+                          ? _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-400 min-h-[38px]" }, "请先录入隔夜关键点...")
+                          : _react2.default.createElement(MultiSelect, { options: tps, selected: normalizeEqLevelPointRefs(level.pointRefs), onChange: v => updEqLevel(level.id, 'pointRefs', v) })
+                        , _react2.default.createElement('p', { className: "mt-1 text-[11px] text-gray-400" }, "至少选择 2 个关键点。")
+                      )
+                    )
+                    , _react2.default.createElement(ImageListEditor, { images: level.images, onChange: v => updEqLevel(level.id, 'images', v), title: "图片记录", hint: "记录这个 EQH/EQL 的结构图、比较图或标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "eq_level" })
+                  )
+                  , _react2.default.createElement('button', { onClick: () => { if (eqLevels.length > 1) setEqLevels(p => p.filter(x => x.id !== level.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" }))
+                )
+              )
+            );
+          })
+          , _react2.default.createElement('button', { onClick: () => setEqLevels(p => [...p, { id: nid(), type: '', pointRefs: [], images: [] }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1" }, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" }), " 添加 EQH / EQL" )
+        )
+
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: fvgTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: fvgTheme.title }, "盘前关键 FVG")
+          , (() => { var badge = getCompletionBadgeMeta(validPremarketFvgCount, premarketFvgs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: fvgTheme.title }, "盘前关键 FVG")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "记录盘前值得关注的 FVG，供下面行情段里的 tap FVG 直接引用。")
-          , premarketFvgs.map((fvg, idx) => (
-            _react2.default.createElement('div', { key: fvg.id, className: "mb-3" }
-              , _react2.default.createElement('div', { className: "flex items-start gap-2" }
-                , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
-                , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-6 gap-3" }
+          , premarketFvgs.map((fvg, idx) => {
+            var hasFvgData = isMeaningfulFvg(fvg);
+            return (
+            _react2.default.createElement('div', { key: fvg.id, className: "mb-3 rounded-xl border p-3", style: hasFvgData ? { backgroundColor: 'rgba(95, 70, 128, 0.26)', borderColor: 'rgba(174, 126, 255, 0.38)' } : { backgroundColor: 'rgba(34, 47, 72, 0.34)', borderColor: 'rgba(98, 115, 152, 0.24)' } }
+              , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.22em]", style: hasFvgData ? { color: '#d9b8ff' } : { color: '#8390ab' } }, "FVG ", idx + 1)
+                , _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-[11px] font-semibold border", style: hasFvgData ? { backgroundColor: 'rgba(167, 99, 255, 0.16)', borderColor: 'rgba(193, 147, 255, 0.42)', color: '#f2e7ff' } : { backgroundColor: 'rgba(76, 88, 118, 0.18)', borderColor: 'rgba(108, 124, 159, 0.28)', color: '#9aa4bb' } }, hasFvgData ? '已填写' : '空白占位')
+              )
+                , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                  , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                  , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-7 gap-3" }
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "T日")
                     , _react2.default.createElement('select', { value: String(normalizeDayOffset(fvg.dayOffset)), onChange: e => updPremarketFvg(fvg.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
@@ -3056,20 +3423,28 @@ function getViewportWidth() {
                 )
               )
             )
-          ))
+          )})
           , _react2.default.createElement('button', { onClick: () => setPremarketFvgs(p => [...p, { id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 FVG"
           )
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: overnightTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: overnightTheme.title }, "关键 NWOG / NDOG")
+          , (() => { var badge = getCompletionBadgeMeta(validOvernightGapCount, overnightGaps.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: overnightTheme.title }, "关键 NWOG / NDOG")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "NDOG 使用周一到周四同日 16:59 close 与 18:00 open。NWOG 使用周一 T日回看上一个周五 16:59 close 与该周一 18:00 open。")
           , overnightGaps.map((gap, idx) => {
             var anchorDate = shiftIsoDate(date, gap.dayOffset);
             var gapWindow = getOvernightGapWindow(gap.type, anchorDate);
+            var hasGapData = isMeaningfulOvernightGap(gap);
             return (
-              _react2.default.createElement('div', { key: gap.id, className: "mb-3" }
+              _react2.default.createElement('div', { key: gap.id, className: "mb-3 rounded-xl border p-3", style: hasGapData ? { backgroundColor: 'rgba(73, 83, 129, 0.26)', borderColor: 'rgba(136, 149, 221, 0.36)' } : { backgroundColor: 'rgba(34, 47, 72, 0.34)', borderColor: 'rgba(98, 115, 152, 0.24)' } }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.22em]", style: hasGapData ? { color: '#cdd6ff' } : { color: '#8390ab' } }, "Gap ", idx + 1)
+                  , _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-[11px] font-semibold border", style: hasGapData ? { backgroundColor: 'rgba(100, 103, 242, 0.16)', borderColor: 'rgba(144, 148, 255, 0.42)', color: '#e7e8ff' } : { backgroundColor: 'rgba(76, 88, 118, 0.18)', borderColor: 'rgba(108, 124, 159, 0.28)', color: '#9aa4bb' } }, hasGapData ? '已计算' : '空白占位')
+                )
                 , _react2.default.createElement('div', { className: "flex items-start gap-2" }
                   , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
                   , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-7 gap-3" }
@@ -3122,7 +3497,10 @@ function getViewportWidth() {
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: segmentTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-3 tracking-wide"   , style: segmentTheme.title }, "行情段")
+          , (() => { var badge = getCompletionBadgeMeta(validSegsCount, segs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-3" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: segmentTheme.title }, "行情段")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , noTp && (
             _react2.default.createElement('div', { className: "flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4"         ,}
               , _react2.default.createElement(_lucidereact.AlertCircle, { className: "w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"    ,} )
@@ -3213,7 +3591,7 @@ function getViewportWidth() {
                   , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-2" ,}
                     , _react2.default.createElement('div', null
                       , _react2.default.createElement('label', { className: "block text-xs font-medium text-indigo-700" ,}, "这段主要做了什么")
-                      , _react2.default.createElement('p', { className: "text-[11px] mt-1 text-indigo-500" ,}, "可记录 sweep 某个关键点、与关键点形成 EQH/EQL，或者 tap 了某个 FVG。")
+                      , _react2.default.createElement('p', { className: "text-[11px] mt-1 text-indigo-500" ,}, "可记录 sweep 关键点或 EQH/EQL、与关键点形成 EQH/EQL、tap/fill 某个 FVG，或 tap/fill 某个 NDOG/NWOG。")
                     )
                     , _react2.default.createElement('button', { type: "button", onClick: () => addSegAction(seg.id), className: "flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 whitespace-nowrap" }
                       , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" ,} ), "添加动作"
@@ -3230,7 +3608,20 @@ function getViewportWidth() {
                             , SEGMENT_ACTION_OPTIONS.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
                           )
                         )
-                        , action.type !== 'tap_fvg'
+                        , !action.type
+                          ? _react2.default.createElement('div', null
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "引用对象")
+                              , _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-400" }, "先选择动作类型...")
+                            )
+                          : action.type === 'sweep_eq_level'
+                          ? _react2.default.createElement('div', null
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "EQH / EQL")
+                              , _react2.default.createElement('select', { disabled: noEqLevel, value: getEqLevelSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                                , _react2.default.createElement('option', { value: "" }, noEqLevel ? "请先录入 EQH / EQL..." : "选择 EQH / EQL...")
+                                , eqLevelOptions.map(opt => _react2.default.createElement('option', { key: 'seg_eq_' + opt.value, value: opt.value }, opt.label))
+                              )
+                            )
+                          : (action.type === 'sweep' || action.type === 'eqh' || action.type === 'eql')
                           ? _react2.default.createElement('div', null
                               , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, action.type === 'sweep' ? "关键点" : "对应关键点")
                               , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
@@ -3238,11 +3629,19 @@ function getViewportWidth() {
                                 , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value }, t.label))
                               )
                             )
-                          : _react2.default.createElement('div', null
+                          : (action.type === 'tap_fvg' || action.type === 'fill_fvg')
+                          ? _react2.default.createElement('div', null
                               , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "盘前关键 FVG")
                               , _react2.default.createElement('select', { disabled: noPremarketFvg, value: getPremarketFvgSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
                                 , _react2.default.createElement('option', { value: "" }, noPremarketFvg ? "请先录入盘前 FVG..." : "选择 FVG...")
                                 , premarketFvgOptions.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
+                              )
+                            )
+                          : _react2.default.createElement('div', null
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, action.type === 'tap_gap_ce' ? "NDOG / NWOG C.E." : "NDOG / NWOG")
+                              , _react2.default.createElement('select', { disabled: noOvernightGap, value: getOvernightGapSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                                , _react2.default.createElement('option', { value: "" }, noOvernightGap ? "请先录入 NDOG / NWOG..." : "选择 NDOG / NWOG...")
+                                , overnightGapOptions.map(opt => _react2.default.createElement('option', { key: 'seg_gap_' + opt.value, value: opt.value }, opt.label))
                               )
                             )
                         , _react2.default.createElement('button', { type: "button", onClick: () => removeSegAction(seg.id, action.id), className: "p-2 text-gray-400 hover:text-red-500 mt-5" }
@@ -3268,7 +3667,10 @@ function getViewportWidth() {
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: orrTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: orrTheme.title }, "Open Reference Range"  )
+          , (() => { var badge = getCompletionBadgeMeta(orrFilled ? 1 : 0, 1, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: orrTheme.title }, "Open Reference Range"  )
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-3"  ,}, "选择起止关键点，价格信息已在关键点中记录。")
           , noTp && (
             _react2.default.createElement('div', { className: "flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4"         ,}
@@ -3318,7 +3720,10 @@ function getViewportWidth() {
     return (
       _react2.default.createElement('div', null
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: execTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: execTheme.title }, "执行关键点")
+          , (() => { var badge = getCompletionBadgeMeta(validExecsCount, execs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: execTheme.title }, "执行关键点")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "记录精确时间和价格，Reversals 将引用这些关键点并自动推算 Session 窗口。"   )
           , execs.map((pt, idx) => {
             var bad = pt.time !== '' && !okTime(pt.time);
@@ -3365,7 +3770,10 @@ function getViewportWidth() {
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: intradayFvgTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: intradayFvgTheme.title }, "盘中 FVG")
+          , (() => { var badge = getCompletionBadgeMeta(intradayFvgs.filter(isMeaningfulFvg).length, intradayFvgs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: intradayFvgTheme.title }, "盘中 FVG")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "记录执行观察阶段识别到的盘中 FVG，计算逻辑与盘前关键 FVG 相同。")
           , intradayFvgs.map((fvg, idx) => (
             _react2.default.createElement('div', { key: fvg.id, className: "mb-3" }
@@ -3424,7 +3832,10 @@ function getViewportWidth() {
         )
 
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: reversalTheme.card }
-          , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: reversalTheme.title }, "Reversals")
+          , (() => { var badge = getCompletionBadgeMeta(validRevsCount, revs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: reversalTheme.title }, "Reversals")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
           , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "选择一个执行关键点，Session 窗口将根据时间自动推算。SMT 用于标记 NQ/ES 流动性清扫的一致性。"    )
           , noExecOpts && (
             _react2.default.createElement('div', { className: "flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4"         ,}
@@ -3540,7 +3951,10 @@ function getViewportWidth() {
 
     return (
       _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: entryTheme.card }
-        , _react2.default.createElement('h3', { className: "text-sm font-semibold mb-1 tracking-wide"   , style: entryTheme.title }, "入场记录")
+        , (() => { var badge = getCompletionBadgeMeta(validEntriesCount, entries.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+            , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: entryTheme.title }, "入场记录")
+            , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+          ); })()
         , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4"  ,}, "如无入场可留空，直接下一步导出。⭐ 首选单 = 如果只能做一单，就做这一单。"   )
 
         , entries.map((en, idx) => {
