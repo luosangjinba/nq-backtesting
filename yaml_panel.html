@@ -759,9 +759,18 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
   var [selectedFiles, setSelectedFiles] = _react.useState.call(void 0, {});
   var [uploadingIds, setUploadingIds] = _react.useState.call(void 0, []);
   var [uploadErrors, setUploadErrors] = _react.useState.call(void 0, {});
+  var [uploadSuccess, setUploadSuccess] = _react.useState.call(void 0, {});
 
   function updateImage(id, field, value) {
     onChange((images || []).map(img => img.id === id ? { ...img, [field]: value } : img));
+    if (field === 'url') {
+      setUploadSuccess(prev => {
+        var next = { ...prev };
+        if (value) next[id] = '图片地址已更新';
+        else delete next[id];
+        return next;
+      });
+    }
   }
 
   function removeImage(id) {
@@ -792,6 +801,11 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
       return next;
     });
     setUploadErrors(prev => {
+      var next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setUploadSuccess(prev => {
       var next = { ...prev };
       delete next[id];
       return next;
@@ -837,8 +851,14 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
       updateImage(id, 'url', payload.url || '');
       setSelectedFile(id, null);
       clearPreviewFailed(id);
+      setUploadSuccess(prev => ({ ...prev, [id]: '上传成功，图片地址已自动回填' }));
     } catch (err) {
       setUploadErrors(prev => ({ ...prev, [id]: err && err.message ? err.message : '上传失败' }));
+      setUploadSuccess(prev => {
+        var next = { ...prev };
+        delete next[id];
+        return next;
+      });
     } finally {
       setUploadingIds(prev => prev.filter(x => x !== id));
     }
@@ -891,9 +911,10 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "上传图片")
                     , _react2.default.createElement('div', { className: "flex flex-wrap items-center gap-2" ,}
                       , _react2.default.createElement('input', { type: "file", accept: "image/png,image/jpeg,image/webp", onChange: e => setSelectedFile(img.id, e.target.files && e.target.files[0] ? e.target.files[0] : null), className: "block max-w-full text-xs text-slate-300 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-100 file:font-medium hover:file:bg-slate-700" } )
-                      , _react2.default.createElement('button', { type: "button", onClick: () => uploadImage(img.id), disabled: uploadingIds.indexOf(img.id) >= 0, className: uploadingIds.indexOf(img.id) >= 0 ? "px-3 py-2 text-xs rounded-lg border border-slate-700 text-slate-400 bg-slate-800 cursor-wait" : "px-3 py-2 text-xs rounded-lg border border-indigo-400/40 text-slate-100 bg-slate-800 hover:bg-slate-700" ,}, uploadingIds.indexOf(img.id) >= 0 ? "上传中..." : "上传")
+                      , _react2.default.createElement('button', { type: "button", onClick: () => uploadImage(img.id), disabled: uploadingIds.indexOf(img.id) >= 0, className: uploadingIds.indexOf(img.id) >= 0 ? "px-3 py-2 text-xs rounded-lg border border-slate-700 text-slate-400 bg-slate-800 cursor-wait" : uploadSuccess[img.id] ? "px-3 py-2 text-xs rounded-lg border text-emerald-100 bg-emerald-500/10 hover:bg-emerald-500/15" : "px-3 py-2 text-xs rounded-lg border border-indigo-400/40 text-slate-100 bg-slate-800 hover:bg-slate-700" , style: uploadSuccess[img.id] ? { borderColor: 'rgba(52, 211, 153, 0.35)' } : undefined }, uploadingIds.indexOf(img.id) >= 0 ? "上传中..." : uploadSuccess[img.id] ? "已上传" : "上传")
                     )
                     , selectedFiles[img.id] && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" ,}, "已选择: ", selectedFiles[img.id].name)
+                    , uploadSuccess[img.id] && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-emerald-200 break-all" ,}, uploadSuccess[img.id])
                     , uploadErrors[img.id] && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-rose-200 break-all" ,}, uploadErrors[img.id])
                   )
                   , _react2.default.createElement('div', null
