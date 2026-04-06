@@ -33,6 +33,7 @@ Copy this folder to Windows, including at least:
 - `duckdb_import_nq_1m.py`
 - `duckdb_schema.sql`
 - `start_api.bat`
+- `restart_api.bat`
 - `start_ui.bat`
 - `start_all.bat`
 
@@ -67,6 +68,12 @@ For local-only use on the same Windows machine, run:
 
 ```bat
 start_api.bat
+```
+
+If the API was already running and you want a one-click restart, use:
+
+```bat
+restart_api.bat
 ```
 
 Default values:

@@ -14,6 +14,7 @@ copy /y "%SCRIPT_DIR%price_lookup_api.py" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%duckdb_import_nq_1m.py" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%duckdb_schema.sql" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%start_api.bat" "%BUNDLE_DIR%\" >nul
+copy /y "%SCRIPT_DIR%restart_api.bat" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%start_ui.bat" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%start_all.bat" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%WINDOWS_SETUP.md" "%BUNDLE_DIR%\" >nul
