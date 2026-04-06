@@ -752,10 +752,13 @@ function pushImagesYaml(lines, indent, images) {
   });
 }
 
-function ImageListEditor({ images, onChange, title = '图片记录', hint = '支持多张图片，可填写 URL、标题和备注。', defaultOpen = false }) {
+function ImageListEditor({ images, onChange, title = '图片记录', hint = '支持多张图片，可填写 URL、标题和备注。', defaultOpen = false, apiBaseUrl = '', journalDate = '', uploadSection = 'image' }) {
   var [open, setOpen] = _react.useState.call(void 0, defaultOpen);
   var count = Array.isArray(images) ? images.filter(img => img && (img.url || img.title || img.note)).length : 0;
   var [failedPreviewIds, setFailedPreviewIds] = _react.useState.call(void 0, []);
+  var [selectedFiles, setSelectedFiles] = _react.useState.call(void 0, {});
+  var [uploadingIds, setUploadingIds] = _react.useState.call(void 0, []);
+  var [uploadErrors, setUploadErrors] = _react.useState.call(void 0, {});
 
   function updateImage(id, field, value) {
     onChange((images || []).map(img => img.id === id ? { ...img, [field]: value } : img));
@@ -779,6 +782,66 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
   function addImage() {
     onChange([...(images || []), makeImageItem()]);
     setOpen(true);
+  }
+
+  function setSelectedFile(id, file) {
+    setSelectedFiles(prev => {
+      var next = { ...prev };
+      if (file) next[id] = file;
+      else delete next[id];
+      return next;
+    });
+    setUploadErrors(prev => {
+      var next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }
+
+  async function uploadImage(id) {
+    var file = selectedFiles[id];
+    if (!file) {
+      setUploadErrors(prev => ({ ...prev, [id]: '请先选择图片文件' }));
+      return;
+    }
+    if (!apiBaseUrl) {
+      setUploadErrors(prev => ({ ...prev, [id]: 'API 地址为空，无法上传' }));
+      return;
+    }
+
+    setUploadingIds(prev => prev.indexOf(id) >= 0 ? prev : prev.concat(id));
+    setUploadErrors(prev => {
+      var next = { ...prev };
+      delete next[id];
+      return next;
+    });
+
+    try {
+      var image = (images || []).find(item => item.id === id) || {};
+      var formData = new FormData();
+      formData.append('file', file);
+      formData.append('date', journalDate || DEFAULT_DATE);
+      formData.append('section', uploadSection || 'image');
+      formData.append('record_id', id);
+      if (image.title) formData.append('title', image.title);
+
+      var response = await fetch(apiBaseUrl.replace(/\/$/, '') + '/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      var payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || '上传失败');
+      }
+
+      updateImage(id, 'url', payload.url || '');
+      setSelectedFile(id, null);
+      clearPreviewFailed(id);
+    } catch (err) {
+      setUploadErrors(prev => ({ ...prev, [id]: err && err.message ? err.message : '上传失败' }));
+    } finally {
+      setUploadingIds(prev => prev.filter(x => x !== id));
+    }
   }
 
   function markPreviewFailed(id) {
@@ -818,11 +881,20 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('div', { className: "mb-2" ,}
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "URL")
-                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "http://127.0.0.1:8000/journal_images/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
+                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "http://127.0.0.1:8765/backtesting-images/2012/2012-01-05/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
                   )
                   , _react2.default.createElement('div', { className: "mb-2" ,}
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "标题")
                     , _react2.default.createElement('input', { type: "text", value: img.title, onChange: e => updateImage(img.id, 'title', e.target.value), placeholder: "例如：Entry Setup", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
+                  )
+                  , _react2.default.createElement('div', { className: "mb-2" ,}
+                    , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "上传图片")
+                    , _react2.default.createElement('div', { className: "flex flex-wrap items-center gap-2" ,}
+                      , _react2.default.createElement('input', { type: "file", accept: "image/png,image/jpeg,image/webp", onChange: e => setSelectedFile(img.id, e.target.files && e.target.files[0] ? e.target.files[0] : null), className: "block max-w-full text-xs text-slate-300 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-100 file:font-medium hover:file:bg-slate-700" } )
+                      , _react2.default.createElement('button', { type: "button", onClick: () => uploadImage(img.id), disabled: uploadingIds.indexOf(img.id) >= 0, className: uploadingIds.indexOf(img.id) >= 0 ? "px-3 py-2 text-xs rounded-lg border border-slate-700 text-slate-400 bg-slate-800 cursor-wait" : "px-3 py-2 text-xs rounded-lg border border-indigo-400/40 text-slate-100 bg-slate-800 hover:bg-slate-700" ,}, uploadingIds.indexOf(img.id) >= 0 ? "上传中..." : "上传")
+                    )
+                    , selectedFiles[img.id] && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" ,}, "已选择: ", selectedFiles[img.id].name)
+                    , uploadErrors[img.id] && _react2.default.createElement('div', { className: "mt-1 text-[11px] text-rose-200 break-all" ,}, uploadErrors[img.id])
                   )
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "备注")
@@ -1743,6 +1815,20 @@ function getViewportWidth() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  function saveYaml() {
+    if (!yaml) return;
+    var fileName = (inst || 'journal').trim() + '_' + (date || 'draft') + '.yaml';
+    var blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   function renderPriceLookupPanel() {
     var statusTone = apiStatus && apiStatus.ok ? "bg-emerald-500 shadow-emerald-500/40" : "bg-amber-400 shadow-amber-400/40";
     var summaryText = lookupTime ? lookupTime + " / " + lookupTimeframe + "m / " + lookupField.toUpperCase() : lookupTimeframe + "m / " + lookupField.toUpperCase();
@@ -1907,7 +1993,7 @@ function getViewportWidth() {
             )
           ))
         )
-        , _react2.default.createElement(ImageListEditor, { images: basicInfoImages, onChange: setBasicInfoImages, title: "整体图片记录", hint: "用于保存整体视角、日内总览、HTF 背景图。", defaultOpen: true } )
+        , _react2.default.createElement(ImageListEditor, { images: basicInfoImages, onChange: setBasicInfoImages, title: "整体图片记录", hint: "用于保存整体视角、日内总览、HTF 背景图。", defaultOpen: true, apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "basic_info" } )
       )
     );
   }
@@ -1946,7 +2032,7 @@ function getViewportWidth() {
                   )
                 )
                 , _react2.default.createElement('div', { className: "ml-7" ,}
-                  , _react2.default.createElement(ImageListEditor, { images: pt.images, onChange: v => updPt(pt.id, 'images', v), title: "图片记录", hint: "记录这个关键点相关的截图或图示。" } )
+                  , _react2.default.createElement(ImageListEditor, { images: pt.images, onChange: v => updPt(pt.id, 'images', v), title: "图片记录", hint: "记录这个关键点相关的截图或图示。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "key_point" } )
                 )
               )
             );
@@ -2039,7 +2125,7 @@ function getViewportWidth() {
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: seg.note, onChange: e => updSeg(seg.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
                 )
-                , _react2.default.createElement(ImageListEditor, { images: seg.images, onChange: v => updSeg(seg.id, 'images', v), title: "图片记录", hint: "记录这个行情段对应的结构图或标注图。" } )
+                , _react2.default.createElement(ImageListEditor, { images: seg.images, onChange: v => updSeg(seg.id, 'images', v), title: "图片记录", hint: "记录这个行情段对应的结构图或标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "segment" } )
               )
             );
           })
@@ -2084,7 +2170,7 @@ function getViewportWidth() {
             , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
             , _react2.default.createElement('input', { type: "text", value: orr.note, onChange: e => setOrr({ ...orr, note: e.target.value }), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
           )
-          , _react2.default.createElement(ImageListEditor, { images: orr.images, onChange: v => setOrr({ ...orr, images: v }), title: "图片记录", hint: "记录 ORR 区间图、范围标注图等。" } )
+          , _react2.default.createElement(ImageListEditor, { images: orr.images, onChange: v => setOrr({ ...orr, images: v }), title: "图片记录", hint: "记录 ORR 区间图、范围标注图等。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "orr" } )
         )
       )
     );
@@ -2128,7 +2214,7 @@ function getViewportWidth() {
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: pt.note, onChange: e => updExec(pt.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
                 )
-                , _react2.default.createElement(ImageListEditor, { images: pt.images, onChange: v => updExec(pt.id, 'images', v), title: "图片记录", hint: "记录这个执行观察点对应的截图。" } )
+                , _react2.default.createElement(ImageListEditor, { images: pt.images, onChange: v => updExec(pt.id, 'images', v), title: "图片记录", hint: "记录这个执行观察点对应的截图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "exec_point" } )
               )
             );
           })
@@ -2231,7 +2317,7 @@ function getViewportWidth() {
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
                   , _react2.default.createElement('input', { type: "text", value: rev.note, onChange: e => updRev(rev.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
                 )
-                , _react2.default.createElement(ImageListEditor, { images: rev.images, onChange: v => updRev(rev.id, 'images', v), title: "图片记录", hint: "记录这个 reversal 的结构图、确认图或 SMT 图。" } )
+                , _react2.default.createElement(ImageListEditor, { images: rev.images, onChange: v => updRev(rev.id, 'images', v), title: "图片记录", hint: "记录这个 reversal 的结构图、确认图或 SMT 图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "reversal" } )
               )
             );
           })
@@ -2417,7 +2503,7 @@ function getViewportWidth() {
                     )
                   )
                 )
-                , _react2.default.createElement(ImageListEditor, { images: en.images, onChange: v => updEntry(en.id, 'images', v), title: "图片记录", hint: "建议放 setup、进场、出场和复盘截图。", defaultOpen: true } )
+                , _react2.default.createElement(ImageListEditor, { images: en.images, onChange: v => updEntry(en.id, 'images', v), title: "图片记录", hint: "建议放 setup、进场、出场和复盘截图。", defaultOpen: true, apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "entry" } )
 
                 , _react2.default.createElement('div', { className: "border border-gray-200 rounded-lg overflow-visible"   ,}
                   , _react2.default.createElement('button', { onClick: () => updEntry(en.id, 'resultOpen', !en.resultOpen), className: "w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors rounded-t-lg"         ,}
@@ -2546,6 +2632,9 @@ function getViewportWidth() {
             , _react2.default.createElement('h3', { className: "text-sm font-semibold text-gray-700"  ,}, "YAML 输出" )
             , _react2.default.createElement('div', { className: "flex gap-2" ,}
               , _react2.default.createElement('button', { onClick: buildYaml, className: "px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"      ,}, "生成 YAML" )
+              , yaml && (
+                _react2.default.createElement('button', { onClick: saveYaml, className: "px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"         ,}, "保存")
+              )
               , yaml && (
                 _react2.default.createElement('button', { onClick: copyYaml, className: "px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 flex items-center gap-1"         ,}
                   , copied ? _react2.default.createElement(_lucidereact.Check, { className: "w-4 h-4 text-green-500"  ,} ) : _react2.default.createElement(_lucidereact.Copy, { className: "w-4 h-4" ,} )

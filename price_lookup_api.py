@@ -5,8 +5,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import mimetypes
 import re
+import uuid
 from datetime import datetime, timedelta
+from email.parser import BytesParser
+from email.policy import default as default_email_policy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Dict
@@ -16,6 +20,9 @@ import duckdb
 
 
 VALID_FIELDS = {"open", "high", "low", "close"}
+ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+IMAGE_ROUTE_PREFIX = "/backtesting-images/"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -24,6 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--port", type=int, default=8765, help="Bind port, default 8765")
     parser.add_argument("--db-file", default="trading_data.duckdb", help="DuckDB file path")
     parser.add_argument("--table", default="futures_1m", help="Target table name")
+    parser.add_argument("--image-root", default="backtesting-images", help="Directory used to store uploaded images")
     return parser
 
 
@@ -75,6 +83,18 @@ def validate_table(value: str) -> str:
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", value):
         raise ValueError("invalid table name")
     return value
+
+
+def validate_section(value: str) -> str:
+    if not re.fullmatch(r"[A-Za-z0-9_\-]+", value):
+        raise ValueError("invalid section")
+    return value
+
+
+def sanitize_filename_part(value: str) -> str:
+    text = re.sub(r"[^A-Za-z0-9_\-]+", "-", (value or "").strip())
+    text = re.sub(r"-{2,}", "-", text).strip("-_")
+    return text[:40] or "image"
 
 
 def open_db(db_path: str) -> duckdb.DuckDBPyConnection:
@@ -148,10 +168,11 @@ order by ts
 class Handler(BaseHTTPRequestHandler):
     db_path = "trading_data.duckdb"
     table = "futures_1m"
+    image_root = Path("backtesting-images")
 
     def _send_cors_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Private-Network", "true")
 
@@ -164,6 +185,54 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_file(self, path: Path) -> None:
+        mime_type, _ = mimetypes.guess_type(str(path))
+        payload = path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", mime_type or "application/octet-stream")
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-store")
+        self._send_cors_headers()
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _public_base_url(self) -> str:
+        host = self.headers.get("Host") or f"{self.server.server_address[0]}:{self.server.server_address[1]}"
+        return f"http://{host}"
+
+    def _parse_multipart_form(self) -> tuple[dict[str, str], dict[str, tuple[str, bytes]]]:
+        content_type = self.headers.get("Content-Type", "")
+        content_length = int(self.headers.get("Content-Length", "0") or "0")
+        if content_length <= 0:
+            raise ValueError("empty upload body")
+        if "multipart/form-data" not in content_type:
+            raise ValueError("content type must be multipart/form-data")
+        if content_length > MAX_UPLOAD_BYTES + 1024 * 1024:
+            raise ValueError("upload too large")
+
+        raw_body = self.rfile.read(content_length)
+        if not raw_body:
+            raise ValueError("empty upload body")
+
+        parser = BytesParser(policy=default_email_policy)
+        message = parser.parsebytes(
+            f"Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n".encode("utf-8") + raw_body
+        )
+
+        fields: dict[str, str] = {}
+        files: dict[str, tuple[str, bytes]] = {}
+        for part in message.iter_parts():
+            name = part.get_param("name", header="content-disposition")
+            if not name:
+                continue
+            filename = part.get_filename()
+            payload = part.get_payload(decode=True) or b""
+            if filename:
+                files[name] = (filename, payload)
+            else:
+                fields[name] = payload.decode("utf-8", errors="replace")
+        return fields, files
+
     def do_OPTIONS(self) -> None:
         self.send_response(204)
         self._send_cors_headers()
@@ -171,6 +240,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path.startswith(IMAGE_ROUTE_PREFIX):
+            rel_path = parsed.path[len(IMAGE_ROUTE_PREFIX) :].lstrip("/")
+            candidate = (self.image_root / rel_path).resolve()
+            root = self.image_root.resolve()
+            if root not in candidate.parents and candidate != root:
+                self._send_json(403, {"ok": False, "error": "forbidden"})
+                return
+            if not candidate.exists() or not candidate.is_file():
+                self._send_json(404, {"ok": False, "error": "image not found"})
+                return
+            self._send_file(candidate)
+            return
+
         if parsed.path == "/health":
             try:
                 ensure_table_exists(self.db_path, self.table)
@@ -203,6 +285,59 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(500, {"ok": False, "error": str(exc)})
 
+    def do_POST(self) -> None:
+        parsed = urlparse(self.path)
+        if parsed.path != "/upload-image":
+            self._send_json(404, {"ok": False, "error": "not found"})
+            return
+
+        try:
+            fields, files = self._parse_multipart_form()
+            upload = files.get("file")
+            if upload is None:
+                raise ValueError("missing file")
+
+            original_name, file_bytes = upload
+            date_str = validate_date(fields.get("date", ""))
+            section = validate_section(fields.get("section", "image"))
+            title = fields.get("title", "")
+
+            original_name = Path(original_name or "upload").name
+            suffix = Path(original_name).suffix.lower()
+            if suffix not in ALLOWED_IMAGE_SUFFIXES:
+                raise ValueError("unsupported image type")
+            if not file_bytes:
+                raise ValueError("empty file")
+            if len(file_bytes) > MAX_UPLOAD_BYTES:
+                raise ValueError("image must be 10MB or smaller")
+
+            year = date_str[:4]
+            dest_dir = self.image_root / year / date_str
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            file_stem = sanitize_filename_part(section)
+            if title:
+                file_stem += "-" + sanitize_filename_part(title)
+            file_stem += "-" + uuid.uuid4().hex[:8]
+            dest_path = dest_dir / f"{file_stem}{suffix}"
+
+            dest_path.write_bytes(file_bytes)
+
+            rel_path = dest_path.relative_to(self.image_root).as_posix()
+            url = f"{self._public_base_url()}{IMAGE_ROUTE_PREFIX}{rel_path}"
+            self._send_json(
+                200,
+                {
+                    "ok": True,
+                    "url": url,
+                    "path": str(dest_path.as_posix()),
+                    "filename": dest_path.name,
+                },
+            )
+        except ValueError as exc:
+            self._send_json(400, {"ok": False, "error": str(exc)})
+        except Exception as exc:
+            self._send_json(500, {"ok": False, "error": str(exc)})
+
     def log_message(self, format: str, *args) -> None:
         return
 
@@ -215,8 +350,13 @@ def main() -> int:
 
     Handler.db_path = db_path
     Handler.table = args.table
+    Handler.image_root = Path(args.image_root)
+    Handler.image_root.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"price lookup api listening on http://{args.host}:{args.port} (db={db_path}, table={args.table})")
+    print(
+        f"price lookup api listening on http://{args.host}:{args.port} "
+        f"(db={db_path}, table={args.table}, images={Handler.image_root})"
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:

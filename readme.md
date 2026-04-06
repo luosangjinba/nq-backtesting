@@ -220,6 +220,20 @@ cd '/home/leo/myworkspace/trading/backtesting'
 python3 price_lookup_api.py --db-file trading_data.duckdb
 ```
 
+Linux 下也可以直接用脚本：
+
+```bash
+cd '/home/leo/myworkspace/trading/backtesting'
+bash restart_api.sh
+```
+
+停止 API：
+
+```bash
+cd '/home/leo/myworkspace/trading/backtesting'
+bash stop_api.sh
+```
+
 健康检查：
 
 ```bash
