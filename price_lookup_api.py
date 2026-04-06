@@ -73,6 +73,22 @@ def validate_field(value: str) -> str:
     return value
 
 
+def validate_fallback(value: str) -> str:
+    text = (value or "").strip().lower()
+    if text in {"", "none"}:
+        return "none"
+    if text == "prev":
+        return text
+    raise ValueError("fallback must be none/prev")
+
+
+def validate_lookback_minutes(value: str) -> int:
+    minutes = int(value)
+    if minutes < 0:
+        raise ValueError("max_lookback must be >= 0")
+    return minutes
+
+
 def validate_instrument(value: str) -> str:
     if not re.fullmatch(r"[A-Za-z0-9_\-]+", value):
         raise ValueError("invalid instrument")
@@ -98,7 +114,7 @@ def sanitize_filename_part(value: str) -> str:
 
 
 def open_db(db_path: str) -> duckdb.DuckDBPyConnection:
-    return duckdb.connect(db_path, read_only=False)
+    return duckdb.connect(db_path, read_only=True)
 
 
 def ensure_table_exists(db_path: str, table: str) -> None:
@@ -119,9 +135,12 @@ def query_price(
     time_str: str,
     tf: int,
     field: str,
+    fallback: str = "none",
+    max_lookback: int = 0,
 ) -> Dict[str, object]:
     start_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
-    end_dt = start_dt + timedelta(minutes=tf)
+    actual_start_dt = start_dt
+    end_dt = actual_start_dt + timedelta(minutes=tf)
 
     sql = f"""
 select ts, open, high, low, close
@@ -133,7 +152,26 @@ order by ts
 """.strip()
 
     with open_db(db_path) as conn:
-        rows = conn.execute(sql, [instrument, start_dt, end_dt]).fetchall()
+        rows = conn.execute(sql, [instrument, actual_start_dt, end_dt]).fetchall()
+
+        if not rows and fallback == "prev" and max_lookback > 0:
+            fallback_sql = f"""
+select ts, open, high, low, close
+from {table}
+where instrument = ?
+  and ts < ?
+  and ts >= ?
+order by ts desc
+limit 1
+""".strip()
+            fallback_row = conn.execute(
+                fallback_sql,
+                [instrument, start_dt, start_dt - timedelta(minutes=max_lookback)],
+            ).fetchone()
+            if fallback_row:
+                actual_start_dt = fallback_row[0]
+                end_dt = actual_start_dt + timedelta(minutes=tf)
+                rows = conn.execute(sql, [instrument, actual_start_dt, end_dt]).fetchall()
 
     if not rows:
         raise LookupError("no data found for requested time window")
@@ -153,6 +191,8 @@ order by ts
         "instrument": instrument,
         "date": date_str,
         "time": time_str,
+        "actualDate": rows[0][0].strftime("%Y-%m-%d"),
+        "actualTime": rows[0][0].strftime("%H:%M"),
         "timeframe": tf,
         "field": field,
         "value": values[field],
@@ -273,8 +313,10 @@ class Handler(BaseHTTPRequestHandler):
             time_str = validate_time(params["time"][0])
             tf = validate_timeframe(params.get("tf", ["1"])[0])
             field = validate_field(params.get("field", ["close"])[0])
+            fallback = validate_fallback(params.get("fallback", ["none"])[0])
+            max_lookback = validate_lookback_minutes(params.get("max_lookback", ["0"])[0])
             table = validate_table(self.table)
-            result = query_price(self.db_path, table, instrument, date_str, time_str, tf, field)
+            result = query_price(self.db_path, table, instrument, date_str, time_str, tf, field, fallback, max_lookback)
             self._send_json(200, {"ok": True, "result": result})
         except KeyError as exc:
             self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})

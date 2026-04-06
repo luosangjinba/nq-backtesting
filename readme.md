@@ -31,6 +31,7 @@ datetime,open,high,low,close,volume
   - 入场价、止损、Target Internal / Swing / External、MAE、MFE
   - 退出价
 - 退出类型选择 `Target Internal / Swing / External / Stop / Breakeven` 时，如果对应价格字段已存在，会自动回填到 `退出价格`
+- `NWOG / NDOG` 自动计算时，如果 `16:59` 这一分钟在数据库中缺失，会自动回退到收盘前最近一根可用的 `1m close`
 
 “基本信息”中的 `Today` 默认是 `2012-01-05`，`Query Day` 默认与 `Today` 一致；如果要查询非当日价格，直接改 `Query Day` 即可。两个日期都会显示星期几。
 
@@ -51,6 +52,14 @@ datetime,open,high,low,close,volume
 - 支持通过本地 API 直接上传图片，自动回填 URL
 - 支持直接粘贴剪贴板截图，再上传到本地目录
 - 如果当前图片项已有 URL，再上传新图时会自动追加成新的图片记录，不会覆盖上一张
+
+“隔夜结构”里现在也支持自动计算 `关键 NWOG / NDOG`：
+
+- `NDOG`: 周一到周四，同日 `16:59 close -> 18:00 open`
+- `NWOG`: 周一 `T日` 自动连接到上一个周五 `16:59 close -> 周一 18:00 open`
+- 自动计算 `direction / gap high / gap low`
+- 如果数据库缺少 `16:59`，会自动回退到收盘前最近一根可用的 `1m close`
+- `Reversals -> Reasons` 会动态汇总隔夜关键点、盘前关键 FVG、关键 NWOG/NDOG、执行关键点和盘中 FVG
 
 建议工作流：
 
