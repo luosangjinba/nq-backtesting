@@ -28,8 +28,9 @@ datetime,open,high,low,close,volume
 - 一键回填到这些时间驱动的字段：
   - 隔夜关键点价格
   - 执行关键点价格
-  - 入场价
+  - 入场价、止损、Target Internal / Swing / External、MAE、MFE
   - 退出价
+- 退出类型选择 `Target Internal / Swing / External / Stop / Breakeven` 时，如果对应价格字段已存在，会自动回填到 `退出价格`
 
 “基本信息”中的 `Today` 默认是 `2012-01-05`，`Query Day` 默认与 `Today` 一致；如果要查询非当日价格，直接改 `Query Day` 即可。两个日期都会显示星期几。
 
@@ -47,6 +48,9 @@ datetime,open,high,low,close,volume
 - 每张图片支持 `url`、`title`、`note`
 - 支持上移、下移、删除、缩略图预览
 - YAML 导入导出会保留这些图片字段
+- 支持通过本地 API 直接上传图片，自动回填 URL
+- 支持直接粘贴剪贴板截图，再上传到本地目录
+- 如果当前图片项已有 URL，再上传新图时会自动追加成新的图片记录，不会覆盖上一张
 
 建议工作流：
 
@@ -248,6 +252,22 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 
 页面中的“价格查询助手”现在已经改成通过本地 API 查 DuckDB，不再依赖单独的数据库服务。
 
+## 本地图片上传
+
+页面中的图片记录支持直接上传到本地 API。
+
+- 上传接口由 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py) 提供
+- 图片会保存到：
+
+```text
+backtesting-images/<year>/<yyyy-mm-dd>/
+```
+
+- 页面会自动把返回的本地 URL 写入当前图片项
+- 也支持先聚焦粘贴区，再用 `Ctrl+V` 粘贴剪贴板截图
+
+如果只是页面交互或样式更新，通常替换 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 即可；如果涉及图片上传功能，则需要同时更新 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)。
+
 ## Windows 使用
 
 Windows 端最稳的方式是使用 `windows_bundle`：
@@ -264,6 +284,12 @@ python duckdb_import_nq_1m.py --input NQ_full_1min.csv --db-file trading_data.du
 python price_lookup_api.py --db-file trading_data.duckdb
 ```
 
+或者直接：
+
+```powershell
+restart_api.bat
+```
+
 - 打开页面：
 
 ```text
@@ -271,3 +297,9 @@ http://127.0.0.1:8000/yaml_panel.html
 ```
 
 如果这次只是页面样式或交互更新，而 Python 文件没变，通常只需要把最新的 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 覆盖到 Windows 目录即可。
+
+如果这次改动涉及以下能力，则 Windows 端需要同时更新 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)：
+
+- 本地图片上传
+- `backtesting-images/<year>/<date>/` 新路径规则
+- 图片静态访问
