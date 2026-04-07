@@ -266,6 +266,9 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 页面中的图片记录支持直接上传到本地 API。
 
 - 上传接口由 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py) 提供
+- 新上传图片默认保存为相对路径，例如 `/backtesting-images/2012/2012-01-05/entry-xxx.png`
+- 前端预览和打开原图时会根据当前 `API 地址` 自动拼接完整 URL
+- 旧 YAML 里已经保存的绝对 URL 仍然兼容显示
 - 图片会保存到：
 
 ## 最近新增
@@ -293,6 +296,10 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
   - 支持图片上传
   - 会进入左侧实时统计
   - 可被行情段动作和 `Reversals -> Reasons` 直接引用
+- 如果同一个 `label` 在同一 `T日` 下出现多次，页面显示时会自动附加 `#1 / #2 / ...`
+  - 例如：`PM Swing Low #1`、`PM Swing Low #2`
+  - 这只是显示层去重，不会改写 YAML 原始 `label`
+  - 后续做数据库分析时，建议用 `label + day_offset + time` 区分，而不是只按 `label` 聚合
 - 左侧新增实时统计面板，实时显示：
   - `Red Folder News`
   - 基本信息图片数
@@ -418,7 +425,7 @@ overnight_structure:
 backtesting-images/<year>/<yyyy-mm-dd>/
 ```
 
-- 页面会自动把返回的本地 URL 写入当前图片项
+- 页面会自动把返回的相对路径写入当前图片项
 - 也支持先聚焦粘贴区，再用 `Ctrl+V` 粘贴剪贴板截图
 
 如果只是页面交互或样式更新，通常替换 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 即可；如果涉及图片上传功能，则需要同时更新 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)。

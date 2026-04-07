@@ -365,13 +365,17 @@ class Handler(BaseHTTPRequestHandler):
             dest_path.write_bytes(file_bytes)
 
             rel_path = dest_path.relative_to(self.image_root).as_posix()
-            url = f"{self._public_base_url()}{IMAGE_ROUTE_PREFIX}{rel_path}"
+            relative_url = f"{IMAGE_ROUTE_PREFIX}{rel_path}"
+            absolute_url = f"{self._public_base_url()}{relative_url}"
             self._send_json(
                 200,
                 {
                     "ok": True,
-                    "url": url,
+                    "url": relative_url,
+                    "relativeUrl": relative_url,
+                    "absoluteUrl": absolute_url,
                     "path": str(dest_path.as_posix()),
+                    "relativePath": rel_path,
                     "filename": dest_path.name,
                 },
             )

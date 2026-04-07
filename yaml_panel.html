@@ -838,6 +838,19 @@ function normalizeImportedImages(images) {
   })).filter(item => item.url || item.title || item.note);
 }
 
+function isAbsoluteImageUrl(value) {
+  return /^https?:\/\//i.test(String(value || '').trim());
+}
+
+function resolveImageUrl(value, apiBaseUrl) {
+  var raw = String(value || '').trim();
+  if (!raw) return '';
+  if (isAbsoluteImageUrl(raw) || raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
+  var base = String(apiBaseUrl || '').trim().replace(/\/$/, '');
+  if (!base) return raw;
+  return raw.startsWith('/') ? base + raw : base + '/' + raw.replace(/^\/+/, '');
+}
+
 function yamlQuote(value) {
   return '"' + String(value == null ? '' : value).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
 }
@@ -974,9 +987,9 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
       }
 
       if (hasExistingContent && image.url) {
-        onChange([...(images || []), { id: nid(), url: payload.url || '', title: '', note: '' }]);
+        onChange([...(images || []), { id: nid(), url: payload.relativeUrl || payload.url || '', title: '', note: '' }]);
       } else {
-        updateImage(id, 'url', payload.url || '');
+        updateImage(id, 'url', payload.relativeUrl || payload.url || '');
       }
       setSelectedFile(id, null);
       clearPreviewFailed(id);
@@ -1030,7 +1043,8 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('div', { className: "mb-2" ,}
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "URL")
-                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "http://127.0.0.1:8765/backtesting-images/2012/2012-01-05/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
+                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "/backtesting-images/2012/2012-01-05/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
+                    , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" }, img.url ? (isAbsoluteImageUrl(img.url) ? "当前为绝对地址，旧数据可继续兼容。" : "当前为相对路径，预览时会自动拼接 API 地址。") : "建议保存相对路径，便于换电脑或改端口后继续使用。")
                   )
                   , _react2.default.createElement('div', { className: "mb-2" ,}
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "标题")
@@ -1055,8 +1069,8 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('div', { className: "text-xs text-slate-400 mb-1" ,}, "缩略图")
                   , img.url ? (
-                    _react2.default.createElement('a', { href: img.url, target: "_blank", rel: "noreferrer", className: "block w-24 h-24 border border-slate-600 rounded-lg overflow-hidden hover:border-indigo-400 relative" , style: { backgroundColor: '#2d3d5a' } }
-                      , !failedPreviewIds.includes(img.id) && _react2.default.createElement('img', { src: img.url, alt: img.title || 'image preview', className: "w-full h-full object-cover", onError: () => markPreviewFailed(img.id), onLoad: () => clearPreviewFailed(img.id) ,} )
+                    _react2.default.createElement('a', { href: resolveImageUrl(img.url, apiBaseUrl), target: "_blank", rel: "noreferrer", className: "block w-24 h-24 border border-slate-600 rounded-lg overflow-hidden hover:border-indigo-400 relative" , style: { backgroundColor: '#2d3d5a' } }
+                      , !failedPreviewIds.includes(img.id) && _react2.default.createElement('img', { src: resolveImageUrl(img.url, apiBaseUrl), alt: img.title || 'image preview', className: "w-full h-full object-cover", onError: () => markPreviewFailed(img.id), onLoad: () => clearPreviewFailed(img.id) ,} )
                       , failedPreviewIds.includes(img.id) && _react2.default.createElement('div', { className: "absolute inset-0 flex items-center justify-center text-[11px] text-slate-300 text-center px-2" , style: { backgroundColor: 'rgba(17, 26, 44, 0.82)' } }, "无法预览")
                     )
                   ) : (
@@ -1466,6 +1480,38 @@ function getViewportWidth() {
     return '';
   }
 
+  function getKeyPointDuplicateMeta(pt) {
+    if (!pt) return { count: 0, index: 0 };
+    var baseLabel = getLabelText(pt) || '';
+    if (!baseLabel) return { count: 0, index: 0 };
+    var normalizedDayOffset = normalizeDayOffset(pt.dayOffset);
+    var matches = pts.filter(item => {
+      if (!item) return false;
+      return (getLabelText(item) || '') === baseLabel && normalizeDayOffset(item.dayOffset) === normalizedDayOffset;
+    });
+    if (matches.length <= 1) return { count: matches.length, index: 0 };
+    var sortedMatches = matches.slice().sort((a, b) => {
+      var timeA = okTime(a.time) ? a.time : '99:99';
+      var timeB = okTime(b.time) ? b.time : '99:99';
+      if (timeA !== timeB) return timeA < timeB ? -1 : 1;
+      return String(a.id) < String(b.id) ? -1 : 1;
+    });
+    for (var i = 0; i < sortedMatches.length; i++) {
+      if (sortedMatches[i].id === pt.id) return { count: sortedMatches.length, index: i + 1 };
+    }
+    return { count: sortedMatches.length, index: 0 };
+  }
+
+  function getKeyPointDisplayLabel(pt) {
+    var baseLabel = getLabelText(pt) || '';
+    if (!baseLabel) return '';
+    var duplicateMeta = getKeyPointDuplicateMeta(pt);
+    if (duplicateMeta.count > 1 && duplicateMeta.index > 0) {
+      return baseLabel + ' #' + duplicateMeta.index;
+    }
+    return baseLabel;
+  }
+
   function getKeyPointValueByLabel(labelText) {
     for (var i = 0; i < KEYPOINT_LABELS.length; i++) {
       if (KEYPOINT_LABELS[i].label === labelText) return KEYPOINT_LABELS[i].value;
@@ -1750,7 +1796,7 @@ function getViewportWidth() {
 
   var tps = pts.filter(p => p.time && okTime(p.time)).map(p => ({
     value: String(p.id),
-    label: (getLabelText(p) || p.time) + (getLabelText(p) ? ' (' + formatDayOffsetLabel(normalizeDayOffset(p.dayOffset)) + ' ' + p.time + ')' : ''),
+    label: (getKeyPointDisplayLabel(p) || p.time) + (getLabelText(p) ? ' (' + formatDayOffsetLabel(normalizeDayOffset(p.dayOffset)) + ' ' + p.time + ')' : ''),
     price: p.price
   }));
   var noTp = tps.length === 0;
@@ -1789,7 +1835,7 @@ function getViewportWidth() {
   var dynamicReasonOptions = []
     .concat(
       pts.filter(pt => pt && (pt.label || pt.customLabel || pt.time || pt.price)).map(pt => {
-        var label = '隔夜关键点 · ' + ((getLabelText(pt) || pt.time || '未命名') + (pt.time ? ' (' + formatDayOffsetLabel(normalizeDayOffset(pt.dayOffset)) + ' ' + pt.time + ')' : ''));
+        var label = '隔夜关键点 · ' + ((getKeyPointDisplayLabel(pt) || pt.time || '未命名') + (pt.time ? ' (' + formatDayOffsetLabel(normalizeDayOffset(pt.dayOffset)) + ' ' + pt.time + ')' : ''));
         return { value: label, label: label };
       })
     )
@@ -3698,8 +3744,8 @@ function getViewportWidth() {
             _react2.default.createElement('div', { className: "bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 mb-3"      ,}
               , _react2.default.createElement('p', { className: "text-xs text-blue-600 font-medium mb-1"   ,}, "引用价格：")
               , _react2.default.createElement('div', { className: "flex gap-6 text-xs text-blue-700"   ,}
-                , orr.st && (() => { var p = findPtBySelection(orr.st); return p ? _react2.default.createElement('span', null, "起始: " , _react2.default.createElement('strong', null, getLabelText(p) || getPtTimeValue(orr.st)), " → "  , p.price || '(未填)') : null; })()
-                , orr.et && (() => { var p = findPtBySelection(orr.et); return p ? _react2.default.createElement('span', null, "结束: " , _react2.default.createElement('strong', null, getLabelText(p) || getPtTimeValue(orr.et)), " → "  , p.price || '(未填)') : null; })()
+                , orr.st && (() => { var p = findPtBySelection(orr.st); return p ? _react2.default.createElement('span', null, "起始: " , _react2.default.createElement('strong', null, getKeyPointDisplayLabel(p) || getPtTimeValue(orr.st)), " → "  , p.price || '(未填)') : null; })()
+                , orr.et && (() => { var p = findPtBySelection(orr.et); return p ? _react2.default.createElement('span', null, "结束: " , _react2.default.createElement('strong', null, getKeyPointDisplayLabel(p) || getPtTimeValue(orr.et)), " → "  , p.price || '(未填)') : null; })()
               )
             )
           )
