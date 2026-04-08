@@ -1418,11 +1418,11 @@ function makeInitialOrr() {
 }
 
 function makeInitialPremarketFvgs() {
-  return [{ id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+  return [{ id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialPremarketObs() {
-  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }];
+  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialEqLevels() {
@@ -1430,15 +1430,15 @@ function makeInitialEqLevels() {
 }
 
 function makeInitialOvernightGaps() {
-  return [{ id: nid(), type: 'ndog', dayOffset: 0, startDate: '', startTime: '', endDate: '', endTime: '', direction: '', high: '', low: '' }];
+  return [{ id: nid(), type: 'ndog', dayOffset: 0, startDate: '', startTime: '', endDate: '', endTime: '', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialIntradayFvgs() {
-  return [{ id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+  return [{ id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialIntradayObs() {
-  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }];
+  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialIntradayEqLevels() {
@@ -2145,7 +2145,7 @@ function getViewportWidth() {
   }
 
   function isMeaningfulOb(ob) {
-    return !!(ob && (ob.timeframeNum || ob.fromTime || ob.toTime || ob.direction || ob.high || ob.low || normalizeDayOffset(ob.dayOffsetFrom) || normalizeDayOffset(ob.dayOffsetTo)));
+    return !!(ob && (ob.timeframeNum || ob.fromTime || ob.toTime || ob.direction || ob.high || ob.low || normalizeDayOffset(ob.dayOffsetFrom) || normalizeDayOffset(ob.dayOffsetTo) || (Array.isArray(ob.images) && ob.images.length > 0)));
   }
 
   function getObLabel(ob) {
@@ -2291,12 +2291,13 @@ function getViewportWidth() {
       gap.endDate ||
       gap.direction ||
       gap.high ||
-      gap.low
+      gap.low ||
+      (Array.isArray(gap.images) && gap.images.length > 0)
     ));
   }
 
   function isMeaningfulFvg(fvg) {
-    return !!(fvg && (fvg.fvgType || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low));
+    return !!(fvg && (fvg.fvgType || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low || (Array.isArray(fvg.images) && fvg.images.length > 0)));
   }
 
   function getCompletionBadgeMeta(filledCount, totalCount, labels) {
@@ -2515,10 +2516,13 @@ function getViewportWidth() {
   var validPtsCount = pts.filter(p => p && p.time && okTime(p.time)).length;
   var ptImageCount = pts.reduce((sum, p) => sum + ((p && Array.isArray(p.images)) ? p.images.length : 0), 0);
   var validPremarketFvgCount = premarketFvgs.filter(isMeaningfulFvg).length;
+  var premarketFvgImageCount = premarketFvgs.reduce((sum, fvg) => sum + ((fvg && Array.isArray(fvg.images)) ? fvg.images.length : 0), 0);
   var validPremarketObCount = premarketObs.filter(isMeaningfulOb).length;
+  var premarketObImageCount = premarketObs.reduce((sum, ob) => sum + ((ob && Array.isArray(ob.images)) ? ob.images.length : 0), 0);
   var validEqLevelCount = eqLevels.filter(isCompleteEqLevel).length;
   var eqLevelImageCount = eqLevels.reduce((sum, level) => sum + ((level && Array.isArray(level.images)) ? level.images.length : 0), 0);
   var validOvernightGapCount = overnightGaps.filter(isMeaningfulOvernightGap).length;
+  var overnightGapImageCount = overnightGaps.reduce((sum, gap) => sum + ((gap && Array.isArray(gap.images)) ? gap.images.length : 0), 0);
   var validSegsCount = segs.filter(s => s && (s.st || s.et || s.dir || s.consBias || s.note || (Array.isArray(s.actions) && s.actions.length > 0) || (Array.isArray(s.images) && s.images.length > 0))).length;
   var segImageCount = segs.reduce((sum, s) => sum + ((s && Array.isArray(s.images)) ? s.images.length : 0), 0);
   var orrFilled = !!(orr && (orr.st || orr.et || orr.note || (Array.isArray(orr.images) && orr.images.length > 0)));
@@ -2527,7 +2531,10 @@ function getViewportWidth() {
   var execImageCount = execs.reduce((sum, e) => sum + ((e && Array.isArray(e.images)) ? e.images.length : 0), 0);
   var validIntradayEqLevelCount = intradayEqLevels.filter(isCompleteIntradayEqLevel).length;
   var intradayEqLevelImageCount = intradayEqLevels.reduce((sum, level) => sum + ((level && Array.isArray(level.images)) ? level.images.length : 0), 0);
+  var validIntradayFvgCount = intradayFvgs.filter(isMeaningfulFvg).length;
+  var intradayFvgImageCount = intradayFvgs.reduce((sum, fvg) => sum + ((fvg && Array.isArray(fvg.images)) ? fvg.images.length : 0), 0);
   var validIntradayObCount = intradayObs.filter(isMeaningfulOb).length;
+  var intradayObImageCount = intradayObs.reduce((sum, ob) => sum + ((ob && Array.isArray(ob.images)) ? ob.images.length : 0), 0);
   var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
   var revImageCount = revs.reduce((sum, r) => sum + ((r && Array.isArray(r.images)) ? r.images.length : 0), 0);
   var validEntriesCount = entries.filter(en => en && (en.time || en.entryModel || (Array.isArray(en.entryStyle) && en.entryStyle.length > 0) || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
@@ -2550,8 +2557,11 @@ function getViewportWidth() {
         { label: '隔夜 EQH/EQL', value: validEqLevelCount + ' 个' },
         { label: 'EQH/EQL 图片', value: eqLevelImageCount + ' 张' },
         { label: '盘前关键 FVG', value: validPremarketFvgCount + ' 个' },
+        { label: '盘前 FVG 图片', value: premarketFvgImageCount + ' 张' },
         { label: '盘前 OB', value: validPremarketObCount + ' 个' },
+        { label: '盘前 OB 图片', value: premarketObImageCount + ' 张' },
         { label: '关键 NWOG/NDOG', value: validOvernightGapCount + ' 个' },
+        { label: 'NWOG/NDOG 图片', value: overnightGapImageCount + ' 张' },
         { label: '行情段', value: validSegsCount + ' 段' },
         { label: '行情段图片', value: segImageCount + ' 张' },
         { label: 'Open Ref Range', value: orrFilled ? '已填写' : '未填写' },
@@ -2566,7 +2576,10 @@ function getViewportWidth() {
         { label: '执行点图片', value: execImageCount + ' 张' },
         { label: '盘中 EQH/EQL', value: validIntradayEqLevelCount + ' 个' },
         { label: '盘中 EQH/EQL 图片', value: intradayEqLevelImageCount + ' 张' },
+        { label: '盘中 FVG', value: validIntradayFvgCount + ' 个' },
+        { label: '盘中 FVG 图片', value: intradayFvgImageCount + ' 张' },
         { label: '盘中 OB', value: validIntradayObCount + ' 个' },
+        { label: '盘中 OB 图片', value: intradayObImageCount + ' 张' },
         { label: 'Reversals', value: validRevsCount + ' 个' },
         { label: 'Reversal 图片', value: revImageCount + ' 张' },
         { label: '入场记录', value: validEntriesCount + ' 笔' },
@@ -2912,8 +2925,9 @@ function getViewportWidth() {
       middleTime: item && typeof item.middle_candle_time === 'string' ? item.middle_candle_time : '',
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.fvg_high != null ? String(item.fvg_high) : '',
-      low: item && item.fvg_low != null ? String(item.fvg_low) : ''
-    })).filter(item => item.fvgType || item.timeframeNum || item.middleTime || item.direction || item.high || item.low) ;
+      low: item && item.fvg_low != null ? String(item.fvg_low) : '',
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => item.fvgType || item.timeframeNum || item.middleTime || item.direction || item.high || item.low || item.images.length > 0) ;
     if (!Array.isArray(overnight.premarket_key_fvgs)) importedPremarketFvgs = makeInitialPremarketFvgs();
 
     var importedPremarketObs = Array.isArray(overnight.premarket_obs) ? overnight.premarket_obs.map(item => ({
@@ -2926,7 +2940,8 @@ function getViewportWidth() {
       timeframeUnit: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.ob_high != null ? String(item.ob_high) : '',
-      low: item && item.ob_low != null ? String(item.ob_low) : ''
+      low: item && item.ob_low != null ? String(item.ob_low) : '',
+      images: normalizeImportedImages(item && item.images)
     })).filter(isMeaningfulOb) : makeInitialPremarketObs();
 
     var importedEqLevels = Array.isArray(overnight.eq_levels) ? overnight.eq_levels.map(item => ({
@@ -2955,8 +2970,9 @@ function getViewportWidth() {
       endTime: item && typeof item.end_time === 'string' ? item.end_time : '',
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.gap_high != null ? String(item.gap_high) : '',
-      low: item && item.gap_low != null ? String(item.gap_low) : ''
-    })).filter(item => (item.type && item.type !== 'ndog') || item.dayOffset || item.startDate || item.endDate || item.direction || item.high || item.low) : makeInitialOvernightGaps();
+      low: item && item.gap_low != null ? String(item.gap_low) : '',
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => (item.type && item.type !== 'ndog') || item.dayOffset || item.startDate || item.endDate || item.direction || item.high || item.low || item.images.length > 0) : makeInitialOvernightGaps();
 
     var importedFvgRefMap = {};
     importedPremarketFvgs.forEach(item => {
@@ -3075,8 +3091,9 @@ function getViewportWidth() {
       middleTime: item && typeof item.middle_candle_time === 'string' ? item.middle_candle_time : '',
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.fvg_high != null ? String(item.fvg_high) : '',
-      low: item && item.fvg_low != null ? String(item.fvg_low) : ''
-    })).filter(item => item.fvgType || item.dayOffset || item.timeframeNum || item.middleTime || item.direction || item.high || item.low) : makeInitialIntradayFvgs();
+      low: item && item.fvg_low != null ? String(item.fvg_low) : '',
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => item.fvgType || item.dayOffset || item.timeframeNum || item.middleTime || item.direction || item.high || item.low || item.images.length > 0) : makeInitialIntradayFvgs();
     var importedIntradayObs = Array.isArray(execution.intraday_obs) ? execution.intraday_obs.map(item => ({
       id: nid(),
       dayOffsetFrom: normalizeDayOffset(item && item.from_day_offset),
@@ -3087,7 +3104,8 @@ function getViewportWidth() {
       timeframeUnit: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.ob_high != null ? String(item.ob_high) : '',
-      low: item && item.ob_low != null ? String(item.ob_low) : ''
+      low: item && item.ob_low != null ? String(item.ob_low) : '',
+      images: normalizeImportedImages(item && item.images)
     })).filter(isMeaningfulOb) : makeInitialIntradayObs();
     var importedExecs = Array.isArray(execution.key_points) ? execution.key_points.map(item => ({
       id: nid(),
@@ -3935,7 +3953,7 @@ function getViewportWidth() {
       L.push('  premarket_key_fvgs:');
       premarketFvgs.forEach(fvg => {
         var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
-        if (fvg.fvgType || fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
+        if (fvg.fvgType || fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low || (Array.isArray(fvg.images) && fvg.images.length > 0)) {
           if (fvg.fvgType) L.push('    - fvg_type: ' + fvg.fvgType);
           else L.push('    - fvg_type: fvg');
           L.push('      timeframe: ' + (timeframe || '""'));
@@ -3944,6 +3962,7 @@ function getViewportWidth() {
           if (fvg.direction) L.push('      direction: ' + fvg.direction);
           if (fvg.high) L.push('      fvg_high: ' + fvg.high);
           if (fvg.low) L.push('      fvg_low: ' + fvg.low);
+          pushImagesYaml(L, 6, fvg.images);
         }
       });
     }
@@ -3960,6 +3979,7 @@ function getViewportWidth() {
           if (ob.direction) L.push('      direction: ' + ob.direction);
           if (ob.high) L.push('      ob_high: ' + ob.high);
           if (ob.low) L.push('      ob_low: ' + ob.low);
+          pushImagesYaml(L, 6, ob.images);
         }
       });
     }
@@ -3994,6 +4014,7 @@ function getViewportWidth() {
           if (gap.direction) L.push('      direction: ' + gap.direction);
           if (gap.high) L.push('      gap_high: ' + gap.high);
           if (gap.low) L.push('      gap_low: ' + gap.low);
+          pushImagesYaml(L, 6, gap.images);
         }
       });
     }
@@ -4110,11 +4131,11 @@ function getViewportWidth() {
         }
       });
     }
-    if (intradayFvgs.some(fvg => fvg.fvgType || fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
+    if (intradayFvgs.some(fvg => fvg.fvgType || fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low || (Array.isArray(fvg.images) && fvg.images.length > 0))) {
       L.push('  intraday_fvgs:');
       intradayFvgs.forEach(fvg => {
         var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
-        if (fvg.fvgType || fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
+        if (fvg.fvgType || fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low || (Array.isArray(fvg.images) && fvg.images.length > 0)) {
           if (fvg.fvgType) L.push('    - fvg_type: ' + fvg.fvgType);
           else L.push('    - fvg_type: fvg');
           L.push('      timeframe: ' + (timeframe || '""'));
@@ -4123,6 +4144,7 @@ function getViewportWidth() {
           if (fvg.direction) L.push('      direction: ' + fvg.direction);
           if (fvg.high) L.push('      fvg_high: ' + fvg.high);
           if (fvg.low) L.push('      fvg_low: ' + fvg.low);
+          pushImagesYaml(L, 6, fvg.images);
         }
       });
     }
@@ -4139,6 +4161,7 @@ function getViewportWidth() {
           if (ob.direction) L.push('      direction: ' + ob.direction);
           if (ob.high) L.push('      ob_high: ' + ob.high);
           if (ob.low) L.push('      ob_low: ' + ob.low);
+          pushImagesYaml(L, 6, ob.images);
         }
       });
     }
@@ -4725,11 +4748,12 @@ function getViewportWidth() {
                       )
                     )
                   )
+                  , _react2.default.createElement(ImageListEditor, { images: fvg.images, onChange: v => updPremarketFvg(fvg.id, 'images', v), title: "图片记录", hint: "记录这个盘前 FVG 的结构图、标注图或回放截图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "premarket_fvg" } )
                 )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setPremarketFvgs(p => [...p, { id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setPremarketFvgs(p => [...p, { id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 FVG"
           )
         )
@@ -4793,10 +4817,13 @@ function getViewportWidth() {
                   )
                 )
                 , isMeaningfulOvernightGap(gap) && gapWindow.error && _react2.default.createElement('div', { className: "ml-7 mt-2 text-[11px] text-amber-500" }, gapWindow.error)
+                , _react2.default.createElement('div', { className: "ml-7" }
+                  , _react2.default.createElement(ImageListEditor, { images: gap.images, onChange: v => updOvernightGap(gap.id, 'images', v), title: "图片记录", hint: "记录这个 NWOG / NDOG 的范围图、标注图或验证截图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "overnight_gap" } )
+                )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setOvernightGaps(p => [...p, { id: nid(), type: 'ndog', dayOffset: 0, startDate: '', startTime: '', endDate: '', endTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setOvernightGaps(p => [...p, { id: nid(), type: 'ndog', dayOffset: 0, startDate: '', startTime: '', endDate: '', endTime: '', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 NWOG / NDOG"
           )
         )
@@ -4889,11 +4916,12 @@ function getViewportWidth() {
                       )
                     )
                   )
+                  , _react2.default.createElement(ImageListEditor, { images: ob.images, onChange: v => updPremarketOb(ob.id, 'images', v), title: "图片记录", hint: "记录这个盘前 OB 的范围图、确认图或标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "premarket_ob" } )
                 )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setPremarketObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setPremarketObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 OB"
           )
         )
@@ -5355,11 +5383,12 @@ function getViewportWidth() {
                     )
                   )
                 )
+                , _react2.default.createElement(ImageListEditor, { images: fvg.images, onChange: v => updIntradayFvg(fvg.id, 'images', v), title: "图片记录", hint: "记录这个盘中 FVG 的结构图、标注图或回放截图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "intraday_fvg" } )
               )
               )
             )
           })
-          , _react2.default.createElement('button', { onClick: () => setIntradayFvgs(p => [...p, { id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setIntradayFvgs(p => [...p, { id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘中 FVG"
           )
         )
@@ -5452,11 +5481,12 @@ function getViewportWidth() {
                       )
                     )
                   )
+                  , _react2.default.createElement(ImageListEditor, { images: ob.images, onChange: v => updIntradayOb(ob.id, 'images', v), title: "图片记录", hint: "记录这个盘中 OB 的范围图、确认图或标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "intraday_ob" } )
                 )
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setIntradayObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setIntradayObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘中 OB"
           )
         )
