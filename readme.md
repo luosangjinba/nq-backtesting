@@ -261,6 +261,52 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 
 页面中的“价格查询助手”现在已经改成通过本地 API 查 DuckDB，不再依赖单独的数据库服务。
 
+## 页面启动与本地运行时
+
+`yaml_panel.html` 现在不再依赖外网 CDN。为了避免 Linux / Windows 在离线、DNS 异常或网络受限时白屏，页面会优先加载同目录下的本地运行时文件：
+
+- [vendor-tailwind.js](/home/leo/myworkspace/trading/backtesting/vendor-tailwind.js)
+- [vendor-react.production.min.js](/home/leo/myworkspace/trading/backtesting/vendor-react.production.min.js)
+- [vendor-react-dom.production.min.js](/home/leo/myworkspace/trading/backtesting/vendor-react-dom.production.min.js)
+
+推荐启动方式：
+
+1. 启动本地查价 API
+2. 在项目目录启动静态文件服务
+3. 用浏览器访问 `http://127.0.0.1:8000/yaml_panel.html`
+
+Linux 示例：
+
+```bash
+cd '/home/leo/myworkspace/trading/backtesting'
+python3 price_lookup_api.py --db-file trading_data.duckdb
+```
+
+另开一个终端：
+
+```bash
+cd '/home/leo/myworkspace/trading/backtesting'
+python3 -m http.server 8000
+```
+
+如果页面启动失败，底部挂载脚本会显示一个可见的 `Boot Error` 面板，而不是纯白屏。
+
+## 最小迁移清单
+
+如果要把这套页面迁移到另一台 Windows / Linux 机器，最小可运行清单是：
+
+- [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html)
+- [vendor-tailwind.js](/home/leo/myworkspace/trading/backtesting/vendor-tailwind.js)
+- [vendor-react.production.min.js](/home/leo/myworkspace/trading/backtesting/vendor-react.production.min.js)
+- [vendor-react-dom.production.min.js](/home/leo/myworkspace/trading/backtesting/vendor-react-dom.production.min.js)
+- [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)
+- `trading_data.duckdb`
+
+如果还要保留历史截图和导出的复盘记录，再一起复制：
+
+- `backtesting-images/`
+- `.yaml / .yml` 文件
+
 ## 本地图片上传
 
 页面中的图片记录支持直接上传到本地 API。
@@ -318,6 +364,76 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
   - `Reversals` 数量 / 图片数
   - 入场记录数 / 图片数
   - 所有这些区块都会按 `绿/黄/红` badge 区分已完成、部分待处理、空白占位
+
+## 当前页面布局
+
+这轮布局优化主要不是改功能，而是把页面重新整理成更清晰的工作流层级。
+
+### 页面级结构
+
+- 左侧：实时统计面板
+- 中间：主编辑工作区
+- 顶部：标题、当前日期、分页标签
+- 浮动区：价格查询助手
+
+桌面端统计面板会左侧贴边，不再影响中间主框居中；小屏时会回到页面上方。
+
+### 工作流分组
+
+`隔夜结构` 和 `执行观察` 现在都采用了“引导卡 + 阶段分段”的组织方式：
+
+- `隔夜结构`
+  - 结构识别
+  - 区间记录
+- `执行观察`
+  - 观察采样
+  - 反转确认
+
+### 卡片级分层
+
+为了降低录入密度，几个最复杂的区块被拆成了更稳定的层次：
+
+- 行情段
+  - `核心结构`
+  - `结构动作`
+  - `补充记录`
+- Reversals
+  - `触发定义`
+  - `补充记录`
+- 入场记录
+  - `核心执行`
+  - `关联与依据`
+  - `结果`
+
+### 视觉语义
+
+页面里常见提示现在开始统一成固定语义：
+
+- `status-note--info`
+  - 自动推算、RR 计算、普通说明
+- `status-note--warn`
+  - 缺关键数据、方向不一致、待处理提醒
+- `status-note--link`
+  - 关联关键点、关联 Reversal、引用摘要
+- `status-note--success`
+  - 可用于后续接入明确完成反馈
+
+状态胶囊也统一成了 `status-pill` 体系，用于：
+
+- `SMT`
+- `Immediate Rebalance`
+- `Plan RR / Actual RR`
+- 成功 / 风险 / 引用类状态
+
+### 图片区布局
+
+图片记录区也统一成了同一种展开结构：
+
+- 外层 `image-panel`
+- 展开体 `image-panel__body`
+- 单图卡片 `image-item-card`
+
+这样不同模块里的图片区不再忽大忽小，浏览和上传的节奏更一致。
 
 ## FVG 结构
 
@@ -524,7 +640,23 @@ restart_api.bat
 http://127.0.0.1:8000/yaml_panel.html
 ```
 
+Windows 端如果使用最新页面，也需要确保下面这 4 个文件与 `yaml_panel.html` 放在同一目录：
+
+- [vendor-tailwind.js](/home/leo/myworkspace/trading/backtesting/vendor-tailwind.js)
+- [vendor-react.production.min.js](/home/leo/myworkspace/trading/backtesting/vendor-react.production.min.js)
+- [vendor-react-dom.production.min.js](/home/leo/myworkspace/trading/backtesting/vendor-react-dom.production.min.js)
+- [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html)
+
 如果这次只是页面样式或交互更新，而 Python 文件没变，通常只需要把最新的 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 覆盖到 Windows 目录即可。
+
+如果页面无法加载、出现白屏或提示 `App module not loaded`，优先检查：
+
+1. 是否通过 `http://127.0.0.1:8000/yaml_panel.html` 打开，而不是直接双击 `file://`
+2. `yaml_panel.html` 同目录下是否存在这 3 个本地运行时文件：
+   - `vendor-tailwind.js`
+   - `vendor-react.production.min.js`
+   - `vendor-react-dom.production.min.js`
+3. 浏览器是否还缓存着旧页面，必要时强制刷新一次
 
 如果这次改动涉及以下能力，则 Windows 端需要同时更新 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)：
 
