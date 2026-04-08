@@ -616,6 +616,10 @@ const SEGMENT_ACTION_OPTIONS = [
   { value: 'fill_gap', label: 'Fill 某个 NDOG/NWOG' }
 ];
 
+const REVERSAL_REASON_OPTIONS = [
+  { value: 'unknown', label: '未知' }
+].concat(SEGMENT_ACTION_OPTIONS);
+
 const EQ_LEVEL_TYPE_OPTIONS = [
   { value: 'eqh', label: 'EQH' },
   { value: 'eql', label: 'EQL' }
@@ -1447,8 +1451,20 @@ function makeInitialExecs() {
   return [{ id: nid(), time: '', price: '', note: '', images: [] }];
 }
 
+function makeReversalReason() {
+  return { id: nid(), actionType: '', actionRef: '' };
+}
+
+function makeReversal() {
+  return { id: nid(), execRef: '', shape: '', reasons: [makeReversalReason()], smt: false, immediateRebalance: false, note: '', images: [] };
+}
+
 function makeInitialRevs() {
-  return [{ id: nid(), execRef: '', shape: '', actionType: '', actionRef: '', smt: false, immediateRebalance: false, note: '', images: [] }];
+  return [makeReversal()];
+}
+
+function isMeaningfulReversalReason(reason) {
+  return !!(reason && (reason.actionType || reason.actionRef));
 }
 
 function makeInitialEntries() {
@@ -2498,7 +2514,7 @@ function getStatsSectionTitleForTab(tabIndex) {
   var intradayFvgImageCount = intradayFvgs.reduce((sum, fvg) => sum + ((fvg && Array.isArray(fvg.images)) ? fvg.images.length : 0), 0);
   var validIntradayObCount = intradayObs.filter(isMeaningfulOb).length;
   var intradayObImageCount = intradayObs.reduce((sum, ob) => sum + ((ob && Array.isArray(ob.images)) ? ob.images.length : 0), 0);
-  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
+  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
   var revImageCount = revs.reduce((sum, r) => sum + ((r && Array.isArray(r.images)) ? r.images.length : 0), 0);
   var validEntriesCount = entries.filter(en => en && (en.time || en.entryModel || (Array.isArray(en.entryStyle) && en.entryStyle.length > 0) || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
   var entryImageCount = entries.reduce((sum, en) => sum + ((en && Array.isArray(en.images)) ? en.images.length : 0), 0);
@@ -2701,6 +2717,28 @@ function getStatsSectionTitleForTab(tabIndex) {
   }
   function updExec(id, f, v) { setExecs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
   function updRev(id, f, v) { setRevs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
+  function updRevReason(revId, reasonId, field, value) {
+    setRevs(p => p.map(rev => rev.id === revId
+      ? {
+          ...rev,
+          reasons: (rev.reasons || []).map(reason => reason.id === reasonId ? { ...reason, [field]: value } : reason)
+        }
+      : rev
+    ));
+  }
+  function addRevReason(revId) {
+    setRevs(p => p.map(rev => rev.id === revId
+      ? { ...rev, reasons: [...(rev.reasons || []), makeReversalReason()] }
+      : rev
+    ));
+  }
+  function removeRevReason(revId, reasonId) {
+    setRevs(p => p.map(rev => {
+      if (rev.id !== revId) return rev;
+      var nextReasons = (rev.reasons || []).filter(reason => reason.id !== reasonId);
+      return { ...rev, reasons: nextReasons.length ? nextReasons : [makeReversalReason()] };
+    }));
+  }
   function updEntry(id, f, v) { setEntries(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
   function getMappedExitPrice(entry, exitType) {
     if (!entry) return '';
@@ -3127,95 +3165,112 @@ function getStatsSectionTitleForTab(tabIndex) {
     });
 
     var importedRevsRaw = Array.isArray(execution.reversals) ? execution.reversals : [];
+    function buildImportedReversalReason(rawType, rawRef) {
+      return {
+        id: nid(),
+        actionType: rawType || '',
+        actionRef: rawRef || ''
+      };
+    }
     var reversalRefMap = {};
     var importedRevs = importedRevsRaw.map((item, index) => {
       var newId = nid();
       var sourceId = item && item.id != null ? String(item.id) : String(index + 1);
-      var rawRevActionType = item && typeof item.action_type === 'string' ? item.action_type : '';
-      var importedRevActionRef = '';
-      if (rawRevActionType === 'tap_ob') {
-        if (item && typeof item.intraday_ob_from_time === 'string') {
-          importedRevActionRef = importedIntradayObRefMap[
-            normalizeDayOffset(item && item.intraday_ob_from_day_offset) + '|' +
-            (item && typeof item.intraday_ob_from_time === 'string' ? item.intraday_ob_from_time : '') + '|' +
-            normalizeDayOffset(item && item.intraday_ob_to_day_offset) + '|' +
-            (item && typeof item.intraday_ob_to_time === 'string' ? item.intraday_ob_to_time : '') + '|' +
-            (item && typeof item.intraday_ob_timeframe === 'string' ? item.intraday_ob_timeframe : '')
+      function mapImportedReversalAction(actionItem) {
+        var rawRevActionType = actionItem && typeof actionItem.action_type === 'string' ? actionItem.action_type : '';
+        var importedRevActionRef = '';
+        if (rawRevActionType === 'tap_ob') {
+          if (actionItem && typeof actionItem.intraday_ob_from_time === 'string') {
+            importedRevActionRef = importedIntradayObRefMap[
+              normalizeDayOffset(actionItem && actionItem.intraday_ob_from_day_offset) + '|' +
+              (actionItem && typeof actionItem.intraday_ob_from_time === 'string' ? actionItem.intraday_ob_from_time : '') + '|' +
+              normalizeDayOffset(actionItem && actionItem.intraday_ob_to_day_offset) + '|' +
+              (actionItem && typeof actionItem.intraday_ob_to_time === 'string' ? actionItem.intraday_ob_to_time : '') + '|' +
+              (actionItem && typeof actionItem.intraday_ob_timeframe === 'string' ? actionItem.intraday_ob_timeframe : '')
+            ] || '';
+            if (importedRevActionRef) importedRevActionRef = 'iob:' + importedRevActionRef;
+          } else {
+            importedRevActionRef = importedPremarketObRefMap[
+              normalizeDayOffset(actionItem && actionItem.ob_from_day_offset) + '|' +
+              (actionItem && typeof actionItem.ob_from_time === 'string' ? actionItem.ob_from_time : '') + '|' +
+              normalizeDayOffset(actionItem && actionItem.ob_to_day_offset) + '|' +
+              (actionItem && typeof actionItem.ob_to_time === 'string' ? actionItem.ob_to_time : '') + '|' +
+              (actionItem && typeof actionItem.ob_timeframe === 'string' ? actionItem.ob_timeframe : '')
+            ] || '';
+            if (importedRevActionRef) importedRevActionRef = 'pob:' + importedRevActionRef;
+          }
+        } else if (rawRevActionType === 'tap_fvg' || rawRevActionType === 'tap_fvg_ce' || rawRevActionType === 'fill_fvg') {
+          importedRevActionRef = importedFvgRefMap[
+            String(actionItem && actionItem.fvg_type ? actionItem.fvg_type : 'fvg').toLowerCase() + '|' +
+            normalizeDayOffset(actionItem && actionItem.fvg_day_offset) + '|' +
+            (actionItem && typeof actionItem.fvg_timeframe === 'string' ? actionItem.fvg_timeframe : '') + '|' +
+            (actionItem && typeof actionItem.fvg_middle_candle_time === 'string' ? actionItem.fvg_middle_candle_time : '')
           ] || '';
-          if (importedRevActionRef) importedRevActionRef = 'iob:' + importedRevActionRef;
-        } else {
-          importedRevActionRef = importedPremarketObRefMap[
-            normalizeDayOffset(item && item.ob_from_day_offset) + '|' +
-            (item && typeof item.ob_from_time === 'string' ? item.ob_from_time : '') + '|' +
-            normalizeDayOffset(item && item.ob_to_day_offset) + '|' +
-            (item && typeof item.ob_to_time === 'string' ? item.ob_to_time : '') + '|' +
-            (item && typeof item.ob_timeframe === 'string' ? item.ob_timeframe : '')
+          if (importedRevActionRef) importedRevActionRef = 'pfvg:' + importedRevActionRef;
+        } else if (rawRevActionType === 'tap_gap' || rawRevActionType === 'tap_gap_ce' || rawRevActionType === 'fill_gap') {
+          importedRevActionRef = importedGapRefMap[
+            ((actionItem && typeof actionItem.gap_type === 'string' ? actionItem.gap_type : 'ndog')) + '|' +
+            normalizeDayOffset(actionItem && actionItem.gap_day_offset) + '|' +
+            (actionItem && typeof actionItem.gap_start_date === 'string' ? actionItem.gap_start_date : '') + '|' +
+            (actionItem && typeof actionItem.gap_start_time === 'string' ? actionItem.gap_start_time : '') + '|' +
+            (actionItem && typeof actionItem.gap_end_date === 'string' ? actionItem.gap_end_date : '') + '|' +
+            (actionItem && typeof actionItem.gap_end_time === 'string' ? actionItem.gap_end_time : '')
           ] || '';
-          if (importedRevActionRef) importedRevActionRef = 'pob:' + importedRevActionRef;
-        }
-      } else if (rawRevActionType === 'tap_fvg' || rawRevActionType === 'tap_fvg_ce' || rawRevActionType === 'fill_fvg') {
-        importedRevActionRef = importedFvgRefMap[
-          String(item && item.fvg_type ? item.fvg_type : 'fvg').toLowerCase() + '|' +
-          normalizeDayOffset(item && item.fvg_day_offset) + '|' +
-          (item && typeof item.fvg_timeframe === 'string' ? item.fvg_timeframe : '') + '|' +
-          (item && typeof item.fvg_middle_candle_time === 'string' ? item.fvg_middle_candle_time : '')
-        ] || '';
-        if (importedRevActionRef) importedRevActionRef = 'pfvg:' + importedRevActionRef;
-      } else if (rawRevActionType === 'tap_gap' || rawRevActionType === 'tap_gap_ce' || rawRevActionType === 'fill_gap') {
-        importedRevActionRef = importedGapRefMap[
-          ((item && typeof item.gap_type === 'string' ? item.gap_type : 'ndog')) + '|' +
-          normalizeDayOffset(item && item.gap_day_offset) + '|' +
-          (item && typeof item.gap_start_date === 'string' ? item.gap_start_date : '') + '|' +
-          (item && typeof item.gap_start_time === 'string' ? item.gap_start_time : '') + '|' +
-          (item && typeof item.gap_end_date === 'string' ? item.gap_end_date : '') + '|' +
-          (item && typeof item.gap_end_time === 'string' ? item.gap_end_time : '')
-        ] || '';
-        if (importedRevActionRef) importedRevActionRef = 'gap:' + importedRevActionRef;
-      } else if (rawRevActionType === 'break_reference' || rawRevActionType === 'sweep_reclaim' || rawRevActionType === 'looming_reference') {
-        if (Array.isArray(item && item.eq_key_points)) {
-          importedRevActionRef = importedEqLevelRefMap[
-            getEqLevelSignatureFromTokens(
-              item && typeof item.eq_level_type === 'string' ? item.eq_level_type : '',
-              item.eq_key_points.map(pointToken => String(pointToken || '').trim())
-            )
-          ] || '';
-          if (importedRevActionRef) importedRevActionRef = 'eq:' + importedRevActionRef;
-        } else if (item && typeof item.key_point === 'string') {
-          var importedRevPoint = findImportedPtBySelection(item.key_point);
-          if (importedRevPoint) importedRevActionRef = 'pt:' + String(importedRevPoint.id);
-        } else if (item && typeof item.execution_key_point === 'string') {
-          for (var rei = 0; rei < importedExecs.length; rei++) {
-            if (importedExecs[rei].time === item.execution_key_point && okTime(importedExecs[rei].time)) {
-              importedRevActionRef = 'exec:' + String(importedExecs[rei].id);
-              break;
+          if (importedRevActionRef) importedRevActionRef = 'gap:' + importedRevActionRef;
+        } else if (rawRevActionType === 'break_reference' || rawRevActionType === 'sweep_reclaim' || rawRevActionType === 'looming_reference') {
+          if (Array.isArray(actionItem && actionItem.eq_key_points)) {
+            importedRevActionRef = importedEqLevelRefMap[
+              getEqLevelSignatureFromTokens(
+                actionItem && typeof actionItem.eq_level_type === 'string' ? actionItem.eq_level_type : '',
+                actionItem.eq_key_points.map(pointToken => String(pointToken || '').trim())
+              )
+            ] || '';
+            if (importedRevActionRef) importedRevActionRef = 'eq:' + importedRevActionRef;
+          } else if (actionItem && typeof actionItem.key_point === 'string') {
+            var importedRevPoint = findImportedPtBySelection(actionItem.key_point);
+            if (importedRevPoint) importedRevActionRef = 'pt:' + String(importedRevPoint.id);
+          } else if (actionItem && typeof actionItem.execution_key_point === 'string') {
+            for (var rei = 0; rei < importedExecs.length; rei++) {
+              if (importedExecs[rei].time === actionItem.execution_key_point && okTime(importedExecs[rei].time)) {
+                importedRevActionRef = 'exec:' + String(importedExecs[rei].id);
+                break;
+              }
+            }
+          } else if (Array.isArray(actionItem && actionItem.intraday_eq_key_points)) {
+            for (var iei = 0; iei < importedIntradayEqLevels.length; iei++) {
+              var candidateIntradayEq = importedIntradayEqLevels[iei];
+              if (getIntradayEqLevelSignatureFromTokens(
+                actionItem && typeof actionItem.intraday_eq_type === 'string' ? actionItem.intraday_eq_type : '',
+                actionItem.intraday_eq_key_points.map(pointToken => String(pointToken || '').trim())
+              ) === getIntradayEqLevelSignatureFromRefs(candidateIntradayEq.type, candidateIntradayEq.pointRefs)) {
+                importedRevActionRef = 'ieq:' + String(candidateIntradayEq.id);
+                break;
+              }
             }
           }
-        } else if (Array.isArray(item && item.intraday_eq_key_points)) {
-          for (var iei = 0; iei < importedIntradayEqLevels.length; iei++) {
-            var candidateIntradayEq = importedIntradayEqLevels[iei];
-            if (getIntradayEqLevelSignatureFromTokens(
-              item && typeof item.intraday_eq_type === 'string' ? item.intraday_eq_type : '',
-              item.intraday_eq_key_points.map(pointToken => String(pointToken || '').trim())
-            ) === getIntradayEqLevelSignatureFromRefs(candidateIntradayEq.type, candidateIntradayEq.pointRefs)) {
-              importedRevActionRef = 'ieq:' + String(candidateIntradayEq.id);
-              break;
-            }
-          }
         }
+        return buildImportedReversalReason(rawRevActionType, importedRevActionRef);
+      }
+      var importedReasonsRaw = Array.isArray(item && item.action_reasons) ? item.action_reasons : [];
+      var importedReasons = importedReasonsRaw.length
+        ? importedReasonsRaw.map(mapImportedReversalAction).filter(isMeaningfulReversalReason)
+        : [];
+      if (!importedReasons.length) {
+        var legacyReason = mapImportedReversalAction(item);
+        if (isMeaningfulReversalReason(legacyReason)) importedReasons.push(legacyReason);
       }
       reversalRefMap[sourceId] = 'rev_' + newId;
       return {
         id: newId,
         execRef: item && typeof item.time === 'string' ? item.time : '',
         shape: item && typeof item.shape === 'string' ? item.shape : '',
-        actionType: rawRevActionType,
-        actionRef: importedRevActionRef,
+        reasons: importedReasons.length ? importedReasons : [makeReversalReason()],
         smt: !!(item && item.smt),
         immediateRebalance: !!(item && item.immediate_rebalance),
         note: item && typeof item.note === 'string' ? item.note : '',
         images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.execRef || item.shape || item.actionType || item.actionRef || item.smt || item.immediateRebalance || item.note || item.images.length > 0);
+    }).filter(item => item.execRef || item.shape || item.reasons.some(isMeaningfulReversalReason) || item.smt || item.immediateRebalance || item.note || item.images.length > 0);
 
     var importedEntries = Array.isArray(parsed.entry) ? parsed.entry.map(item => {
       var result = item && typeof item.result === 'object' ? item.result : {};
@@ -3595,6 +3650,8 @@ function getStatsSectionTitleForTab(tabIndex) {
     var fromHigh = parseFloat(fromOhlc.high);
     var toLow = parseFloat(toOhlc.low);
     var toHigh = parseFloat(toOhlc.high);
+    var fromClose = parseFloat(fromOhlc.close);
+    var toClose = parseFloat(toOhlc.close);
     var rangeHigh = parseFloat(rangeOhlc.high);
     var rangeLow = parseFloat(rangeOhlc.low);
 
@@ -3610,6 +3667,7 @@ function getStatsSectionTitleForTab(tabIndex) {
     var direction = '';
     if (bullish && !bearish) direction = 'bearish';
     else if (bearish && !bullish) direction = 'bullish';
+    else if (!isNaN(fromClose) && !isNaN(toClose) && fromClose !== toClose) direction = toClose > fromClose ? 'bullish' : 'bearish';
 
     saveRecord(direction, String(rangeHigh), String(rangeLow));
     setLookupError(direction ? '' : '已计算区间高低点，但方向不明确。');
@@ -4142,10 +4200,10 @@ function getStatsSectionTitleForTab(tabIndex) {
         }
       });
     }
-    if (revs.some(r => r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))) {
+    if (revs.some(r => r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))) {
       L.push('  reversals:');
       revs.forEach((r, ri) => {
-        if (r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0)) {
+        if (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0)) {
           var sess = getRevSession(r);
           var price = getRevPrice(r);
           L.push('    - id: ' + (ri + 1));
@@ -4153,71 +4211,75 @@ function getStatsSectionTitleForTab(tabIndex) {
           L.push('      session: ' + (sess ? sess.value : '""'));
           if (price) L.push('      price: ' + price);
           if (r.shape) L.push('      shape: ' + r.shape);
-          if (r.actionType) L.push('      action_type: ' + r.actionType);
-          if (r.actionRef) {
-            var revReference = findReversalReferenceBySelection(r.actionRef);
-            if (revReference) {
+          var revReasons = Array.isArray(r.reasons) ? r.reasons.filter(isMeaningfulReversalReason) : [];
+          if (revReasons.length > 0) {
+            L.push('      action_reasons:');
+            revReasons.forEach(reason => {
+              L.push('        - action_type: ' + (reason.actionType || '""'));
+              if (!reason.actionRef) return;
+              var revReference = findReversalReferenceBySelection(reason.actionRef);
+              if (!revReference) return;
               if (revReference.kind === 'overnight_point' && revReference.point) {
-                L.push('      key_point: "' + getPtTimeValue(revReference.ref) + '"');
+                L.push('          key_point: "' + getPtTimeValue(revReference.ref) + '"');
               } else if (revReference.kind === 'overnight_eq_level' && revReference.eqLevel) {
                 var revEqRefs = normalizeEqLevelPointRefs(revReference.eqLevel.pointRefs);
-                if (revReference.eqLevel.type) L.push('      eq_level_type: ' + revReference.eqLevel.type);
+                if (revReference.eqLevel.type) L.push('          eq_level_type: ' + revReference.eqLevel.type);
                 if (revEqRefs.length > 0) {
-                  L.push('      eq_key_points:');
+                  L.push('          eq_key_points:');
                   revEqRefs.forEach(ref => {
                     var eqPoint = findPtBySelection(ref);
                     if (!eqPoint) return;
-                    L.push('        - ' + yamlQuote(getEqLevelPointToken(eqPoint)));
+                    L.push('            - ' + yamlQuote(getEqLevelPointToken(eqPoint)));
                   });
                 }
               } else if (revReference.kind === 'premarket_ob' && revReference.ob) {
                 var revObTimeframe = formatObTimeframe(revReference.ob.timeframeNum, revReference.ob.timeframeUnit);
-                L.push('      ob_from_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetFrom));
-                L.push('      ob_from_time: "' + (revReference.ob.fromTime || '') + '"');
-                L.push('      ob_to_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetTo));
-                L.push('      ob_to_time: "' + (revReference.ob.toTime || '') + '"');
-                if (revObTimeframe) L.push('      ob_timeframe: ' + revObTimeframe);
+                L.push('          ob_from_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetFrom));
+                L.push('          ob_from_time: "' + (revReference.ob.fromTime || '') + '"');
+                L.push('          ob_to_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetTo));
+                L.push('          ob_to_time: "' + (revReference.ob.toTime || '') + '"');
+                if (revObTimeframe) L.push('          ob_timeframe: ' + revObTimeframe);
               } else if (revReference.kind === 'premarket_fvg' && revReference.fvg) {
                 var revFvgTimeframe = formatFvgTimeframe(revReference.fvg.timeframeNum, revReference.fvg.timeframeUnit);
-                L.push('      fvg_type: ' + (revReference.fvg.fvgType || 'fvg'));
-                L.push('      fvg_day_offset: ' + normalizeDayOffset(revReference.fvg.dayOffset));
-                if (revFvgTimeframe) L.push('      fvg_timeframe: ' + revFvgTimeframe);
-                if (revReference.fvg.middleTime) L.push('      fvg_middle_candle_time: "' + revReference.fvg.middleTime + '"');
+                L.push('          fvg_type: ' + (revReference.fvg.fvgType || 'fvg'));
+                L.push('          fvg_day_offset: ' + normalizeDayOffset(revReference.fvg.dayOffset));
+                if (revFvgTimeframe) L.push('          fvg_timeframe: ' + revFvgTimeframe);
+                if (revReference.fvg.middleTime) L.push('          fvg_middle_candle_time: "' + revReference.fvg.middleTime + '"');
               } else if (revReference.kind === 'overnight_gap' && revReference.gap) {
-                L.push('      gap_type: ' + (revReference.gap.type || 'ndog'));
-                L.push('      gap_day_offset: ' + normalizeDayOffset(revReference.gap.dayOffset));
-                if (revReference.gap.startDate) L.push('      gap_start_date: ' + yamlQuote(revReference.gap.startDate));
-                if (revReference.gap.startTime) L.push('      gap_start_time: ' + yamlQuote(revReference.gap.startTime));
-                if (revReference.gap.endDate) L.push('      gap_end_date: ' + yamlQuote(revReference.gap.endDate));
-                if (revReference.gap.endTime) L.push('      gap_end_time: ' + yamlQuote(revReference.gap.endTime));
+                L.push('          gap_type: ' + (revReference.gap.type || 'ndog'));
+                L.push('          gap_day_offset: ' + normalizeDayOffset(revReference.gap.dayOffset));
+                if (revReference.gap.startDate) L.push('          gap_start_date: ' + yamlQuote(revReference.gap.startDate));
+                if (revReference.gap.startTime) L.push('          gap_start_time: ' + yamlQuote(revReference.gap.startTime));
+                if (revReference.gap.endDate) L.push('          gap_end_date: ' + yamlQuote(revReference.gap.endDate));
+                if (revReference.gap.endTime) L.push('          gap_end_time: ' + yamlQuote(revReference.gap.endTime));
               } else if (revReference.kind === 'execution_point' && revReference.execPoint) {
-                L.push('      execution_key_point: "' + (revReference.execPoint.time || '') + '"');
+                L.push('          execution_key_point: "' + (revReference.execPoint.time || '') + '"');
               } else if (revReference.kind === 'intraday_eq_level' && revReference.intradayEqLevel) {
                 var revIntradayEqRefs = normalizeIntradayEqPointRefs(revReference.intradayEqLevel.pointRefs);
-                if (revReference.intradayEqLevel.type) L.push('      intraday_eq_type: ' + revReference.intradayEqLevel.type);
+                if (revReference.intradayEqLevel.type) L.push('          intraday_eq_type: ' + revReference.intradayEqLevel.type);
                 if (revIntradayEqRefs.length > 0) {
-                  L.push('      intraday_eq_key_points:');
+                  L.push('          intraday_eq_key_points:');
                   revIntradayEqRefs.forEach(ref => {
                     var token = getIntradayEqPointToken(ref);
                     if (!token) return;
-                    L.push('        - ' + yamlQuote(token));
+                    L.push('            - ' + yamlQuote(token));
                   });
                 }
               } else if (revReference.kind === 'intraday_ob' && revReference.intradayOb) {
                 var revIntradayObTimeframe = formatObTimeframe(revReference.intradayOb.timeframeNum, revReference.intradayOb.timeframeUnit);
-                L.push('      intraday_ob_from_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetFrom));
-                L.push('      intraday_ob_from_time: "' + (revReference.intradayOb.fromTime || '') + '"');
-                L.push('      intraday_ob_to_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetTo));
-                L.push('      intraday_ob_to_time: "' + (revReference.intradayOb.toTime || '') + '"');
-                if (revIntradayObTimeframe) L.push('      intraday_ob_timeframe: ' + revIntradayObTimeframe);
+                L.push('          intraday_ob_from_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetFrom));
+                L.push('          intraday_ob_from_time: "' + (revReference.intradayOb.fromTime || '') + '"');
+                L.push('          intraday_ob_to_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetTo));
+                L.push('          intraday_ob_to_time: "' + (revReference.intradayOb.toTime || '') + '"');
+                if (revIntradayObTimeframe) L.push('          intraday_ob_timeframe: ' + revIntradayObTimeframe);
               } else if (revReference.kind === 'intraday_fvg' && revReference.intradayFvg) {
                 var revIntradayFvgTimeframe = formatFvgTimeframe(revReference.intradayFvg.timeframeNum, revReference.intradayFvg.timeframeUnit);
-                L.push('      intraday_fvg_type: ' + (revReference.intradayFvg.fvgType || 'fvg'));
-                L.push('      intraday_fvg_day_offset: ' + normalizeDayOffset(revReference.intradayFvg.dayOffset));
-                if (revIntradayFvgTimeframe) L.push('      intraday_fvg_timeframe: ' + revIntradayFvgTimeframe);
-                if (revReference.intradayFvg.middleTime) L.push('      intraday_fvg_middle_candle_time: "' + revReference.intradayFvg.middleTime + '"');
+                L.push('          intraday_fvg_type: ' + (revReference.intradayFvg.fvgType || 'fvg'));
+                L.push('          intraday_fvg_day_offset: ' + normalizeDayOffset(revReference.intradayFvg.dayOffset));
+                if (revIntradayFvgTimeframe) L.push('          intraday_fvg_timeframe: ' + revIntradayFvgTimeframe);
+                if (revReference.intradayFvg.middleTime) L.push('          intraday_fvg_middle_candle_time: "' + revReference.intradayFvg.middleTime + '"');
               }
-            }
+            });
           }
           L.push('      smt: ' + (r.smt ? 'true' : 'false'));
           L.push('      immediate_rebalance: ' + (r.immediateRebalance ? 'true' : 'false'));
@@ -5481,127 +5543,134 @@ function getStatsSectionTitleForTab(tabIndex) {
             var reversalAccent = idx % 2 === 0
               ? { wrap: { backgroundColor: 'rgba(95, 63, 102, 0.28)', borderColor: 'rgba(196, 155, 214, 0.22)' }, rule: { background: 'linear-gradient(90deg, rgba(196, 155, 214, 0.95), rgba(171, 172, 248, 0.62))' }, title: { color: '#efd8fb' }, chip: { color: '#d7b4ef' } }
               : { wrap: { backgroundColor: 'rgba(67, 76, 109, 0.30)', borderColor: 'rgba(164, 177, 229, 0.22)' }, rule: { background: 'linear-gradient(90deg, rgba(164, 177, 229, 0.94), rgba(124, 180, 185, 0.60))' }, title: { color: '#dde6ff' }, chip: { color: '#b8c8ff' } };
-            return (
-              _react2.default.createElement('div', { key: rev.id, className: "bg-purple-50 rounded-lg p-4 mb-3 border"   , style: reversalAccent.wrap }
-                , _react2.default.createElement('div', { className: "h-[3px] rounded-full mb-3" , style: reversalAccent.rule })
-                , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3"   ,}
-                  , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
-                    , _react2.default.createElement('span', { className: "text-sm font-semibold tracking-wide" , style: reversalAccent.title }, "Reversal " , idx + 1)
-                    , _react2.default.createElement('span', { className: "text-[10px] uppercase tracking-[0.22em]" , style: reversalAccent.chip }, "Turn")
-                    , rev.smt && (
-                      _react2.default.createElement('span', { className: "status-pill status-pill--info"        ,}, "⚡ SMT" )
-                    )
-                    , rev.immediateRebalance && (
-                      _react2.default.createElement('span', { className: "status-pill status-pill--info"        ,}, "↺ Immediate Rebalance" )
-                    )
-                  )
-                  , _react2.default.createElement('button', { onClick: () => { if (revs.length > 1) setRevs(p => p.filter(x => x.id !== rev.id)); }, className: "p-1 text-gray-400 hover:text-red-500"  ,}, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} ))
+            var revReasons = Array.isArray(rev.reasons) && rev.reasons.length ? rev.reasons : [makeReversalReason()];
+            return _react2.default.createElement('div', { key: rev.id, className: "bg-purple-50 rounded-lg p-4 mb-3 border", style: reversalAccent.wrap }
+              , _react2.default.createElement('div', { className: "h-[3px] rounded-full mb-3", style: reversalAccent.rule })
+              , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                , _react2.default.createElement('div', { className: "flex items-center gap-2 flex-wrap" }
+                  , _react2.default.createElement('span', { className: "text-sm font-semibold tracking-wide", style: reversalAccent.title }, "Reversal ", idx + 1)
+                  , _react2.default.createElement('span', { className: "text-[10px] uppercase tracking-[0.22em]", style: reversalAccent.chip }, "Turn")
+                  , rev.smt && _react2.default.createElement('span', { className: "status-pill status-pill--info" }, "⚡ SMT")
+                  , rev.immediateRebalance && _react2.default.createElement('span', { className: "status-pill status-pill--info" }, "↺ Immediate Rebalance")
                 )
-                , _react2.default.createElement('div', { className: "field-cluster mb-3" }
-                  , _react2.default.createElement('div', { className: "field-cluster__title" }, "触发定义")
-                  , _react2.default.createElement('div', { className: "mb-3",}
-                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}
-                    , _react2.default.createElement('span', { className: "inline-flex items-center gap-1"  ,}, _react2.default.createElement(_lucidereact.Link, { className: "w-3 h-3" ,} ), " 关联执行关键点" )
-                  )
-                  , _react2.default.createElement('select', { disabled: noExecOpts, value: rev.execRef, onChange: e => updRev(rev.id, 'execRef', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400"         ,}
-                    , _react2.default.createElement('option', { value: "",}, "选择关键点...")
-                    , execOpts.map((o, i) => (
-                      _react2.default.createElement('option', { key: o.value + '_' + i, value: o.value,}, o.label)
-                    ))
-                  )
-                )
-                , rev.execRef && (
-                  _react2.default.createElement('div', { className: "status-note status-note--link mb-3"      ,}
-                    , _react2.default.createElement('div', { className: "flex items-center gap-3 flex-wrap"   ,}
-                      , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
-                        , _react2.default.createElement('span', { className: "text-xs text-gray-500" ,}, "Session:")
-                        , sess ? (
-                          _react2.default.createElement('span', { className: `px-2.5 py-1 rounded-full text-xs font-semibold border ${sess.color}`,}
-                            , sess.label
-                          )
-                        ) : (
-                          _react2.default.createElement('span', { className: "text-xs text-gray-400 italic"  ,}, "未匹配")
-                        )
-                      )
-                      , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
-                        , _react2.default.createElement('span', { className: "text-xs text-gray-500" ,}, "时间:")
-                        , _react2.default.createElement('span', { className: "text-xs font-mono font-semibold text-gray-700"   ,}, rev.execRef)
-                      )
-                      , price && (
-                        _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
-                          , _react2.default.createElement('span', { className: "text-xs text-gray-500" ,}, "价格:")
-                          , _react2.default.createElement('span', { className: "text-xs font-mono font-semibold text-gray-700"   ,}, price)
-                        )
-                      )
-                    )
-                    , _react2.default.createElement('div', { className: "flex items-center gap-1 mt-2 text-xs text-purple-500"     ,}
-                      , _react2.default.createElement(_lucidereact.Zap, { className: "w-3 h-3" ,} )
-                      , _react2.default.createElement('span', null, "以上信息根据关联关键点自动推算")
-                    )
-                  )
-                )
-                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)] gap-3 mb-3"   ,}
-                  , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "Shape")
-                    , _react2.default.createElement('select', { value: rev.shape, onChange: e => updRev(rev.id, 'shape', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"       ,}
-                      , _react2.default.createElement('option', { value: "",}, "选择 Shape..." )
-                      , SHAPE_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value,}, o.label))
-                    )
-                  )
-                  , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "动作类型")
-                    , _react2.default.createElement('select', { value: rev.actionType, onChange: e => { updRev(rev.id, 'actionType', e.target.value); updRev(rev.id, 'actionRef', ''); }, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
-                      , _react2.default.createElement('option', { value: "" }, "选择动作类型...")
-                      , SEGMENT_ACTION_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'rev_action_' + opt.value, value: opt.value }, opt.label))
-                    )
-                  )
-                )
-                , _react2.default.createElement('div', { className: "mb-3" }
-                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "关键点")
-                  , !rev.actionType
-                    ? _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-400" }, "先选择动作类型...")
-                    : _react2.default.createElement('select', { disabled: noReversalReference, value: getReversalReferenceSelectValue(rev.actionRef), onChange: e => updRev(rev.id, 'actionRef', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
-                        , _react2.default.createElement('option', { value: "" }, noReversalReference ? "请先录入关键结构..." : "选择关键点 / EQH/EQL / OB / FVG / Gap...")
-                        , reversalReferenceOptions.map(opt => _react2.default.createElement('option', { key: 'rev_ref_' + opt.value, value: opt.value }, opt.label))
-                      )
-                )
-
-                /* Boolean Toggles */
-                , _react2.default.createElement('div', { className: "mb-3 grid grid-cols-1 md:grid-cols-2 gap-3",}
-                  , _react2.default.createElement('button', {
-                    onClick: () => updRev(rev.id, 'smt', !rev.smt),
-                    className: `inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.smt ? 'bg-cyan-50 border-cyan-400 text-cyan-700 ring-2 ring-cyan-200 ring-offset-1' : 'bg-white border-gray-200 text-gray-400 hover:border-cyan-300 hover:text-cyan-500'}`,}
-
-                    , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.smt ? 'bg-cyan-500' : 'bg-gray-300'}`,}
-                      , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.smt ? 'left-3.5' : 'left-0.5'}`,} )
-                    )
-                    , _react2.default.createElement('span', null, "SMT")
-                    , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70"  ,}, "NQ/ES 流动性清扫一致" )
-                  )
-                  , _react2.default.createElement('button', {
-                    onClick: () => updRev(rev.id, 'immediateRebalance', !rev.immediateRebalance),
-                    className: `inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.immediateRebalance ? 'bg-cyan-50 border-cyan-400 text-cyan-700 ring-2 ring-cyan-200 ring-offset-1' : 'bg-white border-gray-200 text-gray-400 hover:border-cyan-300 hover:text-cyan-500'}`,}
-                    , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.immediateRebalance ? 'bg-cyan-500' : 'bg-gray-300'}`,}
-                      , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.immediateRebalance ? 'left-3.5' : 'left-0.5'}`,} )
-                    )
-                    , _react2.default.createElement('span', null, "Immediate Rebalance")
-                    , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70"  ,}, "快速回补失衡" )
-                  )
-                )
-                )
-
-                , _react2.default.createElement('div', { className: "field-cluster mb-3" }
-                  , _react2.default.createElement('div', { className: "field-cluster__title" }, "补充记录")
-                  , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
-                    , _react2.default.createElement('input', { type: "text", value: rev.note, onChange: e => updRev(rev.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"      ,} )
-                  )
-                )
-                , _react2.default.createElement(ImageListEditor, { images: rev.images, onChange: v => updRev(rev.id, 'images', v), title: "图片记录", hint: "记录这个 reversal 的结构图、确认图或 SMT 图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "reversal" } )
+                , _react2.default.createElement('button', { onClick: () => { if (revs.length > 1) setRevs(p => p.filter(x => x.id !== rev.id)); }, className: "p-1 text-gray-400 hover:text-red-500" }, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" }))
               )
+              , _react2.default.createElement('div', { className: "field-cluster mb-3" }
+                , _react2.default.createElement('div', { className: "field-cluster__title" }, "触发定义")
+                , _react2.default.createElement('div', { className: "mb-3" }
+                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }
+                    , _react2.default.createElement('span', { className: "inline-flex items-center gap-1" }, _react2.default.createElement(_lucidereact.Link, { className: "w-3 h-3" }), " 关联执行关键点")
+                  )
+                  , _react2.default.createElement('select', { disabled: noExecOpts, value: rev.execRef, onChange: e => updRev(rev.id, 'execRef', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400" }
+                    , _react2.default.createElement('option', { value: "" }, "选择关键点...")
+                    , execOpts.map((o, i) => _react2.default.createElement('option', { key: o.value + '_' + i, value: o.value }, o.label))
+                  )
+                )
+                , rev.execRef && _react2.default.createElement('div', { className: "status-note status-note--link mb-3" }
+                  , _react2.default.createElement('div', { className: "flex items-center gap-3 flex-wrap" }
+                    , _react2.default.createElement('div', { className: "flex items-center gap-2" }
+                      , _react2.default.createElement('span', { className: "text-xs text-gray-500" }, "Session:")
+                      , sess
+                        ? _react2.default.createElement('span', { className: `px-2.5 py-1 rounded-full text-xs font-semibold border ${sess.color}` }, sess.label)
+                        : _react2.default.createElement('span', { className: "text-xs text-gray-400 italic" }, "未匹配")
+                    )
+                    , _react2.default.createElement('div', { className: "flex items-center gap-2" }
+                      , _react2.default.createElement('span', { className: "text-xs text-gray-500" }, "时间:")
+                      , _react2.default.createElement('span', { className: "text-xs font-mono font-semibold text-gray-700" }, rev.execRef)
+                    )
+                    , price && _react2.default.createElement('div', { className: "flex items-center gap-2" }
+                      , _react2.default.createElement('span', { className: "text-xs text-gray-500" }, "价格:")
+                      , _react2.default.createElement('span', { className: "text-xs font-mono font-semibold text-gray-700" }, price)
+                    )
+                  )
+                  , _react2.default.createElement('div', { className: "flex items-center gap-1 mt-2 text-xs text-purple-500" }
+                    , _react2.default.createElement(_lucidereact.Zap, { className: "w-3 h-3" })
+                    , _react2.default.createElement('span', null, "以上信息根据关联关键点自动推算")
+                  )
+                )
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)] gap-3 items-start" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "Shape")
+                    , _react2.default.createElement('select', { value: rev.shape, onChange: e => updRev(rev.id, 'shape', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择 Shape...")
+                      , SHAPE_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value }, o.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', { className: "pt-5" }
+                    , _react2.default.createElement('button', {
+                      type: "button",
+                      onClick: () => updRev(rev.id, 'smt', !rev.smt),
+                      className: `w-full inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.smt ? 'bg-cyan-50 border-cyan-400 text-cyan-700 ring-2 ring-cyan-200 ring-offset-1' : 'bg-white border-gray-200 text-gray-400 hover:border-cyan-300 hover:text-cyan-500'}`
+                    }
+                      , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.smt ? 'bg-cyan-500' : 'bg-gray-300'}` }
+                        , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.smt ? 'left-3.5' : 'left-0.5'}` })
+                      )
+                      , _react2.default.createElement('span', null, "SMT")
+                      , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70" }, "NQ/ES 流动性清扫一致")
+                    )
+                  )
+                  , _react2.default.createElement('div', { className: "pt-5" }
+                    , _react2.default.createElement('button', {
+                      type: "button",
+                      onClick: () => updRev(rev.id, 'immediateRebalance', !rev.immediateRebalance),
+                      className: `w-full inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.immediateRebalance ? 'bg-cyan-50 border-cyan-400 text-cyan-700 ring-2 ring-cyan-200 ring-offset-1' : 'bg-white border-gray-200 text-gray-400 hover:border-cyan-300 hover:text-cyan-500'}`
+                    }
+                      , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.immediateRebalance ? 'bg-cyan-500' : 'bg-gray-300'}` }
+                        , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.immediateRebalance ? 'left-3.5' : 'left-0.5'}` })
+                      )
+                      , _react2.default.createElement('span', null, "Immediate Rebalance")
+                      , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70" }, "快速回补失衡")
+                    )
+                  )
+                )
+              )
+              , _react2.default.createElement('div', { className: "field-cluster mb-3" }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-3" }
+                  , _react2.default.createElement('div', { className: "field-cluster__title mb-0" }, "反转原因")
+                  , _react2.default.createElement('button', { type: "button", onClick: () => addRevReason(rev.id), className: "inline-flex items-center gap-1 text-xs font-medium text-purple-500 hover:text-purple-700" }
+                    , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" }), " 添加动作原因"
+                  )
+                )
+                , revReasons.map((reason, reasonIdx) => _react2.default.createElement('div', { key: reason.id, className: "rounded-xl border border-slate-600/80 bg-slate-900/35 p-3 mb-3 last:mb-0 shadow-inner" }
+                  , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-3" }
+                    , _react2.default.createElement('span', { className: "text-[11px] uppercase tracking-[0.18em] text-slate-300" }, "动作原因 ", reasonIdx + 1)
+                    , _react2.default.createElement('button', { type: "button", onClick: () => removeRevReason(rev.id, reason.id), className: "p-1 text-gray-400 hover:text-red-500" }
+                      , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" })
+                    )
+                  )
+                  , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3" }
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-xs text-slate-300 mb-1" }, "反转原因")
+                      , _react2.default.createElement('select', { value: reason.actionType, onChange: e => { updRevReason(rev.id, reason.id, 'actionType', e.target.value); updRevReason(rev.id, reason.id, 'actionRef', ''); }, className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm bg-slate-800 text-slate-100" }
+                        , _react2.default.createElement('option', { value: "" }, "选择反转原因...")
+                        , REVERSAL_REASON_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'rev_reason_' + reason.id + '_' + opt.value, value: opt.value }, opt.label))
+                      )
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-xs text-slate-300 mb-1" }, "关键点")
+                      , !reason.actionType
+                        ? _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm bg-slate-800/70 text-slate-400" }, "先选择反转原因...")
+                        : reason.actionType === 'unknown'
+                          ? _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm bg-slate-800/70 text-slate-400" }, "未知原因无需挂接关键点")
+                          : _react2.default.createElement('select', { disabled: noReversalReference, value: getReversalReferenceSelectValue(reason.actionRef), onChange: e => updRevReason(rev.id, reason.id, 'actionRef', e.target.value), className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm bg-slate-800 text-slate-100 disabled:bg-slate-800/60 disabled:text-slate-500" }
+                            , _react2.default.createElement('option', { value: "" }, noReversalReference ? "请先录入关键结构..." : "选择关键点 / EQH/EQL / OB / FVG / Gap...")
+                            , reversalReferenceOptions.map(opt => _react2.default.createElement('option', { key: 'rev_ref_' + reason.id + '_' + opt.value, value: opt.value }, opt.label))
+                          )
+                    )
+                  )
+                ))
+              )
+              , _react2.default.createElement('div', { className: "field-cluster mb-3" }
+                , _react2.default.createElement('div', { className: "field-cluster__title" }, "补充记录")
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "备注")
+                  , _react2.default.createElement('input', { type: "text", value: rev.note, onChange: e => updRev(rev.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                )
+              )
+              , _react2.default.createElement(ImageListEditor, { images: rev.images, onChange: v => updRev(rev.id, 'images', v), title: "图片记录", hint: "记录这个 reversal 的结构图、确认图或 SMT 图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "reversal" })
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setRevs(p => [...p, { id: nid(), execRef: '', shape: '', actionType: '', actionRef: '', smt: false, immediateRebalance: false, note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 Reversal"  )
+          , _react2.default.createElement('button', { onClick: () => setRevs(p => [...p, makeReversal()]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" }), " 添加 Reversal"  )
         )
       )
     );
