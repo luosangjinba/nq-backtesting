@@ -341,11 +341,12 @@ const SHAPE_OPTIONS = [
 ];
 
 const SEGMENT_ACTION_OPTIONS = [
-  { value: 'sweep', label: 'Sweep 某个关键点' },
-  { value: 'eqh', label: '与关键点形成 EQH' },
-  { value: 'eql', label: '与关键点形成 EQL' },
-  { value: 'sweep_eq_level', label: 'Sweep 某个 EQH/EQL' },
+  { value: 'break_reference', label: '突破关键点/EQH/EQL' },
+  { value: 'sweep_reclaim', label: 'Sweep关键点/EQH/EQL后立即收回' },
+  { value: 'looming_reference', label: 'Looming关键点但未突破或Sweep' },
+  { value: 'tap_ob', label: 'Tap 某个 OB' },
   { value: 'tap_fvg', label: 'Tap 某个 FVG' },
+  { value: 'tap_fvg_ce', label: 'Tap 某个 FVG C.E.' },
   { value: 'fill_fvg', label: 'Fill 某个 FVG' },
   { value: 'tap_gap', label: 'Tap 某个 NDOG/NWOG' },
   { value: 'tap_gap_ce', label: 'Tap 某个 NDOG/NWOG C.E.' },
@@ -355,6 +356,11 @@ const SEGMENT_ACTION_OPTIONS = [
 const EQ_LEVEL_TYPE_OPTIONS = [
   { value: 'eqh', label: 'EQH' },
   { value: 'eql', label: 'EQL' }
+];
+
+const FVG_TYPE_OPTIONS = [
+  { value: 'fvg', label: 'FVG' },
+  { value: 'ifvg', label: 'IFVG' }
 ];
 
 const FVG_TIMEFRAME_NUM_OPTIONS = Array.from({ length: 30 }, (_, index) => String(index + 1));
@@ -370,13 +376,17 @@ const OVERNIGHT_GAP_TYPE_OPTIONS = [
 ];
 
 const ENTRY_STYLE_OPTIONS = [
-  { value: 'ob', label: 'OB (Order Block)' },
+  { value: 'ob', label: 'OB' },
   { value: 'fvg', label: 'FVG' },
-  { value: 'wick', label: 'Wick' },
-  { value: 'vi', label: 'VI (Volume Imbalance)' },
+  { value: 'limit_order', label: 'Limit Order' },
+  { value: 'market_order', label: 'Market Order' }
+];
+
+const ENTRY_MODEL_OPTIONS = [
+  { value: '2022', label: '2022' },
   { value: 'ote', label: 'OTE' },
-  { value: 'limit', label: 'Limit' },
-  { value: 'market', label: 'Market' }
+  { value: 'sweep_ob', label: 'Sweep+OB' },
+  { value: 'stop_entry', label: 'Stop Entry' }
 ];
 
 const BASED_ON_OPTIONS = [
@@ -421,7 +431,8 @@ const POSITIVE_FACTOR_OPTIONS = [
   { value: 'htf_premium', label: 'HTF Premium' },
   { value: 'htf_discount', label: 'HTF Discount' },
   { value: 'ltf_premium', label: 'LTF Premium' },
-  { value: 'ltf_discount', label: 'LTF Discount' }
+  { value: 'ltf_discount', label: 'LTF Discount' },
+  { value: '2nd_leg', label: '2nd leg' }
 ];
 
 const NEGATIVE_FACTOR_OPTIONS = [
@@ -551,6 +562,12 @@ function getWeekdayLabel(dateStr) {
   var d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
   var weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return weekdays[d.getUTCDay()];
+}
+
+function formatIsoDateDisplay(dateStr) {
+  var m = String(dateStr || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return dateStr || '';
+  return m[2] + '/' + m[3] + '/' + m[1];
 }
 
 function getWeekdayIndex(dateStr) {
@@ -842,10 +859,19 @@ function isAbsoluteImageUrl(value) {
   return /^https?:\/\//i.test(String(value || '').trim());
 }
 
+function toPanelRelativeImagePath(value) {
+  var raw = String(value || '').trim();
+  if (!raw) return '';
+  if (raw.startsWith('/backtesting-images/')) return raw.slice(1);
+  if (raw.startsWith('backtesting-images/')) return raw;
+  return raw;
+}
+
 function resolveImageUrl(value, apiBaseUrl) {
   var raw = String(value || '').trim();
   if (!raw) return '';
   if (isAbsoluteImageUrl(raw) || raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
+  if (raw.startsWith('backtesting-images/')) return raw;
   var base = String(apiBaseUrl || '').trim().replace(/\/$/, '');
   if (!base) return raw;
   return raw.startsWith('/') ? base + raw : base + '/' + raw.replace(/^\/+/, '');
@@ -987,9 +1013,9 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
       }
 
       if (hasExistingContent && image.url) {
-        onChange([...(images || []), { id: nid(), url: payload.relativeUrl || payload.url || '', title: '', note: '' }]);
+        onChange([...(images || []), { id: nid(), url: toPanelRelativeImagePath(payload.panelRelativePath || payload.relativeUrl || payload.url || ''), title: '', note: '' }]);
       } else {
-        updateImage(id, 'url', payload.relativeUrl || payload.url || '');
+        updateImage(id, 'url', toPanelRelativeImagePath(payload.panelRelativePath || payload.relativeUrl || payload.url || ''));
       }
       setSelectedFile(id, null);
       clearPreviewFailed(id);
@@ -1043,8 +1069,8 @@ function ImageListEditor({ images, onChange, title = '图片记录', hint = '支
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('div', { className: "mb-2" ,}
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "URL")
-                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "/backtesting-images/2012/2012-01-05/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
-                    , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" }, img.url ? (isAbsoluteImageUrl(img.url) ? "当前为绝对地址，旧数据可继续兼容。" : "当前为相对路径，预览时会自动拼接 API 地址。") : "建议保存相对路径，便于换电脑或改端口后继续使用。")
+                    , _react2.default.createElement('input', { type: "text", value: img.url, onChange: e => updateImage(img.id, 'url', e.target.value), placeholder: "backtesting-images/2012/2012-01-05/...", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400" , style: { backgroundColor: '#2d3d5a' } } )
+                    , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 break-all" }, img.url ? (isAbsoluteImageUrl(img.url) ? "当前为绝对地址，旧数据可继续兼容。" : img.url.startsWith('/backtesting-images/') ? "当前为旧版站点相对路径，仍可兼容。" : "当前为相对于 yaml_panel.html 的路径，更方便跨电脑迁移。") : "建议保存相对于 yaml_panel.html 的路径，便于换电脑后继续使用。")
                   )
                   , _react2.default.createElement('div', { className: "mb-2" ,}
                     , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1" ,}, "标题")
@@ -1093,7 +1119,8 @@ function makeEntry() {
     id: nid(),
     time: '',
     direction: 'long',
-    entryStyle: '',
+    entryModel: '',
+    entryStyle: [],
     entryPrice: '',
     stop: '',
     targetInternal: '',
@@ -1128,7 +1155,11 @@ function makeInitialOrr() {
 }
 
 function makeInitialPremarketFvgs() {
-  return [{ id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+  return [{ id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+}
+
+function makeInitialPremarketObs() {
+  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }];
 }
 
 function makeInitialEqLevels() {
@@ -1140,7 +1171,15 @@ function makeInitialOvernightGaps() {
 }
 
 function makeInitialIntradayFvgs() {
-  return [{ id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+  return [{ id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }];
+}
+
+function makeInitialIntradayObs() {
+  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }];
+}
+
+function makeInitialIntradayEqLevels() {
+  return [{ id: nid(), type: '', pointRefs: [], images: [] }];
 }
 
 function makeInitialExecs() {
@@ -1148,11 +1187,29 @@ function makeInitialExecs() {
 }
 
 function makeInitialRevs() {
-  return [{ id: nid(), execRef: '', shape: '', reasons: [], smt: false, note: '', images: [] }];
+  return [{ id: nid(), execRef: '', shape: '', actionType: '', actionRef: '', smt: false, immediateRebalance: false, note: '', images: [] }];
 }
 
 function makeInitialEntries() {
   return [makeEntry()];
+}
+
+function normalizeEntryStyleValue(value) {
+  var raw = String(value || '').trim().toLowerCase();
+  if (!raw) return '';
+  if (raw === 'limit') return 'limit_order';
+  if (raw === 'market') return 'market_order';
+  return raw;
+}
+
+function normalizeEntryStyleList(values) {
+  var list = Array.isArray(values) ? values : [values];
+  var seen = {};
+  return list.map(normalizeEntryStyleValue).filter(value => {
+    if (!value || seen[value]) return false;
+    seen[value] = true;
+    return true;
+  });
 }
 
 function inferLookupFieldForKeyPoint(labelValue) {
@@ -1187,6 +1244,18 @@ function fvgTimeframeToMinutes(num, unit) {
   if (u === 'h') return n * 60;
   if (u === 'd') return n * 1440;
   return 0;
+}
+
+function parseObTimeframe(raw) {
+  return parseFvgTimeframe(raw);
+}
+
+function formatObTimeframe(num, unit) {
+  return formatFvgTimeframe(num, unit);
+}
+
+function obTimeframeToMinutes(num, unit) {
+  return fvgTimeframeToMinutes(num, unit);
 }
 
 function inferSuggestedKeyPointLabel(labelValue, dayOffset, timeStr) {
@@ -1414,9 +1483,12 @@ function getViewportWidth() {
   var [segs, setSegs] = _react.useState.call(void 0, makeInitialSegs);
   var [orr, setOrr] = _react.useState.call(void 0, makeInitialOrr);
   var [premarketFvgs, setPremarketFvgs] = _react.useState.call(void 0, makeInitialPremarketFvgs);
+  var [premarketObs, setPremarketObs] = _react.useState.call(void 0, makeInitialPremarketObs);
   var [eqLevels, setEqLevels] = _react.useState.call(void 0, makeInitialEqLevels);
   var [overnightGaps, setOvernightGaps] = _react.useState.call(void 0, makeInitialOvernightGaps);
   var [intradayFvgs, setIntradayFvgs] = _react.useState.call(void 0, makeInitialIntradayFvgs);
+  var [intradayObs, setIntradayObs] = _react.useState.call(void 0, makeInitialIntradayObs);
+  var [intradayEqLevels, setIntradayEqLevels] = _react.useState.call(void 0, makeInitialIntradayEqLevels);
   var [execs, setExecs] = _react.useState.call(void 0, makeInitialExecs);
   var [revs, setRevs] = _react.useState.call(void 0, makeInitialRevs);
   var [entries, setEntries] = _react.useState.call(void 0, makeInitialEntries);
@@ -1666,6 +1738,135 @@ function getViewportWidth() {
     return eqLevel ? String(eqLevel.id) : String(selectionVal || '');
   }
 
+  function findSegmentReferenceBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    if (raw.startsWith('pt:')) {
+      var point = findPtBySelection(raw.slice(3));
+      return point ? { kind: 'point', ref: 'pt:' + String(point.id), point: point } : null;
+    }
+    if (raw.startsWith('eq:')) {
+      var eqLevel = findEqLevelBySelection(raw.slice(3));
+      return eqLevel ? { kind: 'eq_level', ref: 'eq:' + String(eqLevel.id), eqLevel: eqLevel } : null;
+    }
+    var fallbackPoint = findPtBySelection(raw);
+    if (fallbackPoint) return { kind: 'point', ref: 'pt:' + String(fallbackPoint.id), point: fallbackPoint };
+    var fallbackEq = findEqLevelBySelection(raw);
+    if (fallbackEq) return { kind: 'eq_level', ref: 'eq:' + String(fallbackEq.id), eqLevel: fallbackEq };
+    return null;
+  }
+
+  function getSegmentReferenceSelectValue(selectionVal) {
+    var match = findSegmentReferenceBySelection(selectionVal);
+    return match ? match.ref : String(selectionVal || '');
+  }
+
+  function getExecPointDisplayLabel(execPt) {
+    if (!execPt) return '';
+    var parts = [];
+    if (execPt.time) parts.push(execPt.time);
+    if (execPt.price) parts.push('@ ' + execPt.price);
+    if (execPt.note) parts.push(execPt.note);
+    return parts.join(' ');
+  }
+
+  function findIntradayEqPointBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    if (raw.startsWith('pt:')) {
+      var overnightPoint = findPtBySelection(raw.slice(3));
+      return overnightPoint ? { source: 'pt', ref: 'pt:' + String(overnightPoint.id), point: overnightPoint } : null;
+    }
+    if (raw.startsWith('exec:')) {
+      var execPoint = null;
+      for (var ei = 0; ei < execs.length; ei++) {
+        if (String(execs[ei].id) === raw.slice(5) && okTime(execs[ei].time)) {
+          execPoint = execs[ei];
+          break;
+        }
+      }
+      return execPoint ? { source: 'exec', ref: 'exec:' + String(execPoint.id), point: execPoint } : null;
+    }
+    var pt = findPtBySelection(raw);
+    if (pt) return { source: 'pt', ref: 'pt:' + String(pt.id), point: pt };
+    for (var i = 0; i < execs.length; i++) {
+      if (String(execs[i].id) === raw && okTime(execs[i].time)) return { source: 'exec', ref: 'exec:' + String(execs[i].id), point: execs[i] };
+      if (execs[i].time === raw && okTime(execs[i].time)) return { source: 'exec', ref: 'exec:' + String(execs[i].id), point: execs[i] };
+    }
+    return null;
+  }
+
+  function normalizeIntradayEqPointRefs(pointRefs) {
+    if (!Array.isArray(pointRefs)) return [];
+    var seen = {};
+    return pointRefs.map(ref => {
+      var match = findIntradayEqPointBySelection(ref);
+      return match ? match.ref : '';
+    }).filter(ref => {
+      if (!ref || seen[ref]) return false;
+      seen[ref] = true;
+      return true;
+    });
+  }
+
+  function getIntradayEqPointToken(refOrMatch) {
+    var match = refOrMatch && refOrMatch.point ? refOrMatch : findIntradayEqPointBySelection(refOrMatch);
+    if (!match || !match.point) return '';
+    if (match.source === 'pt') {
+      return 'overnight|' + getEqLevelPointToken(match.point);
+    }
+    return 'execution|T-0 ' + (match.point.time || '');
+  }
+
+  function getIntradayEqLevelSignatureFromTokens(type, tokens) {
+    return String(type || '').trim() + '|' + tokens.filter(Boolean).sort().join('||');
+  }
+
+  function getIntradayEqLevelSignatureFromRefs(type, pointRefs) {
+    return getIntradayEqLevelSignatureFromTokens(type, normalizeIntradayEqPointRefs(pointRefs).map(ref => getIntradayEqPointToken(ref)));
+  }
+
+  function isMeaningfulIntradayEqLevel(level) {
+    return !!(level && (
+      level.type ||
+      (Array.isArray(level.pointRefs) && level.pointRefs.length > 0) ||
+      (Array.isArray(level.images) && level.images.length > 0)
+    ));
+  }
+
+  function isCompleteIntradayEqLevel(level) {
+    return !!(level && level.type && normalizeIntradayEqPointRefs(level.pointRefs).length >= 2);
+  }
+
+  function getIntradayEqLevelLabel(level) {
+    if (!level) return '';
+    var typeLabel = getEqLevelTypeLabel(level.type) || 'EQH/EQL';
+    var pointLabels = normalizeIntradayEqPointRefs(level.pointRefs).map(ref => {
+      var match = findIntradayEqPointBySelection(ref);
+      if (!match || !match.point) return '';
+      if (match.source === 'pt') {
+        var overnightLabel = getKeyPointDisplayLabel(match.point) || match.point.time || '未命名关键点';
+        return '隔夜 · ' + overnightLabel + ' (' + getEqLevelPointToken(match.point) + ')';
+      }
+      return '执行 · ' + (getExecPointDisplayLabel(match.point) || match.point.time || '未命名关键点');
+    }).filter(Boolean);
+    return typeLabel + (pointLabels.length > 0 ? ' · ' + pointLabels.join(' + ') : '');
+  }
+
+  function findIntradayEqLevelBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < intradayEqLevels.length; i++) {
+      if (String(intradayEqLevels[i].id) === raw) return intradayEqLevels[i];
+    }
+    return null;
+  }
+
+  function getIntradayEqLevelSelectValue(selectionVal) {
+    var eqLevel = findIntradayEqLevelBySelection(selectionVal);
+    return eqLevel ? String(eqLevel.id) : String(selectionVal || '');
+  }
+
   function findIntradayFvgBySelection(selectionVal) {
     var raw = String(selectionVal || '').trim();
     if (!raw) return null;
@@ -1680,9 +1881,109 @@ function getViewportWidth() {
     return fvg ? String(fvg.id) : String(selectionVal || '');
   }
 
+  function isMeaningfulOb(ob) {
+    return !!(ob && (ob.timeframeNum || ob.fromTime || ob.toTime || ob.direction || ob.high || ob.low || normalizeDayOffset(ob.dayOffsetFrom) || normalizeDayOffset(ob.dayOffsetTo)));
+  }
+
+  function getObLabel(ob) {
+    if (!ob) return '';
+    var parts = [];
+    var timeframe = formatObTimeframe(ob.timeframeNum, ob.timeframeUnit);
+    if (timeframe) parts.push(timeframe);
+    var fromLabel = formatDayOffsetLabel(normalizeDayOffset(ob.dayOffsetFrom)) + ' ' + (ob.fromTime || '--:--');
+    var toLabel = formatDayOffsetLabel(normalizeDayOffset(ob.dayOffsetTo)) + ' ' + (ob.toTime || '--:--');
+    parts.push(fromLabel + ' -> ' + toLabel);
+    if (ob.direction) parts.push(ob.direction);
+    if (ob.high || ob.low) parts.push('H ' + (ob.high || '--') + ' / L ' + (ob.low || '--'));
+    return parts.join(' · ');
+  }
+
+  function findPremarketObBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < premarketObs.length; i++) {
+      if (String(premarketObs[i].id) === raw) return premarketObs[i];
+    }
+    return null;
+  }
+
+  function getPremarketObSelectValue(selectionVal) {
+    var ob = findPremarketObBySelection(selectionVal);
+    return ob ? String(ob.id) : String(selectionVal || '');
+  }
+
+  function findIntradayObBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    for (var i = 0; i < intradayObs.length; i++) {
+      if (String(intradayObs[i].id) === raw) return intradayObs[i];
+    }
+    return null;
+  }
+
+  function getIntradayObSelectValue(selectionVal) {
+    var ob = findIntradayObBySelection(selectionVal);
+    return ob ? String(ob.id) : String(selectionVal || '');
+  }
+
+  function findReversalReferenceBySelection(selectionVal) {
+    var raw = String(selectionVal || '').trim();
+    if (!raw) return null;
+    if (raw.startsWith('pt:')) {
+      var point = findPtBySelection(raw.slice(3));
+      return point ? { kind: 'overnight_point', ref: 'pt:' + String(point.id), point: point } : null;
+    }
+    if (raw.startsWith('eq:')) {
+      var eqLevel = findEqLevelBySelection(raw.slice(3));
+      return eqLevel ? { kind: 'overnight_eq_level', ref: 'eq:' + String(eqLevel.id), eqLevel: eqLevel } : null;
+    }
+    if (raw.startsWith('pfvg:')) {
+      var premarketFvg = findPremarketFvgBySelection(raw.slice(5));
+      return premarketFvg ? { kind: 'premarket_fvg', ref: 'pfvg:' + String(premarketFvg.id), fvg: premarketFvg } : null;
+    }
+    if (raw.startsWith('pob:')) {
+      var premarketOb = findPremarketObBySelection(raw.slice(4));
+      return premarketOb ? { kind: 'premarket_ob', ref: 'pob:' + String(premarketOb.id), ob: premarketOb } : null;
+    }
+    if (raw.startsWith('gap:')) {
+      var gap = findOvernightGapBySelection(raw.slice(4));
+      return gap ? { kind: 'overnight_gap', ref: 'gap:' + String(gap.id), gap: gap } : null;
+    }
+    if (raw.startsWith('exec:')) {
+      var execPoint = null;
+      for (var ei = 0; ei < execs.length; ei++) {
+        if (String(execs[ei].id) === raw.slice(5) && okTime(execs[ei].time)) {
+          execPoint = execs[ei];
+          break;
+        }
+      }
+      return execPoint ? { kind: 'execution_point', ref: 'exec:' + String(execPoint.id), execPoint: execPoint } : null;
+    }
+    if (raw.startsWith('ieq:')) {
+      var intradayEq = findIntradayEqLevelBySelection(raw.slice(4));
+      return intradayEq ? { kind: 'intraday_eq_level', ref: 'ieq:' + String(intradayEq.id), intradayEqLevel: intradayEq } : null;
+    }
+    if (raw.startsWith('ifvg:')) {
+      var intradayFvg = findIntradayFvgBySelection(raw.slice(5));
+      return intradayFvg ? { kind: 'intraday_fvg', ref: 'ifvg:' + String(intradayFvg.id), intradayFvg: intradayFvg } : null;
+    }
+    if (raw.startsWith('iob:')) {
+      var intradayOb = findIntradayObBySelection(raw.slice(4));
+      return intradayOb ? { kind: 'intraday_ob', ref: 'iob:' + String(intradayOb.id), intradayOb: intradayOb } : null;
+    }
+    return null;
+  }
+
+  function getReversalReferenceSelectValue(selectionVal) {
+    var match = findReversalReferenceBySelection(selectionVal);
+    return match ? match.ref : String(selectionVal || '');
+  }
+
   function getFvgLabel(fvg) {
     if (!fvg) return '';
     var parts = [];
+    var fvgTypeLabel = String(fvg.fvgType || '').trim().toUpperCase();
+    if (fvgTypeLabel) parts.push(fvgTypeLabel);
     parts.push(formatDayOffsetLabel(normalizeDayOffset(fvg.dayOffset)));
     var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
     if (timeframe) parts.push(timeframe);
@@ -1732,7 +2033,7 @@ function getViewportWidth() {
   }
 
   function isMeaningfulFvg(fvg) {
-    return !!(fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low));
+    return !!(fvg && (fvg.fvgType || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low));
   }
 
   function getCompletionBadgeMeta(filledCount, totalCount, labels) {
@@ -1817,64 +2118,141 @@ function getViewportWidth() {
     label: getFvgLabel(fvg)
   }));
   var noPremarketFvg = premarketFvgOptions.length === 0;
+  var premarketObOptions = premarketObs.filter(isMeaningfulOb).map(ob => ({
+    value: String(ob.id),
+    label: getObLabel(ob)
+  }));
+  var noPremarketOb = premarketObOptions.length === 0;
   var eqLevelOptions = eqLevels.filter(isCompleteEqLevel).map(level => ({
     value: String(level.id),
     label: getEqLevelLabel(level)
   }));
   var noEqLevel = eqLevelOptions.length === 0;
+  var segmentReferenceOptions = []
+    .concat(
+      tps.map(t => ({
+        value: 'pt:' + t.value,
+        label: '关键点 · ' + t.label
+      }))
+    )
+    .concat(
+      eqLevelOptions.map(opt => ({
+        value: 'eq:' + opt.value,
+        label: 'EQH/EQL · ' + opt.label
+      }))
+    );
+  var noSegmentReference = segmentReferenceOptions.length === 0;
+  var intradayEqPointOptions = []
+    .concat(
+      pts.filter(p => p && p.time && okTime(p.time)).map(p => ({
+        value: 'pt:' + String(p.id),
+        label: '隔夜 · ' + ((getKeyPointDisplayLabel(p) || p.time) + ' (' + formatDayOffsetLabel(normalizeDayOffset(p.dayOffset)) + ' ' + p.time + ')')
+      }))
+    )
+    .concat(
+      execs.filter(e => e && e.time && okTime(e.time)).map(e => ({
+        value: 'exec:' + String(e.id),
+        label: '执行 · ' + (getExecPointDisplayLabel(e) || e.time)
+      }))
+    );
+  var noIntradayEqPoint = intradayEqPointOptions.length === 0;
+  var intradayEqLevelOptions = intradayEqLevels.filter(isCompleteIntradayEqLevel).map(level => ({
+    value: String(level.id),
+    label: getIntradayEqLevelLabel(level)
+  }));
+  var noIntradayEqLevel = intradayEqLevelOptions.length === 0;
   var overnightGapOptions = overnightGaps.filter(isMeaningfulOvernightGap).map(gap => ({
     value: String(gap.id),
     label: getOvernightGapLabel(gap)
   }));
   var noOvernightGap = overnightGapOptions.length === 0;
-  var intradayFvgOptions = intradayFvgs.filter(fvg => fvg && (fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)).map(fvg => ({
+  var intradayFvgOptions = intradayFvgs.filter(isMeaningfulFvg).map(fvg => ({
     value: String(fvg.id),
     label: getFvgLabel(fvg)
   }));
   var noIntradayFvg = intradayFvgOptions.length === 0;
-  var dynamicReasonOptions = []
+  var intradayObOptions = intradayObs.filter(isMeaningfulOb).map(ob => ({
+    value: String(ob.id),
+    label: getObLabel(ob)
+  }));
+  var noIntradayOb = intradayObOptions.length === 0;
+  var segmentObOptions = []
     .concat(
-      pts.filter(pt => pt && (pt.label || pt.customLabel || pt.time || pt.price)).map(pt => {
-        var label = '隔夜关键点 · ' + ((getKeyPointDisplayLabel(pt) || pt.time || '未命名') + (pt.time ? ' (' + formatDayOffsetLabel(normalizeDayOffset(pt.dayOffset)) + ' ' + pt.time + ')' : ''));
-        return { value: label, label: label };
-      })
+      premarketObOptions.map(opt => ({
+        value: 'pob:' + opt.value,
+        label: '盘前 OB · ' + opt.label
+      }))
     )
     .concat(
-      premarketFvgOptions.map(opt => {
-        var label = '盘前关键FVG · ' + opt.label;
-        return { value: label, label: label };
-      })
-    )
-    .concat(
-      eqLevelOptions.map(opt => {
-        var label = '隔夜 EQH/EQL · ' + opt.label;
-        return { value: label, label: label };
-      })
-    )
-    .concat(
-      overnightGapOptions.map(opt => {
-        var label = '关键NWOG/NDOG · ' + opt.label;
-        return { value: label, label: label };
-      })
-    )
-    .concat(
-      execs.filter(execPt => execPt && (execPt.time || execPt.price || execPt.note)).map(execPt => {
-        var label = getExecPointReasonLabel(execPt);
-        return { value: label, label: label };
-      })
-    )
-    .concat(
-      intradayFvgOptions.map(opt => {
-        var label = '盘中FVG · ' + opt.label;
-        return { value: label, label: label };
-      })
+      intradayObOptions.map(opt => ({
+        value: 'iob:' + opt.value,
+        label: '盘中 OB · ' + opt.label
+      }))
     );
+  var noSegmentOb = segmentObOptions.length === 0;
+  var reversalReferenceOptions = []
+    .concat(
+      pts.filter(pt => pt && (pt.label || pt.customLabel || pt.time || pt.price)).map(pt => ({
+        value: 'pt:' + String(pt.id),
+        label: '隔夜关键点 · ' + ((getKeyPointDisplayLabel(pt) || pt.time || '未命名') + (pt.time ? ' (' + formatDayOffsetLabel(normalizeDayOffset(pt.dayOffset)) + ' ' + pt.time + ')' : ''))
+      }))
+    )
+    .concat(
+      eqLevelOptions.map(opt => ({
+        value: 'eq:' + opt.value,
+        label: '隔夜 EQH/EQL · ' + opt.label
+      }))
+    )
+    .concat(
+      premarketFvgOptions.map(opt => ({
+        value: 'pfvg:' + opt.value,
+        label: '盘前关键FVG · ' + opt.label
+      }))
+    )
+    .concat(
+      premarketObOptions.map(opt => ({
+        value: 'pob:' + opt.value,
+        label: '盘前OB · ' + opt.label
+      }))
+    )
+    .concat(
+      overnightGapOptions.map(opt => ({
+        value: 'gap:' + opt.value,
+        label: '关键NWOG/NDOG · ' + opt.label
+      }))
+    )
+    .concat(
+      execs.filter(execPt => execPt && (execPt.time || execPt.price || execPt.note)).map(execPt => ({
+        value: 'exec:' + String(execPt.id),
+        label: getExecPointReasonLabel(execPt)
+      }))
+    )
+    .concat(
+      intradayEqLevelOptions.map(opt => ({
+        value: 'ieq:' + opt.value,
+        label: '盘中 EQH/EQL · ' + opt.label
+      }))
+    )
+    .concat(
+      intradayObOptions.map(opt => ({
+        value: 'iob:' + opt.value,
+        label: '盘中OB · ' + opt.label
+      }))
+    )
+    .concat(
+      intradayFvgOptions.map(opt => ({
+        value: 'ifvg:' + opt.value,
+        label: '盘中FVG · ' + opt.label
+      }))
+    );
+  var noReversalReference = reversalReferenceOptions.length === 0;
 
   var validNewsCount = news.filter(n => n && n.event).length;
   var basicInfoImageCount = basicInfoImages.length;
   var validPtsCount = pts.filter(p => p && p.time && okTime(p.time)).length;
   var ptImageCount = pts.reduce((sum, p) => sum + ((p && Array.isArray(p.images)) ? p.images.length : 0), 0);
   var validPremarketFvgCount = premarketFvgs.filter(isMeaningfulFvg).length;
+  var validPremarketObCount = premarketObs.filter(isMeaningfulOb).length;
   var validEqLevelCount = eqLevels.filter(isCompleteEqLevel).length;
   var eqLevelImageCount = eqLevels.reduce((sum, level) => sum + ((level && Array.isArray(level.images)) ? level.images.length : 0), 0);
   var validOvernightGapCount = overnightGaps.filter(isMeaningfulOvernightGap).length;
@@ -1884,9 +2262,12 @@ function getViewportWidth() {
   var orrImageCount = orr && Array.isArray(orr.images) ? orr.images.length : 0;
   var validExecsCount = execs.filter(e => e && (e.time || e.price || e.note || (Array.isArray(e.images) && e.images.length > 0))).length;
   var execImageCount = execs.reduce((sum, e) => sum + ((e && Array.isArray(e.images)) ? e.images.length : 0), 0);
-  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.length > 0) || r.smt || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
+  var validIntradayEqLevelCount = intradayEqLevels.filter(isCompleteIntradayEqLevel).length;
+  var intradayEqLevelImageCount = intradayEqLevels.reduce((sum, level) => sum + ((level && Array.isArray(level.images)) ? level.images.length : 0), 0);
+  var validIntradayObCount = intradayObs.filter(isMeaningfulOb).length;
+  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
   var revImageCount = revs.reduce((sum, r) => sum + ((r && Array.isArray(r.images)) ? r.images.length : 0), 0);
-  var validEntriesCount = entries.filter(en => en && (en.time || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
+  var validEntriesCount = entries.filter(en => en && (en.time || en.entryModel || (Array.isArray(en.entryStyle) && en.entryStyle.length > 0) || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
   var entryImageCount = entries.reduce((sum, en) => sum + ((en && Array.isArray(en.images)) ? en.images.length : 0), 0);
   var statsSections = [
     {
@@ -1906,6 +2287,7 @@ function getViewportWidth() {
         { label: '隔夜 EQH/EQL', value: validEqLevelCount + ' 个' },
         { label: 'EQH/EQL 图片', value: eqLevelImageCount + ' 张' },
         { label: '盘前关键 FVG', value: validPremarketFvgCount + ' 个' },
+        { label: '盘前 OB', value: validPremarketObCount + ' 个' },
         { label: '关键 NWOG/NDOG', value: validOvernightGapCount + ' 个' },
         { label: '行情段', value: validSegsCount + ' 段' },
         { label: '行情段图片', value: segImageCount + ' 张' },
@@ -1919,6 +2301,9 @@ function getViewportWidth() {
       items: [
         { label: '执行关键点', value: validExecsCount + ' 个' },
         { label: '执行点图片', value: execImageCount + ' 张' },
+        { label: '盘中 EQH/EQL', value: validIntradayEqLevelCount + ' 个' },
+        { label: '盘中 EQH/EQL 图片', value: intradayEqLevelImageCount + ' 张' },
+        { label: '盘中 OB', value: validIntradayObCount + ' 个' },
         { label: 'Reversals', value: validRevsCount + ' 个' },
         { label: 'Reversal 图片', value: revImageCount + ' 张' },
         { label: '入场记录', value: validEntriesCount + ' 笔' },
@@ -1938,12 +2323,13 @@ function getViewportWidth() {
     return {
       value: 'rev_' + r.id,
       revId: r.id,
-      label: 'Reversal ' + (idx + 1) + ' @ ' + r.execRef + (price ? ' (' + price + ')' : '') + (sess ? ' — ' + sess.label : '') + (shapeLabel ? ' [' + shapeLabel + ']' : '') + (r.smt ? ' ⚡SMT' : ''),
+      label: 'Reversal ' + (idx + 1) + ' @ ' + r.execRef + (price ? ' (' + price + ')' : '') + (sess ? ' — ' + sess.label : '') + (shapeLabel ? ' [' + shapeLabel + ']' : '') + (r.smt ? ' ⚡SMT' : '') + (r.immediateRebalance ? ' ↺IR' : ''),
       time: r.execRef,
       session: sess,
       shape: r.shape,
       price: price,
-      smt: r.smt
+      smt: r.smt,
+      immediateRebalance: !!r.immediateRebalance
     };
   });
 
@@ -1964,10 +2350,37 @@ function getViewportWidth() {
   }
 
   function updSeg(id, f, v) { setSegs(p => p.map(x => x.id === id ? { ...x, [f]: v } : x)); }
-  function updPremarketFvg(id, field, value) { setPremarketFvgs(p => p.map(x => x.id === id ? { ...x, [field]: value } : x)); }
+  function updPremarketFvg(id, field, value) {
+    setPremarketFvgs(p => p.map(x => x.id === id
+      ? {
+          ...x,
+          [field]: value,
+          ...(field === 'fvgType' ? { direction: '', high: '', low: '' } : {})
+        }
+      : x
+    ));
+  }
+  function updPremarketOb(id, field, value) {
+    setPremarketObs(p => p.map(x => x.id === id
+      ? {
+          ...x,
+          [field]: value,
+          ...((field === 'dayOffsetFrom' || field === 'fromTime' || field === 'dayOffsetTo' || field === 'toTime' || field === 'timeframeNum' || field === 'timeframeUnit')
+            ? { direction: '', high: '', low: '' }
+            : {})
+        }
+      : x
+    ));
+  }
   function updEqLevel(id, field, value) {
     setEqLevels(p => p.map(x => x.id === id
       ? { ...x, [field]: field === 'pointRefs' ? normalizeEqLevelPointRefs(value) : value }
+      : x
+    ));
+  }
+  function updIntradayEqLevel(id, field, value) {
+    setIntradayEqLevels(p => p.map(x => x.id === id
+      ? { ...x, [field]: field === 'pointRefs' ? normalizeIntradayEqPointRefs(value) : value }
       : x
     ));
   }
@@ -1987,7 +2400,28 @@ function getViewportWidth() {
       return next;
     }));
   }
-  function updIntradayFvg(id, field, value) { setIntradayFvgs(p => p.map(x => x.id === id ? { ...x, [field]: value } : x)); }
+  function updIntradayFvg(id, field, value) {
+    setIntradayFvgs(p => p.map(x => x.id === id
+      ? {
+          ...x,
+          [field]: value,
+          ...(field === 'fvgType' ? { direction: '', high: '', low: '' } : {})
+        }
+      : x
+    ));
+  }
+  function updIntradayOb(id, field, value) {
+    setIntradayObs(p => p.map(x => x.id === id
+      ? {
+          ...x,
+          [field]: value,
+          ...((field === 'dayOffsetFrom' || field === 'fromTime' || field === 'dayOffsetTo' || field === 'toTime' || field === 'timeframeNum' || field === 'timeframeUnit')
+            ? { direction: '', high: '', low: '' }
+            : {})
+        }
+      : x
+    ));
+  }
   function updSegAction(segId, actionId, field, value) {
     setSegs(p => p.map(seg => seg.id === segId
       ? { ...seg, actions: (seg.actions || []).map(action => action.id === actionId ? {
@@ -2081,13 +2515,16 @@ function getViewportWidth() {
         setSegs(makeInitialSegs());
         setOrr(makeInitialOrr());
         setPremarketFvgs(makeInitialPremarketFvgs());
+        setPremarketObs(makeInitialPremarketObs());
         setEqLevels(makeInitialEqLevels());
         setOvernightGaps(makeInitialOvernightGaps());
       };
     } else if (tab === 2) {
       action = () => {
         setExecs(makeInitialExecs());
+        setIntradayEqLevels(makeInitialIntradayEqLevels());
         setIntradayFvgs(makeInitialIntradayFvgs());
+        setIntradayObs(makeInitialIntradayObs());
         setRevs(makeInitialRevs());
       };
     } else if (tab === 3) {
@@ -2119,9 +2556,12 @@ function getViewportWidth() {
       setSegs(makeInitialSegs());
       setOrr(makeInitialOrr());
       setPremarketFvgs(makeInitialPremarketFvgs());
+      setPremarketObs(makeInitialPremarketObs());
       setEqLevels(makeInitialEqLevels());
       setOvernightGaps(makeInitialOvernightGaps());
+      setIntradayEqLevels(makeInitialIntradayEqLevels());
       setIntradayFvgs(makeInitialIntradayFvgs());
+      setIntradayObs(makeInitialIntradayObs());
       setExecs(makeInitialExecs());
       setRevs(makeInitialRevs());
       setEntries(makeInitialEntries());
@@ -2202,6 +2642,7 @@ function getViewportWidth() {
     var rawPremarketFvgs = Array.isArray(overnight.premarket_key_fvgs) ? overnight.premarket_key_fvgs : [];
     var importedPremarketFvgs = rawPremarketFvgs.map(item => ({
       id: nid(),
+      fvgType: item && typeof item.fvg_type === 'string' ? String(item.fvg_type).toLowerCase() : 'fvg',
       dayOffset: normalizeDayOffset(item && item.day_offset),
       timeframeNum: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
       timeframeUnit: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
@@ -2209,8 +2650,21 @@ function getViewportWidth() {
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.fvg_high != null ? String(item.fvg_high) : '',
       low: item && item.fvg_low != null ? String(item.fvg_low) : ''
-    })).filter(item => item.timeframeNum || item.middleTime || item.direction || item.high || item.low) ;
+    })).filter(item => item.fvgType || item.timeframeNum || item.middleTime || item.direction || item.high || item.low) ;
     if (!Array.isArray(overnight.premarket_key_fvgs)) importedPremarketFvgs = makeInitialPremarketFvgs();
+
+    var importedPremarketObs = Array.isArray(overnight.premarket_obs) ? overnight.premarket_obs.map(item => ({
+      id: nid(),
+      dayOffsetFrom: normalizeDayOffset(item && item.from_day_offset),
+      fromTime: item && typeof item.from_time === 'string' ? item.from_time : '',
+      dayOffsetTo: normalizeDayOffset(item && item.to_day_offset),
+      toTime: item && typeof item.to_time === 'string' ? item.to_time : '',
+      timeframeNum: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
+      timeframeUnit: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
+      direction: item && typeof item.direction === 'string' ? item.direction : '',
+      high: item && item.ob_high != null ? String(item.ob_high) : '',
+      low: item && item.ob_low != null ? String(item.ob_low) : ''
+    })).filter(isMeaningfulOb) : makeInitialPremarketObs();
 
     var importedEqLevels = Array.isArray(overnight.eq_levels) ? overnight.eq_levels.map(item => ({
       id: nid(),
@@ -2244,7 +2698,13 @@ function getViewportWidth() {
     var importedFvgRefMap = {};
     importedPremarketFvgs.forEach(item => {
       importedFvgRefMap[
-        normalizeDayOffset(item.dayOffset) + '|' + formatFvgTimeframe(item.timeframeNum, item.timeframeUnit) + '|' + (item.middleTime || '')
+        String(item.fvgType || 'fvg') + '|' + normalizeDayOffset(item.dayOffset) + '|' + formatFvgTimeframe(item.timeframeNum, item.timeframeUnit) + '|' + (item.middleTime || '')
+      ] = String(item.id);
+    });
+    var importedPremarketObRefMap = {};
+    importedPremarketObs.forEach(item => {
+      importedPremarketObRefMap[
+        normalizeDayOffset(item.dayOffsetFrom) + '|' + (item.fromTime || '') + '|' + normalizeDayOffset(item.dayOffsetTo) + '|' + (item.toTime || '') + '|' + formatObTimeframe(item.timeframeNum, item.timeframeUnit)
       ] = String(item.id);
     });
 
@@ -2259,6 +2719,7 @@ function getViewportWidth() {
         (item.type || 'ndog') + '|' + normalizeDayOffset(item.dayOffset) + '|' + (item.startDate || '') + '|' + (item.startTime || '') + '|' + (item.endDate || '') + '|' + (item.endTime || '')
       ] = String(item.id);
     });
+    var importedIntradayObRefMap = {};
 
     var importedSegs = Array.isArray(overnight.market_segments) ? overnight.market_segments.map(item => ({
       id: nid(),
@@ -2267,34 +2728,68 @@ function getViewportWidth() {
       dir: item && typeof item.direction === 'string' ? item.direction : '',
       consBias: item && typeof item.bias === 'string' ? item.bias : '',
       note: item && typeof item.note === 'string' ? item.note : '',
-      actions: item && Array.isArray(item.actions) ? item.actions.map(action => ({
-        id: nid(),
-        type: action && typeof action.type === 'string' ? action.type : '',
-        ref: action && typeof action.type === 'string' && (action.type === 'tap_fvg' || action.type === 'fill_fvg')
-          ? (importedFvgRefMap[
-              normalizeDayOffset(action && action.fvg_day_offset) + '|' +
-              (action && typeof action.fvg_timeframe === 'string' ? action.fvg_timeframe : '') + '|' +
-              (action && typeof action.fvg_middle_candle_time === 'string' ? action.fvg_middle_candle_time : '')
-            ] || '')
-          : action && typeof action.type === 'string' && action.type === 'sweep_eq_level'
-          ? (importedEqLevelRefMap[
-              getEqLevelSignatureFromTokens(
-                action && typeof action.eq_level_type === 'string' ? action.eq_level_type : '',
-                Array.isArray(action && action.eq_key_points) ? action.eq_key_points.map(pointToken => String(pointToken || '').trim()) : []
+      actions: item && Array.isArray(item.actions) ? item.actions.map(action => {
+        var rawActionType = action && typeof action.type === 'string' ? action.type : '';
+        var normalizedActionType = rawActionType === 'sweep' || rawActionType === 'sweep_eq_level'
+          ? 'sweep_reclaim'
+          : (rawActionType === 'eqh' || rawActionType === 'eql')
+          ? 'break_reference'
+          : rawActionType;
+        var importedPoint = action && typeof action.key_point === 'string' ? findImportedPtBySelection(action.key_point) : null;
+        return {
+          id: nid(),
+          type: normalizedActionType,
+          ref: normalizedActionType === 'tap_ob'
+            ? (action && typeof action.intraday_ob_from_time === 'string'
+                ? ''
+                : (() => {
+                    var importedPremarketObId = importedPremarketObRefMap[
+                      normalizeDayOffset(action && action.ob_from_day_offset) + '|' +
+                      (action && typeof action.ob_from_time === 'string' ? action.ob_from_time : '') + '|' +
+                      normalizeDayOffset(action && action.ob_to_day_offset) + '|' +
+                      (action && typeof action.ob_to_time === 'string' ? action.ob_to_time : '') + '|' +
+                      (action && typeof action.ob_timeframe === 'string' ? action.ob_timeframe : '')
+                    ] || '';
+                    return importedPremarketObId ? ('pob:' + importedPremarketObId) : '';
+                  })())
+            : (normalizedActionType === 'tap_fvg' || normalizedActionType === 'tap_fvg_ce' || normalizedActionType === 'fill_fvg')
+            ? (importedFvgRefMap[
+                String(action && action.fvg_type ? action.fvg_type : 'fvg').toLowerCase() + '|' +
+                normalizeDayOffset(action && action.fvg_day_offset) + '|' +
+                (action && typeof action.fvg_timeframe === 'string' ? action.fvg_timeframe : '') + '|' +
+                (action && typeof action.fvg_middle_candle_time === 'string' ? action.fvg_middle_candle_time : '')
+              ] || '')
+            : (normalizedActionType === 'break_reference' || normalizedActionType === 'sweep_reclaim' || normalizedActionType === 'looming_reference') && Array.isArray(action && action.eq_key_points)
+            ? ('eq:' + (importedEqLevelRefMap[
+                getEqLevelSignatureFromTokens(
+                  action && typeof action.eq_level_type === 'string' ? action.eq_level_type : '',
+                  Array.isArray(action && action.eq_key_points) ? action.eq_key_points.map(pointToken => String(pointToken || '').trim()) : []
+                )
+              ] || ''))
+            : (normalizedActionType === 'break_reference' || normalizedActionType === 'sweep_reclaim' || normalizedActionType === 'looming_reference')
+            ? (importedPoint ? ('pt:' + String(importedPoint.id)) : '')
+            : normalizedActionType === 'tap_gap' || normalizedActionType === 'tap_gap_ce' || normalizedActionType === 'fill_gap'
+            ? (importedGapRefMap[
+                ((action && typeof action.gap_type === 'string' ? action.gap_type : 'ndog')) + '|' +
+                normalizeDayOffset(action && action.gap_day_offset) + '|' +
+                (action && typeof action.gap_start_date === 'string' ? action.gap_start_date : '') + '|' +
+                (action && typeof action.gap_start_time === 'string' ? action.gap_start_time : '') + '|' +
+                (action && typeof action.gap_end_date === 'string' ? action.gap_end_date : '') + '|' +
+                (action && typeof action.gap_end_time === 'string' ? action.gap_end_time : '')
+              ] || '')
+            : '',
+          importedIntradayObKey: normalizedActionType === 'tap_ob' && action && typeof action.intraday_ob_from_time === 'string'
+            ? (
+                normalizeDayOffset(action && action.intraday_ob_from_day_offset) + '|' +
+                (action && typeof action.intraday_ob_from_time === 'string' ? action.intraday_ob_from_time : '') + '|' +
+                normalizeDayOffset(action && action.intraday_ob_to_day_offset) + '|' +
+                (action && typeof action.intraday_ob_to_time === 'string' ? action.intraday_ob_to_time : '') + '|' +
+                (action && typeof action.intraday_ob_timeframe === 'string' ? action.intraday_ob_timeframe : '')
               )
-            ] || '')
-          : action && typeof action.type === 'string' && (action.type === 'tap_gap' || action.type === 'tap_gap_ce' || action.type === 'fill_gap')
-          ? (importedGapRefMap[
-              ((action && typeof action.gap_type === 'string' ? action.gap_type : 'ndog')) + '|' +
-              normalizeDayOffset(action && action.gap_day_offset) + '|' +
-              (action && typeof action.gap_start_date === 'string' ? action.gap_start_date : '') + '|' +
-              (action && typeof action.gap_start_time === 'string' ? action.gap_start_time : '') + '|' +
-              (action && typeof action.gap_end_date === 'string' ? action.gap_end_date : '') + '|' +
-              (action && typeof action.gap_end_time === 'string' ? action.gap_end_time : '')
-            ] || '')
-          : (action && typeof action.key_point === 'string' ? action.key_point : ''),
-        note: action && typeof action.note === 'string' ? action.note : ''
-      })).filter(action => action.type || action.ref || action.note) : [],
+            : '',
+          note: action && typeof action.note === 'string' ? action.note : ''
+        };
+      }).filter(action => action.type || action.ref || action.note) : [],
       images: normalizeImportedImages(item && item.images)
     })).filter(item => item.st || item.et || item.dir || item.consBias || item.note || item.actions.length > 0 || item.images.length > 0) : makeInitialSegs();
 
@@ -2310,6 +2805,7 @@ function getViewportWidth() {
     var execution = parsed.execution_observation || {};
     var importedIntradayFvgs = Array.isArray(execution.intraday_fvgs) ? execution.intraday_fvgs.map(item => ({
       id: nid(),
+      fvgType: item && typeof item.fvg_type === 'string' ? String(item.fvg_type).toLowerCase() : 'fvg',
       dayOffset: normalizeDayOffset(item && item.day_offset),
       timeframeNum: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
       timeframeUnit: parseFvgTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
@@ -2317,7 +2813,19 @@ function getViewportWidth() {
       direction: item && typeof item.direction === 'string' ? item.direction : '',
       high: item && item.fvg_high != null ? String(item.fvg_high) : '',
       low: item && item.fvg_low != null ? String(item.fvg_low) : ''
-    })).filter(item => item.dayOffset || item.timeframeNum || item.middleTime || item.direction || item.high || item.low) : makeInitialIntradayFvgs();
+    })).filter(item => item.fvgType || item.dayOffset || item.timeframeNum || item.middleTime || item.direction || item.high || item.low) : makeInitialIntradayFvgs();
+    var importedIntradayObs = Array.isArray(execution.intraday_obs) ? execution.intraday_obs.map(item => ({
+      id: nid(),
+      dayOffsetFrom: normalizeDayOffset(item && item.from_day_offset),
+      fromTime: item && typeof item.from_time === 'string' ? item.from_time : '',
+      dayOffsetTo: normalizeDayOffset(item && item.to_day_offset),
+      toTime: item && typeof item.to_time === 'string' ? item.to_time : '',
+      timeframeNum: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
+      timeframeUnit: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
+      direction: item && typeof item.direction === 'string' ? item.direction : '',
+      high: item && item.ob_high != null ? String(item.ob_high) : '',
+      low: item && item.ob_low != null ? String(item.ob_low) : ''
+    })).filter(isMeaningfulOb) : makeInitialIntradayObs();
     var importedExecs = Array.isArray(execution.key_points) ? execution.key_points.map(item => ({
       id: nid(),
       time: item && typeof item.time === 'string' ? item.time : '',
@@ -2325,23 +2833,131 @@ function getViewportWidth() {
       note: item && typeof item.note === 'string' ? item.note : '',
       images: normalizeImportedImages(item && item.images)
     })).filter(item => item.time || item.price || item.note || item.images.length > 0) : makeInitialExecs();
+    var importedIntradayEqLevels = Array.isArray(execution.intraday_eq_levels) ? execution.intraday_eq_levels.map(item => ({
+      id: nid(),
+      type: item && typeof item.type === 'string' ? item.type : '',
+      pointRefs: Array.isArray(item && item.key_points) ? item.key_points.map(pointToken => {
+        var rawToken = String(pointToken || '').trim();
+        var overnightMatch = rawToken.match(/^overnight\|T(-?\d+)\s+(\d{2}:\d{2})$/);
+        if (overnightMatch) {
+          var overnightPoint = findImportedPtByDayOffsetAndTime(Number(overnightMatch[1]), overnightMatch[2]);
+          if (overnightPoint) return 'pt:' + String(overnightPoint.id);
+        }
+        var execMatch = rawToken.match(/^execution\|T-0\s+(\d{2}:\d{2})$/);
+        if (execMatch) {
+          for (var exi = 0; exi < importedExecs.length; exi++) {
+            if (importedExecs[exi].time === execMatch[1] && okTime(importedExecs[exi].time)) return 'exec:' + String(importedExecs[exi].id);
+          }
+        }
+        return '';
+      }).filter(Boolean) : [],
+      images: normalizeImportedImages(item && item.images)
+    })).filter(item => isMeaningfulIntradayEqLevel(item)) : makeInitialIntradayEqLevels();
+    importedIntradayObs.forEach(item => {
+      importedIntradayObRefMap[
+        normalizeDayOffset(item.dayOffsetFrom) + '|' + (item.fromTime || '') + '|' + normalizeDayOffset(item.dayOffsetTo) + '|' + (item.toTime || '') + '|' + formatObTimeframe(item.timeframeNum, item.timeframeUnit)
+      ] = String(item.id);
+    });
+    importedSegs.forEach(seg => {
+      (seg.actions || []).forEach(action => {
+        if (action.type !== 'tap_ob' || action.ref) return;
+        var raw = action.importedIntradayObKey || '';
+        if (!raw) return;
+        var mapped = importedIntradayObRefMap[raw] || '';
+        if (mapped) action.ref = 'iob:' + mapped;
+      });
+    });
 
     var importedRevsRaw = Array.isArray(execution.reversals) ? execution.reversals : [];
     var reversalRefMap = {};
     var importedRevs = importedRevsRaw.map((item, index) => {
       var newId = nid();
       var sourceId = item && item.id != null ? String(item.id) : String(index + 1);
+      var rawRevActionType = item && typeof item.action_type === 'string' ? item.action_type : '';
+      var importedRevActionRef = '';
+      if (rawRevActionType === 'tap_ob') {
+        if (item && typeof item.intraday_ob_from_time === 'string') {
+          importedRevActionRef = importedIntradayObRefMap[
+            normalizeDayOffset(item && item.intraday_ob_from_day_offset) + '|' +
+            (item && typeof item.intraday_ob_from_time === 'string' ? item.intraday_ob_from_time : '') + '|' +
+            normalizeDayOffset(item && item.intraday_ob_to_day_offset) + '|' +
+            (item && typeof item.intraday_ob_to_time === 'string' ? item.intraday_ob_to_time : '') + '|' +
+            (item && typeof item.intraday_ob_timeframe === 'string' ? item.intraday_ob_timeframe : '')
+          ] || '';
+          if (importedRevActionRef) importedRevActionRef = 'iob:' + importedRevActionRef;
+        } else {
+          importedRevActionRef = importedPremarketObRefMap[
+            normalizeDayOffset(item && item.ob_from_day_offset) + '|' +
+            (item && typeof item.ob_from_time === 'string' ? item.ob_from_time : '') + '|' +
+            normalizeDayOffset(item && item.ob_to_day_offset) + '|' +
+            (item && typeof item.ob_to_time === 'string' ? item.ob_to_time : '') + '|' +
+            (item && typeof item.ob_timeframe === 'string' ? item.ob_timeframe : '')
+          ] || '';
+          if (importedRevActionRef) importedRevActionRef = 'pob:' + importedRevActionRef;
+        }
+      } else if (rawRevActionType === 'tap_fvg' || rawRevActionType === 'tap_fvg_ce' || rawRevActionType === 'fill_fvg') {
+        importedRevActionRef = importedFvgRefMap[
+          String(item && item.fvg_type ? item.fvg_type : 'fvg').toLowerCase() + '|' +
+          normalizeDayOffset(item && item.fvg_day_offset) + '|' +
+          (item && typeof item.fvg_timeframe === 'string' ? item.fvg_timeframe : '') + '|' +
+          (item && typeof item.fvg_middle_candle_time === 'string' ? item.fvg_middle_candle_time : '')
+        ] || '';
+        if (importedRevActionRef) importedRevActionRef = 'pfvg:' + importedRevActionRef;
+      } else if (rawRevActionType === 'tap_gap' || rawRevActionType === 'tap_gap_ce' || rawRevActionType === 'fill_gap') {
+        importedRevActionRef = importedGapRefMap[
+          ((item && typeof item.gap_type === 'string' ? item.gap_type : 'ndog')) + '|' +
+          normalizeDayOffset(item && item.gap_day_offset) + '|' +
+          (item && typeof item.gap_start_date === 'string' ? item.gap_start_date : '') + '|' +
+          (item && typeof item.gap_start_time === 'string' ? item.gap_start_time : '') + '|' +
+          (item && typeof item.gap_end_date === 'string' ? item.gap_end_date : '') + '|' +
+          (item && typeof item.gap_end_time === 'string' ? item.gap_end_time : '')
+        ] || '';
+        if (importedRevActionRef) importedRevActionRef = 'gap:' + importedRevActionRef;
+      } else if (rawRevActionType === 'break_reference' || rawRevActionType === 'sweep_reclaim' || rawRevActionType === 'looming_reference') {
+        if (Array.isArray(item && item.eq_key_points)) {
+          importedRevActionRef = importedEqLevelRefMap[
+            getEqLevelSignatureFromTokens(
+              item && typeof item.eq_level_type === 'string' ? item.eq_level_type : '',
+              item.eq_key_points.map(pointToken => String(pointToken || '').trim())
+            )
+          ] || '';
+          if (importedRevActionRef) importedRevActionRef = 'eq:' + importedRevActionRef;
+        } else if (item && typeof item.key_point === 'string') {
+          var importedRevPoint = findImportedPtBySelection(item.key_point);
+          if (importedRevPoint) importedRevActionRef = 'pt:' + String(importedRevPoint.id);
+        } else if (item && typeof item.execution_key_point === 'string') {
+          for (var rei = 0; rei < importedExecs.length; rei++) {
+            if (importedExecs[rei].time === item.execution_key_point && okTime(importedExecs[rei].time)) {
+              importedRevActionRef = 'exec:' + String(importedExecs[rei].id);
+              break;
+            }
+          }
+        } else if (Array.isArray(item && item.intraday_eq_key_points)) {
+          for (var iei = 0; iei < importedIntradayEqLevels.length; iei++) {
+            var candidateIntradayEq = importedIntradayEqLevels[iei];
+            if (getIntradayEqLevelSignatureFromTokens(
+              item && typeof item.intraday_eq_type === 'string' ? item.intraday_eq_type : '',
+              item.intraday_eq_key_points.map(pointToken => String(pointToken || '').trim())
+            ) === getIntradayEqLevelSignatureFromRefs(candidateIntradayEq.type, candidateIntradayEq.pointRefs)) {
+              importedRevActionRef = 'ieq:' + String(candidateIntradayEq.id);
+              break;
+            }
+          }
+        }
+      }
       reversalRefMap[sourceId] = 'rev_' + newId;
       return {
         id: newId,
         execRef: item && typeof item.time === 'string' ? item.time : '',
         shape: item && typeof item.shape === 'string' ? item.shape : '',
-        reasons: item && Array.isArray(item.reasons) ? item.reasons.map(String) : [],
+        actionType: rawRevActionType,
+        actionRef: importedRevActionRef,
         smt: !!(item && item.smt),
+        immediateRebalance: !!(item && item.immediate_rebalance),
         note: item && typeof item.note === 'string' ? item.note : '',
         images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.execRef || item.shape || item.reasons.length > 0 || item.smt || item.note || item.images.length > 0);
+    }).filter(item => item.execRef || item.shape || item.actionType || item.actionRef || item.smt || item.immediateRebalance || item.note || item.images.length > 0);
 
     var importedEntries = Array.isArray(parsed.entry) ? parsed.entry.map(item => {
       var result = item && typeof item.result === 'object' ? item.result : {};
@@ -2350,7 +2966,8 @@ function getViewportWidth() {
         id: nid(),
         time: item && typeof item.time === 'string' ? item.time : '',
         direction: item && typeof item.direction === 'string' ? item.direction : 'long',
-        entryStyle: item && typeof item.entry_style === 'string' ? item.entry_style : '',
+        entryModel: item && typeof item.entry_model === 'string' ? item.entry_model : '',
+        entryStyle: normalizeEntryStyleList(item && Array.isArray(item.entry_style) ? item.entry_style : (item ? item.entry_style : '')),
         entryPrice: item && item.entry_price != null ? String(item.entry_price) : '',
         stop: item && item.stop != null ? String(item.stop) : '',
         targetInternal: item && item.target_internal != null ? String(item.target_internal) : '',
@@ -2370,7 +2987,7 @@ function getViewportWidth() {
         resultOpen: !!(result.exit_time || result.exit_price || result.exit_type || result.outcome || (Array.isArray(result.positive) && result.positive.length) || (Array.isArray(result.negative) && result.negative.length)),
         images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.time || item.entryPrice || item.stop || item.targetInternal || item.targetSwing || item.targetExternal || item.basedOn || item.exitTime || item.exitPrice || item.images.length > 0) : makeInitialEntries();
+    }).filter(item => item.time || item.entryModel || item.entryStyle.length > 0 || item.entryPrice || item.stop || item.targetInternal || item.targetSwing || item.targetExternal || item.basedOn || item.exitTime || item.exitPrice || item.images.length > 0) : makeInitialEntries();
 
     setDate(importedDate);
     setLookupDate(importedDate);
@@ -2379,11 +2996,14 @@ function getViewportWidth() {
     setNews(importedNews);
     setPts(importedPts.length ? importedPts : makeInitialPts());
     setPremarketFvgs(importedPremarketFvgs.length ? importedPremarketFvgs : makeInitialPremarketFvgs());
+    setPremarketObs(importedPremarketObs.length ? importedPremarketObs : makeInitialPremarketObs());
     setEqLevels(importedEqLevels.length ? importedEqLevels : makeInitialEqLevels());
     setOvernightGaps(importedOvernightGaps.length ? importedOvernightGaps : makeInitialOvernightGaps());
     setSegs(importedSegs.length ? importedSegs : makeInitialSegs());
     setOrr(importedOrr);
+    setIntradayEqLevels(importedIntradayEqLevels.length ? importedIntradayEqLevels : makeInitialIntradayEqLevels());
     setIntradayFvgs(importedIntradayFvgs.length ? importedIntradayFvgs : makeInitialIntradayFvgs());
+    setIntradayObs(importedIntradayObs.length ? importedIntradayObs : makeInitialIntradayObs());
     setExecs(importedExecs.length ? importedExecs : makeInitialExecs());
     setRevs(importedRevs.length ? importedRevs : makeInitialRevs());
     setEntries(importedEntries.length ? importedEntries : makeInitialEntries());
@@ -2490,6 +3110,12 @@ function getViewportWidth() {
   async function computeFvg(target, saveRecord) {
     if (!target) return;
 
+    var fvgType = String(target.fvgType || '').trim().toLowerCase();
+    if (fvgType !== 'fvg' && fvgType !== 'ifvg') {
+      setLookupError('请先为 FVG 选择类型。');
+      return;
+    }
+
     var timeframe = fvgTimeframeToMinutes(target.timeframeNum, target.timeframeUnit);
     if (!timeframe) {
       setLookupError('请先为 FVG 选择有效周期。');
@@ -2532,6 +3158,13 @@ function getViewportWidth() {
       setLookupLoading(false);
       return;
     }
+    var middleResult = await runPriceLookup(effectiveDate, target.middleTime, String(timeframe), 'close');
+    if (middleResult.error) {
+      setLookupError('中间K线查询失败：' + middleResult.error);
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
     var nextResult = await runPriceLookup(nextInfo.date, nextInfo.time, String(timeframe), 'close');
     if (nextResult.error) {
       setLookupError('后一根K线查询失败：' + nextResult.error);
@@ -2541,31 +3174,55 @@ function getViewportWidth() {
     }
 
     var prevOhlc = prevResult.ohlc || {};
+    var middleOhlc = middleResult.ohlc || {};
     var nextOhlc = nextResult.ohlc || {};
     var prevHigh = parseFloat(prevOhlc.high);
     var prevLow = parseFloat(prevOhlc.low);
+    var middleOpen = parseFloat(middleOhlc.open);
+    var middleClose = parseFloat(middleOhlc.close);
     var nextHigh = parseFloat(nextOhlc.high);
     var nextLow = parseFloat(nextOhlc.low);
 
-    if ([prevHigh, prevLow, nextHigh, nextLow].some(isNaN)) {
-      setLookupError('FVG 自动计算失败：前后K线 OHLC 数据不完整。');
+    if ([prevHigh, prevLow, middleOpen, middleClose, nextHigh, nextLow].some(isNaN)) {
+      setLookupError('FVG 自动计算失败：三根K线 OHLC 数据不完整。');
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+    if (middleClose === middleOpen) {
+      setLookupError('中间K线为十字/平盘，无法自动判断 FVG 方向。');
       setLookupResult(null);
       setLookupLoading(false);
       return;
     }
 
-    var direction = '';
+    var middleIsUp = middleClose > middleOpen;
+    var direction = fvgType === 'fvg'
+      ? (middleIsUp ? 'bullish' : 'bearish')
+      : (middleIsUp ? 'bearish' : 'bullish');
     var high = '';
     var low = '';
-    if (nextLow > prevHigh) {
-      direction = 'bullish';
+    if (direction === 'bullish') {
+      if (!(nextLow > prevHigh)) {
+        setLookupError('按当前类型与中间K线方向推算为 bullish，但三根K线未形成有效 bullish FVG。');
+        setLookupResult(null);
+        setLookupLoading(false);
+        return;
+      }
       high = String(nextLow);
       low = String(prevHigh);
-    } else if (prevLow > nextHigh) {
-      direction = 'bearish';
+    } else {
+      if (!(prevLow > nextHigh)) {
+        setLookupError('按当前类型与中间K线方向推算为 bearish，但三根K线未形成有效 bearish FVG。');
+        setLookupResult(null);
+        setLookupLoading(false);
+        return;
+      }
       high = String(prevLow);
       low = String(nextHigh);
-    } else {
+    }
+
+    if (!high || !low) {
       setLookupError('这组三根K线没有形成有效 FVG。');
       setLookupResult(null);
       setLookupLoading(false);
@@ -2578,12 +3235,12 @@ function getViewportWidth() {
       field: 'fvg',
       timeframe: timeframe,
       value: direction,
-      foundBars: (prevResult.foundBars || 0) + (nextResult.foundBars || 0),
-      expectedBars: (prevResult.expectedBars || 0) + (nextResult.expectedBars || 0),
+      foundBars: (prevResult.foundBars || 0) + (middleResult.foundBars || 0) + (nextResult.foundBars || 0),
+      expectedBars: (prevResult.expectedBars || 0) + (middleResult.expectedBars || 0) + (nextResult.expectedBars || 0),
       startKey: prevResult.startKey,
       endKey: nextResult.endKey,
-      missingBars: (prevResult.missingBars || 0) + (nextResult.missingBars || 0),
-      ohlc: { prev: prevOhlc, next: nextOhlc }
+      missingBars: (prevResult.missingBars || 0) + (middleResult.missingBars || 0) + (nextResult.missingBars || 0),
+      ohlc: { prev: prevOhlc, middle: middleOhlc, next: nextOhlc }
     });
     setLookupDate(effectiveDate);
     setLookupTime(target.middleTime);
@@ -2613,6 +3270,130 @@ function getViewportWidth() {
     }
     await computeFvg(target, (direction, high, low) => {
       setIntradayFvgs(p => p.map(fvg => fvg.id === id ? { ...fvg, direction: direction, high: high, low: low } : fvg));
+    });
+  }
+
+  async function computeOb(target, saveRecord) {
+    if (!target) return;
+
+    var timeframe = obTimeframeToMinutes(target.timeframeNum, target.timeframeUnit);
+    if (!timeframe) {
+      setLookupError('请先为 OB 选择有效周期。');
+      return;
+    }
+    if (!okTime(target.fromTime) || !okTime(target.toTime)) {
+      setLookupError('请先填写 OB 的 from / to 时间。');
+      return;
+    }
+
+    var fromDate = shiftIsoDate(date, target.dayOffsetFrom);
+    var toDate = shiftIsoDate(date, target.dayOffsetTo);
+    var fromParts = parseLookupDateTime(fromDate, target.fromTime);
+    var toParts = parseLookupDateTime(toDate, target.toTime);
+    var fromMinuteId = minuteIdFromParts(fromParts);
+    var toMinuteId = minuteIdFromParts(toParts);
+    if (fromMinuteId == null || toMinuteId == null) {
+      setLookupError('OB 的时间范围无法解析。');
+      return;
+    }
+    if (fromMinuteId > toMinuteId) {
+      setLookupError('OB 的 from 时间不能晚于 to 时间。');
+      return;
+    }
+
+    var rangeMinutes = (toMinuteId - fromMinuteId) + timeframe;
+    if (rangeMinutes <= 0) {
+      setLookupError('OB 的查询范围无效。');
+      return;
+    }
+
+    setLookupLoading(true);
+    var fromResult = await runPriceLookup(fromDate, target.fromTime, String(timeframe), 'close');
+    if (fromResult.error) {
+      setLookupError('OB 起点K线查询失败：' + fromResult.error);
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+    var toResult = await runPriceLookup(toDate, target.toTime, String(timeframe), 'close');
+    if (toResult.error) {
+      setLookupError('OB 终点K线查询失败：' + toResult.error);
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+    var rangeResult = await runPriceLookup(fromDate, target.fromTime, String(rangeMinutes), 'close');
+    if (rangeResult.error) {
+      setLookupError('OB 区间极值查询失败：' + rangeResult.error);
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+
+    var fromOhlc = fromResult.ohlc || {};
+    var toOhlc = toResult.ohlc || {};
+    var rangeOhlc = rangeResult.ohlc || {};
+    var fromLow = parseFloat(fromOhlc.low);
+    var fromHigh = parseFloat(fromOhlc.high);
+    var toLow = parseFloat(toOhlc.low);
+    var toHigh = parseFloat(toOhlc.high);
+    var rangeHigh = parseFloat(rangeOhlc.high);
+    var rangeLow = parseFloat(rangeOhlc.low);
+
+    if ([fromLow, fromHigh, toLow, toHigh, rangeHigh, rangeLow].some(isNaN)) {
+      setLookupError('OB 自动计算失败：区间 OHLC 数据不完整。');
+      setLookupResult(null);
+      setLookupLoading(false);
+      return;
+    }
+
+    var bullish = fromLow < toHigh;
+    var bearish = fromHigh > toLow;
+    var direction = '';
+    if (bullish && !bearish) direction = 'bearish';
+    else if (bearish && !bullish) direction = 'bullish';
+
+    saveRecord(direction, String(rangeHigh), String(rangeLow));
+    setLookupError(direction ? '' : '已计算区间高低点，但方向不明确。');
+    setLookupResult({
+      field: 'ob',
+      timeframe: timeframe,
+      value: direction || 'unclear',
+      foundBars: (fromResult.foundBars || 0) + (toResult.foundBars || 0) + (rangeResult.foundBars || 0),
+      expectedBars: (fromResult.expectedBars || 0) + (toResult.expectedBars || 0) + (rangeResult.expectedBars || 0),
+      startKey: rangeResult.startKey || fromResult.startKey,
+      endKey: rangeResult.endKey || toResult.endKey,
+      missingBars: (fromResult.missingBars || 0) + (toResult.missingBars || 0) + (rangeResult.missingBars || 0),
+      ohlc: { from: fromOhlc, to: toOhlc, range: rangeOhlc }
+    });
+    setLookupDate(fromDate);
+    setLookupTime(target.fromTime);
+    setLookupLoading(false);
+  }
+
+  async function computePremarketOb(id) {
+    var target = null;
+    for (var i = 0; i < premarketObs.length; i++) {
+      if (premarketObs[i].id === id) {
+        target = premarketObs[i];
+        break;
+      }
+    }
+    await computeOb(target, (direction, high, low) => {
+      setPremarketObs(p => p.map(ob => ob.id === id ? { ...ob, direction: direction, high: high, low: low } : ob));
+    });
+  }
+
+  async function computeIntradayOb(id) {
+    var target = null;
+    for (var i = 0; i < intradayObs.length; i++) {
+      if (intradayObs[i].id === id) {
+        target = intradayObs[i];
+        break;
+      }
+    }
+    await computeOb(target, (direction, high, low) => {
+      setIntradayObs(p => p.map(ob => ob.id === id ? { ...ob, direction: direction, high: high, low: low } : ob));
     });
   }
 
@@ -2887,17 +3668,35 @@ function getViewportWidth() {
         pushImagesYaml(L, 6, p.images);
       }
     });
-    if (premarketFvgs.some(fvg => fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
+    if (premarketFvgs.some(fvg => fvg.fvgType || fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
       L.push('  premarket_key_fvgs:');
       premarketFvgs.forEach(fvg => {
         var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
-        if (fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
-          L.push('    - timeframe: ' + (timeframe || '""'));
+        if (fvg.fvgType || fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
+          if (fvg.fvgType) L.push('    - fvg_type: ' + fvg.fvgType);
+          else L.push('    - fvg_type: fvg');
+          L.push('      timeframe: ' + (timeframe || '""'));
           L.push('      day_offset: ' + normalizeDayOffset(fvg.dayOffset));
           L.push('      middle_candle_time: "' + (fvg.middleTime || '') + '"');
           if (fvg.direction) L.push('      direction: ' + fvg.direction);
           if (fvg.high) L.push('      fvg_high: ' + fvg.high);
           if (fvg.low) L.push('      fvg_low: ' + fvg.low);
+        }
+      });
+    }
+    if (premarketObs.some(isMeaningfulOb)) {
+      L.push('  premarket_obs:');
+      premarketObs.forEach(ob => {
+        var timeframe = formatObTimeframe(ob.timeframeNum, ob.timeframeUnit);
+        if (isMeaningfulOb(ob)) {
+          L.push('    - timeframe: ' + (timeframe || '""'));
+          L.push('      from_day_offset: ' + normalizeDayOffset(ob.dayOffsetFrom));
+          L.push('      from_time: "' + (ob.fromTime || '') + '"');
+          L.push('      to_day_offset: ' + normalizeDayOffset(ob.dayOffsetTo));
+          L.push('      to_time: "' + (ob.toTime || '') + '"');
+          if (ob.direction) L.push('      direction: ' + ob.direction);
+          if (ob.high) L.push('      ob_high: ' + ob.high);
+          if (ob.low) L.push('      ob_low: ' + ob.low);
         }
       });
     }
@@ -2953,23 +3752,44 @@ function getViewportWidth() {
                 L.push('      actions:');
               validActions.forEach(action => {
                 L.push('        - type: ' + (action.type || '""'));
-                if (action.type === 'tap_fvg' || action.type === 'fill_fvg') {
+                if (action.type === 'tap_ob') {
+                  var actionOb = findReversalReferenceBySelection(action.ref);
+                  if (actionOb && actionOb.kind === 'premarket_ob' && actionOb.ob) {
+                    var actionObTimeframe = formatObTimeframe(actionOb.ob.timeframeNum, actionOb.ob.timeframeUnit);
+                    L.push('          ob_from_day_offset: ' + normalizeDayOffset(actionOb.ob.dayOffsetFrom));
+                    L.push('          ob_from_time: "' + (actionOb.ob.fromTime || '') + '"');
+                    L.push('          ob_to_day_offset: ' + normalizeDayOffset(actionOb.ob.dayOffsetTo));
+                    L.push('          ob_to_time: "' + (actionOb.ob.toTime || '') + '"');
+                    if (actionObTimeframe) L.push('          ob_timeframe: ' + actionObTimeframe);
+                  } else if (actionOb && actionOb.kind === 'intraday_ob' && actionOb.intradayOb) {
+                    var actionIntradayObTimeframe = formatObTimeframe(actionOb.intradayOb.timeframeNum, actionOb.intradayOb.timeframeUnit);
+                    L.push('          intraday_ob_from_day_offset: ' + normalizeDayOffset(actionOb.intradayOb.dayOffsetFrom));
+                    L.push('          intraday_ob_from_time: "' + (actionOb.intradayOb.fromTime || '') + '"');
+                    L.push('          intraday_ob_to_day_offset: ' + normalizeDayOffset(actionOb.intradayOb.dayOffsetTo));
+                    L.push('          intraday_ob_to_time: "' + (actionOb.intradayOb.toTime || '') + '"');
+                    if (actionIntradayObTimeframe) L.push('          intraday_ob_timeframe: ' + actionIntradayObTimeframe);
+                  }
+                } else if (action.type === 'tap_fvg' || action.type === 'tap_fvg_ce' || action.type === 'fill_fvg') {
                   var actionFvg = findPremarketFvgBySelection(action.ref);
                   var actionFvgTimeframe = actionFvg ? formatFvgTimeframe(actionFvg.timeframeNum, actionFvg.timeframeUnit) : '';
+                  if (actionFvg) L.push('          fvg_type: ' + (actionFvg.fvgType || 'fvg'));
                   if (actionFvg) L.push('          fvg_day_offset: ' + normalizeDayOffset(actionFvg.dayOffset));
                   if (actionFvgTimeframe) L.push('          fvg_timeframe: ' + actionFvgTimeframe);
                   if (actionFvg && actionFvg.middleTime) L.push('          fvg_middle_candle_time: "' + actionFvg.middleTime + '"');
-                } else if (action.type === 'sweep_eq_level') {
-                  var actionEqLevel = findEqLevelBySelection(action.ref);
+                } else if (action.type === 'break_reference' || action.type === 'sweep_reclaim' || action.type === 'looming_reference') {
+                  var actionReference = findSegmentReferenceBySelection(action.ref);
+                  var actionEqLevel = actionReference && actionReference.kind === 'eq_level' ? actionReference.eqLevel : null;
                   var actionEqRefs = actionEqLevel ? normalizeEqLevelPointRefs(actionEqLevel.pointRefs) : [];
-                  if (actionEqLevel && actionEqLevel.type) L.push('          eq_level_type: ' + actionEqLevel.type);
-                  if (actionEqRefs.length > 0) {
+                  if (actionEqLevel && actionEqLevel.type) {
+                    L.push('          eq_level_type: ' + actionEqLevel.type);
                     L.push('          eq_key_points:');
                     actionEqRefs.forEach(ref => {
                       var eqPoint = findPtBySelection(ref);
                       if (!eqPoint) return;
                       L.push('            - ' + yamlQuote(getEqLevelPointToken(eqPoint)));
                     });
+                  } else if (actionReference && actionReference.kind === 'point' && actionReference.point) {
+                    L.push('          key_point: "' + getPtTimeValue(actionReference.ref) + '"');
                   }
                 } else if (action.type === 'tap_gap' || action.type === 'tap_gap_ce' || action.type === 'fill_gap') {
                   var actionGap = findOvernightGapBySelection(action.ref);
@@ -2981,8 +3801,6 @@ function getViewportWidth() {
                     if (actionGap.endDate) L.push('          gap_end_date: ' + yamlQuote(actionGap.endDate));
                     if (actionGap.endTime) L.push('          gap_end_time: ' + yamlQuote(actionGap.endTime));
                   }
-                } else if (action.ref) {
-                  L.push('          key_point: "' + getPtTimeValue(action.ref) + '"');
                 }
                 if (action.note) L.push('          note: ' + action.note);
               });
@@ -3011,12 +3829,32 @@ function getViewportWidth() {
         }
       });
     }
-    if (intradayFvgs.some(fvg => fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
+    if (intradayEqLevels.some(isMeaningfulIntradayEqLevel)) {
+      L.push('  intraday_eq_levels:');
+      intradayEqLevels.forEach(level => {
+        var pointRefs = normalizeIntradayEqPointRefs(level.pointRefs);
+        if (level.type || pointRefs.length > 0 || (Array.isArray(level.images) && level.images.length > 0)) {
+          L.push('    - type: ' + (level.type || '""'));
+          if (pointRefs.length > 0) {
+            L.push('      key_points:');
+            pointRefs.forEach(ref => {
+              var token = getIntradayEqPointToken(ref);
+              if (!token) return;
+              L.push('        - ' + yamlQuote(token));
+            });
+          }
+          pushImagesYaml(L, 6, level.images);
+        }
+      });
+    }
+    if (intradayFvgs.some(fvg => fvg.fvgType || fvg.dayOffset || fvg.timeframeNum || fvg.middleTime || fvg.direction || fvg.high || fvg.low)) {
       L.push('  intraday_fvgs:');
       intradayFvgs.forEach(fvg => {
         var timeframe = formatFvgTimeframe(fvg.timeframeNum, fvg.timeframeUnit);
-        if (fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
-          L.push('    - timeframe: ' + (timeframe || '""'));
+        if (fvg.fvgType || fvg.dayOffset || timeframe || fvg.middleTime || fvg.direction || fvg.high || fvg.low) {
+          if (fvg.fvgType) L.push('    - fvg_type: ' + fvg.fvgType);
+          else L.push('    - fvg_type: fvg');
+          L.push('      timeframe: ' + (timeframe || '""'));
           L.push('      day_offset: ' + normalizeDayOffset(fvg.dayOffset));
           L.push('      middle_candle_time: "' + (fvg.middleTime || '') + '"');
           if (fvg.direction) L.push('      direction: ' + fvg.direction);
@@ -3025,10 +3863,26 @@ function getViewportWidth() {
         }
       });
     }
-    if (revs.some(r => r.execRef || r.shape)) {
+    if (intradayObs.some(isMeaningfulOb)) {
+      L.push('  intraday_obs:');
+      intradayObs.forEach(ob => {
+        var timeframe = formatObTimeframe(ob.timeframeNum, ob.timeframeUnit);
+        if (isMeaningfulOb(ob)) {
+          L.push('    - timeframe: ' + (timeframe || '""'));
+          L.push('      from_day_offset: ' + normalizeDayOffset(ob.dayOffsetFrom));
+          L.push('      from_time: "' + (ob.fromTime || '') + '"');
+          L.push('      to_day_offset: ' + normalizeDayOffset(ob.dayOffsetTo));
+          L.push('      to_time: "' + (ob.toTime || '') + '"');
+          if (ob.direction) L.push('      direction: ' + ob.direction);
+          if (ob.high) L.push('      ob_high: ' + ob.high);
+          if (ob.low) L.push('      ob_low: ' + ob.low);
+        }
+      });
+    }
+    if (revs.some(r => r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))) {
       L.push('  reversals:');
       revs.forEach((r, ri) => {
-        if (r.execRef || r.shape) {
+        if (r.execRef || r.shape || r.actionType || r.actionRef || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0)) {
           var sess = getRevSession(r);
           var price = getRevPrice(r);
           L.push('    - id: ' + (ri + 1));
@@ -3036,11 +3890,74 @@ function getViewportWidth() {
           L.push('      session: ' + (sess ? sess.value : '""'));
           if (price) L.push('      price: ' + price);
           if (r.shape) L.push('      shape: ' + r.shape);
-          L.push('      smt: ' + (r.smt ? 'true' : 'false'));
-          if (r.reasons.length > 0) {
-            L.push('      reasons:');
-            r.reasons.forEach(rr => L.push('        - ' + rr));
+          if (r.actionType) L.push('      action_type: ' + r.actionType);
+          if (r.actionRef) {
+            var revReference = findReversalReferenceBySelection(r.actionRef);
+            if (revReference) {
+              if (revReference.kind === 'overnight_point' && revReference.point) {
+                L.push('      key_point: "' + getPtTimeValue(revReference.ref) + '"');
+              } else if (revReference.kind === 'overnight_eq_level' && revReference.eqLevel) {
+                var revEqRefs = normalizeEqLevelPointRefs(revReference.eqLevel.pointRefs);
+                if (revReference.eqLevel.type) L.push('      eq_level_type: ' + revReference.eqLevel.type);
+                if (revEqRefs.length > 0) {
+                  L.push('      eq_key_points:');
+                  revEqRefs.forEach(ref => {
+                    var eqPoint = findPtBySelection(ref);
+                    if (!eqPoint) return;
+                    L.push('        - ' + yamlQuote(getEqLevelPointToken(eqPoint)));
+                  });
+                }
+              } else if (revReference.kind === 'premarket_ob' && revReference.ob) {
+                var revObTimeframe = formatObTimeframe(revReference.ob.timeframeNum, revReference.ob.timeframeUnit);
+                L.push('      ob_from_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetFrom));
+                L.push('      ob_from_time: "' + (revReference.ob.fromTime || '') + '"');
+                L.push('      ob_to_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetTo));
+                L.push('      ob_to_time: "' + (revReference.ob.toTime || '') + '"');
+                if (revObTimeframe) L.push('      ob_timeframe: ' + revObTimeframe);
+              } else if (revReference.kind === 'premarket_fvg' && revReference.fvg) {
+                var revFvgTimeframe = formatFvgTimeframe(revReference.fvg.timeframeNum, revReference.fvg.timeframeUnit);
+                L.push('      fvg_type: ' + (revReference.fvg.fvgType || 'fvg'));
+                L.push('      fvg_day_offset: ' + normalizeDayOffset(revReference.fvg.dayOffset));
+                if (revFvgTimeframe) L.push('      fvg_timeframe: ' + revFvgTimeframe);
+                if (revReference.fvg.middleTime) L.push('      fvg_middle_candle_time: "' + revReference.fvg.middleTime + '"');
+              } else if (revReference.kind === 'overnight_gap' && revReference.gap) {
+                L.push('      gap_type: ' + (revReference.gap.type || 'ndog'));
+                L.push('      gap_day_offset: ' + normalizeDayOffset(revReference.gap.dayOffset));
+                if (revReference.gap.startDate) L.push('      gap_start_date: ' + yamlQuote(revReference.gap.startDate));
+                if (revReference.gap.startTime) L.push('      gap_start_time: ' + yamlQuote(revReference.gap.startTime));
+                if (revReference.gap.endDate) L.push('      gap_end_date: ' + yamlQuote(revReference.gap.endDate));
+                if (revReference.gap.endTime) L.push('      gap_end_time: ' + yamlQuote(revReference.gap.endTime));
+              } else if (revReference.kind === 'execution_point' && revReference.execPoint) {
+                L.push('      execution_key_point: "' + (revReference.execPoint.time || '') + '"');
+              } else if (revReference.kind === 'intraday_eq_level' && revReference.intradayEqLevel) {
+                var revIntradayEqRefs = normalizeIntradayEqPointRefs(revReference.intradayEqLevel.pointRefs);
+                if (revReference.intradayEqLevel.type) L.push('      intraday_eq_type: ' + revReference.intradayEqLevel.type);
+                if (revIntradayEqRefs.length > 0) {
+                  L.push('      intraday_eq_key_points:');
+                  revIntradayEqRefs.forEach(ref => {
+                    var token = getIntradayEqPointToken(ref);
+                    if (!token) return;
+                    L.push('        - ' + yamlQuote(token));
+                  });
+                }
+              } else if (revReference.kind === 'intraday_ob' && revReference.intradayOb) {
+                var revIntradayObTimeframe = formatObTimeframe(revReference.intradayOb.timeframeNum, revReference.intradayOb.timeframeUnit);
+                L.push('      intraday_ob_from_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetFrom));
+                L.push('      intraday_ob_from_time: "' + (revReference.intradayOb.fromTime || '') + '"');
+                L.push('      intraday_ob_to_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetTo));
+                L.push('      intraday_ob_to_time: "' + (revReference.intradayOb.toTime || '') + '"');
+                if (revIntradayObTimeframe) L.push('      intraday_ob_timeframe: ' + revIntradayObTimeframe);
+              } else if (revReference.kind === 'intraday_fvg' && revReference.intradayFvg) {
+                var revIntradayFvgTimeframe = formatFvgTimeframe(revReference.intradayFvg.timeframeNum, revReference.intradayFvg.timeframeUnit);
+                L.push('      intraday_fvg_type: ' + (revReference.intradayFvg.fvgType || 'fvg'));
+                L.push('      intraday_fvg_day_offset: ' + normalizeDayOffset(revReference.intradayFvg.dayOffset));
+                if (revIntradayFvgTimeframe) L.push('      intraday_fvg_timeframe: ' + revIntradayFvgTimeframe);
+                if (revReference.intradayFvg.middleTime) L.push('      intraday_fvg_middle_candle_time: "' + revReference.intradayFvg.middleTime + '"');
+              }
+            }
           }
+          L.push('      smt: ' + (r.smt ? 'true' : 'false'));
+          L.push('      immediate_rebalance: ' + (r.immediateRebalance ? 'true' : 'false'));
           if (r.note) L.push('      note: ' + r.note);
           pushImagesYaml(L, 6, r.images);
         }
@@ -3056,7 +3973,10 @@ function getViewportWidth() {
         L.push('    time: "' + en.time + '"');
         L.push('    direction: ' + en.direction);
         if (en.primaryPick) L.push('    primary_pick: true');
-        if (en.entryStyle) L.push('    entry_style: ' + en.entryStyle);
+        if (en.entryModel) L.push('    entry_model: ' + en.entryModel);
+        if (Array.isArray(en.entryStyle) && en.entryStyle.length > 0) {
+          L.push('    entry_style: [' + en.entryStyle.join(', ') + ']');
+        }
         if (en.entryPrice) L.push('    entry_price: ' + en.entryPrice);
         if (en.stop) L.push('    stop: ' + en.stop);
         if (en.targetInternal) L.push('    target_internal: ' + en.targetInternal);
@@ -3423,7 +4343,14 @@ function getViewportWidth() {
               )
                 , _react2.default.createElement('div', { className: "flex items-start gap-2" }
                   , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
-                  , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-7 gap-3" }
+                  , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-8 gap-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG类型")
+                    , _react2.default.createElement('select', { value: fvg.fvgType || '', onChange: e => updPremarketFvg(fvg.id, 'fvgType', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择类型...")
+                      , FVG_TYPE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'pfvg_type_' + fvg.id + '_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "T日")
                     , _react2.default.createElement('select', { value: String(normalizeDayOffset(fvg.dayOffset)), onChange: e => updPremarketFvg(fvg.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
@@ -3432,12 +4359,12 @@ function getViewportWidth() {
                   )
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
-                    , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-2" }
-                      , _react2.default.createElement('select', { value: fvg.timeframeNum, onChange: e => updPremarketFvg(fvg.id, 'timeframeNum', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-2" }
+                      , _react2.default.createElement('select', { value: fvg.timeframeNum, onChange: e => updPremarketFvg(fvg.id, 'timeframeNum', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
                         , _react2.default.createElement('option', { value: "" }, "数字")
                         , FVG_TIMEFRAME_NUM_OPTIONS.map(num => _react2.default.createElement('option', { key: num, value: num }, num))
                       )
-                      , _react2.default.createElement('select', { value: fvg.timeframeUnit || 'm', onChange: e => updPremarketFvg(fvg.id, 'timeframeUnit', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('select', { value: fvg.timeframeUnit || 'm', onChange: e => updPremarketFvg(fvg.id, 'timeframeUnit', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
                         , FVG_TIMEFRAME_UNIT_OPTIONS.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
                       )
                     )
@@ -3447,12 +4374,7 @@ function getViewportWidth() {
                     , _react2.default.createElement('input', { type: "text", value: fvg.middleTime, onChange: e => updPremarketFvg(fvg.id, 'middleTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
                   )
                   , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "方向")
-                    , _react2.default.createElement('select', { value: fvg.direction, onChange: e => updPremarketFvg(fvg.id, 'direction', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
-                      , _react2.default.createElement('option', { value: "" }, "自动计算")
-                      , _react2.default.createElement('option', { value: "bullish" }, "bullish")
-                      , _react2.default.createElement('option', { value: "bearish" }, "bearish")
-                    )
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "计算")
                     , _react2.default.createElement('button', { type: "button", onClick: () => computePremarketFvg(fvg.id), className: lookupLoading ? "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-200 text-indigo-700 border border-indigo-200 cursor-wait" : "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '自动计算 FVG')
                   )
                   , _react2.default.createElement('div', null
@@ -3463,6 +4385,10 @@ function getViewportWidth() {
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG Low")
                     , _react2.default.createElement('input', { type: "text", value: fvg.low, onChange: e => updPremarketFvg(fvg.id, 'low', e.target.value), placeholder: "低点价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
                   )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "自动方向")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.direction, readOnly: true, placeholder: "自动计算后显示", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50" })
+                  )
                 )
                 , _react2.default.createElement('button', { onClick: () => { if (premarketFvgs.length > 1) setPremarketFvgs(p => p.filter(x => x.id !== fvg.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }
                   , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
@@ -3470,7 +4396,7 @@ function getViewportWidth() {
               )
             )
           )})
-          , _react2.default.createElement('button', { onClick: () => setPremarketFvgs(p => [...p, { id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setPremarketFvgs(p => [...p, { id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 FVG"
           )
         )
@@ -3539,6 +4465,88 @@ function getViewportWidth() {
           })
           , _react2.default.createElement('button', { onClick: () => setOvernightGaps(p => [...p, { id: nid(), type: 'ndog', dayOffset: 0, startDate: '', startTime: '', endDate: '', endTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 NWOG / NDOG"
+          )
+        )
+
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg", style: fvgTheme.card }
+          , (() => { var badge = getCompletionBadgeMeta(validPremarketObCount, premarketObs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide", style: fvgTheme.title }, "盘前 OB")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4" }, "记录盘前某个时间区间在指定周期下的高低点，并尝试自动判定 bullish / bearish。")
+          , premarketObs.map((ob, idx) => {
+            var hasObData = isMeaningfulOb(ob);
+            var fromDateLabel = shiftIsoDate(date, ob.dayOffsetFrom);
+            var toDateLabel = shiftIsoDate(date, ob.dayOffsetTo);
+            return (
+              _react2.default.createElement('div', { key: ob.id, className: "mb-3 rounded-xl border p-3", style: hasObData ? { backgroundColor: 'rgba(95, 70, 128, 0.26)', borderColor: 'rgba(174, 126, 255, 0.38)' } : { backgroundColor: 'rgba(34, 47, 72, 0.34)', borderColor: 'rgba(98, 115, 152, 0.24)' } }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.22em]", style: hasObData ? { color: '#d9b8ff' } : { color: '#8390ab' } }, "OB ", idx + 1)
+                  , _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-[11px] font-semibold border", style: hasObData ? { backgroundColor: 'rgba(167, 99, 255, 0.16)', borderColor: 'rgba(193, 147, 255, 0.42)', color: '#f2e7ff' } : { backgroundColor: 'rgba(76, 88, 118, 0.18)', borderColor: 'rgba(108, 124, 159, 0.28)', color: '#9aa4bb' } }, hasObData ? '已填写' : '空白占位')
+                )
+                , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                  , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                  , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-8 gap-3" }
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
+                      , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-2" }
+                        , _react2.default.createElement('select', { value: ob.timeframeNum, onChange: e => updPremarketOb(ob.id, 'timeframeNum', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , _react2.default.createElement('option', { value: "" }, "数字")
+                          , FVG_TIMEFRAME_NUM_OPTIONS.map(num => _react2.default.createElement('option', { key: 'pob_num_' + ob.id + '_' + num, value: num }, num))
+                        )
+                        , _react2.default.createElement('select', { value: ob.timeframeUnit || 'm', onChange: e => updPremarketOb(ob.id, 'timeframeUnit', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , FVG_TIMEFRAME_UNIT_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'pob_unit_' + ob.id + '_' + opt.value, value: opt.value }, opt.label))
+                        )
+                      )
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "From T日")
+                      , _react2.default.createElement('select', { value: String(normalizeDayOffset(ob.dayOffsetFrom)), onChange: e => updPremarketOb(ob.id, 'dayOffsetFrom', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'pob_from_' + ob.id + '_' + o.label, value: String(o.value) }, o.label))
+                      )
+                      , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-gray-500" }, fromDateLabel || '--')
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "From 时间")
+                      , _react2.default.createElement('input', { type: "text", value: ob.fromTime, onChange: e => updPremarketOb(ob.id, 'fromTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To T日")
+                      , _react2.default.createElement('select', { value: String(normalizeDayOffset(ob.dayOffsetTo)), onChange: e => updPremarketOb(ob.id, 'dayOffsetTo', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'pob_to_' + ob.id + '_' + o.label, value: String(o.value) }, o.label))
+                      )
+                      , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-gray-500" }, toDateLabel || '--')
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To 时间")
+                      , _react2.default.createElement('input', { type: "text", value: ob.toTime, onChange: e => updPremarketOb(ob.id, 'toTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "计算")
+                      , _react2.default.createElement('button', { type: "button", onClick: () => computePremarketOb(ob.id), className: lookupLoading ? "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-200 text-indigo-700 border border-indigo-200 cursor-wait" : "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '计算 OB')
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "OB High")
+                      , _react2.default.createElement('input', { type: "text", value: ob.high, onChange: e => updPremarketOb(ob.id, 'high', e.target.value), placeholder: "自动计算", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "OB Low")
+                      , _react2.default.createElement('input', { type: "text", value: ob.low, onChange: e => updPremarketOb(ob.id, 'low', e.target.value), placeholder: "自动计算", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "自动方向")
+                      , _react2.default.createElement('input', { type: "text", value: ob.direction, readOnly: true, placeholder: "可能为空", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50" })
+                    )
+                  )
+                  , _react2.default.createElement('button', { onClick: () => { if (premarketObs.length > 1) setPremarketObs(p => p.filter(x => x.id !== ob.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }
+                    , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
+                  )
+                )
+              )
+            );
+          })
+          , _react2.default.createElement('button', { onClick: () => setPremarketObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
+            , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 OB"
           )
         )
 
@@ -3637,7 +4645,7 @@ function getViewportWidth() {
                   , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-2" ,}
                     , _react2.default.createElement('div', null
                       , _react2.default.createElement('label', { className: "block text-xs font-medium text-indigo-700" ,}, "这段主要做了什么")
-                      , _react2.default.createElement('p', { className: "text-[11px] mt-1 text-indigo-500" ,}, "可记录 sweep 关键点或 EQH/EQL、与关键点形成 EQH/EQL、tap/fill 某个 FVG，或 tap/fill 某个 NDOG/NWOG。")
+                      , _react2.default.createElement('p', { className: "text-[11px] mt-1 text-indigo-500" ,}, "可记录关键点/EQH/EQL、OB、FVG、NWOG/NDOG 等动作。")
                     )
                     , _react2.default.createElement('button', { type: "button", onClick: () => addSegAction(seg.id), className: "flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 whitespace-nowrap" }
                       , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" ,} ), "添加动作"
@@ -3659,25 +4667,25 @@ function getViewportWidth() {
                               , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "引用对象")
                               , _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-400" }, "先选择动作类型...")
                             )
-                          : action.type === 'sweep_eq_level'
+                          : (action.type === 'break_reference' || action.type === 'sweep_reclaim' || action.type === 'looming_reference')
                           ? _react2.default.createElement('div', null
-                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "EQH / EQL")
-                              , _react2.default.createElement('select', { disabled: noEqLevel, value: getEqLevelSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
-                                , _react2.default.createElement('option', { value: "" }, noEqLevel ? "请先录入 EQH / EQL..." : "选择 EQH / EQL...")
-                                , eqLevelOptions.map(opt => _react2.default.createElement('option', { key: 'seg_eq_' + opt.value, value: opt.value }, opt.label))
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "关键点 / EQH/EQL")
+                              , _react2.default.createElement('select', { disabled: noSegmentReference, value: getSegmentReferenceSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                                , _react2.default.createElement('option', { value: "" }, noSegmentReference ? "请先录入关键点或 EQH/EQL..." : "选择关键点或 EQH/EQL...")
+                                , segmentReferenceOptions.map(opt => _react2.default.createElement('option', { key: 'seg_ref_' + opt.value, value: opt.value }, opt.label))
                               )
                             )
-                          : (action.type === 'sweep' || action.type === 'eqh' || action.type === 'eql')
+                          : action.type === 'tap_ob'
                           ? _react2.default.createElement('div', null
-                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, action.type === 'sweep' ? "关键点" : "对应关键点")
-                              , _react2.default.createElement('select', { disabled: noTp, value: getPtSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
-                                , _react2.default.createElement('option', { value: "" }, "选择关键点...")
-                                , tps.map(t => _react2.default.createElement('option', { key: t.value, value: t.value }, t.label))
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "OB")
+                              , _react2.default.createElement('select', { disabled: noSegmentOb, value: action.ref, onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                                , _react2.default.createElement('option', { value: "" }, noSegmentOb ? "请先录入盘前/盘中 OB..." : "选择盘前或盘中 OB...")
+                                , segmentObOptions.map(opt => _react2.default.createElement('option', { key: 'seg_ob_' + opt.value, value: opt.value }, opt.label))
                               )
                             )
-                          : (action.type === 'tap_fvg' || action.type === 'fill_fvg')
+                          : (action.type === 'tap_fvg' || action.type === 'tap_fvg_ce' || action.type === 'fill_fvg')
                           ? _react2.default.createElement('div', null
-                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "盘前关键 FVG")
+                              , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, action.type === 'tap_fvg_ce' ? "FVG C.E." : "FVG")
                               , _react2.default.createElement('select', { disabled: noPremarketFvg, value: getPremarketFvgSelectValue(action.ref), onChange: e => updSegAction(seg.id, action.id, 'ref', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
                                 , _react2.default.createElement('option', { value: "" }, noPremarketFvg ? "请先录入盘前 FVG..." : "选择 FVG...")
                                 , premarketFvgOptions.map(opt => _react2.default.createElement('option', { key: opt.value, value: opt.value }, opt.label))
@@ -3762,6 +4770,7 @@ function getViewportWidth() {
   function renderTab2() {
     var execTheme = getSectionTheme('exec');
     var intradayFvgTheme = getSectionTheme('segment');
+    var intradayEqTheme = getSectionTheme('overnight');
     var reversalTheme = getSectionTheme('reversal');
     return (
       _react2.default.createElement('div', null
@@ -3815,6 +4824,61 @@ function getViewportWidth() {
           , _react2.default.createElement('button', { onClick: () => setExecs(p => [...p, { id: nid(), time: '', price: '', note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-orange-500 hover:text-orange-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加关键点" )
         )
 
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg", style: intradayEqTheme.card }
+          , (() => { var badge = getCompletionBadgeMeta(validIntradayEqLevelCount, intradayEqLevels.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide", style: intradayEqTheme.title }, "盘中 EQH / EQL")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4" }, "逻辑与隔夜 EQH/EQL 相同，但采样点来自隔夜关键点与执行关键点，可直接被 Reversals 的 reasons 使用。")
+          , intradayEqLevels.map((level, idx) => {
+            var complete = isCompleteIntradayEqLevel(level);
+            var meaningful = isMeaningfulIntradayEqLevel(level);
+            var cardStyle = complete
+              ? { backgroundColor: 'rgba(36, 96, 68, 0.24)', borderColor: 'rgba(94, 234, 161, 0.32)' }
+              : meaningful
+              ? { backgroundColor: 'rgba(120, 90, 22, 0.22)', borderColor: 'rgba(250, 204, 21, 0.3)' }
+              : { backgroundColor: 'rgba(72, 34, 34, 0.18)', borderColor: 'rgba(248, 113, 113, 0.2)' };
+            var badgeStyle = complete
+              ? { backgroundColor: 'rgba(52, 211, 153, 0.14)', borderColor: 'rgba(110, 231, 183, 0.34)', color: '#d8fff0' }
+              : meaningful
+              ? { backgroundColor: 'rgba(245, 158, 11, 0.14)', borderColor: 'rgba(252, 211, 77, 0.34)', color: '#fff0c7' }
+              : { backgroundColor: 'rgba(239, 68, 68, 0.14)', borderColor: 'rgba(252, 165, 165, 0.3)', color: '#ffe1e1' };
+            var badgeText = complete ? '已完成' : (meaningful ? '部分待处理' : '空白占位');
+            return (
+              _react2.default.createElement('div', { key: level.id, className: "mb-3 rounded-xl border p-3", style: cardStyle }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.22em]", style: complete ? { color: '#c8ffe5' } : meaningful ? { color: '#ffe7a3' } : { color: '#ffb3b3' } }, "INTRADAY EQ ", idx + 1)
+                  , _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-[11px] font-semibold border", style: badgeStyle }, badgeText)
+                )
+                , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                  , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                  , _react2.default.createElement('div', { className: "flex-1" }
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)] gap-3 mb-3" }
+                      , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "类型")
+                        , _react2.default.createElement('select', { value: level.type, onChange: e => updIntradayEqLevel(level.id, 'type', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , _react2.default.createElement('option', { value: "" }, "选择 EQH/EQL...")
+                          , EQ_LEVEL_TYPE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'ieq_type_' + opt.value, value: opt.value }, opt.label))
+                        )
+                      )
+                      , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "组成关键点")
+                        , noIntradayEqPoint
+                          ? _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-400 min-h-[38px]" }, "请先录入隔夜关键点或执行关键点...")
+                          : _react2.default.createElement(MultiSelect, { options: intradayEqPointOptions, selected: normalizeIntradayEqPointRefs(level.pointRefs), onChange: v => updIntradayEqLevel(level.id, 'pointRefs', v) })
+                        , _react2.default.createElement('p', { className: "mt-1 text-[11px] text-gray-400" }, "至少选择 2 个采样点，可混合隔夜与执行关键点。")
+                      )
+                    )
+                    , _react2.default.createElement(ImageListEditor, { images: level.images, onChange: v => updIntradayEqLevel(level.id, 'images', v), title: "图片记录", hint: "记录这个盘中 EQH/EQL 的结构图、比较图或标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "intraday_eq_level" })
+                  )
+                  , _react2.default.createElement('button', { onClick: () => { if (intradayEqLevels.length > 1) setIntradayEqLevels(p => p.filter(x => x.id !== level.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" }))
+                )
+              )
+            );
+          })
+          , _react2.default.createElement('button', { onClick: () => setIntradayEqLevels(p => [...p, { id: nid(), type: '', pointRefs: [], images: [] }]), className: "flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700 mt-1" }, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" }), " 添加盘中 EQH / EQL" )
+        )
+
         , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg"     , style: intradayFvgTheme.card }
           , (() => { var badge = getCompletionBadgeMeta(intradayFvgs.filter(isMeaningfulFvg).length, intradayFvgs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
               , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide"   , style: intradayFvgTheme.title }, "盘中 FVG")
@@ -3825,7 +4889,14 @@ function getViewportWidth() {
             _react2.default.createElement('div', { key: fvg.id, className: "mb-3" }
               , _react2.default.createElement('div', { className: "flex items-start gap-2" }
                 , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
-                , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-6 gap-3" }
+                , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-8 gap-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG类型")
+                    , _react2.default.createElement('select', { value: fvg.fvgType || '', onChange: e => updIntradayFvg(fvg.id, 'fvgType', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择类型...")
+                      , FVG_TYPE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'ifvg_type_' + fvg.id + '_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "T日")
                     , _react2.default.createElement('select', { value: String(normalizeDayOffset(fvg.dayOffset)), onChange: e => updIntradayFvg(fvg.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
@@ -3834,12 +4905,12 @@ function getViewportWidth() {
                   )
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
-                    , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-2" }
-                      , _react2.default.createElement('select', { value: fvg.timeframeNum, onChange: e => updIntradayFvg(fvg.id, 'timeframeNum', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-2" }
+                      , _react2.default.createElement('select', { value: fvg.timeframeNum, onChange: e => updIntradayFvg(fvg.id, 'timeframeNum', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
                         , _react2.default.createElement('option', { value: "" }, "数字")
                         , FVG_TIMEFRAME_NUM_OPTIONS.map(num => _react2.default.createElement('option', { key: 'ifvg_num_' + fvg.id + '_' + num, value: num }, num))
                       )
-                      , _react2.default.createElement('select', { value: fvg.timeframeUnit || 'm', onChange: e => updIntradayFvg(fvg.id, 'timeframeUnit', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('select', { value: fvg.timeframeUnit || 'm', onChange: e => updIntradayFvg(fvg.id, 'timeframeUnit', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
                         , FVG_TIMEFRAME_UNIT_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'ifvg_unit_' + fvg.id + '_' + opt.value, value: opt.value }, opt.label))
                       )
                     )
@@ -3849,12 +4920,7 @@ function getViewportWidth() {
                     , _react2.default.createElement('input', { type: "text", value: fvg.middleTime, onChange: e => updIntradayFvg(fvg.id, 'middleTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
                   )
                   , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "方向")
-                    , _react2.default.createElement('select', { value: fvg.direction, onChange: e => updIntradayFvg(fvg.id, 'direction', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
-                      , _react2.default.createElement('option', { value: "" }, "自动计算")
-                      , _react2.default.createElement('option', { value: "bullish" }, "bullish")
-                      , _react2.default.createElement('option', { value: "bearish" }, "bearish")
-                    )
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "计算")
                     , _react2.default.createElement('button', { type: "button", onClick: () => computeIntradayFvg(fvg.id), className: lookupLoading ? "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-200 text-indigo-700 border border-indigo-200 cursor-wait" : "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '自动计算 FVG')
                   )
                   , _react2.default.createElement('div', null
@@ -3865,6 +4931,10 @@ function getViewportWidth() {
                     , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "FVG Low")
                     , _react2.default.createElement('input', { type: "text", value: fvg.low, onChange: e => updIntradayFvg(fvg.id, 'low', e.target.value), placeholder: "低点价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
                   )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "自动方向")
+                    , _react2.default.createElement('input', { type: "text", value: fvg.direction, readOnly: true, placeholder: "自动计算后显示", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50" })
+                  )
                 )
                 , _react2.default.createElement('button', { onClick: () => { if (intradayFvgs.length > 1) setIntradayFvgs(p => p.filter(x => x.id !== fvg.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }
                   , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
@@ -3872,8 +4942,90 @@ function getViewportWidth() {
               )
             )
           ))
-          , _react2.default.createElement('button', { onClick: () => setIntradayFvgs(p => [...p, { id: nid(), dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setIntradayFvgs(p => [...p, { id: nid(), fvgType: '', dayOffset: 0, timeframeNum: '', timeframeUnit: 'm', middleTime: '', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘中 FVG"
+          )
+        )
+
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-5 mb-4 shadow-lg", style: intradayFvgTheme.card }
+          , (() => { var badge = getCompletionBadgeMeta(validIntradayObCount, intradayObs.length, { empty: '待处理', partial: '部分待处理', done: '已完成' }); return _react2.default.createElement('div', { className: "flex items-start justify-between gap-3 mb-1" }
+              , _react2.default.createElement('h3', { className: "text-sm font-semibold tracking-wide", style: intradayFvgTheme.title }, "盘中 OB")
+              , _react2.default.createElement('span', { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold border", style: badge.style }, badge.text)
+            ); })()
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 mb-4" }, "记录执行观察阶段某个时间区间在指定周期下的高低点，计算逻辑与盘前 OB 相同。")
+          , intradayObs.map((ob, idx) => {
+            var hasObData = isMeaningfulOb(ob);
+            var fromDateLabel = shiftIsoDate(date, ob.dayOffsetFrom);
+            var toDateLabel = shiftIsoDate(date, ob.dayOffsetTo);
+            return (
+              _react2.default.createElement('div', { key: ob.id, className: "mb-3 rounded-xl border p-3", style: hasObData ? { backgroundColor: 'rgba(61, 88, 132, 0.24)', borderColor: 'rgba(121, 167, 255, 0.34)' } : { backgroundColor: 'rgba(34, 47, 72, 0.34)', borderColor: 'rgba(98, 115, 152, 0.24)' } }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.22em]", style: hasObData ? { color: '#bfd9ff' } : { color: '#8390ab' } }, "OB ", idx + 1)
+                  , _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-[11px] font-semibold border", style: hasObData ? { backgroundColor: 'rgba(59, 130, 246, 0.16)', borderColor: 'rgba(125, 181, 255, 0.42)', color: '#e7f2ff' } : { backgroundColor: 'rgba(76, 88, 118, 0.18)', borderColor: 'rgba(108, 124, 159, 0.28)', color: '#9aa4bb' } }, hasObData ? '已填写' : '空白占位')
+                )
+                , _react2.default.createElement('div', { className: "flex items-start gap-2" }
+                  , _react2.default.createElement('span', { className: "text-xs text-gray-400 mt-2.5 w-5 text-right flex-shrink-0" }, idx + 1, ".")
+                  , _react2.default.createElement('div', { className: "flex-1 grid grid-cols-1 md:grid-cols-8 gap-3" }
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
+                      , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-2" }
+                        , _react2.default.createElement('select', { value: ob.timeframeNum, onChange: e => updIntradayOb(ob.id, 'timeframeNum', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , _react2.default.createElement('option', { value: "" }, "数字")
+                          , FVG_TIMEFRAME_NUM_OPTIONS.map(num => _react2.default.createElement('option', { key: 'iob_num_' + ob.id + '_' + num, value: num }, num))
+                        )
+                        , _react2.default.createElement('select', { value: ob.timeframeUnit || 'm', onChange: e => updIntradayOb(ob.id, 'timeframeUnit', e.target.value), className: "w-full px-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , FVG_TIMEFRAME_UNIT_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'iob_unit_' + ob.id + '_' + opt.value, value: opt.value }, opt.label))
+                        )
+                      )
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "From T日")
+                      , _react2.default.createElement('select', { value: String(normalizeDayOffset(ob.dayOffsetFrom)), onChange: e => updIntradayOb(ob.id, 'dayOffsetFrom', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'iob_from_' + ob.id + '_' + o.label, value: String(o.value) }, o.label))
+                      )
+                      , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-gray-500" }, fromDateLabel || '--')
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "From 时间")
+                      , _react2.default.createElement('input', { type: "text", value: ob.fromTime, onChange: e => updIntradayOb(ob.id, 'fromTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To T日")
+                      , _react2.default.createElement('select', { value: String(normalizeDayOffset(ob.dayOffsetTo)), onChange: e => updIntradayOb(ob.id, 'dayOffsetTo', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'iob_to_' + ob.id + '_' + o.label, value: String(o.value) }, o.label))
+                      )
+                      , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-gray-500" }, toDateLabel || '--')
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To 时间")
+                      , _react2.default.createElement('input', { type: "text", value: ob.toTime, onChange: e => updIntradayOb(ob.id, 'toTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "计算")
+                      , _react2.default.createElement('button', { type: "button", onClick: () => computeIntradayOb(ob.id), className: lookupLoading ? "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-200 text-indigo-700 border border-indigo-200 cursor-wait" : "mt-1 w-full px-2 py-1.5 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '计算 OB')
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "OB High")
+                      , _react2.default.createElement('input', { type: "text", value: ob.high, onChange: e => updIntradayOb(ob.id, 'high', e.target.value), placeholder: "自动计算", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "OB Low")
+                      , _react2.default.createElement('input', { type: "text", value: ob.low, onChange: e => updIntradayOb(ob.id, 'low', e.target.value), placeholder: "自动计算", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "自动方向")
+                      , _react2.default.createElement('input', { type: "text", value: ob.direction, readOnly: true, placeholder: "可能为空", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50" })
+                    )
+                  )
+                  , _react2.default.createElement('button', { onClick: () => { if (intradayObs.length > 1) setIntradayObs(p => p.filter(x => x.id !== ob.id)); }, className: "p-2 text-gray-400 hover:text-red-500 mt-0.5" }
+                    , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} )
+                  )
+                )
+              )
+            );
+          })
+          , _react2.default.createElement('button', { onClick: () => setIntradayObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '' }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
+            , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘中 OB"
           )
         )
 
@@ -3904,6 +5056,9 @@ function getViewportWidth() {
                     , _react2.default.createElement('span', { className: "text-[10px] uppercase tracking-[0.22em]" , style: reversalAccent.chip }, "Turn")
                     , rev.smt && (
                       _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-xs font-semibold bg-cyan-100 text-cyan-700 border border-cyan-300"        ,}, "⚡ SMT" )
+                    )
+                    , rev.immediateRebalance && (
+                      _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300"        ,}, "Immediate Rebalance" )
                     )
                   )
                   , _react2.default.createElement('button', { onClick: () => { if (revs.length > 1) setRevs(p => p.filter(x => x.id !== rev.id)); }, className: "p-1 text-gray-400 hover:text-red-500"  ,}, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} ))
@@ -3949,7 +5104,7 @@ function getViewportWidth() {
                     )
                   )
                 )
-                , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-3 mb-3"   ,}
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3 mb-3"   ,}
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "Shape")
                     , _react2.default.createElement('select', { value: rev.shape, onChange: e => updRev(rev.id, 'shape', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"       ,}
@@ -3958,9 +5113,21 @@ function getViewportWidth() {
                     )
                   )
                   , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "Reasons（多选）")
-                    , _react2.default.createElement(MultiSelect, { options: dynamicReasonOptions, selected: rev.reasons, onChange: v => updRev(rev.id, 'reasons', v),} )
+                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "动作类型")
+                    , _react2.default.createElement('select', { value: rev.actionType, onChange: e => { updRev(rev.id, 'actionType', e.target.value); updRev(rev.id, 'actionRef', ''); }, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择动作类型...")
+                      , SEGMENT_ACTION_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'rev_action_' + opt.value, value: opt.value }, opt.label))
+                    )
                   )
+                )
+                , _react2.default.createElement('div', { className: "mb-3" }
+                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "关键点")
+                  , !rev.actionType
+                    ? _react2.default.createElement('div', { className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-400" }, "先选择动作类型...")
+                    : _react2.default.createElement('select', { disabled: noReversalReference, value: getReversalReferenceSelectValue(rev.actionRef), onChange: e => updRev(rev.id, 'actionRef', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100" }
+                        , _react2.default.createElement('option', { value: "" }, noReversalReference ? "请先录入关键结构..." : "选择关键点 / EQH/EQL / OB / FVG / Gap...")
+                        , reversalReferenceOptions.map(opt => _react2.default.createElement('option', { key: 'rev_ref_' + opt.value, value: opt.value }, opt.label))
+                      )
                 )
 
                 /* SMT Toggle */
@@ -3976,6 +5143,12 @@ function getViewportWidth() {
                     , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70"  ,}, "NQ/ES 流动性清扫一致" )
                   )
                 )
+                , _react2.default.createElement('div', { className: "mb-3" }
+                  , _react2.default.createElement('label', { className: "inline-flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer select-none" }
+                    , _react2.default.createElement('input', { type: "checkbox", checked: !!rev.immediateRebalance, onChange: e => updRev(rev.id, 'immediateRebalance', e.target.checked), className: "w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400" })
+                    , _react2.default.createElement('span', null, "Immediate Rebalance")
+                  )
+                )
 
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "备注")
@@ -3985,7 +5158,7 @@ function getViewportWidth() {
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setRevs(p => [...p, { id: nid(), execRef: '', shape: '', reasons: [], smt: false, note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 Reversal"  )
+          , _react2.default.createElement('button', { onClick: () => setRevs(p => [...p, { id: nid(), execRef: '', shape: '', actionType: '', actionRef: '', smt: false, immediateRebalance: false, note: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1"      ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加 Reversal"  )
         )
       )
     );
@@ -4048,7 +5221,7 @@ function getViewportWidth() {
               )
 
               , _react2.default.createElement('div', { className: "p-4",}
-                , _react2.default.createElement('div', { className: "grid grid-cols-3 gap-3 mb-3"   ,}
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-4 gap-3 mb-3"   ,}
                   , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-xs font-medium text-gray-500 mb-1"    ,}, "时间")
                     , _react2.default.createElement('input', { type: "text", value: en.time, onChange: e => updEntry(en.id, 'time', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: badTime ? "w-full px-3 py-2 border border-red-400 rounded-lg text-sm bg-red-50" : "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300",} )
@@ -4065,8 +5238,15 @@ function getViewportWidth() {
                     )
                   )
                   , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-xs font-medium text-gray-500 mb-1"    ,}, "入场模型")
+                    , _react2.default.createElement('select', { value: en.entryModel, onChange: e => updEntry(en.id, 'entryModel', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择模型...")
+                      , ENTRY_MODEL_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'entry_model_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', null
                     , _react2.default.createElement('label', { className: "block text-xs font-medium text-gray-500 mb-1"    ,}, "入场方式")
-                    , _react2.default.createElement(ComboSelect, { options: ENTRY_STYLE_OPTIONS, value: en.entryStyle, onChange: v => updEntry(en.id, 'entryStyle', v), placeholder: "选择...", allowCustom: true, customPlaceholder: "自定义...",} )
+                    , _react2.default.createElement(MultiSelect, { options: ENTRY_STYLE_OPTIONS, selected: Array.isArray(en.entryStyle) ? en.entryStyle : [], onChange: v => updEntry(en.id, 'entryStyle', normalizeEntryStyleList(v)) } )
                   )
                 )
 
@@ -4168,6 +5348,9 @@ function getViewportWidth() {
                         )
                         , revInfo.smt && (
                           _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-xs font-semibold bg-cyan-100 text-cyan-700 border border-cyan-300"        ,}, "⚡ SMT" )
+                        )
+                        , revInfo.immediateRebalance && (
+                          _react2.default.createElement('span', { className: "px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300"        ,}, "Immediate Rebalance" )
                         )
                       )
                       , _react2.default.createElement('div', { className: "flex items-center gap-1 mt-1.5 text-xs text-purple-500"     ,}
@@ -4368,11 +5551,12 @@ function getViewportWidth() {
         )
       )
       , _react2.default.createElement('div', { className: "max-w-5xl mx-auto rounded-[28px] border border-slate-200 px-6 py-7 shadow-2xl"  ,}
-        , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-5"   ,}
+        , _react2.default.createElement('div', { className: "flex items-center gap-3 mb-5 flex-wrap"   ,}
           , _react2.default.createElement('div', { className: "w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center border border-indigo-200"      ,}
             , _react2.default.createElement('span', { className: "text-blue-600 text-base font-bold"  ,}, "📋")
           )
-          , _react2.default.createElement('h1', { className: "text-xl font-bold tracking-wide"  , style: { color: '#f3ecce' } }, "Trading Journal YAML Builder"   )
+          , _react2.default.createElement('h1', { className: "text-xl font-bold tracking-wide flex-1 min-w-0"  , style: { color: '#f3ecce' } }, "Trading Journal YAML Builder"   )
+          , _react2.default.createElement('div', { className: "px-3 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap", style: { backgroundColor: 'rgba(100, 103, 242, 0.14)', borderColor: 'rgba(171, 172, 248, 0.32)', color: '#dfe2ff' } }, "当前日期 ", formatIsoDateDisplay(date))
         )
 
         , _react2.default.createElement('div', { className: "flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto pb-1"     ,}

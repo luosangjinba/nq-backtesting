@@ -266,9 +266,10 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 页面中的图片记录支持直接上传到本地 API。
 
 - 上传接口由 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py) 提供
-- 新上传图片默认保存为相对路径，例如 `/backtesting-images/2012/2012-01-05/entry-xxx.png`
+- 新上传图片默认保存为相对于 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 的路径，例如 `backtesting-images/2012/2012-01-05/entry-xxx.png`
 - 前端预览和打开原图时会根据当前 `API 地址` 自动拼接完整 URL
 - 旧 YAML 里已经保存的绝对 URL 仍然兼容显示
+- 旧的 `/backtesting-images/...` 站点相对路径也仍然兼容
 - 图片会保存到：
 
 ## 最近新增
@@ -282,11 +283,12 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 - 关键点的 `in session / out of session` 会按具体标签族判断，不再只按泛化的 `high / low` 判定
 - 行情段支持自动按起止关键点价格推算方向，跨交易日区间也可正常工作
 - 行情段支持“这段主要做了什么”的结构化记录：
-  - `Sweep 某个关键点`
-  - `与关键点形成 EQH`
-  - `与关键点形成 EQL`
-  - `Sweep 某个 EQH/EQL`
+  - `突破关键点/EQH/EQL`
+  - `Sweep关键点/EQH/EQL后立即收回`
+  - `Looming关键点但未突破或Sweep`
+  - `Tap 某个 OB`
   - `Tap 某个 FVG`
+  - `Tap 某个 FVG C.E.`
   - `Fill 某个 FVG`
   - `Tap 某个 NDOG/NWOG`
   - `Tap 某个 NDOG/NWOG C.E.`
@@ -306,9 +308,13 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
   - 隔夜关键点数 / 图片数
   - 隔夜 `EQH/EQL` 数 / 图片数
   - 盘前关键 FVG 数
+  - 盘前 OB 数
   - 行情段数 / 图片数
   - `Open Reference Range` 是否填写 / 图片数
   - 执行关键点数 / 图片数
+  - 盘中 `EQH/EQL` 数 / 图片数
+  - 盘中 FVG 数
+  - 盘中 OB 数
   - `Reversals` 数量 / 图片数
   - 入场记录数 / 图片数
   - 所有这些区块都会按 `绿/黄/红` badge 区分已完成、部分待处理、空白占位
@@ -322,12 +328,14 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 
 两者字段和计算逻辑相同，都支持：
 
+- `FVG类型`
+  - `FVG / IFVG`
 - `T日`
 - 周期：拆成两个下拉框
   - 左侧 `1-30`
   - 右侧 `m / h / d`
 - `中间K线时间`
-- `direction`
+- `自动方向`
 - `FVG high`
 - `FVG low`
 - `自动计算 FVG`
@@ -336,6 +344,7 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 
 自动计算会根据：
 
+- `FVG类型`
 - `T日`
 - 周期
 - 中间K线时间
@@ -346,7 +355,16 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 - 中间根
 - 后一根
 
-然后按下面规则计算：
+先根据“中间K线方向 + FVG类型”推算方向：
+
+- `FVG`
+  - 中间K线上涨 => `bullish`
+  - 中间K线下跌 => `bearish`
+- `IFVG`
+  - 中间K线上涨 => `bearish`
+  - 中间K线下跌 => `bullish`
+
+然后再校验三根K线是否真的形成对应方向的有效 FVG，并按下面规则写出高低点：
 
 - `bullish FVG`
   - 条件：`后一根.low > 前一根.high`
@@ -366,11 +384,72 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 - `overnight_structure.premarket_key_fvgs`
 - `execution_observation.intraday_fvgs`
 
-行情段里的 `tap 某个 FVG` 会引用 `盘前关键 FVG`，并在 YAML 中带上：
+行情段和 `Reversals` 里的 FVG 动作会引用这些结构，并在 YAML 中带上：
 
 - `fvg_day_offset`
 - `fvg_timeframe`
 - `fvg_middle_candle_time`
+
+## OB 结构
+
+现在页面支持两组 OB：
+
+- `隔夜结构 -> 盘前 OB`
+- `执行观察 -> 盘中 OB`
+
+两者字段和计算逻辑相同，都支持：
+
+- 周期：拆成两个下拉框
+  - 左侧 `1-30`
+  - 右侧 `m / h / d`
+- `from`
+  - `T日`
+  - 时间 `HH:MM`
+- `to`
+  - `T日`
+  - 时间 `HH:MM`
+- `自动方向`
+- `OB High`
+- `OB Low`
+- `计算 OB`
+
+### OB 自动计算逻辑
+
+- 允许 `from = to`
+  - 这时按单根 K 线计算高低点
+- 禁止 `from > to`
+  - 页面会直接报错
+- 系统会取 `from -> to` 区间在所选周期下的价格极值：
+  - `OB High = 区间最高点`
+  - `OB Low = 区间最低点`
+- 再根据起止 K 线关系自动判定方向
+- 当前页面里的自动方向已按最新规则反转：
+  - 原本会给出 `bullish` 的情况，现显示为 `bearish`
+  - 原本会给出 `bearish` 的情况，现显示为 `bullish`
+- 如果方向不明确，仍会保留高低点，只把方向留空
+
+### OB 与 YAML
+
+导出时会新增：
+
+- `overnight_structure.premarket_obs`
+- `execution_observation.intraday_obs`
+
+行情段和 `Reversals` 里的 `Tap 某个 OB` 会引用这些结构，并在 YAML 中带上：
+
+- `ob_from_day_offset`
+- `ob_from_time`
+- `ob_to_day_offset`
+- `ob_to_time`
+- `ob_timeframe`
+
+如果引用的是盘中 OB，则会写成：
+
+- `intraday_ob_from_day_offset`
+- `intraday_ob_from_time`
+- `intraday_ob_to_day_offset`
+- `intraday_ob_to_time`
+- `intraday_ob_timeframe`
 
 ## EQH / EQL 结构
 
@@ -397,23 +476,10 @@ overnight_structure:
           title: "EQH 标注"
 ```
 
-行情段动作新增：
-
-- `sweep_eq_level`
-
-导出 YAML 时会带上：
+行情段动作和 `Reversals` 都可以引用这些结构，导出 YAML 时会带上：
 
 - `eq_level_type`
 - `eq_key_points`
-
-同时，`Reversals -> Reasons` 会动态汇总：
-
-- 隔夜关键点
-- 隔夜 `EQH/EQL`
-- 盘前关键 FVG
-- 关键 `NWOG/NDOG`
-- 执行关键点
-- 盘中 FVG
 
 ## API 变更
 
@@ -425,7 +491,7 @@ overnight_structure:
 backtesting-images/<year>/<yyyy-mm-dd>/
 ```
 
-- 页面会自动把返回的相对路径写入当前图片项
+- 页面会自动把返回的相对于 `yaml_panel.html` 的路径写入当前图片项
 - 也支持先聚焦粘贴区，再用 `Ctrl+V` 粘贴剪贴板截图
 
 如果只是页面交互或样式更新，通常替换 [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html) 即可；如果涉及图片上传功能，则需要同时更新 [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)。

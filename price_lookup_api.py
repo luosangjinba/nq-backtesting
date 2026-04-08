@@ -367,6 +367,7 @@ class Handler(BaseHTTPRequestHandler):
             rel_path = dest_path.relative_to(self.image_root).as_posix()
             relative_url = f"{IMAGE_ROUTE_PREFIX}{rel_path}"
             absolute_url = f"{self._public_base_url()}{relative_url}"
+            panel_relative_path = f"{self.image_root.name}/{rel_path}"
             self._send_json(
                 200,
                 {
@@ -376,6 +377,7 @@ class Handler(BaseHTTPRequestHandler):
                     "absoluteUrl": absolute_url,
                     "path": str(dest_path.as_posix()),
                     "relativePath": rel_path,
+                    "panelRelativePath": panel_relative_path,
                     "filename": dest_path.name,
                 },
             )
