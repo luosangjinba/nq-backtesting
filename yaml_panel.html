@@ -512,7 +512,7 @@
       }
 
       .stats-dock {
-        width: min(19rem, calc(100vw - 1.5rem));
+        width: min(21rem, calc(100vw - 1.5rem));
       }
 
       @media (min-width: 1280px) {
@@ -726,8 +726,6 @@ const DAY_OFFSET_OPTIONS = Array.from({ length: 31 }, (_, index) => ({
   value: -index,
   label: 'T-' + index
 }));
-const LOOKUP_PANEL_STORAGE_KEY = 'yaml_builder_lookup_panel_open';
-const LOOKUP_PANEL_DOCKED_KEY = 'yaml_builder_lookup_panel_docked';
 
 const DEFAULT_DATE = '2012-01-05';
 
@@ -1706,38 +1704,26 @@ function parseSimpleYaml(text) {
   return root;
 }
 
- function getDefaultApiBaseUrl() {
+function getDefaultApiBaseUrl() {
   if (typeof window === 'undefined' || !window.location) return 'http://127.0.0.1:8765';
   var host = window.location.hostname;
   if (!host || host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:8765';
   return 'http://' + host + ':8765';
 }
 
-function loadLookupPanelPreference() {
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return window.localStorage.getItem(LOOKUP_PANEL_STORAGE_KEY) === '1';
-    }
-  } catch (err) {}
-  return false;
-}
-
-function loadLookupPanelDockedPreference() {
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return window.localStorage.getItem(LOOKUP_PANEL_DOCKED_KEY) === '1';
-    }
-  } catch (err) {}
-  return false;
-}
-
-function getViewportWidth() {
-  if (typeof window !== 'undefined' && window.innerWidth) return window.innerWidth;
-  return 1440;
+function getStatsSectionTitleForTab(tabIndex) {
+  if (tabIndex === 0) return '基本信息';
+  if (tabIndex === 1) return '隔夜结构';
+  return '执行与入场';
 }
 
  function App() {
   var [tab, setTab] = _react.useState.call(void 0, 0);
+  var [statsExpanded, setStatsExpanded] = _react.useState.call(void 0, () => ({
+    '基本信息': true,
+    '隔夜结构': false,
+    '执行与入场': false
+  }));
   var [date, setDate] = _react.useState.call(void 0, DEFAULT_DATE);
   var [inst, setInst] = _react.useState.call(void 0, 'NQ');
   var [basicInfoImages, setBasicInfoImages] = _react.useState.call(void 0, []);
@@ -1770,9 +1756,6 @@ function getViewportWidth() {
   var [lookupResult, setLookupResult] = _react.useState.call(void 0, null);
   var [lookupError, setLookupError] = _react.useState.call(void 0, '');
   var [lookupLoading, setLookupLoading] = _react.useState.call(void 0, false);
-  var [lookupPanelOpen, setLookupPanelOpen] = _react.useState.call(void 0, loadLookupPanelPreference);
-  var [lookupPanelDocked, setLookupPanelDocked] = _react.useState.call(void 0, loadLookupPanelDockedPreference);
-  var [viewportWidth, setViewportWidth] = _react.useState.call(void 0, getViewportWidth);
   var importFileRef = _react.useRef.call(void 0, null);
 
   _react.useEffect.call(void 0, () => {
@@ -1780,29 +1763,9 @@ function getViewportWidth() {
   }, [apiBaseUrl]);
 
   _react.useEffect.call(void 0, () => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(LOOKUP_PANEL_STORAGE_KEY, lookupPanelOpen ? '1' : '0');
-      }
-    } catch (err) {}
-  }, [lookupPanelOpen]);
-
-  _react.useEffect.call(void 0, () => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(LOOKUP_PANEL_DOCKED_KEY, lookupPanelDocked ? '1' : '0');
-      }
-    } catch (err) {}
-  }, [lookupPanelDocked]);
-
-  _react.useEffect.call(void 0, () => {
-    if (typeof window === 'undefined') return;
-    function handleResize() {
-      setViewportWidth(window.innerWidth || 1440);
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    var activeSection = getStatsSectionTitleForTab(tab);
+    setStatsExpanded(prev => ({ ...prev, [activeSection]: true }));
+  }, [tab]);
 
   var todayWeekday = getWeekdayLabel(date);
   var lookupWeekday = getWeekdayLabel(lookupDate);
@@ -2539,10 +2502,22 @@ function getViewportWidth() {
   var revImageCount = revs.reduce((sum, r) => sum + ((r && Array.isArray(r.images)) ? r.images.length : 0), 0);
   var validEntriesCount = entries.filter(en => en && (en.time || en.entryModel || (Array.isArray(en.entryStyle) && en.entryStyle.length > 0) || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
   var entryImageCount = entries.reduce((sum, en) => sum + ((en && Array.isArray(en.images)) ? en.images.length : 0), 0);
+  var overnightStructureCount = validPtsCount + validEqLevelCount + validPremarketFvgCount + validPremarketObCount + validOvernightGapCount + validSegsCount + (orrFilled ? 1 : 0);
+  var overnightStructureImageCount = ptImageCount + eqLevelImageCount + premarketFvgImageCount + premarketObImageCount + overnightGapImageCount + segImageCount + orrImageCount;
+  var executionFlowCount = validExecsCount + validIntradayEqLevelCount + validIntradayFvgCount + validIntradayObCount + validRevsCount + validEntriesCount;
+  var executionFlowImageCount = execImageCount + intradayEqLevelImageCount + intradayFvgImageCount + intradayObImageCount + revImageCount + entryImageCount;
+  var totalImageCount = basicInfoImageCount + overnightStructureImageCount + executionFlowImageCount;
+  var statsSummaryCards = [
+    { label: '新闻', value: validNewsCount + ' 条' },
+    { label: '隔夜结构', value: overnightStructureCount + ' 项' },
+    { label: '执行与入场', value: executionFlowCount + ' 项' },
+    { label: '总图片', value: totalImageCount + ' 张' }
+  ];
   var statsSections = [
     {
       title: '基本信息',
       accent: 'rgba(123, 167, 255, 0.9)',
+      summary: validNewsCount + ' 条新闻 / ' + basicInfoImageCount + ' 张图',
       items: [
         { label: 'Red Folder News', value: validNewsCount + ' 条' },
         { label: '整体图片记录', value: basicInfoImageCount + ' 张' }
@@ -2551,6 +2526,7 @@ function getViewportWidth() {
     {
       title: '隔夜结构',
       accent: 'rgba(168, 145, 255, 0.9)',
+      summary: overnightStructureCount + ' 项 / ' + overnightStructureImageCount + ' 张图',
       items: [
         { label: '隔夜关键点', value: validPtsCount + ' 个' },
         { label: '关键点图片', value: ptImageCount + ' 张' },
@@ -2571,6 +2547,7 @@ function getViewportWidth() {
     {
       title: '执行与入场',
       accent: 'rgba(244, 196, 110, 0.95)',
+      summary: executionFlowCount + ' 项 / ' + executionFlowImageCount + ' 张图',
       items: [
         { label: '执行关键点', value: validExecsCount + ' 个' },
         { label: '执行点图片', value: execImageCount + ' 张' },
@@ -4329,15 +4306,9 @@ function getViewportWidth() {
 
   function renderPriceLookupPanel() {
     var statusTone = apiStatus && apiStatus.ok ? "bg-emerald-500 shadow-emerald-500/40" : "bg-amber-400 shadow-amber-400/40";
-    var summaryText = lookupTime ? lookupTime + " / " + lookupTimeframe + "m / " + lookupField.toUpperCase() : lookupTimeframe + "m / " + lookupField.toUpperCase();
-    var floatingLabel = lookupTime ? lookupTime + " · " + lookupField.toUpperCase() : lookupField.toUpperCase();
-    var wrapperClass = lookupPanelDocked ? "fixed right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-end gap-3 pointer-events-none" : "fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 pointer-events-none";
-    var panelWidth = lookupPanelDocked ? 'min(21rem, calc(100vw - 1rem))' : 'min(24rem, calc(100vw - 1.5rem))';
-    var panelMaxHeight = lookupPanelDocked ? 'calc(100vh - 4rem)' : 'calc(100vh - 2rem)';
-    var launcherClass = lookupPanelOpen ? "pointer-events-auto flex items-center gap-3 rounded-2xl border border-slate-500/70 bg-slate-900/95 px-4 py-3 shadow-2xl shadow-slate-950/45 backdrop-blur-xl hover:bg-slate-800/95" : "pointer-events-auto flex items-center gap-2 rounded-full border border-slate-500/70 bg-slate-900/95 px-3 py-2.5 shadow-2xl shadow-slate-950/45 backdrop-blur-xl hover:bg-slate-800/95";
     return (
-      _react2.default.createElement('div', { className: wrapperClass    ,}
-        , lookupPanelOpen && _react2.default.createElement('div', { className: "pointer-events-auto rounded-2xl border border-slate-500/70 bg-slate-900/95 shadow-2xl shadow-slate-950/45 backdrop-blur-xl overflow-hidden"  , style: { width: panelWidth, maxHeight: panelMaxHeight } }
+      _react2.default.createElement('div', { className: "fixed right-4 top-6 z-30 hidden xl:block"  , style: { width: 'min(21rem, calc(100vw - 1.5rem))' } }
+        , _react2.default.createElement('div', { className: "rounded-2xl border border-slate-500/70 bg-slate-900/95 shadow-2xl shadow-slate-950/45 backdrop-blur-xl overflow-hidden"   ,}
           , _react2.default.createElement('div', { className: "px-4 py-3 border-b border-slate-700/80 bg-slate-900/90"  ,}
             , _react2.default.createElement('div', { className: "flex items-start justify-between gap-3"   ,}
               , _react2.default.createElement('div', null
@@ -4345,17 +4316,14 @@ function getViewportWidth() {
                   , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
                   , _react2.default.createElement('h3', { className: "text-sm font-semibold text-slate-100"   ,}, "价格查询助手")
                 )
-                , _react2.default.createElement('p', { className: "text-xs text-slate-400 leading-5"  ,}, lookupPanelDocked ? "已切到侧边吸附模式，尽量避免挡住主输入区。" : "浮窗会一直跟着页面，改时间、周期和 OHLC 不用再滚回顶部。")
+                , _react2.default.createElement('p', { className: "text-xs text-slate-400 leading-5"  ,}, "固定在右上角，和左侧实时统计保持同一视觉高度。")
               )
-              , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
-                , _react2.default.createElement('button', { onClick: checkApiHealth, className: "px-3 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs font-medium border border-slate-600 hover:bg-slate-700"    ,}, "检查连接")
-                , _react2.default.createElement('button', { onClick: () => setLookupPanelOpen(false), className: "w-9 h-9 rounded-lg border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm font-medium"    ,}, "×")
-              )
+              , _react2.default.createElement('button', { onClick: checkApiHealth, className: "px-3 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs font-medium border border-slate-600 hover:bg-slate-700"    ,}, "检查连接")
             )
           )
 
-          , _react2.default.createElement('div', { className: "p-4 overflow-y-auto space-y-3"  , style: { maxHeight: lookupPanelDocked ? 'calc(100vh - 11rem)' : 'calc(100vh - 9rem)' } }
-            , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_auto] gap-3"   ,}
+          , _react2.default.createElement('div', { className: "p-4 overflow-y-auto space-y-3"  , style: { maxHeight: 'calc(100vh - 7rem)' } }
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-3"   ,}
               , _react2.default.createElement('div', null
                 , _react2.default.createElement('label', { className: "block text-xs text-slate-400 mb-1"   ,}, "API 地址")
                 , _react2.default.createElement('input', { type: "text", value: apiBaseUrl, onChange: e => setApiBaseUrl(e.target.value), placeholder: "http://127.0.0.1:8765", className: "w-full px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400"         ,} )
@@ -4439,21 +4407,20 @@ function getViewportWidth() {
             )
           )
         )
-
-        , lookupPanelDocked ? (
-          !lookupPanelOpen && _react2.default.createElement('button', { type: "button", onClick: () => setLookupPanelOpen(true), className: "pointer-events-auto flex flex-col items-center gap-2 rounded-l-2xl border border-r-0 border-slate-500/70 bg-slate-900/95 px-2.5 py-4 shadow-2xl shadow-slate-950/45 backdrop-blur-xl hover:bg-slate-800/95"    ,}
-            , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
-            , _react2.default.createElement('span', { className: "text-[11px] font-semibold tracking-[0.22em] text-slate-100 [writing-mode:vertical-rl] [text-orientation:mixed]"  ,}, "查价助手")
-            , _react2.default.createElement('span', { className: "text-[10px] text-slate-400 [writing-mode:vertical-rl] [text-orientation:mixed]"  ,}, floatingLabel)
-          )
-        ) : (
-          _react2.default.createElement('button', { type: "button", onClick: () => setLookupPanelOpen(v => !v), className: launcherClass    ,}
-            , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
-            , _react2.default.createElement('div', { className: "text-left"  ,}
-              , _react2.default.createElement('div', { className: lookupPanelOpen ? "text-sm font-semibold text-slate-100 leading-none" : "text-xs font-semibold text-slate-100 leading-none"  ,}, lookupPanelOpen ? "收起查价助手" : "查价")
-              , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-slate-400 leading-none"  ,}, lookupPanelOpen ? summaryText : floatingLabel)
+        , _react2.default.createElement('div', { className: "xl:hidden mt-6 rounded-2xl border border-slate-500/70 bg-slate-900/95 shadow-2xl shadow-slate-950/45 backdrop-blur-xl overflow-hidden"  ,}
+          , _react2.default.createElement('div', { className: "px-4 py-3 border-b border-slate-700/80 bg-slate-900/90"  ,}
+            , _react2.default.createElement('div', { className: "flex items-start justify-between gap-3"   ,}
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-1"  ,}
+                  , _react2.default.createElement('span', { className: "inline-block w-2.5 h-2.5 rounded-full shadow-lg " + statusTone ,} )
+                  , _react2.default.createElement('h3', { className: "text-sm font-semibold text-slate-100"   ,}, "价格查询助手")
+                )
+                , _react2.default.createElement('p', { className: "text-xs text-slate-400 leading-5"  ,}, "小屏时会回到主栏顶部，避免固定面板遮挡内容。")
+              )
+              , _react2.default.createElement('button', { onClick: checkApiHealth, className: "px-3 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs font-medium border border-slate-600 hover:bg-slate-700"    ,}, "检查连接")
             )
           )
+          , _react2.default.createElement('div', { className: "p-4 text-xs text-slate-400"  ,}, "请在桌面端右侧使用常驻查价助手。")
         )
       )
     );
@@ -6012,14 +5979,28 @@ function getViewportWidth() {
               , _react2.default.createElement('p', { className: "text-xs leading-5 mt-1" , style: { color: '#8d99b8' } }, "表单一变更，这里会立即更新。")
             )
           )
+          , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-2 mb-4" ,}
+            , statsSummaryCards.map(card => (
+              _react2.default.createElement('div', { key: card.label, className: "rounded-2xl border px-3 py-3" , style: { backgroundColor: 'rgba(62, 72, 104, 0.28)', borderColor: 'rgba(159, 174, 219, 0.16)' } }
+                , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em]" , style: { color: '#8d99b8' } }, card.label)
+                , _react2.default.createElement('div', { className: "mt-1 text-sm font-semibold" , style: { color: '#f7f1d8' } }, card.value)
+              )
+            ))
+          )
           , _react2.default.createElement('div', { className: "space-y-3" ,}
             , statsSections.map(section => (
               _react2.default.createElement('div', { key: section.title, className: "rounded-2xl border px-4 py-3" , style: { backgroundColor: 'rgba(62, 72, 104, 0.36)', borderColor: 'rgba(159, 174, 219, 0.18)' } }
-                , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-3" ,}
-                  , _react2.default.createElement('span', { className: "inline-flex h-2.5 w-2.5 rounded-full" , style: { backgroundColor: section.accent } })
-                  , _react2.default.createElement('h3', { className: "text-xs font-semibold tracking-[0.2em] uppercase" , style: { color: '#edf1ff' } }, section.title)
+                , _react2.default.createElement('button', { type: "button", onClick: () => setStatsExpanded(prev => ({ ...prev, [section.title]: !prev[section.title] })), className: "w-full flex items-start justify-between gap-3 text-left"   ,}
+                  , _react2.default.createElement('div', { className: "min-w-0" ,}
+                    , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-1" ,}
+                      , _react2.default.createElement('span', { className: "inline-flex h-2.5 w-2.5 rounded-full" , style: { backgroundColor: section.accent } })
+                      , _react2.default.createElement('h3', { className: "text-xs font-semibold tracking-[0.2em] uppercase" , style: { color: '#edf1ff' } }, section.title)
+                    )
+                    , _react2.default.createElement('div', { className: "text-xs" , style: { color: '#9eabd2' } }, section.summary)
+                  )
+                  , _react2.default.createElement(_lucidereact.ChevronDown, { className: (statsExpanded[section.title] ? "w-4 h-4 mt-1 text-slate-300 transition-transform rotate-180" : "w-4 h-4 mt-1 text-slate-300 transition-transform") ,} )
                 )
-                , _react2.default.createElement('div', { className: "space-y-2" ,}
+                , statsExpanded[section.title] && _react2.default.createElement('div', { className: "space-y-2 mt-3" ,}
                   , section.items.map(item => (
                     _react2.default.createElement('div', { key: section.title + item.label, className: "flex items-center justify-between gap-3 text-sm" ,}
                       , _react2.default.createElement('span', { style: { color: '#9eabd2' } }, item.label)
