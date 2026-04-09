@@ -791,6 +791,11 @@ const BIAS_OPTIONS = [
   { value: 'bearish', label: 'Bearish' },
   { value: 'neutral', label: 'Neutral' }
 ];
+const HTF_RANGE_TIMEFRAME_OPTIONS = [
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' }
+];
 const DOL_OPTIONS = [
   { value: 'above', label: 'Above' },
   { value: 'below', label: 'Below' },
@@ -800,6 +805,25 @@ const ALIGNMENT_OPTIONS = [
   { value: 'aligned', label: 'Aligned' },
   { value: 'conflicting', label: 'Conflicting' },
   { value: 'neutral', label: 'Neutral / Mixed' }
+];
+const HTF_LIQUIDITY_TYPE_OPTIONS = [
+  { value: 'swing_high', label: 'Swing High' },
+  { value: 'swing_low', label: 'Swing Low' },
+  { value: 'equal_highs', label: 'Equal Highs' },
+  { value: 'equal_lows', label: 'Equal Lows' },
+  { value: 'fvg', label: 'FVG' },
+  { value: 'other', label: 'Other' }
+];
+const BIAS_CONFIDENCE_OPTIONS = [
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'low', label: 'Low' }
+];
+const NARRATIVE_OPTIONS = [
+  { value: 'directional', label: 'Directional' },
+  { value: 'sweep_then_reverse', label: 'Sweep Then Reverse' },
+  { value: 'range_bound', label: 'Range Bound' },
+  { value: 'other', label: 'Other' }
 ];
 const DAY_OFFSET_OPTIONS = Array.from({ length: 31 }, (_, index) => ({
   value: -index,
@@ -1510,6 +1534,11 @@ function makeEntry() {
     exitPrice: '',
     exitType: '',
     outcome: '',
+    internalReached: false,
+    internalReachedTime: '',
+    swingReached: false,
+    swingReachedTime: '',
+    swingReviewNote: '',
     positive: ['none'],
     negative: ['none'],
     resultOpen: false,
@@ -1519,10 +1548,26 @@ function makeEntry() {
 
 function makeInitialHtfContext() {
   return {
+    rangeTimeframe: 'daily',
+    swingHigh: '',
+    swingHighDate: '',
+    swingLow: '',
+    swingLowDate: '',
+    referencePrice: '',
+    referencePriceTime: '09:29',
+    validationStatus: '',
+    validationMessage: '',
+    validationRangeMaxHigh: '',
+    validationRangeMinLow: '',
+    liquidityAbove: [{ id: nid(), price: '', type: '', date: '', note: '' }],
+    liquidityBelow: [{ id: nid(), price: '', type: '', date: '', note: '' }],
+    nearestDraw: '',
+    nearestDrawTarget: '',
     bias: '',
-    drawOnLiquidity: '',
-    nearestTarget: '',
+    biasConfidence: '',
+    narrative: '',
     reasoning: '',
+    invalidations: [{ id: nid(), condition: '', implication: '' }],
     images: []
   };
 }
@@ -1678,6 +1723,85 @@ function normalizeFactorList(values) {
     return ['none'];
   }
   return unique.filter(v => v !== 'none');
+}
+
+function makeInitialHtfLiquidity() {
+  return { id: nid(), price: '', type: '', date: '', note: '' };
+}
+
+function makeInitialHtfInvalidation() {
+  return { id: nid(), condition: '', implication: '' };
+}
+
+function isMeaningfulHtfLiquidity(item) {
+  return !!(item && (item.price || item.type || item.date || item.note));
+}
+
+function isMeaningfulHtfInvalidation(item) {
+  return !!(item && (item.condition || item.implication));
+}
+
+function parseNumericInput(value) {
+  var n = parseFloat(String(value || '').trim());
+  return isNaN(n) ? null : n;
+}
+
+function getHtfRangeMetrics(htfContext) {
+  var swingHigh = parseNumericInput(htfContext && htfContext.swingHigh);
+  var swingLow = parseNumericInput(htfContext && htfContext.swingLow);
+  var referencePrice = parseNumericInput(htfContext && htfContext.referencePrice);
+  if (swingHigh == null || swingLow == null || referencePrice == null) return null;
+  if (swingHigh === swingLow) return null;
+  var top = Math.max(swingHigh, swingLow);
+  var bottom = Math.min(swingHigh, swingLow);
+  var equilibrium = (top + bottom) / 2;
+  var positionPct = ((referencePrice - bottom) / (top - bottom)) * 100;
+  var premiumDiscount = positionPct > 50 ? 'premium' : positionPct < 50 ? 'discount' : 'equilibrium';
+  return {
+    high: top,
+    low: bottom,
+    equilibrium: equilibrium,
+    positionPct: positionPct,
+    premiumDiscount: premiumDiscount
+  };
+}
+
+function formatMetricNumber(value) {
+  if (value == null || isNaN(value)) return '--';
+  var rounded = Math.round(value * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+}
+
+function getNarrativeRecommendation(htfContext) {
+  if (!htfContext) return '';
+  if (htfContext.bias === 'neutral') return 'range_bound';
+  if (!htfContext.nearestDraw || htContextNearestDrawIsMixed(htfContext.nearestDraw)) return '';
+  if ((htfContext.bias === 'bullish' && htfContext.nearestDraw === 'above') || (htfContext.bias === 'bearish' && htfContext.nearestDraw === 'below')) return 'directional';
+  if ((htfContext.bias === 'bullish' && htfContext.nearestDraw === 'below') || (htfContext.bias === 'bearish' && htfContext.nearestDraw === 'above')) return 'sweep_then_reverse';
+  return '';
+}
+
+function htContextNearestDrawIsMixed(value) {
+  return value === 'both' || value === 'none';
+}
+
+function clearComputedHtfRangeFields(context) {
+  return {
+    ...context,
+    swingHigh: '',
+    swingLow: '',
+    referencePrice: '',
+    validationStatus: '',
+    validationMessage: '',
+    validationRangeMaxHigh: '',
+    validationRangeMinLow: ''
+  };
+}
+
+function getHtfValidationTone(status) {
+  if (status === 'valid') return 'status-note status-note--success';
+  if (status === 'invalid') return 'status-note status-note--warn';
+  return 'status-note status-note--info';
 }
 
 function normalizeObSample(sample, fallback) {
@@ -2926,10 +3050,58 @@ function getStatsSectionTitleForTab(tabIndex) {
     }));
   }
   function updNews(idx, f, v) { setNews(n => n.map((item, i) => i === idx ? { ...item, [f]: v } : item)); }
+  function updHtfContext(field, value) {
+    setHtfContext(prev => {
+      var next = { ...prev, [field]: value };
+      if (field === 'rangeTimeframe' || field === 'swingHighDate' || field === 'swingLowDate') {
+        return clearComputedHtfRangeFields(next);
+      }
+      return next;
+    });
+  }
+  function updHtfLiquidity(side, itemId, field, value) {
+    setHtfContext(prev => ({
+      ...prev,
+      [side]: (Array.isArray(prev[side]) ? prev[side] : []).map(item => item.id === itemId ? { ...item, [field]: value } : item)
+    }));
+  }
+  function addHtfLiquidity(side) {
+    setHtfContext(prev => ({
+      ...prev,
+      [side]: [...(Array.isArray(prev[side]) ? prev[side] : []), makeInitialHtfLiquidity()]
+    }));
+  }
+  function removeHtfLiquidity(side, itemId) {
+    setHtfContext(prev => {
+      var current = Array.isArray(prev[side]) ? prev[side] : [];
+      if (current.length <= 1) return prev;
+      return { ...prev, [side]: current.filter(item => item.id !== itemId) };
+    });
+  }
+  function updHtfInvalidation(itemId, field, value) {
+    setHtfContext(prev => ({
+      ...prev,
+      invalidations: (Array.isArray(prev.invalidations) ? prev.invalidations : []).map(item => item.id === itemId ? { ...item, [field]: value } : item)
+    }));
+  }
+  function addHtfInvalidation() {
+    setHtfContext(prev => ({
+      ...prev,
+      invalidations: [...(Array.isArray(prev.invalidations) ? prev.invalidations : []), makeInitialHtfInvalidation()]
+    }));
+  }
+  function removeHtfInvalidation(itemId) {
+    setHtfContext(prev => {
+      var current = Array.isArray(prev.invalidations) ? prev.invalidations : [];
+      if (current.length <= 1) return prev;
+      return { ...prev, invalidations: current.filter(item => item.id !== itemId) };
+    });
+  }
 
   function handleTodayDateChange(nextDate) {
     var prevDate = date;
     setDate(nextDate);
+    setHtfContext(prev => clearComputedHtfRangeFields(prev));
     if (lookupDate === prevDate) {
       setLookupDate(nextDate);
     }
@@ -3045,13 +3217,43 @@ function getStatsSectionTitleForTab(tabIndex) {
     })).filter(item => item.event) : [];
     var importedHtfContext = parsed.htf_context && typeof parsed.htf_context === 'object'
       ? {
+          rangeTimeframe: parsed.htf_context.dealing_range && typeof parsed.htf_context.dealing_range.timeframe === 'string' ? parsed.htf_context.dealing_range.timeframe : 'daily',
+          swingHigh: parsed.htf_context.dealing_range && parsed.htf_context.dealing_range.swing_high != null ? String(parsed.htf_context.dealing_range.swing_high) : '',
+          swingHighDate: parsed.htf_context.dealing_range && typeof parsed.htf_context.dealing_range.swing_high_date === 'string' ? parsed.htf_context.dealing_range.swing_high_date : '',
+          swingLow: parsed.htf_context.dealing_range && parsed.htf_context.dealing_range.swing_low != null ? String(parsed.htf_context.dealing_range.swing_low) : '',
+          swingLowDate: parsed.htf_context.dealing_range && typeof parsed.htf_context.dealing_range.swing_low_date === 'string' ? parsed.htf_context.dealing_range.swing_low_date : '',
+          referencePrice: parsed.htf_context.dealing_range && parsed.htf_context.dealing_range.reference_price != null ? String(parsed.htf_context.dealing_range.reference_price) : '',
+          liquidityAbove: Array.isArray(parsed.htf_context.liquidity_above) ? parsed.htf_context.liquidity_above.map(item => ({
+            id: nid(),
+            price: item && item.price != null ? String(item.price) : '',
+            type: item && typeof item.type === 'string' ? item.type : '',
+            date: item && typeof item.date === 'string' ? item.date : '',
+            note: item && typeof item.note === 'string' ? item.note : ''
+          })).filter(isMeaningfulHtfLiquidity) : [makeInitialHtfLiquidity()],
+          liquidityBelow: Array.isArray(parsed.htf_context.liquidity_below) ? parsed.htf_context.liquidity_below.map(item => ({
+            id: nid(),
+            price: item && item.price != null ? String(item.price) : '',
+            type: item && typeof item.type === 'string' ? item.type : '',
+            date: item && typeof item.date === 'string' ? item.date : '',
+            note: item && typeof item.note === 'string' ? item.note : ''
+          })).filter(isMeaningfulHtfLiquidity) : [makeInitialHtfLiquidity()],
+          nearestDraw: typeof parsed.htf_context.nearest_draw === 'string' ? parsed.htf_context.nearest_draw : (typeof parsed.htf_context.draw_on_liquidity === 'string' ? parsed.htf_context.draw_on_liquidity : ''),
+          nearestDrawTarget: parsed.htf_context.nearest_draw_target != null ? String(parsed.htf_context.nearest_draw_target) : (parsed.htf_context.nearest_target != null ? String(parsed.htf_context.nearest_target) : ''),
           bias: typeof parsed.htf_context.bias === 'string' ? parsed.htf_context.bias : '',
-          drawOnLiquidity: typeof parsed.htf_context.draw_on_liquidity === 'string' ? parsed.htf_context.draw_on_liquidity : '',
-          nearestTarget: parsed.htf_context.nearest_target != null ? String(parsed.htf_context.nearest_target) : '',
+          biasConfidence: typeof parsed.htf_context.bias_confidence === 'string' ? parsed.htf_context.bias_confidence : '',
+          narrative: typeof parsed.htf_context.narrative === 'string' ? parsed.htf_context.narrative : '',
           reasoning: typeof parsed.htf_context.reasoning === 'string' ? parsed.htf_context.reasoning : '',
+          invalidations: Array.isArray(parsed.htf_context.invalidation) ? parsed.htf_context.invalidation.map(item => ({
+            id: nid(),
+            condition: item && typeof item.condition === 'string' ? item.condition : '',
+            implication: item && typeof item.implication === 'string' ? item.implication : ''
+          })).filter(isMeaningfulHtfInvalidation) : [makeInitialHtfInvalidation()],
           images: normalizeImportedImages(parsed.htf_context.images)
         }
       : makeInitialHtfContext();
+    if (!importedHtfContext.liquidityAbove.length) importedHtfContext.liquidityAbove = [makeInitialHtfLiquidity()];
+    if (!importedHtfContext.liquidityBelow.length) importedHtfContext.liquidityBelow = [makeInitialHtfLiquidity()];
+    if (!importedHtfContext.invalidations.length) importedHtfContext.invalidations = [makeInitialHtfInvalidation()];
     var importedSessionBias = parsed.session_bias && typeof parsed.session_bias === 'object'
       ? {
           bias: typeof parsed.session_bias.bias === 'string' ? parsed.session_bias.bias : '',
@@ -3494,12 +3696,17 @@ function getStatsSectionTitleForTab(tabIndex) {
         exitPrice: result.exit_price != null ? String(result.exit_price) : '',
         exitType: typeof result.exit_type === 'string' ? result.exit_type : '',
         outcome: typeof result.outcome === 'string' ? result.outcome : '',
+        internalReached: !!(result.internal_reached),
+        internalReachedTime: typeof result.internal_reached_time === 'string' ? result.internal_reached_time : '',
+        swingReached: !!(result.swing_reached),
+        swingReachedTime: typeof result.swing_reached_time === 'string' ? result.swing_reached_time : '',
+        swingReviewNote: typeof result.swing_review_note === 'string' ? result.swing_review_note : '',
         positive: normalizeFactorList(Array.isArray(result.positive) ? result.positive.map(String) : []),
         negative: normalizeFactorList(Array.isArray(result.negative) ? result.negative.map(String) : []),
-        resultOpen: !!(result.exit_time || result.exit_price || result.exit_type || result.outcome || (Array.isArray(result.positive) && result.positive.length) || (Array.isArray(result.negative) && result.negative.length)),
+        resultOpen: !!(result.exit_time || result.exit_price || result.exit_type || result.outcome || result.internal_reached || result.internal_reached_time || result.swing_reached || result.swing_reached_time || result.swing_review_note || (Array.isArray(result.positive) && result.positive.length) || (Array.isArray(result.negative) && result.negative.length)),
         images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.time || item.entryModel || item.entryStyle.length > 0 || item.entryPrice || item.stop || item.targetInternal || item.targetSwing || item.targetExternal || item.basedOn || item.exitTime || item.exitPrice || item.images.length > 0) : makeInitialEntries();
+    }).filter(item => item.time || item.entryModel || item.entryStyle.length > 0 || item.entryPrice || item.stop || item.targetInternal || item.targetSwing || item.targetExternal || item.basedOn || item.exitTime || item.exitPrice || item.internalReached || item.internalReachedTime || item.swingReached || item.swingReachedTime || item.swingReviewNote || item.images.length > 0) : makeInitialEntries();
 
     setDate(importedDate);
     setLookupDate(importedDate);
@@ -4104,6 +4311,49 @@ function getStatsSectionTitleForTab(tabIndex) {
     }
   }
 
+  async function runHtfBarLookup(dateStr, timeframe) {
+    if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return { error: 'HTF 日期格式需要是 YYYY-MM-DD。' };
+    }
+    try {
+      var qs = new URLSearchParams({
+        instrument: inst || 'NQ',
+        date: dateStr,
+        tf: timeframe || 'daily'
+      });
+      var resp = await fetch(apiBaseUrl.replace(/\/$/, '') + '/htf_bar?' + qs.toString());
+      var payload = await resp.json();
+      if (!resp.ok || !payload.ok) {
+        return { error: payload && payload.error ? payload.error : 'HTF K线查询失败。' };
+      }
+      return payload.result;
+    } catch (err) {
+      return { error: '无法连接本地查价服务，请先启动 price_lookup_api.py。' };
+    }
+  }
+
+  async function runHtfBarsLookup(dateFrom, dateTo, timeframe) {
+    if (!dateFrom || !dateTo || !/^\d{4}-\d{2}-\d{2}$/.test(dateFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(dateTo)) {
+      return { error: 'HTF 区间日期格式需要是 YYYY-MM-DD。' };
+    }
+    try {
+      var qs = new URLSearchParams({
+        instrument: inst || 'NQ',
+        date_from: dateFrom,
+        date_to: dateTo,
+        tf: timeframe || 'daily'
+      });
+      var resp = await fetch(apiBaseUrl.replace(/\/$/, '') + '/htf_bars?' + qs.toString());
+      var payload = await resp.json();
+      if (!resp.ok || !payload.ok) {
+        return { error: payload && payload.error ? payload.error : 'HTF 区间查询失败。' };
+      }
+      return payload.result;
+    } catch (err) {
+      return { error: '无法连接本地查价服务，请先启动 price_lookup_api.py。' };
+    }
+  }
+
   async function checkApiHealth() {
     var baseUrl = apiBaseUrl.replace(/\/$/, '');
     try {
@@ -4155,6 +4405,111 @@ function getStatsSectionTitleForTab(tabIndex) {
     setLookupLoading(false);
   }
 
+  async function computeHtfRange() {
+    if (!htfContext.swingHighDate || !htfContext.swingLowDate) {
+      setHtfContext(prev => ({
+        ...prev,
+        validationStatus: 'invalid',
+        validationMessage: '请先选择 Swing High Date 和 Swing Low Date。'
+      }));
+      return;
+    }
+    setLookupLoading(true);
+    try {
+      var referenceResult = await runPriceLookup(date, '09:29', '1', 'close');
+      if (referenceResult.error) {
+        setHtfContext(prev => ({
+          ...prev,
+          validationStatus: 'invalid',
+          validationMessage: referenceResult.error
+        }));
+        setLookupLoading(false);
+        return;
+      }
+
+      var highBar = await runHtfBarLookup(htfContext.swingHighDate, htfContext.rangeTimeframe);
+      if (highBar.error) {
+        setHtfContext(prev => ({
+          ...prev,
+          validationStatus: 'invalid',
+          validationMessage: highBar.error
+        }));
+        setLookupLoading(false);
+        return;
+      }
+
+      var lowBar = await runHtfBarLookup(htfContext.swingLowDate, htfContext.rangeTimeframe);
+      if (lowBar.error) {
+        setHtfContext(prev => ({
+          ...prev,
+          validationStatus: 'invalid',
+          validationMessage: lowBar.error
+        }));
+        setLookupLoading(false);
+        return;
+      }
+
+      var rangeBars = await runHtfBarsLookup(htfContext.swingHighDate, htfContext.swingLowDate, htfContext.rangeTimeframe);
+      if (rangeBars.error) {
+        setHtfContext(prev => ({
+          ...prev,
+          validationStatus: 'invalid',
+          validationMessage: rangeBars.error
+        }));
+        setLookupLoading(false);
+        return;
+      }
+
+      var bars = Array.isArray(rangeBars.bars) ? rangeBars.bars : [];
+      if (!bars.length) {
+        setHtfContext(prev => ({
+          ...prev,
+          validationStatus: 'invalid',
+          validationMessage: '指定区间没有可用 HTF K 线。'
+        }));
+        setLookupLoading(false);
+        return;
+      }
+
+      var computedSwingHigh = Number(highBar.high);
+      var computedSwingLow = Number(lowBar.low);
+      var rangeMaxHigh = Math.max.apply(null, bars.map(bar => Number(bar.high)));
+      var rangeMinLow = Math.min.apply(null, bars.map(bar => Number(bar.low)));
+      var epsilon = 0.000001;
+      var highValid = Math.abs(rangeMaxHigh - computedSwingHigh) < epsilon;
+      var lowValid = Math.abs(rangeMinLow - computedSwingLow) < epsilon;
+      var validationMessage = '';
+      if (highValid && lowValid) {
+        validationMessage = 'dealing range valid：区间内没有更高 high 或更低 low。';
+      } else if (!highValid && !lowValid) {
+        validationMessage = 'dealing range invalid：区间内同时出现更高 high 与更低 low。';
+      } else if (!highValid) {
+        validationMessage = 'dealing range invalid：区间内出现更高 high，当前 swing high 不是有效上边界。';
+      } else {
+        validationMessage = 'dealing range invalid：区间内出现更低 low，当前 swing low 不是有效下边界。';
+      }
+
+      setLookupResult(referenceResult);
+      setLookupError('');
+      setLookupDate(date);
+      setLookupTime('09:29');
+      setLookupTimeframe('1');
+      setLookupField('close');
+      setHtfContext(prev => ({
+        ...prev,
+        referencePrice: String(referenceResult.value),
+        swingHigh: String(computedSwingHigh),
+        swingLow: String(computedSwingLow),
+        validationStatus: highValid && lowValid ? 'valid' : 'invalid',
+        validationMessage: validationMessage,
+        validationRangeMaxHigh: String(rangeMaxHigh),
+        validationRangeMinLow: String(rangeMinLow)
+      }));
+    } finally {
+      setLookupLoading(false);
+    }
+  }
+
   function getReversalRefInfo(en) {
     if (!en.reversalRef) return null;
     for (var i = 0; i < reversalOptions.length; i++) {
@@ -4177,12 +4532,56 @@ function getStatsSectionTitleForTab(tabIndex) {
         }
       });
     }
-    if (htfContext.bias || htfContext.drawOnLiquidity || htfContext.nearestTarget || htfContext.reasoning || (Array.isArray(htfContext.images) && htfContext.images.length > 0)) {
+    var meaningfulHtfLiquidityAbove = Array.isArray(htfContext.liquidityAbove) ? htfContext.liquidityAbove.filter(isMeaningfulHtfLiquidity) : [];
+    var meaningfulHtfLiquidityBelow = Array.isArray(htfContext.liquidityBelow) ? htfContext.liquidityBelow.filter(isMeaningfulHtfLiquidity) : [];
+    var meaningfulHtfInvalidations = Array.isArray(htfContext.invalidations) ? htfContext.invalidations.filter(isMeaningfulHtfInvalidation) : [];
+    var hasHtfContext = htfContext.rangeTimeframe || htfContext.swingHigh || htfContext.swingHighDate || htfContext.swingLow || htfContext.swingLowDate || htfContext.referencePrice || meaningfulHtfLiquidityAbove.length > 0 || meaningfulHtfLiquidityBelow.length > 0 || htfContext.nearestDraw || htfContext.nearestDrawTarget || htfContext.bias || htfContext.biasConfidence || htfContext.narrative || htfContext.reasoning || meaningfulHtfInvalidations.length > 0 || (Array.isArray(htfContext.images) && htfContext.images.length > 0);
+    if (hasHtfContext) {
       L.push('htf_context:');
+      L.push('  dealing_range:');
+      L.push('    timeframe: ' + (htfContext.rangeTimeframe || 'daily'));
+      if (htfContext.swingHigh) L.push('    swing_high: ' + htfContext.swingHigh);
+      if (htfContext.swingHighDate) L.push('    swing_high_date: ' + yamlQuote(htfContext.swingHighDate));
+      if (htfContext.swingLow) L.push('    swing_low: ' + htfContext.swingLow);
+      if (htfContext.swingLowDate) L.push('    swing_low_date: ' + yamlQuote(htfContext.swingLowDate));
+      if (htfContext.referencePrice) L.push('    reference_price: ' + htfContext.referencePrice);
+      var htfMetrics = getHtfRangeMetrics(htfContext);
+      if (htfMetrics) {
+        L.push('  equilibrium: ' + formatMetricNumber(htfMetrics.equilibrium));
+        L.push('  position_pct: ' + formatMetricNumber(htfMetrics.positionPct));
+        L.push('  premium_discount: ' + htfMetrics.premiumDiscount);
+      }
+      if (meaningfulHtfLiquidityAbove.length > 0) {
+        L.push('  liquidity_above:');
+        meaningfulHtfLiquidityAbove.forEach(item => {
+          L.push('    - price: ' + (item.price || '""'));
+          L.push('      type: ' + (item.type || 'other'));
+          if (item.date) L.push('      date: ' + yamlQuote(item.date));
+          if (item.note) L.push('      note: ' + yamlQuote(item.note));
+        });
+      }
+      if (meaningfulHtfLiquidityBelow.length > 0) {
+        L.push('  liquidity_below:');
+        meaningfulHtfLiquidityBelow.forEach(item => {
+          L.push('    - price: ' + (item.price || '""'));
+          L.push('      type: ' + (item.type || 'other'));
+          if (item.date) L.push('      date: ' + yamlQuote(item.date));
+          if (item.note) L.push('      note: ' + yamlQuote(item.note));
+        });
+      }
+      if (htfContext.nearestDraw) L.push('  nearest_draw: ' + htfContext.nearestDraw);
+      if (htfContext.nearestDrawTarget) L.push('  nearest_draw_target: ' + htfContext.nearestDrawTarget);
       L.push('  bias: ' + (htfContext.bias || '""'));
-      L.push('  draw_on_liquidity: ' + (htfContext.drawOnLiquidity || '""'));
-      if (htfContext.nearestTarget) L.push('  nearest_target: ' + htfContext.nearestTarget);
+      if (htfContext.biasConfidence) L.push('  bias_confidence: ' + htfContext.biasConfidence);
+      if (htfContext.narrative) L.push('  narrative: ' + htfContext.narrative);
       if (htfContext.reasoning) L.push('  reasoning: "' + htfContext.reasoning.replace(/"/g, '\\"') + '"');
+      if (meaningfulHtfInvalidations.length > 0) {
+        L.push('  invalidation:');
+        meaningfulHtfInvalidations.forEach(item => {
+          L.push('    - condition: ' + yamlQuote(item.condition || ''));
+          if (item.implication) L.push('      implication: ' + yamlQuote(item.implication));
+        });
+      }
       pushImagesYaml(L, 2, htfContext.images);
     }
     if (sessionBias.bias || sessionBias.alignment || sessionBias.reasoning) {
@@ -4552,7 +4951,7 @@ function getStatsSectionTitleForTab(tabIndex) {
           L.push('    reversal_ref: none');
         }
         pushImagesYaml(L, 4, en.images);
-        var hasResult = en.exitTime || en.exitPrice || en.exitType || computedOutcome || en.outcome || en.positive.length > 0 || en.negative.length > 0;
+        var hasResult = en.exitTime || en.exitPrice || en.exitType || computedOutcome || en.outcome || en.internalReached || en.internalReachedTime || en.swingReached || en.swingReachedTime || en.swingReviewNote || en.positive.length > 0 || en.negative.length > 0;
         if (hasResult) {
           L.push('    result:');
           if (en.exitTime) L.push('      exit_time: "' + en.exitTime + '"');
@@ -4560,6 +4959,10 @@ function getStatsSectionTitleForTab(tabIndex) {
           if (en.exitType) L.push('      exit_type: ' + en.exitType);
           if (computedOutcome) L.push('      outcome: ' + computedOutcome);
           else if (en.outcome) L.push('      outcome: ' + en.outcome);
+          if (en.internalReached) L.push('      internal_reached: true');
+          if (en.internalReachedTime) L.push('      internal_reached_time: "' + en.internalReachedTime + '"');
+          if (en.swingReached) L.push('      swing_reached: true');
+          if (en.swingReachedTime) L.push('      swing_reached_time: "' + en.swingReachedTime + '"');
           if (en.positive.length > 0) {
             L.push('      positive: [' + en.positive.join(', ') + ']');
           }
@@ -4568,6 +4971,7 @@ function getStatsSectionTitleForTab(tabIndex) {
           } else if (hasResult) {
             L.push('      negative: none');
           }
+          if (en.swingReviewNote) L.push('      swing_review_note: "' + en.swingReviewNote.replace(/"/g, '\\"') + '"');
         }
         if (idx < validEntries.length - 1) L.push('');
       });
@@ -4726,6 +5130,8 @@ function getStatsSectionTitleForTab(tabIndex) {
 
   function renderTab0() {
     var basicTheme = getSectionTheme('basic');
+    var htfMetrics = getHtfRangeMetrics(htfContext);
+    var narrativeRecommendation = getNarrativeRecommendation(htfContext);
     return (
       _react2.default.createElement('div', null
         , _react2.default.createElement('div', { className: "section-shell section-block-gap bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: basicTheme.card }
@@ -4776,31 +5182,198 @@ function getStatsSectionTitleForTab(tabIndex) {
           , _react2.default.createElement('div', { className: "grid grid-cols-1 xl:grid-cols-2 gap-4" }
             , _react2.default.createElement('div', { className: "subpanel-surface rounded-xl border border-gray-200 p-4 space-y-4" }
               , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400" }, "HTF Context")
-              , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3" }
-                , _react2.default.createElement('div', null
-                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Bias")
-                  , _react2.default.createElement('select', { value: htfContext.bias, onChange: e => setHtfContext({ ...htfContext, bias: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
-                    , _react2.default.createElement('option', { value: "" }, "选择 HTF Bias...")
-                    , BIAS_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'htf_bias_' + opt.value, value: opt.value }, opt.label))
+              , _react2.default.createElement('div', { className: "field-cluster" }
+                , _react2.default.createElement('div', { className: "field-cluster__title" }, "Dealing Range")
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Timeframe")
+                    , _react2.default.createElement('select', { value: htfContext.rangeTimeframe, onChange: e => updHtfContext('rangeTimeframe', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , HTF_RANGE_TIMEFRAME_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'range_tf_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Reference Price")
+                    , _react2.default.createElement('input', { type: "text", value: htfContext.referencePrice, readOnly: true, placeholder: "固定取 Today 09:29 close", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-slate-100 text-slate-700 cursor-not-allowed" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Swing High")
+                    , _react2.default.createElement('input', { type: "text", value: htfContext.swingHigh, readOnly: true, placeholder: "由 Swing High Date 自动计算", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-slate-100 text-slate-700 cursor-not-allowed" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Swing High Date")
+                    , _react2.default.createElement('input', { type: "date", value: htfContext.swingHighDate, onChange: e => updHtfContext('swingHighDate', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Swing Low")
+                    , _react2.default.createElement('input', { type: "text", value: htfContext.swingLow, readOnly: true, placeholder: "由 Swing Low Date 自动计算", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-slate-100 text-slate-700 cursor-not-allowed" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Swing Low Date")
+                    , _react2.default.createElement('input', { type: "date", value: htfContext.swingLowDate, onChange: e => updHtfContext('swingLowDate', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" })
                   )
                 )
-                , _react2.default.createElement('div', null
-                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Draw On Liquidity")
-                  , _react2.default.createElement('select', { value: htfContext.drawOnLiquidity, onChange: e => setHtfContext({ ...htfContext, drawOnLiquidity: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
-                    , _react2.default.createElement('option', { value: "" }, "选择目标方向...")
-                    , DOL_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'dol_' + opt.value, value: opt.value }, opt.label))
+                , _react2.default.createElement('div', { className: "mt-3 flex flex-wrap items-center justify-between gap-3" }
+                  , _react2.default.createElement('div', { className: "text-xs text-gray-500 leading-5" }, "Reference Price 固定使用 Today 的 09:29 close；Swing High / Swing Low 根据对应日期的 HTF K线自动计算。")
+                  , _react2.default.createElement('button', { type: "button", onClick: computeHtfRange, className: lookupLoading ? "px-3 py-2 rounded-lg bg-indigo-200 text-indigo-700 text-sm font-medium border border-indigo-200 cursor-wait" : "px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-medium border border-indigo-200 hover:bg-indigo-100" }, lookupLoading ? '计算中...' : '计算 HTF Range')
+                )
+                , _react2.default.createElement('div', { className: "mt-3 " + getHtfValidationTone(htfContext.validationStatus) }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] mb-1" }, "Validation")
+                  , _react2.default.createElement('div', { className: "text-sm font-semibold" }, htfContext.validationStatus === 'valid' ? 'Valid' : htfContext.validationStatus === 'invalid' ? 'Invalid' : 'Pending')
+                  , _react2.default.createElement('div', { className: "mt-1 text-xs leading-5" }, htfContext.validationMessage || '系统会验证该区间是否真正被 swing high / swing low 包络。')
+                  , (htfContext.validationRangeMaxHigh || htfContext.validationRangeMinLow) && _react2.default.createElement('div', { className: "mt-2 text-[11px] opacity-80" }, "Range Max High: " , (htfContext.validationRangeMaxHigh || '--') , " / Range Min Low: " , (htfContext.validationRangeMinLow || '--'))
+                )
+                , _react2.default.createElement('div', { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3" }
+                  , _react2.default.createElement('div', { className: "status-note status-note--info" }
+                    , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] mb-1" }, "Equilibrium")
+                    , _react2.default.createElement('div', { className: "text-sm font-semibold" }, htfMetrics ? formatMetricNumber(htfMetrics.equilibrium) : '--')
+                  )
+                  , _react2.default.createElement('div', { className: "status-note status-note--info" }
+                    , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] mb-1" }, "Position %")
+                    , _react2.default.createElement('div', { className: "text-sm font-semibold" }, htfMetrics ? formatMetricNumber(htfMetrics.positionPct) + '%' : '--')
+                  )
+                  , _react2.default.createElement('div', { className: "status-note status-note--info" }
+                    , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] mb-1" }, "Premium / Discount")
+                    , _react2.default.createElement('div', { className: "text-sm font-semibold uppercase" }, htfMetrics ? htfMetrics.premiumDiscount : '--')
                   )
                 )
               )
-              , _react2.default.createElement('div', null
-                , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Nearest Target")
-                , _react2.default.createElement('input', { type: "text", value: htfContext.nearestTarget, onChange: e => setHtfContext({ ...htfContext, nearestTarget: e.target.value }), placeholder: "比如 2320 / 2365.5", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+              , _react2.default.createElement('div', { className: "field-cluster" }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3" }
+                  , _react2.default.createElement('div', { className: "field-cluster__title mb-0" }, "Liquidity Above")
+                  , _react2.default.createElement('button', { type: "button", onClick: () => addHtfLiquidity('liquidityAbove'), className: "inline-flex items-center gap-1 text-xs font-medium text-emerald-500 hover:text-emerald-700" }
+                    , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" }), " 添加"
+                  )
+                )
+                , (Array.isArray(htfContext.liquidityAbove) ? htfContext.liquidityAbove : []).map(item => _react2.default.createElement('div', { key: item.id, className: "rounded-xl border border-slate-600/60 bg-slate-900/20 p-3 mt-3" }
+                  , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[110px_150px_150px_minmax(0,1fr)_auto] gap-3 items-end" }
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Price")
+                      , _react2.default.createElement('input', { type: "text", value: item.price, onChange: e => updHtfLiquidity('liquidityAbove', item.id, 'price', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Type")
+                      , _react2.default.createElement('select', { value: item.type, onChange: e => updHtfLiquidity('liquidityAbove', item.id, 'type', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , _react2.default.createElement('option', { value: "" }, "选择类型...")
+                        , HTF_LIQUIDITY_TYPE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'liq_above_' + item.id + '_' + opt.value, value: opt.value }, opt.label))
+                      )
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Date")
+                      , _react2.default.createElement('input', { type: "date", value: item.date, onChange: e => updHtfLiquidity('liquidityAbove', item.id, 'date', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Note")
+                      , _react2.default.createElement('input', { type: "text", value: item.note, onChange: e => updHtfLiquidity('liquidityAbove', item.id, 'note', e.target.value), placeholder: "例如：未扫日线高点", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('button', { type: "button", onClick: () => removeHtfLiquidity('liquidityAbove', item.id), className: "p-2 text-gray-400 hover:text-red-500" }
+                      , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" })
+                    )
+                  )
+                ))
               )
-              , _react2.default.createElement('div', null
-                , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Reasoning")
-                , _react2.default.createElement('textarea', { value: htfContext.reasoning, onChange: e => setHtfContext({ ...htfContext, reasoning: e.target.value }), rows: 3, placeholder: "记录日线 / 4H 的关键背景、流动性目标、FVG / premium-discount 依据...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+              , _react2.default.createElement('div', { className: "field-cluster" }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3" }
+                  , _react2.default.createElement('div', { className: "field-cluster__title mb-0" }, "Liquidity Below")
+                  , _react2.default.createElement('button', { type: "button", onClick: () => addHtfLiquidity('liquidityBelow'), className: "inline-flex items-center gap-1 text-xs font-medium text-emerald-500 hover:text-emerald-700" }
+                    , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" }), " 添加"
+                  )
+                )
+                , (Array.isArray(htfContext.liquidityBelow) ? htfContext.liquidityBelow : []).map(item => _react2.default.createElement('div', { key: item.id, className: "rounded-xl border border-slate-600/60 bg-slate-900/20 p-3 mt-3" }
+                  , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[110px_150px_150px_minmax(0,1fr)_auto] gap-3 items-end" }
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Price")
+                      , _react2.default.createElement('input', { type: "text", value: item.price, onChange: e => updHtfLiquidity('liquidityBelow', item.id, 'price', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Type")
+                      , _react2.default.createElement('select', { value: item.type, onChange: e => updHtfLiquidity('liquidityBelow', item.id, 'type', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                        , _react2.default.createElement('option', { value: "" }, "选择类型...")
+                        , HTF_LIQUIDITY_TYPE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'liq_below_' + item.id + '_' + opt.value, value: opt.value }, opt.label))
+                      )
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Date")
+                      , _react2.default.createElement('input', { type: "date", value: item.date, onChange: e => updHtfLiquidity('liquidityBelow', item.id, 'date', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Note")
+                      , _react2.default.createElement('input', { type: "text", value: item.note, onChange: e => updHtfLiquidity('liquidityBelow', item.id, 'note', e.target.value), placeholder: "例如：下方未回填流动性", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('button', { type: "button", onClick: () => removeHtfLiquidity('liquidityBelow', item.id), className: "p-2 text-gray-400 hover:text-red-500" }
+                      , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" })
+                    )
+                  )
+                ))
               )
-              , _react2.default.createElement(ImageListEditor, { images: htfContext.images, onChange: v => setHtfContext({ ...htfContext, images: v }), title: "图片记录", hint: "记录 HTF 背景图、日线或 4H 标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "htf_context" } )
+              , _react2.default.createElement('div', { className: "field-cluster" }
+                , _react2.default.createElement('div', { className: "field-cluster__title" }, "Bias Conclusion")
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Nearest Draw")
+                    , _react2.default.createElement('select', { value: htfContext.nearestDraw, onChange: e => updHtfContext('nearestDraw', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择目标方向...")
+                      , DOL_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'nearest_draw_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Nearest Draw Target")
+                    , _react2.default.createElement('input', { type: "text", value: htfContext.nearestDrawTarget, onChange: e => updHtfContext('nearestDrawTarget', e.target.value), placeholder: "优先观察的流动性价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Bias")
+                    , _react2.default.createElement('select', { value: htfContext.bias, onChange: e => updHtfContext('bias', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择 HTF Bias...")
+                      , BIAS_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'htf_bias_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Bias Confidence")
+                    , _react2.default.createElement('select', { value: htfContext.biasConfidence, onChange: e => updHtfContext('biasConfidence', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择置信度...")
+                      , BIAS_CONFIDENCE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'bias_conf_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
+                  , _react2.default.createElement('div', { className: "md:col-span-2" }
+                    , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Narrative")
+                    , _react2.default.createElement('select', { value: htfContext.narrative, onChange: e => updHtfContext('narrative', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择叙事...")
+                      , NARRATIVE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'narrative_' + opt.value, value: opt.value }, opt.label))
+                    )
+                  )
+                )
+                , narrativeRecommendation && _react2.default.createElement('div', { className: "status-note status-note--warn mt-3" }
+                  , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] mb-1" }, "Narrative Suggestion")
+                  , _react2.default.createElement('div', { className: "text-sm font-medium" }, narrativeRecommendation)
+                )
+                , _react2.default.createElement('div', { className: "mt-3" }
+                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Reasoning")
+                  , _react2.default.createElement('textarea', { value: htfContext.reasoning, onChange: e => updHtfContext('reasoning', e.target.value), rows: 4, placeholder: "记录 premium/discount、上下 liquidity 分布，以及你最终的 HTF bias 结论。", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                )
+              )
+              , _react2.default.createElement('div', { className: "field-cluster" }
+                , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3" }
+                  , _react2.default.createElement('div', { className: "field-cluster__title mb-0" }, "Invalidation")
+                  , _react2.default.createElement('button', { type: "button", onClick: addHtfInvalidation, className: "inline-flex items-center gap-1 text-xs font-medium text-amber-500 hover:text-amber-700" }
+                    , _react2.default.createElement(_lucidereact.Plus, { className: "w-3.5 h-3.5" }), " 添加"
+                  )
+                )
+                , (Array.isArray(htfContext.invalidations) ? htfContext.invalidations : []).map(item => _react2.default.createElement('div', { key: item.id, className: "rounded-xl border border-slate-600/60 bg-slate-900/20 p-3 mt-3" }
+                  , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-end" }
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Condition")
+                      , _react2.default.createElement('input', { type: "text", value: item.condition, onChange: e => updHtfInvalidation(item.id, 'condition', e.target.value), placeholder: "什么情况下说明原判断失效？", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Implication")
+                      , _react2.default.createElement('input', { type: "text", value: item.implication, onChange: e => updHtfInvalidation(item.id, 'implication', e.target.value), placeholder: "例如：dealing range 失效 / narrative 失效", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                    )
+                    , _react2.default.createElement('button', { type: "button", onClick: () => removeHtfInvalidation(item.id), className: "p-2 text-gray-400 hover:text-red-500" }
+                      , _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" })
+                    )
+                  )
+                ))
+              )
+              , _react2.default.createElement(ImageListEditor, { images: htfContext.images, onChange: v => updHtfContext('images', v), title: "图片记录", hint: "记录 HTF 背景图、日线或 4H 标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "htf_context" } )
             )
             , _react2.default.createElement('div', { className: "subpanel-surface rounded-xl border border-gray-200 p-4 space-y-4" }
               , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400" }, "Session Bias")
@@ -4888,33 +5461,39 @@ function getStatsSectionTitleForTab(tabIndex) {
                 , _react2.default.createElement('div', { className: "space-y-3" }
                   , _react2.default.createElement('div', { className: "subpanel-surface rounded-lg border border-gray-200 p-3" }
                     , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400 mb-3" }, "核心信息")
-                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_110px_96px_132px_auto] gap-3 items-start" }
-                      , _react2.default.createElement('div', null
-                        , _react2.default.createElement('select', { value: pt.label, onChange: e => handleLabelChange(pt.id, e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"          ,}
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_140px_120px_160px_130px] gap-3 items-start" }
+                      , _react2.default.createElement('div', { className: "flex flex-col justify-start" }
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1 opacity-0 select-none pointer-events-none h-[17px]" }, "标签")
+                        , _react2.default.createElement('select', { value: pt.label, onChange: e => handleLabelChange(pt.id, e.target.value), className: "w-full h-[42px] px-3 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"          ,}
                           , _react2.default.createElement('option', { value: "",}, "选择标签...")
                           , KEYPOINT_LABELS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value,}, o.label))
                         )
                       )
-                      , _react2.default.createElement('div', null
-                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" ,}, "T日")
-                        , _react2.default.createElement('select', { value: String(normalizeDayOffset(pt.dayOffset)), onChange: e => updPt(pt.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300" }
+                      , _react2.default.createElement('div', { className: "flex flex-col justify-start" }
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1 h-[17px]" ,}, "T日")
+                        , _react2.default.createElement('select', { value: String(normalizeDayOffset(pt.dayOffset)), onChange: e => updPt(pt.id, 'dayOffset', normalizeDayOffset(e.target.value)), className: "w-full h-[42px] px-3 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300" }
                           , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: o.label, value: String(o.value) }, o.label))
                         )
-                        , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-gray-500" ,}, effectiveDate || '--')
+                        , _react2.default.createElement('div', { className: "mt-1 text-[11px] text-gray-500 min-h-[16px] leading-4" ,}, effectiveDate || '--')
                       )
-                      , _react2.default.createElement('div', null
-                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "时间")
-                        , _react2.default.createElement('input', { type: "text", value: pt.time, onChange: e => updPt(pt.id, 'time', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: bad ? "w-full px-3 py-2 border border-red-400 rounded-lg text-sm bg-red-50 focus:outline-none" : "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300",} )
-                        , bad && _react2.default.createElement('p', { className: "text-xs text-red-500 mt-0.5"  ,}, "格式: HH:MM" )
+                      , _react2.default.createElement('div', { className: "flex flex-col justify-start" }
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1 h-[17px]" }, "时间")
+                        , _react2.default.createElement('input', { type: "text", value: pt.time, onChange: e => updPt(pt.id, 'time', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: bad ? "w-full h-[42px] px-3 border border-red-400 rounded-lg text-sm bg-red-50 focus:outline-none" : "w-full h-[42px] px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300",} )
+                        , _react2.default.createElement('div', { className: "mt-1 min-h-[16px] leading-4" }
+                          , bad && _react2.default.createElement('p', { className: "text-xs text-red-500"  ,}, "格式: HH:MM" )
+                        )
                       )
-                      , _react2.default.createElement('div', null
-                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "价格")
-                        , _react2.default.createElement('input', { type: "text", value: pt.price, onChange: e => updPt(pt.id, 'price', e.target.value), placeholder: "价格", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"          ,} )
+                      , _react2.default.createElement('div', { className: "flex flex-col justify-start" }
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1 h-[17px]" }, "价格")
+                        , _react2.default.createElement('input', { type: "text", value: pt.price, onChange: e => updPt(pt.id, 'price', e.target.value), placeholder: "价格", className: "w-full h-[42px] px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"          ,} )
+                        , _react2.default.createElement('div', { className: "mt-1 min-h-[16px] leading-4" })
                       )
-                      , _react2.default.createElement('div', null
-                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "计算")
-                        , _react2.default.createElement('button', { onClick: () => applyLookupResult(effectiveDate, pt.time, v => updPt(pt.id, 'price', v), inferredField ? { field: inferredField, date: effectiveDate } : { date: effectiveDate }), className: "w-full px-2 py-2 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"     ,}, inferredField ? "自动填 " + inferredField.toUpperCase() : "填价")
-                        , inferredField && _react2.default.createElement('p', { className: "mt-1 text-[10px] text-gray-400 whitespace-nowrap leading-none" ,}, "OHLC ", _react2.default.createElement('span', { className: "text-indigo-500 font-medium uppercase" ,}, inferredField))
+                      , _react2.default.createElement('div', { className: "flex flex-col justify-start" }
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1 h-[17px]" }, "计算")
+                        , _react2.default.createElement('button', { onClick: () => applyLookupResult(effectiveDate, pt.time, v => updPt(pt.id, 'price', v), inferredField ? { field: inferredField, date: effectiveDate } : { date: effectiveDate }), className: "w-full h-[42px] px-2 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"     ,}, inferredField ? "自动填 " + inferredField.toUpperCase() : "填价")
+                        , _react2.default.createElement('div', { className: "mt-1 min-h-[16px] leading-4" }
+                          , inferredField && _react2.default.createElement('p', { className: "text-[10px] text-gray-400 whitespace-nowrap" ,}, "OHLC ", _react2.default.createElement('span', { className: "text-indigo-500 font-medium uppercase" ,}, inferredField))
+                        )
                       )
                     )
                     , pt.label === 'other' && (
@@ -5861,13 +6440,22 @@ function getStatsSectionTitleForTab(tabIndex) {
               )
               , _react2.default.createElement('div', { className: "field-cluster mb-3" }
                 , _react2.default.createElement('div', { className: "field-cluster__title" }, "触发定义")
-                , _react2.default.createElement('div', { className: "mb-3" }
-                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }
-                    , _react2.default.createElement('span', { className: "inline-flex items-center gap-1" }, _react2.default.createElement(_lucidereact.Link, { className: "w-3 h-3" }), " 关联执行关键点")
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3 mb-3" }
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }
+                      , _react2.default.createElement('span', { className: "inline-flex items-center gap-1" }, _react2.default.createElement(_lucidereact.Link, { className: "w-3 h-3" }), " 关联执行关键点")
+                    )
+                    , _react2.default.createElement('select', { disabled: noExecOpts, value: rev.execRef, onChange: e => updRev(rev.id, 'execRef', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400" }
+                      , _react2.default.createElement('option', { value: "" }, "选择关键点...")
+                      , execOpts.map((o, i) => _react2.default.createElement('option', { key: o.value + '_' + i, value: o.value }, o.label))
+                    )
                   )
-                  , _react2.default.createElement('select', { disabled: noExecOpts, value: rev.execRef, onChange: e => updRev(rev.id, 'execRef', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400" }
-                    , _react2.default.createElement('option', { value: "" }, "选择关键点...")
-                    , execOpts.map((o, i) => _react2.default.createElement('option', { key: o.value + '_' + i, value: o.value }, o.label))
+                  , _react2.default.createElement('div', null
+                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "Shape")
+                    , _react2.default.createElement('select', { value: rev.shape, onChange: e => updRev(rev.id, 'shape', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                      , _react2.default.createElement('option', { value: "" }, "选择 Shape...")
+                      , SHAPE_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value }, o.label))
+                    )
                   )
                 )
                 , rev.execRef && _react2.default.createElement('div', { className: "status-note status-note--link mb-3" }
@@ -5892,14 +6480,7 @@ function getStatsSectionTitleForTab(tabIndex) {
                     , _react2.default.createElement('span', null, "以上信息根据关联关键点自动推算")
                   )
                 )
-                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)] gap-3 items-start" }
-                  , _react2.default.createElement('div', null
-                    , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "Shape")
-                    , _react2.default.createElement('select', { value: rev.shape, onChange: e => updRev(rev.id, 'shape', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
-                      , _react2.default.createElement('option', { value: "" }, "选择 Shape...")
-                      , SHAPE_OPTIONS.map(o => _react2.default.createElement('option', { key: o.value, value: o.value }, o.label))
-                    )
-                  )
+                , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-3 items-start" }
                   , _react2.default.createElement('div', { className: "pt-5" }
                     , _react2.default.createElement('button', {
                       type: "button",
@@ -5926,18 +6507,18 @@ function getStatsSectionTitleForTab(tabIndex) {
                       , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70" }, "快速回补失衡")
                     )
                   )
-                )
-                , _react2.default.createElement('div', { className: "mt-3 pt-3 border-t border-slate-600/40" }
-                  , _react2.default.createElement('button', {
-                    type: "button",
-                    onClick: () => updRev(rev.id, 'tradeable', !rev.tradeable),
-                    className: `w-full md:w-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.tradeable ? 'bg-emerald-50 border-emerald-400 text-emerald-700 ring-2 ring-emerald-200 ring-offset-1' : 'bg-amber-50 border-amber-400 text-amber-700 ring-2 ring-amber-200 ring-offset-1'}`
-                  }
-                    , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.tradeable ? 'bg-emerald-500' : 'bg-amber-500'}` }
-                      , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.tradeable ? 'left-3.5' : 'left-0.5'}` })
+                  , _react2.default.createElement('div', { className: "pt-5" }
+                    , _react2.default.createElement('button', {
+                      type: "button",
+                      onClick: () => updRev(rev.id, 'tradeable', !rev.tradeable),
+                      className: `w-full inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.tradeable ? 'bg-emerald-50 border-emerald-400 text-emerald-700 ring-2 ring-emerald-200 ring-offset-1' : 'bg-amber-50 border-amber-400 text-amber-700 ring-2 ring-amber-200 ring-offset-1'}`
+                    }
+                      , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.tradeable ? 'bg-emerald-500' : 'bg-amber-500'}` }
+                        , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.tradeable ? 'left-3.5' : 'left-0.5'}` })
+                      )
+                      , _react2.default.createElement('span', null, "Tradeable")
+                      , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70" }, rev.tradeable ? "可交易" : "跳过观察")
                     )
-                    , _react2.default.createElement('span', null, "Tradeable")
-                    , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70" }, rev.tradeable ? "可交易" : "跳过观察")
                   )
                 )
               )
@@ -6260,6 +6841,53 @@ function getStatsSectionTitleForTab(tabIndex) {
                             )
                             , _react2.default.createElement('span', { className: "text-gray-400 ml-auto flex items-center gap-1"    ,}, _react2.default.createElement(_lucidereact.Zap, { className: "w-3 h-3" ,} ), " 自动计算" )
                           )
+                        )
+                      )
+
+                      , _react2.default.createElement('div', { className: "rounded-lg border border-slate-200 p-3 bg-slate-50 mb-3" }
+                        , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-3" }
+                          , _react2.default.createElement('div', null
+                            , _react2.default.createElement('div', { className: "text-xs font-semibold tracking-[0.16em] uppercase text-gray-500" }, "Swing Study")
+                            , _react2.default.createElement('p', { className: "mt-1 text-[11px] text-gray-400" }, "先记录这笔交易是否到过 internal / swing，以及按 swing 标准复看后的结论。")
+                          )
+                        )
+                        , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3 mb-3" }
+                          , _react2.default.createElement('div', { className: "rounded-lg border border-gray-200 bg-white p-3" }
+                            , _react2.default.createElement('div', { className: "flex items-center gap-3 mb-2" }
+                              , _react2.default.createElement('button', {
+                                type: "button",
+                                onClick: () => updEntry(en.id, 'internalReached', !en.internalReached),
+                                className: `inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all ${en.internalReached ? 'bg-emerald-50 border-emerald-400 text-emerald-700 ring-2 ring-emerald-200 ring-offset-1' : 'bg-white border-gray-200 text-gray-400 hover:border-emerald-300 hover:text-emerald-600'}`
+                              }
+                                , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${en.internalReached ? 'bg-emerald-500' : 'bg-gray-300'}` }
+                                  , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${en.internalReached ? 'left-3.5' : 'left-0.5'}` })
+                                )
+                                , _react2.default.createElement('span', null, "Internal Reached")
+                              )
+                            )
+                            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "到达时间")
+                            , _react2.default.createElement('input', { type: "text", value: en.internalReachedTime, onChange: e => updEntry(en.id, 'internalReachedTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" })
+                          )
+                          , _react2.default.createElement('div', { className: "rounded-lg border border-gray-200 bg-white p-3" }
+                            , _react2.default.createElement('div', { className: "flex items-center gap-3 mb-2" }
+                              , _react2.default.createElement('button', {
+                                type: "button",
+                                onClick: () => updEntry(en.id, 'swingReached', !en.swingReached),
+                                className: `inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all ${en.swingReached ? 'bg-blue-50 border-blue-400 text-blue-700 ring-2 ring-blue-200 ring-offset-1' : 'bg-white border-gray-200 text-gray-400 hover:border-blue-300 hover:text-blue-600'}`
+                              }
+                                , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${en.swingReached ? 'bg-blue-500' : 'bg-gray-300'}` }
+                                  , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${en.swingReached ? 'left-3.5' : 'left-0.5'}` })
+                                )
+                                , _react2.default.createElement('span', null, "Swing Reached")
+                              )
+                            )
+                            , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "到达时间")
+                            , _react2.default.createElement('input', { type: "text", value: en.swingReachedTime, onChange: e => updEntry(en.id, 'swingReachedTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" })
+                          )
+                        )
+                        , _react2.default.createElement('div', null
+                          , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "Swing Review Note")
+                          , _react2.default.createElement('textarea', { value: en.swingReviewNote, onChange: e => updEntry(en.id, 'swingReviewNote', e.target.value), rows: 3, placeholder: "按 swing 作为统一研究终点复看：如果不提前止盈，这单会怎样？为什么？", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" })
                         )
                       )
 

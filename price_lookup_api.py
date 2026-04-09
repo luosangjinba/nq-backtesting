@@ -20,6 +20,7 @@ import duckdb
 
 
 VALID_FIELDS = {"open", "high", "low", "close"}
+VALID_HTF_TIMEFRAMES = {"daily": "day", "weekly": "week", "monthly": "month"}
 ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 IMAGE_ROUTE_PREFIX = "/backtesting-images/"
@@ -95,6 +96,13 @@ def validate_instrument(value: str) -> str:
     return value
 
 
+def validate_htf_timeframe(value: str) -> str:
+    text = (value or "").strip().lower()
+    if text not in VALID_HTF_TIMEFRAMES:
+        raise ValueError("tf must be daily/weekly/monthly")
+    return text
+
+
 def validate_table(value: str) -> str:
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", value):
         raise ValueError("invalid table name")
@@ -125,6 +133,117 @@ def ensure_table_exists(db_path: str, table: str) -> None:
         ).fetchone()
     if not exists or exists[0] == 0:
         raise RuntimeError(f"table not found: {table}")
+
+
+def get_period_start(date_str: str, timeframe: str) -> datetime:
+    value = datetime.strptime(date_str, "%Y-%m-%d")
+    if timeframe == "daily":
+        return datetime(value.year, value.month, value.day)
+    if timeframe == "weekly":
+        start = value - timedelta(days=value.weekday())
+        return datetime(start.year, start.month, start.day)
+    if timeframe == "monthly":
+        return datetime(value.year, value.month, 1)
+    raise ValueError("unsupported htf timeframe")
+
+
+def build_htf_bar_sql(table: str, timeframe: str) -> str:
+    bucket_unit = VALID_HTF_TIMEFRAMES[timeframe]
+    return f"""
+with raw as (
+  select
+    ts,
+    open,
+    high,
+    low,
+    close,
+    date_trunc('{bucket_unit}', ts) as period_start
+  from {table}
+  where instrument = ?
+),
+agg as (
+  select
+    period_start,
+    min(ts) as first_ts,
+    max(ts) as last_ts,
+    max(high) as high,
+    min(low) as low
+  from raw
+  group by period_start
+)
+select
+  a.period_start,
+  open_row.open,
+  a.high,
+  a.low,
+  close_row.close
+from agg a
+join raw open_row
+  on open_row.period_start = a.period_start and open_row.ts = a.first_ts
+join raw close_row
+  on close_row.period_start = a.period_start and close_row.ts = a.last_ts
+""".strip()
+
+
+def query_htf_bar(
+    db_path: str,
+    table: str,
+    instrument: str,
+    date_str: str,
+    timeframe: str,
+) -> Dict[str, object]:
+    period_start = get_period_start(date_str, timeframe)
+    sql = build_htf_bar_sql(table, timeframe) + "\nwhere a.period_start = ?"
+    with open_db(db_path) as conn:
+        row = conn.execute(sql, [instrument, period_start]).fetchone()
+    if not row:
+        raise LookupError("no data found for requested htf bar")
+    return {
+        "instrument": instrument,
+        "timeframe": timeframe,
+        "inputDate": date_str,
+        "barDate": row[0].strftime("%Y-%m-%d"),
+        "open": float(row[1]),
+        "high": float(row[2]),
+        "low": float(row[3]),
+        "close": float(row[4]),
+    }
+
+
+def query_htf_bars(
+    db_path: str,
+    table: str,
+    instrument: str,
+    date_from: str,
+    date_to: str,
+    timeframe: str,
+) -> Dict[str, object]:
+    start_date = get_period_start(date_from, timeframe)
+    end_date = get_period_start(date_to, timeframe)
+    if end_date < start_date:
+        start_date, end_date = end_date, start_date
+    sql = build_htf_bar_sql(table, timeframe) + "\nwhere a.period_start >= ? and a.period_start <= ? order by a.period_start"
+    with open_db(db_path) as conn:
+        rows = conn.execute(sql, [instrument, start_date, end_date]).fetchall()
+    if not rows:
+        raise LookupError("no data found for requested htf range")
+    bars = [
+        {
+            "barDate": row[0].strftime("%Y-%m-%d"),
+            "open": float(row[1]),
+            "high": float(row[2]),
+            "low": float(row[3]),
+            "close": float(row[4]),
+        }
+        for row in rows
+    ]
+    return {
+        "instrument": instrument,
+        "timeframe": timeframe,
+        "dateFrom": start_date.strftime("%Y-%m-%d"),
+        "dateTo": end_date.strftime("%Y-%m-%d"),
+        "bars": bars,
+    }
 
 
 def query_price(
@@ -298,6 +417,45 @@ class Handler(BaseHTTPRequestHandler):
                 ensure_table_exists(self.db_path, self.table)
                 details = f"db={self.db_path}\ttable={self.table}"
                 self._send_json(200, {"ok": True, "database": self.db_path, "details": details})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/htf_bar":
+            try:
+                params = parse_qs(parsed.query)
+                instrument = validate_instrument(params.get("instrument", ["NQ"])[0])
+                date_str = validate_date(params["date"][0])
+                timeframe = validate_htf_timeframe(params.get("tf", ["daily"])[0])
+                table = validate_table(self.table)
+                result = query_htf_bar(self.db_path, table, instrument, date_str, timeframe)
+                self._send_json(200, {"ok": True, "result": result})
+            except KeyError as exc:
+                self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/htf_bars":
+            try:
+                params = parse_qs(parsed.query)
+                instrument = validate_instrument(params.get("instrument", ["NQ"])[0])
+                date_from = validate_date(params["date_from"][0])
+                date_to = validate_date(params["date_to"][0])
+                timeframe = validate_htf_timeframe(params.get("tf", ["daily"])[0])
+                table = validate_table(self.table)
+                result = query_htf_bars(self.db_path, table, instrument, date_from, date_to, timeframe)
+                self._send_json(200, {"ok": True, "result": result})
+            except KeyError as exc:
+                self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
             except Exception as exc:
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
