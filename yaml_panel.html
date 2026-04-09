@@ -72,7 +72,7 @@
         padding: 1.35rem 1.4rem;
         box-shadow: 0 20px 44px rgba(8, 12, 22, 0.2);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
       }
 
       .section-shell::before {
@@ -713,18 +713,29 @@ const EXIT_TYPE_OPTIONS = [
 ];
 
 const POSITIVE_FACTOR_OPTIONS = [
-  { value: 'tap_1m_fvg', label: 'Tap 1m FVG' },
-  { value: 'tap_5m_fvg', label: 'Tap 5m FVG' },
-  { value: 'tap_15m_fvg', label: 'Tap 15m FVG' },
-  { value: 'tap_1h_fvg', label: 'Tap 1h FVG' },
-  { value: 'tap_4h_fvg', label: 'Tap 4h FVG' },
-  { value: 'tap_daily_fvg', label: 'Tap Daily FVG' },
-  { value: 'tap_nearest_fvg', label: 'Tap Nearest FVG' },
-  { value: 'tap_orr_50', label: 'Tap Open Reference Range 50%' },
-  { value: 'tap_orr_ote', label: 'Tap Open Reference Range OTE' },
+  { value: 'none', label: 'None' },
+  { value: 'fvg_1m', label: '1m FVG' },
+  { value: 'fvg_5m', label: '5m FVG' },
+  { value: 'fvg_15m', label: '15m FVG' },
+  { value: 'fvg_30m', label: '30m FVG' },
+  { value: 'fvg_1h', label: '1h FVG' },
+  { value: 'fvg_4h', label: '4h FVG' },
+  { value: 'fvg_1d', label: '1D FVG' },
+  { value: 'fvg_1w', label: '1W FVG' },
+  { value: 'nwog', label: 'NWOG' },
+  { value: 'ndog', label: 'NDOG' },
   { value: 'tap_midnight_open', label: 'Tap Midnight Open' },
-  { value: 'sweep_pdh', label: 'Sweep PDH' },
-  { value: 'sweep_pdl', label: 'Sweep PDL' },
+  { value: 'nearest_fvg_930', label: 'Nearest FVG 930' },
+  { value: 'some_range_50', label: 'Some range 50%' },
+  { value: 'some_range_ote', label: 'Some range OTE' },
+  { value: 'orr_50', label: 'Open reference range 50%' },
+  { value: 'orr_ote', label: 'Open reference range OTE' },
+  { value: 'sweep_random_liquidity', label: 'Sweep random liquidity' },
+  { value: 'sweep_long_wick', label: 'Sweep+Long Wick' },
+  { value: 'sweep_nearest_liquidity_930', label: 'Sweep Nearest Liquidity 930' },
+  { value: 'sweep_pdh_pdl', label: 'Sweep PDH/PDL' },
+  { value: 'sweep_pd_swing', label: 'Sweep PD Swing High/Low' },
+  { value: 'sweep_random_daily_swing', label: 'Sweep Random Daily Swing High/Low' },
   { value: 'sweep_asia_high', label: 'Sweep Asia High' },
   { value: 'sweep_asia_low', label: 'Sweep Asia Low' },
   { value: 'sweep_ldn_high', label: 'Sweep LDN High' },
@@ -733,20 +744,23 @@ const POSITIVE_FACTOR_OPTIONS = [
   { value: 'sweep_trans_low', label: 'Sweep Trans Low' },
   { value: 'sweep_pm_high', label: 'Sweep PM High' },
   { value: 'sweep_pm_low', label: 'Sweep PM Low' },
-  { value: 'sweep_nearest_liquidity', label: 'Sweep Nearest Liquidity' },
   { value: 'htf_premium', label: 'HTF Premium' },
   { value: 'htf_discount', label: 'HTF Discount' },
   { value: 'ltf_premium', label: 'LTF Premium' },
   { value: 'ltf_discount', label: 'LTF Discount' },
-  { value: '2nd_leg', label: '2nd leg' }
+  { value: 'displacement', label: 'Displacement' },
+  { value: 'second_leg', label: '2nd Leg' },
+  { value: 'htf_trending', label: 'HTF Trending' }
 ];
 
 const NEGATIVE_FACTOR_OPTIONS = [
+  { value: 'none', label: 'None' },
   { value: 'htf_premium', label: 'HTF Premium' },
   { value: 'htf_discount', label: 'HTF Discount' },
   { value: 'ltf_premium', label: 'LTF Premium' },
   { value: 'ltf_discount', label: 'LTF Discount' },
-  { value: 'counter_htf_trend', label: 'Counter HTF Trend' }
+  { value: 'counter_htf_trend', label: 'Counter HTF Trend' },
+  { value: 'counter_ltf_trend', label: 'Counter LTF Trend' }
 ];
 
 const LOOKUP_TIMEFRAME_OPTIONS = [
@@ -764,6 +778,28 @@ const LOOKUP_FIELD_OPTIONS = [
   { value: 'high', label: 'High' },
   { value: 'low', label: 'Low' },
   { value: 'close', label: 'Close' }
+];
+
+const OB_SAMPLE_OPTIONS = [
+  { value: 'open', label: 'Open' },
+  { value: 'high', label: 'High' },
+  { value: 'low', label: 'Low' },
+  { value: 'close', label: 'Close' }
+];
+const BIAS_OPTIONS = [
+  { value: 'bullish', label: 'Bullish' },
+  { value: 'bearish', label: 'Bearish' },
+  { value: 'neutral', label: 'Neutral' }
+];
+const DOL_OPTIONS = [
+  { value: 'above', label: 'Above' },
+  { value: 'below', label: 'Below' },
+  { value: 'both', label: 'Both / Mixed' }
+];
+const ALIGNMENT_OPTIONS = [
+  { value: 'aligned', label: 'Aligned' },
+  { value: 'conflicting', label: 'Conflicting' },
+  { value: 'neutral', label: 'Neutral / Mixed' }
 ];
 const DAY_OFFSET_OPTIONS = Array.from({ length: 31 }, (_, index) => ({
   value: -index,
@@ -1474,10 +1510,28 @@ function makeEntry() {
     exitPrice: '',
     exitType: '',
     outcome: '',
-    positive: [],
-    negative: [],
+    positive: ['none'],
+    negative: ['none'],
     resultOpen: false,
     images: []
+  };
+}
+
+function makeInitialHtfContext() {
+  return {
+    bias: '',
+    drawOnLiquidity: '',
+    nearestTarget: '',
+    reasoning: '',
+    images: []
+  };
+}
+
+function makeInitialSessionBias() {
+  return {
+    bias: '',
+    alignment: '',
+    reasoning: ''
   };
 }
 
@@ -1498,7 +1552,7 @@ function makeInitialPremarketFvgs() {
 }
 
 function makeInitialPremarketObs() {
-  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }];
+  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', fromSample: 'low', dayOffsetTo: 0, toTime: '', toSample: 'high', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialEqLevels() {
@@ -1514,7 +1568,7 @@ function makeInitialIntradayFvgs() {
 }
 
 function makeInitialIntradayObs() {
-  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }];
+  return [{ id: nid(), dayOffsetFrom: 0, fromTime: '', fromSample: 'low', dayOffsetTo: 0, toTime: '', toSample: 'high', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }];
 }
 
 function makeInitialIntradayEqLevels() {
@@ -1530,7 +1584,7 @@ function makeReversalReason() {
 }
 
 function makeReversal() {
-  return { id: nid(), execRef: '', shape: '', reasons: [makeReversalReason()], smt: false, immediateRebalance: false, note: '', images: [] };
+  return { id: nid(), execRef: '', shape: '', reasons: [makeReversalReason()], smt: false, immediateRebalance: false, tradeable: true, skipReason: '', note: '', images: [] };
 }
 
 function makeInitialRevs() {
@@ -1607,6 +1661,37 @@ function formatObTimeframe(num, unit) {
 
 function obTimeframeToMinutes(num, unit) {
   return fvgTimeframeToMinutes(num, unit);
+}
+
+function normalizeFactorList(values) {
+  var items = Array.isArray(values) ? values.map(String).map(v => v.trim()).filter(Boolean) : [];
+  if (items.length === 0) return ['none'];
+  var unique = [];
+  var seen = {};
+  for (var i = 0; i < items.length; i++) {
+    var value = items[i];
+    if (seen[value]) continue;
+    seen[value] = true;
+    unique.push(value);
+  }
+  if (unique.length === 1 && unique[0] === 'none') {
+    return ['none'];
+  }
+  return unique.filter(v => v !== 'none');
+}
+
+function normalizeObSample(sample, fallback) {
+  var raw = String(sample || '').trim().toLowerCase();
+  if (raw === 'open' || raw === 'high' || raw === 'low' || raw === 'close') return raw;
+  return fallback || 'low';
+}
+
+function getObSampleLabel(sample) {
+  var normalized = normalizeObSample(sample, 'low');
+  for (var i = 0; i < OB_SAMPLE_OPTIONS.length; i++) {
+    if (OB_SAMPLE_OPTIONS[i].value === normalized) return OB_SAMPLE_OPTIONS[i].label;
+  }
+  return normalized;
 }
 
 function inferSuggestedKeyPointLabel(labelValue, dayOffset, timeStr) {
@@ -1818,6 +1903,8 @@ function getStatsSectionTitleForTab(tabIndex) {
   var [inst, setInst] = _react.useState.call(void 0, 'NQ');
   var [basicInfoImages, setBasicInfoImages] = _react.useState.call(void 0, []);
   var [news, setNews] = _react.useState.call(void 0, []);
+  var [htfContext, setHtfContext] = _react.useState.call(void 0, makeInitialHtfContext);
+  var [sessionBias, setSessionBias] = _react.useState.call(void 0, makeInitialSessionBias);
   var [pts, setPts] = _react.useState.call(void 0, makeInitialPts);
   var [segs, setSegs] = _react.useState.call(void 0, makeInitialSegs);
   var [orr, setOrr] = _react.useState.call(void 0, makeInitialOrr);
@@ -2210,8 +2297,8 @@ function getStatsSectionTitleForTab(tabIndex) {
     var parts = [];
     var timeframe = formatObTimeframe(ob.timeframeNum, ob.timeframeUnit);
     if (timeframe) parts.push(timeframe);
-    var fromLabel = formatDayOffsetLabel(normalizeDayOffset(ob.dayOffsetFrom)) + ' ' + (ob.fromTime || '--:--');
-    var toLabel = formatDayOffsetLabel(normalizeDayOffset(ob.dayOffsetTo)) + ' ' + (ob.toTime || '--:--');
+    var fromLabel = formatDayOffsetLabel(normalizeDayOffset(ob.dayOffsetFrom)) + ' ' + (ob.fromTime || '--:--') + ' ' + getObSampleLabel(ob.fromSample || 'low');
+    var toLabel = formatDayOffsetLabel(normalizeDayOffset(ob.dayOffsetTo)) + ' ' + (ob.toTime || '--:--') + ' ' + getObSampleLabel(ob.toSample || 'high');
     parts.push(fromLabel + ' -> ' + toLabel);
     if (ob.direction) parts.push(ob.direction);
     if (ob.high || ob.low) parts.push('H ' + (ob.high || '--') + ' / L ' + (ob.low || '--'));
@@ -2592,7 +2679,7 @@ function getStatsSectionTitleForTab(tabIndex) {
   var intradayFvgImageCount = intradayFvgs.reduce((sum, fvg) => sum + ((fvg && Array.isArray(fvg.images)) ? fvg.images.length : 0), 0);
   var validIntradayObCount = intradayObs.filter(isMeaningfulOb).length;
   var intradayObImageCount = intradayObs.reduce((sum, ob) => sum + ((ob && Array.isArray(ob.images)) ? ob.images.length : 0), 0);
-  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
+  var validRevsCount = revs.filter(r => r && (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || !r.tradeable || r.skipReason || r.note || (Array.isArray(r.images) && r.images.length > 0))).length;
   var revImageCount = revs.reduce((sum, r) => sum + ((r && Array.isArray(r.images)) ? r.images.length : 0), 0);
   var validEntriesCount = entries.filter(en => en && (en.time || en.entryModel || (Array.isArray(en.entryStyle) && en.entryStyle.length > 0) || en.entryPrice || en.stop || en.targetInternal || en.targetSwing || en.targetExternal || en.basedOn || en.exitTime || en.exitPrice || (Array.isArray(en.images) && en.images.length > 0))).length;
   var entryImageCount = entries.reduce((sum, en) => sum + ((en && Array.isArray(en.images)) ? en.images.length : 0), 0);
@@ -2712,7 +2799,7 @@ function getStatsSectionTitleForTab(tabIndex) {
       ? {
           ...x,
           [field]: value,
-          ...((field === 'dayOffsetFrom' || field === 'fromTime' || field === 'dayOffsetTo' || field === 'toTime' || field === 'timeframeNum' || field === 'timeframeUnit')
+          ...((field === 'dayOffsetFrom' || field === 'fromTime' || field === 'fromSample' || field === 'dayOffsetTo' || field === 'toTime' || field === 'toSample' || field === 'timeframeNum' || field === 'timeframeUnit')
             ? { direction: '', high: '', low: '' }
             : {})
         }
@@ -2762,7 +2849,7 @@ function getStatsSectionTitleForTab(tabIndex) {
       ? {
           ...x,
           [field]: value,
-          ...((field === 'dayOffsetFrom' || field === 'fromTime' || field === 'dayOffsetTo' || field === 'toTime' || field === 'timeframeNum' || field === 'timeframeUnit')
+          ...((field === 'dayOffsetFrom' || field === 'fromTime' || field === 'fromSample' || field === 'dayOffsetTo' || field === 'toTime' || field === 'toSample' || field === 'timeframeNum' || field === 'timeframeUnit')
             ? { direction: '', high: '', low: '' }
             : {})
         }
@@ -2877,6 +2964,8 @@ function getStatsSectionTitleForTab(tabIndex) {
         setInst('NQ');
         setBasicInfoImages([]);
         setNews([]);
+        setHtfContext(makeInitialHtfContext());
+        setSessionBias(makeInitialSessionBias());
       };
     } else if (tab === 1) {
       action = () => {
@@ -2921,6 +3010,8 @@ function getStatsSectionTitleForTab(tabIndex) {
       setInst('NQ');
       setBasicInfoImages([]);
       setNews([]);
+      setHtfContext(makeInitialHtfContext());
+      setSessionBias(makeInitialSessionBias());
       setPts(makeInitialPts());
       setSegs(makeInitialSegs());
       setOrr(makeInitialOrr());
@@ -2952,6 +3043,22 @@ function getStatsSectionTitleForTab(tabIndex) {
       time: item && typeof item.time === 'string' ? item.time : '',
       event: item && typeof item.event === 'string' ? item.event : ''
     })).filter(item => item.event) : [];
+    var importedHtfContext = parsed.htf_context && typeof parsed.htf_context === 'object'
+      ? {
+          bias: typeof parsed.htf_context.bias === 'string' ? parsed.htf_context.bias : '',
+          drawOnLiquidity: typeof parsed.htf_context.draw_on_liquidity === 'string' ? parsed.htf_context.draw_on_liquidity : '',
+          nearestTarget: parsed.htf_context.nearest_target != null ? String(parsed.htf_context.nearest_target) : '',
+          reasoning: typeof parsed.htf_context.reasoning === 'string' ? parsed.htf_context.reasoning : '',
+          images: normalizeImportedImages(parsed.htf_context.images)
+        }
+      : makeInitialHtfContext();
+    var importedSessionBias = parsed.session_bias && typeof parsed.session_bias === 'object'
+      ? {
+          bias: typeof parsed.session_bias.bias === 'string' ? parsed.session_bias.bias : '',
+          alignment: typeof parsed.session_bias.alignment === 'string' ? parsed.session_bias.alignment : '',
+          reasoning: typeof parsed.session_bias.reasoning === 'string' ? parsed.session_bias.reasoning : ''
+        }
+      : makeInitialSessionBias();
 
     var overnight = parsed.overnight_structure || {};
     var importedPts = Array.isArray(overnight.key_points) ? overnight.key_points.map(item => {
@@ -3027,8 +3134,10 @@ function getStatsSectionTitleForTab(tabIndex) {
       id: nid(),
       dayOffsetFrom: normalizeDayOffset(item && item.from_day_offset),
       fromTime: item && typeof item.from_time === 'string' ? item.from_time : '',
+      fromSample: normalizeObSample(item && item.from_sample, 'low'),
       dayOffsetTo: normalizeDayOffset(item && item.to_day_offset),
       toTime: item && typeof item.to_time === 'string' ? item.to_time : '',
+      toSample: normalizeObSample(item && item.to_sample, 'high'),
       timeframeNum: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
       timeframeUnit: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
       direction: item && typeof item.direction === 'string' ? item.direction : '',
@@ -3076,7 +3185,7 @@ function getStatsSectionTitleForTab(tabIndex) {
     var importedPremarketObRefMap = {};
     importedPremarketObs.forEach(item => {
       importedPremarketObRefMap[
-        normalizeDayOffset(item.dayOffsetFrom) + '|' + (item.fromTime || '') + '|' + normalizeDayOffset(item.dayOffsetTo) + '|' + (item.toTime || '') + '|' + formatObTimeframe(item.timeframeNum, item.timeframeUnit)
+        normalizeDayOffset(item.dayOffsetFrom) + '|' + (item.fromTime || '') + '|' + normalizeObSample(item.fromSample, 'low') + '|' + normalizeDayOffset(item.dayOffsetTo) + '|' + (item.toTime || '') + '|' + normalizeObSample(item.toSample, 'high') + '|' + formatObTimeframe(item.timeframeNum, item.timeframeUnit)
       ] = String(item.id);
     });
 
@@ -3118,8 +3227,10 @@ function getStatsSectionTitleForTab(tabIndex) {
                     var importedPremarketObId = importedPremarketObRefMap[
                       normalizeDayOffset(action && action.ob_from_day_offset) + '|' +
                       (action && typeof action.ob_from_time === 'string' ? action.ob_from_time : '') + '|' +
+                      normalizeObSample(action && action.ob_from_sample, 'low') + '|' +
                       normalizeDayOffset(action && action.ob_to_day_offset) + '|' +
                       (action && typeof action.ob_to_time === 'string' ? action.ob_to_time : '') + '|' +
+                      normalizeObSample(action && action.ob_to_sample, 'high') + '|' +
                       (action && typeof action.ob_timeframe === 'string' ? action.ob_timeframe : '')
                     ] || '';
                     return importedPremarketObId ? ('pob:' + importedPremarketObId) : '';
@@ -3154,8 +3265,10 @@ function getStatsSectionTitleForTab(tabIndex) {
             ? (
                 normalizeDayOffset(action && action.intraday_ob_from_day_offset) + '|' +
                 (action && typeof action.intraday_ob_from_time === 'string' ? action.intraday_ob_from_time : '') + '|' +
+                normalizeObSample(action && action.intraday_ob_from_sample, 'low') + '|' +
                 normalizeDayOffset(action && action.intraday_ob_to_day_offset) + '|' +
                 (action && typeof action.intraday_ob_to_time === 'string' ? action.intraday_ob_to_time : '') + '|' +
+                normalizeObSample(action && action.intraday_ob_to_sample, 'high') + '|' +
                 (action && typeof action.intraday_ob_timeframe === 'string' ? action.intraday_ob_timeframe : '')
               )
             : '',
@@ -3191,8 +3304,10 @@ function getStatsSectionTitleForTab(tabIndex) {
       id: nid(),
       dayOffsetFrom: normalizeDayOffset(item && item.from_day_offset),
       fromTime: item && typeof item.from_time === 'string' ? item.from_time : '',
+      fromSample: normalizeObSample(item && item.from_sample, 'low'),
       dayOffsetTo: normalizeDayOffset(item && item.to_day_offset),
       toTime: item && typeof item.to_time === 'string' ? item.to_time : '',
+      toSample: normalizeObSample(item && item.to_sample, 'high'),
       timeframeNum: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').num,
       timeframeUnit: parseObTimeframe(item && typeof item.timeframe === 'string' ? item.timeframe : '').unit,
       direction: item && typeof item.direction === 'string' ? item.direction : '',
@@ -3229,7 +3344,7 @@ function getStatsSectionTitleForTab(tabIndex) {
     })).filter(item => isMeaningfulIntradayEqLevel(item)) : makeInitialIntradayEqLevels();
     importedIntradayObs.forEach(item => {
       importedIntradayObRefMap[
-        normalizeDayOffset(item.dayOffsetFrom) + '|' + (item.fromTime || '') + '|' + normalizeDayOffset(item.dayOffsetTo) + '|' + (item.toTime || '') + '|' + formatObTimeframe(item.timeframeNum, item.timeframeUnit)
+        normalizeDayOffset(item.dayOffsetFrom) + '|' + (item.fromTime || '') + '|' + normalizeObSample(item.fromSample, 'low') + '|' + normalizeDayOffset(item.dayOffsetTo) + '|' + (item.toTime || '') + '|' + normalizeObSample(item.toSample, 'high') + '|' + formatObTimeframe(item.timeframeNum, item.timeframeUnit)
       ] = String(item.id);
     });
     importedSegs.forEach(seg => {
@@ -3262,8 +3377,10 @@ function getStatsSectionTitleForTab(tabIndex) {
             importedRevActionRef = importedIntradayObRefMap[
               normalizeDayOffset(actionItem && actionItem.intraday_ob_from_day_offset) + '|' +
               (actionItem && typeof actionItem.intraday_ob_from_time === 'string' ? actionItem.intraday_ob_from_time : '') + '|' +
+              normalizeObSample(actionItem && actionItem.intraday_ob_from_sample, 'low') + '|' +
               normalizeDayOffset(actionItem && actionItem.intraday_ob_to_day_offset) + '|' +
               (actionItem && typeof actionItem.intraday_ob_to_time === 'string' ? actionItem.intraday_ob_to_time : '') + '|' +
+              normalizeObSample(actionItem && actionItem.intraday_ob_to_sample, 'high') + '|' +
               (actionItem && typeof actionItem.intraday_ob_timeframe === 'string' ? actionItem.intraday_ob_timeframe : '')
             ] || '';
             if (importedRevActionRef) importedRevActionRef = 'iob:' + importedRevActionRef;
@@ -3271,8 +3388,10 @@ function getStatsSectionTitleForTab(tabIndex) {
             importedRevActionRef = importedPremarketObRefMap[
               normalizeDayOffset(actionItem && actionItem.ob_from_day_offset) + '|' +
               (actionItem && typeof actionItem.ob_from_time === 'string' ? actionItem.ob_from_time : '') + '|' +
+              normalizeObSample(actionItem && actionItem.ob_from_sample, 'low') + '|' +
               normalizeDayOffset(actionItem && actionItem.ob_to_day_offset) + '|' +
               (actionItem && typeof actionItem.ob_to_time === 'string' ? actionItem.ob_to_time : '') + '|' +
+              normalizeObSample(actionItem && actionItem.ob_to_sample, 'high') + '|' +
               (actionItem && typeof actionItem.ob_timeframe === 'string' ? actionItem.ob_timeframe : '')
             ] || '';
             if (importedRevActionRef) importedRevActionRef = 'pob:' + importedRevActionRef;
@@ -3345,10 +3464,12 @@ function getStatsSectionTitleForTab(tabIndex) {
         reasons: importedReasons.length ? importedReasons : [makeReversalReason()],
         smt: !!(item && item.smt),
         immediateRebalance: !!(item && item.immediate_rebalance),
+        tradeable: item && typeof item.tradeable === 'boolean' ? item.tradeable : true,
+        skipReason: item && typeof item.skip_reason === 'string' ? item.skip_reason : '',
         note: item && typeof item.note === 'string' ? item.note : '',
         images: normalizeImportedImages(item && item.images)
       };
-    }).filter(item => item.execRef || item.shape || item.reasons.some(isMeaningfulReversalReason) || item.smt || item.immediateRebalance || item.note || item.images.length > 0);
+    }).filter(item => item.execRef || item.shape || item.reasons.some(isMeaningfulReversalReason) || item.smt || item.immediateRebalance || !item.tradeable || item.skipReason || item.note || item.images.length > 0);
 
     var importedEntries = Array.isArray(parsed.entry) ? parsed.entry.map(item => {
       var result = item && typeof item.result === 'object' ? item.result : {};
@@ -3373,8 +3494,8 @@ function getStatsSectionTitleForTab(tabIndex) {
         exitPrice: result.exit_price != null ? String(result.exit_price) : '',
         exitType: typeof result.exit_type === 'string' ? result.exit_type : '',
         outcome: typeof result.outcome === 'string' ? result.outcome : '',
-        positive: Array.isArray(result.positive) ? result.positive.map(String) : [],
-        negative: Array.isArray(result.negative) ? result.negative.map(String) : [],
+        positive: normalizeFactorList(Array.isArray(result.positive) ? result.positive.map(String) : []),
+        negative: normalizeFactorList(Array.isArray(result.negative) ? result.negative.map(String) : []),
         resultOpen: !!(result.exit_time || result.exit_price || result.exit_type || result.outcome || (Array.isArray(result.positive) && result.positive.length) || (Array.isArray(result.negative) && result.negative.length)),
         images: normalizeImportedImages(item && item.images)
       };
@@ -3385,6 +3506,8 @@ function getStatsSectionTitleForTab(tabIndex) {
     setInst(importedInstrument);
     setBasicInfoImages(importedBasicInfoImages);
     setNews(importedNews);
+    setHtfContext(importedHtfContext);
+    setSessionBias(importedSessionBias);
     setPts(importedPts.length ? importedPts : makeInitialPts());
     setPremarketFvgs(importedPremarketFvgs.length ? importedPremarketFvgs : makeInitialPremarketFvgs());
     setPremarketObs(importedPremarketObs.length ? importedPremarketObs : makeInitialPremarketObs());
@@ -3679,6 +3802,8 @@ function getStatsSectionTitleForTab(tabIndex) {
 
     var fromDate = shiftIsoDate(date, target.dayOffsetFrom);
     var toDate = shiftIsoDate(date, target.dayOffsetTo);
+    var fromSample = normalizeObSample(target.fromSample, 'low');
+    var toSample = normalizeObSample(target.toSample, 'high');
     var fromParts = parseLookupDateTime(fromDate, target.fromTime);
     var toParts = parseLookupDateTime(toDate, target.toTime);
     var fromMinuteId = minuteIdFromParts(fromParts);
@@ -3692,30 +3817,17 @@ function getStatsSectionTitleForTab(tabIndex) {
       return;
     }
 
-    var rangeMinutes = (toMinuteId - fromMinuteId) + timeframe;
-    if (rangeMinutes <= 0) {
-      setLookupError('OB 的查询范围无效。');
-      return;
-    }
-
     setLookupLoading(true);
-    var fromResult = await runPriceLookup(fromDate, target.fromTime, String(timeframe), 'close');
+    var fromResult = await runPriceLookup(fromDate, target.fromTime, String(timeframe), fromSample);
     if (fromResult.error) {
       setLookupError('OB 起点K线查询失败：' + fromResult.error);
       setLookupResult(null);
       setLookupLoading(false);
       return;
     }
-    var toResult = await runPriceLookup(toDate, target.toTime, String(timeframe), 'close');
+    var toResult = await runPriceLookup(toDate, target.toTime, String(timeframe), toSample);
     if (toResult.error) {
       setLookupError('OB 终点K线查询失败：' + toResult.error);
-      setLookupResult(null);
-      setLookupLoading(false);
-      return;
-    }
-    var rangeResult = await runPriceLookup(fromDate, target.fromTime, String(rangeMinutes), 'close');
-    if (rangeResult.error) {
-      setLookupError('OB 区间极值查询失败：' + rangeResult.error);
       setLookupResult(null);
       setLookupLoading(false);
       return;
@@ -3723,42 +3835,40 @@ function getStatsSectionTitleForTab(tabIndex) {
 
     var fromOhlc = fromResult.ohlc || {};
     var toOhlc = toResult.ohlc || {};
-    var rangeOhlc = rangeResult.ohlc || {};
-    var fromLow = parseFloat(fromOhlc.low);
-    var fromHigh = parseFloat(fromOhlc.high);
-    var toLow = parseFloat(toOhlc.low);
-    var toHigh = parseFloat(toOhlc.high);
-    var fromClose = parseFloat(fromOhlc.close);
-    var toClose = parseFloat(toOhlc.close);
-    var rangeHigh = parseFloat(rangeOhlc.high);
-    var rangeLow = parseFloat(rangeOhlc.low);
+    var fromAnchor = parseFloat(fromOhlc[fromSample]);
+    var toAnchor = parseFloat(toOhlc[toSample]);
 
-    if ([fromLow, fromHigh, toLow, toHigh, rangeHigh, rangeLow].some(isNaN)) {
-      setLookupError('OB 自动计算失败：区间 OHLC 数据不完整。');
+    if ([fromAnchor, toAnchor].some(isNaN)) {
+      setLookupError('OB 自动计算失败：采样点 OHLC 数据不完整。');
       setLookupResult(null);
       setLookupLoading(false);
       return;
     }
-
-    var bullish = fromLow < toHigh;
-    var bearish = fromHigh > toLow;
     var direction = '';
-    if (bullish && !bearish) direction = 'bearish';
-    else if (bearish && !bullish) direction = 'bullish';
-    else if (!isNaN(fromClose) && !isNaN(toClose) && fromClose !== toClose) direction = toClose > fromClose ? 'bullish' : 'bearish';
+    if (toAnchor > fromAnchor) direction = 'bearish';
+    else if (toAnchor < fromAnchor) direction = 'bullish';
 
-    saveRecord(direction, String(rangeHigh), String(rangeLow));
-    setLookupError(direction ? '' : '已计算区间高低点，但方向不明确。');
+    var obHigh = String(Math.max(fromAnchor, toAnchor));
+    var obLow = String(Math.min(fromAnchor, toAnchor));
+
+    saveRecord(direction, obHigh, obLow);
+    setLookupError(direction ? '' : '已计算 OB 边界，但方向不明确。');
     setLookupResult({
       field: 'ob',
       timeframe: timeframe,
       value: direction || 'unclear',
-      foundBars: (fromResult.foundBars || 0) + (toResult.foundBars || 0) + (rangeResult.foundBars || 0),
-      expectedBars: (fromResult.expectedBars || 0) + (toResult.expectedBars || 0) + (rangeResult.expectedBars || 0),
-      startKey: rangeResult.startKey || fromResult.startKey,
-      endKey: rangeResult.endKey || toResult.endKey,
-      missingBars: (fromResult.missingBars || 0) + (toResult.missingBars || 0) + (rangeResult.missingBars || 0),
-      ohlc: { from: fromOhlc, to: toOhlc, range: rangeOhlc }
+      foundBars: (fromResult.foundBars || 0) + (toResult.foundBars || 0),
+      expectedBars: (fromResult.expectedBars || 0) + (toResult.expectedBars || 0),
+      startKey: fromResult.startKey,
+      endKey: toResult.endKey,
+      missingBars: (fromResult.missingBars || 0) + (toResult.missingBars || 0),
+      ohlc: { from: fromOhlc, to: toOhlc },
+      anchors: {
+        fromSample: fromSample,
+        fromValue: fromAnchor,
+        toSample: toSample,
+        toValue: toAnchor
+      }
     });
     setLookupDate(fromDate);
     setLookupTime(target.fromTime);
@@ -3926,6 +4036,24 @@ function getStatsSectionTitleForTab(tabIndex) {
     return { pnl, rr: (pnl / risk).toFixed(2) };
   }
 
+  function getEntryOutcome(en) {
+    if (!en) return '';
+    var ep = parseFloat(en.entryPrice);
+    var exP = parseFloat(en.exitPrice);
+    if (isNaN(ep) || isNaN(exP)) return en.outcome || '';
+    if (String(en.direction) === 'long') {
+      if (exP > ep) return 'win';
+      if (exP < ep) return 'loss';
+      return 'breakeven';
+    }
+    if (String(en.direction) === 'short') {
+      if (exP < ep) return 'win';
+      if (exP > ep) return 'loss';
+      return 'breakeven';
+    }
+    return en.outcome || '';
+  }
+
   async function runPriceLookup(dateStr, timeStr, timeframeStr, field, options) {
     var lookupOptions = options || {};
     if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -4049,6 +4177,20 @@ function getStatsSectionTitleForTab(tabIndex) {
         }
       });
     }
+    if (htfContext.bias || htfContext.drawOnLiquidity || htfContext.nearestTarget || htfContext.reasoning || (Array.isArray(htfContext.images) && htfContext.images.length > 0)) {
+      L.push('htf_context:');
+      L.push('  bias: ' + (htfContext.bias || '""'));
+      L.push('  draw_on_liquidity: ' + (htfContext.drawOnLiquidity || '""'));
+      if (htfContext.nearestTarget) L.push('  nearest_target: ' + htfContext.nearestTarget);
+      if (htfContext.reasoning) L.push('  reasoning: "' + htfContext.reasoning.replace(/"/g, '\\"') + '"');
+      pushImagesYaml(L, 2, htfContext.images);
+    }
+    if (sessionBias.bias || sessionBias.alignment || sessionBias.reasoning) {
+      L.push('session_bias:');
+      L.push('  bias: ' + (sessionBias.bias || '""'));
+      L.push('  alignment: ' + (sessionBias.alignment || '""'));
+      if (sessionBias.reasoning) L.push('  reasoning: "' + sessionBias.reasoning.replace(/"/g, '\\"') + '"');
+    }
     L.push('');
     L.push('overnight_structure:');
     L.push('  key_points:');
@@ -4087,8 +4229,10 @@ function getStatsSectionTitleForTab(tabIndex) {
           L.push('    - timeframe: ' + (timeframe || '""'));
           L.push('      from_day_offset: ' + normalizeDayOffset(ob.dayOffsetFrom));
           L.push('      from_time: "' + (ob.fromTime || '') + '"');
+          L.push('      from_sample: ' + normalizeObSample(ob.fromSample, 'low'));
           L.push('      to_day_offset: ' + normalizeDayOffset(ob.dayOffsetTo));
           L.push('      to_time: "' + (ob.toTime || '') + '"');
+          L.push('      to_sample: ' + normalizeObSample(ob.toSample, 'high'));
           if (ob.direction) L.push('      direction: ' + ob.direction);
           if (ob.high) L.push('      ob_high: ' + ob.high);
           if (ob.low) L.push('      ob_low: ' + ob.low);
@@ -4155,15 +4299,19 @@ function getStatsSectionTitleForTab(tabIndex) {
                     var actionObTimeframe = formatObTimeframe(actionOb.ob.timeframeNum, actionOb.ob.timeframeUnit);
                     L.push('          ob_from_day_offset: ' + normalizeDayOffset(actionOb.ob.dayOffsetFrom));
                     L.push('          ob_from_time: "' + (actionOb.ob.fromTime || '') + '"');
+                    L.push('          ob_from_sample: ' + normalizeObSample(actionOb.ob.fromSample, 'low'));
                     L.push('          ob_to_day_offset: ' + normalizeDayOffset(actionOb.ob.dayOffsetTo));
                     L.push('          ob_to_time: "' + (actionOb.ob.toTime || '') + '"');
+                    L.push('          ob_to_sample: ' + normalizeObSample(actionOb.ob.toSample, 'high'));
                     if (actionObTimeframe) L.push('          ob_timeframe: ' + actionObTimeframe);
                   } else if (actionOb && actionOb.kind === 'intraday_ob' && actionOb.intradayOb) {
                     var actionIntradayObTimeframe = formatObTimeframe(actionOb.intradayOb.timeframeNum, actionOb.intradayOb.timeframeUnit);
                     L.push('          intraday_ob_from_day_offset: ' + normalizeDayOffset(actionOb.intradayOb.dayOffsetFrom));
                     L.push('          intraday_ob_from_time: "' + (actionOb.intradayOb.fromTime || '') + '"');
+                    L.push('          intraday_ob_from_sample: ' + normalizeObSample(actionOb.intradayOb.fromSample, 'low'));
                     L.push('          intraday_ob_to_day_offset: ' + normalizeDayOffset(actionOb.intradayOb.dayOffsetTo));
                     L.push('          intraday_ob_to_time: "' + (actionOb.intradayOb.toTime || '') + '"');
+                    L.push('          intraday_ob_to_sample: ' + normalizeObSample(actionOb.intradayOb.toSample, 'high'));
                     if (actionIntradayObTimeframe) L.push('          intraday_ob_timeframe: ' + actionIntradayObTimeframe);
                   }
                 } else if (action.type === 'tap_fvg' || action.type === 'tap_fvg_ce' || action.type === 'fill_fvg') {
@@ -4269,8 +4417,10 @@ function getStatsSectionTitleForTab(tabIndex) {
           L.push('    - timeframe: ' + (timeframe || '""'));
           L.push('      from_day_offset: ' + normalizeDayOffset(ob.dayOffsetFrom));
           L.push('      from_time: "' + (ob.fromTime || '') + '"');
+          L.push('      from_sample: ' + normalizeObSample(ob.fromSample, 'low'));
           L.push('      to_day_offset: ' + normalizeDayOffset(ob.dayOffsetTo));
           L.push('      to_time: "' + (ob.toTime || '') + '"');
+          L.push('      to_sample: ' + normalizeObSample(ob.toSample, 'high'));
           if (ob.direction) L.push('      direction: ' + ob.direction);
           if (ob.high) L.push('      ob_high: ' + ob.high);
           if (ob.low) L.push('      ob_low: ' + ob.low);
@@ -4278,10 +4428,10 @@ function getStatsSectionTitleForTab(tabIndex) {
         }
       });
     }
-    if (revs.some(r => r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0))) {
+    if (revs.some(r => r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || !r.tradeable || r.skipReason || r.note || (Array.isArray(r.images) && r.images.length > 0))) {
       L.push('  reversals:');
       revs.forEach((r, ri) => {
-        if (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || r.note || (Array.isArray(r.images) && r.images.length > 0)) {
+        if (r.execRef || r.shape || (Array.isArray(r.reasons) && r.reasons.some(isMeaningfulReversalReason)) || r.smt || r.immediateRebalance || !r.tradeable || r.skipReason || r.note || (Array.isArray(r.images) && r.images.length > 0)) {
           var sess = getRevSession(r);
           var price = getRevPrice(r);
           L.push('    - id: ' + (ri + 1));
@@ -4314,8 +4464,10 @@ function getStatsSectionTitleForTab(tabIndex) {
                 var revObTimeframe = formatObTimeframe(revReference.ob.timeframeNum, revReference.ob.timeframeUnit);
                 L.push('          ob_from_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetFrom));
                 L.push('          ob_from_time: "' + (revReference.ob.fromTime || '') + '"');
+                L.push('          ob_from_sample: ' + normalizeObSample(revReference.ob.fromSample, 'low'));
                 L.push('          ob_to_day_offset: ' + normalizeDayOffset(revReference.ob.dayOffsetTo));
                 L.push('          ob_to_time: "' + (revReference.ob.toTime || '') + '"');
+                L.push('          ob_to_sample: ' + normalizeObSample(revReference.ob.toSample, 'high'));
                 if (revObTimeframe) L.push('          ob_timeframe: ' + revObTimeframe);
               } else if (revReference.kind === 'premarket_fvg' && revReference.fvg) {
                 var revFvgTimeframe = formatFvgTimeframe(revReference.fvg.timeframeNum, revReference.fvg.timeframeUnit);
@@ -4347,8 +4499,10 @@ function getStatsSectionTitleForTab(tabIndex) {
                 var revIntradayObTimeframe = formatObTimeframe(revReference.intradayOb.timeframeNum, revReference.intradayOb.timeframeUnit);
                 L.push('          intraday_ob_from_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetFrom));
                 L.push('          intraday_ob_from_time: "' + (revReference.intradayOb.fromTime || '') + '"');
+                L.push('          intraday_ob_from_sample: ' + normalizeObSample(revReference.intradayOb.fromSample, 'low'));
                 L.push('          intraday_ob_to_day_offset: ' + normalizeDayOffset(revReference.intradayOb.dayOffsetTo));
                 L.push('          intraday_ob_to_time: "' + (revReference.intradayOb.toTime || '') + '"');
+                L.push('          intraday_ob_to_sample: ' + normalizeObSample(revReference.intradayOb.toSample, 'high'));
                 if (revIntradayObTimeframe) L.push('          intraday_ob_timeframe: ' + revIntradayObTimeframe);
               } else if (revReference.kind === 'intraday_fvg' && revReference.intradayFvg) {
                 var revIntradayFvgTimeframe = formatFvgTimeframe(revReference.intradayFvg.timeframeNum, revReference.intradayFvg.timeframeUnit);
@@ -4361,6 +4515,8 @@ function getStatsSectionTitleForTab(tabIndex) {
           }
           L.push('      smt: ' + (r.smt ? 'true' : 'false'));
           L.push('      immediate_rebalance: ' + (r.immediateRebalance ? 'true' : 'false'));
+          L.push('      tradeable: ' + (r.tradeable ? 'true' : 'false'));
+          if (r.skipReason) L.push('      skip_reason: "' + r.skipReason.replace(/"/g, '\\"') + '"');
           if (r.note) L.push('      note: ' + r.note);
           pushImagesYaml(L, 6, r.images);
         }
@@ -4372,6 +4528,7 @@ function getStatsSectionTitleForTab(tabIndex) {
       L.push('');
       L.push('entry:');
       validEntries.forEach((en, idx) => {
+        var computedOutcome = getEntryOutcome(en);
         L.push('  - id: ' + (idx + 1));
         L.push('    time: "' + en.time + '"');
         L.push('    direction: ' + en.direction);
@@ -4395,13 +4552,14 @@ function getStatsSectionTitleForTab(tabIndex) {
           L.push('    reversal_ref: none');
         }
         pushImagesYaml(L, 4, en.images);
-        var hasResult = en.exitTime || en.exitPrice || en.exitType || en.outcome || en.positive.length > 0 || en.negative.length > 0;
+        var hasResult = en.exitTime || en.exitPrice || en.exitType || computedOutcome || en.outcome || en.positive.length > 0 || en.negative.length > 0;
         if (hasResult) {
           L.push('    result:');
           if (en.exitTime) L.push('      exit_time: "' + en.exitTime + '"');
           if (en.exitPrice) L.push('      exit_price: ' + en.exitPrice);
           if (en.exitType) L.push('      exit_type: ' + en.exitType);
-          if (en.outcome) L.push('      outcome: ' + en.outcome);
+          if (computedOutcome) L.push('      outcome: ' + computedOutcome);
+          else if (en.outcome) L.push('      outcome: ' + en.outcome);
           if (en.positive.length > 0) {
             L.push('      positive: [' + en.positive.join(', ') + ']');
           }
@@ -4569,43 +4727,106 @@ function getStatsSectionTitleForTab(tabIndex) {
   function renderTab0() {
     var basicTheme = getSectionTheme('basic');
     return (
-      _react2.default.createElement('div', { className: "section-shell section-block-gap bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: basicTheme.card }
-        , _react2.default.createElement('div', { className: "section-header" }
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('h3', { className: "section-header__title", style: basicTheme.title }, "基本信息")
-            , _react2.default.createElement('p', { className: "section-header__desc mb-0" }, "先确定 Today、品种、Red Folder News 和整体视角图片，这些信息会贯穿后面的结构识别与执行记录。")
-          )
-        )
-        , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-4 mb-5"   ,}
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-1"    ,}, "Today " , _react2.default.createElement('span', { className: "text-red-500",}, "*"))
-            , _react2.default.createElement('input', { type: "date", value: date, onChange: e => handleTodayDateChange(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"         ,} )
-            , _react2.default.createElement('div', { className: "mt-1 text-xs text-gray-500"  ,}, todayWeekday || '--')
-          )
-          , _react2.default.createElement('div', null
-            , _react2.default.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-1"    ,}, "品种 " , _react2.default.createElement('span', { className: "text-red-500",}, "*"))
-            , _react2.default.createElement('input', { type: "text", value: inst, onChange: e => setInst(e.target.value), placeholder: "NQ", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"         ,} )
-          )
-        )
-        , _react2.default.createElement('div', null
-          , _react2.default.createElement('div', { className: "flex items-center justify-between mb-2"   ,}
-            , _react2.default.createElement('label', { className: "text-sm font-medium text-gray-700"  ,}, "Red Folder News"  )
-            , _react2.default.createElement('button', { onClick: () => setNews([...news, { time: '', event: '' }]), className: "text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1"     ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加" )
-          )
-          , news.length === 0 && _react2.default.createElement('p', { className: "text-sm text-gray-400 italic"  ,}, "无重要数据时可留空")
-          , news.map((n, idx) => (
-            _react2.default.createElement('div', { key: idx, className: "flex items-center gap-2 mb-2"   ,}
-              , _react2.default.createElement('div', { className: "w-32 flex-shrink-0" ,}
-                , _react2.default.createElement(ComboSelect, { options: NEWS_TIME_OPTIONS, value: n.time, onChange: v => updNews(idx, 'time', v), placeholder: "时间...", allowCustom: true, customPlaceholder: "HH:MM",} )
-              )
-              , _react2.default.createElement('div', { className: "flex-1",}
-                , _react2.default.createElement(ComboSelect, { options: NEWS_EVENT_OPTIONS, value: n.event, onChange: v => updNews(idx, 'event', v), placeholder: "新闻事件...", allowCustom: true, customPlaceholder: "自定义事件...",} )
-              )
-              , _react2.default.createElement('button', { onClick: () => { var a = [...news]; a.splice(idx, 1); setNews(a); }, className: "p-1 text-gray-400 hover:text-red-500 flex-shrink-0"   ,}, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} ))
+      _react2.default.createElement('div', null
+        , _react2.default.createElement('div', { className: "section-shell section-block-gap bg-white rounded-xl border border-gray-200 p-5 shadow-lg"    , style: basicTheme.card }
+          , _react2.default.createElement('div', { className: "section-header" }
+            , _react2.default.createElement('div', null
+              , _react2.default.createElement('h3', { className: "section-header__title", style: basicTheme.title }, "基本信息")
+              , _react2.default.createElement('p', { className: "section-header__desc mb-0" }, "先确定 Today、品种、Red Folder News 和整体视角图片，这些信息会贯穿后面的结构识别与执行记录。")
             )
-          ))
+          )
+          , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-4 mb-5"   ,}
+            , _react2.default.createElement('div', null
+              , _react2.default.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-1"    ,}, "Today " , _react2.default.createElement('span', { className: "text-red-500",}, "*"))
+              , _react2.default.createElement('input', { type: "date", value: date, onChange: e => handleTodayDateChange(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"         ,} )
+              , _react2.default.createElement('div', { className: "mt-1 text-xs text-gray-500"  ,}, todayWeekday || '--')
+            )
+            , _react2.default.createElement('div', null
+              , _react2.default.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-1"    ,}, "品种 " , _react2.default.createElement('span', { className: "text-red-500",}, "*"))
+              , _react2.default.createElement('input', { type: "text", value: inst, onChange: e => setInst(e.target.value), placeholder: "NQ", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"         ,} )
+            )
+          )
+          , _react2.default.createElement('div', null
+            , _react2.default.createElement('div', { className: "flex items-center justify-between mb-2"   ,}
+              , _react2.default.createElement('label', { className: "text-sm font-medium text-gray-700"  ,}, "Red Folder News"  )
+              , _react2.default.createElement('button', { onClick: () => setNews([...news, { time: '', event: '' }]), className: "text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1"     ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加" )
+            )
+            , news.length === 0 && _react2.default.createElement('p', { className: "text-sm text-gray-400 italic"  ,}, "无重要数据时可留空")
+            , news.map((n, idx) => (
+              _react2.default.createElement('div', { key: idx, className: "flex items-center gap-2 mb-2"   ,}
+                , _react2.default.createElement('div', { className: "w-32 flex-shrink-0" ,}
+                  , _react2.default.createElement(ComboSelect, { options: NEWS_TIME_OPTIONS, value: n.time, onChange: v => updNews(idx, 'time', v), placeholder: "时间...", allowCustom: true, customPlaceholder: "HH:MM",} )
+                )
+                , _react2.default.createElement('div', { className: "flex-1",}
+                  , _react2.default.createElement(ComboSelect, { options: NEWS_EVENT_OPTIONS, value: n.event, onChange: v => updNews(idx, 'event', v), placeholder: "新闻事件...", allowCustom: true, customPlaceholder: "自定义事件...",} )
+                )
+                , _react2.default.createElement('button', { onClick: () => { var a = [...news]; a.splice(idx, 1); setNews(a); }, className: "p-1 text-gray-400 hover:text-red-500 flex-shrink-0"   ,}, _react2.default.createElement(_lucidereact.Trash2, { className: "w-4 h-4" ,} ))
+              )
+            ))
+          )
+          , _react2.default.createElement(ImageListEditor, { images: basicInfoImages, onChange: setBasicInfoImages, title: "整体图片记录", hint: "用于保存整体视角、日内总览、HTF 背景图。", defaultOpen: true, apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "basic_info" } )
         )
-        , _react2.default.createElement(ImageListEditor, { images: basicInfoImages, onChange: setBasicInfoImages, title: "整体图片记录", hint: "用于保存整体视角、日内总览、HTF 背景图。", defaultOpen: true, apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "basic_info" } )
+        , _react2.default.createElement('div', { className: "section-shell section-block-gap bg-white rounded-xl border border-gray-200 p-5 shadow-lg", style: basicTheme.card }
+          , _react2.default.createElement('div', { className: "section-header" }
+            , _react2.default.createElement('div', null
+              , _react2.default.createElement('h3', { className: "section-header__title", style: basicTheme.title }, "Bias Context")
+              , _react2.default.createElement('p', { className: "section-header__desc mb-0" }, "把高时间框架背景和 9:30 之后首小时预期拆开记录。HTF 回答“往哪去”，Session 回答“先往哪走”。")
+            )
+          )
+          , _react2.default.createElement('div', { className: "grid grid-cols-1 xl:grid-cols-2 gap-4" }
+            , _react2.default.createElement('div', { className: "subpanel-surface rounded-xl border border-gray-200 p-4 space-y-4" }
+              , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400" }, "HTF Context")
+              , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3" }
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Bias")
+                  , _react2.default.createElement('select', { value: htfContext.bias, onChange: e => setHtfContext({ ...htfContext, bias: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                    , _react2.default.createElement('option', { value: "" }, "选择 HTF Bias...")
+                    , BIAS_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'htf_bias_' + opt.value, value: opt.value }, opt.label))
+                  )
+                )
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Draw On Liquidity")
+                  , _react2.default.createElement('select', { value: htfContext.drawOnLiquidity, onChange: e => setHtfContext({ ...htfContext, drawOnLiquidity: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                    , _react2.default.createElement('option', { value: "" }, "选择目标方向...")
+                    , DOL_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'dol_' + opt.value, value: opt.value }, opt.label))
+                  )
+                )
+              )
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Nearest Target")
+                , _react2.default.createElement('input', { type: "text", value: htfContext.nearestTarget, onChange: e => setHtfContext({ ...htfContext, nearestTarget: e.target.value }), placeholder: "比如 2320 / 2365.5", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+              )
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Reasoning")
+                , _react2.default.createElement('textarea', { value: htfContext.reasoning, onChange: e => setHtfContext({ ...htfContext, reasoning: e.target.value }), rows: 3, placeholder: "记录日线 / 4H 的关键背景、流动性目标、FVG / premium-discount 依据...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+              )
+              , _react2.default.createElement(ImageListEditor, { images: htfContext.images, onChange: v => setHtfContext({ ...htfContext, images: v }), title: "图片记录", hint: "记录 HTF 背景图、日线或 4H 标注图。", apiBaseUrl: apiBaseUrl, journalDate: date, uploadSection: "htf_context" } )
+            )
+            , _react2.default.createElement('div', { className: "subpanel-surface rounded-xl border border-gray-200 p-4 space-y-4" }
+              , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400" }, "Session Bias")
+              , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-3" }
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Bias")
+                  , _react2.default.createElement('select', { value: sessionBias.bias, onChange: e => setSessionBias({ ...sessionBias, bias: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                    , _react2.default.createElement('option', { value: "" }, "选择 Session Bias...")
+                    , BIAS_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'session_bias_' + opt.value, value: opt.value }, opt.label))
+                  )
+                )
+                , _react2.default.createElement('div', null
+                  , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Alignment")
+                  , _react2.default.createElement('select', { value: sessionBias.alignment, onChange: e => setSessionBias({ ...sessionBias, alignment: e.target.value }), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                    , _react2.default.createElement('option', { value: "" }, "选择对齐状态...")
+                    , ALIGNMENT_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'alignment_' + opt.value, value: opt.value }, opt.label))
+                  )
+                )
+              )
+              , _react2.default.createElement('div', null
+                , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "Reasoning")
+                , _react2.default.createElement('textarea', { value: sessionBias.reasoning, onChange: e => setSessionBias({ ...sessionBias, reasoning: e.target.value }), rows: 6, placeholder: "记录 9:30 前对首小时的方向预期：ORR 位置、最后一段行情、未回填 FVG、被扫流动性等。", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+              )
+            )
+          )
+        )
       )
     );
   }
@@ -4960,7 +5181,7 @@ function getStatsSectionTitleForTab(tabIndex) {
                 , _react2.default.createElement('div', { className: "space-y-3" }
                   , _react2.default.createElement('div', { className: "subpanel-surface rounded-lg border border-gray-200 p-3" }
                     , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400 mb-3" }, "时间范围")
-                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3" }
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-3" }
                       , _react2.default.createElement('div', null
                         , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
                         , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-2" }
@@ -4985,6 +5206,12 @@ function getStatsSectionTitleForTab(tabIndex) {
                         , _react2.default.createElement('input', { type: "text", value: ob.fromTime, onChange: e => updPremarketOb(ob.id, 'fromTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
                       )
                       , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "From 采样点")
+                        , _react2.default.createElement('select', { value: normalizeObSample(ob.fromSample, 'low'), onChange: e => updPremarketOb(ob.id, 'fromSample', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , OB_SAMPLE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'pob_from_sample_' + ob.id + '_' + opt.value, value: opt.value }, opt.label))
+                        )
+                      )
+                      , _react2.default.createElement('div', null
                         , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To T日")
                         , _react2.default.createElement('select', { value: String(normalizeDayOffset(ob.dayOffsetTo)), onChange: e => updPremarketOb(ob.id, 'dayOffsetTo', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
                           , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'pob_to_' + ob.id + '_' + o.label, value: String(o.value) }, o.label))
@@ -4994,6 +5221,12 @@ function getStatsSectionTitleForTab(tabIndex) {
                       , _react2.default.createElement('div', null
                         , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To 时间")
                         , _react2.default.createElement('input', { type: "text", value: ob.toTime, onChange: e => updPremarketOb(ob.id, 'toTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                      )
+                      , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To 采样点")
+                        , _react2.default.createElement('select', { value: normalizeObSample(ob.toSample, 'high'), onChange: e => updPremarketOb(ob.id, 'toSample', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , OB_SAMPLE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'pob_to_sample_' + ob.id + '_' + opt.value, value: opt.value }, opt.label))
+                        )
                       )
                     )
                   )
@@ -5023,7 +5256,7 @@ function getStatsSectionTitleForTab(tabIndex) {
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setPremarketObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setPremarketObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', fromSample: 'low', dayOffsetTo: 0, toTime: '', toSample: 'high', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-purple-500 hover:text-purple-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘前 OB"
           )
         )
@@ -5512,7 +5745,7 @@ function getStatsSectionTitleForTab(tabIndex) {
                 , _react2.default.createElement('div', { className: "space-y-3" }
                   , _react2.default.createElement('div', { className: "subpanel-surface rounded-lg border border-gray-200 p-3" }
                     , _react2.default.createElement('div', { className: "text-[11px] uppercase tracking-[0.18em] text-gray-400 mb-3" }, "时间范围")
-                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3" }
+                    , _react2.default.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-3" }
                       , _react2.default.createElement('div', null
                         , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "周期")
                         , _react2.default.createElement('div', { className: "grid grid-cols-1 gap-2" }
@@ -5537,6 +5770,12 @@ function getStatsSectionTitleForTab(tabIndex) {
                         , _react2.default.createElement('input', { type: "text", value: ob.fromTime, onChange: e => updIntradayOb(ob.id, 'fromTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
                       )
                       , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "From 采样点")
+                        , _react2.default.createElement('select', { value: normalizeObSample(ob.fromSample, 'low'), onChange: e => updIntradayOb(ob.id, 'fromSample', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , OB_SAMPLE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'iob_from_sample_' + ob.id + '_' + opt.value, value: opt.value }, opt.label))
+                        )
+                      )
+                      , _react2.default.createElement('div', null
                         , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To T日")
                         , _react2.default.createElement('select', { value: String(normalizeDayOffset(ob.dayOffsetTo)), onChange: e => updIntradayOb(ob.id, 'dayOffsetTo', normalizeDayOffset(e.target.value)), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
                           , DAY_OFFSET_OPTIONS.map(o => _react2.default.createElement('option', { key: 'iob_to_' + ob.id + '_' + o.label, value: String(o.value) }, o.label))
@@ -5546,6 +5785,12 @@ function getStatsSectionTitleForTab(tabIndex) {
                       , _react2.default.createElement('div', null
                         , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To 时间")
                         , _react2.default.createElement('input', { type: "text", value: ob.toTime, onChange: e => updIntradayOb(ob.id, 'toTime', fmtTime(e.target.value)), placeholder: "HH:MM", maxLength: 5, className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                      )
+                      , _react2.default.createElement('div', null
+                        , _react2.default.createElement('label', { className: "block text-[11px] text-gray-500 mb-1" }, "To 采样点")
+                        , _react2.default.createElement('select', { value: normalizeObSample(ob.toSample, 'high'), onChange: e => updIntradayOb(ob.id, 'toSample', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" }
+                          , OB_SAMPLE_OPTIONS.map(opt => _react2.default.createElement('option', { key: 'iob_to_sample_' + ob.id + '_' + opt.value, value: opt.value }, opt.label))
+                        )
                       )
                     )
                   )
@@ -5575,7 +5820,7 @@ function getStatsSectionTitleForTab(tabIndex) {
               )
             );
           })
-          , _react2.default.createElement('button', { onClick: () => setIntradayObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', dayOffsetTo: 0, toTime: '', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
+          , _react2.default.createElement('button', { onClick: () => setIntradayObs(p => [...p, { id: nid(), dayOffsetFrom: 0, fromTime: '', fromSample: 'low', dayOffsetTo: 0, toTime: '', toSample: 'high', timeframeNum: '', timeframeUnit: 'm', direction: '', high: '', low: '', images: [] }]), className: "flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 mt-1" }
             , _react2.default.createElement(_lucidereact.Plus, { className: "w-4 h-4" ,} ), " 添加盘中 OB"
           )
         )
@@ -5601,13 +5846,14 @@ function getStatsSectionTitleForTab(tabIndex) {
             var sess = getRevSession(rev);
             var price = getRevPrice(rev);
             var revReasons = Array.isArray(rev.reasons) && rev.reasons.length ? rev.reasons : [makeReversalReason()];
-            var hasReversalData = !!(rev.execRef || rev.shape || rev.smt || rev.immediateRebalance || rev.note || (Array.isArray(rev.images) && rev.images.length) || revReasons.some(isMeaningfulReversalReason));
+            var hasReversalData = !!(rev.execRef || rev.shape || rev.smt || rev.immediateRebalance || !rev.tradeable || rev.skipReason || rev.note || (Array.isArray(rev.images) && rev.images.length) || revReasons.some(isMeaningfulReversalReason));
             var reversalTheme = getRecordCardTheme(hasReversalData ? 'filled' : 'empty');
             return _react2.default.createElement('div', { key: rev.id, className: "bg-purple-50 rounded-lg p-4 mb-3 border", style: reversalTheme.wrap }
               , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3" }
                 , _react2.default.createElement('div', { className: "flex items-center gap-2 flex-wrap" }
                   , _react2.default.createElement('span', { className: "text-sm font-semibold tracking-wide", style: reversalTheme.title }, "Reversal ", idx + 1)
                   , _react2.default.createElement('span', { className: "text-[10px] uppercase tracking-[0.22em]", style: reversalTheme.title }, "Turn")
+                  , !rev.tradeable && _react2.default.createElement('span', { className: "status-pill status-pill--warn" }, "Skip")
                   , rev.smt && _react2.default.createElement('span', { className: "status-pill status-pill--info" }, "⚡ SMT")
                   , rev.immediateRebalance && _react2.default.createElement('span', { className: "status-pill status-pill--info" }, "↺ Immediate Rebalance")
                 )
@@ -5681,6 +5927,19 @@ function getStatsSectionTitleForTab(tabIndex) {
                     )
                   )
                 )
+                , _react2.default.createElement('div', { className: "mt-3 pt-3 border-t border-slate-600/40" }
+                  , _react2.default.createElement('button', {
+                    type: "button",
+                    onClick: () => updRev(rev.id, 'tradeable', !rev.tradeable),
+                    className: `w-full md:w-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${rev.tradeable ? 'bg-emerald-50 border-emerald-400 text-emerald-700 ring-2 ring-emerald-200 ring-offset-1' : 'bg-amber-50 border-amber-400 text-amber-700 ring-2 ring-amber-200 ring-offset-1'}`
+                  }
+                    , _react2.default.createElement('div', { className: `w-8 h-5 rounded-full relative transition-colors ${rev.tradeable ? 'bg-emerald-500' : 'bg-amber-500'}` }
+                      , _react2.default.createElement('div', { className: `absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${rev.tradeable ? 'left-3.5' : 'left-0.5'}` })
+                    )
+                    , _react2.default.createElement('span', null, "Tradeable")
+                    , _react2.default.createElement('span', { className: "text-xs font-normal opacity-70" }, rev.tradeable ? "可交易" : "跳过观察")
+                  )
+                )
               )
               , _react2.default.createElement('div', { className: "field-cluster mb-3" }
                 , _react2.default.createElement('div', { className: "flex items-center justify-between gap-3 mb-3" }
@@ -5720,6 +5979,10 @@ function getStatsSectionTitleForTab(tabIndex) {
               )
               , _react2.default.createElement('div', { className: "field-cluster mb-3" }
                 , _react2.default.createElement('div', { className: "field-cluster__title" }, "补充记录")
+                , !rev.tradeable && _react2.default.createElement('div', { className: "mb-3" }
+                  , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "Skip Reason")
+                  , _react2.default.createElement('input', { type: "text", value: rev.skipReason, onChange: e => updRev(rev.id, 'skipReason', e.target.value), placeholder: "为什么这次没做？例如：与 session bias 冲突 / 无清晰确认 / 超出执行窗口...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
+                )
                 , _react2.default.createElement('div', null
                   , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1" }, "备注")
                   , _react2.default.createElement('input', { type: "text", value: rev.note, onChange: e => updRev(rev.id, 'note', e.target.value), placeholder: "备注...", className: "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" })
@@ -5749,6 +6012,7 @@ function getStatsSectionTitleForTab(tabIndex) {
         , entries.map((en, idx) => {
           var rrInfo = calcRR(en);
           var actualRR = calcActualRR(en);
+          var computedOutcome = getEntryOutcome(en);
           var badTime = en.time !== '' && !okTime(en.time);
           var badExitTime = en.exitTime !== '' && !okTime(en.exitTime);
           var revInfo = getReversalRefInfo(en);
@@ -5771,9 +6035,9 @@ function getStatsSectionTitleForTab(tabIndex) {
                       , en.direction === 'long' ? '↑ LONG' : '↓ SHORT'
                     )
                   )
-                  , en.outcome && (
-                    _react2.default.createElement('span', { className: `px-2.5 py-0.5 rounded-full text-xs font-semibold ${en.outcome === 'win' ? 'bg-green-100 text-green-700' : en.outcome === 'loss' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`,}
-                      , en.outcome.toUpperCase()
+                  , computedOutcome && (
+                    _react2.default.createElement('span', { className: `px-2.5 py-0.5 rounded-full text-xs font-semibold ${computedOutcome === 'win' ? 'bg-green-100 text-green-700' : computedOutcome === 'loss' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`,}
+                      , computedOutcome === 'breakeven' ? 'BE' : computedOutcome.toUpperCase()
                     )
                   )
                   , rrInfo && rrInfo.rr && (
@@ -5942,9 +6206,9 @@ function getStatsSectionTitleForTab(tabIndex) {
                   , _react2.default.createElement('button', { onClick: () => updEntry(en.id, 'resultOpen', !en.resultOpen), className: "w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors rounded-t-lg"         ,}
                     , _react2.default.createElement('span', { className: "text-xs font-semibold text-gray-600 flex items-center gap-2"     ,}, "📊 Result"
 
-                      , en.outcome && (
-                        _react2.default.createElement('span', { className: `px-2 py-0.5 rounded-full text-xs font-semibold ${en.outcome === 'win' ? 'bg-green-100 text-green-700' : en.outcome === 'loss' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`,}
-                          , en.outcome
+                      , computedOutcome && (
+                        _react2.default.createElement('span', { className: `px-2 py-0.5 rounded-full text-xs font-semibold ${computedOutcome === 'win' ? 'bg-green-100 text-green-700' : computedOutcome === 'loss' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`,}
+                          , computedOutcome === 'breakeven' ? 'be' : computedOutcome
                         )
                       )
                     )
@@ -5977,11 +6241,12 @@ function getStatsSectionTitleForTab(tabIndex) {
                             { v: 'loss', label: '❌ Loss', active: 'bg-red-50 border-red-400 text-red-700 ring-2 ring-red-200 ring-offset-1', inactive: 'bg-white border-gray-200 text-gray-400 hover:border-gray-300' },
                             { v: 'breakeven', label: '➖ BE', active: 'bg-gray-100 border-gray-400 text-gray-700 ring-2 ring-gray-200 ring-offset-1', inactive: 'bg-white border-gray-200 text-gray-400 hover:border-gray-300' }
                           ].map(opt => (
-                            _react2.default.createElement('button', { key: opt.v, onClick: () => updEntry(en.id, 'outcome', en.outcome === opt.v ? '' : opt.v), className: `flex-1 py-2 rounded-lg text-xs font-semibold border-2 transition-all ${en.outcome === opt.v ? opt.active : opt.inactive}`,}
+                            _react2.default.createElement('button', { key: opt.v, type: "button", disabled: true, className: `flex-1 py-2 rounded-lg text-xs font-semibold border-2 transition-all cursor-default ${computedOutcome === opt.v ? opt.active : opt.inactive}`,}
                               , opt.label
                             )
                           ))
                         )
+                        , _react2.default.createElement('p', { className: "mt-1 text-[11px] text-gray-400" }, "根据 direction、entry price、exit price 自动计算。")
                       )
 
                       , actualRR && (
@@ -5998,14 +6263,14 @@ function getStatsSectionTitleForTab(tabIndex) {
                         )
                       )
 
-                      , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-3"  ,}
-                        , _react2.default.createElement('div', null
-                          , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "✅ Positive Factors（正向理由）"  )
-                          , _react2.default.createElement(MultiSelect, { options: POSITIVE_FACTOR_OPTIONS, selected: en.positive, onChange: v => updEntry(en.id, 'positive', v), allowCustom: true, dropUp: true,} )
+                      , _react2.default.createElement('div', { className: "space-y-3"  ,}
+                        , _react2.default.createElement('div', { className: "rounded-lg border border-gray-200 p-3 bg-gray-50" }
+                          , _react2.default.createElement('label', { className: "block text-xs font-semibold tracking-[0.16em] uppercase text-gray-500 mb-2"   ,}, "正向理由 Positive Factors"  )
+                          , _react2.default.createElement(MultiSelect, { options: POSITIVE_FACTOR_OPTIONS, selected: normalizeFactorList(en.positive), onChange: v => updEntry(en.id, 'positive', normalizeFactorList(v)), allowCustom: true, dropUp: true,} )
                         )
-                        , _react2.default.createElement('div', null
-                          , _react2.default.createElement('label', { className: "block text-xs text-gray-500 mb-1"   ,}, "⚠️ Negative Factors（负向理由）"  )
-                          , _react2.default.createElement(MultiSelect, { options: NEGATIVE_FACTOR_OPTIONS, selected: en.negative, onChange: v => updEntry(en.id, 'negative', v), allowCustom: true, dropUp: true,} )
+                        , _react2.default.createElement('div', { className: "rounded-lg border border-gray-200 p-3 bg-gray-50" }
+                          , _react2.default.createElement('label', { className: "block text-xs font-semibold tracking-[0.16em] uppercase text-gray-500 mb-2"   ,}, "负向理由 Negative Factors"  )
+                          , _react2.default.createElement(MultiSelect, { options: NEGATIVE_FACTOR_OPTIONS, selected: normalizeFactorList(en.negative), onChange: v => updEntry(en.id, 'negative', normalizeFactorList(v)), allowCustom: true, dropUp: true,} )
                         )
                       )
                     )
