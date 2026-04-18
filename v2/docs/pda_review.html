@@ -75,6 +75,91 @@
       color: var(--text);
       padding: 10px 12px;
     }
+    .multi-select {
+      position: relative;
+    }
+    .multi-select__button {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .multi-select__button::after {
+      content: "▾";
+      color: var(--muted);
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+    .multi-select[open] .multi-select__button::after {
+      content: "▴";
+    }
+    .multi-select__text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+    }
+    .multi-select__menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 20;
+      border: 1px solid rgba(111,136,149,0.45);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 18px 36px rgba(0,0,0,0.3);
+      padding: 8px;
+      max-height: 240px;
+      overflow: auto;
+    }
+    .multi-select__actions {
+      display: flex;
+      gap: 8px;
+      padding: 2px 2px 8px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(111,136,149,0.22);
+    }
+    .multi-select__action-btn {
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(111,136,149,0.28);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .multi-select__action-btn:hover {
+      border-color: rgba(79,209,181,0.34);
+      color: var(--accent);
+    }
+    .multi-select__option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .multi-select__option:hover {
+      background: rgba(255,255,255,0.04);
+    }
+    .multi-select__option input {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      accent-color: var(--accent);
+    }
     .grid-2, .grid-3 {
       display: grid;
       gap: 12px;
@@ -137,6 +222,7 @@
       font-size: 14px;
       font-weight: 700;
       margin-bottom: 6px;
+      color: var(--text);
     }
     .record-card__meta, .tiny {
       font-size: 12px;
@@ -231,22 +317,34 @@
       line-height: 1.6;
       margin-top: 8px;
     }
-    .state-main {
-      border-color: rgba(79,209,181,0.46);
-      background: rgba(79,209,181,0.12);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .state-pending {
+    .role-unclassified {
       border-color: rgba(217,181,108,0.42);
       background: rgba(217,181,108,0.12);
       color: var(--warn);
       font-weight: 700;
     }
-    .state-parked {
-      border-color: rgba(239,143,143,0.42);
-      background: rgba(239,143,143,0.12);
-      color: var(--danger);
+    .role-daily-raw {
+      border-color: rgba(110,184,229,0.46);
+      background: rgba(110,184,229,0.12);
+      color: #8fd3ff;
+      font-weight: 700;
+    }
+    .role-short-d {
+      border-color: rgba(79,209,181,0.46);
+      background: rgba(79,209,181,0.12);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .role-short-h4 {
+      border-color: rgba(79,209,181,0.46);
+      background: rgba(79,209,181,0.12);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .role-short-h1 {
+      border-color: rgba(147,171,255,0.42);
+      background: rgba(147,171,255,0.12);
+      color: #b9c8ff;
       font-weight: 700;
     }
     .mini-chart {
@@ -335,14 +433,24 @@
             </div>
             <div>
               <label>PDA Type</label>
-              <select id="pdaType">
-                <option value="">全部</option>
-                <option value="bsl">bsl</option>
-                <option value="ssl">ssl</option>
-                <option value="fvg">fvg</option>
-                <option value="nwog">nwog</option>
-                <option value="ndog">ndog</option>
-              </select>
+              <details class="multi-select" id="pdaTypeMulti">
+                <summary class="multi-select__button">
+                  <span class="multi-select__text" id="pdaTypeSummary">全部</span>
+                </summary>
+                <div class="multi-select__menu">
+                  <div class="multi-select__actions">
+                    <button class="multi-select__action-btn" id="pdaTypeSelectAllBtn" type="button">全选</button>
+                    <button class="multi-select__action-btn" id="pdaTypeClearBtn" type="button">清空</button>
+                  </div>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="daily_high" /> <span>daily_high</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="daily_low" /> <span>daily_low</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="bsl" /> <span>bsl</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="ssl" /> <span>ssl</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="fvg" /> <span>fvg</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="nwog" /> <span>nwog</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="ndog" /> <span>ndog</span></label>
+                </div>
+              </details>
             </div>
             <div>
               <label>Instrument</label>
@@ -363,12 +471,18 @@
 
           <div class="grid-2">
             <div>
-              <label>Review State</label>
-              <select id="filterReviewState">
+              <label>Review Role</label>
+              <select id="filterReviewRole">
                 <option value="">全部</option>
-                <option value="pending">待定</option>
-                <option value="main">主PDA</option>
-                <option value="parked">抛出</option>
+                <option value="unclassified">无分类</option>
+                <option value="daily_high">daily high</option>
+                <option value="daily_low">daily low</option>
+                <option value="d_short_high">日线短期高点</option>
+                <option value="d_short_low">日线短期低点</option>
+                <option value="h4_short_high">4H短期高点</option>
+                <option value="h4_short_low">4H短期低点</option>
+                <option value="h1_short_high">1H短期高点</option>
+                <option value="h1_short_low">1H短期低点</option>
               </select>
             </div>
           </div>
@@ -484,34 +598,32 @@
                 <div>
                   <div class="grid-3">
                     <div>
-                      <label>Review State</label>
-                      <select id="reviewState">
-                        <option value="pending">待定</option>
-                        <option value="main">进入主PDA</option>
-                        <option value="parked">临时抛出</option>
+                      <label>Review Role</label>
+                      <select id="reviewRole">
+                        <option value="unclassified">无分类</option>
                       </select>
                     </div>
                     <div>
                       <label>当前状态</label>
                       <div class="btn-row" style="margin-top:0;">
-                        <span class="pill state-pending" id="reviewStateBadge">待定</span>
+                        <span class="pill role-unclassified" id="reviewRoleBadge">无分类</span>
                       </div>
                     </div>
                     <div>
                       <label>提交状态</label>
                       <div class="btn-row" style="margin-top:0;">
-                        <button class="btn btn--primary" id="submitReviewStateBtn" type="button">确定</button>
+                        <button class="btn btn--primary" id="submitReviewRoleBtn" type="button">确定</button>
                       </div>
                     </div>
                   </div>
                   <div style="margin-top:12px;">
                     <label>Note</label>
-                    <textarea id="reviewNote" placeholder="记录这条 PDA 为什么进入主PDA，或为什么暂时抛出。"></textarea>
+                    <textarea id="reviewNote" placeholder="记录这条 PDA 为什么这样归类，或为什么先保持无分类。"></textarea>
                   </div>
                   <div class="btn-row">
                     <button class="btn btn--ghost" id="submitNoteBtn" type="button">提交 Note</button>
                   </div>
-                  <div class="hint">这里分成两次提交：上面提交是否进入主PDA，下面单独提交 Note。</div>
+                  <div class="hint" id="reviewRoleHint">这里分成两次提交：上面提交人工归类，下面单独提交 Note。</div>
                 </div>
                 <div>
                   <label id="reviewCompactChartLabel">快速K线预览</label>
@@ -560,23 +672,89 @@
     };
 
     const ruleMap = {
-      D: { left: 1, right: 2 },
+      D: { left: 1, right: 1 },
       '4H': { left: 2, right: 2 },
       '1H': { left: 3, right: 3 },
     };
+    const reviewRoleOrder = [
+      'unclassified',
+      'daily_high',
+      'daily_low',
+      'd_short_high',
+      'd_short_low',
+      'h4_short_high',
+      'h4_short_low',
+      'h1_short_high',
+      'h1_short_low',
+    ];
 
     const $ = id => document.getElementById(id);
 
-    function reviewStateLabel(value) {
-      if (value === 'main') return '进入主PDA';
-      if (value === 'parked') return '抛出';
-      return '待定';
+    function reviewRoleLabel(value) {
+      if (value === 'daily_high') return 'daily high';
+      if (value === 'daily_low') return 'daily low';
+      if (value === 'd_short_high') return '日线短期高点';
+      if (value === 'd_short_low') return '日线短期低点';
+      if (value === 'h4_short_high') return '4H短期高点';
+      if (value === 'h4_short_low') return '4H短期低点';
+      if (value === 'h1_short_high') return '1H短期高点';
+      if (value === 'h1_short_low') return '1H短期低点';
+      return '无分类';
     }
 
-    function reviewStateClass(value) {
-      if (value === 'main') return 'state-main';
-      if (value === 'parked') return 'state-parked';
-      return 'state-pending';
+    function reviewRoleClass(value) {
+      if (value === 'daily_high' || value === 'daily_low') return 'role-daily-raw';
+      if (value === 'd_short_high' || value === 'd_short_low') return 'role-short-d';
+      if (value === 'h4_short_high' || value === 'h4_short_low') return 'role-short-h4';
+      if (value === 'h1_short_high' || value === 'h1_short_low') return 'role-short-h1';
+      return 'role-unclassified';
+    }
+
+    function allowedReviewRoles(record) {
+      if (!record) return ['unclassified'];
+      if (record.pdaType === 'bsl' && record.timeframe === 'D') return ['unclassified', 'd_short_high'];
+      if (record.pdaType === 'ssl' && record.timeframe === 'D') return ['unclassified', 'd_short_low'];
+      if (record.pdaType === 'bsl' && record.timeframe === '4H') return ['unclassified', 'h4_short_high'];
+      if (record.pdaType === 'ssl' && record.timeframe === '4H') return ['unclassified', 'h4_short_low'];
+      if (record.pdaType === 'bsl' && record.timeframe === '1H') return ['unclassified', 'h1_short_high'];
+      if (record.pdaType === 'ssl' && record.timeframe === '1H') return ['unclassified', 'h1_short_low'];
+      return [];
+    }
+
+    function roleControlsEditable(record) {
+      return allowedReviewRoles(record).length > 0;
+    }
+
+    function populateReviewRoleSelect(record) {
+      const select = $('reviewRole');
+      const roles = allowedReviewRoles(record);
+      select.innerHTML = '';
+      if (!roles.length) {
+        const fallbackRole = record && record.reviewRole ? record.reviewRole : 'unclassified';
+        const option = document.createElement('option');
+        option.value = fallbackRole;
+        option.textContent = reviewRoleLabel(fallbackRole);
+        select.appendChild(option);
+        select.value = fallbackRole;
+        select.disabled = true;
+        $('submitReviewRoleBtn').disabled = true;
+        if (record && (record.pdaType === 'daily_high' || record.pdaType === 'daily_low')) {
+          $('reviewRoleHint').textContent = 'daily high / daily low 是客观点，自动记录，不参与人工归类；下面 Note 仍可单独提交。';
+        } else {
+          $('reviewRoleHint').textContent = '当前类型固定为无分类，不参与人工归类；下面 Note 仍可单独提交。';
+        }
+        return;
+      }
+      roles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role;
+        option.textContent = reviewRoleLabel(role);
+        select.appendChild(option);
+      });
+      select.disabled = false;
+      $('submitReviewRoleBtn').disabled = false;
+      select.value = roles.includes(record.reviewRole) ? record.reviewRole : 'unclassified';
+      $('reviewRoleHint').textContent = '这里分成两次提交：上面提交人工归类，下面单独提交 Note。';
     }
 
     function formatBytes(value) {
@@ -587,22 +765,37 @@
       return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
 
+    function getSelectedPdaTypes() {
+      return Array.from(document.querySelectorAll('.pda-type-option:checked')).map(input => input.value);
+    }
+
+    function updatePdaTypeSummary() {
+      const selected = getSelectedPdaTypes();
+      $('pdaTypeSummary').textContent = selected.length ? selected.join(', ') : '全部';
+    }
+
+    function setAllPdaTypes(checked) {
+      document.querySelectorAll('.pda-type-option').forEach(input => {
+        input.checked = checked;
+      });
+      updatePdaTypeSummary();
+    }
+
     function renderRecordSummary() {
       const root = $('recordSummary');
       if (!state.records.length) {
         root.innerHTML = '';
         return;
       }
-      const counts = { pending: 0, main: 0, parked: 0 };
+      const counts = Object.fromEntries(reviewRoleOrder.map(key => [key, 0]));
       state.records.forEach(record => {
-        const key = record.reviewState || 'pending';
+        const key = record.reviewRole || 'unclassified';
         if (counts[key] !== undefined) counts[key] += 1;
       });
-      root.innerHTML = `
-        <span class="pill state-pending">待定 ${counts.pending}</span>
-        <span class="pill state-main">主PDA ${counts.main}</span>
-        <span class="pill state-parked">抛出 ${counts.parked}</span>
-      `;
+      root.innerHTML = reviewRoleOrder
+        .filter(key => counts[key] > 0)
+        .map(key => `<span class="pill ${reviewRoleClass(key)}">${reviewRoleLabel(key)} ${counts[key]}</span>`)
+        .join(' ');
     }
 
     function setStatus(el, text, tone = '') {
@@ -712,15 +905,15 @@
       const params = new URLSearchParams();
       const instrument = $('instrument').value.trim();
       const timeframe = $('timeframe').value;
-      const pdaType = $('pdaType').value;
-      const reviewState = $('filterReviewState').value;
+      const pdaTypes = getSelectedPdaTypes();
+      const reviewRole = $('filterReviewRole').value;
       const dateFrom = $('dateFrom').value.trim();
       const dateTo = $('dateTo').value.trim();
       const limit = $('limit').value.trim() || '200';
       if (instrument) params.set('instrument', instrument);
       if (timeframe) params.set('timeframe', timeframe);
-      if (pdaType) params.set('type', pdaType);
-      if (reviewState) params.set('review_state', reviewState);
+      pdaTypes.forEach(value => params.append('type', value));
+      if (reviewRole) params.set('review_role', reviewRole);
       if (dateFrom) params.set('date_from', dateFrom);
       if (dateTo) params.set('date_to', dateTo);
       params.set('limit', limit);
@@ -756,7 +949,7 @@
             <span class="pill">${record.timeframe}</span>
             <span class="pill">${record.pdaType}</span>
             ${record.direction ? `<span class="pill">${record.direction}</span>` : ''}
-            <span class="pill ${reviewStateClass(record.reviewState)}">${reviewStateLabel(record.reviewState)}</span>
+            <span class="pill ${reviewRoleClass(record.reviewRole)}">${reviewRoleLabel(record.reviewRole)}</span>
             ${record.manualAdded ? `<span class="pill">manual</span>` : ''}
           </div>
           <div class="record-card__meta" style="margin-top:8px;">
@@ -799,6 +992,13 @@
           `焦点 bar 使用新 session 的开盘 bar：<strong>${record.anchorTime || record.anchorTs || '--'}</strong>。`,
           `Gap 本身来自前收盘与新开盘之间的区间：<strong>${record.prevCloseTime || '--'}</strong> -> <strong>${record.nextOpenTime || '--'}</strong>。`,
           `如果数据里不存在精确的 16:59 收盘，系统会保留实际命中的最近收盘时刻。`,
+        ].join('<br/>');
+      }
+      if (record.pdaType === 'daily_high' || record.pdaType === 'daily_low') {
+        return [
+          '这条记录是 <strong>日线原始高低点快照</strong>。',
+          `焦点 bar 就是当日日线 bar：<strong>${record.anchorTime || record.anchorTs || '--'}</strong>。`,
+          '它不要求满足 BSL / SSL 的 swing 条件；作用是把所有日线高低点都先入库，并自然包含那些后来被认定为日线短期高低点的点。',
         ].join('<br/>');
       }
       const rule = ruleMap[record.timeframe];
@@ -949,7 +1149,7 @@
       const fvgLineColor = 'rgba(120,214,194,0.96)';
       const gapLineColor = 'rgba(130,176,255,0.96)';
 
-      if (record && (record.pdaType === 'bsl' || record.pdaType === 'ssl')) {
+      if (record && ['bsl', 'ssl', 'daily_high', 'daily_low'].includes(record.pdaType)) {
         const level = Number(record.price ?? record.priceHigh ?? record.priceLow);
         if (Number.isFinite(level)) {
           const yy = y(level);
@@ -1025,7 +1225,7 @@
         ['Session Date', record.anchorSessionDate || record.tradeDate || record.createdDate || '--'],
         ['Anchor Bar Start', barStart],
         ['Confirm Bar Start Ts', confirmBarStart],
-        ['当前Review状态', reviewStateLabel(record.reviewState)],
+        ['当前人工归类', reviewRoleLabel(record.reviewRole)],
       ];
       if (isGapType) {
         keyFields.push(['Gap Start Ts', record.prevCloseTime || '--']);
@@ -1048,7 +1248,7 @@
         ['Timeframe', record.timeframe],
         ['Type', record.pdaType],
         ['Direction', record.direction || '--'],
-        ['Review State', reviewStateLabel(record.reviewState)],
+        ['Review Role', reviewRoleLabel(record.reviewRole)],
         ['Price', record.price ?? '--'],
         ['Price High', record.priceHigh ?? '--'],
         ['Price Low', record.priceLow ?? '--'],
@@ -1076,9 +1276,11 @@
       const rule = ruleMap[record.timeframe];
       const ruleBadge = isGapType
         ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.pdaType.toUpperCase()} · session gap</span></div>`
-        : (rule
+        : ((record.pdaType === 'daily_high' || record.pdaType === 'daily_low')
+          ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">D · raw daily point</span></div>`
+          : (rule
           ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.timeframe} · left=${rule.left} / right=${rule.right}</span></div>`
-          : '');
+          : ''));
       $('ruleSummary').innerHTML = ruleBadge + explainCandidate(record, neighborResult.bars || []);
 
       const tbody = $('barsTable');
@@ -1100,21 +1302,21 @@
       renderMiniChart(neighborResult.bars || []);
       renderCompactReviewChart(record, neighborResult.bars || []);
       $('reviewCompactChartLabel').textContent = `快速K线预览 - ${(record.pdaType || '--').toLowerCase()} - ${(record.timeframe || '--').toUpperCase()}`;
-      $('reviewState').value = record.reviewState || 'pending';
+      populateReviewRoleSelect(record);
       $('reviewNote').value = record.note || '';
-      $('reviewStateBadge').className = `pill ${reviewStateClass(record.reviewState)}`;
-      $('reviewStateBadge').textContent = reviewStateLabel(record.reviewState);
+      $('reviewRoleBadge').className = `pill ${reviewRoleClass(record.reviewRole)}`;
+      $('reviewRoleBadge').textContent = reviewRoleLabel(record.reviewRole);
     }
 
-    async function submitReviewState() {
+    async function submitReviewRole() {
       if (!state.selected) {
         setStatus($('detailStatus'), '先从左侧选一条记录，再做人工修订。', 'warn');
         return;
       }
       try {
         const api = $('apiBase').value.trim().replace(/\/$/, '');
-        const payload = { pdaId: state.selected.pdaId, reviewState: $('reviewState').value };
-        setStatus($('detailStatus'), `正在提交 ${state.selected.pdaId} 的 Review State...`);
+        const payload = { pdaId: state.selected.pdaId, reviewRole: $('reviewRole').value };
+        setStatus($('detailStatus'), `正在提交 ${state.selected.pdaId} 的人工归类...`);
         const updated = await postJson(`${api}/v2/pda_review`, payload);
         state.records = state.records.map(record => record.pdaId === updated.pdaId ? updated : record);
         state.selected = updated;
@@ -1122,9 +1324,9 @@
         const params = new URLSearchParams({ pda_id: updated.pdaId, before: '4', after: '4' });
         const neighborResult = await fetchJson(`${api}/v2/pda_neighbors?${params.toString()}`);
         renderDetail(updated, neighborResult);
-        setStatus($('detailStatus'), `已提交 <strong>${updated.pdaId}</strong> 的 Review State。`, 'ok');
+        setStatus($('detailStatus'), `已提交 <strong>${updated.pdaId}</strong> 的人工归类。`, 'ok');
       } catch (err) {
-        setStatus($('detailStatus'), `提交 Review State 失败：${err.message}`, 'danger');
+        setStatus($('detailStatus'), `提交人工归类失败：${err.message}`, 'danger');
       }
     }
 
@@ -1205,8 +1407,9 @@
 
     function clearFilters() {
       $('timeframe').value = '';
-      $('pdaType').value = '';
-      $('filterReviewState').value = '';
+      Array.from(document.querySelectorAll('.pda-type-option')).forEach(input => { input.checked = false; });
+      updatePdaTypeSummary();
+      $('filterReviewRole').value = '';
       $('instrument').value = 'NQ';
       $('dateFrom').value = '';
       $('dateTo').value = '';
@@ -1218,9 +1421,27 @@
     $('createRestorePointBtn').addEventListener('click', createRestorePoint);
     $('refreshRestorePointsBtn').addEventListener('click', loadRestorePoints);
     $('restoreSelectedBtn').addEventListener('click', restoreSelectedPoint);
-    $('submitReviewStateBtn').addEventListener('click', submitReviewState);
+    $('submitReviewRoleBtn').addEventListener('click', submitReviewRole);
     $('submitNoteBtn').addEventListener('click', submitNote);
     $('manualAddBtn').addEventListener('click', addManualPda);
+    $('pdaTypeSelectAllBtn').addEventListener('click', event => {
+      event.preventDefault();
+      setAllPdaTypes(true);
+    });
+    $('pdaTypeClearBtn').addEventListener('click', event => {
+      event.preventDefault();
+      setAllPdaTypes(false);
+    });
+    document.querySelectorAll('.pda-type-option').forEach(input => {
+      input.addEventListener('change', updatePdaTypeSummary);
+    });
+    document.addEventListener('click', event => {
+      const root = $('pdaTypeMulti');
+      if (!root.contains(event.target)) {
+        root.open = false;
+      }
+    });
+    updatePdaTypeSummary();
     loadRestorePoints();
   </script>
 </body>

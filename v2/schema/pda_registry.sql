@@ -18,8 +18,9 @@ create table if not exists pda_registry (
   status varchar not null default 'active',     -- active / archived / deleted_by_review
   manual_added boolean not null default false,
   manual_edited boolean not null default false,
-  review_state varchar not null default 'pending', -- pending / main / parked
-  review_tag varchar,                           -- eqh / eql / ''
+  review_state varchar not null default 'pending', -- legacy compatibility only
+  review_role varchar not null default 'unclassified',  -- unclassified / daily_high / daily_low / d_short_high / d_short_low / h4_short_high / h4_short_low / h1_short_high / h1_short_low
+  review_tag varchar,                           -- legacy / reserved
   prev_close_time timestamp,
   prev_close_price double,
   next_open_time timestamp,
@@ -69,5 +70,11 @@ create index if not exists idx_pda_registry_type_direction
 --   fvg
 --   nwog / ndog
 -- direction: bullish / bearish / neutral（bsl / ssl 可留空）
--- review_state: pending / main / parked
+-- review_state: legacy compatibility only
+-- review_role:
+--   unclassified
+--   daily_high / daily_low
+--   d_short_high / d_short_low
+--   h4_short_high / h4_short_low
+--   h1_short_high / h1_short_low
 -- status: active / archived / deleted_by_review (legacy compatibility)

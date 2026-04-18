@@ -8,8 +8,8 @@ Layer 1 rules:
 - Later tap/fill/invalidation belong to pda_events / Layer 2
 
 Current narrowed scope:
-- Auto scan only: bsl / ssl / fvg
-- nwog / ndog stay for later dedicated gap logic
+- Auto scan: daily_high / daily_low / bsl / ssl / fvg
+- nwog / ndog keep dedicated gap logic
 - 30m stays manual-only
 """
 
@@ -27,7 +27,7 @@ import duckdb
 
 SESSION_SHIFT_HOURS = 6
 SWING_RULES = {
-    "D": (1, 2),
+    "D": (1, 1),
     "4H": (2, 2),
     "1H": (3, 3),
 }
@@ -113,6 +113,7 @@ def ensure_registry_columns(target_conn: duckdb.DuckDBPyConnection) -> None:
         "manual_added": "boolean default false",
         "manual_edited": "boolean default false",
         "review_state": "varchar default 'pending'",
+        "review_role": "varchar default 'unclassified'",
         "review_tag": "varchar",
         "prev_close_time": "timestamp",
         "prev_close_price": "double",
@@ -378,6 +379,48 @@ def generate_id(counters: dict[tuple[str, str, str], int], bar_date: str, timefr
     return f"pda_{bar_date.replace('-', '')}_{timeframe}_{pda_type}_{counters[key]:03d}"
 
 
+def daily_point_records(bars: list[Bar], counters: dict[tuple[str, str, str], int]) -> list[dict]:
+    results: list[dict] = []
+    for bar in bars:
+        results.append(
+            make_record(
+                pda_id=generate_id(counters, bar.bar_date, "D", "daily_high"),
+                instrument="NQ_PLACEHOLDER",
+                timeframe="D",
+                pda_type="daily_high",
+                direction=None,
+                trade_date=bar.bar_date,
+                anchor_time=bar.bucket_start,
+                confirm_time=None,
+                price=bar.high,
+                price_high=bar.high,
+                price_low=bar.high,
+                price_ce=bar.high,
+                review_role="daily_high",
+                source="auto_scan",
+            )
+        )
+        results.append(
+            make_record(
+                pda_id=generate_id(counters, bar.bar_date, "D", "daily_low"),
+                instrument="NQ_PLACEHOLDER",
+                timeframe="D",
+                pda_type="daily_low",
+                direction=None,
+                trade_date=bar.bar_date,
+                anchor_time=bar.bucket_start,
+                confirm_time=None,
+                price=bar.low,
+                price_high=bar.low,
+                price_low=bar.low,
+                price_ce=bar.low,
+                review_role="daily_low",
+                source="auto_scan",
+            )
+        )
+    return results
+
+
 def swing_records(bars: list[Bar], timeframe: str, counters: dict[tuple[str, str, str], int]) -> list[dict]:
     left, right = SWING_RULES[timeframe]
     results: list[dict] = []
@@ -494,6 +537,7 @@ def make_record(
     next_open_price: float | None = None,
     status: str = "active",
     review_state: str = "pending",
+    review_role: str = "unclassified",
     source: str = "auto_scan",
     note: str = "",
 ) -> dict:
@@ -510,6 +554,7 @@ def make_record(
         "manual_added": False,
         "manual_edited": False,
         "review_state": review_state,
+        "review_role": review_role,
         "created_date": trade_date,
         "created_ts": anchor_time,
         "verified_ts": confirm_time,
@@ -556,6 +601,7 @@ def insert_records(conn: duckdb.DuckDBPyConnection, records: list[dict]) -> None
             rec["manual_added"],
             rec["manual_edited"],
             rec["review_state"],
+            rec["review_role"],
             rec["created_date"],
             rec["created_ts"],
             rec["verified_ts"],
@@ -580,13 +626,13 @@ def insert_records(conn: duckdb.DuckDBPyConnection, records: list[dict]) -> None
         """
         insert into pda_registry (
           pda_id, instrument, timeframe, pda_type, direction,
-          trade_date, anchor_time, confirm_time, status, manual_added, manual_edited, review_state,
+          trade_date, anchor_time, confirm_time, status, manual_added, manual_edited, review_state, review_role,
           created_date, created_ts, verified_ts, anchor_ts,
           origin_start_date, origin_end_date,
           price, price_high, price_low, price_ce,
           prev_close_time, prev_close_price, next_open_time, next_open_price,
           source, note, registry_status
-        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows,
     )
@@ -631,6 +677,8 @@ def main() -> None:
             date_to,
         )
         tf_records = []
+        if timeframe == "D":
+            tf_records.extend(daily_point_records(bars, counters))
         tf_records.extend(swing_records(bars, timeframe, counters))
         tf_records.extend(fvg_records(bars, timeframe, counters))
         if timeframe == "D":

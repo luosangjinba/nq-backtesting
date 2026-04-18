@@ -27,6 +27,17 @@ V2_BAR_BUCKET_MINUTES = {"D": 24 * 60, "4H": 4 * 60, "1H": 60, "30M": 30}
 MANUAL_PDA_TYPES = {"bsl", "ssl", "fvg"}
 MANUAL_PDA_TIMEFRAMES = {"D", "4H", "1H", "30M"}
 REVIEW_STATES = {"pending", "main", "parked"}
+REVIEW_ROLES = {
+    "unclassified",
+    "daily_high",
+    "daily_low",
+    "d_short_high",
+    "d_short_low",
+    "h4_short_high",
+    "h4_short_low",
+    "h1_short_high",
+    "h1_short_low",
+}
 SESSION_DAY_SHIFT_HOURS = 6
 ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
@@ -140,6 +151,16 @@ def validate_review_state(value: str) -> str:
     return text
 
 
+def validate_review_role(value: str) -> str:
+    text = (value or "").strip().lower()
+    if text not in REVIEW_ROLES:
+        raise ValueError(
+            "reviewRole must be unclassified/daily_high/daily_low/"
+            "d_short_high/d_short_low/h4_short_high/h4_short_low/h1_short_high/h1_short_low"
+        )
+    return text
+
+
 def normalize_note(value: object) -> str:
     text = str(value or "").strip()
     if len(text) > 1000:
@@ -219,6 +240,70 @@ def session_date_from_timestamp(ts: datetime) -> str:
     return (ts + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
 
 
+def normalize_review_role(
+    review_role: str | None,
+    review_state: str | None,
+    timeframe: str | None,
+    pda_type: str | None,
+) -> str:
+    role = (review_role or "").strip().lower()
+    tf = (timeframe or "").strip().upper()
+    pda = (pda_type or "").strip().lower()
+    if role:
+        migration_map = {
+            "pending": "unclassified",
+            "daily_short_high": "d_short_high",
+            "daily_short_low": "d_short_low",
+            "h4_main_pda": "h4_short_high" if pda == "bsl" else ("h4_short_low" if pda == "ssl" else "unclassified"),
+            "h1_main_pda": "h1_short_high" if pda == "bsl" else ("h1_short_low" if pda == "ssl" else "unclassified"),
+        }
+        return migration_map.get(role, role)
+    state = (review_state or "").strip().lower()
+    if pda == "daily_high":
+        return "daily_high"
+    if pda == "daily_low":
+        return "daily_low"
+    if state == "main":
+        if tf == "D" and pda == "bsl":
+            return "d_short_high"
+        if tf == "D" and pda == "ssl":
+            return "d_short_low"
+        if tf == "4H" and pda == "bsl":
+            return "h4_short_high"
+        if tf == "4H" and pda == "ssl":
+            return "h4_short_low"
+        if tf == "1H" and pda == "bsl":
+            return "h1_short_high"
+        if tf == "1H" and pda == "ssl":
+            return "h1_short_low"
+    return "unclassified"
+
+
+def legacy_review_state_from_role(review_role: str | None) -> str:
+    role = (review_role or "").strip().lower()
+    if role in {"d_short_high", "d_short_low", "h4_short_high", "h4_short_low", "h1_short_high", "h1_short_low"}:
+        return "main"
+    return "pending"
+
+
+def allowed_review_roles_for_record(timeframe: str | None, pda_type: str | None) -> list[str]:
+    tf = (timeframe or "").strip().upper()
+    pda = (pda_type or "").strip().lower()
+    if tf == "D" and pda == "bsl":
+        return ["unclassified", "d_short_high"]
+    if tf == "D" and pda == "ssl":
+        return ["unclassified", "d_short_low"]
+    if tf == "4H" and pda == "bsl":
+        return ["unclassified", "h4_short_high"]
+    if tf == "4H" and pda == "ssl":
+        return ["unclassified", "h4_short_low"]
+    if tf == "1H" and pda == "bsl":
+        return ["unclassified", "h1_short_high"]
+    if tf == "1H" and pda == "ssl":
+        return ["unclassified", "h1_short_low"]
+    return []
+
+
 def resolve_restore_root(v2_db_path: str, configured_restore_dir: str) -> Path:
     if configured_restore_dir.strip():
         return Path(configured_restore_dir)
@@ -263,6 +348,7 @@ def ensure_v2_registry_columns(db_path: str) -> None:
             "manual_added": "boolean default false",
             "manual_edited": "boolean default false",
             "review_state": "varchar default 'pending'",
+            "review_role": "varchar default 'unclassified'",
             "review_tag": "varchar",
             "prev_close_time": "timestamp",
             "prev_close_price": "double",
@@ -277,7 +363,32 @@ def ensure_v2_registry_columns(db_path: str) -> None:
             update pda_registry
             set review_state = 'pending'
             where coalesce(review_state, '') = ''
-               or (review_state = 'main' and coalesce(manual_edited, false) = false and coalesce(manual_added, false) = false)
+            """
+        )
+        conn.execute(
+            """
+            update pda_registry
+            set review_role = case
+              when lower(coalesce(review_role, '')) = 'pending' then 'unclassified'
+              when lower(coalesce(review_role, '')) = 'daily_short_high' then 'd_short_high'
+              when lower(coalesce(review_role, '')) = 'daily_short_low' then 'd_short_low'
+              when lower(coalesce(review_role, '')) = 'h4_main_pda' and pda_type = 'bsl' then 'h4_short_high'
+              when lower(coalesce(review_role, '')) = 'h4_main_pda' and pda_type = 'ssl' then 'h4_short_low'
+              when lower(coalesce(review_role, '')) = 'h1_main_pda' and pda_type = 'bsl' then 'h1_short_high'
+              when lower(coalesce(review_role, '')) = 'h1_main_pda' and pda_type = 'ssl' then 'h1_short_low'
+              when coalesce(review_role, '') <> '' then lower(review_role)
+              when pda_type = 'daily_high' then 'daily_high'
+              when pda_type = 'daily_low' then 'daily_low'
+              when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = 'D' and pda_type = 'bsl' then 'd_short_high'
+              when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = 'D' and pda_type = 'ssl' then 'd_short_low'
+              when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = '4H' and pda_type = 'bsl' then 'h4_short_high'
+              when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = '4H' and pda_type = 'ssl' then 'h4_short_low'
+              when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = '1H' and pda_type = 'bsl' then 'h1_short_high'
+              when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = '1H' and pda_type = 'ssl' then 'h1_short_low'
+              else 'unclassified'
+            end
+            where coalesce(review_role, '') = ''
+               or lower(review_role) in ('pending', 'daily_short_high', 'daily_short_low', 'h4_main_pda', 'h1_main_pda')
             """
         )
 
@@ -482,14 +593,37 @@ def query_v2_pda_records(
     v2_db_path: str,
     instrument: str,
     timeframe: str,
-    pda_type: str,
-    review_state: str,
+    pda_types: list[str],
+    review_role: str,
     date_from: str,
     date_to: str,
     limit: int,
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
-    sql = """
+    clauses = [
+        "(? = '' or instrument = ?)",
+        "(? = '' or timeframe = ?)",
+        "(? = '' or coalesce(trade_date, created_date) >= cast(? as date))",
+        "(? = '' or coalesce(trade_date, created_date) <= cast(? as date))",
+    ]
+    params: list[object] = [
+        instrument,
+        instrument,
+        timeframe,
+        timeframe,
+        date_from,
+        date_from,
+        date_to,
+        date_to,
+    ]
+    if pda_types:
+        placeholders = ",".join("?" for _ in pda_types)
+        clauses.append(f"pda_type in ({placeholders})")
+        params.extend(pda_types)
+    if review_role:
+        clauses.append("(coalesce(review_role, '') = ? or (? = 'unclassified' and coalesce(review_role, '') = ''))")
+        params.extend([review_role, review_role])
+    sql = f"""
 	select
 	  pda_id,
 	  instrument,
@@ -503,6 +637,7 @@ def query_v2_pda_records(
 	  manual_added,
 	  manual_edited,
 	  review_state,
+	  review_role,
 	  review_tag,
 	  created_date,
 	  created_ts,
@@ -522,34 +657,13 @@ def query_v2_pda_records(
 	  source,
 	  note
 	from pda_registry
-	where (? = '' or instrument = ?)
-	  and (? = '' or timeframe = ?)
-	  and (? = '' or pda_type = ?)
-	  and (? = '' or coalesce(review_state, 'pending') = ?)
-	  and (? = '' or coalesce(trade_date, created_date) >= cast(? as date))
-	  and (? = '' or coalesce(trade_date, created_date) <= cast(? as date))
+	where {" and ".join(clauses)}
 	order by coalesce(anchor_time, created_ts, cast(coalesce(trade_date, created_date) as timestamp)) asc, pda_id asc
 	limit ?
 	""".strip()
+    params.append(limit)
     with open_db(v2_db_path) as conn:
-        rows = conn.execute(
-            sql,
-            [
-                instrument,
-                instrument,
-                timeframe,
-                timeframe,
-                pda_type,
-                pda_type,
-                review_state,
-                review_state,
-                date_from,
-                date_from,
-                date_to,
-                date_to,
-                limit,
-            ],
-        ).fetchall()
+        rows = conn.execute(sql, params).fetchall()
     records = []
     for row in rows:
         anchor_time = row[6].strftime("%Y-%m-%d %H:%M:%S") if row[6] else ""
@@ -560,6 +674,7 @@ def query_v2_pda_records(
             anchor_session_date = (row[6] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
         if row[7]:
             confirm_session_date = (row[7] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
+        resolved_review_role = normalize_review_role(row[12], row[11], row[2], row[3])
         records.append(
             {
                 "pdaId": row[0],
@@ -575,25 +690,26 @@ def query_v2_pda_records(
                 "status": row[8],
                 "manualAdded": bool(row[9]) if row[9] is not None else False,
                 "manualEdited": bool(row[10]) if row[10] is not None else False,
-                "reviewState": (row[11] or "pending").lower(),
-                "reviewTag": (row[12] or "").lower(),
-                "createdDate": row[13].strftime("%Y-%m-%d") if row[13] else "",
-                "createdTs": row[14].strftime("%Y-%m-%d %H:%M:%S") if row[14] else "",
-                "verifiedTs": row[15].strftime("%Y-%m-%d %H:%M:%S") if row[15] else "",
-                "anchorTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
-                "originStartDate": row[17].strftime("%Y-%m-%d") if row[17] else "",
-                "originEndDate": row[18].strftime("%Y-%m-%d") if row[18] else "",
-                "price": float(row[19]) if row[19] is not None else None,
-                "priceHigh": float(row[20]) if row[20] is not None else None,
-                "priceLow": float(row[21]) if row[21] is not None else None,
-                "priceCe": float(row[22]) if row[22] is not None else None,
-                "prevCloseTime": row[23].strftime("%Y-%m-%d %H:%M:%S") if row[23] else "",
-                "prevClosePrice": float(row[24]) if row[24] is not None else None,
-                "nextOpenTime": row[25].strftime("%Y-%m-%d %H:%M:%S") if row[25] else "",
-                "nextOpenPrice": float(row[26]) if row[26] is not None else None,
-                "registryStatus": row[27],
-                "source": row[28],
-                "note": row[29] or "",
+                "reviewState": legacy_review_state_from_role(resolved_review_role),
+                "reviewRole": resolved_review_role,
+                "reviewTag": (row[13] or "").lower(),
+                "createdDate": row[14].strftime("%Y-%m-%d") if row[14] else "",
+                "createdTs": row[15].strftime("%Y-%m-%d %H:%M:%S") if row[15] else "",
+                "verifiedTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
+                "anchorTs": row[17].strftime("%Y-%m-%d %H:%M:%S") if row[17] else "",
+                "originStartDate": row[18].strftime("%Y-%m-%d") if row[18] else "",
+                "originEndDate": row[19].strftime("%Y-%m-%d") if row[19] else "",
+                "price": float(row[20]) if row[20] is not None else None,
+                "priceHigh": float(row[21]) if row[21] is not None else None,
+                "priceLow": float(row[22]) if row[22] is not None else None,
+                "priceCe": float(row[23]) if row[23] is not None else None,
+                "prevCloseTime": row[24].strftime("%Y-%m-%d %H:%M:%S") if row[24] else "",
+                "prevClosePrice": float(row[25]) if row[25] is not None else None,
+                "nextOpenTime": row[26].strftime("%Y-%m-%d %H:%M:%S") if row[26] else "",
+                "nextOpenPrice": float(row[27]) if row[27] is not None else None,
+                "registryStatus": row[28],
+                "source": row[29],
+                "note": row[30] or "",
             }
         )
     return {"records": records}
@@ -615,6 +731,7 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
       manual_added,
       manual_edited,
       review_state,
+      review_role,
       review_tag,
       created_date,
       created_ts,
@@ -648,6 +765,7 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
             anchor_session_date = (row[6] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
         if row[7]:
             confirm_session_date = (row[7] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
+        resolved_review_role = normalize_review_role(row[12], row[11], row[2], row[3])
         return {
             "pdaId": row[0],
             "instrument": row[1],
@@ -662,25 +780,26 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
             "status": row[8],
             "manualAdded": bool(row[9]) if row[9] is not None else False,
             "manualEdited": bool(row[10]) if row[10] is not None else False,
-            "reviewState": (row[11] or "pending").lower(),
-            "reviewTag": (row[12] or "").lower(),
-            "createdDate": row[13].strftime("%Y-%m-%d") if row[13] else "",
-            "createdTs": row[14].strftime("%Y-%m-%d %H:%M:%S") if row[14] else "",
-            "verifiedTs": row[15].strftime("%Y-%m-%d %H:%M:%S") if row[15] else "",
-            "anchorTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
-            "originStartDate": row[17].strftime("%Y-%m-%d") if row[17] else "",
-            "originEndDate": row[18].strftime("%Y-%m-%d") if row[18] else "",
-            "price": float(row[19]) if row[19] is not None else None,
-            "priceHigh": float(row[20]) if row[20] is not None else None,
-            "priceLow": float(row[21]) if row[21] is not None else None,
-            "priceCe": float(row[22]) if row[22] is not None else None,
-            "prevCloseTime": row[23].strftime("%Y-%m-%d %H:%M:%S") if row[23] else "",
-            "prevClosePrice": float(row[24]) if row[24] is not None else None,
-            "nextOpenTime": row[25].strftime("%Y-%m-%d %H:%M:%S") if row[25] else "",
-            "nextOpenPrice": float(row[26]) if row[26] is not None else None,
-            "registryStatus": row[27],
-            "source": row[28],
-            "note": row[29] or "",
+            "reviewState": legacy_review_state_from_role(resolved_review_role),
+            "reviewRole": resolved_review_role,
+            "reviewTag": (row[13] or "").lower(),
+            "createdDate": row[14].strftime("%Y-%m-%d") if row[14] else "",
+            "createdTs": row[15].strftime("%Y-%m-%d %H:%M:%S") if row[15] else "",
+            "verifiedTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
+            "anchorTs": row[17].strftime("%Y-%m-%d %H:%M:%S") if row[17] else "",
+            "originStartDate": row[18].strftime("%Y-%m-%d") if row[18] else "",
+            "originEndDate": row[19].strftime("%Y-%m-%d") if row[19] else "",
+            "price": float(row[20]) if row[20] is not None else None,
+            "priceHigh": float(row[21]) if row[21] is not None else None,
+            "priceLow": float(row[22]) if row[22] is not None else None,
+            "priceCe": float(row[23]) if row[23] is not None else None,
+            "prevCloseTime": row[24].strftime("%Y-%m-%d %H:%M:%S") if row[24] else "",
+            "prevClosePrice": float(row[25]) if row[25] is not None else None,
+            "nextOpenTime": row[26].strftime("%Y-%m-%d %H:%M:%S") if row[26] else "",
+            "nextOpenPrice": float(row[27]) if row[27] is not None else None,
+            "registryStatus": row[28],
+            "source": row[29],
+            "note": row[30] or "",
         }
     raise LookupError("pda record not found")
 
@@ -688,30 +807,37 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
 def update_v2_pda_review(
     v2_db_path: str,
     pda_id: str,
-    review_state: str | None = None,
+    review_role: str | None = None,
     note: str | None = None,
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     with duckdb.connect(v2_db_path) as conn:
         row = conn.execute(
-            "select review_state, note from pda_registry where pda_id = ?",
+            "select review_role, review_state, note, timeframe, pda_type from pda_registry where pda_id = ?",
             [pda_id],
         ).fetchone()
         if not row:
             raise LookupError("pda record not found")
-        next_review_state = review_state if review_state is not None else (row[0] or "pending")
-        next_note = note if note is not None else (row[1] or "")
+        next_review_role = review_role if review_role is not None else normalize_review_role(row[0], row[1], row[3], row[4])
+        if review_role is not None:
+            allowed_roles = allowed_review_roles_for_record(row[3], row[4])
+            if not allowed_roles:
+                raise ValueError("this pda type does not support manual review role changes")
+            if next_review_role not in allowed_roles:
+                raise ValueError(f"reviewRole {next_review_role} is not allowed for {row[3]} {row[4]}")
+        next_note = note if note is not None else (row[2] or "")
         conn.execute(
             """
             update pda_registry
             set
               review_state = ?,
+              review_role = ?,
               note = ?,
               manual_edited = true,
               updated_at = current_timestamp
             where pda_id = ?
             """.strip(),
-            [next_review_state, next_note, pda_id],
+            [legacy_review_state_from_role(next_review_role), next_review_role, next_note, pda_id],
         )
     return query_v2_pda_record(v2_db_path, pda_id)
 
@@ -784,13 +910,13 @@ def create_v2_manual_pda(
             """
             insert into pda_registry (
               pda_id, instrument, timeframe, pda_type, direction,
-              trade_date, anchor_time, confirm_time, status, manual_added, manual_edited, review_state,
+              trade_date, anchor_time, confirm_time, status, manual_added, manual_edited, review_state, review_role,
               created_date, created_ts, verified_ts, anchor_ts,
               origin_start_date, origin_end_date,
               price, price_high, price_low, price_ce,
               prev_close_time, prev_close_price, next_open_time, next_open_price,
               source, note, registry_status
-            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """.strip(),
             [
                 pda_id,
@@ -805,6 +931,7 @@ def create_v2_manual_pda(
                 True,
                 False,
                 "pending",
+                "unclassified",
                 trade_date,
                 anchor_time,
                 confirm_time,
@@ -1144,14 +1271,14 @@ class Handler(BaseHTTPRequestHandler):
                 params = parse_qs(parsed.query)
                 instrument = validate_instrument(params.get("instrument", [""])[0]) if params.get("instrument", [""])[0] else ""
                 timeframe = params.get("timeframe", [""])[0].strip().upper()
-                pda_type = params.get("type", [""])[0].strip().lower()
-                review_state = params.get("review_state", [""])[0].strip().lower()
-                if review_state:
-                    review_state = validate_review_state(review_state)
+                pda_types = [value.strip().lower() for value in params.get("type", []) if value.strip()]
+                review_role = params.get("review_role", [""])[0].strip().lower()
+                if review_role:
+                    review_role = validate_review_role(review_role)
                 date_from = validate_date(params.get("date_from", [""])[0]) if params.get("date_from", [""])[0] else ""
                 date_to = validate_date(params.get("date_to", [""])[0]) if params.get("date_to", [""])[0] else ""
                 limit = min(max(int(params.get("limit", ["200"])[0]), 1), 1000)
-                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_type, review_state, date_from, date_to, limit)
+                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
@@ -1261,13 +1388,13 @@ class Handler(BaseHTTPRequestHandler):
                 payload = self.rfile.read(content_length)
                 body = json.loads(payload.decode("utf-8"))
                 pda_id = validate_pda_id(body.get("pdaId", ""))
-                review_state = None
-                if "reviewState" in body:
-                    review_state = validate_review_state(body.get("reviewState", "pending"))
+                review_role = None
+                if "reviewRole" in body:
+                    review_role = validate_review_role(body.get("reviewRole", "unclassified"))
                 note = None
                 if "note" in body:
                     note = normalize_note(body.get("note", ""))
-                result = update_v2_pda_review(self.v2_db_path, pda_id, review_state, note)
+                result = update_v2_pda_review(self.v2_db_path, pda_id, review_role, note)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
