@@ -219,6 +219,7 @@ from bars;
 
 - [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)
 - [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html)
+- [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html)
 
 先把 CSV 导入 DuckDB：
 
@@ -258,6 +259,125 @@ curl -s 'http://127.0.0.1:8765/health'
 
 ```bash
 curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf=5&field=high'
+```
+
+## PDA Review 工作流
+
+当前 V2 PDA review 的核心文件：
+
+- [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html)
+- [v2/scripts/scan_layer1_pda.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/scan_layer1_pda.py)
+- [v2/scripts/check_pda_scan.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/check_pda_scan.py)
+- [v2/schema/pda_registry.sql](/home/leo/myworkspace/trading/backtesting/v2/schema/pda_registry.sql)
+- [architect/20260417分步实施方案.md](/home/leo/myworkspace/trading/backtesting/architect/20260417分步实施方案.md)
+- [architect/全量扫描前抽查清单.md](/home/leo/myworkspace/trading/backtesting/architect/全量扫描前抽查清单.md)
+
+### Linux 重开后如何启动
+
+如果只是继续做 `PDA review`，最直接的启动方式是：
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting
+python3 price_lookup_api.py \
+  --host 127.0.0.1 \
+  --port 8765 \
+  --db-file trading_data.duckdb \
+  --table futures_1m \
+  --v2-db-file v2/data/v2_research.duckdb
+```
+
+然后直接在浏览器打开：
+
+- [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html)
+
+页面里的 `API Base` 设为：
+
+```text
+http://127.0.0.1:8765
+```
+
+### Windows 上如何启动
+
+Windows 继续可以使用：
+
+- [start_all.bat](/home/leo/myworkspace/trading/backtesting/start_all.bat)
+
+它会启动：
+
+- [start_api.bat](/home/leo/myworkspace/trading/backtesting/start_api.bat)
+- [start_ui.bat](/home/leo/myworkspace/trading/backtesting/start_ui.bat)
+
+启动后：
+
+- `yaml_panel.html` 打开地址是：
+  - `http://127.0.0.1:8000/yaml_panel.html`
+- `pda_review.html` 打开地址是：
+  - `http://127.0.0.1:8000/v2/docs/pda_review.html`
+
+如果只想重启 API，不想重启 UI，可以直接用：
+
+- [restart_api.bat](/home/leo/myworkspace/trading/backtesting/restart_api.bat)
+
+### 当前 PDA Review 能做什么
+
+当前页面已支持：
+
+- 查看 `bsl / ssl / fvg / nwog / ndog`
+- 查看左右邻居 bars
+- 小型快速 K 线预览
+- `review_state` 三态：
+  - `pending`
+  - `main`
+  - `parked`
+- 单独提交 `Review State`
+- 单独提交 `Note`
+- 手工新增：
+  - `bsl`
+  - `ssl`
+  - `fvg`
+- `30m` 手工补录
+- 创建 / 列出 / 恢复数据库还原点
+
+### 还原点
+
+`pda_review.html` 左侧已支持整库快照式还原点：
+
+- 创建还原点
+- 列出还原点
+- 恢复选中还原点
+
+默认目录：
+
+- [v2/data/restore_points](/home/leo/myworkspace/trading/backtesting/v2/data/restore_points:1)
+
+恢复时会自动先创建一个“恢复前快照”，再覆盖当前正式库。
+
+## 如何让下次更丝滑接管
+
+想让新会话重新打开后还能快速接手，最稳的做法是三件事一起做：
+
+1. 保持关键文档是最新的
+
+- [readme.md](/home/leo/myworkspace/trading/backtesting/readme.md)
+- [architect/20260417分步实施方案.md](/home/leo/myworkspace/trading/backtesting/architect/20260417分步实施方案.md)
+- [architect/全量扫描前抽查清单.md](/home/leo/myworkspace/trading/backtesting/architect/全量扫描前抽查清单.md)
+
+2. 关键代码和文档及时提交到 git
+
+- 这样新会话可以直接从提交历史理解“做到哪一步”
+
+3. 重新打开时把这三类信息明确告诉我
+
+- 你当前要继续哪个模块
+- 你最近一次筛选的是哪一年 / 哪段数据
+- 你希望我先做代码、文档、还是流程判断
+
+如果你能再附一句像下面这样的上下文，接管会非常顺：
+
+```text
+继续 PDA review 主线。
+API 用 8765，正式库是 v2/data/v2_research.duckdb。
+我刚筛完 2024 年，下一步想收 PDA 筛选阶段完成标准。
 ```
 
 页面中的“价格查询助手”现在已经改成通过本地 API 查 DuckDB，不再依赖单独的数据库服务。

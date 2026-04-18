@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDA Review</title>
+  <style>
+    :root {
+      --bg: #18232b;
+      --panel: #243742;
+      --panel-soft: #304752;
+      --line: #6f8895;
+      --text: #f4f1ea;
+      --muted: #9db0b7;
+      --accent: #4fd1b5;
+      --warn: #d9b56c;
+      --danger: #ef8f8f;
+      --ok: #7fd4b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .shell { max-width: 1580px; margin: 0 auto; padding: 20px; }
+    .hero, .panel {
+      border: 1px solid rgba(111, 136, 149, 0.7);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+    }
+    .hero { padding: 18px 20px; margin-bottom: 18px; }
+    .eyebrow {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+    }
+    .title { margin: 8px 0 6px; font-size: 26px; }
+    .desc { color: var(--muted); line-height: 1.7; margin: 0; }
+    .layout {
+      display: grid;
+      grid-template-columns: 430px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .panel__header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid rgba(111, 136, 149, 0.28);
+    }
+    .panel__title {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0.04em;
+    }
+    .panel__body { padding: 16px 18px 18px; }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+    }
+    input, select, button {
+      font: inherit;
+    }
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 10px 12px;
+    }
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .btn {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .btn--primary {
+      background: rgba(79, 209, 181, 0.18);
+      border-color: rgba(79, 209, 181, 0.34);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .btn--ghost {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(111,136,149,0.28);
+      color: var(--muted);
+    }
+    .status {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(111,136,149,0.3);
+      background: rgba(0,0,0,0.12);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+    .status--ok { color: var(--ok); }
+    .status--warn { color: var(--warn); }
+    .status--danger { color: var(--danger); }
+    .record-list {
+      display: grid;
+      gap: 10px;
+      max-height: 70vh;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .record-card {
+      border: 1px solid rgba(111,136,149,0.35);
+      border-radius: 14px;
+      background: rgba(24,35,43,0.3);
+      padding: 12px 13px;
+      cursor: pointer;
+    }
+    .record-card.active {
+      border-color: rgba(79,209,181,0.65);
+      box-shadow: 0 0 0 1px rgba(79,209,181,0.2) inset;
+      background: rgba(34,56,64,0.72);
+    }
+    .record-card__title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .record-card__meta, .tiny {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(111,136,149,0.35);
+      background: rgba(24,35,43,0.34);
+      font-size: 12px;
+      color: var(--text);
+    }
+    .pill--accent {
+      border-color: rgba(79,209,181,0.46);
+      background: rgba(79,209,181,0.12);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .detail-box {
+      border: 1px solid rgba(111,136,149,0.3);
+      border-radius: 14px;
+      background: rgba(24,35,43,0.3);
+      padding: 12px;
+    }
+    .detail-box__label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .detail-box__value {
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(111,136,149,0.18);
+    }
+    th { color: var(--muted); font-weight: 600; }
+    tr.focus { background: rgba(79,209,181,0.08); }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+    }
+    .section {
+      border: 1px solid rgba(111,136,149,0.3);
+      border-radius: 16px;
+      background: rgba(24,35,43,0.28);
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .section h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    textarea {
+      width: 100%;
+      min-height: 108px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 10px 12px;
+      resize: vertical;
+      font: inherit;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .state-main {
+      border-color: rgba(79,209,181,0.46);
+      background: rgba(79,209,181,0.12);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .state-pending {
+      border-color: rgba(217,181,108,0.42);
+      background: rgba(217,181,108,0.12);
+      color: var(--warn);
+      font-weight: 700;
+    }
+    .state-parked {
+      border-color: rgba(239,143,143,0.42);
+      background: rgba(239,143,143,0.12);
+      color: var(--danger);
+      font-weight: 700;
+    }
+    .mini-chart {
+      width: 100%;
+      min-height: 260px;
+      border: 1px solid rgba(111,136,149,0.24);
+      border-radius: 14px;
+      background: rgba(8,14,18,0.28);
+      padding: 8px;
+    }
+    .mini-chart svg {
+      display: block;
+      width: 100%;
+      height: 260px;
+    }
+    .review-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      gap: 14px;
+      align-items: start;
+    }
+    .review-compact-chart {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 1px solid rgba(111,136,149,0.24);
+      border-radius: 14px;
+      background: #171919;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .review-compact-chart svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .key-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr; }
+      .record-list { max-height: none; }
+      .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .key-facts { grid-template-columns: 1fr; }
+      .review-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Layer 1 Review</div>
+      <h1 class="title">PDA Registry Review</h1>
+      <p class="desc">用来核对第一层机械扫描结果：左侧筛记录，右侧看该条 PDA 的详细字段、对应 bars、以及左右邻居是否真的满足当前周期规则。</p>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">筛选与记录列表</h2>
+        </div>
+        <div class="panel__body">
+          <div class="grid-2">
+            <div>
+              <label>API Base</label>
+              <input id="apiBase" value="http://127.0.0.1:8765" />
+            </div>
+            <div>
+              <label>Limit</label>
+              <input id="limit" type="number" min="1" max="1000" value="200" />
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div>
+              <label>Timeframe</label>
+              <select id="timeframe">
+                <option value="">全部</option>
+                <option value="D">D</option>
+                <option value="4H">4H</option>
+                <option value="1H">1H</option>
+                <option value="30M">30m</option>
+              </select>
+            </div>
+            <div>
+              <label>PDA Type</label>
+              <select id="pdaType">
+                <option value="">全部</option>
+                <option value="bsl">bsl</option>
+                <option value="ssl">ssl</option>
+                <option value="fvg">fvg</option>
+                <option value="nwog">nwog</option>
+                <option value="ndog">ndog</option>
+              </select>
+            </div>
+            <div>
+              <label>Instrument</label>
+              <input id="instrument" value="NQ" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Date From</label>
+              <input id="dateFrom" value="2024-10-01" />
+            </div>
+            <div>
+              <label>Date To</label>
+              <input id="dateTo" value="2024-11-30" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Review State</label>
+              <select id="filterReviewState">
+                <option value="">全部</option>
+                <option value="pending">待定</option>
+                <option value="main">主PDA</option>
+                <option value="parked">抛出</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn--primary" id="loadBtn">加载记录</button>
+            <button class="btn btn--ghost" id="clearBtn">清空筛选</button>
+          </div>
+
+          <div id="listStatus" class="status">填好条件后点“加载记录”。</div>
+          <div id="recordSummary" class="tiny" style="margin-top:10px;"></div>
+          <div id="recordList" class="record-list" style="margin-top:14px;"></div>
+
+          <div class="section" style="margin-top:14px;">
+            <h3>还原点</h3>
+            <div class="grid-2">
+              <div>
+                <label>创建还原点备注</label>
+                <input id="restorePointNote" placeholder="例如：开始清理 2024Q4 4H PDA" />
+              </div>
+              <div>
+                <label>已有还原点</label>
+                <select id="restorePointSelect"></select>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn--primary" id="createRestorePointBtn" type="button">创建还原点</button>
+              <button class="btn btn--ghost" id="refreshRestorePointsBtn" type="button">刷新列表</button>
+              <button class="btn btn--ghost" id="restoreSelectedBtn" type="button">恢复选中还原点</button>
+            </div>
+            <div id="restorePointStatus" class="status">先创建一个稳定点，再开始大批量人工修订。</div>
+          </div>
+
+          <div class="section" style="margin-top:14px;">
+            <h3>手工新增 PDA</h3>
+            <div class="grid-3">
+              <div>
+                <label>Timeframe</label>
+                <select id="manualTimeframe">
+                  <option value="D">D</option>
+                  <option value="4H">4H</option>
+                  <option value="1H">1H</option>
+                  <option value="30M">30m</option>
+                </select>
+              </div>
+              <div>
+                <label>PDA Type</label>
+                <select id="manualPdaType">
+                  <option value="bsl">bsl</option>
+                  <option value="ssl">ssl</option>
+                  <option value="fvg">fvg</option>
+                </select>
+              </div>
+              <div>
+                <label>Direction</label>
+                <select id="manualDirection">
+                  <option value="">无</option>
+                  <option value="bullish">bullish</option>
+                  <option value="bearish">bearish</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div>
+                <label>Anchor Time</label>
+                <input id="manualAnchorTime" placeholder="2024-10-01 10:00" />
+              </div>
+              <div>
+                <label>Confirm Time</label>
+                <input id="manualConfirmTime" placeholder="可留空" />
+              </div>
+            </div>
+            <div class="grid-3">
+              <div>
+                <label>Price</label>
+                <input id="manualPrice" placeholder="bsl / ssl 用" />
+              </div>
+              <div>
+                <label>Price High</label>
+                <input id="manualPriceHigh" placeholder="fvg 上沿" />
+              </div>
+              <div>
+                <label>Price Low</label>
+                <input id="manualPriceLow" placeholder="fvg 下沿" />
+              </div>
+            </div>
+            <div>
+              <label>Note</label>
+              <textarea id="manualNote" placeholder="记录这条 PDA 为什么重要、自动扫描为什么没抓到。"></textarea>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn--primary" id="manualAddBtn" type="button">手工新增</button>
+            </div>
+            <div class="hint">第一版只允许手工新增 `bsl / ssl / fvg`。`30m` 也通过这里补录。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">记录详情与左右邻居</h2>
+        </div>
+        <div class="panel__body">
+          <div id="detailStatus" class="status">先从左侧选择一条记录。</div>
+
+          <div id="detailWrap" style="display:none;">
+            <div class="key-facts" id="keyFacts"></div>
+            <div class="detail-grid" id="detailGrid"></div>
+
+            <div class="section">
+              <h3>人工修订</h3>
+              <div class="review-layout">
+                <div>
+                  <div class="grid-3">
+                    <div>
+                      <label>Review State</label>
+                      <select id="reviewState">
+                        <option value="pending">待定</option>
+                        <option value="main">进入主PDA</option>
+                        <option value="parked">临时抛出</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>当前状态</label>
+                      <div class="btn-row" style="margin-top:0;">
+                        <span class="pill state-pending" id="reviewStateBadge">待定</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label>提交状态</label>
+                      <div class="btn-row" style="margin-top:0;">
+                        <button class="btn btn--primary" id="submitReviewStateBtn" type="button">确定</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="margin-top:12px;">
+                    <label>Note</label>
+                    <textarea id="reviewNote" placeholder="记录这条 PDA 为什么进入主PDA，或为什么暂时抛出。"></textarea>
+                  </div>
+                  <div class="btn-row">
+                    <button class="btn btn--ghost" id="submitNoteBtn" type="button">提交 Note</button>
+                  </div>
+                  <div class="hint">这里分成两次提交：上面提交是否进入主PDA，下面单独提交 Note。</div>
+                </div>
+                <div>
+                  <label id="reviewCompactChartLabel">快速K线预览</label>
+                  <div class="review-compact-chart" id="reviewCompactChart"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>候选规则解释</h3>
+              <div id="ruleSummary" class="tiny"></div>
+            </div>
+
+            <div class="section">
+              <h3>左右邻居 Bars</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Offset</th>
+                    <th>Bar Date</th>
+                    <th>Open</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Close</th>
+                  </tr>
+                </thead>
+                <tbody id="barsTable"></tbody>
+              </table>
+            </div>
+
+            <div class="section">
+              <h3>伪 K 线图</h3>
+              <div class="tiny" style="margin-bottom:10px;">显示焦点 bar 与前后邻居的简化 OHLC 结构，方便和复盘软件快速比对。</div>
+              <div class="mini-chart" id="miniChart"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      records: [],
+      selected: null,
+    };
+
+    const ruleMap = {
+      D: { left: 1, right: 2 },
+      '4H': { left: 2, right: 2 },
+      '1H': { left: 3, right: 3 },
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function reviewStateLabel(value) {
+      if (value === 'main') return '进入主PDA';
+      if (value === 'parked') return '抛出';
+      return '待定';
+    }
+
+    function reviewStateClass(value) {
+      if (value === 'main') return 'state-main';
+      if (value === 'parked') return 'state-parked';
+      return 'state-pending';
+    }
+
+    function formatBytes(value) {
+      const size = Number(value || 0);
+      if (!Number.isFinite(size) || size <= 0) return '--';
+      if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+      if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+      return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    }
+
+    function renderRecordSummary() {
+      const root = $('recordSummary');
+      if (!state.records.length) {
+        root.innerHTML = '';
+        return;
+      }
+      const counts = { pending: 0, main: 0, parked: 0 };
+      state.records.forEach(record => {
+        const key = record.reviewState || 'pending';
+        if (counts[key] !== undefined) counts[key] += 1;
+      });
+      root.innerHTML = `
+        <span class="pill state-pending">待定 ${counts.pending}</span>
+        <span class="pill state-main">主PDA ${counts.main}</span>
+        <span class="pill state-parked">抛出 ${counts.parked}</span>
+      `;
+    }
+
+    function setStatus(el, text, tone = '') {
+      el.className = 'status' + (tone ? ' status--' + tone : '');
+      el.innerHTML = text;
+    }
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'request failed');
+      }
+      return data.result;
+    }
+
+    async function postJson(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'request failed');
+      }
+      return data.result;
+    }
+
+    function renderRestorePointOptions(items) {
+      const select = $('restorePointSelect');
+      select.innerHTML = '';
+      if (!items.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = '暂无还原点';
+        select.appendChild(option);
+        return;
+      }
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        const createdAt = item.createdAt || item.id;
+        const note = item.note ? ` | ${item.note}` : '';
+        const size = ` | ${formatBytes(item.sizeBytes)}`;
+        option.textContent = `${createdAt}${note}${size}`;
+        select.appendChild(option);
+      });
+    }
+
+    async function loadRestorePoints() {
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const result = await fetchJson(`${api}/v2/restore_points`);
+        renderRestorePointOptions(result.restorePoints || []);
+        setStatus($('restorePointStatus'), `已加载 <strong>${(result.restorePoints || []).length}</strong> 个还原点。`, 'ok');
+      } catch (err) {
+        renderRestorePointOptions([]);
+        setStatus($('restorePointStatus'), `加载还原点失败：${err.message}`, 'danger');
+      }
+    }
+
+    async function createRestorePoint() {
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const note = $('restorePointNote').value.trim();
+        setStatus($('restorePointStatus'), '正在创建还原点...');
+        const result = await postJson(`${api}/v2/restore_points`, { note });
+        await loadRestorePoints();
+        $('restorePointSelect').value = result.id;
+        setStatus(
+          $('restorePointStatus'),
+          `已创建还原点 <strong>${result.createdAt}</strong>${result.note ? `（${result.note}）` : ''}，大小 <strong>${formatBytes(result.sizeBytes)}</strong>。`,
+          'ok'
+        );
+      } catch (err) {
+        setStatus($('restorePointStatus'), `创建还原点失败：${err.message}`, 'danger');
+      }
+    }
+
+    async function restoreSelectedPoint() {
+      const restorePointId = $('restorePointSelect').value;
+      if (!restorePointId) {
+        setStatus($('restorePointStatus'), '先选一个还原点。', 'warn');
+        return;
+      }
+      if (!window.confirm('恢复会覆盖当前 PDA 数据库，并自动创建一个恢复前快照。确定继续吗？')) {
+        return;
+      }
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        setStatus($('restorePointStatus'), `正在恢复 ${restorePointId} ...`);
+        const result = await postJson(`${api}/v2/restore_points/restore`, { restorePointId });
+        await loadRestorePoints();
+        setStatus(
+          $('restorePointStatus'),
+          `已恢复 <strong>${result.restoredId}</strong>，并自动创建恢复前快照 <strong>${result.preRestorePoint.id}</strong>。`,
+          'ok'
+        );
+      } catch (err) {
+        setStatus($('restorePointStatus'), `恢复还原点失败：${err.message}`, 'danger');
+      }
+    }
+
+    function buildQuery() {
+      const api = $('apiBase').value.trim().replace(/\/$/, '');
+      const params = new URLSearchParams();
+      const instrument = $('instrument').value.trim();
+      const timeframe = $('timeframe').value;
+      const pdaType = $('pdaType').value;
+      const reviewState = $('filterReviewState').value;
+      const dateFrom = $('dateFrom').value.trim();
+      const dateTo = $('dateTo').value.trim();
+      const limit = $('limit').value.trim() || '200';
+      if (instrument) params.set('instrument', instrument);
+      if (timeframe) params.set('timeframe', timeframe);
+      if (pdaType) params.set('type', pdaType);
+      if (reviewState) params.set('review_state', reviewState);
+      if (dateFrom) params.set('date_from', dateFrom);
+      if (dateTo) params.set('date_to', dateTo);
+      params.set('limit', limit);
+      return `${api}/v2/pda_records?${params.toString()}`;
+    }
+
+    function recordSortKey(record) {
+      return (
+        record.anchorTime ||
+        record.anchorTs ||
+        record.createdTs ||
+        (record.tradeDate ? `${record.tradeDate} 00:00:00` : '') ||
+        (record.createdDate ? `${record.createdDate} 00:00:00` : '') ||
+        ''
+      );
+    }
+
+    function renderRecordList() {
+      const root = $('recordList');
+      root.innerHTML = '';
+      renderRecordSummary();
+      if (!state.records.length) {
+        root.innerHTML = '<div class="tiny">当前筛选没有记录。</div>';
+        return;
+      }
+      state.records.forEach(record => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'record-card' + (state.selected && state.selected.pdaId === record.pdaId ? ' active' : '');
+        card.innerHTML = `
+          <div class="record-card__title">${record.pdaId}</div>
+          <div class="record-card__meta">
+            <span class="pill">${record.timeframe}</span>
+            <span class="pill">${record.pdaType}</span>
+            ${record.direction ? `<span class="pill">${record.direction}</span>` : ''}
+            <span class="pill ${reviewStateClass(record.reviewState)}">${reviewStateLabel(record.reviewState)}</span>
+            ${record.manualAdded ? `<span class="pill">manual</span>` : ''}
+          </div>
+          <div class="record-card__meta" style="margin-top:8px;">
+            session: ${record.anchorSessionDate || record.tradeDate || record.createdDate || '--'}<br/>
+            start: ${record.anchorTime || record.anchorTs || record.createdTs || '--'}<br/>
+            price: ${record.price ?? '--'} / high-low: ${record.priceHigh ?? '--'} ~ ${record.priceLow ?? '--'}
+          </div>
+        `;
+        card.addEventListener('click', () => selectRecord(record));
+        root.appendChild(card);
+      });
+    }
+
+    async function loadRecords() {
+      try {
+        setStatus($('listStatus'), '正在加载第一层记录...');
+        const result = await fetchJson(buildQuery());
+        state.records = (result.records || []).slice().sort((a, b) => {
+          const keyA = recordSortKey(a);
+          const keyB = recordSortKey(b);
+          if (keyA !== keyB) return keyA.localeCompare(keyB);
+          return (a.pdaId || '').localeCompare(b.pdaId || '');
+        });
+        state.selected = null;
+        renderRecordList();
+        setStatus($('listStatus'), `已加载 <strong>${state.records.length}</strong> 条记录。`, 'ok');
+        $('detailWrap').style.display = 'none';
+        setStatus($('detailStatus'), '先从左侧选择一条记录。');
+      } catch (err) {
+        $('recordSummary').innerHTML = '';
+        setStatus($('listStatus'), `加载失败：${err.message}`, 'danger');
+      }
+    }
+
+    function explainCandidate(record, bars) {
+      if (record.pdaType === 'ndog' || record.pdaType === 'nwog') {
+        const gapLabel = record.pdaType === 'nwog' ? 'New Week Opening Gap' : 'New Day Opening Gap';
+        return [
+          `这条记录是 <strong>${gapLabel}</strong>。`,
+          `焦点 bar 使用新 session 的开盘 bar：<strong>${record.anchorTime || record.anchorTs || '--'}</strong>。`,
+          `Gap 本身来自前收盘与新开盘之间的区间：<strong>${record.prevCloseTime || '--'}</strong> -> <strong>${record.nextOpenTime || '--'}</strong>。`,
+          `如果数据里不存在精确的 16:59 收盘，系统会保留实际命中的最近收盘时刻。`,
+        ].join('<br/>');
+      }
+      const rule = ruleMap[record.timeframe];
+      if (!rule || !bars.length) {
+        return '当前仅对 D / 4H / 1H 做候选规则解释。';
+      }
+      const focusIndex = bars.findIndex(bar => bar.isFocus);
+      if (focusIndex < 0) {
+        return '未找到焦点 bar。';
+      }
+      const focus = bars[focusIndex];
+      const leftBars = bars.slice(Math.max(0, focusIndex - rule.left), focusIndex);
+      const rightBars = bars.slice(focusIndex + 1, focusIndex + 1 + rule.right);
+      const isHighType = ['bsl'].includes(record.pdaType);
+      const isLowType = ['ssl'].includes(record.pdaType);
+      if (!isHighType && !isLowType) {
+        return `这条记录是 <strong>${record.pdaType}</strong>，主要看价格边界，不走 swing candidate 规则。`;
+      }
+      if (leftBars.length < rule.left || rightBars.length < rule.right) {
+        return `当前规则需要 left=${rule.left}, right=${rule.right}，但返回的邻居 bars 不足。`;
+      }
+      if (isHighType) {
+        const leftOk = leftBars.every(bar => focus.high > bar.high);
+        const rightOk = rightBars.every(bar => focus.high > bar.high);
+        return `规则：${record.timeframe} 使用 left=${rule.left}, right=${rule.right}。<br/>当前是 <strong>candidate high</strong>：焦点 high=${focus.high}；左侧通过=${leftOk ? '是' : '否'}；右侧通过=${rightOk ? '是' : '否'}。`;
+      }
+      const leftOk = leftBars.every(bar => focus.low < bar.low);
+      const rightOk = rightBars.every(bar => focus.low < bar.low);
+      return `规则：${record.timeframe} 使用 left=${rule.left}, right=${rule.right}。<br/>当前是 <strong>candidate low</strong>：焦点 low=${focus.low}；左侧通过=${leftOk ? '是' : '否'}；右侧通过=${rightOk ? '是' : '否'}。`;
+    }
+
+    function resolveConfirmBarStart(record, bars) {
+      const focusIndex = bars.findIndex(bar => bar.isFocus);
+      if (focusIndex < 0) return record.confirmTime || record.createdTs || '--';
+      if (record.pdaType === 'fvg' || record.pdaType === 'nwog' || record.pdaType === 'ndog') {
+        return record.confirmTime || '--';
+      }
+      const rule = ruleMap[record.timeframe];
+      if (!rule) return record.confirmTime || record.createdTs || '--';
+      const confirmBar = bars[focusIndex + rule.right];
+      return confirmBar ? confirmBar.bucketStart : (record.confirmTime || record.createdTs || '--');
+    }
+
+    function renderMiniChart(bars) {
+      const root = $('miniChart');
+      root.innerHTML = '';
+      if (!bars.length) {
+        root.innerHTML = '<div class="tiny">没有 bars 可供绘图。</div>';
+        return;
+      }
+
+      const highs = bars.map(bar => Number(bar.high));
+      const lows = bars.map(bar => Number(bar.low));
+      const maxHigh = Math.max(...highs);
+      const minLow = Math.min(...lows);
+      const range = Math.max(maxHigh - minLow, 1e-6);
+      const width = 900;
+      const height = 260;
+      const topPad = 14;
+      const bottomPad = 34;
+      const leftPad = 16;
+      const rightPad = 16;
+      const plotWidth = width - leftPad - rightPad;
+      const plotHeight = height - topPad - bottomPad;
+      const slot = plotWidth / bars.length;
+      const bodyWidth = Math.max(10, Math.min(28, slot * 0.48));
+
+      const y = price => topPad + ((maxHigh - price) / range) * plotHeight;
+      const x = index => leftPad + slot * index + slot / 2;
+
+      const gridLines = [0, 0.25, 0.5, 0.75, 1].map(ratio => {
+        const yy = topPad + plotHeight * ratio;
+        return `<line x1="${leftPad}" y1="${yy}" x2="${width - rightPad}" y2="${yy}" stroke="rgba(111,136,149,0.16)" stroke-width="1" />`;
+      }).join('');
+
+      const priceLabels = [maxHigh, (maxHigh + minLow) / 2, minLow].map(price => {
+        const yy = y(price);
+        return `<text x="${width - 6}" y="${yy - 4}" text-anchor="end" font-size="11" fill="rgba(157,176,183,0.78)">${price.toFixed(2)}</text>`;
+      }).join('');
+
+      const barsSvg = bars.map((bar, index) => {
+        const open = Number(bar.open);
+        const high = Number(bar.high);
+        const low = Number(bar.low);
+        const close = Number(bar.close);
+        const cx = x(index);
+        const isUp = close >= open;
+        const bodyTop = y(Math.max(open, close));
+        const bodyBottom = y(Math.min(open, close));
+        const wickTop = y(high);
+        const wickBottom = y(low);
+        const bodyHeight = Math.max(2, Math.abs(bodyBottom - bodyTop));
+        const bodyY = Math.min(bodyTop, bodyBottom);
+        const bodyX = cx - bodyWidth / 2;
+        const stroke = isUp ? '#24c49a' : '#d28349';
+        const fill = bar.isFocus
+          ? (isUp ? 'rgba(36,196,154,0.38)' : 'rgba(210,131,73,0.38)')
+          : (isUp ? 'rgba(36,196,154,0.18)' : 'rgba(210,131,73,0.18)');
+        const focusGlow = bar.isFocus
+          ? `<rect x="${bodyX - 4}" y="${topPad}" width="${bodyWidth + 8}" height="${plotHeight}" fill="rgba(79,209,181,0.08)" rx="8" />`
+          : '';
+        return `
+          ${focusGlow}
+          <line x1="${cx}" y1="${wickTop}" x2="${cx}" y2="${wickBottom}" stroke="${stroke}" stroke-width="2" />
+          <rect x="${bodyX}" y="${bodyY}" width="${bodyWidth}" height="${bodyHeight}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="1.5" />
+          <text x="${cx}" y="${height - 12}" text-anchor="middle" font-size="11" fill="${bar.isFocus ? '#4fd1b5' : 'rgba(157,176,183,0.82)'}">${bar.offset > 0 ? '+' + bar.offset : String(bar.offset)}</text>
+        `;
+      }).join('');
+
+      root.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="pseudo candlestick preview">
+          ${gridLines}
+          ${barsSvg}
+          ${priceLabels}
+        </svg>
+      `;
+    }
+
+    function renderCompactReviewChart(record, bars) {
+      const root = $('reviewCompactChart');
+      root.innerHTML = '';
+      if (!bars.length) {
+        root.innerHTML = '<div class="tiny" style="padding:12px;">暂无图形</div>';
+        return;
+      }
+
+      const highs = bars.map(bar => Number(bar.high));
+      const lows = bars.map(bar => Number(bar.low));
+      const maxHigh = Math.max(...highs);
+      const minLow = Math.min(...lows);
+      const range = Math.max(maxHigh - minLow, 1e-6);
+      const width = 220;
+      const height = 220;
+      const topPad = 18;
+      const bottomPad = 20;
+      const sidePad = 10;
+      const plotWidth = width - sidePad * 2;
+      const plotHeight = height - topPad - bottomPad;
+      const slot = plotWidth / bars.length;
+      const bodyWidth = Math.max(6, Math.min(20, slot * 0.72));
+
+      const y = price => topPad + ((maxHigh - price) / range) * plotHeight;
+      const x = index => sidePad + slot * index + slot / 2;
+      const guideY = topPad + plotHeight * 0.04;
+      const guideLine = `<line x1="${sidePad}" y1="${guideY}" x2="${width - sidePad}" y2="${guideY}" stroke="rgba(45,153,136,0.65)" stroke-width="1" stroke-dasharray="3 5" />`;
+      const levelLines = [];
+      const pointLineColor = 'rgba(255,215,122,0.95)';
+      const fvgLineColor = 'rgba(120,214,194,0.96)';
+      const gapLineColor = 'rgba(130,176,255,0.96)';
+
+      if (record && (record.pdaType === 'bsl' || record.pdaType === 'ssl')) {
+        const level = Number(record.price ?? record.priceHigh ?? record.priceLow);
+        if (Number.isFinite(level)) {
+          const yy = y(level);
+          levelLines.push(
+            `<line x1="${sidePad}" y1="${yy}" x2="${width - sidePad}" y2="${yy}" stroke="${pointLineColor}" stroke-width="1.5" />`
+          );
+        }
+      }
+
+      if (record && (record.pdaType === 'fvg' || record.pdaType === 'nwog' || record.pdaType === 'ndog')) {
+        const high = Number(record.priceHigh);
+        const low = Number(record.priceLow);
+        const levelColor = record.pdaType === 'fvg' ? fvgLineColor : gapLineColor;
+        if (Number.isFinite(high)) {
+          const yy = y(high);
+          levelLines.push(
+            `<line x1="${sidePad}" y1="${yy}" x2="${width - sidePad}" y2="${yy}" stroke="${levelColor}" stroke-width="1.3" />`
+          );
+        }
+        if (Number.isFinite(low)) {
+          const yy = y(low);
+          levelLines.push(
+            `<line x1="${sidePad}" y1="${yy}" x2="${width - sidePad}" y2="${yy}" stroke="${levelColor}" stroke-width="1.3" />`
+          );
+        }
+      }
+
+      const barsSvg = bars.map((bar, index) => {
+        const open = Number(bar.open);
+        const high = Number(bar.high);
+        const low = Number(bar.low);
+        const close = Number(bar.close);
+        const cx = x(index);
+        const isUp = close >= open;
+        const bodyTop = y(Math.max(open, close));
+        const bodyBottom = y(Math.min(open, close));
+        const wickTop = y(high);
+        const wickBottom = y(low);
+        const bodyHeight = Math.max(2, Math.abs(bodyBottom - bodyTop));
+        const bodyY = Math.min(bodyTop, bodyBottom);
+        const bodyX = cx - bodyWidth / 2;
+        const wickColor = isUp ? '#34c9b0' : '#d28349';
+        const bodyFill = isUp ? '#0f7c6d' : '#b46632';
+        const focusGlow = bar.isFocus
+          ? `<rect x="${bodyX - 3}" y="${topPad}" width="${bodyWidth + 6}" height="${plotHeight}" fill="rgba(255,255,255,0.03)" rx="6" />`
+          : '';
+        return `
+          ${focusGlow}
+          <line x1="${cx}" y1="${wickTop}" x2="${cx}" y2="${wickBottom}" stroke="${wickColor}" stroke-width="1.4" />
+          <rect x="${bodyX}" y="${bodyY}" width="${bodyWidth}" height="${bodyHeight}" fill="${bodyFill}" />
+        `;
+      }).join('');
+
+      root.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="compact candlestick preview">
+          ${guideLine}
+          ${levelLines.join('')}
+          ${barsSvg}
+        </svg>
+      `;
+    }
+
+    function renderDetail(record, neighborResult) {
+      $('detailWrap').style.display = '';
+      const focusBar = (neighborResult.bars || []).find(bar => bar.isFocus) || null;
+      const barStart = focusBar ? focusBar.bucketStart : (record.anchorTime || record.anchorTs || record.createdTs || '--');
+      const confirmBarStart = resolveConfirmBarStart(record, neighborResult.bars || []);
+      const isGapType = record.pdaType === 'ndog' || record.pdaType === 'nwog';
+      const isFvgType = record.pdaType === 'fvg';
+      const keyFacts = $('keyFacts');
+      keyFacts.innerHTML = '';
+      const keyFields = [
+        ['Session Date', record.anchorSessionDate || record.tradeDate || record.createdDate || '--'],
+        ['Anchor Bar Start', barStart],
+        ['Confirm Bar Start Ts', confirmBarStart],
+        ['当前Review状态', reviewStateLabel(record.reviewState)],
+      ];
+      if (isGapType) {
+        keyFields.push(['Gap Start Ts', record.prevCloseTime || '--']);
+        keyFields.push(['Gap End Ts', record.nextOpenTime || '--']);
+      }
+      if (isFvgType) {
+        keyFields.push(['Note', 'FVG uses the 2nd bar as anchor; trade date should align with anchor session date.']);
+      }
+      keyFields.forEach(([label, value]) => {
+        const box = document.createElement('div');
+        box.className = 'detail-box';
+        box.innerHTML = `<div class="detail-box__label">${label}</div><div class="detail-box__value mono">${value}</div>`;
+        keyFacts.appendChild(box);
+      });
+
+      const detailGrid = $('detailGrid');
+      detailGrid.innerHTML = '';
+      const fields = [
+        ['PDA ID', record.pdaId],
+        ['Timeframe', record.timeframe],
+        ['Type', record.pdaType],
+        ['Direction', record.direction || '--'],
+        ['Review State', reviewStateLabel(record.reviewState)],
+        ['Price', record.price ?? '--'],
+        ['Price High', record.priceHigh ?? '--'],
+        ['Price Low', record.priceLow ?? '--'],
+        ['Price C.E.', record.priceCe ?? '--'],
+        ['Prev Close Ts', record.prevCloseTime || '--'],
+        ['Prev Close Price', record.prevClosePrice ?? '--'],
+        ['Next Open Ts', record.nextOpenTime || '--'],
+        ['Next Open Price', record.nextOpenPrice ?? '--'],
+        ['Status', record.status || record.registryStatus || '--'],
+        ['Manual Added', record.manualAdded ? 'yes' : 'no'],
+        ['Manual Edited', record.manualEdited ? 'yes' : 'no'],
+        ['Verification Ts', confirmBarStart],
+        ['Note', record.note || '--'],
+      ];
+      if (isGapType) {
+        fields.push(['Gap Window', `${record.prevCloseTime || '--'} -> ${record.nextOpenTime || '--'}`]);
+      }
+      fields.forEach(([label, value]) => {
+        const box = document.createElement('div');
+        box.className = 'detail-box';
+        box.innerHTML = `<div class="detail-box__label">${label}</div><div class="detail-box__value mono">${value}</div>`;
+        detailGrid.appendChild(box);
+      });
+
+      const rule = ruleMap[record.timeframe];
+      const ruleBadge = isGapType
+        ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.pdaType.toUpperCase()} · session gap</span></div>`
+        : (rule
+          ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.timeframe} · left=${rule.left} / right=${rule.right}</span></div>`
+          : '');
+      $('ruleSummary').innerHTML = ruleBadge + explainCandidate(record, neighborResult.bars || []);
+
+      const tbody = $('barsTable');
+      tbody.innerHTML = '';
+      (neighborResult.bars || []).forEach(bar => {
+        const tr = document.createElement('tr');
+        if (bar.isFocus) tr.className = 'focus';
+        tr.innerHTML = `
+          <td class="mono">${bar.offset > 0 ? '+' + bar.offset : String(bar.offset)}</td>
+          <td class="mono">${bar.barDate}</td>
+          <td class="mono">${bar.open}</td>
+          <td class="mono">${bar.high}</td>
+          <td class="mono">${bar.low}</td>
+          <td class="mono">${bar.close}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderMiniChart(neighborResult.bars || []);
+      renderCompactReviewChart(record, neighborResult.bars || []);
+      $('reviewCompactChartLabel').textContent = `快速K线预览 - ${(record.pdaType || '--').toLowerCase()} - ${(record.timeframe || '--').toUpperCase()}`;
+      $('reviewState').value = record.reviewState || 'pending';
+      $('reviewNote').value = record.note || '';
+      $('reviewStateBadge').className = `pill ${reviewStateClass(record.reviewState)}`;
+      $('reviewStateBadge').textContent = reviewStateLabel(record.reviewState);
+    }
+
+    async function submitReviewState() {
+      if (!state.selected) {
+        setStatus($('detailStatus'), '先从左侧选一条记录，再做人工修订。', 'warn');
+        return;
+      }
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const payload = { pdaId: state.selected.pdaId, reviewState: $('reviewState').value };
+        setStatus($('detailStatus'), `正在提交 ${state.selected.pdaId} 的 Review State...`);
+        const updated = await postJson(`${api}/v2/pda_review`, payload);
+        state.records = state.records.map(record => record.pdaId === updated.pdaId ? updated : record);
+        state.selected = updated;
+        renderRecordList();
+        const params = new URLSearchParams({ pda_id: updated.pdaId, before: '4', after: '4' });
+        const neighborResult = await fetchJson(`${api}/v2/pda_neighbors?${params.toString()}`);
+        renderDetail(updated, neighborResult);
+        setStatus($('detailStatus'), `已提交 <strong>${updated.pdaId}</strong> 的 Review State。`, 'ok');
+      } catch (err) {
+        setStatus($('detailStatus'), `提交 Review State 失败：${err.message}`, 'danger');
+      }
+    }
+
+    async function submitNote() {
+      if (!state.selected) {
+        setStatus($('detailStatus'), '先从左侧选一条记录，再提交 Note。', 'warn');
+        return;
+      }
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const payload = {
+          pdaId: state.selected.pdaId,
+          note: $('reviewNote').value.trim(),
+        };
+        setStatus($('detailStatus'), `正在提交 ${state.selected.pdaId} 的 Note...`);
+        const updated = await postJson(`${api}/v2/pda_review`, payload);
+        state.records = state.records.map(record => record.pdaId === updated.pdaId ? updated : record);
+        state.selected = updated;
+        renderRecordList();
+        const params = new URLSearchParams({ pda_id: updated.pdaId, before: '4', after: '4' });
+        const neighborResult = await fetchJson(`${api}/v2/pda_neighbors?${params.toString()}`);
+        renderDetail(updated, neighborResult);
+        setStatus($('detailStatus'), `已提交 <strong>${updated.pdaId}</strong> 的 Note。`, 'ok');
+      } catch (err) {
+        setStatus($('detailStatus'), `提交 Note 失败：${err.message}`, 'danger');
+      }
+    }
+
+    async function addManualPda() {
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const payload = {
+          instrument: $('instrument').value.trim() || 'NQ',
+          timeframe: $('manualTimeframe').value,
+          pdaType: $('manualPdaType').value,
+          direction: $('manualDirection').value,
+          anchorTime: $('manualAnchorTime').value.trim(),
+          confirmTime: $('manualConfirmTime').value.trim(),
+          price: $('manualPrice').value.trim(),
+          priceHigh: $('manualPriceHigh').value.trim(),
+          priceLow: $('manualPriceLow').value.trim(),
+          note: $('manualNote').value.trim(),
+        };
+        setStatus($('listStatus'), '正在手工新增 PDA...');
+        const created = await postJson(`${api}/v2/pda_manual_add`, payload);
+        state.records.push(created);
+        state.records.sort((a, b) => {
+          const keyA = recordSortKey(a);
+          const keyB = recordSortKey(b);
+          if (keyA !== keyB) return keyA.localeCompare(keyB);
+          return (a.pdaId || '').localeCompare(b.pdaId || '');
+        });
+        renderRecordList();
+        setStatus($('listStatus'), `已手工新增 <strong>${created.pdaId}</strong>。`, 'ok');
+        state.selected = created;
+        renderRecordList();
+        await selectRecord(created);
+      } catch (err) {
+        setStatus($('listStatus'), `手工新增失败：${err.message}`, 'danger');
+      }
+    }
+
+    async function selectRecord(record) {
+      state.selected = record;
+      renderRecordList();
+      try {
+        setStatus($('detailStatus'), `正在拉取 ${record.pdaId} 的左右邻居 bars...`);
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const params = new URLSearchParams({ pda_id: record.pdaId, before: '4', after: '4' });
+        const result = await fetchJson(`${api}/v2/pda_neighbors?${params.toString()}`);
+        renderDetail(record, result);
+        setStatus($('detailStatus'), `已加载 <strong>${record.pdaId}</strong> 的详细信息与邻居 bars。`, 'ok');
+      } catch (err) {
+        $('detailWrap').style.display = 'none';
+        setStatus($('detailStatus'), `加载记录详情失败：${err.message}`, 'danger');
+      }
+    }
+
+    function clearFilters() {
+      $('timeframe').value = '';
+      $('pdaType').value = '';
+      $('filterReviewState').value = '';
+      $('instrument').value = 'NQ';
+      $('dateFrom').value = '';
+      $('dateTo').value = '';
+      $('limit').value = '200';
+    }
+
+    $('loadBtn').addEventListener('click', loadRecords);
+    $('clearBtn').addEventListener('click', clearFilters);
+    $('createRestorePointBtn').addEventListener('click', createRestorePoint);
+    $('refreshRestorePointsBtn').addEventListener('click', loadRestorePoints);
+    $('restoreSelectedBtn').addEventListener('click', restoreSelectedPoint);
+    $('submitReviewStateBtn').addEventListener('click', submitReviewState);
+    $('submitNoteBtn').addEventListener('click', submitNote);
+    $('manualAddBtn').addEventListener('click', addManualPda);
+    loadRestorePoints();
+  </script>
+</body>
+</html>
