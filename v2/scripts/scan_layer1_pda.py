@@ -424,14 +424,19 @@ def daily_point_records(bars: list[Bar], counters: dict[tuple[str, str, str], in
 def swing_records(bars: list[Bar], timeframe: str, counters: dict[tuple[str, str, str], int]) -> list[dict]:
     left, right = SWING_RULES[timeframe]
     results: list[dict] = []
+    existing_keys: set[tuple[str, datetime, str, float]] = set()
     for i in range(left, len(bars) - right):
         anchor = bars[i]
         left_slice = bars[i - left : i]
         right_slice = bars[i + 1 : i + 1 + right]
-        is_high = all(anchor.high > b.high for b in left_slice) and all(anchor.high > b.high for b in right_slice)
-        is_low = all(anchor.low < b.low for b in left_slice) and all(anchor.low < b.low for b in right_slice)
+        # Tie-break equal extremes in favor of the right-most bar.
+        # This lets runs of equal highs/lows collapse into a single candidate
+        # instead of dropping the whole run from the candidate pool.
+        is_high = all(anchor.high >= b.high for b in left_slice) and all(anchor.high > b.high for b in right_slice)
+        is_low = all(anchor.low <= b.low for b in left_slice) and all(anchor.low < b.low for b in right_slice)
         confirm_time = right_slice[-1].bucket_start if right_slice else anchor.bucket_start
         if is_high:
+            existing_keys.add((timeframe, anchor.bucket_start, "bsl", anchor.high))
             results.append(
                 make_record(
                     pda_id=generate_id(counters, anchor.bar_date, timeframe, "bsl"),
@@ -449,6 +454,7 @@ def swing_records(bars: list[Bar], timeframe: str, counters: dict[tuple[str, str
                 )
             )
         if is_low:
+            existing_keys.add((timeframe, anchor.bucket_start, "ssl", anchor.low))
             results.append(
                 make_record(
                     pda_id=generate_id(counters, anchor.bar_date, timeframe, "ssl"),
@@ -465,6 +471,71 @@ def swing_records(bars: list[Bar], timeframe: str, counters: dict[tuple[str, str
                     source="auto_scan",
                 )
             )
+
+    # Supplement for adjacent equal-valued extrema points:
+    # if two consecutive local highs (or lows) on the extremum sequence have
+    # exactly the same price, keep the right-hand point as an extra candidate.
+    local_highs: list[int] = []
+    local_lows: list[int] = []
+    for i in range(1, len(bars) - 1):
+        if bars[i].high > bars[i - 1].high and bars[i].high > bars[i + 1].high:
+            local_highs.append(i)
+        if bars[i].low < bars[i - 1].low and bars[i].low < bars[i + 1].low:
+            local_lows.append(i)
+
+    for prev_idx, curr_idx in zip(local_highs, local_highs[1:]):
+        prev_bar = bars[prev_idx]
+        curr_bar = bars[curr_idx]
+        if prev_bar.high != curr_bar.high:
+            continue
+        key = (timeframe, curr_bar.bucket_start, "bsl", curr_bar.high)
+        if key in existing_keys:
+            continue
+        results.append(
+            make_record(
+                pda_id=generate_id(counters, curr_bar.bar_date, timeframe, "bsl"),
+                instrument="NQ_PLACEHOLDER",
+                timeframe=timeframe,
+                pda_type="bsl",
+                direction=None,
+                trade_date=curr_bar.bar_date,
+                anchor_time=curr_bar.bucket_start,
+                confirm_time=curr_bar.bucket_start,
+                price=curr_bar.high,
+                price_high=curr_bar.high,
+                price_low=curr_bar.high,
+                source="auto_scan",
+                note="equal_extrema_right",
+            )
+        )
+        existing_keys.add(key)
+
+    for prev_idx, curr_idx in zip(local_lows, local_lows[1:]):
+        prev_bar = bars[prev_idx]
+        curr_bar = bars[curr_idx]
+        if prev_bar.low != curr_bar.low:
+            continue
+        key = (timeframe, curr_bar.bucket_start, "ssl", curr_bar.low)
+        if key in existing_keys:
+            continue
+        results.append(
+            make_record(
+                pda_id=generate_id(counters, curr_bar.bar_date, timeframe, "ssl"),
+                instrument="NQ_PLACEHOLDER",
+                timeframe=timeframe,
+                pda_type="ssl",
+                direction=None,
+                trade_date=curr_bar.bar_date,
+                anchor_time=curr_bar.bucket_start,
+                confirm_time=curr_bar.bucket_start,
+                price=curr_bar.low,
+                price_high=curr_bar.low,
+                price_low=curr_bar.low,
+                source="auto_scan",
+                note="equal_extrema_right",
+            )
+        )
+        existing_keys.add(key)
     return results
 
 

@@ -842,6 +842,27 @@ def update_v2_pda_review(
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
+def delete_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        row = conn.execute(
+            "select pda_id, instrument, timeframe, pda_type, trade_date, anchor_time from pda_registry where pda_id = ?",
+            [pda_id],
+        ).fetchone()
+        if not row:
+            raise LookupError("pda record not found")
+        conn.execute("delete from pda_registry where pda_id = ?", [pda_id])
+    return {
+        "pdaId": row[0],
+        "instrument": row[1],
+        "timeframe": row[2],
+        "pdaType": row[3],
+        "tradeDate": row[4].strftime("%Y-%m-%d") if row[4] else "",
+        "anchorTime": row[5].strftime("%Y-%m-%d %H:%M:%S") if row[5] else "",
+        "deleted": True,
+    }
+
+
 def next_manual_pda_id(
     conn: duckdb.DuckDBPyConnection,
     trade_date: str,
@@ -1436,6 +1457,26 @@ class Handler(BaseHTTPRequestHandler):
                     price_low,
                     note,
                 )
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_delete":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                pda_id = validate_pda_id(body.get("pdaId", ""))
+                result = delete_v2_pda_record(self.v2_db_path, pda_id)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})

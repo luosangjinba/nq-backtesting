@@ -323,28 +323,28 @@
       color: var(--warn);
       font-weight: 700;
     }
-    .role-daily-raw {
-      border-color: rgba(110,184,229,0.46);
-      background: rgba(110,184,229,0.12);
-      color: #8fd3ff;
+    .role-daily-high {
+      border-color: rgba(107,196,171,0.42);
+      background: rgba(107,196,171,0.12);
+      color: #8fe2c8;
       font-weight: 700;
     }
-    .role-short-d {
+    .role-daily-low {
+      border-color: rgba(223,145,145,0.42);
+      background: rgba(223,145,145,0.12);
+      color: #f2aaaa;
+      font-weight: 700;
+    }
+    .role-short-high {
       border-color: rgba(79,209,181,0.46);
       background: rgba(79,209,181,0.12);
       color: var(--accent);
       font-weight: 700;
     }
-    .role-short-h4 {
-      border-color: rgba(79,209,181,0.46);
-      background: rgba(79,209,181,0.12);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .role-short-h1 {
-      border-color: rgba(147,171,255,0.42);
-      background: rgba(147,171,255,0.12);
-      color: #b9c8ff;
+    .role-short-low {
+      border-color: rgba(239,143,143,0.42);
+      background: rgba(239,143,143,0.12);
+      color: var(--danger);
       font-weight: 700;
     }
     .mini-chart {
@@ -622,6 +622,7 @@
                   </div>
                   <div class="btn-row">
                     <button class="btn btn--ghost" id="submitNoteBtn" type="button">提交 Note</button>
+                    <button class="btn btn--ghost" id="deleteRecordBtn" type="button">删除记录</button>
                   </div>
                   <div class="hint" id="reviewRoleHint">这里分成两次提交：上面提交人工归类，下面单独提交 Note。</div>
                 </div>
@@ -654,11 +655,6 @@
               </table>
             </div>
 
-            <div class="section">
-              <h3>伪 K 线图</h3>
-              <div class="tiny" style="margin-bottom:10px;">显示焦点 bar 与前后邻居的简化 OHLC 结构，方便和复盘软件快速比对。</div>
-              <div class="mini-chart" id="miniChart"></div>
-            </div>
           </div>
         </div>
       </section>
@@ -703,10 +699,10 @@
     }
 
     function reviewRoleClass(value) {
-      if (value === 'daily_high' || value === 'daily_low') return 'role-daily-raw';
-      if (value === 'd_short_high' || value === 'd_short_low') return 'role-short-d';
-      if (value === 'h4_short_high' || value === 'h4_short_low') return 'role-short-h4';
-      if (value === 'h1_short_high' || value === 'h1_short_low') return 'role-short-h1';
+      if (value === 'daily_high') return 'role-daily-high';
+      if (value === 'daily_low') return 'role-daily-low';
+      if (value === 'd_short_high' || value === 'h4_short_high' || value === 'h1_short_high') return 'role-short-high';
+      if (value === 'd_short_low' || value === 'h4_short_low' || value === 'h1_short_low') return 'role-short-low';
       return 'role-unclassified';
     }
 
@@ -1021,13 +1017,13 @@
         return `当前规则需要 left=${rule.left}, right=${rule.right}，但返回的邻居 bars 不足。`;
       }
       if (isHighType) {
-        const leftOk = leftBars.every(bar => focus.high > bar.high);
+        const leftOk = leftBars.every(bar => focus.high >= bar.high);
         const rightOk = rightBars.every(bar => focus.high > bar.high);
-        return `规则：${record.timeframe} 使用 left=${rule.left}, right=${rule.right}。<br/>当前是 <strong>candidate high</strong>：焦点 high=${focus.high}；左侧通过=${leftOk ? '是' : '否'}；右侧通过=${rightOk ? '是' : '否'}。`;
+        return `规则：${record.timeframe} 使用 left=${rule.left}, right=${rule.right}。<br/>当前是 <strong>candidate high</strong>：焦点 high=${focus.high}；左侧通过=${leftOk ? '是' : '否'}（允许相等）；右侧通过=${rightOk ? '是' : '否'}（必须严格更高，因此连续等高先折叠为最右代表点，再继续与外部窗口比较）。`;
       }
-      const leftOk = leftBars.every(bar => focus.low < bar.low);
+      const leftOk = leftBars.every(bar => focus.low <= bar.low);
       const rightOk = rightBars.every(bar => focus.low < bar.low);
-      return `规则：${record.timeframe} 使用 left=${rule.left}, right=${rule.right}。<br/>当前是 <strong>candidate low</strong>：焦点 low=${focus.low}；左侧通过=${leftOk ? '是' : '否'}；右侧通过=${rightOk ? '是' : '否'}。`;
+      return `规则：${record.timeframe} 使用 left=${rule.left}, right=${rule.right}。<br/>当前是 <strong>candidate low</strong>：焦点 low=${focus.low}；左侧通过=${leftOk ? '是' : '否'}（允许相等）；右侧通过=${rightOk ? '是' : '否'}（必须严格更低，因此连续等低先折叠为最右代表点，再继续与外部窗口比较）。`;
     }
 
     function resolveConfirmBarStart(record, bars) {
@@ -1040,81 +1036,6 @@
       if (!rule) return record.confirmTime || record.createdTs || '--';
       const confirmBar = bars[focusIndex + rule.right];
       return confirmBar ? confirmBar.bucketStart : (record.confirmTime || record.createdTs || '--');
-    }
-
-    function renderMiniChart(bars) {
-      const root = $('miniChart');
-      root.innerHTML = '';
-      if (!bars.length) {
-        root.innerHTML = '<div class="tiny">没有 bars 可供绘图。</div>';
-        return;
-      }
-
-      const highs = bars.map(bar => Number(bar.high));
-      const lows = bars.map(bar => Number(bar.low));
-      const maxHigh = Math.max(...highs);
-      const minLow = Math.min(...lows);
-      const range = Math.max(maxHigh - minLow, 1e-6);
-      const width = 900;
-      const height = 260;
-      const topPad = 14;
-      const bottomPad = 34;
-      const leftPad = 16;
-      const rightPad = 16;
-      const plotWidth = width - leftPad - rightPad;
-      const plotHeight = height - topPad - bottomPad;
-      const slot = plotWidth / bars.length;
-      const bodyWidth = Math.max(10, Math.min(28, slot * 0.48));
-
-      const y = price => topPad + ((maxHigh - price) / range) * plotHeight;
-      const x = index => leftPad + slot * index + slot / 2;
-
-      const gridLines = [0, 0.25, 0.5, 0.75, 1].map(ratio => {
-        const yy = topPad + plotHeight * ratio;
-        return `<line x1="${leftPad}" y1="${yy}" x2="${width - rightPad}" y2="${yy}" stroke="rgba(111,136,149,0.16)" stroke-width="1" />`;
-      }).join('');
-
-      const priceLabels = [maxHigh, (maxHigh + minLow) / 2, minLow].map(price => {
-        const yy = y(price);
-        return `<text x="${width - 6}" y="${yy - 4}" text-anchor="end" font-size="11" fill="rgba(157,176,183,0.78)">${price.toFixed(2)}</text>`;
-      }).join('');
-
-      const barsSvg = bars.map((bar, index) => {
-        const open = Number(bar.open);
-        const high = Number(bar.high);
-        const low = Number(bar.low);
-        const close = Number(bar.close);
-        const cx = x(index);
-        const isUp = close >= open;
-        const bodyTop = y(Math.max(open, close));
-        const bodyBottom = y(Math.min(open, close));
-        const wickTop = y(high);
-        const wickBottom = y(low);
-        const bodyHeight = Math.max(2, Math.abs(bodyBottom - bodyTop));
-        const bodyY = Math.min(bodyTop, bodyBottom);
-        const bodyX = cx - bodyWidth / 2;
-        const stroke = isUp ? '#24c49a' : '#d28349';
-        const fill = bar.isFocus
-          ? (isUp ? 'rgba(36,196,154,0.38)' : 'rgba(210,131,73,0.38)')
-          : (isUp ? 'rgba(36,196,154,0.18)' : 'rgba(210,131,73,0.18)');
-        const focusGlow = bar.isFocus
-          ? `<rect x="${bodyX - 4}" y="${topPad}" width="${bodyWidth + 8}" height="${plotHeight}" fill="rgba(79,209,181,0.08)" rx="8" />`
-          : '';
-        return `
-          ${focusGlow}
-          <line x1="${cx}" y1="${wickTop}" x2="${cx}" y2="${wickBottom}" stroke="${stroke}" stroke-width="2" />
-          <rect x="${bodyX}" y="${bodyY}" width="${bodyWidth}" height="${bodyHeight}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="1.5" />
-          <text x="${cx}" y="${height - 12}" text-anchor="middle" font-size="11" fill="${bar.isFocus ? '#4fd1b5' : 'rgba(157,176,183,0.82)'}">${bar.offset > 0 ? '+' + bar.offset : String(bar.offset)}</text>
-        `;
-      }).join('');
-
-      root.innerHTML = `
-        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="pseudo candlestick preview">
-          ${gridLines}
-          ${barsSvg}
-          ${priceLabels}
-        </svg>
-      `;
     }
 
     function renderCompactReviewChart(record, bars) {
@@ -1299,7 +1220,6 @@
         tbody.appendChild(tr);
       });
 
-      renderMiniChart(neighborResult.bars || []);
       renderCompactReviewChart(record, neighborResult.bars || []);
       $('reviewCompactChartLabel').textContent = `快速K线预览 - ${(record.pdaType || '--').toLowerCase()} - ${(record.timeframe || '--').toUpperCase()}`;
       populateReviewRoleSelect(record);
@@ -1352,6 +1272,38 @@
         setStatus($('detailStatus'), `已提交 <strong>${updated.pdaId}</strong> 的 Note。`, 'ok');
       } catch (err) {
         setStatus($('detailStatus'), `提交 Note 失败：${err.message}`, 'danger');
+      }
+    }
+
+    async function deleteCurrentRecord() {
+      if (!state.selected) {
+        setStatus($('detailStatus'), '先从左侧选一条记录，再删除。', 'warn');
+        return;
+      }
+      const target = state.selected;
+      if (!window.confirm(`确定删除 ${target.pdaId} 吗？此操作会直接从 PDA Registry 中移除这条记录。`)) {
+        return;
+      }
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        setStatus($('detailStatus'), `正在删除 ${target.pdaId} ...`);
+        await postJson(`${api}/v2/pda_delete`, { pdaId: target.pdaId });
+        const previousIndex = state.records.findIndex(record => record.pdaId === target.pdaId);
+        state.records = state.records.filter(record => record.pdaId !== target.pdaId);
+        renderRecordList();
+        setStatus($('listStatus'), `已删除 <strong>${target.pdaId}</strong>。当前剩余 <strong>${state.records.length}</strong> 条记录。`, 'ok');
+        if (!state.records.length) {
+          state.selected = null;
+          $('detailWrap').style.display = 'none';
+          setStatus($('detailStatus'), '先从左侧选择一条记录。');
+          return;
+        }
+        const nextRecord = state.records[Math.min(previousIndex, state.records.length - 1)];
+        if (nextRecord) {
+          await selectRecord(nextRecord);
+        }
+      } catch (err) {
+        setStatus($('detailStatus'), `删除记录失败：${err.message}`, 'danger');
       }
     }
 
@@ -1423,6 +1375,7 @@
     $('restoreSelectedBtn').addEventListener('click', restoreSelectedPoint);
     $('submitReviewRoleBtn').addEventListener('click', submitReviewRole);
     $('submitNoteBtn').addEventListener('click', submitNote);
+    $('deleteRecordBtn').addEventListener('click', deleteCurrentRecord);
     $('manualAddBtn').addEventListener('click', addManualPda);
     $('pdaTypeSelectAllBtn').addEventListener('click', event => {
       event.preventDefault();
