@@ -7,13 +7,14 @@ create table if not exists pda_registry (
   -- 基本身份
   pda_id varchar primary key,
   instrument varchar not null,
-  timeframe varchar not null,        -- W / D / 4H / 1H
+  timeframe varchar not null,        -- W / D / 4H / 1H / 15M
   pda_type varchar not null,         -- 当前主线白名单：bsl / ssl / fvg / nwog / ndog
   direction varchar,                 -- bullish / bearish / neutral；对 bsl / ssl 可留空
 
   -- 当前阶段推荐字段
   trade_date date,
   anchor_time timestamp,
+  occurrence_time timestamp,
   confirm_time timestamp,
   status varchar not null default 'active',     -- active / archived / deleted_by_review
   manual_added boolean not null default false,
@@ -64,7 +65,7 @@ create index if not exists idx_pda_registry_type_direction
   on pda_registry (pda_type, direction);
 
 -- 推荐枚举（文档约束，数据库层先不强加 check，方便第一阶段迭代）
--- timeframe: W / D / 4H / 1H
+-- timeframe: W / D / 4H / 1H / 15M
 -- pda_type:
 --   bsl / ssl
 --   fvg

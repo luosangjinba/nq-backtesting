@@ -338,6 +338,27 @@ Windows 继续可以使用：
   - `ssl`
   - `fvg`
 - `30m` 手工补录
+- `15M` 辅助观察层
+  - 存在同一张 `pda_registry` 表里
+  - 当前只自动扫描 `15M bsl / ssl`
+  - 默认规则：`left=4 / right=4`
+  - 不进入当前自动短期高低点轮动
+  - 主要用于更细地研究 `09:30` 启动原因
+- `pd_extremes` 分时段极值事实层
+  - 单独成表，不混入 `pda_type`
+  - 当前已落地七个时段：
+    - `asia`
+    - `ldn`
+    - `transition`
+    - `premarket`
+    - `ny_am`
+    - `ny_lunch`
+    - `ny_pm`
+  - 每条记录包含：
+    - `high_price / high_time`
+    - `low_price / low_time`
+    - `window_start / window_end`
+  - 第一阶段只记录事实，不直接做 sweep / manipulation 归因
 - 创建 / 列出 / 恢复数据库还原点
 
 ### 当前短期高低点口径

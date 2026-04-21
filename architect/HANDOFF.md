@@ -19,6 +19,16 @@
 - `PDA` 是原子点 / 原子区间池
 - `EQH / EQL` 不是单条 PDA 的 tag，而是后续独立的组合结构层
 - `daily_high / daily_low` 是客观日线极值快照，自动入库，不参与人工修订
+- `15M bsl / ssl` 后续可以加入，但当前定位是`09:30 启动原因研究`的辅助观察层
+- 这类 `15M` 数据如果启用，仍然放在同一张 `pda_registry` 表里，使用 `timeframe = '15M'`
+- `15M` 初期不进入主筛选主线，不参与当前自动短期高低点轮动，只作为专项观察层
+- `15M` 现已落地到正式库，当前默认扫描规则是 `left=4 / right=4`
+- `pd_extremes` 分时段极值事实层现已落地到正式库
+- 它单独成表，不混入 `pda_registry` 的 `pda_type`
+- 当前只记录七个时段的：
+  - `high_price / high_time`
+  - `low_price / low_time`
+  - `window_start / window_end`
 - `bsl / ssl` 候选扫描遇到连续相邻等高 / 等低时，统一只保留最右边那个点作为代表点继续参与 swing 判断
 - 这不保证该代表点一定最终入库；它仍然可能被外部更大的高点 / 更低的低点压掉
 - 当前顺序是：
@@ -35,6 +45,8 @@
 - [v2/scripts/scan_layer1_pda.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/scan_layer1_pda.py:1)
 - [v2/scripts/check_pda_scan.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/check_pda_scan.py:1)
 - [v2/schema/pda_registry.sql](/home/leo/myworkspace/trading/backtesting/v2/schema/pda_registry.sql:1)
+- [v2/schema/pd_extremes.sql](/home/leo/myworkspace/trading/backtesting/v2/schema/pd_extremes.sql:1)
+- [v2/scripts/build_pd_extremes.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/build_pd_extremes.py:1)
 
 ## 当前正式库
 
@@ -49,6 +61,8 @@
 `pda_review.html` 已支持：
 
 - 浏览 `daily_high / daily_low / bsl / ssl / fvg / nwog / ndog`
+- 如后续启用，也可浏览 `15M bsl / ssl`，但它属于辅助观察层
+- 当前已经可以直接在页面里筛 `15M`
 - `review_role` 归类：
   - `unclassified`
   - `daily_high / daily_low`
@@ -71,6 +85,7 @@
   - 放在人工修订区右侧
   - `bsl / ssl` 画单线
   - `fvg / nwog / ndog` 画上下边界线
+- `pd_extremes` 已接入 `pda_review.html` 左侧只读面板，可按日期查看七个时段的高低点
 
 ## 最近关键变化
 
@@ -107,6 +122,23 @@
   - `1H`: `h1_short_high 8105` / `h1_short_low 8105` / `unclassified 4650`
 - 这轮全历史自动应用写回的记录会带：
   - `note = auto_short_apply_full`
+- 已把 `15M` 辅助观察层扫进正式库：
+  - `15M bsl = 32563`
+  - `15M ssl = 32287`
+  - 合计 `64850`
+- 这轮 `15M` 落地前创建了快照：
+  - [v2_research_before_15m_aux_scan_20260420_183110.duckdb](/home/leo/myworkspace/trading/backtesting/v2/data/restore_points/v2_research_before_15m_aux_scan_20260420_183110.duckdb:1)
+- 已把 `pd_extremes` 分时段极值事实层写入正式库：
+  - `asia = 4602`
+  - `ldn = 4601`
+  - `transition = 4610`
+  - `premarket = 4610`
+  - `ny_am = 4601`
+  - `ny_lunch = 4563`
+  - `ny_pm = 4455`
+  - 合计 `32042`
+- 这轮 `pd_extremes` 落地前创建了快照：
+  - [v2_research_before_pd_extremes_20260420_190619.duckdb](/home/leo/myworkspace/trading/backtesting/v2/data/restore_points/v2_research_before_pd_extremes_20260420_190619.duckdb:1)
 
 ## Linux 启动方式
 

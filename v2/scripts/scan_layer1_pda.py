@@ -10,6 +10,7 @@ Layer 1 rules:
 Current narrowed scope:
 - Auto scan: daily_high / daily_low / bsl / ssl / fvg
 - nwog / ndog keep dedicated gap logic
+- 15M is an auxiliary observation layer: only bsl / ssl for now
 - 30m stays manual-only
 """
 
@@ -30,11 +31,13 @@ SWING_RULES = {
     "D": (1, 1),
     "4H": (2, 2),
     "1H": (3, 3),
+    "15M": (4, 4),
 }
 BUCKET_MINUTES = {
     "D": 24 * 60,
     "4H": 4 * 60,
     "1H": 60,
+    "15M": 15,
 }
 
 
@@ -56,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--source-table", default="futures_1m")
     parser.add_argument("--target-db", default="v2/data/v2_research.duckdb")
     parser.add_argument("--instrument", default="NQ")
-    parser.add_argument("--timeframes", default="D,4H,1H", help="Comma-separated subset of D,4H,1H")
+    parser.add_argument("--timeframes", default="D,4H,1H", help="Comma-separated subset of D,4H,1H,15M")
     parser.add_argument("--date-from", default="", help="Session date from YYYY-MM-DD")
     parser.add_argument("--date-to", default="", help="Session date to YYYY-MM-DD")
     parser.add_argument("--replace", action="store_true", help="Delete existing rows for instrument/timeframes before insert")
@@ -108,6 +111,7 @@ def ensure_registry_columns(target_conn: duckdb.DuckDBPyConnection) -> None:
     required_columns = {
         "trade_date": "date",
         "anchor_time": "timestamp",
+        "occurrence_time": "timestamp",
         "confirm_time": "timestamp",
         "status": "varchar default 'active'",
         "manual_added": "boolean default false",
@@ -232,6 +236,16 @@ def fetch_bars(
         )
         for row in rows
     ]
+
+
+def build_occurrence_bucket_expr(timeframe: str) -> str:
+    bucket_minutes = BUCKET_MINUTES[timeframe]
+    if timeframe == "D":
+        return "date_trunc('day', ts + interval '6 hour') - interval '6 hour'"
+    return (
+        "session_start + floor(date_diff('minute', session_start, ts) / "
+        f"{bucket_minutes}) * interval '{bucket_minutes} minute'"
+    )
 
 
 def midpoint(high: float, low: float) -> float:
@@ -595,6 +609,7 @@ def make_record(
     direction: str | None,
     trade_date: str,
     anchor_time: datetime | None = None,
+    occurrence_time: datetime | None = None,
     confirm_time: datetime | None = None,
     origin_start_date: str | None = None,
     origin_end_date: str | None = None,
@@ -620,6 +635,7 @@ def make_record(
         "direction": direction,
         "trade_date": trade_date,
         "anchor_time": anchor_time,
+        "occurrence_time": occurrence_time,
         "confirm_time": confirm_time,
         "status": status,
         "manual_added": False,
@@ -667,6 +683,7 @@ def insert_records(conn: duckdb.DuckDBPyConnection, records: list[dict]) -> None
             rec["direction"],
             rec["trade_date"],
             rec["anchor_time"],
+            rec["occurrence_time"],
             rec["confirm_time"],
             rec["status"],
             rec["manual_added"],
@@ -697,16 +714,101 @@ def insert_records(conn: duckdb.DuckDBPyConnection, records: list[dict]) -> None
         """
         insert into pda_registry (
           pda_id, instrument, timeframe, pda_type, direction,
-          trade_date, anchor_time, confirm_time, status, manual_added, manual_edited, review_state, review_role,
+          trade_date, anchor_time, occurrence_time, confirm_time, status, manual_added, manual_edited, review_state, review_role,
           created_date, created_ts, verified_ts, anchor_ts,
           origin_start_date, origin_end_date,
           price, price_high, price_low, price_ce,
           prev_close_time, prev_close_price, next_open_time, next_open_price,
           source, note, registry_status
-        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows,
     )
+
+
+def backfill_occurrence_times(
+    conn: duckdb.DuckDBPyConnection,
+    source_table: str,
+    instrument: str,
+    timeframes: Iterable[str],
+    date_from: str,
+    date_to: str,
+) -> None:
+    items = list(timeframes)
+    if not items:
+        return
+    for timeframe in items:
+        bucket_expr = build_occurrence_bucket_expr(timeframe)
+        base_filters = ["instrument = ?"]
+        base_params: list[object] = [instrument]
+        if date_from:
+            base_filters.append("cast(ts + interval '6 hour' as date) >= cast(? as date)")
+            base_params.append(date_from)
+        if date_to:
+            base_filters.append("cast(ts + interval '6 hour' as date) <= cast(? as date)")
+            base_params.append(date_to)
+
+        for is_high, source_col, registry_col, pda_types in (
+            (True, "high", "price_high", ["bsl"] + (["daily_high"] if timeframe == "D" else [])),
+            (False, "low", "price_low", ["ssl"] + (["daily_low"] if timeframe == "D" else [])),
+        ):
+            type_placeholders = ",".join("?" for _ in pda_types)
+            params = [*base_params, instrument, timeframe, *pda_types]
+            extrema_fn = "max" if is_high else "min"
+            conn.execute(
+                f"""
+                update pda_registry as p
+                set occurrence_time = src.occurrence_time,
+                    updated_at = current_timestamp
+                from (
+                  with base as (
+                    select
+                      instrument,
+                      ts,
+                      {source_col} as price_value,
+                      date_trunc('day', ts + interval '6 hour') - interval '6 hour' as session_start,
+                      {bucket_expr} as bucket_start
+                    from source_db.{source_table}
+                    where {" and ".join(base_filters)}
+                  ),
+                  extrema as (
+                    select
+                      instrument,
+                      bucket_start,
+                      {extrema_fn}(price_value) as target_price
+                    from base
+                    group by instrument, bucket_start
+                  ),
+                  first_touch as (
+                    select
+                      b.instrument,
+                      b.bucket_start,
+                      e.target_price,
+                      min(b.ts) as occurrence_time
+                    from base b
+                    join extrema e
+                      on e.instrument = b.instrument
+                     and e.bucket_start = b.bucket_start
+                     and e.target_price = b.price_value
+                    group by b.instrument, b.bucket_start, e.target_price
+                  )
+                  select
+                    p.pda_id,
+                    f.occurrence_time
+                  from pda_registry p
+                  join first_touch f
+                    on f.instrument = p.instrument
+                   and f.bucket_start = p.anchor_time
+                   and f.target_price = p.{registry_col}
+                  where p.instrument = ?
+                    and p.timeframe = ?
+                    and p.pda_type in ({type_placeholders})
+                    and p.anchor_time is not null
+                ) as src
+                where p.pda_id = src.pda_id
+                """,
+                params,
+            )
 
 
 def main() -> None:
@@ -751,7 +853,8 @@ def main() -> None:
         if timeframe == "D":
             tf_records.extend(daily_point_records(bars, counters))
         tf_records.extend(swing_records(bars, timeframe, counters))
-        tf_records.extend(fvg_records(bars, timeframe, counters))
+        if timeframe in {"D", "4H", "1H"}:
+            tf_records.extend(fvg_records(bars, timeframe, counters))
         if timeframe == "D":
             tf_records.extend(
                 gap_records(
@@ -767,6 +870,15 @@ def main() -> None:
         insert_records(target_conn, tf_records)
         inserted.extend(tf_records)
         print(f"[{timeframe}] scanned {len(bars)} bars -> inserted {len(tf_records)} records")
+
+    backfill_occurrence_times(
+        target_conn,
+        args.source_table,
+        args.instrument,
+        timeframes,
+        date_from,
+        date_to,
+    )
 
     print(f"Done. Inserted {len(inserted)} total records into {target_db}")
 

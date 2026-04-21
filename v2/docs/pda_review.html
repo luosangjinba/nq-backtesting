@@ -317,6 +317,30 @@
       line-height: 1.6;
       margin-top: 8px;
     }
+    .pd-extremes-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(111,136,149,0.2);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.08);
+      margin-top: 12px;
+    }
+    .pd-extremes-table {
+      min-width: 560px;
+    }
+    .pd-extremes-table th,
+    .pd-extremes-table td {
+      padding: 8px 9px;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+    .pd-extremes-table .price-high {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .pd-extremes-table .price-low {
+      color: var(--danger);
+      font-weight: 700;
+    }
     .role-unclassified {
       border-color: rgba(217,181,108,0.42);
       background: rgba(217,181,108,0.12);
@@ -428,6 +452,7 @@
                 <option value="D">D</option>
                 <option value="4H">4H</option>
                 <option value="1H">1H</option>
+                <option value="15M">15m</option>
                 <option value="30M">30m</option>
               </select>
             </div>
@@ -495,6 +520,49 @@
           <div id="listStatus" class="status">填好条件后点“加载记录”。</div>
           <div id="recordSummary" class="tiny" style="margin-top:10px;"></div>
           <div id="recordList" class="record-list" style="margin-top:14px;"></div>
+
+          <div class="section" style="margin-top:14px;">
+            <h3>分时段极值</h3>
+            <div class="grid-2">
+              <div>
+                <label>Trade Date</label>
+                <input id="pdExtremesDate" placeholder="例如：2012-01-05；留空则使用 Date From" />
+              </div>
+              <div>
+                <label>Session</label>
+                <select id="pdExtremesSession">
+                  <option value="">全部时段</option>
+                  <option value="asia">Asia</option>
+                  <option value="ldn">LDN</option>
+                  <option value="transition">Transition</option>
+                  <option value="premarket">Premarket</option>
+                  <option value="ny_am">NY AM</option>
+                  <option value="ny_lunch">NY Lunch</option>
+                  <option value="ny_pm">NY PM</option>
+                </select>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn--primary" id="loadPdExtremesBtn" type="button">加载时段高低点</button>
+            </div>
+            <div id="pdExtremesStatus" class="status">按日期查看 Asia / LDN / Transition / Premarket / NY AM / NY Lunch / NY PM 的高低点。</div>
+            <div class="pd-extremes-wrap">
+              <table class="pd-extremes-table">
+                <thead>
+                  <tr>
+                    <th>Session</th>
+                    <th>High</th>
+                    <th>High Time</th>
+                    <th>Low</th>
+                    <th>Low Time</th>
+                  </tr>
+                </thead>
+                <tbody id="pdExtremesTable">
+                  <tr><td colspan="5" class="tiny">还没有加载。</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           <div class="section" style="margin-top:14px;">
             <h3>还原点</h3>
@@ -671,6 +739,7 @@
       D: { left: 1, right: 1 },
       '4H': { left: 2, right: 2 },
       '1H': { left: 3, right: 3 },
+      '15M': { left: 4, right: 4 },
     };
     const reviewRoleOrder = [
       'unclassified',
@@ -819,6 +888,64 @@
         throw new Error(data.error || 'request failed');
       }
       return data.result;
+    }
+
+    const pdExtremeSessionLabels = {
+      asia: 'Asia',
+      ldn: 'LDN',
+      transition: 'Transition',
+      premarket: 'Premarket',
+      ny_am: 'NY AM',
+      ny_lunch: 'NY Lunch',
+      ny_pm: 'NY PM',
+    };
+
+    function formatPdExtremePrice(value) {
+      if (value === null || value === undefined || value === '') return '--';
+      return Number(value).toLocaleString('en-US', { maximumFractionDigits: 4 });
+    }
+
+    function renderPdExtremes(items) {
+      const table = $('pdExtremesTable');
+      if (!items.length) {
+        table.innerHTML = '<tr><td colspan="5" class="tiny">这个日期没有时段极值记录。</td></tr>';
+        return;
+      }
+      table.innerHTML = items.map(item => `
+        <tr>
+          <td><span class="pill">${pdExtremeSessionLabels[item.sessionName] || item.sessionName || '--'}</span></td>
+          <td class="price-high">${formatPdExtremePrice(item.highPrice)}</td>
+          <td class="mono">${item.highTime || '--'}</td>
+          <td class="price-low">${formatPdExtremePrice(item.lowPrice)}</td>
+          <td class="mono">${item.lowTime || '--'}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadPdExtremes() {
+      const api = $('apiBase').value.trim().replace(/\/$/, '');
+      const instrument = $('instrument').value.trim() || 'NQ';
+      const tradeDate = $('pdExtremesDate').value.trim() || $('dateFrom').value.trim();
+      const sessionName = $('pdExtremesSession').value;
+      if (!tradeDate) {
+        setStatus($('pdExtremesStatus'), '先填写 Trade Date，或者在上方 Date From 填一个日期。', 'warn');
+        return;
+      }
+      try {
+        const params = new URLSearchParams();
+        params.set('instrument', instrument);
+        params.set('date_from', tradeDate);
+        params.set('date_to', tradeDate);
+        if (sessionName) params.set('session_name', sessionName);
+        setStatus($('pdExtremesStatus'), `正在加载 ${instrument} ${tradeDate} 的分时段极值...`);
+        const result = await fetchJson(`${api}/v2/pd_extremes?${params.toString()}`);
+        const items = result.items || [];
+        renderPdExtremes(items);
+        setStatus($('pdExtremesStatus'), `已加载 <strong>${items.length}</strong> 条时段极值。`, 'ok');
+      } catch (err) {
+        renderPdExtremes([]);
+        setStatus($('pdExtremesStatus'), `加载分时段极值失败：${err.message}`, 'danger');
+      }
     }
 
     function renderRestorePointOptions(items) {
@@ -999,7 +1126,7 @@
       }
       const rule = ruleMap[record.timeframe];
       if (!rule || !bars.length) {
-        return '当前仅对 D / 4H / 1H 做候选规则解释。';
+        return '当前仅对 D / 4H / 1H / 15M 做候选规则解释。';
       }
       const focusIndex = bars.findIndex(bar => bar.isFocus);
       if (focusIndex < 0) {
@@ -1145,6 +1272,7 @@
       const keyFields = [
         ['Session Date', record.anchorSessionDate || record.tradeDate || record.createdDate || '--'],
         ['Anchor Bar Start', barStart],
+        ['Time of Occurrence', record.occurrenceTime || '--'],
         ['Confirm Bar Start Ts', confirmBarStart],
         ['当前人工归类', reviewRoleLabel(record.reviewRole)],
       ];
@@ -1370,6 +1498,7 @@
 
     $('loadBtn').addEventListener('click', loadRecords);
     $('clearBtn').addEventListener('click', clearFilters);
+    $('loadPdExtremesBtn').addEventListener('click', loadPdExtremes);
     $('createRestorePointBtn').addEventListener('click', createRestorePoint);
     $('refreshRestorePointsBtn').addEventListener('click', loadRestorePoints);
     $('restoreSelectedBtn').addEventListener('click', restoreSelectedPoint);

@@ -23,7 +23,7 @@ import duckdb
 
 VALID_FIELDS = {"open", "high", "low", "close"}
 VALID_HTF_TIMEFRAMES = {"daily": "day", "weekly": "week", "monthly": "month"}
-V2_BAR_BUCKET_MINUTES = {"D": 24 * 60, "4H": 4 * 60, "1H": 60, "30M": 30}
+V2_BAR_BUCKET_MINUTES = {"D": 24 * 60, "4H": 4 * 60, "1H": 60, "30M": 30, "15M": 15}
 MANUAL_PDA_TYPES = {"bsl", "ssl", "fvg"}
 MANUAL_PDA_TIMEFRAMES = {"D", "4H", "1H", "30M"}
 REVIEW_STATES = {"pending", "main", "parked"}
@@ -37,6 +37,15 @@ REVIEW_ROLES = {
     "h4_short_low",
     "h1_short_high",
     "h1_short_low",
+}
+PD_EXTREME_SESSIONS = {
+    "asia",
+    "ldn",
+    "transition",
+    "premarket",
+    "ny_am",
+    "ny_lunch",
+    "ny_pm",
 }
 SESSION_DAY_SHIFT_HOURS = 6
 ALLOWED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
@@ -174,6 +183,13 @@ def validate_restore_point_id(value: str) -> str:
         raise ValueError("restorePointId cannot be empty")
     if not re.fullmatch(r"[A-Za-z0-9_\-]+", text):
         raise ValueError("invalid restorePointId")
+    return text
+
+
+def validate_pd_extreme_session(value: str) -> str:
+    text = (value or "").strip().lower()
+    if text not in PD_EXTREME_SESSIONS:
+        raise ValueError("session_name must be asia/ldn/transition/premarket/ny_am/ny_lunch/ny_pm")
     return text
 
 
@@ -343,6 +359,7 @@ def ensure_v2_registry_columns(db_path: str) -> None:
         required_columns = {
             "trade_date": "date",
             "anchor_time": "timestamp",
+            "occurrence_time": "timestamp",
             "confirm_time": "timestamp",
             "status": "varchar default 'active'",
             "manual_added": "boolean default false",
@@ -632,6 +649,7 @@ def query_v2_pda_records(
 	  direction,
 	  trade_date,
 	  anchor_time,
+	  occurrence_time,
 	  confirm_time,
 	  status,
 	  manual_added,
@@ -667,14 +685,15 @@ def query_v2_pda_records(
     records = []
     for row in rows:
         anchor_time = row[6].strftime("%Y-%m-%d %H:%M:%S") if row[6] else ""
-        confirm_time = row[7].strftime("%Y-%m-%d %H:%M:%S") if row[7] else ""
+        occurrence_time = row[7].strftime("%Y-%m-%d %H:%M:%S") if row[7] else ""
+        confirm_time = row[8].strftime("%Y-%m-%d %H:%M:%S") if row[8] else ""
         anchor_session_date = ""
         confirm_session_date = ""
         if row[6]:
             anchor_session_date = (row[6] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
-        if row[7]:
-            confirm_session_date = (row[7] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
-        resolved_review_role = normalize_review_role(row[12], row[11], row[2], row[3])
+        if row[8]:
+            confirm_session_date = (row[8] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
+        resolved_review_role = normalize_review_role(row[13], row[12], row[2], row[3])
         records.append(
             {
                 "pdaId": row[0],
@@ -684,32 +703,33 @@ def query_v2_pda_records(
                 "direction": row[4],
                 "tradeDate": row[5].strftime("%Y-%m-%d") if row[5] else "",
                 "anchorTime": anchor_time,
+                "occurrenceTime": occurrence_time,
                 "confirmTime": confirm_time,
                 "anchorSessionDate": anchor_session_date,
                 "confirmSessionDate": confirm_session_date,
-                "status": row[8],
-                "manualAdded": bool(row[9]) if row[9] is not None else False,
-                "manualEdited": bool(row[10]) if row[10] is not None else False,
+                "status": row[9],
+                "manualAdded": bool(row[10]) if row[10] is not None else False,
+                "manualEdited": bool(row[11]) if row[11] is not None else False,
                 "reviewState": legacy_review_state_from_role(resolved_review_role),
                 "reviewRole": resolved_review_role,
-                "reviewTag": (row[13] or "").lower(),
-                "createdDate": row[14].strftime("%Y-%m-%d") if row[14] else "",
-                "createdTs": row[15].strftime("%Y-%m-%d %H:%M:%S") if row[15] else "",
-                "verifiedTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
-                "anchorTs": row[17].strftime("%Y-%m-%d %H:%M:%S") if row[17] else "",
-                "originStartDate": row[18].strftime("%Y-%m-%d") if row[18] else "",
-                "originEndDate": row[19].strftime("%Y-%m-%d") if row[19] else "",
-                "price": float(row[20]) if row[20] is not None else None,
-                "priceHigh": float(row[21]) if row[21] is not None else None,
-                "priceLow": float(row[22]) if row[22] is not None else None,
-                "priceCe": float(row[23]) if row[23] is not None else None,
-                "prevCloseTime": row[24].strftime("%Y-%m-%d %H:%M:%S") if row[24] else "",
-                "prevClosePrice": float(row[25]) if row[25] is not None else None,
-                "nextOpenTime": row[26].strftime("%Y-%m-%d %H:%M:%S") if row[26] else "",
-                "nextOpenPrice": float(row[27]) if row[27] is not None else None,
-                "registryStatus": row[28],
-                "source": row[29],
-                "note": row[30] or "",
+                "reviewTag": (row[14] or "").lower(),
+                "createdDate": row[15].strftime("%Y-%m-%d") if row[15] else "",
+                "createdTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
+                "verifiedTs": row[17].strftime("%Y-%m-%d %H:%M:%S") if row[17] else "",
+                "anchorTs": row[18].strftime("%Y-%m-%d %H:%M:%S") if row[18] else "",
+                "originStartDate": row[19].strftime("%Y-%m-%d") if row[19] else "",
+                "originEndDate": row[20].strftime("%Y-%m-%d") if row[20] else "",
+                "price": float(row[21]) if row[21] is not None else None,
+                "priceHigh": float(row[22]) if row[22] is not None else None,
+                "priceLow": float(row[23]) if row[23] is not None else None,
+                "priceCe": float(row[24]) if row[24] is not None else None,
+                "prevCloseTime": row[25].strftime("%Y-%m-%d %H:%M:%S") if row[25] else "",
+                "prevClosePrice": float(row[26]) if row[26] is not None else None,
+                "nextOpenTime": row[27].strftime("%Y-%m-%d %H:%M:%S") if row[27] else "",
+                "nextOpenPrice": float(row[28]) if row[28] is not None else None,
+                "registryStatus": row[29],
+                "source": row[30],
+                "note": row[31] or "",
             }
         )
     return {"records": records}
@@ -726,6 +746,7 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
       direction,
       trade_date,
       anchor_time,
+      occurrence_time,
       confirm_time,
       status,
       manual_added,
@@ -758,14 +779,15 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
         row = conn.execute(sql, [pda_id]).fetchone()
     if row:
         anchor_time = row[6].strftime("%Y-%m-%d %H:%M:%S") if row[6] else ""
-        confirm_time = row[7].strftime("%Y-%m-%d %H:%M:%S") if row[7] else ""
+        occurrence_time = row[7].strftime("%Y-%m-%d %H:%M:%S") if row[7] else ""
+        confirm_time = row[8].strftime("%Y-%m-%d %H:%M:%S") if row[8] else ""
         anchor_session_date = ""
         confirm_session_date = ""
         if row[6]:
             anchor_session_date = (row[6] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
-        if row[7]:
-            confirm_session_date = (row[7] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
-        resolved_review_role = normalize_review_role(row[12], row[11], row[2], row[3])
+        if row[8]:
+            confirm_session_date = (row[8] + timedelta(hours=SESSION_DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
+        resolved_review_role = normalize_review_role(row[13], row[12], row[2], row[3])
         return {
             "pdaId": row[0],
             "instrument": row[1],
@@ -774,34 +796,109 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
             "direction": row[4],
             "tradeDate": row[5].strftime("%Y-%m-%d") if row[5] else "",
             "anchorTime": anchor_time,
+            "occurrenceTime": occurrence_time,
             "confirmTime": confirm_time,
             "anchorSessionDate": anchor_session_date,
             "confirmSessionDate": confirm_session_date,
-            "status": row[8],
-            "manualAdded": bool(row[9]) if row[9] is not None else False,
-            "manualEdited": bool(row[10]) if row[10] is not None else False,
+            "status": row[9],
+            "manualAdded": bool(row[10]) if row[10] is not None else False,
+            "manualEdited": bool(row[11]) if row[11] is not None else False,
             "reviewState": legacy_review_state_from_role(resolved_review_role),
             "reviewRole": resolved_review_role,
-            "reviewTag": (row[13] or "").lower(),
-            "createdDate": row[14].strftime("%Y-%m-%d") if row[14] else "",
-            "createdTs": row[15].strftime("%Y-%m-%d %H:%M:%S") if row[15] else "",
-            "verifiedTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
-            "anchorTs": row[17].strftime("%Y-%m-%d %H:%M:%S") if row[17] else "",
-            "originStartDate": row[18].strftime("%Y-%m-%d") if row[18] else "",
-            "originEndDate": row[19].strftime("%Y-%m-%d") if row[19] else "",
-            "price": float(row[20]) if row[20] is not None else None,
-            "priceHigh": float(row[21]) if row[21] is not None else None,
-            "priceLow": float(row[22]) if row[22] is not None else None,
-            "priceCe": float(row[23]) if row[23] is not None else None,
-            "prevCloseTime": row[24].strftime("%Y-%m-%d %H:%M:%S") if row[24] else "",
-            "prevClosePrice": float(row[25]) if row[25] is not None else None,
-            "nextOpenTime": row[26].strftime("%Y-%m-%d %H:%M:%S") if row[26] else "",
-            "nextOpenPrice": float(row[27]) if row[27] is not None else None,
-            "registryStatus": row[28],
-            "source": row[29],
-            "note": row[30] or "",
+            "reviewTag": (row[14] or "").lower(),
+            "createdDate": row[15].strftime("%Y-%m-%d") if row[15] else "",
+            "createdTs": row[16].strftime("%Y-%m-%d %H:%M:%S") if row[16] else "",
+            "verifiedTs": row[17].strftime("%Y-%m-%d %H:%M:%S") if row[17] else "",
+            "anchorTs": row[18].strftime("%Y-%m-%d %H:%M:%S") if row[18] else "",
+            "originStartDate": row[19].strftime("%Y-%m-%d") if row[19] else "",
+            "originEndDate": row[20].strftime("%Y-%m-%d") if row[20] else "",
+            "price": float(row[21]) if row[21] is not None else None,
+            "priceHigh": float(row[22]) if row[22] is not None else None,
+            "priceLow": float(row[23]) if row[23] is not None else None,
+            "priceCe": float(row[24]) if row[24] is not None else None,
+            "prevCloseTime": row[25].strftime("%Y-%m-%d %H:%M:%S") if row[25] else "",
+            "prevClosePrice": float(row[26]) if row[26] is not None else None,
+            "nextOpenTime": row[27].strftime("%Y-%m-%d %H:%M:%S") if row[27] else "",
+            "nextOpenPrice": float(row[28]) if row[28] is not None else None,
+            "registryStatus": row[29],
+            "source": row[30],
+            "note": row[31] or "",
         }
     raise LookupError("pda record not found")
+
+
+def query_v2_pd_extremes(
+    v2_db_path: str,
+    instrument: str,
+    date_from: str,
+    date_to: str,
+    session_name: str,
+) -> Dict[str, object]:
+    if not ensure_optional_table_exists(v2_db_path, "pd_extremes"):
+        raise LookupError("v2 pd_extremes not found")
+    clauses = [
+        "(? = '' or instrument = ?)",
+        "(? = '' or trade_date >= cast(? as date))",
+        "(? = '' or trade_date <= cast(? as date))",
+        "(? = '' or session_name = ?)",
+    ]
+    params: list[object] = [
+        instrument,
+        instrument,
+        date_from,
+        date_from,
+        date_to,
+        date_to,
+        session_name,
+        session_name,
+    ]
+    sql = f"""
+    select
+      instrument,
+      trade_date,
+      session_name,
+      window_start,
+      window_end,
+      high_price,
+      high_time,
+      low_price,
+      low_time,
+      source,
+      note
+    from pd_extremes
+    where {" and ".join(clauses)}
+    order by trade_date asc,
+      case session_name
+        when 'asia' then 1
+        when 'ldn' then 2
+        when 'transition' then 3
+        when 'premarket' then 4
+        when 'ny_am' then 5
+        when 'ny_lunch' then 6
+        when 'ny_pm' then 7
+        else 99
+      end asc
+    """.strip()
+    with open_db(v2_db_path) as conn:
+        rows = conn.execute(sql, params).fetchall()
+    items = []
+    for row in rows:
+        items.append(
+            {
+                "instrument": row[0],
+                "tradeDate": row[1].strftime("%Y-%m-%d") if row[1] else "",
+                "sessionName": row[2],
+                "windowStart": row[3].strftime("%Y-%m-%d %H:%M:%S") if row[3] else "",
+                "windowEnd": row[4].strftime("%Y-%m-%d %H:%M:%S") if row[4] else "",
+                "highPrice": float(row[5]) if row[5] is not None else None,
+                "highTime": row[6].strftime("%Y-%m-%d %H:%M:%S") if row[6] else "",
+                "lowPrice": float(row[7]) if row[7] is not None else None,
+                "lowTime": row[8].strftime("%Y-%m-%d %H:%M:%S") if row[8] else "",
+                "source": row[9] or "",
+                "note": row[10] or "",
+            }
+        )
+    return {"items": items}
 
 
 def update_v2_pda_review(
@@ -1319,6 +1416,25 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(200, {"ok": True, "result": result})
             except KeyError as exc:
                 self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pd_extremes":
+            try:
+                params = parse_qs(parsed.query)
+                instrument = validate_instrument(params.get("instrument", ["NQ"])[0]) if params.get("instrument", [""])[0] else ""
+                date_from = validate_date(params.get("date_from", [""])[0]) if params.get("date_from", [""])[0] else ""
+                date_to = validate_date(params.get("date_to", [""])[0]) if params.get("date_to", [""])[0] else ""
+                session_name = params.get("session_name", [""])[0].strip().lower()
+                if session_name:
+                    session_name = validate_pd_extreme_session(session_name)
+                result = query_v2_pd_extremes(self.v2_db_path, instrument, date_from, date_to, session_name)
+                self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
             except ValueError as exc:
