@@ -1,0 +1,2388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layer2 Recorder V2</title>
+  <style>
+    :root {
+      --bg: #162229;
+      --panel: #22353f;
+      --panel-2: #2b414b;
+      --line: rgba(148, 171, 180, 0.38);
+      --text: #f3f1eb;
+      --muted: #a8bbc2;
+      --accent: #58d6c0;
+      --accent-2: rgba(88, 214, 192, 0.14);
+      --warn: #e7c27f;
+      --danger: #f0a2a2;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(88, 214, 192, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(120, 160, 255, 0.08), transparent 22%),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 10px 12px;
+      min-height: 42px;
+      outline: none;
+    }
+    textarea { min-height: 92px; resize: vertical; line-height: 1.55; }
+    input:focus, select:focus, textarea:focus { border-color: rgba(88, 214, 192, 0.72); }
+    .shell { max-width: 1800px; margin: 0 auto; padding: 18px; }
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: end;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(34, 53, 63, 0.94);
+      box-shadow: var(--shadow);
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: 0.01em; }
+    .sub { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .layout {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 320px minmax(620px, 1.2fr) minmax(520px, 0.95fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(34, 53, 63, 0.92);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(148, 171, 180, 0.14);
+    }
+    .panel__title { margin: 0; font-size: 15px; }
+    .panel__body { padding: 14px 16px 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .field { margin-bottom: 10px; }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      min-height: 38px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: rgba(88, 214, 192, 0.66); }
+    .btn--primary {
+      background: var(--accent-2);
+      color: var(--accent);
+      border-color: rgba(88, 214, 192, 0.5);
+      font-weight: 700;
+    }
+    .btn--danger { color: var(--danger); }
+    .btn--tiny { min-height: 30px; padding: 0 9px; font-size: 12px; }
+    .status {
+      margin-top: 10px;
+      padding: 9px 11px;
+      border: 1px solid rgba(148, 171, 180, 0.22);
+      border-radius: 10px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.12);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .status[data-kind="ok"] { color: var(--accent); }
+    .status[data-kind="warn"] { color: var(--warn); }
+    .status[data-kind="danger"] { color: var(--danger); }
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      padding: 8px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .chip.active {
+      background: var(--accent-2);
+      color: var(--text);
+      border-color: rgba(88, 214, 192, 0.52);
+    }
+    .list {
+      display: grid;
+      gap: 8px;
+      max-height: 38vh;
+      overflow: auto;
+      padding-right: 3px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(43, 65, 75, 0.82);
+      padding: 11px;
+    }
+    .card__top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+    .card__title { font-size: 13px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+    .card__meta { color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+    .card__foot { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .section-title { margin: 0 0 10px; font-size: 14px; }
+    .manual-list { display: grid; gap: 10px; }
+    .manual-item {
+      border: 1px solid rgba(148, 171, 180, 0.24);
+      border-radius: 12px;
+      background: rgba(24, 36, 42, 0.32);
+      padding: 11px;
+    }
+    .manual-item.active {
+      border-color: rgba(88, 214, 192, 0.72);
+      box-shadow: 0 0 0 1px rgba(88, 214, 192, 0.12) inset;
+    }
+    .manual-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .manual-title { font-size: 13px; font-weight: 700; }
+    .manual-sub { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 171, 180, 0.26);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #efece1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(148, 171, 180, 0.14);
+      padding: 7px 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+    .tiny { font-size: 12px; color: var(--muted); line-height: 1.45; }
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 1fr; }
+      .topbar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="topbar">
+      <div>
+        <h1>Layer2 Recorder V2</h1>
+        <p class="sub">1H 作为结构骨架，9:30 之后用 30M 作为 NY Open 观察镜。页面以 YAML 为真相源，DuckDB 只做对照和匹配。</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn--primary" id="loadContextBtn" type="button">加载对照</button>
+        <button class="btn" id="addPathBtn" type="button">新增 Path</button>
+        <button class="btn" id="importPathYamlBtn" type="button">导入 Path YAML</button>
+        <button class="btn" id="importGroupsYamlBtn" type="button">导入 groups.yaml</button>
+        <button class="btn" id="copyYamlBtn" type="button">复制 YAML</button>
+        <button class="btn" id="downloadYamlBtn" type="button">下载 YAML</button>
+        <input id="importPathYamlInput" type="file" accept=".yaml,.yml,text/yaml,text/plain" multiple hidden>
+        <input id="importGroupsYamlInput" type="file" accept=".yaml,.yml,text/yaml,text/plain" hidden>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:14px;">
+      <div class="panel__body">
+        <div class="grid-4">
+          <div class="field">
+            <label>API Base</label>
+            <input id="apiBase" value="http://127.0.0.1:8765">
+          </div>
+          <div class="field">
+            <label>Instrument</label>
+            <input id="instrument" value="NQ">
+          </div>
+          <div class="field">
+            <label>Sample Date</label>
+            <input id="sampleDate" type="date" value="2012-01-10">
+          </div>
+          <div class="field">
+            <label>Context Window</label>
+            <div class="grid-2">
+              <input id="lookbackDays" type="number" min="0" step="1" value="2" aria-label="lookback">
+              <input id="lookaheadDays" type="number" min="0" step="1" value="1" aria-label="lookahead">
+            </div>
+          </div>
+        </div>
+        <div class="tiny">加载后，右侧会显示按日期窗口抓到的自动 PDA 候选；手工 PDA 通过 `GET /v2/pda_match` 做匹配，但不会自动写入 `v2_research.duckdb`。</div>
+        <div class="status" id="status">准备就绪。</div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Paths</h2>
+          <span class="tag" id="pathCount">0</span>
+        </div>
+        <div class="panel__body">
+          <div class="chips" id="pathChips"></div>
+          <div class="field">
+            <label>Path Notes</label>
+            <textarea id="globalNotes" placeholder="可在这里写整个样本的总览、检查口径或待办。"></textarea>
+          </div>
+          <div class="status" style="margin-top:0;">
+            左栏只管理结构路径。每个 Path 下的手工 PDA 是独立记录，不再混进自动候选池。
+          </div>
+
+          <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
+            <div class="panel__header">
+              <h3 class="panel__title">Group Editor</h3>
+              <span class="tag" id="groupCount">0</span>
+            </div>
+            <div class="panel__body">
+              <div class="tiny" style="margin-bottom:10px;">Group 用来表达“多个 1H Path 合成的大结构”；它只引用 Path，不重复录 PDA。</div>
+              <div id="groupEditor"></div>
+              <div class="btn-row" style="margin-top:10px;">
+                <button class="btn btn--tiny btn--primary" id="addGroupBtn" type="button">新增 Group</button>
+                <button class="btn btn--tiny btn--danger" id="deleteGroupBtn" type="button">删除当前 Group</button>
+                <button class="btn btn--tiny" id="copyGroupsYamlBtn" type="button">复制 groups.yaml</button>
+                <button class="btn btn--tiny" id="downloadGroupsYamlBtn" type="button">下载 groups.yaml</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
+            <div class="panel__header">
+              <h3 class="panel__title">Relation Editor</h3>
+              <span class="tag" id="relationCount">0</span>
+            </div>
+            <div class="panel__body">
+              <div class="tiny" style="margin-bottom:10px;">Relation 记录 Group/Path 之间的突破、回撤、嵌套和比例关系。</div>
+              <div id="relationEditor"></div>
+              <div class="btn-row" style="margin-top:10px;">
+                <button class="btn btn--tiny btn--primary" id="addRelationBtn" type="button">新增 Relation</button>
+                <button class="btn btn--tiny btn--danger" id="deleteRelationBtn" type="button">删除当前 Relation</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Path Editor</h2>
+          <div class="btn-row">
+            <button class="btn btn--tiny" id="deletePathBtn" type="button">删除 Path</button>
+          </div>
+        </div>
+        <div class="panel__body">
+          <form id="pathForm">
+            <div class="grid-2">
+              <div class="field">
+                <label>Path ID</label>
+                <input data-field="id" placeholder="path_20120110_001">
+              </div>
+              <div class="field">
+                <label>Primary TF</label>
+                <select data-field="primaryTimeframe">
+                  <option value="1H">1H</option>
+                  <option value="4H">4H</option>
+                  <option value="30M">30M</option>
+                  <option value="15M">15M</option>
+                  <option value="D">D</option>
+                </select>
+                <div class="tiny">Primary TF defines the structure backbone. It does not force start/end boundaries to align to full 1H bars.</div>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="field">
+                <label>Start Time (1m precision)</label>
+                <input data-field="startTime" placeholder="2012-01-10 09:18:00">
+              </div>
+              <div class="field">
+                <label>End Time (1m precision)</label>
+                <input data-field="endTime" placeholder="2012-01-10 11:07:00">
+              </div>
+              <div class="field">
+                <label>Direction</label>
+                <select data-field="direction">
+                  <option value=""></option>
+                  <option value="bullish">bullish</option>
+                  <option value="bearish">bearish</option>
+                  <option value="range">range</option>
+                </select>
+              </div>
+            </div>
+            <div class="tiny" style="margin-top:-4px; margin-bottom:14px;">Rule: `primary_timeframe` says how we read the structure. `start_time` and `end_time` mark the actual path boundary and should be recorded with 1-minute precision when known.</div>
+
+            <div class="grid-3">
+              <div class="field">
+                <label>Role</label>
+                <select data-field="role">
+                  <option value=""></option>
+                  <option value="impulse">impulse</option>
+                  <option value="pullback">pullback</option>
+                  <option value="reversal">reversal</option>
+                  <option value="continuation">continuation</option>
+                  <option value="liquidity_run">liquidity_run</option>
+                  <option value="transition">transition</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Path Type</label>
+                <select data-field="pathType">
+                  <option value=""></option>
+                  <option value="internal_to_external">internal_to_external</option>
+                  <option value="external_to_internal">external_to_internal</option>
+                  <option value="internal_to_internal">internal_to_internal</option>
+                  <option value="external_to_external">external_to_external</option>
+                  <option value="unknown">unknown</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Delivery</label>
+                <select data-field="delivery">
+                  <option value=""></option>
+                  <option value="displacement">displacement</option>
+                  <option value="grinding">grinding</option>
+                  <option value="choppy">choppy</option>
+                  <option value="overlapping">overlapping</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="field">
+                <label>NY Open Lens TF</label>
+                <select data-field="executionLensTimeframe">
+                  <option value=""></option>
+                  <option value="30M">30M</option>
+                  <option value="15M">15M</option>
+                  <option value="5M">5M</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>NY Open Lens Window</label>
+                <input data-field="executionLensWindow" placeholder="09:30-11:00">
+              </div>
+              <div class="field">
+                <label>NY Open Lens Note</label>
+                <input data-field="executionLensNote" placeholder="9:30 后用 30M 观察 sweep / displacement / reaction">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Path Note</label>
+              <textarea data-field="note" placeholder="这条结构路径为什么重要、和前一段行情如何衔接、是否值得复盘。"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Tags</label>
+              <input data-field="tags" placeholder="continuation, ny_open, pdh_sweep">
+            </div>
+
+            <div class="field">
+              <label>Main Actions</label>
+              <div id="mainActionsList" class="manual-list"></div>
+              <div class="btn-row" style="margin-top:8px;">
+                <button class="btn btn--tiny btn--primary" id="addMainActionBtn" type="button">新增 Main Action</button>
+              </div>
+            </div>
+          </form>
+
+          <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
+            <div class="panel__header">
+              <h3 class="panel__title">Manual PDA</h3>
+              <span class="tag">YAML source</span>
+            </div>
+            <div class="panel__body">
+              <div class="grid-3">
+                <div class="field">
+                  <label>Timeframe</label>
+                  <select id="manualTimeframe">
+                    <option value="1H">1H</option>
+                    <option value="4H">4H</option>
+                    <option value="30M">30M</option>
+                    <option value="15M">15M</option>
+                    <option value="D">D</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>PDA Type</label>
+                  <select id="manualPdaType">
+                    <option value="bsl">bsl</option>
+                    <option value="ssl">ssl</option>
+                    <option value="fvg">fvg</option>
+                    <option value="eqh">eqh</option>
+                    <option value="eql">eql</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Direction</label>
+                  <select id="manualDirection">
+                    <option value=""></option>
+                    <option value="bullish">bullish</option>
+                    <option value="bearish">bearish</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="field">
+                  <label>Event Time</label>
+                  <input id="manualEventTime" placeholder="2012-01-10 09:30:00">
+                </div>
+                <div class="field">
+                  <label>Price</label>
+                  <input id="manualPrice" placeholder="2378.25">
+                </div>
+                <div class="field">
+                  <label>Price High / Low</label>
+                  <div class="grid-2">
+                    <input id="manualPriceHigh" placeholder="2379.25">
+                    <input id="manualPriceLow" placeholder="2378.75">
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Note</label>
+                <textarea id="manualNote" placeholder="记录这条 PDA 为何重要、如何与 1H backbone / NY open lens 对应。"></textarea>
+              </div>
+              <div class="btn-row">
+                <button class="btn btn--primary" id="addManualPdaBtn" type="button">加入当前 Path</button>
+                <button class="btn" id="clearManualFormBtn" type="button">清空</button>
+              </div>
+              <div class="tiny" style="margin-top:8px;">EQH / EQL 是成员集合，不是单点 tag；如果你要录它们，先选两条或以上同侧点，再按生成后的记录检查匹配结果。</div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <div class="btn-row" style="justify-content: space-between;">
+              <label style="margin:0;">Manual PDA List</label>
+              <span class="tag" id="manualCount">0</span>
+            </div>
+            <div id="manualList" class="manual-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Compare / YAML</h2>
+          <span class="tag" id="contextCount">0 auto refs</span>
+        </div>
+        <div class="panel__body">
+          <div class="split">
+            <div class="card">
+              <div class="card__top">
+                <div>
+                  <div class="card__title">Match Result</div>
+                  <div class="card__meta" id="selectedManualLabel">尚未选择手工 PDA</div>
+                </div>
+                <button class="btn btn--tiny btn--primary" id="matchSelectedBtn" type="button">匹配</button>
+              </div>
+              <div class="card__foot">
+                <span class="tag" id="matchSummary">等待输入</span>
+              </div>
+              <div id="matchTableWrap" style="margin-top:10px;"></div>
+            </div>
+            <div class="card">
+              <div class="card__top">
+                <div>
+                  <div class="card__title">Auto Context</div>
+                  <div class="card__meta">按 date window 加载的自动 PDA / 只读对照</div>
+                </div>
+                <span class="tag" id="autoCount">0</span>
+              </div>
+              <div class="field" style="margin-top:8px;">
+                <input id="autoFilter" placeholder="搜索 pdaId / type / note / time">
+              </div>
+              <div id="autoList" class="list"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:14px;">
+            <div class="card__top">
+              <div>
+                <div class="card__title">YAML Preview</div>
+                <div class="card__meta">structure_paths + manual_pdas + reconciliation</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;"><pre id="yamlPreview"></pre></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORE_KEY = 'layer2_recorder_v2_draft_v1';
+    const TIMEFRAME_ORDER = ['D', '4H', '1H', '30M', '15M'];
+    const BAR_MINUTES = { '15M': 15, '30M': 30, '1H': 60, '4H': 240, 'D': 1440 };
+    const PRICE_TOLERANCE = 0.5;
+    const state = {
+      apiBase: 'http://127.0.0.1:8765',
+      instrument: 'NQ',
+      sampleDate: '2012-01-10',
+      lookbackDays: 2,
+      lookaheadDays: 1,
+      globalNotes: '',
+      activePathIndex: 0,
+      activeGroupIndex: 0,
+      activeRelationIndex: 0,
+      paths: [],
+      groups: [],
+      relations: [],
+      autoRecords: [],
+      selectedManualRef: '',
+      lastMatch: null,
+      manualCounter: 1,
+      groupCounter: 1,
+      relationCounter: 1
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
+    }
+
+    function setStatus(text, kind = '') {
+      const el = $('#status');
+      el.textContent = text;
+      el.dataset.kind = kind;
+    }
+
+    function fmt(value) {
+      if (value === null || value === undefined || value === '') return '—';
+      return String(value);
+    }
+
+    function shortTime(value) {
+      if (!value) return '';
+      return String(value).replace('T', ' ').replace(':00', '');
+    }
+
+    function dateAdd(dateStr, days) {
+      const d = new Date(`${dateStr}T12:00:00`);
+      d.setDate(d.getDate() + Number(days || 0));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function yamlQuote(value) {
+      const text = String(value ?? '');
+      return `"${text.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    }
+
+    function normalizeDateTimeText(value) {
+      const text = String(value || '').trim().replace('T', ' ');
+      if (!text) return '';
+      const match = text.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (!match) return text;
+      const [, date, hour, minute, second = '00'] = match;
+      return `${date} ${hour.padStart(2, '0')}:${minute}:${second.padStart(2, '0')}`;
+    }
+
+    function parseDateTime(value) {
+      const normalized = normalizeDateTimeText(value);
+      if (!normalized) return null;
+      const parsed = new Date(normalized.replace(' ', 'T'));
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function pointSide(rec) {
+      const pdaType = String(rec?.pdaType || '').toLowerCase();
+      if (['bsl', 'eqh', 'daily_high', 'ict_midnight_day_high'].includes(pdaType)) return 'high';
+      if (['ssl', 'eql', 'daily_low', 'ict_midnight_day_low'].includes(pdaType)) return 'low';
+      if (String(rec?.direction || '').toLowerCase() === 'bullish') return 'low';
+      if (String(rec?.direction || '').toLowerCase() === 'bearish') return 'high';
+      return '';
+    }
+
+    function isRangePdaType(value) {
+      return ['fvg', 'nwog', 'ndog'].includes(String(value || '').toLowerCase());
+    }
+
+    function toNumber(value) {
+      if (value === null || value === undefined || value === '') return null;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function tickFloor(value) {
+      const n = toNumber(value);
+      if (n === null) return null;
+      return Math.floor((n + 1e-9) / 0.25) * 0.25;
+    }
+
+    function uniquePrices(values) {
+      const seen = new Set();
+      const prices = [];
+      values.forEach((value) => {
+        const n = toNumber(value);
+        if (n === null) return;
+        [n, tickFloor(n)].forEach((candidate) => {
+          if (candidate === null) return;
+          const key = candidate.toFixed(6);
+          if (seen.has(key)) return;
+          seen.add(key);
+          prices.push(candidate);
+        });
+      });
+      return prices;
+    }
+
+    function pdaPriceCandidates(item) {
+      const high = toNumber(item?.priceHigh);
+      const low = toNumber(item?.priceLow);
+      const ce = high !== null && low !== null ? (high + low) / 2 : null;
+      return uniquePrices([
+        item?.price,
+        item?.comparePrice,
+        item?.priceCe,
+        item?.priceHigh,
+        item?.priceLow,
+        ce,
+      ]);
+    }
+
+    function bestPricePair(manual, rec) {
+      let best = null;
+      pdaPriceCandidates(manual).forEach((manualPrice) => {
+        pdaPriceCandidates(rec).forEach((recPrice) => {
+          const delta = Math.abs(recPrice - manualPrice);
+          if (!best || delta < best.delta) {
+            best = { manualPrice, recPrice, delta };
+          }
+        });
+      });
+      return best;
+    }
+
+    function matchTier(manual, rec) {
+      const manualTf = String(manual?.timeframe || '').toUpperCase();
+      const recTf = String(rec?.timeframe || '').toUpperCase();
+      const manualType = String(manual?.pdaType || '').toLowerCase();
+      const recType = String(rec?.pdaType || '').toLowerCase();
+      const sameTf = manualTf && recTf && manualTf === recTf;
+      const sameType = manualType && recType && manualType === recType;
+      const sameSide = pointSide(manual) && pointSide(manual) === pointSide(rec);
+      if (sameTf && sameType) return 400;
+      if (sameType) return 300;
+      if (sameTf && sameSide) return 220;
+      if (sameSide) return 180;
+      return 100;
+    }
+
+    function compareMatchCandidates(manual, a, b) {
+      const tierA = Number(a.matchTier ?? matchTier(manual, a));
+      const tierB = Number(b.matchTier ?? matchTier(manual, b));
+      if (tierB !== tierA) return tierB - tierA;
+      if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+      if (a.timeDeltaMinutes !== b.timeDeltaMinutes) return a.timeDeltaMinutes - b.timeDeltaMinutes;
+      if (a.priceDelta !== b.priceDelta) return a.priceDelta - b.priceDelta;
+      return String(a.pdaId || '').localeCompare(String(b.pdaId || ''));
+    }
+
+    function rankLocalMatch(manual, rec) {
+      const pair = bestPricePair(manual, rec);
+      if (!pair) return null;
+      const manualTime = parseDateTime(manual.eventTime);
+      const recTime = parseDateTime(rec.eventTime || rec.anchorTime || rec.occurrenceTime || rec.confirmTime || '');
+      if (!manualTime || !recTime) return null;
+
+      const manualTf = String(manual.timeframe || '').toUpperCase();
+      const recTf = String(rec.timeframe || '').toUpperCase();
+      const manualType = String(manual.pdaType || '').toLowerCase();
+      const recType = String(rec.pdaType || '').toLowerCase();
+      const sameType = recType === manualType;
+      const sameTf = recTf === manualTf;
+      const timeToleranceMinutes = BAR_MINUTES[manualTf] || 60;
+      const timeDeltaMinutes = Math.abs(Math.round((recTime.getTime() - manualTime.getTime()) / 60000));
+      const priceDelta = pair.delta;
+      if (isRangePdaType(manualType) && (!sameType || !sameTf || timeDeltaMinutes !== 0)) return null;
+      if (timeDeltaMinutes > timeToleranceMinutes || priceDelta > PRICE_TOLERANCE) return null;
+
+      const sameSide = pointSide(rec) && pointSide(rec) === pointSide(manual);
+      const tier = matchTier(manual, rec);
+      const timeScore = Math.max(0, 1 - (timeDeltaMinutes / Math.max(timeToleranceMinutes, 1)));
+      const priceScore = Math.max(0, 1 - (priceDelta / PRICE_TOLERANCE));
+      const typeBonus = sameType ? 0.18 : (sameSide ? 0.08 : 0);
+      const tfBonus = sameTf ? 0.12 : 0;
+      const matchScore = Number(Math.min(1, (timeScore * 0.42) + (priceScore * 0.38) + typeBonus + tfBonus).toFixed(4));
+
+      let matchKind = 'context';
+      if (sameType && sameTf && timeDeltaMinutes === 0 && priceDelta === 0) matchKind = 'exact';
+      else if ((sameType || sameSide) && priceDelta <= PRICE_TOLERANCE && timeDeltaMinutes <= timeToleranceMinutes) matchKind = 'near';
+
+      return {
+        pdaId: rec.pdaId,
+        instrument: rec.instrument,
+        timeframe: rec.timeframe,
+        pdaType: rec.pdaType,
+        direction: rec.direction || '',
+        tradeDate: rec.tradeDate || '',
+        anchorTime: rec.anchorTime || '',
+        occurrenceTime: rec.occurrenceTime || '',
+        confirmTime: rec.confirmTime || '',
+        comparePrice: pair.recPrice,
+        manualComparePrice: pair.manualPrice,
+        candidateTime: rec.eventTime || rec.anchorTime || rec.occurrenceTime || rec.confirmTime || '',
+        timeDeltaMinutes,
+        priceDelta: Number(priceDelta.toFixed(6)),
+        matchScore,
+        matchTier: tier,
+        matchKind,
+        status: rec.status || '',
+        reviewRole: rec.reviewRole || '',
+        source: rec.source || 'loaded_context',
+        note: rec.note || ''
+      };
+    }
+
+    function buildLocalMatchResult(manual) {
+      const candidates = state.autoRecords
+        .map((rec) => rankLocalMatch(manual, rec))
+        .filter(Boolean)
+        .sort((a, b) => compareMatchCandidates(manual, a, b))
+        .slice(0, 12);
+
+      return {
+        instrument: state.instrument,
+        timeframe: String(manual.timeframe || '').toUpperCase(),
+        pdaType: String(manual.pdaType || '').toLowerCase(),
+        eventTime: manual.eventTime || '',
+        price: Number(comparableManualPrice(manual)),
+        timeToleranceBars: 1,
+        priceToleranceTicks: 2,
+        priceTolerance: PRICE_TOLERANCE,
+        timeToleranceMinutes: BAR_MINUTES[String(manual.timeframe || '').toUpperCase()] || 60,
+        candidates
+      };
+    }
+
+    function mergeMatchCandidates(primary, fallback, manual) {
+      const byId = new Map();
+      [...(primary?.candidates || []), ...(fallback?.candidates || [])].forEach((item) => {
+        const key = String(item.pdaId || '');
+        const normalized = { ...item, matchTier: item.matchTier ?? matchTier(manual, item) };
+        const existing = byId.get(key);
+        if (!existing || compareMatchCandidates(manual, normalized, existing) < 0) {
+          byId.set(key, normalized);
+        }
+      });
+      const candidates = Array.from(byId.values()).sort((a, b) => compareMatchCandidates(manual, a, b));
+      return { ...(primary || fallback || {}), candidates };
+    }
+
+    function yamlUnquote(value) {
+      const text = String(value ?? '').trim();
+      if (!text || text === '[]') return '';
+      if (text.startsWith('"') && text.endsWith('"')) {
+        return text.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      }
+      return text;
+    }
+
+    function indentOf(line) {
+      return (line.match(/^\s*/) || [''])[0].length;
+    }
+
+    function parseYamlKeyValue(line) {
+      const trimmed = line.trim();
+      const match = trimmed.match(/^(?:-\s*)?([A-Za-z_][A-Za-z0-9_]*):(?:\s*(.*))?$/);
+      if (!match) return null;
+      return { key: match[1], value: yamlUnquote(match[2] || '') };
+    }
+
+    function parseYamlMeta(text) {
+      const meta = {};
+      text.split(/\r?\n/).forEach((line) => {
+        if (indentOf(line) !== 0) return;
+        const kv = parseYamlKeyValue(line);
+        if (!kv) return;
+        if (kv.key === 'date') meta.date = kv.value;
+        if (kv.key === 'instrument') meta.instrument = kv.value;
+      });
+      return meta;
+    }
+
+    function isTopLevelSection(line) {
+      return indentOf(line) === 0 && /^[A-Za-z_][A-Za-z0-9_]*:/.test(line.trim());
+    }
+
+    function mapPathField(path, key, value) {
+      const map = {
+        id: 'id',
+        start_time: 'startTime',
+        end_time: 'endTime',
+        primary_timeframe: 'primaryTimeframe',
+        direction: 'direction',
+        role: 'role',
+        path_type: 'pathType',
+        delivery: 'delivery',
+        note: 'note'
+      };
+      if (map[key]) path[map[key]] = value;
+    }
+
+    function mapManualField(manual, key, value) {
+      const map = {
+        id: 'id',
+        timeframe: 'timeframe',
+        pda_type: 'pdaType',
+        direction: 'direction',
+        event_time: 'eventTime',
+        price: 'price',
+        price_high: 'priceHigh',
+        price_low: 'priceLow',
+        note: 'note'
+      };
+      if (map[key]) manual[map[key]] = key === 'event_time' ? normalizeDateTimeText(value) : value;
+    }
+
+    function parseStructurePaths(text) {
+      const paths = [];
+      let inSection = false;
+      let path = null;
+      let mode = '';
+      let action = null;
+      let manual = null;
+
+      text.split(/\r?\n/).forEach((line) => {
+        const trimmed = line.trim();
+        const indent = indentOf(line);
+        if (!inSection) {
+          if (trimmed === 'structure_paths:') inSection = true;
+          return;
+        }
+        if (isTopLevelSection(line) && trimmed !== 'structure_paths:') {
+          inSection = false;
+          return;
+        }
+        if (!trimmed) return;
+
+        if (indent === 2 && trimmed.startsWith('-')) {
+          path = {
+            id: '',
+            startTime: '',
+            endTime: '',
+            direction: '',
+            role: '',
+            pathType: '',
+            delivery: '',
+            primaryTimeframe: '1H',
+            executionLensTimeframe: '',
+            executionLensWindow: '',
+            executionLensNote: '',
+            note: '',
+            tags: '',
+            mainActions: [],
+            manualPdas: []
+          };
+          paths.push(path);
+          mode = '';
+          action = null;
+          manual = null;
+          const kv = parseYamlKeyValue(line);
+          if (kv) mapPathField(path, kv.key, kv.value);
+          return;
+        }
+        if (!path) return;
+
+        const kv = parseYamlKeyValue(line);
+        if (indent === 4 && kv) {
+          action = null;
+          manual = null;
+          if (kv.key === 'execution_lens') {
+            mode = 'execution_lens';
+            return;
+          }
+          if (kv.key === 'main_actions') {
+            mode = 'main_actions';
+            if (String(line).includes('[]')) path.mainActions = [];
+            return;
+          }
+          if (kv.key === 'manual_pdas') {
+            mode = 'manual_pdas';
+            if (String(line).includes('[]')) path.manualPdas = [];
+            return;
+          }
+          if (kv.key === 'reconciliation') {
+            mode = 'reconciliation';
+            return;
+          }
+          if (kv.key === 'tags') {
+            mode = 'tags';
+            return;
+          }
+          mode = '';
+          mapPathField(path, kv.key, kv.value);
+          return;
+        }
+
+        if (mode === 'execution_lens' && indent === 6 && kv) {
+          if (kv.key === 'timeframe') path.executionLensTimeframe = kv.value;
+          if (kv.key === 'window') path.executionLensWindow = kv.value;
+          if (kv.key === 'note') path.executionLensNote = kv.value;
+          return;
+        }
+
+        if (mode === 'tags' && indent === 6 && trimmed.startsWith('-')) {
+          const tag = yamlUnquote(trimmed.replace(/^-\s*/, ''));
+          path.tags = [path.tags, tag].filter(Boolean).join(', ');
+          return;
+        }
+
+        if (mode === 'main_actions') {
+          if (indent === 6 && trimmed === '-') {
+            action = { type: '', ref: '' };
+            path.mainActions.push(action);
+            return;
+          }
+          if (indent === 8 && action && kv) {
+            if (kv.key === 'type') action.type = kv.value;
+            if (kv.key === 'ref') action.ref = kv.value;
+            return;
+          }
+        }
+
+        if (mode === 'manual_pdas') {
+          if (indent === 6 && trimmed === '-') {
+            manual = { id: '', timeframe: '1H', pdaType: '', direction: '', eventTime: '', price: '', priceHigh: '', priceLow: '', note: '', match: null };
+            path.manualPdas.push(manual);
+            return;
+          }
+          if (indent === 8 && manual && kv) {
+            mapManualField(manual, kv.key, kv.value);
+          }
+        }
+      });
+
+      return paths.map((item) => ({
+        ...item,
+        mainActions: item.mainActions.length ? item.mainActions : [{ type: '', ref: '' }],
+        manualPdas: item.manualPdas || []
+      })).filter((item) => item.id);
+    }
+
+    function parseGroupsAndRelations(text) {
+      const groups = [];
+      const relations = [];
+      let section = '';
+      let group = null;
+      let relation = null;
+      let mode = '';
+
+      text.split(/\r?\n/).forEach((line) => {
+        const trimmed = line.trim();
+        const indent = indentOf(line);
+        if (!trimmed) return;
+        if (indent === 0 && trimmed.startsWith('structure_groups:')) {
+          section = 'groups';
+          mode = '';
+          return;
+        }
+        if (indent === 0 && trimmed.startsWith('structure_relations:')) {
+          section = 'relations';
+          mode = '';
+          return;
+        }
+        if (isTopLevelSection(line) && !trimmed.startsWith('structure_groups:') && !trimmed.startsWith('structure_relations:')) {
+          section = '';
+          mode = '';
+          return;
+        }
+        if (!section) return;
+
+        const kv = parseYamlKeyValue(line);
+        if (section === 'groups') {
+          if (indent === 2 && trimmed.startsWith('-')) {
+            group = { groupId: '', groupType: '', primaryTimeframe: '1H', direction: '', role: '', structurePattern: '', memberPaths: [], startTime: '', endTime: '', note: '' };
+            groups.push(group);
+            mode = '';
+            if (kv && kv.key === 'group_id') group.groupId = kv.value;
+            return;
+          }
+          if (!group) return;
+          if (indent === 4 && kv) {
+            if (kv.key === 'member_paths') {
+              mode = 'member_paths';
+              return;
+            }
+            mode = '';
+            if (kv.key === 'group_id') group.groupId = kv.value;
+            if (kv.key === 'group_type') group.groupType = kv.value;
+            if (kv.key === 'primary_timeframe') group.primaryTimeframe = kv.value;
+            if (kv.key === 'direction') group.direction = kv.value;
+            if (kv.key === 'role') group.role = kv.value;
+            if (kv.key === 'structure_pattern') group.structurePattern = kv.value;
+            if (kv.key === 'start_time') group.startTime = kv.value;
+            if (kv.key === 'end_time') group.endTime = kv.value;
+            if (kv.key === 'note') group.note = kv.value;
+            return;
+          }
+          if (mode === 'member_paths' && indent === 6 && trimmed.startsWith('-')) {
+            group.memberPaths.push(yamlUnquote(trimmed.replace(/^-\s*/, '')));
+          }
+          return;
+        }
+
+        if (section === 'relations') {
+          if (indent === 2 && trimmed.startsWith('-')) {
+            relation = { relationId: '', source: '', target: '', relationType: '', ratio: '', location: '', note: '' };
+            relations.push(relation);
+            if (kv && kv.key === 'relation_id') relation.relationId = kv.value;
+            return;
+          }
+          if (!relation || indent !== 4 || !kv) return;
+          if (kv.key === 'relation_id') relation.relationId = kv.value;
+          if (kv.key === 'source') relation.source = kv.value;
+          if (kv.key === 'target') relation.target = kv.value;
+          if (kv.key === 'relation_type') relation.relationType = kv.value;
+          if (kv.key === 'ratio') relation.ratio = kv.value;
+          if (kv.key === 'location') relation.location = kv.value;
+          if (kv.key === 'note') relation.note = kv.value;
+        }
+      });
+
+      return {
+        groups: groups.filter((item) => item.groupId),
+        relations: relations.filter((item) => item.relationId)
+      };
+    }
+
+    function upsertById(items, incoming, idField) {
+      let added = 0;
+      let replaced = 0;
+      incoming.forEach((item) => {
+        const id = item[idField];
+        const idx = items.findIndex((existing) => existing[idField] === id);
+        if (idx >= 0) {
+          items[idx] = item;
+          replaced += 1;
+        } else {
+          items.push(item);
+          added += 1;
+        }
+      });
+      return { added, replaced };
+    }
+
+    function isBlankDefaultPath(path) {
+      return path
+        && /^path_\d{8}_001$/.test(String(path.id || ''))
+        && !path.startTime
+        && !path.endTime
+        && !path.direction
+        && !path.role
+        && !path.note
+        && !(path.manualPdas || []).length;
+    }
+
+    function updateCountersFromState() {
+      const manualMax = state.paths.flatMap((path) => path.manualPdas || [])
+        .map((manual) => Number(String(manual.id || '').match(/manual_(\d+)/)?.[1] || 0))
+        .reduce((max, value) => Math.max(max, value), 0);
+      const groupMax = state.groups
+        .map((group) => Number(String(group.groupId || '').match(/_(\d+)$/)?.[1] || 0))
+        .reduce((max, value) => Math.max(max, value), 0);
+      const relationMax = state.relations
+        .map((relation) => Number(String(relation.relationId || '').match(/_(\d+)$/)?.[1] || 0))
+        .reduce((max, value) => Math.max(max, value), 0);
+      state.manualCounter = Math.max(state.manualCounter || 1, manualMax + 1);
+      state.groupCounter = Math.max(state.groupCounter || 1, groupMax + 1);
+      state.relationCounter = Math.max(state.relationCounter || 1, relationMax + 1);
+    }
+
+    function readFileText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(reader.error || new Error(`无法读取 ${file.name}`));
+        reader.readAsText(file);
+      });
+    }
+
+    async function importPathYamlFiles(files) {
+      const fileList = Array.from(files || []);
+      if (!fileList.length) return;
+      syncCurrentPath();
+      let totalAdded = 0;
+      let totalReplaced = 0;
+      let totalParsed = 0;
+      for (const file of fileList) {
+        const text = await readFileText(file);
+        const meta = parseYamlMeta(text);
+        const paths = parseStructurePaths(text);
+        if (meta.date && fileList.length === 1) state.sampleDate = meta.date;
+        if (meta.instrument && fileList.length === 1) state.instrument = meta.instrument;
+        if (state.paths.length === 1 && isBlankDefaultPath(state.paths[0]) && paths.length) state.paths = [];
+        const result = upsertById(state.paths, paths, 'id');
+        totalAdded += result.added;
+        totalReplaced += result.replaced;
+        totalParsed += paths.length;
+      }
+      if (state.paths.length) state.activePathIndex = Math.max(0, state.paths.length - totalAdded - totalReplaced);
+      updateCountersFromState();
+      renderAll();
+      setStatus(`导入 Path 完成：解析 ${totalParsed} 条，新增 ${totalAdded} 条，覆盖 ${totalReplaced} 条。`, 'ok');
+    }
+
+    async function importGroupsYamlFile(file) {
+      if (!file) return;
+      syncCurrentPath();
+      const text = await readFileText(file);
+      const meta = parseYamlMeta(text);
+      const parsed = parseGroupsAndRelations(text);
+      if (meta.date) state.sampleDate = meta.date;
+      if (meta.instrument) state.instrument = meta.instrument;
+      const groupResult = upsertById(state.groups, parsed.groups, 'groupId');
+      const relationResult = upsertById(state.relations, parsed.relations, 'relationId');
+      if (state.groups.length) state.activeGroupIndex = Math.max(0, state.groups.length - groupResult.added - groupResult.replaced);
+      if (state.relations.length) state.activeRelationIndex = Math.max(0, state.relations.length - relationResult.added - relationResult.replaced);
+      updateCountersFromState();
+      renderAll();
+      setStatus(`导入 groups.yaml 完成：Group 新增 ${groupResult.added} / 覆盖 ${groupResult.replaced}；Relation 新增 ${relationResult.added} / 覆盖 ${relationResult.replaced}。`, 'ok');
+    }
+
+    function syncTopInputs() {
+      state.apiBase = $('#apiBase').value.trim() || 'http://127.0.0.1:8765';
+      state.instrument = $('#instrument').value.trim() || 'NQ';
+      state.sampleDate = $('#sampleDate').value || state.sampleDate;
+      state.lookbackDays = Number($('#lookbackDays').value || 0);
+      state.lookaheadDays = Number($('#lookaheadDays').value || 0);
+      state.globalNotes = $('#globalNotes').value || '';
+    }
+
+    function saveDraft() {
+      syncTopInputs();
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        apiBase: state.apiBase,
+        instrument: state.instrument,
+        sampleDate: state.sampleDate,
+        lookbackDays: state.lookbackDays,
+        lookaheadDays: state.lookaheadDays,
+        globalNotes: state.globalNotes,
+        activePathIndex: state.activePathIndex,
+        paths: state.paths,
+        activeGroupIndex: state.activeGroupIndex,
+        activeRelationIndex: state.activeRelationIndex,
+        groups: state.groups,
+        relations: state.relations,
+        manualCounter: state.manualCounter,
+        groupCounter: state.groupCounter,
+        relationCounter: state.relationCounter
+      }));
+    }
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        Object.assign(state, draft);
+        (state.paths || []).forEach((path) => {
+          (path.manualPdas || []).forEach((manual) => {
+            manual.eventTime = normalizeDateTimeText(manual.eventTime);
+          });
+        });
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+
+    function emptyPath() {
+      const compact = (state.sampleDate || 'YYYYMMDD').replaceAll('-', '');
+      const idx = String((state.paths?.length || 0) + 1).padStart(3, '0');
+      return {
+        id: `path_${compact}_${idx}`,
+        startTime: '',
+        endTime: '',
+        direction: '',
+        role: '',
+        pathType: '',
+        delivery: '',
+        primaryTimeframe: '1H',
+        executionLensTimeframe: '30M',
+        executionLensWindow: '09:30-11:00',
+        executionLensNote: '9:30 后用 30M 观察 sweep / displacement / reaction',
+        note: '',
+        tags: '',
+        mainActions: [{ type: '', ref: '' }],
+        manualPdas: []
+      };
+    }
+
+    function emptyGroup() {
+      const compact = (state.sampleDate || 'YYYYMMDD').replaceAll('-', '');
+      const idx = String(state.groupCounter || ((state.groups?.length || 0) + 1)).padStart(3, '0');
+      return {
+        groupId: `group_${compact}_${idx}`,
+        groupType: 'range',
+        primaryTimeframe: '1H',
+        direction: '',
+        role: '',
+        structurePattern: '',
+        memberPaths: [],
+        startTime: '',
+        endTime: '',
+        note: ''
+      };
+    }
+
+    function emptyRelation() {
+      const compact = (state.sampleDate || 'YYYYMMDD').replaceAll('-', '');
+      const idx = String(state.relationCounter || ((state.relations?.length || 0) + 1)).padStart(3, '0');
+      return {
+        relationId: `rel_${compact}_${idx}`,
+        source: '',
+        target: '',
+        relationType: 'nested_in',
+        ratio: '',
+        location: '',
+        note: ''
+      };
+    }
+
+    function activePath() {
+      if (!state.paths.length) state.paths.push(emptyPath());
+      if (state.activePathIndex < 0 || state.activePathIndex >= state.paths.length) state.activePathIndex = 0;
+      return state.paths[state.activePathIndex];
+    }
+
+    function ensureDefaults() {
+      if (!state.paths || !state.paths.length) state.paths = [emptyPath()];
+      state.groups = Array.isArray(state.groups) ? state.groups : [];
+      state.relations = Array.isArray(state.relations) ? state.relations : [];
+      state.paths.forEach((path) => {
+        path.mainActions = Array.isArray(path.mainActions) && path.mainActions.length ? path.mainActions : [{ type: '', ref: '' }];
+        path.manualPdas = Array.isArray(path.manualPdas) ? path.manualPdas : [];
+        if (!path.primaryTimeframe) path.primaryTimeframe = '1H';
+        if (!path.executionLensTimeframe) path.executionLensTimeframe = '30M';
+        if (!path.executionLensWindow) path.executionLensWindow = '09:30-11:00';
+        if (!path.executionLensNote) path.executionLensNote = '9:30 后用 30M 观察 sweep / displacement / reaction';
+      });
+      state.groups.forEach((group) => {
+        group.memberPaths = Array.isArray(group.memberPaths) ? group.memberPaths : [];
+        if (!group.groupId && group.id) group.groupId = group.id;
+        if (!group.groupType) group.groupType = 'range';
+        if (!group.primaryTimeframe) group.primaryTimeframe = '1H';
+      });
+      state.relations.forEach((relation) => {
+        if (!relation.relationId && relation.id) relation.relationId = relation.id;
+        if (!relation.relationType) relation.relationType = 'nested_in';
+      });
+      if (!state.manualCounter) state.manualCounter = 1;
+      if (!state.groupCounter) state.groupCounter = Math.max(1, state.groups.length + 1);
+      if (!state.relationCounter) state.relationCounter = Math.max(1, state.relations.length + 1);
+      if (state.activeGroupIndex < 0 || state.activeGroupIndex >= state.groups.length) state.activeGroupIndex = 0;
+      if (state.activeRelationIndex < 0 || state.activeRelationIndex >= state.relations.length) state.activeRelationIndex = 0;
+    }
+
+    function pdaLabel(rec) {
+      const parts = [rec.tradeDate, rec.timeframe, rec.pdaType, rec.direction, rec.comparePrice].filter(Boolean);
+      return parts.join(' ');
+    }
+
+    function firstPrice(rec) {
+      const value = rec.comparePrice ?? rec.price ?? rec.priceCe ?? rec.priceHigh ?? rec.priceLow;
+      if (String(rec?.pdaType || '').toLowerCase() === 'fvg' && (rec.priceCe !== null && rec.priceCe !== undefined)) {
+        return Number(tickFloor(rec.priceCe).toFixed(2));
+      }
+      return value === null || value === undefined ? '' : value;
+    }
+
+    function autoTime(rec) {
+      return rec.occurrenceTime || rec.anchorTime || rec.confirmTime || rec.candidateTime || '';
+    }
+
+    function manualKey(manual) {
+      return manual && manual.id ? manual.id : '';
+    }
+
+    function buildTimeframeQuery() {
+      const base = state.apiBase.replace(/\/$/, '');
+      const from = dateAdd(state.sampleDate, -state.lookbackDays);
+      const to = dateAdd(state.sampleDate, state.lookaheadDays);
+      const timeframes = TIMEFRAME_ORDER;
+      return timeframes.map((tf) => {
+        const qs = new URLSearchParams({
+          instrument: state.instrument,
+          timeframe: tf,
+          date_from: from,
+          date_to: to,
+          limit: tf === '15M' ? '500' : '1000'
+        });
+        return `${base}/v2/pda_records?${qs.toString()}`;
+      });
+    }
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || res.statusText);
+      return data.result;
+    }
+
+    async function loadContext() {
+      syncTopInputs();
+      saveDraft();
+      const api = state.apiBase.replace(/\/$/, '');
+      const from = dateAdd(state.sampleDate, -state.lookbackDays);
+      const to = dateAdd(state.sampleDate, state.lookaheadDays);
+      setStatus(`加载 ${from} -> ${to} 的自动对照...`);
+      try {
+        const results = await Promise.all(buildTimeframeQuery().map((url) => fetchJson(url)));
+        const autoRecords = []
+          .concat(...results.map((result) => result.records || []))
+          .map((rec) => ({
+            ...rec,
+            comparePrice: firstPrice(rec),
+            label: pdaLabel(rec),
+            eventTime: autoTime(rec)
+          }));
+        state.autoRecords = autoRecords.sort((a, b) => String(a.eventTime || a.anchorTime || '').localeCompare(String(b.eventTime || b.anchorTime || '')));
+        if (!state.selectedManualRef && activePath().manualPdas.length) {
+          state.selectedManualRef = manualKey(activePath().manualPdas[0]);
+        }
+        renderAll();
+        setStatus(`已加载 ${state.autoRecords.length} 条自动 PDA 候选。`, 'ok');
+      } catch (err) {
+        setStatus(`加载失败：${err.message}`, 'danger');
+      }
+    }
+
+    function renderPathChips() {
+      const wrap = $('#pathChips');
+      wrap.innerHTML = '';
+      state.paths.forEach((path, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (idx === state.activePathIndex ? ' active' : '');
+        chip.innerHTML = `<strong>${escapeHtml(path.id || `path_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(path.primaryTimeframe || '')} · ${escapeHtml(path.direction || '—')}</span>`;
+        chip.onclick = () => {
+          syncCurrentPath();
+          state.activePathIndex = idx;
+          state.selectedManualRef = (activePath().manualPdas || [])[0]?.id || '';
+          renderAll();
+        };
+        wrap.appendChild(chip);
+      });
+      $('#pathCount').textContent = String(state.paths.length);
+    }
+
+    function syncCurrentPath() {
+      const path = activePath();
+      $$('#pathForm [data-field]').forEach((el) => {
+        path[el.dataset.field] = el.value;
+      });
+      saveDraft();
+    }
+
+    function renderPathForm() {
+      const path = activePath();
+      $$('#pathForm [data-field]').forEach((el) => {
+        el.value = path[el.dataset.field] ?? '';
+      });
+      $('#globalNotes').value = state.globalNotes || '';
+      renderMainActions();
+      renderManualList();
+    }
+
+    function addPath() {
+      syncCurrentPath();
+      state.paths.push(emptyPath());
+      state.activePathIndex = state.paths.length - 1;
+      state.selectedManualRef = '';
+      renderAll();
+    }
+
+    function deletePath() {
+      if (!state.paths.length) return;
+      if (!confirm('删除当前 Path？')) return;
+      const deletedPathId = activePath().id;
+      state.paths.splice(state.activePathIndex, 1);
+      state.groups.forEach((group) => {
+        group.memberPaths = (group.memberPaths || []).filter((id) => id !== deletedPathId);
+      });
+      if (!state.paths.length) state.paths.push(emptyPath());
+      state.activePathIndex = Math.max(0, state.activePathIndex - 1);
+      state.selectedManualRef = (activePath().manualPdas || [])[0]?.id || '';
+      renderAll();
+    }
+
+    function activeGroup() {
+      return state.groups[state.activeGroupIndex] || null;
+    }
+
+    function activeRelation() {
+      return state.relations[state.activeRelationIndex] || null;
+    }
+
+    function groupTypeOptions(selected = '') {
+      const options = ['', 'impulse', 'range', 'pullback', 'breakout', 'reversal', 'consolidation'];
+      return options.map((value) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(value)}</option>`).join('');
+    }
+
+    function relationTypeOptions(selected = '') {
+      const options = ['', 'breakout', 'retracement', 'continuation', 'reaction', 'nested_in', 'invalidates'];
+      return options.map((value) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(value)}</option>`).join('');
+    }
+
+    function directionOptions(selected = '') {
+      const options = ['', 'bullish', 'bearish', 'range'];
+      return options.map((value) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(value)}</option>`).join('');
+    }
+
+    function objectRefOptions(selected = '') {
+      const refs = [
+        ...state.groups.map((group) => [group.groupId, `G · ${group.groupId}`]),
+        ...state.paths.map((path) => [path.id, `P · ${path.id}`])
+      ];
+      return [['', ''], ...refs]
+        .map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`)
+        .join('');
+    }
+
+    function groupMemberBounds(group) {
+      const members = (group.memberPaths || [])
+        .map((id) => state.paths.find((path) => path.id === id))
+        .filter(Boolean);
+      const starts = members.map((path) => normalizeDateTimeText(path.startTime)).filter(Boolean).sort();
+      const ends = members.map((path) => normalizeDateTimeText(path.endTime)).filter(Boolean).sort();
+      return {
+        startTime: starts[0] || '',
+        endTime: ends[ends.length - 1] || ''
+      };
+    }
+
+    function renderGroupEditor() {
+      const wrap = $('#groupEditor');
+      $('#groupCount').textContent = String(state.groups.length);
+      if (!state.groups.length) {
+        wrap.innerHTML = '<div class="status">还没有 Group。先录好多个 Path，再点“新增 Group”把它们组合成大结构。</div>';
+        return;
+      }
+      const group = activeGroup();
+      const bounds = groupMemberBounds(group);
+      wrap.innerHTML = `
+        <div class="chips" id="groupChips"></div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Group ID</label>
+            <input data-group-field="groupId" value="${escapeAttr(group.groupId || '')}" placeholder="group_20120110_001">
+          </div>
+          <div class="field">
+            <label>Group Type</label>
+            <select data-group-field="groupType">${groupTypeOptions(group.groupType || '')}</select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Primary TF</label>
+            <select data-group-field="primaryTimeframe">
+              ${['1H', '4H', '30M', '15M', 'D'].map((tf) => `<option value="${tf}"${tf === (group.primaryTimeframe || '1H') ? ' selected' : ''}>${tf}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label>Direction</label>
+            <select data-group-field="direction">${directionOptions(group.direction || '')}</select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Role</label>
+            <input data-group-field="role" value="${escapeAttr(group.role || '')}" placeholder="retracement / breakout / final pullback">
+          </div>
+          <div class="field">
+            <label>Structure Pattern</label>
+            <input data-group-field="structurePattern" value="${escapeAttr(group.structurePattern || '')}" placeholder="2 legs / 3 drives / compression">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Start Time</label>
+            <input data-group-field="startTime" value="${escapeAttr(group.startTime || bounds.startTime)}" placeholder="${escapeAttr(bounds.startTime || 'auto from members')}">
+          </div>
+          <div class="field">
+            <label>End Time</label>
+            <input data-group-field="endTime" value="${escapeAttr(group.endTime || bounds.endTime)}" placeholder="${escapeAttr(bounds.endTime || 'auto from members')}">
+          </div>
+        </div>
+        <div class="field">
+          <label>Member Paths</label>
+          <div class="manual-list" id="groupMemberList"></div>
+        </div>
+        <div class="field">
+          <label>Group Note</label>
+          <textarea data-group-field="note" placeholder="这几个 Path 合起来是什么大结构、为什么值得单独统计。">${escapeHtml(group.note || '')}</textarea>
+        </div>
+      `;
+
+      const chipWrap = wrap.querySelector('#groupChips');
+      state.groups.forEach((item, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (idx === state.activeGroupIndex ? ' active' : '');
+        chip.innerHTML = `<strong>${escapeHtml(item.groupId || `group_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(item.groupType || '—')} · ${(item.memberPaths || []).length} paths</span>`;
+        chip.onclick = () => {
+          state.activeGroupIndex = idx;
+          renderAll();
+        };
+        chipWrap.appendChild(chip);
+      });
+
+      const memberWrap = wrap.querySelector('#groupMemberList');
+      state.paths.forEach((path) => {
+        const row = document.createElement('label');
+        row.className = 'manual-item';
+        row.style.margin = '0';
+        row.innerHTML = `
+          <input type="checkbox" data-group-member="${escapeAttr(path.id)}" style="width:auto; min-height:auto; margin-right:8px;" ${(group.memberPaths || []).includes(path.id) ? 'checked' : ''}>
+          <strong>${escapeHtml(path.id)}</strong>
+          <span class="tiny"> ${escapeHtml([path.direction, path.role, path.startTime, path.endTime].filter(Boolean).join(' · '))}</span>
+        `;
+        memberWrap.appendChild(row);
+      });
+
+      wrap.querySelectorAll('[data-group-field]').forEach((input) => {
+        input.oninput = () => {
+          group[input.dataset.groupField] = input.value;
+          renderYaml();
+          saveDraft();
+        };
+        input.onchange = input.oninput;
+      });
+      wrap.querySelectorAll('[data-group-member]').forEach((input) => {
+        input.onchange = () => {
+          const id = input.dataset.groupMember;
+          const members = new Set(group.memberPaths || []);
+          if (input.checked) members.add(id);
+          else members.delete(id);
+          group.memberPaths = Array.from(members);
+          const inferred = groupMemberBounds(group);
+          if (!group.startTime) group.startTime = inferred.startTime;
+          if (!group.endTime) group.endTime = inferred.endTime;
+          renderAll();
+        };
+      });
+    }
+
+    function addGroup() {
+      syncCurrentPath();
+      const group = emptyGroup();
+      group.memberPaths = activePath()?.id ? [activePath().id] : [];
+      const inferred = groupMemberBounds(group);
+      group.startTime = inferred.startTime;
+      group.endTime = inferred.endTime;
+      state.groups.push(group);
+      state.groupCounter += 1;
+      state.activeGroupIndex = state.groups.length - 1;
+      renderAll();
+    }
+
+    function deleteGroup() {
+      if (!state.groups.length) return;
+      if (!confirm('删除当前 Group？Relation 不会自动删除，请手工检查。')) return;
+      state.groups.splice(state.activeGroupIndex, 1);
+      state.activeGroupIndex = Math.max(0, state.activeGroupIndex - 1);
+      renderAll();
+    }
+
+    function renderRelationEditor() {
+      const wrap = $('#relationEditor');
+      $('#relationCount').textContent = String(state.relations.length);
+      if (!state.relations.length) {
+        wrap.innerHTML = '<div class="status">还没有 Relation。Group 建好后，再记录“突破 / 回撤 / nested_in / 比例”。</div>';
+        return;
+      }
+      const relation = activeRelation();
+      wrap.innerHTML = `
+        <div class="chips" id="relationChips"></div>
+        <div class="field">
+          <label>Relation ID</label>
+          <input data-relation-field="relationId" value="${escapeAttr(relation.relationId || '')}" placeholder="rel_20120110_001">
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Source</label>
+            <select data-relation-field="source">${objectRefOptions(relation.source || '')}</select>
+          </div>
+          <div class="field">
+            <label>Target</label>
+            <select data-relation-field="target">${objectRefOptions(relation.target || '')}</select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="field">
+            <label>Relation Type</label>
+            <select data-relation-field="relationType">${relationTypeOptions(relation.relationType || '')}</select>
+          </div>
+          <div class="field">
+            <label>Ratio</label>
+            <input data-relation-field="ratio" value="${escapeAttr(relation.ratio || '')}" placeholder="1.18 / 0.65">
+          </div>
+          <div class="field">
+            <label>Location</label>
+            <input data-relation-field="location" value="${escapeAttr(relation.location || '')}" placeholder="OTE / OB / PDH">
+          </div>
+        </div>
+        <div class="field">
+          <label>Relation Note</label>
+          <textarea data-relation-field="note" placeholder="source 对 target 做了什么，以及这个比例为什么重要。">${escapeHtml(relation.note || '')}</textarea>
+        </div>
+      `;
+
+      const chipWrap = wrap.querySelector('#relationChips');
+      state.relations.forEach((item, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (idx === state.activeRelationIndex ? ' active' : '');
+        chip.innerHTML = `<strong>${escapeHtml(item.relationId || `rel_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(item.relationType || '—')}</span>`;
+        chip.onclick = () => {
+          state.activeRelationIndex = idx;
+          renderAll();
+        };
+        chipWrap.appendChild(chip);
+      });
+
+      wrap.querySelectorAll('[data-relation-field]').forEach((input) => {
+        input.oninput = () => {
+          relation[input.dataset.relationField] = input.value;
+          renderYaml();
+          saveDraft();
+        };
+        input.onchange = input.oninput;
+      });
+    }
+
+    function addRelation() {
+      syncCurrentPath();
+      const relation = emptyRelation();
+      relation.source = activeGroup()?.groupId || activePath()?.id || '';
+      state.relations.push(relation);
+      state.relationCounter += 1;
+      state.activeRelationIndex = state.relations.length - 1;
+      renderAll();
+    }
+
+    function deleteRelation() {
+      if (!state.relations.length) return;
+      if (!confirm('删除当前 Relation？')) return;
+      state.relations.splice(state.activeRelationIndex, 1);
+      state.activeRelationIndex = Math.max(0, state.activeRelationIndex - 1);
+      renderAll();
+    }
+
+    function actionOptions(selected = '') {
+      const options = [
+        ['', ''],
+        ['sweep_external_liquidity', 'sweep external liquidity'],
+        ['sweep_internal_liquidity', 'sweep internal liquidity'],
+        ['respect_fvg', 'respect FVG'],
+        ['return_to_lens', 'return to NY open lens'],
+        ['displacement', 'displacement'],
+        ['transition', 'transition']
+      ];
+      return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
+    }
+
+    function renderMainActions() {
+      const path = activePath();
+      const wrap = $('#mainActionsList');
+      wrap.innerHTML = '';
+      if (!Array.isArray(path.mainActions) || !path.mainActions.length) path.mainActions = [{ type: '', ref: '' }];
+      path.mainActions.forEach((action, idx) => {
+        const row = document.createElement('div');
+        row.className = 'manual-item';
+        row.innerHTML = `
+          <div class="grid-2">
+            <div class="field">
+              <label>Action Type</label>
+              <select data-action-field="type" data-action-index="${idx}">${actionOptions(action.type || '')}</select>
+            </div>
+            <div class="field">
+              <label>Action Ref</label>
+              <input data-action-field="ref" data-action-index="${idx}" placeholder="manual_pda_id / note / reference">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn--tiny btn--danger" type="button" data-remove-action="${idx}">移除</button>
+          </div>
+        `;
+        row.querySelector('[data-action-field="type"]').value = action.type || '';
+        row.querySelector('[data-action-field="ref"]').value = action.ref || '';
+        row.querySelectorAll('[data-action-field]').forEach((input) => {
+          input.oninput = () => {
+            const a = path.mainActions[Number(input.dataset.actionIndex)];
+            a[input.dataset.actionField] = input.value;
+            renderYaml();
+            saveDraft();
+          };
+        });
+        row.querySelector('[data-remove-action]').onclick = () => {
+          path.mainActions.splice(idx, 1);
+          if (!path.mainActions.length) path.mainActions.push({ type: '', ref: '' });
+          renderMainActions();
+          renderYaml();
+        };
+        wrap.appendChild(row);
+      });
+    }
+
+    function addMainAction() {
+      const path = activePath();
+      path.mainActions = path.mainActions || [];
+      path.mainActions.push({ type: '', ref: '' });
+      renderMainActions();
+      renderYaml();
+      saveDraft();
+    }
+
+    function selectedManual() {
+      const path = activePath();
+      return path.manualPdas.find((item) => manualKey(item) === state.selectedManualRef) || path.manualPdas[0] || null;
+    }
+
+    function manualSummary(manual) {
+      if (!manual) return '尚未选择手工 PDA';
+      const pieces = [manual.id, manual.timeframe, manual.pdaType, manual.direction, manual.eventTime, manual.price || manual.priceHigh || manual.priceLow].filter(Boolean);
+      return pieces.join(' · ');
+    }
+
+    function comparableManualPrice(manual) {
+      const candidates = [manual.price, manual.priceHigh, manual.priceLow]
+        .map((value) => String(value ?? '').trim())
+        .filter(Boolean);
+      return candidates.length ? candidates[0] : '';
+    }
+
+    async function matchManual(manual) {
+      if (!manual) return;
+      const price = comparableManualPrice(manual);
+      if (!manual.eventTime || !price) {
+        throw new Error('event_time 和 price / priceHigh / priceLow 至少要有一个值');
+      }
+      const api = state.apiBase.replace(/\/$/, '');
+      const fallback = buildLocalMatchResult(manual);
+      let apiResult = null;
+      try {
+        apiResult = await fetchJson(`${api}/v2/pda_match?${new URLSearchParams({
+          instrument: state.instrument,
+          timeframe: manual.timeframe || activePath().primaryTimeframe || '1H',
+          pda_type: manual.pdaType || '',
+          event_time: manual.eventTime,
+          price: String(price),
+          time_tolerance_bars: '1',
+          price_tolerance_ticks: '2',
+          limit: '8'
+        }).toString()}`);
+      } catch (err) {
+        console.warn('match api unavailable, falling back to loaded context', err);
+      }
+      const result = mergeMatchCandidates(apiResult, fallback, manual);
+      manual.match = result;
+      state.lastMatch = { manualId: manual.id, result };
+      renderAll();
+      saveDraft();
+    }
+
+    function addManualPda() {
+      const path = activePath();
+      const timeframe = $('#manualTimeframe').value;
+      const pdaType = $('#manualPdaType').value;
+      const direction = $('#manualDirection').value;
+      const eventTime = normalizeDateTimeText($('#manualEventTime').value);
+      const price = $('#manualPrice').value.trim();
+      const priceHigh = $('#manualPriceHigh').value.trim();
+      const priceLow = $('#manualPriceLow').value.trim();
+      const note = $('#manualNote').value.trim();
+      const manual = {
+        id: `manual_${String(state.manualCounter).padStart(3, '0')}`,
+        timeframe,
+        pdaType,
+        direction,
+        eventTime,
+        price: price || '',
+        priceHigh: priceHigh || '',
+        priceLow: priceLow || '',
+        note,
+        match: null
+      };
+      state.manualCounter += 1;
+      path.manualPdas.push(manual);
+      state.selectedManualRef = manual.id;
+      clearManualForm();
+      renderAll();
+      saveDraft();
+    }
+
+    function clearManualForm() {
+      $('#manualDirection').value = '';
+      $('#manualEventTime').value = '';
+      $('#manualPrice').value = '';
+      $('#manualPriceHigh').value = '';
+      $('#manualPriceLow').value = '';
+      $('#manualNote').value = '';
+    }
+
+    function removeManualPda(manualId) {
+      const path = activePath();
+      path.manualPdas = path.manualPdas.filter((item) => item.id !== manualId);
+      if (state.selectedManualRef === manualId) state.selectedManualRef = path.manualPdas[0]?.id || '';
+      renderAll();
+      saveDraft();
+    }
+
+    function renderManualList() {
+      const path = activePath();
+      const wrap = $('#manualList');
+      wrap.innerHTML = '';
+      $('#manualCount').textContent = String(path.manualPdas.length);
+      if (!path.manualPdas.length) {
+        wrap.innerHTML = '<div class="status">这里会列出当前 Path 的手工 PDA。先录入一条，再点“匹配”看 DuckDB 里是否已有对应自动记录。</div>';
+        return;
+      }
+      path.manualPdas.forEach((manual) => {
+        const item = document.createElement('div');
+        item.className = 'manual-item' + (manualKey(manual) === state.selectedManualRef ? ' active' : '');
+        const match = manual.match || null;
+        const matchedAuto = (match && match.candidates && match.candidates.length && (match.candidates[0].matchKind === 'exact' || match.candidates[0].matchScore >= 0.68)) ? match.candidates[0] : null;
+        item.innerHTML = `
+          <div class="manual-head">
+            <div>
+              <div class="manual-title">${escapeHtml(manual.id)} · ${escapeHtml([manual.timeframe, manual.pdaType, manual.direction].filter(Boolean).join(' · '))}</div>
+              <div class="manual-sub">${escapeHtml(manual.eventTime || '')} · ${escapeHtml(String(manual.price || manual.priceHigh || manual.priceLow || ''))}${manual.note ? '<br>' + escapeHtml(manual.note) : ''}</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn--tiny btn--primary" type="button" data-select>匹配</button>
+              <button class="btn btn--tiny" type="button" data-remove>移除</button>
+            </div>
+          </div>
+          <div class="card__meta">
+            ${match ? `最近命中：${escapeHtml(match.candidates?.[0]?.pdaId || '无')} · ${escapeHtml(match.candidates?.[0]?.matchKind || 'none')} · score ${escapeHtml(String(match.candidates?.[0]?.matchScore ?? ''))}` : '尚未匹配'}
+            ${matchedAuto ? `<br>建议匹配：${escapeHtml(matchedAuto.pdaId)} @ ${escapeHtml(String(matchedAuto.comparePrice))}` : ''}
+          </div>
+        `;
+        item.querySelector('[data-select]').onclick = async () => {
+          state.selectedManualRef = manual.id;
+          renderAll();
+          try {
+            setStatus(`正在匹配 ${manual.id}...`);
+            await matchManual(manual);
+            setStatus(`已匹配 ${manual.id}。`, 'ok');
+          } catch (err) {
+            setStatus(`匹配失败：${err.message}`, 'danger');
+          }
+        };
+        item.querySelector('[data-remove]').onclick = () => removeManualPda(manual.id);
+        wrap.appendChild(item);
+      });
+    }
+
+    function renderAutoList() {
+      const filter = ($('#autoFilter').value || '').trim().toLowerCase();
+      const wrap = $('#autoList');
+      wrap.innerHTML = '';
+      const items = state.autoRecords.filter((rec) => {
+        if (!filter) return true;
+        return JSON.stringify(rec).toLowerCase().includes(filter);
+      });
+      $('#contextCount').textContent = `${state.autoRecords.length} auto refs`;
+      $('#autoCount').textContent = String(items.length);
+      if (!items.length) {
+        wrap.innerHTML = '<div class="status">没有可显示的自动候选。</div>';
+        return;
+      }
+      items.slice(0, 220).forEach((rec) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card__top">
+            <div>
+              <div class="card__title">${escapeHtml(rec.label || rec.pdaId)}</div>
+              <div class="card__meta">${escapeHtml(rec.pdaId)}<br>${escapeHtml(rec.eventTime || '')}</div>
+            </div>
+            <span class="tag">${escapeHtml(rec.matchRole || rec.reviewRole || rec.source || '')}</span>
+          </div>
+          <div class="card__foot">
+            <span class="tag">${escapeHtml(String(rec.timeframe || ''))}</span>
+            <span class="tag">${escapeHtml(String(rec.pdaType || ''))}</span>
+            <span class="tag">${escapeHtml(String(firstPrice(rec)))}</span>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+    }
+
+    function buildReconciliation(path) {
+      const matchedAuto = [];
+      const manualOnly = [];
+      const autoOnly = new Set();
+      (path.manualPdas || []).forEach((manual) => {
+        const match = manual.match;
+        const best = match && match.candidates ? match.candidates[0] : null;
+        if (best && (best.matchKind === 'exact' || best.matchScore >= 0.68)) {
+          matchedAuto.push({ manual_id: manual.id, auto_id: best.pdaId, score: best.matchScore, kind: best.matchKind });
+          (match.candidates || []).forEach((cand) => {
+            if (cand.matchScore >= 0.45 && cand.pdaId) autoOnly.add(cand.pdaId);
+          });
+        } else {
+          manualOnly.push(manual.id);
+          (match && match.candidates ? match.candidates : []).forEach((cand) => {
+            if (cand.pdaId) autoOnly.add(cand.pdaId);
+          });
+        }
+      });
+      matchedAuto.forEach((item) => autoOnly.delete(item.auto_id));
+      return {
+        matched_auto: matchedAuto,
+        manual_only: manualOnly,
+        auto_only_in_window: Array.from(autoOnly)
+      };
+    }
+
+    function buildYaml() {
+      syncCurrentPath();
+      saveDraft();
+      const lines = [];
+      lines.push(`date: ${yamlQuote(state.sampleDate)}`);
+      lines.push(`instrument: ${yamlQuote(state.instrument)}`);
+      if (state.globalNotes) {
+        lines.push('notes:');
+        state.globalNotes.split('\n').filter(Boolean).forEach((line) => lines.push(`  - ${yamlQuote(line)}`));
+      }
+      lines.push('');
+      lines.push('structure_paths:');
+      state.paths.forEach((path) => {
+        const pathReconciliation = buildReconciliation(path);
+        lines.push(`  - id: ${yamlQuote(path.id || '')}`);
+        if (path.startTime) lines.push(`    start_time: ${yamlQuote(path.startTime)}`);
+        if (path.endTime) lines.push(`    end_time: ${yamlQuote(path.endTime)}`);
+        if (path.primaryTimeframe) lines.push(`    primary_timeframe: ${yamlQuote(path.primaryTimeframe)}`);
+        if (path.direction) lines.push(`    direction: ${yamlQuote(path.direction)}`);
+        if (path.role) lines.push(`    role: ${yamlQuote(path.role)}`);
+        if (path.pathType) lines.push(`    path_type: ${yamlQuote(path.pathType)}`);
+        if (path.delivery) lines.push(`    delivery: ${yamlQuote(path.delivery)}`);
+        if (path.executionLensTimeframe || path.executionLensWindow || path.executionLensNote) {
+          lines.push('    execution_lens:');
+          lines.push('      anchor: "ny_open"');
+          if (path.executionLensTimeframe) lines.push(`      timeframe: ${yamlQuote(path.executionLensTimeframe)}`);
+          if (path.executionLensWindow) lines.push(`      window: ${yamlQuote(path.executionLensWindow)}`);
+          if (path.executionLensNote) lines.push(`      note: ${yamlQuote(path.executionLensNote)}`);
+        }
+        if (path.note) lines.push(`    note: ${yamlQuote(path.note)}`);
+        if (path.tags) {
+          lines.push('    tags:');
+          String(path.tags).split(',').map((s) => s.trim()).filter(Boolean).forEach((tag) => lines.push(`      - ${yamlQuote(tag)}`));
+        }
+        if (Array.isArray(path.mainActions) && path.mainActions.length) {
+          const actions = path.mainActions.filter((action) => action.type || action.ref);
+          if (actions.length) {
+          lines.push('    main_actions:');
+            actions.forEach((action) => {
+              lines.push('      -');
+              if (action.type) lines.push(`        type: ${yamlQuote(action.type)}`);
+              if (action.ref) lines.push(`        ref: ${yamlQuote(action.ref)}`);
+            });
+          } else {
+            lines.push('    main_actions: []');
+          }
+        } else {
+          lines.push('    main_actions: []');
+        }
+        const manualPdas = path.manualPdas || [];
+        if (manualPdas.length) {
+          lines.push('    manual_pdas:');
+          manualPdas.forEach((manual) => {
+            lines.push('      -');
+            lines.push(`        id: ${yamlQuote(manual.id)}`);
+            lines.push(`        timeframe: ${yamlQuote(manual.timeframe || '')}`);
+            lines.push(`        pda_type: ${yamlQuote(manual.pdaType || '')}`);
+            if (manual.direction) lines.push(`        direction: ${yamlQuote(manual.direction)}`);
+            if (manual.eventTime) lines.push(`        event_time: ${yamlQuote(manual.eventTime)}`);
+            if (manual.price) lines.push(`        price: ${yamlQuote(manual.price)}`);
+            if (manual.priceHigh) lines.push(`        price_high: ${yamlQuote(manual.priceHigh)}`);
+            if (manual.priceLow) lines.push(`        price_low: ${yamlQuote(manual.priceLow)}`);
+            if (manual.note) lines.push(`        note: ${yamlQuote(manual.note)}`);
+            if (manual.match && manual.match.candidates) {
+              const best = manual.match.candidates[0] || null;
+              lines.push('        reconciliation:');
+              if (best) {
+                lines.push('          matched_auto:');
+                lines.push('            -');
+                lines.push(`              pda_id: ${yamlQuote(best.pdaId)}`);
+                lines.push(`              match_kind: ${yamlQuote(best.matchKind)}`);
+                lines.push(`              match_score: ${best.matchScore}`);
+              } else {
+                lines.push('          matched_auto: []');
+              }
+            }
+          });
+        } else {
+          lines.push('    manual_pdas: []');
+        }
+        lines.push('    reconciliation:');
+        if (pathReconciliation.matched_auto.length) {
+          lines.push('      matched_auto:');
+          pathReconciliation.matched_auto.forEach((item) => {
+            lines.push('        -');
+            lines.push(`          manual_id: ${yamlQuote(item.manual_id)}`);
+            lines.push(`          auto_id: ${yamlQuote(item.auto_id)}`);
+            lines.push(`          score: ${item.score}`);
+            lines.push(`          kind: ${yamlQuote(item.kind)}`);
+          });
+        } else {
+          lines.push('      matched_auto: []');
+        }
+        if (pathReconciliation.manual_only.length) {
+          lines.push('      manual_only:');
+          pathReconciliation.manual_only.forEach((id) => lines.push(`        - ${yamlQuote(id)}`));
+        } else {
+          lines.push('      manual_only: []');
+        }
+        if (pathReconciliation.auto_only_in_window.length) {
+          lines.push('      auto_only_in_window:');
+          pathReconciliation.auto_only_in_window.forEach((id) => lines.push(`        - ${yamlQuote(id)}`));
+        } else {
+          lines.push('      auto_only_in_window: []');
+        }
+      });
+      lines.push('');
+      if (state.groups.length) {
+        lines.push('structure_groups:');
+        state.groups.forEach((group) => {
+          const bounds = groupMemberBounds(group);
+          lines.push(`  - group_id: ${yamlQuote(group.groupId || '')}`);
+          if (group.groupType) lines.push(`    group_type: ${yamlQuote(group.groupType)}`);
+          if (group.primaryTimeframe) lines.push(`    primary_timeframe: ${yamlQuote(group.primaryTimeframe)}`);
+          if (group.direction) lines.push(`    direction: ${yamlQuote(group.direction)}`);
+          if (group.role) lines.push(`    role: ${yamlQuote(group.role)}`);
+          if (group.structurePattern) lines.push(`    structure_pattern: ${yamlQuote(group.structurePattern)}`);
+          if (group.startTime || bounds.startTime) lines.push(`    start_time: ${yamlQuote(group.startTime || bounds.startTime)}`);
+          if (group.endTime || bounds.endTime) lines.push(`    end_time: ${yamlQuote(group.endTime || bounds.endTime)}`);
+          if (Array.isArray(group.memberPaths) && group.memberPaths.length) {
+            lines.push('    member_paths:');
+            group.memberPaths.forEach((id) => lines.push(`      - ${yamlQuote(id)}`));
+          } else {
+            lines.push('    member_paths: []');
+          }
+          if (group.note) lines.push(`    note: ${yamlQuote(group.note)}`);
+        });
+      } else {
+        lines.push('structure_groups: []');
+      }
+      lines.push('');
+      if (state.relations.length) {
+        lines.push('structure_relations:');
+        state.relations.forEach((relation) => {
+          lines.push(`  - relation_id: ${yamlQuote(relation.relationId || '')}`);
+          if (relation.source) lines.push(`    source: ${yamlQuote(relation.source)}`);
+          if (relation.target) lines.push(`    target: ${yamlQuote(relation.target)}`);
+          if (relation.relationType) lines.push(`    relation_type: ${yamlQuote(relation.relationType)}`);
+          if (relation.ratio) lines.push(`    ratio: ${yamlQuote(relation.ratio)}`);
+          if (relation.location) lines.push(`    location: ${yamlQuote(relation.location)}`);
+          if (relation.note) lines.push(`    note: ${yamlQuote(relation.note)}`);
+        });
+      } else {
+        lines.push('structure_relations: []');
+      }
+      return lines.join('\n');
+    }
+
+    function buildGroupsYaml() {
+      syncCurrentPath();
+      saveDraft();
+      const lines = [];
+      lines.push(`date: ${yamlQuote(state.sampleDate)}`);
+      lines.push(`instrument: ${yamlQuote(state.instrument)}`);
+      lines.push('');
+      if (state.groups.length) {
+        lines.push('structure_groups:');
+        state.groups.forEach((group) => {
+          const bounds = groupMemberBounds(group);
+          lines.push(`  - group_id: ${yamlQuote(group.groupId || '')}`);
+          if (group.groupType) lines.push(`    group_type: ${yamlQuote(group.groupType)}`);
+          if (group.primaryTimeframe) lines.push(`    primary_timeframe: ${yamlQuote(group.primaryTimeframe)}`);
+          if (group.direction) lines.push(`    direction: ${yamlQuote(group.direction)}`);
+          if (group.role) lines.push(`    role: ${yamlQuote(group.role)}`);
+          if (group.structurePattern) lines.push(`    structure_pattern: ${yamlQuote(group.structurePattern)}`);
+          if (group.startTime || bounds.startTime) lines.push(`    start_time: ${yamlQuote(group.startTime || bounds.startTime)}`);
+          if (group.endTime || bounds.endTime) lines.push(`    end_time: ${yamlQuote(group.endTime || bounds.endTime)}`);
+          if (Array.isArray(group.memberPaths) && group.memberPaths.length) {
+            lines.push('    member_paths:');
+            group.memberPaths.forEach((id) => lines.push(`      - ${yamlQuote(id)}`));
+          } else {
+            lines.push('    member_paths: []');
+          }
+          if (group.note) lines.push(`    note: ${yamlQuote(group.note)}`);
+        });
+      } else {
+        lines.push('structure_groups: []');
+      }
+      lines.push('');
+      if (state.relations.length) {
+        lines.push('structure_relations:');
+        state.relations.forEach((relation) => {
+          lines.push(`  - relation_id: ${yamlQuote(relation.relationId || '')}`);
+          if (relation.source) lines.push(`    source: ${yamlQuote(relation.source)}`);
+          if (relation.target) lines.push(`    target: ${yamlQuote(relation.target)}`);
+          if (relation.relationType) lines.push(`    relation_type: ${yamlQuote(relation.relationType)}`);
+          if (relation.ratio) lines.push(`    ratio: ${yamlQuote(relation.ratio)}`);
+          if (relation.location) lines.push(`    location: ${yamlQuote(relation.location)}`);
+          if (relation.note) lines.push(`    note: ${yamlQuote(relation.note)}`);
+        });
+      } else {
+        lines.push('structure_relations: []');
+      }
+      return lines.join('\n');
+    }
+
+    function renderYaml() {
+      $('#yamlPreview').textContent = buildYaml();
+    }
+
+    function renderMatchTable(candidates) {
+      const rows = candidates.map((cand) => `
+        <tr>
+          <td>${escapeHtml(cand.pdaId)}</td>
+          <td>${escapeHtml(cand.timeframe)}</td>
+          <td>${escapeHtml(cand.pdaType)}</td>
+          <td>${escapeHtml(cand.matchKind)}</td>
+          <td>${escapeHtml(String(cand.matchScore))}</td>
+          <td>${escapeHtml(String(cand.timeDeltaMinutes))}</td>
+          <td>${escapeHtml(String(cand.priceDelta))}</td>
+          <td>${escapeHtml(cand.note || cand.reviewRole || '')}</td>
+        </tr>
+      `).join('');
+      return `
+        <table>
+          <thead>
+            <tr>
+              <th>PDA</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>ΔT</th><th>ΔP</th><th>Note</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderMatchPanel() {
+      const manual = selectedManual();
+      $('#selectedManualLabel').textContent = manualSummary(manual);
+      if (!manual) {
+        $('#matchSummary').textContent = '等待选择';
+        $('#matchTableWrap').innerHTML = '<div class="status">先选一条手工 PDA，再点“匹配”。</div>';
+        return;
+      }
+      const match = manual.match || null;
+      if (!match || !match.candidates || !match.candidates.length) {
+        const preview = buildLocalMatchResult(manual);
+        if (preview.candidates.length) {
+          $('#matchSummary').textContent = `本地预览 ${preview.candidates.length}`;
+          $('#matchTableWrap').innerHTML = `
+            <div class="status" data-kind="warn">当前还没有写入的匹配结果；下面是已加载 Auto Context 的实时候选。点“匹配”会写入 YAML reconciliation。</div>
+            ${renderMatchTable(preview.candidates)}
+          `;
+          return;
+        }
+        $('#matchSummary').textContent = `尚未匹配 · context ${state.autoRecords.length}`;
+        $('#matchTableWrap').innerHTML = '<div class="status">这条手工 PDA 还没有对照结果。请确认右侧 Auto Context 已加载，且 event_time / price 与候选接近。</div>';
+        return;
+      }
+      const best = match.candidates[0];
+      $('#matchSummary').textContent = `${best.matchKind} · score ${best.matchScore}`;
+      $('#matchTableWrap').innerHTML = renderMatchTable(match.candidates);
+    }
+
+    function renderAll() {
+      ensureDefaults();
+      syncTopInputs();
+      renderPathChips();
+      renderPathForm();
+      renderGroupEditor();
+      renderRelationEditor();
+      renderManualList();
+      renderAutoList();
+      renderMatchPanel();
+      renderYaml();
+      saveDraft();
+    }
+
+    function copyYaml() {
+      navigator.clipboard.writeText(buildYaml()).then(() => setStatus('YAML 已复制。', 'ok')).catch((err) => setStatus(`复制失败：${err.message}`, 'danger'));
+    }
+
+    function downloadYaml() {
+      const blob = new Blob([buildYaml()], { type: 'text/yaml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `layer2_${state.sampleDate}.yaml`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    function copyGroupsYaml() {
+      navigator.clipboard.writeText(buildGroupsYaml()).then(() => setStatus('groups.yaml 已复制。', 'ok')).catch((err) => setStatus(`复制失败：${err.message}`, 'danger'));
+    }
+
+    function downloadGroupsYaml() {
+      const blob = new Blob([buildGroupsYaml()], { type: 'text/yaml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'groups.yaml';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    function bindEvents() {
+      $('#loadContextBtn').onclick = loadContext;
+      $('#addPathBtn').onclick = addPath;
+      $('#importPathYamlBtn').onclick = () => $('#importPathYamlInput').click();
+      $('#importGroupsYamlBtn').onclick = () => $('#importGroupsYamlInput').click();
+      $('#deletePathBtn').onclick = deletePath;
+      $('#copyYamlBtn').onclick = copyYaml;
+      $('#downloadYamlBtn').onclick = downloadYaml;
+      $('#addManualPdaBtn').onclick = addManualPda;
+      $('#clearManualFormBtn').onclick = clearManualForm;
+      $('#addMainActionBtn').onclick = addMainAction;
+      $('#addGroupBtn').onclick = addGroup;
+      $('#deleteGroupBtn').onclick = deleteGroup;
+      $('#addRelationBtn').onclick = addRelation;
+      $('#deleteRelationBtn').onclick = deleteRelation;
+      $('#copyGroupsYamlBtn').onclick = copyGroupsYaml;
+      $('#downloadGroupsYamlBtn').onclick = downloadGroupsYaml;
+      $('#importPathYamlInput').onchange = async (event) => {
+        try {
+          await importPathYamlFiles(event.target.files);
+        } catch (err) {
+          setStatus(`导入 Path YAML 失败：${err.message}`, 'danger');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      $('#importGroupsYamlInput').onchange = async (event) => {
+        try {
+          await importGroupsYamlFile(event.target.files?.[0]);
+        } catch (err) {
+          setStatus(`导入 groups.yaml 失败：${err.message}`, 'danger');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      $('#matchSelectedBtn').onclick = async () => {
+        const manual = selectedManual();
+        if (!manual) return setStatus('请先选一条手工 PDA。', 'warn');
+        try {
+          setStatus(`正在匹配 ${manual.id}...`);
+          await matchManual(manual);
+          setStatus(`已匹配 ${manual.id}。`, 'ok');
+        } catch (err) {
+          setStatus(`匹配失败：${err.message}`, 'danger');
+        }
+      };
+      $('#autoFilter').oninput = renderAutoList;
+      $('#globalNotes').oninput = () => { syncTopInputs(); saveDraft(); renderYaml(); };
+      ['apiBase', 'instrument', 'sampleDate', 'lookbackDays', 'lookaheadDays'].forEach((id) => {
+        const el = $('#' + id);
+        el.onchange = () => {
+          syncTopInputs();
+          saveDraft();
+        };
+      });
+      ['manualTimeframe', 'manualPdaType', 'manualDirection', 'manualEventTime', 'manualPrice', 'manualPriceHigh', 'manualPriceLow', 'manualNote'].forEach((id) => {
+        $('#' + id).onchange = saveDraft;
+      });
+      $('#pathForm').addEventListener('input', () => { syncCurrentPath(); renderYaml(); });
+      $('#pathForm').addEventListener('change', () => { syncCurrentPath(); renderYaml(); });
+    }
+
+    function init() {
+      loadDraft();
+      ensureDefaults();
+      $('#apiBase').value = state.apiBase || 'http://127.0.0.1:8765';
+      $('#instrument').value = state.instrument || 'NQ';
+      $('#sampleDate').value = state.sampleDate || '2012-01-10';
+      $('#lookbackDays').value = state.lookbackDays ?? 2;
+      $('#lookaheadDays').value = state.lookaheadDays ?? 1;
+      $('#globalNotes').value = state.globalNotes || '';
+      bindEvents();
+      renderAll();
+      setStatus('准备就绪，先加载一次对照数据。');
+    }
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
