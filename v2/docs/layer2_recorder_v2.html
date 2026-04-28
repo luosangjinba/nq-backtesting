@@ -336,6 +336,39 @@
       </div>
     </section>
 
+    <section class="panel compact-panel" style="margin-top:14px;">
+      <div class="panel__body">
+        <div class="btn-row" style="justify-content: space-between; margin-bottom:8px;">
+          <h2 class="panel__title">Date Time Recognizer</h2>
+          <span class="tag">image -> yyyy-MM-dd HH:mm</span>
+        </div>
+        <div class="grid-3" style="align-items:end;">
+          <div class="field">
+            <label>Image Input</label>
+            <div class="btn-row">
+              <button class="btn" id="dtUploadBtn" type="button">上传图片</button>
+              <button class="btn" id="dtClearImageBtn" type="button">清除图片</button>
+              <input id="dtImageInput" type="file" accept="image/*" hidden>
+            </div>
+            <div id="dtImagePreview" class="status" style="margin-top:8px; min-height:42px; padding:6px 10px;">可上传图片，或直接 Ctrl+V 粘贴截图。</div>
+            <input id="dtRawInput" type="hidden">
+          </div>
+          <div class="field">
+            <label>Output</label>
+            <input id="dtOutput" placeholder="yyyy-MM-dd HH:mm" readonly>
+          </div>
+          <div class="field">
+            <label>Action</label>
+            <div class="btn-row">
+              <button class="btn btn--primary" id="dtParseBtn" type="button">识别</button>
+              <button class="btn" id="dtCopyBtn" type="button">复制</button>
+            </div>
+          </div>
+        </div>
+        <div class="tiny" id="dtHint">上传或粘贴截图后会先读剪贴板/浏览器识别文本；失败时调用 API Base 的 tesseract OCR。</div>
+      </div>
+    </section>
+
     <div class="layout">
       <section class="panel">
         <div class="panel__header">
@@ -843,6 +876,165 @@
       if (!match) return text;
       const [, date, hour, minute, second = '00'] = match;
       return `${date} ${hour.padStart(2, '0')}:${minute}:${second.padStart(2, '0')}`;
+    }
+
+    function recognizeDateTimeText(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const monthMap = {
+        jan: '01', january: '01',
+        feb: '02', february: '02',
+        mar: '03', march: '03',
+        apr: '04', april: '04',
+        may: '05',
+        jun: '06', june: '06',
+        jul: '07', july: '07',
+        aug: '08', august: '08',
+        sep: '09', sept: '09', september: '09',
+        oct: '10', october: '10',
+        nov: '11', november: '11',
+        dec: '12', december: '12'
+      };
+      const text = raw
+        .replace(/[’‘]/g, "'")
+        .replace(/[–—]/g, '-')
+        .replace(/\s+/g, ' ')
+        .replace(/[|]/g, 'I')
+        .replace(/[：]/g, ':')
+        .replace(/\bUTC\s*([+-])\s*[A-Za-z0-9]{1,2}\b/i, 'UTC$1X');
+      const match = text.match(
+        /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)?\.?\s*(\d{1,2})\s+([A-Za-z]{3,9})\s*'?\s*(\d{2,4})(?:\s+UTC[+-][A-Za-z0-9]{1,2}[\)\]\.,;:]*)?\s+([0-9OIlS]{1,2})\s*:\s*([0-9OIlS]{2})/i
+      );
+      if (!match) return '';
+      const [, dayRaw, monthRaw, yearRaw, hourRaw, minuteRaw] = match;
+      const month = monthMap[monthRaw.toLowerCase()];
+      if (!month) return '';
+      const cleanDigits = (part) => String(part || '')
+        .replace(/[Oo]/g, '0')
+        .replace(/[Il|]/g, '1')
+        .replace(/[Ss]/g, '5')
+        .replace(/\D/g, '');
+      const yearNum = Number(yearRaw);
+      const year = yearRaw.length === 2 ? String(yearNum >= 70 ? 1900 + yearNum : 2000 + yearNum) : String(yearNum).padStart(4, '0');
+      const day = dayRaw.padStart(2, '0');
+      const hour = cleanDigits(hourRaw).padStart(2, '0');
+      const minute = cleanDigits(minuteRaw).padStart(2, '0');
+      if (Number(hour) > 23 || Number(minute) > 59) return '';
+      return `${year}-${month}-${day} ${hour}:${minute}`;
+    }
+
+    function parseDateTimeRecognizer(value = $('#dtRawInput').value) {
+      $('#dtRawInput').value = value || '';
+      const output = recognizeDateTimeText(value);
+      $('#dtOutput').value = output;
+      const hint = $('#dtHint');
+      if (output) {
+        hint.textContent = `识别成功：${output}`;
+        hint.dataset.kind = 'ok';
+      } else {
+        const seen = String(value || '').trim();
+        hint.textContent = seen
+          ? `未识别。OCR 读到：${seen.slice(0, 80)}`
+          : "未识别。请确认图片文字类似 Mon 09 Jan '12 UTC-5 11:20，或直接 Ctrl+V 粘贴这段文字。";
+        hint.dataset.kind = 'warn';
+      }
+    }
+
+    function copyRecognizedDateTime() {
+      const value = $('#dtOutput').value;
+      if (!value) return setStatus('没有可复制的识别结果。', 'warn');
+      navigator.clipboard.writeText(value).then(() => setStatus(`已复制时间：${value}`, 'ok')).catch((err) => setStatus(`复制失败：${err.message}`, 'danger'));
+    }
+
+    async function extractDateTimeTextFromImage(file) {
+      let browserReason = '浏览器没有返回可用 OCR 文本。';
+      if (window.TextDetector) {
+        try {
+          const detector = new TextDetector();
+          const source = window.createImageBitmap ? await createImageBitmap(file) : await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = URL.createObjectURL(file);
+          });
+          const results = await detector.detect(source);
+          const text = results.map((item) => item.rawValue || '').filter(Boolean).join(' ');
+          const output = recognizeDateTimeText(text);
+          if (text || output) return { text, output, reason: text ? '' : '浏览器 OCR 未读到文字。' };
+        } catch (err) {
+          browserReason = `浏览器 OCR 失败：${err.message}`;
+        }
+      }
+
+      const apiBase = ($('#apiBase')?.value || state.apiBase || '').trim().replace(/\/+$/, '');
+      if (!apiBase) {
+        return { text: '', output: '', reason: `${browserReason} API Base 为空，无法调用 tesseract OCR。` };
+      }
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const response = await fetch(`${apiBase}/v2/date_time_ocr`, { method: 'POST', body: form });
+        const payload = await response.json();
+        if (!response.ok || !payload.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+        const result = payload.result || {};
+        return { text: result.text || '', output: result.output || '', reason: result.text ? '' : 'tesseract OCR 未读到文字。' };
+      } catch (err) {
+        return { text: '', output: '', reason: `${browserReason} tesseract OCR 不可用：${err.message}` };
+      }
+    }
+
+    async function previewDateTimeImage(file, options = {}) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const url = URL.createObjectURL(file);
+      const preview = $('#dtImagePreview');
+      preview.innerHTML = `<img src="${escapeAttr(url)}" alt="date time image preview" style="max-width:100%; max-height:56px; display:block; border-radius:6px;">`;
+      if (options.skipOcr) return;
+      $('#dtOutput').value = '';
+      $('#dtHint').textContent = '图片已加载，正在尝试 OCR...';
+      $('#dtHint').dataset.kind = '';
+      const { text, output, reason } = await extractDateTimeTextFromImage(file);
+      if (output) {
+        $('#dtRawInput').value = text || output;
+        $('#dtOutput').value = output;
+        $('#dtHint').textContent = `识别成功：${output}`;
+        $('#dtHint').dataset.kind = 'ok';
+        return;
+      }
+      if (text) {
+        parseDateTimeRecognizer(text);
+        if (!$('#dtOutput').value) {
+          $('#dtHint').textContent = `OCR 读到：${text}，但未能转换成 yyyy-MM-dd HH:mm。`;
+          $('#dtHint').dataset.kind = 'warn';
+        }
+        return;
+      }
+      $('#dtHint').textContent = `${reason} 可直接 Ctrl+V 粘贴图片里的文字，我会只输出转换结果。`;
+      $('#dtHint').dataset.kind = 'warn';
+    }
+
+    function clearDateTimeImage() {
+      $('#dtImageInput').value = '';
+      $('#dtRawInput').value = '';
+      $('#dtOutput').value = '';
+      $('#dtImagePreview').textContent = '可上传图片，或直接 Ctrl+V 粘贴截图。';
+      $('#dtHint').textContent = '上传或粘贴截图后会先读剪贴板/浏览器识别文本；失败时调用 API Base 的 tesseract OCR。';
+      $('#dtHint').dataset.kind = '';
+    }
+
+    function handleDateTimePaste(event) {
+      const items = Array.from(event.clipboardData?.items || []);
+      const text = event.clipboardData?.getData('text/plain') || '';
+      const imageItem = items.find((item) => item.type.startsWith('image/'));
+      const output = recognizeDateTimeText(text);
+      if (output) {
+        parseDateTimeRecognizer(text);
+        if (imageItem) previewDateTimeImage(imageItem.getAsFile(), { skipOcr: true });
+        return;
+      }
+      if (imageItem) {
+        previewDateTimeImage(imageItem.getAsFile());
+        return;
+      }
     }
 
     function parseDateTime(value) {
@@ -2733,6 +2925,12 @@
     function bindEvents() {
       $('#loadContextBtn').onclick = loadContext;
       $('#addPathBtn').onclick = addPath;
+      $('#dtUploadBtn').onclick = () => $('#dtImageInput').click();
+      $('#dtClearImageBtn').onclick = clearDateTimeImage;
+      $('#dtImageInput').onchange = (event) => previewDateTimeImage(event.target.files?.[0]);
+      $('#dtParseBtn').onclick = () => parseDateTimeRecognizer();
+      $('#dtCopyBtn').onclick = copyRecognizedDateTime;
+      window.addEventListener('paste', handleDateTimePaste);
       $('#importPathYamlBtn').onclick = () => $('#importPathYamlInput').click();
       $('#importGroupsYamlBtn').onclick = () => $('#importGroupsYamlInput').click();
       $('#deletePathBtn').onclick = deletePath;

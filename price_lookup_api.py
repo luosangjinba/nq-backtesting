@@ -9,6 +9,8 @@ import mimetypes
 import os
 import re
 import shutil
+import subprocess
+import tempfile
 import uuid
 from datetime import datetime, timedelta
 from email.parser import BytesParser
@@ -24,13 +26,15 @@ import duckdb
 VALID_FIELDS = {"open", "high", "low", "close"}
 VALID_HTF_TIMEFRAMES = {"daily": "day", "weekly": "week", "monthly": "month"}
 V2_BAR_BUCKET_MINUTES = {"D": 24 * 60, "4H": 4 * 60, "1H": 60, "30M": 30, "15M": 15}
-MANUAL_PDA_TYPES = {"bsl", "ssl", "fvg"}
+MANUAL_PDA_TYPES = {"bsl", "ssl", "eqh", "eql", "fvg"}
 MANUAL_PDA_TIMEFRAMES = {"D", "4H", "1H", "30M"}
 REVIEW_STATES = {"pending", "main", "parked"}
 REVIEW_ROLES = {
     "unclassified",
     "daily_high",
     "daily_low",
+    "ict_midnight_day_high",
+    "ict_midnight_day_low",
     "d_short_high",
     "d_short_low",
     "h4_short_high",
@@ -164,7 +168,7 @@ def validate_review_role(value: str) -> str:
     text = (value or "").strip().lower()
     if text not in REVIEW_ROLES:
         raise ValueError(
-            "reviewRole must be unclassified/daily_high/daily_low/"
+            "reviewRole must be unclassified/daily_high/daily_low/ict_midnight_day_high/ict_midnight_day_low/"
             "d_short_high/d_short_low/h4_short_high/h4_short_low/h1_short_high/h1_short_low"
         )
     return text
@@ -202,7 +206,7 @@ def sanitize_filename_part(value: str) -> str:
 def validate_manual_pda_type(value: str) -> str:
     text = (value or "").strip().lower()
     if text not in MANUAL_PDA_TYPES:
-        raise ValueError("manual pdaType must be bsl/ssl/fvg")
+        raise ValueError("manual pdaType must be bsl/ssl/eqh/eql/fvg")
     return text
 
 
@@ -245,11 +249,132 @@ def parse_input_timestamp(value: object, field_name: str) -> datetime:
     raise ValueError(f"{field_name} must be YYYY-MM-DD HH:MM or YYYY-MM-DD HH:MM:SS")
 
 
+def recognize_datetime_text(value: object) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    month_map = {
+        "jan": "01",
+        "january": "01",
+        "feb": "02",
+        "february": "02",
+        "mar": "03",
+        "march": "03",
+        "apr": "04",
+        "april": "04",
+        "may": "05",
+        "jun": "06",
+        "june": "06",
+        "jul": "07",
+        "july": "07",
+        "aug": "08",
+        "august": "08",
+        "sep": "09",
+        "sept": "09",
+        "september": "09",
+        "oct": "10",
+        "october": "10",
+        "nov": "11",
+        "november": "11",
+        "dec": "12",
+        "december": "12",
+    }
+    text = raw.replace("’", "'").replace("‘", "'").replace("–", "-").replace("—", "-")
+    text = text.replace("|", "I").replace("：", ":")
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\bUTC\s*([+-])\s*[A-Za-z0-9]{1,2}\b", r"UTC\1X", text, flags=re.I)
+    match = re.search(
+        r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)?\.?\s*"
+        r"(\d{1,2})\s+([A-Za-z]{3,9})\s*'?\s*(\d{2,4})"
+        r"(?:\s+UTC[+-][A-Za-z0-9]{1,2}[\)\]\.,;:]*)?\s+([0-9OIlS]{1,2})\s*:\s*([0-9OIlS]{2})",
+        text,
+        flags=re.I,
+    )
+    if not match:
+        return ""
+    day_raw, month_raw, year_raw, hour_raw, minute_raw = match.groups()
+    month = month_map.get(month_raw.lower())
+    if not month:
+        return ""
+
+    def clean_digits(part: str) -> str:
+        return re.sub(r"\D", "", part.replace("O", "0").replace("o", "0").replace("I", "1").replace("l", "1").replace("S", "5").replace("s", "5"))
+
+    year_num = int(year_raw)
+    year = str(1900 + year_num if year_num >= 70 else 2000 + year_num) if len(year_raw) == 2 else str(year_num).zfill(4)
+    hour = clean_digits(hour_raw).zfill(2)
+    minute = clean_digits(minute_raw).zfill(2)
+    if int(hour) > 23 or int(minute) > 59:
+        return ""
+    return f"{year}-{month}-{day_raw.zfill(2)} {hour}:{minute}"
+
+
 def parse_optional_timestamp(value: object, field_name: str) -> datetime | None:
     text = str(value or "").strip()
     if not text:
         return None
     return parse_input_timestamp(text, field_name)
+
+
+def parse_member_refs(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        raw_items = value
+    else:
+        raw_items = re.split(r"[\s,]+", str(value))
+    refs = []
+    for item in raw_items:
+        text = str(item or "").strip()
+        if not text:
+            continue
+        if not re.fullmatch(r"[A-Za-z0-9_:\-\.]+", text):
+            raise ValueError("memberRefs contains an invalid reference")
+        refs.append(text)
+    return list(dict.fromkeys(refs))[:100]
+
+
+def ocr_datetime_image(file_bytes: bytes, suffix: str) -> dict[str, str]:
+    tesseract = shutil.which("tesseract")
+    if not tesseract:
+        raise RuntimeError("missing tesseract OCR engine. Install tesseract-ocr to enable image date-time recognition.")
+    try:
+        from PIL import Image, ImageFilter, ImageOps
+    except ImportError as exc:
+        raise RuntimeError("missing Pillow. Install pillow to enable image date-time recognition.") from exc
+
+    texts: list[str] = []
+    with tempfile.TemporaryDirectory(prefix="dt-ocr-") as tmp_dir:
+        raw_path = Path(tmp_dir) / f"input{suffix}"
+        processed_path = Path(tmp_dir) / "processed.png"
+        raw_path.write_bytes(file_bytes)
+        with Image.open(raw_path) as image:
+            image = ImageOps.grayscale(image)
+            image = ImageOps.autocontrast(image)
+            image = image.resize((image.width * 4, image.height * 4))
+            image = image.filter(ImageFilter.SHARPEN)
+            image = image.point(lambda pixel: 255 if pixel > 125 else 0)
+            image.save(processed_path)
+
+        for psm in ("7", "6", "13"):
+            completed = subprocess.run(
+                [tesseract, str(processed_path), "stdout", "--psm", psm, "-l", "eng"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            text = (completed.stdout or "").strip()
+            if not text:
+                continue
+            if text not in texts:
+                texts.append(text)
+            output = recognize_datetime_text(text)
+            if output:
+                return {"text": text, "output": output}
+
+    joined = " ".join(texts).strip()
+    return {"text": joined, "output": recognize_datetime_text(joined)}
 
 
 def session_date_from_timestamp(ts: datetime) -> str:
@@ -279,6 +404,10 @@ def normalize_review_role(
         return "daily_high"
     if pda == "daily_low":
         return "daily_low"
+    if pda == "ict_midnight_day_high":
+        return "ict_midnight_day_high"
+    if pda == "ict_midnight_day_low":
+        return "ict_midnight_day_low"
     if state == "main":
         if tf == "D" and pda == "bsl":
             return "d_short_high"
@@ -327,7 +456,7 @@ def resolve_restore_root(v2_db_path: str, configured_restore_dir: str) -> Path:
 
 
 def open_db(db_path: str) -> duckdb.DuckDBPyConnection:
-    return duckdb.connect(db_path, read_only=True)
+    return duckdb.connect(db_path)
 
 
 def ensure_table_exists(db_path: str, table: str) -> None:
@@ -396,6 +525,8 @@ def ensure_v2_registry_columns(db_path: str) -> None:
               when coalesce(review_role, '') <> '' then lower(review_role)
               when pda_type = 'daily_high' then 'daily_high'
               when pda_type = 'daily_low' then 'daily_low'
+              when pda_type = 'ict_midnight_day_high' then 'ict_midnight_day_high'
+              when pda_type = 'ict_midnight_day_low' then 'ict_midnight_day_low'
               when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = 'D' and pda_type = 'bsl' then 'd_short_high'
               when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = 'D' and pda_type = 'ssl' then 'd_short_low'
               when lower(coalesce(review_state, 'pending')) = 'main' and timeframe = '4H' and pda_type = 'bsl' then 'h4_short_high'
@@ -408,6 +539,59 @@ def ensure_v2_registry_columns(db_path: str) -> None:
                or lower(review_role) in ('pending', 'daily_short_high', 'daily_short_low', 'h4_main_pda', 'h1_main_pda')
             """
         )
+
+
+def ensure_v2_pda_members_table(db_path: str) -> None:
+    with duckdb.connect(db_path) as conn:
+        conn.execute(
+            """
+            create table if not exists pda_members (
+              pda_id varchar not null,
+              member_type varchar not null,
+              member_ref varchar not null,
+              role varchar,
+              note varchar,
+              created_at timestamp not null default current_timestamp,
+              primary key (pda_id, member_type, member_ref)
+            )
+            """
+        )
+        conn.execute(
+            """
+            create index if not exists idx_pda_members_pda_id
+              on pda_members (pda_id)
+            """
+        )
+        conn.execute(
+            """
+            create index if not exists idx_pda_members_member_ref
+              on pda_members (member_type, member_ref)
+            """
+        )
+
+
+def query_v2_pda_members(v2_db_path: str, pda_id: str) -> list[Dict[str, object]]:
+    if not ensure_optional_table_exists(v2_db_path, "pda_members"):
+        return []
+    with open_db(v2_db_path) as conn:
+        rows = conn.execute(
+            """
+            select member_type, member_ref, role, note
+            from pda_members
+            where pda_id = ?
+            order by member_type, member_ref
+            """,
+            [pda_id],
+        ).fetchall()
+    return [
+        {
+            "memberType": row[0],
+            "memberRef": row[1],
+            "role": row[2] or "",
+            "note": row[3] or "",
+        }
+        for row in rows
+    ]
 
 
 def get_period_start(date_str: str, timeframe: str) -> datetime:
@@ -823,6 +1007,7 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
             "registryStatus": row[29],
             "source": row[30],
             "note": row[31] or "",
+            "members": query_v2_pda_members(v2_db_path, pda_id),
         }
     raise LookupError("pda record not found")
 
@@ -901,6 +1086,173 @@ def query_v2_pd_extremes(
     return {"items": items}
 
 
+def query_v2_reference_groups(
+    v2_db_path: str,
+    instrument: str,
+    date_from: str,
+    date_to: str,
+    side: str,
+    limit: int,
+) -> Dict[str, object]:
+    if not ensure_optional_table_exists(v2_db_path, "reference_groups"):
+        raise LookupError("v2 reference_groups not found")
+    clauses = [
+        "(? = '' or instrument = ?)",
+        "(? = '' or trade_date >= cast(? as date))",
+        "(? = '' or trade_date <= cast(? as date))",
+        "(? = '' or side = ?)",
+    ]
+    params: list[object] = [
+        instrument,
+        instrument,
+        date_from,
+        date_from,
+        date_to,
+        date_to,
+        side,
+        side,
+    ]
+    sql = f"""
+    select
+      group_id,
+      instrument,
+      trade_date,
+      event_time,
+      price,
+      side,
+      member_count,
+      pda_count,
+      pd_extreme_count,
+      timeframes,
+      roles,
+      note
+    from reference_groups
+    where {" and ".join(clauses)}
+    order by event_time asc, side asc, price asc
+    limit ?
+    """.strip()
+    with open_db(v2_db_path) as conn:
+        rows = conn.execute(sql, [*params, limit]).fetchall()
+        group_ids = [row[0] for row in rows]
+        members_by_group: dict[str, list[dict[str, object]]] = {gid: [] for gid in group_ids}
+        if group_ids:
+            placeholders = ",".join("?" for _ in group_ids)
+            member_rows = conn.execute(
+                f"""
+                select
+                  group_id,
+                  member_type,
+                  member_ref,
+                  event_time,
+                  price,
+                  side,
+                  timeframe,
+                  pda_type,
+                  review_role,
+                  session_name,
+                  label
+                from reference_group_members
+                where group_id in ({placeholders})
+                order by group_id, member_type, timeframe, pda_type, session_name, member_ref
+                """,
+                group_ids,
+            ).fetchall()
+            for item in member_rows:
+                members_by_group.setdefault(item[0], []).append(
+                    {
+                        "memberType": item[1],
+                        "memberRef": item[2],
+                        "eventTime": item[3].strftime("%Y-%m-%d %H:%M:%S") if item[3] else "",
+                        "price": float(item[4]) if item[4] is not None else None,
+                        "side": item[5],
+                        "timeframe": item[6] or "",
+                        "pdaType": item[7] or "",
+                        "reviewRole": item[8] or "",
+                        "sessionName": item[9] or "",
+                        "label": item[10] or "",
+                    }
+                )
+    groups = []
+    for row in rows:
+        groups.append(
+            {
+                "groupId": row[0],
+                "instrument": row[1],
+                "tradeDate": row[2].strftime("%Y-%m-%d") if row[2] else "",
+                "eventTime": row[3].strftime("%Y-%m-%d %H:%M:%S") if row[3] else "",
+                "price": float(row[4]) if row[4] is not None else None,
+                "side": row[5],
+                "memberCount": int(row[6] or 0),
+                "pdaCount": int(row[7] or 0),
+                "pdExtremeCount": int(row[8] or 0),
+                "timeframes": row[9] or "",
+                "roles": row[10] or "",
+                "note": row[11] or "",
+                "members": members_by_group.get(row[0], []),
+            }
+        )
+    return {"groups": groups}
+
+
+def query_v2_reference_groups_for_members(
+    v2_db_path: str,
+    member_refs: list[str],
+) -> Dict[str, object]:
+    if not ensure_optional_table_exists(v2_db_path, "reference_groups"):
+        raise LookupError("v2 reference_groups not found")
+    clean_refs = []
+    for item in member_refs:
+        text = str(item or "").strip()
+        if text and re.fullmatch(r"[A-Za-z0-9_:\-\.]+", text):
+            clean_refs.append(text)
+    clean_refs = list(dict.fromkeys(clean_refs))[:500]
+    if not clean_refs:
+        return {"groupsByMemberRef": {}}
+
+    placeholders = ",".join("?" for _ in clean_refs)
+    with open_db(v2_db_path) as conn:
+        rows = conn.execute(
+            f"""
+            select
+              m.member_ref,
+              g.group_id,
+              g.instrument,
+              g.trade_date,
+              g.event_time,
+              g.price,
+              g.side,
+              g.member_count,
+              g.pda_count,
+              g.pd_extreme_count,
+              g.timeframes,
+              g.roles
+            from reference_group_members m
+            join reference_groups g on g.group_id = m.group_id
+            where m.member_ref in ({placeholders})
+            order by m.member_ref, g.member_count desc, g.event_time
+            """,
+            clean_refs,
+        ).fetchall()
+    groups_by_member_ref: dict[str, list[dict[str, object]]] = {}
+    for row in rows:
+        groups_by_member_ref.setdefault(row[0], []).append(
+            {
+                "groupId": row[1],
+                "instrument": row[2],
+                "tradeDate": row[3].strftime("%Y-%m-%d") if row[3] else "",
+                "eventTime": row[4].strftime("%Y-%m-%d %H:%M:%S") if row[4] else "",
+                "price": float(row[5]) if row[5] is not None else None,
+                "side": row[6],
+                "memberCount": int(row[7] or 0),
+                "pdaCount": int(row[8] or 0),
+                "pdExtremeCount": int(row[9] or 0),
+                "timeframes": row[10] or "",
+                "roles": row[11] or "",
+            }
+        )
+    return {"groupsByMemberRef": groups_by_member_ref}
+
+
 def update_v2_pda_review(
     v2_db_path: str,
     pda_id: str,
@@ -941,6 +1293,7 @@ def update_v2_pda_review(
 
 def delete_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
+    ensure_v2_pda_members_table(v2_db_path)
     with duckdb.connect(v2_db_path) as conn:
         row = conn.execute(
             "select pda_id, instrument, timeframe, pda_type, trade_date, anchor_time from pda_registry where pda_id = ?",
@@ -948,6 +1301,7 @@ def delete_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
         ).fetchone()
         if not row:
             raise LookupError("pda record not found")
+        conn.execute("delete from pda_members where pda_id = ?", [pda_id])
         conn.execute("delete from pda_registry where pda_id = ?", [pda_id])
     return {
         "pdaId": row[0],
@@ -997,8 +1351,10 @@ def create_v2_manual_pda(
     price_high: float | None,
     price_low: float | None,
     note: str,
+    member_refs: list[str] | None = None,
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
+    ensure_v2_pda_members_table(v2_db_path)
     trade_date = session_date_from_timestamp(anchor_time)
     normalized_direction = direction or None
     if pda_type in {"bsl", "ssl"}:
@@ -1011,6 +1367,20 @@ def create_v2_manual_pda(
         price_high = point_price
         price_low = point_price
         price_ce = point_price
+        normalized_direction = None
+    elif pda_type in {"eqh", "eql"}:
+        if price_high is None and price_low is None:
+            point_price = price
+            if point_price is None:
+                raise ValueError("eqh/eql manual add requires price or priceHigh/priceLow")
+            price_high = point_price
+            price_low = point_price
+        elif price_high is None or price_low is None:
+            raise ValueError("eqh/eql manual add requires both priceHigh and priceLow when using a range")
+        if price_low > price_high:
+            raise ValueError("priceLow must be <= priceHigh")
+        price = price if price is not None else (price_high + price_low) / 2.0
+        price_ce = (price_high + price_low) / 2.0
         normalized_direction = None
     else:
         if price_high is None or price_low is None:
@@ -1064,11 +1434,23 @@ def create_v2_manual_pda(
                 None,
                 None,
                 None,
-                "manual_add",
+                "manual_eqh_eql" if pda_type in {"eqh", "eql"} else "manual_add",
                 note,
                 "active",
             ],
         )
+        rows = []
+        for ref in member_refs or []:
+            member_type = "pd_extreme" if ref.startswith("pdext:") else ("pda" if ref.startswith("pda_") else "manual_ref")
+            rows.append((pda_id, member_type, ref, "member", ""))
+        if rows:
+            conn.executemany(
+                """
+                insert or replace into pda_members (pda_id, member_type, member_ref, role, note)
+                values (?, ?, ?, ?, ?)
+                """.strip(),
+                rows,
+            )
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
@@ -1203,6 +1585,151 @@ def query_v2_pda_neighbors(
         "before": before,
         "after": after,
         "bars": neighbor_bars,
+    }
+
+
+def query_v2_pda_match(
+    v2_db_path: str,
+    instrument: str,
+    timeframe: str,
+    pda_type: str,
+    event_time: datetime,
+    price: float,
+    time_tolerance_bars: int,
+    price_tolerance_ticks: int,
+    limit: int,
+) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    if not ensure_optional_table_exists(v2_db_path, "pda_registry"):
+        raise LookupError("v2 pda_registry not found")
+
+    tf = (timeframe or "").strip().upper()
+    pda = (pda_type or "").strip().lower()
+    bucket_minutes = V2_BAR_BUCKET_MINUTES.get(tf)
+    if bucket_minutes is None:
+        raise ValueError("unsupported timeframe")
+
+    time_tolerance_bars = max(int(time_tolerance_bars), 0)
+    price_tolerance_ticks = max(int(price_tolerance_ticks), 0)
+    time_tolerance_minutes = bucket_minutes * time_tolerance_bars
+    price_tolerance = price_tolerance_ticks * 0.25
+    price_tolerance = max(price_tolerance, 1e-9)
+
+    clauses = [
+        "(? = '' or instrument = ?)",
+        "(? = '' or timeframe = ?)",
+        "(? = '' or pda_type = ?)",
+        "coalesce(anchor_time, occurrence_time, created_ts, cast(coalesce(trade_date, created_date) as timestamp)) is not null",
+    ]
+    params: list[object] = [
+        instrument,
+        instrument,
+        tf,
+        tf,
+        pda,
+        pda,
+        event_time,
+        price,
+    ]
+    sql = f"""
+    with base as (
+      select
+        pda_id,
+        instrument,
+        timeframe,
+        pda_type,
+        direction,
+        trade_date,
+        anchor_time,
+        occurrence_time,
+        confirm_time,
+        coalesce(price, price_ce, price_high, price_low) as compare_price,
+        coalesce(anchor_time, occurrence_time, created_ts, cast(coalesce(trade_date, created_date) as timestamp)) as candidate_time,
+        abs(date_diff('minute', coalesce(anchor_time, occurrence_time, created_ts, cast(coalesce(trade_date, created_date) as timestamp)), cast(? as timestamp))) as time_delta_minutes,
+        abs(coalesce(price, price_ce, price_high, price_low) - ?) as price_delta,
+        status,
+        review_role,
+        source,
+        note
+      from pda_registry
+      where {" and ".join(clauses)}
+    )
+    select
+      pda_id,
+      instrument,
+      timeframe,
+      pda_type,
+      direction,
+      trade_date,
+      anchor_time,
+      occurrence_time,
+      confirm_time,
+      compare_price,
+      candidate_time,
+      time_delta_minutes,
+      price_delta,
+      status,
+      review_role,
+      source,
+      note
+    from base
+    where time_delta_minutes <= ?
+      and price_delta <= ?
+    order by time_delta_minutes asc, price_delta asc, candidate_time asc, pda_id asc
+    limit ?
+    """.strip()
+    params.extend([time_tolerance_minutes, price_tolerance, limit])
+    with open_db(v2_db_path) as conn:
+        rows = conn.execute(sql, params).fetchall()
+
+    candidates = []
+    for row in rows:
+        candidate_time = row[10]
+        time_delta = int(row[11] or 0)
+        price_delta = float(row[12] or 0.0)
+        time_score = 0.0 if time_tolerance_minutes <= 0 else max(0.0, 1.0 - (time_delta / max(time_tolerance_minutes, 1)))
+        price_score = max(0.0, 1.0 - (price_delta / price_tolerance))
+        match_score = round((time_score * 0.6) + (price_score * 0.4), 4)
+        if time_delta == 0 and price_delta == 0:
+            match_kind = "exact"
+        elif time_delta <= max(time_tolerance_minutes, 1) and price_delta <= price_tolerance:
+            match_kind = "near"
+        else:
+            match_kind = "weak"
+        candidates.append(
+            {
+                "pdaId": row[0],
+                "instrument": row[1],
+                "timeframe": row[2],
+                "pdaType": row[3],
+                "direction": row[4],
+                "tradeDate": row[5].strftime("%Y-%m-%d") if row[5] else "",
+                "anchorTime": row[6].strftime("%Y-%m-%d %H:%M:%S") if row[6] else "",
+                "occurrenceTime": row[7].strftime("%Y-%m-%d %H:%M:%S") if row[7] else "",
+                "confirmTime": row[8].strftime("%Y-%m-%d %H:%M:%S") if row[8] else "",
+                "comparePrice": float(row[9]) if row[9] is not None else None,
+                "candidateTime": candidate_time.strftime("%Y-%m-%d %H:%M:%S") if candidate_time else "",
+                "timeDeltaMinutes": time_delta,
+                "priceDelta": round(price_delta, 6),
+                "matchScore": match_score,
+                "matchKind": match_kind,
+                "status": row[13],
+                "reviewRole": row[14],
+                "source": row[15],
+                "note": row[16] or "",
+            }
+        )
+    return {
+        "instrument": instrument,
+        "timeframe": tf,
+        "pdaType": pda,
+        "eventTime": event_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "price": price,
+        "timeToleranceBars": time_tolerance_bars,
+        "priceToleranceTicks": price_tolerance_ticks,
+        "priceTolerance": price_tolerance,
+        "timeToleranceMinutes": time_tolerance_minutes,
+        "candidates": candidates,
     }
 
 
@@ -1424,6 +1951,39 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
 
+        if parsed.path == "/v2/pda_match":
+            try:
+                params = parse_qs(parsed.query)
+                instrument = validate_instrument(params.get("instrument", [""])[0]) if params.get("instrument", [""])[0] else ""
+                timeframe = params["timeframe"][0].strip().upper()
+                pda_type = params.get("pda_type", [""])[0].strip().lower()
+                event_time = parse_input_timestamp(params["event_time"][0], "event_time")
+                price = float(params["price"][0])
+                time_tolerance_bars = int(params.get("time_tolerance_bars", ["1"])[0])
+                price_tolerance_ticks = int(params.get("price_tolerance_ticks", ["2"])[0])
+                limit = min(max(int(params.get("limit", ["20"])[0]), 1), 200)
+                result = query_v2_pda_match(
+                    self.v2_db_path,
+                    instrument,
+                    timeframe,
+                    pda_type,
+                    event_time,
+                    price,
+                    time_tolerance_bars,
+                    price_tolerance_ticks,
+                    limit,
+                )
+                self._send_json(200, {"ok": True, "result": result})
+            except KeyError as exc:
+                self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
         if parsed.path == "/v2/pd_extremes":
             try:
                 params = parse_qs(parsed.query)
@@ -1439,6 +1999,40 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(404, {"ok": False, "error": str(exc)})
             except ValueError as exc:
                 self._send_json(400, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/reference_groups":
+            try:
+                params = parse_qs(parsed.query)
+                instrument = validate_instrument(params.get("instrument", ["NQ"])[0]) if params.get("instrument", [""])[0] else ""
+                date_from = validate_date(params.get("date_from", [""])[0]) if params.get("date_from", [""])[0] else ""
+                date_to = validate_date(params.get("date_to", [""])[0]) if params.get("date_to", [""])[0] else ""
+                side = params.get("side", [""])[0].strip().lower()
+                if side and side not in {"high", "low"}:
+                    raise ValueError("side must be high/low")
+                limit = min(max(int(params.get("limit", ["500"])[0]), 1), 2000)
+                result = query_v2_reference_groups(self.v2_db_path, instrument, date_from, date_to, side, limit)
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/reference_groups_for_members":
+            try:
+                params = parse_qs(parsed.query)
+                member_refs = []
+                for item in params.get("member_ref", []):
+                    member_refs.extend([part.strip() for part in item.split(",") if part.strip()])
+                result = query_v2_reference_groups_for_members(self.v2_db_path, member_refs)
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
             except Exception as exc:
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
@@ -1560,6 +2154,7 @@ class Handler(BaseHTTPRequestHandler):
                 price_high = parse_optional_number(body.get("priceHigh", ""), "priceHigh")
                 price_low = parse_optional_number(body.get("priceLow", ""), "priceLow")
                 note = normalize_note(body.get("note", ""))
+                member_refs = parse_member_refs(body.get("memberRefs", ""))
                 result = create_v2_manual_pda(
                     self.v2_db_path,
                     instrument,
@@ -1572,6 +2167,7 @@ class Handler(BaseHTTPRequestHandler):
                     price_high,
                     price_low,
                     note,
+                    member_refs,
                 )
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
@@ -1640,6 +2236,32 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(400, {"ok": False, "error": str(exc)})
             except json.JSONDecodeError:
                 self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/date_time_ocr":
+            try:
+                _fields, files = self._parse_multipart_form()
+                upload = files.get("file")
+                if upload is None:
+                    raise ValueError("missing file")
+                original_name, file_bytes = upload
+                suffix = Path(Path(original_name or "upload").name).suffix.lower()
+                if suffix not in ALLOWED_IMAGE_SUFFIXES:
+                    raise ValueError("unsupported image type")
+                if not file_bytes:
+                    raise ValueError("empty file")
+                if len(file_bytes) > MAX_UPLOAD_BYTES:
+                    raise ValueError("image must be 10MB or smaller")
+                result = ocr_datetime_image(file_bytes, suffix)
+                self._send_json(200, {"ok": True, "result": result})
+            except RuntimeError as exc:
+                self._send_json(501, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except subprocess.TimeoutExpired:
+                self._send_json(504, {"ok": False, "error": "OCR timed out"})
             except Exception as exc:
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
