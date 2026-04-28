@@ -41,6 +41,7 @@
       outline: none;
     }
     textarea { min-height: 92px; resize: vertical; line-height: 1.55; }
+    textarea.compact-notes { min-height: 46px; }
     input:focus, select:focus, textarea:focus { border-color: rgba(88, 214, 192, 0.72); }
     .shell { max-width: 1800px; margin: 0 auto; padding: 18px; }
     .topbar {
@@ -156,6 +157,7 @@
       border-radius: 12px;
       background: rgba(43, 65, 75, 0.82);
       padding: 11px;
+      min-width: 0;
     }
     .card__top {
       display: grid;
@@ -163,6 +165,38 @@
       gap: 10px;
       align-items: start;
     }
+    .collapse-head {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+    }
+    .collapse-head .card__top { align-items: center; }
+    .collapse-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 171, 180, 0.28);
+      color: var(--muted);
+      font-size: 14px;
+      transition: transform 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+    .collapsible-card[data-collapsed="false"] .collapse-icon {
+      transform: rotate(90deg);
+      color: var(--accent);
+      border-color: rgba(88, 214, 192, 0.48);
+    }
+    .collapse-body {
+      display: none;
+      margin-top: 10px;
+    }
+    .collapsible-card[data-collapsed="false"] .collapse-body { display: block; }
     .card__title { font-size: 13px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
     .card__meta { color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
     .card__foot { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -223,7 +257,44 @@
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 10px;
     }
+    .compare-card {
+      overflow: hidden;
+      position: relative;
+    }
+    .table-scroll {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 2px;
+    }
+    .match-table {
+      table-layout: fixed;
+      min-width: 620px;
+    }
+    .match-table th:nth-child(1),
+    .match-table td:nth-child(1) { width: 210px; }
+    .match-table th:nth-child(8),
+    .match-table td:nth-child(8) { width: 160px; }
+    .match-table td {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .empty-state {
+      position: relative;
+      z-index: 1;
+    }
     .tiny { font-size: 12px; color: var(--muted); line-height: 1.45; }
+    .compact-panel .panel__body { padding: 10px 14px 12px; }
+    .compact-panel .field { margin-bottom: 8px; }
+    .compact-panel .chips { margin-bottom: 4px; }
+    .api-card {
+      margin-bottom: 12px;
+      padding: 10px;
+    }
+    .api-card .grid-4 { gap: 8px; }
+    .api-card .field { margin-bottom: 0; }
+    .api-card input { min-height: 36px; padding: 8px 10px; }
     @media (max-width: 1200px) {
       .layout { grid-template-columns: 1fr; }
       .topbar { grid-template-columns: 1fr; }
@@ -249,50 +320,29 @@
       </div>
     </section>
 
-    <section class="panel" style="margin-top:14px;">
+    <section class="panel compact-panel" style="margin-top:14px;">
       <div class="panel__body">
-        <div class="grid-4">
-          <div class="field">
-            <label>API Base</label>
-            <input id="apiBase" value="http://127.0.0.1:8765">
-          </div>
-          <div class="field">
-            <label>Instrument</label>
-            <input id="instrument" value="NQ">
-          </div>
-          <div class="field">
-            <label>Sample Date</label>
-            <input id="sampleDate" type="date" value="2012-01-10">
-          </div>
-          <div class="field">
-            <label>Context Window</label>
-            <div class="grid-2">
-              <input id="lookbackDays" type="number" min="0" step="1" value="2" aria-label="lookback">
-              <input id="lookaheadDays" type="number" min="0" step="1" value="1" aria-label="lookahead">
-            </div>
+        <div class="btn-row" style="justify-content: space-between; margin-bottom:8px;">
+          <h2 class="panel__title">Paths / Groups</h2>
+          <div class="btn-row">
+            <span class="tag" id="pathCount">0 paths</span>
+            <span class="tag" id="topGroupCount">0 groups</span>
           </div>
         </div>
-        <div class="tiny">加载后，右侧会显示按日期窗口抓到的自动 PDA 候选；手工 PDA 通过 `GET /v2/pda_match` 做匹配，但不会自动写入 `v2_research.duckdb`。</div>
-        <div class="status" id="status">准备就绪。</div>
+        <label>Paths</label>
+        <div class="chips" id="pathChips"></div>
+        <label>Groups</label>
+        <div class="chips" id="topGroupChips"></div>
       </div>
     </section>
 
     <div class="layout">
       <section class="panel">
         <div class="panel__header">
-          <h2 class="panel__title">Paths</h2>
-          <span class="tag" id="pathCount">0</span>
+          <h2 class="panel__title">Group / Relation</h2>
+          <span class="tag">左侧编辑区</span>
         </div>
         <div class="panel__body">
-          <div class="chips" id="pathChips"></div>
-          <div class="field">
-            <label>Path Notes</label>
-            <textarea id="globalNotes" placeholder="可在这里写整个样本的总览、检查口径或待办。"></textarea>
-          </div>
-          <div class="status" style="margin-top:0;">
-            左栏只管理结构路径。每个 Path 下的手工 PDA 是独立记录，不再混进自动候选池。
-          </div>
-
           <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
             <div class="panel__header">
               <h3 class="panel__title">Group Editor</h3>
@@ -453,65 +503,185 @@
           <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
             <div class="panel__header">
               <h3 class="panel__title">Manual PDA</h3>
-              <span class="tag">YAML source</span>
+              <span class="tag">按类别录入</span>
             </div>
             <div class="panel__body">
-              <div class="grid-3">
-                <div class="field">
-                  <label>Timeframe</label>
-                  <select id="manualTimeframe">
-                    <option value="1H">1H</option>
-                    <option value="4H">4H</option>
-                    <option value="30M">30M</option>
-                    <option value="15M">15M</option>
-                    <option value="D">D</option>
-                  </select>
+              <div class="manual-list">
+                <div class="card collapsible-card" data-collapsible="manual-point" data-collapsed="false">
+                  <button class="collapse-head" data-toggle-manual-module="manual-point" type="button">
+                    <div class="card__top">
+                      <div>
+                        <div class="card__title">BSL / SSL</div>
+                        <div class="card__meta">单点流动性。只记录代表点时间和价格。</div>
+                      </div>
+                      <div class="btn-row">
+                        <span class="tag">point</span>
+                        <span class="collapse-icon">›</span>
+                      </div>
+                    </div>
+                  </button>
+                  <div class="collapse-body">
+                    <div class="grid-3">
+                      <div class="field">
+                        <label>Timeframe</label>
+                        <input id="pointTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                      </div>
+                      <div class="field">
+                        <label>Event Time</label>
+                        <input id="pointEventTime" placeholder="2012-01-10 09:30:00">
+                      </div>
+                      <div class="field">
+                        <label>Price</label>
+                        <input id="pointPrice" placeholder="2378.25">
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Note</label>
+                      <textarea id="pointNote" placeholder="这条 BSL/SSL 为什么重要，是否是右侧代表点、是否扫取前高/前低。"></textarea>
+                    </div>
+                    <div class="btn-row">
+                      <button class="btn btn--primary" data-add-manual-kind="bsl" type="button">新增 BSL</button>
+                      <button class="btn btn--primary" data-add-manual-kind="ssl" type="button">新增 SSL</button>
+                      <button class="btn" data-clear-manual-kind="point" type="button">清空</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="field">
-                  <label>PDA Type</label>
-                  <select id="manualPdaType">
-                    <option value="bsl">bsl</option>
-                    <option value="ssl">ssl</option>
-                    <option value="fvg">fvg</option>
-                    <option value="eqh">eqh</option>
-                    <option value="eql">eql</option>
-                  </select>
+
+                <div class="card collapsible-card" data-collapsible="manual-fvg" data-collapsed="true">
+                  <button class="collapse-head" data-toggle-manual-module="manual-fvg" type="button">
+                    <div class="card__top">
+                      <div>
+                        <div class="card__title">FVG</div>
+                        <div class="card__meta">区间型 PDA。用 high/low 描述 gap，CE 由价格区间推导。</div>
+                      </div>
+                      <div class="btn-row">
+                        <span class="tag">range</span>
+                        <span class="collapse-icon">›</span>
+                      </div>
+                    </div>
+                  </button>
+                  <div class="collapse-body">
+                    <div class="grid-3">
+                      <div class="field">
+                        <label>Timeframe</label>
+                        <input id="fvgTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                      </div>
+                      <div class="field">
+                        <label>Event Time</label>
+                        <input id="fvgEventTime" placeholder="2012-01-11 00:00:00">
+                      </div>
+                      <div class="field">
+                        <label>Price High / Low</label>
+                        <div class="grid-2">
+                          <input id="fvgPriceHigh" placeholder="2357.50">
+                          <input id="fvgPriceLow" placeholder="2355.75">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Note</label>
+                      <textarea id="fvgNote" placeholder="这条 FVG 是 displacement 起点、breaker、还是回补/支撑位置。"></textarea>
+                    </div>
+                    <div class="btn-row">
+                      <button class="btn btn--primary" data-add-manual-kind="fvg_bullish" type="button">新增 Bullish FVG</button>
+                      <button class="btn btn--primary" data-add-manual-kind="fvg_bearish" type="button">新增 Bearish FVG</button>
+                      <button class="btn" data-clear-manual-kind="fvg" type="button">清空</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="field">
-                  <label>Direction</label>
-                  <select id="manualDirection">
-                    <option value=""></option>
-                    <option value="bullish">bullish</option>
-                    <option value="bearish">bearish</option>
-                  </select>
+
+                <div class="card collapsible-card" data-collapsible="manual-eq" data-collapsed="true">
+                  <button class="collapse-head" data-toggle-manual-module="manual-eq" type="button">
+                    <div class="card__top">
+                      <div>
+                        <div class="card__title">EQH / EQL</div>
+                        <div class="card__meta">成员集合。记录代表时间/价格，并列出组成成员 refs。</div>
+                      </div>
+                      <div class="btn-row">
+                        <span class="tag">collection</span>
+                        <span class="collapse-icon">›</span>
+                      </div>
+                    </div>
+                  </button>
+                  <div class="collapse-body">
+                    <div class="grid-3">
+                      <div class="field">
+                        <label>Timeframe</label>
+                        <input id="eqTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                      </div>
+                      <div class="field">
+                        <label>Representative Time</label>
+                        <input id="eqEventTime" placeholder="右侧代表点时间，如 2012-01-10 09:30:00">
+                      </div>
+                      <div class="field">
+                        <label>Representative Price</label>
+                        <input id="eqPrice" placeholder="2363.50">
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Member Refs</label>
+                      <textarea id="eqMemberRefs" placeholder="组成 EQH/EQL 的 pda_id / manual_id / 时间点；用空格、逗号或换行分隔。"></textarea>
+                    </div>
+                    <div class="field">
+                      <label>Note</label>
+                      <textarea id="eqNote" placeholder="这些高/低点为什么应被视为同一组 EQH/EQL，是否有统计或交易意义。"></textarea>
+                    </div>
+                    <div class="btn-row">
+                      <button class="btn btn--primary" data-add-manual-kind="eqh" type="button">新增 EQH</button>
+                      <button class="btn btn--primary" data-add-manual-kind="eql" type="button">新增 EQL</button>
+                      <button class="btn" data-clear-manual-kind="eq" type="button">清空</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="grid-3">
-                <div class="field">
-                  <label>Event Time</label>
-                  <input id="manualEventTime" placeholder="2012-01-10 09:30:00">
-                </div>
-                <div class="field">
-                  <label>Price</label>
-                  <input id="manualPrice" placeholder="2378.25">
-                </div>
-                <div class="field">
-                  <label>Price High / Low</label>
-                  <div class="grid-2">
-                    <input id="manualPriceHigh" placeholder="2379.25">
-                    <input id="manualPriceLow" placeholder="2378.75">
+
+                <div class="card collapsible-card" data-collapsible="manual-ob" data-collapsed="true">
+                  <button class="collapse-head" data-toggle-manual-module="manual-ob" type="button">
+                    <div class="card__top">
+                      <div>
+                        <div class="card__title">OB</div>
+                        <div class="card__meta">订单块。记录最后一根或一组反向 K 线的时间范围与价格区间。</div>
+                      </div>
+                      <div class="btn-row">
+                        <span class="tag">order_block</span>
+                        <span class="collapse-icon">›</span>
+                      </div>
+                    </div>
+                  </button>
+                  <div class="collapse-body">
+                    <div class="grid-3">
+                      <div class="field">
+                        <label>Timeframe</label>
+                        <input id="obTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                      </div>
+                      <div class="field">
+                        <label>Start Time</label>
+                        <input id="obStartTime" placeholder="2012-01-10 09:00:00">
+                      </div>
+                      <div class="field">
+                        <label>End Time</label>
+                        <input id="obEndTime" placeholder="2012-01-10 10:00:00">
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Price High / Low</label>
+                      <div class="grid-2">
+                        <input id="obPriceHigh" placeholder="2360.00">
+                        <input id="obPriceLow" placeholder="2357.75">
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Note</label>
+                      <textarea id="obNote" placeholder="Bullish OB: 下行背景中，位移反弹前最后一根/一组收阴K；Bearish OB 反之。"></textarea>
+                    </div>
+                    <div class="btn-row">
+                      <button class="btn btn--primary" data-add-manual-kind="ob_bullish" type="button">新增 Bullish OB</button>
+                      <button class="btn btn--primary" data-add-manual-kind="ob_bearish" type="button">新增 Bearish OB</button>
+                      <button class="btn" data-clear-manual-kind="ob" type="button">清空</button>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="field">
-                <label>Note</label>
-                <textarea id="manualNote" placeholder="记录这条 PDA 为何重要、如何与 1H backbone / NY open lens 对应。"></textarea>
-              </div>
-              <div class="btn-row">
-                <button class="btn btn--primary" id="addManualPdaBtn" type="button">加入当前 Path</button>
-                <button class="btn" id="clearManualFormBtn" type="button">清空</button>
-              </div>
-              <div class="tiny" style="margin-top:8px;">EQH / EQL 是成员集合，不是单点 tag；如果你要录它们，先选两条或以上同侧点，再按生成后的记录检查匹配结果。</div>
+              <div class="tiny" style="margin-top:10px;">原则：BSL/SSL 是单点，FVG/OB 是区间，EQH/EQL 是集合。各类不要混用字段，这样以后新增类目也不会把表单搅乱。</div>
             </div>
           </div>
 
@@ -531,8 +701,33 @@
           <span class="tag" id="contextCount">0 auto refs</span>
         </div>
         <div class="panel__body">
+          <div class="card api-card">
+            <div class="grid-4">
+              <div class="field">
+                <label>API Base</label>
+                <input id="apiBase" value="http://127.0.0.1:8765">
+              </div>
+              <div class="field">
+                <label>Instrument</label>
+                <input id="instrument" value="NQ">
+              </div>
+              <div class="field">
+                <label>Sample Date</label>
+                <input id="sampleDate" type="date" value="2012-01-10">
+              </div>
+              <div class="field">
+                <label>Context Window</label>
+                <div class="grid-2">
+                  <input id="lookbackDays" type="number" min="0" step="1" value="2" aria-label="lookback">
+                  <input id="lookaheadDays" type="number" min="0" step="1" value="1" aria-label="lookahead">
+                </div>
+              </div>
+            </div>
+            <div class="tiny" style="margin-top:8px;">自动 PDA 对照设置；只读 DuckDB，不写入数据库。</div>
+            <div class="status" id="status">准备就绪。</div>
+          </div>
           <div class="split">
-            <div class="card">
+            <div class="card compare-card">
               <div class="card__top">
                 <div>
                   <div class="card__title">Match Result</div>
@@ -545,7 +740,7 @@
               </div>
               <div id="matchTableWrap" style="margin-top:10px;"></div>
             </div>
-            <div class="card">
+            <div class="card compare-card">
               <div class="card__top">
                 <div>
                   <div class="card__title">Auto Context</div>
@@ -584,7 +779,6 @@
       sampleDate: '2012-01-10',
       lookbackDays: 2,
       lookaheadDays: 1,
-      globalNotes: '',
       activePathIndex: 0,
       activeGroupIndex: 0,
       activeRelationIndex: 0,
@@ -901,12 +1095,15 @@
         pda_type: 'pdaType',
         direction: 'direction',
         event_time: 'eventTime',
+        start_time: 'startTime',
+        end_time: 'endTime',
         price: 'price',
         price_high: 'priceHigh',
         price_low: 'priceLow',
+        member_refs: 'memberRefs',
         note: 'note'
       };
-      if (map[key]) manual[map[key]] = key === 'event_time' ? normalizeDateTimeText(value) : value;
+      if (map[key] && key !== 'member_refs') manual[map[key]] = ['event_time', 'start_time', 'end_time'].includes(key) ? normalizeDateTimeText(value) : value;
     }
 
     function parseStructurePaths(text) {
@@ -1004,24 +1201,39 @@
 
         if (mode === 'main_actions') {
           if (indent === 6 && trimmed === '-') {
-            action = { type: '', ref: '' };
+            action = { type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' };
             path.mainActions.push(action);
             return;
           }
           if (indent === 8 && action && kv) {
             if (kv.key === 'type') action.type = kv.value;
             if (kv.key === 'ref') action.ref = kv.value;
+            if (kv.key === 'ref_source') action.refSource = kv.value;
+            if (kv.key === 'ref_id') action.refId = kv.value;
+            if (kv.key === 'ref_label') action.refLabel = kv.value;
+            if (kv.key === 'note') action.note = kv.value;
             return;
           }
         }
 
-        if (mode === 'manual_pdas') {
+        if (mode === 'manual_pdas' || mode === 'manual_member_refs') {
+          if (mode === 'manual_member_refs' && indent === 10 && trimmed.startsWith('-') && manual) {
+            manual.memberRefs = manual.memberRefs || [];
+            manual.memberRefs.push(yamlUnquote(trimmed.replace(/^-\s*/, '')));
+            return;
+          }
+          if (mode === 'manual_member_refs' && indent <= 8) mode = 'manual_pdas';
           if (indent === 6 && trimmed === '-') {
-            manual = { id: '', timeframe: '1H', pdaType: '', direction: '', eventTime: '', price: '', priceHigh: '', priceLow: '', note: '', match: null };
+            manual = { id: '', timeframe: '1H', pdaType: '', direction: '', eventTime: '', startTime: '', endTime: '', price: '', priceHigh: '', priceLow: '', memberRefs: [], note: '', match: null };
             path.manualPdas.push(manual);
             return;
           }
           if (indent === 8 && manual && kv) {
+            if (kv.key === 'member_refs') {
+              manual.memberRefs = [];
+              mode = 'manual_member_refs';
+              return;
+            }
             mapManualField(manual, kv.key, kv.value);
           }
         }
@@ -1220,7 +1432,6 @@
       state.sampleDate = $('#sampleDate').value || state.sampleDate;
       state.lookbackDays = Number($('#lookbackDays').value || 0);
       state.lookaheadDays = Number($('#lookaheadDays').value || 0);
-      state.globalNotes = $('#globalNotes').value || '';
     }
 
     function saveDraft() {
@@ -1231,7 +1442,6 @@
         sampleDate: state.sampleDate,
         lookbackDays: state.lookbackDays,
         lookaheadDays: state.lookaheadDays,
-        globalNotes: state.globalNotes,
         activePathIndex: state.activePathIndex,
         paths: state.paths,
         activeGroupIndex: state.activeGroupIndex,
@@ -1253,6 +1463,8 @@
         (state.paths || []).forEach((path) => {
           (path.manualPdas || []).forEach((manual) => {
             manual.eventTime = normalizeDateTimeText(manual.eventTime);
+            manual.startTime = normalizeDateTimeText(manual.startTime);
+            manual.endTime = normalizeDateTimeText(manual.endTime);
           });
         });
       } catch (err) {
@@ -1324,7 +1536,11 @@
       state.groups = Array.isArray(state.groups) ? state.groups : [];
       state.relations = Array.isArray(state.relations) ? state.relations : [];
       state.paths.forEach((path) => {
-        path.mainActions = Array.isArray(path.mainActions) && path.mainActions.length ? path.mainActions : [{ type: '', ref: '' }];
+        path.mainActions = Array.isArray(path.mainActions) && path.mainActions.length ? path.mainActions : [{ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' }];
+        path.mainActions.forEach((action) => {
+          if (!action.refSource) action.refSource = action.refId ? 'auto_pda' : 'free_text';
+          if (!action.refId && action.ref) action.refId = action.ref;
+        });
         path.manualPdas = Array.isArray(path.manualPdas) ? path.manualPdas : [];
         if (!path.primaryTimeframe) path.primaryTimeframe = '1H';
         if (!path.executionLensTimeframe) path.executionLensTimeframe = '30M';
@@ -1428,7 +1644,7 @@
         const chip = document.createElement('button');
         chip.type = 'button';
         chip.className = 'chip' + (idx === state.activePathIndex ? ' active' : '');
-        chip.innerHTML = `<strong>${escapeHtml(path.id || `path_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(path.primaryTimeframe || '')} · ${escapeHtml(path.direction || '—')}</span>`;
+        chip.innerHTML = `<strong>${escapeHtml(path.id || `path_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(path.primaryTimeframe || '')} · ${escapeHtml(path.direction || '—')} · ${escapeHtml(path.role || '—')}</span>`;
         chip.onclick = () => {
           syncCurrentPath();
           state.activePathIndex = idx;
@@ -1437,7 +1653,29 @@
         };
         wrap.appendChild(chip);
       });
-      $('#pathCount').textContent = String(state.paths.length);
+      $('#pathCount').textContent = `${state.paths.length} paths`;
+    }
+
+    function renderTopGroupChips() {
+      const wrap = $('#topGroupChips');
+      wrap.innerHTML = '';
+      $('#topGroupCount').textContent = `${state.groups.length} groups`;
+      if (!state.groups.length) {
+        wrap.innerHTML = '<div class="status empty-state" style="margin-top:0;">当前页面还没有 Group。可以在左侧 Group Editor 新增，或导入 groups.yaml。</div>';
+        return;
+      }
+      state.groups.forEach((group, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (idx === state.activeGroupIndex ? ' active' : '');
+        chip.innerHTML = `<strong>${escapeHtml(group.groupId || `group_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(group.groupType || '—')} · ${escapeHtml(group.direction || '—')} · ${(group.memberPaths || []).length} paths</span>`;
+        chip.onclick = () => {
+          syncCurrentPath();
+          state.activeGroupIndex = idx;
+          renderAll();
+        };
+        wrap.appendChild(chip);
+      });
     }
 
     function syncCurrentPath() {
@@ -1453,7 +1691,6 @@
       $$('#pathForm [data-field]').forEach((el) => {
         el.value = path[el.dataset.field] ?? '';
       });
-      $('#globalNotes').value = state.globalNotes || '';
       renderMainActions();
       renderManualList();
     }
@@ -1748,6 +1985,10 @@
         ['', ''],
         ['sweep_external_liquidity', 'sweep external liquidity'],
         ['sweep_internal_liquidity', 'sweep internal liquidity'],
+        ['respect_pda', 'respect PDA'],
+        ['react_from_pda', 'react from PDA'],
+        ['breakout_pda', 'breakout PDA'],
+        ['fill_gap', 'fill gap'],
         ['respect_fvg', 'respect FVG'],
         ['return_to_lens', 'return to NY open lens'],
         ['displacement', 'displacement'],
@@ -1756,12 +1997,65 @@
       return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
     }
 
+    function refSourceOptions(selected = '') {
+      const options = [
+        ['free_text', 'free text'],
+        ['manual_pda', 'manual PDA'],
+        ['auto_pda', 'auto PDA']
+      ];
+      return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
+    }
+
+    function actionRefLabel(action) {
+      return action.refLabel || action.refId || action.ref || '';
+    }
+
+    function autoRefMatches() {
+      return state.autoRecords
+        .filter((rec) => ['ndog', 'nwog'].includes(String(rec.pdaType || '').toLowerCase()))
+        .slice(0, 24);
+    }
+
+    function manualRefMatches(path) {
+      return (path.manualPdas || []).slice(0, 24);
+    }
+
+    function actionRefHint(action, suggestions) {
+      if (action.refSource === 'free_text') return '';
+      if (suggestions.length) {
+        return action.refSource === 'auto_pda'
+          ? '点击“显示/收起候选”后，从 Auto Context 的 NDOG / NWOG 中选择。'
+          : '点击“显示/收起候选”后，从当前 Path 的 Manual PDA List 中选择。';
+      }
+      if (action.refSource === 'auto_pda' && !state.autoRecords.length) return '先点击顶部“加载对照”，再选择 NDOG / NWOG。';
+      return action.refSource === 'auto_pda' ? 'Auto Context 中没有 NDOG / NWOG 候选。' : '当前 Path 还没有 Manual PDA。';
+    }
+
+    function selectActionRef(actionIndex, source, ref) {
+      const action = activePath().mainActions[actionIndex];
+      if (!action) return;
+      action.refSource = source;
+      action.refId = source === 'auto_pda' ? ref.pdaId : ref.id;
+      action.refLabel = source === 'auto_pda'
+        ? [ref.tradeDate, ref.timeframe, ref.pdaType, ref.direction, firstPrice(ref)].filter(Boolean).join(' ')
+        : [ref.id, ref.timeframe, ref.pdaType, ref.direction, ref.price || ref.priceHigh || ref.priceLow].filter(Boolean).join(' ');
+      action.ref = action.refId;
+      renderMainActions();
+      renderYaml();
+      saveDraft();
+    }
+
     function renderMainActions() {
       const path = activePath();
       const wrap = $('#mainActionsList');
       wrap.innerHTML = '';
-      if (!Array.isArray(path.mainActions) || !path.mainActions.length) path.mainActions = [{ type: '', ref: '' }];
+      if (!Array.isArray(path.mainActions) || !path.mainActions.length) path.mainActions = [{ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' }];
       path.mainActions.forEach((action, idx) => {
+        if (!action.refSource) action.refSource = action.refId ? 'auto_pda' : 'free_text';
+        const pickerOpen = action.pickerOpen !== false;
+        const autoMatches = action.refSource === 'auto_pda' ? autoRefMatches() : [];
+        const manualMatches = action.refSource === 'manual_pda' ? manualRefMatches(path) : [];
+        const suggestions = [...autoMatches.map((rec) => ({ source: 'auto_pda', rec })), ...manualMatches.map((rec) => ({ source: 'manual_pda', rec }))];
         const row = document.createElement('div');
         row.className = 'manual-item';
         row.innerHTML = `
@@ -1771,27 +2065,84 @@
               <select data-action-field="type" data-action-index="${idx}">${actionOptions(action.type || '')}</select>
             </div>
             <div class="field">
-              <label>Action Ref</label>
-              <input data-action-field="ref" data-action-index="${idx}" placeholder="manual_pda_id / note / reference">
+              <label>Ref Source</label>
+              <select data-action-field="refSource" data-action-index="${idx}">${refSourceOptions(action.refSource || 'free_text')}</select>
             </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>${action.refSource === 'free_text' ? 'Action Ref' : 'Pick Ref'}</label>
+              ${action.refSource === 'free_text'
+                ? `<input data-action-field="ref" data-action-index="${idx}" placeholder="free text / note / reference">`
+                : `<button class="btn" type="button" data-toggle-action-picker="${idx}">${pickerOpen ? '收起候选' : '显示候选'} · ${action.refSource === 'auto_pda' ? 'NDOG / NWOG' : 'Manual PDA List'}</button>`}
+            </div>
+            <div class="field">
+              <label>Selected Ref</label>
+              <input data-action-field="refId" data-action-index="${idx}" placeholder="点击候选后自动填入" ${action.refSource !== 'free_text' ? 'readonly' : ''}>
+            </div>
+          </div>
+          ${action.refSource !== 'free_text' ? `<div class="tiny" style="margin-top:-4px; margin-bottom:8px;">${escapeHtml(actionRefHint(action, suggestions))}</div>` : ''}
+          ${actionRefLabel(action) ? `<div class="status" style="margin-top:0;">当前引用：${escapeHtml(actionRefLabel(action))}</div>` : ''}
+          ${action.refSource !== 'free_text' && pickerOpen && suggestions.length ? `
+            <div class="manual-list" style="margin-bottom:10px;">
+              ${suggestions.map(({ source, rec }) => `
+                <button class="btn" type="button" data-select-action-ref="${idx}" data-ref-source="${source}" data-ref-id="${escapeAttr(source === 'auto_pda' ? rec.pdaId : rec.id)}" style="height:auto; min-height:44px; text-align:left; justify-content:flex-start;">
+                  ${escapeHtml(source === 'auto_pda' ? `选择 ${rec.pdaId} · ${rec.timeframe} · ${rec.pdaType} · ${firstPrice(rec)}` : `选择 ${rec.id} · ${rec.timeframe} · ${rec.pdaType}`)}
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
+          <div class="field">
+            <label>Action Note</label>
+            <input data-action-field="note" data-action-index="${idx}" placeholder="例如：回撤到 D NDOG CE 后继续上行">
           </div>
           <div class="btn-row">
             <button class="btn btn--tiny btn--danger" type="button" data-remove-action="${idx}">移除</button>
           </div>
         `;
         row.querySelector('[data-action-field="type"]').value = action.type || '';
-        row.querySelector('[data-action-field="ref"]').value = action.ref || '';
+        row.querySelector('[data-action-field="refSource"]').value = action.refSource || 'free_text';
+        row.querySelector('[data-action-field="refId"]').value = action.refId || action.ref || '';
+        if (row.querySelector('[data-action-field="ref"]')) row.querySelector('[data-action-field="ref"]').value = action.ref || '';
+        row.querySelector('[data-action-field="note"]').value = action.note || '';
         row.querySelectorAll('[data-action-field]').forEach((input) => {
           input.oninput = () => {
             const a = path.mainActions[Number(input.dataset.actionIndex)];
             a[input.dataset.actionField] = input.value;
+            if (input.dataset.actionField === 'refSource') {
+              a.pickerOpen = true;
+              a.refId = '';
+              a.refLabel = '';
+              if (input.value !== 'free_text') a.ref = '';
+            }
+            if (input.dataset.actionField === 'refId' && a.refSource === 'free_text') a.ref = input.value;
             renderYaml();
             saveDraft();
+            if (input.dataset.actionField === 'refSource') renderMainActions();
+          };
+          input.onchange = input.oninput;
+        });
+        row.querySelectorAll('[data-toggle-action-picker]').forEach((button) => {
+          button.onclick = () => {
+            const a = path.mainActions[Number(button.dataset.toggleActionPicker)];
+            a.pickerOpen = a.pickerOpen === false;
+            renderMainActions();
+            saveDraft();
+          };
+        });
+        row.querySelectorAll('[data-select-action-ref]').forEach((button) => {
+          button.onclick = () => {
+            const source = button.dataset.refSource;
+            const refId = button.dataset.refId;
+            const rec = source === 'auto_pda'
+              ? state.autoRecords.find((item) => item.pdaId === refId)
+              : path.manualPdas.find((item) => item.id === refId);
+            if (rec) selectActionRef(Number(button.dataset.selectActionRef), source, rec);
           };
         });
         row.querySelector('[data-remove-action]').onclick = () => {
           path.mainActions.splice(idx, 1);
-          if (!path.mainActions.length) path.mainActions.push({ type: '', ref: '' });
+          if (!path.mainActions.length) path.mainActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
           renderMainActions();
           renderYaml();
         };
@@ -1802,7 +2153,7 @@
     function addMainAction() {
       const path = activePath();
       path.mainActions = path.mainActions || [];
-      path.mainActions.push({ type: '', ref: '' });
+      path.mainActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
       renderMainActions();
       renderYaml();
       saveDraft();
@@ -1815,7 +2166,8 @@
 
     function manualSummary(manual) {
       if (!manual) return '尚未选择手工 PDA';
-      const pieces = [manual.id, manual.timeframe, manual.pdaType, manual.direction, manual.eventTime, manual.price || manual.priceHigh || manual.priceLow].filter(Boolean);
+      const timeLabel = manual.eventTime || [manual.startTime, manual.endTime].filter(Boolean).join(' -> ');
+      const pieces = [manual.id, manual.timeframe, manual.pdaType, manual.direction, timeLabel, manual.price || manual.priceHigh || manual.priceLow].filter(Boolean);
       return pieces.join(' · ');
     }
 
@@ -1856,43 +2208,99 @@
       saveDraft();
     }
 
-    function addManualPda() {
-      const path = activePath();
-      const timeframe = $('#manualTimeframe').value;
-      const pdaType = $('#manualPdaType').value;
-      const direction = $('#manualDirection').value;
-      const eventTime = normalizeDateTimeText($('#manualEventTime').value);
-      const price = $('#manualPrice').value.trim();
-      const priceHigh = $('#manualPriceHigh').value.trim();
-      const priceLow = $('#manualPriceLow').value.trim();
-      const note = $('#manualNote').value.trim();
-      const manual = {
+    function splitRefs(value) {
+      return String(value || '')
+        .split(/[\s,，;；]+/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function baseManual(pdaType, timeframe, eventTime, note) {
+      return {
         id: `manual_${String(state.manualCounter).padStart(3, '0')}`,
-        timeframe,
+        timeframe: String(timeframe || '1H').trim() || '1H',
         pdaType,
-        direction,
-        eventTime,
-        price: price || '',
-        priceHigh: priceHigh || '',
-        priceLow: priceLow || '',
-        note,
+        direction: '',
+        eventTime: normalizeDateTimeText(eventTime),
+        startTime: '',
+        endTime: '',
+        price: '',
+        priceHigh: '',
+        priceLow: '',
+        memberRefs: [],
+        note: String(note || '').trim(),
         match: null
       };
+    }
+
+    function commitManual(manual, clearKind) {
+      const path = activePath();
       state.manualCounter += 1;
       path.manualPdas.push(manual);
       state.selectedManualRef = manual.id;
-      clearManualForm();
+      clearManualForm(clearKind);
       renderAll();
       saveDraft();
     }
 
-    function clearManualForm() {
-      $('#manualDirection').value = '';
-      $('#manualEventTime').value = '';
-      $('#manualPrice').value = '';
-      $('#manualPriceHigh').value = '';
-      $('#manualPriceLow').value = '';
-      $('#manualNote').value = '';
+    function addManualPda(kind) {
+      if (kind === 'bsl' || kind === 'ssl') {
+        const manual = baseManual(kind, $('#pointTimeframe').value, $('#pointEventTime').value, $('#pointNote').value);
+        manual.price = $('#pointPrice').value.trim();
+        commitManual(manual, 'point');
+        return;
+      }
+      if (kind === 'fvg_bullish' || kind === 'fvg_bearish') {
+        const manual = baseManual('fvg', $('#fvgTimeframe').value, $('#fvgEventTime').value, $('#fvgNote').value);
+        manual.direction = kind === 'fvg_bullish' ? 'bullish' : 'bearish';
+        manual.priceHigh = $('#fvgPriceHigh').value.trim();
+        manual.priceLow = $('#fvgPriceLow').value.trim();
+        commitManual(manual, 'fvg');
+        return;
+      }
+      if (kind === 'eqh' || kind === 'eql') {
+        const manual = baseManual(kind, $('#eqTimeframe').value, $('#eqEventTime').value, $('#eqNote').value);
+        manual.price = $('#eqPrice').value.trim();
+        manual.memberRefs = splitRefs($('#eqMemberRefs').value);
+        commitManual(manual, 'eq');
+        return;
+      }
+      if (kind === 'ob_bullish' || kind === 'ob_bearish') {
+        const manual = baseManual('ob', $('#obTimeframe').value, '', $('#obNote').value);
+        manual.direction = kind === 'ob_bullish' ? 'bullish' : 'bearish';
+        manual.startTime = normalizeDateTimeText($('#obStartTime').value);
+        manual.endTime = normalizeDateTimeText($('#obEndTime').value);
+        manual.priceHigh = $('#obPriceHigh').value.trim();
+        manual.priceLow = $('#obPriceLow').value.trim();
+        commitManual(manual, 'ob');
+      }
+    }
+
+    function clearManualForm(kind) {
+      if (!kind || kind === 'point') {
+        $('#pointEventTime').value = '';
+        $('#pointPrice').value = '';
+        $('#pointNote').value = '';
+      }
+      if (!kind || kind === 'fvg') {
+        $('#fvgEventTime').value = '';
+        $('#fvgPriceHigh').value = '';
+        $('#fvgPriceLow').value = '';
+        $('#fvgNote').value = '';
+      }
+      if (!kind || kind === 'eq') {
+        $('#eqEventTime').value = '';
+        $('#eqPrice').value = '';
+        $('#eqMemberRefs').value = '';
+        $('#eqNote').value = '';
+      }
+      if (!kind || kind === 'ob') {
+        $('#obStartTime').value = '';
+        $('#obEndTime').value = '';
+        $('#obPriceHigh').value = '';
+        $('#obPriceLow').value = '';
+        $('#obNote').value = '';
+      }
     }
 
     function removeManualPda(manualId) {
@@ -1909,7 +2317,7 @@
       wrap.innerHTML = '';
       $('#manualCount').textContent = String(path.manualPdas.length);
       if (!path.manualPdas.length) {
-        wrap.innerHTML = '<div class="status">这里会列出当前 Path 的手工 PDA。先录入一条，再点“匹配”看 DuckDB 里是否已有对应自动记录。</div>';
+        wrap.innerHTML = '<div class="status empty-state">这里会列出当前 Path 的手工 PDA。先录入一条，再点“匹配”看 DuckDB 里是否已有对应自动记录。</div>';
         return;
       }
       path.manualPdas.forEach((manual) => {
@@ -1921,7 +2329,7 @@
           <div class="manual-head">
             <div>
               <div class="manual-title">${escapeHtml(manual.id)} · ${escapeHtml([manual.timeframe, manual.pdaType, manual.direction].filter(Boolean).join(' · '))}</div>
-              <div class="manual-sub">${escapeHtml(manual.eventTime || '')} · ${escapeHtml(String(manual.price || manual.priceHigh || manual.priceLow || ''))}${manual.note ? '<br>' + escapeHtml(manual.note) : ''}</div>
+              <div class="manual-sub">${escapeHtml(manual.eventTime || [manual.startTime, manual.endTime].filter(Boolean).join(' -> '))} · ${escapeHtml(String(manual.price || manual.priceHigh || manual.priceLow || ''))}${(manual.memberRefs || []).length ? '<br>members: ' + escapeHtml((manual.memberRefs || []).join(', ')) : ''}${manual.note ? '<br>' + escapeHtml(manual.note) : ''}</div>
             </div>
             <div class="btn-row">
               <button class="btn btn--tiny btn--primary" type="button" data-select>匹配</button>
@@ -1960,7 +2368,7 @@
       $('#contextCount').textContent = `${state.autoRecords.length} auto refs`;
       $('#autoCount').textContent = String(items.length);
       if (!items.length) {
-        wrap.innerHTML = '<div class="status">没有可显示的自动候选。</div>';
+        wrap.innerHTML = '<div class="status empty-state">没有可显示的自动候选。</div>';
         return;
       }
       items.slice(0, 220).forEach((rec) => {
@@ -2017,10 +2425,6 @@
       const lines = [];
       lines.push(`date: ${yamlQuote(state.sampleDate)}`);
       lines.push(`instrument: ${yamlQuote(state.instrument)}`);
-      if (state.globalNotes) {
-        lines.push('notes:');
-        state.globalNotes.split('\n').filter(Boolean).forEach((line) => lines.push(`  - ${yamlQuote(line)}`));
-      }
       lines.push('');
       lines.push('structure_paths:');
       state.paths.forEach((path) => {
@@ -2046,13 +2450,17 @@
           String(path.tags).split(',').map((s) => s.trim()).filter(Boolean).forEach((tag) => lines.push(`      - ${yamlQuote(tag)}`));
         }
         if (Array.isArray(path.mainActions) && path.mainActions.length) {
-          const actions = path.mainActions.filter((action) => action.type || action.ref);
+          const actions = path.mainActions.filter((action) => action.type || action.ref || action.refId || action.note);
           if (actions.length) {
           lines.push('    main_actions:');
             actions.forEach((action) => {
               lines.push('      -');
               if (action.type) lines.push(`        type: ${yamlQuote(action.type)}`);
-              if (action.ref) lines.push(`        ref: ${yamlQuote(action.ref)}`);
+              if (action.refSource && action.refSource !== 'free_text') lines.push(`        ref_source: ${yamlQuote(action.refSource)}`);
+              if (action.refId) lines.push(`        ref_id: ${yamlQuote(action.refId)}`);
+              if (action.refLabel) lines.push(`        ref_label: ${yamlQuote(action.refLabel)}`);
+              if (action.ref && (!action.refId || action.refSource === 'free_text')) lines.push(`        ref: ${yamlQuote(action.ref)}`);
+              if (action.note) lines.push(`        note: ${yamlQuote(action.note)}`);
             });
           } else {
             lines.push('    main_actions: []');
@@ -2070,9 +2478,15 @@
             lines.push(`        pda_type: ${yamlQuote(manual.pdaType || '')}`);
             if (manual.direction) lines.push(`        direction: ${yamlQuote(manual.direction)}`);
             if (manual.eventTime) lines.push(`        event_time: ${yamlQuote(manual.eventTime)}`);
+            if (manual.startTime) lines.push(`        start_time: ${yamlQuote(manual.startTime)}`);
+            if (manual.endTime) lines.push(`        end_time: ${yamlQuote(manual.endTime)}`);
             if (manual.price) lines.push(`        price: ${yamlQuote(manual.price)}`);
             if (manual.priceHigh) lines.push(`        price_high: ${yamlQuote(manual.priceHigh)}`);
             if (manual.priceLow) lines.push(`        price_low: ${yamlQuote(manual.priceLow)}`);
+            if (Array.isArray(manual.memberRefs) && manual.memberRefs.length) {
+              lines.push('        member_refs:');
+              manual.memberRefs.forEach((ref) => lines.push(`          - ${yamlQuote(ref)}`));
+            }
             if (manual.note) lines.push(`        note: ${yamlQuote(manual.note)}`);
             if (manual.match && manual.match.candidates) {
               const best = manual.match.candidates[0] || null;
@@ -2225,14 +2639,16 @@
         </tr>
       `).join('');
       return `
-        <table>
-          <thead>
-            <tr>
-              <th>PDA</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>ΔT</th><th>ΔP</th><th>Note</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
+        <div class="table-scroll">
+          <table class="match-table">
+            <thead>
+              <tr>
+                <th>PDA</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>ΔT</th><th>ΔP</th><th>Note</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
       `;
     }
 
@@ -2241,7 +2657,7 @@
       $('#selectedManualLabel').textContent = manualSummary(manual);
       if (!manual) {
         $('#matchSummary').textContent = '等待选择';
-        $('#matchTableWrap').innerHTML = '<div class="status">先选一条手工 PDA，再点“匹配”。</div>';
+        $('#matchTableWrap').innerHTML = '<div class="status empty-state">先选一条手工 PDA，再点“匹配”。</div>';
         return;
       }
       const match = manual.match || null;
@@ -2256,7 +2672,7 @@
           return;
         }
         $('#matchSummary').textContent = `尚未匹配 · context ${state.autoRecords.length}`;
-        $('#matchTableWrap').innerHTML = '<div class="status">这条手工 PDA 还没有对照结果。请确认右侧 Auto Context 已加载，且 event_time / price 与候选接近。</div>';
+        $('#matchTableWrap').innerHTML = '<div class="status empty-state">这条手工 PDA 还没有对照结果。请确认右侧 Auto Context 已加载，且 event_time / price 与候选接近。</div>';
         return;
       }
       const best = match.candidates[0];
@@ -2268,6 +2684,7 @@
       ensureDefaults();
       syncTopInputs();
       renderPathChips();
+      renderTopGroupChips();
       renderPathForm();
       renderGroupEditor();
       renderRelationEditor();
@@ -2306,6 +2723,13 @@
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 
+    function toggleManualModule(moduleId) {
+      const card = $(`[data-collapsible="${moduleId}"]`);
+      if (!card) return;
+      const collapsed = card.dataset.collapsed !== 'false';
+      card.dataset.collapsed = collapsed ? 'false' : 'true';
+    }
+
     function bindEvents() {
       $('#loadContextBtn').onclick = loadContext;
       $('#addPathBtn').onclick = addPath;
@@ -2314,8 +2738,15 @@
       $('#deletePathBtn').onclick = deletePath;
       $('#copyYamlBtn').onclick = copyYaml;
       $('#downloadYamlBtn').onclick = downloadYaml;
-      $('#addManualPdaBtn').onclick = addManualPda;
-      $('#clearManualFormBtn').onclick = clearManualForm;
+      $$('[data-add-manual-kind]').forEach((button) => {
+        button.onclick = () => addManualPda(button.dataset.addManualKind);
+      });
+      $$('[data-clear-manual-kind]').forEach((button) => {
+        button.onclick = () => clearManualForm(button.dataset.clearManualKind);
+      });
+      $$('[data-toggle-manual-module]').forEach((button) => {
+        button.onclick = () => toggleManualModule(button.dataset.toggleManualModule);
+      });
       $('#addMainActionBtn').onclick = addMainAction;
       $('#addGroupBtn').onclick = addGroup;
       $('#deleteGroupBtn').onclick = deleteGroup;
@@ -2353,7 +2784,6 @@
         }
       };
       $('#autoFilter').oninput = renderAutoList;
-      $('#globalNotes').oninput = () => { syncTopInputs(); saveDraft(); renderYaml(); };
       ['apiBase', 'instrument', 'sampleDate', 'lookbackDays', 'lookaheadDays'].forEach((id) => {
         const el = $('#' + id);
         el.onchange = () => {
@@ -2361,7 +2791,12 @@
           saveDraft();
         };
       });
-      ['manualTimeframe', 'manualPdaType', 'manualDirection', 'manualEventTime', 'manualPrice', 'manualPriceHigh', 'manualPriceLow', 'manualNote'].forEach((id) => {
+      [
+        'pointTimeframe', 'pointEventTime', 'pointPrice', 'pointNote',
+        'fvgTimeframe', 'fvgEventTime', 'fvgPriceHigh', 'fvgPriceLow', 'fvgNote',
+        'eqTimeframe', 'eqEventTime', 'eqPrice', 'eqMemberRefs', 'eqNote',
+        'obTimeframe', 'obStartTime', 'obEndTime', 'obPriceHigh', 'obPriceLow', 'obNote'
+      ].forEach((id) => {
         $('#' + id).onchange = saveDraft;
       });
       $('#pathForm').addEventListener('input', () => { syncCurrentPath(); renderYaml(); });
@@ -2376,7 +2811,6 @@
       $('#sampleDate').value = state.sampleDate || '2012-01-10';
       $('#lookbackDays').value = state.lookbackDays ?? 2;
       $('#lookaheadDays').value = state.lookaheadDays ?? 1;
-      $('#globalNotes').value = state.globalNotes || '';
       bindEvents();
       renderAll();
       setStatus('准备就绪，先加载一次对照数据。');
