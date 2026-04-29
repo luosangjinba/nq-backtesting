@@ -2205,16 +2205,12 @@
     function actionOptions(selected = '') {
       const options = [
         ['', ''],
-        ['sweep_external_liquidity', 'sweep external liquidity'],
-        ['sweep_internal_liquidity', 'sweep internal liquidity'],
-        ['respect_pda', 'respect PDA'],
-        ['react_from_pda', 'react from PDA'],
-        ['breakout_pda', 'breakout PDA'],
-        ['fill_gap', 'fill gap'],
+        ['cross_liquidity', '越过某 liquidity'],
+        ['approach_or_equal_liquidity', '接近或平齐某 liquidity'],
+        ['respect_ob', 'respect OB'],
         ['respect_fvg', 'respect FVG'],
-        ['return_to_lens', 'return to NY open lens'],
-        ['displacement', 'displacement'],
-        ['transition', 'transition']
+        ['respect_key_level', 'respect Key Level'],
+        ['respect_breaker', 'respect Breaker']
       ];
       return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
     }
