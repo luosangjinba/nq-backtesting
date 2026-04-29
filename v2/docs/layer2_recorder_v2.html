@@ -556,16 +556,25 @@
                   <div class="collapse-body">
                     <div class="grid-3">
                       <div class="field">
-                        <label>Timeframe</label>
+                        <label>Analysis TF</label>
                         <input id="pointTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                      </div>
+                      <div class="field">
+                        <label>PDA Type</label>
+                        <select id="pointPdaType">
+                          <option value="bsl">BSL</option>
+                          <option value="ssl">SSL</option>
+                        </select>
                       </div>
                       <div class="field">
                         <label>Event Time</label>
                         <input id="pointEventTime" placeholder="2012-01-10 09:30:00">
                       </div>
+                    </div>
+                    <div class="grid-3">
                       <div class="field">
-                        <label>Price</label>
-                        <input id="pointPrice" placeholder="2378.25">
+                        <label>Price Override</label>
+                        <input id="pointPrice" placeholder="留空自动取 1m high / low">
                       </div>
                     </div>
                     <div class="field">
@@ -573,8 +582,8 @@
                       <textarea id="pointNote" placeholder="这条 BSL/SSL 为什么重要，是否是右侧代表点、是否扫取前高/前低。"></textarea>
                     </div>
                     <div class="btn-row">
-                      <button class="btn btn--primary" data-add-manual-kind="bsl" type="button">新增 BSL</button>
-                      <button class="btn btn--primary" data-add-manual-kind="ssl" type="button">新增 SSL</button>
+                      <button class="btn" id="pointFetchPriceBtn" type="button">取值</button>
+                      <button class="btn btn--primary" data-add-manual-kind="point" type="button">新增</button>
                       <button class="btn" data-clear-manual-kind="point" type="button">清空</button>
                     </div>
                   </div>
@@ -596,19 +605,28 @@
                   <div class="collapse-body">
                     <div class="grid-3">
                       <div class="field">
-                        <label>Timeframe</label>
-                        <input id="fvgTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                        <label>FVG TF</label>
+                        <input id="fvgTimeframe" list="fvgTfOptions" value="15m" placeholder="15m / 1h / 4h / 1D / 1W">
+                        <datalist id="fvgTfOptions">
+                          <option value="15m"></option>
+                          <option value="30m"></option>
+                          <option value="1h"></option>
+                          <option value="4h"></option>
+                          <option value="1D"></option>
+                          <option value="1W"></option>
+                        </datalist>
                       </div>
                       <div class="field">
                         <label>Event Time</label>
                         <input id="fvgEventTime" placeholder="2012-01-11 00:00:00">
                       </div>
                       <div class="field">
-                        <label>Price High / Low</label>
+                        <label>Price High / Low Override</label>
                         <div class="grid-2">
-                          <input id="fvgPriceHigh" placeholder="2357.50">
-                          <input id="fvgPriceLow" placeholder="2355.75">
+                          <input id="fvgPriceHigh" placeholder="留空自动算 high">
+                          <input id="fvgPriceLow" placeholder="留空自动算 low">
                         </div>
+                        <input id="fvgDirection" type="hidden">
                       </div>
                     </div>
                     <div class="field">
@@ -616,10 +634,11 @@
                       <textarea id="fvgNote" placeholder="这条 FVG 是 displacement 起点、breaker、还是回补/支撑位置。"></textarea>
                     </div>
                     <div class="btn-row">
-                      <button class="btn btn--primary" data-add-manual-kind="fvg_bullish" type="button">新增 Bullish FVG</button>
-                      <button class="btn btn--primary" data-add-manual-kind="fvg_bearish" type="button">新增 Bearish FVG</button>
+                      <button class="btn" id="fvgFetchPriceBtn" type="button">取值</button>
+                      <button class="btn btn--primary" data-add-manual-kind="fvg" type="button">新增</button>
                       <button class="btn" data-clear-manual-kind="fvg" type="button">清空</button>
                     </div>
+                    <div class="status" id="fvgStatus" style="margin-top:10px;">先点“取值”确认是否形成 FVG，再新增。</div>
                   </div>
                 </div>
 
@@ -683,32 +702,43 @@
                   <div class="collapse-body">
                     <div class="grid-3">
                       <div class="field">
-                        <label>Timeframe</label>
+                        <label>Analysis TF</label>
                         <input id="obTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                      </div>
+                      <div class="field">
+                        <label>Direction</label>
+                        <select id="obDirection">
+                          <option value="bullish">bullish</option>
+                          <option value="bearish">bearish</option>
+                        </select>
                       </div>
                       <div class="field">
                         <label>Start Time</label>
                         <input id="obStartTime" placeholder="2012-01-10 09:00:00">
                       </div>
+                    </div>
+                    <div class="grid-3">
                       <div class="field">
                         <label>End Time</label>
                         <input id="obEndTime" placeholder="2012-01-10 10:00:00">
                       </div>
-                    </div>
-                    <div class="field">
-                      <label>Price High / Low</label>
-                      <div class="grid-2">
-                        <input id="obPriceHigh" placeholder="2360.00">
-                        <input id="obPriceLow" placeholder="2357.75">
+                      <div class="field">
+                        <label>Price High / Low Override</label>
+                        <input id="obPriceHigh" placeholder="留空按时间范围自动取 high">
+                      </div>
+                      <div class="field">
+                        <label>&nbsp;</label>
+                        <input id="obPriceLow" placeholder="留空按时间范围自动取 low">
                       </div>
                     </div>
                     <div class="field">
                       <label>Note</label>
                       <textarea id="obNote" placeholder="Bullish OB: 下行背景中，位移反弹前最后一根/一组收阴K；Bearish OB 反之。"></textarea>
                     </div>
+                    <div class="status" id="obStatus" style="margin-bottom:10px;">先点“取值”确认 OB high/low，再新增。Start/End 按 1m 范围计算。</div>
                     <div class="btn-row">
-                      <button class="btn btn--primary" data-add-manual-kind="ob_bullish" type="button">新增 Bullish OB</button>
-                      <button class="btn btn--primary" data-add-manual-kind="ob_bearish" type="button">新增 Bearish OB</button>
+                      <button class="btn" id="obFetchPriceBtn" type="button">取值</button>
+                      <button class="btn btn--primary" data-add-manual-kind="ob" type="button">新增</button>
                       <button class="btn" data-clear-manual-kind="ob" type="button">清空</button>
                     </div>
                   </div>
@@ -2407,6 +2437,181 @@
         .filter(Boolean);
     }
 
+    function splitDateTimeParts(value) {
+      const normalized = normalizeDateTimeText(value);
+      const match = normalized.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}):(\d{2})/);
+      if (!match) throw new Error(`时间格式无效：${value || ''}`);
+      return { normalized, date: match[1], time: `${match[2]}:${match[3]}` };
+    }
+
+    function dateTimeToLocalDate(value) {
+      const { normalized } = splitDateTimeParts(value);
+      const date = new Date(normalized.replace(' ', 'T'));
+      if (Number.isNaN(date.getTime())) throw new Error(`时间格式无效：${value || ''}`);
+      return date;
+    }
+
+    function formatLocalDateTime(date) {
+      const pad = (num) => String(num).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+    }
+
+    function addMinutesToDateTime(value, minutes) {
+      const date = dateTimeToLocalDate(value);
+      date.setMinutes(date.getMinutes() + minutes);
+      return formatLocalDateTime(date);
+    }
+
+    function minutesBetweenInclusive(startValue, endValue) {
+      const start = dateTimeToLocalDate(startValue);
+      const end = dateTimeToLocalDate(endValue);
+      const diff = Math.round((end.getTime() - start.getTime()) / 60000);
+      if (diff < 0) throw new Error('End Time 必须晚于或等于 Start Time');
+      return diff + 1;
+    }
+
+    function formatPriceValue(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num)) return String(value ?? '');
+      return num.toFixed(2);
+    }
+
+    function parseTradingViewTimeframe(value) {
+      const raw = String(value || '').trim();
+      const match = raw.match(/^(\d+)?\s*([mhdw])$/i);
+      if (!match) throw new Error('FVG TF 格式应为 15m / 1h / 4h / 1D / 1W');
+      const count = Number(match[1] || 1);
+      const unit = match[2].toLowerCase();
+      const unitMinutes = { m: 1, h: 60, d: 1440, w: 10080 }[unit];
+      if (!Number.isFinite(count) || count <= 0) throw new Error('FVG TF 数值必须大于 0');
+      return { label: `${count}${unit}`, minutes: count * unitMinutes };
+    }
+
+    async function fetchPriceWindow(startTime, minutes, field = 'close') {
+      syncTopInputs();
+      const { date, time } = splitDateTimeParts(startTime);
+      const api = state.apiBase.replace(/\/$/, '');
+      const params = new URLSearchParams({
+        instrument: state.instrument,
+        date,
+        time,
+        tf: String(Math.max(1, Math.round(Number(minutes) || 1))),
+        field
+      });
+      return fetchJson(`${api}/price?${params.toString()}`);
+    }
+
+    async function autoFillPointPrice(manual) {
+      if (manual.price || !manual.eventTime) return manual;
+      const field = manual.pdaType === 'bsl' ? 'high' : 'low';
+      const result = await fetchPriceWindow(manual.eventTime, 1, field);
+      manual.price = formatPriceValue(result.value);
+      return manual;
+    }
+
+    async function fetchPointPriceToForm() {
+      const kind = $('#pointPdaType').value;
+      const manual = baseManual(kind, $('#pointTimeframe').value, $('#pointEventTime').value, $('#pointNote').value);
+      setStatus(`正在从 1m ${kind === 'bsl' ? 'high' : 'low'} 取 ${kind.toUpperCase()} price...`);
+      await autoFillPointPrice(manual);
+      $('#pointPrice').value = manual.price;
+      setStatus(`已取值 ${kind.toUpperCase()}：${manual.price}`, 'ok');
+      saveDraft();
+      return manual.price;
+    }
+
+    async function autoFillObRange(manual) {
+      if ((manual.priceHigh && manual.priceLow) || !manual.startTime || !manual.endTime) return manual;
+      const minutes = minutesBetweenInclusive(manual.startTime, manual.endTime);
+      const result = await fetchPriceWindow(manual.startTime, minutes, 'high');
+      manual.priceHigh = manual.priceHigh || formatPriceValue(result.ohlc.high);
+      manual.priceLow = manual.priceLow || formatPriceValue(result.ohlc.low);
+      return manual;
+    }
+
+    async function fetchObRangeToForm() {
+      $('#obStatus').textContent = '正在取值...';
+      $('#obStatus').dataset.kind = '';
+      const manual = baseManual('ob', $('#obTimeframe').value, '', $('#obNote').value);
+      manual.direction = $('#obDirection').value;
+      manual.startTime = normalizeDateTimeText($('#obStartTime').value);
+      manual.endTime = normalizeDateTimeText($('#obEndTime').value);
+      manual.priceHigh = $('#obPriceHigh').value.trim();
+      manual.priceLow = $('#obPriceLow').value.trim();
+      if (!manual.startTime || !manual.endTime) throw new Error('请先填写 Start Time 和 End Time');
+      setStatus('正在按 Start/End 1m 范围计算 OB high/low...');
+      try {
+        await autoFillObRange(manual);
+        $('#obStartTime').value = manual.startTime;
+        $('#obEndTime').value = manual.endTime;
+        $('#obPriceHigh').value = manual.priceHigh;
+        $('#obPriceLow').value = manual.priceLow;
+        const message = `已取值 ${manual.direction} OB：${manual.priceHigh} / ${manual.priceLow}`;
+        $('#obStatus').textContent = message;
+        $('#obStatus').dataset.kind = 'ok';
+        setStatus(message, 'ok');
+        saveDraft();
+        return manual;
+      } catch (err) {
+        $('#obStatus').textContent = `OB 取值失败：${err.message}`;
+        $('#obStatus').dataset.kind = 'danger';
+        throw err;
+      }
+    }
+
+    async function autoFillFvgRange(manual) {
+      if (!manual.eventTime) throw new Error('请先填写 Event Time');
+      const tf = parseTradingViewTimeframe(manual.timeframe);
+      manual.timeframe = tf.label;
+      const tfMinutes = tf.minutes;
+      const firstStart = addMinutesToDateTime(manual.eventTime, -tfMinutes);
+      const thirdStart = addMinutesToDateTime(manual.eventTime, tfMinutes);
+      const [first, third] = await Promise.all([
+        fetchPriceWindow(firstStart, tfMinutes, 'high'),
+        fetchPriceWindow(thirdStart, tfMinutes, 'high')
+      ]);
+      if (Number(first.ohlc.high) < Number(third.ohlc.low)) {
+        manual.direction = 'bullish';
+        manual.priceHigh = formatPriceValue(third.ohlc.low);
+        manual.priceLow = formatPriceValue(first.ohlc.high);
+        return manual;
+      }
+      if (Number(first.ohlc.low) > Number(third.ohlc.high)) {
+        manual.direction = 'bearish';
+        manual.priceHigh = formatPriceValue(first.ohlc.low);
+        manual.priceLow = formatPriceValue(third.ohlc.high);
+        return manual;
+      }
+      throw new Error(`${manual.eventTime} 所在 ${tf.label} 三根 K 没有形成 FVG`);
+    }
+
+    async function fetchFvgRangeToForm() {
+      $('#fvgStatus').textContent = '正在取值...';
+      $('#fvgStatus').dataset.kind = '';
+      const manual = baseManual('fvg', $('#fvgTimeframe').value, $('#fvgEventTime').value, $('#fvgNote').value);
+      setStatus(`正在按 ${manual.timeframe} 三根 K 计算 FVG high/low...`);
+      try {
+        await autoFillFvgRange(manual);
+        $('#fvgTimeframe').value = manual.timeframe;
+        $('#fvgDirection').value = manual.direction;
+        $('#fvgPriceHigh').value = manual.priceHigh;
+        $('#fvgPriceLow').value = manual.priceLow;
+        const message = `已取值 ${manual.direction} FVG：${manual.priceHigh} / ${manual.priceLow}`;
+        $('#fvgStatus').textContent = message;
+        $('#fvgStatus').dataset.kind = 'ok';
+        setStatus(message, 'ok');
+        saveDraft();
+        return manual;
+      } catch (err) {
+        $('#fvgDirection').value = '';
+        $('#fvgPriceHigh').value = '';
+        $('#fvgPriceLow').value = '';
+        $('#fvgStatus').textContent = `FVG 取值失败：${err.message}`;
+        $('#fvgStatus').dataset.kind = 'danger';
+        throw err;
+      }
+    }
+
     function baseManual(pdaType, timeframe, eventTime, note) {
       return {
         id: `manual_${String(state.manualCounter).padStart(3, '0')}`,
@@ -2435,50 +2640,81 @@
       saveDraft();
     }
 
-    function addManualPda(kind) {
-      if (kind === 'bsl' || kind === 'ssl') {
-        const manual = baseManual(kind, $('#pointTimeframe').value, $('#pointEventTime').value, $('#pointNote').value);
-        manual.price = $('#pointPrice').value.trim();
-        commitManual(manual, 'point');
-        return;
-      }
-      if (kind === 'fvg_bullish' || kind === 'fvg_bearish') {
-        const manual = baseManual('fvg', $('#fvgTimeframe').value, $('#fvgEventTime').value, $('#fvgNote').value);
-        manual.direction = kind === 'fvg_bullish' ? 'bullish' : 'bearish';
-        manual.priceHigh = $('#fvgPriceHigh').value.trim();
-        manual.priceLow = $('#fvgPriceLow').value.trim();
-        commitManual(manual, 'fvg');
-        return;
-      }
-      if (kind === 'eqh' || kind === 'eql') {
-        const manual = baseManual(kind, $('#eqTimeframe').value, $('#eqEventTime').value, $('#eqNote').value);
-        manual.price = $('#eqPrice').value.trim();
-        manual.memberRefs = splitRefs($('#eqMemberRefs').value);
-        commitManual(manual, 'eq');
-        return;
-      }
-      if (kind === 'ob_bullish' || kind === 'ob_bearish') {
-        const manual = baseManual('ob', $('#obTimeframe').value, '', $('#obNote').value);
-        manual.direction = kind === 'ob_bullish' ? 'bullish' : 'bearish';
-        manual.startTime = normalizeDateTimeText($('#obStartTime').value);
-        manual.endTime = normalizeDateTimeText($('#obEndTime').value);
-        manual.priceHigh = $('#obPriceHigh').value.trim();
-        manual.priceLow = $('#obPriceLow').value.trim();
-        commitManual(manual, 'ob');
+    async function addManualPda(kind) {
+      try {
+        if (kind === 'point') {
+          kind = $('#pointPdaType').value;
+          const manual = baseManual(kind, $('#pointTimeframe').value, $('#pointEventTime').value, $('#pointNote').value);
+          manual.price = $('#pointPrice').value.trim();
+          if (!manual.price) {
+            await fetchPointPriceToForm();
+            manual.price = $('#pointPrice').value.trim();
+          }
+          commitManual(manual, 'point');
+          setStatus(`已新增 ${kind.toUpperCase()}：${manual.price}`, 'ok');
+          return;
+        }
+        if (kind === 'fvg') {
+          const manual = baseManual('fvg', $('#fvgTimeframe').value, $('#fvgEventTime').value, $('#fvgNote').value);
+          manual.direction = $('#fvgDirection').value;
+          manual.priceHigh = $('#fvgPriceHigh').value.trim();
+          manual.priceLow = $('#fvgPriceLow').value.trim();
+          if (!manual.direction || !manual.priceHigh || !manual.priceLow) {
+            await fetchFvgRangeToForm();
+            manual.timeframe = $('#fvgTimeframe').value.trim();
+            manual.direction = $('#fvgDirection').value;
+            manual.priceHigh = $('#fvgPriceHigh').value.trim();
+            manual.priceLow = $('#fvgPriceLow').value.trim();
+          }
+          commitManual(manual, 'fvg');
+          setStatus(`已新增 ${manual.direction} FVG：${manual.priceHigh} / ${manual.priceLow}`, 'ok');
+          return;
+        }
+        if (kind === 'eqh' || kind === 'eql') {
+          const manual = baseManual(kind, $('#eqTimeframe').value, $('#eqEventTime').value, $('#eqNote').value);
+          manual.price = $('#eqPrice').value.trim();
+          manual.memberRefs = splitRefs($('#eqMemberRefs').value);
+          commitManual(manual, 'eq');
+          return;
+        }
+        if (kind === 'ob') {
+          const manual = baseManual('ob', $('#obTimeframe').value, '', $('#obNote').value);
+          manual.direction = $('#obDirection').value;
+          manual.startTime = normalizeDateTimeText($('#obStartTime').value);
+          manual.endTime = normalizeDateTimeText($('#obEndTime').value);
+          manual.priceHigh = $('#obPriceHigh').value.trim();
+          manual.priceLow = $('#obPriceLow').value.trim();
+          if (!manual.startTime || !manual.endTime) throw new Error('请先填写 Start Time 和 End Time');
+          if (!manual.priceHigh || !manual.priceLow) {
+            await fetchObRangeToForm();
+            manual.startTime = normalizeDateTimeText($('#obStartTime').value);
+            manual.endTime = normalizeDateTimeText($('#obEndTime').value);
+            manual.priceHigh = $('#obPriceHigh').value.trim();
+            manual.priceLow = $('#obPriceLow').value.trim();
+          }
+          commitManual(manual, 'ob');
+          setStatus(`已新增 ${manual.direction} OB：${manual.priceHigh} / ${manual.priceLow}`, 'ok');
+        }
+      } catch (err) {
+        setStatus(`新增 ${kind} 失败：${err.message}`, 'danger');
       }
     }
 
     function clearManualForm(kind) {
       if (!kind || kind === 'point') {
+        $('#pointPdaType').value = 'bsl';
         $('#pointEventTime').value = '';
         $('#pointPrice').value = '';
         $('#pointNote').value = '';
       }
       if (!kind || kind === 'fvg') {
         $('#fvgEventTime').value = '';
+        $('#fvgDirection').value = '';
         $('#fvgPriceHigh').value = '';
         $('#fvgPriceLow').value = '';
         $('#fvgNote').value = '';
+        $('#fvgStatus').textContent = '先点“取值”确认是否形成 FVG，再新增。';
+        $('#fvgStatus').dataset.kind = '';
       }
       if (!kind || kind === 'eq') {
         $('#eqEventTime').value = '';
@@ -2487,11 +2723,14 @@
         $('#eqNote').value = '';
       }
       if (!kind || kind === 'ob') {
+        $('#obDirection').value = 'bullish';
         $('#obStartTime').value = '';
         $('#obEndTime').value = '';
         $('#obPriceHigh').value = '';
         $('#obPriceLow').value = '';
         $('#obNote').value = '';
+        $('#obStatus').textContent = '先点“取值”确认 OB high/low，再新增。Start/End 按 1m 范围计算。';
+        $('#obStatus').dataset.kind = '';
       }
     }
 
@@ -2936,6 +3175,15 @@
       $('#deletePathBtn').onclick = deletePath;
       $('#copyYamlBtn').onclick = copyYaml;
       $('#downloadYamlBtn').onclick = downloadYaml;
+      $('#pointFetchPriceBtn').onclick = () => {
+        fetchPointPriceToForm().catch((err) => setStatus(`取值失败：${err.message}`, 'danger'));
+      };
+      $('#fvgFetchPriceBtn').onclick = () => {
+        fetchFvgRangeToForm().catch((err) => setStatus(`FVG 取值失败：${err.message}`, 'danger'));
+      };
+      $('#obFetchPriceBtn').onclick = () => {
+        fetchObRangeToForm().catch((err) => setStatus(`OB 取值失败：${err.message}`, 'danger'));
+      };
       $$('[data-add-manual-kind]').forEach((button) => {
         button.onclick = () => addManualPda(button.dataset.addManualKind);
       });
@@ -2990,10 +3238,10 @@
         };
       });
       [
-        'pointTimeframe', 'pointEventTime', 'pointPrice', 'pointNote',
-        'fvgTimeframe', 'fvgEventTime', 'fvgPriceHigh', 'fvgPriceLow', 'fvgNote',
+        'pointTimeframe', 'pointPdaType', 'pointEventTime', 'pointPrice', 'pointNote',
+        'fvgTimeframe', 'fvgEventTime', 'fvgDirection', 'fvgPriceHigh', 'fvgPriceLow', 'fvgNote',
         'eqTimeframe', 'eqEventTime', 'eqPrice', 'eqMemberRefs', 'eqNote',
-        'obTimeframe', 'obStartTime', 'obEndTime', 'obPriceHigh', 'obPriceLow', 'obNote'
+        'obTimeframe', 'obDirection', 'obStartTime', 'obEndTime', 'obPriceHigh', 'obPriceLow', 'obNote'
       ].forEach((id) => {
         $('#' + id).onchange = saveDraft;
       });
