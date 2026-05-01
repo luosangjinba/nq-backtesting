@@ -380,12 +380,12 @@
 
     <div class="layout">
       <!-- Left: Manual PDA -->
-      <section class=”panel panel--manual floating-panel”>
-        <div class=”panel__header”>
-          <h2 class=”panel__title”>Manual PDA</h2>
-          <span class=”tag” id=”manualCount”>0</span>
+      <section class="panel panel--manual floating-panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Manual PDA</h2>
+          <span class="tag" id="manualCount">0</span>
         </div>
-        <div class=”panel__body”>
+        <div class="panel__body">
               <div class="manual-list">
                 <div class="card collapsible-card" data-collapsible="manual-point" data-collapsed="false">
                   <button class="collapse-head" data-toggle-manual-module="manual-point" type="button">
@@ -485,7 +485,7 @@
                       <button class="btn btn--primary" data-add-manual-kind="fvg" type="button">新增</button>
                       <button class="btn" data-clear-manual-kind="fvg" type="button">清空</button>
                     </div>
-                    <div class="status" id="fvgStatus" style="margin-top:10px;">先点“取值”确认是否形成 FVG，再新增。</div>
+                    <div class="status" id="fvgStatus" style="margin-top:10px;">先点"取值"确认是否形成 FVG，再新增。</div>
                   </div>
                 </div>
 
@@ -582,7 +582,7 @@
                       <label>Note</label>
                       <textarea id="obNote" placeholder="Bullish OB: 下行背景中，位移反弹前最后一根/一组收阴K；Bearish OB 反之。"></textarea>
                     </div>
-                    <div class="status" id="obStatus" style="margin-bottom:10px;">先点“取值”确认 OB high/low，再新增。Start/End 按 1m 范围计算。</div>
+                    <div class="status" id="obStatus" style="margin-bottom:10px;">先点"取值"确认 OB high/low，再新增。Start/End 按 1m 范围计算。</div>
                     <div class="btn-row">
                       <button class="btn" id="obFetchPriceBtn" type="button">取值</button>
                       <button class="btn btn--primary" data-add-manual-kind="ob" type="button">新增</button>
@@ -1591,7 +1591,7 @@
       const wrap = $('#groupEditor');
       $('#groupCount').textContent = String(state.groups.length);
       if (!state.groups.length) {
-        wrap.innerHTML = '<div class="status">还没有 Group。先录好多个 Path，再点“新增 Group”把它们组合成大结构。</div>';
+        wrap.innerHTML = '<div class="status">还没有 Group。先录好多个 Path，再点"新增 Group"把它们组合成大结构。</div>';
         return;
       }
       const group = activeGroup();
@@ -1760,10 +1760,10 @@
       if (action.refSource === 'free_text') return '';
       if (suggestions.length) {
         return action.refSource === 'auto_pda'
-          ? '点击“显示/收起候选”后，从 Auto Context 的 NDOG / NWOG 中选择。'
-          : '点击“显示/收起候选”后，从当前 Path 的 Manual PDA List 中选择。';
+          ? '点击"显示/收起候选"后，从 Auto Context 的 NDOG / NWOG 中选择。'
+          : '点击"显示/收起候选"后，从当前 Path 的 Manual PDA List 中选择。';
       }
-      if (action.refSource === 'auto_pda' && !state.autoRecords.length) return '先点击顶部“加载对照”，再选择 NDOG / NWOG。';
+      if (action.refSource === 'auto_pda' && !state.autoRecords.length) return '先点击顶部"加载对照"，再选择 NDOG / NWOG。';
       return action.refSource === 'auto_pda' ? 'Auto Context 中没有 NDOG / NWOG 候选。' : '当前 Path 还没有 Manual PDA。';
     }
 
@@ -2227,7 +2227,7 @@
         $('#fvgPriceHigh').value = '';
         $('#fvgPriceLow').value = '';
         $('#fvgNote').value = '';
-        $('#fvgStatus').textContent = '先点“取值”确认是否形成 FVG，再新增。';
+        $('#fvgStatus').textContent = '先点"取值"确认是否形成 FVG，再新增。';
         $('#fvgStatus').dataset.kind = '';
       }
       if (!kind || kind === 'eq') {
@@ -2243,7 +2243,7 @@
         $('#obPriceHigh').value = '';
         $('#obPriceLow').value = '';
         $('#obNote').value = '';
-        $('#obStatus').textContent = '先点“取值”确认 OB high/low，再新增。Start/End 按 1m 范围计算。';
+        $('#obStatus').textContent = '先点"取值"确认 OB high/low，再新增。Start/End 按 1m 范围计算。';
         $('#obStatus').dataset.kind = '';
       }
     }
@@ -2262,7 +2262,7 @@
       wrap.innerHTML = '';
       $('#manualCount').textContent = String(path.manualPdas.length);
       if (!path.manualPdas.length) {
-        wrap.innerHTML = '<div class="status empty-state">这里会列出当前 Path 的手工 PDA。先录入一条，再点“匹配”看 DuckDB 里是否已有对应自动记录。</div>';
+        wrap.innerHTML = '<div class="status empty-state">这里会列出当前 Path 的手工 PDA。先录入一条，再点"匹配"看 DuckDB 里是否已有对应自动记录。</div>';
         return;
       }
       path.manualPdas.forEach((manual) => {
@@ -2565,7 +2565,7 @@
       $('#selectedManualLabel').textContent = manualSummary(manual);
       if (!manual) {
         $('#matchSummary').textContent = '等待选择';
-        $('#matchTableWrap').innerHTML = '<div class="status empty-state">先选一条手工 PDA，再点“匹配”。</div>';
+        $('#matchTableWrap').innerHTML = '<div class="status empty-state">先选一条手工 PDA，再点"匹配"。</div>';
         return;
       }
       const match = manual.match || null;
@@ -2574,7 +2574,7 @@
         if (preview.candidates.length) {
           $('#matchSummary').textContent = `本地预览 ${preview.candidates.length}`;
           $('#matchTableWrap').innerHTML = `
-            <div class="status" data-kind="warn">当前还没有写入的匹配结果；下面是已加载 Auto Context 的实时候选。点“匹配”会写入 YAML reconciliation。</div>
+            <div class="status" data-kind="warn">当前还没有写入的匹配结果；下面是已加载 Auto Context 的实时候选。点"匹配"会写入 YAML reconciliation。</div>
             ${renderMatchTable(preview.candidates)}
           `;
           return;
