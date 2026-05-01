@@ -60,7 +60,7 @@
     .layout {
       margin-top: 14px;
       display: grid;
-      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-columns: minmax(320px, 380px) minmax(600px, 1fr) minmax(400px, 500px);
       grid-template-areas:
         "manual work compare";
       gap: 14px;
@@ -88,6 +88,8 @@
     .panel--compare { grid-area: compare; }
     .floating-panel {
       min-height: 360px;
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
     }
     .panel--compare .grid-4 {
       grid-template-columns: 1fr;
@@ -362,19 +364,25 @@
       </div>
     </section>
 
-    <section class="panel compact-panel" style="margin-top:14px;">
+    <section class="panel compact-panel" style="margin-top:14px; margin-bottom:14px;">
       <div class="panel__body">
         <div class="btn-row" style="justify-content: space-between; margin-bottom:8px;">
-          <h2 class="panel__title">Paths / Groups</h2>
+          <h2 class="panel__title">Paths / Groups Overview</h2>
           <div class="btn-row">
             <span class="tag" id="pathCount">0 paths</span>
             <span class="tag" id="topGroupCount">0 groups</span>
           </div>
         </div>
-        <label>Paths</label>
-        <div class="chips" id="pathChips"></div>
-        <label>Groups</label>
-        <div class="chips" id="topGroupChips"></div>
+        <div class="grid-2">
+          <div class="field">
+            <label style="margin-bottom:4px;">Active Paths</label>
+            <div class="chips" id="pathChips" style="margin-bottom:0;"></div>
+          </div>
+          <div class="field">
+            <label style="margin-bottom:4px;">Active Groups</label>
+            <div class="chips" id="topGroupChips" style="margin-bottom:0;"></div>
+          </div>
+        </div>
       </div>
     </section>
 
