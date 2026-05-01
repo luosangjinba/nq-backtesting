@@ -8,11 +8,10 @@ set "BUNDLE_DIR=%SCRIPT_DIR%windows_bundle"
 
 if exist "%BUNDLE_DIR%" rmdir /s /q "%BUNDLE_DIR%"
 mkdir "%BUNDLE_DIR%"
+mkdir "%BUNDLE_DIR%\v2\docs"
 
-copy /y "%SCRIPT_DIR%yaml_panel.html" "%BUNDLE_DIR%\" >nul
-copy /y "%SCRIPT_DIR%vendor-tailwind.js" "%BUNDLE_DIR%\" >nul
-copy /y "%SCRIPT_DIR%vendor-react.production.min.js" "%BUNDLE_DIR%\" >nul
-copy /y "%SCRIPT_DIR%vendor-react-dom.production.min.js" "%BUNDLE_DIR%\" >nul
+copy /y "%SCRIPT_DIR%v2\docs\layer2_recorder_v2.html" "%BUNDLE_DIR%\v2\docs\" >nul
+copy /y "%SCRIPT_DIR%v2\docs\pda_review.html" "%BUNDLE_DIR%\v2\docs\" >nul
 copy /y "%SCRIPT_DIR%price_lookup_api.py" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%duckdb_import_nq_1m.py" "%BUNDLE_DIR%\" >nul
 copy /y "%SCRIPT_DIR%duckdb_schema.sql" "%BUNDLE_DIR%\" >nul

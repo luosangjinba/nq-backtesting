@@ -1,0 +1,23 @@
+date: "2012-01-11"
+instrument: "NQ"
+
+structure_paths:
+  - id: "path_20120111_004"
+    start_time: "2012-01-11 15:41"
+    end_time: "2012-01-11 20:31"
+    primary_timeframe: "1H"
+    role: "pullback"
+    path_type: "internal_to_internal"
+    delivery: "displacement"
+    execution_lens:
+      anchor: "ny_open"
+      timeframe: "30M"
+      window: "09:30-11:00"
+      note: "9:30 后用 30M 观察 sweep / displacement / reaction"
+    note: "这段行情什么都没做，只是1st leg与2nd leg之间的小回撤"
+    main_actions: []
+    manual_pdas: []
+    reconciliation:
+      matched_auto: []
+      manual_only: []
+      auto_only_in_window: []

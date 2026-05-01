@@ -471,6 +471,8 @@
                   <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="daily_low" /> <span>daily_low</span></label>
                   <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="bsl" /> <span>bsl</span></label>
                   <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="ssl" /> <span>ssl</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="eqh" /> <span>eqh</span></label>
+                  <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="eql" /> <span>eql</span></label>
                   <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="fvg" /> <span>fvg</span></label>
                   <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="nwog" /> <span>nwog</span></label>
                   <label class="multi-select__option"><input type="checkbox" class="pda-type-option" value="ndog" /> <span>ndog</span></label>
@@ -644,7 +646,44 @@
             <div class="btn-row">
               <button class="btn btn--primary" id="manualAddBtn" type="button">手工新增</button>
             </div>
-            <div class="hint">第一版只允许手工新增 `bsl / ssl / fvg`。`30m` 也通过这里补录。</div>
+            <div class="hint">这里仅用于单点/区间型 PDA：`bsl / ssl / fvg`。EQH / EQL 在下方独立创建。</div>
+          </div>
+
+          <div class="section" style="margin-top:14px;">
+            <h3>手工新增 EQH / EQL</h3>
+            <div class="grid-3">
+              <div>
+                <label>Type</label>
+                <select id="eqType">
+                  <option value="eqh">EQH</option>
+                  <option value="eql">EQL</option>
+                </select>
+              </div>
+              <div>
+                <label>Timeframe</label>
+                <select id="eqTimeframe">
+                  <option value="D">D</option>
+                  <option value="4H">4H</option>
+                  <option value="1H">1H</option>
+                  <option value="30M">30m</option>
+                </select>
+              </div>
+              <div>
+                <label>Selected</label>
+                <input id="eqSelectedCount" value="0 points" readonly />
+              </div>
+            </div>
+            <div class="status" id="eqSummary">从当前加载记录中选择两个或以上同侧点。</div>
+            <div id="eqMemberList" class="record-list" style="margin-top:12px; max-height:260px;"></div>
+            <div>
+              <label>Note</label>
+              <textarea id="eqNote" placeholder="记录这组 EQH / EQL 的视觉依据、容差、上下文。"></textarea>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn--primary" id="eqCreateBtn" type="button">创建 EQH / EQL</button>
+              <button class="btn btn--ghost" id="eqClearBtn" type="button">清空选择</button>
+            </div>
+            <div class="hint">EQH / EQL 会根据所选成员自动计算 price / price_high / price_low；anchor time 使用成员中最晚出现的时间。</div>
           </div>
         </div>
       </section>
@@ -733,12 +772,14 @@
     const state = {
       records: [],
       selected: null,
+      eqSelectedRefs: [],
     };
 
     const ruleMap = {
       D: { left: 1, right: 1 },
       '4H': { left: 2, right: 2 },
       '1H': { left: 3, right: 3 },
+      '30M': { left: 0, right: 0 },
       '15M': { left: 4, right: 4 },
     };
     const reviewRoleOrder = [
@@ -1054,10 +1095,114 @@
       );
     }
 
+    function recordEventTime(record) {
+      return record.occurrenceTime || record.anchorTime || record.anchorTs || record.createdTs || '';
+    }
+
+    function recordPointSide(record) {
+      const type = String(record.pdaType || '').toLowerCase();
+      if (['bsl', 'daily_high', 'ict_midnight_day_high'].includes(type)) return 'high';
+      if (['ssl', 'daily_low', 'ict_midnight_day_low'].includes(type)) return 'low';
+      return '';
+    }
+
+    function recordPointPrice(record) {
+      const side = recordPointSide(record);
+      const value = side === 'high'
+        ? (record.priceHigh ?? record.price)
+        : (record.priceLow ?? record.price);
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function eqSide() {
+      return $('eqType').value === 'eqh' ? 'high' : 'low';
+    }
+
+    function eqCandidateRecords() {
+      const side = eqSide();
+      return state.records.filter(record => recordPointSide(record) === side && recordPointPrice(record) !== null);
+    }
+
+    function selectedEqRecords() {
+      const selected = new Set(state.eqSelectedRefs);
+      return state.records.filter(record => selected.has(record.pdaId));
+    }
+
+    function eqDraftSummary(records = selectedEqRecords()) {
+      if (records.length < 2) return null;
+      const prices = records.map(recordPointPrice).filter(value => value !== null);
+      const times = records.map(recordEventTime).filter(Boolean).sort();
+      const low = Math.min(...prices);
+      const high = Math.max(...prices);
+      return {
+        price: (low + high) / 2,
+        priceLow: low,
+        priceHigh: high,
+        anchorTime: times[times.length - 1] || '',
+        memberRefs: records.map(record => record.pdaId),
+      };
+    }
+
+    function renderEqBuilder() {
+      const list = $('eqMemberList');
+      if (!list) return;
+      const candidates = eqCandidateRecords();
+      state.eqSelectedRefs = state.eqSelectedRefs.filter(ref => candidates.some(record => record.pdaId === ref));
+      const selected = new Set(state.eqSelectedRefs);
+      list.innerHTML = '';
+      if (!candidates.length) {
+        list.innerHTML = '<div class="tiny">当前加载结果里没有可用于这个方向的点。</div>';
+      }
+      candidates.forEach(record => {
+        const price = recordPointPrice(record);
+        const row = document.createElement('label');
+        row.className = 'record-card';
+        row.style.display = 'block';
+        row.innerHTML = `
+          <div class="record-card__title">
+            <input type="checkbox" value="${record.pdaId}" ${selected.has(record.pdaId) ? 'checked' : ''} style="width:auto; min-height:0; margin-right:8px;" />
+            ${record.pdaId}
+          </div>
+          <div class="record-card__meta">
+            <span class="pill">${record.timeframe}</span>
+            <span class="pill">${record.pdaType}</span>
+            <span class="pill">${price}</span>
+          </div>
+          <div class="record-card__meta" style="margin-top:8px;">
+            time: ${recordEventTime(record) || '--'}<br/>
+            role: ${reviewRoleLabel(record.reviewRole)}
+          </div>
+        `;
+        row.querySelector('input').addEventListener('change', event => {
+          if (event.target.checked) {
+            if (!state.eqSelectedRefs.includes(record.pdaId)) state.eqSelectedRefs.push(record.pdaId);
+          } else {
+            state.eqSelectedRefs = state.eqSelectedRefs.filter(ref => ref !== record.pdaId);
+          }
+          renderEqBuilder();
+        });
+        list.appendChild(row);
+      });
+      const chosen = selectedEqRecords();
+      $('eqSelectedCount').value = `${chosen.length} points`;
+      const summary = eqDraftSummary(chosen);
+      if (!summary) {
+        setStatus($('eqSummary'), `已选择 ${chosen.length} 个点；至少需要 2 个。`, chosen.length ? 'warn' : '');
+      } else {
+        setStatus(
+          $('eqSummary'),
+          `将创建 ${$('eqType').value.toUpperCase()}：price=${summary.price}，range=${summary.priceLow} ~ ${summary.priceHigh}，anchor=${summary.anchorTime}`,
+          'ok'
+        );
+      }
+    }
+
     function renderRecordList() {
       const root = $('recordList');
       root.innerHTML = '';
       renderRecordSummary();
+      renderEqBuilder();
       if (!state.records.length) {
         root.innerHTML = '<div class="tiny">当前筛选没有记录。</div>';
         return;
@@ -1097,6 +1242,7 @@
           return (a.pdaId || '').localeCompare(b.pdaId || '');
         });
         state.selected = null;
+        state.eqSelectedRefs = [];
         renderRecordList();
         setStatus($('listStatus'), `已加载 <strong>${state.records.length}</strong> 条记录。`, 'ok');
         $('detailWrap').style.display = 'none';
@@ -1137,6 +1283,9 @@
       const rightBars = bars.slice(focusIndex + 1, focusIndex + 1 + rule.right);
       const isHighType = ['bsl'].includes(record.pdaType);
       const isLowType = ['ssl'].includes(record.pdaType);
+      if (record.pdaType === 'eqh' || record.pdaType === 'eql') {
+        return `这条记录是 <strong>${record.pdaType.toUpperCase()}</strong>，表示多个相近价格点形成的等高/等低 liquidity pool；主要看价格区间和成员引用，不走单根 swing candidate 规则。`;
+      }
       if (!isHighType && !isLowType) {
         return `这条记录是 <strong>${record.pdaType}</strong>，主要看价格边界，不走 swing candidate 规则。`;
       }
@@ -1197,7 +1346,7 @@
       const fvgLineColor = 'rgba(120,214,194,0.96)';
       const gapLineColor = 'rgba(130,176,255,0.96)';
 
-      if (record && ['bsl', 'ssl', 'daily_high', 'daily_low'].includes(record.pdaType)) {
+      if (record && ['bsl', 'ssl', 'eqh', 'eql', 'daily_high', 'daily_low'].includes(record.pdaType)) {
         const level = Number(record.price ?? record.priceHigh ?? record.priceLow);
         if (Number.isFinite(level)) {
           const yy = y(level);
@@ -1207,10 +1356,10 @@
         }
       }
 
-      if (record && (record.pdaType === 'fvg' || record.pdaType === 'nwog' || record.pdaType === 'ndog')) {
+      if (record && (record.pdaType === 'eqh' || record.pdaType === 'eql' || record.pdaType === 'fvg' || record.pdaType === 'nwog' || record.pdaType === 'ndog')) {
         const high = Number(record.priceHigh);
         const low = Number(record.priceLow);
-        const levelColor = record.pdaType === 'fvg' ? fvgLineColor : gapLineColor;
+        const levelColor = record.pdaType === 'fvg' || record.pdaType === 'eqh' || record.pdaType === 'eql' ? fvgLineColor : gapLineColor;
         if (Number.isFinite(high)) {
           const yy = y(high);
           levelLines.push(
@@ -1267,6 +1416,7 @@
       const confirmBarStart = resolveConfirmBarStart(record, neighborResult.bars || []);
       const isGapType = record.pdaType === 'ndog' || record.pdaType === 'nwog';
       const isFvgType = record.pdaType === 'fvg';
+      const isEqualLiquidityType = record.pdaType === 'eqh' || record.pdaType === 'eql';
       const keyFacts = $('keyFacts');
       keyFacts.innerHTML = '';
       const keyFields = [
@@ -1282,6 +1432,9 @@
       }
       if (isFvgType) {
         keyFields.push(['Note', 'FVG uses the 2nd bar as anchor; trade date should align with anchor session date.']);
+      }
+      if (isEqualLiquidityType) {
+        keyFields.push(['Note', 'EQH / EQL is a relationship PDA; member refs describe the points that form the pool.']);
       }
       keyFields.forEach(([label, value]) => {
         const box = document.createElement('div');
@@ -1309,6 +1462,7 @@
         ['Status', record.status || record.registryStatus || '--'],
         ['Manual Added', record.manualAdded ? 'yes' : 'no'],
         ['Manual Edited', record.manualEdited ? 'yes' : 'no'],
+        ['Members', (record.members || []).map(item => item.memberRef).join(', ') || '--'],
         ['Verification Ts', confirmBarStart],
         ['Note', record.note || '--'],
       ];
@@ -1325,11 +1479,13 @@
       const rule = ruleMap[record.timeframe];
       const ruleBadge = isGapType
         ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.pdaType.toUpperCase()} · session gap</span></div>`
+        : (isEqualLiquidityType
+          ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.pdaType.toUpperCase()} · equal liquidity pool</span></div>`
         : ((record.pdaType === 'daily_high' || record.pdaType === 'daily_low')
           ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">D · raw daily point</span></div>`
           : (rule
           ? `<div style="margin-bottom:10px;"><span class="pill pill--accent">${record.timeframe} · left=${rule.left} / right=${rule.right}</span></div>`
-          : ''));
+          : '')));
       $('ruleSummary').innerHTML = ruleBadge + explainCandidate(record, neighborResult.bars || []);
 
       const tbody = $('barsTable');
@@ -1469,6 +1625,53 @@
       }
     }
 
+    async function createEqualLiquidityPda() {
+      const records = selectedEqRecords();
+      const summary = eqDraftSummary(records);
+      if (!summary) {
+        setStatus($('eqSummary'), '至少选择两个同侧点后再创建。', 'warn');
+        return;
+      }
+      if (!summary.anchorTime) {
+        setStatus($('eqSummary'), '所选成员缺少可用时间，无法创建 EQH / EQL。', 'warn');
+        return;
+      }
+      try {
+        const api = $('apiBase').value.trim().replace(/\/$/, '');
+        const payload = {
+          instrument: $('instrument').value.trim() || 'NQ',
+          timeframe: $('eqTimeframe').value,
+          pdaType: $('eqType').value,
+          direction: '',
+          anchorTime: summary.anchorTime,
+          confirmTime: '',
+          price: String(summary.price),
+          priceHigh: String(summary.priceHigh),
+          priceLow: String(summary.priceLow),
+          memberRefs: summary.memberRefs,
+          note: $('eqNote').value.trim(),
+        };
+        setStatus($('eqSummary'), `正在创建 ${payload.pdaType.toUpperCase()}...`);
+        const created = await postJson(`${api}/v2/pda_manual_add`, payload);
+        state.records.push(created);
+        state.records.sort((a, b) => {
+          const keyA = recordSortKey(a);
+          const keyB = recordSortKey(b);
+          if (keyA !== keyB) return keyA.localeCompare(keyB);
+          return (a.pdaId || '').localeCompare(b.pdaId || '');
+        });
+        state.eqSelectedRefs = [];
+        state.selected = created;
+        renderRecordList();
+        setStatus($('eqSummary'), `已创建 <strong>${created.pdaId}</strong>。`, 'ok');
+        const params = new URLSearchParams({ pda_id: created.pdaId, before: '4', after: '4' });
+        const neighborResult = await fetchJson(`${api}/v2/pda_neighbors?${params.toString()}`);
+        renderDetail(created, neighborResult);
+      } catch (err) {
+        setStatus($('eqSummary'), `创建失败：${err.message}`, 'danger');
+      }
+    }
+
     async function selectRecord(record) {
       state.selected = record;
       renderRecordList();
@@ -1506,6 +1709,15 @@
     $('submitNoteBtn').addEventListener('click', submitNote);
     $('deleteRecordBtn').addEventListener('click', deleteCurrentRecord);
     $('manualAddBtn').addEventListener('click', addManualPda);
+    $('eqCreateBtn').addEventListener('click', createEqualLiquidityPda);
+    $('eqClearBtn').addEventListener('click', () => {
+      state.eqSelectedRefs = [];
+      renderEqBuilder();
+    });
+    $('eqType').addEventListener('change', () => {
+      state.eqSelectedRefs = [];
+      renderEqBuilder();
+    });
     $('pdaTypeSelectAllBtn').addEventListener('click', event => {
       event.preventDefault();
       setAllPdaTypes(true);

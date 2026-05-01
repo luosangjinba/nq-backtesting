@@ -1,0 +1,37 @@
+# Structure Path Recorder 冒烟测试模板
+# 目标：
+# 1. 先验证第二层“结构路径”是否适合手工录入
+# 2. 先记录事实，不先做最终 bias 结论
+# 3. 重点回答：从哪个关键反转点出发，价格走到了哪里，为什么能走/没走到
+
+structure_paths:
+  - id: "path_YYYYMMDD_4H_001"
+
+    htf_context:
+      timeframe: "4H"                    # 4H / D / W
+      pda_refs: []                       # 引用第一层 pda_registry 中的 id
+
+    reversal_start:
+      time: "YYYY-MM-DD HH:MM"           # 关键反转点开始时间
+      price: 0.0                         # 关键反转点价格
+      reason: ""                         # 为什么认为这里是关键反转点
+
+    path_type: "internal_to_external"    # internal_to_external / external_to_internal / internal_to_internal / external_to_external
+
+    intended_destination:
+      liquidity_type: ""                 # bsl / ssl / fvg / ob / nwog / ndog / other
+      target_ref: ""                     # 若有对应 PDA id 就填，没有可留空
+      target_price: 0.0
+
+    confirmation:
+      confirmed: false                   # 是否被更低周期确认
+      timeframe: ""                      # 1H / 15m / 5m / 1m
+      signal: ""                         # 例如 displacement + FVG / MSS / sweep + reclaim
+
+    outcome:
+      reached_internal: false
+      reached_external: false
+      max_extension_points: 0.0
+      failure_reason: ""                 # 若没走到目标，先记录结构原因
+
+    note: ""

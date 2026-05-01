@@ -1,0 +1,33 @@
+structure_paths:
+  - id: "path_20241106_4H_001"
+
+    htf_context:
+      timeframe: "4H"
+      pda_refs:
+        - "pda_20241106_D_ob_001"
+        - "pda_20241101_D_fvg_001"
+
+    reversal_start:
+      time: "2024-11-06 10:00"
+      price: 20398.75
+      reason: "4H bullish OB 附近出现关键反转点，且与日线 FVG 重合。"
+
+    path_type: "internal_to_external"
+
+    intended_destination:
+      liquidity_type: "bsl"
+      target_ref: "pda_20241112_D_bsl_001"
+      target_price: 21340.50
+
+    confirmation:
+      confirmed: true
+      timeframe: "15m"
+      signal: "bullish displacement + FVG"
+
+    outcome:
+      reached_internal: true
+      reached_external: false
+      max_extension_points: 420.25
+      failure_reason: "途中进入对手 4H bearish FVG，未完成 external draw。"
+
+    note: ""

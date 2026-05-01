@@ -1,4 +1,8 @@
-# YAML Panel + Price Lookup
+# YAML Panel (Legacy) + Price Lookup
+
+当前主线是 `v2/docs/pda_review.html` 和 `v2/docs/layer2_recorder_v2.html`。
+`regime_analysis_project` 已归档到 [archive/regime_analysis_project](/home/leo/myworkspace/trading/backtesting/archive/regime_analysis_project:1)，不再属于活跃开发路径。
+旧的 HTF observation / HTF bias 原型已归档到 [archive/htf_observation](/home/leo/myworkspace/trading/backtesting/archive/htf_observation:1)，也不再属于当前主线。
 
 ## 当前数据结构
 
@@ -19,6 +23,8 @@ datetime,open,high,low,close,volume
 当前仓库里的 `NQ_full_1min.csv` 有大约 `5,906,275` 行，不适合让浏览器直接读取。
 
 ## 已加到 `yaml_panel.html` 的功能
+
+这部分是旧版页面的归档说明。当前新主线改用 [v2/docs/layer2_recorder_v2.html](/home/leo/myworkspace/trading/backtesting/v2/docs/layer2_recorder_v2.html)。
 
 页面现在内置一个“价格查询助手”固定面板：
 
@@ -66,7 +72,7 @@ datetime,open,high,low,close,volume
 
 1. 先把大 CSV 导入 DuckDB。
 2. 启动本地查价 API。
-3. 打开 `yaml_panel.html`，用右上角查价助手查价并回填。
+3. 打开 `v2/docs/layer2_recorder_v2.html`，按 `1H + NY Open 30M Lens` 录入结构路径。
 4. 如需二次修改，导入以前导出的 YAML 再继续编辑。
 
 ## 从大 CSV 裁剪片段
@@ -218,7 +224,7 @@ from bars;
 仓库里现在已经提供：
 
 - [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py)
-- [yaml_panel.html](/home/leo/myworkspace/trading/backtesting/yaml_panel.html)
+- [v2/docs/layer2_recorder_v2.html](/home/leo/myworkspace/trading/backtesting/v2/docs/layer2_recorder_v2.html)
 - [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html)
 
 先把 CSV 导入 DuckDB：
@@ -266,10 +272,12 @@ curl -s 'http://127.0.0.1:8765/price?instrument=NQ&date=2008-01-02&time=09:30&tf
 当前 V2 PDA review 的核心文件：
 
 - [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html)
+- [v2/docs/layer2_recorder_v2.html](/home/leo/myworkspace/trading/backtesting/v2/docs/layer2_recorder_v2.html)
 - [v2/scripts/scan_layer1_pda.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/scan_layer1_pda.py)
 - [v2/scripts/check_pda_scan.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/check_pda_scan.py)
 - [v2/schema/pda_registry.sql](/home/leo/myworkspace/trading/backtesting/v2/schema/pda_registry.sql)
 - [architect/20260417分步实施方案.md](/home/leo/myworkspace/trading/backtesting/architect/20260417分步实施方案.md)
+- [architect/20260425项目修改建议.md](/home/leo/myworkspace/trading/backtesting/architect/20260425项目修改建议.md)
 - [architect/全量扫描前抽查清单.md](/home/leo/myworkspace/trading/backtesting/architect/全量扫描前抽查清单.md)
 
 ### Linux 重开后如何启动
@@ -289,6 +297,7 @@ python3 price_lookup_api.py \
 然后直接在浏览器打开：
 
 - [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html)
+- [v2/docs/layer2_recorder_v2.html](/home/leo/myworkspace/trading/backtesting/v2/docs/layer2_recorder_v2.html)
 
 页面里的 `API Base` 设为：
 
@@ -309,10 +318,11 @@ Windows 继续可以使用：
 
 启动后：
 
-- `yaml_panel.html` 打开地址是：
-  - `http://127.0.0.1:8000/yaml_panel.html`
+- `yaml_panel.html` 仍可作为旧版归档页面使用，但新主线不再依赖它
 - `pda_review.html` 打开地址是：
   - `http://127.0.0.1:8000/v2/docs/pda_review.html`
+- `layer2_recorder_v2.html` 打开地址是：
+  - `http://127.0.0.1:8000/v2/docs/layer2_recorder_v2.html`
 
 如果只想重启 API，不想重启 UI，可以直接用：
 
@@ -338,6 +348,17 @@ Windows 继续可以使用：
   - `ssl`
   - `fvg`
 - `30m` 手工补录
+
+### 当前 Layer2 Recorder V2 能做什么
+
+当前新页面已支持：
+
+- 以 `1H` 作为主结构周期
+- 以 `30M` 作为 `09:30-11:00` 的 NY Open 观察镜
+- 录入结构路径元数据
+- 录入当前 Path 下的手工 PDA
+- 通过 `/v2/pda_match` 做对照匹配
+- 导出和下载 YAML
 - `15M` 辅助观察层
   - 存在同一张 `pda_registry` 表里
   - 当前只自动扫描 `15M bsl / ssl`

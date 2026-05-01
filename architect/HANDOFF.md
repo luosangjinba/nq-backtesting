@@ -2,11 +2,14 @@
 
 ## 当前主线
 
-当前在做的是 `PDA review` 主线，不是 `pendulum` 主线。
+当前在做的是 `PDA review + Layer2 Recorder V2` 主线，不是 `pendulum` 主线。
 
 核心目标：
 
 - 维护一套可筛选、可人工修订、可手工补录、可回退的 `PDA Registry`
+- 把 Layer2 结构路径录入改成 `1H Backbone + NY Open 30M Lens`
+- 让 YAML 成为真相之源，DuckDB 主要承担对照和匹配
+- `regime_analysis_project` 已归档，不再视为当前主线子项目
 - 当前研究重点是：
   - `bsl`
   - `ssl`
@@ -39,8 +42,10 @@
 
 - [readme.md](/home/leo/myworkspace/trading/backtesting/readme.md:1)
 - [architect/20260417分步实施方案.md](/home/leo/myworkspace/trading/backtesting/architect/20260417分步实施方案.md:1)
+- [architect/20260425项目修改建议.md](/home/leo/myworkspace/trading/backtesting/architect/20260425项目修改建议.md:1)
 - [architect/全量扫描前抽查清单.md](/home/leo/myworkspace/trading/backtesting/architect/全量扫描前抽查清单.md:1)
 - [v2/docs/pda_review.html](/home/leo/myworkspace/trading/backtesting/v2/docs/pda_review.html:1)
+- [v2/docs/layer2_recorder_v2.html](/home/leo/myworkspace/trading/backtesting/v2/docs/layer2_recorder_v2.html:1)
 - [price_lookup_api.py](/home/leo/myworkspace/trading/backtesting/price_lookup_api.py:1)
 - [v2/scripts/scan_layer1_pda.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/scan_layer1_pda.py:1)
 - [v2/scripts/check_pda_scan.py](/home/leo/myworkspace/trading/backtesting/v2/scripts/check_pda_scan.py:1)
@@ -86,6 +91,12 @@
   - `bsl / ssl` 画单线
   - `fvg / nwog / ndog` 画上下边界线
 - `pd_extremes` 已接入 `pda_review.html` 左侧只读面板，可按日期查看七个时段的高低点
+- `layer2_recorder_v2.html` 已改成 `1H Backbone + NY Open 30M Lens`
+- Layer2 新页支持：
+  - Path 元数据录入
+  - 手工 PDA 录入
+  - `/v2/pda_match` 对照
+  - YAML 导出 / 下载
 
 ## 最近关键变化
 

@@ -60,7 +60,10 @@
     .layout {
       margin-top: 14px;
       display: grid;
-      grid-template-columns: 320px minmax(620px, 1.2fr) minmax(520px, 0.95fr);
+      grid-template-columns: minmax(760px, 1fr) minmax(360px, 0.42fr);
+      grid-template-areas:
+        "work compare"
+        "yaml yaml";
       gap: 14px;
       align-items: start;
     }
@@ -81,6 +84,61 @@
     }
     .panel__title { margin: 0; font-size: 15px; }
     .panel__body { padding: 14px 16px 16px; }
+    .panel--work { grid-area: work; }
+    .panel--compare { grid-area: compare; }
+    .panel--yaml { grid-area: yaml; }
+    .fixed-work-panel {
+      height: clamp(520px, 52vh, 620px);
+      display: flex;
+      flex-direction: column;
+    }
+    .fixed-work-panel > .panel__body {
+      flex: 1;
+      overflow: auto;
+    }
+    .floating-work-panel {
+      min-height: 360px;
+    }
+    .panel--compare {
+      height: clamp(520px, 52vh, 620px);
+      display: flex;
+      flex-direction: column;
+    }
+    .panel--compare > .panel__body {
+      flex: 1;
+      overflow: auto;
+    }
+    .panel--compare .split,
+    .panel--compare .grid-4 {
+      grid-template-columns: 1fr;
+    }
+    .yaml-preview-body {
+      max-height: 620px;
+      overflow: auto;
+    }
+    .editor-tabs {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      min-width: 0;
+    }
+    .editor-tab {
+      border: 0;
+      border-right: 1px solid rgba(148, 171, 180, 0.22);
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      min-height: 26px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 17px;
+    }
+    .editor-tab:first-child { padding-left: 0; }
+    .editor-tab:last-child { border-right: 0; }
+    .editor-tab.active { color: var(--text); }
+    .editor-card { display: none; }
+    .editor-card.active { display: block; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
@@ -296,7 +354,15 @@
     .api-card .field { margin-bottom: 0; }
     .api-card input { min-height: 36px; padding: 8px 10px; }
     @media (max-width: 1200px) {
-      .layout { grid-template-columns: 1fr; }
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "work"
+          "compare"
+          "yaml";
+      }
+      .fixed-work-panel { height: auto; max-height: none; }
+      .fixed-work-panel > .panel__body { overflow: visible; }
       .topbar { grid-template-columns: 1fr; }
     }
   </style>
@@ -306,7 +372,7 @@
     <section class="topbar">
       <div>
         <h1>Layer2 Recorder V2</h1>
-        <p class="sub">1H 作为结构骨架，9:30 之后用 30M 作为 NY Open 观察镜。页面以 YAML 为真相源，DuckDB 只做对照和匹配。</p>
+        <p class="sub">Path / Group 记录结构骨架，Manual PDA 记录关键价格行为。页面以 YAML 为真相源，DuckDB 只做对照和匹配。</p>
       </div>
       <div class="btn-row">
         <button class="btn btn--primary" id="loadContextBtn" type="button">加载对照</button>
@@ -336,47 +402,20 @@
       </div>
     </section>
 
-    <section class="panel compact-panel" style="margin-top:14px;">
-      <div class="panel__body">
-        <div class="btn-row" style="justify-content: space-between; margin-bottom:8px;">
-          <h2 class="panel__title">Date Time Recognizer</h2>
-          <span class="tag">image -> yyyy-MM-dd HH:mm</span>
-        </div>
-        <div class="grid-3" style="align-items:end;">
-          <div class="field">
-            <label>Image Input</label>
-            <div class="btn-row">
-              <button class="btn" id="dtUploadBtn" type="button">上传图片</button>
-              <button class="btn" id="dtClearImageBtn" type="button">清除图片</button>
-              <input id="dtImageInput" type="file" accept="image/*" hidden>
-            </div>
-            <div id="dtImagePreview" class="status" style="margin-top:8px; min-height:42px; padding:6px 10px;">可上传图片，或直接 Ctrl+V 粘贴截图。</div>
-            <input id="dtRawInput" type="hidden">
-          </div>
-          <div class="field">
-            <label>Output</label>
-            <input id="dtOutput" placeholder="yyyy-MM-dd HH:mm" readonly>
-          </div>
-          <div class="field">
-            <label>Action</label>
-            <div class="btn-row">
-              <button class="btn btn--primary" id="dtParseBtn" type="button">识别</button>
-              <button class="btn" id="dtCopyBtn" type="button">复制</button>
-            </div>
-          </div>
-        </div>
-        <div class="tiny" id="dtHint">上传或粘贴截图后会先读剪贴板/浏览器识别文本；失败时调用 API Base 的 tesseract OCR。</div>
-      </div>
-    </section>
-
     <div class="layout">
-      <section class="panel">
+      <section class="panel panel--work fixed-work-panel">
         <div class="panel__header">
-          <h2 class="panel__title">Group / Relation</h2>
-          <span class="tag">左侧编辑区</span>
+          <div class="editor-tabs" role="tablist" aria-label="Editor tabs">
+            <button class="editor-tab active" data-editor-tab="path" type="button">Path Editor</button>
+            <button class="editor-tab" data-editor-tab="group" type="button">Group Editor</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn--tiny" id="deletePathBtn" type="button">删除 Path</button>
+          </div>
         </div>
         <div class="panel__body">
-          <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
+          <div class="editor-card" data-editor-card="group">
+          <div class="panel" style="background: rgba(24, 36, 42, 0.22);">
             <div class="panel__header">
               <h3 class="panel__title">Group Editor</h3>
               <span class="tag" id="groupCount">0</span>
@@ -392,32 +431,8 @@
               </div>
             </div>
           </div>
-
-          <div class="panel" style="margin-top:14px; background: rgba(24, 36, 42, 0.22);">
-            <div class="panel__header">
-              <h3 class="panel__title">Relation Editor</h3>
-              <span class="tag" id="relationCount">0</span>
-            </div>
-            <div class="panel__body">
-              <div class="tiny" style="margin-bottom:10px;">Relation 记录 Group/Path 之间的突破、回撤、嵌套和比例关系。</div>
-              <div id="relationEditor"></div>
-              <div class="btn-row" style="margin-top:10px;">
-                <button class="btn btn--tiny btn--primary" id="addRelationBtn" type="button">新增 Relation</button>
-                <button class="btn btn--tiny btn--danger" id="deleteRelationBtn" type="button">删除当前 Relation</button>
-              </div>
-            </div>
           </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel__header">
-          <h2 class="panel__title">Path Editor</h2>
-          <div class="btn-row">
-            <button class="btn btn--tiny" id="deletePathBtn" type="button">删除 Path</button>
-          </div>
-        </div>
-        <div class="panel__body">
+          <div class="editor-card active" data-editor-card="path">
           <form id="pathForm">
             <div class="grid-2">
               <div class="field">
@@ -491,26 +506,6 @@
                   <option value="choppy">choppy</option>
                   <option value="overlapping">overlapping</option>
                 </select>
-              </div>
-            </div>
-
-            <div class="grid-3">
-              <div class="field">
-                <label>NY Open Lens TF</label>
-                <select data-field="executionLensTimeframe">
-                  <option value=""></option>
-                  <option value="30M">30M</option>
-                  <option value="15M">15M</option>
-                  <option value="5M">5M</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>NY Open Lens Window</label>
-                <input data-field="executionLensWindow" placeholder="09:30-11:00">
-              </div>
-              <div class="field">
-                <label>NY Open Lens Note</label>
-                <input data-field="executionLensNote" placeholder="9:30 后用 30M 观察 sweep / displacement / reaction">
               </div>
             </div>
 
@@ -758,9 +753,9 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel panel--compare floating-work-panel">
         <div class="panel__header">
-          <h2 class="panel__title">Compare / YAML</h2>
+          <h2 class="panel__title">Compare</h2>
           <span class="tag" id="contextCount">0 auto refs</span>
         </div>
         <div class="panel__body">
@@ -817,15 +812,16 @@
               <div id="autoList" class="list"></div>
             </div>
           </div>
-          <div class="card" style="margin-top:14px;">
-            <div class="card__top">
-              <div>
-                <div class="card__title">YAML Preview</div>
-                <div class="card__meta">structure_paths + manual_pdas + reconciliation</div>
-              </div>
-            </div>
-            <div style="margin-top:10px;"><pre id="yamlPreview"></pre></div>
-          </div>
+        </div>
+      </section>
+
+      <section class="panel panel--yaml floating-work-panel">
+        <div class="panel__header">
+          <h2 class="panel__title">YAML Preview</h2>
+          <span class="tag">structure_paths + manual_pdas + reconciliation</span>
+        </div>
+        <div class="panel__body yaml-preview-body">
+          <pre id="yamlPreview"></pre>
         </div>
       </section>
     </div>
@@ -844,16 +840,13 @@
       lookaheadDays: 1,
       activePathIndex: 0,
       activeGroupIndex: 0,
-      activeRelationIndex: 0,
       paths: [],
       groups: [],
-      relations: [],
       autoRecords: [],
       selectedManualRef: '',
       lastMatch: null,
       manualCounter: 1,
-      groupCounter: 1,
-      relationCounter: 1
+      groupCounter: 1
     };
 
     const $ = (sel) => document.querySelector(sel);
@@ -906,165 +899,6 @@
       if (!match) return text;
       const [, date, hour, minute, second = '00'] = match;
       return `${date} ${hour.padStart(2, '0')}:${minute}:${second.padStart(2, '0')}`;
-    }
-
-    function recognizeDateTimeText(value) {
-      const raw = String(value || '').trim();
-      if (!raw) return '';
-      const monthMap = {
-        jan: '01', january: '01',
-        feb: '02', february: '02',
-        mar: '03', march: '03',
-        apr: '04', april: '04',
-        may: '05',
-        jun: '06', june: '06',
-        jul: '07', july: '07',
-        aug: '08', august: '08',
-        sep: '09', sept: '09', september: '09',
-        oct: '10', october: '10',
-        nov: '11', november: '11',
-        dec: '12', december: '12'
-      };
-      const text = raw
-        .replace(/[’‘]/g, "'")
-        .replace(/[–—]/g, '-')
-        .replace(/\s+/g, ' ')
-        .replace(/[|]/g, 'I')
-        .replace(/[：]/g, ':')
-        .replace(/\bUTC\s*([+-])\s*[A-Za-z0-9]{1,2}\b/i, 'UTC$1X');
-      const match = text.match(
-        /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)?\.?\s*(\d{1,2})\s+([A-Za-z]{3,9})\s*'?\s*(\d{2,4})(?:\s+UTC[+-][A-Za-z0-9]{1,2}[\)\]\.,;:]*)?\s+([0-9OIlS]{1,2})\s*:\s*([0-9OIlS]{2})/i
-      );
-      if (!match) return '';
-      const [, dayRaw, monthRaw, yearRaw, hourRaw, minuteRaw] = match;
-      const month = monthMap[monthRaw.toLowerCase()];
-      if (!month) return '';
-      const cleanDigits = (part) => String(part || '')
-        .replace(/[Oo]/g, '0')
-        .replace(/[Il|]/g, '1')
-        .replace(/[Ss]/g, '5')
-        .replace(/\D/g, '');
-      const yearNum = Number(yearRaw);
-      const year = yearRaw.length === 2 ? String(yearNum >= 70 ? 1900 + yearNum : 2000 + yearNum) : String(yearNum).padStart(4, '0');
-      const day = dayRaw.padStart(2, '0');
-      const hour = cleanDigits(hourRaw).padStart(2, '0');
-      const minute = cleanDigits(minuteRaw).padStart(2, '0');
-      if (Number(hour) > 23 || Number(minute) > 59) return '';
-      return `${year}-${month}-${day} ${hour}:${minute}`;
-    }
-
-    function parseDateTimeRecognizer(value = $('#dtRawInput').value) {
-      $('#dtRawInput').value = value || '';
-      const output = recognizeDateTimeText(value);
-      $('#dtOutput').value = output;
-      const hint = $('#dtHint');
-      if (output) {
-        hint.textContent = `识别成功：${output}`;
-        hint.dataset.kind = 'ok';
-      } else {
-        const seen = String(value || '').trim();
-        hint.textContent = seen
-          ? `未识别。OCR 读到：${seen.slice(0, 80)}`
-          : "未识别。请确认图片文字类似 Mon 09 Jan '12 UTC-5 11:20，或直接 Ctrl+V 粘贴这段文字。";
-        hint.dataset.kind = 'warn';
-      }
-    }
-
-    function copyRecognizedDateTime() {
-      const value = $('#dtOutput').value;
-      if (!value) return setStatus('没有可复制的识别结果。', 'warn');
-      navigator.clipboard.writeText(value).then(() => setStatus(`已复制时间：${value}`, 'ok')).catch((err) => setStatus(`复制失败：${err.message}`, 'danger'));
-    }
-
-    async function extractDateTimeTextFromImage(file) {
-      let browserReason = '浏览器没有返回可用 OCR 文本。';
-      if (window.TextDetector) {
-        try {
-          const detector = new TextDetector();
-          const source = window.createImageBitmap ? await createImageBitmap(file) : await new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = reject;
-            img.src = URL.createObjectURL(file);
-          });
-          const results = await detector.detect(source);
-          const text = results.map((item) => item.rawValue || '').filter(Boolean).join(' ');
-          const output = recognizeDateTimeText(text);
-          if (text || output) return { text, output, reason: text ? '' : '浏览器 OCR 未读到文字。' };
-        } catch (err) {
-          browserReason = `浏览器 OCR 失败：${err.message}`;
-        }
-      }
-
-      const apiBase = ($('#apiBase')?.value || state.apiBase || '').trim().replace(/\/+$/, '');
-      if (!apiBase) {
-        return { text: '', output: '', reason: `${browserReason} API Base 为空，无法调用 tesseract OCR。` };
-      }
-      try {
-        const form = new FormData();
-        form.append('file', file);
-        const response = await fetch(`${apiBase}/v2/date_time_ocr`, { method: 'POST', body: form });
-        const payload = await response.json();
-        if (!response.ok || !payload.ok) throw new Error(payload.error || `HTTP ${response.status}`);
-        const result = payload.result || {};
-        return { text: result.text || '', output: result.output || '', reason: result.text ? '' : 'tesseract OCR 未读到文字。' };
-      } catch (err) {
-        return { text: '', output: '', reason: `${browserReason} tesseract OCR 不可用：${err.message}` };
-      }
-    }
-
-    async function previewDateTimeImage(file, options = {}) {
-      if (!file || !file.type.startsWith('image/')) return;
-      const url = URL.createObjectURL(file);
-      const preview = $('#dtImagePreview');
-      preview.innerHTML = `<img src="${escapeAttr(url)}" alt="date time image preview" style="max-width:100%; max-height:56px; display:block; border-radius:6px;">`;
-      if (options.skipOcr) return;
-      $('#dtOutput').value = '';
-      $('#dtHint').textContent = '图片已加载，正在尝试 OCR...';
-      $('#dtHint').dataset.kind = '';
-      const { text, output, reason } = await extractDateTimeTextFromImage(file);
-      if (output) {
-        $('#dtRawInput').value = text || output;
-        $('#dtOutput').value = output;
-        $('#dtHint').textContent = `识别成功：${output}`;
-        $('#dtHint').dataset.kind = 'ok';
-        return;
-      }
-      if (text) {
-        parseDateTimeRecognizer(text);
-        if (!$('#dtOutput').value) {
-          $('#dtHint').textContent = `OCR 读到：${text}，但未能转换成 yyyy-MM-dd HH:mm。`;
-          $('#dtHint').dataset.kind = 'warn';
-        }
-        return;
-      }
-      $('#dtHint').textContent = `${reason} 可直接 Ctrl+V 粘贴图片里的文字，我会只输出转换结果。`;
-      $('#dtHint').dataset.kind = 'warn';
-    }
-
-    function clearDateTimeImage() {
-      $('#dtImageInput').value = '';
-      $('#dtRawInput').value = '';
-      $('#dtOutput').value = '';
-      $('#dtImagePreview').textContent = '可上传图片，或直接 Ctrl+V 粘贴截图。';
-      $('#dtHint').textContent = '上传或粘贴截图后会先读剪贴板/浏览器识别文本；失败时调用 API Base 的 tesseract OCR。';
-      $('#dtHint').dataset.kind = '';
-    }
-
-    function handleDateTimePaste(event) {
-      const items = Array.from(event.clipboardData?.items || []);
-      const text = event.clipboardData?.getData('text/plain') || '';
-      const imageItem = items.find((item) => item.type.startsWith('image/'));
-      const output = recognizeDateTimeText(text);
-      if (output) {
-        parseDateTimeRecognizer(text);
-        if (imageItem) previewDateTimeImage(imageItem.getAsFile(), { skipOcr: true });
-        return;
-      }
-      if (imageItem) {
-        previewDateTimeImage(imageItem.getAsFile());
-        return;
-      }
     }
 
     function parseDateTime(value) {
@@ -1359,9 +1193,6 @@
             pathType: '',
             delivery: '',
             primaryTimeframe: '1H',
-            executionLensTimeframe: '',
-            executionLensWindow: '',
-            executionLensNote: '',
             note: '',
             tags: '',
             mainActions: [],
@@ -1381,10 +1212,6 @@
         if (indent === 4 && kv) {
           action = null;
           manual = null;
-          if (kv.key === 'execution_lens') {
-            mode = 'execution_lens';
-            return;
-          }
           if (kv.key === 'main_actions') {
             mode = 'main_actions';
             if (String(line).includes('[]')) path.mainActions = [];
@@ -1405,13 +1232,6 @@
           }
           mode = '';
           mapPathField(path, kv.key, kv.value);
-          return;
-        }
-
-        if (mode === 'execution_lens' && indent === 6 && kv) {
-          if (kv.key === 'timeframe') path.executionLensTimeframe = kv.value;
-          if (kv.key === 'window') path.executionLensWindow = kv.value;
-          if (kv.key === 'note') path.executionLensNote = kv.value;
           return;
         }
 
@@ -1468,12 +1288,10 @@
       })).filter((item) => item.id);
     }
 
-    function parseGroupsAndRelations(text) {
+    function parseGroupsYaml(text) {
       const groups = [];
-      const relations = [];
       let section = '';
       let group = null;
-      let relation = null;
       let mode = '';
 
       text.split(/\r?\n/).forEach((line) => {
@@ -1485,12 +1303,7 @@
           mode = '';
           return;
         }
-        if (indent === 0 && trimmed.startsWith('structure_relations:')) {
-          section = 'relations';
-          mode = '';
-          return;
-        }
-        if (isTopLevelSection(line) && !trimmed.startsWith('structure_groups:') && !trimmed.startsWith('structure_relations:')) {
+        if (isTopLevelSection(line) && !trimmed.startsWith('structure_groups:')) {
           section = '';
           mode = '';
           return;
@@ -1530,27 +1343,10 @@
           return;
         }
 
-        if (section === 'relations') {
-          if (indent === 2 && trimmed.startsWith('-')) {
-            relation = { relationId: '', source: '', target: '', relationType: '', ratio: '', location: '', note: '' };
-            relations.push(relation);
-            if (kv && kv.key === 'relation_id') relation.relationId = kv.value;
-            return;
-          }
-          if (!relation || indent !== 4 || !kv) return;
-          if (kv.key === 'relation_id') relation.relationId = kv.value;
-          if (kv.key === 'source') relation.source = kv.value;
-          if (kv.key === 'target') relation.target = kv.value;
-          if (kv.key === 'relation_type') relation.relationType = kv.value;
-          if (kv.key === 'ratio') relation.ratio = kv.value;
-          if (kv.key === 'location') relation.location = kv.value;
-          if (kv.key === 'note') relation.note = kv.value;
-        }
       });
 
       return {
-        groups: groups.filter((item) => item.groupId),
-        relations: relations.filter((item) => item.relationId)
+        groups: groups.filter((item) => item.groupId)
       };
     }
 
@@ -1589,12 +1385,8 @@
       const groupMax = state.groups
         .map((group) => Number(String(group.groupId || '').match(/_(\d+)$/)?.[1] || 0))
         .reduce((max, value) => Math.max(max, value), 0);
-      const relationMax = state.relations
-        .map((relation) => Number(String(relation.relationId || '').match(/_(\d+)$/)?.[1] || 0))
-        .reduce((max, value) => Math.max(max, value), 0);
       state.manualCounter = Math.max(state.manualCounter || 1, manualMax + 1);
       state.groupCounter = Math.max(state.groupCounter || 1, groupMax + 1);
-      state.relationCounter = Math.max(state.relationCounter || 1, relationMax + 1);
     }
 
     function readFileText(file) {
@@ -1636,16 +1428,14 @@
       syncCurrentPath();
       const text = await readFileText(file);
       const meta = parseYamlMeta(text);
-      const parsed = parseGroupsAndRelations(text);
+      const parsed = parseGroupsYaml(text);
       if (meta.date) state.sampleDate = meta.date;
       if (meta.instrument) state.instrument = meta.instrument;
       const groupResult = upsertById(state.groups, parsed.groups, 'groupId');
-      const relationResult = upsertById(state.relations, parsed.relations, 'relationId');
       if (state.groups.length) state.activeGroupIndex = Math.max(0, state.groups.length - groupResult.added - groupResult.replaced);
-      if (state.relations.length) state.activeRelationIndex = Math.max(0, state.relations.length - relationResult.added - relationResult.replaced);
       updateCountersFromState();
       renderAll();
-      setStatus(`导入 groups.yaml 完成：Group 新增 ${groupResult.added} / 覆盖 ${groupResult.replaced}；Relation 新增 ${relationResult.added} / 覆盖 ${relationResult.replaced}。`, 'ok');
+      setStatus(`导入 groups.yaml 完成：Group 新增 ${groupResult.added} / 覆盖 ${groupResult.replaced}。`, 'ok');
     }
 
     function syncTopInputs() {
@@ -1667,12 +1457,9 @@
         activePathIndex: state.activePathIndex,
         paths: state.paths,
         activeGroupIndex: state.activeGroupIndex,
-        activeRelationIndex: state.activeRelationIndex,
         groups: state.groups,
-        relations: state.relations,
         manualCounter: state.manualCounter,
-        groupCounter: state.groupCounter,
-        relationCounter: state.relationCounter
+        groupCounter: state.groupCounter
       }));
     }
 
@@ -1706,9 +1493,6 @@
         pathType: '',
         delivery: '',
         primaryTimeframe: '1H',
-        executionLensTimeframe: '30M',
-        executionLensWindow: '09:30-11:00',
-        executionLensNote: '9:30 后用 30M 观察 sweep / displacement / reaction',
         note: '',
         tags: '',
         mainActions: [{ type: '', ref: '' }],
@@ -1733,20 +1517,6 @@
       };
     }
 
-    function emptyRelation() {
-      const compact = (state.sampleDate || 'YYYYMMDD').replaceAll('-', '');
-      const idx = String(state.relationCounter || ((state.relations?.length || 0) + 1)).padStart(3, '0');
-      return {
-        relationId: `rel_${compact}_${idx}`,
-        source: '',
-        target: '',
-        relationType: 'nested_in',
-        ratio: '',
-        location: '',
-        note: ''
-      };
-    }
-
     function activePath() {
       if (!state.paths.length) state.paths.push(emptyPath());
       if (state.activePathIndex < 0 || state.activePathIndex >= state.paths.length) state.activePathIndex = 0;
@@ -1756,7 +1526,6 @@
     function ensureDefaults() {
       if (!state.paths || !state.paths.length) state.paths = [emptyPath()];
       state.groups = Array.isArray(state.groups) ? state.groups : [];
-      state.relations = Array.isArray(state.relations) ? state.relations : [];
       state.paths.forEach((path) => {
         path.mainActions = Array.isArray(path.mainActions) && path.mainActions.length ? path.mainActions : [{ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' }];
         path.mainActions.forEach((action) => {
@@ -1765,9 +1534,6 @@
         });
         path.manualPdas = Array.isArray(path.manualPdas) ? path.manualPdas : [];
         if (!path.primaryTimeframe) path.primaryTimeframe = '1H';
-        if (!path.executionLensTimeframe) path.executionLensTimeframe = '30M';
-        if (!path.executionLensWindow) path.executionLensWindow = '09:30-11:00';
-        if (!path.executionLensNote) path.executionLensNote = '9:30 后用 30M 观察 sweep / displacement / reaction';
       });
       state.groups.forEach((group) => {
         group.memberPaths = Array.isArray(group.memberPaths) ? group.memberPaths : [];
@@ -1775,15 +1541,9 @@
         if (!group.groupType) group.groupType = 'range';
         if (!group.primaryTimeframe) group.primaryTimeframe = '1H';
       });
-      state.relations.forEach((relation) => {
-        if (!relation.relationId && relation.id) relation.relationId = relation.id;
-        if (!relation.relationType) relation.relationType = 'nested_in';
-      });
       if (!state.manualCounter) state.manualCounter = 1;
       if (!state.groupCounter) state.groupCounter = Math.max(1, state.groups.length + 1);
-      if (!state.relationCounter) state.relationCounter = Math.max(1, state.relations.length + 1);
       if (state.activeGroupIndex < 0 || state.activeGroupIndex >= state.groups.length) state.activeGroupIndex = 0;
-      if (state.activeRelationIndex < 0 || state.activeRelationIndex >= state.relations.length) state.activeRelationIndex = 0;
     }
 
     function pdaLabel(rec) {
@@ -1943,17 +1703,8 @@
       return state.groups[state.activeGroupIndex] || null;
     }
 
-    function activeRelation() {
-      return state.relations[state.activeRelationIndex] || null;
-    }
-
     function groupTypeOptions(selected = '') {
       const options = ['', 'impulse', 'range', 'pullback', 'breakout', 'reversal', 'consolidation'];
-      return options.map((value) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(value)}</option>`).join('');
-    }
-
-    function relationTypeOptions(selected = '') {
-      const options = ['', 'breakout', 'retracement', 'continuation', 'reaction', 'nested_in', 'invalidates'];
       return options.map((value) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(value)}</option>`).join('');
     }
 
@@ -2111,102 +1862,17 @@
 
     function deleteGroup() {
       if (!state.groups.length) return;
-      if (!confirm('删除当前 Group？Relation 不会自动删除，请手工检查。')) return;
+      if (!confirm('删除当前 Group？')) return;
       state.groups.splice(state.activeGroupIndex, 1);
       state.activeGroupIndex = Math.max(0, state.activeGroupIndex - 1);
-      renderAll();
-    }
-
-    function renderRelationEditor() {
-      const wrap = $('#relationEditor');
-      $('#relationCount').textContent = String(state.relations.length);
-      if (!state.relations.length) {
-        wrap.innerHTML = '<div class="status">还没有 Relation。Group 建好后，再记录“突破 / 回撤 / nested_in / 比例”。</div>';
-        return;
-      }
-      const relation = activeRelation();
-      wrap.innerHTML = `
-        <div class="chips" id="relationChips"></div>
-        <div class="field">
-          <label>Relation ID</label>
-          <input data-relation-field="relationId" value="${escapeAttr(relation.relationId || '')}" placeholder="rel_20120110_001">
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label>Source</label>
-            <select data-relation-field="source">${objectRefOptions(relation.source || '')}</select>
-          </div>
-          <div class="field">
-            <label>Target</label>
-            <select data-relation-field="target">${objectRefOptions(relation.target || '')}</select>
-          </div>
-        </div>
-        <div class="grid-3">
-          <div class="field">
-            <label>Relation Type</label>
-            <select data-relation-field="relationType">${relationTypeOptions(relation.relationType || '')}</select>
-          </div>
-          <div class="field">
-            <label>Ratio</label>
-            <input data-relation-field="ratio" value="${escapeAttr(relation.ratio || '')}" placeholder="1.18 / 0.65">
-          </div>
-          <div class="field">
-            <label>Location</label>
-            <input data-relation-field="location" value="${escapeAttr(relation.location || '')}" placeholder="OTE / OB / PDH">
-          </div>
-        </div>
-        <div class="field">
-          <label>Relation Note</label>
-          <textarea data-relation-field="note" placeholder="source 对 target 做了什么，以及这个比例为什么重要。">${escapeHtml(relation.note || '')}</textarea>
-        </div>
-      `;
-
-      const chipWrap = wrap.querySelector('#relationChips');
-      state.relations.forEach((item, idx) => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'chip' + (idx === state.activeRelationIndex ? ' active' : '');
-        chip.innerHTML = `<strong>${escapeHtml(item.relationId || `rel_${idx + 1}`)}</strong><br><span style="font-size:12px;">${escapeHtml(item.relationType || '—')}</span>`;
-        chip.onclick = () => {
-          state.activeRelationIndex = idx;
-          renderAll();
-        };
-        chipWrap.appendChild(chip);
-      });
-
-      wrap.querySelectorAll('[data-relation-field]').forEach((input) => {
-        input.oninput = () => {
-          relation[input.dataset.relationField] = input.value;
-          renderYaml();
-          saveDraft();
-        };
-        input.onchange = input.oninput;
-      });
-    }
-
-    function addRelation() {
-      syncCurrentPath();
-      const relation = emptyRelation();
-      relation.source = activeGroup()?.groupId || activePath()?.id || '';
-      state.relations.push(relation);
-      state.relationCounter += 1;
-      state.activeRelationIndex = state.relations.length - 1;
-      renderAll();
-    }
-
-    function deleteRelation() {
-      if (!state.relations.length) return;
-      if (!confirm('删除当前 Relation？')) return;
-      state.relations.splice(state.activeRelationIndex, 1);
-      state.activeRelationIndex = Math.max(0, state.activeRelationIndex - 1);
       renderAll();
     }
 
     function actionOptions(selected = '') {
       const options = [
         ['', ''],
-        ['cross_liquidity', '越过某 liquidity'],
-        ['approach_or_equal_liquidity', '接近或平齐某 liquidity'],
+        ['cross_liquidity', 'cross liquidity'],
+        ['approach_or_equal_liquidity', 'approach or equal liquidity'],
         ['respect_ob', 'respect OB'],
         ['respect_fvg', 'respect FVG'],
         ['respect_key_level', 'respect Key Level'],
@@ -2864,13 +2530,6 @@
         if (path.role) lines.push(`    role: ${yamlQuote(path.role)}`);
         if (path.pathType) lines.push(`    path_type: ${yamlQuote(path.pathType)}`);
         if (path.delivery) lines.push(`    delivery: ${yamlQuote(path.delivery)}`);
-        if (path.executionLensTimeframe || path.executionLensWindow || path.executionLensNote) {
-          lines.push('    execution_lens:');
-          lines.push('      anchor: "ny_open"');
-          if (path.executionLensTimeframe) lines.push(`      timeframe: ${yamlQuote(path.executionLensTimeframe)}`);
-          if (path.executionLensWindow) lines.push(`      window: ${yamlQuote(path.executionLensWindow)}`);
-          if (path.executionLensNote) lines.push(`      note: ${yamlQuote(path.executionLensNote)}`);
-        }
         if (path.note) lines.push(`    note: ${yamlQuote(path.note)}`);
         if (path.tags) {
           lines.push('    tags:');
@@ -2982,21 +2641,6 @@
       } else {
         lines.push('structure_groups: []');
       }
-      lines.push('');
-      if (state.relations.length) {
-        lines.push('structure_relations:');
-        state.relations.forEach((relation) => {
-          lines.push(`  - relation_id: ${yamlQuote(relation.relationId || '')}`);
-          if (relation.source) lines.push(`    source: ${yamlQuote(relation.source)}`);
-          if (relation.target) lines.push(`    target: ${yamlQuote(relation.target)}`);
-          if (relation.relationType) lines.push(`    relation_type: ${yamlQuote(relation.relationType)}`);
-          if (relation.ratio) lines.push(`    ratio: ${yamlQuote(relation.ratio)}`);
-          if (relation.location) lines.push(`    location: ${yamlQuote(relation.location)}`);
-          if (relation.note) lines.push(`    note: ${yamlQuote(relation.note)}`);
-        });
-      } else {
-        lines.push('structure_relations: []');
-      }
       return lines.join('\n');
     }
 
@@ -3029,21 +2673,6 @@
         });
       } else {
         lines.push('structure_groups: []');
-      }
-      lines.push('');
-      if (state.relations.length) {
-        lines.push('structure_relations:');
-        state.relations.forEach((relation) => {
-          lines.push(`  - relation_id: ${yamlQuote(relation.relationId || '')}`);
-          if (relation.source) lines.push(`    source: ${yamlQuote(relation.source)}`);
-          if (relation.target) lines.push(`    target: ${yamlQuote(relation.target)}`);
-          if (relation.relationType) lines.push(`    relation_type: ${yamlQuote(relation.relationType)}`);
-          if (relation.ratio) lines.push(`    ratio: ${yamlQuote(relation.ratio)}`);
-          if (relation.location) lines.push(`    location: ${yamlQuote(relation.location)}`);
-          if (relation.note) lines.push(`    note: ${yamlQuote(relation.note)}`);
-        });
-      } else {
-        lines.push('structure_relations: []');
       }
       return lines.join('\n');
     }
@@ -3114,7 +2743,6 @@
       renderTopGroupChips();
       renderPathForm();
       renderGroupEditor();
-      renderRelationEditor();
       renderManualList();
       renderAutoList();
       renderMatchPanel();
@@ -3157,15 +2785,18 @@
       card.dataset.collapsed = collapsed ? 'false' : 'true';
     }
 
+    function switchEditorTab(tab) {
+      $$('[data-editor-tab]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.editorTab === tab);
+      });
+      $$('[data-editor-card]').forEach((card) => {
+        card.classList.toggle('active', card.dataset.editorCard === tab);
+      });
+    }
+
     function bindEvents() {
       $('#loadContextBtn').onclick = loadContext;
       $('#addPathBtn').onclick = addPath;
-      $('#dtUploadBtn').onclick = () => $('#dtImageInput').click();
-      $('#dtClearImageBtn').onclick = clearDateTimeImage;
-      $('#dtImageInput').onchange = (event) => previewDateTimeImage(event.target.files?.[0]);
-      $('#dtParseBtn').onclick = () => parseDateTimeRecognizer();
-      $('#dtCopyBtn').onclick = copyRecognizedDateTime;
-      window.addEventListener('paste', handleDateTimePaste);
       $('#importPathYamlBtn').onclick = () => $('#importPathYamlInput').click();
       $('#importGroupsYamlBtn').onclick = () => $('#importGroupsYamlInput').click();
       $('#deletePathBtn').onclick = deletePath;
@@ -3189,11 +2820,12 @@
       $$('[data-toggle-manual-module]').forEach((button) => {
         button.onclick = () => toggleManualModule(button.dataset.toggleManualModule);
       });
+      $$('[data-editor-tab]').forEach((button) => {
+        button.onclick = () => switchEditorTab(button.dataset.editorTab);
+      });
       $('#addMainActionBtn').onclick = addMainAction;
       $('#addGroupBtn').onclick = addGroup;
       $('#deleteGroupBtn').onclick = deleteGroup;
-      $('#addRelationBtn').onclick = addRelation;
-      $('#deleteRelationBtn').onclick = deleteRelation;
       $('#copyGroupsYamlBtn').onclick = copyGroupsYaml;
       $('#downloadGroupsYamlBtn').onclick = downloadGroupsYaml;
       $('#importPathYamlInput').onchange = async (event) => {

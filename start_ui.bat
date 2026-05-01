@@ -12,7 +12,8 @@ echo   host: %UI_HOST%
 echo   port: %UI_PORT%
 echo.
 echo Open this in your browser:
-echo   http://%UI_HOST%:%UI_PORT%/yaml_panel.html
+echo   http://%UI_HOST%:%UI_PORT%/v2/docs/layer2_recorder_v2.html
+echo   http://%UI_HOST%:%UI_PORT%/v2/docs/pda_review.html
 echo.
 echo Press Ctrl+C to stop the UI server.
 echo.

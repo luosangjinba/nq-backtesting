@@ -1,0 +1,88 @@
+pdas:
+  - id: "pda_20241101_D_ssl_001"
+    instrument: NQ
+    timeframe: "D"
+    type: "ssl"
+    direction:
+
+    price: 20007.75
+    price_high:
+    price_low:
+    price_ce:
+
+    created_date: "2024-10-31"
+    verified_time: "2024-11-01"
+    anchor_time:
+
+    origin_start_date:
+    origin_end_date:
+
+    registry_status: active
+    source: manual
+    note: ""
+
+  - id: "pda_20241101_D_fvg_001"
+    instrument: NQ
+    timeframe: "D"
+    type: "fvg"
+    direction: bearish
+
+    price:
+    price_high: 20471.00
+    price_low: 20287.25
+    price_ce: 20379.00
+
+    created_date: "2024-10-31"
+    verified_time: "2024-11-01"
+    anchor_time: "2024-10-31"
+
+    origin_start_date:
+    origin_end_date:
+
+    registry_status: active
+    source: manual
+    note: ""
+
+  - id: "pda_20241106_D_ob_001"
+    instrument: NQ
+    timeframe: "D"
+    type: "ob"
+    direction: bullish
+
+    price:
+    price_high: 20789.75
+    price_low: 20007.75
+    price_ce: 20398.75
+
+    created_date: "2024-10-31"
+    verified_time: "2024-11-06"
+    anchor_time: "2024-11-06"
+
+    origin_start_date: "2024-10-30"
+    origin_end_date: "2024-10-31"
+
+    registry_status: active
+    source: manual
+    note: ""
+
+  - id: "pda_20241112_D_bsl_001"
+    instrument: NQ
+    timeframe: "D"
+    type: "bsl"
+    direction:
+
+    price: 21340.50
+    price_high:
+    price_low:
+    price_ce:
+
+    created_date: "2024-11-11"
+    verified_time: "2024-11-12"
+    anchor_time:
+
+    origin_start_date:
+    origin_end_date:
+
+    registry_status: active
+    source: manual
+    note: ""
