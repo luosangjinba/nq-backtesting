@@ -2084,6 +2084,20 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
 
+        if parsed.path == "/v2/smoothness":
+            try:
+                params = parse_qs(parsed.query)
+                start_time = params["start"][0]
+                end_time = params["end"][0]
+                table = validate_table(self.table)
+                result = calc_smoothness(self.db_path, table, start_time, end_time)
+                self._send_json(200, {"ok": True, "result": result})
+            except KeyError as exc:
+                self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
         if parsed.path != "/price":
             self._send_json(404, {"ok": False, "error": "not found"})
             return
@@ -2325,6 +2339,99 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args) -> None:
         return
+
+
+# ── Smoothness Calculator ──
+
+def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str) -> Dict[str, object]:
+    """计算一段行情的 K 线顺畅度评分 (1-5)"""
+    import math
+
+    conn = duckdb.connect(db_path, read_only=True)
+    rows = conn.execute(
+        f"SELECT ts, open, high, low, close FROM {table} "
+        f"WHERE ts >= '{start_time}' AND ts <= '{end_time}' ORDER BY ts"
+    ).fetchall()
+    conn.close()
+
+    if len(rows) < 2:
+        return {"smoothness": 2.5, "barCount": len(rows), "details": {}, "message": "数据不足"}
+
+    bars = [(r[0], float(r[1]), float(r[2]), float(r[3]), float(r[4])) for r in rows]
+
+    # 1. 方向一致性
+    directions = []
+    for _, o, _, _, c in bars:
+        if c > o:
+            directions.append(1)
+        elif c < o:
+            directions.append(-1)
+        else:
+            directions.append(0)
+    bullish = sum(1 for d in directions if d > 0)
+    bearish = sum(1 for d in directions if d < 0)
+    dominant_count = max(bullish, bearish)
+    direction_consistency = dominant_count / len(bars)
+
+    # 2. 实体占比
+    body_sizes = [abs(c - o) for _, o, _, _, c in bars]
+    bar_ranges = [h - l for _, o, h, l, c in bars]
+    avg_body = sum(body_sizes) / len(body_sizes)
+    avg_range = sum(bar_ranges) / len(bar_ranges)
+    body_ratio = min(avg_body / avg_range, 1.0) if avg_range > 0 else 0.5
+
+    # 3. 连续性
+    max_consecutive = 1
+    current_consecutive = 1
+    current_direction = directions[0]
+    for d in directions[1:]:
+        if d == current_direction and d != 0:
+            current_consecutive += 1
+            max_consecutive = max(max_consecutive, current_consecutive)
+        else:
+            current_consecutive = 1
+            current_direction = d
+    continuity = max_consecutive / len(bars)
+
+    # 4. 推进效率
+    start_price = bars[0][1]
+    end_price = bars[-1][4]
+    net_move = abs(end_price - start_price)
+    total_move = sum(h - l for _, o, h, l, c in bars)
+    efficiency = min(net_move / total_move, 1.0) if total_move > 0 else 0.5
+
+    # 5. 斜率稳定性
+    slopes = [c - o for _, o, _, _, c in bars]
+    mean_slope = sum(slopes) / len(slopes)
+    if mean_slope == 0:
+        mean_abs = sum(abs(s) for s in slopes) / len(slopes)
+        slope_stability = direction_consistency if mean_abs > 0 else 0.5
+    else:
+        variance = sum((s - mean_slope) ** 2 for s in slopes) / len(slopes)
+        std_slope = math.sqrt(variance)
+        slope_stability = 1 - min(std_slope / abs(mean_slope), 1.0)
+
+    # 综合评分
+    raw = (
+        0.30 * direction_consistency +
+        0.25 * body_ratio +
+        0.20 * continuity +
+        0.15 * efficiency +
+        0.10 * slope_stability
+    )
+    smoothness = round(1 + raw * 4, 2)
+
+    return {
+        "smoothness": smoothness,
+        "barCount": len(bars),
+        "details": {
+            "directionConsistency": round(direction_consistency, 3),
+            "bodyRatio": round(body_ratio, 3),
+            "continuity": round(continuity, 3),
+            "efficiency": round(efficiency, 3),
+            "slopeStability": round(slope_stability, 3),
+        },
+    }
 
 
 def main() -> int:

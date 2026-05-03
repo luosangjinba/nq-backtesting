@@ -6,159 +6,265 @@
   <title>Layer2 Recorder V2</title>
   <style>
     :root {
-      --bg: #162229;
-      --panel: #22353f;
-      --panel-2: #2b414b;
-      --line: rgba(148, 171, 180, 0.38);
-      --text: #f3f1eb;
-      --muted: #a8bbc2;
-      --accent: #58d6c0;
-      --accent-2: rgba(88, 214, 192, 0.14);
-      --warn: #e7c27f;
-      --danger: #f0a2a2;
-      --shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+      --bg: #1e1b18;
+      --bg-gradient: radial-gradient(ellipse at 20% 0%, rgba(212, 160, 86, 0.06), transparent 50%),
+                     radial-gradient(ellipse at 80% 100%, rgba(125, 184, 125, 0.04), transparent 50%),
+                     #1e1b18;
+      --panel: #2a2520;
+      --panel-2: #363028;
+      --panel-3: #403830;
+      --line: #5a5045;
+      --line-soft: rgba(90, 80, 69, 0.5);
+      --text: #f5f0e8;
+      --text-dim: #c8bfb0;
+      --muted: #a89a8a;
+      --accent: #d4a056;
+      --accent-2: rgba(212, 160, 86, 0.15);
+      --accent-glow: rgba(212, 160, 86, 0.3);
+      --success: #7db87d;
+      --success-2: rgba(125, 184, 125, 0.15);
+      --warn: #d4a056;
+      --danger: #c87070;
+      --danger-2: rgba(200, 112, 112, 0.15);
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      --radius: 14px;
+      --radius-sm: 8px;
     }
-    * { box-sizing: border-box; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
       min-height: 100vh;
-      background:
-        radial-gradient(circle at top left, rgba(88, 214, 192, 0.08), transparent 28%),
-        radial-gradient(circle at top right, rgba(120, 160, 255, 0.08), transparent 22%),
-        var(--bg);
+      background: var(--bg-gradient);
       color: var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
     }
+
     button, input, select, textarea { font: inherit; }
+
     input, select, textarea {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: var(--radius-sm);
       background: var(--panel-2);
       color: var(--text);
-      padding: 10px 12px;
-      min-height: 42px;
+      padding: 9px 12px;
+      min-height: 40px;
       outline: none;
+      transition: border-color 160ms ease;
     }
-    textarea { min-height: 92px; resize: vertical; line-height: 1.55; }
-    textarea.compact-notes { min-height: 46px; }
-    input:focus, select:focus, textarea:focus { border-color: rgba(88, 214, 192, 0.72); }
-    .shell { max-width: 1800px; margin: 0 auto; padding: 18px; }
-    .topbar {
+
+    textarea { min-height: 88px; resize: vertical; line-height: 1.55; }
+    textarea.compact-notes { min-height: 44px; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-glow);
+    }
+
+    /* ── Shell ── */
+    .shell {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    /* ── Header ── */
+    .header {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
-      gap: 14px;
+      gap: 16px;
       align-items: end;
-      padding: 16px;
+      padding: 20px 22px;
       border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(34, 53, 63, 0.94);
+      border-radius: var(--radius);
+      background: var(--panel);
       box-shadow: var(--shadow);
     }
-    h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: 0.01em; }
-    .sub { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+
+    /* ── Chips bar ── */
+    .chips-bar {
+      margin-top: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .chips-bar__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .chips-bar__title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .chips-bar__counts {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chips-bar label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── 3-Column Layout ── */
     .layout {
       margin-top: 14px;
       display: grid;
-      grid-template-columns: minmax(320px, 380px) minmax(600px, 1fr) minmax(400px, 500px);
-      grid-template-areas:
-        "manual work compare";
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-areas: "left center right";
       gap: 14px;
       align-items: start;
     }
+
+    .panel--left   { grid-area: left; }
+    .panel--center { grid-area: center; }
+    .panel--right  { grid-area: right; }
+
+    /* ── Panel ── */
     .panel {
       border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(34, 53, 63, 0.92);
+      border-radius: var(--radius);
+      background: var(--panel);
       overflow: hidden;
       box-shadow: var(--shadow);
     }
+
     .panel__header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(148, 171, 180, 0.14);
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line-soft);
     }
-    .panel__title { margin: 0; font-size: 15px; }
-    .panel__body { padding: 14px 16px 16px; }
-    .panel--manual { grid-area: manual; }
-    .panel--work { grid-area: work; }
-    .panel--compare { grid-area: compare; }
-    .floating-panel {
-      min-height: 360px;
-      max-height: calc(100vh - 200px);
-      overflow-y: auto;
+
+    .panel__title {
+      font-size: 15px;
+      font-weight: 600;
     }
-    .panel--compare .grid-4 {
-      grid-template-columns: 1fr;
+
+    .panel__body {
+      padding: 16px 18px 18px;
     }
-    .editor-tabs {
-      display: flex;
-      gap: 0;
-      align-items: center;
-      min-width: 0;
-    }
-    .editor-tab {
-      border: 0;
-      border-right: 1px solid rgba(148, 171, 180, 0.22);
-      border-radius: 0;
-      background: transparent;
-      color: var(--muted);
-      min-height: 26px;
-      padding: 0 14px;
-      cursor: pointer;
-      font-weight: 800;
-      font-size: 17px;
-    }
-    .editor-tab:first-child { padding-left: 0; }
-    .editor-tab:last-child { border-right: 0; }
-    .editor-tab.active { color: var(--text); }
-    .editor-card { display: none; }
-    .editor-card.active { display: block; }
+
+    .panel--left { grid-area: left; }
+    .panel--center { grid-area: center; }
+    .panel--right { grid-area: right; }
+
+    /* ── Grids ── */
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-    .field { margin-bottom: 10px; }
+
+    /* ── Field ── */
+    .field {
+      margin-bottom: 10px;
+    }
+
     label {
       display: block;
       margin-bottom: 5px;
       color: var(--muted);
       font-size: 12px;
     }
-    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     .btn {
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: var(--radius-sm);
       background: rgba(255, 255, 255, 0.03);
       color: var(--text);
       min-height: 38px;
-      padding: 0 12px;
+      padding: 0 14px;
       cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease;
     }
-    .btn:hover { border-color: rgba(88, 214, 192, 0.66); }
+
+    .btn:hover {
+      border-color: var(--accent-glow);
+      background: var(--accent-2);
+    }
+
     .btn--primary {
       background: var(--accent-2);
       color: var(--accent);
-      border-color: rgba(88, 214, 192, 0.5);
-      font-weight: 700;
+      border-color: rgba(212, 160, 86, 0.5);
+      font-weight: 600;
     }
+
+    .btn--primary:hover {
+      background: rgba(212, 160, 86, 0.25);
+    }
+
     .btn--danger { color: var(--danger); }
-    .btn--tiny { min-height: 30px; padding: 0 9px; font-size: 12px; }
+    .btn--danger:hover { border-color: var(--danger); background: var(--danger-2); }
+
+    .btn--tiny {
+      min-height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    /* ── Tag ── */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      min-height: 24px;
+      border-radius: 999px;
+      border: 1px solid var(--line-soft);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* ── Status ── */
     .status {
       margin-top: 10px;
-      padding: 9px 11px;
-      border: 1px solid rgba(148, 171, 180, 0.22);
-      border-radius: 10px;
+      padding: 9px 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-sm);
       color: var(--muted);
-      background: rgba(0, 0, 0, 0.12);
+      background: rgba(0, 0, 0, 0.15);
       font-size: 12px;
       line-height: 1.5;
     }
-    .status[data-kind="ok"] { color: var(--accent); }
-    .status[data-kind="warn"] { color: var(--warn); }
-    .status[data-kind="danger"] { color: var(--danger); }
+
+    .status[data-kind="ok"] { color: var(--success); border-color: rgba(125, 184, 125, 0.3); }
+    .status[data-kind="warn"] { color: var(--warn); border-color: rgba(212, 160, 86, 0.3); }
+    .status[data-kind="danger"] { color: var(--danger); border-color: rgba(200, 112, 112, 0.3); }
+
+    /* ── Chips ── */
     .chips {
       display: flex;
       gap: 8px;
@@ -166,41 +272,46 @@
       padding-bottom: 4px;
       margin-bottom: 12px;
     }
+
     .chip {
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255, 255, 255, 0.02);
       color: var(--muted);
-      padding: 8px 12px;
+      padding: 7px 14px;
       cursor: pointer;
       white-space: nowrap;
       flex: 0 0 auto;
+      transition: all 160ms ease;
     }
+
+    .chip:hover {
+      border-color: var(--accent-glow);
+      background: var(--accent-2);
+    }
+
     .chip.active {
       background: var(--accent-2);
       color: var(--text);
-      border-color: rgba(88, 214, 192, 0.52);
+      border-color: rgba(212, 160, 86, 0.52);
     }
-    .list {
-      display: grid;
-      gap: 8px;
-      max-height: 38vh;
-      overflow: auto;
-      padding-right: 3px;
-    }
+
+    /* ── Collapsible Card ── */
     .card {
       border: 1px solid var(--line);
       border-radius: 12px;
-      background: rgba(43, 65, 75, 0.82);
-      padding: 11px;
+      background: var(--panel-2);
+      padding: 12px;
       min-width: 0;
     }
+
     .card__top {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
       align-items: start;
     }
+
     .collapse-head {
       width: 100%;
       border: 0;
@@ -210,7 +321,9 @@
       cursor: pointer;
       text-align: left;
     }
+
     .collapse-head .card__top { align-items: center; }
+
     .collapse-icon {
       display: inline-flex;
       align-items: center;
@@ -218,36 +331,65 @@
       width: 24px;
       height: 24px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 171, 180, 0.28);
+      border: 1px solid var(--line-soft);
       color: var(--muted);
       font-size: 14px;
       transition: transform 160ms ease, color 160ms ease, border-color 160ms ease;
     }
+
     .collapsible-card[data-collapsed="false"] .collapse-icon {
       transform: rotate(90deg);
       color: var(--accent);
-      border-color: rgba(88, 214, 192, 0.48);
+      border-color: rgba(212, 160, 86, 0.48);
     }
+
     .collapse-body {
       display: none;
       margin-top: 10px;
     }
+
     .collapsible-card[data-collapsed="false"] .collapse-body { display: block; }
-    .card__title { font-size: 13px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
-    .card__meta { color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
-    .card__foot { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .section-title { margin: 0 0 10px; font-size: 14px; }
-    .manual-list { display: grid; gap: 10px; }
+
+    .card__title {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .card__meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .card__foot {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* ── Manual List ── */
+    .manual-list {
+      display: grid;
+      gap: 10px;
+    }
+
     .manual-item {
-      border: 1px solid rgba(148, 171, 180, 0.24);
+      border: 1px solid var(--line-soft);
       border-radius: 12px;
-      background: rgba(24, 36, 42, 0.32);
-      padding: 11px;
+      background: rgba(30, 27, 24, 0.5);
+      padding: 12px;
     }
+
     .manual-item.active {
-      border-color: rgba(88, 214, 192, 0.72);
-      box-shadow: 0 0 0 1px rgba(88, 214, 192, 0.12) inset;
+      border-color: rgba(212, 160, 86, 0.72);
+      box-shadow: 0 0 0 1px rgba(212, 160, 86, 0.12) inset;
     }
+
     .manual-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -255,48 +397,62 @@
       align-items: start;
       margin-bottom: 8px;
     }
-    .manual-title { font-size: 13px; font-weight: 700; }
-    .manual-sub { color: var(--muted); font-size: 12px; line-height: 1.5; }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 0 8px;
-      min-height: 22px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 171, 180, 0.26);
+
+    .manual-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .manual-sub {
       color: var(--muted);
       font-size: 12px;
-      white-space: nowrap;
+      line-height: 1.5;
     }
-    pre {
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 12px;
-      line-height: 1.55;
-      color: #efece1;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    th, td {
-      border-bottom: 1px solid rgba(148, 171, 180, 0.14);
-      padding: 7px 6px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { color: var(--muted); font-weight: 600; }
-    .split {
+
+    /* ── List (auto) ── */
+    .list {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 10px;
+      gap: 8px;
+      max-height: 38vh;
+      overflow: auto;
+      padding-right: 3px;
     }
+
+    /* ── Editor Tabs ── */
+    .editor-tabs {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .editor-tab {
+      border: 0;
+      border-right: 1px solid var(--line-soft);
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      min-height: 26px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 17px;
+      transition: color 160ms ease;
+    }
+
+    .editor-tab:first-child { padding-left: 0; }
+    .editor-tab:last-child { border-right: 0; }
+    .editor-tab.active { color: var(--accent); }
+
+    .editor-card { display: none; }
+    .editor-card.active { display: block; }
+
+    /* ── Compare ── */
     .compare-card {
       overflow: hidden;
       position: relative;
     }
+
     .table-scroll {
       width: 100%;
       max-width: 100%;
@@ -304,10 +460,12 @@
       overflow-y: hidden;
       padding-bottom: 2px;
     }
+
     .match-table {
       table-layout: fixed;
       min-width: 620px;
     }
+
     .match-table th:nth-child(1),
     .match-table td:nth-child(1) { width: 210px; }
     .match-table th:nth-child(8),
@@ -316,311 +474,501 @@
       overflow-wrap: anywhere;
       word-break: break-word;
     }
+
+    /* ── Pre / Code ── */
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text-dim);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line-soft);
+      padding: 7px 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { color: var(--muted); font-weight: 600; }
+
     .empty-state {
       position: relative;
       z-index: 1;
     }
-    .tiny { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    /* ── Compact panel adjustments ── */
     .compact-panel .panel__body { padding: 10px 14px 12px; }
     .compact-panel .field { margin-bottom: 8px; }
     .compact-panel .chips { margin-bottom: 4px; }
+
+    /* ── API Card ── */
     .api-card {
       margin-bottom: 12px;
       padding: 10px;
     }
-    .api-card .grid-4 { gap: 8px; }
+
     .api-card .field { margin-bottom: 0; }
     .api-card input { min-height: 36px; padding: 8px 10px; }
-    @media (max-width: 1200px) {
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
       .layout {
         grid-template-columns: 1fr;
         grid-template-areas:
-          "work"
-          "compare"
-          "yaml";
+          "left"
+          "center"
+          "right";
       }
-      .fixed-work-panel { height: auto; max-height: none; }
-      .fixed-work-panel > .panel__body { overflow: visible; }
-      .topbar { grid-template-columns: 1fr; }
+      .header { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="shell">
-    <section class="topbar">
+    <!-- ── Header ── -->
+    <section class="header">
       <div>
         <h1>Layer2 Recorder V2</h1>
-        <p class="sub">Path / Group 记录结构骨架，Manual PDA 记录关键价格行为。页面以 YAML 为真相源，DuckDB 只做对照和匹配。</p>
+        <p class="sub">Path / Group 记录结构骨架，Manual PDA 记录关键价格行为。YAML 为真相源，DuckDB 只做对照和匹配。</p>
       </div>
       <div class="btn-row">
         <button class="btn btn--primary" id="loadContextBtn" type="button">加载对照</button>
         <button class="btn" id="addPathBtn" type="button">新增 Path</button>
         <button class="btn" id="importPathYamlBtn" type="button">导入 Path YAML</button>
         <button class="btn" id="importGroupsYamlBtn" type="button">导入 groups.yaml</button>
-        <button class="btn" id="copyYamlBtn" type="button">复制 YAML</button>
-        <button class="btn" id="downloadYamlBtn" type="button">下载 YAML</button>
         <input id="importPathYamlInput" type="file" accept=".yaml,.yml,text/yaml,text/plain" multiple hidden>
         <input id="importGroupsYamlInput" type="file" accept=".yaml,.yml,text/yaml,text/plain" hidden>
       </div>
     </section>
 
-    <section class="panel compact-panel" style="margin-top:14px; margin-bottom:14px;">
-      <div class="panel__body">
-        <div class="btn-row" style="justify-content: space-between; margin-bottom:8px;">
-          <h2 class="panel__title">Paths / Groups Overview</h2>
-          <div class="btn-row">
-            <span class="tag" id="pathCount">0 paths</span>
-            <span class="tag" id="topGroupCount">0 groups</span>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label style="margin-bottom:4px;">Active Paths</label>
-            <div class="chips" id="pathChips" style="margin-bottom:0;"></div>
-          </div>
-          <div class="field">
-            <label style="margin-bottom:4px;">Active Groups</label>
-            <div class="chips" id="topGroupChips" style="margin-bottom:0;"></div>
-          </div>
+    <!-- ── Path / Group Chips Bar ── -->
+    <section class="chips-bar">
+      <div class="chips-bar__head">
+        <h2 class="chips-bar__title">Paths / Groups</h2>
+        <div class="chips-bar__counts">
+          <span class="tag" id="pathCount">0 paths</span>
+          <span class="tag" id="topGroupCount">0 groups</span>
         </div>
       </div>
+      <label>Paths</label>
+      <div class="chips" id="pathChips"></div>
+      <label>Groups</label>
+      <div class="chips" id="topGroupChips"></div>
     </section>
 
+    <!-- ── 3-Column Layout ── -->
     <div class="layout">
-      <!-- Left: Manual PDA -->
-      <section class="panel panel--manual floating-panel">
+
+      <!-- ════ Left: Manual PDA ════ -->
+      <section class="panel panel--left">
         <div class="panel__header">
           <h2 class="panel__title">Manual PDA</h2>
           <span class="tag" id="manualCount">0</span>
         </div>
         <div class="panel__body">
-              <div class="manual-list">
-                <div class="card collapsible-card" data-collapsible="manual-point" data-collapsed="false">
-                  <button class="collapse-head" data-toggle-manual-module="manual-point" type="button">
-                    <div class="card__top">
-                      <div>
-                        <div class="card__title">BSL / SSL</div>
-                        <div class="card__meta">单点流动性。只记录代表点时间和价格。</div>
-                      </div>
-                      <div class="btn-row">
-                        <span class="tag">point</span>
-                        <span class="collapse-icon">›</span>
-                      </div>
-                    </div>
-                  </button>
-                  <div class="collapse-body">
-                    <div class="grid-3">
-                      <div class="field">
-                        <label>Analysis TF</label>
-                        <input id="pointTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
-                      </div>
-                      <div class="field">
-                        <label>PDA Type</label>
-                        <select id="pointPdaType">
-                          <option value="bsl">BSL</option>
-                          <option value="ssl">SSL</option>
-                        </select>
-                      </div>
-                      <div class="field">
-                        <label>Event Time</label>
-                        <input id="pointEventTime" placeholder="2012-01-10 09:30:00">
-                      </div>
-                    </div>
-                    <div class="grid-3">
-                      <div class="field">
-                        <label>Price Override</label>
-                        <input id="pointPrice" placeholder="留空自动取 1m high / low">
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label>Note</label>
-                      <textarea id="pointNote" placeholder="这条 BSL/SSL 为什么重要，是否是右侧代表点、是否扫取前高/前低。"></textarea>
-                    </div>
-                    <div class="btn-row">
-                      <button class="btn" id="pointFetchPriceBtn" type="button">取值</button>
-                      <button class="btn btn--primary" data-add-manual-kind="point" type="button">新增</button>
-                      <button class="btn" data-clear-manual-kind="point" type="button">清空</button>
-                    </div>
+          <div class="manual-list">
+            <!-- BSL / SSL -->
+            <div class="card collapsible-card" data-collapsible="manual-point" data-collapsed="false">
+              <button class="collapse-head" data-toggle-manual-module="manual-point" type="button">
+                <div class="card__top">
+                  <div>
+                    <div class="card__title">BSL / SSL</div>
+                    <div class="card__meta">单点流动性。只记录代表点时间和价格。</div>
+                  </div>
+                  <div class="btn-row">
+                    <span class="tag">point</span>
+                    <span class="collapse-icon">›</span>
                   </div>
                 </div>
-
-                <div class="card collapsible-card" data-collapsible="manual-fvg" data-collapsed="true">
-                  <button class="collapse-head" data-toggle-manual-module="manual-fvg" type="button">
-                    <div class="card__top">
-                      <div>
-                        <div class="card__title">FVG</div>
-                        <div class="card__meta">区间型 PDA。用 high/low 描述 gap，CE 由价格区间推导。</div>
-                      </div>
-                      <div class="btn-row">
-                        <span class="tag">range</span>
-                        <span class="collapse-icon">›</span>
-                      </div>
-                    </div>
-                  </button>
-                  <div class="collapse-body">
-                    <div class="grid-3">
-                      <div class="field">
-                        <label>FVG TF</label>
-                        <input id="fvgTimeframe" list="fvgTfOptions" value="15m" placeholder="15m / 1h / 4h / 1D / 1W">
-                        <datalist id="fvgTfOptions">
-                          <option value="15m"></option>
-                          <option value="30m"></option>
-                          <option value="1h"></option>
-                          <option value="4h"></option>
-                          <option value="1D"></option>
-                          <option value="1W"></option>
-                        </datalist>
-                      </div>
-                      <div class="field">
-                        <label>Event Time</label>
-                        <input id="fvgEventTime" placeholder="2012-01-11 00:00:00">
-                      </div>
-                      <div class="field">
-                        <label>Price High / Low Override</label>
-                        <div class="grid-2">
-                          <input id="fvgPriceHigh" placeholder="留空自动算 high">
-                          <input id="fvgPriceLow" placeholder="留空自动算 low">
-                        </div>
-                        <input id="fvgDirection" type="hidden">
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label>Note</label>
-                      <textarea id="fvgNote" placeholder="这条 FVG 是 displacement 起点、breaker、还是回补/支撑位置。"></textarea>
-                    </div>
-                    <div class="btn-row">
-                      <button class="btn" id="fvgFetchPriceBtn" type="button">取值</button>
-                      <button class="btn btn--primary" data-add-manual-kind="fvg" type="button">新增</button>
-                      <button class="btn" data-clear-manual-kind="fvg" type="button">清空</button>
-                    </div>
-                    <div class="status" id="fvgStatus" style="margin-top:10px;">先点"取值"确认是否形成 FVG，再新增。</div>
+              </button>
+              <div class="collapse-body">
+                <div class="grid-3">
+                  <div class="field">
+                    <label>Analysis TF</label>
+                    <input id="pointTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                  </div>
+                  <div class="field">
+                    <label>PDA Type</label>
+                    <select id="pointPdaType">
+                      <option value="bsl">BSL</option>
+                      <option value="ssl">SSL</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Event Time</label>
+                    <input id="pointEventTime" placeholder="2012-01-10 09:30:00">
                   </div>
                 </div>
-
-                <div class="card collapsible-card" data-collapsible="manual-eq" data-collapsed="true">
-                  <button class="collapse-head" data-toggle-manual-module="manual-eq" type="button">
-                    <div class="card__top">
-                      <div>
-                        <div class="card__title">EQH / EQL</div>
-                        <div class="card__meta">成员集合。记录代表时间/价格，并列出组成成员 refs。</div>
-                      </div>
-                      <div class="btn-row">
-                        <span class="tag">collection</span>
-                        <span class="collapse-icon">›</span>
-                      </div>
-                    </div>
-                  </button>
-                  <div class="collapse-body">
-                    <div class="grid-3">
-                      <div class="field">
-                        <label>Timeframe</label>
-                        <input id="eqTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
-                      </div>
-                      <div class="field">
-                        <label>Representative Time</label>
-                        <input id="eqEventTime" placeholder="右侧代表点时间，如 2012-01-10 09:30:00">
-                      </div>
-                      <div class="field">
-                        <label>Representative Price</label>
-                        <input id="eqPrice" placeholder="2363.50">
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label>Member Refs</label>
-                      <textarea id="eqMemberRefs" placeholder="组成 EQH/EQL 的 pda_id / manual_id / 时间点；用空格、逗号或换行分隔。"></textarea>
-                    </div>
-                    <div class="field">
-                      <label>Note</label>
-                      <textarea id="eqNote" placeholder="这些高/低点为什么应被视为同一组 EQH/EQL，是否有统计或交易意义。"></textarea>
-                    </div>
-                    <div class="btn-row">
-                      <button class="btn btn--primary" data-add-manual-kind="eqh" type="button">新增 EQH</button>
-                      <button class="btn btn--primary" data-add-manual-kind="eql" type="button">新增 EQL</button>
-                      <button class="btn" data-clear-manual-kind="eq" type="button">清空</button>
-                    </div>
+                <div class="grid-3">
+                  <div class="field">
+                    <label>Price Override</label>
+                    <input id="pointPrice" placeholder="留空自动取 1m high / low">
                   </div>
                 </div>
-
-                <div class="card collapsible-card" data-collapsible="manual-ob" data-collapsed="true">
-                  <button class="collapse-head" data-toggle-manual-module="manual-ob" type="button">
-                    <div class="card__top">
-                      <div>
-                        <div class="card__title">OB</div>
-                        <div class="card__meta">订单块。记录最后一根或一组反向 K 线的时间范围与价格区间。</div>
-                      </div>
-                      <div class="btn-row">
-                        <span class="tag">order_block</span>
-                        <span class="collapse-icon">›</span>
-                      </div>
-                    </div>
-                  </button>
-                  <div class="collapse-body">
-                    <div class="grid-3">
-                      <div class="field">
-                        <label>Analysis TF</label>
-                        <input id="obTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
-                      </div>
-                      <div class="field">
-                        <label>Direction</label>
-                        <select id="obDirection">
-                          <option value="bullish">bullish</option>
-                          <option value="bearish">bearish</option>
-                        </select>
-                      </div>
-                      <div class="field">
-                        <label>Start Time</label>
-                        <input id="obStartTime" placeholder="2012-01-10 09:00:00">
-                      </div>
-                    </div>
-                    <div class="grid-3">
-                      <div class="field">
-                        <label>End Time</label>
-                        <input id="obEndTime" placeholder="2012-01-10 10:00:00">
-                      </div>
-                      <div class="field">
-                        <label>Price High / Low Override</label>
-                        <input id="obPriceHigh" placeholder="留空按时间范围自动取 high">
-                      </div>
-                      <div class="field">
-                        <label>&nbsp;</label>
-                        <input id="obPriceLow" placeholder="留空按时间范围自动取 low">
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label>Note</label>
-                      <textarea id="obNote" placeholder="Bullish OB: 下行背景中，位移反弹前最后一根/一组收阴K；Bearish OB 反之。"></textarea>
-                    </div>
-                    <div class="status" id="obStatus" style="margin-bottom:10px;">先点"取值"确认 OB high/low，再新增。Start/End 按 1m 范围计算。</div>
-                    <div class="btn-row">
-                      <button class="btn" id="obFetchPriceBtn" type="button">取值</button>
-                      <button class="btn btn--primary" data-add-manual-kind="ob" type="button">新增</button>
-                      <button class="btn" data-clear-manual-kind="ob" type="button">清空</button>
-                    </div>
-                  </div>
+                <div class="field">
+                  <label>Note</label>
+                  <textarea id="pointNote" placeholder="这条 BSL/SSL 为什么重要，是否是右侧代表点、是否扫取前高/前低。"></textarea>
+                </div>
+                <div class="btn-row">
+                  <button class="btn" id="pointFetchPriceBtn" type="button">取值</button>
+                  <button class="btn btn--primary" data-add-manual-kind="point" type="button">新增</button>
+                  <button class="btn" data-clear-manual-kind="point" type="button">清空</button>
                 </div>
               </div>
-              <div class="tiny" style="margin-top:10px;">原则：BSL/SSL 是单点，FVG/OB 是区间，EQH/EQL 是集合。各类不要混用字段，这样以后新增类目也不会把表单搅乱。</div>
+            </div>
+
+            <!-- FVG -->
+            <div class="card collapsible-card" data-collapsible="manual-fvg" data-collapsed="true">
+              <button class="collapse-head" data-toggle-manual-module="manual-fvg" type="button">
+                <div class="card__top">
+                  <div>
+                    <div class="card__title">FVG</div>
+                    <div class="card__meta">区间型 PDA。用 high/low 描述 gap，CE 由价格区间推导。</div>
+                  </div>
+                  <div class="btn-row">
+                    <span class="tag">range</span>
+                    <span class="collapse-icon">›</span>
+                  </div>
+                </div>
+              </button>
+              <div class="collapse-body">
+                <div class="grid-3">
+                  <div class="field">
+                    <label>FVG TF</label>
+                    <input id="fvgTimeframe" list="fvgTfOptions" value="15m" placeholder="15m / 1h / 4h / 1D / 1W">
+                    <datalist id="fvgTfOptions">
+                      <option value="15m"></option>
+                      <option value="30m"></option>
+                      <option value="1h"></option>
+                      <option value="4h"></option>
+                      <option value="1D"></option>
+                      <option value="1W"></option>
+                    </datalist>
+                  </div>
+                  <div class="field">
+                    <label>Event Time</label>
+                    <input id="fvgEventTime" placeholder="2012-01-11 00:00:00">
+                  </div>
+                  <div class="field">
+                    <label>Price High / Low Override</label>
+                    <div class="grid-2">
+                      <input id="fvgPriceHigh" placeholder="留空自动算 high">
+                      <input id="fvgPriceLow" placeholder="留空自动算 low">
+                    </div>
+                    <input id="fvgDirection" type="hidden">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Note</label>
+                  <textarea id="fvgNote" placeholder="这条 FVG 是 displacement 起点、breaker、还是回补/支撑位置。"></textarea>
+                </div>
+                <div class="btn-row">
+                  <button class="btn" id="fvgFetchPriceBtn" type="button">取值</button>
+                  <button class="btn btn--primary" data-add-manual-kind="fvg" type="button">新增</button>
+                  <button class="btn" data-clear-manual-kind="fvg" type="button">清空</button>
+                </div>
+                <div class="status" id="fvgStatus" style="margin-top:10px;">先点"取值"确认是否形成 FVG，再新增。</div>
+              </div>
+            </div>
+
+            <!-- EQH / EQL -->
+            <div class="card collapsible-card" data-collapsible="manual-eq" data-collapsed="true">
+              <button class="collapse-head" data-toggle-manual-module="manual-eq" type="button">
+                <div class="card__top">
+                  <div>
+                    <div class="card__title">EQH / EQL</div>
+                    <div class="card__meta">成员集合。记录代表时间/价格，并列出组成成员 refs。</div>
+                  </div>
+                  <div class="btn-row">
+                    <span class="tag">collection</span>
+                    <span class="collapse-icon">›</span>
+                  </div>
+                </div>
+              </button>
+              <div class="collapse-body">
+                <div class="grid-3">
+                  <div class="field">
+                    <label>Timeframe</label>
+                    <input id="eqTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                  </div>
+                  <div class="field">
+                    <label>Representative Time</label>
+                    <input id="eqEventTime" placeholder="右侧代表点时间，如 2012-01-10 09:30:00">
+                  </div>
+                  <div class="field">
+                    <label>Representative Price</label>
+                    <input id="eqPrice" placeholder="2363.50">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Member Refs</label>
+                  <textarea id="eqMemberRefs" placeholder="组成 EQH/EQL 的 pda_id / manual_id / 时间点；用空格、逗号或换行分隔。"></textarea>
+                </div>
+                <div class="field">
+                  <label>Note</label>
+                  <textarea id="eqNote" placeholder="这些高/低点为什么应被视为同一组 EQH/EQL，是否有统计或交易意义。"></textarea>
+                </div>
+                <div class="btn-row">
+                  <button class="btn btn--primary" data-add-manual-kind="eqh" type="button">新增 EQH</button>
+                  <button class="btn btn--primary" data-add-manual-kind="eql" type="button">新增 EQL</button>
+                  <button class="btn" data-clear-manual-kind="eq" type="button">清空</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- OB -->
+            <div class="card collapsible-card" data-collapsible="manual-ob" data-collapsed="true">
+              <button class="collapse-head" data-toggle-manual-module="manual-ob" type="button">
+                <div class="card__top">
+                  <div>
+                    <div class="card__title">OB</div>
+                    <div class="card__meta">订单块。记录最后一根或一组反向 K 线的时间范围与价格区间。</div>
+                  </div>
+                  <div class="btn-row">
+                    <span class="tag">order_block</span>
+                    <span class="collapse-icon">›</span>
+                  </div>
+                </div>
+              </button>
+              <div class="collapse-body">
+                <div class="grid-3">
+                  <div class="field">
+                    <label>Analysis TF</label>
+                    <input id="obTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                  </div>
+                  <div class="field">
+                    <label>Direction</label>
+                    <select id="obDirection">
+                      <option value="bullish">bullish</option>
+                      <option value="bearish">bearish</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Start Time</label>
+                    <input id="obStartTime" placeholder="2012-01-10 09:00:00">
+                  </div>
+                </div>
+                <div class="grid-3">
+                  <div class="field">
+                    <label>End Time</label>
+                    <input id="obEndTime" placeholder="2012-01-10 10:00:00">
+                  </div>
+                  <div class="field">
+                    <label>Price High / Low Override</label>
+                    <input id="obPriceHigh" placeholder="留空按时间范围自动取 high">
+                  </div>
+                  <div class="field">
+                    <label>&nbsp;</label>
+                    <input id="obPriceLow" placeholder="留空按时间范围自动取 low">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Note</label>
+                  <textarea id="obNote" placeholder="Bullish OB: 下行背景中，位移反弹前最后一根/一组收阴K；Bearish OB 反之。"></textarea>
+                </div>
+                <div class="status" id="obStatus" style="margin-bottom:10px;">先点"取值"确认 OB high/low，再新增。Start/End 按 1m 范围计算。</div>
+                <div class="btn-row">
+                  <button class="btn" id="obFetchPriceBtn" type="button">取值</button>
+                  <button class="btn btn--primary" data-add-manual-kind="ob" type="button">新增</button>
+                  <button class="btn" data-clear-manual-kind="ob" type="button">清空</button>
+                </div>
+              </div>
             </div>
           </div>
 
+          <div class="tiny" style="margin-top:12px;">原则：BSL/SSL 是单点，FVG/OB 是区间，EQH/EQL 是集合。各类不要混用字段，这样以后新增类目也不会把表单搅乱。</div>
+
+          <!-- Manual PDA List -->
           <div class="field" style="margin-top:14px;">
-            <div class="btn-row" style="justify-content: space-between;">
-              <label style="margin:0;">Manual PDA List</label>
-              <span class="tag" id="manualCount">0</span>
-            </div>
+            <label style="margin:0;">Manual PDA List</label>
             <div id="manualList" class="manual-list"></div>
           </div>
         </div>
       </section>
 
-      <section class="panel panel--compare floating-work-panel">
+      <!-- ════ Center: Path Editor + Group Editor ════ -->
+      <section class="panel panel--center">
+        <div class="panel__header">
+          <div class="editor-tabs">
+            <button class="editor-tab active" data-editor-tab="path" type="button">Path</button>
+            <button class="editor-tab" data-editor-tab="group" type="button">Group</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn--tiny" id="deletePathBtn" type="button">删除 Path</button>
+            <button class="btn btn--tiny" id="addMainActionBtn" type="button">+ Action</button>
+            <button class="btn btn--tiny" id="addGroupBtn" type="button">+ Group</button>
+            <button class="btn btn--tiny" id="deleteGroupBtn" type="button">删除 Group</button>
+            <button class="btn btn--tiny" id="copyGroupsYamlBtn" type="button">复制 Groups YAML</button>
+            <button class="btn btn--tiny" id="downloadGroupsYamlBtn" type="button">下载 Groups YAML</button>
+          </div>
+        </div>
+        <div class="panel__body">
+          <!-- Path Editor Card -->
+          <div class="editor-card active" data-editor-card="path">
+            <div id="pathForm">
+              <div class="grid-2">
+                <div class="field">
+                  <label>Path ID</label>
+                  <input data-field="id" placeholder="path_20120110_001">
+                </div>
+                <div class="field">
+                  <label>Primary TF</label>
+                  <select data-field="primaryTimeframe">
+                    <option value="1H">1H</option>
+                    <option value="4H">4H</option>
+                    <option value="30M">30M</option>
+                    <option value="15M">15M</option>
+                    <option value="D">D</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="field">
+                  <label>Start Time</label>
+                  <input data-field="startTime" placeholder="2012-01-10 09:30:00">
+                </div>
+                <div class="field">
+                  <label>End Time</label>
+                  <input data-field="endTime" placeholder="2012-01-10 16:00:00">
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="field">
+                  <label>Direction</label>
+                  <select data-field="direction">
+                    <option value="">—</option>
+                    <option value="bullish">bullish</option>
+                    <option value="bearish">bearish</option>
+                    <option value="range">range</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Smoothness (1-5)</label>
+                  <div class="btn-row" style="gap:6px;">
+                    <select data-field="smoothness" style="flex:1;">
+                      <option value="">—</option>
+                      <option value="5">5 非常顺畅</option>
+                      <option value="4">4 顺畅</option>
+                      <option value="3">3 一般</option>
+                      <option value="2">2 犹豫</option>
+                      <option value="1">1 非常犹豫</option>
+                    </select>
+                    <button class="btn btn--tiny btn--primary" id="calcSmoothnessBtn" type="button">自动计算</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Ratio to Prev</label>
+                  <input data-field="ratioToPrev" placeholder="1.5 = 比上一段长50%">
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="field">
+                  <label>Start Origin</label>
+                  <select data-field="startOrigin">
+                    <option value="">—</option>
+                    <option value="prev_path_end">接上一段结尾</option>
+                    <option value="independent">独立起点</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Prev Path ID</label>
+                  <input data-field="prevPathId" placeholder="path_20120110_000">
+                </div>
+                <div class="field">
+                  <label>Tags</label>
+                  <input data-field="tags" placeholder="comma separated tags">
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="field">
+                  <label>End Reason (遇到哪个PDA)</label>
+                  <select data-field="endReason">
+                    <option value="">—</option>
+                    <option value="liquidity">Liquidity (BSL/SSL/EQH/EQL)</option>
+                    <option value="fvg">FVG</option>
+                    <option value="ndog">NDOG</option>
+                    <option value="nwog">NWOG</option>
+                    <option value="ob">OB</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>End Interaction</label>
+                  <select data-field="endInteraction">
+                    <option value="">—</option>
+                    <option value="breakout">突破</option>
+                    <option value="respect">尊重</option>
+                    <option value="reversal">反转未突破</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="field">
+                  <label>End Breakout Extent</label>
+                  <input data-field="endBreakoutExtent" placeholder="突破点数或百分比">
+                </div>
+                <div class="field">
+                  <label>End Respect Type</label>
+                  <select data-field="endRespectType">
+                    <option value="">—</option>
+                    <option value="wick">影线尊重</option>
+                    <option value="body">实体尊重</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>End Respect Extent</label>
+                  <input data-field="endRespectExtent" placeholder="0.35 = 到了PDA的35%位置">
+                </div>
+              </div>
+              <div class="field">
+                <label>Path Note</label>
+                <textarea data-field="note" placeholder="这段行情的观察要点、为什么值得记录。"></textarea>
+              </div>
+            </div>
+            <h3 class="section-title" style="margin-top:14px;">Main Actions</h3>
+            <div id="mainActionsList" class="manual-list"></div>
+          </div>
+
+          <!-- Group Editor Card -->
+          <div class="editor-card" data-editor-card="group">
+            <div class="btn-row" style="justify-content: space-between; margin-bottom:10px;">
+              <label style="margin:0; font-size:14px; font-weight:600;">Group Editor</label>
+              <span class="tag" id="groupCount">0</span>
+            </div>
+            <div id="groupEditor"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════ Right: Compare ════ -->
+      <section class="panel panel--right">
         <div class="panel__header">
           <h2 class="panel__title">Compare</h2>
           <span class="tag" id="contextCount">0 auto refs</span>
         </div>
         <div class="panel__body">
+          <!-- API Config -->
           <div class="card api-card">
-            <div class="grid-4">
+            <div class="grid-2">
               <div class="field">
                 <label>API Base</label>
                 <input id="apiBase" value="http://127.0.0.1:8765">
@@ -629,12 +977,14 @@
                 <label>Instrument</label>
                 <input id="instrument" value="NQ">
               </div>
+            </div>
+            <div class="grid-2" style="margin-top:8px;">
               <div class="field">
                 <label>Sample Date</label>
                 <input id="sampleDate" type="date" value="2012-01-10">
               </div>
               <div class="field">
-                <label>Context Window</label>
+                <label>Context Window (lookback / lookahead)</label>
                 <div class="grid-2">
                   <input id="lookbackDays" type="number" min="0" step="1" value="2" aria-label="lookback">
                   <input id="lookaheadDays" type="number" min="0" step="1" value="1" aria-label="lookahead">
@@ -644,48 +994,41 @@
             <div class="tiny" style="margin-top:8px;">自动 PDA 对照设置；只读 DuckDB，不写入数据库。</div>
             <div class="status" id="status">准备就绪。</div>
           </div>
-          <div class="split">
-            <div class="card compare-card">
-              <div class="card__top">
-                <div>
-                  <div class="card__title">Match Result</div>
-                  <div class="card__meta" id="selectedManualLabel">尚未选择手工 PDA</div>
-                </div>
-                <button class="btn btn--tiny btn--primary" id="matchSelectedBtn" type="button">匹配</button>
+
+          <!-- Match Result -->
+          <div class="card compare-card" style="margin-top:12px;">
+            <div class="card__top">
+              <div>
+                <div class="card__title">Match Result</div>
+                <div class="card__meta" id="selectedManualLabel">尚未选择手工 PDA</div>
               </div>
-              <div class="card__foot">
-                <span class="tag" id="matchSummary">等待输入</span>
-              </div>
-              <div id="matchTableWrap" style="margin-top:10px;"></div>
+              <button class="btn btn--tiny btn--primary" id="matchSelectedBtn" type="button">匹配</button>
             </div>
-            <div class="card compare-card">
-              <div class="card__top">
-                <div>
-                  <div class="card__title">Auto Context</div>
-                  <div class="card__meta">按 date window 加载的自动 PDA / 只读对照</div>
-                </div>
-                <span class="tag" id="autoCount">0</span>
-              </div>
-              <div class="field" style="margin-top:8px;">
-                <input id="autoFilter" placeholder="搜索 pdaId / type / note / time">
-              </div>
-              <div id="autoList" class="list"></div>
+            <div class="card__foot">
+              <span class="tag" id="matchSummary">等待输入</span>
             </div>
+            <div id="matchTableWrap" style="margin-top:10px;"></div>
+          </div>
+
+          <!-- Auto Context -->
+          <div class="card compare-card" style="margin-top:12px;">
+            <div class="card__top">
+              <div>
+                <div class="card__title">Auto Context</div>
+                <div class="card__meta">按 date window 加载的自动 PDA / 只读对照</div>
+              </div>
+              <span class="tag" id="autoCount">0</span>
+            </div>
+            <div class="field" style="margin-top:8px;">
+              <input id="autoFilter" placeholder="搜索 pdaId / type / note / time">
+            </div>
+            <div id="autoList" class="list"></div>
           </div>
         </div>
       </section>
 
-      <section class="panel panel--yaml floating-work-panel">
-        <div class="panel__header">
-          <h2 class="panel__title">YAML Preview</h2>
-          <span class="tag">structure_paths + manual_pdas + reconciliation</span>
-        </div>
-        <div class="panel__body yaml-preview-body">
-          <pre id="yamlPreview"></pre>
-        </div>
-      </section>
-    </div>
-  </div>
+    </div><!-- /.layout -->
+  </div><!-- /.shell -->
 
   <script>
     const STORE_KEY = 'layer2_recorder_v2_draft_v1';
@@ -996,9 +1339,15 @@
         end_time: 'endTime',
         primary_timeframe: 'primaryTimeframe',
         direction: 'direction',
-        role: 'role',
-        path_type: 'pathType',
-        delivery: 'delivery',
+        smoothness: 'smoothness',
+        ratio_to_prev: 'ratioToPrev',
+        start_origin: 'startOrigin',
+        prev_path_id: 'prevPathId',
+        end_reason: 'endReason',
+        end_interaction: 'endInteraction',
+        end_breakout_extent: 'endBreakoutExtent',
+        end_respect_type: 'endRespectType',
+        end_respect_extent: 'endRespectExtent',
         note: 'note'
       };
       if (map[key]) path[map[key]] = value;
@@ -1049,9 +1398,15 @@
             startTime: '',
             endTime: '',
             direction: '',
-            role: '',
-            pathType: '',
-            delivery: '',
+            smoothness: '',
+            ratioToPrev: '',
+            startOrigin: '',
+            prevPathId: '',
+            endReason: '',
+            endInteraction: '',
+            endBreakoutExtent: '',
+            endRespectType: '',
+            endRespectExtent: '',
             primaryTimeframe: '1H',
             note: '',
             tags: '',
@@ -1204,7 +1559,6 @@
         }
 
       });
-
       return {
         groups: groups.filter((item) => item.groupId)
       };
@@ -1349,9 +1703,15 @@
         startTime: '',
         endTime: '',
         direction: '',
-        role: '',
-        pathType: '',
-        delivery: '',
+        smoothness: '',
+        ratioToPrev: '',
+        startOrigin: '',
+        prevPathId: '',
+        endReason: '',
+        endInteraction: '',
+        endBreakoutExtent: '',
+        endRespectType: '',
+        endRespectExtent: '',
         primaryTimeframe: '1H',
         note: '',
         tags: '',
@@ -1687,7 +2047,7 @@
       wrap.querySelectorAll('[data-group-field]').forEach((input) => {
         input.oninput = () => {
           group[input.dataset.groupField] = input.value;
-          renderYaml();
+          
           saveDraft();
         };
         input.onchange = input.oninput;
@@ -1785,7 +2145,7 @@
         : [ref.id, ref.timeframe, ref.pdaType, ref.direction, ref.price || ref.priceHigh || ref.priceLow].filter(Boolean).join(' ');
       action.ref = action.refId;
       renderMainActions();
-      renderYaml();
+      
       saveDraft();
     }
 
@@ -1860,7 +2220,7 @@
               if (input.value !== 'free_text') a.ref = '';
             }
             if (input.dataset.actionField === 'refId' && a.refSource === 'free_text') a.ref = input.value;
-            renderYaml();
+            
             saveDraft();
             if (input.dataset.actionField === 'refSource') renderMainActions();
           };
@@ -1888,7 +2248,7 @@
           path.mainActions.splice(idx, 1);
           if (!path.mainActions.length) path.mainActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
           renderMainActions();
-          renderYaml();
+          
         };
         wrap.appendChild(row);
       });
@@ -1899,7 +2259,7 @@
       path.mainActions = path.mainActions || [];
       path.mainActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
       renderMainActions();
-      renderYaml();
+      
       saveDraft();
     }
 
@@ -2021,6 +2381,33 @@
         field
       });
       return fetchJson(`${api}/price?${params.toString()}`);
+    }
+
+    async function calcSmoothnessFromAPI(startTime, endTime) {
+      if (!startTime || !endTime) return null;
+      syncTopInputs();
+      const api = state.apiBase.replace(/\/$/, '');
+      const params = new URLSearchParams({ start: startTime, end: endTime });
+      const data = await fetchJson(`${api}/v2/smoothness?${params.toString()}`);
+      if (!data?.ok || !data?.result) return null;
+      return data.result;
+    }
+
+    async function autoCalcSmoothness() {
+      const path = activePath();
+      if (!path) return setStatus('请先选择或新增一条 Path。', 'warn');
+      if (!path.startTime || !path.endTime) return setStatus('请先填写 Start Time 和 End Time。', 'warn');
+      try {
+        setStatus('正在计算顺畅度...');
+        const result = await calcSmoothnessFromAPI(path.startTime, path.endTime);
+        if (!result) throw new Error('计算失败');
+        const score = Math.round(result.smoothness);
+        $('[data-field="smoothness"]').value = String(score);
+        syncCurrentPath();
+        setStatus(`顺畅度: ${result.smoothness} (${result.barCount}根K线)`, 'ok');
+      } catch (err) {
+        setStatus(`计算失败: ${err.message}`, 'danger');
+      }
     }
 
     async function autoFillPointPrice(manual) {
@@ -2387,9 +2774,15 @@
         if (path.endTime) lines.push(`    end_time: ${yamlQuote(path.endTime)}`);
         if (path.primaryTimeframe) lines.push(`    primary_timeframe: ${yamlQuote(path.primaryTimeframe)}`);
         if (path.direction) lines.push(`    direction: ${yamlQuote(path.direction)}`);
-        if (path.role) lines.push(`    role: ${yamlQuote(path.role)}`);
-        if (path.pathType) lines.push(`    path_type: ${yamlQuote(path.pathType)}`);
-        if (path.delivery) lines.push(`    delivery: ${yamlQuote(path.delivery)}`);
+        if (path.smoothness) lines.push(`    smoothness: ${yamlQuote(path.smoothness)}`);
+        if (path.ratioToPrev) lines.push(`    ratio_to_prev: ${yamlQuote(path.ratioToPrev)}`);
+        if (path.startOrigin) lines.push(`    start_origin: ${yamlQuote(path.startOrigin)}`);
+        if (path.prevPathId) lines.push(`    prev_path_id: ${yamlQuote(path.prevPathId)}`);
+        if (path.endReason) lines.push(`    end_reason: ${yamlQuote(path.endReason)}`);
+        if (path.endInteraction) lines.push(`    end_interaction: ${yamlQuote(path.endInteraction)}`);
+        if (path.endBreakoutExtent) lines.push(`    end_breakout_extent: ${yamlQuote(path.endBreakoutExtent)}`);
+        if (path.endRespectType) lines.push(`    end_respect_type: ${yamlQuote(path.endRespectType)}`);
+        if (path.endRespectExtent) lines.push(`    end_respect_extent: ${yamlQuote(path.endRespectExtent)}`);
         if (path.note) lines.push(`    note: ${yamlQuote(path.note)}`);
         if (path.tags) {
           lines.push('    tags:');
@@ -2537,10 +2930,6 @@
       return lines.join('\n');
     }
 
-    function renderYaml() {
-      $('#yamlPreview').textContent = buildYaml();
-    }
-
     function renderMatchTable(candidates) {
       const rows = candidates.map((cand) => `
         <tr>
@@ -2559,7 +2948,7 @@
           <table class="match-table">
             <thead>
               <tr>
-                <th>PDA</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>ΔT</th><th>ΔP</th><th>Note</th>
+                <th>PDA</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>DT</th><th>DP</th><th>Note</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -2606,22 +2995,8 @@
       renderManualList();
       renderAutoList();
       renderMatchPanel();
-      renderYaml();
+      
       saveDraft();
-    }
-
-    function copyYaml() {
-      navigator.clipboard.writeText(buildYaml()).then(() => setStatus('YAML 已复制。', 'ok')).catch((err) => setStatus(`复制失败：${err.message}`, 'danger'));
-    }
-
-    function downloadYaml() {
-      const blob = new Blob([buildYaml()], { type: 'text/yaml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `layer2_${state.sampleDate}.yaml`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 
     function copyGroupsYaml() {
@@ -2660,8 +3035,10 @@
       $('#importPathYamlBtn').onclick = () => $('#importPathYamlInput').click();
       $('#importGroupsYamlBtn').onclick = () => $('#importGroupsYamlInput').click();
       $('#deletePathBtn').onclick = deletePath;
-      $('#copyYamlBtn').onclick = copyYaml;
-      $('#downloadYamlBtn').onclick = downloadYaml;
+      $('#addGroupBtn').onclick = addGroup;
+      $('#calcSmoothnessBtn').onclick = () => {
+        autoCalcSmoothness().catch((err) => setStatus(`计算失败：${err.message}`, 'danger'));
+      };
       $('#pointFetchPriceBtn').onclick = () => {
         fetchPointPriceToForm().catch((err) => setStatus(`取值失败：${err.message}`, 'danger'));
       };
@@ -2733,8 +3110,8 @@
       ].forEach((id) => {
         $('#' + id).onchange = saveDraft;
       });
-      $('#pathForm').addEventListener('input', () => { syncCurrentPath(); renderYaml(); });
-      $('#pathForm').addEventListener('change', () => { syncCurrentPath(); renderYaml(); });
+      $('#pathForm').addEventListener('input', () => { syncCurrentPath() });
+      $('#pathForm').addEventListener('change', () => { syncCurrentPath() });
     }
 
     function init() {
