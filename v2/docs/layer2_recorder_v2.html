@@ -601,10 +601,10 @@
                 </div>
               </button>
               <div class="collapse-body">
-                <div class="grid-3">
+                <div class="grid-2" style="max-width:320px;">
                   <div class="field">
                     <label>Analysis TF</label>
-                    <input id="pointTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                    <select id="pointTimeframe"></select>
                   </div>
                   <div class="field">
                     <label>PDA Type</label>
@@ -613,15 +613,18 @@
                       <option value="ssl">SSL</option>
                     </select>
                   </div>
-                  <div class="field">
-                    <label>Event Time</label>
-                    <input id="pointEventTime" placeholder="2012-01-10 09:30:00">
-                  </div>
                 </div>
-                <div class="grid-3">
+                <div class="field">
+                  <label>Event Time</label>
+                  <input id="pointEventTime" placeholder="201201091120">
+                </div>
+                <div class="grid-2">
                   <div class="field">
                     <label>Price Override</label>
                     <input id="pointPrice" placeholder="留空自动取 1m high / low">
+                  </div>
+                  <div class="field">
+                    <label>&nbsp;</label>
                   </div>
                 </div>
                 <div class="field">
@@ -654,15 +657,7 @@
                 <div class="grid-3">
                   <div class="field">
                     <label>FVG TF</label>
-                    <input id="fvgTimeframe" list="fvgTfOptions" value="15m" placeholder="15m / 1h / 4h / 1D / 1W">
-                    <datalist id="fvgTfOptions">
-                      <option value="15m"></option>
-                      <option value="30m"></option>
-                      <option value="1h"></option>
-                      <option value="4h"></option>
-                      <option value="1D"></option>
-                      <option value="1W"></option>
-                    </datalist>
+                    <select id="fvgTimeframe"></select>
                   </div>
                   <div class="field">
                     <label>Event Time</label>
@@ -707,8 +702,8 @@
               <div class="collapse-body">
                 <div class="grid-3">
                   <div class="field">
-                    <label>Timeframe</label>
-                    <input id="eqTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                    <label>Analysis TF</label>
+                    <select id="eqTimeframe"></select>
                   </div>
                   <div class="field">
                     <label>Representative Time</label>
@@ -793,15 +788,113 @@
                 </div>
               </div>
             </div>
+
+            <!-- FTB -->
+            <div class="card collapsible-card" data-collapsible="manual-ftb" data-collapsed="true">
+              <button class="collapse-head" data-toggle-manual-module="manual-ftb" type="button">
+                <div class="card__top">
+                  <div>
+                    <div class="card__title">FTB</div>
+                    <div class="card__meta">Flat Top / Flat Bottom。1H 周期平头顶/底，记录关键高低点。</div>
+                  </div>
+                  <div class="btn-row">
+                    <span class="tag">flat_top_bottom</span>
+                    <span class="collapse-icon">›</span>
+                  </div>
+                </div>
+              </button>
+              <div class="collapse-body">
+                <div class="grid-2" style="max-width:320px;">
+                  <div class="field">
+                    <label>Analysis TF</label>
+                    <select id="ftbTimeframe"></select>
+                  </div>
+                  <div class="field">
+                    <label>Side</label>
+                    <select id="ftbSide">
+                      <option value="flat_top">Flat Top（平头顶）</option>
+                      <option value="flat_bottom">Flat Bottom（平头底）</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Event Time</label>
+                  <input id="ftbEventTime" placeholder="201201091000">
+                </div>
+                <div class="field">
+                  <label>Price</label>
+                  <input id="ftbPrice" placeholder="留空自动取该 K 线 high/low">
+                </div>
+                <div class="field">
+                  <label>Note</label>
+                  <textarea id="ftbNote" placeholder="这个平头顶/底为什么重要，是否构成流动性池。"></textarea>
+                </div>
+                <div class="status" id="ftbStatus" style="margin-bottom:10px;">填写时间，点「取值」自动计算该 K 线 high/low。</div>
+                <div class="btn-row">
+                  <button class="btn" id="ftbFetchPriceBtn" type="button">取值</button>
+                  <button class="btn btn--primary" data-add-manual-kind="ftb" type="button">新增</button>
+                  <button class="btn" data-clear-manual-kind="ftb" type="button">清空</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- OB Last Bar -->
+            <div class="card collapsible-card" data-collapsible="manual-oblb" data-collapsed="true">
+              <button class="collapse-head" data-toggle-manual-module="manual-oblb" type="button">
+                <div class="card__top">
+                  <div>
+                    <div class="card__title">OB Last Bar</div>
+                    <div class="card__meta">订单块最后一根 K 线。取该 K 线的 high/open（bearish）或 low/open（bullish）。</div>
+                  </div>
+                  <div class="btn-row">
+                    <span class="tag">ob_last_bar</span>
+                    <span class="collapse-icon">›</span>
+                  </div>
+                </div>
+              </button>
+              <div class="collapse-body">
+                <div class="grid-2" style="max-width:320px;">
+                  <div class="field">
+                    <label>Analysis TF</label>
+                    <select id="oblbTimeframe"></select>
+                  </div>
+                  <div class="field">
+                    <label>Direction</label>
+                    <select id="oblbDirection">
+                      <option value="bearish">Bearish</option>
+                      <option value="bullish">Bullish</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Time</label>
+                  <input id="oblbEventTime" placeholder="201201091000">
+                </div>
+                <div class="grid-2" style="max-width:320px;">
+                  <div class="field">
+                    <label>取值位置</label>
+                    <select id="oblbPriceField"></select>
+                  </div>
+                  <div class="field">
+                    <label>Price</label>
+                    <input id="oblbPrice" placeholder="留空自动取">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Note</label>
+                  <textarea id="oblbNote" placeholder="这根 K 线为什么是 OB 的最后一根。"></textarea>
+                </div>
+                <div class="status" id="oblbStatus" style="margin-bottom:10px;">填写时间和方向，点「取值」自动计算。</div>
+                <div class="btn-row">
+                  <button class="btn" id="oblbFetchPriceBtn" type="button">取值</button>
+                  <button class="btn btn--primary" data-add-manual-kind="oblb" type="button">新增</button>
+                  <button class="btn" data-clear-manual-kind="oblb" type="button">清空</button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="tiny" style="margin-top:12px;">原则：BSL/SSL 是单点，FVG/OB 是区间，EQH/EQL 是集合。各类不要混用字段，这样以后新增类目也不会把表单搅乱。</div>
-
-          <!-- Manual PDA List -->
-          <div class="field" style="margin-top:14px;">
-            <label style="margin:0;">Manual PDA List</label>
-            <div id="manualList" class="manual-list"></div>
-          </div>
+          <div class="tiny" style="margin-top:12px;">原则：BSL/SSL 是单点，FVG/OB 是区间，EQH/EQL 是集合，FTB/OB Last Bar 是单点。各类不要混用字段，这样以后新增类目也不会把表单搅乱。</div>
         </div>
       </section>
 
@@ -960,6 +1053,12 @@
             <div class="status" id="status">准备就绪。</div>
           </div>
 
+          <!-- Manual PDA List -->
+          <div class="field" style="margin-top:14px;">
+            <label style="margin:0;">Manual PDA List</label>
+            <div id="manualList" class="manual-list"></div>
+          </div>
+
           <!-- Match Result -->
           <div class="card compare-card" style="margin-top:12px;">
             <div class="card__top">
@@ -1116,8 +1215,8 @@
 
     function pointSide(rec) {
       const pdaType = String(rec?.pdaType || '').toLowerCase();
-      if (['bsl', 'eqh', 'daily_high', 'ict_midnight_day_high'].includes(pdaType)) return 'high';
-      if (['ssl', 'eql', 'daily_low', 'ict_midnight_day_low'].includes(pdaType)) return 'low';
+      if (['bsl', 'eqh', 'daily_high', 'ict_midnight_day_high', 'flat_top'].includes(pdaType)) return 'high';
+      if (['ssl', 'eql', 'daily_low', 'ict_midnight_day_low', 'flat_bottom'].includes(pdaType)) return 'low';
       if (String(rec?.direction || '').toLowerCase() === 'bullish') return 'low';
       if (String(rec?.direction || '').toLowerCase() === 'bearish') return 'high';
       return '';
@@ -2212,6 +2311,7 @@
         ['ndog', 'NDOG'],
         ['nwog', 'NWOG'],
         ['ob', 'OB'],
+        ['ob_last_bar', 'OB Last Bar'],
         ['breaker', 'Breaker'],
         ['key_level', 'Key Level'],
         ['wick_ce', 'Wick CE'],
@@ -2225,7 +2325,7 @@
       if (endReason === 'liquidity') {
         options.push(['sweep_reversal', '扫损反转']);
         options.push(['approach_reversal', '接近反转']);
-      } else if (['fvg', 'ndog', 'nwog', 'ob', 'breaker', 'key_level', 'wick_ce'].includes(endReason)) {
+      } else if (['fvg', 'ndog', 'nwog', 'ob', 'ob_last_bar', 'breaker', 'key_level', 'wick_ce'].includes(endReason)) {
         options.push(['wick', '影线尊重']);
         options.push(['body', '实体尊重']);
       }
@@ -2753,7 +2853,9 @@
     async function autoFillPointPrice(manual) {
       if (manual.price || !manual.eventTime) return manual;
       const field = manual.pdaType === 'bsl' ? 'high' : 'low';
-      const result = await fetchPriceWindow(manual.eventTime, 1, field);
+      const mins = tfMinutes(manual.timeframe);
+      if (!mins) throw new Error(`无法解析 TF "${manual.timeframe}"，请选择 Analysis TF`);
+      const result = await fetchPriceWindow(manual.eventTime, mins, field);
       manual.price = formatPriceValue(result.value);
       return manual;
     }
@@ -2761,12 +2863,22 @@
     async function fetchPointPriceToForm() {
       const kind = $('#pointPdaType').value;
       const manual = baseManual(kind, $('#pointTimeframe').value, $('#pointEventTime').value, $('#pointNote').value);
-      setStatus(`正在从 1m ${kind === 'bsl' ? 'high' : 'low'} 取 ${kind.toUpperCase()} price...`);
-      await autoFillPointPrice(manual);
-      $('#pointPrice').value = manual.price;
-      setStatus(`已取值 ${kind.toUpperCase()}：${manual.price}`, 'ok');
-      saveDraft();
-      return manual.price;
+      const mins = tfMinutes(manual.timeframe);
+      if (!mins) throw new Error('请选择 Analysis TF');
+      setStatus(`正在按 ${manual.timeframe} K 线取 ${kind.toUpperCase()} ${kind === 'bsl' ? 'high' : 'low'}...`);
+      try {
+        const eventTime = snapDateTimeToTf(normalizeDateTimeText($('#pointEventTime').value), mins, 'floor');
+        if (!eventTime) throw new Error('请先填写 Event Time');
+        $('#pointEventTime').value = eventTime;
+        manual.eventTime = eventTime;
+        await autoFillPointPrice(manual);
+        $('#pointPrice').value = manual.price;
+        setStatus(`已取值 ${kind.toUpperCase()}：${manual.price}（${manual.timeframe} ${kind === 'bsl' ? 'high' : 'low'}）`, 'ok');
+        saveDraft();
+      } catch (err) {
+        setStatus(`取值失败：${err.message}`, 'danger');
+        throw err;
+      }
     }
 
     async function autoFillObRange(manual) {
@@ -2814,6 +2926,68 @@
       } catch (err) {
         $('#obStatus').textContent = `OB 取值失败：${err.message}`;
         $('#obStatus').dataset.kind = 'danger';
+        throw err;
+      }
+    }
+
+    async function fetchFtbPriceToForm() {
+      const side = $('#ftbSide').value;
+      const tf = $('#ftbTimeframe').value;
+      const mins = tfMinutes(tf);
+      if (!mins) throw new Error('请选择 Analysis TF');
+      const eventTime = snapDateTimeToTf(normalizeDateTimeText($('#ftbEventTime').value), mins, 'floor');
+      if (!eventTime) throw new Error('请先填写 Event Time');
+      $('#ftbEventTime').value = eventTime;
+      const field = side === 'flat_top' ? 'high' : 'low';
+      setStatus(`正在取 ${tf} K 线 ${field}...`);
+      try {
+        const result = await fetchPriceWindow(eventTime, mins, field);
+        const price = formatPriceValue(result.ohlc[field]);
+        $('#ftbPrice').value = price;
+        const label = side === 'flat_top' ? 'Flat Top' : 'Flat Bottom';
+        $('#ftbStatus').textContent = `已取值 ${label}：${price}`;
+        $('#ftbStatus').dataset.kind = 'ok';
+        setStatus(`${label}：${price}`, 'ok');
+        saveDraft();
+      } catch (err) {
+        $('#ftbStatus').textContent = `取值失败：${err.message}`;
+        $('#ftbStatus').dataset.kind = 'danger';
+        throw err;
+      }
+    }
+
+    function updateOblbPriceFieldOptions() {
+      const dir = $('#oblbDirection').value;
+      const select = $('#oblbPriceField');
+      if (dir === 'bearish') {
+        select.innerHTML = '<option value="low">low</option><option value="open">open</option>';
+      } else {
+        select.innerHTML = '<option value="high">high</option><option value="open">open</option>';
+      }
+    }
+
+    async function fetchOblbPriceToForm() {
+      const direction = $('#oblbDirection').value;
+      const priceField = $('#oblbPriceField').value;
+      const tf = $('#oblbTimeframe').value;
+      const mins = tfMinutes(tf);
+      if (!mins) throw new Error('请选择 Analysis TF');
+      if (!priceField) throw new Error('请选择取值位置');
+      const eventTime = snapDateTimeToTf(normalizeDateTimeText($('#oblbEventTime').value), mins, 'floor');
+      if (!eventTime) throw new Error('请先填写 Time');
+      $('#oblbEventTime').value = eventTime;
+      setStatus(`正在取 ${tf} K 线 ${priceField}...`);
+      try {
+        const result = await fetchPriceWindow(eventTime, mins, priceField);
+        const price = formatPriceValue(result.ohlc[priceField]);
+        $('#oblbPrice').value = price;
+        $('#oblbStatus').textContent = `已取值 ${direction} OB Last Bar：${price}（${tf} ${priceField}）`;
+        $('#oblbStatus').dataset.kind = 'ok';
+        setStatus(`OB Last Bar：${price}`, 'ok');
+        saveDraft();
+      } catch (err) {
+        $('#oblbStatus').textContent = `取值失败：${err.message}`;
+        $('#oblbStatus').dataset.kind = 'danger';
         throw err;
       }
     }
@@ -2955,6 +3129,32 @@
           commitManual(manual, 'ob');
           setStatus(`已新增 ${manual.direction} OB：${manual.priceHigh} / ${manual.priceLow}`, 'ok');
         }
+        if (kind === 'ftb') {
+          const side = $('#ftbSide').value;
+          const pdaType = side === 'flat_top' ? 'flat_top' : 'flat_bottom';
+          const manual = baseManual(pdaType, $('#ftbTimeframe').value, $('#ftbEventTime').value, $('#ftbNote').value);
+          manual.direction = side === 'flat_top' ? 'bearish' : 'bullish';
+          manual.price = $('#ftbPrice').value.trim();
+          if (!manual.price) {
+            await fetchFtbPriceToForm();
+            manual.price = $('#ftbPrice').value.trim();
+          }
+          commitManual(manual, 'ftb');
+          setStatus(`已新增 ${side === 'flat_top' ? 'Flat Top' : 'Flat Bottom'}：${manual.price}`, 'ok');
+        }
+        if (kind === 'oblb') {
+          const direction = $('#oblbDirection').value;
+          const priceField = $('#oblbPriceField').value;
+          const manual = baseManual('ob_last_bar', $('#oblbTimeframe').value, $('#oblbEventTime').value, $('#oblbNote').value);
+          manual.direction = direction;
+          manual.price = $('#oblbPrice').value.trim();
+          if (!manual.price) {
+            await fetchOblbPriceToForm();
+            manual.price = $('#oblbPrice').value.trim();
+          }
+          commitManual(manual, 'oblb');
+          setStatus(`已新增 ${direction} OB Last Bar（${priceField}）：${manual.price}`, 'ok');
+        }
       } catch (err) {
         setStatus(`新增 ${kind} 失败：${err.message}`, 'danger');
       }
@@ -2963,11 +3163,13 @@
     function clearManualForm(kind) {
       if (!kind || kind === 'point') {
         $('#pointPdaType').value = 'bsl';
+        $('#pointTimeframe').value = '1H';
         $('#pointEventTime').value = '';
         $('#pointPrice').value = '';
         $('#pointNote').value = '';
       }
       if (!kind || kind === 'fvg') {
+        $('#fvgTimeframe').value = '15m';
         $('#fvgEventTime').value = '';
         $('#fvgDirection').value = '';
         $('#fvgPriceHigh').value = '';
@@ -2977,6 +3179,7 @@
         $('#fvgStatus').dataset.kind = '';
       }
       if (!kind || kind === 'eq') {
+        $('#eqTimeframe').value = '1H';
         $('#eqEventTime').value = '';
         $('#eqPrice').value = '';
         $('#eqMemberRefs').value = '';
@@ -2992,6 +3195,25 @@
         $('#obNote').value = '';
         $('#obStatus').textContent = '选择 Analysis TF，填写 Start/End Time，点「取值」按 K 线柱计算 high/low。';
         $('#obStatus').dataset.kind = '';
+      }
+      if (!kind || kind === 'ftb') {
+        $('#ftbTimeframe').value = '1H';
+        $('#ftbSide').value = 'flat_top';
+        $('#ftbEventTime').value = '';
+        $('#ftbPrice').value = '';
+        $('#ftbNote').value = '';
+        $('#ftbStatus').textContent = '填写时间，点「取值」自动计算该 K 线 high/low。';
+        $('#ftbStatus').dataset.kind = '';
+      }
+      if (!kind || kind === 'oblb') {
+        $('#oblbTimeframe').value = '1H';
+        $('#oblbDirection').value = 'bearish';
+        updateOblbPriceFieldOptions();
+        $('#oblbEventTime').value = '';
+        $('#oblbPrice').value = '';
+        $('#oblbNote').value = '';
+        $('#oblbStatus').textContent = '填写时间和方向，点「取值」自动计算。';
+        $('#oblbStatus').dataset.kind = '';
       }
     }
 
@@ -3029,8 +3251,7 @@
             </div>
           </div>
           <div class="card__meta">
-            ${match ? `最近命中：${escapeHtml(match.candidates?.[0]?.pdaId || '无')} · ${escapeHtml(match.candidates?.[0]?.matchKind || 'none')} · score ${escapeHtml(String(match.candidates?.[0]?.matchScore ?? ''))}` : '尚未匹配'}
-            ${matchedAuto ? `<br>建议匹配：${escapeHtml(matchedAuto.pdaId)} @ ${escapeHtml(String(matchedAuto.comparePrice))}` : ''}
+            ${matchedAuto ? `<span style="color:var(--success);">✓ 已匹配 ${escapeHtml(matchedAuto.pdaId)}</span> · ${escapeHtml(matchedAuto.matchKind)} · score ${escapeHtml(String(matchedAuto.matchScore))}` : (match ? '<span style="color:var(--danger);">无匹配</span>' : '<span style="color:var(--danger);">无匹配</span>')}
           </div>
         `;
         item.querySelector('[data-select]').onclick = async () => {
@@ -3039,7 +3260,15 @@
           try {
             setStatus(`正在匹配 ${manual.id}...`);
             await matchManual(manual);
-            setStatus(`已匹配 ${manual.id}。`, 'ok');
+            const m = manual.match;
+            const best = m?.candidates?.[0];
+            if (best && (best.matchKind === 'exact' || best.matchScore >= 0.68)) {
+              setStatus(`✓ ${manual.id} 已匹配 ${best.pdaId}（score ${best.matchScore}）`, 'ok');
+            } else if (best) {
+              setStatus(`${manual.id} 弱匹配 ${best.pdaId}（score ${best.matchScore}）`, '');
+            } else {
+              setStatus(`${manual.id} 无匹配`, 'danger');
+            }
           } catch (err) {
             setStatus(`匹配失败：${err.message}`, 'danger');
           }
@@ -3340,6 +3569,7 @@
         return;
       }
       const match = manual.match || null;
+      const hasStrongMatch = match && match.candidates && match.candidates.length && (match.candidates[0].matchKind === 'exact' || match.candidates[0].matchScore >= 0.68);
       if (!match || !match.candidates || !match.candidates.length) {
         const preview = buildLocalMatchResult(manual);
         if (preview.candidates.length) {
@@ -3350,12 +3580,17 @@
           `;
           return;
         }
-        $('#matchSummary').textContent = `尚未匹配 · context ${state.autoRecords.length}`;
+        $('#matchSummary').textContent = `无匹配 · context ${state.autoRecords.length}`;
         $('#matchTableWrap').innerHTML = '<div class="status empty-state">这条手工 PDA 还没有对照结果。请确认右侧 Auto Context 已加载，且 event_time / price 与候选接近。</div>';
         return;
       }
+      if (!hasStrongMatch) {
+        $('#matchSummary').textContent = `无匹配 · context ${state.autoRecords.length}`;
+        $('#matchTableWrap').innerHTML = `<div class="status" data-kind="danger">无匹配（最佳候选 ${escapeHtml(match.candidates[0].pdaId)} score ${match.candidates[0].matchScore} 未达到阈值 0.68）</div>${renderMatchTable(match.candidates)}`;
+        return;
+      }
       const best = match.candidates[0];
-      $('#matchSummary').textContent = `${best.matchKind} · score ${best.matchScore}`;
+      $('#matchSummary').textContent = `✓ 已匹配 ${best.pdaId} · ${best.matchKind} · score ${best.matchScore}`;
       $('#matchTableWrap').innerHTML = renderMatchTable(match.candidates);
     }
 
@@ -3428,6 +3663,9 @@
       $('#calcSmoothnessBtn').onclick = () => {
         autoCalcSmoothness().catch((err) => setStatus(`计算失败：${err.message}`, 'danger'));
       };
+      $('#pointTimeframe').innerHTML = renderTfOptions('1H');
+      $('#fvgTimeframe').innerHTML = renderTfOptions('15m');
+      $('#eqTimeframe').innerHTML = renderTfOptions('1H');
       $('#pointFetchPriceBtn').onclick = () => {
         fetchPointPriceToForm().catch((err) => setStatus(`取值失败：${err.message}`, 'danger'));
       };
@@ -3438,6 +3676,7 @@
         fetchObRangeToForm().catch((err) => setStatus(`OB 取值失败：${err.message}`, 'danger'));
       };
       $('#obTimeframe').innerHTML = renderTfOptions('1H');
+      $('#ftbTimeframe').innerHTML = renderTfOptions('1H');
       $('#obTimeframe').onchange = () => {
         const mins = tfMinutes($('#obTimeframe').value);
         if (!mins) return;
@@ -3456,6 +3695,30 @@
       });
       $('#obEndTime').addEventListener('focusout', (e) => {
         const mins = tfMinutes($('#obTimeframe').value);
+        if (!mins || !e.target.value) return;
+        const normed = normalizeDateTimeText(e.target.value);
+        const snapped = snapDateTimeToTf(normed, mins, 'floor');
+        if (snapped !== e.target.value) { e.target.value = snapped; saveDraft(); }
+      });
+      $('#ftbTimeframe').innerHTML = renderTfOptions('1H');
+      $('#ftbFetchPriceBtn').onclick = () => {
+        fetchFtbPriceToForm().catch((err) => setStatus(`FTB 取值失败：${err.message}`, 'danger'));
+      };
+      $('#oblbTimeframe').innerHTML = renderTfOptions('1H');
+      updateOblbPriceFieldOptions();
+      $('#oblbDirection').onchange = () => { updateOblbPriceFieldOptions(); saveDraft(); };
+      $('#oblbFetchPriceBtn').onclick = () => {
+        fetchOblbPriceToForm().catch((err) => setStatus(`OB Last Bar 取值失败：${err.message}`, 'danger'));
+      };
+      $('#oblbEventTime').addEventListener('focusout', (e) => {
+        const mins = tfMinutes($('#oblbTimeframe').value);
+        if (!mins || !e.target.value) return;
+        const normed = normalizeDateTimeText(e.target.value);
+        const snapped = snapDateTimeToTf(normed, mins, 'floor');
+        if (snapped !== e.target.value) { e.target.value = snapped; saveDraft(); }
+      });
+      $('#ftbEventTime').addEventListener('focusout', (e) => {
+        const mins = tfMinutes($('#ftbTimeframe').value);
         if (!mins || !e.target.value) return;
         const normed = normalizeDateTimeText(e.target.value);
         const snapped = snapDateTimeToTf(normed, mins, 'floor');
@@ -3505,11 +3768,26 @@
         try {
           setStatus(`正在匹配 ${manual.id}...`);
           await matchManual(manual);
-          setStatus(`已匹配 ${manual.id}。`, 'ok');
+          const m = manual.match;
+          const best = m?.candidates?.[0];
+          if (best && (best.matchKind === 'exact' || best.matchScore >= 0.68)) {
+            setStatus(`✓ ${manual.id} 已匹配 ${best.pdaId}（score ${best.matchScore}）`, 'ok');
+          } else if (best) {
+            setStatus(`${manual.id} 无匹配（最佳候选 score ${best.matchScore} 未达阈值）`, 'danger');
+          } else {
+            setStatus(`${manual.id} 无匹配`, 'danger');
+          }
         } catch (err) {
           setStatus(`匹配失败：${err.message}`, 'danger');
         }
       };
+      ['pointEventTime', 'fvgEventTime', 'ftbEventTime'].forEach((id) => {
+        $('#' + id).addEventListener('focusout', (e) => {
+          if (!e.target.value) return;
+          const normed = normalizeDateTimeText(e.target.value);
+          if (normed !== e.target.value) { e.target.value = normed; saveDraft(); }
+        });
+      });
       $('#autoFilter').oninput = renderAutoList;
       ['apiBase', 'instrument', 'sampleDate', 'lookbackDays', 'lookaheadDays'].forEach((id) => {
         const el = $('#' + id);
@@ -3522,7 +3800,9 @@
         'pointTimeframe', 'pointPdaType', 'pointEventTime', 'pointPrice', 'pointNote',
         'fvgTimeframe', 'fvgEventTime', 'fvgDirection', 'fvgPriceHigh', 'fvgPriceLow', 'fvgNote',
         'eqTimeframe', 'eqEventTime', 'eqPrice', 'eqMemberRefs', 'eqNote',
-        'obTimeframe', 'obDirection', 'obStartTime', 'obEndTime', 'obPriceHigh', 'obPriceLow', 'obNote'
+        'obTimeframe', 'obDirection', 'obStartTime', 'obEndTime', 'obPriceHigh', 'obPriceLow', 'obNote',
+        'ftbTimeframe', 'ftbSide', 'ftbEventTime', 'ftbPrice', 'ftbNote',
+        'oblbTimeframe', 'oblbDirection', 'oblbPriceField', 'oblbEventTime', 'oblbPrice', 'oblbNote'
       ].forEach((id) => {
         $('#' + id).onchange = saveDraft;
       });
