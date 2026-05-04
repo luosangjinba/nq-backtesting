@@ -750,10 +750,10 @@
                 </div>
               </button>
               <div class="collapse-body">
-                <div class="grid-3">
+                <div class="grid-2" style="max-width:320px;">
                   <div class="field">
                     <label>Analysis TF</label>
-                    <input id="obTimeframe" value="1H" placeholder="1H / 4H / 15M / D">
+                    <select id="obTimeframe"></select>
                   </div>
                   <div class="field">
                     <label>Direction</label>
@@ -762,30 +762,30 @@
                       <option value="bearish">bearish</option>
                     </select>
                   </div>
-                  <div class="field">
-                    <label>Start Time</label>
-                    <input id="obStartTime" placeholder="2012-01-10 09:00:00">
-                  </div>
                 </div>
-                <div class="grid-3">
+                <div class="field">
+                  <label>Start Time</label>
+                  <input id="obStartTime" placeholder="2012-01-09 14:00">
+                </div>
+                <div class="field">
+                  <label>End Time</label>
+                  <input id="obEndTime" placeholder="2012-01-09 14:15">
+                </div>
+                <div class="grid-2">
                   <div class="field">
-                    <label>End Time</label>
-                    <input id="obEndTime" placeholder="2012-01-10 10:00:00">
+                    <label>Price High</label>
+                    <input id="obPriceHigh" placeholder="留空按 K 线柱自动取">
                   </div>
                   <div class="field">
-                    <label>Price High / Low Override</label>
-                    <input id="obPriceHigh" placeholder="留空按时间范围自动取 high">
-                  </div>
-                  <div class="field">
-                    <label>&nbsp;</label>
-                    <input id="obPriceLow" placeholder="留空按时间范围自动取 low">
+                    <label>Price Low</label>
+                    <input id="obPriceLow" placeholder="留空按 K 线柱自动取">
                   </div>
                 </div>
                 <div class="field">
                   <label>Note</label>
                   <textarea id="obNote" placeholder="Bullish OB: 下行背景中，位移反弹前最后一根/一组收阴K；Bearish OB 反之。"></textarea>
                 </div>
-                <div class="status" id="obStatus" style="margin-bottom:10px;">先点"取值"确认 OB high/low，再新增。Start/End 按 1m 范围计算。</div>
+                <div class="status" id="obStatus" style="margin-bottom:10px;">选择 Analysis TF，填写 Start/End Time，点「取值」按 K 线柱计算 high/low。</div>
                 <div class="btn-row">
                   <button class="btn" id="obFetchPriceBtn" type="button">取值</button>
                   <button class="btn btn--primary" data-add-manual-kind="ob" type="button">新增</button>
@@ -818,6 +818,8 @@
             <button class="btn btn--tiny" id="deleteGroupBtn" type="button">删除 Group</button>
             <button class="btn btn--tiny" id="copyGroupsYamlBtn" type="button">复制 Groups YAML</button>
             <button class="btn btn--tiny" id="downloadGroupsYamlBtn" type="button">下载 Groups YAML</button>
+            <button class="btn btn--tiny" id="copyPathYamlBtn" type="button">复制 Path YAML</button>
+            <button class="btn btn--tiny" id="downloadPathYamlBtn" type="button">下载 Path YAML</button>
           </div>
         </div>
         <div class="panel__body">
@@ -831,12 +833,7 @@
                 </div>
                 <div class="field">
                   <label>Primary TF</label>
-                  <select data-field="primaryTimeframe">
-                    <option value="1H">1H</option>
-                    <option value="4H">4H</option>
-                    <option value="30M">30M</option>
-                    <option value="15M">15M</option>
-                    <option value="D">D</option>
+                  <select data-field="primaryTimeframe" id="pathPrimaryTf">
                   </select>
                 </div>
               </div>
@@ -1000,8 +997,37 @@
 
   <script>
     const STORE_KEY = 'layer2_recorder_v2_draft_v1';
-    const TIMEFRAME_ORDER = ['D', '4H', '1H', '30M', '15M'];
-    const BAR_MINUTES = { '15M': 15, '30M': 30, '1H': 60, '4H': 240, 'D': 1440 };
+    const TF_OPTIONS = [
+      { label: '1m',  value: '1m',  minutes: 1    },
+      { label: '5m',  value: '5m',  minutes: 5    },
+      { label: '15m', value: '15m', minutes: 15   },
+      { label: '30m', value: '30m', minutes: 30   },
+      { label: '1H',  value: '1H',  minutes: 60   },
+      { label: '4H',  value: '4H',  minutes: 240  },
+      { label: '1D',  value: '1D',  minutes: 1440 },
+    ];
+
+    function tfMinutes(value) {
+      const v = String(value || '').trim();
+      const entry = TF_OPTIONS.find(o => o.value === v);
+      if (entry) return entry.minutes;
+      const upper = v.toUpperCase();
+      const legacy = { '1M': 1, '5M': 5, '15M': 15, '30M': 30, '1H': 60, '4H': 240, 'D': 1440 };
+      return legacy[upper] || null;
+    }
+
+    function renderTfOptions(selectedValue, options = {}) {
+      const { includeEmpty = false, filter = null } = options;
+      let items = TF_OPTIONS;
+      if (filter) items = items.filter(filter);
+      const normalized = TF_OPTIONS.find(o => o.value === selectedValue)?.value
+        || TF_OPTIONS.find(o => o.value.toUpperCase() === String(selectedValue || '').toUpperCase())?.value
+        || selectedValue;
+      const html = items.map(o =>
+        `<option value="${o.value}"${o.value === normalized ? ' selected' : ''}>${o.label}</option>`
+      ).join('');
+      return includeEmpty ? `<option value="">—</option>${html}` : html;
+    }
     const PRICE_TOLERANCE = 0.5;
     const state = {
       apiBase: 'http://127.0.0.1:8765',
@@ -1071,8 +1097,14 @@
       if (compact) text = `${compact[1]}-${compact[2]}-${compact[3]} ${compact[4]}:${compact[5]}`;
       const match = text.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
       if (!match) return text;
-      const [, date, hour, minute, second = '00'] = match;
-      return `${date} ${hour.padStart(2, '0')}:${minute}:${second.padStart(2, '0')}`;
+      const [, date, hour, minute] = match;
+      return `${date} ${hour.padStart(2, '0')}:${minute}`;
+    }
+
+    function toDatetimeLocal(value) {
+      const normed = normalizeDateTimeText(value);
+      if (!normed) return '';
+      return normed.replace(' ', 'T');
     }
 
     function parseDateTime(value) {
@@ -1189,7 +1221,7 @@
       const recType = String(rec.pdaType || '').toLowerCase();
       const sameType = recType === manualType;
       const sameTf = recTf === manualTf;
-      const timeToleranceMinutes = BAR_MINUTES[manualTf] || 60;
+      const timeToleranceMinutes = tfMinutes(manualTf) || 60;
       const timeDeltaMinutes = Math.abs(Math.round((recTime.getTime() - manualTime.getTime()) / 60000));
       const priceDelta = pair.delta;
       if (isRangePdaType(manualType) && (!sameType || !sameTf || timeDeltaMinutes !== 0)) return null;
@@ -1248,7 +1280,7 @@
         timeToleranceBars: 1,
         priceToleranceTicks: 2,
         priceTolerance: PRICE_TOLERANCE,
-        timeToleranceMinutes: BAR_MINUTES[String(manual.timeframe || '').toUpperCase()] || 60,
+        timeToleranceMinutes: tfMinutes(manual.timeframe) || 60,
         candidates
       };
     }
@@ -1864,7 +1896,7 @@
       const base = state.apiBase.replace(/\/$/, '');
       const from = dateAdd(state.sampleDate, -state.lookbackDays);
       const to = dateAdd(state.sampleDate, state.lookaheadDays);
-      const timeframes = TIMEFRAME_ORDER;
+      const timeframes = TF_OPTIONS.filter(o => o.minutes >= 15).map(o => o.value.toUpperCase());
       return timeframes.map((tf) => {
         const qs = new URLSearchParams({
           instrument: state.instrument,
@@ -1956,18 +1988,14 @@
     function syncCurrentPath() {
       const path = activePath();
       $$('#pathForm [data-field]').forEach((el) => {
-        let val = el.value;
-        if ((el.dataset.field === 'startTime' || el.dataset.field === 'endTime') && val) {
-          const normed = normalizeDateTimeText(val);
-          if (normed !== val) { val = normed; el.value = normed; }
-        }
-        path[el.dataset.field] = val;
+        path[el.dataset.field] = el.value;
       });
       saveDraft();
     }
 
     function renderPathForm() {
       const path = activePath();
+      $('#pathPrimaryTf').innerHTML = renderTfOptions(path.primaryTimeframe || '1H', { filter: o => o.minutes >= 15 });
       $$('#pathForm [data-field]').forEach((el) => {
         el.value = path[el.dataset.field] ?? '';
       });
@@ -2059,7 +2087,7 @@
           <div class="field">
             <label>Primary TF</label>
             <select data-group-field="primaryTimeframe">
-              ${['1H', '4H', '30M', '15M', 'D'].map((tf) => `<option value="${tf}"${tf === (group.primaryTimeframe || '1H') ? ' selected' : ''}>${tf}</option>`).join('')}
+              ${renderTfOptions(group.primaryTimeframe || '1H', { filter: o => o.minutes >= 15 })}
             </select>
           </div>
           <div class="field">
@@ -2294,8 +2322,7 @@
             <div class="field">
               <label>周期</label>
               <select data-factor-field="endReasonTf" data-factor-index="${idx}">
-                <option value="">—</option>
-                ${['D', '4H', '1H', '30M', '15M', '5M'].map(tf => `<option value="${tf}"${tf === (factor.endReasonTf || '') ? ' selected' : ''}>${tf}</option>`).join('')}
+                ${renderTfOptions(factor.endReasonTf || '', { includeEmpty: true })}
               </select>
             </div>
             <div class="field">
@@ -2613,6 +2640,28 @@
       return formatLocalDateTime(date);
     }
 
+    function snapDateTimeToTf(value, tfMinutes, mode = 'floor') {
+      const d = dateTimeToLocalDate(value);
+      if (!d || !tfMinutes) return value;
+      const totalMinutes = d.getHours() * 60 + d.getMinutes();
+      const snapped = mode === 'floor'
+        ? Math.floor(totalMinutes / tfMinutes) * tfMinutes
+        : Math.ceil(totalMinutes / tfMinutes) * tfMinutes;
+      d.setHours(Math.floor(snapped / 60), snapped % 60, 0, 0);
+      return formatLocalDateTime(d);
+    }
+
+    function enumerateBarStarts(startTime, endTime, tfMinutes) {
+      const bars = [];
+      let cur = snapDateTimeToTf(startTime, tfMinutes, 'floor');
+      const end = snapDateTimeToTf(endTime, tfMinutes, 'floor');
+      while (cur <= end) {
+        bars.push(cur);
+        cur = addMinutesToDateTime(cur, tfMinutes);
+      }
+      return bars;
+    }
+
     function minutesBetweenInclusive(startValue, endValue) {
       const start = dateTimeToLocalDate(startValue);
       const end = dateTimeToLocalDate(endValue);
@@ -2721,11 +2770,19 @@
     }
 
     async function autoFillObRange(manual) {
-      if ((manual.priceHigh && manual.priceLow) || !manual.startTime || !manual.endTime) return manual;
-      const minutes = minutesBetweenInclusive(manual.startTime, manual.endTime);
-      const result = await fetchPriceWindow(manual.startTime, minutes, 'high');
-      manual.priceHigh = manual.priceHigh || formatPriceValue(result.ohlc.high);
-      manual.priceLow = manual.priceLow || formatPriceValue(result.ohlc.low);
+      if (!manual.startTime || !manual.endTime) return manual;
+      const mins = tfMinutes(manual.timeframe);
+      if (!mins) throw new Error(`无法解析 OB TF "${manual.timeframe}"，请选择 Analysis TF`);
+      const barStarts = enumerateBarStarts(manual.startTime, manual.endTime, mins);
+      if (!barStarts.length) throw new Error('Start Time 必须早于或等于 End Time');
+      if (barStarts.length > 100) throw new Error(`范围过大（${barStarts.length} 根 K 线），请缩小范围或使用更大周期`);
+      const barResults = await Promise.all(
+        barStarts.map(barStart => fetchPriceWindow(barStart, mins, 'high'))
+      );
+      const allHighs = barResults.map(r => Number(r.ohlc.high));
+      const allLows  = barResults.map(r => Number(r.ohlc.low));
+      manual.priceHigh = formatPriceValue(Math.max(...allHighs));
+      manual.priceLow  = formatPriceValue(Math.min(...allLows));
       return manual;
     }
 
@@ -2734,19 +2791,21 @@
       $('#obStatus').dataset.kind = '';
       const manual = baseManual('ob', $('#obTimeframe').value, '', $('#obNote').value);
       manual.direction = $('#obDirection').value;
-      manual.startTime = normalizeDateTimeText($('#obStartTime').value);
-      manual.endTime = normalizeDateTimeText($('#obEndTime').value);
+      const mins = tfMinutes(manual.timeframe);
+      manual.startTime = snapDateTimeToTf(normalizeDateTimeText($('#obStartTime').value), mins, 'floor');
+      manual.endTime = snapDateTimeToTf(normalizeDateTimeText($('#obEndTime').value), mins, 'floor');
       manual.priceHigh = $('#obPriceHigh').value.trim();
       manual.priceLow = $('#obPriceLow').value.trim();
       if (!manual.startTime || !manual.endTime) throw new Error('请先填写 Start Time 和 End Time');
-      setStatus('正在按 Start/End 1m 范围计算 OB high/low...');
+      const barCount = enumerateBarStarts(manual.startTime, manual.endTime, mins).length;
+      setStatus(`正在按 ${manual.timeframe} ${barCount} 根 K 线计算 OB high/low...`);
       try {
         await autoFillObRange(manual);
         $('#obStartTime').value = manual.startTime;
         $('#obEndTime').value = manual.endTime;
         $('#obPriceHigh').value = manual.priceHigh;
         $('#obPriceLow').value = manual.priceLow;
-        const message = `已取值 ${manual.direction} OB：${manual.priceHigh} / ${manual.priceLow}`;
+        const message = `已取值 ${manual.direction} OB：${manual.priceHigh} / ${manual.priceLow}（${barCount}根${manual.timeframe}）`;
         $('#obStatus').textContent = message;
         $('#obStatus').dataset.kind = 'ok';
         setStatus(message, 'ok');
@@ -2880,8 +2939,9 @@
         if (kind === 'ob') {
           const manual = baseManual('ob', $('#obTimeframe').value, '', $('#obNote').value);
           manual.direction = $('#obDirection').value;
-          manual.startTime = normalizeDateTimeText($('#obStartTime').value);
-          manual.endTime = normalizeDateTimeText($('#obEndTime').value);
+          const mins = tfMinutes(manual.timeframe);
+          manual.startTime = snapDateTimeToTf(normalizeDateTimeText($('#obStartTime').value), mins, 'floor');
+          manual.endTime = snapDateTimeToTf(normalizeDateTimeText($('#obEndTime').value), mins, 'floor');
           manual.priceHigh = $('#obPriceHigh').value.trim();
           manual.priceLow = $('#obPriceLow').value.trim();
           if (!manual.startTime || !manual.endTime) throw new Error('请先填写 Start Time 和 End Time');
@@ -2923,13 +2983,14 @@
         $('#eqNote').value = '';
       }
       if (!kind || kind === 'ob') {
+        $('#obTimeframe').value = '1H';
         $('#obDirection').value = 'bullish';
         $('#obStartTime').value = '';
         $('#obEndTime').value = '';
         $('#obPriceHigh').value = '';
         $('#obPriceLow').value = '';
         $('#obNote').value = '';
-        $('#obStatus').textContent = '先点"取值"确认 OB high/low，再新增。Start/End 按 1m 范围计算。';
+        $('#obStatus').textContent = '选择 Analysis TF，填写 Start/End Time，点「取值」按 K 线柱计算 high/low。';
         $('#obStatus').dataset.kind = '';
       }
     }
@@ -3326,6 +3387,21 @@
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 
+    function copyPathYaml() {
+      navigator.clipboard.writeText(buildYaml()).then(() => setStatus('Path YAML 已复制。', 'ok')).catch((err) => setStatus(`复制失败：${err.message}`, 'danger'));
+    }
+
+    function downloadPathYaml() {
+      const date = state.sampleDate || 'unknown';
+      const blob = new Blob([buildYaml()], { type: 'text/yaml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `paths_${date}.yaml`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
     function toggleManualModule(moduleId) {
       const card = $(`[data-collapsible="${moduleId}"]`);
       if (!card) return;
@@ -3361,6 +3437,30 @@
       $('#obFetchPriceBtn').onclick = () => {
         fetchObRangeToForm().catch((err) => setStatus(`OB 取值失败：${err.message}`, 'danger'));
       };
+      $('#obTimeframe').innerHTML = renderTfOptions('1H');
+      $('#obTimeframe').onchange = () => {
+        const mins = tfMinutes($('#obTimeframe').value);
+        if (!mins) return;
+        const startEl = $('#obStartTime');
+        const endEl = $('#obEndTime');
+        if (startEl.value) startEl.value = snapDateTimeToTf(normalizeDateTimeText(startEl.value), mins, 'floor');
+        if (endEl.value) endEl.value = snapDateTimeToTf(normalizeDateTimeText(endEl.value), mins, 'floor');
+        saveDraft();
+      };
+      $('#obStartTime').addEventListener('focusout', (e) => {
+        const mins = tfMinutes($('#obTimeframe').value);
+        if (!mins || !e.target.value) return;
+        const normed = normalizeDateTimeText(e.target.value);
+        const snapped = snapDateTimeToTf(normed, mins, 'floor');
+        if (snapped !== e.target.value) { e.target.value = snapped; saveDraft(); }
+      });
+      $('#obEndTime').addEventListener('focusout', (e) => {
+        const mins = tfMinutes($('#obTimeframe').value);
+        if (!mins || !e.target.value) return;
+        const normed = normalizeDateTimeText(e.target.value);
+        const snapped = snapDateTimeToTf(normed, mins, 'floor');
+        if (snapped !== e.target.value) { e.target.value = snapped; saveDraft(); }
+      });
       $$('[data-add-manual-kind]').forEach((button) => {
         button.onclick = () => addManualPda(button.dataset.addManualKind);
       });
@@ -3379,6 +3479,8 @@
       $('#deleteGroupBtn').onclick = deleteGroup;
       $('#copyGroupsYamlBtn').onclick = copyGroupsYaml;
       $('#downloadGroupsYamlBtn').onclick = downloadGroupsYaml;
+      $('#copyPathYamlBtn').onclick = copyPathYaml;
+      $('#downloadPathYamlBtn').onclick = downloadPathYaml;
       $('#importPathYamlInput').onchange = async (event) => {
         try {
           await importPathYamlFiles(event.target.files);
@@ -3426,6 +3528,13 @@
       });
       $('#pathForm').addEventListener('input', () => { syncCurrentPath() });
       $('#pathForm').addEventListener('change', () => { syncCurrentPath() });
+      $('#pathForm').addEventListener('focusout', (e) => {
+        const f = e.target.dataset?.field;
+        if ((f === 'startTime' || f === 'endTime') && e.target.value) {
+          const normed = normalizeDateTimeText(e.target.value);
+          if (normed !== e.target.value) { e.target.value = normed; syncCurrentPath(); }
+        }
+      });
     }
 
     function init() {
