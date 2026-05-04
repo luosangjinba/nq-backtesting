@@ -69,14 +69,23 @@ Layer2 Recorder V2 是 NQ 期货 ICT 方法论结构路径录入工具，用于�
 
 | 字段 | 说明 | 类型 |
 |------|------|------|
-| Smoothness | 顺畅度 1-5 | 5=非常顺畅, 1=非常犹豫，可自动计算 |
+| Smoothness | 流畅度 1-5 | 5=非常流畅, 1=非常犹豫，可自动计算 |
 | Ratio to Prev | 与上一段幅度比值 | 数值，如 1.5 = 比上一段长 50% |
 | Start Origin | 起点 | 接上一段结尾 / 独立起点 |
 | Prev Path ID | 关联上一段 | 可选 |
 
-#### Smoothness 自动计算
+#### 流畅度自动计算
 
-点击"自动计算"按钮，系统会根据 Start Time / End Time 调用 API 计算 K 线顺畅度。
+点击"计算"按钮，系统会根据 Start Time / End Time 调用 API 计算 K 线流畅度。
+
+**时间对齐：** 输入时间会自动按所选周期向下取整对齐：
+- 1H 周期：`16:23 → 16:00`，`01:45 → 01:00`
+- 15m 周期：`16:23 → 16:15`，`01:47 → 01:45`
+- 5m 周期：`16:23 → 16:20`，`01:47 → 01:45`
+
+**首根 K 线剔除：** 计算时自动剔除首根 K 线（首根可能是反转 K 线，影响流畅度评分）。
+
+**可选周期：** 1m / 5m / 15m / 1H / 4H / 1D
 
 **计算公式（5 个指标加权）：**
 
@@ -273,7 +282,7 @@ structure_groups:
 |------|------|
 | GET /v2/pda_records | 加载自动 PDA |
 | GET /v2/pda_match | 匹配手工 PDA |
-| GET /v2/smoothness | 计算顺畅度评分 |
+| GET /v2/smoothness | 计算流畅度评分 |
 | GET /price | 获取价格（用于自动填充） |
 
 ### 文件位置
@@ -281,7 +290,7 @@ structure_groups:
 - 页面: `v2/docs/layer2_recorder_v2.html`
 - API: `price_lookup_api.py`
 - 数据库: `v2/data/v2_research.duckdb`
-- 顺畅度脚本: `v2/scripts/smoothness_calculator.py`
+- 流畅度脚本: `v2/scripts/smoothness_calculator.py`
 
 ### 配色方案
 

@@ -814,7 +814,6 @@
           </div>
           <div class="btn-row">
             <button class="btn btn--tiny" id="deletePathBtn" type="button">删除 Path</button>
-            <button class="btn btn--tiny" id="addMainActionBtn" type="button">+ Action</button>
             <button class="btn btn--tiny" id="addGroupBtn" type="button">+ Group</button>
             <button class="btn btn--tiny" id="deleteGroupBtn" type="button">删除 Group</button>
             <button class="btn btn--tiny" id="copyGroupsYamlBtn" type="button">复制 Groups YAML</button>
@@ -862,17 +861,18 @@
                   </select>
                 </div>
                 <div class="field">
-                  <label>Smoothness (1-5)</label>
+                  <label>流畅度 (0-100)</label>
                   <div class="btn-row" style="gap:6px;">
-                    <select data-field="smoothness" style="flex:1;">
-                      <option value="">—</option>
-                      <option value="5">5 非常顺畅</option>
-                      <option value="4">4 顺畅</option>
-                      <option value="3">3 一般</option>
-                      <option value="2">2 犹豫</option>
-                      <option value="1">1 非常犹豫</option>
+                    <input data-field="smoothness" type="number" min="0" max="100" step="1" placeholder="—" style="flex:1;">
+                    <select id="smoothnessBarMinutes" style="width:80px;">
+                      <option value="1">1m</option>
+                      <option value="5">5m</option>
+                      <option value="15">15m</option>
+                      <option value="60" selected>1H</option>
+                      <option value="240">4H</option>
+                      <option value="1440">1D</option>
                     </select>
-                    <button class="btn btn--tiny btn--primary" id="calcSmoothnessBtn" type="button">自动计算</button>
+                    <button class="btn btn--tiny btn--primary" id="calcSmoothnessBtn" type="button">计算</button>
                   </div>
                 </div>
                 <div class="field">
@@ -898,54 +898,22 @@
                   <input data-field="tags" placeholder="comma separated tags">
                 </div>
               </div>
-              <div class="grid-2">
-                <div class="field">
-                  <label>End Reason (遇到哪个PDA)</label>
-                  <select data-field="endReason">
-                    <option value="">—</option>
-                    <option value="liquidity">Liquidity (BSL/SSL/EQH/EQL)</option>
-                    <option value="fvg">FVG</option>
-                    <option value="ndog">NDOG</option>
-                    <option value="nwog">NWOG</option>
-                    <option value="ob">OB</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>End Interaction</label>
-                  <select data-field="endInteraction">
-                    <option value="">—</option>
-                    <option value="breakout">突破</option>
-                    <option value="respect">尊重</option>
-                    <option value="reversal">反转未突破</option>
-                  </select>
-                </div>
-              </div>
-              <div class="grid-3">
-                <div class="field">
-                  <label>End Breakout Extent</label>
-                  <input data-field="endBreakoutExtent" placeholder="突破点数或百分比">
-                </div>
-                <div class="field">
-                  <label>End Respect Type</label>
-                  <select data-field="endRespectType">
-                    <option value="">—</option>
-                    <option value="wick">影线尊重</option>
-                    <option value="body">实体尊重</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>End Respect Extent</label>
-                  <input data-field="endRespectExtent" placeholder="0.35 = 到了PDA的35%位置">
-                </div>
-              </div>
               <div class="field">
                 <label>Path Note</label>
                 <textarea data-field="note" placeholder="这段行情的观察要点、为什么值得记录。"></textarea>
               </div>
-            </div>
-            <h3 class="section-title" style="margin-top:14px;">Main Actions</h3>
-            <div id="mainActionsList" class="manual-list"></div>
+              <h3 class="section-title" style="margin-top:14px;">End Factors (终点因素)</h3>
+              <div class="tiny" style="margin-bottom:8px;">终点为什么是终点——遇到了什么PDA、如何尊重。可多条。</div>
+              <div id="endFactorsList" class="manual-list"></div>
+              <div class="btn-row" style="margin-top:8px;">
+                <button class="btn btn--tiny btn--primary" id="addEndFactorBtn" type="button">+ End Factor</button>
+              </div>
+              <h3 class="section-title" style="margin-top:18px;">Path Actions (路径行为)</h3>
+              <div class="tiny" style="margin-bottom:8px;">这段行情干了什么——穿越/接近了哪些流动性。可多条。</div>
+              <div id="pathActionsList" class="manual-list"></div>
+              <div class="btn-row" style="margin-top:8px;">
+                <button class="btn btn--tiny btn--primary" id="addPathActionBtn" type="button">+ Path Action</button>
+              </div>
           </div>
 
           <!-- Group Editor Card -->
@@ -1343,14 +1311,18 @@
         ratio_to_prev: 'ratioToPrev',
         start_origin: 'startOrigin',
         prev_path_id: 'prevPathId',
-        end_reason: 'endReason',
-        end_interaction: 'endInteraction',
-        end_breakout_extent: 'endBreakoutExtent',
-        end_respect_type: 'endRespectType',
-        end_respect_extent: 'endRespectExtent',
         note: 'note'
       };
       if (map[key]) path[map[key]] = value;
+      // 向后兼容：旧的 end_reason/end_respect_type/end_respect_extent 字段
+      // 在 ensureDefaults 中会被迁移到 endFactors
+      if (key === 'end_reason') {
+        const parts = value.split('/');
+        path._legacyEndReason = parts[0] || '';
+        path._legacyEndReasonTf = parts[1] || '';
+      }
+      if (key === 'end_respect_type') path._legacyEndRespectType = value;
+      if (key === 'end_respect_extent') path._legacyEndRespectExtent = value;
     }
 
     function mapManualField(manual, key, value) {
@@ -1377,6 +1349,7 @@
       let path = null;
       let mode = '';
       let action = null;
+      let factor = null;
       let manual = null;
 
       text.split(/\r?\n/).forEach((line) => {
@@ -1402,20 +1375,17 @@
             ratioToPrev: '',
             startOrigin: '',
             prevPathId: '',
-            endReason: '',
-            endInteraction: '',
-            endBreakoutExtent: '',
-            endRespectType: '',
-            endRespectExtent: '',
             primaryTimeframe: '1H',
             note: '',
             tags: '',
-            mainActions: [],
+            endFactors: [],
+            pathActions: [],
             manualPdas: []
           };
           paths.push(path);
           mode = '';
           action = null;
+          factor = null;
           manual = null;
           const kv = parseYamlKeyValue(line);
           if (kv) mapPathField(path, kv.key, kv.value);
@@ -1426,10 +1396,22 @@
         const kv = parseYamlKeyValue(line);
         if (indent === 4 && kv) {
           action = null;
+          factor = null;
           manual = null;
+          if (kv.key === 'end_factors') {
+            mode = 'end_factors';
+            if (String(line).includes('[]')) path.endFactors = [];
+            return;
+          }
+          if (kv.key === 'path_actions') {
+            mode = 'path_actions';
+            if (String(line).includes('[]')) path.pathActions = [];
+            return;
+          }
+          // 向后兼容旧的 main_actions
           if (kv.key === 'main_actions') {
             mode = 'main_actions';
-            if (String(line).includes('[]')) path.mainActions = [];
+            if (String(line).includes('[]')) path.pathActions = [];
             return;
           }
           if (kv.key === 'manual_pdas') {
@@ -1456,10 +1438,33 @@
           return;
         }
 
-        if (mode === 'main_actions') {
+        if (mode === 'end_factors') {
+          if (indent === 6 && trimmed === '-') {
+            factor = { endReason: '', endReasonTf: '', endRespectType: '', endRespectExtent: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' };
+            path.endFactors.push(factor);
+            return;
+          }
+          if (indent === 8 && factor && kv) {
+            if (kv.key === 'end_reason') {
+              const parts = kv.value.split('/');
+              factor.endReason = parts[0] || '';
+              factor.endReasonTf = parts[1] || '';
+            }
+            if (kv.key === 'end_respect_type') factor.endRespectType = kv.value;
+            if (kv.key === 'end_respect_extent') factor.endRespectExtent = kv.value;
+            if (kv.key === 'ref') factor.ref = kv.value;
+            if (kv.key === 'ref_source') factor.refSource = kv.value;
+            if (kv.key === 'ref_id') factor.refId = kv.value;
+            if (kv.key === 'ref_label') factor.refLabel = kv.value;
+            if (kv.key === 'note') factor.note = kv.value;
+            return;
+          }
+        }
+
+        if (mode === 'path_actions' || mode === 'main_actions') {
           if (indent === 6 && trimmed === '-') {
             action = { type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' };
-            path.mainActions.push(action);
+            path.pathActions.push(action);
             return;
           }
           if (indent === 8 && action && kv) {
@@ -1498,7 +1503,8 @@
 
       return paths.map((item) => ({
         ...item,
-        mainActions: item.mainActions.length ? item.mainActions : [{ type: '', ref: '' }],
+        endFactors: item.endFactors || [],
+        pathActions: item.pathActions.length ? item.pathActions : [],
         manualPdas: item.manualPdas || []
       })).filter((item) => item.id);
     }
@@ -1707,15 +1713,11 @@
         ratioToPrev: '',
         startOrigin: '',
         prevPathId: '',
-        endReason: '',
-        endInteraction: '',
-        endBreakoutExtent: '',
-        endRespectType: '',
-        endRespectExtent: '',
         primaryTimeframe: '1H',
         note: '',
         tags: '',
-        mainActions: [{ type: '', ref: '' }],
+        endFactors: [],
+        pathActions: [],
         manualPdas: []
       };
     }
@@ -1747,8 +1749,76 @@
       if (!state.paths || !state.paths.length) state.paths = [emptyPath()];
       state.groups = Array.isArray(state.groups) ? state.groups : [];
       state.paths.forEach((path) => {
-        path.mainActions = Array.isArray(path.mainActions) && path.mainActions.length ? path.mainActions : [{ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' }];
-        path.mainActions.forEach((action) => {
+        // 迁移旧数据：mainActions -> pathActions
+        if (Array.isArray(path.mainActions) && !Array.isArray(path.pathActions)) {
+          // 分离：respect_* 类型移到 endFactors，其他移到 pathActions
+          const respectTypes = ['respect_ob', 'respect_fvg', 'respect_key_level', 'respect_breaker'];
+          const oldActions = path.mainActions;
+          const newEndFactors = [];
+          const newPathActions = [];
+          oldActions.forEach((action) => {
+            if (respectTypes.includes(action.type)) {
+              // 转换为 End Factor
+              const pdaType = action.type.replace('respect_', '');
+              newEndFactors.push({
+                endReason: pdaType,
+                endReasonTf: '',
+                endRespectType: '',
+                endRespectExtent: '',
+                refSource: action.refSource || 'free_text',
+                refId: action.refId || '',
+                refLabel: action.refLabel || '',
+                ref: action.ref || '',
+                note: action.note || ''
+              });
+            } else {
+              newPathActions.push({
+                type: action.type || '',
+                refSource: action.refSource || 'free_text',
+                refId: action.refId || '',
+                refLabel: action.refLabel || '',
+                ref: action.ref || '',
+                note: action.note || ''
+              });
+            }
+          });
+          path.endFactors = newEndFactors;
+          path.pathActions = newPathActions;
+          delete path.mainActions;
+        }
+        // 迁移旧的 endReason/endRespectType/endRespectExtent 字段
+        if (path._legacyEndReason || path.endReason) {
+          if (!path.endFactors) path.endFactors = [];
+          if (!path.endFactors.some(f => f.endReason)) {
+            path.endFactors.push({
+              endReason: path._legacyEndReason || path.endReason || '',
+              endReasonTf: path._legacyEndReasonTf || path.endReasonTf || '',
+              endRespectType: path._legacyEndRespectType || path.endRespectType || '',
+              endRespectExtent: path._legacyEndRespectExtent || path.endRespectExtent || '',
+              refSource: 'free_text',
+              refId: '',
+              refLabel: '',
+              ref: '',
+              note: ''
+            });
+          }
+          delete path._legacyEndReason;
+          delete path._legacyEndReasonTf;
+          delete path._legacyEndRespectType;
+          delete path._legacyEndRespectExtent;
+          delete path.endReason;
+          delete path.endReasonTf;
+          delete path.endRespectType;
+          delete path.endRespectExtent;
+        }
+        // 确保数组存在
+        if (!Array.isArray(path.endFactors)) path.endFactors = [];
+        if (!Array.isArray(path.pathActions)) path.pathActions = [];
+        // 确保 refSource 字段存在
+        path.endFactors.forEach((factor) => {
+          if (!factor.refSource) factor.refSource = factor.refId ? 'auto_pda' : 'free_text';
+        });
+        path.pathActions.forEach((action) => {
           if (!action.refSource) action.refSource = action.refId ? 'auto_pda' : 'free_text';
           if (!action.refId && action.ref) action.refId = action.ref;
         });
@@ -1893,7 +1963,8 @@
       $$('#pathForm [data-field]').forEach((el) => {
         el.value = path[el.dataset.field] ?? '';
       });
-      renderMainActions();
+      renderEndFactors();
+      renderPathActions();
       renderManualList();
     }
 
@@ -2092,13 +2163,40 @@
       const options = [
         ['', ''],
         ['cross_liquidity', 'cross liquidity'],
-        ['approach_or_equal_liquidity', 'approach or equal liquidity'],
-        ['respect_ob', 'respect OB'],
-        ['respect_fvg', 'respect FVG'],
-        ['respect_key_level', 'respect Key Level'],
-        ['respect_breaker', 'respect Breaker']
+        ['approach_or_equal_liquidity', 'approach or equal liquidity']
       ];
       return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
+    }
+
+    function endReasonOptions(selected = '') {
+      const options = [
+        ['', ''],
+        ['liquidity', 'Liquidity (BSL/SSL/EQH/EQL)'],
+        ['fvg', 'FVG'],
+        ['ndog', 'NDOG'],
+        ['nwog', 'NWOG'],
+        ['ob', 'OB'],
+        ['breaker', 'Breaker'],
+        ['key_level', 'Key Level'],
+        ['wick_ce', 'Wick CE'],
+        ['other', 'Other']
+      ];
+      return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
+    }
+
+    function endRespectTypeOptions(endReason, selected = '') {
+      const options = [''];
+      if (endReason === 'liquidity') {
+        options.push(['sweep_reversal', '扫损反转']);
+        options.push(['approach_reversal', '接近反转']);
+      } else if (['fvg', 'ndog', 'nwog', 'ob', 'breaker', 'key_level', 'wick_ce'].includes(endReason)) {
+        options.push(['wick', '影线尊重']);
+        options.push(['body', '实体尊重']);
+      }
+      return options.map((item) => {
+        const [value, label] = Array.isArray(item) ? item : [item, item];
+        return `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label || '—')}</option>`;
+      }).join('');
     }
 
     function refSourceOptions(selected = '') {
@@ -2135,8 +2233,23 @@
       return action.refSource === 'auto_pda' ? 'Auto Context 中没有 NDOG / NWOG 候选。' : '当前 Path 还没有 Manual PDA。';
     }
 
+    function selectFactorRef(factorIndex, source, ref) {
+      const path = activePath();
+      const factor = path.endFactors[factorIndex];
+      if (!factor) return;
+      factor.refSource = source;
+      factor.refId = source === 'auto_pda' ? ref.pdaId : ref.id;
+      factor.refLabel = source === 'auto_pda'
+        ? [ref.tradeDate, ref.timeframe, ref.pdaType, ref.direction, firstPrice(ref)].filter(Boolean).join(' ')
+        : [ref.id, ref.timeframe, ref.pdaType, ref.direction, ref.price || ref.priceHigh || ref.priceLow].filter(Boolean).join(' ');
+      factor.ref = factor.refId;
+      renderEndFactors();
+      saveDraft();
+    }
+
     function selectActionRef(actionIndex, source, ref) {
-      const action = activePath().mainActions[actionIndex];
+      const path = activePath();
+      const action = path.pathActions[actionIndex];
       if (!action) return;
       action.refSource = source;
       action.refId = source === 'auto_pda' ? ref.pdaId : ref.id;
@@ -2144,22 +2257,150 @@
         ? [ref.tradeDate, ref.timeframe, ref.pdaType, ref.direction, firstPrice(ref)].filter(Boolean).join(' ')
         : [ref.id, ref.timeframe, ref.pdaType, ref.direction, ref.price || ref.priceHigh || ref.priceLow].filter(Boolean).join(' ');
       action.ref = action.refId;
-      renderMainActions();
-      
+      renderPathActions();
       saveDraft();
     }
 
-    function renderMainActions() {
+    function renderEndFactors() {
       const path = activePath();
-      const wrap = $('#mainActionsList');
+      const wrap = $('#endFactorsList');
+      if (!wrap) return;
       wrap.innerHTML = '';
-      if (!Array.isArray(path.mainActions) || !path.mainActions.length) path.mainActions = [{ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' }];
-      path.mainActions.forEach((action, idx) => {
+      if (!Array.isArray(path.endFactors)) path.endFactors = [];
+
+      path.endFactors.forEach((factor, idx) => {
+        if (!factor.refSource) factor.refSource = factor.refId ? 'auto_pda' : 'free_text';
+        const pickerOpen = factor.pickerOpen !== false;
+        const autoMatches = factor.refSource === 'auto_pda' ? autoRefMatches() : [];
+        const manualMatches = factor.refSource === 'manual_pda' ? manualRefMatches(path) : [];
+        const suggestions = [...autoMatches.map((rec) => ({ source: 'auto_pda', rec })), ...manualMatches.map((rec) => ({ source: 'manual_pda', rec }))];
+
+        const row = document.createElement('div');
+        row.className = 'manual-item';
+        row.innerHTML = `
+          <div class="grid-3">
+            <div class="field">
+              <label>End Reason (遇到哪个PDA)</label>
+              <select data-factor-field="endReason" data-factor-index="${idx}">${endReasonOptions(factor.endReason || '')}</select>
+            </div>
+            <div class="field">
+              <label>周期</label>
+              <select data-factor-field="endReasonTf" data-factor-index="${idx}">
+                <option value="">—</option>
+                ${['D', '4H', '1H', '30M', '15M', '5M'].map(tf => `<option value="${tf}"${tf === (factor.endReasonTf || '') ? ' selected' : ''}>${tf}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field">
+              <label>Ref Source</label>
+              <select data-factor-field="refSource" data-factor-index="${idx}">${refSourceOptions(factor.refSource || 'free_text')}</select>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label>End Respect Type</label>
+              <select data-factor-field="endRespectType" data-factor-index="${idx}">${endRespectTypeOptions(factor.endReason || '', factor.endRespectType || '')}</select>
+            </div>
+            <div class="field">
+              <label>End Respect Extent</label>
+              <input data-factor-field="endRespectExtent" data-factor-index="${idx}" placeholder="0.35 = 到了PDA的35%位置" value="${escapeAttr(factor.endRespectExtent || '')}">
+            </div>
+            <div class="field">
+              <label>${factor.refSource === 'free_text' ? 'Ref ID' : 'Pick Ref'}</label>
+              ${factor.refSource === 'free_text'
+                ? `<input data-factor-field="ref" data-factor-index="${idx}" placeholder="free text / reference" value="${escapeAttr(factor.ref || '')}">`
+                : `<button class="btn" type="button" data-toggle-factor-picker="${idx}">${pickerOpen ? '收起候选' : '显示候选'} · ${factor.refSource === 'auto_pda' ? 'NDOG / NWOG' : 'Manual PDA List'}</button>`}
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Selected Ref</label>
+              <input data-factor-field="refId" data-factor-index="${idx}" placeholder="${factor.refSource === 'free_text' ? '引用的 PDA ID' : '点击候选后自动填入'}" value="${escapeAttr(factor.refId || '')}" ${factor.refSource !== 'free_text' ? 'readonly' : ''}>
+            </div>
+            <div class="field">
+              <label>Note</label>
+              <input data-factor-field="note" data-factor-index="${idx}" placeholder="说明" value="${escapeAttr(factor.note || '')}">
+            </div>
+          </div>
+          ${factor.refSource !== 'free_text' ? `<div class="tiny" style="margin-top:-4px; margin-bottom:8px;">${escapeHtml(actionRefHint(factor, suggestions))}</div>` : ''}
+          ${factorRefLabel(factor) ? `<div class="status" style="margin-top:0;">当前引用：${escapeHtml(factorRefLabel(factor))}</div>` : ''}
+          ${factor.refSource !== 'free_text' && pickerOpen && suggestions.length ? `
+            <div class="manual-list" style="margin-bottom:10px;">
+              ${suggestions.map(({ source, rec }) => `
+                <button class="btn" type="button" data-select-factor-ref="${idx}" data-ref-source="${source}" data-ref-id="${escapeAttr(source === 'auto_pda' ? rec.pdaId : rec.id)}" style="height:auto; min-height:44px; text-align:left; justify-content:flex-start;">
+                  ${escapeHtml(source === 'auto_pda' ? `选择 ${rec.pdaId} · ${rec.timeframe} · ${rec.pdaType} · ${firstPrice(rec)}` : `选择 ${rec.id} · ${rec.timeframe} · ${rec.pdaType}`)}
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
+          <div class="btn-row">
+            <button class="btn btn--tiny btn--danger" type="button" data-remove-factor="${idx}">移除</button>
+          </div>
+        `;
+
+        row.querySelectorAll('[data-factor-field]').forEach((input) => {
+          input.oninput = () => {
+            const f = path.endFactors[Number(input.dataset.factorIndex)];
+            f[input.dataset.factorField] = input.value;
+            if (input.dataset.factorField === 'refSource') {
+              f.pickerOpen = true;
+              f.refId = '';
+              f.refLabel = '';
+              if (input.value !== 'free_text') f.ref = '';
+            }
+            if (input.dataset.factorField === 'refId' && f.refSource === 'free_text') f.ref = input.value;
+            saveDraft();
+            if (input.dataset.factorField === 'endReason' || input.dataset.factorField === 'refSource') renderEndFactors();
+          };
+          input.onchange = input.oninput;
+        });
+
+        row.querySelectorAll('[data-toggle-factor-picker]').forEach((button) => {
+          button.onclick = () => {
+            const f = path.endFactors[Number(button.dataset.toggleFactorPicker)];
+            f.pickerOpen = f.pickerOpen === false;
+            renderEndFactors();
+            saveDraft();
+          };
+        });
+
+        row.querySelectorAll('[data-select-factor-ref]').forEach((button) => {
+          button.onclick = () => {
+            const source = button.dataset.refSource;
+            const refId = button.dataset.refId;
+            const rec = source === 'auto_pda'
+              ? state.autoRecords.find((item) => item.pdaId === refId)
+              : path.manualPdas.find((item) => item.id === refId);
+            if (rec) selectFactorRef(Number(button.dataset.selectFactorRef), source, rec);
+          };
+        });
+
+        row.querySelector('[data-remove-factor]').onclick = () => {
+          path.endFactors.splice(idx, 1);
+          renderEndFactors();
+          saveDraft();
+        };
+        wrap.appendChild(row);
+      });
+    }
+
+    function factorRefLabel(factor) {
+      return factor.refLabel || factor.refId || factor.ref || '';
+    }
+
+    function renderPathActions() {
+      const path = activePath();
+      const wrap = $('#pathActionsList');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      if (!Array.isArray(path.pathActions)) path.pathActions = [];
+
+      path.pathActions.forEach((action, idx) => {
         if (!action.refSource) action.refSource = action.refId ? 'auto_pda' : 'free_text';
         const pickerOpen = action.pickerOpen !== false;
         const autoMatches = action.refSource === 'auto_pda' ? autoRefMatches() : [];
         const manualMatches = action.refSource === 'manual_pda' ? manualRefMatches(path) : [];
         const suggestions = [...autoMatches.map((rec) => ({ source: 'auto_pda', rec })), ...manualMatches.map((rec) => ({ source: 'manual_pda', rec }))];
+
         const row = document.createElement('div');
         row.className = 'manual-item';
         row.innerHTML = `
@@ -2198,20 +2439,22 @@
           ` : ''}
           <div class="field">
             <label>Action Note</label>
-            <input data-action-field="note" data-action-index="${idx}" placeholder="例如：回撤到 D NDOG CE 后继续上行">
+            <input data-action-field="note" data-action-index="${idx}" placeholder="例如：穿越 D BSL 后继续上行">
           </div>
           <div class="btn-row">
             <button class="btn btn--tiny btn--danger" type="button" data-remove-action="${idx}">移除</button>
           </div>
         `;
+
         row.querySelector('[data-action-field="type"]').value = action.type || '';
         row.querySelector('[data-action-field="refSource"]').value = action.refSource || 'free_text';
         row.querySelector('[data-action-field="refId"]').value = action.refId || action.ref || '';
         if (row.querySelector('[data-action-field="ref"]')) row.querySelector('[data-action-field="ref"]').value = action.ref || '';
         row.querySelector('[data-action-field="note"]').value = action.note || '';
+
         row.querySelectorAll('[data-action-field]').forEach((input) => {
           input.oninput = () => {
-            const a = path.mainActions[Number(input.dataset.actionIndex)];
+            const a = path.pathActions[Number(input.dataset.actionIndex)];
             a[input.dataset.actionField] = input.value;
             if (input.dataset.actionField === 'refSource') {
               a.pickerOpen = true;
@@ -2220,20 +2463,21 @@
               if (input.value !== 'free_text') a.ref = '';
             }
             if (input.dataset.actionField === 'refId' && a.refSource === 'free_text') a.ref = input.value;
-            
             saveDraft();
-            if (input.dataset.actionField === 'refSource') renderMainActions();
+            if (input.dataset.actionField === 'refSource') renderPathActions();
           };
           input.onchange = input.oninput;
         });
+
         row.querySelectorAll('[data-toggle-action-picker]').forEach((button) => {
           button.onclick = () => {
-            const a = path.mainActions[Number(button.dataset.toggleActionPicker)];
+            const a = path.pathActions[Number(button.dataset.toggleActionPicker)];
             a.pickerOpen = a.pickerOpen === false;
-            renderMainActions();
+            renderPathActions();
             saveDraft();
           };
         });
+
         row.querySelectorAll('[data-select-action-ref]').forEach((button) => {
           button.onclick = () => {
             const source = button.dataset.refSource;
@@ -2244,22 +2488,39 @@
             if (rec) selectActionRef(Number(button.dataset.selectActionRef), source, rec);
           };
         });
+
         row.querySelector('[data-remove-action]').onclick = () => {
-          path.mainActions.splice(idx, 1);
-          if (!path.mainActions.length) path.mainActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
-          renderMainActions();
-          
+          path.pathActions.splice(idx, 1);
+          renderPathActions();
+          saveDraft();
         };
         wrap.appendChild(row);
       });
     }
 
-    function addMainAction() {
+    function addEndFactor() {
       const path = activePath();
-      path.mainActions = path.mainActions || [];
-      path.mainActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
-      renderMainActions();
-      
+      path.endFactors = path.endFactors || [];
+      path.endFactors.push({
+        endReason: '',
+        endReasonTf: '',
+        endRespectType: '',
+        endRespectExtent: '',
+        refSource: 'free_text',
+        refId: '',
+        refLabel: '',
+        ref: '',
+        note: ''
+      });
+      renderEndFactors();
+      saveDraft();
+    }
+
+    function addPathAction() {
+      const path = activePath();
+      path.pathActions = path.pathActions || [];
+      path.pathActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
+      renderPathActions();
       saveDraft();
     }
 
@@ -2383,28 +2644,50 @@
       return fetchJson(`${api}/price?${params.toString()}`);
     }
 
-    async function calcSmoothnessFromAPI(startTime, endTime) {
+    async function calcSmoothnessFromAPI(startTime, endTime, barMinutes) {
       if (!startTime || !endTime) return null;
       syncTopInputs();
       const api = state.apiBase.replace(/\/$/, '');
-      const params = new URLSearchParams({ start: startTime, end: endTime });
-      const data = await fetchJson(`${api}/v2/smoothness?${params.toString()}`);
-      if (!data?.ok || !data?.result) return null;
-      return data.result;
+      const params = new URLSearchParams({ start: startTime, end: endTime, bar_minutes: String(barMinutes) });
+      const result = await fetchJson(`${api}/v2/smoothness?${params.toString()}`);
+      return result;
+    }
+
+    function _barMinutesLabel(m) {
+      if (m >= 1440) return '1D';
+      if (m >= 240) return '4H';
+      if (m >= 60) return '1H';
+      if (m >= 15) return '15m';
+      return m + 'm';
     }
 
     async function autoCalcSmoothness() {
       const path = activePath();
       if (!path) return setStatus('请先选择或新增一条 Path。', 'warn');
       if (!path.startTime || !path.endTime) return setStatus('请先填写 Start Time 和 End Time。', 'warn');
+
+      const barMinutes = parseInt($('#smoothnessBarMinutes').value, 10) || 60;
+
+      // 校验：区间必须 >= 所选周期
+      const start = parseDateTime(path.startTime);
+      const end = parseDateTime(path.endTime);
+      if (start && end) {
+        const diffMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+        if (diffMinutes < barMinutes) {
+          const need = _barMinutesLabel(barMinutes);
+          const actual = diffMinutes >= 60 ? (diffMinutes / 60).toFixed(1) + 'H' : diffMinutes + 'm';
+          return setStatus(`区间 ${actual} 小于所选周期 ${need}，无法计算。`, 'danger');
+        }
+      }
+
       try {
-        setStatus('正在计算顺畅度...');
-        const result = await calcSmoothnessFromAPI(path.startTime, path.endTime);
+        setStatus(`正在计算流畅度（${_barMinutesLabel(barMinutes)} 聚合）...`);
+        const result = await calcSmoothnessFromAPI(path.startTime, path.endTime, barMinutes);
         if (!result) throw new Error('计算失败');
-        const score = Math.round(result.smoothness);
-        $('[data-field="smoothness"]').value = String(score);
+        $('[data-field="smoothness"]').value = String(result.smoothness);
         syncCurrentPath();
-        setStatus(`顺畅度: ${result.smoothness} (${result.barCount}根K线)`, 'ok');
+        const aligned = result.alignedStart && result.alignedEnd ? ` (${result.alignedStart.slice(11, 16)} → ${result.alignedEnd.slice(11, 16)})` : '';
+        setStatus(`流畅度: ${result.smoothness} 分 (${result.barCount}根${_barMinutesLabel(barMinutes)} K线)${aligned}`, 'ok');
       } catch (err) {
         setStatus(`计算失败: ${err.message}`, 'danger');
       }
@@ -2778,20 +3061,42 @@
         if (path.ratioToPrev) lines.push(`    ratio_to_prev: ${yamlQuote(path.ratioToPrev)}`);
         if (path.startOrigin) lines.push(`    start_origin: ${yamlQuote(path.startOrigin)}`);
         if (path.prevPathId) lines.push(`    prev_path_id: ${yamlQuote(path.prevPathId)}`);
-        if (path.endReason) lines.push(`    end_reason: ${yamlQuote(path.endReason)}`);
-        if (path.endInteraction) lines.push(`    end_interaction: ${yamlQuote(path.endInteraction)}`);
-        if (path.endBreakoutExtent) lines.push(`    end_breakout_extent: ${yamlQuote(path.endBreakoutExtent)}`);
-        if (path.endRespectType) lines.push(`    end_respect_type: ${yamlQuote(path.endRespectType)}`);
-        if (path.endRespectExtent) lines.push(`    end_respect_extent: ${yamlQuote(path.endRespectExtent)}`);
         if (path.note) lines.push(`    note: ${yamlQuote(path.note)}`);
         if (path.tags) {
           lines.push('    tags:');
           String(path.tags).split(',').map((s) => s.trim()).filter(Boolean).forEach((tag) => lines.push(`      - ${yamlQuote(tag)}`));
         }
-        if (Array.isArray(path.mainActions) && path.mainActions.length) {
-          const actions = path.mainActions.filter((action) => action.type || action.ref || action.refId || action.note);
+        // End Factors
+        if (Array.isArray(path.endFactors) && path.endFactors.length) {
+          const factors = path.endFactors.filter((f) => f.endReason || f.refId || f.note);
+          if (factors.length) {
+            lines.push('    end_factors:');
+            factors.forEach((factor) => {
+              lines.push('      -');
+              if (factor.endReason) {
+                let er = yamlQuote(factor.endReason);
+                if (factor.endReasonTf) er += `/${yamlQuote(factor.endReasonTf)}`;
+                lines.push(`        end_reason: ${er}`);
+              }
+              if (factor.endRespectType) lines.push(`        end_respect_type: ${yamlQuote(factor.endRespectType)}`);
+              if (factor.endRespectExtent) lines.push(`        end_respect_extent: ${yamlQuote(factor.endRespectExtent)}`);
+              if (factor.refSource && factor.refSource !== 'free_text') lines.push(`        ref_source: ${yamlQuote(factor.refSource)}`);
+              if (factor.refId) lines.push(`        ref_id: ${yamlQuote(factor.refId)}`);
+              if (factor.refLabel) lines.push(`        ref_label: ${yamlQuote(factor.refLabel)}`);
+              if (factor.ref && (!factor.refId || factor.refSource === 'free_text')) lines.push(`        ref: ${yamlQuote(factor.ref)}`);
+              if (factor.note) lines.push(`        note: ${yamlQuote(factor.note)}`);
+            });
+          } else {
+            lines.push('    end_factors: []');
+          }
+        } else {
+          lines.push('    end_factors: []');
+        }
+        // Path Actions
+        if (Array.isArray(path.pathActions) && path.pathActions.length) {
+          const actions = path.pathActions.filter((action) => action.type || action.ref || action.refId || action.note);
           if (actions.length) {
-          lines.push('    main_actions:');
+            lines.push('    path_actions:');
             actions.forEach((action) => {
               lines.push('      -');
               if (action.type) lines.push(`        type: ${yamlQuote(action.type)}`);
@@ -2802,10 +3107,10 @@
               if (action.note) lines.push(`        note: ${yamlQuote(action.note)}`);
             });
           } else {
-            lines.push('    main_actions: []');
+            lines.push('    path_actions: []');
           }
         } else {
-          lines.push('    main_actions: []');
+          lines.push('    path_actions: []');
         }
         const manualPdas = path.manualPdas || [];
         if (manualPdas.length) {
@@ -3060,7 +3365,8 @@
       $$('[data-editor-tab]').forEach((button) => {
         button.onclick = () => switchEditorTab(button.dataset.editorTab);
       });
-      $('#addMainActionBtn').onclick = addMainAction;
+      $('#addEndFactorBtn').onclick = addEndFactor;
+      $('#addPathActionBtn').onclick = addPathAction;
       $('#addGroupBtn').onclick = addGroup;
       $('#deleteGroupBtn').onclick = deleteGroup;
       $('#copyGroupsYamlBtn').onclick = copyGroupsYaml;

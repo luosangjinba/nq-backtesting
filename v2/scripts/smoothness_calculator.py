@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-计算一段行情的 K 线顺畅度评分。
+计算一段行情的 K 线流畅度评分。
 
 用法:
     python3 smoothness_calculator.py --db trading_data.duckdb --table futures_1m \
@@ -13,8 +13,8 @@ import math
 import sys
 
 
-def fetch_bars(db_path, table, start_time, end_time):
-    """获取指定时间段的 K 线数据"""
+def fetch_bars(db_path, table, start_time, end_time, bar_minutes=5):
+    """获取指定时间段的 K 线数据并聚合为 N 分钟"""
     conn = duckdb.connect(db_path, read_only=True)
     query = f"""
         SELECT ts, open, high, low, close
@@ -24,7 +24,49 @@ def fetch_bars(db_path, table, start_time, end_time):
     """
     result = conn.execute(query).fetchall()
     conn.close()
-    return result
+    return aggregate_bars(result, bar_minutes)
+
+
+def aggregate_bars(rows, bar_minutes):
+    """将 1m K 线聚合为 N 分钟 K 线"""
+    from datetime import datetime
+
+    bars = []
+    bucket_start = None
+    bucket_open = None
+    bucket_high = None
+    bucket_low = None
+    bucket_close = None
+
+    for row in rows:
+        ts = row[0]
+        o, h, l, c = float(row[1]), float(row[2]), float(row[3]), float(row[4])
+
+        if isinstance(ts, str):
+            ts_dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+        else:
+            ts_dt = ts
+
+        minute_offset = ts_dt.minute % bar_minutes
+        current_bucket = ts_dt.replace(minute=ts_dt.minute - minute_offset, second=0, microsecond=0)
+
+        if bucket_start is None or current_bucket != bucket_start:
+            if bucket_start is not None:
+                bars.append((bucket_start, bucket_open, bucket_high, bucket_low, bucket_close))
+            bucket_start = current_bucket
+            bucket_open = o
+            bucket_high = h
+            bucket_low = l
+            bucket_close = c
+        else:
+            bucket_high = max(bucket_high, h)
+            bucket_low = min(bucket_low, l)
+            bucket_close = c
+
+    if bucket_start is not None:
+        bars.append((bucket_start, bucket_open, bucket_high, bucket_low, bucket_close))
+
+    return bars
 
 
 def calc_direction_consistency(bars):
@@ -176,7 +218,7 @@ def calc_slope_stability(bars):
 
 
 def calc_smoothness(bars):
-    """综合顺畅度评分 (1-5)"""
+    """综合流畅度评分 (1-5)"""
     if len(bars) < 2:
         return 2.5  # 数据不足，返回中间值
 
@@ -219,15 +261,16 @@ def calc_smoothness(bars):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='计算K线顺畅度评分')
+    parser = argparse.ArgumentParser(description='计算K线流畅度评分')
     parser.add_argument('--db', required=True, help='DuckDB 数据库路径')
     parser.add_argument('--table', default='futures_1m', help='K线表名')
     parser.add_argument('--start', required=True, help='起始时间 YYYY-MM-DD HH:MM:SS')
     parser.add_argument('--end', required=True, help='结束时间 YYYY-MM-DD HH:MM:SS')
+    parser.add_argument('--bar-minutes', type=int, default=5, help='聚合K线周期（默认5分钟）')
 
     args = parser.parse_args()
 
-    bars = fetch_bars(args.db, args.table, args.start, args.end)
+    bars = fetch_bars(args.db, args.table, args.start, args.end, args.bar_minutes)
 
     if not bars:
         print(f"错误：未找到数据 ({args.start} ~ {args.end})")
@@ -236,6 +279,7 @@ def main():
     smoothness, details = calc_smoothness(bars)
 
     print(f"\n时间段: {args.start} ~ {args.end}")
+    print(f"K线周期: {args.bar_minutes}m")
     print(f"K线数量: {details['bar_count']}")
     print(f"\n各指标:")
     print(f"  方向一致性: {details['direction_consistency']}")
@@ -243,7 +287,7 @@ def main():
     print(f"  连续性:     {details['continuity']}")
     print(f"  推进效率:   {details['efficiency']}")
     print(f"  斜率稳定性: {details['slope_stability']}")
-    print(f"\n综合顺畅度评分: {round(smoothness, 2)} (1-5)")
+    print(f"\n综合流畅度评分: {round(smoothness, 2)} (1-5)")
     print(f"  5 = 非常顺畅")
     print(f"  4 = 顺畅")
     print(f"  3 = 一般")

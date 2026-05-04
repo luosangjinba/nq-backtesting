@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V2 参数速查</title>
+  <style>
+    :root {
+      --bg: #1e1b18;
+      --panel: #2a2520;
+      --panel-alt: #363028;
+      --border: #5a5045;
+      --text: #f5f0e8;
+      --text-muted: #a89a8a;
+      --accent: #d4a056;
+      --success: #7db87d;
+      --warning: #d4a056;
+      --danger: #c87070;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card-title {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+      width: 40%;
+    }
+    td {
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      color: var(--text);
+    }
+    .weight-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .weight-bar-fill {
+      height: 8px;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+    .weight-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: var(--panel-alt);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .tag--primary { background: var(--accent); color: var(--bg); }
+    .tag--success { background: var(--success); color: var(--bg); }
+    .tag--muted { background: var(--panel-alt); color: var(--text-muted); }
+    .formula {
+      background: var(--panel-alt);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      line-height: 1.8;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .updated {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: 20px;
+    }
+    .loading {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 40px;
+    }
+    .error {
+      color: var(--danger);
+      text-align: center;
+      padding: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>V2 参数速查</h1>
+  <div id="content"><div class="loading">加载中...</div></div>
+  <div class="updated" id="updated"></div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8765';
+
+    async function fetchConfig() {
+      const res = await fetch(`${API_BASE}/v2/config`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      return data.result;
+    }
+
+    function renderWeights(fluency) {
+      const weights = fluency?.weights || {};
+      const indicators = fluency?.indicators || {};
+      const labels = {
+        direction_consistency: '方向一致性',
+        efficiency: '推进效率',
+        continuity: '连续性',
+        body_ratio: '实体占比',
+        slope_stability: '斜率稳定性'
+      };
+      const defaultWeights = { direction_consistency: 0.42, efficiency: 0.22, continuity: 0.16, body_ratio: 0.15, slope_stability: 0.05 };
+
+      let rows = '';
+      for (const [key, label] of Object.entries(labels)) {
+        const w = (weights[key] || defaultWeights[key]) * 100;
+        rows += `<tr><th>${label}</th><td><div class="weight-bar"><span>${w.toFixed(0)}%</span><div class="weight-bar-bg"><div class="weight-bar-fill" style="width:${w}%"></div></div></div></td></tr>`;
+      }
+
+      return `
+        <div class="card">
+          <div class="card-title">流畅度权重</div>
+          <table>${rows}</table>
+          <div class="note">评分范围：${fluency?.score_min ?? 0}-${fluency?.score_max ?? 100} 分</div>
+        </div>
+      `;
+    }
+
+    function renderFormula(fluency) {
+      const w = fluency?.weights || {};
+      const lines = [
+        `流畅度 = (${(w.direction_consistency || 0.42).toFixed(2)} × 方向一致性`,
+        `  + ${(w.efficiency || 0.22).toFixed(2)} × 推进效率`,
+        `  + ${(w.continuity || 0.16).toFixed(2)} × 连续性`,
+        `  + ${(w.body_ratio || 0.15).toFixed(2)} × 实体占比`,
+        `  + ${(w.slope_stability || 0.05).toFixed(2)} × 斜率稳定性) × 100`
+      ];
+      const processing = fluency?.processing || {};
+      return `
+        <div class="card">
+          <div class="card-title">流畅度计算公式</div>
+          <div class="formula">${lines.join('\n')}</div>
+          <div class="note">${processing.exclude_first_bar ? '首根K线已剔除，' : ''}${processing.neutral_bar_handling || ''}</div>
+        </div>
+      `;
+    }
+
+    function renderIndicators(fluency) {
+      const indicators = fluency?.indicators || {};
+      let rows = '';
+      for (const [key, ind] of Object.entries(indicators)) {
+        rows += `<tr><th>${ind.name}</th><td>${ind.formula}</td></tr>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-title">指标定义</div>
+          <table>${rows}</table>
+        </div>
+      `;
+    }
+
+    function renderBarMinutes(fluency) {
+      const options = fluency?.bar_minutes_options || [];
+      let rows = '';
+      for (const opt of options) {
+        const isDefault = opt.default ? ' (默认)' : '';
+        rows += `<tr><th>${opt.label}</th><td>${opt.value} 分钟${isDefault}</td></tr>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-title">可用时间周期</div>
+          <table>${rows}</table>
+          <div class="note">时间对齐：${fluency?.processing?.time_alignment || '向下取整'}</div>
+        </div>
+      `;
+    }
+
+    function renderApi(api) {
+      const endpoints = api?.endpoints || [];
+      let rows = '';
+      for (const ep of endpoints) {
+        const params = ep.params ? `?${ep.params.join(', ')}` : '';
+        rows += `<tr><th>${ep.path}${params}</th><td>${ep.description}</td></tr>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-title">API 端点</div>
+          <table>${rows}</table>
+        </div>
+      `;
+    }
+
+    function renderDatabase(db) {
+      const primary = db?.primary || {};
+      const v2 = db?.v2_research || {};
+      return `
+        <div class="card">
+          <div class="card-title">数据库</div>
+          <table>
+            <tr><th>1m K线数据</th><td>${primary.path || 'trading_data.duckdb'}</td></tr>
+            <tr><th>表名</th><td>${primary.table || 'futures_1m'}</td></tr>
+            <tr><th>V2 研究数据</th><td>${v2.path || 'v2/data/v2_research.duckdb'}</td></tr>
+            <tr><th>品种</th><td>${db?.instrument || 'NQ'} (${db?.instrument_name || '纳斯达克期货'})</td></tr>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderPathFields(path) {
+      const fields = path?.fields || [];
+      let rows = '';
+      for (const f of fields) {
+        const opts = f.options ? f.options.join(' / ') : '';
+        const desc = f.description ? ` <span class="note">${f.description}</span>` : '';
+        rows += `<tr><th>${f.label}</th><td>${opts || f.type}${desc}</td></tr>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-title">Path 字段</div>
+          <table>${rows}</table>
+        </div>
+      `;
+    }
+
+    function renderPdaTypes(pdaTypes) {
+      const categoryClass = { point: 'tag--primary', range: 'tag--success', composite: 'tag--muted' };
+      let rows = '';
+      for (const pda of (pdaTypes || [])) {
+        rows += `<tr><th>${pda.name}</th><td>${pda.full_name} <span class="tag ${categoryClass[pda.category]}">${pda.category_label}</span></td></tr>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-title">PDA 类型</div>
+          <table>${rows}</table>
+        </div>
+      `;
+    }
+
+    function renderEnumOptions(path, fieldName) {
+      const field = (path?.fields || []).find(f => f.name === fieldName);
+      if (!field || !field.options) return '';
+      let rows = '';
+      for (const opt of field.options) {
+        rows += `<tr><th>${opt}</th><td></td></tr>`;
+      }
+      return `
+        <div class="card">
+          <div class="card-title">${fieldName} 选项</div>
+          <table>${rows}</table>
+        </div>
+      `;
+    }
+
+    async function render() {
+      try {
+        const config = await fetchConfig();
+        const fluency = config.fluency || {};
+        const path = config.path || {};
+        const pdaTypes = config.pda_types || [];
+        const db = config.database || {};
+        const api = config.api || {};
+
+        document.getElementById('content').innerHTML = `
+          <div class="grid">
+            ${renderWeights(fluency)}
+            ${renderFormula(fluency)}
+            ${renderIndicators(fluency)}
+            ${renderBarMinutes(fluency)}
+            ${renderApi(api)}
+            ${renderDatabase(db)}
+            ${renderPathFields(path)}
+            ${renderPdaTypes(pdaTypes)}
+            ${renderEnumOptions(path, 'startOrigin')}
+            ${renderEnumOptions(path, 'endReason')}
+          </div>
+        `;
+        document.getElementById('updated').textContent = `最后更新: ${config.meta?.updated || '-'}`;
+      } catch (err) {
+        document.getElementById('content').innerHTML = `<div class="error">加载失败: ${err.message}</div>`;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -21,6 +21,28 @@ from typing import Dict
 from urllib.parse import parse_qs, urlparse
 
 import duckdb
+import yaml
+
+
+# 全局配置对象
+V2_CONFIG: Dict = {}
+
+
+def load_v2_config(config_path: str = None) -> Dict:
+    """加载 V2 配置文件"""
+    if config_path is None:
+        # 默认路径：v2/v2_config.yaml
+        script_dir = Path(__file__).parent
+        config_path = script_dir / "v2" / "v2_config.yaml"
+    else:
+        config_path = Path(config_path)
+
+    if not config_path.exists():
+        print(f"Warning: V2 config not found at {config_path}, using defaults")
+        return {}
+
+    with open(config_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
 
 VALID_FIELDS = {"open", "high", "low", "close"}
@@ -2089,11 +2111,40 @@ class Handler(BaseHTTPRequestHandler):
                 params = parse_qs(parsed.query)
                 start_time = params["start"][0]
                 end_time = params["end"][0]
+                bar_minutes = min(max(int(params.get("bar_minutes", ["5"])[0]), 1), 1440)
+                # 校验：区间必须 >= bar_minutes
+                try:
+                    from datetime import datetime as _dt
+                    def _parse_time(t):
+                        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+                            try:
+                                return _dt.strptime(t, fmt)
+                            except ValueError:
+                                continue
+                        raise ValueError(f"无法解析时间: {t}")
+                    st = _parse_time(start_time)
+                    et = _parse_time(end_time)
+                    diff_min = (et - st).total_seconds() / 60
+                    if diff_min < bar_minutes:
+                        raise ValueError(f"区间 {diff_min:.0f}m 小于所选周期 {bar_minutes}m，无法计算")
+                except ValueError:
+                    raise
+                except Exception:
+                    pass
                 table = validate_table(self.table)
-                result = calc_smoothness(self.db_path, table, start_time, end_time)
+                result = calc_smoothness(self.db_path, table, start_time, end_time, bar_minutes)
                 self._send_json(200, {"ok": True, "result": result})
             except KeyError as exc:
                 self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/config":
+            try:
+                self._send_json(200, {"ok": True, "result": V2_CONFIG})
             except Exception as exc:
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
@@ -2343,21 +2394,53 @@ class Handler(BaseHTTPRequestHandler):
 
 # ── Smoothness Calculator ──
 
-def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str) -> Dict[str, object]:
-    """计算一段行情的 K 线顺畅度评分 (1-5)"""
+def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str, bar_minutes: int = 5) -> Dict[str, object]:
+    """计算一段行情的 K 线顺畅度评分 (1-5)，默认用 5m 聚合"""
     import math
+    from datetime import datetime
+
+    # 对齐 start/end 到 bar_minutes 边界
+    def _align_time(t: str) -> str:
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+            try:
+                dt = datetime.strptime(t, fmt)
+                minute_offset = dt.minute % bar_minutes
+                aligned = dt.replace(minute=dt.minute - minute_offset, second=0, microsecond=0)
+                return aligned.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                continue
+        return t
+
+    aligned_start = _align_time(start_time)
+    aligned_end = _align_time(end_time)
+
+    # aligned_end 是最后一个聚合桶的起始时间，需要包含该桶的全部分钟数据
+    # 例如 1H 周期下 aligned_end=10:00，需要包含 10:00~10:59，即 ts < 11:00
+    from datetime import datetime, timedelta
+    end_dt = datetime.strptime(aligned_end, "%Y-%m-%d %H:%M:%S") + timedelta(minutes=bar_minutes)
+    aligned_end_exclusive = end_dt.strftime("%Y-%m-%d %H:%M:%S")
 
     conn = duckdb.connect(db_path, read_only=True)
     rows = conn.execute(
         f"SELECT ts, open, high, low, close FROM {table} "
-        f"WHERE ts >= '{start_time}' AND ts <= '{end_time}' ORDER BY ts"
+        f"WHERE ts >= '{aligned_start}' AND ts < '{aligned_end_exclusive}' ORDER BY ts"
     ).fetchall()
     conn.close()
 
     if len(rows) < 2:
-        return {"smoothness": 2.5, "barCount": len(rows), "details": {}, "message": "数据不足"}
+        return {"smoothness": 2.5, "barCount": 0, "rawBarCount": len(rows), "barMinutes": bar_minutes, "alignedStart": aligned_start, "alignedEnd": aligned_end, "details": {}, "message": "数据不足"}
 
-    bars = [(r[0], float(r[1]), float(r[2]), float(r[3]), float(r[4])) for r in rows]
+    # 聚合为 N 分钟 K 线
+    bars = _aggregate_bars(rows, bar_minutes)
+
+    if len(bars) < 2:
+        return {"smoothness": 2.5, "barCount": len(bars), "rawBarCount": len(rows), "barMinutes": bar_minutes, "alignedStart": aligned_start, "alignedEnd": aligned_end, "details": {}, "message": "聚合后数据不足"}
+
+    # 剔除首根 K 线（首根可能是反转K，影响流畅度计算）
+    bars = bars[1:]
+
+    if len(bars) < 2:
+        return {"smoothness": 2.5, "barCount": len(bars), "rawBarCount": len(rows), "barMinutes": bar_minutes, "alignedStart": aligned_start, "alignedEnd": aligned_end, "details": {}, "message": "剔除首根后数据不足"}
 
     # 1. 方向一致性
     directions = []
@@ -2370,7 +2453,13 @@ def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str) ->
             directions.append(0)
     bullish = sum(1 for d in directions if d > 0)
     bearish = sum(1 for d in directions if d < 0)
-    dominant_count = max(bullish, bearish)
+    neutral = sum(1 for d in directions if d == 0)
+
+    # 平K线按整体趋势方向计入
+    if bullish >= bearish:
+        dominant_count = bullish + neutral
+    else:
+        dominant_count = bearish + neutral
     direction_consistency = dominant_count / len(bars)
 
     # 2. 实体占比
@@ -2409,21 +2498,45 @@ def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str) ->
     else:
         variance = sum((s - mean_slope) ** 2 for s in slopes) / len(slopes)
         std_slope = math.sqrt(variance)
-        slope_stability = 1 - min(std_slope / abs(mean_slope), 1.0)
+        # 归零时用方向一致性替代，避免极端拖分
+        raw_stability = 1 - min(std_slope / abs(mean_slope), 1.0)
+        slope_stability = max(raw_stability, direction_consistency * 0.5)
 
-    # 综合评分
+    # 从配置获取权重，默认值作为后备
+    weights = V2_CONFIG.get("fluency", {}).get("weights", {})
+    w_dir = weights.get("direction_consistency", 0.42)
+    w_eff = weights.get("efficiency", 0.22)
+    w_cont = weights.get("continuity", 0.16)
+    w_body = weights.get("body_ratio", 0.15)
+    w_slope = weights.get("slope_stability", 0.05)
+
+    # 综合评分 (0-100分)
     raw = (
-        0.30 * direction_consistency +
-        0.25 * body_ratio +
-        0.20 * continuity +
-        0.15 * efficiency +
-        0.10 * slope_stability
+        w_dir * direction_consistency +
+        w_body * body_ratio +
+        w_cont * continuity +
+        w_eff * efficiency +
+        w_slope * slope_stability
     )
-    smoothness = round(1 + raw * 4, 2)
+    smoothness = round(raw * 100, 1)
+
+    # 方向符号序列
+    dir_symbols = []
+    for d in directions:
+        if d > 0:
+            dir_symbols.append("↑")
+        elif d < 0:
+            dir_symbols.append("↓")
+        else:
+            dir_symbols.append("—")
 
     return {
         "smoothness": smoothness,
         "barCount": len(bars),
+        "rawBarCount": len(rows),
+        "barMinutes": bar_minutes,
+        "alignedStart": aligned_start,
+        "alignedEnd": aligned_end,
         "details": {
             "directionConsistency": round(direction_consistency, 3),
             "bodyRatio": round(body_ratio, 3),
@@ -2431,7 +2544,69 @@ def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str) ->
             "efficiency": round(efficiency, 3),
             "slopeStability": round(slope_stability, 3),
         },
+        "debug": {
+            "directions": dir_symbols,
+            "startPrice": round(start_price, 2),
+            "endPrice": round(end_price, 2),
+            "netMove": round(net_move, 2),
+            "totalMove": round(total_move, 2),
+            "avgBody": round(avg_body, 2),
+            "avgRange": round(avg_range, 2),
+            "bullish": bullish,
+            "bearish": bearish,
+            "neutral": neutral,
+            "maxConsecutive": max_consecutive,
+            "meanSlope": round(mean_slope, 4) if mean_slope != 0 else 0,
+            "stdSlope": round(math.sqrt(variance), 4) if mean_slope != 0 else 0,
+        },
     }
+
+
+def _aggregate_bars(rows: list, bar_minutes: int) -> list:
+    """将 1m K 线聚合为 N 分钟 K 线"""
+    from datetime import datetime, timedelta
+
+    bars = []
+    bucket_start = None
+    bucket_open = None
+    bucket_high = None
+    bucket_low = None
+    bucket_close = None
+
+    for row in rows:
+        ts = row[0]
+        o, h, l, c = float(row[1]), float(row[2]), float(row[3]), float(row[4])
+
+        if isinstance(ts, str):
+            ts_dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+        else:
+            ts_dt = ts
+
+        # 计算当前时间所属的聚合桶起始时间
+        minute_offset = ts_dt.minute % bar_minutes
+        current_bucket = ts_dt.replace(minute=ts_dt.minute - minute_offset, second=0, microsecond=0)
+
+        if bucket_start is None or current_bucket != bucket_start:
+            # 保存上一个桶
+            if bucket_start is not None:
+                bars.append((bucket_start, bucket_open, bucket_high, bucket_low, bucket_close))
+            # 开始新桶
+            bucket_start = current_bucket
+            bucket_open = o
+            bucket_high = h
+            bucket_low = l
+            bucket_close = c
+        else:
+            # 同一个桶内，更新 high/low/close
+            bucket_high = max(bucket_high, h)
+            bucket_low = min(bucket_low, l)
+            bucket_close = c
+
+    # 保存最后一个桶
+    if bucket_start is not None:
+        bars.append((bucket_start, bucket_open, bucket_high, bucket_low, bucket_close))
+
+    return bars
 
 
 def main() -> int:
@@ -2439,6 +2614,14 @@ def main() -> int:
     db_path = resolve_db_path(args.db_file)
     if not Path(db_path).exists():
         raise SystemExit(f"duckdb file not found: {db_path}")
+
+    # 加载 V2 配置
+    global V2_CONFIG
+    V2_CONFIG = load_v2_config()
+    if V2_CONFIG:
+        print(f"V2 config loaded from v2/v2_config.yaml")
+    else:
+        print("V2 config not found, using defaults")
 
     Handler.db_path = db_path
     Handler.table = args.table
