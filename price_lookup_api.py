@@ -1755,6 +1755,98 @@ def query_v2_pda_match(
     }
 
 
+def query_v2_bars(
+    db_path: str,
+    table: str,
+    instrument: str,
+    start: str,
+    end: str,
+    tf: int = 1,
+    padding: int = 19,
+) -> list[Dict[str, object]]:
+    """Return OHLCV bars for a time range, optionally aggregated, with padding bars on each side."""
+    start_dt = _parse_datetime(start)
+    end_dt = _parse_datetime(end)
+    if start_dt >= end_dt:
+        raise ValueError("start must be before end")
+
+    # Expand range by padding bars
+    pad_minutes = padding * tf
+    query_start = start_dt - timedelta(minutes=pad_minutes)
+    query_end = end_dt + timedelta(minutes=pad_minutes)
+
+    if tf <= 1:
+        # Raw 1m bars, no aggregation needed
+        sql = f"""
+select ts, open, high, low, close, volume
+from {table}
+where instrument = ?
+  and ts >= ?
+  and ts < ?
+order by ts
+""".strip()
+        with open_db(db_path) as conn:
+            rows = conn.execute(sql, [instrument, query_start, query_end]).fetchall()
+        return [
+            {
+                "time": row[0].strftime("%Y-%m-%d %H:%M"),
+                "open": float(row[1]),
+                "high": float(row[2]),
+                "low": float(row[3]),
+                "close": float(row[4]),
+                "volume": int(row[5]) if row[5] is not None else 0,
+            }
+            for row in rows
+        ]
+
+    # Aggregate into tf-minute bars
+    sql = f"""
+with bars as (
+  select
+    date_trunc('minute', ts) as ts,
+    open, high, low, close, volume
+  from {table}
+  where instrument = ?
+    and ts >= ?
+    and ts < ?
+)
+select
+  floor((extract(epoch from ts) - extract(epoch from cast(? as timestamp))) / (60 * ?)) as bucket,
+  min(ts) as bar_start,
+  first(open order by ts) as open,
+  max(high) as high,
+  min(low) as low,
+  last(close order by ts) as close,
+  sum(coalesce(volume, 0)) as volume
+from bars
+group by bucket
+order by bucket
+""".strip()
+    with open_db(db_path) as conn:
+        rows = conn.execute(sql, [instrument, query_start, query_end, query_start, tf]).fetchall()
+    return [
+        {
+            "time": row[1].strftime("%Y-%m-%d %H:%M"),
+            "open": float(row[2]),
+            "high": float(row[3]),
+            "low": float(row[4]),
+            "close": float(row[5]),
+            "volume": int(row[6]) if row[6] is not None else 0,
+        }
+        for row in rows
+    ]
+
+
+def _parse_datetime(text: str) -> datetime:
+    """Parse a datetime string, supporting YYYY-MM-DD HH:MM and YYYY-MM-DD HH:MM:SS."""
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"无法解析时间: {text}")
+
+
 def query_price(
     db_path: str,
     table: str,
@@ -2053,6 +2145,27 @@ class Handler(BaseHTTPRequestHandler):
                     member_refs.extend([part.strip() for part in item.split(",") if part.strip()])
                 result = query_v2_reference_groups_for_members(self.v2_db_path, member_refs)
                 self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/bars":
+            try:
+                params = parse_qs(parsed.query)
+                start = params["start"][0]
+                end = params["end"][0]
+                tf = min(max(int(params.get("tf", ["1"])[0]), 1), 1440)
+                padding = min(max(int(params.get("padding", ["19"])[0]), 0), 200)
+                instrument = validate_instrument(params.get("instrument", ["NQ"])[0])
+                table = validate_table(self.table)
+                result = query_v2_bars(self.db_path, table, instrument, start, end, tf, padding)
+                self._send_json(200, {"ok": True, "result": result})
+            except KeyError as exc:
+                self._send_json(400, {"ok": False, "error": f"missing parameter: {exc.args[0]}"})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
             except Exception as exc:
@@ -2504,9 +2617,9 @@ def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str, ba
 
     # 从配置获取权重，默认值作为后备
     weights = V2_CONFIG.get("fluency", {}).get("weights", {})
-    w_dir = weights.get("direction_consistency", 0.42)
-    w_eff = weights.get("efficiency", 0.22)
-    w_cont = weights.get("continuity", 0.16)
+    w_dir = weights.get("direction_consistency", 0.50)
+    w_eff = weights.get("efficiency", 0.15)
+    w_cont = weights.get("continuity", 0.15)
     w_body = weights.get("body_ratio", 0.15)
     w_slope = weights.get("slope_stability", 0.05)
 

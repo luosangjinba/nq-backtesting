@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K线查看器</title>
+  <script src="https://unpkg.com/lightweight-charts@5.2.0/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    :root {
+      --bg: #1e1b18;
+      --panel: #2a2520;
+      --line: #5a5045;
+      --text: #f5f0e8;
+      --text-dim: #c8bfb0;
+      --muted: #a89a8a;
+      --accent: #d4a056;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .toolbar label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .toolbar select, .toolbar input {
+      font: inherit;
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+    .toolbar select { width: 70px; }
+    .toolbar .info {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .toolbar .info span { color: var(--accent); font-weight: 600; }
+    #chartContainer {
+      flex: 1;
+      min-height: 0;
+    }
+    .loading, .error {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+    .error { color: #c87070; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <label>周期</label>
+    <select id="tfSelect">
+      <option value="1">1m</option>
+      <option value="5">5m</option>
+      <option value="15">15m</option>
+      <option value="30">30m</option>
+      <option value="60" selected>1H</option>
+      <option value="240">4H</option>
+      <option value="1440">1D</option>
+    </select>
+    <label>前后扩展</label>
+    <select id="paddingSelect">
+      <option value="0">无</option>
+      <option value="10">10根</option>
+      <option value="19" selected>19根</option>
+      <option value="39">39根</option>
+    </select>
+    <div class="info" id="infoBar"></div>
+  </div>
+  <div id="chartContainer"></div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8765';
+    const params = new URLSearchParams(location.search);
+    const startParam = params.get('start') || '';
+    const endParam = params.get('end') || '';
+    const tfParam = params.get('tf') || '60';
+
+    const tfSelect = document.getElementById('tfSelect');
+    const paddingSelect = document.getElementById('paddingSelect');
+    const infoBar = document.getElementById('infoBar');
+    const container = document.getElementById('chartContainer');
+
+    tfSelect.value = tfParam;
+
+    let chart = null;
+    let candleSeries = null;
+    let volumeSeries = null;
+    let startMarker = null;
+    let endMarker = null;
+
+    function createChart() {
+      if (chart) { chart.remove(); chart = null; }
+
+      chart = LightweightCharts.createChart(container, {
+        layout: {
+          background: { color: '#1e1b18' },
+          textColor: '#a89a8a',
+          fontSize: 12,
+        },
+        grid: {
+          vertLines: { color: 'rgba(90, 80, 69, 0.3)' },
+          horzLines: { color: 'rgba(90, 80, 69, 0.3)' },
+        },
+        crosshair: {
+          vertLine: { color: 'rgba(212, 160, 86, 0.4)', labelBackgroundColor: '#d4a056' },
+          horzLine: { color: 'rgba(212, 160, 86, 0.4)', labelBackgroundColor: '#d4a056' },
+        },
+        timeScale: {
+          borderColor: '#5a5045',
+          timeVisible: true,
+          secondsVisible: false,
+        },
+        rightPriceScale: {
+          borderColor: '#5a5045',
+        },
+      });
+
+      candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+        upColor: '#26a69a',
+        downColor: '#ef5350',
+        borderUpColor: '#26a69a',
+        borderDownColor: '#ef5350',
+        wickUpColor: '#26a69a',
+        wickDownColor: '#ef5350',
+      });
+
+      volumeSeries = chart.addSeries(LightweightCharts.HistogramSeries, {
+        color: '#5a5045',
+        priceFormat: { type: 'volume' },
+        priceScaleId: 'volume',
+      });
+
+      chart.priceScale('volume').applyOptions({
+        scaleMargins: { top: 0.85, bottom: 0 },
+      });
+
+      chart.timeScale().fitContent();
+    }
+
+    async function loadData() {
+      if (!startParam || !endParam) {
+        container.innerHTML = '<div class="error">缺少 start / end 参数</div>';
+        return;
+      }
+
+      const tf = tfSelect.value;
+      const padding = paddingSelect.value;
+
+      container.innerHTML = '<div class="loading">加载中...</div>';
+
+      try {
+        const url = `${API_BASE}/v2/bars?start=${encodeURIComponent(startParam)}&end=${encodeURIComponent(endParam)}&tf=${tf}&padding=${padding}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.ok) {
+          container.innerHTML = `<div class="error">API 错误: ${data.error}</div>`;
+          return;
+        }
+
+        const bars = data.result;
+        if (!bars.length) {
+          container.innerHTML = '<div class="error">该时段无数据</div>';
+          return;
+        }
+
+        createChart();
+
+        const candleData = bars.map(b => ({
+          time: b.time,
+          open: b.open,
+          high: b.high,
+          low: b.low,
+          close: b.close,
+        }));
+
+        const volumeData = bars.map(b => ({
+          time: b.time,
+          value: b.volume,
+          color: b.close >= b.open ? 'rgba(38,166,154,0.3)' : 'rgba(239,83,80,0.3)',
+        }));
+
+        candleSeries.setData(candleData);
+        volumeSeries.setData(volumeData);
+
+        // Mark start/end range
+        const markers = [];
+        const startTime = startParam.length <= 16 ? startParam + ':00' : startParam;
+        const endTime = endParam.length <= 16 ? endParam + ':00' : endParam;
+        if (candleData.some(b => b.time >= startTime.slice(0, 16))) {
+          markers.push({
+            time: candleData.find(b => b.time >= startTime.slice(0, 16))?.time || candleData[0].time,
+            position: 'belowBar',
+            color: '#d4a056',
+            shape: 'arrowUp',
+            text: 'S',
+          });
+        }
+        const endBar = [...candleData].reverse().find(b => b.time <= endTime.slice(0, 16));
+        if (endBar) {
+          markers.push({
+            time: endBar.time,
+            position: 'aboveBar',
+            color: '#c87070',
+            shape: 'arrowDown',
+            text: 'E',
+          });
+        }
+        candleSeries.setMarkers(markers);
+
+        // Fit to the start-end range (not the full padded range)
+        const rangeStart = candleData.find(b => b.time >= startTime.slice(0, 16))?.time;
+        const rangeEnd = endBar?.time;
+        if (rangeStart && rangeEnd) {
+          chart.timeScale().setVisibleRange({ from: candleData[0].time, to: candleData[candleData.length - 1].time });
+        } else {
+          chart.timeScale().fitContent();
+        }
+
+        const barCount = bars.length;
+        const firstTime = bars[0].time;
+        const lastTime = bars[barCount - 1].time;
+        infoBar.innerHTML = `<span>${barCount}</span> 根K线 &nbsp; ${firstTime} ~ ${lastTime}`;
+
+      } catch (err) {
+        container.innerHTML = `<div class="error">加载失败: ${err.message}</div>`;
+}
+    }
+
+    tfSelect.onchange = loadData;
+    paddingSelect.onchange = loadData;
+
+    // Resize handling
+    const ro = new ResizeObserver(() => {
+      if (chart) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    });
+    ro.observe(container);
+
+    loadData();
+  </script>
+</body>
+</html>

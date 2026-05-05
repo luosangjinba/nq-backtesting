@@ -941,6 +941,9 @@
                   <input data-field="endTime" placeholder="2012-01-10 16:00:00">
                 </div>
               </div>
+              <div class="btn-row" style="margin-bottom:8px;">
+                <button class="btn btn--tiny" id="openKlineBtn" type="button">查看K线</button>
+              </div>
               <div class="grid-3">
                 <div class="field">
                   <label>Direction</label>
@@ -3598,6 +3601,15 @@
         button.onclick = () => switchEditorTab(button.dataset.editorTab);
       });
       $('#addEndFactorBtn').onclick = addEndFactor;
+      $('#openKlineBtn').onclick = () => {
+        const path = activePath();
+        if (!path.startTime || !path.endTime) { alert('请先填写 Start Time 和 End Time'); return; }
+        const tf = path.primaryTimeframe || '1H';
+        const tfMap = { '1m': 1, '5m': 5, '15m': 15, '30m': 30, '1H': 60, '4H': 240, '1D': 1440 };
+        const tfMin = tfMap[tf] || 60;
+        const url = `kline_viewer.html?start=${encodeURIComponent(path.startTime)}&end=${encodeURIComponent(path.endTime)}&tf=${tfMin}`;
+        window.open(url, '_blank');
+      };
       $('#addGroupBtn').onclick = addGroup;
       $('#deleteGroupBtn').onclick = deleteGroup;
       $('#copyGroupsYamlBtn').onclick = copyGroupsYaml;

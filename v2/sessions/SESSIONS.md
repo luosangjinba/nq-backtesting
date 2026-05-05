@@ -6,6 +6,25 @@
 
 ## 2026-05-04
 
+### 会话 3：K线查看器 (kline_viewer)
+
+**背景：**
+填写 Start Time / End Time 后，需要快速查看该时段的K线图（含前后上下文），辅助判断路径起终点的 PDA 关系。
+
+**方案：**
+1. 新增 API 端点 `GET /v2/bars?start=...&end=...&tf=1`，返回 OHLCV 数组，自动扩展前后19根K线
+2. 新建 `v2/docs/kline_viewer.html`，使用 TradingView Lightweight Charts（~45KB，零依赖，CDN 引入），绿涨红跌
+3. 在 `layer2_recorder_v2.html` 的 Start/End Time 旁加「查看K线」按钮，`window.open` 打开 kline_viewer
+
+**改动内容：**
+- `price_lookup_api.py` — 新增 `/v2/bars` 端点
+- `v2/docs/kline_viewer.html` — 新建K线查看页
+- `v2/docs/layer2_recorder_v2.html` — 加链接按钮
+
+---
+
+## 2026-05-04
+
 ### 会话 2：Path Encounters 合并 & Respect Type 重构
 
 **背景：**

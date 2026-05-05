@@ -164,6 +164,10 @@ api:
     - path: "/v2/pda_match"
       method: GET
       description: "PDA 匹配"
+    - path: "/v2/bars"
+      method: GET
+      description: "K线数据查询"
+      params: ["start", "end", "tf", "padding"]
 
 # 元信息
 meta:
