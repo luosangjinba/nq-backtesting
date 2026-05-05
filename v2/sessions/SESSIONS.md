@@ -4,6 +4,44 @@
 
 ---
 
+## 2026-05-04
+
+### 会话 2：Path Encounters 合并 & Respect Type 重构
+
+**背景：**
+将 Path Actions (路径行为) 并入 End Factors (终点因素)，统一为 Path Encounters (路径遭遇)。liquidity 的 Respect Type 从 扫损反转/接近反转 改为 突破/接近。删除 cross_liquidity / approach_or_equal_liquidity 独立选项，改用 liquidity + Respect Type 表达。
+
+**改动内容：**
+
+1. **UI 合并**
+   - 删除 Path Actions 区块，合并到 Path Encounters
+   - Encounter Reason 删除 `cross_liquidity` / `approach_or_equal_liquidity`
+   - liquidity 的 Respect Type：突破 / 接近（替代旧的 扫损反转/接近反转）
+   - 所有 Encounter Reason 都显示 Respect Type / Respect Extent
+
+2. **代码清理**
+   - 删除 `renderPathActions`、`addPathAction`、`selectActionRef`、`actionRefLabel`、`actionOptions`
+   - 删除 `addPathActionBtn` 绑定
+   - `emptyPath()` 移除 `pathActions` 字段
+   - 重命名 `actionRefHint` → `refHint`
+
+3. **YAML 格式**
+   - 导出统一为 `end_factors`，不再输出 `path_actions`
+   - 旧 `path_actions` / `main_actions` 解析时自动合并到 `endFactors`
+
+4. **数据迁移**
+   - `cross_liquidity` → `liquidity` + `breakthrough`
+   - `approach_or_equal_liquidity` → `liquidity` + `approach`
+   - `sweep_reversal` → `breakthrough`
+   - `approach_reversal` → `approach`
+
+**修改文件：**
+- `v2/docs/layer2_recorder_v2.html` — 主要改动
+- `v2/docs/README.md` — 更新文档
+- `v2/v2_config.yaml` — 删除 cross_liquidity/approach_or_equal_liquidity 选项
+
+---
+
 ## 2026-05-03
 
 ### 会话 1：End Factors / Path Actions 重构

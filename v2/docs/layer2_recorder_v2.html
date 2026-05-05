@@ -654,24 +654,25 @@
                 </div>
               </button>
               <div class="collapse-body">
-                <div class="grid-3">
+                <div class="field" style="max-width:160px;">
+                  <label>FVG TF</label>
+                  <select id="fvgTimeframe"></select>
+                </div>
+                <div class="field">
+                  <label>Event Time</label>
+                  <input id="fvgEventTime" placeholder="201201091120">
+                </div>
+                <div class="grid-2">
                   <div class="field">
-                    <label>FVG TF</label>
-                    <select id="fvgTimeframe"></select>
+                    <label>Price High</label>
+                    <input id="fvgPriceHigh" placeholder="留空自动算">
                   </div>
                   <div class="field">
-                    <label>Event Time</label>
-                    <input id="fvgEventTime" placeholder="2012-01-11 00:00:00">
-                  </div>
-                  <div class="field">
-                    <label>Price High / Low Override</label>
-                    <div class="grid-2">
-                      <input id="fvgPriceHigh" placeholder="留空自动算 high">
-                      <input id="fvgPriceLow" placeholder="留空自动算 low">
-                    </div>
-                    <input id="fvgDirection" type="hidden">
+                    <label>Price Low</label>
+                    <input id="fvgPriceLow" placeholder="留空自动算">
                   </div>
                 </div>
+                <input id="fvgDirection" type="hidden">
                 <div class="field">
                   <label>Note</label>
                   <textarea id="fvgNote" placeholder="这条 FVG 是 displacement 起点、breaker、还是回补/支撑位置。"></textarea>
@@ -992,17 +993,11 @@
                 <label>Path Note</label>
                 <textarea data-field="note" placeholder="这段行情的观察要点、为什么值得记录。"></textarea>
               </div>
-              <h3 class="section-title" style="margin-top:14px;">End Factors (终点因素)</h3>
-              <div class="tiny" style="margin-bottom:8px;">终点为什么是终点——遇到了什么PDA、如何尊重。可多条。</div>
+              <h3 class="section-title" style="margin-top:14px;">Path Encounters (路径遭遇)</h3>
+              <div class="tiny" style="margin-bottom:8px;">这段行情遇到了什么PDA——终点尊重、穿越/接近流动性。可多条。</div>
               <div id="endFactorsList" class="manual-list"></div>
               <div class="btn-row" style="margin-top:8px;">
-                <button class="btn btn--tiny btn--primary" id="addEndFactorBtn" type="button">+ End Factor</button>
-              </div>
-              <h3 class="section-title" style="margin-top:18px;">Path Actions (路径行为)</h3>
-              <div class="tiny" style="margin-bottom:8px;">这段行情干了什么——穿越/接近了哪些流动性。可多条。</div>
-              <div id="pathActionsList" class="manual-list"></div>
-              <div class="btn-row" style="margin-top:8px;">
-                <button class="btn btn--tiny btn--primary" id="addPathActionBtn" type="button">+ Path Action</button>
+                <button class="btn btn--tiny btn--primary" id="addEndFactorBtn" type="button">+ Path Encounter</button>
               </div>
           </div>
 
@@ -1482,7 +1477,6 @@
       let inSection = false;
       let path = null;
       let mode = '';
-      let action = null;
       let factor = null;
       let manual = null;
 
@@ -1513,12 +1507,10 @@
             note: '',
             tags: '',
             endFactors: [],
-            pathActions: [],
             manualPdas: []
           };
           paths.push(path);
           mode = '';
-          action = null;
           factor = null;
           manual = null;
           const kv = parseYamlKeyValue(line);
@@ -1529,7 +1521,6 @@
 
         const kv = parseYamlKeyValue(line);
         if (indent === 4 && kv) {
-          action = null;
           factor = null;
           manual = null;
           if (kv.key === 'end_factors') {
@@ -1539,13 +1530,13 @@
           }
           if (kv.key === 'path_actions') {
             mode = 'path_actions';
-            if (String(line).includes('[]')) path.pathActions = [];
+            if (String(line).includes('[]')) path.endFactors = path.endFactors || [];
             return;
           }
           // 向后兼容旧的 main_actions
           if (kv.key === 'main_actions') {
             mode = 'main_actions';
-            if (String(line).includes('[]')) path.pathActions = [];
+            if (String(line).includes('[]')) path.endFactors = path.endFactors || [];
             return;
           }
           if (kv.key === 'manual_pdas') {
@@ -1580,9 +1571,10 @@
           }
           if (indent === 8 && factor && kv) {
             if (kv.key === 'end_reason') {
-              const parts = kv.value.split('/');
-              factor.endReason = parts[0] || '';
-              factor.endReasonTf = parts[1] || '';
+              factor.endReason = kv.value;
+            }
+            if (kv.key === 'end_reason_tf') {
+              factor.endReasonTf = kv.value;
             }
             if (kv.key === 'end_respect_type') factor.endRespectType = kv.value;
             if (kv.key === 'end_respect_extent') factor.endRespectExtent = kv.value;
@@ -1597,17 +1589,21 @@
 
         if (mode === 'path_actions' || mode === 'main_actions') {
           if (indent === 6 && trimmed === '-') {
-            action = { type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' };
-            path.pathActions.push(action);
+            factor = { endReason: '', endReasonTf: '', endRespectType: '', endRespectExtent: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' };
+            path.endFactors.push(factor);
             return;
           }
-          if (indent === 8 && action && kv) {
-            if (kv.key === 'type') action.type = kv.value;
-            if (kv.key === 'ref') action.ref = kv.value;
-            if (kv.key === 'ref_source') action.refSource = kv.value;
-            if (kv.key === 'ref_id') action.refId = kv.value;
-            if (kv.key === 'ref_label') action.refLabel = kv.value;
-            if (kv.key === 'note') action.note = kv.value;
+          if (indent === 8 && factor && kv) {
+            if (kv.key === 'type') {
+              if (kv.value === 'cross_liquidity') { factor.endReason = 'liquidity'; factor.endRespectType = 'breakthrough'; }
+              else if (kv.value === 'approach_or_equal_liquidity') { factor.endReason = 'liquidity'; factor.endRespectType = 'approach'; }
+              else { factor.endReason = kv.value; }
+            }
+            if (kv.key === 'ref') factor.ref = kv.value;
+            if (kv.key === 'ref_source') factor.refSource = kv.value;
+            if (kv.key === 'ref_id') factor.refId = kv.value;
+            if (kv.key === 'ref_label') factor.refLabel = kv.value;
+            if (kv.key === 'note') factor.note = kv.value;
             return;
           }
         }
@@ -1638,7 +1634,6 @@
       return paths.map((item) => ({
         ...item,
         endFactors: item.endFactors || [],
-        pathActions: item.pathActions.length ? item.pathActions : [],
         manualPdas: item.manualPdas || []
       })).filter((item) => item.id);
     }
@@ -1851,7 +1846,6 @@
         note: '',
         tags: '',
         endFactors: [],
-        pathActions: [],
         manualPdas: []
       };
     }
@@ -1883,19 +1877,15 @@
       if (!state.paths || !state.paths.length) state.paths = [emptyPath()];
       state.groups = Array.isArray(state.groups) ? state.groups : [];
       state.paths.forEach((path) => {
-        // 迁移旧数据：mainActions -> pathActions
-        if (Array.isArray(path.mainActions) && !Array.isArray(path.pathActions)) {
-          // 分离：respect_* 类型移到 endFactors，其他移到 pathActions
+        // 迁移旧数据：mainActions -> endFactors
+        if (Array.isArray(path.mainActions)) {
           const respectTypes = ['respect_ob', 'respect_fvg', 'respect_key_level', 'respect_breaker'];
           const oldActions = path.mainActions;
-          const newEndFactors = [];
-          const newPathActions = [];
+          if (!Array.isArray(path.endFactors)) path.endFactors = [];
           oldActions.forEach((action) => {
             if (respectTypes.includes(action.type)) {
-              // 转换为 End Factor
-              const pdaType = action.type.replace('respect_', '');
-              newEndFactors.push({
-                endReason: pdaType,
+              path.endFactors.push({
+                endReason: action.type.replace('respect_', ''),
                 endReasonTf: '',
                 endRespectType: '',
                 endRespectExtent: '',
@@ -1906,8 +1896,11 @@
                 note: action.note || ''
               });
             } else {
-              newPathActions.push({
-                type: action.type || '',
+              path.endFactors.push({
+                endReason: action.type || '',
+                endReasonTf: '',
+                endRespectType: '',
+                endRespectExtent: '',
                 refSource: action.refSource || 'free_text',
                 refId: action.refId || '',
                 refLabel: action.refLabel || '',
@@ -1916,9 +1909,25 @@
               });
             }
           });
-          path.endFactors = newEndFactors;
-          path.pathActions = newPathActions;
           delete path.mainActions;
+        }
+        // 迁移旧的 pathActions -> endFactors
+        if (Array.isArray(path.pathActions) && path.pathActions.length) {
+          if (!Array.isArray(path.endFactors)) path.endFactors = [];
+          path.pathActions.forEach((action) => {
+            path.endFactors.push({
+              endReason: action.type || '',
+              endReasonTf: '',
+              endRespectType: '',
+              endRespectExtent: '',
+              refSource: action.refSource || 'free_text',
+              refId: action.refId || '',
+              refLabel: action.refLabel || '',
+              ref: action.ref || '',
+              note: action.note || ''
+            });
+          });
+          delete path.pathActions;
         }
         // 迁移旧的 endReason/endRespectType/endRespectExtent 字段
         if (path._legacyEndReason || path.endReason) {
@@ -1945,16 +1954,21 @@
           delete path.endRespectType;
           delete path.endRespectExtent;
         }
+        // 迁移旧的 sweep_reversal/approach_reversal -> breakthrough/approach
+        // 迁移旧的 cross_liquidity/approach_or_equal_liquidity -> liquidity + breakthrough/approach
+        if (Array.isArray(path.endFactors)) {
+          path.endFactors.forEach((factor) => {
+            if (factor.endRespectType === 'sweep_reversal') factor.endRespectType = 'breakthrough';
+            if (factor.endRespectType === 'approach_reversal') factor.endRespectType = 'approach';
+            if (factor.endReason === 'cross_liquidity') { factor.endReason = 'liquidity'; factor.endRespectType = 'breakthrough'; }
+            if (factor.endReason === 'approach_or_equal_liquidity') { factor.endReason = 'liquidity'; factor.endRespectType = 'approach'; }
+          });
+        }
         // 确保数组存在
         if (!Array.isArray(path.endFactors)) path.endFactors = [];
-        if (!Array.isArray(path.pathActions)) path.pathActions = [];
         // 确保 refSource 字段存在
         path.endFactors.forEach((factor) => {
           if (!factor.refSource) factor.refSource = factor.refId ? 'auto_pda' : 'free_text';
-        });
-        path.pathActions.forEach((action) => {
-          if (!action.refSource) action.refSource = action.refId ? 'auto_pda' : 'free_text';
-          if (!action.refId && action.ref) action.refId = action.ref;
         });
         path.manualPdas = Array.isArray(path.manualPdas) ? path.manualPdas : [];
         if (!path.primaryTimeframe) path.primaryTimeframe = '1H';
@@ -2099,7 +2113,6 @@
         el.value = path[el.dataset.field] ?? '';
       });
       renderEndFactors();
-      renderPathActions();
       renderManualList();
     }
 
@@ -2294,15 +2307,6 @@
       renderAll();
     }
 
-    function actionOptions(selected = '') {
-      const options = [
-        ['', ''],
-        ['cross_liquidity', 'cross liquidity'],
-        ['approach_or_equal_liquidity', 'approach or equal liquidity']
-      ];
-      return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
-    }
-
     function endReasonOptions(selected = '') {
       const options = [
         ['', ''],
@@ -2323,8 +2327,8 @@
     function endRespectTypeOptions(endReason, selected = '') {
       const options = [''];
       if (endReason === 'liquidity') {
-        options.push(['sweep_reversal', '扫损反转']);
-        options.push(['approach_reversal', '接近反转']);
+        options.push(['breakthrough', '突破']);
+        options.push(['approach', '接近']);
       } else if (['fvg', 'ndog', 'nwog', 'ob', 'ob_last_bar', 'breaker', 'key_level', 'wick_ce'].includes(endReason)) {
         options.push(['wick', '影线尊重']);
         options.push(['body', '实体尊重']);
@@ -2344,9 +2348,6 @@
       return options.map(([value, label]) => `<option value="${escapeAttr(value)}"${value === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
     }
 
-    function actionRefLabel(action) {
-      return action.refLabel || action.refId || action.ref || '';
-    }
 
     function autoRefMatches() {
       return state.autoRecords
@@ -2358,15 +2359,15 @@
       return (path.manualPdas || []).slice(0, 24);
     }
 
-    function actionRefHint(action, suggestions) {
-      if (action.refSource === 'free_text') return '';
+    function refHint(item, suggestions) {
+      if (item.refSource === 'free_text') return '';
       if (suggestions.length) {
-        return action.refSource === 'auto_pda'
+        return item.refSource === 'auto_pda'
           ? '点击"显示/收起候选"后，从 Auto Context 的 NDOG / NWOG 中选择。'
           : '点击"显示/收起候选"后，从当前 Path 的 Manual PDA List 中选择。';
       }
-      if (action.refSource === 'auto_pda' && !state.autoRecords.length) return '先点击顶部"加载对照"，再选择 NDOG / NWOG。';
-      return action.refSource === 'auto_pda' ? 'Auto Context 中没有 NDOG / NWOG 候选。' : '当前 Path 还没有 Manual PDA。';
+      if (item.refSource === 'auto_pda' && !state.autoRecords.length) return '先点击顶部"加载对照"，再选择 NDOG / NWOG。';
+      return item.refSource === 'auto_pda' ? 'Auto Context 中没有 NDOG / NWOG 候选。' : '当前 Path 还没有 Manual PDA。';
     }
 
     function selectFactorRef(factorIndex, source, ref) {
@@ -2380,20 +2381,6 @@
         : [ref.id, ref.timeframe, ref.pdaType, ref.direction, ref.price || ref.priceHigh || ref.priceLow].filter(Boolean).join(' ');
       factor.ref = factor.refId;
       renderEndFactors();
-      saveDraft();
-    }
-
-    function selectActionRef(actionIndex, source, ref) {
-      const path = activePath();
-      const action = path.pathActions[actionIndex];
-      if (!action) return;
-      action.refSource = source;
-      action.refId = source === 'auto_pda' ? ref.pdaId : ref.id;
-      action.refLabel = source === 'auto_pda'
-        ? [ref.tradeDate, ref.timeframe, ref.pdaType, ref.direction, firstPrice(ref)].filter(Boolean).join(' ')
-        : [ref.id, ref.timeframe, ref.pdaType, ref.direction, ref.price || ref.priceHigh || ref.priceLow].filter(Boolean).join(' ');
-      action.ref = action.refId;
-      renderPathActions();
       saveDraft();
     }
 
@@ -2416,7 +2403,7 @@
         row.innerHTML = `
           <div class="grid-3">
             <div class="field">
-              <label>End Reason (遇到哪个PDA)</label>
+              <label>Encounter Reason (遇到哪个PDA)</label>
               <select data-factor-field="endReason" data-factor-index="${idx}">${endReasonOptions(factor.endReason || '')}</select>
             </div>
             <div class="field">
@@ -2432,11 +2419,11 @@
           </div>
           <div class="grid-3">
             <div class="field">
-              <label>End Respect Type</label>
+              <label>Respect Type</label>
               <select data-factor-field="endRespectType" data-factor-index="${idx}">${endRespectTypeOptions(factor.endReason || '', factor.endRespectType || '')}</select>
             </div>
             <div class="field">
-              <label>End Respect Extent</label>
+              <label>Respect Extent</label>
               <input data-factor-field="endRespectExtent" data-factor-index="${idx}" placeholder="0.35 = 到了PDA的35%位置" value="${escapeAttr(factor.endRespectExtent || '')}">
             </div>
             <div class="field">
@@ -2456,7 +2443,7 @@
               <input data-factor-field="note" data-factor-index="${idx}" placeholder="说明" value="${escapeAttr(factor.note || '')}">
             </div>
           </div>
-          ${factor.refSource !== 'free_text' ? `<div class="tiny" style="margin-top:-4px; margin-bottom:8px;">${escapeHtml(actionRefHint(factor, suggestions))}</div>` : ''}
+          ${factor.refSource !== 'free_text' ? `<div class="tiny" style="margin-top:-4px; margin-bottom:8px;">${escapeHtml(refHint(factor, suggestions))}</div>` : ''}
           ${factorRefLabel(factor) ? `<div class="status" style="margin-top:0;">当前引用：${escapeHtml(factorRefLabel(factor))}</div>` : ''}
           ${factor.refSource !== 'free_text' && pickerOpen && suggestions.length ? `
             <div class="manual-list" style="margin-bottom:10px;">
@@ -2522,117 +2509,6 @@
       return factor.refLabel || factor.refId || factor.ref || '';
     }
 
-    function renderPathActions() {
-      const path = activePath();
-      const wrap = $('#pathActionsList');
-      if (!wrap) return;
-      wrap.innerHTML = '';
-      if (!Array.isArray(path.pathActions)) path.pathActions = [];
-
-      path.pathActions.forEach((action, idx) => {
-        if (!action.refSource) action.refSource = action.refId ? 'auto_pda' : 'free_text';
-        const pickerOpen = action.pickerOpen !== false;
-        const autoMatches = action.refSource === 'auto_pda' ? autoRefMatches() : [];
-        const manualMatches = action.refSource === 'manual_pda' ? manualRefMatches(path) : [];
-        const suggestions = [...autoMatches.map((rec) => ({ source: 'auto_pda', rec })), ...manualMatches.map((rec) => ({ source: 'manual_pda', rec }))];
-
-        const row = document.createElement('div');
-        row.className = 'manual-item';
-        row.innerHTML = `
-          <div class="grid-2">
-            <div class="field">
-              <label>Action Type</label>
-              <select data-action-field="type" data-action-index="${idx}">${actionOptions(action.type || '')}</select>
-            </div>
-            <div class="field">
-              <label>Ref Source</label>
-              <select data-action-field="refSource" data-action-index="${idx}">${refSourceOptions(action.refSource || 'free_text')}</select>
-            </div>
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label>${action.refSource === 'free_text' ? 'Action Ref' : 'Pick Ref'}</label>
-              ${action.refSource === 'free_text'
-                ? `<input data-action-field="ref" data-action-index="${idx}" placeholder="free text / note / reference">`
-                : `<button class="btn" type="button" data-toggle-action-picker="${idx}">${pickerOpen ? '收起候选' : '显示候选'} · ${action.refSource === 'auto_pda' ? 'NDOG / NWOG' : 'Manual PDA List'}</button>`}
-            </div>
-            <div class="field">
-              <label>Selected Ref</label>
-              <input data-action-field="refId" data-action-index="${idx}" placeholder="点击候选后自动填入" ${action.refSource !== 'free_text' ? 'readonly' : ''}>
-            </div>
-          </div>
-          ${action.refSource !== 'free_text' ? `<div class="tiny" style="margin-top:-4px; margin-bottom:8px;">${escapeHtml(actionRefHint(action, suggestions))}</div>` : ''}
-          ${actionRefLabel(action) ? `<div class="status" style="margin-top:0;">当前引用：${escapeHtml(actionRefLabel(action))}</div>` : ''}
-          ${action.refSource !== 'free_text' && pickerOpen && suggestions.length ? `
-            <div class="manual-list" style="margin-bottom:10px;">
-              ${suggestions.map(({ source, rec }) => `
-                <button class="btn" type="button" data-select-action-ref="${idx}" data-ref-source="${source}" data-ref-id="${escapeAttr(source === 'auto_pda' ? rec.pdaId : rec.id)}" style="height:auto; min-height:44px; text-align:left; justify-content:flex-start;">
-                  ${escapeHtml(source === 'auto_pda' ? `选择 ${rec.pdaId} · ${rec.timeframe} · ${rec.pdaType} · ${firstPrice(rec)}` : `选择 ${rec.id} · ${rec.timeframe} · ${rec.pdaType}`)}
-                </button>
-              `).join('')}
-            </div>
-          ` : ''}
-          <div class="field">
-            <label>Action Note</label>
-            <input data-action-field="note" data-action-index="${idx}" placeholder="例如：穿越 D BSL 后继续上行">
-          </div>
-          <div class="btn-row">
-            <button class="btn btn--tiny btn--danger" type="button" data-remove-action="${idx}">移除</button>
-          </div>
-        `;
-
-        row.querySelector('[data-action-field="type"]').value = action.type || '';
-        row.querySelector('[data-action-field="refSource"]').value = action.refSource || 'free_text';
-        row.querySelector('[data-action-field="refId"]').value = action.refId || action.ref || '';
-        if (row.querySelector('[data-action-field="ref"]')) row.querySelector('[data-action-field="ref"]').value = action.ref || '';
-        row.querySelector('[data-action-field="note"]').value = action.note || '';
-
-        row.querySelectorAll('[data-action-field]').forEach((input) => {
-          input.oninput = () => {
-            const a = path.pathActions[Number(input.dataset.actionIndex)];
-            a[input.dataset.actionField] = input.value;
-            if (input.dataset.actionField === 'refSource') {
-              a.pickerOpen = true;
-              a.refId = '';
-              a.refLabel = '';
-              if (input.value !== 'free_text') a.ref = '';
-            }
-            if (input.dataset.actionField === 'refId' && a.refSource === 'free_text') a.ref = input.value;
-            saveDraft();
-            if (input.dataset.actionField === 'refSource') renderPathActions();
-          };
-          input.onchange = input.oninput;
-        });
-
-        row.querySelectorAll('[data-toggle-action-picker]').forEach((button) => {
-          button.onclick = () => {
-            const a = path.pathActions[Number(button.dataset.toggleActionPicker)];
-            a.pickerOpen = a.pickerOpen === false;
-            renderPathActions();
-            saveDraft();
-          };
-        });
-
-        row.querySelectorAll('[data-select-action-ref]').forEach((button) => {
-          button.onclick = () => {
-            const source = button.dataset.refSource;
-            const refId = button.dataset.refId;
-            const rec = source === 'auto_pda'
-              ? state.autoRecords.find((item) => item.pdaId === refId)
-              : path.manualPdas.find((item) => item.id === refId);
-            if (rec) selectActionRef(Number(button.dataset.selectActionRef), source, rec);
-          };
-        });
-
-        row.querySelector('[data-remove-action]').onclick = () => {
-          path.pathActions.splice(idx, 1);
-          renderPathActions();
-          saveDraft();
-        };
-        wrap.appendChild(row);
-      });
-    }
-
     function addEndFactor() {
       const path = activePath();
       path.endFactors = path.endFactors || [];
@@ -2648,14 +2524,6 @@
         note: ''
       });
       renderEndFactors();
-      saveDraft();
-    }
-
-    function addPathAction() {
-      const path = activePath();
-      path.pathActions = path.pathActions || [];
-      path.pathActions.push({ type: '', refSource: 'free_text', refId: '', refLabel: '', ref: '', note: '' });
-      renderPathActions();
       saveDraft();
     }
 
@@ -3364,18 +3232,31 @@
           lines.push('    tags:');
           String(path.tags).split(',').map((s) => s.trim()).filter(Boolean).forEach((tag) => lines.push(`      - ${yamlQuote(tag)}`));
         }
-        // End Factors
-        if (Array.isArray(path.endFactors) && path.endFactors.length) {
-          const factors = path.endFactors.filter((f) => f.endReason || f.refId || f.note);
+        // End Factors (includes migrated Path Actions)
+        const allFactors = [
+          ...(Array.isArray(path.endFactors) ? path.endFactors : []),
+          ...(Array.isArray(path.pathActions) ? path.pathActions.map((a) => ({
+            endReason: a.type || '',
+            endReasonTf: '',
+            endRespectType: '',
+            endRespectExtent: '',
+            refSource: a.refSource || 'free_text',
+            refId: a.refId || '',
+            refLabel: a.refLabel || '',
+            ref: a.ref || '',
+            note: a.note || ''
+          })) : [])
+        ];
+        if (allFactors.length) {
+          const factors = allFactors.filter((f) => f.endReason || f.refId || f.note);
           if (factors.length) {
             lines.push('    end_factors:');
             factors.forEach((factor) => {
               lines.push('      -');
               if (factor.endReason) {
-                let er = yamlQuote(factor.endReason);
-                if (factor.endReasonTf) er += `/${yamlQuote(factor.endReasonTf)}`;
-                lines.push(`        end_reason: ${er}`);
+                lines.push(`        end_reason: ${yamlQuote(factor.endReason)}`);
               }
+              if (factor.endReasonTf) lines.push(`        end_reason_tf: ${yamlQuote(factor.endReasonTf)}`);
               if (factor.endRespectType) lines.push(`        end_respect_type: ${yamlQuote(factor.endRespectType)}`);
               if (factor.endRespectExtent) lines.push(`        end_respect_extent: ${yamlQuote(factor.endRespectExtent)}`);
               if (factor.refSource && factor.refSource !== 'free_text') lines.push(`        ref_source: ${yamlQuote(factor.refSource)}`);
@@ -3389,26 +3270,6 @@
           }
         } else {
           lines.push('    end_factors: []');
-        }
-        // Path Actions
-        if (Array.isArray(path.pathActions) && path.pathActions.length) {
-          const actions = path.pathActions.filter((action) => action.type || action.ref || action.refId || action.note);
-          if (actions.length) {
-            lines.push('    path_actions:');
-            actions.forEach((action) => {
-              lines.push('      -');
-              if (action.type) lines.push(`        type: ${yamlQuote(action.type)}`);
-              if (action.refSource && action.refSource !== 'free_text') lines.push(`        ref_source: ${yamlQuote(action.refSource)}`);
-              if (action.refId) lines.push(`        ref_id: ${yamlQuote(action.refId)}`);
-              if (action.refLabel) lines.push(`        ref_label: ${yamlQuote(action.refLabel)}`);
-              if (action.ref && (!action.refId || action.refSource === 'free_text')) lines.push(`        ref: ${yamlQuote(action.ref)}`);
-              if (action.note) lines.push(`        note: ${yamlQuote(action.note)}`);
-            });
-          } else {
-            lines.push('    path_actions: []');
-          }
-        } else {
-          lines.push('    path_actions: []');
         }
         const manualPdas = path.manualPdas || [];
         if (manualPdas.length) {
@@ -3737,7 +3598,6 @@
         button.onclick = () => switchEditorTab(button.dataset.editorTab);
       });
       $('#addEndFactorBtn').onclick = addEndFactor;
-      $('#addPathActionBtn').onclick = addPathAction;
       $('#addGroupBtn').onclick = addGroup;
       $('#deleteGroupBtn').onclick = deleteGroup;
       $('#copyGroupsYamlBtn').onclick = copyGroupsYaml;

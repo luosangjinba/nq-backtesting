@@ -9,9 +9,9 @@ fluency:
 
   # 权重配置 (总和必须为 1.0)
   weights:
-    direction_consistency: 0.42
-    efficiency: 0.22
-    continuity: 0.16
+    direction_consistency: 0.50
+    efficiency: 0.15
+    continuity: 0.15
     body_ratio: 0.15
     slope_stability: 0.05
 
