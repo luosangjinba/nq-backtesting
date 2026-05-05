@@ -62,6 +62,11 @@
       cursor: pointer;
     }
     .toolbar button:hover { opacity: 0.85; }
+    .toolbar button.secondary {
+      background: var(--panel);
+      color: var(--text-dim);
+      border: 1px solid var(--line);
+    }
     .toolbar .info {
       color: var(--text-dim);
       font-size: 0.8rem;
@@ -114,6 +119,7 @@
     <label>扩展</label>
     <input id="paddingInput" type="number" value="19" min="0" max="500" placeholder="19">
     <button id="loadBtn">加载</button>
+    <button class="secondary" id="resetBtn">Reset View</button>
     <span class="warn" id="paddingWarn"></span>
     <div class="info" id="infoText"></div>
   </div>
@@ -125,9 +131,11 @@
   <script>
     const API_BASE = 'http://127.0.0.1:8765';
     const MAX_PADDING = 500;
+    const RIGHT_MARGIN_BARS = 10;
     let chart = null;
     let candleSeries = null;
     let seriesMarkers = null;
+    let lastCandleData = null;
 
     function getPadding() {
       const input = document.getElementById('paddingInput');
@@ -239,6 +247,7 @@
         }));
 
         candleSeries.setData(candleData);
+        lastCandleData = candleData;
 
         // Mark start/end on chart
         const startTs = timeToTimestamp(start);
@@ -271,7 +280,7 @@
           seriesMarkers = LightweightCharts.createSeriesMarkers(candleSeries, markers);
         }
 
-        chart.timeScale().fitContent();
+        resetView();
 
         const first = bars[0];
         const last = bars[bars.length - 1];
@@ -300,6 +309,18 @@
 
     document.getElementById('loadBtn').onclick = loadData;
     document.getElementById('paddingInput').onchange = getPadding;
+
+    function resetView() {
+      if (!chart || !lastCandleData || !lastCandleData.length) return;
+      const ts = chart.timeScale();
+      ts.scrollToRealTime();
+      ts.setVisibleRange({
+        from: lastCandleData[0].time,
+        to: lastCandleData[lastCandleData.length - 1].time + RIGHT_MARGIN_BARS * (lastCandleData.length > 1 ? lastCandleData[1].time - lastCandleData[0].time : 60),
+      });
+    }
+
+    document.getElementById('resetBtn').onclick = resetView;
 
     loadFromParams();
   </script>
