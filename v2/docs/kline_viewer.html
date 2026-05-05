@@ -136,6 +136,8 @@
     <input id="paddingInput" type="number" value="19" min="0" max="500" placeholder="19">
     <button id="loadBtn">加载</button>
     <button class="secondary" id="resetBtn">Reset View</button>
+    <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="midnightLines" checked style="margin-right:4px;vertical-align:middle;">午夜线</label>
+    <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="showSE" style="margin-right:4px;vertical-align:middle;">S/E</label>
     <span class="warn" id="paddingWarn"></span>
     <span id="pdaBadge" style="display:none"></span>
     <span class="info" id="infoText"></span>
@@ -154,6 +156,7 @@
     let seriesMarkers = null;
     let lastCandleData = null;
     let currentPda = null; // PDA data when loaded via pda_id
+    let midnightLineSeries = []; // midnight vertical line series
 
     function getPadding() {
       const input = document.getElementById('paddingInput');
@@ -182,8 +185,8 @@
           fontSize: 12,
         },
         grid: {
-          vertLines: { color: '#2a2520' },
-          horzLines: { color: '#2a2520' },
+          vertLines: { visible: false },
+          horzLines: { visible: false },
         },
         crosshair: {
           mode: LightweightCharts.CrosshairMode.Normal,
@@ -197,6 +200,19 @@
           borderColor: '#5a5045',
           timeVisible: true,
           secondsVisible: false,
+        },
+        localization: {
+          timeFormatter: (ts) => {
+            const d = new Date(ts * 1000);
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const yyyy = d.getUTCFullYear();
+            const MM = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(d.getUTCDate()).padStart(2, '0');
+            const hh = String(d.getUTCHours()).padStart(2, '0');
+            const mm = String(d.getUTCMinutes()).padStart(2, '0');
+            return `${days[d.getUTCDay()]} ${yyyy}/${MM}/${dd} ${hh}:${mm}`;
+          },
+          dateFormat: 'yyyy/MM/dd',
         },
       });
 
@@ -342,19 +358,24 @@
         candleSeries.setData(candleData);
         lastCandleData = candleData;
 
+        // Draw midnight vertical lines (1H and below only)
+        drawMidnightLines(candleData, parseInt(tf));
+
         // Build markers: S/E + PDA
         const markers = [];
         const startTs = timeToTimestamp(start);
         const endTs = timeToTimestamp(end);
 
-        const startBar = [...candleData].reverse().find(b => b.time <= startTs);
-        if (startBar) {
-          markers.push({ time: startBar.time, position: 'belowBar', color: '#d4a056', shape: 'arrowUp', text: 'S' });
-        }
+        if (document.getElementById('showSE').checked) {
+          const startBar = [...candleData].reverse().find(b => b.time <= startTs);
+          if (startBar) {
+            markers.push({ time: startBar.time, position: 'belowBar', color: '#d4a056', shape: 'arrowUp', text: 'S' });
+          }
 
-        const endBar = [...candleData].reverse().find(b => b.time <= endTs);
-        if (endBar) {
-          markers.push({ time: endBar.time, position: 'aboveBar', color: '#c87070', shape: 'arrowDown', text: 'E' });
+          const endBar = [...candleData].reverse().find(b => b.time <= endTs);
+          if (endBar) {
+            markers.push({ time: endBar.time, position: 'aboveBar', color: '#c87070', shape: 'arrowDown', text: 'E' });
+          }
         }
 
         // Add PDA markers if we have a PDA loaded
@@ -376,6 +397,9 @@
         } else {
           resetView();
         }
+
+        // Draw midnight lines after viewport is set
+        drawMidnightLines(candleData, parseInt(tf));
 
         const first = bars[0];
         const last = bars[bars.length - 1];
@@ -404,6 +428,45 @@
         from: pdaBar.time - contextBars * barInterval,
         to: pdaBar.time + (contextBars + RIGHT_MARGIN_BARS) * barInterval,
       });
+    }
+
+    function drawMidnightLines(candleData, tfMinutes) {
+      // Remove previous midnight lines
+      midnightLineSeries.forEach(s => chart.removeSeries(s));
+      midnightLineSeries = [];
+
+      if (tfMinutes > 60) return;
+      if (!document.getElementById('midnightLines').checked) return;
+      if (!candleData?.length) return;
+
+      // Find all unique midnight timestamps in the data
+      const midnights = new Set();
+      for (const bar of candleData) {
+        const d = new Date(bar.time * 1000);
+        if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0) {
+          midnights.add(bar.time);
+        }
+      }
+
+      // For each midnight, draw a vertical line using LineSeries
+      for (const ts of midnights) {
+        const lineSeries = chart.addSeries(LightweightCharts.LineSeries, {
+          color: 'rgba(180, 80, 80, 0.25)',
+          lineWidth: 1,
+          lineStyle: LightweightCharts.LineStyle.Solid,
+          crosshairMarkerVisible: false,
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        const bar = candleData.find(b => b.time === ts);
+        if (bar) {
+          lineSeries.setData([
+            { time: ts, value: bar.low * 0.5 },
+            { time: ts, value: bar.high * 2 },
+          ]);
+          midnightLineSeries.push(lineSeries);
+        }
+      }
     }
 
     async function loadPdaMode(pdaId) {
@@ -476,6 +539,45 @@
 
     document.getElementById('loadBtn').onclick = loadData;
     document.getElementById('paddingInput').onchange = getPadding;
+    document.getElementById('midnightLines').onchange = () => { if (lastCandleData) drawMidnightLines(lastCandleData, parseInt(document.getElementById('tfSelect').value)); };
+    document.getElementById('showSE').onchange = rebuildMarkers;
+
+    function rebuildMarkers() {
+      if (!chart || !candleSeries || !lastCandleData) return;
+      const tf = document.getElementById('tfSelect').value;
+      const start = parseTime(document.getElementById('startTime').value.trim());
+      const end = parseTime(document.getElementById('endTime').value.trim());
+      if (!start || !end) return;
+
+      const markers = [];
+      const startTs = timeToTimestamp(start);
+      const endTs = timeToTimestamp(end);
+
+      if (document.getElementById('showSE').checked) {
+        const startBar = [...lastCandleData].reverse().find(b => b.time <= startTs);
+        if (startBar) {
+          markers.push({ time: startBar.time, position: 'belowBar', color: '#d4a056', shape: 'arrowUp', text: 'S' });
+        }
+        const endBar = [...lastCandleData].reverse().find(b => b.time <= endTs);
+        if (endBar) {
+          markers.push({ time: endBar.time, position: 'aboveBar', color: '#c87070', shape: 'arrowDown', text: 'E' });
+        }
+      }
+
+      if (currentPda) {
+        const pdaMarkers = buildPdaMarkers(currentPda, lastCandleData);
+        markers.push(...pdaMarkers);
+      }
+
+      markers.sort((a, b) => a.time - b.time);
+      if (seriesMarkers) {
+        seriesMarkers.setMarkers([]);
+        seriesMarkers = null;
+      }
+      if (markers.length) {
+        seriesMarkers = LightweightCharts.createSeriesMarkers(candleSeries, markers);
+      }
+    }
 
     function resetView() {
       if (!chart || !lastCandleData || !lastCandleData.length) return;
