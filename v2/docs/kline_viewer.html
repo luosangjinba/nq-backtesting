@@ -125,6 +125,7 @@
     const MAX_PADDING = 500;
     let chart = null;
     let candleSeries = null;
+    let seriesMarkers = null;
 
     function getPadding() {
       const input = document.getElementById('paddingInput');
@@ -264,7 +265,9 @@
           });
         }
 
-        if (markers.length) candleSeries.setMarkers(markers);
+        if (markers.length) {
+          seriesMarkers = LightweightCharts.createSeriesMarkers(candleSeries, markers);
+        }
 
         chart.timeScale().fitContent();
 
