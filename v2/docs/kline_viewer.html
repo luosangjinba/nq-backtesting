@@ -743,31 +743,29 @@
         // Wheel zoom on Y-axis area: scroll wheel on right side → vertical zoom
         yAxisWheelHandler = (e) => {
           if (!chart) return;
-          const rect = container.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          // Y-axis is on the right side — check if mouse is in right 15% of chart width
-          if (mouseX > rect.width * 0.85) {
-            e.preventDefault();
-            e.stopPropagation();
-            const pane = chart.getDrawPaneById('candle_pane');
-            if (!pane) return;
-            const yAxis = pane.getAxisComponent();
-            const range = yAxis.getRange();
-            if (!range || range.realRange <= 0) return;
-            // Scale: scroll up (deltaY<0) → zoom in (shrink range), scroll down → zoom out
-            const factor = e.deltaY > 0 ? 1.08 : 0.92;
-            const center = (range.from + range.to) / 2;
-            const newRange = range.range * factor;
-            const newFrom = center - newRange / 2;
-            const newTo = center + newRange / 2;
-            const newRealFrom = yAxis.convertToRealValue(newFrom);
-            const newRealTo = yAxis.convertToRealValue(newTo);
-            yAxis.setRange({
-              from: newFrom, to: newTo, range: newTo - newFrom,
-              realFrom: newRealFrom, realTo: newRealTo, realRange: newRealTo - newRealFrom,
-            });
-            chart.adjustPaneViewport(false, true, true, true);
-          }
+          // Check if mouse is on Y-axis widget (same region as drag-to-zoom)
+          const pane = chart.getDrawPaneById('candle_pane');
+          if (!pane) return;
+          const yAxisEl = pane.getYAxisWidget()?.getContainer();
+          if (!yAxisEl || !yAxisEl.contains(e.target)) return;
+          e.preventDefault();
+          e.stopPropagation();
+          const yAxis = pane.getAxisComponent();
+          const range = yAxis.getRange();
+          if (!range || range.realRange <= 0) return;
+          // Scale: scroll up (deltaY<0) → zoom in (shrink range), scroll down → zoom out
+          const factor = e.deltaY > 0 ? 1.08 : 0.92;
+          const center = (range.from + range.to) / 2;
+          const newRange = range.range * factor;
+          const newFrom = center - newRange / 2;
+          const newTo = center + newRange / 2;
+          const newRealFrom = yAxis.convertToRealValue(newFrom);
+          const newRealTo = yAxis.convertToRealValue(newTo);
+          yAxis.setRange({
+            from: newFrom, to: newTo, range: newTo - newFrom,
+            realFrom: newRealFrom, realTo: newRealTo, realRange: newRealTo - newRealFrom,
+          });
+          chart.adjustPaneViewport(false, true, true, true);
         };
         container.addEventListener('wheel', yAxisWheelHandler, { capture: true });
 
