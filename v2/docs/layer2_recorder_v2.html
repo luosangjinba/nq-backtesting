@@ -3605,7 +3605,7 @@
         const path = activePath();
         if (!path.startTime || !path.endTime) { alert('请先填写 Start Time 和 End Time'); return; }
         const tf = path.primaryTimeframe || '1H';
-        const tfMap = { '1m': 1, '5m': 5, '15m': 15, '30m': 30, '1H': 60, '4H': 240, '1D': 1440 };
+        const tfMap = { '1m': 1, '5m': 5, '15m': 15, '30m': 30, '1H': 60, '4H': 240, '1D': 1440, '1W': 10080 };
         const tfMin = tfMap[tf] || 60;
         const url = `kline_viewer.html?start=${encodeURIComponent(path.startTime)}&end=${encodeURIComponent(path.endTime)}&tf=${tfMin}`;
         window.open(url, '_blank');
