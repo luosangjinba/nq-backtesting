@@ -741,7 +741,7 @@
         resizeObserver.observe(container);
 
         // Wheel zoom on Y-axis area: scroll wheel on right side → vertical zoom
-        const yAxisWheelHandler = (e) => {
+        yAxisWheelHandler = (e) => {
           if (!chart) return;
           const rect = container.getBoundingClientRect();
           const mouseX = e.clientX - rect.left;
