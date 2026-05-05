@@ -156,7 +156,7 @@
         body_ratio: '实体占比',
         slope_stability: '斜率稳定性'
       };
-      const defaultWeights = { direction_consistency: 0.42, efficiency: 0.22, continuity: 0.16, body_ratio: 0.15, slope_stability: 0.05 };
+      const defaultWeights = { direction_consistency: 0.50, efficiency: 0.15, continuity: 0.15, body_ratio: 0.15, slope_stability: 0.05 };
 
       let rows = '';
       for (const [key, label] of Object.entries(labels)) {
@@ -176,9 +176,9 @@
     function renderFormula(fluency) {
       const w = fluency?.weights || {};
       const lines = [
-        `流畅度 = (${(w.direction_consistency || 0.42).toFixed(2)} × 方向一致性`,
-        `  + ${(w.efficiency || 0.22).toFixed(2)} × 推进效率`,
-        `  + ${(w.continuity || 0.16).toFixed(2)} × 连续性`,
+        `流畅度 = (${(w.direction_consistency || 0.50).toFixed(2)} × 方向一致性`,
+        `  + ${(w.efficiency || 0.15).toFixed(2)} × 推进效率`,
+        `  + ${(w.continuity || 0.15).toFixed(2)} × 连续性`,
         `  + ${(w.body_ratio || 0.15).toFixed(2)} × 实体占比`,
         `  + ${(w.slope_stability || 0.05).toFixed(2)} × 斜率稳定性) × 100`
       ];

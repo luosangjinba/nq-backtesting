@@ -1790,6 +1790,7 @@ order by ts
         return [
             {
                 "time": row[0].strftime("%Y-%m-%d %H:%M"),
+                "timestamp": int(row[0].timestamp()),
                 "open": float(row[1]),
                 "high": float(row[2]),
                 "low": float(row[3]),
@@ -1827,6 +1828,7 @@ order by bucket
     return [
         {
             "time": row[1].strftime("%Y-%m-%d %H:%M"),
+            "timestamp": int(row[1].timestamp()),
             "open": float(row[2]),
             "high": float(row[3]),
             "low": float(row[4]),
