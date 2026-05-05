@@ -93,26 +93,20 @@
     .pda-badge-ob  { background: rgba(212,160,86,0.15); color: var(--accent); }
     .pda-badge-eqh { background: rgba(180,140,255,0.15); color: #b48cff; }
     .pda-badge-eql { background: rgba(180,140,255,0.15); color: #b48cff; }
-    .chart-container {
+    #chartContainer {
       flex: 1;
       min-height: 0;
+      background: #1e1b18;
     }
-    .loading {
+    .loading, .error {
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100%;
-      color: var(--muted);
       font-size: 0.9rem;
     }
-    .error {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--danger);
-      font-size: 0.9rem;
-    }
+    .loading { color: var(--muted); }
+    .error { color: var(--danger); }
   </style>
 </head>
 <body>
@@ -142,22 +136,196 @@
     <span id="pdaBadge" style="display:none"></span>
     <span class="info" id="infoText"></span>
   </div>
-  <div class="chart-container" id="chartContainer">
+  <div id="chartContainer">
     <div class="loading">输入时间范围后点击「加载」</div>
   </div>
 
-  <script src="https://unpkg.com/lightweight-charts@5.0.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/klinecharts@9.8.12/dist/umd/klinecharts.min.js"></script>
   <script>
     const API_BASE = 'http://127.0.0.1:8765';
     const MAX_PADDING = 500;
     const RIGHT_MARGIN_BARS = 10;
+    const OVERLAY_GROUP = 'pdaOverlays';
     let chart = null;
-    let candleSeries = null;
-    let seriesMarkers = null;
     let lastCandleData = null;
-    let currentPda = null; // PDA data when loaded via pda_id
-    let midnightLineSeries = []; // midnight vertical line series
+    let currentPda = null;
+    let midnightOverlayIds = [];
+    let resizeObserver = null;
+    let onDataReadyHandler = null;
 
+    // ── Register custom overlays (v9 API) ──
+    function registerCustomOverlays() {
+      klinecharts.registerOverlay({
+        name: 'arrowMarker',
+        totalStep: 2,
+        needDefaultPointFigure: false,
+        needDefaultXAxisFigure: false,
+        needDefaultYAxisFigure: false,
+        createPointFigures: ({ overlay, coordinates }) => {
+          const { direction, color, label } = overlay.extendData || {};
+          if (!coordinates.length) return [];
+          const cx = coordinates[0].x;
+          const cy = coordinates[0].y;
+          const figs = [];
+          const size = 7;
+          let arrowCoords;
+          if (direction === 'down') {
+            arrowCoords = [
+              { x: cx, y: cy + size },
+              { x: cx - size * 0.6, y: cy - size * 0.3 },
+              { x: cx + size * 0.6, y: cy - size * 0.3 },
+            ];
+          } else {
+            arrowCoords = [
+              { x: cx, y: cy - size },
+              { x: cx - size * 0.6, y: cy + size * 0.3 },
+              { x: cx + size * 0.6, y: cy + size * 0.3 },
+            ];
+          }
+          figs.push({
+            type: 'polygon',
+            attrs: { coordinates: arrowCoords },
+            styles: { style: 'fill', color: color || '#d4a056' },
+            ignoreEvent: true,
+          });
+          if (label) {
+            figs.push({
+              type: 'text',
+              attrs: {
+                x: cx,
+                y: direction === 'down' ? cy - size * 0.3 - 2 : cy + size * 0.3 + 12,
+                text: label,
+                align: 'center',
+                baseline: direction === 'down' ? 'bottom' : 'top',
+              },
+              styles: { color: color || '#d4a056', size: 10, family: 'sans-serif', weight: 'bold' },
+              ignoreEvent: true,
+            });
+          }
+          return figs;
+        },
+      });
+
+      klinecharts.registerOverlay({
+        name: 'circleMarker',
+        totalStep: 2,
+        needDefaultPointFigure: false,
+        needDefaultXAxisFigure: false,
+        needDefaultYAxisFigure: false,
+        createPointFigures: ({ overlay, coordinates }) => {
+          const { color, label, above } = overlay.extendData || {};
+          if (!coordinates.length) return [];
+          const cx = coordinates[0].x;
+          const cy = coordinates[0].y;
+          const figs = [];
+          figs.push({
+            type: 'circle',
+            attrs: { x: cx, y: cy, r: 5 },
+            styles: { style: 'fill', color: color || '#b48cff' },
+            ignoreEvent: true,
+          });
+          if (label) {
+            figs.push({
+              type: 'text',
+              attrs: {
+                x: cx,
+                y: above ? cy - 14 : cy + 14,
+                text: label,
+                align: 'center',
+                baseline: above ? 'bottom' : 'top',
+              },
+              styles: { color: color || '#b48cff', size: 10, family: 'sans-serif', weight: 'bold' },
+              ignoreEvent: true,
+            });
+          }
+          return figs;
+        },
+      });
+
+      klinecharts.registerOverlay({
+        name: 'fvgZone',
+        totalStep: 3,
+        needDefaultPointFigure: false,
+        needDefaultXAxisFigure: false,
+        needDefaultYAxisFigure: false,
+        createPointFigures: ({ overlay, coordinates }) => {
+          const { label, startIdx, endIdx } = overlay.extendData || {};
+          if (coordinates.length < 2) return [];
+          const figs = [];
+          const x1 = Math.min(coordinates[0].x, coordinates[1].x);
+          const x2 = Math.max(coordinates[0].x, coordinates[1].x);
+          const y1 = Math.min(coordinates[0].y, coordinates[1].y);
+          const y2 = Math.max(coordinates[0].y, coordinates[1].y);
+          const w = Math.max(x2 - x1, 6);
+          figs.push({
+            type: 'rect',
+            attrs: { x: x1, y: y1, width: w, height: y2 - y1 },
+            styles: {
+              style: 'stroke_fill',
+              color: 'rgba(107, 175, 207, 0.15)',
+              borderColor: '#6bafcf',
+              borderSize: 1,
+              borderStyle: 'dashed',
+              borderDashedValue: [3, 3],
+            },
+            ignoreEvent: true,
+          });
+          if (label) {
+            figs.push({
+              type: 'text',
+              attrs: { x: x1 + 4, y: y1 + 14, text: label, align: 'left', baseline: 'top' },
+              styles: { color: '#6bafcf', size: 10, family: 'sans-serif', weight: 'bold' },
+              ignoreEvent: true,
+            });
+          }
+          return figs;
+        },
+      });
+
+      klinecharts.registerOverlay({
+        name: 'obZone',
+        totalStep: 3,
+        needDefaultPointFigure: false,
+        needDefaultXAxisFigure: false,
+        needDefaultYAxisFigure: false,
+        createPointFigures: ({ overlay, coordinates }) => {
+          const { label } = overlay.extendData || {};
+          if (coordinates.length < 2) return [];
+          const figs = [];
+          const x1 = Math.min(coordinates[0].x, coordinates[1].x);
+          const x2 = Math.max(coordinates[0].x, coordinates[1].x);
+          const y1 = Math.min(coordinates[0].y, coordinates[1].y);
+          const y2 = Math.max(coordinates[0].y, coordinates[1].y);
+          const w = Math.max(x2 - x1, 6);
+          figs.push({
+            type: 'rect',
+            attrs: { x: x1, y: y1, width: w, height: y2 - y1 },
+            styles: {
+              style: 'stroke_fill',
+              color: 'rgba(212, 160, 86, 0.12)',
+              borderColor: '#d4a056',
+              borderSize: 1,
+              borderStyle: 'dashed',
+              borderDashedValue: [3, 3],
+            },
+            ignoreEvent: true,
+          });
+          if (label) {
+            figs.push({
+              type: 'text',
+              attrs: { x: x1 + 4, y: y1 + 14, text: label, align: 'left', baseline: 'top' },
+              styles: { color: '#d4a056', size: 10, family: 'sans-serif', weight: 'bold' },
+              ignoreEvent: true,
+            });
+          }
+          return figs;
+        },
+      });
+    }
+
+    registerCustomOverlays();
+
+    // ── Utility ──
     function getPadding() {
       const input = document.getElementById('paddingInput');
       let val = parseInt(input.value) || 0;
@@ -170,67 +338,6 @@
         warn.textContent = '';
       }
       return val;
-    }
-
-    function initChart() {
-      const container = document.getElementById('chartContainer');
-      container.innerHTML = '';
-
-      chart = LightweightCharts.createChart(container, {
-        width: container.clientWidth,
-        height: container.clientHeight,
-        layout: {
-          background: { color: '#1e1b18' },
-          textColor: '#a89a8a',
-          fontSize: 12,
-        },
-        grid: {
-          vertLines: { visible: false },
-          horzLines: { visible: false },
-        },
-        crosshair: {
-          mode: LightweightCharts.CrosshairMode.Normal,
-          vertLine: { color: '#d4a056', width: 1, style: LightweightCharts.LineStyle.Dashed },
-          horzLine: { color: '#d4a056', width: 1, style: LightweightCharts.LineStyle.Dashed },
-        },
-        rightPriceScale: {
-          borderColor: '#5a5045',
-        },
-        timeScale: {
-          borderColor: '#5a5045',
-          timeVisible: true,
-          secondsVisible: false,
-        },
-        localization: {
-          timeFormatter: (ts) => {
-            const d = new Date(ts * 1000);
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const yyyy = d.getUTCFullYear();
-            const MM = String(d.getUTCMonth() + 1).padStart(2, '0');
-            const dd = String(d.getUTCDate()).padStart(2, '0');
-            const hh = String(d.getUTCHours()).padStart(2, '0');
-            const mm = String(d.getUTCMinutes()).padStart(2, '0');
-            return `${days[d.getUTCDay()]} ${yyyy}/${MM}/${dd} ${hh}:${mm}`;
-          },
-          dateFormat: 'yyyy/MM/dd',
-        },
-      });
-
-      candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: '#7db87d',
-        downColor: '#c87070',
-        borderUpColor: '#7db87d',
-        borderDownColor: '#c87070',
-        wickUpColor: '#34c9b0',
-        wickDownColor: '#d28349',
-      });
-
-      const resizeObserver = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          chart.applyOptions({ width: entry.contentRect.width, height: entry.contentRect.height });
-        }
-      });
-      resizeObserver.observe(container);
     }
 
     function parseTime(text) {
@@ -246,11 +353,17 @@
     function timeToTimestamp(text) {
       const match = text.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
       if (!match) return 0;
-      // Treat as UTC to match lightweight-charts bar timestamps
       return Math.floor(Date.UTC(+match[1], +match[2] - 1, +match[3], +match[4], +match[5]) / 1000);
     }
 
-    // ── PDA badge renderer ──
+    function findBarIndex(candleData, targetTsMs) {
+      for (let i = candleData.length - 1; i >= 0; i--) {
+        if (candleData[i].timestamp <= targetTsMs) return i;
+      }
+      return -1;
+    }
+
+    // ── PDA badge ──
     function renderPdaBadge(pda) {
       const el = document.getElementById('pdaBadge');
       if (!pda) { el.style.display = 'none'; return; }
@@ -273,53 +386,236 @@
       el.style.display = 'inline-flex';
     }
 
-    // ── PDA marker builder ──
-    function buildPdaMarkers(pda, candleData) {
-      if (!pda) return [];
-      const markers = [];
+    // ── PDA overlay builder ──
+    function buildPdaOverlays(pda, candleData) {
+      if (!pda || !candleData?.length) return [];
+      const overlays = [];
       const pdaType = (pda.pdaType || '').toLowerCase();
-      const pdaTime = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
-      const pdaTimeEnd = pda.extraFields?.end_time ? timeToTimestamp(pda.extraFields.end_time) : 0;
+      const pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+      const pdaTimeMs = pdaTimeSec * 1000;
+      const pdaTimeEndSec = pda.extraFields?.end_time ? timeToTimestamp(pda.extraFields.end_time) : 0;
+      const pdaTimeEndMs = pdaTimeEndSec * 1000;
 
-      // Find the bar that CONTAINS the given timestamp (last bar where bar.time <= ts)
-      const findBarContaining = (ts) => [...candleData].reverse().find(b => b.time <= ts) || null;
+      const idx = findBarIndex(candleData, pdaTimeMs);
+      if (idx < 0) return [];
 
-      // High-type PDAs: arrow down from above
+      const bar = candleData[idx];
       const highTypes = ['bsl', 'daily_high', 'ict_midnight_day_high', 'ndog', 'nwog'];
-      // Low-type PDAs: arrow up from below
       const lowTypes = ['ssl', 'daily_low', 'ict_midnight_day_low'];
 
       if (highTypes.includes(pdaType)) {
-        const bar = findBarContaining(pdaTime);
-        if (bar) markers.push({ time: bar.time, position: 'aboveBar', color: '#2d7d2d', shape: 'arrowDown', text: pdaType.toUpperCase() });
+        overlays.push({
+          name: 'arrowMarker',
+          points: [{ timestamp: bar.timestamp, value: bar.high }],
+          extendData: { direction: 'down', color: '#2d7d2d', label: pdaType.toUpperCase() },
+          lock: true,
+        });
+        if (pda.price) {
+          overlays.push({
+            name: 'horizontalStraightLine',
+            points: [{ timestamp: bar.timestamp, value: pda.price }],
+            styles: { line: { color: 'rgba(45, 125, 45, 0.5)', style: 'dashed', size: 1, dashedValue: [6, 3] } },
+            lock: true,
+          });
+        }
       } else if (lowTypes.includes(pdaType)) {
-        const bar = findBarContaining(pdaTime);
-        if (bar) markers.push({ time: bar.time, position: 'belowBar', color: '#d28349', shape: 'arrowUp', text: pdaType.toUpperCase() });
+        overlays.push({
+          name: 'arrowMarker',
+          points: [{ timestamp: bar.timestamp, value: bar.low }],
+          extendData: { direction: 'up', color: '#d28349', label: pdaType.toUpperCase() },
+          lock: true,
+        });
+        if (pda.price) {
+          overlays.push({
+            name: 'horizontalStraightLine',
+            points: [{ timestamp: bar.timestamp, value: pda.price }],
+            styles: { line: { color: 'rgba(210, 131, 73, 0.5)', style: 'dashed', size: 1, dashedValue: [6, 3] } },
+            lock: true,
+          });
+        }
       } else if (pdaType === 'fvg') {
-        const bar = findBarContaining(pdaTime);
-        if (bar) {
-          markers.push({ time: bar.time, position: 'aboveBar', color: '#6bafcf', shape: 'circle', text: 'FVG▲' });
-          markers.push({ time: bar.time, position: 'belowBar', color: '#6bafcf', shape: 'circle', text: 'FVG▼' });
+        const priceTop = pda.extraFields?.price_top || pda.extraFields?.priceTop || pda.priceHigh;
+        const priceBottom = pda.extraFields?.price_bottom || pda.extraFields?.priceBottom || pda.priceLow;
+        if (priceTop && priceBottom) {
+          overlays.push({
+            name: 'fvgZone',
+            points: [
+              { timestamp: bar.timestamp, value: priceTop },
+              { timestamp: bar.timestamp, value: priceBottom },
+            ],
+            extendData: { label: 'FVG' },
+            lock: true,
+          });
+        } else {
+          overlays.push({
+            name: 'circleMarker',
+            points: [{ timestamp: bar.timestamp, value: bar.high }],
+            extendData: { color: '#6bafcf', label: 'FVG', above: true },
+            lock: true,
+          });
         }
       } else if (pdaType === 'ob') {
-        const barStart = findBarContaining(pdaTime);
-        const barEnd = pdaTimeEnd ? findBarContaining(pdaTimeEnd) : barStart;
-        if (barStart) markers.push({ time: barStart.time, position: 'aboveBar', color: '#d4a056', shape: 'circle', text: 'OB▲' });
-        if (barEnd && barEnd !== barStart) markers.push({ time: barEnd.time, position: 'belowBar', color: '#d4a056', shape: 'circle', text: 'OB▼' });
+        const priceTop = pda.extraFields?.price_top || pda.extraFields?.priceTop || pda.priceHigh;
+        const priceBottom = pda.extraFields?.price_bottom || pda.extraFields?.priceBottom || pda.priceLow;
+        const endIdx = pdaTimeEndMs ? findBarIndex(candleData, pdaTimeEndMs) : idx;
+        if (priceTop && priceBottom && endIdx >= 0) {
+          overlays.push({
+            name: 'obZone',
+            points: [
+              { timestamp: candleData[idx].timestamp, value: priceTop },
+              { timestamp: candleData[endIdx].timestamp, value: priceBottom },
+            ],
+            extendData: { label: 'OB' },
+            lock: true,
+          });
+        } else {
+          overlays.push({
+            name: 'circleMarker',
+            points: [{ timestamp: bar.timestamp, value: bar.high }],
+            extendData: { color: '#d4a056', label: 'OB', above: true },
+            lock: true,
+          });
+          if (endIdx >= 0 && endIdx !== idx) {
+            overlays.push({
+              name: 'circleMarker',
+              points: [{ timestamp: candleData[endIdx].timestamp, value: candleData[endIdx].low }],
+              extendData: { color: '#d4a056', label: 'OB', above: false },
+              lock: true,
+            });
+          }
+        }
       } else if (pdaType === 'eqh') {
-        const bar = findBarContaining(pdaTime);
-        if (bar) markers.push({ time: bar.time, position: 'aboveBar', color: '#b48cff', shape: 'circle', text: 'EQH' });
+        overlays.push({
+          name: 'circleMarker',
+          points: [{ timestamp: bar.timestamp, value: bar.high }],
+          extendData: { color: '#b48cff', label: 'EQH', above: true },
+          lock: true,
+        });
       } else if (pdaType === 'eql') {
-        const bar = findBarContaining(pdaTime);
-        if (bar) markers.push({ time: bar.time, position: 'belowBar', color: '#b48cff', shape: 'circle', text: 'EQL' });
+        overlays.push({
+          name: 'circleMarker',
+          points: [{ timestamp: bar.timestamp, value: bar.low }],
+          extendData: { color: '#b48cff', label: 'EQL', above: false },
+          lock: true,
+        });
       } else {
-        // Fallback: generic marker for unknown types
-        const bar = findBarContaining(pdaTime);
-        if (bar) markers.push({ time: bar.time, position: 'aboveBar', color: '#d4a056', shape: 'circle', text: pdaType.toUpperCase() });
+        overlays.push({
+          name: 'circleMarker',
+          points: [{ timestamp: bar.timestamp, value: bar.high }],
+          extendData: { color: '#d4a056', label: pdaType.toUpperCase(), above: true },
+          lock: true,
+        });
       }
-      return markers;
+      return overlays;
     }
 
+    // ── S/E overlay builder ──
+    function buildSEOverlays(candleData) {
+      const overlays = [];
+      if (!document.getElementById('showSE').checked) return overlays;
+
+      const start = parseTime(document.getElementById('startTime').value.trim());
+      const end = parseTime(document.getElementById('endTime').value.trim());
+      if (!start || !end) return overlays;
+
+      const startTsMs = timeToTimestamp(start) * 1000;
+      const endTsMs = timeToTimestamp(end) * 1000;
+
+      const startIdx = findBarIndex(candleData, startTsMs);
+      if (startIdx >= 0) {
+        overlays.push({
+          name: 'arrowMarker',
+          points: [{ timestamp: candleData[startIdx].timestamp, value: candleData[startIdx].low }],
+          extendData: { direction: 'up', color: '#d4a056', label: 'S' },
+          lock: true,
+        });
+      }
+
+      const endIdx = findBarIndex(candleData, endTsMs);
+      if (endIdx >= 0) {
+        overlays.push({
+          name: 'arrowMarker',
+          points: [{ timestamp: candleData[endIdx].timestamp, value: candleData[endIdx].high }],
+          extendData: { direction: 'down', color: '#c87070', label: 'E' },
+          lock: true,
+        });
+      }
+      return overlays;
+    }
+
+    // ── Midnight lines ──
+    function drawMidnightLines(candleData, tfMinutes) {
+      midnightOverlayIds.forEach(id => { try { chart.removeOverlay(id); } catch(e){} });
+      midnightOverlayIds = [];
+
+      if (tfMinutes > 60) return;
+      if (!document.getElementById('midnightLines').checked) return;
+      if (!candleData?.length) return;
+
+      const midnights = new Set();
+      for (const bar of candleData) {
+        const d = new Date(bar.timestamp);
+        if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0) {
+          midnights.add(bar.timestamp);
+        }
+      }
+
+      for (const ts of midnights) {
+        const idx = findBarIndex(candleData, ts);
+        if (idx >= 0) {
+          const id = chart.createOverlay({
+            name: 'verticalStraightLine',
+            points: [{ timestamp: ts, value: candleData[idx].close }],
+            styles: { line: { color: 'rgba(180, 80, 80, 0.25)', style: 'solid', size: 1 } },
+            lock: true,
+          });
+          if (id) midnightOverlayIds.push(id);
+        }
+      }
+    }
+
+    // ── Draw all overlays ──
+    function drawAllOverlays() {
+      if (!chart || !lastCandleData) return;
+
+      // Remove previous overlays by group
+      chart.removeOverlay({ groupId: OVERLAY_GROUP });
+
+      const overlays = [];
+      overlays.push(...buildSEOverlays(lastCandleData));
+      if (currentPda) {
+        overlays.push(...buildPdaOverlays(currentPda, lastCandleData));
+      }
+
+      for (const ov of overlays) {
+        ov.groupId = OVERLAY_GROUP;
+        chart.createOverlay(ov);
+      }
+    }
+
+    // ── Center on PDA ──
+    function centerOnPda(pda, candleData) {
+      if (!chart || !candleData?.length) return;
+      const pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+      if (!pdaTimeSec) { resetView(); return; }
+
+      const pdaTimeMs = pdaTimeSec * 1000;
+      const idx = findBarIndex(candleData, pdaTimeMs);
+      if (idx < 0) { resetView(); return; }
+
+      const contextBars = 15;
+      chart.setRightMinVisibleBarCount(RIGHT_MARGIN_BARS);
+      chart.scrollToDataIndex(idx + contextBars);
+    }
+
+    // ── Reset view ──
+    function resetView() {
+      if (!chart || !lastCandleData?.length) return;
+      chart.setRightMinVisibleBarCount(RIGHT_MARGIN_BARS);
+      chart.scrollToDataIndex(lastCandleData.length - 1);
+    }
+
+    // ── Load data ──
     async function loadData() {
       const startRaw = document.getElementById('startTime').value.trim();
       const endRaw = document.getElementById('endTime').value.trim();
@@ -333,9 +629,6 @@
         return;
       }
 
-      const container = document.getElementById('chartContainer');
-      container.innerHTML = '<div class="loading">加载中...</div>';
-
       try {
         const url = `${API_BASE}/v2/bars?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&tf=${tf}&padding=${padding}`;
         const res = await fetch(url);
@@ -345,134 +638,135 @@
         const bars = data.result;
         if (!bars.length) throw new Error('该时段无数据');
 
-        initChart();
+        const tfMinutes = parseInt(tf);
 
         const candleData = bars.map(bar => ({
-          time: bar.timestamp,
+          timestamp: bar.timestamp * 1000,
           open: bar.open,
           high: bar.high,
           low: bar.low,
           close: bar.close,
+          volume: bar.volume || 0,
         }));
 
-        candleSeries.setData(candleData);
+        // Dispose previous chart
+        if (chart) {
+          klinecharts.dispose(chart);
+          chart = null;
+        }
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
+
+        const container = document.getElementById('chartContainer');
+        container.innerHTML = '';
+
+        // Init chart with dark theme
+        chart = klinecharts.init('chartContainer');
+        if (!chart) throw new Error('图表初始化失败');
+
+        chart.setStyles({
+          grid: {
+            show: false,
+            horizontal: { show: false, size: 0 },
+            vertical: { show: false, size: 0 },
+          },
+          candle: {
+            type: 'candle_solid',
+            bar: {
+              upColor: '#7db87d',
+              downColor: '#c87070',
+              noChangeColor: '#888888',
+              upBorderColor: '#7db87d',
+              downBorderColor: '#c87070',
+              noChangeBorderColor: '#888888',
+              upWickColor: '#34c9b0',
+              downWickColor: '#d28349',
+              noChangeWickColor: '#888888',
+            },
+            priceMark: {
+              high: { show: false },
+              low: { show: false },
+              last: {
+                show: true,
+                line: { show: true, style: 'dashed', size: 1, color: '#a89a8a', dashedValue: [4, 2] },
+                text: { show: true, color: '#f5f0e8', backgroundColor: '#7db87d', borderRadius: 2, size: 10 },
+              },
+            },
+            tooltip: { show: false },
+          },
+          xAxis: {
+            show: true,
+            axisLine: { show: true, color: '#5a5045', size: 1 },
+            tickText: { color: '#a89a8a', size: 11, family: 'sans-serif' },
+            tickLine: { show: false },
+          },
+          yAxis: {
+            show: true,
+            axisLine: { show: true, color: '#5a5045', size: 1 },
+            tickText: { color: '#a89a8a', size: 11, family: 'sans-serif' },
+            tickLine: { show: false },
+          },
+          crosshair: {
+            show: true,
+            horizontal: {
+              show: true,
+              line: { show: true, style: 'dashed', size: 1, color: '#d4a056', dashedValue: [4, 2] },
+              text: { show: true, color: '#1e1b18', backgroundColor: '#d4a056', borderRadius: 2, size: 10 },
+            },
+            vertical: {
+              show: true,
+              line: { show: true, style: 'dashed', size: 1, color: '#d4a056', dashedValue: [4, 2] },
+              text: { show: true, color: '#1e1b18', backgroundColor: '#d4a056', borderRadius: 2, size: 10 },
+            },
+          },
+          separator: { size: 0 },
+        });
+
+        chart.setPriceVolumePrecision(2, 0);
+
         lastCandleData = candleData;
 
-        // Draw midnight vertical lines (1H and below only)
-        drawMidnightLines(candleData, parseInt(tf));
-
-        // Build markers: S/E + PDA
-        const markers = [];
-        const startTs = timeToTimestamp(start);
-        const endTs = timeToTimestamp(end);
-
-        if (document.getElementById('showSE').checked) {
-          const startBar = [...candleData].reverse().find(b => b.time <= startTs);
-          if (startBar) {
-            markers.push({ time: startBar.time, position: 'belowBar', color: '#d4a056', shape: 'arrowUp', text: 'S' });
-          }
-
-          const endBar = [...candleData].reverse().find(b => b.time <= endTs);
-          if (endBar) {
-            markers.push({ time: endBar.time, position: 'aboveBar', color: '#c87070', shape: 'arrowDown', text: 'E' });
-          }
-        }
-
-        // Add PDA markers if we have a PDA loaded
-        if (currentPda) {
-          const pdaMarkers = buildPdaMarkers(currentPda, candleData);
-          markers.push(...pdaMarkers);
-        }
-
-        // Sort markers by time (required by createSeriesMarkers)
-        markers.sort((a, b) => a.time - b.time);
-
-        if (markers.length) {
-          seriesMarkers = LightweightCharts.createSeriesMarkers(candleSeries, markers);
-        }
-
-        // If PDA loaded, center viewport on PDA; otherwise full range
-        if (currentPda) {
-          centerOnPda(currentPda, candleData);
-        } else {
-          resetView();
-        }
-
-        // Draw midnight lines after viewport is set
-        drawMidnightLines(candleData, parseInt(tf));
-
-        const first = bars[0];
-        const last = bars[bars.length - 1];
-        let info = `${bars.length} bars · ${first.time} → ${last.time} · TF=${tf}m`;
-        renderPdaBadge(currentPda);
-        document.getElementById('infoText').textContent = info;
-      } catch (err) {
-        container.innerHTML = `<div class="error">加载失败: ${err.message}</div>`;
-      }
-    }
-
-    function centerOnPda(pda, candleData) {
-      if (!chart || !candleData?.length) return;
-      const ts = chart.timeScale();
-      const pdaTime = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
-      if(!pdaTime) { resetView(); return; }
-
-      // Find the bar that contains the PDA time
-      const pdaBar = [...candleData].reverse().find(b => b.time <= pdaTime);
-      if (!pdaBar) { resetView(); return; }
-
-      const barInterval = candleData.length > 1 ? candleData[1].time - candleData[0].time : 60;
-      const contextBars = 15; // bars of context on each side
-
-      ts.setVisibleRange({
-        from: pdaBar.time - contextBars * barInterval,
-        to: pdaBar.time + (contextBars + RIGHT_MARGIN_BARS) * barInterval,
-      });
-    }
-
-    function drawMidnightLines(candleData, tfMinutes) {
-      // Remove previous midnight lines
-      midnightLineSeries.forEach(s => chart.removeSeries(s));
-      midnightLineSeries = [];
-
-      if (tfMinutes > 60) return;
-      if (!document.getElementById('midnightLines').checked) return;
-      if (!candleData?.length) return;
-
-      // Find all unique midnight timestamps in the data
-      const midnights = new Set();
-      for (const bar of candleData) {
-        const d = new Date(bar.time * 1000);
-        if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0) {
-          midnights.add(bar.time);
-        }
-      }
-
-      // For each midnight, draw a vertical line using LineSeries
-      for (const ts of midnights) {
-        const lineSeries = chart.addSeries(LightweightCharts.LineSeries, {
-          color: 'rgba(180, 80, 80, 0.25)',
-          lineWidth: 1,
-          lineStyle: LightweightCharts.LineStyle.Solid,
-          crosshairMarkerVisible: false,
-          lastValueVisible: false,
-          priceLineVisible: false,
+        // Resize observer
+        resizeObserver = new ResizeObserver(() => {
+          if (chart) chart.resize();
         });
-        const bar = candleData.find(b => b.time === ts);
-        if (bar) {
-          lineSeries.setData([
-            { time: ts, value: bar.low * 0.5 },
-            { time: ts, value: bar.high * 2 },
-          ]);
-          midnightLineSeries.push(lineSeries);
+        resizeObserver.observe(container);
+
+        // Apply data and draw overlays when ready
+        chart.applyNewData(candleData);
+        if (onDataReadyHandler) {
+          chart.unsubscribeAction('onDataReady', onDataReadyHandler);
         }
+        onDataReadyHandler = () => {
+          drawMidnightLines(candleData, tfMinutes);
+          drawAllOverlays();
+
+          if (currentPda) {
+            centerOnPda(currentPda, candleData);
+          } else {
+            resetView();
+          }
+
+          let info = `${bars.length} bars · ${bars[0].time} → ${bars[bars.length - 1].time} · TF=${tf}m`;
+          renderPdaBadge(currentPda);
+          document.getElementById('infoText').textContent = info;
+        };
+        chart.subscribeAction('onDataReady', onDataReadyHandler);
+
+      } catch (err) {
+        const container = document.getElementById('chartContainer');
+        while (container.firstChild) container.removeChild(container.firstChild);
+        const errDiv = document.createElement('div');
+        errDiv.className = 'error';
+        errDiv.textContent = `加载失败: ${err.message}`;
+        container.appendChild(errDiv);
       }
     }
 
+    // ── Load PDA mode ──
     async function loadPdaMode(pdaId) {
-      const container = document.getElementById('chartContainer');
-      container.innerHTML = '<div class="loading">加载 PDA 数据...</div>';
-
       try {
         const res = await fetch(`${API_BASE}/v2/pda_records?pda_id=${encodeURIComponent(pdaId)}`);
         const data = await res.json();
@@ -484,17 +778,14 @@
 
         currentPda = pda;
 
-        // Calculate time range around PDA (string-based to avoid timezone issues)
         const pdaTime = pda.occurrenceTime || pda.anchorTime || '';
         if (!pdaTime) throw new Error('PDA 无时间信息');
 
         const m = String(pdaTime).match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
         if (!m) throw new Error('PDA 时间格式异常');
 
-        // D-level PDAs use 1H for precise positioning; others use their own TF
         const tf = pda.timeframe === 'D' ? 60 : pda.timeframe === '4H' ? 240 : pda.timeframe === '1H' ? 60 : pda.timeframe === '30M' ? 30 : pda.timeframe === '15M' ? 15 : pda.timeframe === '5M' ? 5 : pda.timeframe === '1M' ? 1 : 60;
 
-        // Context: ±2 hours or ±5 bars, whichever is larger
         const contextMin = Math.max(120, 5 * tf);
         const center = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
         const startDt = new Date(center.getTime() - contextMin * 60000);
@@ -508,21 +799,25 @@
 
         loadData();
       } catch (err) {
-        container.innerHTML = `<div class="error">加载 PDA 失败: ${err.message}</div>`;
+        const container = document.getElementById('chartContainer');
+        while (container.firstChild) container.removeChild(container.firstChild);
+        const errDiv = document.createElement('div');
+        errDiv.className = 'error';
+        errDiv.textContent = `加载 PDA 失败: ${err.message}`;
+        container.appendChild(errDiv);
       }
     }
 
+    // ── URL params ──
     function loadFromParams() {
       const params = new URLSearchParams(window.location.search);
 
-      // PDA mode: pda_id takes priority
       const pdaId = params.get('pda_id');
       if (pdaId) {
         loadPdaMode(pdaId);
         return;
       }
 
-      // Traditional start/end mode
       const start = params.get('start');
       const end = params.get('end');
       const tf = params.get('tf') || '60';
@@ -537,58 +832,13 @@
       }
     }
 
+    // ── Event handlers ──
     document.getElementById('loadBtn').onclick = loadData;
     document.getElementById('paddingInput').onchange = getPadding;
-    document.getElementById('midnightLines').onchange = () => { if (lastCandleData) drawMidnightLines(lastCandleData, parseInt(document.getElementById('tfSelect').value)); };
-    document.getElementById('showSE').onchange = rebuildMarkers;
-
-    function rebuildMarkers() {
-      if (!chart || !candleSeries || !lastCandleData) return;
-      const tf = document.getElementById('tfSelect').value;
-      const start = parseTime(document.getElementById('startTime').value.trim());
-      const end = parseTime(document.getElementById('endTime').value.trim());
-      if (!start || !end) return;
-
-      const markers = [];
-      const startTs = timeToTimestamp(start);
-      const endTs = timeToTimestamp(end);
-
-      if (document.getElementById('showSE').checked) {
-        const startBar = [...lastCandleData].reverse().find(b => b.time <= startTs);
-        if (startBar) {
-          markers.push({ time: startBar.time, position: 'belowBar', color: '#d4a056', shape: 'arrowUp', text: 'S' });
-        }
-        const endBar = [...lastCandleData].reverse().find(b => b.time <= endTs);
-        if (endBar) {
-          markers.push({ time: endBar.time, position: 'aboveBar', color: '#c87070', shape: 'arrowDown', text: 'E' });
-        }
-      }
-
-      if (currentPda) {
-        const pdaMarkers = buildPdaMarkers(currentPda, lastCandleData);
-        markers.push(...pdaMarkers);
-      }
-
-      markers.sort((a, b) => a.time - b.time);
-      if (seriesMarkers) {
-        seriesMarkers.setMarkers([]);
-        seriesMarkers = null;
-      }
-      if (markers.length) {
-        seriesMarkers = LightweightCharts.createSeriesMarkers(candleSeries, markers);
-      }
-    }
-
-    function resetView() {
-      if (!chart || !lastCandleData || !lastCandleData.length) return;
-      const ts = chart.timeScale();
-      ts.scrollToRealTime();
-      ts.setVisibleRange({
-        from: lastCandleData[0].time,
-        to: lastCandleData[lastCandleData.length - 1].time + RIGHT_MARGIN_BARS * (lastCandleData.length > 1 ? lastCandleData[1].time - lastCandleData[0].time : 60),
-      });
-    }
-
+    document.getElementById('midnightLines').onchange = () => {
+      if (lastCandleData) drawMidnightLines(lastCandleData, parseInt(document.getElementById('tfSelect').value));
+    };
+    document.getElementById('showSE').onchange = drawAllOverlays;
     document.getElementById('resetBtn').onclick = resetView;
 
     loadFromParams();
