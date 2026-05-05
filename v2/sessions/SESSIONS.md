@@ -6,6 +6,46 @@
 
 ## 2026-05-05
 
+### 会话 6：K线查看器迁移到 KLineChart v9.8.12 + 滚轮纵向缩放
+
+**背景：**
+kline_viewer.html 原使用 TradingView Lightweight Charts v5，有两个核心问题：
+1. 无法绘制填充矩形（FVG/OB 只能用圆点标记）
+2. 价格轴滚轮缩放行为不符 TradingView 习惯（横向缩放而非纵向）
+
+用户先尝试修改 LC v5 的滚轮行为，3次尝试均失败后放弃，决定迁移到支持自定义 overlay 的 KLineChart。
+
+**改动内容：**
+
+1. **KLineChart v9.8.12 迁移**
+   - CDN 从 `lightweight-charts@5` 替换为 `klinecharts@9.8.12/dist/umd/klinecharts.min.js`
+   - 注册 4 个自定义 overlay：`arrowMarker`（BSL/SSL箭头）、`circleMarker`（EQH/EQL圆点）、`fvgZone`（FVG半透明矩形）、`obZone`（OB半透明矩形）
+   - 内置 overlay：`horizontalStraightLine`（BSL/SSL水平线）、`verticalStraightLine`（午夜线）
+   - 数据格式：API 返回秒级时间戳，内部转为毫秒给 KLineChart
+   - 视口控制：`scrollToDataIndex` + `setRightMinVisibleBarCount` 替代不存在的 `setVisibleRange`
+   - overlay 清理：`removeOverlay({ groupId })` 替代字符串参数
+   - 数据加载后用 `subscribeAction('onDataReady')` 绘制 overlay，替代废弃的 `applyNewData` 回调
+
+2. **滚轮纵向缩放**
+   - 鼠标在 Y 轴价格区域滚轮 → 纵向缩放价格轴
+   - 鼠标在图表主体区域滚轮 → 横向缩放时间轴（KLineChart 默认行为）
+   - 使用 `pane.getYAxisWidget().getContainer().contains(e.target)` 精确判断鼠标是否在 Y 轴区域
+   - 缩放逻辑：获取 `yAxis.getRange()`，按缩放因子调整 `from/to/range`，调用 `yAxis.setRange()` + `chart.adjustPaneViewport()`
+
+3. **修复的问题**
+   - CDN 路径 404：`dist/klinecharts.min.js` → `dist/umd/klinecharts.min.js`
+   - TDZ 错误：`const yAxisWheelHandler` 在 loadData 内声明但清理代码先引用 → 改为赋值给外部变量
+
+**对外接口不变：**
+- URL 参数 `pda_id`, `start`, `end`, `tf`, `padding` 保持不变
+- `pda_manager.html` 和 `layer2_recorder_v2.html` 无需修改
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — 完整重写 script 部分
+- `v2/docs/README.md` — 新增 kline_viewer 和 pda_manager 说明
+
+---
+
 ### 会话 5：PDA Manager UI 完善 + K线标注 PDA 方案探讨
 
 **背景：**

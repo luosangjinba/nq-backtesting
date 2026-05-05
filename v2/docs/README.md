@@ -9,6 +9,8 @@ Path / Group 记录工具，用于记录 NQ 期货的结构路径和关键价格
 | `layer2_recorder_v2.html` | 主工具，Path/Group 编辑器 |
 | `LAYER2_RECORDER_V2_GUIDE.md` | 使用指南 |
 | `pda_review.html` | PDA 审查工具 |
+| `pda_manager.html` | PDA Manager，CRUD + 搜索过滤 |
+| `kline_viewer.html` | K线查看器（KLineChart v9.8.12），支持 PDA overlay |
 | `params_quick_ref.html` | 参数快速参考 |
 | `yamls/` | YAML 示例文件 |
 | `snap/` | 截图存档 |
