@@ -3,9 +3,71 @@
 ## 当前状态
 
 - ✅ Path/Group 基础结构完成
-- ✅ End Factors / Path Actions 分离完成
+- ✅ End Factors / Path Actions 合并为 Path Encounters
+- ✅ liquidity Respect Type 改为 突破/接近
 - ✅ 向后兼容旧 YAML 格式
+- ✅ K线查看器（kline_viewer.html）
 - ✅ 文档整理完成
+- 🔲 Manual PDA 入库（待收口）
+- 🔲 YAML 入库（待收口）
+
+---
+
+## 收口工作（优先执行）
+
+### 收口 1：Manual PDA 入库
+
+**目标：手动录入的 PDA 存入 v2_research.duckdb，与自动 PDA 统一管理**
+
+- [ ] 设计 manual PDA 表结构（复用 pda_registry？还是独立表？）
+- [ ] 实现 API 端点：CRUD manual PDA
+- [ ] layer2_recorder_v2 页面集成：Manual PDA 录入后自动保存到 DB
+- [ ] Pick Ref 列表合并 auto_pda + manual_pda 数据源
+
+### 收口 2：YAML 入库
+
+**目标：Path 数据从 YAML 同步到 DuckDB，支持查询和统计**
+
+- [ ] 实现 YAML → DuckDB 同步（单向：YAML 仍是真相源）
+- [ ] API 端点：Path CRUD + 查询
+- [ ] 确认表结构（见下方 SQL，需更新 path_actions → end_factors）
+- [ ] 入库触发方式：手动同步 or 录入时自动同步？
+
+---
+
+## 远期规划：K线一体化录入
+
+**目标：将 layer2_recorder_v2 的全部功能整合到 K线页面，用鼠标操作替代手输**
+
+**前置条件：收口 1、2 完成后再启动** — 数据模型和入库流程稳定后，再做 UI 一体化，避免返工。
+
+### 可行性
+
+- ✅ 点击K线设时间 — `subscribeClick` 获取坐标/时间
+- ✅ PDA 单点标注 — BSL/SSL 点击标记
+- ⚠️ PDA 区间标注 — FVG/OB 需自定义绘制（v5 primitive），稍复杂
+- ✅ Path 切换 — 左侧面板保留列表，切换时图表跳转
+- ✅ 流畅度 — 选区自动计算
+- ✅ Path Encounters — 点击图上 PDA 标注关联
+
+### 分步实施
+
+1. **Phase 1**：时间选择 + Path 管理 — 点击K线填入 start/end，Path 列表面板
+2. **Phase 2**：PDA 标注 — 单点（BSL/SSL）+ 区间（FVG/OB）可视化标注
+3. **Phase 3**：完整交互 — 拖拽选区、Encounter 关联、所有表单操作图表化
+
+### 布局设想
+
+```
+┌─────────────────┬──────────────────────────────┐
+│  Recorder Panel  │        K-Line Chart          │
+│  ─────────────  │                              │
+│  Path 列表       │    (点击K线设时间)            │
+│  当前 Path 字段  │    (点击标注 PDA)             │
+│  Encounters 列表 │                              │
+│  YAML 导入/导出  │                              │
+└─────────────────┴──────────────────────────────┘
+```
 
 ---
 
@@ -16,8 +78,7 @@
 **目标：录入 50-100 个 Path 数据，验证工具可用性**
 
 - [ ] 录入 50-100 个 Path
-- [ ] 验证 End Factors 录入流程
-- [ ] 验证 Path Actions 录入流程
+- [ ] 验证 Path Encounters 录入流程
 - [ ] 验证 Ref Source 选择流程
 - [ ] 验证 YAML 导出/导入
 - [ ] 记录录入过程中的问题和改进点
@@ -31,14 +92,6 @@
 - [ ] 验证 Member Paths 关联
 - [ ] 验证 Group YAML 导出/导入
 - [ ] 记录问题和改进点
-
-### 阶段 3：数据库入库
-
-**前置条件：阶段 1、2 完成**
-
-- [ ] 设计表结构
-- [ ] 实现 YAML → DuckDB 同步
-- [ ] 实现查询接口
 
 ---
 
@@ -61,10 +114,10 @@ v2_research.duckdb
 ├── reference_groups    # 引用组（已有）
 │
 ├── paths               # 新增：Path 记录
-├── path_end_factors    # 新增：Path 的 End Factors
-├── path_actions        # 新增：Path 的 Path Actions
+├── path_encounters     # 新增：Path Encounters（原 end_factors + path_actions 合并）
 ├── structure_groups    # 新增：Group 记录
 ├── structure_group_members  # 新增：Group 成员
+├── manual_pda          # 新增：手动录入 PDA（待设计）
 ```
 
 ### 表结构 SQL
@@ -89,29 +142,17 @@ CREATE TABLE paths (
     updated_at TIMESTAMP
 );
 
--- End Factors
-CREATE TABLE path_end_factors (
-    factor_id VARCHAR PRIMARY KEY,
+-- Path Encounters（合并后的 End Factors + Path Actions）
+CREATE TABLE path_encounters (
+    encounter_id VARCHAR PRIMARY KEY,
     path_id VARCHAR,
-    factor_index INTEGER,
+    encounter_index INTEGER,
     end_reason VARCHAR,
     end_reason_tf VARCHAR,
     end_respect_type VARCHAR,
     end_respect_extent DOUBLE,
     ref_source VARCHAR,
-    ref_id VARCHAR,        -- 可关联 pda_registry.pda_id
-    ref_label VARCHAR,
-    note VARCHAR
-);
-
--- Path Actions
-CREATE TABLE path_actions (
-    action_id VARCHAR PRIMARY KEY,
-    path_id VARCHAR,
-    action_index INTEGER,
-    action_type VARCHAR,
-    ref_source VARCHAR,
-    ref_id VARCHAR,
+    ref_id VARCHAR,        -- 可关联 pda_registry.pda_id 或 manual_pda.pda_id
     ref_label VARCHAR,
     note VARCHAR
 );
@@ -234,7 +275,6 @@ CREATE TABLE structure_group_members (
 
 ## 技术债务
 
-- [ ] 代码重构：renderEndFactors 与 renderPathActions 有大量重复，可抽取公共函数
 - [ ] 单元测试：关键函数需要测试覆盖
 - [ ] 错误处理：API 调用失败时的用户提示
 - [ ] 性能优化：大量 Path 时的渲染性能
@@ -246,9 +286,10 @@ CREATE TABLE structure_group_members (
 | 版本 | 内容 | 状态 |
 |------|------|------|
 | v2.0 | 基础结构 + End Factors/Path Actions 分离 | ✅ 完成 |
-| v2.1 | 数据验证 + 统计功能 | 规划中 |
-| v2.2 | 批量操作 + 搜索过滤 | 规划中 |
-| v2.3 | 可视化增强 | 规划中 |
+| v2.1 | Path Encounters 合并 + K线查看器 | ✅ 完成 |
+| v2.2 | Manual PDA 入库 + YAML 入库 | 🔲 收口中 |
+| v2.3 | 数据验证 + 统计功能 | 规划中 |
+| v2.4 | K线一体化录入 | 远期规划 |
 
 ---
 

@@ -4,6 +4,57 @@
 
 ---
 
+## 2026-05-05
+
+### 会话 4：PDA Manager 页面 + Manual PDA 入库 API
+
+**背景：**
+收口工作第一步：手工录入的 PDA 需要入库到 v2_research.duckdb，与自动 PDA 统一管理。决定单独拉 pda_manager.html 页面，职责分离。
+
+**方案：**
+1. 新建 `pda_manager.html` — PDA CRUD、搜索过滤、分页表格
+2. 复用 `pda_registry` 表 + `extra_fields` JSON 列，零新表
+3. API 端点：`GET /v2/pda_records` 加 source/direction 过滤、`PUT /v2/pda_manual_update` 新增、`POST /v2/pda_delete` 加 manual_only 守卫
+
+**改动内容：**
+
+1. **pda_manager.html (新建)**
+   - 筛选栏：来源/类型/周期/方向/日期范围
+   - 数据表格：PDA ID、类型(彩色标签)、周期、方向、时间、价格、来源徽章、操作按钮
+   - auto PDA 只读(编辑/删除 disabled)，manual PDA 可编辑/删除
+   - 点击 PDA ID 跳转 kline_viewer 查看K线
+   - 模态框表单：按 PDA 类型切换字段(点/区间/OB)
+   - 分页(50条/页) + 排序
+
+2. **price_lookup_api.py**
+   - `ensure_v2_registry_columns`: 新增 `extra_fields JSON DEFAULT '{}'`
+   - `query_v2_pda_records`: 新增 source/source_exclude/direction 过滤参数
+   - `query_v2_pda_record`/`query_v2_pda_records`: 响应包含 extraFields
+   - `create_v2_manual_pda`: 支持 extra_fields 参数，支持 ob 类型
+   - `update_v2_manual_pda` (新增): 更新 manual PDA 核心字段 + extra_fields
+   - `delete_v2_pda_record`: 新增 manual_only 参数，拒绝删除 auto PDA
+   - `MANUAL_PDA_TYPES`: 新增 ob
+   - `MANUAL_PDA_TIMEFRAMES`: 新增 15M
+   - `do_PUT` (新增): 处理 PUT 请求
+   - `PUT /v2/pda_manual_update`: 新端点
+   - `POST /v2/pda_delete`: 加 manual_only=True 守卫
+
+3. **v2/docs/PLAN.md**
+   - 更新当前状态（新增收口项）
+   - 新增收口工作章节
+   - 新增 K线一体化录入远期规划
+   - 更新表结构（path_actions → path_encounters, 新增 manual_pda 表）
+   - 更新版本规划表
+
+**新增文件：**
+- `v2/docs/pda_manager.html`
+
+**修改文件：**
+- `price_lookup_api.py`
+- `v2/docs/PLAN.md`
+
+---
+
 ## 2026-05-04
 
 ### 会话 3：K线查看器 (kline_viewer)

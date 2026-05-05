@@ -48,8 +48,8 @@ def load_v2_config(config_path: str = None) -> Dict:
 VALID_FIELDS = {"open", "high", "low", "close"}
 VALID_HTF_TIMEFRAMES = {"daily": "day", "weekly": "week", "monthly": "month"}
 V2_BAR_BUCKET_MINUTES = {"D": 24 * 60, "4H": 4 * 60, "1H": 60, "30M": 30, "15M": 15}
-MANUAL_PDA_TYPES = {"bsl", "ssl", "eqh", "eql", "fvg"}
-MANUAL_PDA_TIMEFRAMES = {"D", "4H", "1H", "30M"}
+MANUAL_PDA_TYPES = {"bsl", "ssl", "eqh", "eql", "fvg", "ob"}
+MANUAL_PDA_TIMEFRAMES = {"D", "4H", "1H", "30M", "15M", "5M", "1M", "1W"}
 REVIEW_STATES = {"pending", "main", "parked"}
 REVIEW_ROLES = {
     "unclassified",
@@ -522,6 +522,7 @@ def ensure_v2_registry_columns(db_path: str) -> None:
             "prev_close_price": "double",
             "next_open_time": "timestamp",
             "next_open_price": "double",
+            "extra_fields": "json default '{}'",
         }
         for column_name, column_def in required_columns.items():
             if column_name not in existing:
@@ -821,6 +822,11 @@ def query_v2_pda_records(
     date_from: str,
     date_to: str,
     limit: int,
+    source: str = "",
+    source_exclude: str = "",
+    direction: str = "",
+    anchor_time_from: str = "",
+    anchor_time_to: str = "",
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     clauses = [
@@ -846,6 +852,21 @@ def query_v2_pda_records(
     if review_role:
         clauses.append("(coalesce(review_role, '') = ? or (? = 'unclassified' and coalesce(review_role, '') = ''))")
         params.extend([review_role, review_role])
+    if source:
+        clauses.append("source = ?")
+        params.append(source)
+    if source_exclude:
+        clauses.append("coalesce(source, '') != ?")
+        params.append(source_exclude)
+    if direction:
+        clauses.append("direction = ?")
+        params.append(direction)
+    if anchor_time_from:
+        clauses.append("coalesce(anchor_time, occurrence_time) >= cast(? as timestamp)")
+        params.append(anchor_time_from)
+    if anchor_time_to:
+        clauses.append("coalesce(anchor_time, occurrence_time) <= cast(? as timestamp)")
+        params.append(anchor_time_to)
     sql = f"""
 	select
 	  pda_id,
@@ -879,7 +900,8 @@ def query_v2_pda_records(
 	  next_open_price,
 	  registry_status,
 	  source,
-	  note
+	  note,
+	  extra_fields
 	from pda_registry
 	where {" and ".join(clauses)}
 	order by coalesce(anchor_time, created_ts, cast(coalesce(trade_date, created_date) as timestamp)) asc, pda_id asc
@@ -936,6 +958,7 @@ def query_v2_pda_records(
                 "registryStatus": row[29],
                 "source": row[30],
                 "note": row[31] or "",
+                "extraFields": json.loads(row[32]) if row[32] else {},
             }
         )
     return {"records": records}
@@ -976,7 +999,8 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
       next_open_price,
       registry_status,
       source,
-      note
+      note,
+      extra_fields
     from pda_registry
     where pda_id = ?
     limit 1
@@ -1029,6 +1053,7 @@ def query_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
             "registryStatus": row[29],
             "source": row[30],
             "note": row[31] or "",
+            "extraFields": json.loads(row[32]) if row[32] else {},
             "members": query_v2_pda_members(v2_db_path, pda_id),
         }
     raise LookupError("pda record not found")
@@ -1313,16 +1338,18 @@ def update_v2_pda_review(
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
-def delete_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
+def delete_v2_pda_record(v2_db_path: str, pda_id: str, manual_only: bool = False) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     ensure_v2_pda_members_table(v2_db_path)
     with duckdb.connect(v2_db_path) as conn:
         row = conn.execute(
-            "select pda_id, instrument, timeframe, pda_type, trade_date, anchor_time from pda_registry where pda_id = ?",
+            "select pda_id, instrument, timeframe, pda_type, trade_date, anchor_time, source from pda_registry where pda_id = ?",
             [pda_id],
         ).fetchone()
         if not row:
             raise LookupError("pda record not found")
+        if manual_only and row[6] not in ("manual_add", "manual_eqh_eql"):
+            raise ValueError("only manual PDAs can be deleted")
         conn.execute("delete from pda_members where pda_id = ?", [pda_id])
         conn.execute("delete from pda_registry where pda_id = ?", [pda_id])
     return {
@@ -1334,6 +1361,66 @@ def delete_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
         "anchorTime": row[5].strftime("%Y-%m-%d %H:%M:%S") if row[5] else "",
         "deleted": True,
     }
+
+
+def update_v2_manual_pda(
+    v2_db_path: str,
+    pda_id: str,
+    timeframe: str | None = None,
+    pda_type: str | None = None,
+    direction: str | None = None,
+    anchor_time: datetime | None = None,
+    price: float | None = None,
+    price_high: float | None = None,
+    price_low: float | None = None,
+    note: str | None = None,
+    extra_fields: dict | None = None,
+) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        row = conn.execute(
+            "select pda_id, source, timeframe, pda_type from pda_registry where pda_id = ?",
+            [pda_id],
+        ).fetchone()
+        if not row:
+            raise LookupError("pda record not found")
+        if row[1] not in ("manual_add", "manual_eqh_eql"):
+            raise ValueError("only manual PDAs can be updated")
+        sets = ["updated_at = current_timestamp"]
+        params: list[object] = []
+        if timeframe is not None:
+            sets.append("timeframe = ?")
+            params.append(timeframe)
+        if pda_type is not None:
+            sets.append("pda_type = ?")
+            params.append(pda_type)
+        if direction is not None:
+            sets.append("direction = ?")
+            params.append(direction or None)
+        if anchor_time is not None:
+            sets.append("anchor_time = ?")
+            params.append(anchor_time)
+        if price is not None:
+            sets.append("price = ?")
+            params.append(price)
+        if price_high is not None:
+            sets.append("price_high = ?")
+            params.append(price_high)
+        if price_low is not None:
+            sets.append("price_low = ?")
+            params.append(price_low)
+        if note is not None:
+            sets.append("note = ?")
+            params.append(note)
+        if extra_fields is not None:
+            sets.append("extra_fields = ?")
+            params.append(json.dumps(extra_fields))
+        if price_high is not None and price_low is not None:
+            sets.append("price_ce = ?")
+            params.append((price_high + price_low) / 2.0)
+        params.append(pda_id)
+        conn.execute(f"update pda_registry set {', '.join(sets)} where pda_id = ?", params)
+    return query_v2_pda_record(v2_db_path, pda_id)
 
 
 def next_manual_pda_id(
@@ -1374,6 +1461,7 @@ def create_v2_manual_pda(
     price_low: float | None,
     note: str,
     member_refs: list[str] | None = None,
+    extra_fields: dict | None = None,
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     ensure_v2_pda_members_table(v2_db_path)
@@ -1406,11 +1494,11 @@ def create_v2_manual_pda(
         normalized_direction = None
     else:
         if price_high is None or price_low is None:
-            raise ValueError("fvg manual add requires priceHigh and priceLow")
+            raise ValueError(f"{pda_type} manual add requires priceHigh and priceLow")
         if price_low > price_high:
             raise ValueError("priceLow must be <= priceHigh")
         if not normalized_direction:
-            raise ValueError("fvg manual add requires direction")
+            raise ValueError(f"{pda_type} manual add requires direction")
         price = None
         price_ce = (price_high + price_low) / 2.0
 
@@ -1425,8 +1513,8 @@ def create_v2_manual_pda(
               origin_start_date, origin_end_date,
               price, price_high, price_low, price_ce,
               prev_close_time, prev_close_price, next_open_time, next_open_price,
-              source, note, registry_status
-            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              source, note, registry_status, extra_fields
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """.strip(),
             [
                 pda_id,
@@ -1459,6 +1547,7 @@ def create_v2_manual_pda(
                 "manual_eqh_eql" if pda_type in {"eqh", "eql"} else "manual_add",
                 note,
                 "active",
+                json.dumps(extra_fields) if extra_fields else "{}",
             ],
         )
         rows = []
@@ -2039,7 +2128,12 @@ class Handler(BaseHTTPRequestHandler):
                 date_from = validate_date(params.get("date_from", [""])[0]) if params.get("date_from", [""])[0] else ""
                 date_to = validate_date(params.get("date_to", [""])[0]) if params.get("date_to", [""])[0] else ""
                 limit = min(max(int(params.get("limit", ["200"])[0]), 1), 1000)
-                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit)
+                source = params.get("source", [""])[0].strip()
+                source_exclude = params.get("source_exclude", [""])[0].strip()
+                direction = params.get("direction", [""])[0].strip()
+                anchor_time_from = params.get("anchor_time_from", [""])[0].strip()
+                anchor_time_to = params.get("anchor_time_to", [""])[0].strip()
+                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit, source, source_exclude, direction, anchor_time_from, anchor_time_to)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
@@ -2289,6 +2383,54 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(500, {"ok": False, "error": str(exc)})
 
+    def do_PUT(self) -> None:
+        parsed = urlparse(self.path)
+
+        if parsed.path == "/v2/pda_manual_update":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                pda_id = body.get("pdaId") or body.get("pda_id") or ""
+                if not pda_id:
+                    raise ValueError("pdaId is required")
+                timeframe = body.get("timeframe")
+                pda_type = body.get("pdaType") or body.get("pda_type")
+                direction = body.get("direction")
+                anchor_time = parse_optional_timestamp(body.get("anchorTime") or body.get("anchor_time"), "anchorTime")
+                price = parse_optional_number(body.get("price"), "price")
+                price_high = parse_optional_number(body.get("priceHigh") or body.get("price_high"), "priceHigh")
+                price_low = parse_optional_number(body.get("priceLow") or body.get("price_low"), "priceLow")
+                note = body.get("note")
+                extra_fields = body.get("extraFields") or body.get("extra_fields")
+                result = update_v2_manual_pda(
+                    self.v2_db_path,
+                    pda_id,
+                    timeframe=timeframe,
+                    pda_type=pda_type,
+                    direction=direction,
+                    anchor_time=anchor_time,
+                    price=price,
+                    price_high=price_high,
+                    price_low=price_low,
+                    note=note,
+                    extra_fields=extra_fields,
+                )
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        self._send_json(404, {"ok": False, "error": "not found"})
+
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/v2/pda_review":
@@ -2335,6 +2477,7 @@ class Handler(BaseHTTPRequestHandler):
                 price_low = parse_optional_number(body.get("priceLow", ""), "priceLow")
                 note = normalize_note(body.get("note", ""))
                 member_refs = parse_member_refs(body.get("memberRefs", ""))
+                extra_fields = body.get("extraFields") or body.get("extra_fields")
                 result = create_v2_manual_pda(
                     self.v2_db_path,
                     instrument,
@@ -2348,6 +2491,7 @@ class Handler(BaseHTTPRequestHandler):
                     price_low,
                     note,
                     member_refs,
+                    extra_fields,
                 )
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
@@ -2368,7 +2512,7 @@ class Handler(BaseHTTPRequestHandler):
                 payload = self.rfile.read(content_length)
                 body = json.loads(payload.decode("utf-8"))
                 pda_id = validate_pda_id(body.get("pdaId", ""))
-                result = delete_v2_pda_record(self.v2_db_path, pda_id)
+                result = delete_v2_pda_record(self.v2_db_path, pda_id, manual_only=True)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})

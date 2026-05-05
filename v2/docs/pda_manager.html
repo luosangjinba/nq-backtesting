@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDA Manager</title>
+  <style>
+    :root {
+      --bg: #1e1b18;
+      --bg-gradient: radial-gradient(ellipse at 20% 0%, rgba(212, 160, 86, 0.06), transparent 50%),
+                     radial-gradient(ellipse at 80% 100%, rgba(125, 184, 125, 0.04), transparent 50%),
+                     #1e1b18;
+      --panel: #2a2520;
+      --panel-2: #363028;
+      --panel-3: #403830;
+      --line: #5a5045;
+      --line-soft: rgba(90, 80, 69, 0.5);
+      --text: #f5f0e8;
+      --text-dim: #c8bfb0;
+      --muted: #a89a8a;
+      --accent: #d4a056;
+      --accent-2: rgba(212, 160, 86, 0.15);
+      --accent-glow: rgba(212, 160, 86, 0.3);
+      --success: #7db87d;
+      --success-2: rgba(125, 184, 125, 0.15);
+      --danger: #c87070;
+      --danger-2: rgba(200, 112, 112, 0.15);
+      --info: #6bafcf;
+      --info-2: rgba(107, 175, 207, 0.15);
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+
+    /* ── Shell ── */
+    .shell {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .header .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-left: 12px;
+    }
+    .header .nav {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .header .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--panel-2);
+    }
+    .header .nav a:hover { border-color: var(--accent); }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-bar label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .filter-bar select,
+    .filter-bar input {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      min-height: 34px;
+      outline: none;
+      transition: border-color 160ms ease;
+    }
+    .filter-bar select:focus,
+    .filter-bar input:focus {
+      border-color: var(--accent-glow);
+    }
+    .filter-bar select { width: 110px; }
+    .filter-bar input { width: 150px; }
+    .filter-bar .sep {
+      width: 1px;
+      height: 24px;
+      background: var(--line);
+      flex-shrink: 0;
+    }
+    .filter-bar .spacer { flex: 1; }
+    .filter-bar .stats {
+      color: var(--text-dim);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      text-align: left;
+      padding: 12px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+    }
+    thead th:hover { color: var(--text-dim); }
+    thead th .sort { font-size: 10px; margin-left: 4px; opacity: 0.5; }
+    thead th.sorted .sort { opacity: 1; color: var(--accent); }
+    tbody tr {
+      border-bottom: 1px solid var(--line-soft);
+      transition: background 120ms ease;
+    }
+    tbody tr:hover { background: var(--panel-2); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td {
+      padding: 10px 14px;
+      vertical-align: middle;
+    }
+    tbody td.mono {
+      font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+      font-size: 12px;
+    }
+
+    /* ── Source Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge-auto {
+      background: var(--info-2);
+      color: var(--info);
+    }
+    .badge-manual {
+      background: var(--accent-2);
+      color: var(--accent);
+    }
+
+    /* ── Direction Tag ── */
+    .dir-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .dir-bull { background: var(--success-2); color: var(--success); }
+    .dir-bear { background: var(--danger-2); color: var(--danger); }
+
+    /* ── Type Tag ── */
+    .type-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .type-bsl { background: var(--success-2); color: var(--success); }
+    .type-ssl { background: var(--danger-2); color: var(--danger); }
+    .type-fvg { background: var(--info-2); color: var(--info); }
+    .type-ob  { background: var(--accent-2); color: var(--accent); }
+    .type-eqh { background: rgba(180, 140, 255, 0.15); color: #b48cff; }
+    .type-eql { background: rgba(180, 140, 255, 0.15); color: #b48cff; }
+    .type-other { background: var(--panel-3); color: var(--muted); }
+
+    /* ── Action Buttons ── */
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-icon {
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: var(--text-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 120ms ease;
+    }
+    .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-icon.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .btn-icon:disabled {
+      opacity: 0.3;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* ── Bottom Bar ── */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      margin-top: 12px;
+    }
+    .btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 120ms ease;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-secondary {
+      background: var(--panel-2);
+      color: var(--text-dim);
+      border: 1px solid var(--line);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .bottom-bar .spacer { flex: 1; }
+    .bottom-bar .info {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pagination button {
+      min-width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .pagination button:hover { border-color: var(--accent); color: var(--accent); }
+    .pagination button.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .pagination button:disabled { opacity: 0.3; cursor: default; }
+
+    /* ── Modal (Add / Edit) ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 18px 20px; }
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ── Form Fields ── */
+    .field-group {
+      margin-bottom: 14px;
+    }
+    .field-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      letter-spacing: 0.04em;
+    }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 8px 12px;
+      min-height: 38px;
+      outline: none;
+    }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+      border-color: var(--accent-glow);
+    }
+    .field-group textarea { min-height: 60px; resize: vertical; }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── Kline Link ── */
+    .kline-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .kline-link:hover { text-decoration: underline; }
+
+    /* ── Empty State ── */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 32px; margin-bottom: 12px; }
+    .empty-state .msg { font-size: 14px; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow);
+      animation: toast-in 200ms ease;
+    }
+    .toast-success { background: var(--success); color: #1a2e1a; }
+    .toast-error { background: var(--danger); color: #2e1a1a; }
+    .toast-info { background: var(--info); color: #1a2a2e; }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+
+    <!-- Header -->
+    <div class="header">
+      <h1>PDA Manager</h1>
+      <span class="sub">PDA 数据管理与检索</span>
+      <div class="nav">
+        <a href="layer2_recorder_v2.html">Layer2 Recorder</a>
+        <a href="kline_viewer.html">K线查看器</a>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <label>来源</label>
+      <select id="filterSource">
+        <option value="">全部</option>
+        <option value="manual">仅手工</option>
+        <option value="auto">仅自动</option>
+      </select>
+      <label>类型</label>
+      <select id="filterType">
+        <option value="">全部</option>
+        <option value="bsl">BSL</option>
+        <option value="ssl">SSL</option>
+        <option value="fvg">FVG</option>
+        <option value="ob">OB</option>
+        <option value="eqh">EQH</option>
+        <option value="eql">EQL</option>
+        <option value="daily_high">Daily High</option>
+        <option value="daily_low">Daily Low</option>
+        <option value="nwog">NWOG</option>
+        <option value="ndog">NDOG</option>
+      </select>
+      <label>周期</label>
+      <select id="filterTF">
+        <option value="">全部</option>
+        <option value="1M">1m</option>
+        <option value="5M">5m</option>
+        <option value="15M">15M</option>
+        <option value="30M">30M</option>
+        <option value="1H">1H</option>
+        <option value="4H">4H</option>
+        <option value="D">D</option>
+        <option value="1W">1W</option>
+      </select>
+      <label>方向</label>
+      <select id="filterDir">
+        <option value="">全部</option>
+        <option value="bullish">Bull</option>
+        <option value="bearish">Bear</option>
+      </select>
+      <div class="sep"></div>
+      <label>时间</label>
+      <input id="filterTimeFrom" placeholder="2012-01-09 09:30">
+      <input id="filterTimeTo" placeholder="2012-01-09 16:00">
+      <button class="btn btn-primary" id="searchBtn" style="padding:6px 14px; font-size:13px;">查询</button>
+      <button class="btn btn-primary" id="addBtn" style="padding:6px 14px; font-size:13px;">+ 新增 Manual PDA</button>
+      <div class="spacer"></div>
+      <span class="stats" id="statsText"></span>
+    </div>
+
+    <!-- Top pagination bar -->
+    <div class="bottom-bar" style="margin-bottom:12px;">
+      <div class="pagination" id="paginationTop"></div>
+      <div class="spacer"></div>
+      <label style="color:var(--muted);font-size:12px;white-space:nowrap;">每页</label>
+      <select id="pageSizeSelect" style="width:60px;min-height:30px;padding:4px 6px;font-size:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--text);">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50" selected>50</option>
+      </select>
+      <span class="info" id="pageInfoTop"></span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-col="pdaId">PDA ID <span class="sort">&#9650;</span></th>
+            <th data-col="pdaType">类型</th>
+            <th data-col="timeframe">周期</th>
+            <th data-col="direction">方向</th>
+            <th data-col="anchorTime">时间</th>
+            <th data-col="price">价格</th>
+            <th data-col="source">来源</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="8" class="empty-state"><div class="icon">&#128269;</div><div class="msg">点击「查询」加载数据</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="pagination" id="paginationBottom"></div>
+      <div class="spacer"></div>
+      <span class="info" id="pageInfoBottom"></span>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">新增 Manual PDA</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-row">
+          <div class="field-group">
+            <label>PDA 类型</label>
+            <select id="formType">
+              <option value="">选择类型</option>
+              <option value="bsl">BSL</option>
+              <option value="ssl">SSL</option>
+              <option value="fvg">FVG</option>
+              <option value="ob">OB</option>
+              <option value="eqh">EQH</option>
+              <option value="eql">EQL</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>时间周期</label>
+            <select id="formTF">
+              <option value="1M">1m</option>
+              <option value="5M">5m</option>
+              <option value="15M">15M</option>
+              <option value="30M">30M</option>
+              <option value="1H" selected>1H</option>
+              <option value="4H">4H</option>
+              <option value="D">D</option>
+              <option value="1W">1W</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Point fields (BSL/SSL/EQH/EQL) -->
+        <div id="fieldsPoint">
+          <div class="field-row">
+            <div class="field-group">
+              <label>事件时间</label>
+              <input id="formEventTime" placeholder="2012-01-09 11:20">
+            </div>
+            <div class="field-group">
+              <label>价格</label>
+              <input id="formPrice" type="number" step="0.25" placeholder="2346.25">
+            </div>
+          </div>
+        </div>
+
+        <!-- Range fields (FVG) -->
+        <div id="fieldsRange" style="display:none;">
+          <div class="field-group">
+            <label>事件时间</label>
+            <input id="formRangeEventTime" placeholder="2012-01-09 11:20">
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label>价格上限 (High)</label>
+              <input id="formPriceHigh" type="number" step="0.25" placeholder="2357.50">
+            </div>
+            <div class="field-group">
+              <label>价格下限 (Low)</label>
+              <input id="formPriceLow" type="number" step="0.25" placeholder="2356.50">
+            </div>
+          </div>
+          <div class="field-group">
+            <label>方向</label>
+            <select id="formRangeDir">
+              <option value="bullish">Bullish</option>
+              <option value="bearish">Bearish</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- OB fields -->
+        <div id="fieldsOB" style="display:none;">
+          <div class="field-row">
+            <div class="field-group">
+              <label>开始时间</label>
+              <input id="formOBStart" placeholder="2012-01-09 10:00">
+            </div>
+            <div class="field-group">
+              <label>结束时间</label>
+              <input id="formOBEnd" placeholder="2012-01-09 10:30">
+            </div>
+          </div>
+          <div class="field-row-3">
+            <div class="field-group">
+              <label>价格上限</label>
+              <input id="formOBPriceHigh" type="number" step="0.25" placeholder="2356.75">
+            </div>
+            <div class="field-group">
+              <label>价格下限</label>
+              <input id="formOBPriceLow" type="number" step="0.25" placeholder="2349.00">
+            </div>
+            <div class="field-group">
+              <label>方向</label>
+              <select id="formOBDir">
+                <option value="bullish">Bullish</option>
+                <option value="bearish">Bearish</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>备注</label>
+          <textarea id="formNote" placeholder="可选备注..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modalCancel">取消</button>
+        <button class="btn btn-primary" id="modalSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8765';
+
+    let pageSize = 50;
+    let allRows = [];
+    let currentPage = 1;
+    let sortCol = 'anchorTime';
+    let sortDir = 'desc';
+    let editingPdaId = null; // null = add mode, string = edit mode
+
+    // ── Time normalization (same as layer2_recorder_v2) ──
+    function normalizeDateTimeText(value) {
+      let text = String(value || '').trim().replace('T', ' ');
+      if (!text) return '';
+      const compact = text.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/);
+      if (compact) text = `${compact[1]}-${compact[2]}-${compact[3]} ${compact[4]}:${compact[5]}`;
+      const match = text.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (!match) return text;
+      const [, date, hour, minute] = match;
+      return `${date} ${hour.padStart(2, '0')}:${minute}`;
+    }
+
+    function normalizeOnBlur(e) {
+      if (e.target.value) {
+        const normed = normalizeDateTimeText(e.target.value);
+        if (normed !== e.target.value) e.target.value = normed;
+      }
+    }
+
+    // ── Toast ──
+    function toast(msg, type = 'info') {
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = msg;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    // ── API ──
+    async function apiGet(path) {
+      const res = await fetch(`${API_BASE}${path}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'API error');
+      return data;
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'API error');
+      return data;
+    }
+
+    async function apiPut(path, body) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'API error');
+      return data;
+    }
+
+    // ── Search ──
+    async function doSearch() {
+      const source = document.getElementById('filterSource').value;
+      const pdaType = document.getElementById('filterType').value;
+      const tf = document.getElementById('filterTF').value;
+      const dir = document.getElementById('filterDir').value;
+      const timeFrom = normalizeDateTimeText(document.getElementById('filterTimeFrom').value.trim());
+      const timeTo = normalizeDateTimeText(document.getElementById('filterTimeTo').value.trim());
+
+      const params = new URLSearchParams();
+      if (pdaType) params.set('type', pdaType);
+      if (tf) params.set('timeframe', tf);
+      if (dir) params.set('direction', dir);
+      if (timeFrom) params.set('anchor_time_from', timeFrom);
+      if (timeTo) params.set('anchor_time_to', timeTo);
+      params.set('limit', '1000');
+
+      // Source filter: manual vs auto
+      if (source === 'manual') params.set('source', 'manual_add');
+      else if (source === 'auto') params.set('source_exclude', 'manual_add');
+
+      try {
+        const data = await apiGet(`/v2/pda_records?${params}`);
+        allRows = data.result?.records || [];
+        currentPage = 1;
+        applySort();
+        renderTable();
+        updateStats();
+      } catch (err) {
+        toast('查询失败: ' + err.message, 'error');
+      }
+    }
+
+    // ── Sort ──
+    function applySort() {
+      allRows.sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (va == null && vb == null) return 0;
+        if (va == null) return 1;
+        if (vb == null) return -1;
+        if (typeof va === 'number') return sortDir === 'asc' ? va - vb : vb - va;
+        va = String(va); vb = String(vb);
+        return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+    }
+
+    // ── Render Table ──
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const start = (currentPage - 1) * pageSize;
+      const pageRows = allRows.slice(start, start + pageSize);
+
+      if (!allRows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="icon">&#128196;</div><div class="msg">无匹配数据</div></td></tr>';
+        renderPagination();
+        return;
+      }
+
+      tbody.innerHTML = pageRows.map(row => {
+        const isManual = row.source === 'manual_add' || row.source === 'manual_eqh_eql';
+        const typeClass = `type-${TYPE_STYLES[row.pdaType] || 'other'}`;
+        const dirTag = row.direction
+          ? `<span class="dir-tag dir-${row.direction === 'bullish' ? 'bull' : 'bear'}">${row.direction === 'bullish' ? 'Bull' : 'Bear'}</span>`
+          : '';
+        const priceDisplay = row.price != null ? row.price.toFixed(2)
+          : (row.priceHigh != null && row.priceLow != null) ? `${row.priceHigh.toFixed(2)} / ${row.priceLow.toFixed(2)}`
+          : '-';
+
+        return `<tr>
+          <td class="mono kline-link" data-pda="${escHtml(row.pdaId)}" title="点击查看K线">${escHtml(row.pdaId)}</td>
+          <td><span class="type-tag ${typeClass}">${escHtml(row.pdaType?.toUpperCase() || '-')}</span></td>
+          <td>${escHtml(row.timeframe || '-')}</td>
+          <td>${dirTag}</td>
+          <td class="mono">${escHtml(formatTime(row.anchorTime) || '-')}</td>
+          <td class="mono">${priceDisplay}</td>
+          <td><span class="badge ${isManual ? 'badge-manual' : 'badge-auto'}">${isManual ? '手工' : '自动'}</span></td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon" title="编辑" ${isManual ? '' : 'disabled'} onclick="openEdit('${escHtml(row.pdaId)}')">&#9998;</button>
+              <button class="btn-icon danger" title="删除" ${isManual ? '' : 'disabled'} onclick="confirmDelete('${escHtml(row.pdaId)}')">&#10005;</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      // Click PDA ID to open kline viewer
+      tbody.querySelectorAll('.kline-link').forEach(el => {
+        el.addEventListener('click', () => openKline(el.dataset.pda));
+      });
+
+      renderPagination();
+    }
+
+    const TYPE_STYLES = { bsl: 'bsl', ssl: 'ssl', fvg: 'fvg', ob: 'ob', eqh: 'eqh', eql: 'eql' };
+
+    function escHtml(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+
+    function formatTime(ts) {
+      if (!ts) return '';
+      // Handle "2012-01-09 11:20:00" or ISO format
+      return String(ts).replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}).*/, '$1 $2');
+    }
+
+    // ── Pagination ──
+    function renderPagination() {
+      const totalPages = Math.ceil(allRows.length / pageSize) || 1;
+      const topContainer = document.getElementById('paginationTop');
+      const bottomContainer = document.getElementById('paginationBottom');
+      const infoText = `${allRows.length} 条 · 第 ${currentPage}/${totalPages} 页`;
+      document.getElementById('pageInfoTop').textContent = infoText;
+      document.getElementById('pageInfoBottom').textContent = infoText;
+
+      if (totalPages <= 1) {
+        topContainer.innerHTML = '';
+        bottomContainer.innerHTML = '';
+        return;
+      }
+
+      let html = `<button ${currentPage <= 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})">&lt;</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        if (totalPages > 7 && Math.abs(i - currentPage) > 2 && i !== 1 && i !== totalPages) {
+          if (i === currentPage - 3 || i === currentPage + 3) html += '<button disabled>...</button>';
+          continue;
+        }
+        html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      }
+      html += `<button ${currentPage >= totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})">&gt;</button>`;
+      topContainer.innerHTML = html;
+      bottomContainer.innerHTML = html;
+    }
+
+    function goPage(n) {
+      currentPage = n;
+      renderTable();
+    }
+
+    function updateStats() {
+      const manual = allRows.filter(r => r.source === 'manual_add' || r.source === 'manual_eqh_eql').length;
+      const auto = allRows.length - manual;
+      document.getElementById('statsText').textContent = `手工 ${manual} · 自动 ${auto} · 共 ${allRows.length}`;
+    }
+
+    // ── Open Kline Viewer ──
+    function openKline(pdaId) {
+      const row = allRows.find(r => r.pdaId === pdaId);
+      if (!row) return;
+      const ts = row.anchorTime || row.occurrenceTime || '';
+      if (!ts) { toast('无时间信息', 'error'); return; }
+      const m = String(ts).match(/^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2})/);
+      if (!m) { toast('时间格式异常', 'error'); return; }
+      // Show ±2 hours around the PDA time
+      const center = new Date(m[1] + 'T' + m[2] + ':' + m[3]);
+      const start = new Date(center.getTime() - 2 * 3600000);
+      const end = new Date(center.getTime() + 2 * 3600000);
+      const fmt = d => d.toISOString().slice(0, 16).replace('T', ' ');
+      const tf = row.timeframe === 'D' ? '1440' : row.timeframe === '4H' ? '240' : row.timeframe === '1H' ? '60' : row.timeframe === '30M' ? '30' : '15';
+      const url = `kline_viewer.html?start=${encodeURIComponent(fmt(start))}&end=${encodeURIComponent(fmt(end))}&tf=${tf}&padding=19`;
+      window.open(url, '_blank');
+    }
+
+    // ── Modal ──
+    function openModal(title) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+      editingPdaId = null;
+      resetForm();
+    }
+
+    function resetForm() {
+      document.getElementById('formType').value = '';
+      document.getElementById('formTF').value = '1H';
+      document.getElementById('formEventTime').value = '';
+      document.getElementById('formPrice').value = '';
+      document.getElementById('formRangeEventTime').value = '';
+      document.getElementById('formPriceHigh').value = '';
+      document.getElementById('formPriceLow').value = '';
+      document.getElementById('formRangeDir').value = 'bullish';
+      document.getElementById('formOBStart').value = '';
+      document.getElementById('formOBEnd').value = '';
+      document.getElementById('formOBPriceHigh').value = '';
+      document.getElementById('formOBPriceLow').value = '';
+      document.getElementById('formOBDir').value = 'bullish';
+      document.getElementById('formNote').value = '';
+      toggleFormFields();
+    }
+
+    function toggleFormFields() {
+      const t = document.getElementById('formType').value;
+      document.getElementById('fieldsPoint').style.display = (!t || ['bsl','ssl','eqh','eql'].includes(t)) ? '' : 'none';
+      document.getElementById('fieldsRange').style.display = t === 'fvg' ? '' : 'none';
+      document.getElementById('fieldsOB').style.display = t === 'ob' ? '' : 'none';
+    }
+
+    // ── Add ──
+    function openAdd() {
+      editingPdaId = null;
+      resetForm();
+      openModal('新增 Manual PDA');
+    }
+
+    // ── Edit ──
+    function openEdit(pdaId) {
+      const row = allRows.find(r => r.pdaId === pdaId);
+      if (!row || (row.source !== 'manual_add' && row.source !== 'manual_eqh_eql')) return;
+      editingPdaId = pdaId;
+      resetForm();
+
+      document.getElementById('formType').value = row.pdaType || '';
+      document.getElementById('formTF').value = row.timeframe || '1H';
+      toggleFormFields();
+
+      if (['bsl','ssl','eqh','eql'].includes(row.pdaType)) {
+        document.getElementById('formEventTime').value = formatTime(row.anchorTime) || '';
+        document.getElementById('formPrice').value = row.price || '';
+      } else if (row.pdaType === 'fvg') {
+        document.getElementById('formRangeEventTime').value = formatTime(row.anchorTime) || '';
+        document.getElementById('formPriceHigh').value = row.priceHigh || '';
+        document.getElementById('formPriceLow').value = row.priceLow || '';
+        document.getElementById('formRangeDir').value = row.direction || 'bullish';
+      } else if (row.pdaType === 'ob') {
+        const extra = row.extraFields || {};
+        document.getElementById('formOBStart').value = formatTime(extra.start_time) || '';
+        document.getElementById('formOBEnd').value = formatTime(extra.end_time) || '';
+        document.getElementById('formOBPriceHigh').value = row.priceHigh || '';
+        document.getElementById('formOBPriceLow').value = row.priceLow || '';
+        document.getElementById('formOBDir').value = row.direction || 'bullish';
+      }
+      document.getElementById('formNote').value = row.note || '';
+
+      openModal('编辑 Manual PDA');
+    }
+
+    // ── Save (Add or Edit) ──
+    async function savePda() {
+      const pdaType = document.getElementById('formType').value;
+      const tf = document.getElementById('formTF').value;
+      if (!pdaType) { toast('请选择 PDA 类型', 'error'); return; }
+
+      let body = { instrument: 'NQ', timeframe: tf, pdaType: pdaType };
+
+      if (['bsl','ssl','eqh','eql'].includes(pdaType)) {
+        body.anchorTime = normalizeDateTimeText(document.getElementById('formEventTime').value.trim());
+        body.price = parseFloat(document.getElementById('formPrice').value) || null;
+      } else if (pdaType === 'fvg') {
+        body.anchorTime = normalizeDateTimeText(document.getElementById('formRangeEventTime').value.trim());
+        body.priceHigh = parseFloat(document.getElementById('formPriceHigh').value) || null;
+        body.priceLow = parseFloat(document.getElementById('formPriceLow').value) || null;
+        body.direction = document.getElementById('formRangeDir').value;
+      } else if (pdaType === 'ob') {
+        body.extraFields = {
+          start_time: normalizeDateTimeText(document.getElementById('formOBStart').value.trim()),
+          end_time: normalizeDateTimeText(document.getElementById('formOBEnd').value.trim()),
+        };
+        body.anchorTime = body.extraFields.start_time || body.extraFields.end_time;
+        body.priceHigh = parseFloat(document.getElementById('formOBPriceHigh').value) || null;
+        body.priceLow = parseFloat(document.getElementById('formOBPriceLow').value) || null;
+        body.direction = document.getElementById('formOBDir').value;
+      }
+      body.note = document.getElementById('formNote').value.trim();
+
+      try {
+        if (editingPdaId) {
+          body.pdaId = editingPdaId;
+          await apiPut('/v2/pda_manual_update', body);
+          toast('已更新', 'success');
+        } else {
+          await apiPost('/v2/pda_manual_add', body);
+          toast('已入库', 'success');
+        }
+        closeModal();
+        doSearch();
+      } catch (err) {
+        toast('保存失败: ' + err.message, 'error');
+      }
+    }
+
+    // ── Delete ──
+    async function confirmDelete(pdaId) {
+      if (!confirm(`确认删除 ${pdaId}？`)) return;
+      try {
+        await apiPost('/v2/pda_delete', { pdaId: pdaId });
+        toast('已删除', 'success');
+        doSearch();
+      } catch (err) {
+        toast('删除失败: ' + err.message, 'error');
+      }
+    }
+
+    // ── Sort headers ──
+    document.querySelectorAll('thead th[data-col]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        else { sortCol = col; sortDir = 'asc'; }
+        document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+        th.classList.add('sorted');
+        applySort();
+        renderTable();
+      });
+    });
+
+    // ── Bind ──
+    document.getElementById('searchBtn').onclick = doSearch;
+    document.getElementById('addBtn').onclick = openAdd;
+    document.getElementById('formType').onchange = toggleFormFields;
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalCancel').onclick = closeModal;
+    document.getElementById('modalSave').onclick = savePda;
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+    document.getElementById('pageSizeSelect').onchange = function() {
+      pageSize = parseInt(this.value);
+      currentPage = 1;
+      renderTable();
+    };
+
+    // Auto-normalize time inputs on blur
+    ['filterTimeFrom', 'filterTimeTo', 'formEventTime', 'formRangeEventTime', 'formOBStart', 'formOBEnd'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('focusout', normalizeOnBlur);
+    });
+
+    // Auto-search on load
+    doSearch();
+  </script>
+</body>
+</html>
