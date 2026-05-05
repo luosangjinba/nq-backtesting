@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import tempfile
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from email.parser import BytesParser
 from email.policy import default as default_email_policy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -827,6 +827,7 @@ def query_v2_pda_records(
     direction: str = "",
     anchor_time_from: str = "",
     anchor_time_to: str = "",
+    pda_id: str = "",
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     clauses = [
@@ -867,6 +868,9 @@ def query_v2_pda_records(
     if anchor_time_to:
         clauses.append("coalesce(anchor_time, occurrence_time) <= cast(? as timestamp)")
         params.append(anchor_time_to)
+    if pda_id:
+        clauses.append("pda_id = ?")
+        params.append(pda_id)
     sql = f"""
 	select
 	  pda_id,
@@ -1890,6 +1894,13 @@ order by ts
         ]
 
     # Aggregate into tf-minute bars
+    # Use a fixed anchor (2000-01-01 00:00 UTC) so bucket boundaries align
+    # to standard session times. For 4H futures: 2:00/6:00/10:00/14:00/18:00/22:00
+    # requires a +2h offset; 1H and smaller need no offset.
+    anchor_epoch = 946684800  # 2000-01-01 00:00 UTC
+    # Offset in seconds: 4H → +2h, others → 0
+    anchor_offset = 7200 if tf == 240 else 0
+    effective_anchor = anchor_epoch + anchor_offset
     sql = f"""
 with bars as (
   select
@@ -1901,8 +1912,7 @@ with bars as (
     and ts < ?
 )
 select
-  floor((extract(epoch from ts) - extract(epoch from cast(? as timestamp))) / (60 * ?)) as bucket,
-  min(ts) as bar_start,
+  floor((extract(epoch from ts) - {effective_anchor}) / (60 * ?)) as bucket,
   first(open order by ts) as open,
   max(high) as high,
   min(low) as low,
@@ -1913,16 +1923,16 @@ group by bucket
 order by bucket
 """.strip()
     with open_db(db_path) as conn:
-        rows = conn.execute(sql, [instrument, query_start, query_end, query_start, tf]).fetchall()
+        rows = conn.execute(sql, [instrument, query_start, query_end, tf]).fetchall()
     return [
         {
-            "time": row[1].strftime("%Y-%m-%d %H:%M"),
-            "timestamp": int(row[1].timestamp()),
-            "open": float(row[2]),
-            "high": float(row[3]),
-            "low": float(row[4]),
-            "close": float(row[5]),
-            "volume": int(row[6]) if row[6] is not None else 0,
+            "time": datetime.fromtimestamp(effective_anchor + int(row[0]) * tf * 60, tz=timezone.utc).strftime("%Y-%m-%d %H:%M"),
+            "timestamp": effective_anchor + int(row[0]) * tf * 60,
+            "open": float(row[1]),
+            "high": float(row[2]),
+            "low": float(row[3]),
+            "close": float(row[4]),
+            "volume": int(row[5]) if row[5] is not None else 0,
         }
         for row in rows
     ]
@@ -2133,7 +2143,8 @@ class Handler(BaseHTTPRequestHandler):
                 direction = params.get("direction", [""])[0].strip()
                 anchor_time_from = params.get("anchor_time_from", [""])[0].strip()
                 anchor_time_to = params.get("anchor_time_to", [""])[0].strip()
-                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit, source, source_exclude, direction, anchor_time_from, anchor_time_to)
+                pda_id = params.get("pda_id", [""])[0].strip()
+                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit, source, source_exclude, direction, anchor_time_from, anchor_time_to, pda_id)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})

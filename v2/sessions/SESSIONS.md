@@ -6,6 +6,43 @@
 
 ## 2026-05-05
 
+### 会话 5：PDA Manager UI 完善 + K线标注 PDA 方案探讨
+
+**背景：**
+会话 4 创建了 pda_manager.html 基础页面和 API，本会话完善 UI 交互并探讨下一步功能。
+
+**改动内容：**
+
+1. **时间输入改为手工输入 + 自动标准化**
+   - 与 layer2_recorder_v2 一致：输入 `201201091120` → blur 后自动格式化为 `2012-01-09 11:20`
+   - 新增 `normalizeDateTimeText()` 和 `normalizeOnBlur()` 函数
+   - API 新增 `anchor_time_from`/`anchor_time_to` 参数，按 `coalesce(anchor_time, occurrence_time)` 过滤
+   - 筛选栏和模态框所有时间输入框都绑定 focusout 自动标准化
+
+2. **周期增加 1m/5m/1W**
+   - 筛选栏和模态框表单都新增选项
+   - API `MANUAL_PDA_TIMEFRAMES` 新增 `5M`/`1M`/`1W`
+
+3. **每页可选 10/20/50 条**
+   - 表格上方新增 pageSize 下拉选择器
+   - 切换后自动重置到第1页
+
+4. **新增按钮移到筛选栏**
+   - 「+ 新增 Manual PDA」从底部移到筛选栏，紧挨「查询」按钮
+
+5. **上下两套翻页标签**
+   - 表格上方和下方各一套 pagination
+   - 显示 `N 条 · 第 X/Y 页`
+
+6. **显示上限 1000 条**
+   - 查询时 `params.set('limit', '1000')`
+
+**修改文件：**
+- `v2/docs/pda_manager.html` — UI 完善
+- `price_lookup_api.py` — anchor_time_from/to 过滤、MANUAL_PDA_TIMEFRAMES 扩展
+
+---
+
 ### 会话 4：PDA Manager 页面 + Manual PDA 入库 API
 
 **背景：**

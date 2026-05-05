@@ -890,17 +890,7 @@
     function openKline(pdaId) {
       const row = allRows.find(r => r.pdaId === pdaId);
       if (!row) return;
-      const ts = row.anchorTime || row.occurrenceTime || '';
-      if (!ts) { toast('无时间信息', 'error'); return; }
-      const m = String(ts).match(/^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2})/);
-      if (!m) { toast('时间格式异常', 'error'); return; }
-      // Show ±2 hours around the PDA time
-      const center = new Date(m[1] + 'T' + m[2] + ':' + m[3]);
-      const start = new Date(center.getTime() - 2 * 3600000);
-      const end = new Date(center.getTime() + 2 * 3600000);
-      const fmt = d => d.toISOString().slice(0, 16).replace('T', ' ');
-      const tf = row.timeframe === 'D' ? '1440' : row.timeframe === '4H' ? '240' : row.timeframe === '1H' ? '60' : row.timeframe === '30M' ? '30' : '15';
-      const url = `kline_viewer.html?start=${encodeURIComponent(fmt(start))}&end=${encodeURIComponent(fmt(end))}&tf=${tf}&padding=19`;
+      const url = `kline_viewer.html?pda_id=${encodeURIComponent(pdaId)}`;
       window.open(url, '_blank');
     }
 

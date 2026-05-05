@@ -41,6 +41,28 @@
 
 **前置条件：收口 1、2 完成后再启动** — 数据模型和入库流程稳定后，再做 UI 一体化，避免返工。
 
+### K线标注 PDA 方案（2026-05-05 探讨）
+
+**交互方式：**
+
+| PDA 类型 | 交互 | 数据来源 |
+|----------|------|----------|
+| BSL/SSL | 点击一根K线 | 时间=该K线时间，价格=该K线High/Low |
+| FVG | 拖拽选两根K线 | 时间=第二根K线，priceHigh/Low=区间极值 |
+| OB | 拖拽选一段K线 | startTime/endTime=起止，priceHigh/Low=区间极值 |
+| EQH/EQL | 依次点击多个已标注的BSL/SSL | memberRefs=选中的PDA ID列表 |
+
+**技术要点：**
+- `subscribeClick` — v5 原生支持，返回 (time, price)
+- 拖拽选区 — v5 无 subscribeDrag，需 mousedown/mouseup + coordinateToPrice/coordinateToTime
+- 创建后调 `POST /v2/pda_manual_add` 入库 + 图上显示标记
+- kline_viewer 加模式切换：浏览模式 / 标注模式
+
+**分步实施：**
+1. **Phase 1**：点击创建 BSL/SSL（最简单，一个 click）
+2. **Phase 2**：拖拽创建 FVG/OB
+3. **Phase 3**：EQH/EQL 多选关联
+
 ### 可行性
 
 - ✅ 点击K线设时间 — `subscribeClick` 获取坐标/时间

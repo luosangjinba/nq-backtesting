@@ -15,6 +15,7 @@
       --accent: #d4a056;
       --success: #7db87d;
       --danger: #c87070;
+      --info: #6bafcf;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -77,6 +78,21 @@
       font-size: 0.8rem;
       margin-left: 4px;
     }
+    .toolbar .pda-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .pda-badge-bsl { background: rgba(125,184,125,0.15); color: var(--success); }
+    .pda-badge-ssl { background: rgba(200,112,112,0.15); color: var(--danger); }
+    .pda-badge-fvg { background: rgba(107,175,207,0.15); color: var(--info); }
+    .pda-badge-ob  { background: rgba(212,160,86,0.15); color: var(--accent); }
+    .pda-badge-eqh { background: rgba(180,140,255,0.15); color: #b48cff; }
+    .pda-badge-eql { background: rgba(180,140,255,0.15); color: #b48cff; }
     .chart-container {
       flex: 1;
       min-height: 0;
@@ -121,7 +137,8 @@
     <button id="loadBtn">加载</button>
     <button class="secondary" id="resetBtn">Reset View</button>
     <span class="warn" id="paddingWarn"></span>
-    <div class="info" id="infoText"></div>
+    <span id="pdaBadge" style="display:none"></span>
+    <span class="info" id="infoText"></span>
   </div>
   <div class="chart-container" id="chartContainer">
     <div class="loading">输入时间范围后点击「加载」</div>
@@ -136,6 +153,7 @@
     let candleSeries = null;
     let seriesMarkers = null;
     let lastCandleData = null;
+    let currentPda = null; // PDA data when loaded via pda_id
 
     function getPadding() {
       const input = document.getElementById('paddingInput');
@@ -200,15 +218,90 @@
     }
 
     function parseTime(text) {
-      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/);
+      let t = String(text || '').trim().replace('T', ' ');
+      if (!t) return null;
+      const compact = t.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/);
+      if (compact) t = `${compact[1]}-${compact[2]}-${compact[3]} ${compact[4]}:${compact[5]}`;
+      const match = t.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
       if (!match) return null;
-      return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]}`;
+      return `${match[1]} ${match[2].padStart(2, '0')}:${match[3]}`;
     }
 
     function timeToTimestamp(text) {
       const match = text.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
       if (!match) return 0;
-      return Math.floor(new Date(match[1], match[2] - 1, match[3], match[4], match[5]).getTime() / 1000);
+      // Treat as UTC to match lightweight-charts bar timestamps
+      return Math.floor(Date.UTC(+match[1], +match[2] - 1, +match[3], +match[4], +match[5]) / 1000);
+    }
+
+    // ── PDA badge renderer ──
+    function renderPdaBadge(pda) {
+      const el = document.getElementById('pdaBadge');
+      if (!pda) { el.style.display = 'none'; return; }
+      const type = (pda.pdaType || '').toLowerCase();
+      const colorMap = { bsl: 'bsl', ssl: 'ssl', fvg: 'fvg', ob: 'ob', eqh: 'eqh', eql: 'eql',
+        daily_high: 'bsl', daily_low: 'ssl', ict_midnight_day_high: 'bsl', ict_midnight_day_low: 'ssl', ndog: 'bsl', nwog: 'bsl' };
+      const cls = colorMap[type] || 'ob';
+      const label = type.toUpperCase();
+      const time = pda.occurrenceTime || pda.anchorTime || '';
+      const dir = pda.direction || '';
+      const tf = pda.timeframe || '';
+      const parts = [`<b>${label}</b>`];
+      if (pda.pdaId) parts.push(pda.pdaId);
+      if (time) parts.push(time);
+      if (tf) parts.push(tf);
+      if (dir) parts.push(dir);
+      if (pda.price) parts.push(`@ ${pda.price}`);
+      el.className = `pda-badge pda-badge-${cls}`;
+      el.innerHTML = parts.join(' · ');
+      el.style.display = 'inline-flex';
+    }
+
+    // ── PDA marker builder ──
+    function buildPdaMarkers(pda, candleData) {
+      if (!pda) return [];
+      const markers = [];
+      const pdaType = (pda.pdaType || '').toLowerCase();
+      const pdaTime = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+      const pdaTimeEnd = pda.extraFields?.end_time ? timeToTimestamp(pda.extraFields.end_time) : 0;
+
+      // Find the bar that CONTAINS the given timestamp (last bar where bar.time <= ts)
+      const findBarContaining = (ts) => [...candleData].reverse().find(b => b.time <= ts) || null;
+
+      // High-type PDAs: arrow down from above
+      const highTypes = ['bsl', 'daily_high', 'ict_midnight_day_high', 'ndog', 'nwog'];
+      // Low-type PDAs: arrow up from below
+      const lowTypes = ['ssl', 'daily_low', 'ict_midnight_day_low'];
+
+      if (highTypes.includes(pdaType)) {
+        const bar = findBarContaining(pdaTime);
+        if (bar) markers.push({ time: bar.time, position: 'aboveBar', color: '#2d7d2d', shape: 'arrowDown', text: pdaType.toUpperCase() });
+      } else if (lowTypes.includes(pdaType)) {
+        const bar = findBarContaining(pdaTime);
+        if (bar) markers.push({ time: bar.time, position: 'belowBar', color: '#d28349', shape: 'arrowUp', text: pdaType.toUpperCase() });
+      } else if (pdaType === 'fvg') {
+        const bar = findBarContaining(pdaTime);
+        if (bar) {
+          markers.push({ time: bar.time, position: 'aboveBar', color: '#6bafcf', shape: 'circle', text: 'FVG▲' });
+          markers.push({ time: bar.time, position: 'belowBar', color: '#6bafcf', shape: 'circle', text: 'FVG▼' });
+        }
+      } else if (pdaType === 'ob') {
+        const barStart = findBarContaining(pdaTime);
+        const barEnd = pdaTimeEnd ? findBarContaining(pdaTimeEnd) : barStart;
+        if (barStart) markers.push({ time: barStart.time, position: 'aboveBar', color: '#d4a056', shape: 'circle', text: 'OB▲' });
+        if (barEnd && barEnd !== barStart) markers.push({ time: barEnd.time, position: 'belowBar', color: '#d4a056', shape: 'circle', text: 'OB▼' });
+      } else if (pdaType === 'eqh') {
+        const bar = findBarContaining(pdaTime);
+        if (bar) markers.push({ time: bar.time, position: 'aboveBar', color: '#b48cff', shape: 'circle', text: 'EQH' });
+      } else if (pdaType === 'eql') {
+        const bar = findBarContaining(pdaTime);
+        if (bar) markers.push({ time: bar.time, position: 'belowBar', color: '#b48cff', shape: 'circle', text: 'EQL' });
+      } else {
+        // Fallback: generic marker for unknown types
+        const bar = findBarContaining(pdaTime);
+        if (bar) markers.push({ time: bar.time, position: 'aboveBar', color: '#d4a056', shape: 'circle', text: pdaType.toUpperCase() });
+      }
+      return markers;
     }
 
     async function loadData() {
@@ -249,50 +342,124 @@
         candleSeries.setData(candleData);
         lastCandleData = candleData;
 
-        // Mark start/end on chart
+        // Build markers: S/E + PDA
+        const markers = [];
         const startTs = timeToTimestamp(start);
         const endTs = timeToTimestamp(end);
-        const markers = [];
 
-        const startBar = candleData.find(b => b.time >= startTs);
+        const startBar = [...candleData].reverse().find(b => b.time <= startTs);
         if (startBar) {
-          markers.push({
-            time: startBar.time,
-            position: 'belowBar',
-            color: '#d4a056',
-            shape: 'arrowUp',
-            text: 'S',
-          });
+          markers.push({ time: startBar.time, position: 'belowBar', color: '#d4a056', shape: 'arrowUp', text: 'S' });
         }
 
         const endBar = [...candleData].reverse().find(b => b.time <= endTs);
         if (endBar) {
-          markers.push({
-            time: endBar.time,
-            position: 'aboveBar',
-            color: '#c87070',
-            shape: 'arrowDown',
-            text: 'E',
-          });
+          markers.push({ time: endBar.time, position: 'aboveBar', color: '#c87070', shape: 'arrowDown', text: 'E' });
         }
+
+        // Add PDA markers if we have a PDA loaded
+        if (currentPda) {
+          const pdaMarkers = buildPdaMarkers(currentPda, candleData);
+          markers.push(...pdaMarkers);
+        }
+
+        // Sort markers by time (required by createSeriesMarkers)
+        markers.sort((a, b) => a.time - b.time);
 
         if (markers.length) {
           seriesMarkers = LightweightCharts.createSeriesMarkers(candleSeries, markers);
         }
 
-        resetView();
+        // If PDA loaded, center viewport on PDA; otherwise full range
+        if (currentPda) {
+          centerOnPda(currentPda, candleData);
+        } else {
+          resetView();
+        }
 
         const first = bars[0];
         const last = bars[bars.length - 1];
-        document.getElementById('infoText').textContent =
-          `${bars.length} bars · ${first.time} → ${last.time} · TF=${tf}m`;
+        let info = `${bars.length} bars · ${first.time} → ${last.time} · TF=${tf}m`;
+        renderPdaBadge(currentPda);
+        document.getElementById('infoText').textContent = info;
       } catch (err) {
         container.innerHTML = `<div class="error">加载失败: ${err.message}</div>`;
       }
     }
 
+    function centerOnPda(pda, candleData) {
+      if (!chart || !candleData?.length) return;
+      const ts = chart.timeScale();
+      const pdaTime = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+      if(!pdaTime) { resetView(); return; }
+
+      // Find the bar that contains the PDA time
+      const pdaBar = [...candleData].reverse().find(b => b.time <= pdaTime);
+      if (!pdaBar) { resetView(); return; }
+
+      const barInterval = candleData.length > 1 ? candleData[1].time - candleData[0].time : 60;
+      const contextBars = 15; // bars of context on each side
+
+      ts.setVisibleRange({
+        from: pdaBar.time - contextBars * barInterval,
+        to: pdaBar.time + (contextBars + RIGHT_MARGIN_BARS) * barInterval,
+      });
+    }
+
+    async function loadPdaMode(pdaId) {
+      const container = document.getElementById('chartContainer');
+      container.innerHTML = '<div class="loading">加载 PDA 数据...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/v2/pda_records?pda_id=${encodeURIComponent(pdaId)}`);
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+
+        const records = data.result?.records || [];
+        const pda = records.find(r => r.pdaId === pdaId);
+        if (!pda) throw new Error(`PDA ${pdaId} 未找到`);
+
+        currentPda = pda;
+
+        // Calculate time range around PDA (string-based to avoid timezone issues)
+        const pdaTime = pda.occurrenceTime || pda.anchorTime || '';
+        if (!pdaTime) throw new Error('PDA 无时间信息');
+
+        const m = String(pdaTime).match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+        if (!m) throw new Error('PDA 时间格式异常');
+
+        // D-level PDAs use 1H for precise positioning; others use their own TF
+        const tf = pda.timeframe === 'D' ? 60 : pda.timeframe === '4H' ? 240 : pda.timeframe === '1H' ? 60 : pda.timeframe === '30M' ? 30 : pda.timeframe === '15M' ? 15 : pda.timeframe === '5M' ? 5 : pda.timeframe === '1M' ? 1 : 60;
+
+        // Context: ±2 hours or ±5 bars, whichever is larger
+        const contextMin = Math.max(120, 5 * tf);
+        const center = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
+        const startDt = new Date(center.getTime() - contextMin * 60000);
+        const endDt = new Date(center.getTime() + contextMin * 60000);
+        const fmt = d => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`;
+
+        document.getElementById('startTime').value = fmt(startDt);
+        document.getElementById('endTime').value = fmt(endDt);
+        document.getElementById('tfSelect').value = String(tf);
+        document.getElementById('paddingInput').value = '19';
+
+        loadData();
+      } catch (err) {
+        container.innerHTML = `<div class="error">加载 PDA 失败: ${err.message}</div>`;
+      }
+    }
+
     function loadFromParams() {
       const params = new URLSearchParams(window.location.search);
+
+      // PDA mode: pda_id takes priority
+      const pdaId = params.get('pda_id');
+      if (pdaId) {
+        loadPdaMode(pdaId);
+        return;
+      }
+
+      // Traditional start/end mode
       const start = params.get('start');
       const end = params.get('end');
       const tf = params.get('tf') || '60';
