@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>K线查看器</title>
-  <script src="https://unpkg.com/lightweight-charts@5.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     :root {
       --bg: #1e1b18;
@@ -14,6 +13,8 @@
       --text-dim: #c8bfb0;
       --muted: #a89a8a;
       --accent: #d4a056;
+      --success: #7db87d;
+      --danger: #c87070;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -24,55 +25,82 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      overflow: hidden;
     }
     .toolbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 8px 16px;
-      background: var(--panel);
-      border-bottom: 1px solid var(--line);
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
     .toolbar label {
-      font-size: 0.8rem;
       color: var(--muted);
-    }
-    .toolbar select, .toolbar input {
-      font: inherit;
       font-size: 0.85rem;
-      padding: 4px 8px;
+    }
+    .toolbar input, .toolbar select {
       background: var(--bg);
-      color: var(--text);
       border: 1px solid var(--line);
+      color: var(--text);
+      padding: 4px 8px;
       border-radius: 4px;
+      font-size: 0.85rem;
+      width: 140px;
     }
-    .toolbar select { width: 70px; }
+    .toolbar select { width: 80px; }
+    .toolbar input[type="number"] { width: 60px; }
+    .toolbar button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .toolbar button:hover { opacity: 0.85; }
     .toolbar .info {
-      margin-left: auto;
-      font-size: 0.8rem;
       color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-left: auto;
     }
-    .toolbar .info span { color: var(--accent); font-weight: 600; }
-    #chartContainer {
+    .toolbar .warn {
+      color: var(--accent);
+      font-size: 0.8rem;
+      margin-left: 4px;
+    }
+    .chart-container {
       flex: 1;
       min-height: 0;
     }
-    .loading, .error {
+    .loading {
       display: flex;
       align-items: center;
       justify-content: center;
-      flex: 1;
-      font-size: 1rem;
+      height: 100%;
       color: var(--muted);
+      font-size: 0.9rem;
     }
-    .error { color: #c87070; }
+    .error {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--danger);
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
   <div class="toolbar">
-    <label>周期</label>
+    <label>Start</label>
+    <input id="startTime" placeholder="2012-01-09 11:20">
+    <label>End</label>
+    <input id="endTime" placeholder="2012-01-09 14:37">
+    <label>TF</label>
     <select id="tfSelect">
       <option value="1">1m</option>
       <option value="5">5m</option>
@@ -80,148 +108,152 @@
       <option value="30">30m</option>
       <option value="60" selected>1H</option>
       <option value="240">4H</option>
-      <option value="1440">1D</option>
     </select>
-    <label>前后扩展</label>
-    <select id="paddingSelect">
-      <option value="0">无</option>
-      <option value="10">10根</option>
-      <option value="19" selected>19根</option>
-      <option value="39">39根</option>
-    </select>
-    <div class="info" id="infoBar"></div>
+    <label>扩展</label>
+    <input id="paddingInput" type="number" value="19" min="0" max="500" placeholder="19">
+    <button id="loadBtn">加载</button>
+    <span class="warn" id="paddingWarn"></span>
+    <div class="info" id="infoText"></div>
   </div>
-  <div id="chartContainer"></div>
+  <div class="chart-container" id="chartContainer">
+    <div class="loading">输入时间范围后点击「加载」</div>
+  </div>
 
+  <script src="https://unpkg.com/lightweight-charts@5.0.0/dist/lightweight-charts.standalone.production.js"></script>
   <script>
     const API_BASE = 'http://127.0.0.1:8765';
-    const params = new URLSearchParams(location.search);
-    const startParam = params.get('start') || '';
-    const endParam = params.get('end') || '';
-    const tfParam = params.get('tf') || '60';
-
-    const tfSelect = document.getElementById('tfSelect');
-    const paddingSelect = document.getElementById('paddingSelect');
-    const infoBar = document.getElementById('infoBar');
-    const container = document.getElementById('chartContainer');
-
-    tfSelect.value = tfParam;
-
+    const MAX_PADDING = 500;
     let chart = null;
     let candleSeries = null;
-    let volumeSeries = null;
-    let startMarker = null;
-    let endMarker = null;
 
-    function createChart() {
-      if (chart) { chart.remove(); chart = null; }
+    function getPadding() {
+      const input = document.getElementById('paddingInput');
+      let val = parseInt(input.value) || 0;
+      const warn = document.getElementById('paddingWarn');
+      if (val > MAX_PADDING) {
+        val = MAX_PADDING;
+        input.value = MAX_PADDING;
+        warn.textContent = `超限，已调整为 ${MAX_PADDING}`;
+      } else {
+        warn.textContent = '';
+      }
+      return val;
+    }
+
+    function initChart() {
+      const container = document.getElementById('chartContainer');
+      container.innerHTML = '';
 
       chart = LightweightCharts.createChart(container, {
+        width: container.clientWidth,
+        height: container.clientHeight,
         layout: {
           background: { color: '#1e1b18' },
           textColor: '#a89a8a',
           fontSize: 12,
         },
         grid: {
-          vertLines: { color: 'rgba(90, 80, 69, 0.3)' },
-          horzLines: { color: 'rgba(90, 80, 69, 0.3)' },
+          vertLines: { color: '#2a2520' },
+          horzLines: { color: '#2a2520' },
         },
         crosshair: {
-          vertLine: { color: 'rgba(212, 160, 86, 0.4)', labelBackgroundColor: '#d4a056' },
-          horzLine: { color: 'rgba(212, 160, 86, 0.4)', labelBackgroundColor: '#d4a056' },
+          mode: LightweightCharts.CrosshairMode.Normal,
+          vertLine: { color: '#d4a056', width: 1, style: LightweightCharts.LineStyle.Dashed },
+          horzLine: { color: '#d4a056', width: 1, style: LightweightCharts.LineStyle.Dashed },
+        },
+        rightPriceScale: {
+          borderColor: '#5a5045',
         },
         timeScale: {
           borderColor: '#5a5045',
           timeVisible: true,
           secondsVisible: false,
         },
-        rightPriceScale: {
-          borderColor: '#5a5045',
-        },
       });
 
       candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: '#26a69a',
-        downColor: '#ef5350',
-        borderUpColor: '#26a69a',
-        borderDownColor: '#ef5350',
-        wickUpColor: '#26a69a',
-        wickDownColor: '#ef5350',
+        upColor: '#7db87d',
+        downColor: '#c87070',
+        borderUpColor: '#7db87d',
+        borderDownColor: '#c87070',
+        wickUpColor: '#34c9b0',
+        wickDownColor: '#d28349',
       });
 
-      volumeSeries = chart.addSeries(LightweightCharts.HistogramSeries, {
-        color: '#5a5045',
-        priceFormat: { type: 'volume' },
-        priceScaleId: 'volume',
+      const resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          chart.applyOptions({ width: entry.contentRect.width, height: entry.contentRect.height });
+        }
       });
+      resizeObserver.observe(container);
+    }
 
-      chart.priceScale('volume').applyOptions({
-        scaleMargins: { top: 0.85, bottom: 0 },
-      });
+    function parseTime(text) {
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/);
+      if (!match) return null;
+      return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]}`;
+    }
 
-      chart.timeScale().fitContent();
+    function timeToTimestamp(text) {
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
+      if (!match) return 0;
+      return Math.floor(new Date(match[1], match[2] - 1, match[3], match[4], match[5]).getTime() / 1000);
     }
 
     async function loadData() {
-      if (!startParam || !endParam) {
-        container.innerHTML = '<div class="error">缺少 start / end 参数</div>';
+      const startRaw = document.getElementById('startTime').value.trim();
+      const endRaw = document.getElementById('endTime').value.trim();
+      const tf = document.getElementById('tfSelect').value;
+      const padding = getPadding();
+
+      const start = parseTime(startRaw);
+      const end = parseTime(endRaw);
+      if (!start || !end) {
+        alert('时间格式：2012-01-09 11:20');
         return;
       }
 
-      const tf = tfSelect.value;
-      const padding = paddingSelect.value;
-
+      const container = document.getElementById('chartContainer');
       container.innerHTML = '<div class="loading">加载中...</div>';
 
       try {
-        const url = `${API_BASE}/v2/bars?start=${encodeURIComponent(startParam)}&end=${encodeURIComponent(endParam)}&tf=${tf}&padding=${padding}`;
+        const url = `${API_BASE}/v2/bars?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&tf=${tf}&padding=${padding}`;
         const res = await fetch(url);
         const data = await res.json();
-
-        if (!data.ok) {
-          container.innerHTML = `<div class="error">API 错误: ${data.error}</div>`;
-          return;
-        }
+        if (!data.ok) throw new Error(data.error);
 
         const bars = data.result;
-        if (!bars.length) {
-          container.innerHTML = '<div class="error">该时段无数据</div>';
-          return;
-        }
+        if (!bars.length) throw new Error('该时段无数据');
 
-        createChart();
+        initChart();
 
-        const candleData = bars.map(b => ({
-          time: b.time,
-          open: b.open,
-          high: b.high,
-          low: b.low,
-          close: b.close,
-        }));
-
-        const volumeData = bars.map(b => ({
-          time: b.time,
-          value: b.volume,
-          color: b.close >= b.open ? 'rgba(38,166,154,0.3)' : 'rgba(239,83,80,0.3)',
+        const candleData = bars.map(bar => ({
+          time: bar.timestamp,
+          open: bar.open,
+          high: bar.high,
+          low: bar.low,
+          close: bar.close,
         }));
 
         candleSeries.setData(candleData);
-        volumeSeries.setData(volumeData);
 
-        // Mark start/end range
+        // Mark start/end on chart
+        const startTs = timeToTimestamp(start);
+        const endTs = timeToTimestamp(end);
         const markers = [];
-        const startTime = startParam.length <= 16 ? startParam + ':00' : startParam;
-        const endTime = endParam.length <= 16 ? endParam + ':00' : endParam;
-        if (candleData.some(b => b.time >= startTime.slice(0, 16))) {
+
+        const startBar = candleData.find(b => b.time >= startTs);
+        if (startBar) {
           markers.push({
-            time: candleData.find(b => b.time >= startTime.slice(0, 16))?.time || candleData[0].time,
+            time: startBar.time,
             position: 'belowBar',
             color: '#d4a056',
             shape: 'arrowUp',
             text: 'S',
           });
         }
-        const endBar = [...candleData].reverse().find(b => b.time <= endTime.slice(0, 16));
+
+        const endBar = [...candleData].reverse().find(b => b.time <= endTs);
         if (endBar) {
           markers.push({
             time: endBar.time,
@@ -231,37 +263,40 @@
             text: 'E',
           });
         }
-        candleSeries.setMarkers(markers);
 
-        // Fit to the start-end range (not the full padded range)
-        const rangeStart = candleData.find(b => b.time >= startTime.slice(0, 16))?.time;
-        const rangeEnd = endBar?.time;
-        if (rangeStart && rangeEnd) {
-          chart.timeScale().setVisibleRange({ from: candleData[0].time, to: candleData[candleData.length - 1].time });
-        } else {
-          chart.timeScale().fitContent();
-        }
+        if (markers.length) candleSeries.setMarkers(markers);
 
-        const barCount = bars.length;
-        const firstTime = bars[0].time;
-        const lastTime = bars[barCount - 1].time;
-        infoBar.innerHTML = `<span>${barCount}</span> 根K线 &nbsp; ${firstTime} ~ ${lastTime}`;
+        chart.timeScale().fitContent();
 
+        const first = bars[0];
+        const last = bars[bars.length - 1];
+        document.getElementById('infoText').textContent =
+          `${bars.length} bars · ${first.time} → ${last.time} · TF=${tf}m`;
       } catch (err) {
         container.innerHTML = `<div class="error">加载失败: ${err.message}</div>`;
-}
+      }
     }
 
-    tfSelect.onchange = loadData;
-    paddingSelect.onchange = loadData;
+    function loadFromParams() {
+      const params = new URLSearchParams(window.location.search);
+      const start = params.get('start');
+      const end = params.get('end');
+      const tf = params.get('tf') || '60';
+      const padding = params.get('padding');
 
-    // Resize handling
-    const ro = new ResizeObserver(() => {
-      if (chart) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-    });
-    ro.observe(container);
+      if (start && end) {
+        document.getElementById('startTime').value = start;
+        document.getElementById('endTime').value = end;
+        document.getElementById('tfSelect').value = tf;
+        if (padding) document.getElementById('paddingInput').value = padding;
+        loadData();
+      }
+    }
 
-    loadData();
+    document.getElementById('loadBtn').onclick = loadData;
+    document.getElementById('paddingInput').onchange = getPadding;
+
+    loadFromParams();
   </script>
 </body>
 </html>
