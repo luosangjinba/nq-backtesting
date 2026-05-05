@@ -152,6 +152,7 @@
     let midnightOverlayIds = [];
     let resizeObserver = null;
     let onDataReadyHandler = null;
+    let yAxisWheelHandler = null;
 
     // ── Register custom overlays (v9 API) ──
     function registerCustomOverlays() {
@@ -649,6 +650,8 @@
           volume: bar.volume || 0,
         }));
 
+        const container = document.getElementById('chartContainer');
+
         // Dispose previous chart
         if (chart) {
           klinecharts.dispose(chart);
@@ -658,8 +661,11 @@
           resizeObserver.disconnect();
           resizeObserver = null;
         }
+        if (yAxisWheelHandler) {
+          container.removeEventListener('wheel', yAxisWheelHandler, { capture: true });
+          yAxisWheelHandler = null;
+        }
 
-        const container = document.getElementById('chartContainer');
         container.innerHTML = '';
 
         // Init chart with dark theme
@@ -733,6 +739,37 @@
           if (chart) chart.resize();
         });
         resizeObserver.observe(container);
+
+        // Wheel zoom on Y-axis area: scroll wheel on right side → vertical zoom
+        const yAxisWheelHandler = (e) => {
+          if (!chart) return;
+          const rect = container.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          // Y-axis is on the right side — check if mouse is in right 15% of chart width
+          if (mouseX > rect.width * 0.85) {
+            e.preventDefault();
+            e.stopPropagation();
+            const pane = chart.getDrawPaneById('candle_pane');
+            if (!pane) return;
+            const yAxis = pane.getAxisComponent();
+            const range = yAxis.getRange();
+            if (!range || range.realRange <= 0) return;
+            // Scale: scroll up (deltaY<0) → zoom in (shrink range), scroll down → zoom out
+            const factor = e.deltaY > 0 ? 1.08 : 0.92;
+            const center = (range.from + range.to) / 2;
+            const newRange = range.range * factor;
+            const newFrom = center - newRange / 2;
+            const newTo = center + newRange / 2;
+            const newRealFrom = yAxis.convertToRealValue(newFrom);
+            const newRealTo = yAxis.convertToRealValue(newTo);
+            yAxis.setRange({
+              from: newFrom, to: newTo, range: newTo - newFrom,
+              realFrom: newRealFrom, realTo: newRealTo, realRange: newRealTo - newRealFrom,
+            });
+            chart.adjustPaneViewport(false, true, true, true);
+          }
+        };
+        container.addEventListener('wheel', yAxisWheelHandler, { capture: true });
 
         // Apply data and draw overlays when ready
         chart.applyNewData(candleData);
