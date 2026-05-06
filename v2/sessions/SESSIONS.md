@@ -4,6 +4,32 @@
 
 ---
 
+### 会话 7：UTC时区修复 + 时间输入自动格式化 + 右侧留白
+
+**背景：**
+K线图表显示时间比数据库时间晚8小时；时间输入框需要与 pda_manager 一致的紧凑格式自动转换。
+
+**改动内容：**
+
+1. **修复8小时时区偏移**
+   - `klinecharts.init('chartContainer')` 添加 `{ timezone: 'UTC' }`
+   - API 返回 UTC epoch 秒，KLineChart 默认用本地时区(UTC+8)渲染，导致时间偏移8小时
+   - 右键菜单复制时间、午夜线检测等代码已正确使用 `getUTC*` 方法，无需修改
+
+2. **时间输入框 blur 自动格式化**
+   - 输入 `201201091120` 失焦后自动转为 `2012-01-09 11:20`
+   - 复用已有 `parseTime()` 函数，绑定 `focusout` 事件
+   - placeholder 从 `2012-01-09 11:20` 改为 `201201091120`
+
+3. **重新实现右侧留白**
+   - 使用 `chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS)` 替代 `setRightMinVisibleBarCount`
+   - `setOffsetRightDistance` 按像素设置右侧偏移，更精确
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — timezone 修复、blur 自动格式化、placeholder、右侧留白
+
+---
+
 ## 2026-05-05
 
 ### 会话 6：K线查看器迁移到 KLineChart v9.8.12 + 滚轮纵向缩放
