@@ -4,6 +4,143 @@
 
 ---
 
+## 2026-05-06
+
+### 会话 9：PDA Manager 功能迁移到 kline_viewer 右侧面板
+
+**背景：**
+用户要求第一步先将 `pda_manager.html` 的功能整体迁移到 `kline_viewer.html` 的右侧 PDA 工作台。上一会话已经完成 UI 框架，本会话开始接入真实查询、分页、排序、Manual PDA CRUD 等功能。
+
+**改动内容：**
+1. **PDA 查询迁移**
+   - 右侧 `PDA 列表` 接入 `/v2/pda_records`。
+   - 支持来源、类型、周期、方向、时间范围筛选。
+   - 支持 `使用图表时段` 将左侧 Start/End 回填到右侧筛选。
+   - 页面加载后自动查询 PDA，行为对齐 `pda_manager.html`。
+
+2. **列表渲染迁移**
+   - 右侧列表显示 PDA ID、类型、周期、方向、时间、价格、来源、操作。
+   - 增加总数、自动、手工、选中统计。
+   - 增加分页，支持每页 10/20/50。
+   - 增加列头排序。
+   - 行点击可选中 PDA。
+
+3. **定位逻辑**
+   - 选中 PDA 后可点击 `定位选中 PDA` 或行内 `定位`。
+   - 如果图表已有数据，直接绘制/居中 overlay。
+   - 如果图表无数据，调用现有 `loadPdaMode(pdaId)` 加载 PDA 上下文。
+
+4. **Manual PDA CRUD 迁移**
+   - `Manual PDA` 区作为新增/编辑表单，不再使用 `pda_manager.html` 的 modal。
+   - 新增调用 `/v2/pda_manual_add`。
+   - 编辑调用 `/v2/pda_manual_update`。
+   - 删除调用 `/v2/pda_delete`。
+   - 只允许编辑/删除来源为 `manual_add` 或 `manual_eqh_eql` 的 PDA。
+   - 保存后刷新右侧 PDA 列表。
+
+5. **来源筛选修正**
+   - `仅手工` 查询分别拉取 `manual_add` 和 `manual_eqh_eql`，避免漏掉手工 EQH/EQL。
+   - `仅自动` 排除 manual 来源。
+
+6. **轻量图表取值入口**
+   - `取十字时间`、`取时间` 已接入当前 crosshair bar 时间。
+   - 价格取值和 Manual overlay 预览仍保留为下一步入口。
+
+**验证：**
+- Chrome headless 能解析 `kline_viewer.html`，未出现初始化 JS 错误。
+- 页面加载后右侧 PDA 列表能从本地 API 拉到数据并渲染。
+- 截图 `/tmp/kline-pda-manager-migrated.png` 检查布局，右侧表格、筛选和统计显示正常。
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — 迁移 PDA Manager 查询、列表、分页、排序、Manual CRUD 到右侧面板。
+- `v2/sessions/SESSIONS.md` — 追加本会话记录。
+- `v2/sessions/CURRENT_CONTEXT.md` — 更新当前短上下文。
+
+**待办：**
+- [ ] 实现图表价格取值。
+- [ ] 实现 Manual PDA overlay 预览。
+- [ ] 实现 manual-auto 匹配预览和应用合并。
+- [ ] 进一步对齐 `layer2_recorder_v2` 的匹配逻辑。
+
+---
+
+### 会话 8：KLineChart v10 升级判断 + kline_viewer PDA 工作台 UI 重搭
+
+**背景：**
+用户询问 KLineChart 上游最新版本为 v10 beta1，而当前项目使用 v9，是否有必要升级。同时当前工作流进入 `kline_viewer.html` 右侧管理面板阶段，已有面板只是 Path/YAML 风格 UI 占位，不符合后续 PDA 管理工作流。
+
+**决策：**
+1. 暂不升级 KLineChart。
+   - 当前项目固定使用 `klinecharts@9.8.12`。
+   - v10 beta1 仍是 beta，且 v9 → v10 存在 breaking changes：`setPriceVolumePrecision`、`applyNewData`、`getBarSpace()`、轴模块等都需要迁移。
+   - 当前 v9 已满足 PDA overlay、UTC 时间、纵向缩放等核心需求，等 v10 stable 后再正式评估迁移。
+2. 暂不做 v10 隔离实验。
+   - 用户明确要求先不升级、不实验，等正式版再说。
+
+**目标工作流：**
+1. 将 `pda_manager.html` 的核心功能整体迁移到 `kline_viewer.html` 右侧管理面板。
+2. Manual PDA 添加时，可以根据时间定位指定周期图表，并在图表中取时间、取价格、取区间。
+3. 当用户选择某个时段行情在图表显示时，可以在 PDA 管理面板反向定位这段中的 PDA 并列表显示。
+4. Manual PDA 入库后，与自动化流程获取的 PDA 匹配：
+   - 匹配到的以自动化 PDA 为准。
+   - 未匹配的保留 manual PDA。
+   - 保持 `layer2_recorder_v2` 的匹配逻辑语义。
+
+**改动内容：**
+1. **重搭 `kline_viewer.html` 右侧管理面板 UI 框架**
+   - 移除原来的 Path 管理、Encounters、PDA 标注、YAML 操作占位结构。
+   - 新面板命名为 `PDA 工作台`。
+   - 顶部增加三段 tab：`PDA 列表` / `Manual PDA` / `匹配合并`。
+   - 右上保留跳转 `pda_manager.html` 的入口。
+
+2. **PDA 列表区**
+   - 增加 From/To 时间筛选。
+   - 增加来源、类型、周期筛选。
+   - 增加 `使用图表时段`、`查询 PDA`、`新增 Manual`、`清空` 等入口。
+   - 增加总数、自动、手工、选中统计卡。
+   - 增加 PDA 表格占位和定位/编辑/删除按钮入口。
+
+3. **Manual PDA 区**
+   - 增加类型、周期、方向字段。
+   - 增加 Anchor Time、Start Time、End Time。
+   - 增加 Price、Price High、Price Low。
+   - 为时间和价格字段预留图表取值按钮入口。
+   - 增加按时间定位图表、预览标注、保存 Manual PDA、重置入口。
+
+4. **匹配合并区**
+   - 增加自动优先、Manual 保留、待处理统计。
+   - 增加时间容差、价格容差选择。
+   - 增加匹配预览表格。
+   - 增加生成预览、应用合并入口。
+
+5. **轻量交互**
+   - 修复/补齐右侧面板折叠按钮行为。
+   - tab 点击会滚动到对应 section。
+   - `使用图表时段` 会把左侧 Start/End 回填到右侧 PDA 筛选。
+   - `新增 Manual` 会跳到 Manual PDA 区。
+   - Manual PDA 的 `按时间定位图表` 会按 anchor time、manual 周期和 padding=80 回填左侧加载区并调用 `loadData()`。
+   - 扩展时间输入 blur 标准化到右侧新时间字段。
+
+**验证：**
+- Chrome headless 能解析 `kline_viewer.html`。
+- 生成截图 `/tmp/kline-viewer-panel.png` 检查右侧布局，未发现明显错位。
+- 保留现有图表加载、KLineChart v9.8.12、PDA overlay、URL 参数加载、右键复制时间等主逻辑。
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — 右侧 PDA 工作台 UI 框架和轻量交互。
+- `v2/sessions/SESSIONS.md` — 追加本会话记录。
+- `v2/sessions/CURRENT_CONTEXT.md` — 新增当前短上下文。
+
+**待办：**
+- [ ] 接入右侧 PDA 查询 API，支持按图表时段反查 PDA 并渲染列表。
+- [ ] 将 `pda_manager.html` 的 manual PDA CRUD 逻辑迁入右侧面板。
+- [ ] 实现图表取时间/取价格/取区间。
+- [ ] 实现 manual PDA overlay 预览。
+- [ ] 实现 manual-auto PDA 匹配预览和应用合并。
+- [ ] 对齐 `layer2_recorder_v2` 的 PDA 匹配逻辑。
+
+---
+
 ### 会话 7：UTC时区修复 + 时间输入自动格式化 + 右侧留白
 
 **背景：**
