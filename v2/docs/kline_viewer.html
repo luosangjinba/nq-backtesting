@@ -628,14 +628,14 @@
       if (idx < 0) { resetView(); return; }
 
       const contextBars = 15;
-      chart.setRightMinVisibleBarCount(RIGHT_MARGIN_BARS);
+      chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
       chart.scrollToDataIndex(idx + contextBars);
     }
 
     // ── Reset view ──
     function resetView() {
       if (!chart || !lastCandleData?.length) return;
-      chart.setRightMinVisibleBarCount(RIGHT_MARGIN_BARS);
+      chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
       chart.scrollToDataIndex(lastCandleData.length - 1);
     }
 
