@@ -24,8 +24,72 @@
       font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
       line-height: 1.5;
       display: flex;
-      flex-direction: column;
       height: 100vh;
+      overflow: hidden;
+    }
+    .chart-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .right-panel {
+      width: 640px;
+      min-width: 0;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: width 0.2s ease;
+    }
+    .right-panel.collapsed {
+      width: 0;
+      border-left: none;
+    }
+    .right-panel-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .right-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+    .toggle-panel-btn {
+      position: absolute;
+      right: 640px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 48px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+      color: var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      z-index: 10;
+      transition: right 0.2s ease;
+    }
+    .toggle-panel-btn.collapsed {
+      right: 0;
+    }
+    .toggle-panel-btn:hover {
+      background: var(--panel-2, #363028);
     }
     .toolbar {
       background: var(--panel);
@@ -130,37 +194,54 @@
   </style>
 </head>
 <body>
-  <div class="toolbar">
-    <label>Start</label>
-    <input id="startTime" placeholder="201201091120">
-    <label>End</label>
-    <input id="endTime" placeholder="2012-01-09 14:37">
-    <label>TF</label>
-    <select id="tfSelect">
-      <option value="1">1m</option>
-      <option value="5">5m</option>
-      <option value="15">15m</option>
-      <option value="30">30m</option>
-      <option value="60" selected>1H</option>
-      <option value="240">4H</option>
-      <option value="1440">1D</option>
-      <option value="10080">1W</option>
-    </select>
-    <label>扩展</label>
-    <input id="paddingInput" type="number" value="19" min="0" max="500" placeholder="19">
-    <button id="loadBtn">加载</button>
-    <button class="secondary" id="resetBtn">Reset View</button>
-    <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="midnightLines" checked style="margin-right:4px;vertical-align:middle;">午夜线</label>
-    <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="showSE" style="margin-right:4px;vertical-align:middle;">S/E</label>
-    <span class="warn" id="paddingWarn"></span>
-    <span id="pdaBadge" style="display:none"></span>
-    <span class="info" id="infoText"></span>
+  <!-- Toggle button for right panel -->
+  <button class="toggle-panel-btn" id="togglePanelBtn" title="折叠/展开面板">◀</button>
+
+  <!-- Left: chart area -->
+  <div class="chart-area">
+    <div class="toolbar">
+      <label>Start</label>
+      <input id="startTime" placeholder="201201091120">
+      <label>End</label>
+      <input id="endTime" placeholder="2012-01-09 14:37">
+      <label>TF</label>
+      <select id="tfSelect">
+        <option value="1">1m</option>
+        <option value="5">5m</option>
+        <option value="15">15m</option>
+        <option value="30">30m</option>
+        <option value="60" selected>1H</option>
+        <option value="240">4H</option>
+        <option value="1440">1D</option>
+        <option value="10080">1W</option>
+      </select>
+      <label>扩展</label>
+      <input id="paddingInput" type="number" value="19" min="0" max="500" placeholder="19">
+      <button id="loadBtn">加载</button>
+      <button class="secondary" id="resetBtn">Reset View</button>
+      <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="midnightLines" checked style="margin-right:4px;vertical-align:middle;">午夜线</label>
+      <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="showSE" style="margin-right:4px;vertical-align:middle;">S/E</label>
+      <span class="warn" id="paddingWarn"></span>
+      <span id="pdaBadge" style="display:none"></span>
+      <span class="info" id="infoText"></span>
+    </div>
+    <div id="chartContainer">
+      <div class="loading">输入时间范围后点击「加载」</div>
+    </div>
+    <div class="ctx-menu" id="ctxMenu">
+      <div class="ctx-menu-item" id="ctxCopyTime">复制当前时间</div>
+    </div>
   </div>
-  <div id="chartContainer">
-    <div class="loading">输入时间范围后点击「加载」</div>
-  </div>
-  <div class="ctx-menu" id="ctxMenu">
-    <div class="ctx-menu-item" id="ctxCopyTime">复制当前时间</div>
+
+  <!-- Right: panel (content to be added incrementally) -->
+  <div class="right-panel" id="rightPanel">
+    <div class="right-panel-header">
+      <span>管理面板</span>
+      <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;" id="closePanelBtn" title="折叠面板">✕</button>
+    </div>
+    <div class="right-panel-body" id="rightPanelBody">
+      <!-- Content sections will be added here in future phases -->
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/klinecharts@9.8.12/dist/umd/klinecharts.min.js"></script>
