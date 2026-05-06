@@ -132,7 +132,7 @@
 <body>
   <div class="toolbar">
     <label>Start</label>
-    <input id="startTime" placeholder="2012-01-09 11:20">
+    <input id="startTime" placeholder="201201091120">
     <label>End</label>
     <input id="endTime" placeholder="2012-01-09 14:37">
     <label>TF</label>
@@ -691,8 +691,8 @@
 
         container.innerHTML = '';
 
-        // Init chart with dark theme
-        chart = klinecharts.init('chartContainer');
+        // Init chart with dark theme, timezone=UTC to match DB timestamps
+        chart = klinecharts.init('chartContainer', { timezone: 'UTC' });
         if (!chart) throw new Error('图表初始化失败');
 
         chart.setStyles({
@@ -899,6 +899,14 @@
     };
     document.getElementById('showSE').onchange = drawAllOverlays;
     document.getElementById('resetBtn').onclick = resetView;
+
+    // Auto-normalize time inputs on blur (201201091120 → 2012-01-09 11:20)
+    ['startTime', 'endTime'].forEach(id => {
+      document.getElementById(id).addEventListener('focusout', (e) => {
+        const normed = parseTime(e.target.value);
+        if (normed && normed !== e.target.value) e.target.value = normed;
+      });
+    });
 
     // ── Right-click context menu ──
     let crosshairBarIndex = -1;
