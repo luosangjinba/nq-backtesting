@@ -55,6 +55,19 @@ Path / Group 记录工具，用于记录 NQ 期货的结构路径和关键价格
 - **Note**：备注
 - **不可输入**：Start Time、End Time、Price High、Price Low、方向（BSL/SSL 方向由类型隐含）
 
+### kline_viewer Manual / Match 工作流
+
+- **图表取价**：`Price / Price High / Price Low` 可直接从当前已加载图表回填
+- **Manual overlay 预览**：点「预览标注」后，直接复用现有 PDA overlay 样式在图上做只读预览
+- **匹配预览**：点「生成预览」会调用 `/v2/pda_match`，并按时间/价格容差显示候选
+- **应用合并**：
+  - 强匹配（`exact` 或 `matchScore >= 0.68`）→ 采用 Auto
+  - 其它情况 → 保留 Manual
+  - 当前只更新页面状态 / YAML，不写数据库
+- **YAML 导出**：
+  - `复制/下载 Merge YAML`
+  - `复制/下载主导出 YAML`（包含 `chart_scope` + `merge_preview`）
+
 ### Manual PDA - OB（订单块）
 
 - **Analysis TF**：下拉选择（1m/5m/15m/30m/1H/4H/1D），全页面统一
@@ -111,12 +124,14 @@ structure_groups:
 4. 添加 Path Encounters 记录遭遇的 PDA
 5. 如需要，在左侧 Manual PDA 记录手工 PDA
 6. 点击「下载 Path YAML」或「下载 Groups YAML」导出数据
+7. 在 `kline_viewer.html` 中，可继续做图表取价、Manual overlay 预览、匹配预览、应用合并和 Merge YAML 导出
 
 ## 快捷操作
 
 - **流畅度计算**：填写 Start/End Time 后点击「计算」
 - **PDA 匹配**：在 Manual PDA List 中点击「匹配」
 - **YAML 导入**：点击「导入 Path YAML」或「导入 groups.yaml」
+- **kline_viewer 合并导出**：先 `生成预览` → `应用合并` → `复制/下载主导出 YAML`
 
 ## 向后兼容
 
