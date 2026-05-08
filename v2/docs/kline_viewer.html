@@ -1129,7 +1129,8 @@
       totalBars: 0,          // 总共有多少根 K 线
       isPlaying: false,      // 是否正在播放
       speed: 1000,           // 播放速度（毫秒/根）
-      intervalId: null       // setInterval 的 ID
+      intervalId: null,      // setInterval 的 ID
+      viewportAnchor: null   // 视口锚点：记录用户拖动后的视口位置
     };
 
     // ── Register custom overlays (v9 API) ──
@@ -2028,11 +2029,39 @@
 
       if (chart) {
         chart.applyNewData(currentData);
-        // Auto-scroll to show the latest bar
-        chart.scrollToDataIndex(currentData.length - 1, 0);
-        const barSpace = chart.getBarSpace();
-        const marginPixels = barSpace * RIGHT_MARGIN_BARS;
-        chart.scrollByDistance(-marginPixels, 0);
+
+        // TradingView-style replay logic:
+        // 1. If no anchor (first time or reset), scroll to latest with margin
+        // 2. If anchor exists, keep viewport fixed until latest bar hits the "wall"
+        // 3. When hitting the wall, push viewport left
+
+        if (replayState.viewportAnchor === null) {
+          // No anchor: scroll to latest bar with right margin (initial state)
+          chart.scrollToDataIndex(currentData.length - 1, 0);
+          const barSpace = chart.getBarSpace();
+          const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+          chart.scrollByDistance(-marginPixels, 0);
+        } else {
+          // Anchor exists: check if latest bar has reached the wall
+          const latestIndex = currentData.length - 1;
+          const wallPosition = replayState.viewportAnchor + RIGHT_MARGIN_BARS;
+
+          if (latestIndex >= wallPosition) {
+            // Latest bar hit the wall: push viewport left
+            const pushAmount = latestIndex - wallPosition + 1;
+            replayState.viewportAnchor += pushAmount;
+            chart.scrollToDataIndex(replayState.viewportAnchor, 0);
+            const barSpace = chart.getBarSpace();
+            const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+            chart.scrollByDistance(-marginPixels, 0);
+          } else {
+            // Latest bar hasn't hit the wall: keep viewport fixed
+            chart.scrollToDataIndex(replayState.viewportAnchor, 0);
+            const barSpace = chart.getBarSpace();
+            const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+            chart.scrollByDistance(-marginPixels, 0);
+          }
+        }
       }
 
       // Update info text
@@ -2250,6 +2279,7 @@
         replayState.fullData = candleData;
         replayState.totalBars = candleData.length;
         replayState.currentIndex = 0;
+        replayState.viewportAnchor = null;  // Reset anchor
         replayState.enabled = true;
 
         // Only show first bar initially (replay mode)
@@ -2309,6 +2339,21 @@
           document.getElementById('infoText').textContent = info;
         };
         chart.subscribeAction('onDataReady', onDataReadyHandler);
+
+        // Listen for user scroll to set viewport anchor (TradingView-style)
+        chart.subscribeAction('onScroll', () => {
+          if (!replayState.enabled) return;
+
+          // When user scrolls, capture the rightmost visible bar index as anchor
+          // This creates the "wall" effect
+          const dataList = chart.getDataList();
+          if (!dataList || dataList.length === 0) return;
+
+          // Set anchor to current latest bar index
+          // This means: "keep viewport here, new bars appear on the left until they hit the wall"
+          replayState.viewportAnchor = replayState.currentIndex;
+          console.log('User scrolled - viewport anchored at index:', replayState.viewportAnchor);
+        });
 
         // Show replay control bar
         document.getElementById('replayBar').style.display = 'flex';
