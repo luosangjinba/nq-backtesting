@@ -140,6 +140,9 @@
       list-style: none;
     }
     .panel-section summary::-webkit-details-marker { display: none; }
+    .list-fold-btn { margin-bottom: 4px; }
+    .pda-list-fold { transition: max-height 0.25s ease, opacity 0.15s ease; overflow: hidden; }
+    .pda-list-fold.folded { max-height: 0; opacity: 0; padding: 0; margin: 0; }
     .panel-section summary::before {
       content: '▾ ';
     }
@@ -228,6 +231,10 @@
     }
     .btn-sm.ghost {
       background: transparent;
+    }
+    .btn-sm.ghost:hover {
+      background: rgba(212, 160, 86, 0.15);
+      color: var(--accent);
     }
     .panel-tabs {
       display: grid;
@@ -440,43 +447,117 @@
     .toolbar {
       background: var(--panel);
       border-bottom: 1px solid var(--line);
-      padding: 10px 16px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .toolbar-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .toolbar-row:last-child {
+      min-height: 22px;
+    }
+    .toolbar .tb-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .toolbar .tb-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--line);
+      margin: 0 4px;
     }
     .toolbar label {
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
     }
     .toolbar input, .toolbar select {
+      height: 26px;
       background: var(--bg);
       border: 1px solid var(--line);
       color: var(--text);
-      padding: 4px 8px;
+      padding: 0 8px;
       border-radius: 4px;
-      font-size: 0.85rem;
-      width: 140px;
+      font-size: 0.82rem;
+      line-height: 26px;
+      box-sizing: border-box;
     }
-    .toolbar select { width: 80px; }
-    .toolbar input[type="number"] { width: 60px; }
+    .toolbar input { width: 130px; }
+    .toolbar select { width: 58px; }
+    .toolbar input[type="number"] { width: 50px; }
+    .toolbar .locate-input { width: 110px; }
     .toolbar button {
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      height: 26px;
+      min-width: 26px;
+      padding: 0 10px;
+      border-radius: 4px;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
+      line-height: 26px;
+      box-sizing: border-box;
+      border: 1px solid transparent;
     }
-    .toolbar button:hover { opacity: 0.85; }
-    .toolbar button.secondary {
-      background: var(--panel);
+    .toolbar .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .toolbar .btn-primary:hover { opacity: 0.85; }
+    .toolbar .btn-ghost {
+      background: var(--bg);
       color: var(--text-dim);
       border: 1px solid var(--line);
+      padding: 0 12px;
+    }
+    .toolbar .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .toolbar .btn-icon {
+      background: var(--bg);
+      color: var(--text-dim);
+      border: 1px solid var(--line);
+      padding: 0;
+      width: 26px;
+      font-size: 14px;
+    }
+    .toolbar .btn-icon:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .toolbar .btn-icon.anchor-active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .toolbar .tb-check {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .toolbar .tb-check input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+    .locate-flash {
+      animation: locate-flash-anim 0.5s ease-in-out 3;
+    }
+    @keyframes locate-flash-anim {
+      0%, 100% { border-color: var(--line); }
+      50% { border-color: #e07070; background: rgba(200, 112, 112, 0.15); }
     }
     .toolbar .info {
       color: var(--text-dim);
@@ -547,30 +628,25 @@
   <!-- Left: chart area -->
   <div class="chart-area">
     <div class="toolbar">
-      <label>Start</label>
-      <input id="startTime" placeholder="201201091120">
-      <label>End</label>
-      <input id="endTime" placeholder="2012-01-09 14:37">
-      <label>TF</label>
-      <select id="tfSelect">
-        <option value="1">1m</option>
-        <option value="5">5m</option>
-        <option value="15">15m</option>
-        <option value="30">30m</option>
-        <option value="60" selected>1H</option>
-        <option value="240">4H</option>
-        <option value="1440">1D</option>
-        <option value="10080">1W</option>
-      </select>
-      <label>扩展</label>
-      <input id="paddingInput" type="number" value="19" min="0" max="500" placeholder="19">
-      <button id="loadBtn">加载</button>
-      <button class="secondary" id="resetBtn">Reset View</button>
-      <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="midnightLines" checked style="margin-right:4px;vertical-align:middle;">午夜线</label>
-      <label style="color:var(--muted);font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="showSE" style="margin-right:4px;vertical-align:middle;">S/E</label>
-      <span class="warn" id="paddingWarn"></span>
-      <span id="pdaBadge" style="display:none"></span>
-      <span class="info" id="infoText"></span>
+      <div class="toolbar-row">
+        <div class="tb-group"><label>Start</label><input id="startTime" placeholder="201201091120"></div>
+        <div class="tb-group"><label>End</label><input id="endTime" placeholder="2012-01-09 14:37"></div>
+        <div class="tb-sep"></div>
+        <div class="tb-group"><label>TF</label><select id="tfSelect"><option value="1">1m</option><option value="5">5m</option><option value="15">15m</option><option value="30">30m</option><option value="60" selected>1H</option><option value="240">4H</option><option value="1440">1D</option><option value="10080">1W</option></select></div>
+        <div class="tb-sep"></div>
+        <div class="tb-group"><label>定位</label><input id="locateTimeInput" class="locate-input" placeholder="201201091120"><button class="btn-icon" id="locateBtn" title="定位">&#x23F1;</button><button class="btn-icon" id="anchorBtn" title="锚定">&#x2693;</button></div>
+        <div class="tb-sep"></div>
+        <div class="tb-group"><label>扩展</label><input id="paddingInput" type="number" value="50" min="0" max="500"></div>
+        <button class="btn-primary" id="loadBtn">加载</button>
+        <button class="btn-ghost" id="resetBtn">Reset View</button>
+      </div>
+      <div class="toolbar-row">
+        <label class="tb-check"><input type="checkbox" id="midnightLines" checked>午夜线</label>
+        <label class="tb-check"><input type="checkbox" id="showSE">S/E</label>
+        <span class="warn" id="paddingWarn"></span>
+        <span id="pdaBadge" style="display:none"></span>
+        <span class="info" id="infoText"></span>
+      </div>
     </div>
     <div id="chartContainer">
       <div class="loading">输入时间范围后点击「加载」</div>
@@ -668,8 +744,8 @@
             <div class="form-group">
               <label>每页</label>
               <select id="panelPageSizeSelect">
-                <option value="10">10</option>
-                <option value="20" selected>20</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
                 <option value="50">50</option>
               </select>
             </div>
@@ -687,7 +763,9 @@
             <div class="micro-stat"><label>手工</label><strong id="panelManualCount">0</strong></div>
             <div class="micro-stat"><label>选中</label><strong id="panelSelectedCount">0</strong></div>
           </div>
+          <button class="btn-sm ghost list-fold-btn" id="pdaListFoldBtn" title="折叠/展开列表">收起列表 ▼</button>
 
+          <div class="pda-list-fold" id="pdaListFold">
           <table class="panel-table">
             <thead>
               <tr>
@@ -708,6 +786,7 @@
           <div class="panel-pagination">
             <div id="panelPagination"></div>
             <span class="panel-page-info" id="panelPageInfo">0 条</span>
+          </div>
           </div>
 
           <div class="btn-row wrap">
@@ -736,16 +815,19 @@
             </div>
             <div class="form-group">
               <label>周期</label>
-              <select id="manualPdaTF">
-                <option value="1M">1m</option>
-                <option value="5M">5m</option>
-                <option value="15M">15m</option>
-                <option value="30M">30m</option>
-                <option value="1H" selected>1H</option>
-                <option value="4H">4H</option>
-                <option value="D">D</option>
-                <option value="1W">1W</option>
-              </select>
+              <div class="inline-field">
+                <select id="manualPdaTF">
+                  <option value="1M">1m</option>
+                  <option value="5M">5m</option>
+                  <option value="15M">15m</option>
+                  <option value="30M">30m</option>
+                  <option value="1H" selected>1H</option>
+                  <option value="4H">4H</option>
+                  <option value="D">D</option>
+                  <option value="1W">1W</option>
+                </select>
+                <button class="btn-sm" id="useChartTfBtn">切换成图表周期</button>
+              </div>
             </div>
             <div class="form-group">
               <label>方向</label>
@@ -762,7 +844,7 @@
               <label>Anchor Time</label>
               <input id="manualAnchorTime" placeholder="2012-01-09 11:20">
             </div>
-            <button class="btn-sm" id="pickAnchorTimeBtn">取十字时间</button>
+            <button class="btn-sm" id="pickAnchorTimeBtn">粘贴时间</button>
           </div>
 
           <div class="field-row">
@@ -771,14 +853,14 @@
                 <label>Start Time</label>
                 <input id="manualStartTime" placeholder="2012-01-09 10:00">
               </div>
-              <button class="btn-sm" id="pickStartTimeBtn">取时间</button>
+              <button class="btn-sm" id="pickStartTimeBtn">粘贴</button>
             </div>
             <div class="inline-field">
               <div class="form-group">
                 <label>End Time</label>
                 <input id="manualEndTime" placeholder="2012-01-09 10:30">
               </div>
-              <button class="btn-sm" id="pickEndTimeBtn">取时间</button>
+              <button class="btn-sm" id="pickEndTimeBtn">粘贴</button>
             </div>
           </div>
 
@@ -982,7 +1064,7 @@
         needDefaultXAxisFigure: false,
         needDefaultYAxisFigure: false,
         createPointFigures: ({ overlay, coordinates }) => {
-          const { label, startIdx, endIdx } = overlay.extendData || {};
+          const { timeframe, direction } = overlay.extendData || {};
           if (coordinates.length < 2) return [];
           const figs = [];
           const x1 = Math.min(coordinates[0].x, coordinates[1].x);
@@ -990,24 +1072,28 @@
           const y1 = Math.min(coordinates[0].y, coordinates[1].y);
           const y2 = Math.max(coordinates[0].y, coordinates[1].y);
           const w = Math.max(x2 - x1, 6);
+          const h = y2 - y1;
+          const isBullish = direction === 'bullish';
+          const fillColor = isBullish ? 'rgba(200, 170, 50, 0.3)' : 'rgba(180, 60, 60, 0.3)';
+          const borderColor = isBullish ? '#c8aa32' : '#b43c3c';
+          const textColor = '#f5f0e8';
           figs.push({
             type: 'rect',
-            attrs: { x: x1, y: y1, width: w, height: y2 - y1 },
+            attrs: { x: x1, y: y1, width: w, height: h },
             styles: {
               style: 'stroke_fill',
-              color: 'rgba(107, 175, 207, 0.15)',
-              borderColor: '#6bafcf',
+              color: fillColor,
+              borderColor: borderColor,
               borderSize: 1,
-              borderStyle: 'dashed',
-              borderDashedValue: [3, 3],
+              borderStyle: 'solid',
             },
             ignoreEvent: true,
           });
-          if (label) {
+          if (timeframe) {
             figs.push({
               type: 'text',
-              attrs: { x: x1 + 4, y: y1 + 14, text: label, align: 'left', baseline: 'top' },
-              styles: { color: '#6bafcf', size: 10, family: 'sans-serif', weight: 'bold' },
+              attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' },
+              styles: { color: textColor, size: 11, family: 'sans-serif', weight: 'bold' },
               ignoreEvent: true,
             });
           }
@@ -1169,21 +1255,25 @@
       } else if (pdaType === 'fvg') {
         const priceTop = pda.extraFields?.price_top || pda.extraFields?.priceTop || pda.priceHigh;
         const priceBottom = pda.extraFields?.price_bottom || pda.extraFields?.priceBottom || pda.priceLow;
+        const direction = (pda.direction || '').toLowerCase();
+        const startIdx = Math.max(idx - 1, 0);
+        const endIdx5 = Math.min(idx + 4, candleData.length - 1);
         if (priceTop && priceBottom) {
           overlays.push({
             name: 'fvgZone',
             points: [
-              { timestamp: bar.timestamp, value: priceTop },
-              { timestamp: bar.timestamp, value: priceBottom },
+              { timestamp: candleData[startIdx].timestamp, value: priceTop },
+              { timestamp: candleData[endIdx5].timestamp, value: priceBottom },
             ],
-            extendData: { label: 'FVG' },
+            extendData: { timeframe: pda.timeframe || '1H', direction: direction },
             lock: true,
           });
         } else {
+          const fvgColor = direction === 'bullish' ? '#c8aa32' : '#b43c3c';
           overlays.push({
             name: 'circleMarker',
             points: [{ timestamp: bar.timestamp, value: bar.high }],
-            extendData: { color: '#6bafcf', label: 'FVG', above: true },
+            extendData: { color: fvgColor, label: 'FVG', above: true },
             lock: true,
           });
         }
@@ -1460,6 +1550,10 @@
             },
           },
           separator: { size: 0 },
+          overlay: {
+            text: { backgroundColor: 'transparent', color: '#f5f0e8', borderSize: 0, size: 10, family: 'sans-serif' },
+            rectText: { backgroundColor: 'transparent', color: '#f5f0e8', borderSize: 0, size: 10, family: 'sans-serif' },
+          },
         });
 
         chart.setPriceVolumePrecision(2, 0);
@@ -1511,7 +1605,21 @@
           drawMidnightLines(candleData, tfMinutes);
           drawAllOverlays();
 
-          if (currentPda) {
+          // Anchor: if active and locate time is set, scroll to anchor time
+          if (anchorActive) {
+            const anchorT = parseTime(document.getElementById('locateTimeInput').value.trim());
+            if (anchorT) {
+              const anchorTsMs = timeToTimestamp(anchorT) * 1000;
+              if (anchorTsMs >= candleData[0].timestamp && anchorTsMs <= candleData[candleData.length - 1].timestamp) {
+                chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
+                chart.scrollToTimestamp(anchorTsMs);
+              } else {
+                resetView();
+              }
+            } else {
+              resetView();
+            }
+          } else if (currentPda) {
             centerOnPda(currentPda, candleData);
           } else {
             resetView();
@@ -1563,7 +1671,7 @@
         document.getElementById('startTime').value = fmt(startDt);
         document.getElementById('endTime').value = fmt(endDt);
         document.getElementById('tfSelect').value = String(tf);
-        document.getElementById('paddingInput').value = '19';
+        document.getElementById('paddingInput').value = '50';
 
         loadData();
       } catch (err) {
@@ -1604,7 +1712,7 @@
     const PANEL_TYPE_STYLES = { bsl: 'bsl', ssl: 'ssl', fvg: 'fvg', ob: 'ob', eqh: 'eqh', eql: 'eql' };
     let panelPdaRows = [];
     let panelCurrentPage = 1;
-    let panelPageSize = 20;
+    let panelPageSize = 10;
     let panelSortCol = 'anchorTime';
     let panelSortDir = 'desc';
     let panelSelectedPdaId = null;
@@ -1862,7 +1970,21 @@
       document.getElementById('manualPriceLow').value = '';
       document.getElementById('manualPdaNote').value = '';
       document.getElementById('manualSaveBtn').textContent = '保存 Manual PDA';
+      updateManualFieldState();
     }
+
+    function updateManualFieldState() {
+      const pdaType = document.getElementById('manualPdaType').value;
+      const isPoint = (pdaType === 'bsl' || pdaType === 'ssl' || pdaType === 'eqh' || pdaType === 'eql');
+      const isBslSsl = (pdaType === 'bsl' || pdaType === 'ssl');
+      const disabledIds = ['manualStartTime', 'manualEndTime', 'manualPriceHigh', 'manualPriceLow'];
+      const disabledBtnIds = ['pickStartTimeBtn', 'pickEndTimeBtn', 'pickPriceHighBtn', 'pickPriceLowBtn'];
+      disabledIds.forEach(id => { document.getElementById(id).disabled = isPoint; });
+      disabledBtnIds.forEach(id => { document.getElementById(id).disabled = isPoint; });
+      document.getElementById('manualPdaDirection').disabled = isBslSsl;
+    }
+
+    document.getElementById('manualPdaType').addEventListener('change', updateManualFieldState);
 
     function panelStartAddManual() {
       resetManualForm();
@@ -1893,6 +2015,7 @@
 
       const manualTab = document.querySelector('[data-panel-tab="manual"]');
       if (manualTab) manualTab.click();
+      updateManualFieldState();
     }
 
     function buildManualPdaBody() {
@@ -1981,14 +2104,56 @@
       }
     }
 
-    function panelPickCrosshairTime(targetId) {
-      if (!lastCandleData || crosshairBarIndex < 0 || crosshairBarIndex >= lastCandleData.length) {
-        toast('图表暂无十字光标时间', 'error');
+    function pasteChartTime(targetId) {
+      navigator.clipboard.readText().then(text => {
+        const t = text.trim();
+        if (!t) { toast('剪贴板为空', 'error'); return; }
+        const parsed = parseTime(t);
+        if (!parsed) { toast('剪贴板内容不是有效时间', 'error'); return; }
+        document.getElementById(targetId).value = parsed;
+      }).catch(() => {
+        toast('无法读取剪贴板，请手动粘贴', 'error');
+      });
+    }
+
+    // ── Locate time & anchor ──
+    let anchorActive = false;
+
+    function locateToTime() {
+      const input = document.getElementById('locateTimeInput');
+      const t = parseTime(input.value.trim());
+      if (!t) { input.classList.add('locate-flash'); setTimeout(() => input.classList.remove('locate-flash'), 1600); return; }
+      const tsMs = timeToTimestamp(t) * 1000;
+
+      if (!lastCandleData?.length) {
+        input.classList.add('locate-flash'); setTimeout(() => input.classList.remove('locate-flash'), 1600);
         return;
       }
-      const d = new Date(lastCandleData[crosshairBarIndex].timestamp);
-      document.getElementById(targetId).value = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`;
+      // Check if time is within chart range
+      const firstTs = lastCandleData[0].timestamp;
+      const lastTs = lastCandleData[lastCandleData.length - 1].timestamp;
+      if (tsMs < firstTs || tsMs > lastTs) {
+        input.classList.add('locate-flash'); setTimeout(() => input.classList.remove('locate-flash'), 1600);
+        return;
+      }
+
+      chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
+      chart.scrollToTimestamp(tsMs);
     }
+
+    document.getElementById('locateBtn').onclick = locateToTime;
+    document.getElementById('locateTimeInput').addEventListener('focusout', (e) => {
+      const normed = parseTime(e.target.value);
+      if (normed && normed !== e.target.value) e.target.value = normed;
+    });
+    document.getElementById('locateTimeInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') locateToTime();
+    });
+
+    document.getElementById('anchorBtn').onclick = () => {
+      anchorActive = !anchorActive;
+      document.getElementById('anchorBtn').classList.toggle('anchor-active', anchorActive);
+    };
 
     // ── Event handlers ──
     document.getElementById('loadBtn').onclick = loadData;
@@ -2031,11 +2196,28 @@
       document.getElementById('panelFilterTimeTo').value = parseTime(document.getElementById('endTime').value) || '';
     };
 
+    const pdaListFoldBtn = document.getElementById('pdaListFoldBtn');
+    const pdaListFoldDiv = document.getElementById('pdaListFold');
+    pdaListFoldBtn.onclick = () => {
+      pdaListFoldDiv.classList.toggle('folded');
+      const isFolded = pdaListFoldDiv.classList.contains('folded');
+      pdaListFoldBtn.textContent = isFolded ? '展开列表 ▶' : '收起列表 ▼';
+    };
+
     document.getElementById('panelClearFilterBtn').onclick = () => {
-      ['panelFilterTimeFrom', 'panelFilterTimeTo', 'panelFilterSource', 'panelFilterType', 'panelFilterTF', 'panelFilterDirection'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
+      // Reset all filters to default (first option = "全部")
+      document.getElementById('panelFilterSource').selectedIndex = 0;
+      document.getElementById('panelFilterType').selectedIndex = 0;
+      document.getElementById('panelFilterTF').selectedIndex = 0;
+      document.getElementById('panelFilterDirection').selectedIndex = 0;
+      document.getElementById('panelFilterTimeFrom').value = '';
+      document.getElementById('panelFilterTimeTo').value = '';
+      // Clear PDA list and selection
+      panelPdaRows = [];
+      panelCurrentPage = 1;
+      panelSelectedPdaId = null;
+      renderPanelPdaTable();
+      updatePanelStats();
     };
 
     document.getElementById('panelSearchPdaBtn').onclick = panelSearchPdas;
@@ -2064,15 +2246,34 @@
       document.getElementById('startTime').value = anchor;
       document.getElementById('endTime').value = anchor;
       document.getElementById('tfSelect').value = tfToMinutes(document.getElementById('manualPdaTF').value);
-      document.getElementById('paddingInput').value = '80';
+      document.getElementById('paddingInput').value = '50';
       loadData();
+    };
+    document.getElementById('useChartTfBtn').onclick = () => {
+      const chartTfMin = document.getElementById('tfSelect').value;
+      const map = { '1': '1M', '5': '5M', '15': '15M', '30': '30M', '60': '1H', '240': '4H', '1440': 'D', '10080': '1W' };
+      const tf = map[chartTfMin] || '1H';
+      document.getElementById('manualPdaTF').value = tf;
+      toast(`周期已切换为 ${tf}`, 'success');
     };
     document.getElementById('manualSaveBtn').onclick = saveManualPdaFromPanel;
     document.getElementById('manualResetBtn').onclick = resetManualForm;
-    document.getElementById('pickAnchorTimeBtn').onclick = () => panelPickCrosshairTime('manualAnchorTime');
-    document.getElementById('pickStartTimeBtn').onclick = () => panelPickCrosshairTime('manualStartTime');
-    document.getElementById('pickEndTimeBtn').onclick = () => panelPickCrosshairTime('manualEndTime');
-    document.getElementById('pickPriceBtn').onclick = () => toast('图表取价将在下一步接入', 'info');
+    updateManualFieldState();
+    document.getElementById('pickAnchorTimeBtn').onclick = () => pasteChartTime('manualAnchorTime');
+    document.getElementById('pickStartTimeBtn').onclick = () => pasteChartTime('manualStartTime');
+    document.getElementById('pickEndTimeBtn').onclick = () => pasteChartTime('manualEndTime');
+    document.getElementById('pickPriceBtn').onclick = () => {
+      const anchorTime = document.getElementById('manualAnchorTime').value.trim();
+      const pdaType = document.getElementById('manualPdaType').value;
+      if (!lastCandleData?.length || !anchorTime) { toast('请先填写 Anchor Time 并加载图表数据', 'error'); return; }
+      const tsMs = timeToTimestamp(parseTime(anchorTime)) * 1000;
+      const idx = findBarIndex(lastCandleData, tsMs);
+      if (idx < 0) { toast('Anchor Time 不在当前图表范围内', 'error'); return; }
+      const bar = lastCandleData[idx];
+      if (pdaType === 'bsl') { document.getElementById('manualPrice').value = bar.high; toast(`取 BSL High = ${bar.high}`, 'success'); }
+      else if (pdaType === 'ssl') { document.getElementById('manualPrice').value = bar.low; toast(`取 SSL Low = ${bar.low}`, 'success'); }
+      else { document.getElementById('manualPrice').value = bar.close; toast(`取 Close = ${bar.close}`, 'success'); }
+    };
     document.getElementById('pickPriceHighBtn').onclick = () => toast('图表取价将在下一步接入', 'info');
     document.getElementById('pickPriceLowBtn').onclick = () => toast('图表取价将在下一步接入', 'info');
     document.getElementById('manualPreviewOverlayBtn').onclick = () => toast('Manual overlay 预览将在下一步接入', 'info');

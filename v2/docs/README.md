@@ -10,7 +10,7 @@ Path / Group 记录工具，用于记录 NQ 期货的结构路径和关键价格
 | `LAYER2_RECORDER_V2_GUIDE.md` | 使用指南 |
 | `pda_review.html` | PDA 审查工具 |
 | `pda_manager.html` | PDA Manager，CRUD + 搜索过滤 |
-| `kline_viewer.html` | K线查看器（KLineChart v9.8.12，UTC时区），支持 PDA overlay |
+| `kline_viewer.html` | K线查看器（KLineChart v9.8.12，UTC时区），支持 PDA overlay + 右侧 PDA 工作台 |
 | `params_quick_ref.html` | 参数快速参考 |
 | `yamls/` | YAML 示例文件 |
 | `snap/` | 截图存档 |
@@ -45,6 +45,15 @@ Path / Group 记录工具，用于记录 NQ 期货的结构路径和关键价格
 - Group ID / Group Type / Direction
 - Member Paths：包含的 Path 列表
 - Structure Pattern：结构模式（如 2 legs / 3 drives）
+
+### Manual PDA - BSL/SSL
+
+- **类型**：BSL / SSL（点类型 PDA）
+- **周期**：下拉选择，支持一键切换为图表当前周期
+- **Anchor Time**：手工录入或粘贴图表右键复制的时间
+- **Price**：手工录入或点击「取价」自动取 Anchor Time 对应 K线的 High（BSL）/ Low（SSL）
+- **Note**：备注
+- **不可输入**：Start Time、End Time、Price High、Price Low、方向（BSL/SSL 方向由类型隐含）
 
 ### Manual PDA - OB（订单块）
 

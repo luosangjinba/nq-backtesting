@@ -4,6 +4,52 @@
 
 ---
 
+## 2026-05-07
+
+### 会话 10：kline_viewer PDA overlay 样式优化 + Manual PDA 表单改进
+
+**背景：**
+继续完善 kline_viewer.html 的右侧 PDA 工作台和图表 overlay 显示。
+
+**改动内容：**
+
+1. **BSL/SSL Y轴标签样式修复**
+   - KLineChart 默认 overlay Y轴标签使用蓝底（#1677FF）灰字，BSL/SSL 价格标签几乎看不清
+   - 在 `chart.setStyles()` 中添加 `overlay.text` 和 `overlay.rectText` 全局覆盖：透明背景 + 亮白文字（#f5f0e8）
+
+2. **FVG overlay 样式重构**
+   - 填充拉长至5根K线宽度（startIdx = idx - 1, endIdx = idx + 4）
+   - 实线边框（去掉虚线）
+   - bullish FVG → 暗黄色填充 rgba(200,170,50,0.3)，边框 #c8aa32
+   - bearish FVG → 暗红色填充 rgba(180,60,60,0.3)，边框 #b43c3c
+   - 方框正中心显示该 FVG 的周期（如 1H），文字颜色 #f5f0e8（与填充色高反差）
+   - 去掉左上角 "FVG" 标签
+
+3. **PDA 列表折叠按钮**
+   - 统计区下方新增「收起列表 ▼」按钮，点击后只折叠表格+分页区
+   - 折叠时按钮变为「展开列表 ▶」，筛选、统计、操作按钮始终可见
+   - ghost 按钮 hover 样式修复：淡金背景 + 金色文字，避免与暗色面板混色
+
+4. **Manual PDA 表单改进**
+   - 「取十字时间」改为「粘贴时间」：从剪贴板读取右键复制的时间，通过 parseTime 解析
+   - BSL/SSL/EQH/EQL 类型时灰掉：Start Time、End Time、Price High、Price Low 及其粘贴/取价按钮
+   - BSL/SSL 类型时灰掉：方向框（方向由类型隐含）
+   - 页面初始化时自动调用 updateManualFieldState()，默认 bsl 类型下灰掉字段立即生效
+   - 周期下拉旁新增「切换成图表周期」按钮，一键将 Manual PDA 周期设为当前图表 TF
+   - 「取价」按钮接入真实功能：根据 Anchor Time 找 K线，BSL 取 High，SSL 取 Low
+
+5. **十字线价格精度**
+   - 调查 KLineChart v9 是否有 tick size / price step 参数 → 结论：没有
+   - v10（未 stable）新增 displayValueToText 和 minSpan 钩子可控制
+   - 决定等 v10 stable 后用原生参数解决，当前 setPriceVolumePrecision(2,0) 暂时够用
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — overlay 样式、Manual PDA 表单、PDA 列表折叠
+- `v2/docs/README.md` — 更新 kline_viewer 说明、新增 Manual PDA BSL/SSL 章节
+- `v2/sessions/SESSIONS.md` — 追加本会话记录
+
+---
+
 ## 2026-05-06
 
 ### 会话 9：PDA Manager 功能迁移到 kline_viewer 右侧面板
