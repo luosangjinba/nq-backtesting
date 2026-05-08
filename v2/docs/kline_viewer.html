@@ -769,9 +769,9 @@
     <div class="replay-bar" id="replayBar" style="display: none;">
       <div class="replay-controls">
         <button class="replay-btn" id="replayFirst" title="跳到开头">⏮</button>
-        <button class="replay-btn" id="replayBackward" title="后退 10 根">⏪</button>
+        <button class="replay-btn" id="replayBackward" title="后退 1 根">⏪</button>
         <button class="replay-btn replay-btn-primary" id="replayPlayPause" title="播放/暂停">▶</button>
-        <button class="replay-btn" id="replayForward" title="前进 10 根">⏩</button>
+        <button class="replay-btn" id="replayForward" title="前进 1 根">⏩</button>
         <button class="replay-btn" id="replayLast" title="跳到结尾">⏭</button>
       </div>
       <div class="replay-progress">
@@ -2896,12 +2896,12 @@
 
     document.getElementById('replayBackward').onclick = () => {
       replayPause();
-      replayStepBackward(10);
+      replayStepBackward(1);
     };
 
     document.getElementById('replayForward').onclick = () => {
       replayPause();
-      replayStepForward(10);
+      replayStepForward(1);
     };
 
     document.getElementById('replaySlider').oninput = (e) => {
