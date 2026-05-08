@@ -987,6 +987,17 @@
     let yAxisWheelHandler = null;
     let obSelectionState = null; // { startIndex, startTime, startBar }
 
+    // Replay state
+    let replayState = {
+      enabled: false,        // 是否启用回放模式
+      fullData: null,        // 完整的 K 线数据
+      currentIndex: 0,       // 当前显示到第几根 K 线（从 0 开始）
+      totalBars: 0,          // 总共有多少根 K 线
+      isPlaying: false,      // 是否正在播放
+      speed: 1000,           // 播放速度（毫秒/根）
+      intervalId: null       // setInterval 的 ID
+    };
+
     // ── Register custom overlays (v9 API) ──
     function registerCustomOverlays() {
       klinecharts.registerOverlay({
@@ -1870,6 +1881,52 @@
       chart.scrollToDataIndex(lastCandleData.length - 1);
     }
 
+    // ── Replay functions ──
+    function updateReplayDisplay() {
+      if (!replayState.enabled || !replayState.fullData) return;
+
+      const currentData = replayState.fullData.slice(0, replayState.currentIndex + 1);
+      lastCandleData = currentData;
+
+      if (chart) {
+        chart.applyNewData(currentData);
+        // Auto-scroll to show the latest bar
+        chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
+        chart.scrollToDataIndex(currentData.length - 1);
+      }
+
+      // Update info text
+      const info = `回放模式：${replayState.currentIndex + 1} / ${replayState.totalBars} bars`;
+      document.getElementById('infoText').textContent = info;
+
+      // Redraw overlays and midnight lines
+      if (chart) {
+        const tf = parseInt(document.getElementById('tfSelect').value);
+        drawMidnightLines(currentData, tf);
+        drawAllOverlays();
+      }
+    }
+
+    function replayStepForward(steps = 1) {
+      if (!replayState.enabled || !replayState.fullData) return;
+
+      replayState.currentIndex = Math.min(
+        replayState.currentIndex + steps,
+        replayState.totalBars - 1
+      );
+      updateReplayDisplay();
+    }
+
+    function replayStepBackward(steps = 1) {
+      if (!replayState.enabled || !replayState.fullData) return;
+
+      replayState.currentIndex = Math.max(
+        replayState.currentIndex - steps,
+        0
+      );
+      updateReplayDisplay();
+    }
+
     // ── Load data ──
     async function loadData() {
       const startRaw = document.getElementById('startTime').value.trim();
@@ -1991,7 +2048,15 @@
         chart.setPriceVolumePrecision(2, 0);
         setupCrosshairTracking();
 
-        lastCandleData = candleData;
+        // Store full data for replay
+        replayState.fullData = candleData;
+        replayState.totalBars = candleData.length;
+        replayState.currentIndex = 0;
+        replayState.enabled = true;
+
+        // Only show first bar initially (replay mode)
+        const initialData = [candleData[0]];
+        lastCandleData = initialData;
 
         // Resize observer
         resizeObserver = new ResizeObserver(() => {
@@ -2029,35 +2094,19 @@
         container.addEventListener('wheel', yAxisWheelHandler, { capture: true });
 
         // Apply data and draw overlays when ready
-        chart.applyNewData(candleData);
+        // In replay mode, only show first bar initially
+        chart.applyNewData(initialData);
         if (onDataReadyHandler) {
           chart.unsubscribeAction('onDataReady', onDataReadyHandler);
         }
         onDataReadyHandler = () => {
-          drawMidnightLines(candleData, tfMinutes);
+          drawMidnightLines(initialData, tfMinutes);
           drawAllOverlays();
 
-          // Anchor: if active and locate time is set, scroll to anchor time
-          if (anchorActive) {
-            const anchorT = parseTime(document.getElementById('locateTimeInput').value.trim());
-            if (anchorT) {
-              const anchorTsMs = timeToTimestamp(anchorT) * 1000;
-              if (anchorTsMs >= candleData[0].timestamp && anchorTsMs <= candleData[candleData.length - 1].timestamp) {
-                chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
-                chart.scrollToTimestamp(anchorTsMs);
-              } else {
-                resetView();
-              }
-            } else {
-              resetView();
-            }
-          } else if (currentPda) {
-            centerOnPda(currentPda, candleData);
-          } else {
-            resetView();
-          }
+          // In replay mode, always reset view to show the first bar
+          resetView();
 
-          let info = `${bars.length} bars · ${bars[0].time} → ${bars[bars.length - 1].time} · TF=${tf}m`;
+          let info = `回放模式：1 / ${candleData.length} bars · ${bars[0].time} → ${bars[bars.length - 1].time} · TF=${tf}m`;
           renderPdaBadge(currentPda);
           document.getElementById('infoText').textContent = info;
         };
