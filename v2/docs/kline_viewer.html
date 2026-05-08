@@ -2614,6 +2614,12 @@
 
     // ── Event handlers ──
     document.getElementById('loadBtn').onclick = loadData;
+    document.getElementById('tfSelect').onchange = () => {
+      // Auto-reload when TF changes (if data is already loaded)
+      if (lastCandleData && lastCandleData.length > 0) {
+        loadData();
+      }
+    };
     document.getElementById('paddingInput').onchange = getPadding;
     document.getElementById('midnightLines').onchange = () => {
       if (lastCandleData) drawMidnightLines(lastCandleData, parseInt(document.getElementById('tfSelect').value));
