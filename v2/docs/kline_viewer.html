@@ -688,6 +688,167 @@
         <button class="panel-tab" data-panel-tab="scope">PDA 列表</button>
       </div>
 
+      <!-- Section: Manual PDA -->
+      <details open class="panel-section" data-panel-section="manual">
+        <summary>Manual PDA</summary>
+        <div class="section-content">
+          <div class="field-row-3">
+            <div class="form-group">
+              <label>类型</label>
+              <select id="manualPdaType">
+                <option value="bsl">BSL</option>
+                <option value="ssl">SSL</option>
+                <option value="fvg">FVG</option>
+                <option value="ob">OB</option>
+                <option value="eqh">EQH</option>
+                <option value="eql">EQL</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>周期</label>
+              <div class="inline-field">
+                <select id="manualPdaTF">
+                  <option value="1M">1m</option>
+                  <option value="5M">5m</option>
+                  <option value="15M">15m</option>
+                  <option value="30M">30m</option>
+                  <option value="1H" selected>1H</option>
+                  <option value="4H">4H</option>
+                  <option value="D">D</option>
+                  <option value="1W">1W</option>
+                </select>
+                <button class="btn-sm" id="useChartTfBtn">切换成图表周期</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>方向</label>
+              <select id="manualPdaDirection">
+                <option value="">无</option>
+                <option value="bullish">Bullish</option>
+                <option value="bearish">Bearish</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-field">
+            <div class="form-group">
+              <label>Anchor Time</label>
+              <input id="manualAnchorTime" placeholder="2012-01-09 11:20">
+            </div>
+            <button class="btn-sm" id="pickAnchorTimeBtn">粘贴时间</button>
+          </div>
+
+          <div class="field-row">
+            <div class="inline-field">
+              <div class="form-group">
+                <label>Start Time</label>
+                <input id="manualStartTime" placeholder="2012-01-09 10:00">
+              </div>
+              <button class="btn-sm" id="pickStartTimeBtn">粘贴</button>
+            </div>
+            <div class="inline-field">
+              <div class="form-group">
+                <label>End Time</label>
+                <input id="manualEndTime" placeholder="2012-01-09 10:30">
+              </div>
+              <button class="btn-sm" id="pickEndTimeBtn">粘贴</button>
+            </div>
+          </div>
+
+          <div class="field-row-3">
+            <div class="inline-field">
+              <div class="form-group">
+                <label>Price</label>
+                <input id="manualPrice" type="number" step="0.25" placeholder="2346.25">
+              </div>
+              <button class="btn-sm" id="pickPriceBtn">取价</button>
+            </div>
+            <div class="inline-field">
+              <div class="form-group">
+                <label>Price High</label>
+                <input id="manualPriceHigh" type="number" step="0.25" placeholder="2357.50">
+              </div>
+              <button class="btn-sm" id="pickPriceHighBtn">取价</button>
+            </div>
+            <div class="inline-field">
+              <div class="form-group">
+                <label>Price Low</label>
+                <input id="manualPriceLow" type="number" step="0.25" placeholder="2356.50">
+              </div>
+              <button class="btn-sm" id="pickPriceLowBtn">取价</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Note</label>
+            <textarea id="manualPdaNote" rows="2" placeholder="Manual PDA note"></textarea>
+          </div>
+
+          <div class="btn-row wrap">
+            <button class="btn-sm" id="manualLocateChartBtn">按时间定位图表</button>
+            <button class="btn-sm" id="manualPreviewOverlayBtn">预览标注</button>
+            <button class="btn-sm primary" id="manualSaveBtn">保存 Manual PDA</button>
+            <button class="btn-sm" id="manualResetBtn">重置</button>
+          </div>
+        </div>
+      </details>
+
+
+
+      <!-- Section: Match merge -->
+      <details class="panel-section" data-panel-section="match">
+        <summary>匹配合并</summary>
+        <div class="section-content">
+          <div class="match-grid">
+            <div class="match-card"><label>自动优先</label><strong id="matchAutoCount">0</strong></div>
+            <div class="match-card"><label>Manual 保留</label><strong id="matchManualKeepCount">0</strong></div>
+            <div class="match-card"><label>待处理</label><strong id="matchConflictCount">0</strong></div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label>时间容差</label>
+              <select id="matchTimeTolerance">
+                <option value="same_bar">同一根K线</option>
+                <option value="1">±1 bar</option>
+                <option value="3">±3 bars</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>价格容差</label>
+              <select id="matchPriceTolerance">
+                <option value="tick">1 tick</option>
+                <option value="2tick">2 ticks</option>
+                <option value="range">区域重叠</option>
+              </select>
+            </div>
+          </div>
+
+          <table class="panel-table">
+            <thead>
+              <tr>
+                <th>Manual</th>
+                <th>Auto</th>
+                <th>结果</th>
+              </tr>
+            </thead>
+            <tbody id="matchPreviewBody">
+              <tr><td colspan="3" class="empty-panel-row">未生成匹配预览</td></tr>
+            </tbody>
+          </table>
+
+          <div class="btn-row wrap">
+            <button class="btn-sm" id="matchPreviewBtn">生成预览</button>
+            <button class="btn-sm primary" id="matchApplyBtn">应用合并</button>
+            <button class="btn-sm" id="copyMainExportYamlBtn">复制主导出 YAML</button>
+            <button class="btn-sm" id="downloadMainExportYamlBtn">下载主导出 YAML</button>
+            <button class="btn-sm" id="copyMergeYamlBtn">复制 Merge YAML</button>
+            <button class="btn-sm" id="downloadMergeYamlBtn">下载 Merge YAML</button>
+          </div>
+        </div>
+      </details>
+
+
       <!-- Section: Chart scope PDA list -->
       <details class="panel-section" data-panel-section="scope">
         <summary>PDA 列表</summary>
@@ -809,163 +970,6 @@
         </div>
       </details>
 
-      <!-- Section: Manual PDA -->
-      <details open class="panel-section" data-panel-section="manual">
-        <summary>Manual PDA</summary>
-        <div class="section-content">
-          <div class="field-row-3">
-            <div class="form-group">
-              <label>类型</label>
-              <select id="manualPdaType">
-                <option value="bsl">BSL</option>
-                <option value="ssl">SSL</option>
-                <option value="fvg">FVG</option>
-                <option value="ob">OB</option>
-                <option value="eqh">EQH</option>
-                <option value="eql">EQL</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>周期</label>
-              <div class="inline-field">
-                <select id="manualPdaTF">
-                  <option value="1M">1m</option>
-                  <option value="5M">5m</option>
-                  <option value="15M">15m</option>
-                  <option value="30M">30m</option>
-                  <option value="1H" selected>1H</option>
-                  <option value="4H">4H</option>
-                  <option value="D">D</option>
-                  <option value="1W">1W</option>
-                </select>
-                <button class="btn-sm" id="useChartTfBtn">切换成图表周期</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>方向</label>
-              <select id="manualPdaDirection">
-                <option value="">无</option>
-                <option value="bullish">Bullish</option>
-                <option value="bearish">Bearish</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="inline-field">
-            <div class="form-group">
-              <label>Anchor Time</label>
-              <input id="manualAnchorTime" placeholder="2012-01-09 11:20">
-            </div>
-            <button class="btn-sm" id="pickAnchorTimeBtn">粘贴时间</button>
-          </div>
-
-          <div class="field-row">
-            <div class="inline-field">
-              <div class="form-group">
-                <label>Start Time</label>
-                <input id="manualStartTime" placeholder="2012-01-09 10:00">
-              </div>
-              <button class="btn-sm" id="pickStartTimeBtn">粘贴</button>
-            </div>
-            <div class="inline-field">
-              <div class="form-group">
-                <label>End Time</label>
-                <input id="manualEndTime" placeholder="2012-01-09 10:30">
-              </div>
-              <button class="btn-sm" id="pickEndTimeBtn">粘贴</button>
-            </div>
-          </div>
-
-          <div class="field-row-3">
-            <div class="inline-field">
-              <div class="form-group">
-                <label>Price</label>
-                <input id="manualPrice" type="number" step="0.25" placeholder="2346.25">
-              </div>
-              <button class="btn-sm" id="pickPriceBtn">取价</button>
-            </div>
-            <div class="inline-field">
-              <div class="form-group">
-                <label>Price High</label>
-                <input id="manualPriceHigh" type="number" step="0.25" placeholder="2357.50">
-              </div>
-              <button class="btn-sm" id="pickPriceHighBtn">取价</button>
-            </div>
-            <div class="inline-field">
-              <div class="form-group">
-                <label>Price Low</label>
-                <input id="manualPriceLow" type="number" step="0.25" placeholder="2356.50">
-              </div>
-              <button class="btn-sm" id="pickPriceLowBtn">取价</button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Note</label>
-            <textarea id="manualPdaNote" rows="2" placeholder="Manual PDA note"></textarea>
-          </div>
-
-          <div class="btn-row wrap">
-            <button class="btn-sm" id="manualLocateChartBtn">按时间定位图表</button>
-            <button class="btn-sm" id="manualPreviewOverlayBtn">预览标注</button>
-            <button class="btn-sm primary" id="manualSaveBtn">保存 Manual PDA</button>
-            <button class="btn-sm" id="manualResetBtn">重置</button>
-          </div>
-        </div>
-      </details>
-
-      <!-- Section: Match merge -->
-      <details class="panel-section" data-panel-section="match">
-        <summary>匹配合并</summary>
-        <div class="section-content">
-          <div class="match-grid">
-            <div class="match-card"><label>自动优先</label><strong id="matchAutoCount">0</strong></div>
-            <div class="match-card"><label>Manual 保留</label><strong id="matchManualKeepCount">0</strong></div>
-            <div class="match-card"><label>待处理</label><strong id="matchConflictCount">0</strong></div>
-          </div>
-
-          <div class="field-row">
-            <div class="form-group">
-              <label>时间容差</label>
-              <select id="matchTimeTolerance">
-                <option value="same_bar">同一根K线</option>
-                <option value="1">±1 bar</option>
-                <option value="3">±3 bars</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>价格容差</label>
-              <select id="matchPriceTolerance">
-                <option value="tick">1 tick</option>
-                <option value="2tick">2 ticks</option>
-                <option value="range">区域重叠</option>
-              </select>
-            </div>
-          </div>
-
-          <table class="panel-table">
-            <thead>
-              <tr>
-                <th>Manual</th>
-                <th>Auto</th>
-                <th>结果</th>
-              </tr>
-            </thead>
-            <tbody id="matchPreviewBody">
-              <tr><td colspan="3" class="empty-panel-row">未生成匹配预览</td></tr>
-            </tbody>
-          </table>
-
-          <div class="btn-row wrap">
-            <button class="btn-sm" id="matchPreviewBtn">生成预览</button>
-            <button class="btn-sm primary" id="matchApplyBtn">应用合并</button>
-            <button class="btn-sm" id="copyMainExportYamlBtn">复制主导出 YAML</button>
-            <button class="btn-sm" id="downloadMainExportYamlBtn">下载主导出 YAML</button>
-            <button class="btn-sm" id="copyMergeYamlBtn">复制 Merge YAML</button>
-            <button class="btn-sm" id="downloadMergeYamlBtn">下载 Merge YAML</button>
-          </div>
-        </div>
-      </details>
 
     </div>
   </div>
