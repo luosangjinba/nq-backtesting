@@ -682,12 +682,6 @@
     </div>
     <div class="right-panel-body" id="rightPanelBody">
 
-      <div class="panel-tabs" role="tablist" aria-label="PDA workspace mode">
-        <button class="panel-tab active" data-panel-tab="manual">Manual PDA</button>
-        <button class="panel-tab" data-panel-tab="match">匹配合并</button>
-        <button class="panel-tab" data-panel-tab="scope">PDA 列表</button>
-      </div>
-
       <!-- Section: Manual PDA -->
       <details open class="panel-section" data-panel-section="manual">
         <summary>Manual PDA</summary>
@@ -2450,8 +2444,11 @@
       resetManualForm();
       const chartTime = parseTime(document.getElementById('startTime').value);
       if (chartTime) document.getElementById('manualAnchorTime').value = chartTime;
-      const manualTab = document.querySelector('[data-panel-tab="manual"]');
-      if (manualTab) manualTab.click();
+      const manualSection = document.querySelector('[data-panel-section="manual"]');
+      if (manualSection) {
+        manualSection.open = true;
+        manualSection.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     }
 
     function panelEditSelectedPda() {
@@ -2474,8 +2471,11 @@
       document.getElementById('manualEndTime').value = formatTime(extra.end_time) || '';
       document.getElementById('manualSaveBtn').textContent = `更新 ${row.pdaId}`;
 
-      const manualTab = document.querySelector('[data-panel-tab="manual"]');
-      if (manualTab) manualTab.click();
+      const manualSection = document.querySelector('[data-panel-section="manual"]');
+      if (manualSection) {
+        manualSection.open = true;
+        manualSection.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
       updateManualFieldState();
     }
 
@@ -2645,18 +2645,6 @@
       setPanelCollapsed(!document.getElementById('rightPanel').classList.contains('collapsed'));
     };
     document.getElementById('closePanelBtn').onclick = () => setPanelCollapsed(true);
-
-    document.querySelectorAll('[data-panel-tab]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-panel-tab]').forEach(el => el.classList.remove('active'));
-        btn.classList.add('active');
-        const section = document.querySelector(`[data-panel-section="${btn.dataset.panelTab}"]`);
-        if (section) {
-          section.open = true;
-          section.scrollIntoView({ block: 'start', behavior: 'smooth' });
-        }
-      });
-    });
 
     document.getElementById('useChartRangeBtn').onclick = () => {
       document.getElementById('panelFilterTimeFrom').value = parseTime(document.getElementById('startTime').value) || '';
@@ -2971,10 +2959,7 @@
       }
 
       // Switch to Manual PDA panel
-      document.querySelectorAll('[data-panel-tab]').forEach(t => t.classList.remove('active'));
-      const manualTab = document.querySelector('[data-panel-tab="manual"]');
       const manualSection = document.querySelector('[data-panel-section="manual"]');
-      if (manualTab) manualTab.classList.add('active');
       if (manualSection) {
         manualSection.open = true;
         manualSection.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -3053,10 +3038,7 @@
       updateManualFieldState();
 
       // Switch to Manual PDA panel
-      document.querySelectorAll('[data-panel-tab]').forEach(t => t.classList.remove('active'));
-      const manualTab = document.querySelector('[data-panel-tab="manual"]');
       const manualSection = document.querySelector('[data-panel-section="manual"]');
-      if (manualTab) manualTab.classList.add('active');
       if (manualSection) {
         manualSection.open = true;
         manualSection.scrollIntoView({ block: 'start', behavior: 'smooth' });
