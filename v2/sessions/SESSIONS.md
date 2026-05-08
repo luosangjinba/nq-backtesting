@@ -4,6 +4,189 @@
 
 ---
 
+## 2026-05-08
+
+### 会话 12：kline_viewer 右键标记 PDA 试验功能 + OB 逻辑修正 + OB 区间选择
+
+**背景：**
+用户要求继续完善 PDA 工作台功能，打通图表直观操作与 Manual PDA 连接。先小范围试验性实现：在图表右键标记 BSL，右侧面板自动填充。后续修正了 BSL/FVG/OB 的取值逻辑，并实现了 OB 的区间选择功能。
+
+**改动内容：**
+
+1. **右键标记 PDA 功能**
+   - 新增 `markPdaFromChart(pdaType)` 函数
+   - 从当前十字线位置获取 K 线数据（时间、OHLC）
+   - 自动填充 Manual PDA 表单：
+     - **BSL**：填充 `high` 价格（买方流动性在高点），方向设为 `bullish`
+     - **SSL**：填充 `low` 价格（卖方流动性在低点），方向设为 `bearish`
+     - **FVG**：检测三根 K 线是否形成缺口，自动填充缺口区间和方向
+       - Bullish FVG: first.high < third.low → price_high=third.low, price_low=first.high
+       - Bearish FVG: first.low > third.high → price_high=first.low, price_low=third.high
+       - 如果未形成 FVG，提示用户手动填写
+     - **OB**：启动区间选择模式（见下文）
+   - 自动同步图表当前周期到 Manual PDA 表单
+   - 自动切换到 Manual PDA 面板
+
+2. **OB 区间选择功能**
+   - 新增 `obSelectionState` 状态变量跟踪选择过程
+   - 新增 `startObSelection()` 和 `completeObSelection()` 函数
+   - **操作流程**：
+     1. 右键点击第一根 K 线，选择"标记 OB" → 记录起点，提示"已选择起点，请 Shift + 右键选择终点"
+     2. Shift + 右键点击第二根 K 线 → 完成区间选择
+     3. 自动填充 start_time、end_time
+     4. 自动调用 `autoFillObRange()` 计算 price_high/low 和方向
+     5. 切换到 Manual PDA 面板显示结果
+   - 支持反向选择（自动交换起止时间）
+   - 按 Escape 取消选择
+
+3. **OB 取价逻辑修正**
+   - 新增 `autoFillObRange()` 函数
+   - 从 start_time 到 end_time 枚举所有 K 线
+   - 计算所有 K 线的 max(high) 和 min(low)
+   - 自动计算方向：根据**第一根 K 线**的颜色（close >= open → bullish，否则 bearish）
+   - 支持单根 K 线（start_time = end_time）和多根 K 线
+   - 限制最多 100 根 K 线，避免范围过大
+   - 修改 `getManualChartBar()` 函数，OB 类型使用 start_time 而非 anchor_time
+
+4. **Manual PDA 字段状态优化**
+   - 修改 `updateManualFieldState()` 函数
+   - **BSL/SSL 类型**：
+     - Anchor Time 可用
+     - Start/End Time 禁用
+     - Price 可用
+     - Price High/Low 禁用
+     - Direction 禁用（固定）
+   - **FVG 类型**：
+     - Anchor Time 可用
+     - Start/End Time 禁用
+     - Price 禁用
+     - Price High/Low 可用
+     - Direction 可用
+   - **OB 类型**：
+     - Anchor Time 禁用（使用 start/end time）
+     - Start/End Time 可用
+     - Price 禁用
+     - Price High/Low 可用
+     - Direction 禁用（自动计算）
+   - 添加 disabled 字段的 CSS 样式（opacity: 0.4, cursor: not-allowed）
+
+5. **面板切换逻辑修正**
+   - 修正右键标记后的面板切换逻辑
+   - 使用 `section.open = true` 而非 `style.display`
+   - 保持其他面板可见（折叠状态），不会消失
+
+**验证：**
+- API 服务运行中 (PID 767924, 端口 8765)
+- 前端服务运行中 (端口 8000)
+- 可访问 http://127.0.0.1:8000/v2/docs/kline_viewer.html 测试
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — 新增右键标记 PDA 功能，修正 BSL/FVG/OB 逻辑，优化字段状态，实现 OB 区间选择
+
+**当前结论：**
+- 右键菜单已有 BSL/SSL/FVG/OB 标记选项，现已接入正确的自动填充逻辑
+- OB 支持两种录入方式：
+  1. 右键标记单根 K 线，然后手动扩展 end_time
+  2. 右键 + Shift + 右键选择区间，自动计算价格和方向
+- OB 的字段逻辑已对齐 layer2_recorder_v2.html：使用 start_time/end_time，方向自动计算
+- 所有 PDA 类型的字段禁用状态已优化，使用统一的置灰样式
+
+---
+
+### 会话 11：kline_viewer 图表取价 + Manual overlay 预览 + 匹配预览 + 安全版应用合并 + YAML 导出
+
+**背景：**
+用户要求继续接管 `kline_viewer.html` 右侧 PDA 工作台，并明确希望保持当前较慢、稳妥、先对齐语义再实现的节奏。目标是补齐 Manual PDA 与匹配合并链路，但本轮合并结果先只落到页面状态和 YAML，不直接写库。
+
+**改动内容：**
+
+1. **图表取价接入**
+   - 新增页内可复用辅助逻辑：
+     - `MANUAL_TF_TO_CHART_TF`
+     - `getChartBarAtTime()`
+     - `getManualChartBar()`
+     - `fillManualPriceField()`
+     - `getManualChartTf()` / `syncManualTfFromChart()`
+   - `Price` / `Price High` / `Price Low` 均可从当前已加载图表按时间取值。
+   - `切换成图表周期` 与 `按时间定位图表` 共用同一套周期映射。
+
+2. **Manual PDA overlay 预览**
+   - 新增 `manualPreviewPda` 状态。
+   - 新增 `buildPreviewPdaFromManualForm()`，把当前 Manual 表单直接转换成预览 PDA 对象。
+   - `预览标注` 按钮接入 `previewManualOverlay()`。
+   - 预览绘制复用现有 `buildPdaOverlays()` / `drawAllOverlays()` / `centerOnPda()`，不另起一套绘制系统。
+   - `重置` 时自动清掉预览 overlay。
+
+3. **manual-auto 匹配预览**
+   - 复用后端 `/v2/pda_match` 接口。
+   - 接入 `时间容差` / `价格容差` 控件：
+     - `same_bar` → 0 bars
+     - `tick / 2tick / range` → ticks 映射
+   - 新增：
+     - `comparableManualPrice()`
+     - `getMatchTimeToleranceBars()`
+     - `getMatchPriceToleranceTicks()`
+     - `renderMatchPreviewRows()`
+     - `updateMatchSummary()`
+     - `previewManualAutoMatch()`
+   - `生成预览` 后，会在 `matchPreviewBody` 展示候选，并更新顶部 3 个统计卡。
+   - 语义对齐 `layer2_recorder_v2.html`：强匹配阈值为 `exact` 或 `matchScore >= 0.68`。
+
+4. **安全版应用合并（不写库）**
+   - 新增：
+     - `lastMatchResult`
+     - `lastAppliedMerge`
+     - `applyManualAutoMerge()`
+   - 行为：
+     - 强匹配 → 采用 Auto
+     - 否则 → 保留 Manual
+   - 结果只更新页面状态，不写 DuckDB。
+
+5. **YAML 导出**
+   - 先新增单独的 `Merge YAML`：
+     - `buildMergeYaml()`
+     - `copyMergeYaml()`
+     - `downloadMergeYaml()`
+   - 后续再并入主导出 YAML：
+     - `buildMainExportYaml()`
+     - `copyMainExportYaml()`
+     - `downloadMainExportYaml()`
+   - 主导出 YAML 现在包含：
+     - `export_type`
+     - `generated_from`
+     - `chart_scope`
+     - `merge_preview`
+   - `merge_preview` 中包含：
+     - `manual_pda`
+     - `reconciliation.matched_auto`
+     - `reconciliation.manual_only`
+     - `reconciliation.auto_only_in_window`
+
+**验证：**
+- 本地 smoke test `/v2/pda_match` 返回结构符合预期。
+- 生成页面截图：
+  - `v2/docs/2026-05-07_kline_viewer_pick_price.png`
+  - `v2/docs/2026-05-07_kline_viewer_manual_preview.png`
+  - `v2/docs/2026-05-08_kline_viewer_match_preview.png`
+  - `v2/docs/2026-05-08_kline_viewer_apply_merge.png`
+  - `v2/docs/2026-05-08_kline_viewer_merge_yaml.png`
+  - `v2/docs/2026-05-08_kline_viewer_main_yaml.png`
+- 运行环境仍有两个限制：
+  - 当前 Python 环境缺少 `duckdb` 模块，无法新启动本地 API 进程；但现有 8765 服务可访问。
+  - 8000 端口已有静态服务在运行，因此页面验证基于现成服务完成。
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — 图表取价、Manual overlay 预览、匹配预览、安全版应用合并、Merge YAML、主导出 YAML
+- `v2/docs/README.md` — 补充 kline_viewer Manual / Match 工作流与导出说明
+- `v2/sessions/CURRENT_CONTEXT.md` — 更新当前短上下文
+- `v2/sessions/SESSIONS.md` — 追加本会话记录
+
+**当前结论：**
+- `kline_viewer` 右侧 PDA 工作台已具备从查找、编辑、预览到匹配、合并、导出的完整页面级闭环。
+- 本轮仍未做数据库持久化版合并；如要继续，需要单独设计写库语义与回滚策略。
+
+---
+
 ## 2026-05-07
 
 ### 会话 10：kline_viewer PDA overlay 样式优化 + Manual PDA 表单改进
