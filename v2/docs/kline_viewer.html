@@ -606,6 +606,111 @@
     }
     .loading { color: var(--muted); }
     .error { color: var(--danger); }
+
+    /* Replay control bar */
+    .replay-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: var(--panel);
+      border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+    }
+    .replay-controls {
+      display: flex;
+      gap: 4px;
+    }
+    .replay-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text-dim);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .replay-btn:hover {
+      background: var(--panel);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .replay-btn:active {
+      transform: scale(0.95);
+    }
+    .replay-btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .replay-btn-primary:hover {
+      background: #e0b066;
+      border-color: #e0b066;
+    }
+    .replay-progress {
+      flex: 1;
+      min-width: 200px;
+    }
+    .replay-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--line);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .replay-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .replay-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    .replay-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .replay-slider::-moz-range-thumb:hover {
+      transform: scale(1.2);
+    }
+    .replay-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 80px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .replay-speed select {
+      padding: 4px 8px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .replay-speed select:hover {
+      border-color: var(--accent);
+    }
+
     .ctx-menu {
       position: fixed;
       background: var(--panel);
@@ -659,6 +764,34 @@
     <div id="chartContainer">
       <div class="loading">输入时间范围后点击「加载」</div>
     </div>
+
+    <!-- Replay control bar -->
+    <div class="replay-bar" id="replayBar" style="display: none;">
+      <div class="replay-controls">
+        <button class="replay-btn" id="replayFirst" title="跳到开头">⏮</button>
+        <button class="replay-btn" id="replayBackward" title="后退 10 根">⏪</button>
+        <button class="replay-btn replay-btn-primary" id="replayPlayPause" title="播放/暂停">▶</button>
+        <button class="replay-btn" id="replayForward" title="前进 10 根">⏩</button>
+        <button class="replay-btn" id="replayLast" title="跳到结尾">⏭</button>
+      </div>
+      <div class="replay-progress">
+        <input type="range" id="replaySlider" min="0" max="100" value="0" class="replay-slider">
+      </div>
+      <div class="replay-info">
+        <span id="replayPosition">0 / 0</span>
+        <span id="replayTime">--:--</span>
+      </div>
+      <div class="replay-speed">
+        <select id="replaySpeedSelect">
+          <option value="2000">0.5x</option>
+          <option value="1000" selected>1x</option>
+          <option value="500">2x</option>
+          <option value="200">5x</option>
+          <option value="100">10x</option>
+        </select>
+      </div>
+    </div>
+
     <div class="ctx-menu" id="ctxMenu">
       <div class="ctx-menu-item" id="ctxCopyTime">复制当前时间</div>
       <div class="ctx-menu-item" id="ctxMarkBsl">标记 BSL</div>
@@ -1905,6 +2038,9 @@
         drawMidnightLines(currentData, tf);
         drawAllOverlays();
       }
+
+      // Update replay UI
+      updateReplayUI();
     }
 
     function replayStepForward(steps = 1) {
@@ -1925,6 +2061,61 @@
         0
       );
       updateReplayDisplay();
+    }
+
+    function replayPlay() {
+      if (!replayState.enabled || replayState.isPlaying) return;
+
+      replayState.isPlaying = true;
+      document.getElementById('replayPlayPause').textContent = '⏸';
+
+      replayState.intervalId = setInterval(() => {
+        if (replayState.currentIndex >= replayState.totalBars - 1) {
+          replayPause();
+          return;
+        }
+        replayStepForward(1);
+      }, replayState.speed);
+    }
+
+    function replayPause() {
+      if (!replayState.enabled || !replayState.isPlaying) return;
+
+      replayState.isPlaying = false;
+      document.getElementById('replayPlayPause').textContent = '▶';
+
+      if (replayState.intervalId) {
+        clearInterval(replayState.intervalId);
+        replayState.intervalId = null;
+      }
+    }
+
+    function replaySeekTo(index) {
+      if (!replayState.enabled || !replayState.fullData) return;
+
+      replayState.currentIndex = Math.max(0, Math.min(index, replayState.totalBars - 1));
+      updateReplayDisplay();
+    }
+
+    function updateReplayUI() {
+      if (!replayState.enabled) return;
+
+      // Update slider
+      const slider = document.getElementById('replaySlider');
+      slider.max = replayState.totalBars - 1;
+      slider.value = replayState.currentIndex;
+
+      // Update position text
+      document.getElementById('replayPosition').textContent =
+        `${replayState.currentIndex + 1} / ${replayState.totalBars}`;
+
+      // Update time text
+      if (replayState.fullData && replayState.fullData[replayState.currentIndex]) {
+        const bar = replayState.fullData[replayState.currentIndex];
+        const d = new Date(bar.timestamp);
+        const timeStr = `${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+        document.getElementById('replayTime').textContent = timeStr;
+      }
     }
 
     // ── Load data ──
@@ -2111,6 +2302,10 @@
           document.getElementById('infoText').textContent = info;
         };
         chart.subscribeAction('onDataReady', onDataReadyHandler);
+
+        // Show replay control bar
+        document.getElementById('replayBar').style.display = 'flex';
+        updateReplayUI();
 
       } catch (err) {
         const container = document.getElementById('chartContainer');
@@ -2679,6 +2874,49 @@
     };
     document.getElementById('showSE').onchange = drawAllOverlays;
     document.getElementById('resetBtn').onclick = resetView;
+
+    // ── Replay control event listeners ──
+    document.getElementById('replayPlayPause').onclick = () => {
+      if (replayState.isPlaying) {
+        replayPause();
+      } else {
+        replayPlay();
+      }
+    };
+
+    document.getElementById('replayFirst').onclick = () => {
+      replayPause();
+      replaySeekTo(0);
+    };
+
+    document.getElementById('replayLast').onclick = () => {
+      replayPause();
+      replaySeekTo(replayState.totalBars - 1);
+    };
+
+    document.getElementById('replayBackward').onclick = () => {
+      replayPause();
+      replayStepBackward(10);
+    };
+
+    document.getElementById('replayForward').onclick = () => {
+      replayPause();
+      replayStepForward(10);
+    };
+
+    document.getElementById('replaySlider').oninput = (e) => {
+      replayPause();
+      replaySeekTo(parseInt(e.target.value));
+    };
+
+    document.getElementById('replaySpeedSelect').onchange = (e) => {
+      replayState.speed = parseInt(e.target.value);
+      // If playing, restart with new speed
+      if (replayState.isPlaying) {
+        replayPause();
+        replayPlay();
+      }
+    };
 
     // ── Right panel shell ──
     function setPanelCollapsed(collapsed) {
