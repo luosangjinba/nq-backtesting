@@ -593,8 +593,9 @@
     .pda-badge-eqh { background: rgba(180,140,255,0.15); color: #b48cff; }
     .pda-badge-eql { background: rgba(180,140,255,0.15); color: #b48cff; }
     #chartContainer {
-      flex: 1;
-      min-height: 0;
+      flex: 0 0 60vh;
+      min-height: 400px;
+      max-height: 60vh;
       background: #1e1b18;
     }
     .loading, .error {
@@ -2003,15 +2004,19 @@
       if (idx < 0) { resetView(); return; }
 
       const contextBars = 15;
-      chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
-      chart.scrollToDataIndex(idx + contextBars);
+      chart.scrollToDataIndex(idx + contextBars, 0);
+      const barSpace = chart.getBarSpace();
+      const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+      chart.scrollByDistance(-marginPixels, 0);
     }
 
     // ── Reset view ──
     function resetView() {
       if (!chart || !lastCandleData?.length) return;
-      chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
-      chart.scrollToDataIndex(lastCandleData.length - 1);
+      chart.scrollToDataIndex(lastCandleData.length - 1, 0);
+      const barSpace = chart.getBarSpace();
+      const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+      chart.scrollByDistance(-marginPixels, 0);
     }
 
     // ── Replay functions ──
@@ -2024,8 +2029,10 @@
       if (chart) {
         chart.applyNewData(currentData);
         // Auto-scroll to show the latest bar
-        chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
-        chart.scrollToDataIndex(currentData.length - 1);
+        chart.scrollToDataIndex(currentData.length - 1, 0);
+        const barSpace = chart.getBarSpace();
+        const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+        chart.scrollByDistance(-marginPixels, 0);
       }
 
       // Update info text
@@ -2842,8 +2849,10 @@
         return;
       }
 
-      chart.setOffsetRightDistance(chart.getBarSpace() * RIGHT_MARGIN_BARS);
-      chart.scrollToTimestamp(tsMs);
+      chart.scrollToTimestamp(tsMs, 0);
+      const barSpace = chart.getBarSpace();
+      const marginPixels = barSpace * RIGHT_MARGIN_BARS;
+      chart.scrollByDistance(-marginPixels, 0);
     }
 
     document.getElementById('locateBtn').onclick = locateToTime;
