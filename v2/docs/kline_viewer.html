@@ -726,10 +726,36 @@
       font-size: 0.85rem;
       color: var(--text-dim);
       cursor: pointer;
+      position: relative;
     }
     .ctx-menu-item:hover {
       background: var(--bg);
       color: var(--text);
+    }
+    .ctx-menu-item.has-submenu::after {
+      content: '▶';
+      position: absolute;
+      right: 10px;
+      font-size: 0.7rem;
+    }
+    .ctx-submenu {
+      position: absolute;
+      left: 100%;
+      top: -5px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px 0;
+      min-width: 140px;
+      display: none;
+      z-index: 101;
+    }
+    .ctx-menu-item.has-submenu:hover .ctx-submenu {
+      display: block;
+    }
+    .ctx-submenu .ctx-menu-item {
+      padding: 5px 14px;
+      font-size: 0.8rem;
     }
   </style>
 </head>
@@ -792,10 +818,15 @@
 
     <div class="ctx-menu" id="ctxMenu">
       <div class="ctx-menu-item" id="ctxCopyTime">复制当前时间</div>
-      <div class="ctx-menu-item" id="ctxMarkBsl">标记 BSL</div>
-      <div class="ctx-menu-item" id="ctxMarkSsl">标记 SSL</div>
-      <div class="ctx-menu-item" id="ctxMarkFvg">标记 FVG</div>
-      <div class="ctx-menu-item" id="ctxMarkOb">标记 OB</div>
+      <div class="ctx-menu-item has-submenu" id="ctxMarkPda">
+        标记 PDA
+        <div class="ctx-submenu" id="ctxMarkSubmenu">
+          <div class="ctx-menu-item" id="ctxMarkBsl">BSL</div>
+          <div class="ctx-menu-item" id="ctxMarkSsl">SSL</div>
+          <div class="ctx-menu-item" id="ctxMarkFvg">FVG</div>
+          <div class="ctx-menu-item" id="ctxMarkOb">OB</div>
+        </div>
+      </div>
     </div>
   </div>
 
