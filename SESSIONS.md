@@ -1,5 +1,182 @@
 # 开发会话记录
 
+## 2026-05-10 早上 - GitHub 仓库创建 & FVG 扩展隐性累加修复
+
+### 背景
+用户希望：
+1. 创建 GitHub 私有仓库并推送代码
+2. 修复 FVG 扩展到最右端后的隐性累加问题
+
+### 完成的工作
+
+#### 1. GitHub 仓库创建与推送 ✅
+- **目标**：创建私有仓库 `nq-backtesting` 并推送 70 个本地提交
+
+- **遇到的问题**：
+  1. 第一个 token 缺少 `repo` 权限，无法创建仓库
+  2. 推送时遇到大文件问题（`archive/` 目录 678MB）
+  3. GitHub 拒绝超过 100MB 的文件
+
+- **解决方案**：
+  1. 用户重新生成具有完整 `repo` 权限的 token
+  2. 使用 `git filter-branch` 从历史中移除 `archive/` 目录
+  3. 强制推送清理后的历史
+
+- **操作步骤**：
+  ```bash
+  # 1. 重命名旧远程仓库
+  git remote rename origin old-origin
+  
+  # 2. 添加新远程仓库
+  git remote add origin https://github.com/luosangjinba/nq-backtesting.git
+  
+  # 3. 清理大文件历史
+  git filter-branch --force --index-filter \
+    'git rm -rf --cached --ignore-unmatch archive/' \
+    --prune-empty --tag-name-filter cat -- --all
+  
+  # 4. 强制推送
+  git push -u origin main --force
+  ```
+
+- **结果**：
+  - 仓库地址：https://github.com/luosangjinba/nq-backtesting
+  - 推送成功：70 个提交（清理后重写为 92 个提交）
+  - 仓库类型：Private
+  - 已清理 token 凭证
+
+- **安全提醒**：
+  - 已删除本地存储的 token（`~/.git-credentials`）
+  - 建议用户立即撤销对话中暴露的 token
+
+#### 2. FVG 扩展隐性累加问题修复 ✅
+- **问题描述**：
+  - FVG 扩展到 K 线最右端时，视觉上停止扩展
+  - 但后台 `extendBars` 值继续累加（隐性扩展）
+  - 增加 K 线后，隐性累加的扩展会突然显示出来
+
+- **根本原因**：
+  ```javascript
+  // 旧代码
+  pda.extendBars = (pda.extendBars || 0) + extendBars;  // 无限制累加
+  
+  // 绘制时
+  const endIdx5 = Math.min(idx + 4 + extendBars, candleData.length - 1);
+  ```
+  - `extendBars` 无限制累加
+  - 绘制时用 `Math.min()` 限制在最后一根 K 线
+  - 当 `candleData.length` 增加时，之前累加的值会显示出来
+
+- **解决方案**（`v2/docs/kline_viewer.html` 第 1676-1711 行）：
+  ```javascript
+  function extendFvg(fvgInfo, extendBars) {
+    // 1. 计算最大可扩展值
+    const fvgStartIdx = findBarIndex(lastCandleData, ...);
+    const maxPossibleExtend = lastCandleData.length - 1 - fvgStartIdx - 4;
+    
+    // 2. 限制扩展值
+    const currentExtend = pda.extendBars || 0;
+    const newExtend = currentExtend + extendBars;
+    pda.extendBars = Math.min(newExtend, Math.max(0, maxPossibleExtend));
+    
+    // 3. 计算实际扩展量
+    const actualAdded = pda.extendBars - currentExtend;
+    
+    // 4. 智能提示
+    if (actualAdded > 0) {
+      toast(`FVG 已扩展 ${actualAdded} 根 K 线（总计 ${pda.extendBars} 根）`, 'success');
+    } else if (actualAdded === 0 && newExtend > maxPossibleExtend) {
+      toast(`FVG 已到达最右端，无法继续扩展`, 'warning');
+    } else {
+      toast(`FVG 扩展已达上限（${pda.extendBars} 根）`, 'info');
+    }
+  }
+  ```
+
+- **关键改进**：
+  1. **限制扩展值**：不超过当前可见范围
+  2. **计算实际扩展量**：用于准确提示
+  3. **智能提示**：
+     - 成功扩展：显示实际扩展的根数
+     - 到达最右端：提示"无法继续扩展"
+     - 已达上限：提示当前扩展根数
+
+- **测试场景**：
+  1. 扩展 FVG 到最右端 → 提示"已到达最右端"
+  2. 再次点击"扩展 10 根" → 提示"无法继续扩展"
+  3. 增加 K 线 → FVG 矩形框保持原位，不会突然延伸
+
+- **创建文档**：
+  - `v2/FVG_EXTENSION_FIX.md` (180 行) - 问题分析、解决方案、测试验证
+
+### 文件修改
+- `v2/docs/kline_viewer.html` (+28 行，-3 行)
+- `v2/FVG_EXTENSION_FIX.md` (新建，180 行)
+- `.gitignore` (新建) - 忽略 API 运行时文件和临时目录
+- `CLAUDE.md` (新建) - 项目指导文档
+- `REPLAY_IMPROVEMENTS.md` (新建) - 回放功能改进记录
+- `v2/KLINE_DENSITY.md` (新建) - Y 轴密度压缩说明
+- `v2/REPLAY_SUMMARY.md` (新建) - 回放功能完整总结
+- `v2/README_REPLAY.md` (新建) - 回放功能 README
+- `v2/docs/FVG_EXTENSION_USAGE.md` (新建) - FVG 扩展使用说明
+- `v2/ANCHOR_*.md` (新建 5 个) - 锚点功能开发记录
+- `v2/CHART_HEIGHT.md`, `v2/MARGIN_FIX.md`, `v2/SIMPLE_FIX.md`, `v2/TRADINGVIEW_REPLAY.md` (新建)
+
+### Git 提交
+1. `01c43cf` - 文档：添加项目指导文档和功能说明
+2. `7f606df` - 文档：添加开发过程记录文档
+3. `ced9210` - 修复：FVG 扩展到最右端后隐性累加问题
+
+### 技术细节
+
+#### Git 历史清理
+```bash
+# 使用 git filter-branch 移除大文件
+git filter-branch --force --index-filter \
+  'git rm -rf --cached --ignore-unmatch archive/' \
+  --prune-empty --tag-name-filter cat -- --all
+
+# 效果：
+# - 从所有提交历史中移除 archive/ 目录
+# - 重写提交哈希
+# - 减少仓库体积（678MB → 0）
+```
+
+#### FVG 扩展限制算法
+```javascript
+// 最大可扩展值 = 最后一根K线索引 - FVG起始索引 - FVG固定4根
+maxPossibleExtend = candleData.length - 1 - fvgStartIdx - 4
+
+// 限制扩展值
+pda.extendBars = Math.min(newExtend, Math.max(0, maxPossibleExtend))
+
+// 实际扩展量
+actualAdded = pda.extendBars - currentExtend
+```
+
+### 当前状态
+- **工作区状态**：
+  - 已提交：3 个新提交（01c43cf, 7f606df, ced9210）
+  - 本地分支领先 origin/main 3 个提交
+  - 未跟踪文件：数据文件、缓存、归档输出
+- **远程仓库**：
+  - 已推送：70 个提交（清理后）
+  - 仓库地址：https://github.com/luosangjinba/nq-backtesting
+  - 仓库类型：Private
+
+### 下一步计划
+**立即执行**：
+1. 测试 FVG 扩展修复效果
+2. 推送最新的 3 个提交到远程仓库
+3. 撤销对话中暴露的 GitHub token
+
+**近期执行**：
+1. Manual PDA 入库收口
+2. YAML 入库收口
+3. AgentMemory 测试和验证
+
+---
+
 ## 2026-05-09 晚上 - AgentMemory 集成 & Manual PDA 预览优化
 
 ### 背景
