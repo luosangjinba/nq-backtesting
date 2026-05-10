@@ -819,15 +819,27 @@
 
     <div class="ctx-menu" id="ctxMenu">
       <div class="ctx-menu-item" id="ctxCopyTime">复制当前时间</div>
+
+      <!-- Extend FVG submenu (hidden by default) -->
+      <div class="ctx-menu-item has-submenu" id="ctxExtendFvg" style="display:none">
+        扩展 FVG
+        <div class="ctx-submenu" id="ctxExtendFvgSubmenu">
+      <div class="ctx-menu-item" data-extend-bars="5">扩展 5 根</div>
+          <div class="ctx-menu-item" data-extend-bars="10">扩展 10 根</div>
+          <div class="ctx-menu-item" data-extend-bars="20">扩展 20 根</div>
+        <div class="ctx-menu-item" id="ctxExtendFvgToCurrent">扩展到当前位置</div>
+        </div>
+      </div>
+
       <div class="ctx-menu-item has-submenu" id="ctxMarkPda">
         手动标记 PDA
         <div class="ctx-submenu" id="ctxMarkSubmenu">
           <div class="ctx-menu-item" id="ctxMarkBsl">BSL</div>
           <div class="ctx-menu-item" id="ctxMarkSsl">SSL</div>
           <div class="ctx-menu-item" id="ctxMarkFvg">FVG</div>
-          <div class="ctx-menu-item" id="ctxMarkOb">OB</div>
+     <div class="ctx-menu-item" id="ctxMarkOb">OB</div>
         </div>
-      </div>
+   </div>
     </div>
   </div>
 
@@ -1149,6 +1161,7 @@
     let onDataReadyHandler = null;
     let yAxisWheelHandler = null;
     let obSelectionState = null; // { startIndex, startTime, startBar }
+    let clickedFvg = null;  // Track right-clicked FVG for extension
 
     // Replay state
     let replayState = {
@@ -1621,6 +1634,81 @@
       toast(`已清除所有预览（${count} 个）`, 'info');
     }
 
+    // ── FVG Extension Functions ──
+    function getFvgAtCrosshair() {
+      if (!lastCandleData || crosshairBarIndex < 0) return null;
+
+      const bar = lastCandleData[crosshairBarIndex];
+      // Estimate price from crosshair position (approximate)
+      const candidates = [];
+
+      // Check Auto PDA
+      if (currentPda && currentPda.pdaType === 'fvg') {
+        if (isFvgAtPosition(currentPda, crosshairBarIndex)) {
+          candidates.push({ pda: currentPda, source: 'auto' });
+      }
+      }
+
+      // Check Manual PDAs
+      for (const pda of manualPreviewPdas) {
+        if (pda.pdaType === 'fvg' && isFvgAtPosition(pda, crosshairBarIndex)) {
+          candidates.push({ pda, source: 'manual' });
+        }
+      }
+
+      // Return the first candidate (or closest if multiple)
+      return candidates[0] || null;
+    }
+
+    function isFvgAtPosition(fvg, barIndex) {
+      if (!fvg || !lastCandleData) return false;
+
+      const fvgStartIdx = findBarIndex(lastCandleData, timeToTimestamp(fvg.anchorTime || fvg.occurrenceTime) * 1000);
+      if (fvgStartIdx < 0) return false;
+
+      const extendBars = fvg.extendBars || 0;
+      const fvgEndIdx = Math.min(fvgStartIdx + 4 + extendBars, lastCandleData.length - 1);
+
+      // Check if barIndex is within FVG range
+      return barIndex >= fvgStartIdx - 1 && barIndex <= fvgEndIdx;
+    }
+
+    function extendFvg(fvgInfo, extendBars) {
+      if (!fvgInfo) return;
+
+      const { pda, source } = fvgInfo;
+      pda.extendBars = (pda.extendBars || 0) + extendBars;
+
+      // Update in preview list if it's a manual PDA
+      if (source === 'manual') {
+        const index = manualPreviewPdas.findIndex(p => p === pda);
+        if (index >= 0) {
+          manualPreviewPdas[index] = { ...pda };
+        }
+      }
+
+      drawAllOverlays();
+      toast(`FVG 已扩展 ${extendBars} 根 K 线（总计 ${pda.extendBars} 根）`, 'success');
+    }
+
+    function extendFvgToCurrent(fvgInfo) {
+      if (!fvgInfo || crosshairBarIndex < 0) return;
+
+      const { pda } = fvgInfo;
+      const fvgStartIdx = findBarIndex(lastCandleData, timeToTimestamp(pda.anchorTime || pda.occurrenceTime) * 1000);
+      if (fvgStartIdx < 0) return;
+
+      const currentExtend = pda.extendBars || 0;
+      const targetExtend = crosshairBarIndex - fvgStartIdx - 4;
+
+      if (targetExtend > currentExtend) {
+        const additionalBars = targetExtend - currentExtend;
+        extendFvg(fvgInfo, additionalBars);
+      } else {
+      toast('当前位置在 FVG 范围内或之前', 'warning');
+      }
+    }
+
     function updatePreviewButtonState() {
       const btn = document.getElementById('manualPreviewOverlayBtn');
       if (!btn) return;
@@ -1956,7 +2044,8 @@
         const priceBottom = pda.extraFields?.price_bottom || pda.extraFields?.priceBottom || pda.priceLow;
         const direction = (pda.direction || '').toLowerCase();
         const startIdx = Math.max(idx - 1, 0);
-        const endIdx5 = Math.min(idx + 4, candleData.length - 1);
+        const extendBars = pda.extendBars || 0;  // Support FVG extension
+        const endIdx5 = Math.min(idx + 4 + extendBars, candleData.length - 1);
         if (priceTop && priceBottom) {
           overlays.push({
             name: 'fvgZone',
@@ -3384,6 +3473,15 @@
     const ctxMenu = document.getElementById('ctxMenu');
 
     function showCtxMenu(x, y) {
+      // Check if clicking on a FVG
+      clickedFvg = getFvgAtCrosshair();
+      const extendFvgMenu = document.getElementById('ctxExtendFvg');
+      if (clickedFvg) {
+        extendFvgMenu.style.display = 'block';
+      } else {
+        extendFvgMenu.style.display = 'none';
+      }
+
       ctxMenu.style.left = x + 'px';
       ctxMenu.style.top = y + 'px';
       ctxMenu.style.display = 'block';
@@ -3517,10 +3615,23 @@
 
     document.getElementById('ctxMarkBsl').onclick = () => markPdaFromChart('bsl');
     document.getElementById('ctxMarkSsl').onclick = () => markPdaFromChart('ssl');
-    document.getElementById('ctxMarkFvg').onclick = () => markPdaFromChart('fvg');
+  document.getElementById('ctxMarkFvg').onclick = () => markPdaFromChart('fvg');
     document.getElementById('ctxMarkOb').onclick = () => {
       // Start OB range selection
       startObSelection();
+    };
+
+    // Extend FVG menu bindings
+    document.querySelectorAll('#ctxExtendFvgSubmenu [data-extend-bars]').forEach(item => {
+      item.onclick = () => {
+        const bars = parseInt(item.getAttribute('data-extend-bars'), 10);
+        extendFvg(clickedFvg, bars);
+      hideCtxMenu();
+      };
+    });
+    document.getElementById('ctxExtendFvgToCurrent').onclick = () => {
+      extendFvgToCurrent(clickedFvg);
+      hideCtxMenu();
     };
 
     function startObSelection() {
