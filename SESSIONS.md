@@ -1,5 +1,142 @@
 # 开发会话记录
 
+## 2026-05-10 下午 - OB 矩形框绘制修复 & FVG 显示优化
+
+### 背景
+用户反馈：
+1. OB 区域没有在图表中绘制成矩形框
+2. 右键添加 OB 后希望自动显示矩形框
+3. FVG 矩形框会和 K 线影线混淆
+4. 希望 FVG 改为左右开口矩形，中央显示周期标签
+
+### 完成的工作
+
+#### 1. OB 矩形框绘制修复 ✅
+
+**问题诊断**：
+- 数据库中没有 OB 类型的 PDA（OB 是手动添加的，不是自动扫描的）
+- 代码中价格字段读取错误：查找 `extraFields.price_top/price_bottom`，但实际数据在 `priceHigh/priceLow`
+- OB 起始时间计算错误：使用 `anchorTime` 而不是 `start_time`
+
+**修复内容**：
+1. **价格字段修复**：
+   ```javascript
+   // 修复前
+   const priceTop = pda.extraFields?.price_top || pda.extraFields?.priceTop || pda.priceHigh;
+   
+   // 修复后
+   const priceTop = pda.priceHigh;
+   ```
+
+2. **起始时间修复**：
+   ```javascript
+   // 对于 OB 类型，优先使用 start_time
+   if (pdaType === 'ob' && pda.extraFields?.start_time) {
+     pdaTimeSec = timeToTimestamp(pda.extraFields.start_time);
+   } else {
+     pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+   }
+   ```
+
+3. **同时修复了 FVG 的价格字段读取**
+
+#### 2. 右键添加 OB 自动预览 ✅
+
+**功能实现**：
+- 在 `completeObSelection()` 函数中，`autoFillObRange()` 成功后自动调用 `previewManualOverlay()`
+- 用户体验：右键选择起点 → Shift+右键选择终点 → 自动预览矩形框
+
+**使用方法**：
+1. 在图表上右键点击 OB 起始位置 → 选择 "标记 OB"
+2. 按住 **Shift**，右键点击 OB 结束位置
+3. 系统自动填充时间、价格、方向，并预览 OB 矩形框
+
+#### 3. FVG 检测失败提示优化 ✅
+
+**问题**：
+- 当三根 K 线未形成 FVG 时，自动预览会抛出 "FVG 需要方向" 错误
+
+**修复**：
+```javascript
+// 在自动预览时捕获错误，静默跳过
+setTimeout(() => {
+  try {
+    previewManualOverlay();
+  } catch (err) {
+    console.log('Preview skipped:', err.message);
+  }
+}, 100);
+```
+
+#### 4. FVG 显示方式优化 ✅
+
+**需求变更过程**：
+1. **第一版**：双虚线边界（上下两条水平虚线）
+2. **最终版**：左右开口矩形 + 中央标签
+
+**最终实现**：
+- **左右开口矩形**：只有上下两条虚线，没有左右竖线
+- **扩展范围**：
+  - 前扩展：1 根 K 线（`idx - 1`）
+  - 后扩展：5 根 K 线（`idx + 4`，默认）
+  - 支持自定义扩展（`extendBars` 字段）
+- **中央标签**：显示周期（如 "1H"），不显示 "FVG" 前缀
+- **颜色区分**：
+  - Bullish：金色 (#c8aa32)
+  - Bearish：红色 (#b43c3c)
+
+**技术实现**：
+```javascript
+// fvgZone overlay 注册
+klinecharts.registerOverlay({
+  name: 'fvgZone',
+  createPointFigures: ({ overlay, coordinates }) => {
+    // 绘制上边界线
+    figs.push({
+      type: 'line',
+      attrs: { coordinates: [{ x: x1, y: y1 }, { x: x2, y: y1 }] },
+      styles: { style: 'dashed', color: lineColor, size: 1, dashedValue: [4, 4] }
+    });
+    
+    // 绘制下边界线
+    figs.push({
+      type: 'line',
+      attrs: { coordinates: [{ x: x1, y: y2 }, { x: x2, y: y2 }] },
+      styles: { style: 'dashed', color: lineColor, size: 1, dashedValue: [4, 4] }
+    });
+    
+    // 绘制中央标签
+    figs.push({
+      type: 'text',
+      attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' }
+    });
+  }
+});
+```
+
+### 提交记录
+
+```bash
+a1bb852 修复：OB 矩形框绘制 & 右键添加自动预览
+2787d7c 优化：FVG 显示方式改为双虚线边界
+26eece1 优化：FVG 显示为左右开口矩形 + 中央标签
+```
+
+### 结果
+- ✅ OB 矩形框正确显示
+- ✅ 右键添加 OB 自动预览
+- ✅ FVG 显示为左右开口矩形，不影响 K 线影线观感
+- ✅ FVG 中央显示周期标签，信息清晰
+- ✅ 所有 PDA 类型绘制逻辑统一优化
+
+### 经验总结
+1. **数据结构理解**：修复前需要先理解数据的实际存储结构
+2. **用户体验优先**：自动预览功能大幅提升操作流畅度
+3. **视觉设计迭代**：根据实际使用反馈快速调整显示方式
+4. **代码健壮性**：添加错误捕获，避免误导性提示
+
+---
+
 ## 2026-05-10 下午 - Lightweight Charts 迁移尝试与回退
 
 ### 背景
