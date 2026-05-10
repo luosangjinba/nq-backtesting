@@ -2067,30 +2067,60 @@
         }
       } else if (pdaType === 'fvg') {
         const priceTop = pda.priceHigh;
-     const priceBottom = pda.priceLow;
+        const priceBottom = pda.priceLow;
         const direction = (pda.direction || '').toLowerCase();
-        const startIdx = Math.max(idx - 1, 0);
-        const extendBars = pda.extendBars || 0;  // Support FVG extension
-        const endIdx5 = Math.min(idx + 4 + extendBars, candleData.length - 1);
+        const isBullish = direction === 'bullish';
+        const lineColor = isBullish ? '#c8aa32' : '#b43c3c';
+        const labelColor = isBullish ? '#c8aa32' : '#b43c3c';
+
         if (priceTop && priceBottom) {
+          // Draw top boundary line
           overlays.push({
-            name: 'fvgZone',
-            points: [
-              { timestamp: candleData[startIdx].timestamp, value: priceTop },
-              { timestamp: candleData[endIdx5].timestamp, value: priceBottom },
-            ],
-            extendData: { timeframe: pda.timeframe || '1H', direction: direction },
+          name: 'horizontalStraightLine',
+            points: [{ timestamp: bar.timestamp, value: priceTop }],
+            styles: {
+              line: {
+                color: lineColor,
+                style: 'dashed',
+                size: 1,
+                dashedValue: [4, 4]
+              }
+            },
             lock: true,
+          });
+
+          // Draw bottom boundary line
+      overlays.push({
+            name: 'horizontalStraightLine',
+            points: [{ timestamp: bar.timestamp, value: priceBottom }],
+            styles: {
+              line: {
+                color: lineColor,
+             style: 'dashed',
+            size: 1,
+                dashedValue: [4, 4]
+            }
+            },
+            lock: true,
+      });
+
+          // Draw label at the anchor point
+        const labelText = `FVG ${pda.timeframe || '1H'}`;
+          overlays.push({
+          name: 'circleMarker',
+            points: [{ timestamp: bar.timestamp, value: isBullish ? priceBottom : priceTop }],
+        extendData: { color: labelColor, label: labelText, above: !isBullish },
+         lock: true,
           });
         } else {
-          const fvgColor = direction === 'bullish' ? '#c8aa32' : '#b43c3c';
+          const fvgColor = isBullish ? '#c8aa32' : '#b43c3c';
           overlays.push({
             name: 'circleMarker',
-            points: [{ timestamp: bar.timestamp, value: bar.high }],
+          points: [{ timestamp: bar.timestamp, value: bar.high }],
             extendData: { color: fvgColor, label: 'FVG', above: true },
-            lock: true,
+         lock: true,
           });
-        }
+      }
       } else if (pdaType === 'ob') {
         const priceTop = pda.priceHigh;
     const priceBottom = pda.priceLow;
