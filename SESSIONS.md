@@ -1,5 +1,58 @@
 # 开发会话记录
 
+## 2026-05-10 下午 - Lightweight Charts 迁移尝试与回退
+
+### 背景
+尝试将 kline_viewer 从 KLineCharts 迁移到 Lightweight Charts，以获得更好的性能和更现代的 API。
+
+### 迁移过程
+
+#### 1. 迁移准备 ✅
+- 创建 `feature/lightweight-charts` 分支
+- 引入 Lightweight Charts v4.2.0
+- 创建 `lwc_pda_renderer.js` 模块
+#### 2. 遇到的问题 ❌
+- **FVG 绘制问题**：Lightweight Charts 的 `ISeriesPrimitive` API 与 KLineCharts 的 overlay 系统差异很大
+- **时间坐标转换**：需要手动处理时间戳到逻辑索引的映射
+- **扩展矩形绘制**：无法直接绘制延伸到最右端的矩形（需要复杂的坐标计算）
+- **API 复杂度**：相比 KLineCharts 的声明式 API，Lightweight Charts 需要更多底层绘制代码
+
+#### 3. 决策：回退到 KLineCharts ✅
+- **原因**：
+  1. KLineCharts 的 overlay 系统更适合 PDA 叠加层场景
+  2. 迁移成本高，收益不明确
+  3. 当前 KLineCharts 版本功能已满足需求
+  
+- **操作**：
+  ```bash
+  # 丢弃未提交修改
+  git restore v2/docs/kline_viewer.html v2/docs/lwc_pda_renderer.js
+  
+  # 删除分支
+  git checkout main
+  git branch -D feature/lightweight-charts
+  
+  # 清理临时文件
+  rm -f v2/docs/lwc_pda_renderer*.js*
+  rm -f v2/docs/FVG_DRAWING_GUIDE.md
+  rm -f v2/docs/test_*.html
+  rm -f v2/docs/kline_viewer_lwc*.html
+  rm -f v2/docs/LWC_*.md
+  ```
+
+### 结果
+- ✅ 成功回退到 main 分支
+- ✅ 清理所有 Lightweight Charts 相关文件
+- ✅ 保持 KLineCharts v9.8.12 版本
+- ✅ 工作区干净
+
+### 经验教训
+1. **技术选型需谨慎**：迁移前应充分评估 API 差异和迁移成本
+2. **保持简单**：当前方案已满足需求时，不要过早优化
+3. **分支管理**：使用 feature 分支进行实验性开发，便于回退
+
+---
+
 ## 2026-05-10 早上 - GitHub 仓库创建 & FVG 扩展修复 & 时间显示优化探索
 
 ### 背景
