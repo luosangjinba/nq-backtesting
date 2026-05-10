@@ -1,5 +1,234 @@
 # 开发会话记录
 
+## 2026-05-09 晚上 - AgentMemory 集成 & Manual PDA 预览优化
+
+### 背景
+用户希望：
+1. 将 AgentMemory MCP 服务器集成到项目，建立持久化知识库
+2. 优化 Manual PDA 预览标注功能的交互体验
+3. 修复预览标注时的 UI 问题
+
+### 完成的工作
+
+#### 1. AgentMemory 集成 ✅
+- **目标**：建立跨会话的持久化知识库，使用语义搜索快速检索项目知识
+
+- **验证服务状态**：
+  - AgentMemory 服务运行在 `localhost:3111`
+  - MCP 配置正确：`~/.claude/.mcp.json` 第 71-80 行
+  - 进程确认：`ps aux | grep agentmemory` 显示多个进程运行中
+
+- **录入核心知识**（通过 HTTP API）：
+  1. **项目概览** - NQ 期货 ICT 回测系统定位、研究窗口、核心原则
+  2. **技术架构** - Layer 0/1/1.5/2 数据模型、后端/前端技术栈
+  3. **设计原则** - 时间优先、9:29 观察点、研究窗口、自动化范围
+  4. **PDA 类型** - 时间周期、点/区间/复合类型、自动检测 vs 手工录入
+  5. **操作命令** - API/前端服务器、数据管道、导入查询流程
+  6. **数据库结构** - DuckDB/PostgreSQL/SQLite、核心表、Schema 文件
+  7. **数据标准和约束** - 格式规范、计算口径、禁止事项、合规要求
+
+- **创建文档**：
+  - `AGENTMEMORY_INTEGRATION.md` (148 行) - 集成状态、已录入知识清单、下一步计划
+  - `AGENTMEMORY_USAGE.md` (179 行) - 使用方式说明（隐式 vs 显式）、与 Claude Code 自动记忆的对比
+
+- **更新计划**：
+  - `v2/docs/PLAN.md` - 新增 AgentMemory 知识库建设章节（4 个阶段）
+  - 更新版本规划：v2.1.5（AgentMemory 集成）
+  - 重组优先级总览：本周/本月/下月/季度
+  - 新增更新日志
+
+- **技术架构**：
+  ```
+  Claude Code
+      ↓ (MCP 协议)
+  AgentMemory MCP Server (localhost:3111)
+      ↓ (iii-engine WebSocket)
+  iii-engine (port 49134)
+      ↓
+  SQLite 数据库 (./data/state_store.db)
+  ```
+
+- **关键特性**：
+  - 51 个 MCP 工具自动暴露
+  - 95.2% 检索准确率 (R@5)
+  - 92% Token 节省
+  - 隐式使用，无需手动调用
+
+#### 2. Manual PDA 预览功能优化 ✅
+- **问题**：预览标注按钮只能预览，无法清除，需要重置表单才能清除
+
+- **方案选择**：
+  - 方案 A：独立的"删除标注"按钮
+  - 方案 B：单按钮状态切换（预览 ↔ 清除）
+  - **选择方案 B**：节省空间、状态清晰、符合交互直觉
+
+- **实现内容**（`v2/docs/kline_viewer.html`）：
+  1. **新增 `toggleManualPreview()` 函数**（第 1527-1535 行）
+     - 检查 `manualPreviewPda` 状态
+     - 有预览则清除，无预览则显示
+  
+  2. **增强 `previewManualOverlay()` 函数**（第 1537-1550 行）
+     - 添加 `updatePreviewButtonState()` 调用
+     - 预览后更新按钮状态
+  
+  3. **增强 `clearManualPreview()` 函数**（第 1552-1560 行）
+     - 添加 `updatePreviewButtonState()` 调用
+     - 添加提示消息：`已清除预览标注`
+  
+  4. **新增 `updatePreviewButtonState()` 函数**（第 1562-1574 行）
+     - 根据 `manualPreviewPda` 状态更新按钮
+     - 有预览：文字"清除标注"，添加 `btn-danger` 类（红色）
+     - 无预览：文字"预览标注"，移除 `btn-danger` 类
+  
+  5. **修改按钮事件绑定**（第 3281 行）
+     - 从 `previewManualOverlay` 改为 `toggleManualPreview`
+
+- **视觉效果**：
+  - 初始状态：按钮显示"预览标注"（默认样式）
+  - 预览状态：按钮显示"清除标注"（红色边框和文字）
+
+- **创建文档**：
+  - `v2/docs/MANUAL_PREVIEW_TOGGLE.md` (168 行) - 功能说明、使用场景、技术实现
+
+#### 3. 预览标注行为修复 ✅
+- **问题**：点击预览标注时，图表自动定位到 PDA（右边缘 25 根 K 线），用户体验不佳
+
+- **解决方案**：
+  - 移除 `previewManualOverlay()` 中的 `centerOnPda(manualPreviewPda, lastCandleData)` 调用（第 1544 行）
+  - 添加注释：`// Don't auto-center on preview - keep current chart position`
+  - 预览时保持当前图表位置不变
+
+- **新的交互方式**：
+  - 点击"预览标注" → 在当前视图显示标注，图表位置不变
+  - 如需定位 + 预览：先点击"按时间定位图表"，再点击"预览标注"
+
+- **文档更新**：
+  - `v2/docs/MANUAL_PREVIEW_TOGGLE.md` - 更新交互说明和技术实现
+
+#### 4. 工具栏布局抖动修复 ✅
+- **问题**：预览标注时，右上角 PDA Badge 显示导致工具栏第二行被撑高，下方图表区域向下移动
+
+- **根本原因**：
+  - `toolbar-row:last-child` 使用 `min-height: 22px`（第 470 行）
+  - 当 `pdaBadge` 显示时（padding: 3px 10px + 内容），实际高度超过 22px
+  - 容器被撑高，导致页面抖动
+
+- **解决方案**（`v2/docs/kline_viewer.html` 第 469-471 行）：
+  ```css
+  .toolbar-row:last-child {
+    height: 22px;         /* 固定高度，不会被内容撑高 */
+    overflow: visible;    /* 允许内容溢出显示，但不影响布局 */
+  }
+  ```
+
+- **效果**：
+  - 工具栏高度固定，不会被 PDA Badge 撑高
+  - PDA Badge 可以正常显示（溢出部分可见）
+  - 下方图表区域位置稳定，不会抖动
+
+#### 5. 右键菜单文案优化 ✅
+- **问题**："标记 PDA" 语义模糊，不清楚是手动还是自动
+
+- **解决方案**（`v2/docs/kline_viewer.html` 第 823 行）：
+  - 改为"手动标记 PDA"
+  - 明确区分手动标记 vs 自动检测
+
+### 文件修改
+- `AGENTMEMORY_INTEGRATION.md` (新建，148 行)
+- `AGENTMEMORY_USAGE.md` (新建，179 行)
+- `v2/docs/MANUAL_PREVIEW_TOGGLE.md` (新建，168 行)
+- `v2/docs/PLAN.md` (+116 行)
+- `v2/docs/kline_viewer.html` (+38 行，-9 行)
+
+### 技术细节
+
+#### 预览状态管理
+```javascript
+// 状态变量
+let manualPreviewPda = null;  // null = 无预览，object = 有预览
+
+// 切换函数
+function toggleManualPreview() {
+  if (manualPreviewPda) {
+    clearManualPreview();  // 有预览 → 清除
+  } else {
+    previewManualOverlay();  // 无预览 → 显示
+  }
+}
+
+// 按钮状态更新
+function updatePreviewButtonState() {
+  const btn = document.getElementById('manualPreviewOverlayBtn');
+  if (manualPreviewPda) {
+    btn.textContent = '清除标注';
+    btn.classList.add('btn-danger');  // 红色
+  } else {
+    btn.textContent = '预览标注';
+    btn.classList.remove('btn-danger');  // 默认
+  }
+}
+```
+
+#### 固定高度防止抖动
+```css
+/* 之前：最小高度，内容超过时会撑高 */
+.toolbar-row:last-child {
+  min-height: 22px;
+}
+
+/* 现在：固定高度，内容溢出但不撑高 */
+.toolbar-row:last-child {
+  height: 22px;
+  overflow: visible;
+}
+```
+
+#### AgentMemory 数据组织
+- **结构化标签**：strategy, pda_type, timeframe, result
+- **关联引用**：通过 ref_id 关联相关记忆
+- **置信度评分**：标记知识的可靠程度
+- **时间戳**：记录知识的时效性
+
+### Git 提交
+1. `092f79e` - 优化 Manual PDA 预览功能 & 集成 AgentMemory
+2. `827a920` - 修复：预览标注时保持图表位置不变
+3. `b58d0eb` - 修复：预览标注时 PDA Badge 撑高工具栏导致页面抖动
+4. `3d72282` - 优化：右键菜单文案改为"手动标记 PDA"
+
+### 未完成的工作
+- [ ] AgentMemory MCP 工具验证（需要在对话中测试调用）
+- [ ] 测试记忆检索效果（语义搜索准确性、跨会话持久化）
+- [ ] 持续补充交易策略知识库（PDA 模式、入场模型、失败案例）
+- [ ] Manual PDA 入库收口
+- [ ] YAML 入库收口
+
+### 已知问题
+- AgentMemory HTTP API 端点与标准 REST API 不同，需要进一步探索正确的 API 使用方式
+- MCP 工具是否在 Claude Code 中可见，需要实际测试验证
+
+### 当前状态
+- **工作区状态**：
+  - 已提交：4 个提交（092f79e, 827a920, b58d0eb, 3d72282）
+  - 本地分支领先 origin/main 64 个提交
+  - 未跟踪文件：`.api.log`, `.api_pid`, `CLAUDE.md`, 多个 v2/*.md 文档
+- **等待用户**：
+  - 测试 Manual PDA 预览功能
+  - 验证 AgentMemory 集成效果
+  - 决定是否推送到远程仓库
+
+### 下一步计划
+**立即执行（本周）**：
+1. AgentMemory 测试和验证
+2. Manual PDA 入库收口
+3. YAML 入库收口
+
+**近期执行（本月）**：
+1. 数据录入验证（50-100 个 Path）
+2. 交易策略知识库建设
+3. 数据验证与校验功能
+
+---
+
 ## 2026-05-09 下午 - TF切换保持视图 & 移除扩展功能 & 右键菜单优化 & 轴标签颜色调整
 
 ### 背景

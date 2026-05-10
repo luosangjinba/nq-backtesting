@@ -1,17 +1,10 @@
-__pycache__/
-*.pyc
+# API runtime files
+.api.log
+.api_pid
 
-# Local data / database exports
-*.csv
-*.sqlite
-*.db
-*.dump
-*.sql.gz
-*.duckdb
-api.log
-windows_bundle/
-backtesting-images/
-journal_images/
+# Temporary directories
+v2/docs/tmp/
 
-# Local environment files
-.codex
+# Test files (keep in working directory but don't commit)
+test_*.html
+v2/test_*.html
