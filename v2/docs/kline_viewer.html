@@ -944,6 +944,7 @@
           <div class="btn-row wrap">
             <button class="btn-sm" id="manualLocateChartBtn">按时间定位图表</button>
             <button class="btn-sm" id="manualPreviewOverlayBtn">预览标注</button>
+            <button class="btn-sm" id="clearAllPreviewsBtn">清除所有预览</button>
             <button class="btn-sm primary" id="manualSaveBtn">保存 Manual PDA</button>
             <button class="btn-sm" id="manualResetBtn">重置</button>
           </div>
@@ -1140,7 +1141,7 @@
     let chart = null;
     let lastCandleData = null;
     let currentPda = null;
-    let manualPreviewPda = null;
+    let manualPreviewPdas = [];  // Changed from single to array for multiple previews
     let lastMatchResult = null;
     let lastAppliedMerge = null;
     let midnightOverlayIds = [];
@@ -1526,48 +1527,121 @@
     }
 
     function toggleManualPreview() {
-    // If preview is active, clear it
-      if (manualPreviewPda) {
-        clearManualPreview();
-        return;
+      // Check if current form PDA is already previewed
+      try {
+        const currentFormPda = buildPreviewPdaFromManualForm();
+        const existingIndex = manualPreviewPdas.findIndex(p =>
+          p.anchorTime === currentFormPda.anchorTime &&
+          p.pdaType === currentFormPda.pdaType
+        );
+
+        if (existingIndex >= 0) {
+          // Already previewed, remove it
+      clearManualPreview();
+        } else {
+          // Not previewed, add it
+          previewManualOverlay();
+        }
+      } catch (err) {
+        // If form is invalid, just try to preview
+        previewManualOverlay();
       }
-      // Otherwise, show preview
-      previewManualOverlay();
     }
 
     function previewManualOverlay() {
       try {
         if (!chart || !lastCandleData?.length) throw new Error('请先加载图表数据');
-    manualPreviewPda = buildPreviewPdaFromManualForm();
+        const newPda = buildPreviewPdaFromManualForm();
+
+        // Check if already exists (based on time and type)
+        const existingIndex = manualPreviewPdas.findIndex(p =>
+        p.anchorTime === newPda.anchorTime &&
+          p.pdaType === newPda.pdaType
+        );
+
+        if (existingIndex >= 0) {
+        // Update existing preview
+          manualPreviewPdas[existingIndex] = newPda;
+          toast(`已更新预览（${manualPreviewPdas.length} 个）`, 'info');
+        } else {
+          // Add new preview
+          manualPreviewPdas.push(newPda);
+          toast(`已添加预览（${manualPreviewPdas.length} 个）`, 'success');
+        }
+
         currentPda = null;
-     renderPdaBadge(manualPreviewPda);
+        renderPdaBadge(newPda);
         drawAllOverlays();
         // Don't auto-center on preview - keep current chart position
         updatePreviewButtonState();
-        toast('已预览 Manual overlay', 'success');
       } catch (err) {
         toast(`预览失败: ${err.message}`, 'error');
       }
     }
 
     function clearManualPreview() {
-      if (!manualPreviewPda) return;
-      manualPreviewPda = null;
+      if (manualPreviewPdas.length === 0) return;
+
+      // Clear the current form's corresponding preview
+      try {
+        const currentFormPda = buildPreviewPdaFromManualForm();
+        const index = manualPreviewPdas.findIndex(p =>
+          p.anchorTime === currentFormPda.anchorTime &&
+          p.pdaType === currentFormPda.pdaType
+        );
+
+    if (index >= 0) {
+          manualPreviewPdas.splice(index, 1);
+          toast(`已清除预览（剩余 ${manualPreviewPdas.length} 个）`, 'info');
+        }
+      } catch (err) {
+        // If form is invalid, clear the last preview
+        if (manualPreviewPdas.length > 0) {
+          manualPreviewPdas.pop();
+        toast(`已清除预览（剩余 ${manualPreviewPdas.length} 个）`, 'info');
+        }
+      }
+
       if (currentPda) renderPdaBadge(currentPda);
+      else if (manualPreviewPdas.length > 0) renderPdaBadge(manualPreviewPdas[manualPreviewPdas.length - 1]);
       else renderPdaBadge(null);
+
       drawAllOverlays();
       updatePreviewButtonState();
-      toast('已清除预览标注', 'info');
+  }
+
+    function clearAllManualPreviews() {
+      if (manualPreviewPdas.length === 0) return;
+      const count = manualPreviewPdas.length;
+      manualPreviewPdas = [];
+      if (currentPda) renderPdaBadge(currentPda);
+    else renderPdaBadge(null);
+      drawAllOverlays();
+      updatePreviewButtonState();
+      toast(`已清除所有预览（${count} 个）`, 'info');
     }
 
     function updatePreviewButtonState() {
       const btn = document.getElementById('manualPreviewOverlayBtn');
       if (!btn) return;
-      if (manualPreviewPda) {
-        btn.textContent = '清除标注';
-        btn.classList.add('btn-danger');
-      } else {
-     btn.textContent = '预览标注';
+
+      try {
+        const currentFormPda = buildPreviewPdaFromManualForm();
+        const isCurrentPreviewed = manualPreviewPdas.some(p =>
+          p.anchorTime === currentFormPda.anchorTime &&
+          p.pdaType === currentFormPda.pdaType
+        );
+
+        if (isCurrentPreviewed) {
+    btn.textContent = '清除标注';
+          btn.classList.add('btn-danger');
+        } else {
+          btn.textContent = '预览标注';
+          btn.classList.remove('btn-danger');
+        }
+      } catch (err) {
+        // If form is invalid, show preview button
+        btn.textContent = '预览标注';
         btn.classList.remove('btn-danger');
       }
     }
@@ -2031,13 +2105,19 @@
 
       const overlays = [];
       overlays.push(...buildSEOverlays(lastCandleData));
-      const overlayPda = manualPreviewPda || currentPda;
-      if (overlayPda) {
-        overlays.push(...buildPdaOverlays(overlayPda, lastCandleData));
+
+      // Draw Auto PDA (from PDA List)
+      if (currentPda) {
+        overlays.push(...buildPdaOverlays(currentPda, lastCandleData));
+      }
+
+      // Draw all Manual PDA previews
+      for (const pda of manualPreviewPdas) {
+        overlays.push(...buildPdaOverlays(pda, lastCandleData));
       }
 
       for (const ov of overlays) {
-        ov.groupId = OVERLAY_GROUP;
+      ov.groupId = OVERLAY_GROUP;
         chart.createOverlay(ov);
       }
     }
@@ -2860,7 +2940,8 @@
       if (!row) { toast('请先选择 PDA', 'error'); return; }
       if (!isManualPda(row)) { toast('只能编辑 Manual PDA', 'error'); return; }
 
-      manualPreviewPda = null;
+      // Clear all previews when editing
+      manualPreviewPdas = [];
       panelEditingPdaId = row.pdaId;
       document.getElementById('manualPdaType').value = row.pdaType || 'bsl';
       document.getElementById('manualPdaTF').value = row.timeframe || '1H';
@@ -3283,6 +3364,7 @@
       toast(`已取值 ${direction} OB：${priceHigh} / ${priceLow}（${barCount}根${tfSpec.label}）`, 'success');
     }
     document.getElementById('manualPreviewOverlayBtn').onclick = toggleManualPreview;
+    document.getElementById('clearAllPreviewsBtn').onclick = clearAllManualPreviews;
 
     function tfToMinutes(tf) {
       const map = { '1M': '1', '5M': '5', '15M': '15', '30M': '30', '1H': '60', '4H': '240', D: '1440', '1W': '10080' };
