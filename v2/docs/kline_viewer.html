@@ -1524,6 +1524,16 @@
       return preview;
     }
 
+    function toggleManualPreview() {
+    // If preview is active, clear it
+      if (manualPreviewPda) {
+        clearManualPreview();
+        return;
+      }
+      // Otherwise, show preview
+      previewManualOverlay();
+    }
+
     function previewManualOverlay() {
       try {
         if (!chart || !lastCandleData?.length) throw new Error('请先加载图表数据');
@@ -1532,6 +1542,7 @@
         renderPdaBadge(manualPreviewPda);
         drawAllOverlays();
         centerOnPda(manualPreviewPda, lastCandleData);
+        updatePreviewButtonState();
         toast('已预览 Manual overlay', 'success');
       } catch (err) {
         toast(`预览失败: ${err.message}`, 'error');
@@ -1544,6 +1555,20 @@
       if (currentPda) renderPdaBadge(currentPda);
       else renderPdaBadge(null);
       drawAllOverlays();
+      updatePreviewButtonState();
+      toast('已清除预览标注', 'info');
+    }
+
+    function updatePreviewButtonState() {
+      const btn = document.getElementById('manualPreviewOverlayBtn');
+      if (!btn) return;
+      if (manualPreviewPda) {
+        btn.textContent = '清除标注';
+        btn.classList.add('btn-danger');
+      } else {
+     btn.textContent = '预览标注';
+        btn.classList.remove('btn-danger');
+      }
     }
 
     function comparableManualPrice(manual) {
@@ -3256,7 +3281,7 @@
 
       toast(`已取值 ${direction} OB：${priceHigh} / ${priceLow}（${barCount}根${tfSpec.label}）`, 'success');
     }
-    document.getElementById('manualPreviewOverlayBtn').onclick = previewManualOverlay;
+    document.getElementById('manualPreviewOverlayBtn').onclick = toggleManualPreview;
 
     function tfToMinutes(tf) {
       const map = { '1M': '1', '5M': '5', '15M': '15', '30M': '30', '1H': '60', '4H': '240', D: '1440', '1W': '10080' };
