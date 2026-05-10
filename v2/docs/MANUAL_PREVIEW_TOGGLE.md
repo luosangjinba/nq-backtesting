@@ -18,7 +18,8 @@ Manual PDA 工作台的"预览标注"按钮现在支持**状态切换**，可以
 1. 按钮文字变为：**清除标注**
 2. 按钮样式变为：红色边框和文字（danger 样式）
 3. 图表上显示：Manual PDA 的标注（BSL/SSL 点或 FVG/OB 矩形）
-4. 提示消息：`已预览 Manual overlay`
+4. 图表位置：**保持不变**（不自动定位到 PDA）
+5. 提示消息：`已预览 Manual overlay`
 
 ### 点击清除
 1. 按钮文字恢复为：**预览标注**
@@ -80,6 +81,7 @@ function toggleManualPreview() {
 function previewManualOverlay() {
   // 构建预览 PDA 对象
   // 渲染到图表
+  // 不自动定位图表（保持当前视图）
   // 更新按钮状态
   updatePreviewButtonState();
 }
@@ -137,8 +139,9 @@ function updatePreviewButtonState() {
 - 清除预览不影响匹配结果
 
 ### 与图表定位的关系
-- "按时间定位图表" - 只定位，不预览
-- "预览标注" - 定位 + 显示标注
+- "按时间定位图表" - 定位到指定时间，不预览标注
+- "预览标注" - 在当前视图显示标注，**不改变图表位置**
+- 如需定位 + 预览：先点击"按时间定位图表"，再点击"预览标注"
 
 ## 未来增强（可选）
 

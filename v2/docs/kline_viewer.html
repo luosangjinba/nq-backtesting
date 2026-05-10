@@ -1537,11 +1537,11 @@
     function previewManualOverlay() {
       try {
         if (!chart || !lastCandleData?.length) throw new Error('请先加载图表数据');
-        manualPreviewPda = buildPreviewPdaFromManualForm();
+    manualPreviewPda = buildPreviewPdaFromManualForm();
         currentPda = null;
-        renderPdaBadge(manualPreviewPda);
+     renderPdaBadge(manualPreviewPda);
         drawAllOverlays();
-        centerOnPda(manualPreviewPda, lastCandleData);
+        // Don't auto-center on preview - keep current chart position
         updatePreviewButtonState();
         toast('已预览 Manual overlay', 'success');
       } catch (err) {
