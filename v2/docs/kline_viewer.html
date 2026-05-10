@@ -2009,7 +2009,14 @@
       if (!pda || !candleData?.length) return [];
       const overlays = [];
       const pdaType = (pda.pdaType || '').toLowerCase();
-      const pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+
+      // For OB, use start_time as the primary timestamp
+      let pdaTimeSec;
+      if (pdaType === 'ob' && pda.extraFields?.start_time) {
+        pdaTimeSec = timeToTimestamp(pda.extraFields.start_time);
+      } else {
+        pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+    }
       const pdaTimeMs = pdaTimeSec * 1000;
       const pdaTimeEndSec = pda.extraFields?.end_time ? timeToTimestamp(pda.extraFields.end_time) : 0;
       const pdaTimeEndMs = pdaTimeEndSec * 1000;
@@ -2059,8 +2066,8 @@
           });
         }
       } else if (pdaType === 'fvg') {
-        const priceTop = pda.extraFields?.price_top || pda.extraFields?.priceTop || pda.priceHigh;
-        const priceBottom = pda.extraFields?.price_bottom || pda.extraFields?.priceBottom || pda.priceLow;
+        const priceTop = pda.priceHigh;
+     const priceBottom = pda.priceLow;
         const direction = (pda.direction || '').toLowerCase();
         const startIdx = Math.max(idx - 1, 0);
         const extendBars = pda.extendBars || 0;  // Support FVG extension
@@ -2085,9 +2092,11 @@
           });
         }
       } else if (pdaType === 'ob') {
-        const priceTop = pda.extraFields?.price_top || pda.extraFields?.priceTop || pda.priceHigh;
-        const priceBottom = pda.extraFields?.price_bottom || pda.extraFields?.priceBottom || pda.priceLow;
+        const priceTop = pda.priceHigh;
+    const priceBottom = pda.priceLow;
         const endIdx = pdaTimeEndMs ? findBarIndex(candleData, pdaTimeEndMs) : idx;
+
+
         if (priceTop && priceBottom && endIdx >= 0) {
           overlays.push({
             name: 'obZone',
@@ -3626,9 +3635,14 @@
       toast(`已填充 ${pdaType.toUpperCase()} 标记`, 'success');
       hideCtxMenu();
 
-      // Auto-preview the marked PDA
+      // Auto-preview the marked PDA (but catch errors for incomplete forms)
       setTimeout(() => {
-        previewManualOverlay();
+      try {
+          previewManualOverlay();
+        } catch (err) {
+          // Silently ignore preview errors (e.g., FVG without direction)
+          console.log('Preview skipped:', err.message);
+        }
       }, 100);
     }
 
@@ -3721,8 +3735,12 @@
       }
 
       // Auto-fill price range
-      autoFillObRange().then(() => {
+    autoFillObRange().then(() => {
         toast('已填充 OB 区间标记', 'success');
+        // Auto-preview the OB
+      setTimeout(() => {
+        previewManualOverlay();
+        }, 100);
       }).catch(err => {
         toast(`OB 取值失败: ${err.message}`, 'error');
       });
