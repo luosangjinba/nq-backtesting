@@ -3426,6 +3426,11 @@
 
       toast(`已填充 ${pdaType.toUpperCase()} 标记`, 'success');
       hideCtxMenu();
+
+      // Auto-preview the marked PDA
+      setTimeout(() => {
+        previewManualOverlay();
+      }, 100);
     }
 
     document.getElementById('ctxMarkBsl').onclick = () => markPdaFromChart('bsl');
