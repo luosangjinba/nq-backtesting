@@ -1677,18 +1677,37 @@
       if (!fvgInfo) return;
 
       const { pda, source } = fvgInfo;
-      pda.extendBars = (pda.extendBars || 0) + extendBars;
+
+      // Calculate the maximum possible extension based on current data
+      const fvgStartIdx = findBarIndex(lastCandleData, timeToTimestamp(pda.anchorTime || pda.occurrenceTime) * 1000);
+      if (fvgStartIdx < 0) return;
+
+      const maxPossibleExtend = lastCandleData.length - 1 - fvgStartIdx - 4;
+      const currentExtend = pda.extendBars || 0;
+      const newExtend = currentExtend + extendBars;
+
+      // Cap the extension to the maximum visible range
+      pda.extendBars = Math.min(newExtend, Math.max(0, maxPossibleExtend));
+
+      const actualAdded = pda.extendBars - currentExtend;
 
       // Update in preview list if it's a manual PDA
       if (source === 'manual') {
         const index = manualPreviewPdas.findIndex(p => p === pda);
         if (index >= 0) {
           manualPreviewPdas[index] = { ...pda };
-        }
+      }
       }
 
       drawAllOverlays();
-      toast(`FVG 已扩展 ${extendBars} 根 K 线（总计 ${pda.extendBars} 根）`, 'success');
+
+      if (actualAdded > 0) {
+        toast(`FVG 已扩展 ${actualAdded} 根 K 线（总计 ${pda.extendBars} 根）`, 'success');
+      } else if (actualAdded === 0 && newExtend > maxPossibleExtend) {
+        toast(`FVG 已到达最右端，无法继续扩展`, 'warning');
+      } else {
+        toast(`FVG 扩展已达上限（${pda.extendBars} 根）`, 'info');
+      }
     }
 
     function extendFvgToCurrent(fvgInfo) {
