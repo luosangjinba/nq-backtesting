@@ -1267,8 +1267,8 @@
       });
 
       klinecharts.registerOverlay({
-        name: 'fvgZone',
-        totalStep: 3,
+     name: 'fvgZone',
+     totalStep: 3,
         needDefaultPointFigure: false,
         needDefaultXAxisFigure: false,
         needDefaultYAxisFigure: false,
@@ -1281,27 +1281,42 @@
           const y1 = Math.min(coordinates[0].y, coordinates[1].y);
           const y2 = Math.max(coordinates[0].y, coordinates[1].y);
           const w = Math.max(x2 - x1, 6);
-          const h = y2 - y1;
+        const h = y2 - y1;
           const isBullish = direction === 'bullish';
-          const fillColor = isBullish ? 'rgba(200, 170, 50, 0.3)' : 'rgba(180, 60, 60, 0.3)';
-          const borderColor = isBullish ? '#c8aa32' : '#b43c3c';
+          const lineColor = isBullish ? '#c8aa32' : '#b43c3c';
           const textColor = '#f5f0e8';
+
+          // Draw top horizontal line (no left/right borders)
           figs.push({
-            type: 'rect',
-            attrs: { x: x1, y: y1, width: w, height: h },
+            type: 'line',
+            attrs: { coordinates: [{ x: x1, y: y1 }, { x: x2, y: y1 }] },
             styles: {
-              style: 'stroke_fill',
-              color: fillColor,
-              borderColor: borderColor,
-              borderSize: 1,
-              borderStyle: 'solid',
+              style: 'dashed',
+              color: lineColor,
+              size: 1,
+           dashedValue: [4, 4]
             },
             ignoreEvent: true,
+       });
+
+          // Draw bottom horizontal line (no left/right borders)
+          figs.push({
+         type: 'line',
+            attrs: { coordinates: [{ x: x1, y: y2 }, { x: x2, y: y2 }] },
+      styles: {
+              style: 'dashed',
+              color: lineColor,
+            size: 1,
+              dashedValue: [4, 4]
+     },
+          ignoreEvent: true,
           });
+
+          // Draw timeframe label in the center
           if (timeframe) {
             figs.push({
               type: 'text',
-              attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' },
+       attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' },
               styles: { color: textColor, size: 11, family: 'sans-serif', weight: 'bold' },
               ignoreEvent: true,
             });
@@ -2069,58 +2084,29 @@
         const priceTop = pda.priceHigh;
         const priceBottom = pda.priceLow;
         const direction = (pda.direction || '').toLowerCase();
-        const isBullish = direction === 'bullish';
-        const lineColor = isBullish ? '#c8aa32' : '#b43c3c';
-        const labelColor = isBullish ? '#c8aa32' : '#b43c3c';
+        const startIdx = Math.max(idx - 1, 0);  // Extend 1 bar to the left
+        const extendBars = pda.extendBars || 0;  // Support FVG extension
+        const endIdx5 = Math.min(idx + 4 + extendBars, candleData.length - 1);  // Extend 5 bars to the right (default)
 
         if (priceTop && priceBottom) {
-          // Draw top boundary line
           overlays.push({
-          name: 'horizontalStraightLine',
-            points: [{ timestamp: bar.timestamp, value: priceTop }],
-            styles: {
-              line: {
-                color: lineColor,
-                style: 'dashed',
-                size: 1,
-                dashedValue: [4, 4]
-              }
-            },
+            name: 'fvgZone',
+            points: [
+              { timestamp: candleData[startIdx].timestamp, value: priceTop },
+              { timestamp: candleData[endIdx5].timestamp, value: priceBottom },
+            ],
+       extendData: { timeframe: pda.timeframe || '1H', direction: direction },
             lock: true,
-          });
-
-          // Draw bottom boundary line
-      overlays.push({
-            name: 'horizontalStraightLine',
-            points: [{ timestamp: bar.timestamp, value: priceBottom }],
-            styles: {
-              line: {
-                color: lineColor,
-             style: 'dashed',
-            size: 1,
-                dashedValue: [4, 4]
-            }
-            },
-            lock: true,
-      });
-
-          // Draw label at the anchor point
-        const labelText = `FVG ${pda.timeframe || '1H'}`;
-          overlays.push({
-          name: 'circleMarker',
-            points: [{ timestamp: bar.timestamp, value: isBullish ? priceBottom : priceTop }],
-        extendData: { color: labelColor, label: labelText, above: !isBullish },
-         lock: true,
           });
         } else {
-          const fvgColor = isBullish ? '#c8aa32' : '#b43c3c';
+        const fvgColor = direction === 'bullish' ? '#c8aa32' : '#b43c3c';
           overlays.push({
             name: 'circleMarker',
-          points: [{ timestamp: bar.timestamp, value: bar.high }],
-            extendData: { color: fvgColor, label: 'FVG', above: true },
-         lock: true,
+            points: [{ timestamp: bar.timestamp, value: bar.high }],
+          extendData: { color: fvgColor, label: 'FVG', above: true },
+            lock: true,
           });
-      }
+        }
       } else if (pdaType === 'ob') {
         const priceTop = pda.priceHigh;
     const priceBottom = pda.priceLow;
