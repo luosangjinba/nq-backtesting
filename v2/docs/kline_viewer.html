@@ -2191,49 +2191,15 @@
       }
 
       for (const ts of midnights) {
-     const idx = findBarIndex(candleData, ts);
+        const idx = findBarIndex(candleData, ts);
         if (idx >= 0) {
-          // Draw vertical line
-          const lineId = chart.createOverlay({
+          const id = chart.createOverlay({
             name: 'verticalStraightLine',
-         points: [{ timestamp: ts, value: candleData[idx].close }],
+            points: [{ timestamp: ts, value: candleData[idx].close }],
             styles: { line: { color: 'rgba(180, 80, 80, 0.25)', style: 'solid', size: 1 } },
-         lock: true,
-          });
-          if (lineId) midnightOverlayIds.push(lineId);
-
-          // Draw date label at the bottom
-          const date = new Date(ts);
-          const year = date.getUTCFullYear();
-          const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-          const day = String(date.getUTCDate()).padStart(2, '0');
-          const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-          const weekday = weekdays[date.getUTCDay()];
-      const label = `${year}-${month}-${day} 00:00 ${weekday}`;
-
-        const labelId = chart.createOverlay({
-            name: 'text',
-         points: [{ timestamp: ts, value: candleData[idx].low }],
-            text: label,
-            styles: {
-              text: {
-          color: '#b45050',
-                size: 10,
-          family: 'monospace',
-                weight: 'normal',
-                backgroundColor: 'rgba(30, 27, 24, 0.8)',
-          borderColor: 'rgba(180, 80, 80, 0.5)',
-                borderSize: 1,
-          borderRadius: 2,
-                paddingLeft: 4,
-                paddingRight: 4,
-                paddingTop: 2,
-           paddingBottom: 2,
-              }
-            },
             lock: true,
           });
-          if (labelId) midnightOverlayIds.push(labelId);
+          if (id) midnightOverlayIds.push(id);
         }
       }
     }
