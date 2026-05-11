@@ -1267,59 +1267,98 @@
       });
 
       klinecharts.registerOverlay({
-     name: 'fvgZone',
-     totalStep: 3,
+        name: 'fvgZone',
+        totalStep: 3,
         needDefaultPointFigure: false,
         needDefaultXAxisFigure: false,
         needDefaultYAxisFigure: false,
-        createPointFigures: ({ overlay, coordinates }) => {
+        createPointFigures: ({ overlay, coordinates, bounding, precision, yAxis }) => {
           const { timeframe, direction } = overlay.extendData || {};
           if (coordinates.length < 2) return [];
-          const figs = [];
-          const x1 = Math.min(coordinates[0].x, coordinates[1].x);
+        const figs = [];
+       const x1 = Math.min(coordinates[0].x, coordinates[1].x);
           const x2 = Math.max(coordinates[0].x, coordinates[1].x);
           const y1 = Math.min(coordinates[0].y, coordinates[1].y);
           const y2 = Math.max(coordinates[0].y, coordinates[1].y);
-          const w = Math.max(x2 - x1, 6);
-        const h = y2 - y1;
-          const isBullish = direction === 'bullish';
+        const w = Math.max(x2 - x1, 6);
+          const h = y2 - y1;
+   const isBullish = direction === 'bullish';
           const lineColor = isBullish ? '#c8aa32' : '#b43c3c';
           const textColor = '#f5f0e8';
 
-          // Draw top horizontal line (no left/right borders)
+          // Get price values from coordinates
+        const priceTop = yAxis.convertFromPixel(y1);
+          const priceBottom = yAxis.convertFromPixel(y2);
+          const priceDiff = Math.abs(priceTop - priceBottom);
+
+          // Draw top horizontal line (solid)
           figs.push({
-            type: 'line',
+          type: 'line',
             attrs: { coordinates: [{ x: x1, y: y1 }, { x: x2, y: y1 }] },
             styles: {
-              style: 'dashed',
-              color: lineColor,
-              size: 1,
-           dashedValue: [4, 4]
-            },
-            ignoreEvent: true,
-       });
-
-          // Draw bottom horizontal line (no left/right borders)
-          figs.push({
-         type: 'line',
-            attrs: { coordinates: [{ x: x1, y: y2 }, { x: x2, y: y2 }] },
-      styles: {
-              style: 'dashed',
-              color: lineColor,
-            size: 1,
-              dashedValue: [4, 4]
-     },
-          ignoreEvent: true,
+            style: 'solid',
+        color: lineColor,
+              size: 1
+       },
+        ignoreEvent: true,
           });
 
+          // Draw bottom horizontal line (solid)
+          figs.push({
+            type: 'line',
+            attrs: { coordinates: [{ x: x1, y: y2 }, { x: x2, y: y2 }] },
+          styles: {
+              style: 'solid',
+              color: lineColor,
+        size: 1
+        },
+            ignoreEvent: true,
+          });
+
+          // Draw middle line if price difference > 4 points
+          if (priceDiff > 4) {
+            // Calculate middle price
+            let midPrice = (priceTop + priceBottom) / 2;
+
+            // Adjust middle price for NQ step size (0.25)
+            // Round to nearest 0.25
+            midPrice = Math.round(midPrice * 4) / 4;
+
+            // Get decimal part
+            const decimal = midPrice - Math.floor(midPrice);
+
+            // Adjust if decimal is 0.125, 0.375, 0.625, or 0.875
+          // These become 0, 0.25, 0.5, 0.75 respectively
+          if (Math.abs(decimal - 0.125) < 0.01 ||
+                Math.abs(decimal - 0.375) < 0.01 ||
+             Math.abs(decimal - 0.625) < 0.01 ||
+           Math.abs(decimal - 0.875) < 0.01) {
+              midPrice -= 0.125;
+            }
+
+            const midY = yAxis.convertToPixel(midPrice);
+
+            figs.push({
+              type: 'line',
+              attrs: { coordinates: [{ x: x1, y: midY }, { x: x2, y: midY }] },
+         styles: {
+                style: 'dashed',
+            color: lineColor,
+                size: 1,
+                dashedValue: [4, 4]
+            },
+              ignoreEvent: true,
+        });
+          }
+
           // Draw timeframe label in the center
-          if (timeframe) {
+        if (timeframe) {
             figs.push({
               type: 'text',
-       attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' },
+        attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' },
               styles: { color: textColor, size: 11, family: 'sans-serif', weight: 'bold' },
               ignoreEvent: true,
-            });
+       });
           }
           return figs;
         },
