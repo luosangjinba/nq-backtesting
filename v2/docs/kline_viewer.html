@@ -1742,16 +1742,23 @@
       try {
         const pda = buildPreviewPdaFromManualForm();
         const eventTime = pda.anchorTime || pda.extraFields?.start_time || '';
-      const price = String(pda.price ?? pda.priceHigh ?? pda.priceLow ?? '').trim();
+        const isRange = ['fvg', 'ob', 'nwog', 'ndog'].includes(String(pda.pdaType || '').toLowerCase());
+        let price;
+        if (isRange && pda.priceHigh != null && pda.priceLow != null) {
+          price = String((Number(pda.priceHigh) + Number(pda.priceLow)) / 2);
+      } else {
+          price = String(pda.price ?? pda.priceHigh ?? pda.priceLow ?? '').trim();
+        }
         if (!eventTime || !price) throw new Error('需要时间和价格');
+    const priceTolerance = isRange ? '20' : '2';
         const params = new URLSearchParams({
-        instrument: 'NQ',
+          instrument: 'NQ',
           timeframe: String(pda.timeframe || '').toUpperCase(),
-          pda_type: String(pda.pdaType || '').toLowerCase(),
+        pda_type: String(pda.pdaType || '').toLowerCase(),
           event_time: eventTime,
-          price,
+        price,
           time_tolerance_bars: '1',
-          price_tolerance_ticks: '2',
+       price_tolerance_ticks: priceTolerance,
           limit: '8',
         });
       const resp = await apiGet(`/v2/pda_match?${params.toString()}`);
