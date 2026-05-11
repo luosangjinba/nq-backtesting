@@ -1807,51 +1807,84 @@
 
     // ── Update PDA for new timeframe ──
     async function updatePdaForNewTimeframe(newTf) {
-      if (!currentPda) return;
+      if (!currentPda || !lastCandleData?.length) return;
 
-    console.log('[updatePdaForNewTimeframe] Current PDA:', currentPda.pdaId, 'Old TF:', currentPda.timeframe, 'New TF:', newTf);
+      console.log('[updatePdaForNewTimeframe] Current PDA:', currentPda.pdaId, 'Old TF:', currentPda.timeframe, 'New TF:', newTf);
 
       try {
-        // Query PDAs in the new timeframe with similar price and time
+        // Get the price and time from current PDA
         const price = currentPda.price || currentPda.priceHigh || currentPda.priceLow;
-        const anchorTime = currentPda.anchorTime || currentPda.occurrenceTime;
+        const pdaType = (currentPda.pdaType || '').toLowerCase();
+     const anchorTime = currentPda.anchorTime || currentPda.occurrenceTime;
+
+        console.log('[updatePdaForNewTimeframe] Price:', price, 'Type:', pdaType, 'AnchorTime:', anchorTime);
 
         if (!price || !anchorTime) {
           console.log('[updatePdaForNewTimeframe] Missing price or time, keeping current PDA');
-      return;
+          return;
         }
 
-        // Query PDAs within ±30 minutes and ±5 ticks
-        const params = new URLSearchParams({
-          instrument: 'NQ',
-      timeframe: newTf,
-          pda_type: currentPda.pdaType,
-          event_time: anchorTime,
-          price: String(price),
-          time_tolerance_bars: '8',  // Loose tolerance for cross-TF matching
-          price_tolerance_ticks: '5',
-        limit: '5',
-        });
+        // Calculate the time range of the original timeframe bar
+        // For example, 1H bar at 13:00 represents 12:00-13:00
+        const oldTfMinutes = parseInt(currentPda.timeframe);  // e.g., "1H" -> 1, "15M" -> 15
+      const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
+    const barStartMs = anchorTimeMs - (oldTfMinutes * 60 * 1000);  // Start of the bar
+      const barEndMs = anchorTimeMs;  // End of the bar
 
-        const resp = await apiGet(`/v2/pda_match?${params.toString()}`);
-        const candidates = resp.result?.candidates || resp.candidates || [];
+        console.log('[updatePdaForNewTimeframe] Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
 
-    if (candidates.length > 0) {
-          // Use the best match
-       const best = candidates[0];
-          console.log('[updatePdaForNewTimeframe] Found match:', best.pdaId, 'Score:', best.matchScore);
+        // Find the K-line with matching price in current timeframe data
+        // If multiple bars match, use the rightmost (latest) one within the time range
+        const highTypes = ['bsl', 'daily_high', 'ict_midnight_day_high', 'ndog', 'nwog', 'eqh'];
+        const lowTypes = ['ssl', 'daily_low', 'ict_midnight_day_low', 'eql'];
+        const isHighType = highTypes.includes(pdaType);
+        const isLowType = lowTypes.includes(pdaType);
 
-          // Fetch the full PDA record
-          const pdaResp = await apiGet(`/v2/pda_records?pda_id=${best.pdaId}`);
-      const records = pdaResp.result?.records || [];
+        let matchedBar = null;
+        let matchedIndex = -1;
 
-        if (records.length > 0) {
-            currentPda = records[0];
-            renderPdaBadge(currentPda);
-            console.log('[updatePdaForNewTimeframe] Updated currentPda to:', currentPda.pdaId);
+        // Search from right to left (latest to earliest) to find the rightmost match within time range
+        for (let i = lastCandleData.length - 1; i >= 0; i--) {
+          const bar = lastCandleData[i];
+        
+          // Check if bar is within the time range
+          if (bar.timestamp < barStartMs || bar.timestamp > barEndMs) {
+          continue;
+      }
+
+          if (isHighType && Math.abs(bar.high - price) < 0.01) {
+            matchedBar = bar;
+            matchedIndex = i;
+            break;
+          } else if (isLowType && Math.abs(bar.low - price) < 0.01) {
+            matchedBar = bar;
+            matchedIndex = i;
+       break;
+        } else if (!isHighType && !isLowType) {
+            // For range types (FVG, OB), match close price or midpoint
+            if (Math.abs(bar.close - price) < 0.01) {
+              matchedBar = bar;
+              matchedIndex = i;
+            break;
+            }
           }
+        }
+
+        if (matchedBar) {
+          const matchedTime = new Date(matchedBar.timestamp).toISOString().replace('T', ' ').substring(0, 19);
+          console.log('[updatePdaForNewTimeframe] Found matching bar at index:', matchedIndex, 'time:', matchedTime, 'price:', isHighType ? matchedBar.high : matchedBar.low);
+
+          // Update currentPda with the new anchor time
+          currentPda = {
+            ...currentPda,
+            anchorTime: matchedTime,
+            timeframe: newTf,
+            pdaId: currentPda.pdaId + '_crossTF'  // Mark as cross-TF matched
+          };
+        renderPdaBadge(currentPda);
+        console.log('[updatePdaForNewTimeframe] Updated currentPda anchor time to:', matchedTime);
         } else {
-          console.log('[updatePdaForNewTimeframe] No match found in new timeframe, keeping current PDA');
+        console.log('[updatePdaForNewTimeframe] No matching bar found for price:', price, 'in time range, keeping current PDA');
         }
       } catch (err) {
         console.error('[updatePdaForNewTimeframe] Error:', err);
