@@ -378,28 +378,6 @@
       text-align: center;
       font-size: 12px;
     }
-    .match-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .match-card {
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      background: var(--bg);
-      padding: 7px 8px;
-    }
-    .match-card label {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      margin-bottom: 2px;
-    }
-    .match-card strong {
-      color: var(--text);
-      font-size: 14px;
-    }
     .panel-pagination {
       display: flex;
       align-items: center;
@@ -964,61 +942,6 @@
       </details>
 
 
-
-      <!-- Section: Match merge -->
-      <details class="panel-section" data-panel-section="match">
-        <summary>匹配合并</summary>
-        <div class="section-content">
-          <div class="match-grid">
-            <div class="match-card"><label>自动优先</label><strong id="matchAutoCount">0</strong></div>
-            <div class="match-card"><label>Manual 保留</label><strong id="matchManualKeepCount">0</strong></div>
-            <div class="match-card"><label>待处理</label><strong id="matchConflictCount">0</strong></div>
-          </div>
-
-          <div class="field-row">
-            <div class="form-group">
-              <label>时间容差</label>
-              <select id="matchTimeTolerance">
-                <option value="same_bar">同一根K线</option>
-                <option value="1">±1 bar</option>
-                <option value="3">±3 bars</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>价格容差</label>
-              <select id="matchPriceTolerance">
-                <option value="tick">1 tick</option>
-                <option value="2tick">2 ticks</option>
-                <option value="range">区域重叠</option>
-              </select>
-            </div>
-          </div>
-
-          <table class="panel-table">
-            <thead>
-              <tr>
-                <th>Manual</th>
-                <th>Auto</th>
-                <th>结果</th>
-              </tr>
-            </thead>
-            <tbody id="matchPreviewBody">
-              <tr><td colspan="3" class="empty-panel-row">未生成匹配预览</td></tr>
-            </tbody>
-          </table>
-
-          <div class="btn-row wrap">
-            <button class="btn-sm" id="matchPreviewBtn">生成预览</button>
-            <button class="btn-sm primary" id="matchApplyBtn">应用合并</button>
-            <button class="btn-sm" id="copyMainExportYamlBtn">复制主导出 YAML</button>
-            <button class="btn-sm" id="downloadMainExportYamlBtn">下载主导出 YAML</button>
-            <button class="btn-sm" id="copyMergeYamlBtn">复制 Merge YAML</button>
-            <button class="btn-sm" id="downloadMergeYamlBtn">下载 Merge YAML</button>
-          </div>
-        </div>
-      </details>
-
-
       <!-- Section: Chart scope PDA list -->
       <details class="panel-section" data-panel-section="scope">
         <summary>PDA 列表</summary>
@@ -1154,8 +1077,6 @@
     let lastCandleData = null;
     let currentPda = null;
     let manualPreviewPdas = [];  // Changed from single to array for multiple previews
-    let lastMatchResult = null;
-    let lastAppliedMerge = null;
     let midnightOverlayIds = [];
     let resizeObserver = null;
     let onDataReadyHandler = null;
@@ -1804,234 +1725,6 @@
         // If form is invalid, show preview button
         btn.textContent = '预览标注';
         btn.classList.remove('btn-danger');
-      }
-    }
-
-    function comparableManualPrice(manual) {
-      const candidates = [manual?.price, manual?.priceHigh, manual?.priceLow]
-        .map(value => String(value ?? '').trim())
-        .filter(Boolean);
-      return candidates.length ? candidates[0] : '';
-    }
-
-    function getMatchTimeToleranceBars() {
-      const value = document.getElementById('matchTimeTolerance').value;
-      return value === 'same_bar' ? 0 : Math.max(parseInt(value, 10) || 0, 0);
-    }
-
-    function getMatchPriceToleranceTicks() {
-      const value = document.getElementById('matchPriceTolerance').value;
-      if (value === 'tick') return 1;
-      if (value === '2tick') return 2;
-      return 4;
-    }
-
-    function renderMatchPreviewRows(candidates) {
-      const tbody = document.getElementById('matchPreviewBody');
-      if (!candidates?.length) {
-        tbody.innerHTML = '<tr><td colspan="3" class="empty-panel-row">无匹配候选</td></tr>';
-        return;
-      }
-      tbody.innerHTML = candidates.map(candidate => {
-        const autoLabel = [candidate.pdaId, candidate.timeframe, candidate.pdaType?.toUpperCase()].filter(Boolean).join(' · ');
-        const resultLabel = `${candidate.matchKind} · score ${candidate.matchScore}`;
-        const detail = `ΔT ${candidate.timeDeltaMinutes}m · ΔP ${candidate.priceDelta}`;
-        const note = candidate.note ? `<br>${escHtml(candidate.note)}` : '';
-        return `<tr>
-          <td class="mono">${escHtml(autoLabel)}</td>
-          <td>${escHtml(formatTime(candidate.anchorTime || candidate.occurrenceTime || candidate.candidateTime) || '-')}<br>${escHtml(String(candidate.comparePrice ?? '-'))}</td>
-          <td>${escHtml(resultLabel)}<br>${escHtml(detail)}${note}</td>
-        </tr>`;
-      }).join('');
-    }
-
-    function updateMatchSummary(result, previewPda) {
-      const candidates = result?.candidates || [];
-      const best = candidates[0] || null;
-      const hasStrongMatch = best && (best.matchKind === 'exact' || best.matchScore >= 0.68);
-      document.getElementById('matchAutoCount').textContent = hasStrongMatch ? '1' : '0';
-      document.getElementById('matchManualKeepCount').textContent = hasStrongMatch ? '0' : '1';
-      document.getElementById('matchConflictCount').textContent = candidates.length;
-      renderMatchPreviewRows(candidates);
-      if (!best) {
-        toast(`未找到 ${previewPda.pdaType.toUpperCase()} 匹配候选`, 'info');
-        return;
-      }
-      if (hasStrongMatch) {
-        toast(`匹配到 ${best.pdaId}（score ${best.matchScore}）`, 'success');
-        return;
-      }
-      toast(`最佳候选 ${best.pdaId}（score ${best.matchScore}）未达阈值`, 'info');
-    }
-
-    async function previewManualAutoMatch() {
-      try {
-        const previewPda = buildPreviewPdaFromManualForm();
-        const eventTime = previewPda.anchorTime || previewPda.extraFields?.start_time || previewPda.extraFields?.end_time || '';
-        const price = comparableManualPrice(previewPda);
-        if (!eventTime || !price) throw new Error('匹配预览需要时间和价格');
-        const params = new URLSearchParams({
-          instrument: 'NQ',
-          timeframe: String(previewPda.timeframe || '').toUpperCase(),
-          pda_type: String(previewPda.pdaType || '').toLowerCase(),
-          event_time: eventTime,
-          price: String(price),
-          time_tolerance_bars: String(getMatchTimeToleranceBars()),
-          price_tolerance_ticks: String(getMatchPriceToleranceTicks()),
-          limit: '8',
-        });
-        const response = await apiGet(`/v2/pda_match?${params.toString()}`);
-        const result = response.result || response;
-        lastMatchResult = { previewPda, result };
-        lastAppliedMerge = null;
-        updateMatchSummary(result, previewPda);
-      } catch (err) {
-        lastMatchResult = null;
-        lastAppliedMerge = null;
-        document.getElementById('matchAutoCount').textContent = '0';
-        document.getElementById('matchManualKeepCount').textContent = '0';
-        document.getElementById('matchConflictCount').textContent = '0';
-        document.getElementById('matchPreviewBody').innerHTML = `<tr><td colspan="3" class="empty-panel-row">${escHtml(err.message)}</td></tr>`;
-        toast(`匹配预览失败: ${err.message}`, 'error');
-      }
-    }
-
-    function applyManualAutoMerge() {
-      if (!lastMatchResult?.previewPda || !lastMatchResult?.result) {
-        toast('请先生成匹配预览', 'error');
-        return;
-      }
-      const { previewPda, result } = lastMatchResult;
-      const candidates = result.candidates || [];
-      const best = candidates[0] || null;
-      const hasStrongMatch = best && (best.matchKind === 'exact' || best.matchScore >= 0.68);
-      const merged = {
-        previewPda,
-        matchedAuto: hasStrongMatch ? {
-          pdaId: best.pdaId,
-          matchKind: best.matchKind,
-          matchScore: best.matchScore,
-        } : null,
-        manualOnly: hasStrongMatch ? [] : [previewPda.pdaId || 'manual_preview'],
-        autoOnlyInWindow: candidates
-          .filter(candidate => !hasStrongMatch || candidate.pdaId !== best.pdaId)
-          .map(candidate => candidate.pdaId)
-          .filter(Boolean),
-      };
-      lastAppliedMerge = merged;
-      document.getElementById('matchPreviewBody').innerHTML = hasStrongMatch
-        ? `<tr><td class="mono">${escHtml(previewPda.pdaId || 'manual_preview')}</td><td>${escHtml(best.pdaId)}</td><td>采用 Auto · ${escHtml(best.matchKind)} · score ${escHtml(String(best.matchScore))}</td></tr>`
-        : `<tr><td class="mono">${escHtml(previewPda.pdaId || 'manual_preview')}</td><td>-</td><td>保留 Manual · 未达到强匹配阈值</td></tr>`;
-      document.getElementById('matchAutoCount').textContent = hasStrongMatch ? '1' : '0';
-      document.getElementById('matchManualKeepCount').textContent = hasStrongMatch ? '0' : '1';
-      document.getElementById('matchConflictCount').textContent = String(merged.autoOnlyInWindow.length);
-      toast(hasStrongMatch ? `已采用 Auto ${best.pdaId}` : '已保留 Manual 结果', 'success');
-    }
-
-    function buildMergeYaml() {
-      if (!lastAppliedMerge?.previewPda) throw new Error('请先应用合并');
-      const { previewPda, matchedAuto, manualOnly, autoOnlyInWindow } = lastAppliedMerge;
-      const lines = [];
-      lines.push(`merge_preview:`);
-      lines.push(`  manual_pda:`);
-      lines.push(`    pda_id: "${String(previewPda.pdaId || 'manual_preview').replace(/"/g, '\\"')}"`);
-      lines.push(`    timeframe: "${String(previewPda.timeframe || '').replace(/"/g, '\\"')}"`);
-      lines.push(`    pda_type: "${String(previewPda.pdaType || '').replace(/"/g, '\\"')}"`);
-      if (previewPda.anchorTime) lines.push(`    event_time: "${String(previewPda.anchorTime).replace(/"/g, '\\"')}"`);
-      if (previewPda.price != null) lines.push(`    price: ${previewPda.price}`);
-      if (previewPda.priceHigh != null) lines.push(`    price_high: ${previewPda.priceHigh}`);
-      if (previewPda.priceLow != null) lines.push(`    price_low: ${previewPda.priceLow}`);
-      lines.push(`  reconciliation:`);
-      if (matchedAuto) {
-        lines.push(`    matched_auto:`);
-        lines.push(`      - pda_id: "${String(matchedAuto.pdaId).replace(/"/g, '\\"')}"`);
-        lines.push(`        match_kind: "${String(matchedAuto.matchKind).replace(/"/g, '\\"')}"`);
-        lines.push(`        match_score: ${matchedAuto.matchScore}`);
-      } else {
-        lines.push(`    matched_auto: []`);
-      }
-      if (manualOnly?.length) {
-        lines.push(`    manual_only:`);
-        manualOnly.forEach(item => lines.push(`      - "${String(item).replace(/"/g, '\\"')}"`));
-      } else {
-        lines.push(`    manual_only: []`);
-      }
-      if (autoOnlyInWindow?.length) {
-        lines.push(`    auto_only_in_window:`);
-        autoOnlyInWindow.forEach(item => lines.push(`      - "${String(item).replace(/"/g, '\\"')}"`));
-      } else {
-        lines.push(`    auto_only_in_window: []`);
-      }
-      return lines.join('\n');
-    }
-
-    function buildMainExportYaml() {
-      const lines = [
-        `export_type: "kline_viewer_merge"`,
-        `generated_from: "kline_viewer.html"`,
-      ];
-      const start = parseTime(document.getElementById('startTime').value.trim());
-      const end = parseTime(document.getElementById('endTime').value.trim());
-      const tf = document.getElementById('tfSelect').value;
-      if (start || end || tf) {
-        lines.push(`chart_scope:`);
-        if (start) lines.push(`  start: "${String(start).replace(/"/g, '\\"')}"`);
-        if (end) lines.push(`  end: "${String(end).replace(/"/g, '\\"')}"`);
-        if (tf) lines.push(`  tf: "${String(tf).replace(/"/g, '\\"')}"`);
-      }
-      lines.push(buildMergeYaml());
-      return lines.join('\n');
-    }
-
-    async function copyMainExportYaml() {
-      try {
-        const yaml = buildMainExportYaml();
-        await navigator.clipboard.writeText(yaml);
-        toast('已复制主导出 YAML', 'success');
-      } catch (err) {
-        toast(`复制失败: ${err.message}`, 'error');
-      }
-    }
-
-    function downloadMainExportYaml() {
-      try {
-        const yaml = buildMainExportYaml();
-        const blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = 'kline_viewer_export.yaml';
-        anchor.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast('已下载主导出 YAML', 'success');
-      } catch (err) {
-        toast(`下载失败: ${err.message}`, 'error');
-      }
-    }
-
-    async function copyMergeYaml() {
-      try {
-        const yaml = buildMergeYaml();
-        await navigator.clipboard.writeText(yaml);
-        toast('已复制 Merge YAML', 'success');
-      } catch (err) {
-        toast(`复制失败: ${err.message}`, 'error');
-      }
-    }
-
-    function downloadMergeYaml() {
-      try {
-        const yaml = buildMergeYaml();
-        const blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = 'merge_preview.yaml';
-        anchor.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast('已下载 Merge YAML', 'success');
-      } catch (err) {
-        toast(`下载失败: ${err.message}`, 'error');
       }
     }
 
@@ -3392,12 +3085,6 @@
     document.getElementById('panelLocatePdaBtn').onclick = panelLocateSelectedPda;
     document.getElementById('panelEditPdaBtn').onclick = panelEditSelectedPda;
     document.getElementById('panelDeletePdaBtn').onclick = panelDeleteSelectedPda;
-    document.getElementById('matchPreviewBtn').onclick = previewManualAutoMatch;
-    document.getElementById('matchApplyBtn').onclick = applyManualAutoMerge;
-    document.getElementById('copyMainExportYamlBtn').onclick = copyMainExportYaml;
-    document.getElementById('downloadMainExportYamlBtn').onclick = downloadMainExportYaml;
-    document.getElementById('copyMergeYamlBtn').onclick = copyMergeYaml;
-    document.getElementById('downloadMergeYamlBtn').onclick = downloadMergeYaml;
     document.getElementById('panelPageSizeSelect').onchange = function() {
       panelPageSize = parseInt(this.value);
       panelCurrentPage = 1;
