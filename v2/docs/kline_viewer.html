@@ -2335,9 +2335,10 @@
       const endRaw = document.getElementById('endTime').value.trim();
       const tf = document.getElementById('tfSelect').value;
 
-      // Save currentPda before reloading data (for cross-TF matching)
+      // Save currentPda and manualPreviewPdas before reloading data (for cross-TF matching)
       const savedPda = currentPda;
-      console.log('[loadData] Saving currentPda:', savedPda?.pdaId, 'timeframe:', savedPda?.timeframe, 'price:', savedPda?.price);
+      const savedManualPdas = [...manualPreviewPdas];  // Clone the array
+      console.log('[loadData] Saving currentPda:', savedPda?.pdaId, 'manualPreviewPdas:', savedManualPdas.length);
 
       const start = parseTime(startRaw);
       const end = parseTime(endRaw);
@@ -2529,15 +2530,34 @@
         onDataReadyHandler = async () => {
           drawMidnightLines(initialData, tfMinutes);
 
-      // If there's a current PDA from a different timeframe, try to find the corresponding PDA in the new timeframe
+          // If there's a current PDA from a different timeframe, try to find the corresponding PDA in the new timeframe
           const currentTf = tf + 'M';  // Convert "15" to "15M"
-          console.log('[onDataReady] Saved PDA:', savedPda?.pdaId, 'timeframe:', savedPda?.timeframe, 'vs current:', currentTf);
-      if (savedPda && savedPda.timeframe && savedPda.timeframe !== currentTf) {
-            console.log('[onDataReady] Timeframe changed, updating PDA...');
-        currentPda = savedPda;
-            await updatePdaForNewTimeframe(currentTf);
+          console.log('[onDataReady] Saved PDA:', savedPda?.pdaId, 'Manual PDAs:', savedManualPdas.length, 'vs current:', currentTf);
+
+          // Update currentPda if it exists and timeframe changed
+          if (savedPda && savedPda.timeframe && savedPda.timeframe !== currentTf) {
+            console.log('[onDataReady] Timeframe changed, updating currentPda...');
+            currentPda = savedPda;
+         await updatePdaForNewTimeframe(currentTf);
           }
-          drawAllOverlays();
+
+          // Update manual preview PDAs if they exist and timeframe changed
+          if (savedManualPdas.length > 0) {
+         console.log('[onDataReady] Updating', savedManualPdas.length, 'manual preview PDAs...');
+            manualPreviewPdas = [];
+            for (const pda of savedManualPdas) {
+           if (pda.timeframe && pda.timeframe !== currentTf) {
+          currentPda = pda;  // Temporarily set for updatePdaForNewTimeframe
+           await updatePdaForNewTimeframe(currentTf);
+          manualPreviewPdas.push(currentPda);  // Add updated PDA
+              } else {
+                manualPreviewPdas.push(pda);  // Keep original if same timeframe
+            }
+        }
+          currentPda = null;  // Clear after updating manual PDAs
+        }
+
+       drawAllOverlays();
 
 
           // In replay mode, reset view to show the first bar
