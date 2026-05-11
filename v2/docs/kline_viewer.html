@@ -1825,13 +1825,24 @@
         }
 
         // Calculate the time range of the original timeframe bar
-        // For example, 1H bar at 13:00 represents 12:00-13:00
-        const oldTfMinutes = parseInt(currentPda.timeframe);  // e.g., "1H" -> 1, "15M" -> 15
-      const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
-    const barStartMs = anchorTimeMs - (oldTfMinutes * 60 * 1000);  // Start of the bar
-      const barEndMs = anchorTimeMs;  // End of the bar
+      // For example, 1H bar at 13:00 represents 12:00-13:00
+        const oldTf = currentPda.timeframe || '';  // e.g., "1H", "15M", "4H"
+        let oldTfMinutes = 60;  // default to 1 hour
+        if (oldTf.endsWith('M')) {
+          oldTfMinutes = parseInt(oldTf);
+        } else if (oldTf.endsWith('H')) {
+          oldTfMinutes = parseInt(oldTf) * 60;
+        } else if (oldTf === 'D') {
+          oldTfMinutes = 24 * 60;
+        } else if (oldTf === 'W') {
+          oldTfMinutes = 7 * 24 * 60;
+        }
+        
+        const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
+        const barStartMs = anchorTimeMs - (oldTfMinutes * 60 * 1000);  // Start of the bar
+     const barEndMs = anchorTimeMs;  // End of the bar
 
-        console.log('[updatePdaForNewTimeframe] Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
+        console.log('[updatePdaForNewTimeframe] Old TF:', oldTf, 'Minutes:', oldTfMinutes, 'Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
 
         // Find the K-line with matching price in current timeframe data
         // If multiple bars match, use the rightmost (latest) one within the time range
