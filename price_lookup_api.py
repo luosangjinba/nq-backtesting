@@ -1721,8 +1721,10 @@ def query_v2_pda_match(
     tf = (timeframe or "").strip().upper()
     pda = (pda_type or "").strip().lower()
     bucket_minutes = V2_BAR_BUCKET_MINUTES.get(tf)
-    if bucket_minutes is None:
+    if bucket_minutes is None and tf:
         raise ValueError("unsupported timeframe")
+    if bucket_minutes is None:
+        bucket_minutes = 60
 
     time_tolerance_bars = max(int(time_tolerance_bars), 0)
     price_tolerance_ticks = max(int(price_tolerance_ticks), 0)
@@ -1788,9 +1790,9 @@ def query_v2_pda_match(
       source,
       note
     from base
-    where time_delta_minutes <= ?
-      and price_delta <= ?
-    order by time_delta_minutes asc, price_delta asc, candidate_time asc, pda_id asc
+    where (time_delta_minutes <= ? and price_delta <= ?)
+       or (price_delta = 0 and time_delta_minutes <= 1440)
+    order by price_delta asc, time_delta_minutes asc, candidate_time asc, pda_id asc
     limit ?
     """.strip()
     params.extend([time_tolerance_minutes, price_tolerance, limit])
@@ -2176,7 +2178,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 params = parse_qs(parsed.query)
                 instrument = validate_instrument(params.get("instrument", [""])[0]) if params.get("instrument", [""])[0] else ""
-                timeframe = params["timeframe"][0].strip().upper()
+                timeframe = params.get("timeframe", [""])[0].strip().upper()
                 pda_type = params.get("pda_type", [""])[0].strip().lower()
                 event_time = parse_input_timestamp(params["event_time"][0], "event_time")
                 price = float(params["price"][0])

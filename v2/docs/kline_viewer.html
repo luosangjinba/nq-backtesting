@@ -1750,16 +1750,16 @@
           price = String(pda.price ?? pda.priceHigh ?? pda.priceLow ?? '').trim();
         }
         if (!eventTime || !price) throw new Error('需要时间和价格');
-    const priceTolerance = isRange ? '20' : '2';
-        const params = new URLSearchParams({
+        const priceTolerance = isRange ? '20' : '2';
+     const params = new URLSearchParams({
           instrument: 'NQ',
-          timeframe: String(pda.timeframe || '').toUpperCase(),
-        pda_type: String(pda.pdaType || '').toLowerCase(),
+          timeframe: '',
+          pda_type: '',
           event_time: eventTime,
-        price,
-          time_tolerance_bars: '1',
-       price_tolerance_ticks: priceTolerance,
-          limit: '8',
+          price,
+       time_tolerance_bars: '1',
+        price_tolerance_ticks: priceTolerance,
+          limit: '20',
         });
       const resp = await apiGet(`/v2/pda_match?${params.toString()}`);
         const candidates = resp.result?.candidates || resp.candidates || [];
