@@ -1853,6 +1853,9 @@
 
         let matchedBar = null;
         let matchedIndex = -1;
+        let barsInRange = 0;
+        let closestBar = null;
+        let closestDiff = Infinity;
 
         // Search from right to left (latest to earliest) to find the rightmost match within time range
         for (let i = lastCandleData.length - 1; i >= 0; i--) {
@@ -1861,25 +1864,37 @@
           // Check if bar is within the time range
           if (bar.timestamp < barStartMs || bar.timestamp > barEndMs) {
           continue;
-      }
+          }
 
-          if (isHighType && Math.abs(bar.high - price) < 0.01) {
+          barsInRange++;
+
+          // Track closest bar for debugging
+          const barPrice = isHighType ? bar.high : (isLowType ? bar.low : bar.close);
+          const diff = Math.abs(barPrice - price);
+          if (diff < closestDiff) {
+            closestDiff = diff;
+            closestBar = bar;
+          }
+
+          if (isHighType && Math.abs(bar.high - price) < 0.5) {
             matchedBar = bar;
             matchedIndex = i;
             break;
-          } else if (isLowType && Math.abs(bar.low - price) < 0.01) {
+          } else if (isLowType && Math.abs(bar.low - price) < 0.5) {
             matchedBar = bar;
             matchedIndex = i;
        break;
         } else if (!isHighType && !isLowType) {
             // For range types (FVG, OB), match close price or midpoint
-            if (Math.abs(bar.close - price) < 0.01) {
+            if (Math.abs(bar.close - price) < 0.5) {
               matchedBar = bar;
               matchedIndex = i;
             break;
             }
           }
         }
+
+        console.log('[updatePdaForNewTimeframe] Bars in range:', barsInRange, 'Closest bar price:', isHighType ? closestBar?.high : (isLowType ? closestBar?.low : closestBar?.close), 'Diff:', closestDiff.toFixed(2));
 
         if (matchedBar) {
           const matchedTime = new Date(matchedBar.timestamp).toISOString().replace('T', ' ').substring(0, 19);
