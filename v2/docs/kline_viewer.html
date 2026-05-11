@@ -1839,8 +1839,9 @@
         }
         
         const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
-        const barStartMs = anchorTimeMs - (oldTfMinutes * 60 * 1000);  // Start of the bar
-     const barEndMs = anchorTimeMs;  // End of the bar
+        // Anchor time is the bar's open time, so the bar covers [anchorTime, anchorTime + period]
+        const barStartMs = anchorTimeMs;  // Start of the bar (open time)
+        const barEndMs = anchorTimeMs + (oldTfMinutes * 60 * 1000);  // End of the bar
 
         console.log('[updatePdaForNewTimeframe] Old TF:', oldTf, 'Minutes:', oldTfMinutes, 'Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
 
