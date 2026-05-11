@@ -1737,14 +1737,14 @@ def query_v2_pda_match(
         "coalesce(anchor_time, occurrence_time, created_ts, cast(coalesce(trade_date, created_date) as timestamp)) is not null",
     ]
     params: list[object] = [
-        instrument,
-        instrument,
-        tf,
-        tf,
-        pda,
-        pda,
         event_time,
         price,
+        instrument,
+        instrument,
+        tf,
+        tf,
+        pda,
+        pda,
     ]
     sql = f"""
     with base as (

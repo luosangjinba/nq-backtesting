@@ -937,6 +937,11 @@
             <button class="btn-sm" id="clearAllPreviewsBtn">清除所有预览</button>
             <button class="btn-sm primary" id="manualSaveBtn">保存 Manual PDA</button>
             <button class="btn-sm" id="manualResetBtn">重置</button>
+            <button class="btn-sm" id="manualMatchAutoBtn">匹配自动 PDA</button>
+          </div>
+          <div id="matchResultPanel" style="display:none; margin-top:8px;">
+            <div id="matchResultSummary" style="font-size:12px; margin-bottom:6px;"></div>
+            <div id="matchResultTableWrap" style="overflow-x:auto;"></div>
           </div>
         </div>
       </details>
@@ -1727,6 +1732,59 @@
         btn.classList.remove('btn-danger');
       }
     }
+
+
+    // ── Match auto PDA ──
+    async function matchManualToAuto() {
+      const panel = document.getElementById('matchResultPanel');
+      const summaryEl = document.getElementById('matchResultSummary');
+      const tableEl = document.getElementById('matchResultTableWrap');
+      try {
+        const pda = buildPreviewPdaFromManualForm();
+        const eventTime = pda.anchorTime || pda.extraFields?.start_time || '';
+      const price = String(pda.price ?? pda.priceHigh ?? pda.priceLow ?? '').trim();
+        if (!eventTime || !price) throw new Error('需要时间和价格');
+        const params = new URLSearchParams({
+        instrument: 'NQ',
+          timeframe: String(pda.timeframe || '').toUpperCase(),
+          pda_type: String(pda.pdaType || '').toLowerCase(),
+          event_time: eventTime,
+          price,
+          time_tolerance_bars: '1',
+          price_tolerance_ticks: '2',
+          limit: '8',
+        });
+      const resp = await apiGet(`/v2/pda_match?${params.toString()}`);
+        const candidates = resp.result?.candidates || resp.candidates || [];
+        panel.style.display = 'block';
+        if (!candidates.length) {
+       summaryEl.innerHTML = '<span style="color:#e57373;">无匹配 — 未找到符合条件的自动 PDA</span>';
+          tableEl.innerHTML = '';
+      return;
+      }
+        const best = candidates[0];
+        const strong = best.matchKind === 'exact' || best.matchScore >= 0.68;
+        summaryEl.innerHTML = strong
+          ? `<span style="color:#81c784;">\u2713 已匹配 ${escHtml(best.pdaId)}（${best.matchKind} \xb7 score ${best.matchScore}）</span>`
+          : `<span style="color:#ffb74d;">? 最佳候选 ${escHtml(best.pdaId)}（score ${best.matchScore}）未达阈值 0.68</span>`;
+        const rows = candidates.map(c => `<tr>
+          <td>${escHtml(c.pdaId)}</td>
+          <td>${escHtml(c.timeframe)}</td>
+          <td>${escHtml(c.pdaType)}</td>
+          <td>${escHtml(c.matchKind)}</td>
+          <td>${c.matchScore}</td>
+          <td>${c.timeDeltaMinutes}m</td>
+          <td>${c.priceDelta}</td>
+        </tr>`).join('');
+        tableEl.innerHTML = `<table class="panel-table"><thead><tr>
+          <th>PDA ID</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>\u0394T</th><th>\u0394P</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
+      } catch (err) {
+        panel.style.display = 'block';
+        summaryEl.innerHTML = `<span style="color:#e57373;">匹配失败: ${escHtml(err.message)}</span>`;
+        tableEl.innerHTML = '';
+      }
+  }
 
     // ── PDA badge ──
     function renderPdaBadge(pda) {
@@ -2752,6 +2810,7 @@
       document.getElementById('manualPriceLow').value = '';
       document.getElementById('manualPdaNote').value = '';
       document.getElementById('manualSaveBtn').textContent = '保存 Manual PDA';
+      document.getElementById('matchResultPanel').style.display = 'none';
       updateManualFieldState();
     }
 
@@ -3112,6 +3171,7 @@
     document.getElementById('useChartTfBtn').onclick = syncManualTfFromChart;
     document.getElementById('manualSaveBtn').onclick = saveManualPdaFromPanel;
     document.getElementById('manualResetBtn').onclick = resetManualForm;
+    document.getElementById('manualMatchAutoBtn').onclick = matchManualToAuto;
     updateManualFieldState();
     document.getElementById('pickAnchorTimeBtn').onclick = () => pasteChartTime('manualAnchorTime');
     document.getElementById('pickStartTimeBtn').onclick = () => pasteChartTime('manualStartTime');
