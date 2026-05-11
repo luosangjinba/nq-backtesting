@@ -72,10 +72,13 @@ setTimeout(() => {
 
 **需求变更过程**：
 1. **第一版**：双虚线边界（上下两条水平虚线）
-2. **最终版**：左右开口矩形 + 中央标签
+2. **第二版**：左右开口矩形 + 中央标签
+3. **最终版**：实线边界 + 中线（差值 > 4 点时）
 
 **最终实现**：
-- **左右开口矩形**：只有上下两条虚线，没有左右竖线
+- **左右开口矩形**：只有上下两条实线，没有左右竖线
+- **边界线样式**：从虚线改为实线，更清晰醒目
+- **中线功能**：当上下差值 > 4 点时，自动绘制中线（虚线）
 - **扩展范围**：
   - 前扩展：1 根 K 线（`idx - 1`）
   - 后扩展：5 根 K 线（`idx + 4`，默认）
@@ -85,29 +88,78 @@ setTimeout(() => {
   - Bullish：金色 (#c8aa32)
   - Bearish：红色 (#b43c3c)
 
+**中线值调整规则**（NQ 步长 0.25）：
+```javascript
+// 1. 计算中线价格
+let midPrice = (priceTop + priceBottom) / 2;
+
+// 2. 四舍五入到 0.25 步长
+midPrice = Math.round(midPrice * 4) / 4;
+
+// 3. 调整特殊小数部分
+const decimal = midPrice - Math.floor(midPrice);
+if (decimal === 0.125 || decimal === 0.375 || 
+    decimal === 0.625 || decimal === 0.875) {
+  midPrice -= 0.125;
+}
+
+// 结果：
+// 0.125 → 0
+// 0.375 → 0.25
+// 0.625 → 0.5
+// 0.875 → 0.75
+```
+
 **技术实现**：
 ```javascript
 // fvgZone overlay 注册
 klinecharts.registerOverlay({
   name: 'fvgZone',
-  createPointFigures: ({ overlay, coordinates }) => {
-    // 绘制上边界线
+  createPointFigures: ({ overlay, coordinates, yAxis }) => {
+    // 获取价格值
+    const priceTop = yAxis.convertFromPixel(y1);
+    const priceBottom = yAxis.convertFromPixel(y2);
+    const priceDiff = Math.abs(priceTop - priceBottom);
+    
+    // 绘制上边界线（实线）
     figs.push({
       type: 'line',
       attrs: { coordinates: [{ x: x1, y: y1 }, { x: x2, y: y1 }] },
-      styles: { style: 'dashed', color: lineColor, size: 1, dashedValue: [4, 4] }
+      styles: { style: 'solid', color: lineColor, size: 1 }
     });
     
-    // 绘制下边界线
+    // 绘制下边界线（实线）
     figs.push({
       type: 'line',
       attrs: { coordinates: [{ x: x1, y: y2 }, { x: x2, y: y2 }] },
-      styles: { style: 'dashed', color: lineColor, size: 1, dashedValue: [4, 4] }
+      styles: { style: 'solid', color: lineColor, size: 1 }
     });
+    
+    // 绘制中线（虚线，仅当差值 > 4 点）
+    if (priceDiff > 4) {
+      let midPrice = (priceTop + priceBottom) / 2;
+      midPrice = Math.round(midPrice * 4) / 4;  // 四舍五入到 0.25
+      
+      // 调整特殊小数部分
+      const decimal = midPrice - Math.floor(midPrice);
+      if (Math.abs(decimal - 0.125) < 0.01 || 
+          Math.abs(decimal - 0.375) < 0.01 ||
+     Math.abs(decimal - 0.625) < 0.01 || 
+          Math.abs(decimal - 0.875) < 0.01) {
+        midPrice -= 0.125;
+      }
+    
+      const midY = yAxis.convertToPixel(midPrice);
+      figs.push({
+        type: 'line',
+        attrs: { coordinates: [{ x: x1, y: midY }, { x: x2, y: midY }] },
+        styles: { style: 'dashed', color: lineColor, size: 1, dashedValue: [4, 4] }
+      });
+    }
     
     // 绘制中央标签
     figs.push({
-      type: 'text',
+   type: 'text',
       attrs: { x: x1 + w / 2, y: y1 + h / 2, text: timeframe, align: 'center', baseline: 'middle' }
     });
   }
@@ -120,12 +172,16 @@ klinecharts.registerOverlay({
 a1bb852 修复：OB 矩形框绘制 & 右键添加自动预览
 2787d7c 优化：FVG 显示方式改为双虚线边界
 26eece1 优化：FVG 显示为左右开口矩形 + 中央标签
+57b4ea2 优化：FVG 外观调整（实线边界 + 中线）
 ```
 
 ### 结果
 - ✅ OB 矩形框正确显示
 - ✅ 右键添加 OB 自动预览
 - ✅ FVG 显示为左右开口矩形，不影响 K 线影线观感
+- ✅ FVG 边界线改为实线，更清晰
+- ✅ FVG 大区间（> 4 点）显示中线，便于观察
+- ✅ FVG 中线价格符合 NQ 交易规则（0.25 步长）
 - ✅ FVG 中央显示周期标签，信息清晰
 - ✅ 所有 PDA 类型绘制逻辑统一优化
 
@@ -134,6 +190,7 @@ a1bb852 修复：OB 矩形框绘制 & 右键添加自动预览
 2. **用户体验优先**：自动预览功能大幅提升操作流畅度
 3. **视觉设计迭代**：根据实际使用反馈快速调整显示方式
 4. **代码健壮性**：添加错误捕获，避免误导性提示
+5. **交易规则适配**：中线价格调整符合 NQ 步长规则，更专业
 
 ---
 
