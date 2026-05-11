@@ -46,6 +46,17 @@
 2. **区间 vs 点类型**：匹配逻辑需要区分 PDA 类型，区间类型用中间价和更大容差
 3. **功能收口**：layer2_recorder_v2 有完整匹配实现，kline_viewer 只需轻量入口
 
+#### 5. 匹配列出所有相关周期和类型 ✅
+- 前端不再按 timeframe/pda_type 过滤，返回所有匹配候选
+- API timeframe 参数改为可选（空字符串跳过过滤）
+- 同价格（price_delta=0）的 PDA 放宽时间容差到 24 小时
+- 效果：一个 BSL 同时匹配 15M/1H/4H/D 以及 daily_high/ict_midnight_day_high
+
+### 追加提交
+```
+7792616 优化：匹配自动 PDA 列出所有相关周期和类型
+```
+
 ---
 
 ## 2026-05-10 下午 - OB 矩形框绘制修复 & FVG 显示优化
