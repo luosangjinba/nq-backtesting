@@ -1774,7 +1774,7 @@
         summaryEl.innerHTML = strong
           ? `<span style="color:#81c784;">\u2713 已匹配 ${escHtml(best.pdaId)}（${best.matchKind} \xb7 score ${best.matchScore}）</span>`
           : `<span style="color:#ffb74d;">? 最佳候选 ${escHtml(best.pdaId)}（score ${best.matchScore}）未达阈值 0.68</span>`;
-        const rows = candidates.map(c => `<tr>
+        const rows = candidates.map(c => `<tr style="cursor:pointer;" data-anchor-time="${escHtml(c.anchorTime || c.candidateTime || '')}" data-pda-id="${escHtml(c.pdaId)}" title="点击采用此 PDA 的时间">
           <td>${escHtml(c.pdaId)}</td>
           <td>${escHtml(c.timeframe)}</td>
           <td>${escHtml(c.pdaType)}</td>
@@ -1786,6 +1786,15 @@
         tableEl.innerHTML = `<table class="panel-table"><thead><tr>
           <th>PDA ID</th><th>TF</th><th>Type</th><th>Kind</th><th>Score</th><th>\u0394T</th><th>\u0394P</th>
         </tr></thead><tbody>${rows}</tbody></table>`;
+        tableEl.querySelectorAll('tbody tr').forEach(tr => {
+          tr.onclick = () => {
+            const time = tr.dataset.anchorTime;
+            if (!time) return;
+        document.getElementById('manualAnchorTime').value = time;
+            toast(`已采用 ${tr.dataset.pdaId} 的时间: ${time}`, 'success');
+          try { previewManualOverlay(); } catch(e) {}
+        };
+        });
       } catch (err) {
         panel.style.display = 'block';
         summaryEl.innerHTML = `<span style="color:#e57373;">匹配失败: ${escHtml(err.message)}</span>`;
