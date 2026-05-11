@@ -1820,7 +1820,7 @@
         console.log('[updatePdaForNewTimeframe] Price:', price, 'Type:', pdaType, 'AnchorTime:', anchorTime);
 
         if (!price || !anchorTime) {
-          console.log('[updatePdaForNewTimeframe] Missing price or time, keeping current PDA');
+          console.log('[updatePdaForNewTimeframe] Missing price or time, in time range, keeping current PDA');
           return;
         }
 
@@ -1869,7 +1869,7 @@
           }
         }
 
-        console.log('[updatePdaForNewTimeframe] Total bars:', lastCandleData.length, 'Closest bar price:', isHighType ? closestBar?.high : (isLowType ? closestBar?.low : closestBar?.close), 'Diff:', closestDiff.toFixed(2));
+        console.log('[updatePdaForNewTimeframe] Bars in range:',  lastCandleData.filter(b => b.timestamp >= barStartMs && b.timestamp <= barEndMs).length, 'Closest bar price:', isHighType ? closestBar?.high : (isLowType ? closestBar?.low : closestBar?.close), 'Diff:', closestDiff.toFixed(2));
 
         if (matchedBar) {
           const matchedTime = new Date(matchedBar.timestamp).toISOString().replace('T', ' ').substring(0, 19);
@@ -1885,7 +1885,7 @@
         renderPdaBadge(currentPda);
         console.log('[updatePdaForNewTimeframe] Updated currentPda anchor time to:', matchedTime);
         } else {
-        console.log('[updatePdaForNewTimeframe] No matching bar found for price:', price, 'keeping current PDA');
+        console.log('[updatePdaForNewTimeframe] No matching bar found for price:', price, 'in time range, keeping current PDA');
         }
       } catch (err) {
         console.error('[updatePdaForNewTimeframe] Error:', err);
