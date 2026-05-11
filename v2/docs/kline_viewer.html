@@ -1643,6 +1643,7 @@
     function isFvgAtPosition(fvg, barIndex) {
       if (!fvg || !lastCandleData) return false;
 
+      // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
       const fvgStartIdx = findBarIndex(lastCandleData, timeToTimestamp(fvg.anchorTime || fvg.occurrenceTime) * 1000);
       if (fvgStartIdx < 0) return false;
 
@@ -1659,6 +1660,7 @@
       const { pda, source } = fvgInfo;
 
       // Calculate the maximum possible extension based on current data
+      // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
       const fvgStartIdx = findBarIndex(lastCandleData, timeToTimestamp(pda.anchorTime || pda.occurrenceTime) * 1000);
       if (fvgStartIdx < 0) return;
 
@@ -1694,6 +1696,7 @@
       if (!fvgInfo || crosshairBarIndex < 0) return;
 
       const { pda } = fvgInfo;
+      // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
       const fvgStartIdx = findBarIndex(lastCandleData, timeToTimestamp(pda.anchorTime || pda.occurrenceTime) * 1000);
       if (fvgStartIdx < 0) return;
 
@@ -1811,7 +1814,8 @@
         daily_high: 'bsl', daily_low: 'ssl', ict_midnight_day_high: 'bsl', ict_midnight_day_low: 'ssl', ndog: 'bsl', nwog: 'bsl' };
       const cls = colorMap[type] || 'ob';
       const label = type.toUpperCase();
-      const time = pda.occurrenceTime || pda.anchorTime || '';
+      // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
+    const time = pda.anchorTime || pda.occurrenceTime || '';
       const dir = pda.direction || '';
       const tf = pda.timeframe || '';
       const parts = [`<b>${label}</b>`];
@@ -1836,7 +1840,8 @@
       if (pdaType === 'ob' && pda.extraFields?.start_time) {
         pdaTimeSec = timeToTimestamp(pda.extraFields.start_time);
       } else {
-        pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+      // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
+        pdaTimeSec = timeToTimestamp(pda.anchorTime || pda.occurrenceTime || '');
     }
       const pdaTimeMs = pdaTimeSec * 1000;
       const pdaTimeEndSec = pda.extraFields?.end_time ? timeToTimestamp(pda.extraFields.end_time) : 0;
@@ -2064,7 +2069,9 @@
     // ── Center on PDA ──
     function centerOnPda(pda, candleData) {
       if (!chart || !candleData?.length) return;
-      const pdaTimeSec = timeToTimestamp(pda.occurrenceTime || pda.anchorTime || '');
+      // For auto PDAs, prefer anchorTime (price formation time, stable across TFs)
+      // over occurrenceTime (detection time, varies by TF scanning logic)
+      const pdaTimeSec = timeToTimestamp(pda.anchorTime || pda.occurrenceTime || '');
       if (!pdaTimeSec) { resetView(); return; }
 
       const pdaTimeMs = pdaTimeSec * 1000;
@@ -2509,7 +2516,8 @@
 
         currentPda = pda;
 
-        const pdaTime = pda.occurrenceTime || pda.anchorTime || '';
+        // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
+        const pdaTime = pda.anchorTime || pda.occurrenceTime || '';
         if (!pdaTime) throw new Error('PDA 无时间信息');
 
         const m = String(pdaTime).match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
@@ -2800,7 +2808,8 @@
       renderPdaBadge(row);
 
       // Check if PDA is within current chart range
-      const pdaTimeSec = timeToTimestamp(row.occurrenceTime || row.anchorTime || '');
+    // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
+      const pdaTimeSec = timeToTimestamp(row.anchorTime || row.occurrenceTime || '');
       const pdaTimeMs = pdaTimeSec * 1000;
       const inRange = lastCandleData?.length && pdaTimeMs >= lastCandleData[0].timestamp && pdaTimeMs <= lastCandleData[lastCandleData.length - 1].timestamp;
 

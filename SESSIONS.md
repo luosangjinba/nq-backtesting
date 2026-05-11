@@ -1,4 +1,61 @@
 # 开发会话记录
+## 2026-05-11 下午 - 修复切换周期后 PDA 定位偏移问题
+
+### 背景
+用户在1H图上选中一个SSL（`pda_20080320_1H_ssl_001`），切换到15M图后，SSL标记位置发生偏移，没有显示在正确的低点位置。
+
+### 问题分析
+**根本原因**：
+- `occurrence_time` 是PDA在**特定周期**首次被检测到的时间
+- 当从1H切换到15M时，同一个价格水平的SSL在15M周期下的 `occurrence_time` 可能不同
+- 15M扫描逻辑会在不同的时间点检测到这个价格水平，导致定位偏移
+
+**解决方案**：
+- 对于自动PDA，应该优先使用 `anchor_time`（PDA的实际价格形成时间，跨周期不变）
+- 而不是 `occurrence_time`（检测时间，会随周期变化）
+
+### 完成的工作
+
+#### 修复所有使用 occurrence_time 的地方 ✅
+修改了以下函数，将 `occurrenceTime || anchorTime` 改为 `anchorTime || occurrenceTime`：
+
+1. **centerOnPda** (2065行) - PDA定位滚动逻辑
+2. **panelLocateSelectedPda** (2803行) - 面板定位选中PDA
+3. **buildPdaOverlays** (1841行) - 绘制PDA覆盖层
+4. **renderPdaBadge** (1815行) - 显示PDA徽章
+5. **isFvgAtPosition** (1647行) - FVG位置判断
+6. **extendFvg** (1664行) - FVG扩展计算
+7. **extendFvgToCurrent** (1701行) - FVG扩展到当前位置
+8. **loadPdaMode** (2519行) - 加载PDA模式
+
+所有修改都添加了注释：
+```javascript
+// For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
+```
+
+### 技术细节
+
+#### anchor_time vs occurrence_time
+- **anchor_time**: PDA的实际价格形成时间（如SSL的低点形成时间），跨周期不变
+- **occurrence_time**: PDA在特定周期首次被扫描检测到的时间，随周期变化
+
+#### 影响范围
+- 定位功能：点击"定位"按钮后正确滚动到PDA位置
+- 绘制功能：PDA标记（箭头、线条、矩形）显示在正确位置
+- 显示功能：PDA徽章显示正确的时间
+- 交互功能：FVG扩展、位置判断等使用正确的时间基准
+
+### 验证方法
+1. 在1H图上选中一个SSL
+2. 切换到15M图
+3. SSL标记应该显示在正确的低点位置，不再偏移
+
+### 提交记录
+```
+待提交：修复切换周期后 PDA 定位偏移问题
+```
+
+---
 
 ## 2026-05-11 - 匹配合并功能重构 & pda_match API 修复
 
