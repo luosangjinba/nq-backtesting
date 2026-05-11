@@ -1824,29 +1824,9 @@
           return;
         }
 
-        // Calculate the time range of the original timeframe bar
-      // For example, 1H bar at 13:00 represents 12:00-13:00
-        const oldTf = currentPda.timeframe || '';  // e.g., "1H", "15M", "4H"
-        let oldTfMinutes = 60;  // default to 1 hour
-        if (oldTf.endsWith('M')) {
-          oldTfMinutes = parseInt(oldTf);
-        } else if (oldTf.endsWith('H')) {
-          oldTfMinutes = parseInt(oldTf) * 60;
-        } else if (oldTf === 'D') {
-          oldTfMinutes = 24 * 60;
-        } else if (oldTf === 'W') {
-          oldTfMinutes = 7 * 24 * 60;
-        }
+        // Search for the K-line with matching price in the entire chart data
+        // If multiple bars match, use the rightmost (latest) one
         
-        const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
-        // Anchor time is the bar's open time, so the bar covers [anchorTime, anchorTime + period]
-        const barStartMs = anchorTimeMs;  // Start of the bar (open time)
-        const barEndMs = anchorTimeMs + (oldTfMinutes * 60 * 1000);  // End of the bar
-
-        console.log('[updatePdaForNewTimeframe] Old TF:', oldTf, 'Minutes:', oldTfMinutes, 'Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
-
-        // Find the K-line with matching price in current timeframe data
-        // If multiple bars match, use the rightmost (latest) one within the time range
         const highTypes = ['bsl', 'daily_high', 'ict_midnight_day_high', 'ndog', 'nwog', 'eqh'];
         const lowTypes = ['ssl', 'daily_low', 'ict_midnight_day_low', 'eql'];
         const isHighType = highTypes.includes(pdaType);
@@ -1854,20 +1834,14 @@
 
         let matchedBar = null;
         let matchedIndex = -1;
-        let barsInRange = 0;
+        
         let closestBar = null;
         let closestDiff = Infinity;
 
-        // Search from right to left (latest to earliest) to find the rightmost match within time range
+        // Search from right to left (latest to earliest) to find the rightmost match
         for (let i = lastCandleData.length - 1; i >= 0; i--) {
           const bar = lastCandleData[i];
-        
-          // Check if bar is within the time range
-          if (bar.timestamp < barStartMs || bar.timestamp > barEndMs) {
-          continue;
-          }
 
-          barsInRange++;
 
           // Track closest bar for debugging
           const barPrice = isHighType ? bar.high : (isLowType ? bar.low : bar.close);
@@ -1895,7 +1869,7 @@
           }
         }
 
-        console.log('[updatePdaForNewTimeframe] Bars in range:', barsInRange, 'Closest bar price:', isHighType ? closestBar?.high : (isLowType ? closestBar?.low : closestBar?.close), 'Diff:', closestDiff.toFixed(2));
+        console.log('[updatePdaForNewTimeframe] Total bars:', lastCandleData.length, 'Closest bar price:', isHighType ? closestBar?.high : (isLowType ? closestBar?.low : closestBar?.close), 'Diff:', closestDiff.toFixed(2));
 
         if (matchedBar) {
           const matchedTime = new Date(matchedBar.timestamp).toISOString().replace('T', ' ').substring(0, 19);
@@ -1911,7 +1885,7 @@
         renderPdaBadge(currentPda);
         console.log('[updatePdaForNewTimeframe] Updated currentPda anchor time to:', matchedTime);
         } else {
-        console.log('[updatePdaForNewTimeframe] No matching bar found for price:', price, 'in time range, keeping current PDA');
+        console.log('[updatePdaForNewTimeframe] No matching bar found for price:', price, 'keeping current PDA');
         }
       } catch (err) {
         console.error('[updatePdaForNewTimeframe] Error:', err);
