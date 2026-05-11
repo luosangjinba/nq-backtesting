@@ -1,5 +1,53 @@
 # 开发会话记录
 
+## 2026-05-11 - 匹配合并功能重构 & pda_match API 修复
+
+### 背景
+用户要求清理 kline_viewer 中冗余的匹配合并功能块，并重新实现一个轻量的"匹配自动 PDA"按钮，在 Manual PDA 面板中直接展示匹配结果。
+
+### 完成的工作
+
+#### 1. 移除 kline_viewer 匹配合并功能块 ✅
+- 删除 HTML 面板（details section "匹配合并"）
+- 删除 CSS 样式（match-grid/match-card）
+- 删除 JS 函数（previewManualAutoMatch、applyManualAutoMerge、buildMergeYaml、buildMainExportYaml 等）
+- 删除状态变量（lastMatchResult、lastAppliedMerge）和事件绑定
+- 共删除 313 行代码
+
+#### 2. 新增"匹配自动 PDA"按钮 & 结果面板 ✅
+- 按钮与其他操作按钮同行
+- 点击后在下方 `#matchResultPanel` 显示匹配结果
+- 结果包含：状态摘要行 + 候选表格（PDA ID、TF、Type、Kind、Score、ΔT、ΔP）
+- 强匹配（score≥0.68 或 exact）绿色显示
+- 弱匹配橙色显示，无匹配红色显示
+- 重置表单时自动隐藏结果面板
+
+#### 3. 修复 pda_match API 参数绑定顺序 ✅
+- **根因**：DuckDB 按 SQL 文本中 `?` 出现顺序绑定参数
+- SELECT 中的 `event_time`/`price` 在 WHERE 的 `instrument`/`tf`/`pda` 之前
+- 原代码把 WHERE 参数排在前面，导致匹配永远返回空结果
+- 修复后参数顺序：event_time, price, instrument×2, tf×2, pda×2
+
+#### 4. 修复 FVG/OB 区间类型匹配逻辑 ✅
+- **问题**：FVG 的 price 字段为 NULL，数据库用 price_ce 比较；前端传 priceHigh，差值超过容差
+- **修复**：区间类型（fvg/ob/nwog/ndog）使用 `(priceHigh+priceLow)/2` 作为匹配价格
+- 区间类型价格容差从 0.5 点提升到 5 点（20 ticks）
+- 点类型（BSL/SSL）保持 0.5 点容差不变
+
+### 提交记录
+```
+995feca 移除：kline_viewer 匹配合并功能块
+8221202 修复：pda_match API 参数顺序 & 匹配结果面板
+78e0478 修复：FVG/OB 等区间类型 PDA 匹配逻辑
+```
+
+### 经验总结
+1. **DuckDB 参数绑定**：`?` 按 SQL 文本出现顺序绑定，不是按 WHERE/SELECT 逻辑分组
+2. **区间 vs 点类型**：匹配逻辑需要区分 PDA 类型，区间类型用中间价和更大容差
+3. **功能收口**：layer2_recorder_v2 有完整匹配实现，kline_viewer 只需轻量入口
+
+---
+
 ## 2026-05-10 下午 - OB 矩形框绘制修复 & FVG 显示优化
 
 ### 背景
