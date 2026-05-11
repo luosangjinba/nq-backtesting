@@ -1820,13 +1820,33 @@
         console.log('[updatePdaForNewTimeframe] Price:', price, 'Type:', pdaType, 'AnchorTime:', anchorTime);
 
         if (!price || !anchorTime) {
-          console.log('[updatePdaForNewTimeframe] Missing price or time, in time range, keeping current PDA');
+          console.log('[updatePdaForNewTimeframe] Missing price or time, keeping current PDA');
           return;
         }
 
-        // Search for the K-line with matching price in the entire chart data
+        // Calculate the time range of the original timeframe bar
+        // Anchor time is the bar's open time, so the bar covers [anchorTime, anchorTime + period]
+        const oldTf = currentPda.timeframe || '';
+        let oldTfMinutes = 60;  // default to 1 hour
+        if (oldTf.endsWith('M')) {
+      oldTfMinutes = parseInt(oldTf);
+        } else if (oldTf.endsWith('H')) {
+          oldTfMinutes = parseInt(oldTf) * 60;
+        } else if (oldTf === 'D') {
+        oldTfMinutes = 24 * 60;
+     } else if (oldTf === 'W') {
+          oldTfMinutes = 7 * 24 * 60;
+        }
+
+        const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
+        const barStartMs = anchorTimeMs;  // Start of the bar (open time)
+        const barEndMs = anchorTimeMs + (oldTfMinutes * 60 * 1000);  // End of the bar
+
+    console.log('[updatePdaForNewTimeframe] Old TF:', oldTf, 'Minutes:', oldTfMinutes, 'Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
+
+        // Search for the K-line with matching price within the time range
         // If multiple bars match, use the rightmost (latest) one
-        
+
         const highTypes = ['bsl', 'daily_high', 'ict_midnight_day_high', 'ndog', 'nwog', 'eqh'];
         const lowTypes = ['ssl', 'daily_low', 'ict_midnight_day_low', 'eql'];
         const isHighType = highTypes.includes(pdaType);
@@ -1838,12 +1858,16 @@
         let closestBar = null;
         let closestDiff = Infinity;
 
-        // Search from right to left (latest to earliest) to find the rightmost match
-        for (let i = lastCandleData.length - 1; i >= 0; i--) {
+      // Search from right to left (latest to earliest) to find the rightmost match
+      for (let i = lastCandleData.length - 1; i >= 0; i--) {
           const bar = lastCandleData[i];
 
+          // Check if bar is within the time range
+          if (bar.timestamp < barStartMs || bar.timestamp > barEndMs) {
+      continue;
+          }
 
-          // Track closest bar for debugging
+       // Track closest bar for debugging
           const barPrice = isHighType ? bar.high : (isLowType ? bar.low : bar.close);
           const diff = Math.abs(barPrice - price);
           if (diff < closestDiff) {
