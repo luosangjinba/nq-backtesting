@@ -1805,6 +1805,59 @@
       }
   }
 
+    // ── Update PDA for new timeframe ──
+    async function updatePdaForNewTimeframe(newTf) {
+      if (!currentPda) return;
+
+    console.log('[updatePdaForNewTimeframe] Current PDA:', currentPda.pdaId, 'Old TF:', currentPda.timeframe, 'New TF:', newTf);
+
+      try {
+        // Query PDAs in the new timeframe with similar price and time
+        const price = currentPda.price || currentPda.priceHigh || currentPda.priceLow;
+        const anchorTime = currentPda.anchorTime || currentPda.occurrenceTime;
+
+        if (!price || !anchorTime) {
+          console.log('[updatePdaForNewTimeframe] Missing price or time, keeping current PDA');
+      return;
+        }
+
+        // Query PDAs within ±30 minutes and ±5 ticks
+        const params = new URLSearchParams({
+          instrument: 'NQ',
+      timeframe: newTf,
+          pda_type: currentPda.pdaType,
+          event_time: anchorTime,
+          price: String(price),
+          time_tolerance_bars: '8',  // Loose tolerance for cross-TF matching
+          price_tolerance_ticks: '5',
+        limit: '5',
+        });
+
+        const resp = await apiGet(`/v2/pda_match?${params.toString()}`);
+        const candidates = resp.result?.candidates || resp.candidates || [];
+
+    if (candidates.length > 0) {
+          // Use the best match
+       const best = candidates[0];
+          console.log('[updatePdaForNewTimeframe] Found match:', best.pdaId, 'Score:', best.matchScore);
+
+          // Fetch the full PDA record
+          const pdaResp = await apiGet(`/v2/pda_records?pda_id=${best.pdaId}`);
+      const records = pdaResp.result?.records || [];
+
+        if (records.length > 0) {
+            currentPda = records[0];
+            renderPdaBadge(currentPda);
+            console.log('[updatePdaForNewTimeframe] Updated currentPda to:', currentPda.pdaId);
+          }
+        } else {
+          console.log('[updatePdaForNewTimeframe] No match found in new timeframe, keeping current PDA');
+        }
+      } catch (err) {
+        console.error('[updatePdaForNewTimeframe] Error:', err);
+      }
+    }
+
     // ── PDA badge ──
     function renderPdaBadge(pda) {
       const el = document.getElementById('pdaBadge');
@@ -1831,14 +1884,14 @@
 
     // ── PDA overlay builder ──
     function buildPdaOverlays(pda, candleData) {
-      if (!pda || !candleData?.length) return [];
+   if (!pda || !candleData?.length) return [];
       const overlays = [];
       const pdaType = (pda.pdaType || '').toLowerCase();
 
       // For OB, use start_time as the primary timestamp
       let pdaTimeSec;
       if (pdaType === 'ob' && pda.extraFields?.start_time) {
-        pdaTimeSec = timeToTimestamp(pda.extraFields.start_time);
+      pdaTimeSec = timeToTimestamp(pda.extraFields.start_time);
       } else {
       // For auto PDAs, prefer anchorTime (stable across TFs) over occurrenceTime (varies by TF)
         pdaTimeSec = timeToTimestamp(pda.anchorTime || pda.occurrenceTime || '');
@@ -1846,6 +1899,9 @@
       const pdaTimeMs = pdaTimeSec * 1000;
       const pdaTimeEndSec = pda.extraFields?.end_time ? timeToTimestamp(pda.extraFields.end_time) : 0;
       const pdaTimeEndMs = pdaTimeEndSec * 1000;
+
+      // Debug: log PDA time and found bar index
+      console.log('[buildPdaOverlays] PDA:', pda.pdaId, 'Type:', pdaType, 'AnchorTime:', pda.anchorTime, 'OccurrenceTime:', pda.occurrenceTime, 'pdaTimeMs:', pdaTimeMs);
 
       // In replay mode, check if PDA timestamp is within visible data range
       const lastVisibleBarTime = candleData[candleData.length - 1].timestamp;
@@ -1855,6 +1911,7 @@
       }
 
       const idx = findBarIndex(candleData, pdaTimeMs);
+      console.log('[buildPdaOverlays] Found bar index:', idx, 'Total bars:', candleData.length);
       if (idx < 0) return [];
 
       const bar = candleData[idx];
@@ -2423,11 +2480,19 @@
         }
         onDataReadyHandler = () => {
           drawMidnightLines(initialData, tfMinutes);
-          drawAllOverlays();
+
+          // If there's a current PDA from a different timeframe, try to find the corresponding PDA in the new timeframe
+          if (currentPda && currentPda.timeframe !== tf) {
+            updatePdaForNewTimeframe(tf).then(() => {
+            drawAllOverlays();
+            });
+          } else {
+            drawAllOverlays();
+          }
 
           // In replay mode, reset view to show the first bar
-          // But skip reset if we restored from a saved time range (TF switch)
-          if (initialIndex === 0) {
+      // But skip reset if we restored from a saved time range (TF switch)
+       if (initialIndex === 0) {
             resetView();
           }
 
