@@ -2337,6 +2337,7 @@
 
       // Save currentPda before reloading data (for cross-TF matching)
       const savedPda = currentPda;
+      console.log('[loadData] Saving currentPda:', savedPda?.pdaId, 'timeframe:', savedPda?.timeframe, 'price:', savedPda?.price);
 
       const start = parseTime(startRaw);
       const end = parseTime(endRaw);
