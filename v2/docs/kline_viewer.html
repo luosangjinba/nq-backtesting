@@ -2291,6 +2291,9 @@
       const endRaw = document.getElementById('endTime').value.trim();
       const tf = document.getElementById('tfSelect').value;
 
+      // Save currentPda before reloading data (for cross-TF matching)
+      const savedPda = currentPda;
+
       const start = parseTime(startRaw);
       const end = parseTime(endRaw);
       if (!start || !end) {
@@ -2478,17 +2481,19 @@
         if (onDataReadyHandler) {
           chart.unsubscribeAction('onDataReady', onDataReadyHandler);
         }
-        onDataReadyHandler = () => {
+        onDataReadyHandler = async () => {
           drawMidnightLines(initialData, tfMinutes);
 
-          // If there's a current PDA from a different timeframe, try to find the corresponding PDA in the new timeframe
-          if (currentPda && currentPda.timeframe !== tf) {
-            updatePdaForNewTimeframe(tf).then(() => {
-            drawAllOverlays();
-            });
-          } else {
-            drawAllOverlays();
+      // If there's a current PDA from a different timeframe, try to find the corresponding PDA in the new timeframe
+          const currentTf = tf + 'M';  // Convert "15" to "15M"
+          console.log('[onDataReady] Saved PDA:', savedPda?.pdaId, 'timeframe:', savedPda?.timeframe, 'vs current:', currentTf);
+      if (savedPda && savedPda.timeframe && savedPda.timeframe !== currentTf) {
+            console.log('[onDataReady] Timeframe changed, updating PDA...');
+        currentPda = savedPda;
+            await updatePdaForNewTimeframe(currentTf);
           }
+          drawAllOverlays();
+
 
           // In replay mode, reset view to show the first bar
       // But skip reset if we restored from a saved time range (TF switch)
