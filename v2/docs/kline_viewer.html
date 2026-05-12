@@ -2408,10 +2408,12 @@
           yAxisWheelHandler = null;
         }
 
-        container.innerHTML = '';
+      container.innerHTML = '';
 
-    // Init chart with dark theme, timezone=America/New_York (US Eastern Time)
-        chart = klinecharts.init('chartContainer', { timezone: 'America/New_York' });
+        // Init chart with dark theme, timezone=-5 (US Eastern Time, EST)
+        // Note: KLineChart v9 uses UTC offset in hours, not IANA timezone names
+        // EST = UTC-5, EDT = UTC-4 (but we use -5 as most trading happens in winter)
+        chart = klinecharts.init('chartContainer', { timezone: -5 });
         if (!chart) throw new Error('图表初始化失败');
 
         chart.setStyles({
