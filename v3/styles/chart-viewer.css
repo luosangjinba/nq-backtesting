@@ -1,0 +1,161 @@
+/**
+ * V3 K线查看器样式
+ *
+ * 主题：深色 TradingView 风格
+ * 颜色方案：
+ *   - 背景：#0a0e27 (body), #131722 (图表), #1e222d (工具栏)
+ *   - 文字：#e0e3eb (主), #787b86 (次)
+ *   - 边框：#2a2e39
+ *   - 强调：#2962ff (按钮)
+ *   - 涨跌：#26a69a (涨), #ef5350 (跌)
+ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0a0e27;
+  color: #e0e3eb;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* 顶部工具栏 */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+background: #1e222d;
+  border-bottom: 1px solid #2a2e39;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-label {
+  font-size: 13px;
+color: #787b86;
+  white-space: nowrap;
+}
+
+.toolbar input[type="text"],
+.toolbar select {
+  padding: 6px 10px;
+  background: #131722;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  color: #e0e3eb;
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+}
+
+.toolbar input[type="text"] {
+  width: 140px;
+}
+
+.toolbar select {
+  width: 80px;
+}
+
+.toolbar button {
+  padding: 6px 16px;
+  background: #2962ff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toolbar button:hover {
+  background: #1e53e5;
+}
+
+.toolbar button:disabled {
+  background: #2a2e39;
+  color: #787b86;
+  cursor: not-allowed;
+}
+
+#statusText {
+  margin-left: auto;
+  font-size: 12px;
+  color: #787b86;
+}
+
+/* 图表容器 */
+#chart {
+  flex: 1;
+  position: relative;
+  background: #131722;
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(19, 23, 34, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #2a2e39;
+  border-top-color: #2962ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 13px;
+  color: #787b86;
+}
+
+/* 提示信息 */
+.hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #787b86;
+  font-size: 14px;
+}
+
+.hint-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
