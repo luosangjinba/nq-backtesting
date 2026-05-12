@@ -2410,8 +2410,8 @@
 
         container.innerHTML = '';
 
-        // Init chart with dark theme, timezone=UTC to match DB timestamps
-        chart = klinecharts.init('chartContainer', { timezone: 'UTC' });
+    // Init chart with dark theme, timezone=America/New_York (US Eastern Time)
+        chart = klinecharts.init('chartContainer', { timezone: 'America/New_York' });
         if (!chart) throw new Error('图表初始化失败');
 
         chart.setStyles({

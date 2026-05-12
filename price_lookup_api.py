@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import uuid
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from email.parser import BytesParser
 from email.policy import default as default_email_policy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -1882,10 +1883,14 @@ order by ts
 """.strip()
         with open_db(db_path) as conn:
             rows = conn.execute(sql, [instrument, query_start, query_end]).fetchall()
+
+        # Database stores naive timestamps that represent US/Eastern time
+        # Interpret as ET and convert to UTC timestamp for the chart
+        et_tz = ZoneInfo("America/New_York")
         return [
             {
-                "time": row[0].strftime("%Y-%m-%d %H:%M"),
-                "timestamp": int(row[0].timestamp()),
+            "time": row[0].strftime("%Y-%m-%d %H:%M"),  # Keep as-is (already ET)
+            "timestamp": int(row[0].replace(tzinfo=et_tz).timestamp()),  # ET → UTC timestamp
                 "open": float(row[1]),
                 "high": float(row[2]),
                 "low": float(row[3]),
@@ -1928,7 +1933,7 @@ order by bucket
         rows = conn.execute(sql, [instrument, query_start, query_end, tf]).fetchall()
     return [
         {
-            "time": datetime.fromtimestamp(effective_anchor + int(row[0]) * tf * 60, tz=timezone.utc).strftime("%Y-%m-%d %H:%M"),
+               "time": datetime.fromtimestamp(effective_anchor + int(row[0]) * tf * 60, tz=ZoneInfo("America/New_York")).strftime("%Y-%m-%d %H:%M"),
             "timestamp": effective_anchor + int(row[0]) * tf * 60,
             "open": float(row[1]),
             "high": float(row[2]),
