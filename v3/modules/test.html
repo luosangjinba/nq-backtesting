@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>TimeFormatModule 测试</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1e222d;
+      color: #e0e3eb;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h2 { color: #2962ff; }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: #131722;
+      border-radius: 8px;
+      border: 1px solid #2a2e39;
+    }
+    .test-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    color: #26a69a;
+    }
+    input {
+      padding: 8px 12px;
+      width: 250px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      background: #0a0e27;
+      color: #e0e3eb;
+      border: 1px solid #2a2e39;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      background: #2962ff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    font-size: 14px;
+    }
+    button:hover {
+      background: #1e53e5;
+    }
+    .result {
+      margin-top: 10px;
+      padding: 10px;
+      background: #0a0e27;
+      border-radius: 4px;
+    font-size: 13px;
+      line-height: 1.6;
+    }
+    .success { color: #26a69a; }
+    .error { color: #ef5350; }
+    .info { color: #787b86; }
+    code {
+      background: #0a0e27;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #ffa726;
+    }
+  </style>
+</head>
+<body>
+  <h2>⚙️ TimeFormatModule 功能测试</h2>
+
+  <!-- 测试 1: 基础格式化 -->
+  <div class="test-section">
+    <div class="test-title">测试 1: 基础格式化</div>
+    <p class="info">输入 12 位数字，失焦后自动格式化</p>
+    <input type="text" id="test1" placeholder="输入: 201201090930" />
+    <div class="result" id="result1">等待输入...</div>
+  </div>
+
+  <!-- 测试 2: 回车格式化 -->
+  <div class="test-section">
+    <div class="test-title">测试 2: 回车格式化 + 回调</div>
+    <p class="info">输入 12 位数字，按回车触发格式化和回调</p>
+    <input type="text" id="test2" placeholder="输入: 201201091600" />
+    <div class="result" id="result2">等待输入...</div>
+  </div>
+
+  <!-- 测试 3: 无效输入 -->
+  <div class="test-section">
+    <div class="test-title">测试 3: 无效输入验证</div>
+    <p class="info">输入无效格式，应保持原样</p>
+    <input type="text" id="test3" placeholder="输入: 20120109 (8位)" />
+    <div class="result" id="result3">等待输入...</div>
+  </div>
+
+  <!-- 测试 4: API 测试 -->
+  <div class="test-section">
+    <div class="test-title">测试 4: API 功能测试</div>
+    <input type="text" id="test4" placeholder="输入: 201201090930" />
+    <button onclick="testAPIs()">测试所有 API</button>
+    <div class="result" id="result4">点击按钮测试...</div>
+  </div>
+
+  <!-- 测试 5: 批量初始化 -->
+  <div class="test-section">
+    <div class="test-title">测试 5: 批量初始化</div>
+    <p class="info">多个输入框同时初始化</p>
+    <input type="text" class="batch-input" placeholder="输入框 1" />
+    <input type="text" class="batch-input" placeholder="输入框 2" />
+    <button onclick="initBatch()">批量初始化</button>
+    <div class="result" id="result5">点击按钮初始化...</div>
+  </div>
+
+  <!-- 引入模块 -->
+  <script src="../modules/time_format_module.js"></script>
+
+  <script>
+    console.log('TimeFormatModule 版本:', TimeFormatModule.version);
+
+    // 测试 1: 基础格式化（失焦）
+    TimeFormatModule.bindInput(document.getElementById('test1'), {
+      onBlur: true,
+      onEnter: false
+    });
+
+    document.getElementById('test1').addEventListener('blur', (e) => {
+      const result = document.getElementById('result1');
+      result.innerHTML = `
+      <span class="success">✓ 格式化成功</span><br>
+        结果: <code>${e.target.value}</code>
+      `;
+    });
+
+    // 测试 2: 回车格式化 + 回调
+    TimeFormatModule.bindInput(document.getElementById('test2'), {
+      onBlur: false,
+      onEnter: true,
+      onEnterCallback: (formatted) => {
+        const result = document.getElementById('result2');
+        result.innerHTML = `
+          <span class="success">✓ 回车触发成功</span><br>
+          格式化结果: <code>${formatted}</code><br>
+          回调函数已执行
+        `;
+      }
+    });
+
+    // 测试 3: 无效输入
+    TimeFormatModule.bindInput(document.getElementById('test3'));
+
+    document.getElementById('test3').addEventListener('blur', (e) => {
+      const original = e.target.dataset.original || e.target.value;
+      const current = e.target.value;
+      const result = document.getElementById('result3');
+
+      if (original === current) {
+        result.innerHTML = `
+          <span class="success">✓ 验证通过</span><br>
+          输入: <code>${original}</code><br>
+        结果: <code>${current}</code><br>
+          状态: 保持原样（正确）
+     `;
+    } else {
+        result.innerHTML = `
+          <span class="error">✗ 意外改变</span><br>
+          输入: <code>${original}</code><br>
+          结果: <code>${current}</code>
+        `;
+      }
+    });
+
+    document.getElementById('test3').addEventListener('focus', (e) => {
+      e.target.dataset.original = e.target.value;
+    });
+
+    // 测试 4: API 功能
+    function testAPIs() {
+      const input = document.getElementById('test4').value.trim();
+    const result = document.getElementById('result4');
+
+      if (!input) {
+      result.innerHTML = '<span class="error">请先输入内容</span>';
+        return;
+      }
+
+      const formatted = TimeFormatModule.format(input);
+      const parsed = TimeFormatModule.parse(formatted);
+      const date = TimeFormatModule.toDate(formatted);
+      const timestamp = TimeFormatModule.toTimestamp(formatted);
+
+      result.innerHTML = `
+        <div><strong>1. format():</strong> <code>${formatted}</code></div>
+        <div><strong>2. parse():</strong> <code>${JSON.stringify(parsed)}</code></div>
+        <div><strong>3. toDate():</strong> <code>${date}</code></div>
+        <div><strong>4. toTimestamp():</strong> <code>${timestamp}</code></div>
+        <div style="margin-top: 10px;">
+          ${formatted !== input ?
+            '<span class="success">✓ 所有 API 工作正常</span>' :
+            '<span class="error">✗ 格式化失败</span>'}
+        </div>
+      `;
+    }
+
+    // 测试 5: 批量初始化
+    function initBatch() {
+      const inputs = document.querySelectorAll('.batch-input');
+      TimeFormatModule.init(Array.from(inputs), {
+        onBlur: true,
+      onEnterCallback: (formatted) => {
+       const result = document.getElementById('result5');
+          result.innerHTML = `
+            <span class="success">✓ 批量初始化成功</span><br>
+            已初始化 ${inputs.length} 个输入框<br>
+            最后格式化: <code>${formatted}</code>
+          `;
+        }
+      });
+
+      document.getElementById('result5').innerHTML = `
+        <span class="success">✓ 批量初始化完成</span><br>
+        已为 ${inputs.length} 个输入框绑定事件
+      `;
+    }
+
+    // 页面加载完成
+    console.log('✓ 测试页面加载完成');
+  </script>
+</body>
+</html>
