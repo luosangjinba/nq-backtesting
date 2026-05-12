@@ -6,6 +6,45 @@
 
 ## 2026-05-11
 
+### 会话 17：跨周期 PDA 定位修复 + 时区统一修复
+
+**背景：**
+1. 1H → 15M → 5M → 1M 逐级降周期时，1m 周期找不到 PDA 标记
+2. 图表显示时间与数据库时间有偏移（5小时）
+
+**改动内容：**
+
+1. **跨周期 PDA 定位修复**
+   - 问题：每次跨周期后用上一次的周期计算时间范围，导致搜索窗口逐级缩小
+   - 解决：在 `updatePdaForNewTimeframe` 中保存 `originalTimeframe` 和 `originalAnchorTime`
+   - 第一次跨周期时记录原始周期和时间，后续始终用原始范围搜索
+   - 更新 `currentPda` 时保留这两个字段
+
+2. **时区统一修复**
+   - 问题：数据库存储美东时间（naive datetime），图表显示有偏移
+   - 根本原因：
+     - 数据库：美东时间（如 `09:11 ET`）
+     - API 需要转换为 UTC timestamp
+     - 前端 KLineChart 用时区偏移量显示
+   - 解决方案：
+     - API: 将 naive datetime 标注为 ET 时区，转换为 UTC timestamp
+       - `row[0].replace(tzinfo=ZoneInfo("America/New_York")).timestamp()`
+     - 前端: KLineChart 使用 UTC 偏移量 `timezone: -5` (EST)
+     - 结果: 数据库 `09:11 ET` → timestamp `1326118260` (14:11 UTC) → 前端显示 `09:11`
+
+**修改文件：**
+- `v2/docs/kline_viewer.html` — 跨周期定位修复、时区设置改用 UTC 偏移量
+- `price_lookup_api.py` — 添加 ZoneInfo 导入、修复时区转换逻辑
+
+**技术细节：**
+- KLineChart v9 不支持 IANA 时区名称（如 `'America/New_York'`）
+- 必须使用 UTC 偏移量（小时数）：EST = -5, EDT = -4
+- Python `datetime.timestamp()` 对 naive datetime 会使用系统本地时区，必须先标注时区
+
+---
+
+## 2026-05-11
+
 ### 会话 16：匹配功能重构 + 跨周期 PDA 定位
 
 **背景：**
