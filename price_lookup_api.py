@@ -1886,12 +1886,12 @@ order by ts
 
 
         # Database stores US/Eastern time as naive timestamps
-        # Convert to UTC timestamp so frontend can display correctly
-        et_tz = ZoneInfo("America/New_York")
+        # Treat database time as UTC (no conversion) so chart displays ET time
+        utc_tz = ZoneInfo("UTC")
         return [
             {
              "time": row[0].strftime("%Y-%m-%d %H:%M"),
-              "timestamp": int(row[0].replace(tzinfo=et_tz).timestamp()),
+              "timestamp": int(row[0].replace(tzinfo=utc_tz).timestamp()),
                 "open": float(row[1]),
                 "high": float(row[2]),
                 "low": float(row[3]),
