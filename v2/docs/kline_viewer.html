@@ -1819,14 +1819,23 @@
 
         console.log('[updatePdaForNewTimeframe] Price:', price, 'Type:', pdaType, 'AnchorTime:', anchorTime);
 
-        if (!price || !anchorTime) {
+    if (!price || !anchorTime) {
           console.log('[updatePdaForNewTimeframe] Missing price or time, keeping current PDA');
           return;
         }
 
-        // Calculate the time range of the original timeframe bar
-        // Anchor time is the bar's open time, so the bar covers [anchorTime, anchorTime + period]
-        const oldTf = currentPda.timeframe || '';
+        // Save original timeframe and anchor time on first cross-TF match
+        // This ensures we always search within the original bar's time range
+        if (!currentPda.originalTimeframe) {
+          currentPda.originalTimeframe = currentPda.timeframe;
+          currentPda.originalAnchorTime = anchorTime;
+          console.log('[updatePdaForNewTimeframe] Saving original TF:', currentPda.originalTimeframe, 'and anchor time:', currentPda.originalAnchorTime);
+        }
+
+        // Calculate the time range of the ORIGINAL timeframe bar
+        // Use originalTimeframe and originalAnchorTime to maintain consistent search window
+        const oldTf = currentPda.originalTimeframe || currentPda.timeframe || '';
+      const originalAnchorTime = currentPda.originalAnchorTime || anchorTime;
         let oldTfMinutes = 60;  // default to 1 hour
         if (oldTf.endsWith('M')) {
       oldTfMinutes = parseInt(oldTf);
@@ -1838,11 +1847,11 @@
           oldTfMinutes = 7 * 24 * 60;
         }
 
-        const anchorTimeMs = timeToTimestamp(anchorTime) * 1000;
+        const anchorTimeMs = timeToTimestamp(originalAnchorTime) * 1000;
         const barStartMs = anchorTimeMs;  // Start of the bar (open time)
         const barEndMs = anchorTimeMs + (oldTfMinutes * 60 * 1000);  // End of the bar
 
-    console.log('[updatePdaForNewTimeframe] Old TF:', oldTf, 'Minutes:', oldTfMinutes, 'Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
+    console.log('[updatePdaForNewTimeframe] Original TF:', oldTf, 'Minutes:', oldTfMinutes, 'Time range:', new Date(barStartMs).toISOString(), 'to', new Date(barEndMs).toISOString());
 
         // Search for the K-line with matching price within the time range
         // If multiple bars match, use the rightmost (latest) one
@@ -1899,13 +1908,15 @@
           const matchedTime = new Date(matchedBar.timestamp).toISOString().replace('T', ' ').substring(0, 19);
           console.log('[updatePdaForNewTimeframe] Found matching bar at index:', matchedIndex, 'time:', matchedTime, 'price:', isHighType ? matchedBar.high : matchedBar.low);
 
-          // Update currentPda with the new anchor time
+            // Update currentPda with the new anchor time, but preserve original TF and time
           currentPda = {
             ...currentPda,
             anchorTime: matchedTime,
             timeframe: newTf,
-            pdaId: currentPda.pdaId + '_crossTF'  // Mark as cross-TF matched
-          };
+            pdaId: currentPda.pdaId + '_crossTF',  // Mark as cross-TF matched
+        originalTimeframe: currentPda.originalTimeframe,  // Preserve original TF
+          originalAnchorTime: currentPda.originalAnchorTime  // Preserve original anchor time
+        };
         renderPdaBadge(currentPda);
         console.log('[updatePdaForNewTimeframe] Updated currentPda anchor time to:', matchedTime);
         } else {
