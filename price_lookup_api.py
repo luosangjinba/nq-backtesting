@@ -1885,12 +1885,13 @@ order by ts
             rows = conn.execute(sql, [instrument, query_start, query_end]).fetchall()
 
 
-        # Database stores timestamps - return as-is, treating naive datetime as UTC
-        epoch = datetime(1970, 1, 1)
+        # Database stores US/Eastern time as naive timestamps
+        # Convert to UTC timestamp so frontend can display correctly
+        et_tz = ZoneInfo("America/New_York")
         return [
             {
-              "time": row[0].strftime("%Y-%m-%d %H:%M"),
-         "timestamp": int((row[0] - epoch).total_seconds()),
+             "time": row[0].strftime("%Y-%m-%d %H:%M"),
+              "timestamp": int(row[0].replace(tzinfo=et_tz).timestamp()),
                 "open": float(row[1]),
                 "high": float(row[2]),
                 "low": float(row[3]),
