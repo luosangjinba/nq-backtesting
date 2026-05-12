@@ -52,7 +52,8 @@
       chart: null,
       candlestickSeries: null,
       loading: false,
-      markers: [], // 存储 Markers
+      markers: [],        // Series Markers (BSL/SSL)
+      fvgPrimitives: [],  // Custom Primitives (FVG)
     };
 
     // ======================================
@@ -194,8 +195,85 @@
       console.log(`✓ 添加 BSL 标记: time=${timestamp}, label=${label}`);
     }
 
+    // =========================================
+    // PDA 渲染 - FVG 矩形
+    // ======================================
+
+    /**
+     * FVG Custom Primitive
+     * 用 Canvas API 绘制价格区间矩形
+     */
+    class FvgPrimitive {
+      constructor(centerTime, topPrice, bottomPrice, color = '#ab47bc') {
+        this._centerTime = centerTime;
+        this._topPrice = topPrice;
+        this._bottomPrice = bottomPrice;
+        this._color = color;
+      }
+
+      updateAllViews() {
+        // 通知图表重绘
+      }
+
+      draw(target) {
+        const series = target.series;
+        const timeScale = target.chart.timeScale();
+        const priceScale = series.priceScale();
+
+        // 坐标转换：时间 → 逻辑索引 → 像素 x
+        const centerCoord = timeScale.timeToCoordinate(this._centerTime);
+
+        const centerLogical = timeScale.coordinateToLogical(centerCoord);
+        if (centerLogical === null) return;
+
+        // 时间范围：中心点 ± 2 个逻辑单位（约 2 根 K 线）
+        const startLogical = centerLogical - 2;
+        const endLogical = centerLogical + 2;
+
+        const x1 = timeScale.logicalToCoordinate(startLogical);
+        const x2 = timeScale.logicalToCoordinate(endLogical);
+        if (x1 === null || x2 === null) return;
+
+        // 坐标转换：价格 → 像素 y
+        const y1 = priceScale.priceToCoordinate(this._topPrice);
+        const y2 = priceScale.priceToCoordinate(this._bottomPrice);
+        if (y1 === null || y2 === null) return;
+
+     // 绘制矩形
+        const ctx = target.context;
+
+        // 填充（半透明）
+      ctx.fillStyle = this._color + '33'; // 20% 不透明度
+        ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+
+        // 边框
+        ctx.strokeStyle = this._color;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+      }
+    }
+
+    function addFvgMarker(centerTime, topPrice, bottomPrice, label = 'FVG') {
+      const primitive = new FvgPrimitive(centerTime, topPrice, bottomPrice);
+      state.candlestickSeries.attachPrimitive(primitive);
+
+      // 存储引用，方便后续清理
+      state.fvgPrimitives.push(primitive);
+
+      console.log(`✓ 添加 FVG 标记: time=${centerTime}, top=${topPrice}, bottom=${bottomPrice}`);
+    }
+
+    function clearFvgMarkers() {
+      state.fvgPrimitives.forEach(primitive => {
+        state.candlestickSeries.detachPrimitive(primitive);
+      });
+      state.fvgPrimitives = [];
+    }
+
     function addTestPdaMarkers() {
     addSslMarker(1326106800, 2344.25, 'SSL');  // 2012-01-09 11:00
+      addBslMarker(1326092400, 2340.50, 'BSL');  // 2012-01-09 07:00
+      addFvgMarker(1326074400, 2343.50, 2342.00, 'FVG');  // 2012-01-09 02:00
     }
 
 
