@@ -524,3 +524,96 @@ addBslMarker(ts, price, 'BSL', { lineLength: 3, showLabel: false })
 2. **实现 NWOG/NDOG/Daily High/Low**：都是水平线，对 9:29 截面观察最重要
 3. **ICT Midnight Day High/Low**：日线级别的午夜日内高低点
 4. **EQH/EQL**：需要组合渲染（多点 + 连线）
+
+---
+
+## 会话追加：代码风格修复（2026-05-13 凌晨）
+
+### 背景
+用户发现我在编辑 `kline_viewer.html` 时频繁遇到 "Edit 工具无法匹配缩进" 的问题。追查后发现文件有 26 处奇数空格错位，其中 18 处是本次会话我自己用 `sed -i Ni\...` 插入新代码时引入的。用户决定趁代码量还小（~760 行）彻底修复，并建立长期机制避免复发。
+
+### 完成的工作
+
+#### 1. 诊断：错位到底是哪里来的
+
+用 `git blame` 逐行追查，按提交分组：
+- `3c03e93`（本次会话）：**18 行** ← 主要来源
+- `b19bc85`（前一会话，FVG 矩形）：4 行
+- `4df3bc0`（文件首次创建）：3 行
+- `9bb2cfd`（CSS 拆分）：1 行
+
+**结论**：不是 GitHub 遗留代码，也不是 Lightweight Charts 模板。文件完全是项目自己创建的，混乱是后续 Edit 操作逐步引入的。
+
+#### 2. 修复：Prettier 格式化
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting
+npx --yes prettier@3.3.3 --tab-width 2 --write v3/docs/kline_viewer.html
+```
+
+结果：
+- 文件从 765 行 → 816 行（长行被合理拆分）
+- **奇数缩进从 26 行 → 0 行**
+- 副作用：`<!DOCTYPE>` → `<!doctype>`（小写）、HTML `<head>`/`<body>` 整体加一层缩进（Prettier 标准）
+
+#### 3. 长期机制：三层防线
+
+**层 1：`.prettierrc.json`**
+```json
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "endOfLine": "lf"
+}
+```
+
+**层 2：`.editorconfig`**
+- JS/HTML/CSS/YAML: 2 空格
+- Python: 4 空格
+- 让 VS Code 等编辑器自动对齐，用户手动编辑时也不会错位
+
+**层 3：`.prettierignore`**
+- 排除 `archive/` / `tmp/` / `*.duckdb` / `*.backup-*` / `*.before-*` / `v3/docs/plugins/`
+
+**层 4：`CLAUDE.md` 追加 Code Style 章节**
+- 明确 2 空格 / 4 空格规则
+- **硬约束我自己**：编辑完 `v3/docs/*.html` / `v3/styles/*.css` / `v3/modules/*.js` 必须跑一次 `npx --yes prettier@3.3.3 --write <file>`
+- 写明："Never hand-write indentation for inserted blocks"
+
+#### 4. 根因分析（给我自己）
+
+为什么频繁遇到 Edit 失败？三个原因，按影响排序：
+
+1. **手写缩进算错**（最主要）：用 `sed -i 'Ni\...'` 或 Edit 工具插入新代码块时，我凭空拼缩进，经常差 1~2 个空格
+2. **Edit 失败后凭印象重写**：应该立刻重新 Read 复制，实际上经常"我以为我记得"然后再错一次
+3. **长 `old_string` 放大失败概率**：一个错位字符就让整个 Edit 失败
+
+**解决思路**：消除"手写缩进"这个环节 — 改完直接跑 Prettier 做最终裁判。
+
+### 代码变更
+
+**新增文件：**
+- `.prettierrc.json` (131 B)
+- `.editorconfig` (211 B)
+- `.prettierignore` (95 B)
+
+**修改文件：**
+- `v3/docs/kline_viewer.html`（Prettier 格式化，+778 -688）
+- `CLAUDE.md`（追加 Code Style 章节）
+
+**Git 提交：**
+- `0a98ae6` style: 用 Prettier 格式化 kline_viewer.html + 添加 lint 配置
+
+### 未完成事项
+
+- **可选**：未来加 `.husky` pre-commit 钩子自动跑 Prettier（需要引入 `package.json`，当前项目无 Node 依赖，代价偏大）。**建议先用前三层跑几周看效果。**
+- 其他 v3 前端文件（`test_format.html` / `test_rectangle.html` / `v3/modules/test.html`）未格式化 — 是一次性测试页，没必要折腾
+
+### 下次会话的注意事项
+
+1. **编辑 HTML/JS/CSS 后必须跑**：`npx --yes prettier@3.3.3 --write <file>`
+2. **不要手写缩进**：Edit 工具的 `old_string` 从 Read 输出严格复制
+3. **Edit 连续失败 2 次就停手**：改用 Python 脚本按独特锚点替换，或 `sed` 按行号操作
