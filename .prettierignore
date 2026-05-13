@@ -1,0 +1,9 @@
+.git/
+__pycache__/
+archive/
+tmp/
+*.duckdb
+*.backup-*
+*.before-*
+v3/docs/plugins/
+node_modules/

@@ -77,6 +77,14 @@ python3 -c "import duckdb; conn = duckdb.connect('v2/data/v2_research.duckdb'); 
 - Do not auto-execute any order-placement code
 - All timestamps stored in UTC, displayed in Asia/Shanghai or US/Eastern depending on context
 
+## Code Style
+
+- Indent: 2 spaces for JS/HTML/CSS/YAML, 4 spaces for Python (enforced by `.editorconfig` + `.prettierrc.json`)
+- After editing `v3/docs/*.html`, `v3/styles/*.css`, or `v3/modules/*.js`, run:
+  `npx --yes prettier@3.3.3 --write <file>` to normalize formatting
+- Never hand-write indentation for inserted blocks — copy the exact whitespace from a `Read` of the target file, or format after editing
+- Ignored paths: see `.prettierignore`
+
 ## Design Principles (from PROJECT_PROFILE.md)
 
 Before adding any feature, ask:
