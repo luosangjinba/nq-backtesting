@@ -956,11 +956,10 @@
 
         // 转换为图表坐标
         const timeScale = state.chart.timeScale();
-        const priceScale = state.candlestickSeries.priceScale();
 
         // 坐标 → 时间和价格
         const timestamp = timeScale.coordinateToTime(x);
-        const price = priceScale.coordinateToPrice(y);
+        const price = state.candlestickSeries.coordinateToPrice(y);
 
         if (!timestamp || !price) {
           return null;
