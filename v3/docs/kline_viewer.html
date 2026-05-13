@@ -4,6 +4,83 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../styles/chart-viewer.css" />
+    <style>
+      /* Context Menu Styles */
+      .context-menu {
+        position: fixed;
+        background: #1e222d;
+        border: 1px solid #2a2e39;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        padding: 4px 0;
+        min-width: 200px;
+        z-index: 10000;
+        animation: menuFadeIn 0.15s ease;
+      }
+
+      @keyframes menuFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #e0e3eb;
+        transition: background 0.15s;
+        user-select: none;
+      }
+
+      .menu-item:hover {
+        background: #2a2e39;
+      }
+
+      .menu-item.disabled {
+        color: #5d606b;
+        cursor: not-allowed;
+      }
+
+      .menu-item.disabled:hover {
+        background: transparent;
+      }
+
+      .menu-item.danger:hover {
+        background: #ef5350;
+        color: #fff;
+      }
+
+      .menu-item .icon {
+        margin-right: 10px;
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+      }
+
+      .menu-item .label {
+        flex: 1;
+      }
+
+      .menu-item .shortcut {
+        margin-left: 20px;
+        font-size: 11px;
+        color: #787b86;
+      }
+
+      .menu-divider {
+        height: 1px;
+        background: #2a2e39;
+        margin: 4px 0;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -57,6 +134,7 @@
         loading: false,
         liquidityPrimitives: [], // BSL/SSL 短线 Primitives
         fvgPrimitives: [], // FVG 矩形 Primitives
+        currentMenu: null, // 当前打开的右键菜单
       };
 
       // ======================================
@@ -721,7 +799,142 @@
         return formatted;
       }
 
-      // =========================================================
+      // ======================================
+      // Context Menu - 右键菜单
+      // =============================
+
+      /**
+       * 创建右键菜单
+       */
+      function createContextMenu(x, y, items) {
+        // 移除已存在的菜单
+        closeContextMenu();
+
+        const menu = document.createElement('div');
+        menu.className = 'context-menu';
+
+        // 边界检测：防止菜单超出屏幕
+        const menuWidth = 200;
+        const menuHeight = items.length * 40; // 近似高度
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        let adjustedX = x;
+        let adjustedY = y;
+
+        if (x + menuWidth > viewportWidth) {
+          adjustedX = viewportWidth - menuWidth - 10;
+        }
+
+        if (y + menuHeight > viewportHeight) {
+          adjustedY = viewportHeight - menuHeight - 10;
+        }
+
+        menu.style.left = `${adjustedX}px`;
+        menu.style.top = `${adjustedY}px`;
+
+        // 构建菜单项
+        items.forEach((item) => {
+          if (item.type === 'divider') {
+            const divider = document.createElement('div');
+            divider.className = 'menu-divider';
+            menu.appendChild(divider);
+          } else {
+            const menuItem = document.createElement('div');
+            menuItem.className = `menu-item ${item.danger ? 'danger' : ''} ${
+              item.disabled ? 'disabled' : ''
+            }`;
+
+            menuItem.innerHTML = `
+        <span class="icon">${item.icon || ''}</span>
+            <span class="label">${item.label}</span>
+           ${item.shortcut ? `<span class="shortcut">${item.shortcut}</span>` : ''}
+            `;
+
+            if (!item.disabled) {
+              menuItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                item.action();
+                closeContextMenu();
+              });
+            }
+
+            menu.appendChild(menuItem);
+          }
+        });
+
+        document.body.appendChild(menu);
+        state.currentMenu = menu;
+
+        console.log(`✓ 右键菜单已显示 (${items.length} 项)`);
+      }
+
+      /**
+       * 关闭右键菜单
+       */
+      function closeContextMenu() {
+        if (state.currentMenu) {
+          state.currentMenu.remove();
+          state.currentMenu = null;
+        }
+      }
+
+      /**
+       * 显示空白区域菜单
+       */
+      function showBlankMenu(x, y) {
+        console.log('右键点击空白区域');
+
+        const items = [
+          {
+            icon: '🔄',
+            label: '刷新数据',
+            shortcut: 'F5',
+            action: () => {
+              console.log('[操作] 刷新数据');
+              const start = document.getElementById('startInput').value.trim();
+              const end = document.getElementById('endInput').value.trim();
+              if (start && end) {
+                loadKlineData();
+              } else {
+                updateStatus('请先输入时间范围', true);
+              }
+            },
+          },
+          { type: 'divider' },
+          {
+            icon: '➕',
+            label: '新建 Manual PDA',
+            shortcut: 'N',
+            disabled: true,
+            action: () => {},
+          },
+          {
+            icon: '📥',
+            label: '导入 YAML',
+            disabled: true,
+            action: () => {},
+          },
+          { type: 'divider' },
+          {
+            icon: '📸',
+            label: '导出图表为图片',
+            disabled: true,
+            action: () => {},
+          },
+          {
+            icon: '⚙️',
+            label: '设置',
+            shortcut: 'Ctrl+,',
+            disabled: true,
+            action: () => {},
+          },
+        ];
+
+        createContextMenu(x, y, items);
+      }
+
+      // =================================================================
       // 事件监听
       // ===================================================
 
@@ -753,6 +966,33 @@
           const end = document.getElementById('endInput').value.trim();
           if (start && end) {
             loadKlineData();
+          }
+        });
+
+        // 右键菜单事件监听
+        document.addEventListener('contextmenu', (e) => {
+          // 检查是否在图表区域
+          const chartContainer = document.getElementById('chart');
+          if (chartContainer && chartContainer.contains(e.target)) {
+            e.preventDefault();
+
+            // 暂时只显示空白区域菜单（PDA 点击检测后续实现）
+            showBlankMenu(e.clientX, e.clientY);
+          }
+        });
+
+        // 点击外部关闭菜单
+        document.addEventListener('click', (e) => {
+          if (state.currentMenu && !e.target.closest('.context-menu')) {
+            closeContextMenu();
+          }
+        });
+
+        // ESC 键关闭菜单
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && state.currentMenu) {
+            closeContextMenu();
+            console.log('✓ 菜单已关闭 (ESC)');
           }
         });
 
