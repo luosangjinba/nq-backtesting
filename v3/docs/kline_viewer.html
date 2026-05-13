@@ -53,8 +53,8 @@
       chart: null,
       candlestickSeries: null,
       loading: false,
-      markers: [],        // Series Markers (BSL/SSL)
-      fvgPrimitives: [],  // Custom Primitives (FVG)
+      liquidityPrimitives: [], // BSL/SSL 短线 Primitives
+      fvgPrimitives: [],       // FVG 矩形 Primitives
     };
 
     // ======================================
@@ -163,38 +163,6 @@
 
       console.log('✓ 图表初始化完成');
       console.log('✓ 数据库时间 = 美东时间，图表直接显示（无时区转换）');
-    }
-
-    // PDA 标记功能
-    function clearPdaMarkers() {
-      state.candlestickSeries.setMarkers([]);
-      state.markers = [];
-    }
-
-    function addSslMarker(timestamp, price, label = 'SSL') {
-      const marker = {
-        time: timestamp,
-        position: 'belowBar',
-        color: '#ef5350',
-        shape: 'arrowUp',
-     text: label
-      };
-      state.markers.push(marker);
-      state.candlestickSeries.setMarkers(state.markers);
-      console.log(`✓ 添加 SSL 标记: time=${timestamp}, label=${label}`);
-    }
-
-    function addBslMarker(timestamp, price, label = 'BSL') {
-      const marker = {
-        time: timestamp,
-        position: 'aboveBar',
-        color: '#26a69a',
-        shape: 'arrowDown',
-     text: label
-      };
-      state.markers.push(marker);
-      state.candlestickSeries.setMarkers(state.markers);
-      console.log(`✓ 添加 BSL 标记: time=${timestamp}, label=${label}`);
     }
 
     // ======================================
@@ -333,15 +301,295 @@
       state.fvgPrimitives = [];
     }
 
-    function addTestPdaMarkers() {
-      addSslMarker(1326106800, 2344.25, 'SSL');  // 2012-01-09 11:00 ET
-    addBslMarker(1326092400, 2340.50, 'BSL');  // 2012-01-09 07:00 ET
+    // =================
+    // PDA 渲染 - BSL/SSL 流动性短线 + 标签
+    // ===============
 
-   // FVG: 三根 K 线 (01:00, 02:00, 03:00) 形成的缺口
-      // K1: 01:00 high=2348.25, K2: 02:00 (anchor), K3: 03:00 low=2353.75
-      const fvgStartTime = 1326070800;  // 01:00 ET (K1 开始)
-      const fvgEndTime = 1326081600;    // 04:00 ET (K3 结束)
-      addFvgMarker(fvgStartTime, fvgEndTime, 2353.75, 2348.25, '#ab47bc33');
+    /**
+     * 流动性默认参数（预留接口，后续可外部覆盖）
+     */
+    const LIQUIDITY_DEFAULTS = {
+      lineLength: 2,        // 向右延伸 K 线数（参数可调）
+      showLabel: true,      // 是否显示文字标签（参数可调）
+      lineWidth: 1,
+      labelFont: '11px sans-serif',
+      labelPadding: 4,      // 标签距离线段右端的像素间隔
+    };
+
+    /**
+     * 流动性短线渲染器
+     * - 线段从 anchor 时间（左端 p1）向右延伸到 p2
+     * - 文字标签位于线段右端外侧，垂直居中
+     */
+    class LiquidityRenderer {
+      constructor(p1, p2, lineColor, textColor, label, position, options) {
+        this._p1 = p1;
+        this._p2 = p2;
+        this._lineColor = lineColor;
+        this._textColor = textColor;
+        this._label = label;
+        this._position = position;  // 'above' | 'below'
+        this._options = options;
+      }
+
+      draw(target) {
+        target.useBitmapCoordinateSpace(scope => {
+          if (this._p1.x === null || this._p2.x === null || this._p1.y === null) return;
+
+          const ctx = scope.context;
+          const hRatio = scope.horizontalPixelRatio;
+          const vRatio = scope.verticalPixelRatio;
+
+       const x1 = this._p1.x * hRatio;
+        const x2 = this._p2.x * hRatio;
+       const y = this._p1.y * vRatio;
+
+        // 短线
+          ctx.strokeStyle = this._lineColor;
+          ctx.lineWidth = this._options.lineWidth * Math.min(hRatio, vRatio);
+        ctx.beginPath();
+        ctx.moveTo(x1, y);
+          ctx.lineTo(x2, y);
+          ctx.stroke();
+
+          // 文字标签（线段右端，上方或下方）
+          if (this._options.showLabel && this._label) {
+            ctx.fillStyle = this._textColor;
+            ctx.font = this._options.labelFont;
+            const padding = this._options.labelPadding * vRatio;
+            ctx.textAlign = 'right';
+            if (this._position === 'above') {
+              ctx.textBaseline = 'bottom';
+            ctx.fillText(this._label, x2, y - padding);
+            } else {
+              ctx.textBaseline = 'top';
+              ctx.fillText(this._label, x2, y + padding);
+          }
+          }
+        });
+      }
+    }
+
+    /**
+     * 流动性视图 - 计算坐标
+     * anchor 时间 = 线段左端，向右延伸 lineLength 根 K 线
+     */
+    class LiquidityView {
+      constructor(source) {
+        this._source = source;
+        this._p1 = { x: null, y: null };
+     this._p2 = { x: null, y: null };
+      }
+
+      update() {
+        const series = this._source._series;
+        const chart = this._source._chart;
+        const timeScale = chart.timeScale();
+
+        const y = series.priceToCoordinate(this._source._price);
+        const anchorCoord = timeScale.timeToCoordinate(this._source._anchorTime);
+        let rightX = null;
+        if (anchorCoord !== null) {
+       const logical = timeScale.coordinateToLogical(anchorCoord);
+          if (logical !== null) {
+            rightX = timeScale.logicalToCoordinate(logical + this._source._options.lineLength);
+          }
+        }
+
+        this._p1 = { x: anchorCoord, y };
+     this._p2 = { x: rightX, y };
+    }
+
+      renderer() {
+        return new LiquidityRenderer(
+          this._p1,
+          this._p2,
+        this._source._lineColor,
+          this._source._textColor,
+          this._source._label,
+        this._source._position,
+        this._source._options,
+        );
+      }
+    }
+
+    /**
+     * 流动性 Primitive (BSL/SSL 共用)
+     */
+    class LiquidityPrimitive {
+      constructor(chart, series, anchorTime, price, lineColor, textColor, label, position, options = {}) {
+     this._chart = chart;
+      this._series = series;
+        this._anchorTime = anchorTime;
+        this._price = price;
+        this._lineColor = lineColor;
+        this._textColor = textColor;
+        this._label = label;
+        this._position = position;
+        this._options = { ...LIQUIDITY_DEFAULTS, ...options };
+        this._view = new LiquidityView(this);
+    }
+
+      updateAllViews() {
+        this._view.update();
+      }
+
+      paneViews() {
+        return [this._view];
+      }
+    }
+
+    function addBslMarker(timestamp, price, label = 'BSL', options = {}) {
+      const primitive = new LiquidityPrimitive(
+        state.chart,
+        state.candlestickSeries,
+        timestamp,
+        price,
+        '#5b9cf6',  // 线段颜色（蓝）
+        '#26a69a',  // 文字颜色（绿）
+        label,
+        'above',  // BSL: 文字在线段上方
+        options,
+      );
+    state.candlestickSeries.attachPrimitive(primitive);
+      state.liquidityPrimitives.push(primitive);
+    }
+
+    function addSslMarker(timestamp, price, label = 'SSL', options = {}) {
+      const primitive = new LiquidityPrimitive(
+        state.chart,
+        state.candlestickSeries,
+        timestamp,
+        price,
+     '#ffb74d',  // 线段颜色（橙）
+        '#ef5350',  // 文字颜色（红）
+        label,
+        'below',  // SSL: 文字在线段下方
+        options,
+      );
+      state.candlestickSeries.attachPrimitive(primitive);
+      state.liquidityPrimitives.push(primitive);
+    }
+
+    function clearLiquidityMarkers() {
+      state.liquidityPrimitives.forEach(primitive => {
+      state.candlestickSeries.detachPrimitive(primitive);
+      });
+      state.liquidityPrimitives = [];
+    }
+
+    /**
+     * 清除所有 PDA 标记
+     */
+    function clearAllPdaMarkers() {
+      // 清除 BSL/SSL 流动性短线
+      clearLiquidityMarkers();
+
+      // 清除 FVG Primitives
+      clearFvgMarkers();
+    }
+
+    /**
+     * 从 v2 API 批量加载 PDA 数据
+     */
+    async function loadPdaData(startTime, endTime) {
+      try {
+        console.log('开始加载 PDA 数据...');
+
+        // 构建 API URL
+        // 调试：加载 1H BSL/SSL/FVG
+        const url = `${API_BASE}/v2/pda_records?` +
+          `anchor_time_from=${encodeURIComponent(startTime)}&` +
+       `anchor_time_to=${encodeURIComponent(endTime)}&` +
+      `timeframe=1H&` +
+          `type=bsl&type=ssl&type=fvg&` +
+      `limit=1000`;
+
+        console.log('PDA API URL:', url);
+
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('PDA API 响应:', data);
+
+        if (!data.ok) {
+          throw new Error(data.error || 'PDA 加载失败');
+        }
+
+        const records = data.result.records || [];
+        console.log(`✓ 获取到 ${records.length} 条 PDA 记录`);
+
+        // 清除旧标记
+      clearAllPdaMarkers();
+
+        // 统计各类型数量
+        const stats = { bsl: 0, ssl: 0, fvg: 0, other: 0 };
+
+        // 遍历记录，按类型渲染
+      records.forEach(record => {
+        const pdaType = record.pdaType;
+          const anchorTime = record.anchorTs || record.anchorTime;
+
+          // 转换时间为 Unix 时间戳（秒）
+          let timestamp;
+          if (typeof anchorTime === 'number') {
+            timestamp = anchorTime;
+          } else if (typeof anchorTime === 'string') {
+         // 数据库存的是美东时间，加 Z 当作 UTC 解析（时区约定）
+       timestamp = Math.floor(new Date(anchorTime.replace(' ', 'T') + 'Z').getTime() / 1000);
+       } else {
+        console.warn('无效的 anchor_time:', anchorTime, record);
+            return;
+          }
+
+          // 根据类型渲染
+          if (pdaType === 'bsl') {
+         const price = record.price || record.priceHigh;
+            if (price) {
+              addBslMarker(timestamp, price, 'BSL');
+              stats.bsl++;
+            }
+       } else if (pdaType === 'ssl') {
+         const price = record.price || record.priceLow;
+            if (price) {
+              addSslMarker(timestamp, price, 'SSL');
+              stats.ssl++;
+          }
+      } else if (pdaType === 'fvg') {
+            const priceHigh = record.priceHigh;
+            const priceLow = record.priceLow;
+            const direction = record.direction;
+
+            if (priceHigh && priceLow) {
+            // FVG 需要计算时间范围
+              // anchor_time 是中间 K 线（K2）的时间
+              // 假设 1H 周期，K1 = anchor - 1H, K3 = anchor + 1H
+              const tf = parseInt(document.getElementById('tfSelect').value);
+            const tfSeconds = tf * 60;
+              const startTime = timestamp - tfSeconds;
+        const endTime = timestamp + tfSeconds * 2; // K3 结束时间
+
+              // 根据方向选择颜色
+            const color = direction === 'bullish' ? '#26a69a33' : '#ef535033'; // 绿色/红色
+
+           addFvgMarker(startTime, endTime, priceHigh, priceLow, color);
+            stats.fvg++;
+          }
+       } else {
+            stats.other++;
+          }
+        });
+
+        console.log('PDA 渲染统计:', stats);
+        return stats;
+
+      } catch (error) {
+     console.error('PDA 加载失败:', error);
+     throw error;
+      }
     }
 
 
@@ -413,9 +661,13 @@
         // 锁定价格范围，防止滚轮缩放时间轴时价格轴跟着跳动
         state.chart.priceScale('right').applyOptions({ autoScale: false });
 
-      updateStatus(`已加载 ${candleData.length} 根 K线 (${tf}m)`);
-        console.log(`✓ 成功加载 ${candleData.length} 根 K线`);
-        addTestPdaMarkers();
+      console.log(`✓ 成功加载 ${candleData.length} 根 K线`);
+
+        // 加载 PDA 数据
+        updateStatus('加载 PDA 数据...');
+    const pdaStats = await loadPdaData(start, end);
+
+        updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaStats.bsl + pdaStats.ssl + pdaStats.fvg} 个 PDA (BSL:${pdaStats.bsl} SSL:${pdaStats.ssl} FVG:${pdaStats.fvg})`);
 
       } catch (error) {
       console.error('加载失败:', error);
