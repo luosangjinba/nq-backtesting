@@ -1,5 +1,124 @@
 # 开发会话记录
 
+## 2026-05-13 下午 - Context Menu 右键菜单完整实现
+
+### 背景
+在 `feature/context-menu-research` 分支上完成右键菜单的完整实现，包括预研、集成、PDA 点击检测和菜单功能。
+
+### 完成的工作
+
+#### 1. 预研阶段（4个文档 + 1个Demo）✅
+- `CONTEXT_MENU_DESIGN.md` - 设计探讨（辐射菜单 vs 块状菜单）
+- `CONTEXT_MENU_FEASIBILITY.md` - 技术可行性报告
+- `CONTEXT_MENU_RESEARCH_SUMMARY.md` - 预研总结
+- `demo_context_menu.html` - 技术验证 Demo（15项测试全部通过）
+
+**预研结论**：块状右键菜单技术方案完全可行，实现简单（~300行代码），性能优秀，无明显技术风险。
+
+#### 2. 集成阶段 ✅
+- 集成右键菜单基础设施（~240行代码）
+- 实现空白区域菜单（刷新数据功能）
+- 添加 `CONTEXT_MENU_INTEGRATION.md` 集成记录
+
+#### 3. PDA 点击检测和菜单 ✅
+**核心功能**：
+- `findPdaAtPosition(clientX, clientY)` - PDA 点击检测
+  - 坐标转换：屏幕坐标 → 图表坐标 → 时间/价格
+  - 容差范围：时间 ±1小时，价格 ±5点
+  - 距离计算：综合时间和价格距离
+  - 支持 BSL/SSL/FVG 三种类型
+
+- `showPdaMenu(x, y, pda)` - PDA 右键菜单
+  - 📋 查看详情（弹窗显示 JSON）
+  - 📍 定位到 PDA（滚动图表，前后各 2小时）
+  - 📄 复制 PDA ID（剪贴板）
+  - 💾 导出为 YAML（禁用）
+  - ✏️ 编辑（Manual PDA 禁用，自动 PDA 锁定）
+  - 🗑️ 删除（Manual PDA 禁用，自动 PDA 锁定）
+
+- 智能菜单切换：右键点击 PDA → PDA 菜单；右键点击空白 → 空白菜单
+
+#### 4. Bug 修复 ✅
+**修复 1**：语法错误（缺少右大括号）
+- 问题：sed 替换时缺少闭合大括号，导致 JavaScript 语法错误
+- 修复：添加缺失的右大括号
+
+**修复 2**：API 调用错误
+- 问题：使用了不存在的 `priceScale.coordinateToPrice()` 方法
+- 修复：改用正确的 `series.coordinateToPrice()` 方法
+
+**修复 3**：PDA 定位功能
+- 问题：定位到 PDA 后图表显示空白
+- 原因：`setVisibleLogicalRange()` 需要逻辑索引而不是时间戳
+- 修复：改用 `setVisibleRange()` 直接接受时间戳参数
+- 优化：删除不必要的 `scrollToPosition(0, true)` 调用
+
+**修复 4**：状态栏样式
+- 问题：状态栏文字颜色 `#787b86` 与深色背景对比度不够
+- 修复：颜色改为 `#b2b5be`（更亮的灰色），添加字重 `font-weight: 500`
+
+### 技术细节
+
+#### 坐标转换流程
+```javascript
+// 1. 屏幕坐标 → 图表相对坐标
+const rect = chartContainer.getBoundingClientRect();
+const x = clientX - rect.left;
+const y = clientY - rect.top;
+
+// 2. 图表坐标 → 时间/价格
+const timestamp = timeScale.coordinateToTime(x);
+const price = series.coordinateToPrice(y);
+```
+
+#### PDA 匹配算法
+- 时间容差：±3600秒（1小时）
+- 价格容差：±5点
+- 距离计算：`distance = timeDiff/timeTolerance + priceDiff/priceTolerance`
+- 选择距离最小的 PDA
+
+#### 定位到 PDA
+```javascript
+// 设置可见范围（PDA 前后各 2小时）
+const range = 7200; // 2小时（秒）
+timeScale.setVisibleRange({
+  from: timestamp - range,
+  to: timestamp + range,
+});
+```
+
+### 提交记录
+```
+78049b9 fix(kline_viewer): 修复 PDA 定位功能和改进状态栏样式
+a41436c fix(kline_viewer): 修复 PDA 点击检测的 API 调用错误
+dd9166f fix(kline_viewer): 修复右键菜单事件监听的语法错误
+c5d5c36 feat(kline_viewer): 实现 PDA 点击检测和右键菜单
+99d66e3 docs: 添加 Context Menu 集成记录
+a93e625 feat(kline_viewer): 集成右键菜单基础设施
+fd4e49e docs: 添加 Context Menu 预研总结
+554ea24 feat(demo): 添加 Context Menu 技术验证 demo
+dc7900e docs: 添加右键菜单技术可行性报告
+7118c6a docs: 添加右键菜单设计探讨文档
+```
+
+### 文件变更统计
+```
+v3/docs/CONTEXT_MENU_DESIGN.md           | 336 ++++++++++++
+v3/docs/CONTEXT_MENU_FEASIBILITY.md      | 527 +++++++++++++
+v3/docs/CONTEXT_MENU_INTEGRATION.md      | 300 +++++++++++
+v3/docs/CONTEXT_MENU_RESEARCH_SUMMARY.md | 282 ++++++++++
+v3/docs/demo_context_menu.html           | 537 ++++++++++++++++++
+v3/docs/kline_viewer.html                | 485 +++++++++++++++-
+6 files changed, 2460 insertions(+), 7 deletions(-)
+```
+
+### 下一步
+- 等待用户测试反馈
+- 考虑是否继续实现更多菜单功能（编辑、删除、导出）
+- 或者准备合并到 main 分支
+
+---
+
 ## 2026-05-11 下午 - 修复切换周期后 PDA 定位偏移问题（第二版）
 
 ### 背景

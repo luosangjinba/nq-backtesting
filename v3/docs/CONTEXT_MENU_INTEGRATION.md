@@ -2,7 +2,7 @@
 
 > **集成时间**：2026-05-13  
 > **分支**：`feature/context-menu-research`  
-> **状态**：✅ 阶段 1 完成，测试通过
+> **状态**：✅ 阶段 1-2 完成，测试通过
 
 ---
 
@@ -225,27 +225,65 @@ document.addEventListener('keydown', (e) => {
 
 ## 五、下一步计划
 
-### 阶段 2：PDA 点击检测和菜单（待实现）
+### 阶段 2：PDA 点击检测和菜单（✅ 已完成）
 
-**目标**：
-- 实现 PDA 点击检测逻辑
-- 显示 PDA 右键菜单
-- 实现菜单项操作（查看详情、定位、复制 ID）
+**实现内容**：
+- ✅ PDA 数据存储（在全局状态中添加 `pdaRecords`）
+- ✅ PDA 点击检测（`findPdaAtPosition` 函数）
+- ✅ PDA 右键菜单（`showPdaMenu` 函数）
+- ✅ 菜单项功能（查看详情、定位、复制 ID）
+- ✅ 智能菜单切换（PDA 菜单 vs 空白菜单）
 
-**技术挑战**：
+**技术实现**：
+
 1. **PDA 点击检测**：
-   - Lightweight Charts 的 Primitive 不支持原生点击事件
-   - 需要通过鼠标坐标反向计算点击的 PDA
-   - 需要考虑重叠 PDA 的选择策略
+   ```javascript
+   function findPdaAtPosition(clientX, clientY) {
+     // 1. 屏幕坐标 → 图表相对坐标
+     const rect = chartContainer.getBoundingClientRect();
+     const x = clientX - rect.left;
+     const y = clientY - rect.top;
+     
+     // 2. 图表坐标 → 时间/价格
+     const timestamp = timeScale.coordinateToTime(x);
+     const price = series.coordinateToPrice(y);
+     
+     // 3. 查找最近的 PDA（容差范围）
+     const timeTolerance = 3600; // 1小时
+     const priceTolerance = 5;   // 5点
+     
+     // 4. 计算综合距离，选择最近的 PDA
+     const distance = timeDiff/timeTolerance + priceDiff/priceTolerance;
+   }
+   ```
 
-2. **菜单项操作**：
-   - 查看详情：显示 PDA 所有属性
-   - 定位：滚动图表到 PDA 位置
-   - 复制 ID：复制到剪贴板
+2. **PDA 菜单项**：
+   - 📋 查看详情 → `alert(JSON.stringify(pda, null, 2))`
+   - 📍 定位到 PDA → `timeScale.setVisibleRange({ from: ts-7200, to: ts+7200 })`
+   - 📄 复制 PDA ID → `navigator.clipboard.writeText(pdaId)`
+   - 💾 导出为 YAML（禁用）
+   - ✏️ 编辑（Manual PDA 禁用，自动 PDA 锁定）
+   - 🗑️ 删除（Manual PDA 禁用，自动 PDA 锁定）
 
-**预计时间**：2-3 小时
+**Bug 修复**：
+- ✅ 修复语法错误（缺少右大括号）
+- ✅ 修复 API 调用错误（`priceScale.coordinateToPrice` → `series.coordinateToPrice`）
+- ✅ 修复 PDA 定位功能（`setVisibleLogicalRange` → `setVisibleRange`）
+- ✅ 改进状态栏样式（颜色 `#787b86` → `#b2b5be`，字重 500）
 
-### 阶段 3：高级功能（可选）
+**提交记录**：
+```
+78049b9 fix(kline_viewer): 修复 PDA 定位功能和改进状态栏样式
+a41436c fix(kline_viewer): 修复 PDA 点击检测的 API 调用错误
+dd9166f fix(kline_viewer): 修复右键菜单事件监听的语法错误
+c5d5c36 feat(kline_viewer): 实现 PDA 点击检测和右键菜单
+```
+
+**测试结果**：✅ **功能完整，待用户最终测试**
+
+---
+
+### 阶段 3：高级功能（待实现）
 
 **功能列表**：
 - 编辑 Manual PDA
@@ -291,10 +329,12 @@ document.addEventListener('keydown', (e) => {
 
 ### 7.3 下一步行动
 1. ✅ 完成阶段 1：基础设施（已完成）
-2. ⏳ 实现阶段 2：PDA 点击检测和菜单（下一步）
+2. ✅ 完成阶段 2：PDA 点击检测和菜单（已完成）
 3. ⏳ 实现阶段 3：高级功能（可选）
+4. ⏳ 等待用户测试反馈
+5. ⏳ 考虑合并到 main 分支
 
 ---
 
 **集成完成时间**：2026-05-13  
-**集成结论**：✅ **阶段 1 完成，测试完美，可以继续下一阶段**
+**集成结论**：✅ **阶段 1-2 完成，核心功能已实现，等待用户测试**
