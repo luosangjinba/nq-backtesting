@@ -179,7 +179,8 @@
       function updateStatus(text, isError = false) {
         const statusEl = document.getElementById('statusText');
         statusEl.textContent = text;
-        statusEl.style.color = isError ? '#ef5350' : '#787b86';
+        statusEl.style.color = isError ? '#ef5350' : '#b2b5be';
+        statusEl.style.fontWeight = '500';
       }
 
       /**
@@ -1085,11 +1086,10 @@
               if (timestamp && state.chart) {
                 // 滚动到 PDA 位置
                 const timeScale = state.chart.timeScale();
-                timeScale.scrollToPosition(0, true);
 
                 // 设置可见范围（PDA 前后各 2 小时）
                 const range = 7200; // 2 小时（秒）
-                timeScale.setVisibleLogicalRange({
+                timeScale.setVisibleRange({
                   from: timestamp - range,
                   to: timestamp + range,
                 });
