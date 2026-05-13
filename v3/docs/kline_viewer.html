@@ -62,7 +62,7 @@
       // ======================================
       // 配置
       // ===================================================
-      const API_BASE = "http://127.0.0.1:8765";
+      const API_BASE = 'http://127.0.0.1:8765';
 
       // ==========================================================
       // 工具函数
@@ -74,18 +74,18 @@
       function showLoading(show) {
         state.loading = show;
 
-        let overlay = document.querySelector(".loading-overlay");
+        let overlay = document.querySelector('.loading-overlay');
         if (show) {
           if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.className = "loading-overlay";
+            overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
             overlay.innerHTML = `
           <div class="loading-content">
               <div class="loading-spinner"></div>
               <div class="loading-text">加载中...</div>
             </div>
           `;
-            document.getElementById("chart").appendChild(overlay);
+            document.getElementById('chart').appendChild(overlay);
           }
         } else {
           if (overlay) {
@@ -98,18 +98,18 @@
        * 更新状态文本
        */
       function updateStatus(text, isError = false) {
-        const statusEl = document.getElementById("statusText");
+        const statusEl = document.getElementById('statusText');
         statusEl.textContent = text;
-        statusEl.style.color = isError ? "#ef5350" : "#787b86";
+        statusEl.style.color = isError ? '#ef5350' : '#787b86';
       }
 
       /**
        * 隐藏提示信息
        */
       function hideHint() {
-        const hint = document.getElementById("hint");
+        const hint = document.getElementById('hint');
         if (hint) {
-          hint.style.display = "none";
+          hint.style.display = 'none';
         }
       }
 
@@ -121,50 +121,50 @@
        * 初始化 Lightweight Charts
        */
       function initChart() {
-        const container = document.getElementById("chart");
+        const container = document.getElementById('chart');
 
         state.chart = LightweightCharts.createChart(container, {
           width: container.clientWidth,
           height: container.clientHeight,
           layout: {
-            background: { color: "#131722" },
-            textColor: "#d1d4dc",
+            background: { color: '#131722' },
+            textColor: '#d1d4dc',
           },
           grid: {
-            vertLines: { color: "#1e222d" },
-            horzLines: { color: "#1e222d" },
+            vertLines: { color: '#1e222d' },
+            horzLines: { color: '#1e222d' },
           },
           crosshair: {
             mode: LightweightCharts.CrosshairMode.Normal,
           },
           rightPriceScale: {
-            borderColor: "#2a2e39",
+            borderColor: '#2a2e39',
           },
           timeScale: {
-            borderColor: "#2a2e39",
+            borderColor: '#2a2e39',
             timeVisible: true,
             secondsVisible: false,
           },
         });
 
         state.candlestickSeries = state.chart.addCandlestickSeries({
-          upColor: "#26a69a",
-          downColor: "#ef5350",
+          upColor: '#26a69a',
+          downColor: '#ef5350',
           borderVisible: false,
-          wickUpColor: "#26a69a",
-          wickDownColor: "#ef5350",
+          wickUpColor: '#26a69a',
+          wickDownColor: '#ef5350',
         });
 
         // 响应式调整
-        window.addEventListener("resize", () => {
+        window.addEventListener('resize', () => {
           state.chart.applyOptions({
             width: container.clientWidth,
             height: container.clientHeight,
           });
         });
 
-        console.log("✓ 图表初始化完成");
-        console.log("✓ 数据库时间 = 美东时间，图表直接显示（无时区转换）");
+        console.log('✓ 图表初始化完成');
+        console.log('✓ 数据库时间 = 美东时间，图表直接显示（无时区转换）');
       }
 
       // ======================================
@@ -195,14 +195,10 @@
             const ctx = scope.context;
 
             // 计算矩形位置和大小
-            const x =
-              Math.min(this._p1.x, this._p2.x) * scope.horizontalPixelRatio;
-            const y =
-              Math.min(this._p1.y, this._p2.y) * scope.verticalPixelRatio;
-            const width =
-              Math.abs(this._p2.x - this._p1.x) * scope.horizontalPixelRatio;
-            const height =
-              Math.abs(this._p2.y - this._p1.y) * scope.verticalPixelRatio;
+            const x = Math.min(this._p1.x, this._p2.x) * scope.horizontalPixelRatio;
+            const y = Math.min(this._p1.y, this._p2.y) * scope.verticalPixelRatio;
+            const width = Math.abs(this._p2.x - this._p1.x) * scope.horizontalPixelRatio;
+            const height = Math.abs(this._p2.y - this._p1.y) * scope.verticalPixelRatio;
 
             // 填充
             ctx.fillStyle = this._fillColor;
@@ -210,7 +206,7 @@
 
             // 中间虚线
             const midY = y + height / 2;
-            ctx.strokeStyle = this._fillColor.replace("33", ""); // 移除透明度，使用实色
+            ctx.strokeStyle = this._fillColor.replace('33', ''); // 移除透明度，使用实色
             ctx.lineWidth = 1;
             ctx.setLineDash([5, 5]); // 虚线：5px 实线，5px 空白
             ctx.beginPath();
@@ -246,7 +242,7 @@
           const x2 = timeScale.timeToCoordinate(this._source._endTime);
 
           this._p1 = { x: x1, y: y1 };
-          console.log("FVG update:", {
+          console.log('FVG update:', {
             startTime: this._source._startTime,
             endTime: this._source._endTime,
             topPrice: this._source._topPrice,
@@ -268,15 +264,7 @@
        * FVG Primitive
        */
       class FvgPrimitive {
-        constructor(
-          chart,
-          series,
-          startTime,
-          endTime,
-          topPrice,
-          bottomPrice,
-          color = "#ab47bc33",
-        ) {
+        constructor(chart, series, startTime, endTime, topPrice, bottomPrice, color = '#ab47bc33') {
           this._chart = chart;
           this._series = series;
           this._startTime = startTime;
@@ -296,13 +284,7 @@
         }
       }
 
-      function addFvgMarker(
-        startTime,
-        endTime,
-        topPrice,
-        bottomPrice,
-        color = "#ab47bc33",
-      ) {
+      function addFvgMarker(startTime, endTime, topPrice, bottomPrice, color = '#ab47bc33') {
         const primitive = new FvgPrimitive(
           state.chart,
           state.candlestickSeries,
@@ -310,7 +292,7 @@
           endTime,
           topPrice,
           bottomPrice,
-          color,
+          color
         );
         state.candlestickSeries.attachPrimitive(primitive);
 
@@ -318,7 +300,7 @@
         state.fvgPrimitives.push(primitive);
 
         console.log(
-          `✓ 添加 FVG 标记: start=${startTime}, end=${endTime}, top=${topPrice}, bottom=${bottomPrice}`,
+          `✓ 添加 FVG 标记: start=${startTime}, end=${endTime}, top=${topPrice}, bottom=${bottomPrice}`
         );
       }
 
@@ -340,7 +322,7 @@
         lineLength: 2, // 向右延伸 K 线数（参数可调）
         showLabel: true, // 是否显示文字标签（参数可调）
         lineWidth: 1,
-        labelFont: "11px sans-serif",
+        labelFont: '11px sans-serif',
         labelPadding: 4, // 标签距离线段右端的像素间隔
       };
 
@@ -362,12 +344,7 @@
 
         draw(target) {
           target.useBitmapCoordinateSpace((scope) => {
-            if (
-              this._p1.x === null ||
-              this._p2.x === null ||
-              this._p1.y === null
-            )
-              return;
+            if (this._p1.x === null || this._p2.x === null || this._p1.y === null) return;
 
             const ctx = scope.context;
             const hRatio = scope.horizontalPixelRatio;
@@ -390,12 +367,12 @@
               ctx.fillStyle = this._textColor;
               ctx.font = this._options.labelFont;
               const padding = this._options.labelPadding * vRatio;
-              ctx.textAlign = "right";
-              if (this._position === "above") {
-                ctx.textBaseline = "bottom";
+              ctx.textAlign = 'right';
+              if (this._position === 'above') {
+                ctx.textBaseline = 'bottom';
                 ctx.fillText(this._label, x2, y - padding);
               } else {
-                ctx.textBaseline = "top";
+                ctx.textBaseline = 'top';
                 ctx.fillText(this._label, x2, y + padding);
               }
             }
@@ -420,16 +397,12 @@
           const timeScale = chart.timeScale();
 
           const y = series.priceToCoordinate(this._source._price);
-          const anchorCoord = timeScale.timeToCoordinate(
-            this._source._anchorTime,
-          );
+          const anchorCoord = timeScale.timeToCoordinate(this._source._anchorTime);
           let rightX = null;
           if (anchorCoord !== null) {
             const logical = timeScale.coordinateToLogical(anchorCoord);
             if (logical !== null) {
-              rightX = timeScale.logicalToCoordinate(
-                logical + this._source._options.lineLength,
-              );
+              rightX = timeScale.logicalToCoordinate(logical + this._source._options.lineLength);
             }
           }
 
@@ -445,7 +418,7 @@
             this._source._textColor,
             this._source._label,
             this._source._position,
-            this._source._options,
+            this._source._options
           );
         }
       }
@@ -463,7 +436,7 @@
           textColor,
           label,
           position,
-          options = {},
+          options = {}
         ) {
           this._chart = chart;
           this._series = series;
@@ -486,33 +459,33 @@
         }
       }
 
-      function addBslMarker(timestamp, price, label = "BSL", options = {}) {
+      function addBslMarker(timestamp, price, label = 'BSL', options = {}) {
         const primitive = new LiquidityPrimitive(
           state.chart,
           state.candlestickSeries,
           timestamp,
           price,
-          "#5b9cf6", // 线段颜色（蓝）
-          "#26a69a", // 文字颜色（绿）
+          '#5b9cf6', // 线段颜色（蓝）
+          '#26a69a', // 文字颜色（绿）
           label,
-          "above", // BSL: 文字在线段上方
-          options,
+          'above', // BSL: 文字在线段上方
+          options
         );
         state.candlestickSeries.attachPrimitive(primitive);
         state.liquidityPrimitives.push(primitive);
       }
 
-      function addSslMarker(timestamp, price, label = "SSL", options = {}) {
+      function addSslMarker(timestamp, price, label = 'SSL', options = {}) {
         const primitive = new LiquidityPrimitive(
           state.chart,
           state.candlestickSeries,
           timestamp,
           price,
-          "#ffb74d", // 线段颜色（橙）
-          "#ef5350", // 文字颜色（红）
+          '#ffb74d', // 线段颜色（橙）
+          '#ef5350', // 文字颜色（红）
           label,
-          "below", // SSL: 文字在线段下方
-          options,
+          'below', // SSL: 文字在线段下方
+          options
         );
         state.candlestickSeries.attachPrimitive(primitive);
         state.liquidityPrimitives.push(primitive);
@@ -541,19 +514,22 @@
        */
       async function loadPdaData(startTime, endTime) {
         try {
-          console.log("开始加载 PDA 数据...");
+          console.log('开始加载 PDA 数据...');
 
           // 构建 API URL
-          // 调试：加载 1H BSL/SSL/FVG
+          // 读取当前选择的时间周期，联动 tfSelect
+          const tf = parseInt(document.getElementById('tfSelect').value);
+          const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H' };
+          const timeframe = tfMap[tf] || '1H';
+
           const url =
             `${API_BASE}/v2/pda_records?` +
             `anchor_time_from=${encodeURIComponent(startTime)}&` +
             `anchor_time_to=${encodeURIComponent(endTime)}&` +
-            `timeframe=1H&` +
-            `type=bsl&type=ssl&type=fvg&` +
+            `timeframe=${timeframe}&` +
             `limit=1000`;
 
-          console.log("PDA API URL:", url);
+          console.log('PDA API URL:', url);
 
           const response = await fetch(url);
           if (!response.ok) {
@@ -561,10 +537,10 @@
           }
 
           const data = await response.json();
-          console.log("PDA API 响应:", data);
+          console.log('PDA API 响应:', data);
 
           if (!data.ok) {
-            throw new Error(data.error || "PDA 加载失败");
+            throw new Error(data.error || 'PDA 加载失败');
           }
 
           const records = data.result.records || [];
@@ -583,32 +559,30 @@
 
             // 转换时间为 Unix 时间戳（秒）
             let timestamp;
-            if (typeof anchorTime === "number") {
+            if (typeof anchorTime === 'number') {
               timestamp = anchorTime;
-            } else if (typeof anchorTime === "string") {
+            } else if (typeof anchorTime === 'string') {
               // 数据库存的是美东时间，加 Z 当作 UTC 解析（时区约定）
-              timestamp = Math.floor(
-                new Date(anchorTime.replace(" ", "T") + "Z").getTime() / 1000,
-              );
+              timestamp = Math.floor(new Date(anchorTime.replace(' ', 'T') + 'Z').getTime() / 1000);
             } else {
-              console.warn("无效的 anchor_time:", anchorTime, record);
+              console.warn('无效的 anchor_time:', anchorTime, record);
               return;
             }
 
             // 根据类型渲染
-            if (pdaType === "bsl") {
+            if (pdaType === 'bsl') {
               const price = record.price || record.priceHigh;
               if (price) {
-                addBslMarker(timestamp, price, "BSL");
+                addBslMarker(timestamp, price, 'BSL');
                 stats.bsl++;
               }
-            } else if (pdaType === "ssl") {
+            } else if (pdaType === 'ssl') {
               const price = record.price || record.priceLow;
               if (price) {
-                addSslMarker(timestamp, price, "SSL");
+                addSslMarker(timestamp, price, 'SSL');
                 stats.ssl++;
               }
-            } else if (pdaType === "fvg") {
+            } else if (pdaType === 'fvg') {
               const priceHigh = record.priceHigh;
               const priceLow = record.priceLow;
               const direction = record.direction;
@@ -617,14 +591,13 @@
                 // FVG 需要计算时间范围
                 // anchor_time 是中间 K 线（K2）的时间
                 // 假设 1H 周期，K1 = anchor - 1H, K3 = anchor + 1H
-                const tf = parseInt(document.getElementById("tfSelect").value);
+                const tf = parseInt(document.getElementById('tfSelect').value);
                 const tfSeconds = tf * 60;
                 const startTime = timestamp - tfSeconds;
                 const endTime = timestamp + tfSeconds * 2; // K3 结束时间
 
                 // 根据方向选择颜色
-                const color =
-                  direction === "bullish" ? "#26a69a33" : "#ef535033"; // 绿色/红色
+                const color = direction === 'bullish' ? '#26a69a33' : '#ef535033'; // 绿色/红色
 
                 addFvgMarker(startTime, endTime, priceHigh, priceLow, color);
                 stats.fvg++;
@@ -634,10 +607,10 @@
             }
           });
 
-          console.log("PDA 渲染统计:", stats);
+          console.log('PDA 渲染统计:', stats);
           return stats;
         } catch (error) {
-          console.error("PDA 加载失败:", error);
+          console.error('PDA 加载失败:', error);
           throw error;
         }
       }
@@ -650,24 +623,24 @@
        * 加载 K线数据
        */
       async function loadKlineData() {
-        const start = document.getElementById("startInput").value.trim();
-        const end = document.getElementById("endInput").value.trim();
-        const tf = document.getElementById("tfSelect").value;
+        const start = document.getElementById('startInput').value.trim();
+        const end = document.getElementById('endInput').value.trim();
+        const tf = document.getElementById('tfSelect').value;
 
         // 验证输入
         if (!start || !end) {
-          alert("请输入开始和结束时间\n格式: 2012-01-09 09:30");
+          alert('请输入开始和结束时间\n格式: 2012-01-09 09:30');
           return;
         }
 
         showLoading(true);
-        updateStatus("加载 K线数据...");
+        updateStatus('加载 K线数据...');
         hideHint();
 
         try {
           // 构建 API URL
           const url = `${API_BASE}/v2/bars?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&tf=${tf}`;
-          console.log("请求 URL:", url);
+          console.log('请求 URL:', url);
 
           // 发起请求
           const response = await fetch(url);
@@ -676,16 +649,16 @@
           }
 
           const data = await response.json();
-          console.log("API 响应:", data);
+          console.log('API 响应:', data);
 
           // 检查响应格式
           if (!data.ok) {
-            throw new Error(data.error || "未知错误");
+            throw new Error(data.error || '未知错误');
           }
 
           const bars = data.result;
           if (!bars || bars.length === 0) {
-            throw new Error("该时段无数据");
+            throw new Error('该时段无数据');
           }
 
           // 转换数据格式
@@ -699,7 +672,7 @@
             close: bar.close,
           }));
 
-          console.log("转换后的数据:", candleData.slice(0, 3));
+          console.log('转换后的数据:', candleData.slice(0, 3));
 
           // 设置数据
           state.candlestickSeries.setData(candleData);
@@ -708,19 +681,19 @@
           state.chart.timeScale().fitContent();
 
           // 锁定价格范围，防止滚轮缩放时间轴时价格轴跟着跳动
-          state.chart.priceScale("right").applyOptions({ autoScale: false });
+          state.chart.priceScale('right').applyOptions({ autoScale: false });
 
           console.log(`✓ 成功加载 ${candleData.length} 根 K线`);
 
           // 加载 PDA 数据
-          updateStatus("加载 PDA 数据...");
+          updateStatus('加载 PDA 数据...');
           const pdaStats = await loadPdaData(start, end);
 
           updateStatus(
-            `已加载 ${candleData.length} 根 K线 + ${pdaStats.bsl + pdaStats.ssl + pdaStats.fvg} 个 PDA (BSL:${pdaStats.bsl} SSL:${pdaStats.ssl} FVG:${pdaStats.fvg})`,
+            `已加载 ${candleData.length} 根 K线 + ${pdaStats.bsl + pdaStats.ssl + pdaStats.fvg} 个 PDA (BSL:${pdaStats.bsl} SSL:${pdaStats.ssl} FVG:${pdaStats.fvg})`
           );
         } catch (error) {
-          console.error("加载失败:", error);
+          console.error('加载失败:', error);
           updateStatus(`错误: ${error.message}`, true);
           alert(`加载失败: ${error.message}`);
         } finally {
@@ -730,9 +703,9 @@
 
       // 时间格式化工具
       function formatTimeInput(value) {
-        console.log("formatTimeInput 调用:", value);
-        const digits = value.replace(/\D/g, "");
-        console.log("提取数字:", digits, "长度:", digits.length);
+        console.log('formatTimeInput 调用:', value);
+        const digits = value.replace(/\D/g, '');
+        console.log('提取数字:', digits, '长度:', digits.length);
         if (digits.length !== 12) return value;
         const year = digits.substring(0, 4);
         const month = digits.substring(4, 6);
@@ -744,7 +717,7 @@
         if (parseInt(hour) > 23) return value;
         if (parseInt(minute) > 59) return value;
         const formatted = `${year}-${month}-${day} ${hour}:${minute}`;
-        console.log("格式化结果:", formatted);
+        console.log('格式化结果:', formatted);
         return formatted;
       }
 
@@ -756,20 +729,18 @@
        * 初始化事件监听
        */
       function initEventListeners() {
-        console.log("✓ 初始化事件监听器");
-        document
-          .getElementById("loadBtn")
-          .addEventListener("click", loadKlineData);
+        console.log('✓ 初始化事件监听器');
+        document.getElementById('loadBtn').addEventListener('click', loadKlineData);
 
-        ["startInput", "endInput"].forEach((id) => {
+        ['startInput', 'endInput'].forEach((id) => {
           const input = document.getElementById(id);
           console.log(`✓ 绑定 ${id} 事件`);
-          input.addEventListener("blur", (e) => {
+          input.addEventListener('blur', (e) => {
             console.log(`${id} blur 事件触发`);
             e.target.value = formatTimeInput(e.target.value.trim());
           });
-          input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
+          input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
               console.log(`${id} Enter 键触发`);
               e.target.value = formatTimeInput(e.target.value.trim());
               loadKlineData();
@@ -777,15 +748,15 @@
           });
         });
 
-        document.getElementById("tfSelect").addEventListener("change", () => {
-          const start = document.getElementById("startInput").value.trim();
-          const end = document.getElementById("endInput").value.trim();
+        document.getElementById('tfSelect').addEventListener('change', () => {
+          const start = document.getElementById('startInput').value.trim();
+          const end = document.getElementById('endInput').value.trim();
           if (start && end) {
             loadKlineData();
           }
         });
 
-        console.log("✓ 事件监听初始化完成");
+        console.log('✓ 事件监听初始化完成');
       }
 
       // =============================================
@@ -796,18 +767,18 @@
        * 初始化应用
        */
       function init() {
-        console.log("=== V3 K线查看器启动 ===");
+        console.log('=== V3 K线查看器启动 ===');
 
         initChart();
         initEventListeners();
 
-        updateStatus("就绪");
-        console.log("✓ 应用初始化完成");
+        updateStatus('就绪');
+        console.log('✓ 应用初始化完成');
       }
 
       // 页面加载完成后初始化
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
       } else {
         init();
       }
