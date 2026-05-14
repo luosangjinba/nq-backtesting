@@ -80,6 +80,104 @@
         background: #2a2e39;
         margin: 4px 0;
       }
+
+      /* PDA Detail Popover Styles */
+      .pda-detail-popover {
+        position: fixed;
+        background: #1e222d;
+        border: 1px solid #2a2e39;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        min-width: 320px;
+        max-width: 400px;
+        z-index: 10001;
+        animation: popoverFadeIn 0.2s ease;
+      }
+
+      @keyframes popoverFadeIn {
+     from {
+          opacity: 0;
+     transform: translateY(-8px);
+        }
+        to {
+       opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .popover-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid #2a2e39;
+    }
+
+      .popover-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+     font-size: 14px;
+        font-weight: 600;
+        color: #e0e3eb;
+      }
+
+      .popover-close {
+        cursor: pointer;
+        font-size: 18px;
+        color: #787b86;
+        transition: color 0.15s;
+        user-select: none;
+      }
+
+      .popover-close:hover {
+        color: #e0e3eb;
+      }
+
+      .popover-body {
+        padding: 12px 16px;
+      }
+
+      .detail-row {
+        display: flex;
+        padding: 6px 0;
+        font-size: 13px;
+      }
+
+    .detail-label {
+        min-width: 80px;
+        color: #787b86;
+      }
+
+      .detail-value {
+        flex: 1;
+        color: #e0e3eb;
+        font-family: 'Courier New', monospace;
+      }
+
+      .detail-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+     font-size: 11px;
+        font-weight: 600;
+      }
+
+      .badge-auto {
+        background: #2962ff;
+        color: #fff;
+      }
+
+      .badge-manual {
+        background: #ff6d00;
+        color: #fff;
+      }
+
+      .detail-divider {
+        height: 1px;
+     background: #2a2e39;
+      margin: 8px 0;
+      }
     </style>
   </head>
   <body>
@@ -135,6 +233,7 @@
         liquidityPrimitives: [], // BSL/SSL 短线 Primitives
         fvgPrimitives: [], // FVG 矩形 Primitives
         currentMenu: null, // 当前打开的右键菜单
+        currentPopover: null, // 当前打开的 PDA 详情浮窗
         pdaRecords: [], // PDA 原始数据（用于点击检测）
       };
 
@@ -903,6 +1002,87 @@
       }
 
       /**
+       * 关闭 PDA 详情浮窗
+       */
+      function closePdaDetail() {
+        if (state.currentPopover) {
+          state.currentPopover.remove();
+          state.currentPopover = null;
+          document.removeEventListener('click', handlePopoverOutsideClick);
+        }
+      }
+
+      /**
+       * 处理浮窗外部点击
+       */
+      function handlePopoverOutsideClick(e) {
+        if (state.currentPopover && !state.currentPopover.contains(e.target)) {
+          closePdaDetail();
+        }
+      }
+
+      /**
+       * 显示 PDA 详情浮窗
+       */
+      function showPdaDetail(pda, x, y) {
+        closePdaDetail();
+        const popover = document.createElement('div');
+        popover.className = 'pda-detail-popover';
+        const pdaType = pda.pdaType.toUpperCase();
+        const timeframe = pda.timeframe || 'N/A';
+        const title = `${pdaType} · ${timeframe}`;
+        let detailRows = '';
+        detailRows += `<div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${pda.pdaId}</span></div>`;
+        const anchorTime = pda.anchorTs || pda.anchorTime;
+        let timeStr = 'N/A';
+        if (typeof anchorTime === 'number') {
+          const date = new Date(anchorTime * 1000);
+          timeStr = date.toISOString().replace('T', ' ').substring(0, 16) + ' ET';
+        } else if (typeof anchorTime === 'string') {
+          timeStr = anchorTime + ' ET';
+        }
+        detailRows += `<div class="detail-row"><span class="detail-label">时间:</span><span class="detail-value">${timeStr}</span></div>`;
+        if (pda.pdaType === 'bsl' || pda.pdaType === 'ssl') {
+          const price = pda.price || pda.priceHigh || pda.priceLow || 'N/A';
+          detailRows += `<div class="detail-row"><span class="detail-label">价格:</span><span class="detail-value">${price}</span></div>`;
+        } else if (pda.pdaType === 'fvg') {
+          const priceHigh = pda.priceHigh || 'N/A';
+          const priceLow = pda.priceLow || 'N/A';
+          detailRows += `<div class="detail-row"><span class="detail-label">价格范围:</span><span class="detail-value">${priceLow} - ${priceHigh}</span></div>`;
+          const direction = pda.direction || 'N/A';
+          detailRows += `<div class="detail-row"><span class="detail-label">Direction:</span><span class="detail-value">${direction}</span></div>`;
+        }
+        detailRows += `<div class="detail-row"><span class="detail-label">周期:</span><span class="detail-value">${timeframe}</span></div>`;
+        const isManual = pda.pdaId && pda.pdaId.startsWith('manual_');
+        const sourceBadge = isManual ? '<span class="detail-badge badge-manual">手动</span>' : '<span class="detail-badge badge-auto">自动扫描</span>';
+        detailRows += `<div class="detail-row"><span class="detail-label">来源:</span><span class="detail-value">${sourceBadge}</span></div>`;
+        if (pda.referenceGroup) {
+          detailRows += `<div class="detail-divider"></div><div class="detail-row"><span class="detail-label">关联组:</span><span class="detail-value">${pda.referenceGroup}</span></div>`;
+        }
+        popover.innerHTML = `<div class="popover-header"><div class="popover-title"><span>📋</span><span>${title}</span></div><div class="popover-close" onclick="closePdaDetail()">×</div></div><div class="popover-body">${detailRows}</div>`;
+        document.body.appendChild(popover);
+      const popoverRect = popover.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let adjustedX = x;
+        let adjustedY = y;
+        if (x + popoverRect.width > viewportWidth) {
+          adjustedX = viewportWidth - popoverRect.width - 10;
+        }
+        if (y + popoverRect.height > viewportHeight) {
+          adjustedY = viewportHeight - popoverRect.height - 10;
+        }
+        popover.style.left = adjustedX + 'px';
+        popover.style.top = adjustedY + 'px';
+        state.currentPopover = popover;
+        setTimeout(() => {
+        document.addEventListener('click', handlePopoverOutsideClick);
+        }, 0);
+        console.log('✓ PDA 详情浮窗已显示');
+      }
+
+
+      /**
        * 显示空白区域菜单
        */
       function showBlankMenu(x, y) {
@@ -1095,9 +1275,8 @@
             label: '查看详情',
             action: () => {
               console.log('[操作] 查看详情:', pda);
-              // 在控制台输出 PDA 详情
-              console.table(pda);
-              alert(`PDA 详情：\n\n${JSON.stringify(pda, null, 2)}`);
+              closeContextMenu();
+              showPdaDetail(pda, x, y);
             },
           },
           {
@@ -1249,11 +1428,16 @@
           }
         });
 
-        // ESC 键关闭菜单
+        // ESC 键关闭菜单和浮窗
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && state.currentMenu) {
-            closeContextMenu();
-            console.log('✓ 菜单已关闭 (ESC)');
+          if (e.key === 'Escape') {
+            if (state.currentPopover) {
+              closePdaDetail();
+              console.log('✓ 浮窗已关闭 (ESC)');
+            } else if (state.currentMenu) {
+              closeContextMenu();
+              console.log('✓ 菜单已关闭 (ESC)');
+            }
           }
         });
 
