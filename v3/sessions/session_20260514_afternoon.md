@@ -271,3 +271,59 @@ f777265 feat(kline_viewer): 增强时间格式化
 - 用户测试反馈及时，快速验证功能
 
 **下一步行动**：开始执行阶段 D（扩展 PDA 类型支持）
+
+---
+
+## 七、Bug 修复：PDA 标志显示问题
+
+### 7.1 问题描述
+
+**现象**：
+1. 加载数据后，PDA 标志（BSL/SSL/FVG）不显示
+2. 移动鼠标后，PDA 标志才显示出来
+3. 刷新数据后 PDA 显示，但左键点击图表空白处后又消失
+4. 再次移动图表，PDA 又出现
+
+**根本原因**：
+- `loadPdaData` 函数渲染完 PDA Primitive 后，没有触发图表更新
+- LightweightCharts 需要显式调用 `chart.timeScale().fitContent()` 才能触发 Primitive 的渲染
+
+### 7.2 解决方案
+
+在 `loadPdaData` 函数末尾添加：
+```javascript
+// 触发图表更新，确保 Primitive 立即显示
+state.chart.timeScale().fitContent();
+```
+
+### 7.3 测试结果
+
+✅ 两个问题同时解决：
+1. 加载数据后，PDA 标志立即显示
+2. 左键点击图表后，PDA 标志不再消失
+
+### 7.4 提交记录
+
+**`bf0ebaa`** - fix(kline_viewer): 修复 PDA 标志初次加载不显示的问题
+- 在 loadPdaData 末尾添加 chart.timeScale().fitContent()
+- 触发图表更新，确保 Primitive 立即渲染
+- 解决加载数据后需要移动鼠标才能看到 PDA 的问题
+
+---
+
+## 八、最终总结
+
+本次会话完成内容：
+- ✅ 阶段 C1：菜单键盘导航
+- ✅ 阶段 C2：F5 快捷键刷新数据
+- ✅ 阶段 C3：恢复快捷键提示 UI
+- ✅ Bug 修复：PDA 标志显示问题
+
+**提交记录**：
+- `1d3ba57` - C1 实现
+- `45df8f0` - C2 实现
+- `98bffde` - C3 实现
+- `bf0ebaa` - PDA 显示 bug 修复
+- `b1d601c`, `3a790fd` - 文档更新
+
+**下一步**：阶段 D（扩展 PDA 类型支持）
