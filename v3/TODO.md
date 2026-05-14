@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/context-menu-research`
 
-**最后更新**：2026-05-14 深夜调试  
-**当前状态**：occurrence_time 定位已完成，但日级 PDA 不显示（待调试）
+**最后更新**：2026-05-14 下午调试修复  
+**当前状态**：日级 PDA 时间映射已完成，待浏览器验证
 
 ---
 
@@ -43,8 +43,8 @@
   - [x] 菜单项显示 shortcut 字段
 
 ### 阶段 D：扩展 PDA 类型支持
-**状态**：✅ 完成（2026-05-14 晚上）  
-**提交**：`01925ec`, `3ea9742`, `1da802f`, `71a5972`, `1c5a7e0`, `5678783`, `0db07e9`
+**状态**：✅ 完成（2026-05-14）  
+**提交**：`01925ec`, `3ea9742`, `1da802f`, `71a5972`, `1c5a7e0`, `5678783`, `0db07e9`, `b348202`, `6ee7d65`
 
 - [x] D1. NWOG / NDOG 渲染
   - [x] Custom Primitive 水平线
@@ -72,21 +72,35 @@
 - [x] D8. 日级 PDA 使用 occurrence_time 定位（`b348202`）
   - [x] daily_high/low, ict_midnight_*, nwog, ndog 改用 occurrence_time
   - [x] 修复标签显示在统计周期起点（18:00/00:00）而非实际高低点的问题
+- [x] D9. 日级 PDA 时间映射到最近 K 线（`6ee7d65`）
+  - [x] 添加 findNearestBarTime() 函数
+  - [x] 存储 K 线时间戳到 state.barTimestamps
+  - [x] 日级 PDA 渲染前映射到最近的 K 线时间
+  - [x] 添加时间偏移调试日志
+  - [x] 修复 anchorCoord 为 null 导致标记不显示的问题
 
 **Bug 修复**：
 - [x] 修复语法错误（多余/缺失的大括号）
 - [x] 时间格式化和加载功能恢复正常
 - [x] 日级 PDA 时间定位错误（显示在 anchor_time 而非 occurrence_time）
-
-**已知问题**：
-- [ ] 日级 PDA 不显示（数据加载正常，但渲染函数未被调用）
-  - 现象：控制台显示数据已加载和合并，timestamp 和 price 都有值
-  - 但是：没有看到 "✓ 添加 XXX 标记" 日志，渲染统计显示计数为 0
-  - 待调试：检查 `if (price)` 分支是否真的执行，以及 `addDailyHighMarker` 等函数是否可访问
+- [x] 日级 PDA 不显示（occurrence_time 不在 K 线时间点上，导致 anchorCoord 为 null）
 
 ---
 
 ## 待完成功能 🔄
+
+### 待验证（P0）
+**状态**：待测试  
+**优先级**：高
+
+- [ ] 浏览器测试日级 PDA 显示
+  - [ ] 刷新浏览器（Ctrl+Shift+R 强制刷新）
+  - [ ] 加载数据：2012-01-09 00:00 到 2012-01-15 00:00，周期 1H
+  - [ ] 验证 Daily High/Low 标记显示
+  - [ ] 验证 ICT Midnight High/Low 标记显示
+  - [ ] 验证 NWOG/NDOG 标记显示
+  - [ ] 检查控制台时间映射日志
+  - [ ] 确认无 "anchorCoord 为 null" 警告（或大幅减少）
 
 ### 优化任务（后续）
 **状态**：待开始  
@@ -199,6 +213,7 @@
 - [会话记录 - 晚上](./sessions/session_20260514_evening.md)
 - [会话记录 - 深夜](./sessions/session_20260514_late_evening.md)
 - [会话记录 - 深夜续](./sessions/session_20260514_late_night.md)
+- [会话记录 - 调试修复](./sessions/session_20260514_debug_fix.md)
 - [设计文档](./docs/CONTEXT_MENU_DESIGN.md)
 - [技术可行性](./docs/CONTEXT_MENU_FEASIBILITY.md)
 - [集成记录](./docs/CONTEXT_MENU_INTEGRATION.md)
@@ -209,6 +224,7 @@
 
 | 版本 | 日期 | 提交 | 说明 |
 |---|---|---|---|
+| v0.8 | 2026-05-14 下午 | `6ee7d65` | 日级 PDA 时间映射到最近 K 线 |
 | v0.7 | 2026-05-14 深夜 | `b348202` | 日级 PDA 使用 occurrence_time 定位 |
 | v0.6 | 2026-05-14 晚 | `0db07e9` | 15M+ 周期叠加日级 PDA |
 | v0.5 | 2026-05-14 晚 | `5678783` | 添加 D/W 周期支持 |
@@ -227,12 +243,12 @@
 
 ## 合并计划
 
-**目标**：阶段 D 完成后合并到 main
+**目标**：阶段 D 完成并验证后合并到 main
 
 **合并前检查清单**：
-- [ ] 所有功能验证通过
-- [ ] 代码格式化完成（Prettier）
-- [ ] 会话记录更新
+- [ ] 浏览器测试日级 PDA 显示（P0）
+- [x] 代码格式化完成（Prettier）
+- [x] 会话记录更新
 - [ ] README 更新
 - [ ] 无 console.log 残留（保留 warn/error）
 - [ ] 无 TODO/FIXME 注释
