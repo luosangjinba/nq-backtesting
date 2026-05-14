@@ -808,6 +808,20 @@
       // ================================================
 
       /**
+       * 刷新数据（快捷键 F5）
+       */
+      function refreshData() {
+        console.log('[快捷键] F5 刷新数据');
+        const start = document.getElementById('startInput').value.trim();
+        const end = document.getElementById('endInput').value.trim();
+        if (start && end) {
+          loadKlineData();
+        } else {
+          updateStatus('请先输入时间范围', true);
+        }
+      }
+
+      /**
        * 加载 K线数据
        */
       async function loadKlineData() {
@@ -1170,14 +1184,34 @@
             icon: '🔄',
             label: '刷新数据',
             action: () => {
-              console.log('[操作] 刷新数据');
-              const start = document.getElementById('startInput').value.trim();
-              const end = document.getElementById('endInput').value.trim();
-              if (start && end) {
-                loadKlineData();
-              } else {
-                updateStatus('请先输入时间范围', true);
-              }
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
+            },
+            action: () => {
+              refreshData();
             },
           },
           { type: 'divider' },
@@ -1506,7 +1540,18 @@
 
         // ESC 键关闭菜单和浮窗
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
+          // F5 刷新数据（避免输入框获得焦点时触发）
+          if (e.key === 'F5') {
+            const activeElement = document.activeElement;
+            const isInputFocused =
+              activeElement &&
+              (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
+
+            if (!isInputFocused) {
+              e.preventDefault();
+              refreshData();
+            }
+          } else if (e.key === 'Escape') {
             if (state.currentPopover) {
               closePdaDetail();
               console.log('✓ 浮窗已关闭 (ESC)');
