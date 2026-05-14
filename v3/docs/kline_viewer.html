@@ -509,6 +509,7 @@
         lineWidth: 1,
         labelFont: '11px sans-serif',
         labelPadding: 4, // 标签距离线段右端的像素间隔
+        lineStyle: 'solid', // 线条样式：'solid' 或 'dashed'
       };
 
       /**
@@ -542,6 +543,14 @@
             // 短线
             ctx.strokeStyle = this._lineColor;
             ctx.lineWidth = this._options.lineWidth * Math.min(hRatio, vRatio);
+
+            // 设置线条样式
+            if (this._options.lineStyle === 'dashed') {
+              ctx.setLineDash([5, 5]); // 虚线：5px 实线，5px 空白
+            } else {
+              ctx.setLineDash([]); // 实线
+            }
+
             ctx.beginPath();
             ctx.moveTo(x1, y);
             ctx.lineTo(x2, y);
@@ -740,6 +749,38 @@
         state.liquidityPrimitives.push(primitive);
       }
 
+      function addIctMidnightHighMarker(timestamp, price, label = 'ICT Mid High', options = {}) {
+        const primitive = new LiquidityPrimitive(
+          state.chart,
+          state.candlestickSeries,
+          timestamp,
+          price,
+          '#26a69a', // 线段颜色（绿）
+          '#26a69a', // 文字颜色（绿）
+          label,
+          'above', // ICT Midnight High: 文字在线段上方
+          { ...options, lineStyle: 'dashed' } // 虚线
+        );
+        state.candlestickSeries.attachPrimitive(primitive);
+        state.liquidityPrimitives.push(primitive);
+      }
+
+      function addIctMidnightLowMarker(timestamp, price, label = 'ICT Mid Low', options = {}) {
+        const primitive = new LiquidityPrimitive(
+          state.chart,
+          state.candlestickSeries,
+          timestamp,
+          price,
+          '#ef5350', // 线段颜色（红）
+          '#ef5350', // 文字颜色（红）
+          label,
+          'below', // ICT Midnight Low: 文字在线段下方
+          { ...options, lineStyle: 'dashed' } // 虚线
+        );
+        state.candlestickSeries.attachPrimitive(primitive);
+        state.liquidityPrimitives.push(primitive);
+      }
+
       function clearLiquidityMarkers() {
         state.liquidityPrimitives.forEach((primitive) => {
           state.candlestickSeries.detachPrimitive(primitive);
@@ -810,6 +851,8 @@
             ndog: 0,
             daily_high: 0,
             daily_low: 0,
+            ict_midnight_day_high: 0,
+            ict_midnight_day_low: 0,
             other: 0,
           };
 
@@ -886,6 +929,18 @@
               if (price) {
                 addDailyLowMarker(timestamp, price, 'Daily Low');
                 stats.daily_low++;
+              }
+            } else if (pdaType === 'ict_midnight_day_high') {
+              const price = record.price || record.priceHigh;
+              if (price) {
+                addIctMidnightHighMarker(timestamp, price, 'ICT Mid High');
+                stats.ict_midnight_day_high++;
+              }
+            } else if (pdaType === 'ict_midnight_day_low') {
+              const price = record.price || record.priceLow;
+              if (price) {
+                addIctMidnightLowMarker(timestamp, price, 'ICT Mid Low');
+                stats.ict_midnight_day_low++;
               }
             } else {
               stats.other++;
