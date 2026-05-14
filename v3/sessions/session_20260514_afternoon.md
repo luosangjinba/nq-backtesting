@@ -1,0 +1,239 @@
+# V3 开发会话 - 2026-05-14 下午
+
+## 会话信息
+
+- **日期：** 2026-05-14 下午
+- **时长：** ~1 小时
+- **主要目标：** 完成阶段 C（键盘导航 + 快捷键）
+- **模型：** Claude Opus 4.7
+- **分支：** `feature/context-menu-research`
+
+---
+
+## 一、阶段 C1：菜单键盘导航（已完成）
+
+### 1.1 实现内容
+
+**State 扩展**：
+- 添加 `selectedMenuIndex: -1` — 当前选中的菜单项索引
+- 添加 `menuItems: []` — 当前菜单的可选项数组（不含 divider 和 disabled）
+
+**CSS 样式**：
+- 添加 `.menu-item.selected` 样式：灰色背景 `#2a2e39`
+
+**函数实现**：
+1. `createContextMenu`（修改）
+   - 收集可选菜单项到 `selectableItems` 数组
+   - 为每个可选项绑定 `mouseenter` 事件，调用 `updateMenuSelection`
+   - 初始化 `state.menuItems` 和 `state.selectedMenuIndex`
+
+2. `closeContextMenu`（修改）
+   - 清理 `state.menuItems = []`
+   - 重置 `state.selectedMenuIndex = -1`
+
+3. `updateMenuSelection`（新增）
+   - 移除旧选中项的 `.selected` 样式
+   - 添加新选中项的 `.selected` 样式
+   - 更新 `state.selectedMenuIndex`
+
+4. `moveMenuSelectionDown`（新增）
+   - 向下移动选中项（循环）
+   - 调用 `updateMenuSelection`
+
+5. `moveMenuSelectionUp`（新增）
+   - 向上移动选中项（循环）
+   - 调用 `updateMenuSelection`
+
+6. `triggerMenuSelection`（新增）
+   - 触发选中项的 `action`
+   - 关闭菜单
+
+**键盘事件处理**（修改）：
+- 在 `keydown` 监听器中添加：
+  - `ArrowDown`: 调用 `moveMenuSelectionDown()`
+  - `ArrowUp`: 调用 `moveMenuSelectionUp()`
+  - `Enter`: 调用 `triggerMenuSelection()`
+- 所有键盘事件都调用 `e.preventDefault()` 防止默认行为
+
+### 1.2 测试结果
+
+✅ 所有功能正常：
+- ↓ 键：选中项向下移动（循环）
+- ↑ 键：选中项向上移动（循环）
+- Enter：触发选中项
+- 鼠标 hover：同步选中状态
+- ESC：关闭菜单
+- 自动跳过 disabled 和 divider
+
+### 1.3 提交记录
+
+**`1d3ba57`** - feat(kline_viewer): 实现菜单键盘导航（阶段 C1）
+- 添加 state.selectedMenuIndex 和 state.menuItems 字段
+- 添加 .menu-item.selected CSS 样式
+- 实现 updateMenuSelection / moveMenuSelectionDown / moveMenuSelectionUp / triggerMenuSelection
+- 修改 createContextMenu：收集可选项 + mouseenter 同步选中状态
+- 修改 closeContextMenu：清理菜单状态
+- 修改 keydown 监听器：支持 ↑↓ Enter 键导航
+- 支持循环导航、鼠标 hover 同步、跳过 disabled/divider
+
+---
+
+## 二、阶段 C2：F5 快捷键刷新数据（已完成）
+
+### 2.1 实现内容
+
+**refreshData 函数**（新增）：
+- 提取刷新数据逻辑为独立函数
+- 检查时间范围是否已输入
+- 有时间范围：调用 `loadKlineData()`
+- 无时间范围：显示错误提示
+
+**菜单简化**：
+- 简化"刷新数据"菜单项的 action
+- 直接调用 `refreshData()`
+
+**F5 快捷键**（修改 keydown 监听器）：
+- 添加 `e.key === 'F5'` 处理
+- 检查 `activeElement` 是否为输入框
+- 输入框未获得焦点：拦截 F5，调用 `refreshData()`
+- 输入框获得焦点：不拦截 F5，浏览器正常刷新
+
+### 2.2 测试结果
+
+✅ 所有场景正常：
+1. **图表区域按 F5**：重新加载数据，不刷新页面
+2. **未输入时间按 F5**：显示"请先输入时间范围"错误
+3. **输入框获得焦点按 F5**：浏览器正常刷新（符合预期）
+4. **菜单刷新数据**：调用 refreshData()，正常工作
+5. **其他快捷键**：ESC、↑↓ Enter 不受影响
+
+### 2.3 提交记录
+
+**`45df8f0`** - feat(kline_viewer): 实现 F5 快捷键刷新数据（阶段 C2）
+- 添加 refreshData() 函数（提取刷新逻辑）
+- 简化菜单'刷新数据' action，调用 refreshData()
+- 在 keydown 监听器中添加 F5 处理
+- F5 避免输入框冲突：检查 activeElement，输入框获得焦点时不拦截
+- 图表区域按 F5：重新加载数据，不刷新页面
+- 输入框获得焦点按 F5：浏览器正常刷新
+
+---
+
+## 三、当前状态
+
+### 3.1 提交历史
+
+```
+45df8f0 feat(kline_viewer): 实现 F5 快捷键刷新数据（阶段 C2）
+1d3ba57 feat(kline_viewer): 实现菜单键盘导航（阶段 C1）
+e1766f1 docs: 创建 v3 TODO - 记录阶段 A/B 完成状态和后续计划
+d43a430 docs: 记录 2026-05-14 完整会话 - 从循环 bug 中学习
+d3cd332 feat(kline_viewer): 实现 PDA 详情浮窗（阶段 B v2）
+6e17771 refactor(kline_viewer): 完成阶段 A 改进
+f777265 feat(kline_viewer): 增强时间格式化
+```
+
+### 3.2 相对 main 分支
+
+- 提交数：15 个
+- 文件变更：`v3/docs/kline_viewer.html`
+- 行数变化：+约 250 行
+
+### 3.3 已完成功能
+
+**阶段 A**：✅ 完成
+- [x] 增强时间格式化（8/12 位输入）
+- [x] 容差自适应（timeframe 动态计算）
+- [x] 窗口 resize 关闭菜单
+- [x] 去掉假快捷键提示
+
+**阶段 B**：✅ 完成
+- [x] 浮窗 CSS 样式
+- [x] showPdaDetail 函数
+- [x] 浮窗定位逻辑
+- [x] 浮窗关闭逻辑
+- [x] 替换 alert 调用
+
+**阶段 C**：✅ 完成
+- [x] C1. 菜单键盘导航（↑↓ Enter）
+- [x] C2. F5 快捷键刷新数据
+
+**基础功能**：✅ 完成
+- [x] 右键菜单基础设施
+- [x] PDA 点击检测（BSL/SSL/FVG）
+- [x] 空白菜单 / PDA 菜单
+- [x] 边界检测
+- [x] ESC 键关闭
+
+---
+
+## 四、下一步：阶段 C3
+
+**目标**：恢复快捷键提示 UI
+
+**内容**：
+- C3. 恢复菜单项的 shortcut 字段显示
+- 当前已去掉假快捷键，现在 F5 是真实快捷键，可以显示
+
+**预计时长**：10 分钟
+
+---
+
+## 五、技术要点
+
+### 5.1 键盘导航实现
+
+**核心思路**：
+- 维护 `selectedMenuIndex` 和 `menuItems` 数组
+- ↑↓ 键修改 `selectedMenuIndex`，循环导航
+- `updateMenuSelection` 更新 CSS 样式
+- 鼠标 hover 同步更新 `selectedMenuIndex`
+
+**关键细节**：
+- 只收集可选项（跳过 disabled 和 divider）
+- 循环导航：到达边界时跳到另一端
+- 鼠标 hover 同步：避免键盘和鼠标状态不一致
+
+### 5.2 F5 快捷键实现
+
+**核心思路**：
+- 检查 `document.activeElement`
+- 输入框获得焦点：不拦截 F5
+- 其他情况：拦截 F5，调用 `refreshData()`
+
+**关键细节**：
+- 检查 `tagName === 'INPUT' || tagName === 'TEXTAREA'`
+- 只在非输入框场景调用 `e.preventDefault()`
+- 提取 `refreshData()` 函数，菜单和快捷键共用
+
+### 5.3 代码修改策略
+
+**本次会话采用的方法**：
+1. 小步提交：C1 和 C2 分别提交
+2. 立即测试：每个阶段完成后立即测试
+3. Python 脚本替换：避免手动对齐缩进
+4. Prettier 格式化：保持代码风格一致
+
+**避免的问题**：
+- 不累积多个修改
+- 不手动对齐缩进
+- 不使用 sed/awk 批量操作（除非简单场景）
+
+---
+
+## 六、会话总结
+
+本次会话顺利完成阶段 C1 和 C2：
+
+**成功部分**：
+- 键盘导航实现完整，循环、hover 同步、跳过 disabled 都正常
+- F5 快捷键实现正确，输入框冲突避免有效
+- 测试覆盖全面，所有场景都验证通过
+- 代码修改稳妥，没有出现循环 bug
+
+**核心收获**：
+- 小步提交 + 立即测试 = 稳定推进
+- Python 脚本替换 > 手动 Edit（避免缩进问题）
+- 用户测试反馈及时，快速验证功能
+
+**下一步行动**：开始执行阶段 C3（恢复快捷键提示 UI）
