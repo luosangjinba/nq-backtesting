@@ -708,6 +708,38 @@
         state.liquidityPrimitives.push(primitive);
       }
 
+      function addDailyHighMarker(timestamp, price, label = 'Daily High', options = {}) {
+        const primitive = new LiquidityPrimitive(
+          state.chart,
+          state.candlestickSeries,
+          timestamp,
+          price,
+          '#26a69a', // 线段颜色（实绿）
+          '#26a69a', // 文字颜色（实绿）
+          label,
+          'above', // Daily High: 文字在线段上方
+          options
+        );
+        state.candlestickSeries.attachPrimitive(primitive);
+        state.liquidityPrimitives.push(primitive);
+      }
+
+      function addDailyLowMarker(timestamp, price, label = 'Daily Low', options = {}) {
+        const primitive = new LiquidityPrimitive(
+          state.chart,
+          state.candlestickSeries,
+          timestamp,
+          price,
+          '#ef5350', // 线段颜色（实红）
+          '#ef5350', // 文字颜色（实红）
+          label,
+          'below', // Daily Low: 文字在线段下方
+          options
+        );
+        state.candlestickSeries.attachPrimitive(primitive);
+        state.liquidityPrimitives.push(primitive);
+      }
+
       function clearLiquidityMarkers() {
         state.liquidityPrimitives.forEach((primitive) => {
           state.candlestickSeries.detachPrimitive(primitive);
@@ -770,7 +802,16 @@
           clearAllPdaMarkers();
 
           // 统计各类型数量
-          const stats = { bsl: 0, ssl: 0, fvg: 0, nwog: 0, ndog: 0, other: 0 };
+          const stats = {
+            bsl: 0,
+            ssl: 0,
+            fvg: 0,
+            nwog: 0,
+            ndog: 0,
+            daily_high: 0,
+            daily_low: 0,
+            other: 0,
+          };
 
           // 遍历记录，按类型渲染
           records.forEach((record) => {
@@ -833,6 +874,18 @@
               if (price) {
                 addNdogMarker(timestamp, price, 'NDOG');
                 stats.ndog++;
+              }
+            } else if (pdaType === 'daily_high') {
+              const price = record.price || record.priceHigh;
+              if (price) {
+                addDailyHighMarker(timestamp, price, 'Daily High');
+                stats.daily_high++;
+              }
+            } else if (pdaType === 'daily_low') {
+              const price = record.price || record.priceLow;
+              if (price) {
+                addDailyLowMarker(timestamp, price, 'Daily Low');
+                stats.daily_low++;
               }
             } else {
               stats.other++;
