@@ -796,6 +796,10 @@
           });
 
           console.log('PDA 渲染统计:', stats);
+
+          // 触发图表更新，确保 Primitive 立即显示
+          state.chart.timeScale().fitContent();
+
           return stats;
         } catch (error) {
           console.error('PDA 加载失败:', error);
