@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/context-menu-research`
 
-**最后更新**：2026-05-14 晚上（API 中断后续）  
-**当前状态**：阶段 A & B & C & D 已完成 + 日级 PDA 叠加显示
+**最后更新**：2026-05-14 深夜  
+**当前状态**：阶段 A & B & C & D 已完成 + 日级 PDA 叠加显示 + occurrence_time 定位修复
 
 ---
 
@@ -69,14 +69,28 @@
   - [x] 当周期 >= 15M 且 < D 时，额外请求 D 周期的 6 种日级 PDA
   - [x] 合并主请求和日级请求的 records
   - [x] 1M/5M 不叠加，D/W 主请求已包含
+- [x] D8. 日级 PDA 使用 occurrence_time 定位（`b348202`）
+  - [x] daily_high/low, ict_midnight_*, nwog, ndog 改用 occurrence_time
+  - [x] 修复标签显示在统计周期起点（18:00/00:00）而非实际高低点的问题
 
 **Bug 修复**：
 - [x] 修复语法错误（多余/缺失的大括号）
 - [x] 时间格式化和加载功能恢复正常
+- [x] 日级 PDA 时间定位错误（显示在 anchor_time 而非 occurrence_time）
 
 ---
 
 ## 待完成功能 🔄
+
+### 优化任务（后续）
+**状态**：待开始  
+**优先级**：中
+
+- [ ] PDA 标签防重叠
+  - [ ] 检测同价位的标签（时间窗口 + 价格容差）
+  - [ ] 水平错开排列，避免遮挡
+  - [ ] 扩展 LiquidityPrimitive 支持 labelOffsetX 参数
+  - [ ] 全局坐标收集和布局算法
 
 ### 阶段 E：Manual PDA 编辑/删除/导出/新建
 **状态**：待开始（移至 `feature/pda-workbench` 分支）  
@@ -177,6 +191,8 @@
 
 - [会话记录 - 下午](./sessions/session_20260514_afternoon.md)
 - [会话记录 - 晚上](./sessions/session_20260514_evening.md)
+- [会话记录 - 深夜](./sessions/session_20260514_late_evening.md)
+- [会话记录 - 深夜续](./sessions/session_20260514_late_night.md)
 - [设计文档](./docs/CONTEXT_MENU_DESIGN.md)
 - [技术可行性](./docs/CONTEXT_MENU_FEASIBILITY.md)
 - [集成记录](./docs/CONTEXT_MENU_INTEGRATION.md)
@@ -187,6 +203,7 @@
 
 | 版本 | 日期 | 提交 | 说明 |
 |---|---|---|---|
+| v0.7 | 2026-05-14 深夜 | `b348202` | 日级 PDA 使用 occurrence_time 定位 |
 | v0.6 | 2026-05-14 晚 | `0db07e9` | 15M+ 周期叠加日级 PDA |
 | v0.5 | 2026-05-14 晚 | `5678783` | 添加 D/W 周期支持 |
 | v0.5 | 2026-05-14 晚 | `1c5a7e0` | 修复语法错误 |
