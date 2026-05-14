@@ -835,8 +835,50 @@
             throw new Error(data.error || 'PDA 加载失败');
           }
 
-          const records = data.result.records || [];
-          console.log(`✓ 获取到 ${records.length} 条 PDA 记录`);
+          let records = data.result.records || [];
+          console.log(`✓ 获取到 ${records.length} 条 ${timeframe} PDA 记录`);
+
+          // 如果当前周期 >= 15M 且 < D，额外加载日级 PDA（daily_high/low, ict_midnight_*, nwog, ndog）
+          if (tf >= 15 && tf < 1440) {
+            console.log('当前周期 >= 15M，额外加载日级 PDA...');
+            const dailyTypes = [
+              'daily_high',
+              'daily_low',
+              'ict_midnight_day_high',
+              'ict_midnight_day_low',
+              'nwog',
+              'ndog',
+            ];
+            const dailyUrl =
+              `${API_BASE}/v2/pda_records?` +
+              `anchor_time_from=${encodeURIComponent(startTime)}&` +
+              `anchor_time_to=${encodeURIComponent(endTime)}&` +
+              `timeframe=D&` +
+              dailyTypes.map((t) => `type=${t}`).join('&') +
+              `&limit=1000`;
+
+            console.log('日级 PDA API URL:', dailyUrl);
+
+            try {
+              const dailyResponse = await fetch(dailyUrl);
+              if (dailyResponse.ok) {
+                const dailyData = await dailyResponse.json();
+                if (dailyData.ok) {
+                  const dailyRecords = dailyData.result.records || [];
+                  console.log(`✓ 获取到 ${dailyRecords.length} 条日级 PDA 记录`);
+                  records = records.concat(dailyRecords);
+                } else {
+                  console.warn('日级 PDA 加载失败:', dailyData.error);
+                }
+              } else {
+                console.warn('日级 PDA 请求失败:', dailyResponse.status);
+              }
+            } catch (err) {
+              console.warn('日级 PDA 请求异常:', err);
+            }
+          }
+
+          console.log(`✓ 合并后共 ${records.length} 条 PDA 记录`);
 
           // 存储 PDA 数据（用于点击检测）
           state.pdaRecords = records;
