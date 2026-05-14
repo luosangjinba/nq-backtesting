@@ -784,24 +784,42 @@
         }
       }
 
-      // 时间格式化工具
+       // 时间格式化工具
       function formatTimeInput(value) {
         console.log('formatTimeInput 调用:', value);
         const digits = value.replace(/\D/g, '');
         console.log('提取数字:', digits, '长度:', digits.length);
-        if (digits.length !== 12) return value;
-        const year = digits.substring(0, 4);
-        const month = digits.substring(4, 6);
-        const day = digits.substring(6, 8);
-        const hour = digits.substring(8, 10);
-        const minute = digits.substring(10, 12);
-        if (parseInt(month) < 1 || parseInt(month) > 12) return value;
-        if (parseInt(day) < 1 || parseInt(day) > 31) return value;
-        if (parseInt(hour) > 23) return value;
-        if (parseInt(minute) > 59) return value;
-        const formatted = `${year}-${month}-${day} ${hour}:${minute}`;
-        console.log('格式化结果:', formatted);
+
+        // 支持 8 位（YYYYMMDD）或 12 位（YYYYMMDDHHmm）
+        if (digits.length === 8) {
+          // 8 位：自动补 00:00
+     const year = digits.substring(0, 4);
+          const month = digits.substring(4, 6);
+          const day = digits.substring(6, 8);
+          if (parseInt(month) < 1 || parseInt(month) > 12) return value;
+       if (parseInt(day) < 1 || parseInt(day) > 31) return value;
+          const formatted = `${year}-${month}-${day} 00:00`;
+          console.log('格式化结果 (8位):', formatted);
         return formatted;
+        } else if (digits.length === 12) {
+          // 12 位：完整时间
+          const year = digits.substring(0, 4);
+          const month = digits.substring(4, 6);
+          const day = digits.substring(6, 8);
+          const hour = digits.substring(8, 10);
+          const minute = digits.substring(10, 12);
+          if (parseInt(month) < 1 || parseInt(month) > 12) return value;
+          if (parseInt(day) < 1 || parseInt(day) > 31) return value;
+          if (parseInt(hour) > 23) return value;
+     if (parseInt(minute) > 59) return value;
+          const formatted = `${year}-${month}-${day} ${hour}:${minute}`;
+          console.log('格式化结果 (12位):', formatted);
+          return formatted;
+        }
+
+        // 其他长度：保持原样
+        console.log('长度不匹配，保持原样');
+        return value;
       }
 
       // ======================================
