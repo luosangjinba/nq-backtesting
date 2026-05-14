@@ -903,17 +903,30 @@
           // 遍历记录，按类型渲染
           records.forEach((record) => {
             const pdaType = record.pdaType;
-            const anchorTime = record.anchorTs || record.anchorTime;
+
+            // 日级 PDA 使用 occurrence_time（实际高低点时间），其他类型使用 anchor_time
+            const dailyTypes = [
+              'daily_high',
+              'daily_low',
+              'ict_midnight_day_high',
+              'ict_midnight_day_low',
+              'nwog',
+              'ndog',
+            ];
+            const useOccurrenceTime = dailyTypes.includes(pdaType);
+            const timeValue = useOccurrenceTime
+              ? record.occurrenceTime || record.anchorTs || record.anchorTime
+              : record.anchorTs || record.anchorTime;
 
             // 转换时间为 Unix 时间戳（秒）
             let timestamp;
-            if (typeof anchorTime === 'number') {
-              timestamp = anchorTime;
-            } else if (typeof anchorTime === 'string') {
+            if (typeof timeValue === 'number') {
+              timestamp = timeValue;
+            } else if (typeof timeValue === 'string') {
               // 数据库存的是美东时间，加 Z 当作 UTC 解析（时区约定）
-              timestamp = Math.floor(new Date(anchorTime.replace(' ', 'T') + 'Z').getTime() / 1000);
+              timestamp = Math.floor(new Date(timeValue.replace(' ', 'T') + 'Z').getTime() / 1000);
             } else {
-              console.warn('无效的 anchor_time:', anchorTime, record);
+              console.warn('无效的时间值:', timeValue, record);
               return;
             }
 
