@@ -676,6 +676,38 @@
         state.liquidityPrimitives.push(primitive);
       }
 
+      function addNwogMarker(timestamp, price, label = 'NWOG', options = {}) {
+        const primitive = new LiquidityPrimitive(
+          state.chart,
+          state.candlestickSeries,
+          timestamp,
+          price,
+          '#ab47bc', // 线段颜色（紫）
+          '#ab47bc', // 文字颜色（紫）
+          label,
+          'above', // NWOG: 文字在线段上方
+          options
+        );
+        state.candlestickSeries.attachPrimitive(primitive);
+        state.liquidityPrimitives.push(primitive);
+      }
+
+      function addNdogMarker(timestamp, price, label = 'NDOG', options = {}) {
+        const primitive = new LiquidityPrimitive(
+          state.chart,
+          state.candlestickSeries,
+          timestamp,
+          price,
+          '#26c6da', // 线段颜色（青）
+          '#26c6da', // 文字颜色（青）
+          label,
+          'below', // NDOG: 文字在线段下方
+          options
+        );
+        state.candlestickSeries.attachPrimitive(primitive);
+        state.liquidityPrimitives.push(primitive);
+      }
+
       function clearLiquidityMarkers() {
         state.liquidityPrimitives.forEach((primitive) => {
           state.candlestickSeries.detachPrimitive(primitive);
@@ -738,7 +770,7 @@
           clearAllPdaMarkers();
 
           // 统计各类型数量
-          const stats = { bsl: 0, ssl: 0, fvg: 0, other: 0 };
+          const stats = { bsl: 0, ssl: 0, fvg: 0, nwog: 0, ndog: 0, other: 0 };
 
           // 遍历记录，按类型渲染
           records.forEach((record) => {
@@ -789,6 +821,18 @@
 
                 addFvgMarker(startTime, endTime, priceHigh, priceLow, color);
                 stats.fvg++;
+              }
+            } else if (pdaType === 'nwog') {
+              const price = record.price || record.priceHigh;
+              if (price) {
+                addNwogMarker(timestamp, price, 'NWOG');
+                stats.nwog++;
+              }
+            } else if (pdaType === 'ndog') {
+              const price = record.price || record.priceLow;
+              if (price) {
+                addNdogMarker(timestamp, price, 'NDOG');
+                stats.ndog++;
               }
             } else {
               stats.other++;
