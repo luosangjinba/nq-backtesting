@@ -600,6 +600,8 @@
             if (logical !== null) {
               rightX = timeScale.logicalToCoordinate(logical + this._source._options.lineLength);
             }
+          } else {
+            console.warn('[DEBUG] anchorCoord 为 null，标记不会显示:', this._source._label);
           }
 
           this._p1 = { x: anchorCoord, y };
@@ -802,6 +804,30 @@
       }
 
       /**
+       * 查找最接近目标时间的 K 线时间戳
+       * @param {number} targetTime - 目标时间戳（秒）
+       * @returns {number|null} - 最接近的 K 线时间戳，如果没有 K 线数据则返回 null
+       */
+      function findNearestBarTime(targetTime) {
+        if (!state.barTimestamps || state.barTimestamps.length === 0) {
+          return null;
+        }
+
+        let nearest = state.barTimestamps[0];
+        let minDiff = Math.abs(targetTime - nearest);
+
+        for (const barTime of state.barTimestamps) {
+          const diff = Math.abs(targetTime - barTime);
+          if (diff < minDiff) {
+            minDiff = diff;
+            nearest = barTime;
+          }
+        }
+
+        return nearest;
+      }
+
+      /**
        * 从 v2 API 批量加载 PDA 数据
        */
       async function loadPdaData(startTime, endTime) {
@@ -928,6 +954,18 @@
             } else {
               console.warn('无效的时间值:', timeValue, record);
               return;
+            }
+
+            // 日级 PDA 需要查找最近的 K 线时间（因为 occurrence_time 可能不在 K 线数据中）
+            if (useOccurrenceTime) {
+              const nearestTime = findNearestBarTime(timestamp);
+              if (nearestTime !== null) {
+                console.log(
+                  `[DEBUG] 日级 PDA 时间映射: ${pdaType} ${timestamp} → ${nearestTime} (偏移 ${Math.abs(timestamp - nearestTime)}s)`
+                );
+                timestamp = nearestTime;
+              } else {
+              }
             }
 
             // 根据类型渲染
@@ -1091,6 +1129,9 @@
 
           // 设置数据
           state.candlestickSeries.setData(candleData);
+
+          // 存储 K 线时间戳列表（用于日级 PDA 查找最近时间）
+          state.barTimestamps = candleData.map((bar) => bar.time);
 
           // 自动缩放到合适的视图
           state.chart.timeScale().fitContent();
