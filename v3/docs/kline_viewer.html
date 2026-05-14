@@ -912,7 +912,6 @@
           {
             icon: '🔄',
             label: '刷新数据',
-            shortcut: 'F5',
             action: () => {
               console.log('[操作] 刷新数据');
               const start = document.getElementById('startInput').value.trim();
@@ -928,7 +927,6 @@
           {
             icon: '➕',
             label: '新建 Manual PDA',
-            shortcut: 'N',
             disabled: true,
             action: () => {},
           },
@@ -948,7 +946,6 @@
           {
             icon: '⚙️',
             label: '设置',
-            shortcut: 'Ctrl+,',
             disabled: true,
             action: () => {},
           },
@@ -987,8 +984,27 @@
         console.log('点击坐标:', { x, y, timestamp, price });
 
         // 查找最近的 PDA（容差范围）
-        const timeTolerance = 3600; // 1 小时容差（秒）
-        const priceTolerance = 5; // 5 点价格容差
+        // 查找最近的 PDA（容差范围）
+        // 时间容差：当前 timeframe 的 1 根 K 线
+        const currentTf = parseInt(document.getElementById('tfSelect').value);
+        const timeTolerance = currentTf * 60; // 转换为秒
+
+        // 价格容差：基于像素距离反推（10px）
+        const pixelTolerance = 10;
+        const chartHeight = document.getElementById('chart').clientHeight;
+        let priceTolerance = 5; // 默认值
+        try {
+          const coordinate1 = state.candlestickSeries.coordinateToPrice(y - pixelTolerance);
+          const coordinate2 = state.candlestickSeries.coordinateToPrice(y + pixelTolerance);
+          if (coordinate1 !== null && coordinate2 !== null) {
+            priceTolerance = Math.abs(coordinate1 - coordinate2) / 2;
+          }
+        } catch (e) {
+          console.warn('价格容差计算失败，使用默认值:', e);
+        }
+
+        console.log('容差:', { timeTolerance, priceTolerance });
+
 
         let closestPda = null;
         let minDistance = Infinity;
@@ -1087,7 +1103,6 @@
           {
             icon: '📍',
             label: '定位到此 PDA',
-            shortcut: 'Ctrl+L',
             action: () => {
               console.log('[操作] 定位到 PDA:', pdaId);
               // 获取 PDA 时间戳
@@ -1119,7 +1134,6 @@
           {
             icon: '📄',
             label: '复制 PDA ID',
-            shortcut: 'Ctrl+C',
             action: () => {
               console.log('[操作] 复制 PDA ID:', pdaId);
               navigator.clipboard.writeText(pdaId).then(() => {
@@ -1143,14 +1157,12 @@
           items.push({
             icon: '✏️',
             label: '编辑',
-            shortcut: 'E',
             disabled: true,
             action: () => {},
           });
           items.push({
             icon: '🗑️',
             label: '删除',
-            shortcut: 'Del',
             danger: true,
             disabled: true,
             action: () => {},
@@ -1242,6 +1254,14 @@
           if (e.key === 'Escape' && state.currentMenu) {
             closeContextMenu();
             console.log('✓ 菜单已关闭 (ESC)');
+          }
+        });
+
+        // 窗口 resize 时关闭菜单
+        window.addEventListener('resize', () => {
+          if (state.currentMenu) {
+            closeContextMenu();
+            console.log('✓ 菜单已关闭 (resize)');
           }
         });
 
