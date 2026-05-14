@@ -203,6 +203,8 @@
             <option value="15">15m</option>
             <option value="60" selected>1H</option>
             <option value="240">4H</option>
+            <option value="1440">D</option>
+            <option value="10080">W</option>
           </select>
         </div>
         <button id="loadBtn">加载</button>
@@ -809,7 +811,7 @@
           // 构建 API URL
           // 读取当前选择的时间周期，联动 tfSelect
           const tf = parseInt(document.getElementById('tfSelect').value);
-          const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H' };
+          const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H', 1440: 'D', 10080: 'W' };
           const timeframe = tfMap[tf] || '1H';
 
           const url =
