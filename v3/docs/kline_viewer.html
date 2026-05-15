@@ -689,38 +689,6 @@
         state.liquidityPrimitives.push(primitive);
       }
 
-      function addNwogMarker(timestamp, price, label = 'NWOG', options = {}) {
-        const primitive = new LiquidityPrimitive(
-          state.chart,
-          state.candlestickSeries,
-          timestamp,
-          price,
-          '#ab47bc', // 线段颜色（紫）
-          '#ab47bc', // 文字颜色（紫）
-          label,
-          'above', // NWOG: 文字在线段上方
-          options
-        );
-        state.candlestickSeries.attachPrimitive(primitive);
-        state.liquidityPrimitives.push(primitive);
-      }
-
-      function addNdogMarker(timestamp, price, label = 'NDOG', options = {}) {
-        const primitive = new LiquidityPrimitive(
-          state.chart,
-          state.candlestickSeries,
-          timestamp,
-          price,
-          '#26c6da', // 线段颜色（青）
-          '#26c6da', // 文字颜色（青）
-          label,
-          'below', // NDOG: 文字在线段下方
-          options
-        );
-        state.candlestickSeries.attachPrimitive(primitive);
-        state.liquidityPrimitives.push(primitive);
-      }
-
       function addDailyHighMarker(timestamp, price, label = 'Daily High', options = {}) {
         const primitive = new LiquidityPrimitive(
           state.chart,
@@ -1002,15 +970,27 @@
                 stats.fvg++;
               }
             } else if (pdaType === 'nwog') {
-              const price = record.price || record.priceHigh;
-              if (price) {
-                addNwogMarker(timestamp, price, 'NWOG');
-                stats.nwog++;
+              const priceHigh = record.priceHigh;
+              const priceLow = record.priceLow;
+
+              if (priceHigh && priceLow) {
+                // NWOG 是价格区间，类似 FVG，渲染为矩形
+                // 使用紫色半透明
+                const color = '#ab47bc33'; // 紫色
+                const endTime = timestamp + 24 * 3600; // 延伸 24 小时
+                addFvgMarker(timestamp, endTime, priceHigh, priceLow, color);
               }
+              stats.nwog++;
             } else if (pdaType === 'ndog') {
-              const price = record.price || record.priceLow;
-              if (price) {
-                addNdogMarker(timestamp, price, 'NDOG');
+              const priceHigh = record.priceHigh;
+              const priceLow = record.priceLow;
+
+              if (priceHigh && priceLow) {
+                // NDOG 是价格区间，类似 FVG，渲染为矩形
+                // 使用青色半透明
+                const color = '#26c6da33'; // 青色
+                const endTime = timestamp + 24 * 3600; // 延伸 24 小时
+                addFvgMarker(timestamp, endTime, priceHigh, priceLow, color);
                 stats.ndog++;
               }
             } else if (pdaType === 'daily_high') {
@@ -1398,7 +1378,7 @@
         ) {
           const price = pda.price || pda.priceHigh || pda.priceLow || 'N/A';
           detailRows += `<div class="detail-row"><span class="detail-label">价格:</span><span class="detail-value">${price}</span></div>`;
-        } else if (pda.pdaType === 'fvg') {
+        } else if (pda.pdaType === 'fvg' || pda.pdaType === 'nwog' || pda.pdaType === 'ndog') {
           const priceHigh = pda.priceHigh || 'N/A';
           const priceLow = pda.priceLow || 'N/A';
           detailRows += `<div class="detail-row"><span class="detail-label">价格范围:</span><span class="detail-value">${priceLow} - ${priceHigh}</span></div>`;
