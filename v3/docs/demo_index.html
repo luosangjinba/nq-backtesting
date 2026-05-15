@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K 线回放与市场结构标注 - 交互 Demo 索引</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #4fc3f7;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .intro {
+      background: #2d2d;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 40px;
+      border-left: 4px solid #4fc3f7;
+   line-height: 1.8;
+    }
+
+    .intro h2 {
+      color: #4fc3f7;
+      font-size: 18px;
+    margin-bottom: 15px;
+    }
+
+    .intro p {
+      margin-bottom: 10px;
+    }
+
+    .intro ul {
+  margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+   gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .demo-card {
+      background: #252526;
+      border-radius: 8px;
+      padding: 24px;
+      border: 2px solid #3c3c3c;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .demo-card:hover {
+      border-color: #4fc3f7;
+      transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(79, 195, 247, 0.2);
+    }
+
+    .demo-card h3 {
+    color: #4fc3f7;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .demo-card p {
+      color: #888;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .demo-card .options {
+      background: #1e1e1e;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .demo-card .options div {
+      margin-bottom: 6px;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .demo-card .options div:last-child {
+      margin-bottom: 0;
+    }
+
+    .demo-card .options div::before {
+   content: "▸";
+      position: absolute;
+      left: 0;
+      color: #4fc3f7;
+    }
+
+    .demo-card .button {
+      display: inline-block;
+      background: #0e639c;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .demo-card .button:hover {
+      background: #1177bb;
+    }
+
+    .footer {
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      color: #888;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: #4fc3f7;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .status-badge {
+      display: inline-block;
+      background: #66bb6a;
+      color: white;
+    padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>K 线回放与市场结构标注 <span class="status-badge">阶段 0 完成</span></h1>
+    <div class="subtitle">交互方式确认 Demo - 请体验后选择最符合你工作流程的方案</div>
+
+    <div class="intro">
+      <h2>📋 使用说明</h2>
+      <p><strong>目标：</strong>通过实际操作体验，确定三个核心功能的最佳交互方式。</p>
+      <p><strong>步骤：</strong></p>
+      <ul>
+        <li>点击下方卡片，在新标签页中打开 demo</li>
+        <li>体验每个 demo 中的 3 种方案（方案 A / B / C）</li>
+        <li>选择最符合你操作习惯的方案</li>
+        <li>反馈给开发者，确定最终实施方案</li>
+      </ul>
+    </div>
+
+    <div class="demo-grid">
+      <!-- Demo 1 -->
+      <div class="demo-card" onclick="window.open('demo_pda_association.html', '_blank')">
+        <h3>Demo 1: PDA 关联交互</h3>
+        <p>标注完行情段后，如何选择和关联导致反转的 PDA？</p>
+        <div class="options">
+          <div>方案 A：时间范围内 PDA 列表勾选</div>
+          <div>方案 B：先选 PDA 再关联</div>
+          <div>方案 C：输入 PDA ID</div>
+        </div>
+      <a href="demo_pda_association.html" class="button" target="_blank">打开 Demo →</a>
+      </div>
+
+      <!-- Demo 2 -->
+      <div class="demo-card" onclick="window.open('demo_swing_annotation.html', '_blank')">
+      <h3>Demo 2: 行情段标注交互</h3>
+        <p>在 K 线图上标注 Swing Low 和 Swing High，连线形成行情段。</p>
+        <div class="options">
+       <div>方案 A：点击 K 线自动识别 Swing 点</div>
+          <div>方案 B：手动点击两个点连线</div>
+          <div>方案 C：右键菜单标记</div>
+        </div>
+        <a href="demo_swing_annotation.html" class="button" target="_blank">打开 Demo →</a>
+      </div>
+
+      <!-- Demo 3 -->
+      <div class="demo-card" onclick="window.open('demo_replay_progress.html', '_blank')">
+        <h3>Demo 3: 回放进度保存</h3>
+        <p>回放 K 线时，如何保存和恢复回放进度？</p>
+        <div class="options">
+          <div>方案 A：自动保存进度，下次恢复</div>
+          <div>方案 B：手动保存检查点</div>
+          <div>方案 C：不保存，每次从头开始</div>
+      </div>
+        <a href="demo_replay_progress.html" class="button" target="_blank">打开 Demo →</a>
+      </div>
+    </div>
+
+    <div class="footer">
+    <p>
+      <strong>技术方案文档：</strong>
+        <a href="REPLAY_STRUCTURE_PLAN.md" target="_blank">REPLAY_STRUCTURE_PLAN.md</a>
+      </p>
+      <p style="margin-top: 10px;">
+        <strong>会话记录：</strong>
+    <a href="../sessions/session_20260515_replay_structure_plan.md" target="_blank">session_20260515_replay_structure_plan.md</a>
+   </p>
+      <p style="margin-top: 20px; color: #666;">
+        K 线回放与市场结构标注功能 - 2026-05-15
+      </p>
+    </div>
+  </div>
+</body>
+</html>
