@@ -114,8 +114,8 @@ export function hidePdaForm() {
 function fillFvgFields(autoFill) {
   formFvgStartTime.value = autoFill.startTime || '';
   formFvgEndTime.value = autoFill.endTime || '';
-  formFvgHigh.value = autoFill.priceHigh || '';
-  formFvgLow.value = autoFill.priceLow || '';
+  formFvgHigh.value = autoFill.high || autoFill.priceHigh || '';
+  formFvgLow.value = autoFill.low || autoFill.priceLow || '';
 }
 
 /**
