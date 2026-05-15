@@ -177,14 +177,9 @@
 
 /* Replay Controls Styles */
 .replay-controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   background: #1e222d;
   border-top: 1px solid #2a2e39;
   padding: 12px 20px;
-  z-index: 9999;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -355,6 +350,14 @@
   flex: 1;
   overflow: hidden;
   position: relative;
+}
+
+/* 图表区域容器 */
+.chart-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 /* 图表容器 */

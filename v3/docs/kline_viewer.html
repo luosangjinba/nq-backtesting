@@ -37,7 +37,57 @@
 
       <!-- 主内容区域：图表 + 侧边栏 -->
       <div class="main-content">
-        <div id="chart"></div>
+        <!-- 图表区域容器 -->
+        <div class="chart-area">
+          <div id="chart"></div>
+          <!-- 回放控制栏 -->
+          <div id="replayControls" class="replay-controls" style="display: none">
+            <div class="replay-controls-inner">
+              <!-- 播放控制按钮 -->
+              <div class="replay-buttons">
+                <button id="replayStepBackBtn" class="replay-btn" title="后退一根K线">
+                  <span class="icon">⏮</span>
+                </button>
+                <button id="replayPlayBtn" class="replay-btn replay-btn-primary" title="播放/暂停">
+                  <span class="icon" id="replayPlayIcon">▶</span>
+                </button>
+                <button id="replayStopBtn" class="replay-btn" title="停止">
+                  <span class="icon">⏹</span>
+                </button>
+                <button id="replayStepForwardBtn" class="replay-btn" title="前进一根K线">
+                  <span class="icon">⏭</span>
+                </button>
+              </div>
+
+              <!-- 进度条 -->
+              <div class="replay-progress-container">
+                <input
+                  type="range"
+                  id="replayProgressBar"
+                  class="replay-progress-bar"
+                  min="0"
+                  max="100"
+                  value="0"
+                />
+                <div class="replay-time-display">
+                  <span id="replayCurrentTime">--:--</span>
+                  <span class="replay-time-separator">/</span>
+                  <span id="replayTotalTime">--:--</span>
+                </div>
+              </div>
+
+              <!-- 速度控制 -->
+              <div class="replay-speed-control">
+                <span class="replay-speed-label">速度:</span>
+                <select id="replaySpeedSelect" class="replay-speed-select">
+                  <option value="1">1x</option>
+                  <option value="2">2x</option>
+                  <option value="5">5x</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- 侧边栏 -->
         <div class="sidebar collapsed" id="pdaFormSidebar">
@@ -150,54 +200,6 @@
               <button id="sidebarCancelBtn" class="form-btn form-btn-secondary">取消</button>
               <button id="sidebarSaveBtn" class="form-btn form-btn-primary">保存</button>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 回放控制栏 -->
-      <div id="replayControls" class="replay-controls" style="display: none">
-        <div class="replay-controls-inner">
-          <!-- 播放控制按钮 -->
-          <div class="replay-buttons">
-            <button id="replayStepBackBtn" class="replay-btn" title="后退一根K线">
-              <span class="icon">⏮</span>
-            </button>
-            <button id="replayPlayBtn" class="replay-btn replay-btn-primary" title="播放/暂停">
-              <span class="icon" id="replayPlayIcon">▶</span>
-            </button>
-            <button id="replayStopBtn" class="replay-btn" title="停止">
-              <span class="icon">⏹</span>
-            </button>
-            <button id="replayStepForwardBtn" class="replay-btn" title="前进一根K线">
-              <span class="icon">⏭</span>
-            </button>
-          </div>
-
-          <!-- 进度条 -->
-          <div class="replay-progress-container">
-            <input
-              type="range"
-              id="replayProgressBar"
-              class="replay-progress-bar"
-              min="0"
-              max="100"
-              value="0"
-            />
-            <div class="replay-time-display">
-              <span id="replayCurrentTime">--:--</span>
-              <span class="replay-time-separator">/</span>
-              <span id="replayTotalTime">--:--</span>
-            </div>
-          </div>
-
-          <!-- 速度控制 -->
-          <div class="replay-speed-control">
-            <span class="replay-speed-label">速度:</span>
-            <select id="replaySpeedSelect" class="replay-speed-select">
-              <option value="1">1x</option>
-              <option value="2">2x</option>
-              <option value="5">5x</option>
-            </select>
           </div>
         </div>
       </div>
