@@ -279,8 +279,8 @@
           if (fvgResult) {
             // 识别成功，自动填充所有字段
             console.log('[FVG 识别] 成功:', fvgResult);
-            autoFill.startTime = formatTimestamp(fvgResult.startTime);
-            autoFill.endTime = formatTimestamp(fvgResult.endTime);
+            autoFill.startTime = formatTimestamp(fvgResult.anchorTime);
+            autoFill.endTime = '';
             autoFill.high = fvgResult.high.toFixed(2);
             autoFill.low = fvgResult.low.toFixed(2);
           } else {
