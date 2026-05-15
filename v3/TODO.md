@@ -29,12 +29,16 @@
 - 同步脚本：`v2/scripts/sync_swing_analysis.py`
 
 #### 阶段 0：交互 Demo - 0.5 天
-**状态**：🔄 进行中
+**状态**：✅ 已完成
+- [x] Demo 1: PDA 关联交互（3 种方案对比）
+- [x] Demo 2: 行情段标注交互（3 种方案对比）
+- [x] Demo 3: 回放进度保存（3 种方案对比）
+- [ ] 根据 demo 反馈确定最终交互方式（待用户体验后确认）
 
-- [ ] Demo 1: PDA 关联交互（3 种方案对比）
-- [ ] Demo 2: 行情段标注交互（3 种方案对比）
-- [ ] Demo 3: 回放进度保存（3 种方案对比）
-- [ ] 根据 demo 反馈确定最终交互方式
+**已创建文件**：
+- `v3/docs/demo_pda_association.html` - PDA 关联交互 demo
+- `v3/docs/demo_swing_annotation.html` - 行情段标注交互 demo
+- `v3/docs/demo_replay_progress.html` - 回放进度保存 demo
 
 #### 阶段 1：K 线回放基础 - 0.5 天
 **状态**：⏸ 待开始

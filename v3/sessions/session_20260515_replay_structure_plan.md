@@ -261,14 +261,129 @@ const marketStructure = {
 ## 下一步
 
 1. ✅ 更新 TODO.md，固定方案
-2. ⏸ 创建三个交互 demo
+2. ✅ 创建三个交互 demo
 3. ⏸ 根据 demo 反馈确定交互方式
 4. ⏸ 开始实施阶段 1
 
 ---
 
+## 完成情况
+
+### 已完成 ✅
+- ✅ 方案调整与确认（从"显示控制"调整为"回放与结构标注"）
+- ✅ 数据存储方案确定（混合方案：YAML + DuckDB 镜像）
+- ✅ 技术方案文档创建（`REPLAY_STRUCTURE_PLAN.md`）
+- ✅ 会话记录创建（本文件）
+- ✅ TODO.md 更新
+- ✅ 三个交互 demo 创建：
+  - `demo_pda_association.html` - PDA 关联交互（3 种方案）
+  - `demo_swing_annotation.html` - 行情段标注交互（3 种方案）
+  - `demo_replay_progress.html` - 回放进度保存（3 种方案）
+- ✅ Git 提交（commit: 7965ee6）
+
+### 待完成 ⏸
+- ⏸ 用户体验 demo 并选择交互方式
+- ⏸ 根据选择开始实施阶段 1：K 线回放基础
+
+---
+
+## 文件清单
+
+### 新增文件
+- `v3/docs/REPLAY_STRUCTURE_PLAN.md` - 技术方案文档（完整的数据模型、架构、实施计划）
+- `v3/docs/demo_pda_association.html` - PDA 关联交互 demo
+- `v3/docs/demo_swing_annotation.html` - 行情段标注交互 demo
+- `v3/docs/demo_replay_progress.html` - 回放进度保存 demo
+- `v3/sessions/session_20260515_replay_structure_plan.md` - 本会话记录
+
+### 修改文件
+- `v3/TODO.md` - 更新为新方案
+
+### 废弃文件（可删除）
+- `v3/docs/CHART_DISPLAY_CONTROL_PLAN.md` - 旧方案（已偏离）
+- `v3/docs/demo_display_control_dropdown.html` - 旧 demo
+- `v3/docs/demo_display_control_sidebar.html` - 旧 demo
+- `v3/docs/demo_display_control_functional.html` - 旧 demo
+
+---
+
+## 技术要点总结
+
+### 数据模型
+- **YAML 结构**：`v2/data/swing_analysis/YYYY-MM-DD.yaml`
+  - `session`: 会话元数据
+  - `swing_legs`: 行情段列表
+  - `market_structures`: 市场结构列表
+  
+- **DuckDB 表**：
+  - `swing_legs` - 行情段
+  - `swing_leg_pdas` - 行情段-PDA 关联
+  - `market_structures` - 市场结构
+  - `market_structure_legs` - 市场结构-行情段关联
+  - `structure_key_points` - 结构关键点
+
+### 同步机制
+```bash
+# 同步单个文件
+python3 v2/scripts/sync_swing_analysis.py --file v2/data/swing_analysis/2012-01-09.yaml
+
+# 同步所有文件
+python3 v2/scripts/sync_swing_analysis.py --all
+
+# 重建索引
+python3 v2/scripts/sync_swing_analysis.py --rebuild
+```
+
+### 前端状态管理
+```javascript
+// 回放状态
+const replayState = {
+  isPlaying: false,
+  speed: 1,
+  currentIndex: 0,
+  totalBars: 0,
+  allBars: [],
+  allPdas: [],
+  intervalId: null
+};
+
+// 标注状态
+const annotationState = {
+  mode: 'idle',
+  selectedSwingPoints: [],
+  selectedLegs: [],
+  currentLeg: null,
+  currentStructure: null
+};
+```
+
+---
+
+## 待决策问题
+
+需要通过 demo 确认的交互方式：
+
+### 1. PDA 关联交互
+- **方案 A**：时间范围内 PDA 列表勾选（直观，但列表可能长）
+- **方案 B**：先选 PDA 再关联（灵活，但需两步操作）
+- **方案 C**：输入 PDA ID（最灵活，但需记忆 ID）
+
+### 2. 行情段标注交互
+- **方案 A**：点击 K 线自动识别 Swing 点（快速，但可能不准）
+- **方案 B**：手动点击两个点连线（精确，但需两次点击）
+- **方案 C**：右键菜单标记（明确，但步骤多）
+
+### 3. 回放进度保存
+- **方案 A**：自动保存进度（无需操作，但可能不需要）
+- **方案 B**：手动保存检查点（灵活，但需手动操作）
+- **方案 C**：不保存（简单，但长时间回放不便）
+
+---
+
 ## 备注
 
-- 原 `CHART_DISPLAY_CONTROL_PLAN.md` 方向偏离，需要重写
-- 三个已创建的 demo 文件可以删除或归档
+- 原 `CHART_DISPLAY_CONTROL_PLAN.md` 方向偏离，已创建新方案文档
+- 三个旧 demo 文件（dropdown/sidebar/functional）可以删除或归档
 - 新方案更聚焦核心需求：回放 + 标注 + 入库
+- 数据存储采用混合方案，与现有 Layer 2 架构一致
+- 渐进式实施：初期只用 YAML，后期加入 DuckDB 镜像
