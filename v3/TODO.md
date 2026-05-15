@@ -91,20 +91,83 @@
 
 ## 待完成功能 🔄
 
+### 阶段 F：模块化拆分（P0）
+**状态**：进行中（2026-05-15）  
+**优先级**：高  
+**预计时长**：3-4 小时
+
+**目标**：将 kline_viewer.html (~1800 行) 拆分为 7 个模块文件
+
+**拆分结构**：
+```
+v3/
+├── docs/
+│   └── kline_viewer.html          # 主 HTML（< 200 行）
+├── modules/                # 新建目录
+│   ├── chart.js          # 图表初始化和管理（~250 行）
+│   ├── pda-renderer.js          # PDA 渲染逻辑（~300 行）
+│   ├── pda-detector.js          # PDA 点击检测（~200 行）
+│   ├── context-menu.js            # 右键菜单（~250 行）
+│   ├── pda-detail.js           # PDA 详情浮窗（~150 行）
+│   ├── keyboard.js          # 键盘导航和快捷键（~150 行）
+│   └── utils.js               # 工具函数（~150 行）
+└── styles/
+    └── kline_viewer.css           # 样式分离（~200 行）
+```
+
+**拆分步骤**：
+- [ ] 步骤 1：准备工作（10 分钟）
+  - [ ] 创建 `v3/modules/` 目录
+  - [ ] 备份当前文件为 `kline_viewer.html.before-split`
+  - [ ] 提取 CSS 到 `v3/styles/kline_viewer.css`
+- [ ] 步骤 2：提取工具函数到 `utils.js`（20 分钟）
+  - [ ] formatTime(), parseTimeInput(), findNearestBarTime(), calculateTolerance()
+- [ ] 步骤 3：提取图表管理到 `chart.js`（30 分钟）
+  - [ ] initChart(), updateChart(), resizeChart(), state 对象
+- [ ] 步骤 4：提取 PDA 渲染到 `pda-renderer.js`（40 分钟）
+  - [ ] loadPdaData(), renderBslSsl(), renderFvg(), renderNwogNdog(), renderDailyHighLow(), renderIctMidnightPoints()
+- [ ] 步骤 5：提取 PDA 检测到 `pda-detector.js`（30 分钟）
+  - [ ] findPdaAtPosition(), detectBslSsl(), detectFvg(), detectNwogNdog(), detectDailyPoints()
+- [ ] 步骤 6：提取右键菜单到 `context-menu.js`（30 分钟）
+  - [ ] showContextMenu(), hideContextMenu(), buildMenuItems(), handleMenuAction()
+- [ ] 步骤 7：提取 PDA 详情到 `pda-detail.js`（20 分钟）
+  - [ ] showPdaDetail(), hidePdaDetail(), formatPdaDetail()
+- [ ] 步骤 8：提取键盘导航到 `keyboard.js`（20 分钟）
+  - [ ] initKeyboardNavigation(), handleKeyDown(), registerShortcut()
+- [ ] 步骤 9：重构主 HTML（30 分钟）
+  - [ ] 保留 HTML 结构（< 100 行）
+  - [ ] ES6 module 导入
+  - [ ] 初始化和事件绑定（< 100 行）
+- [ ] 步骤 10：测试和验证（30 分钟）
+  - [ ] 启动服务测试所有功能
+  - [ ] 验证所有 PDA 类型渲染
+  - [ ] 验证右键菜单和详情浮窗
+  - [ ] 验证键盘导航和快捷键
+  - [ ] 检查控制台无错误
+- [ ] 步骤 11：格式化和提交（10 分钟）
+  - [ ] Prettier 格式化所有文件
+  - [ ] Git 提交
+
+**技术要点**：
+- 使用 ES6 module (`export`/`import`)
+- 每个模块文件 < 300 行
+- 保持功能完全一致，只做代码重组
+- 所有模块使用 `export` 导出公共函数/对象
+
 ### 待验证（P0）
-**状态**：待测试  
+**状态**：已完成 ✅（2026-05-15）  
 **优先级**：高
 
-- [ ] 浏览器测试日级 PDA 显示
-  - [ ] 刷新浏览器（Ctrl+Shift+R 强制刷新）
-  - [ ] 加载数据：2012-01-09 00:00 到 2012-01-15 00:00，周期 1H
-  - [ ] 验证 Daily High/Low 标记显示
-  - [ ] 验证 ICT Midnight High/Low 标记显示
-  - [ ] 验证 NWOG/NDOG 矩形显示（紫色/青色半透明）
-  - [ ] 验证点击 NWOG/NDOG 显示价格范围详情
-  - [ ] 验证 NWOG/NDOG 标记显示
-  - [ ] 检查控制台时间映射日志
-  - [ ] 确认无 "anchorCoord 为 null" 警告（或大幅减少）
+- [x] 浏览器测试日级 PDA 显示
+  - [x] 刷新浏览器（Ctrl+Shift+R 强制刷新）
+  - [x] 加载数据：2012-01-09 00:00 到 2012-01-15 00:00，周期 1H
+  - [x] 验证 Daily High/Low 标记显示
+  - [x] 验证 ICT Midnight High/Low 标记显示
+  - [x] 验证 NWOG/NDOG 矩形显示（紫色/青色半透明）
+  - [x] 验证点击 NWOG/NDOG 显示价格范围详情
+  - [x] 验证 NWOG/NDOG 标记显示
+  - [x] 检查控制台时间映射日志
+  - [x] 确认无 "anchorCoord 为 null" 警告（或大幅减少）
 
 ### 优化任务（后续）
 **状态**：待开始  
@@ -134,13 +197,14 @@
 
 ## 合并计划
 
-**目标**：阶段 D 完成后合并到 main
+**目标**：阶段 F（模块化拆分）完成后合并到 main
 
 **合并前检查清单**：
-- [ ] 所有功能验证通过（浏览器测试）
+- [x] 所有功能验证通过（浏览器测试）
+- [ ] 模块化拆分完成（阶段 F）
 - [x] 代码格式化完成（Prettier）
 - [x] 会话记录更新
-- [x] TODO 更新
+- [ ] TODO 更新（拆分完成后）
 - [x] 无 console.log 残留（保留 warn/error）
 - [x] 无 TODO/FIXME 注释
 - [x] 语法检查通过
@@ -167,12 +231,12 @@
 ## 技术债务
 
 ### 代码质量
-- [ ] `findPdaAtPosition` 函数过长（~150 行），考虑拆分
-- [ ] 菜单项配置有重复，考虑抽取公共配置
-- [ ] **模块化拆分**（阶段 D 后执行）
-  - [ ] 拆分为 6 个模块文件（chart / pda-renderer / pda-detector / context-menu / pda-detail / utils）
+- [ ] `findPdaAtPosition` 函数过长（~150 行），考虑拆分 — **阶段 F 中解决**
+- [ ] 菜单项配置有重复，考虑抽取公共配置 — **阶段 F 中解决**
+- [ ] **模块化拆分**（阶段 F，进行中）
+  - [ ] 拆分为 7 个模块文件（chart / pda-renderer / pda-detector / context-menu / pda-detail / keyboard / utils）
   - [ ] 每个文件 < 300 行
-  - [ ] 使用 ES6 module 或 `<script type="module">`
+  - [ ] 使用 ES6 module
 
 ### 性能优化
 - [ ] PDA 渲染性能测试（1000+ PDA）
