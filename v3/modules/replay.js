@@ -103,6 +103,10 @@ export function loadReplayData(bars, pdas, start, end, tf) {
   // 渲染当前进度的K线
   renderCurrentBars();
 
+  // 首次加载时，自动缩放到合适的视图
+  // 之后回放过程中不再自动缩放，保持用户调整的视图
+  state.chart.timeScale().fitContent();
+
   console.log('✓ 回放数据加载完成');
 }
 
@@ -241,8 +245,8 @@ function renderCurrentBars() {
   // 更新图表数据
   updateChartData(visibleBars);
 
-  // 自动缩放到合适的视图
-  state.chart.timeScale().fitContent();
+  // 注意：不调用 fitContent()，保持用户当前的视图设置
+  // 这样回放时图表不会自动缩放，新K线从右侧逐步出现
 
   // TODO: 渲染当前时间点可见的PDA
   // 需要根据PDA的occurrence_time过滤
