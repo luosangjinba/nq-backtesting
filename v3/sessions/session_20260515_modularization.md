@@ -478,3 +478,86 @@ git push origin main
 - [CLAUDE.md](../../CLAUDE.md) - 项目开发规范
 - [Prettier 文档](https://prettier.io/docs/en/) - 代码格式化工具
 - [ES6 Module 规范](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) - JavaScript 模块系统
+
+---
+
+## 十、问题修复记录
+
+### 10.1 PDA 首次加载不显示
+
+**发现时间**：2026-05-15 下午（用户测试反馈）
+
+**问题描述**：
+- 加载数据后，PDA 标记不会立即显示
+- 需要鼠标拖动图表才能看到 PDA 标记
+
+**根本原因**：
+Lightweight Charts 在添加新的 Primitive（PDA 标记）后，需要手动触发图表更新才能立即显示。之前只有在用户交互（拖动、缩放）时才会触发重绘。
+
+**修复方案**：
+在 `loadKlineData()` 函数中，加载 PDA 数据后添加：
+```javascript
+// 强制图表重绘以显示 PDA 标记
+state.chart.timeScale().fitContent();
+```
+
+**修复位置**：
+`v3/docs/kline_viewer.html` 第 162-163 行
+
+**验证结果**：
+✅ PDA 标记现在会在数据加载完成后立即显示，无需拖动图表
+
+**提交**：`85fe0df`
+
+---
+
+## 十一、最终状态
+
+### 11.1 Git 提交统计
+
+**总提交数**：12 次
+- 模块化拆分：9 次（步骤 1-9）
+- 文档更新：2 次
+- 问题修复：1 次
+
+### 11.2 代码统计
+
+| 项目 | 行数 | 说明 |
+|---|------|------|
+| 原 HTML | 1683 | 单文件，包含所有代码 |
+| 新 HTML | 251 | 主文件，减少 85% |
+| CSS | 178 | 独立文件 |
+| utils.js | 151 | 工具函数模块 |
+| chart.js | 143 | 图表管理模块 |
+| pda-renderer.js | 639 | PDA 渲染模块 |
+| pda-detector.js | 171 | PDA 检测模块 |
+| context-menu.js | 265 | 右键菜单模块 |
+| pda-detail.js | 145 | PDA 详情模块 |
+| keyboard.js | 68 | 键盘导航模块 |
+| **总计** | **2011** | **8 个模块** |
+
+### 11.3 功能验证清单
+
+- [x] 页面加载无错误
+- [x] K 线数据正常加载
+- [x] PDA 标记立即显示（已修复）
+- [x] 所有 PDA 类型正常渲染（BSL/SSL/FVG/NWOG/NDOG/Daily H/L/ICT Midnight）
+- [x] 右键菜单功能正常
+- [x] PDA 详情浮窗正常
+- [x] 键盘快捷键正常（F5/ESC/↑↓/Enter）
+- [x] 控制台无错误
+
+### 11.4 待合并到 main
+
+**合并前检查清单**：
+- [x] 所有功能验证通过
+- [x] 模块化拆分完成
+- [x] 代码格式化完成
+- [x] 会话记录更新
+- [x] TODO 更新
+- [x] 问题修复完成
+- [x] 无 console.log 残留
+- [x] 无 TODO/FIXME 注释
+- [x] 语法检查通过
+
+**准备就绪，可以合并到 main 分支。**
