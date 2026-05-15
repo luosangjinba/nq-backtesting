@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/chart-display-control`
 
-**最后更新**：2026-05-15 15:30  
-**当前状态**：✅ 阶段 1 完成 + 右键菜单准备就绪
+**最后更新**：2026-05-15 20:00  
+**当前状态**：✅ 阶段 2 任务 #1 完成 - PDA 录入侧边栏 UI
 
 ---
 
@@ -19,6 +19,7 @@
 - `v3/sessions/session_20260515_replay_structure_plan.md` - 方案规划
 - `v3/sessions/session_20260515_replay_stage1.md` - 阶段 1 实施
 - `v3/sessions/session_20260515_pda_disable_and_contextmenu.md` - PDA 禁用 & 右键菜单
+- `v3/sessions/session_20260515_pda_form_sidebar.md` - PDA 表单侧边栏实现
 
 **核心需求**：
 - K 线回放，模拟实盘观察
@@ -88,16 +89,59 @@ abae3c3 feat: 实现 K 线回放基础功能（阶段 1）
 
 **提交记录**：
 ```
-待提交: feat: 禁用 PDA 显示 & 启用空白区域右键菜单
+aa2d7e0 feat: 禁用 PDA 显示 & 启用空白区域右键菜单
 ```
 
 #### 阶段 2：PDA 标注工作流 - 1 天
-**状态**：⏸ 待开始（下一步）
+**状态**：🔄 进行中（2026-05-15）
 
-- [ ] 点击检测（击中已扫描 PDA）
-- [ ] PDA 确认状态标记
-- [ ] 手动 PDA 录入表单
-- [ ] 保存到 `pda_registry` 表（Manual 类型）
+**任务 #1：PDA 录入侧边栏 UI** - ✅ 已完成（2026-05-15）
+- [x] 参考 demo_02_sidebar_layout.html 实现 flex 布局侧边栏
+- [x] HTML 结构：表单字段（FVG/BSL/SSL）、验证提示、操作按钮
+- [x] CSS 样式：使用 margin-right 负值折叠，侧边栏宽度 400px
+- [x] JS 模块（pda-form.js）：显示/隐藏、字段切换、验证、自动填充
+- [x] 时间输入框自动格式化（blur 事件）
+- [x] 右键菜单集成：添加回调参数，连接 handleAddPda 函数
+- [x] 修复图表 resize：添加 ResizeObserver 监听容器大小变化
+
+**已创建文件**：
+- `v3/modules/pda-form.js` - 表单模块（285 行）
+
+**已修改文件**：
+- `v3/docs/kline_viewer.html` - HTML 结构 + 回调函数（+130 行）
+- `v3/styles/kline_viewer.css` - 侧边栏样式（+186 行）
+- `v3/modules/context-menu.js` - 添加回调参数（+3 行）
+- `v3/modules/chart.js` - 添加 ResizeObserver（+9 行）
+
+**提交记录**：
+```
+f63af9b fix(chart): 添加 ResizeObserver 监听容器大小变化
+eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
+```
+
+**功能验证**：
+- ✅ 侧边栏展开/折叠动画流畅
+- ✅ 图表自动调整大小，价格刻度不被遮挡
+- ✅ 自动填充功能正常（BSL/SSL 的时间和价格）
+- ✅ 时间格式化功能正常（8 位/12 位数字）
+- ✅ 表单验证功能正常
+- ✅ ESC 键关闭侧边栏
+
+**任务 #2：FVG 自动识别逻辑** - ⏸ 待开始
+- [ ] 获取点击位置的 K 线索引
+- [ ] 检查前后 3 根 K 线是否形成 FVG
+- [ ] 自动填充起始时间、结束时间、上边界、下边界
+- [ ] 识别失败时提示用户手动输入
+
+**任务 #3：验证 API 端点** - ⏸ 待开始
+- [ ] 检查 `POST /v2/pda_manual_add` 端点是否存在
+- [ ] 验证请求参数格式
+- [ ] 测试保存功能
+
+**任务 #4：刷新图表显示新 PDA** - ⏸ 待开始
+- [ ] 保存成功后重新加载 PDA 数据
+- [ ] 或直接在前端添加新 PDA 到 `state.pdaRecords`
+- [ ] 调用 PDA 渲染函数显示新标记
 
 #### 阶段 3：行情段标注 - 1.5 天
 **状态**：⏸ 待开始
