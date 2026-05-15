@@ -177,6 +177,7 @@
 
 /* Replay Controls Styles */
 .replay-controls {
+  flex-shrink: 0;
   background: #1e222d;
   border-top: 1px solid #2a2e39;
   padding: 12px 20px;
@@ -364,6 +365,7 @@
 #chart {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   position: relative;
 }
 
