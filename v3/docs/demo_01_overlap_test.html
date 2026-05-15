@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>预研1: 重叠 PDA 点击测试</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      background: #0a0e27;
+      color: #e0e3eb;
+    }
+    #info {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #1e222d;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .controls {
+    margin-bottom: 20px;
+      padding: 15px;
+    background: #1e222d;
+      border-radius: 4px;
+    }
+    .controls label {
+      margin-right: 20px;
+      font-size: 14px;
+    }
+    .controls input[type="radio"] {
+      margin-right: 5px;
+    }
+    #chart {
+      width: 100%;
+      height: 600px;
+      background: #131722;
+    }
+    .log {
+      margin-top: 20px;
+      padding: 15px;
+      background: #1e222d;
+   border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .log-item {
+      padding: 4px 0;
+      border-bottom: 1px solid #2a2e39;
+    }
+    .success { color: #26a69a; }
+    .warn { color: #ffb74d; }
+    .info { color: #5b9cf6; }
+  </style>
+</head>
+<body>
+  <div id="info">
+  <h2>测试场景：重叠 PDA 的点击选择策略</h2>
+    <p><strong>测试数据：</strong></p>
+    <ul>
+      <li>3 个 BSL 在相同价格位置（完全重叠）</li>
+      <li>2 个 FVG 在相同时间和价格区间（完全重叠）</li>
+      <li>1 个 BSL 和 1 个 FVG 部分重叠</li>
+    </ul>
+    <p><strong>选择策略：</strong></p>
+    <ul>
+      <li><strong>策略 1（最近距离）</strong>：选择距离最近的 PDA（当前实现）</li>
+      <li><strong>策略 2（循环切换）</strong>：每次点击切换到下一个重叠的 PDA</li>
+      <li><strong>策略 3（类型优先）</strong>：优先选择特定类型（如 FVG > BSL）</li>
+      <li><strong>策略 4（时间优先）</strong>：优先选择最新创建的 PDA</li>
+    </ul>
+  </div>
+
+  <div class="controls">
+    <strong>选择策略：</strong>
+    <label><input type="radio" name="strategy" value="nearest" checked> 策略 1: 最近距离</label>
+    <label><input type="radio" name="strategy" value="cycle"> 策略 2: 循环切换</label>
+    <label><input type="radio" name="strategy" value="type"> 策略 3: 类型优先 (FVG > BSL)</label>
+    <label><input type="radio" name="strategy" value="time"> 策略 4: 时间优先（最新）</label>
+  </div>
+
+  <div id="chart"></div>
+
+  <div class="log" id="log">
+    <div class="log-item">点击重叠区域测试不同策略...</div>
+  </div>
+
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+  <script>
+    const log = document.getElementById('log');
+    function addLog(message, type = 'info') {
+      const item = document.createElement('div');
+    item.className = `log-item ${type}`;
+      item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      log.insertBefore(item, log.firstChild);
+    }
+
+    // 创建图表
+  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+      width: document.getElementById('chart').clientWidth,
+      height: 600,
+      layout: {
+        background: { color: '#131722' },
+        textColor: '#e0e3eb',
+      },
+    grid: {
+        vertLines: { color: '#1e222d' },
+        horzLines: { color: '#1e222d' },
+      },
+      timeScale: {
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderVisible: false,
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+    });
+
+    // 生成测试数据
+    const data = [];
+    let time = Math.floor(Date.now() / 1000) - 100 * 60;
+    let price = 2300;
+    for (let i = 0; i < 100; i++) {
+      const change = (Math.random() - 0.5) * 10;
+      const open = price;
+      const close = price + change;
+      const high = Math.max(open, close) + Math.random() * 5;
+      const low = Math.min(open, close) - Math.random() * 5;
+      data.push({ time, open, high, low, close });
+      price = close;
+      time += 60;
+    }
+    candlestickSeries.setData(data);
+    chart.timeScale().fitContent();
+
+    // PDA 数据结构（故意制造重叠）
+    const pdaList = [
+      // 场景 1: 3 个 BSL 完全重叠（相同价格和时间）
+      {
+        id: 'bsl_overlap_1',
+        type: 'bsl',
+        anchorTime: data[30].time,
+        price: data[30].high + 5,
+        label: 'BSL-A',
+        createdAt: 1
+      },
+      {
+        id: 'bsl_overlap_2',
+        type: 'bsl',
+        anchorTime: data[30].time,
+        price: data[30].high + 5,
+        label: 'BSL-B',
+        createdAt: 2
+      },
+      {
+        id: 'bsl_overlap_3',
+        type: 'bsl',
+        anchorTime: data[30].time,
+        price: data[30].high + 5,
+        label: 'BSL-C',
+        createdAt: 3
+      },
+
+      // 场景 2: 2 个 FVG 完全重叠（相同时间和价格区间）
+      {
+        id: 'fvg_overlap_1',
+        type: 'fvg',
+        startTime: data[60].time,
+        endTime: data[65].time,
+        topPrice: data[60].high,
+        bottomPrice: data[60].low - 5,
+        label: 'FVG-X',
+        createdAt: 4
+      },
+      {
+        id: 'fvg_overlap_2',
+        type: 'fvg',
+        startTime: data[60].time,
+        endTime: data[65].time,
+        topPrice: data[60].high,
+        bottomPrice: data[60].low - 5,
+        label: 'FVG-Y',
+      createdAt: 5
+      },
+
+      // 场景 3: BSL 和 FVG 部分重叠
+      {
+        id: 'bsl_mixed',
+        type: 'bsl',
+        anchorTime: data[80].time,
+        price: data[80].high + 2,
+        label: 'BSL-M',
+        createdAt: 6
+      },
+      {
+      id: 'fvg_mixed',
+        type: 'fvg',
+        startTime: data[78].time,
+        endTime: data[83].time,
+        topPrice: data[80].high + 3,
+        bottomPrice: data[80].high + 1,
+        label: 'FVG-M',
+    createdAt: 7
+      },
+    ];
+
+    let selectedPdaId = null;
+    let lastClickCandidates = []; // 记录上次点击的候选 PDA
+    const primitives = [];
+
+    // Liquidity Primitive（简化版）
+    const LIQUIDITY_DEFAULTS = {
+      lineLength: 2,
+      showLabel: true,
+      lineWidth: 1,
+      labelFont: '11px sans-serif',
+      labelPadding: 4,
+    };
+
+    class LiquidityRenderer {
+      constructor(p1, p2, lineColor, textColor, label, position, options, isSelected) {
+        this._p1 = p1;
+        this._p2 = p2;
+        this._lineColor = lineColor;
+        this._textColor = textColor;
+        this._label = label;
+        this._position = position;
+        this._options = options;
+        this._isSelected = isSelected;
+      }
+
+    draw(target) {
+        target.useBitmapCoordinateSpace((scope) => {
+          if (this._p1.x === null || this._p2.x === null || this._p1.y === null) return;
+
+      const ctx = scope.context;
+     const hRatio = scope.horizontalPixelRatio;
+        const vRatio = scope.verticalPixelRatio;
+
+          const x1 = this._p1.x * hRatio;
+          const x2 = this._p2.x * hRatio;
+          const y = this._p1.y * vRatio;
+
+          ctx.strokeStyle = this._isSelected ? '#ffeb3b' : this._lineColor;
+          ctx.lineWidth = (this._isSelected ? 2 : this._options.lineWidth) * Math.min(hRatio, vRatio);
+          ctx.beginPath();
+          ctx.moveTo(x1, y);
+          ctx.lineTo(x2, y);
+          ctx.stroke();
+
+          if (this._options.showLabel && this._label) {
+            ctx.fillStyle = this._isSelected ? '#ffeb3b' : this._textColor;
+            ctx.font = this._options.labelFont;
+            const padding = this._options.labelPadding * vRatio;
+            ctx.textAlign = 'right';
+      if (this._position === 'above') {
+              ctx.textBaseline = 'bottom';
+            ctx.fillText(this._label, x2, y - padding);
+            } else {
+        ctx.textBaseline = 'top';
+              ctx.fillText(this._label, x2, y + padding);
+            }
+          }
+        });
+      }
+    }
+
+    class LiquidityView {
+      constructor(source) {
+        this._source = source;
+     this._p1 = { x: null, y: null };
+        this._p2 = { x: null, y: null };
+      }
+
+   update() {
+        const series = this._source._series;
+        const chart = this._source._chart;
+        const timeScale = chart.timeScale();
+
+        const y = series.priceToCoordinate(this._source._price);
+        const anchorCoord = timeScale.timeToCoordinate(this._source._anchorTime);
+        let rightX = null;
+        if (anchorCoord !== null) {
+          const logical = timeScale.coordinateToLogical(anchorCoord);
+          if (logical !== null) {
+          rightX = timeScale.logicalToCoordinate(logical + this._source._options.lineLength);
+        }
+        }
+
+        this._p1 = { x: anchorCoord, y };
+        this._p2 = { x: rightX, y };
+    }
+
+      renderer() {
+        return new LiquidityRenderer(
+       this._p1,
+          this._p2,
+          this._source._lineColor,
+          this._source._textColor,
+        this._source._label,
+          this._source._position,
+          this._source._options,
+          this._source._isSelected
+        );
+      }
+    }
+
+    class LiquidityPrimitive {
+      constructor(chart, series, anchorTime, price, lineColor, textColor, label, position, options, isSelected) {
+        this._chart = chart;
+        this._series = series;
+        this._anchorTime = anchorTime;
+        this._price = price;
+        this._lineColor = lineColor;
+        this._textColor = textColor;
+        this._label = label;
+        this._position = position;
+        this._options = { ...LIQUIDITY_DEFAULTS, ...options };
+        this._isSelected = isSelected;
+        this._view = new LiquidityView(this);
+      }
+
+      updateAllViews() {
+        this._view.update();
+      }
+
+      paneViews() {
+        return [this._view];
+      }
+    }
+
+    // FVG Primitive（简化版）
+    class FvgRenderer {
+      constructor(p1, p2, fillColor, isSelected) {
+        this._p1 = p1;
+        this._p2 = p2;
+        this._fillColor = fillColor;
+        this._isSelected = isSelected;
+      }
+
+    draw(target) {
+        target.useBitmapCoordinateSpace((scope) => {
+          if (
+            this._p1.x === null ||
+            this._p1.y === null ||
+            this._p2.x === null ||
+            this._p2.y === null
+          ) {
+            return;
+          }
+
+          const ctx = scope.context;
+
+       const x = Math.min(this._p1.x, this._p2.x) * scope.horizontalPixelRatio;
+          const y = Math.min(this._p1.y, this._p2.y) * scope.verticalPixelRatio;
+          const width = Math.abs(this._p2.x - this._p1.x) * scope.horizontalPixelRatio;
+          const height = Math.abs(this._p2.y - this._p1.y) * scope.verticalPixelRatio;
+
+          ctx.fillStyle = this._isSelected ? 'rgba(255, 235, 59, 0.3)' : this._fillColor;
+          ctx.fillRect(x, y, width, height);
+
+          const midY = y + height / 2;
+          ctx.strokeStyle = this._isSelected ? '#ffeb3b' : this._fillColor.replace('33', '');
+          ctx.lineWidth = this._isSelected ? 2 : 1;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(x, midY);
+          ctx.lineTo(x + width, midY);
+      ctx.stroke();
+       ctx.setLineDash([]);
+
+          if (this._isSelected) {
+            ctx.strokeStyle = '#ffeb3b';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+          }
+        });
+      }
+    }
+
+    class FvgView {
+      constructor(source) {
+        this._source = source;
+        this._p1 = { x: null, y: null };
+        this._p2 = { x: null, y: null };
+   }
+
+      update() {
+        const series = this._source._series;
+        const chart = this._source._chart;
+
+        const y1 = series.priceToCoordinate(this._source._topPrice);
+        const y2 = series.priceToCoordinate(this._source._bottomPrice);
+
+        const timeScale = chart.timeScale();
+        const x1 = timeScale.timeToCoordinate(this._source._startTime);
+        const x2 = timeScale.timeToCoordinate(this._source._endTime);
+
+        this._p1 = { x: x1, y: y1 };
+        this._p2 = { x: x2, y: y2 };
+      }
+
+      renderer() {
+        return new FvgRenderer(this._p1, this._p2, this._source._fillColor, this._source._isSelected);
+      }
+    }
+
+    class FvgPrimitive {
+      constructor(chart, series, startTime, endTime, topPrice, bottomPrice, color, isSelected) {
+        this._chart = chart;
+        this._series = series;
+        this._startTime = startTime;
+        this._endTime = endTime;
+        this._topPrice = topPrice;
+        this._bottomPrice = bottomPrice;
+        this._fillColor = color;
+        this._isSelected = isSelected;
+        this._view = new FvgView(this);
+   }
+
+      updateAllViews() {
+        this._view.update();
+      }
+
+      paneViews() {
+        return [this._view];
+      }
+    }
+
+    // 渲染所有 PDA
+    function renderPdas() {
+      primitives.forEach(p => candlestickSeries.detachPrimitive(p));
+      primitives.length = 0;
+
+      pdaList.forEach(pda => {
+      const isSelected = pda.id === selectedPdaId;
+        let primitive;
+
+        if (pda.type === 'bsl') {
+          primitive = new LiquidityPrimitive(
+            chart,
+          candlestickSeries,
+          pda.anchorTime,
+            pda.price,
+            '#5b9cf6',
+            '#26a69a',
+            pda.label,
+          'above',
+        {},
+            isSelected
+          );
+        } else if (pda.type === 'fvg') {
+          primitive = new FvgPrimitive(
+            chart,
+        candlestickSeries,
+          pda.startTime,
+            pda.endTime,
+            pda.topPrice,
+       pda.bottomPrice,
+        '#ab47bc33',
+            isSelected
+      );
+    }
+
+        if (primitive) {
+      candlestickSeries.attachPrimitive(primitive);
+          primitives.push(primitive);
+      }
+      });
+    }
+
+    renderPdas();
+
+    // 计算距离
+    function calculateDistance(pda, clickX, clickY) {
+      const timeScale = chart.timeScale();
+      let distance;
+
+      if (pda.type === 'bsl') {
+        const anchorX = timeScale.timeToCoordinate(pda.anchorTime);
+        const pdaY = candlestickSeries.priceToCoordinate(pda.price);
+        if (anchorX === null || pdaY === null) return Infinity;
+
+        const logical = timeScale.coordinateToLogical(anchorX);
+        const rightX = logical !== null ? timeScale.logicalToCoordinate(logical + 2) : null;
+        if (rightX === null) return Infinity;
+
+        if (clickX >= anchorX && clickX <= rightX) {
+          distance = Math.abs(clickY - pdaY);
+        } else {
+        const dx = clickX < anchorX ? anchorX - clickX : clickX - rightX;
+        const dy = clickY - pdaY;
+          distance = Math.sqrt(dx * dx + dy * dy);
+        }
+      } else if (pda.type === 'fvg') {
+        const x1 = timeScale.timeToCoordinate(pda.startTime);
+        const x2 = timeScale.timeToCoordinate(pda.endTime);
+        const y1 = candlestickSeries.priceToCoordinate(pda.topPrice);
+     const y2 = candlestickSeries.priceToCoordinate(pda.bottomPrice);
+      if (x1 === null || x2 === null || y1 === null || y2 === null) return Infinity;
+
+        const rectLeft = Math.min(x1, x2);
+        const rectRight = Math.max(x1, x2);
+        const rectTop = Math.min(y1, y2);
+        const rectBottom = Math.max(y1, y2);
+
+        if (clickX >= rectLeft && clickX <= rectRight && clickY >= rectTop && clickY <= rectBottom) {
+          distance = 0;
+        } else {
+     const dx = Math.max(rectLeft - clickX, 0, clickX - rectRight);
+          const dy = Math.max(rectTop - clickY, 0, clickY - rectBottom);
+      distance = Math.sqrt(dx * dx + dy * dy);
+        }
+      }
+
+  return distance;
+    }
+
+    // 点击检测
+    chart.subscribeClick((param) => {
+      if (!param.point) {
+      addLog('点击位置无效', 'warn');
+        return;
+      }
+
+      const clickX = param.point.x;
+      const clickY = param.point.y;
+      const threshold = 20;
+
+      // 找出所有在阈值内的 PDA
+      const candidates = [];
+      pdaList.forEach(pda => {
+        const distance = calculateDistance(pda, clickX, clickY);
+        if (distance <= threshold) {
+      candidates.push({ pda, distance });
+        }
+      });
+
+      if (candidates.length === 0) {
+        addLog(`未找到附近的 PDA`, 'warn');
+        selectedPdaId = null;
+        lastClickCandidates = [];
+        renderPdas();
+        return;
+    }
+
+      // 获取选择策略
+      const strategy = document.querySelector('input[name="strategy"]:checked').value;
+      let selectedPda;
+
+      if (strategy === 'nearest') {
+        // 策略 1: 最近距离
+        candidates.sort((a, b) => a.distance - b.distance);
+        selectedPda = candidates[0].pda;
+      addLog(`策略 1: 选中最近的 PDA: ${selectedPda.label} (距离: ${candidates[0].distance.toFixed(1)}px)`, 'success');
+        if (candidates.length > 1) {
+          addLog(`  其他候选: ${candidates.slice(1).map(c => `${c.pda.label}(${c.distance.toFixed(1)}px)`).join(', ')}`, 'info');
+        }
+      } else if (strategy === 'cycle') {
+        // 策略 2: 循环切换
+        candidates.sort((a, b) => a.distance - b.distance);
+
+        // 检查是否点击了相同的区域
+        const sameArea = JSON.stringify(lastClickCandidates.map(c => c.pda.id).sort()) ===
+                  JSON.stringify(candidates.map(c => c.pda.id).sort());
+
+        if (sameArea && selectedPdaId) {
+          // 切换到下一个
+          const currentIndex = candidates.findIndex(c => c.pda.id === selectedPdaId);
+          const nextIndex = (currentIndex + 1) % candidates.length;
+          selectedPda = candidates[nextIndex].pda;
+          addLog(`策略 2: 循环切换到 ${selectedPda.label} (${candidates.length} 个重叠)`, 'success');
+        } else {
+          // 首次点击，选择第一个
+        selectedPda = candidates[0].pda;
+          addLog(`策略 2: 首次选中 ${selectedPda.label} (${candidates.length} 个重叠，再次点击切换)`, 'success');
+        }
+
+     lastClickCandidates = candidates;
+      } else if (strategy === 'type') {
+        // 策略 3: 类型优先 (FVG > BSL)
+        candidates.sort((a, b) => {
+          const typeOrder = { fvg: 0, bsl: 1 };
+          const typeCompare = typeOrder[a.pda.type] - typeOrder[b.pda.type];
+          if (typeCompare !== 0) return typeCompare;
+          return a.distance - b.distance;
+        });
+        selectedPda = candidates[0].pda;
+        addLog(`策略 3: 类型优先选中 ${selectedPda.label} (类型: ${selectedPda.type.toUpperCase()})`, 'success');
+        if (candidates.length > 1) {
+        addLog(`  其他候选: ${candidates.slice(1).map(c => `${c.pda.label}(${c.pda.type})`).join(', ')}`, 'info');
+        }
+    } else if (strategy === 'time') {
+        // 策略 4: 时间优先（最新创建）
+        candidates.sort((a, b) => b.pda.createdAt - a.pda.createdAt);
+        selectedPda = candidates[0].pda;
+      addLog(`策略 4: 时间优先选中 ${selectedPda.label} (创建序号: ${selectedPda.createdAt})`, 'success');
+        if (candidates.length > 1) {
+          addLog(`  其他候选: ${candidates.slice(1).map(c => `${c.pda.label}(#${c.pda.createdAt})`).join(', ')}`, 'info');
+        }
+      }
+
+      selectedPdaId = selectedPda.id;
+      renderPdas();
+    });
+
+    addLog('图表加载完成，点击重叠区域测试不同策略', 'success');
+    addLog('场景 1: 图表左侧 - 3 个 BSL 完全重叠', 'info');
+    addLog('场景 2: 图表中间 - 2 个 FVG 完全重叠', 'info');
+    addLog('场景 3: 图表右侧 - BSL 和 FVG 部分重叠', 'info');
+  </script>
+</body>
+</html>

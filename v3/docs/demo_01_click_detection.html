@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>预研1: Primitive 点击检测</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      background: #0a0e27;
+      color: #e0e3eb;
+    }
+    #info {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #1e222d;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    #chart {
+      width: 100%;
+      height: 600px;
+      background: #131722;
+    }
+    .log {
+      margin-top: 20px;
+      padding: 15px;
+      background: #1e222d;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .log-item {
+      padding: 4px 0;
+      border-bottom: 1px solid #2a2e39;
+    }
+    .success { color: #26a69a; }
+    .warn { color: #ffb74d; }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <h2>预研目标：验证 Primitive 点击检测方案</h2>
+    <p><strong>测试方法：</strong></p>
+    <ul>
+      <li>图表上显示 3 个 BSL 和 3 个 FVG</li>
+      <li>点击图表，计算点击位置与所有 PDA 的距离</li>
+      <li>选择距离最近的 PDA（阈值 20 像素）</li>
+      <li>高亮选中的 PDA（改变颜色）</li>
+    </ul>
+    <p><strong>验证点：</strong></p>
+    <ul>
+      <li>✓ 能否准确检测到点击的 PDA</li>
+      <li>✓ 距离阈值是否合理</li>
+      <li>✓ 高亮效果是否明显</li>
+    </ul>
+  </div>
+
+  <div id="chart"></div>
+
+  <div class="log" id="log">
+    <div class="log-item">点击图表测试...</div>
+  </div>
+
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+  <script>
+    const log = document.getElementById('log');
+    function addLog(message, type = 'info') {
+      const item = document.createElement('div');
+      item.className = `log-item ${type}`;
+      item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      log.insertBefore(item, log.firstChild);
+    }
+
+    // 创建图表
+    const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+      width: document.getElementById('chart').clientWidth,
+      height: 600,
+      layout: {
+        background: { color: '#131722' },
+        textColor: '#e0e3eb',
+      },
+      grid: {
+      vertLines: { color: '#1e222d' },
+        horzLines: { color: '#1e222d' },
+      },
+      timeScale: {
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderVisible: false,
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+    });
+
+    // 生成测试数据
+    const data = [];
+    let time = Math.floor(Date.now() / 1000) - 100 * 60;
+    let price = 2300;
+    for (let i = 0; i < 100; i++) {
+      const change = (Math.random() - 0.5) * 10;
+      const open = price;
+      const close = price + change;
+      const high = Math.max(open, close) + Math.random() * 5;
+      const low = Math.min(open, close) - Math.random() * 5;
+      data.push({ time, open, high, low, close });
+      price = close;
+      time += 60;
+    }
+    candlestickSeries.setData(data);
+    chart.timeScale().fitContent();
+
+    // PDA 数据结构
+    const pdaList = [
+      { id: 'bsl_1', type: 'bsl', time: data[20].time, price: data[20].high + 2, label: 'BSL-1' },
+      { id: 'bsl_2', type: 'bsl', time: data[50].time, price: data[50].high + 3, label: 'BSL-2' },
+      { id: 'bsl_3', type: 'bsl', time: data[80].time, price: data[80].high + 2.5, label: 'BSL-3' },
+      { id: 'fvg_1', type: 'fvg', time: data[30].time, priceHigh: data[30].high, priceLow: data[30].low - 5, label: 'FVG-1' },
+      { id: 'fvg_2', type: 'fvg', time: data[60].time, priceHigh: data[60].high + 3, priceLow: data[60].low, label: 'FVG-2' },
+      { id: 'fvg_3', type: 'fvg', time: data[90].time, priceHigh: data[90].high, priceLow: data[90].low - 4, label: 'FVG-3' },
+    ];
+
+    let selectedPdaId = null;
+    const primitives = [];
+
+    // BSL Primitive
+    class BslPrimitive {
+      constructor(chart, series, pda, isSelected) {
+        this._chart = chart;
+        this._series = series;
+        this._pda = pda;
+        this._isSelected = isSelected;
+        this._view = new BslView(this);
+      }
+
+      updateAllViews() {
+        this._view.update();
+      }
+
+      paneViews() {
+      return [this._view];
+      }
+    }
+
+    class BslView {
+      constructor(source) {
+        this._source = source;
+        this._p = { x: null, y: null };
+    }
+
+      update() {
+        const series = this._source._series;
+        const chart = this._source._chart;
+        const timeScale = chart.timeScale();
+        const y = series.priceToCoordinate(this._source._pda.price);
+        const x = timeScale.timeToCoordinate(this._source._pda.time);
+        this._p = { x, y };
+      }
+
+      renderer() {
+        return new BslRenderer(this._p, this._source._pda.label, this._source._isSelected);
+      }
+  }
+
+    class BslRenderer {
+      constructor(p, label, isSelected) {
+     this._p = p;
+        this._label = label;
+        this._isSelected = isSelected;
+      }
+
+      draw(target) {
+        target.useBitmapCoordinateSpace(scope => {
+          if (this._p.x === null || this._p.y === null) return;
+
+        const ctx = scope.context;
+        const x = this._p.x * scope.horizontalPixelRatio;
+          const y = this._p.y * scope.verticalPixelRatio;
+          const lineLength = 100 * scope.horizontalPixelRatio;
+
+          // 线段颜色：选中时高亮
+          ctx.strokeStyle = this._isSelected ? '#ffeb3b' : '#5b9cf6';
+        ctx.lineWidth = this._isSelected ? 3 : 2;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+       ctx.lineTo(x + lineLength, y);
+          ctx.stroke();
+
+          // 标签
+          ctx.fillStyle = this._isSelected ? '#ffeb3b' : '#26a69a';
+       ctx.font = `${12 * Math.min(scope.horizontalPixelRatio, scope.verticalPixelRatio)}px sans-serif`;
+        ctx.fillText(this._label, x + 5 * scope.horizontalPixelRatio, y - 5 * scope.verticalPixelRatio);
+        });
+      }
+    }
+
+    // FVG Primitive
+    class FvgPrimitive {
+      constructor(chart, series, pda, isSelected) {
+        this._chart = chart;
+        this._series = series;
+        this._pda = pda;
+        this._isSelected = isSelected;
+        this._view = new FvgView(this);
+      }
+
+      updateAllViews() {
+        this._view.update();
+      }
+
+      paneViews() {
+        return [this._view];
+      }
+    }
+
+    class FvgView {
+      constructor(source) {
+        this._source = source;
+        this._coords = { x: null, y1: null, y2: null };
+      }
+
+      update() {
+        const series = this._source._series;
+        const chart = this._source._chart;
+        const timeScale = chart.timeScale();
+        const x = timeScale.timeToCoordinate(this._source._pda.time);
+        const y1 = series.priceToCoordinate(this._source._pda.priceHigh);
+        const y2 = series.priceToCoordinate(this._source._pda.priceLow);
+      this._coords = { x, y1, y2 };
+      }
+
+      renderer() {
+        return new FvgRenderer(this._coords, this._source._pda.label, this._source._isSelected);
+      }
+    }
+
+    class FvgRenderer {
+      constructor(coords, label, isSelected) {
+      this._coords = coords;
+      this._label = label;
+        this._isSelected = isSelected;
+      }
+
+      draw(target) {
+        target.useBitmapCoordinateSpace(scope => {
+          if (this._coords.x === null || this._coords.y1 === null || this._coords.y2 === null) return;
+
+          const ctx = scope.context;
+          const x = this._coords.x * scope.horizontalPixelRatio;
+       const y1 = this._coords.y1 * scope.verticalPixelRatio;
+          const y2 = this._coords.y2 * scope.verticalPixelRatio;
+          const width = 80 * scope.horizontalPixelRatio;
+
+          // 矩形：选中时高亮
+          ctx.fillStyle = this._isSelected ? 'rgba(255, 235, 59, 0.3)' : 'rgba(91, 156, 246, 0.2)';
+          ctx.fillRect(x, y1, width, y2 - y1);
+
+       // 边框
+        ctx.strokeStyle = this._isSelected ? '#ffeb3b' : '#5b9cf6';
+          ctx.lineWidth = this._isSelected ? 2 : 1;
+          ctx.strokeRect(x, y1, width, y2 - y1);
+
+          // 标签
+          ctx.fillStyle = this._isSelected ? '#ffeb3b' : '#e0e3eb';
+       ctx.font = `${11 * Math.min(scope.horizontalPixelRatio, scope.verticalPixelRatio)}px sans-serif`;
+          ctx.fillText(this._label, x + 5 * scope.horizontalPixelRatio, y1 + 15 * scope.verticalPixelRatio);
+        });
+      }
+  }
+
+    // 渲染所有 PDA
+    function renderPdas() {
+      // 清除旧的
+    primitives.forEach(p => candlestickSeries.detachPrimitive(p));
+      primitives.length = 0;
+
+      // 重新渲染
+      pdaList.forEach(pda => {
+     const isSelected = pda.id === selectedPdaId;
+        let primitive;
+        if (pda.type === 'bsl') {
+          primitive = new BslPrimitive(chart, candlestickSeries, pda, isSelected);
+        } else if (pda.type === 'fvg') {
+          primitive = new FvgPrimitive(chart, candlestickSeries, pda, isSelected);
+        }
+      if (primitive) {
+          candlestickSeries.attachPrimitive(primitive);
+          primitives.push(primitive);
+        }
+      });
+    }
+
+    renderPdas();
+
+    // 点击检测
+    chart.subscribeClick((param) => {
+      if (!param.point) {
+        addLog('点击位置无效', 'warn');
+        return;
+      }
+
+      const clickX = param.point.x;
+      const clickY = param.point.y;
+
+      addLog(`点击坐标: (${clickX.toFixed(0)}, ${clickY.toFixed(0)})`);
+
+      // 计算与所有 PDA 的距离
+      let minDistance = Infinity;
+      let closestPda = null;
+
+      pdaList.forEach(pda => {
+        const timeScale = chart.timeScale();
+        const pdaX = timeScale.timeToCoordinate(pda.time);
+
+        let distance;
+        if (pda.type === 'bsl') {
+          // BSL: 点到线段的距离
+          const pdaY = candlestickSeries.priceToCoordinate(pda.price);
+          if (pdaX === null || pdaY === null) return;
+
+          const lineEndX = pdaX + 100; // 线段长度 100px
+          // 点到线段的距离
+          if (clickX >= pdaX && clickX <= lineEndX) {
+            distance = Math.abs(clickY - pdaY);
+          } else {
+            const dx = clickX < pdaX ? pdaX - clickX : clickX - lineEndX;
+            const dy = clickY - pdaY;
+            distance = Math.sqrt(dx * dx + dy * dy);
+          }
+        } else if (pda.type === 'fvg') {
+          // FVG: 点到矩形的距离
+          const pdaY1 = candlestickSeries.priceToCoordinate(pda.priceHigh);
+          const pdaY2 = candlestickSeries.priceToCoordinate(pda.priceLow);
+          if (pdaX === null || pdaY1 === null || pdaY2 === null) return;
+
+          const rectEndX = pdaX + 80; // 矩形宽度 80px
+        const rectTop = Math.min(pdaY1, pdaY2);
+          const rectBottom = Math.max(pdaY1, pdaY2);
+
+          // 点在矩形内
+          if (clickX >= pdaX && clickX <= rectEndX && clickY >= rectTop && clickY <= rectBottom) {
+            distance = 0;
+          } else {
+            // 点到矩形边界的距离
+            const dx = Math.max(pdaX - clickX, 0, clickX - rectEndX);
+            const dy = Math.max(rectTop - clickY, 0, clickY - rectBottom);
+            distance = Math.sqrt(dx * dx + dy * dy);
+          }
+        }
+
+      if (distance < minDistance) {
+          minDistance = distance;
+          closestPda = pda;
+     }
+      });
+
+      const threshold = 20; // 阈值 20 像素
+      if (closestPda && minDistance <= threshold) {
+        selectedPdaId = closestPda.id;
+      addLog(`✓ 选中 PDA: ${closestPda.label} (距离: ${minDistance.toFixed(1)}px)`, 'success');
+        renderPdas();
+      } else {
+        addLog(`未找到附近的 PDA (最近距离: ${minDistance.toFixed(1)}px)`, 'warn');
+        selectedPdaId = null;
+        renderPdas();
+      }
+    });
+
+    addLog('图表加载完成，点击 BSL 或 FVG 测试选择功能', 'success');
+  </script>
+</body>
+</html>
