@@ -159,6 +159,8 @@
           // 加载 PDA 数据
           updateStatus('加载 PDA 数据...');
           await loadPdaData(start, end);
+          // 强制图表重绘以显示 PDA 标记
+          state.chart.timeScale().fitContent();
 
           const pdaCount = state.pdaRecords.length;
           updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
