@@ -99,7 +99,7 @@
       import { showLoading, formatTimeInput } from '../modules/utils.js';
       import { loadPdaData } from '../modules/pda-renderer.js';
       import { findPdaAtPosition } from '../modules/pda-detector.js';
-      import { showPdaMenu, closeContextMenu } from '../modules/context-menu.js';
+      import { showPdaMenu, showBlankAreaMenu, closeContextMenu } from '../modules/context-menu.js';
       import { showPdaDetail, closePdaDetail } from '../modules/pda-detail.js';
       import { initKeyboardNavigation } from '../modules/keyboard.js';
       import { initReplay, loadReplayData } from '../modules/replay.js';
@@ -206,17 +206,23 @@
 
           console.log(`✓ 成功加载 ${candleData.length} 根 K线`);
 
-          // 加载 PDA 数据
-          updateStatus('加载 PDA 数据...');
-          await loadPdaData(start, end);
-          // 强制图表重绘以显示 PDA 标记
-          state.chart.timeScale().fitContent();
+          //           // 加载 PDA 数据
+          //           updateStatus('加载 PDA 数据...');
+          //           await loadPdaData(start, end);
+          //           // 强制图表重绘以显示 PDA 标记
+          //           state.chart.timeScale().fitContent();
+          //
+          //           const pdaCount = state.pdaRecords.length;
+          //           updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
+          //
+          //           // 加载回放数据
+          //           loadReplayData(candleData, state.pdaRecords, start, end, parseInt(tf));
 
-          const pdaCount = state.pdaRecords.length;
-          updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
+          // 默认不加载 PDA 数据
+          updateStatus(`已加载 ${candleData.length} 根 K线`);
 
-          // 加载回放数据
-          loadReplayData(candleData, state.pdaRecords, start, end, parseInt(tf));
+          // 加载回放数据（PDA 列表为空）
+          loadReplayData(candleData, [], start, end, parseInt(tf));
         } catch (error) {
           console.error('加载失败:', error);
           updateStatus(`错误: ${error.message}`, true);
@@ -258,10 +264,27 @@
           const pda = findPdaAtPosition(e.clientX, e.clientY);
 
           if (pda) {
+            // 点击到 PDA，显示 PDA 菜单
             showPdaMenu(e.clientX, e.clientY, pda, showPdaDetail, updateStatus);
           } else {
-            // 空白区域菜单（暂时禁用）
-            console.log('右键点击空白区域');
+            // 空白区域，显示手动添加 PDA 菜单
+            // 获取点击位置的图表坐标
+            const rect = chartContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const timeScale = state.chart.timeScale();
+            const timestamp = timeScale.coordinateToTime(x);
+            const price = state.candlestickSeries.coordinateToPrice(y);
+
+            const chartCoordinates = {
+              time: timestamp,
+              price: price,
+              clientX: e.clientX,
+              clientY: e.clientY,
+            };
+
+            showBlankAreaMenu(e.clientX, e.clientY, chartCoordinates);
           }
         });
 

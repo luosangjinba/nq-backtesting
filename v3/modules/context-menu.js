@@ -263,3 +263,62 @@ export function showPdaMenu(x, y, pda, showPdaDetail, updateStatus) {
 
   createContextMenu(x, y, items);
 }
+
+/**
+ * 显示空白区域菜单（用于手动添加 PDA）
+ * @param {number} x - 菜单 X 坐标
+ * @param {number} y - 菜单 Y 坐标
+ * @param {Object} chartCoordinates - 图表坐标 { time, price }
+ */
+export function showBlankAreaMenu(x, y, chartCoordinates) {
+  console.log('右键点击空白区域:', chartCoordinates);
+
+  const items = [
+    {
+      icon: '➕',
+      label: '手动添加 FVG',
+      action: () => {
+        console.log('[操作] 手动添加 FVG:', chartCoordinates);
+        closeContextMenu();
+        // TODO: 实现手动添加 FVG 的逻辑
+        alert('手动添加 FVG 功能待实现');
+      },
+    },
+    {
+      icon: '➕',
+      label: '手动添加 BSL',
+      action: () => {
+        console.log('[操作] 手动添加 BSL:', chartCoordinates);
+        closeContextMenu();
+        // TODO: 实现手动添加 BSL 的逻辑
+        alert('手动添加 BSL 功能待实现');
+      },
+    },
+    {
+      icon: '➕',
+      label: '手动添加 SSL',
+      action: () => {
+        console.log('[操作] 手动添加 SSL:', chartCoordinates);
+        closeContextMenu();
+        // TODO: 实现手动添加 SSL 的逻辑
+        alert('手动添加 SSL 功能待实现');
+      },
+    },
+    {
+      type: 'separator',
+    },
+    {
+      icon: '🔄',
+      label: '刷新数据',
+      shortcut: 'F5',
+      action: () => {
+        console.log('[操作] 刷新数据');
+        closeContextMenu();
+        // 触发刷新（通过全局事件或回调）
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'F5' }));
+      },
+    },
+  ];
+
+  createContextMenu(x, y, items);
+}
