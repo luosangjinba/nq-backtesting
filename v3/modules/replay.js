@@ -103,9 +103,22 @@ export function loadReplayData(bars, pdas, start, end, tf) {
   // 渲染当前进度的K线
   renderCurrentBars();
 
-  // 首次加载时，自动缩放到合适的视图
+  // 首次加载时，设置可见范围，右侧预留约 10 根 K 线的空间
   // 之后回放过程中不再自动缩放，保持用户调整的视图
-  state.chart.timeScale().fitContent();
+  if (replayState.currentIndex > 0 && replayState.currentIndex < bars.length) {
+    // 计算可见范围：从第一根到当前索引 + 10 根的缓冲
+    const visibleBars = bars.slice(0, replayState.currentIndex);
+    const bufferBars = 10; // 右侧预留 10 根 K 线空间
+    const endIndex = Math.min(replayState.currentIndex + bufferBars, bars.length - 1);
+
+    const fromTime = visibleBars[0].time;
+    const toTime = bars[endIndex].time;
+
+    state.chart.timeScale().setVisibleRange({ from: fromTime, to: toTime });
+  } else {
+    // 如果在起点或终点，使用 fitContent
+    state.chart.timeScale().fitContent();
+  }
 
   console.log('✓ 回放数据加载完成');
 }
