@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/context-menu-research`
 
-**最后更新**：2026-05-14 下午调试修复  
-**当前状态**：日级 PDA 时间映射已完成，待浏览器验证
+**最后更新**：2026-05-15 上午 NWOG/NDOG 修复  
+**当前状态**：NWOG/NDOG 矩形渲染已完成，待浏览器验证
 
 ---
 
@@ -43,13 +43,14 @@
   - [x] 菜单项显示 shortcut 字段
 
 ### 阶段 D：扩展 PDA 类型支持
-**状态**：✅ 完成（2026-05-14）  
-**提交**：`01925ec`, `3ea9742`, `1da802f`, `71a5972`, `1c5a7e0`, `5678783`, `0db07e9`, `b348202`, `6ee7d65`
+**状态**：✅ 完成（2026-05-15）  
+**提交**：`01925ec`, `3ea9742`, `1da802f`, `71a5972`, `1c5a7e0`, `5678783`, `0db07e9`, `b348202`, `6ee7d65`, `171425f`
 
-- [x] D1. NWOG / NDOG 渲染
-  - [x] Custom Primitive 水平线
-  - [x] 颜色：NWOG 紫 / NDOG 青
-  - [x] 在 loadPdaData 中添加渲染分支
+- [x] D1. NWOG / NDOG 渲染（`171425f`）
+  - [x] 改为矩形渲染（类似 FVG）
+  - [x] 颜色：NWOG 紫色半透明 / NDOG 青色半透明
+  - [x] 延伸 24 小时显示
+  - [x] 详情浮窗显示价格范围
 - [x] D2. Daily High / Low 渲染
   - [x] 水平线延伸到当日结束
   - [x] 颜色：实绿 / 实红
@@ -84,6 +85,7 @@
 - [x] 时间格式化和加载功能恢复正常
 - [x] 日级 PDA 时间定位错误（显示在 anchor_time 而非 occurrence_time）
 - [x] 日级 PDA 不显示（occurrence_time 不在 K 线时间点上，导致 anchorCoord 为 null）
+- [x] NWOG/NDOG 单点渲染改为矩形渲染（`171425f`）
 
 ---
 
@@ -98,6 +100,8 @@
   - [ ] 加载数据：2012-01-09 00:00 到 2012-01-15 00:00，周期 1H
   - [ ] 验证 Daily High/Low 标记显示
   - [ ] 验证 ICT Midnight High/Low 标记显示
+  - [ ] 验证 NWOG/NDOG 矩形显示（紫色/青色半透明）
+  - [ ] 验证点击 NWOG/NDOG 显示价格范围详情
   - [ ] 验证 NWOG/NDOG 标记显示
   - [ ] 检查控制台时间映射日志
   - [ ] 确认无 "anchorCoord 为 null" 警告（或大幅减少）
@@ -214,6 +218,7 @@
 - [会话记录 - 深夜](./sessions/session_20260514_late_evening.md)
 - [会话记录 - 深夜续](./sessions/session_20260514_late_night.md)
 - [会话记录 - 调试修复](./sessions/session_20260514_debug_fix.md)
+- [会话记录 - NWOG/NDOG 修复](./sessions/session_20260515_nwog_ndog_fix.md)
 - [设计文档](./docs/CONTEXT_MENU_DESIGN.md)
 - [技术可行性](./docs/CONTEXT_MENU_FEASIBILITY.md)
 - [集成记录](./docs/CONTEXT_MENU_INTEGRATION.md)
@@ -224,6 +229,7 @@
 
 | 版本 | 日期 | 提交 | 说明 |
 |---|---|---|---|
+| v0.9 | 2026-05-15 上午 | `171425f` | NWOG/NDOG 改为矩形渲染 |
 | v0.8 | 2026-05-14 下午 | `6ee7d65` | 日级 PDA 时间映射到最近 K 线 |
 | v0.7 | 2026-05-14 深夜 | `b348202` | 日级 PDA 使用 occurrence_time 定位 |
 | v0.6 | 2026-05-14 晚 | `0db07e9` | 15M+ 周期叠加日级 PDA |
@@ -238,7 +244,6 @@
 | v0.2 | 2026-05-14 上午 | `6e17771` | 完成阶段 A |
 | v0.1 | 2026-05-13 | `145624a` | 右键菜单基础功能 |
 
-
 ---
 
 ## 合并计划
@@ -246,12 +251,10 @@
 **目标**：阶段 D 完成并验证后合并到 main
 
 **合并前检查清单**：
-- [ ] 浏览器测试日级 PDA 显示（P0）
+- [ ] 浏览器测试所有 PDA 类型显示（P0）
 - [x] 代码格式化完成（Prettier）
 - [x] 会话记录更新
 - [ ] README 更新
-- [ ] 无 console.log 残留（保留 warn/error）
-- [ ] 无 TODO/FIXME 注释
 
 ---
 
