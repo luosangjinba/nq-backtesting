@@ -18,6 +18,7 @@ export const state = {
   selectedMenuIndex: -1, // 当前选中的菜单项索引（-1 表示无选中）
   menuItems: [], // 当前菜单的可选项（不含 divider）
   barTimestamps: [], // K 线时间戳数组（用于日级 PDA 时间映射）
+  candleData: [], // K 线完整数据（用于 PDA 识别）
 };
 
 /**
@@ -117,6 +118,9 @@ export function updateChartData(klineData) {
 
   // 存储 K 线时间戳（用于日级 PDA 时间映射）
   state.barTimestamps = klineData.map((bar) => bar.time);
+
+  // 存储完整 K 线数据（用于 PDA 识别）
+  state.candleData = klineData;
 
   console.log(`✓ 图表数据已更新：${klineData.length} 根 K 线`);
 }
