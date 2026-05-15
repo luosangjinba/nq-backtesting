@@ -71,6 +71,15 @@ export function initChart() {
     });
   });
 
+  // 监听容器大小变化（侧边栏展开/折叠时）
+  const resizeObserver = new ResizeObserver(() => {
+    state.chart.applyOptions({
+      width: container.clientWidth,
+      height: container.clientHeight,
+    });
+  });
+  resizeObserver.observe(container);
+
   console.log('✓ 图表初始化完成');
   console.log('✓ 数据库时间 = 美东时间，图表直接显示（无时区转换）');
 }
