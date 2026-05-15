@@ -10,16 +10,29 @@
  * @returns {Object|null} - 识别结果 {startTime, endTime, high, low, direction} 或 null
  */
 export function identifyFvg(candleData, clickTime) {
+  console.log('[FVG 识别] 开始识别', {
+    candleDataLength: candleData?.length,
+    clickTime,
+    firstCandle: candleData?.[0],
+    lastCandle: candleData?.[candleData.length - 1],
+  });
+
   if (!candleData || candleData.length < 3) {
+    console.warn('[FVG 识别] K 线数据不足（需要至少 3 根）');
     return null;
   }
 
   // 找到点击位置对应的 K 线索引
   const clickIndex = candleData.findIndex((candle) => candle.time === clickTime);
   if (clickIndex === -1) {
-    console.warn('[FVG 识别] 未找到点击位置的 K 线');
+    console.warn('[FVG 识别] 未找到点击位置的 K 线', {
+      clickTime,
+      availableTimes: candleData.slice(0, 5).map((c) => c.time),
+    });
     return null;
   }
+
+  console.log('[FVG 识别] 找到点击位置', { clickIndex, clickTime });
 
   // 尝试以点击位置为中心 K 线（K2）识别 FVG
   // FVG 由 3 根 K 线组成：K1 - K2 - K3
