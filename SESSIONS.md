@@ -1,5 +1,72 @@
 # 开发会话记录
 
+## 2026-05-15 上午 - Git 分支整理和预研内容合并
+
+### 背景
+完成 `feature/context-menu-research` 合并后，整理其他 feature 分支，发现 `feature/contextual-panel-research` 和 `feature/pda-workbench-research` 是同一预研工作的不同版本。
+
+### 分支关系分析
+- `feature/pda-workbench-research`（2c5f5cc，2026-05-12 23:01）
+- `feature/contextual-panel-research`（649c799，2026-05-12 23:33）
+
+**结论**：`contextual-panel` 是 `pda-workbench` 的超集，多了：
+1. CLAUDE.md 重写（融合 Karpathy 规范）
+2. CONTEXTUAL_PANEL_RESEARCH.md 文档
+3. 3 次额外提交
+
+### 执行的操作
+
+**1. 删除重复分支**：
+```bash
+git branch -D feature/pda-workbench-research
+```
+
+**2. 从 feature/contextual-panel-research 提取内容到 main**：
+- ✅ CLAUDE.md 重写版本（401 行，增加行为指南和协作指南）
+- ✅ 预研文档（CONTEXTUAL_PANEL_RESEARCH.md、PLAN_PDA_WORKBENCH.md、TECH_RESEARCH_REPORT.md）
+- ✅ 7 个 demo 文件（点击检测、重叠选择、侧边栏布局、API 测试等）
+- ✅ 会话记录（session_20260512_evening.md）
+- ✅ 分支说明（BRANCH_README.md）
+
+**3. 提交更改**：
+```
+24c262c - feat: 合并 PDA 工作台预研内容
+```
+
+### CLAUDE.md 重写亮点
+
+**新增 Part 1: Behavioral Guidelines**（行为指南）
+1. Think Before Coding - 明确假设，呈现权衡
+2. Simplicity First - 最简解决方案，不做推测性功能
+3. Intentional Changes - 每个改动都有明确理由
+4. Goal-Driven Execution - 定义成功标准，验证实现
+5. Read Before Writing - 先读代码，匹配现有风格
+6. Communicate Tradeoffs - 透明沟通，解释决策
+7. Safe Defaults - 可逆操作优先，破坏性操作需确认
+8. Proactive Quality Alerts - 主动提醒质量问题
+
+**保留 Part 2: Project-Specific Context**（原有项目上下文）
+
+**新增 Part 3: Collaboration Guidelines**（协作指南）
+- 适配个人开发者 + AI Agent 场景
+- 强调代码质量而非"谁写的"
+
+### 当前分支状态
+
+**main 分支**：
+- 最新提交：`24c262c`
+- 包含：右键菜单功能 + 模块化拆分 + PDA 工作台预研
+- 领先远程：112 commits
+
+**保留的 feature 分支**：
+- `feature/contextual-panel-research`（649c799）- 可以删除或保留作为参考
+
+### 后续计划
+- 考虑是否删除 `feature/contextual-panel-research`（内容已合并）
+- 开始 PDA 工作台阶段 1 实现（基础 UI 和 PDA 选择）
+
+---
+
 ## 2026-05-15 上午 - 合并 feature/context-menu-research 到 main
 
 ### 背景
