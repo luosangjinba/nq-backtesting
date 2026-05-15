@@ -1,5 +1,43 @@
 # 开发会话记录
 
+## 2026-05-15 上午 - 合并 feature/context-menu-research 到 main
+
+### 背景
+完成阶段 A-D 和阶段 F（模块化拆分）后，将 `feature/context-menu-research` 分支合并到 `main`。
+
+### 合并内容
+**分支**：`feature/context-menu-research`  
+**提交数**：16 次  
+**代码变更**：
+- 新增文件：28 个（文档、模块、会话记录）
+- 修改文件：1 个（`kline_viewer.html`）
+- 删除文件：1 个（临时截图）
+- 净增代码：~10,650 行
+
+**功能模块**：
+- 阶段 A：清理 + 配置化修正
+- 阶段 B：PDA 详情浮窗
+- 阶段 C：键盘导航 + 真快捷键
+- 阶段 D：扩展 PDA 类型支持（NWOG/NDOG/Daily H/L/ICT Midnight H/L）
+- 阶段 F：模块化拆分（1683 行 → 8 个模块）
+
+**架构改进**：
+- 原单文件 1683 行 → 主 HTML 251 行（减少 85%）
+- 8 个 ES6 模块：chart / pda-renderer / pda-detector / context-menu / pda-detail / keyboard / utils / CSS
+- 所有功能验证通过
+
+### 合并步骤
+1. 清理临时文件（`v3/tmp/2026-05-12_125749.png`）
+2. 切换到 `main` 分支
+3. 使用 `--no-ff` 合并（保留分支历史）
+4. 提交合并 commit：`2d54dc5`
+
+### 后续计划
+- 下一个分支：`feature/pda-workbench`（阶段 E：Manual PDA 编辑/删除/导出/新建）
+- 技术债务：PDA 标签防重叠、性能优化、文档更新
+
+---
+
 ## 2026-05-13 下午 - Context Menu 右键菜单完整实现
 
 ### 背景
