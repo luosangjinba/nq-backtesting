@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/chart-display-control`
 
-**最后更新**：2026-05-15 20:00  
-**当前状态**：✅ 阶段 2 任务 #1 完成 - PDA 录入侧边栏 UI
+**最后更新**：2026-05-15 21:15  
+**当前状态**：✅ 播放控制栏布局修复完成
 
 ---
 
@@ -20,6 +20,7 @@
 - `v3/sessions/session_20260515_replay_stage1.md` - 阶段 1 实施
 - `v3/sessions/session_20260515_pda_disable_and_contextmenu.md` - PDA 禁用 & 右键菜单
 - `v3/sessions/session_20260515_pda_form_sidebar.md` - PDA 表单侧边栏实现
+- `v3/sessions/session_20260515_replay_controls_layout_fix.md` - 播放控制栏布局修复
 
 **核心需求**：
 - K 线回放，模拟实盘观察
@@ -119,6 +120,22 @@ f63af9b fix(chart): 添加 ResizeObserver 监听容器大小变化
 eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
 ```
 
+**Bug 修复**：
+- ✅ 修复播放控制栏遮挡时间轴问题（commit: fb9e411）
+  - 问题：播放控制栏使用 fixed 定位，遮挡图表底部时间轴
+  - 解决：将播放控制栏移到 chart-area 内部，使用 flexbox 垂直布局
+- ✅ 修复播放控制栏不可见问题（commit: 8fecab4）
+  - 问题：播放控制栏被图表挤出可视区域
+  - 解决：添加 flex-shrink: 0 和 min-height: 0
+
+**提交记录**：
+```
+8fecab4 fix(chart): 确保播放控制栏可见
+fb9e411 fix(chart): 修复播放控制栏遮挡时间轴的问题
+f63af9b fix(chart): 添加 ResizeObserver 监听容器大小变化
+eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
+```
+
 **功能验证**：
 - ✅ 侧边栏展开/折叠动画流畅
 - ✅ 图表自动调整大小，价格刻度不被遮挡
@@ -126,6 +143,8 @@ eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
 - ✅ 时间格式化功能正常（8 位/12 位数字）
 - ✅ 表单验证功能正常
 - ✅ ESC 键关闭侧边栏
+- ✅ 播放控制栏不遮挡时间轴
+- ⏳ 播放控制栏可见性（待用户验证）
 
 **任务 #2：FVG 自动识别逻辑** - ⏸ 待开始
 - [ ] 获取点击位置的 K 线索引
