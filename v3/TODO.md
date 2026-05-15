@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/chart-display-control`
 
-**最后更新**：2026-05-15 21:15  
-**当前状态**：✅ 播放控制栏布局修复完成
+**最后更新**：2026-05-15 21:45  
+**当前状态**：✅ 阶段 2 任务 #2 完成 - FVG 自动识别
 
 ---
 
@@ -21,6 +21,7 @@
 - `v3/sessions/session_20260515_pda_disable_and_contextmenu.md` - PDA 禁用 & 右键菜单
 - `v3/sessions/session_20260515_pda_form_sidebar.md` - PDA 表单侧边栏实现
 - `v3/sessions/session_20260515_replay_controls_layout_fix.md` - 播放控制栏布局修复
+- `v3/sessions/session_20260515_fvg_identification.md` - FVG 自动识别实现
 
 **核心需求**：
 - K 线回放，模拟实盘观察
@@ -146,13 +147,49 @@ eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
 - ✅ 播放控制栏不遮挡时间轴
 - ⏳ 播放控制栏可见性（待用户验证）
 
-**任务 #2：FVG 自动识别逻辑** - ⏸ 待开始
-- [ ] 获取点击位置的 K 线索引
-- [ ] 检查前后 3 根 K 线是否形成 FVG
-- [ ] 自动填充起始时间、结束时间、上边界、下边界
-- [ ] 识别失败时提示用户手动输入
+**任务 #2：FVG 自动识别逻辑** - ✅ 已完成（2026-05-15）
+- [x] 创建 pda-identifier.js 模块
+- [x] 实现 identifyFvg() 函数：检查点击位置前后 K 线是否形成 FVG
+- [x] 支持 3 种情况：点击 K1/K2/K3
+- [x] 识别成功自动填充锚点时间（K2）、上下边界
+- [x] 识别失败只填充点击位置时间，提示手动输入
+- [x] 修复 state.candleData 不存在问题
+- [x] 修复字段名不匹配问题（high/low vs priceHigh/priceLow）
+- [x] 修复时区问题（使用 UTC 时间）
 
-**任务 #3：验证 API 端点** - ⏸ 待开始
+**已创建文件**：
+- `v3/modules/pda-identifier.js` - PDA 识别模块（135 行）
+
+**已修改文件**：
+- `v3/modules/chart.js` - 添加 candleData 存储（+4 行）
+- `v3/modules/pda-form.js` - 修复字段名兼容（+2 行）
+- `v3/docs/kline_viewer.html` - 集成识别逻辑（+15 行）
+
+**提交记录**：
+```
+03521c2 fix(pda): 修复时间格式化 - 使用 UTC 时间
+84a73da fix(pda): 修正 FVG 识别逻辑 - 使用锚点时间
+45901d0 fix(pda-form): 修复 FVG 字段名不匹配问题
+e6bfcc9 debug(pda): 添加 FVG 识别调试日志
+7d6a6da fix(chart): 存储完整 K 线数据到 state.candleData
+6b49260 feat(pda): 实现 FVG 自动识别逻辑
+```
+
+**FVG 定义澄清**：
+- FVG 只有一个锚点时间（K2，中间 K 线）
+- FVG 是价格缺口区域，不是时间范围
+- 向上 FVG: K1.low > K3.high，缺口在 [K3.high, K1.low]
+- 向下 FVG: K1.high < K3.low，缺口在 [K1.high, K3.low]
+
+**功能验证**：
+- ✅ 点击 FVG 的 K2：识别成功，自动填充所有字段
+- ✅ 点击 FVG 的 K1：识别成功，自动填充所有字段
+- ✅ 点击 FVG 的 K3：识别成功，自动填充所有字段
+- ✅ 点击非 FVG 位置：识别失败，只填充点击时间
+- ✅ 时间显示正确（UTC 时间，与图表一致）
+- ✅ 价格范围正确（缺口的上下边界）
+
+**任务 #3：后端 API 集成** - ⏸ 待开始
 - [ ] 检查 `POST /v2/pda_manual_add` 端点是否存在
 - [ ] 验证请求参数格式
 - [ ] 测试保存功能
