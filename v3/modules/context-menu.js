@@ -270,7 +270,7 @@ export function showPdaMenu(x, y, pda, showPdaDetail, updateStatus) {
  * @param {number} y - 菜单 Y 坐标
  * @param {Object} chartCoordinates - 图表坐标 { time, price }
  */
-export function showBlankAreaMenu(x, y, chartCoordinates) {
+export function showBlankAreaMenu(x, y, chartCoordinates, onAddPda) {
   console.log('右键点击空白区域:', chartCoordinates);
 
   const items = [
@@ -279,9 +279,7 @@ export function showBlankAreaMenu(x, y, chartCoordinates) {
       label: '手动添加 FVG',
       action: () => {
         console.log('[操作] 手动添加 FVG:', chartCoordinates);
-        closeContextMenu();
-        // TODO: 实现手动添加 FVG 的逻辑
-        alert('手动添加 FVG 功能待实现');
+        if (onAddPda) onAddPda('fvg', chartCoordinates);
       },
     },
     {
@@ -289,9 +287,7 @@ export function showBlankAreaMenu(x, y, chartCoordinates) {
       label: '手动添加 BSL',
       action: () => {
         console.log('[操作] 手动添加 BSL:', chartCoordinates);
-        closeContextMenu();
-        // TODO: 实现手动添加 BSL 的逻辑
-        alert('手动添加 BSL 功能待实现');
+        if (onAddPda) onAddPda('bsl', chartCoordinates);
       },
     },
     {
@@ -299,9 +295,7 @@ export function showBlankAreaMenu(x, y, chartCoordinates) {
       label: '手动添加 SSL',
       action: () => {
         console.log('[操作] 手动添加 SSL:', chartCoordinates);
-        closeContextMenu();
-        // TODO: 实现手动添加 SSL 的逻辑
-        alert('手动添加 SSL 功能待实现');
+        if (onAddPda) onAddPda('ssl', chartCoordinates);
       },
     },
     {
