@@ -2,8 +2,8 @@
 
 ## 当前分支：`main`
 
-**最后更新**：2026-05-16 20:35
-**当前状态**：🔄 阶段 3（方案 C）代码已落地第一版，但尚未格式化与浏览器验证；已补充 clear 后接驳说明
+**最后更新**：2026-05-16 21:15
+**当前状态**：✅ 阶段 3（方案 C）代码已格式化，服务器已启动，待浏览器手工验证
 
 **重要提醒**：
 - ⚠️ 静态文件服务器必须在 `v3` 目录运行（不是 `v3/docs`），否则 CSS 无法加载
@@ -23,20 +23,24 @@
    - ✅ 已在 `pda-renderer.js` 中加入最小 `SegmentPrimitive`
    - ✅ 已在 `context-menu.js` 中扩展方案 C 菜单项（标记 Swing、创建行情段、撤销、清空）
    - ✅ 已在 `kline_viewer.html` 中接入导出按钮、dirty guard、方案 C action 分发
-   - ⚠️ **尚未完成**：Prettier 格式化、浏览器手工验证、回归验证
+   - ✅ **Prettier 格式化完成**（annotation.js 有格式调整，已提交）
+   - ✅ **代码接线检查完成**（无明显错误）
+   - ✅ **服务器已启动**（API: 8765, 静态文件: 8000）
+   - ⏳ **待浏览器手工验证**
 
 3. **clear 后第一步该做什么**
-   - 先通读 `v3/docs/kline_viewer.html` 当前改动段，确认没有接线错误
-   - 对 `v3/docs/kline_viewer.html`、`v3/modules/annotation.js`、`v3/modules/context-menu.js`、`v3/modules/pda-renderer.js` 运行 Prettier
-   - 启动 API 与静态文件服务器，在浏览器手测方案 C 流程
+   - ~~先通读 `v3/docs/kline_viewer.html` 当前改动段，确认没有接线错误~~ ✅
+   - ~~对 `v3/docs/kline_viewer.html`、`v3/modules/annotation.js`、`v3/modules/context-menu.js`、`v3/modules/pda-renderer.js` 运行 Prettier~~ ✅
+   - ~~启动 API 与静态文件服务器，在浏览器手测方案 C 流程~~ ✅ 服务器已启动
+   - **下一步**：在浏览器手测方案 C 流程（访问 `http://127.0.0.1:8000/docs/kline_viewer.html`）
 
 4. **验证重点**
-   - Swing Low / High 标记是否正常显示
-   - 最近两个 Swing 点能否创建行情段连线
-   - 撤销/清空是否正常
-   - 导出 YAML 是否成功
-   - refresh / load / 切周期前的 dirty guard 是否符合预期
-   - 现有 FVG 标注、PDA 表单、timeframe 切换是否回归
+   - **任务 #1**：Swing Low / High 标记是否正常显示
+   - **任务 #1**：最近两个 Swing 点能否创建行情段连线
+   - **任务 #2**：异常分支（同类型 swing、没有两个 swing、重复创建）是否正确阻止
+   - **任务 #3**：导出 YAML 是否成功，内容是否完整
+   - **任务 #4**：refresh / load / 切周期前的 dirty guard 是否符合预期
+   - **任务 #5**：现有 FVG 标注、PDA 表单、timeframe 切换是否回归
 
 5. **当前不要做的事**
    - 不要继续扩展 PDA 关联
@@ -48,19 +52,20 @@
 ## 进行中功能 🔄
 
 ### 阶段 3：行情段标注（方案 C 第一版）
-**状态**：🔄 代码已落地，待格式化与浏览器验证
+**状态**：✅ 代码已格式化，服务器已启动，待浏览器手工验证
 
 - 已修改文件：
   - `v3/docs/kline_viewer.html`
-  - `v3/modules/annotation.js`
+  - `v3/modules/annotation.js` (已格式化并提交)
   - `v3/modules/context-menu.js`
   - `v3/modules/pda-renderer.js`
 - 已新增会话记录：
-  - `v3/sessions/session_20260516_stage3_scheme_c_progress.md`
-- clear 后先做：
-  - Prettier 格式化
-  - 浏览器手工验证
-  - FVG / PDA 表单 / timeframe 切换回归验证
+  - `v3/sessions/session_20260516_stage3_scheme_c_progress.md` (已更新)
+- 已提交：
+  - `4473eb7` - style(v3): format annotation.js with Prettier
+- 下一步：
+  - 浏览器手工验证（访问 `http://127.0.0.1:8000/docs/kline_viewer.html`）
+  - 验证任务 #1-#5（见会话记录）
 
 ---
 

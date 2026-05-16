@@ -2,7 +2,7 @@
 
 **日期**：2026-05-16  
 **分支**：`main`  
-**状态**：代码已落地，待格式化与浏览器验证
+**状态**：✅ 代码已格式化，服务器已启动，待浏览器手工验证
 
 ---
 
@@ -78,54 +78,61 @@
 ### 已完成
 - 方案 C 的前端代码路径已经搭起来
 - 撤销/清空/导出逻辑已经写入代码
+- ✅ **Prettier 格式化完成**（annotation.js 有格式调整）
+- ✅ **代码接线检查完成**（无明显错误）
+- ✅ **服务器已启动**（API: 8765, 静态文件: 8000）
 - 阶段 3 第一版已经可以进入验证阶段
 
 ### 尚未完成
-- **未跑 Prettier**
 - **未做浏览器手工验证**
 - **未做回归验证**
 
-所以当前不能声称“功能正常”，只能说“代码已落地、待验证”。
+所以当前不能声称”功能正常”，只能说”代码已落地、已格式化、待验证”。
 
 ---
 
-## clear 后第一步
+## clear 后第一步（已完成）
 
-1. 先读这份会话记录和 `v3/TODO.md`
-2. 重点通读这 4 个文件当前改动是否有接线错误：
+1. ✅ 先读这份会话记录和 `v3/TODO.md`
+2. ✅ 重点通读这 4 个文件当前改动是否有接线错误：
    - `v3/docs/kline_viewer.html`
    - `v3/modules/annotation.js`
    - `v3/modules/context-menu.js`
    - `v3/modules/pda-renderer.js`
-3. 运行 Prettier：
-   - `v3/docs/kline_viewer.html`
-   - `v3/modules/annotation.js`
-   - `v3/modules/context-menu.js`
-   - `v3/modules/pda-renderer.js`
-4. 启动服务并手测方案 C
+3. ✅ 运行 Prettier：
+   - `v3/docs/kline_viewer.html` (unchanged)
+   - `v3/modules/annotation.js` (formatted)
+   - `v3/modules/context-menu.js` (unchanged)
+   - `v3/modules/pda-renderer.js` (unchanged)
+4. ✅ 启动服务：
+   - API 服务器：PID 19201，端口 8765
+   - 静态文件服务器：端口 8000
+5. ⏳ 待手测方案 C
 
 ---
 
-## 验证清单
+## 验证清单（待执行）
 
-### 方案 C 主流程
+访问地址：`http://127.0.0.1:8000/docs/kline_viewer.html`
+
+### 任务 #1：方案 C 主流程
 - 加载 1H 数据
 - 右键 K 线 → 标记 `Swing Low`
 - 再标记 `Swing High`
 - 再执行 `创建行情段`
 - 确认：Swing 标签可见，连线可见
 
-### 异常分支
+### 任务 #2：异常分支
 - 两个最近 swing 同类型 → 阻止创建
 - 没有两个 swing → 阻止创建
 - 重复创建同一段 → 阻止创建
 
-### 导出
+### 任务 #3：导出
 - 点击 `导出 YAML`
 - 文件下载成功
 - YAML 至少包含：`session` / `swing_legs` / `market_structures`
 
-### dirty guard
+### 任务 #4：dirty guard
 - 在存在未导出标注时触发：
   - 加载
   - 刷新
@@ -133,19 +140,23 @@
 - 确认取消时保留标注
 - 确认继续时清空标注后再继续
 
-### 回归验证
+### 任务 #5：回归验证
 - FVG 标注不坏
 - 空白区右键手动加 PDA 不坏
 - 周期切换自动刷新不回退
 
 ---
 
-## 暂时不要继续做的事
+## 本次会话提交记录
 
-- 不要接 PDA 关联
-- 不要接服务端 YAML 落盘
-- 不要接 DuckDB sync
-- 不要顺手重构 / 拆分 `pda-renderer.js`
+### Commit 1: `4473eb7`
+```
+style(v3): format annotation.js with Prettier
+
+- 调整 arrow function 换行格式
+- 调整长字符串换行格式
+- 无逻辑变更
+```
 
 ---
 
