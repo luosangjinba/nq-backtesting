@@ -91,7 +91,9 @@ export function loadReplayData(bars, pdas, start, end, tf) {
     replayState.currentIndex = savedProgress.index;
     console.log(`恢复进度: ${savedProgress.index}/${bars.length}`);
   } else {
-    replayState.currentIndex = 0;
+    // 首次加载或切换周期时，显示所有 K 线
+    replayState.currentIndex = bars.length;
+    console.log(`首次加载，显示所有 K 线: ${bars.length}`);
   }
 
   // 显示回放控制栏
