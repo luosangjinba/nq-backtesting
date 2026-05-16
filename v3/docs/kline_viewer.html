@@ -227,12 +227,18 @@
       import { showLoading, formatTimeInput } from '../modules/utils.js';
       import { loadPdaData } from '../modules/pda-renderer.js';
       import { findPdaAtPosition } from '../modules/pda-detector.js';
-      import { showPdaMenu, showBlankAreaMenu, closeContextMenu } from '../modules/context-menu.js';
+      import {
+        showPdaMenu,
+        showBlankAreaMenu,
+        showKlineMenu,
+        closeContextMenu,
+      } from '../modules/context-menu.js';
       import { showPdaDetail, closePdaDetail } from '../modules/pda-detail.js';
       import { initKeyboardNavigation } from '../modules/keyboard.js';
       import { initReplay, loadReplayData } from '../modules/replay.js';
       import { showPdaForm, hidePdaForm, setOnSaveCallback } from '../modules/pda-form.js';
       import { identifyFvg, formatTimestamp } from '../modules/pda-identifier.js';
+      import { addSwingLow, addSwingHigh, addFvgAnnotation } from '../modules/annotation.js';
 
       // ==================
       // 工具函数
@@ -346,9 +352,76 @@
       document.getElementById('apiErrorCloseBtn').addEventListener('click', hideApiError);
 
       /**
-       * 保存 PDA 到后端
-       * @param {Object} formData - 表单数据
+        * 保存 PDA 到后端
+        * @param {Object} formData - 表单数据
+       /**
+        * 根据时间戳查找 K 线数据
+        * @param {number} timestamp - 时间戳（秒）
+        * @returns {Object|null} K 线数据或 null
+        */
+      function findBarAtTime(timestamp) {
+        if (!state.candleData || state.candleData.length === 0) {
+          return null;
+        }
+
+        // 查找最接近的 K 线（容差：半根 K 线）
+        const timeframe = parseInt(document.getElementById('tfSelect').value);
+        const tolerance = (timeframe * 60) / 2; // 秒
+
+        for (const bar of state.candleData) {
+          if (Math.abs(bar.time - timestamp) <= tolerance) {
+            return bar;
+          }
+        }
+
+        return null;
+      }
+
+      /**
+       * 处理标注请求（右键菜单回调）
+       * @param {string} annotationType - 标注类型 (swingLow, swingHigh, fvg)
+       * @param {Object} barData - K 线数据 { time, open, high, low, close }
+       * @param {number} timeframe - 周期（分钟）
        */
+      function handleAnnotate(annotationType, barData, timeframe) {
+        console.log(`[标注] 类型: ${annotationType}, K 线:`, barData, `周期: ${timeframe}分钟`);
+
+        try {
+          if (annotationType === 'swingLow') {
+            // 标注 Swing Low
+            addSwingLow(barData.time, barData.low, timeframe);
+            updateStatus(`已标注 Swing Low: ${barData.low.toFixed(2)}`);
+          } else if (annotationType === 'swingHigh') {
+            // 标注 Swing High
+            addSwingHigh(barData.time, barData.high, timeframe);
+            updateStatus(`已标注 Swing High: ${barData.high.toFixed(2)}`);
+          } else if (annotationType === 'fvg') {
+            // 标注 FVG：使用 FVG 识别逻辑
+            const fvgResult = identifyFvg(state.candleData, barData.time);
+
+            if (fvgResult) {
+              // 识别成功，绘制 FVG 标注
+              addFvgAnnotation(
+                fvgResult.anchorTime,
+                fvgResult.high,
+                fvgResult.low,
+                fvgResult.direction,
+                timeframe
+              );
+              updateStatus(
+                `已标注 FVG: ${fvgResult.direction} [${fvgResult.low.toFixed(2)} - ${fvgResult.high.toFixed(2)}]`
+              );
+            } else {
+              // 识别失败
+              updateStatus('未识别到 FVG，请点击 FVG 的 K1/K2/K3 位置', true);
+            }
+          }
+        } catch (error) {
+          console.error('[标注] 失败:', error);
+          updateStatus('标注失败: ' + error.message, true);
+        }
+      }
+
       async function savePda(formData) {
         console.log('[保存 PDA] 表单数据:', formData);
 
@@ -589,7 +662,6 @@
             // 点击到 PDA，显示 PDA 菜单
             showPdaMenu(e.clientX, e.clientY, pda, showPdaDetail, updateStatus);
           } else {
-            // 空白区域，显示手动添加 PDA 菜单
             // 获取点击位置的图表坐标
             const rect = chartContainer.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -599,14 +671,24 @@
             const timestamp = timeScale.coordinateToTime(x);
             const price = state.candlestickSeries.coordinateToPrice(y);
 
-            const chartCoordinates = {
-              time: timestamp,
-              price: price,
-              clientX: e.clientX,
-              clientY: e.clientY,
-            };
+            // 检测是否点击在 K 线上
+            const barData = findBarAtTime(timestamp);
 
-            showBlankAreaMenu(e.clientX, e.clientY, chartCoordinates, handleAddPda);
+            if (barData) {
+              // 点击在 K 线上，显示标注菜单
+              const timeframe = parseInt(document.getElementById('tfSelect').value);
+              showKlineMenu(e.clientX, e.clientY, barData, timeframe, handleAnnotate);
+            } else {
+              // 空白区域，显示手动添加 PDA 菜单
+              const chartCoordinates = {
+                time: timestamp,
+                price: price,
+                clientX: e.clientX,
+                clientY: e.clientY,
+              };
+
+              showBlankAreaMenu(e.clientX, e.clientY, chartCoordinates, handleAddPda);
+            }
           }
         });
 

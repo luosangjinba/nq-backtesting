@@ -26,38 +26,34 @@ const LIQUIDITY_DEFAULTS = {
  * FVG 矩形渲染器
  */
 class FvgRenderer {
-  constructor(p1, p2, fillColor) {
-    this._p1 = p1;
-    this._p2 = p2;
-    this._fillColor = fillColor;
+  constructor(view) {
+    this._view = view;
   }
 
   draw(target) {
     target.useBitmapCoordinateSpace((scope) => {
-      if (
-        this._p1.x === null ||
-        this._p1.y === null ||
-        this._p2.x === null ||
-        this._p2.y === null
-      ) {
+      const p1 = this._view._p1;
+      const p2 = this._view._p2;
+      if (p1.x === null || p1.y === null || p2.x === null || p2.y === null) {
         return;
       }
 
       const ctx = scope.context;
+      const fillColor = this._view._source._fillColor;
 
       // 计算矩形位置和大小
-      const x = Math.min(this._p1.x, this._p2.x) * scope.horizontalPixelRatio;
-      const y = Math.min(this._p1.y, this._p2.y) * scope.verticalPixelRatio;
-      const width = Math.abs(this._p2.x - this._p1.x) * scope.horizontalPixelRatio;
-      const height = Math.abs(this._p2.y - this._p1.y) * scope.verticalPixelRatio;
+      const x = Math.min(p1.x, p2.x) * scope.horizontalPixelRatio;
+      const y = Math.min(p1.y, p2.y) * scope.verticalPixelRatio;
+      const width = Math.abs(p2.x - p1.x) * scope.horizontalPixelRatio;
+      const height = Math.abs(p2.y - p1.y) * scope.verticalPixelRatio;
 
       // 填充
-      ctx.fillStyle = this._fillColor;
+      ctx.fillStyle = fillColor;
       ctx.fillRect(x, y, width, height);
 
       // 中间虚线
       const midY = y + height / 2;
-      ctx.strokeStyle = this._fillColor.replace('33', ''); // 移除透明度
+      ctx.strokeStyle = fillColor.replace('33', ''); // 移除透明度
       ctx.lineWidth = 1;
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
@@ -97,14 +93,14 @@ class FvgView {
   }
 
   renderer() {
-    return new FvgRenderer(this._p1, this._p2, this._source._fillColor);
+    return new FvgRenderer(this);
   }
 }
 
 /**
  * FVG Primitive
  */
-class FvgPrimitive {
+export class FvgPrimitive {
   constructor(chart, series, startTime, endTime, topPrice, bottomPrice, color = '#ab47bc33') {
     this._chart = chart;
     this._series = series;
@@ -150,34 +146,32 @@ export function addFvgMarker(startTime, endTime, topPrice, bottomPrice, color = 
  * 流动性短线渲染器
  */
 class LiquidityRenderer {
-  constructor(p1, p2, lineColor, textColor, label, position, options) {
-    this._p1 = p1;
-    this._p2 = p2;
-    this._lineColor = lineColor;
-    this._textColor = textColor;
-    this._label = label;
-    this._position = position; // 'above' | 'below'
-    this._options = options;
+  constructor(view) {
+    this._view = view;
   }
 
   draw(target) {
     target.useBitmapCoordinateSpace((scope) => {
-      if (this._p1.x === null || this._p2.x === null || this._p1.y === null) return;
+      if (this._view._p1.x === null || this._view._p2.x === null || this._view._p1.y === null)
+        return;
 
+      const p1 = this._view._p1;
+      const p2 = this._view._p2;
+      const source = this._view._source;
       const ctx = scope.context;
       const hRatio = scope.horizontalPixelRatio;
       const vRatio = scope.verticalPixelRatio;
 
-      const x1 = this._p1.x * hRatio;
-      const x2 = this._p2.x * hRatio;
-      const y = this._p1.y * vRatio;
+      const x1 = p1.x * hRatio;
+      const x2 = p2.x * hRatio;
+      const y = p1.y * vRatio;
 
       // 短线
-      ctx.strokeStyle = this._lineColor;
-      ctx.lineWidth = this._options.lineWidth * Math.min(hRatio, vRatio);
+      ctx.strokeStyle = source._lineColor;
+      ctx.lineWidth = source._options.lineWidth * Math.min(hRatio, vRatio);
 
       // 设置线条样式
-      if (this._options.lineStyle === 'dashed') {
+      if (source._options.lineStyle === 'dashed') {
         ctx.setLineDash([5, 5]);
       } else {
         ctx.setLineDash([]);
@@ -189,17 +183,17 @@ class LiquidityRenderer {
       ctx.stroke();
 
       // 文字标签
-      if (this._options.showLabel && this._label) {
-        ctx.fillStyle = this._textColor;
-        ctx.font = this._options.labelFont;
-        const padding = this._options.labelPadding * vRatio;
+      if (source._options.showLabel && source._label) {
+        ctx.fillStyle = source._textColor;
+        ctx.font = source._options.labelFont;
+        const padding = source._options.labelPadding * vRatio;
         ctx.textAlign = 'right';
-        if (this._position === 'above') {
+        if (source._position === 'above') {
           ctx.textBaseline = 'bottom';
-          ctx.fillText(this._label, x2, y - padding);
+          ctx.fillText(source._label, x2, y - padding);
         } else {
           ctx.textBaseline = 'top';
-          ctx.fillText(this._label, x2, y + padding);
+          ctx.fillText(source._label, x2, y + padding);
         }
       }
     });
@@ -238,22 +232,14 @@ class LiquidityView {
   }
 
   renderer() {
-    return new LiquidityRenderer(
-      this._p1,
-      this._p2,
-      this._source._lineColor,
-      this._source._textColor,
-      this._source._label,
-      this._source._position,
-      this._source._options
-    );
+    return new LiquidityRenderer(this);
   }
 }
 
 /**
  * 流动性 Primitive
  */
-class LiquidityPrimitive {
+export class LiquidityPrimitive {
   constructor(
     chart,
     series,

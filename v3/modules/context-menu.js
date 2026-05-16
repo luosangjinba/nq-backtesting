@@ -316,3 +316,57 @@ export function showBlankAreaMenu(x, y, chartCoordinates, onAddPda) {
 
   createContextMenu(x, y, items);
 }
+
+/**
+ * 显示 K 线菜单（用于标注 Swing Low/High 和 FVG）
+ * @param {number} x - 菜单 X 坐标
+ * @param {number} y - 菜单 Y 坐标
+ * @param {Object} barData - K 线数据 { time, open, high, low, close }
+ * @param {number} timeframe - 周期（分钟）
+ * @param {Function} onAnnotate - 标注回调函数
+ */
+export function showKlineMenu(x, y, barData, timeframe, onAnnotate) {
+  console.log('右键点击 K 线:', barData);
+
+  const items = [
+    {
+      icon: '📍',
+      label: '标注 Swing Low',
+      action: () => {
+        console.log('[操作] 标注 Swing Low:', barData);
+        if (onAnnotate) onAnnotate('swingLow', barData, timeframe);
+      },
+    },
+    {
+      icon: '📍',
+      label: '标注 Swing High',
+      action: () => {
+        console.log('[操作] 标注 Swing High:', barData);
+        if (onAnnotate) onAnnotate('swingHigh', barData, timeframe);
+      },
+    },
+    {
+      icon: '📍',
+      label: '标注 FVG',
+      action: () => {
+        console.log('[操作] 标注 FVG:', barData);
+        if (onAnnotate) onAnnotate('fvg', barData, timeframe);
+      },
+    },
+    {
+      type: 'divider',
+    },
+    {
+      icon: '🔄',
+      label: '刷新数据',
+      shortcut: 'F5',
+      action: () => {
+        console.log('[操作] 刷新数据');
+        closeContextMenu();
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'F5' }));
+      },
+    },
+  ];
+
+  createContextMenu(x, y, items);
+}
