@@ -1,5 +1,95 @@
 # 开发会话记录
 
+## 2026-05-15 晚上 - 错误提示 UI 实现
+
+### 背景
+完成 K 线回放与 PDA 手动标注功能合并到 main 后，实现遗留的"错误提示 UI"任务。
+
+### 执行的操作
+
+**1. 实现错误提示 UI**：
+- 在侧边栏顶部添加错误提示区域
+- 实现 `showApiError()` 和 `hideApiError()` 函数
+- 添加关闭按钮和事件监听
+- 替换 `alert()` 为友好的内联提示
+
+**2. 样式设计**：
+- 深色主题适配（深红色背景）
+- 滑入动画效果（slideDown 0.3s）
+- Flexbox 布局
+- 关闭按钮悬停效果
+
+**3. 提交记录**：
+```
+130f976 - docs: 添加错误提示 UI 实现文档
+5c32ee6 - feat(pda): 添加友好的错误提示 UI
+```
+
+### 改进效果
+
+**之前**：使用 `alert()` 弹窗
+- ❌ 阻塞页面交互
+- ❌ 样式无法自定义
+- ❌ 用户体验差
+
+**之后**：使用内联错误提示
+- ✅ 不阻塞页面
+- ✅ 样式可自定义
+- ✅ 用户体验好
+- ✅ 有滑入动画
+- ✅ 可手动关闭
+
+### 代码统计
+- `v3/docs/kline_viewer.html` - +31 行
+- `v3/styles/kline_viewer.css` - +58 行
+- 总计：+89 行
+
+---
+
+## 2026-05-15 晚上 - 合并分支到 main
+
+### 背景
+完成 K 线回放与 PDA 手动标注的所有功能（阶段 0-2），准备合并到 main。
+
+### 执行的操作
+
+**1. 合并分支**：
+```bash
+git checkout main
+git merge feature/chart-display-control --no-ff
+```
+
+**2. 删除已合并的分支**：
+```bash
+git branch -d feature/chart-display-control
+```
+
+**3. 更新文档**：
+- 更新 `v3/TODO.md`：记录合并状态
+- 创建 `v3/sessions/session_20260515_merge_to_main.md`：合并会话记录
+
+**4. 提交记录**：
+```
+1046f4f - docs: 添加分支合并会话记录
+1740b11 - docs: 更新 TODO - 记录 feature/chart-display-control 合并到 main
+1d7c285 - Merge branch 'feature/chart-display-control' into main
+```
+
+### 合并内容
+
+**功能特性**：
+- K 线回放控制（播放/暂停/停止/单步/速度控制/进度保存）
+- PDA 手动添加侧边栏表单（FVG/BSL/SSL）
+- FVG 自动识别逻辑
+- 后端 API 集成和图表刷新
+
+**代码统计**：
+- 新增文件：25 个
+- 代码变更：+8108 行
+- 提交数量：29 个
+
+---
+
 ## 2026-05-15 上午 - 创建图表显示控制功能分支
 
 ### 背景
