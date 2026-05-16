@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDA 关联交互 Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+  h1 {
+      margin-bottom: 20px;
+      color: #4fc3f7;
+    }
+
+    .description {
+      background: #2d2d2d;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border-left: 3px solid #4fc3f7;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .demo-card {
+      background: #252526;
+      border-radius: 4px;
+      padding: 20px;
+      border: 2px solid #3c3c3c;
+      transition: border-color 0.3s;
+    }
+
+    .demo-card:hover {
+      border-color: #4fc3f7;
+    }
+
+    .demo-card h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #4fc3f7;
+    }
+
+    .demo-card h3 {
+      font-size: 14px;
+      margin: 15px 0 10px 0;
+      color: #cccccc;
+    }
+
+    .pros-cons {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .pros-cons ul {
+      margin-left: 20px;
+      margin-top: 5px;
+    }
+
+    .pros {
+      color: #66bb6a;
+    }
+
+    .cons {
+      color: #ef5350;
+    }
+
+    .demo-area {
+      background: #2d2d2d;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+      min-height: 300px;
+    }
+
+    .swing-leg-form {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+    font-size: 12px;
+      color: #888;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+  width: 100%;
+      background: #3c3c3c;
+      border: 1px solid #555;
+      color: #d4d4d4;
+      padding: 6px 10px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .pda-list {
+      max-height: 200px;
+      overflow-y: auto;
+      background: #1e1e1e;
+      border: 1px solid #555;
+      border-radius: 3px;
+      padding: 10px;
+    }
+
+    .pda-item {
+      background: #2d2d2d;
+      padding: 10px;
+      border-radius: 3px;
+      margin-bottom: 8px;
+      border-left: 3px solid;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pda-item:hover {
+      background: #3c3c3c;
+      transform: translateX(4px);
+    }
+
+    .pda-item.selected {
+      background: #0e639c;
+  }
+    .pda-item[data-type="bsl"] { border-left-color: #ef5350; }
+    .pda-item[data-type="ssl"] { border-left-color: #66bb6a; }
+    .pda-item[data-type="fvg"] { border-left-color: #42a5f5; }
+
+    .pda-header {
+      display: flex;
+   justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .pda-type {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .pda-timeframe {
+      background: #3c3c3c;
+    padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    .pda-details {
+      font-size: 12px;
+    color: #888;
+  }
+
+    .pda-role-selector {
+      margin-top: 8px;
+      display: flex;
+    gap: 8px;
+    }
+
+    .pda-role-selector select {
+      flex: 1;
+      background: #3c3c3c;
+      border: 1px solid #555;
+      color: #d4d4d4;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+
+    .selected-pdas {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 3px;
+      margin-top: 10px;
+      min-height: 100px;
+    }
+
+    .selected-pda-item {
+      background: #2d2d2d;
+      padding: 8px;
+      border-radius: 3px;
+      margin-bottom: 6px;
+      display: flex;
+    justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .remove-btn {
+      background: #ef5350;
+      border: none;
+      color: white;
+      padding: 2px 8px;
+   border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .remove-btn:hover {
+      background: #f44336;
+    }
+
+  .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .button-group button {
+      flex: 1;
+      background: #0e639c;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+  .button-group button:hover {
+      background: #1177bb;
+    }
+
+    .button-group button.secondary {
+      background: #2d2d2d;
+      border: 1px solid #555;
+    }
+
+    .button-group button.secondary:hover {
+      background: #3c3c3c;
+    }
+
+    .pda-id-input {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .pda-id-input input {
+      flex: 1;
+    }
+
+    .pda-id-input button {
+      background: #0e639c;
+      border: none;
+      color: white;
+      padding: 6px 16px;
+  border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .pda-id-input button:hover {
+      background: #1177bb;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PDA 关联交互 Demo</h1>
+    <div class="description">
+      <strong>场景：</strong>标注完行情段后，需要关联导致反转的 PDA。<br>
+      <strong>问题：</strong>如何选择和关联 PDA？<br>
+      <strong>请体验三种方案，选择最符合你工作流程的一种。</strong>
+    </div>
+
+    <div class="demo-grid">
+      <!-- 方案 A -->
+      <div class="demo-card">
+        <h2>方案 A：时间范围内 PDA 列表勾选</h2>
+
+        <div class="pros-cons">
+          <h3 class="pros">✅ 优点</h3>
+          <ul class="pros">
+            <li>直观，自动显示相关 PDA</li>
+         <li>不需要记忆 PDA ID</li>
+            <li>可以看到所有候选 PDA</li>
+          </ul>
+
+          <h3 class="cons">❌ 缺点</h3>
+          <ul class="cons">
+            <li>PDA 列表可能很长</li>
+       <li>需要滚动查找</li>
+         <li>只能关联时间范围内的 PDA</li>
+          </ul>
+        </div>
+
+     <div class="demo-area">
+       <div class="swing-leg-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>起点时间</label>
+                <input type="text" value="2012-01-09 09:30" readonly>
+              </div>
+              <div class="form-group">
+            <label>终点时间</label>
+          <input type="text" value="2012-01-09 14:00" readonly>
+              </div>
+            </div>
+        <div class="form-group">
+              <label>方向</label>
+          <select>
+                <option>上涨段 (Bullish)</option>
+                <option>下跌段 (Bearish)</option>
+              </select>
+          </div>
+     </div>
+
+          <h3 style="font-size: 13px; margin-bottom: 10px; color: #cccccc;">
+            该时间范围内的 PDA（点击选择，选择角色）
+          </h3>
+        <div class="pda-list" id="pdaListA">
+            <!-- 动态生成 -->
+          </div>
+
+          <div class="button-group">
+            <button onclick="saveMethodA()">保存行情段</button>
+            <button class="secondary" onclick="cancelMethodA()">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 方案 B -->
+      <div class="demo-card">
+        <h2>方案 B：先选 PDA 再关联</h2>
+
+        <div class="pros-cons">
+          <h3 class="pros">✅ 优点</h3>
+          <ul class="pros">
+            <li>灵活，可跨时间范围关联</li>
+            <li>可以在图表上直观选择</li>
+            <li>支持多次选择</li>
+          </ul>
+
+          <h3 class="cons">❌ 缺点</h3>
+    <ul class="cons">
+            <li>需要两步操作</li>
+            <li>需要先记住要关联的 PDA</li>
+            <li>可能忘记选择</li>
+          </ul>
+      </div>
+
+        <div class="demo-area">
+          <div class="swing-leg-form">
+          <div class="form-row">
+            <div class="form-group">
+            <label>起点时间</label>
+           <input type="text" value="2012-01-09 09:30" readonly>
+              </div>
+              <div class="form-group">
+                <label>终点时间</label>
+              <input type="text" value="2012-01-09 14:00" readonly>
+              </div>
+            </div>
+          <div class="form-group">
+              <label>方向</label>
+            <select>
+              <option>上涨段 (Bullish)</option>
+           <option>下跌段 (Bearish)</option>
+              </select>
+            </div>
+          </div>
+
+          <h3 style="font-size: 13px; margin-bottom: 10px; color: #cccccc;">
+         已选中的 PDA（在图表上点击选择）
+          </h3>
+        <div class="selected-pdas" id="selectedPdasB">
+       <div style="color: #888; font-size: 12px; text-align: center; padding: 20px;">
+              在图表上点击 PDA 进行选择<br>
+        <button style="margin-top: 10px; background: #0e639c; border: none; color: white; padding: 6px 16px; border-radius: 3px; cursor: pointer;" onclick="simulateSelectPdaB()">
+              模拟选择 PDA
+              </button>
+            </div>
+      </div>
+
+          <div class="button-group">
+          <button onclick="saveMethodB()">保存行情段</button>
+            <button class="secondary" onclick="cancelMethodB()">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 方案 C -->
+      <div class="demo-card">
+        <h2>方案 C：输入 PDA ID</h2>
+
+        <div class="pros-cons">
+          <h3 class="pros">✅ 优点</h3>
+          <ul class="pros">
+            <li>最灵活</li>
+            <li>可以关联任何 PDA</li>
+            <li>适合熟悉数据的用户</li>
+          </ul>
+
+          <h3 class="cons">❌ 缺点</h3>
+          <ul class="cons">
+            <li>需要记忆或查找 PDA ID</li>
+            <li>容易输入错误</li>
+            <li>不直观</li>
+          </ul>
+        </div>
+
+        <div class="demo-area">
+          <div class="swing-leg-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>起点时间</label>
+              <input type="text" value="2012-01-09 09:30" readonly>
+          </div>
+        <div class="form-group">
+                <label>终点时间</label>
+              <input type="text" value="2012-01-09 14:00" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>方向</label>
+              <select>
+                <option>上涨段 (Bullish)</option>
+            <option>下跌段 (Bearish)</option>
+              </select>
+          </div>
+          </div>
+
+          <h3 style="font-size: 13px; margin-bottom: 10px; color: #cccccc;">
+            关联的 PDA（输入 PDA ID）
+     </h3>
+          <div class="pda-id-input">
+            <input type="text" id="pdaIdInputC" placeholder="输入 PDA ID，如：bsl_1h_20120109_093000">
+            <button onclick="addPdaByIdC()">添加</button>
+        </div>
+          <div class="selected-pdas" id="selectedPdasC">
+            <div style="color: #888; font-size: 12px; text-align: center; padding: 20px;">
+      暂无关联的 PDA
+         </div>
+       </div>
+
+      <div class="button-group">
+            <button onclick="saveMethodC()">保存行情段</button>
+            <button class="secondary" onclick="cancelMethodC()">取消</button>
+          </div>
+        </div>
+    </div>
+    </div>
+  </div>
+  <script>
+    // 模拟 PDA 数据
+    const mockPdas = [
+      { id: 'bsl_1h_20120109_093000', type: 'bsl', timeframe: '1H', price: 2300.50, time: '2012-01-09 09:30' },
+      { id: 'ssl_1h_20120109_100000', type: 'ssl', timeframe: '1H', price: 2305.25, time: '2012-01-09 10:00' },
+      { id: 'fvg_4h_20120109_080000', type: 'fvg', timeframe: '4H', price: 2298.75, time: '2012-01-09 08:00' },
+      { id: 'bsl_1h_20120109_113000', type: 'bsl', timeframe: '1H', price: 2307.00, time: '2012-01-09 11:30' },
+      { id: 'ssl_1h_20120109_133000', type: 'ssl', timeframe: '1H', price: 2309.50, time: '2012-01-09 13:30' },
+    ];
+
+    // 方案 A：渲染 PDA 列表
+  function renderPdaListA() {
+      const container = document.getElementById('pdaListA');
+      container.innerHTML = mockPdas.map(pda => `
+        <div class="pda-item" data-type="${pda.type}" data-id="${pda.id}" onclick="togglePdaA('${pda.id}')">
+          <div class="pda-header">
+            <span class="pda-type">${pda.type.toUpperCase()}</span>
+            <span class="pda-timeframe">${pda.timeframe}</span>
+       </div>
+          <div class="pda-details">
+            价格: ${pda.price.toFixed(2)} | 时间: ${pda.time}
+      </div>
+          <div class="pda-role-selector" style="display: none;" id="role-${pda.id}">
+            <select onchange="updatePdaRoleA('${pda.id}', this.value)">
+         <option value="">选择角色...</option>
+            <option value="support">支撑 (Support)</option>
+       <option value="resistance">阻力 (Resistance)</option>
+              <option value="trigger">触发 (Trigger)</option>
+            </select>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const selectedPdasA = new Map();
+
+    function togglePdaA(pdaId) {
+      const item = document.querySelector(`[data-id="${pdaId}"]`);
+      const roleSelector = document.getElementById(`role-${pdaId}`);
+
+      if (item.classList.contains('selected')) {
+        item.classList.remove('selected');
+        roleSelector.style.display = 'none';
+        selectedPdasA.delete(pdaId);
+      } else {
+        item.classList.add('selected');
+        roleSelector.style.display = 'flex';
+      }
+    }
+
+    function updatePdaRoleA(pdaId, role) {
+      if (role) {
+        selectedPdasA.set(pdaId, role);
+      } else {
+      selectedPdasA.delete(pdaId);
+      }
+    }
+
+  function saveMethodA() {
+      if (selectedPdasA.size === 0) {
+        alert('请至少选择一个 PDA');
+        return;
+      }
+      const result = Array.from(selectedPdasA.entries()).map(([id, role]) => ({ id, role }));
+      alert(`方案 A 保存成功！\n关联的 PDA:\n${JSON.stringify(result, null, 2)}`);
+    }
+
+    function cancelMethodA() {
+      selectedPdasA.clear();
+      renderPdaListA();
+    }
+
+    // 方案 B：模拟选择 PDA
+    const selectedPdasB = [];
+
+    function simulateSelectPdaB() {
+      const pda = mockPdas[Math.floor(Math.random() * mockPdas.length)];
+      if (selectedPdasB.find(p => p.id === pda.id)) {
+        alert('该 PDA 已选中');
+        return;
+      }
+    selectedPdasB.push({ ...pda, role: '' });
+      renderSelectedPdasB();
+    }
+
+    function renderSelectedPdasB() {
+      const container = document.getElementById('selectedPdasB');
+      if (selectedPdasB.length === 0) {
+        container.innerHTML = '<div style="color: #888; font-size: 12px; text-align: center; padding: 20px;">在图表上点击 PDA 进行选择<br><button style="margin-top: 10px; background: #0e639c; border: none; color: white; padding: 6px 16px; border-radius: 3px; cursor: pointer;" onclick="simulateSelectPdaB()">模拟选择 PDA</button></div>';
+        return;
+      }
+      container.innerHTML = selectedPdasB.map((pda, index) => `
+        <div class="selected-pda-item">
+      <div>
+      <strong>${pda.type.toUpperCase()}</strong> ${pda.timeframe} - ${pda.price.toFixed(2)}
+            <select style="margin-left: 10px; background: #3c3c3c; border: 1px solid #555; color: #d4d4d4; padding: 2px 6px; border-radius: 3px; font-size: 11px;" onchange="updatePdaRoleB(${index}, this.value)">
+           <option value="">选择角色...</option>
+              <option value="support">支撑</option>
+              <option value="resistance">阻力</option>
+              <option value="trigger">触发</option>
+            </select>
+          </div>
+          <button class="remove-btn" onclick="removePdaB(${index})">移除</button>
+        </div>
+      `).join('');
+    }
+
+    function updatePdaRoleB(index, role) {
+      selectedPdasB[index].role = role;
+    }
+
+    function removePdaB(index) {
+      selectedPdasB.splice(index, 1);
+      renderSelectedPdasB();
+    }
+
+    function saveMethodB() {
+      if (selectedPdasB.length === 0) {
+     alert('请至少选择一个 PDA');
+        return;
+      }
+      if (selectedPdasB.some(p => !p.role)) {
+        alert('请为所有 PDA 选择角色');
+     return;
+      }
+      alert(`方案 B 保存成功！\n关联的 PDA:\n${JSON.stringify(selectedPdasB.map(p => ({ id: p.id, role: p.role })), null, 2)}`);
+    }
+
+    function cancelMethodB() {
+      selectedPdasB.length = 0;
+      renderSelectedPdasB();
+    }
+
+    // 方案 C：输入 PDA ID
+    const selectedPdasC = [];
+
+    function addPdaByIdC() {
+      const input = document.getElementById('pdaIdInputC');
+      const pdaId = input.value.trim();
+      if (!pdaId) {
+        alert('请输入 PDA ID');
+        return;
+      }
+      const pda = mockPdas.find(p => p.id === pdaId);
+      if (!pda) {
+        alert('未找到该 PDA ID');
+        return;
+      }
+      if (selectedPdasC.find(p => p.id === pdaId)) {
+        alert('该 PDA 已添加');
+        return;
+      }
+      selectedPdasC.push({ ...pda, role: '' });
+      input.value = '';
+      renderSelectedPdasC();
+    }
+
+    function renderSelectedPdasC() {
+      const container = document.getElementById('selectedPdasC');
+      if (selectedPdasC.length === 0) {
+        container.innerHTML = '<div style="color: #888; font-size: 12px; text-align: center; padding: 20px;">暂无关联的 PDA</div>';
+        return;
+      }
+      container.innerHTML = selectedPdasC.map((pda, index) => `
+        <div class="selected-pda-item">
+          <div>
+          <strong>${pda.type.toUpperCase()}</strong> ${pda.timeframe} - ${pda.price.toFixed(2)}
+            <select style="margin-left: 10px; background: #3c3c3c; border: 1px solid #555; color: #d4d4d4; padding: 2px 6px; border-radius: 3px; font-size: 11px;" onchange="updatePdaRoleC(${index}, this.value)">
+              <option value="">选择角色...</option>
+            <option value="support">支撑</option>
+           <option value="resistance">阻力</option>
+              <option value="trigger">触发</option>
+            </select>
+          </div>
+          <button class="remove-btn" onclick="removePdaC(${index})">移除</button>
+        </div>
+      `).join('');
+    }
+
+    function updatePdaRoleC(index, role) {
+      selectedPdasC[index].role = role;
+    }
+
+    function removePdaC(index) {
+      selectedPdasC.splice(index, 1);
+      renderSelectedPdasC();
+    }
+
+    function saveMethodC() {
+      if (selectedPdasC.length === 0) {
+        alert('请至少添加一个 PDA');
+        return;
+      }
+      if (selectedPdasC.some(p => !p.role)) {
+        alert('请为所有 PDA 选择角色');
+        return;
+      }
+  alert(`方案 C 保存成功！\n关联的 PDA:\n${JSON.stringify(selectedPdasC.map(p => ({ id: p.id, role: p.role })), null, 2)}`);
+    }
+
+  function cancelMethodC() {
+      selectedPdasC.length = 0;
+    renderSelectedPdasC();
+    }
+
+    // 初始化
+    renderPdaListA();
+    renderSelectedPdasB();
+    renderSelectedPdasC();
+  </script>
+</body>
+</html>

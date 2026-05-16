@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>行情段标注交互 Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 20px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #4fc3f7;
+    }
+
+    .description {
+      background: #2d2d2d;
+    padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border-left: 3px solid #4fc3f7;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .demo-card {
+      background: #252526;
+      border-radius: 4px;
+      padding: 20px;
+      border: 2px solid #3c3c3c;
+      transition: border-color 0.3s;
+    }
+
+    .demo-card:hover {
+      border-color: #4fc3f7;
+    }
+
+    .demo-card h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #4fc3f7;
+    }
+
+    .demo-card h3 {
+      font-size: 14px;
+      margin: 15px 0 10px 0;
+      color: #cccccc;
+    }
+
+    .pros-cons {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .pros-cons ul {
+      margin-left: 20px;
+      margin-top: 5px;
+    }
+
+    .pros {
+      color: #66bb6a;
+    }
+
+    .cons {
+      color: #ef5350;
+    }
+
+    .demo-area {
+      background: #2d2d2d;
+   padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+      min-height: 400px;
+    }
+
+    .chart-mock {
+      background: #1e1e1e;
+      border: 1px solid #555;
+      border-radius: 4px;
+      height: 250px;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .kline {
+    position: absolute;
+      width: 8px;
+      background: #26a69a;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .kline.red {
+      background: #ef5350;
+    }
+
+    .kline:hover {
+      opacity: 0.7;
+    }
+
+    .kline.selected {
+      box-shadow: 0 0 0 2px #4fc3f7;
+    }
+
+    .swing-marker {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #4fc3f7;
+      border: 2px solid white;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .swing-marker.low {
+      background: #66bb6a;
+    }
+
+    .swing-marker.high {
+      background: #ef5350;
+    }
+
+    .swing-line {
+      position: absolute;
+      height: 2px;
+    background: #4fc3f7;
+      transform-origin: left center;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .swing-label {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .status-bar {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #888;
+      min-height: 40px;
+    }
+
+    .status-bar.active {
+      color: #4fc3f7;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .button-group button {
+      flex: 1;
+      background: #0e639c;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .button-group button:hover {
+      background: #1177bb;
+    }
+
+    .button-group button.secondary {
+      background: #2d2d2d;
+      border: 1px solid #555;
+    }
+
+    .button-group button.secondary:hover {
+      background: #3c3c3c;
+    }
+
+    .button-group button:disabled {
+      background: #3c3c3c;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .context-menu {
+      position: absolute;
+      background: #252526;
+      border: 1px solid #3c3c3c;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      padding: 4px 0;
+      min-width: 180px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .context-menu.show {
+      display: block;
+    }
+
+    .context-menu-item {
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .context-menu-item:hover {
+      background: #2d2d2d;
+    }
+
+    .context-menu-item.disabled {
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .context-menu-item.disabled:hover {
+      background: transparent;
+    }
+
+    .instruction {
+    background: #1e1e1e;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #888;
+      border-left: 3px solid #4fc3f7;
+    }
+
+    .instruction.highlight {
+      color: #4fc3f7;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>行情段标注交互 Demo</h1>
+    <div class="description">
+      <strong>场景：</strong>在 K 线图上标注 Swing Low 和 Swing High，连线形成行情段。<br>
+      <strong>问题：</strong>如何选择 Swing 点并创建行情段？<br>
+      <strong>请体验三种方案，选择最符合你操作习惯的一种。</strong>
+    </div>
+
+    <div class="demo-grid">
+   <!-- 方案 A -->
+      <div class="demo-card">
+        <h2>方案 A：点击 K 线自动识别</h2>
+
+        <div class="pros-cons">
+          <h3 class="pros">✅ 优点</h3>
+        <ul class="pros">
+          <li>快速，一次点击即可</li>
+            <li>自动识别局部极值</li>
+         <li>减少操作步骤</li>
+    </ul>
+
+          <h3 class="cons">❌ 缺点</h3>
+          <ul class="cons">
+            <li>可能识别错误</li>
+            <li>不够精确</li>
+            <li>需要调整识别参数</li>
+          </ul>
+        </div>
+
+        <div class="demo-area">
+          <div class="instruction" id="instructionA">
+            点击 K 线附近，自动识别最近的 Swing Low/High
+        </div>
+          <div class="chart-mock" id="chartA"></div>
+          <div class="status-bar" id="statusA">
+         等待操作...
+        </div>
+          <div class="button-group">
+            <button onclick="resetA()">重置</button>
+            <button id="saveA" disabled onclick="saveA()">保存行情段</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 方案 B -->
+      <div class="demo-card">
+        <h2>方案 B：手动点击两个点连线</h2>
+
+        <div class="pros-cons">
+          <h3 class="pros">✅ 优点</h3>
+          <ul class="pros">
+            <li>精确，完全手动控制</li>
+            <li>直观，所见即所得</li>
+            <li>不需要算法识别</li>
+          </ul>
+
+          <h3 class="cons">❌ 缺点</h3>
+          <ul class="cons">
+            <li>需要两次点击</li>
+         <li>可能点击不准确</li>
+            <li>操作略繁琐</li>
+          </ul>
+        </div>
+
+        <div class="demo-area">
+          <div class="instruction highlight" id="instructionB">
+            第 1 步：点击起点 K 线（Swing Low/High）
+          </div>
+          <div class="chart-mock" id="chartB"></div>
+          <div class="status-bar" id="statusB">
+          等待选择起点...
+          </div>
+          <div class="button-group">
+            <button onclick="resetB()">重置</button>
+            <button id="saveB" disabled onclick="saveB()">保存行情段</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 方案 C -->
+      <div class="demo-card">
+        <h2>方案 C：右键菜单标记</h2>
+
+        <div class="pros-cons">
+          <h3 class="pros">✅ 优点</h3>
+          <ul class="pros">
+            <li>明确，不会误操作</li>
+         <li>可以先标记多个点</li>
+          <li>支持撤销单个标记</li>
+          </ul>
+
+          <h3 class="cons">❌ 缺点</h3>
+          <ul class="cons">
+            <li>操作步骤最多</li>
+            <li>需要右键菜单</li>
+          <li>学习成本略高</li>
+        </ul>
+      </div>
+
+        <div class="demo-area">
+          <div class="instruction" id="instructionC">
+            右键点击 K 线，选择"标记为 Swing Low/High"
+          </div>
+          <div class="chart-mock" id="chartC"></div>
+          <div class="context-menu" id="contextMenuC">
+            <div class="context-menu-item" onclick="markSwingC('low')">标记为 Swing Low</div>
+            <div class="context-menu-item" onclick="markSwingC('high')">标记为 Swing High</div>
+         <div class="context-menu-item" onclick="createLegC()">创建行情段</div>
+            <div class="context-menu-item" onclick="clearMarksC()">清除所有标记</div>
+          </div>
+          <div class="status-bar" id="statusC">
+            等待操作...
+          </div>
+      <div class="button-group">
+       <button onclick="resetC()">重置</button>
+          <button id="saveC" disabled onclick="saveC()">保存行情段</button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 生成模拟 K 线数据
+    function generateKlines(count) {
+      const klines = [];
+      let price = 2300;
+      for (let i = 0; i < count; i++) {
+        const change = (Math.random() - 0.5) * 10;
+        price += change;
+        klines.push({
+          index: i,
+          high: price + Math.random() * 5,
+          low: price - Math.random() * 5,
+       close: price,
+          isRed: change < 0
+        });
+      }
+      return klines;
+    }
+
+    // 渲染 K 线
+    function renderKlines(containerId, klines) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      const barWidth = 8;
+      const spacing = 12;
+
+      const prices = klines.flatMap(k => [k.high, k.low]);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      const priceRange = maxPrice - minPrice;
+
+      klines.forEach((kline, i) => {
+        const x = i * spacing + 10;
+        const top = ((maxPrice - kline.high) / priceRange) * (height - 20) + 10;
+        const bottom = ((maxPrice - kline.low) / priceRange) * (height - 20) + 10;
+        const barHeight = bottom - top;
+
+        const bar = document.createElement('div');
+        bar.className = `kline ${kline.isRed ? 'red' : ''}`;
+        bar.style.left = x + 'px';
+        bar.style.top = top + 'px';
+        bar.style.height = barHeight + 'px';
+        bar.dataset.index = i;
+        bar.dataset.high = kline.high;
+        bar.dataset.low = kline.low;
+        bar.dataset.x = x + barWidth / 2;
+        bar.dataset.topY = top;
+        bar.dataset.bottomY = bottom;
+
+        container.appendChild(bar);
+      });
+    }
+
+    // 方案 A：自动识别
+    const klinesA = generateKlines(20);
+    const selectedPointsA = [];
+
+    renderKlines('chartA', klinesA);
+
+    document.getElementById('chartA').addEventListener('click', (e) => {
+      if (e.target.classList.contains('kline')) {
+        const index = parseInt(e.target.dataset.index);
+        const swing = findNearestSwing(klinesA, index);
+
+        if (selectedPointsA.length < 2) {
+          selectedPointsA.push(swing);
+          e.target.classList.add('selected');
+
+          const marker = document.createElement('div');
+          marker.className = `swing-marker ${swing.type}`;
+          marker.style.left = e.target.dataset.x + 'px';
+          marker.style.top = (swing.type === 'low' ? e.target.dataset.bottomY : e.target.dataset.topY) + 'px';
+          document.getElementById('chartA').appendChild(marker);
+
+          if (selectedPointsA.length === 2) {
+            drawLine('chartA', selectedPointsA);
+            document.getElementById('statusA').textContent = `已选择 ${selectedPointsA[0].type.toUpperCase()} 和 ${selectedPointsA[1].type.toUpperCase()}`;
+       document.getElementById('statusA').classList.add('active');
+            document.getElementById('saveA').disabled = false;
+          } else {
+            document.getElementById('statusA').textContent = `已选择 ${swing.type.toUpperCase()}，请选择第二个点`;
+          }
+        }
+    }
+    });
+
+    function findNearestSwing(klines, index) {
+      const window = 3;
+      let isHigh = true;
+      let isLow = true;
+
+    for (let i = Math.max(0, index - window); i <= Math.min(klines.length - 1, index + window); i++) {
+        if (i !== index) {
+          if (klines[i].high > klines[index].high) isHigh = false;
+          if (klines[i].low < klines[index].low) isLow = false;
+        }
+      }
+
+      return {
+        index,
+        type: isHigh ? 'high' : (isLow ? 'low' : (Math.random() > 0.5 ? 'high' : 'low')),
+      price: isHigh ? klines[index].high : klines[index].low
+      };
+    }
+
+    function resetA() {
+      selectedPointsA.length = 0;
+      renderKlines('chartA', klinesA);
+      document.getElementById('statusA').textContent = '等待操作...';
+      document.getElementById('statusA').classList.remove('active');
+      document.getElementById('saveA').disabled = true;
+    }
+
+    function saveA() {
+      alert(`方案 A 保存成功！\n起点: ${selectedPointsA[0].type.toUpperCase()} @ ${selectedPointsA[0].price.toFixed(2)}\n终点: ${selectedPointsA[1].type.toUpperCase()} @ ${selectedPointsA[1].price.toFixed(2)}`);
+    }
+
+    // 方案 B：手动点击两个点
+    const klinesB = generateKlines(20);
+    const selectedPointsB = [];
+
+    renderKlines('chartB', klinesB);
+
+    document.getElementById('chartB').addEventListener('click', (e) => {
+      if (e.target.classList.contains('kline') && selectedPointsB.length < 2) {
+        const index = parseInt(e.target.dataset.index);
+      const isHigh = e.offsetY < (e.target.offsetHeight / 2);
+
+        selectedPointsB.push({
+          index,
+          type: isHigh ? 'high' : 'low',
+       price: isHigh ? parseFloat(e.target.dataset.high) : parseFloat(e.target.dataset.low),
+          x: parseFloat(e.target.dataset.x),
+          y: isHigh ? parseFloat(e.target.dataset.topY) : parseFloat(e.target.dataset.bottomY)
+        });
+
+        e.target.classList.add('selected');
+
+        const marker = document.createElement('div');
+        marker.className = `swing-marker ${isHigh ? 'high' : 'low'}`;
+        marker.style.left = e.target.dataset.x + 'px';
+        marker.style.top = (isHigh ? e.target.dataset.topY : e.target.dataset.bottomY) + 'px';
+        document.getElementById('chartB').appendChild(marker);
+
+        if (selectedPointsB.length === 1) {
+          document.getElementById('instructionB').textContent = '第 2 步：点击终点 K 线（Swing High/Low）';
+        document.getElementById('statusB').textContent = `已选择起点 ${selectedPointsB[0].type.toUpperCase()}`;
+        } else {
+          drawLine('chartB', selectedPointsB);
+      document.getElementById('instructionB').textContent = '完成！可以保存行情段';
+          document.getElementById('instructionB').classList.remove('highlight');
+          document.getElementById('statusB').textContent = `已选择 ${selectedPointsB[0].type.toUpperCase()} 和 ${selectedPointsB[1].type.toUpperCase()}`;
+          document.getElementById('statusB').classList.add('active');
+        document.getElementById('saveB').disabled = false;
+        }
+      }
+    });
+
+    function resetB() {
+      selectedPointsB.length = 0;
+      renderKlines('chartB', klinesB);
+      document.getElementById('instructionB').textContent = '第 1 步：点击起点 K 线（Swing Low/High）';
+      document.getElementById('instructionB').classList.add('highlight');
+      document.getElementById('statusB').textContent = '等待选择起点...';
+      document.getElementById('statusB').classList.remove('active');
+      document.getElementById('saveB').disabled = false;
+    }
+
+    function saveB() {
+      alert(`方案 B 保存成功！\n起点: ${selectedPointsB[0].type.toUpperCase()} @ ${selectedPointsB[0].price.toFixed(2)}\n终点: ${selectedPointsB[1].type.toUpperCase()} @ ${selectedPointsB[1].price.toFixed(2)}`);
+    }
+
+    // 方案 C：右键菜单
+    const klinesC = generateKlines(20);
+    const markedPointsC = [];
+    let currentKlineC = null;
+
+    renderKlines('chartC', klinesC);
+
+    document.getElementById('chartC').addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    if (e.target.classList.contains('kline')) {
+     currentKlineC = e.target;
+        const menu = document.getElementById('contextMenuC');
+        menu.style.left = e.pageX + 'px';
+        menu.style.top = e.pageY + 'px';
+      menu.classList.add('show');
+      }
+    });
+
+  document.addEventListener('click', () => {
+      document.getElementById('contextMenuC').classList.remove('show');
+    });
+
+    function markSwingC(type) {
+      if (!currentKlineC) return;
+
+      const index = parseInt(currentKlineC.dataset.index);
+      const price = type === 'high' ? parseFloat(currentKlineC.dataset.high) : parseFloat(currentKlineC.dataset.low);
+
+      markedPointsC.push({
+        index,
+        type,
+        price,
+        x: parseFloat(currentKlineC.dataset.x),
+        y: type === 'high' ? parseFloat(currentKlineC.dataset.topY) : parseFloat(currentKlineC.dataset.bottomY)
+      });
+
+      currentKlineC.classList.add('selected');
+
+      const marker = document.createElement('div');
+      marker.className = `swing-marker ${type}`;
+      marker.style.left = currentKlineC.dataset.x + 'px';
+      marker.style.top = (type === 'high' ? currentKlineC.dataset.topY : currentKlineC.dataset.bottomY) + 'px';
+      document.getElementById('chartC').appendChild(marker);
+
+      document.getElementById('statusC').textContent = `已标记 ${markedPointsC.length} 个点`;
+      document.getElementById('contextMenuC').classList.remove('show');
+    }
+
+    function createLegC() {
+      if (markedPointsC.length < 2) {
+        alert('请至少标记两个点');
+      return;
+      }
+
+      const points = markedPointsC.slice(0, 2);
+      drawLine('chartC', points);
+      document.getElementById('statusC').textContent = `已创建行情段：${points[0].type.toUpperCase()} → ${points[1].type.toUpperCase()}`;
+      document.getElementById('statusC').classList.add('active');
+      document.getElementById('saveC').disabled = false;
+      document.getElementById('contextMenuC').classList.remove('show');
+    }
+
+    function clearMarksC() {
+      markedPointsC.length = 0;
+      renderKlines('chartC', klinesC);
+      document.getElementById('statusC').textContent = '等待操作...';
+      document.getElementById('statusC').classList.remove('active');
+      document.getElementById('saveC').disabled = true;
+      document.getElementById('contextMenuC').classList.remove('show');
+  }
+
+    function resetC() {
+      clearMarksC();
+    }
+
+    function saveC() {
+      const points = markedPointsC.slice(0, 2);
+      alert(`方案 C 保存成功！\n起点: ${points[0].type.toUpperCase()} @ ${points[0].price.toFixed(2)}\n终点: ${points[1].type.toUpperCase()} @ ${points[1].price.toFixed(2)}`);
+  }
+
+    // 绘制连线
+    function drawLine(containerId, points) {
+      if (points.length < 2) return;
+
+      const p1 = points[0];
+      const p2 = points[1];
+
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+      const line = document.createElement('div');
+      line.className = 'swing-line';
+      line.style.left = p1.x + 'px';
+      line.style.top = p1.y + 'px';
+      line.style.width = length + 'px';
+      line.style.transform = `rotate(${angle}deg)`;
+
+      document.getElementById(containerId).appendChild(line);
+    }
+  </script>
+</body>
+</html>

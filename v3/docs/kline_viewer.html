@@ -34,10 +34,180 @@
           <span id="statusText">就绪</span>
         </div>
       </div>
-      <div id="chart"></div>
+
+      <!-- 主内容区域：图表 + 侧边栏 -->
+      <div class="main-content">
+        <!-- 图表区域容器 -->
+        <div class="chart-area">
+          <div id="chart"></div>
+          <!-- 回放控制栏 -->
+          <div id="replayControls" class="replay-controls" style="display: none">
+            <div class="replay-controls-inner">
+              <!-- 播放控制按钮 -->
+              <div class="replay-buttons">
+                <button id="replayStepBackBtn" class="replay-btn" title="后退一根K线">
+                  <span class="icon">⏮</span>
+                </button>
+                <button id="replayPlayBtn" class="replay-btn replay-btn-primary" title="播放/暂停">
+                  <span class="icon" id="replayPlayIcon">▶</span>
+                </button>
+                <button id="replayStopBtn" class="replay-btn" title="停止">
+                  <span class="icon">⏹</span>
+                </button>
+                <button id="replayStepForwardBtn" class="replay-btn" title="前进一根K线">
+                  <span class="icon">⏭</span>
+                </button>
+              </div>
+
+              <!-- 进度条 -->
+              <div class="replay-progress-container">
+                <input
+                  type="range"
+                  id="replayProgressBar"
+                  class="replay-progress-bar"
+                  min="0"
+                  max="100"
+                  value="0"
+                />
+                <div class="replay-time-display">
+                  <span id="replayCurrentTime">--:--</span>
+                  <span class="replay-time-separator">/</span>
+                  <span id="replayTotalTime">--:--</span>
+                </div>
+              </div>
+
+              <!-- 速度控制 -->
+              <div class="replay-speed-control">
+                <span class="replay-speed-label">速度:</span>
+                <select id="replaySpeedSelect" class="replay-speed-select">
+                  <option value="1">1x</option>
+                  <option value="2">2x</option>
+                  <option value="5">5x</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div class="sidebar collapsed" id="pdaFormSidebar">
+          <div class="sidebar-header">
+            <h3 id="sidebarTitle">添加 PDA</h3>
+            <button id="sidebarCloseBtn" class="sidebar-close-btn">×</button>
+          </div>
+
+          <div class="sidebar-body">
+            <!-- PDA 类型（只读显示） -->
+            <div class="form-group">
+              <label class="form-label">PDA 类型</label>
+              <input type="text" id="formPdaType" class="form-input" readonly />
+            </div>
+
+            <!-- 时间周期（只读显示） -->
+            <div class="form-group">
+              <label class="form-label">时间周期</label>
+              <input type="text" id="formTimeframe" class="form-input" readonly />
+            </div>
+
+            <!-- FVG 字段 -->
+            <div id="fvgFields" style="display: none">
+              <div class="form-group">
+                <label class="form-label">起始时间</label>
+                <input
+                  type="text"
+                  id="formFvgStartTime"
+                  class="form-input"
+                  placeholder="2012-01-09 10:00"
+                />
+                <span id="errorFvgStartTime" class="form-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">结束时间</label>
+                <input
+                  type="text"
+                  id="formFvgEndTime"
+                  class="form-input"
+                  placeholder="2012-01-09 10:02"
+                />
+                <span id="errorFvgEndTime" class="form-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">上边界价格</label>
+                <input
+                  type="number"
+                  id="formFvgHigh"
+                  class="form-input"
+                  placeholder="2310.50"
+                  step="0.01"
+                />
+                <span id="errorFvgHigh" class="form-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">下边界价格</label>
+                <input
+                  type="number"
+                  id="formFvgLow"
+                  class="form-input"
+                  placeholder="2305.25"
+                  step="0.01"
+                />
+                <span id="errorFvgLow" class="form-error"></span>
+              </div>
+            </div>
+
+            <!-- BSL/SSL 字段 -->
+            <div id="bslSslFields" style="display: none">
+              <div class="form-group">
+                <label class="form-label">时间</label>
+                <input
+                  type="text"
+                  id="formBslSslTime"
+                  class="form-input"
+                  placeholder="2012-01-09 10:00"
+                />
+                <span id="errorBslSslTime" class="form-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">价格</label>
+                <input
+                  type="number"
+                  id="formBslSslPrice"
+                  class="form-input"
+                  placeholder="2310.50"
+                  step="0.01"
+                />
+                <span id="errorBslSslPrice" class="form-error"></span>
+              </div>
+            </div>
+
+            <!-- 备注（通用） -->
+            <div class="form-group">
+              <label class="form-label">备注（可选）</label>
+              <textarea
+                id="formNotes"
+                class="form-textarea"
+                placeholder="添加备注信息..."
+                rows="3"
+              ></textarea>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="form-actions">
+              <button id="sidebarCancelBtn" class="form-btn form-btn-secondary">取消</button>
+              <button id="sidebarSaveBtn" class="form-btn form-btn-primary">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /main-content -->
+
       <div id="hint" class="hint">
         <p>💡 提示：右键点击 PDA 标记查看详情</p>
-        <p>⌨️ 快捷键：F5 刷新数据 | ESC 关闭菜单</p>
+        <p>⌨️ 快捷键：F5 刷新数据 | ESC 关闭菜单 | 空格 播放/暂停</p>
       </div>
     </div>
 
@@ -50,9 +220,12 @@
       import { showLoading, formatTimeInput } from '../modules/utils.js';
       import { loadPdaData } from '../modules/pda-renderer.js';
       import { findPdaAtPosition } from '../modules/pda-detector.js';
-      import { showPdaMenu, closeContextMenu } from '../modules/context-menu.js';
+      import { showPdaMenu, showBlankAreaMenu, closeContextMenu } from '../modules/context-menu.js';
       import { showPdaDetail, closePdaDetail } from '../modules/pda-detail.js';
       import { initKeyboardNavigation } from '../modules/keyboard.js';
+      import { initReplay, loadReplayData } from '../modules/replay.js';
+      import { showPdaForm, hidePdaForm, setOnSaveCallback } from '../modules/pda-form.js';
+      import { identifyFvg, formatTimestamp } from '../modules/pda-identifier.js';
 
       // ==================
       // 工具函数
@@ -75,6 +248,175 @@
         const hint = document.getElementById('hint');
         if (hint) {
           hint.style.display = 'none';
+        }
+      }
+
+      /**
+       * 处理添加 PDA 请求（右键菜单回调）
+       * @param {string} pdaType - PDA 类型 (fvg, bsl, ssl)
+       * @param {Object} chartCoordinates - 图表坐标 { time, price }
+       */
+      function handleAddPda(pdaType, chartCoordinates) {
+        console.log(`[添加 PDA] 类型: ${pdaType}, 坐标:`, chartCoordinates);
+
+        // 获取当前周期
+        const tfSelect = document.getElementById('tfSelect');
+        const timeframe = parseInt(tfSelect.value);
+
+        // 准备自动填充数据
+        const autoFill = {};
+
+        if (pdaType === 'bsl' || pdaType === 'ssl') {
+          // BSL/SSL: 自动填充点击位置的时间和价格
+          const time = new Date(chartCoordinates.time * 1000);
+          const timeStr = time.toISOString().slice(0, 16).replace('T', ' ');
+          autoFill.time = timeStr;
+          autoFill.price = chartCoordinates.price.toFixed(2);
+        } else if (pdaType === 'fvg') {
+          // FVG: 自动识别逻辑
+          const fvgResult = identifyFvg(state.candleData, chartCoordinates.time);
+
+          if (fvgResult) {
+            // 识别成功，自动填充所有字段
+            console.log('[FVG 识别] 成功:', fvgResult);
+            autoFill.startTime = formatTimestamp(fvgResult.anchorTime);
+            autoFill.endTime = '';
+            autoFill.high = fvgResult.high.toFixed(2);
+            autoFill.low = fvgResult.low.toFixed(2);
+            autoFill.direction = fvgResult.direction; // 保存 direction          } else {
+            // 识别失败，只填充点击位置的时间
+            console.log('[FVG 识别] 未识别到 FVG，请手动输入');
+            const time = new Date(chartCoordinates.time * 1000);
+            const timeStr = time.toISOString().slice(0, 16).replace('T', ' ');
+            autoFill.startTime = timeStr;
+            autoFill.direction = ''; // 未识别时 direction 为空
+          }
+        }
+
+        // 显示侧边栏表单
+        showPdaForm({ pdaType, timeframe, autoFill });
+      }
+
+      /**
+       * 将数字 timeframe 转换为字符串格式
+       * @param {number} tf - 数字格式的 timeframe（如 60）
+       * @returns {string} 字符串格式的 timeframe（如 "1H"）
+       */
+      function convertTimeframeToString(tf) {
+        const map = {
+          1: '1M',
+          5: '5M',
+          15: '15M',
+          30: '30M',
+          60: '1H',
+          240: '4H',
+          1440: 'D',
+          10080: '1W',
+        };
+        return map[tf] || '1H';
+      }
+
+      /**
+       * 保存 PDA 到后端
+       * @param {Object} formData - 表单数据
+       */
+      async function savePda(formData) {
+        console.log('[保存 PDA] 表单数据:', formData);
+
+        try {
+          // 构建 API 请求参数（字段名转换：下划线 → 驼峰）
+          const apiParams = {
+            instrument: 'NQ',
+            timeframe: convertTimeframeToString(formData.timeframe),
+            pdaType: formData.pda_type,
+            direction: '', // FVG 不需要方向，BSL/SSL 会自动推断
+            note: formData.notes || '',
+            memberRefs: '',
+            extraFields: null,
+          };
+
+          // 根据 PDA 类型设置不同的字段
+          if (formData.pda_type === 'fvg') {
+            // FVG: 使用 start_time 作为 anchorTime，end_time 作为 confirmTime
+            apiParams.anchorTime = formData.start_time;
+            apiParams.confirmTime = formData.end_time;
+            apiParams.price = null;
+            apiParams.priceHigh = formData.price_high;
+            apiParams.priceLow = formData.price_low;
+            apiParams.direction = formData.direction || ''; // 使用表单中的 direction
+          } else {
+            // BSL/SSL: 使用 anchor_time
+            apiParams.anchorTime = formData.anchor_time;
+            apiParams.confirmTime = null;
+            apiParams.price = formData.price;
+            apiParams.priceHigh = null;
+            apiParams.priceLow = null;
+          }
+
+          console.log('[保存 PDA] API 请求参数:', apiParams);
+          // 发送 POST 请求
+          const response = await fetch('/v2/pda_manual_add', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(apiParams),
+          });
+
+          const result = await response.json();
+          console.log('[保存 PDA] API 响应:', result);
+
+          if (result.ok) {
+            // 保存成功
+            console.log('[保存 PDA] 保存成功:', result.result);
+            hidePdaForm();
+
+            // 刷新图表显示新 PDA
+            await reloadPdaData();
+
+            updateStatus('PDA 保存成功');
+          } else {
+            // 保存失败
+            console.error('[保存 PDA] 保存失败:', result.error);
+            alert('保存失败: ' + result.error);
+          }
+        } catch (error) {
+          console.error('[保存 PDA] 请求失败:', error);
+          alert('保存失败: ' + error.message);
+        }
+      }
+
+      // 设置保存回调
+      setOnSaveCallback(savePda);
+
+      /**
+       * 重新加载 PDA 数据并刷新图表
+       */
+      async function reloadPdaData() {
+        try {
+          const start = document.getElementById('startInput').value.trim();
+          const end = document.getElementById('endInput').value.trim();
+
+          if (!start || !end) {
+            console.warn('[刷新 PDA] 缺少时间范围，跳过加载');
+            return;
+          }
+
+          console.log('[刷新 PDA] 重新加载 PDA 数据...');
+          updateStatus('加载 PDA 数据...');
+
+          // 加载 PDA 数据
+          await loadPdaData(start, end);
+
+          // 强制图表重绘以显示 PDA 标记
+          state.chart.timeScale().fitContent();
+
+          const pdaCount = state.pdaRecords.length;
+          console.log(`[刷新 PDA] 成功加载 ${pdaCount} 个 PDA`);
+          updateStatus(`已加载 ${pdaCount} 个 PDA`);
+        } catch (error) {
+          console.error('[刷新 PDA] 加载失败:', error);
+          updateStatus(`PDA 加载失败: ${error.message}`, true);
         }
       }
 
@@ -156,14 +498,23 @@
 
           console.log(`✓ 成功加载 ${candleData.length} 根 K线`);
 
-          // 加载 PDA 数据
-          updateStatus('加载 PDA 数据...');
-          await loadPdaData(start, end);
-          // 强制图表重绘以显示 PDA 标记
-          state.chart.timeScale().fitContent();
+          //           // 加载 PDA 数据
+          //           updateStatus('加载 PDA 数据...');
+          //           await loadPdaData(start, end);
+          //           // 强制图表重绘以显示 PDA 标记
+          //           state.chart.timeScale().fitContent();
+          //
+          //           const pdaCount = state.pdaRecords.length;
+          //           updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
+          //
+          //           // 加载回放数据
+          //           loadReplayData(candleData, state.pdaRecords, start, end, parseInt(tf));
 
-          const pdaCount = state.pdaRecords.length;
-          updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
+          // 默认不加载 PDA 数据
+          updateStatus(`已加载 ${candleData.length} 根 K线`);
+
+          // 加载回放数据（PDA 列表为空）
+          loadReplayData(candleData, [], start, end, parseInt(tf));
         } catch (error) {
           console.error('加载失败:', error);
           updateStatus(`错误: ${error.message}`, true);
@@ -205,10 +556,27 @@
           const pda = findPdaAtPosition(e.clientX, e.clientY);
 
           if (pda) {
+            // 点击到 PDA，显示 PDA 菜单
             showPdaMenu(e.clientX, e.clientY, pda, showPdaDetail, updateStatus);
           } else {
-            // 空白区域菜单（暂时禁用）
-            console.log('右键点击空白区域');
+            // 空白区域，显示手动添加 PDA 菜单
+            // 获取点击位置的图表坐标
+            const rect = chartContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const timeScale = state.chart.timeScale();
+            const timestamp = timeScale.coordinateToTime(x);
+            const price = state.candlestickSeries.coordinateToPrice(y);
+
+            const chartCoordinates = {
+              time: timestamp,
+              price: price,
+              clientX: e.clientX,
+              clientY: e.clientY,
+            };
+
+            showBlankAreaMenu(e.clientX, e.clientY, chartCoordinates, handleAddPda);
           }
         });
 
@@ -237,6 +605,7 @@
 
         initChart();
         initEventListeners();
+        initReplay();
 
         updateStatus('就绪');
         console.log('✓ 应用初始化完成');

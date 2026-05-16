@@ -1,13 +1,252 @@
 # V3 开发 TODO
 
-## 当前分支：`main`
+## 当前分支：`feature/chart-display-control`
 
-**最后更新**：2026-05-15 上午  
-**当前状态**：✅ 右键菜单功能已完成并合并到 main，PDA 工作台预研已完成
+**最后更新**：2026-05-15 23:30  
+**当前状态**：✅ 阶段 2 完成，准备创建 PR
+
+**下一步行动**：
+1. **浏览器测试**（可选）
+   - 打开 http://127.0.0.1:8000/v3/docs/kline_viewer.html
+   - 测试完整的 PDA 手动添加流程
+
+2. **创建 PR**
+   - 推送分支：`git push -u origin feature/chart-display-control`
+   - 创建 PR：`feature/chart-display-control` → `main`
+   - PR 标题：`feat: K线回放与PDA手动标注完整功能`
+
+**交接文档**：
+- `v3/sessions/session_20260515_pda_api_integration.md` - API 集成实施记录
+- `v3/sessions/HANDOFF_20260515_2200.md` - 工作状态和 PR 创建指南
+---
+
+## 进行中功能 🔄
+
+### K 线回放与市场结构标注（当前分支）
+
+**分支**：`feature/chart-display-control`  
+**创建时间**：2026-05-15  
+**预计时长**：4 天  
+**计划文档**：`v3/docs/REPLAY_STRUCTURE_PLAN.md`  
+**会话记录**：
+- `v3/sessions/session_20260515_replay_structure_plan.md` - 方案规划
+- `v3/sessions/session_20260515_replay_stage1.md` - 阶段 1 实施
+- `v3/sessions/session_20260515_pda_disable_and_contextmenu.md` - PDA 禁用 & 右键菜单
+- `v3/sessions/session_20260515_pda_form_sidebar.md` - PDA 表单侧边栏实现
+- `v3/sessions/session_20260515_replay_controls_layout_fix.md` - 播放控制栏布局修复
+- `v3/sessions/session_20260515_fvg_identification.md` - FVG 自动识别实现
+
+**核心需求**：
+- K 线回放，模拟实盘观察
+- PDA 标注工作流（确认已扫描 PDA / 手动录入新 PDA）
+- 行情段标注（Swing Low/High 连线，关联 PDA）
+- 市场结构标注（连接行情段，标注 HH/HL、LH/LL）
+
+**数据存储方案**：✅ 混合方案（YAML + DuckDB 镜像）
+- YAML 为真相源：`v2/data/swing_analysis/*.yaml`
+- DuckDB 为查询层：`v2_research.duckdb` 新增表
+- 同步脚本：`v2/scripts/sync_swing_analysis.py`
+
+#### 阶段 0：交互 Demo - 0.5 天
+**状态**：✅ 已完成
+- [x] Demo 1: PDA 关联交互（3 种方案对比）
+- [x] Demo 2: 行情段标注交互（3 种方案对比）
+- [x] Demo 3: 回放进度保存（3 种方案对比）
+- [ ] 根据 demo 反馈确定最终交互方式（待用户体验后确认）
+
+**已创建文件**：
+- `v3/docs/demo_pda_association.html` - PDA 关联交互 demo
+- `v3/docs/demo_swing_annotation.html` - 行情段标注交互 demo
+- `v3/docs/demo_replay_progress.html` - 回放进度保存 demo
+
+#### 阶段 1：K 线回放基础 - 0.5 天
+**状态**：✅ 已完成（2026-05-15）
+
+- [x] 创建回放控制栏 UI
+- [x] 实现播放/暂停/停止功能
+- [x] 实现速度控制（1x/2x/5x）
+- [x] 实现进度条和时间标记
+- [x] 实现单步前进/后退
+- [x] 实现自动保存/恢复进度
+- [x] 实现空格键播放/暂停快捷键
+
+**已创建文件**：
+- `v3/modules/replay.js` - 回放模块（322 行）
+- `v3/sessions/session_20260515_replay_stage1.md` - 实施记录
+
+**用户反馈与修复**：
+- ✅ 修复图表自动缩放问题（commit: eed6aeb）
+  - 问题：每次播放 K 线时图表自动缩放，用户无法保持视图比例
+  - 解决：首次加载时自动缩放，回放过程中保持用户视图
+- ⏸ 右边缘缝隙问题（已搁置）
+  - 问题：首次加载后点击播放，K 线紧贴右边界
+  - 决策：暂时搁置，不影响核心功能
+
+**提交记录**：
+```
+eed6aeb fix: 修复回放时图表自动缩放问题
+abae3c3 feat: 实现 K 线回放基础功能（阶段 1）
+```
+
+#### 阶段 1.5：准备工作 - 0.5 天
+**状态**：✅ 已完成（2026-05-15）
+
+- [x] 默认不显示 PDA（为手动添加功能做准备）
+- [x] 启用空白区域右键菜单
+- [x] 实现菜单项：手动添加 FVG/BSL/SSL（占位符）
+- [x] 实现菜单项：刷新数据
+- [x] 获取点击位置的图表坐标（时间和价格）
+
+**已修改文件**：
+- `v3/docs/kline_viewer.html` - 禁用 PDA 加载 + 修改右键事件处理
+- `v3/modules/context-menu.js` - 新增 `showBlankAreaMenu()` 函数
+- `v3/modules/replay.js` - 回退到 `eed6aeb` 版本
+
+**提交记录**：
+```
+aa2d7e0 feat: 禁用 PDA 显示 & 启用空白区域右键菜单
+```
+
+#### 阶段 2：PDA 标注工作流 - 1 天
+**状态**：✅ 已完成（2026-05-15）
+
+**任务 #1：PDA 录入侧边栏 UI** - ✅ 已完成（2026-05-15）
+- [x] 参考 demo_02_sidebar_layout.html 实现 flex 布局侧边栏
+- [x] HTML 结构：表单字段（FVG/BSL/SSL）、验证提示、操作按钮
+- [x] CSS 样式：使用 margin-right 负值折叠，侧边栏宽度 400px
+- [x] JS 模块（pda-form.js）：显示/隐藏、字段切换、验证、自动填充
+- [x] 时间输入框自动格式化（blur 事件）
+- [x] 右键菜单集成：添加回调参数，连接 handleAddPda 函数
+- [x] 修复图表 resize：添加 ResizeObserver 监听容器大小变化
+
+**已创建文件**：
+- `v3/modules/pda-form.js` - 表单模块（285 行）
+
+**已修改文件**：
+- `v3/docs/kline_viewer.html` - HTML 结构 + 回调函数（+130 行）
+- `v3/styles/kline_viewer.css` - 侧边栏样式（+186 行）
+- `v3/modules/context-menu.js` - 添加回调参数（+3 行）
+- `v3/modules/chart.js` - 添加 ResizeObserver（+9 行）
+**提交记录**：
+```
+f63af9b fix(chart): 添加 ResizeObserver 监听容器大小变化
+eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
+```
+
+**Bug 修复**：
+- ✅ 修复播放控制栏遮挡时间轴问题（commit: fb9e411）
+  - 问题：播放控制栏使用 fixed 定位，遮挡图表底部时间轴
+  - 解决：将播放控制栏移到 chart-area 内部，使用 flexbox 垂直布局
+- ✅ 修复播放控制栏不可见问题（commit: 8fecab4）
+  - 问题：播放控制栏被图表挤出可视区域
+  - 解决：添加 flex-shrink: 0 和 min-height: 0
+
+**提交记录**：
+```
+8fecab4 fix(chart): 确保播放控制栏可见
+fb9e411 fix(chart): 修复播放控制栏遮挡时间轴的问题
+f63af9b fix(chart): 添加 ResizeObserver 监听容器大小变化
+eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
+```
+
+**功能验证**：
+- ✅ 侧边栏展开/折叠动画流畅
+- ✅ 图表自动调整大小，价格刻度不被遮挡
+- ✅ 自动填充功能正常（BSL/SSL 的时间和价格）
+- ✅ 时间格式化功能正常（8 位/12 位数字）
+- ✅ 表单验证功能正常
+- ✅ ESC 键关闭侧边栏
+- ✅ 播放控制栏不遮挡时间轴
+
+**任务 #2：FVG 自动识别逻辑** - ✅ 已完成（2026-05-15）
+- [x] 创建 pda-identifier.js 模块
+- [x] 实现 identifyFvg() 函数：检查点击位置前后 K 线是否形成 FVG
+- [x] 支持 3 种情况：点击 K1/K2/K3
+- [x] 识别成功自动填充锚点时间（K2）、上下边界
+- [x] 识别失败只填充点击位置时间，提示手动输入
+- [x] 修复 state.candleData 不存在问题
+- [x] 修复字段名不匹配问题（high/low vs priceHigh/priceLow）
+- [x] 修复时区问题（使用 UTC 时间）
+
+**已创建文件**：
+- `v3/modules/pda-identifier.js` - PDA 识别模块（135 行）
+
+**已修改文件**：
+- `v3/modules/chart.js` - 添加 candleData 存储（+4 行）
+- `v3/modules/pda-form.js` - 修复字段名兼容（+2 行）
+- `v3/docs/kline_viewer.html` - 集成识别逻辑（+15 行）
+**提交记录**：
+```
+03521c2 fix(pda): 修复时间格式化 - 使用 UTC 时间
+84a73da fix(pda): 修正 FVG 识别逻辑 - 使用锚点时间
+45901d0 fix(pda-form): 修复 FVG 字段名不匹配问题
+e6bfcc9 debug(pda): 添加 FVG 识别调试日志
+7d6a6da fix(chart): 存储完整 K 线数据到 state.candleData
+6b49260 feat(pda): 实现 FVG 自动识别逻辑
+```
+
+**FVG 定义澄清**：
+- FVG 只有一个锚点时间（K2，中间 K 线）
+- FVG 是价格缺口区域，不是时间范围
+- 向上 FVG: K1.low > K3.high，缺口在 [K3.high, K1.low]
+- 向下 FVG: K1.high < K3.low，缺口在 [K1.high, K3.low]
+
+**功能验证**：
+- ✅ 点击 FVG 的 K2：识别成功，自动填充所有字段
+- ✅ 点击 FVG 的 K1：识别成功，自动填充所有字段
+- ✅ 点击 FVG 的 K3：识别成功，自动填充所有字段
+- ✅ 点击非 FVG 位置：识别失败，只填充点击时间
+- ✅ 时间显示正确（UTC 时间，与图表一致）
+- ✅ 价格范围正确（缺口的上下边界）
+
+**任务 #3：后端 API 集成** - ✅ 已完成（2026-05-15）
+- [x] 实现 `savePda()` 函数调用后端 API
+- [x] 字段名转换：下划线 → 驼峰（pda_type → pdaType）
+- [x] 添加 `convertTimeframeToString()` 函数（60 → "1H"）
+- [x] 修复 FVG direction 问题（添加 direction 字段）
+- [x] 处理成功/失败响应
+- [x] API 测试成功
+
+**任务 #4：刷新图表显示新 PDA** - ✅ 已完成（2026-05-15）
+- [x] 实现 `reloadPdaData()` 函数
+- [x] 保存成功后重新加载 PDA 数据
+- [x] 强制图表重绘显示新 PDA
+
+**提交记录**：
+```
+686c29e fix(pda): 修复 FVG 保存 - 添加 direction 和 timeframe 转换
+13727d4 feat(pda): 实现 PDA 手动添加的 API 集成和图表刷新
+```
+
+**API 测试**：
+- ✅ FVG 创建成功（带 direction 和字符串 timeframe）
+- ✅ 返回完整的 PDA 记录
+- ✅ pdaId 格式正确：`pda_20120109_1H_fvg_manual_001`
+
+**会话记录**：
+- `v3/sessions/session_20260515_pda_api_integration.md` - API 集成实施记录
+
+#### 阶段 3：行情段标注 - 1.5 天
+**状态**：⏸ 待开始
+
+- [ ] Swing Low/High 手动标记
+- [ ] 行情段连线渲染
+- [ ] PDA 关联（根据 demo 确定的方式）
+- [ ] 保存到 YAML 文件
+- [ ] 同步脚本（YAML → DuckDB）
+
+#### 阶段 4：市场结构标注 - 1 天
+**状态**：⏸ 待开始
+
+- [ ] 行情段组合
+- [ ] 结构类型标注（HH_HL/LH_LL）
+- [ ] 保存到 YAML 文件
+- [ ] 同步脚本更新
 
 ---
 
 ## 已完成功能 ✅
+
 ### 右键菜单功能（已合并到 main - 2026-05-15）
 
 **合并提交**：`2d54dc5`  
