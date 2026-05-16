@@ -18,6 +18,10 @@ const LIQUIDITY_DEFAULTS = {
   lineStyle: 'solid', // 线条样式：'solid' 或 'dashed'
 };
 
+const SEGMENT_DEFAULTS = {
+  lineWidth: 2,
+};
+
 // ============================
 // FVG 矩形渲染（基于官方 Rectangle Drawing Tool）
 // ==============================
@@ -263,6 +267,84 @@ export class LiquidityPrimitive {
     this._position = position;
     this._options = { ...LIQUIDITY_DEFAULTS, ...options };
     this._view = new LiquidityView(this);
+  }
+
+  updateAllViews() {
+    this._view.update();
+  }
+
+  paneViews() {
+    return [this._view];
+  }
+}
+
+class SegmentRenderer {
+  constructor(view) {
+    this._view = view;
+  }
+
+  draw(target) {
+    target.useBitmapCoordinateSpace((scope) => {
+      const p1 = this._view._p1;
+      const p2 = this._view._p2;
+      if (p1.x === null || p1.y === null || p2.x === null || p2.y === null) {
+        return;
+      }
+
+      const source = this._view._source;
+      const ctx = scope.context;
+      const hRatio = scope.horizontalPixelRatio;
+      const vRatio = scope.verticalPixelRatio;
+
+      ctx.strokeStyle = source._lineColor;
+      ctx.lineWidth = source._options.lineWidth * Math.min(hRatio, vRatio);
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(p1.x * hRatio, p1.y * vRatio);
+      ctx.lineTo(p2.x * hRatio, p2.y * vRatio);
+      ctx.stroke();
+    });
+  }
+}
+
+class SegmentView {
+  constructor(source) {
+    this._source = source;
+    this._p1 = { x: null, y: null };
+    this._p2 = { x: null, y: null };
+  }
+
+  update() {
+    const series = this._source._series;
+    const chart = this._source._chart;
+    const timeScale = chart.timeScale();
+
+    this._p1 = {
+      x: timeScale.timeToCoordinate(this._source._startTime),
+      y: series.priceToCoordinate(this._source._startPrice),
+    };
+    this._p2 = {
+      x: timeScale.timeToCoordinate(this._source._endTime),
+      y: series.priceToCoordinate(this._source._endPrice),
+    };
+  }
+
+  renderer() {
+    return new SegmentRenderer(this);
+  }
+}
+
+export class SegmentPrimitive {
+  constructor(chart, series, startTime, startPrice, endTime, endPrice, lineColor, options = {}) {
+    this._chart = chart;
+    this._series = series;
+    this._startTime = startTime;
+    this._startPrice = startPrice;
+    this._endTime = endTime;
+    this._endPrice = endPrice;
+    this._lineColor = lineColor;
+    this._options = { ...SEGMENT_DEFAULTS, ...options };
+    this._view = new SegmentView(this);
   }
 
   updateAllViews() {

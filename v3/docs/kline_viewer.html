@@ -30,6 +30,7 @@
           </select>
         </div>
         <button id="loadBtn">加载</button>
+        <button id="exportSwingYamlBtn">导出 YAML</button>
         <div class="status-bar">
           <span id="statusText">就绪</span>
         </div>
@@ -238,7 +239,17 @@
       import { initReplay, loadReplayData } from '../modules/replay.js';
       import { showPdaForm, hidePdaForm, setOnSaveCallback } from '../modules/pda-form.js';
       import { identifyFvg } from '../modules/pda-identifier.js';
-      import { addSwingLow, addSwingHigh, addFvgAnnotation } from '../modules/annotation.js';
+      import {
+        addSwingLow,
+        addSwingHigh,
+        addFvgAnnotation,
+        createSegmentFromRecentSwings,
+        undoLastStage3Action,
+        clearStage3Annotations,
+        hasDirtyStage3Annotations,
+        buildSwingLegYaml,
+        markStage3AnnotationsExported,
+      } from '../modules/annotation.js';
 
       // ==================
       // 工具函数
@@ -348,25 +359,86 @@
         errorDiv.style.display = 'none';
       }
 
+      function getSessionDate() {
+        const startValue = document.getElementById('startInput').value.trim();
+        const fallback = formatTimestamp(
+          state.candleData?.[0]?.time || Math.floor(Date.now() / 1000)
+        ).slice(0, 10);
+        if (!startValue) {
+          return fallback;
+        }
+        const formatted = formatTimeInput(startValue);
+        return formatted.slice(0, 10) || fallback;
+      }
+
+      function getGeneratedAt() {
+        const now = new Date();
+        const year = now.getUTCFullYear();
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        const hour = String(now.getUTCHours()).padStart(2, '0');
+        const minute = String(now.getUTCMinutes()).padStart(2, '0');
+        const second = String(now.getUTCSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+      }
+
+      function confirmDiscardStage3Annotations() {
+        if (hasDirtyStage3Annotations()) {
+          const confirmed = window.confirm(
+            '当前有未导出的阶段 3 标注。继续后会清空这些标注，是否继续？'
+          );
+          if (!confirmed) {
+            return false;
+          }
+        }
+
+        clearStage3Annotations();
+        return true;
+      }
+
+      function exportSwingYaml() {
+        try {
+          const sessionDate = getSessionDate();
+          const yaml = buildSwingLegYaml({
+            date: sessionDate,
+            timeframe: convertTimeframeToString(
+              parseInt(document.getElementById('tfSelect').value, 10)
+            ),
+            generatedAt: getGeneratedAt(),
+          });
+
+          const blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${sessionDate}.yaml`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          markStage3AnnotationsExported();
+          updateStatus('阶段 3 YAML 导出成功');
+        } catch (error) {
+          console.error('[导出 YAML] 失败:', error);
+          updateStatus(`导出 YAML 失败: ${error.message}`, true);
+        }
+      }
+
       // 错误提示关闭按钮事件
       document.getElementById('apiErrorCloseBtn').addEventListener('click', hideApiError);
 
       /**
-        * 保存 PDA 到后端
-        * @param {Object} formData - 表单数据
-       /**
-        * 根据时间戳查找 K 线数据
-        * @param {number} timestamp - 时间戳（秒）
-        * @returns {Object|null} K 线数据或 null
-        */
+       * 根据时间戳查找 K 线数据
+       * @param {number} timestamp - 时间戳（秒）
+       * @returns {Object|null} K 线数据或 null
+       */
       function findBarAtTime(timestamp) {
         if (!state.candleData || state.candleData.length === 0) {
           return null;
         }
 
-        // 查找最接近的 K 线（容差：半根 K 线）
-        const timeframe = parseInt(document.getElementById('tfSelect').value);
-        const tolerance = (timeframe * 60) / 2; // 秒
+        const timeframe = parseInt(document.getElementById('tfSelect').value, 10);
+        const tolerance = (timeframe * 60) / 2;
 
         for (const bar of state.candleData) {
           if (Math.abs(bar.time - timestamp) <= tolerance) {
@@ -379,7 +451,7 @@
 
       /**
        * 处理标注请求（右键菜单回调）
-       * @param {string} annotationType - 标注类型 (swingLow, swingHigh, fvg)
+       * @param {string} annotationType - 标注类型
        * @param {Object} barData - K 线数据 { time, open, high, low, close }
        * @param {number} timeframe - 周期（分钟）
        */
@@ -388,19 +460,26 @@
 
         try {
           if (annotationType === 'swingLow') {
-            // 标注 Swing Low
             addSwingLow(barData.time, barData.low, timeframe);
             updateStatus(`已标注 Swing Low: ${barData.low.toFixed(2)}`);
           } else if (annotationType === 'swingHigh') {
-            // 标注 Swing High
             addSwingHigh(barData.time, barData.high, timeframe);
             updateStatus(`已标注 Swing High: ${barData.high.toFixed(2)}`);
+          } else if (annotationType === 'createSegment') {
+            const { startSwing, endSwing, segment } = createSegmentFromRecentSwings();
+            updateStatus(
+              `已创建行情段: ${segment.direction} ${startSwing.price.toFixed(2)} → ${endSwing.price.toFixed(2)}`
+            );
+          } else if (annotationType === 'undoStage3') {
+            undoLastStage3Action();
+            updateStatus('已撤销上一步阶段 3 标注');
+          } else if (annotationType === 'clearStage3') {
+            clearStage3Annotations();
+            updateStatus('已清空阶段 3 标注');
           } else if (annotationType === 'fvg') {
-            // 标注 FVG：使用 FVG 识别逻辑
             const fvgResult = identifyFvg(state.candleData, barData.time);
 
             if (fvgResult) {
-              // 识别成功，绘制 FVG 标注
               addFvgAnnotation(
                 fvgResult.anchorTime,
                 fvgResult.high,
@@ -412,7 +491,6 @@
                 `已标注 FVG: ${fvgResult.direction} [${fvgResult.low.toFixed(2)} - ${fvgResult.high.toFixed(2)}]`
               );
             } else {
-              // 识别失败
               updateStatus('未识别到 FVG，请点击 FVG 的 K1/K2/K3 位置', true);
             }
           }
@@ -528,7 +606,12 @@
        */
       function refreshData() {
         console.log('[快捷键] F5 刷新数据');
-        // 先格式化时间输入
+
+        if (!confirmDiscardStage3Annotations()) {
+          updateStatus('已取消刷新，保留阶段 3 标注');
+          return;
+        }
+
         const startInput = document.getElementById('startInput');
         const endInput = document.getElementById('endInput');
         startInput.value = formatTimeInput(startInput.value.trim());
@@ -548,6 +631,11 @@
        */
       async function loadKlineData() {
         console.log('[loadKlineData] 开始执行');
+
+        if (!confirmDiscardStage3Annotations()) {
+          updateStatus('已取消加载，保留阶段 3 标注');
+          return;
+        }
 
         // 先格式化时间输入（防止用户输入后直接点击加载，未触发 blur）
         const startInput = document.getElementById('startInput');
@@ -663,6 +751,7 @@
 
         // 加载按钮
         document.getElementById('loadBtn').addEventListener('click', loadKlineData);
+        document.getElementById('exportSwingYamlBtn').addEventListener('click', exportSwingYaml);
 
         // 周期切换
         document.getElementById('tfSelect').addEventListener('change', () => {

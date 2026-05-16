@@ -346,6 +346,33 @@ export function showKlineMenu(x, y, barData, timeframe, onAnnotate) {
       },
     },
     {
+      icon: '📈',
+      label: '创建行情段',
+      action: () => {
+        console.log('[操作] 创建行情段');
+        if (onAnnotate) onAnnotate('createSegment', barData, timeframe);
+      },
+    },
+    {
+      icon: '↩️',
+      label: '撤销上一步',
+      action: () => {
+        console.log('[操作] 撤销上一步');
+        if (onAnnotate) onAnnotate('undoStage3', barData, timeframe);
+      },
+    },
+    {
+      icon: '🧹',
+      label: '清空阶段3标注',
+      action: () => {
+        console.log('[操作] 清空阶段3标注');
+        if (onAnnotate) onAnnotate('clearStage3', barData, timeframe);
+      },
+    },
+    {
+      type: 'divider',
+    },
+    {
       icon: '📍',
       label: '标注 FVG',
       action: () => {
