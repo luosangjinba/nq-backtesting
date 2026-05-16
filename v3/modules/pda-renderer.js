@@ -224,7 +224,9 @@ class LiquidityView {
         rightX = timeScale.logicalToCoordinate(logical + this._source._options.lineLength);
       }
     } else {
-      console.warn('[DEBUG] anchorCoord 为 null，标记不会显示:', this._source._label);
+      // 锚点时间不在当前图表范围内，标记不会显示
+      // 这是正常情况（例如切换周期后，某些 PDA 的时间点不在新周期的 K 线上）
+      // console.debug('[DEBUG] anchorCoord 为 null，标记不会显示:', this._source._label);
     }
 
     this._p1 = { x: anchorCoord, y };
