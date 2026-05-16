@@ -2,17 +2,27 @@
 
 ## 当前分支：`feature/chart-display-control`
 
-**最后更新**：2026-05-15 22:00  
-**当前状态**：✅ 阶段 2 任务 #1 和 #2 完成，待创建 PR
+**最后更新**：2026-05-15 16:45  
+**当前状态**：✅ 阶段 2 任务 #1 和 #2 完成，任务 #3 和 #4 待开始
+
+**⚠️ 重要**：上下文清理前的完整状态保存在 `v3/sessions/session_20260515_context_clear.md`
 
 **下一步行动**：
-1. 推送分支到远程：`git push -u origin feature/chart-display-control`
-2. 创建 PR：参考 `v3/tmp/CREATE_PR_GUIDE.md`
-3. PR 合并后，创建新分支：`git checkout -b feature/pda-api-integration`
-4. 继续开发任务 #3（API 集成）和任务 #4（图表刷新）
+1. **选项 1（推荐）**：继续完成阶段 2 任务 #3 和 #4
+   - 实现 API 集成（`savePda()` 函数）
+   - 实现图表刷新显示
+   - 测试完整流程
+   - 创建 PR
 
-**交接文档**：`v3/sessions/HANDOFF_20260515_2200.md`（完整的工作状态和恢复指南）
+2. **选项 2**：先创建 PR，再继续开发
+   - 推送当前分支：`git push -u origin feature/chart-display-control`
+   - 创建 PR：`feature/chart-display-control` → `main`
+   - 创建新分支：`git checkout -b feature/pda-api-integration`
+   - 继续开发任务 #3 和 #4
 
+**交接文档**：
+- `v3/sessions/session_20260515_context_clear.md` - **上下文清理前的完整状态**
+- `v3/sessions/HANDOFF_20260515_2200.md` - 工作状态和 PR 创建指南
 ---
 
 ## 进行中功能 🔄
