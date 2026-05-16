@@ -2,8 +2,8 @@
 
 ## 当前分支：`main`
 
-**最后更新**：2026-05-16 16:30  
-**当前状态**：✅ 时间输入框格式化问题已修复，所有功能正常
+**最后更新**：2026-05-16 17:00  
+**当前状态**：✅ 周期切换 bug 已修复，所有功能正常
 
 **重要提醒**：
 - ⚠️ 静态文件服务器必须在 `v3` 目录运行（不是 `v3/docs`），否则 CSS 无法加载
@@ -20,11 +20,12 @@
    - **开发前先查阅，避免重复造轮子**
 
 2. **最近会话记录**
-   - `v3/sessions/session_20260516_time_input_fix.md` - 时间输入框格式化修复（2026-05-16 16:30，最新）
+   - `v3/sessions/session_20260516_timeframe_switch_fix.md` - 周期切换 bug 修复（2026-05-16 17:00，最新）
+   - `v3/sessions/session_20260516_time_input_fix.md` - 时间输入框格式化修复（2026-05-16 16:30）
    - `v3/sessions/session_20260516_code_review.md` - 代码整理（2026-05-16 15:30）
    - `v3/sessions/session_20260516_annotation_render_fix.md` - 标注渲染修复（2026-05-16 04:42）
-
 3. **当前代码状态**
+   - ✅ 周期切换 bug 已修复（添加 change 事件监听器）
    - ✅ 时间输入框格式化问题已修复（导入错误 + 主动格式化）
    - ✅ 代码整理完成（删除未使用模块、统一时间格式化）
    - ✅ 文档完善（模块索引、功能速查表、质量报告）
@@ -36,6 +37,11 @@
    - **选项 3**：根据 `CODE_QUALITY_REPORT.md` 的建议进行代码优化
 
 **最近更新**：
+- `session_20260516_timeframe_switch_fix.md` - 周期切换 bug 修复（2026-05-16 17:00，最新）
+  - 问题：点击周期下拉菜单选择新周期后，图表不切换为新周期的 K 线
+  - 根因：tfSelect 没有绑定 change 事件监听器
+  - 解决：在 initEventListeners() 中添加 change 事件，检测到周期变化时自动调用 refreshData()
+  - 验证：切换周期后图表自动刷新，显示新周期的 K 线和 PDA
 - `session_20260516_time_input_fix.md` - 时间输入框格式化问题修复
   - 修复 formatTimestamp 导入错误（从 pda-identifier.js 改为 utils.js）
   - 在 loadKlineData() 和 refreshData() 开头主动格式化输入
@@ -56,14 +62,7 @@
 
 ## 已知 Bug 🐞
 
-- [ ] **周期切换下拉菜单切换后图表不刷新**
-  - 现象：点击 `周期` 下拉菜单选择新周期（例如 1H → 15M），图表不切换为新周期的 K 线
-  - 推测：`tfSelect` 的 `change` 事件没有触发 reload，或 `loadBars()` 调用时仍使用旧 timeframe
-  - 排查方向：
-    - 检查 `v3/docs/kline_viewer.html` 中 `tfSelect` 的事件监听
-  - 确认 `loadBars()` 是否读取最新的 `tfSelect.value`
-    - 检查 PDA 数据是否一并刷新（`loadPdaData` 调用时机）
-  - 优先级：中（不影响标注功能验证，但影响多周期工作流）
+**无** - 所有已知 bug 已修复
 
 ---
 
