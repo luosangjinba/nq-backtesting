@@ -224,7 +224,7 @@
       // 模块导入
       // ===========================
       import { state, API_BASE, initChart, updateChartData } from '../modules/chart.js';
-      import { showLoading, formatTimeInput } from '../modules/utils.js';
+      import { showLoading, formatTimeInput, formatTimestamp } from '../modules/utils.js';
       import { loadPdaData } from '../modules/pda-renderer.js';
       import { findPdaAtPosition } from '../modules/pda-detector.js';
       import {
@@ -237,7 +237,7 @@
       import { initKeyboardNavigation } from '../modules/keyboard.js';
       import { initReplay, loadReplayData } from '../modules/replay.js';
       import { showPdaForm, hidePdaForm, setOnSaveCallback } from '../modules/pda-form.js';
-      import { identifyFvg, formatTimestamp } from '../modules/pda-identifier.js';
+      import { identifyFvg } from '../modules/pda-identifier.js';
       import { addSwingLow, addSwingHigh, addFvgAnnotation } from '../modules/annotation.js';
 
       // ==================
