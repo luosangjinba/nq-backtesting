@@ -1,32 +1,37 @@
 # V3 开发 TODO
 
-## 当前分支：`feature/chart-display-control`
+## 当前分支：`main`
 
-**最后更新**：2026-05-15 23:30  
-**当前状态**：✅ 阶段 2 完成，准备创建 PR
+**最后更新**：2026-05-15 23:45  
+**当前状态**：✅ K 线回放与 PDA 手动标注功能已合并到 main
 
 **下一步行动**：
-1. **浏览器测试**（可选）
-   - 打开 http://127.0.0.1:8000/v3/docs/kline_viewer.html
-   - 测试完整的 PDA 手动添加流程
+1. **开始新功能**
+   - 创建新分支开发阶段 3（行情段标注）
+   - 或者开发其他功能
 
-2. **创建 PR**
-   - 推送分支：`git push -u origin feature/chart-display-control`
-   - 创建 PR：`feature/chart-display-control` → `main`
-   - PR 标题：`feat: K线回放与PDA手动标注完整功能`
+2. **推送到远程**（可选）
+   - `git push origin main`
 
-**交接文档**：
-- `v3/sessions/session_20260515_pda_api_integration.md` - API 集成实施记录
-- `v3/sessions/HANDOFF_20260515_2200.md` - 工作状态和 PR 创建指南
+**最近合并**：
+- `1d7c285` - Merge branch 'feature/chart-display-control' into main
+- 功能：K 线回放 + PDA 手动标注完整工作流
+- 代码：+8108 行，29 个提交
 ---
 
 ## 进行中功能 🔄
 
-### K 线回放与市场结构标注（当前分支）
+**无** - 所有功能已合并到 main
 
-**分支**：`feature/chart-display-control`  
-**创建时间**：2026-05-15  
-**预计时长**：4 天  
+---
+
+## 已完成功能 ✅
+
+### K 线回放与 PDA 手动标注（已合并 - 2026-05-15）
+
+**分支**：`feature/chart-display-control` → `main`  
+**合并提交**：`1d7c285`  
+**开发时间**：2026-05-15  
 **计划文档**：`v3/docs/REPLAY_STRUCTURE_PLAN.md`  
 **会话记录**：
 - `v3/sessions/session_20260515_replay_structure_plan.md` - 方案规划
