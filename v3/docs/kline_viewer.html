@@ -528,8 +528,14 @@
        */
       function refreshData() {
         console.log('[快捷键] F5 刷新数据');
-        const start = document.getElementById('startInput').value.trim();
-        const end = document.getElementById('endInput').value.trim();
+        // 先格式化时间输入
+        const startInput = document.getElementById('startInput');
+        const endInput = document.getElementById('endInput');
+        startInput.value = formatTimeInput(startInput.value.trim());
+        endInput.value = formatTimeInput(endInput.value.trim());
+
+        const start = startInput.value.trim();
+        const end = endInput.value.trim();
         if (start && end) {
           loadKlineData();
         } else {
@@ -541,7 +547,13 @@
        * 加载 K线数据
        */
       async function loadKlineData() {
-        const start = document.getElementById('startInput').value.trim();
+        // 先格式化时间输入（防止用户输入后直接点击加载，未触发 blur）
+        const startInput = document.getElementById('startInput');
+        const endInput = document.getElementById('endInput');
+        startInput.value = formatTimeInput(startInput.value.trim());
+        endInput.value = formatTimeInput(endInput.value.trim());
+
+        const start = startInput.value.trim();
         const end = document.getElementById('endInput').value.trim();
         const tf = document.getElementById('tfSelect').value;
 
