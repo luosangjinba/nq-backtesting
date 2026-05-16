@@ -547,14 +547,26 @@
        * 加载 K线数据
        */
       async function loadKlineData() {
+        console.log('[loadKlineData] 开始执行');
+
         // 先格式化时间输入（防止用户输入后直接点击加载，未触发 blur）
         const startInput = document.getElementById('startInput');
         const endInput = document.getElementById('endInput');
+
+        console.log('[loadKlineData] 原始输入:', {
+          start: startInput.value,
+          end: endInput.value,
+        });
+
         startInput.value = formatTimeInput(startInput.value.trim());
         endInput.value = formatTimeInput(endInput.value.trim());
+        console.log('[loadKlineData] 格式化后:', {
+          start: startInput.value,
+          end: endInput.value,
+        });
 
         const start = startInput.value.trim();
-        const end = document.getElementById('endInput').value.trim();
+        const end = endInput.value.trim();
         const tf = document.getElementById('tfSelect').value;
 
         // 验证输入
