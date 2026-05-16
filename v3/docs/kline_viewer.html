@@ -664,6 +664,15 @@
         // 加载按钮
         document.getElementById('loadBtn').addEventListener('click', loadKlineData);
 
+        // 周期切换
+        document.getElementById('tfSelect').addEventListener('change', () => {
+          console.log('[周期切换] 触发重新加载');
+          // 如果已经加载过数据，则自动刷新
+          if (state.candleData && state.candleData.length > 0) {
+            refreshData();
+          }
+        });
+
         // 时间输入框格式化
         ['startInput', 'endInput'].forEach((id) => {
           const input = document.getElementById(id);
