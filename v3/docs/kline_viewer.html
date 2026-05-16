@@ -283,17 +283,37 @@
             autoFill.endTime = '';
             autoFill.high = fvgResult.high.toFixed(2);
             autoFill.low = fvgResult.low.toFixed(2);
-          } else {
+            autoFill.direction = fvgResult.direction; // 保存 direction          } else {
             // 识别失败，只填充点击位置的时间
             console.log('[FVG 识别] 未识别到 FVG，请手动输入');
             const time = new Date(chartCoordinates.time * 1000);
             const timeStr = time.toISOString().slice(0, 16).replace('T', ' ');
             autoFill.startTime = timeStr;
+            autoFill.direction = ''; // 未识别时 direction 为空
           }
         }
 
         // 显示侧边栏表单
         showPdaForm({ pdaType, timeframe, autoFill });
+      }
+
+      /**
+       * 将数字 timeframe 转换为字符串格式
+       * @param {number} tf - 数字格式的 timeframe（如 60）
+       * @returns {string} 字符串格式的 timeframe（如 "1H"）
+       */
+      function convertTimeframeToString(tf) {
+        const map = {
+          1: '1M',
+          5: '5M',
+          15: '15M',
+          30: '30M',
+          60: '1H',
+          240: '4H',
+          1440: 'D',
+          10080: '1W',
+        };
+        return map[tf] || '1H';
       }
 
       /**
@@ -307,7 +327,7 @@
           // 构建 API 请求参数（字段名转换：下划线 → 驼峰）
           const apiParams = {
             instrument: 'NQ',
-            timeframe: formData.timeframe,
+            timeframe: convertTimeframeToString(formData.timeframe),
             pdaType: formData.pda_type,
             direction: '', // FVG 不需要方向，BSL/SSL 会自动推断
             note: formData.notes || '',
@@ -323,6 +343,7 @@
             apiParams.price = null;
             apiParams.priceHigh = formData.price_high;
             apiParams.priceLow = formData.price_low;
+            apiParams.direction = formData.direction || ''; // 使用表单中的 direction
           } else {
             // BSL/SSL: 使用 anchor_time
             apiParams.anchorTime = formData.anchor_time;

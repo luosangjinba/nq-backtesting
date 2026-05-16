@@ -182,6 +182,7 @@ function validateForm() {
       end_time: formFvgEndTime.value.trim(),
       price_high: high,
       price_low: low,
+      direction: currentFormData.autoFill.direction || '', // 添加 direction
       notes: formNotes.value.trim(),
     };
   } else if (pdaType === 'bsl' || pdaType === 'ssl') {
