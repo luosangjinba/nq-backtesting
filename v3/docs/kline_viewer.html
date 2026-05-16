@@ -98,6 +98,13 @@
 
           <div class="sidebar-body">
             <!-- PDA 类型（只读显示） -->
+            <!-- API 错误提示区域 -->
+            <div id="apiErrorMessage" class="api-error-message" style="display: none">
+              <span class="error-icon">⚠️</span>
+              <span id="apiErrorText" class="error-text"></span>
+              <button id="apiErrorCloseBtn" class="error-close-btn" type="button">×</button>
+            </div>
+
             <div class="form-group">
               <label class="form-label">PDA 类型</label>
               <input type="text" id="formPdaType" class="form-input" readonly />
@@ -317,6 +324,28 @@
       }
 
       /**
+       * 显示 API 错误提示
+       * @param {string} message - 错误信息
+       */
+      function showApiError(message) {
+        const errorDiv = document.getElementById('apiErrorMessage');
+        const errorText = document.getElementById('apiErrorText');
+        errorText.textContent = message;
+        errorDiv.style.display = 'flex';
+      }
+
+      /**
+       * 隐藏 API 错误提示
+       */
+      function hideApiError() {
+        const errorDiv = document.getElementById('apiErrorMessage');
+        errorDiv.style.display = 'none';
+      }
+
+      // 错误提示关闭按钮事件
+      document.getElementById('apiErrorCloseBtn').addEventListener('click', hideApiError);
+
+      /**
        * 保存 PDA 到后端
        * @param {Object} formData - 表单数据
        */
@@ -369,6 +398,7 @@
           if (result.ok) {
             // 保存成功
             console.log('[保存 PDA] 保存成功:', result.result);
+            hideApiError(); // 隐藏可能存在的错误提示
             hidePdaForm();
 
             // 刷新图表显示新 PDA
@@ -378,11 +408,11 @@
           } else {
             // 保存失败
             console.error('[保存 PDA] 保存失败:', result.error);
-            alert('保存失败: ' + result.error);
+            showApiError(result.error);
           }
         } catch (error) {
           console.error('[保存 PDA] 请求失败:', error);
-          alert('保存失败: ' + error.message);
+          showApiError('请求失败: ' + error.message);
         }
       }
 

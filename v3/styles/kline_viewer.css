@@ -431,6 +431,63 @@
   overflow-y: auto;
   padding: 16px;
 }
+/* API 错误提示 */
+.api-error-message {
+  background-color: #3d1f1f;
+  border: 1px solid #6b2c2c;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.api-error-message .error-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.api-error-message .error-text {
+  flex: 1;
+  font-size: 13px;
+  color: #ffb4b4;
+  line-height: 1.4;
+}
+
+.api-error-message .error-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #ffb4b4;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+  flex-shrink: 0;
+}
+
+.api-error-message .error-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
 /* 表单样式 */
 .form-group {
