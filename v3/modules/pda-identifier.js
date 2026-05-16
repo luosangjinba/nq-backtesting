@@ -3,6 +3,8 @@
  * 根据点击位置自动识别 FVG、BSL、SSL 等 PDA 类型
  */
 
+import { formatTimestamp } from './utils.js';
+
 /**
  * 识别 FVG（Fair Value Gap）
  * FVG 定义：由 3 根连续 K 线形成的价格缺口
@@ -116,18 +118,4 @@ function checkFvgPattern(k1, k2, k3) {
   return null;
 }
 
-/**
- * 格式化时间戳为字符串
- * @param {number} timestamp - Unix 时间戳（秒）
- * @returns {string} - 格式化的时间字符串 "YYYY-MM-DD HH:MM"
- */
-export function formatTimestamp(timestamp) {
-  const date = new Date(timestamp * 1000);
-  // 使用 UTC 时间，与图表显示一致
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
+// formatTimestamp 已移至 utils.js，此处不再重复定义
