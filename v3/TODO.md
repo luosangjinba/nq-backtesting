@@ -2,52 +2,51 @@
 
 ## 当前分支：`main`
 
-**最后更新**：2026-05-16 15:30  
-**当前状态**：✅ 代码整理完成，已添加模块索引和功能速查表
+**最后更新**：2026-05-16 16:30  
+**当前状态**：✅ 时间输入框格式化问题已修复，所有功能正常
 
 **重要提醒**：
 - ⚠️ 静态文件服务器必须在 `v3` 目录运行（不是 `v3/docs`），否则 CSS 无法加载
 - ✅ 访问 URL：`http://127.0.0.1:8000/docs/kline_viewer.html`
 - ✅ API 服务器：`http://127.0.0.1:8765`（需要单独启动）
+- 📚 **开发新功能前，先查阅 `v3/docs/FUNCTION_REFERENCE.md` 避免重复造轮子**
 
 **接驳指南（clear 后从这里开始）**：
 
-1. **先看本会话的修复记录**
-   - `v3/sessions/session_20260516_annotation_render_fix.md`（最新，必读）
-   - 上下文：早上实现的标注功能在浏览器里不渲染，本次会话重构为复用 `pda-renderer.js` 的 `LiquidityPrimitive` 和 `FvgPrimitive`
+1. **查阅代码文档**（重要！）
+   - `v3/docs/MODULE_INDEX.md` - 模块职责、依赖关系、代码规模
+   - `v3/docs/FUNCTION_REFERENCE.md` - 按功能分类的函数速查表
+   - `v3/docs/CODE_QUALITY_REPORT.md` - 代码质量检查报告
+   - **开发前先查阅，避免重复造轮子**
 
-2. **当前代码状态**
-   - `v3/modules/annotation.js`（新文件，未跟踪 → 本次提交一起加入）：薄包装，复用 PDA Primitive
-   - `v3/modules/pda-renderer.js`：`FvgRenderer/LiquidityRenderer` 改为 view 引用模式；`FvgPrimitive/LiquidityPrimitive` 加 `export`
-   - `v3/modules/context-menu.js`：新增 `showKlineMenu()` 函数（已在早上提交里）
-   - `v3/docs/kline_viewer.html`：右键检测到 K 线时调用 `showKlineMenu`，回调 `handleAnnotate` 触发标注
+2. **最近会话记录**
+   - `v3/sessions/session_20260516_time_input_fix.md` - 时间输入框格式化修复（2026-05-16 16:30，最新）
+   - `v3/sessions/session_20260516_code_review.md` - 代码整理（2026-05-16 15:30）
+   - `v3/sessions/session_20260516_annotation_render_fix.md` - 标注渲染修复（2026-05-16 04:42）
 
-3. **下一步：浏览器验证**
-   - 启动 API：`bash restart_api.sh`
-   - 启动前端：`cd v3 && python3 -m http.server 8000`
-   - 打开 `http://127.0.0.1:8000/docs/kline_viewer.html`
-   - 加载数据后右键 K 线，依次测试三种标注，确认：
-     - SL：橙线 + 红色 "SL" 文字（右下），与 SSL 同款
-     - SH：蓝线 + 绿色 "SH" 文字（右上），与 BSL 同款
-     - FVG：半透明矩形（bullish 绿底 / bearish 红底）
-     - 三种都应当**立即显示**，不需要拖动图表
+3. **当前代码状态**
+   - ✅ 时间输入框格式化问题已修复（导入错误 + 主动格式化）
+   - ✅ 代码整理完成（删除未使用模块、统一时间格式化）
+   - ✅ 文档完善（模块索引、功能速查表、质量报告）
+   - ✅ 图表标注功能已完成（Swing Low/High + FVG）
 
-4. **若验证通过**
-   - 把验证结果记入 `session_20260516_annotation_render_fix.md` 的"待验证"小节
-   - 可以推进阶段 3（行情段标注）或阶段 E（PDA 工作台）
-
-**最近会话**：
-- `v3/sessions/session_20260516_annotation_render_fix.md` - 标注渲染修复（2026-05-16 04:42，本次）
-- `v3/sessions/session_20260516_annotation_feature.md` - 图表标注功能初版（2026-05-16 11:30）
-- `v3/sessions/session_20260516_context_handoff.md` - 上下文交接（2026-05-16 03:37）
+4. **下一步选项**
+   - **选项 1**：推进阶段 3（行情段标注）
+   - **选项 2**：推进阶段 E（PDA 工作台实现）
+   - **选项 3**：根据 `CODE_QUALITY_REPORT.md` 的建议进行代码优化
 
 **最近更新**：
-- `session_20260516_annotation_render_fix.md` - 标注渲染修复
-  - 重写 annotation.js 为薄包装，复用 LiquidityPrimitive / FvgPrimitive
-  - 修复 4 个 bug：Primitive API 误用、坐标对象快照、attach 后未 redraw、FVG 时间非 bar-aligned
-  - 统一 SH/SL 样式与自动扫描 BSL/SSL 一致
-- `session_20260516_annotation_feature.md` - 图表标注功能初版（2026-05-16 11:30）
-- `session_20260516_context_handoff.md` - 上下文交接（2026-05-16 03:37）
+- `session_20260516_time_input_fix.md` - 时间输入框格式化问题修复
+  - 修复 formatTimestamp 导入错误（从 pda-identifier.js 改为 utils.js）
+  - 在 loadKlineData() 和 refreshData() 开头主动格式化输入
+  - 添加详细调试日志
+  - 问题：输入 20120109 后点击加载无响应（已出现 20+ 次）
+  - 根因：导入错误导致整个页面 JavaScript 无法执行
+- `session_20260516_code_review.md` - 代码整理和文档完善
+  - 新增 MODULE_INDEX.md、FUNCTION_REFERENCE.md、CODE_QUALITY_REPORT.md
+  - 删除未使用的 time_format_module.js (197 行)
+  - 统一时间格式化函数
+  - 更新 memory 系统（v3_code_structure.md）
 ---
 
 ## 进行中功能 🔄
