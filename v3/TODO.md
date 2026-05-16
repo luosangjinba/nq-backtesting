@@ -2,28 +2,69 @@
 
 ## 当前分支：`main`
 
-**最后更新**：2026-05-16 00:00  
-**当前状态**：✅ 错误提示 UI 已实现，所有功能完整
+**最后更新**：2026-05-16 04:42  
+**当前状态**：✅ 图表标注（Swing Low/High + FVG）已重构为复用 PDA Primitive，待用户验证渲染样式
 
-**下一步行动**：
-1. **开始新功能**
-   - 创建新分支开发阶段 3（行情段标注）
-   - 或者开发其他功能
+**重要提醒**：
+- ⚠️ 静态文件服务器必须在 `v3` 目录运行（不是 `v3/docs`），否则 CSS 无法加载
+- ✅ 访问 URL：`http://127.0.0.1:8000/docs/kline_viewer.html`
+- ✅ API 服务器：`http://127.0.0.1:8765`（需要单独启动）
 
-2. **推送到远程**（可选）
-   - `git push origin main`
+**接驳指南（clear 后从这里开始）**：
+
+1. **先看本会话的修复记录**
+   - `v3/sessions/session_20260516_annotation_render_fix.md`（最新，必读）
+   - 上下文：早上实现的标注功能在浏览器里不渲染，本次会话重构为复用 `pda-renderer.js` 的 `LiquidityPrimitive` 和 `FvgPrimitive`
+
+2. **当前代码状态**
+   - `v3/modules/annotation.js`（新文件，未跟踪 → 本次提交一起加入）：薄包装，复用 PDA Primitive
+   - `v3/modules/pda-renderer.js`：`FvgRenderer/LiquidityRenderer` 改为 view 引用模式；`FvgPrimitive/LiquidityPrimitive` 加 `export`
+   - `v3/modules/context-menu.js`：新增 `showKlineMenu()` 函数（已在早上提交里）
+   - `v3/docs/kline_viewer.html`：右键检测到 K 线时调用 `showKlineMenu`，回调 `handleAnnotate` 触发标注
+
+3. **下一步：浏览器验证**
+   - 启动 API：`bash restart_api.sh`
+   - 启动前端：`cd v3 && python3 -m http.server 8000`
+   - 打开 `http://127.0.0.1:8000/docs/kline_viewer.html`
+   - 加载数据后右键 K 线，依次测试三种标注，确认：
+     - SL：橙线 + 红色 "SL" 文字（右下），与 SSL 同款
+     - SH：蓝线 + 绿色 "SH" 文字（右上），与 BSL 同款
+     - FVG：半透明矩形（bullish 绿底 / bearish 红底）
+     - 三种都应当**立即显示**，不需要拖动图表
+
+4. **若验证通过**
+   - 把验证结果记入 `session_20260516_annotation_render_fix.md` 的"待验证"小节
+   - 可以推进阶段 3（行情段标注）或阶段 E（PDA 工作台）
+
+**最近会话**：
+- `v3/sessions/session_20260516_annotation_render_fix.md` - 标注渲染修复（2026-05-16 04:42，本次）
+- `v3/sessions/session_20260516_annotation_feature.md` - 图表标注功能初版（2026-05-16 11:30）
+- `v3/sessions/session_20260516_context_handoff.md` - 上下文交接（2026-05-16 03:37）
 
 **最近更新**：
-- `130f976` - docs: 添加错误提示 UI 实现文档
-- `5c32ee6` - feat(pda): 添加友好的错误提示 UI
-- `1d7c285` - Merge branch 'feature/chart-display-control' into main
-- 功能：K 线回放 + PDA 手动标注 + 错误提示 UI
-- 代码：+8197 行，31 个提交
+- `session_20260516_annotation_render_fix.md` - 标注渲染修复
+  - 重写 annotation.js 为薄包装，复用 LiquidityPrimitive / FvgPrimitive
+  - 修复 4 个 bug：Primitive API 误用、坐标对象快照、attach 后未 redraw、FVG 时间非 bar-aligned
+  - 统一 SH/SL 样式与自动扫描 BSL/SSL 一致
+- `session_20260516_annotation_feature.md` - 图表标注功能初版（2026-05-16 11:30）
+- `session_20260516_context_handoff.md` - 上下文交接（2026-05-16 03:37）
 ---
 
 ## 进行中功能 🔄
-
 **无** - 所有功能已合并到 main
+
+---
+
+## 已知 Bug 🐞
+
+- [ ] **周期切换下拉菜单切换后图表不刷新**
+  - 现象：点击 `周期` 下拉菜单选择新周期（例如 1H → 15M），图表不切换为新周期的 K 线
+  - 推测：`tfSelect` 的 `change` 事件没有触发 reload，或 `loadBars()` 调用时仍使用旧 timeframe
+  - 排查方向：
+    - 检查 `v3/docs/kline_viewer.html` 中 `tfSelect` 的事件监听
+  - 确认 `loadBars()` 是否读取最新的 `tfSelect.value`
+    - 检查 PDA 数据是否一并刷新（`loadPdaData` 调用时机）
+  - 优先级：中（不影响标注功能验证，但影响多周期工作流）
 
 ---
 
