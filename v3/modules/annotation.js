@@ -135,8 +135,7 @@ export function createSegmentFromRecentSwings() {
   }
 
   const exists = annotations.segments.some(
-    (segment) =>
-      segment.startSwingId === startSwing.id && segment.endSwingId === endSwing.id
+    (segment) => segment.startSwingId === startSwing.id && segment.endSwingId === endSwing.id
   );
   if (exists) {
     throw new Error('这两个 Swing 点的行情段已存在');
@@ -225,7 +224,9 @@ export function buildSwingLegYaml(sessionMeta) {
 
   const unlinkedSwings = getUnlinkedSwings();
   if (unlinkedSwings.length > 0) {
-    throw new Error(`还有 ${unlinkedSwings.length} 个未成段 Swing 点，请先创建行情段、撤销或清空后再导出`);
+    throw new Error(
+      `还有 ${unlinkedSwings.length} 个未成段 Swing 点，请先创建行情段、撤销或清空后再导出`
+    );
   }
 
   const sessionDate = sessionMeta.date;
