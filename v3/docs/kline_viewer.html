@@ -302,13 +302,102 @@
        */
       async function savePda(formData) {
         console.log('[保存 PDA] 表单数据:', formData);
-        // TODO: 调用 API 保存
-        alert('保存功能待实现:\n' + JSON.stringify(formData, null, 2));
-        hidePdaForm();
+
+        try {
+          // 构建 API 请求参数（字段名转换：下划线 → 驼峰）
+          const apiParams = {
+            instrument: 'NQ',
+            timeframe: formData.timeframe,
+            pdaType: formData.pda_type,
+            direction: '', // FVG 不需要方向，BSL/SSL 会自动推断
+            note: formData.notes || '',
+            memberRefs: '',
+            extraFields: null,
+          };
+
+          // 根据 PDA 类型设置不同的字段
+          if (formData.pda_type === 'fvg') {
+            // FVG: 使用 start_time 作为 anchorTime，end_time 作为 confirmTime
+            apiParams.anchorTime = formData.start_time;
+            apiParams.confirmTime = formData.end_time;
+            apiParams.price = null;
+            apiParams.priceHigh = formData.price_high;
+            apiParams.priceLow = formData.price_low;
+          } else {
+            // BSL/SSL: 使用 anchor_time
+            apiParams.anchorTime = formData.anchor_time;
+            apiParams.confirmTime = null;
+            apiParams.price = formData.price;
+            apiParams.priceHigh = null;
+            apiParams.priceLow = null;
+          }
+
+          console.log('[保存 PDA] API 请求参数:', apiParams);
+          // 发送 POST 请求
+          const response = await fetch('/v2/pda_manual_add', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(apiParams),
+          });
+
+          const result = await response.json();
+          console.log('[保存 PDA] API 响应:', result);
+
+          if (result.ok) {
+            // 保存成功
+            console.log('[保存 PDA] 保存成功:', result.result);
+            hidePdaForm();
+
+            // 刷新图表显示新 PDA
+            await reloadPdaData();
+
+            updateStatus('PDA 保存成功');
+          } else {
+            // 保存失败
+            console.error('[保存 PDA] 保存失败:', result.error);
+            alert('保存失败: ' + result.error);
+          }
+        } catch (error) {
+          console.error('[保存 PDA] 请求失败:', error);
+          alert('保存失败: ' + error.message);
+        }
       }
 
       // 设置保存回调
       setOnSaveCallback(savePda);
+
+      /**
+       * 重新加载 PDA 数据并刷新图表
+       */
+      async function reloadPdaData() {
+        try {
+          const start = document.getElementById('startInput').value.trim();
+          const end = document.getElementById('endInput').value.trim();
+
+          if (!start || !end) {
+            console.warn('[刷新 PDA] 缺少时间范围，跳过加载');
+            return;
+          }
+
+          console.log('[刷新 PDA] 重新加载 PDA 数据...');
+          updateStatus('加载 PDA 数据...');
+
+          // 加载 PDA 数据
+          await loadPdaData(start, end);
+
+          // 强制图表重绘以显示 PDA 标记
+          state.chart.timeScale().fitContent();
+
+          const pdaCount = state.pdaRecords.length;
+          console.log(`[刷新 PDA] 成功加载 ${pdaCount} 个 PDA`);
+          updateStatus(`已加载 ${pdaCount} 个 PDA`);
+        } catch (error) {
+          console.error('[刷新 PDA] 加载失败:', error);
+          updateStatus(`PDA 加载失败: ${error.message}`, true);
+        }
+      }
 
       /**
        * 刷新数据（快捷键 F5）
