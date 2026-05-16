@@ -2,26 +2,21 @@
 
 ## 当前分支：`feature/chart-display-control`
 
-**最后更新**：2026-05-15 16:45  
-**当前状态**：✅ 阶段 2 任务 #1 和 #2 完成，任务 #3 和 #4 待开始
-
-**⚠️ 重要**：上下文清理前的完整状态保存在 `v3/sessions/session_20260515_context_clear.md`
+**最后更新**：2026-05-15 23:30  
+**当前状态**：✅ 阶段 2 完成，准备创建 PR
 
 **下一步行动**：
-1. **选项 1（推荐）**：继续完成阶段 2 任务 #3 和 #4
-   - 实现 API 集成（`savePda()` 函数）
-   - 实现图表刷新显示
-   - 测试完整流程
-   - 创建 PR
+1. **浏览器测试**（可选）
+   - 打开 http://127.0.0.1:8000/v3/docs/kline_viewer.html
+   - 测试完整的 PDA 手动添加流程
 
-2. **选项 2**：先创建 PR，再继续开发
-   - 推送当前分支：`git push -u origin feature/chart-display-control`
+2. **创建 PR**
+   - 推送分支：`git push -u origin feature/chart-display-control`
    - 创建 PR：`feature/chart-display-control` → `main`
-   - 创建新分支：`git checkout -b feature/pda-api-integration`
-   - 继续开发任务 #3 和 #4
+   - PR 标题：`feat: K线回放与PDA手动标注完整功能`
 
 **交接文档**：
-- `v3/sessions/session_20260515_context_clear.md` - **上下文清理前的完整状态**
+- `v3/sessions/session_20260515_pda_api_integration.md` - API 集成实施记录
 - `v3/sessions/HANDOFF_20260515_2200.md` - 工作状态和 PR 创建指南
 ---
 
@@ -113,7 +108,7 @@ aa2d7e0 feat: 禁用 PDA 显示 & 启用空白区域右键菜单
 ```
 
 #### 阶段 2：PDA 标注工作流 - 1 天
-**状态**：🔄 进行中（2026-05-15）
+**状态**：✅ 已完成（2026-05-15）
 
 **任务 #1：PDA 录入侧边栏 UI** - ✅ 已完成（2026-05-15）
 - [x] 参考 demo_02_sidebar_layout.html 实现 flex 布局侧边栏
@@ -132,7 +127,6 @@ aa2d7e0 feat: 禁用 PDA 显示 & 启用空白区域右键菜单
 - `v3/styles/kline_viewer.css` - 侧边栏样式（+186 行）
 - `v3/modules/context-menu.js` - 添加回调参数（+3 行）
 - `v3/modules/chart.js` - 添加 ResizeObserver（+9 行）
-
 **提交记录**：
 ```
 f63af9b fix(chart): 添加 ResizeObserver 监听容器大小变化
@@ -163,7 +157,6 @@ eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
 - ✅ 表单验证功能正常
 - ✅ ESC 键关闭侧边栏
 - ✅ 播放控制栏不遮挡时间轴
-- ⏳ 播放控制栏可见性（待用户验证）
 
 **任务 #2：FVG 自动识别逻辑** - ✅ 已完成（2026-05-15）
 - [x] 创建 pda-identifier.js 模块
@@ -182,7 +175,6 @@ eff7c78 feat(pda-form): 参考 demo 添加 PDA 表单侧边栏
 - `v3/modules/chart.js` - 添加 candleData 存储（+4 行）
 - `v3/modules/pda-form.js` - 修复字段名兼容（+2 行）
 - `v3/docs/kline_viewer.html` - 集成识别逻辑（+15 行）
-
 **提交记录**：
 ```
 03521c2 fix(pda): 修复时间格式化 - 使用 UTC 时间
@@ -207,15 +199,32 @@ e6bfcc9 debug(pda): 添加 FVG 识别调试日志
 - ✅ 时间显示正确（UTC 时间，与图表一致）
 - ✅ 价格范围正确（缺口的上下边界）
 
-**任务 #3：后端 API 集成** - ⏸ 待开始
-- [ ] 检查 `POST /v2/pda_manual_add` 端点是否存在
-- [ ] 验证请求参数格式
-- [ ] 测试保存功能
+**任务 #3：后端 API 集成** - ✅ 已完成（2026-05-15）
+- [x] 实现 `savePda()` 函数调用后端 API
+- [x] 字段名转换：下划线 → 驼峰（pda_type → pdaType）
+- [x] 添加 `convertTimeframeToString()` 函数（60 → "1H"）
+- [x] 修复 FVG direction 问题（添加 direction 字段）
+- [x] 处理成功/失败响应
+- [x] API 测试成功
 
-**任务 #4：刷新图表显示新 PDA** - ⏸ 待开始
-- [ ] 保存成功后重新加载 PDA 数据
-- [ ] 或直接在前端添加新 PDA 到 `state.pdaRecords`
-- [ ] 调用 PDA 渲染函数显示新标记
+**任务 #4：刷新图表显示新 PDA** - ✅ 已完成（2026-05-15）
+- [x] 实现 `reloadPdaData()` 函数
+- [x] 保存成功后重新加载 PDA 数据
+- [x] 强制图表重绘显示新 PDA
+
+**提交记录**：
+```
+686c29e fix(pda): 修复 FVG 保存 - 添加 direction 和 timeframe 转换
+13727d4 feat(pda): 实现 PDA 手动添加的 API 集成和图表刷新
+```
+
+**API 测试**：
+- ✅ FVG 创建成功（带 direction 和字符串 timeframe）
+- ✅ 返回完整的 PDA 记录
+- ✅ pdaId 格式正确：`pda_20120109_1H_fvg_manual_001`
+
+**会话记录**：
+- `v3/sessions/session_20260515_pda_api_integration.md` - API 集成实施记录
 
 #### 阶段 3：行情段标注 - 1.5 天
 **状态**：⏸ 待开始
