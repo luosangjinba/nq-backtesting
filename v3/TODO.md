@@ -2,8 +2,8 @@
 
 ## 当前分支：`main`
 
-**最后更新**：2026-05-16 17:00  
-**当前状态**：✅ 周期切换 bug 已修复，所有功能正常
+**最后更新**：2026-05-16 18:00
+**当前状态**：✅ 所有功能正常，TODO 已更新（新增 PDA 设置面板、新增 PDA 类型、行情段连线参考）
 
 **重要提醒**：
 - ⚠️ 静态文件服务器必须在 `v3` 目录运行（不是 `v3/docs`），否则 CSS 无法加载
@@ -20,24 +20,30 @@
    - **开发前先查阅，避免重复造轮子**
 
 2. **最近会话记录**
-   - `v3/sessions/session_20260516_timeframe_switch_fix.md` - 周期切换 bug 修复（2026-05-16 17:00，最新）
+   - `v3/sessions/session_20260516_todo_and_split_assessment.md` - TODO 更新 & 代码拆分评估（2026-05-16 18:00，最新）
+   - `v3/sessions/session_20260516_timeframe_switch_fix.md` - 周期切换 bug 修复（2026-05-16 17:00）
    - `v3/sessions/session_20260516_time_input_fix.md` - 时间输入框格式化修复（2026-05-16 16:30）
    - `v3/sessions/session_20260516_code_review.md` - 代码整理（2026-05-16 15:30）
    - `v3/sessions/session_20260516_annotation_render_fix.md` - 标注渲染修复（2026-05-16 04:42）
 3. **当前代码状态**
-   - ✅ 周期切换 bug 已修复（添加 change 事件监听器）
-   - ✅ 时间输入框格式化问题已修复（导入错误 + 主动格式化）
-   - ✅ 代码整理完成（删除未使用模块、统一时间格式化）
-   - ✅ 文档完善（模块索引、功能速查表、质量报告）
-   - ✅ 图表标注功能已完成（Swing Low/High + FVG）
+   - ✅ 所有功能正常，无已知 bug
+   - ✅ TODO 已更新：新增 PDA 显示设置面板、新增 PDA 类型、行情段连线参考文件
+   - ✅ 代码拆分评估完成：`pda-renderer.js`（627行）优先级最高，建议拆为3个模块
 
 4. **下一步选项**
-   - **选项 1**：推进阶段 3（行情段标注）
+   - **选项 1**：推进阶段 3（行情段标注，参考 `demo_swing_annotation.html`）
    - **选项 2**：推进阶段 E（PDA 工作台实现）
-   - **选项 3**：根据 `CODE_QUALITY_REPORT.md` 的建议进行代码优化
+   - **选项 3**：实现 PDA 显示设置面板（可见周期/默认样式/单个调整）
+   - **选项 4**：代码拆分（优先拆 `pda-renderer.js` → 3个模块）
+   - **选项 5**：新增 PDA 类型（Key Level / OB，参考 v2 逻辑）
 
 **最近更新**：
-- `session_20260516_timeframe_switch_fix.md` - 周期切换 bug 修复（2026-05-16 17:00，最新）
+- `session_20260516_todo_and_split_assessment.md` - TODO 更新 & 代码拆分评估（2026-05-16 18:00，最新）
+  - 新增 TODO：PDA 显示设置面板（可见周期/默认样式/单个调整）
+  - 新增 TODO：新增 PDA 类型（Key Level / OB / Breaker / Wick CE）
+  - 行情段连线补充参考文件 demo_swing_annotation.html
+  - 代码拆分评估：pda-renderer.js 优先级最高（627行，3个无关职责）
+- `session_20260516_timeframe_switch_fix.md` - 周期切换 bug 修复（2026-05-16 17:00）
   - 问题：点击周期下拉菜单选择新周期后，图表不切换为新周期的 K 线
   - 根因：tfSelect 没有绑定 change 事件监听器
   - 解决：在 initEventListeners() 中添加 change 事件，检测到周期变化时自动调用 refreshData()
@@ -276,7 +282,7 @@ e6bfcc9 debug(pda): 添加 FVG 识别调试日志
 **状态**：⏸ 待开始
 
 - [ ] Swing Low/High 手动标记
-- [ ] 行情段连线渲染
+- [ ] 行情段连线渲染（参考 `v3/docs/demo_swing_annotation.html`）
 - [ ] PDA 关联（根据 demo 确定的方式）
 - [ ] 保存到 YAML 文件
 - [ ] 同步脚本（YAML → DuckDB）
@@ -288,6 +294,14 @@ e6bfcc9 debug(pda): 添加 FVG 识别调试日志
 - [ ] 结构类型标注（HH_HL/LH_LL）
 - [ ] 保存到 YAML 文件
 - [ ] 同步脚本更新
+
+#### 新增 PDA 类型
+**状态**：⏸ 待开始
+
+- [ ] Key Level — 逻辑参考 v2 kline viewer 中的实现
+- [ ] OB (Order Block) — 逻辑参考 v2 kline viewer 中的实现
+- [ ] Breaker — 逻辑待用户后续编写录入
+- [ ] Wick CE (Wick Candle Exhaustion) — 逻辑待用户后续编写录入
 
 ---
 
@@ -408,9 +422,31 @@ e6bfcc9 debug(pda): 添加 FVG 识别调试日志
 
 ---
 
+### PDA 显示设置面板
+
+**状态**：待开始
+**优先级**：中
+
+- [ ] 手动标注 PDA 的可见周期控制
+  - [ ] 设置面板中为每种手动标注类型（Swing High / Swing Low / FVG 等）提供周期筛选
+  - [ ] 只显示勾选周期的手动 PDA，未勾选周期的隐藏
+  - [ ] 新增 PDA 类型时自动加入面板
+
+- [ ] 手动标注 PDA 的默认样式设置
+  - [ ] 设置面板中为每种手动标注类型提供默认长度（如 BSL/SSL 的线段长度）
+  - [ ] 设置面板中为每种手动标注类型提供默认样式（颜色、线宽、透明度等）
+  - [ ] 修改后对新创建的 PDA 生效，已有 PDA 保持原样
+
+- [ ] 单个手动 PDA 的长度调整
+  - [ ] 选中手动 PDA 后，可单独拖拽/输入调整其长度
+  - [ ] 调整后仅影响该 PDA，不改变默认设置
+  - [ ] 调整结果持久化保存
+
+---
+
 ### 优化任务（后续）
 
-**状态**：待开始  
+**状态**：待开始
 **优先级**：中
 
 - [ ] PDA 标签防重叠
