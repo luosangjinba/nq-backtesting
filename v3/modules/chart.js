@@ -86,25 +86,6 @@ export function initChart() {
 }
 
 /**
- * 清除所有 PDA Primitives
- */
-export function clearAllPrimitives() {
-  // 清除 BSL/SSL 短线
-  state.liquidityPrimitives.forEach((primitive) => {
-    state.candlestickSeries.detachPrimitive(primitive);
-  });
-  state.liquidityPrimitives = [];
-
-  // 清除 FVG 矩形
-  state.fvgPrimitives.forEach((primitive) => {
-    state.candlestickSeries.detachPrimitive(primitive);
-  });
-  state.fvgPrimitives = [];
-
-  console.log('✓ 已清除所有 PDA Primitives');
-}
-
-/**
  * 更新图表数据
  * @param {Array} klineData - K 线数据
  */
