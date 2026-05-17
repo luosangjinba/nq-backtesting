@@ -203,3 +203,39 @@ feat(v3): 新增 PDA 显示控制 demo
 2. 多重周期 PDA 竖排显示（同一价格位置叠加多个周期）
 
 已创建 `demo_pda_display_control.html`，访问：`http://127.0.0.1:8000/docs/demo_pda_display_control.html`
+---
+
+## PDA 显示控制 Demo（2026-05-16 22:00）
+
+用户要求先做 demo 测试两个功能：
+1. 控制某个 PDA 的显示周期（参数面板调参）
+2. 多重周期 PDA 竖排显示（同一价格位置叠加多个周期）
+
+### 已创建的 Demo
+
+**Demo V1**：`demo_pda_display_control.html`
+- 纯静态模拟，无 K 线
+- 标签带背景色
+
+**Demo V2**：`demo_pda_display_control_v2.html`
+- 改进样式：标签背景透明，文字颜色区分类型
+- 标签在价格线上方竖排显示（从下往上堆叠）
+- 添加垂直连接线
+**Demo V3**：`demo_pda_with_chart.html` ✅ **推荐测试**
+- 集成 Lightweight Charts，显示真实 K 线
+- 使用 Primitive API 渲染 PDA 标签
+- 120 根模拟 K 线 + 7 个 PDA（第 60 根 K 线位置有 4 个叠加）
+- 支持周期/类型过滤和显示参数实时调整
+
+### 访问地址
+```
+http://127.0.0.1:8000/docs/demo_pda_with_chart.html
+```
+
+### 提交记录
+- `7195031` - Demo V1（带背景色标签）
+- `00ac16e` - Demo V2（透明背景 + 竖排）
+- `361d509` - Demo V3（带 K 线）
+
+### 下一步
+等待用户测试 Demo V3，确认样式和交互后，将功能集成到 `kline_viewer.html`。
