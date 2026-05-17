@@ -498,7 +498,7 @@ export async function loadPdaData(startTime, endTime) {
 
     // 构建 API URL
     const tf = parseInt(document.getElementById('tfSelect').value);
-    const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H', 1440: 'D', 10080: 'W' };
+    const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H', 1440: 'D', 10080: '1W' };
     const timeframe = tfMap[tf] || '1H';
 
     const url =
