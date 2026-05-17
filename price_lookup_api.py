@@ -1428,6 +1428,24 @@ def update_v2_manual_pda(
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
+def update_v2_pda_visibility(v2_db_path: str, pda_id: str, visible_on_timeframes: list[str]) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        row = conn.execute(
+            "select pda_id, extra_fields from pda_registry where pda_id = ?",
+            [pda_id],
+        ).fetchone()
+        if not row:
+            raise LookupError("pda record not found")
+        existing = json.loads(row[1]) if row[1] else {}
+        existing["visible_on_timeframes"] = visible_on_timeframes
+        conn.execute(
+            "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+            [json.dumps(existing), pda_id],
+        )
+    return query_v2_pda_record(v2_db_path, pda_id)
+
+
 def next_manual_pda_id(
     conn: duckdb.DuckDBPyConnection,
     trade_date: str,
@@ -2532,6 +2550,32 @@ class Handler(BaseHTTPRequestHandler):
                 body = json.loads(payload.decode("utf-8"))
                 pda_id = validate_pda_id(body.get("pdaId", ""))
                 result = delete_v2_pda_record(self.v2_db_path, pda_id, manual_only=True)
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_update_visibility":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                pda_id = validate_pda_id(body.get("pdaId", ""))
+                visible_on = body.get("visibleOnTimeframes") or body.get("visible_on_timeframes")
+                if not isinstance(visible_on, list):
+                    raise ValueError("visibleOnTimeframes must be a list")
+                for tf in visible_on:
+                    if tf not in MANUAL_PDA_TIMEFRAMES:
+                        raise ValueError(f"invalid timeframe: {tf}")
+                result = update_v2_pda_visibility(self.v2_db_path, pda_id, visible_on)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})

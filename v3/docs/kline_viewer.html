@@ -90,125 +90,11 @@
           </div>
         </div>
 
-        <!-- 侧边栏 -->
-        <div class="sidebar collapsed" id="pdaFormSidebar">
-          <div class="sidebar-header">
-            <h3 id="sidebarTitle">添加 PDA</h3>
-            <button id="sidebarCloseBtn" class="sidebar-close-btn">×</button>
-          </div>
-
-          <div class="sidebar-body">
-            <!-- PDA 类型（只读显示） -->
-            <!-- API 错误提示区域 -->
-            <div id="apiErrorMessage" class="api-error-message" style="display: none">
-              <span class="error-icon">⚠️</span>
-              <span id="apiErrorText" class="error-text"></span>
-              <button id="apiErrorCloseBtn" class="error-close-btn" type="button">×</button>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">PDA 类型</label>
-              <input type="text" id="formPdaType" class="form-input" readonly />
-            </div>
-
-            <!-- 时间周期（只读显示） -->
-            <div class="form-group">
-              <label class="form-label">时间周期</label>
-              <input type="text" id="formTimeframe" class="form-input" readonly />
-            </div>
-
-            <!-- FVG 字段 -->
-            <div id="fvgFields" style="display: none">
-              <div class="form-group">
-                <label class="form-label">起始时间</label>
-                <input
-                  type="text"
-                  id="formFvgStartTime"
-                  class="form-input"
-                  placeholder="2012-01-09 10:00"
-                />
-                <span id="errorFvgStartTime" class="form-error"></span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">结束时间</label>
-                <input
-                  type="text"
-                  id="formFvgEndTime"
-                  class="form-input"
-                  placeholder="2012-01-09 10:02"
-                />
-                <span id="errorFvgEndTime" class="form-error"></span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">上边界价格</label>
-                <input
-                  type="number"
-                  id="formFvgHigh"
-                  class="form-input"
-                  placeholder="2310.50"
-                  step="0.01"
-                />
-                <span id="errorFvgHigh" class="form-error"></span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">下边界价格</label>
-                <input
-                  type="number"
-                  id="formFvgLow"
-                  class="form-input"
-                  placeholder="2305.25"
-                  step="0.01"
-                />
-                <span id="errorFvgLow" class="form-error"></span>
-              </div>
-            </div>
-
-            <!-- BSL/SSL 字段 -->
-            <div id="bslSslFields" style="display: none">
-              <div class="form-group">
-                <label class="form-label">时间</label>
-                <input
-                  type="text"
-                  id="formBslSslTime"
-                  class="form-input"
-                  placeholder="2012-01-09 10:00"
-                />
-                <span id="errorBslSslTime" class="form-error"></span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">价格</label>
-                <input
-                  type="number"
-                  id="formBslSslPrice"
-                  class="form-input"
-                  placeholder="2310.50"
-                  step="0.01"
-                />
-                <span id="errorBslSslPrice" class="form-error"></span>
-              </div>
-            </div>
-
-            <!-- 备注（通用） -->
-            <div class="form-group">
-              <label class="form-label">备注（可选）</label>
-              <textarea
-                id="formNotes"
-                class="form-textarea"
-                placeholder="添加备注信息..."
-                rows="3"
-              ></textarea>
-            </div>
-
-            <!-- 操作按钮 -->
-            <div class="form-actions">
-              <button id="sidebarCancelBtn" class="form-btn form-btn-secondary">取消</button>
-              <button id="sidebarSaveBtn" class="form-btn form-btn-primary">保存</button>
-            </div>
-          </div>
+        <!-- API 错误提示 -->
+        <div id="apiErrorMessage" class="api-error-message" style="display: none">
+          <span class="error-icon">⚠️</span>
+          <span id="apiErrorText" class="error-text"></span>
+          <button id="apiErrorCloseBtn" class="error-close-btn" type="button">×</button>
         </div>
       </div>
       <!-- /main-content -->
@@ -243,7 +129,6 @@
       import { showPdaDetail, closePdaDetail } from '../modules/pda-detail.js';
       import { initKeyboardNavigation } from '../modules/keyboard.js';
       import { initReplay, loadReplayData } from '../modules/replay.js';
-      import { showPdaForm, hidePdaForm, setOnSaveCallback } from '../modules/pda-form.js';
       import { identifyFvg } from '../modules/pda-identifier.js';
       import {
         addSwingLow,
@@ -289,42 +174,58 @@
       function handleAddPda(pdaType, chartCoordinates) {
         console.log(`[添加 PDA] 类型: ${pdaType}, 坐标:`, chartCoordinates);
 
-        // 获取当前周期
         const tfSelect = document.getElementById('tfSelect');
         const timeframe = parseInt(tfSelect.value);
+        const tfStr = convertTimeframeToString(timeframe);
 
-        // 准备自动填充数据
-        const autoFill = {};
-
-        if (pdaType === 'bsl' || pdaType === 'ssl') {
-          // BSL/SSL: 自动填充点击位置的时间和价格
-          const time = new Date(chartCoordinates.time * 1000);
-          const timeStr = time.toISOString().slice(0, 16).replace('T', ' ');
-          autoFill.time = timeStr;
-          autoFill.price = chartCoordinates.price.toFixed(2);
+        if (pdaType === 'bsl') {
+          addManualBsl(chartCoordinates.time, chartCoordinates.price, tfStr);
+          saveManualPda(
+            'bsl',
+            chartCoordinates.time,
+            chartCoordinates.price,
+            null,
+            null,
+            null,
+            timeframe
+          );
+          updateStatus(`已标注 BSL ${tfStr}: ${chartCoordinates.price.toFixed(2)}`);
+        } else if (pdaType === 'ssl') {
+          addManualSsl(chartCoordinates.time, chartCoordinates.price, tfStr);
+          saveManualPda(
+            'ssl',
+            chartCoordinates.time,
+            chartCoordinates.price,
+            null,
+            null,
+            null,
+            timeframe
+          );
+          updateStatus(`已标注 SSL ${tfStr}: ${chartCoordinates.price.toFixed(2)}`);
         } else if (pdaType === 'fvg') {
-          // FVG: 自动识别逻辑
           const fvgResult = identifyFvg(state.candleData, chartCoordinates.time);
-
           if (fvgResult) {
-            // 识别成功，自动填充所有字段
-            console.log('[FVG 识别] 成功:', fvgResult);
-            autoFill.startTime = formatTimestamp(fvgResult.anchorTime);
-            autoFill.endTime = '';
-            autoFill.high = fvgResult.high.toFixed(2);
-            autoFill.low = fvgResult.low.toFixed(2);
-            autoFill.direction = fvgResult.direction; // 保存 direction          } else {
-            // 识别失败，只填充点击位置的时间
-            console.log('[FVG 识别] 未识别到 FVG，请手动输入');
-            const time = new Date(chartCoordinates.time * 1000);
-            const timeStr = time.toISOString().slice(0, 16).replace('T', ' ');
-            autoFill.startTime = timeStr;
-            autoFill.direction = ''; // 未识别时 direction 为空
+            addManualFvg(
+              fvgResult.anchorTime,
+              fvgResult.high,
+              fvgResult.low,
+              fvgResult.direction,
+              tfStr
+            );
+            saveManualPda(
+              'fvg',
+              fvgResult.anchorTime,
+              null,
+              fvgResult.high,
+              fvgResult.low,
+              timeframe,
+              fvgResult.direction
+            );
+            updateStatus(`已标注 FVG ${tfStr}: ${fvgResult.direction}`);
+          } else {
+            updateStatus('未识别到 FVG，请点击 FVG 的 K1/K2/K3 位置', true);
           }
         }
-
-        // 显示侧边栏表单
-        showPdaForm({ pdaType, timeframe, autoFill });
       }
 
       /**

@@ -471,6 +471,75 @@ export function addIctMidnightLowMarker(timestamp, price, label = 'ICT Mid Low',
 }
 
 /**
+ * 手动标注 BSL — 3 根 K 线长度短线，右上方显示 "BSL {tf}" 标签
+ */
+export function addManualBsl(timestamp, price, timeframeStr = '1H') {
+  const primitive = new LiquidityPrimitive(
+    state.chart,
+    state.candlestickSeries,
+    timestamp,
+    price,
+    '#5b9cf6',
+    '#26a69a',
+    `BSL ${timeframeStr}`,
+    'above',
+    { lineLength: 3 }
+  );
+  state.candlestickSeries.attachPrimitive(primitive);
+  state.liquidityPrimitives.push(primitive);
+}
+
+/**
+ * 手动标注 SSL — 3 根 K 线长度短线，右下方显示 "SSL {tf}" 标签
+ */
+export function addManualSsl(timestamp, price, timeframeStr = '1H') {
+  const primitive = new LiquidityPrimitive(
+    state.chart,
+    state.candlestickSeries,
+    timestamp,
+    price,
+    '#ffb74d',
+    '#ef5350',
+    `SSL ${timeframeStr}`,
+    'below',
+    { lineLength: 3 }
+  );
+  state.candlestickSeries.attachPrimitive(primitive);
+  state.liquidityPrimitives.push(primitive);
+}
+
+/**
+ * 手动标注 FVG — 矩形 + 右侧周期标签
+ * Bullish: 黄色矩形 #FFD70033, 中线 #FFD700
+ * Bearish: 红色矩形 #ef535033, 中线 #ef5350
+ */
+export function addManualFvg(anchorTime, priceHigh, priceLow, direction, timeframeStr = '1H') {
+  const tfSeconds = getTimeframeSeconds(timeframeStr);
+  const startTime = anchorTime - tfSeconds;
+  const endTime = anchorTime + tfSeconds * 2;
+  const color = direction === 'bullish' ? '#FFD70033' : '#ef535033';
+
+  addFvgMarker(startTime, endTime, priceHigh, priceLow, color);
+}
+
+/**
+ * 根据周期字符串返回秒数
+ */
+function getTimeframeSeconds(tf) {
+  const map = {
+    '1M': 60,
+    '5M': 300,
+    '15M': 900,
+    '30M': 1800,
+    '1H': 3600,
+    '4H': 14400,
+    D: 86400,
+    '1W': 604800,
+  };
+  return map[tf] || 3600;
+}
+
+/**
  * 清除所有 PDA 标记
  */
 export function clearAllPdaMarkers() {
