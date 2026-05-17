@@ -468,7 +468,6 @@
             ctx.stroke();
 
             // 标签（从下往上堆叠）
-            const verticalHeight = params.verticalLine * vRatio;
             ctx.font = `${params.fontSize * vRatio}px sans-serif`;
             ctx.textBaseline = 'bottom';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
@@ -477,7 +476,7 @@
             ctx.shadowOffsetY = 1 * vRatio;
 
             const labelSpacing = params.labelSpacing * vRatio;
-            let currentY = y - verticalHeight - 4 * vRatio;
+            let currentY = y - 4 * vRatio; // 从价格线上方 4px 开始
 
             // 反向遍历（从下往上）
             for (let i = pdas.length - 1; i >= 0; i--) {
