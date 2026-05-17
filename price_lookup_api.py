@@ -2701,7 +2701,8 @@ def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str, ba
     conn = duckdb.connect(db_path, read_only=True)
     rows = conn.execute(
         f"SELECT ts, open, high, low, close FROM {table} "
-        f"WHERE ts >= '{aligned_start}' AND ts < '{aligned_end_exclusive}' ORDER BY ts"
+        f"WHERE ts >= ? AND ts < ? ORDER BY ts",
+        [aligned_start, aligned_end_exclusive],
     ).fetchall()
     conn.close()
 
