@@ -4,6 +4,7 @@
  */
 
 import { state, updateChartData } from './chart.js';
+import { formatTimestamp } from './utils.js';
 
 /**
  * 回放状态对象
@@ -263,14 +264,14 @@ function updateReplayUI() {
     replayState.totalBars > 0 ? (replayState.currentIndex / replayState.totalBars) * 100 : 0;
   document.getElementById('replayProgressBar').value = progress;
 
-  // 更新时间显示
+  // 更新时间显示（截断年份，显示 MM-DD HH:mm）
   const currentTime =
     replayState.currentIndex > 0
-      ? formatTimestamp(replayState.allBars[replayState.currentIndex - 1].time)
+      ? formatTimestamp(replayState.allBars[replayState.currentIndex - 1].time).slice(5)
       : '--:--';
   const totalTime =
     replayState.totalBars > 0
-      ? formatTimestamp(replayState.allBars[replayState.totalBars - 1].time)
+      ? formatTimestamp(replayState.allBars[replayState.totalBars - 1].time).slice(5)
       : '--:--';
 
   document.getElementById('replayCurrentTime').textContent = currentTime;
@@ -280,20 +281,6 @@ function updateReplayUI() {
   document.getElementById('replayStepBackBtn').disabled = replayState.currentIndex === 0;
   document.getElementById('replayStepForwardBtn').disabled =
     replayState.currentIndex >= replayState.totalBars;
-}
-
-/**
- * 格式化时间戳
- * @param {number} timestamp - Unix时间戳（秒）
- * @returns {string} 格式化的时间字符串
- */
-function formatTimestamp(timestamp) {
-  const date = new Date(timestamp * 1000);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${month}-${day} ${hours}:${minutes}`;
 }
 
 /**
