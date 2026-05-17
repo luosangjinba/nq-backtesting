@@ -498,7 +498,7 @@ export async function loadPdaData(startTime, endTime) {
 
     // 构建 API URL
     const tf = parseInt(document.getElementById('tfSelect').value);
-    const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H', 1440: 'D', 10080: 'W' };
+    const tfMap = { 1: '1M', 5: '5M', 15: '15M', 60: '1H', 240: '4H', 1440: 'D', 10080: '1W' };
     const timeframe = tfMap[tf] || '1H';
 
     const url =
@@ -694,6 +694,18 @@ export async function loadPdaData(startTime, endTime) {
         if (price) {
           addIctMidnightLowMarker(timestamp, price, 'ICT Mid Low');
           stats.ict_midnight_day_low++;
+        }
+      } else if (pdaType === 'eqh') {
+        const price = record.price || record.priceHigh;
+        if (price) {
+          addBslMarker(timestamp, price, 'EQH');
+          stats.eqh = (stats.eqh || 0) + 1;
+        }
+      } else if (pdaType === 'eql') {
+        const price = record.price || record.priceLow;
+        if (price) {
+          addSslMarker(timestamp, price, 'EQL');
+          stats.eql = (stats.eql || 0) + 1;
         }
       } else {
         stats.other++;

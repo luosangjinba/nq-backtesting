@@ -92,11 +92,6 @@ export function showPdaDetail(pda, x, y) {
     : '<span class="detail-badge badge-auto">自动扫描</span>';
   detailRows += `<div class="detail-row"><span class="detail-label">来源:</span><span class="detail-value">${sourceBadge}</span></div>`;
 
-  // 关联组（如果有）
-  if (pda.referenceGroup) {
-    detailRows += `<div class="detail-divider"></div><div class="detail-row"><span class="detail-label">关联组:</span><span class="detail-value">${pda.referenceGroup}</span></div>`;
-  }
-
   // 构建浮窗 HTML
   popover.innerHTML = `
     <div class="popover-header">

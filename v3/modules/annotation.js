@@ -298,11 +298,3 @@ export function addFvgAnnotation(anchorTime, high, low, direction, timeframe) {
   triggerRedraw();
   return id;
 }
-
-export function clearAllAnnotations() {
-  clearStage3Annotations();
-
-  annotations.fvgs.forEach((fvg) => detachPrimitive(fvg.primitive));
-  annotations.fvgs = [];
-  triggerRedraw();
-}

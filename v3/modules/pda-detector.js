@@ -146,6 +146,16 @@ export function findPdaAtPosition(clientX, clientY) {
       if (pdaPrice) {
         priceDiff = Math.abs(price - pdaPrice);
       }
+    } else if (pdaType === 'eqh') {
+      const pdaPrice = record.price || record.priceHigh;
+      if (pdaPrice) {
+        priceDiff = Math.abs(price - pdaPrice);
+      }
+    } else if (pdaType === 'eql') {
+      const pdaPrice = record.price || record.priceLow;
+      if (pdaPrice) {
+        priceDiff = Math.abs(price - pdaPrice);
+      }
     }
 
     if (priceDiff > priceTolerance) {

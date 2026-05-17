@@ -180,13 +180,6 @@ def validate_pda_id(value: str) -> str:
     return text
 
 
-def validate_review_state(value: str) -> str:
-    text = (value or "").strip().lower()
-    if text not in REVIEW_STATES:
-        raise ValueError("reviewState must be pending/main/parked")
-    return text
-
-
 def validate_review_role(value: str) -> str:
     text = (value or "").strip().lower()
     if text not in REVIEW_ROLES:
@@ -229,14 +222,14 @@ def sanitize_filename_part(value: str) -> str:
 def validate_manual_pda_type(value: str) -> str:
     text = (value or "").strip().lower()
     if text not in MANUAL_PDA_TYPES:
-        raise ValueError("manual pdaType must be bsl/ssl/eqh/eql/fvg")
+        raise ValueError(f"manual pdaType must be one of: {', '.join(sorted(MANUAL_PDA_TYPES))}")
     return text
 
 
 def validate_manual_timeframe(value: str) -> str:
     text = (value or "").strip().upper()
     if text not in MANUAL_PDA_TIMEFRAMES:
-        raise ValueError("manual timeframe must be D/4H/1H/30M")
+        raise ValueError(f"manual timeframe must be one of: {', '.join(sorted(MANUAL_PDA_TIMEFRAMES))}")
     return text
 
 
@@ -503,7 +496,14 @@ def ensure_optional_table_exists(db_path: str, table: str) -> bool:
     return bool(exists and exists[0] > 0)
 
 
+_registry_columns_ensured = False
+
+
 def ensure_v2_registry_columns(db_path: str) -> None:
+    global _registry_columns_ensured
+    if _registry_columns_ensured:
+        return
+    _registry_columns_ensured = True
     if not ensure_optional_table_exists(db_path, "pda_registry"):
         raise LookupError("v2 pda_registry not found")
     with duckdb.connect(db_path) as conn:
@@ -2043,7 +2043,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _send_cors_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Private-Network", "true")
 
@@ -2666,11 +2666,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(500, {"ok": False, "error": str(exc)})
 
-    def log_message(self, format: str, *args) -> None:
-        return
-
-
-# ── Smoothness Calculator ──
+    # ── Smoothness Calculator ──
 
 def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str, bar_minutes: int = 5) -> Dict[str, object]:
     """计算一段行情的 K 线顺畅度评分 (1-5)，默认用 5m 聚合"""
@@ -2701,7 +2697,8 @@ def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str, ba
     conn = duckdb.connect(db_path, read_only=True)
     rows = conn.execute(
         f"SELECT ts, open, high, low, close FROM {table} "
-        f"WHERE ts >= '{aligned_start}' AND ts < '{aligned_end_exclusive}' ORDER BY ts"
+        f"WHERE ts >= ? AND ts < ? ORDER BY ts",
+        [aligned_start, aligned_end_exclusive],
     ).fetchall()
     conn.close()
 
