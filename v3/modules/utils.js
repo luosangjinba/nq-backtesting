@@ -94,53 +94,6 @@ export function findNearestBarTime(targetTime, barTimestamps) {
 }
 
 /**
- * 计算时间容差（秒）
- * 根据时间周期动态计算容差
- * @param {number} tf - 时间周期（分钟）
- * @returns {number} 容差（秒）
- */
-export function calculateTolerance(tf) {
-  // 容差 = 周期的 10%，最小 30 秒
-  return Math.max(30, tf * 60 * 0.1);
-}
-
-/**
- * 格式化 PDA 类型显示名称
- */
-export function formatPdaType(pdaType) {
-  const typeMap = {
-    bsl: 'BSL',
-    ssl: 'SSL',
-    fvg: 'FVG',
-    nwog: 'NWOG',
-    ndog: 'NDOG',
-    daily_high: 'Daily High',
-    daily_low: 'Daily Low',
-    ict_midnight_day_high: 'ICT Midnight High',
-    ict_midnight_day_low: 'ICT Midnight Low',
-    eqh: 'EQH',
-    eql: 'EQL',
-  };
-  return typeMap[pdaType] || pdaType.toUpperCase();
-}
-
-/**
- * 格式化时间显示
- * @param {string} timeStr - ISO 时间字符串
- * @returns {string} 格式化后的时间
- */
-export function formatTimeDisplay(timeStr) {
-  if (!timeStr) return 'N/A';
-  const date = new Date(timeStr);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}`;
-}
-
-/**
  * 格式化时间戳为字符串
  * @param {number} timestamp - Unix 时间戳（秒）
  * @returns {string} 格式化的时间字符串 "YYYY-MM-DD HH:MM"
@@ -154,14 +107,4 @@ export function formatTimestamp(timestamp) {
   const hours = String(date.getUTCHours()).padStart(2, '0');
   const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
-
-/**
- * 格式化价格显示
- * @param {number} price - 价格
- * @returns {string} 格式化后的价格
- */
-export function formatPrice(price) {
-  if (price === null || price === undefined) return 'N/A';
-  return price.toFixed(2);
 }
