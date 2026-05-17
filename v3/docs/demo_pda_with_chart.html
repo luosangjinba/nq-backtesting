@@ -467,14 +467,8 @@
             ctx.lineTo(x + 80 * hRatio, y);
             ctx.stroke();
 
-            // 垂直连接线
-            const verticalHeight = params.verticalLine * vRatio;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x, y - verticalHeight);
-            ctx.stroke();
-
             // 标签（从下往上堆叠）
+            const verticalHeight = params.verticalLine * vRatio;
             ctx.font = `${params.fontSize * vRatio}px sans-serif`;
             ctx.textBaseline = 'bottom';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
