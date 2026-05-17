@@ -226,13 +226,19 @@
       // ===========================
       import { state, API_BASE, initChart, updateChartData } from '../modules/chart.js';
       import { showLoading, formatTimeInput, formatTimestamp } from '../modules/utils.js';
-      import { loadPdaData } from '../modules/pda-renderer.js';
+      import {
+        loadPdaData,
+        addManualBsl,
+        addManualSsl,
+        addManualFvg,
+      } from '../modules/pda-renderer.js';
       import { findPdaAtPosition } from '../modules/pda-detector.js';
       import {
         showPdaMenu,
         showBlankAreaMenu,
         showKlineMenu,
         closeContextMenu,
+        createContextMenu,
       } from '../modules/context-menu.js';
       import { showPdaDetail, closePdaDetail } from '../modules/pda-detail.js';
       import { initKeyboardNavigation } from '../modules/keyboard.js';
@@ -459,7 +465,43 @@
         console.log(`[标注] 类型: ${annotationType}, K 线:`, barData, `周期: ${timeframe}分钟`);
 
         try {
-          if (annotationType === 'swingLow') {
+          if (annotationType === 'bsl') {
+            const tfStr = convertTimeframeToString(timeframe);
+            addManualBsl(barData.time, barData.high, tfStr);
+            saveManualPda('bsl', barData.time, barData.high, null, null, null, timeframe);
+            updateStatus(`已标注 BSL ${tfStr}: ${barData.high.toFixed(2)}`);
+          } else if (annotationType === 'ssl') {
+            const tfStr = convertTimeframeToString(timeframe);
+            addManualSsl(barData.time, barData.low, tfStr);
+            saveManualPda('ssl', barData.time, barData.low, null, null, null, timeframe);
+            updateStatus(`已标注 SSL ${tfStr}: ${barData.low.toFixed(2)}`);
+          } else if (annotationType === 'fvg') {
+            const fvgResult = identifyFvg(state.candleData, barData.time);
+            if (fvgResult) {
+              const tfStr = convertTimeframeToString(timeframe);
+              addManualFvg(
+                fvgResult.anchorTime,
+                fvgResult.high,
+                fvgResult.low,
+                fvgResult.direction,
+                tfStr
+              );
+              saveManualPda(
+                'fvg',
+                fvgResult.anchorTime,
+                null,
+                fvgResult.high,
+                fvgResult.low,
+                timeframe,
+                fvgResult.direction
+              );
+              updateStatus(
+                `已标注 FVG ${tfStr}: ${fvgResult.direction} [${fvgResult.low.toFixed(2)} - ${fvgResult.high.toFixed(2)}]`
+              );
+            } else {
+              updateStatus('未识别到 FVG，请点击 FVG 的 K1/K2/K3 位置', true);
+            }
+          } else if (annotationType === 'swingLow') {
             addSwingLow(barData.time, barData.low, timeframe);
             updateStatus(`已标注 Swing Low: ${barData.low.toFixed(2)}`);
           } else if (annotationType === 'swingHigh') {
@@ -476,27 +518,124 @@
           } else if (annotationType === 'clearStage3') {
             clearStage3Annotations();
             updateStatus('已清空阶段 3 标注');
-          } else if (annotationType === 'fvg') {
-            const fvgResult = identifyFvg(state.candleData, barData.time);
-
-            if (fvgResult) {
-              addFvgAnnotation(
-                fvgResult.anchorTime,
-                fvgResult.high,
-                fvgResult.low,
-                fvgResult.direction,
-                timeframe
-              );
-              updateStatus(
-                `已标注 FVG: ${fvgResult.direction} [${fvgResult.low.toFixed(2)} - ${fvgResult.high.toFixed(2)}]`
-              );
-            } else {
-              updateStatus('未识别到 FVG，请点击 FVG 的 K1/K2/K3 位置', true);
-            }
           }
         } catch (error) {
           console.error('[标注] 失败:', error);
           updateStatus('标注失败: ' + error.message, true);
+        }
+      }
+
+      async function saveManualPda(
+        pdaType,
+        anchorTime,
+        price,
+        priceHigh,
+        priceLow,
+        timeframe,
+        direction
+      ) {
+        const tfStr = convertTimeframeToString(timeframe);
+        const timeStr = formatTimestamp(anchorTime);
+        const apiParams = {
+          instrument: 'NQ',
+          timeframe: tfStr,
+          pdaType,
+          direction: direction || '',
+          note: '',
+          memberRefs: '',
+          extraFields: { visible_on_timeframes: [tfStr] },
+        };
+        if (pdaType === 'fvg') {
+          apiParams.anchorTime = timeStr;
+          apiParams.confirmTime = '';
+          apiParams.price = null;
+          apiParams.priceHigh = priceHigh;
+          apiParams.priceLow = priceLow;
+        } else {
+          apiParams.anchorTime = timeStr;
+          apiParams.confirmTime = null;
+          apiParams.price = price;
+          apiParams.priceHigh = null;
+          apiParams.priceLow = null;
+        }
+        try {
+          const response = await fetch(`${API_BASE}/v2/pda_manual_add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(apiParams),
+          });
+          const result = await response.json();
+          if (result.ok) {
+            console.log('[入库] PDA 已保存:', result.result.pdaId);
+          } else {
+            console.error('[入库] 保存失败:', result.error);
+          }
+        } catch (error) {
+          console.error('[入库] 请求失败:', error);
+        }
+      }
+
+      function handleVisibilityChange(pda, x, y) {
+        const currentTf = convertTimeframeToString(
+          parseInt(document.getElementById('tfSelect').value, 10)
+        );
+        const allTimeframes = ['1W', '1D', '4H', '1H', '30M', '15M', '5M', '1M'];
+        const currentVisible = pda.extraFields?.visible_on_timeframes || [currentTf];
+
+        const items = allTimeframes.map((tf) => ({
+          icon: currentVisible.includes(tf) ? '☑' : '☐',
+          label: tf,
+          action: () => {
+            const newVisible = currentVisible.includes(tf)
+              ? currentVisible.filter((t) => t !== tf)
+              : [...currentVisible, tf];
+            updatePdaVisibility(pda.pdaId, newVisible);
+            if (pda.extraFields) {
+              pda.extraFields.visible_on_timeframes = newVisible;
+            } else {
+              pda.extraFields = { visible_on_timeframes: newVisible };
+            }
+            closeContextMenu();
+            reloadPdaData();
+          },
+        }));
+
+        createContextMenu(x, y, items);
+      }
+
+      async function updatePdaVisibility(pdaId, visibleOnTimeframes) {
+        try {
+          await fetch(`${API_BASE}/v2/pda_update_visibility`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pdaId, visibleOnTimeframes }),
+          });
+          console.log('[可见周期] 已更新:', pdaId, visibleOnTimeframes);
+        } catch (error) {
+          console.error('[可见周期] 更新失败:', error);
+        }
+      }
+
+      async function handleDeletePda(pda) {
+        const confirmed = window.confirm(`确认删除 PDA: ${pda.pdaId}?`);
+        if (!confirmed) return;
+
+        try {
+          const response = await fetch(`${API_BASE}/v2/pda_delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pdaId: pda.pdaId }),
+          });
+          const result = await response.json();
+          if (result.ok || result.status === 'success') {
+            updateStatus('PDA 已删除');
+            await reloadPdaData();
+          } else {
+            updateStatus(`删除失败: ${result.error || result.message}`, true);
+          }
+        } catch (error) {
+          console.error('[删除] 请求失败:', error);
+          updateStatus('删除请求失败', true);
         }
       }
 
@@ -782,7 +921,15 @@
 
           if (pda) {
             // 点击到 PDA，显示 PDA 菜单
-            showPdaMenu(e.clientX, e.clientY, pda, showPdaDetail, updateStatus);
+            showPdaMenu(
+              e.clientX,
+              e.clientY,
+              pda,
+              showPdaDetail,
+              updateStatus,
+              handleVisibilityChange,
+              handleDeletePda
+            );
           } else {
             // 获取点击位置的图表坐标
             const rect = chartContainer.getBoundingClientRect();

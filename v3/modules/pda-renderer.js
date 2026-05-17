@@ -474,7 +474,6 @@ export function addIctMidnightLowMarker(timestamp, price, label = 'ICT Mid Low',
  * 清除所有 PDA 标记
  */
 export function clearAllPdaMarkers() {
-  // 清除 BSL/SSL 短线
   state.liquidityPrimitives.forEach((primitive) => {
     state.candlestickSeries.detachPrimitive(primitive);
   });

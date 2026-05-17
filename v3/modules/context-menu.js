@@ -163,14 +163,41 @@ export function triggerMenuSelection() {
  * @param {Function} showPdaDetail - 显示 PDA 详情的回调函数
  * @param {Function} updateStatus - 更新状态栏的回调函数
  */
-export function showPdaMenu(x, y, pda, showPdaDetail, updateStatus) {
+export function showPdaMenu(
+  x,
+  y,
+  pda,
+  showPdaDetail,
+  updateStatus,
+  onVisibilityChange,
+  onDeletePda
+) {
   const pdaId = pda.pdaId;
   const pdaType = pda.pdaType.toUpperCase();
-  const isManual = pda.manualAdded === true || pda.manual_added === true;
 
   console.log(`右键点击 PDA: ${pdaId} (${pdaType})`);
 
   const items = [
+    {
+      icon: '👁️',
+      label: '可见周期',
+      action: () => {
+        console.log('[操作] 可见周期:', pda);
+        closeContextMenu();
+        if (onVisibilityChange) onVisibilityChange(pda, x, y);
+      },
+    },
+    {
+      icon: '🗑️',
+      label: '删除',
+      danger: true,
+      action: () => {
+        console.log('[操作] 删除 PDA:', pdaId);
+        closeContextMenu();
+        if (onDeletePda) onDeletePda(pda);
+      },
+    },
+    { type: 'divider' },
     {
       icon: '📋',
       label: '查看详情',
@@ -185,7 +212,6 @@ export function showPdaMenu(x, y, pda, showPdaDetail, updateStatus) {
       label: '定位到此 PDA',
       action: () => {
         console.log('[操作] 定位到 PDA:', pdaId);
-        // 获取 PDA 时间戳
         const anchorTime = pda.anchorTs || pda.anchorTime;
         let timestamp;
         if (typeof anchorTime === 'number') {
@@ -194,17 +220,9 @@ export function showPdaMenu(x, y, pda, showPdaDetail, updateStatus) {
           timestamp = Math.floor(new Date(anchorTime.replace(' ', 'T') + 'Z').getTime() / 1000);
         }
         if (timestamp && state.chart) {
-          // 滚动到 PDA 位置
           const timeScale = state.chart.timeScale();
-
-          // 设置可见范围（PDA 前后各 2 小时）
-          const range = 7200; // 2 小时（秒）
-          timeScale.setVisibleRange({
-            from: timestamp - range,
-            to: timestamp + range,
-          });
-
-          console.log('✓ 已定位到 PDA');
+          const range = 7200;
+          timeScale.setVisibleRange({ from: timestamp - range, to: timestamp + range });
         }
       },
     },
@@ -214,52 +232,11 @@ export function showPdaMenu(x, y, pda, showPdaDetail, updateStatus) {
       action: () => {
         console.log('[操作] 复制 PDA ID:', pdaId);
         navigator.clipboard.writeText(pdaId).then(() => {
-          console.log('✓ 已复制到剪贴板');
           updateStatus(`已复制: ${pdaId}`);
         });
       },
     },
-    { type: 'divider' },
-    {
-      icon: '💾',
-      label: '导出为 YAML',
-      disabled: true,
-      action: () => {},
-    },
   ];
-
-  // Manual PDA 可以编辑/删除
-  if (isManual) {
-    items.push({ type: 'divider' });
-    items.push({
-      icon: '✏️',
-      label: '编辑',
-      disabled: true,
-      action: () => {},
-    });
-    items.push({
-      icon: '🗑️',
-      label: '删除',
-      danger: true,
-      disabled: true,
-      action: () => {},
-    });
-  } else {
-    // 自动 PDA 禁用编辑/删除
-    items.push({ type: 'divider' });
-    items.push({
-      icon: '🔒',
-      label: '编辑',
-      disabled: true,
-      action: () => {},
-    });
-    items.push({
-      icon: '🔒',
-      label: '删除',
-      disabled: true,
-      action: () => {},
-    });
-  }
 
   createContextMenu(x, y, items);
 }
@@ -331,46 +308,19 @@ export function showKlineMenu(x, y, barData, timeframe, onAnnotate) {
   const items = [
     {
       icon: '📍',
-      label: '标注 Swing Low',
+      label: '标注 BSL',
       action: () => {
-        console.log('[操作] 标注 Swing Low:', barData);
-        if (onAnnotate) onAnnotate('swingLow', barData, timeframe);
+        console.log('[操作] 标注 BSL:', barData);
+        if (onAnnotate) onAnnotate('bsl', barData, timeframe);
       },
     },
     {
       icon: '📍',
-      label: '标注 Swing High',
+      label: '标注 SSL',
       action: () => {
-        console.log('[操作] 标注 Swing High:', barData);
-        if (onAnnotate) onAnnotate('swingHigh', barData, timeframe);
+        console.log('[操作] 标注 SSL:', barData);
+        if (onAnnotate) onAnnotate('ssl', barData, timeframe);
       },
-    },
-    {
-      icon: '📈',
-      label: '创建行情段',
-      action: () => {
-        console.log('[操作] 创建行情段');
-        if (onAnnotate) onAnnotate('createSegment', barData, timeframe);
-      },
-    },
-    {
-      icon: '↩️',
-      label: '撤销上一步',
-      action: () => {
-        console.log('[操作] 撤销上一步');
-        if (onAnnotate) onAnnotate('undoStage3', barData, timeframe);
-      },
-    },
-    {
-      icon: '🧹',
-      label: '清空阶段3标注',
-      action: () => {
-        console.log('[操作] 清空阶段3标注');
-        if (onAnnotate) onAnnotate('clearStage3', barData, timeframe);
-      },
-    },
-    {
-      type: 'divider',
     },
     {
       icon: '📍',
@@ -380,15 +330,34 @@ export function showKlineMenu(x, y, barData, timeframe, onAnnotate) {
         if (onAnnotate) onAnnotate('fvg', barData, timeframe);
       },
     },
+    { type: 'divider' },
     {
-      type: 'divider',
+      icon: '📍',
+      label: '标注 Swing Low',
+      action: () => {
+        if (onAnnotate) onAnnotate('swingLow', barData, timeframe);
+      },
     },
+    {
+      icon: '📍',
+      label: '标注 Swing High',
+      action: () => {
+        if (onAnnotate) onAnnotate('swingHigh', barData, timeframe);
+      },
+    },
+    {
+      icon: '↩️',
+      label: '撤销上一步',
+      action: () => {
+        if (onAnnotate) onAnnotate('undoStage3', barData, timeframe);
+      },
+    },
+    { type: 'divider' },
     {
       icon: '🔄',
       label: '刷新数据',
       shortcut: 'F5',
       action: () => {
-        console.log('[操作] 刷新数据');
         closeContextMenu();
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'F5' }));
       },
