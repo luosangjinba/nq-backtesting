@@ -180,13 +180,6 @@ def validate_pda_id(value: str) -> str:
     return text
 
 
-def validate_review_state(value: str) -> str:
-    text = (value or "").strip().lower()
-    if text not in REVIEW_STATES:
-        raise ValueError("reviewState must be pending/main/parked")
-    return text
-
-
 def validate_review_role(value: str) -> str:
     text = (value or "").strip().lower()
     if text not in REVIEW_ROLES:
