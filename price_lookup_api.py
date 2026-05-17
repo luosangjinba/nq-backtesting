@@ -222,14 +222,14 @@ def sanitize_filename_part(value: str) -> str:
 def validate_manual_pda_type(value: str) -> str:
     text = (value or "").strip().lower()
     if text not in MANUAL_PDA_TYPES:
-        raise ValueError("manual pdaType must be bsl/ssl/eqh/eql/fvg")
+        raise ValueError(f"manual pdaType must be one of: {', '.join(sorted(MANUAL_PDA_TYPES))}")
     return text
 
 
 def validate_manual_timeframe(value: str) -> str:
     text = (value or "").strip().upper()
     if text not in MANUAL_PDA_TIMEFRAMES:
-        raise ValueError("manual timeframe must be D/4H/1H/30M")
+        raise ValueError(f"manual timeframe must be one of: {', '.join(sorted(MANUAL_PDA_TIMEFRAMES))}")
     return text
 
 
