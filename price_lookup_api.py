@@ -2666,11 +2666,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(500, {"ok": False, "error": str(exc)})
 
-    def log_message(self, format: str, *args) -> None:
-        return
-
-
-# ── Smoothness Calculator ──
+    # ── Smoothness Calculator ──
 
 def calc_smoothness(db_path: str, table: str, start_time: str, end_time: str, bar_minutes: int = 5) -> Dict[str, object]:
     """计算一段行情的 K 线顺畅度评分 (1-5)，默认用 5m 聚合"""
