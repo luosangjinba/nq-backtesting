@@ -176,6 +176,121 @@
         font-weight: 600;
         color: #fff;
       }
+
+      /* 右键菜单样式 */
+      .context-menu {
+        position: fixed;
+        background: #1e222d;
+        border: 1px solid #2a2e39;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        padding: 4px 0;
+        min-width: 180px;
+        z-index: 10000;
+        display: none;
+      }
+
+      .context-menu-item {
+        padding: 8px 16px;
+        font-size: 13px;
+        color: #d1d4dc;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .context-menu-item:hover {
+        background: #2a2e39;
+      }
+
+      .context-menu-separator {
+        height: 1px;
+        background: #2a2e39;
+        margin: 4px 0;
+      }
+
+      /* Visibility 设置面板样式 */
+      .visibility-panel {
+        position: fixed;
+        background: #1e222d;
+        border: 1px solid #2a2e39;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        padding: 16px;
+        min-width: 280px;
+        z-index: 10001;
+        display: none;
+      }
+
+      .visibility-panel-header {
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #2a2e39;
+      }
+
+      .visibility-panel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .visibility-checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+      }
+
+      .visibility-checkbox-item input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      .visibility-checkbox-item label {
+        margin: 0;
+        cursor: pointer;
+        font-size: 13px;
+        color: #d1d4dc;
+      }
+
+      .visibility-panel-footer {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #2a2e39;
+        display: flex;
+        gap: 8px;
+      }
+
+      .visibility-panel-button {
+        flex: 1;
+        padding: 6px 12px;
+        font-size: 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .visibility-panel-button.primary {
+        background: #2962ff;
+        color: #fff;
+      }
+
+      .visibility-panel-button.primary:hover {
+        background: #1e53e5;
+      }
+
+      .visibility-panel-button.secondary {
+        background: #2a2e39;
+        color: #d1d4dc;
+      }
+
+      .visibility-panel-button.secondary:hover {
+        background: #363a45;
+      }
     </style>
   </head>
   <body>
@@ -289,6 +404,27 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="contextMenu" class="context-menu">
+      <div class="context-menu-item" data-action="visibility">设置可见周期...</div>
+      <div class="context-menu-separator"></div>
+      <div class="context-menu-item" data-action="info">查看详情</div>
+    </div>
+
+    <!-- Visibility 设置面板 -->
+    <div id="visibilityPanel" class="visibility-panel">
+      <div class="visibility-panel-header">
+        设置可见周期
+      </div>
+      <div class="visibility-panel-content" id="visibilityCheckboxes">
+        <!-- 动态生成复选框 -->
+      </div>
+      <div class="visibility-panel-footer">
+        <button class="visibility-panel-button secondary" id="visibilityCancel">取消</button>
+        <button class="visibility-panel-button primary" id="visibilityApply">应用</button>
       </div>
     </div>
 
@@ -709,6 +845,168 @@
           document.getElementById('verticalLineValue').textContent = `${e.target.value}px`;
           renderPdas();
         });
+
+        // 右键菜单和设置面板
+        setupContextMenu();
+      }
+
+      // 右键菜单和设置面板功能
+      function setupContextMenu() {
+        const contextMenu = document.getElementById('contextMenu');
+        const visibilityPanel = document.getElementById('visibilityPanel');
+        let currentPda = null;
+
+        // 监听图表容器的右键点击
+        const chartContainer = document.getElementById('chart');
+        chartContainer.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+
+          // 获取点击位置
+          const rect = chartContainer.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          // 查找点击位置附近的 PDA
+          const clickedPda = findPdaAtPosition(x, y);
+
+          if (clickedPda) {
+            currentPda = clickedPda;
+            showContextMenu(e.clientX, e.clientY);
+          }
+        });
+
+        // 右键菜单项点击
+        contextMenu.addEventListener('click', (e) => {
+          const action = e.target.dataset.action;
+          if (!action) return;
+
+          hideContextMenu();
+
+          if (action === 'visibility') {
+            showVisibilityPanel(e.clientX, e.clientY, currentPda);
+          } else if (action === 'info') {
+            alert(`PDA 详情:\n类型: ${currentPda.type}\n价格: ${currentPda.price}\n创建周期: ${currentPda.createdOnTimeframe}\n可见周期: ${currentPda.visibleOnTimeframes.join(', ')}`);
+          }
+        });
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', (e) => {
+          if (!contextMenu.contains(e.target) && !visibilityPanel.contains(e.target)) {
+            hideContextMenu();
+            hideVisibilityPanel();
+          }
+        });
+
+        // Visibility 面板按钮
+        document.getElementById('visibilityCancel').addEventListener('click', () => {
+          hideVisibilityPanel();
+        });
+
+        document.getElementById('visibilityApply').addEventListener('click', () => {
+          applyVisibilityChanges(currentPda);
+          hideVisibilityPanel();
+        });
+      }
+
+      // 查找点击位置的 PDA
+      function findPdaAtPosition(x, y) {
+        // 简化实现：遍历所有 PDA，检查点击位置是否在标签区域内
+        // 实际应该使用更精确的碰撞检测
+        const series = state.candlestickSeries;
+        if (!series) return null;
+
+        const timeScale = state.chart.timeScale();
+        const priceScale = series.priceScale();
+
+        for (const pda of state.pdas) {
+          // 检查 PDA 是否在当前周期可见
+          if (!pda.visibleOnTimeframes.includes(state.currentTimeframe)) continue;
+
+          const timeCoord = timeScale.timeToCoordinate(pda.time);
+          const priceCoord = priceScale.priceToCoordinate(pda.price);
+
+          if (timeCoord === null || priceCoord === null) continue;
+
+          // 检查点击位置是否在标签附近（简化：50px 范围内）
+          const distance = Math.sqrt(Math.pow(x - timeCoord, 2) + Math.pow(y - priceCoord, 2));
+          if (distance < 50) {
+            return pda;
+          }
+        }
+
+        return null;
+      }
+
+      // 显示右键菜单
+      function showContextMenu(x, y) {
+        const contextMenu = document.getElementById('contextMenu');
+        contextMenu.style.left = `${x}px`;
+        contextMenu.style.top = `${y}px`;
+        contextMenu.style.display = 'block';
+      }
+
+      // 隐藏右键菜单
+      function hideContextMenu() {
+        document.getElementById('contextMenu').style.display = 'none';
+      }
+
+      // 显示 Visibility 设置面板
+      function showVisibilityPanel(x, y, pda) {
+        const panel = document.getElementById('visibilityPanel');
+        const checkboxContainer = document.getElementById('visibilityCheckboxes');
+
+        // 清空并重新生成复选框
+        checkboxContainer.innerHTML = '';
+
+        const allTimeframes = ['W', 'D', '4H', '1H', '30M', '15M', '5M', '1M'];
+        allTimeframes.forEach((tf) => {
+          const div = document.createElement('div');
+          div.className = 'visibility-checkbox-item';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = `vis_${tf}`;
+          checkbox.value = tf;
+          checkbox.checked = pda.visibleOnTimeframes.includes(tf);
+
+          const label = document.createElement('label');
+          label.htmlFor = `vis_${tf}`;
+          label.textContent = tf;
+
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          checkboxContainer.appendChild(div);
+        });
+
+        // 定位面板（避免超出屏幕）
+        panel.style.left = `${Math.min(x, window.innerWidth - 300)}px`;
+        panel.style.top = `${Math.min(y, window.innerHeight - 400)}px`;
+        panel.style.display = 'block';
+      }
+
+      // 隐藏 Visibility 设置面板
+      function hideVisibilityPanel() {
+        document.getElementById('visibilityPanel').style.display = 'none';
+      }
+
+      // 应用 Visibility 更改
+      function applyVisibilityChanges(pda) {
+        const allTimeframes = ['W', 'D', '4H', '1H', '30M', '15M', '5M', '1M'];
+        const newVisibleTimeframes = [];
+
+        allTimeframes.forEach((tf) => {
+          const checkbox = document.getElementById(`vis_${tf}`);
+          if (checkbox && checkbox.checked) {
+            newVisibleTimeframes.push(tf);
+          }
+        });
+
+        // 更新 PDA 的可见周期
+        pda.visibleOnTimeframes = newVisibleTimeframes;
+
+        // 重新渲染
+        renderPdas();
+        updateStats();
       }
 
       // 启动
