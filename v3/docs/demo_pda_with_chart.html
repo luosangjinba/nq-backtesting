@@ -196,7 +196,26 @@
 
         <div class="control-panel">
           <div class="control-section">
-            <h3>周期过滤</h3>
+            <h3>当前图表周期</h3>
+            <div class="control-group">
+              <select id="currentTimeframe" style="width: 100%; padding: 8px; background: #1e222d; color: #d1d4dc; border: 1px solid #2a2e39; border-radius: 4px;">
+                <option value="W">Weekly (W)</option>
+                <option value="D">Daily (D)</option>
+                <option value="4H">4 Hour (4H)</option>
+                <option value="1H" selected>1 Hour (1H)</option>
+                <option value="30M">30 Min (30M)</option>
+                <option value="15M">15 Min (15M)</option>
+                <option value="5M">5 Min (5M)</option>
+                <option value="1M">1 Min (1M)</option>
+              </select>
+              <div style="margin-top: 8px; font-size: 12px; color: #787b86;">
+                切换周期查看 PDA 可见性变化
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <h3>周期过滤（旧版，将移除）</h3>
             <div class="checkbox-group">
               <div class="checkbox-item">
                 <input type="checkbox" id="show_d" checked />
@@ -299,6 +318,23 @@
       function generatePdaData(candleData) {
         const pdas = [];
 
+        // 周期层级（从高到低）
+        const timeframeHierarchy = ['W', 'D', '4H', '1H', '30M', '15M', '5M', '1M'];
+
+        // 计算默认可见周期
+        function getDefaultVisibleTimeframes(type, createdOnTimeframe) {
+          const createdIndex = timeframeHierarchy.indexOf(createdOnTimeframe);
+          if (createdIndex === -1) return [createdOnTimeframe];
+
+          if (type === 'swing_high' || type === 'swing_low') {
+            // SH/SL：创建周期及更低周期
+            return timeframeHierarchy.slice(createdIndex);
+          } else {
+            // FVG/Daily/Midnight：只在创建周期
+            return [createdOnTimeframe];
+          }
+        }
+
         // 在第 60 根 K 线位置创建多重 PDA
         const targetBar = candleData[60];
         const targetPrice = targetBar.high;
@@ -308,34 +344,38 @@
           {
             id: 'pda_001',
             type: 'midnight_high',
-            timeframe: 'D',
+            createdOnTimeframe: 'D',
             price: targetPrice,
             time: targetTime,
             label: 'midnight high',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('midnight_high', 'D'),
           },
           {
             id: 'pda_002',
             type: 'daily_high',
-            timeframe: 'D',
+            createdOnTimeframe: 'D',
             price: targetPrice,
             time: targetTime,
             label: 'daily high',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('daily_high', 'D'),
           },
           {
             id: 'pda_003',
             type: 'swing_high',
-            timeframe: '4H',
+            createdOnTimeframe: '4H',
             price: targetPrice,
             time: targetTime,
             label: 'SH - 4h',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('swing_high', '4H'),
           },
           {
             id: 'pda_004',
             type: 'swing_high',
-            timeframe: '1H',
+            createdOnTimeframe: '1H',
             price: targetPrice,
             time: targetTime,
             label: 'SH - 1h',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('swing_high', '1H'),
           }
         );
 
@@ -344,26 +384,29 @@
           {
             id: 'pda_005',
             type: 'swing_high',
-            timeframe: '1H',
+            createdOnTimeframe: '1H',
             price: candleData[40].high,
             time: candleData[40].time,
             label: 'SH - 1h',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('swing_high', '1H'),
           },
           {
             id: 'pda_006',
             type: 'swing_low',
-            timeframe: '30M',
+            createdOnTimeframe: '30M',
             price: candleData[80].low,
             time: candleData[80].time,
             label: 'SL - 30m',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('swing_low', '30M'),
           },
           {
             id: 'pda_007',
             type: 'swing_high',
-            timeframe: '15M',
+            createdOnTimeframe: '15M',
             price: candleData[100].high,
             time: candleData[100].time,
             label: 'SH - 15m',
+            visibleOnTimeframes: getDefaultVisibleTimeframes('swing_high', '15M'),
           }
         );
 
@@ -377,6 +420,7 @@
         candleData: [],
         pdas: [],
         pdaPrimitives: [],
+        currentTimeframe: '1H', // 当前图表周期
         filters: {
           timeframes: new Set(['D', '4H', '1H', '30M', '15M']),
           types: new Set(['swing_high', 'swing_low', 'daily_high', 'midnight_high']),
@@ -474,9 +518,14 @@
             const labelSpacing = params.labelSpacing * vRatio;
             let currentY = y - 4 * vRatio; // 从价格线上方 4px 开始
 
+            // 过滤：只绘制在当前周期可见的 PDA
+            const visiblePdas = pdas.filter((pda) =>
+              pda.visibleOnTimeframes.includes(state.currentTimeframe)
+            );
+
             // 反向遍历（从下往上）
-            for (let i = pdas.length - 1; i >= 0; i--) {
-              const pda = pdas[i];
+            for (let i = visiblePdas.length - 1; i >= 0; i--) {
+              const pda = visiblePdas[i];
 
               // 设置颜色
               switch (pda.type) {
@@ -575,7 +624,8 @@
         Object.values(groups).forEach((pdas) => {
           const filteredPdas = pdas.filter(
             (pda) =>
-              state.filters.timeframes.has(pda.timeframe) && state.filters.types.has(pda.type)
+              state.filters.timeframes.has(pda.createdOnTimeframe) &&
+              state.filters.types.has(pda.type)
           );
 
           if (filteredPdas.length === 0) return;
@@ -595,7 +645,10 @@
       // 更新统计
       function updateStats() {
         const visibleCount = state.pdas.filter(
-          (pda) => state.filters.timeframes.has(pda.timeframe) && state.filters.types.has(pda.type)
+          (pda) =>
+            pda.visibleOnTimeframes.includes(state.currentTimeframe) &&
+            state.filters.timeframes.has(pda.createdOnTimeframe) &&
+            state.filters.types.has(pda.type)
         ).length;
 
         document.getElementById('visibleCount').textContent = visibleCount;
@@ -604,6 +657,13 @@
 
       // 设置事件监听
       function setupEventListeners() {
+        // 当前周期切换
+        document.getElementById('currentTimeframe').addEventListener('change', (e) => {
+          state.currentTimeframe = e.target.value;
+          renderPdas();
+          updateStats();
+        });
+
         // 周期过滤
         ['d', '4h', '1h', '30m', '15m'].forEach((tf) => {
           document.getElementById(`show_${tf}`).addEventListener('change', (e) => {
