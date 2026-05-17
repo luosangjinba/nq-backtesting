@@ -225,12 +225,12 @@
             <h3>PDA 类型</h3>
             <div class="checkbox-group">
               <div class="checkbox-item">
-                <input type="checkbox" id="show_bsl" checked />
-                <label for="show_bsl">BSL</label>
+                <input type="checkbox" id="show_swing_high" checked />
+                <label for="show_swing_high">Swing High (SH)</label>
               </div>
               <div class="checkbox-item">
-                <input type="checkbox" id="show_ssl" checked />
-                <label for="show_ssl">SSL</label>
+                <input type="checkbox" id="show_swing_low" checked />
+                <label for="show_swing_low">Swing Low (SL)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="show_daily_high" checked />
@@ -239,10 +239,6 @@
               <div class="checkbox-item">
                 <input type="checkbox" id="show_midnight_high" checked />
                 <label for="show_midnight_high">ICT Midnight High</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="show_swing_high" checked />
-                <label for="show_swing_high">Swing High</label>
               </div>
             </div>
           </div>
@@ -347,27 +343,27 @@
         pdas.push(
           {
             id: 'pda_005',
-            type: 'bsl',
+            type: 'swing_high',
             timeframe: '1H',
             price: candleData[40].high,
             time: candleData[40].time,
-            label: 'BSL',
+            label: 'SH - 1h',
           },
           {
             id: 'pda_006',
-            type: 'ssl',
+            type: 'swing_low',
             timeframe: '30M',
             price: candleData[80].low,
             time: candleData[80].time,
-            label: 'SSL',
+            label: 'SL - 30m',
           },
           {
             id: 'pda_007',
-            type: 'bsl',
+            type: 'swing_high',
             timeframe: '15M',
             price: candleData[100].high,
             time: candleData[100].time,
-            label: 'BSL',
+            label: 'SH - 15m',
           }
         );
 
@@ -383,7 +379,7 @@
         pdaPrimitives: [],
         filters: {
           timeframes: new Set(['D', '4H', '1H', '30M', '15M']),
-          types: new Set(['bsl', 'ssl', 'daily_high', 'midnight_high', 'swing_high']),
+          types: new Set(['swing_high', 'swing_low', 'daily_high', 'midnight_high']),
         },
         params: {
           labelSpacing: 2,
@@ -484,20 +480,17 @@
 
               // 设置颜色
               switch (pda.type) {
-                case 'bsl':
-                  ctx.fillStyle = '#5b9cf6';
+                case 'swing_high':
+                  ctx.fillStyle = '#26a69a'; // 绿色
                   break;
-                case 'ssl':
-                  ctx.fillStyle = '#ffb74d';
+                case 'swing_low':
+                  ctx.fillStyle = '#ef5350'; // 红色
                   break;
                 case 'daily_high':
-                  ctx.fillStyle = '#26a69a';
+                  ctx.fillStyle = '#5b9cf6'; // 蓝色
                   break;
                 case 'midnight_high':
-                  ctx.fillStyle = '#26a69a';
-                  break;
-                case 'swing_high':
-                  ctx.fillStyle = '#26a69a';
+                  ctx.fillStyle = '#ffb74d'; // 橙色
                   break;
                 default:
                   ctx.fillStyle = '#ffffff';
@@ -626,7 +619,7 @@
         });
 
         // 类型过滤
-        ['bsl', 'ssl', 'daily_high', 'midnight_high', 'swing_high'].forEach((type) => {
+        ['swing_high', 'swing_low', 'daily_high', 'midnight_high'].forEach((type) => {
           document.getElementById(`show_${type}`).addEventListener('change', (e) => {
             if (e.target.checked) {
               state.filters.types.add(type);
