@@ -586,8 +586,16 @@ export async function loadPdaData(startTime, endTime) {
       other: 0,
     };
 
-    // 遍历记录，按类型渲染
+    // 遍历记录，按类型渲染（过滤可见周期）
+    const currentTimeframe = tfMap[tf] || '1H';
     records.forEach((record) => {
+      // 手动标注的 PDA 检查可见周期
+      const visibleOn = record.extraFields?.visible_on_timeframes;
+      const isManual = record.source === 'manual_add' || record.manualAdded;
+      if (isManual && visibleOn && !visibleOn.includes(currentTimeframe)) {
+        return;
+      }
+
       const pdaType = record.pdaType;
 
       // 日级 PDA 使用 occurrence_time
