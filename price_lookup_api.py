@@ -496,7 +496,14 @@ def ensure_optional_table_exists(db_path: str, table: str) -> bool:
     return bool(exists and exists[0] > 0)
 
 
+_registry_columns_ensured = False
+
+
 def ensure_v2_registry_columns(db_path: str) -> None:
+    global _registry_columns_ensured
+    if _registry_columns_ensured:
+        return
+    _registry_columns_ensured = True
     if not ensure_optional_table_exists(db_path, "pda_registry"):
         raise LookupError("v2 pda_registry not found")
     with duckdb.connect(db_path) as conn:
