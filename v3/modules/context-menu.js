@@ -299,7 +299,7 @@ export function showBlankAreaMenu(x, y, chartCoordinates, onAddPda) {
       },
     },
     {
-      type: 'separator',
+      type: 'divider',
     },
     {
       icon: '🔄',
