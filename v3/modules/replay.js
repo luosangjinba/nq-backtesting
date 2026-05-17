@@ -87,7 +87,8 @@ export function loadReplayData(bars, pdas, start, end, tf) {
     savedProgress &&
     savedProgress.start === start &&
     savedProgress.end === end &&
-    savedProgress.tf === tf
+    savedProgress.tf === tf &&
+    savedProgress.index <= bars.length
   ) {
     replayState.currentIndex = savedProgress.index;
     console.log(`恢复进度: ${savedProgress.index}/${bars.length}`);

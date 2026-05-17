@@ -219,22 +219,22 @@ def sanitize_filename_part(value: str) -> str:
     return text[:40] or "image"
 
 
-def validate_manual_pda_type(value: str) -> str:
-    text = (value or "").strip().lower()
+def validate_manual_pda_type(value: object) -> str:
+    text = str(value or "").strip().lower()
     if text not in MANUAL_PDA_TYPES:
         raise ValueError(f"manual pdaType must be one of: {', '.join(sorted(MANUAL_PDA_TYPES))}")
     return text
 
 
-def validate_manual_timeframe(value: str) -> str:
-    text = (value or "").strip().upper()
+def validate_manual_timeframe(value: object) -> str:
+    text = str(value or "").strip().upper()
     if text not in MANUAL_PDA_TIMEFRAMES:
         raise ValueError(f"manual timeframe must be one of: {', '.join(sorted(MANUAL_PDA_TIMEFRAMES))}")
     return text
 
 
-def validate_manual_direction(value: str) -> str:
-    text = (value or "").strip().lower()
+def validate_manual_direction(value: object) -> str:
+    text = str(value or "").strip().lower()
     if not text:
         return ""
     if text not in {"bullish", "bearish"}:
