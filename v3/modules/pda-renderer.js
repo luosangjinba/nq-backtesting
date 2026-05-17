@@ -695,6 +695,18 @@ export async function loadPdaData(startTime, endTime) {
           addIctMidnightLowMarker(timestamp, price, 'ICT Mid Low');
           stats.ict_midnight_day_low++;
         }
+      } else if (pdaType === 'eqh') {
+        const price = record.price || record.priceHigh;
+        if (price) {
+          addBslMarker(timestamp, price, 'EQH');
+          stats.eqh = (stats.eqh || 0) + 1;
+        }
+      } else if (pdaType === 'eql') {
+        const price = record.price || record.priceLow;
+        if (price) {
+          addSslMarker(timestamp, price, 'EQL');
+          stats.eql = (stats.eql || 0) + 1;
+        }
       } else {
         stats.other++;
       }
