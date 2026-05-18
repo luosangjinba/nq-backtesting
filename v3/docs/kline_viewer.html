@@ -468,6 +468,8 @@
           const result = await response.json();
           if (result.ok) {
             console.log('[入库] PDA 已保存:', result.result.pdaId);
+            // 加入 pdaRecords 以支持右键检测
+            state.pdaRecords.push(result.result);
           } else {
             console.error('[入库] 保存失败:', result.error);
           }
@@ -683,23 +685,16 @@
 
           console.log(`✓ 成功加载 ${candleData.length} 根 K线`);
 
-          //           // 加载 PDA 数据
-          //           updateStatus('加载 PDA 数据...');
-          //           await loadPdaData(start, end);
-          //           // 强制图表重绘以显示 PDA 标记
-          //           state.chart.timeScale().fitContent();
-          //
-          //           const pdaCount = state.pdaRecords.length;
-          //           updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
-          //
-          //           // 加载回放数据
-          //           loadReplayData(candleData, state.pdaRecords, start, end, parseInt(tf));
+          // 加载 PDA 数据
+          updateStatus('加载 PDA 数据...');
+          await loadPdaData(start, end);
+          state.chart.timeScale().fitContent();
 
-          // 默认不加载 PDA 数据
-          updateStatus(`已加载 ${candleData.length} 根 K线`);
+          const pdaCount = state.pdaRecords.length;
+          updateStatus(`已加载 ${candleData.length} 根 K线 + ${pdaCount} 个 PDA`);
 
-          // 加载回放数据（PDA 列表为空）
-          loadReplayData(candleData, [], start, end, parseInt(tf));
+          // 加载回放数据
+          loadReplayData(candleData, state.pdaRecords, start, end, parseInt(tf));
         } catch (error) {
           console.error('加载失败:', error);
           updateStatus(`错误: ${error.message}`, true);
