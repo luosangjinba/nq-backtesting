@@ -487,6 +487,8 @@ export function addManualBsl(timestamp, price, timeframeStr = '1H') {
   );
   state.candlestickSeries.attachPrimitive(primitive);
   state.liquidityPrimitives.push(primitive);
+  primitive.updateAllViews();
+  state.chart.timeScale().applyOptions({});
 }
 
 /**
@@ -506,6 +508,8 @@ export function addManualSsl(timestamp, price, timeframeStr = '1H') {
   );
   state.candlestickSeries.attachPrimitive(primitive);
   state.liquidityPrimitives.push(primitive);
+  primitive.updateAllViews();
+  state.chart.timeScale().applyOptions({});
 }
 
 /**
@@ -520,6 +524,8 @@ export function addManualFvg(anchorTime, priceHigh, priceLow, direction, timefra
   const color = direction === 'bullish' ? '#FFD70033' : '#ef535033';
 
   addFvgMarker(startTime, endTime, priceHigh, priceLow, color);
+  // FVG primitive is added via addFvgMarker, trigger redraw
+  state.chart.timeScale().applyOptions({});
 }
 
 /**
