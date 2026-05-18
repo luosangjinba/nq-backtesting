@@ -3,70 +3,55 @@
 ## 当前分支：`feature/pda-manual-annotation`
 
 **最后更新**：2026-05-18
-**当前状态**：✅ PDA 软删除 + 永久删除功能完成
+**当前状态**：✅ PDA 软删除 + 永久删除 + 手动匹配自动PDA 功能完成
 
 **接驳指南**：
 
 1. **当前状态**
    - ✅ 右键K线直接标注 BSL/SSL/FVG（无需表单）
-   - ✅ 可见周期子菜单（1W/1D/4H/1H/30M/15M/5M/1M checkbox）
-   - ✅ 可见周期过滤渲染（手动标注PDA按周期过滤）
-   - ✅ `/v2/pda_update_visibility` API 端点
-   - ✅ 旧 pda-form 代码已清理
+   - ✅ 可见周期子菜单 + 过滤渲染
    - ✅ PDA 软删除（隐藏/恢复）+ 永久删除（仅手动PDA）
-   - ✅ `/v2/pda_hide` / `/v2/pda_restore` API 端点
    - ✅ 工具栏"显示隐藏 PDA" toggle 开关
-   - ✅ 隐藏 PDA 虚线 + "(隐藏)" 标签 + 半透明渲染
-   - 分支 `feature/pda-manual-annotation` 包含 12 个 commit
+   - ✅ 手动PDA标注后自动匹配提示 + 合并渲染（确认标记 ✓）
+   - ✅ 右键已匹配PDA → "取消匹配"选项
+   - 分支 `feature/pda-manual-annotation` 包含 14 个 commit
    - 待合并到 main
 
 2. **下一步**
+   - 运行 `scan_layer1_pda.py` 生成自动PDA → 浏览器测试匹配流程
    - 合并到 main
-   - 自动扫描匹配（deferred）
 
 ---
 
 ## 已完成功能 ✅
 
+### 手动PDA匹配自动PDA（2026-05-18）
+- 标注完成后自动查询 `/v2/pda_match` 查找同位置自动PDA候选
+- 有候选（exact/near）→ 弹出匹配选择面板（"匹配" / "保持独立"）
+- 匹配后：手动PDA不渲染，自动PDA标签加 ✓（如 "BSL ✓"）
+- 取消匹配：右键 → "取消匹配" → 清除关联 → 重新渲染
+- `/v2/pda_match_manual` / `/v2/pda_unmatch_manual` API
+- `match_v2_manual_to_auto` / `unmatch_v2_manual_pda` DB函数
+- 匹配关系：extra_fields.matched_auto_pda_id / matched_manual_pda_id + pda_members manual_ref
+
 ### PDA 软删除 + 永久删除（2026-05-18）
-- 右键PDA → "隐藏"（软删除，status='hidden'）+ "永久删除"（仅手动PDA，DB物理删除）
-- 隐藏的PDA默认不渲染，API默认不返回
-- 工具栏 checkbox "显示隐藏 PDA" → 隐藏PDA以虚线+半透明+"(隐藏)"标签渲染
-- 隐藏PDA右键 → "恢复显示" + "永久删除"（仅手动PDA）
-- `/v2/pda_hide` / `/v2/pda_restore` API + `hide_v2_pda_record` / `restore_v2_pda_record` DB函数
-- `query_v2_pda_records` 新增 `include_hidden` 参数，默认排除 hidden
+- 右键PDA → "隐藏"(status='hidden') + "永久删除"(仅手动PDA)
+- 隐藏PDA默认不渲染，API默认不返回
+- 工具栏 checkbox "显示隐藏 PDA" → 虚线+半透明+"(隐藏)"标签
+- `/v2/pda_hide` / `/v2/pda_restore` API
 
 ### PDA 手动标注 + 可见周期控制（2026-05-17）
 - 右键K线 → 标注BSL/SSL/FVG → 立即渲染 + API入库
-- BSL: 3根K线长度短线 + "BSL {tf}" 标签
-- SSL: 3根K线长度短线 + "SSL {tf}" 标签
-- FVG: 黄色(bullish)/红色(bearish)矩形
 - 右键PDA → 可见周期子菜单 → checkbox勾选/取消
-- 默认可见周期 = 当前图表周期
-- `/v2/pda_update_visibility` API + `update_v2_pda_visibility` DB函数
-- 旧 pda-form sidebar、savePda、setOnSaveCallback 已移除
+- `/v2/pda_update_visibility` API
 
 ### 代码审查修复（2026-05-17）
-- SQL 注入修复、separator bug、W/1W 对齐
-- CORS PUT、extraFields、formatTimestamp 去重
-- 死代码清理（validate_review_state、clearAll、utils.js 4 函数、referenceGroup）
-- EQH/EQL 渲染与检测、log_message 恢复、验证器消息修正
-
-### K 线回放与 PDA 手动标注（已合并 - 2026-05-15）
-
-### 阶段 3：行情段标注（方案 C 第一版）
-**状态**：✅ 代码已格式化，待浏览器验证
 
 ---
 
 ## 参考资料
 
 ### 会话记录
-- `v3/sessions/session_20260518_soft_delete.md` - PDA软删除+永久删除开发过程
-- `v3/sessions/session_20260517_manual_annotation.md` - PDA手动标注+可见周期控制完整开发过程
+- `v3/sessions/session_20260518_soft_delete.md` - 软删除+匹配功能完整开发过程
+- `v3/sessions/session_20260517_manual_annotation.md` - PDA手动标注+可见周期控制
 - `v3/sessions/session_20260517_code_review_fixes.md` - 代码审查修复过程
-- `v3/sessions/session_20260516_stage3_scheme_c_progress.md` - 阶段 3 进度
-
-### 设计文档
-- `v3/docs/CONTEXT_MENU_DESIGN.md` - 右键菜单设计
-- `v3/docs/REPLAY_STRUCTURE_PLAN.md` - 阶段 3 方案

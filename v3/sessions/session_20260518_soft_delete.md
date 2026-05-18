@@ -1,51 +1,54 @@
-# Session 2026-05-18: PDA 软删除 + 永久删除
+# Session 2026-05-18: PDA 手动标注匹配自动PDA
 
 ## 概要
 
-在 `feature/pda-manual-annotation` 分支上实现了 PDA 软删除（隐藏/恢复）和永久删除功能。
+在 `feature/pda-manual-annotation` 分支上实现了手动PDA标注后自动匹配提示 + 合并渲染功能。
 
 ## 完成的工作
 
-### PDA 软删除 + 永久删除（1 个 commit）
+### PDA 软删除 + 永久删除（1 个 commit: 721321a）
+- 右键PDA → "隐藏"(软删除) + "永久删除"(仅手动PDA)
+- 工具栏 checkbox "显示隐藏 PDA" toggle
+- `/v2/pda_hide` / `/v2/pda_restore` API
+
+### 手动PDA匹配自动PDA（1 个 commit: fe57614）
 
 **核心功能：**
-- 右键PDA → "隐藏"（软删除，status='hidden'）+ "永久删除"（仅手动PDA）
-- 隐藏PDA默认不渲染，API默认不返回
-- 工具栏 checkbox "显示隐藏 PDA" → 隐藏PDA以虚线+半透明+"(隐藏)"标签渲染
-- 隐藏PDA右键 → "恢复显示" + "永久删除"（仅手动PDA）
+- 标注完成后，自动查询 `/v2/pda_match` 查找同位置的自动PDA候选
+- 如果有候选（exact/near），弹出匹配选择面板
+- 用户选择"匹配" → 手动PDA不再渲染，自动PDA标签加 ✓
+- 用户选择"保持独立" → 两者独立渲染
 
 **关键文件改动：**
 
 | 文件 | 改动 |
 |------|------|
-| `price_lookup_api.py` | 新增 `hide_v2_pda_record` / `restore_v2_pda_record` DB函数 + `/v2/pda_hide` / `/v2/pda_restore` 端点 + `query_v2_pda_records` 加 `include_hidden` 参数 |
-| `v3/modules/context-menu.js` | `showPdaMenu` 删除→隐藏+永久删除(仅手动)，新增 `showHiddenPdaMenu`(恢复+永久删除) |
-| `v3/docs/kline_viewer.html` | `handleDeletePda` → `handleHidePda` + `handleRestorePda` + `handlePermanentDeletePda`，新增"显示隐藏 PDA" checkbox |
-| `v3/modules/pda-renderer.js` | `loadPdaData` URL 加 `include_hidden`，hidden PDA 虚线+半透明+"(隐藏)"标签 |
-| `v3/modules/chart.js` | state 加 `showHiddenPdas: false` |
-| `v3/styles/chart-viewer.css` | 新增 `.toolbar-checkbox` 样式 |
+| `price_lookup_api.py` | 新增 `match_v2_manual_to_auto` / `unmatch_v2_manual_pda` DB函数 + `/v2/pda_match_manual` / `/v2/pda_unmatch_manual` 端点 |
+| `v3/modules/pda-renderer.js` | 已匹配手动PDA skip渲染，已匹配自动PDA标签加 ✓ |
+| `v3/docs/kline_viewer.html` | `saveManualPda` 后查询匹配 + `showMatchPanel` UI + `handleMatchManual` / `handleUnmatchManual` |
+| `v3/modules/context-menu.js` | `showPdaMenu` 加 `onUnmatchManual` 参数 + "取消匹配"菜单项 |
+| `v3/styles/chart-viewer.css` | `.match-panel` / `.match-candidate-row` / `.match-btn` 样式 |
 
 **设计决策：**
-- 利用已有 `status` 列（default 'active'）实现软删除，无需新增列
-- 软删除 → `status = 'hidden'`，恢复 → `status = 'active'`
-- 永久删除仍用 `delete_v2_pda_record`（仅手动PDA）
-- 隐藏PDA样式：虚线(lineStyle='dashed') + 半透明(FVG颜色33→15) + "(隐藏)"标签后缀
-- 恢复入口：工具栏 toggle 开关显示隐藏PDA → 右键可恢复
+- 匹配关系存储：手动PDA `extra_fields.matched_auto_pda_id` + 自动PDA `extra_fields.matched_manual_pda_id` + `pda_members` manual_ref 行
+- 不新增列，利用已有 JSON extra_fields
+- 匹配后合并渲染：手动PDA不渲染，自动PDA标签加 ✓（确认标记语义）
+- 取消匹配：右键 → "取消匹配" → 清除关联 → 重新渲染
 
 **API 验证：**
-- `POST /v2/pda_hide` → status=hidden ✅
-- `POST /v2/pda_restore` → status=active ✅
-- `GET /v2/pda_records` → 排除 hidden ✅
-- `GET /v2/pda_records?include_hidden=true` → 包含 hidden ✅
+- `/v2/pda_match_manual` 验证手动→自动方向 ✅
+- `/v2/pda_unmatch_manual` 验证无匹配时报错 ✅
+- `/v2/pda_match` 前端可正常查询候选 ✅
+
+**注意：** 当前数据库只有手动PDA，没有自动扫描PDA。匹配功能需要先运行 `scan_layer1_pda.py` 生成自动PDA才能实际测试匹配流程。
 
 ## 当前状态
 
 - 分支：`feature/pda-manual-annotation`
-- 12 个 commit，待合并到 main
-- API 服务器已重启（`bash restart_api.sh restart`）
-- 前端服务器在 `v3/` 目录下运行
+- 14 个 commit，待合并到 main
+- API 服务器已重启
 
 ## 下一步
 
+- 运行 `scan_layer1_pda.py` 生成自动PDA数据，然后在浏览器中测试完整匹配流程
 - 合并 `feature/pda-manual-annotation` 到 main
-- 自动扫描匹配功能（deferred）
