@@ -706,6 +706,37 @@
         }
       }
 
+      async function handleClearAllManual() {
+        const confirmed = window.confirm('清除当前图表范围内所有已标注的 PDA？');
+        if (!confirmed) return;
+        try {
+          const tf = parseInt(document.getElementById('tfSelect').value, 10);
+          const tfMap = {
+            1: '1M',
+            5: '5M',
+            15: '15M',
+            60: '1H',
+            240: '4H',
+            1440: 'D',
+            10080: '1W',
+          };
+          const timeframe = tfMap[tf] || '1H';
+          const response = await fetch(
+            `${API_BASE}/v2/pda_hide_all_manual?instrument=NQ&timeframe=${timeframe}`
+          );
+          const result = await response.json();
+          if (result.ok) {
+            updateStatus(`已清除 ${result.hiddenCount} 个已标注 PDA`);
+            await reloadPdaData();
+          } else {
+            updateStatus(`清除失败: ${result.error}`, true);
+          }
+        } catch (error) {
+          console.error('[清除] 请求失败:', error);
+          updateStatus('清除请求失败', true);
+        }
+      }
+
       /**
        * 重新加载 PDA 数据并刷新图表
        */
@@ -954,7 +985,14 @@
             if (barData) {
               // 点击在 K 线上，显示标注菜单
               const timeframe = parseInt(document.getElementById('tfSelect').value);
-              showKlineMenu(e.clientX, e.clientY, barData, timeframe, handleAnnotate);
+              showKlineMenu(
+                e.clientX,
+                e.clientY,
+                barData,
+                timeframe,
+                handleAnnotate,
+                handleClearAllManual
+              );
             } else {
               // 空白区域，显示手动添加 PDA 菜单
               const chartCoordinates = {

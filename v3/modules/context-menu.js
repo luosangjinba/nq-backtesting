@@ -368,7 +368,7 @@ export function showBlankAreaMenu(x, y, chartCoordinates, onAddPda) {
  * @param {number} timeframe - 周期（分钟）
  * @param {Function} onAnnotate - 标注回调函数
  */
-export function showKlineMenu(x, y, barData, timeframe, onAnnotate) {
+export function showKlineMenu(x, y, barData, timeframe, onAnnotate, onClearAllManual) {
   console.log('右键点击 K 线:', barData);
 
   const items = [
@@ -416,6 +416,17 @@ export function showKlineMenu(x, y, barData, timeframe, onAnnotate) {
       label: '撤销上一步',
       action: () => {
         if (onAnnotate) onAnnotate('undoStage3', barData, timeframe);
+      },
+    },
+    { type: 'divider' },
+    {
+      icon: '🧹',
+      label: '清除所有已标注 PDA',
+      danger: true,
+      action: () => {
+        console.log('[操作] 清除所有已标注 PDA');
+        closeContextMenu();
+        if (onClearAllManual) onClearAllManual();
       },
     },
     { type: 'divider' },

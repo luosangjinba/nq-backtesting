@@ -1567,6 +1567,26 @@ def unmatch_v2_manual_pda(v2_db_path: str, pda_id: str) -> Dict[str, object]:
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
+def hide_all_manual_pdas(v2_db_path: str, instrument: str = "", timeframe: str = "", trade_date: str = "") -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    clauses = ["source in ('manual_add', 'manual_eqh_eql')", "coalesce(status, 'active') = 'active'"]
+    params: list[object] = []
+    if instrument:
+        clauses.append("instrument = ?")
+        params.append(instrument)
+    if timeframe:
+        clauses.append("timeframe = ?")
+        params.append(timeframe)
+    if trade_date:
+        clauses.append("trade_date = cast(? as date)")
+        params.append(trade_date)
+    with duckdb.connect(v2_db_path) as conn:
+        where = " and ".join(clauses)
+        count = conn.execute(f"select count(*) from pda_registry where {where}", params).fetchone()[0]
+        conn.execute(f"update pda_registry set status = 'hidden', updated_at = current_timestamp where {where}", params)
+    return {"ok": True, "hiddenCount": count}
+
+
 def next_manual_pda_id(
     conn: duckdb.DuckDBPyConnection,
     trade_date: str,
@@ -2513,6 +2533,18 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/v2/config":
             try:
                 self._send_json(200, {"ok": True, "result": V2_CONFIG})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_hide_all_manual":
+            try:
+                params = parse_qs(parsed.query)
+                instrument = params.get("instrument", [""])[0].strip()
+                timeframe = params.get("timeframe", [""])[0].strip().upper()
+                trade_date = params.get("trade_date", [""])[0].strip()
+                result = hide_all_manual_pdas(self.v2_db_path, instrument, timeframe, trade_date)
+                self._send_json(200, result)
             except Exception as exc:
                 self._send_json(500, {"ok": False, "error": str(exc)})
             return
