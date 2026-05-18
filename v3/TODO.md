@@ -1,25 +1,38 @@
 # V3 开发 TODO
 
-## 当前分支：`fix/code-review-20260517`
+## 当前分支：`feature/pda-manual-annotation`
 
 **最后更新**：2026-05-17
-**当前状态**：✅ 代码审查修复全部完成（14/14）
+**当前状态**：✅ PDA 手动标注 + 可见周期控制功能完成
 
 **接驳指南**：
 
 1. **当前状态**
-   - ✅ 14 个代码审查问题全部修复并提交
-   - 分支 `fix/code-review-20260517` 包含 14 个 commit
+   - ✅ 右键K线直接标注 BSL/SSL/FVG（无需表单）
+   - ✅ 可见周期子菜单（1W/1D/4H/1H/30M/15M/5M/1M checkbox）
+   - ✅ 可见周期过滤渲染（手动标注PDA按周期过滤）
+   - ✅ `/v2/pda_update_visibility` API 端点
+   - ✅ 旧 pda-form 代码已清理
+   - 分支 `feature/pda-manual-annotation` 包含 10 个 commit
    - 待合并到 main
 
 2. **下一步**
    - 合并到 main
-   - 浏览器验证（启动 API + 静态文件服务器）
-   - 继续开发新功能
+   - 自动扫描匹配（deferred）
 
 ---
 
 ## 已完成功能 ✅
+
+### PDA 手动标注 + 可见周期控制（2026-05-17）
+- 右键K线 → 标注BSL/SSL/FVG → 立即渲染 + API入库
+- BSL: 3根K线长度短线 + "BSL {tf}" 标签
+- SSL: 3根K线长度短线 + "SSL {tf}" 标签
+- FVG: 黄色(bullish)/红色(bearish)矩形
+- 右键PDA → 可见周期子菜单 → checkbox勾选/取消
+- 默认可见周期 = 当前图表周期
+- `/v2/pda_update_visibility` API + `update_v2_pda_visibility` DB函数
+- 旧 pda-form sidebar、savePda、setOnSaveCallback 已移除
 
 ### 代码审查修复（2026-05-17）
 - SQL 注入修复、separator bug、W/1W 对齐
