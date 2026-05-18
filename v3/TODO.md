@@ -2,8 +2,8 @@
 
 ## 当前分支：`feature/pda-manual-annotation`
 
-**最后更新**：2026-05-17
-**当前状态**：✅ PDA 手动标注 + 可见周期控制功能完成
+**最后更新**：2026-05-18
+**当前状态**：✅ PDA 软删除 + 永久删除功能完成
 
 **接驳指南**：
 
@@ -13,7 +13,11 @@
    - ✅ 可见周期过滤渲染（手动标注PDA按周期过滤）
    - ✅ `/v2/pda_update_visibility` API 端点
    - ✅ 旧 pda-form 代码已清理
-   - 分支 `feature/pda-manual-annotation` 包含 11 个 commit
+   - ✅ PDA 软删除（隐藏/恢复）+ 永久删除（仅手动PDA）
+   - ✅ `/v2/pda_hide` / `/v2/pda_restore` API 端点
+   - ✅ 工具栏"显示隐藏 PDA" toggle 开关
+   - ✅ 隐藏 PDA 虚线 + "(隐藏)" 标签 + 半透明渲染
+   - 分支 `feature/pda-manual-annotation` 包含 12 个 commit
    - 待合并到 main
 
 2. **下一步**
@@ -23,6 +27,14 @@
 ---
 
 ## 已完成功能 ✅
+
+### PDA 软删除 + 永久删除（2026-05-18）
+- 右键PDA → "隐藏"（软删除，status='hidden'）+ "永久删除"（仅手动PDA，DB物理删除）
+- 隐藏的PDA默认不渲染，API默认不返回
+- 工具栏 checkbox "显示隐藏 PDA" → 隐藏PDA以虚线+半透明+"(隐藏)"标签渲染
+- 隐藏PDA右键 → "恢复显示" + "永久删除"（仅手动PDA）
+- `/v2/pda_hide` / `/v2/pda_restore` API + `hide_v2_pda_record` / `restore_v2_pda_record` DB函数
+- `query_v2_pda_records` 新增 `include_hidden` 参数，默认排除 hidden
 
 ### PDA 手动标注 + 可见周期控制（2026-05-17）
 - 右键K线 → 标注BSL/SSL/FVG → 立即渲染 + API入库
@@ -50,6 +62,7 @@
 ## 参考资料
 
 ### 会话记录
+- `v3/sessions/session_20260518_soft_delete.md` - PDA软删除+永久删除开发过程
 - `v3/sessions/session_20260517_manual_annotation.md` - PDA手动标注+可见周期控制完整开发过程
 - `v3/sessions/session_20260517_code_review_fixes.md` - 代码审查修复过程
 - `v3/sessions/session_20260516_stage3_scheme_c_progress.md` - 阶段 3 进度
