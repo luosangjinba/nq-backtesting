@@ -13,7 +13,7 @@
    - ✅ 可见周期过滤渲染（手动标注PDA按周期过滤）
    - ✅ `/v2/pda_update_visibility` API 端点
    - ✅ 旧 pda-form 代码已清理
-   - 分支 `feature/pda-manual-annotation` 包含 10 个 commit
+   - 分支 `feature/pda-manual-annotation` 包含 11 个 commit
    - 待合并到 main
 
 2. **下一步**
@@ -50,6 +50,7 @@
 ## 参考资料
 
 ### 会话记录
+- `v3/sessions/session_20260517_manual_annotation.md` - PDA手动标注+可见周期控制完整开发过程
 - `v3/sessions/session_20260517_code_review_fixes.md` - 代码审查修复过程
 - `v3/sessions/session_20260516_stage3_scheme_c_progress.md` - 阶段 3 进度
 
