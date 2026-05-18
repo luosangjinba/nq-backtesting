@@ -488,18 +488,18 @@
         const items = allTimeframes.map((tf) => ({
           icon: currentVisible.includes(tf) ? '☑' : '☐',
           label: tf,
-          action: () => {
+          action: async () => {
             const newVisible = currentVisible.includes(tf)
               ? currentVisible.filter((t) => t !== tf)
               : [...currentVisible, tf];
-            updatePdaVisibility(pda.pdaId, newVisible);
+            await updatePdaVisibility(pda.pdaId, newVisible);
             if (pda.extraFields) {
               pda.extraFields.visible_on_timeframes = newVisible;
             } else {
               pda.extraFields = { visible_on_timeframes: newVisible };
             }
             closeContextMenu();
-            reloadPdaData();
+            await reloadPdaData();
           },
         }));
 
