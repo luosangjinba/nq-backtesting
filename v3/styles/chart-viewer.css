@@ -132,9 +132,21 @@ body {
 .match-candidate-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
+  padding: 6px 0;
   border-bottom: 1px solid #2a2e39;
+}
+
+.match-candidate-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.match-candidate-checkbox {
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .match-candidate-info {
@@ -163,10 +175,7 @@ body {
 }
 
 .match-btn-independent {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  padding: 8px;
+  padding: 8px 16px;
   background: #2a2e39;
   border: 1px solid #363a45;
   border-radius: 4px;
@@ -179,6 +188,12 @@ body {
 .match-btn-independent:hover {
   background: #363a45;
   color: #e0e3eb;
+}
+
+.match-panel-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 #statusText {

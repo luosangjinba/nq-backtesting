@@ -1469,9 +1469,11 @@ def restore_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
-def match_v2_manual_to_auto(v2_db_path: str, manual_pda_id: str, auto_pda_id: str) -> Dict[str, object]:
+def match_v2_manual_to_auto_pdas(v2_db_path: str, manual_pda_id: str, auto_pda_ids: list[str]) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     ensure_v2_pda_members_table(v2_db_path)
+    if not auto_pda_ids:
+        raise ValueError("autoPdaIds must not be empty")
     with duckdb.connect(v2_db_path) as conn:
         manual_row = conn.execute(
             "select pda_id, source, extra_fields from pda_registry where pda_id = ?", [manual_pda_id]
@@ -1480,33 +1482,34 @@ def match_v2_manual_to_auto(v2_db_path: str, manual_pda_id: str, auto_pda_id: st
             raise LookupError("manual pda record not found")
         if manual_row[1] not in ("manual_add", "manual_eqh_eql"):
             raise ValueError("only manual PDAs can be matched")
-        auto_row = conn.execute(
-            "select pda_id, source, extra_fields from pda_registry where pda_id = ?", [auto_pda_id]
-        ).fetchone()
-        if not auto_row:
-            raise LookupError("auto pda record not found")
-        if auto_row[1] != "auto_scan":
-            raise ValueError("target must be an auto-scanned PDA")
         manual_extra = json.loads(manual_row[2]) if manual_row[2] else {}
-        manual_extra["matched_auto_pda_id"] = auto_pda_id
+        manual_extra["matched_auto_pda_ids"] = auto_pda_ids
         conn.execute(
             "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
             [json.dumps(manual_extra), manual_pda_id],
         )
-        auto_extra = json.loads(auto_row[2]) if auto_row[2] else {}
-        auto_extra["matched_manual_pda_id"] = manual_pda_id
-        conn.execute(
-            "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
-            [json.dumps(auto_extra), auto_pda_id],
-        )
-        conn.execute(
-            "insert or ignore into pda_members (pda_id, member_type, member_ref, role) values (?, 'manual_ref', ?, 'matched_by')",
-            [auto_pda_id, manual_pda_id],
-        )
+        for auto_pda_id in auto_pda_ids:
+            auto_row = conn.execute(
+                "select pda_id, source, extra_fields from pda_registry where pda_id = ?", [auto_pda_id]
+            ).fetchone()
+            if not auto_row:
+                raise LookupError(f"auto pda record not found: {auto_pda_id}")
+            if auto_row[1] not in ("auto_scan", "auto_ict_midnight_scan"):
+                raise ValueError(f"target must be an auto-scanned PDA: {auto_pda_id}")
+            auto_extra = json.loads(auto_row[2]) if auto_row[2] else {}
+            auto_extra["matched_manual_pda_id"] = manual_pda_id
+            conn.execute(
+                "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+                [json.dumps(auto_extra), auto_pda_id],
+            )
+            conn.execute(
+                "insert or ignore into pda_members (pda_id, member_type, member_ref, role) values (?, 'manual_ref', ?, 'matched_by')",
+                [auto_pda_id, manual_pda_id],
+            )
     return {
         "ok": True,
         "manualPda": query_v2_pda_record(v2_db_path, manual_pda_id),
-        "autoPda": query_v2_pda_record(v2_db_path, auto_pda_id),
+        "matchedAutoPdas": [query_v2_pda_record(v2_db_path, aid) for aid in auto_pda_ids],
     }
 
 
@@ -1520,29 +1523,34 @@ def unmatch_v2_manual_pda(v2_db_path: str, pda_id: str) -> Dict[str, object]:
         if not row:
             raise LookupError("pda record not found")
         extra = json.loads(row[2]) if row[2] else {}
-        matched_auto_id = extra.get("matched_auto_pda_id", "")
-        matched_manual_id = extra.get("matched_manual_pda_id", "")
-        if matched_auto_id:
+        # Case 1: this is a manual PDA with matched_auto_pda_ids (list)
+        matched_auto_ids = extra.get("matched_auto_pda_ids", [])
+        if matched_auto_ids:
+            extra.pop("matched_auto_pda_ids", None)
+            # Also remove legacy single-ID field if present
             extra.pop("matched_auto_pda_id", None)
             conn.execute(
                 "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
                 [json.dumps(extra), pda_id],
             )
-            auto_extra_raw = conn.execute(
-                "select extra_fields from pda_registry where pda_id = ?", [matched_auto_id]
-            ).fetchone()
-            if auto_extra_raw:
-                auto_extra = json.loads(auto_extra_raw[0]) if auto_extra_raw[0] else {}
-                auto_extra.pop("matched_manual_pda_id", None)
+            for auto_id in matched_auto_ids:
+                auto_extra_raw = conn.execute(
+                    "select extra_fields from pda_registry where pda_id = ?", [auto_id]
+                ).fetchone()
+                if auto_extra_raw:
+                    auto_extra = json.loads(auto_extra_raw[0]) if auto_extra_raw[0] else {}
+                    auto_extra.pop("matched_manual_pda_id", None)
+                    conn.execute(
+                        "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+                        [json.dumps(auto_extra), auto_id],
+                    )
                 conn.execute(
-                    "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
-                    [json.dumps(auto_extra), matched_auto_id],
+                    "delete from pda_members where pda_id = ? and member_type = 'manual_ref' and member_ref = ?",
+                    [auto_id, pda_id],
                 )
-            conn.execute(
-                "delete from pda_members where pda_id = ? and member_type = 'manual_ref' and member_ref = ?",
-                [matched_auto_id, pda_id],
-            )
-        elif matched_manual_id:
+        # Case 2: this is an auto PDA with matched_manual_pda_id
+        elif extra.get("matched_manual_pda_id"):
+            matched_manual_id = extra["matched_manual_pda_id"]
             extra.pop("matched_manual_pda_id", None)
             conn.execute(
                 "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
@@ -1553,7 +1561,14 @@ def unmatch_v2_manual_pda(v2_db_path: str, pda_id: str) -> Dict[str, object]:
             ).fetchone()
             if manual_extra_raw:
                 manual_extra = json.loads(manual_extra_raw[0]) if manual_extra_raw[0] else {}
-                manual_extra.pop("matched_auto_pda_id", None)
+                # Remove this auto_pda_id from the list
+                ids = manual_extra.get("matched_auto_pda_ids", [])
+                if pda_id in ids:
+                    ids.remove(pda_id)
+                if ids:
+                    manual_extra["matched_auto_pda_ids"] = ids
+                else:
+                    manual_extra.pop("matched_auto_pda_ids", None)
                 conn.execute(
                     "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
                     [json.dumps(manual_extra), matched_manual_id],
@@ -2743,8 +2758,11 @@ class Handler(BaseHTTPRequestHandler):
                 payload = self.rfile.read(content_length)
                 body = json.loads(payload.decode("utf-8"))
                 manual_pda_id = validate_pda_id(body.get("pdaId", ""))
-                auto_pda_id = validate_pda_id(body.get("autoPdaId", ""))
-                result = match_v2_manual_to_auto(self.v2_db_path, manual_pda_id, auto_pda_id)
+                auto_pda_ids = body.get("autoPdaIds", [])
+                if not isinstance(auto_pda_ids, list) or not auto_pda_ids:
+                    raise ValueError("autoPdaIds must be a non-empty list")
+                auto_pda_ids = [validate_pda_id(aid) for aid in auto_pda_ids]
+                result = match_v2_manual_to_auto_pdas(self.v2_db_path, manual_pda_id, auto_pda_ids)
                 self._send_json(200, result)
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})

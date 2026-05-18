@@ -20,6 +20,7 @@ export const state = {
   barTimestamps: [],
   candleData: [],
   showHiddenPdas: false,
+  showAutoPdas: false,
 };
 
 /**

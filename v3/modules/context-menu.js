@@ -175,12 +175,16 @@ export function showPdaMenu(
   onVisibilityChange,
   onHidePda,
   onPermanentDeletePda,
-  onUnmatchManual
+  onUnmatchManual,
+  onMatchAutoPda
 ) {
   const pdaId = pda.pdaId;
   const pdaType = pda.pdaType.toUpperCase();
   const isManual = pda.source === 'manual_add' || pda.source === 'manual_eqh_eql';
-  const hasMatch = pda.extraFields?.matched_auto_pda_id || pda.extraFields?.matched_manual_pda_id;
+  const hasMatch =
+    pda.extraFields?.matched_auto_pda_ids ||
+    pda.extraFields?.matched_auto_pda_id ||
+    pda.extraFields?.matched_manual_pda_id;
 
   console.log(`右键点击 PDA: ${pdaId} (${pdaType})`);
 
@@ -204,6 +208,18 @@ export function showPdaMenu(
       },
     },
   ];
+
+  if (isManual && !hasMatch) {
+    items.push({
+      icon: '🔗',
+      label: '匹配自动 PDA',
+      action: () => {
+        console.log('[操作] 匹配自动 PDA:', pdaId);
+        closeContextMenu();
+        if (onMatchAutoPda) onMatchAutoPda(pda);
+      },
+    });
+  }
 
   if (hasMatch) {
     items.push({

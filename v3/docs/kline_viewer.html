@@ -35,6 +35,10 @@
           <input type="checkbox" id="showHiddenPdasCheckbox" />
           显示隐藏 PDA
         </label>
+        <label class="toolbar-checkbox">
+          <input type="checkbox" id="showAutoPdasCheckbox" />
+          显示自动 PDA
+        </label>
         <div class="status-bar">
           <span id="statusText">就绪</span>
         </div>
@@ -496,16 +500,17 @@
             `event_time=${encodeURIComponent(eventTimeStr)}&` +
             `price=${price}&` +
             `pda_type=${pdaType}&` +
-            `timeframe=${tfStr}&` +
             `time_tolerance_bars=1&` +
             `price_tolerance_ticks=2&` +
-            `limit=5`;
+            `limit=10`;
           const response = await fetch(url);
           const data = await response.json();
-          if (!data.ok || !data.candidates) return;
+          if (!data.ok || !data.result?.candidates) return;
           // 只保留自动扫描的 exact/near 匹配
-          const candidates = data.candidates.filter(
-            (c) => c.source === 'auto_scan' && (c.matchKind === 'exact' || c.matchKind === 'near')
+          const candidates = data.result.candidates.filter(
+            (c) =>
+              (c.source === 'auto_scan' || c.source === 'auto_ict_midnight_scan') &&
+              (c.matchKind === 'exact' || c.matchKind === 'near')
           );
           if (candidates.length === 0) return;
           showMatchPanel(manualPda.pdaId, candidates);
@@ -528,18 +533,41 @@
         title.textContent = '发现匹配的自动 PDA';
         panel.appendChild(title);
 
-        candidates.forEach((c) => {
+        candidates.forEach((c, i) => {
           const row = document.createElement('div');
           row.className = 'match-candidate-row';
+          const defaultChecked = c.matchKind === 'exact';
           row.innerHTML = `
-            <span class="match-candidate-info">
-              ${c.pdaType.toUpperCase()} ${c.timeframe}
-              <span class="match-score">${c.matchKind} (${c.matchScore})</span>
-            </span>
-            <button class="match-btn" data-auto-pda-id="${c.pdaId}">匹配</button>
+            <label class="match-candidate-label">
+              <input type="checkbox" class="match-candidate-checkbox" data-index="${i}" ${defaultChecked ? 'checked' : ''} />
+              <span class="match-candidate-info">
+                ${c.pdaType.toUpperCase()} ${c.timeframe}
+                <span class="match-score">${c.matchKind} (${c.matchScore})</span>
+              </span>
+            </label>
           `;
           panel.appendChild(row);
         });
+
+        const btnRow = document.createElement('div');
+        btnRow.className = 'match-panel-buttons';
+
+        const matchBtn = document.createElement('button');
+        matchBtn.className = 'match-btn';
+        matchBtn.textContent = '匹配所选';
+        matchBtn.addEventListener('click', async () => {
+          const checked = panel.querySelectorAll('.match-candidate-checkbox:checked');
+          const selectedIds = Array.from(checked).map(
+            (cb) => candidates[parseInt(cb.dataset.index)].pdaId
+          );
+          if (selectedIds.length === 0) {
+            updateStatus('请至少选择一个候选', true);
+            return;
+          }
+          await handleMatchManual(manualPdaId, selectedIds);
+          panel.remove();
+        });
+        btnRow.appendChild(matchBtn);
 
         const keepIndependent = document.createElement('button');
         keepIndependent.className = 'match-btn-independent';
@@ -548,30 +576,23 @@
           panel.remove();
           updateStatus('PDA 保持独立');
         });
-        panel.appendChild(keepIndependent);
+        btnRow.appendChild(keepIndependent);
 
-        // 匹配按钮事件
-        panel.querySelectorAll('.match-btn').forEach((btn) => {
-          btn.addEventListener('click', async () => {
-            const autoPdaId = btn.dataset.autoPdaId;
-            await handleMatchManual(manualPdaId, autoPdaId);
-            panel.remove();
-          });
-        });
+        panel.appendChild(btnRow);
 
         document.body.appendChild(panel);
       }
 
-      async function handleMatchManual(manualPdaId, autoPdaId) {
+      async function handleMatchManual(manualPdaId, autoPdaIds) {
         try {
           const response = await fetch(`${API_BASE}/v2/pda_match_manual`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pdaId: manualPdaId, autoPdaId }),
+            body: JSON.stringify({ pdaId: manualPdaId, autoPdaIds }),
           });
           const result = await response.json();
           if (result.ok) {
-            updateStatus('PDA 已匹配');
+            updateStatus(`已匹配 ${autoPdaIds.length} 个自动 PDA`);
             await reloadPdaData();
           } else {
             updateStatus(`匹配失败: ${result.error}`, true);
@@ -600,6 +621,19 @@
           console.error('[取消匹配] 请求失败:', error);
           updateStatus('取消匹配请求失败', true);
         }
+      }
+
+      function handleMatchAutoPda(pda) {
+        const anchorTime = pda.anchorTs || pda.anchorTime;
+        let timestamp;
+        if (typeof anchorTime === 'number') {
+          timestamp = anchorTime;
+        } else if (typeof anchorTime === 'string') {
+          timestamp = Math.floor(new Date(anchorTime.replace(' ', 'T') + 'Z').getTime() / 1000);
+        }
+        const price = pda.price || pda.priceHigh || pda.priceLow;
+        const pdaType = pda.pdaType;
+        queryAndShowMatchCandidates(pda, timestamp, price, pdaType, '');
       }
 
       function handleVisibilityChange(pda, x, y) {
@@ -929,6 +963,14 @@
           }
         });
 
+        // 显示自动 PDA 开关
+        document.getElementById('showAutoPdasCheckbox').addEventListener('change', (e) => {
+          state.showAutoPdas = e.target.checked;
+          if (state.candleData && state.candleData.length > 0) {
+            reloadPdaData();
+          }
+        });
+
         // 时间输入框格式化
         ['startInput', 'endInput'].forEach((id) => {
           const input = document.getElementById(id);
@@ -966,7 +1008,8 @@
                 handleVisibilityChange,
                 handleHidePda,
                 handlePermanentDeletePda,
-                handleUnmatchManual
+                handleUnmatchManual,
+                handleMatchAutoPda
               );
             }
           } else {

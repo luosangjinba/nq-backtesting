@@ -7,6 +7,36 @@ import { state, API_BASE } from './chart.js';
 import { findNearestBarTime } from './utils.js';
 
 /**
+ * 判断 PDA 是否应该可见（与渲染逻辑一致）
+ * @param {Object} record - PDA 记录
+ * @param {string} currentTimeframe - 当前图表周期字符串（如 "1H"）
+ * @returns {boolean}
+ */
+export function isVisiblePda(record, currentTimeframe) {
+  const isManual = record.source === 'manual_add' || record.manualAdded;
+  const isAuto = record.source === 'auto_scan' || record.source === 'auto_ict_midnight_scan';
+  const isMatchedAuto = !!record.extraFields?.matched_manual_pda_id;
+  const isMatchedManual = !!(
+    record.extraFields?.matched_auto_pda_id || record.extraFields?.matched_auto_pda_ids
+  );
+
+  // 已匹配的手动PDA不显示
+  if (isManual && isMatchedManual) return false;
+
+  // 自动PDA：默认不显示，只显示已匹配确认的 或 showAutoPdas开启时
+  if (isAuto && !isMatchedAuto && !state.showAutoPdas) return false;
+
+  // 手动标注的 PDA 检查可见周期
+  const visibleOn = record.extraFields?.visible_on_timeframes;
+  if (isManual && visibleOn && !visibleOn.includes(currentTimeframe)) return false;
+
+  // 隐藏的 PDA 只在 showHiddenPdas 开启时显示
+  if (record.status === 'hidden' && !state.showHiddenPdas) return false;
+
+  return true;
+}
+
+/**
  * 流动性默认参数
  */
 const LIQUIDITY_DEFAULTS = {
@@ -481,7 +511,7 @@ export function addManualBsl(timestamp, price, timeframeStr = '1H') {
     price,
     '#5b9cf6',
     '#26a69a',
-    `BSL ${timeframeStr}`,
+    `BSL ${timeframeStr} manual`,
     'above',
     { lineLength: 3 }
   );
@@ -502,7 +532,7 @@ export function addManualSsl(timestamp, price, timeframeStr = '1H') {
     price,
     '#ffb74d',
     '#ef5350',
-    `SSL ${timeframeStr}`,
+    `SSL ${timeframeStr} manual`,
     'below',
     { lineLength: 3 }
   );
@@ -665,22 +695,33 @@ export async function loadPdaData(startTime, endTime) {
     // 遍历记录，按类型渲染（过滤可见周期）
     const currentTimeframe = tfMap[tf] || '1H';
     records.forEach((record) => {
-      // 手动标注的 PDA 检查可见周期
-      const visibleOn = record.extraFields?.visible_on_timeframes;
       const isManual = record.source === 'manual_add' || record.manualAdded;
-      if (isManual && visibleOn && !visibleOn.includes(currentTimeframe)) {
+      const isAuto = record.source === 'auto_scan' || record.source === 'auto_ict_midnight_scan';
+      const isMatchedAuto = !!record.extraFields?.matched_manual_pda_id;
+      const isMatchedManual = !!(
+        record.extraFields?.matched_auto_pda_id || record.extraFields?.matched_auto_pda_ids
+      );
+
+      // 已匹配的手动PDA不渲染（合并到自动PDA显示）
+      if (isManual && isMatchedManual) {
         return;
       }
 
-      // 已匹配的手动PDA不渲染（合并到自动PDA显示）
-      if (record.extraFields?.matched_auto_pda_id) {
+      // 自动PDA：默认不渲染，只渲染已匹配确认的 或 showAutoPdas开启时
+      if (isAuto && !isMatchedAuto && !state.showAutoPdas) {
+        return;
+      }
+
+      // 手动标注的 PDA 检查可见周期
+      const visibleOn = record.extraFields?.visible_on_timeframes;
+      if (isManual && visibleOn && !visibleOn.includes(currentTimeframe)) {
         return;
       }
 
       const pdaType = record.pdaType;
       const isHidden = record.status === 'hidden';
       const hiddenOptions = isHidden ? { lineStyle: 'dashed' } : {};
-      const isMatched = record.extraFields?.matched_manual_pda_id;
+      const isMatched = isMatchedAuto;
 
       // 日级 PDA 使用 occurrence_time
       const dailyTypes = [

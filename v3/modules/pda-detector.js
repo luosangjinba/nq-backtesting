@@ -4,6 +4,7 @@
  */
 
 import { state } from './chart.js';
+import { isVisiblePda } from './pda-renderer.js';
 
 /**
  * 查找点击位置的 PDA
@@ -60,7 +61,23 @@ export function findPdaAtPosition(clientX, clientY) {
   let closestPda = null;
   let minDistance = Infinity;
 
+  const tf = parseInt(document.getElementById('tfSelect').value);
+  const tfMap = {
+    1: '1M',
+    5: '5M',
+    15: '15M',
+    30: '30M',
+    60: '1H',
+    240: '4H',
+    1440: 'D',
+    10080: '1W',
+  };
+  const currentTimeframe = tfMap[tf] || '1H';
+
   state.pdaRecords.forEach((record) => {
+    // 只检测可见的 PDA（与渲染逻辑一致）
+    if (!isVisiblePda(record, currentTimeframe)) return;
+
     const pdaType = record.pdaType;
     const anchorTime = record.anchorTs || record.anchorTime;
 
