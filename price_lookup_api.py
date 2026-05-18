@@ -1469,6 +1469,104 @@ def restore_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
+def match_v2_manual_to_auto(v2_db_path: str, manual_pda_id: str, auto_pda_id: str) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    ensure_v2_pda_members_table(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        manual_row = conn.execute(
+            "select pda_id, source, extra_fields from pda_registry where pda_id = ?", [manual_pda_id]
+        ).fetchone()
+        if not manual_row:
+            raise LookupError("manual pda record not found")
+        if manual_row[1] not in ("manual_add", "manual_eqh_eql"):
+            raise ValueError("only manual PDAs can be matched")
+        auto_row = conn.execute(
+            "select pda_id, source, extra_fields from pda_registry where pda_id = ?", [auto_pda_id]
+        ).fetchone()
+        if not auto_row:
+            raise LookupError("auto pda record not found")
+        if auto_row[1] != "auto_scan":
+            raise ValueError("target must be an auto-scanned PDA")
+        manual_extra = json.loads(manual_row[2]) if manual_row[2] else {}
+        manual_extra["matched_auto_pda_id"] = auto_pda_id
+        conn.execute(
+            "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+            [json.dumps(manual_extra), manual_pda_id],
+        )
+        auto_extra = json.loads(auto_row[2]) if auto_row[2] else {}
+        auto_extra["matched_manual_pda_id"] = manual_pda_id
+        conn.execute(
+            "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+            [json.dumps(auto_extra), auto_pda_id],
+        )
+        conn.execute(
+            "insert or ignore into pda_members (pda_id, member_type, member_ref, role) values (?, 'manual_ref', ?, 'matched_by')",
+            [auto_pda_id, manual_pda_id],
+        )
+    return {
+        "ok": True,
+        "manualPda": query_v2_pda_record(v2_db_path, manual_pda_id),
+        "autoPda": query_v2_pda_record(v2_db_path, auto_pda_id),
+    }
+
+
+def unmatch_v2_manual_pda(v2_db_path: str, pda_id: str) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    ensure_v2_pda_members_table(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        row = conn.execute(
+            "select pda_id, source, extra_fields from pda_registry where pda_id = ?", [pda_id]
+        ).fetchone()
+        if not row:
+            raise LookupError("pda record not found")
+        extra = json.loads(row[2]) if row[2] else {}
+        matched_auto_id = extra.get("matched_auto_pda_id", "")
+        matched_manual_id = extra.get("matched_manual_pda_id", "")
+        if matched_auto_id:
+            extra.pop("matched_auto_pda_id", None)
+            conn.execute(
+                "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+                [json.dumps(extra), pda_id],
+            )
+            auto_extra_raw = conn.execute(
+                "select extra_fields from pda_registry where pda_id = ?", [matched_auto_id]
+            ).fetchone()
+            if auto_extra_raw:
+                auto_extra = json.loads(auto_extra_raw[0]) if auto_extra_raw[0] else {}
+                auto_extra.pop("matched_manual_pda_id", None)
+                conn.execute(
+                    "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+                    [json.dumps(auto_extra), matched_auto_id],
+                )
+            conn.execute(
+                "delete from pda_members where pda_id = ? and member_type = 'manual_ref' and member_ref = ?",
+                [matched_auto_id, pda_id],
+            )
+        elif matched_manual_id:
+            extra.pop("matched_manual_pda_id", None)
+            conn.execute(
+                "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+                [json.dumps(extra), pda_id],
+            )
+            manual_extra_raw = conn.execute(
+                "select extra_fields from pda_registry where pda_id = ?", [matched_manual_id]
+            ).fetchone()
+            if manual_extra_raw:
+                manual_extra = json.loads(manual_extra_raw[0]) if manual_extra_raw[0] else {}
+                manual_extra.pop("matched_auto_pda_id", None)
+                conn.execute(
+                    "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
+                    [json.dumps(manual_extra), matched_manual_id],
+                )
+            conn.execute(
+                "delete from pda_members where pda_id = ? and member_type = 'manual_ref' and member_ref = ?",
+                [pda_id, matched_manual_id],
+            )
+        else:
+            raise ValueError("PDA has no match relationship to unmatch")
+    return query_v2_pda_record(v2_db_path, pda_id)
+
+
 def next_manual_pda_id(
     conn: duckdb.DuckDBPyConnection,
     trade_date: str,
@@ -2594,6 +2692,47 @@ class Handler(BaseHTTPRequestHandler):
                 body = json.loads(payload.decode("utf-8"))
                 pda_id = validate_pda_id(body.get("pdaId", ""))
                 result = restore_v2_pda_record(self.v2_db_path, pda_id)
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_match_manual":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                manual_pda_id = validate_pda_id(body.get("pdaId", ""))
+                auto_pda_id = validate_pda_id(body.get("autoPdaId", ""))
+                result = match_v2_manual_to_auto(self.v2_db_path, manual_pda_id, auto_pda_id)
+                self._send_json(200, result)
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_unmatch_manual":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                pda_id = validate_pda_id(body.get("pdaId", ""))
+                result = unmatch_v2_manual_pda(self.v2_db_path, pda_id)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})

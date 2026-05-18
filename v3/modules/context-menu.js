@@ -174,11 +174,13 @@ export function showPdaMenu(
   updateStatus,
   onVisibilityChange,
   onHidePda,
-  onPermanentDeletePda
+  onPermanentDeletePda,
+  onUnmatchManual
 ) {
   const pdaId = pda.pdaId;
   const pdaType = pda.pdaType.toUpperCase();
   const isManual = pda.source === 'manual_add' || pda.source === 'manual_eqh_eql';
+  const hasMatch = pda.extraFields?.matched_auto_pda_id || pda.extraFields?.matched_manual_pda_id;
 
   console.log(`右键点击 PDA: ${pdaId} (${pdaType})`);
 
@@ -202,6 +204,18 @@ export function showPdaMenu(
       },
     },
   ];
+
+  if (hasMatch) {
+    items.push({
+      icon: '↩️',
+      label: '取消匹配',
+      action: () => {
+        console.log('[操作] 取消匹配:', pdaId);
+        closeContextMenu();
+        if (onUnmatchManual) onUnmatchManual(pda);
+      },
+    });
+  }
 
   if (isManual) {
     items.push({

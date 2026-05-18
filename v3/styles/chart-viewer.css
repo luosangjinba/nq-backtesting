@@ -107,6 +107,80 @@ body {
   cursor: pointer;
 }
 
+/* 匹配选择面板 */
+.match-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e222d;
+  border: 1px solid #2a2e39;
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 1000;
+  min-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.match-panel-title {
+  font-size: 14px;
+  color: #e0e3eb;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.match-candidate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #2a2e39;
+}
+
+.match-candidate-info {
+  font-size: 13px;
+  color: #e0e3eb;
+}
+
+.match-score {
+  font-size: 11px;
+  color: #787b86;
+  margin-left: 8px;
+}
+
+.match-btn {
+  padding: 4px 12px;
+  background: #2962ff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.match-btn:hover {
+  background: #1e53e5;
+}
+
+.match-btn-independent {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: #2a2e39;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  color: #787b86;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.match-btn-independent:hover {
+  background: #363a45;
+  color: #e0e3eb;
+}
+
 #statusText {
   margin-left: auto;
   font-size: 12px;

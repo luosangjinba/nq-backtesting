@@ -672,9 +672,15 @@ export async function loadPdaData(startTime, endTime) {
         return;
       }
 
+      // 已匹配的手动PDA不渲染（合并到自动PDA显示）
+      if (record.extraFields?.matched_auto_pda_id) {
+        return;
+      }
+
       const pdaType = record.pdaType;
       const isHidden = record.status === 'hidden';
       const hiddenOptions = isHidden ? { lineStyle: 'dashed' } : {};
+      const isMatched = record.extraFields?.matched_manual_pda_id;
 
       // 日级 PDA 使用 occurrence_time
       const dailyTypes = [
@@ -713,16 +719,27 @@ export async function loadPdaData(startTime, endTime) {
       }
 
       // 根据类型渲染
+      const suffix = isMatched ? ' ✓' : '';
       if (pdaType === 'bsl') {
         const price = record.price || record.priceHigh;
         if (price) {
-          addBslMarker(timestamp, price, isHidden ? 'BSL (隐藏)' : 'BSL', hiddenOptions);
+          addBslMarker(
+            timestamp,
+            price,
+            isHidden ? `BSL (隐藏)${suffix}` : `BSL${suffix}`,
+            hiddenOptions
+          );
           stats.bsl++;
         }
       } else if (pdaType === 'ssl') {
         const price = record.price || record.priceLow;
         if (price) {
-          addSslMarker(timestamp, price, isHidden ? 'SSL (隐藏)' : 'SSL', hiddenOptions);
+          addSslMarker(
+            timestamp,
+            price,
+            isHidden ? `SSL (隐藏)${suffix}` : `SSL${suffix}`,
+            hiddenOptions
+          );
           stats.ssl++;
         }
       } else if (pdaType === 'fvg') {
@@ -765,7 +782,7 @@ export async function loadPdaData(startTime, endTime) {
           addDailyHighMarker(
             timestamp,
             price,
-            isHidden ? 'Daily High (隐藏)' : 'Daily High',
+            isHidden ? `Daily High (隐藏)${suffix}` : `Daily High${suffix}`,
             hiddenOptions
           );
           stats.daily_high++;
@@ -776,7 +793,7 @@ export async function loadPdaData(startTime, endTime) {
           addDailyLowMarker(
             timestamp,
             price,
-            isHidden ? 'Daily Low (隐藏)' : 'Daily Low',
+            isHidden ? `Daily Low (隐藏)${suffix}` : `Daily Low${suffix}`,
             hiddenOptions
           );
           stats.daily_low++;
@@ -787,7 +804,7 @@ export async function loadPdaData(startTime, endTime) {
           addIctMidnightHighMarker(
             timestamp,
             price,
-            isHidden ? 'ICT Mid High (隐藏)' : 'ICT Mid High',
+            isHidden ? `ICT Mid High (隐藏)${suffix}` : `ICT Mid High${suffix}`,
             hiddenOptions
           );
           stats.ict_midnight_day_high++;
@@ -798,7 +815,7 @@ export async function loadPdaData(startTime, endTime) {
           addIctMidnightLowMarker(
             timestamp,
             price,
-            isHidden ? 'ICT Mid Low (隐藏)' : 'ICT Mid Low',
+            isHidden ? `ICT Mid Low (隐藏)${suffix}` : `ICT Mid Low${suffix}`,
             hiddenOptions
           );
           stats.ict_midnight_day_low++;
@@ -806,13 +823,23 @@ export async function loadPdaData(startTime, endTime) {
       } else if (pdaType === 'eqh') {
         const price = record.price || record.priceHigh;
         if (price) {
-          addBslMarker(timestamp, price, isHidden ? 'EQH (隐藏)' : 'EQH', hiddenOptions);
+          addBslMarker(
+            timestamp,
+            price,
+            isHidden ? `EQH (隐藏)${suffix}` : `EQH${suffix}`,
+            hiddenOptions
+          );
           stats.eqh = (stats.eqh || 0) + 1;
         }
       } else if (pdaType === 'eql') {
         const price = record.price || record.priceLow;
         if (price) {
-          addSslMarker(timestamp, price, isHidden ? 'EQL (隐藏)' : 'EQL', hiddenOptions);
+          addSslMarker(
+            timestamp,
+            price,
+            isHidden ? `EQL (隐藏)${suffix}` : `EQL${suffix}`,
+            hiddenOptions
+          );
           stats.eql = (stats.eql || 0) + 1;
         }
       } else {
