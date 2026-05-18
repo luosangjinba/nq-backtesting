@@ -186,8 +186,8 @@
             chartCoordinates.price,
             null,
             null,
-            null,
-            timeframe
+            timeframe,
+            null
           );
           updateStatus(`已标注 BSL ${tfStr}: ${chartCoordinates.price.toFixed(2)}`);
         } else if (pdaType === 'ssl') {
@@ -198,8 +198,8 @@
             chartCoordinates.price,
             null,
             null,
-            null,
-            timeframe
+            timeframe,
+            null
           );
           updateStatus(`已标注 SSL ${tfStr}: ${chartCoordinates.price.toFixed(2)}`);
         } else if (pdaType === 'fvg') {
@@ -369,12 +369,12 @@
           if (annotationType === 'bsl') {
             const tfStr = convertTimeframeToString(timeframe);
             addManualBsl(barData.time, barData.high, tfStr);
-            saveManualPda('bsl', barData.time, barData.high, null, null, null, timeframe);
+            saveManualPda('bsl', barData.time, barData.high, null, null, timeframe, null);
             updateStatus(`已标注 BSL ${tfStr}: ${barData.high.toFixed(2)}`);
           } else if (annotationType === 'ssl') {
             const tfStr = convertTimeframeToString(timeframe);
             addManualSsl(barData.time, barData.low, tfStr);
-            saveManualPda('ssl', barData.time, barData.low, null, null, null, timeframe);
+            saveManualPda('ssl', barData.time, barData.low, null, null, timeframe, null);
             updateStatus(`已标注 SSL ${tfStr}: ${barData.low.toFixed(2)}`);
           } else if (annotationType === 'fvg') {
             const fvgResult = identifyFvg(state.candleData, barData.time);
