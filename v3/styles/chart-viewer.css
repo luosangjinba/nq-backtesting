@@ -36,7 +36,7 @@ body {
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-background: #1e222d;
+  background: #1e222d;
   border-bottom: 1px solid #2a2e39;
 }
 
@@ -48,11 +48,11 @@ background: #1e222d;
 
 .toolbar-label {
   font-size: 13px;
-color: #787b86;
+  color: #787b86;
   white-space: nowrap;
 }
 
-.toolbar input[type="text"],
+.toolbar input[type='text'],
 .toolbar select {
   padding: 6px 10px;
   background: #131722;
@@ -63,7 +63,7 @@ color: #787b86;
   font-family: 'Courier New', monospace;
 }
 
-.toolbar input[type="text"] {
+.toolbar input[type='text'] {
   width: 140px;
 }
 
@@ -91,6 +91,20 @@ color: #787b86;
   background: #2a2e39;
   color: #787b86;
   cursor: not-allowed;
+}
+
+.toolbar-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #787b86;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toolbar-checkbox input[type='checkbox'] {
+  cursor: pointer;
 }
 
 #statusText {
@@ -135,7 +149,9 @@ color: #787b86;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {

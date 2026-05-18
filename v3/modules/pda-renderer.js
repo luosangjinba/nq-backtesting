@@ -580,7 +580,8 @@ export async function loadPdaData(startTime, endTime) {
       `anchor_time_from=${encodeURIComponent(startTime)}&` +
       `anchor_time_to=${encodeURIComponent(endTime)}&` +
       `timeframe=${timeframe}&` +
-      `limit=1000`;
+      `limit=1000` +
+      (state.showHiddenPdas ? '&include_hidden=true' : '');
 
     console.log('PDA API URL:', url);
 
@@ -672,6 +673,8 @@ export async function loadPdaData(startTime, endTime) {
       }
 
       const pdaType = record.pdaType;
+      const isHidden = record.status === 'hidden';
+      const hiddenOptions = isHidden ? { lineStyle: 'dashed' } : {};
 
       // 日级 PDA 使用 occurrence_time
       const dailyTypes = [
@@ -713,13 +716,13 @@ export async function loadPdaData(startTime, endTime) {
       if (pdaType === 'bsl') {
         const price = record.price || record.priceHigh;
         if (price) {
-          addBslMarker(timestamp, price, 'BSL');
+          addBslMarker(timestamp, price, isHidden ? 'BSL (隐藏)' : 'BSL', hiddenOptions);
           stats.bsl++;
         }
       } else if (pdaType === 'ssl') {
         const price = record.price || record.priceLow;
         if (price) {
-          addSslMarker(timestamp, price, 'SSL');
+          addSslMarker(timestamp, price, isHidden ? 'SSL (隐藏)' : 'SSL', hiddenOptions);
           stats.ssl++;
         }
       } else if (pdaType === 'fvg') {
@@ -731,7 +734,8 @@ export async function loadPdaData(startTime, endTime) {
           const tfSeconds = tf * 60;
           const startTime = timestamp - tfSeconds;
           const endTime = timestamp + tfSeconds * 2;
-          const color = direction === 'bullish' ? '#26a69a33' : '#ef535033';
+          const baseColor = direction === 'bullish' ? '#26a69a33' : '#ef535033';
+          const color = isHidden ? baseColor.replace('33', '15') : baseColor;
           addFvgMarker(startTime, endTime, priceHigh, priceLow, color);
           stats.fvg++;
         }
@@ -739,7 +743,8 @@ export async function loadPdaData(startTime, endTime) {
         const priceHigh = record.priceHigh;
         const priceLow = record.priceLow;
         if (priceHigh && priceLow) {
-          const color = '#ab47bc33';
+          const baseColor = '#ab47bc33';
+          const color = isHidden ? baseColor.replace('33', '15') : baseColor;
           const endTime = timestamp + 24 * 3600;
           addFvgMarker(timestamp, endTime, priceHigh, priceLow, color);
         }
@@ -748,7 +753,8 @@ export async function loadPdaData(startTime, endTime) {
         const priceHigh = record.priceHigh;
         const priceLow = record.priceLow;
         if (priceHigh && priceLow) {
-          const color = '#26c6da33';
+          const baseColor = '#26c6da33';
+          const color = isHidden ? baseColor.replace('33', '15') : baseColor;
           const endTime = timestamp + 24 * 3600;
           addFvgMarker(timestamp, endTime, priceHigh, priceLow, color);
           stats.ndog++;
@@ -756,37 +762,57 @@ export async function loadPdaData(startTime, endTime) {
       } else if (pdaType === 'daily_high') {
         const price = record.price || record.priceHigh;
         if (price) {
-          addDailyHighMarker(timestamp, price, 'Daily High');
+          addDailyHighMarker(
+            timestamp,
+            price,
+            isHidden ? 'Daily High (隐藏)' : 'Daily High',
+            hiddenOptions
+          );
           stats.daily_high++;
         }
       } else if (pdaType === 'daily_low') {
         const price = record.price || record.priceLow;
         if (price) {
-          addDailyLowMarker(timestamp, price, 'Daily Low');
+          addDailyLowMarker(
+            timestamp,
+            price,
+            isHidden ? 'Daily Low (隐藏)' : 'Daily Low',
+            hiddenOptions
+          );
           stats.daily_low++;
         }
       } else if (pdaType === 'ict_midnight_day_high') {
         const price = record.price || record.priceHigh;
         if (price) {
-          addIctMidnightHighMarker(timestamp, price, 'ICT Mid High');
+          addIctMidnightHighMarker(
+            timestamp,
+            price,
+            isHidden ? 'ICT Mid High (隐藏)' : 'ICT Mid High',
+            hiddenOptions
+          );
           stats.ict_midnight_day_high++;
         }
       } else if (pdaType === 'ict_midnight_day_low') {
         const price = record.price || record.priceLow;
         if (price) {
-          addIctMidnightLowMarker(timestamp, price, 'ICT Mid Low');
+          addIctMidnightLowMarker(
+            timestamp,
+            price,
+            isHidden ? 'ICT Mid Low (隐藏)' : 'ICT Mid Low',
+            hiddenOptions
+          );
           stats.ict_midnight_day_low++;
         }
       } else if (pdaType === 'eqh') {
         const price = record.price || record.priceHigh;
         if (price) {
-          addBslMarker(timestamp, price, 'EQH');
+          addBslMarker(timestamp, price, isHidden ? 'EQH (隐藏)' : 'EQH', hiddenOptions);
           stats.eqh = (stats.eqh || 0) + 1;
         }
       } else if (pdaType === 'eql') {
         const price = record.price || record.priceLow;
         if (price) {
-          addSslMarker(timestamp, price, 'EQL');
+          addSslMarker(timestamp, price, isHidden ? 'EQL (隐藏)' : 'EQL', hiddenOptions);
           stats.eql = (stats.eql || 0) + 1;
         }
       } else {

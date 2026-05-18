@@ -10,15 +10,16 @@ export const state = {
   chart: null,
   candlestickSeries: null,
   loading: false,
-  liquidityPrimitives: [], // BSL/SSL 短线 Primitives
-  fvgPrimitives: [], // FVG 矩形 Primitives
-  currentMenu: null, // 当前打开的右键菜单
-  currentPopover: null, // 当前打开的 PDA 详情浮窗
-  pdaRecords: [], // PDA 原始数据（用于点击检测）
-  selectedMenuIndex: -1, // 当前选中的菜单项索引（-1 表示无选中）
-  menuItems: [], // 当前菜单的可选项（不含 divider）
-  barTimestamps: [], // K 线时间戳数组（用于日级 PDA 时间映射）
-  candleData: [], // K 线完整数据（用于 PDA 识别）
+  liquidityPrimitives: [],
+  fvgPrimitives: [],
+  currentMenu: null,
+  currentPopover: null,
+  pdaRecords: [],
+  selectedMenuIndex: -1,
+  menuItems: [],
+  barTimestamps: [],
+  candleData: [],
+  showHiddenPdas: false,
 };
 
 /**

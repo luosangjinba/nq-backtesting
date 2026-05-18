@@ -173,10 +173,12 @@ export function showPdaMenu(
   showPdaDetail,
   updateStatus,
   onVisibilityChange,
-  onDeletePda
+  onHidePda,
+  onPermanentDeletePda
 ) {
   const pdaId = pda.pdaId;
   const pdaType = pda.pdaType.toUpperCase();
+  const isManual = pda.source === 'manual_add' || pda.source === 'manual_eqh_eql';
 
   console.log(`右键点击 PDA: ${pdaId} (${pdaType})`);
 
@@ -187,19 +189,34 @@ export function showPdaMenu(
       action: () => {
         console.log('[操作] 可见周期:', pda);
         if (onVisibilityChange) onVisibilityChange(pda, x, y);
-        return true; // keep menu open (submenu will replace it)
+        return true;
       },
     },
     {
-      icon: '🗑️',
-      label: '删除',
-      danger: true,
+      icon: '🚫',
+      label: '隐藏',
       action: () => {
-        console.log('[操作] 删除 PDA:', pdaId);
+        console.log('[操作] 隐藏 PDA:', pdaId);
         closeContextMenu();
-        if (onDeletePda) onDeletePda(pda);
+        if (onHidePda) onHidePda(pda);
       },
     },
+  ];
+
+  if (isManual) {
+    items.push({
+      icon: '🗑️',
+      label: '永久删除',
+      danger: true,
+      action: () => {
+        console.log('[操作] 永久删除 PDA:', pdaId);
+        closeContextMenu();
+        if (onPermanentDeletePda) onPermanentDeletePda(pda);
+      },
+    });
+  }
+
+  items.push(
     { type: 'divider' },
     {
       icon: '📋',
@@ -238,8 +255,40 @@ export function showPdaMenu(
           updateStatus(`已复制: ${pdaId}`);
         });
       },
+    }
+  );
+
+  createContextMenu(x, y, items);
+}
+
+export function showHiddenPdaMenu(x, y, pda, onRestorePda, onPermanentDeletePda) {
+  const pdaId = pda.pdaId;
+  const isManual = pda.source === 'manual_add' || pda.source === 'manual_eqh_eql';
+
+  const items = [
+    {
+      icon: '👁️',
+      label: '恢复显示',
+      action: () => {
+        console.log('[操作] 恢复 PDA:', pdaId);
+        closeContextMenu();
+        if (onRestorePda) onRestorePda(pda);
+      },
     },
   ];
+
+  if (isManual) {
+    items.push({
+      icon: '🗑️',
+      label: '永久删除',
+      danger: true,
+      action: () => {
+        console.log('[操作] 永久删除 PDA:', pdaId);
+        closeContextMenu();
+        if (onPermanentDeletePda) onPermanentDeletePda(pda);
+      },
+    });
+  }
 
   createContextMenu(x, y, items);
 }

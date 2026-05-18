@@ -829,6 +829,7 @@ def query_v2_pda_records(
     anchor_time_from: str = "",
     anchor_time_to: str = "",
     pda_id: str = "",
+    include_hidden: bool = False,
 ) -> Dict[str, object]:
     ensure_v2_registry_columns(v2_db_path)
     clauses = [
@@ -837,6 +838,8 @@ def query_v2_pda_records(
         "(? = '' or coalesce(trade_date, created_date) >= cast(? as date))",
         "(? = '' or coalesce(trade_date, created_date) <= cast(? as date))",
     ]
+    if not include_hidden:
+        clauses.append("coalesce(status, 'active') != 'hidden'")
     params: list[object] = [
         instrument,
         instrument,
@@ -1443,6 +1446,26 @@ def update_v2_pda_visibility(v2_db_path: str, pda_id: str, visible_on_timeframes
             "update pda_registry set extra_fields = ?, updated_at = current_timestamp where pda_id = ?",
             [json.dumps(existing), pda_id],
         )
+    return query_v2_pda_record(v2_db_path, pda_id)
+
+
+def hide_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        row = conn.execute("select pda_id from pda_registry where pda_id = ?", [pda_id]).fetchone()
+        if not row:
+            raise LookupError("pda record not found")
+        conn.execute("update pda_registry set status = 'hidden', updated_at = current_timestamp where pda_id = ?", [pda_id])
+    return query_v2_pda_record(v2_db_path, pda_id)
+
+
+def restore_v2_pda_record(v2_db_path: str, pda_id: str) -> Dict[str, object]:
+    ensure_v2_registry_columns(v2_db_path)
+    with duckdb.connect(v2_db_path) as conn:
+        row = conn.execute("select pda_id from pda_registry where pda_id = ?", [pda_id]).fetchone()
+        if not row:
+            raise LookupError("pda record not found")
+        conn.execute("update pda_registry set status = 'active', updated_at = current_timestamp where pda_id = ?", [pda_id])
     return query_v2_pda_record(v2_db_path, pda_id)
 
 
@@ -2170,7 +2193,8 @@ class Handler(BaseHTTPRequestHandler):
                 anchor_time_from = params.get("anchor_time_from", [""])[0].strip()
                 anchor_time_to = params.get("anchor_time_to", [""])[0].strip()
                 pda_id = params.get("pda_id", [""])[0].strip()
-                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit, source, source_exclude, direction, anchor_time_from, anchor_time_to, pda_id)
+                include_hidden = params.get("include_hidden", [""])[0].strip().lower() in ("true", "1", "yes")
+                result = query_v2_pda_records(self.v2_db_path, instrument, timeframe, pda_types, review_role, date_from, date_to, limit, source, source_exclude, direction, anchor_time_from, anchor_time_to, pda_id, include_hidden)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
@@ -2530,6 +2554,46 @@ class Handler(BaseHTTPRequestHandler):
                     member_refs,
                     extra_fields,
                 )
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_hide":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                pda_id = validate_pda_id(body.get("pdaId", ""))
+                result = hide_v2_pda_record(self.v2_db_path, pda_id)
+                self._send_json(200, {"ok": True, "result": result})
+            except LookupError as exc:
+                self._send_json(404, {"ok": False, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"ok": False, "error": str(exc)})
+            except json.JSONDecodeError:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed.path == "/v2/pda_restore":
+            try:
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    raise ValueError("empty json body")
+                payload = self.rfile.read(content_length)
+                body = json.loads(payload.decode("utf-8"))
+                pda_id = validate_pda_id(body.get("pdaId", ""))
+                result = restore_v2_pda_record(self.v2_db_path, pda_id)
                 self._send_json(200, {"ok": True, "result": result})
             except LookupError as exc:
                 self._send_json(404, {"ok": False, "error": str(exc)})
