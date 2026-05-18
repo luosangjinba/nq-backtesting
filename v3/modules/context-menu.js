@@ -65,8 +65,11 @@ export function createContextMenu(x, y, items) {
 
         menuItem.addEventListener('click', (e) => {
           e.stopPropagation();
-          item.action();
-          closeContextMenu();
+          const keepOpen = item.action();
+          // If action returns true (e.g. opening a submenu), don't close
+          if (!keepOpen) {
+            closeContextMenu();
+          }
         });
 
         // 鼠标 hover 同步 selectedIndex
@@ -183,8 +186,8 @@ export function showPdaMenu(
       label: '可见周期',
       action: () => {
         console.log('[操作] 可见周期:', pda);
-        closeContextMenu();
         if (onVisibilityChange) onVisibilityChange(pda, x, y);
+        return true; // keep menu open (submenu will replace it)
       },
     },
     {
