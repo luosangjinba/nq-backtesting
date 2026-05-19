@@ -1,0 +1,83 @@
+# V4 系统配置
+# 精简版：只含 K 线查询所需配置
+
+# API 配置
+api:
+  host: "127.0.0.1"
+  port: 8766
+  base_url: "http://127.0.0.1:8766"
+
+# 数据库配置（仅 trading_data）
+database:
+  trading_data:
+    path: "../trading_data.duckdb"
+    table: "futures_1m"
+  instrument: "NQ"
+
+# 图表配置
+chart:
+  theme:
+    background: "#131722"
+    text_color: "#d1d4dc"
+    grid_color: "#1e222d"
+    border_color: "#2a2e39"
+  candlestick:
+    up_color: "#26a69a"
+    down_color: "#ef5350"
+
+# 时间周期
+timeframes:
+  - value: 1
+    label: "1M"
+  - value: 5
+    label: "5M"
+  - value: 15
+    label: "15M"
+  - value: 30
+    label: "30M"
+  - value: 60
+    label: "1H"
+    default: true
+  - value: 240
+    label: "4H"
+  - value: 1440
+    label: "D"
+  - value: 10080
+    label: "1W"
+
+# PDA 类型定义
+pda_types:
+  - id: bsl
+    name: BSL
+    category: point
+    color: "#26a69a"
+    label_position: above
+  - id: ssl
+    name: SSL
+    category: point
+    color: "#ef5350"
+    label_position: below
+  - id: fvg
+    name: FVG
+    category: range
+    color: "#ab47bc"
+  - id: ob
+    name: OB
+    category: range
+    color: "#ffa726"
+  - id: eqh
+    name: EQH
+    category: composite
+    color: "#26a69a"
+    label_position: above
+  - id: eql
+    name: EQL
+    category: composite
+    color: "#ef5350"
+    label_position: below
+
+# 元信息
+meta:
+  version: "4.0"
+  updated: "2026-05-19"
+  description: "NQ 期货 ICT 回测系统 V4 配置"
