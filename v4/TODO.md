@@ -41,3 +41,4 @@
 - 2026-05-20: fixLeftEdge/fixRightEdge=false，允许自由拖动滚动
 - 2026-05-20: barSpacing=6, minBarSpacing=2, rightOffset=5
 - 2026-05-20: 日线 time 字段用交易日日期（YYYY-MM-DD），新增 tradingDay 字段；前端按 tf 区分 time 来源
+- 2026-05-20: crosshair 所有周期显示星期缩写（Mon/Tue/...），用 localization.timeFormatter 实现

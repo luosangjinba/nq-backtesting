@@ -36,6 +36,24 @@ export function initChart(containerId) {
       ...CHART_THEME.timeScale,
       ...TIME_SCALE_DISPLAY,
     },
+    localization: {
+      timeFormatter: (time) => {
+        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        // 日线 time 是 "YYYY-MM-DD" 字符串
+        if (typeof time === 'string') {
+          const d = new Date(time + 'T00:00:00');
+          return `${time} ${weekdays[d.getDay()]}`;
+        }
+        // 低周期 time 是 unix seconds
+        const dt = new Date(time * 1000);
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const day = String(dt.getDate()).padStart(2, '0');
+        const h = String(dt.getHours()).padStart(2, '0');
+        const min = String(dt.getMinutes()).padStart(2, '0');
+        return `${y}-${m}-${day} ${h}:${min} ${weekdays[dt.getDay()]}`;
+      },
+    },
     width: container.clientWidth,
     height: container.clientHeight,
     crosshair: {
