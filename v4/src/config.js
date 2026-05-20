@@ -60,10 +60,12 @@ export const CANDLESTICK_STYLE = {
 export const TIME_SCALE_DISPLAY = {
   barSpacing: 6,
   minBarSpacing: 2,
-  rightOffset: 5,
+  rightOffset: 7,
   fixLeftEdge: false,
   fixRightEdge: false,
 };
+
+export const VIEWPORT_RIGHT_OFFSET_BARS = 7;
 
 export const PDA_TYPES = [
   { id: 'bsl', name: 'BSL', category: 'point', color: '#26a69a', labelPosition: 'above' },

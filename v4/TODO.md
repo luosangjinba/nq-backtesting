@@ -18,10 +18,13 @@
 
 ### Phase 3: 交互
 - [x] Step 11: 逐根播放（MVP: Replay Bar On/Off + First/Last Pos/Pick + 前进/后退/自动播放）
+- [x] Step 11.5: 图表视口控制（Zoom in/out、Scroll left/right、Scroll latest、Reset chart view）
 - [ ] Step 12: 右键菜单 + PDA 详情 + 手动标注
 - [ ] Step 13: 键盘快捷键 + CSS 整合
 
 ### Phase 3 后续增强
+- [ ] Viewport: Maximize / restore chart（预留给后续多窗口布局）
+- [ ] Viewport: 更完整的快捷键映射
 - [ ] Replay: 跳转到指定时间
 - [ ] Replay: 键盘快捷键（空格播放/暂停，左右方向逐根）
 - [ ] Replay: 当前回放位置视觉标记
@@ -45,9 +48,10 @@
 - 2026-05-20: bar-store 分离全量数据（含 padding）和显示数据（不含 padding）
 - 2026-05-20: 图表显示策略：少量 bar 用 fitContent()，大量 bar 用 setVisibleLogicalRange 从起始位置显示
 - 2026-05-20: fixLeftEdge/fixRightEdge=false，允许自由拖动滚动
-- 2026-05-20: barSpacing=6, minBarSpacing=2, rightOffset=5
+- 2026-05-20: barSpacing=6, minBarSpacing=2, rightOffset=7
 - 2026-05-20: 日线 time 字段用交易日日期（YYYY-MM-DD），新增 tradingDay 字段；前端按 tf 区分 time 来源
 - 2026-05-20: crosshair 所有周期显示星期缩写（Mon/Tue/...），用 localization.timeFormatter 实现
 - 2026-05-20: Replay Bar 默认 Off；Off 时恢复现有完整数据视图策略，不把全部 K 线压进 canvas
 - 2026-05-20: Select bar 降级为 Pick，作为 Replay 回退到指定位置的一种入口
-- 2026-05-20: Replay 播放视口使用 visible logical range 右锚定；默认最新 K 线右侧留约 10 根空间，播放中拖动/缩放后继承新的锚点
+- 2026-05-20: Replay 播放视口使用 visible logical range 右锚定；默认最新 K 线右侧留约 7 根空间，播放中拖动/缩放后继承新的锚点
+- 2026-05-20: 图表视口控制独立于 Replay Bar，基于 LightweightCharts timeScale logical range 封装，不引入插件

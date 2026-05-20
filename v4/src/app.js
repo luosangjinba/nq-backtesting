@@ -5,6 +5,7 @@ import * as chart from './chart/chart-manager.js';
 import * as store from './data/bar-store.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initReplayControls, syncReplayData } from './ui/replay-controls.js';
+import { initViewportControls } from './ui/viewport-controls.js';
 
 console.log('[V4] app.js loaded');
 
@@ -19,6 +20,10 @@ console.log('[V4] Toolbar initialized');
 // 初始化 Replay 控制条
 initReplayControls();
 console.log('[V4] Replay controls initialized');
+
+// 初始化图表视口控制条
+initViewportControls();
+console.log('[V4] Viewport controls initialized');
 
 // 绑定 bars:loaded → chart.setData（用显示数据，不含 padding）
 bus.on('bars:loaded', ({ bars }) => {

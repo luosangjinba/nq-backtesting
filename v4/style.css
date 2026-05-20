@@ -67,6 +67,59 @@ html, body {
   color: #d1d4dc;
 }
 
+#viewport-controls {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 8;
+  transform: translateX(-50%);
+}
+
+.viewport-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  background: rgba(19, 23, 34, 0.86);
+  border: 1px solid rgba(54, 58, 69, 0.9);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.viewport-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #363a45;
+  background: #1e222d;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.viewport-reset {
+  background: #f0f3fa;
+  color: #131722;
+  border-color: #f0f3fa;
+  font-size: 15px;
+}
+
+.viewport-btn:hover:not(:disabled) {
+  border-color: #787b86;
+  background: #2a2e39;
+}
+
+.viewport-reset:hover:not(:disabled) {
+  background: #fff;
+  border-color: #fff;
+}
+
+.viewport-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 .toolbar-group {
   display: flex;
   align-items: center;

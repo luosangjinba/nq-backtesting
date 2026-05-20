@@ -1,6 +1,11 @@
 // LightweightCharts v5 图表管理器
 
-import { CHART_THEME, CANDLESTICK_STYLE, TIME_SCALE_DISPLAY } from '../config.js';
+import {
+  CHART_THEME,
+  CANDLESTICK_STYLE,
+  TIME_SCALE_DISPLAY,
+  VIEWPORT_RIGHT_OFFSET_BARS,
+} from '../config.js';
 
 let chart = null;
 let series = null;
@@ -138,7 +143,7 @@ export function showEndOfData(dataCount, previousRange = null, previousDataCount
   const anchorOffset =
     previousRange && previousDataCount !== null
       ? previousRange.to - previousDataCount
-      : 10;
+      : VIEWPORT_RIGHT_OFFSET_BARS;
 
   chart.timeScale().setVisibleLogicalRange({
     from: dataCount - rangeWidth + anchorOffset,
@@ -159,6 +164,16 @@ export function getVisibleLogicalRange() {
 export function setVisibleRange(from, to) {
   if (!chart) return;
   chart.timeScale().setVisibleRange({ from, to });
+}
+
+export function setVisibleLogicalRange(from, to) {
+  if (!chart) return;
+  chart.timeScale().setVisibleLogicalRange({ from, to });
+}
+
+export function resetTimeScale() {
+  if (!chart) return;
+  chart.timeScale().resetTimeScale();
 }
 
 export function coordinateToTime(x) {
