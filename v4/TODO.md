@@ -17,9 +17,15 @@
 - [ ] Step 10: PDA 渲染器 + 存储
 
 ### Phase 3: 交互
-- [ ] Step 11: 逐根播放
+- [x] Step 11: 逐根播放（MVP: Replay Bar On/Off + First/Last Pos/Pick + 前进/后退/自动播放）
 - [ ] Step 12: 右键菜单 + PDA 详情 + 手动标注
 - [ ] Step 13: 键盘快捷键 + CSS 整合
+
+### Phase 3 后续增强
+- [ ] Replay: 跳转到指定时间
+- [ ] Replay: 键盘快捷键（空格播放/暂停，左右方向逐根）
+- [ ] Replay: 当前回放位置视觉标记
+- [ ] Replay: Pick 状态下鼠标/图表提示优化
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -42,3 +48,5 @@
 - 2026-05-20: barSpacing=6, minBarSpacing=2, rightOffset=5
 - 2026-05-20: 日线 time 字段用交易日日期（YYYY-MM-DD），新增 tradingDay 字段；前端按 tf 区分 time 来源
 - 2026-05-20: crosshair 所有周期显示星期缩写（Mon/Tue/...），用 localization.timeFormatter 实现
+- 2026-05-20: Replay Bar 默认 Off；Off 时恢复现有完整数据视图策略，不把全部 K 线压进 canvas
+- 2026-05-20: Select bar 降级为 Pick，作为 Replay 回退到指定位置的一种入口

@@ -184,10 +184,19 @@ html, body {
   font-weight: 600;
 }
 
-.replay-select.active {
+.replay-toggle.active,
+.replay-action.active {
   border-color: #2962ff;
   color: #fff;
   background: #1d2b52;
+}
+
+.replay-toggle {
+  min-width: 112px;
+}
+
+.replay-action {
+  min-width: 58px;
 }
 
 .replay-icon-btn {

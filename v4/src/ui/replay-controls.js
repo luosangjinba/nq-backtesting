@@ -17,7 +17,9 @@ let controlsEl = null;
 let displayBars = [];
 let chartData = [];
 let mode = 'idle';
+let enabled = false;
 let cursorIndex = -1;
+let lastCursorIndex = -1;
 let speedIndex = 2;
 let timer = null;
 
@@ -60,13 +62,19 @@ function setMode(nextMode) {
 
 function resetReplayState() {
   stopTimer();
+  enabled = false;
   mode = 'idle';
   cursorIndex = -1;
+  lastCursorIndex = -1;
   render();
 }
 
-function restoreFullChart() {
+function restoreFullChart(savePosition = true) {
   stopTimer();
+  if (savePosition && cursorIndex >= 0) {
+    lastCursorIndex = cursorIndex;
+  }
+  enabled = false;
   mode = 'idle';
   cursorIndex = -1;
   if (chartData.length > 0) {
@@ -76,8 +84,13 @@ function restoreFullChart() {
   render();
 }
 
-function renderSlice(index, followEnd = true) {
+function renderSlice(index, followEnd = true, rememberPrevious = false) {
   if (chartData.length === 0) return;
+  if (rememberPrevious && cursorIndex >= 0) {
+    lastCursorIndex = cursorIndex;
+  }
+  enabled = true;
+  mode = mode === 'playing' ? 'playing' : 'idle';
   cursorIndex = Math.max(0, Math.min(index, chartData.length - 1));
   chart.setData(chartData.slice(0, cursorIndex + 1));
   if (followEnd) {
@@ -87,17 +100,13 @@ function renderSlice(index, followEnd = true) {
 }
 
 function stepForward() {
-  if (chartData.length === 0) return;
+  if (!enabled || chartData.length === 0) return;
 
-  if (mode === 'idle') {
-    setMode('replay');
-    renderSlice(0);
-    return;
-  }
+  if (cursorIndex < 0) renderSlice(0);
 
   if (cursorIndex >= chartData.length - 1) {
     stopTimer();
-    setMode('replay');
+    setMode('idle');
     return;
   }
 
@@ -108,13 +117,7 @@ function stepForward() {
 }
 
 function stepBack() {
-  if (chartData.length === 0) return;
-
-  if (mode === 'idle') {
-    setMode('replay');
-    renderSlice(Math.max(0, chartData.length - 2));
-    return;
-  }
+  if (!enabled || chartData.length === 0) return;
 
   renderSlice(Math.max(0, cursorIndex - 1));
 }
@@ -122,20 +125,42 @@ function stepBack() {
 function jumpStart() {
   if (chartData.length === 0) return;
   stopTimer();
-  setMode('replay');
-  renderSlice(0);
+  mode = 'idle';
+  renderSlice(0, true, true);
+}
+
+function jumpLastPosition() {
+  if (chartData.length === 0 || lastCursorIndex < 0) return;
+  stopTimer();
+  mode = 'idle';
+  renderSlice(lastCursorIndex, true, true);
+}
+
+function enableReplay() {
+  if (chartData.length === 0) return;
+  const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
+  mode = 'idle';
+  renderSlice(startIndex);
+}
+
+function toggleReplayEnabled() {
+  if (enabled) {
+    restoreFullChart(true);
+  } else {
+    enableReplay();
+  }
 }
 
 function togglePlay() {
-  if (chartData.length === 0) return;
+  if (!enabled || chartData.length === 0) return;
 
   if (timer) {
     stopTimer();
-    setMode('replay');
+    setMode('idle');
     return;
   }
 
-  if (mode === 'idle') {
+  if (cursorIndex < 0) {
     renderSlice(0);
   }
 
@@ -145,10 +170,10 @@ function togglePlay() {
 }
 
 function selectBar() {
-  if (chartData.length === 0) return;
+  if (!enabled || chartData.length === 0) return;
   stopTimer();
-  setMode('selecting');
-  bus.emit('status:update', { text: '点击图表选择 Replay 起点', isError: false });
+  setMode('picking');
+  bus.emit('status:update', { text: '点击图表选择 Replay 回退位置', isError: false });
 }
 
 function findBarIndex(time) {
@@ -158,14 +183,14 @@ function findBarIndex(time) {
 }
 
 function handleChartClick(param) {
-  if (mode !== 'selecting') return;
+  if (!enabled || mode !== 'picking') return;
   const index = findBarIndex(param?.time);
   if (index < 0) return;
 
-  setMode('replay');
-  renderSlice(index);
+  mode = 'idle';
+  renderSlice(index, true, true);
   bus.emit('status:update', {
-    text: `Replay 起点: ${formatReplayTime(displayBars[index])}`,
+    text: `Replay 位置: ${formatReplayTime(displayBars[index])}`,
     isError: false,
   });
 }
@@ -174,8 +199,10 @@ function handleControlClick(e) {
   const action = e.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
 
-  if (action === 'select') selectBar();
-  if (action === 'start') jumpStart();
+  if (action === 'toggle') toggleReplayEnabled();
+  if (action === 'pick') selectBar();
+  if (action === 'first') jumpStart();
+  if (action === 'last') jumpLastPosition();
   if (action === 'back') stepBack();
   if (action === 'play') togglePlay();
   if (action === 'forward') stepForward();
@@ -198,28 +225,33 @@ function render() {
   const currentBar = cursorIndex >= 0 ? displayBars[cursorIndex] : null;
   const isPlaying = Boolean(timer);
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
+  const replayDisabled = !hasData || !enabled;
+  const lastDisabled = !hasData || lastCursorIndex < 0;
 
   controlsEl.innerHTML = `
     <div class="replay-main">
-      <button class="replay-btn replay-select ${mode === 'selecting' ? 'active' : ''}" data-action="select" ${hasData ? '' : 'disabled'}>
-        Select bar
+      <button class="replay-btn replay-toggle ${enabled ? 'active' : ''}" data-action="toggle" ${hasData ? '' : 'disabled'}>
+        Replay Bar ${enabled ? 'On' : 'Off'}
       </button>
       <span class="replay-divider"></span>
-      <button class="replay-icon-btn" data-action="start" title="回到起点" ${hasData ? '' : 'disabled'}>|&lt;</button>
-      <button class="replay-icon-btn" data-action="back" title="上一根" ${hasData ? '' : 'disabled'}>&lt;</button>
-      <button class="replay-icon-btn replay-play" data-action="play" title="${isPlaying ? '暂停' : '播放'}" ${hasData ? '' : 'disabled'}>
+      <button class="replay-btn replay-action" data-action="first" title="回退到区间第一根K线" ${replayDisabled ? 'disabled' : ''}>First</button>
+      <button class="replay-btn replay-action" data-action="last" title="回到上次操作位置" ${lastDisabled ? 'disabled' : ''}>Last Pos</button>
+      <button class="replay-btn replay-action ${mode === 'picking' ? 'active' : ''}" data-action="pick" title="点击图表选择回退位置" ${replayDisabled ? 'disabled' : ''}>Pick</button>
+      <span class="replay-divider"></span>
+      <button class="replay-icon-btn" data-action="back" title="上一根" ${replayDisabled ? 'disabled' : ''}>&lt;</button>
+      <button class="replay-icon-btn replay-play" data-action="play" title="${isPlaying ? '暂停' : '播放'}" ${replayDisabled ? 'disabled' : ''}>
         ${isPlaying ? '||' : '▶'}
       </button>
-      <button class="replay-icon-btn" data-action="forward" title="下一根" ${hasData ? '' : 'disabled'}>&gt;</button>
+      <button class="replay-icon-btn" data-action="forward" title="下一根" ${replayDisabled ? 'disabled' : ''}>&gt;</button>
       <span class="replay-divider"></span>
-      <select class="replay-speed" ${hasData ? '' : 'disabled'}>
+      <select class="replay-speed" ${replayDisabled ? 'disabled' : ''}>
         ${SPEEDS.map(
           (s, i) => `<option value="${i}"${i === speedIndex ? ' selected' : ''}>${s.label}</option>`
         ).join('')}
       </select>
       <span class="replay-tf">${tfLabel}</span>
-      <span class="replay-info">${currentBar ? `${cursorIndex + 1}/${chartData.length} ${formatReplayTime(currentBar)}` : 'Replay Trading'}</span>
-      <button class="replay-close" data-action="close" title="退出 Replay" ${hasData ? '' : 'disabled'}>X</button>
+      <span class="replay-info">${enabled && currentBar ? `${cursorIndex + 1}/${chartData.length} ${formatReplayTime(currentBar)}` : 'Replay Trading'}</span>
+      <button class="replay-close" data-action="close" title="退出 Replay" ${replayDisabled ? 'disabled' : ''}>X</button>
     </div>
   `;
 
@@ -230,8 +262,10 @@ export function syncReplayData() {
   stopTimer();
   displayBars = store.getDisplayBars();
   chartData = displayBars.map(toChartBar);
+  enabled = false;
   mode = 'idle';
   cursorIndex = -1;
+  lastCursorIndex = -1;
   render();
 }
 
