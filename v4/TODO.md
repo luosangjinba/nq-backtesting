@@ -50,3 +50,4 @@
 - 2026-05-20: crosshair 所有周期显示星期缩写（Mon/Tue/...），用 localization.timeFormatter 实现
 - 2026-05-20: Replay Bar 默认 Off；Off 时恢复现有完整数据视图策略，不把全部 K 线压进 canvas
 - 2026-05-20: Select bar 降级为 Pick，作为 Replay 回退到指定位置的一种入口
+- 2026-05-20: Replay 播放视口使用 visible logical range 右锚定；默认最新 K 线右侧留约 10 根空间，播放中拖动/缩放后继承新的锚点

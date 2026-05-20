@@ -9,6 +9,8 @@
 - `Select bar` 不再作为一级主按钮，合并为 `Pick`，表示“选择回退位置”。
 - Replay 状态只存在前端会话内，不写 DB，不写 localStorage。
 - 后续“跳转到指定时间”单独增强，不放进 MVP。
+- Replay 播放/逐根前进不再 `fitContent()`；默认让最新 K 线锚定在 canvas 右侧约 10 根 K 线位置。
+- Replay 前进时保留当前可见逻辑范围；如果用户播放中拖动/缩放，下一根会继承新的视口和锚点。
 
 ## 完成内容
 1. 新增 `v4/src/ui/replay-controls.js`
@@ -22,6 +24,7 @@
 3. 修改 `v4/src/chart/chart-manager.js`
    - 新增 `updateBar()`
    - 新增 `showEndOfData()` 用于 replay 播放时视图跟随
+   - `showEndOfData()` 改为基于 previous visible logical range 计算右侧锚点，避免 K 线突然贴左、过宽或过细
 4. 修改 `v4/src/data/bar-store.js`
    - 默认 timeframe 与 toolbar 默认值对齐
 5. 修改 `v4/style.css`
@@ -32,6 +35,7 @@
 ## 当前交互
 - `Replay Bar Off`: 正常图表模式。
 - `Replay Bar On`: 进入 replay；优先回到上次位置，没有上次位置则回到当前区间第一根。
+- Replay 播放/逐根前进：最新 K 线默认在右侧留约 10 根 K 线空间；播放中拖动/缩放后，下一根沿用新的视口锚点。
 - `First`: 回退到当前加载区间第一根 K 线。
 - `Last Pos`: 回到上次退出或跳转前的位置。
 - `Pick`: 点击图表选择回退位置。
@@ -41,6 +45,7 @@
 
 ## 验证
 - `node --check v4/src/ui/replay-controls.js` 通过。
+- `node --check v4/src/chart/chart-manager.js` 通过。
 - Headless Chrome 能初始化 `http://127.0.0.1:8000/v4/index.html`。
 - 无数据时 replay 操作按钮禁用，加载数据后由 `syncReplayData()` 启用。
 

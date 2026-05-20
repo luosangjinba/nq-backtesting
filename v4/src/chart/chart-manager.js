@@ -125,27 +125,35 @@ export function showStartOfData(dataCount) {
   }
 }
 
-export function showEndOfData(dataCount) {
+export function showEndOfData(dataCount, previousRange = null, previousDataCount = null) {
   if (!chart || !series || dataCount <= 0) return;
   const container = document.getElementById('chart');
   const width = container ? container.clientWidth : 800;
-  const barSpacing = chart.timeScale().options().barSpacing || 6;
+  const barSpacing = chart.timeScale().options().barSpacing || TIME_SCALE_DISPLAY.barSpacing || 6;
   const barsVisible = Math.ceil(width / barSpacing);
+  const rangeWidth =
+    previousRange && Number.isFinite(previousRange.to - previousRange.from)
+      ? previousRange.to - previousRange.from
+      : barsVisible;
+  const anchorOffset =
+    previousRange && previousDataCount !== null
+      ? previousRange.to - previousDataCount
+      : 10;
 
-  if (dataCount <= barsVisible) {
-    chart.timeScale().fitContent();
-  } else {
-    const rightPadding = 5;
-    chart.timeScale().setVisibleLogicalRange({
-      from: Math.max(0, dataCount - barsVisible + rightPadding),
-      to: dataCount + rightPadding,
-    });
-  }
+  chart.timeScale().setVisibleLogicalRange({
+    from: dataCount - rangeWidth + anchorOffset,
+    to: dataCount + anchorOffset,
+  });
 }
 
 export function getVisibleRange() {
   if (!chart) return null;
   return chart.timeScale().getVisibleRange();
+}
+
+export function getVisibleLogicalRange() {
+  if (!chart) return null;
+  return chart.timeScale().getVisibleLogicalRange();
 }
 
 export function setVisibleRange(from, to) {

@@ -86,6 +86,8 @@ function restoreFullChart(savePosition = true) {
 
 function renderSlice(index, followEnd = true, rememberPrevious = false) {
   if (chartData.length === 0) return;
+  const previousRange = chart.getVisibleLogicalRange();
+  const previousDataCount = cursorIndex >= 0 ? cursorIndex + 1 : null;
   if (rememberPrevious && cursorIndex >= 0) {
     lastCursorIndex = cursorIndex;
   }
@@ -94,7 +96,7 @@ function renderSlice(index, followEnd = true, rememberPrevious = false) {
   cursorIndex = Math.max(0, Math.min(index, chartData.length - 1));
   chart.setData(chartData.slice(0, cursorIndex + 1));
   if (followEnd) {
-    chart.showEndOfData(cursorIndex + 1);
+    chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
   }
   render();
 }
@@ -110,9 +112,11 @@ function stepForward() {
     return;
   }
 
+  const previousRange = chart.getVisibleLogicalRange();
+  const previousDataCount = cursorIndex + 1;
   cursorIndex += 1;
   chart.updateBar(chartData[cursorIndex]);
-  chart.showEndOfData(cursorIndex + 1);
+  chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
   render();
 }
 
