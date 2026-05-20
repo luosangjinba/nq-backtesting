@@ -81,22 +81,26 @@ order by bucket
     with open_db(db_path) as conn:
         rows = conn.execute(sql, [instrument, query_start, query_end, tf]).fetchall()
 
-    # 数据时间戳为美东时间，用 UTC fromtimestamp 避免系统时区偏移
-    # epoch 值本身就是美东时间语义，UTC解读直接得到正确字符串
-    return [
-        {
-            "time": datetime.fromtimestamp(
-                anchor_epoch + int(row[0]) * tf * 60, tz=timezone.utc
-            ).strftime("%Y-%m-%d %H:%M"),
-            "timestamp": anchor_epoch + int(row[0]) * tf * 60,
+    # 日线时间戳改为交易日日期（CME session 18:00 开盘 → 交易日 = 开盘日期 + 1天）
+    # 这样 LightweightCharts crosshair 显示 "13 Jan '12" 而非 "12 Jan '12 18:00"
+    # 保留数值 timestamp 用于前端 padding 过滤
+    result = []
+    for row in rows:
+        session_start_epoch = anchor_epoch + int(row[0]) * tf * 60
+        # CME session 开盘于前一天 18:00，交易日 = 开盘日期 + 1天
+        trading_day = datetime.fromtimestamp(session_start_epoch, tz=timezone.utc) + timedelta(days=1)
+        trading_day_str = trading_day.strftime("%Y-%m-%d")
+        result.append({
+            "time": trading_day_str,
+            "timestamp": session_start_epoch,
+            "tradingDay": trading_day_str,
             "open": float(row[1]),
             "high": float(row[2]),
             "low": float(row[3]),
             "close": float(row[4]),
             "volume": int(row[5]) if row[5] is not None else 0,
-        }
-        for row in rows
-    ]
+        })
+    return result
 
 
 class V4Handler(BaseHTTPRequestHandler):

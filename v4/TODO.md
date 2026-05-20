@@ -40,3 +40,4 @@
 - 2026-05-20: 图表显示策略：少量 bar 用 fitContent()，大量 bar 用 setVisibleLogicalRange 从起始位置显示
 - 2026-05-20: fixLeftEdge/fixRightEdge=false，允许自由拖动滚动
 - 2026-05-20: barSpacing=6, minBarSpacing=2, rightOffset=5
+- 2026-05-20: 日线 time 字段用交易日日期（YYYY-MM-DD），新增 tradingDay 字段；前端按 tf 区分 time 来源

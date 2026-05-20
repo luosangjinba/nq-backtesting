@@ -18,8 +18,11 @@ console.log('[V4] Toolbar initialized');
 // 绑定 bars:loaded → chart.setData（用显示数据，不含 padding）
 bus.on('bars:loaded', ({ bars }) => {
   const displayBars = store.getDisplayBars();
+  const tf = store.getCurrentTimeframe();
+  // 日线用 tradingDay 日期字符串作为 LightweightCharts time（显示交易日日期）
+  // 低周期用 timestamp 数值（显示精确时间）
   const chartData = displayBars.map((b) => ({
-    time: b.timestamp,
+    time: tf === 1440 ? b.tradingDay : b.timestamp,
     open: b.open,
     high: b.high,
     low: b.low,
