@@ -12,6 +12,7 @@ let chart = null;
 let series = null;
 let legendEl = null;
 let replayCursorPrimitive = null;
+let pickPreviewPrimitive = null;
 
 function updateLegend(param) {
   if (!legendEl || !param || !param.time || !param.seriesData) {
@@ -133,6 +134,32 @@ export function hideReplayCursor() {
     // primitive may already be detached during chart/data reset
   }
   replayCursorPrimitive = null;
+}
+
+export function showPickPreviewCursor(time) {
+  if (!chart || !series || time === undefined || time === null) return;
+
+  if (!pickPreviewPrimitive) {
+    pickPreviewPrimitive = new VerticalLinePrimitive(chart, time, {
+      color: 'rgba(240, 243, 250, 0.18)',
+      lineWidth: 8,
+    });
+    series.attachPrimitive(pickPreviewPrimitive);
+    return;
+  }
+
+  pickPreviewPrimitive.setTime(time);
+}
+
+export function hidePickPreviewCursor() {
+  if (!series || !pickPreviewPrimitive) return;
+
+  try {
+    series.detachPrimitive(pickPreviewPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart/data reset
+  }
+  pickPreviewPrimitive = null;
 }
 
 export function fitContent() {

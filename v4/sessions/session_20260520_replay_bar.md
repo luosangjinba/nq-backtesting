@@ -15,6 +15,7 @@
 - Replay On 状态切换周期时，按旧 cursor timestamp 在新周期中找对应 K 线并保持 Replay On；保留切换前手动拖动/缩放后的 viewport 锚点，自动播放先暂停。
 - Replay Bar 支持输入时间跳转，复用 `formatTimeInput()`，按不晚于目标 timestamp 的最近 K 线定位。
 - Replay Bar 支持键盘快捷键；输入框、选择框、可编辑区域聚焦时不响应快捷键。
+- Pick 模式支持 hover 临时竖线，点击成功后状态栏显示 `index/total + time`，成功或取消后清除 preview。
 
 ## 完成内容
 1. 新增 `v4/src/ui/replay-controls.js`
@@ -45,6 +46,7 @@
 - 周期切换：Replay On 时切换周期不会退出 Replay，会对齐到新周期中不晚于旧 cursor timestamp 的最近 K 线，并继承切换前的可见 logical range 与右侧锚点。
 - 时间跳转：Replay On 时可输入 `YYYY-MM-DD HH:mm` 或 `YYYYMMDDHHmm` 后按 Enter / Go，跳到当前加载区间内不晚于目标时间的最近 K 线；失败时只提示，不改变 cursor。
 - 键盘快捷键：`Space` 播放/暂停，`ArrowRight` 下一根，`ArrowLeft` 上一根，`Home` 回第一根，`Esc` 退出 Pick 或关闭 Replay。
+- Pick hover: Pick 模式下鼠标移动到可匹配 K 线时显示临时竖线；点击后原地设置 replay cursor，不改变当前 viewport。
 - `First`: 回退到当前加载区间第一根 K 线。
 - `Last Pos`: 回到上次退出或跳转前的位置。
 - `Pick`: 点击图表选择回退位置。
@@ -59,4 +61,4 @@
 - 无数据时 replay 操作按钮禁用，加载数据后由 `syncReplayData()` 启用。
 
 ## 后续
-- Pick 状态提示优化。
+- 继续观察 Replay Bar 细节手感，按实际复盘流程再微调。

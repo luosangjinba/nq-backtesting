@@ -108,6 +108,7 @@ function isTextEditingTarget(target) {
 function resetReplayState() {
   stopTimer();
   chart.hideReplayCursor();
+  chart.hidePickPreviewCursor();
   enabled = false;
   mode = 'idle';
   cursorIndex = -1;
@@ -124,6 +125,7 @@ function restoreFullChart(savePosition = true) {
   mode = 'idle';
   cursorIndex = -1;
   chart.hideReplayCursor();
+  chart.hidePickPreviewCursor();
   if (chartData.length > 0) {
     chart.setData(chartData);
     chart.showStartOfData(chartData.length);
@@ -265,6 +267,7 @@ function selectBar() {
 function cancelPick() {
   if (mode !== 'picking') return false;
 
+  chart.hidePickPreviewCursor();
   setMode('idle');
   bus.emit('status:update', { text: 'Replay Pick 已取消', isError: false });
   return true;
@@ -282,6 +285,7 @@ function handleChartClick(param) {
   if (index < 0) return;
 
   const currentRange = chart.getVisibleLogicalRange();
+  chart.hidePickPreviewCursor();
   mode = 'idle';
   renderSlice(index, false, true);
   if (currentRange) {
@@ -291,6 +295,21 @@ function handleChartClick(param) {
     text: `Replay 位置: ${index + 1}/${chartData.length} ${formatReplayTime(displayBars[index])}`,
     isError: false,
   });
+}
+
+function handleCrosshairMove(param) {
+  if (!enabled || mode !== 'picking') {
+    chart.hidePickPreviewCursor();
+    return;
+  }
+
+  const index = findBarIndex(param?.time);
+  if (index < 0) {
+    chart.hidePickPreviewCursor();
+    return;
+  }
+
+  chart.showPickPreviewCursor(chartData[index].time);
 }
 
 function handleControlClick(e) {
@@ -417,6 +436,7 @@ export function syncReplayData(restoreSnapshot = null) {
 
   stopTimer();
   chart.hideReplayCursor();
+  chart.hidePickPreviewCursor();
   displayBars = store.getDisplayBars();
   chartData = displayBars.map(toChartBar);
 
@@ -452,6 +472,7 @@ export function initReplayControls() {
   controlsEl.addEventListener('click', handleControlClick);
   window.addEventListener('keydown', handleKeydown);
   chart.onClick(handleChartClick);
+  chart.onCrosshairMove(handleCrosshairMove);
   bus.on('bars:cleared', resetReplayState);
   render();
 }
