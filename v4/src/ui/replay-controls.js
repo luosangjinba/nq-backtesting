@@ -100,6 +100,11 @@ function setMode(nextMode) {
   render();
 }
 
+function isTextEditingTarget(target) {
+  const tag = target?.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable;
+}
+
 function resetReplayState() {
   stopTimer();
   chart.hideReplayCursor();
@@ -257,6 +262,14 @@ function selectBar() {
   bus.emit('status:update', { text: '点击图表选择 Replay 回退位置', isError: false });
 }
 
+function cancelPick() {
+  if (mode !== 'picking') return false;
+
+  setMode('idle');
+  bus.emit('status:update', { text: 'Replay Pick 已取消', isError: false });
+  return true;
+}
+
 function findBarIndex(time) {
   if (time === undefined || time === null) return -1;
   const target = normalizeTimeKey(time);
@@ -298,6 +311,29 @@ function handleSpeedChange(e) {
     togglePlay();
   }
   render();
+}
+
+function handleKeydown(e) {
+  if (isTextEditingTarget(e.target) || !enabled || chartData.length === 0) return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    togglePlay();
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    stepForward();
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    stepBack();
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    jumpStart();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    if (!cancelPick()) {
+      restoreFullChart();
+    }
+  }
 }
 
 function render() {
@@ -410,6 +446,7 @@ export function initReplayControls() {
   if (!controlsEl) return;
 
   controlsEl.addEventListener('click', handleControlClick);
+  window.addEventListener('keydown', handleKeydown);
   chart.onClick(handleChartClick);
   bus.on('bars:cleared', resetReplayState);
   render();
