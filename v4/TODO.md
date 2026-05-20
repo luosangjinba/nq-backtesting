@@ -29,3 +29,5 @@
 - 2026-05-19: 所有 PDA 前端实时计算，不存 DB
 - 2026-05-19: LightweightCharts v5.2.0，用内置 Markers 插件替代部分自定义 Primitive
 - 2026-05-19: v4_api.py 从 price_lookup_api.py 导入查询函数，不复制代码
+- 2026-05-19: 日线聚合使用 CME 交易日分界 22:00 UTC (6:00 PM ET)，不走 query_v2_bars 默认的 00:00 UTC
+- 2026-05-19: OHLCV 悬停 legend 用 subscribeCrosshairMove 实现
