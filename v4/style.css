@@ -143,3 +143,98 @@ html, body {
   color: #d1d4dc;
   font-size: 14px;
 }
+
+#replay-controls {
+  flex-shrink: 0;
+  min-height: 44px;
+  background: #0f1014;
+  border-top: 1px solid #2a2e39;
+}
+
+.replay-main {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #d1d4dc;
+}
+
+.replay-btn,
+.replay-icon-btn,
+.replay-close,
+.replay-speed {
+  height: 28px;
+  border: 1px solid #363a45;
+  background: #151821;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.replay-btn,
+.replay-icon-btn,
+.replay-close {
+  cursor: pointer;
+}
+
+.replay-btn {
+  padding: 0 12px;
+  font-weight: 600;
+}
+
+.replay-select.active {
+  border-color: #2962ff;
+  color: #fff;
+  background: #1d2b52;
+}
+
+.replay-icon-btn {
+  width: 34px;
+}
+
+.replay-speed {
+  width: 58px;
+  padding: 0 6px;
+}
+
+.replay-btn:hover:not(:disabled),
+.replay-icon-btn:hover:not(:disabled),
+.replay-close:hover:not(:disabled),
+.replay-speed:hover:not(:disabled) {
+  border-color: #787b86;
+  background: #1e222d;
+}
+
+.replay-btn:disabled,
+.replay-icon-btn:disabled,
+.replay-close:disabled,
+.replay-speed:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.replay-divider {
+  width: 1px;
+  height: 24px;
+  background: #2a2e39;
+}
+
+.replay-tf {
+  min-width: 28px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.replay-info {
+  min-width: 220px;
+  color: #b2b5be;
+  font-size: 12px;
+}
+
+.replay-close {
+  margin-left: auto;
+  width: 32px;
+  font-size: 14px;
+}

@@ -1,11 +1,12 @@
 // K 线数据存储 — 管理加载的 K 线数据，发布事件
 
 import * as bus from '../event-bus.js';
+import { DEFAULT_TIMEFRAME } from '../config.js';
 
 let bars = [];
 let currentStart = null;
 let currentEnd = null;
-let currentTimeframe = 1;
+let currentTimeframe = DEFAULT_TIMEFRAME;
 let requestedRange = null;
 
 export function setBars(newBars, start, end, tf, range = null) {
@@ -61,6 +62,6 @@ export function clearBars() {
   bars = [];
   currentStart = null;
   currentEnd = null;
-  currentTimeframe = 1;
+  currentTimeframe = DEFAULT_TIMEFRAME;
   bus.emit('bars:cleared');
 }

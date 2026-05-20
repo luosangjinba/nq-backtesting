@@ -100,6 +100,11 @@ export function setData(data) {
   series.setData(data);
 }
 
+export function updateBar(bar) {
+  if (!series) return;
+  series.update(bar);
+}
+
 export function fitContent() {
   if (!chart) return;
   chart.timeScale().fitContent();
@@ -117,6 +122,24 @@ export function showStartOfData(dataCount) {
     chart.timeScale().fitContent();
   } else {
     chart.timeScale().setVisibleLogicalRange({ from: 0, to: barsVisible });
+  }
+}
+
+export function showEndOfData(dataCount) {
+  if (!chart || !series || dataCount <= 0) return;
+  const container = document.getElementById('chart');
+  const width = container ? container.clientWidth : 800;
+  const barSpacing = chart.timeScale().options().barSpacing || 6;
+  const barsVisible = Math.ceil(width / barSpacing);
+
+  if (dataCount <= barsVisible) {
+    chart.timeScale().fitContent();
+  } else {
+    const rightPadding = 5;
+    chart.timeScale().setVisibleLogicalRange({
+      from: Math.max(0, dataCount - barsVisible + rightPadding),
+      to: dataCount + rightPadding,
+    });
   }
 }
 
