@@ -62,6 +62,7 @@ function setMode(nextMode) {
 
 function resetReplayState() {
   stopTimer();
+  chart.hideReplayCursor();
   enabled = false;
   mode = 'idle';
   cursorIndex = -1;
@@ -77,6 +78,7 @@ function restoreFullChart(savePosition = true) {
   enabled = false;
   mode = 'idle';
   cursorIndex = -1;
+  chart.hideReplayCursor();
   if (chartData.length > 0) {
     chart.setData(chartData);
     chart.showStartOfData(chartData.length);
@@ -98,6 +100,7 @@ function renderSlice(index, followEnd = true, rememberPrevious = false) {
   if (followEnd) {
     chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
   }
+  chart.showReplayCursor(chartData[cursorIndex].time);
   render();
 }
 
@@ -117,6 +120,7 @@ function stepForward() {
   cursorIndex += 1;
   chart.updateBar(chartData[cursorIndex]);
   chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
+  chart.showReplayCursor(chartData[cursorIndex].time);
   render();
 }
 
@@ -264,6 +268,7 @@ function render() {
 
 export function syncReplayData() {
   stopTimer();
+  chart.hideReplayCursor();
   displayBars = store.getDisplayBars();
   chartData = displayBars.map(toChartBar);
   enabled = false;

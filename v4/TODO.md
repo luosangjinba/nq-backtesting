@@ -27,7 +27,7 @@
 - [ ] Viewport: 更完整的快捷键映射
 - [ ] Replay: 跳转到指定时间
 - [ ] Replay: 键盘快捷键（空格播放/暂停，左右方向逐根）
-- [ ] Replay: 当前回放位置视觉标记
+- [x] Replay: 当前回放位置视觉标记（cursor 竖线）
 - [ ] Replay: Pick 状态下鼠标/图表提示优化
 
 ## 已知问题
@@ -55,3 +55,4 @@
 - 2026-05-20: Select bar 降级为 Pick，作为 Replay 回退到指定位置的一种入口
 - 2026-05-20: Replay 播放视口使用 visible logical range 右锚定；默认最新 K 线右侧留约 7 根空间，播放中拖动/缩放后继承新的锚点
 - 2026-05-20: 图表视口控制独立于 Replay Bar，基于 LightweightCharts timeScale logical range 封装，不引入插件
+- 2026-05-20: Replay cursor 使用 LightweightCharts series primitive 画竖线，只做前端视觉定位，不写入数据

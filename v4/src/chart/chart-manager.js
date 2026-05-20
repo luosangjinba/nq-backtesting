@@ -6,10 +6,12 @@ import {
   TIME_SCALE_DISPLAY,
   VIEWPORT_RIGHT_OFFSET_BARS,
 } from '../config.js';
+import { VerticalLinePrimitive } from './primitives.js';
 
 let chart = null;
 let series = null;
 let legendEl = null;
+let replayCursorPrimitive = null;
 
 function updateLegend(param) {
   if (!legendEl || !param || !param.time || !param.seriesData) {
@@ -108,6 +110,29 @@ export function setData(data) {
 export function updateBar(bar) {
   if (!series) return;
   series.update(bar);
+}
+
+export function showReplayCursor(time) {
+  if (!chart || !series || time === undefined || time === null) return;
+
+  if (!replayCursorPrimitive) {
+    replayCursorPrimitive = new VerticalLinePrimitive(chart, time);
+    series.attachPrimitive(replayCursorPrimitive);
+    return;
+  }
+
+  replayCursorPrimitive.setTime(time);
+}
+
+export function hideReplayCursor() {
+  if (!series || !replayCursorPrimitive) return;
+
+  try {
+    series.detachPrimitive(replayCursorPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart/data reset
+  }
+  replayCursorPrimitive = null;
 }
 
 export function fitContent() {
