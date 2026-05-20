@@ -4,7 +4,11 @@ import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
 import * as store from './data/bar-store.js';
 import { initToolbar } from './ui/toolbar.js';
-import { initReplayControls, syncReplayData } from './ui/replay-controls.js';
+import {
+  getReplayRestoreSnapshot,
+  initReplayControls,
+  syncReplayData,
+} from './ui/replay-controls.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 
 console.log('[V4] app.js loaded');
@@ -27,6 +31,7 @@ console.log('[V4] Viewport controls initialized');
 
 // 绑定 bars:loaded → chart.setData（用显示数据，不含 padding）
 bus.on('bars:loaded', ({ bars }) => {
+  const replaySnapshot = getReplayRestoreSnapshot();
   const displayBars = store.getDisplayBars();
   const tf = store.getCurrentTimeframe();
   // 日线用 tradingDay 日期字符串作为 LightweightCharts time（显示交易日日期）
@@ -39,8 +44,10 @@ bus.on('bars:loaded', ({ bars }) => {
     close: b.close,
   }));
   chart.setData(chartData);
-  chart.showStartOfData(chartData.length);
-  syncReplayData();
+  if (!replaySnapshot?.enabled) {
+    chart.showStartOfData(chartData.length);
+  }
+  syncReplayData(replaySnapshot);
   console.log(
     `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
   );

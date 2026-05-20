@@ -39,6 +39,25 @@ function formatReplayTime(bar) {
   return bar.tradingDay || bar.time || '--';
 }
 
+function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
+  if (!bars.length || targetTimestamp === null || targetTimestamp === undefined) return -1;
+  const tfSeconds = store.getCurrentTimeframe() * 60;
+  const firstTimestamp = bars[0].timestamp;
+  const lastTimestamp = bars[bars.length - 1].timestamp;
+
+  if (targetTimestamp < firstTimestamp || targetTimestamp >= lastTimestamp + tfSeconds) {
+    return -1;
+  }
+
+  let matchedIndex = -1;
+  for (let i = 0; i < bars.length; i += 1) {
+    if (bars[i].timestamp > targetTimestamp) break;
+    matchedIndex = i;
+  }
+
+  return matchedIndex;
+}
+
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
     const month = String(time.month).padStart(2, '0');
@@ -86,10 +105,11 @@ function restoreFullChart(savePosition = true) {
   render();
 }
 
-function renderSlice(index, followEnd = true, rememberPrevious = false) {
+function renderSlice(index, followEnd = true, rememberPrevious = false, viewportSnapshot = null) {
   if (chartData.length === 0) return;
-  const previousRange = chart.getVisibleLogicalRange();
-  const previousDataCount = cursorIndex >= 0 ? cursorIndex + 1 : null;
+  const previousRange = viewportSnapshot?.visibleRange || chart.getVisibleLogicalRange();
+  const previousDataCount =
+    viewportSnapshot?.dataCount ?? (cursorIndex >= 0 ? cursorIndex + 1 : null);
   if (rememberPrevious && cursorIndex >= 0) {
     lastCursorIndex = cursorIndex;
   }
@@ -266,15 +286,53 @@ function render() {
   controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);
 }
 
-export function syncReplayData() {
+export function getReplayRestoreSnapshot() {
+  if (!enabled || cursorIndex < 0) return null;
+
+  return {
+    enabled: true,
+    cursorTimestamp: displayBars[cursorIndex]?.timestamp,
+    lastTimestamp: lastCursorIndex >= 0 ? displayBars[lastCursorIndex]?.timestamp : null,
+    visibleRange: chart.getVisibleLogicalRange(),
+    dataCount: cursorIndex + 1,
+  };
+}
+
+export function syncReplayData(restoreSnapshot = null) {
+  const shouldRestoreReplay =
+    (restoreSnapshot?.enabled && restoreSnapshot.cursorTimestamp !== undefined) ||
+    (enabled && cursorIndex >= 0);
+  const cursorTimestamp = restoreSnapshot?.cursorTimestamp ?? displayBars[cursorIndex]?.timestamp;
+  const lastTimestamp =
+    restoreSnapshot?.lastTimestamp ?? (lastCursorIndex >= 0 ? displayBars[lastCursorIndex]?.timestamp : null);
+
   stopTimer();
   chart.hideReplayCursor();
   displayBars = store.getDisplayBars();
   chartData = displayBars.map(toChartBar);
+
+  if (shouldRestoreReplay && chartData.length > 0) {
+    const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp);
+    if (restoredIndex >= 0) {
+      lastCursorIndex = findBarIndexAtOrBeforeTimestamp(displayBars, lastTimestamp);
+      mode = 'idle';
+      cursorIndex = -1;
+      renderSlice(restoredIndex, true, false, restoreSnapshot);
+      bus.emit('status:update', {
+        text: `Replay 对齐: ${formatReplayTime(displayBars[restoredIndex])}`,
+        isError: false,
+      });
+      return;
+    }
+  }
+
   enabled = false;
   mode = 'idle';
   cursorIndex = -1;
   lastCursorIndex = -1;
+  if (restoreSnapshot?.enabled && chartData.length > 0) {
+    chart.showStartOfData(chartData.length);
+  }
   render();
 }
 
