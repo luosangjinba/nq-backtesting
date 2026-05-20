@@ -281,10 +281,14 @@ function handleChartClick(param) {
   const index = findBarIndex(param?.time);
   if (index < 0) return;
 
+  const currentRange = chart.getVisibleLogicalRange();
   mode = 'idle';
-  renderSlice(index, true, true);
+  renderSlice(index, false, true);
+  if (currentRange) {
+    chart.setVisibleLogicalRange(currentRange.from, currentRange.to);
+  }
   bus.emit('status:update', {
-    text: `Replay 位置: ${formatReplayTime(displayBars[index])}`,
+    text: `Replay 位置: ${index + 1}/${chartData.length} ${formatReplayTime(displayBars[index])}`,
     isError: false,
   });
 }
