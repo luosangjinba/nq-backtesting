@@ -23,7 +23,7 @@ export function initToolbar() {
       <select id="tfSelect" class="toolbar-select">
         ${Object.entries(TIMEFRAME_MAP)
           .map(
-          ([v, l]) =>
+            ([v, l]) =>
               `<option value="${v}"${parseInt(v) === DEFAULT_TIMEFRAME ? ' selected' : ''}>${l}</option>`
           )
           .join('\n        ')}
@@ -41,8 +41,12 @@ export function initToolbar() {
   const loadBtn = document.getElementById('loadBtn');
 
   loadBtn.addEventListener('click', handleLoad);
-  startInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoad(); });
-  endInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoad(); });
+  startInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLoad();
+  });
+  endInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLoad();
+  });
 
   // 失焦自动格式化时间输入
   [startInput, endInput].forEach((input) => {
@@ -88,9 +92,9 @@ async function handleLoad() {
   bus.emit('status:update', { text: '加载中...', isError: false });
 
   try {
-    const bars = await fetchBars(start, end, tf);
-    store.setBars(bars, start, end, tf);
-    bus.emit('status:update', { text: `已加载 ${bars.length} 根K线`, isError: false });
+    const result = await fetchBars(start, end, tf);
+    store.setBars(result.bars, start, end, tf, result.requestedRange);
+    bus.emit('status:update', { text: `已加载 ${result.bars.length} 根K线`, isError: false });
   } catch (err) {
     bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
   }

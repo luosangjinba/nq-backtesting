@@ -2,6 +2,7 @@
 
 import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
+import * as store from './data/bar-store.js';
 import { initToolbar } from './ui/toolbar.js';
 
 console.log('[V4] app.js loaded');
@@ -14,11 +15,10 @@ console.log('[V4] Chart initialized');
 initToolbar();
 console.log('[V4] Toolbar initialized');
 
-// 绑定 bars:loaded → chart.setData
+// 绑定 bars:loaded → chart.setData（用显示数据，不含 padding）
 bus.on('bars:loaded', ({ bars }) => {
-  // API 返回格式: { time: "YYYY-MM-DD HH:MM", timestamp: unix_seconds, open, high, low, close, volume }
-  // LightweightCharts v5 需要: { time: unix_seconds, open, high, low, close }
-  const chartData = bars.map((b) => ({
+  const displayBars = store.getDisplayBars();
+  const chartData = displayBars.map((b) => ({
     time: b.timestamp,
     open: b.open,
     high: b.high,
@@ -26,6 +26,8 @@ bus.on('bars:loaded', ({ bars }) => {
     close: b.close,
   }));
   chart.setData(chartData);
-  chart.fitContent();
-  console.log(`[V4] Chart updated with ${bars.length} bars`);
+  chart.showStartOfData(chartData.length);
+  console.log(
+    `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
+  );
 });

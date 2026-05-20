@@ -95,7 +95,20 @@ Bad:
 
 ---
 
-### 4. Goal-Driven Execution
+### 4. Don't Guess — Check Documentation
+
+**When uncertain about an API, library method, or framework behavior, consult documentation first.**
+
+- Don't guess method signatures, return types, or property names.
+- Don't assume an API exists because it "probably should."
+- Use WebSearch/WebFetch to look up official docs, or check the library's source code.
+- If docs aren't available, test the API in a small isolated snippet before using it in production code.
+
+**Self-check:** "Am I writing code based on an assumption I haven't verified?" If yes, stop and check.
+
+---
+
+### 5. Goal-Driven Execution
 
 **Define success criteria before coding. Verify after implementation.**
 

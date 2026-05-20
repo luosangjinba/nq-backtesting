@@ -20,7 +20,7 @@ export const TIMEFRAME_TO_SECONDS = {
   '30M': 1800,
   '1H': 3600,
   '4H': 14400,
-  'D': 86400,
+  D: 86400,
   '1W': 604800,
 };
 
@@ -55,6 +55,14 @@ export const CANDLESTICK_STYLE = {
   borderUpColor: '#26a69a',
   wickDownColor: '#ef5350',
   wickUpColor: '#26a69a',
+};
+
+export const TIME_SCALE_DISPLAY = {
+  barSpacing: 6,
+  minBarSpacing: 2,
+  rightOffset: 5,
+  fixLeftEdge: false,
+  fixRightEdge: false,
 };
 
 export const PDA_TYPES = [

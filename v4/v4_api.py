@@ -4,8 +4,9 @@
 从 price_lookup_api.py 导入查询函数，不复制代码。
 端口 8766，与 v3 的 8765 并行运行。
 
-日线聚合使用 CME 交易日分界 (17:00 ET)，
+日线聚合使用 CME 交易日分界 (18:00 ET)，
 数据时间戳为美东时间，不做 UTC 转换。
+API 返回 { bars, requestedRange } 格式，requestedRange 供前端过滤 padding。
 """
 
 import json
@@ -124,7 +125,6 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(f"Unknown endpoint: {path}", 404)
 
     def _handle_bars(self, params):
-        # query_v2_bars(db_path, table, instrument, start, end, tf, padding)
         start = params.get("start", [None])[0]
         end = params.get("end", [None])[0]
         tf = int(params.get("tf", ["1"])[0])
@@ -135,8 +135,19 @@ class V4Handler(BaseHTTPRequestHandler):
             return
 
         try:
-            result = query_v4_bars(DB_PATH, TABLE_NAME, instrument, start, end, tf)
-            self._send_json(result)
+            bars = query_v4_bars(DB_PATH, TABLE_NAME, instrument, start, end, tf)
+            start_dt = _parse_datetime(start)
+            end_dt = _parse_datetime(end)
+            # 数据时间戳为美东时间语义，用 UTC epoch 避免系统时区偏移
+            requested_start_ts = int(start_dt.replace(tzinfo=timezone.utc).timestamp())
+            requested_end_ts = int(end_dt.replace(tzinfo=timezone.utc).timestamp())
+            self._send_json({
+                "bars": bars,
+                "requestedRange": {
+                    "startTs": requested_start_ts,
+                    "endTs": requested_end_ts,
+                },
+            })
         except Exception as e:
             self._send_error(str(e), 500)
 

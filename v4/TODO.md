@@ -35,3 +35,8 @@
 - 2026-05-20: 日线聚合使用 CME 交易日分界 18:00 ET（前一天18:00~当天16:59），数据时间戳为美东时间不做 UTC 转换
 - 2026-05-20: 日线聚合排除 17:00-17:59 休市时段
 - 2026-05-20: 时间输入自动格式化（8位→日期 00:00，12位→日期 HH:mm），blur 触发 + handleLoad 前格式化
+- 2026-05-20: API 返回 { bars, requestedRange } 格式，前端用 requestedRange 过滤 padding bar
+- 2026-05-20: bar-store 分离全量数据（含 padding）和显示数据（不含 padding）
+- 2026-05-20: 图表显示策略：少量 bar 用 fitContent()，大量 bar 用 setVisibleLogicalRange 从起始位置显示
+- 2026-05-20: fixLeftEdge/fixRightEdge=false，允许自由拖动滚动
+- 2026-05-20: barSpacing=6, minBarSpacing=2, rightOffset=5

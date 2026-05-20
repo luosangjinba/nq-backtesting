@@ -1,6 +1,6 @@
 // LightweightCharts v5 图表管理器
 
-import { CHART_THEME, CANDLESTICK_STYLE } from '../config.js';
+import { CHART_THEME, CANDLESTICK_STYLE, TIME_SCALE_DISPLAY } from '../config.js';
 
 let chart = null;
 let series = null;
@@ -32,6 +32,10 @@ export function initChart(containerId) {
 
   chart = LightweightCharts.createChart(container, {
     ...CHART_THEME,
+    timeScale: {
+      ...CHART_THEME.timeScale,
+      ...TIME_SCALE_DISPLAY,
+    },
     width: container.clientWidth,
     height: container.clientHeight,
     crosshair: {
@@ -81,6 +85,21 @@ export function setData(data) {
 export function fitContent() {
   if (!chart) return;
   chart.timeScale().fitContent();
+}
+
+// 根据数据量选择显示策略：少量 bar 用 fitContent，大量 bar 从起始位置显示
+export function showStartOfData(dataCount) {
+  if (!chart || !series) return;
+  const container = document.getElementById('chart');
+  const width = container ? container.clientWidth : 800;
+  const barSpacing = chart.timeScale().options().barSpacing || 6;
+  const barsVisible = Math.ceil(width / barSpacing);
+
+  if (dataCount <= barsVisible) {
+    chart.timeScale().fitContent();
+  } else {
+    chart.timeScale().setVisibleLogicalRange({ from: 0, to: barsVisible });
+  }
 }
 
 export function getVisibleRange() {

@@ -6,17 +6,31 @@ let bars = [];
 let currentStart = null;
 let currentEnd = null;
 let currentTimeframe = 1;
+let requestedRange = null;
 
-export function setBars(newBars, start, end, tf) {
+export function setBars(newBars, start, end, tf, range = null) {
   bars = newBars;
   currentStart = start;
   currentEnd = end;
   currentTimeframe = tf;
-  bus.emit('bars:loaded', { bars, start, end, tf });
+  requestedRange = range;
+  bus.emit('bars:loaded', { bars, start, end, tf, requestedRange: range });
 }
 
 export function getBars() {
   return bars;
+}
+
+export function getRequestedRange() {
+  return requestedRange;
+}
+
+// 只返回用户请求时间范围内的 bar（不含 padding），用于图表显示
+// getBars() 返回全量数据（含 padding），供指标计算用
+export function getDisplayBars() {
+  if (!requestedRange || bars.length === 0) return bars;
+  const { startTs, endTs } = requestedRange;
+  return bars.filter((b) => b.timestamp >= startTs && b.timestamp <= endTs);
 }
 
 export function getBarAtTime(time) {
