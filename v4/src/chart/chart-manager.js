@@ -4,19 +4,52 @@ import { CHART_THEME, CANDLESTICK_STYLE } from '../config.js';
 
 let chart = null;
 let series = null;
+let legendEl = null;
+
+function updateLegend(param) {
+  if (!legendEl || !param || !param.time || !param.seriesData) {
+    return;
+  }
+  const data = param.seriesData.get(series);
+  if (!data) return;
+
+  const isUp = data.close >= data.open;
+  const cls = isUp ? 'ohlc-up' : 'ohlc-down';
+  const fmt = (v) => v.toFixed(2);
+
+  legendEl.innerHTML =
+    `<span class="ohlc-label">O</span><span class="ohlc-value ${cls}">${fmt(data.open)}</span>` +
+    `<span class="ohlc-label">H</span><span class="ohlc-value ${cls}">${fmt(data.high)}</span>` +
+    `<span class="ohlc-label">L</span><span class="ohlc-value ${cls}">${fmt(data.low)}</span>` +
+    `<span class="ohlc-label">C</span><span class="ohlc-value ${cls}">${fmt(data.close)}</span>`;
+}
 
 export function initChart(containerId) {
   const container = document.getElementById(containerId);
   if (!container) throw new Error(`Chart container #${containerId} not found`);
 
+  legendEl = document.getElementById('ohlc-legend');
+
   chart = LightweightCharts.createChart(container, {
     ...CHART_THEME,
     width: container.clientWidth,
     height: container.clientHeight,
+    crosshair: {
+      mode: 0,
+      vertLine: { labelVisible: true },
+      horzLine: { labelVisible: true },
+    },
   });
 
   // v5 API: addSeries(CandlestickSeries, options)
-  series = chart.addSeries(LightweightCharts.CandlestickSeries, CANDLESTICK_STYLE);
+  series = chart.addSeries(LightweightCharts.CandlestickSeries, {
+    ...CANDLESTICK_STYLE,
+    lastValueVisible: true,
+    priceLineVisible: true,
+  });
+
+  // 鼠标悬停更新 OHLCV legend
+  chart.subscribeCrosshairMove(updateLegend);
 
   // 响应式
   const observer = new ResizeObserver((entries) => {

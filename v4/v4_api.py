@@ -3,18 +3,22 @@
 
 从 price_lookup_api.py 导入查询函数，不复制代码。
 端口 8766，与 v3 的 8765 并行运行。
+
+日线聚合使用 CME 交易日分界 (6:00 PM ET = 22:00 UTC)，
+而非 query_v2_bars 默认的 00:00 UTC。
 """
 
 import json
 import sys
 import os
 import yaml
+from datetime import datetime, timezone, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 # 导入父目录的查询函数（price_lookup_api.py 在 backtesting/ 根目录）
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from price_lookup_api import query_v2_bars, query_price
+from price_lookup_api import query_v2_bars, query_price, open_db, _parse_datetime
 
 # 加载配置
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "v4_config.yaml")
@@ -25,6 +29,70 @@ DB_PATH = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), V4_CONFIG["database"]["trading_data"]["path"])
 )
 TABLE_NAME = V4_CONFIG["database"]["trading_data"]["table"]
+
+# CME 交易日分界：6:00 PM ET = 22:00 UTC
+# 日线 anchor offset: 从 00:00 UTC 偏移到 22:00 UTC
+DAILY_ANCHOR_OFFSET = 22 * 3600  # 79200 seconds
+
+
+def query_v4_bars(db_path, table, instrument, start, end, tf, padding=19):
+    """Wrapper around query_v2_bars with CME session-aware daily aggregation.
+
+    For tf=1440 (daily), uses 22:00 UTC (6:00 PM ET) as the trading day boundary,
+    matching CME's trading day convention. All other timeframes use query_v2_bars.
+    """
+    if tf != 1440:
+        return query_v2_bars(db_path, table, instrument, start, end, tf, padding)
+
+    start_dt = _parse_datetime(start)
+    end_dt = _parse_datetime(end)
+    pad_minutes = padding * tf
+    query_start = start_dt - timedelta(minutes=pad_minutes)
+    query_end = end_dt + timedelta(minutes=pad_minutes)
+
+    # Anchor: 2000-01-01 22:00 UTC so daily buckets split at 22:00 UTC (6:00 PM ET)
+    anchor_epoch = 946684800 + DAILY_ANCHOR_OFFSET
+
+    sql = f"""
+with bars as (
+  select
+    date_trunc('minute', ts) as ts,
+    open, high, low, close, volume
+  from {table}
+  where instrument = ?
+    and ts >= ?
+    and ts < ?
+)
+select
+  floor((extract(epoch from ts) - {anchor_epoch}) / (60 * ?)) as bucket,
+  first(open order by ts) as open,
+  max(high) as high,
+  min(low) as low,
+  last(close order by ts) as close,
+  sum(coalesce(volume, 0)) as volume
+from bars
+group by bucket
+order by bucket
+""".strip()
+
+    with open_db(db_path) as conn:
+        rows = conn.execute(sql, [instrument, query_start, query_end, tf]).fetchall()
+
+    utc_tz = timezone.utc
+    return [
+        {
+            "time": datetime.fromtimestamp(
+                anchor_epoch + int(row[0]) * tf * 60, tz=utc_tz
+            ).strftime("%Y-%m-%d %H:%M"),
+            "timestamp": anchor_epoch + int(row[0]) * tf * 60,
+            "open": float(row[1]),
+            "high": float(row[2]),
+            "low": float(row[3]),
+            "close": float(row[4]),
+            "volume": int(row[5]) if row[5] is not None else 0,
+        }
+        for row in rows
+    ]
 
 
 class V4Handler(BaseHTTPRequestHandler):
@@ -64,7 +132,7 @@ class V4Handler(BaseHTTPRequestHandler):
             return
 
         try:
-            result = query_v2_bars(DB_PATH, TABLE_NAME, instrument, start, end, tf)
+            result = query_v4_bars(DB_PATH, TABLE_NAME, instrument, start, end, tf)
             self._send_json(result)
         except Exception as e:
             self._send_error(str(e), 500)
