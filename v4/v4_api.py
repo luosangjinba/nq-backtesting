@@ -4,8 +4,8 @@
 从 price_lookup_api.py 导入查询函数，不复制代码。
 端口 8766，与 v3 的 8765 并行运行。
 
-日线聚合使用 CME 交易日分界 (6:00 PM ET = 22:00 UTC)，
-而非 query_v2_bars 默认的 00:00 UTC。
+日线聚合使用 CME 交易日分界 (17:00 ET)，
+数据时间戳为美东时间，不做 UTC 转换。
 """
 
 import json
@@ -30,16 +30,17 @@ DB_PATH = os.path.abspath(
 )
 TABLE_NAME = V4_CONFIG["database"]["trading_data"]["table"]
 
-# CME 交易日分界：6:00 PM ET = 22:00 UTC
-# 日线 anchor offset: 从 00:00 UTC 偏移到 22:00 UTC
-DAILY_ANCHOR_OFFSET = 22 * 3600  # 79200 seconds
+# CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
+# 日线 = 前一天18:00 ~ 当天16:59
+DAILY_ANCHOR_OFFSET = 18 * 3600  # 64800 seconds
 
 
 def query_v4_bars(db_path, table, instrument, start, end, tf, padding=19):
     """Wrapper around query_v2_bars with CME session-aware daily aggregation.
 
-    For tf=1440 (daily), uses 22:00 UTC (6:00 PM ET) as the trading day boundary,
-    matching CME's trading day convention. All other timeframes use query_v2_bars.
+    For tf=1440 (daily), uses 18:00 ET as the trading day boundary
+    (previous day 18:00 ~ current day 16:59). Data timestamps are ET, no UTC conversion.
+    All other timeframes use query_v2_bars.
     """
     if tf != 1440:
         return query_v2_bars(db_path, table, instrument, start, end, tf, padding)
@@ -50,7 +51,7 @@ def query_v4_bars(db_path, table, instrument, start, end, tf, padding=19):
     query_start = start_dt - timedelta(minutes=pad_minutes)
     query_end = end_dt + timedelta(minutes=pad_minutes)
 
-    # Anchor: 2000-01-01 22:00 UTC so daily buckets split at 22:00 UTC (6:00 PM ET)
+    # Anchor: 2000-01-01 18:00 ET so daily buckets split at 18:00 ET
     anchor_epoch = 946684800 + DAILY_ANCHOR_OFFSET
 
     sql = f"""
@@ -62,6 +63,7 @@ with bars as (
   where instrument = ?
     and ts >= ?
     and ts < ?
+    and not (extract(hour from ts) = 17)
 )
 select
   floor((extract(epoch from ts) - {anchor_epoch}) / (60 * ?)) as bucket,
@@ -78,11 +80,12 @@ order by bucket
     with open_db(db_path) as conn:
         rows = conn.execute(sql, [instrument, query_start, query_end, tf]).fetchall()
 
-    utc_tz = timezone.utc
+    # 数据时间戳为美东时间，用 UTC fromtimestamp 避免系统时区偏移
+    # epoch 值本身就是美东时间语义，UTC解读直接得到正确字符串
     return [
         {
             "time": datetime.fromtimestamp(
-                anchor_epoch + int(row[0]) * tf * 60, tz=utc_tz
+                anchor_epoch + int(row[0]) * tf * 60, tz=timezone.utc
             ).strftime("%Y-%m-%d %H:%M"),
             "timestamp": anchor_epoch + int(row[0]) * tf * 60,
             "open": float(row[1]),

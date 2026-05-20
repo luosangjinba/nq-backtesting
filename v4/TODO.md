@@ -24,10 +24,14 @@
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - 手动标注刷新后丢失（后续可加 localStorage 持久化）
+- 1W 周线聚合逻辑待实现（暂搁置）
+- 假日异常收盘时间（如13:14）暂不特殊处理
 
 ## 架构决策记录
 - 2026-05-19: 所有 PDA 前端实时计算，不存 DB
 - 2026-05-19: LightweightCharts v5.2.0，用内置 Markers 插件替代部分自定义 Primitive
 - 2026-05-19: v4_api.py 从 price_lookup_api.py 导入查询函数，不复制代码
-- 2026-05-19: 日线聚合使用 CME 交易日分界 22:00 UTC (6:00 PM ET)，不走 query_v2_bars 默认的 00:00 UTC
 - 2026-05-19: OHLCV 悬停 legend 用 subscribeCrosshairMove 实现
+- 2026-05-20: 日线聚合使用 CME 交易日分界 18:00 ET（前一天18:00~当天16:59），数据时间戳为美东时间不做 UTC 转换
+- 2026-05-20: 日线聚合排除 17:00-17:59 休市时段
+- 2026-05-20: 时间输入自动格式化（8位→日期 00:00，12位→日期 HH:mm），blur 触发 + handleLoad 前格式化

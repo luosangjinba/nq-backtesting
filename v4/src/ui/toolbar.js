@@ -4,6 +4,7 @@ import * as bus from '../event-bus.js';
 import { DEFAULT_TIMEFRAME, TIMEFRAME_MAP } from '../config.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
+import { formatTimeInput } from '../utils.js';
 
 export function initToolbar() {
   const container = document.getElementById('toolbar');
@@ -43,6 +44,16 @@ export function initToolbar() {
   startInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoad(); });
   endInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoad(); });
 
+  // 失焦自动格式化时间输入
+  [startInput, endInput].forEach((input) => {
+    input.addEventListener('blur', (e) => {
+      const formatted = formatTimeInput(e.target.value);
+      if (formatted !== e.target.value) {
+        e.target.value = formatted;
+      }
+    });
+  });
+
   // 周期切换时自动重新加载
   tfSelect.addEventListener('change', () => {
     if (store.getBars().length > 0) {
@@ -61,8 +72,12 @@ export function initToolbar() {
 }
 
 async function handleLoad() {
-  const start = document.getElementById('startInput').value.trim();
-  const end = document.getElementById('endInput').value.trim();
+  const startEl = document.getElementById('startInput');
+  const endEl = document.getElementById('endInput');
+  startEl.value = formatTimeInput(startEl.value.trim());
+  endEl.value = formatTimeInput(endEl.value.trim());
+  const start = startEl.value;
+  const end = endEl.value;
   const tf = parseInt(document.getElementById('tfSelect').value);
 
   if (!start || !end) {
