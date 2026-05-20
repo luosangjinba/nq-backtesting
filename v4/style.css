@@ -217,7 +217,8 @@ html, body {
 .replay-btn,
 .replay-icon-btn,
 .replay-close,
-.replay-speed {
+.replay-speed,
+.replay-jump-input {
   height: 28px;
   border: 1px solid #363a45;
   background: #151821;
@@ -261,10 +262,25 @@ html, body {
   padding: 0 6px;
 }
 
+.replay-jump-input {
+  width: 146px;
+  padding: 0 8px;
+}
+
+.replay-jump-input:focus {
+  outline: none;
+  border-color: #2962ff;
+}
+
+.replay-jump-btn {
+  min-width: 42px;
+}
+
 .replay-btn:hover:not(:disabled),
 .replay-icon-btn:hover:not(:disabled),
 .replay-close:hover:not(:disabled),
-.replay-speed:hover:not(:disabled) {
+.replay-speed:hover:not(:disabled),
+.replay-jump-input:hover:not(:disabled) {
   border-color: #787b86;
   background: #1e222d;
 }
@@ -272,7 +288,8 @@ html, body {
 .replay-btn:disabled,
 .replay-icon-btn:disabled,
 .replay-close:disabled,
-.replay-speed:disabled {
+.replay-speed:disabled,
+.replay-jump-input:disabled {
   opacity: 0.45;
   cursor: default;
 }

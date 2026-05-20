@@ -13,6 +13,7 @@
 - Replay 前进时保留当前可见逻辑范围；如果用户播放中拖动/缩放，下一根会继承新的视口和锚点。
 - Replay cursor 使用 series primitive 绘制竖线，只作为前端视觉定位，不写入数据。
 - Replay On 状态切换周期时，按旧 cursor timestamp 在新周期中找对应 K 线并保持 Replay On；保留切换前手动拖动/缩放后的 viewport 锚点，自动播放先暂停。
+- Replay Bar 支持输入时间跳转，复用 `formatTimeInput()`，按不晚于目标 timestamp 的最近 K 线定位。
 
 ## 完成内容
 1. 新增 `v4/src/ui/replay-controls.js`
@@ -41,6 +42,7 @@
 - Replay 播放/逐根前进：最新 K 线默认在右侧留约 7 根 K 线空间；播放中拖动/缩放后，下一根沿用新的视口锚点。
 - Replay cursor: Replay On 后当前 K 线位置显示竖线；First / Last Pos / Pick / 上一根 / 下一根 / 自动播放时同步移动；Replay Off 后清除。
 - 周期切换：Replay On 时切换周期不会退出 Replay，会对齐到新周期中不晚于旧 cursor timestamp 的最近 K 线，并继承切换前的可见 logical range 与右侧锚点。
+- 时间跳转：Replay On 时可输入 `YYYY-MM-DD HH:mm` 或 `YYYYMMDDHHmm` 后按 Enter / Go，跳到当前加载区间内不晚于目标时间的最近 K 线；失败时只提示，不改变 cursor。
 - `First`: 回退到当前加载区间第一根 K 线。
 - `Last Pos`: 回到上次退出或跳转前的位置。
 - `Pick`: 点击图表选择回退位置。
@@ -55,7 +57,5 @@
 - 无数据时 replay 操作按钮禁用，加载数据后由 `syncReplayData()` 启用。
 
 ## 后续
-- 跳转到指定时间。
 - 键盘快捷键。
-- 当前 replay cursor 视觉标记。
 - Pick 状态提示优化。

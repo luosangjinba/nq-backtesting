@@ -9,7 +9,7 @@
 - 视口操作统一基于 logical range：
   - `getVisibleLogicalRange()`
   - `setVisibleLogicalRange()`
-- `Reset chart view` 回到当前加载数据的默认显示策略，复用 `showStartOfData()`。
+- `Reset chart view` 与 `Scroll to latest` 统一右侧锚点行为：保持当前缩放宽度，把最新 K 线滚到右侧留约 7 根空间。
 - `Scroll to latest` 保持当前缩放宽度，只把视口滚到最新 K 线右侧留约 7 根空间。
 - `Maximize / restore chart` 先只在 controller 中预留空接口，后续交给多窗口 layout manager。
 

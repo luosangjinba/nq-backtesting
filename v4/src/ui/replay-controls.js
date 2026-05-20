@@ -4,6 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
+import { formatTimeInput } from '../utils.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -56,6 +57,26 @@ function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
   }
 
   return matchedIndex;
+}
+
+function parseReplayJumpTimestamp(value) {
+  const formatted = formatTimeInput(value.trim());
+  const match = formatted.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/);
+  if (!match) return { timestamp: null, formatted };
+
+  const [, year, month, day, hour, minute] = match;
+  const timestamp = Math.floor(
+    new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      0
+    ).getTime() / 1000
+  );
+
+  return { timestamp, formatted };
 }
 
 function normalizeTimeKey(time) {
@@ -164,6 +185,38 @@ function jumpLastPosition() {
   renderSlice(lastCursorIndex, true, true);
 }
 
+function jumpToTime() {
+  if (!enabled || chartData.length === 0) return;
+
+  const input = controlsEl?.querySelector('[data-replay-jump-input]');
+  if (!input) return;
+
+  const { timestamp, formatted } = parseReplayJumpTimestamp(input.value);
+  input.value = formatted;
+
+  if (timestamp === null || Number.isNaN(timestamp)) {
+    bus.emit('status:update', { text: 'Replay 跳转失败: 时间格式无效', isError: true });
+    return;
+  }
+
+  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp);
+  if (index < 0) {
+    bus.emit('status:update', {
+      text: 'Replay 跳转失败: 时间不在当前加载区间',
+      isError: true,
+    });
+    return;
+  }
+
+  stopTimer();
+  mode = 'idle';
+  renderSlice(index, true, true);
+  bus.emit('status:update', {
+    text: `Replay 跳转: ${formatReplayTime(displayBars[index])}`,
+    isError: false,
+  });
+}
+
 function enableReplay() {
   if (chartData.length === 0) return;
   const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
@@ -234,6 +287,7 @@ function handleControlClick(e) {
   if (action === 'back') stepBack();
   if (action === 'play') togglePlay();
   if (action === 'forward') stepForward();
+  if (action === 'jump') jumpToTime();
   if (action === 'close') restoreFullChart();
 }
 
@@ -277,6 +331,15 @@ function render() {
           (s, i) => `<option value="${i}"${i === speedIndex ? ' selected' : ''}>${s.label}</option>`
         ).join('')}
       </select>
+      <input
+        class="replay-jump-input"
+        data-replay-jump-input
+        type="text"
+        placeholder="YYYY-MM-DD HH:mm"
+        title="跳转到指定时间"
+        ${replayDisabled ? 'disabled' : ''}
+      />
+      <button class="replay-btn replay-jump-btn" data-action="jump" title="跳转到指定时间" ${replayDisabled ? 'disabled' : ''}>Go</button>
       <span class="replay-tf">${tfLabel}</span>
       <span class="replay-info">${enabled && currentBar ? `${cursorIndex + 1}/${chartData.length} ${formatReplayTime(currentBar)}` : 'Replay Trading'}</span>
       <button class="replay-close" data-action="close" title="退出 Replay" ${replayDisabled ? 'disabled' : ''}>X</button>
@@ -284,6 +347,12 @@ function render() {
   `;
 
   controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);
+  controlsEl.querySelector('[data-replay-jump-input]')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      jumpToTime();
+    }
+  });
 }
 
 export function getReplayRestoreSnapshot() {

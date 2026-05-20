@@ -71,10 +71,7 @@ export function scrollToLatest() {
 }
 
 export function resetChartView() {
-  const dataCount = getDisplayCount();
-  if (dataCount <= 0) return;
-
-  chart.showStartOfData(dataCount);
+  scrollToLatest();
 }
 
 export function maximizeChart() {

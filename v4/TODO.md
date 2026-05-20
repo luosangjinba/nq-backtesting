@@ -25,7 +25,7 @@
 ### Phase 3 后续增强
 - [ ] Viewport: Maximize / restore chart（预留给后续多窗口布局）
 - [ ] Viewport: 更完整的快捷键映射
-- [ ] Replay: 跳转到指定时间
+- [x] Replay: 跳转到指定时间
 - [ ] Replay: 键盘快捷键（空格播放/暂停，左右方向逐根）
 - [x] Replay: 当前回放位置视觉标记（cursor 竖线）
 - [ ] Replay: Pick 状态下鼠标/图表提示优化
@@ -57,3 +57,5 @@
 - 2026-05-20: 图表视口控制独立于 Replay Bar，基于 LightweightCharts timeScale logical range 封装，不引入插件
 - 2026-05-20: Replay cursor 使用 LightweightCharts series primitive 画竖线，只做前端视觉定位，不写入数据
 - 2026-05-20: Replay On 状态切换周期时按 cursor timestamp 对齐到新周期 K 线并保持 On；保留切换前手动拖动/缩放后的 viewport 锚点，自动播放会暂停
+- 2026-05-20: Replay Bar 支持输入时间跳转，复用 formatTimeInput，按不晚于目标 timestamp 的最近 K 线定位
+- 2026-05-20: Reset chart view 与 Scroll to latest 统一为保持当前缩放并将最新 K 线锚到右侧 7 根空间
