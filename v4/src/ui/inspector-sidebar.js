@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
+import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
@@ -122,6 +123,18 @@ function renderEditFields(annotation) {
   );
 }
 
+function renderArchiveActions() {
+  return section(
+    'Archive',
+    [
+      `<button class="inspector-secondary" data-inspector-action="export-pda" type="button">Export PDA JSON</button>`,
+      `<button class="inspector-secondary" data-inspector-action="import-pda" type="button">Import PDA JSON</button>`,
+      `<button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>`,
+      `<input class="inspector-file-input" data-inspector-action="import-pda-file" type="file" accept="application/json,.json" />`,
+    ].join('')
+  );
+}
+
 function renderPointFields(annotation) {
   return section(
     'Point',
@@ -194,7 +207,7 @@ function renderAnnotation(annotation) {
   if (shape === 'range') detail = renderRangeFields(annotation);
   if (shape === 'point-set') detail = renderPointSetFields(annotation);
 
-  bodyEl.innerHTML = common + detail + renderEditFields(annotation);
+  bodyEl.innerHTML = common + detail + renderEditFields(annotation) + renderArchiveActions();
 }
 
 function renderEmpty() {
@@ -202,7 +215,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA on the chart.
     </div>
-    <button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>
+    ${renderArchiveActions()}
   `;
 }
 
@@ -256,6 +269,13 @@ function getCurrentAnnotation() {
 function handleInspectorChange(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
+
+  if (action === 'import-pda-file') {
+    importPdaArchive(e.target.files?.[0]);
+    e.target.value = '';
+    return;
+  }
+
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
 
@@ -279,6 +299,22 @@ function handleInspectorChange(e) {
 function handleInspectorClick(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
+
+  if (action === 'export-pda') {
+    exportPdaArchive();
+    return;
+  }
+
+  if (action === 'import-pda') {
+    bodyEl?.querySelector('[data-inspector-action="import-pda-file"]')?.click();
+    return;
+  }
+
+  if (action === 'clear-saved') {
+    clearSavedAnnotations();
+    return;
+  }
+
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
 
@@ -286,11 +322,6 @@ function handleInspectorClick(e) {
     deleteAnnotation(annotation.id);
     clearSelection();
     renderEmpty();
-    return;
-  }
-
-  if (action === 'clear-saved') {
-    clearSavedAnnotations();
     return;
   }
 

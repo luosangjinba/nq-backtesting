@@ -1,0 +1,45 @@
+# V4 PDA Export / Import Session
+
+## Branch
+- `feature/v4-pda-export-import`
+
+## Goal
+- Add a portable PDA archive layer after localStorage draft persistence.
+- Keep this as file-based JSON archive first; do not introduce a database.
+
+## Completed
+- Added `v4/src/pda/pda-archive.js`.
+  - Exports non-draft PDA annotations as JSON.
+  - Archive schema includes `app`, `version`, `exportedAt`, `instrument`, `timeframe`, `range`, and `annotations`.
+  - Import validates `app` and `version`.
+  - Import filters out draft annotations.
+  - Import merges into the current in-memory PDA store.
+  - ID conflicts are renamed with an `-import-...` suffix and the original id is kept in `importedFromId`.
+- Added Inspector Archive controls:
+  - `Export PDA JSON`
+  - `Import PDA JSON`
+  - `Clear Saved PDA`
+- Archive controls are available both when no PDA is selected and when a selected PDA is shown.
+- Imported annotations go through `loadAnnotations()`, so renderer refresh and localStorage draft save are triggered by the normal `pda:changed` path.
+
+## Current Behavior
+- Export downloads a `.json` archive for the current browser annotations.
+- Import reads a `.json` archive from disk and appends valid PDA annotations to the current set.
+- Empty export is blocked with a status message.
+- Unsupported archive app/version is rejected with a status error.
+
+## Not Included
+- No YAML format yet.
+- No replace-import mode yet; current import is merge-only.
+- No file picker styling beyond hidden native input.
+- No database persistence.
+
+## Verification
+- `node --check v4/src/pda/pda-archive.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+## Next
+- Add an explicit import mode choice if merge vs replace becomes important.
+- Add schema migration when archive `version` changes.
+- Consider YAML export after JSON schema stabilizes.
