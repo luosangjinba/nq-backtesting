@@ -12,15 +12,17 @@
 - [x] Step 7: 周期切换
 
 ### Phase 2: PDA 系统
-- [ ] Step 8: PDA 类型注册表
-- [ ] Step 9: PDA 扫描器（前端实时计算 FVG/BSL/SSL/EQH/EQL）
-- [ ] Step 10: PDA 渲染器 + 存储
+- [ ] Step 8: PDA 类型注册表 + 当前会话 store
+- [ ] Step 9: 手动 PDA 标注入口（优先 SSL/BSL 点选）
+- [ ] Step 10: PDA context 实时计算器（HTF / session / midnight / LDN / NYAM）
+- [ ] Step 11: PDA 渲染器（线段 / 矩形 / 点位集合）
+- [ ] Step 12: 客观 PDA 显示/隐藏命令（NDOW/NWOG 等）
+- [ ] Step 13: EQH/EQL 点位集合打包
 
-### Phase 3: 交互
-- [x] Step 11: 逐根播放（MVP: Replay Bar On/Off + First/Last Pos/Pick + 前进/后退/自动播放）
-- [x] Step 11.5: 图表视口控制（Zoom in/out、Scroll left/right、Scroll latest、Reset chart view）
-- [ ] Step 12: 右键菜单 + PDA 详情 + 手动标注
-- [ ] Step 13: 键盘快捷键 + CSS 整合
+### Phase 3: Replay / Viewport 交互
+- [x] Replay Bar：On/Off + First/Last Pos/Pick + 前进/后退/自动播放
+- [x] 图表视口控制：Zoom in/out、Scroll left/right、Scroll latest、Reset chart view
+- [x] Replay 增强：cursor 竖线、时间跳转、快捷键、周期切换对齐、Pick hover preview
 
 ### Phase 3 后续增强
 - [ ] Viewport: Maximize / restore chart（预留给后续多窗口布局）
@@ -62,3 +64,4 @@
 - 2026-05-20: Replay Bar 支持键盘快捷键：Space 播放/暂停，左右方向逐根，Home 回第一根，Esc 退出 Pick 或关闭 Replay；输入控件聚焦时禁用
 - 2026-05-20: Pick 模式支持 hover 临时竖线，点击成功后状态栏显示 index/total + time，成功或取消后清除 preview
 - 2026-05-20: Replay 时间跳转按 UTC wall-clock timestamp 解析，避免浏览器本地时区导致跳转偏移
+- 2026-05-20: V4 PDA 改为手动标注优先，不做全量自动扫描；用户选择 PDA 后实时计算 HTF/session/midnight/LDN/NYAM 等上下文并打包标注
