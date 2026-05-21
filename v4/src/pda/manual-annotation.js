@@ -5,7 +5,7 @@ import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { addAnnotation, clearAnnotations } from './pda-store.js';
 import { buildPointContexts, formatContextLabel } from './pda-context.js';
-import { clearPdaContextDataCache, fetchTradingDayBars } from './pda-context-data.js';
+import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
 import { getPdaType } from './pda-types.js';
 
 let controlsEl = null;
@@ -41,10 +41,10 @@ async function addManualPoint(type, bar) {
   const timeframe = store.getCurrentTimeframe();
   let contextBars = store.getDisplayBars();
   try {
-    contextBars = await fetchTradingDayBars(bar.timestamp, timeframe);
+    contextBars = await fetchTradingDaySourceBars(bar.timestamp);
   } catch (err) {
     bus.emit('status:update', {
-      text: `PDA 完整交易日数据加载失败，暂用当前显示区间: ${err.message}`,
+      text: `PDA 1M context source 加载失败，暂用当前显示区间: ${err.message}`,
       isError: true,
     });
   }

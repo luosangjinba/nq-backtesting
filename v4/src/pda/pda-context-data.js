@@ -3,6 +3,7 @@
 import { fetchBars } from '../api.js';
 
 const dayCache = new Map();
+const CONTEXT_SOURCE_TIMEFRAME = 1;
 
 function getUtcParts(timestamp) {
   const date = new Date(timestamp * 1000);
@@ -68,6 +69,25 @@ export async function fetchTradingDayBars(timestamp, timeframe, instrument = 'NQ
   }
 
   const result = await fetchBars(range.start, range.end, timeframe, instrument);
+  const bars = filterRequestedBars(result);
+  dayCache.set(key, bars);
+  return bars;
+}
+
+export function getPdaContextSourceCacheKey(timestamp, instrument = 'NQ') {
+  const range = getTradingDayRange(timestamp);
+  return `${instrument}:source:${CONTEXT_SOURCE_TIMEFRAME}M:${range.tradingDay}`;
+}
+
+export async function fetchTradingDaySourceBars(timestamp, instrument = 'NQ') {
+  const range = getTradingDayRange(timestamp);
+  const key = getPdaContextSourceCacheKey(timestamp, instrument);
+
+  if (dayCache.has(key)) {
+    return dayCache.get(key);
+  }
+
+  const result = await fetchBars(range.start, range.end, CONTEXT_SOURCE_TIMEFRAME, instrument);
   const bars = filterRequestedBars(result);
   dayCache.set(key, bars);
   return bars;
