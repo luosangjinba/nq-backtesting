@@ -21,6 +21,10 @@
   - `Clear Saved PDA`
 - Archive controls are available both when no PDA is selected and when a selected PDA is shown.
 - Imported annotations go through `loadAnnotations()`, so renderer refresh and localStorage draft save are triggered by the normal `pda:changed` path.
+- Added a browser-local Inspector display toggle for PDA label text.
+  - `Show PDA labels` controls label text visibility for liquidity lines, ranges, and EQH/EQL point sets.
+  - The setting is persisted as `v4:pda-display-settings`.
+  - The setting only changes rendering; it does not mutate annotations or export archives.
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.
@@ -30,6 +34,7 @@
 - Import reads a `.json` archive from disk and appends valid PDA annotations to the current set.
 - Empty export is blocked with a status message.
 - Unsupported archive app/version is rejected with a status error.
+- PDA label text can be hidden from the Inspector without hiding PDA lines, rectangles, or EQH/EQL markers.
 
 ## Not Included
 - No YAML format yet.
@@ -39,6 +44,8 @@
 
 ## Verification
 - `node --check v4/src/pda/pda-archive.js`
+- `node --check v4/src/pda/pda-display-settings.js`
+- `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
 - `git diff --check`
 

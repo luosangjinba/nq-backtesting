@@ -283,6 +283,21 @@ html, body {
   font-size: 11px;
 }
 
+.inspector-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  color: #d1d4dc;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-toggle input {
+  margin: 0;
+  accent-color: #26a69a;
+}
+
 .inspector-empty {
   padding: 12px 0;
   color: #787b86;

@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
+import { getPdaDisplaySettings, setPdaDisplaySettings } from '../pda/pda-display-settings.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
@@ -135,6 +136,19 @@ function renderArchiveActions() {
   );
 }
 
+function renderDisplaySettings() {
+  const settings = getPdaDisplaySettings();
+  return section(
+    'Display',
+    `
+      <label class="inspector-toggle">
+        <input data-inspector-action="toggle-labels" type="checkbox" ${settings.showLabels ? 'checked' : ''} />
+        <span>Show PDA labels</span>
+      </label>
+    `
+  );
+}
+
 function renderPointFields(annotation) {
   return section(
     'Point',
@@ -207,7 +221,8 @@ function renderAnnotation(annotation) {
   if (shape === 'range') detail = renderRangeFields(annotation);
   if (shape === 'point-set') detail = renderPointSetFields(annotation);
 
-  bodyEl.innerHTML = common + detail + renderEditFields(annotation) + renderArchiveActions();
+  bodyEl.innerHTML =
+    common + detail + renderEditFields(annotation) + renderDisplaySettings() + renderArchiveActions();
 }
 
 function renderEmpty() {
@@ -215,6 +230,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA on the chart.
     </div>
+    ${renderDisplaySettings()}
     ${renderArchiveActions()}
   `;
 }
@@ -273,6 +289,11 @@ function handleInspectorChange(e) {
   if (action === 'import-pda-file') {
     importPdaArchive(e.target.files?.[0]);
     e.target.value = '';
+    return;
+  }
+
+  if (action === 'toggle-labels') {
+    setPdaDisplaySettings({ showLabels: e.target.checked });
     return;
   }
 

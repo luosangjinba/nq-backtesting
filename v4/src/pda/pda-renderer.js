@@ -6,6 +6,7 @@ import * as store from '../data/bar-store.js';
 import { LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
+import { getPdaDisplaySettings } from './pda-display-settings.js';
 import { getPdaType } from './pda-types.js';
 import { getSelectedPda } from './pda-selection.js';
 
@@ -54,7 +55,7 @@ function getExtendBars(annotation, fallback = 0) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
-function buildLiquidityPrimitive(annotation, pdaType, selected = false) {
+function buildLiquidityPrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
   const label = getAnnotationLabel(annotation, pdaType, selected);
   const anchorTime = getPointRenderTime(annotation);
   if (anchorTime === undefined || anchorTime === null) return null;
@@ -72,6 +73,7 @@ function buildLiquidityPrimitive(annotation, pdaType, selected = false) {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
       lineWidth: selected ? 3 : 2,
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
+      showLabel: displaySettings.showLabels,
     }
   );
 }
@@ -80,7 +82,7 @@ function alphaColor(hexColor, alphaHex = '33') {
   return hexColor?.startsWith('#') && hexColor.length === 7 ? `${hexColor}${alphaHex}` : hexColor;
 }
 
-function buildRangePrimitive(annotation, pdaType, selected = false) {
+function buildRangePrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
   const label = getAnnotationLabel(annotation, pdaType, selected);
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
@@ -111,11 +113,12 @@ function buildRangePrimitive(annotation, pdaType, selected = false) {
       lineWidth: selected ? 2 : 1,
       extendBars: getExtendBars(annotation, 0),
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
+      showLabel: displaySettings.showLabels,
     }
   );
 }
 
-function buildPointSetPrimitive(annotation, pdaType, selected = false) {
+function buildPointSetPrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
   const points = Array.isArray(annotation.points)
     ? annotation.points
         .map((point) => ({
@@ -143,6 +146,7 @@ function buildPointSetPrimitive(annotation, pdaType, selected = false) {
     markerSize: selected ? 5 : 4,
     extendBars: getExtendBars(annotation, 0),
     labelFont: selected ? '12px sans-serif' : '11px sans-serif',
+    showLabel: displaySettings.showLabels,
   });
 }
 
@@ -154,13 +158,14 @@ export function renderPdaAnnotations() {
   if (!chartInstance || !series) return;
 
   const selected = getSelectedPda();
+  const displaySettings = getPdaDisplaySettings();
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
     const isSelected = selected?.id === annotation.id;
 
     if (pdaType.shape === 'liquidity-line') {
-      const primitive = buildLiquidityPrimitive(annotation, pdaType, isSelected);
+      const primitive = buildLiquidityPrimitive(annotation, pdaType, isSelected, displaySettings);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -169,7 +174,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'range') {
-      const primitive = buildRangePrimitive(annotation, pdaType, isSelected);
+      const primitive = buildRangePrimitive(annotation, pdaType, isSelected, displaySettings);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -178,7 +183,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'point-set') {
-      const primitive = buildPointSetPrimitive(annotation, pdaType, isSelected);
+      const primitive = buildPointSetPrimitive(annotation, pdaType, isSelected, displaySettings);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -191,6 +196,7 @@ export function initPdaRenderer() {
   bus.on('pda:changed', renderPdaAnnotations);
   bus.on('pda:selected', renderPdaAnnotations);
   bus.on('pda:selection-cleared', renderPdaAnnotations);
+  bus.on('pda:display-settings-changed', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }
