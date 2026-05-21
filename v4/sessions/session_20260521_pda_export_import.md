@@ -24,6 +24,9 @@
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.
+- Export scope is the full current PDA store, filtered to non-draft annotations.
+- Export is not limited to the current visible chart viewport.
+- Export does not include bar data, selection, hover, replay, or viewport state.
 - Import reads a `.json` archive from disk and appends valid PDA annotations to the current set.
 - Empty export is blocked with a status message.
 - Unsupported archive app/version is rejected with a status error.
