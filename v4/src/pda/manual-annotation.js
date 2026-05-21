@@ -8,6 +8,7 @@ import { addAnnotation, clearAnnotations } from './pda-store.js';
 import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
 import { identifyFvg } from './fvg-identifier.js';
+import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType } from './pda-types.js';
 
 let controlsEl = null;
@@ -54,6 +55,7 @@ async function addManualPoint(type, bar) {
   const contexts = buildPointContexts(type, bar, timeframe, contextBars);
   const price = bar[pdaType.priceField];
   const canonicalTimestamp = getPointCanonicalTimestamp(type, bar, timeframe, contextBars);
+  const validation = validateManualSwing(type, bar, timeframe, store.getDisplayBars());
   const annotation = {
     id: `manual_${type}_${canonicalTimestamp}_${Date.now()}`,
     type,
@@ -64,17 +66,20 @@ async function addManualPoint(type, bar) {
     barTime: bar.time,
     price,
     contexts,
+    validation,
   };
 
   addAnnotation(annotation);
   hideContextMenu();
 
   const contextLabel = formatContextLabel(contexts);
+  const validationPrefix =
+    validation.checked && !validation.valid ? `Warning: ${validation.message}; marked anyway. ` : '';
   bus.emit('status:update', {
-    text: `${pdaType.label}: ${price.toFixed(2)} ${bar.tradingDay || bar.time}${
+    text: `${validationPrefix}${pdaType.label}: ${price.toFixed(2)} ${bar.tradingDay || bar.time}${
       contextLabel ? ` · ${contextLabel}` : ''
     }`,
-    isError: false,
+    isError: validation.checked && !validation.valid,
   });
 }
 
