@@ -2,6 +2,8 @@
 
 ## Branch
 - `feature/v4-inspector-sidebar`
+- Follow-up persistence work was split into `feature/v4-pda-local-storage`.
+- Both branches were merged back to `main`.
 
 ## Goal
 - Start Phase 4 with the smallest usable selection-to-sidebar chain.
@@ -107,6 +109,16 @@
 ## Next
 - Design export/import or YAML review archive once local draft persistence is stable.
 - Consider a small undo action for the last point edit if manual grouping becomes frequent.
+
+## Merge Notes
+- `feature/v4-inspector-sidebar` ends at `03b71d1 feat(v4): append points to selected EQH EQL`.
+- `feature/v4-pda-local-storage` adds:
+  - `be5fc94 docs(v4): document local PDA persistence plan`
+  - `fbd2a49 feat(v4): persist PDA annotations locally`
+- `main` merge commits:
+  - `d85d1b4 merge: v4 inspector sidebar`
+  - `315497f merge: v4 PDA local storage`
+- Current recommended next branch: `feature/v4-pda-export-import`.
 
 ## Persistence Decision
 - First persistence layer will be browser `localStorage`.

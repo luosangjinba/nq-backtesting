@@ -44,6 +44,11 @@
 - [x] Step 20: 选中态视觉反馈（高亮 selected PDA，不遮挡 K 线）
 - [x] Step 21: localStorage 持久化（手动 PDA 刷新后恢复）
 
+### Phase 5: PDA 归档 / 迁移
+- [ ] Step 22: 设计 PDA export/import schema（包含版本、instrument、timeframe、range、annotations）
+- [ ] Step 23: Export 当前 PDA annotations 到 JSON/YAML 文件
+- [ ] Step 24: Import PDA annotations 并处理 id 冲突、版本校验、重复标注
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
@@ -110,3 +115,4 @@
 - 2026-05-21: 已完成向当前选中的 EQH/EQL 集合追加点：选中已完成集合后，右键其他 K 线显示 Add to Selected EQH/EQL，追加后重算 reference price / contexts 并刷新 Inspector
 - 2026-05-21: PDA 持久化第一阶段采用浏览器 localStorage 作为工作草稿保存，不建数据库；YAML/export 用于后续复盘归档，DB 用于未来正式研究资产和统计查询
 - 2026-05-21: Phase 4 Step 21 完成本地工作草稿持久化：手动 PDA 保存到 `localStorage` key `v4:pda-annotations:NQ`，启动时恢复；draft annotation、selection、hover、replay 状态不持久化；Inspector 空状态提供 Clear Saved PDA
+- 2026-05-21: `feature/v4-inspector-sidebar` 与 `feature/v4-pda-local-storage` 已按功能边界拆分后依次合并回 `main`；下一阶段从 `main` 新开 export/import 分支
