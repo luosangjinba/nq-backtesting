@@ -29,6 +29,11 @@
 - Removed the visible rectangle border from FVG ranges.
   - Existing FVG annotations are forced to transparent borders by the renderer.
   - New manual FVG annotations store `borderColor: transparent`.
+- Added per-range CE visibility editing in the Inspector.
+  - FVG/OB/NDOG/NWOG show a `Show CE` checkbox in the Range section.
+  - The checkbox writes `annotation.display.showCe`.
+  - CE is the range midpoint dashed line; hiding it keeps the rectangle fill and labels unchanged.
+  - FVG keeps a visible CE color even though its rectangle border is transparent.
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.

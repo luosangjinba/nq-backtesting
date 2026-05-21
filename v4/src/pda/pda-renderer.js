@@ -55,6 +55,10 @@ function getExtendBars(annotation, fallback = 0) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
+function getShowCe(annotation) {
+  return annotation.display?.showCe ?? annotation.showCe ?? true;
+}
+
 function shouldShowLabel(selected = false, displaySettings = {}) {
   return selected ? Boolean(displaySettings.showCurrentLabel) : Boolean(displaySettings.showLabels);
 }
@@ -86,6 +90,19 @@ function alphaColor(hexColor, alphaHex = '33') {
   return hexColor?.startsWith('#') && hexColor.length === 7 ? `${hexColor}${alphaHex}` : hexColor;
 }
 
+function isVisibleColor(color) {
+  return color && color !== 'transparent';
+}
+
+function getRangeMidlineColor(annotation, pdaType, selected = false, isFvg = false) {
+  if (selected) return SELECTED_COLOR;
+  if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
+  if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
+  if (isFvg && annotation.direction === 'bullish') return '#26a69a';
+  if (isFvg && annotation.direction === 'bearish') return '#ef5350';
+  return pdaType.color;
+}
+
 function buildRangePrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
   const label = getAnnotationLabel(annotation, pdaType, selected);
   const isFvg = annotation.type === 'fvg';
@@ -114,8 +131,10 @@ function buildRangePrimitive(annotation, pdaType, selected = false, displaySetti
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
       borderColor: isFvg ? 'transparent' : selected ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
+      midlineColor: getRangeMidlineColor(annotation, pdaType, selected, isFvg),
       textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
       lineWidth: isFvg ? 0 : selected ? 2 : 1,
+      showMidline: getShowCe(annotation),
       extendBars: getExtendBars(annotation, 0),
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(selected, displaySettings),

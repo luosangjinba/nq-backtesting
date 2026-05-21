@@ -96,6 +96,10 @@ function getExtendBars(annotation) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
+function getShowCe(annotation) {
+  return annotation.display?.showCe ?? annotation.showCe ?? true;
+}
+
 function getPointSetReference(type, points) {
   const prices = points.map((point) => Number(point.price)).filter(Number.isFinite);
   if (!prices.length) return null;
@@ -173,6 +177,13 @@ function renderRangeFields(annotation) {
       field('Start', formatTime(annotation.startTimeTimestamp ?? annotation.startTime)),
       field('End', formatTime(annotation.endTimeTimestamp ?? annotation.endTime)),
       field('Direction', annotation.direction || '—'),
+      controlField(
+        'CE',
+        `<label class="inspector-toggle inspector-toggle-inline">
+          <input data-inspector-action="toggle-ce" type="checkbox" ${getShowCe(annotation) ? 'checked' : ''} />
+          <span>Show CE</span>
+        </label>`
+      ),
     ].join('')
   );
 }
@@ -323,6 +334,16 @@ function handleInspectorChange(e) {
 
   if (action === 'note') {
     updateAnnotation(annotation.id, { note: e.target.value });
+    return;
+  }
+
+  if (action === 'toggle-ce') {
+    updateAnnotation(annotation.id, {
+      display: {
+        ...(annotation.display || {}),
+        showCe: e.target.checked,
+      },
+    });
   }
 }
 

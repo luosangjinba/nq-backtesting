@@ -8,6 +8,7 @@
 const RANGE_DEFAULTS = {
   fillColor: '#ab47bc33',
   borderColor: '#ab47bc',
+  midlineColor: null,
   textColor: '#d1d4dc',
   showMidline: true,
   showLabel: true,
@@ -48,13 +49,17 @@ class RangeRenderer {
       ctx.fillStyle = options.fillColor;
       ctx.fillRect(x, y, width, height);
 
-      ctx.strokeStyle = options.borderColor;
-      ctx.lineWidth = options.lineWidth * Math.min(hRatio, vRatio);
-      ctx.setLineDash([]);
-      ctx.strokeRect(x, y, width, height);
+      if (options.lineWidth > 0 && options.borderColor !== 'transparent') {
+        ctx.strokeStyle = options.borderColor;
+        ctx.lineWidth = options.lineWidth * Math.min(hRatio, vRatio);
+        ctx.setLineDash([]);
+        ctx.strokeRect(x, y, width, height);
+      }
 
       if (options.showMidline) {
         const midY = y + height / 2;
+        ctx.strokeStyle = options.midlineColor || options.borderColor;
+        ctx.lineWidth = Math.max(1, options.lineWidth) * Math.min(hRatio, vRatio);
         ctx.setLineDash([5 * hRatio, 5 * hRatio]);
         ctx.beginPath();
         ctx.moveTo(x, midY);
