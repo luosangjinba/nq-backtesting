@@ -118,7 +118,7 @@
 - 2026-05-21: `feature/v4-inspector-sidebar` 与 `feature/v4-pda-local-storage` 已按功能边界拆分后依次合并回 `main`；下一阶段从 `main` 新开 export/import 分支
 - 2026-05-21: Phase 5 Step 22-24 完成第一版 JSON archive：schema 使用 `app/version/exportedAt/instrument/timeframe/range/annotations`；Inspector Archive 区支持 Export/Import PDA JSON；导入时校验 app/version，过滤 draft，遇到 id 冲突自动重命名并保留 `importedFromId`
 - 2026-05-21: Export PDA JSON 的范围定义为当前浏览器 PDA store 中全部非 draft PDA；不按当前屏幕可视窗口裁剪，也不导出 K 线数据、selection、hover、replay 或 viewport 状态
-- 2026-05-21: Inspector 保留 `showCurrentLabel` 显示偏好；非当前 PDA 标签默认显示，当前选中 PDA 的标签由该设置独立控制，便于定位侧边栏正在编辑的对象
-- 2026-05-21: PDA label 显示优先级明确为 current 硬优先：当前选中 PDA 只读取 `showCurrentLabel`，其他 PDA 不再提供全局隐藏开关并默认显示
+- 2026-05-21: Inspector 保留 `Show current PDA label`；该开关写入当前 annotation 的 `display.showLabel`，失焦后仍保持隐藏/显示，新建 PDA 默认显示 label
+- 2026-05-21: PDA label 显示策略改为按 annotation 控制：普通 PDA 默认显示，只有被显式设置 `display.showLabel=false` 的 PDA 隐藏 label
 - 2026-05-21: FVG range 不显示矩形边框；renderer 对既有 FVG annotation 强制透明边框，新建 FVG 也写入 `borderColor: transparent`
 - 2026-05-21: Range PDA 支持在 Inspector 中显示/隐藏 CE 中间虚线；`display.showCe` 按 annotation 保存，适用于 FVG/OB/NDOG/NWOG，不影响矩形填充或 export schema

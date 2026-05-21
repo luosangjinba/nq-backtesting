@@ -6,7 +6,6 @@ import * as store from '../data/bar-store.js';
 import { LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
-import { getPdaDisplaySettings } from './pda-display-settings.js';
 import { getPdaType } from './pda-types.js';
 import { getSelectedPda } from './pda-selection.js';
 
@@ -63,12 +62,11 @@ function isCurrentAnnotation(annotation, selection) {
   return Boolean(selection?.id && annotation?.id && String(selection.id) === String(annotation.id));
 }
 
-function shouldShowLabel(isCurrent = false, displaySettings = {}) {
-  if (isCurrent) return displaySettings.showCurrentLabel !== false;
-  return true;
+function shouldShowLabel(annotation) {
+  return annotation.display?.showLabel ?? annotation.showLabel ?? true;
 }
 
-function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {
+function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false) {
   const label = getAnnotationLabel(annotation, pdaType, isCurrent);
   const anchorTime = getPointRenderTime(annotation);
   if (anchorTime === undefined || anchorTime === null) return null;
@@ -86,7 +84,7 @@ function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, display
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
       lineWidth: isCurrent ? 3 : 2,
       labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
-      showLabel: shouldShowLabel(isCurrent, displaySettings),
+      showLabel: shouldShowLabel(annotation),
     }
   );
 }
@@ -108,7 +106,7 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
   return pdaType.color;
 }
 
-function buildRangePrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {
+function buildRangePrimitive(annotation, pdaType, isCurrent = false) {
   const label = getAnnotationLabel(annotation, pdaType, isCurrent);
   const isFvg = annotation.type === 'fvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
@@ -142,12 +140,12 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, displaySett
       showMidline: getShowCe(annotation),
       extendBars: getExtendBars(annotation, 0),
       labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
-      showLabel: shouldShowLabel(isCurrent, displaySettings),
+      showLabel: shouldShowLabel(annotation),
     }
   );
 }
 
-function buildPointSetPrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {
+function buildPointSetPrimitive(annotation, pdaType, isCurrent = false) {
   const points = Array.isArray(annotation.points)
     ? annotation.points
         .map((point) => ({
@@ -175,7 +173,7 @@ function buildPointSetPrimitive(annotation, pdaType, isCurrent = false, displayS
     markerSize: isCurrent ? 5 : 4,
     extendBars: getExtendBars(annotation, 0),
     labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
-    showLabel: shouldShowLabel(isCurrent, displaySettings),
+    showLabel: shouldShowLabel(annotation),
   });
 }
 
@@ -187,14 +185,13 @@ export function renderPdaAnnotations() {
   if (!chartInstance || !series) return;
 
   const selected = getSelectedPda();
-  const displaySettings = getPdaDisplaySettings();
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
     const isCurrent = isCurrentAnnotation(annotation, selected);
 
     if (pdaType.shape === 'liquidity-line') {
-      const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, displaySettings);
+      const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -203,7 +200,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'range') {
-      const primitive = buildRangePrimitive(annotation, pdaType, isCurrent, displaySettings);
+      const primitive = buildRangePrimitive(annotation, pdaType, isCurrent);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -212,7 +209,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'point-set') {
-      const primitive = buildPointSetPrimitive(annotation, pdaType, isCurrent, displaySettings);
+      const primitive = buildPointSetPrimitive(annotation, pdaType, isCurrent);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -225,7 +222,6 @@ export function initPdaRenderer() {
   bus.on('pda:changed', renderPdaAnnotations);
   bus.on('pda:selected', renderPdaAnnotations);
   bus.on('pda:selection-cleared', renderPdaAnnotations);
-  bus.on('pda:display-settings-changed', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

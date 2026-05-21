@@ -3,7 +3,6 @@
 import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
-import { getPdaDisplaySettings, setPdaDisplaySettings } from '../pda/pda-display-settings.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
@@ -100,6 +99,10 @@ function getShowCe(annotation) {
   return annotation.display?.showCe ?? annotation.showCe ?? true;
 }
 
+function getShowLabel(annotation) {
+  return annotation.display?.showLabel ?? annotation.showLabel ?? true;
+}
+
 function getPointSetReference(type, points) {
   const prices = points.map((point) => Number(point.price)).filter(Number.isFinite);
   if (!prices.length) return null;
@@ -140,13 +143,12 @@ function renderArchiveActions() {
   );
 }
 
-function renderDisplaySettings() {
-  const settings = getPdaDisplaySettings();
+function renderDisplaySettings(annotation) {
   return section(
     'Display',
     `
       <label class="inspector-toggle">
-        <input data-inspector-action="toggle-current-label" type="checkbox" ${settings.showCurrentLabel ? 'checked' : ''} />
+        <input data-inspector-action="toggle-current-label" type="checkbox" ${getShowLabel(annotation) ? 'checked' : ''} />
         <span>Show current PDA label</span>
       </label>
     `
@@ -233,7 +235,7 @@ function renderAnnotation(annotation) {
   if (shape === 'point-set') detail = renderPointSetFields(annotation);
 
   bodyEl.innerHTML =
-    common + detail + renderEditFields(annotation) + renderDisplaySettings() + renderArchiveActions();
+    common + detail + renderEditFields(annotation) + renderDisplaySettings(annotation) + renderArchiveActions();
 }
 
 function renderEmpty() {
@@ -241,7 +243,6 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA on the chart.
     </div>
-    ${renderDisplaySettings()}
     ${renderArchiveActions()}
   `;
 }
@@ -303,13 +304,18 @@ function handleInspectorChange(e) {
     return;
   }
 
-  if (action === 'toggle-current-label') {
-    setPdaDisplaySettings({ showCurrentLabel: e.target.checked });
-    return;
-  }
-
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
+
+  if (action === 'toggle-current-label') {
+    updateAnnotation(annotation.id, {
+      display: {
+        ...(annotation.display || {}),
+        showLabel: e.target.checked,
+      },
+    });
+    return;
+  }
 
   if (action === 'extend-bars') {
     const parsed = Number(e.target.value);

@@ -23,9 +23,9 @@
 - Imported annotations go through `loadAnnotations()`, so renderer refresh and localStorage draft save are triggered by the normal `pda:changed` path.
 - Added a browser-local Inspector display toggle for current PDA label text.
   - Non-selected PDA labels are shown by default.
-  - `Show current PDA label` independently controls only the selected PDA label.
-  - Current PDA label visibility is hard-prioritized: selected PDA labels only read `showCurrentLabel`.
-  - The setting is persisted as `v4:pda-display-settings`.
+  - `Show current PDA label` writes the selected annotation's `display.showLabel`.
+  - Label visibility persists after the PDA loses focus.
+  - New PDA annotations default to visible labels.
   - The setting only changes rendering; it does not mutate annotations or export archives.
 - Removed the visible rectangle border from FVG ranges.
   - Existing FVG annotations are forced to transparent borders by the renderer.
@@ -54,7 +54,6 @@
 
 ## Verification
 - `node --check v4/src/pda/pda-archive.js`
-- `node --check v4/src/pda/pda-display-settings.js`
 - `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
 - `git diff --check`
