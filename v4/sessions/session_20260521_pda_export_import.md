@@ -21,12 +21,13 @@
   - `Clear Saved PDA`
 - Archive controls are available both when no PDA is selected and when a selected PDA is shown.
 - Imported annotations go through `loadAnnotations()`, so renderer refresh and localStorage draft save are triggered by the normal `pda:changed` path.
-- Added a browser-local Inspector display toggle for current PDA label text.
+- Added a per-annotation Inspector display toggle for current PDA label text.
   - Non-selected PDA labels are shown by default.
   - `Show current PDA label` writes the selected annotation's `display.showLabel`.
   - Label visibility persists after the PDA loses focus.
   - New PDA annotations default to visible labels.
-  - The setting only changes rendering; it does not mutate annotations or export archives.
+  - The setting is part of the annotation display payload and is included in localStorage/export archives.
+  - The setting only changes rendering semantics; it does not alter the structural PDA facts.
 - Removed the visible rectangle border from FVG ranges.
   - Existing FVG annotations are forced to transparent borders by the renderer.
   - New manual FVG annotations store `borderColor: transparent`.
@@ -44,7 +45,7 @@
 - Import reads a `.json` archive from disk and appends valid PDA annotations to the current set.
 - Empty export is blocked with a status message.
 - Unsupported archive app/version is rejected with a status error.
-- PDA label text can be hidden from the Inspector without hiding PDA lines, rectangles, or EQH/EQL markers.
+- PDA label text can be hidden per annotation from the Inspector without hiding PDA lines, rectangles, or EQH/EQL markers.
 
 ## Not Included
 - No YAML format yet.
