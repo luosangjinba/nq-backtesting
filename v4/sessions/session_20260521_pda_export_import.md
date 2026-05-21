@@ -23,6 +23,7 @@
 - Imported annotations go through `loadAnnotations()`, so renderer refresh and localStorage draft save are triggered by the normal `pda:changed` path.
 - Added a browser-local Inspector display toggle for PDA label text.
   - `Show PDA labels` controls label text visibility for liquidity lines, ranges, and EQH/EQL point sets.
+  - `Show current PDA label` keeps the selected PDA label visible when global PDA labels are hidden.
   - The setting is persisted as `v4:pda-display-settings`.
   - The setting only changes rendering; it does not mutate annotations or export archives.
 

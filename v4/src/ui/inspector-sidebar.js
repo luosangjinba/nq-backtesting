@@ -145,6 +145,10 @@ function renderDisplaySettings() {
         <input data-inspector-action="toggle-labels" type="checkbox" ${settings.showLabels ? 'checked' : ''} />
         <span>Show PDA labels</span>
       </label>
+      <label class="inspector-toggle">
+        <input data-inspector-action="toggle-current-label" type="checkbox" ${settings.showCurrentLabel ? 'checked' : ''} />
+        <span>Show current PDA label</span>
+      </label>
     `
   );
 }
@@ -294,6 +298,11 @@ function handleInspectorChange(e) {
 
   if (action === 'toggle-labels') {
     setPdaDisplaySettings({ showLabels: e.target.checked });
+    return;
+  }
+
+  if (action === 'toggle-current-label') {
+    setPdaDisplaySettings({ showCurrentLabel: e.target.checked });
     return;
   }
 

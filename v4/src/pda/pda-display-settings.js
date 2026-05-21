@@ -6,6 +6,7 @@ const STORAGE_KEY = 'v4:pda-display-settings';
 
 const defaults = {
   showLabels: true,
+  showCurrentLabel: true,
 };
 
 let settings = loadSettings();
@@ -40,4 +41,3 @@ export function setPdaDisplaySettings(patch = {}) {
   saveSettings();
   bus.emit('pda:display-settings-changed', getPdaDisplaySettings());
 }
-

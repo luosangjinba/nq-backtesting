@@ -55,6 +55,10 @@ function getExtendBars(annotation, fallback = 0) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
+function shouldShowLabel(selected = false, displaySettings = {}) {
+  return Boolean(displaySettings.showLabels || (selected && displaySettings.showCurrentLabel));
+}
+
 function buildLiquidityPrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
   const label = getAnnotationLabel(annotation, pdaType, selected);
   const anchorTime = getPointRenderTime(annotation);
@@ -73,7 +77,7 @@ function buildLiquidityPrimitive(annotation, pdaType, selected = false, displayS
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
       lineWidth: selected ? 3 : 2,
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
-      showLabel: displaySettings.showLabels,
+      showLabel: shouldShowLabel(selected, displaySettings),
     }
   );
 }
@@ -113,7 +117,7 @@ function buildRangePrimitive(annotation, pdaType, selected = false, displaySetti
       lineWidth: selected ? 2 : 1,
       extendBars: getExtendBars(annotation, 0),
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
-      showLabel: displaySettings.showLabels,
+      showLabel: shouldShowLabel(selected, displaySettings),
     }
   );
 }
@@ -146,7 +150,7 @@ function buildPointSetPrimitive(annotation, pdaType, selected = false, displaySe
     markerSize: selected ? 5 : 4,
     extendBars: getExtendBars(annotation, 0),
     labelFont: selected ? '12px sans-serif' : '11px sans-serif',
-    showLabel: displaySettings.showLabels,
+    showLabel: shouldShowLabel(selected, displaySettings),
   });
 }
 
