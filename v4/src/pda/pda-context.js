@@ -233,7 +233,25 @@ function getHtfContexts(type, bar, currentTimeframe, sourceBars) {
   });
 }
 
-function sortContextLabels(contexts) {
+export function getPointCanonicalTimestamp(type, bar, currentTimeframe, sourceBars = []) {
+  const pdaType = getPdaType(type);
+  if (!pdaType || !bar) return bar?.timestamp ?? null;
+
+  const selectedPrice = bar[pdaType.priceField];
+  const selectedInterval = getCurrentBarInterval(bar, currentTimeframe);
+  const matchingBars = sourceBars.filter((sourceBar) => {
+    const sourcePrice = sourceBar[pdaType.priceField];
+    return (
+      sourceBar.timestamp >= selectedInterval.start &&
+      sourceBar.timestamp < selectedInterval.end &&
+      Math.abs(sourcePrice - selectedPrice) < PRICE_EPSILON
+    );
+  });
+
+  return matchingBars[matchingBars.length - 1]?.timestamp ?? bar.timestamp;
+}
+
+export function sortContextLabels(contexts) {
   const orderMap = new Map(CONTEXT_LABEL_ORDER.map((label, index) => [label, index]));
 
   return [...contexts].sort((a, b) => {

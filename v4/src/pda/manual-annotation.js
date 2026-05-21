@@ -4,7 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { addAnnotation, clearAnnotations } from './pda-store.js';
-import { buildPointContexts, formatContextLabel } from './pda-context.js';
+import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
 import { getPdaType } from './pda-types.js';
 
@@ -51,11 +51,13 @@ async function addManualPoint(type, bar) {
 
   const contexts = buildPointContexts(type, bar, timeframe, contextBars);
   const price = bar[pdaType.priceField];
+  const canonicalTimestamp = getPointCanonicalTimestamp(type, bar, timeframe, contextBars);
   const annotation = {
-    id: `manual_${type}_${bar.timestamp}_${Date.now()}`,
+    id: `manual_${type}_${canonicalTimestamp}_${Date.now()}`,
     type,
     source: 'manual',
     anchorTime: getBarChartTime(bar),
+    canonicalTimestamp,
     timestamp: bar.timestamp,
     barTime: bar.time,
     price,

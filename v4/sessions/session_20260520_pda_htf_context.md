@@ -24,6 +24,10 @@
 - Chart labels use a compressed primary context:
   - highest timeframe context only, ordered D -> 4H -> 1H -> 30M -> 15M -> 5M -> 1M
   - supplemental non-timeframe context, such as session or midnight, remains visible
+- Manual annotations are deduped across timeframe views:
+  - each annotation gets a `canonicalTimestamp` from the latest matching 1M source bar inside the selected chart bar
+  - store identity is `source/type/price/canonicalTimestamp`
+  - repeated marking of the same high/low from another timeframe merges contexts and updates the current chart anchor instead of creating a second rendered PDA
 
 ## Rules
 - Aggregation source:
@@ -49,6 +53,7 @@
 - Node module smoke check confirmed selected points can produce full D / 4H / 1H / 30M / 15M / 5M / 1M context labels from 1M source bars.
 - Node module smoke check confirmed chart primary labels compress `D low / 4H low / ... / 1M low / NY Late Morning low` into `D low / NY Late Morning low`.
 - Node module smoke check confirmed equal highs inside one 4H/D bucket assign the higher-timeframe labels only to the latest equal-high current-timeframe bar.
+- Node module smoke check confirmed repeated manual annotations with the same canonical timestamp merge into one store record and keep merged contexts sorted.
 
 ## Next
 - Step 11: extend PDA renderer beyond BSL/SSL liquidity lines into rectangle/range rendering.
