@@ -39,10 +39,10 @@
 ## 当前交互
 - `-`: Zoom out
 - `+`: Zoom in
-- `⛶`: Reset chart view
+- `↺`: Reset chart view
 - `‹`: Scroll left
 - `›`: Scroll right
-- `↻`: Scroll to latest
+- `⇥`: Scroll to latest
 - `Alt + R`: Reset chart view
 
 ## 验证

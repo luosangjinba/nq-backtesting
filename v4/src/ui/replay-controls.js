@@ -66,14 +66,14 @@ function parseReplayJumpTimestamp(value) {
 
   const [, year, month, day, hour, minute] = match;
   const timestamp = Math.floor(
-    new Date(
+    Date.UTC(
       Number(year),
       Number(month) - 1,
       Number(day),
       Number(hour),
       Number(minute),
       0
-    ).getTime() / 1000
+    ) / 1000
   );
 
   return { timestamp, formatted };

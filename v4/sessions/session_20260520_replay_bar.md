@@ -14,6 +14,7 @@
 - Replay cursor 使用 series primitive 绘制竖线，只作为前端视觉定位，不写入数据。
 - Replay On 状态切换周期时，按旧 cursor timestamp 在新周期中找对应 K 线并保持 Replay On；保留切换前手动拖动/缩放后的 viewport 锚点，自动播放先暂停。
 - Replay Bar 支持输入时间跳转，复用 `formatTimeInput()`，按不晚于目标 timestamp 的最近 K 线定位。
+- Replay 时间跳转按 UTC wall-clock timestamp 解析，避免浏览器本地时区导致跳转偏移。
 - Replay Bar 支持键盘快捷键；输入框、选择框、可编辑区域聚焦时不响应快捷键。
 - Pick 模式支持 hover 临时竖线，点击成功后状态栏显示 `index/total + time`，成功或取消后清除 preview。
 
