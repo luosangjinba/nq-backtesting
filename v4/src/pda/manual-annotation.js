@@ -13,6 +13,7 @@ import { getPdaType } from './pda-types.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
+let obSelectionState = null;
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -129,10 +130,98 @@ function addManualFvg(bar) {
   });
 }
 
+function getObColors(direction) {
+  return direction === 'bullish'
+    ? { fillColor: '#26a69a24', borderColor: 'transparent', textColor: '#ffcc80' }
+    : { fillColor: '#ef535024', borderColor: 'transparent', textColor: '#ffcc80' };
+}
+
+function getDisplayBarIndex(bar) {
+  if (!bar) return -1;
+  return store.getDisplayBars().findIndex((candidate) => candidate.timestamp === bar.timestamp);
+}
+
+function getSelectedRangeBars(startBar, endBar) {
+  const displayBars = store.getDisplayBars();
+  const startIndex = getDisplayBarIndex(startBar);
+  const endIndex = getDisplayBarIndex(endBar);
+
+  if (startIndex < 0 || endIndex < 0) return [];
+
+  const from = Math.min(startIndex, endIndex);
+  const to = Math.max(startIndex, endIndex);
+  return displayBars.slice(from, to + 1);
+}
+
+function startManualOb(direction, bar) {
+  if (!bar) return;
+
+  obSelectionState = {
+    direction,
+    startBar: bar,
+  };
+
+  hideContextMenu();
+  bus.emit('status:update', {
+    text: `${direction} OB 起点已选择，Shift + 右键选择终点`,
+    isError: false,
+  });
+}
+
+function addManualOb(endBar) {
+  if (!obSelectionState || !endBar) return;
+
+  const rangeBars = getSelectedRangeBars(obSelectionState.startBar, endBar);
+  if (!rangeBars.length) {
+    obSelectionState = null;
+    hideContextMenu();
+    bus.emit('status:update', { text: 'OB 区间选择失败：未找到 K 线', isError: true });
+    return;
+  }
+
+  const timeframe = store.getCurrentTimeframe();
+  const tfLabel = timeframeToString(timeframe);
+  const direction = obSelectionState.direction;
+  const startBar = rangeBars[0];
+  const lastBar = rangeBars[rangeBars.length - 1];
+  const topPrice = Math.max(...rangeBars.map((bar) => bar.high));
+  const bottomPrice = Math.min(...rangeBars.map((bar) => bar.low));
+  const contexts = [`${tfLabel} ${direction} OB`];
+  const annotation = {
+    id: `manual_ob_${startBar.timestamp}_${lastBar.timestamp}_${Date.now()}`,
+    type: 'ob',
+    source: 'manual',
+    direction,
+    anchorTime: getBarChartTime(startBar),
+    canonicalTimestamp: startBar.timestamp,
+    timestamp: startBar.timestamp,
+    barTime: startBar.time,
+    startTime: getBarChartTime(startBar),
+    endTime: getBarChartTime(lastBar),
+    startTimeTimestamp: startBar.timestamp,
+    endTimeTimestamp: lastBar.timestamp,
+    topPrice,
+    bottomPrice,
+    priceHigh: topPrice,
+    priceLow: bottomPrice,
+    contexts,
+    ...getObColors(direction),
+  };
+
+  addAnnotation(annotation);
+  obSelectionState = null;
+  hideContextMenu();
+
+  bus.emit('status:update', {
+    text: `OB: ${direction} ${bottomPrice.toFixed(2)}-${topPrice.toFixed(2)} (${rangeBars.length}根${tfLabel})`,
+    isError: false,
+  });
+}
+
 function clampMenuPosition(x, y) {
   const rect = controlsEl.parentElement.getBoundingClientRect();
   const menuWidth = 150;
-  const menuHeight = 140;
+  const menuHeight = 180;
   return {
     x: Math.min(Math.max(4, x), rect.width - menuWidth - 4),
     y: Math.min(Math.max(4, y), rect.height - menuHeight - 4),
@@ -152,6 +241,8 @@ function showContextMenu(x, y, bar) {
       <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
       <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
+      <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
+      <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
       <div class="pda-menu-divider"></div>
       <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
     </div>
@@ -177,6 +268,12 @@ function handleContextMenu(e) {
   const y = e.clientY - rect.top;
   const time = chart.coordinateToTime(x);
   const bar = findDisplayBar(time);
+
+  if (e.shiftKey && obSelectionState) {
+    addManualOb(bar);
+    return;
+  }
+
   showContextMenu(x, y, bar);
 }
 
@@ -189,8 +286,11 @@ function handleControlClick(e) {
     addManualPoint(action, contextMenuBar);
   } else if (action === 'fvg') {
     addManualFvg(contextMenuBar);
+  } else if (action === 'ob-bullish' || action === 'ob-bearish') {
+    startManualOb(action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
   } else if (action === 'clear') {
     clearAnnotations();
+    obSelectionState = null;
     hideContextMenu();
     bus.emit('status:update', { text: 'PDA 标注已清除', isError: false });
   }
@@ -204,6 +304,10 @@ function handleGlobalClick(e) {
 
 function handleKeydown(e) {
   if (e.key === 'Escape') {
+    if (obSelectionState) {
+      obSelectionState = null;
+      bus.emit('status:update', { text: 'OB 选择已取消', isError: false });
+    }
     hideContextMenu();
   }
 }
@@ -216,8 +320,12 @@ export function initManualAnnotation() {
   document.getElementById('chart')?.addEventListener('contextmenu', handleContextMenu);
   document.addEventListener('click', handleGlobalClick);
   window.addEventListener('keydown', handleKeydown);
-  bus.on('bars:loaded', hideContextMenu);
+  bus.on('bars:loaded', () => {
+    obSelectionState = null;
+    hideContextMenu();
+  });
   bus.on('bars:cleared', () => {
+    obSelectionState = null;
     clearPdaContextDataCache();
     hideContextMenu();
   });

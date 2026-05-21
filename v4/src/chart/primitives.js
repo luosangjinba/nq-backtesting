@@ -14,6 +14,7 @@ const RANGE_DEFAULTS = {
   lineWidth: 1,
   labelFont: '11px sans-serif',
   labelPadding: 4,
+  minWidth: 4,
 };
 
 class RangeRenderer {
@@ -33,10 +34,16 @@ class RangeRenderer {
       const hRatio = scope.horizontalPixelRatio;
       const vRatio = scope.verticalPixelRatio;
 
-      const x = Math.min(p1.x, p2.x) * hRatio;
+      let x = Math.min(p1.x, p2.x) * hRatio;
       const y = Math.min(p1.y, p2.y) * vRatio;
-      const width = Math.abs(p2.x - p1.x) * hRatio;
+      let width = Math.abs(p2.x - p1.x) * hRatio;
       const height = Math.abs(p2.y - p1.y) * vRatio;
+      const minWidth = options.minWidth * hRatio;
+
+      if (width < minWidth) {
+        x -= (minWidth - width) / 2;
+        width = minWidth;
+      }
 
       ctx.fillStyle = options.fillColor;
       ctx.fillRect(x, y, width, height);
