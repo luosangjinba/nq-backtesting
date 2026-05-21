@@ -9,12 +9,16 @@
   <body>
     <div id="app">
       <div id="toolbar"></div>
-      <div id="chart">
-        <div id="ohlc-legend"></div>
-        <div id="pda-context-menu"></div>
-        <div id="viewport-controls"></div>
+      <div id="workspace">
+        <main id="chart-area">
+          <div id="chart">
+            <div id="ohlc-legend"></div>
+            <div id="pda-context-menu"></div>
+            <div id="viewport-controls"></div>
+          </div>
+          <div id="replay-controls"></div>
+        </main>
       </div>
-      <div id="replay-controls"></div>
     </div>
     <script src="https://unpkg.com/lightweight-charts@5.2.0/dist/lightweight-charts.standalone.production.js"></script>
     <script type="module" src="src/app.js"></script>

@@ -30,6 +30,10 @@
   - Opens when a PDA is selected.
   - Close button hides the sidebar without deleting selection.
   - Shows read-only fields for point, range, and point-set annotations.
+- Updated page layout:
+  - `v4/index.html` now has a `#workspace` wrapper and `#chart-area`.
+  - The inspector is appended to `#workspace` as a flex sibling of `#chart-area`.
+  - Opening the inspector takes right-side layout width and shrinks the chart area instead of overlaying the canvas.
 - Wired selection and inspector initialization in `v4/src/app.js`.
 - Added sidebar styling in `v4/style.css`.
 
@@ -42,6 +46,7 @@
   - point/range/point-set details based on annotation shape
 - Clicking blank chart space or pressing Escape clears the selection.
 - Closing the sidebar only hides the panel; it does not delete annotations.
+- The sidebar does not cover the chart canvas; it pushes the chart area left by occupying layout width.
 
 ## Not Included
 - No selected-PDA visual highlight yet.

@@ -18,6 +18,22 @@ html, body {
   height: 100vh;
 }
 
+#workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#chart-area {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
 #toolbar {
   display: flex;
   align-items: center;
@@ -93,23 +109,22 @@ html, body {
 }
 
 #inspector-sidebar {
-  position: fixed;
-  top: 42px;
-  right: 0;
-  bottom: 0;
-  z-index: 14;
-  width: 320px;
+  width: 0;
+  flex: 0 0 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   background: rgba(19, 23, 34, 0.98);
   border-left: 1px solid #2a2e39;
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.28);
-  transform: translateX(100%);
-  transition: transform 140ms ease;
+  overflow: hidden;
+  transition:
+    flex-basis 140ms ease,
+    width 140ms ease;
 }
 
 #inspector-sidebar.open {
-  transform: translateX(0);
+  width: 320px;
+  flex-basis: 320px;
 }
 
 .inspector-header {

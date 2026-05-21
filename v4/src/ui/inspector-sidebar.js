@@ -188,7 +188,7 @@ function createSidebar() {
     </div>
     <div class="inspector-body"></div>
   `;
-  document.getElementById('app')?.appendChild(sidebarEl);
+  document.getElementById('workspace')?.appendChild(sidebarEl);
   bodyEl = sidebarEl.querySelector('.inspector-body');
   sidebarEl.querySelector('.inspector-close')?.addEventListener('click', closeSidebar);
   renderEmpty();
