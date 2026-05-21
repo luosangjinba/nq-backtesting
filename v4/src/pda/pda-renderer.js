@@ -59,12 +59,17 @@ function getShowCe(annotation) {
   return annotation.display?.showCe ?? annotation.showCe ?? true;
 }
 
-function shouldShowLabel(selected = false, displaySettings = {}) {
-  return selected ? Boolean(displaySettings.showCurrentLabel) : Boolean(displaySettings.showLabels);
+function isCurrentAnnotation(annotation, selection) {
+  return Boolean(selection?.id && annotation?.id && String(selection.id) === String(annotation.id));
 }
 
-function buildLiquidityPrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
-  const label = getAnnotationLabel(annotation, pdaType, selected);
+function shouldShowLabel(isCurrent = false, displaySettings = {}) {
+  if (isCurrent) return displaySettings.showCurrentLabel !== false;
+  return displaySettings.showLabels !== false;
+}
+
+function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent);
   const anchorTime = getPointRenderTime(annotation);
   if (anchorTime === undefined || anchorTime === null) return null;
 
@@ -73,15 +78,15 @@ function buildLiquidityPrimitive(annotation, pdaType, selected = false, displayS
     chart.getSeries(),
     anchorTime,
     annotation.price,
-    selected ? SELECTED_COLOR : pdaType.color,
-    selected ? SELECTED_COLOR : pdaType.textColor,
+    isCurrent ? SELECTED_COLOR : pdaType.color,
+    isCurrent ? SELECTED_COLOR : pdaType.textColor,
     label,
     pdaType.labelPosition,
     {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
-      lineWidth: selected ? 3 : 2,
-      labelFont: selected ? '12px sans-serif' : '11px sans-serif',
-      showLabel: shouldShowLabel(selected, displaySettings),
+      lineWidth: isCurrent ? 3 : 2,
+      labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
+      showLabel: shouldShowLabel(isCurrent, displaySettings),
     }
   );
 }
@@ -94,8 +99,8 @@ function isVisibleColor(color) {
   return color && color !== 'transparent';
 }
 
-function getRangeMidlineColor(annotation, pdaType, selected = false, isFvg = false) {
-  if (selected) return SELECTED_COLOR;
+function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = false) {
+  if (isCurrent) return SELECTED_COLOR;
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
   if (isFvg && annotation.direction === 'bullish') return '#26a69a';
@@ -103,8 +108,8 @@ function getRangeMidlineColor(annotation, pdaType, selected = false, isFvg = fal
   return pdaType.color;
 }
 
-function buildRangePrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
-  const label = getAnnotationLabel(annotation, pdaType, selected);
+function buildRangePrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent);
   const isFvg = annotation.type === 'fvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
@@ -130,19 +135,19 @@ function buildRangePrimitive(annotation, pdaType, selected = false, displaySetti
     label,
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
-      borderColor: isFvg ? 'transparent' : selected ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
-      midlineColor: getRangeMidlineColor(annotation, pdaType, selected, isFvg),
-      textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
-      lineWidth: isFvg ? 0 : selected ? 2 : 1,
+      borderColor: isFvg ? 'transparent' : isCurrent ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
+      midlineColor: getRangeMidlineColor(annotation, pdaType, isCurrent, isFvg),
+      textColor: isCurrent ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
+      lineWidth: isFvg ? 0 : isCurrent ? 2 : 1,
       showMidline: getShowCe(annotation),
       extendBars: getExtendBars(annotation, 0),
-      labelFont: selected ? '12px sans-serif' : '11px sans-serif',
-      showLabel: shouldShowLabel(selected, displaySettings),
+      labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
+      showLabel: shouldShowLabel(isCurrent, displaySettings),
     }
   );
 }
 
-function buildPointSetPrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
+function buildPointSetPrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {
   const points = Array.isArray(annotation.points)
     ? annotation.points
         .map((point) => ({
@@ -156,21 +161,21 @@ function buildPointSetPrimitive(annotation, pdaType, selected = false, displaySe
     : [];
   if (points.length < 1) return null;
 
-  const label = getAnnotationLabel(annotation, pdaType, selected);
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent);
   const referencePrice =
     annotation.referencePrice ??
     annotation.price ??
     points.reduce((sum, point) => sum + Number(point.price), 0) / points.length;
 
   return new PointSetPrimitive(chart.getChart(), chart.getSeries(), points, referencePrice, label, {
-    lineColor: selected ? SELECTED_COLOR : annotation.color || pdaType.color,
-    textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
+    lineColor: isCurrent ? SELECTED_COLOR : annotation.color || pdaType.color,
+    textColor: isCurrent ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
     markerPosition: annotation.markerPosition || pdaType.labelPosition || 'above',
-    lineWidth: selected ? 2 : 1,
-    markerSize: selected ? 5 : 4,
+    lineWidth: isCurrent ? 2 : 1,
+    markerSize: isCurrent ? 5 : 4,
     extendBars: getExtendBars(annotation, 0),
-    labelFont: selected ? '12px sans-serif' : '11px sans-serif',
-    showLabel: shouldShowLabel(selected, displaySettings),
+    labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
+    showLabel: shouldShowLabel(isCurrent, displaySettings),
   });
 }
 
@@ -186,10 +191,10 @@ export function renderPdaAnnotations() {
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
-    const isSelected = selected?.id === annotation.id;
+    const isCurrent = isCurrentAnnotation(annotation, selected);
 
     if (pdaType.shape === 'liquidity-line') {
-      const primitive = buildLiquidityPrimitive(annotation, pdaType, isSelected, displaySettings);
+      const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, displaySettings);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -198,7 +203,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'range') {
-      const primitive = buildRangePrimitive(annotation, pdaType, isSelected, displaySettings);
+      const primitive = buildRangePrimitive(annotation, pdaType, isCurrent, displaySettings);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -207,7 +212,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'point-set') {
-      const primitive = buildPointSetPrimitive(annotation, pdaType, isSelected, displaySettings);
+      const primitive = buildPointSetPrimitive(annotation, pdaType, isCurrent, displaySettings);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();

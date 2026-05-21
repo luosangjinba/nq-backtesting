@@ -24,6 +24,7 @@
 - Added a browser-local Inspector display toggle for PDA label text.
   - `Show all PDA labels` controls label text visibility for non-selected liquidity lines, ranges, and EQH/EQL point sets.
   - `Show current PDA label` independently controls the selected PDA label and takes priority for the current selection.
+  - Current PDA label visibility is hard-prioritized: selected PDA labels only read `showCurrentLabel`, while non-selected PDA labels only read `showLabels`.
   - The setting is persisted as `v4:pda-display-settings`.
   - The setting only changes rendering; it does not mutate annotations or export archives.
 - Removed the visible rectangle border from FVG ranges.
