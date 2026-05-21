@@ -10,8 +10,10 @@ import {
   syncReplayData,
 } from './ui/replay-controls.js';
 import { initViewportControls } from './ui/viewport-controls.js';
+import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
+import { initPdaSelection } from './pda/pda-selection.js';
 
 console.log('[V4] app.js loaded');
 
@@ -58,4 +60,6 @@ bus.on('bars:loaded', ({ bars }) => {
 // 初始化 PDA 手动标注和渲染
 initPdaRenderer();
 initManualAnnotation();
+initPdaSelection();
+initInspectorSidebar();
 console.log('[V4] PDA controls initialized');

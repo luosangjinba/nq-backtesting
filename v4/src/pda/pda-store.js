@@ -100,6 +100,10 @@ export function removeAnnotation(id) {
   emitChanged();
 }
 
+export function deleteAnnotation(id) {
+  removeAnnotation(id);
+}
+
 export function clearAnnotations() {
   annotations = [];
   emitChanged();
@@ -107,6 +111,49 @@ export function clearAnnotations() {
 
 export function getAnnotations() {
   return [...annotations];
+}
+
+export function getAnnotationById(id) {
+  return annotations.find((annotation) => annotation.id === id) || null;
+}
+
+export function updateAnnotation(id, patch = {}) {
+  const { id: _ignoredId, createdAt: _ignoredCreatedAt, ...safePatch } = patch;
+  let updated = null;
+
+  annotations = annotations.map((annotation) => {
+    if (annotation.id !== id) return annotation;
+    updated = {
+      ...annotation,
+      ...safePatch,
+      id: annotation.id,
+      createdAt: annotation.createdAt,
+      updatedAt: Date.now(),
+    };
+    return updated;
+  });
+
+  if (updated) emitChanged();
+  return updated;
+}
+
+export function replaceAnnotation(id, nextAnnotation) {
+  if (!nextAnnotation) return null;
+  let replaced = null;
+
+  annotations = annotations.map((annotation) => {
+    if (annotation.id !== id) return annotation;
+    replaced = {
+      ...nextAnnotation,
+      id: annotation.id,
+      createdAt: annotation.createdAt,
+      updatedAt: Date.now(),
+    };
+    return replaced;
+  });
+
+  if (replaced) emitChanged();
+  return replaced;
 }
 
 export function setObjectivePdaVisible(type, visible) {
