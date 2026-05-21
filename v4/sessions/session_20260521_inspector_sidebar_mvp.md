@@ -41,6 +41,16 @@
   - Selected PDA labels are prefixed with `●`.
   - Selected line/range/point-set primitives use `#f0f3fa` highlight and slightly stronger stroke/marker sizing.
   - Inspector shows the same `● TYPE` indicator in the selected PDA metadata.
+- Added first edit controls:
+  - `Delete PDA` removes the selected annotation and clears selection.
+  - `Note` writes to `annotation.note`.
+  - `Extend` writes to `annotation.display.extendBars`.
+- Added display extension support:
+  - BSL/SSL line length uses `display.extendBars`, defaulting to 8 bars.
+  - Range rectangles extend visually to the right by `display.extendBars`.
+  - EQH/EQL point-set reference lines extend visually to the right by `display.extendBars`.
+  - Original structural fields such as `startTime` / `endTime` are not rewritten.
+  - Hit-test uses the same extended display spans.
 
 ## Current Behavior
 - After marking a PDA, left-click near the rendered PDA selects it.
@@ -53,10 +63,9 @@
 - Closing the sidebar only hides the panel; it does not delete annotations.
 - The sidebar does not cover the chart canvas; it pushes the chart area left by occupying layout width.
 - The selected chart PDA is visibly linked to the Inspector without adding blocking overlays.
+- Sidebar edits update the in-memory PDA store and redraw immediately.
 
 ## Not Included
-- No Delete button yet.
-- No editable note or extendBars yet.
 - No EQH/EQL point removal yet.
 - No localStorage persistence.
 
@@ -65,11 +74,12 @@
 - `node --check v4/src/pda/pda-selection.js`
 - `node --check v4/src/pda/pda-hit-test.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/pda/pda-renderer.js`
+- `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/app.js`
 - `git diff --check`
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Step 17: add Delete selected PDA, note, and extendBars controls.
-- Step 18: make renderer honor extendBars for line/range/point-set display length.
-- Step 20 can then add selected-PDA highlighting after the edit workflow is stable.
+- Step 19: EQH/EQL point list editing and removal.
+- Step 21: localStorage persistence after editing semantics stabilize.

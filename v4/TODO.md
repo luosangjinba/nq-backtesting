@@ -38,8 +38,8 @@
 - [x] Step 14: PDA selection store + pda-store get/update/delete 接口
 - [x] Step 15: PDA hit-test（BSL/SSL line、range rectangle、EQH/EQL point-set）
 - [x] Step 16: 可隐藏 Inspector Sidebar，只读显示选中 PDA 信息
-- [ ] Step 17: Sidebar 基础编辑：Delete selected PDA、note、extendBars
-- [ ] Step 18: Renderer 支持 extendBars（line/range/point-set 显示延伸，不改结构事实字段）
+- [x] Step 17: Sidebar 基础编辑：Delete selected PDA、note、extendBars
+- [x] Step 18: Renderer 支持 extendBars（line/range/point-set 显示延伸，不改结构事实字段）
 - [ ] Step 19: EQH/EQL 点集合编辑：点列表、删除点、少于 2 点时处理集合失效
 - [x] Step 20: 选中态视觉反馈（高亮 selected PDA，不遮挡 K 线）
 - [ ] Step 21: localStorage 持久化（手动 PDA 刷新后恢复）
@@ -104,3 +104,4 @@
 - 2026-05-21: Phase 4 Step 14-16 完成首轮最小链路：`pda-selection.js` 管理当前选中 PDA，`pda-hit-test.js` 用像素容差命中 liquidity line/range/point-set，`inspector-sidebar.js` 提供可隐藏只读侧边栏；点击 PDA 打开 Inspector，点击空白或 Esc 清除 selection
 - 2026-05-21: Inspector Sidebar 不作为 canvas 上层 overlay；页面改为 `#workspace` 横向布局，sidebar 打开时占用右侧宽度并压缩 `#chart-area`，避免遮挡图表
 - 2026-05-21: Selected PDA 视觉反馈完成：renderer 监听 `pda:selected` / `pda:selection-cleared` 后重绘，选中 annotation 的 label 加 `●`，line/range/point-set 使用 `#f0f3fa` 提亮并轻微加粗；Inspector 同步显示 `● TYPE`
+- 2026-05-21: Phase 4 Step 17-18 完成：Inspector 支持 Delete selected PDA、note、extendBars；renderer 和 hit-test 均读取 `display.extendBars`，BSL/SSL line、range rectangle、EQH/EQL point-set 的显示延伸不改原始结构时间字段

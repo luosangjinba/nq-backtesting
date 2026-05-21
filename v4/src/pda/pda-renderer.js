@@ -11,6 +11,7 @@ import { getSelectedPda } from './pda-selection.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
+const DEFAULT_EXTEND_BARS = 8;
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
@@ -47,6 +48,12 @@ function getAnnotationLabel(annotation, pdaType, selected = false) {
   return selected ? `● ${baseLabel}` : baseLabel;
 }
 
+function getExtendBars(annotation, fallback = 0) {
+  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
 function buildLiquidityPrimitive(annotation, pdaType, selected = false) {
   const label = getAnnotationLabel(annotation, pdaType, selected);
   const anchorTime = getPointRenderTime(annotation);
@@ -62,7 +69,7 @@ function buildLiquidityPrimitive(annotation, pdaType, selected = false) {
     label,
     pdaType.labelPosition,
     {
-      lineLength: 8,
+      lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
       lineWidth: selected ? 3 : 2,
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
     }
@@ -102,6 +109,7 @@ function buildRangePrimitive(annotation, pdaType, selected = false) {
       borderColor: selected ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
       textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
       lineWidth: selected ? 2 : 1,
+      extendBars: getExtendBars(annotation, 0),
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
     }
   );
@@ -133,6 +141,7 @@ function buildPointSetPrimitive(annotation, pdaType, selected = false) {
     markerPosition: annotation.markerPosition || pdaType.labelPosition || 'above',
     lineWidth: selected ? 2 : 1,
     markerSize: selected ? 5 : 4,
+    extendBars: getExtendBars(annotation, 0),
     labelFont: selected ? '12px sans-serif' : '11px sans-serif',
   });
 }

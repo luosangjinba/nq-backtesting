@@ -57,6 +57,19 @@ function getPriceCoordinate(price) {
   return chart.priceToCoordinate(Number(price));
 }
 
+function getExtendBars(annotation, fallback = 0) {
+  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+function extendXByBars(x, extendBars) {
+  if (x === null || extendBars <= 0) return x;
+  const timeScale = chart.getChart()?.timeScale();
+  const logical = timeScale?.coordinateToLogical(x);
+  return logical === null || logical === undefined ? x : timeScale.logicalToCoordinate(logical + extendBars);
+}
+
 function between(value, a, b, tolerance = 0) {
   return value >= Math.min(a, b) - tolerance && value <= Math.max(a, b) + tolerance;
 }
@@ -71,7 +84,7 @@ function hitLiquidity(annotation, x, y) {
   const anchorX = getTimeCoordinate(anchorTime);
   const lineY = getPriceCoordinate(annotation.price);
   const logical = getLogicalCoordinate(anchorTime);
-  const extendBars = annotation.extendBars ?? annotation.display?.extendBars ?? DEFAULT_LINE_EXTEND_BARS;
+  const extendBars = getExtendBars(annotation, DEFAULT_LINE_EXTEND_BARS);
   const endX = getCoordinateForLogical(logical === null ? null : logical + extendBars);
 
   if (anchorX === null || lineY === null || endX === null) return null;
@@ -94,11 +107,12 @@ function hitRange(annotation, x, y) {
   const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
   const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
   const startX = getTimeCoordinate(startTime);
-  const endX = getTimeCoordinate(endTime);
+  let endX = getTimeCoordinate(endTime);
   const topY = getPriceCoordinate(annotation.topPrice ?? annotation.priceHigh);
   const bottomY = getPriceCoordinate(annotation.bottomPrice ?? annotation.priceLow);
 
   if (startX === null || endX === null || topY === null || bottomY === null) return null;
+  endX = extendXByBars(endX, getExtendBars(annotation, 0));
   if (!between(x, startX, endX) || !between(y, topY, bottomY)) return null;
 
   const centerX = (startX + endX) / 2;
@@ -139,8 +153,9 @@ function hitPointSet(annotation, x, y) {
   const xs = points.map((point) => point.x);
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
+  const endX = extendXByBars(maxX, getExtendBars(annotation, 0));
   const lineHit =
-    Math.abs(y - referenceY) <= LINE_TOLERANCE_PX && between(x, minX, maxX, LINE_TOLERANCE_PX);
+    Math.abs(y - referenceY) <= LINE_TOLERANCE_PX && between(x, minX, endX, LINE_TOLERANCE_PX);
 
   const markerOffset = 8;
   const markerY = annotation.markerPosition === 'below' ? referenceY + markerOffset : referenceY - markerOffset;

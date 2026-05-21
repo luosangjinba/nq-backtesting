@@ -2,7 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
-import { getAnnotationById } from '../pda/pda-store.js';
+import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
 
 let sidebarEl = null;
@@ -39,6 +39,15 @@ function field(label, value) {
   `;
 }
 
+function controlField(label, controlHtml) {
+  return `
+    <label class="inspector-field inspector-control-field">
+      <span class="inspector-field-label">${label}</span>
+      <span class="inspector-field-value">${controlHtml}</span>
+    </label>
+  `;
+}
+
 function section(title, content) {
   return `
     <section class="inspector-section">
@@ -71,6 +80,28 @@ function getSpread(points = []) {
   const prices = points.map((point) => Number(point.price)).filter(Number.isFinite);
   if (prices.length < 2) return null;
   return Math.max(...prices) - Math.min(...prices);
+}
+
+function getExtendBars(annotation) {
+  const value = annotation.display?.extendBars ?? annotation.extendBars ?? '';
+  return value === '' ? '' : Number(value);
+}
+
+function renderEditFields(annotation) {
+  return section(
+    'Edit',
+    [
+      controlField(
+        'Extend',
+        `<input class="inspector-input" data-inspector-action="extend-bars" type="number" min="0" step="1" value="${getExtendBars(annotation)}" placeholder="0" />`
+      ),
+      controlField(
+        'Note',
+        `<textarea class="inspector-textarea" data-inspector-action="note" rows="4" placeholder="Add note">${annotation.note || ''}</textarea>`
+      ),
+      `<button class="inspector-danger" data-inspector-action="delete" type="button">Delete PDA</button>`,
+    ].join('')
+  );
 }
 
 function renderPointFields(annotation) {
@@ -144,7 +175,7 @@ function renderAnnotation(annotation) {
   if (shape === 'range') detail = renderRangeFields(annotation);
   if (shape === 'point-set') detail = renderPointSetFields(annotation);
 
-  bodyEl.innerHTML = common + detail;
+  bodyEl.innerHTML = common + detail + renderEditFields(annotation);
 }
 
 function renderEmpty() {
@@ -192,6 +223,47 @@ function createSidebar() {
   document.getElementById('workspace')?.appendChild(sidebarEl);
   bodyEl = sidebarEl.querySelector('.inspector-body');
   sidebarEl.querySelector('.inspector-close')?.addEventListener('click', closeSidebar);
+  sidebarEl.addEventListener('change', handleInspectorChange);
+  sidebarEl.addEventListener('click', handleInspectorClick);
+  renderEmpty();
+}
+
+function getCurrentAnnotation() {
+  const selection = getSelectedPda();
+  return selection ? getAnnotationById(selection.id) : null;
+}
+
+function handleInspectorChange(e) {
+  const action = e.target.dataset.inspectorAction;
+  if (!action) return;
+  const annotation = getCurrentAnnotation();
+  if (!annotation) return;
+
+  if (action === 'extend-bars') {
+    const parsed = Number(e.target.value);
+    const extendBars = Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0;
+    updateAnnotation(annotation.id, {
+      display: {
+        ...(annotation.display || {}),
+        extendBars,
+      },
+    });
+    return;
+  }
+
+  if (action === 'note') {
+    updateAnnotation(annotation.id, { note: e.target.value });
+  }
+}
+
+function handleInspectorClick(e) {
+  const action = e.target.dataset.inspectorAction;
+  if (action !== 'delete') return;
+  const annotation = getCurrentAnnotation();
+  if (!annotation) return;
+
+  deleteAnnotation(annotation.id);
+  clearSelection();
   renderEmpty();
 }
 

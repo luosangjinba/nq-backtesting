@@ -195,6 +195,53 @@ html, body {
   overflow-wrap: anywhere;
 }
 
+.inspector-control-field {
+  align-items: start;
+}
+
+.inspector-input,
+.inspector-textarea {
+  width: 100%;
+  border: 1px solid #363a45;
+  background: #1e222d;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.inspector-input {
+  height: 26px;
+  padding: 3px 6px;
+}
+
+.inspector-textarea {
+  min-height: 74px;
+  padding: 6px;
+  resize: vertical;
+}
+
+.inspector-input:focus,
+.inspector-textarea:focus {
+  outline: none;
+  border-color: #26a69a;
+}
+
+.inspector-danger {
+  width: 100%;
+  height: 30px;
+  margin-top: 8px;
+  border: 1px solid #ef5350;
+  background: rgba(239, 83, 80, 0.12);
+  color: #ffcdd2;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-danger:hover {
+  background: rgba(239, 83, 80, 0.2);
+}
+
 .inspector-id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
