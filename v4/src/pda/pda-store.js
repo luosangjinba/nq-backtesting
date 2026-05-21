@@ -5,7 +5,7 @@ import { sortContextLabels } from './pda-context.js';
 
 let annotations = [];
 let objectiveVisibility = {
-  ndow: false,
+  ndog: false,
   nwog: false,
 };
 

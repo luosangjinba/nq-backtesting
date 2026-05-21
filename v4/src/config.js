@@ -72,6 +72,8 @@ export const PDA_TYPES = [
   { id: 'ssl', name: 'SSL', category: 'point', color: '#ef5350', labelPosition: 'below' },
   { id: 'fvg', name: 'FVG', category: 'range', color: '#ab47bc' },
   { id: 'ob', name: 'OB', category: 'range', color: '#ffa726' },
+  { id: 'ndog', name: 'NDOG', category: 'range', color: '#42a5f5' },
+  { id: 'nwog', name: 'NWOG', category: 'range', color: '#7e57c2' },
   { id: 'eqh', name: 'EQH', category: 'composite', color: '#26a69a', labelPosition: 'above' },
   { id: 'eql', name: 'EQL', category: 'composite', color: '#ef5350', labelPosition: 'below' },
 ];

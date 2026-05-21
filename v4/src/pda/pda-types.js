@@ -39,9 +39,9 @@ export const PDA_TYPES = {
     objective: false,
     pointSet: false,
   },
-  ndow: {
-    id: 'ndow',
-    label: 'NDOW',
+  ndog: {
+    id: 'ndog',
+    label: 'NDOG',
     shape: 'range',
     color: '#42a5f5',
     objective: true,
