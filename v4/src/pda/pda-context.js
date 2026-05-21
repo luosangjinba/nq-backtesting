@@ -3,7 +3,7 @@
 import { timeframeToString } from '../config.js';
 import { getPdaType } from './pda-types.js';
 
-export const HTF_CONTEXT_TIMEFRAMES = [15, 30, 60, 240, 1440];
+export const CONTEXT_TIMEFRAMES = [1, 5, 15, 30, 60, 240, 1440];
 
 export const SESSION_WINDOWS = [
   { id: 'asia', label: 'Asia Session', start: 18 * 60, end: 1 * 60 + 59, crossesMidnight: true },
@@ -24,6 +24,7 @@ export const SESSION_WINDOWS = [
 const PRICE_EPSILON = 0.0000001;
 const BASE_ANCHOR_EPOCH = 946684800; // 2000-01-01 00:00 UTC wall-clock anchor.
 const FOUR_HOUR_ANCHOR_OFFSET = 7200; // Match backend 4H bars: 02:00/06:00/.../22:00.
+const CONTEXT_LABEL_ORDER = ['D', '4H', '1H', '30M', '15M', '5M', '1M'];
 
 function getUtcParts(timestamp) {
   const date = new Date(timestamp * 1000);
@@ -193,7 +194,7 @@ function getHtfContexts(type, bar, currentTimeframe, sourceBars) {
   const side = pdaType.priceField === 'high' ? 'high' : 'low';
   const selectedPrice = bar[pdaType.priceField];
 
-  return HTF_CONTEXT_TIMEFRAMES.flatMap((timeframe) => {
+  return CONTEXT_TIMEFRAMES.flatMap((timeframe) => {
     const aggregates = getOverlappingAggregates(sourceBars, bar, currentTimeframe, timeframe);
     const isExtreme = aggregates.some((aggregate) => {
       const aggregatePrice = pdaType.priceField === 'high' ? aggregate.high : aggregate.low;
@@ -202,6 +203,20 @@ function getHtfContexts(type, bar, currentTimeframe, sourceBars) {
 
     return isExtreme ? [`${timeframeToString(timeframe)} ${side}`] : [];
   });
+}
+
+function sortContextLabels(contexts) {
+  const orderMap = new Map(CONTEXT_LABEL_ORDER.map((label, index) => [label, index]));
+
+  return [...contexts].sort((a, b) => {
+    const aOrder = orderMap.has(a.split(' ')[0]) ? orderMap.get(a.split(' ')[0]) : 100;
+    const bOrder = orderMap.has(b.split(' ')[0]) ? orderMap.get(b.split(' ')[0]) : 100;
+    return aOrder - bOrder;
+  });
+}
+
+function isTimeframeContextLabel(context) {
+  return CONTEXT_LABEL_ORDER.includes(context.split(' ')[0]);
 }
 
 export function getSessionLabel(timestamp) {
@@ -230,10 +245,18 @@ export function buildPointContexts(type, bar, timeframe, allBars = []) {
     contexts.add(sessionExtremaContext);
   }
 
-  return Array.from(contexts);
+  return sortContextLabels(contexts);
 }
 
-export function formatContextLabel(contexts, maxItems = 2) {
+export function formatContextLabel(contexts, maxItems = Infinity) {
   if (!contexts?.length) return '';
   return contexts.slice(0, maxItems).join(' / ');
+}
+
+export function formatPrimaryContextLabel(contexts) {
+  if (!contexts?.length) return '';
+
+  const timeframeContext = contexts.find(isTimeframeContextLabel);
+  const supplementalContexts = contexts.filter((context) => !isTimeframeContextLabel(context));
+  return [timeframeContext, ...supplementalContexts].filter(Boolean).join(' / ');
 }

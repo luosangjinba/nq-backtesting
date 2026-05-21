@@ -14,7 +14,7 @@
 ### Phase 2: PDA 系统
 - [x] Step 8: PDA 类型注册表 + 当前会话 store
 - [x] Step 9: 手动 PDA 标注入口（右键菜单优先 SSL/BSL）
-- [x] Step 10: PDA context 实时计算器（完整交易日 1M 源数据 + 15M/30M/1H/4H/D 精确 HTF 极值）
+- [x] Step 10: PDA context 实时计算器（完整交易日 1M 源数据 + 1M/5M/15M/30M/1H/4H/D 精确 TF 极值）
 - [ ] Step 11: PDA 渲染器（初版 SSL/BSL 线段；待补矩形 / 点位集合）
 - [ ] Step 12: 客观 PDA 显示/隐藏命令（NDOW/NWOG 等）
 - [ ] Step 13: EQH/EQL 点位集合打包
@@ -79,3 +79,4 @@
 - 2026-05-20: PDA HTF context 缓存键为 `instrument:source:1M:tradingDay`，例如 `NQ:source:1M:2012-01-09`
 - 2026-05-20: PDA HTF 聚合边界与后端保持一致：15M/30M/1H 用 00:00 anchor，4H 用 02:00/06:00/10:00/14:00/18:00/22:00 anchor，D 用 CME 18:00 trading day
 - 2026-05-20: 跨 timeframe 对齐规则：以被右键选中的当前图表 K 线时间区间为准，检查所有与其重叠的目标 HTF bucket；若所选 BSL/SSL 价格等于目标 bucket high/low，则追加对应 HTF context 标签
+- 2026-05-21: PDA context 层级补齐为 1M/5M/15M/30M/1H/4H/D，完整 context 保存在 annotation 和状态栏；图上 PDA 标签只显示最高 TF context，并保留 session/midnight 等补充 context

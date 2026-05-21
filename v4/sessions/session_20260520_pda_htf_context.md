@@ -1,15 +1,17 @@
 # V4 PDA HTF Context Session
 
 ## Branch
-- `feature/v4-pda-htf-context`
+- `feature/v4-manual-pda`
 
 ## Goal
 - Complete Step 10 by adding exact HTF context checks for manually selected PDA points.
-- Keep `main` clean; this branch starts from `feature/v4-manual-pda` commit `edf3380`.
+- Keep `main` clean; this work remains on `feature/v4-manual-pda`.
 
 ## Completed
 - Manual PDA context now fetches the selected bar's full CME trading day as 1M source data.
 - HTF context checks aggregate that 1M source in the frontend for:
+  - 1M
+  - 5M
   - 15M
   - 30M
   - 1H
@@ -18,6 +20,10 @@
 - BSL/SSL manual points now receive an HTF label when the selected price is also the overlapping HTF bucket high/low.
 - Current timeframe context remains present, with duplicate labels deduped.
 - Session high/low and midnight context still run from the same full-day source.
+- Full context remains stored on each annotation and is shown in the status bar.
+- Chart labels use a compressed primary context:
+  - highest timeframe context only, ordered D -> 4H -> 1H -> 30M -> 15M -> 5M -> 1M
+  - supplemental non-timeframe context, such as session or midnight, remains visible
 
 ## Rules
 - Aggregation source:
@@ -27,7 +33,7 @@
   - `instrument:source:1M:tradingDay`
   - example: `NQ:source:1M:2012-01-09`
 - HTF aggregation boundaries:
-  - 15M / 30M / 1H: backend-compatible 00:00 wall-clock anchor
+  - 1M / 5M / 15M / 30M / 1H: backend-compatible 00:00 wall-clock anchor
   - 4H: backend-compatible 02:00 / 06:00 / 10:00 / 14:00 / 18:00 / 22:00 anchor
   - D: CME trading day, previous day 18:00 through current day 16:59
 - Cross-timeframe alignment:
@@ -39,7 +45,8 @@
 - `node --check v4/src/pda/pda-context.js`
 - `node --check v4/src/pda/pda-context-data.js`
 - `node --check v4/src/pda/manual-annotation.js`
-- Node module smoke check confirmed a 30M selected point can produce 15M / 1H / 4H / D context labels from 1M source bars.
+- Node module smoke check confirmed selected points can produce full D / 4H / 1H / 30M / 15M / 5M / 1M context labels from 1M source bars.
+- Node module smoke check confirmed chart primary labels compress `D low / 4H low / ... / 1M low / NY Late Morning low` into `D low / NY Late Morning low`.
 
 ## Next
 - Step 11: extend PDA renderer beyond BSL/SSL liquidity lines into rectangle/range rendering.

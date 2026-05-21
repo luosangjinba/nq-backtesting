@@ -65,7 +65,7 @@ async function addManualPoint(type, bar) {
   addAnnotation(annotation);
   hideContextMenu();
 
-  const contextLabel = formatContextLabel(contexts, 4);
+  const contextLabel = formatContextLabel(contexts);
   bus.emit('status:update', {
     text: `${pdaType.label}: ${price.toFixed(2)} ${bar.tradingDay || bar.time}${
       contextLabel ? ` · ${contextLabel}` : ''

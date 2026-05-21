@@ -4,7 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { LiquidityPrimitive } from '../chart/primitives.js';
 import { getAnnotations } from './pda-store.js';
-import { formatContextLabel } from './pda-context.js';
+import { formatPrimaryContextLabel } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 
 let renderedPrimitives = [];
@@ -14,7 +14,7 @@ function clearRenderedPrimitives() {
 }
 
 function buildLiquidityPrimitive(annotation, pdaType) {
-  const contextLabel = formatContextLabel(annotation.contexts);
+  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
   const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
 
   return new LiquidityPrimitive(
