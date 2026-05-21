@@ -26,7 +26,8 @@
   - `Finish EQH/EQL`
   - `Cancel Set`
 - Escape, Clear PDA, bars reload, and bars clear now cancel any in-progress point-set selection.
-- After the second selected point, the in-progress set is rendered as a draft annotation and updates as more points are added.
+- After the first selected point, the in-progress set is rendered as a draft annotation with only the ownership marker.
+- After the second selected point, the draft adds the reference line and updates as more points are added.
 
 ## Behavior
 - EQH points use the selected bar high.
@@ -37,7 +38,7 @@
 - Marker placement is tied to the set line rather than each wick, so multiple EQH/EQL sets can be distinguished by membership.
 - Finishing requires at least two points.
 - The set stores all selected points plus the reference price used for the line.
-- Before finish, the same reference line is shown as a `draft` annotation; finish removes the draft and creates the final manual annotation.
+- Before finish, the set is shown as a `draft` annotation; single-point drafts show only the marker, multi-point drafts show the same reference line as the final set.
 - Status text reports point count, reference price, and spread.
 - Cross-timeframe rendering maps each point timestamp to the current chart timeframe bucket, reusing existing PDA anchor mapping behavior.
 

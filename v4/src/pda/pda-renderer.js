@@ -7,8 +7,11 @@ import { LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
+import { getSelectedPda } from './pda-selection.js';
 
 let renderedPrimitives = [];
+const SELECTED_COLOR = '#f0f3fa';
+const DEFAULT_EXTEND_BARS = 8;
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
@@ -39,9 +42,20 @@ function getRangeRenderTime(annotation, field, fallbackField) {
   return mapTimestampToCurrentChartTime(timestamp) ?? annotation[fallbackField] ?? annotation.anchorTime;
 }
 
-function buildLiquidityPrimitive(annotation, pdaType) {
+function getAnnotationLabel(annotation, pdaType, selected = false) {
   const contextLabel = formatPrimaryContextLabel(annotation.contexts);
-  const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  const baseLabel = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  return selected ? `● ${baseLabel}` : baseLabel;
+}
+
+function getExtendBars(annotation, fallback = 0) {
+  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+function buildLiquidityPrimitive(annotation, pdaType, selected = false) {
+  const label = getAnnotationLabel(annotation, pdaType, selected);
   const anchorTime = getPointRenderTime(annotation);
   if (anchorTime === undefined || anchorTime === null) return null;
 
@@ -50,14 +64,14 @@ function buildLiquidityPrimitive(annotation, pdaType) {
     chart.getSeries(),
     anchorTime,
     annotation.price,
-    pdaType.color,
-    pdaType.textColor,
+    selected ? SELECTED_COLOR : pdaType.color,
+    selected ? SELECTED_COLOR : pdaType.textColor,
     label,
     pdaType.labelPosition,
     {
-      lineLength: 8,
-      lineWidth: 2,
-      labelFont: '11px sans-serif',
+      lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
+      lineWidth: selected ? 3 : 2,
+      labelFont: selected ? '12px sans-serif' : '11px sans-serif',
     }
   );
 }
@@ -66,9 +80,8 @@ function alphaColor(hexColor, alphaHex = '33') {
   return hexColor?.startsWith('#') && hexColor.length === 7 ? `${hexColor}${alphaHex}` : hexColor;
 }
 
-function buildRangePrimitive(annotation, pdaType) {
-  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
-  const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+function buildRangePrimitive(annotation, pdaType, selected = false) {
+  const label = getAnnotationLabel(annotation, pdaType, selected);
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
   const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
@@ -93,14 +106,16 @@ function buildRangePrimitive(annotation, pdaType) {
     label,
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
-      borderColor: annotation.borderColor || pdaType.color,
-      textColor: annotation.textColor || pdaType.textColor || '#d1d4dc',
-      labelFont: '11px sans-serif',
+      borderColor: selected ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
+      textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
+      lineWidth: selected ? 2 : 1,
+      extendBars: getExtendBars(annotation, 0),
+      labelFont: selected ? '12px sans-serif' : '11px sans-serif',
     }
   );
 }
 
-function buildPointSetPrimitive(annotation, pdaType) {
+function buildPointSetPrimitive(annotation, pdaType, selected = false) {
   const points = Array.isArray(annotation.points)
     ? annotation.points
         .map((point) => ({
@@ -112,20 +127,22 @@ function buildPointSetPrimitive(annotation, pdaType) {
         }))
         .filter((point) => point.time !== undefined && point.time !== null && point.price !== undefined)
     : [];
-  if (points.length < 2) return null;
+  if (points.length < 1) return null;
 
-  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
-  const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  const label = getAnnotationLabel(annotation, pdaType, selected);
   const referencePrice =
     annotation.referencePrice ??
     annotation.price ??
     points.reduce((sum, point) => sum + Number(point.price), 0) / points.length;
 
   return new PointSetPrimitive(chart.getChart(), chart.getSeries(), points, referencePrice, label, {
-    lineColor: annotation.color || pdaType.color,
-    textColor: annotation.textColor || pdaType.textColor || '#d1d4dc',
+    lineColor: selected ? SELECTED_COLOR : annotation.color || pdaType.color,
+    textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
     markerPosition: annotation.markerPosition || pdaType.labelPosition || 'above',
-    labelFont: '11px sans-serif',
+    lineWidth: selected ? 2 : 1,
+    markerSize: selected ? 5 : 4,
+    extendBars: getExtendBars(annotation, 0),
+    labelFont: selected ? '12px sans-serif' : '11px sans-serif',
   });
 }
 
@@ -136,12 +153,14 @@ export function renderPdaAnnotations() {
   const series = chart.getSeries();
   if (!chartInstance || !series) return;
 
+  const selected = getSelectedPda();
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
+    const isSelected = selected?.id === annotation.id;
 
     if (pdaType.shape === 'liquidity-line') {
-      const primitive = buildLiquidityPrimitive(annotation, pdaType);
+      const primitive = buildLiquidityPrimitive(annotation, pdaType, isSelected);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -150,7 +169,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'range') {
-      const primitive = buildRangePrimitive(annotation, pdaType);
+      const primitive = buildRangePrimitive(annotation, pdaType, isSelected);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -159,7 +178,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'point-set') {
-      const primitive = buildPointSetPrimitive(annotation, pdaType);
+      const primitive = buildPointSetPrimitive(annotation, pdaType, isSelected);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -170,6 +189,8 @@ export function renderPdaAnnotations() {
 
 export function initPdaRenderer() {
   bus.on('pda:changed', renderPdaAnnotations);
+  bus.on('pda:selected', renderPdaAnnotations);
+  bus.on('pda:selection-cleared', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

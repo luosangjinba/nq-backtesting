@@ -35,13 +35,13 @@
 - [x] Replay + Viewport: Replay On 切换周期后 Scroll latest 锚定当前回放切片末端
 
 ### Phase 4: Inspector / PDA 编辑工作台
-- [ ] Step 14: PDA selection store + pda-store get/update/delete 接口
-- [ ] Step 15: PDA hit-test（BSL/SSL line、range rectangle、EQH/EQL point-set）
-- [ ] Step 16: 可隐藏 Inspector Sidebar，只读显示选中 PDA 信息
-- [ ] Step 17: Sidebar 基础编辑：Delete selected PDA、note、extendBars
-- [ ] Step 18: Renderer 支持 extendBars（line/range/point-set 显示延伸，不改结构事实字段）
-- [ ] Step 19: EQH/EQL 点集合编辑：点列表、删除点、少于 2 点时处理集合失效
-- [ ] Step 20: 选中态视觉反馈（高亮 selected PDA，不遮挡 K 线）
+- [x] Step 14: PDA selection store + pda-store get/update/delete 接口
+- [x] Step 15: PDA hit-test（BSL/SSL line、range rectangle、EQH/EQL point-set）
+- [x] Step 16: 可隐藏 Inspector Sidebar，只读显示选中 PDA 信息
+- [x] Step 17: Sidebar 基础编辑：Delete selected PDA、note、extendBars
+- [x] Step 18: Renderer 支持 extendBars（line/range/point-set 显示延伸，不改结构事实字段）
+- [x] Step 19: EQH/EQL 点集合编辑：点列表、删除点、少于 2 点时处理集合失效
+- [x] Step 20: 选中态视觉反馈（高亮 selected PDA，不遮挡 K 线）
 - [ ] Step 21: localStorage 持久化（手动 PDA 刷新后恢复）
 
 ## 已知问题
@@ -101,3 +101,10 @@
 - 2026-05-21: Step 13 完成 EQH/EQL 点位集合打包：右键开始 EQH/EQL set、继续添加点、选到第 2 个点后用 draft annotation 动态预览参考虚线，完成后生成正式 `shape: point-set` annotation；EQH 参考线画在所选点最高价，EQL 参考线画在所选点最低价；renderer 使用 `PointSetPrimitive` 绘制参考虚线、集合标签和小三角点位标识，EQH 标识统一在线段上方、EQL 标识统一在线段下方，便于多个 EQH/EQL 并存时区分归属；当前只做手动集合，不做严格等高/等低自动判定或持久化
 - 2026-05-21: EQH/EQL 选点状态机已拆到 `v4/src/pda/point-set-annotation.js`，`manual-annotation.js` 只保留右键菜单路由与其他 PDA 入口
 - 2026-05-21: 下一阶段采用通用 Inspector Sidebar 方案，不做 PDA 专用弹窗；先建立 selection store + hit-test + 只读 sidebar，再逐步加入删除、extendBars、EQH/EQL 点编辑、选中态高亮和 localStorage
+- 2026-05-21: Phase 4 Step 14-16 完成首轮最小链路：`pda-selection.js` 管理当前选中 PDA，`pda-hit-test.js` 用像素容差命中 liquidity line/range/point-set，`inspector-sidebar.js` 提供可隐藏只读侧边栏；点击 PDA 打开 Inspector，点击空白或 Esc 清除 selection
+- 2026-05-21: Inspector Sidebar 不作为 canvas 上层 overlay；页面改为 `#workspace` 横向布局，sidebar 打开时占用右侧宽度并压缩 `#chart-area`，避免遮挡图表
+- 2026-05-21: Selected PDA 视觉反馈完成：renderer 监听 `pda:selected` / `pda:selection-cleared` 后重绘，选中 annotation 的 label 加 `●`，line/range/point-set 使用 `#f0f3fa` 提亮并轻微加粗；Inspector 同步显示 `● TYPE`
+- 2026-05-21: Phase 4 Step 17-18 完成：Inspector 支持 Delete selected PDA、note、extendBars；renderer 和 hit-test 均读取 `display.extendBars`，BSL/SSL line、range rectangle、EQH/EQL point-set 的显示延伸不改原始结构时间字段
+- 2026-05-21: EQH/EQL draft 选第一个点后立即渲染归属小三角 marker；只有一个点时不画参考线和 label，第二个点后再显示完整线段
+- 2026-05-21: Phase 4 Step 19 完成 EQH/EQL 点集合编辑第一版：Inspector 点列表支持 Remove，删除后重算 reference price / contexts；剩余少于 2 点时自动删除集合并清除 selection
+- 2026-05-21: 已完成向当前选中的 EQH/EQL 集合追加点：选中已完成集合后，右键其他 K 线显示 Add to Selected EQH/EQL，追加后重算 reference price / contexts 并刷新 Inspector

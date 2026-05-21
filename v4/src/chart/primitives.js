@@ -89,7 +89,11 @@ class RangeView {
     const y2 = series.priceToCoordinate(this._source._bottomPrice);
     const timeScale = chart.timeScale();
     const x1 = timeScale.timeToCoordinate(this._source._startTime);
-    const x2 = timeScale.timeToCoordinate(this._source._endTime);
+    let x2 = timeScale.timeToCoordinate(this._source._endTime);
+    if (x2 !== null && this._source._options.extendBars > 0) {
+      const logical = timeScale.coordinateToLogical(x2);
+      x2 = logical === null ? x2 : timeScale.logicalToCoordinate(logical + this._source._options.extendBars);
+    }
     this._p1 = { x: x1, y: y1 };
     this._p2 = { x: x2, y: y2 };
   }
@@ -361,6 +365,7 @@ const POINT_SET_DEFAULTS = {
   markerPosition: 'above',
   markerSize: 4,
   markerOffset: 8,
+  extendBars: 0,
   showLabel: true,
   labelFont: '11px sans-serif',
   labelPadding: 5,
@@ -386,16 +391,19 @@ class PointSetRenderer {
       const xs = points.map((point) => point.x * hRatio);
       const y = referenceY * vRatio;
       const minX = Math.min(...xs);
-      const maxX = Math.max(...xs);
+      const maxPointX = Math.max(...xs);
+      const maxX = this._view._endX === null ? maxPointX : this._view._endX * hRatio;
 
-      ctx.strokeStyle = options.lineColor;
-      ctx.lineWidth = options.lineWidth * ratio;
-      ctx.setLineDash(options.lineDash.map((value) => value * hRatio));
-      ctx.beginPath();
-      ctx.moveTo(minX, y);
-      ctx.lineTo(maxX, y);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      if (points.length > 1) {
+        ctx.strokeStyle = options.lineColor;
+        ctx.lineWidth = options.lineWidth * ratio;
+        ctx.setLineDash(options.lineDash.map((value) => value * hRatio));
+        ctx.beginPath();
+        ctx.moveTo(minX, y);
+        ctx.lineTo(maxX, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
       if (options.showPointMarkers) {
         ctx.fillStyle = options.lineColor;
@@ -421,7 +429,7 @@ class PointSetRenderer {
         });
       }
 
-      if (options.showLabel && source._label) {
+      if (options.showLabel && source._label && points.length > 1) {
         ctx.fillStyle = options.textColor;
         ctx.font = options.labelFont;
         ctx.textAlign = 'right';
@@ -437,6 +445,7 @@ class PointSetView {
     this._source = source;
     this._points = [];
     this._referenceY = null;
+    this._endX = null;
   }
 
   update() {
@@ -447,6 +456,14 @@ class PointSetView {
       y: series.priceToCoordinate(point.price),
     }));
     this._referenceY = series.priceToCoordinate(this._source._referencePrice);
+    const visibleXs = this._points.map((point) => point.x).filter((x) => x !== null);
+    const maxX = visibleXs.length ? Math.max(...visibleXs) : null;
+    if (maxX === null || this._source._options.extendBars <= 0) {
+      this._endX = maxX;
+      return;
+    }
+    const logical = timeScale.coordinateToLogical(maxX);
+    this._endX = logical === null ? maxX : timeScale.logicalToCoordinate(logical + this._source._options.extendBars);
   }
 
   renderer() {
