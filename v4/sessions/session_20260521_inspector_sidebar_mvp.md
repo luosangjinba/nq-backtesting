@@ -36,6 +36,11 @@
   - Opening the inspector takes right-side layout width and shrinks the chart area instead of overlaying the canvas.
 - Wired selection and inspector initialization in `v4/src/app.js`.
 - Added sidebar styling in `v4/style.css`.
+- Added selected-PDA visual feedback:
+  - `pda-renderer.js` listens to `pda:selected` and `pda:selection-cleared`.
+  - Selected PDA labels are prefixed with `●`.
+  - Selected line/range/point-set primitives use `#f0f3fa` highlight and slightly stronger stroke/marker sizing.
+  - Inspector shows the same `● TYPE` indicator in the selected PDA metadata.
 
 ## Current Behavior
 - After marking a PDA, left-click near the rendered PDA selects it.
@@ -47,9 +52,9 @@
 - Clicking blank chart space or pressing Escape clears the selection.
 - Closing the sidebar only hides the panel; it does not delete annotations.
 - The sidebar does not cover the chart canvas; it pushes the chart area left by occupying layout width.
+- The selected chart PDA is visibly linked to the Inspector without adding blocking overlays.
 
 ## Not Included
-- No selected-PDA visual highlight yet.
 - No Delete button yet.
 - No editable note or extendBars yet.
 - No EQH/EQL point removal yet.

@@ -128,6 +128,7 @@ function renderAnnotation(annotation) {
   const common = section(
     'PDA',
     [
+      field('Selected', `● ${pdaType?.label || annotation.type}`),
       field('Type', pdaType?.label || annotation.type),
       field('Shape', shape),
       field('Source', annotation.source || 'manual'),
