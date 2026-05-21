@@ -82,7 +82,7 @@
 
 ## Branch Checkpoint
 - Current branch: `feature/v4-pda-export-import`
-- Latest implementation commit: `c3d9a6b fix(v4): align displayed prices to NQ tick size`
+- Latest implementation commit: `a9604ba fix(v4): harden PDA archive import`
 - Working tree has no tracked changes after the latest commit.
 - Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
 
