@@ -2,8 +2,10 @@
 
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
+import { buildCePrice } from '../price-utils.js';
 import { timeframeToString } from '../config.js';
-import { getAnnotations, loadAnnotations } from './pda-store.js';
+import { getAnnotationIdentity, getAnnotations, loadAnnotations } from './pda-store.js';
+import { getPdaType } from './pda-types.js';
 
 const ARCHIVE_VERSION = 1;
 const ARCHIVE_APP = 'trading-v4';
@@ -77,30 +79,86 @@ function readFileAsText(file) {
 }
 
 function getImportableAnnotations(payload) {
-  return payload.annotations.filter(
-    (annotation) => annotation && typeof annotation === 'object' && !annotation.draft && annotation.source !== 'draft'
-  );
+  return payload.annotations
+    .filter(
+      (annotation) =>
+        annotation &&
+        typeof annotation === 'object' &&
+        !annotation.draft &&
+        annotation.source !== 'draft' &&
+        isSupportedAnnotation(annotation)
+    )
+    .map(normalizeImportedAnnotation);
 }
 
-function renameConflictingIds(existingAnnotations, importedAnnotations) {
-  const usedIds = new Set(existingAnnotations.map((annotation) => annotation.id).filter(Boolean));
-  const importStamp = Date.now();
+function isSupportedAnnotation(annotation) {
+  const pdaType = getPdaType(annotation.type);
+  if (!pdaType) return false;
+  if (!annotation.id) return false;
 
-  return importedAnnotations.map((annotation, index) => {
-    if (!annotation.id || !usedIds.has(annotation.id)) {
-      if (annotation.id) usedIds.add(annotation.id);
-      return annotation;
+  if (pdaType.shape === 'liquidity-line') {
+    return Number.isFinite(Number(annotation.price));
+  }
+  if (pdaType.shape === 'range') {
+    return Number.isFinite(Number(annotation.topPrice ?? annotation.priceHigh)) &&
+      Number.isFinite(Number(annotation.bottomPrice ?? annotation.priceLow));
+  }
+  if (pdaType.shape === 'point-set') {
+    return Array.isArray(annotation.points) && annotation.points.length >= 2;
+  }
+  return false;
+}
+
+function normalizeImportedAnnotation(annotation) {
+  const pdaType = getPdaType(annotation.type);
+  const normalized = {
+    ...annotation,
+    source: annotation.source || 'manual',
+    contexts: Array.isArray(annotation.contexts) ? annotation.contexts.filter((context) => typeof context === 'string') : [],
+  };
+
+  if (pdaType?.shape === 'range') {
+    const topPrice = normalized.topPrice ?? normalized.priceHigh;
+    const bottomPrice = normalized.bottomPrice ?? normalized.priceLow;
+    normalized.ce = buildCePrice(topPrice, bottomPrice);
+  }
+
+  return normalized;
+}
+
+function prepareImportedAnnotations(existingAnnotations, importedAnnotations) {
+  const usedIds = new Set(existingAnnotations.map((annotation) => annotation.id).filter(Boolean));
+  const existingIdentities = new Set(existingAnnotations.map(getAnnotationIdentity));
+  const importStamp = Date.now();
+  let skippedDuplicates = 0;
+
+  const annotations = [];
+  importedAnnotations.forEach((annotation, index) => {
+    const identity = getAnnotationIdentity(annotation);
+    if (existingIdentities.has(identity)) {
+      skippedDuplicates += 1;
+      return;
     }
 
-    const nextId = `${annotation.id}-import-${importStamp}-${index + 1}`;
-    usedIds.add(nextId);
-    return {
-      ...annotation,
-      id: nextId,
-      importedFromId: annotation.id,
-      updatedAt: Date.now(),
-    };
+    let nextAnnotation = annotation;
+    if (usedIds.has(annotation.id)) {
+      const nextId = `${annotation.id}-import-${importStamp}-${index + 1}`;
+      nextAnnotation = {
+        ...annotation,
+        id: nextId,
+        importedFromId: annotation.id,
+        updatedAt: Date.now(),
+      };
+      usedIds.add(nextId);
+    } else {
+      usedIds.add(annotation.id);
+    }
+
+    existingIdentities.add(identity);
+    annotations.push(nextAnnotation);
   });
+
+  return { annotations, skippedDuplicates };
 }
 
 export function exportPdaArchive() {
@@ -126,11 +184,14 @@ export async function importPdaArchive(file) {
     validateArchivePayload(payload);
 
     const existing = getAnnotations();
-    const imported = renameConflictingIds(existing, getImportableAnnotations(payload));
+    const { annotations: imported, skippedDuplicates } = prepareImportedAnnotations(
+      existing,
+      getImportableAnnotations(payload)
+    );
     loadAnnotations([...existing, ...imported]);
 
     bus.emit('status:update', {
-      text: `已导入 ${imported.length} 条 PDA 标注`,
+      text: `已导入 ${imported.length} 条 PDA 标注${skippedDuplicates ? `，跳过 ${skippedDuplicates} 条重复标注` : ''}`,
       isError: false,
     });
   } catch (err) {

@@ -14,6 +14,15 @@ let sidebarEl = null;
 let bodyEl = null;
 const DEFAULT_LINE_EXTEND_BARS = 8;
 
+function escapeHtml(value) {
+  return String(value ?? '—')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 function formatNumber(value) {
   return Number.isFinite(Number(value)) ? Number(value).toFixed(2) : '—';
 }
@@ -39,8 +48,8 @@ function formatDateTimeMs(value) {
 function field(label, value) {
   return `
     <div class="inspector-field">
-      <div class="inspector-field-label">${label}</div>
-      <div class="inspector-field-value">${value ?? '—'}</div>
+      <div class="inspector-field-label">${escapeHtml(label)}</div>
+      <div class="inspector-field-value">${escapeHtml(value)}</div>
     </div>
   `;
 }
@@ -48,7 +57,7 @@ function field(label, value) {
 function controlField(label, controlHtml) {
   return `
     <label class="inspector-field inspector-control-field">
-      <span class="inspector-field-label">${label}</span>
+      <span class="inspector-field-label">${escapeHtml(label)}</span>
       <span class="inspector-field-value">${controlHtml}</span>
     </label>
   `;
@@ -57,7 +66,7 @@ function controlField(label, controlHtml) {
 function section(title, content) {
   return `
     <section class="inspector-section">
-      <div class="inspector-section-title">${title}</div>
+      <div class="inspector-section-title">${escapeHtml(title)}</div>
       ${content}
     </section>
   `;
@@ -70,7 +79,7 @@ function renderContexts(annotation) {
     <div class="inspector-field">
       <div class="inspector-field-label">Contexts</div>
       <div class="inspector-tags">
-        ${contexts.map((context) => `<span>${context}</span>`).join('')}
+        ${contexts.map((context) => `<span>${escapeHtml(context)}</span>`).join('')}
       </div>
     </div>
   `;
@@ -130,7 +139,7 @@ function renderEditFields(annotation) {
       ),
       controlField(
         'Note',
-        `<textarea class="inspector-textarea" data-inspector-action="note" rows="4" placeholder="Add note">${annotation.note || ''}</textarea>`
+        `<textarea class="inspector-textarea" data-inspector-action="note" rows="4" placeholder="Add note">${escapeHtml(annotation.note || '')}</textarea>`
       ),
       `<button class="inspector-danger" data-inspector-action="delete" type="button">Delete PDA</button>`,
     ].join('')
@@ -185,7 +194,7 @@ function renderRangeFields(annotation) {
       field('End', formatTime(annotation.endTimeTimestamp ?? annotation.endTime)),
       field('Direction', annotation.direction || '—'),
       controlField(
-        'CE',
+        'CE Visible',
         `<label class="inspector-toggle inspector-toggle-inline">
           <input data-inspector-action="toggle-ce" type="checkbox" ${getShowCe(annotation) ? 'checked' : ''} />
           <span>Show CE</span>
@@ -201,9 +210,9 @@ function renderPointSetFields(annotation) {
     .map(
       (point, index) => `
         <div class="inspector-point-row">
-          <span>${index + 1}</span>
-          <span>${formatTime(point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime)}</span>
-          <span>${formatNumber(point.price)}</span>
+          <span>${escapeHtml(index + 1)}</span>
+          <span>${escapeHtml(formatTime(point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime))}</span>
+          <span>${escapeHtml(formatNumber(point.price))}</span>
           <button class="inspector-mini-btn" data-inspector-action="remove-point" data-point-index="${index}" type="button">Remove</button>
         </div>
       `
@@ -231,7 +240,7 @@ function renderAnnotation(annotation) {
       field('Type', pdaType?.label || annotation.type),
       field('Shape', shape),
       field('Source', annotation.source || 'manual'),
-      field('ID', `<span class="inspector-id">${annotation.id}</span>`),
+      field('ID', annotation.id),
       renderContexts(annotation),
       field('Created', formatDateTimeMs(annotation.createdAt)),
       field('Updated', formatDateTimeMs(annotation.updatedAt)),

@@ -46,6 +46,12 @@
   - Candlestick series uses `priceFormat.minMove = 0.25`.
   - Chart `localization.priceFormatter` rounds displayed prices to the nearest NQ tick.
   - OHLC legend uses the same tick formatter.
+- Hardened archive import and Inspector rendering after review.
+  - Imported annotations now pass a minimum type/shape validation.
+  - Range annotations recompute CE on import instead of trusting archive CE values.
+  - Semantic duplicates are skipped on import instead of being re-added with renamed ids.
+  - Inspector dynamic text is HTML-escaped before `innerHTML` rendering.
+  - The CE checkbox label is now `CE Visible` to avoid duplicate `CE` field names.
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.
@@ -65,12 +71,14 @@
 
 ## Verification
 - `node --check v4/src/pda/pda-archive.js`
+- `node --check v4/src/pda/pda-store.js`
 - `node --check v4/src/price-utils.js`
 - `node --check v4/src/chart/chart-manager.js`
 - `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
 - `git diff --check`
+- Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Branch Checkpoint
 - Current branch: `feature/v4-pda-export-import`

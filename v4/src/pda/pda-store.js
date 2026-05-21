@@ -20,7 +20,7 @@ function priceKey(price) {
   return Number.isFinite(Number(price)) ? Number(price).toFixed(5) : 'na';
 }
 
-function getAnnotationIdentity(annotation) {
+export function getAnnotationIdentity(annotation) {
   if (Array.isArray(annotation.points) && annotation.points.length > 0) {
     const pointKey = annotation.points
       .map((point) =>
