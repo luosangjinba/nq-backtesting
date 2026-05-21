@@ -18,6 +18,7 @@
 - Updated `pda-renderer.js` to render `shape: point-set` annotations.
 - Updated `pda-store.js` identity handling for point-set annotations and added ID-based upsert for draft previews.
 - Added EQH/EQL registry details in `pda-types.js`.
+- Extracted the EQH/EQL selection state machine into `v4/src/pda/point-set-annotation.js` so `manual-annotation.js` remains focused on chart context-menu routing.
 - Added right-click workflow in `manual-annotation.js`:
   - `Start EQH Set`
   - `Start EQL Set`
@@ -50,6 +51,7 @@
 - `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/pda/point-set-annotation.js`
 - `node --check v4/src/pda/pda-store.js`
 - `node --check v4/src/pda/pda-types.js`
 - `git diff --check`
