@@ -17,14 +17,24 @@ function emitChanged() {
 }
 
 function priceKey(price) {
-  return Number(price).toFixed(5);
+  return Number.isFinite(Number(price)) ? Number(price).toFixed(5) : 'na';
 }
 
 function getAnnotationIdentity(annotation) {
+  const rangeKey =
+    annotation.topPrice !== undefined || annotation.bottomPrice !== undefined
+      ? [
+          priceKey(annotation.topPrice ?? annotation.priceHigh),
+          priceKey(annotation.bottomPrice ?? annotation.priceLow),
+          annotation.startTime ?? 'na',
+          annotation.endTime ?? 'na',
+        ].join(':')
+      : priceKey(annotation.price);
+
   return [
     annotation.source || 'manual',
     annotation.type,
-    priceKey(annotation.price),
+    rangeKey,
     annotation.canonicalTimestamp ?? annotation.timestamp ?? annotation.anchorTime,
   ].join(':');
 }

@@ -1,9 +1,132 @@
-// LightweightCharts v5 图元 — FVG 矩形 + BSL/SSL 流动性线
+// LightweightCharts v5 图元 — Range 矩形 + BSL/SSL 流动性线
 // v5 接口变化：ISeriesPrimitivePaneView → IPrimitivePaneView（方法签名不变）
 
 // ============================
-// FVG 矩形
+// Range 矩形
 // ==============================
+
+const RANGE_DEFAULTS = {
+  fillColor: '#ab47bc33',
+  borderColor: '#ab47bc',
+  textColor: '#d1d4dc',
+  showMidline: true,
+  showLabel: true,
+  lineWidth: 1,
+  labelFont: '11px sans-serif',
+  labelPadding: 4,
+};
+
+class RangeRenderer {
+  constructor(view) {
+    this._view = view;
+  }
+
+  draw(target) {
+    target.useBitmapCoordinateSpace((scope) => {
+      const p1 = this._view._p1;
+      const p2 = this._view._p2;
+      if (p1.x === null || p1.y === null || p2.x === null || p2.y === null) return;
+
+      const ctx = scope.context;
+      const source = this._view._source;
+      const options = source._options;
+      const hRatio = scope.horizontalPixelRatio;
+      const vRatio = scope.verticalPixelRatio;
+
+      const x = Math.min(p1.x, p2.x) * hRatio;
+      const y = Math.min(p1.y, p2.y) * vRatio;
+      const width = Math.abs(p2.x - p1.x) * hRatio;
+      const height = Math.abs(p2.y - p1.y) * vRatio;
+
+      ctx.fillStyle = options.fillColor;
+      ctx.fillRect(x, y, width, height);
+
+      ctx.strokeStyle = options.borderColor;
+      ctx.lineWidth = options.lineWidth * Math.min(hRatio, vRatio);
+      ctx.setLineDash([]);
+      ctx.strokeRect(x, y, width, height);
+
+      if (options.showMidline) {
+        const midY = y + height / 2;
+        ctx.setLineDash([5 * hRatio, 5 * hRatio]);
+        ctx.beginPath();
+        ctx.moveTo(x, midY);
+        ctx.lineTo(x + width, midY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      if (options.showLabel && source._label) {
+        const padding = options.labelPadding * vRatio;
+        ctx.fillStyle = options.textColor;
+        ctx.font = options.labelFont;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(source._label, x + width - padding, y + height / 2);
+      }
+    });
+  }
+}
+
+class RangeView {
+  constructor(source) {
+    this._source = source;
+    this._p1 = { x: null, y: null };
+    this._p2 = { x: null, y: null };
+  }
+
+  update() {
+    const series = this._source._series;
+    const chart = this._source._chart;
+    const y1 = series.priceToCoordinate(this._source._topPrice);
+    const y2 = series.priceToCoordinate(this._source._bottomPrice);
+    const timeScale = chart.timeScale();
+    const x1 = timeScale.timeToCoordinate(this._source._startTime);
+    const x2 = timeScale.timeToCoordinate(this._source._endTime);
+    this._p1 = { x: x1, y: y1 };
+    this._p2 = { x: x2, y: y2 };
+  }
+
+  renderer() {
+    return new RangeRenderer(this);
+  }
+}
+
+export class RangePrimitive {
+  constructor(chart, series, startTime, endTime, topPrice, bottomPrice, label = '', options = {}) {
+    this._chart = chart;
+    this._series = series;
+    this._startTime = startTime;
+    this._endTime = endTime;
+    this._topPrice = topPrice;
+    this._bottomPrice = bottomPrice;
+    this._label = label;
+    this._options = { ...RANGE_DEFAULTS, ...options };
+    this._view = new RangeView(this);
+    this._requestUpdate = null;
+  }
+
+  attached({ requestUpdate }) {
+    this._requestUpdate = requestUpdate;
+    this._requestUpdate?.();
+  }
+
+  detached() {
+    this._requestUpdate = null;
+  }
+
+  requestUpdate() {
+    this._requestUpdate?.();
+  }
+
+  updateAllViews() {
+    this._view.update();
+  }
+
+  paneViews() {
+    return [this._view];
+  }
+}
 
 class FvgRenderer {
   constructor(view) {
