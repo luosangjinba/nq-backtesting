@@ -42,6 +42,10 @@
   - Existing range annotations without `ce` compute it at render/Inspector time.
   - Range CE lines render at `ce.price`, not the pixel midpoint, so NQ CE is always on a 0.25 tick.
   - Inspector shows both CE and Raw CE.
+- Aligned displayed chart prices to NQ tick size.
+  - Candlestick series uses `priceFormat.minMove = 0.25`.
+  - Chart `localization.priceFormatter` rounds displayed prices to the nearest NQ tick.
+  - OHLC legend uses the same tick formatter.
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.
@@ -62,6 +66,7 @@
 ## Verification
 - `node --check v4/src/pda/pda-archive.js`
 - `node --check v4/src/price-utils.js`
+- `node --check v4/src/chart/chart-manager.js`
 - `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/ui/inspector-sidebar.js`

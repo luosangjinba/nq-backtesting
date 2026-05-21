@@ -35,3 +35,8 @@ export function buildCePrice(topPrice, bottomPrice, instrument = 'NQ', rounding 
     rounding,
   };
 }
+
+export function formatTickPrice(price, instrument = 'NQ') {
+  const rounded = roundToTick(price, getInstrumentTickSize(instrument), 'nearest');
+  return Number.isFinite(rounded) ? rounded.toFixed(2) : String(price);
+}

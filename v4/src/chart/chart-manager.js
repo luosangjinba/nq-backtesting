@@ -6,6 +6,7 @@ import {
   TIME_SCALE_DISPLAY,
   VIEWPORT_RIGHT_OFFSET_BARS,
 } from '../config.js';
+import { formatTickPrice, getInstrumentTickSize } from '../price-utils.js';
 import { VerticalLinePrimitive } from './primitives.js';
 
 let chart = null;
@@ -25,7 +26,7 @@ function updateLegend(param) {
 
   const isUp = data.close >= data.open;
   const cls = isUp ? 'ohlc-up' : 'ohlc-down';
-  const fmt = (v) => v.toFixed(2);
+  const fmt = (v) => formatTickPrice(v);
 
   legendEl.innerHTML =
     `<span class="ohlc-label">O</span><span class="ohlc-value ${cls}">${fmt(data.open)}</span>` +
@@ -47,6 +48,7 @@ export function initChart(containerId) {
       ...TIME_SCALE_DISPLAY,
     },
     localization: {
+      priceFormatter: (price) => formatTickPrice(price),
       timeFormatter: (time) => {
         const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         // 日线 time 是 "YYYY-MM-DD" 字符串
@@ -78,6 +80,11 @@ export function initChart(containerId) {
     ...CANDLESTICK_STYLE,
     lastValueVisible: true,
     priceLineVisible: true,
+    priceFormat: {
+      type: 'price',
+      precision: 2,
+      minMove: getInstrumentTickSize(),
+    },
   });
 
   // 鼠标悬停更新 OHLCV legend
