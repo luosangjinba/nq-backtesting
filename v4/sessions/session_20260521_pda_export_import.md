@@ -21,10 +21,10 @@
   - `Clear Saved PDA`
 - Archive controls are available both when no PDA is selected and when a selected PDA is shown.
 - Imported annotations go through `loadAnnotations()`, so renderer refresh and localStorage draft save are triggered by the normal `pda:changed` path.
-- Added a browser-local Inspector display toggle for PDA label text.
-  - `Show all PDA labels` controls label text visibility for non-selected liquidity lines, ranges, and EQH/EQL point sets.
-  - `Show current PDA label` independently controls the selected PDA label and takes priority for the current selection.
-  - Current PDA label visibility is hard-prioritized: selected PDA labels only read `showCurrentLabel`, while non-selected PDA labels only read `showLabels`.
+- Added a browser-local Inspector display toggle for current PDA label text.
+  - Non-selected PDA labels are shown by default.
+  - `Show current PDA label` independently controls only the selected PDA label.
+  - Current PDA label visibility is hard-prioritized: selected PDA labels only read `showCurrentLabel`.
   - The setting is persisted as `v4:pda-display-settings`.
   - The setting only changes rendering; it does not mutate annotations or export archives.
 - Removed the visible rectangle border from FVG ranges.

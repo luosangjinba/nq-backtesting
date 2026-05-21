@@ -146,10 +146,6 @@ function renderDisplaySettings() {
     'Display',
     `
       <label class="inspector-toggle">
-        <input data-inspector-action="toggle-labels" type="checkbox" ${settings.showLabels ? 'checked' : ''} />
-        <span>Show all PDA labels</span>
-      </label>
-      <label class="inspector-toggle">
         <input data-inspector-action="toggle-current-label" type="checkbox" ${settings.showCurrentLabel ? 'checked' : ''} />
         <span>Show current PDA label</span>
       </label>
@@ -304,11 +300,6 @@ function handleInspectorChange(e) {
   if (action === 'import-pda-file') {
     importPdaArchive(e.target.files?.[0]);
     e.target.value = '';
-    return;
-  }
-
-  if (action === 'toggle-labels') {
-    setPdaDisplaySettings({ showLabels: e.target.checked });
     return;
   }
 

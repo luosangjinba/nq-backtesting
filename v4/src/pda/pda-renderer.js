@@ -65,7 +65,7 @@ function isCurrentAnnotation(annotation, selection) {
 
 function shouldShowLabel(isCurrent = false, displaySettings = {}) {
   if (isCurrent) return displaySettings.showCurrentLabel !== false;
-  return displaySettings.showLabels !== false;
+  return true;
 }
 
 function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, displaySettings = {}) {

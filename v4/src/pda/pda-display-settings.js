@@ -5,7 +5,6 @@ import * as bus from '../event-bus.js';
 const STORAGE_KEY = 'v4:pda-display-settings';
 
 const defaults = {
-  showLabels: true,
   showCurrentLabel: true,
 };
 
