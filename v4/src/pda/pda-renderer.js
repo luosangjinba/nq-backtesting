@@ -88,6 +88,7 @@ function alphaColor(hexColor, alphaHex = '33') {
 
 function buildRangePrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
   const label = getAnnotationLabel(annotation, pdaType, selected);
+  const isFvg = annotation.type === 'fvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
   const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
@@ -112,9 +113,9 @@ function buildRangePrimitive(annotation, pdaType, selected = false, displaySetti
     label,
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
-      borderColor: selected ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
+      borderColor: isFvg ? 'transparent' : selected ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
       textColor: selected ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
-      lineWidth: selected ? 2 : 1,
+      lineWidth: isFvg ? 0 : selected ? 2 : 1,
       extendBars: getExtendBars(annotation, 0),
       labelFont: selected ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(selected, displaySettings),

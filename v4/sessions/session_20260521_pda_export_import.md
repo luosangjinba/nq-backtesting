@@ -26,6 +26,9 @@
   - `Show current PDA label` independently controls the selected PDA label and takes priority for the current selection.
   - The setting is persisted as `v4:pda-display-settings`.
   - The setting only changes rendering; it does not mutate annotations or export archives.
+- Removed the visible rectangle border from FVG ranges.
+  - Existing FVG annotations are forced to transparent borders by the renderer.
+  - New manual FVG annotations store `borderColor: transparent`.
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.

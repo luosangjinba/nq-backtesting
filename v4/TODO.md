@@ -120,3 +120,4 @@
 - 2026-05-21: Export PDA JSON 的范围定义为当前浏览器 PDA store 中全部非 draft PDA；不按当前屏幕可视窗口裁剪，也不导出 K 线数据、selection、hover、replay 或 viewport 状态
 - 2026-05-21: Inspector 增加 PDA 标识文字显示设置；`showLabels` 作为浏览器本地显示偏好保存，控制未选中 PDA 的标签文字，只影响渲染，不改变 annotation 数据或 export 内容
 - 2026-05-21: Inspector 增加 `showCurrentLabel` 显示偏好；当前选中 PDA 的标签由该设置独立控制，优先于 `showLabels`，便于定位侧边栏正在编辑的对象
+- 2026-05-21: FVG range 不显示矩形边框；renderer 对既有 FVG annotation 强制透明边框，新建 FVG 也写入 `borderColor: transparent`

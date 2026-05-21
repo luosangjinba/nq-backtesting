@@ -97,8 +97,8 @@ async function addManualPoint(type, bar) {
 
 function getFvgColors(direction) {
   return direction === 'bullish'
-    ? { fillColor: '#26a69a33', borderColor: '#26a69a', textColor: '#b2dfdb' }
-    : { fillColor: '#ef535033', borderColor: '#ef5350', textColor: '#ffcdd2' };
+    ? { fillColor: '#26a69a33', borderColor: 'transparent', textColor: '#b2dfdb' }
+    : { fillColor: '#ef535033', borderColor: 'transparent', textColor: '#ffcdd2' };
 }
 
 function addManualFvg(bar) {
