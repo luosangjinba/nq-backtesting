@@ -97,3 +97,12 @@
 ## Next
 - Step 21: localStorage persistence after editing semantics stabilize.
 - Consider a small undo action for the last point edit if manual grouping becomes frequent.
+
+## Persistence Decision
+- First persistence layer will be browser `localStorage`.
+- It is treated as working-draft persistence, mainly to prevent losing manual PDA work on refresh.
+- Do not create a database schema yet.
+- Do not write to DuckDB / v2 `pda_registry` from V4 in this step.
+- Do not persist draft annotations, hover state, selection state, or replay state.
+- YAML/export is reserved for future review archive workflows.
+- Database persistence is reserved for future confirmed research assets, multi-device use, statistics, and querying.
