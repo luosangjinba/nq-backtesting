@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
+import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
 import { timeframeToString } from '../config.js';
@@ -201,6 +202,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA on the chart.
     </div>
+    <button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>
   `;
 }
 
@@ -284,6 +286,11 @@ function handleInspectorClick(e) {
     deleteAnnotation(annotation.id);
     clearSelection();
     renderEmpty();
+    return;
+  }
+
+  if (action === 'clear-saved') {
+    clearSavedAnnotations();
     return;
   }
 

@@ -64,6 +64,12 @@
   - The menu shows `Add to Selected EQH/EQL`.
   - Adding rewrites the selected annotation points, recalculates reference price, and refreshes the Inspector.
   - Duplicate timestamps are rejected with a status warning.
+- Added browser-local PDA persistence:
+  - `v4/src/pda/pda-persistence.js` saves non-draft PDA annotations to `localStorage`.
+  - Storage key is `v4:pda-annotations:NQ`.
+  - App startup restores saved annotations through `loadAnnotations()`.
+  - Draft annotations, hover state, selection state, and replay state are not persisted.
+  - Inspector empty state includes `Clear Saved PDA` for clearing the browser-local draft.
 
 ## Current Behavior
 - After marking a PDA, left-click near the rendered PDA selects it.
@@ -79,15 +85,19 @@
 - Sidebar edits update the in-memory PDA store and redraw immediately.
 - EQH/EQL point removal redraws the point-set line, markers, spread, and Inspector fields immediately.
 - Appending a point to the selected EQH/EQL set keeps the same selected annotation active.
+- Manual PDA annotations survive a page refresh in the same browser profile.
+- Local persistence is a working-draft layer only, not the formal research database.
 
 ## Not Included
-- No localStorage persistence.
+- No database persistence.
+- No YAML/export workflow yet.
 
 ## Verification
 - `node --check v4/src/pda/pda-store.js`
 - `node --check v4/src/pda/pda-selection.js`
 - `node --check v4/src/pda/pda-hit-test.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/pda/pda-persistence.js`
 - `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/app.js`
@@ -95,5 +105,14 @@
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Step 21: localStorage persistence after editing semantics stabilize.
+- Design export/import or YAML review archive once local draft persistence is stable.
 - Consider a small undo action for the last point edit if manual grouping becomes frequent.
+
+## Persistence Decision
+- First persistence layer will be browser `localStorage`.
+- It is treated as working-draft persistence, mainly to prevent losing manual PDA work on refresh.
+- Do not create a database schema yet.
+- Do not write to DuckDB / v2 `pda_registry` from V4 in this step.
+- Do not persist draft annotations, hover state, selection state, or replay state.
+- YAML/export is reserved for future review archive workflows.
+- Database persistence is reserved for future confirmed research assets, multi-device use, statistics, and querying.

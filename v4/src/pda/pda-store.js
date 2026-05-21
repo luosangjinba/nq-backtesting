@@ -109,6 +109,11 @@ export function clearAnnotations() {
   emitChanged();
 }
 
+export function loadAnnotations(nextAnnotations = []) {
+  annotations = Array.isArray(nextAnnotations) ? [...nextAnnotations] : [];
+  emitChanged();
+}
+
 export function getAnnotations() {
   return [...annotations];
 }
