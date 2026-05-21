@@ -34,6 +34,16 @@
 - [x] Replay: Pick 状态下鼠标/图表提示优化
 - [x] Replay + Viewport: Replay On 切换周期后 Scroll latest 锚定当前回放切片末端
 
+### Phase 4: Inspector / PDA 编辑工作台
+- [ ] Step 14: PDA selection store + pda-store get/update/delete 接口
+- [ ] Step 15: PDA hit-test（BSL/SSL line、range rectangle、EQH/EQL point-set）
+- [ ] Step 16: 可隐藏 Inspector Sidebar，只读显示选中 PDA 信息
+- [ ] Step 17: Sidebar 基础编辑：Delete selected PDA、note、extendBars
+- [ ] Step 18: Renderer 支持 extendBars（line/range/point-set 显示延伸，不改结构事实字段）
+- [ ] Step 19: EQH/EQL 点集合编辑：点列表、删除点、少于 2 点时处理集合失效
+- [ ] Step 20: 选中态视觉反馈（高亮 selected PDA，不遮挡 K 线）
+- [ ] Step 21: localStorage 持久化（手动 PDA 刷新后恢复）
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - 手动标注刷新后丢失（后续可加 localStorage 持久化）
@@ -90,3 +100,4 @@
 - 2026-05-21: PDA 渲染按当前图表周期映射 anchor：annotation 保留 canonical timestamp，renderer 将其映射到当前 TF bucket，避免 1H 标注切到 4H/D 后因找不到原始时间而消失
 - 2026-05-21: Step 13 完成 EQH/EQL 点位集合打包：右键开始 EQH/EQL set、继续添加点、选到第 2 个点后用 draft annotation 动态预览参考虚线，完成后生成正式 `shape: point-set` annotation；EQH 参考线画在所选点最高价，EQL 参考线画在所选点最低价；renderer 使用 `PointSetPrimitive` 绘制参考虚线、集合标签和小三角点位标识，EQH 标识统一在线段上方、EQL 标识统一在线段下方，便于多个 EQH/EQL 并存时区分归属；当前只做手动集合，不做严格等高/等低自动判定或持久化
 - 2026-05-21: EQH/EQL 选点状态机已拆到 `v4/src/pda/point-set-annotation.js`，`manual-annotation.js` 只保留右键菜单路由与其他 PDA 入口
+- 2026-05-21: 下一阶段采用通用 Inspector Sidebar 方案，不做 PDA 专用弹窗；先建立 selection store + hit-test + 只读 sidebar，再逐步加入删除、extendBars、EQH/EQL 点编辑、选中态高亮和 localStorage
