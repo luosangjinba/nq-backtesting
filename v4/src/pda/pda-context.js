@@ -124,6 +124,36 @@ function getOverlappingAggregates(sourceBars, selectedBar, currentTimeframe, tar
   );
 }
 
+function aggregatePriceForType(aggregate, pdaType) {
+  return pdaType.priceField === 'high' ? aggregate.high : aggregate.low;
+}
+
+function isRepresentativeExtreme(type, selectedBar, currentTimeframe, sourceBars, aggregate, targetTimeframe) {
+  const pdaType = getPdaType(type);
+  if (!pdaType) return false;
+
+  const selectedPrice = selectedBar[pdaType.priceField];
+  const aggregatePrice = aggregatePriceForType(aggregate, pdaType);
+  if (Math.abs(selectedPrice - aggregatePrice) >= PRICE_EPSILON) return false;
+
+  if (targetTimeframe < currentTimeframe) {
+    return true;
+  }
+
+  const selectedBucketStart = getBucketStart(selectedBar.timestamp, currentTimeframe);
+  const currentTfAggregates = aggregateBars(sourceBars, currentTimeframe).filter((currentAggregate) => {
+    const currentPrice = aggregatePriceForType(currentAggregate, pdaType);
+    return (
+      currentAggregate.timestamp >= aggregate.timestamp &&
+      currentAggregate.timestamp < aggregate.endTimestamp &&
+      Math.abs(currentPrice - aggregatePrice) < PRICE_EPSILON
+    );
+  });
+  const representative = currentTfAggregates[currentTfAggregates.length - 1];
+
+  return representative?.timestamp === selectedBucketStart;
+}
+
 function findSessionWindow(timestamp) {
   const { hour, minute } = getUtcParts(timestamp);
   const minuteOfDay = hour * 60 + minute;
@@ -192,14 +222,12 @@ function getHtfContexts(type, bar, currentTimeframe, sourceBars) {
   if (!pdaType || !sourceBars.length) return [];
 
   const side = pdaType.priceField === 'high' ? 'high' : 'low';
-  const selectedPrice = bar[pdaType.priceField];
 
   return CONTEXT_TIMEFRAMES.flatMap((timeframe) => {
     const aggregates = getOverlappingAggregates(sourceBars, bar, currentTimeframe, timeframe);
-    const isExtreme = aggregates.some((aggregate) => {
-      const aggregatePrice = pdaType.priceField === 'high' ? aggregate.high : aggregate.low;
-      return Math.abs(selectedPrice - aggregatePrice) < PRICE_EPSILON;
-    });
+    const isExtreme = aggregates.some((aggregate) =>
+      isRepresentativeExtreme(type, bar, currentTimeframe, sourceBars, aggregate, timeframe)
+    );
 
     return isExtreme ? [`${timeframeToString(timeframe)} ${side}`] : [];
   });

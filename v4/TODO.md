@@ -80,3 +80,4 @@
 - 2026-05-20: PDA HTF 聚合边界与后端保持一致：15M/30M/1H 用 00:00 anchor，4H 用 02:00/06:00/10:00/14:00/18:00/22:00 anchor，D 用 CME 18:00 trading day
 - 2026-05-20: 跨 timeframe 对齐规则：以被右键选中的当前图表 K 线时间区间为准，检查所有与其重叠的目标 HTF bucket；若所选 BSL/SSL 价格等于目标 bucket high/low，则追加对应 HTF context 标签
 - 2026-05-21: PDA context 层级补齐为 1M/5M/15M/30M/1H/4H/D，完整 context 保存在 annotation 和状态栏；图上 PDA 标签只显示最高 TF context，并保留 session/midnight 等补充 context
+- 2026-05-21: PDA 跨周期 context 遇到同一 HTF bucket 内多个当前周期等高/等低点时，只取最晚出现的当前周期 bar 作为该 HTF high/low 的代表点

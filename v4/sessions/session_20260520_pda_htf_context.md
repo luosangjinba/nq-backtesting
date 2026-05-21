@@ -40,6 +40,7 @@
   - use the currently selected chart bar interval as the selection window
   - inspect every target HTF bucket that overlaps that interval
   - add `<TF> high` or `<TF> low` only when selected BSL/SSL price equals that bucket's high/low
+  - when multiple current-timeframe bars have the same HTF high/low inside one target bucket, only the latest current-timeframe bar is the representative point for that HTF context
 
 ## Verification
 - `node --check v4/src/pda/pda-context.js`
@@ -47,6 +48,7 @@
 - `node --check v4/src/pda/manual-annotation.js`
 - Node module smoke check confirmed selected points can produce full D / 4H / 1H / 30M / 15M / 5M / 1M context labels from 1M source bars.
 - Node module smoke check confirmed chart primary labels compress `D low / 4H low / ... / 1M low / NY Late Morning low` into `D low / NY Late Morning low`.
+- Node module smoke check confirmed equal highs inside one 4H/D bucket assign the higher-timeframe labels only to the latest equal-high current-timeframe bar.
 
 ## Next
 - Step 11: extend PDA renderer beyond BSL/SSL liquidity lines into rectangle/range rendering.
