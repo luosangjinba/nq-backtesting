@@ -58,6 +58,12 @@
   - EQL reference price recalculates to the lowest remaining point.
   - Context count is updated after removal.
   - If fewer than two points remain, the entire set is deleted and selection is cleared.
+- Added right-click append for selected EQH/EQL:
+  - Select a completed EQH/EQL set.
+  - Right-click another bar.
+  - The menu shows `Add to Selected EQH/EQL`.
+  - Adding rewrites the selected annotation points, recalculates reference price, and refreshes the Inspector.
+  - Duplicate timestamps are rejected with a status warning.
 
 ## Current Behavior
 - After marking a PDA, left-click near the rendered PDA selects it.
@@ -72,6 +78,7 @@
 - The selected chart PDA is visibly linked to the Inspector without adding blocking overlays.
 - Sidebar edits update the in-memory PDA store and redraw immediately.
 - EQH/EQL point removal redraws the point-set line, markers, spread, and Inspector fields immediately.
+- Appending a point to the selected EQH/EQL set keeps the same selected annotation active.
 
 ## Not Included
 - No localStorage persistence.
@@ -88,5 +95,5 @@
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Add right-click action to append a new point to the selected EQH/EQL set.
 - Step 21: localStorage persistence after editing semantics stabilize.
+- Consider a small undo action for the last point edit if manual grouping becomes frequent.

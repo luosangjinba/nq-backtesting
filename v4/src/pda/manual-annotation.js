@@ -4,7 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
-import { addAnnotation, clearAnnotations } from './pda-store.js';
+import { addAnnotation, clearAnnotations, getAnnotationById } from './pda-store.js';
 import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
 import { identifyFvg } from './fvg-identifier.js';
@@ -12,6 +12,7 @@ import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType } from './pda-types.js';
 import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
 import {
+  appendPointToPointSet,
   addPointSetPoint,
   cancelPointSet,
   clearPointSetSelection,
@@ -19,6 +20,7 @@ import {
   getPointSetSelectionSummary,
   startPointSet,
 } from './point-set-annotation.js';
+import { getSelectedPda } from './pda-selection.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -244,6 +246,13 @@ function showContextMenu(x, y, bar) {
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
   const activeSet = getPointSetSelectionSummary();
+  const selected = getSelectedPda();
+  const selectedAnnotation = selected ? getAnnotationById(selected.id) : null;
+  const selectedPdaType = selectedAnnotation ? getPdaType(selectedAnnotation.type) : null;
+  const selectedSetItem =
+    !activeSet && selectedPdaType?.pointSet
+      ? `<button class="pda-menu-item" data-pda-action="selected-pointset-add" ${disabled}>Add to Selected ${selectedPdaType.label}</button>`
+      : '';
   const pointSetItems = activeSet
     ? `
       <div class="pda-menu-title">${activeSet.label} set · ${activeSet.count} point${activeSet.count === 1 ? '' : 's'}</div>
@@ -253,6 +262,7 @@ function showContextMenu(x, y, bar) {
       <div class="pda-menu-divider"></div>
     `
     : `
+      ${selectedSetItem}
       <button class="pda-menu-item" data-pda-action="eqh-start" ${disabled}>Start EQH Set</button>
       <button class="pda-menu-item" data-pda-action="eql-start" ${disabled}>Start EQL Set</button>
       <div class="pda-menu-divider"></div>
@@ -326,6 +336,10 @@ function handleControlClick(e) {
     hideContextMenu();
   } else if (action === 'pointset-cancel') {
     cancelPointSet();
+    hideContextMenu();
+  } else if (action === 'selected-pointset-add') {
+    const selected = getSelectedPda();
+    if (selected) appendPointToPointSet(selected.id, contextMenuBar, getBarChartTime);
     hideContextMenu();
   } else if (action === 'toggle-ndog') {
     toggleTodayNdog(contextMenuBar);

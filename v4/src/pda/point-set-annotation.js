@@ -3,7 +3,13 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
-import { addAnnotation, removeAnnotation, upsertAnnotationById } from './pda-store.js';
+import {
+  addAnnotation,
+  getAnnotationById,
+  removeAnnotation,
+  updateAnnotation,
+  upsertAnnotationById,
+} from './pda-store.js';
 import { getPdaType } from './pda-types.js';
 
 const POINT_SET_DRAFT_ID = 'manual_point_set_draft';
@@ -18,6 +24,17 @@ function getPointSetColors(type) {
   return type === 'eqh'
     ? { color: '#26a69a', textColor: '#b2dfdb' }
     : { color: '#ef5350', textColor: '#ffcdd2' };
+}
+
+function buildPoint(type, bar, getBarChartTime) {
+  return {
+    anchorTime: getBarChartTime(bar),
+    canonicalTimestamp: bar.timestamp,
+    timestamp: bar.timestamp,
+    barTime: bar.time,
+    tradingDay: bar.tradingDay,
+    price: getPointSetPrice(type, bar),
+  };
 }
 
 function clearPointSetDraft() {
@@ -78,16 +95,46 @@ function addPointToSelection(type, bar, getBarChartTime) {
 
   pointSetSelectionState.points = [
     ...pointSetSelectionState.points,
-    {
-      anchorTime: getBarChartTime(bar),
-      canonicalTimestamp,
-      timestamp: bar.timestamp,
-      barTime: bar.time,
-      tradingDay: bar.tradingDay,
-      price: getPointSetPrice(type, bar),
-    },
+    buildPoint(type, bar, getBarChartTime),
   ];
   return true;
+}
+
+export function appendPointToPointSet(annotationId, bar, getBarChartTime) {
+  const annotation = getAnnotationById(annotationId);
+  const pdaType = annotation ? getPdaType(annotation.type) : null;
+  if (!annotation || !pdaType?.pointSet || !bar) return;
+
+  const exists = (annotation.points || []).some(
+    (point) => point.canonicalTimestamp === bar.timestamp || point.timestamp === bar.timestamp
+  );
+  if (exists) {
+    bus.emit('status:update', {
+      text: `${pdaType.label} 已包含该点`,
+      isError: true,
+    });
+    return;
+  }
+
+  const nextPoints = [...(annotation.points || []), buildPoint(annotation.type, bar, getBarChartTime)];
+  const nextAnnotation = buildPointSetAnnotation(annotation.type, nextPoints);
+  updateAnnotation(annotation.id, {
+    anchorTime: nextAnnotation.anchorTime,
+    canonicalTimestamp: nextAnnotation.canonicalTimestamp,
+    timestamp: nextAnnotation.timestamp,
+    price: nextAnnotation.price,
+    referencePrice: nextAnnotation.referencePrice,
+    markerPosition: nextAnnotation.markerPosition,
+    points: nextAnnotation.points,
+    contexts: nextAnnotation.contexts,
+    color: nextAnnotation.color,
+    textColor: nextAnnotation.textColor,
+  });
+
+  bus.emit('status:update', {
+    text: `${pdaType.label} 已追加点：${nextAnnotation.points.length} 个点 · line ${nextAnnotation.referencePrice.toFixed(2)}`,
+    isError: false,
+  });
 }
 
 export function getPointSetSelectionSummary() {
