@@ -61,7 +61,7 @@ function getTradingDaySessionStart(timestamp) {
   return Math.floor(date.getTime() / 1000);
 }
 
-function getBucketStart(timestamp, timeframe) {
+export function getBucketStart(timestamp, timeframe) {
   if (timeframe === 1440) {
     return getTradingDaySessionStart(timestamp);
   }

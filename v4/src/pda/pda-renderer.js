@@ -2,9 +2,10 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as store from '../data/bar-store.js';
 import { LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getAnnotations } from './pda-store.js';
-import { formatPrimaryContextLabel } from './pda-context.js';
+import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 
 let renderedPrimitives = [];
@@ -13,14 +14,41 @@ function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
 }
 
+function mapTimestampToCurrentChartTime(timestamp) {
+  if (timestamp === undefined || timestamp === null) return null;
+  if (!Number.isFinite(Number(timestamp))) return null;
+  const timeframe = store.getCurrentTimeframe();
+  const bucketStart = getBucketStart(Number(timestamp), timeframe);
+  if (timeframe === 1440) {
+    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
+    return date.toISOString().slice(0, 10);
+  }
+  return bucketStart;
+}
+
+function getPointRenderTime(annotation) {
+  return (
+    mapTimestampToCurrentChartTime(annotation.canonicalTimestamp) ??
+    mapTimestampToCurrentChartTime(annotation.timestamp) ??
+    annotation.anchorTime
+  );
+}
+
+function getRangeRenderTime(annotation, field, fallbackField) {
+  const timestamp = annotation[`${field}Timestamp`] ?? annotation[field];
+  return mapTimestampToCurrentChartTime(timestamp) ?? annotation[fallbackField] ?? annotation.anchorTime;
+}
+
 function buildLiquidityPrimitive(annotation, pdaType) {
   const contextLabel = formatPrimaryContextLabel(annotation.contexts);
   const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  const anchorTime = getPointRenderTime(annotation);
+  if (anchorTime === undefined || anchorTime === null) return null;
 
   return new LiquidityPrimitive(
     chart.getChart(),
     chart.getSeries(),
-    annotation.anchorTime,
+    anchorTime,
     annotation.price,
     pdaType.color,
     pdaType.textColor,
@@ -43,8 +71,8 @@ function buildRangePrimitive(annotation, pdaType) {
   const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
-  const startTime = annotation.startTime ?? annotation.anchorTime;
-  const endTime = annotation.endTime ?? annotation.anchorTime;
+  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
+  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
 
   if (
     startTime === undefined ||
@@ -85,6 +113,7 @@ export function renderPdaAnnotations() {
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(annotation, pdaType);
+      if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
       renderedPrimitives.push(primitive);
