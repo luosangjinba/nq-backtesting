@@ -4,6 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
+import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
@@ -56,6 +57,11 @@ function getExtendBars(annotation, fallback = 0) {
 
 function getShowCe(annotation) {
   return annotation.display?.showCe ?? annotation.showCe ?? true;
+}
+
+function getCePrice(annotation, topPrice, bottomPrice) {
+  if (Number.isFinite(Number(annotation.ce?.price))) return annotation.ce;
+  return buildCePrice(topPrice, bottomPrice);
 }
 
 function isCurrentAnnotation(annotation, selection) {
@@ -123,6 +129,8 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false) {
     return null;
   }
 
+  const ce = getCePrice(annotation, topPrice, bottomPrice);
+
   return new RangePrimitive(
     chart.getChart(),
     chart.getSeries(),
@@ -138,6 +146,7 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false) {
       textColor: isCurrent ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
       lineWidth: isFvg ? 0 : isCurrent ? 2 : 1,
       showMidline: getShowCe(annotation),
+      midlinePrice: ce?.price ?? null,
       extendBars: getExtendBars(annotation, 0),
       labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),

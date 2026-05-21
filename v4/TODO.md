@@ -122,3 +122,4 @@
 - 2026-05-21: PDA label 显示策略改为按 annotation 控制：普通 PDA 默认显示，只有被显式设置 `display.showLabel=false` 的 PDA 隐藏 label
 - 2026-05-21: FVG range 不显示矩形边框；renderer 对既有 FVG annotation 强制透明边框，新建 FVG 也写入 `borderColor: transparent`
 - 2026-05-21: Range PDA 支持在 Inspector 中显示/隐藏 CE 中间虚线；`display.showCe` 按 annotation 保存，适用于 FVG/OB/NDOG/NWOG，不影响矩形填充或 export schema
+- 2026-05-21: CE 价格按 NQ tick size 0.25 对齐：annotation 保留 `ce.raw` 数学中点和 `ce.price` 可交易价，RangePrimitive 用 `ce.price` 绘制中线，Inspector 同时显示 CE 与 Raw CE

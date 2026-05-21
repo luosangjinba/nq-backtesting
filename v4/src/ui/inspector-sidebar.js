@@ -7,6 +7,7 @@ import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
 import { timeframeToString } from '../config.js';
+import { buildCePrice } from '../price-utils.js';
 import * as store from '../data/bar-store.js';
 
 let sidebarEl = null;
@@ -103,6 +104,11 @@ function getShowLabel(annotation) {
   return annotation.display?.showLabel ?? annotation.showLabel ?? true;
 }
 
+function getCeInfo(annotation) {
+  if (annotation.ce && Number.isFinite(Number(annotation.ce.price))) return annotation.ce;
+  return buildCePrice(annotation.topPrice ?? annotation.priceHigh, annotation.bottomPrice ?? annotation.priceLow);
+}
+
 function getPointSetReference(type, points) {
   const prices = points.map((point) => Number(point.price)).filter(Number.isFinite);
   if (!prices.length) return null;
@@ -167,11 +173,14 @@ function renderPointFields(annotation) {
 }
 
 function renderRangeFields(annotation) {
+  const ce = getCeInfo(annotation);
   return section(
     'Range',
     [
       field('Top', formatNumber(annotation.topPrice ?? annotation.priceHigh)),
       field('Bottom', formatNumber(annotation.bottomPrice ?? annotation.priceLow)),
+      field('CE', ce ? `${formatNumber(ce.price)} (${ce.rounding || 'nearest'} tick)` : '—'),
+      field('Raw CE', ce ? formatNumber(ce.raw) : '—'),
       field('Start', formatTime(annotation.startTimeTimestamp ?? annotation.startTime)),
       field('End', formatTime(annotation.endTimeTimestamp ?? annotation.endTime)),
       field('Direction', annotation.direction || '—'),

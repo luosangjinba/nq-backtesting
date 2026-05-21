@@ -9,6 +9,7 @@ const RANGE_DEFAULTS = {
   fillColor: '#ab47bc33',
   borderColor: '#ab47bc',
   midlineColor: null,
+  midlinePrice: null,
   textColor: '#d1d4dc',
   showMidline: true,
   showLabel: true,
@@ -57,7 +58,7 @@ class RangeRenderer {
       }
 
       if (options.showMidline) {
-        const midY = y + height / 2;
+        const midY = this._view._midlineY === null ? y + height / 2 : this._view._midlineY * vRatio;
         ctx.strokeStyle = options.midlineColor || options.borderColor;
         ctx.lineWidth = Math.max(1, options.lineWidth) * Math.min(hRatio, vRatio);
         ctx.setLineDash([5 * hRatio, 5 * hRatio]);
@@ -85,6 +86,7 @@ class RangeView {
     this._source = source;
     this._p1 = { x: null, y: null };
     this._p2 = { x: null, y: null };
+    this._midlineY = null;
   }
 
   update() {
@@ -92,6 +94,10 @@ class RangeView {
     const chart = this._source._chart;
     const y1 = series.priceToCoordinate(this._source._topPrice);
     const y2 = series.priceToCoordinate(this._source._bottomPrice);
+    const midlineY =
+      this._source._options.midlinePrice === null
+        ? null
+        : series.priceToCoordinate(this._source._options.midlinePrice);
     const timeScale = chart.timeScale();
     const x1 = timeScale.timeToCoordinate(this._source._startTime);
     let x2 = timeScale.timeToCoordinate(this._source._endTime);
@@ -101,6 +107,7 @@ class RangeView {
     }
     this._p1 = { x: x1, y: y1 };
     this._p2 = { x: x2, y: y2 };
+    this._midlineY = midlineY;
   }
 
   renderer() {

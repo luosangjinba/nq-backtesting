@@ -36,6 +36,12 @@
   - The checkbox writes `annotation.display.showCe`.
   - CE is the range midpoint dashed line; hiding it keeps the rectangle fill and labels unchanged.
   - FVG keeps a visible CE color even though its rectangle border is transparent.
+- Added tick-aligned CE prices for NQ.
+  - `v4/src/price-utils.js` provides tick-size rounding helpers.
+  - New range annotations store `ce.raw`, `ce.price`, `ce.tickSize`, and `ce.rounding`.
+  - Existing range annotations without `ce` compute it at render/Inspector time.
+  - Range CE lines render at `ce.price`, not the pixel midpoint, so NQ CE is always on a 0.25 tick.
+  - Inspector shows both CE and Raw CE.
 
 ## Current Behavior
 - Export downloads a `.json` archive for the current browser annotations.
@@ -55,6 +61,8 @@
 
 ## Verification
 - `node --check v4/src/pda/pda-archive.js`
+- `node --check v4/src/price-utils.js`
+- `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
 - `git diff --check`

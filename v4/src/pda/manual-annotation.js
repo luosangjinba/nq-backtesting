@@ -4,6 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
+import { buildCePrice } from '../price-utils.js';
 import { addAnnotation, clearAnnotations, getAnnotationById } from './pda-store.js';
 import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
@@ -128,6 +129,7 @@ function addManualFvg(bar) {
     endTime: getBarChartTime(result.endBar),
     topPrice: result.topPrice,
     bottomPrice: result.bottomPrice,
+    ce: buildCePrice(result.topPrice, result.bottomPrice),
     contexts,
     ...colors,
   };
@@ -215,6 +217,7 @@ function addManualOb(endBar) {
     bottomPrice,
     priceHigh: topPrice,
     priceLow: bottomPrice,
+    ce: buildCePrice(topPrice, bottomPrice),
     contexts,
     ...getObColors(direction),
   };

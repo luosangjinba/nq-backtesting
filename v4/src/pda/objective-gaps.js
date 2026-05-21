@@ -1,5 +1,6 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
+import { buildCePrice } from '../price-utils.js';
 import { addAnnotation, getAnnotations, removeAnnotation } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 
@@ -120,6 +121,7 @@ function buildNdogAnnotation(anchorBar) {
       bottomPrice,
       priceHigh: topPrice,
       priceLow: bottomPrice,
+      ce: buildCePrice(topPrice, bottomPrice),
       contexts: [`${sessionDate} NDOG`],
       fillColor: '#42a5f526',
       borderColor: 'transparent',
@@ -169,6 +171,7 @@ function buildNwogAnnotation(anchorBar) {
       bottomPrice,
       priceHigh: topPrice,
       priceLow: bottomPrice,
+      ce: buildCePrice(topPrice, bottomPrice),
       contexts: [`${weekLabel} NWOG`],
       fillColor: '#7e57c226',
       borderColor: 'transparent',
