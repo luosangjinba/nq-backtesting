@@ -12,10 +12,10 @@
 - [x] Step 7: 周期切换
 
 ### Phase 2: PDA 系统
-- [ ] Step 8: PDA 类型注册表 + 当前会话 store
-- [ ] Step 9: 手动 PDA 标注入口（优先 SSL/BSL 点选）
-- [ ] Step 10: PDA context 实时计算器（HTF / session / midnight / LDN / NYAM）
-- [ ] Step 11: PDA 渲染器（线段 / 矩形 / 点位集合）
+- [x] Step 8: PDA 类型注册表 + 当前会话 store
+- [x] Step 9: 手动 PDA 标注入口（右键菜单优先 SSL/BSL）
+- [ ] Step 10: PDA context 实时计算器（已按完整交易日 intraday session 判断极值；待补 HTF 精确计算）
+- [ ] Step 11: PDA 渲染器（初版 SSL/BSL 线段；待补矩形 / 点位集合）
 - [ ] Step 12: 客观 PDA 显示/隐藏命令（NDOW/NWOG 等）
 - [ ] Step 13: EQH/EQL 点位集合打包
 
@@ -27,10 +27,12 @@
 ### Phase 3 后续增强
 - [ ] Viewport: Maximize / restore chart（预留给后续多窗口布局）
 - [ ] Viewport: 更完整的快捷键映射
+- [x] Viewport: 工具条上移并改为局部热区 hover 显示，避免遮挡时间轴
 - [x] Replay: 跳转到指定时间
 - [x] Replay: 键盘快捷键（空格播放/暂停，左右方向逐根）
 - [x] Replay: 当前回放位置视觉标记（cursor 竖线）
 - [x] Replay: Pick 状态下鼠标/图表提示优化
+- [x] Replay + Viewport: Replay On 切换周期后 Scroll latest 锚定当前回放切片末端
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -65,3 +67,11 @@
 - 2026-05-20: Pick 模式支持 hover 临时竖线，点击成功后状态栏显示 index/total + time，成功或取消后清除 preview
 - 2026-05-20: Replay 时间跳转按 UTC wall-clock timestamp 解析，避免浏览器本地时区导致跳转偏移
 - 2026-05-20: V4 PDA 改为手动标注优先，不做全量自动扫描；用户选择 PDA 后实时计算 HTF/session/midnight/LDN/NYAM 等上下文并打包标注
+- 2026-05-20: PDA 第一阶段只做当前会话内存 store，不写 DB；手动 BSL/SSL 右键标注后实时生成 current TF/session context 并用 LiquidityPrimitive 渲染
+- 2026-05-20: PDA session 划分采用 Asia / London Killzone / London Close / NY Premarket / NY Open / AM Silver Bullet / NY Late Morning / Lunch / PM Open / PM Silver Bullet / Power Hour / Post-Close / CME Break；CME Break 跳过极值判断
+- 2026-05-20: PDA context 计算区间与图表显示区间分离；右键标注时按所选 K 线所属 CME 交易日临时请求完整交易日数据，仅用于 PDA 极值计算，不改变图表显示
+- 2026-05-20: 图表 crosshair 时间格式化统一使用 UTC getter，匹配 UTC epoch 承载的美东墙钟时间，避免浏览器本地时区偏移
+- 2026-05-20: LiquidityPrimitive 接入 attached/requestUpdate，PDA 首个标注 attach 后立即重绘，不再依赖鼠标移动触发
+- 2026-05-20: Viewport 工具条上移到时间轴上方，并改为仅在工具条周围局部热区 hover 时显示
+- 2026-05-20: Viewport Scroll latest 使用 chart 当前实际 series 数据量，不再用完整 store displayBars 长度；避免 Replay On 状态下切换周期后滚到不存在的逻辑位置
+- 2026-05-20: Viewport 按钮启用状态仍以 store displayBars 判断，避免 bars:loaded 先于 chart.setData 时 active series count 为 0 导致控件变灰

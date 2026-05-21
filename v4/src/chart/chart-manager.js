@@ -13,6 +13,8 @@ let series = null;
 let legendEl = null;
 let replayCursorPrimitive = null;
 let pickPreviewPrimitive = null;
+let activeDataCount = 0;
+let activeLastTime = null;
 
 function updateLegend(param) {
   if (!legendEl || !param || !param.time || !param.seriesData) {
@@ -49,17 +51,17 @@ export function initChart(containerId) {
         const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         // 日线 time 是 "YYYY-MM-DD" 字符串
         if (typeof time === 'string') {
-          const d = new Date(time + 'T00:00:00');
-          return `${time} ${weekdays[d.getDay()]}`;
+          const d = new Date(time + 'T00:00:00Z');
+          return `${time} ${weekdays[d.getUTCDay()]}`;
         }
-        // 低周期 time 是 unix seconds
+        // 低周期 time 是 UTC epoch 承载的图表墙钟时间，必须用 UTC getter 避免浏览器时区偏移
         const dt = new Date(time * 1000);
-        const y = dt.getFullYear();
-        const m = String(dt.getMonth() + 1).padStart(2, '0');
-        const day = String(dt.getDate()).padStart(2, '0');
-        const h = String(dt.getHours()).padStart(2, '0');
-        const min = String(dt.getMinutes()).padStart(2, '0');
-        return `${y}-${m}-${day} ${h}:${min} ${weekdays[dt.getDay()]}`;
+        const y = dt.getUTCFullYear();
+        const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(dt.getUTCDate()).padStart(2, '0');
+        const h = String(dt.getUTCHours()).padStart(2, '0');
+        const min = String(dt.getUTCMinutes()).padStart(2, '0');
+        return `${y}-${m}-${day} ${h}:${min} ${weekdays[dt.getUTCDay()]}`;
       },
     },
     width: container.clientWidth,
@@ -106,11 +108,21 @@ export function getSeries() {
 export function setData(data) {
   if (!series) return;
   series.setData(data);
+  activeDataCount = data.length;
+  activeLastTime = data.length > 0 ? data[data.length - 1].time : null;
 }
 
 export function updateBar(bar) {
   if (!series) return;
   series.update(bar);
+  if (bar.time !== activeLastTime) {
+    activeDataCount += 1;
+    activeLastTime = bar.time;
+  }
+}
+
+export function getActiveDataCount() {
+  return activeDataCount;
 }
 
 export function showReplayCursor(time) {

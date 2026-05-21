@@ -70,9 +70,74 @@ html, body {
 #viewport-controls {
   position: absolute;
   left: 50%;
-  bottom: 16px;
+  bottom: 46px;
   z-index: 8;
+  padding: 14px 24px;
   transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 120ms ease;
+}
+
+#viewport-controls:hover,
+#viewport-controls:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#pda-context-menu {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.pda-menu {
+  position: absolute;
+  width: 150px;
+  padding: 4px;
+  background: rgba(19, 23, 34, 0.96);
+  border: 1px solid rgba(54, 58, 69, 0.9);
+  border-radius: 6px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+  pointer-events: auto;
+}
+
+.pda-menu-title {
+  overflow: hidden;
+  padding: 6px 8px 5px;
+  color: #787b86;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pda-menu-item {
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pda-menu-item:hover:not(:disabled) {
+  background: #1e222d;
+}
+
+.pda-menu-item:disabled {
+  color: #5b5f6b;
+  cursor: default;
+}
+
+.pda-menu-divider {
+  height: 1px;
+  margin: 4px 2px;
+  background: #2a2e39;
 }
 
 .viewport-main {

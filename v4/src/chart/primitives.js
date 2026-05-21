@@ -193,6 +193,20 @@ export class LiquidityPrimitive {
     this._position = position;
     this._options = { ...LIQUIDITY_DEFAULTS, ...options };
     this._view = new LiquidityView(this);
+    this._requestUpdate = null;
+  }
+
+  attached({ requestUpdate }) {
+    this._requestUpdate = requestUpdate;
+    this._requestUpdate?.();
+  }
+
+  detached() {
+    this._requestUpdate = null;
+  }
+
+  requestUpdate() {
+    this._requestUpdate?.();
   }
 
   updateAllViews() {

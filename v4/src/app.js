@@ -10,6 +10,8 @@ import {
   syncReplayData,
 } from './ui/replay-controls.js';
 import { initViewportControls } from './ui/viewport-controls.js';
+import { initManualAnnotation } from './pda/manual-annotation.js';
+import { initPdaRenderer } from './pda/pda-renderer.js';
 
 console.log('[V4] app.js loaded');
 
@@ -52,3 +54,8 @@ bus.on('bars:loaded', ({ bars }) => {
     `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
   );
 });
+
+// 初始化 PDA 手动标注和渲染
+initPdaRenderer();
+initManualAnnotation();
+console.log('[V4] PDA controls initialized');

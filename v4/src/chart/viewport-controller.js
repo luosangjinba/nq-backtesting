@@ -12,11 +12,11 @@ function getRange() {
 }
 
 function getDisplayCount() {
-  return store.getDisplayBars().length;
+  return chart.getActiveDataCount();
 }
 
 function hasData() {
-  return getDisplayCount() > 0;
+  return store.getDisplayBars().length > 0;
 }
 
 function applyRange(from, to) {
