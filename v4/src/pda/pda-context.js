@@ -3,7 +3,7 @@
 import { timeframeToString } from '../config.js';
 import { getPdaType } from './pda-types.js';
 
-export const CONTEXT_TIMEFRAMES = [1, 5, 15, 30, 60, 240, 1440];
+export const CONTEXT_TIMEFRAMES = [1440];
 
 export const SESSION_WINDOWS = [
   { id: 'asia', label: 'Asia Session', start: 18 * 60, end: 1 * 60 + 59, crossesMidnight: true },
@@ -24,7 +24,7 @@ export const SESSION_WINDOWS = [
 const PRICE_EPSILON = 0.0000001;
 const BASE_ANCHOR_EPOCH = 946684800; // 2000-01-01 00:00 UTC wall-clock anchor.
 const FOUR_HOUR_ANCHOR_OFFSET = 7200; // Match backend 4H bars: 02:00/06:00/.../22:00.
-const CONTEXT_LABEL_ORDER = ['D', '4H', '1H', '30M', '15M', '5M', '1M'];
+const CONTEXT_LABEL_ORDER = ['D'];
 
 function getUtcParts(timestamp) {
   const date = new Date(timestamp * 1000);
@@ -276,7 +276,7 @@ export function buildPointContexts(type, bar, timeframe, allBars = []) {
 
   const side = pdaType.priceField === 'high' ? 'high' : 'low';
   const tfLabel = timeframeToString(timeframe);
-  const contexts = new Set([`${tfLabel} ${side}`]);
+  const contexts = new Set(timeframe === 1440 ? [`${tfLabel} ${side}`] : []);
   const midnightContext = getMidnightContext(type, bar);
   const sessionExtremaContext = getSessionExtremaContext(type, bar, allBars);
   const htfContexts = getHtfContexts(type, bar, timeframe, allBars);

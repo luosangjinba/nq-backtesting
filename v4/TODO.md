@@ -14,7 +14,7 @@
 ### Phase 2: PDA 系统
 - [x] Step 8: PDA 类型注册表 + 当前会话 store
 - [x] Step 9: 手动 PDA 标注入口（右键菜单优先 SSL/BSL）
-- [x] Step 10: PDA context 实时计算器（完整交易日 1M 源数据 + 1M/5M/15M/30M/1H/4H/D 精确 TF 极值）
+- [x] Step 10: PDA context 实时计算器（完整交易日 1M 源数据 + D/session/midnight 极值 context；intraday swing 只做 advisory validation）
 - [ ] Step 11: PDA 渲染器（已加通用 range rectangle 底座和 FVG 手动识别/渲染；待接 OB/NDOW/NWOG 与点位集合）
 - [ ] Step 12: 客观 PDA 显示/隐藏命令（NDOW/NWOG 等）
 - [ ] Step 13: EQH/EQL 点位集合打包
@@ -75,12 +75,12 @@
 - 2026-05-20: Viewport 工具条上移到时间轴上方，并改为仅在工具条周围局部热区 hover 时显示
 - 2026-05-20: Viewport Scroll latest 使用 chart 当前实际 series 数据量，不再用完整 store displayBars 长度；避免 Replay On 状态下切换周期后滚到不存在的逻辑位置
 - 2026-05-20: Viewport 按钮启用状态仍以 store displayBars 判断，避免 bars:loaded 先于 chart.setData 时 active series count 为 0 导致控件变灰
-- 2026-05-20: PDA HTF context 使用完整 CME trading day 的 1M bars 作为唯一聚合源，在前端聚合 15M/30M/1H/4H/D 后判断手动点是否为对应周期 high/low
+- 2026-05-20: PDA HTF context 使用完整 CME trading day 的 1M bars 作为唯一聚合源
 - 2026-05-20: PDA HTF context 缓存键为 `instrument:source:1M:tradingDay`，例如 `NQ:source:1M:2012-01-09`
-- 2026-05-20: PDA HTF 聚合边界与后端保持一致：15M/30M/1H 用 00:00 anchor，4H 用 02:00/06:00/10:00/14:00/18:00/22:00 anchor，D 用 CME 18:00 trading day
-- 2026-05-20: 跨 timeframe 对齐规则：以被右键选中的当前图表 K 线时间区间为准，检查所有与其重叠的目标 HTF bucket；若所选 BSL/SSL 价格等于目标 bucket high/low，则追加对应 HTF context 标签
-- 2026-05-21: PDA context 层级补齐为 1M/5M/15M/30M/1H/4H/D，完整 context 保存在 annotation 和状态栏；图上 PDA 标签只显示最高 TF context，并保留 session/midnight 等补充 context
-- 2026-05-21: PDA 跨周期 context 遇到同一 HTF bucket 内多个当前周期等高/等低点时，只取最晚出现的当前周期 bar 作为该 HTF high/low 的代表点
+- 2026-05-20: PDA daily context 聚合边界使用 CME 18:00 trading day；intraday bucket high/low 不再作为 context 标签
+- 2026-05-20: 跨 timeframe 对齐规则目前只用于 D context：以被右键选中的当前图表 K 线时间区间为准，检查重叠的 daily bucket；若所选 BSL/SSL 价格等于 daily high/low，则追加 D context 标签
+- 2026-05-21: PDA context 不再显示 4H/1H/30M/15M/5M/1M bucket high/low；bucket 极值标签只保留 D 与 session/midnight，intraday 结构判断交给 advisory swing validation
+- 2026-05-21: PDA 跨周期 D context 遇到同一 daily bucket 内多个当前周期等高/等低点时，只取最晚出现的当前周期 bar 作为 D high/low 的代表点
 - 2026-05-21: 手动 PDA 标注按 source/type/price/canonicalTimestamp 归并；不同周期标注同一高/低点时合并 contexts 并更新当前图表 anchor，不重复渲染
 - 2026-05-21: Step 11.1 完成通用 RangePrimitive 底座，renderer 支持 `shape: range` 的 start/end + top/bottom rectangle；FVG/OB/NWOG/NDOW 菜单和识别逻辑后续分步接入
 - 2026-05-21: Step 11.2 完成 FVG-only 手动标注：右键 Mark FVG，按三根连续 K 线识别 FVG，成功后生成 range annotation 并用 RangePrimitive 渲染；OB/NDOW/NWOG 仍未接入
