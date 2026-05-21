@@ -7,6 +7,7 @@ import { getPdaType } from '../pda/pda-types.js';
 
 let sidebarEl = null;
 let bodyEl = null;
+const DEFAULT_LINE_EXTEND_BARS = 8;
 
 function formatNumber(value) {
   return Number.isFinite(Number(value)) ? Number(value).toFixed(2) : '—';
@@ -83,8 +84,11 @@ function getSpread(points = []) {
 }
 
 function getExtendBars(annotation) {
-  const value = annotation.display?.extendBars ?? annotation.extendBars ?? '';
-  return value === '' ? '' : Number(value);
+  const pdaType = getPdaType(annotation.type);
+  const fallback = pdaType?.shape === 'liquidity-line' ? DEFAULT_LINE_EXTEND_BARS : 0;
+  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
 function renderEditFields(annotation) {
