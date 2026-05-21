@@ -15,7 +15,7 @@
 - [x] Step 8: PDA 类型注册表 + 当前会话 store
 - [x] Step 9: 手动 PDA 标注入口（右键菜单优先 SSL/BSL）
 - [x] Step 10: PDA context 实时计算器（完整交易日 1M 源数据 + 1M/5M/15M/30M/1H/4H/D 精确 TF 极值）
-- [ ] Step 11: PDA 渲染器（已加通用 range rectangle 底座；待接 FVG/OB/NDOW/NWOG 具体入口与点位集合）
+- [ ] Step 11: PDA 渲染器（已加通用 range rectangle 底座和 FVG 手动识别/渲染；待接 OB/NDOW/NWOG 与点位集合）
 - [ ] Step 12: 客观 PDA 显示/隐藏命令（NDOW/NWOG 等）
 - [ ] Step 13: EQH/EQL 点位集合打包
 
@@ -83,3 +83,4 @@
 - 2026-05-21: PDA 跨周期 context 遇到同一 HTF bucket 内多个当前周期等高/等低点时，只取最晚出现的当前周期 bar 作为该 HTF high/low 的代表点
 - 2026-05-21: 手动 PDA 标注按 source/type/price/canonicalTimestamp 归并；不同周期标注同一高/低点时合并 contexts 并更新当前图表 anchor，不重复渲染
 - 2026-05-21: Step 11.1 完成通用 RangePrimitive 底座，renderer 支持 `shape: range` 的 start/end + top/bottom rectangle；FVG/OB/NWOG/NDOW 菜单和识别逻辑后续分步接入
+- 2026-05-21: Step 11.2 完成 FVG-only 手动标注：右键 Mark FVG，按三根连续 K 线识别 FVG，成功后生成 range annotation 并用 RangePrimitive 渲染；OB/NDOW/NWOG 仍未接入

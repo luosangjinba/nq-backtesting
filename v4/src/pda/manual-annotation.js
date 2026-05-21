@@ -3,9 +3,11 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
+import { timeframeToString } from '../config.js';
 import { addAnnotation, clearAnnotations } from './pda-store.js';
 import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
+import { identifyFvg } from './fvg-identifier.js';
 import { getPdaType } from './pda-types.js';
 
 let controlsEl = null;
@@ -76,10 +78,56 @@ async function addManualPoint(type, bar) {
   });
 }
 
+function getFvgColors(direction) {
+  return direction === 'bullish'
+    ? { fillColor: '#26a69a33', borderColor: '#26a69a', textColor: '#b2dfdb' }
+    : { fillColor: '#ef535033', borderColor: '#ef5350', textColor: '#ffcdd2' };
+}
+
+function addManualFvg(bar) {
+  const pdaType = getPdaType('fvg');
+  if (!pdaType || !bar) return;
+
+  const result = identifyFvg(store.getDisplayBars(), bar);
+  if (!result) {
+    hideContextMenu();
+    bus.emit('status:update', { text: '未识别到 FVG 结构', isError: true });
+    return;
+  }
+
+  const tfLabel = timeframeToString(store.getCurrentTimeframe());
+  const contexts = [`${tfLabel} FVG`];
+  const colors = getFvgColors(result.direction);
+  const annotation = {
+    id: `manual_fvg_${result.anchorBar.timestamp}_${Date.now()}`,
+    type: 'fvg',
+    source: 'manual',
+    direction: result.direction,
+    anchorTime: getBarChartTime(result.anchorBar),
+    canonicalTimestamp: result.anchorBar.timestamp,
+    timestamp: result.anchorBar.timestamp,
+    barTime: result.anchorBar.time,
+    startTime: getBarChartTime(result.startBar),
+    endTime: getBarChartTime(result.endBar),
+    topPrice: result.topPrice,
+    bottomPrice: result.bottomPrice,
+    contexts,
+    ...colors,
+  };
+
+  addAnnotation(annotation);
+  hideContextMenu();
+
+  bus.emit('status:update', {
+    text: `${pdaType.label}: ${result.direction} ${result.bottomPrice.toFixed(2)}-${result.topPrice.toFixed(2)} ${result.anchorBar.tradingDay || result.anchorBar.time}`,
+    isError: false,
+  });
+}
+
 function clampMenuPosition(x, y) {
   const rect = controlsEl.parentElement.getBoundingClientRect();
   const menuWidth = 150;
-  const menuHeight = 112;
+  const menuHeight = 140;
   return {
     x: Math.min(Math.max(4, x), rect.width - menuWidth - 4),
     y: Math.min(Math.max(4, y), rect.height - menuHeight - 4),
@@ -98,6 +146,7 @@ function showContextMenu(x, y, bar) {
       <div class="pda-menu-title">${timeLabel}</div>
       <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
       <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
+      <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
       <div class="pda-menu-divider"></div>
       <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
     </div>
@@ -133,6 +182,8 @@ function handleControlClick(e) {
 
   if (action === 'bsl' || action === 'ssl') {
     addManualPoint(action, contextMenuBar);
+  } else if (action === 'fvg') {
+    addManualFvg(contextMenuBar);
   } else if (action === 'clear') {
     clearAnnotations();
     hideContextMenu();
