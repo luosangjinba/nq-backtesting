@@ -26,7 +26,7 @@ function clearPointSetDraft() {
 
 function buildPointSetAnnotation(type, points, { draft = false } = {}) {
   const pdaType = getPdaType(type);
-  if (!pdaType || points.length < 2) return null;
+  if (!pdaType || points.length < 1) return null;
 
   const prices = points.map((point) => Number(point.price));
   const referencePrice = type === 'eqh' ? Math.max(...prices) : Math.min(...prices);
@@ -51,7 +51,7 @@ function buildPointSetAnnotation(type, points, { draft = false } = {}) {
 }
 
 function updatePointSetDraft() {
-  if (!pointSetSelectionState || pointSetSelectionState.points.length < 2) {
+  if (!pointSetSelectionState || pointSetSelectionState.points.length < 1) {
     clearPointSetDraft();
     return;
   }

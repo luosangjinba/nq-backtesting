@@ -127,7 +127,7 @@ function buildPointSetPrimitive(annotation, pdaType, selected = false) {
         }))
         .filter((point) => point.time !== undefined && point.time !== null && point.price !== undefined)
     : [];
-  if (points.length < 2) return null;
+  if (points.length < 1) return null;
 
   const label = getAnnotationLabel(annotation, pdaType, selected);
   const referencePrice =

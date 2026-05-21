@@ -394,14 +394,16 @@ class PointSetRenderer {
       const maxPointX = Math.max(...xs);
       const maxX = this._view._endX === null ? maxPointX : this._view._endX * hRatio;
 
-      ctx.strokeStyle = options.lineColor;
-      ctx.lineWidth = options.lineWidth * ratio;
-      ctx.setLineDash(options.lineDash.map((value) => value * hRatio));
-      ctx.beginPath();
-      ctx.moveTo(minX, y);
-      ctx.lineTo(maxX, y);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      if (points.length > 1) {
+        ctx.strokeStyle = options.lineColor;
+        ctx.lineWidth = options.lineWidth * ratio;
+        ctx.setLineDash(options.lineDash.map((value) => value * hRatio));
+        ctx.beginPath();
+        ctx.moveTo(minX, y);
+        ctx.lineTo(maxX, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
       if (options.showPointMarkers) {
         ctx.fillStyle = options.lineColor;
@@ -427,7 +429,7 @@ class PointSetRenderer {
         });
       }
 
-      if (options.showLabel && source._label) {
+      if (options.showLabel && source._label && points.length > 1) {
         ctx.fillStyle = options.textColor;
         ctx.font = options.labelFont;
         ctx.textAlign = 'right';
