@@ -143,7 +143,7 @@ function renderDisplaySettings() {
     `
       <label class="inspector-toggle">
         <input data-inspector-action="toggle-labels" type="checkbox" ${settings.showLabels ? 'checked' : ''} />
-        <span>Show PDA labels</span>
+        <span>Show all PDA labels</span>
       </label>
       <label class="inspector-toggle">
         <input data-inspector-action="toggle-current-label" type="checkbox" ${settings.showCurrentLabel ? 'checked' : ''} />

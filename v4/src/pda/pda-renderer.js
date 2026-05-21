@@ -56,7 +56,7 @@ function getExtendBars(annotation, fallback = 0) {
 }
 
 function shouldShowLabel(selected = false, displaySettings = {}) {
-  return Boolean(displaySettings.showLabels || (selected && displaySettings.showCurrentLabel));
+  return selected ? Boolean(displaySettings.showCurrentLabel) : Boolean(displaySettings.showLabels);
 }
 
 function buildLiquidityPrimitive(annotation, pdaType, selected = false, displaySettings = {}) {
