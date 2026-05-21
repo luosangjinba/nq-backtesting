@@ -4,7 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
-import { addAnnotation, clearAnnotations } from './pda-store.js';
+import { addAnnotation, clearAnnotations, removeAnnotation, upsertAnnotationById } from './pda-store.js';
 import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
 import { identifyFvg } from './fvg-identifier.js';
@@ -15,6 +15,8 @@ import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
 let controlsEl = null;
 let contextMenuBar = null;
 let obSelectionState = null;
+let pointSetSelectionState = null;
+const POINT_SET_DRAFT_ID = 'manual_point_set_draft';
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -219,10 +221,152 @@ function addManualOb(endBar) {
   });
 }
 
+function getPointSetPrice(type, bar) {
+  return type === 'eqh' ? bar.high : bar.low;
+}
+
+function getPointSetColors(type) {
+  return type === 'eqh'
+    ? { color: '#26a69a', textColor: '#b2dfdb' }
+    : { color: '#ef5350', textColor: '#ffcdd2' };
+}
+
+function clearPointSetDraft() {
+  removeAnnotation(POINT_SET_DRAFT_ID);
+}
+
+function buildPointSetAnnotation(type, points, { draft = false } = {}) {
+  const pdaType = getPdaType(type);
+  if (!pdaType || points.length < 2) return null;
+
+  const prices = points.map((point) => Number(point.price));
+  const referencePrice = type === 'eqh' ? Math.max(...prices) : Math.min(...prices);
+  const tfLabel = timeframeToString(store.getCurrentTimeframe());
+  const sortedPoints = [...points].sort((a, b) => a.canonicalTimestamp - b.canonicalTimestamp);
+
+  return {
+    id: draft ? POINT_SET_DRAFT_ID : `manual_${type}_${sortedPoints[0].canonicalTimestamp}_${Date.now()}`,
+    type,
+    source: draft ? 'draft' : 'manual',
+    draft,
+    anchorTime: sortedPoints[0].anchorTime,
+    canonicalTimestamp: sortedPoints[0].canonicalTimestamp,
+    timestamp: sortedPoints[0].timestamp,
+    price: referencePrice,
+    referencePrice,
+    markerPosition: type === 'eqh' ? 'above' : 'below',
+    points: sortedPoints,
+    contexts: [`${tfLabel} ${pdaType.label}${draft ? ' draft' : ''} (${sortedPoints.length})`],
+    ...getPointSetColors(type),
+  };
+}
+
+function updatePointSetDraft() {
+  if (!pointSetSelectionState || pointSetSelectionState.points.length < 2) {
+    clearPointSetDraft();
+    return;
+  }
+
+  const annotation = buildPointSetAnnotation(
+    pointSetSelectionState.type,
+    pointSetSelectionState.points,
+    { draft: true }
+  );
+  if (annotation) upsertAnnotationById(annotation);
+}
+
+function addPointToSelection(type, bar) {
+  if (!bar) return false;
+  if (!pointSetSelectionState || pointSetSelectionState.type !== type) {
+    pointSetSelectionState = { type, points: [] };
+  }
+
+  const canonicalTimestamp = bar.timestamp;
+  const existing = pointSetSelectionState.points.some(
+    (point) => point.canonicalTimestamp === canonicalTimestamp
+  );
+  if (existing) return false;
+
+  pointSetSelectionState.points = [
+    ...pointSetSelectionState.points,
+    {
+      anchorTime: getBarChartTime(bar),
+      canonicalTimestamp,
+      timestamp: bar.timestamp,
+      barTime: bar.time,
+      tradingDay: bar.tradingDay,
+      price: getPointSetPrice(type, bar),
+    },
+  ];
+  return true;
+}
+
+function startPointSet(type, bar) {
+  const pdaType = getPdaType(type);
+  if (!pdaType || !bar) return;
+
+  pointSetSelectionState = { type, points: [] };
+  addPointToSelection(type, bar);
+  updatePointSetDraft();
+  hideContextMenu();
+  bus.emit('status:update', {
+    text: `${pdaType.label} 集合已开始：1 个点，继续右键添加点，完成时选择 Finish ${pdaType.label}`,
+    isError: false,
+  });
+}
+
+function addPointSetPoint(type, bar) {
+  const pdaType = getPdaType(type);
+  if (!pdaType || !bar || !pointSetSelectionState || pointSetSelectionState.type !== type) return;
+
+  const added = addPointToSelection(type, bar);
+  updatePointSetDraft();
+  hideContextMenu();
+  bus.emit('status:update', {
+    text: added
+      ? `${pdaType.label} 集合已添加：${pointSetSelectionState.points.length} 个点`
+      : `${pdaType.label} 集合已包含该点`,
+    isError: !added,
+  });
+}
+
+function cancelPointSet() {
+  const label = pointSetSelectionState ? getPdaType(pointSetSelectionState.type)?.label : 'Point set';
+  pointSetSelectionState = null;
+  clearPointSetDraft();
+  hideContextMenu();
+  bus.emit('status:update', { text: `${label} 集合已取消`, isError: false });
+}
+
+function finishPointSet() {
+  if (!pointSetSelectionState) return;
+
+  const { type, points } = pointSetSelectionState;
+  const pdaType = getPdaType(type);
+  if (!pdaType || points.length < 2) {
+    hideContextMenu();
+    bus.emit('status:update', { text: 'EQH/EQL 至少需要 2 个点', isError: true });
+    return;
+  }
+
+  const prices = points.map((point) => Number(point.price));
+  const spread = Math.max(...prices) - Math.min(...prices);
+  const annotation = buildPointSetAnnotation(type, points);
+
+  clearPointSetDraft();
+  addAnnotation(annotation);
+  pointSetSelectionState = null;
+  hideContextMenu();
+  bus.emit('status:update', {
+    text: `${pdaType.label}: ${annotation.points.length} 个点 · line ${annotation.referencePrice.toFixed(2)} · spread ${spread.toFixed(2)}`,
+    isError: false,
+  });
+}
+
 function clampMenuPosition(x, y) {
   const rect = controlsEl.parentElement.getBoundingClientRect();
-  const menuWidth = 150;
-  const menuHeight = 240;
+  const menuWidth = 170;
+  const menuHeight = 360;
   return {
     x: Math.min(Math.max(4, x), rect.width - menuWidth - 4),
     y: Math.min(Math.max(4, y), rect.height - menuHeight - 4),
@@ -235,6 +379,22 @@ function showContextMenu(x, y, bar) {
   const { x: left, y: top } = clampMenuPosition(x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
+  const activeSet = pointSetSelectionState;
+  const activeSetLabel = activeSet ? getPdaType(activeSet.type)?.label : null;
+  const activeSetCount = activeSet?.points.length || 0;
+  const pointSetItems = activeSet
+    ? `
+      <div class="pda-menu-title">${activeSetLabel} set · ${activeSetCount} point${activeSetCount === 1 ? '' : 's'}</div>
+      <button class="pda-menu-item" data-pda-action="pointset-add" ${disabled}>Add ${activeSetLabel} Point</button>
+      <button class="pda-menu-item" data-pda-action="pointset-finish">Finish ${activeSetLabel}</button>
+      <button class="pda-menu-item" data-pda-action="pointset-cancel">Cancel Set</button>
+      <div class="pda-menu-divider"></div>
+    `
+    : `
+      <button class="pda-menu-item" data-pda-action="eqh-start" ${disabled}>Start EQH Set</button>
+      <button class="pda-menu-item" data-pda-action="eql-start" ${disabled}>Start EQL Set</button>
+      <div class="pda-menu-divider"></div>
+    `;
 
   controlsEl.innerHTML = `
     <div class="pda-menu" style="left: ${left}px; top: ${top}px;">
@@ -244,6 +404,8 @@ function showContextMenu(x, y, bar) {
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
+      <div class="pda-menu-divider"></div>
+      ${pointSetItems}
       <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
       <button class="pda-menu-item" data-pda-action="toggle-nwog" ${disabled}>Show/Hide This Week NWOG</button>
       <div class="pda-menu-divider"></div>
@@ -291,6 +453,14 @@ function handleControlClick(e) {
     addManualFvg(contextMenuBar);
   } else if (action === 'ob-bullish' || action === 'ob-bearish') {
     startManualOb(action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
+  } else if (action === 'eqh-start' || action === 'eql-start') {
+    startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar);
+  } else if (action === 'pointset-add') {
+    addPointSetPoint(pointSetSelectionState?.type, contextMenuBar);
+  } else if (action === 'pointset-finish') {
+    finishPointSet();
+  } else if (action === 'pointset-cancel') {
+    cancelPointSet();
   } else if (action === 'toggle-ndog') {
     toggleTodayNdog(contextMenuBar);
     hideContextMenu();
@@ -300,6 +470,8 @@ function handleControlClick(e) {
   } else if (action === 'clear') {
     clearAnnotations();
     obSelectionState = null;
+    pointSetSelectionState = null;
+    clearPointSetDraft();
     hideContextMenu();
     bus.emit('status:update', { text: 'PDA 标注已清除', isError: false });
   }
@@ -316,6 +488,10 @@ function handleKeydown(e) {
     if (obSelectionState) {
       obSelectionState = null;
       bus.emit('status:update', { text: 'OB 选择已取消', isError: false });
+    } else if (pointSetSelectionState) {
+      pointSetSelectionState = null;
+      clearPointSetDraft();
+      bus.emit('status:update', { text: 'EQH/EQL 集合已取消', isError: false });
     }
     hideContextMenu();
   }
@@ -331,10 +507,14 @@ export function initManualAnnotation() {
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', () => {
     obSelectionState = null;
+    pointSetSelectionState = null;
+    clearPointSetDraft();
     hideContextMenu();
   });
   bus.on('bars:cleared', () => {
     obSelectionState = null;
+    pointSetSelectionState = null;
+    clearPointSetDraft();
     clearPdaContextDataCache();
     hideContextMenu();
   });

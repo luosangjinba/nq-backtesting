@@ -21,6 +21,18 @@ function priceKey(price) {
 }
 
 function getAnnotationIdentity(annotation) {
+  if (Array.isArray(annotation.points) && annotation.points.length > 0) {
+    const pointKey = annotation.points
+      .map((point) =>
+        [
+          point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime ?? 'na',
+          priceKey(point.price),
+        ].join('@')
+      )
+      .join('|');
+    return [annotation.source || 'manual', annotation.type, 'point-set', pointKey].join(':');
+  }
+
   const rangeKey =
     annotation.topPrice !== undefined || annotation.bottomPrice !== undefined
       ? [
@@ -59,6 +71,19 @@ export function addAnnotation(annotation) {
   const existingIndex = annotations.findIndex(
     (existing) => getAnnotationIdentity(existing) === identity
   );
+
+  if (existingIndex >= 0) {
+    annotations = annotations.map((existing, index) =>
+      index === existingIndex ? mergeAnnotation(existing, annotation) : existing
+    );
+  } else {
+    annotations = [...annotations, { ...annotation, createdAt: Date.now(), updatedAt: Date.now() }];
+  }
+  emitChanged();
+}
+
+export function upsertAnnotationById(annotation) {
+  const existingIndex = annotations.findIndex((existing) => existing.id === annotation.id);
 
   if (existingIndex >= 0) {
     annotations = annotations.map((existing, index) =>

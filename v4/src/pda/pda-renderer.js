@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
+import { LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
@@ -100,6 +100,35 @@ function buildRangePrimitive(annotation, pdaType) {
   );
 }
 
+function buildPointSetPrimitive(annotation, pdaType) {
+  const points = Array.isArray(annotation.points)
+    ? annotation.points
+        .map((point) => ({
+          time:
+            mapTimestampToCurrentChartTime(point.canonicalTimestamp) ??
+            mapTimestampToCurrentChartTime(point.timestamp) ??
+            point.anchorTime,
+          price: point.price,
+        }))
+        .filter((point) => point.time !== undefined && point.time !== null && point.price !== undefined)
+    : [];
+  if (points.length < 2) return null;
+
+  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
+  const label = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  const referencePrice =
+    annotation.referencePrice ??
+    annotation.price ??
+    points.reduce((sum, point) => sum + Number(point.price), 0) / points.length;
+
+  return new PointSetPrimitive(chart.getChart(), chart.getSeries(), points, referencePrice, label, {
+    lineColor: annotation.color || pdaType.color,
+    textColor: annotation.textColor || pdaType.textColor || '#d1d4dc',
+    markerPosition: annotation.markerPosition || pdaType.labelPosition || 'above',
+    labelFont: '11px sans-serif',
+  });
+}
+
 export function renderPdaAnnotations() {
   clearRenderedPrimitives();
 
@@ -122,6 +151,15 @@ export function renderPdaAnnotations() {
 
     if (pdaType.shape === 'range') {
       const primitive = buildRangePrimitive(annotation, pdaType);
+      if (!primitive) return;
+      chart.attachPrimitive(primitive);
+      primitive.requestUpdate();
+      renderedPrimitives.push(primitive);
+      return;
+    }
+
+    if (pdaType.shape === 'point-set') {
+      const primitive = buildPointSetPrimitive(annotation, pdaType);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
