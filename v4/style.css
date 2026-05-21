@@ -242,6 +242,22 @@ html, body {
   background: rgba(239, 83, 80, 0.2);
 }
 
+.inspector-secondary {
+  width: 100%;
+  height: 28px;
+  border: 1px solid #363a45;
+  background: #1e222d;
+  color: #b2b5be;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-secondary:hover {
+  border-color: #787b86;
+  color: #f0f3fa;
+}
+
 .inspector-id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;

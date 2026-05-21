@@ -12,6 +12,7 @@ import {
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initManualAnnotation } from './pda/manual-annotation.js';
+import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
 import { initPdaSelection } from './pda/pda-selection.js';
 
@@ -59,6 +60,7 @@ bus.on('bars:loaded', ({ bars }) => {
 
 // 初始化 PDA 手动标注和渲染
 initPdaRenderer();
+initPdaPersistence();
 initManualAnnotation();
 initPdaSelection();
 initInspectorSidebar();
