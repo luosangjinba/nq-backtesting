@@ -277,14 +277,30 @@ html, body {
 
 .inspector-point-row {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 70px;
+  grid-template-columns: 24px minmax(0, 1fr) 60px 58px;
   gap: 6px;
+  align-items: center;
   padding: 4px 6px;
   background: #1e222d;
   border: 1px solid #2a2e39;
   border-radius: 4px;
   color: #d1d4dc;
   font-size: 11px;
+}
+
+.inspector-mini-btn {
+  height: 22px;
+  border: 1px solid #363a45;
+  background: #131722;
+  color: #b2b5be;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.inspector-mini-btn:hover {
+  border-color: #ef5350;
+  color: #ffcdd2;
 }
 
 .pda-menu {

@@ -4,6 +4,8 @@ import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
+import { timeframeToString } from '../config.js';
+import * as store from '../data/bar-store.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -91,6 +93,17 @@ function getExtendBars(annotation) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
+function getPointSetReference(type, points) {
+  const prices = points.map((point) => Number(point.price)).filter(Number.isFinite);
+  if (!prices.length) return null;
+  return type === 'eqh' ? Math.max(...prices) : Math.min(...prices);
+}
+
+function getPointSetContext(annotation, points) {
+  const pdaType = getPdaType(annotation.type);
+  return `${timeframeToString(store.getCurrentTimeframe())} ${pdaType?.label || annotation.type.toUpperCase()} (${points.length})`;
+}
+
 function renderEditFields(annotation) {
   return section(
     'Edit',
@@ -141,6 +154,7 @@ function renderPointSetFields(annotation) {
           <span>${index + 1}</span>
           <span>${formatTime(point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime)}</span>
           <span>${formatNumber(point.price)}</span>
+          <button class="inspector-mini-btn" data-inspector-action="remove-point" data-point-index="${index}" type="button">Remove</button>
         </div>
       `
     )
@@ -262,13 +276,44 @@ function handleInspectorChange(e) {
 
 function handleInspectorClick(e) {
   const action = e.target.dataset.inspectorAction;
-  if (action !== 'delete') return;
+  if (!action) return;
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
 
-  deleteAnnotation(annotation.id);
-  clearSelection();
-  renderEmpty();
+  if (action === 'delete') {
+    deleteAnnotation(annotation.id);
+    clearSelection();
+    renderEmpty();
+    return;
+  }
+
+  if (action === 'remove-point') {
+    removePointFromSet(annotation, Number(e.target.dataset.pointIndex));
+  }
+}
+
+function removePointFromSet(annotation, pointIndex) {
+  if (!Array.isArray(annotation.points) || !Number.isInteger(pointIndex)) return;
+  const nextPoints = annotation.points.filter((_, index) => index !== pointIndex);
+
+  if (nextPoints.length < 2) {
+    deleteAnnotation(annotation.id);
+    clearSelection();
+    renderEmpty();
+    bus.emit('status:update', {
+      text: `${getPdaType(annotation.type)?.label || annotation.type.toUpperCase()} 少于 2 个点，集合已删除`,
+      isError: false,
+    });
+    return;
+  }
+
+  const referencePrice = getPointSetReference(annotation.type, nextPoints);
+  updateAnnotation(annotation.id, {
+    points: nextPoints,
+    referencePrice,
+    price: referencePrice,
+    contexts: [getPointSetContext(annotation, nextPoints)],
+  });
 }
 
 export function initInspectorSidebar() {

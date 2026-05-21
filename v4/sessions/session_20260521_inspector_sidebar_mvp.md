@@ -51,6 +51,13 @@
   - EQH/EQL point-set reference lines extend visually to the right by `display.extendBars`.
   - Original structural fields such as `startTime` / `endTime` are not rewritten.
   - Hit-test uses the same extended display spans.
+- Added EQH/EQL point-set editing:
+  - Point rows in the Inspector now include `Remove`.
+  - Removing a point rewrites `annotation.points`.
+  - EQH reference price recalculates to the highest remaining point.
+  - EQL reference price recalculates to the lowest remaining point.
+  - Context count is updated after removal.
+  - If fewer than two points remain, the entire set is deleted and selection is cleared.
 
 ## Current Behavior
 - After marking a PDA, left-click near the rendered PDA selects it.
@@ -64,9 +71,9 @@
 - The sidebar does not cover the chart canvas; it pushes the chart area left by occupying layout width.
 - The selected chart PDA is visibly linked to the Inspector without adding blocking overlays.
 - Sidebar edits update the in-memory PDA store and redraw immediately.
+- EQH/EQL point removal redraws the point-set line, markers, spread, and Inspector fields immediately.
 
 ## Not Included
-- No EQH/EQL point removal yet.
 - No localStorage persistence.
 
 ## Verification
@@ -81,5 +88,5 @@
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Step 19: EQH/EQL point list editing and removal.
+- Add right-click action to append a new point to the selected EQH/EQL set.
 - Step 21: localStorage persistence after editing semantics stabilize.
