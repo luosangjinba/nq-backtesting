@@ -10,7 +10,7 @@ import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-conte
 import { identifyFvg } from './fvg-identifier.js';
 import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType } from './pda-types.js';
-import { toggleTodayNdog } from './objective-gaps.js';
+import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -222,7 +222,7 @@ function addManualOb(endBar) {
 function clampMenuPosition(x, y) {
   const rect = controlsEl.parentElement.getBoundingClientRect();
   const menuWidth = 150;
-  const menuHeight = 210;
+  const menuHeight = 240;
   return {
     x: Math.min(Math.max(4, x), rect.width - menuWidth - 4),
     y: Math.min(Math.max(4, y), rect.height - menuHeight - 4),
@@ -245,6 +245,7 @@ function showContextMenu(x, y, bar) {
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
       <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
+      <button class="pda-menu-item" data-pda-action="toggle-nwog" ${disabled}>Show/Hide This Week NWOG</button>
       <div class="pda-menu-divider"></div>
       <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
     </div>
@@ -292,6 +293,9 @@ function handleControlClick(e) {
     startManualOb(action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
   } else if (action === 'toggle-ndog') {
     toggleTodayNdog(contextMenuBar);
+    hideContextMenu();
+  } else if (action === 'toggle-nwog') {
+    toggleThisWeekNwog(contextMenuBar);
     hideContextMenu();
   } else if (action === 'clear') {
     clearAnnotations();
