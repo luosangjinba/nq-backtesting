@@ -72,7 +72,14 @@
 - `node --check v4/src/ui/inspector-sidebar.js`
 - `git diff --check`
 
+## Branch Checkpoint
+- Current branch: `feature/v4-pda-export-import`
+- Latest implementation commit: `c3d9a6b fix(v4): align displayed prices to NQ tick size`
+- Working tree has no tracked changes after the latest commit.
+- Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
+
 ## Next
+- Hand-validate export/import, per-annotation label visibility, CE visibility, and NQ 0.25 tick alignment before merging to `main`.
 - Add an explicit import mode choice if merge vs replace becomes important.
 - Add schema migration when archive `version` changes.
 - Consider YAML export after JSON schema stabilizes.

@@ -48,6 +48,7 @@
 - [x] Step 22: 设计 PDA export/import schema（包含版本、instrument、timeframe、range、annotations）
 - [x] Step 23: Export 当前 PDA store 中全部非 draft annotations 到 JSON 文件（不是只导出当前可视窗口）
 - [x] Step 24: Import PDA annotations 并处理 id 冲突、版本校验、重复标注
+- [ ] Step 25: 手工验收 export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐，然后合并回 main
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
