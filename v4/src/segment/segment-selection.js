@@ -56,7 +56,11 @@ function handleChartClick(e) {
   const y = e.clientY - rect.top;
   const hit = hitTestSegments({ x, y });
 
-  if (hit) selectSegment(hit.id);
+  if (hit) {
+    selectSegment(hit.id);
+  } else {
+    clearSegmentSelection();
+  }
 }
 
 function handleKeydown(e) {
