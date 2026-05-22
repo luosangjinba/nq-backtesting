@@ -21,7 +21,7 @@ import {
   startSegment,
 } from '../segment/manual-segment.js';
 import { getSelectedSegment } from '../segment/segment-selection.js';
-import { linkPdaResponse } from '../segment/segment-store.js';
+import { clearAllPdaResponses, linkPdaResponse } from '../segment/segment-store.js';
 import {
   appendPointToPointSet,
   addPointSetPoint,
@@ -526,6 +526,7 @@ function handleControlClick(e) {
     hideContextMenu();
   } else if (action === 'clear') {
     clearAnnotations();
+    clearAllPdaResponses();
     obSelectionState = null;
     fibSelectionState = null;
     clearPointSetSelection({ silent: true });

@@ -64,10 +64,20 @@
 - Review import merges PDA first and remaps response `pdaId` values when imported PDA ids are renamed or resolved to existing duplicates.
 - Segment import handles id conflicts, skips semantic duplicates, filters orphan PDA responses, and forces imported segment isolate state off.
 - The top toolbar has an `Archive` button that opens Inspector directly to Archive actions without selecting a PDA or segment first.
+- Inspector render code has been split into `v4/src/ui/inspector/archive-panel.js`, `pda-panel.js`, `segment-panel.js`, and `render-utils.js`; `inspector-sidebar.js` now keeps panel state and event handling.
+- Fib PDA MVP is available:
+  - Right-click `Start Fib`, then Shift + right-click the ending bar.
+  - Fib uses `type: fib` and `shape: fib-retracement`.
+  - Default levels are `1`, `0.79`, `0.705`, `0.62`, `0.5`, `0.236`, `0`.
+  - Fib supports chart rendering, hit-test selection, selected/segment-linked highlight, Inspector level prices, and PDA archive import/export.
+  - `Show current PDA label` controls Fib's left-side level value labels.
+- Right-click `Clear PDA` removes all PDA annotations and now also clears every segment's `pdaResponses`, while keeping segment objects.
 
 ## Not Included
 - No opportunity review model yet.
 - No red folder news integration.
+- No Breaker PDA yet.
+- No SMT/multi-instrument data or multi-window display yet.
 
 ## Verification
 - `node --check v4/src/app.js`
@@ -85,15 +95,23 @@
 - `node --check v4/src/segment/segment-store.js`
 - `node --check v4/src/pda/pda-archive.js`
 - `node --check v4/src/review/review-archive.js`
+- `node --check v4/src/ui/inspector/archive-panel.js`
+- `node --check v4/src/ui/inspector/pda-panel.js`
+- `node --check v4/src/ui/inspector/render-utils.js`
+- `node --check v4/src/ui/inspector/segment-panel.js`
+- `node --check v4/src/pda/pda-hit-test.js`
+- `node --check v4/src/pda/pda-store.js`
+- `node --check v4/src/pda/pda-types.js`
 - `git diff --check`
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Branch Checkpoint
-- Current branch: `feature/v4-market-segments`
-- Latest behavior commit: pending direct Archive inspector entry commit.
-- This checkpoint records the current TODO/session state after adding the toolbar Archive entry.
-- Working tree should have no tracked code changes after the direct Archive inspector entry commit.
+- Current branch: `main`
+- Latest behavior commit: `97dd415 feat(v4): add fib PDA retracement`
+- This checkpoint records the current TODO/session state after Fib PDA MVP and Clear PDA response cleanup.
+- Working tree should have no tracked code changes after the Clear PDA response cleanup commit.
 - Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
 
 ## Next
-- Start the opportunity review layer for 930 open / 950 macro / 1000-1100 silver bullet using the existing PDA + segment review bundle.
+- Add Breaker PDA as the next manual range PDA.
+- Draft SMT design before implementation because it requires ES data, multi-instrument state, and likely multi-window or synchronized chart display.

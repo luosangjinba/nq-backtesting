@@ -177,6 +177,22 @@ export function removePdaResponse(segmentId, pdaId) {
   });
 }
 
+export function clearAllPdaResponses() {
+  let changed = false;
+  segments = segments.map((segment) => {
+    const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+    if (!responses.length) return segment;
+    changed = true;
+    return {
+      ...segment,
+      pdaResponses: [],
+      updatedAt: Date.now(),
+    };
+  });
+
+  if (changed) emitChanged();
+}
+
 export function getSegments() {
   return [...segments];
 }
