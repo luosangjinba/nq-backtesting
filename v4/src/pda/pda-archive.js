@@ -106,6 +106,18 @@ function isSupportedAnnotation(annotation) {
   if (pdaType.shape === 'point-set') {
     return Array.isArray(annotation.points) && annotation.points.length >= 2;
   }
+  if (pdaType.shape === 'fib-retracement') {
+    return (
+      annotation.start &&
+      annotation.end &&
+      Number.isFinite(Number(annotation.start.price)) &&
+      Number.isFinite(Number(annotation.end.price)) &&
+      (annotation.start.timestamp || annotation.start.time) &&
+      (annotation.end.timestamp || annotation.end.time) &&
+      Array.isArray(annotation.levels) &&
+      annotation.levels.length > 0
+    );
+  }
   return false;
 }
 
@@ -121,6 +133,24 @@ function normalizeImportedAnnotation(annotation) {
     const topPrice = normalized.topPrice ?? normalized.priceHigh;
     const bottomPrice = normalized.bottomPrice ?? normalized.priceLow;
     normalized.ce = buildCePrice(topPrice, bottomPrice);
+  }
+
+  if (pdaType?.shape === 'fib-retracement') {
+    normalized.levels = Array.isArray(normalized.levels)
+      ? normalized.levels
+          .filter((level) => Number.isFinite(Number(level?.value)))
+          .map((level) => ({
+            value: Number(level.value),
+            visible: level.visible !== false,
+            color: typeof level.color === 'string' ? level.color : '#60636f',
+          }))
+      : [];
+    normalized.display = {
+      ...(normalized.display || {}),
+      showLabels: normalized.display?.showLabels ?? true,
+      showTrendLine: normalized.display?.showTrendLine ?? false,
+      extend: normalized.display?.extend || 'none',
+    };
   }
 
   return normalized;

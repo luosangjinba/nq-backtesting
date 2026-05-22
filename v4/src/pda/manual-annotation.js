@@ -37,6 +37,17 @@ let controlsEl = null;
 let contextMenuBar = null;
 let contextMenuPdaHit = null;
 let obSelectionState = null;
+let fibSelectionState = null;
+
+const DEFAULT_FIB_LEVELS = [
+  { value: 1, visible: true, color: '#60636f' },
+  { value: 0.79, visible: true, color: '#00a6b4' },
+  { value: 0.705, visible: true, color: '#ffa726' },
+  { value: 0.62, visible: true, color: '#4caf50' },
+  { value: 0.5, visible: true, color: '#ff4d5d' },
+  { value: 0.236, visible: true, color: '#ab47bc' },
+  { value: 0, visible: true, color: '#60636f' },
+];
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -180,6 +191,7 @@ function getSelectedRangeBars(startBar, endBar) {
 function startManualOb(direction, bar) {
   if (!bar) return;
 
+  fibSelectionState = null;
   obSelectionState = {
     direction,
     startBar: bar,
@@ -239,6 +251,79 @@ function addManualOb(endBar) {
 
   bus.emit('status:update', {
     text: `OB: ${direction} ${bottomPrice.toFixed(2)}-${topPrice.toFixed(2)} (${rangeBars.length}根${tfLabel})`,
+    isError: false,
+  });
+}
+
+function startManualFib(bar) {
+  if (!bar) return;
+
+  obSelectionState = null;
+  fibSelectionState = { startBar: bar };
+  hideContextMenu();
+  bus.emit('status:update', {
+    text: 'Fib 起点已选择，Shift + 右键选择终点',
+    isError: false,
+  });
+}
+
+function addManualFib(endBar) {
+  if (!fibSelectionState || !endBar) return;
+
+  const startBar = fibSelectionState.startBar;
+  const bullishMove = Math.abs(Number(endBar.high) - Number(startBar.low));
+  const bearishMove = Math.abs(Number(startBar.high) - Number(endBar.low));
+  const direction = bullishMove >= bearishMove ? 'bullish' : 'bearish';
+  const startPrice = direction === 'bullish' ? Number(startBar.low) : Number(startBar.high);
+  const endPrice = direction === 'bullish' ? Number(endBar.high) : Number(endBar.low);
+  if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice) || startBar.timestamp === endBar.timestamp) {
+    fibSelectionState = null;
+    hideContextMenu();
+    bus.emit('status:update', { text: 'Fib 选择失败：起点/终点无效', isError: true });
+    return;
+  }
+
+  const tfLabel = timeframeToString(store.getCurrentTimeframe());
+  const annotation = {
+    id: `manual_fib_${startBar.timestamp}_${endBar.timestamp}_${Date.now()}`,
+    type: 'fib',
+    source: 'manual',
+    direction,
+    anchorTime: getBarChartTime(startBar),
+    canonicalTimestamp: startBar.timestamp,
+    timestamp: startBar.timestamp,
+    barTime: startBar.time,
+    startTime: getBarChartTime(startBar),
+    endTime: getBarChartTime(endBar),
+    startTimeTimestamp: startBar.timestamp,
+    endTimeTimestamp: endBar.timestamp,
+    start: {
+      time: getBarChartTime(startBar),
+      timestamp: startBar.timestamp,
+      price: startPrice,
+      kind: direction === 'bullish' ? 'low' : 'high',
+    },
+    end: {
+      time: getBarChartTime(endBar),
+      timestamp: endBar.timestamp,
+      price: endPrice,
+      kind: direction === 'bullish' ? 'high' : 'low',
+    },
+    levels: DEFAULT_FIB_LEVELS.map((level) => ({ ...level })),
+    display: {
+      showLabels: true,
+      showTrendLine: false,
+      extend: 'none',
+    },
+    contexts: [`${tfLabel} ${direction} Fib`],
+  };
+
+  addAnnotation(annotation);
+  fibSelectionState = null;
+  hideContextMenu();
+
+  bus.emit('status:update', {
+    text: `Fib: ${direction} ${startPrice.toFixed(2)} → ${endPrice.toFixed(2)}`,
     isError: false,
   });
 }
@@ -327,6 +412,7 @@ function showContextMenu(x, y, bar, pdaHit = null) {
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
+      <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
       <div class="pda-menu-divider"></div>
       ${segmentPdaLinkItems}
       ${segmentItems}
@@ -362,6 +448,11 @@ function handleContextMenu(e) {
   const price = chart.coordinateToPrice(y);
   const pdaHit = hitTestPdaAnnotations({ x, y, time, price });
 
+  if (e.shiftKey && fibSelectionState) {
+    addManualFib(bar);
+    return;
+  }
+
   if (e.shiftKey && obSelectionState) {
     addManualOb(bar);
     return;
@@ -381,6 +472,8 @@ function handleControlClick(e) {
     addManualFvg(contextMenuBar);
   } else if (action === 'ob-bullish' || action === 'ob-bearish') {
     startManualOb(action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
+  } else if (action === 'fib-start') {
+    startManualFib(contextMenuBar);
   } else if (action === 'eqh-start' || action === 'eql-start') {
     startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime);
     hideContextMenu();
@@ -434,6 +527,7 @@ function handleControlClick(e) {
   } else if (action === 'clear') {
     clearAnnotations();
     obSelectionState = null;
+    fibSelectionState = null;
     clearPointSetSelection({ silent: true });
     hideContextMenu();
     bus.emit('status:update', { text: 'PDA 标注已清除', isError: false });
@@ -451,6 +545,9 @@ function handleKeydown(e) {
     if (obSelectionState) {
       obSelectionState = null;
       bus.emit('status:update', { text: 'OB 选择已取消', isError: false });
+    } else if (fibSelectionState) {
+      fibSelectionState = null;
+      bus.emit('status:update', { text: 'Fib 选择已取消', isError: false });
     } else if (getPointSetSelectionSummary()) {
       clearPointSetSelection();
     } else if (getSegmentSelectionSummary()) {
@@ -470,11 +567,13 @@ export function initManualAnnotation() {
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', () => {
     obSelectionState = null;
+    fibSelectionState = null;
     clearPointSetSelection({ silent: true });
     hideContextMenu();
   });
   bus.on('bars:cleared', () => {
     obSelectionState = null;
+    fibSelectionState = null;
     clearPointSetSelection({ silent: true });
     clearPdaContextDataCache();
     hideContextMenu();

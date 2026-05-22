@@ -39,6 +39,15 @@ export const PDA_TYPES = {
     objective: false,
     pointSet: false,
   },
+  fib: {
+    id: 'fib',
+    label: 'Fib',
+    shape: 'fib-retracement',
+    color: '#f0f3fa',
+    textColor: '#d1d4dc',
+    objective: false,
+    pointSet: false,
+  },
   ndog: {
     id: 'ndog',
     label: 'NDOG',

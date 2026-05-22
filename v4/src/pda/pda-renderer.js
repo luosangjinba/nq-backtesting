@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
+import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
@@ -44,6 +44,15 @@ function getPointRenderTime(annotation) {
 function getRangeRenderTime(annotation, field, fallbackField) {
   const timestamp = annotation[`${field}Timestamp`] ?? annotation[field];
   return mapTimestampToCurrentChartTime(timestamp) ?? annotation[fallbackField] ?? annotation.anchorTime;
+}
+
+function getNestedPointRenderTime(point, fallbackTime) {
+  return (
+    mapTimestampToCurrentChartTime(point?.canonicalTimestamp) ??
+    mapTimestampToCurrentChartTime(point?.timestamp) ??
+    point?.time ??
+    fallbackTime
+  );
 }
 
 function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegment = false) {
@@ -268,6 +277,50 @@ function buildPointSetPrimitive(annotation, pdaType, isCurrent = false, isLinked
   });
 }
 
+function getFibLevelPrice(annotation, levelValue) {
+  const startPrice = Number(annotation.start?.price);
+  const endPrice = Number(annotation.end?.price);
+  if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice)) return null;
+  return endPrice - (endPrice - startPrice) * Number(levelValue);
+}
+
+function buildFibPrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
+  const start = annotation.start || {};
+  const end = annotation.end || {};
+  const startTime = getNestedPointRenderTime(start, annotation.startTime);
+  const endTime = getNestedPointRenderTime(end, annotation.endTime);
+  const startPrice = Number(start.price);
+  const endPrice = Number(end.price);
+  if (startTime === undefined || startTime === null || endTime === undefined || endTime === null) return null;
+  if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice)) return null;
+
+  const levels = Array.isArray(annotation.levels)
+    ? annotation.levels
+        .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
+        .map((level) => ({
+          value: level.value,
+          price: getFibLevelPrice(annotation, level.value),
+          color: getHighlightColor(isCurrent, isLinkedToSegment, level.color || pdaType.color),
+        }))
+        .filter((level) => Number.isFinite(Number(level.price)))
+    : [];
+  if (!levels.length) return null;
+
+  return new FibPrimitive(chart.getChart(), chart.getSeries(), startTime, startPrice, endTime, endPrice, levels, {
+    lineColor: getHighlightColor(isCurrent, isLinkedToSegment, annotation.color || pdaType.color),
+    textColor: getHighlightColor(
+      isCurrent,
+      isLinkedToSegment,
+      annotation.textColor || pdaType.textColor || '#d1d4dc'
+    ),
+    lineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
+    showLabels: annotation.display?.showLabel ?? annotation.display?.showLabels ?? true,
+    showTrendLine: annotation.display?.showTrendLine ?? false,
+    trendLineColor: getHighlightColor(isCurrent, isLinkedToSegment, annotation.trendLineColor || '#787b86'),
+    trendLineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
+  });
+}
+
 export function renderPdaAnnotations() {
   clearRenderedPrimitives();
 
@@ -305,6 +358,15 @@ export function renderPdaAnnotations() {
 
     if (pdaType.shape === 'point-set') {
       const primitive = buildPointSetPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
+      if (!primitive) return;
+      chart.attachPrimitive(primitive);
+      primitive.requestUpdate();
+      renderedPrimitives.push(primitive);
+      return;
+    }
+
+    if (pdaType.shape === 'fib-retracement') {
+      const primitive = buildFibPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();

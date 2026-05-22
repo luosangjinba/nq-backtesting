@@ -33,6 +33,17 @@ export function getAnnotationIdentity(annotation) {
     return [annotation.source || 'manual', annotation.type, 'point-set', pointKey].join(':');
   }
 
+  if (annotation.type === 'fib' && annotation.start && annotation.end) {
+    return [
+      annotation.source || 'manual',
+      annotation.type,
+      annotation.start.timestamp ?? annotation.start.time ?? 'na',
+      priceKey(annotation.start.price),
+      annotation.end.timestamp ?? annotation.end.time ?? 'na',
+      priceKey(annotation.end.price),
+    ].join(':');
+  }
+
   const rangeKey =
     annotation.topPrice !== undefined || annotation.bottomPrice !== undefined
       ? [

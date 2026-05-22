@@ -184,6 +184,44 @@ function hitPointSet(annotation, x, y) {
   };
 }
 
+function getFibLevelPrice(annotation, levelValue) {
+  const startPrice = Number(annotation.start?.price);
+  const endPrice = Number(annotation.end?.price);
+  if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice)) return null;
+  return endPrice - (endPrice - startPrice) * Number(levelValue);
+}
+
+function hitFib(annotation, x, y) {
+  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
+  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
+  const startX = getTimeCoordinate(startTime);
+  const endX = getTimeCoordinate(endTime);
+  if (startX === null || endX === null) return null;
+
+  const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
+  const visibleLevels = levels
+    .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
+    .map((level) => ({
+      value: level.value,
+      y: getPriceCoordinate(getFibLevelPrice(annotation, level.value)),
+    }))
+    .filter((level) => level.y !== null);
+
+  if (!visibleLevels.length || !between(x, startX, endX, LINE_TOLERANCE_PX)) return null;
+
+  const nearest = visibleLevels
+    .map((level) => ({ ...level, distance: Math.abs(y - level.y) }))
+    .sort((a, b) => a.distance - b.distance)[0];
+  if (!nearest || nearest.distance > LINE_TOLERANCE_PX) return null;
+
+  return {
+    id: annotation.id,
+    type: annotation.type,
+    distance: nearest.distance,
+    reason: 'fib-level',
+  };
+}
+
 export function hitTestPdaAnnotations({ x, y }) {
   const hits = [];
 
@@ -196,6 +234,7 @@ export function hitTestPdaAnnotations({ x, y }) {
     if (pdaType.shape === 'liquidity-line') hit = hitLiquidity(annotation, x, y);
     if (pdaType.shape === 'range') hit = hitRange(annotation, x, y);
     if (pdaType.shape === 'point-set') hit = hitPointSet(annotation, x, y);
+    if (pdaType.shape === 'fib-retracement') hit = hitFib(annotation, x, y);
     if (hit) hits.push(hit);
   });
 

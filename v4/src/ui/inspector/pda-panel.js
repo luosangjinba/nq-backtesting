@@ -52,6 +52,9 @@ function getShowCe(annotation) {
 }
 
 function getShowLabel(annotation) {
+  if (annotation.type === 'fib') {
+    return annotation.display?.showLabel ?? annotation.display?.showLabels ?? annotation.showLabel ?? true;
+  }
   return annotation.display?.showLabel ?? annotation.showLabel ?? true;
 }
 
@@ -160,6 +163,39 @@ function renderPointSetFields(annotation) {
   );
 }
 
+function getFibLevelPrice(annotation, levelValue) {
+  const startPrice = Number(annotation.start?.price);
+  const endPrice = Number(annotation.end?.price);
+  if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice)) return null;
+  return endPrice - (endPrice - startPrice) * Number(levelValue);
+}
+
+function renderFibFields(annotation) {
+  const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
+  const rows = levels
+    .filter((level) => level?.visible !== false)
+    .map(
+      (level) => `
+        <div class="inspector-point-row">
+          <span>${escapeHtml(level.value)}</span>
+          <span>${escapeHtml(formatNumber(getFibLevelPrice(annotation, level.value)))}</span>
+          <span>${escapeHtml(level.color || '—')}</span>
+        </div>
+      `
+    )
+    .join('');
+
+  return section(
+    'Fib',
+    [
+      field('Direction', annotation.direction || '—'),
+      field('Start', `${formatTime(annotation.start?.timestamp ?? annotation.start?.time)} @ ${formatNumber(annotation.start?.price)}`),
+      field('End', `${formatTime(annotation.end?.timestamp ?? annotation.end?.time)} @ ${formatNumber(annotation.end?.price)}`),
+      `<div class="inspector-point-list">${rows || '<div class="inspector-empty">No levels</div>'}</div>`,
+    ].join('')
+  );
+}
+
 export function renderAnnotationPanel(annotation, archiveActionsHtml = '') {
   const pdaType = getPdaType(annotation.type);
   const shape = pdaType?.shape || 'unknown';
@@ -181,6 +217,7 @@ export function renderAnnotationPanel(annotation, archiveActionsHtml = '') {
   if (shape === 'liquidity-line') detail = renderPointFields(annotation);
   if (shape === 'range') detail = renderRangeFields(annotation);
   if (shape === 'point-set') detail = renderPointSetFields(annotation);
+  if (shape === 'fib-retracement') detail = renderFibFields(annotation);
 
   return common + detail + renderEditFields(annotation) + renderDisplaySettings(annotation) + archiveActionsHtml;
 }
