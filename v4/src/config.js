@@ -67,6 +67,12 @@ export const TIME_SCALE_DISPLAY = {
 
 export const VIEWPORT_RIGHT_OFFSET_BARS = 7;
 
+export const INSTRUMENT_CONFIG = {
+  NQ: {
+    tickSize: 0.25,
+  },
+};
+
 export const PDA_TYPES = [
   { id: 'bsl', name: 'BSL', category: 'point', color: '#26a69a', labelPosition: 'above' },
   { id: 'ssl', name: 'SSL', category: 'point', color: '#ef5350', labelPosition: 'below' },

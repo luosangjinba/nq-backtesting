@@ -2,15 +2,26 @@
 
 import * as bus from '../event-bus.js';
 import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
+import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
 import { timeframeToString } from '../config.js';
+import { buildCePrice } from '../price-utils.js';
 import * as store from '../data/bar-store.js';
 
 let sidebarEl = null;
 let bodyEl = null;
 const DEFAULT_LINE_EXTEND_BARS = 8;
+
+function escapeHtml(value) {
+  return String(value ?? '—')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
 
 function formatNumber(value) {
   return Number.isFinite(Number(value)) ? Number(value).toFixed(2) : '—';
@@ -37,8 +48,8 @@ function formatDateTimeMs(value) {
 function field(label, value) {
   return `
     <div class="inspector-field">
-      <div class="inspector-field-label">${label}</div>
-      <div class="inspector-field-value">${value ?? '—'}</div>
+      <div class="inspector-field-label">${escapeHtml(label)}</div>
+      <div class="inspector-field-value">${escapeHtml(value)}</div>
     </div>
   `;
 }
@@ -46,7 +57,7 @@ function field(label, value) {
 function controlField(label, controlHtml) {
   return `
     <label class="inspector-field inspector-control-field">
-      <span class="inspector-field-label">${label}</span>
+      <span class="inspector-field-label">${escapeHtml(label)}</span>
       <span class="inspector-field-value">${controlHtml}</span>
     </label>
   `;
@@ -55,7 +66,7 @@ function controlField(label, controlHtml) {
 function section(title, content) {
   return `
     <section class="inspector-section">
-      <div class="inspector-section-title">${title}</div>
+      <div class="inspector-section-title">${escapeHtml(title)}</div>
       ${content}
     </section>
   `;
@@ -68,7 +79,7 @@ function renderContexts(annotation) {
     <div class="inspector-field">
       <div class="inspector-field-label">Contexts</div>
       <div class="inspector-tags">
-        ${contexts.map((context) => `<span>${context}</span>`).join('')}
+        ${contexts.map((context) => `<span>${escapeHtml(context)}</span>`).join('')}
       </div>
     </div>
   `;
@@ -94,6 +105,19 @@ function getExtendBars(annotation) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
+function getShowCe(annotation) {
+  return annotation.display?.showCe ?? annotation.showCe ?? true;
+}
+
+function getShowLabel(annotation) {
+  return annotation.display?.showLabel ?? annotation.showLabel ?? true;
+}
+
+function getCeInfo(annotation) {
+  if (annotation.ce && Number.isFinite(Number(annotation.ce.price))) return annotation.ce;
+  return buildCePrice(annotation.topPrice ?? annotation.priceHigh, annotation.bottomPrice ?? annotation.priceLow);
+}
+
 function getPointSetReference(type, points) {
   const prices = points.map((point) => Number(point.price)).filter(Number.isFinite);
   if (!prices.length) return null;
@@ -115,10 +139,34 @@ function renderEditFields(annotation) {
       ),
       controlField(
         'Note',
-        `<textarea class="inspector-textarea" data-inspector-action="note" rows="4" placeholder="Add note">${annotation.note || ''}</textarea>`
+        `<textarea class="inspector-textarea" data-inspector-action="note" rows="4" placeholder="Add note">${escapeHtml(annotation.note || '')}</textarea>`
       ),
       `<button class="inspector-danger" data-inspector-action="delete" type="button">Delete PDA</button>`,
     ].join('')
+  );
+}
+
+function renderArchiveActions() {
+  return section(
+    'Archive',
+    [
+      `<button class="inspector-secondary" data-inspector-action="export-pda" type="button">Export PDA JSON</button>`,
+      `<button class="inspector-secondary" data-inspector-action="import-pda" type="button">Import PDA JSON</button>`,
+      `<button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>`,
+      `<input class="inspector-file-input" data-inspector-action="import-pda-file" type="file" accept="application/json,.json" />`,
+    ].join('')
+  );
+}
+
+function renderDisplaySettings(annotation) {
+  return section(
+    'Display',
+    `
+      <label class="inspector-toggle">
+        <input data-inspector-action="toggle-current-label" type="checkbox" ${getShowLabel(annotation) ? 'checked' : ''} />
+        <span>Show current PDA label</span>
+      </label>
+    `
   );
 }
 
@@ -134,14 +182,24 @@ function renderPointFields(annotation) {
 }
 
 function renderRangeFields(annotation) {
+  const ce = getCeInfo(annotation);
   return section(
     'Range',
     [
       field('Top', formatNumber(annotation.topPrice ?? annotation.priceHigh)),
       field('Bottom', formatNumber(annotation.bottomPrice ?? annotation.priceLow)),
+      field('CE', ce ? `${formatNumber(ce.price)} (${ce.rounding || 'nearest'} tick)` : '—'),
+      field('Raw CE', ce ? formatNumber(ce.raw) : '—'),
       field('Start', formatTime(annotation.startTimeTimestamp ?? annotation.startTime)),
       field('End', formatTime(annotation.endTimeTimestamp ?? annotation.endTime)),
       field('Direction', annotation.direction || '—'),
+      controlField(
+        'CE Visible',
+        `<label class="inspector-toggle inspector-toggle-inline">
+          <input data-inspector-action="toggle-ce" type="checkbox" ${getShowCe(annotation) ? 'checked' : ''} />
+          <span>Show CE</span>
+        </label>`
+      ),
     ].join('')
   );
 }
@@ -152,9 +210,9 @@ function renderPointSetFields(annotation) {
     .map(
       (point, index) => `
         <div class="inspector-point-row">
-          <span>${index + 1}</span>
-          <span>${formatTime(point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime)}</span>
-          <span>${formatNumber(point.price)}</span>
+          <span>${escapeHtml(index + 1)}</span>
+          <span>${escapeHtml(formatTime(point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime))}</span>
+          <span>${escapeHtml(formatNumber(point.price))}</span>
           <button class="inspector-mini-btn" data-inspector-action="remove-point" data-point-index="${index}" type="button">Remove</button>
         </div>
       `
@@ -182,7 +240,7 @@ function renderAnnotation(annotation) {
       field('Type', pdaType?.label || annotation.type),
       field('Shape', shape),
       field('Source', annotation.source || 'manual'),
-      field('ID', `<span class="inspector-id">${annotation.id}</span>`),
+      field('ID', annotation.id),
       renderContexts(annotation),
       field('Created', formatDateTimeMs(annotation.createdAt)),
       field('Updated', formatDateTimeMs(annotation.updatedAt)),
@@ -194,7 +252,8 @@ function renderAnnotation(annotation) {
   if (shape === 'range') detail = renderRangeFields(annotation);
   if (shape === 'point-set') detail = renderPointSetFields(annotation);
 
-  bodyEl.innerHTML = common + detail + renderEditFields(annotation);
+  bodyEl.innerHTML =
+    common + detail + renderEditFields(annotation) + renderDisplaySettings(annotation) + renderArchiveActions();
 }
 
 function renderEmpty() {
@@ -202,7 +261,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA on the chart.
     </div>
-    <button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>
+    ${renderArchiveActions()}
   `;
 }
 
@@ -256,8 +315,25 @@ function getCurrentAnnotation() {
 function handleInspectorChange(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
+
+  if (action === 'import-pda-file') {
+    importPdaArchive(e.target.files?.[0]);
+    e.target.value = '';
+    return;
+  }
+
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
+
+  if (action === 'toggle-current-label') {
+    updateAnnotation(annotation.id, {
+      display: {
+        ...(annotation.display || {}),
+        showLabel: e.target.checked,
+      },
+    });
+    return;
+  }
 
   if (action === 'extend-bars') {
     const parsed = Number(e.target.value);
@@ -273,12 +349,38 @@ function handleInspectorChange(e) {
 
   if (action === 'note') {
     updateAnnotation(annotation.id, { note: e.target.value });
+    return;
+  }
+
+  if (action === 'toggle-ce') {
+    updateAnnotation(annotation.id, {
+      display: {
+        ...(annotation.display || {}),
+        showCe: e.target.checked,
+      },
+    });
   }
 }
 
 function handleInspectorClick(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
+
+  if (action === 'export-pda') {
+    exportPdaArchive();
+    return;
+  }
+
+  if (action === 'import-pda') {
+    bodyEl?.querySelector('[data-inspector-action="import-pda-file"]')?.click();
+    return;
+  }
+
+  if (action === 'clear-saved') {
+    clearSavedAnnotations();
+    return;
+  }
+
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
 
@@ -286,11 +388,6 @@ function handleInspectorClick(e) {
     deleteAnnotation(annotation.id);
     clearSelection();
     renderEmpty();
-    return;
-  }
-
-  if (action === 'clear-saved') {
-    clearSavedAnnotations();
     return;
   }
 
