@@ -71,6 +71,30 @@ export function updateSegment(id, patch = {}) {
   return updated;
 }
 
+export function linkPdaResponse(segmentId, pdaResponse) {
+  if (!segmentId || !pdaResponse?.pdaId) return null;
+  const segment = getSegmentById(segmentId);
+  if (!segment) return null;
+
+  const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+  const nextResponse = {
+    pdaId: pdaResponse.pdaId,
+    pdaType: pdaResponse.pdaType || 'unknown',
+    relation: pdaResponse.relation || 'approached',
+    note: pdaResponse.note || '',
+    linkedAt: Date.now(),
+  };
+  const existingIndex = responses.findIndex((response) => response.pdaId === nextResponse.pdaId);
+  const nextResponses =
+    existingIndex >= 0
+      ? responses.map((response, index) =>
+          index === existingIndex ? { ...response, ...nextResponse } : response
+        )
+      : [...responses, nextResponse];
+
+  return updateSegment(segmentId, { pdaResponses: nextResponses });
+}
+
 export function getSegments() {
   return [...segments];
 }

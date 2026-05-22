@@ -11,6 +11,7 @@ import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-conte
 import { identifyFvg } from './fvg-identifier.js';
 import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType } from './pda-types.js';
+import { hitTestPdaAnnotations } from './pda-hit-test.js';
 import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
 import {
   cancelSegmentSelection,
@@ -19,6 +20,8 @@ import {
   getSegmentSelectionSummary,
   startSegment,
 } from '../segment/manual-segment.js';
+import { getSelectedSegment } from '../segment/segment-selection.js';
+import { linkPdaResponse } from '../segment/segment-store.js';
 import {
   appendPointToPointSet,
   addPointSetPoint,
@@ -32,6 +35,7 @@ import { getSelectedPda } from './pda-selection.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
+let contextMenuPdaHit = null;
 let obSelectionState = null;
 
 function normalizeTimeKey(time) {
@@ -249,9 +253,32 @@ function clampMenuPosition(x, y) {
   };
 }
 
-function showContextMenu(x, y, bar) {
+function getPdaLabel(annotation) {
+  if (!annotation) return 'PDA';
+  return getPdaType(annotation.type)?.label || annotation.type?.toUpperCase() || 'PDA';
+}
+
+function getSegmentPdaLinkItems(pdaHit) {
+  const selectedSegment = getSelectedSegment();
+  if (!selectedSegment || !pdaHit) return '';
+
+  const annotation = getAnnotationById(pdaHit.id);
+  const pdaLabel = getPdaLabel(annotation);
+  return `
+    <div class="pda-menu-title">Link ${pdaLabel} to selected segment</div>
+    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="respected">Respected</button>
+    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="swept">Swept</button>
+    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="approached">Approached</button>
+    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="rejected">Rejected</button>
+    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="delivered-through">Delivered Through</button>
+    <div class="pda-menu-divider"></div>
+  `;
+}
+
+function showContextMenu(x, y, bar, pdaHit = null) {
   if (!controlsEl) return;
   contextMenuBar = bar;
+  contextMenuPdaHit = pdaHit;
   const { x: left, y: top } = clampMenuPosition(x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
@@ -260,6 +287,7 @@ function showContextMenu(x, y, bar) {
   const selected = getSelectedPda();
   const selectedAnnotation = selected ? getAnnotationById(selected.id) : null;
   const selectedPdaType = selectedAnnotation ? getPdaType(selectedAnnotation.type) : null;
+  const segmentPdaLinkItems = getSegmentPdaLinkItems(pdaHit);
   const selectedSetItem =
     !activeSet && selectedPdaType?.pointSet
       ? `<button class="pda-menu-item" data-pda-action="selected-pointset-add" ${disabled}>Add to Selected ${selectedPdaType.label}</button>`
@@ -300,6 +328,7 @@ function showContextMenu(x, y, bar) {
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
       <div class="pda-menu-divider"></div>
+      ${segmentPdaLinkItems}
       ${segmentItems}
       ${pointSetItems}
       <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
@@ -312,6 +341,7 @@ function showContextMenu(x, y, bar) {
 
 function hideContextMenu() {
   contextMenuBar = null;
+  contextMenuPdaHit = null;
   if (controlsEl) {
     controlsEl.innerHTML = '';
   }
@@ -329,13 +359,15 @@ function handleContextMenu(e) {
   const y = e.clientY - rect.top;
   const time = chart.coordinateToTime(x);
   const bar = findDisplayBar(time);
+  const price = chart.coordinateToPrice(y);
+  const pdaHit = hitTestPdaAnnotations({ x, y, time, price });
 
   if (e.shiftKey && obSelectionState) {
     addManualOb(bar);
     return;
   }
 
-  showContextMenu(x, y, bar);
+  showContextMenu(x, y, bar, pdaHit);
 }
 
 function handleControlClick(e) {
@@ -376,6 +408,22 @@ function handleControlClick(e) {
     hideContextMenu();
   } else if (action === 'segment-clear') {
     clearManualSegments();
+    hideContextMenu();
+  } else if (action === 'segment-link-pda') {
+    const selectedSegment = getSelectedSegment();
+    const annotation = contextMenuPdaHit ? getAnnotationById(contextMenuPdaHit.id) : null;
+    const relation = e.target.closest('[data-relation]')?.dataset.relation;
+    if (selectedSegment && annotation && relation) {
+      linkPdaResponse(selectedSegment.id, {
+        pdaId: annotation.id,
+        pdaType: annotation.type,
+        relation,
+      });
+      bus.emit('status:update', {
+        text: `${getPdaLabel(annotation)} linked to selected segment as ${relation}`,
+        isError: false,
+      });
+    }
     hideContextMenu();
   } else if (action === 'toggle-ndog') {
     toggleTodayNdog(contextMenuBar);

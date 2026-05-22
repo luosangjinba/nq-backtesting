@@ -56,7 +56,7 @@
 - [x] Step 28: 手动创建 1H 行情段（右键起点/终点）
 - [x] Step 29: Segment hit-test + selection
 - [x] Step 30: Inspector 显示/编辑 segment narrative、tags、起终点信息
-- [ ] Step 31: Segment 与 PDA 手动关联，并记录 respected/swept/approached/rejected/delivered-through
+- [x] Step 31: Segment 与 PDA 手动关联，并记录 respected/swept/approached/rejected/delivered-through
 - [ ] Step 32: Segment localStorage 草稿与 export/import 扩展
 
 ## 已知问题
@@ -138,3 +138,4 @@
 - 2026-05-21: Phase 5 Step 25 手工验收通过：export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐已确认；`feature/v4-pda-export-import` 可合并回 `main`
 - 2026-05-21: Phase 6 启动 1H 行情段系统；segment 独立于 PDA store，第一版只做手动 1H 起终点连接和显式图表绘制，后续再做 selection、Inspector、PDA response linking
 - 2026-05-21: Phase 6 Step 29-30 完成最小版：segment 支持 line/marker hit-test、点击选中、高亮显示；Inspector 支持查看起终点/方向并编辑 narrative/tags
+- 2026-05-21: Phase 6 Step 31 完成最小版：选中 segment 后右键命中 PDA，可将 PDA 以 respected/swept/approached/rejected/delivered-through 关系写入 segment.pdaResponses；Inspector 显示已关联 PDA 列表

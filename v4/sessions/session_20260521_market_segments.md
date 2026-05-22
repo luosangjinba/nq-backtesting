@@ -39,9 +39,16 @@
 - Selected segments render with a brighter, thicker line and larger endpoint markers.
 - Inspector shows selected segment metadata, start/end points, direction, and PDA response count.
 - Inspector supports editing segment `narrative` and comma-separated `tags`.
+- With a segment selected, right-clicking a PDA shows relation choices:
+  - `Respected`
+  - `Swept`
+  - `Approached`
+  - `Rejected`
+  - `Delivered Through`
+- Choosing a relation writes a response into `segment.pdaResponses`.
+- Inspector shows linked PDA responses for the selected segment.
 
 ## Not Included
-- No PDA response linking yet.
 - No persistence/export yet.
 - No opportunity review model yet.
 - No red folder news integration.
@@ -60,6 +67,5 @@
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Add manual PDA response linking from selected segment to PDA.
 - Add segment localStorage draft persistence.
 - Extend archive export/import to include market segments.

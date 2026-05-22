@@ -280,6 +280,29 @@ function renderSegmentPoint(title, point) {
   );
 }
 
+function renderPdaResponses(segment) {
+  const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+  const rows = responses
+    .map((response, index) => {
+      const annotation = getAnnotationById(response.pdaId);
+      const pdaType = annotation ? getPdaType(annotation.type) : null;
+      const label = pdaType?.label || response.pdaType?.toUpperCase() || 'PDA';
+      return `
+        <div class="inspector-point-row">
+          <span>${escapeHtml(index + 1)}</span>
+          <span>${escapeHtml(label)}</span>
+          <span>${escapeHtml(response.relation || '—')}</span>
+        </div>
+      `;
+    })
+    .join('');
+
+  return section(
+    'PDA Responses',
+    rows ? `<div class="inspector-point-list">${rows}</div>` : '<div class="inspector-empty">No linked PDA</div>'
+  );
+}
+
 function renderSegment(segment) {
   const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
   const common = section(
@@ -310,7 +333,11 @@ function renderSegment(segment) {
   );
 
   bodyEl.innerHTML =
-    common + renderSegmentPoint('Start', segment.start) + renderSegmentPoint('End', segment.end) + edit;
+    common +
+    renderSegmentPoint('Start', segment.start) +
+    renderSegmentPoint('End', segment.end) +
+    renderPdaResponses(segment) +
+    edit;
 }
 
 function renderEmpty() {
