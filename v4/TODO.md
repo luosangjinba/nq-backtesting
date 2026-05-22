@@ -61,6 +61,7 @@
 - [x] Step 33: Segment 编辑闭环（删除、label 显隐、PDA response relation/note/remove）
 - [x] Step 34: 选中 segment 时联动高亮已关联 PDA
 - [x] Step 35: PDA response selected 开关控制关联 PDA 是否跟随 segment 高亮
+- [x] Step 36: Segment 隔离模式（只显示当前 segment 与关联 PDA）
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -146,3 +147,4 @@
 - 2026-05-21: Segment 编辑闭环完成：Inspector 支持删除当前 segment、显示/隐藏 segment label、修改/删除 PDA response，并为 response 增加 note
 - 2026-05-21: Segment/PDA 联动高亮完成：选中 segment 时，`segment.pdaResponses` 关联的 PDA 使用琥珀色加粗并在 label 前显示 `↔`；取消选择或修改 response 后自动重绘
 - 2026-05-21: PDA response 增加 `selected` 开关；选中 segment 时只有 `selected=true` 的关联 PDA 跟随高亮，旧数据缺省按 true 兼容
+- 2026-05-21: Segment 隔离模式完成：Inspector 可切换 `display.isolate`；隔离开启且 segment 被选中时，只渲染当前 segment 与其关联 PDA，K 线和编辑操作不受影响

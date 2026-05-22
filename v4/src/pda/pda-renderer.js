@@ -73,17 +73,28 @@ function isCurrentAnnotation(annotation, selection) {
   return Boolean(selection?.id && annotation?.id && String(selection.id) === String(annotation.id));
 }
 
-function getSelectedSegmentPdaIds() {
+function getSelectedSegmentPdaState() {
   const selection = getSelectedSegment();
-  if (!selection?.id) return new Set();
+  if (!selection?.id) {
+    return {
+      highlightIds: new Set(),
+      visibleIds: new Set(),
+      isolate: false,
+    };
+  }
+
   const segment = getSegmentById(selection.id);
   const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
-  return new Set(
-    responses
-      .filter((response) => response.selected ?? true)
-      .map((response) => response.pdaId)
-      .filter(Boolean)
-  );
+  return {
+    highlightIds: new Set(
+      responses
+        .filter((response) => response.selected ?? true)
+        .map((response) => response.pdaId)
+        .filter(Boolean)
+    ),
+    visibleIds: new Set(responses.map((response) => response.pdaId).filter(Boolean)),
+    isolate: segment?.display?.isolate ?? false,
+  };
 }
 
 function getHighlightColor(isCurrent, isLinkedToSegment, fallback) {
@@ -231,12 +242,13 @@ export function renderPdaAnnotations() {
   if (!chartInstance || !series) return;
 
   const selected = getSelectedPda();
-  const segmentPdaIds = getSelectedSegmentPdaIds();
+  const segmentPdaState = getSelectedSegmentPdaState();
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
     const isCurrent = isCurrentAnnotation(annotation, selected);
-    const isLinkedToSegment = segmentPdaIds.has(annotation.id);
+    const isLinkedToSegment = segmentPdaState.highlightIds.has(annotation.id);
+    if (segmentPdaState.isolate && !segmentPdaState.visibleIds.has(annotation.id)) return;
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);

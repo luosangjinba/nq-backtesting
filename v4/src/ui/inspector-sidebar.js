@@ -360,6 +360,10 @@ function renderSegment(segment) {
         <input data-inspector-action="segment-toggle-label" type="checkbox" ${getSegmentShowLabel(segment) ? 'checked' : ''} />
         <span>Show segment label</span>
       </label>
+      <label class="inspector-toggle">
+        <input data-inspector-action="segment-toggle-isolate" type="checkbox" ${segment.display?.isolate ? 'checked' : ''} />
+        <span>Isolate segment</span>
+      </label>
       <button class="inspector-danger" data-inspector-action="segment-delete" type="button">Delete Segment</button>
     `
   );
@@ -457,6 +461,16 @@ function handleInspectorChange(e) {
         display: {
           ...(segment.display || {}),
           showLabel: e.target.checked,
+        },
+      });
+      return;
+    }
+
+    if (action === 'segment-toggle-isolate') {
+      updateSegment(segment.id, {
+        display: {
+          ...(segment.display || {}),
+          isolate: e.target.checked,
         },
       });
       return;
