@@ -9,6 +9,7 @@ import { getPdaType } from './pda-types.js';
 const LINE_TOLERANCE_PX = 6;
 const MARKER_TOLERANCE_PX = 8;
 const DEFAULT_LINE_EXTEND_BARS = 8;
+const MIN_RANGE_HIT_WIDTH_PX = 8;
 
 function mapTimestampToCurrentChartTime(timestamp) {
   if (timestamp === undefined || timestamp === null) return null;
@@ -113,9 +114,19 @@ function hitRange(annotation, x, y) {
 
   if (startX === null || endX === null || topY === null || bottomY === null) return null;
   endX = extendXByBars(endX, getExtendBars(annotation, 0));
-  if (!between(x, startX, endX) || !between(y, topY, bottomY)) return null;
 
-  const centerX = (startX + endX) / 2;
+  let hitStartX = startX;
+  let hitEndX = endX;
+  const width = Math.abs(hitEndX - hitStartX);
+  if (width < MIN_RANGE_HIT_WIDTH_PX) {
+    const center = (hitStartX + hitEndX) / 2;
+    hitStartX = center - MIN_RANGE_HIT_WIDTH_PX / 2;
+    hitEndX = center + MIN_RANGE_HIT_WIDTH_PX / 2;
+  }
+
+  if (!between(x, hitStartX, hitEndX) || !between(y, topY, bottomY)) return null;
+
+  const centerX = (hitStartX + hitEndX) / 2;
   const centerY = (topY + bottomY) / 2;
   return {
     id: annotation.id,
