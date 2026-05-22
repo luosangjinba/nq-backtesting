@@ -30,6 +30,7 @@ export function initToolbar() {
       </select>
     </div>
     <button id="loadBtn" class="toolbar-btn">加载</button>
+    <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
     <div class="status-bar">
       <span id="statusText">就绪</span>
     </div>
@@ -39,8 +40,12 @@ export function initToolbar() {
   const endInput = document.getElementById('endInput');
   const tfSelect = document.getElementById('tfSelect');
   const loadBtn = document.getElementById('loadBtn');
+  const archiveBtn = document.getElementById('archiveBtn');
 
   loadBtn.addEventListener('click', handleLoad);
+  archiveBtn.addEventListener('click', () => {
+    bus.emit('inspector:open-archive');
+  });
   startInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleLoad();
   });

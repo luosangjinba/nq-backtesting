@@ -411,6 +411,10 @@ function renderEmpty() {
   `;
 }
 
+function renderArchivePanel() {
+  bodyEl.innerHTML = renderArchiveActions();
+}
+
 function openSidebar() {
   sidebarEl?.classList.add('open');
 }
@@ -678,6 +682,10 @@ export function initInspectorSidebar() {
   });
   bus.on('segment:selection-cleared', refreshSelection);
   bus.on('segment:changed', refreshSelection);
+  bus.on('inspector:open-archive', () => {
+    renderArchivePanel();
+    openSidebar();
+  });
   bus.on('bars:cleared', () => {
     clearPdaSelection();
     clearSegmentSelection();

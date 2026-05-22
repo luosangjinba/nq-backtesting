@@ -63,6 +63,7 @@
 - Review JSON exports PDA annotations and market segments together, including `segment.pdaResponses`.
 - Review import merges PDA first and remaps response `pdaId` values when imported PDA ids are renamed or resolved to existing duplicates.
 - Segment import handles id conflicts, skips semantic duplicates, filters orphan PDA responses, and forces imported segment isolate state off.
+- The top toolbar has an `Archive` button that opens Inspector directly to Archive actions without selecting a PDA or segment first.
 
 ## Not Included
 - No opportunity review model yet.
@@ -80,6 +81,7 @@
 - `node --check v4/src/segment/segment-hit-test.js`
 - `node --check v4/src/segment/segment-selection.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/ui/toolbar.js`
 - `node --check v4/src/segment/segment-store.js`
 - `node --check v4/src/pda/pda-archive.js`
 - `node --check v4/src/review/review-archive.js`
@@ -88,9 +90,9 @@
 
 ## Branch Checkpoint
 - Current branch: `feature/v4-market-segments`
-- Latest behavior commit: pending Review archive commit.
-- This checkpoint records the current TODO/session state after Review archive export/import.
-- Working tree should have no tracked code changes after the Review archive commit.
+- Latest behavior commit: pending direct Archive inspector entry commit.
+- This checkpoint records the current TODO/session state after adding the toolbar Archive entry.
+- Working tree should have no tracked code changes after the direct Archive inspector entry commit.
 - Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
 
 ## Next
