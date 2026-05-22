@@ -16,6 +16,7 @@ import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
 import { initPdaSelection } from './pda/pda-selection.js';
 import { initManualSegment } from './segment/manual-segment.js';
+import { initSegmentPersistence } from './segment/segment-persistence.js';
 import { initSegmentRenderer } from './segment/segment-renderer.js';
 import { initSegmentSelection } from './segment/segment-selection.js';
 
@@ -70,6 +71,7 @@ initInspectorSidebar();
 console.log('[V4] PDA controls initialized');
 
 initSegmentRenderer();
+initSegmentPersistence();
 initManualSegment();
 initSegmentSelection();
 console.log('[V4] Segment controls initialized');

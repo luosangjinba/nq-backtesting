@@ -88,6 +88,5 @@ An opportunity review studies a time-window model in replay mode. It should even
 
 ## Next Steps
 
-1. Add localStorage draft persistence.
-2. Extend archive export to include `pdaAnnotations` and `marketSegments`.
-3. Build opportunity review objects for 2022-only 09:30 Judas Swing / OTE / Purge & OB research.
+1. Extend archive export to include `pdaAnnotations` and `marketSegments`.
+2. Build opportunity review objects for 2022-only 09:30 Judas Swing / OTE / Purge & OB research.

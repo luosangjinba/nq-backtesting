@@ -47,9 +47,10 @@
   - `Delivered Through`
 - Choosing a relation writes a response into `segment.pdaResponses`.
 - Inspector shows linked PDA responses for the selected segment.
+- Segment localStorage draft persistence saves and restores manual segments across page reloads.
 
 ## Not Included
-- No persistence/export yet.
+- No segment export/import yet.
 - No opportunity review model yet.
 - No red folder news integration.
 
@@ -59,6 +60,7 @@
 - `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/segment/manual-segment.js`
 - `node --check v4/src/segment/segment-store.js`
+- `node --check v4/src/segment/segment-persistence.js`
 - `node --check v4/src/segment/segment-renderer.js`
 - `node --check v4/src/segment/segment-hit-test.js`
 - `node --check v4/src/segment/segment-selection.js`
@@ -67,5 +69,4 @@
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Add segment localStorage draft persistence.
 - Extend archive export/import to include market segments.

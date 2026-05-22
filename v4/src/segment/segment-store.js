@@ -51,6 +51,11 @@ export function clearSegments() {
   emitChanged();
 }
 
+export function loadSegments(nextSegments = []) {
+  segments = Array.isArray(nextSegments) ? [...nextSegments] : [];
+  emitChanged();
+}
+
 export function updateSegment(id, patch = {}) {
   const { id: _ignoredId, createdAt: _ignoredCreatedAt, ...safePatch } = patch;
   let updated = null;
