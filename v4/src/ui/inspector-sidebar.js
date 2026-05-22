@@ -22,6 +22,7 @@ import * as store from '../data/bar-store.js';
 
 let sidebarEl = null;
 let bodyEl = null;
+let currentPanel = 'empty';
 const DEFAULT_LINE_EXTEND_BARS = 8;
 
 function escapeHtml(value) {
@@ -252,6 +253,7 @@ function renderPointSetFields(annotation) {
 }
 
 function renderAnnotation(annotation) {
+  currentPanel = 'selection';
   const pdaType = getPdaType(annotation.type);
   const shape = pdaType?.shape || 'unknown';
   const common = section(
@@ -340,6 +342,7 @@ function renderPdaResponses(segment) {
 }
 
 function renderSegment(segment) {
+  currentPanel = 'selection';
   const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
   const common = section(
     'Market Segment',
@@ -403,6 +406,7 @@ function renderSegment(segment) {
 }
 
 function renderEmpty() {
+  currentPanel = 'empty';
   bodyEl.innerHTML = `
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
@@ -412,6 +416,7 @@ function renderEmpty() {
 }
 
 function renderArchivePanel() {
+  currentPanel = 'archive';
   bodyEl.innerHTML = renderArchiveActions();
 }
 
@@ -424,6 +429,8 @@ function closeSidebar() {
 }
 
 function refreshSelection() {
+  if (currentPanel === 'archive') return;
+
   const pdaSelection = getSelectedPda();
   if (pdaSelection) {
     const annotation = getAnnotationById(pdaSelection.id);
@@ -683,6 +690,8 @@ export function initInspectorSidebar() {
   bus.on('segment:selection-cleared', refreshSelection);
   bus.on('segment:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
+    clearPdaSelection();
+    clearSegmentSelection();
     renderArchivePanel();
     openSidebar();
   });

@@ -181,6 +181,11 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
   return pdaType.color;
 }
 
+function getRangeBorderColor(annotation, pdaType, isCurrent = false, isFvg = false, isLinkedToSegment = false) {
+  if (isFvg && !isCurrent && !isLinkedToSegment) return 'transparent';
+  return getHighlightColor(isCurrent, isLinkedToSegment, annotation.borderColor || pdaType.color);
+}
+
 function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
   const label = getAnnotationLabel(annotation, pdaType, isCurrent, isLinkedToSegment);
   const isFvg = annotation.type === 'fvg';
@@ -210,16 +215,14 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToS
     label,
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
-      borderColor: isFvg
-        ? 'transparent'
-        : getHighlightColor(isCurrent, isLinkedToSegment, annotation.borderColor || pdaType.color),
+      borderColor: getRangeBorderColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
       midlineColor: getRangeMidlineColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
       textColor: getHighlightColor(
         isCurrent,
         isLinkedToSegment,
         annotation.textColor || pdaType.textColor || '#d1d4dc'
       ),
-      lineWidth: isFvg ? 0 : isCurrent || isLinkedToSegment ? 2 : 1,
+      lineWidth: isFvg && !isCurrent && !isLinkedToSegment ? 0 : isCurrent || isLinkedToSegment ? 2 : 1,
       showMidline: getShowCe(annotation),
       midlinePrice: ce?.price ?? null,
       extendBars: getExtendBars(annotation, 0),
