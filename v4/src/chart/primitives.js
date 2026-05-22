@@ -526,6 +526,7 @@ const FIB_DEFAULTS = {
   lineWidth: 1,
   labelFont: '11px sans-serif',
   labelPadding: 5,
+  extendBars: 0,
   showLabels: true,
   showTrendLine: false,
   trendLineColor: '#787b86',
@@ -556,6 +557,7 @@ class FibRenderer {
       const x2 = p2.x * hRatio;
       const leftX = Math.min(x1, x2);
       const rightX = Math.max(x1, x2);
+      const endX = this._view._endX === null ? rightX : this._view._endX * hRatio;
 
       if (options.showTrendLine) {
         ctx.strokeStyle = options.trendLineColor;
@@ -574,7 +576,7 @@ class FibRenderer {
         ctx.setLineDash([]);
         ctx.beginPath();
         ctx.moveTo(leftX, y);
-        ctx.lineTo(rightX, y);
+        ctx.lineTo(endX, y);
         ctx.stroke();
 
         if (options.showLabels) {
@@ -594,6 +596,7 @@ class FibView {
     this._source = source;
     this._p1 = { x: null, y: null };
     this._p2 = { x: null, y: null };
+    this._endX = null;
     this._levels = [];
   }
 
@@ -608,6 +611,15 @@ class FibView {
       x: timeScale.timeToCoordinate(this._source._endTime),
       y: series.priceToCoordinate(this._source._endPrice),
     };
+    const rightX =
+      this._p1.x === null || this._p2.x === null ? null : Math.max(this._p1.x, this._p2.x);
+    if (rightX === null || this._source._options.extendBars <= 0) {
+      this._endX = rightX;
+    } else {
+      const logical = timeScale.coordinateToLogical(rightX);
+      this._endX =
+        logical === null ? rightX : timeScale.logicalToCoordinate(logical + this._source._options.extendBars);
+    }
     this._levels = this._source._levels.map((level) => ({
       ...level,
       y: series.priceToCoordinate(level.price),

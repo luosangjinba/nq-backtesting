@@ -195,8 +195,12 @@ function hitFib(annotation, x, y) {
   const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
   const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
   const startX = getTimeCoordinate(startTime);
-  const endX = getTimeCoordinate(endTime);
-  if (startX === null || endX === null) return null;
+  const rawEndX = getTimeCoordinate(endTime);
+  if (startX === null || rawEndX === null) return null;
+  const minX = Math.min(startX, rawEndX);
+  const maxX = Math.max(startX, rawEndX);
+  const endX = extendXByBars(maxX, getExtendBars(annotation, 0));
+  if (endX === null) return null;
 
   const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
   const visibleLevels = levels
@@ -207,7 +211,7 @@ function hitFib(annotation, x, y) {
     }))
     .filter((level) => level.y !== null);
 
-  if (!visibleLevels.length || !between(x, startX, endX, LINE_TOLERANCE_PX)) return null;
+  if (!visibleLevels.length || !between(x, minX, endX, LINE_TOLERANCE_PX)) return null;
 
   const nearest = visibleLevels
     .map((level) => ({ ...level, distance: Math.abs(y - level.y) }))

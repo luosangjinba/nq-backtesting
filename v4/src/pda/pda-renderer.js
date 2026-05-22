@@ -314,6 +314,7 @@ function buildFibPrimitive(annotation, pdaType, isCurrent = false, isLinkedToSeg
       annotation.textColor || pdaType.textColor || '#d1d4dc'
     ),
     lineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
+    extendBars: getExtendBars(annotation, 0),
     showLabels: annotation.display?.showLabel ?? annotation.display?.showLabels ?? true,
     showTrendLine: annotation.display?.showTrendLine ?? false,
     trendLineColor: getHighlightColor(isCurrent, isLinkedToSegment, annotation.trendLineColor || '#787b86'),
