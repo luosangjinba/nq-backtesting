@@ -55,7 +55,7 @@ export function resetAllSegmentDisplayModes() {
 }
 
 export function addSegment(segment) {
-  resetAllSegmentDisplayModes();
+  if (!getIsolatedSegment()) resetAllSegmentDisplayModes();
   const identity = getSegmentIdentity(segment);
   const existingIndex = segments.findIndex((existing) => getSegmentIdentity(existing) === identity);
 

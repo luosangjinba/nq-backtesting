@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { clearSelection as clearPdaSelection } from '../pda/pda-selection.js';
-import { getSegmentById, resetAllSegmentDisplayModes } from './segment-store.js';
+import { getIsolatedSegment, getSegmentById, resetAllSegmentDisplayModes } from './segment-store.js';
 import { hitTestSegments } from './segment-hit-test.js';
 
 let selectedSegment = null;
@@ -20,7 +20,7 @@ export function selectSegment(id) {
   }
 
   clearPdaSelection();
-  resetAllSegmentDisplayModes();
+  if (!getIsolatedSegment()) resetAllSegmentDisplayModes();
   const nextSegment = getSegmentById(id);
   selectedSegment = {
     kind: 'market-segment',

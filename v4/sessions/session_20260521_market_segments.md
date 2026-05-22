@@ -56,6 +56,7 @@
 - Segment display settings include isolate mode. When enabled, only that segment and its linked PDA render until isolate is unchecked, even if the segment loses selection focus.
 - The segment itself also has an isolate display mode (`highlight`, `normal`, `hidden`).
 - Selecting a segment or creating a new segment resets every segment group object display mode back to `highlight`.
+- When isolate mode is active, selecting or creating a segment does not reset PDA response display modes.
 
 ## Not Included
 - No segment export/import yet.

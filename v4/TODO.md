@@ -64,6 +64,7 @@
 - [x] Step 36: Segment 隔离模式（只显示当前 segment 与关联 PDA）
 - [x] Step 37: 隔离模式下 segment 与关联 PDA 支持 hidden/highlight/normal 三态显示
 - [x] Step 38: 新建/重新点选 segment 时重置所有 segment 组 object 为 highlight
+- [x] Step 39: 隔离模式下禁用点选 segment 自动重置 response display mode
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -152,3 +153,4 @@
 - 2026-05-21: Segment 隔离模式完成：Inspector 可切换 `display.isolate`；隔离开启后只渲染该 segment 与其关联 PDA，失焦不退出隔离，只有取消勾选才恢复全量显示；K 线和编辑操作不受影响
 - 2026-05-21: 隔离模式显示控制升级：segment 本身与每条 PDA response 均支持 `highlight` / `normal` / `hidden`；选择 segment 不会自动进入隔离，只有 `Isolate segment` 控制隔离开关
 - 2026-05-21: Segment display mode 硬重置完成：重新点选 segment 或新建 segment 时，所有 segment 组内 object 的显示模式统一回到 `highlight`
+- 2026-05-21: Segment display mode 重置增加隔离例外：当前存在 isolate segment 时，点选/新建 segment 不再重置 PDA responses 的 `normal/highlight/hidden`
