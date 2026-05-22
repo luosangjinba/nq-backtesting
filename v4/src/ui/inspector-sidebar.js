@@ -13,6 +13,7 @@ import {
   deleteSegment,
   getSegmentById,
   removePdaResponse,
+  setSegmentIsolated,
   updatePdaResponse,
   updateSegment,
 } from '../segment/segment-store.js';
@@ -467,12 +468,7 @@ function handleInspectorChange(e) {
     }
 
     if (action === 'segment-toggle-isolate') {
-      updateSegment(segment.id, {
-        display: {
-          ...(segment.display || {}),
-          isolate: e.target.checked,
-        },
-      });
+      setSegmentIsolated(segment.id, e.target.checked);
       return;
     }
 

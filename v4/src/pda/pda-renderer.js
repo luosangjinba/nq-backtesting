@@ -10,7 +10,7 @@ import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment } from '../segment/segment-selection.js';
-import { getSegmentById } from '../segment/segment-store.js';
+import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -74,6 +74,21 @@ function isCurrentAnnotation(annotation, selection) {
 }
 
 function getSelectedSegmentPdaState() {
+  const isolatedSegment = getIsolatedSegment();
+  if (isolatedSegment) {
+    const responses = Array.isArray(isolatedSegment.pdaResponses) ? isolatedSegment.pdaResponses : [];
+    return {
+      highlightIds: new Set(
+        responses
+          .filter((response) => response.selected ?? true)
+          .map((response) => response.pdaId)
+          .filter(Boolean)
+      ),
+      visibleIds: new Set(responses.map((response) => response.pdaId).filter(Boolean)),
+      isolate: true,
+    };
+  }
+
   const selection = getSelectedSegment();
   if (!selection?.id) {
     return {

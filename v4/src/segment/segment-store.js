@@ -81,6 +81,31 @@ export function updateSegment(id, patch = {}) {
   return updated;
 }
 
+export function setSegmentIsolated(id, isolate) {
+  let updated = null;
+
+  segments = segments.map((segment) => {
+    const nextIsolate = segment.id === id ? Boolean(isolate) : false;
+    const nextSegment = {
+      ...segment,
+      display: {
+        ...(segment.display || {}),
+        isolate: nextIsolate,
+      },
+      updatedAt: segment.id === id ? Date.now() : segment.updatedAt,
+    };
+    if (segment.id === id) updated = nextSegment;
+    return nextSegment;
+  });
+
+  if (updated) emitChanged();
+  return updated;
+}
+
+export function getIsolatedSegment() {
+  return segments.find((segment) => segment.display?.isolate) || null;
+}
+
 export function linkPdaResponse(segmentId, pdaResponse) {
   if (!segmentId || !pdaResponse?.pdaId) return null;
   const segment = getSegmentById(segmentId);

@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
-import { getSegmentById, getSegments } from './segment-store.js';
+import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSelectedSegment } from './segment-selection.js';
 
 let renderedPrimitives = [];
@@ -26,12 +26,12 @@ export function renderSegments() {
   if (!chartInstance || !series) return;
 
   const selected = getSelectedSegment();
-  const selectedSegment = selected?.id ? getSegmentById(selected.id) : null;
-  const isolateSelectedSegment = selectedSegment?.display?.isolate ?? false;
+  const isolatedSegment = getIsolatedSegment();
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
-    const isCurrent = selected?.id === segment.id;
-    if (isolateSelectedSegment && !isCurrent) return;
+    const isIsolated = isolatedSegment?.id === segment.id;
+    const isCurrent = selected?.id === segment.id || isIsolated;
+    if (isolatedSegment && !isIsolated) return;
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,

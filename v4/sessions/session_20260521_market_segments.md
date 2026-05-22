@@ -53,7 +53,7 @@
 - Inspector supports editing/removing linked PDA responses and adding per-response notes.
 - Selecting a segment highlights linked PDA annotations from `segment.pdaResponses`.
 - Each PDA response has a `selected` toggle that controls whether it participates in selected-segment PDA highlighting.
-- Segment display settings include isolate mode. When enabled on the selected segment, only that segment and its linked PDA render.
+- Segment display settings include isolate mode. When enabled, only that segment and its linked PDA render until isolate is unchecked, even if the segment loses selection focus.
 
 ## Not Included
 - No segment export/import yet.
