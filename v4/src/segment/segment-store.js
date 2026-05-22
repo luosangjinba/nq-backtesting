@@ -31,7 +31,31 @@ function mergeSegment(existing, next) {
   };
 }
 
+function resetSegmentDisplay(segment) {
+  return {
+    ...segment,
+    display: {
+      ...(segment.display || {}),
+      isolateDisplayMode: 'highlight',
+    },
+    pdaResponses: Array.isArray(segment.pdaResponses)
+      ? segment.pdaResponses.map((response) => ({
+          ...response,
+          displayMode: 'highlight',
+          selected: true,
+        }))
+      : [],
+    updatedAt: Date.now(),
+  };
+}
+
+export function resetAllSegmentDisplayModes() {
+  segments = segments.map(resetSegmentDisplay);
+  emitChanged();
+}
+
 export function addSegment(segment) {
+  resetAllSegmentDisplayModes();
   const identity = getSegmentIdentity(segment);
   const existingIndex = segments.findIndex((existing) => getSegmentIdentity(existing) === identity);
 
