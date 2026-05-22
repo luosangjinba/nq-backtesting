@@ -74,18 +74,26 @@ function isCurrentAnnotation(annotation, selection) {
 }
 
 function getSelectedSegmentPdaState() {
+  const getResponseDisplayMode = (response) =>
+    response.displayMode || (response.selected === false ? 'normal' : 'highlight');
   const isolatedSegment = getIsolatedSegment();
   if (isolatedSegment) {
     const responses = Array.isArray(isolatedSegment.pdaResponses) ? isolatedSegment.pdaResponses : [];
-    const visibleResponses = responses.filter((response) => (response.displayMode || 'highlight') !== 'hidden');
+    const visibleResponses = responses.filter((response) => getResponseDisplayMode(response) !== 'hidden');
     return {
       highlightIds: new Set(
         visibleResponses
-          .filter((response) => (response.displayMode || (response.selected === false ? 'normal' : 'highlight')) === 'highlight')
+          .filter((response) => getResponseDisplayMode(response) === 'highlight')
           .map((response) => response.pdaId)
           .filter(Boolean)
       ),
       visibleIds: new Set(visibleResponses.map((response) => response.pdaId).filter(Boolean)),
+      hiddenIds: new Set(
+        responses
+          .filter((response) => getResponseDisplayMode(response) === 'hidden')
+          .map((response) => response.pdaId)
+          .filter(Boolean)
+      ),
       isolate: true,
     };
   }
@@ -95,6 +103,7 @@ function getSelectedSegmentPdaState() {
     return {
       highlightIds: new Set(),
       visibleIds: new Set(),
+      hiddenIds: new Set(),
       isolate: false,
     };
   }
@@ -104,11 +113,17 @@ function getSelectedSegmentPdaState() {
   return {
     highlightIds: new Set(
       responses
-        .filter((response) => (response.displayMode || (response.selected === false ? 'normal' : 'highlight')) === 'highlight')
+        .filter((response) => getResponseDisplayMode(response) === 'highlight')
         .map((response) => response.pdaId)
         .filter(Boolean)
     ),
     visibleIds: new Set(responses.map((response) => response.pdaId).filter(Boolean)),
+    hiddenIds: new Set(
+      responses
+        .filter((response) => getResponseDisplayMode(response) === 'hidden')
+        .map((response) => response.pdaId)
+        .filter(Boolean)
+    ),
     isolate: segment?.display?.isolate ?? false,
   };
 }
@@ -264,6 +279,7 @@ export function renderPdaAnnotations() {
     if (!pdaType) return;
     const isCurrent = isCurrentAnnotation(annotation, selected);
     const isLinkedToSegment = segmentPdaState.highlightIds.has(annotation.id);
+    if (segmentPdaState.hiddenIds.has(annotation.id)) return;
     if (segmentPdaState.isolate && !segmentPdaState.visibleIds.has(annotation.id)) return;
 
     if (pdaType.shape === 'liquidity-line') {
