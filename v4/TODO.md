@@ -50,6 +50,15 @@
 - [x] Step 24: Import PDA annotations 并处理 id 冲突、版本校验、重复标注
 - [x] Step 25: 手工验收 export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐，然后合并回 main
 
+### Phase 6: 1H 行情段系统
+- [x] Step 26: 设计 1H market segment 数据结构与模块边界
+- [x] Step 27: Segment renderer 最小版（起点/终点 marker、方向线、箭头、label）
+- [x] Step 28: 手动创建 1H 行情段（右键起点/终点）
+- [ ] Step 29: Segment hit-test + selection
+- [ ] Step 30: Inspector 显示/编辑 segment narrative、tags、起终点信息
+- [ ] Step 31: Segment 与 PDA 手动关联，并记录 respected/swept/approached/rejected/delivered-through
+- [ ] Step 32: Segment localStorage 草稿与 export/import 扩展
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
@@ -127,3 +136,4 @@
 - 2026-05-21: 图表价格显示按 NQ tick size 0.25 对齐：series `priceFormat.minMove=0.25`，chart `localization.priceFormatter` 与 OHLC legend 都使用 tick rounding，避免 crosshair/价格轴显示不可交易价
 - 2026-05-21: Review hardening 完成：Inspector 动态文本统一 escape；PDA archive import 增加类型/shape 最小校验、语义重复跳过、range CE 重算；CE 显示开关文案改为 `CE Visible`
 - 2026-05-21: Phase 5 Step 25 手工验收通过：export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐已确认；`feature/v4-pda-export-import` 可合并回 `main`
+- 2026-05-21: Phase 6 启动 1H 行情段系统；segment 独立于 PDA store，第一版只做手动 1H 起终点连接和显式图表绘制，后续再做 selection、Inspector、PDA response linking

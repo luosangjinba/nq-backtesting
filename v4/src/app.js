@@ -15,6 +15,8 @@ import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
 import { initPdaSelection } from './pda/pda-selection.js';
+import { initManualSegment } from './segment/manual-segment.js';
+import { initSegmentRenderer } from './segment/segment-renderer.js';
 
 console.log('[V4] app.js loaded');
 
@@ -65,3 +67,7 @@ initManualAnnotation();
 initPdaSelection();
 initInspectorSidebar();
 console.log('[V4] PDA controls initialized');
+
+initSegmentRenderer();
+initManualSegment();
+console.log('[V4] Segment controls initialized');

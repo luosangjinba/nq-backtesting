@@ -13,6 +13,13 @@ import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType } from './pda-types.js';
 import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
 import {
+  cancelSegmentSelection,
+  clearManualSegments,
+  finishSegment,
+  getSegmentSelectionSummary,
+  startSegment,
+} from '../segment/manual-segment.js';
+import {
   appendPointToPointSet,
   addPointSetPoint,
   cancelPointSet,
@@ -235,7 +242,7 @@ function addManualOb(endBar) {
 function clampMenuPosition(x, y) {
   const rect = controlsEl.parentElement.getBoundingClientRect();
   const menuWidth = 170;
-  const menuHeight = 360;
+  const menuHeight = 520;
   return {
     x: Math.min(Math.max(4, x), rect.width - menuWidth - 4),
     y: Math.min(Math.max(4, y), rect.height - menuHeight - 4),
@@ -249,6 +256,7 @@ function showContextMenu(x, y, bar) {
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
   const activeSet = getPointSetSelectionSummary();
+  const activeSegment = getSegmentSelectionSummary();
   const selected = getSelectedPda();
   const selectedAnnotation = selected ? getAnnotationById(selected.id) : null;
   const selectedPdaType = selectedAnnotation ? getPdaType(selectedAnnotation.type) : null;
@@ -270,6 +278,18 @@ function showContextMenu(x, y, bar) {
       <button class="pda-menu-item" data-pda-action="eql-start" ${disabled}>Start EQL Set</button>
       <div class="pda-menu-divider"></div>
     `;
+  const segmentItems = activeSegment
+    ? `
+      <div class="pda-menu-title">${activeSegment.label} · from ${activeSegment.startTime}</div>
+      <button class="pda-menu-item" data-pda-action="segment-finish" ${disabled}>End 1H Segment</button>
+      <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel 1H Segment</button>
+      <div class="pda-menu-divider"></div>
+    `
+    : `
+      <button class="pda-menu-item" data-pda-action="segment-start" ${disabled}>Start 1H Segment</button>
+      <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
+      <div class="pda-menu-divider"></div>
+    `;
 
   controlsEl.innerHTML = `
     <div class="pda-menu" style="left: ${left}px; top: ${top}px;">
@@ -280,6 +300,7 @@ function showContextMenu(x, y, bar) {
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
       <div class="pda-menu-divider"></div>
+      ${segmentItems}
       ${pointSetItems}
       <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
       <button class="pda-menu-item" data-pda-action="toggle-nwog" ${disabled}>Show/Hide This Week NWOG</button>
@@ -344,6 +365,18 @@ function handleControlClick(e) {
     const selected = getSelectedPda();
     if (selected) appendPointToPointSet(selected.id, contextMenuBar, getBarChartTime);
     hideContextMenu();
+  } else if (action === 'segment-start') {
+    startSegment(contextMenuBar);
+    hideContextMenu();
+  } else if (action === 'segment-finish') {
+    finishSegment(contextMenuBar);
+    hideContextMenu();
+  } else if (action === 'segment-cancel') {
+    cancelSegmentSelection();
+    hideContextMenu();
+  } else if (action === 'segment-clear') {
+    clearManualSegments();
+    hideContextMenu();
   } else if (action === 'toggle-ndog') {
     toggleTodayNdog(contextMenuBar);
     hideContextMenu();
@@ -372,6 +405,8 @@ function handleKeydown(e) {
       bus.emit('status:update', { text: 'OB 选择已取消', isError: false });
     } else if (getPointSetSelectionSummary()) {
       clearPointSetSelection();
+    } else if (getSegmentSelectionSummary()) {
+      cancelSegmentSelection();
     }
     hideContextMenu();
   }
