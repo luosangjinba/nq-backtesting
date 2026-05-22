@@ -324,6 +324,30 @@ html, body {
   font-size: 11px;
 }
 
+.inspector-response-row {
+  display: grid;
+  grid-template-columns: 22px minmax(42px, 0.7fr) minmax(0, 1.2fr);
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  background: #1e222d;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  color: #d1d4dc;
+  font-size: 11px;
+}
+
+.inspector-response-row input,
+.inspector-response-row button {
+  grid-column: 2 / -1;
+}
+
+.inspector-mini-select {
+  height: 24px;
+  padding: 2px 4px;
+  font-size: 11px;
+}
+
 .inspector-mini-btn {
   height: 22px;
   border: 1px solid #363a45;

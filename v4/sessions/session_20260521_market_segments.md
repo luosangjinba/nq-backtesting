@@ -48,6 +48,9 @@
 - Choosing a relation writes a response into `segment.pdaResponses`.
 - Inspector shows linked PDA responses for the selected segment.
 - Segment localStorage draft persistence saves and restores manual segments across page reloads.
+- Inspector supports deleting the selected segment.
+- Inspector supports showing/hiding the selected segment label.
+- Inspector supports editing/removing linked PDA responses and adding per-response notes.
 
 ## Not Included
 - No segment export/import yet.
@@ -65,6 +68,7 @@
 - `node --check v4/src/segment/segment-hit-test.js`
 - `node --check v4/src/segment/segment-selection.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/segment/segment-store.js`
 - `git diff --check`
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 

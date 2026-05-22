@@ -9,7 +9,13 @@ import { getPdaType } from '../pda/pda-types.js';
 import { timeframeToString } from '../config.js';
 import { buildCePrice } from '../price-utils.js';
 import { clearSegmentSelection, getSelectedSegment } from '../segment/segment-selection.js';
-import { getSegmentById, updateSegment } from '../segment/segment-store.js';
+import {
+  deleteSegment,
+  getSegmentById,
+  removePdaResponse,
+  updatePdaResponse,
+  updateSegment,
+} from '../segment/segment-store.js';
 import * as store from '../data/bar-store.js';
 
 let sidebarEl = null;
@@ -113,6 +119,10 @@ function getShowCe(annotation) {
 
 function getShowLabel(annotation) {
   return annotation.display?.showLabel ?? annotation.showLabel ?? true;
+}
+
+function getSegmentShowLabel(segment) {
+  return segment.display?.showLabel ?? segment.showLabel ?? true;
 }
 
 function getCeInfo(annotation) {
@@ -288,10 +298,19 @@ function renderPdaResponses(segment) {
       const pdaType = annotation ? getPdaType(annotation.type) : null;
       const label = pdaType?.label || response.pdaType?.toUpperCase() || 'PDA';
       return `
-        <div class="inspector-point-row">
+        <div class="inspector-response-row">
           <span>${escapeHtml(index + 1)}</span>
           <span>${escapeHtml(label)}</span>
-          <span>${escapeHtml(response.relation || '—')}</span>
+          <select class="inspector-input inspector-mini-select" data-inspector-action="segment-response-relation" data-pda-id="${escapeHtml(response.pdaId)}">
+            ${['respected', 'swept', 'approached', 'rejected', 'delivered-through']
+              .map(
+                (relation) =>
+                  `<option value="${relation}" ${response.relation === relation ? 'selected' : ''}>${relation}</option>`
+              )
+              .join('')}
+          </select>
+          <input class="inspector-input" data-inspector-action="segment-response-note" data-pda-id="${escapeHtml(response.pdaId)}" type="text" value="${escapeHtml(response.note || '')}" placeholder="Response note" />
+          <button class="inspector-mini-btn" data-inspector-action="segment-response-remove" data-pda-id="${escapeHtml(response.pdaId)}" type="button">Remove</button>
         </div>
       `;
     })
@@ -331,13 +350,24 @@ function renderSegment(segment) {
       ),
     ].join('')
   );
+  const display = section(
+    'Display',
+    `
+      <label class="inspector-toggle">
+        <input data-inspector-action="segment-toggle-label" type="checkbox" ${getSegmentShowLabel(segment) ? 'checked' : ''} />
+        <span>Show segment label</span>
+      </label>
+      <button class="inspector-danger" data-inspector-action="segment-delete" type="button">Delete Segment</button>
+    `
+  );
 
   bodyEl.innerHTML =
     common +
     renderSegmentPoint('Start', segment.start) +
     renderSegmentPoint('End', segment.end) +
     renderPdaResponses(segment) +
-    edit;
+    edit +
+    display;
 }
 
 function renderEmpty() {
@@ -419,6 +449,16 @@ function handleInspectorChange(e) {
 
   const segment = getCurrentSegment();
   if (segment) {
+    if (action === 'segment-toggle-label') {
+      updateSegment(segment.id, {
+        display: {
+          ...(segment.display || {}),
+          showLabel: e.target.checked,
+        },
+      });
+      return;
+    }
+
     if (action === 'segment-narrative') {
       updateSegment(segment.id, { narrative: e.target.value });
       return;
@@ -426,6 +466,16 @@ function handleInspectorChange(e) {
 
     if (action === 'segment-tags') {
       updateSegment(segment.id, { tags: parseTags(e.target.value) });
+      return;
+    }
+
+    if (action === 'segment-response-relation') {
+      updatePdaResponse(segment.id, e.target.dataset.pdaId, { relation: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-response-note') {
+      updatePdaResponse(segment.id, e.target.dataset.pdaId, { note: e.target.value });
       return;
     }
   }
@@ -487,6 +537,21 @@ function handleInspectorClick(e) {
   if (action === 'clear-saved') {
     clearSavedAnnotations();
     return;
+  }
+
+  const segment = getCurrentSegment();
+  if (segment) {
+    if (action === 'segment-delete') {
+      deleteSegment(segment.id);
+      clearSegmentSelection();
+      renderEmpty();
+      return;
+    }
+
+    if (action === 'segment-response-remove') {
+      removePdaResponse(segment.id, e.target.dataset.pdaId);
+      return;
+    }
   }
 
   const annotation = getCurrentAnnotation();

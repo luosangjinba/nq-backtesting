@@ -51,6 +51,11 @@ export function clearSegments() {
   emitChanged();
 }
 
+export function deleteSegment(id) {
+  segments = segments.filter((segment) => segment.id !== id);
+  emitChanged();
+}
+
 export function loadSegments(nextSegments = []) {
   segments = Array.isArray(nextSegments) ? [...nextSegments] : [];
   emitChanged();
@@ -98,6 +103,27 @@ export function linkPdaResponse(segmentId, pdaResponse) {
       : [...responses, nextResponse];
 
   return updateSegment(segmentId, { pdaResponses: nextResponses });
+}
+
+export function updatePdaResponse(segmentId, pdaId, patch = {}) {
+  const segment = getSegmentById(segmentId);
+  if (!segment || !pdaId) return null;
+
+  const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+  const nextResponses = responses.map((response) =>
+    response.pdaId === pdaId ? { ...response, ...patch, pdaId: response.pdaId } : response
+  );
+  return updateSegment(segmentId, { pdaResponses: nextResponses });
+}
+
+export function removePdaResponse(segmentId, pdaId) {
+  const segment = getSegmentById(segmentId);
+  if (!segment || !pdaId) return null;
+
+  const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+  return updateSegment(segmentId, {
+    pdaResponses: responses.filter((response) => response.pdaId !== pdaId),
+  });
 }
 
 export function getSegments() {
