@@ -36,7 +36,7 @@ import { getSelectedPda } from './pda-selection.js';
 let controlsEl = null;
 let contextMenuBar = null;
 let contextMenuPdaHit = null;
-let obSelectionState = null;
+let rangeSelectionState = null;
 let fibSelectionState = null;
 
 const DEFAULT_FIB_LEVELS = [
@@ -165,7 +165,13 @@ function addManualFvg(bar) {
   });
 }
 
-function getObColors(direction) {
+function getManualRangeColors(type, direction) {
+  if (type === 'breaker') {
+    return direction === 'bullish'
+      ? { fillColor: '#00acc124', borderColor: 'transparent', textColor: '#ffab91' }
+      : { fillColor: '#ff704324', borderColor: 'transparent', textColor: '#ffab91' };
+  }
+
   return direction === 'bullish'
     ? { fillColor: '#26a69a24', borderColor: 'transparent', textColor: '#ffcc80' }
     : { fillColor: '#ef535024', borderColor: 'transparent', textColor: '#ffcc80' };
@@ -188,44 +194,49 @@ function getSelectedRangeBars(startBar, endBar) {
   return displayBars.slice(from, to + 1);
 }
 
-function startManualOb(direction, bar) {
+function startManualRange(type, direction, bar) {
   if (!bar) return;
+  const pdaType = getPdaType(type);
+  if (!pdaType) return;
 
   fibSelectionState = null;
-  obSelectionState = {
+  rangeSelectionState = {
+    type,
     direction,
     startBar: bar,
   };
 
   hideContextMenu();
   bus.emit('status:update', {
-    text: `${direction} OB 起点已选择，Shift + 右键选择终点`,
+    text: `${direction} ${pdaType.label} 起点已选择，Shift + 右键选择终点`,
     isError: false,
   });
 }
 
-function addManualOb(endBar) {
-  if (!obSelectionState || !endBar) return;
+function addManualRange(endBar) {
+  if (!rangeSelectionState || !endBar) return;
 
-  const rangeBars = getSelectedRangeBars(obSelectionState.startBar, endBar);
+  const rangeBars = getSelectedRangeBars(rangeSelectionState.startBar, endBar);
+  const pdaType = getPdaType(rangeSelectionState.type);
   if (!rangeBars.length) {
-    obSelectionState = null;
+    rangeSelectionState = null;
     hideContextMenu();
-    bus.emit('status:update', { text: 'OB 区间选择失败：未找到 K 线', isError: true });
+    bus.emit('status:update', { text: `${pdaType?.label || 'Range PDA'} 区间选择失败：未找到 K 线`, isError: true });
     return;
   }
 
   const timeframe = store.getCurrentTimeframe();
   const tfLabel = timeframeToString(timeframe);
-  const direction = obSelectionState.direction;
+  const type = rangeSelectionState.type;
+  const direction = rangeSelectionState.direction;
   const startBar = rangeBars[0];
   const lastBar = rangeBars[rangeBars.length - 1];
   const topPrice = Math.max(...rangeBars.map((bar) => bar.high));
   const bottomPrice = Math.min(...rangeBars.map((bar) => bar.low));
-  const contexts = [`${tfLabel} ${direction} OB`];
+  const contexts = [`${tfLabel} ${direction} ${pdaType?.label || type}`];
   const annotation = {
-    id: `manual_ob_${startBar.timestamp}_${lastBar.timestamp}_${Date.now()}`,
-    type: 'ob',
+    id: `manual_${type}_${startBar.timestamp}_${lastBar.timestamp}_${Date.now()}`,
+    type,
     source: 'manual',
     direction,
     anchorTime: getBarChartTime(startBar),
@@ -242,15 +253,15 @@ function addManualOb(endBar) {
     priceLow: bottomPrice,
     ce: buildCePrice(topPrice, bottomPrice),
     contexts,
-    ...getObColors(direction),
+    ...getManualRangeColors(type, direction),
   };
 
   addAnnotation(annotation);
-  obSelectionState = null;
+  rangeSelectionState = null;
   hideContextMenu();
 
   bus.emit('status:update', {
-    text: `OB: ${direction} ${bottomPrice.toFixed(2)}-${topPrice.toFixed(2)} (${rangeBars.length}根${tfLabel})`,
+    text: `${pdaType?.label || type}: ${direction} ${bottomPrice.toFixed(2)}-${topPrice.toFixed(2)} (${rangeBars.length}根${tfLabel})`,
     isError: false,
   });
 }
@@ -258,7 +269,7 @@ function addManualOb(endBar) {
 function startManualFib(bar) {
   if (!bar) return;
 
-  obSelectionState = null;
+  rangeSelectionState = null;
   fibSelectionState = { startBar: bar };
   hideContextMenu();
   bus.emit('status:update', {
@@ -412,6 +423,8 @@ function showContextMenu(x, y, bar, pdaHit = null) {
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
+      <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
+      <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
       <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
       <div class="pda-menu-divider"></div>
       ${segmentPdaLinkItems}
@@ -453,8 +466,8 @@ function handleContextMenu(e) {
     return;
   }
 
-  if (e.shiftKey && obSelectionState) {
-    addManualOb(bar);
+  if (e.shiftKey && rangeSelectionState) {
+    addManualRange(bar);
     return;
   }
 
@@ -471,7 +484,9 @@ function handleControlClick(e) {
   } else if (action === 'fvg') {
     addManualFvg(contextMenuBar);
   } else if (action === 'ob-bullish' || action === 'ob-bearish') {
-    startManualOb(action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
+    startManualRange('ob', action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
+  } else if (action === 'breaker-bullish' || action === 'breaker-bearish') {
+    startManualRange('breaker', action === 'breaker-bullish' ? 'bullish' : 'bearish', contextMenuBar);
   } else if (action === 'fib-start') {
     startManualFib(contextMenuBar);
   } else if (action === 'eqh-start' || action === 'eql-start') {
@@ -527,7 +542,7 @@ function handleControlClick(e) {
   } else if (action === 'clear') {
     clearAnnotations();
     clearAllPdaResponses();
-    obSelectionState = null;
+    rangeSelectionState = null;
     fibSelectionState = null;
     clearPointSetSelection({ silent: true });
     hideContextMenu();
@@ -543,9 +558,10 @@ function handleGlobalClick(e) {
 
 function handleKeydown(e) {
   if (e.key === 'Escape') {
-    if (obSelectionState) {
-      obSelectionState = null;
-      bus.emit('status:update', { text: 'OB 选择已取消', isError: false });
+    if (rangeSelectionState) {
+      const pdaType = getPdaType(rangeSelectionState.type);
+      rangeSelectionState = null;
+      bus.emit('status:update', { text: `${pdaType?.label || 'Range PDA'} 选择已取消`, isError: false });
     } else if (fibSelectionState) {
       fibSelectionState = null;
       bus.emit('status:update', { text: 'Fib 选择已取消', isError: false });
@@ -567,13 +583,13 @@ export function initManualAnnotation() {
   document.addEventListener('click', handleGlobalClick);
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', () => {
-    obSelectionState = null;
+    rangeSelectionState = null;
     fibSelectionState = null;
     clearPointSetSelection({ silent: true });
     hideContextMenu();
   });
   bus.on('bars:cleared', () => {
-    obSelectionState = null;
+    rangeSelectionState = null;
     fibSelectionState = null;
     clearPointSetSelection({ silent: true });
     clearPdaContextDataCache();

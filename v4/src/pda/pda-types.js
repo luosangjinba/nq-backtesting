@@ -39,6 +39,14 @@ export const PDA_TYPES = {
     objective: false,
     pointSet: false,
   },
+  breaker: {
+    id: 'breaker',
+    label: 'Breaker',
+    shape: 'range',
+    color: '#ff7043',
+    objective: false,
+    pointSet: false,
+  },
   fib: {
     id: 'fib',
     label: 'Fib',
