@@ -18,6 +18,10 @@ function getSegmentLabel(segment) {
   return `${segment.timeframe || '1H'} ${direction} LEG`;
 }
 
+function getIsolateDisplayMode(segment) {
+  return segment.display?.isolateDisplayMode || 'highlight';
+}
+
 export function renderSegments() {
   clearRenderedPrimitives();
 
@@ -30,7 +34,9 @@ export function renderSegments() {
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
     const isIsolated = isolatedSegment?.id === segment.id;
-    const isCurrent = selected?.id === segment.id || isIsolated;
+    const isolateMode = isIsolated ? getIsolateDisplayMode(segment) : null;
+    if (isolateMode === 'hidden') return;
+    const isCurrent = selected?.id === segment.id || isolateMode === 'highlight';
     if (isolatedSegment && !isIsolated) return;
     const primitive = new SegmentPrimitive(
       chartInstance,

@@ -77,14 +77,15 @@ function getSelectedSegmentPdaState() {
   const isolatedSegment = getIsolatedSegment();
   if (isolatedSegment) {
     const responses = Array.isArray(isolatedSegment.pdaResponses) ? isolatedSegment.pdaResponses : [];
+    const visibleResponses = responses.filter((response) => (response.displayMode || 'highlight') !== 'hidden');
     return {
       highlightIds: new Set(
-        responses
-          .filter((response) => response.selected ?? true)
+        visibleResponses
+          .filter((response) => (response.displayMode || (response.selected === false ? 'normal' : 'highlight')) === 'highlight')
           .map((response) => response.pdaId)
           .filter(Boolean)
       ),
-      visibleIds: new Set(responses.map((response) => response.pdaId).filter(Boolean)),
+      visibleIds: new Set(visibleResponses.map((response) => response.pdaId).filter(Boolean)),
       isolate: true,
     };
   }
@@ -103,7 +104,7 @@ function getSelectedSegmentPdaState() {
   return {
     highlightIds: new Set(
       responses
-        .filter((response) => response.selected ?? true)
+        .filter((response) => (response.displayMode || (response.selected === false ? 'normal' : 'highlight')) === 'highlight')
         .map((response) => response.pdaId)
         .filter(Boolean)
     ),

@@ -337,6 +337,7 @@ html, body {
   font-size: 11px;
 }
 
+.inspector-response-row select,
 .inspector-response-row input,
 .inspector-response-row button {
   grid-column: 2 / -1;

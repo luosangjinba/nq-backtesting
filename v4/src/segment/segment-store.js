@@ -117,6 +117,7 @@ export function linkPdaResponse(segmentId, pdaResponse) {
     pdaType: pdaResponse.pdaType || 'unknown',
     relation: pdaResponse.relation || 'approached',
     note: pdaResponse.note || '',
+    displayMode: pdaResponse.displayMode || (pdaResponse.selected === false ? 'normal' : 'highlight'),
     selected: pdaResponse.selected ?? true,
     linkedAt: Date.now(),
   };

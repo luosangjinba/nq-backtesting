@@ -126,6 +126,10 @@ function getSegmentShowLabel(segment) {
   return segment.display?.showLabel ?? segment.showLabel ?? true;
 }
 
+function getResponseDisplayMode(response) {
+  return response.displayMode || (response.selected === false ? 'normal' : 'highlight');
+}
+
 function getCeInfo(annotation) {
   if (annotation.ce && Number.isFinite(Number(annotation.ce.price))) return annotation.ce;
   return buildCePrice(annotation.topPrice ?? annotation.priceHigh, annotation.bottomPrice ?? annotation.priceLow);
@@ -301,15 +305,20 @@ function renderPdaResponses(segment) {
       return `
         <div class="inspector-response-row">
           <span>${escapeHtml(index + 1)}</span>
-          <label class="inspector-toggle inspector-toggle-inline">
-            <input data-inspector-action="segment-response-selected" data-pda-id="${escapeHtml(response.pdaId)}" type="checkbox" ${response.selected ?? true ? 'checked' : ''} />
-            <span>${escapeHtml(label)}</span>
-          </label>
+          <span>${escapeHtml(label)}</span>
           <select class="inspector-input inspector-mini-select" data-inspector-action="segment-response-relation" data-pda-id="${escapeHtml(response.pdaId)}">
             ${['respected', 'swept', 'approached', 'rejected', 'delivered-through']
               .map(
                 (relation) =>
                   `<option value="${relation}" ${response.relation === relation ? 'selected' : ''}>${relation}</option>`
+              )
+              .join('')}
+          </select>
+          <select class="inspector-input inspector-mini-select" data-inspector-action="segment-response-display-mode" data-pda-id="${escapeHtml(response.pdaId)}">
+            ${['highlight', 'normal', 'hidden']
+              .map(
+                (mode) =>
+                  `<option value="${mode}" ${getResponseDisplayMode(response) === mode ? 'selected' : ''}>${mode}</option>`
               )
               .join('')}
           </select>
@@ -365,6 +374,17 @@ function renderSegment(segment) {
         <input data-inspector-action="segment-toggle-isolate" type="checkbox" ${segment.display?.isolate ? 'checked' : ''} />
         <span>Isolate segment</span>
       </label>
+      ${controlField(
+        'Segment in isolate',
+        `<select class="inspector-input" data-inspector-action="segment-isolate-display-mode">
+          ${['highlight', 'normal', 'hidden']
+            .map(
+              (mode) =>
+                `<option value="${mode}" ${(segment.display?.isolateDisplayMode || 'highlight') === mode ? 'selected' : ''}>${mode}</option>`
+            )
+            .join('')}
+        </select>`
+      )}
       <button class="inspector-danger" data-inspector-action="segment-delete" type="button">Delete Segment</button>
     `
   );
@@ -472,6 +492,16 @@ function handleInspectorChange(e) {
       return;
     }
 
+    if (action === 'segment-isolate-display-mode') {
+      updateSegment(segment.id, {
+        display: {
+          ...(segment.display || {}),
+          isolateDisplayMode: e.target.value,
+        },
+      });
+      return;
+    }
+
     if (action === 'segment-narrative') {
       updateSegment(segment.id, { narrative: e.target.value });
       return;
@@ -487,8 +517,11 @@ function handleInspectorChange(e) {
       return;
     }
 
-    if (action === 'segment-response-selected') {
-      updatePdaResponse(segment.id, e.target.dataset.pdaId, { selected: e.target.checked });
+    if (action === 'segment-response-display-mode') {
+      updatePdaResponse(segment.id, e.target.dataset.pdaId, {
+        displayMode: e.target.value,
+        selected: e.target.value === 'highlight',
+      });
       return;
     }
 
