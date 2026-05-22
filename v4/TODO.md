@@ -48,7 +48,7 @@
 - [x] Step 22: 设计 PDA export/import schema（包含版本、instrument、timeframe、range、annotations）
 - [x] Step 23: Export 当前 PDA store 中全部非 draft annotations 到 JSON 文件（不是只导出当前可视窗口）
 - [x] Step 24: Import PDA annotations 并处理 id 冲突、版本校验、重复标注
-- [ ] Step 25: 手工验收 export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐，然后合并回 main
+- [x] Step 25: 手工验收 export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐，然后合并回 main
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -126,3 +126,4 @@
 - 2026-05-21: CE 价格按 NQ tick size 0.25 对齐：annotation 保留 `ce.raw` 数学中点和 `ce.price` 可交易价，RangePrimitive 用 `ce.price` 绘制中线，Inspector 同时显示 CE 与 Raw CE
 - 2026-05-21: 图表价格显示按 NQ tick size 0.25 对齐：series `priceFormat.minMove=0.25`，chart `localization.priceFormatter` 与 OHLC legend 都使用 tick rounding，避免 crosshair/价格轴显示不可交易价
 - 2026-05-21: Review hardening 完成：Inspector 动态文本统一 escape；PDA archive import 增加类型/shape 最小校验、语义重复跳过、range CE 重算；CE 显示开关文案改为 `CE Visible`
+- 2026-05-21: Phase 5 Step 25 手工验收通过：export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐已确认；`feature/v4-pda-export-import` 可合并回 `main`

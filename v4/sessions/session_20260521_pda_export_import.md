@@ -87,7 +87,13 @@
 - Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
 
 ## Next
-- Hand-validate export/import, per-annotation label visibility, CE visibility, and NQ 0.25 tick alignment before merging to `main`.
+- Hand validation passed for export/import, per-annotation label visibility, CE visibility, and NQ 0.25 tick alignment.
+- Merge `feature/v4-pda-export-import` back to `main`.
 - Add an explicit import mode choice if merge vs replace becomes important.
 - Add schema migration when archive `version` changes.
 - Consider YAML export after JSON schema stabilizes.
+
+## Final Acceptance
+- User confirmed manual acceptance passed.
+- Phase 5 Step 25 is complete.
+- Branch is ready to merge back to `main`.
