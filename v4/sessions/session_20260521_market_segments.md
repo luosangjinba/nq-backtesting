@@ -57,6 +57,8 @@
 - The segment itself also has an isolate display mode (`highlight`, `normal`, `hidden`).
 - Selecting a segment or creating a new segment resets every segment group object display mode back to `highlight`.
 - When isolate mode is active, selecting or creating a segment does not reset PDA response display modes.
+- `hidden` display mode means not rendered while keeping the object in the segment data.
+- In isolate mode, the segment's own `normal` display mode renders immediately as normal even while the segment remains selected.
 
 ## Not Included
 - No segment export/import yet.
@@ -78,6 +80,13 @@
 - `node --check v4/src/segment/segment-store.js`
 - `git diff --check`
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
+
+## Branch Checkpoint
+- Current branch: `feature/v4-market-segments`
+- Latest behavior commit: `3169c10 fix(v4): respect isolated segment normal display`
+- This checkpoint records the current TODO/session state after isolate display-mode fixes.
+- Working tree has no tracked code changes after the latest behavior commit.
+- Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
 
 ## Next
 - Extend archive export/import to include market segments.
