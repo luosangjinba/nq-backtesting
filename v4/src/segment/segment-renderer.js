@@ -36,7 +36,7 @@ export function renderSegments() {
     const isIsolated = isolatedSegment?.id === segment.id;
     const isolateMode = isIsolated ? getIsolateDisplayMode(segment) : null;
     if (isolateMode === 'hidden') return;
-    const isCurrent = selected?.id === segment.id || isolateMode === 'highlight';
+    const isCurrent = isIsolated ? isolateMode === 'highlight' : selected?.id === segment.id;
     if (isolatedSegment && !isIsolated) return;
     const primitive = new SegmentPrimitive(
       chartInstance,
