@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import { clearSelection as clearPdaSelection, getSelectedPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
+import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
@@ -167,9 +168,12 @@ function renderArchiveActions() {
   return section(
     'Archive',
     [
+      `<button class="inspector-secondary" data-inspector-action="export-review" type="button">Export Review JSON</button>`,
+      `<button class="inspector-secondary" data-inspector-action="import-review" type="button">Import Review JSON</button>`,
       `<button class="inspector-secondary" data-inspector-action="export-pda" type="button">Export PDA JSON</button>`,
       `<button class="inspector-secondary" data-inspector-action="import-pda" type="button">Import PDA JSON</button>`,
       `<button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>`,
+      `<input class="inspector-file-input" data-inspector-action="import-review-file" type="file" accept="application/json,.json" />`,
       `<input class="inspector-file-input" data-inspector-action="import-pda-file" type="file" accept="application/json,.json" />`,
     ].join('')
   );
@@ -475,6 +479,12 @@ function handleInspectorChange(e) {
     return;
   }
 
+  if (action === 'import-review-file') {
+    importReviewArchive(e.target.files?.[0]);
+    e.target.value = '';
+    return;
+  }
+
   const segment = getCurrentSegment();
   if (segment) {
     if (action === 'segment-toggle-label') {
@@ -580,8 +590,18 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'export-review') {
+    exportReviewArchive();
+    return;
+  }
+
   if (action === 'import-pda') {
     bodyEl?.querySelector('[data-inspector-action="import-pda-file"]')?.click();
+    return;
+  }
+
+  if (action === 'import-review') {
+    bodyEl?.querySelector('[data-inspector-action="import-review-file"]')?.click();
     return;
   }
 

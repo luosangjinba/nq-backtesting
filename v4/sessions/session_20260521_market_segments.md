@@ -59,9 +59,12 @@
 - When isolate mode is active, selecting or creating a segment does not reset PDA response display modes.
 - `hidden` display mode means not rendered while keeping the object in the segment data.
 - In isolate mode, the segment's own `normal` display mode renders immediately as normal even while the segment remains selected.
+- Inspector Archive now supports `Export Review JSON` / `Import Review JSON`.
+- Review JSON exports PDA annotations and market segments together, including `segment.pdaResponses`.
+- Review import merges PDA first and remaps response `pdaId` values when imported PDA ids are renamed or resolved to existing duplicates.
+- Segment import handles id conflicts, skips semantic duplicates, filters orphan PDA responses, and forces imported segment isolate state off.
 
 ## Not Included
-- No segment export/import yet.
 - No opportunity review model yet.
 - No red folder news integration.
 
@@ -78,15 +81,17 @@
 - `node --check v4/src/segment/segment-selection.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
 - `node --check v4/src/segment/segment-store.js`
+- `node --check v4/src/pda/pda-archive.js`
+- `node --check v4/src/review/review-archive.js`
 - `git diff --check`
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Branch Checkpoint
 - Current branch: `feature/v4-market-segments`
-- Latest behavior commit: `3169c10 fix(v4): respect isolated segment normal display`
-- This checkpoint records the current TODO/session state after isolate display-mode fixes.
-- Working tree has no tracked code changes after the latest behavior commit.
+- Latest behavior commit: pending Review archive commit.
+- This checkpoint records the current TODO/session state after Review archive export/import.
+- Working tree should have no tracked code changes after the Review archive commit.
 - Remaining untracked local files are unrelated workspace artifacts: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`.
 
 ## Next
-- Extend archive export/import to include market segments.
+- Start the opportunity review layer for 930 open / 950 macro / 1000-1100 silver bullet using the existing PDA + segment review bundle.

@@ -57,7 +57,7 @@
 - [x] Step 29: Segment hit-test + selection
 - [x] Step 30: Inspector 显示/编辑 segment narrative、tags、起终点信息
 - [x] Step 31: Segment 与 PDA 手动关联，并记录 respected/swept/approached/rejected/delivered-through
-- [ ] Step 32: Segment localStorage 草稿与 export/import 扩展（localStorage 已完成，export/import 待扩展）
+- [x] Step 32: Segment localStorage 草稿与 Review export/import 扩展（PDA + Segment + PDA responses 复盘包）
 - [x] Step 33: Segment 编辑闭环（删除、label 显隐、PDA response relation/note/remove）
 - [x] Step 34: 选中 segment 时联动高亮已关联 PDA
 - [x] Step 35: PDA response selected 开关控制关联 PDA 是否跟随 segment 高亮
@@ -156,3 +156,4 @@
 - 2026-05-21: Segment display mode 硬重置完成：重新点选 segment 或新建 segment 时，所有 segment 组内 object 的显示模式统一回到 `highlight`
 - 2026-05-21: Segment display mode 重置增加隔离例外：当前存在 isolate segment 时，点选/新建 segment 不再重置 PDA responses 的 `normal/highlight/hidden`
 - 2026-05-21: Segment display mode 修复：`hidden` 现在真正跳过渲染但保留 object；isolate 状态下 segment 本身从 `highlight` 切到 `normal` 会即时按普通样式重绘，不再被 selected 状态强制高亮
+- 2026-05-21: Review archive 完成：Inspector Archive 区新增 Export/Import Review JSON；Review JSON 导出 PDA annotations 与 market segments，不导出 K 线数据；导入时先合并 PDA 并建立 id remap，再导入 segment 与 pdaResponses，处理 id 冲突、语义重复与 orphan response 过滤；导入 segment 默认关闭 isolate，避免恢复归档时直接进入隔离视图

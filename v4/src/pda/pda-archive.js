@@ -9,17 +9,17 @@ import { getPdaType } from './pda-types.js';
 
 const ARCHIVE_VERSION = 1;
 const ARCHIVE_APP = 'trading-v4';
-const DEFAULT_INSTRUMENT = 'NQ';
+export const DEFAULT_INSTRUMENT = 'NQ';
 
-function getExportableAnnotations() {
+export function getExportableAnnotations() {
   return getAnnotations().filter((annotation) => annotation.source !== 'draft' && !annotation.draft);
 }
 
-function formatDateForFile(value = new Date()) {
+export function formatDateForFile(value = new Date()) {
   return value.toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
 }
 
-function getArchiveRange() {
+export function getArchiveRange() {
   const range = store.getCurrentRange();
   const requestedRange = store.getRequestedRange();
   return {
@@ -69,7 +69,7 @@ function validateArchivePayload(payload) {
   }
 }
 
-function readFileAsText(file) {
+export function readFileAsText(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
@@ -78,7 +78,7 @@ function readFileAsText(file) {
   });
 }
 
-function getImportableAnnotations(payload) {
+export function getImportableAnnotations(payload) {
   return payload.annotations
     .filter(
       (annotation) =>
@@ -126,7 +126,7 @@ function normalizeImportedAnnotation(annotation) {
   return normalized;
 }
 
-function prepareImportedAnnotations(existingAnnotations, importedAnnotations) {
+export function prepareImportedAnnotations(existingAnnotations, importedAnnotations) {
   const usedIds = new Set(existingAnnotations.map((annotation) => annotation.id).filter(Boolean));
   const existingIdentities = new Set(existingAnnotations.map(getAnnotationIdentity));
   const importStamp = Date.now();

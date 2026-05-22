@@ -10,7 +10,7 @@ function emitChanged() {
   });
 }
 
-function getSegmentIdentity(segment) {
+export function getSegmentIdentity(segment) {
   return [
     segment.source || 'manual',
     segment.timeframe || '1H',
