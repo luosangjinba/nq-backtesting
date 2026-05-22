@@ -59,6 +59,7 @@
 - [x] Step 31: Segment 与 PDA 手动关联，并记录 respected/swept/approached/rejected/delivered-through
 - [ ] Step 32: Segment localStorage 草稿与 export/import 扩展（localStorage 已完成，export/import 待扩展）
 - [x] Step 33: Segment 编辑闭环（删除、label 显隐、PDA response relation/note/remove）
+- [x] Step 34: 选中 segment 时联动高亮已关联 PDA
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -142,3 +143,4 @@
 - 2026-05-21: Phase 6 Step 31 完成最小版：选中 segment 后右键命中 PDA，可将 PDA 以 respected/swept/approached/rejected/delivered-through 关系写入 segment.pdaResponses；Inspector 显示已关联 PDA 列表
 - 2026-05-21: Segment localStorage 草稿持久化完成：保存到 `v4:market-segments:NQ`，页面重新加载后恢复手动画段、narrative/tags、PDA responses；正式 review export/import 后续再扩展
 - 2026-05-21: Segment 编辑闭环完成：Inspector 支持删除当前 segment、显示/隐藏 segment label、修改/删除 PDA response，并为 response 增加 note
+- 2026-05-21: Segment/PDA 联动高亮完成：选中 segment 时，`segment.pdaResponses` 关联的 PDA 使用琥珀色加粗并在 label 前显示 `↔`；取消选择或修改 response 后自动重绘

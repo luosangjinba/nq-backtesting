@@ -9,9 +9,12 @@ import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 import { getSelectedPda } from './pda-selection.js';
+import { getSelectedSegment } from '../segment/segment-selection.js';
+import { getSegmentById } from '../segment/segment-store.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
+const LINKED_SEGMENT_COLOR = '#ffcc80';
 const DEFAULT_EXTEND_BARS = 8;
 
 function clearRenderedPrimitives() {
@@ -43,10 +46,12 @@ function getRangeRenderTime(annotation, field, fallbackField) {
   return mapTimestampToCurrentChartTime(timestamp) ?? annotation[fallbackField] ?? annotation.anchorTime;
 }
 
-function getAnnotationLabel(annotation, pdaType, selected = false) {
+function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegment = false) {
   const contextLabel = formatPrimaryContextLabel(annotation.contexts);
   const baseLabel = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
-  return selected ? `● ${baseLabel}` : baseLabel;
+  if (selected) return `● ${baseLabel}`;
+  if (linkedToSegment) return `↔ ${baseLabel}`;
+  return baseLabel;
 }
 
 function getExtendBars(annotation, fallback = 0) {
@@ -68,28 +73,44 @@ function isCurrentAnnotation(annotation, selection) {
   return Boolean(selection?.id && annotation?.id && String(selection.id) === String(annotation.id));
 }
 
+function getSelectedSegmentPdaIds() {
+  const selection = getSelectedSegment();
+  if (!selection?.id) return new Set();
+  const segment = getSegmentById(selection.id);
+  const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
+  return new Set(responses.map((response) => response.pdaId).filter(Boolean));
+}
+
+function getHighlightColor(isCurrent, isLinkedToSegment, fallback) {
+  if (isCurrent) return SELECTED_COLOR;
+  if (isLinkedToSegment) return LINKED_SEGMENT_COLOR;
+  return fallback;
+}
+
 function shouldShowLabel(annotation) {
   return annotation.display?.showLabel ?? annotation.showLabel ?? true;
 }
 
-function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false) {
-  const label = getAnnotationLabel(annotation, pdaType, isCurrent);
+function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent, isLinkedToSegment);
   const anchorTime = getPointRenderTime(annotation);
   if (anchorTime === undefined || anchorTime === null) return null;
+  const lineColor = getHighlightColor(isCurrent, isLinkedToSegment, pdaType.color);
+  const textColor = getHighlightColor(isCurrent, isLinkedToSegment, pdaType.textColor);
 
   return new LiquidityPrimitive(
     chart.getChart(),
     chart.getSeries(),
     anchorTime,
     annotation.price,
-    isCurrent ? SELECTED_COLOR : pdaType.color,
-    isCurrent ? SELECTED_COLOR : pdaType.textColor,
+    lineColor,
+    textColor,
     label,
     pdaType.labelPosition,
     {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
-      lineWidth: isCurrent ? 3 : 2,
-      labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
+      lineWidth: isCurrent || isLinkedToSegment ? 3 : 2,
+      labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -103,8 +124,9 @@ function isVisibleColor(color) {
   return color && color !== 'transparent';
 }
 
-function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = false) {
+function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = false, isLinkedToSegment = false) {
   if (isCurrent) return SELECTED_COLOR;
+  if (isLinkedToSegment) return LINKED_SEGMENT_COLOR;
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
   if (isFvg && annotation.direction === 'bullish') return '#26a69a';
@@ -112,8 +134,8 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
   return pdaType.color;
 }
 
-function buildRangePrimitive(annotation, pdaType, isCurrent = false) {
-  const label = getAnnotationLabel(annotation, pdaType, isCurrent);
+function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent, isLinkedToSegment);
   const isFvg = annotation.type === 'fvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
@@ -141,20 +163,26 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false) {
     label,
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
-      borderColor: isFvg ? 'transparent' : isCurrent ? SELECTED_COLOR : annotation.borderColor || pdaType.color,
-      midlineColor: getRangeMidlineColor(annotation, pdaType, isCurrent, isFvg),
-      textColor: isCurrent ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
-      lineWidth: isFvg ? 0 : isCurrent ? 2 : 1,
+      borderColor: isFvg
+        ? 'transparent'
+        : getHighlightColor(isCurrent, isLinkedToSegment, annotation.borderColor || pdaType.color),
+      midlineColor: getRangeMidlineColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
+      textColor: getHighlightColor(
+        isCurrent,
+        isLinkedToSegment,
+        annotation.textColor || pdaType.textColor || '#d1d4dc'
+      ),
+      lineWidth: isFvg ? 0 : isCurrent || isLinkedToSegment ? 2 : 1,
       showMidline: getShowCe(annotation),
       midlinePrice: ce?.price ?? null,
       extendBars: getExtendBars(annotation, 0),
-      labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
+      labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),
     }
   );
 }
 
-function buildPointSetPrimitive(annotation, pdaType, isCurrent = false) {
+function buildPointSetPrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
   const points = Array.isArray(annotation.points)
     ? annotation.points
         .map((point) => ({
@@ -168,20 +196,24 @@ function buildPointSetPrimitive(annotation, pdaType, isCurrent = false) {
     : [];
   if (points.length < 1) return null;
 
-  const label = getAnnotationLabel(annotation, pdaType, isCurrent);
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent, isLinkedToSegment);
   const referencePrice =
     annotation.referencePrice ??
     annotation.price ??
     points.reduce((sum, point) => sum + Number(point.price), 0) / points.length;
 
   return new PointSetPrimitive(chart.getChart(), chart.getSeries(), points, referencePrice, label, {
-    lineColor: isCurrent ? SELECTED_COLOR : annotation.color || pdaType.color,
-    textColor: isCurrent ? SELECTED_COLOR : annotation.textColor || pdaType.textColor || '#d1d4dc',
+    lineColor: getHighlightColor(isCurrent, isLinkedToSegment, annotation.color || pdaType.color),
+    textColor: getHighlightColor(
+      isCurrent,
+      isLinkedToSegment,
+      annotation.textColor || pdaType.textColor || '#d1d4dc'
+    ),
     markerPosition: annotation.markerPosition || pdaType.labelPosition || 'above',
-    lineWidth: isCurrent ? 2 : 1,
-    markerSize: isCurrent ? 5 : 4,
+    lineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
+    markerSize: isCurrent || isLinkedToSegment ? 5 : 4,
     extendBars: getExtendBars(annotation, 0),
-    labelFont: isCurrent ? '12px sans-serif' : '11px sans-serif',
+    labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
     showLabel: shouldShowLabel(annotation),
   });
 }
@@ -194,13 +226,15 @@ export function renderPdaAnnotations() {
   if (!chartInstance || !series) return;
 
   const selected = getSelectedPda();
+  const segmentPdaIds = getSelectedSegmentPdaIds();
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
     const isCurrent = isCurrentAnnotation(annotation, selected);
+    const isLinkedToSegment = segmentPdaIds.has(annotation.id);
 
     if (pdaType.shape === 'liquidity-line') {
-      const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent);
+      const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -209,7 +243,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'range') {
-      const primitive = buildRangePrimitive(annotation, pdaType, isCurrent);
+      const primitive = buildRangePrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -218,7 +252,7 @@ export function renderPdaAnnotations() {
     }
 
     if (pdaType.shape === 'point-set') {
-      const primitive = buildPointSetPrimitive(annotation, pdaType, isCurrent);
+      const primitive = buildPointSetPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
       if (!primitive) return;
       chart.attachPrimitive(primitive);
       primitive.requestUpdate();
@@ -231,6 +265,9 @@ export function initPdaRenderer() {
   bus.on('pda:changed', renderPdaAnnotations);
   bus.on('pda:selected', renderPdaAnnotations);
   bus.on('pda:selection-cleared', renderPdaAnnotations);
+  bus.on('segment:selected', renderPdaAnnotations);
+  bus.on('segment:selection-cleared', renderPdaAnnotations);
+  bus.on('segment:changed', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

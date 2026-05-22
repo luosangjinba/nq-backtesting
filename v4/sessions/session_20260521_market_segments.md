@@ -51,6 +51,7 @@
 - Inspector supports deleting the selected segment.
 - Inspector supports showing/hiding the selected segment label.
 - Inspector supports editing/removing linked PDA responses and adding per-response notes.
+- Selecting a segment highlights linked PDA annotations from `segment.pdaResponses`.
 
 ## Not Included
 - No segment export/import yet.
@@ -63,6 +64,7 @@
 - `node --check v4/src/chart/primitives.js`
 - `node --check v4/src/segment/manual-segment.js`
 - `node --check v4/src/segment/segment-store.js`
+- `node --check v4/src/pda/pda-renderer.js`
 - `node --check v4/src/segment/segment-persistence.js`
 - `node --check v4/src/segment/segment-renderer.js`
 - `node --check v4/src/segment/segment-hit-test.js`
