@@ -300,7 +300,10 @@ function renderPdaResponses(segment) {
       return `
         <div class="inspector-response-row">
           <span>${escapeHtml(index + 1)}</span>
-          <span>${escapeHtml(label)}</span>
+          <label class="inspector-toggle inspector-toggle-inline">
+            <input data-inspector-action="segment-response-selected" data-pda-id="${escapeHtml(response.pdaId)}" type="checkbox" ${response.selected ?? true ? 'checked' : ''} />
+            <span>${escapeHtml(label)}</span>
+          </label>
           <select class="inspector-input inspector-mini-select" data-inspector-action="segment-response-relation" data-pda-id="${escapeHtml(response.pdaId)}">
             ${['respected', 'swept', 'approached', 'rejected', 'delivered-through']
               .map(
@@ -471,6 +474,11 @@ function handleInspectorChange(e) {
 
     if (action === 'segment-response-relation') {
       updatePdaResponse(segment.id, e.target.dataset.pdaId, { relation: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-response-selected') {
+      updatePdaResponse(segment.id, e.target.dataset.pdaId, { selected: e.target.checked });
       return;
     }
 

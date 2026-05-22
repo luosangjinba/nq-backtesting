@@ -92,6 +92,7 @@ export function linkPdaResponse(segmentId, pdaResponse) {
     pdaType: pdaResponse.pdaType || 'unknown',
     relation: pdaResponse.relation || 'approached',
     note: pdaResponse.note || '',
+    selected: pdaResponse.selected ?? true,
     linkedAt: Date.now(),
   };
   const existingIndex = responses.findIndex((response) => response.pdaId === nextResponse.pdaId);

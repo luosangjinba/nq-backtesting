@@ -78,7 +78,12 @@ function getSelectedSegmentPdaIds() {
   if (!selection?.id) return new Set();
   const segment = getSegmentById(selection.id);
   const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
-  return new Set(responses.map((response) => response.pdaId).filter(Boolean));
+  return new Set(
+    responses
+      .filter((response) => response.selected ?? true)
+      .map((response) => response.pdaId)
+      .filter(Boolean)
+  );
 }
 
 function getHighlightColor(isCurrent, isLinkedToSegment, fallback) {

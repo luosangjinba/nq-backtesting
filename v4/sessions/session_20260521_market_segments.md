@@ -52,6 +52,7 @@
 - Inspector supports showing/hiding the selected segment label.
 - Inspector supports editing/removing linked PDA responses and adding per-response notes.
 - Selecting a segment highlights linked PDA annotations from `segment.pdaResponses`.
+- Each PDA response has a `selected` toggle that controls whether it participates in selected-segment PDA highlighting.
 
 ## Not Included
 - No segment export/import yet.
