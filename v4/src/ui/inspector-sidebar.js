@@ -1,13 +1,15 @@
-// Hideable right-side inspector for selected chart objects. First pass supports PDA.
+// Hideable right-side inspector for selected chart objects.
 
 import * as bus from '../event-bus.js';
-import { clearSelection, getSelectedPda } from '../pda/pda-selection.js';
+import { clearSelection as clearPdaSelection, getSelectedPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
 import { timeframeToString } from '../config.js';
 import { buildCePrice } from '../price-utils.js';
+import { clearSegmentSelection, getSelectedSegment } from '../segment/segment-selection.js';
+import { getSegmentById, updateSegment } from '../segment/segment-store.js';
 import * as store from '../data/bar-store.js';
 
 let sidebarEl = null;
@@ -256,10 +258,65 @@ function renderAnnotation(annotation) {
     common + detail + renderEditFields(annotation) + renderDisplaySettings(annotation) + renderArchiveActions();
 }
 
+function formatTags(tags = []) {
+  return Array.isArray(tags) && tags.length ? tags.join(', ') : '';
+}
+
+function parseTags(value) {
+  return String(value || '')
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function renderSegmentPoint(title, point) {
+  return section(
+    title,
+    [
+      field('Kind', point?.kind || '—'),
+      field('Time', formatTime(point?.timestamp ?? point?.time)),
+      field('Price', formatNumber(point?.price)),
+    ].join('')
+  );
+}
+
+function renderSegment(segment) {
+  const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+  const common = section(
+    'Market Segment',
+    [
+      field('Selected', `● ${segment.timeframe || '1H'} ${String(segment.direction || 'flat').toUpperCase()} LEG`),
+      field('Direction', segment.direction || '—'),
+      field('Timeframe', segment.timeframe || '1H'),
+      field('Source', segment.source || 'manual'),
+      field('ID', segment.id),
+      field('PDA Responses', responses.length),
+      field('Created', formatDateTimeMs(segment.createdAt)),
+      field('Updated', formatDateTimeMs(segment.updatedAt)),
+    ].join('')
+  );
+  const edit = section(
+    'Review Notes',
+    [
+      controlField(
+        'Narrative',
+        `<textarea class="inspector-textarea" data-inspector-action="segment-narrative" rows="5" placeholder="Why did this leg move this way?">${escapeHtml(segment.narrative || '')}</textarea>`
+      ),
+      controlField(
+        'Tags',
+        `<input class="inspector-input" data-inspector-action="segment-tags" type="text" value="${escapeHtml(formatTags(segment.tags))}" placeholder="accumulation, expansion" />`
+      ),
+    ].join('')
+  );
+
+  bodyEl.innerHTML =
+    common + renderSegmentPoint('Start', segment.start) + renderSegmentPoint('End', segment.end) + edit;
+}
+
 function renderEmpty() {
   bodyEl.innerHTML = `
     <div class="inspector-empty">
-      Select a PDA on the chart.
+      Select a PDA or 1H segment on the chart.
     </div>
     ${renderArchiveActions()}
   `;
@@ -274,19 +331,25 @@ function closeSidebar() {
 }
 
 function refreshSelection() {
-  const selection = getSelectedPda();
-  if (!selection) {
-    renderEmpty();
-    return;
+  const pdaSelection = getSelectedPda();
+  if (pdaSelection) {
+    const annotation = getAnnotationById(pdaSelection.id);
+    if (annotation) {
+      renderAnnotation(annotation);
+      return;
+    }
   }
 
-  const annotation = getAnnotationById(selection.id);
-  if (!annotation) {
-    renderEmpty();
-    return;
+  const segmentSelection = getSelectedSegment();
+  if (segmentSelection) {
+    const segment = getSegmentById(segmentSelection.id);
+    if (segment) {
+      renderSegment(segment);
+      return;
+    }
   }
 
-  renderAnnotation(annotation);
+  renderEmpty();
 }
 
 function createSidebar() {
@@ -312,6 +375,11 @@ function getCurrentAnnotation() {
   return selection ? getAnnotationById(selection.id) : null;
 }
 
+function getCurrentSegment() {
+  const selection = getSelectedSegment();
+  return selection ? getSegmentById(selection.id) : null;
+}
+
 function handleInspectorChange(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
@@ -320,6 +388,19 @@ function handleInspectorChange(e) {
     importPdaArchive(e.target.files?.[0]);
     e.target.value = '';
     return;
+  }
+
+  const segment = getCurrentSegment();
+  if (segment) {
+    if (action === 'segment-narrative') {
+      updateSegment(segment.id, { narrative: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-tags') {
+      updateSegment(segment.id, { tags: parseTags(e.target.value) });
+      return;
+    }
   }
 
   const annotation = getCurrentAnnotation();
@@ -386,7 +467,7 @@ function handleInspectorClick(e) {
 
   if (action === 'delete') {
     deleteAnnotation(annotation.id);
-    clearSelection();
+    clearPdaSelection();
     renderEmpty();
     return;
   }
@@ -402,7 +483,7 @@ function removePointFromSet(annotation, pointIndex) {
 
   if (nextPoints.length < 2) {
     deleteAnnotation(annotation.id);
-    clearSelection();
+    clearPdaSelection();
     renderEmpty();
     bus.emit('status:update', {
       text: `${getPdaType(annotation.type)?.label || annotation.type.toUpperCase()} 少于 2 个点，集合已删除`,
@@ -426,10 +507,17 @@ export function initInspectorSidebar() {
     renderAnnotation(annotation);
     openSidebar();
   });
-  bus.on('pda:selection-cleared', renderEmpty);
+  bus.on('pda:selection-cleared', refreshSelection);
   bus.on('pda:changed', refreshSelection);
+  bus.on('segment:selected', ({ segment }) => {
+    renderSegment(segment);
+    openSidebar();
+  });
+  bus.on('segment:selection-cleared', refreshSelection);
+  bus.on('segment:changed', refreshSelection);
   bus.on('bars:cleared', () => {
-    clearSelection();
+    clearPdaSelection();
+    clearSegmentSelection();
     renderEmpty();
   });
 }

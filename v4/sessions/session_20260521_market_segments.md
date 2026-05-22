@@ -35,10 +35,12 @@
   - Down leg: start uses high, end uses low.
 - Segment data includes placeholders for future `pdaResponses`, `narrative`, and `tags`.
 - Segments are session-only for now.
+- Clicking a segment line or endpoint selects it.
+- Selected segments render with a brighter, thicker line and larger endpoint markers.
+- Inspector shows selected segment metadata, start/end points, direction, and PDA response count.
+- Inspector supports editing segment `narrative` and comma-separated `tags`.
 
 ## Not Included
-- No segment hit-test or selection yet.
-- No Inspector support yet.
 - No PDA response linking yet.
 - No persistence/export yet.
 - No opportunity review model yet.
@@ -51,11 +53,13 @@
 - `node --check v4/src/segment/manual-segment.js`
 - `node --check v4/src/segment/segment-store.js`
 - `node --check v4/src/segment/segment-renderer.js`
+- `node --check v4/src/segment/segment-hit-test.js`
+- `node --check v4/src/segment/segment-selection.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
 - `git diff --check`
 - Headless Chrome load check for `http://127.0.0.1:8001/v4/index.html`
 
 ## Next
-- Add segment hit-test and selection.
-- Extend Inspector to show selected segment start/end/direction.
-- Add narrative/tags editing.
 - Add manual PDA response linking from selected segment to PDA.
+- Add segment localStorage draft persistence.
+- Extend archive export/import to include market segments.

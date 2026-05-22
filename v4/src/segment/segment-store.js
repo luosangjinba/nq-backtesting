@@ -51,6 +51,26 @@ export function clearSegments() {
   emitChanged();
 }
 
+export function updateSegment(id, patch = {}) {
+  const { id: _ignoredId, createdAt: _ignoredCreatedAt, ...safePatch } = patch;
+  let updated = null;
+
+  segments = segments.map((segment) => {
+    if (segment.id !== id) return segment;
+    updated = {
+      ...segment,
+      ...safePatch,
+      id: segment.id,
+      createdAt: segment.createdAt,
+      updatedAt: Date.now(),
+    };
+    return updated;
+  });
+
+  if (updated) emitChanged();
+  return updated;
+}
+
 export function getSegments() {
   return [...segments];
 }

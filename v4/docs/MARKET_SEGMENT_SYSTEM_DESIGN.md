@@ -88,9 +88,7 @@ An opportunity review studies a time-window model in replay mode. It should even
 
 ## Next Steps
 
-1. Add segment hit-test and selection.
-2. Extend Inspector to display selected segments.
-3. Add manual PDA response linking from selected segment to PDA.
-4. Add localStorage draft persistence.
-5. Extend archive export to include `pdaAnnotations` and `marketSegments`.
-6. Build opportunity review objects for 2022-only 09:30 Judas Swing / OTE / Purge & OB research.
+1. Add manual PDA response linking from selected segment to PDA.
+2. Add localStorage draft persistence.
+3. Extend archive export to include `pdaAnnotations` and `marketSegments`.
+4. Build opportunity review objects for 2022-only 09:30 Judas Swing / OTE / Purge & OB research.

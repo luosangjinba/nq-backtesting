@@ -1,0 +1,62 @@
+// Pixel-based hit testing for market segments.
+
+import * as chart from '../chart/chart-manager.js';
+import { getSegments } from './segment-store.js';
+
+const LINE_TOLERANCE_PX = 7;
+const MARKER_TOLERANCE_PX = 8;
+
+function getTimeCoordinate(time) {
+  if (time === undefined || time === null) return null;
+  return chart.timeToCoordinate(time);
+}
+
+function getPriceCoordinate(price) {
+  if (price === undefined || price === null) return null;
+  return chart.priceToCoordinate(Number(price));
+}
+
+function distanceToLineSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared === 0) return Math.hypot(px - x1, py - y1);
+
+  const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared));
+  const projectionX = x1 + t * dx;
+  const projectionY = y1 + t * dy;
+  return Math.hypot(px - projectionX, py - projectionY);
+}
+
+function hitSegment(segment, x, y) {
+  const startX = getTimeCoordinate(segment.start?.time);
+  const startY = getPriceCoordinate(segment.start?.price);
+  const endX = getTimeCoordinate(segment.end?.time);
+  const endY = getPriceCoordinate(segment.end?.price);
+
+  if (startX === null || startY === null || endX === null || endY === null) return null;
+
+  const markerDistance = Math.min(Math.hypot(x - startX, y - startY), Math.hypot(x - endX, y - endY));
+  const lineDistance = distanceToLineSegment(x, y, startX, startY, endX, endY);
+  const distance = Math.min(markerDistance, lineDistance);
+
+  if (markerDistance > MARKER_TOLERANCE_PX && lineDistance > LINE_TOLERANCE_PX) return null;
+
+  return {
+    id: segment.id,
+    type: 'market-segment',
+    distance,
+    reason: markerDistance <= MARKER_TOLERANCE_PX ? 'segment-marker' : 'segment-line',
+  };
+}
+
+export function hitTestSegments({ x, y }) {
+  const hits = [];
+
+  getSegments().forEach((segment) => {
+    const hit = hitSegment(segment, x, y);
+    if (hit) hits.push(hit);
+  });
+
+  return hits.sort((a, b) => a.distance - b.distance)[0] || null;
+}

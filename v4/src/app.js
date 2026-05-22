@@ -17,6 +17,7 @@ import { initPdaRenderer } from './pda/pda-renderer.js';
 import { initPdaSelection } from './pda/pda-selection.js';
 import { initManualSegment } from './segment/manual-segment.js';
 import { initSegmentRenderer } from './segment/segment-renderer.js';
+import { initSegmentSelection } from './segment/segment-selection.js';
 
 console.log('[V4] app.js loaded');
 
@@ -70,4 +71,5 @@ console.log('[V4] PDA controls initialized');
 
 initSegmentRenderer();
 initManualSegment();
+initSegmentSelection();
 console.log('[V4] Segment controls initialized');

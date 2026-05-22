@@ -4,8 +4,10 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
 import { getSegments } from './segment-store.js';
+import { getSelectedSegment } from './segment-selection.js';
 
 let renderedPrimitives = [];
+const SELECTED_COLOR = '#f0f3fa';
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
@@ -23,8 +25,10 @@ export function renderSegments() {
   const series = chart.getSeries();
   if (!chartInstance || !series) return;
 
+  const selected = getSelectedSegment();
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
+    const isCurrent = selected?.id === segment.id;
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,
@@ -34,9 +38,11 @@ export function renderSegments() {
       segment.end.price,
       getSegmentLabel(segment),
       {
-        lineColor: segment.direction === 'down' ? '#ef5350' : '#26a69a',
+        lineColor: isCurrent ? SELECTED_COLOR : segment.direction === 'down' ? '#ef5350' : '#26a69a',
         textColor: '#f0f3fa',
-        markerColor: '#f0f3fa',
+        markerColor: isCurrent ? SELECTED_COLOR : '#f0f3fa',
+        lineWidth: isCurrent ? 3 : 2,
+        markerSize: isCurrent ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
       }
     );
@@ -48,6 +54,8 @@ export function renderSegments() {
 
 export function initSegmentRenderer() {
   bus.on('segment:changed', renderSegments);
+  bus.on('segment:selected', renderSegments);
+  bus.on('segment:selection-cleared', renderSegments);
   bus.on('bars:loaded', renderSegments);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

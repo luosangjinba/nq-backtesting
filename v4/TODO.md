@@ -54,8 +54,8 @@
 - [x] Step 26: 设计 1H market segment 数据结构与模块边界
 - [x] Step 27: Segment renderer 最小版（起点/终点 marker、方向线、箭头、label）
 - [x] Step 28: 手动创建 1H 行情段（右键起点/终点）
-- [ ] Step 29: Segment hit-test + selection
-- [ ] Step 30: Inspector 显示/编辑 segment narrative、tags、起终点信息
+- [x] Step 29: Segment hit-test + selection
+- [x] Step 30: Inspector 显示/编辑 segment narrative、tags、起终点信息
 - [ ] Step 31: Segment 与 PDA 手动关联，并记录 respected/swept/approached/rejected/delivered-through
 - [ ] Step 32: Segment localStorage 草稿与 export/import 扩展
 
@@ -137,3 +137,4 @@
 - 2026-05-21: Review hardening 完成：Inspector 动态文本统一 escape；PDA archive import 增加类型/shape 最小校验、语义重复跳过、range CE 重算；CE 显示开关文案改为 `CE Visible`
 - 2026-05-21: Phase 5 Step 25 手工验收通过：export/import、per-annotation label、CE 显示/隐藏、NQ 0.25 tick 对齐已确认；`feature/v4-pda-export-import` 可合并回 `main`
 - 2026-05-21: Phase 6 启动 1H 行情段系统；segment 独立于 PDA store，第一版只做手动 1H 起终点连接和显式图表绘制，后续再做 selection、Inspector、PDA response linking
+- 2026-05-21: Phase 6 Step 29-30 完成最小版：segment 支持 line/marker hit-test、点击选中、高亮显示；Inspector 支持查看起终点/方向并编辑 narrative/tags
