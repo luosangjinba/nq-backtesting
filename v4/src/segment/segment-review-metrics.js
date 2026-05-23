@@ -1,5 +1,7 @@
 // Read-only metrics for reviewing 1H market segments.
 
+import { getPdaType } from '../pda/pda-types.js';
+
 const PRICE_EPSILON = 0.0000001;
 
 function asNumber(value) {
@@ -175,16 +177,306 @@ function computeTerminalBarFacts(segment, bars) {
   };
 }
 
-export function computeSegmentReviewMetrics(segment, { segments = [], bars = [] } = {}) {
+function getRangeBounds(annotation) {
+  const top = asNumber(annotation?.topPrice ?? annotation?.priceHigh);
+  const bottom = asNumber(annotation?.bottomPrice ?? annotation?.priceLow);
+  if (top === null || bottom === null) return null;
+  return {
+    top: Math.max(top, bottom),
+    bottom: Math.min(top, bottom),
+  };
+}
+
+function getRangeCe(annotation, bounds) {
+  return asNumber(annotation?.ce?.price) ?? (bounds.top + bounds.bottom) / 2;
+}
+
+function inRange(high, low, bounds) {
+  return high >= bounds.bottom - PRICE_EPSILON && low <= bounds.top + PRICE_EPSILON;
+}
+
+function getRangeDepth({ direction, high, low, bounds }) {
+  const rangePoints = bounds.top - bounds.bottom;
+  if (!rangePoints) return null;
+
+  if (direction === 'up') {
+    const deepestPrice = Math.min(high, bounds.top);
+    const entryPoints = Math.max(0, deepestPrice - bounds.bottom);
+    return {
+      entryBoundary: 'lower',
+      deepestPrice,
+      entryPoints,
+      entryPercentOfRange: (entryPoints / rangePoints) * 100,
+    };
+  }
+
+  if (direction === 'down') {
+    const deepestPrice = Math.max(low, bounds.bottom);
+    const entryPoints = Math.max(0, bounds.top - deepestPrice);
+    return {
+      entryBoundary: 'upper',
+      deepestPrice,
+      entryPoints,
+      entryPercentOfRange: (entryPoints / rangePoints) * 100,
+    };
+  }
+
+  const deepestPrice = high - bounds.top <= bounds.bottom - low ? bounds.top : bounds.bottom;
+  return {
+    entryBoundary: 'unknown',
+    deepestPrice,
+    entryPoints: 0,
+    entryPercentOfRange: 0,
+  };
+}
+
+function computeRangeReaction(annotation, terminalBar, direction) {
+  const bounds = getRangeBounds(annotation);
+  if (!bounds || !terminalBar.found) return null;
+  const rangePoints = bounds.top - bounds.bottom;
+  const cePrice = getRangeCe(annotation, bounds);
+  const wickTouched = inRange(terminalBar.high, terminalBar.low, bounds);
+  const bodyTouched = inRange(terminalBar.bodyHigh, terminalBar.bodyLow, bounds);
+  const wickDepth = wickTouched
+    ? getRangeDepth({ direction, high: terminalBar.high, low: terminalBar.low, bounds })
+    : null;
+  const bodyDepth = bodyTouched
+    ? getRangeDepth({ direction, high: terminalBar.bodyHigh, low: terminalBar.bodyLow, bounds })
+    : null;
+  const wickTouchedCe = terminalBar.high >= cePrice - PRICE_EPSILON && terminalBar.low <= cePrice + PRICE_EPSILON;
+  const bodyTouchedCe =
+    terminalBar.bodyHigh >= cePrice - PRICE_EPSILON && terminalBar.bodyLow <= cePrice + PRICE_EPSILON;
+
+  const deliveredThrough =
+    direction === 'up'
+      ? terminalBar.close > bounds.top + PRICE_EPSILON
+      : direction === 'down'
+        ? terminalBar.close < bounds.bottom - PRICE_EPSILON
+        : false;
+  const sweptThenReversed =
+    direction === 'up'
+      ? terminalBar.high > bounds.top + PRICE_EPSILON && terminalBar.close <= bounds.top + PRICE_EPSILON
+      : direction === 'down'
+        ? terminalBar.low < bounds.bottom - PRICE_EPSILON && terminalBar.close >= bounds.bottom - PRICE_EPSILON
+        : false;
+  const approachDistancePoints = wickTouched
+    ? 0
+    : direction === 'up'
+      ? Math.max(0, bounds.bottom - terminalBar.high)
+      : direction === 'down'
+        ? Math.max(0, terminalBar.low - bounds.top)
+        : Math.min(Math.abs(terminalBar.high - bounds.bottom), Math.abs(terminalBar.low - bounds.top));
+
+  return {
+    shape: 'range',
+    topPrice: bounds.top,
+    bottomPrice: bounds.bottom,
+    rangePoints,
+    cePrice,
+    wick: {
+      touched: wickTouched,
+      touchedCe: wickTouchedCe,
+      ...wickDepth,
+    },
+    body: {
+      touched: bodyTouched,
+      touchedCe: bodyTouchedCe,
+      ...bodyDepth,
+    },
+    approachedButNotTouched: !wickTouched,
+    approachDistancePoints,
+    sweptThenReversed,
+    deliveredThrough,
+  };
+}
+
+function getLiquidityLevel(annotation) {
+  return asNumber(annotation?.referencePrice ?? annotation?.price);
+}
+
+function getLiquiditySide(annotation, pdaType) {
+  if (pdaType?.priceField === 'high' || annotation?.type === 'eqh') return 'high';
+  if (pdaType?.priceField === 'low' || annotation?.type === 'eql') return 'low';
+  return 'unknown';
+}
+
+function computeLiquidityReaction(annotation, pdaType, terminalBar) {
+  const level = getLiquidityLevel(annotation);
+  if (level === null || !terminalBar.found) return null;
+  const side = getLiquiditySide(annotation, pdaType);
+  const isHighSide = side === 'high';
+  const testExtreme = isHighSide ? terminalBar.high : terminalBar.low;
+  const swept = isHighSide
+    ? testExtreme > level + PRICE_EPSILON
+    : testExtreme < level - PRICE_EPSILON;
+  const exactEquality = Math.abs(testExtreme - level) <= PRICE_EPSILON;
+  const sweepDistancePoints = swept ? Math.abs(testExtreme - level) : 0;
+  const approachDistancePoints = swept || exactEquality ? 0 : Math.abs(testExtreme - level);
+  const closeBackThroughLevel = swept
+    ? isHighSide
+      ? terminalBar.close < level - PRICE_EPSILON
+      : terminalBar.close > level + PRICE_EPSILON
+    : false;
+  const deliveredThrough = swept && !closeBackThroughLevel;
+
+  return {
+    shape: 'liquidity',
+    side,
+    level,
+    swept,
+    exactEquality,
+    approachedButNotSwept: !swept && !exactEquality,
+    approachDistancePoints,
+    sweepDistancePoints,
+    closeBackThroughLevel,
+    sweptThenReversed: swept && closeBackThroughLevel,
+    deliveredThrough,
+  };
+}
+
+function getFibLevelPrice(annotation, levelValue) {
+  const startPrice = asNumber(annotation?.start?.price);
+  const endPrice = asNumber(annotation?.end?.price);
+  const value = asNumber(levelValue);
+  if (startPrice === null || endPrice === null || value === null) return null;
+  return endPrice - (endPrice - startPrice) * value;
+}
+
+function computeFibReaction(annotation, terminalBar, direction) {
+  if (!terminalBar.found) return null;
+  const levels = Array.isArray(annotation?.levels)
+    ? annotation.levels
+        .filter((level) => level?.visible !== false)
+        .map((level) => ({
+          value: asNumber(level.value),
+          price: getFibLevelPrice(annotation, level.value),
+        }))
+        .filter((level) => level.value !== null && level.price !== null)
+    : [];
+  if (!levels.length) return null;
+
+  const enrichedLevels = levels
+    .map((level) => {
+      const wickTouched =
+        terminalBar.high >= level.price - PRICE_EPSILON && terminalBar.low <= level.price + PRICE_EPSILON;
+      const bodyTouched =
+        terminalBar.bodyHigh >= level.price - PRICE_EPSILON && terminalBar.bodyLow <= level.price + PRICE_EPSILON;
+      const distancePoints = wickTouched
+        ? 0
+        : Math.min(Math.abs(terminalBar.high - level.price), Math.abs(terminalBar.low - level.price));
+      return {
+        ...level,
+        wickTouched,
+        bodyTouched,
+        distancePoints,
+      };
+    })
+    .sort((a, b) => a.distancePoints - b.distancePoints);
+
+  const nearest = enrichedLevels[0];
+  const swept =
+    direction === 'up'
+      ? terminalBar.high > nearest.price + PRICE_EPSILON
+      : direction === 'down'
+        ? terminalBar.low < nearest.price - PRICE_EPSILON
+        : false;
+  const deliveredThrough =
+    direction === 'up'
+      ? terminalBar.close > nearest.price + PRICE_EPSILON
+      : direction === 'down'
+        ? terminalBar.close < nearest.price - PRICE_EPSILON
+        : false;
+
+  return {
+    shape: 'fib',
+    nearestLevel: nearest,
+    wickTouched: nearest.wickTouched,
+    bodyTouched: nearest.bodyTouched,
+    swept,
+    sweptThenReversed: swept && !deliveredThrough,
+    deliveredThrough: swept && deliveredThrough,
+  };
+}
+
+function getCandidateDistance(reaction) {
+  if (!reaction) return Number.POSITIVE_INFINITY;
+  if (reaction.shape === 'range') return reaction.approachDistancePoints ?? 0;
+  if (reaction.shape === 'liquidity') return reaction.approachDistancePoints ?? reaction.sweepDistancePoints ?? 0;
+  if (reaction.shape === 'fib') return reaction.nearestLevel?.distancePoints ?? 0;
+  return Number.POSITIVE_INFINITY;
+}
+
+function isCandidateTouched(reaction) {
+  if (!reaction) return false;
+  if (reaction.shape === 'range') return Boolean(reaction.wick?.touched);
+  if (reaction.shape === 'liquidity') return Boolean(reaction.swept || reaction.exactEquality);
+  if (reaction.shape === 'fib') return Boolean(reaction.wickTouched);
+  return false;
+}
+
+function isCandidateBodyTouched(reaction) {
+  if (!reaction) return false;
+  if (reaction.shape === 'range') return Boolean(reaction.body?.touched);
+  if (reaction.shape === 'fib') return Boolean(reaction.bodyTouched);
+  return false;
+}
+
+function computePdaReaction(annotation, terminalBar, direction) {
+  const pdaType = getPdaType(annotation?.type);
+  if (!pdaType) return null;
+  if (pdaType.shape === 'range') return computeRangeReaction(annotation, terminalBar, direction);
+  if (pdaType.shape === 'liquidity-line' || pdaType.shape === 'point-set') {
+    return computeLiquidityReaction(annotation, pdaType, terminalBar);
+  }
+  if (pdaType.shape === 'fib-retracement') return computeFibReaction(annotation, terminalBar, direction);
+  return null;
+}
+
+function computeTerminalPdaCandidates(segment, annotations, terminalBar, direction) {
+  const annotationById = new Map(
+    (Array.isArray(annotations) ? annotations : [])
+      .filter((annotation) => annotation?.id)
+      .map((annotation) => [annotation.id, annotation])
+  );
+  const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
+
+  return responses
+    .map((response) => {
+      const annotation = annotationById.get(response.pdaId);
+      const pdaType = getPdaType(annotation?.type ?? response.pdaType);
+      const reaction = annotation ? computePdaReaction(annotation, terminalBar, direction) : null;
+      return {
+        pdaId: response.pdaId,
+        pdaType: annotation?.type ?? response.pdaType ?? 'unknown',
+        label: pdaType?.label || String(annotation?.type ?? response.pdaType ?? 'PDA').toUpperCase(),
+        relation: response.relation || 'approached',
+        found: Boolean(annotation),
+        reaction,
+        touched: isCandidateTouched(reaction),
+        bodyTouched: isCandidateBodyTouched(reaction),
+        distancePoints: getCandidateDistance(reaction),
+      };
+    })
+    .sort((a, b) => {
+      if (a.found !== b.found) return a.found ? -1 : 1;
+      if (a.touched !== b.touched) return a.touched ? -1 : 1;
+      if (a.bodyTouched !== b.bodyTouched) return a.bodyTouched ? -1 : 1;
+      return a.distancePoints - b.distancePoints;
+    });
+}
+
+export function computeSegmentReviewMetrics(segment, { segments = [], bars = [], annotations = [] } = {}) {
   const previousSegment = findPreviousSegment(segment, segments);
   const previousComparison = computePreviousComparison(segment, previousSegment);
   const terminalBar = computeTerminalBarFacts(segment, bars);
+  const direction = getDirection(segment);
 
   return {
     version: 1,
     segmentId: segment?.id || null,
-    direction: getDirection(segment),
+    direction,
     previousComparison,
     terminalBar,
+    terminalPdaCandidates: computeTerminalPdaCandidates(segment, annotations, terminalBar, direction),
   };
 }

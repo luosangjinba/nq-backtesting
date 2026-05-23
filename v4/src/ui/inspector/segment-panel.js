@@ -1,4 +1,4 @@
-import { getAnnotationById } from '../../pda/pda-store.js';
+import { getAnnotationById, getAnnotations } from '../../pda/pda-store.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import { getBars } from '../../data/bar-store.js';
 import { computeSegmentReviewMetrics } from '../../segment/segment-review-metrics.js';
@@ -95,10 +95,68 @@ function formatBoolean(value) {
   return value ? 'yes' : 'no';
 }
 
+function formatReactionSummary(candidate) {
+  const reaction = candidate.reaction;
+  if (!candidate.found) return 'missing linked PDA';
+  if (!reaction) return 'not measurable';
+
+  if (reaction.shape === 'range') {
+    if (reaction.deliveredThrough) return 'range delivered through';
+    if (reaction.sweptThenReversed) return 'range swept then reversed';
+    if (reaction.body?.touchedCe) return 'CE touched by body';
+    if (reaction.wick?.touchedCe) return 'CE touched by wick';
+    if (reaction.body?.touched) return 'range touched by body';
+    if (reaction.wick?.touched) return 'range touched by wick';
+    return `approached ${formatNumber(reaction.approachDistancePoints)} pts`;
+  }
+
+  if (reaction.shape === 'liquidity') {
+    if (reaction.sweptThenReversed) return 'swept then reversed';
+    if (reaction.deliveredThrough) return 'swept and delivered through';
+    if (reaction.exactEquality) return 'exact equality';
+    return `approached ${formatNumber(reaction.approachDistancePoints)} pts`;
+  }
+
+  if (reaction.shape === 'fib') {
+    const level = reaction.nearestLevel;
+    const levelText = level ? `${formatRatio(level.value)} @ ${formatNumber(level.price)}` : '—';
+    if (reaction.deliveredThrough) return `level delivered through ${levelText}`;
+    if (reaction.sweptThenReversed) return `level swept then reversed ${levelText}`;
+    if (reaction.bodyTouched) return `level touched by body ${levelText}`;
+    if (reaction.wickTouched) return `level touched by wick ${levelText}`;
+    return `nearest level ${levelText}`;
+  }
+
+  return reaction.shape || 'unknown';
+}
+
+function renderTerminalPdaCandidates(candidates = []) {
+  if (!candidates.length) {
+    return '<div class="inspector-empty">No linked PDA candidates</div>';
+  }
+
+  const rows = candidates
+    .map(
+      (candidate, index) => `
+        <div class="inspector-response-row">
+          <span>${escapeHtml(index + 1)}</span>
+          <span>${escapeHtml(candidate.label)}</span>
+          <span>${escapeHtml(formatReactionSummary(candidate))}</span>
+          <span>distance ${escapeHtml(formatNumber(candidate.distancePoints))}</span>
+          <span>${escapeHtml(candidate.relation)}</span>
+        </div>
+      `
+    )
+    .join('');
+
+  return `<div class="inspector-point-list">${rows}</div>`;
+}
+
 function renderReviewMetrics(segment) {
   const metrics = computeSegmentReviewMetrics(segment, {
     segments: getSegments(),
     bars: getBars(),
+    annotations: getAnnotations(),
   });
   const comparison = metrics.previousComparison;
   const terminal = metrics.terminalBar;
@@ -138,7 +196,10 @@ function renderReviewMetrics(segment) {
       ]
     : [field('Terminal Bar', terminal.incompleteReason)];
 
-  return section('Review Metrics', [...comparisonFields, ...terminalFields].join(''));
+  return (
+    section('Review Metrics', [...comparisonFields, ...terminalFields].join('')) +
+    section('Terminal PDA Candidates', renderTerminalPdaCandidates(metrics.terminalPdaCandidates))
+  );
 }
 
 export function renderSegmentPanel(segment) {

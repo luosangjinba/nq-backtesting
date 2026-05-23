@@ -115,6 +115,42 @@ Fluency metrics:
 - Segment Inspector now shows a read-only `Review Metrics` section for this foundation.
 - No `segment.review` storage or archive schema change was added.
 
+## PDA Reaction Metrics Follow-up
+- Implemented Phase 7 Step 43 read-only PDA-specific terminal reaction metrics.
+- Segment-linked PDA are now listed under `Terminal PDA Candidates` in the Segment Inspector.
+- Candidate inputs are limited to `segment.pdaResponses`; the system does not infer unrelated PDA yet.
+- Candidate sorting prioritizes:
+  - existing linked annotation
+  - terminal bar touch/sweep/equality
+  - body touch where applicable
+  - distance to terminal bar
+- Range PDA support:
+  - FVG / OB / Breaker / NDOG / NWOG
+  - wick/body range touch
+  - wick/body CE touch
+  - entry depth in points
+  - entry depth percent of range
+  - approached but not touched
+  - swept then reversed
+  - delivered through
+- Liquidity PDA support:
+  - BSL / SSL
+  - EQH / EQL point-set reference line
+  - swept
+  - exact equality
+  - approached but not swept
+  - sweep distance
+  - approach distance
+  - close back through level
+  - delivered through
+- Fib support:
+  - nearest visible level
+  - wick/body touch
+  - swept then reversed
+  - delivered through
+- No controlled review selection was added.
+- No `segment.review` persistence or Review JSON schema change was added.
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`
@@ -128,8 +164,10 @@ Fluency metrics:
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.
 
 ## Next
-- Continue with Phase 7 Step 43:
-  - PDA-specific terminal reaction metrics
-  - range wick/body entry depth
-  - liquidity sweep/approach/equality
-  - Fib level reaction
+- Continue with Phase 7 Step 44:
+  - segment fluency component metrics
+  - directional efficiency
+  - overlap/chop ratio
+  - counter-direction close ratio
+  - max adverse excursion
+  - points per bar
