@@ -7,6 +7,8 @@
 - 页面入口：[v4/index.html](/home/leo/myworkspace/trading/backtesting/v4/index.html)
 - API：[v4/v4_api.py](/home/leo/myworkspace/trading/backtesting/v4/v4_api.py)
 - Inspector 帮助：[v4/docs/INSPECTOR_HELP.md](/home/leo/myworkspace/trading/backtesting/v4/docs/INSPECTOR_HELP.md)
+- 中文用户说明书：[v4/docs/USER_GUIDE.zh-CN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.zh-CN.md)
+- English user guide：[v4/docs/USER_GUIDE.en.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.en.md)
 - Segment review 设计：[v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md)
 - 当前 TODO：[v4/TODO.md](/home/leo/myworkspace/trading/backtesting/v4/TODO.md)
 
