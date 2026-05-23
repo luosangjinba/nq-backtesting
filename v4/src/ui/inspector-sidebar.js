@@ -16,6 +16,14 @@ import {
   updatePdaResponse,
   updateSegment,
 } from '../segment/segment-store.js';
+import {
+  addSegmentToDraftGroup,
+  clearDraftSegmentGroup,
+  createCompositeMove,
+  deleteSegmentGroup,
+  removeSegmentFromDraftGroup,
+  updateSegmentGroup,
+} from '../segment/segment-group-store.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
 import {
   getPointSetContext,
@@ -204,6 +212,16 @@ function handleInspectorChange(e) {
       updatePdaResponse(segment.id, e.target.dataset.pdaId, { note: e.target.value });
       return;
     }
+
+    if (action === 'segment-group-outcome') {
+      updateSegmentGroup(e.target.dataset.groupId, { outcome: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-group-notes') {
+      updateSegmentGroup(e.target.dataset.groupId, { notes: e.target.value });
+      return;
+    }
   }
 
   const annotation = getCurrentAnnotation();
@@ -288,6 +306,41 @@ function handleInspectorClick(e) {
       removePdaResponse(segment.id, e.target.dataset.pdaId);
       return;
     }
+
+    if (action === 'segment-group-draft-add') {
+      addSegmentToDraftGroup(segment.id);
+      return;
+    }
+
+    if (action === 'segment-group-draft-remove') {
+      removeSegmentFromDraftGroup(segment.id);
+      return;
+    }
+
+    if (action === 'segment-group-draft-clear') {
+      clearDraftSegmentGroup();
+      return;
+    }
+
+    if (action === 'segment-group-create') {
+      const targetSegmentId = bodyEl?.querySelector('[data-inspector-action="segment-group-target"]')?.value || '';
+      const objective =
+        bodyEl?.querySelector('[data-inspector-action="segment-group-objective"]')?.value ||
+        'break-previous-extreme';
+      const outcome =
+        bodyEl?.querySelector('[data-inspector-action="segment-group-create-outcome"]')?.value || 'pending';
+      const group = createCompositeMove({ targetSegmentId, objective, outcome });
+      bus.emit('status:update', {
+        text: group ? `已创建 Composite Move: ${group.childSegmentIds.length} legs` : '至少需要 2 个 staged segments',
+        isError: !group,
+      });
+      return;
+    }
+
+    if (action === 'segment-group-delete') {
+      deleteSegmentGroup(e.target.dataset.groupId);
+      return;
+    }
   }
 
   const annotation = getCurrentAnnotation();
@@ -343,6 +396,7 @@ export function initInspectorSidebar() {
   });
   bus.on('segment:selection-cleared', refreshSelection);
   bus.on('segment:changed', refreshSelection);
+  bus.on('segment-group:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();

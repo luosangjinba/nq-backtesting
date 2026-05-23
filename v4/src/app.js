@@ -19,6 +19,7 @@ import { initManualSegment } from './segment/manual-segment.js';
 import { initSegmentPersistence } from './segment/segment-persistence.js';
 import { initSegmentRenderer } from './segment/segment-renderer.js';
 import { initSegmentSelection } from './segment/segment-selection.js';
+import { initSegmentGroups } from './segment/segment-group-store.js';
 
 console.log('[V4] app.js loaded');
 
@@ -71,6 +72,7 @@ initInspectorSidebar();
 console.log('[V4] PDA controls initialized');
 
 initSegmentRenderer();
+initSegmentGroups();
 initSegmentPersistence();
 initManualSegment();
 initSegmentSelection();

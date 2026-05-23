@@ -3,6 +3,11 @@ import { getPdaType } from '../../pda/pda-types.js';
 import { getBars } from '../../data/bar-store.js';
 import { computeSegmentReviewMetrics } from '../../segment/segment-review-metrics.js';
 import { getSegments } from '../../segment/segment-store.js';
+import { computeSegmentGroupMetrics } from '../../segment/segment-group-metrics.js';
+import {
+  getDraftSegmentGroupChildIds,
+  getSegmentGroupsForSegment,
+} from '../../segment/segment-group-store.js';
 import {
   controlField,
   escapeHtml,
@@ -81,6 +86,22 @@ function renderPdaResponses(segment) {
     'PDA Responses',
     rows ? `<div class="inspector-point-list">${rows}</div>` : '<div class="inspector-empty">No linked PDA</div>'
   );
+}
+
+function getSegmentTitle(segment) {
+  if (!segment) return '—';
+  const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
+  return `${segment.timeframe || '1H'} ${direction} ${formatTime(segment.start?.timestamp ?? segment.start?.time)}`;
+}
+
+function renderSegmentOptions(selectedId = '') {
+  return [
+    '<option value="">None</option>',
+    ...getSegments().map(
+      (segment) =>
+        `<option value="${escapeHtml(segment.id)}" ${segment.id === selectedId ? 'selected' : ''}>${escapeHtml(getSegmentTitle(segment))}</option>`
+    ),
+  ].join('');
 }
 
 function formatRatio(value) {
@@ -304,6 +325,88 @@ function renderReviewMetrics(segment) {
   );
 }
 
+function renderCompositeMoveBuilder(segment) {
+  const draftIds = getDraftSegmentGroupChildIds();
+  const isInDraft = draftIds.includes(segment.id);
+  const draftRows = draftIds
+    .map((id, index) => {
+      const child = getSegments().find((candidate) => candidate.id === id);
+      return `<div class="inspector-response-row"><span>${index + 1}</span><span>${escapeHtml(getSegmentTitle(child))}</span><span>${escapeHtml(id)}</span></div>`;
+    })
+    .join('');
+
+  return section(
+    'Composite Move Builder',
+    `
+      <button class="inspector-secondary" data-inspector-action="${isInDraft ? 'segment-group-draft-remove' : 'segment-group-draft-add'}" type="button">
+        ${isInDraft ? 'Remove Current From Draft' : 'Add Current To Draft'}
+      </button>
+      <button class="inspector-secondary" data-inspector-action="segment-group-draft-clear" type="button">Clear Draft</button>
+      ${controlField(
+        'Target Segment',
+        `<select class="inspector-input" data-inspector-action="segment-group-target">${renderSegmentOptions('')}</select>`
+      )}
+      ${controlField(
+        'Objective',
+        `<select class="inspector-input" data-inspector-action="segment-group-objective">
+          <option value="break-previous-extreme">break-previous-extreme</option>
+          <option value="reach-target">reach-target</option>
+          <option value="context-structure">context-structure</option>
+        </select>`
+      )}
+      ${controlField(
+        'Outcome',
+        `<select class="inspector-input" data-inspector-action="segment-group-create-outcome">
+          ${['pending', 'completed', 'failed', 'partial']
+            .map((outcome) => `<option value="${outcome}">${outcome}</option>`)
+            .join('')}
+        </select>`
+      )}
+      <button class="inspector-secondary" data-inspector-action="segment-group-create" type="button">Create Composite Move</button>
+      ${draftRows ? `<div class="inspector-point-list">${draftRows}</div>` : '<div class="inspector-empty">No staged segments</div>'}
+    `
+  );
+}
+
+function renderCompositeMoveMembership(segment) {
+  const groups = getSegmentGroupsForSegment(segment.id);
+  const rows = groups
+    .map((group, index) => {
+      const metrics = computeSegmentGroupMetrics(group);
+      return `
+        <div class="inspector-response-row">
+          <span>${index + 1}</span>
+          <span>${escapeHtml(String(group.direction || 'flat').toUpperCase())}</span>
+          <span>${escapeHtml(group.objective || '—')}</span>
+          ${field('ID', group.id)}
+          ${field('Children', metrics.childCount)}
+          ${field('Net Range', formatNumber(metrics.netRangePoints))}
+          ${field('Total Path', formatNumber(metrics.totalPathPoints))}
+          ${field('Efficiency', formatRatio(metrics.efficiency))}
+          ${field('Max Pullback', formatNumber(metrics.maxCounterRangePoints))}
+          ${field('Pullback Ratio', formatRatio(metrics.maxPullbackDepthRatio))}
+          ${field('Took Target Extreme', metrics.terminalTookTargetExtreme === null ? '—' : formatBoolean(metrics.terminalTookTargetExtreme))}
+          <select class="inspector-input inspector-mini-select" data-inspector-action="segment-group-outcome" data-group-id="${escapeHtml(group.id)}">
+            ${['pending', 'completed', 'failed', 'partial']
+              .map(
+                (outcome) =>
+                  `<option value="${outcome}" ${group.outcome === outcome ? 'selected' : ''}>${outcome}</option>`
+              )
+              .join('')}
+          </select>
+          <input class="inspector-input" data-inspector-action="segment-group-notes" data-group-id="${escapeHtml(group.id)}" type="text" value="${escapeHtml(group.notes || '')}" placeholder="Composite move note" />
+          <button class="inspector-mini-btn" data-inspector-action="segment-group-delete" data-group-id="${escapeHtml(group.id)}" type="button">Delete Composite Move</button>
+        </div>
+      `;
+    })
+    .join('');
+
+  return section(
+    'Composite Moves',
+    rows ? `<div class="inspector-point-list">${rows}</div>` : '<div class="inspector-empty">No composite move contains this segment</div>'
+  );
+}
+
 export function renderSegmentPanel(segment) {
   const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
   const common = section(
@@ -371,6 +474,8 @@ export function renderSegmentPanel(segment) {
     renderSegmentPoint('Start', segment.start) +
     renderSegmentPoint('End', segment.end) +
     renderPdaResponses(segment) +
+    renderCompositeMoveBuilder(segment) +
+    renderCompositeMoveMembership(segment) +
     renderReviewMetrics(segment) +
     edit +
     display

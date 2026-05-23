@@ -2,14 +2,19 @@
 
 import * as bus from '../event-bus.js';
 import { getSegments, loadSegments } from './segment-store.js';
+import { getSegmentGroups, loadSegmentGroups } from './segment-group-store.js';
 
 const STORAGE_KEY = 'v4:market-segments:NQ';
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 
 let restoring = false;
 
 function getPersistableSegments() {
   return getSegments().filter((segment) => segment.source !== 'draft' && !segment.draft);
+}
+
+function getPersistableSegmentGroups() {
+  return getSegmentGroups().filter((group) => group.type === 'composite-move');
 }
 
 function readPayload() {
@@ -34,6 +39,7 @@ export function saveSegments() {
       version: STORAGE_VERSION,
       savedAt: Date.now(),
       segments: getPersistableSegments(),
+      segmentGroups: getPersistableSegmentGroups(),
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (err) {
@@ -49,13 +55,15 @@ export function restoreSegments() {
   if (!payload) return;
 
   const segments = Array.isArray(payload.segments) ? payload.segments : [];
+  const segmentGroups = Array.isArray(payload.segmentGroups) ? payload.segmentGroups : [];
   restoring = true;
   loadSegments(segments.filter((segment) => segment.source !== 'draft' && !segment.draft));
+  loadSegmentGroups(segmentGroups);
   restoring = false;
 
-  if (segments.length > 0) {
+  if (segments.length > 0 || segmentGroups.length > 0) {
     bus.emit('status:update', {
-      text: `已恢复 ${segments.length} 条本地 1H 行情段`,
+      text: `已恢复 ${segments.length} 条本地 1H 行情段与 ${segmentGroups.length} 个 Composite Move`,
       isError: false,
     });
   }
@@ -76,4 +84,5 @@ export function clearSavedSegments() {
 export function initSegmentPersistence() {
   restoreSegments();
   bus.on('segment:changed', saveSegments);
+  bus.on('segment-group:changed', saveSegments);
 }

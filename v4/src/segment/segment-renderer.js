@@ -6,6 +6,7 @@ import { SegmentPrimitive } from '../chart/primitives.js';
 import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSelectedSegment } from './segment-selection.js';
 import { getIsolateCompanionSegments } from './segment-isolate-view.js';
+import { getSegmentGroups } from './segment-group-store.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -23,6 +24,19 @@ function getIsolateDisplayMode(segment) {
   return segment.display?.isolateDisplayMode || 'highlight';
 }
 
+function getSortedGroupChildren(group) {
+  const segmentMap = new Map(getSegments().map((segment) => [segment.id, segment]));
+  return (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
+    .map((id) => segmentMap.get(id))
+    .filter(Boolean)
+    .sort((a, b) => Number(a.start?.timestamp ?? a.start?.time ?? 0) - Number(b.start?.timestamp ?? b.start?.time ?? 0));
+}
+
+function getGroupLabel(group, childCount) {
+  const direction = group.direction === 'down' ? 'DOWN' : group.direction === 'up' ? 'UP' : 'FLAT';
+  return `Composite ${direction} (${childCount})`;
+}
+
 export function renderSegments() {
   clearRenderedPrimitives();
 
@@ -33,6 +47,40 @@ export function renderSegments() {
   const selected = getSelectedSegment();
   const isolatedSegment = getIsolatedSegment();
   const isolateCompanionIds = new Set(getIsolateCompanionSegments(isolatedSegment).map((segment) => segment.id));
+  const isolateVisibleIds = new Set(
+    isolatedSegment ? [isolatedSegment.id, ...Array.from(isolateCompanionIds)] : []
+  );
+
+  getSegmentGroups().forEach((group) => {
+    const children = getSortedGroupChildren(group);
+    if (children.length < 2) return;
+    if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
+
+    const first = children[0];
+    const last = children[children.length - 1];
+    const primitive = new SegmentPrimitive(
+      chartInstance,
+      series,
+      first.start.time,
+      first.start.price,
+      last.end.time,
+      last.end.price,
+      getGroupLabel(group, children.length),
+      {
+        lineColor: group.direction === 'down' ? 'rgba(239, 83, 80, 0.42)' : 'rgba(38, 166, 154, 0.42)',
+        textColor: '#b2b5be',
+        markerColor: 'rgba(240, 243, 250, 0.55)',
+        lineWidth: 1,
+        markerSize: 3,
+        showLabel: group.display?.showLabel ?? true,
+        labelFont: '10px sans-serif',
+      }
+    );
+    chart.attachPrimitive(primitive);
+    primitive.requestUpdate();
+    renderedPrimitives.push(primitive);
+  });
+
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
     const isIsolated = isolatedSegment?.id === segment.id;
@@ -66,6 +114,7 @@ export function renderSegments() {
 
 export function initSegmentRenderer() {
   bus.on('segment:changed', renderSegments);
+  bus.on('segment-group:changed', renderSegments);
   bus.on('segment:selected', renderSegments);
   bus.on('segment:selection-cleared', renderSegments);
   bus.on('bars:loaded', renderSegments);

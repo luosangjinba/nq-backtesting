@@ -13,6 +13,7 @@ import {
 } from '../pda/pda-archive.js';
 import { getAnnotationIdentity, getAnnotations, loadAnnotations } from '../pda/pda-store.js';
 import { getSegmentIdentity, getSegments, loadSegments } from '../segment/segment-store.js';
+import { getSegmentGroups, loadSegmentGroups } from '../segment/segment-group-store.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
 const REVIEW_ARCHIVE_APP = 'trading-v4-review';
@@ -20,6 +21,10 @@ const DISPLAY_MODES = new Set(['highlight', 'normal', 'hidden']);
 
 function getExportableSegments() {
   return getSegments().filter((segment) => segment.source !== 'draft' && !segment.draft);
+}
+
+function getExportableSegmentGroups() {
+  return getSegmentGroups().filter((group) => group.type === 'composite-move');
 }
 
 function buildReviewPayload() {
@@ -32,6 +37,7 @@ function buildReviewPayload() {
     range: getArchiveRange(),
     pdaAnnotations: getExportableAnnotations(),
     marketSegments: getExportableSegments(),
+    segmentGroups: getExportableSegmentGroups(),
   };
 }
 
@@ -62,6 +68,9 @@ function validateReviewPayload(payload) {
   }
   if (!Array.isArray(payload.marketSegments)) {
     throw new Error('review archive marketSegments must be an array');
+  }
+  if (payload.segmentGroups !== undefined && !Array.isArray(payload.segmentGroups)) {
+    throw new Error('review archive segmentGroups must be an array');
   }
 }
 
@@ -166,15 +175,18 @@ function normalizeImportedSegment(segment, pdaIdMap, availablePdaIds) {
 
 function prepareImportedSegments(existingSegments, importedSegments) {
   const usedIds = new Set(existingSegments.map((segment) => segment.id).filter(Boolean));
-  const existingIdentities = new Set(existingSegments.map(getSegmentIdentity));
+  const existingByIdentity = new Map(existingSegments.map((segment) => [getSegmentIdentity(segment), segment]));
   const importStamp = Date.now();
   let skippedDuplicates = 0;
+  const idMap = new Map();
 
   const segments = [];
   importedSegments.forEach((segment, index) => {
     const identity = getSegmentIdentity(segment);
-    if (existingIdentities.has(identity)) {
+    const existing = existingByIdentity.get(identity);
+    if (existing) {
       skippedDuplicates += 1;
+      idMap.set(segment.id, existing.id);
       return;
     }
 
@@ -190,11 +202,68 @@ function prepareImportedSegments(existingSegments, importedSegments) {
     }
 
     usedIds.add(nextSegment.id);
-    existingIdentities.add(identity);
+    existingByIdentity.set(identity, nextSegment);
+    idMap.set(segment.id, nextSegment.id);
     segments.push(nextSegment);
   });
 
-  return { segments, skippedDuplicates };
+  return { segments, skippedDuplicates, idMap };
+}
+
+function normalizeImportedGroup(group, segmentIdMap, availableSegmentIds) {
+  if (!group || group.type !== 'composite-move' || !Array.isArray(group.childSegmentIds)) return null;
+  const childSegmentIds = group.childSegmentIds
+    .map((id) => segmentIdMap.get(id) || id)
+    .filter((id, index, ids) => availableSegmentIds.has(id) && ids.indexOf(id) === index);
+  if (childSegmentIds.length < 2) return null;
+
+  const targetSegmentId = segmentIdMap.get(group.targetSegmentId) || group.targetSegmentId || '';
+  return {
+    ...group,
+    type: 'composite-move',
+    childSegmentIds,
+    targetSegmentId: availableSegmentIds.has(targetSegmentId) ? targetSegmentId : '',
+    objective: group.objective || 'break-previous-extreme',
+    outcome: group.outcome || 'pending',
+    notes: group.notes || '',
+    display: {
+      ...(group.display || {}),
+      showLabel: group.display?.showLabel ?? true,
+    },
+  };
+}
+
+function prepareImportedGroups(existingGroups, importedGroups) {
+  const usedIds = new Set(existingGroups.map((group) => group.id).filter(Boolean));
+  const existingIdentities = new Set(
+    existingGroups.map((group) => `${group.type}:${(group.childSegmentIds || []).join(',')}:${group.targetSegmentId || ''}`)
+  );
+  const importStamp = Date.now();
+  let skippedDuplicates = 0;
+  const groups = [];
+
+  importedGroups.forEach((group, index) => {
+    const identity = `${group.type}:${(group.childSegmentIds || []).join(',')}:${group.targetSegmentId || ''}`;
+    if (existingIdentities.has(identity)) {
+      skippedDuplicates += 1;
+      return;
+    }
+
+    let nextGroup = group;
+    if (usedIds.has(group.id)) {
+      nextGroup = {
+        ...group,
+        id: `${group.id}-import-${importStamp}-${index + 1}`,
+        importedFromId: group.id,
+        updatedAt: Date.now(),
+      };
+    }
+    usedIds.add(nextGroup.id);
+    existingIdentities.add(identity);
+    groups.push(nextGroup);
+  });
+
+  return { groups, skippedDuplicates };
 }
 
 export function exportReviewArchive() {
@@ -206,7 +275,7 @@ export function exportReviewArchive() {
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA 与 ${payload.marketSegments.length} 条 Segment`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment 与 ${payload.segmentGroups.length} 个 Composite Move`,
     isError: false,
   });
 }
@@ -235,15 +304,30 @@ export async function importReviewArchive(file) {
     const normalizedSegments = payload.marketSegments
       .filter(isImportableSegment)
       .map((segment) => normalizeImportedSegment(segment, idMap, availablePdaIds));
-    const { segments, skippedDuplicates: skippedSegmentDuplicates } = prepareImportedSegments(
+    const {
+      segments,
+      skippedDuplicates: skippedSegmentDuplicates,
+      idMap: segmentIdMap,
+    } = prepareImportedSegments(
       existingSegments,
       normalizedSegments
     );
     loadSegments([...existingSegments, ...segments]);
 
-    const skipped = skippedPdaDuplicates + skippedSegmentDuplicates;
+    const availableSegmentIds = new Set([...existingSegments, ...segments].map((segment) => segment.id));
+    const existingGroups = getSegmentGroups();
+    const normalizedGroups = (Array.isArray(payload.segmentGroups) ? payload.segmentGroups : [])
+      .map((group) => normalizeImportedGroup(group, segmentIdMap, availableSegmentIds))
+      .filter(Boolean);
+    const { groups, skippedDuplicates: skippedGroupDuplicates } = prepareImportedGroups(
+      existingGroups,
+      normalizedGroups
+    );
+    loadSegmentGroups([...existingGroups, ...groups]);
+
+    const skipped = skippedPdaDuplicates + skippedSegmentDuplicates + skippedGroupDuplicates;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA 与 ${segments.length} 条 Segment${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment 与 ${groups.length} 个 Composite Move${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,

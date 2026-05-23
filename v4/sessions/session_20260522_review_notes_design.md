@@ -258,6 +258,32 @@ Fluency metrics:
   - `display.isolatePreviousCount`
   - `display.isolatePreviousIncludePda`
 
+## Composite Move Follow-up
+- Added Composite Move / Segment Group MVP for multi-leg higher-level structure.
+- Atomic segments remain unchanged; a composite move stores parent-level structure separately.
+- New store modules:
+  - `segment-group-store.js`
+  - `segment-group-metrics.js`
+- Segment Inspector now supports:
+  - staging the current selected segment into a draft composite move
+  - clearing the draft
+  - creating a Composite Move once at least 2 segments are staged
+  - optional target segment, objective, and initial outcome
+  - viewing Composite Moves that contain the current segment
+  - editing group outcome and notes
+  - deleting a Composite Move
+- First read-only group metrics:
+  - child count
+  - net range
+  - total path
+  - efficiency
+  - max pullback/counter-leg range
+  - pullback ratio
+  - terminal took target extreme
+- Chart rendering now draws a lighter parent line from the first child segment start to the last child segment end.
+- Local draft persistence now saves `segmentGroups` in `v4:market-segments:NQ` payload version 2.
+- Review JSON export/import now includes `segmentGroups`.
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`
@@ -276,6 +302,12 @@ Fluency metrics:
   - `node --check v4/src/pda/pda-renderer.js`
   - `node --check v4/src/ui/inspector-sidebar.js`
   - `node --check v4/src/ui/inspector/segment-panel.js`
+  - `node --check v4/src/segment/segment-group-store.js`
+  - `node --check v4/src/segment/segment-group-metrics.js`
+  - `node --check v4/src/segment/segment-persistence.js`
+  - `node --check v4/src/review/review-archive.js`
+  - `node --check v4/src/app.js`
+  - synthetic Composite Move module probe for `s1 + s2 + s3` against target `s0`, confirming `childCount=3`, `efficiency=0.636`, `maxPullbackDepthRatio=0.5`, and `terminalTookTargetExtreme=true`
   - `git diff --check`
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.
 

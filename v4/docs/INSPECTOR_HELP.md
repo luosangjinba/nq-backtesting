@@ -440,6 +440,52 @@ Terminal bar 是 segment 终点所在的那根 K 线。
 6. 看 `Fluency Components` 判断这段 delivery 是直接、顺畅，还是重叠/回撤较多。
 7. 先验证 5-10 个真实样例，再决定是否进入正式 `segment.review` 持久化。
 
+## Composite Move
+
+`Composite Move` 用来记录多条 atomic segment 共同完成的一次高周期移动。
+
+典型场景：
+
+- 第一条反转 leg 没有直接突破上一段 extreme。
+- 中间出现一条明确 pullback leg。
+- 后续第二条同向 leg 才完成突破或到达目标。
+
+使用方式：
+
+1. 选中第一条子 segment。
+2. 在 `Composite Move Builder` 点击 `Add Current To Draft`。
+3. 依次选中后续子 segment，并加入 draft。
+4. 可选择一个 `Target Segment`，例如被突破的上一段。
+5. 点击 `Create Composite Move`。
+
+创建后，当前 segment 所属的 group 会出现在 `Composite Moves` 区。
+
+字段含义：
+
+- `Children`
+  - 该 Composite Move 包含的子 segment 数量。
+
+- `Net Range`
+  - 从第一个子 segment 起点到最后一个子 segment 终点的净移动点数。
+
+- `Total Path`
+  - 所有子 segment range 的绝对值总和。
+
+- `Efficiency`
+  - `Net Range / Total Path`。
+  - 越接近 `1`，说明整体移动越直接；越低，说明中间回撤/折返越多。
+
+- `Max Pullback`
+  - 与 Composite Move 主方向相反的最大子 segment range。
+
+- `Pullback Ratio`
+  - `Max Pullback / 第一条同向推进 segment range`。
+
+- `Took Target Extreme`
+  - 如果选择了 `Target Segment`，这里显示最后一条子 segment 是否突破 target segment 的起点 extreme。
+
+图表上，Composite Move 会画一条更淡、更细的父级线，从第一个子 segment 起点连接到最后一个子 segment 终点。它只表达高周期大局，不替代子 segment 本身。
+
 ## Wick CE PDA
 
 `Wick CE` 是独立 PDA，显示为一条水平线。
