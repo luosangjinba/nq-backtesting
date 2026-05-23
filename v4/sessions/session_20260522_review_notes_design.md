@@ -283,7 +283,7 @@ Fluency metrics:
 - Draft target segment renders with a purple temporary marker/line so the target leg is distinguishable from child legs.
 - Created Composite Move parent lines now have hit-test and click selection.
 - Selected Composite Move parent line renders highlighted.
-- Selected Composite Move now also highlights its child segments with the normal selected-segment treatment: white line, thicker width, and larger endpoint markers. Draft child/target color priority was left unchanged.
+- Selected Composite Move now mirrors draft-stage context colors: the parent composite line stays white, formal child segments render amber with thicker lines/larger markers, and the target segment renders purple with target priority over child color.
 - Added dedicated Composite Move Inspector panel:
   - summary fields
   - child segment list

@@ -95,11 +95,11 @@ export function renderSegments() {
 
   const draftChildIds = new Set(getDraftSegmentGroupChildIds());
   const draftTargetId = getDraftSegmentGroupTargetId();
-  const selectedGroupChildIds = new Set(
-    selectedGroup
-      ? (getSegmentGroups().find((group) => group.id === selectedGroup.id)?.childSegmentIds || [])
-      : []
-  );
+  const selectedGroupModel = selectedGroup
+    ? getSegmentGroups().find((group) => group.id === selectedGroup.id)
+    : null;
+  const selectedGroupChildIds = new Set(selectedGroupModel?.childSegmentIds || []);
+  const selectedGroupTargetId = selectedGroupModel?.targetSegmentId || '';
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
     const isIsolated = isolatedSegment?.id === segment.id;
@@ -108,15 +108,18 @@ export function renderSegments() {
     if (isolateMode === 'hidden') return;
     const isCurrent = isIsolated ? isolateMode === 'highlight' : selected?.id === segment.id;
     const isSelectedGroupChild = selectedGroupChildIds.has(segment.id);
+    const isSelectedGroupTarget = selectedGroupTargetId === segment.id;
     const isDraftChild = draftChildIds.has(segment.id);
     const isDraftTarget = draftTargetId === segment.id;
     if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
-    const shouldHighlight = isCurrent || isSelectedGroupChild;
+    const isGroupChildContext = isDraftChild || isSelectedGroupChild;
+    const isGroupTargetContext = isDraftTarget || isSelectedGroupTarget;
+    const shouldHighlight = isCurrent;
     const lineColor = shouldHighlight
       ? SELECTED_COLOR
-      : isDraftTarget
+      : isGroupTargetContext
         ? DRAFT_TARGET_COLOR
-        : isDraftChild
+        : isGroupChildContext
           ? DRAFT_CHILD_COLOR
           : segment.direction === 'down'
             ? '#ef5350'
@@ -132,9 +135,15 @@ export function renderSegments() {
       {
         lineColor,
         textColor: '#f0f3fa',
-        markerColor: shouldHighlight ? SELECTED_COLOR : isDraftTarget ? DRAFT_TARGET_COLOR : isDraftChild ? DRAFT_CHILD_COLOR : '#f0f3fa',
-        lineWidth: shouldHighlight || isDraftTarget || isDraftChild ? 3 : 2,
-        markerSize: shouldHighlight || isDraftTarget || isDraftChild ? 5 : 4,
+        markerColor: shouldHighlight
+          ? SELECTED_COLOR
+          : isGroupTargetContext
+            ? DRAFT_TARGET_COLOR
+            : isGroupChildContext
+              ? DRAFT_CHILD_COLOR
+              : '#f0f3fa',
+        lineWidth: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 3 : 2,
+        markerSize: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
       }
     );
