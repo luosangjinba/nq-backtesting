@@ -1,5 +1,8 @@
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { getPdaType } from '../../pda/pda-types.js';
+import { getBars } from '../../data/bar-store.js';
+import { computeSegmentReviewMetrics } from '../../segment/segment-review-metrics.js';
+import { getSegments } from '../../segment/segment-store.js';
 import {
   controlField,
   escapeHtml,
@@ -80,6 +83,64 @@ function renderPdaResponses(segment) {
   );
 }
 
+function formatRatio(value) {
+  return Number.isFinite(Number(value)) ? Number(value).toFixed(3) : '—';
+}
+
+function formatPercent(value) {
+  return Number.isFinite(Number(value)) ? `${Number(value).toFixed(1)}%` : '—';
+}
+
+function formatBoolean(value) {
+  return value ? 'yes' : 'no';
+}
+
+function renderReviewMetrics(segment) {
+  const metrics = computeSegmentReviewMetrics(segment, {
+    segments: getSegments(),
+    bars: getBars(),
+  });
+  const comparison = metrics.previousComparison;
+  const terminal = metrics.terminalBar;
+
+  const comparisonFields = comparison.incompleteReason
+    ? [
+        field('Status', comparison.incompleteReason),
+        field('Previous', comparison.previousSegmentId || '—'),
+        field('Connected', formatBoolean(comparison.connected)),
+        field('Opposite', formatBoolean(comparison.oppositeDirection)),
+      ]
+    : [
+        field('Previous', comparison.previousSegmentId),
+        field('Current Range', formatNumber(comparison.currentRangePoints)),
+        field('Previous Range', formatNumber(comparison.previousRangePoints)),
+        field('Extension Ratio', formatRatio(comparison.extensionRatio)),
+        field('Class', comparison.extensionClass),
+        field('Took Extreme', formatBoolean(comparison.tookPreviousExtreme)),
+        field('Prev Extreme', formatNumber(comparison.previousExtreme)),
+        field('Overshoot', formatNumber(comparison.overshootPoints)),
+        field('Overshoot Ratio', formatRatio(comparison.overshootRatio)),
+        field('Stopped Inside', formatPercent(comparison.stoppedAtPreviousRangePositionPercent)),
+      ];
+
+  const terminalFields = terminal.found
+    ? [
+        field('Terminal Time', formatTime(terminal.timestamp)),
+        field('Open', formatNumber(terminal.open)),
+        field('High', formatNumber(terminal.high)),
+        field('Low', formatNumber(terminal.low)),
+        field('Close', formatNumber(terminal.close)),
+        field('Body High', formatNumber(terminal.bodyHigh)),
+        field('Body Low', formatNumber(terminal.bodyLow)),
+        field('Upper Wick', formatNumber(terminal.upperWickPoints)),
+        field('Lower Wick', formatNumber(terminal.lowerWickPoints)),
+        field('Body Points', formatNumber(terminal.bodyPoints)),
+      ]
+    : [field('Terminal Bar', terminal.incompleteReason)];
+
+  return section('Review Metrics', [...comparisonFields, ...terminalFields].join(''));
+}
+
 export function renderSegmentPanel(segment) {
   const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
   const common = section(
@@ -139,6 +200,7 @@ export function renderSegmentPanel(segment) {
     renderSegmentPoint('Start', segment.start) +
     renderSegmentPoint('End', segment.end) +
     renderPdaResponses(segment) +
+    renderReviewMetrics(segment) +
     edit +
     display
   );

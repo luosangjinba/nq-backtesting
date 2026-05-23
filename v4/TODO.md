@@ -67,6 +67,14 @@
 - [x] Step 39: 隔离模式下禁用点选 segment 自动重置 response display mode
 - [x] Step 40: 修复 display mode 语义：hidden 不渲染，isolate 下 segment normal 即时生效
 
+### Phase 7: Segment Review Notes 研究设计
+- [x] Step 41: 起草 Review Notes 设计方向（终点反转原因 = 关联 PDA + 反应方式）
+- [x] Step 42: 实现只读 segment review metrics foundation（上一段对比、终点 K 线事实）
+- [ ] Step 43: 实现 PDA-specific terminal reaction metrics（range wick/body 进入深度、liquidity sweep/approach/equality、Fib level 反应）
+- [ ] Step 44: 实现 segment fluency 组件指标（先展示组件，不合成最终分数）
+- [ ] Step 45: Segment Inspector 增加只读 Review Metrics 预览
+- [ ] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
@@ -158,6 +166,8 @@
 - 2026-05-21: Segment display mode 修复：`hidden` 现在真正跳过渲染但保留 object；isolate 状态下 segment 本身从 `highlight` 切到 `normal` 会即时按普通样式重绘，不再被 selected 状态强制高亮
 - 2026-05-21: Review archive 完成：Inspector Archive 区新增 Export/Import Review JSON；Review JSON 导出 PDA annotations 与 market segments，不导出 K 线数据；导入时先合并 PDA 并建立 id remap，再导入 segment 与 pdaResponses，处理 id 冲突、语义重复与 orphan response 过滤；导入 segment 默认关闭 isolate，避免恢复归档时直接进入隔离视图
 - 2026-05-21: Inspector 增加顶部工具栏 Archive 直接入口；Archive 操作不再依赖先选中 PDA 或 segment，对象选中仍会打开对应 detail inspector
+- 2026-05-22: Review Notes 暂不做自由文本手填方案；新设计以 segment 终点反转/停止为核心，原因拆成关联 PDA 与反应方式，并优先实现只读计算指标
+- 2026-05-22: Segment review metrics foundation 完成：新增 `segment-review-metrics.js`，在首尾连续、反向、high/low endpoint 语义下计算 `extensionRatio`、`tookPreviousExtreme`、`overshootPoints`、`overshootRatio`、`stoppedAtPreviousRangePositionPercent` 与 terminal bar OHLC/body/wick facts；Segment Inspector 已展示当前 foundation 只读指标，不写入 segment/review archive
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response
