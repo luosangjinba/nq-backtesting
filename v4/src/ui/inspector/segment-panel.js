@@ -99,6 +99,13 @@ function formatBoolean(value) {
   return value ? 'yes' : 'no';
 }
 
+function formatDistanceRatio(points, rangePoints) {
+  if (!Number.isFinite(Number(points)) || !Number.isFinite(Number(rangePoints)) || Number(rangePoints) === 0) {
+    return '—';
+  }
+  return formatRatio(Number(points) / Number(rangePoints));
+}
+
 function formatReactionSummary(candidate) {
   const reaction = candidate.reaction;
   if (!candidate.found) return 'missing linked PDA';
@@ -134,7 +141,70 @@ function formatReactionSummary(candidate) {
   return reaction.shape || 'unknown';
 }
 
-function renderTerminalPdaCandidates(candidates = []) {
+function renderRangeReaction(reaction) {
+  return [
+    field('Reaction Type', 'Range PDA Reaction'),
+    field('Top', formatNumber(reaction.topPrice)),
+    field('Bottom', formatNumber(reaction.bottomPrice)),
+    field('CE', formatNumber(reaction.cePrice)),
+    field('Wick Range', formatBoolean(reaction.wick?.touched)),
+    field('Wick CE', formatBoolean(reaction.wick?.touchedCe)),
+    field('Wick Depth', formatPercent(reaction.wick?.entryPercentOfRange)),
+    field('Wick Points', formatNumber(reaction.wick?.entryPoints)),
+    field('Body Range', formatBoolean(reaction.body?.touched)),
+    field('Body CE', formatBoolean(reaction.body?.touchedCe)),
+    field('Body Depth', formatPercent(reaction.body?.entryPercentOfRange)),
+    field('Body Points', formatNumber(reaction.body?.entryPoints)),
+    field('Approach', formatNumber(reaction.approachDistancePoints)),
+    field('Swept/Reversed', formatBoolean(reaction.sweptThenReversed)),
+    field('Delivered Through', formatBoolean(reaction.deliveredThrough)),
+  ].join('');
+}
+
+function renderLiquidityReaction(reaction, currentRangePoints) {
+  return [
+    field('Reaction Type', 'Liquidity PDA Reaction'),
+    field('Side', reaction.side),
+    field('Level', formatNumber(reaction.level)),
+    field('Swept', formatBoolean(reaction.swept)),
+    field('Exact Equality', formatBoolean(reaction.exactEquality)),
+    field('Approached', formatBoolean(reaction.approachedButNotSwept)),
+    field('Approach Points', formatNumber(reaction.approachDistancePoints)),
+    field('Approach Ratio', formatDistanceRatio(reaction.approachDistancePoints, currentRangePoints)),
+    field('Sweep Points', formatNumber(reaction.sweepDistancePoints)),
+    field('Sweep Ratio', formatDistanceRatio(reaction.sweepDistancePoints, currentRangePoints)),
+    field('Close Back', formatBoolean(reaction.closeBackThroughLevel)),
+    field('Swept/Reversed', formatBoolean(reaction.sweptThenReversed)),
+    field('Delivered Through', formatBoolean(reaction.deliveredThrough)),
+  ].join('');
+}
+
+function renderFibReaction(reaction) {
+  const level = reaction.nearestLevel || {};
+  return [
+    field('Reaction Type', 'Fib Reaction'),
+    field('Nearest Level', formatRatio(level.value)),
+    field('Level Price', formatNumber(level.price)),
+    field('Distance', formatNumber(level.distancePoints)),
+    field('Wick Touch', formatBoolean(reaction.wickTouched)),
+    field('Body Touch', formatBoolean(reaction.bodyTouched)),
+    field('Swept', formatBoolean(reaction.swept)),
+    field('Swept/Reversed', formatBoolean(reaction.sweptThenReversed)),
+    field('Delivered Through', formatBoolean(reaction.deliveredThrough)),
+  ].join('');
+}
+
+function renderCandidateReactionDetails(candidate, currentRangePoints) {
+  const reaction = candidate.reaction;
+  if (!candidate.found) return field('Status', 'missing linked PDA');
+  if (!reaction) return field('Status', 'not measurable');
+  if (reaction.shape === 'range') return renderRangeReaction(reaction);
+  if (reaction.shape === 'liquidity') return renderLiquidityReaction(reaction, currentRangePoints);
+  if (reaction.shape === 'fib') return renderFibReaction(reaction);
+  return field('Reaction Type', reaction.shape || 'unknown');
+}
+
+function renderTerminalPdaCandidates(candidates = [], currentRangePoints = null) {
   if (!candidates.length) {
     return '<div class="inspector-empty">No linked PDA candidates</div>';
   }
@@ -146,8 +216,8 @@ function renderTerminalPdaCandidates(candidates = []) {
           <span>${escapeHtml(index + 1)}</span>
           <span>${escapeHtml(candidate.label)}</span>
           <span>${escapeHtml(formatReactionSummary(candidate))}</span>
-          <span>distance ${escapeHtml(formatNumber(candidate.distancePoints))}</span>
-          <span>${escapeHtml(candidate.relation)}</span>
+          <span>relation ${escapeHtml(candidate.relation)}</span>
+          ${renderCandidateReactionDetails(candidate, currentRangePoints)}
         </div>
       `
     )
@@ -202,12 +272,9 @@ function renderReviewMetrics(segment) {
         field('Current Range', formatNumber(comparison.currentRangePoints)),
         field('Previous Range', formatNumber(comparison.previousRangePoints)),
         field('Extension Ratio', formatRatio(comparison.extensionRatio)),
-        field('Class', comparison.extensionClass),
+        field('Extension State', comparison.extensionClass),
         field('Took Extreme', formatBoolean(comparison.tookPreviousExtreme)),
         field('Prev Extreme', formatNumber(comparison.previousExtreme)),
-        field('Overshoot', formatNumber(comparison.overshootPoints)),
-        field('Overshoot Ratio', formatRatio(comparison.overshootRatio)),
-        field('Stopped Inside', formatPercent(comparison.stoppedAtPreviousRangePositionPercent)),
       ];
 
   const terminalFields = terminal.found
@@ -227,7 +294,10 @@ function renderReviewMetrics(segment) {
 
   return (
     section('Review Metrics', [...comparisonFields, ...terminalFields].join('')) +
-    section('Terminal PDA Candidates', renderTerminalPdaCandidates(metrics.terminalPdaCandidates)) +
+    section(
+      'Terminal PDA Candidates',
+      renderTerminalPdaCandidates(metrics.terminalPdaCandidates, comparison.currentRangePoints)
+    ) +
     renderFluencyMetrics(metrics.fluency)
   );
 }

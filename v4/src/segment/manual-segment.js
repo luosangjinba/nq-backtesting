@@ -116,7 +116,7 @@ export function finishSegment(endBar, endKind = 'swing-high') {
     narrative: '',
     tags: [],
     display: {
-      showLabel: true,
+      showLabel: false,
     },
   };
 

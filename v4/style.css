@@ -343,6 +343,12 @@ html, body {
   grid-column: 2 / -1;
 }
 
+.inspector-response-row .inspector-field {
+  grid-column: 1 / -1;
+  grid-template-columns: 96px minmax(0, 1fr);
+  min-height: 20px;
+}
+
 .inspector-mini-select {
   height: 24px;
   padding: 2px 4px;

@@ -190,6 +190,35 @@ Fluency metrics:
 - This keeps `extensionRatio`, previous extreme comparison, and fluency metrics tied to explicit human structure decisions.
 - Automatic start/end interval high-low snapping is intentionally not implemented yet; it remains a future optional helper.
 
+## Inspector UX Follow-up
+- Added `v4/docs/INSPECTOR_HELP.md` to explain current Segment Inspector fields.
+- Simplified Review Metrics display:
+  - `Class` renamed to `Extension State`
+  - `Overshoot`
+  - `Overshoot Ratio`
+  - `Stopped Inside`
+  are no longer shown as primary UI fields because they are all derived sides of `Extension Ratio`.
+- Expanded `Terminal PDA Candidates` UI from a compressed summary into typed reaction details:
+  - `Range PDA Reaction`
+  - `Liquidity PDA Reaction`
+  - `Fib Reaction`
+- Range candidate details now show:
+  - top / bottom / CE
+  - wick range / wick CE / wick depth / wick points
+  - body range / body CE / body depth / body points
+  - approach / swept-reversed / delivered-through
+- Liquidity candidate details now show:
+  - side / level
+  - swept / exact equality / approached
+  - approach points / approach ratio
+  - sweep points / sweep ratio
+  - close back / swept-reversed / delivered-through
+- Fib candidate details now show:
+  - nearest level / level price / distance
+  - wick touch / body touch
+  - swept / swept-reversed / delivered-through
+- New manual segments now default to `display.showLabel=false`, so `Show segment label` is unchecked by default and chart labels are hidden unless enabled.
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`
@@ -199,6 +228,7 @@ Fluency metrics:
 - Ran:
   - `node --check v4/src/segment/segment-review-metrics.js`
   - `node --check v4/src/ui/inspector/segment-panel.js`
+  - `node --check v4/src/segment/manual-segment.js`
   - `git diff --check`
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.
 
