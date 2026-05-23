@@ -285,6 +285,7 @@ Fluency metrics:
 - Selected Composite Move parent line renders highlighted.
 - Selected Composite Move now mirrors draft-stage context colors: the parent composite line stays white, formal child segments render amber with thicker lines/larger markers, and the target segment renders purple with target priority over child color.
 - Fixed liquidity terminal reaction metrics: standard high/low liquidity PDA reactions now populate `bodyTouched`, so BSL/SSL/EQH/EQL body crosses/equalities are visible in Inspector and candidate sorting.
+- Added `touched` to standard high/low liquidity reactions so Inspector `Touched` is consistent with sweep/equality/body-touch details.
 - Added dedicated Composite Move Inspector panel:
   - summary fields
   - child segment list
