@@ -464,6 +464,12 @@ Terminal bar 是 segment 终点所在的那根 K 线。
 - 右键已加入的 segment，点击 `Remove Segment From Draft`。
 - 或点击 `Clear Composite Draft` 清空草稿。
 
+临时标记：
+
+- 已加入 draft 的 child segment 会显示为橙色加粗。
+- 被设置为 target 的 segment 会显示为紫色加粗。
+- 创建 Composite Move 后，这些临时标记会清空。
+
 Inspector 方式：
 
 1. 选中第一条子 segment。
@@ -499,6 +505,15 @@ Inspector 方式：
   - 如果选择了 `Target Segment`，这里显示最后一条子 segment 是否突破 target segment 的起点 extreme。
 
 图表上，Composite Move 会画一条更淡、更细的父级线，从第一个子 segment 起点连接到最后一个子 segment 终点。它只表达高周期大局，不替代子 segment 本身。
+
+Composite Move 创建后可以直接点击父级线选中。选中后右侧会打开独立 Inspector，可查看 children、metrics，并编辑：
+
+- `Target Segment`
+- `Objective`
+- `Outcome`
+- `Notes`
+- `Show composite label`
+- 删除当前 Composite Move
 
 ## Wick CE PDA
 

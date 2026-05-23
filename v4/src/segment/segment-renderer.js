@@ -4,12 +4,18 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
 import { getIsolatedSegment, getSegments } from './segment-store.js';
-import { getSelectedSegment } from './segment-selection.js';
+import { getSelectedSegment, getSelectedSegmentGroup } from './segment-selection.js';
 import { getIsolateCompanionSegments } from './segment-isolate-view.js';
-import { getSegmentGroups } from './segment-group-store.js';
+import {
+  getDraftSegmentGroupChildIds,
+  getDraftSegmentGroupTargetId,
+  getSegmentGroups,
+} from './segment-group-store.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
+const DRAFT_CHILD_COLOR = '#ffb74d';
+const DRAFT_TARGET_COLOR = '#ba68c8';
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
@@ -45,6 +51,7 @@ export function renderSegments() {
   if (!chartInstance || !series) return;
 
   const selected = getSelectedSegment();
+  const selectedGroup = getSelectedSegmentGroup();
   const isolatedSegment = getIsolatedSegment();
   const isolateCompanionIds = new Set(getIsolateCompanionSegments(isolatedSegment).map((segment) => segment.id));
   const isolateVisibleIds = new Set(
@@ -55,6 +62,7 @@ export function renderSegments() {
     const children = getSortedGroupChildren(group);
     if (children.length < 2) return;
     if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
+    const isCurrent = selectedGroup?.id === group.id;
 
     const first = children[0];
     const last = children[children.length - 1];
@@ -67,11 +75,15 @@ export function renderSegments() {
       last.end.price,
       getGroupLabel(group, children.length),
       {
-        lineColor: group.direction === 'down' ? 'rgba(239, 83, 80, 0.42)' : 'rgba(38, 166, 154, 0.42)',
-        textColor: '#b2b5be',
-        markerColor: 'rgba(240, 243, 250, 0.55)',
-        lineWidth: 1,
-        markerSize: 3,
+        lineColor: isCurrent
+          ? SELECTED_COLOR
+          : group.direction === 'down'
+            ? 'rgba(239, 83, 80, 0.42)'
+            : 'rgba(38, 166, 154, 0.42)',
+        textColor: isCurrent ? SELECTED_COLOR : '#b2b5be',
+        markerColor: isCurrent ? SELECTED_COLOR : 'rgba(240, 243, 250, 0.55)',
+        lineWidth: isCurrent ? 2 : 1,
+        markerSize: isCurrent ? 5 : 3,
         showLabel: group.display?.showLabel ?? true,
         labelFont: '10px sans-serif',
       }
@@ -81,6 +93,8 @@ export function renderSegments() {
     renderedPrimitives.push(primitive);
   });
 
+  const draftChildIds = new Set(getDraftSegmentGroupChildIds());
+  const draftTargetId = getDraftSegmentGroupTargetId();
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
     const isIsolated = isolatedSegment?.id === segment.id;
@@ -88,7 +102,18 @@ export function renderSegments() {
     const isolateMode = isIsolated ? getIsolateDisplayMode(segment) : null;
     if (isolateMode === 'hidden') return;
     const isCurrent = isIsolated ? isolateMode === 'highlight' : selected?.id === segment.id;
+    const isDraftChild = draftChildIds.has(segment.id);
+    const isDraftTarget = draftTargetId === segment.id;
     if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
+    const lineColor = isCurrent
+      ? SELECTED_COLOR
+      : isDraftTarget
+        ? DRAFT_TARGET_COLOR
+        : isDraftChild
+          ? DRAFT_CHILD_COLOR
+          : segment.direction === 'down'
+            ? '#ef5350'
+            : '#26a69a';
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,
@@ -98,11 +123,11 @@ export function renderSegments() {
       segment.end.price,
       getSegmentLabel(segment),
       {
-        lineColor: isCurrent ? SELECTED_COLOR : segment.direction === 'down' ? '#ef5350' : '#26a69a',
+        lineColor,
         textColor: '#f0f3fa',
-        markerColor: isCurrent ? SELECTED_COLOR : '#f0f3fa',
-        lineWidth: isCurrent ? 3 : 2,
-        markerSize: isCurrent ? 5 : 4,
+        markerColor: isCurrent ? SELECTED_COLOR : isDraftTarget ? DRAFT_TARGET_COLOR : isDraftChild ? DRAFT_CHILD_COLOR : '#f0f3fa',
+        lineWidth: isCurrent || isDraftTarget || isDraftChild ? 3 : 2,
+        markerSize: isCurrent || isDraftTarget || isDraftChild ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
       }
     );
@@ -116,7 +141,9 @@ export function initSegmentRenderer() {
   bus.on('segment:changed', renderSegments);
   bus.on('segment-group:changed', renderSegments);
   bus.on('segment:selected', renderSegments);
+  bus.on('segment-group:selected', renderSegments);
   bus.on('segment:selection-cleared', renderSegments);
+  bus.on('segment-group:selection-cleared', renderSegments);
   bus.on('bars:loaded', renderSegments);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

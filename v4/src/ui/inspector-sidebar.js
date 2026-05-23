@@ -7,7 +7,12 @@ import { exportReviewArchive, importReviewArchive } from '../review/review-archi
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
-import { clearSegmentSelection, getSelectedSegment } from '../segment/segment-selection.js';
+import {
+  clearSegmentGroupSelection,
+  clearSegmentSelection,
+  getSelectedSegment,
+  getSelectedSegmentGroup,
+} from '../segment/segment-selection.js';
 import {
   deleteSegment,
   getSegmentById,
@@ -24,6 +29,7 @@ import {
   removeSegmentFromDraftGroup,
   setDraftSegmentGroupTarget,
   updateSegmentGroup,
+  getSegmentGroupById,
 } from '../segment/segment-group-store.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
 import {
@@ -32,6 +38,7 @@ import {
   renderAnnotationPanel,
 } from './inspector/pda-panel.js';
 import { parseTags, renderSegmentPanel } from './inspector/segment-panel.js';
+import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -45,6 +52,11 @@ function renderAnnotation(annotation) {
 function renderSegment(segment) {
   currentPanel = 'selection';
   bodyEl.innerHTML = renderSegmentPanel(segment);
+}
+
+function renderSegmentGroup(segmentGroup) {
+  currentPanel = 'selection';
+  bodyEl.innerHTML = renderSegmentGroupPanel(segmentGroup);
 }
 
 function renderEmpty() {
@@ -91,6 +103,15 @@ function refreshSelection() {
     }
   }
 
+  const segmentGroupSelection = getSelectedSegmentGroup();
+  if (segmentGroupSelection) {
+    const segmentGroup = getSegmentGroupById(segmentGroupSelection.id);
+    if (segmentGroup) {
+      renderSegmentGroup(segmentGroup);
+      return;
+    }
+  }
+
   renderEmpty();
 }
 
@@ -120,6 +141,11 @@ function getCurrentAnnotation() {
 function getCurrentSegment() {
   const selection = getSelectedSegment();
   return selection ? getSegmentById(selection.id) : null;
+}
+
+function getCurrentSegmentGroup() {
+  const selection = getSelectedSegmentGroup();
+  return selection ? getSegmentGroupById(selection.id) : null;
 }
 
 function handleInspectorChange(e) {
@@ -226,6 +252,39 @@ function handleInspectorChange(e) {
 
     if (action === 'segment-group-target') {
       setDraftSegmentGroupTarget(e.target.value);
+      return;
+    }
+  }
+
+  const segmentGroup = getCurrentSegmentGroup();
+  if (segmentGroup) {
+    if (action === 'segment-group-current-target') {
+      updateSegmentGroup(segmentGroup.id, { targetSegmentId: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-group-current-objective') {
+      updateSegmentGroup(segmentGroup.id, { objective: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-group-current-outcome') {
+      updateSegmentGroup(segmentGroup.id, { outcome: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-group-current-notes') {
+      updateSegmentGroup(segmentGroup.id, { notes: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-group-toggle-label') {
+      updateSegmentGroup(segmentGroup.id, {
+        display: {
+          ...(segmentGroup.display || {}),
+          showLabel: e.target.checked,
+        },
+      });
       return;
     }
   }
@@ -349,6 +408,16 @@ function handleInspectorClick(e) {
     }
   }
 
+  const segmentGroup = getCurrentSegmentGroup();
+  if (segmentGroup) {
+    if (action === 'segment-group-current-delete') {
+      deleteSegmentGroup(segmentGroup.id);
+      clearSegmentGroupSelection();
+      renderEmpty();
+      return;
+    }
+  }
+
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
 
@@ -400,18 +469,25 @@ export function initInspectorSidebar() {
     renderSegment(segment);
     openSidebar();
   });
+  bus.on('segment-group:selected', ({ segmentGroup }) => {
+    renderSegmentGroup(segmentGroup);
+    openSidebar();
+  });
   bus.on('segment:selection-cleared', refreshSelection);
+  bus.on('segment-group:selection-cleared', refreshSelection);
   bus.on('segment:changed', refreshSelection);
   bus.on('segment-group:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();
+    clearSegmentGroupSelection();
     renderArchivePanel();
     openSidebar();
   });
   bus.on('bars:cleared', () => {
     clearPdaSelection();
     clearSegmentSelection();
+    clearSegmentGroupSelection();
     renderEmpty();
   });
 }

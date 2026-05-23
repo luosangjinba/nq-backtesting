@@ -279,6 +279,17 @@ Fluency metrics:
   - `Create Composite Move` once at least 2 child segments are staged
   - `Clear Composite Draft`
 - Inspector `Target Segment` and right-click `Set Segment As Target` share the same draft target state.
+- Draft child segments render with an amber temporary marker/line so the staged legs are visible.
+- Draft target segment renders with a purple temporary marker/line so the target leg is distinguishable from child legs.
+- Created Composite Move parent lines now have hit-test and click selection.
+- Selected Composite Move parent line renders highlighted.
+- Added dedicated Composite Move Inspector panel:
+  - summary fields
+  - child segment list
+  - composite metrics
+  - target/objective/outcome/notes editing
+  - label visibility
+  - delete group
 - First read-only group metrics:
   - child count
   - net range
@@ -311,7 +322,10 @@ Fluency metrics:
   - `node --check v4/src/ui/inspector/segment-panel.js`
   - `node --check v4/src/segment/segment-group-store.js`
   - `node --check v4/src/segment/segment-group-metrics.js`
+  - `node --check v4/src/segment/segment-hit-test.js`
+  - `node --check v4/src/segment/segment-selection.js`
   - `node --check v4/src/segment/segment-persistence.js`
+  - `node --check v4/src/ui/inspector/segment-group-panel.js`
   - `node --check v4/src/review/review-archive.js`
   - `node --check v4/src/app.js`
   - `node --check v4/src/pda/manual-annotation.js`

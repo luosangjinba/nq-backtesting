@@ -2,6 +2,7 @@
 
 import * as chart from '../chart/chart-manager.js';
 import { getSegments } from './segment-store.js';
+import { getSegmentGroups } from './segment-group-store.js';
 
 const LINE_TOLERANCE_PX = 7;
 const MARKER_TOLERANCE_PX = 8;
@@ -55,6 +56,52 @@ export function hitTestSegments({ x, y }) {
 
   getSegments().forEach((segment) => {
     const hit = hitSegment(segment, x, y);
+    if (hit) hits.push(hit);
+  });
+
+  return hits.sort((a, b) => a.distance - b.distance)[0] || null;
+}
+
+function getSortedGroupChildren(group) {
+  const segmentMap = new Map(getSegments().map((segment) => [segment.id, segment]));
+  return (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
+    .map((id) => segmentMap.get(id))
+    .filter(Boolean)
+    .sort((a, b) => Number(a.start?.timestamp ?? a.start?.time ?? 0) - Number(b.start?.timestamp ?? b.start?.time ?? 0));
+}
+
+function hitSegmentGroup(group, x, y) {
+  const children = getSortedGroupChildren(group);
+  if (children.length < 2) return null;
+
+  const first = children[0];
+  const last = children[children.length - 1];
+  const startX = getTimeCoordinate(first.start?.time);
+  const startY = getPriceCoordinate(first.start?.price);
+  const endX = getTimeCoordinate(last.end?.time);
+  const endY = getPriceCoordinate(last.end?.price);
+
+  if (startX === null || startY === null || endX === null || endY === null) return null;
+
+  const markerDistance = Math.min(Math.hypot(x - startX, y - startY), Math.hypot(x - endX, y - endY));
+  const lineDistance = distanceToLineSegment(x, y, startX, startY, endX, endY);
+  const distance = Math.min(markerDistance, lineDistance);
+
+  if (markerDistance > MARKER_TOLERANCE_PX && lineDistance > LINE_TOLERANCE_PX) return null;
+
+  return {
+    id: group.id,
+    type: 'segment-group',
+    distance,
+    reason: markerDistance <= MARKER_TOLERANCE_PX ? 'segment-group-marker' : 'segment-group-line',
+  };
+}
+
+export function hitTestSegmentGroups({ x, y }) {
+  const hits = [];
+
+  getSegmentGroups().forEach((group) => {
+    const hit = hitSegmentGroup(group, x, y);
     if (hit) hits.push(hit);
   });
 
