@@ -283,7 +283,6 @@ Fluency metrics:
 - Draft target segment renders with a purple temporary marker/line so the target leg is distinguishable from child legs.
 - Created Composite Move parent lines now have hit-test and click selection.
 - Selected Composite Move parent line renders highlighted.
-- When a Composite Move is selected, all child segments render with the same selected-segment highlight treatment: white line, thicker width, larger endpoint markers.
 - Added dedicated Composite Move Inspector panel:
   - summary fields
   - child segment list
