@@ -237,6 +237,7 @@ Fluency metrics:
   - `1H Lower Wick CE`
   - same pattern for other chart timeframes
 - Wick CE reuses liquidity-line rendering, hit-test, selection, Inspector, export/import, and segment response linking.
+- Wick CE now overrides liquidity-line width with `lineWidth=1`, so its line is visually lighter than BSL/SSL and does not use the normal selected/linked `2/3` width rule.
 - Inspector point details show wick side, wick points, source candle high/low, and body high/low.
 - In terminal PDA candidates, Wick CE is treated as a neutral liquidity-line PDA:
   - terminal bar touched level

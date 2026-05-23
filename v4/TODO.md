@@ -174,6 +174,7 @@
 - 2026-05-22: Segment Inspector Review Metrics 收敛为 `Extension Ratio` + `Extension State` 主解释，不再显示 `Overshoot/Overshoot Ratio/Stopped Inside`；Terminal PDA Candidates 改为按 Range/Liquidity/Fib 展开详细反应字段；新建 segment 默认 `showLabel=false`，并新增 `v4/docs/INSPECTOR_HELP.md`
 - 2026-05-22: Wick CE 作为独立 PDA 类型接入：`type=wick-ce` / `shape=liquidity-line`；右键菜单支持 `Mark Upper Wick CE` 与 `Mark Lower Wick CE`，按当前周期生成 `<TF> Upper/Lower Wick CE`，上影线 CE = `(high + bodyHigh)/2`，下影线 CE = `(low + bodyLow)/2`
 - 2026-05-23: Segment isolate 增加上下文显示选项：`Prev segments` 可临时显示当前 isolate segment 前 N 个 segment，`Include previous PDA responses` 可同时显示这些前序 segment 的 PDA responses；前序对象只做普通上下文显示，不抢当前 isolate segment 高亮
+- 2026-05-23: Wick CE 线段渲染改细：`type=wick-ce` 单独使用 `lineWidth=1`，不跟随普通 liquidity-line 的 `2/3` 加粗规则；BSL/SSL 等其它 liquidity-line 不受影响
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response
