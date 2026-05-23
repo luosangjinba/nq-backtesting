@@ -1,5 +1,96 @@
 # YAML Panel (Legacy) + Price Lookup
 
+## V4 当前研究主线
+
+当前活跃研究分支是 `research/v4-review-notes-design`，主要入口在 `v4/`：
+
+- 页面入口：[v4/index.html](/home/leo/myworkspace/trading/backtesting/v4/index.html)
+- API：[v4/v4_api.py](/home/leo/myworkspace/trading/backtesting/v4/v4_api.py)
+- Inspector 帮助：[v4/docs/INSPECTOR_HELP.md](/home/leo/myworkspace/trading/backtesting/v4/docs/INSPECTOR_HELP.md)
+- Segment review 设计：[v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md)
+- 当前 TODO：[v4/TODO.md](/home/leo/myworkspace/trading/backtesting/v4/TODO.md)
+
+### V4 启动方式
+
+常用本地服务：
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting
+python3 -m http.server 8001
+```
+
+浏览器打开：
+
+```text
+http://127.0.0.1:8001/v4/index.html
+```
+
+V4 API 通常运行在：
+
+```text
+http://127.0.0.1:8766/v4/health
+```
+
+### V4 当前能力
+
+V4 当前聚焦图表式复盘，而不是旧 YAML 表单：
+
+- 手工 PDA 标注：
+  - BSL / SSL
+  - EQH / EQL point set
+  - FVG / OB / Breaker
+  - Fib retracement
+  - Wick CE
+  - NDOG / NWOG 显示切换
+- 手工 1H Segment：
+  - 明确从 K 线 high/low 创建 start/end
+  - segment label 默认隐藏
+  - 支持 PDA response linking
+  - 支持 isolate mode 和前 N 个 segment 上下文显示
+- Segment Inspector：
+  - Review Metrics
+  - Terminal PDA Candidates
+  - Fluency Components
+  - PDA response display mode
+- Composite Move：
+  - 多条 atomic segment 组成一个高周期 move
+  - 右键 segment 可加入 child draft、设置 target、创建 Composite Move
+  - 创建后父级线可点击选中
+  - 独立 Composite Move Inspector 显示 children、target、net/path/efficiency/pullback/target extreme
+  - 选中 Composite Move 时，父级线白色，child segment 橙色，target segment 紫色
+- 数据保存：
+  - PDA 与 Segment 草稿保存在 browser localStorage
+  - Review JSON export/import 包含 PDA、market segments、segmentGroups
+
+### V4 最近修复
+
+- `wick-ce` 作为独立 PDA 类型接入，线段使用更细的 `lineWidth=1`。
+- Terminal PDA Candidates 的 high/low liquidity reaction 已补齐：
+  - `bodyTouched`
+  - `touched`
+- 因此 BSL/SSL/EQH/EQL 在 terminal candle body 穿越或等于 liquidity level 时，Inspector 的 `Body Touch` / `Touched` 与候选排序会保持一致。
+
+### V4 下一步
+
+推荐下一步按顺序推进：
+
+1. 用 5-10 个真实样例验收：
+   - single-leg break
+   - sweep 后回落
+   - 两段式 Composite Move break
+   - 有 target segment 的 Composite Move
+   - BSL/SSL/EQH/EQL body touch
+   - Wick CE terminal reaction
+   - isolate + previous segment context
+2. 补最小 node probe 或测试脚本：
+   - liquidity `bodyTouched/touched`
+   - extension ratio
+   - Composite Move metrics
+   - Review JSON group remap
+3. 整理 UI 文案，减少 `draft child` 与创建后的 `child segment` 混淆。
+
+## Legacy / V2 主线说明
+
 当前主线是 `v2/docs/pda_review.html` 和 `v2/docs/layer2_recorder_v2.html`。
 `regime_analysis_project` 已归档到 [archive/regime_analysis_project](/home/leo/myworkspace/trading/backtesting/archive/regime_analysis_project:1)，不再属于活跃开发路径。
 旧的 HTF observation / HTF bias 原型已归档到 [archive/htf_observation](/home/leo/myworkspace/trading/backtesting/archive/htf_observation:1)，也不再属于当前主线。
