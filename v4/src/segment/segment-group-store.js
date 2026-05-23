@@ -5,11 +5,13 @@ import { getSegmentById, getSegments } from './segment-store.js';
 
 let segmentGroups = [];
 let draftChildIds = [];
+let draftTargetSegmentId = '';
 
 function emitChanged() {
   bus.emit('segment-group:changed', {
     segmentGroups: getSegmentGroups(),
     draftChildIds: getDraftSegmentGroupChildIds(),
+    draftTargetSegmentId: getDraftSegmentGroupTargetId(),
   });
 }
 
@@ -64,6 +66,10 @@ export function getDraftSegmentGroupChildIds() {
   return [...draftChildIds];
 }
 
+export function getDraftSegmentGroupTargetId() {
+  return draftTargetSegmentId;
+}
+
 export function addSegmentToDraftGroup(segmentId) {
   if (!getSegmentById(segmentId)) return null;
   draftChildIds = sortSegmentIds([...draftChildIds, segmentId]);
@@ -78,14 +84,21 @@ export function removeSegmentFromDraftGroup(segmentId) {
 }
 
 export function clearDraftSegmentGroup() {
-  if (!draftChildIds.length) return;
+  if (!draftChildIds.length && !draftTargetSegmentId) return;
   draftChildIds = [];
+  draftTargetSegmentId = '';
   emitChanged();
+}
+
+export function setDraftSegmentGroupTarget(segmentId) {
+  draftTargetSegmentId = getSegmentById(segmentId) ? segmentId : '';
+  emitChanged();
+  return draftTargetSegmentId;
 }
 
 export function createCompositeMove({
   childSegmentIds = draftChildIds,
-  targetSegmentId = '',
+  targetSegmentId = draftTargetSegmentId,
   objective = 'break-previous-extreme',
   outcome = 'pending',
   notes = '',
@@ -108,6 +121,7 @@ export function createCompositeMove({
   };
   segmentGroups = [...segmentGroups, group];
   draftChildIds = [];
+  draftTargetSegmentId = '';
   emitChanged();
   return group;
 }
@@ -158,18 +172,21 @@ export function loadSegmentGroups(nextGroups = []) {
         .filter((group) => group.childSegmentIds.length >= 2)
     : [];
   draftChildIds = [];
+  draftTargetSegmentId = '';
   emitChanged();
 }
 
 export function clearSegmentGroups() {
   segmentGroups = [];
   draftChildIds = [];
+  draftTargetSegmentId = '';
   emitChanged();
 }
 
 function pruneMissingSegmentReferences() {
   const availableIds = new Set(getSegments().map((segment) => segment.id));
   const nextDraftIds = draftChildIds.filter((id) => availableIds.has(id));
+  const nextDraftTargetId = availableIds.has(draftTargetSegmentId) ? draftTargetSegmentId : '';
   const nextGroups = segmentGroups
     .map((group) => ({
       ...group,
@@ -180,6 +197,7 @@ function pruneMissingSegmentReferences() {
 
   const changed =
     nextDraftIds.length !== draftChildIds.length ||
+    nextDraftTargetId !== draftTargetSegmentId ||
     nextGroups.length !== segmentGroups.length ||
     nextGroups.some((group, index) => {
       const previous = segmentGroups[index];
@@ -191,6 +209,7 @@ function pruneMissingSegmentReferences() {
 
   if (!changed) return;
   draftChildIds = nextDraftIds;
+  draftTargetSegmentId = nextDraftTargetId;
   segmentGroups = nextGroups;
   emitChanged();
 }

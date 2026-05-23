@@ -6,6 +6,7 @@ import { getSegments } from '../../segment/segment-store.js';
 import { computeSegmentGroupMetrics } from '../../segment/segment-group-metrics.js';
 import {
   getDraftSegmentGroupChildIds,
+  getDraftSegmentGroupTargetId,
   getSegmentGroupsForSegment,
 } from '../../segment/segment-group-store.js';
 import {
@@ -327,6 +328,7 @@ function renderReviewMetrics(segment) {
 
 function renderCompositeMoveBuilder(segment) {
   const draftIds = getDraftSegmentGroupChildIds();
+  const draftTargetId = getDraftSegmentGroupTargetId();
   const isInDraft = draftIds.includes(segment.id);
   const draftRows = draftIds
     .map((id, index) => {
@@ -344,7 +346,7 @@ function renderCompositeMoveBuilder(segment) {
       <button class="inspector-secondary" data-inspector-action="segment-group-draft-clear" type="button">Clear Draft</button>
       ${controlField(
         'Target Segment',
-        `<select class="inspector-input" data-inspector-action="segment-group-target">${renderSegmentOptions('')}</select>`
+        `<select class="inspector-input" data-inspector-action="segment-group-target">${renderSegmentOptions(draftTargetId)}</select>`
       )}
       ${controlField(
         'Objective',

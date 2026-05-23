@@ -22,6 +22,7 @@ import {
   createCompositeMove,
   deleteSegmentGroup,
   removeSegmentFromDraftGroup,
+  setDraftSegmentGroupTarget,
   updateSegmentGroup,
 } from '../segment/segment-group-store.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
@@ -220,6 +221,11 @@ function handleInspectorChange(e) {
 
     if (action === 'segment-group-notes') {
       updateSegmentGroup(e.target.dataset.groupId, { notes: e.target.value });
+      return;
+    }
+
+    if (action === 'segment-group-target') {
+      setDraftSegmentGroupTarget(e.target.value);
       return;
     }
   }

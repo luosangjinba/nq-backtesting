@@ -452,6 +452,20 @@ Terminal bar 是 segment 终点所在的那根 K 线。
 
 使用方式：
 
+右键方式：
+
+1. 右键第一条子 segment，点击 `Add Segment To Draft`。
+2. 右键后续子 segment，继续点击 `Add Segment To Draft`。
+3. 右键被突破/被参考的上一段，点击 `Set Segment As Target`。
+4. staged 子 segment 至少 2 条后，右键任意 segment，点击 `Create Composite Move`。
+
+如果加错了：
+
+- 右键已加入的 segment，点击 `Remove Segment From Draft`。
+- 或点击 `Clear Composite Draft` 清空草稿。
+
+Inspector 方式：
+
 1. 选中第一条子 segment。
 2. 在 `Composite Move Builder` 点击 `Add Current To Draft`。
 3. 依次选中后续子 segment，并加入 draft。

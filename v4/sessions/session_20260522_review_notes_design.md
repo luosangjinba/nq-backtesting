@@ -272,6 +272,13 @@ Fluency metrics:
   - viewing Composite Moves that contain the current segment
   - editing group outcome and notes
   - deleting a Composite Move
+- Chart right-click menu now mirrors the EQH/EQL workflow for Composite Move creation:
+  - right-click a segment line/marker to `Add Segment To Draft`
+  - right-click again to `Remove Segment From Draft`
+  - right-click the target leg to `Set Segment As Target`
+  - `Create Composite Move` once at least 2 child segments are staged
+  - `Clear Composite Draft`
+- Inspector `Target Segment` and right-click `Set Segment As Target` share the same draft target state.
 - First read-only group metrics:
   - child count
   - net range
@@ -307,6 +314,7 @@ Fluency metrics:
   - `node --check v4/src/segment/segment-persistence.js`
   - `node --check v4/src/review/review-archive.js`
   - `node --check v4/src/app.js`
+  - `node --check v4/src/pda/manual-annotation.js`
   - synthetic Composite Move module probe for `s1 + s2 + s3` against target `s0`, confirming `childCount=3`, `efficiency=0.636`, `maxPullbackDepthRatio=0.5`, and `terminalTookTargetExtreme=true`
   - `git diff --check`
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.

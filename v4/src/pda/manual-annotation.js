@@ -21,7 +21,17 @@ import {
   startSegment,
 } from '../segment/manual-segment.js';
 import { getSelectedSegment } from '../segment/segment-selection.js';
-import { clearAllPdaResponses, linkPdaResponse } from '../segment/segment-store.js';
+import { hitTestSegments } from '../segment/segment-hit-test.js';
+import { clearAllPdaResponses, getSegmentById, linkPdaResponse } from '../segment/segment-store.js';
+import {
+  addSegmentToDraftGroup,
+  clearDraftSegmentGroup,
+  createCompositeMove,
+  getDraftSegmentGroupChildIds,
+  getDraftSegmentGroupTargetId,
+  removeSegmentFromDraftGroup,
+  setDraftSegmentGroupTarget,
+} from '../segment/segment-group-store.js';
 import {
   appendPointToPointSet,
   addPointSetPoint,
@@ -36,6 +46,7 @@ import { getSelectedPda } from './pda-selection.js';
 let controlsEl = null;
 let contextMenuBar = null;
 let contextMenuPdaHit = null;
+let contextMenuSegmentHit = null;
 let rangeSelectionState = null;
 let fibSelectionState = null;
 
@@ -450,10 +461,41 @@ function getSegmentPdaLinkItems(pdaHit) {
   `;
 }
 
-function showContextMenu(x, y, bar, pdaHit = null) {
+function getSegmentLabel(segment) {
+  if (!segment) return 'Segment';
+  const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
+  return `${segment.timeframe || '1H'} ${direction} LEG`;
+}
+
+function getSegmentGroupItems(segmentHit) {
+  if (!segmentHit) return '';
+  const segment = getSegmentById(segmentHit.id);
+  if (!segment) return '';
+
+  const draftIds = getDraftSegmentGroupChildIds();
+  const targetId = getDraftSegmentGroupTargetId();
+  const inDraft = draftIds.includes(segment.id);
+  const isTarget = targetId === segment.id;
+  const createDisabled = draftIds.length >= 2 ? '' : 'disabled';
+  return `
+    <div class="pda-menu-title">Composite Move · ${getSegmentLabel(segment)}</div>
+    <button class="pda-menu-item" data-pda-action="${inDraft ? 'segment-group-remove' : 'segment-group-add'}">
+      ${inDraft ? 'Remove Segment From Draft' : 'Add Segment To Draft'}
+    </button>
+    <button class="pda-menu-item" data-pda-action="segment-group-set-target">
+      ${isTarget ? 'Target Segment Selected' : 'Set Segment As Target'}
+    </button>
+    <button class="pda-menu-item" data-pda-action="segment-group-create" ${createDisabled}>Create Composite Move (${draftIds.length})</button>
+    <button class="pda-menu-item" data-pda-action="segment-group-clear">Clear Composite Draft</button>
+    <div class="pda-menu-divider"></div>
+  `;
+}
+
+function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
   if (!controlsEl) return;
   contextMenuBar = bar;
   contextMenuPdaHit = pdaHit;
+  contextMenuSegmentHit = segmentHit;
   const { x: left, y: top } = clampMenuPosition(x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
@@ -463,6 +505,7 @@ function showContextMenu(x, y, bar, pdaHit = null) {
   const selectedAnnotation = selected ? getAnnotationById(selected.id) : null;
   const selectedPdaType = selectedAnnotation ? getPdaType(selectedAnnotation.type) : null;
   const segmentPdaLinkItems = getSegmentPdaLinkItems(pdaHit);
+  const segmentGroupItems = getSegmentGroupItems(segmentHit);
   const selectedSetItem =
     !activeSet && selectedPdaType?.pointSet
       ? `<button class="pda-menu-item" data-pda-action="selected-pointset-add" ${disabled}>Add to Selected ${selectedPdaType.label}</button>`
@@ -511,6 +554,7 @@ function showContextMenu(x, y, bar, pdaHit = null) {
       <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
       <div class="pda-menu-divider"></div>
       ${segmentPdaLinkItems}
+      ${segmentGroupItems}
       ${segmentItems}
       ${pointSetItems}
       <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
@@ -524,6 +568,7 @@ function showContextMenu(x, y, bar, pdaHit = null) {
 function hideContextMenu() {
   contextMenuBar = null;
   contextMenuPdaHit = null;
+  contextMenuSegmentHit = null;
   if (controlsEl) {
     controlsEl.innerHTML = '';
   }
@@ -543,6 +588,7 @@ function handleContextMenu(e) {
   const bar = findDisplayBar(time);
   const price = chart.coordinateToPrice(y);
   const pdaHit = hitTestPdaAnnotations({ x, y, time, price });
+  const segmentHit = hitTestSegments({ x, y });
 
   if (e.shiftKey && fibSelectionState) {
     addManualFib(bar);
@@ -554,7 +600,7 @@ function handleContextMenu(e) {
     return;
   }
 
-  showContextMenu(x, y, bar, pdaHit);
+  showContextMenu(x, y, bar, pdaHit, segmentHit);
 }
 
 function handleControlClick(e) {
@@ -617,6 +663,47 @@ function handleControlClick(e) {
         isError: false,
       });
     }
+    hideContextMenu();
+  } else if (action === 'segment-group-add') {
+    const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
+    if (segment) {
+      const draftIds = addSegmentToDraftGroup(segment.id) || [];
+      bus.emit('status:update', {
+        text: `${getSegmentLabel(segment)} added to Composite Draft (${draftIds.length})`,
+        isError: false,
+      });
+    }
+    hideContextMenu();
+  } else if (action === 'segment-group-remove') {
+    const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
+    if (segment) {
+      const draftIds = removeSegmentFromDraftGroup(segment.id);
+      bus.emit('status:update', {
+        text: `${getSegmentLabel(segment)} removed from Composite Draft (${draftIds.length})`,
+        isError: false,
+      });
+    }
+    hideContextMenu();
+  } else if (action === 'segment-group-set-target') {
+    const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
+    if (segment) {
+      setDraftSegmentGroupTarget(segment.id);
+      bus.emit('status:update', {
+        text: `${getSegmentLabel(segment)} set as Composite Target`,
+        isError: false,
+      });
+    }
+    hideContextMenu();
+  } else if (action === 'segment-group-create') {
+    const group = createCompositeMove({ outcome: 'pending' });
+    bus.emit('status:update', {
+      text: group ? `Composite Move created: ${group.childSegmentIds.length} legs` : 'Composite Move 至少需要 2 个 staged segments',
+      isError: !group,
+    });
+    hideContextMenu();
+  } else if (action === 'segment-group-clear') {
+    clearDraftSegmentGroup();
+    bus.emit('status:update', { text: 'Composite Draft cleared', isError: false });
     hideContextMenu();
   } else if (action === 'toggle-ndog') {
     toggleTodayNdog(contextMenuBar);
