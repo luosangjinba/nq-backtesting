@@ -165,6 +165,7 @@ function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, isLinke
   if (anchorTime === undefined || anchorTime === null) return null;
   const lineColor = getHighlightColor(isCurrent, isLinkedToSegment, pdaType.color);
   const textColor = getHighlightColor(isCurrent, isLinkedToSegment, pdaType.textColor);
+  const lineWidth = annotation.type === 'wick-ce' ? 1 : isCurrent || isLinkedToSegment ? 3 : 2;
 
   return new LiquidityPrimitive(
     chart.getChart(),
@@ -177,7 +178,7 @@ function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, isLinke
     pdaType.labelPosition,
     {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
-      lineWidth: isCurrent || isLinkedToSegment ? 3 : 2,
+      lineWidth,
       labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),
     }
