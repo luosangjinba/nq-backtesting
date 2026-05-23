@@ -95,6 +95,11 @@ export function renderSegments() {
 
   const draftChildIds = new Set(getDraftSegmentGroupChildIds());
   const draftTargetId = getDraftSegmentGroupTargetId();
+  const selectedGroupChildIds = new Set(
+    selectedGroup
+      ? (getSegmentGroups().find((group) => group.id === selectedGroup.id)?.childSegmentIds || [])
+      : []
+  );
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
     const isIsolated = isolatedSegment?.id === segment.id;
@@ -102,10 +107,12 @@ export function renderSegments() {
     const isolateMode = isIsolated ? getIsolateDisplayMode(segment) : null;
     if (isolateMode === 'hidden') return;
     const isCurrent = isIsolated ? isolateMode === 'highlight' : selected?.id === segment.id;
+    const isSelectedGroupChild = selectedGroupChildIds.has(segment.id);
     const isDraftChild = draftChildIds.has(segment.id);
     const isDraftTarget = draftTargetId === segment.id;
     if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
-    const lineColor = isCurrent
+    const shouldHighlight = isCurrent || isSelectedGroupChild;
+    const lineColor = shouldHighlight
       ? SELECTED_COLOR
       : isDraftTarget
         ? DRAFT_TARGET_COLOR
@@ -125,9 +132,15 @@ export function renderSegments() {
       {
         lineColor,
         textColor: '#f0f3fa',
-        markerColor: isCurrent ? SELECTED_COLOR : isDraftTarget ? DRAFT_TARGET_COLOR : isDraftChild ? DRAFT_CHILD_COLOR : '#f0f3fa',
-        lineWidth: isCurrent || isDraftTarget || isDraftChild ? 3 : 2,
-        markerSize: isCurrent || isDraftTarget || isDraftChild ? 5 : 4,
+        markerColor: shouldHighlight
+          ? SELECTED_COLOR
+          : isDraftTarget
+            ? DRAFT_TARGET_COLOR
+            : isDraftChild
+              ? DRAFT_CHILD_COLOR
+              : '#f0f3fa',
+        lineWidth: shouldHighlight || isDraftTarget || isDraftChild ? 3 : 2,
+        markerSize: shouldHighlight || isDraftTarget || isDraftChild ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
       }
     );
