@@ -112,15 +112,23 @@ export function renderSegments() {
     const isDraftTarget = draftTargetId === segment.id;
     if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
     const shouldHighlight = isCurrent || isSelectedGroupChild;
-    const lineColor = shouldHighlight
-      ? SELECTED_COLOR
-      : isDraftTarget
-        ? DRAFT_TARGET_COLOR
-        : isDraftChild
-          ? DRAFT_CHILD_COLOR
+    const lineColor = isDraftTarget
+      ? DRAFT_TARGET_COLOR
+      : isDraftChild
+        ? DRAFT_CHILD_COLOR
+        : shouldHighlight
+          ? SELECTED_COLOR
           : segment.direction === 'down'
             ? '#ef5350'
             : '#26a69a';
+    const markerColor = isDraftTarget
+      ? DRAFT_TARGET_COLOR
+      : isDraftChild
+        ? DRAFT_CHILD_COLOR
+        : shouldHighlight
+          ? SELECTED_COLOR
+          : '#f0f3fa';
+    const emphasized = isDraftTarget || isDraftChild || shouldHighlight;
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,
@@ -132,15 +140,9 @@ export function renderSegments() {
       {
         lineColor,
         textColor: '#f0f3fa',
-        markerColor: shouldHighlight
-          ? SELECTED_COLOR
-          : isDraftTarget
-            ? DRAFT_TARGET_COLOR
-            : isDraftChild
-              ? DRAFT_CHILD_COLOR
-              : '#f0f3fa',
-        lineWidth: shouldHighlight || isDraftTarget || isDraftChild ? 3 : 2,
-        markerSize: shouldHighlight || isDraftTarget || isDraftChild ? 5 : 4,
+        markerColor,
+        lineWidth: emphasized ? 3 : 2,
+        markerSize: emphasized ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
       }
     );
