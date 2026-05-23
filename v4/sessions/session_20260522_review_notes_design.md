@@ -151,6 +151,29 @@ Fluency metrics:
 - No controlled review selection was added.
 - No `segment.review` persistence or Review JSON schema change was added.
 
+## Fluency Metrics Follow-up
+- Implemented Phase 7 Step 44 read-only segment fluency components.
+- Segment Inspector now shows `Fluency Components` below terminal PDA candidates.
+- Computed fields:
+  - bar count
+  - segment range
+  - path range
+  - directional efficiency
+  - overlap ratio
+  - counter-direction close ratio
+  - directional close ratio
+  - average body percent
+  - max adverse excursion percent
+  - points per bar
+  - PDA interruption count before the terminal bar
+- The implementation intentionally does not create a final fluency score yet.
+- Missing segment endpoint bars are surfaced as incomplete metrics instead of silently trusted.
+- Max adverse excursion uses a conservative per-bar sequence assumption:
+  - calculate adverse movement from the prior running extreme
+  - then update the running extreme with the current bar
+  - this avoids assuming high/low order inside a single 1H candle.
+- No `segment.review` persistence or Review JSON schema change was added.
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`
@@ -164,10 +187,8 @@ Fluency metrics:
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.
 
 ## Next
-- Continue with Phase 7 Step 44:
-  - segment fluency component metrics
-  - directional efficiency
-  - overlap/chop ratio
-  - counter-direction close ratio
-  - max adverse excursion
-  - points per bar
+- Continue with Phase 7 Step 46:
+  - validate 5-10 real examples
+  - compare terminal PDA candidate ranking with visual judgment
+  - compare fluency components with visual judgment
+  - decide whether controlled review selection is ready

@@ -91,6 +91,10 @@ function formatPercent(value) {
   return Number.isFinite(Number(value)) ? `${Number(value).toFixed(1)}%` : '—';
 }
 
+function formatRatioPercent(value) {
+  return Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(1)}%` : '—';
+}
+
 function formatBoolean(value) {
   return value ? 'yes' : 'no';
 }
@@ -152,6 +156,31 @@ function renderTerminalPdaCandidates(candidates = []) {
   return `<div class="inspector-point-list">${rows}</div>`;
 }
 
+function renderFluencyMetrics(fluency) {
+  const rows = fluency?.incompleteReason
+    ? [
+        field('Status', fluency.incompleteReason),
+        field('Bars', fluency.barCount),
+        field('Start Loaded', formatBoolean(fluency.startBarLoaded)),
+        field('End Loaded', formatBoolean(fluency.endBarLoaded)),
+      ]
+    : [
+        field('Bars', fluency.barCount),
+        field('Range', formatNumber(fluency.rangePoints)),
+        field('Path Range', formatNumber(fluency.pathRangePoints)),
+        field('Efficiency', formatRatio(fluency.directionalEfficiency)),
+        field('Overlap Ratio', formatRatioPercent(fluency.overlapRatio)),
+        field('Counter Closes', formatRatioPercent(fluency.counterDirectionCloseRatio)),
+        field('Directional Closes', formatRatioPercent(fluency.directionalCloseRatio)),
+        field('Avg Body', formatPercent(fluency.averageBodyPercent)),
+        field('Max Adverse', formatPercent(fluency.maxAdverseExcursionPercent)),
+        field('Points / Bar', formatNumber(fluency.pointsPerBar)),
+        field('PDA Interruptions', fluency.pdaInterruptionCount),
+      ];
+
+  return section('Fluency Components', rows.join(''));
+}
+
 function renderReviewMetrics(segment) {
   const metrics = computeSegmentReviewMetrics(segment, {
     segments: getSegments(),
@@ -198,7 +227,8 @@ function renderReviewMetrics(segment) {
 
   return (
     section('Review Metrics', [...comparisonFields, ...terminalFields].join('')) +
-    section('Terminal PDA Candidates', renderTerminalPdaCandidates(metrics.terminalPdaCandidates))
+    section('Terminal PDA Candidates', renderTerminalPdaCandidates(metrics.terminalPdaCandidates)) +
+    renderFluencyMetrics(metrics.fluency)
   );
 }
 

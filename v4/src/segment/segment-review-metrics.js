@@ -144,16 +144,8 @@ function findTerminalBar(segment, bars = []) {
   return bars.find((bar) => asNumber(bar.timestamp) === endTimestamp) || null;
 }
 
-function computeTerminalBarFacts(segment, bars) {
-  const bar = findTerminalBar(segment, bars);
-  if (!bar) {
-    return {
-      timestamp: getTimestamp(segment?.end),
-      found: false,
-      incompleteReason: 'terminal bar not loaded',
-    };
-  }
-
+function buildBarFacts(bar) {
+  if (!bar) return null;
   const open = asNumber(bar.open);
   const high = asNumber(bar.high);
   const low = asNumber(bar.low);
@@ -174,7 +166,21 @@ function computeTerminalBarFacts(segment, bars) {
     upperWickPoints: high === null || bodyHigh === null ? null : high - bodyHigh,
     lowerWickPoints: low === null || bodyLow === null ? null : bodyLow - low,
     bodyPoints: bodyHigh === null || bodyLow === null ? null : bodyHigh - bodyLow,
+    rangePoints: high === null || low === null ? null : high - low,
   };
+}
+
+function computeTerminalBarFacts(segment, bars) {
+  const bar = findTerminalBar(segment, bars);
+  if (!bar) {
+    return {
+      timestamp: getTimestamp(segment?.end),
+      found: false,
+      incompleteReason: 'terminal bar not loaded',
+    };
+  }
+
+  return buildBarFacts(bar);
 }
 
 function getRangeBounds(annotation) {
@@ -465,6 +471,159 @@ function computeTerminalPdaCandidates(segment, annotations, terminalBar, directi
     });
 }
 
+function getSegmentBars(segment, bars = []) {
+  const startTimestamp = getTimestamp(segment?.start);
+  const endTimestamp = getTimestamp(segment?.end);
+  if (startTimestamp === null || endTimestamp === null || !Array.isArray(bars)) return [];
+  const from = Math.min(startTimestamp, endTimestamp);
+  const to = Math.max(startTimestamp, endTimestamp);
+  return bars
+    .filter((bar) => {
+      const timestamp = asNumber(bar.timestamp);
+      return timestamp !== null && timestamp >= from && timestamp <= to;
+    })
+    .sort((a, b) => asNumber(a.timestamp) - asNumber(b.timestamp));
+}
+
+function getDirectionalClose(bar, direction) {
+  const open = asNumber(bar.open);
+  const close = asNumber(bar.close);
+  if (open === null || close === null) return null;
+  if (direction === 'up') return close > open + PRICE_EPSILON;
+  if (direction === 'down') return close < open - PRICE_EPSILON;
+  return null;
+}
+
+function bodyOverlap(currentBar, previousBar) {
+  const current = buildBarFacts(currentBar);
+  const previous = buildBarFacts(previousBar);
+  if (!current || !previous) return false;
+  if (
+    current.bodyHigh === null ||
+    current.bodyLow === null ||
+    previous.bodyHigh === null ||
+    previous.bodyLow === null
+  ) {
+    return false;
+  }
+  return Math.min(current.bodyHigh, previous.bodyHigh) > Math.max(current.bodyLow, previous.bodyLow);
+}
+
+function computeMaxAdverseExcursionPercent(segment, segmentBars, direction, segmentRangePoints) {
+  if (!segmentBars.length || !segmentRangePoints) return null;
+  let maxAdverse = 0;
+  const startPrice = asNumber(segment?.start?.price);
+
+  if (direction === 'up') {
+    let runningHigh = startPrice;
+    segmentBars.forEach((bar) => {
+      const high = asNumber(bar.high);
+      const low = asNumber(bar.low);
+      if (runningHigh !== null && low !== null) maxAdverse = Math.max(maxAdverse, runningHigh - low);
+      if (high !== null && (runningHigh === null || high > runningHigh)) runningHigh = high;
+    });
+  } else if (direction === 'down') {
+    let runningLow = startPrice;
+    segmentBars.forEach((bar) => {
+      const high = asNumber(bar.high);
+      const low = asNumber(bar.low);
+      if (runningLow !== null && high !== null) maxAdverse = Math.max(maxAdverse, high - runningLow);
+      if (low !== null && (runningLow === null || low < runningLow)) runningLow = low;
+    });
+  }
+
+  return (maxAdverse / segmentRangePoints) * 100;
+}
+
+function countPriorPdaInterruptions(segment, annotations, segmentBars, direction) {
+  const annotationById = new Map(
+    (Array.isArray(annotations) ? annotations : [])
+      .filter((annotation) => annotation?.id)
+      .map((annotation) => [annotation.id, annotation])
+  );
+  const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
+  const priorBars = segmentBars.slice(0, -1).map(buildBarFacts).filter(Boolean);
+
+  return responses.filter((response) => {
+    const annotation = annotationById.get(response.pdaId);
+    if (!annotation) return false;
+    return priorBars.some((barFacts) => isCandidateTouched(computePdaReaction(annotation, barFacts, direction)));
+  }).length;
+}
+
+function computeFluencyMetrics(segment, bars, annotations, direction) {
+  const segmentBars = getSegmentBars(segment, bars);
+  const startTimestamp = getTimestamp(segment?.start);
+  const endTimestamp = getTimestamp(segment?.end);
+  const startBarLoaded = segmentBars.some((bar) => asNumber(bar.timestamp) === startTimestamp);
+  const endBarLoaded = segmentBars.some((bar) => asNumber(bar.timestamp) === endTimestamp);
+  const segmentRangePoints = getRangePoints(segment);
+
+  const base = {
+    barCount: segmentBars.length,
+    startBarLoaded,
+    endBarLoaded,
+    rangePoints: segmentRangePoints,
+    pathRangePoints: null,
+    directionalEfficiency: null,
+    overlapRatio: null,
+    counterDirectionCloseRatio: null,
+    directionalCloseRatio: null,
+    averageBodyPercent: null,
+    maxAdverseExcursionPercent: null,
+    pointsPerBar: null,
+    pdaInterruptionCount: null,
+    incompleteReason: null,
+  };
+
+  if (!startBarLoaded || !endBarLoaded) {
+    return { ...base, incompleteReason: 'segment endpoint bars not fully loaded' };
+  }
+  if (segmentBars.length < 2) {
+    return { ...base, incompleteReason: 'not enough bars inside segment' };
+  }
+  if (!segmentRangePoints) {
+    return { ...base, incompleteReason: 'missing segment range' };
+  }
+
+  const facts = segmentBars.map(buildBarFacts).filter(Boolean);
+  const pathRangePoints = facts.reduce((sum, bar) => sum + (bar.rangePoints ?? 0), 0);
+  const directionalCloses = segmentBars
+    .map((bar) => getDirectionalClose(bar, direction))
+    .filter((value) => value !== null);
+  const directionalCloseCount = directionalCloses.filter(Boolean).length;
+  const counterDirectionCloseCount = directionalCloses.length - directionalCloseCount;
+  const bodyPercents = facts
+    .filter((bar) => bar.rangePoints && bar.bodyPoints !== null)
+    .map((bar) => (bar.bodyPoints / bar.rangePoints) * 100);
+  let overlapCount = 0;
+  for (let index = 1; index < segmentBars.length; index += 1) {
+    if (bodyOverlap(segmentBars[index], segmentBars[index - 1])) overlapCount += 1;
+  }
+
+  return {
+    ...base,
+    pathRangePoints,
+    directionalEfficiency: pathRangePoints ? segmentRangePoints / pathRangePoints : null,
+    overlapRatio: segmentBars.length > 1 ? overlapCount / (segmentBars.length - 1) : null,
+    counterDirectionCloseRatio: directionalCloses.length
+      ? counterDirectionCloseCount / directionalCloses.length
+      : null,
+    directionalCloseRatio: directionalCloses.length ? directionalCloseCount / directionalCloses.length : null,
+    averageBodyPercent: bodyPercents.length
+      ? bodyPercents.reduce((sum, value) => sum + value, 0) / bodyPercents.length
+      : null,
+    maxAdverseExcursionPercent: computeMaxAdverseExcursionPercent(
+      segment,
+      segmentBars,
+      direction,
+      segmentRangePoints
+    ),
+    pointsPerBar: segmentRangePoints / segmentBars.length,
+    pdaInterruptionCount: countPriorPdaInterruptions(segment, annotations, segmentBars, direction),
+  };
+}
+
 export function computeSegmentReviewMetrics(segment, { segments = [], bars = [], annotations = [] } = {}) {
   const previousSegment = findPreviousSegment(segment, segments);
   const previousComparison = computePreviousComparison(segment, previousSegment);
@@ -478,5 +637,6 @@ export function computeSegmentReviewMetrics(segment, { segments = [], bars = [],
     previousComparison,
     terminalBar,
     terminalPdaCandidates: computeTerminalPdaCandidates(segment, annotations, terminalBar, direction),
+    fluency: computeFluencyMetrics(segment, bars, annotations, direction),
   };
 }

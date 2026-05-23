@@ -71,7 +71,7 @@
 - [x] Step 41: 起草 Review Notes 设计方向（终点反转原因 = 关联 PDA + 反应方式）
 - [x] Step 42: 实现只读 segment review metrics foundation（上一段对比、终点 K 线事实）
 - [x] Step 43: 实现 PDA-specific terminal reaction metrics（range wick/body 进入深度、liquidity sweep/approach/equality、Fib level 反应）
-- [ ] Step 44: 实现 segment fluency 组件指标（先展示组件，不合成最终分数）
+- [x] Step 44: 实现 segment fluency 组件指标（先展示组件，不合成最终分数）
 - [x] Step 45: Segment Inspector 增加只读 Review Metrics 预览
 - [ ] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化
 
@@ -169,6 +169,7 @@
 - 2026-05-22: Review Notes 暂不做自由文本手填方案；新设计以 segment 终点反转/停止为核心，原因拆成关联 PDA 与反应方式，并优先实现只读计算指标
 - 2026-05-22: Segment review metrics foundation 完成：新增 `segment-review-metrics.js`，在首尾连续、反向、high/low endpoint 语义下计算 `extensionRatio`、`tookPreviousExtreme`、`overshootPoints`、`overshootRatio`、`stoppedAtPreviousRangePositionPercent` 与 terminal bar OHLC/body/wick facts；Segment Inspector 已展示当前 foundation 只读指标，不写入 segment/review archive
 - 2026-05-22: PDA-specific terminal reaction metrics 完成只读版：Segment Inspector 基于 segment 已关联 PDA 展示 Terminal PDA Candidates；range PDA 计算 wick/body 进入深度、CE 触碰、swept/reversed/delivered-through，liquidity/point-set PDA 计算 sweep/equality/approach/close-back-through，Fib 计算最近 level 与 wick/body/sweep/delivered-through；候选按触碰与距离排序，不写入 `segment.review`
+- 2026-05-22: Segment fluency 组件指标完成只读版：基于当前加载的 segment 内 bars 展示 bar count、path range、directional efficiency、overlap ratio、counter/directional close ratio、average body percent、max adverse excursion、points per bar、terminal 前 PDA interruption count；仅展示组件，不合成最终分数，不写入 archive
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response
