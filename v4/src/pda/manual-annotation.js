@@ -404,13 +404,15 @@ function showContextMenu(x, y, bar, pdaHit = null) {
     `;
   const segmentItems = activeSegment
     ? `
-      <div class="pda-menu-title">${activeSegment.label} · from ${activeSegment.startTime}</div>
-      <button class="pda-menu-item" data-pda-action="segment-finish" ${disabled}>End 1H Segment</button>
+      <div class="pda-menu-title">${activeSegment.label} · from ${activeSegment.startTime} ${activeSegment.startKindLabel}</div>
+      <button class="pda-menu-item" data-pda-action="segment-finish-high" ${disabled}>End 1H Segment at High</button>
+      <button class="pda-menu-item" data-pda-action="segment-finish-low" ${disabled}>End 1H Segment at Low</button>
       <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel 1H Segment</button>
       <div class="pda-menu-divider"></div>
     `
     : `
-      <button class="pda-menu-item" data-pda-action="segment-start" ${disabled}>Start 1H Segment</button>
+      <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start 1H Segment from Low</button>
+      <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start 1H Segment from High</button>
       <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
       <div class="pda-menu-divider"></div>
     `;
@@ -505,11 +507,11 @@ function handleControlClick(e) {
     const selected = getSelectedPda();
     if (selected) appendPointToPointSet(selected.id, contextMenuBar, getBarChartTime);
     hideContextMenu();
-  } else if (action === 'segment-start') {
-    startSegment(contextMenuBar);
+  } else if (action === 'segment-start-low' || action === 'segment-start-high') {
+    startSegment(contextMenuBar, action === 'segment-start-high' ? 'swing-high' : 'swing-low');
     hideContextMenu();
-  } else if (action === 'segment-finish') {
-    finishSegment(contextMenuBar);
+  } else if (action === 'segment-finish-low' || action === 'segment-finish-high') {
+    finishSegment(contextMenuBar, action === 'segment-finish-high' ? 'swing-high' : 'swing-low');
     hideContextMenu();
   } else if (action === 'segment-cancel') {
     cancelSegmentSelection();

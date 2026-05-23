@@ -174,6 +174,22 @@ Fluency metrics:
   - this avoids assuming high/low order inside a single 1H candle.
 - No `segment.review` persistence or Review JSON schema change was added.
 
+## Explicit Segment Endpoint Follow-up
+- Implemented explicit high/low endpoint selection for manual 1H segments.
+- Context menu now exposes:
+  - `Start 1H Segment from Low`
+  - `Start 1H Segment from High`
+  - `End 1H Segment at High`
+  - `End 1H Segment at Low`
+- New segment start/end prices are now written from the exact selected bar high/low requested by the user.
+- Existing segment object schema is unchanged:
+  - `start.kind`
+  - `start.price`
+  - `end.kind`
+  - `end.price`
+- This keeps `extensionRatio`, previous extreme comparison, and fluency metrics tied to explicit human structure decisions.
+- Automatic start/end interval high-low snapping is intentionally not implemented yet; it remains a future optional helper.
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`

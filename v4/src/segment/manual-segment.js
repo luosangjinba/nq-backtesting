@@ -13,18 +13,17 @@ function getBarChartTime(bar) {
   return store.getCurrentTimeframe() === 1440 ? bar.tradingDay : bar.timestamp;
 }
 
-function getSwingKindForStart(startBar, endBar) {
-  if (!startBar || !endBar) return 'swing-low';
-  return Number(endBar.close) >= Number(startBar.close) ? 'swing-low' : 'swing-high';
+function normalizeSwingKind(kind) {
+  return kind === 'swing-high' ? 'swing-high' : 'swing-low';
 }
 
-function getSwingKindForEnd(startKind) {
-  return startKind === 'swing-low' ? 'swing-high' : 'swing-low';
+function getSwingKindLabel(kind) {
+  return normalizeSwingKind(kind) === 'swing-high' ? 'High' : 'Low';
 }
 
 function getPointPrice(bar, kind) {
   if (!bar) return null;
-  return kind === 'swing-low' ? bar.low : bar.high;
+  return normalizeSwingKind(kind) === 'swing-low' ? bar.low : bar.high;
 }
 
 function getDirection(startPrice, endPrice) {
@@ -48,23 +47,33 @@ export function getSegmentSelectionSummary() {
   return {
     label: '1H Segment',
     startTime: segmentSelectionState.startBar?.tradingDay || segmentSelectionState.startBar?.time,
+    startKind: segmentSelectionState.startKind,
+    startKindLabel: getSwingKindLabel(segmentSelectionState.startKind),
   };
 }
 
-export function startSegment(bar) {
+export function startSegment(bar, startKind = 'swing-low') {
   if (!bar || !ensureOneHourContext()) return;
+
+  const normalizedStartKind = normalizeSwingKind(startKind);
+  const startPrice = getPointPrice(bar, normalizedStartKind);
+  if (!Number.isFinite(Number(startPrice))) {
+    bus.emit('status:update', { text: '1H 行情段起点无效：无法读取 High/Low', isError: true });
+    return;
+  }
 
   segmentSelectionState = {
     startBar: bar,
+    startKind: normalizedStartKind,
   };
 
   bus.emit('status:update', {
-    text: `1H 行情段起点已选择：${bar.tradingDay || bar.time}，右键选择终点`,
+    text: `1H 行情段起点已选择：${bar.tradingDay || bar.time} ${getSwingKindLabel(normalizedStartKind)} ${Number(startPrice).toFixed(2)}，右键选择终点`,
     isError: false,
   });
 }
 
-export function finishSegment(endBar) {
+export function finishSegment(endBar, endKind = 'swing-high') {
   if (!segmentSelectionState || !endBar || !ensureOneHourContext()) return;
 
   const startBar = segmentSelectionState.startBar;
@@ -73,10 +82,15 @@ export function finishSegment(endBar) {
     return;
   }
 
-  const startKind = getSwingKindForStart(startBar, endBar);
-  const endKind = getSwingKindForEnd(startKind);
+  const startKind = normalizeSwingKind(segmentSelectionState.startKind);
+  const normalizedEndKind = normalizeSwingKind(endKind);
   const startPrice = getPointPrice(startBar, startKind);
-  const endPrice = getPointPrice(endBar, endKind);
+  const endPrice = getPointPrice(endBar, normalizedEndKind);
+  if (!Number.isFinite(Number(startPrice)) || !Number.isFinite(Number(endPrice))) {
+    bus.emit('status:update', { text: '1H 行情段终点无效：无法读取 High/Low', isError: true });
+    return;
+  }
+
   const direction = getDirection(startPrice, endPrice);
   const segment = {
     id: `manual_segment_1h_${startBar.timestamp}_${endBar.timestamp}_${Date.now()}`,
@@ -95,7 +109,7 @@ export function finishSegment(endBar) {
       time: getBarChartTime(endBar),
       timestamp: endBar.timestamp,
       price: endPrice,
-      kind: endKind,
+      kind: normalizedEndKind,
       barTime: endBar.time,
     },
     pdaResponses: [],
@@ -110,7 +124,7 @@ export function finishSegment(endBar) {
   segmentSelectionState = null;
 
   bus.emit('status:update', {
-    text: `1H ${direction.toUpperCase()} 行情段：${startPrice.toFixed(2)} → ${endPrice.toFixed(2)}`,
+    text: `1H ${direction.toUpperCase()} 行情段：${getSwingKindLabel(startKind)} ${Number(startPrice).toFixed(2)} → ${getSwingKindLabel(normalizedEndKind)} ${Number(endPrice).toFixed(2)}`,
     isError: false,
   });
 }
