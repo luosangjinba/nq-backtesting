@@ -219,6 +219,31 @@ Fluency metrics:
   - swept / swept-reversed / delivered-through
 - New manual segments now default to `display.showLabel=false`, so `Show segment label` is unchecked by default and chart labels are hidden unless enabled.
 
+## Wick CE PDA Follow-up
+- Implemented Wick CE as an independent PDA type.
+- New type:
+  - `type: wick-ce`
+  - `shape: liquidity-line`
+- Context menu now supports:
+  - `Mark Upper Wick CE`
+  - `Mark Lower Wick CE`
+- Wick CE calculation uses candle body boundaries:
+  - `bodyHigh = max(open, close)`
+  - `bodyLow = min(open, close)`
+  - upper wick CE = `(high + bodyHigh) / 2`
+  - lower wick CE = `(low + bodyLow) / 2`
+- Wick CE label/context includes the current timeframe:
+  - `1H Upper Wick CE`
+  - `1H Lower Wick CE`
+  - same pattern for other chart timeframes
+- Wick CE reuses liquidity-line rendering, hit-test, selection, Inspector, export/import, and segment response linking.
+- Inspector point details show wick side, wick points, source candle high/low, and body high/low.
+- In terminal PDA candidates, Wick CE is treated as a neutral liquidity-line PDA:
+  - terminal bar touched level
+  - body touched level
+  - approach distance
+  - no high/low-side sweep is inferred.
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`
@@ -229,6 +254,9 @@ Fluency metrics:
   - `node --check v4/src/segment/segment-review-metrics.js`
   - `node --check v4/src/ui/inspector/segment-panel.js`
   - `node --check v4/src/segment/manual-segment.js`
+  - `node --check v4/src/pda/manual-annotation.js`
+  - `node --check v4/src/pda/pda-types.js`
+  - `node --check v4/src/ui/inspector/pda-panel.js`
   - `git diff --check`
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.
 

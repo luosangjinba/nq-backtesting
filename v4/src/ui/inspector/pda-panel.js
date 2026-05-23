@@ -104,14 +104,26 @@ function renderDisplaySettings(annotation) {
 }
 
 function renderPointFields(annotation) {
-  return section(
-    'Point',
-    [
-      field('Price', formatNumber(annotation.price)),
-      field('Anchor', formatTime(annotation.canonicalTimestamp ?? annotation.timestamp ?? annotation.anchorTime)),
-      renderValidation(annotation),
-    ].join('')
-  );
+  const fields = [
+    field('Price', formatNumber(annotation.price)),
+    field('Anchor', formatTime(annotation.canonicalTimestamp ?? annotation.timestamp ?? annotation.anchorTime)),
+  ];
+
+  if (annotation.type === 'wick-ce') {
+    fields.push(
+      field('Timeframe', annotation.timeframe || '—'),
+      field('Wick Side', annotation.wickSide || '—'),
+      field('Wick Points', formatNumber(annotation.wickPoints)),
+      field('High', formatNumber(annotation.high)),
+      field('Low', formatNumber(annotation.low)),
+      field('Body High', formatNumber(annotation.bodyHigh)),
+      field('Body Low', formatNumber(annotation.bodyLow))
+    );
+  } else {
+    fields.push(renderValidation(annotation));
+  }
+
+  return section('Point', fields.join(''));
 }
 
 function renderRangeFields(annotation) {

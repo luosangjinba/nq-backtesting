@@ -23,6 +23,16 @@ export const PDA_TYPES = {
     objective: false,
     pointSet: false,
   },
+  'wick-ce': {
+    id: 'wick-ce',
+    label: 'Wick CE',
+    shape: 'liquidity-line',
+    color: '#fbc02d',
+    textColor: '#fff9c4',
+    labelPosition: 'above',
+    objective: false,
+    pointSet: false,
+  },
   fvg: {
     id: 'fvg',
     label: 'FVG',

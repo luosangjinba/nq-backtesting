@@ -165,6 +165,85 @@ function addManualFvg(bar) {
   });
 }
 
+function getWickCe(bar, side) {
+  if (!bar) return null;
+  const open = Number(bar.open);
+  const close = Number(bar.close);
+  const high = Number(bar.high);
+  const low = Number(bar.low);
+  if (![open, close, high, low].every(Number.isFinite)) return null;
+
+  const bodyHigh = Math.max(open, close);
+  const bodyLow = Math.min(open, close);
+
+  if (side === 'upper') {
+    const wickPoints = high - bodyHigh;
+    if (wickPoints <= 0) return null;
+    return {
+      price: (high + bodyHigh) / 2,
+      wickSide: 'upper',
+      wickPoints,
+      bodyHigh,
+      bodyLow,
+      high,
+      low,
+    };
+  }
+
+  const wickPoints = bodyLow - low;
+  if (wickPoints <= 0) return null;
+  return {
+    price: (low + bodyLow) / 2,
+    wickSide: 'lower',
+    wickPoints,
+    bodyHigh,
+    bodyLow,
+    high,
+    low,
+  };
+}
+
+function addManualWickCe(side, bar) {
+  const pdaType = getPdaType('wick-ce');
+  if (!pdaType || !bar) return;
+
+  const wickCe = getWickCe(bar, side);
+  const tfLabel = timeframeToString(store.getCurrentTimeframe());
+  const sideLabel = side === 'upper' ? 'Upper' : 'Lower';
+  if (!wickCe) {
+    hideContextMenu();
+    bus.emit('status:update', { text: `${tfLabel} ${sideLabel} Wick CE 无有效影线`, isError: true });
+    return;
+  }
+
+  const annotation = {
+    id: `manual_wick_ce_${side}_${store.getCurrentTimeframe()}_${bar.timestamp}_${Date.now()}`,
+    type: 'wick-ce',
+    source: 'manual',
+    timeframe: tfLabel,
+    wickSide: wickCe.wickSide,
+    anchorTime: getBarChartTime(bar),
+    canonicalTimestamp: bar.timestamp,
+    timestamp: bar.timestamp,
+    barTime: bar.time,
+    price: wickCe.price,
+    wickPoints: wickCe.wickPoints,
+    bodyHigh: wickCe.bodyHigh,
+    bodyLow: wickCe.bodyLow,
+    high: wickCe.high,
+    low: wickCe.low,
+    contexts: [`${tfLabel} ${sideLabel} Wick CE`],
+  };
+
+  addAnnotation(annotation);
+  hideContextMenu();
+
+  bus.emit('status:update', {
+    text: `${tfLabel} ${sideLabel} Wick CE: ${wickCe.price.toFixed(2)} ${bar.tradingDay || bar.time}`,
+    isError: false,
+  });
+}
+
 function getManualRangeColors(type, direction) {
   if (type === 'breaker') {
     return direction === 'bullish'
@@ -422,6 +501,8 @@ function showContextMenu(x, y, bar, pdaHit = null) {
       <div class="pda-menu-title">${timeLabel}</div>
       <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
       <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
+      <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
+      <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
@@ -483,6 +564,8 @@ function handleControlClick(e) {
 
   if (action === 'bsl' || action === 'ssl') {
     addManualPoint(action, contextMenuBar);
+  } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {
+    addManualWickCe(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar);
   } else if (action === 'fvg') {
     addManualFvg(contextMenuBar);
   } else if (action === 'ob-bullish' || action === 'ob-bearish') {

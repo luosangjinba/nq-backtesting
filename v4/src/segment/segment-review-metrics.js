@@ -310,6 +310,32 @@ function computeLiquidityReaction(annotation, pdaType, terminalBar) {
   const level = getLiquidityLevel(annotation);
   if (level === null || !terminalBar.found) return null;
   const side = getLiquiditySide(annotation, pdaType);
+  if (side === 'unknown') {
+    const touched = terminalBar.high >= level - PRICE_EPSILON && terminalBar.low <= level + PRICE_EPSILON;
+    const bodyTouched =
+      terminalBar.bodyHigh >= level - PRICE_EPSILON && terminalBar.bodyLow <= level + PRICE_EPSILON;
+    const approachDistancePoints = touched
+      ? 0
+      : Math.min(Math.abs(terminalBar.high - level), Math.abs(terminalBar.low - level));
+    return {
+      shape: 'liquidity',
+      side,
+      level,
+      swept: false,
+      exactEquality:
+        Math.abs(terminalBar.high - level) <= PRICE_EPSILON ||
+        Math.abs(terminalBar.low - level) <= PRICE_EPSILON,
+      touched,
+      bodyTouched,
+      approachedButNotSwept: !touched,
+      approachDistancePoints,
+      sweepDistancePoints: 0,
+      closeBackThroughLevel: false,
+      sweptThenReversed: false,
+      deliveredThrough: false,
+    };
+  }
+
   const isHighSide = side === 'high';
   const testExtreme = isHighSide ? terminalBar.high : terminalBar.low;
   const swept = isHighSide
@@ -415,7 +441,7 @@ function getCandidateDistance(reaction) {
 function isCandidateTouched(reaction) {
   if (!reaction) return false;
   if (reaction.shape === 'range') return Boolean(reaction.wick?.touched);
-  if (reaction.shape === 'liquidity') return Boolean(reaction.swept || reaction.exactEquality);
+  if (reaction.shape === 'liquidity') return Boolean(reaction.touched || reaction.swept || reaction.exactEquality);
   if (reaction.shape === 'fib') return Boolean(reaction.wickTouched);
   return false;
 }
@@ -423,6 +449,7 @@ function isCandidateTouched(reaction) {
 function isCandidateBodyTouched(reaction) {
   if (!reaction) return false;
   if (reaction.shape === 'range') return Boolean(reaction.body?.touched);
+  if (reaction.shape === 'liquidity') return Boolean(reaction.bodyTouched);
   if (reaction.shape === 'fib') return Boolean(reaction.bodyTouched);
   return false;
 }

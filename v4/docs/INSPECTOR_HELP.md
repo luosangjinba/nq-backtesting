@@ -72,7 +72,7 @@ Inspector 是右侧对象面板。选中图表上的 PDA 或 1H Segment 后，�
   - 当前 response 在列表中的顺序。
 
 - PDA 类型
-  - 例如 `FVG`、`BSL`、`SSL`、`OB`、`Breaker`、`Fib`、`EQH`、`EQL`、`NDOG`、`NWOG`。
+  - 例如 `FVG`、`BSL`、`SSL`、`Wick CE`、`OB`、`Breaker`、`Fib`、`EQH`、`EQL`、`NDOG`、`NWOG`。
 
 - Relation 下拉框
   - 你对该 PDA 和 segment 关系的人工分类。
@@ -203,7 +203,7 @@ Terminal bar 是 segment 终点所在的那根 K 线。
   - 候选排序。
 
 - PDA 类型
-  - 例如 `FVG`、`BSL`、`Fib`。
+  - 例如 `FVG`、`BSL`、`Wick CE`、`Fib`。
 
 - Reaction summary
   - 系统根据 terminal bar 和 PDA 位置算出的反应摘要。
@@ -429,3 +429,54 @@ Terminal bar 是 segment 终点所在的那根 K 线。
 5. 看 `Terminal PDA Candidates` 判断终点是否确实反应在某个 PDA。
 6. 看 `Fluency Components` 判断这段 delivery 是直接、顺畅，还是重叠/回撤较多。
 7. 先验证 5-10 个真实样例，再决定是否进入正式 `segment.review` 持久化。
+
+## Wick CE PDA
+
+`Wick CE` 是独立 PDA，显示为一条水平线。
+
+右键菜单入口：
+
+- `Mark Upper Wick CE`
+- `Mark Lower Wick CE`
+
+计算方式：
+
+```text
+bodyHigh = max(open, close)
+bodyLow  = min(open, close)
+
+Upper Wick CE = (high + bodyHigh) / 2
+Lower Wick CE = (low + bodyLow) / 2
+```
+
+命名会带当前图表周期：
+
+```text
+1H Upper Wick CE
+1H Lower Wick CE
+4H Upper Wick CE
+D Lower Wick CE
+```
+
+选中 Wick CE 后，Inspector 的 `Point` 区会显示：
+
+- `Price`
+  - Wick CE 水平线价格。
+
+- `Anchor`
+  - 来源 K 线时间。
+
+- `Timeframe`
+  - 创建 Wick CE 时的图表周期。
+
+- `Wick Side`
+  - `upper` 或 `lower`。
+
+- `Wick Points`
+  - 该影线长度。
+
+- `High / Low`
+  - 来源 K 线的 high / low。
+
+- `Body High / Body Low`
+  - 来源 K 线实体上下沿。

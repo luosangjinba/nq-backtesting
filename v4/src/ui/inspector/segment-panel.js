@@ -166,6 +166,8 @@ function renderLiquidityReaction(reaction, currentRangePoints) {
     field('Reaction Type', 'Liquidity PDA Reaction'),
     field('Side', reaction.side),
     field('Level', formatNumber(reaction.level)),
+    field('Touched', formatBoolean(reaction.touched)),
+    field('Body Touch', formatBoolean(reaction.bodyTouched)),
     field('Swept', formatBoolean(reaction.swept)),
     field('Exact Equality', formatBoolean(reaction.exactEquality)),
     field('Approached', formatBoolean(reaction.approachedButNotSwept)),
