@@ -342,6 +342,8 @@ function computeLiquidityReaction(annotation, pdaType, terminalBar) {
     ? testExtreme > level + PRICE_EPSILON
     : testExtreme < level - PRICE_EPSILON;
   const exactEquality = Math.abs(testExtreme - level) <= PRICE_EPSILON;
+  const bodyTouched =
+    terminalBar.bodyHigh >= level - PRICE_EPSILON && terminalBar.bodyLow <= level + PRICE_EPSILON;
   const sweepDistancePoints = swept ? Math.abs(testExtreme - level) : 0;
   const approachDistancePoints = swept || exactEquality ? 0 : Math.abs(testExtreme - level);
   const closeBackThroughLevel = swept
@@ -357,6 +359,7 @@ function computeLiquidityReaction(annotation, pdaType, terminalBar) {
     level,
     swept,
     exactEquality,
+    bodyTouched,
     approachedButNotSwept: !swept && !exactEquality,
     approachDistancePoints,
     sweepDistancePoints,

@@ -284,6 +284,7 @@ Fluency metrics:
 - Created Composite Move parent lines now have hit-test and click selection.
 - Selected Composite Move parent line renders highlighted.
 - Selected Composite Move now mirrors draft-stage context colors: the parent composite line stays white, formal child segments render amber with thicker lines/larger markers, and the target segment renders purple with target priority over child color.
+- Fixed liquidity terminal reaction metrics: standard high/low liquidity PDA reactions now populate `bodyTouched`, so BSL/SSL/EQH/EQL body crosses/equalities are visible in Inspector and candidate sorting.
 - Added dedicated Composite Move Inspector panel:
   - summary fields
   - child segment list
@@ -330,6 +331,7 @@ Fluency metrics:
   - `node --check v4/src/review/review-archive.js`
   - `node --check v4/src/app.js`
   - `node --check v4/src/pda/manual-annotation.js`
+  - BSL terminal reaction probe confirming high-side liquidity `bodyTouched=true` when terminal candle body crosses the level
   - synthetic Composite Move module probe for `s1 + s2 + s3` against target `s0`, confirming `childCount=3`, `efficiency=0.636`, `maxPullbackDepthRatio=0.5`, and `terminalTookTargetExtreme=true`
   - `git diff --check`
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.

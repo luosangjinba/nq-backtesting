@@ -179,6 +179,7 @@
 - 2026-05-23: Composite Move 增加右键工作流：右键命中 segment 可 Add/Remove Segment To Draft、Set Segment As Target、Create Composite Move、Clear Composite Draft；Inspector 的 Target Segment 下拉与右键 target 共用同一 draft target 状态
 - 2026-05-23: Composite Move 交互升级：draft child segment 用橙色加粗临时标记，draft target segment 用紫色加粗临时标记；创建后的 composite 父级线支持 hit-test/click selection，并新增独立 Composite Move Inspector，可编辑 target/objective/outcome/notes/display 与删除 group
 - 2026-05-23: Composite Move 选中态补充：选中 composite 父级线时，父级线白色高亮，正式 child segments 用与 draft child 一致的橙色加粗标记，target segment 用与 draft target 一致的紫色加粗标记，target 紫色优先于 child 橙色
+- 2026-05-23: 修复 Terminal PDA Candidates liquidity reaction：BSL/SSL/EQH/EQL 等 high/low liquidity 分支现在填充 `bodyTouched`，Inspector `Body Touch` 与候选排序不再漏掉 terminal candle body 穿越/等于 liquidity level 的情况
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response
