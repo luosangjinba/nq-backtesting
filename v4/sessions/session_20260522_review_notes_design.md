@@ -244,6 +244,19 @@ Fluency metrics:
   - approach distance
   - no high/low-side sweep is inferred.
 
+## Isolate Context Follow-up
+- Added temporary context display controls for segment isolate mode.
+- Segment Inspector Display section now includes:
+  - `Prev segments`
+  - `Include previous PDA responses`
+- `Prev segments = N` displays the previous N segments before the current isolate segment.
+- Previous segments render as normal context, not as the highlighted current object.
+- If `Include previous PDA responses` is enabled, PDA responses linked to those previous segments are also visible.
+- Previous segment PDA responses render as normal visible PDA, not highlighted; the current isolate segment keeps its existing response highlight/normal/hidden controls.
+- This is implemented as display state on the isolated segment:
+  - `display.isolatePreviousCount`
+  - `display.isolatePreviousIncludePda`
+
 ## Verification
 - Ran real-data probe script against NQ 1H bars:
   - `tmp/segment_ratio_probe.py --start '2012-01-01 00:00' --end '2012-03-01 00:00' --wing 4`
@@ -257,6 +270,11 @@ Fluency metrics:
   - `node --check v4/src/pda/manual-annotation.js`
   - `node --check v4/src/pda/pda-types.js`
   - `node --check v4/src/ui/inspector/pda-panel.js`
+  - `node --check v4/src/segment/segment-renderer.js`
+  - `node --check v4/src/segment/segment-isolate-view.js`
+  - `node --check v4/src/pda/pda-renderer.js`
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `node --check v4/src/ui/inspector/segment-panel.js`
   - `git diff --check`
 - Browser load check passed at `http://127.0.0.1:8001/v4/index.html`.
 

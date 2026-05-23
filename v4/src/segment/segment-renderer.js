@@ -5,6 +5,7 @@ import * as chart from '../chart/chart-manager.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
 import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSelectedSegment } from './segment-selection.js';
+import { getIsolateCompanionSegments } from './segment-isolate-view.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -31,13 +32,15 @@ export function renderSegments() {
 
   const selected = getSelectedSegment();
   const isolatedSegment = getIsolatedSegment();
+  const isolateCompanionIds = new Set(getIsolateCompanionSegments(isolatedSegment).map((segment) => segment.id));
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
     const isIsolated = isolatedSegment?.id === segment.id;
+    const isIsolateCompanion = isolateCompanionIds.has(segment.id);
     const isolateMode = isIsolated ? getIsolateDisplayMode(segment) : null;
     if (isolateMode === 'hidden') return;
     const isCurrent = isIsolated ? isolateMode === 'highlight' : selected?.id === segment.id;
-    if (isolatedSegment && !isIsolated) return;
+    if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,

@@ -11,6 +11,11 @@ import { getPdaType } from './pda-types.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment } from '../segment/segment-selection.js';
 import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
+import {
+  getIsolateCompanionSegments,
+  getIsolatePreviousIncludePda,
+  getResponseDisplayMode,
+} from '../segment/segment-isolate-view.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -83,12 +88,16 @@ function isCurrentAnnotation(annotation, selection) {
 }
 
 function getSelectedSegmentPdaState() {
-  const getResponseDisplayMode = (response) =>
-    response.displayMode || (response.selected === false ? 'normal' : 'highlight');
   const isolatedSegment = getIsolatedSegment();
   if (isolatedSegment) {
     const responses = Array.isArray(isolatedSegment.pdaResponses) ? isolatedSegment.pdaResponses : [];
     const visibleResponses = responses.filter((response) => getResponseDisplayMode(response) !== 'hidden');
+    const companionResponses = getIsolatePreviousIncludePda(isolatedSegment)
+      ? getIsolateCompanionSegments(isolatedSegment)
+          .flatMap((segment) => (Array.isArray(segment.pdaResponses) ? segment.pdaResponses : []))
+          .filter((response) => getResponseDisplayMode(response) !== 'hidden')
+      : [];
+    const companionVisibleIds = companionResponses.map((response) => response.pdaId).filter(Boolean);
     return {
       highlightIds: new Set(
         visibleResponses
@@ -96,7 +105,10 @@ function getSelectedSegmentPdaState() {
           .map((response) => response.pdaId)
           .filter(Boolean)
       ),
-      visibleIds: new Set(visibleResponses.map((response) => response.pdaId).filter(Boolean)),
+      visibleIds: new Set([
+        ...visibleResponses.map((response) => response.pdaId).filter(Boolean),
+        ...companionVisibleIds,
+      ]),
       hiddenIds: new Set(
         responses
           .filter((response) => getResponseDisplayMode(response) === 'hidden')

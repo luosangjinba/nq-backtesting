@@ -388,6 +388,16 @@ Terminal bar 是 segment 终点所在的那根 K 线。
   - 开启后，只显示当前 segment 和它关联的 PDA。
   - 适合专注复盘当前一段。
 
+- `Prev segments`
+  - 在 isolate 状态下，额外显示当前 segment 前面的 N 个 segment。
+  - 例如填 `1` 表示显示前 1 个 segment，填 `3` 表示显示前 3 个 segment。
+  - 这些前序 segment 只是上下文，按普通样式显示，不会抢当前 isolate segment 的高亮。
+
+- `Include previous PDA responses`
+  - 配合 `Prev segments` 使用。
+  - 勾选后，前 N 个 segment 关联的 PDA responses 也会临时显示。
+  - 这些 PDA responses 以普通可见状态显示；当前 isolate segment 自己的 PDA response 仍然按各自的 `highlight / normal / hidden` 控制。
+
 - `Segment in isolate`
   - 控制当前 segment 在 isolate 模式下的显示强度。
   - `highlight`：高亮显示。

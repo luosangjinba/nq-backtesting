@@ -344,6 +344,14 @@ export function renderSegmentPanel(segment) {
         <span>Isolate segment</span>
       </label>
       ${controlField(
+        'Prev segments',
+        `<input class="inspector-input" data-inspector-action="segment-isolate-previous-count" type="number" min="0" step="1" value="${Number(segment.display?.isolatePreviousCount ?? 0)}" />`
+      )}
+      <label class="inspector-toggle">
+        <input data-inspector-action="segment-toggle-isolate-previous-pda" type="checkbox" ${segment.display?.isolatePreviousIncludePda ? 'checked' : ''} />
+        <span>Include previous PDA responses</span>
+      </label>
+      ${controlField(
         'Segment in isolate',
         `<select class="inspector-input" data-inspector-action="segment-isolate-display-mode">
           ${['highlight', 'normal', 'hidden']

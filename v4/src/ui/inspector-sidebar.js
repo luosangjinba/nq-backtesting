@@ -156,6 +156,27 @@ function handleInspectorChange(e) {
       return;
     }
 
+    if (action === 'segment-isolate-previous-count') {
+      const parsed = Number(e.target.value);
+      updateSegment(segment.id, {
+        display: {
+          ...(segment.display || {}),
+          isolatePreviousCount: Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 0,
+        },
+      });
+      return;
+    }
+
+    if (action === 'segment-toggle-isolate-previous-pda') {
+      updateSegment(segment.id, {
+        display: {
+          ...(segment.display || {}),
+          isolatePreviousIncludePda: e.target.checked,
+        },
+      });
+      return;
+    }
+
     if (action === 'segment-narrative') {
       updateSegment(segment.id, { narrative: e.target.value });
       return;
