@@ -183,6 +183,7 @@
 - 2026-05-23: 补齐 high/low liquidity reaction 的 `touched` 字段：sweep 或 exact equality 时 `Touched` 现在会在 Inspector 中显示为 yes，与 `Swept/Exact Equality/Body Touch` 字段保持一致
 - 2026-05-24: This Week NWOG 改为 replay-aware：价格区间仍由真实 Sunday 18:00 open 与上周 Friday close 计算；Replay Bar 开启时矩形只绘制到当前 replay 已显示的本周最后一根 K 线，并在 replay 前进/后退/退出时同步刷新；若当前加载 bars 缺少周开盘/上周收盘参考点，会临时请求 1H reference bars
 - 2026-05-24: FVG direction 命名修正为 ICT 语义：`K1.high < K3.low` 记为 bullish FVG，`K1.low > K3.high` 记为 bearish FVG；价格区间 top/bottom 不变，颜色随 direction 自动切换
+- 2026-05-24: 新增 IFVG PDA：复用 FVG 三根 K 线识别与 range 绘制结构，写入 `type=ifvg`，direction 与 FVG 相反，并统一使用黄色系 `#fdd835` 绘制，不再按 bullish/bearish 分色
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response

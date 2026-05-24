@@ -1,5 +1,28 @@
 # 开发会话记录
 
+## 2026-05-24 - V4 IFVG PDA
+
+### 背景
+FVG 已支持 bullish/bearish direction 后，需要新增独立 `IFVG` PDA。IFVG 使用和 FVG 相同的三根 K 线结构与 range 绘制，但 direction 语义与 FVG 相反，并且不按 bullish/bearish 分色。
+
+### 执行的操作
+- 新增 `v4/sessions/session_20260524_ifvg_pda.md`
+- 新增 `type=ifvg` / label `IFVG`
+- 右键菜单新增 `Mark IFVG`
+- IFVG 复用 FVG 识别结果，写入反向 direction
+- IFVG 统一使用黄色 `#fdd835` 绘制，避免与 FVG 混淆
+- 更新 Inspector help、中文/英文用户说明和 `v4/TODO.md`
+
+### 验证
+```bash
+node --check v4/src/config.js
+node --check v4/src/pda/manual-annotation.js
+node --check v4/src/pda/pda-renderer.js
+node --check v4/src/pda/pda-types.js
+```
+
+---
+
 ## 2026-05-24 - V4 NWOG Replay-Aware 修复
 
 ### 背景

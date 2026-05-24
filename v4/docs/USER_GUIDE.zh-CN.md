@@ -50,6 +50,7 @@ YYYY-MM-DD HH:mm
 - `Start EQH Set`
 - `Start EQL Set`
 - `Mark FVG`
+- `Mark IFVG`
 - `Mark Bullish OB`
 - `Mark Bearish OB`
 - `Mark Bullish Breaker`

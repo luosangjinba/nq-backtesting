@@ -198,8 +198,8 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
   if (isLinkedToSegment) return LINKED_SEGMENT_COLOR;
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
-  if (isFvg && annotation.direction === 'bullish') return '#26a69a';
-  if (isFvg && annotation.direction === 'bearish') return '#ef5350';
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#26a69a';
+  if (annotation.type === 'fvg' && annotation.direction === 'bearish') return '#ef5350';
   return pdaType.color;
 }
 
@@ -210,7 +210,7 @@ function getRangeBorderColor(annotation, pdaType, isCurrent = false, isFvg = fal
 
 function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
   const label = getAnnotationLabel(annotation, pdaType, isCurrent, isLinkedToSegment);
-  const isFvg = annotation.type === 'fvg';
+  const isFvg = annotation.type === 'fvg' || annotation.type === 'ifvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
   const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');

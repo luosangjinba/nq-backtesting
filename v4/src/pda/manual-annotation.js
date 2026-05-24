@@ -135,25 +135,41 @@ function getFvgColors(direction) {
     : { fillColor: '#ef535033', borderColor: 'transparent', midlineColor: '#ef5350', textColor: '#ffcdd2' };
 }
 
-function addManualFvg(bar) {
-  const pdaType = getPdaType('fvg');
+function getIfvgColors() {
+  return {
+    fillColor: '#fdd83533',
+    borderColor: 'transparent',
+    midlineColor: '#fdd835',
+    textColor: '#fff9c4',
+  };
+}
+
+function invertDirection(direction) {
+  if (direction === 'bullish') return 'bearish';
+  if (direction === 'bearish') return 'bullish';
+  return direction;
+}
+
+function addManualFvg(bar, type = 'fvg') {
+  const pdaType = getPdaType(type);
   if (!pdaType || !bar) return;
 
   const result = identifyFvg(store.getDisplayBars(), bar);
   if (!result) {
     hideContextMenu();
-    bus.emit('status:update', { text: '未识别到 FVG 结构', isError: true });
+    bus.emit('status:update', { text: `未识别到 ${pdaType.label} 结构`, isError: true });
     return;
   }
 
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
-  const contexts = [`${tfLabel} FVG`];
-  const colors = getFvgColors(result.direction);
+  const direction = type === 'ifvg' ? invertDirection(result.direction) : result.direction;
+  const contexts = [`${tfLabel} ${pdaType.label}`];
+  const colors = type === 'ifvg' ? getIfvgColors() : getFvgColors(direction);
   const annotation = {
-    id: `manual_fvg_${result.anchorBar.timestamp}_${Date.now()}`,
-    type: 'fvg',
+    id: `manual_${type}_${result.anchorBar.timestamp}_${Date.now()}`,
+    type,
     source: 'manual',
-    direction: result.direction,
+    direction,
     anchorTime: getBarChartTime(result.anchorBar),
     canonicalTimestamp: result.anchorBar.timestamp,
     timestamp: result.anchorBar.timestamp,
@@ -171,7 +187,7 @@ function addManualFvg(bar) {
   hideContextMenu();
 
   bus.emit('status:update', {
-    text: `${pdaType.label}: ${result.direction} ${result.bottomPrice.toFixed(2)}-${result.topPrice.toFixed(2)} ${result.anchorBar.tradingDay || result.anchorBar.time}`,
+    text: `${pdaType.label}: ${direction} ${result.bottomPrice.toFixed(2)}-${result.topPrice.toFixed(2)} ${result.anchorBar.tradingDay || result.anchorBar.time}`,
     isError: false,
   });
 }
@@ -547,6 +563,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
       <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
       <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
+      <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
       <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
@@ -614,6 +631,8 @@ function handleControlClick(e) {
     addManualWickCe(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar);
   } else if (action === 'fvg') {
     addManualFvg(contextMenuBar);
+  } else if (action === 'ifvg') {
+    addManualFvg(contextMenuBar, 'ifvg');
   } else if (action === 'ob-bullish' || action === 'ob-bearish') {
     startManualRange('ob', action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
   } else if (action === 'breaker-bullish' || action === 'breaker-bearish') {

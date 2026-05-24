@@ -41,6 +41,15 @@ export const PDA_TYPES = {
     objective: false,
     pointSet: false,
   },
+  ifvg: {
+    id: 'ifvg',
+    label: 'IFVG',
+    shape: 'range',
+    color: '#fdd835',
+    textColor: '#fff9c4',
+    objective: false,
+    pointSet: false,
+  },
   ob: {
     id: 'ob',
     label: 'OB',

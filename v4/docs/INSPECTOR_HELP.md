@@ -72,7 +72,7 @@ Inspector 是右侧对象面板。选中图表上的 PDA 或 1H Segment 后，�
   - 当前 response 在列表中的顺序。
 
 - PDA 类型
-  - 例如 `FVG`、`BSL`、`SSL`、`Wick CE`、`OB`、`Breaker`、`Fib`、`EQH`、`EQL`、`NDOG`、`NWOG`。
+  - 例如 `FVG`、`IFVG`、`BSL`、`SSL`、`Wick CE`、`OB`、`Breaker`、`Fib`、`EQH`、`EQL`、`NDOG`、`NWOG`。
 
 - Relation 下拉框
   - 你对该 PDA 和 segment 关系的人工分类。
@@ -221,6 +221,7 @@ Terminal bar 是 segment 终点所在的那根 K 线。
 适用于：
 
 - `FVG`
+- `IFVG`
 - `OB`
 - `Breaker`
 - `NDOG`
