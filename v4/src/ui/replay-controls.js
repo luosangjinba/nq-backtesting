@@ -95,6 +95,14 @@ function stopTimer() {
   }
 }
 
+function emitReplayChanged() {
+  bus.emit('replay:changed', {
+    enabled,
+    cursorIndex,
+    cursorTimestamp: enabled && cursorIndex >= 0 ? displayBars[cursorIndex]?.timestamp : null,
+  });
+}
+
 function setMode(nextMode) {
   mode = nextMode;
   render();
@@ -130,6 +138,7 @@ function restoreFullChart(savePosition = true) {
     chart.setData(chartData);
     chart.showStartOfData(chartData.length);
   }
+  emitReplayChanged();
   render();
 }
 
@@ -149,6 +158,7 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
     chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
   }
   chart.showReplayCursor(chartData[cursorIndex].time);
+  emitReplayChanged();
   render();
 }
 
@@ -169,6 +179,7 @@ function stepForward() {
   chart.updateBar(chartData[cursorIndex]);
   chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
   chart.showReplayCursor(chartData[cursorIndex].time);
+  emitReplayChanged();
   render();
 }
 
@@ -424,6 +435,11 @@ export function getReplayRestoreSnapshot() {
     visibleRange: chart.getVisibleLogicalRange(),
     dataCount: cursorIndex + 1,
   };
+}
+
+export function getReplayVisibleBars() {
+  if (!enabled || cursorIndex < 0) return null;
+  return displayBars.slice(0, cursorIndex + 1);
 }
 
 export function syncReplayData(restoreSnapshot = null) {

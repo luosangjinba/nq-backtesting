@@ -1,7 +1,9 @@
 import * as bus from '../event-bus.js';
+import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
+import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { buildCePrice } from '../price-utils.js';
-import { addAnnotation, getAnnotations, removeAnnotation } from './pda-store.js';
+import { addAnnotation, getAnnotations, removeAnnotation, updateAnnotation } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 
 const NDOG_TYPE = 'ndog';
@@ -17,6 +19,10 @@ function objectiveId(type, bucketStart) {
 
 function formatSessionDate(timestamp) {
   return new Date(timestamp * 1000).toISOString().slice(0, 10);
+}
+
+function formatApiDateTime(timestamp) {
+  return new Date(timestamp * 1000).toISOString().slice(0, 16).replace('T', ' ');
 }
 
 function sameSession(bar, sessionStart) {
@@ -66,6 +72,30 @@ function findPreviousSessionCloseBar(allBars, sessionStart) {
 
 function findWeekOpenBar(displayBars, weekStart) {
   return displayBars.find((bar) => bar.timestamp === weekStart) || null;
+}
+
+function getRenderBars() {
+  return getReplayVisibleBars() || store.getDisplayBars();
+}
+
+function mergeBars(primaryBars, secondaryBars) {
+  const byTimestamp = new Map();
+  primaryBars.forEach((bar) => byTimestamp.set(bar.timestamp, bar));
+  secondaryBars.forEach((bar) => byTimestamp.set(bar.timestamp, bar));
+  return Array.from(byTimestamp.values()).sort((a, b) => a.timestamp - b.timestamp);
+}
+
+async function getNwogReferenceBars(allBars, weekStart) {
+  let referenceBars = allBars;
+  const openBar = findWeekOpenBar(referenceBars, weekStart);
+  const previousCloseBar = findPreviousWeekCloseBar(referenceBars, weekStart);
+
+  if (openBar && previousCloseBar) return referenceBars;
+
+  const start = formatApiDateTime(weekStart - 3 * SECONDS_PER_DAY);
+  const end = formatApiDateTime(weekStart + 2 * 60 * 60);
+  const result = await fetchBars(start, end, 60);
+  return mergeBars(referenceBars, result.bars || []);
 }
 
 function findPreviousWeekCloseBar(allBars, weekStart) {
@@ -130,26 +160,38 @@ function buildNdogAnnotation(anchorBar) {
   };
 }
 
-function buildNwogAnnotation(anchorBar) {
+async function buildNwogAnnotation(anchorBar) {
   if (!anchorBar) {
     return { error: '无法显示 NWOG：未找到点击位置的 K 线' };
   }
 
   const allBars = store.getBars();
-  const displayBars = store.getDisplayBars();
+  const displayBars = getRenderBars();
   const weekStart = getWeekStart(anchorBar.timestamp);
   const weekDisplayBars = displayBars.filter((bar) => sameWeek(bar, weekStart));
-  const openBar = findWeekOpenBar(displayBars, weekStart);
-  const previousCloseBar = findPreviousWeekCloseBar(allBars, weekStart);
 
-  if (!weekDisplayBars.length || !openBar) {
-    return { error: '无法显示 NWOG：当前显示范围缺少本周 Sunday 18:00 open' };
+  if (!weekDisplayBars.length) {
+    return { error: '无法显示 NWOG：当前显示范围内没有本周 K 线' };
   }
 
+  let referenceBars = allBars;
+  try {
+    referenceBars = await getNwogReferenceBars(allBars, weekStart);
+  } catch (err) {
+    return { error: `无法显示 NWOG：读取本周 Sunday 18:00 open 失败 (${err.message})` };
+  }
+
+  const openBar = findWeekOpenBar(referenceBars, weekStart);
+  const previousCloseBar = findPreviousWeekCloseBar(referenceBars, weekStart);
+
+  if (!openBar) {
+    return { error: '无法显示 NWOG：当前加载范围缺少本周 Sunday 18:00 open' };
+  }
   if (!previousCloseBar) {
     return { error: '无法显示 NWOG：当前加载范围缺少上周 close' };
   }
 
+  const firstVisibleBar = weekDisplayBars[0];
   const lastVisibleBar = weekDisplayBars[weekDisplayBars.length - 1];
   const topPrice = Math.max(previousCloseBar.close, openBar.open);
   const bottomPrice = Math.min(previousCloseBar.close, openBar.open);
@@ -160,12 +202,12 @@ function buildNwogAnnotation(anchorBar) {
       id: objectiveId(NWOG_TYPE, weekStart),
       type: NWOG_TYPE,
       source: 'objective',
-      anchorTime: openBar.timestamp,
+      anchorTime: firstVisibleBar.timestamp,
       canonicalTimestamp: weekStart,
       timestamp: weekStart,
-      startTime: openBar.timestamp,
+      startTime: firstVisibleBar.timestamp,
       endTime: lastVisibleBar.timestamp,
-      startTimeTimestamp: openBar.timestamp,
+      startTimeTimestamp: firstVisibleBar.timestamp,
       endTimeTimestamp: lastVisibleBar.timestamp,
       topPrice,
       bottomPrice,
@@ -204,7 +246,39 @@ export function toggleTodayNdog(anchorBar) {
   });
 }
 
-export function toggleThisWeekNwog(anchorBar) {
+function syncVisibleNwogRanges() {
+  const displayBars = getRenderBars();
+  if (!displayBars.length) return;
+
+  getAnnotations()
+    .filter((annotation) => annotation.type === NWOG_TYPE && annotation.source === 'objective')
+    .forEach((annotation) => {
+      const weekStart = annotation.canonicalTimestamp ?? annotation.timestamp;
+      const weekDisplayBars = displayBars.filter((bar) => sameWeek(bar, weekStart));
+      if (!weekDisplayBars.length) return;
+
+      const firstVisibleBar = weekDisplayBars[0];
+      const lastVisibleBar = weekDisplayBars[weekDisplayBars.length - 1];
+      if (
+        annotation.startTime === firstVisibleBar.timestamp &&
+        annotation.endTime === lastVisibleBar.timestamp
+      ) {
+        return;
+      }
+
+      updateAnnotation(annotation.id, {
+        anchorTime: firstVisibleBar.timestamp,
+        startTime: firstVisibleBar.timestamp,
+        endTime: lastVisibleBar.timestamp,
+        startTimeTimestamp: firstVisibleBar.timestamp,
+        endTimeTimestamp: lastVisibleBar.timestamp,
+      });
+    });
+}
+
+bus.on('replay:changed', syncVisibleNwogRanges);
+
+export async function toggleThisWeekNwog(anchorBar) {
   const weekStart = anchorBar ? getWeekStart(anchorBar.timestamp) : null;
   const id = weekStart === null ? null : objectiveId(NWOG_TYPE, weekStart);
   const existing = id ? getAnnotations().find((annotation) => annotation.id === id) : null;
@@ -215,7 +289,7 @@ export function toggleThisWeekNwog(anchorBar) {
     return;
   }
 
-  const result = buildNwogAnnotation(anchorBar);
+  const result = await buildNwogAnnotation(anchorBar);
   if (result.error) {
     bus.emit('status:update', { text: result.error, isError: true });
     return;

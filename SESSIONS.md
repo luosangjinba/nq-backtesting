@@ -1,5 +1,24 @@
 # 开发会话记录
 
+## 2026-05-24 - V4 NWOG Replay-Aware 修复
+
+### 背景
+在 Replay Bar 中查看 `20120120-20120122` 这类局部区间时，`Show/Hide This Week NWOG` 可能不显示。原因是 NWOG 价格计算需要真实周开盘/上周收盘，而图表绘制又依赖当前 replay 已显示的时间坐标。
+
+### 执行的操作
+- 新增 `v4/sessions/session_20260524_nwog_replay.md`
+- `replay-controls.js` 暴露当前 replay-visible bars，并在 replay 切片变化时发布 `replay:changed`
+- `objective-gaps.js` 将 NWOG 绘制范围改为 replay-aware，同时保留真实 Sunday 18:00 open / Friday close 的价格计算
+- 当前加载 bars 缺少 NWOG 参考点时，临时通过 `/v4/bars` 拉取 1H reference bars
+
+### 验证
+```bash
+node --check v4/src/pda/objective-gaps.js
+node --check v4/src/ui/replay-controls.js
+```
+
+---
+
 ## 2026-05-15 晚上 - 错误提示 UI 实现
 
 ### 背景
@@ -1555,4 +1574,3 @@ yAxis.setRange({ from: newFrom, to: newTo, ... });
 3. **快速回退**：
    - 发现问题后及时回退
    - 保持代码库整洁
-
