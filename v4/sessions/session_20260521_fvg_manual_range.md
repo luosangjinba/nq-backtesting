@@ -13,8 +13,8 @@
   - three consecutive candles
   - click as K2 is checked first
   - if that fails, click as K1 or K3 is checked
-  - bullish FVG: `K1.low > K3.high`, range `[K3.high, K1.low]`
-  - bearish FVG: `K1.high < K3.low`, range `[K1.high, K3.low]`
+  - bearish FVG: `K1.low > K3.high`, range `[K3.high, K1.low]`
+  - bullish FVG: `K1.high < K3.low`, range `[K1.high, K3.low]`
   - anchor is K2
 - Added `Mark FVG` to the chart context menu.
 - Successful FVG marking creates a `shape: range` annotation with:
@@ -37,6 +37,12 @@
 - `node --check v4/src/pda/fvg-identifier.js`
 - `node --check v4/src/pda/manual-annotation.js`
 - Node smoke check confirmed bullish and bearish FVG structures return anchor/start/end/top/bottom/direction.
+
+## 2026-05-24 Correction
+- FVG direction naming was corrected to match ICT convention:
+  - bullish FVG: `K1.high < K3.low`
+  - bearish FVG: `K1.low > K3.high`
+- Price range calculation did not change; only `direction` and direction-dependent color semantics changed.
 
 ## Next
 - Step 11.3: OB range rendering, preferably first as manual selected-candle range before discussing automatic OB identification.

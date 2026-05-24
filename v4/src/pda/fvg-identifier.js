@@ -8,7 +8,7 @@ function checkFvgPattern(k1, k2, k3) {
       endBar: k3,
       topPrice: k1.low,
       bottomPrice: k3.high,
-      direction: 'bullish',
+      direction: 'bearish',
     };
   }
 
@@ -19,7 +19,7 @@ function checkFvgPattern(k1, k2, k3) {
       endBar: k3,
       topPrice: k3.low,
       bottomPrice: k1.high,
-      direction: 'bearish',
+      direction: 'bullish',
     };
   }
 
