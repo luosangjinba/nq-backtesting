@@ -485,3 +485,121 @@ All checks passed.
 ## Priority
 - Do steps 1-3 first because they are localized and low risk.
 - Do overlay sync after layout/cursor behavior is stable because renderer extraction and duplicate chart context are higher risk.
+
+## Executed: Readonly Segment/Composite Overlay
+
+## Implementation
+- Added `v4/src/segment/secondary-segment-renderer.js`.
+- The renderer is intentionally separate from the primary `segment-renderer.js`:
+  - reads the existing segment and composite stores
+  - reads the shared Display Mode resolver
+  - attaches primitives to the secondary chart/series only
+  - does not register hit-test, click, right-click, selection, or Inspector behavior
+- Segment endpoint mapping uses `getSegmentPointRenderTime(point, secondaryTf)`, so existing 1H occurrence-time alignment also applies when the secondary chart is lower timeframe.
+- Composite move rendering uses:
+  - first child segment start
+  - last child segment end
+  - both mapped through the secondary timeframe
+- First version uses normal readonly styling only. It does not mirror selected/draft/group-child highlight styling, avoiding ambiguity about whether the secondary chart is editable.
+- Added secondary primitive helpers in `secondary-chart-manager.js`:
+  - `attachSecondaryPrimitive()`
+  - `detachSecondaryPrimitive()`
+  - `clearSecondaryPrimitives()`
+- Wired `initSecondarySegmentRenderer()` from `app.js`.
+
+## Event Coverage
+- Re-renders on:
+  - `segment:changed`
+  - `segment-group:changed`
+  - segment/group selection changes
+  - `display-mode:changed`
+  - `secondary-bars:loaded`
+  - `secondary-chart:settings-changed`
+- Clears on:
+  - `secondary-bars:cleared`
+  - `secondary-chart:reset`
+
+## Static Verification
+- `node --check v4/src/segment/secondary-segment-renderer.js`
+- `node --check v4/src/chart/secondary-chart-manager.js`
+- `node --check v4/src/app.js`
+
+All checks passed.
+
+## Next Step
+- Add readonly secondary PDA renderer.
+- Start with liquidity-line and range PDA shapes, then add point-set/fib after the first PDA overlay pass is stable.
+
+## Executed: Readonly PDA Overlay Phase 1
+
+## Implementation
+- Added `v4/src/pda/secondary-pda-renderer.js`.
+- The renderer is independent from the primary `pda-renderer.js`:
+  - reads existing PDA annotations
+  - follows the shared Display Mode resolver via `shouldRenderPda()`
+  - attaches primitives to the secondary chart/series only
+  - does not register hit-test, right-click, selection, or Inspector behavior
+- Phase 1 supports:
+  - `liquidity-line`
+  - `range`
+- Time mapping:
+  - canonical/timestamp fields map through `getBucketStart(timestamp, secondaryTf)`
+  - daily secondary chart time is converted to the chart date string
+- Range behavior preserved:
+  - CE/midline
+  - `extendBars`
+  - label visibility
+  - FVG/IFVG borderless style
+- First version uses normal readonly styling only and intentionally does not mirror selected/linked highlight styling.
+- Wired `initSecondaryPdaRenderer()` from `app.js`.
+
+## Static Verification
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- `node --check v4/src/app.js`
+
+All checks passed.
+
+## Remaining
+- Run full headless Chrome verification across:
+  - default 1H secondary chart
+  - Stack / Side layout
+  - crosshair and replay cursor coexistence
+  - segment/composite overlay
+  - PDA liquidity/range overlay
+  - Split close cleanup
+  - primary workflow non-regression
+
+## Executed: Readonly PDA Overlay Phase 2
+
+## Implementation
+- Extended `v4/src/pda/secondary-pda-renderer.js` to support:
+  - `point-set`
+  - `fib-retracement`
+- `point-set` mapping:
+  - each EQH/EQL point maps its canonical/timestamp through the secondary timeframe
+  - reference price, marker position, label visibility, and extendBars follow the annotation data
+- `fib-retracement` mapping:
+  - start/end points map through the secondary timeframe
+  - level prices reuse the existing Fib formula from the primary renderer
+  - level visibility, labels, trend line visibility, and extendBars follow the annotation data
+- The secondary PDA renderer remains readonly:
+  - no hit-test
+  - no selection
+  - no right-click
+  - no Inspector
+  - no selected/linked highlight mirroring
+
+## Static Verification
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+
+The check passed.
+
+## Remaining
+- Run full headless Chrome verification across:
+  - default 1H secondary chart
+  - Stack / Side layout
+  - crosshair and replay cursor coexistence
+  - segment/composite overlay
+  - PDA liquidity/range/point-set/fib overlay
+  - Split close cleanup
+  - primary workflow non-regression

@@ -16,10 +16,12 @@ import { initDisplayMode } from './display/display-mode.js';
 import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
+import { initSecondaryPdaRenderer } from './pda/secondary-pda-renderer.js';
 import { initPdaSelection } from './pda/pda-selection.js';
 import { initManualSegment } from './segment/manual-segment.js';
 import { initSegmentPersistence } from './segment/segment-persistence.js';
 import { initSegmentRenderer } from './segment/segment-renderer.js';
+import { initSecondarySegmentRenderer } from './segment/secondary-segment-renderer.js';
 import { initSegmentSelection } from './segment/segment-selection.js';
 import { initSegmentGroups } from './segment/segment-group-store.js';
 
@@ -73,6 +75,7 @@ bus.on('bars:loaded', ({ bars }) => {
 
 // 初始化 PDA 手动标注和渲染
 initPdaRenderer();
+initSecondaryPdaRenderer();
 initPdaPersistence();
 initManualAnnotation();
 initPdaSelection();
@@ -80,6 +83,7 @@ initInspectorSidebar();
 console.log('[V4] PDA controls initialized');
 
 initSegmentRenderer();
+initSecondarySegmentRenderer();
 initSegmentGroups();
 initSegmentPersistence();
 initManualSegment();

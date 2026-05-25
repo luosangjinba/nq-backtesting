@@ -191,6 +191,28 @@ export function hideSecondaryHoverCursor() {
   hoverCursorPrimitive = null;
 }
 
+export function attachSecondaryPrimitive(primitive) {
+  if (!secondarySeries || !primitive) return;
+  secondarySeries.attachPrimitive(primitive);
+}
+
+export function detachSecondaryPrimitive(primitive) {
+  if (!secondarySeries || !primitive) return;
+  secondarySeries.detachPrimitive(primitive);
+}
+
+export function clearSecondaryPrimitives(primitives) {
+  if (!secondarySeries || !primitives) return [];
+  primitives.forEach((primitive) => {
+    try {
+      secondarySeries.detachPrimitive(primitive);
+    } catch (e) {
+      // primitive may already be detached during secondary chart reset
+    }
+  });
+  return [];
+}
+
 export function destroySecondaryChart() {
   hideSecondaryCursor();
   hideSecondaryHoverCursor();
