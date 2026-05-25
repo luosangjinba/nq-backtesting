@@ -22,9 +22,10 @@ function normalizeRecentCount(value) {
 }
 
 function normalizeState(nextState = {}) {
-  const modes = new Set(['all', 'structure-only', 'selected-pda', 'recent-workspace']);
+  const migratedMode = nextState.mode === 'structure-only' ? 'selected-pda' : nextState.mode;
+  const modes = new Set(['all', 'selected-pda', 'recent-workspace']);
   return {
-    mode: modes.has(nextState.mode) ? nextState.mode : DEFAULT_STATE.mode,
+    mode: modes.has(migratedMode) ? migratedMode : DEFAULT_STATE.mode,
     recentCount: normalizeRecentCount(nextState.recentCount),
   };
 }
@@ -155,7 +156,6 @@ export function updateDisplayMode(patch = {}) {
 export function shouldRenderPda(annotation) {
   if (!annotation?.id) return false;
   if (state.mode === 'all') return true;
-  if (state.mode === 'structure-only') return false;
   if (state.mode === 'selected-pda') return getSelectedPdaIds().has(annotation.id);
   if (state.mode === 'recent-workspace') return getRecentWorkspaceSets().pdaIds.has(annotation.id);
   return true;

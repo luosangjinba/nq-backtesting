@@ -10,12 +10,10 @@
 ## Presets
 - `All`
   - Render all PDA, all atomic segments, and all composite moves.
-- `Structure Only`
-  - Render all atomic segments and composite moves.
-  - Hide all PDA.
 - `Selected PDA`
   - Render all atomic segments and composite moves.
   - Render PDA linked to the selected segment or selected composite move only.
+  - With no selected segment/composite, this naturally behaves as structure-only.
 - `Recent Workspace`
   - Render latest N segments and latest N composite moves.
   - Composite visibility also includes its child segments and target segment.
@@ -25,6 +23,7 @@
 ## Implementation
 - Added `v4/src/display/display-mode.js`.
 - Display mode is view-only and persisted to browser localStorage key `v4:display-mode:NQ`.
+- Legacy localStorage value `structure-only` is migrated to `selected-pda`.
 - It is not written into PDA annotations, market segments, composite moves, or Review JSON.
 - Toolbar now has one `Display` preset select and one shared `N` input.
 - Renderer and hit-test both use the same display mode predicates:

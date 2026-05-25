@@ -14,7 +14,6 @@ function renderDisplayControls(displayMode) {
       <span class="toolbar-label">Display:</span>
       <select id="displayModeSelect" class="toolbar-select toolbar-display-select" title="Chart display mode">
         <option value="all"${displayMode.mode === 'all' ? ' selected' : ''}>All</option>
-        <option value="structure-only"${displayMode.mode === 'structure-only' ? ' selected' : ''}>Structure Only</option>
         <option value="selected-pda"${displayMode.mode === 'selected-pda' ? ' selected' : ''}>Selected PDA</option>
         <option value="recent-workspace"${displayMode.mode === 'recent-workspace' ? ' selected' : ''}>Recent Workspace</option>
       </select>
