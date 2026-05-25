@@ -4,8 +4,36 @@ import * as bus from '../event-bus.js';
 import { DEFAULT_TIMEFRAME, TIMEFRAME_MAP } from '../config.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
+import * as secondaryStore from '../data/secondary-chart-store.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
+
+function renderSecondaryTimeframeOptions(selectedTimeframe) {
+  return Object.entries(TIMEFRAME_MAP)
+    .map(
+      ([value, label]) =>
+        `<option value="${value}"${Number(value) === Number(selectedTimeframe) ? ' selected' : ''}>${label}</option>`
+    )
+    .join('\n        ');
+}
+
+function renderSplitScreenControls() {
+  const enabled = secondaryStore.isSecondaryEnabled();
+  const timeframe = secondaryStore.getSecondaryTimeframe();
+  return `
+    <div class="toolbar-separator"></div>
+    <label class="toolbar-toggle" title="Show readonly secondary chart">
+      <input id="splitScreenToggle" type="checkbox"${enabled ? ' checked' : ''} />
+      <span>Split</span>
+    </label>
+    <div class="toolbar-group">
+      <span class="toolbar-label">Sub TF:</span>
+      <select id="secondaryTfSelect" class="toolbar-select" title="Secondary chart timeframe" ${enabled ? '' : 'disabled'}>
+        ${renderSecondaryTimeframeOptions(timeframe)}
+      </select>
+    </div>
+  `;
+}
 
 function renderDisplayControls(displayMode) {
   return `
@@ -51,6 +79,7 @@ export function initToolbar() {
     </div>
     <button id="loadBtn" class="toolbar-btn">加载</button>
     <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
+    ${renderSplitScreenControls()}
     ${renderDisplayControls(displayMode)}
     <div class="status-bar">
       <span id="statusText">就绪</span>
@@ -62,9 +91,12 @@ export function initToolbar() {
   const tfSelect = document.getElementById('tfSelect');
   const loadBtn = document.getElementById('loadBtn');
   const archiveBtn = document.getElementById('archiveBtn');
+  const splitScreenToggle = document.getElementById('splitScreenToggle');
+  const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const displayModeSelect = document.getElementById('displayModeSelect');
   const displayRecentCountInput = document.getElementById('displayRecentCountInput');
 
+  syncSplitScreenLayout();
   loadBtn.addEventListener('click', handleLoad);
   archiveBtn.addEventListener('click', () => {
     bus.emit('inspector:open-archive');
@@ -101,6 +133,15 @@ export function initToolbar() {
     e.target.value = getDisplayMode().recentCount;
   });
 
+  splitScreenToggle.addEventListener('change', (e) => {
+    secondaryStore.setSecondaryEnabled(e.target.checked);
+    syncSplitScreenLayout();
+  });
+  secondaryTfSelect.addEventListener('change', (e) => {
+    secondaryStore.setSecondaryTimeframe(e.target.value);
+    syncSplitScreenLayout();
+  });
+
   // 监听状态更新
   bus.on('status:update', ({ text, isError }) => {
     const el = document.getElementById('statusText');
@@ -109,6 +150,22 @@ export function initToolbar() {
       el.style.color = isError ? '#ef5350' : '#b2b5be';
     }
   });
+}
+
+function syncSplitScreenLayout() {
+  const enabled = secondaryStore.isSecondaryEnabled();
+  const chartArea = document.getElementById('chart-area');
+  const secondaryPanel = document.getElementById('secondary-chart-panel');
+  const secondaryTfSelect = document.getElementById('secondaryTfSelect');
+
+  chartArea?.classList.toggle('split-screen-enabled', enabled);
+  if (secondaryPanel) {
+    secondaryPanel.hidden = !enabled;
+  }
+  if (secondaryTfSelect) {
+    secondaryTfSelect.disabled = !enabled;
+    secondaryTfSelect.value = String(secondaryStore.getSecondaryTimeframe());
+  }
 }
 
 async function handleLoad() {
