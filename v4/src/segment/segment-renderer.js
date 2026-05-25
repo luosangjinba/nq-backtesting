@@ -11,6 +11,7 @@ import {
   getDraftSegmentGroupTargetId,
   getSegmentGroups,
 } from './segment-group-store.js';
+import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -62,6 +63,7 @@ export function renderSegments() {
     const children = getSortedGroupChildren(group);
     if (children.length < 2) return;
     if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
+    if (!isolatedSegment && !shouldRenderSegmentGroup(group)) return;
     const isCurrent = selectedGroup?.id === group.id;
 
     const first = children[0];
@@ -112,6 +114,7 @@ export function renderSegments() {
     const isDraftChild = draftChildIds.has(segment.id);
     const isDraftTarget = draftTargetId === segment.id;
     if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
+    if (!isolatedSegment && !shouldRenderSegment(segment)) return;
     const isGroupChildContext = isDraftChild || isSelectedGroupChild;
     const isGroupTargetContext = isDraftTarget || isSelectedGroupTarget;
     const shouldHighlight = isCurrent;
@@ -160,6 +163,7 @@ export function initSegmentRenderer() {
   bus.on('segment-group:selected', renderSegments);
   bus.on('segment:selection-cleared', renderSegments);
   bus.on('segment-group:selection-cleared', renderSegments);
+  bus.on('display-mode:changed', renderSegments);
   bus.on('bars:loaded', renderSegments);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

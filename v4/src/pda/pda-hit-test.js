@@ -5,6 +5,13 @@ import * as store from '../data/bar-store.js';
 import { getAnnotations } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
+import { shouldRenderPda } from '../display/display-mode.js';
+import { getIsolatedSegment } from '../segment/segment-store.js';
+import {
+  getIsolateCompanionSegments,
+  getIsolatePreviousIncludePda,
+  getResponseDisplayMode,
+} from '../segment/segment-isolate-view.js';
 
 const LINE_TOLERANCE_PX = 6;
 const MARKER_TOLERANCE_PX = 8;
@@ -228,9 +235,31 @@ function hitFib(annotation, x, y) {
 
 export function hitTestPdaAnnotations({ x, y }) {
   const hits = [];
+  const isolatedSegment = getIsolatedSegment();
+  const isolatedVisiblePdaIds = new Set();
+  if (isolatedSegment) {
+    const responses = Array.isArray(isolatedSegment.pdaResponses) ? isolatedSegment.pdaResponses : [];
+    responses
+      .filter((response) => getResponseDisplayMode(response) !== 'hidden')
+      .forEach((response) => {
+        if (response.pdaId) isolatedVisiblePdaIds.add(response.pdaId);
+      });
+    if (getIsolatePreviousIncludePda(isolatedSegment)) {
+      getIsolateCompanionSegments(isolatedSegment).forEach((segment) => {
+        const companionResponses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
+        companionResponses
+          .filter((response) => getResponseDisplayMode(response) !== 'hidden')
+          .forEach((response) => {
+            if (response.pdaId) isolatedVisiblePdaIds.add(response.pdaId);
+          });
+      });
+    }
+  }
 
   getAnnotations().forEach((annotation) => {
     if (annotation.draft) return;
+    if (isolatedSegment && !isolatedVisiblePdaIds.has(annotation.id)) return;
+    if (!isolatedSegment && !shouldRenderPda(annotation)) return;
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
 

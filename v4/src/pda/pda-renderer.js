@@ -9,8 +9,10 @@ import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 import { getSelectedPda } from './pda-selection.js';
-import { getSelectedSegment } from '../segment/segment-selection.js';
+import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
 import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
+import { getSegmentGroupById } from '../segment/segment-group-store.js';
+import { shouldRenderPda } from '../display/display-mode.js';
 import {
   getIsolateCompanionSegments,
   getIsolatePreviousIncludePda,
@@ -121,10 +123,47 @@ function getSelectedSegmentPdaState() {
 
   const selection = getSelectedSegment();
   if (!selection?.id) {
+    const groupSelection = getSelectedSegmentGroup();
+    const group = groupSelection?.id ? getSegmentGroupById(groupSelection.id) : null;
+    if (!group) {
+      return {
+        highlightIds: new Set(),
+        visibleIds: new Set(),
+        hiddenIds: new Set(),
+        isolate: false,
+      };
+    }
+
+    const segmentIds = new Set([
+      ...(Array.isArray(group.childSegmentIds) ? group.childSegmentIds : []),
+      group.targetSegmentId,
+    ].filter(Boolean));
+    const responses = Array.from(segmentIds)
+      .map((id) => getSegmentById(id))
+      .filter(Boolean)
+      .flatMap((segment) => (Array.isArray(segment.pdaResponses) ? segment.pdaResponses : []));
+    const visibleResponseIds = new Set(
+      responses
+        .filter((response) => getResponseDisplayMode(response) !== 'hidden')
+        .map((response) => response.pdaId)
+        .filter(Boolean)
+    );
+
     return {
-      highlightIds: new Set(),
-      visibleIds: new Set(),
-      hiddenIds: new Set(),
+      highlightIds: new Set(
+        responses
+          .filter((response) => getResponseDisplayMode(response) === 'highlight')
+          .map((response) => response.pdaId)
+          .filter(Boolean)
+      ),
+      visibleIds: visibleResponseIds,
+      hiddenIds: new Set(
+        responses
+          .filter((response) => getResponseDisplayMode(response) === 'hidden')
+          .map((response) => response.pdaId)
+          .filter((pdaId) => !visibleResponseIds.has(pdaId))
+          .filter(Boolean)
+      ),
       isolate: false,
     };
   }
@@ -351,6 +390,7 @@ export function renderPdaAnnotations() {
     const isLinkedToSegment = segmentPdaState.highlightIds.has(annotation.id);
     if (segmentPdaState.hiddenIds.has(annotation.id)) return;
     if (segmentPdaState.isolate && !segmentPdaState.visibleIds.has(annotation.id)) return;
+    if (!segmentPdaState.isolate && !shouldRenderPda(annotation)) return;
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
@@ -396,6 +436,10 @@ export function initPdaRenderer() {
   bus.on('segment:selected', renderPdaAnnotations);
   bus.on('segment:selection-cleared', renderPdaAnnotations);
   bus.on('segment:changed', renderPdaAnnotations);
+  bus.on('segment-group:selected', renderPdaAnnotations);
+  bus.on('segment-group:selection-cleared', renderPdaAnnotations);
+  bus.on('segment-group:changed', renderPdaAnnotations);
+  bus.on('display-mode:changed', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

@@ -5,9 +5,30 @@ import { DEFAULT_TIMEFRAME, TIMEFRAME_MAP } from '../config.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
 import { formatTimeInput } from '../utils.js';
+import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
+
+function renderDisplayControls(displayMode) {
+  return `
+    <div class="toolbar-separator"></div>
+    <div class="toolbar-group">
+      <span class="toolbar-label">Display:</span>
+      <select id="displayModeSelect" class="toolbar-select toolbar-display-select" title="Chart display mode">
+        <option value="all"${displayMode.mode === 'all' ? ' selected' : ''}>All</option>
+        <option value="structure-only"${displayMode.mode === 'structure-only' ? ' selected' : ''}>Structure Only</option>
+        <option value="selected-pda"${displayMode.mode === 'selected-pda' ? ' selected' : ''}>Selected PDA</option>
+        <option value="recent-workspace"${displayMode.mode === 'recent-workspace' ? ' selected' : ''}>Recent Workspace</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <span class="toolbar-label">N:</span>
+      <input id="displayRecentCountInput" class="toolbar-input toolbar-number-input" type="number" min="1" max="50" step="1" value="${displayMode.recentCount}" title="Recent segment/composite count" />
+    </div>
+  `;
+}
 
 export function initToolbar() {
   const container = document.getElementById('toolbar');
+  const displayMode = getDisplayMode();
 
   container.innerHTML = `
     <div class="toolbar-group">
@@ -31,6 +52,7 @@ export function initToolbar() {
     </div>
     <button id="loadBtn" class="toolbar-btn">加载</button>
     <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
+    ${renderDisplayControls(displayMode)}
     <div class="status-bar">
       <span id="statusText">就绪</span>
     </div>
@@ -41,6 +63,8 @@ export function initToolbar() {
   const tfSelect = document.getElementById('tfSelect');
   const loadBtn = document.getElementById('loadBtn');
   const archiveBtn = document.getElementById('archiveBtn');
+  const displayModeSelect = document.getElementById('displayModeSelect');
+  const displayRecentCountInput = document.getElementById('displayRecentCountInput');
 
   loadBtn.addEventListener('click', handleLoad);
   archiveBtn.addEventListener('click', () => {
@@ -68,6 +92,14 @@ export function initToolbar() {
     if (store.getBars().length > 0) {
       handleLoad();
     }
+  });
+
+  displayModeSelect.addEventListener('change', (e) => {
+    updateDisplayMode({ mode: e.target.value });
+  });
+  displayRecentCountInput.addEventListener('change', (e) => {
+    updateDisplayMode({ recentCount: e.target.value });
+    e.target.value = getDisplayMode().recentCount;
   });
 
   // 监听状态更新

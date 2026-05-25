@@ -1,8 +1,10 @@
 // Pixel-based hit testing for market segments.
 
 import * as chart from '../chart/chart-manager.js';
-import { getSegments } from './segment-store.js';
+import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
+import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
+import { getIsolateCompanionSegments } from './segment-isolate-view.js';
 
 const LINE_TOLERANCE_PX = 7;
 const MARKER_TOLERANCE_PX = 8;
@@ -53,8 +55,16 @@ function hitSegment(segment, x, y) {
 
 export function hitTestSegments({ x, y }) {
   const hits = [];
+  const isolatedSegment = getIsolatedSegment();
+  const isolateVisibleIds = new Set(
+    isolatedSegment
+      ? [isolatedSegment.id, ...getIsolateCompanionSegments(isolatedSegment).map((segment) => segment.id)]
+      : []
+  );
 
   getSegments().forEach((segment) => {
+    if (isolatedSegment && !isolateVisibleIds.has(segment.id)) return;
+    if (!isolatedSegment && !shouldRenderSegment(segment)) return;
     const hit = hitSegment(segment, x, y);
     if (hit) hits.push(hit);
   });
@@ -99,8 +109,19 @@ function hitSegmentGroup(group, x, y) {
 
 export function hitTestSegmentGroups({ x, y }) {
   const hits = [];
+  const isolatedSegment = getIsolatedSegment();
+  const isolateVisibleIds = new Set(
+    isolatedSegment
+      ? [isolatedSegment.id, ...getIsolateCompanionSegments(isolatedSegment).map((segment) => segment.id)]
+      : []
+  );
 
   getSegmentGroups().forEach((group) => {
+    if (!isolatedSegment && !shouldRenderSegmentGroup(group)) return;
+    if (isolatedSegment) {
+      const children = getSortedGroupChildren(group);
+      if (!children.some((segment) => isolateVisibleIds.has(segment.id))) return;
+    }
     const hit = hitSegmentGroup(group, x, y);
     if (hit) hits.push(hit);
   });

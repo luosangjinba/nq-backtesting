@@ -11,6 +11,7 @@ import {
 } from './ui/replay-controls.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
+import { initDisplayMode } from './display/display-mode.js';
 import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
@@ -28,6 +29,9 @@ chart.initChart('chart');
 console.log('[V4] Chart initialized');
 
 // 初始化工具栏
+initDisplayMode();
+console.log('[V4] Display mode initialized');
+
 initToolbar();
 console.log('[V4] Toolbar initialized');
 
