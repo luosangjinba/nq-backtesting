@@ -1,6 +1,7 @@
 // View-only display presets for chart PDA, segment, and composite objects.
 
 import * as bus from '../event-bus.js';
+import { getAnnotations } from '../pda/pda-store.js';
 import { getSegmentGroupById, getSegmentGroups } from '../segment/segment-group-store.js';
 import { getSegments } from '../segment/segment-store.js';
 
@@ -116,30 +117,52 @@ function getSegmentByIdMap() {
   return new Map(getSegments().map((segment) => [segment.id, segment]));
 }
 
-function getSelectedPdaIds() {
-  const segmentMap = getSegmentByIdMap();
-  const ids = new Set();
-  getSelectedStructureSegmentIds().forEach((segmentId) => addSegmentResponseIds(ids, segmentMap.get(segmentId)));
-  return ids;
+function getAllIds() {
+  return {
+    visiblePdaIds: new Set(getAnnotations().map((annotation) => annotation.id).filter(Boolean)),
+    visibleSegmentIds: new Set(getSegments().map((segment) => segment.id).filter(Boolean)),
+    visibleGroupIds: new Set(getSegmentGroups().map((group) => group.id).filter(Boolean)),
+  };
 }
 
-function getRecentWorkspaceSets() {
-  const segmentIds = new Set(getRecentSegments().map((segment) => segment.id));
-  const groupIds = new Set();
+function buildVisibilitySets() {
+  const allIds = getAllIds();
 
-  getRecentGroups().forEach((group) => {
-    groupIds.add(group.id);
-    addGroupSegmentIds(segmentIds, group);
-  });
-
-  getSelectedStructureSegmentIds().forEach((id) => segmentIds.add(id));
-  if (selectedGroupId) groupIds.add(selectedGroupId);
+  if (state.mode === 'all') {
+    return allIds;
+  }
 
   const segmentMap = getSegmentByIdMap();
-  const pdaIds = new Set();
-  segmentIds.forEach((segmentId) => addSegmentResponseIds(pdaIds, segmentMap.get(segmentId)));
+  const selectedSegmentIds = getSelectedStructureSegmentIds();
+  const selectedPdaIds = new Set();
+  selectedSegmentIds.forEach((segmentId) => addSegmentResponseIds(selectedPdaIds, segmentMap.get(segmentId)));
 
-  return { segmentIds, groupIds, pdaIds };
+  if (state.mode === 'selected-pda') {
+    return {
+      ...allIds,
+      visiblePdaIds: selectedPdaIds,
+    };
+  }
+
+  if (state.mode === 'recent-workspace') {
+    const visibleSegmentIds = new Set(getRecentSegments().map((segment) => segment.id).filter(Boolean));
+    const visibleGroupIds = new Set();
+
+    getRecentGroups().forEach((group) => {
+      visibleGroupIds.add(group.id);
+      addGroupSegmentIds(visibleSegmentIds, group);
+    });
+
+    selectedSegmentIds.forEach((id) => visibleSegmentIds.add(id));
+    if (selectedGroupId) visibleGroupIds.add(selectedGroupId);
+
+    const visiblePdaIds = new Set();
+    visibleSegmentIds.forEach((segmentId) => addSegmentResponseIds(visiblePdaIds, segmentMap.get(segmentId)));
+
+    return { visiblePdaIds, visibleSegmentIds, visibleGroupIds };
+  }
+
+  return allIds;
 }
 
 export function getDisplayMode() {
@@ -153,24 +176,23 @@ export function updateDisplayMode(patch = {}) {
   return getDisplayMode();
 }
 
+export function getDisplayVisibility() {
+  return buildVisibilitySets();
+}
+
 export function shouldRenderPda(annotation) {
   if (!annotation?.id) return false;
-  if (state.mode === 'all') return true;
-  if (state.mode === 'selected-pda') return getSelectedPdaIds().has(annotation.id);
-  if (state.mode === 'recent-workspace') return getRecentWorkspaceSets().pdaIds.has(annotation.id);
-  return true;
+  return getDisplayVisibility().visiblePdaIds.has(annotation.id);
 }
 
 export function shouldRenderSegment(segment) {
   if (!segment?.id) return false;
-  if (state.mode !== 'recent-workspace') return true;
-  return getRecentWorkspaceSets().segmentIds.has(segment.id);
+  return getDisplayVisibility().visibleSegmentIds.has(segment.id);
 }
 
 export function shouldRenderSegmentGroup(group) {
   if (!group?.id) return false;
-  if (state.mode !== 'recent-workspace') return true;
-  return getRecentWorkspaceSets().groupIds.has(group.id);
+  return getDisplayVisibility().visibleGroupIds.has(group.id);
 }
 
 export function initDisplayMode() {

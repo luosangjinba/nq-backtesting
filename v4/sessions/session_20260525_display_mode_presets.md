@@ -26,7 +26,11 @@
 - Legacy localStorage value `structure-only` is migrated to `selected-pda`.
 - It is not written into PDA annotations, market segments, composite moves, or Review JSON.
 - Toolbar now has one `Display` preset select and one shared `N` input.
-- Renderer and hit-test both use the same display mode predicates:
+- Visibility is resolved through `getDisplayVisibility()`, which returns:
+  - `visiblePdaIds`
+  - `visibleSegmentIds`
+  - `visibleGroupIds`
+- Renderer and hit-test both use the same display mode predicates backed by those visibility sets:
   - `shouldRenderPda`
   - `shouldRenderSegment`
   - `shouldRenderSegmentGroup`
@@ -42,6 +46,10 @@
 - `node --check v4/src/segment/segment-hit-test.js`
 - `node --check v4/src/app.js`
 - `bash -n v4/start.sh`
+
+## Follow-up Refactor
+- 2026-05-25: `display-mode.js` resolver now builds one visibility snapshot through `buildVisibilitySets()`.
+- `shouldRenderPda/Segment/SegmentGroup` now only query the sets returned by `getDisplayVisibility()`.
 
 ## Notes
 - No PDA type-level filter was added.
