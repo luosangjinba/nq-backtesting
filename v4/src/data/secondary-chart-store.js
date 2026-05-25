@@ -2,9 +2,12 @@
 
 import * as bus from '../event-bus.js';
 
-const DEFAULT_SECONDARY_TIMEFRAME = 5;
+const DEFAULT_SECONDARY_TIMEFRAME = 60;
+const DEFAULT_SPLIT_LAYOUT = 'stack';
+const SPLIT_LAYOUTS = new Set(['stack', 'side']);
 
 let enabled = false;
+let layout = DEFAULT_SPLIT_LAYOUT;
 let bars = [];
 let currentStart = null;
 let currentEnd = null;
@@ -14,6 +17,7 @@ let requestedRange = null;
 function emitSettingsChanged() {
   bus.emit('secondary-chart:settings-changed', {
     enabled,
+    layout,
     timeframe: currentTimeframe,
   });
 }
@@ -27,6 +31,17 @@ export function setSecondaryEnabled(nextEnabled) {
 
 export function isSecondaryEnabled() {
   return enabled;
+}
+
+export function setSplitLayout(nextLayout) {
+  const normalized = SPLIT_LAYOUTS.has(nextLayout) ? nextLayout : DEFAULT_SPLIT_LAYOUT;
+  if (layout === normalized) return;
+  layout = normalized;
+  emitSettingsChanged();
+}
+
+export function getSplitLayout() {
+  return layout;
 }
 
 export function setSecondaryTimeframe(tf) {
@@ -89,6 +104,7 @@ export function clearSecondaryBars() {
 
 export function resetSecondaryChartState() {
   enabled = false;
+  layout = DEFAULT_SPLIT_LAYOUT;
   bars = [];
   currentStart = null;
   currentEnd = null;

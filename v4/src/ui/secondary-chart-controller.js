@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
+import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { getBucketStart } from '../pda/pda-context.js';
@@ -9,13 +10,28 @@ import {
   clearSecondaryData,
   destroySecondaryChart,
   hideSecondaryCursor,
+  hideSecondaryHoverCursor,
   initSecondaryChart,
   setSecondaryData,
+  showSecondaryHoverCursor,
   showSecondaryStartOfData,
 } from '../chart/secondary-chart-manager.js';
 
 let requestSeq = 0;
 let lastReplayState = { enabled: false, cursorTimestamp: null };
+
+function normalizeTimeKey(time) {
+  if (time && typeof time === 'object') {
+    const month = String(time.month).padStart(2, '0');
+    const day = String(time.day).padStart(2, '0');
+    return `${time.year}-${month}-${day}`;
+  }
+  return time;
+}
+
+function getBarChartTime(bar, timeframe) {
+  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
+}
 
 function mapTimestampToSecondaryChartTime(timestamp) {
   if (timestamp === undefined || timestamp === null) return null;
@@ -29,6 +45,18 @@ function mapTimestampToSecondaryChartTime(timestamp) {
     return date.toISOString().slice(0, 10);
   }
   return bucketStart;
+}
+
+function getPrimaryHoverTimestamp(time) {
+  if (time === undefined || time === null) return null;
+  if (Number.isFinite(Number(time))) return Number(time);
+
+  const currentTimeframe = store.getCurrentTimeframe();
+  const target = normalizeTimeKey(time);
+  const bar = store
+    .getDisplayBars()
+    .find((displayBar) => normalizeTimeKey(getBarChartTime(displayBar, currentTimeframe)) === target);
+  return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
 }
 
 function toChartBar(bar, timeframe) {
@@ -88,6 +116,7 @@ function handleSecondarySettingsChanged({ enabled }) {
   requestSeq += 1;
 
   if (!enabled) {
+    hideSecondaryHoverCursor();
     secondaryStore.clearSecondaryBars();
     destroySecondaryChart();
     return;
@@ -109,6 +138,22 @@ function handlePrimaryBarsCleared() {
   requestSeq += 1;
   secondaryStore.clearSecondaryBars();
   clearSecondaryData();
+}
+
+function syncSecondaryHoverCursor(primaryTime) {
+  if (!secondaryStore.isSecondaryEnabled() || secondaryStore.getSecondaryBarCount() <= 0) {
+    hideSecondaryHoverCursor();
+    return;
+  }
+
+  const hoverTimestamp = getPrimaryHoverTimestamp(primaryTime);
+  const hoverTime = mapTimestampToSecondaryChartTime(hoverTimestamp);
+  if (hoverTime === null) {
+    hideSecondaryHoverCursor();
+    return;
+  }
+
+  showSecondaryHoverCursor(hoverTime);
 }
 
 function syncSecondaryReplayCursor() {
@@ -148,4 +193,5 @@ export function initSecondaryChartController() {
   bus.on('bars:loaded', handlePrimaryBarsLoaded);
   bus.on('bars:cleared', handlePrimaryBarsCleared);
   bus.on('replay:changed', handleReplayChanged);
+  chart.onCrosshairMove((param) => syncSecondaryHoverCursor(param?.time));
 }

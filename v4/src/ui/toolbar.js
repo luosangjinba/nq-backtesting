@@ -20,6 +20,7 @@ function renderSecondaryTimeframeOptions(selectedTimeframe) {
 function renderSplitScreenControls() {
   const enabled = secondaryStore.isSecondaryEnabled();
   const timeframe = secondaryStore.getSecondaryTimeframe();
+  const layout = secondaryStore.getSplitLayout();
   return `
     <div class="toolbar-separator"></div>
     <label class="toolbar-toggle" title="Show readonly secondary chart">
@@ -30,6 +31,13 @@ function renderSplitScreenControls() {
       <span class="toolbar-label">Sub TF:</span>
       <select id="secondaryTfSelect" class="toolbar-select" title="Secondary chart timeframe" ${enabled ? '' : 'disabled'}>
         ${renderSecondaryTimeframeOptions(timeframe)}
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <span class="toolbar-label">Layout:</span>
+      <select id="splitLayoutSelect" class="toolbar-select toolbar-layout-select" title="Split screen layout" ${enabled ? '' : 'disabled'}>
+        <option value="stack"${layout === 'stack' ? ' selected' : ''}>Stack</option>
+        <option value="side"${layout === 'side' ? ' selected' : ''}>Side</option>
       </select>
     </div>
   `;
@@ -93,6 +101,7 @@ export function initToolbar() {
   const archiveBtn = document.getElementById('archiveBtn');
   const splitScreenToggle = document.getElementById('splitScreenToggle');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
+  const splitLayoutSelect = document.getElementById('splitLayoutSelect');
   const displayModeSelect = document.getElementById('displayModeSelect');
   const displayRecentCountInput = document.getElementById('displayRecentCountInput');
 
@@ -141,6 +150,10 @@ export function initToolbar() {
     secondaryStore.setSecondaryTimeframe(e.target.value);
     syncSplitScreenLayout();
   });
+  splitLayoutSelect.addEventListener('change', (e) => {
+    secondaryStore.setSplitLayout(e.target.value);
+    syncSplitScreenLayout();
+  });
 
   // 监听状态更新
   bus.on('status:update', ({ text, isError }) => {
@@ -157,14 +170,22 @@ function syncSplitScreenLayout() {
   const chartArea = document.getElementById('chart-area');
   const secondaryPanel = document.getElementById('secondary-chart-panel');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
+  const splitLayoutSelect = document.getElementById('splitLayoutSelect');
+  const layout = secondaryStore.getSplitLayout();
 
   chartArea?.classList.toggle('split-screen-enabled', enabled);
+  chartArea?.classList.toggle('split-screen-side', enabled && layout === 'side');
+  chartArea?.classList.toggle('split-screen-stack', enabled && layout === 'stack');
   if (secondaryPanel) {
     secondaryPanel.hidden = !enabled;
   }
   if (secondaryTfSelect) {
     secondaryTfSelect.disabled = !enabled;
     secondaryTfSelect.value = String(secondaryStore.getSecondaryTimeframe());
+  }
+  if (splitLayoutSelect) {
+    splitLayoutSelect.disabled = !enabled;
+    splitLayoutSelect.value = layout;
   }
 }
 

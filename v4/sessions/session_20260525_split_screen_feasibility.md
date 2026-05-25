@@ -133,7 +133,7 @@
   - `currentEnd`
   - `currentTimeframe`
   - `requestedRange`
-- Default secondary timeframe is `5M`.
+- Default secondary timeframe is `1H`.
 - Public functions prepared for later toolbar / loader wiring:
   - `setSecondaryEnabled(nextEnabled)`
   - `isSecondaryEnabled()`
@@ -297,7 +297,7 @@ All checks passed.
 - Split load:
   - Split on
   - secondary panel visible
-  - Sub TF default `5M`
+  - Sub TF default was `5M` during the original MVP verification; it was changed to `1H` in the follow-up below
   - secondary canvas count `7`
   - status reported secondary load complete
 - Sub TF reload:
@@ -321,3 +321,167 @@ All checks passed.
 
 ## Next Step
 - Step 10: decide whether to stop MVP here and commit, or continue with optional extensions such as secondary PDA/segment rendering, crosshair sync, viewport sync, or click-to-focus.
+
+## Step 10: Crosshair One-Way Sync
+
+## Goal
+- Add main-chart-to-secondary-chart hover synchronization while keeping the secondary chart readonly.
+
+## Proposed Scope
+- Synchronize only primary chart crosshair to secondary chart.
+- Do not synchronize secondary chart crosshair back to primary chart.
+- Do not synchronize viewport.
+- Do not make the secondary chart selectable or editable.
+
+## Implementation
+- Added a separate hover cursor primitive in `secondary-chart-manager.js`.
+- Kept hover cursor independent from replay cursor:
+  - replay cursor remains stable and slightly stronger
+  - hover cursor is lighter and follows mouse movement
+- Added public functions:
+  - `showSecondaryHoverCursor(time)`
+  - `hideSecondaryHoverCursor()`
+- In `secondary-chart-controller.js`:
+  - listens to primary `chart.onCrosshairMove()`
+  - map primary hover time to secondary timeframe bucket
+  - calls `showSecondaryHoverCursor(mappedTime)`
+  - hide hover cursor when Split is off, primary hover has no time, mouse leaves the primary chart, or secondary has no bars
+
+## Edge Cases
+- Numeric intraday chart time can be mapped directly.
+- Daily primary chart time uses loaded display bars to recover timestamp before mapping.
+- Hover cursor should not replace or erase replay cursor.
+
+## Verification
+- `node --check v4/src/chart/secondary-chart-manager.js`
+- `node --check v4/src/ui/secondary-chart-controller.js`
+- `node --check v4/src/data/secondary-chart-store.js`
+- `node --check v4/src/ui/toolbar.js`
+- Headless Chrome workflow:
+  - opened Split
+  - loaded `2012-01-25 09:00` to `2012-01-25 12:00`
+  - confirmed default secondary timeframe `1H`
+  - enabled primary Replay Bar
+  - dispatched mouse move on the primary chart
+  - confirmed no runtime exceptions
+  - confirmed secondary chart canvas remained rendered
+
+## Completed Follow-up: Default Secondary Timeframe
+- Changed the secondary chart default timeframe from `5M` to `1H`.
+- Implementation:
+  - `v4/src/data/secondary-chart-store.js`
+  - `DEFAULT_SECONDARY_TIMEFRAME = 60`
+  - toolbar `Sub TF` default-selects `1H`.
+- Verification:
+  - `node --check v4/src/data/secondary-chart-store.js`
+  - `node --check v4/src/ui/toolbar.js`
+  - `node --check v4/src/ui/secondary-chart-controller.js`
+  - headless Chrome confirmed initial `Sub TF=60/1H` and disabled while Split is off
+  - headless Chrome confirmed Split on keeps `Sub TF=60/1H`, renders secondary chart canvas, and loads 1H secondary bars
+
+## Completed Follow-up: Split Layout Mode
+- Added a selectable split-screen layout mode.
+- `secondary-chart-store.js` now tracks `layout=stack|side`.
+- Toolbar now includes a Layout select next to Split / Sub TF.
+- Split off disables the Layout select.
+- `syncSplitScreenLayout()` toggles:
+  - `split-screen-stack`
+  - `split-screen-side`
+- `Stack` remains default:
+  - vertical top/bottom split
+  - `#chart-stack { flex-direction: column }`
+  - primary/secondary ratio about `64% / 36%`
+- `Side` is available as a desktop/wide-screen option:
+  - horizontal left/right split
+  - `#chart-stack { flex-direction: row }`
+  - primary/secondary ratio about `60% / 40%`
+  - secondary chart is on the left
+  - primary chart is on the right
+  - secondary panel uses `border-right` instead of `border-top`
+- No changes were made to secondary data loading or rendering logic.
+
+## Verification
+- `node --check v4/src/data/secondary-chart-store.js`
+- `node --check v4/src/ui/toolbar.js`
+- `node --check v4/src/ui/secondary-chart-controller.js`
+- `node --check v4/src/chart/secondary-chart-manager.js`
+- Headless Chrome workflow:
+  - initial Layout is `stack` and disabled while Split is off
+  - Split on enables Layout and keeps `stack`
+  - secondary chart loads and renders canvas
+  - switching Layout to `side` applies `split-screen-side`
+  - `#chart-stack` computed `flex-direction` becomes `row`
+  - secondary chart order is left of primary chart
+  - secondary panel uses `border-right: 1px` and `border-top: 0`
+  - no runtime exceptions observed
+
+## Follow-up: Readonly Overlay Sync
+
+## Goal
+- Let the secondary chart display existing PDA / segment / composite context without becoming editable.
+
+## Scope
+- Secondary chart remains readonly.
+- No secondary-chart editing.
+- No secondary-chart hit-test.
+- No secondary-chart right-click menu.
+- No secondary-chart selection or Inspector opening.
+- All source data remains the existing primary/session stores.
+
+## Proposed Implementation
+- Add independent secondary renderers:
+  - first `secondary-segment-renderer.js` for segment/composite
+  - later `secondary-pda-renderer.js` for PDA
+- Renderers read existing stores and attach primitives to the secondary chart/series.
+- Do not directly reuse current primary renderers because they are hard-bound to:
+  - global primary `chart.getChart()`
+  - global primary `chart.getSeries()`
+  - global primary timeframe
+- Preferred direction:
+  - extract shared render-time helpers / primitive builders, or
+  - keep secondary renderers explicit and pass secondary chart context directly.
+
+## Mapping Rules
+- Segment endpoints:
+  - use `getSegmentPointRenderTime(point, secondaryTf)`.
+- Composite move:
+  - use first child start endpoint and last child end endpoint mapped to secondary timeframe.
+- PDA timestamps:
+  - map with `getBucketStart(timestamp, secondaryTf)`.
+- Display filtering:
+  - first version follows the same Display Mode resolver as the primary chart.
+
+## Phasing
+- Phase 1: sync segment/composite only.
+- Phase 2: sync PDA after segment/composite rendering is stable.
+- Phase 3: optionally sync selected/linked highlight styling.
+- First version can render everything in normal style to avoid confusing the readonly boundary.
+
+## Consolidated Extension Plan
+
+## Order
+1. Add readonly secondary segment/composite renderer.
+   - New `secondary-segment-renderer.js`.
+   - No hit-test, selection, right-click menu, or Inspector.
+   - Use `getSegmentPointRenderTime(point, secondaryTf)`.
+   - First version uses normal style only.
+2. Add readonly secondary PDA renderer.
+   - New `secondary-pda-renderer.js`.
+   - Start with liquidity-line and range.
+   - Add point-set and fib after core PDA rendering is stable.
+   - Use `getBucketStart(timestamp, secondaryTf)` for time mapping.
+3. Verify.
+   - Run `node --check` on changed modules.
+   - Headless Chrome coverage:
+     - default secondary timeframe is `1H`
+     - Stack / Side switching
+     - crosshair hover cursor
+     - replay cursor and hover cursor coexist
+     - segment/composite overlay
+     - PDA overlay
+     - Split close cleanup
+     - primary annotation / segment / Inspector / replay non-regression.
+
+## Priority
+- Do steps 1-3 first because they are localized and low risk.
+- Do overlay sync after layout/cursor behavior is stable because renderer extraction and duplicate chart context are higher risk.

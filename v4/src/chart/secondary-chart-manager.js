@@ -14,6 +14,7 @@ let secondarySeries = null;
 let secondaryContainer = null;
 let resizeObserver = null;
 let cursorPrimitive = null;
+let hoverCursorPrimitive = null;
 let activeDataCount = 0;
 let activeLastTime = null;
 
@@ -109,6 +110,7 @@ export function updateSecondaryBar(bar) {
 
 export function clearSecondaryData() {
   hideSecondaryCursor();
+  hideSecondaryHoverCursor();
   setSecondaryData([]);
 }
 
@@ -163,8 +165,35 @@ export function hideSecondaryCursor() {
   cursorPrimitive = null;
 }
 
+export function showSecondaryHoverCursor(time) {
+  if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+
+  if (!hoverCursorPrimitive) {
+    hoverCursorPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
+      color: 'rgba(240, 243, 250, 0.16)',
+      lineWidth: 1,
+    });
+    secondarySeries.attachPrimitive(hoverCursorPrimitive);
+    return;
+  }
+
+  hoverCursorPrimitive.setTime(time);
+}
+
+export function hideSecondaryHoverCursor() {
+  if (!secondarySeries || !hoverCursorPrimitive) return;
+
+  try {
+    secondarySeries.detachPrimitive(hoverCursorPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart reset
+  }
+  hoverCursorPrimitive = null;
+}
+
 export function destroySecondaryChart() {
   hideSecondaryCursor();
+  hideSecondaryHoverCursor();
   resizeObserver?.disconnect();
   resizeObserver = null;
   activeDataCount = 0;
