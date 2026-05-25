@@ -659,7 +659,10 @@ function handleControlClick(e) {
     startSegment(contextMenuBar, action === 'segment-start-high' ? 'swing-high' : 'swing-low');
     hideContextMenu();
   } else if (action === 'segment-finish-low' || action === 'segment-finish-high') {
-    finishSegment(contextMenuBar, action === 'segment-finish-high' ? 'swing-high' : 'swing-low');
+    finishSegment(contextMenuBar, action === 'segment-finish-high' ? 'swing-high' : 'swing-low').catch((err) => {
+      console.warn('[manual-annotation] finish segment failed', err);
+      bus.emit('status:update', { text: '1H 行情段创建失败', isError: true });
+    });
     hideContextMenu();
   } else if (action === 'segment-cancel') {
     cancelSegmentSelection();

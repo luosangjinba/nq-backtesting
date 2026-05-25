@@ -12,6 +12,7 @@ import {
   getSegmentGroups,
 } from './segment-group-store.js';
 import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
+import { getSegmentPointRenderTime } from './segment-time.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -71,9 +72,9 @@ export function renderSegments() {
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,
-      first.start.time,
+      getSegmentPointRenderTime(first.start),
       first.start.price,
-      last.end.time,
+      getSegmentPointRenderTime(last.end),
       last.end.price,
       getGroupLabel(group, children.length),
       {
@@ -130,9 +131,9 @@ export function renderSegments() {
     const primitive = new SegmentPrimitive(
       chartInstance,
       series,
-      segment.start.time,
+      getSegmentPointRenderTime(segment.start),
       segment.start.price,
-      segment.end.time,
+      getSegmentPointRenderTime(segment.end),
       segment.end.price,
       getSegmentLabel(segment),
       {

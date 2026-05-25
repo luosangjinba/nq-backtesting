@@ -5,6 +5,7 @@ import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
 import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
 import { getIsolateCompanionSegments } from './segment-isolate-view.js';
+import { getSegmentPointRenderTime } from './segment-time.js';
 
 const LINE_TOLERANCE_PX = 7;
 const MARKER_TOLERANCE_PX = 8;
@@ -32,9 +33,9 @@ function distanceToLineSegment(px, py, x1, y1, x2, y2) {
 }
 
 function hitSegment(segment, x, y) {
-  const startX = getTimeCoordinate(segment.start?.time);
+  const startX = getTimeCoordinate(getSegmentPointRenderTime(segment.start));
   const startY = getPriceCoordinate(segment.start?.price);
-  const endX = getTimeCoordinate(segment.end?.time);
+  const endX = getTimeCoordinate(getSegmentPointRenderTime(segment.end));
   const endY = getPriceCoordinate(segment.end?.price);
 
   if (startX === null || startY === null || endX === null || endY === null) return null;
@@ -86,9 +87,9 @@ function hitSegmentGroup(group, x, y) {
 
   const first = children[0];
   const last = children[children.length - 1];
-  const startX = getTimeCoordinate(first.start?.time);
+  const startX = getTimeCoordinate(getSegmentPointRenderTime(first.start));
   const startY = getPriceCoordinate(first.start?.price);
-  const endX = getTimeCoordinate(last.end?.time);
+  const endX = getTimeCoordinate(getSegmentPointRenderTime(last.end));
   const endY = getPriceCoordinate(last.end?.price);
 
   if (startX === null || startY === null || endX === null || endY === null) return null;

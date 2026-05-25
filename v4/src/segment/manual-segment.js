@@ -3,9 +3,12 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
+import { fetchBars } from '../api.js';
 import { addSegment, clearSegments } from './segment-store.js';
 
 const SEGMENT_TIMEFRAME = 60;
+const OCCURRENCE_SOURCE_TIMEFRAME = 1;
+const PRICE_EPSILON = 0.0000001;
 
 let segmentSelectionState = null;
 
@@ -30,6 +33,65 @@ function getDirection(startPrice, endPrice) {
   if (endPrice > startPrice) return 'up';
   if (endPrice < startPrice) return 'down';
   return 'flat';
+}
+
+function formatTimestampInput(timestamp) {
+  const date = new Date(Number(timestamp) * 1000);
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  const h = String(date.getUTCHours()).padStart(2, '0');
+  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d} ${h}:${min}`;
+}
+
+function getOccurrenceBar(bars, price, kind, startTimestamp, endTimestamp) {
+  const field = normalizeSwingKind(kind) === 'swing-high' ? 'high' : 'low';
+  return [...bars]
+    .filter((bar) => {
+      const timestamp = Number(bar.timestamp);
+      const value = Number(bar[field]);
+      return (
+        Number.isFinite(timestamp) &&
+        timestamp >= startTimestamp &&
+        timestamp < endTimestamp &&
+        Number.isFinite(value) &&
+        Math.abs(value - Number(price)) < PRICE_EPSILON
+      );
+    })
+    .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))
+    .at(-1);
+}
+
+async function resolveEndpointOccurrence(bar, kind, price) {
+  const startTimestamp = Number(bar?.timestamp);
+  if (!Number.isFinite(startTimestamp)) return {};
+  const endTimestamp = startTimestamp + SEGMENT_TIMEFRAME * 60;
+
+  try {
+    const result = await fetchBars(
+      formatTimestampInput(startTimestamp),
+      formatTimestampInput(endTimestamp),
+      OCCURRENCE_SOURCE_TIMEFRAME,
+      'NQ'
+    );
+    const occurrenceBar = getOccurrenceBar(
+      Array.isArray(result.bars) ? result.bars : [],
+      price,
+      kind,
+      startTimestamp,
+      endTimestamp
+    );
+    if (!occurrenceBar) return {};
+    return {
+      occurrenceTime: occurrenceBar.time ?? occurrenceBar.timestamp,
+      occurrenceTimestamp: occurrenceBar.timestamp,
+      occurrenceSourceTimeframe: OCCURRENCE_SOURCE_TIMEFRAME,
+    };
+  } catch (err) {
+    console.warn('[manual-segment] occurrence lookup failed', err);
+    return {};
+  }
 }
 
 function ensureOneHourContext() {
@@ -73,7 +135,7 @@ export function startSegment(bar, startKind = 'swing-low') {
   });
 }
 
-export function finishSegment(endBar, endKind = 'swing-high') {
+export async function finishSegment(endBar, endKind = 'swing-high') {
   if (!segmentSelectionState || !endBar || !ensureOneHourContext()) return;
 
   const startBar = segmentSelectionState.startBar;
@@ -92,6 +154,10 @@ export function finishSegment(endBar, endKind = 'swing-high') {
   }
 
   const direction = getDirection(startPrice, endPrice);
+  const [startOccurrence, endOccurrence] = await Promise.all([
+    resolveEndpointOccurrence(startBar, startKind, startPrice),
+    resolveEndpointOccurrence(endBar, normalizedEndKind, endPrice),
+  ]);
   const segment = {
     id: `manual_segment_1h_${startBar.timestamp}_${endBar.timestamp}_${Date.now()}`,
     instrument: 'NQ',
@@ -104,6 +170,8 @@ export function finishSegment(endBar, endKind = 'swing-high') {
       price: startPrice,
       kind: startKind,
       barTime: startBar.time,
+      sourceTimeframe: SEGMENT_TIMEFRAME,
+      ...startOccurrence,
     },
     end: {
       time: getBarChartTime(endBar),
@@ -111,6 +179,8 @@ export function finishSegment(endBar, endKind = 'swing-high') {
       price: endPrice,
       kind: normalizedEndKind,
       barTime: endBar.time,
+      sourceTimeframe: SEGMENT_TIMEFRAME,
+      ...endOccurrence,
     },
     pdaResponses: [],
     narrative: '',

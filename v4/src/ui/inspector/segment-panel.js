@@ -44,6 +44,7 @@ function renderSegmentPoint(title, point) {
     [
       field('Kind', point?.kind || '—'),
       field('Time', formatTime(point?.timestamp ?? point?.time)),
+      field('Occurrence', formatTime(point?.occurrenceTimestamp ?? point?.occurrenceTime)),
       field('Price', formatNumber(point?.price)),
     ].join('')
   );
