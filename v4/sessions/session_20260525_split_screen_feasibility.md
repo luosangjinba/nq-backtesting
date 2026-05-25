@@ -603,3 +603,132 @@ The check passed.
   - PDA liquidity/range/point-set/fib overlay
   - Split close cleanup
   - primary workflow non-regression
+
+## Review Follow-up: Shared Overlay Visibility Resolver
+
+## Finding
+- Code review found that secondary overlays follow only Display Mode resolver.
+- Primary renderers also apply additional visibility semantics:
+  - segment isolate mode
+  - isolate companion segments
+  - isolate linked PDA visible/hidden/highlight response modes
+  - selected segment/composite linked PDA additive visibility
+- Without a shared resolver, secondary overlays can diverge from the primary chart in review workflows.
+
+## Step 1 Implementation
+- Added `v4/src/display/overlay-visibility.js`.
+- New public function:
+  - `getStructureOverlayVisibility({ segments, groups, annotations })`
+- It returns:
+  - `visibleSegmentIds`
+  - `hiddenSegmentIds`
+  - `visibleGroupIds`
+  - `visiblePdaIds`
+  - `hiddenPdaIds`
+  - `highlightPdaIds`
+  - `isolate`
+- Covered semantics:
+  - normal Display Mode filtering
+  - selected segment/composite linked PDA additive visibility
+  - segment isolate visible segment set
+  - isolate companion segments
+  - isolate linked PDA visible/hidden/highlight response modes
+
+## Static Verification
+- `node --check v4/src/display/overlay-visibility.js`
+
+The check passed.
+
+## Important Note
+- This step only adds the helper.
+- Secondary renderers have not been switched to use it yet.
+- Next steps:
+  - switch `secondary-segment-renderer.js`
+  - switch `secondary-pda-renderer.js`
+  - then fix layout-only changes triggering secondary data reloads
+
+## Review Follow-up Step 2: Secondary Segment Visibility
+
+## Implementation
+- Updated `v4/src/segment/secondary-segment-renderer.js` to use `getStructureOverlayVisibility()`.
+- Removed direct dependency on `shouldRenderSegment()` and `shouldRenderSegmentGroup()`.
+- Segment/composite visibility now follows:
+  - normal Display Mode segment/group sets
+  - segment isolate visible segment set
+  - isolate companion segments
+  - isolated segment `isolateDisplayMode=hidden`
+- Secondary segment overlay remains readonly:
+  - no hit-test
+  - no selection
+  - no Inspector
+  - no selected/draft/group-child highlight mirroring
+
+## Static Verification
+- `node --check v4/src/segment/secondary-segment-renderer.js`
+- `node --check v4/src/display/overlay-visibility.js`
+
+Both checks passed.
+
+## Remaining
+- Switch `secondary-pda-renderer.js` to `getStructureOverlayVisibility()`.
+- Fix layout-only settings changes triggering secondary data reloads.
+
+## Review Follow-up Step 3: Secondary PDA Visibility
+
+## Implementation
+- Updated `v4/src/pda/secondary-pda-renderer.js` to use `getStructureOverlayVisibility()`.
+- Removed direct dependency on `shouldRenderPda()`.
+- PDA visibility now follows:
+  - normal Display Mode PDA set
+  - selected segment/composite linked PDA additive visibility
+  - segment isolate linked PDA visible/hidden response modes
+- Secondary PDA overlay remains readonly:
+  - no hit-test
+  - no selection
+  - no Inspector
+  - no selected/linked highlight style mirroring
+- `highlightPdaIds` is available from the resolver for a later visual sync pass, but is not used yet.
+
+## Static Verification
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- `node --check v4/src/display/overlay-visibility.js`
+
+Both checks passed.
+
+## Remaining
+- Fix layout-only settings changes triggering secondary data reloads.
+- Run full browser workflow verification.
+
+## Review Follow-up Step 4: Layout-Only Reload Fix
+
+## Finding
+- `secondary-chart:settings-changed` is emitted for Split enabled, Sub TF changes, and Stack/Side layout changes.
+- The secondary controller treated every settings change as a data-affecting change.
+- As a result, switching Stack/Side cleared secondary bars, invalidated in-flight requests, and fetched the same data again.
+
+## Implementation
+- Updated `v4/src/ui/secondary-chart-controller.js`.
+- The controller now caches the last settings subset that affects data loading:
+  - `enabled`
+  - `timeframe`
+- Behavior after the change:
+  - Split off: cancel in-flight request, clear secondary bars, destroy secondary chart
+  - Split on from disabled: initialize and load secondary data
+  - Sub TF change while enabled: reload secondary data
+  - Stack/Side layout change while enabled: do not clear bars, do not increment request sequence, do not fetch
+- Existing `ResizeObserver` remains responsible for chart resize/reflow after layout changes.
+
+## Static Verification
+- `node --check v4/src/ui/secondary-chart-controller.js`
+- `node --check v4/src/ui/toolbar.js`
+
+Both checks passed.
+
+## Remaining
+- Run full browser workflow verification:
+  - default 1H secondary chart
+  - Stack/Side layout switch without reload
+  - crosshair/replay cursor coexistence
+  - segment/composite/PDA overlay
+  - Split close cleanup
+  - primary workflow non-regression

@@ -8,8 +8,8 @@ import {
   getSecondarySeries,
 } from '../chart/secondary-chart-manager.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
-import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
 import { getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
@@ -58,10 +58,12 @@ export function renderSecondarySegments() {
 
   const secondaryTf = secondaryStore.getSecondaryTimeframe();
   const segments = getSegments();
+  const groups = getSegmentGroups();
+  const visibility = getStructureOverlayVisibility({ segments, groups });
   const segmentMap = new Map(segments.map((segment) => [segment.id, segment]));
 
-  getSegmentGroups().forEach((group) => {
-    if (!shouldRenderSegmentGroup(group)) return;
+  groups.forEach((group) => {
+    if (!visibility.visibleGroupIds.has(group.id)) return;
 
     const children = getSortedGroupChildren(group, segmentMap);
     if (children.length < 2) return;
@@ -97,7 +99,8 @@ export function renderSecondarySegments() {
 
   segments.forEach((segment) => {
     if (!segment.start || !segment.end) return;
-    if (!shouldRenderSegment(segment)) return;
+    if (!visibility.visibleSegmentIds.has(segment.id)) return;
+    if (visibility.hiddenSegmentIds.has(segment.id)) return;
     if (!hasRenderablePoint(segment.start) || !hasRenderablePoint(segment.end)) return;
 
     const startTime = getSegmentPointRenderTime(segment.start, secondaryTf);

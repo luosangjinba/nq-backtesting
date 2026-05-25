@@ -8,12 +8,14 @@ import {
   getSecondarySeries,
 } from '../chart/secondary-chart-manager.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
 import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
-import { shouldRenderPda } from '../display/display-mode.js';
 import { buildCePrice } from '../price-utils.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType } from './pda-types.js';
+import { getSegments } from '../segment/segment-store.js';
+import { getSegmentGroups } from '../segment/segment-group-store.js';
 
 let renderedPrimitives = [];
 const DEFAULT_EXTEND_BARS = 8;
@@ -260,8 +262,16 @@ export function renderSecondaryPdaAnnotations() {
   const series = getSecondarySeries();
   if (!chartInstance || !series) return;
 
-  getAnnotations().forEach((annotation) => {
-    if (!shouldRenderPda(annotation)) return;
+  const annotations = getAnnotations();
+  const visibility = getStructureOverlayVisibility({
+    annotations,
+    segments: getSegments(),
+    groups: getSegmentGroups(),
+  });
+
+  annotations.forEach((annotation) => {
+    if (!visibility.visiblePdaIds.has(annotation.id)) return;
+    if (visibility.hiddenPdaIds.has(annotation.id)) return;
 
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;

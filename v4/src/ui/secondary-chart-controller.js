@@ -19,6 +19,10 @@ import {
 
 let requestSeq = 0;
 let lastReplayState = { enabled: false, cursorTimestamp: null };
+let lastSettings = {
+  enabled: secondaryStore.isSecondaryEnabled(),
+  timeframe: secondaryStore.getSecondaryTimeframe(),
+};
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -112,16 +116,29 @@ async function loadSecondaryForPrimaryRange() {
   }
 }
 
-function handleSecondarySettingsChanged({ enabled }) {
-  requestSeq += 1;
+function handleSecondarySettingsChanged({ enabled, timeframe }) {
+  const nextSettings = {
+    enabled: Boolean(enabled),
+    timeframe: Number(timeframe ?? secondaryStore.getSecondaryTimeframe()),
+  };
+  const wasEnabled = lastSettings.enabled;
+  const timeframeChanged = lastSettings.timeframe !== nextSettings.timeframe;
+  lastSettings = nextSettings;
 
-  if (!enabled) {
+  if (!nextSettings.enabled) {
+    if (!wasEnabled) return;
+    requestSeq += 1;
     hideSecondaryHoverCursor();
     secondaryStore.clearSecondaryBars();
     destroySecondaryChart();
     return;
   }
 
+  if (wasEnabled && !timeframeChanged) {
+    return;
+  }
+
+  requestSeq += 1;
   window.requestAnimationFrame(() => {
     if (!secondaryStore.isSecondaryEnabled()) return;
     initSecondaryChart();
