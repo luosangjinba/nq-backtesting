@@ -31,6 +31,7 @@ import {
   updateSegmentGroup,
   getSegmentGroupById,
 } from '../segment/segment-group-store.js';
+import { getDrawingSets, locateDrawingSet } from '../segment/drawing-set-list.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
 import {
   getPointSetContext,
@@ -65,6 +66,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
+    ${renderDrawingSetList()}
     ${renderArchiveActions()}
   `;
 }
@@ -72,6 +74,29 @@ function renderEmpty() {
 function renderArchivePanel() {
   currentPanel = 'archive';
   bodyEl.innerHTML = renderArchiveActions();
+}
+
+function renderDrawingSetList() {
+  const sets = getDrawingSets();
+  const rows = sets.length
+    ? sets
+        .map(
+          (set) => `
+            <button class="drawing-set-row" data-inspector-action="drawing-set-locate" data-set-type="${set.type}" data-set-id="${set.id}" type="button">
+              <span class="drawing-set-main">${set.label}</span>
+              <span class="drawing-set-meta">${set.detail}</span>
+            </button>
+          `
+        )
+        .join('')
+    : '<div class="drawing-set-empty">No segment or composite sets.</div>';
+
+  return `
+    <section class="inspector-section drawing-set-section">
+      <div class="inspector-section-title">Structure Sets</div>
+      <div class="drawing-set-list">${rows}</div>
+    </section>
+  `;
 }
 
 function openSidebar() {
@@ -355,6 +380,11 @@ function handleInspectorClick(e) {
 
   if (action === 'clear-saved') {
     clearSavedAnnotations();
+    return;
+  }
+
+  if (action === 'drawing-set-locate') {
+    locateDrawingSet(e.target.dataset.setType, e.target.dataset.setId);
     return;
   }
 

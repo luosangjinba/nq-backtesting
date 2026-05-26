@@ -55,3 +55,22 @@
 - 根据实盘视觉反馈微调浮动位置、按钮尺寸、图标。
 - 多窗口布局落地后接入 maximize / restore chart。
 - 统一整理 Replay 与 Viewport 的快捷键冲突处理。
+
+## 2026-05-25 Follow-up: Scroll Latest Price Scale
+
+## 问题
+- `Scroll to latest` 只移动 time scale logical range。
+- 如果用户此前手动拖动或缩放过价格轴，最新 K 线可能仍落在当前 price scale 可视范围外。
+- 现象是时间轴已经回到最新，但图上看不到当前价格。
+
+## 修复
+- `v4/src/chart/chart-manager.js`
+  - 新增 `resetPriceScale()`
+  - 通过 price scale `autoScale` 恢复价格轴自适应
+- `v4/src/chart/viewport-controller.js`
+  - `scrollToLatest()` 在设置最新 logical range 后调用 `chart.resetPriceScale()`
+  - `resetChartView()` 复用 `scrollToLatest()`，因此也同步恢复价格轴
+
+## 验证
+- `node --check v4/src/chart/chart-manager.js`
+- `node --check v4/src/chart/viewport-controller.js`

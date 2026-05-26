@@ -367,6 +367,50 @@ html, body {
   font-size: 12px;
 }
 
+.drawing-set-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawing-set-row {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #2a2e39;
+  background: #151922;
+  color: #d1d4dc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.drawing-set-row:hover {
+  border-color: #26a69a;
+  background: #1e222d;
+}
+
+.drawing-set-main,
+.drawing-set-meta {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawing-set-main {
+  color: #f0f3fa;
+  font-size: 12px;
+}
+
+.drawing-set-meta,
+.drawing-set-empty {
+  color: #787b86;
+  font-size: 11px;
+}
+
 .inspector-point-list {
   display: flex;
   flex-direction: column;

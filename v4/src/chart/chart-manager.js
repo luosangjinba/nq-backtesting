@@ -247,6 +247,19 @@ export function resetTimeScale() {
   chart.timeScale().resetTimeScale();
 }
 
+export function resetPriceScale() {
+  try {
+    series?.priceScale?.().applyOptions({ autoScale: true });
+  } catch (e) {
+    // price scale may be unavailable during chart reset
+  }
+  try {
+    chart?.priceScale?.('right')?.applyOptions({ autoScale: true });
+  } catch (e) {
+    // fallback for chart-level price scale API differences
+  }
+}
+
 export function coordinateToTime(x) {
   if (!chart) return null;
   return chart.timeScale().coordinateToTime(x);

@@ -115,3 +115,36 @@
 ## Next
 - Add Breaker PDA as the next manual range PDA.
 - Draft SMT design before implementation because it requires ES data, multi-instrument state, and likely multi-window or synchronized chart display.
+
+## 2026-05-25 Follow-up: Structure Sets Locate List
+
+## Goal
+- Treat each segment/composite as a drawable structure set for navigation.
+- First version only supports locating; it does not add temporary visibility controls.
+
+## Implementation
+- Added `v4/src/segment/drawing-set-list.js`.
+  - Builds readonly list items from current segments and composite moves.
+  - Segment item range uses segment endpoint timestamps, preferring occurrence timestamps when available.
+  - Composite item range uses first child segment start and last child segment end.
+  - `locateDrawingSet(type, id)` selects the target segment/composite and scrolls the chart to its range.
+- Extended `v4/src/chart/viewport-controller.js`.
+  - Added `locateTimestampRange(startTimestamp, endTimestamp)`.
+  - It maps timestamps to nearest loaded display-bar indexes and sets a logical range around them.
+  - It calls `chart.resetPriceScale()` after positioning.
+- Updated `v4/src/ui/inspector-sidebar.js`.
+  - Inspector empty state now shows `Structure Sets`.
+  - Clicking a row selects the segment/composite and locates it on the chart.
+- Updated `v4/style.css`.
+  - Added compact row styling for the structure set list.
+
+## Boundary
+- Does not change Display Mode.
+- Does not hide/show any segment, composite, or PDA.
+- Does not persist any new state.
+- Does not write to Review JSON.
+
+## Verification
+- `node --check v4/src/segment/drawing-set-list.js`
+- `node --check v4/src/chart/viewport-controller.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
