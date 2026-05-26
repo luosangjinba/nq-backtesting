@@ -19,6 +19,7 @@ import { getSegmentGroups } from '../segment/segment-group-store.js';
 
 let renderedPrimitives = [];
 const DEFAULT_EXTEND_BARS = 8;
+const HIGHLIGHT_COLOR = '#ffcc80';
 
 function clearRenderedPrimitives() {
   renderedPrimitives = clearSecondaryPrimitives(renderedPrimitives);
@@ -91,7 +92,12 @@ function isVisibleColor(color) {
   return color && color !== 'transparent';
 }
 
-function getRangeMidlineColor(annotation, pdaType) {
+function getHighlightColor(isHighlighted, fallback) {
+  return isHighlighted ? HIGHLIGHT_COLOR : fallback;
+}
+
+function getRangeMidlineColor(annotation, pdaType, isHighlighted = false) {
+  if (isHighlighted) return HIGHLIGHT_COLOR;
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
   if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#26a69a';
@@ -99,8 +105,9 @@ function getRangeMidlineColor(annotation, pdaType) {
   return pdaType.color;
 }
 
-function getRangeBorderColor(annotation, pdaType) {
+function getRangeBorderColor(annotation, pdaType, isHighlighted = false) {
   const isFvg = annotation.type === 'fvg' || annotation.type === 'ifvg';
+  if (isHighlighted) return HIGHLIGHT_COLOR;
   if (isFvg) return 'transparent';
   return annotation.borderColor || pdaType.color;
 }
@@ -111,7 +118,7 @@ function attachPdaPrimitive(primitive) {
   renderedPrimitives.push(primitive);
 }
 
-function buildLiquidityPrimitive(chartInstance, series, annotation, pdaType) {
+function buildLiquidityPrimitive(chartInstance, series, annotation, pdaType, isHighlighted = false) {
   const anchorTime = getPointRenderTime(annotation);
   if (anchorTime === undefined || anchorTime === null) return null;
 
@@ -120,20 +127,20 @@ function buildLiquidityPrimitive(chartInstance, series, annotation, pdaType) {
     series,
     anchorTime,
     annotation.price,
-    pdaType.color,
-    pdaType.textColor,
+    getHighlightColor(isHighlighted, pdaType.color),
+    getHighlightColor(isHighlighted, pdaType.textColor),
     getAnnotationLabel(annotation, pdaType),
     pdaType.labelPosition,
     {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
-      lineWidth: annotation.type === 'wick-ce' ? 1 : 2,
-      labelFont: '11px sans-serif',
+      lineWidth: annotation.type === 'wick-ce' ? 1 : isHighlighted ? 3 : 2,
+      labelFont: isHighlighted ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),
     }
   );
 }
 
-function buildRangePrimitive(chartInstance, series, annotation, pdaType) {
+function buildRangePrimitive(chartInstance, series, annotation, pdaType, isHighlighted = false) {
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
   const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
@@ -161,20 +168,20 @@ function buildRangePrimitive(chartInstance, series, annotation, pdaType) {
     getAnnotationLabel(annotation, pdaType),
     {
       fillColor: annotation.fillColor || alphaColor(pdaType.color, '26'),
-      borderColor: getRangeBorderColor(annotation, pdaType),
-      midlineColor: getRangeMidlineColor(annotation, pdaType),
-      textColor: annotation.textColor || pdaType.textColor || '#d1d4dc',
-      lineWidth: isFvg ? 0 : 1,
+      borderColor: getRangeBorderColor(annotation, pdaType, isHighlighted),
+      midlineColor: getRangeMidlineColor(annotation, pdaType, isHighlighted),
+      textColor: getHighlightColor(isHighlighted, annotation.textColor || pdaType.textColor || '#d1d4dc'),
+      lineWidth: isFvg && !isHighlighted ? 0 : isHighlighted ? 2 : 1,
       showMidline: getShowCe(annotation),
       midlinePrice: ce?.price ?? null,
       extendBars: getExtendBars(annotation, 0),
-      labelFont: '11px sans-serif',
+      labelFont: isHighlighted ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),
     }
   );
 }
 
-function buildPointSetPrimitive(chartInstance, series, annotation, pdaType) {
+function buildPointSetPrimitive(chartInstance, series, annotation, pdaType, isHighlighted = false) {
   const points = Array.isArray(annotation.points)
     ? annotation.points
         .map((point) => ({
@@ -200,13 +207,13 @@ function buildPointSetPrimitive(chartInstance, series, annotation, pdaType) {
     referencePrice,
     getAnnotationLabel(annotation, pdaType),
     {
-      lineColor: annotation.color || pdaType.color,
-      textColor: annotation.textColor || pdaType.textColor || '#d1d4dc',
+      lineColor: getHighlightColor(isHighlighted, annotation.color || pdaType.color),
+      textColor: getHighlightColor(isHighlighted, annotation.textColor || pdaType.textColor || '#d1d4dc'),
       markerPosition: annotation.markerPosition || pdaType.labelPosition || 'above',
-      lineWidth: 1,
-      markerSize: 4,
+      lineWidth: isHighlighted ? 2 : 1,
+      markerSize: isHighlighted ? 5 : 4,
       extendBars: getExtendBars(annotation, 0),
-      labelFont: '11px sans-serif',
+      labelFont: isHighlighted ? '12px sans-serif' : '11px sans-serif',
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -219,7 +226,7 @@ function getFibLevelPrice(annotation, levelValue) {
   return endPrice - (endPrice - startPrice) * Number(levelValue);
 }
 
-function buildFibPrimitive(chartInstance, series, annotation, pdaType) {
+function buildFibPrimitive(chartInstance, series, annotation, pdaType, isHighlighted = false) {
   const start = annotation.start || {};
   const end = annotation.end || {};
   const startTime = getNestedPointRenderTime(start, annotation.startTime);
@@ -235,21 +242,21 @@ function buildFibPrimitive(chartInstance, series, annotation, pdaType) {
         .map((level) => ({
           value: level.value,
           price: getFibLevelPrice(annotation, level.value),
-          color: level.color || pdaType.color,
+          color: getHighlightColor(isHighlighted, level.color || pdaType.color),
         }))
         .filter((level) => Number.isFinite(Number(level.price)))
     : [];
   if (!levels.length) return null;
 
   return new FibPrimitive(chartInstance, series, startTime, startPrice, endTime, endPrice, levels, {
-    lineColor: annotation.color || pdaType.color,
-    textColor: annotation.textColor || pdaType.textColor || '#d1d4dc',
-    lineWidth: 1,
+    lineColor: getHighlightColor(isHighlighted, annotation.color || pdaType.color),
+    textColor: getHighlightColor(isHighlighted, annotation.textColor || pdaType.textColor || '#d1d4dc'),
+    lineWidth: isHighlighted ? 2 : 1,
     extendBars: getExtendBars(annotation, 0),
     showLabels: annotation.display?.showLabel ?? annotation.display?.showLabels ?? true,
     showTrendLine: annotation.display?.showTrendLine ?? false,
-    trendLineColor: annotation.trendLineColor || '#787b86',
-    trendLineWidth: 1,
+    trendLineColor: getHighlightColor(isHighlighted, annotation.trendLineColor || '#787b86'),
+    trendLineWidth: isHighlighted ? 2 : 1,
   });
 }
 
@@ -275,27 +282,28 @@ export function renderSecondaryPdaAnnotations() {
 
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
+    const isHighlighted = visibility.highlightPdaIds?.has(annotation.id);
 
     if (pdaType.shape === 'liquidity-line') {
-      const primitive = buildLiquidityPrimitive(chartInstance, series, annotation, pdaType);
+      const primitive = buildLiquidityPrimitive(chartInstance, series, annotation, pdaType, isHighlighted);
       if (primitive) attachPdaPrimitive(primitive);
       return;
     }
 
     if (pdaType.shape === 'range') {
-      const primitive = buildRangePrimitive(chartInstance, series, annotation, pdaType);
+      const primitive = buildRangePrimitive(chartInstance, series, annotation, pdaType, isHighlighted);
       if (primitive) attachPdaPrimitive(primitive);
       return;
     }
 
     if (pdaType.shape === 'point-set') {
-      const primitive = buildPointSetPrimitive(chartInstance, series, annotation, pdaType);
+      const primitive = buildPointSetPrimitive(chartInstance, series, annotation, pdaType, isHighlighted);
       if (primitive) attachPdaPrimitive(primitive);
       return;
     }
 
     if (pdaType.shape === 'fib-retracement') {
-      const primitive = buildFibPrimitive(chartInstance, series, annotation, pdaType);
+      const primitive = buildFibPrimitive(chartInstance, series, annotation, pdaType, isHighlighted);
       if (primitive) attachPdaPrimitive(primitive);
     }
   });
@@ -309,6 +317,7 @@ export function initSecondaryPdaRenderer() {
   bus.on('segment:selection-cleared', renderSecondaryPdaAnnotations);
   bus.on('segment-group:selected', renderSecondaryPdaAnnotations);
   bus.on('segment-group:selection-cleared', renderSecondaryPdaAnnotations);
+  bus.on('drawing-set-focus:changed', renderSecondaryPdaAnnotations);
   bus.on('display-mode:changed', renderSecondaryPdaAnnotations);
   bus.on('secondary-bars:loaded', renderSecondaryPdaAnnotations);
   bus.on('secondary-chart:settings-changed', renderSecondaryPdaAnnotations);

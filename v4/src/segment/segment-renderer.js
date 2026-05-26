@@ -13,6 +13,7 @@ import {
 } from './segment-group-store.js';
 import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
+import { getActiveDrawingSetVisibility } from './drawing-set-list.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -54,6 +55,7 @@ export function renderSegments() {
 
   const selected = getSelectedSegment();
   const selectedGroup = getSelectedSegmentGroup();
+  const drawingSetVisibility = getActiveDrawingSetVisibility();
   const isolatedSegment = getIsolatedSegment();
   const isolateCompanionIds = new Set(getIsolateCompanionSegments(isolatedSegment).map((segment) => segment.id));
   const isolateVisibleIds = new Set(
@@ -64,8 +66,10 @@ export function renderSegments() {
     const children = getSortedGroupChildren(group);
     if (children.length < 2) return;
     if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
-    if (!isolatedSegment && !shouldRenderSegmentGroup(group)) return;
+    const isDrawingSetActive = drawingSetVisibility.activeGroupIds.has(group.id);
+    if (!isolatedSegment && !isDrawingSetActive && !shouldRenderSegmentGroup(group)) return;
     const isCurrent = selectedGroup?.id === group.id;
+    const shouldHighlight = isCurrent || isDrawingSetActive;
 
     const first = children[0];
     const last = children[children.length - 1];
@@ -80,13 +84,19 @@ export function renderSegments() {
       {
         lineColor: isCurrent
           ? SELECTED_COLOR
+          : isDrawingSetActive
+            ? DRAFT_CHILD_COLOR
           : group.direction === 'down'
             ? 'rgba(239, 83, 80, 0.42)'
             : 'rgba(38, 166, 154, 0.42)',
-        textColor: isCurrent ? SELECTED_COLOR : '#b2b5be',
-        markerColor: isCurrent ? SELECTED_COLOR : 'rgba(240, 243, 250, 0.55)',
-        lineWidth: isCurrent ? 2 : 1,
-        markerSize: isCurrent ? 5 : 3,
+        textColor: shouldHighlight ? SELECTED_COLOR : '#b2b5be',
+        markerColor: isCurrent
+          ? SELECTED_COLOR
+          : isDrawingSetActive
+            ? DRAFT_CHILD_COLOR
+            : 'rgba(240, 243, 250, 0.55)',
+        lineWidth: shouldHighlight ? 2 : 1,
+        markerSize: shouldHighlight ? 5 : 3,
         showLabel: group.display?.showLabel ?? true,
         labelFont: '10px sans-serif',
       }
@@ -114,13 +124,16 @@ export function renderSegments() {
     const isSelectedGroupTarget = selectedGroupTargetId === segment.id;
     const isDraftChild = draftChildIds.has(segment.id);
     const isDraftTarget = draftTargetId === segment.id;
+    const isDrawingSetActive = drawingSetVisibility.activeSegmentIds.has(segment.id);
     if (isolatedSegment && !isIsolated && !isIsolateCompanion) return;
-    if (!isolatedSegment && !shouldRenderSegment(segment)) return;
+    if (!isolatedSegment && !isDrawingSetActive && !shouldRenderSegment(segment)) return;
     const isGroupChildContext = isDraftChild || isSelectedGroupChild;
     const isGroupTargetContext = isDraftTarget || isSelectedGroupTarget;
-    const shouldHighlight = isCurrent;
-    const lineColor = shouldHighlight
+    const shouldHighlight = isCurrent || isDrawingSetActive;
+    const lineColor = isCurrent
       ? SELECTED_COLOR
+      : isDrawingSetActive
+        ? DRAFT_CHILD_COLOR
       : isGroupTargetContext
         ? DRAFT_TARGET_COLOR
         : isGroupChildContext
@@ -139,8 +152,10 @@ export function renderSegments() {
       {
         lineColor,
         textColor: '#f0f3fa',
-        markerColor: shouldHighlight
+        markerColor: isCurrent
           ? SELECTED_COLOR
+          : isDrawingSetActive
+            ? DRAFT_CHILD_COLOR
           : isGroupTargetContext
             ? DRAFT_TARGET_COLOR
             : isGroupChildContext
@@ -164,6 +179,7 @@ export function initSegmentRenderer() {
   bus.on('segment-group:selected', renderSegments);
   bus.on('segment:selection-cleared', renderSegments);
   bus.on('segment-group:selection-cleared', renderSegments);
+  bus.on('drawing-set-focus:changed', renderSegments);
   bus.on('display-mode:changed', renderSegments);
   bus.on('bars:loaded', renderSegments);
   bus.on('bars:cleared', clearRenderedPrimitives);

@@ -9,6 +9,7 @@ import {
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
 import { getSegmentById, getIsolatedSegment } from '../segment/segment-store.js';
 import { getSegmentGroupById } from '../segment/segment-group-store.js';
+import { getActiveDrawingSetVisibility } from '../segment/drawing-set-list.js';
 
 function addVisibleResponseIds(target, responses = []) {
   responses
@@ -73,6 +74,8 @@ export function getStructureOverlayVisibility({
       visiblePdaIds,
       hiddenPdaIds: getResponseIdsByMode(isolatedResponses, 'hidden'),
       highlightPdaIds: getResponseIdsByMode(isolatedResponses, 'highlight'),
+      activeSegmentIds: new Set(),
+      activeGroupIds: new Set(),
       isolate: true,
     };
   }
@@ -112,6 +115,14 @@ export function getStructureOverlayVisibility({
 
   linkedVisiblePdaIds.forEach((pdaId) => visiblePdaIds.add(pdaId));
 
+  const drawingSetVisibility = getActiveDrawingSetVisibility();
+  drawingSetVisibility.activeSegmentIds.forEach((id) => visibleSegmentIds.add(id));
+  drawingSetVisibility.activeGroupIds.forEach((id) => visibleGroupIds.add(id));
+  drawingSetVisibility.activePdaIds.forEach((id) => {
+    visiblePdaIds.add(id);
+    highlightPdaIds.add(id);
+  });
+
   return {
     visibleSegmentIds,
     hiddenSegmentIds: new Set(),
@@ -121,6 +132,8 @@ export function getStructureOverlayVisibility({
       Array.from(linkedHiddenPdaIds).filter((pdaId) => !linkedVisiblePdaIds.has(pdaId))
     ),
     highlightPdaIds,
+    activeSegmentIds: drawingSetVisibility.activeSegmentIds,
+    activeGroupIds: drawingSetVisibility.activeGroupIds,
     isolate: false,
   };
 }

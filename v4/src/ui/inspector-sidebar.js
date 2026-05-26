@@ -31,7 +31,7 @@ import {
   updateSegmentGroup,
   getSegmentGroupById,
 } from '../segment/segment-group-store.js';
-import { getDrawingSets, locateDrawingSet } from '../segment/drawing-set-list.js';
+import { getDrawingSets, isDrawingSetFocused, locateDrawingSet } from '../segment/drawing-set-list.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
 import {
   getPointSetContext,
@@ -81,12 +81,15 @@ function renderDrawingSetList() {
   const rows = sets.length
     ? sets
         .map(
-          (set) => `
-            <button class="drawing-set-row" data-inspector-action="drawing-set-locate" data-set-type="${set.type}" data-set-id="${set.id}" type="button">
+          (set) => {
+            const isFocused = isDrawingSetFocused(set.type, set.id);
+            return `
+            <button class="drawing-set-row${isFocused ? ' active' : ''}" data-inspector-action="drawing-set-locate" data-set-type="${set.type}" data-set-id="${set.id}" type="button" aria-pressed="${isFocused ? 'true' : 'false'}">
               <span class="drawing-set-main">${set.label}</span>
               <span class="drawing-set-meta">${set.detail}</span>
             </button>
-          `
+          `;
+          }
         )
         .join('')
     : '<div class="drawing-set-empty">No segment or composite sets.</div>';
@@ -507,6 +510,7 @@ export function initInspectorSidebar() {
   bus.on('segment-group:selection-cleared', refreshSelection);
   bus.on('segment:changed', refreshSelection);
   bus.on('segment-group:changed', refreshSelection);
+  bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();

@@ -70,6 +70,7 @@ export function renderSecondarySegments() {
 
     const first = children[0];
     const last = children[children.length - 1];
+    const isHighlighted = visibility.activeGroupIds?.has(group.id);
     if (!hasRenderablePoint(first.start) || !hasRenderablePoint(last.end)) return;
 
     const startTime = getSegmentPointRenderTime(first.start, secondaryTf);
@@ -85,11 +86,15 @@ export function renderSecondarySegments() {
       last.end.price,
       getGroupLabel(group, children.length),
       {
-        lineColor: group.direction === 'down' ? 'rgba(239, 83, 80, 0.34)' : 'rgba(38, 166, 154, 0.34)',
-        textColor: '#b2b5be',
-        markerColor: 'rgba(240, 243, 250, 0.48)',
-        lineWidth: 1,
-        markerSize: 3,
+        lineColor: isHighlighted
+          ? '#ffb74d'
+          : group.direction === 'down'
+            ? 'rgba(239, 83, 80, 0.34)'
+            : 'rgba(38, 166, 154, 0.34)',
+        textColor: isHighlighted ? '#f0f3fa' : '#b2b5be',
+        markerColor: isHighlighted ? '#ffb74d' : 'rgba(240, 243, 250, 0.48)',
+        lineWidth: isHighlighted ? 2 : 1,
+        markerSize: isHighlighted ? 5 : 3,
         showLabel: group.display?.showLabel ?? true,
         labelFont: '10px sans-serif',
       }
@@ -102,6 +107,7 @@ export function renderSecondarySegments() {
     if (!visibility.visibleSegmentIds.has(segment.id)) return;
     if (visibility.hiddenSegmentIds.has(segment.id)) return;
     if (!hasRenderablePoint(segment.start) || !hasRenderablePoint(segment.end)) return;
+    const isHighlighted = visibility.activeSegmentIds?.has(segment.id);
 
     const startTime = getSegmentPointRenderTime(segment.start, secondaryTf);
     const endTime = getSegmentPointRenderTime(segment.end, secondaryTf);
@@ -116,11 +122,15 @@ export function renderSecondarySegments() {
       segment.end.price,
       getSegmentLabel(segment),
       {
-        lineColor: segment.direction === 'down' ? 'rgba(239, 83, 80, 0.78)' : 'rgba(38, 166, 154, 0.78)',
+        lineColor: isHighlighted
+          ? '#ffb74d'
+          : segment.direction === 'down'
+            ? 'rgba(239, 83, 80, 0.78)'
+            : 'rgba(38, 166, 154, 0.78)',
         textColor: '#f0f3fa',
-        markerColor: 'rgba(240, 243, 250, 0.72)',
-        lineWidth: 2,
-        markerSize: 4,
+        markerColor: isHighlighted ? '#ffb74d' : 'rgba(240, 243, 250, 0.72)',
+        lineWidth: isHighlighted ? 3 : 2,
+        markerSize: isHighlighted ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
       }
     );
@@ -135,6 +145,7 @@ export function initSecondarySegmentRenderer() {
   bus.on('segment-group:selected', renderSecondarySegments);
   bus.on('segment:selection-cleared', renderSecondarySegments);
   bus.on('segment-group:selection-cleared', renderSecondarySegments);
+  bus.on('drawing-set-focus:changed', renderSecondarySegments);
   bus.on('display-mode:changed', renderSecondarySegments);
   bus.on('secondary-bars:loaded', renderSecondarySegments);
   bus.on('secondary-chart:settings-changed', renderSecondarySegments);

@@ -390,6 +390,19 @@ html, body {
   background: #1e222d;
 }
 
+.drawing-set-row.active {
+  border-color: #ffb74d;
+  background: rgba(255, 183, 77, 0.12);
+}
+
+.drawing-set-row.active .drawing-set-main {
+  color: #ffcc80;
+}
+
+.drawing-set-row.active .drawing-set-meta {
+  color: #d1d4dc;
+}
+
 .drawing-set-main,
 .drawing-set-meta {
   display: block;

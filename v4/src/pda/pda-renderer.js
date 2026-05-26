@@ -12,6 +12,7 @@ import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
 import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroupById } from '../segment/segment-group-store.js';
+import { getActiveDrawingSetVisibility } from '../segment/drawing-set-list.js';
 import { shouldRenderPda } from '../display/display-mode.js';
 import {
   getIsolateCompanionSegments,
@@ -383,14 +384,16 @@ export function renderPdaAnnotations() {
 
   const selected = getSelectedPda();
   const segmentPdaState = getSelectedSegmentPdaState();
+  const drawingSetPdaIds = getActiveDrawingSetVisibility().activePdaIds;
   getAnnotations().forEach((annotation) => {
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
     const isCurrent = isCurrentAnnotation(annotation, selected);
-    const isLinkedToSegment = segmentPdaState.highlightIds.has(annotation.id);
+    const isLinkedToSegment =
+      segmentPdaState.highlightIds.has(annotation.id) || drawingSetPdaIds.has(annotation.id);
     if (segmentPdaState.hiddenIds.has(annotation.id)) return;
     if (segmentPdaState.isolate && !segmentPdaState.visibleIds.has(annotation.id)) return;
-    if (!segmentPdaState.isolate && !shouldRenderPda(annotation)) return;
+    if (!segmentPdaState.isolate && !drawingSetPdaIds.has(annotation.id) && !shouldRenderPda(annotation)) return;
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);
@@ -439,6 +442,7 @@ export function initPdaRenderer() {
   bus.on('segment-group:selected', renderPdaAnnotations);
   bus.on('segment-group:selection-cleared', renderPdaAnnotations);
   bus.on('segment-group:changed', renderPdaAnnotations);
+  bus.on('drawing-set-focus:changed', renderPdaAnnotations);
   bus.on('display-mode:changed', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);

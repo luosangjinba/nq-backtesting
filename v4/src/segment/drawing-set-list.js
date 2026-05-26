@@ -1,9 +1,16 @@
 // Readonly structure set list helpers for locating segments/composite moves.
 
+import * as bus from '../event-bus.js';
 import * as viewport from '../chart/viewport-controller.js';
 import { getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
-import { selectSegment, selectSegmentGroup } from './segment-selection.js';
+import { getResponseDisplayMode } from './segment-isolate-view.js';
+
+const activeDrawingSetKeys = new Set();
+
+function getSetKey(type, id) {
+  return `${type}:${id}`;
+}
 
 function getPointTimestamp(point) {
   const occurrence = Number(point?.occurrenceTimestamp);
@@ -93,17 +100,87 @@ export function getDrawingSets() {
   return [...segmentItems, ...groupItems].sort((a, b) => b.endTimestamp - a.endTimestamp);
 }
 
+function emitFocusChanged() {
+  bus.emit('drawing-set-focus:changed', getActiveDrawingSetVisibility());
+}
+
+export function isDrawingSetFocused(type, id) {
+  return activeDrawingSetKeys.has(getSetKey(type, id));
+}
+
+export function getActiveDrawingSetKeys() {
+  return new Set(activeDrawingSetKeys);
+}
+
+export function clearDrawingSetFocus() {
+  if (!activeDrawingSetKeys.size) return;
+  activeDrawingSetKeys.clear();
+  emitFocusChanged();
+}
+
+export function getActiveDrawingSetVisibility() {
+  const segments = getSegments();
+  const segmentMap = new Map(segments.map((segment) => [segment.id, segment]));
+  const groups = getSegmentGroups();
+  const activeSegmentIds = new Set();
+  const activeGroupIds = new Set();
+  const activePdaIds = new Set();
+
+  activeDrawingSetKeys.forEach((key) => {
+    const separatorIndex = key.indexOf(':');
+    const type = key.slice(0, separatorIndex);
+    const id = key.slice(separatorIndex + 1);
+
+    if (type === 'segment') {
+      if (segmentMap.has(id)) activeSegmentIds.add(id);
+      return;
+    }
+
+    if (type === 'composite') {
+      const group = groups.find((entry) => entry.id === id);
+      if (!group) return;
+      activeGroupIds.add(group.id);
+      (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
+        .filter(Boolean)
+        .forEach((segmentId) => activeSegmentIds.add(segmentId));
+      if (group.targetSegmentId) activeSegmentIds.add(group.targetSegmentId);
+    }
+  });
+
+  activeSegmentIds.forEach((segmentId) => {
+    const segment = segmentMap.get(segmentId);
+    const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
+    responses
+      .filter((response) => getResponseDisplayMode(response) !== 'hidden')
+      .map((response) => response.pdaId)
+      .filter(Boolean)
+      .forEach((pdaId) => activePdaIds.add(pdaId));
+  });
+
+  return {
+    activeKeys: getActiveDrawingSetKeys(),
+    activeSegmentIds,
+    activeGroupIds,
+    activePdaIds,
+  };
+}
+
 export function locateDrawingSet(type, id) {
   const sets = getDrawingSets();
   const item = sets.find((entry) => entry.type === type && entry.id === id);
   if (!item) return null;
 
-  if (type === 'segment') {
-    selectSegment(id);
-  } else if (type === 'composite') {
-    selectSegmentGroup(id);
+  const key = getSetKey(type, id);
+  if (activeDrawingSetKeys.has(key)) {
+    activeDrawingSetKeys.delete(key);
+    emitFocusChanged();
+    return item;
   }
 
+  activeDrawingSetKeys.add(key);
+  emitFocusChanged();
   viewport.locateTimestampRange(item.startTimestamp, item.endTimestamp);
   return item;
 }
+
+bus.on('bars:cleared', clearDrawingSetFocus);
