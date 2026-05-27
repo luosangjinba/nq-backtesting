@@ -14,6 +14,7 @@ import {
 import { getAnnotationIdentity, getAnnotations, loadAnnotations } from '../pda/pda-store.js';
 import { getSegmentIdentity, getSegments, loadSegments } from '../segment/segment-store.js';
 import { getSegmentGroups, loadSegmentGroups } from '../segment/segment-group-store.js';
+import { normalizeReactionEvidenceList } from '../segment/reaction-evidence.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
 const REVIEW_ARCHIVE_APP = 'trading-v4-review';
@@ -140,6 +141,10 @@ function normalizeImportedResponse(response, pdaIdMap, availablePdaIds) {
     response?.displayMode,
     response?.selected === false ? 'normal' : 'highlight'
   );
+  const reactionEvidence = normalizeReactionEvidenceList(response.reactionEvidence).map((evidence) => ({
+    ...evidence,
+    pdaId,
+  }));
 
   return {
     pdaId,
@@ -149,6 +154,7 @@ function normalizeImportedResponse(response, pdaIdMap, availablePdaIds) {
     displayMode,
     selected: displayMode === 'highlight',
     linkedAt: response.linkedAt || Date.now(),
+    ...(reactionEvidence.length ? { reactionEvidence } : {}),
   };
 }
 

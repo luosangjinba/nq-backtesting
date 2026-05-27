@@ -181,7 +181,7 @@ metrics: {
    - Show calculated metrics.
    - Delete evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
 4. Ensure localStorage naturally persists evidence. ✅ Verified on `feature/v4-reaction-evidence-core`.
-5. Update Review JSON import normalization to preserve evidence.
+5. Update Review JSON import normalization to preserve evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
 6. Add body percent red styling when `bodyExceededFvg=true`.
 
 ## Explicit Non-Goals For First Pass
@@ -275,3 +275,9 @@ metrics: {
 - Restore calls `loadSegments()` with the saved segment objects, preserving evidence arrays as-is.
 - `updatePdaResponse()` merges patches onto the existing response, and `linkPdaResponse()` preserves existing response fields when re-linking the same PDA, so evidence is not dropped by normal Inspector edits.
 - `resetSegmentDisplay()` spreads each response before changing display fields, so display reset keeps evidence.
+
+## Plan 5 Implementation Notes
+- `review-archive.js` now imports `normalizeReactionEvidenceList()`.
+- During Review JSON import, each imported `pdaResponses[]` item normalizes its `reactionEvidence[]` list instead of dropping it while rebuilding the response object.
+- Imported evidence is rebound to the remapped response `pdaId`, so id collisions or duplicate PDA merges do not leave stale evidence PDA references.
+- Existing Review JSON files without evidence keep the same shape; no empty `reactionEvidence` array is added.
