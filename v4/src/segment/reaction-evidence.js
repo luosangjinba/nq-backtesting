@@ -177,6 +177,14 @@ export function normalizeReactionEvidence(evidence = {}) {
   };
 }
 
+export function normalizeReactionEvidenceList(evidenceList = []) {
+  return Array.isArray(evidenceList)
+    ? evidenceList
+        .filter((evidence) => evidence && typeof evidence === 'object')
+        .map(normalizeReactionEvidence)
+    : [];
+}
+
 export function computeFvgRespectMetrics(evidence, annotation, bars = []) {
   const normalized = normalizeReactionEvidence(evidence);
   const bounds = getRangeBounds(annotation);
@@ -262,6 +270,14 @@ export function computeReactionEvidenceMetrics(evidence, annotation, bars = []) 
     return computeLiquiditySweepMetrics(normalized, annotation, bars);
   }
   return { valid: false, reason: 'unsupported-evidence-type' };
+}
+
+export function computeReactionEvidenceWithMetrics(evidence, annotation, bars = []) {
+  const normalized = normalizeReactionEvidence(evidence);
+  return {
+    ...normalized,
+    metrics: computeReactionEvidenceMetrics(normalized, annotation, bars),
+  };
 }
 
 export function buildDefaultActorFromSegment(segment, timeframe) {

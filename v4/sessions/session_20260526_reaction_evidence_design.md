@@ -173,7 +173,7 @@ metrics: {
 
 ## Implementation Plan
 1. Add `v4/src/segment/reaction-evidence.js`. ✅ Done on `feature/v4-reaction-evidence-core`.
-2. Implement evidence creation, normalization, timestamp parsing, actor group lookup, and metrics calculation.
+2. Implement evidence creation, normalization, timestamp parsing, actor group lookup, and metrics calculation. ✅ Done on `feature/v4-reaction-evidence-core`.
 3. Add Inspector UI under each `PDA Responses` row:
    - Add FVG Respect Evidence for range PDA.
    - Add Liquidity Sweep Evidence for high/low liquidity PDA.
@@ -234,3 +234,10 @@ metrics: {
   - use actor group total wick range as denominator,
   - compute `wickSwept/bodySwept` plus wick/body sweep percent of actor move.
 - Verified with `node --check v4/src/segment/reaction-evidence.js` and a small module-level sample calculation.
+
+## Plan 2 Implementation Notes
+- Plan 2 was mostly covered by the first core-module commit; this pass added the missing helpers that later UI/import code will need:
+  - `normalizeReactionEvidenceList(evidenceList)`
+  - `computeReactionEvidenceWithMetrics(evidence, annotation, bars)`
+- `normalizeReactionEvidenceList()` gives Review JSON import and segment response normalization a single path for preserving evidence arrays.
+- `computeReactionEvidenceWithMetrics()` returns a normalized evidence object with freshly computed metrics attached, so Inspector rendering can remain thin.
