@@ -113,10 +113,10 @@ bodyExceededFvg: true
 - Liquidity side:
   - BSL/EQH = `high`
   - SSL/EQL = `low`
-- Actor group move range:
+- Price base:
 
 ```text
-moveRangePoints = groupHighestWick - groupLowestWick
+priceBase = liquidity price
 ```
 
 ### High-Side Sweep
@@ -132,20 +132,20 @@ moveRangePoints = groupHighestWick - groupLowestWick
 - body sweep distance = liquidity price - body extreme
 
 ### Percent Metrics
-- Main metrics use the actor move as denominator:
+- Main metrics use the swept liquidity price as denominator, so the percentage can be compared across years and price regimes.
 
 ```js
 metrics: {
   liquiditySide,
-  moveRangePoints,
+  liquidityPrice,
   wickSwept,
   bodySwept,
-  wickSweepPercentOfMove,
-  bodySweepPercentOfMove
+  wickSweepPercentOfPrice,
+  bodySweepPercentOfPrice
 }
 ```
 
-- Do not use raw point sweep distance as a primary comparison metric.
+- Do not use raw point sweep distance or actor group move range as the primary comparison denominator.
 - Raw point values can be displayed for audit/debug, but not used as cross-era research metrics.
 
 ## Draft Schema
@@ -231,8 +231,8 @@ metrics: {
   - set `bodyExceededFvg` when body percent exceeds `100`.
 - Liquidity sweep metrics:
   - infer BSL/EQH as high-side and SSL/EQL as low-side,
-  - use actor group total wick range as denominator,
-  - compute `wickSwept/bodySwept` plus wick/body sweep percent of actor move.
+  - use swept liquidity price as denominator,
+  - compute `wickSwept/bodySwept` plus wick/body sweep percent of price.
 - Verified with `node --check v4/src/segment/reaction-evidence.js` and a small module-level sample calculation.
 
 ## Plan 2 Implementation Notes
@@ -263,9 +263,9 @@ metrics: {
 - Liquidity metrics display:
   - actor bars,
   - side,
-  - move range,
+  - price base,
   - wick/body swept flags,
-  - wick/body sweep percent of move.
+  - wick/body sweep percent of price.
 - `bodyEntryPercentOfFvg > 100` is displayed with `inspector-metric-alert` styling.
 - First pass uses text timestamp inputs; no chart pick flow yet.
 

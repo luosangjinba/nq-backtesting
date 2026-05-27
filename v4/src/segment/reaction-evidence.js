@@ -235,8 +235,7 @@ export function computeLiquiditySweepMetrics(evidence, annotation, bars = []) {
   const liquiditySide = normalized.params.liquiditySide || inferLiquiditySide(annotation);
   if (!LIQUIDITY_SIDES.has(liquiditySide)) return { valid: false, reason: 'unknown-liquidity-side' };
 
-  const moveRangePoints = stats.highestWick - stats.lowestWick;
-  if (moveRangePoints <= 0) return { valid: false, reason: 'invalid-move-range' };
+  if (liquidityPrice === 0) return { valid: false, reason: 'invalid-liquidity-price' };
 
   const wickExtreme = liquiditySide === 'high' ? stats.highestWick : stats.lowestWick;
   const bodyExtreme = liquiditySide === 'high' ? stats.highestBody : stats.lowestBody;
@@ -251,13 +250,12 @@ export function computeLiquiditySweepMetrics(evidence, annotation, bars = []) {
     liquiditySide,
     actorBarCount: stats.barCount,
     liquidityPrice,
-    moveRangePoints,
     wickExtreme,
     bodyExtreme,
     wickSwept: wickSweepDistance > 0,
     bodySwept: bodySweepDistance > 0,
-    wickSweepPercentOfMove: rangePercent(wickSweepDistance, moveRangePoints),
-    bodySweepPercentOfMove: rangePercent(bodySweepDistance, moveRangePoints),
+    wickSweepPercentOfPrice: rangePercent(wickSweepDistance, liquidityPrice),
+    bodySweepPercentOfPrice: rangePercent(bodySweepDistance, liquidityPrice),
   };
 }
 

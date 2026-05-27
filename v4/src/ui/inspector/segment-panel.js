@@ -97,11 +97,11 @@ function renderEvidenceMetrics(evidence, annotation) {
     return [
       field('Actor Bars', metrics.actorBarCount),
       field('Side', metrics.liquiditySide),
-      field('Move Range', formatNumber(metrics.moveRangePoints)),
+      field('Price Base', formatNumber(metrics.liquidityPrice)),
       field('Wick Swept', formatBoolean(metrics.wickSwept)),
       field('Body Swept', formatBoolean(metrics.bodySwept)),
-      field('Wick Sweep %', formatPercent(metrics.wickSweepPercentOfMove)),
-      field('Body Sweep %', formatPercent(metrics.bodySweepPercentOfMove)),
+      field('Wick Sweep / Price', formatPercent(metrics.wickSweepPercentOfPrice)),
+      field('Body Sweep / Price', formatPercent(metrics.bodySweepPercentOfPrice)),
     ].join('');
   }
 
