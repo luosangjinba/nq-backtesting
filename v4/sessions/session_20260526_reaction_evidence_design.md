@@ -192,8 +192,10 @@ metrics: {
 - No automatic actor candle group selection.
 - No canvas box select.
 - No canvas note overlay.
-- No final verdict field.
 - No statistics page.
+
+## Undecided Items
+- Final verdict field: not part of the current plan. Whether to add a later manual classification field such as `valid-respect`, `failed-respect`, `wick-only-sweep`, or `delivered-through` remains undecided.
 
 ## Validation Samples
 - FVG:
