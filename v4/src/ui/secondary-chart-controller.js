@@ -12,6 +12,7 @@ import {
   hideSecondaryCursor,
   hideSecondaryHoverCursor,
   initSecondaryChart,
+  setSecondaryChartInfo,
   setSecondaryData,
   showSecondaryHoverCursor,
   showSecondaryStartOfData,
@@ -79,6 +80,8 @@ function renderSecondaryBars() {
   initSecondaryChart();
 
   const timeframe = secondaryStore.getSecondaryTimeframe();
+  const instrument = secondaryStore.getSecondaryInstrument();
+  setSecondaryChartInfo({ instrument, timeframe });
   const displayBars = secondaryStore.getSecondaryDisplayBars();
   const chartData = displayBars.map((bar) => toChartBar(bar, timeframe));
   setSecondaryData(chartData);

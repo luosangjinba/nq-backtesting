@@ -3,6 +3,7 @@
 import {
   CANDLESTICK_STYLE,
   CHART_THEME,
+  TIMEFRAME_MAP,
   TIME_SCALE_DISPLAY,
   VIEWPORT_RIGHT_OFFSET_BARS,
 } from '../config.js';
@@ -15,6 +16,10 @@ let secondaryContainer = null;
 let resizeObserver = null;
 let cursorPrimitive = null;
 let hoverCursorPrimitive = null;
+let infoEl = null;
+let legendEl = null;
+let activeInstrument = 'ES';
+let activeTimeframe = 60;
 let activeDataCount = 0;
 let activeLastTime = null;
 
@@ -34,12 +39,38 @@ function formatChartTime(time) {
   return `${y}-${m}-${day} ${h}:${min} ${weekdays[dt.getUTCDay()]}`;
 }
 
+function renderInfoLabel() {
+  if (!infoEl) return;
+  infoEl.textContent = `${activeInstrument} ${TIMEFRAME_MAP[activeTimeframe] || `${activeTimeframe}M`}`;
+}
+
+function updateSecondaryLegend(param) {
+  if (!legendEl || !param || !param.time || !param.seriesData) {
+    return;
+  }
+  const data = param.seriesData.get(secondarySeries);
+  if (!data) return;
+
+  const isUp = data.close >= data.open;
+  const cls = isUp ? 'ohlc-up' : 'ohlc-down';
+  const fmt = (value) => formatTickPrice(value, activeInstrument);
+
+  legendEl.innerHTML =
+    `<span class="ohlc-label">O</span><span class="ohlc-value ${cls}">${fmt(data.open)}</span>` +
+    `<span class="ohlc-label">H</span><span class="ohlc-value ${cls}">${fmt(data.high)}</span>` +
+    `<span class="ohlc-label">L</span><span class="ohlc-value ${cls}">${fmt(data.low)}</span>` +
+    `<span class="ohlc-label">C</span><span class="ohlc-value ${cls}">${fmt(data.close)}</span>`;
+}
+
 export function initSecondaryChart(containerId = 'secondary-chart') {
   if (secondaryChart && secondarySeries) return { chart: secondaryChart, series: secondarySeries };
 
   const container = document.getElementById(containerId);
   if (!container) throw new Error(`Secondary chart container #${containerId} not found`);
   secondaryContainer = container;
+  infoEl = document.getElementById('secondary-chart-info');
+  legendEl = document.getElementById('secondary-ohlc-legend');
+  renderInfoLabel();
 
   secondaryChart = LightweightCharts.createChart(container, {
     ...CHART_THEME,
@@ -70,6 +101,7 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
       minMove: getInstrumentTickSize(),
     },
   });
+  secondaryChart.subscribeCrosshairMove(updateSecondaryLegend);
 
   resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -82,6 +114,12 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
   resizeObserver.observe(container);
 
   return { chart: secondaryChart, series: secondarySeries };
+}
+
+export function setSecondaryChartInfo({ instrument = activeInstrument, timeframe = activeTimeframe } = {}) {
+  activeInstrument = instrument;
+  activeTimeframe = Number(timeframe) || activeTimeframe;
+  renderInfoLabel();
 }
 
 export function getSecondaryChart() {
@@ -111,6 +149,7 @@ export function updateSecondaryBar(bar) {
 export function clearSecondaryData() {
   hideSecondaryCursor();
   hideSecondaryHoverCursor();
+  if (legendEl) legendEl.innerHTML = '';
   setSecondaryData([]);
 }
 
@@ -225,4 +264,6 @@ export function destroySecondaryChart() {
   secondaryChart = null;
   secondarySeries = null;
   secondaryContainer = null;
+  infoEl = null;
+  legendEl = null;
 }

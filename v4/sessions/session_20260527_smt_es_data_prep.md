@@ -63,3 +63,17 @@ Validation:
 
 - `node --check` passed for all `v4/src/**/*.js`.
 - Headless Chrome DOM check confirmed the page initializes, the `Sub` selector is present, defaults to `ES`, and `Sub` / `Sub TF` / `Layout` are editable while Split is off.
+
+## SMT Observation Foundation
+
+Implemented the next three Phase 1 observation items:
+
+- Added a secondary chart info label showing the active secondary instrument and timeframe, for example `ES 1H` or `NQ 1M`.
+- Added a secondary chart OHLC legend that updates from the secondary chart crosshair and uses the active secondary instrument price formatter.
+- Verified primary/secondary alignment and reload behavior in headless Chrome:
+  - Split off leaves `Sub` / `Sub TF` / `Layout` editable.
+  - Enabling Split after primary load uses the preconfigured `Sub=ES`, `Sub TF=1H`, and loads 41 ES bars for `2012-01-25 09:00` to `2012-01-25 12:00`.
+  - Layout change from Stack to Side does not reload data.
+  - `Sub TF` change to 1M reloads the same absolute range and loads 218 ES bars.
+  - `Sub` change from ES to NQ reloads the same absolute range and updates the label to `NQ 1M`.
+  - Moving the mouse over the secondary chart updates the secondary OHLC legend.
