@@ -172,7 +172,7 @@ metrics: {
 ```
 
 ## Implementation Plan
-1. Add `v4/src/segment/reaction-evidence.js`.
+1. Add `v4/src/segment/reaction-evidence.js`. ✅ Done on `feature/v4-reaction-evidence-core`.
 2. Implement evidence creation, normalization, timestamp parsing, actor group lookup, and metrics calculation.
 3. Add Inspector UI under each `PDA Responses` row:
    - Add FVG Respect Evidence for range PDA.
@@ -205,4 +205,32 @@ metrics: {
   - wick + body sweep,
   - high-side BSL/EQH,
   - low-side SSL/EQL,
-  - invalid or zero move range.
+- invalid or zero move range.
+
+## Plan 1 Implementation Notes
+- Branch: `feature/v4-reaction-evidence-core`
+- Added `v4/src/segment/reaction-evidence.js`.
+- Current module exports:
+  - `EVIDENCE_TYPES`
+  - `FVG_ENTRY_SIDES`
+  - `LIQUIDITY_SIDES`
+  - `parseEvidenceTimestamp()`
+  - `getActorBars()`
+  - `getActorGroupStats()`
+  - `inferLiquiditySide()`
+  - `createReactionEvidence()`
+  - `normalizeReactionEvidence()`
+  - `computeFvgRespectMetrics()`
+  - `computeLiquiditySweepMetrics()`
+  - `computeReactionEvidenceMetrics()`
+  - `buildDefaultActorFromSegment()`
+- FVG respect metrics:
+  - use FVG height as denominator,
+  - compute wick/body extremes from the actor group,
+  - preserve true percent values without clamping,
+  - set `bodyExceededFvg` when body percent exceeds `100`.
+- Liquidity sweep metrics:
+  - infer BSL/EQH as high-side and SSL/EQL as low-side,
+  - use actor group total wick range as denominator,
+  - compute `wickSwept/bodySwept` plus wick/body sweep percent of actor move.
+- Verified with `node --check v4/src/segment/reaction-evidence.js` and a small module-level sample calculation.
