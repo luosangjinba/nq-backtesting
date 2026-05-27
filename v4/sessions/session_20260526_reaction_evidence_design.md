@@ -41,6 +41,8 @@ actor: {
 ```
 
 - The actor candle group is continuous.
+- `actor.timeframe` is the timeframe of the actor candle group and is strongly tied to `firstBarTimestamp`, `lastBarTimestamp`, and `terminalBarTimestamp`.
+- `actor.timeframe` is independent from the PDA/FVG source timeframe.
 - First implementation can use plain Inspector time inputs.
 - Later implementation can add chart pick actions for first/last/terminal.
 
@@ -286,3 +288,9 @@ metrics: {
 - FVG respect metrics set `bodyExceededFvg=true` when `bodyEntryPercentOfFvg` is greater than `100`.
 - Segment Inspector uses `inspector-metric-alert` when `bodyExceededFvg=true`.
 - Both `Body Entry` and `Body Exceeded` are highlighted, making the out-of-range body condition visible without changing the recorded percentage.
+
+## Actor Timeframe UI Notes
+- Segment Inspector now displays an editable `Actor TF` field for each reaction evidence row.
+- The timestamp fields are labeled `Actor First`, `Actor Last`, and `Actor Terminal` to make clear that they belong to the actor candle group.
+- Metrics are computed only when `Actor TF` matches the currently loaded chart timeframe; otherwise the Inspector shows a mismatch message instead of calculating from the wrong bars.
+- Imported or older numeric actor timeframe values are normalized to display labels such as `1H`.

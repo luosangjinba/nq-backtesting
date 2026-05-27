@@ -328,6 +328,16 @@ function handleInspectorChange(e) {
       return;
     }
 
+    if (action === 'reaction-evidence-timeframe') {
+      patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, (evidence) => ({
+        actor: {
+          ...(evidence.actor || {}),
+          timeframe: e.target.value,
+        },
+      }));
+      return;
+    }
+
     if (action === 'reaction-evidence-first-bar') {
       patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, (evidence) => ({
         actor: {

@@ -33,6 +33,11 @@ function getTimestamp(value) {
   return Number.isFinite(parsed) ? Math.floor(parsed / 1000) : null;
 }
 
+function normalizeActorTimeframe(value) {
+  if (Number.isFinite(Number(value))) return timeframeToString(Number(value));
+  return value || '1H';
+}
+
 function getBarTimestamp(bar) {
   return getTimestamp(bar?.timestamp ?? bar?.time);
 }
@@ -156,7 +161,7 @@ export function normalizeReactionEvidence(evidence = {}) {
     type,
     pdaId: evidence.pdaId || '',
     actor: {
-      timeframe: actor.timeframe || '1H',
+      timeframe: normalizeActorTimeframe(actor.timeframe),
       firstBarTimestamp: getTimestamp(actor.firstBarTimestamp),
       lastBarTimestamp: getTimestamp(actor.lastBarTimestamp),
       terminalBarTimestamp: getTimestamp(actor.terminalBarTimestamp),
