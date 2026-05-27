@@ -75,6 +75,14 @@
 - [x] Step 45: Segment Inspector 增加只读 Review Metrics 预览
 - [ ] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化
 
+### Phase 8: Order Review / Execution Lens 研究
+- [ ] Step 47: 整理订单复盘设计文档 `v4/docs/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
+- [ ] Step 48: 定义 `Opportunity Review / Execution Lens` 对象边界：以 09:30、09:50、Silver Bullet 等固定窗口作为 event anchor，引用现有 1H segment / Composite Move / PDA / SMT / Reaction Evidence
+- [ ] Step 49: 定义 `Entry Review` 子对象：direction、entry time/price、stop、target internal/swing/external、result、skip/invalid reason；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
+- [ ] Step 50: 设计 Inspector UI 入口：选中 segment/composite 后创建 Opportunity Review，再在 Opportunity 下添加 Entry Review；图表第一版只显示轻量 window marker/range，不做复杂下单 overlay
+- [ ] Step 51: 设计 localStorage 与 Review JSON schema：保存 opportunity reviews、entry reviews、linked object ids；不写 DB，不包含 K 线数据
+- [ ] Step 52: 明确第一版非目标：不做自动信号、不自动判断 09:30 reversal / Silver Bullet 是否成立、不替代 1H structure backbone
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
@@ -233,6 +241,8 @@
 - 2026-05-27: SMT 手工标注计划更新：只做 `NQ follows ES`，不做 ES follows NQ；所有 SMT 标注动作必须在图表中完成，右侧 Inspector 只显示/备注/定位/删除。Liquidity SMT 通过图表选择同周期 left/right 两根 K，NQ/ES 两图使用严格相同 left/right timestamp，bearish 连 high、bullish 连 low，并在 NQ/ES 两图都画两点连线；record 必须保存 timeframe，非原周期第一版不显示。FVG SMT 通过图表选择 ES FVG 所在 K，record 保存 timeframe + timestamp；ES 副图正常显示 FVG range，NQ 主图只标记同时间 K；第一版仅原周期显示，不做跨周期投影。建议实现顺序：smt-store → renderer 可渲染手工造数据 → manual-smt liquidity 两点点击 → Inspector list/note/delete/locate → localStorage → Review JSON → FVG SMT 识别与标注 → 浏览器验证。
 - 2026-05-27: `feature/smt-annotation-ui` 新分支开始 SMT 标注 UI：新增 `smt-store`、`smt-renderer`、`manual-smt` 与 Inspector SMT list。主图右键菜单新增 `Start Bearish/Bullish Liquidity SMT` 与 `Mark Bearish/Bullish FVG SMT`；Liquidity 从右键所在 K 作为 left，随后左键选择 right，校验 NQ no-sweep + ES sweep 后生成记录，并在 NQ/ES 两图画同 timestamp 两点连线；FVG SMT 点击同时间 K 后在 ES bars 中识别 FVG，ES 渲染 FVG range，NQ 渲染同时间 marker；SMT 只在 record timeframe 等于当前图表周期时显示。Inspector 目前只提供 list、note、Locate、Delete；localStorage 与 Review JSON 尚未接入。
 - 2026-05-27: 右键菜单过长问题修复：菜单改为 `details/summary` 折叠分组，`PDA` 默认展开，`SMT`、`1H Segments`、`Point Sets`、`Objective Gaps`、`Clear` 默认折叠，上下文相关分组可默认展开；同时修正菜单定位使用实际宽度 220px，靠近 canvas 下沿时自动上移，仍放不下时菜单内部滚动。主图右键菜单新增 `Locate Time in Secondary`，可将副图定位到当前主图 K 线 timestamp 附近并显示副图 hover cursor。
+- 2026-05-27: Order Review / Execution Lens 研究分支启动：新增 Phase 8 TODO，确认订单复盘不从“下单记录表”开始，而是先设计 Opportunity Review / Execution Lens 层；该层以 09:30、09:50、Silver Bullet 等窗口作为 event anchor，引用现有 1H segment / Composite Move / PDA / SMT / Reaction Evidence，再向下挂 Entry Review。第一版保持人工复盘，不做自动信号、不自动判断 reversal/Silver Bullet 是否成立、不替代 1H structure backbone。
+- 2026-05-27: 副图 Viewport Controls 完成：`#secondary-chart` 内新增 `#secondary-viewport-controls`，新增 `chart/secondary-viewport-controller.js`，并在 `secondary-chart-manager.js` 暴露副图 logical range、active data count、price scale reset API；`viewport-controls.js` 统一初始化主图/副图控制条。副图支持 zoom in/out、scroll left/right、reset secondary chart view，Split 未开启或副图无数据时 disabled；`Alt+R` 仍只控制主图 reset。
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response

@@ -171,7 +171,8 @@ html, body {
   padding: 2px 6px;
 }
 
-#viewport-controls {
+#viewport-controls,
+#secondary-viewport-controls {
   position: absolute;
   left: 50%;
   bottom: 46px;
@@ -184,7 +185,9 @@ html, body {
 }
 
 #viewport-controls:hover,
-#viewport-controls:focus-within {
+#viewport-controls:focus-within,
+#secondary-viewport-controls:hover,
+#secondary-viewport-controls:focus-within {
   opacity: 1;
   pointer-events: auto;
 }

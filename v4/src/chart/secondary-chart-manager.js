@@ -130,6 +130,32 @@ export function getSecondarySeries() {
   return secondarySeries;
 }
 
+export function getSecondaryVisibleLogicalRange() {
+  return secondaryChart?.timeScale().getVisibleLogicalRange() || null;
+}
+
+export function setSecondaryVisibleLogicalRange(from, to) {
+  if (!secondaryChart || !Number.isFinite(from) || !Number.isFinite(to) || from >= to) return;
+  secondaryChart.timeScale().setVisibleLogicalRange({ from, to });
+}
+
+export function getSecondaryActiveDataCount() {
+  return activeDataCount;
+}
+
+export function resetSecondaryPriceScale() {
+  try {
+    secondarySeries?.priceScale?.().applyOptions({ autoScale: true });
+  } catch (e) {
+    // price scale may be unavailable during chart reset
+  }
+  try {
+    secondaryChart?.priceScale?.('right')?.applyOptions({ autoScale: true });
+  } catch (e) {
+    // fallback for chart-level price scale API differences
+  }
+}
+
 export function setSecondaryData(data = []) {
   if (!secondarySeries) return;
   secondarySeries.setData(data);
