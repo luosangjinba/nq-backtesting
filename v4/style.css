@@ -499,6 +499,13 @@ html, body {
   color: #ffcdd2;
 }
 
+.inspector-inline-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+}
+
 .inspector-mini-select {
   height: 24px;
   padding: 2px 4px;

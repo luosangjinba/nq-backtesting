@@ -296,3 +296,18 @@ metrics: {
 - The timestamp fields are labeled `Actor First`, `Actor Last`, and `Actor Terminal` to make clear that they belong to the actor candle group.
 - Metrics are computed only when `Actor TF` matches the currently loaded chart timeframe; otherwise the Inspector shows a mismatch message instead of calculating from the wrong bars.
 - Imported or older numeric actor timeframe values are normalized to display labels such as `1H`.
+
+## Actor Selection Efficiency Plan
+These are efficiency tools for choosing the manually confirmed actor candle group. They do not add automatic respect/sweep judgement.
+
+1. Chart pick for `Actor First`, `Actor Last`, and `Actor Terminal`.
+   - Status: done.
+   - Inspector timestamp rows now include `Pick` buttons.
+   - Pick uses the currently loaded chart timeframe; if it does not match `Actor TF`, the system refuses to pick from the wrong chart.
+   - Hover shows the existing vertical pick preview cursor, click writes the selected bar timestamp, and Escape cancels.
+2. Actor TF automatic data fetch for metrics.
+   - Status: not started.
+   - Goal: if `Actor TF` differs from the current chart timeframe, fetch/cache bars for the actor timeframe and calculate metrics without forcing a chart timeframe switch.
+3. Canvas range selection for actor candle group.
+   - Status: not started.
+   - Goal: drag/select a continuous candle group and fill `Actor First` / `Actor Last`; `Actor Terminal` may stay manually picked or default to a nearby endpoint.

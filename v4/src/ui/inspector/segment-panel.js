@@ -78,6 +78,18 @@ function renderActorTimeframeOptions(selectedTimeframe) {
     .join('');
 }
 
+function renderActorTimestampControl(label, action, pickField, response, evidence, timestamp) {
+  const pdaId = escapeHtml(response.pdaId);
+  const evidenceId = escapeHtml(evidence.id);
+  return controlField(
+    label,
+    `<span class="inspector-inline-control">
+      <input class="inspector-input" data-inspector-action="${action}" data-pda-id="${pdaId}" data-evidence-id="${evidenceId}" type="text" value="${escapeHtml(getTimestampInputValue(timestamp))}" placeholder="YYYY-MM-DD HH:mm" />
+      <button class="inspector-mini-btn" data-inspector-action="reaction-evidence-pick-actor-bar" data-pda-id="${pdaId}" data-evidence-id="${evidenceId}" data-actor-field="${pickField}" type="button">Pick</button>
+    </span>`
+  );
+}
+
 function metricField(label, value, isAlert = false) {
   const className = isAlert ? 'inspector-field-value inspector-metric-alert' : 'inspector-field-value';
   return `
@@ -149,18 +161,9 @@ function renderEvidenceRows(response, annotation) {
               .join('')}
           </select>`
         ) : ''}
-        ${controlField(
-          'Actor First',
-          `<input class="inspector-input" data-inspector-action="reaction-evidence-first-bar" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(getTimestampInputValue(evidence.actor.firstBarTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />`
-        )}
-        ${controlField(
-          'Actor Last',
-          `<input class="inspector-input" data-inspector-action="reaction-evidence-last-bar" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(getTimestampInputValue(evidence.actor.lastBarTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />`
-        )}
-        ${controlField(
-          'Actor Terminal',
-          `<input class="inspector-input" data-inspector-action="reaction-evidence-terminal-bar" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(getTimestampInputValue(evidence.actor.terminalBarTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />`
-        )}
+        ${renderActorTimestampControl('Actor First', 'reaction-evidence-first-bar', 'firstBarTimestamp', response, evidence, evidence.actor.firstBarTimestamp)}
+        ${renderActorTimestampControl('Actor Last', 'reaction-evidence-last-bar', 'lastBarTimestamp', response, evidence, evidence.actor.lastBarTimestamp)}
+        ${renderActorTimestampControl('Actor Terminal', 'reaction-evidence-terminal-bar', 'terminalBarTimestamp', response, evidence, evidence.actor.terminalBarTimestamp)}
         <input class="inspector-input" data-inspector-action="reaction-evidence-note" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(evidence.note || '')}" placeholder="Evidence note" />
         ${renderEvidenceMetrics(evidence, annotation)}
       </div>

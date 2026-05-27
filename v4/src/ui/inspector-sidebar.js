@@ -1,6 +1,9 @@
 // Hideable right-side inspector for selected chart objects.
 
 import * as bus from '../event-bus.js';
+import * as chart from '../chart/chart-manager.js';
+import * as store from '../data/bar-store.js';
+import { timeframeToString } from '../config.js';
 import { clearSelection as clearPdaSelection, getSelectedPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
@@ -51,6 +54,48 @@ import {
 let sidebarEl = null;
 let bodyEl = null;
 let currentPanel = 'empty';
+let actorPickState = null;
+
+function normalizeTimeKey(time) {
+  if (time && typeof time === 'object') {
+    const month = String(time.month).padStart(2, '0');
+    const day = String(time.day).padStart(2, '0');
+    return `${time.year}-${month}-${day}`;
+  }
+  return time;
+}
+
+function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
+  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
+}
+
+function findDisplayBarByChartTime(time) {
+  if (time === undefined || time === null) return null;
+  const target = normalizeTimeKey(time);
+  const timeframe = store.getCurrentTimeframe();
+  return (
+    store
+      .getDisplayBars()
+      .find((bar) => normalizeTimeKey(getBarChartTime(bar, timeframe)) === target) || null
+  );
+}
+
+function clearActorPickState({ silent = false } = {}) {
+  if (!actorPickState) return false;
+  actorPickState = null;
+  chart.hidePickPreviewCursor();
+  if (!silent) {
+    bus.emit('status:update', { text: 'Actor bar pick 已取消', isError: false });
+  }
+  return true;
+}
+
+function getActorFieldLabel(actorField) {
+  if (actorField === 'firstBarTimestamp') return 'Actor First';
+  if (actorField === 'lastBarTimestamp') return 'Actor Last';
+  if (actorField === 'terminalBarTimestamp') return 'Actor Terminal';
+  return 'Actor Bar';
+}
 
 function renderAnnotation(annotation) {
   currentPanel = 'selection';
@@ -224,6 +269,84 @@ function patchReactionEvidence(segment, pdaId, evidenceId, patcher) {
         : evidence
     )
   );
+}
+
+function startActorBarPick(segment, target) {
+  if (!store.getDisplayBars().length) {
+    bus.emit('status:update', { text: '当前图表没有可 pick 的 K 线', isError: true });
+    return;
+  }
+
+  const response = getSegmentResponse(segment, target.pdaId);
+  const evidence = normalizeReactionEvidenceList(response?.reactionEvidence).find(
+    (item) => item.id === target.evidenceId
+  );
+  if (!evidence) return;
+
+  const currentTimeframe = timeframeToString(store.getCurrentTimeframe());
+  const actorTimeframe = evidence.actor?.timeframe || currentTimeframe;
+  if (actorTimeframe !== currentTimeframe) {
+    bus.emit('status:update', {
+      text: `Actor TF ${actorTimeframe} 与当前图表周期 ${currentTimeframe} 不一致，不能从当前图表 pick`,
+      isError: true,
+    });
+    return;
+  }
+
+  actorPickState = {
+    segmentId: segment.id,
+    pdaId: target.pdaId,
+    evidenceId: target.evidenceId,
+    actorField: target.actorField,
+  };
+  bus.emit('status:update', { text: `点击图表选择 ${getActorFieldLabel(target.actorField)}`, isError: false });
+}
+
+function handleActorPickChartClick(e) {
+  if (!actorPickState) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  const chartEl = document.getElementById('chart');
+  if (!chartEl) return;
+
+  const rect = chartEl.getBoundingClientRect();
+  const time = chart.coordinateToTime(e.clientX - rect.left);
+  const bar = findDisplayBarByChartTime(time);
+  if (!bar) {
+    chart.hidePickPreviewCursor();
+    return;
+  }
+
+  const segment = getSegmentById(actorPickState.segmentId);
+  if (!segment) {
+    clearActorPickState({ silent: true });
+    return;
+  }
+
+  const { pdaId, evidenceId, actorField } = actorPickState;
+  clearActorPickState({ silent: true });
+  patchReactionEvidence(segment, pdaId, evidenceId, (evidence) => ({
+    actor: {
+      ...(evidence.actor || {}),
+      [actorField]: bar.timestamp,
+      timeframe: timeframeToString(store.getCurrentTimeframe()),
+    },
+  }));
+  bus.emit('status:update', {
+    text: `${getActorFieldLabel(actorField)} 已选择: ${bar.time || bar.tradingDay}`,
+    isError: false,
+  });
+}
+
+function handleActorPickHover(param) {
+  if (!actorPickState) return;
+  const bar = findDisplayBarByChartTime(param?.time);
+  if (!bar) {
+    chart.hidePickPreviewCursor();
+    return;
+  }
+  chart.showPickPreviewCursor(getBarChartTime(bar));
 }
 
 function handleInspectorChange(e) {
@@ -516,6 +639,15 @@ function handleInspectorClick(e) {
       );
       return;
     }
+
+    if (action === 'reaction-evidence-pick-actor-bar') {
+      startActorBarPick(segment, {
+        pdaId: e.target.dataset.pdaId,
+        evidenceId: e.target.dataset.evidenceId,
+        actorField: e.target.dataset.actorField,
+      });
+      return;
+    }
   }
 
   if (segment) {
@@ -618,6 +750,11 @@ function removePointFromSet(annotation, pointIndex) {
 
 export function initInspectorSidebar() {
   createSidebar();
+  document.getElementById('chart')?.addEventListener('click', handleActorPickChartClick, true);
+  chart.onCrosshairMove(handleActorPickHover);
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') clearActorPickState();
+  });
   bus.on('pda:selected', ({ annotation }) => {
     renderAnnotation(annotation);
     openSidebar();
