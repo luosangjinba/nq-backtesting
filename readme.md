@@ -1,8 +1,8 @@
 # YAML Panel (Legacy) + Price Lookup
 
-## V4 当前研究主线
+## V4 当前阶段
 
-当前活跃研究分支是 `research/v4-review-notes-design`，主要入口在 `v4/`：
+当前主线入口在 `v4/`。除“精确复盘”相关的自动取数、统计化与最终 verdict 流程外，大部分图表式复盘能力已经完成，可以作为日常手工复盘工作台使用。
 
 - 页面入口：[v4/index.html](/home/leo/myworkspace/trading/backtesting/v4/index.html)
 - API：[v4/v4_api.py](/home/leo/myworkspace/trading/backtesting/v4/v4_api.py)
@@ -11,6 +11,31 @@
 - English user guide：[v4/docs/USER_GUIDE.en.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.en.md)
 - Segment review 设计：[v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md)
 - 当前 TODO：[v4/TODO.md](/home/leo/myworkspace/trading/backtesting/v4/TODO.md)
+
+### V4 能力边界
+
+V4 当前是“手工标注 + 图表复盘 + 结构证据归档”的工具，不是全自动交易信号系统。
+
+已完成的主要能力：
+
+- NQ 主图加载、周期切换、Replay Bar、视口控制、时间跳转。
+- 手工 PDA 标注：BSL/SSL、EQH/EQL、FVG/IFVG、OB、Breaker、Fib、Wick CE、NDOG/NWOG overlay。
+- PDA Inspector：查看、备注、删除、label/CE/extend 显示控制、EQH/EQL 点集合编辑。
+- 1H Market Segment：手工画段、选中、删除、备注、tags、display mode、isolate。
+- PDA Response：把 PDA 与 segment 关联为 respected/swept/approached/rejected/delivered-through，并控制显示状态。
+- Reaction Evidence：人工确认 FVG respect / liquidity sweep 证据，记录 actor K 线群和客观百分比指标。
+- Composite Move：多条 atomic segment 组合为高周期 move，支持 target segment、metrics 和高亮。
+- Structure Sets：在 Inspector 中定位/临时 focus segment 与 Composite Move 绘制集。
+- Split Screen：主图 NQ + 副图 NQ/ES，同一绝对时间区间，可选副图周期与上下/左右布局。
+- SMT 手工标注第一版：NQ follows ES，支持 Liquidity SMT 两点连线与 FVG SMT 标记；右侧 Inspector 显示、备注、定位、删除。
+- Review JSON：导出/导入 PDA、segments、Composite Moves、Reaction Evidence、SMT records；不包含 K 线数据。
+
+仍未完成或暂缓：
+
+- 精确复盘自动化：actor TF 自动取数、canvas 框选 K 线群、最终 verdict、统计页。
+- SMT 自动候选扫描：当前仅手工标注，不做无监督扫描。
+- 1W 周线聚合。
+- 假日异常收盘时间的特殊处理。
 
 ### V4 启动方式
 
@@ -60,36 +85,31 @@ V4 当前聚焦图表式复盘，而不是旧 YAML 表单：
   - 创建后父级线可点击选中
   - 独立 Composite Move Inspector 显示 children、target、net/path/efficiency/pullback/target extreme
   - 选中 Composite Move 时，父级线白色，child segment 橙色，target segment 紫色
+- Split Screen / SMT：
+  - 主图 NQ，副图可选 NQ/ES
+  - 副图按同一绝对时间区间加载，周期可独立选择
+  - 支持上下或左右布局
+  - 支持从主图右键定位副图同时间
+  - SMT 标注目前只做 NQ follows ES 的手工 evidence
 - 数据保存：
   - PDA 与 Segment 草稿保存在 browser localStorage
-  - Review JSON export/import 包含 PDA、market segments、segmentGroups
+  - Review JSON export/import 包含 PDA、market segments、segmentGroups、reactionEvidence、SMT records
 
 ### V4 最近修复
 
-- `wick-ce` 作为独立 PDA 类型接入，线段使用更细的 `lineWidth=1`。
-- Terminal PDA Candidates 的 high/low liquidity reaction 已补齐：
-  - `bodyTouched`
-  - `touched`
-- 因此 BSL/SSL/EQH/EQL 在 terminal candle body 穿越或等于 liquidity level 时，Inspector 的 `Body Touch` / `Touched` 与候选排序会保持一致。
+- SMT 渲染修复：日线周期也会把 timestamp 正确映射成 chart date。
+- Review JSON 已包含 SMT records，导入时按 SMT identity 去重。
+- 右键菜单已折叠分组，靠近图表底部时自动上移并可内部滚动。
+- 主图右键菜单新增 `Locate Time in Secondary`，用于把副图定位到当前主图 K 线时间。
 
 ### V4 下一步
 
 推荐下一步按顺序推进：
 
-1. 用 5-10 个真实样例验收：
-   - single-leg break
-   - sweep 后回落
-   - 两段式 Composite Move break
-   - 有 target segment 的 Composite Move
-   - BSL/SSL/EQH/EQL body touch
-   - Wick CE terminal reaction
-   - isolate + previous segment context
-2. 补最小 node probe 或测试脚本：
-   - liquidity `bodyTouched/touched`
-   - extension ratio
-   - Composite Move metrics
-   - Review JSON group remap
-3. 整理 UI 文案，减少 `draft child` 与创建后的 `child segment` 混淆。
+1. 用真实样例验收完整手工复盘链路：PDA → Segment → PDA Response → Reaction Evidence → Composite Move → Review JSON。
+2. 验收 SMT 手工标注链路：NQ/ES split、Liquidity SMT、FVG SMT、导出/导入后恢复。
+3. 进入精确复盘阶段：actor TF 自动取数、canvas 框选 actor K 线群、最终 verdict 是否需要落地、统计页是否需要推进。
+4. 补最小 node probe 或浏览器验证脚本，覆盖 Review JSON、Composite Move metrics、SMT records、Reaction Evidence metrics。
 
 ## Legacy / V2 主线说明
 

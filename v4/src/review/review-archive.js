@@ -15,6 +15,12 @@ import { getAnnotationIdentity, getAnnotations, loadAnnotations } from '../pda/p
 import { getSegmentIdentity, getSegments, loadSegments } from '../segment/segment-store.js';
 import { getSegmentGroups, loadSegmentGroups } from '../segment/segment-group-store.js';
 import { normalizeReactionEvidenceList } from '../segment/reaction-evidence.js';
+import {
+  getSmtRecordIdentity,
+  getSmtRecords,
+  loadSmtRecords,
+  normalizeSmtRecord,
+} from '../smt/smt-store.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
 const REVIEW_ARCHIVE_APP = 'trading-v4-review';
@@ -39,6 +45,7 @@ function buildReviewPayload() {
     pdaAnnotations: getExportableAnnotations(),
     marketSegments: getExportableSegments(),
     segmentGroups: getExportableSegmentGroups(),
+    smtRecords: getSmtRecords(),
   };
 }
 
@@ -72,6 +79,9 @@ function validateReviewPayload(payload) {
   }
   if (payload.segmentGroups !== undefined && !Array.isArray(payload.segmentGroups)) {
     throw new Error('review archive segmentGroups must be an array');
+  }
+  if (payload.smtRecords !== undefined && !Array.isArray(payload.smtRecords)) {
+    throw new Error('review archive smtRecords must be an array');
   }
 }
 
@@ -272,16 +282,61 @@ function prepareImportedGroups(existingGroups, importedGroups) {
   return { groups, skippedDuplicates };
 }
 
+function prepareImportedSmtRecords(existingRecords, importedRecords) {
+  const usedIds = new Set(existingRecords.map((record) => record.id).filter(Boolean));
+  const existingByIdentity = new Map(existingRecords.map((record) => [getSmtRecordIdentity(record), record]));
+  const importStamp = Date.now();
+  let skippedDuplicates = 0;
+  let skippedInvalid = 0;
+  const records = [];
+
+  importedRecords.forEach((record, index) => {
+    let normalized;
+    try {
+      normalized = normalizeSmtRecord(record, { preserveId: true });
+    } catch {
+      skippedInvalid += 1;
+      return;
+    }
+
+    const identity = getSmtRecordIdentity(normalized);
+    if (existingByIdentity.has(identity)) {
+      skippedDuplicates += 1;
+      return;
+    }
+
+    if (usedIds.has(normalized.id)) {
+      normalized = {
+        ...normalized,
+        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
+        importedFromId: normalized.id,
+        updatedAt: Date.now(),
+      };
+    }
+
+    usedIds.add(normalized.id);
+    existingByIdentity.set(identity, normalized);
+    records.push(normalized);
+  });
+
+  return { records, skippedDuplicates, skippedInvalid };
+}
+
 export function exportReviewArchive() {
   const payload = buildReviewPayload();
-  if (payload.pdaAnnotations.length === 0 && payload.marketSegments.length === 0) {
+  if (
+    payload.pdaAnnotations.length === 0 &&
+    payload.marketSegments.length === 0 &&
+    payload.segmentGroups.length === 0 &&
+    payload.smtRecords.length === 0
+  ) {
     bus.emit('status:update', { text: '没有可导出的复盘对象', isError: true });
     return;
   }
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment 与 ${payload.segmentGroups.length} 个 Composite Move`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move 与 ${payload.smtRecords.length} 条 SMT`,
     isError: false,
   });
 }
@@ -331,9 +386,22 @@ export async function importReviewArchive(file) {
     );
     loadSegmentGroups([...existingGroups, ...groups]);
 
-    const skipped = skippedPdaDuplicates + skippedSegmentDuplicates + skippedGroupDuplicates;
+    const existingSmtRecords = getSmtRecords();
+    const {
+      records: smtRecords,
+      skippedDuplicates: skippedSmtDuplicates,
+      skippedInvalid: skippedInvalidSmt,
+    } = prepareImportedSmtRecords(existingSmtRecords, Array.isArray(payload.smtRecords) ? payload.smtRecords : []);
+    loadSmtRecords([...existingSmtRecords, ...smtRecords]);
+
+    const skipped =
+      skippedPdaDuplicates +
+      skippedSegmentDuplicates +
+      skippedGroupDuplicates +
+      skippedSmtDuplicates +
+      skippedInvalidSmt;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment 与 ${groups.length} 个 Composite Move${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move 与 ${smtRecords.length} 条 SMT${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,

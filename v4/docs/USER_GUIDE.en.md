@@ -1,6 +1,8 @@
 # V4 User Guide
 
-V4 is a chart-based review tool for marking PDAs, drawing 1H price legs, linking PDA responses, and grouping multiple legs into higher-timeframe Composite Moves.
+V4 is a chart-based review tool for marking PDAs, drawing 1H price legs, linking PDA responses, recording reaction evidence, grouping multiple legs into higher-timeframe Composite Moves, and manually marking SMT evidence with an ES secondary chart.
+
+The current version is centered on manual review. Most chart-review workflows are usable. The remaining "precision review" work is actor-timeframe auto-fetching, canvas selection of actor candle groups, final verdict workflow, and statistics pages.
 
 ## Start The App
 
@@ -32,12 +34,35 @@ The top toolbar provides:
 - `周期`: chart timeframe, such as `1H`, `4H`, or `D`.
 - `加载`: load candles.
 - `Archive`: open import/export actions.
+- `Split`: show or hide the secondary chart.
+- `Sub`: secondary instrument, usually `ES`.
+- `Sub TF`: secondary timeframe.
+- `Layout`: stacked or side-by-side split layout.
 
 Use this time format when possible:
 
 ```text
 YYYY-MM-DD HH:mm
 ```
+
+## Split Screen
+
+Split Screen lets you compare the primary NQ chart with a secondary NQ/ES chart over the same absolute time range.
+
+Common settings:
+
+- Primary chart: NQ.
+- `Sub`: ES.
+- `Sub TF`: usually the same as the primary timeframe; SMT marking requires them to match.
+- `Layout`: `Stack` for vertical split, `Side` for side-by-side split.
+
+The secondary chart is read-only:
+
+- It does not own the context menu.
+- It does not directly edit PDA or segment objects.
+- It can show synchronized hover cursor, replay cursor, and read-only PDA/segment/composite overlays.
+
+Use `SMT -> Locate Time in Secondary` from the primary chart context menu to center the secondary chart around the clicked primary candle time.
 
 ## Manual PDA Marking
 
@@ -127,6 +152,28 @@ In the Segment Inspector, you can edit:
 - response note
 - remove
 
+## Reaction Evidence
+
+Reaction Evidence is manually confirmed evidence under a PDA Response. The system does not decide whether a respect or sweep happened. You confirm the event, and V4 calculates objective metrics.
+
+Current evidence types:
+
+- `FVG Respect Evidence`: for range PDAs; computes wick/body entry as a percent of FVG height.
+- `Liquidity Sweep Evidence`: for high/low liquidity PDAs; computes wick/body sweep as a percent of the liquidity price.
+
+Each evidence item can edit:
+
+- `Actor TF`: timeframe of the actor candle group.
+- `Actor First`: first actor candle.
+- `Actor Last`: last actor candle.
+- `Actor Terminal`: terminal reaction candle.
+- FVG `entrySide`.
+- note.
+
+Use `Pick` to choose actor times from the current chart. If `Actor TF` does not match the loaded chart timeframe, the pick is rejected to avoid selecting candles from the wrong timeframe.
+
+Metrics are calculated only when `Actor TF` matches the currently loaded chart timeframe. Actor-timeframe auto-fetching is deferred to the precision-review phase.
+
 ## Segment Inspector
 
 Click a segment to open the Inspector.
@@ -199,6 +246,23 @@ Use this to:
 - temporarily show the previous N segments as context
 - optionally show PDA responses from those previous segments
 
+## Structure Sets
+
+The empty Inspector state shows `Structure Sets`.
+
+It lists:
+
+- segment drawing sets
+- Composite Move drawing sets
+
+Clicking a row locates the related time range and toggles temporary focus:
+
+- focused sets highlight on the chart
+- related objects hidden by Display Mode can be shown temporarily
+- clicking the same row again clears that focus
+
+This is a temporary frontend view state. It is not saved to localStorage or Review JSON.
+
 ## Composite Move
 
 A Composite Move records a higher-timeframe move made from multiple atomic segments.
@@ -266,6 +330,74 @@ It shows:
 - pullback ratio
 - took target extreme
 
+## SMT Evidence
+
+SMT is manual-only in the current version. The first version supports `NQ follows ES`: NQ is the primary trading chart, and ES is the comparison chart. ES follows NQ is intentionally out of scope.
+
+Requirements:
+
+- Enable `Split`.
+- Set `Sub` to `ES`.
+- Primary timeframe and `Sub TF` must match.
+- Both NQ and ES candles must be loaded.
+
+### Liquidity SMT
+
+Liquidity SMT records:
+
+- Bearish: NQ's right high does not sweep the left high, while ES's right high sweeps the left high at the same timestamps. NQ follows ES into a downside reversal.
+- Bullish: NQ's right low does not sweep the left low, while ES's right low sweeps the left low at the same timestamps. NQ follows ES into an upside reversal.
+
+How to mark:
+
+1. Right-click the left candle on the NQ primary chart.
+2. Open the `SMT` group.
+3. Choose `Start Bearish Liquidity SMT` or `Start Bullish Liquidity SMT`.
+4. Left-click the right candle on the NQ primary chart.
+
+V4 uses the same left/right timestamps to find ES candles and validates:
+
+- NQ no-sweep.
+- ES sweep.
+
+On success:
+
+- NQ draws an `NQ no sweep` two-point segment.
+- ES draws an `ES sweep` two-point segment.
+- The record appears in `SMT Evidence` in the Inspector.
+
+### FVG SMT
+
+FVG SMT records:
+
+- ES has and respects an FVG, then moves up/down.
+- NQ has no recorded FVG at that time but follows the ES move.
+
+How to mark:
+
+1. Right-click the NQ primary chart.
+2. Open the `SMT` group.
+3. Choose `Mark Bearish FVG SMT` or `Mark Bullish FVG SMT`.
+4. Left-click the NQ candle at the matching ES FVG time.
+
+V4 searches the ES secondary bars for a same-direction FVG around that selected time.
+
+On success:
+
+- ES renders the FVG range.
+- NQ renders a vertical marker at the matching time.
+- The record appears in `SMT Evidence`.
+
+### SMT Inspector
+
+The Inspector `SMT Evidence` section supports:
+
+- `Locate`: locate the SMT time range.
+- `Delete`: delete the SMT record.
+- `Note`: add a note.
+
+SMT records keep their original timeframe. The current version renders SMT only when the record timeframe matches the current primary/secondary timeframe.
+
 ## Saving And Import/Export
 
 V4 has two persistence layers.
@@ -292,6 +424,8 @@ Review JSON includes:
 - PDA annotations
 - market segments
 - segmentGroups
+- reactionEvidence under pdaResponses
+- SMT records
 
 It does not include candle data.
 
@@ -302,9 +436,11 @@ It does not include candle data.
 3. Draw continuous 1H segments.
 4. Link relevant PDAs to segments.
 5. Review `Review Metrics` and `Terminal PDA Candidates`.
-6. Create Composite Moves for multi-leg structures.
-7. Use isolate mode to inspect local context.
-8. Export Review JSON for archiving.
+6. Add Reaction Evidence under PDA Responses when needed.
+7. Create Composite Moves for multi-leg structures.
+8. Use isolate mode or Structure Sets focus to inspect local context.
+9. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
+10. Export Review JSON for archiving.
 
 ## Notes And Common Pitfalls
 
@@ -314,3 +450,6 @@ It does not include candle data.
 - `child segment` means a formal child after Composite Move creation.
 - `target segment` is usually the prior leg being broken or referenced, and it does not have to be a child.
 - Wick CE is a PDA. It can be linked to a segment and can appear in terminal reaction review.
+- SMT is currently manual evidence. It does not scan candidates automatically.
+- Review JSON does not include candle data. Another machine still needs local DuckDB market data.
+- Precision-review features such as actor-timeframe auto-fetching, canvas selection, and statistics pages are still deferred.

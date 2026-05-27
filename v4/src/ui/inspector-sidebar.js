@@ -170,7 +170,10 @@ function closeSidebar() {
 }
 
 function refreshSelection() {
-  if (currentPanel === 'archive') return;
+  if (currentPanel === 'archive') {
+    renderArchivePanel();
+    return;
+  }
 
   const pdaSelection = getSelectedPda();
   if (pdaSelection) {

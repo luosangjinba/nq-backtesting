@@ -96,7 +96,7 @@ function findSecondaryFvg(timestamp, direction) {
 function createFvgRecord(bar, direction) {
   const fvg = findSecondaryFvg(bar.timestamp, direction);
   if (!fvg) {
-    throw new Error(`No ${direction} ES FVG found at selected time`);
+    throw new Error(`No ${direction} ES FVG found at the selected NQ time`);
   }
 
   return addSmtRecord({
@@ -183,7 +183,7 @@ export function startFvgSmt(direction) {
     direction,
   };
   bus.emit('status:update', {
-    text: `Select ES FVG bar time for ${direction} FVG SMT`,
+    text: `Select the NQ bar at the matching ES FVG time for ${direction} FVG SMT`,
     isError: false,
   });
 }

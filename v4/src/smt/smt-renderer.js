@@ -8,6 +8,7 @@ import * as secondaryStore from '../data/secondary-chart-store.js';
 import { RangePrimitive, SegmentPrimitive, VerticalLinePrimitive } from '../chart/primitives.js';
 import { getSmtRecords, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { timeframeToString } from '../config.js';
+import { getBucketStart } from '../pda/pda-context.js';
 
 let primaryPrimitives = [];
 let secondaryPrimitives = [];
@@ -50,21 +51,40 @@ function getLineColor(record) {
   return record.direction === SMT_DIRECTIONS.BULLISH ? '#26a69a' : '#ef5350';
 }
 
+function mapTimestampToChartTime(timestamp, timeframe, bars = []) {
+  if (timestamp === undefined || timestamp === null) return null;
+  const parsed = Number(timestamp);
+  if (!Number.isFinite(parsed)) return null;
+  if (timeframe === 1440) {
+    const exactBar = bars.find((bar) => Number(bar.timestamp) === parsed);
+    if (exactBar?.tradingDay) return exactBar.tradingDay;
+    const bucketStart = getBucketStart(parsed, timeframe);
+    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
+    return date.toISOString().slice(0, 10);
+  }
+  return getBucketStart(parsed, timeframe);
+}
+
 function renderPrimary() {
   clearPrimary();
   const chartInstance = chart.getChart();
   const series = chart.getSeries();
   if (!chartInstance || !series) return;
+  const timeframe = store.getCurrentTimeframe();
+  const bars = store.getDisplayBars();
 
   getSmtRecords().filter(shouldRenderOnPrimary).forEach((record) => {
     if (record.type === SMT_TYPES.LIQUIDITY) {
+      const leftTime = mapTimestampToChartTime(record.leftTimestamp, timeframe, bars);
+      const rightTime = mapTimestampToChartTime(record.rightTimestamp, timeframe, bars);
+      if (leftTime === null || rightTime === null) return;
       attachPrimary(
         new SegmentPrimitive(
           chartInstance,
           series,
-          record.leftTimestamp,
+          leftTime,
           record.primaryLeftPrice,
-          record.rightTimestamp,
+          rightTime,
           record.primaryRightPrice,
           'NQ no sweep',
           {
@@ -80,8 +100,10 @@ function renderPrimary() {
       return;
     }
 
+    const markerTime = mapTimestampToChartTime(record.timestamp, timeframe, bars);
+    if (markerTime === null) return;
     attachPrimary(
-      new VerticalLinePrimitive(chartInstance, record.timestamp, {
+      new VerticalLinePrimitive(chartInstance, markerTime, {
         color: 'rgba(255, 204, 128, 0.38)',
         lineWidth: 3,
       })
@@ -94,16 +116,21 @@ function renderSecondary() {
   const chartInstance = secondaryChart.getSecondaryChart();
   const series = secondaryChart.getSecondarySeries();
   if (!chartInstance || !series) return;
+  const timeframe = secondaryStore.getSecondaryTimeframe();
+  const bars = secondaryStore.getSecondaryDisplayBars();
 
   getSmtRecords().filter(shouldRenderOnSecondary).forEach((record) => {
     if (record.type === SMT_TYPES.LIQUIDITY) {
+      const leftTime = mapTimestampToChartTime(record.leftTimestamp, timeframe, bars);
+      const rightTime = mapTimestampToChartTime(record.rightTimestamp, timeframe, bars);
+      if (leftTime === null || rightTime === null) return;
       attachSecondary(
         new SegmentPrimitive(
           chartInstance,
           series,
-          record.leftTimestamp,
+          leftTime,
           record.compareLeftPrice,
-          record.rightTimestamp,
+          rightTime,
           record.compareRightPrice,
           'ES sweep',
           {
@@ -119,12 +146,15 @@ function renderSecondary() {
       return;
     }
 
+    const startTime = mapTimestampToChartTime(record.fvgStartTimestamp, timeframe, bars);
+    const endTime = mapTimestampToChartTime(record.fvgEndTimestamp, timeframe, bars);
+    if (startTime === null || endTime === null) return;
     attachSecondary(
       new RangePrimitive(
         chartInstance,
         series,
-        record.fvgStartTimestamp,
-        record.fvgEndTimestamp,
+        startTime,
+        endTime,
         record.fvgTop,
         record.fvgBottom,
         'ES FVG SMT',
