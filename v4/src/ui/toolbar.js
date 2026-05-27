@@ -1,7 +1,7 @@
 // 工具栏 UI — 时间输入、周期选择、加载按钮、状态文本
 
 import * as bus from '../event-bus.js';
-import { DEFAULT_TIMEFRAME, TIMEFRAME_MAP } from '../config.js';
+import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
@@ -17,9 +17,17 @@ function renderSecondaryTimeframeOptions(selectedTimeframe) {
     .join('\n        ');
 }
 
+function renderInstrumentOptions(selectedInstrument) {
+  return INSTRUMENT_OPTIONS.map(
+    (instrument) =>
+      `<option value="${instrument}"${instrument === selectedInstrument ? ' selected' : ''}>${instrument}</option>`
+  ).join('\n        ');
+}
+
 function renderSplitScreenControls() {
   const enabled = secondaryStore.isSecondaryEnabled();
   const timeframe = secondaryStore.getSecondaryTimeframe();
+  const instrument = secondaryStore.getSecondaryInstrument();
   const layout = secondaryStore.getSplitLayout();
   return `
     <div class="toolbar-separator"></div>
@@ -28,14 +36,20 @@ function renderSplitScreenControls() {
       <span>Split</span>
     </label>
     <div class="toolbar-group">
+      <span class="toolbar-label">Sub:</span>
+      <select id="secondaryInstrumentSelect" class="toolbar-select" title="Secondary chart instrument">
+        ${renderInstrumentOptions(instrument)}
+      </select>
+    </div>
+    <div class="toolbar-group">
       <span class="toolbar-label">Sub TF:</span>
-      <select id="secondaryTfSelect" class="toolbar-select" title="Secondary chart timeframe" ${enabled ? '' : 'disabled'}>
+      <select id="secondaryTfSelect" class="toolbar-select" title="Secondary chart timeframe">
         ${renderSecondaryTimeframeOptions(timeframe)}
       </select>
     </div>
     <div class="toolbar-group">
       <span class="toolbar-label">Layout:</span>
-      <select id="splitLayoutSelect" class="toolbar-select toolbar-layout-select" title="Split screen layout" ${enabled ? '' : 'disabled'}>
+      <select id="splitLayoutSelect" class="toolbar-select toolbar-layout-select" title="Split screen layout">
         <option value="stack"${layout === 'stack' ? ' selected' : ''}>Stack</option>
         <option value="side"${layout === 'side' ? ' selected' : ''}>Side</option>
       </select>
@@ -100,6 +114,7 @@ export function initToolbar() {
   const loadBtn = document.getElementById('loadBtn');
   const archiveBtn = document.getElementById('archiveBtn');
   const splitScreenToggle = document.getElementById('splitScreenToggle');
+  const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const splitLayoutSelect = document.getElementById('splitLayoutSelect');
   const displayModeSelect = document.getElementById('displayModeSelect');
@@ -146,6 +161,10 @@ export function initToolbar() {
     secondaryStore.setSecondaryEnabled(e.target.checked);
     syncSplitScreenLayout();
   });
+  secondaryInstrumentSelect.addEventListener('change', (e) => {
+    secondaryStore.setSecondaryInstrument(e.target.value);
+    syncSplitScreenLayout();
+  });
   secondaryTfSelect.addEventListener('change', (e) => {
     secondaryStore.setSecondaryTimeframe(e.target.value);
     syncSplitScreenLayout();
@@ -169,6 +188,7 @@ function syncSplitScreenLayout() {
   const enabled = secondaryStore.isSecondaryEnabled();
   const chartArea = document.getElementById('chart-area');
   const secondaryPanel = document.getElementById('secondary-chart-panel');
+  const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const splitLayoutSelect = document.getElementById('splitLayoutSelect');
   const layout = secondaryStore.getSplitLayout();
@@ -179,12 +199,13 @@ function syncSplitScreenLayout() {
   if (secondaryPanel) {
     secondaryPanel.hidden = !enabled;
   }
+  if (secondaryInstrumentSelect) {
+    secondaryInstrumentSelect.value = secondaryStore.getSecondaryInstrument();
+  }
   if (secondaryTfSelect) {
-    secondaryTfSelect.disabled = !enabled;
     secondaryTfSelect.value = String(secondaryStore.getSecondaryTimeframe());
   }
   if (splitLayoutSelect) {
-    splitLayoutSelect.disabled = !enabled;
     splitLayoutSelect.value = layout;
   }
 }

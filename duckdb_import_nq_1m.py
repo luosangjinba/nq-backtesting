@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize NQ 1-minute CSV and optionally import it into DuckDB."""
+"""Normalize 1-minute futures CSV and optionally import it into DuckDB."""
 
 from __future__ import annotations
 
@@ -40,6 +40,15 @@ create index if not exists idx_futures_1m_instrument_ts
   on futures_1m (instrument, ts);
 """.strip()
 
+FIELD_ALIASES = {
+    "datetime": ("datetime", "time", "timestamp", "date", "时间"),
+    "open": ("open", "开盘价"),
+    "high": ("high", "最高价"),
+    "low": ("low", "最低价"),
+    "close": ("close", "收盘价"),
+    "volume": ("volume", "vol", "成交量"),
+}
+
 
 @dataclass
 class NormalizedRow:
@@ -53,8 +62,8 @@ class NormalizedRow:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="流式标准化 NQ 1m CSV，并可直接导入 DuckDB。")
-    parser.add_argument("--input", required=True, help="输入 CSV 路径，例如 NQ_full_1min.csv")
+    parser = argparse.ArgumentParser(description="流式标准化 1m futures CSV，并可直接导入 DuckDB。")
+    parser.add_argument("--input", required=True, help="输入 CSV 路径，例如 NQ_full_1min.csv 或 ES.csv")
     parser.add_argument("--instrument", default="NQ", help="品种代码，默认 NQ")
     parser.add_argument("--encoding", default="utf-8", help="输入文件编码，默认 utf-8")
     parser.add_argument("--table", default="futures_1m", help="目标表名，默认 futures_1m")
@@ -77,6 +86,27 @@ def parse_datetime(value: str) -> datetime:
     raise ValueError(f"无法解析 datetime: {value!r}")
 
 
+def normalize_header(value: str | None) -> str:
+    return (value or "").strip().lstrip("\ufeff").lower()
+
+
+def resolve_fieldnames(fieldnames: Sequence[str | None]) -> dict[str, str]:
+    normalized = {normalize_header(name): name for name in fieldnames if name}
+    resolved: dict[str, str] = {}
+    for canonical, aliases in FIELD_ALIASES.items():
+        for alias in aliases:
+            matched = normalized.get(normalize_header(alias))
+            if matched:
+                resolved[canonical] = matched
+                break
+
+    required = ["datetime", "open", "high", "low", "close"]
+    missing = [name for name in required if name not in resolved]
+    if missing:
+        raise ValueError(f"CSV 缺少必要列: {missing}，实际列: {list(fieldnames)}")
+    return resolved
+
+
 def iter_normalized_rows(
     input_path: Path,
     instrument: str,
@@ -89,22 +119,19 @@ def iter_normalized_rows(
             raise ValueError("CSV 缺少表头。")
 
         reader.fieldnames = [name.lstrip("\ufeff") if name else name for name in reader.fieldnames]
-        required = ["datetime", "open", "high", "low", "close"]
-        missing = [name for name in required if name not in reader.fieldnames]
-        if missing:
-            raise ValueError(f"CSV 缺少必要列: {missing}，实际列: {reader.fieldnames}")
+        fields = resolve_fieldnames(reader.fieldnames)
 
         for row in reader:
             try:
-                ts = parse_datetime(row["datetime"]).strftime("%Y-%m-%d %H:%M:%S")
-                raw_volume = (row.get("volume") or "").strip()
+                ts = parse_datetime(row[fields["datetime"]]).strftime("%Y-%m-%d %H:%M:%S")
+                raw_volume = (row.get(fields.get("volume", "")) or "").strip()
                 yield NormalizedRow(
                     instrument=instrument,
                     ts=ts,
-                    open=float(row["open"]),
-                    high=float(row["high"]),
-                    low=float(row["low"]),
-                    close=float(row["close"]),
+                    open=float(row[fields["open"]]),
+                    high=float(row[fields["high"]]),
+                    low=float(row[fields["low"]]),
+                    close=float(row[fields["close"]]),
                     volume=int(float(raw_volume)) if raw_volume else None,
                 )
             except Exception as exc:
@@ -148,6 +175,11 @@ def import_to_duckdb_fast(
     create_table: bool,
     truncate: bool,
 ) -> int:
+    """Fast positional import.
+
+    This path accepts either English or Chinese headers as long as the CSV column
+    order is datetime/open/high/low/close/volume.
+    """
     conn = duckdb.connect(db_file)
     started_at = time.time()
     try:

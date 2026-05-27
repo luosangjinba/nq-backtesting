@@ -22,6 +22,7 @@ let lastReplayState = { enabled: false, cursorTimestamp: null };
 let lastSettings = {
   enabled: secondaryStore.isSecondaryEnabled(),
   timeframe: secondaryStore.getSecondaryTimeframe(),
+  instrument: secondaryStore.getSecondaryInstrument(),
 };
 
 function normalizeTimeKey(time) {
@@ -95,15 +96,16 @@ async function loadSecondaryForPrimaryRange() {
   }
 
   const timeframe = secondaryStore.getSecondaryTimeframe();
+  const instrument = secondaryStore.getSecondaryInstrument();
   const seq = (requestSeq += 1);
   secondaryStore.clearSecondaryBars();
 
   try {
-    const result = await fetchBars(start, end, timeframe);
+    const result = await fetchBars(start, end, timeframe, instrument);
     if (seq !== requestSeq || !secondaryStore.isSecondaryEnabled()) return;
     secondaryStore.setSecondaryBars(result.bars, start, end, timeframe, result.requestedRange);
     bus.emit('status:update', {
-      text: `副图已加载 ${result.bars.length} 根K线`,
+      text: `副图 ${instrument} 已加载 ${result.bars.length} 根K线`,
       isError: false,
     });
   } catch (err) {
@@ -116,13 +118,15 @@ async function loadSecondaryForPrimaryRange() {
   }
 }
 
-function handleSecondarySettingsChanged({ enabled, timeframe }) {
+function handleSecondarySettingsChanged({ enabled, timeframe, instrument }) {
   const nextSettings = {
     enabled: Boolean(enabled),
     timeframe: Number(timeframe ?? secondaryStore.getSecondaryTimeframe()),
+    instrument: instrument ?? secondaryStore.getSecondaryInstrument(),
   };
   const wasEnabled = lastSettings.enabled;
   const timeframeChanged = lastSettings.timeframe !== nextSettings.timeframe;
+  const instrumentChanged = lastSettings.instrument !== nextSettings.instrument;
   lastSettings = nextSettings;
 
   if (!nextSettings.enabled) {
@@ -134,7 +138,7 @@ function handleSecondarySettingsChanged({ enabled, timeframe }) {
     return;
   }
 
-  if (wasEnabled && !timeframeChanged) {
+  if (wasEnabled && !timeframeChanged && !instrumentChanged) {
     return;
   }
 

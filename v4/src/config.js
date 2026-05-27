@@ -71,7 +71,12 @@ export const INSTRUMENT_CONFIG = {
   NQ: {
     tickSize: 0.25,
   },
+  ES: {
+    tickSize: 0.25,
+  },
 };
+
+export const INSTRUMENT_OPTIONS = ['NQ', 'ES'];
 
 export const PDA_TYPES = [
   { id: 'bsl', name: 'BSL', category: 'point', color: '#26a69a', labelPosition: 'above' },

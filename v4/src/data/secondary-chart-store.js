@@ -1,10 +1,13 @@
 // State for the readonly split-screen secondary chart.
 
 import * as bus from '../event-bus.js';
+import { INSTRUMENT_OPTIONS } from '../config.js';
 
 const DEFAULT_SECONDARY_TIMEFRAME = 60;
+const DEFAULT_SECONDARY_INSTRUMENT = 'ES';
 const DEFAULT_SPLIT_LAYOUT = 'stack';
 const SPLIT_LAYOUTS = new Set(['stack', 'side']);
+const SUPPORTED_INSTRUMENTS = new Set(INSTRUMENT_OPTIONS);
 
 let enabled = false;
 let layout = DEFAULT_SPLIT_LAYOUT;
@@ -12,6 +15,7 @@ let bars = [];
 let currentStart = null;
 let currentEnd = null;
 let currentTimeframe = DEFAULT_SECONDARY_TIMEFRAME;
+let currentInstrument = DEFAULT_SECONDARY_INSTRUMENT;
 let requestedRange = null;
 
 function emitSettingsChanged() {
@@ -19,6 +23,7 @@ function emitSettingsChanged() {
     enabled,
     layout,
     timeframe: currentTimeframe,
+    instrument: currentInstrument,
   });
 }
 
@@ -56,6 +61,18 @@ export function getSecondaryTimeframe() {
   return currentTimeframe;
 }
 
+export function setSecondaryInstrument(instrument) {
+  const normalized = String(instrument || '').trim().toUpperCase();
+  if (!SUPPORTED_INSTRUMENTS.has(normalized)) return;
+  if (currentInstrument === normalized) return;
+  currentInstrument = normalized;
+  emitSettingsChanged();
+}
+
+export function getSecondaryInstrument() {
+  return currentInstrument;
+}
+
 export function setSecondaryBars(newBars, start, end, tf = currentTimeframe, range = null) {
   const parsedTimeframe = Number(tf);
   bars = Array.isArray(newBars) ? [...newBars] : [];
@@ -68,6 +85,7 @@ export function setSecondaryBars(newBars, start, end, tf = currentTimeframe, ran
     start,
     end,
     tf: currentTimeframe,
+    instrument: currentInstrument,
     requestedRange,
   });
 }
@@ -109,6 +127,7 @@ export function resetSecondaryChartState() {
   currentStart = null;
   currentEnd = null;
   currentTimeframe = DEFAULT_SECONDARY_TIMEFRAME;
+  currentInstrument = DEFAULT_SECONDARY_INSTRUMENT;
   requestedRange = null;
   bus.emit('secondary-chart:reset');
 }
