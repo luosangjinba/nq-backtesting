@@ -732,3 +732,65 @@ Both checks passed.
   - segment/composite/PDA overlay
   - Split close cleanup
   - primary workflow non-regression
+
+## Step 9: Verification Refresh
+
+## Date
+- 2026-05-26
+
+## Static Verification
+- Ran full JS syntax check: `find v4/src -name '*.js' -print0 | xargs -0 -n1 node --check`.
+- Result: passed.
+
+## Service Verification
+- `http://127.0.0.1:8766/v4/health` returned `{"status":"ok","version":"4.0"}`.
+- `http://127.0.0.1:8001/index.html` returned HTTP 200.
+- API count sanity check for `2012-01-25 09:00` to `2012-01-25 12:00`:
+  - `tf=60`: 41 bars.
+  - `tf=1`: 218 bars.
+
+## Browser Workflow Verification
+- Used headless Chrome DevTools Protocol against `http://127.0.0.1:8001/index.html`.
+- Initial render:
+  - Split off.
+  - secondary panel hidden.
+  - Sub TF and Layout controls disabled.
+  - primary chart rendered 7 canvases.
+  - secondary chart rendered 0 canvases.
+  - viewport controls only exposed `zoomOut / zoomIn / reset / scrollLeft / scrollRight`.
+- Primary load:
+  - loaded `2012-01-25 09:00` to `2012-01-25 12:00`.
+  - status: `已加载 41 根K线`.
+  - Replay toggle became enabled.
+  - secondary panel stayed hidden.
+- Split on:
+  - secondary panel visible.
+  - Sub TF and Layout controls enabled.
+  - default secondary timeframe `1H`.
+  - status: `副图已加载 41 根K线`.
+  - secondary chart rendered 7 canvases.
+- Layout switch:
+  - changed Stack to Side.
+  - chart area class changed to `split-screen-enabled split-screen-side`.
+  - status remained `副图已加载 41 根K线`, confirming layout-only change did not trigger a visible reload.
+- Sub TF reload:
+  - changed secondary timeframe to `1M`.
+  - strict wait confirmed status: `副图已加载 218 根K线`.
+  - secondary chart remained rendered.
+- Replay cursor path:
+  - clicked Replay toggle.
+  - replay state changed to `Replay Bar On`.
+  - Split stayed active.
+  - secondary chart remained rendered.
+- Split close cleanup:
+  - toggled Split off.
+  - secondary panel hidden.
+  - secondary canvases returned to `0`.
+  - primary canvases remained at `7`.
+
+## Coverage Notes
+- This pass verified the browser lifecycle paths that previously carried the highest regression risk: primary load, Split on/off, layout-only switching, Sub TF reload, replay coexistence, and cleanup.
+- Segment/composite/PDA secondary overlay modules were covered by the full JS syntax check in this pass and by the earlier renderer-specific checks in the follow-up steps. No object fixture was imported during this automated browser run.
+
+## Result
+- Step 9 verification passed for the automated coverage above.

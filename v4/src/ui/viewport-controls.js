@@ -10,7 +10,6 @@ const ACTIONS = {
   zoomIn: viewport.zoomIn,
   scrollLeft: viewport.scrollLeft,
   scrollRight: viewport.scrollRight,
-  latest: viewport.scrollToLatest,
   reset: viewport.resetChartView,
 };
 
@@ -25,7 +24,6 @@ function render() {
       <button class="viewport-btn viewport-reset" data-action="reset" title="Reset chart view (Alt + R)" ${disabled}>↺</button>
       <button class="viewport-btn" data-action="scrollLeft" title="Scroll left" ${disabled}>‹</button>
       <button class="viewport-btn" data-action="scrollRight" title="Scroll right" ${disabled}>›</button>
-      <button class="viewport-btn" data-action="latest" title="Scroll to latest" ${disabled}>⇥</button>
     </div>
   `;
 }

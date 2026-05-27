@@ -469,6 +469,43 @@ html, body {
   min-height: 20px;
 }
 
+.inspector-evidence-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inspector-evidence-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  background: #151922;
+}
+
+.inspector-evidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #f0f3fa;
+  font-size: 11px;
+}
+
+.inspector-metric-alert {
+  color: #ffcdd2;
+}
+
+.inspector-inline-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+}
+
 .inspector-mini-select {
   height: 24px;
   padding: 2px 4px;

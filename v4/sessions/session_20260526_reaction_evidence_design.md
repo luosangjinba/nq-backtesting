@@ -41,6 +41,8 @@ actor: {
 ```
 
 - The actor candle group is continuous.
+- `actor.timeframe` is the timeframe of the actor candle group and is strongly tied to `firstBarTimestamp`, `lastBarTimestamp`, and `terminalBarTimestamp`.
+- `actor.timeframe` is independent from the PDA/FVG source timeframe.
 - First implementation can use plain Inspector time inputs.
 - Later implementation can add chart pick actions for first/last/terminal.
 
@@ -113,10 +115,10 @@ bodyExceededFvg: true
 - Liquidity side:
   - BSL/EQH = `high`
   - SSL/EQL = `low`
-- Actor group move range:
+- Price base:
 
 ```text
-moveRangePoints = groupHighestWick - groupLowestWick
+priceBase = liquidity price
 ```
 
 ### High-Side Sweep
@@ -132,20 +134,20 @@ moveRangePoints = groupHighestWick - groupLowestWick
 - body sweep distance = liquidity price - body extreme
 
 ### Percent Metrics
-- Main metrics use the actor move as denominator:
+- Main metrics use the swept liquidity price as denominator, so the percentage can be compared across years and price regimes.
 
 ```js
 metrics: {
   liquiditySide,
-  moveRangePoints,
+  liquidityPrice,
   wickSwept,
   bodySwept,
-  wickSweepPercentOfMove,
-  bodySweepPercentOfMove
+  wickSweepPercentOfPrice,
+  bodySweepPercentOfPrice
 }
 ```
 
-- Do not use raw point sweep distance as a primary comparison metric.
+- Do not use raw point sweep distance or actor group move range as the primary comparison denominator.
 - Raw point values can be displayed for audit/debug, but not used as cross-era research metrics.
 
 ## Draft Schema
@@ -172,17 +174,17 @@ metrics: {
 ```
 
 ## Implementation Plan
-1. Add `v4/src/segment/reaction-evidence.js`.
-2. Implement evidence creation, normalization, timestamp parsing, actor group lookup, and metrics calculation.
+1. Add `v4/src/segment/reaction-evidence.js`. ✅ Done on `feature/v4-reaction-evidence-core`.
+2. Implement evidence creation, normalization, timestamp parsing, actor group lookup, and metrics calculation. ✅ Done on `feature/v4-reaction-evidence-core`.
 3. Add Inspector UI under each `PDA Responses` row:
    - Add FVG Respect Evidence for range PDA.
    - Add Liquidity Sweep Evidence for high/low liquidity PDA.
    - Edit first/last/terminal/entrySide/note.
    - Show calculated metrics.
-   - Delete evidence.
-4. Ensure localStorage naturally persists evidence.
-5. Update Review JSON import normalization to preserve evidence.
-6. Add body percent red styling when `bodyExceededFvg=true`.
+   - Delete evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
+4. Ensure localStorage naturally persists evidence. ✅ Verified on `feature/v4-reaction-evidence-core`.
+5. Update Review JSON import normalization to preserve evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
+6. Add body percent red styling when `bodyExceededFvg=true`. ✅ Done on `feature/v4-reaction-evidence-core`.
 
 ## Explicit Non-Goals For First Pass
 - No automatic respect detection.
@@ -190,8 +192,10 @@ metrics: {
 - No automatic actor candle group selection.
 - No canvas box select.
 - No canvas note overlay.
-- No final verdict field.
 - No statistics page.
+
+## Undecided Items
+- Final verdict field: not part of the current plan. Whether to add a later manual classification field such as `valid-respect`, `failed-respect`, `wick-only-sweep`, or `delivered-through` remains undecided.
 
 ## Validation Samples
 - FVG:
@@ -205,4 +209,105 @@ metrics: {
   - wick + body sweep,
   - high-side BSL/EQH,
   - low-side SSL/EQL,
-  - invalid or zero move range.
+- invalid or zero move range.
+
+## Plan 1 Implementation Notes
+- Branch: `feature/v4-reaction-evidence-core`
+- Added `v4/src/segment/reaction-evidence.js`.
+- Current module exports:
+  - `EVIDENCE_TYPES`
+  - `FVG_ENTRY_SIDES`
+  - `LIQUIDITY_SIDES`
+  - `parseEvidenceTimestamp()`
+  - `getActorBars()`
+  - `getActorGroupStats()`
+  - `inferLiquiditySide()`
+  - `createReactionEvidence()`
+  - `normalizeReactionEvidence()`
+  - `computeFvgRespectMetrics()`
+  - `computeLiquiditySweepMetrics()`
+  - `computeReactionEvidenceMetrics()`
+  - `buildDefaultActorFromSegment()`
+- FVG respect metrics:
+  - use FVG height as denominator,
+  - compute wick/body extremes from the actor group,
+  - preserve true percent values without clamping,
+  - set `bodyExceededFvg` when body percent exceeds `100`.
+- Liquidity sweep metrics:
+  - infer BSL/EQH as high-side and SSL/EQL as low-side,
+  - use swept liquidity price as denominator,
+  - compute `wickSwept/bodySwept` plus wick/body sweep percent of price.
+- Verified with `node --check v4/src/segment/reaction-evidence.js` and a small module-level sample calculation.
+
+## Plan 2 Implementation Notes
+- Plan 2 was mostly covered by the first core-module commit; this pass added the missing helpers that later UI/import code will need:
+  - `normalizeReactionEvidenceList(evidenceList)`
+  - `computeReactionEvidenceWithMetrics(evidence, annotation, bars)`
+- `normalizeReactionEvidenceList()` gives Review JSON import and segment response normalization a single path for preserving evidence arrays.
+- `computeReactionEvidenceWithMetrics()` returns a normalized evidence object with freshly computed metrics attached, so Inspector rendering can remain thin.
+
+## Plan 3 Implementation Notes
+- Segment Inspector now renders a `Reaction Evidence` area under each linked PDA response.
+- Range PDA responses show `Add FVG Respect Evidence`.
+- High/low liquidity PDA responses show `Add Liquidity Sweep Evidence`.
+- Evidence rows support:
+  - delete,
+  - first bar timestamp,
+  - last bar timestamp,
+  - terminal bar timestamp,
+  - note,
+  - FVG `entrySide` when evidence type is `fvg-respect`.
+- Metrics are recomputed from current loaded bars during Inspector render using `computeReactionEvidenceWithMetrics()`.
+- FVG metrics display:
+  - actor bars,
+  - FVG range,
+  - wick entry percent,
+  - body entry percent,
+  - body exceeded flag.
+- Liquidity metrics display:
+  - actor bars,
+  - side,
+  - price base,
+  - wick/body swept flags,
+  - wick/body sweep percent of price.
+- `bodyEntryPercentOfFvg > 100` is displayed with `inspector-metric-alert` styling.
+- First pass uses text timestamp inputs; no chart pick flow yet.
+
+## Plan 4 Implementation Notes
+- No storage schema change is required for first-pass localStorage persistence.
+- `segment-persistence.js` saves full persistable segment objects into `v4:market-segments:NQ`, so `pdaResponses[].reactionEvidence[]` is included naturally.
+- Restore calls `loadSegments()` with the saved segment objects, preserving evidence arrays as-is.
+- `updatePdaResponse()` merges patches onto the existing response, and `linkPdaResponse()` preserves existing response fields when re-linking the same PDA, so evidence is not dropped by normal Inspector edits.
+- `resetSegmentDisplay()` spreads each response before changing display fields, so display reset keeps evidence.
+
+## Plan 5 Implementation Notes
+- `review-archive.js` now imports `normalizeReactionEvidenceList()`.
+- During Review JSON import, each imported `pdaResponses[]` item normalizes its `reactionEvidence[]` list instead of dropping it while rebuilding the response object.
+- Imported evidence is rebound to the remapped response `pdaId`, so id collisions or duplicate PDA merges do not leave stale evidence PDA references.
+- Existing Review JSON files without evidence keep the same shape; no empty `reactionEvidence` array is added.
+
+## Plan 6 Implementation Notes
+- FVG respect metrics set `bodyExceededFvg=true` when `bodyEntryPercentOfFvg` is greater than `100`.
+- Segment Inspector uses `inspector-metric-alert` when `bodyExceededFvg=true`.
+- Both `Body Entry` and `Body Exceeded` are highlighted, making the out-of-range body condition visible without changing the recorded percentage.
+
+## Actor Timeframe UI Notes
+- Segment Inspector now displays an editable `Actor TF` field for each reaction evidence row.
+- The timestamp fields are labeled `Actor First`, `Actor Last`, and `Actor Terminal` to make clear that they belong to the actor candle group.
+- Metrics are computed only when `Actor TF` matches the currently loaded chart timeframe; otherwise the Inspector shows a mismatch message instead of calculating from the wrong bars.
+- Imported or older numeric actor timeframe values are normalized to display labels such as `1H`.
+
+## Actor Selection Efficiency Plan
+These are efficiency tools for choosing the manually confirmed actor candle group. They do not add automatic respect/sweep judgement.
+
+1. Chart pick for `Actor First`, `Actor Last`, and `Actor Terminal`.
+   - Status: done.
+   - Inspector timestamp rows now include `Pick` buttons.
+   - Pick uses the currently loaded chart timeframe; if it does not match `Actor TF`, the system refuses to pick from the wrong chart.
+   - Hover shows the existing vertical pick preview cursor, click writes the selected bar timestamp, and Escape cancels.
+2. Actor TF automatic data fetch for metrics.
+   - Status: not started.
+   - Goal: if `Actor TF` differs from the current chart timeframe, fetch/cache bars for the actor timeframe and calculate metrics without forcing a chart timeframe switch.
+3. Canvas range selection for actor candle group.
+   - Status: not started.
+   - Goal: drag/select a continuous candle group and fill `Actor First` / `Actor Last`; `Actor Terminal` may stay manually picked or default to a nearby endpoint.
