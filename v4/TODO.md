@@ -225,6 +225,7 @@
 - 2026-05-26: Reaction Evidence Plan 6 完成：FVG respect 的 `bodyExceededFvg=true` 时，Segment Inspector 同时高亮 `Body Entry` 百分比与 `Body Exceeded` 状态；数值仍保持真实计算结果，不做 clamp
 - 2026-05-27: Reaction Evidence actor 周期 UI 完成：每条 evidence 显示并可编辑 `Actor TF`；`First/Last/Terminal Bar` 改名为 `Actor First/Actor Last/Actor Terminal`，明确这些时间属于 actor K 线群而非 PDA/FVG 周期；metrics 只有在 `Actor TF` 与当前加载图表周期一致时才计算，不一致时显示提示，避免按错误周期 bars 误算
 - 2026-05-27: Reaction Evidence actor 选择效率组件计划确认：这类功能只提升 K 线群选择/取数效率，不做自动 respect/sweep 判断、不做 verdict；执行顺序为 1) Actor First/Last/Terminal chart pick，2) Actor TF 不等于当前图表周期时自动拉取 actor TF bars 计算 metrics，3) canvas 框选连续 K 线群。Step 1 已完成：每个 actor 时间字段有 `Pick` 按钮，hover 显示竖线预览，点击图表写入当前图表 K 线 timestamp，Escape 取消；若 `Actor TF` 与当前图表周期不一致则拒绝 pick，避免误选错误周期 K 线
+- 2026-05-27: Reaction Evidence workflow 已合并回 `main`：merge commit `d660b2a merge(v4): reaction evidence workflow`；合并后全量 `v4/src/**/*.js` 语法检查与 `git diff --check HEAD^ HEAD` 通过；后续只保留 actor TF 自动取数、canvas 框选 actor K 线群、verdict 未定、统计页 deferred 等非当前计划项
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response

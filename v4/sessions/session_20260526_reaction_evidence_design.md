@@ -311,3 +311,17 @@ These are efficiency tools for choosing the manually confirmed actor candle grou
 3. Canvas range selection for actor candle group.
    - Status: not started.
    - Goal: drag/select a continuous candle group and fill `Actor First` / `Actor Last`; `Actor Terminal` may stay manually picked or default to a nearby endpoint.
+
+## Merge / Handoff Notes
+- 2026-05-27: `feature/v4-reaction-evidence-core` was merged into `main`.
+- Merge commit: `d660b2a merge(v4): reaction evidence workflow`.
+- Latest feature commit before merge: `4fe0f53 feat(v4): add actor bar pick for reaction evidence`.
+- Post-merge verification:
+  - full `find v4/src -name '*.js' -print0 | xargs -0 -n1 node --check` passed,
+  - `git diff --check HEAD^ HEAD` passed.
+- Current branch after merge: `main`.
+- Remaining related follow-ups:
+  - actor TF automatic data fetch for metrics when `Actor TF` differs from the current chart timeframe,
+  - canvas range selection for actor candle groups,
+  - final verdict field remains undecided and is not part of the current implementation plan,
+  - statistics page remains deferred.
