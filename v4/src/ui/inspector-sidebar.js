@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as viewport from '../chart/viewport-controller.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
 import { clearSelection as clearPdaSelection, getSelectedPda } from '../pda/pda-selection.js';
@@ -43,6 +44,8 @@ import {
 } from './inspector/pda-panel.js';
 import { parseTags, renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
+import { renderSmtPanel } from './inspector/smt-panel.js';
+import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
   EVIDENCE_TYPES,
   buildDefaultActorFromSegment,
@@ -118,6 +121,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
+    ${renderSmtPanel(getSmtRecords())}
     ${renderDrawingSetList()}
     ${renderArchiveActions()}
   `;
@@ -125,7 +129,10 @@ function renderEmpty() {
 
 function renderArchivePanel() {
   currentPanel = 'archive';
-  bodyEl.innerHTML = renderArchiveActions();
+  bodyEl.innerHTML = `
+    ${renderSmtPanel(getSmtRecords())}
+    ${renderArchiveActions()}
+  `;
 }
 
 function renderDrawingSetList() {
@@ -362,6 +369,11 @@ function handleInspectorChange(e) {
   if (action === 'import-review-file') {
     importReviewArchive(e.target.files?.[0]);
     e.target.value = '';
+    return;
+  }
+
+  if (action === 'smt-note') {
+    updateSmtRecord(e.target.dataset.smtId, { note: e.target.value });
     return;
   }
 
@@ -616,6 +628,23 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'smt-locate') {
+    const record = getSmtRecordById(e.target.dataset.smtId);
+    if (record) {
+      viewport.locateTimestampRange(
+        record.leftTimestamp ?? record.fvgStartTimestamp ?? record.timestamp,
+        record.rightTimestamp ?? record.fvgEndTimestamp ?? record.timestamp
+      );
+    }
+    return;
+  }
+
+  if (action === 'smt-delete') {
+    deleteSmtRecord(e.target.dataset.smtId);
+    if (currentPanel === 'archive') renderArchivePanel();
+    return;
+  }
+
   if (action === 'drawing-set-locate') {
     locateDrawingSet(e.target.dataset.setType, e.target.dataset.setId);
     return;
@@ -774,6 +803,7 @@ export function initInspectorSidebar() {
   bus.on('segment:changed', refreshSelection);
   bus.on('segment-group:changed', refreshSelection);
   bus.on('drawing-set-focus:changed', refreshSelection);
+  bus.on('smt:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();

@@ -2,7 +2,9 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
+import * as secondaryStore from '../data/secondary-chart-store.js';
 import { timeframeToString } from '../config.js';
 import { buildCePrice } from '../price-utils.js';
 import { addAnnotation, clearAnnotations, getAnnotationById } from './pda-store.js';
@@ -42,6 +44,7 @@ import {
   startPointSet,
 } from './point-set-annotation.js';
 import { getSelectedPda } from './pda-selection.js';
+import { startFvgSmt, startLiquiditySmt } from '../smt/manual-smt.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -507,6 +510,27 @@ function getSegmentGroupItems(segmentHit) {
   `;
 }
 
+function locateSecondaryAtBar(bar) {
+  if (!bar) return;
+  if (!secondaryStore.isSecondaryEnabled() || !secondaryStore.getSecondaryDisplayBars().length) {
+    bus.emit('status:update', { text: '副图未开启或没有已加载 K 线', isError: true });
+    return;
+  }
+
+  const secondaryBar = secondaryChart.locateSecondaryTimestamp(
+    bar.timestamp,
+    secondaryStore.getSecondaryDisplayBars()
+  );
+  if (!secondaryBar) {
+    bus.emit('status:update', { text: '副图定位失败：未找到对应时间', isError: true });
+    return;
+  }
+  secondaryChart.showSecondaryHoverCursor(
+    secondaryStore.getSecondaryTimeframe() === 1440 ? secondaryBar.tradingDay : secondaryBar.timestamp
+  );
+  bus.emit('status:update', { text: `副图已定位到 ${bar.tradingDay || bar.time}`, isError: false });
+}
+
 function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
   if (!controlsEl) return;
   contextMenuBar = bar;
@@ -564,11 +588,17 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
       <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
       <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
+      <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Locate Time in Secondary</button>
       <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
       <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
       <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
       <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
       <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${disabled}>Start Bearish Liquidity SMT</button>
+      <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${disabled}>Start Bullish Liquidity SMT</button>
+      <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${disabled}>Mark Bearish FVG SMT</button>
+      <button class="pda-menu-item" data-pda-action="smt-fvg-bullish" ${disabled}>Mark Bullish FVG SMT</button>
       <div class="pda-menu-divider"></div>
       ${segmentPdaLinkItems}
       ${segmentGroupItems}
@@ -633,12 +663,21 @@ function handleControlClick(e) {
     addManualFvg(contextMenuBar);
   } else if (action === 'ifvg') {
     addManualFvg(contextMenuBar, 'ifvg');
+  } else if (action === 'secondary-locate-time') {
+    locateSecondaryAtBar(contextMenuBar);
+    hideContextMenu();
   } else if (action === 'ob-bullish' || action === 'ob-bearish') {
     startManualRange('ob', action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
   } else if (action === 'breaker-bullish' || action === 'breaker-bearish') {
     startManualRange('breaker', action === 'breaker-bullish' ? 'bullish' : 'bearish', contextMenuBar);
   } else if (action === 'fib-start') {
     startManualFib(contextMenuBar);
+  } else if (action === 'smt-liquidity-bearish' || action === 'smt-liquidity-bullish') {
+    startLiquiditySmt(action === 'smt-liquidity-bullish' ? 'bullish' : 'bearish', contextMenuBar);
+    hideContextMenu();
+  } else if (action === 'smt-fvg-bearish' || action === 'smt-fvg-bullish') {
+    startFvgSmt(action === 'smt-fvg-bullish' ? 'bullish' : 'bearish');
+    hideContextMenu();
   } else if (action === 'eqh-start' || action === 'eql-start') {
     startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime);
     hideContextMenu();

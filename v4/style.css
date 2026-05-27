@@ -511,6 +511,10 @@ html, body {
   background: #151922;
 }
 
+.smt-record-row {
+  border-color: rgba(255, 183, 77, 0.32);
+}
+
 .inspector-evidence-header {
   display: flex;
   align-items: center;

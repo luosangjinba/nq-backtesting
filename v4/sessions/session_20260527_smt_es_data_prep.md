@@ -124,3 +124,164 @@ Constraints to preserve:
 - Keep secondary chart readonly for now; do not add independent PDA/segment editing to ES.
 - Do not implement automatic SMT verdict or full-market auto scan yet.
 - Keep SMT as cross-instrument review evidence, separate from PDA/segment stores, with optional links to segment/PDA later.
+
+## Updated SMT Manual Annotation Plan
+
+User clarified the final first-version SMT requirements:
+
+- Only support `NQ follows ES`; do not implement `ES follows NQ`.
+- SMT marking is manual only.
+- All SMT annotation actions must happen on the chart.
+- Inspector/right panel is for display, note editing, locating, and deletion only.
+- First version FVG SMT is single-timeframe only; no cross-timeframe projection.
+
+### Liquidity SMT Semantics
+
+Bearish:
+
+- NQ has two highs; the right high does not sweep the left high.
+- ES has the same-time two highs; the right high sweeps the left high.
+- NQ follows ES into a downside reversal.
+
+Bullish:
+
+- NQ has two lows; the right low does not sweep the left low.
+- ES has the same-time two lows; the right low sweeps the left low.
+- NQ follows ES into an upside reversal.
+
+Important implementation constraint:
+
+- `NQ left time === ES left time`.
+- `NQ right time === ES right time`.
+- Therefore the user only needs to select left K and right K on the chart.
+- Bearish liquidity SMT uses high prices.
+- Bullish liquidity SMT uses low prices.
+- Save the annotation timeframe because low-timeframe SMT may not be visible on high timeframe.
+
+Liquidity display:
+
+- Draw a two-point line on NQ.
+- Draw a two-point line on ES.
+- Only show the line when current chart timeframe equals the SMT record timeframe.
+
+### FVG SMT Semantics
+
+- ES respects an FVG and moves up/down.
+- At the same time, NQ has no corresponding FVG but follows ES up/down.
+- FVG SMT only needs timeframe + timestamp because `ES + timeframe + timestamp` identifies the ES FVG.
+- ES chart displays the FVG normally.
+- NQ chart only marks the corresponding K line.
+- First version shows FVG SMT only on the original timeframe; no high-to-low projection and no low-to-high aggregation.
+
+### Planned Data Model
+
+Common fields:
+
+- `id`
+- `type: liquidity | fvg`
+- `direction: bullish | bearish`
+- `timeframe`
+- `primaryInstrument: NQ`
+- `compareInstrument: ES`
+- `source: manual`
+- `note`
+- `createdAt / updatedAt`
+
+Liquidity fields:
+
+- `leftTimestamp`
+- `rightTimestamp`
+- `primaryLeftPrice / primaryRightPrice`
+- `compareLeftPrice / compareRightPrice`
+- `primarySwept: false`
+- `compareSwept: true`
+
+FVG fields:
+
+- `timestamp`
+- `fvgStartTimestamp / fvgEndTimestamp`
+- `fvgTop / fvgBottom`
+- `primaryHasFvg: false`
+- `reactionMove: up | down`
+
+### Planned Implementation Order
+
+1. Add `v4/src/smt/smt-store.js` with normalize, identity, add/update/delete/load APIs.
+2. Add `v4/src/smt/smt-renderer.js`; first verify rendering from manually constructed records.
+3. Add `v4/src/smt/manual-smt.js` for Liquidity SMT two-click chart workflow.
+4. Add Inspector SMT list only: summary, note, locate, delete.
+5. Add `v4/src/smt/smt-persistence.js` localStorage.
+6. Extend Review JSON with `smtEvidence[]`.
+7. Add FVG SMT chart workflow and ES FVG identification.
+8. Validate with browser workflow:
+   - Liquidity bearish and bullish create lines on NQ/ES.
+   - FVG SMT displays ES FVG and NQ marker.
+   - Non-original timeframe hides SMT.
+   - localStorage restores.
+   - Review JSON import/export preserves SMT.
+
+## Current Handoff Update
+
+As of 2026-05-27 after the SMT planning update:
+
+- No SMT annotation code is currently present; the previous form-based SMT implementation was intentionally reverted.
+- Current branch remains `feature/smt-es-split-prep`.
+- Current HEAD remains `1df1d61 docs(v4): add SMT handoff notes`.
+- The only tracked working-tree changes are documentation updates:
+  - `v4/TODO.md`
+  - `v4/sessions/session_20260527_smt_es_data_prep.md`
+- Expected local untracked files remain:
+  - `ES.csv`
+  - `trading_data.duckdb`
+  - `__pycache__/`
+  - `tmp/`
+  - `v3/plans/`
+
+Next coding step:
+
+1. Implement `smt-store` from the updated data model.
+2. Implement renderer against manually constructed test records before adding chart interaction.
+3. Implement Liquidity SMT chart-based two-click workflow first.
+4. Add Inspector list only after chart-based creation works.
+
+## SMT Annotation UI Branch
+
+Created branch:
+
+- `feature/smt-annotation-ui`
+
+Implemented first UI slice:
+
+- Added `v4/src/smt/smt-store.js`.
+  - Supports manual `liquidity` and `fvg` SMT records.
+  - Fixed instrument pair is `NQ follows ES`.
+  - Records carry `timeframe`.
+- Added `v4/src/smt/smt-renderer.js`.
+  - Liquidity SMT draws two-point lines on both NQ and ES.
+  - FVG SMT draws ES FVG range and an NQ vertical marker.
+  - Records render only when the current chart timeframe matches `record.timeframe`.
+- Added `v4/src/smt/manual-smt.js`.
+  - Right-click menu starts SMT workflows.
+  - Liquidity: right-click left K, then left-click right K.
+  - FVG: right-click menu action, then left-click the time that should identify the ES FVG.
+  - Requires Split on, Sub=ES, and primary/sub timeframes to match.
+  - Liquidity validation enforces NQ no-sweep and ES sweep before creating a record.
+- Added `v4/src/ui/inspector/smt-panel.js`.
+  - Inspector shows SMT Evidence list.
+  - Supports note editing, Locate, and Delete.
+  - No form-based creation.
+- Wired SMT modules through `app.js` and PDA context menu actions.
+
+Validation performed:
+
+- `find v4/src -name '*.js' -exec node --check {} \;`: passed.
+- `git diff --check`: passed.
+- Node smoke test created one liquidity and one FVG SMT record through `smt-store`.
+- Headless Chrome initialization against `http://127.0.0.1:8013/v4/index.html`: passed; Inspector renders SMT Evidence list prompt.
+
+Still pending:
+
+- Full browser interaction test with real NQ/ES loaded bars.
+- localStorage persistence for SMT.
+- Review JSON `smtEvidence[]`.
+- Better FVG SMT marker rendering on NQ, if a vertical marker is too visually broad.

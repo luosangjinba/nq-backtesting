@@ -24,6 +24,8 @@ import { initSegmentRenderer } from './segment/segment-renderer.js';
 import { initSecondarySegmentRenderer } from './segment/secondary-segment-renderer.js';
 import { initSegmentSelection } from './segment/segment-selection.js';
 import { initSegmentGroups } from './segment/segment-group-store.js';
+import { initManualSmt } from './smt/manual-smt.js';
+import { initSmtRenderer } from './smt/smt-renderer.js';
 
 console.log('[V4] app.js loaded');
 
@@ -89,3 +91,7 @@ initSegmentPersistence();
 initManualSegment();
 initSegmentSelection();
 console.log('[V4] Segment controls initialized');
+
+initSmtRenderer();
+initManualSmt();
+console.log('[V4] SMT controls initialized');

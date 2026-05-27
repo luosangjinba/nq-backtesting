@@ -178,6 +178,33 @@ export function showSecondaryEndOfData(dataCount = activeDataCount) {
   });
 }
 
+export function locateSecondaryTimestamp(timestamp, displayBars = []) {
+  if (!secondaryChart || !Number.isFinite(Number(timestamp)) || !Array.isArray(displayBars) || !displayBars.length) {
+    return false;
+  }
+
+  let bestIndex = -1;
+  let bestDistance = Infinity;
+  displayBars.forEach((bar, index) => {
+    const barTimestamp = Number(bar?.timestamp);
+    if (!Number.isFinite(barTimestamp)) return;
+    const distance = Math.abs(barTimestamp - Number(timestamp));
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestIndex = index;
+    }
+  });
+  if (bestIndex < 0) return null;
+
+  const range = secondaryChart.timeScale().getVisibleLogicalRange();
+  const width = range && Number.isFinite(range.to - range.from) ? range.to - range.from : 60;
+  secondaryChart.timeScale().setVisibleLogicalRange({
+    from: bestIndex - width / 2,
+    to: bestIndex + width / 2,
+  });
+  return displayBars[bestIndex] || null;
+}
+
 export function showSecondaryCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
 
