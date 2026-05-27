@@ -560,11 +560,22 @@ html, body {
   position: absolute;
   width: 220px;
   padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(19, 23, 34, 0.96);
   border: 1px solid rgba(54, 58, 69, 0.9);
   border-radius: 6px;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
   pointer-events: auto;
+}
+
+.pda-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pda-menu::-webkit-scrollbar-thumb {
+  background: #363a45;
+  border-radius: 8px;
 }
 
 .pda-menu-title {
@@ -576,10 +587,50 @@ html, body {
   white-space: nowrap;
 }
 
+.pda-menu-section {
+  border-top: 1px solid #2a2e39;
+  padding: 2px 0;
+}
+
+.pda-menu-section:first-of-type {
+  border-top: none;
+}
+
+.pda-menu-section summary {
+  height: 26px;
+  padding: 0 8px;
+  color: #b2b5be;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 26px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.pda-menu-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.pda-menu-section summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 14px;
+  color: #787b86;
+}
+
+.pda-menu-section[open] summary::before {
+  content: '▾';
+}
+
+.pda-menu-section summary:hover {
+  background: #1e222d;
+}
+
 .pda-menu-item {
   width: 100%;
   height: 28px;
-  padding: 0 8px;
+  padding: 0 8px 0 22px;
   overflow: hidden;
   border: none;
   background: transparent;

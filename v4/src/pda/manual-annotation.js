@@ -450,11 +450,20 @@ function addManualFib(endBar) {
 
 function clampMenuPosition(x, y) {
   const rect = controlsEl.parentElement.getBoundingClientRect();
-  const menuWidth = 170;
-  const menuHeight = 520;
+  const menuWidth = 220;
+  const margin = 4;
+  const availableHeight = Math.max(160, rect.height - margin * 2);
+  const estimatedMenuHeight = 760;
+  const maxHeight = Math.min(estimatedMenuHeight, availableHeight);
+  const clampedX = Math.min(Math.max(margin, x), Math.max(margin, rect.width - menuWidth - margin));
+  let clampedY = y;
+  if (y + maxHeight + margin > rect.height) {
+    clampedY = Math.max(margin, rect.height - maxHeight - margin);
+  }
   return {
-    x: Math.min(Math.max(4, x), rect.width - menuWidth - 4),
-    y: Math.min(Math.max(4, y), rect.height - menuHeight - 4),
+    maxHeight,
+    x: clampedX,
+    y: Math.max(margin, clampedY),
   };
 }
 
@@ -470,13 +479,14 @@ function getSegmentPdaLinkItems(pdaHit) {
   const annotation = getAnnotationById(pdaHit.id);
   const pdaLabel = getPdaLabel(annotation);
   return `
-    <div class="pda-menu-title">Link ${pdaLabel} to selected segment</div>
-    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="respected">Respected</button>
-    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="swept">Swept</button>
-    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="approached">Approached</button>
-    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="rejected">Rejected</button>
-    <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="delivered-through">Delivered Through</button>
-    <div class="pda-menu-divider"></div>
+    <details class="pda-menu-section" open>
+      <summary>Link ${pdaLabel}</summary>
+      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="respected">Respected</button>
+      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="swept">Swept</button>
+      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="approached">Approached</button>
+      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="rejected">Rejected</button>
+      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="delivered-through">Delivered Through</button>
+    </details>
   `;
 }
 
@@ -497,16 +507,17 @@ function getSegmentGroupItems(segmentHit) {
   const isTarget = targetId === segment.id;
   const createDisabled = draftIds.length >= 2 ? '' : 'disabled';
   return `
-    <div class="pda-menu-title">Composite Move · ${getSegmentLabel(segment)}</div>
-    <button class="pda-menu-item" data-pda-action="${inDraft ? 'segment-group-remove' : 'segment-group-add'}">
-      ${inDraft ? 'Remove Segment From Draft' : 'Add Segment To Draft'}
-    </button>
-    <button class="pda-menu-item" data-pda-action="segment-group-set-target">
-      ${isTarget ? 'Target Segment Selected' : 'Set Segment As Target'}
-    </button>
-    <button class="pda-menu-item" data-pda-action="segment-group-create" ${createDisabled}>Create Composite Move (${draftIds.length})</button>
-    <button class="pda-menu-item" data-pda-action="segment-group-clear">Clear Composite Draft</button>
-    <div class="pda-menu-divider"></div>
+    <details class="pda-menu-section">
+      <summary>Composite · ${getSegmentLabel(segment)}</summary>
+      <button class="pda-menu-item" data-pda-action="${inDraft ? 'segment-group-remove' : 'segment-group-add'}">
+        ${inDraft ? 'Remove Segment From Draft' : 'Add Segment To Draft'}
+      </button>
+      <button class="pda-menu-item" data-pda-action="segment-group-set-target">
+        ${isTarget ? 'Target Segment Selected' : 'Set Segment As Target'}
+      </button>
+      <button class="pda-menu-item" data-pda-action="segment-group-create" ${createDisabled}>Create Composite Move (${draftIds.length})</button>
+      <button class="pda-menu-item" data-pda-action="segment-group-clear">Clear Composite Draft</button>
+    </details>
   `;
 }
 
@@ -536,7 +547,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
   contextMenuBar = bar;
   contextMenuPdaHit = pdaHit;
   contextMenuSegmentHit = segmentHit;
-  const { x: left, y: top } = clampMenuPosition(x, y);
+  const { x: left, y: top, maxHeight } = clampMenuPosition(x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
   const activeSet = getPointSetSelectionSummary();
@@ -552,62 +563,77 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
       : '';
   const pointSetItems = activeSet
     ? `
-      <div class="pda-menu-title">${activeSet.label} set · ${activeSet.count} point${activeSet.count === 1 ? '' : 's'}</div>
-      <button class="pda-menu-item" data-pda-action="pointset-add" ${disabled}>Add ${activeSet.label} Point</button>
-      <button class="pda-menu-item" data-pda-action="pointset-finish">Finish ${activeSet.label}</button>
-      <button class="pda-menu-item" data-pda-action="pointset-cancel">Cancel Set</button>
-      <div class="pda-menu-divider"></div>
+      <details class="pda-menu-section" open>
+        <summary>${activeSet.label} set · ${activeSet.count} point${activeSet.count === 1 ? '' : 's'}</summary>
+        <button class="pda-menu-item" data-pda-action="pointset-add" ${disabled}>Add ${activeSet.label} Point</button>
+        <button class="pda-menu-item" data-pda-action="pointset-finish">Finish ${activeSet.label}</button>
+        <button class="pda-menu-item" data-pda-action="pointset-cancel">Cancel Set</button>
+      </details>
     `
     : `
-      ${selectedSetItem}
-      <button class="pda-menu-item" data-pda-action="eqh-start" ${disabled}>Start EQH Set</button>
-      <button class="pda-menu-item" data-pda-action="eql-start" ${disabled}>Start EQL Set</button>
-      <div class="pda-menu-divider"></div>
+      <details class="pda-menu-section">
+        <summary>Point Sets</summary>
+        ${selectedSetItem}
+        <button class="pda-menu-item" data-pda-action="eqh-start" ${disabled}>Start EQH Set</button>
+        <button class="pda-menu-item" data-pda-action="eql-start" ${disabled}>Start EQL Set</button>
+      </details>
     `;
   const segmentItems = activeSegment
     ? `
-      <div class="pda-menu-title">${activeSegment.label} · from ${activeSegment.startTime} ${activeSegment.startKindLabel}</div>
-      <button class="pda-menu-item" data-pda-action="segment-finish-high" ${disabled}>End 1H Segment at High</button>
-      <button class="pda-menu-item" data-pda-action="segment-finish-low" ${disabled}>End 1H Segment at Low</button>
-      <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel 1H Segment</button>
-      <div class="pda-menu-divider"></div>
+      <details class="pda-menu-section" open>
+        <summary>${activeSegment.label}</summary>
+        <button class="pda-menu-item" data-pda-action="segment-finish-high" ${disabled}>End 1H Segment at High</button>
+        <button class="pda-menu-item" data-pda-action="segment-finish-low" ${disabled}>End 1H Segment at Low</button>
+        <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel 1H Segment</button>
+      </details>
     `
     : `
-      <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start 1H Segment from Low</button>
-      <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start 1H Segment from High</button>
-      <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
-      <div class="pda-menu-divider"></div>
+      <details class="pda-menu-section">
+        <summary>1H Segments</summary>
+        <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start 1H Segment from Low</button>
+        <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start 1H Segment from High</button>
+        <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
+      </details>
     `;
 
   controlsEl.innerHTML = `
-    <div class="pda-menu" style="left: ${left}px; top: ${top}px;">
+    <div class="pda-menu" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
       <div class="pda-menu-title">${timeLabel}</div>
-      <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
-      <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
-      <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
-      <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
-      <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
-      <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
-      <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Locate Time in Secondary</button>
-      <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
-      <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
-      <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
-      <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
-      <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${disabled}>Start Bearish Liquidity SMT</button>
-      <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${disabled}>Start Bullish Liquidity SMT</button>
-      <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${disabled}>Mark Bearish FVG SMT</button>
-      <button class="pda-menu-item" data-pda-action="smt-fvg-bullish" ${disabled}>Mark Bullish FVG SMT</button>
-      <div class="pda-menu-divider"></div>
+      <details class="pda-menu-section" open>
+        <summary>PDA</summary>
+        <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
+        <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
+        <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
+        <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
+        <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
+        <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
+        <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
+        <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
+        <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
+        <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
+        <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
+      </details>
+      <details class="pda-menu-section">
+        <summary>SMT</summary>
+        <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Locate Time in Secondary</button>
+        <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${disabled}>Start Bearish Liquidity SMT</button>
+        <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${disabled}>Start Bullish Liquidity SMT</button>
+        <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${disabled}>Mark Bearish FVG SMT</button>
+        <button class="pda-menu-item" data-pda-action="smt-fvg-bullish" ${disabled}>Mark Bullish FVG SMT</button>
+      </details>
       ${segmentPdaLinkItems}
       ${segmentGroupItems}
       ${segmentItems}
       ${pointSetItems}
-      <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
-      <button class="pda-menu-item" data-pda-action="toggle-nwog" ${disabled}>Show/Hide This Week NWOG</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
+      <details class="pda-menu-section">
+        <summary>Objective Gaps</summary>
+        <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
+        <button class="pda-menu-item" data-pda-action="toggle-nwog" ${disabled}>Show/Hide This Week NWOG</button>
+      </details>
+      <details class="pda-menu-section">
+        <summary>Clear</summary>
+        <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
+      </details>
     </div>
   `;
 }

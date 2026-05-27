@@ -285,3 +285,25 @@ Still pending:
 - localStorage persistence for SMT.
 - Review JSON `smtEvidence[]`.
 - Better FVG SMT marker rendering on NQ, if a vertical marker is too visually broad.
+
+## Context Menu Usability Update
+
+Implemented after SMT UI merge:
+
+- Added `Locate Time in Secondary` to the main NQ chart right-click menu.
+  - It scrolls the secondary chart to the nearest bar with the same timestamp.
+  - It also shows the secondary hover cursor at the matched secondary bar.
+  - It reports a status error if Split is off or secondary bars are not loaded.
+- Fixed the long context menu issue.
+  - Menu positioning now uses the actual 220px menu width.
+  - Near the bottom of the canvas, the menu is moved upward.
+  - If it still cannot fit, the menu scrolls internally.
+  - Menu items are now grouped with native collapsible `details/summary`.
+  - `PDA` is open by default.
+  - `SMT`, `1H Segments`, `Point Sets`, `Objective Gaps`, and `Clear` are collapsed by default.
+  - Active/context-specific groups, such as an active segment or point-set flow, can open by default.
+
+Validation:
+
+- `node --check v4/src/pda/manual-annotation.js`: passed.
+- `git diff --check`: passed.
