@@ -89,7 +89,7 @@ function renderEvidenceMetrics(evidence, annotation) {
       field('FVG Range', formatNumber(metrics.fvgRangePoints)),
       field('Wick Entry', formatPercent(metrics.wickEntryPercentOfFvg)),
       metricField('Body Entry', formatPercent(metrics.bodyEntryPercentOfFvg), metrics.bodyExceededFvg),
-      field('Body Exceeded', formatBoolean(metrics.bodyExceededFvg)),
+      metricField('Body Exceeded', formatBoolean(metrics.bodyExceededFvg), metrics.bodyExceededFvg),
     ].join('');
   }
 

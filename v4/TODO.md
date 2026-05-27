@@ -222,6 +222,7 @@
 - 2026-05-26: Reaction Evidence Plan 3 完成：Segment Inspector 的 `PDA Responses` 每条 response 下接入 evidence UI；range PDA 可添加 `FVG Respect Evidence`，high/low liquidity PDA 可添加 `Liquidity Sweep Evidence`；支持编辑 first/last/terminal bar、FVG entrySide、note，显示即时计算 metrics，并支持删除 evidence；bodyEntryPercentOfFvg 超过 100% 时用红色样式提示
 - 2026-05-26: Reaction Evidence Plan 4 完成：确认 localStorage 不需要新增 schema；`segment-persistence.js` 保存完整 persistable segment，刷新恢复会自然保留 `pdaResponses[].reactionEvidence[]`；`updatePdaResponse()`、重复 link、display reset 路径都会保留 evidence 字段
 - 2026-05-26: Reaction Evidence Plan 5 完成：Review JSON import 的 `normalizeImportedResponse()` 接入 `normalizeReactionEvidenceList()`，导入 segment 的 PDA response 时保留并规范化 `reactionEvidence[]`；evidence 的 `pdaId` 会绑定到导入后/remap 后的 response PDA，避免归档导入后出现旧 PDA id 引用
+- 2026-05-26: Reaction Evidence Plan 6 完成：FVG respect 的 `bodyExceededFvg=true` 时，Segment Inspector 同时高亮 `Body Entry` 百分比与 `Body Exceeded` 状态；数值仍保持真实计算结果，不做 clamp
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response

@@ -182,7 +182,7 @@ metrics: {
    - Delete evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
 4. Ensure localStorage naturally persists evidence. ✅ Verified on `feature/v4-reaction-evidence-core`.
 5. Update Review JSON import normalization to preserve evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
-6. Add body percent red styling when `bodyExceededFvg=true`.
+6. Add body percent red styling when `bodyExceededFvg=true`. ✅ Done on `feature/v4-reaction-evidence-core`.
 
 ## Explicit Non-Goals For First Pass
 - No automatic respect detection.
@@ -281,3 +281,8 @@ metrics: {
 - During Review JSON import, each imported `pdaResponses[]` item normalizes its `reactionEvidence[]` list instead of dropping it while rebuilding the response object.
 - Imported evidence is rebound to the remapped response `pdaId`, so id collisions or duplicate PDA merges do not leave stale evidence PDA references.
 - Existing Review JSON files without evidence keep the same shape; no empty `reactionEvidence` array is added.
+
+## Plan 6 Implementation Notes
+- FVG respect metrics set `bodyExceededFvg=true` when `bodyEntryPercentOfFvg` is greater than `100`.
+- Segment Inspector uses `inspector-metric-alert` when `bodyExceededFvg=true`.
+- Both `Body Entry` and `Body Exceeded` are highlighted, making the out-of-range body condition visible without changing the recorded percentage.
