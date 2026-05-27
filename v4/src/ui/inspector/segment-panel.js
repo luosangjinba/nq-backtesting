@@ -5,6 +5,11 @@ import { computeSegmentReviewMetrics } from '../../segment/segment-review-metric
 import { getSegments } from '../../segment/segment-store.js';
 import { computeSegmentGroupMetrics } from '../../segment/segment-group-metrics.js';
 import {
+  EVIDENCE_TYPES,
+  computeReactionEvidenceWithMetrics,
+  normalizeReactionEvidenceList,
+} from '../../segment/reaction-evidence.js';
+import {
   getDraftSegmentGroupChildIds,
   getDraftSegmentGroupTargetId,
   getSegmentGroupsForSegment,
@@ -50,6 +55,117 @@ function renderSegmentPoint(title, point) {
   );
 }
 
+function isRangePda(annotation) {
+  return getPdaType(annotation?.type)?.shape === 'range';
+}
+
+function isLiquidityPda(annotation) {
+  const pdaType = getPdaType(annotation?.type);
+  return Boolean(pdaType?.priceField === 'high' || pdaType?.priceField === 'low');
+}
+
+function getTimestampInputValue(timestamp) {
+  return timestamp ? formatTime(timestamp) : '';
+}
+
+function metricField(label, value, isAlert = false) {
+  const className = isAlert ? 'inspector-field-value inspector-metric-alert' : 'inspector-field-value';
+  return `
+    <div class="inspector-field">
+      <div class="inspector-field-label">${escapeHtml(label)}</div>
+      <div class="${className}">${escapeHtml(value)}</div>
+    </div>
+  `;
+}
+
+function renderEvidenceMetrics(evidence, annotation) {
+  const computed = computeReactionEvidenceWithMetrics(evidence, annotation, getBars());
+  const metrics = computed.metrics;
+  if (!metrics?.valid) return field('Metrics', metrics?.reason || 'not measurable');
+
+  if (computed.type === EVIDENCE_TYPES.FVG_RESPECT) {
+    return [
+      field('Actor Bars', metrics.actorBarCount),
+      field('FVG Range', formatNumber(metrics.fvgRangePoints)),
+      field('Wick Entry', formatPercent(metrics.wickEntryPercentOfFvg)),
+      metricField('Body Entry', formatPercent(metrics.bodyEntryPercentOfFvg), metrics.bodyExceededFvg),
+      field('Body Exceeded', formatBoolean(metrics.bodyExceededFvg)),
+    ].join('');
+  }
+
+  if (computed.type === EVIDENCE_TYPES.LIQUIDITY_SWEEP) {
+    return [
+      field('Actor Bars', metrics.actorBarCount),
+      field('Side', metrics.liquiditySide),
+      field('Move Range', formatNumber(metrics.moveRangePoints)),
+      field('Wick Swept', formatBoolean(metrics.wickSwept)),
+      field('Body Swept', formatBoolean(metrics.bodySwept)),
+      field('Wick Sweep %', formatPercent(metrics.wickSweepPercentOfMove)),
+      field('Body Sweep %', formatPercent(metrics.bodySweepPercentOfMove)),
+    ].join('');
+  }
+
+  return field('Metrics', 'unsupported evidence type');
+}
+
+function renderEvidenceRows(response, annotation) {
+  const evidenceList = normalizeReactionEvidenceList(response.reactionEvidence);
+  if (!evidenceList.length) return '<div class="drawing-set-empty">No reaction evidence.</div>';
+
+  return evidenceList
+    .map((evidence, index) => `
+      <div class="inspector-evidence-row">
+        <div class="inspector-evidence-header">
+          <span>${escapeHtml(index + 1)}. ${escapeHtml(evidence.type)}</span>
+          <button class="inspector-mini-btn" data-inspector-action="reaction-evidence-delete" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="button">Delete</button>
+        </div>
+        ${evidence.type === EVIDENCE_TYPES.FVG_RESPECT ? controlField(
+          'Entry Side',
+          `<select class="inspector-input inspector-mini-select" data-inspector-action="reaction-evidence-entry-side" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}">
+            ${['from-above', 'from-below']
+              .map((side) => `<option value="${side}" ${evidence.params?.entrySide === side ? 'selected' : ''}>${side}</option>`)
+              .join('')}
+          </select>`
+        ) : ''}
+        ${controlField(
+          'First Bar',
+          `<input class="inspector-input" data-inspector-action="reaction-evidence-first-bar" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(getTimestampInputValue(evidence.actor.firstBarTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />`
+        )}
+        ${controlField(
+          'Last Bar',
+          `<input class="inspector-input" data-inspector-action="reaction-evidence-last-bar" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(getTimestampInputValue(evidence.actor.lastBarTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />`
+        )}
+        ${controlField(
+          'Terminal Bar',
+          `<input class="inspector-input" data-inspector-action="reaction-evidence-terminal-bar" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(getTimestampInputValue(evidence.actor.terminalBarTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />`
+        )}
+        <input class="inspector-input" data-inspector-action="reaction-evidence-note" data-pda-id="${escapeHtml(response.pdaId)}" data-evidence-id="${escapeHtml(evidence.id)}" type="text" value="${escapeHtml(evidence.note || '')}" placeholder="Evidence note" />
+        ${renderEvidenceMetrics(evidence, annotation)}
+      </div>
+    `)
+    .join('');
+}
+
+function renderReactionEvidence(response, annotation) {
+  if (!annotation) return '';
+  const addButtons = [
+    isRangePda(annotation)
+      ? `<button class="inspector-secondary" data-inspector-action="reaction-evidence-add-fvg" data-pda-id="${escapeHtml(response.pdaId)}" type="button">Add FVG Respect Evidence</button>`
+      : '',
+    isLiquidityPda(annotation)
+      ? `<button class="inspector-secondary" data-inspector-action="reaction-evidence-add-liquidity" data-pda-id="${escapeHtml(response.pdaId)}" type="button">Add Liquidity Sweep Evidence</button>`
+      : '',
+  ].join('');
+  if (!addButtons && !normalizeReactionEvidenceList(response.reactionEvidence).length) return '';
+
+  return `
+    <div class="inspector-evidence-list">
+      ${addButtons}
+      ${renderEvidenceRows(response, annotation)}
+    </div>
+  `;
+}
+
 function renderPdaResponses(segment) {
   const responses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
   const rows = responses
@@ -79,6 +195,7 @@ function renderPdaResponses(segment) {
           </select>
           <input class="inspector-input" data-inspector-action="segment-response-note" data-pda-id="${escapeHtml(response.pdaId)}" type="text" value="${escapeHtml(response.note || '')}" placeholder="Response note" />
           <button class="inspector-mini-btn" data-inspector-action="segment-response-remove" data-pda-id="${escapeHtml(response.pdaId)}" type="button">Remove</button>
+          ${renderReactionEvidence(response, annotation)}
         </div>
       `;
     })

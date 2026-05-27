@@ -40,6 +40,13 @@ import {
 } from './inspector/pda-panel.js';
 import { parseTags, renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
+import {
+  EVIDENCE_TYPES,
+  buildDefaultActorFromSegment,
+  createReactionEvidence,
+  normalizeReactionEvidenceList,
+  parseEvidenceTimestamp,
+} from '../segment/reaction-evidence.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -176,6 +183,49 @@ function getCurrentSegmentGroup() {
   return selection ? getSegmentGroupById(selection.id) : null;
 }
 
+function getSegmentResponse(segment, pdaId) {
+  return (Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : []).find(
+    (response) => response.pdaId === pdaId
+  );
+}
+
+function updateReactionEvidenceList(segment, pdaId, updater) {
+  const response = getSegmentResponse(segment, pdaId);
+  if (!response) return;
+  const evidenceList = normalizeReactionEvidenceList(response.reactionEvidence);
+  updatePdaResponse(segment.id, pdaId, {
+    reactionEvidence: updater(evidenceList),
+  });
+}
+
+function addReactionEvidence(segment, pdaId, type) {
+  const actor = buildDefaultActorFromSegment(segment, segment.timeframe || '1H');
+  const evidence = createReactionEvidence({
+    type,
+    pdaId,
+    timeframe: actor.timeframe,
+    firstBarTimestamp: actor.firstBarTimestamp,
+    lastBarTimestamp: actor.lastBarTimestamp,
+    terminalBarTimestamp: actor.terminalBarTimestamp,
+    params: type === EVIDENCE_TYPES.FVG_RESPECT ? { entrySide: 'from-above' } : {},
+  });
+  updateReactionEvidenceList(segment, pdaId, (evidenceList) => [...evidenceList, evidence]);
+}
+
+function patchReactionEvidence(segment, pdaId, evidenceId, patcher) {
+  updateReactionEvidenceList(segment, pdaId, (evidenceList) =>
+    evidenceList.map((evidence) =>
+      evidence.id === evidenceId
+        ? {
+            ...evidence,
+            ...patcher(evidence),
+            updatedAt: Date.now(),
+          }
+        : evidence
+    )
+  );
+}
+
 function handleInspectorChange(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
@@ -265,6 +315,53 @@ function handleInspectorChange(e) {
 
     if (action === 'segment-response-note') {
       updatePdaResponse(segment.id, e.target.dataset.pdaId, { note: e.target.value });
+      return;
+    }
+
+    if (action === 'reaction-evidence-entry-side') {
+      patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, (evidence) => ({
+        params: {
+          ...(evidence.params || {}),
+          entrySide: e.target.value,
+        },
+      }));
+      return;
+    }
+
+    if (action === 'reaction-evidence-first-bar') {
+      patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, (evidence) => ({
+        actor: {
+          ...(evidence.actor || {}),
+          firstBarTimestamp: parseEvidenceTimestamp(e.target.value),
+        },
+      }));
+      return;
+    }
+
+    if (action === 'reaction-evidence-last-bar') {
+      patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, (evidence) => ({
+        actor: {
+          ...(evidence.actor || {}),
+          lastBarTimestamp: parseEvidenceTimestamp(e.target.value),
+        },
+      }));
+      return;
+    }
+
+    if (action === 'reaction-evidence-terminal-bar') {
+      patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, (evidence) => ({
+        actor: {
+          ...(evidence.actor || {}),
+          terminalBarTimestamp: parseEvidenceTimestamp(e.target.value),
+        },
+      }));
+      return;
+    }
+
+    if (action === 'reaction-evidence-note') {
+      patchReactionEvidence(segment, e.target.dataset.pdaId, e.target.dataset.evidenceId, () => ({
+        note: e.target.value,
+      }));
       return;
     }
 
@@ -392,6 +489,25 @@ function handleInspectorClick(e) {
   }
 
   const segment = getCurrentSegment();
+  if (segment) {
+    if (action === 'reaction-evidence-add-fvg') {
+      addReactionEvidence(segment, e.target.dataset.pdaId, EVIDENCE_TYPES.FVG_RESPECT);
+      return;
+    }
+
+    if (action === 'reaction-evidence-add-liquidity') {
+      addReactionEvidence(segment, e.target.dataset.pdaId, EVIDENCE_TYPES.LIQUIDITY_SWEEP);
+      return;
+    }
+
+    if (action === 'reaction-evidence-delete') {
+      updateReactionEvidenceList(segment, e.target.dataset.pdaId, (evidenceList) =>
+        evidenceList.filter((evidence) => evidence.id !== e.target.dataset.evidenceId)
+      );
+      return;
+    }
+  }
+
   if (segment) {
     if (action === 'segment-delete') {
       deleteSegment(segment.id);

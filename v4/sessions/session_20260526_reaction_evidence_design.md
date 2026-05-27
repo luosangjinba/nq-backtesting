@@ -179,7 +179,7 @@ metrics: {
    - Add Liquidity Sweep Evidence for high/low liquidity PDA.
    - Edit first/last/terminal/entrySide/note.
    - Show calculated metrics.
-   - Delete evidence.
+   - Delete evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
 4. Ensure localStorage naturally persists evidence.
 5. Update Review JSON import normalization to preserve evidence.
 6. Add body percent red styling when `bodyExceededFvg=true`.
@@ -241,3 +241,30 @@ metrics: {
   - `computeReactionEvidenceWithMetrics(evidence, annotation, bars)`
 - `normalizeReactionEvidenceList()` gives Review JSON import and segment response normalization a single path for preserving evidence arrays.
 - `computeReactionEvidenceWithMetrics()` returns a normalized evidence object with freshly computed metrics attached, so Inspector rendering can remain thin.
+
+## Plan 3 Implementation Notes
+- Segment Inspector now renders a `Reaction Evidence` area under each linked PDA response.
+- Range PDA responses show `Add FVG Respect Evidence`.
+- High/low liquidity PDA responses show `Add Liquidity Sweep Evidence`.
+- Evidence rows support:
+  - delete,
+  - first bar timestamp,
+  - last bar timestamp,
+  - terminal bar timestamp,
+  - note,
+  - FVG `entrySide` when evidence type is `fvg-respect`.
+- Metrics are recomputed from current loaded bars during Inspector render using `computeReactionEvidenceWithMetrics()`.
+- FVG metrics display:
+  - actor bars,
+  - FVG range,
+  - wick entry percent,
+  - body entry percent,
+  - body exceeded flag.
+- Liquidity metrics display:
+  - actor bars,
+  - side,
+  - move range,
+  - wick/body swept flags,
+  - wick/body sweep percent of move.
+- `bodyEntryPercentOfFvg > 100` is displayed with `inspector-metric-alert` styling.
+- First pass uses text timestamp inputs; no chart pick flow yet.
