@@ -180,7 +180,7 @@ metrics: {
    - Edit first/last/terminal/entrySide/note.
    - Show calculated metrics.
    - Delete evidence. ✅ Done on `feature/v4-reaction-evidence-core`.
-4. Ensure localStorage naturally persists evidence.
+4. Ensure localStorage naturally persists evidence. ✅ Verified on `feature/v4-reaction-evidence-core`.
 5. Update Review JSON import normalization to preserve evidence.
 6. Add body percent red styling when `bodyExceededFvg=true`.
 
@@ -268,3 +268,10 @@ metrics: {
   - wick/body sweep percent of move.
 - `bodyEntryPercentOfFvg > 100` is displayed with `inspector-metric-alert` styling.
 - First pass uses text timestamp inputs; no chart pick flow yet.
+
+## Plan 4 Implementation Notes
+- No storage schema change is required for first-pass localStorage persistence.
+- `segment-persistence.js` saves full persistable segment objects into `v4:market-segments:NQ`, so `pdaResponses[].reactionEvidence[]` is included naturally.
+- Restore calls `loadSegments()` with the saved segment objects, preserving evidence arrays as-is.
+- `updatePdaResponse()` merges patches onto the existing response, and `linkPdaResponse()` preserves existing response fields when re-linking the same PDA, so evidence is not dropped by normal Inspector edits.
+- `resetSegmentDisplay()` spreads each response before changing display fields, so display reset keeps evidence.
