@@ -77,3 +77,50 @@ Implemented the next three Phase 1 observation items:
   - `Sub TF` change to 1M reloads the same absolute range and loads 218 ES bars.
   - `Sub` change from ES to NQ reloads the same absolute range and updates the label to `NQ 1M`.
   - Moving the mouse over the secondary chart updates the secondary OHLC legend.
+
+## New Thread Handoff
+
+Use this section to resume after `new`.
+
+Current branch:
+
+- `feature/smt-es-split-prep`
+
+Committed work:
+
+- `998e809 feat(v4): prepare ES split screen for SMT`
+- `9cf6242 feat(v4): add SMT split observation aids`
+
+Current git state at handoff:
+
+- No uncommitted tracked changes.
+- Local untracked data/temp files are expected and should not be committed:
+  - `ES.csv`
+  - `trading_data.duckdb`
+  - `__pycache__/`
+  - `tmp/`
+  - `v3/plans/`
+
+What is done:
+
+- ES 1m data has been imported locally into `trading_data.duckdb.futures_1m` as `instrument='ES'`.
+- V4 API already reads ES through `/v4/bars?instrument=ES...`.
+- Split Screen secondary chart supports `Sub=NQ|ES`, defaults to ES, and can be preconfigured while Split is off.
+- Secondary chart shows instrument/timeframe label and hover OHLC legend.
+- Alignment/reload behavior has been verified through headless Chrome.
+
+Next implementation step:
+
+- Start SMT manual annotation MVP.
+- Suggested order:
+  1. Add `v4/src/smt/smt-store.js` for in-session SMT records.
+  2. Add minimal SMT record schema for manual `liquidity-divergence` and `fvg-reaction-divergence`.
+  3. Add simple renderer markers/window overlay on primary and secondary charts.
+  4. Add Inspector or right-click entry to create/edit/delete SMT records.
+  5. Add Review JSON/localStorage persistence only after the manual create/edit flow is stable.
+
+Constraints to preserve:
+
+- Keep secondary chart readonly for now; do not add independent PDA/segment editing to ES.
+- Do not implement automatic SMT verdict or full-market auto scan yet.
+- Keep SMT as cross-instrument review evidence, separate from PDA/segment stores, with optional links to segment/PDA later.
