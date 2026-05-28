@@ -27,6 +27,7 @@ import { initSegmentGroups } from './segment/segment-group-store.js';
 import { initManualSmt } from './smt/manual-smt.js';
 import { initSmtRenderer } from './smt/smt-renderer.js';
 import { initOrderReviewPersistence } from './order/order-review-persistence.js';
+import { initOrderReviewRenderer } from './order/order-review-renderer.js';
 
 console.log('[V4] app.js loaded');
 
@@ -98,4 +99,5 @@ initManualSmt();
 console.log('[V4] SMT controls initialized');
 
 initOrderReviewPersistence();
-console.log('[V4] Order Review persistence initialized');
+initOrderReviewRenderer();
+console.log('[V4] Order Review controls initialized');
