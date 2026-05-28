@@ -169,12 +169,23 @@ setupThesis: {
   primaryEventTimestamp,
   primaryEventTimeframe,
   primaryEventType,
+  primaryEventPrice,
   linkedObjectRefs: [],
   higherTimeframeJustification,
   lowTimeframeWarning,
-  narrative
+  narrative,
+  confidence
 }
 ```
+
+### Setup Thesis Principles
+
+- `primaryEvent` is the lead reason, not the only reason.
+- `linkedObjectRefs[]` carries the combined context.
+- A setup can reference no segment, one segment, several segments, or a Composite Move.
+- A setup can reference both NQ structure and ES SMT evidence.
+- A setup can be created before entry details are known.
+- A setup should be honest about low-timeframe dependency.
 
 ### Primary Event
 
@@ -185,6 +196,7 @@ Required fields:
 - `primaryEventTimestamp`: exact event time, 1M precision when possible
 - `primaryEventTimeframe`: `1M / 5M / 15M / 30M / 1H / 4H / D`
 - `primaryEventType`
+- `primaryEventPrice`: optional price of the event, such as swept liquidity price or touched FVG boundary
 
 Initial event types:
 
@@ -199,17 +211,32 @@ Initial event types:
 - `smt`
 - `other`
 
+Event type meanings:
+
+- `sweep-liquidity`: price swept a BSL/SSL/EQH/EQL or comparable liquidity level.
+- `touch-fvg`: price touched an FVG without requiring a full respect judgment.
+- `respect-fvg`: price entered or touched an FVG and produced a reaction that the reviewer considers valid.
+- `touch-nwog`: price touched or reacted from NWOG.
+- `touch-ndog`: price touched or reacted from NDOG.
+- `wick-ce`: price reacted from a Wick CE PDA.
+- `ob`: price reacted from an OB range.
+- `breaker`: price reacted from a breaker range.
+- `smt`: SMT evidence was the primary trigger.
+- `other`: manual thesis that does not fit the initial list.
+
+The primary event timestamp is the event time, not the entry time. If the event occurred on 15M/30M but the exact turn is visible on 1M, store the 1M timestamp and keep the higher event timeframe in `primaryEventTimeframe`.
+
 ### Linked Object References
 
 An order may depend on several objects. Use `linkedObjectRefs[]` for that context.
 
 ```js
 linkedObjectRefs: [
-  { type: 'segment', id, role: 'context' },
-  { type: 'composite', id, role: 'context' },
-  { type: 'pda', id, role: 'trigger' },
-  { type: 'smt', id, role: 'confirmation' },
-  { type: 'reactionEvidence', id, role: 'evidence' }
+  { type: 'segment', id, role: 'context', note: '' },
+  { type: 'composite', id, role: 'context', note: '' },
+  { type: 'pda', id, role: 'trigger', note: '' },
+  { type: 'smt', id, role: 'confirmation', note: '' },
+  { type: 'reactionEvidence', id, role: 'evidence', note: '' }
 ]
 ```
 
@@ -232,6 +259,50 @@ Initial `role` values:
 
 These references are optional and can include multiple objects of the same type.
 
+Reference guidance:
+
+- Use `trigger` for the object that directly caused the setup.
+- Use `context` for prior structure or multi-leg background.
+- Use `confirmation` for SMT or supporting evidence that agrees with the setup.
+- Use `target` for a PDA/segment/composite used as the planned target.
+- Use `invalidation` for an object that defines where the thesis fails.
+- Use `evidence` for objective measured evidence, such as Reaction Evidence.
+
+Examples:
+
+```js
+linkedObjectRefs: [
+  { type: 'composite', id: 'group_...', role: 'context', note: 'prior two-leg expansion into D FVG' },
+  { type: 'pda', id: 'manual_ssl_...', role: 'trigger', note: 'swept SSL and rejected' },
+  { type: 'smt', id: 'smt_liquidity_...', role: 'confirmation', note: 'ES swept lower while NQ did not' }
+]
+```
+
+```js
+linkedObjectRefs: [
+  { type: 'segment', id: 'seg_down_...', role: 'context', note: 'sell leg stopped at NWOG' },
+  { type: 'pda', id: 'manual_nwog_...', role: 'trigger', note: 'NWOG touch' },
+  { type: 'reactionEvidence', id: 'evidence_...', role: 'evidence', note: '15M reaction measured' }
+]
+```
+
+### Narrative And Confidence
+
+The narrative should explain the combined thesis in plain language:
+
+```text
+Price delivered into 15M bearish FVG after taking prior BSL. ES confirmed with liquidity SMT. Entry used 1M FVG retracement after displacement.
+```
+
+`confidence` is optional and manually assigned:
+
+- `A`
+- `B`
+- `C`
+- `review-only`
+
+This field is not a signal score. It is a reviewer label for later filtering.
+
 ### Higher-Timeframe Principle
 
 The system should not prevent low-timeframe entries, but it should make the review honest.
@@ -243,6 +314,30 @@ higherTimeframeJustification: '15M FVG respected while 1M gave entry model',
 lowTimeframeWarning: true
 ```
 
+Suggested derived rule:
+
+```js
+lowTimeframeWarning = ['1M', '5M'].includes(primaryEventTimeframe)
+```
+
+If `lowTimeframeWarning` is true, Inspector should show the warning but still allow saving. The reviewer may justify it with `higherTimeframeJustification`.
+
+### Setup Thesis Validation
+
+First-version store validation should be permissive:
+
+- allow missing linked refs
+- allow missing price
+- allow missing narrative
+- allow incomplete drafts
+
+But the UI should highlight records missing:
+
+- primary event timestamp
+- primary event timeframe
+- primary event type
+- higher-timeframe justification when `lowTimeframeWarning=true`
+
 ## Entry Plan
 
 `Entry Plan` answers: how was the trade entered or planned?
@@ -253,12 +348,15 @@ entryPlan: {
   entryTimestamp,
   entryPrice,
   entryModel,
+  entryTimeframe,
   stopLoss,
+  stopReason,
   targetInternal,
   targetSwing,
   targetExternal,
   selectedTargetType,
   finalTarget,
+  riskPoints,
   note
 }
 ```
@@ -269,12 +367,15 @@ Fields:
 - `entryTimestamp`: 1M precision when possible
 - `entryPrice`
 - `entryModel`
+- `entryTimeframe`: timeframe used for the entry model, normally `1M / 5M / 15M`
 - `stopLoss`
+- `stopReason`
 - `targetInternal`
 - `targetSwing`
 - `targetExternal`
 - `selectedTargetType`: `internal / swing / external / custom`
 - `finalTarget`
+- `riskPoints`
 - `note`
 
 Initial entry models:
@@ -287,6 +388,124 @@ Initial entry models:
 - `breaker`
 - `manual`
 
+### Direction
+
+Initial values:
+
+- `long`
+- `short`
+- `unknown`
+
+`unknown` is allowed for incomplete drafts but should be highlighted in the UI.
+
+### Entry Timestamp
+
+`entryTimestamp` should be the precise intended or actual entry time, stored at 1M precision when possible.
+
+Rules:
+
+- It is separate from `setupThesis.primaryEventTimestamp`.
+- It may be later than the setup event.
+- It may be missing for a skipped setup.
+- If the entry was hypothetical, the same field is still used; first version does not split actual/hypothetical order types.
+
+### Entry Timeframe
+
+`entryTimeframe` records the chart timeframe that produced the entry model.
+
+Initial values:
+
+- `1M`
+- `5M`
+- `15M`
+- `30M`
+- `1H`
+- `manual`
+
+If `entryTimeframe` is `1M` or `5M`, no warning is required by itself. The warning belongs to `setupThesis.primaryEventTimeframe`, because low-timeframe entry is acceptable when it follows a higher-timeframe event.
+
+### Entry Models
+
+Initial entry models:
+
+- `ob`: entry from an order block
+- `fvg`: entry from FVG retracement
+- `ote`: entry from OTE retracement
+- `ote-ob`: OTE entry aligned with OB
+- `sweep`: entry after local sweep
+- `breaker`: entry from breaker
+- `manual`: reviewer-defined entry model
+
+Entry model is descriptive. It does not imply the setup thesis is valid by itself.
+
+### Stop Loss
+
+`stopLoss` is the planned invalidation price.
+
+`stopReason` explains why the stop belongs there:
+
+- `beyond-swing`
+- `beyond-liquidity`
+- `beyond-fvg`
+- `beyond-ob`
+- `fixed-points`
+- `manual`
+
+The first version should store only the price and reason. It should not auto-adjust the stop.
+
+### Targets
+
+Target fields:
+
+- `targetInternal`: nearest internal target
+- `targetSwing`: main swing target
+- `targetExternal`: external liquidity or extension target
+- `selectedTargetType`: which target the trade plan uses
+- `finalTarget`: explicit final target price
+
+Initial `selectedTargetType` values:
+
+- `internal`
+- `swing`
+- `external`
+- `custom`
+- `unknown`
+
+Research default:
+
+- `swing` should be the default benchmark when the model does not explicitly specify otherwise.
+- The UI can preselect `swing`, but the reviewer can change it.
+
+### Risk Points
+
+`riskPoints` can be derived when both `entryPrice` and `stopLoss` exist:
+
+```js
+riskPoints = Math.abs(entryPrice - stopLoss)
+```
+
+The store may store the derived value for convenience, but future code should be able to recompute it. If prices are missing, normalize to `null`.
+
+### Entry Plan Validation
+
+First-version store validation should allow incomplete drafts.
+
+The UI should highlight records missing:
+
+- direction
+- entry timestamp, unless result is `skipped` or `missed`
+- entry model
+- entry price, unless skipped
+- stop loss, unless skipped
+- at least one target
+
+The UI should also highlight target inconsistency:
+
+- `selectedTargetType=internal` but `targetInternal` is empty
+- `selectedTargetType=swing` but `targetSwing` is empty
+- `selectedTargetType=external` but `targetExternal` is empty
+- `selectedTargetType=custom` but `finalTarget` is empty
+
 ## Result Review
 
 `Result Review` answers: did the order behave as expected?
@@ -298,6 +517,9 @@ resultReview: {
   exitTimestamp,
   exitPrice,
   result,
+  exitReason,
+  outcomePoints,
+  outcomeR,
   note
 }
 ```
@@ -309,6 +531,9 @@ Fields:
 - `exitTimestamp`
 - `exitPrice`
 - `result`
+- `exitReason`
+- `outcomePoints`
+- `outcomeR`
 - `note`
 
 Initial result values:
@@ -322,7 +547,94 @@ Initial result values:
 - `managed-out`
 - `unknown`
 
+### Target Reached Fields
+
+`expectedTargetReached` describes whether the selected planned target was reached.
+
+`finalTargetReached` describes whether the explicit `entryPlan.finalTarget` was reached.
+
+Initial values:
+
+- `yes`
+- `no`
+- `partial`
+- `unknown`
+
+Rules:
+
+- Use `unknown` for drafts or insufficient data.
+- Use `partial` when price reached an intermediate target but not the selected/final target.
+- First version is manually reviewed. Do not auto-calculate target hit from bars yet.
+
+### Exit
+
+`exitTimestamp` is the actual or reviewed exit time, preferably at 1M precision.
+
+`exitPrice` is the actual or reviewed exit price.
+
+`exitReason` explains why the trade ended:
+
+- `target-hit`
+- `stop-hit`
+- `manual-close`
+- `time-exit`
+- `model-invalidated`
+- `missed-entry`
+- `skipped`
+- `unknown`
+
+`exitTimestamp` and `exitPrice` may be empty for skipped or missed trades.
+
+### Result
+
+Result values:
+
+- `win`: trade reached the reviewed target or ended profitably.
+- `loss`: trade hit stop or ended below acceptable loss threshold.
+- `breakeven`: trade ended at or near entry.
+- `missed`: setup was valid or interesting, but no entry was taken.
+- `skipped`: setup was intentionally skipped.
+- `invalidated`: thesis failed before or around entry.
+- `managed-out`: trade was actively exited before normal target/stop result.
+- `unknown`: draft or unresolved result.
+
+Result should not be inferred automatically in the first version.
+
+### Outcome Points And R
+
+`outcomePoints` can be derived when `entryPrice`, `exitPrice`, and `direction` exist:
+
+```js
+outcomePoints = direction === 'long'
+  ? exitPrice - entryPrice
+  : entryPrice - exitPrice
+```
+
+`outcomeR` can be derived when `outcomePoints` and `entryPlan.riskPoints` exist:
+
+```js
+outcomeR = outcomePoints / entryPlan.riskPoints
+```
+
+The first version may store these fields as `null`. Later versions can compute them from reviewed prices.
+
+### Result Review Validation
+
+First-version store validation should allow incomplete drafts.
+
+The UI should highlight:
+
+- `result=unknown` on completed reviews
+- `expectedTargetReached=unknown` when result is `win`, `loss`, or `managed-out`
+- `finalTargetReached=unknown` when `entryPlan.finalTarget` exists
+- missing exit price/time when result is `win`, `loss`, `breakeven`, or `managed-out`
+- missing note when result is `skipped`, `missed`, or `invalidated`
+
+Skipped and missed setups are valid review records. They should not be treated as invalid orders.
+
 ## UI Flow
+
+The first version should be Inspector-led. The chart can render order markers, but order creation and editing should happen in the right sidebar.
 
 ### Create Order Review
 
@@ -334,6 +646,45 @@ First version should allow creation from:
 
 When created from a selected object, the object is added to `setupThesis.linkedObjectRefs[]` as context. It should not become mandatory ownership.
 
+Creation behavior:
+
+- From selected segment:
+  - add `{ type: 'segment', id, role: 'context' }`
+  - prefill primary event timestamp from the segment end timestamp only as a convenience
+  - user can override the event time
+- From selected Composite Move:
+  - add `{ type: 'composite', id, role: 'context' }`
+  - do not infer direction automatically in first version
+- From empty Inspector:
+  - create blank draft with `source=manual`
+  - user fills setup thesis manually
+
+Do not create an order directly from a chart right-click in the first version. That keeps the first implementation focused and avoids mixing PDA/SMT marking with order review creation.
+
+### Inspector Layout
+
+The Inspector should expose a dedicated `Order Reviews` section.
+
+Suggested row summary:
+
+```text
+[Direction] [Entry Model] [Primary Event Type] [Entry Time] [Result]
+```
+
+Each order row should provide:
+
+- `Locate`
+- `Edit`
+- `Delete`
+
+When expanded or selected, the row should show three compact panels:
+
+- `Setup Thesis`
+- `Entry Plan`
+- `Result Review`
+
+Use compact controls rather than a large free-form form. The order review is a working object that should remain usable next to the chart.
+
 ### Edit Setup Thesis
 
 Inspector should support:
@@ -341,12 +692,35 @@ Inspector should support:
 - primary event time
 - primary event timeframe
 - primary event type
+- primary event price
 - linked refs list
 - add/remove linked refs
 - higher-timeframe justification
+- confidence
 - narrative
 
 First version can add linked refs from existing selection/list actions. Chart picking can be deferred.
+
+Linked ref actions:
+
+- `Add selected segment`
+- `Add selected composite`
+- `Add selected PDA`
+- `Add SMT from list`
+- `Add reaction evidence from selected PDA response`
+- `Remove ref`
+- edit `role`
+- edit ref `note`
+
+If no matching object is selected, the action should be disabled rather than opening a separate picker in the first version.
+
+Primary event time should support manual input in the same `YYYY-MM-DD HH:mm` style used elsewhere.
+
+Optional future action:
+
+- `Pick Event Time` from chart
+
+This is deferred; the first version can rely on manual time entry.
 
 ### Edit Entry Plan
 
@@ -356,11 +730,18 @@ Inspector should support:
 - entry time
 - entry price
 - entry model
+- entry timeframe
 - stoploss
+- stop reason
 - internal/swing/external targets
 - selected target
 - final target
+- risk points display
 - entry note
+
+Entry time should support manual input. A later version may add chart pick.
+
+Risk points should be displayed read-only when `entryPrice` and `stopLoss` are both present.
 
 ### Edit Result Review
 
@@ -371,7 +752,51 @@ Inspector should support:
 - exit time
 - exit price
 - result
+- exit reason
+- outcome points display
+- outcome R display
 - result note
+
+Outcome points and R should be displayed read-only when enough fields exist. First version does not need to calculate from bars.
+
+### Locate Behavior
+
+`Locate` should center the main chart around the most useful available range:
+
+1. setup primary event timestamp
+2. entry timestamp
+3. exit timestamp
+
+If more than one timestamp exists, locate the min/max range with padding. This should reuse the existing viewport timestamp range helper.
+
+If Split is enabled, secondary chart does not need to auto-locate in first version. Existing `Locate Time in Secondary` can still be used from the main chart context menu.
+
+### Delete Behavior
+
+Deleting an order review should delete only the order object.
+
+It must not delete:
+
+- linked PDA
+- linked SMT
+- linked segment
+- linked Composite Move
+- Reaction Evidence
+
+Linked refs are references, not ownership.
+
+### Empty / Invalid Draft Display
+
+Incomplete drafts should remain visible. The UI should mark missing important fields but not block saving.
+
+Suggested states:
+
+- `Draft`: missing key setup or entry fields
+- `Planned`: setup and entry plan exist, result unknown
+- `Reviewed`: result is no longer unknown
+- `Skipped`: result is skipped
+- `Missed`: result is missed
+- `Invalidated`: result is invalidated
 
 ## Chart Rendering
 
