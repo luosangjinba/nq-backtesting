@@ -116,6 +116,60 @@ git diff --check
 
 All passed.
 
+## 2026-05-28 Update - Order Review Store Foundation
+
+Completed `Phase 8B / Step 56` in `v4/TODO.md`.
+
+Added `v4/src/order/order-review-store.js` as the in-memory Order Review store foundation:
+
+- configurable definitions for order event types, ref types, ref roles, directions, entry models, timeframes, target types, stop reasons, target reached states, result states, exit reasons, and confidence values
+- normalize helpers for strings, enums, numbers, timestamps, notes, arrays, and linked object refs
+- `normalizeSetupThesis()`
+- `normalizeEntryPlan()`
+- `normalizeResultReview()`
+- `normalizeOrderReview()`
+- `getOrderReviewIdentity()`
+- store API:
+  - `addOrderReview()`
+  - `updateOrderReview()`
+  - `deleteOrderReview()`
+  - `loadOrderReviews()`
+  - `clearOrderReviews()`
+  - `getOrderReviews()`
+  - `getOrderReviewById()`
+- `order-review:changed` event emission for add/update/delete/load/clear
+
+Important behavior:
+
+- The store still allows incomplete drafts.
+- All writes pass through normalization.
+- `id`, `createdAt`, and `importedFromId` are preserved where appropriate.
+- `updatedAt` is refreshed on normalize/update.
+- Semantic identity follows:
+
+```text
+instrument:setupEventTimestamp:entryTimestamp:direction:entryModel
+```
+
+- If `entryTimestamp` is missing, identity falls back to `setupEventTimestamp`.
+- If both timestamps are missing, identity returns `null`.
+- Getter APIs return cloned objects so callers cannot mutate store state directly.
+- Duplicate ids loaded into memory are kept with numeric suffixes such as `order_a-2`.
+
+Verification ran:
+
+```bash
+node --check v4/src/order/order-review-store.js
+git diff --check -- v4/src/order/order-review-store.js v4/TODO.md
+node --input-type=module -e "..."
+```
+
+The node probe covered normalize, identity, CRUD, getter clone protection, and `order-review:changed` events.
+
+Next step:
+
+- `Step 57`: add `order/order-review-persistence.js` using localStorage key `v4:order-reviews:NQ`.
+
 ## Local Files Not To Commit
 - `trading_data.duckdb`
 - `__pycache__/`

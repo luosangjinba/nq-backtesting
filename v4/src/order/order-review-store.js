@@ -1,5 +1,7 @@
 // Order Review store foundation. MVP starts with configurable definitions.
 
+import * as bus from '../event-bus.js';
+
 export const ORDER_REVIEW_VERSION = 1;
 export const DEFAULT_ORDER_INSTRUMENT = 'NQ';
 
@@ -316,6 +318,14 @@ function createOrderReviewId(now = Date.now()) {
   return `order_manual_${Math.floor(now)}_${suffix}`;
 }
 
+function emitChanged(reason, order = null) {
+  bus.emit('order-review:changed', {
+    reason,
+    order: cloneOrderReview(order),
+    orderReviews: getOrderReviews(),
+  });
+}
+
 function cloneOrderReview(order) {
   if (!order) return null;
   return {
@@ -591,6 +601,7 @@ export function normalizeOrderReview(input = {}, options = {}) {
 export function addOrderReview(input = {}, options = {}) {
   const normalized = ensureUniqueOrderReviewId(normalizeOrderReview(input, options));
   orderReviews = [...orderReviews, normalized];
+  emitChanged('add', normalized);
   return cloneOrderReview(normalized);
 }
 
@@ -605,6 +616,7 @@ export function updateOrderReview(id, patch = {}, options = {}) {
     return updated;
   });
 
+  if (updated) emitChanged('update', updated);
   return cloneOrderReview(updated);
 }
 
@@ -612,7 +624,9 @@ export function deleteOrderReview(id) {
   const normalizedId = normalizeString(id, '');
   const before = orderReviews.length;
   orderReviews = orderReviews.filter((order) => order.id !== normalizedId);
-  return orderReviews.length !== before;
+  const deleted = orderReviews.length !== before;
+  if (deleted) emitChanged('delete');
+  return deleted;
 }
 
 export function loadOrderReviews(nextOrders = [], options = {}) {
@@ -628,12 +642,14 @@ export function loadOrderReviews(nextOrders = [], options = {}) {
     });
   }
   orderReviews = normalizedOrders;
+  emitChanged('load');
   return getOrderReviews();
 }
 
 export function clearOrderReviews() {
   const hadOrders = orderReviews.length > 0;
   orderReviews = [];
+  if (hadOrders) emitChanged('clear');
   return hadOrders;
 }
 
