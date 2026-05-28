@@ -69,6 +69,7 @@ let sidebarEl = null;
 let bodyEl = null;
 let currentPanel = 'empty';
 let actorPickState = null;
+let expandedOrderReviewId = null;
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -123,6 +124,7 @@ function renderSegment(segment) {
     ${renderOrderReviewPanel(getOrderReviews(), {
       createAction: 'order-review-create-segment',
       createLabel: 'Create Order Review From Segment',
+      expandedOrderReviewId,
     })}
   `;
 }
@@ -134,6 +136,7 @@ function renderSegmentGroup(segmentGroup) {
     ${renderOrderReviewPanel(getOrderReviews(), {
       createAction: 'order-review-create-composite',
       createLabel: 'Create Order Review From Composite',
+      expandedOrderReviewId,
     })}
   `;
 }
@@ -147,6 +150,7 @@ function renderEmpty() {
     ${renderOrderReviewPanel(getOrderReviews(), {
       createAction: 'order-review-create-empty',
       createLabel: 'Create Blank Order Review',
+      expandedOrderReviewId,
     })}
     ${renderSmtPanel(getSmtRecords())}
     ${renderDrawingSetList()}
@@ -157,7 +161,7 @@ function renderEmpty() {
 function renderArchivePanel() {
   currentPanel = 'archive';
   bodyEl.innerHTML = `
-    ${renderOrderReviewPanel(getOrderReviews())}
+    ${renderOrderReviewPanel(getOrderReviews(), { expandedOrderReviewId })}
     ${renderSmtPanel(getSmtRecords())}
     ${renderArchiveActions()}
   `;
@@ -308,6 +312,7 @@ function createOrderReviewFromSegment(segment) {
       entryTimeframe: segment.timeframe || '1H',
     },
   });
+  expandedOrderReviewId = order.id;
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
 }
@@ -333,14 +338,48 @@ function createOrderReviewFromComposite(group) {
       entryTimeframe: '1H',
     },
   });
+  expandedOrderReviewId = order.id;
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
 }
 
 function createBlankOrderReview() {
   const order = addOrderReview();
+  expandedOrderReviewId = order.id;
   bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
   return order;
+}
+
+function parseOrderReviewFieldValue(target) {
+  const field = target.dataset.orderReviewField;
+  if (target.type === 'checkbox') return target.checked;
+  if (field === 'primaryEventTimestamp') return parseEvidenceTimestamp(target.value);
+  if (field === 'primaryEventPrice') return target.value === '' ? null : Number(target.value);
+  return target.value;
+}
+
+function updateOrderReviewSetupField(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const field = target.dataset.orderReviewField;
+  if (!orderReviewId || !field) return false;
+
+  expandedOrderReviewId = orderReviewId;
+  const value = parseOrderReviewFieldValue(target);
+  if (field === 'primaryEventTimestamp' && target.value && value === null) {
+    bus.emit('status:update', { text: 'Setup event time 格式无效，请使用 YYYY-MM-DD HH:mm', isError: true });
+    return true;
+  }
+  if (field === 'primaryEventPrice' && target.value !== '' && !Number.isFinite(value)) {
+    bus.emit('status:update', { text: 'Setup event price 必须是数字', isError: true });
+    return true;
+  }
+
+  updateOrderReview(orderReviewId, {
+    setupThesis: {
+      [field]: value,
+    },
+  });
+  return true;
 }
 
 function locateOrderReview(order) {
@@ -503,6 +542,13 @@ function handleInspectorChange(e) {
     updateOrderReview(e.target.dataset.orderReviewId, {
       resultReview: { result: e.target.value },
     });
+    return;
+  }
+
+  if (action === 'order-review-edit-field') {
+    if (e.target.dataset.orderReviewSection === 'setupThesis') {
+      updateOrderReviewSetupField(e.target);
+    }
     return;
   }
 

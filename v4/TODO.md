@@ -106,8 +106,8 @@
 
 ### Phase 8C: Order Review Editing UI
 - [x] Step 64: 设计编辑入口边界：第一版优先 Inspector 完整表单，其次图表 pick；不做拖拽、不做自动信号判断、不做统计页
-- [ ] Step 65: 扩展 `ui/inspector/order-review-panel.js`，为每条 Order Review 增加可折叠编辑区，支持 Setup Thesis / Entry Plan / Result Review 三组字段
-- [ ] Step 66: 实现 Setup Thesis 编辑：primary event time/timeframe/type/price、confidence、higher timeframe justification、narrative、low timeframe warning
+- [x] Step 65: 扩展 `ui/inspector/order-review-panel.js`，为每条 Order Review 增加可折叠编辑区，支持 Setup Thesis / Entry Plan / Result Review 三组字段
+- [x] Step 66: 实现 Setup Thesis 编辑：primary event time/timeframe/type/price、confidence、higher timeframe justification、narrative、low timeframe warning
 - [ ] Step 67: 实现 Entry Plan 编辑：direction、entry time/timeframe/price/model、stopLoss/stopReason、target internal/swing/external、selectedTargetType、finalTarget、note
 - [ ] Step 68: 实现 Result Review 编辑：expected/final target reached、exit time/price、result、exitReason、note，并确认 outcomePoints/outcomeR 派生刷新
 - [ ] Step 69: 实现 linked refs 管理第一版：显示 refs，支持删除 ref；从当前选中的 PDA / segment / Composite Move / SMT 追加 ref

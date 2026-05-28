@@ -69,8 +69,8 @@
 
 ## Suggested Next Step
 - Step 64 is complete.
-- Next step is Step 65: extend `v4/src/ui/inspector/order-review-panel.js` with collapsible editing sections for Setup Thesis, Entry Plan, and Result Review.
-- Keep Step 65 focused on rendering structure and action wiring boundaries; field-specific behavior can land in Steps 66-68.
+- Step 66 is complete.
+- Next step is Step 67: wire Entry Plan field changes through Inspector actions to `updateOrderReview()`.
 
 ## 2026-05-28 Update - Step 64
 - Documented the Phase 8C editing entry boundary in `v4/docs/ORDER_REVIEW_DESIGN.md`.
@@ -83,6 +83,41 @@
   - renderer draws visual helpers only
   - Inspector panel renders controls
   - Inspector sidebar routes actions and selected-object context
+
+## 2026-05-28 Update - Step 65
+- Added collapsible Order Review edit UI in `v4/src/ui/inspector/order-review-panel.js`.
+- Each order row now has an `Edit Order Review` details section with:
+  - `Setup Thesis`
+  - `Entry Plan`
+  - `Result Review`
+- Controls are rendered with a shared `data-inspector-action="order-review-edit-field"` plus:
+  - `data-order-review-id`
+  - `data-order-review-section`
+  - `data-order-review-field`
+- Field-specific persistence is intentionally deferred to Steps 66-68.
+- Added compact Inspector CSS in `v4/style.css` for nested order edit sections.
+- Verification:
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `git diff --check -- v4/src/ui/inspector/order-review-panel.js v4/style.css`
+
+## 2026-05-28 Update - Step 66
+- Wired `setupThesis` edit fields in `v4/src/ui/inspector-sidebar.js`.
+- Supported Setup Thesis fields:
+  - `primaryEventTimestamp`
+  - `primaryEventTimeframe`
+  - `primaryEventType`
+  - `primaryEventPrice`
+  - `confidence`
+  - `lowTimeframeWarning`
+  - `higherTimeframeJustification`
+  - `narrative`
+- Setup event time uses the existing `parseEvidenceTimestamp()` parser and accepts the same `YYYY-MM-DD HH:mm` style.
+- Setup event price rejects non-numeric input before updating.
+- The active Order Review edit row is preserved across store refreshes via `expandedOrderReviewId`.
+- Verification:
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `git diff --check -- v4/src/ui/inspector/order-review-panel.js v4/src/ui/inspector-sidebar.js`
 
 ## Local Files To Avoid Committing
 - `__pycache__/`

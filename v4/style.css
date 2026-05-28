@@ -543,6 +543,72 @@ html, body {
   font-weight: 600;
 }
 
+.order-review-editor {
+  border: 1px solid rgba(38, 166, 154, 0.22);
+  border-radius: 4px;
+  background: rgba(30, 34, 45, 0.62);
+}
+
+.order-review-editor summary,
+.order-review-edit-section summary {
+  min-height: 26px;
+  padding: 5px 7px;
+  color: #d1d4dc;
+  font-size: 11px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.order-review-editor summary::-webkit-details-marker,
+.order-review-edit-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.order-review-editor summary::before,
+.order-review-edit-section summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 14px;
+  color: #787b86;
+}
+
+.order-review-editor[open] > summary::before,
+.order-review-edit-section[open] > summary::before {
+  content: '▾';
+}
+
+.order-review-editor summary:hover,
+.order-review-edit-section summary:hover {
+  background: #1e222d;
+}
+
+.order-review-editor-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 6px 6px;
+}
+
+.order-review-edit-section {
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  background: #151922;
+}
+
+.order-review-edit-section .inspector-field {
+  grid-template-columns: 86px minmax(0, 1fr);
+  padding: 0 6px 5px;
+}
+
+.order-review-edit-section .inspector-field-label {
+  font-size: 11px;
+}
+
+.order-review-edit-section .inspector-textarea {
+  min-height: 58px;
+}
+
 .inspector-evidence-header {
   display: flex;
   align-items: center;
