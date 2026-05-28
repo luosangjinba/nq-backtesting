@@ -757,12 +757,15 @@ html, body {
 .pda-menu-section summary {
   height: 26px;
   padding: 0 8px;
+  overflow: hidden;
   color: #b2b5be;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
   line-height: 26px;
   list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: pointer;
 }
 
