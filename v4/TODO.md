@@ -96,7 +96,7 @@
   - [x] Step 56.6: 实现 `normalizeOrderReview()` 与 `getOrderReviewIdentity()`，保留 `id/createdAt/importedFromId`，更新 `updatedAt`
   - [x] Step 56.7: 实现 store API：`addOrderReview`、`updateOrderReview`、`deleteOrderReview`、`loadOrderReviews`、`clearOrderReviews`、`getOrderReviews`、`getOrderReviewById`
   - [x] Step 56.8: 每次变更 emit `order-review:changed`；运行 `node --check`，并用轻量 node probe 覆盖 normalize / identity / CRUD
-- [ ] Step 57: 新增 `order/order-review-persistence.js`，使用 localStorage key `v4:order-reviews:NQ` 保存/恢复工作草稿
+- [x] Step 57: 新增 `order/order-review-persistence.js`，使用 localStorage key `v4:order-reviews:NQ` 保存/恢复工作草稿
 - [ ] Step 58: 新增 `ui/inspector/order-review-panel.js`，渲染 Order Reviews list、Setup Thesis、Entry Plan、Result Review compact panels
 - [ ] Step 59: 接入 `inspector-sidebar.js`，支持从 selected segment / selected composite / empty state 创建 Order Review，并支持 Locate/Edit/Delete
 - [ ] Step 60: 新增 `order/order-review-renderer.js`，渲染 setup/entry/exit markers 与可选 SL/target helper lines；支持日线/低周期时间映射

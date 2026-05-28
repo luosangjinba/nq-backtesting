@@ -170,6 +170,45 @@ Next step:
 
 - `Step 57`: add `order/order-review-persistence.js` using localStorage key `v4:order-reviews:NQ`.
 
+## 2026-05-28 Update - Order Review Persistence
+
+Completed `Phase 8B / Step 57` in `v4/TODO.md`.
+
+Added `v4/src/order/order-review-persistence.js`:
+
+- localStorage key: `v4:order-reviews:NQ`
+- `saveOrderReviews()`
+- `restoreOrderReviews()`
+- `clearSavedOrderReviews()`
+- `initOrderReviewPersistence()`
+
+Behavior:
+
+- On init, restores saved order reviews into the in-memory store with `loadOrderReviews()`.
+- Listens to `order-review:changed` and saves `getOrderReviews()` automatically.
+- Filters draft orders with `source === 'draft'` or `draft === true`.
+- Uses a `restoring` guard so restore-triggered store events do not immediately rewrite localStorage.
+- Emits `status:update` for read/save/clear failures and successful manual clear.
+
+App integration:
+
+- `v4/src/app.js` imports and calls `initOrderReviewPersistence()` during startup.
+
+Verification ran:
+
+```bash
+node --check v4/src/app.js
+node --check v4/src/order/order-review-persistence.js
+git diff --check -- v4/src/app.js v4/src/order/order-review-persistence.js
+node --input-type=module -e "..."
+```
+
+The node probe mocked `window.localStorage` and covered save, restore, semantic identity after restore, and clear.
+
+Next step:
+
+- `Step 58`: add `ui/inspector/order-review-panel.js`.
+
 ## Local Files Not To Commit
 - `trading_data.duckdb`
 - `__pycache__/`
