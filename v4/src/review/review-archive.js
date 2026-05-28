@@ -267,30 +267,38 @@ function prepareImportedGroups(existingGroups, importedGroups) {
   );
   const importStamp = Date.now();
   let skippedDuplicates = 0;
+  const idMap = new Map();
   const groups = [];
 
   importedGroups.forEach((group, index) => {
     const identity = `${group.type}:${(group.childSegmentIds || []).join(',')}:${group.targetSegmentId || ''}`;
     if (existingIdentities.has(identity)) {
       skippedDuplicates += 1;
+      const existing = existingGroups.find(
+        (candidate) =>
+          `${candidate.type}:${(candidate.childSegmentIds || []).join(',')}:${candidate.targetSegmentId || ''}` === identity
+      );
+      if (existing) idMap.set(group.id, existing.id);
       return;
     }
 
+    const originalId = group.id;
     let nextGroup = group;
     if (usedIds.has(group.id)) {
       nextGroup = {
         ...group,
         id: `${group.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: group.id,
+        importedFromId: originalId,
         updatedAt: Date.now(),
       };
     }
     usedIds.add(nextGroup.id);
     existingIdentities.add(identity);
+    idMap.set(originalId, nextGroup.id);
     groups.push(nextGroup);
   });
 
-  return { groups, skippedDuplicates };
+  return { groups, skippedDuplicates, idMap };
 }
 
 function prepareImportedSmtRecords(existingRecords, importedRecords) {
@@ -346,6 +354,9 @@ function remapOrderReviewLinkedRefs(order, refIdMaps = {}) {
         }
         if (ref.type === ORDER_REF_TYPES.SEGMENT) {
           return { ...ref, id: refIdMaps.segmentIdMap?.get(ref.id) || ref.id };
+        }
+        if (ref.type === ORDER_REF_TYPES.COMPOSITE) {
+          return { ...ref, id: refIdMaps.groupIdMap?.get(ref.id) || ref.id };
         }
         if (ref.type === ORDER_REF_TYPES.SMT) {
           return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
@@ -470,7 +481,11 @@ export async function importReviewArchive(file) {
     const normalizedGroups = (Array.isArray(payload.segmentGroups) ? payload.segmentGroups : [])
       .map((group) => normalizeImportedGroup(group, segmentIdMap, availableSegmentIds))
       .filter(Boolean);
-    const { groups, skippedDuplicates: skippedGroupDuplicates } = prepareImportedGroups(
+    const {
+      groups,
+      skippedDuplicates: skippedGroupDuplicates,
+      idMap: groupIdMap,
+    } = prepareImportedGroups(
       existingGroups,
       normalizedGroups
     );
@@ -493,7 +508,7 @@ export async function importReviewArchive(file) {
     } = prepareImportedOrderReviews(
       existingOrderReviews,
       Array.isArray(payload.orderReviews) ? payload.orderReviews : [],
-      { pdaIdMap: idMap, segmentIdMap, smtIdMap }
+      { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap }
     );
     loadOrderReviews([...existingOrderReviews, ...orders]);
 
