@@ -372,3 +372,55 @@ export function normalizeSetupThesis(input = {}) {
     ),
   };
 }
+
+function deriveRiskPoints(entryPrice, stopLoss) {
+  if (entryPrice === null || stopLoss === null) return null;
+  return Math.abs(entryPrice - stopLoss);
+}
+
+export function normalizeEntryPlan(input = {}) {
+  const entryPrice = normalizeNumber(input.entryPrice);
+  const stopLoss = normalizeNumber(input.stopLoss);
+
+  return {
+    direction: normalizeEnum(
+      input.direction,
+      VALID_ORDER_DIRECTIONS,
+      ORDER_DIRECTION_ALIASES,
+      ORDER_DIRECTIONS.UNKNOWN
+    ),
+    entryTimestamp: normalizeTimestamp(input.entryTimestamp),
+    entryPrice,
+    entryModel: normalizeEnum(
+      input.entryModel,
+      VALID_ORDER_ENTRY_MODELS,
+      ORDER_ENTRY_MODEL_ALIASES,
+      ORDER_ENTRY_MODELS.MANUAL
+    ),
+    entryTimeframe: normalizeEnum(
+      input.entryTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    stopLoss,
+    stopReason: normalizeEnum(
+      input.stopReason,
+      VALID_ORDER_STOP_REASONS,
+      ORDER_STOP_REASON_ALIASES,
+      ORDER_STOP_REASONS.MANUAL
+    ),
+    targetInternal: normalizeNumber(input.targetInternal),
+    targetSwing: normalizeNumber(input.targetSwing),
+    targetExternal: normalizeNumber(input.targetExternal),
+    selectedTargetType: normalizeEnum(
+      input.selectedTargetType,
+      VALID_ORDER_TARGET_TYPES,
+      ORDER_TARGET_TYPE_ALIASES,
+      ORDER_TARGET_TYPES.SWING
+    ),
+    finalTarget: normalizeNumber(input.finalTarget),
+    riskPoints: deriveRiskPoints(entryPrice, stopLoss),
+    note: normalizeNote(input.note),
+  };
+}
