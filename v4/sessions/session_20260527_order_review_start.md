@@ -298,6 +298,42 @@ Notes:
 - The scenario labels 09:30 reversal, 09:50 continuation/reversal, Silver Bullet, skipped, missed, invalidated, win/loss/breakeven are now representable in the manual Order Review model.
 - This pass did not perform visual chart screenshot review of every named market scenario with real historical candles; it verified the data/UI/archive path required to record those scenarios.
 
+## 2026-05-28 Update - Merge To Main
+
+`research/order-review` was reviewed and merged into `main` with a fast-forward merge.
+
+Final main head after merge:
+
+```text
+6fe4a87 fix(v4): remap composite refs in order review imports
+```
+
+Pre-merge checks passed:
+
+```bash
+node --check v4/src/order/order-review-store.js
+node --check v4/src/order/order-review-persistence.js
+node --check v4/src/order/order-review-renderer.js
+node --check v4/src/ui/inspector/order-review-panel.js
+node --check v4/src/ui/inspector-sidebar.js
+node --check v4/src/review/review-archive.js
+git diff --check
+```
+
+Review finding fixed before merge:
+
+- Review JSON import now remaps Order Review linked refs to Composite Moves when imported groups are deduped or renamed.
+
+Current branch state after merge:
+
+- Active branch: `main`
+- `main` is ahead of `origin/main`
+- Local untracked files remain intentionally uncommitted:
+  - `trading_data.duckdb`
+  - `__pycache__/`
+  - `tmp/`
+  - `v3/plans/`
+
 ## Local Files Not To Commit
 - `trading_data.duckdb`
 - `__pycache__/`
