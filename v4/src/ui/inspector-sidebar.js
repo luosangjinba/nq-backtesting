@@ -45,7 +45,9 @@ import {
 import { parseTags, renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
+import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
+import { getOrderReviews } from '../order/order-review-store.js';
 import {
   EVIDENCE_TYPES,
   buildDefaultActorFromSegment,
@@ -121,6 +123,7 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
+    ${renderOrderReviewPanel(getOrderReviews())}
     ${renderSmtPanel(getSmtRecords())}
     ${renderDrawingSetList()}
     ${renderArchiveActions()}
@@ -130,6 +133,7 @@ function renderEmpty() {
 function renderArchivePanel() {
   currentPanel = 'archive';
   bodyEl.innerHTML = `
+    ${renderOrderReviewPanel(getOrderReviews())}
     ${renderSmtPanel(getSmtRecords())}
     ${renderArchiveActions()}
   `;
@@ -807,6 +811,7 @@ export function initInspectorSidebar() {
   bus.on('segment-group:changed', refreshSelection);
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
+  bus.on('order-review:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();
