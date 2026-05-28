@@ -77,11 +77,13 @@
 
 ### Phase 8: Order Review / Execution Lens 研究
 - [ ] Step 47: 整理订单复盘设计文档 `v4/docs/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
-- [ ] Step 48: 定义 `Opportunity Review / Execution Lens` 对象边界：以 09:30、09:50、Silver Bullet 等固定窗口作为 event anchor，引用现有 1H segment / Composite Move / PDA / SMT / Reaction Evidence
-- [ ] Step 49: 定义 `Entry Review` 子对象：direction、entry time/price、stop、target internal/swing/external、result、skip/invalid reason；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
-- [ ] Step 50: 设计 Inspector UI 入口：选中 segment/composite 后创建 Opportunity Review，再在 Opportunity 下添加 Entry Review；图表第一版只显示轻量 window marker/range，不做复杂下单 overlay
-- [ ] Step 51: 设计 localStorage 与 Review JSON schema：保存 opportunity reviews、entry reviews、linked object ids；不写 DB，不包含 K 线数据
-- [ ] Step 52: 明确第一版非目标：不做自动信号、不自动判断 09:30 reversal / Silver Bullet 是否成立、不替代 1H structure backbone
+- [ ] Step 48: 定义 `Order Review` 对象边界：不是简单 entry/exit 表，而是 `Setup Thesis -> Entry Plan -> Result Review`；订单理由不限制为上一段行情结束原因，允许前面多段结构、Composite Move、PDA、SMT、Reaction Evidence 的组合拳
+- [ ] Step 49: 定义 `Setup Thesis`：记录 primary event 的 1M 精确时间、事件周期、事件类型（sweep liquidity / touch FVG / touch NWOG/NDOG / SMT / other），并支持 `linkedObjectRefs[]` 引用多个 segment / composite / PDA / SMT / reactionEvidence；低周期 1M/5M 事件要提示是否违反“跟随高周期事件做单”的原则
+- [ ] Step 50: 定义 `Entry Plan` 子对象：direction、entry time/price（1M 精度）、entry model（OB / FVG / OTE / OTE+OB / sweep / manual）、stoploss、target internal/swing/external、selected target、final target；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
+- [ ] Step 51: 定义 `Result Review` 子对象：expected target reached、final target reached、exit time/price、result、note；支持 skipped / invalidated / managed-out 等非标准结果
+- [ ] Step 52: 设计 Inspector UI 入口：可从 segment/composite/空状态创建 Order Review，允许手工添加多个 setup linked refs，再在 Order 下添加 Entry Plan 与 Result Review；图表第一版只显示轻量 setup/entry/window marker，不做复杂下单 overlay
+- [ ] Step 53: 设计 localStorage 与 Review JSON schema：保存 order reviews、setup thesis、entry plan、result review、linked object refs；不写 DB，不包含 K 线数据
+- [ ] Step 54: 明确第一版非目标：不做自动信号、不自动判断 09:30 reversal / Silver Bullet 是否成立、不替代 1H structure backbone、不强迫订单绑定上一段 segment
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

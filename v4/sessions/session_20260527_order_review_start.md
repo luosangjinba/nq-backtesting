@@ -32,11 +32,54 @@ PDA Map
 - Added `Phase 8: Order Review / Execution Lens 研究` to `v4/TODO.md`.
 - Planned steps:
   - write `v4/docs/ORDER_REVIEW_DESIGN.md`
-  - define Opportunity Review / Execution Lens object boundaries
-  - define Entry Review sub-object
+  - define Order Review as `Setup Thesis -> Entry Plan -> Result Review`
+  - define Setup Thesis with flexible multi-object linked refs
+  - define Entry Plan sub-object
+  - define Result Review sub-object
   - design Inspector entry points
   - design localStorage and Review JSON schema
   - explicitly keep first version non-automatic
+
+## Order Review Schema Adjustment
+- Order reasoning should not be constrained to "why the previous segment ended".
+- A valid order may come from a combination of multiple earlier structures or events.
+- Replace the earlier narrow framing with:
+
+```text
+Order Review
+  -> Setup Thesis
+  -> Entry Plan
+  -> Result Review
+```
+
+- `Setup Thesis` should include:
+  - primary event timestamp at 1M precision
+  - primary event timeframe
+  - primary event type, such as sweep liquidity, touch FVG, touch NWOG/NDOG, SMT, or other
+  - `linkedObjectRefs[]` for multiple supporting objects:
+    - segment
+    - composite
+    - PDA
+    - SMT
+    - Reaction Evidence
+  - note / narrative
+  - higher-timeframe justification
+  - warning when the reason is mainly 1M/5M and may violate the principle of following higher-timeframe events
+- `Entry Plan` should include:
+  - direction
+  - entry time/price at 1M precision
+  - entry model: OB, FVG, OTE, OTE+OB, sweep, manual
+  - stoploss
+  - target internal/swing/external
+  - selected target
+  - final target
+- `Result Review` should include:
+  - expected target reached
+  - final target reached
+  - exit time/price
+  - result
+  - note
+- First implementation should not force an order to bind to a previous segment. Segment/composite links are context refs, not mandatory ownership.
 
 ## Secondary Viewport Controls
 - Added a secondary chart viewport control bar inside `#secondary-chart`.
