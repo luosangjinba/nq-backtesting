@@ -943,6 +943,13 @@ This avoids mixing order review with existing PDA/SMT/segment chart interactions
 
 ## Persistence
 
+Persistence has two layers:
+
+- localStorage for local working drafts
+- Review JSON for archive and transfer
+
+Do not write Order Reviews to DuckDB in the first version. Do not store candle data inside Order Reviews.
+
 ### LocalStorage
 
 Use:
@@ -952,6 +959,26 @@ v4:order-reviews:NQ
 ```
 
 Store normalized `OrderReview[]`.
+
+Rules:
+
+- Save on every `order-review:changed`.
+- Load once during app initialization.
+- Ignore malformed records that cannot normalize.
+- Keep incomplete drafts.
+- Do not persist current selection, hover state, chart viewport, or expanded Inspector rows.
+
+Suggested module:
+
+```text
+v4/src/order/order-review-persistence.js
+```
+
+Suggested event:
+
+```text
+order-review:changed
+```
 
 ### Review JSON
 
@@ -964,6 +991,115 @@ Add:
 ```
 
 Review JSON should preserve linked object refs. Import should normalize records and avoid duplicate semantic identities where possible.
+
+### Review JSON Shape
+
+Order reviews should be added alongside the existing review payload:
+
+```json
+{
+  "app": "trading-v4-review",
+  "version": 1,
+  "pdaAnnotations": [],
+  "marketSegments": [],
+  "segmentGroups": [],
+  "smtRecords": [],
+  "orderReviews": []
+}
+```
+
+`orderReviews` should contain normalized `OrderReview` objects.
+
+### Export Rules
+
+- Export all non-draft and draft order reviews in the current store.
+- Preserve `id`, `createdAt`, and `updatedAt`.
+- Preserve `linkedObjectRefs` exactly.
+- Do not include candle data.
+- Do not include UI state.
+
+Draft order reviews are exportable because they are research notes, not executable orders.
+
+### Import Rules
+
+Import should:
+
+- accept missing `orderReviews` for backwards compatibility
+- normalize every incoming order
+- skip records that cannot be normalized at all
+- handle duplicate ids
+- handle semantic duplicates
+- preserve linked refs even when the referenced object is missing
+
+Do not reject an order just because its linked PDA/SMT/segment/composite is absent in the current workspace. Instead, keep the ref and let the UI show it as missing/stale.
+
+### ID Conflict Handling
+
+If imported `id` already exists but semantic identity is different:
+
+```text
+{originalId}-import-{timestamp}-{index}
+```
+
+Set:
+
+```js
+importedFromId: originalId
+```
+
+If semantic identity matches an existing record, skip the imported duplicate.
+
+### Semantic Identity
+
+Use the identity described in Object Model:
+
+```text
+instrument:setupEventTimestamp:entryTimestamp:direction:entryModel
+```
+
+Where:
+
+- `setupEventTimestamp = setupThesis.primaryEventTimestamp`
+- `entryTimestamp = entryPlan.entryTimestamp || setupEventTimestamp`
+- `direction = entryPlan.direction`
+- `entryModel = entryPlan.entryModel`
+
+If no timestamp exists, identity is unavailable and import should rely on id conflict handling only.
+
+### Linked Ref Integrity
+
+Linked refs are references, not ownership.
+
+Deleting an Order Review must not delete:
+
+- PDA annotations
+- SMT records
+- market segments
+- segment groups
+- Reaction Evidence
+
+Import should not auto-create missing linked objects.
+
+UI should render missing linked refs as:
+
+```text
+Missing: type:id
+```
+
+### Archive Module Boundary
+
+The Order Review store should own normalization and identity helpers.
+
+Suggested exports:
+
+```js
+normalizeOrderReview(input, options)
+getOrderReviewIdentity(order)
+loadOrderReviews(nextOrders)
+getOrderReviews()
+```
+
+`review-archive.js` should call these helpers rather than duplicating order normalization logic.
 
 ## Implementation Order
 
