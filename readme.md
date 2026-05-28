@@ -28,7 +28,8 @@ V4 当前是“手工标注 + 图表复盘 + 结构证据归档”的工具，�
 - Structure Sets：在 Inspector 中定位/临时 focus segment 与 Composite Move 绘制集。
 - Split Screen：主图 NQ + 副图 NQ/ES，同一绝对时间区间，可选副图周期与上下/左右布局。
 - SMT 手工标注第一版：NQ follows ES，支持 Liquidity SMT 两点连线与 FVG SMT 标记；右侧 Inspector 显示、备注、定位、删除。
-- Review JSON：导出/导入 PDA、segments、Composite Moves、Reaction Evidence、SMT records；不包含 K 线数据。
+- Order Review / Execution Lens：从空状态、segment 或 Composite Move 创建订单复盘，记录 Setup Thesis、Entry Plan、Result Review，图表显示 setup/entry/exit、SL、target 轻量标记。
+- Review JSON：导出/导入 PDA、segments、Composite Moves、Reaction Evidence、SMT records、Order Reviews；不包含 K 线数据。
 
 仍未完成或暂缓：
 
@@ -91,14 +92,20 @@ V4 当前聚焦图表式复盘，而不是旧 YAML 表单：
   - 支持上下或左右布局
   - 支持从主图右键定位副图同时间
   - SMT 标注目前只做 NQ follows ES 的手工 evidence
+- Order Review：
+  - Inspector 空状态可创建空白 Order Review
+  - 选中 segment 或 Composite Move 时可创建带 linked ref 的 Order Review
+  - Order Review 列表支持 Locate、Delete、Result、Note
+  - 主图渲染 setup/entry/exit vertical marker 与 SL/target helper line
 - 数据保存：
-  - PDA 与 Segment 草稿保存在 browser localStorage
-  - Review JSON export/import 包含 PDA、market segments、segmentGroups、reactionEvidence、SMT records
+  - PDA、Segment 与 Order Review 草稿保存在 browser localStorage
+  - Review JSON export/import 包含 PDA、market segments、segmentGroups、reactionEvidence、SMT records、orderReviews
 
 ### V4 最近修复
 
 - SMT 渲染修复：日线周期也会把 timestamp 正确映射成 chart date。
 - Review JSON 已包含 SMT records，导入时按 SMT identity 去重。
+- Review JSON 已包含 Order Reviews，导入时按 semantic identity 去重，并 remap PDA/segment/SMT linked refs。
 - 右键菜单已折叠分组，靠近图表底部时自动上移并可内部滚动。
 - 主图右键菜单新增 `Locate Time in Secondary`，用于把副图定位到当前主图 K 线时间。
 
@@ -106,10 +113,10 @@ V4 当前聚焦图表式复盘，而不是旧 YAML 表单：
 
 推荐下一步按顺序推进：
 
-1. 用真实样例验收完整手工复盘链路：PDA → Segment → PDA Response → Reaction Evidence → Composite Move → Review JSON。
-2. 验收 SMT 手工标注链路：NQ/ES split、Liquidity SMT、FVG SMT、导出/导入后恢复。
+1. 用真实样例验收完整手工复盘链路：PDA → Segment → PDA Response → Reaction Evidence → Composite Move → SMT → Order Review → Review JSON。
+2. 验收 Order Review 样例：09:30 reversal、09:50 continuation/reversal、Silver Bullet、skipped、missed、invalidated、win/loss/breakeven。
 3. 进入精确复盘阶段：actor TF 自动取数、canvas 框选 actor K 线群、最终 verdict 是否需要落地、统计页是否需要推进。
-4. 补最小 node probe 或浏览器验证脚本，覆盖 Review JSON、Composite Move metrics、SMT records、Reaction Evidence metrics。
+4. 补最小 node probe 或浏览器验证脚本，覆盖 Review JSON、Composite Move metrics、SMT records、Reaction Evidence metrics、Order Review renderer。
 
 ## Legacy / V2 主线说明
 

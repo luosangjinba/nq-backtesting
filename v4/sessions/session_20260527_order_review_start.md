@@ -209,6 +209,57 @@ Next step:
 
 - `Step 58`: add `ui/inspector/order-review-panel.js`.
 
+## 2026-05-28 Update - Order Review MVP UI, Renderer, Archive, Docs
+
+Completed `Phase 8B / Step 58` through `Step 62` in `v4/TODO.md`.
+
+Implemented Inspector UI:
+
+- Added `v4/src/ui/inspector/order-review-panel.js`.
+- Empty Inspector state shows `Order Reviews` and can create a blank review.
+- Selected segment view can create an Order Review with a segment linked ref.
+- Selected Composite Move view can create an Order Review with a composite linked ref.
+- Order Review rows show compact `Setup Thesis`, `Entry Plan`, and `Result Review`.
+- Rows support `Locate`, `Delete`, result quick edit, and order-level note edit.
+
+Implemented chart rendering:
+
+- Added `v4/src/order/order-review-renderer.js`.
+- Renders setup / entry / exit vertical markers on the primary chart.
+- Renders stoploss and target helper lines.
+- Supports current timeframe mapping, including daily chart date mapping.
+- Listens to `order-review:changed`, `bars:loaded`, and `bars:cleared`.
+
+Extended Review JSON:
+
+- `review-archive.js` now exports `orderReviews`.
+- Import accepts missing `orderReviews` for older Review JSON files.
+- Imported Order Reviews pass through `normalizeOrderReview()`.
+- Semantic identity dedupe uses:
+
+```text
+instrument:setupEventTimestamp:entryTimestamp:direction:entryModel
+```
+
+- id conflicts are renamed with `-import-{timestamp}-{index}` and preserve `importedFromId`.
+- linked refs to PDA / segment / SMT are remapped when those objects were imported with new ids.
+- missing linked refs are preserved and are not auto-created.
+
+Documentation updated:
+
+- `v4/docs/USER_GUIDE.zh-CN.md`
+- `v4/docs/USER_GUIDE.en.md`
+- `readme.md`
+
+Current limitation:
+
+- Order Review is still a manual review layer, not an order execution module.
+- First version does not support order hit-test, drag editing, automatic target-hit calculation, or statistics pages.
+
+Next step:
+
+- `Step 63`: verify sample workflows for 09:30 reversal, 09:50 continuation/reversal, Silver Bullet, skipped/missed/invalidated, and win/loss/breakeven.
+
 ## Local Files Not To Commit
 - `trading_data.duckdb`
 - `__pycache__/`

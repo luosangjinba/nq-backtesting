@@ -394,6 +394,43 @@ FVG SMT 用来记录：
 
 SMT 记录带有原始周期。当前版本只在 record timeframe 与当前主图/副图周期一致时显示。
 
+## Order Review / Execution Lens
+
+Order Review 用来把一次做单复盘拆成三层：
+
+- `Setup Thesis`：为什么这里有机会，可以引用 segment、Composite Move、PDA、SMT 或 Reaction Evidence。
+- `Entry Plan`：方向、入场时间/价格、entry model、stoploss、target。
+- `Result Review`：出场、结果、是否达到预期目标、points/R。
+
+当前版本是手工复盘，不自动判断 09:30 reversal、09:50 continuation/reversal 或 Silver Bullet 是否成立。
+
+### 创建 Order Review
+
+右侧 Inspector 支持三种入口：
+
+- 空状态：点击 `Create Blank Order Review`。
+- 选中 segment：点击 `Create Order Review From Segment`，会自动添加 segment linked ref。
+- 选中 Composite Move：点击 `Create Order Review From Composite`，会自动添加 composite linked ref。
+
+Order Review 列表显示在 Inspector 的空状态、Archive 视图，以及选中 segment / Composite Move 时的下方区域。
+
+### Order Review 操作
+
+每条 Order Review 当前支持：
+
+- `Locate`：定位到 setup / entry / exit 的时间范围。
+- `Delete`：删除该订单复盘。
+- `Result`：快速修改结果状态。
+- `Note`：编辑订单级备注。
+
+图表会显示轻量 overlay：
+
+- setup / entry / exit vertical marker
+- stoploss helper line
+- target helper line
+
+第一版不做订单 hit-test、拖拽编辑、自动 target hit 判断或统计页。
+
 ## 保存与导入导出
 
 V4 有两种保存方式：
@@ -405,6 +442,7 @@ V4 有两种保存方式：
 - PDA annotations
 - market segments
 - segment groups / Composite Moves
+- Order Reviews
 
 这是工作草稿，不是正式归档。
 
@@ -422,6 +460,7 @@ Review JSON 包含：
 - segmentGroups
 - pdaResponses 里的 reactionEvidence
 - SMT records
+- orderReviews
 
 不包含 K 线数据。
 
@@ -436,7 +475,8 @@ Review JSON 包含：
 7. 对多段式 move 创建 Composite Move。
 8. 使用 isolate 或 Structure Sets focus 检查局部结构。
 9. 如果需要 NQ/ES 关系证据，开启 Split 并手工标注 SMT。
-10. 导出 Review JSON 归档。
+10. 为关键机会创建 Order Review，记录 setup、entry、result。
+11. 导出 Review JSON 归档。
 
 ## 常见注意事项
 
@@ -447,5 +487,6 @@ Review JSON 包含：
 - `target segment` 不一定是 child segment，通常是被突破或被参考的上一段。
 - Wick CE 是 PDA，可以链接到 segment，也会参与 terminal reaction 查看。
 - SMT 当前是手工 evidence，不会自动扫描候选。
+- Order Review 是复盘层，不是下单执行模块；第一版允许不完整草稿。
 - Review JSON 不包含 K 线数据，迁移到其他机器时仍需要准备本地 DuckDB 行情数据。
 - 精确复盘相关的自动 actor TF 取数、canvas 框选和统计页仍属于后续阶段。

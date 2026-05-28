@@ -398,6 +398,43 @@ The Inspector `SMT Evidence` section supports:
 
 SMT records keep their original timeframe. The current version renders SMT only when the record timeframe matches the current primary/secondary timeframe.
 
+## Order Review / Execution Lens
+
+Order Review splits an execution review into three layers:
+
+- `Setup Thesis`: why this opportunity existed, with optional links to segments, Composite Moves, PDAs, SMT, or Reaction Evidence.
+- `Entry Plan`: direction, entry time/price, entry model, stoploss, and targets.
+- `Result Review`: exit, result, expected/final target status, points/R.
+
+The current version is manual review. It does not automatically judge whether a 09:30 reversal, 09:50 continuation/reversal, or Silver Bullet setup is valid.
+
+### Create Order Reviews
+
+The Inspector supports three entry points:
+
+- Empty state: click `Create Blank Order Review`.
+- Selected segment: click `Create Order Review From Segment`; this adds a segment linked ref.
+- Selected Composite Move: click `Create Order Review From Composite`; this adds a composite linked ref.
+
+The Order Reviews list appears in the empty Inspector state, Archive view, and below selected segment / Composite Move details.
+
+### Order Review Actions
+
+Each Order Review currently supports:
+
+- `Locate`: locate the setup / entry / exit time range.
+- `Delete`: delete the review.
+- `Result`: quickly update result state.
+- `Note`: edit the order-level note.
+
+The chart renders a lightweight overlay:
+
+- setup / entry / exit vertical markers
+- stoploss helper line
+- target helper line
+
+The first version does not support order hit-testing, drag editing, automatic target-hit calculation, or statistics pages.
+
 ## Saving And Import/Export
 
 V4 has two persistence layers.
@@ -409,6 +446,7 @@ The browser automatically saves:
 - PDA annotations
 - market segments
 - segment groups / Composite Moves
+- Order Reviews
 
 This is a working draft, not a formal archive.
 
@@ -426,6 +464,7 @@ Review JSON includes:
 - segmentGroups
 - reactionEvidence under pdaResponses
 - SMT records
+- orderReviews
 
 It does not include candle data.
 
@@ -440,7 +479,8 @@ It does not include candle data.
 7. Create Composite Moves for multi-leg structures.
 8. Use isolate mode or Structure Sets focus to inspect local context.
 9. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
-10. Export Review JSON for archiving.
+10. Create Order Reviews for key opportunities and record setup, entry, and result.
+11. Export Review JSON for archiving.
 
 ## Notes And Common Pitfalls
 
@@ -451,5 +491,6 @@ It does not include candle data.
 - `target segment` is usually the prior leg being broken or referenced, and it does not have to be a child.
 - Wick CE is a PDA. It can be linked to a segment and can appear in terminal reaction review.
 - SMT is currently manual evidence. It does not scan candidates automatically.
+- Order Review is a review layer, not an order execution module; incomplete drafts are allowed in the first version.
 - Review JSON does not include candle data. Another machine still needs local DuckDB market data.
 - Precision-review features such as actor-timeframe auto-fetching, canvas selection, and statistics pages are still deferred.
