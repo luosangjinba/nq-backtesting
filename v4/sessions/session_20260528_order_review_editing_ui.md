@@ -274,3 +274,21 @@
   - linked refs management
   - setup / entry / exit time pick
   - entry / stop / final target price pick
+
+## 2026-05-28 Direction Change - Phase 8D
+- User clarified that the current Inspector-first workflow is not the desired primary interaction.
+- New direction:
+  - Order Setup should be created and edited primarily from chart actions.
+  - Inspector should be reduced to lightweight summary, a few corrections, refs, note/result, locate/delete.
+  - Segment / Composite should not be treated as the normal order parent.
+  - PDA / SMT / Segment / Composite are all supporting linked refs.
+  - A setup may be a 1H/30M PDA event, such as a 1H FVG touch and bounce, without needing a drawable 1H segment.
+- Added `Phase 8D: Chart-First Order Setup Workflow` to `v4/TODO.md`.
+- Planned steps:
+  - Step 73: redefine interaction boundary
+  - Step 74: active Order Setup state
+  - Step 75: chart context menu Order Setup actions
+  - Step 76: link chart objects to active setup
+  - Step 77: compact Inspector default view
+  - Step 78: docs/user guide update
+  - Step 79: chart-first workflow verification

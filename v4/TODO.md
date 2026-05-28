@@ -115,6 +115,15 @@
 - [x] Step 71: 实现价格 pick 第一版：点击主图 K 线后可选择 OHLC 或当前价格，填入 entryPrice / stopLoss / finalTarget；暂不做拖拽
 - [x] Step 72: 验证完整录入链路：blank order、segment-derived order、composite-derived order、09:30/09:50/Silver Bullet 手工样例、localStorage 恢复、Review JSON 导出/导入
 
+### Phase 8D: Chart-First Order Setup Workflow
+- [ ] Step 73: 重新定义 Order Setup 交互边界：图表右键为主入口，Inspector 只做轻量摘要、少量修正与 locate/delete；Segment/Composite/PDA/SMT 都只是 linked refs，不是订单父级
+- [ ] Step 74: 新增 active Order Setup 状态：创建后自动激活，后续图表右键操作写入 active setup；Inspector 可切换/取消 active
+- [ ] Step 75: 主图右键菜单新增 Order Setup 分组：Create Bullish/Bearish Setup Here、Set Setup Event、Set Entry、Set Exit、Set Entry Price、Set Stop Loss、Set Final Target
+- [ ] Step 76: PDA / SMT / Segment / Composite 右键命中时支持 Link To Active Setup；允许 1H/30M FVG 这类非 segment 事件直接作为 setup 依据
+- [ ] Step 77: 精简 `order-review-panel.js` 默认显示：只显示 active setup 摘要、核心字段、refs、note/result/locate/delete；完整表单移入高级折叠区或暂时弱化
+- [ ] Step 78: 更新文档与 user guide：强调 Order Setup 是中心对象，图表操作是主输入方式，Inspector 不是主录入面板
+- [ ] Step 79: 验证 chart-first 工作流：右键创建 setup、关联 PDA/SMT/segment/composite、设置时间/价格、localStorage 恢复、Review JSON export/import、headless smoke
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
