@@ -245,3 +245,58 @@ export const ORDER_TARGET_REACHED_ALIASES = aliasMapFromDefinitions(ORDER_TARGET
 export const ORDER_RESULT_ALIASES = aliasMapFromDefinitions(ORDER_RESULT_DEFINITIONS);
 export const ORDER_EXIT_REASON_ALIASES = aliasMapFromDefinitions(ORDER_EXIT_REASON_DEFINITIONS);
 export const ORDER_CONFIDENCE_ALIASES = aliasMapFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
+
+export function normalizeString(value, fallback = '') {
+  if (value === undefined || value === null) return fallback;
+  const normalized = String(value).trim();
+  return normalized || fallback;
+}
+
+export function normalizeNote(value) {
+  return normalizeString(value, '');
+}
+
+export function normalizeNumber(value, fallback = null) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export function normalizeTimestamp(value, fallback = null) {
+  const parsed = normalizeNumber(value, fallback);
+  return parsed !== null && parsed >= 0 ? Math.floor(parsed) : fallback;
+}
+
+export function resolveDefinitionValue(value, validSet, aliasMap, fallback) {
+  const normalized = normalizeString(value, '');
+  if (!normalized) return fallback;
+  if (validSet.has(normalized)) return normalized;
+  if (aliasMap?.has(normalized)) return aliasMap.get(normalized);
+  return fallback;
+}
+
+export function normalizeEnum(value, validSet, aliasMap, fallback) {
+  return resolveDefinitionValue(value, validSet, aliasMap, fallback);
+}
+
+export function uniqueBy(items = [], getKey = (item) => item) {
+  if (!Array.isArray(items)) return [];
+  const seen = new Set();
+  const result = [];
+  items.forEach((item) => {
+    const key = getKey(item);
+    if (key === undefined || key === null || key === '' || seen.has(key)) return;
+    seen.add(key);
+    result.push(item);
+  });
+  return result;
+}
+
+export function isLowTimeframe(timeframe) {
+  const normalized = normalizeEnum(
+    timeframe,
+    VALID_ORDER_TIMEFRAMES,
+    ORDER_TIMEFRAME_ALIASES,
+    ''
+  );
+  return normalized === ORDER_TIMEFRAMES['1M'] || normalized === ORDER_TIMEFRAMES['5M'];
+}
