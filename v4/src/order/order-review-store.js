@@ -3,6 +3,8 @@
 export const ORDER_REVIEW_VERSION = 1;
 export const DEFAULT_ORDER_INSTRUMENT = 'NQ';
 
+let orderReviews = [];
+
 function keyFromValue(value) {
   return String(value).toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '');
 }
@@ -314,6 +316,56 @@ function createOrderReviewId(now = Date.now()) {
   return `order_manual_${Math.floor(now)}_${suffix}`;
 }
 
+function cloneOrderReview(order) {
+  if (!order) return null;
+  return {
+    ...order,
+    setupThesis: {
+      ...order.setupThesis,
+      linkedObjectRefs: Array.isArray(order.setupThesis?.linkedObjectRefs)
+        ? order.setupThesis.linkedObjectRefs.map((ref) => ({ ...ref }))
+        : [],
+    },
+    entryPlan: { ...order.entryPlan },
+    resultReview: { ...order.resultReview },
+  };
+}
+
+function ensureUniqueOrderReviewId(order, reviews = orderReviews) {
+  if (!reviews.some((review) => review.id === order.id)) return order;
+
+  let index = 2;
+  let nextId = `${order.id}-${index}`;
+  while (reviews.some((review) => review.id === nextId)) {
+    index += 1;
+    nextId = `${order.id}-${index}`;
+  }
+  return { ...order, id: nextId };
+}
+
+function mergeOrderReviewPatch(existing, patch = {}) {
+  const { id: _ignoredId, createdAt: _ignoredCreatedAt, ...safePatch } = patch;
+
+  return {
+    ...existing,
+    ...safePatch,
+    id: existing.id,
+    createdAt: existing.createdAt,
+    setupThesis: {
+      ...(existing.setupThesis || {}),
+      ...(safePatch.setupThesis || {}),
+    },
+    entryPlan: {
+      ...(existing.entryPlan || {}),
+      ...(safePatch.entryPlan || {}),
+    },
+    resultReview: {
+      ...(existing.resultReview || {}),
+      ...(safePatch.resultReview || {}),
+    },
+  };
+}
+
 export function normalizeLinkedObjectRef(input = {}) {
   const type = normalizeEnum(
     input.type,
@@ -534,4 +586,62 @@ export function normalizeOrderReview(input = {}, options = {}) {
   if (importedFromId) normalized.importedFromId = importedFromId;
 
   return normalized;
+}
+
+export function addOrderReview(input = {}, options = {}) {
+  const normalized = ensureUniqueOrderReviewId(normalizeOrderReview(input, options));
+  orderReviews = [...orderReviews, normalized];
+  return cloneOrderReview(normalized);
+}
+
+export function updateOrderReview(id, patch = {}, options = {}) {
+  const normalizedId = normalizeString(id, '');
+  if (!normalizedId) return null;
+
+  let updated = null;
+  orderReviews = orderReviews.map((order) => {
+    if (order.id !== normalizedId) return order;
+    updated = normalizeOrderReview(mergeOrderReviewPatch(order, patch), options);
+    return updated;
+  });
+
+  return cloneOrderReview(updated);
+}
+
+export function deleteOrderReview(id) {
+  const normalizedId = normalizeString(id, '');
+  const before = orderReviews.length;
+  orderReviews = orderReviews.filter((order) => order.id !== normalizedId);
+  return orderReviews.length !== before;
+}
+
+export function loadOrderReviews(nextOrders = [], options = {}) {
+  const normalizedOrders = [];
+  if (Array.isArray(nextOrders)) {
+    nextOrders.forEach((order) => {
+      normalizedOrders.push(
+        ensureUniqueOrderReviewId(
+          normalizeOrderReview(order, options),
+          normalizedOrders
+        )
+      );
+    });
+  }
+  orderReviews = normalizedOrders;
+  return getOrderReviews();
+}
+
+export function clearOrderReviews() {
+  const hadOrders = orderReviews.length > 0;
+  orderReviews = [];
+  return hadOrders;
+}
+
+export function getOrderReviews() {
+  return orderReviews.map(cloneOrderReview);
+}
+
+export function getOrderReviewById(id) {
+  const normalizedId = normalizeString(id, '');
+  return cloneOrderReview(orderReviews.find((order) => order.id === normalizedId) || null);
 }
