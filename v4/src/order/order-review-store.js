@@ -257,6 +257,7 @@ export function normalizeNote(value) {
 }
 
 export function normalizeNumber(value, fallback = null) {
+  if (value === undefined || value === null || value === '') return fallback;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
@@ -306,6 +307,11 @@ function normalizeBoolean(value, fallback = false) {
   if (value === 'true' || value === '1' || value === 1) return true;
   if (value === 'false' || value === '0' || value === 0) return false;
   return fallback;
+}
+
+function createOrderReviewId(now = Date.now()) {
+  const suffix = Math.random().toString(36).slice(2, 10);
+  return `order_manual_${Math.floor(now)}_${suffix}`;
 }
 
 export function normalizeLinkedObjectRef(input = {}) {
@@ -474,4 +480,58 @@ export function normalizeResultReview(input = {}, entryPlan = {}) {
     outcomeR: deriveOutcomeR(outcomePoints, entryPlan),
     note: normalizeNote(input.note),
   };
+}
+
+export function getOrderReviewIdentity(order = {}) {
+  const setupEventTimestamp = normalizeTimestamp(order.setupThesis?.primaryEventTimestamp);
+  const entryTimestamp = normalizeTimestamp(order.entryPlan?.entryTimestamp, setupEventTimestamp);
+  if (entryTimestamp === null) return null;
+
+  const instrument = normalizeString(order.instrument, DEFAULT_ORDER_INSTRUMENT);
+  const direction = normalizeEnum(
+    order.entryPlan?.direction,
+    VALID_ORDER_DIRECTIONS,
+    ORDER_DIRECTION_ALIASES,
+    ORDER_DIRECTIONS.UNKNOWN
+  );
+  const entryModel = normalizeEnum(
+    order.entryPlan?.entryModel,
+    VALID_ORDER_ENTRY_MODELS,
+    ORDER_ENTRY_MODEL_ALIASES,
+    ORDER_ENTRY_MODELS.MANUAL
+  );
+
+  return [
+    instrument,
+    setupEventTimestamp ?? '',
+    entryTimestamp,
+    direction,
+    entryModel,
+  ].join(':');
+}
+
+export function normalizeOrderReview(input = {}, options = {}) {
+  const now = normalizeTimestamp(options.now, Date.now());
+  const setupThesis = normalizeSetupThesis(input.setupThesis);
+  const entryPlan = normalizeEntryPlan(input.entryPlan);
+  const resultReview = normalizeResultReview(input.resultReview, entryPlan);
+  const id = normalizeString(input.id, createOrderReviewId(now));
+
+  const normalized = {
+    id,
+    source: normalizeString(input.source, 'manual'),
+    instrument: normalizeString(input.instrument, DEFAULT_ORDER_INSTRUMENT),
+    version: ORDER_REVIEW_VERSION,
+    createdAt: normalizeTimestamp(input.createdAt, now),
+    updatedAt: now,
+    setupThesis,
+    entryPlan,
+    resultReview,
+    note: normalizeNote(input.note),
+  };
+
+  const importedFromId = normalizeString(input.importedFromId, '');
+  if (importedFromId) normalized.importedFromId = importedFromId;
+
+  return normalized;
 }
