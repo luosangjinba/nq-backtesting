@@ -260,6 +260,44 @@ Next step:
 
 - `Step 63`: verify sample workflows for 09:30 reversal, 09:50 continuation/reversal, Silver Bullet, skipped/missed/invalidated, and win/loss/breakeven.
 
+## 2026-05-28 Update - Order Review Verification
+
+Completed `Phase 8B / Step 63` in `v4/TODO.md`.
+
+Automated checks:
+
+```bash
+node --check v4/src/order/order-review-store.js
+node --check v4/src/order/order-review-persistence.js
+node --check v4/src/order/order-review-renderer.js
+node --check v4/src/ui/inspector/order-review-panel.js
+node --check v4/src/ui/inspector-sidebar.js
+node --check v4/src/review/review-archive.js
+git diff --check
+```
+
+Node probes covered:
+
+- `normalizeOrderReview()`
+- add / update / delete / load behavior
+- result states: win, loss, breakeven, missed, skipped, invalidated, managed-out
+- localStorage save / restore / clear
+- Review JSON import with `orderReviews`
+- semantic dedupe on repeated import
+
+Browser/headless validation:
+
+- Loaded V4 at `http://127.0.0.1:8001/index.html`.
+- Verified Inspector empty state contains `Order Reviews`.
+- Clicked `Create Blank Order Review` via Chrome DevTools.
+- Confirmed the Inspector rendered `Setup Thesis`, `Entry Plan`, and `Result Review`.
+- Confirmed `localStorage["v4:order-reviews:NQ"]` saved one order review.
+
+Notes:
+
+- The scenario labels 09:30 reversal, 09:50 continuation/reversal, Silver Bullet, skipped, missed, invalidated, win/loss/breakeven are now representable in the manual Order Review model.
+- This pass did not perform visual chart screenshot review of every named market scenario with real historical candles; it verified the data/UI/archive path required to record those scenarios.
+
 ## Local Files Not To Commit
 - `trading_data.duckdb`
 - `__pycache__/`

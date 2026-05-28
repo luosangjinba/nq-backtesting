@@ -102,7 +102,7 @@
 - [x] Step 60: 新增 `order/order-review-renderer.js`，渲染 setup/entry/exit markers 与可选 SL/target helper lines；支持日线/低周期时间映射
 - [x] Step 61: 扩展 Review JSON export/import，加入 `orderReviews`，处理 normalize、id 冲突、semantic dedupe 与 missing linked refs
 - [x] Step 62: 更新 `USER_GUIDE.zh-CN.md`、`USER_GUIDE.en.md`、`readme.md` 与 session handoff
-- [ ] Step 63: 验证 09:30 reversal、09:50 continuation/reversal、Silver Bullet、skipped、missed、invalidated、win/loss/breakeven 样例；运行 JS 语法检查与 `git diff --check`
+- [x] Step 63: 验证 09:30 reversal、09:50 continuation/reversal、Silver Bullet、skipped、missed、invalidated、win/loss/breakeven 样例；运行 JS 语法检查与 `git diff --check`
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
