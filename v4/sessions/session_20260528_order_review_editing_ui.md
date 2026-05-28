@@ -397,3 +397,39 @@
   - `git diff --check` passed.
 - Commit:
   - `97f9d16 refactor(v4): split chart context menu order setup actions`
+
+## 2026-05-28 Planning - Time Overlays / Calendar Review Navigator
+- User wants TradingView-like time helpers:
+  - Calendar jump.
+  - Killzone displayed as a top-of-canvas horizontal line/band.
+  - Natural day boundary vertical lines.
+  - 09:30 / 09:50 / 10:00 and similar event-time vertical lines.
+  - Overlays should be visually clear but low-opacity enough not to obscure candle detail.
+  - Time overlays should only display on 4H and lower timeframes.
+- Proposed boundary:
+  - Build as independent `time-overlays` / `calendar` modules.
+  - Do not mix with PDA, Segment, SMT, or Order Review data ownership.
+  - Overlay state controls visual aids only.
+- Calendar Navigator direction:
+  - Clicking/choosing a day should show that day's review objects.
+  - Object groups: Order Setups, PDA, Segment, Composite Move, SMT.
+  - Reaction Evidence should remain under its owning Segment/PDA response in first version.
+  - Each object row should support Locate / Select / Focus.
+  - Order Setups should be listed first and default-expanded.
+- Calendar setup badge:
+  - If a day has any Order Setup, show a red badge/dot on that calendar day.
+  - Setup-day detection should consider setup event time, entry time, and exit time.
+  - Priority for display grouping: entryTimestamp, then setup primaryEventTimestamp, then exitTimestamp.
+- Implementation notes:
+  - Time marker x-position should not rely only on exact `timeToCoordinate()` because 09:30 may fall inside larger bars.
+  - A shared timestamp-to-x interpolation helper will likely be needed for 1H/4H markers.
+  - Calendar jump should locate within currently loaded data when possible; otherwise it can update start/end and reload a target range.
+- Added Phase 9 to `v4/TODO.md`:
+  - Step 84: time overlay module boundary
+  - Step 85: day/event time vertical markers
+  - Step 86: killzone top band
+  - Step 87: calendar jump
+  - Step 88: calendar review index
+  - Step 89: calendar navigator UI
+  - Step 90: setup red badge
+  - Step 91: multi-timeframe visual verification

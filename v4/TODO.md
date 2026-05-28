@@ -131,6 +131,16 @@
 - [ ] Step 82: 拆分 Inspector action 层：Order Review / PDA / Segment / pick mode 从 `inspector-sidebar.js` 中分离
 - [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
 
+### Phase 9: Time Overlays / Calendar Review Navigator
+- [ ] Step 84: 设计独立 `time-overlays` 模块边界：不塞进 PDA / Segment / Order Review；overlay 状态只控制显示，不改变复盘对象数据
+- [ ] Step 85: 实现时间标记 overlay 基础：自然日边界竖线、09:30 / 09:50 / 10:00 等时间竖线；只在 4H 及以下显示，颜色区分日边界与事件时间，线条低透明但足够粗
+- [ ] Step 86: 实现 Killzone 顶部 band：贴近 canvas 上边缘绘制横线/细带，不依赖价格坐标；支持手工选择显示日期和时间窗口
+- [ ] Step 87: 实现日历跳转第一版：输入或选择日期，若当前加载区间内则定位 viewport，否则调整 start/end 并重新加载目标日期附近数据
+- [ ] Step 88: 实现 Calendar Review Index：按自然日聚合 Order Setup / PDA / Segment / Composite / SMT；Reaction Evidence 第一版挂在所属 Segment/PDA response 下，不做顶层对象
+- [ ] Step 89: 实现 Calendar Review Navigator UI：点击某日显示当天对象列表；支持每个对象 Locate / Select / Focus；Order Setups 区域置顶
+- [ ] Step 90: 日历日期格 setup 红色角标：当天存在 Order Setup 时显示红色 badge；第一版红点或数量均可，点击后默认展开当天 Order Setups
+- [ ] Step 91: 验证 1M/5M/15M/1H/4H 周期下日边界、09:30/09:50/10:00、killzone 与对象定位一致；确认不遮挡 K 线细节
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
