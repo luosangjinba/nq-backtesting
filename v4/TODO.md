@@ -88,6 +88,14 @@
 
 ### Phase 8B: Order Review MVP 实现
 - [ ] Step 56: 新增 `order/order-review-store.js`，实现 normalize、identity、add/update/delete、load/get、`order-review:changed`
+  - [ ] Step 56.1: 建立 `v4/src/order/` 目录与 `order-review-store.js`，定义 enums/constants：event type、ref type、ref role、direction、entry model、target type、stop reason、target reached、result、exit reason、confidence
+  - [ ] Step 56.2: 实现基础 normalize helper：string enum fallback、number/null、timestamp/null、note string、array 去重
+  - [ ] Step 56.3: 实现 `normalizeSetupThesis()`：primary event、primaryEventPrice、linkedObjectRefs 去重、lowTimeframeWarning 派生、higherTimeframeJustification/narrative/confidence
+  - [ ] Step 56.4: 实现 `normalizeEntryPlan()`：direction、entry timestamp/price、entry timeframe/model、stopLoss/stopReason、targets、selectedTargetType、finalTarget、riskPoints 派生
+  - [ ] Step 56.5: 实现 `normalizeResultReview()`：expected/final target reached、exit timestamp/price、result、exitReason、outcomePoints/outcomeR 派生
+  - [ ] Step 56.6: 实现 `normalizeOrderReview()` 与 `getOrderReviewIdentity()`，保留 `id/createdAt/importedFromId`，更新 `updatedAt`
+  - [ ] Step 56.7: 实现 store API：`addOrderReview`、`updateOrderReview`、`deleteOrderReview`、`loadOrderReviews`、`clearOrderReviews`、`getOrderReviews`、`getOrderReviewById`
+  - [ ] Step 56.8: 每次变更 emit `order-review:changed`；运行 `node --check`，并用轻量 node probe 覆盖 normalize / identity / CRUD
 - [ ] Step 57: 新增 `order/order-review-persistence.js`，使用 localStorage key `v4:order-reviews:NQ` 保存/恢复工作草稿
 - [ ] Step 58: 新增 `ui/inspector/order-review-panel.js`，渲染 Order Reviews list、Setup Thesis、Entry Plan、Result Review compact panels
 - [ ] Step 59: 接入 `inspector-sidebar.js`，支持从 selected segment / selected composite / empty state 创建 Order Review，并支持 Locate/Edit/Delete
