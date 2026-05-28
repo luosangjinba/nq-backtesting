@@ -75,15 +75,26 @@
 - [x] Step 45: Segment Inspector 增加只读 Review Metrics 预览
 - [ ] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化
 
-### Phase 8: Order Review / Execution Lens 研究
-- [ ] Step 47: 整理订单复盘设计文档 `v4/docs/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
-- [ ] Step 48: 定义 `Order Review` 对象边界：不是简单 entry/exit 表，而是 `Setup Thesis -> Entry Plan -> Result Review`；订单理由不限制为上一段行情结束原因，允许前面多段结构、Composite Move、PDA、SMT、Reaction Evidence 的组合拳
-- [ ] Step 49: 定义 `Setup Thesis`：记录 primary event 的 1M 精确时间、事件周期、事件类型（sweep liquidity / touch FVG / touch NWOG/NDOG / SMT / other），并支持 `linkedObjectRefs[]` 引用多个 segment / composite / PDA / SMT / reactionEvidence；低周期 1M/5M 事件要提示是否违反“跟随高周期事件做单”的原则
-- [ ] Step 50: 定义 `Entry Plan` 子对象：direction、entry time/price（1M 精度）、entry model（OB / FVG / OTE / OTE+OB / sweep / manual）、stoploss、target internal/swing/external、selected target、final target；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
-- [ ] Step 51: 定义 `Result Review` 子对象：expected target reached、final target reached、exit time/price、result、note；支持 skipped / invalidated / managed-out 等非标准结果
-- [ ] Step 52: 设计 Inspector UI 入口：可从 segment/composite/空状态创建 Order Review，允许手工添加多个 setup linked refs，再在 Order 下添加 Entry Plan 与 Result Review；图表第一版只显示轻量 setup/entry/window marker，不做复杂下单 overlay
-- [ ] Step 53: 设计 localStorage 与 Review JSON schema：保存 order reviews、setup thesis、entry plan、result review、linked object refs；不写 DB，不包含 K 线数据
-- [ ] Step 54: 明确第一版非目标：不做自动信号、不自动判断 09:30 reversal / Silver Bullet 是否成立、不替代 1H structure backbone、不强迫订单绑定上一段 segment
+### Phase 8A: Order Review / Execution Lens 设计
+- [x] Step 47: 整理订单复盘设计文档 `v4/docs/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
+- [x] Step 48: 定义 `Order Review` 对象边界：不是简单 entry/exit 表，而是 `Setup Thesis -> Entry Plan -> Result Review`；订单理由不限制为上一段行情结束原因，允许前面多段结构、Composite Move、PDA、SMT、Reaction Evidence 的组合拳
+- [x] Step 49: 定义 `Setup Thesis`：记录 primary event 的 1M 精确时间、事件周期、事件类型（sweep liquidity / touch FVG / touch NWOG/NDOG / SMT / other），并支持 `linkedObjectRefs[]` 引用多个 segment / composite / PDA / SMT / reactionEvidence；低周期 1M/5M 事件要提示是否违反“跟随高周期事件做单”的原则
+- [x] Step 50: 定义 `Entry Plan` 子对象：direction、entry time/price（1M 精度）、entry model（OB / FVG / OTE / OTE+OB / sweep / manual）、stoploss、target internal/swing/external、selected target、final target；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
+- [x] Step 51: 定义 `Result Review` 子对象：expected target reached、final target reached、exit time/price、result、note；支持 skipped / invalidated / managed-out 等非标准结果
+- [x] Step 52: 设计 Inspector UI 入口：可从 segment/composite/空状态创建 Order Review，允许手工添加多个 setup linked refs，再在 Order 下添加 Entry Plan 与 Result Review；图表第一版只显示轻量 setup/entry/window marker，不做复杂下单 overlay
+- [x] Step 53: 设计 Chart Rendering：setup/entry/exit vertical markers，SL/target short helper lines，Inspector Locate，第一版不做 hit-test、拖拽、右键菜单或图表创建订单
+- [x] Step 54: 设计 localStorage 与 Review JSON schema：保存 order reviews、setup thesis、entry plan、result review、linked object refs；不写 DB，不包含 K 线数据
+- [x] Step 55: 明确第一版非目标：不做自动信号、不自动判断 09:30 reversal / Silver Bullet 是否成立、不替代 1H structure backbone、不强迫订单绑定上一段 segment
+
+### Phase 8B: Order Review MVP 实现
+- [ ] Step 56: 新增 `order/order-review-store.js`，实现 normalize、identity、add/update/delete、load/get、`order-review:changed`
+- [ ] Step 57: 新增 `order/order-review-persistence.js`，使用 localStorage key `v4:order-reviews:NQ` 保存/恢复工作草稿
+- [ ] Step 58: 新增 `ui/inspector/order-review-panel.js`，渲染 Order Reviews list、Setup Thesis、Entry Plan、Result Review compact panels
+- [ ] Step 59: 接入 `inspector-sidebar.js`，支持从 selected segment / selected composite / empty state 创建 Order Review，并支持 Locate/Edit/Delete
+- [ ] Step 60: 新增 `order/order-review-renderer.js`，渲染 setup/entry/exit markers 与可选 SL/target helper lines；支持日线/低周期时间映射
+- [ ] Step 61: 扩展 Review JSON export/import，加入 `orderReviews`，处理 normalize、id 冲突、semantic dedupe 与 missing linked refs
+- [ ] Step 62: 更新 `USER_GUIDE.zh-CN.md`、`USER_GUIDE.en.md`、`readme.md` 与 session handoff
+- [ ] Step 63: 验证 09:30 reversal、09:50 continuation/reversal、Silver Bullet、skipped、missed、invalidated、win/loss/breakeven 样例；运行 JS 语法检查与 `git diff --check`
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
