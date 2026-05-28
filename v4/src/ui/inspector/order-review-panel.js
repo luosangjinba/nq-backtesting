@@ -2,8 +2,10 @@ import {
   ORDER_ENTRY_MODEL_DEFINITIONS,
   ORDER_EVENT_TYPE_DEFINITIONS,
   ORDER_RESULT_DEFINITIONS,
+  ORDER_RESULTS,
 } from '../../order/order-review-store.js';
 import {
+  controlField,
   escapeHtml,
   field,
   formatDateTimeMs,
@@ -83,6 +85,30 @@ function renderResultReview(order) {
   `;
 }
 
+function renderResultOptions(selectedResult) {
+  return ORDER_RESULT_DEFINITIONS.map(
+    (definition) =>
+      `<option value="${escapeHtml(definition.value)}" ${definition.value === selectedResult ? 'selected' : ''}>${escapeHtml(definition.label)}</option>`
+  ).join('');
+}
+
+function renderOrderActions(order) {
+  return `
+    ${controlField(
+      'Result',
+      `<select class="inspector-input inspector-mini-select" data-inspector-action="order-review-result" data-order-review-id="${escapeHtml(order.id)}">
+        ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN)}
+      </select>`
+    )}
+    ${controlField(
+      'Note',
+      `<textarea class="inspector-textarea" data-inspector-action="order-review-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Order review note">${escapeHtml(order.note || '')}</textarea>`
+    )}
+    <button class="inspector-secondary" data-inspector-action="order-review-locate" data-order-review-id="${escapeHtml(order.id)}" type="button">Locate</button>
+    <button class="inspector-danger" data-inspector-action="order-review-delete" data-order-review-id="${escapeHtml(order.id)}" type="button">Delete</button>
+  `;
+}
+
 function renderOrderRow(order) {
   const setup = order.setupThesis || {};
   const entry = order.entryPlan || {};
@@ -110,16 +136,20 @@ function renderOrderRow(order) {
       ${renderResultReview(order)}
       ${field('Created', formatDateTimeMs(order.createdAt))}
       ${field('Updated', formatDateTimeMs(order.updatedAt))}
-      ${order.note ? field('Order Note', order.note) : ''}
+      ${renderOrderActions(order)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>
     </div>
   `;
 }
 
-export function renderOrderReviewPanel(orderReviews = []) {
+export function renderOrderReviewPanel(orderReviews = [], options = {}) {
+  const createAction = options.createAction || '';
+  const createButton = createAction
+    ? `<button class="inspector-secondary" data-inspector-action="${escapeHtml(createAction)}" type="button">${escapeHtml(options.createLabel || 'Create Order Review')}</button>`
+    : '';
   const content = orderReviews.length
     ? `<div class="inspector-evidence-list">${orderReviews.map(renderOrderRow).join('')}</div>`
     : '<div class="drawing-set-empty">No Order Reviews yet.</div>';
 
-  return section('Order Reviews', content);
+  return section('Order Reviews', `${createButton}${content}`);
 }

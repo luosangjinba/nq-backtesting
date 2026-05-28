@@ -47,7 +47,16 @@ import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
-import { getOrderReviews } from '../order/order-review-store.js';
+import {
+  addOrderReview,
+  deleteOrderReview,
+  getOrderReviewById,
+  getOrderReviews,
+  ORDER_EVENT_TYPES,
+  ORDER_REF_ROLES,
+  ORDER_REF_TYPES,
+  updateOrderReview,
+} from '../order/order-review-store.js';
 import {
   EVIDENCE_TYPES,
   buildDefaultActorFromSegment,
@@ -109,12 +118,24 @@ function renderAnnotation(annotation) {
 
 function renderSegment(segment) {
   currentPanel = 'selection';
-  bodyEl.innerHTML = renderSegmentPanel(segment);
+  bodyEl.innerHTML = `
+    ${renderSegmentPanel(segment)}
+    ${renderOrderReviewPanel(getOrderReviews(), {
+      createAction: 'order-review-create-segment',
+      createLabel: 'Create Order Review From Segment',
+    })}
+  `;
 }
 
 function renderSegmentGroup(segmentGroup) {
   currentPanel = 'selection';
-  bodyEl.innerHTML = renderSegmentGroupPanel(segmentGroup);
+  bodyEl.innerHTML = `
+    ${renderSegmentGroupPanel(segmentGroup)}
+    ${renderOrderReviewPanel(getOrderReviews(), {
+      createAction: 'order-review-create-composite',
+      createLabel: 'Create Order Review From Composite',
+    })}
+  `;
 }
 
 function renderEmpty() {
@@ -123,7 +144,10 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
-    ${renderOrderReviewPanel(getOrderReviews())}
+    ${renderOrderReviewPanel(getOrderReviews(), {
+      createAction: 'order-review-create-empty',
+      createLabel: 'Create Blank Order Review',
+    })}
     ${renderSmtPanel(getSmtRecords())}
     ${renderDrawingSetList()}
     ${renderArchiveActions()}
@@ -246,6 +270,92 @@ function getSegmentResponse(segment, pdaId) {
   return (Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : []).find(
     (response) => response.pdaId === pdaId
   );
+}
+
+function getSegmentTimestamp(segment) {
+  return segment?.end?.timestamp ?? segment?.end?.time ?? segment?.start?.timestamp ?? segment?.start?.time ?? null;
+}
+
+function getSegmentPrice(segment) {
+  return segment?.end?.price ?? segment?.start?.price ?? null;
+}
+
+function getCompositeTimestamp(group) {
+  const childIds = Array.isArray(group?.childSegmentIds) ? group.childSegmentIds : [];
+  const childSegments = childIds.map(getSegmentById).filter(Boolean);
+  const terminal = childSegments[childSegments.length - 1];
+  return getSegmentTimestamp(terminal);
+}
+
+function createOrderReviewFromSegment(segment) {
+  const timestamp = getSegmentTimestamp(segment);
+  const order = addOrderReview({
+    setupThesis: {
+      primaryEventTimestamp: timestamp,
+      primaryEventTimeframe: segment.timeframe || '1H',
+      primaryEventType: ORDER_EVENT_TYPES.OTHER,
+      primaryEventPrice: getSegmentPrice(segment),
+      linkedObjectRefs: [
+        {
+          type: ORDER_REF_TYPES.SEGMENT,
+          id: segment.id,
+          role: ORDER_REF_ROLES.CONTEXT,
+        },
+      ],
+    },
+    entryPlan: {
+      entryTimestamp: timestamp,
+      entryTimeframe: segment.timeframe || '1H',
+    },
+  });
+  bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
+  return order;
+}
+
+function createOrderReviewFromComposite(group) {
+  const timestamp = getCompositeTimestamp(group);
+  const order = addOrderReview({
+    setupThesis: {
+      primaryEventTimestamp: timestamp,
+      primaryEventTimeframe: '1H',
+      primaryEventType: ORDER_EVENT_TYPES.OTHER,
+      linkedObjectRefs: [
+        {
+          type: ORDER_REF_TYPES.COMPOSITE,
+          id: group.id,
+          role: ORDER_REF_ROLES.CONTEXT,
+        },
+      ],
+      narrative: group.notes || '',
+    },
+    entryPlan: {
+      entryTimestamp: timestamp,
+      entryTimeframe: '1H',
+    },
+  });
+  bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
+  return order;
+}
+
+function createBlankOrderReview() {
+  const order = addOrderReview();
+  bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
+  return order;
+}
+
+function locateOrderReview(order) {
+  const timestamps = [
+    order.setupThesis?.primaryEventTimestamp,
+    order.entryPlan?.entryTimestamp,
+    order.resultReview?.exitTimestamp,
+  ]
+    .map(Number)
+    .filter((value) => Number.isFinite(value));
+  if (!timestamps.length) {
+    bus.emit('status:update', { text: '该 Order Review 没有可定位时间', isError: true });
+    return;
+  }
+  viewport.locateTimestampRange(Math.min(...timestamps), Math.max(...timestamps));
 }
 
 function updateReactionEvidenceList(segment, pdaId, updater) {
@@ -381,6 +491,18 @@ function handleInspectorChange(e) {
 
   if (action === 'smt-note') {
     updateSmtRecord(e.target.dataset.smtId, { note: e.target.value });
+    return;
+  }
+
+  if (action === 'order-review-note') {
+    updateOrderReview(e.target.dataset.orderReviewId, { note: e.target.value });
+    return;
+  }
+
+  if (action === 'order-review-result') {
+    updateOrderReview(e.target.dataset.orderReviewId, {
+      resultReview: { result: e.target.value },
+    });
     return;
   }
 
@@ -652,6 +774,22 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'order-review-create-empty') {
+    createBlankOrderReview();
+    return;
+  }
+
+  if (action === 'order-review-locate') {
+    const order = getOrderReviewById(e.target.dataset.orderReviewId);
+    if (order) locateOrderReview(order);
+    return;
+  }
+
+  if (action === 'order-review-delete') {
+    deleteOrderReview(e.target.dataset.orderReviewId);
+    return;
+  }
+
   if (action === 'drawing-set-locate') {
     locateDrawingSet(e.target.dataset.setType, e.target.dataset.setId);
     return;
@@ -729,6 +867,11 @@ function handleInspectorClick(e) {
       return;
     }
 
+    if (action === 'order-review-create-segment') {
+      createOrderReviewFromSegment(segment);
+      return;
+    }
+
     if (action === 'segment-group-delete') {
       deleteSegmentGroup(e.target.dataset.groupId);
       return;
@@ -737,6 +880,11 @@ function handleInspectorClick(e) {
 
   const segmentGroup = getCurrentSegmentGroup();
   if (segmentGroup) {
+    if (action === 'order-review-create-composite') {
+      createOrderReviewFromComposite(segmentGroup);
+      return;
+    }
+
     if (action === 'segment-group-current-delete') {
       deleteSegmentGroup(segmentGroup.id);
       clearSegmentGroupSelection();
