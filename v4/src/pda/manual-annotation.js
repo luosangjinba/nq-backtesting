@@ -29,8 +29,6 @@ import {
   addSegmentToDraftGroup,
   clearDraftSegmentGroup,
   createCompositeMove,
-  getDraftSegmentGroupChildIds,
-  getDraftSegmentGroupTargetId,
   removeSegmentFromDraftGroup,
   setDraftSegmentGroupTarget,
 } from '../segment/segment-group-store.js';
@@ -45,14 +43,18 @@ import {
 } from './point-set-annotation.js';
 import { getSelectedPda } from './pda-selection.js';
 import { startFvgSmt, startLiquiditySmt } from '../smt/manual-smt.js';
-import { getSmtRecords } from '../smt/smt-store.js';
 import {
-  createChartOrderSetup,
-  getActiveOrderReview,
-  linkRefToActiveOrderReview,
-  updateActiveOrderReview,
-} from '../order/order-review-active.js';
-import { ORDER_DIRECTIONS, ORDER_EVENT_TYPES, ORDER_REF_ROLES, ORDER_REF_TYPES } from '../order/order-review-store.js';
+  handleOrderSetupChartAction,
+  renderOrderSetupMenuItems,
+} from '../order/order-setup-chart-actions.js';
+import {
+  clampMenuPosition,
+  getPdaLabel,
+  getSegmentLabel,
+  renderManualContextMenu,
+  renderSegmentGroupItems,
+  renderSegmentPdaLinkItems,
+} from './manual-context-menu.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -458,123 +460,6 @@ function addManualFib(endBar) {
   });
 }
 
-function clampMenuPosition(x, y) {
-  const rect = controlsEl.parentElement.getBoundingClientRect();
-  const menuWidth = 220;
-  const margin = 4;
-  const availableHeight = Math.max(160, rect.height - margin * 2);
-  const estimatedMenuHeight = 760;
-  const maxHeight = Math.min(estimatedMenuHeight, availableHeight);
-  const clampedX = Math.min(Math.max(margin, x), Math.max(margin, rect.width - menuWidth - margin));
-  let clampedY = y;
-  if (y + maxHeight + margin > rect.height) {
-    clampedY = Math.max(margin, rect.height - maxHeight - margin);
-  }
-  return {
-    maxHeight,
-    x: clampedX,
-    y: Math.max(margin, clampedY),
-  };
-}
-
-function getPdaLabel(annotation) {
-  if (!annotation) return 'PDA';
-  return getPdaType(annotation.type)?.label || annotation.type?.toUpperCase() || 'PDA';
-}
-
-function getSegmentPdaLinkItems(pdaHit) {
-  const selectedSegment = getSelectedSegment();
-  if (!selectedSegment || !pdaHit) return '';
-
-  const annotation = getAnnotationById(pdaHit.id);
-  const pdaLabel = getPdaLabel(annotation);
-  return `
-    <details class="pda-menu-section" open>
-      <summary>Link ${pdaLabel}</summary>
-      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="respected">Respected</button>
-      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="swept">Swept</button>
-      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="approached">Approached</button>
-      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="rejected">Rejected</button>
-      <button class="pda-menu-item" data-pda-action="segment-link-pda" data-relation="delivered-through">Delivered Through</button>
-    </details>
-  `;
-}
-
-function getSegmentLabel(segment) {
-  if (!segment) return 'Segment';
-  const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
-  return `${segment.timeframe || '1H'} ${direction} LEG`;
-}
-
-function getSegmentGroupItems(segmentHit) {
-  if (!segmentHit) return '';
-  const segment = getSegmentById(segmentHit.id);
-  if (!segment) return '';
-
-  const draftIds = getDraftSegmentGroupChildIds();
-  const targetId = getDraftSegmentGroupTargetId();
-  const inDraft = draftIds.includes(segment.id);
-  const isTarget = targetId === segment.id;
-  const createDisabled = draftIds.length >= 2 ? '' : 'disabled';
-  return `
-    <details class="pda-menu-section">
-      <summary>Composite · ${getSegmentLabel(segment)}</summary>
-      <button class="pda-menu-item" data-pda-action="${inDraft ? 'segment-group-remove' : 'segment-group-add'}">
-        ${inDraft ? 'Remove Segment From Draft' : 'Add Segment To Draft'}
-      </button>
-      <button class="pda-menu-item" data-pda-action="segment-group-set-target">
-        ${isTarget ? 'Target Segment Selected' : 'Set Segment As Target'}
-      </button>
-      <button class="pda-menu-item" data-pda-action="segment-group-create" ${createDisabled}>Create Composite Move (${draftIds.length})</button>
-      <button class="pda-menu-item" data-pda-action="segment-group-clear">Clear Composite Draft</button>
-    </details>
-  `;
-}
-
-function getActiveSetupLabel() {
-  const active = getActiveOrderReview();
-  if (!active) return 'No active setup';
-  const direction = active.entryPlan?.direction === ORDER_DIRECTIONS.LONG
-    ? 'Long'
-    : active.entryPlan?.direction === ORDER_DIRECTIONS.SHORT
-      ? 'Short'
-      : 'Unknown';
-  return `${direction} · ${active.id.slice(0, 18)}`;
-}
-
-function getOrderSetupItems(bar, pdaHit, segmentHit, segmentGroupHit) {
-  const active = getActiveOrderReview();
-  const disabled = bar ? '' : 'disabled';
-  const activeDisabled = active ? '' : 'disabled';
-  const pdaDisabled = active && pdaHit ? '' : 'disabled';
-  const segmentDisabled = active && segmentHit ? '' : 'disabled';
-  const compositeDisabled = active && segmentGroupHit ? '' : 'disabled';
-  const smtDisabled = active && getSmtRecords().length ? '' : 'disabled';
-
-  return `
-    <details class="pda-menu-section" open>
-      <summary>Order Setup · ${getActiveSetupLabel()}</summary>
-      <button class="pda-menu-item" data-pda-action="order-setup-create-bullish" ${disabled}>Create Bullish Setup Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-create-bearish" ${disabled}>Create Bearish Setup Here</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-event" ${activeDisabled || disabled}>Set Setup Event Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-entry-time" ${activeDisabled || disabled}>Set Entry Time Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-exit-time" ${activeDisabled || disabled}>Set Exit Time Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-entry-price" ${activeDisabled || disabled}>Set Entry Price Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-target-external" ${activeDisabled || disabled}>Set Target3 Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-final-target" ${activeDisabled || disabled}>Set Final Target Here</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-pda" ${pdaDisabled}>Link PDA To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-segment" ${segmentDisabled}>Link Segment To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-composite" ${compositeDisabled}>Link Composite To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-latest-smt" ${smtDisabled}>Link Latest SMT To Active Setup</button>
-    </details>
-  `;
-}
-
 function locateSecondaryAtBar(bar) {
   if (!bar) return;
   if (!secondaryStore.isSecondaryEnabled() || !secondaryStore.getSecondaryDisplayBars().length) {
@@ -596,122 +481,13 @@ function locateSecondaryAtBar(bar) {
   bus.emit('status:update', { text: `副图已定位到 ${bar.tradingDay || bar.time}`, isError: false });
 }
 
-function getContextPrice() {
-  const price = Number(contextMenuPrice);
-  return Number.isFinite(price) ? price : null;
-}
-
-function getContextTimeframe() {
-  return timeframeToString(store.getCurrentTimeframe());
-}
-
-function createOrderSetupFromContext(direction) {
-  const order = createChartOrderSetup({
-    bar: contextMenuBar,
-    price: getContextPrice(),
-    direction,
-    timeframe: getContextTimeframe(),
-    eventType: ORDER_EVENT_TYPES.OTHER,
-  });
-  hideContextMenu();
-  bus.emit('status:update', {
-    text: order ? `Active Order Setup created: ${order.id}` : 'Order Setup 创建失败：没有可用 K 线',
-    isError: !order,
-  });
-}
-
-function patchActiveSetupFromContext(action) {
-  const price = getContextPrice();
-  if (!contextMenuBar) return;
-  if (action === 'order-setup-set-event') {
-    updateActiveOrderReview({
-      setupThesis: {
-        primaryEventTimestamp: contextMenuBar.timestamp,
-        primaryEventTimeframe: getContextTimeframe(),
-        primaryEventPrice: price,
-      },
-    });
-  } else if (action === 'order-setup-set-entry-time') {
-    updateActiveOrderReview({
-      entryPlan: {
-        entryTimestamp: contextMenuBar.timestamp,
-        entryTimeframe: getContextTimeframe(),
-      },
-    });
-  } else if (action === 'order-setup-set-exit-time') {
-    updateActiveOrderReview({
-      resultReview: {
-        exitTimestamp: contextMenuBar.timestamp,
-      },
-    });
-  } else if (action === 'order-setup-set-entry-price') {
-    updateActiveOrderReview({ entryPlan: { entryPrice: price } });
-  } else if (action === 'order-setup-set-stop-loss') {
-    updateActiveOrderReview({ entryPlan: { stopLoss: price } });
-  } else if (action === 'order-setup-set-target-internal') {
-    updateActiveOrderReview({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
-  } else if (action === 'order-setup-set-target-swing') {
-    updateActiveOrderReview({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
-  } else if (action === 'order-setup-set-target-external') {
-    updateActiveOrderReview({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
-  } else if (action === 'order-setup-set-final-target') {
-    updateActiveOrderReview({ entryPlan: { finalTarget: price } });
-  }
-  hideContextMenu();
-  bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });
-}
-
-function linkContextObjectToActiveSetup(action) {
-  if (action === 'order-setup-link-pda') {
-    const annotation = contextMenuPdaHit ? getAnnotationById(contextMenuPdaHit.id) : null;
-    if (annotation) {
-      linkRefToActiveOrderReview({
-        type: ORDER_REF_TYPES.PDA,
-        id: annotation.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-      });
-      bus.emit('status:update', { text: `${getPdaLabel(annotation)} linked to active setup`, isError: false });
-    }
-  } else if (action === 'order-setup-link-segment') {
-    const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
-    if (segment) {
-      linkRefToActiveOrderReview({
-        type: ORDER_REF_TYPES.SEGMENT,
-        id: segment.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-      });
-      bus.emit('status:update', { text: `${getSegmentLabel(segment)} linked to active setup`, isError: false });
-    }
-  } else if (action === 'order-setup-link-composite') {
-    if (contextMenuSegmentGroupHit?.id) {
-      linkRefToActiveOrderReview({
-        type: ORDER_REF_TYPES.COMPOSITE,
-        id: contextMenuSegmentGroupHit.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-      });
-      bus.emit('status:update', { text: 'Composite linked to active setup', isError: false });
-    }
-  } else if (action === 'order-setup-link-latest-smt') {
-    const smt = getSmtRecords().at(-1);
-    if (smt) {
-      linkRefToActiveOrderReview({
-        type: ORDER_REF_TYPES.SMT,
-        id: smt.id,
-        role: ORDER_REF_ROLES.CONFIRMATION,
-      });
-      bus.emit('status:update', { text: 'Latest SMT linked to active setup', isError: false });
-    }
-  }
-  hideContextMenu();
-}
-
 function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGroupHit = null) {
   if (!controlsEl) return;
   contextMenuBar = bar;
   contextMenuPdaHit = pdaHit;
   contextMenuSegmentHit = segmentHit;
   contextMenuSegmentGroupHit = segmentGroupHit;
-  const { x: left, y: top, maxHeight } = clampMenuPosition(x, y);
+  const { x: left, y: top, maxHeight } = clampMenuPosition(controlsEl, x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
   const activeSet = getPointSetSelectionSummary();
@@ -719,8 +495,8 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
   const selected = getSelectedPda();
   const selectedAnnotation = selected ? getAnnotationById(selected.id) : null;
   const selectedPdaType = selectedAnnotation ? getPdaType(selectedAnnotation.type) : null;
-  const segmentPdaLinkItems = getSegmentPdaLinkItems(pdaHit);
-  const segmentGroupItems = getSegmentGroupItems(segmentHit);
+  const segmentPdaLinkItems = renderSegmentPdaLinkItems(pdaHit);
+  const segmentGroupItems = renderSegmentGroupItems(segmentHit);
   const selectedSetItem =
     !activeSet && selectedPdaType?.pointSet
       ? `<button class="pda-menu-item" data-pda-action="selected-pointset-add" ${disabled}>Add to Selected ${selectedPdaType.label}</button>`
@@ -760,47 +536,18 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
       </details>
     `;
 
-  controlsEl.innerHTML = `
-    <div class="pda-menu" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
-      <div class="pda-menu-title">${timeLabel}</div>
-      ${getOrderSetupItems(bar, pdaHit, segmentHit, segmentGroupHit)}
-      <details class="pda-menu-section" open>
-        <summary>PDA</summary>
-        <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
-        <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
-        <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
-        <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
-        <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
-        <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
-        <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
-        <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
-        <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
-        <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
-        <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
-      </details>
-      <details class="pda-menu-section">
-        <summary>SMT</summary>
-        <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Locate Time in Secondary</button>
-        <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${disabled}>Start Bearish Liquidity SMT</button>
-        <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${disabled}>Start Bullish Liquidity SMT</button>
-        <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${disabled}>Mark Bearish FVG SMT</button>
-        <button class="pda-menu-item" data-pda-action="smt-fvg-bullish" ${disabled}>Mark Bullish FVG SMT</button>
-      </details>
-      ${segmentPdaLinkItems}
-      ${segmentGroupItems}
-      ${segmentItems}
-      ${pointSetItems}
-      <details class="pda-menu-section">
-        <summary>Objective Gaps</summary>
-        <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
-        <button class="pda-menu-item" data-pda-action="toggle-nwog" ${disabled}>Show/Hide This Week NWOG</button>
-      </details>
-      <details class="pda-menu-section">
-        <summary>Clear</summary>
-        <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
-      </details>
-    </div>
-  `;
+  controlsEl.innerHTML = renderManualContextMenu({
+    left,
+    top,
+    maxHeight,
+    timeLabel,
+    disabled,
+    orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit }),
+    segmentPdaLinkItems,
+    segmentGroupItems,
+    segmentItems,
+    pointSetItems,
+  });
 }
 
 function hideContextMenu() {
@@ -852,14 +599,15 @@ function handleControlClick(e) {
 
   if (action === 'bsl' || action === 'ssl') {
     addManualPoint(action, contextMenuBar);
-  } else if (action === 'order-setup-create-bullish' || action === 'order-setup-create-bearish') {
-    createOrderSetupFromContext(
-      action === 'order-setup-create-bullish' ? ORDER_DIRECTIONS.LONG : ORDER_DIRECTIONS.SHORT
-    );
-  } else if (action.startsWith('order-setup-set-')) {
-    patchActiveSetupFromContext(action);
-  } else if (action.startsWith('order-setup-link-')) {
-    linkContextObjectToActiveSetup(action);
+  } else if (handleOrderSetupChartAction(action, {
+    bar: contextMenuBar,
+    price: contextMenuPrice,
+    timeframe: timeframeToString(store.getCurrentTimeframe()),
+    pdaHit: contextMenuPdaHit,
+    segmentHit: contextMenuSegmentHit,
+    segmentGroupHit: contextMenuSegmentGroupHit,
+  })) {
+    hideContextMenu();
   } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {
     addManualWickCe(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar);
   } else if (action === 'fvg') {
