@@ -257,3 +257,20 @@
 - `tmp/`
 - `trading_data.duckdb`
 - `v3/plans/`
+
+## 2026-05-28 Merge To Main
+- `feature/order-review-editing-ui` was fast-forward merged into `main`.
+- Merge head: `468dd28 fix(v4): clear order review price pick on cancel`.
+- Final checks before merge:
+  - full `v4/src/**/*.js` `node --check`
+  - `git diff --check main...HEAD`
+  - API health
+  - headless Chrome smoke
+  - `git status`
+- Review found one issue before merge: price pick cancel / invalid source left stale pick state active. Fixed in `468dd28`.
+- `main` now contains Phase 8C:
+  - full Inspector Order Review edit form
+  - Setup Thesis / Entry Plan / Result Review saves
+  - linked refs management
+  - setup / entry / exit time pick
+  - entry / stop / final target price pick
