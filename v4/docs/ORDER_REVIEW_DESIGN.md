@@ -808,6 +808,139 @@ First version should be lightweight:
 
 Do not implement order hit-test in the first version. Locate and editing should happen through Inspector.
 
+### Renderer Module
+
+Use a dedicated renderer:
+
+```text
+v4/src/order/order-review-renderer.js
+```
+
+It should read from `order-review-store.js` and render only visual helpers. It should not own editing state.
+
+Renderer events:
+
+- `order-review:changed`
+- `bars:loaded`
+- `bars:cleared`
+- `display-mode:changed` only if order visibility later joins Display Mode
+
+### Time Mapping
+
+Order timestamps are stored as numeric timestamps.
+
+Rendering must map timestamps to the current chart timeframe:
+
+- intraday: bucket with `getBucketStart(timestamp, currentTimeframe)`
+- daily: chart date string, following the existing PDA/SMT daily mapping approach
+
+This keeps setup/entry markers visible when switching from 1M to 5M/15M/1H/D, as long as the record belongs in the visible loaded range.
+
+### Setup Marker
+
+Render `setupThesis.primaryEventTimestamp` as a vertical marker.
+
+Suggested visual:
+
+- color: amber
+- label: `Setup`
+- line width: 2
+- opacity: medium
+
+If the record has `lowTimeframeWarning=true`, use a slightly warmer warning color or label suffix:
+
+```text
+Setup LT
+```
+
+The marker represents the thesis event, not the entry.
+
+### Entry Marker
+
+Render `entryPlan.entryTimestamp` as a vertical marker when present.
+
+Suggested visual:
+
+- long: green/teal
+- short: red
+- unknown direction: neutral gray
+- label: `Entry`
+- line width: 2
+
+If `resultReview.result` is `missed` or `skipped`, entry marker may be omitted unless an entry timestamp exists for hypothetical review.
+
+### Exit Marker
+
+Render `resultReview.exitTimestamp` as a vertical marker when present.
+
+Suggested visual:
+
+- win: green/teal
+- loss: red
+- breakeven: gray
+- managed-out: blue/neutral
+- invalidated: orange/red
+- label: `Exit`
+- line width: 1
+
+Exit marker is optional in first version but useful for reviewed trades.
+
+### Stop And Target Lines
+
+First version may render short horizontal helper lines from entry time to exit time, or from entry time across a small fixed number of bars if exit is missing.
+
+Render candidates:
+
+- `entryPlan.stopLoss`: `SL`
+- `entryPlan.targetInternal`: `TI`
+- `entryPlan.targetSwing`: `TS`
+- `entryPlan.targetExternal`: `TE`
+- `entryPlan.finalTarget`: `FT`
+
+Suggested colors:
+
+- stop loss: red
+- selected target: brighter green/teal
+- non-selected targets: muted gray/teal
+- final target: amber if it differs from selected target
+
+Do not render large profit/loss rectangles in the first version.
+
+### Visibility
+
+Initial version can render all order reviews in the current loaded range.
+
+Later options:
+
+- show only selected/focused order
+- show only recent N orders
+- integrate with Display Mode
+
+Do not make order rendering dependent on linked object visibility in the first version. If an order links to a hidden PDA/segment, the order marker can still render.
+
+### Locate From Inspector
+
+Inspector `Locate` should compute a timestamp range from available fields:
+
+```text
+setup primary event timestamp
+entry timestamp
+exit timestamp
+```
+
+Use min/max of available timestamps with padding. If only one timestamp exists, center around that timestamp.
+
+### No Hit-Test In Version 1
+
+First version should not support:
+
+- clicking order markers to select order
+- dragging entry/stop/target lines
+- right-click order marker menus
+- creating orders from chart context menu
+
+This avoids mixing order review with existing PDA/SMT/segment chart interactions.
+
 ## Persistence
 
 ### LocalStorage
