@@ -424,3 +424,54 @@ export function normalizeEntryPlan(input = {}) {
     note: normalizeNote(input.note),
   };
 }
+
+function deriveOutcomePoints(entryPlan = {}, exitPrice = null) {
+  const entryPrice = normalizeNumber(entryPlan.entryPrice);
+  if (entryPrice === null || exitPrice === null) return null;
+  if (entryPlan.direction === ORDER_DIRECTIONS.LONG) return exitPrice - entryPrice;
+  if (entryPlan.direction === ORDER_DIRECTIONS.SHORT) return entryPrice - exitPrice;
+  return null;
+}
+
+function deriveOutcomeR(outcomePoints = null, entryPlan = {}) {
+  const riskPoints = normalizeNumber(entryPlan.riskPoints);
+  if (outcomePoints === null || riskPoints === null || riskPoints <= 0) return null;
+  return outcomePoints / riskPoints;
+}
+
+export function normalizeResultReview(input = {}, entryPlan = {}) {
+  const exitPrice = normalizeNumber(input.exitPrice);
+  const outcomePoints = deriveOutcomePoints(entryPlan, exitPrice);
+
+  return {
+    expectedTargetReached: normalizeEnum(
+      input.expectedTargetReached,
+      VALID_ORDER_TARGET_REACHED,
+      ORDER_TARGET_REACHED_ALIASES,
+      ORDER_TARGET_REACHED.UNKNOWN
+    ),
+    finalTargetReached: normalizeEnum(
+      input.finalTargetReached,
+      VALID_ORDER_TARGET_REACHED,
+      ORDER_TARGET_REACHED_ALIASES,
+      ORDER_TARGET_REACHED.UNKNOWN
+    ),
+    exitTimestamp: normalizeTimestamp(input.exitTimestamp),
+    exitPrice,
+    result: normalizeEnum(
+      input.result,
+      VALID_ORDER_RESULTS,
+      ORDER_RESULT_ALIASES,
+      ORDER_RESULTS.UNKNOWN
+    ),
+    exitReason: normalizeEnum(
+      input.exitReason,
+      VALID_ORDER_EXIT_REASONS,
+      ORDER_EXIT_REASON_ALIASES,
+      ORDER_EXIT_REASONS.UNKNOWN
+    ),
+    outcomePoints,
+    outcomeR: deriveOutcomeR(outcomePoints, entryPlan),
+    note: normalizeNote(input.note),
+  };
+}
