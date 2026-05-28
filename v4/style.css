@@ -527,6 +527,11 @@ html, body {
   border-color: rgba(38, 166, 154, 0.32);
 }
 
+.order-review-row.active {
+  border-color: #26a69a;
+  background: rgba(38, 166, 154, 0.08);
+}
+
 .order-review-compact {
   display: flex;
   flex-direction: column;
@@ -546,6 +551,21 @@ html, body {
   color: #f0f3fa;
   font-size: 11px;
   font-weight: 600;
+}
+
+.order-review-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  background: #1e222d;
+}
+
+.order-review-summary .inspector-field {
+  grid-template-columns: 74px minmax(0, 1fr);
+  min-height: 18px;
 }
 
 .order-review-editor {

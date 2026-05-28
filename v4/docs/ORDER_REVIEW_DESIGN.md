@@ -634,7 +634,33 @@ Skipped and missed setups are valid review records. They should not be treated a
 
 ## UI Flow
 
-The first version should be Inspector-led. The chart can render order markers, but order creation and editing should happen in the right sidebar.
+The current direction is chart-first. Order Setup creation and the common setup/entry/result assignments should happen from the main chart right-click menu. Inspector remains a compact review and correction surface.
+
+## Phase 8D Chart-First Boundary
+
+Phase 8D changes the primary interaction model:
+
+- chart right-click is the main input surface
+- Inspector is a lightweight summary plus small correction surface
+- full form editing is secondary and lives under `Advanced Edit`
+- Order Setup is the center object
+- Segment / Composite Move / PDA / SMT are linked refs, not parent objects
+
+This is important because a valid order setup may come from a 1H/30M PDA event, such as a 1H FVG touch and bounce, without producing a drawable segment. The workflow must not force the reviewer to create a segment before recording the order setup.
+
+Chart actions should write to the active Order Setup:
+
+- create bullish/bearish setup at the clicked bar
+- set setup event time/price
+- set entry time
+- set exit time
+- set entry price
+- set stop loss
+- set final target
+- link clicked PDA / segment / composite to the active setup
+- link the latest SMT record when needed
+
+The active setup is a front-end session state. It is not part of Review JSON and does not imply ownership of linked objects.
 
 ## Phase 8C Editing Entry Boundary
 

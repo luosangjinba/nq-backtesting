@@ -408,20 +408,30 @@ Order Review splits an execution review into three layers:
 
 The current version is manual review. It does not automatically judge whether a 09:30 reversal, 09:50 continuation/reversal, or Silver Bullet setup is valid.
 
-### Create Order Reviews
+### Create Order Setups
 
-The Inspector supports three entry points:
+The primary entry point is the `Order Setup` group in the main chart right-click menu:
 
-- Empty state: click `Create Blank Order Review`.
-- Selected segment: click `Create Order Review From Segment`; this adds a segment linked ref.
-- Selected Composite Move: click `Create Order Review From Composite`; this adds a composite linked ref.
+- `Create Bullish Setup Here`
+- `Create Bearish Setup Here`
+- `Set Setup Event Here`
+- `Set Entry Time Here`
+- `Set Exit Time Here`
+- `Set Entry Price Here`
+- `Set Stop Loss Here`
+- `Set Final Target Here`
 
-The Order Reviews list appears in the empty Inspector state, Archive view, and below selected segment / Composite Move details.
+After creation, the setup becomes the active setup. Later chart right-click actions write into that active setup.
+
+Segment, Composite Move, PDA, and SMT objects are linked refs, not order parents. For example, a 1H FVG touch and bounce can be recorded directly as a setup event without forcing a 1H segment.
+
+The Inspector still shows the Order Reviews list, but the default view is a compact summary. Full fields live under `Advanced Edit`.
 
 ### Order Review Actions
 
 Each Order Review currently supports:
 
+- `Set Active Setup`: make this review the target for chart actions.
 - `Locate`: locate the setup / entry / exit time range.
 - `Delete`: delete the review.
 - `Result`: quickly update result state.

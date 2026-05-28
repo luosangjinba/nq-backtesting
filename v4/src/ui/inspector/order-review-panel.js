@@ -196,6 +196,24 @@ function renderResultOptions(selectedResult) {
   return renderDefinitionOptions(ORDER_RESULT_DEFINITIONS, selectedResult);
 }
 
+function renderOrderSummary(order, isActive) {
+  const setup = order.setupThesis || {};
+  const entry = order.entryPlan || {};
+  const result = order.resultReview || {};
+  const refs = Array.isArray(setup.linkedObjectRefs) ? setup.linkedObjectRefs : [];
+  return `
+    <div class="order-review-summary">
+      ${field('State', isActive ? 'Active Setup' : 'Saved Setup')}
+      ${field('Direction', formatDirection(entry.direction))}
+      ${field('Setup', `${labelFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS, setup.primaryEventType)} · ${setup.primaryEventTimeframe || '—'} · ${formatTime(setup.primaryEventTimestamp)}`)}
+      ${field('Entry', `${formatTime(entry.entryTimestamp)} · ${formatNumber(entry.entryPrice)}`)}
+      ${field('Stop/Target', `${formatNumber(entry.stopLoss)} / ${formatNumber(entry.finalTarget)}`)}
+      ${field('Result', labelFromDefinitions(ORDER_RESULT_DEFINITIONS, result.result))}
+      ${field('Refs', refs.length ? String(refs.length) : '—')}
+    </div>
+  `;
+}
+
 function renderSetupThesisEditor(order) {
   const setup = order.setupThesis || {};
   return `
@@ -259,7 +277,7 @@ function renderOrderEditor(order, options = {}) {
   const isExpanded = options.expandedOrderReviewId === order.id;
   return `
     <details class="order-review-editor" ${isExpanded ? 'open' : ''}>
-      <summary>Edit Order Review</summary>
+      <summary>Advanced Edit</summary>
       <div class="order-review-editor-body">
         ${renderSetupThesisEditor(order)}
         ${renderEntryPlanEditor(order)}
@@ -269,8 +287,12 @@ function renderOrderEditor(order, options = {}) {
   `;
 }
 
-function renderOrderActions(order) {
+function renderOrderActions(order, options = {}) {
+  const isActive = options.activeOrderReviewId === order.id;
   return `
+    <button class="inspector-secondary" data-inspector-action="${isActive ? 'order-review-clear-active' : 'order-review-set-active'}" data-order-review-id="${escapeHtml(order.id)}" type="button">
+      ${isActive ? 'Clear Active Setup' : 'Set Active Setup'}
+    </button>
     ${controlField(
       'Result',
       `<select class="inspector-input inspector-mini-select" data-inspector-action="order-review-result" data-order-review-id="${escapeHtml(order.id)}">
@@ -300,21 +322,19 @@ function renderOrderRow(order, options = {}) {
     setup.primaryEventTimeframe || '—',
     labelFromDefinitions(ORDER_RESULT_DEFINITIONS, result.result),
   ].join(' · ');
+  const isActive = options.activeOrderReviewId === order.id;
 
   return `
-    <div class="inspector-evidence-row order-review-row">
+    <div class="inspector-evidence-row order-review-row${isActive ? ' active' : ''}">
       <div class="inspector-evidence-header">
-        <span>${escapeHtml(title)}</span>
+        <span>${escapeHtml(isActive ? `● ${title}` : title)}</span>
         <span>${escapeHtml(order.instrument || 'NQ')}</span>
       </div>
       <div class="drawing-set-meta">${escapeHtml(meta)}</div>
-      ${renderSetupThesis(order)}
-      ${renderEntryPlan(order)}
-      ${renderResultReview(order)}
+      ${renderOrderSummary(order, isActive)}
       ${renderOrderEditor(order, options)}
-      ${field('Created', formatDateTimeMs(order.createdAt))}
       ${field('Updated', formatDateTimeMs(order.updatedAt))}
-      ${renderOrderActions(order)}
+      ${renderOrderActions(order, options)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>
     </div>
   `;

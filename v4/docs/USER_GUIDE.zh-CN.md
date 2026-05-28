@@ -404,20 +404,30 @@ Order Review 用来把一次做单复盘拆成三层：
 
 当前版本是手工复盘，不自动判断 09:30 reversal、09:50 continuation/reversal 或 Silver Bullet 是否成立。
 
-### 创建 Order Review
+### 创建 Order Setup
 
-右侧 Inspector 支持三种入口：
+当前主入口是主图右键菜单里的 `Order Setup` 分组：
 
-- 空状态：点击 `Create Blank Order Review`。
-- 选中 segment：点击 `Create Order Review From Segment`，会自动添加 segment linked ref。
-- 选中 Composite Move：点击 `Create Order Review From Composite`，会自动添加 composite linked ref。
+- `Create Bullish Setup Here`
+- `Create Bearish Setup Here`
+- `Set Setup Event Here`
+- `Set Entry Time Here`
+- `Set Exit Time Here`
+- `Set Entry Price Here`
+- `Set Stop Loss Here`
+- `Set Final Target Here`
 
-Order Review 列表显示在 Inspector 的空状态、Archive 视图，以及选中 segment / Composite Move 时的下方区域。
+创建后该 setup 会成为 active setup。后续右键操作会写入 active setup。
+
+Segment、Composite Move、PDA、SMT 都只是 linked refs，不是订单父级。比如 `1H FVG 回调后反弹` 可以直接作为 setup 事件记录，不需要强行绘制 1H segment。
+
+Inspector 仍显示 Order Reviews 列表，但默认是轻量摘要；完整字段在 `Advanced Edit` 里。
 
 ### Order Review 操作
 
 每条 Order Review 当前支持：
 
+- `Set Active Setup`：设为当前图表操作目标。
 - `Locate`：定位到 setup / entry / exit 的时间范围。
 - `Delete`：删除该订单复盘。
 - `Result`：快速修改结果状态。

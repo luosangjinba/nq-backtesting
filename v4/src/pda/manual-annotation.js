@@ -23,7 +23,7 @@ import {
   startSegment,
 } from '../segment/manual-segment.js';
 import { getSelectedSegment } from '../segment/segment-selection.js';
-import { hitTestSegments } from '../segment/segment-hit-test.js';
+import { hitTestSegmentGroups, hitTestSegments } from '../segment/segment-hit-test.js';
 import { clearAllPdaResponses, getSegmentById, linkPdaResponse } from '../segment/segment-store.js';
 import {
   addSegmentToDraftGroup,
@@ -45,11 +45,21 @@ import {
 } from './point-set-annotation.js';
 import { getSelectedPda } from './pda-selection.js';
 import { startFvgSmt, startLiquiditySmt } from '../smt/manual-smt.js';
+import { getSmtRecords } from '../smt/smt-store.js';
+import {
+  createChartOrderSetup,
+  getActiveOrderReview,
+  linkRefToActiveOrderReview,
+  updateActiveOrderReview,
+} from '../order/order-review-active.js';
+import { ORDER_DIRECTIONS, ORDER_EVENT_TYPES, ORDER_REF_ROLES, ORDER_REF_TYPES } from '../order/order-review-store.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
+let contextMenuPrice = null;
 let contextMenuPdaHit = null;
 let contextMenuSegmentHit = null;
+let contextMenuSegmentGroupHit = null;
 let rangeSelectionState = null;
 let fibSelectionState = null;
 
@@ -521,6 +531,50 @@ function getSegmentGroupItems(segmentHit) {
   `;
 }
 
+function getActiveSetupLabel() {
+  const active = getActiveOrderReview();
+  if (!active) return 'No active setup';
+  const direction = active.entryPlan?.direction === ORDER_DIRECTIONS.LONG
+    ? 'Long'
+    : active.entryPlan?.direction === ORDER_DIRECTIONS.SHORT
+      ? 'Short'
+      : 'Unknown';
+  return `${direction} · ${active.id.slice(0, 18)}`;
+}
+
+function getOrderSetupItems(bar, pdaHit, segmentHit, segmentGroupHit) {
+  const active = getActiveOrderReview();
+  const disabled = bar ? '' : 'disabled';
+  const activeDisabled = active ? '' : 'disabled';
+  const pdaDisabled = active && pdaHit ? '' : 'disabled';
+  const segmentDisabled = active && segmentHit ? '' : 'disabled';
+  const compositeDisabled = active && segmentGroupHit ? '' : 'disabled';
+  const smtDisabled = active && getSmtRecords().length ? '' : 'disabled';
+
+  return `
+    <details class="pda-menu-section" open>
+      <summary>Order Setup · ${getActiveSetupLabel()}</summary>
+      <button class="pda-menu-item" data-pda-action="order-setup-create-bullish" ${disabled}>Create Bullish Setup Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-create-bearish" ${disabled}>Create Bearish Setup Here</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-event" ${activeDisabled || disabled}>Set Setup Event Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-entry-time" ${activeDisabled || disabled}>Set Entry Time Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-exit-time" ${activeDisabled || disabled}>Set Exit Time Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-entry-price" ${activeDisabled || disabled}>Set Entry Price Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-target-external" ${activeDisabled || disabled}>Set Target3 Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-final-target" ${activeDisabled || disabled}>Set Final Target Here</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" data-pda-action="order-setup-link-pda" ${pdaDisabled}>Link PDA To Active Setup</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-link-segment" ${segmentDisabled}>Link Segment To Active Setup</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-link-composite" ${compositeDisabled}>Link Composite To Active Setup</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-link-latest-smt" ${smtDisabled}>Link Latest SMT To Active Setup</button>
+    </details>
+  `;
+}
+
 function locateSecondaryAtBar(bar) {
   if (!bar) return;
   if (!secondaryStore.isSecondaryEnabled() || !secondaryStore.getSecondaryDisplayBars().length) {
@@ -542,11 +596,121 @@ function locateSecondaryAtBar(bar) {
   bus.emit('status:update', { text: `副图已定位到 ${bar.tradingDay || bar.time}`, isError: false });
 }
 
-function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
+function getContextPrice() {
+  const price = Number(contextMenuPrice);
+  return Number.isFinite(price) ? price : null;
+}
+
+function getContextTimeframe() {
+  return timeframeToString(store.getCurrentTimeframe());
+}
+
+function createOrderSetupFromContext(direction) {
+  const order = createChartOrderSetup({
+    bar: contextMenuBar,
+    price: getContextPrice(),
+    direction,
+    timeframe: getContextTimeframe(),
+    eventType: ORDER_EVENT_TYPES.OTHER,
+  });
+  hideContextMenu();
+  bus.emit('status:update', {
+    text: order ? `Active Order Setup created: ${order.id}` : 'Order Setup 创建失败：没有可用 K 线',
+    isError: !order,
+  });
+}
+
+function patchActiveSetupFromContext(action) {
+  const price = getContextPrice();
+  if (!contextMenuBar) return;
+  if (action === 'order-setup-set-event') {
+    updateActiveOrderReview({
+      setupThesis: {
+        primaryEventTimestamp: contextMenuBar.timestamp,
+        primaryEventTimeframe: getContextTimeframe(),
+        primaryEventPrice: price,
+      },
+    });
+  } else if (action === 'order-setup-set-entry-time') {
+    updateActiveOrderReview({
+      entryPlan: {
+        entryTimestamp: contextMenuBar.timestamp,
+        entryTimeframe: getContextTimeframe(),
+      },
+    });
+  } else if (action === 'order-setup-set-exit-time') {
+    updateActiveOrderReview({
+      resultReview: {
+        exitTimestamp: contextMenuBar.timestamp,
+      },
+    });
+  } else if (action === 'order-setup-set-entry-price') {
+    updateActiveOrderReview({ entryPlan: { entryPrice: price } });
+  } else if (action === 'order-setup-set-stop-loss') {
+    updateActiveOrderReview({ entryPlan: { stopLoss: price } });
+  } else if (action === 'order-setup-set-target-internal') {
+    updateActiveOrderReview({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
+  } else if (action === 'order-setup-set-target-swing') {
+    updateActiveOrderReview({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
+  } else if (action === 'order-setup-set-target-external') {
+    updateActiveOrderReview({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
+  } else if (action === 'order-setup-set-final-target') {
+    updateActiveOrderReview({ entryPlan: { finalTarget: price } });
+  }
+  hideContextMenu();
+  bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });
+}
+
+function linkContextObjectToActiveSetup(action) {
+  if (action === 'order-setup-link-pda') {
+    const annotation = contextMenuPdaHit ? getAnnotationById(contextMenuPdaHit.id) : null;
+    if (annotation) {
+      linkRefToActiveOrderReview({
+        type: ORDER_REF_TYPES.PDA,
+        id: annotation.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+      });
+      bus.emit('status:update', { text: `${getPdaLabel(annotation)} linked to active setup`, isError: false });
+    }
+  } else if (action === 'order-setup-link-segment') {
+    const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
+    if (segment) {
+      linkRefToActiveOrderReview({
+        type: ORDER_REF_TYPES.SEGMENT,
+        id: segment.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+      });
+      bus.emit('status:update', { text: `${getSegmentLabel(segment)} linked to active setup`, isError: false });
+    }
+  } else if (action === 'order-setup-link-composite') {
+    if (contextMenuSegmentGroupHit?.id) {
+      linkRefToActiveOrderReview({
+        type: ORDER_REF_TYPES.COMPOSITE,
+        id: contextMenuSegmentGroupHit.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+      });
+      bus.emit('status:update', { text: 'Composite linked to active setup', isError: false });
+    }
+  } else if (action === 'order-setup-link-latest-smt') {
+    const smt = getSmtRecords().at(-1);
+    if (smt) {
+      linkRefToActiveOrderReview({
+        type: ORDER_REF_TYPES.SMT,
+        id: smt.id,
+        role: ORDER_REF_ROLES.CONFIRMATION,
+      });
+      bus.emit('status:update', { text: 'Latest SMT linked to active setup', isError: false });
+    }
+  }
+  hideContextMenu();
+}
+
+function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGroupHit = null) {
   if (!controlsEl) return;
   contextMenuBar = bar;
   contextMenuPdaHit = pdaHit;
   contextMenuSegmentHit = segmentHit;
+  contextMenuSegmentGroupHit = segmentGroupHit;
   const { x: left, y: top, maxHeight } = clampMenuPosition(x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
@@ -599,6 +763,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
   controlsEl.innerHTML = `
     <div class="pda-menu" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
       <div class="pda-menu-title">${timeLabel}</div>
+      ${getOrderSetupItems(bar, pdaHit, segmentHit, segmentGroupHit)}
       <details class="pda-menu-section" open>
         <summary>PDA</summary>
         <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
@@ -640,8 +805,10 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null) {
 
 function hideContextMenu() {
   contextMenuBar = null;
+  contextMenuPrice = null;
   contextMenuPdaHit = null;
   contextMenuSegmentHit = null;
+  contextMenuSegmentGroupHit = null;
   if (controlsEl) {
     controlsEl.innerHTML = '';
   }
@@ -660,8 +827,10 @@ function handleContextMenu(e) {
   const time = chart.coordinateToTime(x);
   const bar = findDisplayBar(time);
   const price = chart.coordinateToPrice(y);
+  contextMenuPrice = price;
   const pdaHit = hitTestPdaAnnotations({ x, y, time, price });
   const segmentHit = hitTestSegments({ x, y });
+  const segmentGroupHit = hitTestSegmentGroups({ x, y });
 
   if (e.shiftKey && fibSelectionState) {
     addManualFib(bar);
@@ -673,7 +842,7 @@ function handleContextMenu(e) {
     return;
   }
 
-  showContextMenu(x, y, bar, pdaHit, segmentHit);
+  showContextMenu(x, y, bar, pdaHit, segmentHit, segmentGroupHit);
 }
 
 function handleControlClick(e) {
@@ -683,6 +852,14 @@ function handleControlClick(e) {
 
   if (action === 'bsl' || action === 'ssl') {
     addManualPoint(action, contextMenuBar);
+  } else if (action === 'order-setup-create-bullish' || action === 'order-setup-create-bearish') {
+    createOrderSetupFromContext(
+      action === 'order-setup-create-bullish' ? ORDER_DIRECTIONS.LONG : ORDER_DIRECTIONS.SHORT
+    );
+  } else if (action.startsWith('order-setup-set-')) {
+    patchActiveSetupFromContext(action);
+  } else if (action.startsWith('order-setup-link-')) {
+    linkContextObjectToActiveSetup(action);
   } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {
     addManualWickCe(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar);
   } else if (action === 'fvg') {

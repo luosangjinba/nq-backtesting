@@ -48,6 +48,11 @@ import { renderSmtPanel } from './inspector/smt-panel.js';
 import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
+  clearActiveOrderReview,
+  getActiveOrderReviewId,
+  setActiveOrderReview,
+} from '../order/order-review-active.js';
+import {
   addOrderReview,
   deleteOrderReview,
   getOrderReviewById,
@@ -73,6 +78,14 @@ let orderReviewTimePickState = null;
 let orderReviewPricePickState = null;
 let expandedOrderReviewId = null;
 let selectedSmtId = null;
+
+function getOrderReviewPanelOptions(extra = {}) {
+  return {
+    expandedOrderReviewId,
+    activeOrderReviewId: getActiveOrderReviewId(),
+    ...extra,
+  };
+}
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -149,11 +162,10 @@ function renderSegment(segment) {
   currentPanel = 'selection';
   bodyEl.innerHTML = `
     ${renderSegmentPanel(segment)}
-    ${renderOrderReviewPanel(getOrderReviews(), {
+    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-segment',
-      createLabel: 'Create Order Review From Segment',
-      expandedOrderReviewId,
-    })}
+      createLabel: 'Create Setup With Segment',
+    }))}
   `;
 }
 
@@ -161,11 +173,10 @@ function renderSegmentGroup(segmentGroup) {
   currentPanel = 'selection';
   bodyEl.innerHTML = `
     ${renderSegmentGroupPanel(segmentGroup)}
-    ${renderOrderReviewPanel(getOrderReviews(), {
+    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-composite',
-      createLabel: 'Create Order Review From Composite',
-      expandedOrderReviewId,
-    })}
+      createLabel: 'Create Setup With Composite',
+    }))}
   `;
 }
 
@@ -175,11 +186,10 @@ function renderEmpty() {
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
-    ${renderOrderReviewPanel(getOrderReviews(), {
+    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-empty',
-      createLabel: 'Create Blank Order Review',
-      expandedOrderReviewId,
-    })}
+      createLabel: 'Create Order Setup',
+    }))}
     ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
     ${renderDrawingSetList()}
     ${renderArchiveActions()}
@@ -189,7 +199,7 @@ function renderEmpty() {
 function renderArchivePanel() {
   currentPanel = 'archive';
   bodyEl.innerHTML = `
-    ${renderOrderReviewPanel(getOrderReviews(), { expandedOrderReviewId })}
+    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions())}
     ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
     ${renderArchiveActions()}
   `;
@@ -341,6 +351,7 @@ function createOrderReviewFromSegment(segment) {
     },
   });
   expandedOrderReviewId = order.id;
+  setActiveOrderReview(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
@@ -368,6 +379,7 @@ function createOrderReviewFromComposite(group) {
     },
   });
   expandedOrderReviewId = order.id;
+  setActiveOrderReview(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
@@ -376,6 +388,7 @@ function createOrderReviewFromComposite(group) {
 function createBlankOrderReview() {
   const order = addOrderReview();
   expandedOrderReviewId = order.id;
+  setActiveOrderReview(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
   return order;
@@ -1192,6 +1205,19 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'order-review-set-active') {
+    setActiveOrderReview(e.target.dataset.orderReviewId);
+    expandedOrderReviewId = e.target.dataset.orderReviewId;
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'order-review-clear-active') {
+    clearActiveOrderReview();
+    refreshSelection();
+    return;
+  }
+
   if (action === 'drawing-set-locate') {
     locateDrawingSet(e.target.dataset.setType, e.target.dataset.setId);
     return;
@@ -1365,6 +1391,7 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
+  bus.on('order-review-active:changed', refreshSelection);
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();

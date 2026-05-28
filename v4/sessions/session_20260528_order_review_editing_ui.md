@@ -292,3 +292,67 @@
   - Step 77: compact Inspector default view
   - Step 78: docs/user guide update
   - Step 79: chart-first workflow verification
+
+## 2026-05-28 Update - Phase 8D Steps 73-78
+- Created branch `feature/chart-first-order-setup`.
+- Added `v4/src/order/order-review-active.js` for session-only active Order Setup state.
+- `app.js` now initializes active Order Setup state.
+- Main chart right-click menu now has an `Order Setup` group.
+- Chart actions added:
+  - `Create Bullish Setup Here`
+  - `Create Bearish Setup Here`
+  - `Set Setup Event Here`
+  - `Set Entry Time Here`
+  - `Set Exit Time Here`
+  - `Set Entry Price Here`
+  - `Set Stop Loss Here`
+  - `Set Final Target Here`
+- Object linking actions added:
+  - clicked PDA -> active setup
+  - clicked Segment -> active setup
+  - clicked Composite Move -> active setup
+  - latest SMT -> active setup
+- Inspector now passes `activeOrderReviewId` into the Order Review panel.
+- Order Review rows now show compact setup summaries by default; the full form is moved under `Advanced Edit`.
+- Inspector can `Set Active Setup` and `Clear Active Setup`.
+- Updated:
+  - `v4/docs/ORDER_REVIEW_DESIGN.md`
+  - `v4/docs/USER_GUIDE.zh-CN.md`
+  - `v4/docs/USER_GUIDE.en.md`
+- Step 79 remains: verification of the chart-first workflow.
+
+## 2026-05-28 Update - Phase 8D Step 79
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Active setup probe passed:
+  - chart-created setup becomes active
+  - active setup can receive entry fields
+  - linked refs write through `linkRefToActiveOrderReview()`
+  - store derives `riskPoints`
+- Probe result:
+
+```json
+{"active":true,"count":1,"setup":1326120300,"price":2368.25,"entry":1326120600,"refs":1,"risk":5}
+```
+
+- API health passed at `http://127.0.0.1:8766/v4/health`.
+- Page service passed at `http://127.0.0.1:8001/index.html`.
+- Headless Chrome smoke passed:
+  - right-click menu contains `Order Setup`
+  - menu contains `Create Bullish Setup Here`
+  - menu contains `Set Entry Time Here`
+  - menu contains `Set Final Target Here`
+- Chart-first creation smoke passed after loading 2012-01-09 09:00-16:00 1H bars:
+  - found a chart bar at `2012-01-09 10:00`
+  - clicked `Create Bullish Setup Here`
+  - confirmed one Order Review row
+  - confirmed active row
+  - confirmed compact summary
+  - confirmed `Advanced Edit`
+- Browser smoke result:
+
+```json
+{"rows":1,"active":1,"summary":1,"advanced":1,"textIncludes":true}
+```
+
+- Review JSON and localStorage schemas were not changed in Phase 8D; they continue to use the existing Order Review store/persistence/archive paths from Phase 8B/8C.
