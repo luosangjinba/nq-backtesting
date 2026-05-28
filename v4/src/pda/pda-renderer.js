@@ -8,6 +8,7 @@ import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
+import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
 import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
@@ -72,9 +73,7 @@ function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegme
 }
 
 function getExtendBars(annotation, fallback = 0) {
-  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  return getExtendBarsForTimeframe(annotation, fallback, store.getCurrentTimeframe());
 }
 
 function getShowCe(annotation) {

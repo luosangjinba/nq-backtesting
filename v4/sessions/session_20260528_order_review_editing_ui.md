@@ -356,3 +356,23 @@
 ```
 
 - Review JSON and localStorage schemas were not changed in Phase 8D; they continue to use the existing Order Review store/persistence/archive paths from Phase 8B/8C.
+
+## 2026-05-28 Update - PDA Extend Cross-Timeframe Fix
+- User reported that PDA `extendBars` was tied to current chart bars, so a 1M Fib extended by 20 bars became 20 hours after switching to 1H.
+- Added `v4/src/pda/pda-extend.js`.
+- New behavior:
+  - Inspector still lets the user enter extend in current chart bars.
+  - On save, the app stores `display.extendSeconds` and `display.extendTimeframe`.
+  - Main PDA renderer, secondary PDA renderer, and PDA hit-test convert that duration back into current timeframe bars.
+  - Legacy annotations without `extendSeconds` infer the original timeframe from `display.extendTimeframe`, `display.sourceTimeframe`, `annotation.timeframe`, or context labels when possible.
+- Fixed sub-bar extend rendering:
+  - Primitive extension now uses pixel-level `barSpacing` math instead of `logicalToCoordinate(logical + fractionalBars)`.
+  - This prevents fractional values such as `0.75` or `1.5` from extending in the wrong direction.
+- Fixed Fib-specific behavior:
+  - Original Fib boundaries remain visible.
+  - Positive extend only appends to the original right boundary.
+  - Fib hit-test now matches the visual range.
+- Validation:
+  - Full `v4/src/**/*.js` syntax check passed.
+  - `git diff --check` passed.
+  - Probe confirmed `1M extend 20` converts to `0.3333` bars on `1H`.

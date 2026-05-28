@@ -1,6 +1,7 @@
 import { timeframeToString } from '../../config.js';
 import * as store from '../../data/bar-store.js';
 import { buildCePrice } from '../../price-utils.js';
+import { getExtendBarsForTimeframe, getExtendSeconds } from '../../pda/pda-extend.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import {
   controlField,
@@ -42,9 +43,21 @@ function getSpread(points = []) {
 function getExtendBars(annotation) {
   const pdaType = getPdaType(annotation.type);
   const fallback = pdaType?.shape === 'liquidity-line' ? DEFAULT_LINE_EXTEND_BARS : 0;
-  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  return getExtendBarsForTimeframe(annotation, fallback, store.getCurrentTimeframe());
+}
+
+function formatExtendBars(annotation) {
+  const bars = getExtendBars(annotation);
+  return Number.isInteger(bars) ? String(bars) : bars.toFixed(2).replace(/\.?0+$/, '');
+}
+
+function formatExtendDuration(annotation) {
+  const seconds = getExtendSeconds(annotation, getExtendBars(annotation), store.getCurrentTimeframe());
+  if (!seconds) return '0m';
+  if (seconds % 86400 === 0) return `${seconds / 86400}d`;
+  if (seconds % 3600 === 0) return `${seconds / 3600}h`;
+  if (seconds % 60 === 0) return `${seconds / 60}m`;
+  return `${seconds}s`;
 }
 
 function getShowCe(annotation) {
@@ -79,9 +92,10 @@ function renderEditFields(annotation) {
     'Edit',
     [
       controlField(
-        'Extend',
-        `<input class="inspector-input" data-inspector-action="extend-bars" type="number" min="0" step="1" value="${getExtendBars(annotation)}" placeholder="0" />`
+        `Extend (${timeframeToString(store.getCurrentTimeframe())} bars)`,
+        `<input class="inspector-input" data-inspector-action="extend-bars" type="number" min="0" step="0.25" value="${formatExtendBars(annotation)}" placeholder="0" />`
       ),
+      field('Extend Duration', formatExtendDuration(annotation)),
       controlField(
         'Note',
         `<textarea class="inspector-textarea" data-inspector-action="note" rows="4" placeholder="Add note">${escapeHtml(annotation.note || '')}</textarea>`

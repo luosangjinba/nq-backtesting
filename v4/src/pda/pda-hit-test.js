@@ -5,6 +5,7 @@ import * as store from '../data/bar-store.js';
 import { getAnnotations } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
+import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { shouldRenderPda } from '../display/display-mode.js';
 import { getIsolatedSegment } from '../segment/segment-store.js';
 import {
@@ -66,16 +67,15 @@ function getPriceCoordinate(price) {
 }
 
 function getExtendBars(annotation, fallback = 0) {
-  const value = annotation.display?.extendBars ?? annotation.extendBars ?? fallback;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  return getExtendBarsForTimeframe(annotation, fallback, store.getCurrentTimeframe());
 }
 
 function extendXByBars(x, extendBars) {
   if (x === null || extendBars <= 0) return x;
   const timeScale = chart.getChart()?.timeScale();
-  const logical = timeScale?.coordinateToLogical(x);
-  return logical === null || logical === undefined ? x : timeScale.logicalToCoordinate(logical + extendBars);
+  const barSpacing = Number(timeScale?.options?.().barSpacing);
+  const spacing = Number.isFinite(barSpacing) && barSpacing > 0 ? barSpacing : 6;
+  return x + Number(extendBars) * spacing;
 }
 
 function between(value, a, b, tolerance = 0) {
@@ -204,9 +204,9 @@ function hitFib(annotation, x, y) {
   const startX = getTimeCoordinate(startTime);
   const rawEndX = getTimeCoordinate(endTime);
   if (startX === null || rawEndX === null) return null;
+  const extendBars = getExtendBars(annotation, 0);
   const minX = Math.min(startX, rawEndX);
-  const maxX = Math.max(startX, rawEndX);
-  const endX = extendXByBars(maxX, getExtendBars(annotation, 0));
+  const endX = extendXByBars(Math.max(startX, rawEndX), extendBars);
   if (endX === null) return null;
 
   const levels = Array.isArray(annotation.levels) ? annotation.levels : [];

@@ -10,6 +10,7 @@ import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
 import { deleteAnnotation, getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
+import { buildExtendDisplayPatch } from '../pda/pda-extend.js';
 import { getPdaType } from '../pda/pda-types.js';
 import {
   clearSegmentGroupSelection,
@@ -1111,11 +1112,11 @@ function handleInspectorChange(e) {
 
   if (action === 'extend-bars') {
     const parsed = Number(e.target.value);
-    const extendBars = Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0;
+    const extendBars = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
     updateAnnotation(annotation.id, {
       display: {
         ...(annotation.display || {}),
-        extendBars,
+        ...buildExtendDisplayPatch(extendBars, store.getCurrentTimeframe()),
       },
     });
     return;

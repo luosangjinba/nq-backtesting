@@ -19,6 +19,15 @@ const RANGE_DEFAULTS = {
   minWidth: 4,
 };
 
+function extendXByBars(chart, x, extendBars) {
+  if (x === null || x === undefined || !Number.isFinite(Number(extendBars)) || Number(extendBars) <= 0) {
+    return x;
+  }
+  const barSpacing = Number(chart?.timeScale?.().options?.().barSpacing);
+  const spacing = Number.isFinite(barSpacing) && barSpacing > 0 ? barSpacing : 6;
+  return x + Number(extendBars) * spacing;
+}
+
 class RangeRenderer {
   constructor(view) {
     this._view = view;
@@ -102,8 +111,7 @@ class RangeView {
     const x1 = timeScale.timeToCoordinate(this._source._startTime);
     let x2 = timeScale.timeToCoordinate(this._source._endTime);
     if (x2 !== null && this._source._options.extendBars > 0) {
-      const logical = timeScale.coordinateToLogical(x2);
-      x2 = logical === null ? x2 : timeScale.logicalToCoordinate(logical + this._source._options.extendBars);
+      x2 = extendXByBars(chart, x2, this._source._options.extendBars);
     }
     this._p1 = { x: x1, y: y1 };
     this._p2 = { x: x2, y: y2 };
@@ -312,10 +320,7 @@ class LiquidityView {
     const anchorCoord = timeScale.timeToCoordinate(this._source._anchorTime);
     let rightX = null;
     if (anchorCoord !== null) {
-      const logical = timeScale.coordinateToLogical(anchorCoord);
-      if (logical !== null) {
-        rightX = timeScale.logicalToCoordinate(logical + this._source._options.lineLength);
-      }
+      rightX = extendXByBars(chart, anchorCoord, this._source._options.lineLength);
     }
 
     this._p1 = { x: anchorCoord, y };
@@ -474,8 +479,7 @@ class PointSetView {
       this._endX = maxX;
       return;
     }
-    const logical = timeScale.coordinateToLogical(maxX);
-    this._endX = logical === null ? maxX : timeScale.logicalToCoordinate(logical + this._source._options.extendBars);
+    this._endX = extendXByBars(this._source._chart, maxX, this._source._options.extendBars);
   }
 
   renderer() {
@@ -555,9 +559,9 @@ class FibRenderer {
       const ratio = Math.min(hRatio, vRatio);
       const x1 = p1.x * hRatio;
       const x2 = p2.x * hRatio;
-      const leftX = Math.min(x1, x2);
-      const rightX = Math.max(x1, x2);
-      const endX = this._view._endX === null ? rightX : this._view._endX * hRatio;
+      const lineStartX = this._view._lineStartX === null ? x2 : this._view._lineStartX * hRatio;
+      const lineEndX = this._view._lineEndX === null ? x2 : this._view._lineEndX * hRatio;
+      const labelX = Math.max(lineStartX, lineEndX);
 
       if (options.showTrendLine) {
         ctx.strokeStyle = options.trendLineColor;
@@ -575,8 +579,8 @@ class FibRenderer {
         ctx.lineWidth = options.lineWidth * ratio;
         ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(leftX, y);
-        ctx.lineTo(endX, y);
+        ctx.moveTo(lineStartX, y);
+        ctx.lineTo(lineEndX, y);
         ctx.stroke();
 
         if (options.showLabels) {
@@ -584,7 +588,7 @@ class FibRenderer {
           ctx.font = options.labelFont;
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
-          ctx.fillText(String(level.value), leftX - options.labelPadding * hRatio - 34 * hRatio, y);
+          ctx.fillText(String(level.value), labelX + options.labelPadding * hRatio, y);
         }
       });
     });
@@ -596,7 +600,8 @@ class FibView {
     this._source = source;
     this._p1 = { x: null, y: null };
     this._p2 = { x: null, y: null };
-    this._endX = null;
+    this._lineStartX = null;
+    this._lineEndX = null;
     this._levels = [];
   }
 
@@ -611,14 +616,16 @@ class FibView {
       x: timeScale.timeToCoordinate(this._source._endTime),
       y: series.priceToCoordinate(this._source._endPrice),
     };
+    const leftX =
+      this._p1.x === null || this._p2.x === null ? null : Math.min(this._p1.x, this._p2.x);
     const rightX =
       this._p1.x === null || this._p2.x === null ? null : Math.max(this._p1.x, this._p2.x);
-    if (rightX === null || this._source._options.extendBars <= 0) {
-      this._endX = rightX;
+    if (leftX === null || rightX === null) {
+      this._lineStartX = null;
+      this._lineEndX = null;
     } else {
-      const logical = timeScale.coordinateToLogical(rightX);
-      this._endX =
-        logical === null ? rightX : timeScale.logicalToCoordinate(logical + this._source._options.extendBars);
+      this._lineStartX = leftX;
+      this._lineEndX = extendXByBars(this._source._chart, rightX, this._source._options.extendBars);
     }
     this._levels = this._source._levels.map((level) => ({
       ...level,

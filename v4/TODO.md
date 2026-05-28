@@ -40,6 +40,7 @@
 - [x] Step 16: 可隐藏 Inspector Sidebar，只读显示选中 PDA 信息
 - [x] Step 17: Sidebar 基础编辑：Delete selected PDA、note、extendBars
 - [x] Step 18: Renderer 支持 extendBars（line/range/point-set 显示延伸，不改结构事实字段）
+- [x] Step 18A: PDA extend 跨周期语义修复：保存真实影响时长 `extendSeconds`，按当前周期换算显示/渲染/hit-test；Fib 保留原始区间，仅在右边界继续延伸
 - [x] Step 19: EQH/EQL 点集合编辑：点列表、删除点、少于 2 点时处理集合失效
 - [x] Step 20: 选中态视觉反馈（高亮 selected PDA，不遮挡 K 线）
 - [x] Step 21: localStorage 持久化（手动 PDA 刷新后恢复）
@@ -289,3 +290,4 @@
 - 2026-05-22: Inspector render 层拆分为 `ui/inspector/*-panel.js` 与 `render-utils.js`；`inspector-sidebar.js` 保留 panel 状态、事件监听、store update、selection refresh
 - 2026-05-22: Fib PDA MVP 完成：新增 `type: fib` / `shape: fib-retracement`，右键 Start Fib + Shift 右键终点创建，固定 levels `1/0.79/0.705/0.62/0.5/0.236/0`，支持渲染、hit-test、selection/segment-linked 高亮、Inspector level price、export/import；`Show current PDA label` 对 Fib 表示左侧 level 数值显示/隐藏
 - 2026-05-22: Clear PDA 现在会同步清空所有 segment 的 `pdaResponses`，避免 PDA 删除后 segment 组里残留 orphan response
+- 2026-05-28: PDA `extend` 语义从“当前周期 K 线根数”升级为“真实影响时长”：Inspector 在当前周期输入 N 根时保存 `display.extendSeconds = N * 当前周期秒数` 与 `extendTimeframe`；主图、副图、hit-test 按当前周期换算为渲染根数。旧标注若无 `extendSeconds`，优先从 `display.extendTimeframe/sourceTimeframe/timeframe/contexts` 推断原周期后兼容换算。Primitive 小数延伸使用 `barSpacing` 像素级计算，避免 `logicalToCoordinate(logical + 小数)` 造成反向漂移；Fib 始终保留原始左右边界，只在右边界追加 extend。
