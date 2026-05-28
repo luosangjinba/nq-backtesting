@@ -376,3 +376,24 @@
   - Full `v4/src/**/*.js` syntax check passed.
   - `git diff --check` passed.
   - Probe confirmed `1M extend 20` converts to `0.3333` bars on `1H`.
+
+## 2026-05-28 Update - Refactor Step 80
+- User decided to pause deeper Order Reviews feature work and reduce code weight first.
+- Committed menu summary overlap fix:
+  - `aca96c5 fix(v4): prevent PDA menu summary overlap`
+- Completed first behavior-preserving split of `manual-annotation.js`:
+  - Added `v4/src/order/order-setup-chart-actions.js`
+    - owns Order Setup right-click menu items
+    - owns chart actions for create setup, set event/entry/exit/price/SL/targets, and link PDA/Segment/Composite/SMT refs
+  - Added `v4/src/pda/manual-context-menu.js`
+    - owns context-menu positioning
+    - owns common PDA/SMT/Segment/Composite/Objective Gaps/Clear menu HTML assembly
+    - owns shared `getPdaLabel()` / `getSegmentLabel()`
+  - `manual-annotation.js` now keeps initialization, context capture, action dispatch, and local selection state.
+- File size after Step 80:
+  - `manual-annotation.js`: 1034 lines -> 782 lines.
+- Validation:
+  - Full `v4/src/**/*.js` syntax check passed.
+  - `git diff --check` passed.
+- Commit:
+  - `97f9d16 refactor(v4): split chart context menu order setup actions`

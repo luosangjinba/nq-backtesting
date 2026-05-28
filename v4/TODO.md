@@ -125,6 +125,12 @@
 - [x] Step 78: 更新文档与 user guide：强调 Order Setup 是中心对象，图表操作是主输入方式，Inspector 不是主录入面板
 - [x] Step 79: 验证 chart-first 工作流：右键创建 setup、关联 PDA/SMT/segment/composite、设置时间/价格、localStorage 恢复、Review JSON export/import、headless smoke
 
+### Phase 8E: V4 Frontend Refactor
+- [x] Step 80: 拆分 `manual-annotation.js` 第一阶段：抽出 `order/order-setup-chart-actions.js` 与 `pda/manual-context-menu.js`，保持右键菜单与 Order Setup 行为不变
+- [ ] Step 81: 继续拆分 PDA 创建动作：BSL/SSL/FVG/IFVG/Wick CE/OB/Breaker/Fib 创建逻辑移出 `manual-annotation.js`
+- [ ] Step 82: 拆分 Inspector action 层：Order Review / PDA / Segment / pick mode 从 `inspector-sidebar.js` 中分离
+- [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
