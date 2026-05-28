@@ -68,7 +68,21 @@
   - imports normalize order reviews and remap linked refs
 
 ## Suggested Next Step
-- Execute Step 64 first: document the exact edit-mode boundary in code comments or TODO notes before changing UI, then move to Step 65.
+- Step 64 is complete.
+- Next step is Step 65: extend `v4/src/ui/inspector/order-review-panel.js` with collapsible editing sections for Setup Thesis, Entry Plan, and Result Review.
+- Keep Step 65 focused on rendering structure and action wiring boundaries; field-specific behavior can land in Steps 66-68.
+
+## 2026-05-28 Update - Step 64
+- Documented the Phase 8C editing entry boundary in `v4/docs/ORDER_REVIEW_DESIGN.md`.
+- Decision: Inspector full form is the primary editing entry.
+- Decision: chart pick is secondary and helper-only.
+- Decision: no drag editing, no chart right-click order creation, no order marker hit-test selection, no automatic setup/target/statistics logic, and no DB writes in Phase 8C.
+- Ownership remains:
+  - store normalizes
+  - persistence subscribes and saves
+  - renderer draws visual helpers only
+  - Inspector panel renders controls
+  - Inspector sidebar routes actions and selected-object context
 
 ## Local Files To Avoid Committing
 - `__pycache__/`

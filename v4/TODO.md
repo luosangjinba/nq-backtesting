@@ -105,7 +105,7 @@
 - [x] Step 63: 验证 09:30 reversal、09:50 continuation/reversal、Silver Bullet、skipped、missed、invalidated、win/loss/breakeven 样例；运行 JS 语法检查与 `git diff --check`
 
 ### Phase 8C: Order Review Editing UI
-- [ ] Step 64: 设计编辑入口边界：第一版优先 Inspector 完整表单，其次图表 pick；不做拖拽、不做自动信号判断、不做统计页
+- [x] Step 64: 设计编辑入口边界：第一版优先 Inspector 完整表单，其次图表 pick；不做拖拽、不做自动信号判断、不做统计页
 - [ ] Step 65: 扩展 `ui/inspector/order-review-panel.js`，为每条 Order Review 增加可折叠编辑区，支持 Setup Thesis / Entry Plan / Result Review 三组字段
 - [ ] Step 66: 实现 Setup Thesis 编辑：primary event time/timeframe/type/price、confidence、higher timeframe justification、narrative、low timeframe warning
 - [ ] Step 67: 实现 Entry Plan 编辑：direction、entry time/timeframe/price/model、stopLoss/stopReason、target internal/swing/external、selectedTargetType、finalTarget、note

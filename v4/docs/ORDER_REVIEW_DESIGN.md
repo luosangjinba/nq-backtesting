@@ -636,6 +636,66 @@ Skipped and missed setups are valid review records. They should not be treated a
 
 The first version should be Inspector-led. The chart can render order markers, but order creation and editing should happen in the right sidebar.
 
+## Phase 8C Editing Entry Boundary
+
+Phase 8C turns the existing read-mostly Order Review panel into an editable review workspace. The editing model stays Inspector-led: the right sidebar owns edit state, form controls, validation hints, and store updates. Chart interaction is only a picker helper for time/price fields.
+
+### Primary Entry: Inspector Full Form
+
+The first editable version should expose a complete form inside each Order Review row.
+
+Inspector owns:
+
+- expanding/collapsing an order row for editing
+- editing Setup Thesis fields
+- editing Entry Plan fields
+- editing Result Review fields
+- adding/removing linked refs from currently selected objects
+- calling `updateOrderReview(id, patch)` for all field changes
+- showing derived read-only values such as `riskPoints`, `outcomePoints`, and `outcomeR`
+
+The form should update the existing normalized object. It should not create a separate draft schema or bypass `order-review-store.js` normalization.
+
+### Secondary Entry: Chart Pick Helpers
+
+Chart pick mode is a convenience layer, not an editing surface.
+
+Allowed chart pick actions:
+
+- pick setup event timestamp
+- pick entry timestamp
+- pick exit timestamp
+- pick a price for entry, stop, or final target
+- choose OHLC/current chart price only after the chart click identifies the bar or price context
+- cancel pick mode with `Escape`
+
+Chart pick should write back through the same Inspector/store update path. It should not create orders directly and should not own persistent edit state.
+
+### Explicit Non-Goals For Phase 8C
+
+Do not implement:
+
+- drag-to-edit setup/entry/exit markers
+- drag-to-edit stop/target lines
+- order marker hit-test selection
+- chart right-click order creation
+- automatic setup detection
+- automatic 09:30 / 09:50 / Silver Bullet validation
+- automatic target-hit, MAE/MFE, or statistics pages
+- DB persistence
+
+### Ownership Rules
+
+- `order-review-store.js` remains the only normalization boundary.
+- `order-review-persistence.js` remains a passive localStorage subscriber.
+- `order-review-renderer.js` remains visual-only and must not own edit state.
+- `order-review-panel.js` may render controls and emit Inspector actions, but business normalization stays in the store.
+- `inspector-sidebar.js` may route actions and access current selections for linked refs.
+
+### Step Order Rationale
+
+Implement the complete Inspector form before chart pick. Manual input must work end to end first; chart pick should only reduce typing after the object model and update path are stable.
+
 ### Create Order Review
 
 First version should allow creation from:
