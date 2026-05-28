@@ -300,3 +300,75 @@ export function isLowTimeframe(timeframe) {
   );
   return normalized === ORDER_TIMEFRAMES['1M'] || normalized === ORDER_TIMEFRAMES['5M'];
 }
+
+function normalizeBoolean(value, fallback = false) {
+  if (typeof value === 'boolean') return value;
+  if (value === 'true' || value === '1' || value === 1) return true;
+  if (value === 'false' || value === '0' || value === 0) return false;
+  return fallback;
+}
+
+export function normalizeLinkedObjectRef(input = {}) {
+  const type = normalizeEnum(
+    input.type,
+    VALID_ORDER_REF_TYPES,
+    ORDER_REF_TYPE_ALIASES,
+    null
+  );
+  const id = normalizeString(input.id, '');
+  if (!type || !id) return null;
+
+  return {
+    type,
+    id,
+    role: normalizeEnum(
+      input.role,
+      VALID_ORDER_REF_ROLES,
+      ORDER_REF_ROLE_ALIASES,
+      ORDER_REF_ROLES.CONTEXT
+    ),
+    note: normalizeNote(input.note),
+  };
+}
+
+export function normalizeLinkedObjectRefs(input = []) {
+  const refs = Array.isArray(input)
+    ? input.map(normalizeLinkedObjectRef).filter(Boolean)
+    : [];
+  return uniqueBy(refs, (ref) => `${ref.type}:${ref.id}:${ref.role}`);
+}
+
+export function normalizeSetupThesis(input = {}) {
+  const primaryEventTimeframe = normalizeEnum(
+    input.primaryEventTimeframe,
+    VALID_ORDER_TIMEFRAMES,
+    ORDER_TIMEFRAME_ALIASES,
+    ORDER_TIMEFRAMES.MANUAL
+  );
+  const derivedLowTimeframeWarning = isLowTimeframe(primaryEventTimeframe);
+
+  return {
+    primaryEventTimestamp: normalizeTimestamp(input.primaryEventTimestamp),
+    primaryEventTimeframe,
+    primaryEventType: normalizeEnum(
+      input.primaryEventType,
+      VALID_ORDER_EVENT_TYPES,
+      ORDER_EVENT_TYPE_ALIASES,
+      ORDER_EVENT_TYPES.OTHER
+    ),
+    primaryEventPrice: normalizeNumber(input.primaryEventPrice),
+    linkedObjectRefs: normalizeLinkedObjectRefs(input.linkedObjectRefs),
+    higherTimeframeJustification: normalizeNote(input.higherTimeframeJustification),
+    lowTimeframeWarning:
+      input.lowTimeframeWarning === undefined || input.lowTimeframeWarning === null
+        ? derivedLowTimeframeWarning
+        : normalizeBoolean(input.lowTimeframeWarning, derivedLowTimeframeWarning),
+    narrative: normalizeNote(input.narrative),
+    confidence: normalizeEnum(
+      input.confidence,
+      VALID_ORDER_CONFIDENCE,
+      ORDER_CONFIDENCE_ALIASES,
+      ORDER_CONFIDENCE.REVIEW_ONLY
+    ),
+  };
+}
