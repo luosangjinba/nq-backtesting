@@ -781,11 +781,13 @@ function handleActorPickChartClick(e) {
       window.prompt('Price source: current, open, high, low, close', 'current')
     );
     if (!source) {
+      clearOrderReviewPickState({ silent: true });
       bus.emit('status:update', { text: '价格来源无效，已取消 price pick', isError: true });
       return;
     }
     const price = getPickedPrice(bar, currentPrice, source);
     if (!Number.isFinite(Number(price))) {
+      clearOrderReviewPickState({ silent: true });
       bus.emit('status:update', { text: '无法从当前点击位置取得价格', isError: true });
       return;
     }
