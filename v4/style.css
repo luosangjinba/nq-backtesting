@@ -518,6 +518,11 @@ html, body {
   border-color: rgba(255, 183, 77, 0.32);
 }
 
+.smt-record-row.active {
+  border-color: #ffb74d;
+  background: rgba(255, 183, 77, 0.1);
+}
+
 .order-review-row {
   border-color: rgba(38, 166, 154, 0.32);
 }
@@ -607,6 +612,45 @@ html, body {
 
 .order-review-edit-section .inspector-textarea {
   min-height: 58px;
+}
+
+.order-review-ref-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 6px 6px;
+}
+
+.order-review-ref-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-review-ref-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 5px;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  background: #1e222d;
+  color: #d1d4dc;
+  font-size: 11px;
+}
+
+.order-review-ref-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-review-ref-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
 }
 
 .inspector-evidence-header {

@@ -63,8 +63,22 @@ function renderNumberInput(order, sectionName, fieldName, value, placeholder = '
   return `<input class="inspector-input" ${orderFieldAttrs(order, sectionName, fieldName)} type="number" step="0.25" value="${value === null || value === undefined ? '' : escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" />`;
 }
 
+function renderPriceInput(order, sectionName, fieldName, value, placeholder = 'price') {
+  return `
+    <div class="inspector-inline-control">
+      ${renderNumberInput(order, sectionName, fieldName, value, placeholder)}
+      <button class="inspector-mini-btn" data-inspector-action="order-review-pick-price" data-order-review-id="${escapeHtml(order.id)}" data-order-review-section="${escapeHtml(sectionName)}" data-order-review-field="${escapeHtml(fieldName)}" type="button">Pick</button>
+    </div>
+  `;
+}
+
 function renderTimestampInput(order, sectionName, fieldName, value) {
-  return renderTextInput(order, sectionName, fieldName, getTimestampInputValue(value), 'YYYY-MM-DD HH:mm');
+  return `
+    <div class="inspector-inline-control">
+      ${renderTextInput(order, sectionName, fieldName, getTimestampInputValue(value), 'YYYY-MM-DD HH:mm')}
+      <button class="inspector-mini-btn" data-inspector-action="order-review-pick-time" data-order-review-id="${escapeHtml(order.id)}" data-order-review-section="${escapeHtml(sectionName)}" data-order-review-field="${escapeHtml(fieldName)}" type="button">Pick</button>
+    </div>
+  `;
 }
 
 function renderTextarea(order, sectionName, fieldName, value, placeholder = '') {
@@ -94,6 +108,35 @@ function renderLinkedRefs(refs = []) {
     'Refs',
     refs.map((ref) => `${ref.role}:${ref.type}:${ref.id}`).join(', ')
   );
+}
+
+function renderLinkedRefsEditor(order) {
+  const refs = Array.isArray(order.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
+  const rows = refs.length
+    ? refs
+        .map(
+          (ref, index) => `
+            <div class="order-review-ref-row">
+              <span>${escapeHtml(ref.role)}:${escapeHtml(ref.type)}:${escapeHtml(ref.id)}</span>
+              <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">Remove</button>
+            </div>
+          `
+        )
+        .join('')
+    : '<div class="drawing-set-empty">No linked refs.</div>';
+
+  return `
+    <div class="order-review-ref-editor">
+      <div class="order-review-compact-title">Linked Refs</div>
+      <div class="order-review-ref-list">${rows}</div>
+      <div class="order-review-ref-actions">
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-pda" data-order-review-id="${escapeHtml(order.id)}" type="button">Add PDA</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-segment" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Segment</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-composite" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Composite</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-smt" data-order-review-id="${escapeHtml(order.id)}" type="button">Add SMT</button>
+      </div>
+    </div>
+  `;
 }
 
 function renderSetupThesis(order) {
@@ -164,6 +207,7 @@ function renderSetupThesisEditor(order) {
       ${controlField('Event Price', renderNumberInput(order, 'setupThesis', 'primaryEventPrice', setup.primaryEventPrice, 'price'))}
       ${controlField('Confidence', renderSelect(order, 'setupThesis', 'confidence', ORDER_CONFIDENCE_DEFINITIONS, setup.confidence))}
       ${controlField('Low TF Warn', renderCheckbox(order, 'setupThesis', 'lowTimeframeWarning', setup.lowTimeframeWarning))}
+      ${renderLinkedRefsEditor(order)}
       ${controlField('HTF Reason', renderTextarea(order, 'setupThesis', 'higherTimeframeJustification', setup.higherTimeframeJustification, 'Higher timeframe reason'))}
       ${controlField('Narrative', renderTextarea(order, 'setupThesis', 'narrative', setup.narrative, 'Setup thesis narrative'))}
     </details>
@@ -178,15 +222,15 @@ function renderEntryPlanEditor(order) {
       ${controlField('Direction', renderSelect(order, 'entryPlan', 'direction', ORDER_DIRECTION_DEFINITIONS, entry.direction))}
       ${controlField('Entry Time', renderTimestampInput(order, 'entryPlan', 'entryTimestamp', entry.entryTimestamp))}
       ${controlField('Entry TF', renderSelect(order, 'entryPlan', 'entryTimeframe', ORDER_TIMEFRAME_DEFINITIONS, entry.entryTimeframe))}
-      ${controlField('Entry Price', renderNumberInput(order, 'entryPlan', 'entryPrice', entry.entryPrice, 'price'))}
+      ${controlField('Entry Price', renderPriceInput(order, 'entryPlan', 'entryPrice', entry.entryPrice))}
       ${controlField('Model', renderSelect(order, 'entryPlan', 'entryModel', ORDER_ENTRY_MODEL_DEFINITIONS, entry.entryModel))}
-      ${controlField('Stop Loss', renderNumberInput(order, 'entryPlan', 'stopLoss', entry.stopLoss, 'price'))}
+      ${controlField('Stop Loss', renderPriceInput(order, 'entryPlan', 'stopLoss', entry.stopLoss))}
       ${controlField('Stop Reason', renderSelect(order, 'entryPlan', 'stopReason', ORDER_STOP_REASON_DEFINITIONS, entry.stopReason))}
       ${controlField('Target Internal', renderNumberInput(order, 'entryPlan', 'targetInternal', entry.targetInternal, 'price'))}
       ${controlField('Target Swing', renderNumberInput(order, 'entryPlan', 'targetSwing', entry.targetSwing, 'price'))}
       ${controlField('Target External', renderNumberInput(order, 'entryPlan', 'targetExternal', entry.targetExternal, 'price'))}
       ${controlField('Selected Target', renderSelect(order, 'entryPlan', 'selectedTargetType', ORDER_TARGET_TYPE_DEFINITIONS, entry.selectedTargetType))}
-      ${controlField('Final Target', renderNumberInput(order, 'entryPlan', 'finalTarget', entry.finalTarget, 'price'))}
+      ${controlField('Final Target', renderPriceInput(order, 'entryPlan', 'finalTarget', entry.finalTarget))}
       ${field('Risk Points', formatNumber(entry.riskPoints))}
       ${controlField('Entry Note', renderTextarea(order, 'entryPlan', 'note', entry.note, 'Entry plan note'))}
     </details>

@@ -42,9 +42,10 @@ function renderFvgFacts(record) {
   `;
 }
 
-function renderRow(record) {
+function renderRow(record, options = {}) {
+  const isSelected = options.selectedSmtId === record.id;
   return `
-    <div class="inspector-evidence-row smt-record-row">
+    <div class="inspector-evidence-row smt-record-row${isSelected ? ' active' : ''}">
       <div class="inspector-evidence-header">
         <span>${escapeHtml(getTitle(record))}</span>
         <span>${escapeHtml(record.timeframe)}</span>
@@ -59,15 +60,16 @@ function renderRow(record) {
         <span class="inspector-field-label">Note</span>
         <textarea class="inspector-textarea" data-inspector-action="smt-note" data-smt-id="${escapeHtml(record.id)}" rows="2">${escapeHtml(record.note || '')}</textarea>
       </label>
+      <button class="inspector-secondary" data-inspector-action="smt-select" data-smt-id="${escapeHtml(record.id)}" type="button">${isSelected ? 'Selected' : 'Select'}</button>
       <button class="inspector-secondary" data-inspector-action="smt-locate" data-smt-id="${escapeHtml(record.id)}" type="button">Locate</button>
       <button class="inspector-danger" data-inspector-action="smt-delete" data-smt-id="${escapeHtml(record.id)}" type="button">Delete</button>
     </div>
   `;
 }
 
-export function renderSmtPanel(records = []) {
+export function renderSmtPanel(records = [], options = {}) {
   const content = records.length
-    ? `<div class="inspector-evidence-list">${records.map(renderRow).join('')}</div>`
+    ? `<div class="inspector-evidence-list">${records.map((record) => renderRow(record, options)).join('')}</div>`
     : '<div class="drawing-set-empty">No SMT evidence. Use chart right-click SMT actions.</div>';
   return section('SMT Evidence', content);
 }

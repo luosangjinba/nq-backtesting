@@ -69,7 +69,10 @@ let sidebarEl = null;
 let bodyEl = null;
 let currentPanel = 'empty';
 let actorPickState = null;
+let orderReviewTimePickState = null;
+let orderReviewPricePickState = null;
 let expandedOrderReviewId = null;
+let selectedSmtId = null;
 
 function normalizeTimeKey(time) {
   if (time && typeof time === 'object') {
@@ -105,11 +108,36 @@ function clearActorPickState({ silent = false } = {}) {
   return true;
 }
 
+function clearOrderReviewPickState({ silent = false } = {}) {
+  if (!orderReviewTimePickState && !orderReviewPricePickState) return false;
+  orderReviewTimePickState = null;
+  orderReviewPricePickState = null;
+  chart.hidePickPreviewCursor();
+  if (!silent) {
+    bus.emit('status:update', { text: 'Order Review pick 已取消', isError: false });
+  }
+  return true;
+}
+
 function getActorFieldLabel(actorField) {
   if (actorField === 'firstBarTimestamp') return 'Actor First';
   if (actorField === 'lastBarTimestamp') return 'Actor Last';
   if (actorField === 'terminalBarTimestamp') return 'Actor Terminal';
   return 'Actor Bar';
+}
+
+function getOrderReviewPickLabel(section, field) {
+  if (section === 'setupThesis' && field === 'primaryEventTimestamp') return 'Setup Event Time';
+  if (section === 'entryPlan' && field === 'entryTimestamp') return 'Entry Time';
+  if (section === 'resultReview' && field === 'exitTimestamp') return 'Exit Time';
+  return 'Order Review Time';
+}
+
+function getOrderReviewPricePickLabel(field) {
+  if (field === 'entryPrice') return 'Entry Price';
+  if (field === 'stopLoss') return 'Stop Loss';
+  if (field === 'finalTarget') return 'Final Target';
+  return 'Order Review Price';
 }
 
 function renderAnnotation(annotation) {
@@ -152,7 +180,7 @@ function renderEmpty() {
       createLabel: 'Create Blank Order Review',
       expandedOrderReviewId,
     })}
-    ${renderSmtPanel(getSmtRecords())}
+    ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
     ${renderDrawingSetList()}
     ${renderArchiveActions()}
   `;
@@ -162,7 +190,7 @@ function renderArchivePanel() {
   currentPanel = 'archive';
   bodyEl.innerHTML = `
     ${renderOrderReviewPanel(getOrderReviews(), { expandedOrderReviewId })}
-    ${renderSmtPanel(getSmtRecords())}
+    ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
     ${renderArchiveActions()}
   `;
 }
@@ -313,6 +341,7 @@ function createOrderReviewFromSegment(segment) {
     },
   });
   expandedOrderReviewId = order.id;
+  refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
 }
@@ -339,6 +368,7 @@ function createOrderReviewFromComposite(group) {
     },
   });
   expandedOrderReviewId = order.id;
+  refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
 }
@@ -346,6 +376,7 @@ function createOrderReviewFromComposite(group) {
 function createBlankOrderReview() {
   const order = addOrderReview();
   expandedOrderReviewId = order.id;
+  refreshSelection();
   bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
   return order;
 }
@@ -353,9 +384,73 @@ function createBlankOrderReview() {
 function parseOrderReviewFieldValue(target) {
   const field = target.dataset.orderReviewField;
   if (target.type === 'checkbox') return target.checked;
-  if (field === 'primaryEventTimestamp') return parseEvidenceTimestamp(target.value);
-  if (field === 'primaryEventPrice') return target.value === '' ? null : Number(target.value);
+  if (
+    field === 'primaryEventTimestamp' ||
+    field === 'entryTimestamp' ||
+    field === 'exitTimestamp'
+  ) {
+    return parseEvidenceTimestamp(target.value);
+  }
+  if (
+    field === 'primaryEventPrice' ||
+    field === 'entryPrice' ||
+    field === 'stopLoss' ||
+    field === 'targetInternal' ||
+    field === 'targetSwing' ||
+    field === 'targetExternal' ||
+    field === 'finalTarget' ||
+    field === 'exitPrice'
+  ) {
+    return target.value === '' ? null : Number(target.value);
+  }
   return target.value;
+}
+
+function isOrderReviewTimestampField(field) {
+  return field === 'primaryEventTimestamp' || field === 'entryTimestamp' || field === 'exitTimestamp';
+}
+
+function isOrderReviewNumberField(field) {
+  return (
+    field === 'primaryEventPrice' ||
+    field === 'entryPrice' ||
+    field === 'stopLoss' ||
+    field === 'targetInternal' ||
+    field === 'targetSwing' ||
+    field === 'targetExternal' ||
+    field === 'finalTarget' ||
+    field === 'exitPrice'
+  );
+}
+
+function getOrderReviewFieldLabel(section, field) {
+  if (section === 'setupThesis' && field === 'primaryEventTimestamp') return 'Setup event time';
+  if (section === 'setupThesis' && field === 'primaryEventPrice') return 'Setup event price';
+  if (section === 'entryPlan' && field === 'entryTimestamp') return 'Entry time';
+  if (section === 'entryPlan' && field === 'entryPrice') return 'Entry price';
+  if (section === 'entryPlan' && field === 'stopLoss') return 'Stop loss';
+  if (section === 'entryPlan' && field === 'targetInternal') return 'Internal target';
+  if (section === 'entryPlan' && field === 'targetSwing') return 'Swing target';
+  if (section === 'entryPlan' && field === 'targetExternal') return 'External target';
+  if (section === 'entryPlan' && field === 'finalTarget') return 'Final target';
+  if (section === 'resultReview' && field === 'exitTimestamp') return 'Exit time';
+  if (section === 'resultReview' && field === 'exitPrice') return 'Exit price';
+  return field;
+}
+
+function validateOrderReviewFieldValue(target, value) {
+  const section = target.dataset.orderReviewSection;
+  const field = target.dataset.orderReviewField;
+  const label = getOrderReviewFieldLabel(section, field);
+  if (isOrderReviewTimestampField(field) && target.value && value === null) {
+    bus.emit('status:update', { text: `${label} 格式无效，请使用 YYYY-MM-DD HH:mm`, isError: true });
+    return false;
+  }
+  if (isOrderReviewNumberField(field) && target.value !== '' && !Number.isFinite(value)) {
+    bus.emit('status:update', { text: `${label} 必须是数字`, isError: true });
+    return false;
+  }
+  return true;
 }
 
 function updateOrderReviewSetupField(target) {
@@ -365,14 +460,7 @@ function updateOrderReviewSetupField(target) {
 
   expandedOrderReviewId = orderReviewId;
   const value = parseOrderReviewFieldValue(target);
-  if (field === 'primaryEventTimestamp' && target.value && value === null) {
-    bus.emit('status:update', { text: 'Setup event time 格式无效，请使用 YYYY-MM-DD HH:mm', isError: true });
-    return true;
-  }
-  if (field === 'primaryEventPrice' && target.value !== '' && !Number.isFinite(value)) {
-    bus.emit('status:update', { text: 'Setup event price 必须是数字', isError: true });
-    return true;
-  }
+  if (!validateOrderReviewFieldValue(target, value)) return true;
 
   updateOrderReview(orderReviewId, {
     setupThesis: {
@@ -380,6 +468,193 @@ function updateOrderReviewSetupField(target) {
     },
   });
   return true;
+}
+
+function updateOrderReviewEntryField(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const field = target.dataset.orderReviewField;
+  if (!orderReviewId || !field) return false;
+
+  expandedOrderReviewId = orderReviewId;
+  const value = parseOrderReviewFieldValue(target);
+  if (!validateOrderReviewFieldValue(target, value)) return true;
+
+  updateOrderReview(orderReviewId, {
+    entryPlan: {
+      [field]: value,
+    },
+  });
+  return true;
+}
+
+function updateOrderReviewResultField(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const field = target.dataset.orderReviewField;
+  if (!orderReviewId || !field) return false;
+
+  expandedOrderReviewId = orderReviewId;
+  const value = parseOrderReviewFieldValue(target);
+  if (!validateOrderReviewFieldValue(target, value)) return true;
+
+  updateOrderReview(orderReviewId, {
+    resultReview: {
+      [field]: value,
+    },
+  });
+  return true;
+}
+
+function getOrderReviewRefs(order) {
+  return Array.isArray(order?.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
+}
+
+function patchOrderReviewRefs(orderReviewId, refs) {
+  expandedOrderReviewId = orderReviewId;
+  updateOrderReview(orderReviewId, {
+    setupThesis: {
+      linkedObjectRefs: refs,
+    },
+  });
+}
+
+function addOrderReviewRef(orderReviewId, ref) {
+  const order = getOrderReviewById(orderReviewId);
+  if (!order || !ref?.type || !ref?.id) return false;
+  patchOrderReviewRefs(orderReviewId, [...getOrderReviewRefs(order), ref]);
+  return true;
+}
+
+function removeOrderReviewRef(orderReviewId, refIndex) {
+  const order = getOrderReviewById(orderReviewId);
+  const refs = getOrderReviewRefs(order);
+  if (!order || refIndex < 0 || refIndex >= refs.length) return false;
+  patchOrderReviewRefs(
+    orderReviewId,
+    refs.filter((_, index) => index !== refIndex)
+  );
+  return true;
+}
+
+function addSelectedOrderReviewRef(action, orderReviewId) {
+  if (action === 'order-review-ref-add-selected-pda') {
+    const selection = getSelectedPda();
+    if (!selection) {
+      bus.emit('status:update', { text: '没有选中的 PDA', isError: true });
+      return true;
+    }
+    addOrderReviewRef(orderReviewId, {
+      type: ORDER_REF_TYPES.PDA,
+      id: selection.id,
+      role: ORDER_REF_ROLES.CONTEXT,
+    });
+    return true;
+  }
+
+  if (action === 'order-review-ref-add-selected-segment') {
+    const selection = getSelectedSegment();
+    if (!selection) {
+      bus.emit('status:update', { text: '没有选中的 Segment', isError: true });
+      return true;
+    }
+    addOrderReviewRef(orderReviewId, {
+      type: ORDER_REF_TYPES.SEGMENT,
+      id: selection.id,
+      role: ORDER_REF_ROLES.CONTEXT,
+    });
+    return true;
+  }
+
+  if (action === 'order-review-ref-add-selected-composite') {
+    const selection = getSelectedSegmentGroup();
+    if (!selection) {
+      bus.emit('status:update', { text: '没有选中的 Composite Move', isError: true });
+      return true;
+    }
+    addOrderReviewRef(orderReviewId, {
+      type: ORDER_REF_TYPES.COMPOSITE,
+      id: selection.id,
+      role: ORDER_REF_ROLES.CONTEXT,
+    });
+    return true;
+  }
+
+  if (action === 'order-review-ref-add-selected-smt') {
+    if (!selectedSmtId || !getSmtRecordById(selectedSmtId)) {
+      bus.emit('status:update', { text: '没有选中的 SMT', isError: true });
+      return true;
+    }
+    addOrderReviewRef(orderReviewId, {
+      type: ORDER_REF_TYPES.SMT,
+      id: selectedSmtId,
+      role: ORDER_REF_ROLES.CONFIRMATION,
+    });
+    return true;
+  }
+
+  return false;
+}
+
+function startOrderReviewTimePick(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const section = target.dataset.orderReviewSection;
+  const field = target.dataset.orderReviewField;
+  if (!orderReviewId || !section || !field || !isOrderReviewTimestampField(field)) return;
+  if (!store.getDisplayBars().length) {
+    bus.emit('status:update', { text: '当前图表没有可 pick 的 K 线', isError: true });
+    return;
+  }
+
+  clearActorPickState({ silent: true });
+  clearOrderReviewPickState({ silent: true });
+  expandedOrderReviewId = orderReviewId;
+  orderReviewTimePickState = {
+    orderReviewId,
+    section,
+    field,
+  };
+  bus.emit('status:update', {
+    text: `点击主图 K 线选择 ${getOrderReviewPickLabel(section, field)}`,
+    isError: false,
+  });
+}
+
+function startOrderReviewPricePick(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const section = target.dataset.orderReviewSection;
+  const field = target.dataset.orderReviewField;
+  if (!orderReviewId || !section || !field || !isOrderReviewNumberField(field)) return;
+  if (!store.getDisplayBars().length) {
+    bus.emit('status:update', { text: '当前图表没有可 pick 的 K 线', isError: true });
+    return;
+  }
+
+  clearActorPickState({ silent: true });
+  clearOrderReviewPickState({ silent: true });
+  expandedOrderReviewId = orderReviewId;
+  orderReviewPricePickState = {
+    orderReviewId,
+    section,
+    field,
+  };
+  bus.emit('status:update', {
+    text: `点击主图选择 ${getOrderReviewPricePickLabel(field)}`,
+    isError: false,
+  });
+}
+
+function normalizePricePickSource(value) {
+  const source = String(value || 'current').trim().toLowerCase();
+  if (source === 'o') return 'open';
+  if (source === 'h') return 'high';
+  if (source === 'l') return 'low';
+  if (source === 'c') return 'close';
+  if (['open', 'high', 'low', 'close', 'current'].includes(source)) return source;
+  return null;
+}
+
+function getPickedPrice(bar, currentPrice, source) {
+  if (source === 'current') return currentPrice;
+  return Number(bar?.[source]);
 }
 
 function locateOrderReview(order) {
@@ -466,7 +741,7 @@ function startActorBarPick(segment, target) {
 }
 
 function handleActorPickChartClick(e) {
-  if (!actorPickState) return;
+  if (!actorPickState && !orderReviewTimePickState && !orderReviewPricePickState) return;
   e.preventDefault();
   e.stopImmediatePropagation();
 
@@ -474,10 +749,58 @@ function handleActorPickChartClick(e) {
   if (!chartEl) return;
 
   const rect = chartEl.getBoundingClientRect();
-  const time = chart.coordinateToTime(e.clientX - rect.left);
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const time = chart.coordinateToTime(x);
   const bar = findDisplayBarByChartTime(time);
   if (!bar) {
     chart.hidePickPreviewCursor();
+    return;
+  }
+
+  if (orderReviewTimePickState) {
+    const { orderReviewId, section, field } = orderReviewTimePickState;
+    clearOrderReviewPickState({ silent: true });
+    expandedOrderReviewId = orderReviewId;
+    updateOrderReview(orderReviewId, {
+      [section]: {
+        [field]: bar.timestamp,
+      },
+    });
+    bus.emit('status:update', {
+      text: `${getOrderReviewPickLabel(section, field)} 已选择: ${bar.time || bar.tradingDay}`,
+      isError: false,
+    });
+    return;
+  }
+
+  if (orderReviewPricePickState) {
+    const { orderReviewId, section, field } = orderReviewPricePickState;
+    const currentPrice = chart.coordinateToPrice(y);
+    const source = normalizePricePickSource(
+      window.prompt('Price source: current, open, high, low, close', 'current')
+    );
+    if (!source) {
+      bus.emit('status:update', { text: '价格来源无效，已取消 price pick', isError: true });
+      return;
+    }
+    const price = getPickedPrice(bar, currentPrice, source);
+    if (!Number.isFinite(Number(price))) {
+      bus.emit('status:update', { text: '无法从当前点击位置取得价格', isError: true });
+      return;
+    }
+
+    clearOrderReviewPickState({ silent: true });
+    expandedOrderReviewId = orderReviewId;
+    updateOrderReview(orderReviewId, {
+      [section]: {
+        [field]: Number(price),
+      },
+    });
+    bus.emit('status:update', {
+      text: `${getOrderReviewPricePickLabel(field)} 已选择 ${source}: ${Number(price).toFixed(2)}`,
+      isError: false,
+    });
     return;
   }
 
@@ -503,7 +826,7 @@ function handleActorPickChartClick(e) {
 }
 
 function handleActorPickHover(param) {
-  if (!actorPickState) return;
+  if (!actorPickState && !orderReviewTimePickState && !orderReviewPricePickState) return;
   const bar = findDisplayBarByChartTime(param?.time);
   if (!bar) {
     chart.hidePickPreviewCursor();
@@ -548,7 +871,31 @@ function handleInspectorChange(e) {
   if (action === 'order-review-edit-field') {
     if (e.target.dataset.orderReviewSection === 'setupThesis') {
       updateOrderReviewSetupField(e.target);
+    } else if (e.target.dataset.orderReviewSection === 'entryPlan') {
+      updateOrderReviewEntryField(e.target);
+    } else if (e.target.dataset.orderReviewSection === 'resultReview') {
+      updateOrderReviewResultField(e.target);
     }
+    return;
+  }
+
+  if (action === 'order-review-pick-time') {
+    startOrderReviewTimePick(e.target);
+    return;
+  }
+
+  if (action === 'order-review-pick-price') {
+    startOrderReviewPricePick(e.target);
+    return;
+  }
+
+  if (action === 'order-review-ref-remove') {
+    removeOrderReviewRef(e.target.dataset.orderReviewId, Number(e.target.dataset.refIndex));
+    return;
+  }
+
+  if (action.startsWith('order-review-ref-add-selected-')) {
+    addSelectedOrderReviewRef(action, e.target.dataset.orderReviewId);
     return;
   }
 
@@ -816,7 +1163,14 @@ function handleInspectorClick(e) {
 
   if (action === 'smt-delete') {
     deleteSmtRecord(e.target.dataset.smtId);
+    if (selectedSmtId === e.target.dataset.smtId) selectedSmtId = null;
     if (currentPanel === 'archive') renderArchivePanel();
+    return;
+  }
+
+  if (action === 'smt-select') {
+    selectedSmtId = e.target.dataset.smtId;
+    refreshSelection();
     return;
   }
 
@@ -983,7 +1337,10 @@ export function initInspectorSidebar() {
   document.getElementById('chart')?.addEventListener('click', handleActorPickChartClick, true);
   chart.onCrosshairMove(handleActorPickHover);
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') clearActorPickState();
+    if (e.key === 'Escape') {
+      clearActorPickState();
+      clearOrderReviewPickState();
+    }
   });
   bus.on('pda:selected', ({ annotation }) => {
     renderAnnotation(annotation);
@@ -1014,6 +1371,8 @@ export function initInspectorSidebar() {
     openSidebar();
   });
   bus.on('bars:cleared', () => {
+    clearActorPickState({ silent: true });
+    clearOrderReviewPickState({ silent: true });
     clearPdaSelection();
     clearSegmentSelection();
     clearSegmentGroupSelection();

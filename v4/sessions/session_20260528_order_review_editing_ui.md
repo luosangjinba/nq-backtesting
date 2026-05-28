@@ -69,8 +69,8 @@
 
 ## Suggested Next Step
 - Step 64 is complete.
-- Step 66 is complete.
-- Next step is Step 67: wire Entry Plan field changes through Inspector actions to `updateOrderReview()`.
+- Step 72 is complete.
+- Phase 8C implementation steps are complete; next step should be review / commit / optional manual visual pass before merging.
 
 ## 2026-05-28 Update - Step 64
 - Documented the Phase 8C editing entry boundary in `v4/docs/ORDER_REVIEW_DESIGN.md`.
@@ -118,6 +118,139 @@
   - `node --check v4/src/ui/inspector/order-review-panel.js`
   - `node --check v4/src/ui/inspector-sidebar.js`
   - `git diff --check -- v4/src/ui/inspector/order-review-panel.js v4/src/ui/inspector-sidebar.js`
+
+## 2026-05-28 Update - Step 67
+- Wired `entryPlan` edit fields in `v4/src/ui/inspector-sidebar.js`.
+- Supported Entry Plan fields:
+  - `direction`
+  - `entryTimestamp`
+  - `entryTimeframe`
+  - `entryPrice`
+  - `entryModel`
+  - `stopLoss`
+  - `stopReason`
+  - `targetInternal`
+  - `targetSwing`
+  - `targetExternal`
+  - `selectedTargetType`
+  - `finalTarget`
+  - `note`
+- Entry time uses `parseEvidenceTimestamp()` and accepts the same `YYYY-MM-DD HH:mm` style as Setup Thesis.
+- Price fields reject non-numeric input before updating.
+- `riskPoints` remains store-derived from `entryPrice` and `stopLoss`, so changing either field refreshes the read-only value after normalization.
+- Verification:
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `git diff --check -- v4/src/ui/inspector-sidebar.js v4/src/ui/inspector/order-review-panel.js`
+
+## 2026-05-28 Update - Step 68
+- Wired `resultReview` edit fields in `v4/src/ui/inspector-sidebar.js`.
+- Supported Result Review fields:
+  - `expectedTargetReached`
+  - `finalTargetReached`
+  - `exitTimestamp`
+  - `exitPrice`
+  - `result`
+  - `exitReason`
+  - `note`
+- Exit time uses `parseEvidenceTimestamp()` and accepts the same `YYYY-MM-DD HH:mm` style.
+- Exit price rejects non-numeric input before updating.
+- `outcomePoints` and `outcomeR` remain store-derived from Entry Plan plus Result Review.
+- Verification:
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `git diff --check -- v4/src/ui/inspector-sidebar.js`
+  - node probe confirmed `{ riskPoints: 5, outcomePoints: 10, outcomeR: 2 }` for a long entry 100 / stop 95 / exit 110
+
+## 2026-05-28 Update - Step 69
+- Added linked refs management to the Order Review editor.
+- `Setup Thesis` edit section now shows:
+  - existing `linkedObjectRefs`
+  - per-ref remove button
+  - add buttons for selected PDA / Segment / Composite / SMT
+- Ref updates write through `updateOrderReview()` with `setupThesis.linkedObjectRefs`, so store normalization still handles dedupe and validation.
+- PDA / Segment / Composite refs use the existing chart selection stores.
+- SMT did not previously have a selection model, so first version adds a `Select` button to each SMT row in `v4/src/ui/inspector/smt-panel.js`; `Add SMT` links the currently selected SMT id.
+- Added compact linked-ref UI styles in `v4/style.css`.
+- Verification:
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `node --check v4/src/ui/inspector/smt-panel.js`
+  - `git diff --check -- v4/src/ui/inspector-sidebar.js v4/src/ui/inspector/order-review-panel.js v4/src/ui/inspector/smt-panel.js v4/style.css`
+
+## 2026-05-28 Update - Step 70
+- Added `Pick` buttons beside Order Review timestamp inputs:
+  - Setup Thesis `primaryEventTimestamp`
+  - Entry Plan `entryTimestamp`
+  - Result Review `exitTimestamp`
+- Added Order Review time pick state in `v4/src/ui/inspector-sidebar.js`.
+- Pick workflow:
+  - click `Pick` in Inspector
+  - hover main chart shows the existing preview cursor
+  - click a main chart bar to write that bar timestamp into the target field
+  - `Escape` cancels pick mode
+- Order Review time pick clears actor bar pick if needed, and bars clear also clears pick state.
+- Verification:
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `git diff --check -- v4/src/ui/inspector-sidebar.js v4/src/ui/inspector/order-review-panel.js`
+
+## 2026-05-28 Update - Step 71
+- Added price `Pick` buttons for:
+  - `entryPlan.entryPrice`
+  - `entryPlan.stopLoss`
+  - `entryPlan.finalTarget`
+- Added Order Review price pick state in `v4/src/ui/inspector-sidebar.js`.
+- Pick workflow:
+  - click `Pick` beside a price field
+  - hover main chart shows the existing preview cursor
+  - click a main chart bar
+  - choose `current`, `open`, `high`, `low`, or `close` in the first-version browser prompt
+  - selected price writes back through `updateOrderReview()`
+- Short aliases are supported in the prompt: `o/h/l/c`.
+- Price pick is still helper-only; no drag editing was added.
+- Verification:
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - `node --check v4/src/ui/inspector/order-review-panel.js`
+  - `git diff --check -- v4/src/ui/inspector-sidebar.js v4/src/ui/inspector/order-review-panel.js`
+
+## 2026-05-28 Update - Step 72
+- Ran full JS syntax check across `v4/src/**/*.js`.
+- Ran `git diff --check` for the Phase 8C modified files.
+- Ran a store-level probe that covered:
+  - blank order creation
+  - Setup Thesis update
+  - Entry Plan update
+  - Result Review update
+  - linked ref dedupe
+  - `riskPoints`
+  - `outcomePoints`
+  - `outcomeR`
+- Probe result:
+
+```json
+{"count":1,"refs":1,"risk":5,"points":10,"r":2}
+```
+
+- Confirmed API health at `http://127.0.0.1:8766/v4/health`.
+- Headless Chrome `--dump-dom` confirmed the V4 page initializes at `http://127.0.0.1:8001/index.html`, chart canvas renders, and Inspector shows Order Reviews.
+- Chrome DevTools smoke test:
+  - cleared localStorage
+  - clicked `Create Blank Order Review`
+  - confirmed one order row renders
+  - confirmed edit section auto-opens
+  - confirmed Setup / Entry / Exit time pick buttons render
+  - confirmed three price pick buttons render
+  - confirmed four linked ref add buttons render
+  - confirmed 28 editable fields render
+- Browser smoke result:
+
+```json
+{"rows":1,"editorOpen":true,"setupPick":1,"entryPick":1,"exitPick":1,"pricePick":3,"refAdd":4,"refRemove":0,"fields":28}
+```
+
+- Validation found and fixed one issue: new Order Review creation emitted store refresh before `expandedOrderReviewId` was set, so the edit section did not auto-open. The create helpers now call `refreshSelection()` after setting `expandedOrderReviewId`.
+- Note: `bash v4/start.sh restart` could not bind the API port inside the current sandbox (`PermissionError: [Errno 1] Operation not permitted`), but an existing API process was reachable and returned healthy.
 
 ## Local Files To Avoid Committing
 - `__pycache__/`
