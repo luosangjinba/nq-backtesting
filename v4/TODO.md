@@ -138,9 +138,9 @@
 - [x] Step 87: 实现基础 Time Marker Primitive/Renderer：绘制自然日边界竖线与 event-time 竖线；event-time 绑定具体 date + time，不复制到每天同一时间；仅在 4H 及以下周期显示；自然日边界和 event-time 使用不同颜色；线条略粗但低透明，避免遮挡 K 线细节
 - [x] Step 87.1: 将 Time Overlays 接入右键菜单：支持在当前 K 线添加具体日期时间线、删除当前日期时间线、清除全部手工时间线；新增 Grid 开关用于显示/隐藏 LightweightCharts 原生背景网格，主图与副图同步应用
 - [x] Step 88: 实现 Killzone 顶部 band：贴近 canvas 上边缘绘制横线/细带，不依赖价格坐标；支持多个手工命名 killzone 并存；每个 killzone 绑定 date + start/end time；右键菜单支持 Start/End 创建、命名、重命名、删除、清空；重叠 killzone 自动分层显示，暂不内置固定 preset
-- [ ] Step 89: 实现日历跳转第一版：提供日期/时间输入入口；目标在当前加载区间内则调用 viewport 定位，目标不在区间内则自动调整 start/end 并重新加载目标日期附近数据；输入日期时默认定位到 09:30
+- [ ] Step 89: 实现 Calendar Navigator 跳转第一版：顶部工具栏提供 Calendar/Date 入口，点击弹出单月日历 popover；支持上一月/下一月、点击某一天；第一版只做单日跳转，不做 date range，不做 This Week/Next Week 等快捷项；点击日期默认定位到当日 09:30，若目标在当前加载区间内直接调用 viewport 定位，若不在区间内则自动加载目标日附近数据后定位；不自动写 selectedDate，不过滤 Time Markers/Killzones
 - [ ] Step 90: 实现 Calendar Review Index：按自然日聚合 Order Setup / PDA / Segment / Composite / SMT；Order Setup 归日优先级为 entryTimestamp -> setup primaryEventTimestamp -> exitTimestamp；Reaction Evidence 第一版挂在所属 Segment/PDA response 下，不做顶层对象
-- [ ] Step 91: 实现 Calendar Navigator 第一版 UI：先做日期输入 + Day Details 面板，不急着做完整月历；点击/打开某日后显示当天对象列表，分组顺序为 Order Setups、SMT、PDA、Segments、Composite；Order Setups 默认展开
+- [ ] Step 91: 实现 Calendar Day Details 第一版 UI：点击/打开某日后显示当天对象列表，分组顺序为 Order Setups、SMT、PDA、Segments、Composite、Killzones/Time Lines；Order Setups 默认展开；先接在 Calendar popover 或右侧面板中，不做完整月历角标
 - [ ] Step 92: 实现对象级操作：Day Details 中每个对象支持 Locate；可选中对象时同时 Select 并打开 Inspector；Focus 第一版可复用 Structure Sets focus 语义，暂不写入对象数据
 - [ ] Step 93: 实现完整月历 UI 与 setup 红色角标：月历日期格显示当天对象概览；当天存在 Order Setup 时显示红色 badge/dot，第二版可显示数量；点击有 badge 的日期默认展开 Order Setups 区域
 - [ ] Step 94: 联动 selectedDate 与 overlays：Calendar 选中某日后，Time Markers / Killzone 默认只显示该日；允许手工切换显示日期，避免一次加载多日时全屏竖线过多
