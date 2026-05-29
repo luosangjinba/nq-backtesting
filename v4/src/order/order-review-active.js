@@ -8,38 +8,42 @@ import {
   ORDER_REF_ROLES,
   updateOrderReview,
 } from './order-review-store.js';
+import { createReviewSetFromOrderReview, getReviewSetById } from './order-review-set.js';
 
-let activeOrderReviewId = null;
+let activeReviewSetId = null;
 
 function emitChanged() {
+  const activeReviewSet = getActiveReviewSet();
   bus.emit('order-review-active:changed', {
-    activeOrderReviewId,
-    activeOrderReview: getActiveOrderReview(),
+    activeReviewSetId,
+    activeReviewSet,
+    activeOrderReviewId: activeReviewSetId,
+    activeOrderReview: activeReviewSet?.orderReview || null,
   });
 }
 
-export function getActiveOrderReviewId() {
-  return activeOrderReviewId;
+export function getActiveReviewSetId() {
+  return activeReviewSetId;
 }
 
-export function getActiveOrderReview() {
-  return activeOrderReviewId ? getOrderReviewById(activeOrderReviewId) : null;
+export function getActiveReviewSet() {
+  return activeReviewSetId ? getReviewSetById(activeReviewSetId) : null;
 }
 
-export function setActiveOrderReview(id) {
-  if (id && !getOrderReviewById(id)) return null;
-  activeOrderReviewId = id || null;
+export function setActiveReviewSet(id) {
+  if (id && !getReviewSetById(id)) return null;
+  activeReviewSetId = id || null;
   emitChanged();
-  return getActiveOrderReview();
+  return getActiveReviewSet();
 }
 
-export function clearActiveOrderReview() {
-  if (!activeOrderReviewId) return;
-  activeOrderReviewId = null;
+export function clearActiveReviewSet() {
+  if (!activeReviewSetId) return;
+  activeReviewSetId = null;
   emitChanged();
 }
 
-export function createChartOrderSetup({
+export function createChartReviewSet({
   bar,
   price = null,
   direction = ORDER_DIRECTIONS.UNKNOWN,
@@ -61,21 +65,22 @@ export function createChartOrderSetup({
       entryModel: ORDER_ENTRY_MODELS.MANUAL,
     },
   });
-  activeOrderReviewId = order.id;
+  activeReviewSetId = order.id;
   emitChanged();
-  return order;
+  return createReviewSetFromOrderReview(order);
 }
 
-export function updateActiveOrderReview(patch = {}) {
-  if (!activeOrderReviewId || !getOrderReviewById(activeOrderReviewId)) return null;
-  return updateOrderReview(activeOrderReviewId, patch);
+export function updateActiveReviewSet(patch = {}) {
+  if (!activeReviewSetId || !getReviewSetById(activeReviewSetId)) return null;
+  const updated = updateOrderReview(activeReviewSetId, patch);
+  return updated ? createReviewSetFromOrderReview(updated) : null;
 }
 
-export function linkRefToActiveOrderReview({ type, id, role = ORDER_REF_ROLES.CONTEXT, note = '' } = {}) {
-  const order = getActiveOrderReview();
+export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONTEXT, note = '' } = {}) {
+  const order = getActiveReviewSet()?.orderReview || null;
   if (!order || !type || !id) return null;
   const refs = Array.isArray(order.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
-  return updateOrderReview(order.id, {
+  const updated = updateOrderReview(order.id, {
     setupThesis: {
       linkedObjectRefs: [
         ...refs,
@@ -88,14 +93,44 @@ export function linkRefToActiveOrderReview({ type, id, role = ORDER_REF_ROLES.CO
       ],
     },
   });
+  return updated ? createReviewSetFromOrderReview(updated) : null;
+}
+
+export function getActiveOrderReviewId() {
+  return getActiveReviewSetId();
+}
+
+export function getActiveOrderReview() {
+  return getActiveReviewSet()?.orderReview || null;
+}
+
+export function setActiveOrderReview(id) {
+  const reviewSet = setActiveReviewSet(id);
+  return reviewSet?.orderReview || null;
+}
+
+export function clearActiveOrderReview() {
+  clearActiveReviewSet();
+}
+
+export function createChartOrderSetup(options = {}) {
+  return createChartReviewSet(options)?.orderReview || null;
+}
+
+export function updateActiveOrderReview(patch = {}) {
+  return updateActiveReviewSet(patch)?.orderReview || null;
+}
+
+export function linkRefToActiveOrderReview(options = {}) {
+  return linkRefToActiveReviewSet(options)?.orderReview || null;
 }
 
 export function initOrderReviewActive() {
   bus.on('order-review:changed', () => {
-    if (activeOrderReviewId && !getOrderReviewById(activeOrderReviewId)) {
-      activeOrderReviewId = null;
+    if (activeReviewSetId && !getOrderReviewById(activeReviewSetId)) {
+      activeReviewSetId = null;
       emitChanged();
     }
   });
-  bus.on('bars:cleared', clearActiveOrderReview);
+  bus.on('bars:cleared', clearActiveReviewSet);
 }

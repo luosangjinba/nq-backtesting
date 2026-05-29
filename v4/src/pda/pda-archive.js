@@ -6,6 +6,7 @@ import { buildCePrice } from '../price-utils.js';
 import { timeframeToString } from '../config.js';
 import { getAnnotationIdentity, getAnnotations, loadAnnotations } from './pda-store.js';
 import { getPdaType } from './pda-types.js';
+import { recordHistory } from '../history/history-manager.js';
 
 const ARCHIVE_VERSION = 1;
 const ARCHIVE_APP = 'trading-v4';
@@ -213,12 +214,18 @@ export async function importPdaArchive(file) {
     const payload = JSON.parse(text);
     validateArchivePayload(payload);
 
-    const existing = getAnnotations();
-    const { annotations: imported, skippedDuplicates } = prepareImportedAnnotations(
-      existing,
-      getImportableAnnotations(payload)
-    );
-    loadAnnotations([...existing, ...imported]);
+    let imported = [];
+    let skippedDuplicates = 0;
+    await recordHistory('Import PDA Archive', () => {
+      const existing = getAnnotations();
+      const prepared = prepareImportedAnnotations(
+        existing,
+        getImportableAnnotations(payload)
+      );
+      imported = prepared.annotations;
+      skippedDuplicates = prepared.skippedDuplicates;
+      loadAnnotations([...existing, ...imported]);
+    });
 
     bus.emit('status:update', {
       text: `已导入 ${imported.length} 条 PDA 标注${skippedDuplicates ? `，跳过 ${skippedDuplicates} 条重复标注` : ''}`,

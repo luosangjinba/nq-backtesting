@@ -414,18 +414,22 @@ The primary entry point is the `Order Setup` group in the main chart right-click
 
 - `Create Bullish Setup Here`
 - `Create Bearish Setup Here`
-- `Set Setup Event Here`
-- `Set Entry Time Here`
-- `Set Exit Time Here`
-- `Set Entry Price Here`
+- `Set Reversal Here`
+- `Set Entry Here`
 - `Set Stop Loss Here`
+- `Set Target1 Here`
+- `Set Target2 Here`
+- `Set Target3 Here`
 - `Set Final Target Here`
+- `Add Manual Explanation Event Here`
 
-After creation, the setup becomes the active setup. Later chart right-click actions write into that active setup.
+`Set Entry Here` records entry time and entry price together. After creation, the setup becomes the active setup. Later chart right-click actions write into that active setup.
 
 Segment, Composite Move, PDA, and SMT objects are linked refs, not order parents. For example, a 1H FVG touch and bounce can be recorded directly as a setup event without forcing a 1H segment.
 
-The Inspector still shows the Order Reviews list, but the default view is a compact summary. Full fields live under `Advanced Edit`.
+Use `Add Manual Explanation Event Here` when the reason is not an existing Segment, PDA, SMT, or Composite Move. For example, a 1H candle respecting a previous 1H FVG, a 30M body touch of FVG CE, or a 1M EQL sweep can be recorded as a manual explanation event.
+
+The Inspector shows the Review Sets list, but the default view is a compact summary. Full fields live under `Advanced Edit`.
 
 ### Order Review Actions
 

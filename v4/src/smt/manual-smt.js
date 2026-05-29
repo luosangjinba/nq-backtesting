@@ -7,6 +7,7 @@ import * as secondaryStore from '../data/secondary-chart-store.js';
 import { timeframeToString } from '../config.js';
 import { identifyFvg } from '../pda/fvg-identifier.js';
 import { addSmtRecord, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
+import { recordHistory } from '../history/history-manager.js';
 
 let pickState = null;
 
@@ -125,14 +126,16 @@ function handlePickClick(param) {
 
   try {
     if (pickState.type === SMT_TYPES.LIQUIDITY && pickState.step === 'right') {
-      const record = createLiquidityRecord(pickState.leftBar, bar, pickState.direction);
+      const record = recordHistory('Create Liquidity SMT', () =>
+        createLiquidityRecord(pickState.leftBar, bar, pickState.direction)
+      );
       clearPickState({ silent: true });
       bus.emit('status:update', { text: `Created ${record.direction} Liquidity SMT`, isError: false });
       return;
     }
 
     if (pickState.type === SMT_TYPES.FVG) {
-      const record = createFvgRecord(bar, pickState.direction);
+      const record = recordHistory('Create FVG SMT', () => createFvgRecord(bar, pickState.direction));
       clearPickState({ silent: true });
       bus.emit('status:update', { text: `Created ${record.direction} FVG SMT`, isError: false });
     }

@@ -721,6 +721,89 @@ html, body {
   min-height: 18px;
 }
 
+.order-review-explanation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgba(255, 183, 77, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 183, 77, 0.04);
+}
+
+.order-review-explanation-row {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 6px;
+  align-items: start;
+  min-height: 18px;
+  color: #d1d4dc;
+  font-size: 11px;
+}
+
+.order-review-explanation-row span {
+  color: #787b86;
+}
+
+.order-review-explanation-row strong {
+  min-width: 0;
+  color: #d1d4dc;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.order-review-action-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.order-review-action-row button {
+  min-width: 0;
+}
+
+.order-review-quick-edit {
+  border: 1px solid rgba(120, 123, 134, 0.22);
+  border-radius: 4px;
+  background: rgba(30, 34, 45, 0.42);
+}
+
+.order-review-quick-edit summary {
+  min-height: 24px;
+  padding: 4px 7px;
+  color: #b2b5be;
+  font-size: 11px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.order-review-quick-edit summary::-webkit-details-marker {
+  display: none;
+}
+
+.order-review-quick-edit summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 14px;
+  color: #787b86;
+}
+
+.order-review-quick-edit[open] > summary::before {
+  content: '▾';
+}
+
+.order-review-quick-edit-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 6px 6px;
+}
+
+.order-review-quick-edit-body .inspector-field {
+  grid-template-columns: 58px minmax(0, 1fr);
+}
+
 .order-review-editor {
   border: 1px solid rgba(38, 166, 154, 0.22);
   border-radius: 4px;
@@ -871,8 +954,7 @@ html, body {
   position: absolute;
   width: 220px;
   padding: 4px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
   background: rgba(19, 23, 34, 0.96);
   border: 1px solid rgba(54, 58, 69, 0.9);
   border-radius: 6px;
@@ -955,6 +1037,60 @@ html, body {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+}
+
+.pda-menu-submenu {
+  position: relative;
+}
+
+.pda-menu-submenu-trigger {
+  position: relative;
+  padding-right: 22px;
+  padding-left: 8px;
+  line-height: 28px;
+}
+
+.pda-menu-submenu-trigger::after {
+  content: '›';
+  position: absolute;
+  right: 8px;
+  color: #787b86;
+}
+
+.pda-menu-submenu-trigger.is-disabled {
+  color: #5b5f6b;
+}
+
+.pda-menu-submenu:hover .pda-menu-submenu-trigger,
+.pda-menu-submenu:focus-within .pda-menu-submenu-trigger {
+  background: #1e222d;
+}
+
+.pda-submenu-panel {
+  position: absolute;
+  top: -4px;
+  left: calc(100% - 2px);
+  z-index: 13;
+  display: none;
+  width: 236px;
+  max-height: min(560px, calc(100vh - 24px));
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(19, 23, 34, 0.98);
+  border: 1px solid rgba(54, 58, 69, 0.95);
+  border-radius: 6px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+}
+
+.pda-menu-submenu-left .pda-submenu-panel {
+  right: calc(100% - 2px);
+  left: auto;
+}
+
+.pda-menu-submenu:hover .pda-submenu-panel,
+.pda-menu-submenu:focus-within .pda-submenu-panel {
+  display: block;
 }
 
 .pda-menu-item:hover:not(:disabled) {
@@ -1101,6 +1237,23 @@ html, body {
 
 .toolbar-btn:hover {
   background: #2bbdac;
+}
+
+.toolbar-btn:disabled {
+  background: #363a45;
+  color: #787b86;
+  cursor: default;
+}
+
+.toolbar-btn:disabled:hover {
+  background: #363a45;
+}
+
+.toolbar-icon-btn {
+  width: 28px;
+  padding: 4px 0;
+  font-size: 15px;
+  line-height: 1;
 }
 
 .status-bar {

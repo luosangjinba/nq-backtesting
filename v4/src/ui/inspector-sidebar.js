@@ -57,9 +57,9 @@ import {
 } from './inspector/calendar-panel.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
-  clearActiveOrderReview,
-  getActiveOrderReviewId,
-  setActiveOrderReview,
+  clearActiveReviewSet,
+  getActiveReviewSetId,
+  setActiveReviewSet,
 } from '../order/order-review-active.js';
 import {
   addOrderReview,
@@ -71,6 +71,7 @@ import {
   ORDER_REF_TYPES,
   updateOrderReview,
 } from '../order/order-review-store.js';
+import { locateReviewSet } from '../order/order-review-set.js';
 import {
   EVIDENCE_TYPES,
   buildDefaultActorFromSegment,
@@ -78,6 +79,7 @@ import {
   normalizeReactionEvidenceList,
   parseEvidenceTimestamp,
 } from '../segment/reaction-evidence.js';
+import { recordHistory } from '../history/history-manager.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -94,7 +96,7 @@ let calendarReturnContext = null;
 function getOrderReviewPanelOptions(extra = {}) {
   return {
     expandedOrderReviewId,
-    activeOrderReviewId: getActiveOrderReviewId(),
+    activeOrderReviewId: getActiveReviewSetId(),
     ...extra,
   };
 }
@@ -393,7 +395,7 @@ function createOrderReviewFromSegment(segment) {
     },
   });
   expandedOrderReviewId = order.id;
-  setActiveOrderReview(order.id);
+  setActiveReviewSet(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
@@ -421,7 +423,7 @@ function createOrderReviewFromComposite(group) {
     },
   });
   expandedOrderReviewId = order.id;
-  setActiveOrderReview(order.id);
+  setActiveReviewSet(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
@@ -430,7 +432,7 @@ function createOrderReviewFromComposite(group) {
 function createBlankOrderReview() {
   const order = addOrderReview();
   expandedOrderReviewId = order.id;
-  setActiveOrderReview(order.id);
+  setActiveReviewSet(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
   return order;
@@ -493,6 +495,10 @@ function getOrderReviewFieldLabel(section, field) {
   return field;
 }
 
+function recordInspectorHistory(label, mutator) {
+  return recordHistory(label, mutator);
+}
+
 function validateOrderReviewFieldValue(target, value) {
   const section = target.dataset.orderReviewSection;
   const field = target.dataset.orderReviewField;
@@ -517,11 +523,11 @@ function updateOrderReviewSetupField(target) {
   const value = parseOrderReviewFieldValue(target);
   if (!validateOrderReviewFieldValue(target, value)) return true;
 
-  updateOrderReview(orderReviewId, {
+  recordInspectorHistory('Update Order Setup', () => updateOrderReview(orderReviewId, {
     setupThesis: {
       [field]: value,
     },
-  });
+  }));
   return true;
 }
 
@@ -534,11 +540,11 @@ function updateOrderReviewEntryField(target) {
   const value = parseOrderReviewFieldValue(target);
   if (!validateOrderReviewFieldValue(target, value)) return true;
 
-  updateOrderReview(orderReviewId, {
+  recordInspectorHistory('Update Order Entry', () => updateOrderReview(orderReviewId, {
     entryPlan: {
       [field]: value,
     },
-  });
+  }));
   return true;
 }
 
@@ -551,11 +557,11 @@ function updateOrderReviewResultField(target) {
   const value = parseOrderReviewFieldValue(target);
   if (!validateOrderReviewFieldValue(target, value)) return true;
 
-  updateOrderReview(orderReviewId, {
+  recordInspectorHistory('Update Order Result', () => updateOrderReview(orderReviewId, {
     resultReview: {
       [field]: value,
     },
-  });
+  }));
   return true;
 }
 
@@ -565,11 +571,11 @@ function getOrderReviewRefs(order) {
 
 function patchOrderReviewRefs(orderReviewId, refs) {
   expandedOrderReviewId = orderReviewId;
-  updateOrderReview(orderReviewId, {
+  recordInspectorHistory('Update Order Refs', () => updateOrderReview(orderReviewId, {
     setupThesis: {
       linkedObjectRefs: refs,
     },
-  });
+  }));
 }
 
 function addOrderReviewRef(orderReviewId, ref) {
@@ -712,25 +718,11 @@ function getPickedPrice(bar, currentPrice, source) {
   return Number(bar?.[source]);
 }
 
-function toOrderReviewTimestamp(value) {
-  if (value === undefined || value === null || value === '') return null;
-  const timestamp = Number(value);
-  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
-}
-
 function locateOrderReview(order) {
-  const timestamps = [
-    order.setupThesis?.primaryEventTimestamp,
-    order.entryPlan?.entryTimestamp,
-    order.resultReview?.exitTimestamp,
-  ]
-    .map(toOrderReviewTimestamp)
-    .filter((value) => value !== null);
-  if (!timestamps.length) {
+  if (!locateReviewSet(order?.id, viewport.locateTimestampRange)) {
     bus.emit('status:update', { text: '该 Order Review 没有可定位时间', isError: true });
     return;
   }
-  viewport.locateTimestampRange(Math.min(...timestamps), Math.max(...timestamps));
 }
 
 function openCalendarObject(type, id) {
@@ -741,6 +733,17 @@ function openCalendarObject(type, id) {
     type,
     id,
   };
+  if (type === 'order-setup') {
+    const selected = Boolean(setActiveReviewSet(id));
+    if (!selected) calendarReturnContext = null;
+    if (selected) {
+      clearPdaSelection();
+      clearSegmentSelection();
+      clearSegmentGroupSelection();
+      renderEmpty();
+    }
+    return selected;
+  }
   if (type === 'pda') {
     clearSegmentSelection();
     clearSegmentGroupSelection();
@@ -766,9 +769,9 @@ function updateReactionEvidenceList(segment, pdaId, updater) {
   const response = getSegmentResponse(segment, pdaId);
   if (!response) return;
   const evidenceList = normalizeReactionEvidenceList(response.reactionEvidence);
-  updatePdaResponse(segment.id, pdaId, {
+  recordInspectorHistory('Update Reaction Evidence', () => updatePdaResponse(segment.id, pdaId, {
     reactionEvidence: updater(evidenceList),
-  });
+  }));
 }
 
 function addReactionEvidence(segment, pdaId, type) {
@@ -852,11 +855,11 @@ function handleActorPickChartClick(e) {
     const { orderReviewId, section, field } = orderReviewTimePickState;
     clearOrderReviewPickState({ silent: true });
     expandedOrderReviewId = orderReviewId;
-    updateOrderReview(orderReviewId, {
+    recordInspectorHistory('Pick Order Time', () => updateOrderReview(orderReviewId, {
       [section]: {
         [field]: bar.timestamp,
       },
-    });
+    }));
     bus.emit('status:update', {
       text: `${getOrderReviewPickLabel(section, field)} 已选择: ${bar.time || bar.tradingDay}`,
       isError: false,
@@ -884,11 +887,11 @@ function handleActorPickChartClick(e) {
 
     clearOrderReviewPickState({ silent: true });
     expandedOrderReviewId = orderReviewId;
-    updateOrderReview(orderReviewId, {
+    recordInspectorHistory('Pick Order Price', () => updateOrderReview(orderReviewId, {
       [section]: {
         [field]: Number(price),
       },
-    });
+    }));
     bus.emit('status:update', {
       text: `${getOrderReviewPricePickLabel(field)} 已选择 ${source}: ${Number(price).toFixed(2)}`,
       isError: false,
@@ -904,13 +907,13 @@ function handleActorPickChartClick(e) {
 
   const { pdaId, evidenceId, actorField } = actorPickState;
   clearActorPickState({ silent: true });
-  patchReactionEvidence(segment, pdaId, evidenceId, (evidence) => ({
+  recordInspectorHistory('Pick Reaction Evidence Bar', () => patchReactionEvidence(segment, pdaId, evidenceId, (evidence) => ({
     actor: {
       ...(evidence.actor || {}),
       [actorField]: bar.timestamp,
       timeframe: timeframeToString(store.getCurrentTimeframe()),
     },
-  }));
+  })));
   bus.emit('status:update', {
     text: `${getActorFieldLabel(actorField)} 已选择: ${bar.time || bar.tradingDay}`,
     isError: false,
@@ -944,19 +947,19 @@ function handleInspectorChange(e) {
   }
 
   if (action === 'smt-note') {
-    updateSmtRecord(e.target.dataset.smtId, { note: e.target.value });
+    recordInspectorHistory('Update SMT Note', () => updateSmtRecord(e.target.dataset.smtId, { note: e.target.value }));
     return;
   }
 
   if (action === 'order-review-note') {
-    updateOrderReview(e.target.dataset.orderReviewId, { note: e.target.value });
+    recordInspectorHistory('Update Order Note', () => updateOrderReview(e.target.dataset.orderReviewId, { note: e.target.value }));
     return;
   }
 
   if (action === 'order-review-result') {
-    updateOrderReview(e.target.dataset.orderReviewId, {
+    recordInspectorHistory('Update Order Result', () => updateOrderReview(e.target.dataset.orderReviewId, {
       resultReview: { result: e.target.value },
-    });
+    }));
     return;
   }
 
@@ -994,76 +997,76 @@ function handleInspectorChange(e) {
   const segment = getCurrentSegment();
   if (segment) {
     if (action === 'segment-toggle-label') {
-      updateSegment(segment.id, {
+      recordInspectorHistory('Toggle Segment Label', () => updateSegment(segment.id, {
         display: {
           ...(segment.display || {}),
           showLabel: e.target.checked,
         },
-      });
+      }));
       return;
     }
 
     if (action === 'segment-toggle-isolate') {
-      setSegmentIsolated(segment.id, e.target.checked);
+      recordInspectorHistory('Toggle Segment Isolate', () => setSegmentIsolated(segment.id, e.target.checked));
       return;
     }
 
     if (action === 'segment-isolate-display-mode') {
-      updateSegment(segment.id, {
+      recordInspectorHistory('Update Segment Display', () => updateSegment(segment.id, {
         display: {
           ...(segment.display || {}),
           isolateDisplayMode: e.target.value,
         },
-      });
+      }));
       return;
     }
 
     if (action === 'segment-isolate-previous-count') {
       const parsed = Number(e.target.value);
-      updateSegment(segment.id, {
+      recordInspectorHistory('Update Segment Isolate Count', () => updateSegment(segment.id, {
         display: {
           ...(segment.display || {}),
           isolatePreviousCount: Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 0,
         },
-      });
+      }));
       return;
     }
 
     if (action === 'segment-toggle-isolate-previous-pda') {
-      updateSegment(segment.id, {
+      recordInspectorHistory('Update Segment Isolate PDA', () => updateSegment(segment.id, {
         display: {
           ...(segment.display || {}),
           isolatePreviousIncludePda: e.target.checked,
         },
-      });
+      }));
       return;
     }
 
     if (action === 'segment-narrative') {
-      updateSegment(segment.id, { narrative: e.target.value });
+      recordInspectorHistory('Update Segment Narrative', () => updateSegment(segment.id, { narrative: e.target.value }));
       return;
     }
 
     if (action === 'segment-tags') {
-      updateSegment(segment.id, { tags: parseTags(e.target.value) });
+      recordInspectorHistory('Update Segment Tags', () => updateSegment(segment.id, { tags: parseTags(e.target.value) }));
       return;
     }
 
     if (action === 'segment-response-relation') {
-      updatePdaResponse(segment.id, e.target.dataset.pdaId, { relation: e.target.value });
+      recordInspectorHistory('Update PDA Response', () => updatePdaResponse(segment.id, e.target.dataset.pdaId, { relation: e.target.value }));
       return;
     }
 
     if (action === 'segment-response-display-mode') {
-      updatePdaResponse(segment.id, e.target.dataset.pdaId, {
+      recordInspectorHistory('Update PDA Response Display', () => updatePdaResponse(segment.id, e.target.dataset.pdaId, {
         displayMode: e.target.value,
         selected: e.target.value === 'highlight',
-      });
+      }));
       return;
     }
 
     if (action === 'segment-response-note') {
-      updatePdaResponse(segment.id, e.target.dataset.pdaId, { note: e.target.value });
+      recordInspectorHistory('Update PDA Response Note', () => updatePdaResponse(segment.id, e.target.dataset.pdaId, { note: e.target.value }));
       return;
     }
 
@@ -1125,17 +1128,17 @@ function handleInspectorChange(e) {
     }
 
     if (action === 'segment-group-outcome') {
-      updateSegmentGroup(e.target.dataset.groupId, { outcome: e.target.value });
+      recordInspectorHistory('Update Composite Outcome', () => updateSegmentGroup(e.target.dataset.groupId, { outcome: e.target.value }));
       return;
     }
 
     if (action === 'segment-group-notes') {
-      updateSegmentGroup(e.target.dataset.groupId, { notes: e.target.value });
+      recordInspectorHistory('Update Composite Notes', () => updateSegmentGroup(e.target.dataset.groupId, { notes: e.target.value }));
       return;
     }
 
     if (action === 'segment-group-target') {
-      setDraftSegmentGroupTarget(e.target.value);
+      recordInspectorHistory('Set Composite Draft Target', () => setDraftSegmentGroupTarget(e.target.value));
       return;
     }
   }
@@ -1143,32 +1146,32 @@ function handleInspectorChange(e) {
   const segmentGroup = getCurrentSegmentGroup();
   if (segmentGroup) {
     if (action === 'segment-group-current-target') {
-      updateSegmentGroup(segmentGroup.id, { targetSegmentId: e.target.value });
+      recordInspectorHistory('Update Composite Target', () => updateSegmentGroup(segmentGroup.id, { targetSegmentId: e.target.value }));
       return;
     }
 
     if (action === 'segment-group-current-objective') {
-      updateSegmentGroup(segmentGroup.id, { objective: e.target.value });
+      recordInspectorHistory('Update Composite Objective', () => updateSegmentGroup(segmentGroup.id, { objective: e.target.value }));
       return;
     }
 
     if (action === 'segment-group-current-outcome') {
-      updateSegmentGroup(segmentGroup.id, { outcome: e.target.value });
+      recordInspectorHistory('Update Composite Outcome', () => updateSegmentGroup(segmentGroup.id, { outcome: e.target.value }));
       return;
     }
 
     if (action === 'segment-group-current-notes') {
-      updateSegmentGroup(segmentGroup.id, { notes: e.target.value });
+      recordInspectorHistory('Update Composite Notes', () => updateSegmentGroup(segmentGroup.id, { notes: e.target.value }));
       return;
     }
 
     if (action === 'segment-group-toggle-label') {
-      updateSegmentGroup(segmentGroup.id, {
+      recordInspectorHistory('Toggle Composite Label', () => updateSegmentGroup(segmentGroup.id, {
         display: {
           ...(segmentGroup.display || {}),
           showLabel: e.target.checked,
         },
-      });
+      }));
       return;
     }
   }
@@ -1177,39 +1180,39 @@ function handleInspectorChange(e) {
   if (!annotation) return;
 
   if (action === 'toggle-current-label') {
-    updateAnnotation(annotation.id, {
+    recordInspectorHistory('Toggle PDA Label', () => updateAnnotation(annotation.id, {
       display: {
         ...(annotation.display || {}),
         showLabel: e.target.checked,
       },
-    });
+    }));
     return;
   }
 
   if (action === 'extend-bars') {
     const parsed = Number(e.target.value);
     const extendBars = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-    updateAnnotation(annotation.id, {
+    recordInspectorHistory('Update PDA Extend', () => updateAnnotation(annotation.id, {
       display: {
         ...(annotation.display || {}),
         ...buildExtendDisplayPatch(extendBars, store.getCurrentTimeframe()),
       },
-    });
+    }));
     return;
   }
 
   if (action === 'note') {
-    updateAnnotation(annotation.id, { note: e.target.value });
+    recordInspectorHistory('Update PDA Note', () => updateAnnotation(annotation.id, { note: e.target.value }));
     return;
   }
 
   if (action === 'toggle-ce') {
-    updateAnnotation(annotation.id, {
+    recordInspectorHistory('Toggle PDA CE', () => updateAnnotation(annotation.id, {
       display: {
         ...(annotation.display || {}),
         showCe: e.target.checked,
       },
-    });
+    }));
   }
 }
 
@@ -1315,7 +1318,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'smt-delete') {
-    deleteSmtRecord(actionEl.dataset.smtId);
+    recordInspectorHistory('Delete SMT', () => deleteSmtRecord(actionEl.dataset.smtId));
     if (selectedSmtId === actionEl.dataset.smtId) selectedSmtId = null;
     if (currentPanel === 'archive') renderArchivePanel();
     return;
@@ -1328,7 +1331,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'order-review-create-empty') {
-    createBlankOrderReview();
+    recordInspectorHistory('Create Order Review', () => createBlankOrderReview());
     return;
   }
 
@@ -1339,19 +1342,19 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'order-review-delete') {
-    deleteOrderReview(actionEl.dataset.orderReviewId);
+    recordInspectorHistory('Delete Order Review', () => deleteOrderReview(actionEl.dataset.orderReviewId));
     return;
   }
 
   if (action === 'order-review-set-active') {
-    setActiveOrderReview(actionEl.dataset.orderReviewId);
+    setActiveReviewSet(actionEl.dataset.orderReviewId);
     expandedOrderReviewId = actionEl.dataset.orderReviewId;
     refreshSelection();
     return;
   }
 
   if (action === 'order-review-clear-active') {
-    clearActiveOrderReview();
+    clearActiveReviewSet();
     refreshSelection();
     return;
   }
@@ -1364,19 +1367,19 @@ function handleInspectorClick(e) {
   const segment = getCurrentSegment();
   if (segment) {
     if (action === 'reaction-evidence-add-fvg') {
-      addReactionEvidence(segment, actionEl.dataset.pdaId, EVIDENCE_TYPES.FVG_RESPECT);
+      recordInspectorHistory('Add Reaction Evidence', () => addReactionEvidence(segment, actionEl.dataset.pdaId, EVIDENCE_TYPES.FVG_RESPECT));
       return;
     }
 
     if (action === 'reaction-evidence-add-liquidity') {
-      addReactionEvidence(segment, actionEl.dataset.pdaId, EVIDENCE_TYPES.LIQUIDITY_SWEEP);
+      recordInspectorHistory('Add Reaction Evidence', () => addReactionEvidence(segment, actionEl.dataset.pdaId, EVIDENCE_TYPES.LIQUIDITY_SWEEP));
       return;
     }
 
     if (action === 'reaction-evidence-delete') {
-      updateReactionEvidenceList(segment, actionEl.dataset.pdaId, (evidenceList) =>
+      recordInspectorHistory('Delete Reaction Evidence', () => updateReactionEvidenceList(segment, actionEl.dataset.pdaId, (evidenceList) =>
         evidenceList.filter((evidence) => evidence.id !== actionEl.dataset.evidenceId)
-      );
+      ));
       return;
     }
 
@@ -1392,29 +1395,29 @@ function handleInspectorClick(e) {
 
   if (segment) {
     if (action === 'segment-delete') {
-      deleteSegment(segment.id);
+      recordInspectorHistory('Delete Segment', () => deleteSegment(segment.id));
       clearSegmentSelection();
       renderEmpty();
       return;
     }
 
     if (action === 'segment-response-remove') {
-      removePdaResponse(segment.id, actionEl.dataset.pdaId);
+      recordInspectorHistory('Remove PDA Response', () => removePdaResponse(segment.id, actionEl.dataset.pdaId));
       return;
     }
 
     if (action === 'segment-group-draft-add') {
-      addSegmentToDraftGroup(segment.id);
+      recordInspectorHistory('Add Segment To Composite Draft', () => addSegmentToDraftGroup(segment.id));
       return;
     }
 
     if (action === 'segment-group-draft-remove') {
-      removeSegmentFromDraftGroup(segment.id);
+      recordInspectorHistory('Remove Segment From Composite Draft', () => removeSegmentFromDraftGroup(segment.id));
       return;
     }
 
     if (action === 'segment-group-draft-clear') {
-      clearDraftSegmentGroup();
+      recordInspectorHistory('Clear Composite Draft', () => clearDraftSegmentGroup());
       return;
     }
 
@@ -1425,7 +1428,9 @@ function handleInspectorClick(e) {
         'break-previous-extreme';
       const outcome =
         bodyEl?.querySelector('[data-inspector-action="segment-group-create-outcome"]')?.value || 'pending';
-      const group = createCompositeMove({ targetSegmentId, objective, outcome });
+      const group = recordInspectorHistory('Create Composite Move', () =>
+        createCompositeMove({ targetSegmentId, objective, outcome })
+      );
       bus.emit('status:update', {
         text: group ? `已创建 Composite Move: ${group.childSegmentIds.length} legs` : '至少需要 2 个 staged segments',
         isError: !group,
@@ -1434,12 +1439,12 @@ function handleInspectorClick(e) {
     }
 
     if (action === 'order-review-create-segment') {
-      createOrderReviewFromSegment(segment);
+      recordInspectorHistory('Create Order Review', () => createOrderReviewFromSegment(segment));
       return;
     }
 
     if (action === 'segment-group-delete') {
-      deleteSegmentGroup(actionEl.dataset.groupId);
+      recordInspectorHistory('Delete Composite Move', () => deleteSegmentGroup(actionEl.dataset.groupId));
       return;
     }
   }
@@ -1447,12 +1452,12 @@ function handleInspectorClick(e) {
   const segmentGroup = getCurrentSegmentGroup();
   if (segmentGroup) {
     if (action === 'order-review-create-composite') {
-      createOrderReviewFromComposite(segmentGroup);
+      recordInspectorHistory('Create Order Review', () => createOrderReviewFromComposite(segmentGroup));
       return;
     }
 
     if (action === 'segment-group-current-delete') {
-      deleteSegmentGroup(segmentGroup.id);
+      recordInspectorHistory('Delete Composite Move', () => deleteSegmentGroup(segmentGroup.id));
       clearSegmentGroupSelection();
       renderEmpty();
       return;
@@ -1463,14 +1468,16 @@ function handleInspectorClick(e) {
   if (!annotation) return;
 
   if (action === 'delete') {
-    deleteAnnotation(annotation.id);
+    recordInspectorHistory('Delete PDA', () => deleteAnnotation(annotation.id));
     clearPdaSelection();
     renderEmpty();
     return;
   }
 
   if (action === 'remove-point') {
-    removePointFromSet(annotation, Number(actionEl.dataset.pointIndex));
+    recordInspectorHistory('Remove Point From Set', () =>
+      removePointFromSet(annotation, Number(actionEl.dataset.pointIndex))
+    );
   }
 }
 

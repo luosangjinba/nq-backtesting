@@ -131,6 +131,36 @@
 - [ ] Step 82: 拆分 Inspector action 层：Order Review / PDA / Segment / pick mode 从 `inspector-sidebar.js` 中分离
 - [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
 
+### Phase 8F: Order Setup Review Set Infrastructure
+- [x] Step 96: 定义 Review Set 边界：内部把一个 Order Setup 视为一个 Review Set；现有 `OrderReview` / `orderReviews` 仍作为兼容持久化 schema；Review Set 只是图表交互、定位、日历聚合与可见性控制的基础抽象
+- [x] Step 97: 新增 Review Set adapter：从 `getOrderReviews()` 派生 `getReviewSets()`、`getReviewSetById()`、`getReviewSetTimeRange()`、`locateReviewSet()`；第一版不改 localStorage key、不改 Review JSON 字段
+- [x] Step 98: 迁移 active Order Setup 语义：保留现有 active id 行为，但命名和调用路径逐步转向 active Review Set；右键菜单写入 active Review Set
+- [x] Step 99: 重整 Inspector Order Reviews：默认显示 Review Set 列表与当前 active/focused set 摘要；详细编辑继续折叠，避免把输入表单堆满 Inspector
+- [x] Step 100: Calendar 改为读取 Review Set adapter：日期归属、红色角标、对象 locate/open 都走 Review Set 派生信息，避免 Calendar 直接解析 raw order review 字段；已由 Phase 8G 的 Setup Set Calendar 适配覆盖完成
+- [x] Step 101: Renderer 改为消费 Review Set：entry/stop/target/final target/exit 作为同一组图表标记绘制；后续 visibility/focus 可以一次控制整组；已由 Phase 8G 的 Setup Set renderer 覆盖完成
+- [x] Step 102: 兼容性验证：旧 localStorage、Review JSON import/export、chart-first 右键创建、active setup 恢复、calendar locate、headless smoke 均保持可用；已由 Step 110 验收覆盖完成
+
+### Phase 8G: Setup Set Tree Model
+- [x] Step 103: 定义 Setup Set 数据边界：一个 setup 是大集，包含 `orderElements` 与 `explanationElements`；订单元素包括 reversal、entry(time+price)、stopLoss、targets[]、result；解释元素包括 refs[]、manualEvents[]、note；regime/bias 等不能图表化的内容写入 note
+- [x] Step 104: 新增 Setup Set adapter：在不破坏现有 `orderReviews` schema 的情况下，从 `OrderReview` 派生 setup set tree；node probe 验证 reversal、entry、stop、targets、refs、note 映射正确
+- [x] Step 105: 图表右键创建/设置订单元素：Create Bullish/Bearish Setup、Set Reversal、Set Entry(time+price)、Set Stop Loss、Set Target1/2/3、Set Final Target；交互验证图表实时显示、切换周期位置正确
+- [x] Step 106: 图表右键添加解释元素：Link PDA/Segment/Composite/SMT Set To Active Setup、Add Manual Explanation Event Here；manual event 第一版记录 time、price 可选、timeframe、type、note；验证 30m FVG CE、1m sweep EQL 等自由理由可挂入 setup
+- [x] Step 107: Setup Set 渲染：把 reversal、entry、stop、target1/2/3/final target 作为同一组标记绘制；active setup 更突出；多 setup 并存可分辨；不得使用遮挡 K 线的通贯竖线
+- [x] Step 108: Inspector 改为 Setup Set 摘要面板：默认只展示 direction、reversal、entry、stop、targets、explanation count、note、result；order elements / explanation refs/events / note/result 放入折叠编辑区
+- [x] Step 109: Calendar / Locate 适配 Setup Set：Calendar 按 setup set 聚合；有 setup 的日期红色角标；Locate 闪亮范围覆盖 setup 核心发生区域，不错误拉到自然日零点
+- [x] Step 110: 兼容性与交互验收：旧 localStorage orderReviews、Review JSON import/export、chart-first 创建、刷新恢复、图表交互、Calendar locate、headless Chrome smoke、全量 node --check 均通过
+
+Phase 8F/8G 接驳状态：当前分支 `feature/order-review-cleanup` 已完成 Order Review -> Review Set -> Setup Set 的兼容迁移；持久化仍使用旧 `orderReviews` schema/localStorage key，运行时通过 adapter 派生 Setup Set tree。下一步建议先 review 当前分支，再决定是否合并到 `main`。
+
+### Phase 8H: Global Undo / Redo
+- [x] Step 111: 定义 undo/redo 边界：覆盖所有研究对象修改，不覆盖 zoom/scroll/replay/hover/selection/pick mode/数据加载等临时视图状态
+- [x] Step 112: 新增 `history/history-manager.js`：实现 `captureSnapshot()`、`restoreSnapshot()`、`recordHistory(label, mutator)`、`undo()`、`redo()`、`canUndo()`、`canRedo()`，并 emit `history:changed`
+- [x] Step 113: 扩展 store 恢复接口：确认 `pda/segment/segment-group/smt/order-review` load 接口可用于 restore；为 `time-overlays` 增加显式 `loadTimeOverlaySettings()`；决定 Composite draft 是否纳入 snapshot
+- [x] Step 114: 接入右键菜单写操作：PDA、1H Segment、Composite、SMT、Order Setup、Time Lines/Killzones、Clear 类批量操作全部通过 history transaction 包装；组合操作只入栈一次
+- [x] Step 115: 接入 Inspector 写操作：PDA/Segment/Composite/SMT/Order Review 的编辑、删除、link/ref/evidence 变更通过 history transaction；文本输入按 change/blur 或 debounce 合并，避免每个 keypress 一步
+- [x] Step 116: 增加全局快捷键与 UI 状态：`Ctrl/Cmd+Z` undo，`Ctrl/Cmd+Shift+Z` 与 `Ctrl+Y` redo；输入控件聚焦时保留浏览器原生撤销；可选 toolbar icon 按钮与 status 提示
+- [x] Step 117: Undo/Redo 验收：覆盖新增/删除/编辑 PDA，创建/清空 Segment，Order Setup entry/stop/target/link，Clear PDA/Segments/Killzones，Inspector note 单步撤销，Review JSON import 策略，刷新/初始化不污染 undo 栈
+
 ### Phase 9: Time Overlays / Calendar Review Navigator
 - [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引
 - [x] Step 85: 实现共享时间坐标 helper：支持 exact bar timestamp 与 1H/4H 内部时间点插值，解决 09:30/09:50/10:00 在高周期 K 线内部没有 exact bar 的定位问题；主图 overlay、calendar locate、hit/hover 未来共用

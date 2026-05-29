@@ -3,8 +3,9 @@ import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { buildCePrice } from '../price-utils.js';
-import { addAnnotation, getAnnotations, removeAnnotation, updateAnnotation } from './pda-store.js';
+import { addAnnotation, getAnnotations, removeAnnotation } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
+import { recordHistory } from '../history/history-manager.js';
 
 const NDOG_TYPE = 'ndog';
 const NWOG_TYPE = 'nwog';
@@ -228,7 +229,7 @@ export function toggleTodayNdog(anchorBar) {
   const existing = id ? getAnnotations().find((annotation) => annotation.id === id) : null;
 
   if (existing) {
-    removeAnnotation(existing.id);
+    recordHistory('Hide NDOG', () => removeAnnotation(existing.id));
     bus.emit('status:update', { text: 'NDOG 已隐藏', isError: false });
     return;
   }
@@ -239,7 +240,7 @@ export function toggleTodayNdog(anchorBar) {
     return;
   }
 
-  addAnnotation(result.annotation);
+  recordHistory('Show NDOG', () => addAnnotation(result.annotation));
   bus.emit('status:update', {
     text: `NDOG: ${result.annotation.bottomPrice.toFixed(2)}-${result.annotation.topPrice.toFixed(2)}`,
     isError: false,
@@ -247,33 +248,7 @@ export function toggleTodayNdog(anchorBar) {
 }
 
 function syncVisibleNwogRanges() {
-  const displayBars = getRenderBars();
-  if (!displayBars.length) return;
-
-  getAnnotations()
-    .filter((annotation) => annotation.type === NWOG_TYPE && annotation.source === 'objective')
-    .forEach((annotation) => {
-      const weekStart = annotation.canonicalTimestamp ?? annotation.timestamp;
-      const weekDisplayBars = displayBars.filter((bar) => sameWeek(bar, weekStart));
-      if (!weekDisplayBars.length) return;
-
-      const firstVisibleBar = weekDisplayBars[0];
-      const lastVisibleBar = weekDisplayBars[weekDisplayBars.length - 1];
-      if (
-        annotation.startTime === firstVisibleBar.timestamp &&
-        annotation.endTime === lastVisibleBar.timestamp
-      ) {
-        return;
-      }
-
-      updateAnnotation(annotation.id, {
-        anchorTime: firstVisibleBar.timestamp,
-        startTime: firstVisibleBar.timestamp,
-        endTime: lastVisibleBar.timestamp,
-        startTimeTimestamp: firstVisibleBar.timestamp,
-        endTimeTimestamp: lastVisibleBar.timestamp,
-      });
-    });
+  bus.emit('pda:changed', { annotations: getAnnotations() });
 }
 
 bus.on('replay:changed', syncVisibleNwogRanges);
@@ -284,7 +259,7 @@ export async function toggleThisWeekNwog(anchorBar) {
   const existing = id ? getAnnotations().find((annotation) => annotation.id === id) : null;
 
   if (existing) {
-    removeAnnotation(existing.id);
+    recordHistory('Hide NWOG', () => removeAnnotation(existing.id));
     bus.emit('status:update', { text: 'NWOG 已隐藏', isError: false });
     return;
   }
@@ -295,7 +270,7 @@ export async function toggleThisWeekNwog(anchorBar) {
     return;
   }
 
-  addAnnotation(result.annotation);
+  recordHistory('Show NWOG', () => addAnnotation(result.annotation));
   bus.emit('status:update', {
     text: `NWOG: ${result.annotation.bottomPrice.toFixed(2)}-${result.annotation.topPrice.toFixed(2)}`,
     isError: false,

@@ -58,10 +58,15 @@ export function getExtendSeconds(annotation = {}, fallbackBars = 0, currentTimef
   const explicitSeconds = parsePositiveNumber(annotation.display?.extendSeconds, null);
   if (explicitSeconds !== null) return explicitSeconds;
 
-  const bars = parsePositiveNumber(annotation.display?.extendBars ?? annotation.extendBars, fallbackBars);
+  const explicitBars = annotation.display?.extendBars ?? annotation.extendBars;
+  const hasExplicitBars = explicitBars !== undefined && explicitBars !== null;
+  const bars = hasExplicitBars ? parsePositiveNumber(explicitBars, 0) : parsePositiveNumber(fallbackBars, 0);
   if (bars <= 0) return 0;
 
-  const sourceSeconds = inferSourceTimeframeSeconds(annotation) || getCurrentTimeframeSeconds(currentTimeframe);
+  const sourceSeconds =
+    hasExplicitBars
+      ? inferSourceTimeframeSeconds(annotation) || getCurrentTimeframeSeconds(currentTimeframe)
+      : getCurrentTimeframeSeconds(currentTimeframe);
   return bars * sourceSeconds;
 }
 

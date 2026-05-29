@@ -335,6 +335,9 @@ function cloneOrderReview(order) {
       linkedObjectRefs: Array.isArray(order.setupThesis?.linkedObjectRefs)
         ? order.setupThesis.linkedObjectRefs.map((ref) => ({ ...ref }))
         : [],
+      manualEvents: Array.isArray(order.setupThesis?.manualEvents)
+        ? order.setupThesis.manualEvents.map((event) => ({ ...event }))
+        : [],
     },
     entryPlan: { ...order.entryPlan },
     resultReview: { ...order.resultReview },
@@ -406,6 +409,44 @@ export function normalizeLinkedObjectRefs(input = []) {
   return uniqueBy(refs, (ref) => `${ref.type}:${ref.id}:${ref.role}`);
 }
 
+export function normalizeManualExplanationEvent(input = {}, index = 0) {
+  const timestamp = normalizeTimestamp(input.timestamp);
+  const eventType = normalizeEnum(
+    input.eventType ?? input.type,
+    VALID_ORDER_EVENT_TYPES,
+    ORDER_EVENT_TYPE_ALIASES,
+    ORDER_EVENT_TYPES.OTHER
+  );
+  const timeframe = normalizeEnum(
+    input.timeframe,
+    VALID_ORDER_TIMEFRAMES,
+    ORDER_TIMEFRAME_ALIASES,
+    ORDER_TIMEFRAMES.MANUAL
+  );
+  const id = normalizeString(
+    input.id,
+    `manual_event_${timestamp ?? 'na'}_${index + 1}`
+  );
+
+  if (timestamp === null && !normalizeNote(input.note)) return null;
+
+  return {
+    id,
+    timestamp,
+    timeframe,
+    eventType,
+    price: normalizeNumber(input.price),
+    note: normalizeNote(input.note),
+  };
+}
+
+export function normalizeManualExplanationEvents(input = []) {
+  const events = Array.isArray(input)
+    ? input.map(normalizeManualExplanationEvent).filter(Boolean)
+    : [];
+  return uniqueBy(events, (event) => event.id);
+}
+
 export function normalizeSetupThesis(input = {}) {
   const primaryEventTimeframe = normalizeEnum(
     input.primaryEventTimeframe,
@@ -426,6 +467,7 @@ export function normalizeSetupThesis(input = {}) {
     ),
     primaryEventPrice: normalizeNumber(input.primaryEventPrice),
     linkedObjectRefs: normalizeLinkedObjectRefs(input.linkedObjectRefs),
+    manualEvents: normalizeManualExplanationEvents(input.manualEvents),
     higherTimeframeJustification: normalizeNote(input.higherTimeframeJustification),
     lowTimeframeWarning:
       input.lowTimeframeWarning === undefined || input.lowTimeframeWarning === null
@@ -585,7 +627,7 @@ export function normalizeOrderReview(input = {}, options = {}) {
     instrument: normalizeString(input.instrument, DEFAULT_ORDER_INSTRUMENT),
     version: ORDER_REVIEW_VERSION,
     createdAt: normalizeTimestamp(input.createdAt, now),
-    updatedAt: now,
+    updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
     setupThesis,
     entryPlan,
     resultReview,

@@ -70,6 +70,14 @@ export function getDraftSegmentGroupTargetId() {
   return draftTargetSegmentId;
 }
 
+export function getSegmentGroupState() {
+  return {
+    segmentGroups: getSegmentGroups(),
+    draftChildIds: getDraftSegmentGroupChildIds(),
+    draftTargetSegmentId: getDraftSegmentGroupTargetId(),
+  };
+}
+
 export function addSegmentToDraftGroup(segmentId) {
   if (!getSegmentById(segmentId)) return null;
   draftChildIds = sortSegmentIds([...draftChildIds, segmentId]);
@@ -173,6 +181,13 @@ export function loadSegmentGroups(nextGroups = []) {
     : [];
   draftChildIds = [];
   draftTargetSegmentId = '';
+  emitChanged();
+}
+
+export function loadSegmentGroupState(state = {}) {
+  loadSegmentGroups(state.segmentGroups || []);
+  draftChildIds = sortSegmentIds(state.draftChildIds || []).filter((id) => getSegmentById(id));
+  draftTargetSegmentId = getSegmentById(state.draftTargetSegmentId) ? state.draftTargetSegmentId : '';
   emitChanged();
 }
 

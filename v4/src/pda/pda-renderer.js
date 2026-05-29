@@ -20,6 +20,7 @@ import {
   getIsolatePreviousIncludePda,
   getResponseDisplayMode,
 } from '../segment/segment-isolate-view.js';
+import { getReplayVisibleBars } from '../ui/replay-controls.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -53,6 +54,24 @@ function getPointRenderTime(annotation) {
 function getRangeRenderTime(annotation, field, fallbackField) {
   const timestamp = annotation[`${field}Timestamp`] ?? annotation[field];
   return mapTimestampToCurrentChartTime(timestamp) ?? annotation[fallbackField] ?? annotation.anchorTime;
+}
+
+function sameWeek(bar, weekStart) {
+  const secondsPerWeek = 7 * 24 * 60 * 60;
+  return bar.timestamp >= weekStart && bar.timestamp < weekStart + secondsPerWeek;
+}
+
+function getNwogRenderBounds(annotation) {
+  if (annotation.type !== 'nwog' || annotation.source !== 'objective') return null;
+  const replayBars = getReplayVisibleBars();
+  if (!replayBars?.length) return null;
+  const weekStart = annotation.canonicalTimestamp ?? annotation.timestamp;
+  const weekBars = replayBars.filter((bar) => sameWeek(bar, weekStart));
+  if (!weekBars.length) return null;
+  return {
+    startTimestamp: weekBars[0].timestamp,
+    endTimestamp: weekBars[weekBars.length - 1].timestamp,
+  };
 }
 
 function getNestedPointRenderTime(point, fallbackTime) {
@@ -252,8 +271,13 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToS
   const isFvg = annotation.type === 'fvg' || annotation.type === 'ifvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
-  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
-  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
+  const renderBounds = getNwogRenderBounds(annotation);
+  const startTime = renderBounds
+    ? mapTimestampToCurrentChartTime(renderBounds.startTimestamp)
+    : getRangeRenderTime(annotation, 'startTime', 'startTime');
+  const endTime = renderBounds
+    ? mapTimestampToCurrentChartTime(renderBounds.endTimestamp)
+    : getRangeRenderTime(annotation, 'endTime', 'endTime');
 
   if (
     startTime === undefined ||
@@ -443,6 +467,7 @@ export function initPdaRenderer() {
   bus.on('segment-group:changed', renderPdaAnnotations);
   bus.on('drawing-set-focus:changed', renderPdaAnnotations);
   bus.on('display-mode:changed', renderPdaAnnotations);
+  bus.on('replay:changed', renderPdaAnnotations);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

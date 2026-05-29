@@ -28,6 +28,7 @@ import {
   normalizeOrderReview,
   ORDER_REF_TYPES,
 } from '../order/order-review-store.js';
+import { recordHistory } from '../history/history-manager.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
 const REVIEW_ARCHIVE_APP = 'trading-v4-review';
@@ -450,67 +451,77 @@ export async function importReviewArchive(file) {
     const payload = JSON.parse(text);
     validateReviewPayload(payload);
 
-    const existingAnnotations = getAnnotations();
-    const importedAnnotations = getImportableAnnotations({ annotations: payload.pdaAnnotations });
-    const {
-      annotations,
-      skippedDuplicates: skippedPdaDuplicates,
-      idMap,
-    } = prepareImportedAnnotationsWithIdMap(existingAnnotations, importedAnnotations);
-    loadAnnotations([...existingAnnotations, ...annotations]);
+    let annotations = [];
+    let segments = [];
+    let groups = [];
+    let smtRecords = [];
+    let orders = [];
+    let skippedPdaDuplicates = 0;
+    let skippedSegmentDuplicates = 0;
+    let skippedGroupDuplicates = 0;
+    let skippedSmtDuplicates = 0;
+    let skippedInvalidSmt = 0;
+    let skippedOrderDuplicates = 0;
+    let skippedInvalidOrders = 0;
 
-    const existingSegments = getSegments();
-    const availablePdaIds = new Set(
-      [...existingAnnotations, ...annotations].map((annotation) => annotation.id).filter(Boolean)
-    );
-    const normalizedSegments = payload.marketSegments
-      .filter(isImportableSegment)
-      .map((segment) => normalizeImportedSegment(segment, idMap, availablePdaIds));
-    const {
-      segments,
-      skippedDuplicates: skippedSegmentDuplicates,
-      idMap: segmentIdMap,
-    } = prepareImportedSegments(
-      existingSegments,
-      normalizedSegments
-    );
-    loadSegments([...existingSegments, ...segments]);
+    await recordHistory('Import Review Archive', () => {
+      const existingAnnotations = getAnnotations();
+      const importedAnnotations = getImportableAnnotations({ annotations: payload.pdaAnnotations });
+      const preparedPda = prepareImportedAnnotationsWithIdMap(existingAnnotations, importedAnnotations);
+      annotations = preparedPda.annotations;
+      skippedPdaDuplicates = preparedPda.skippedDuplicates;
+      const idMap = preparedPda.idMap;
+      loadAnnotations([...existingAnnotations, ...annotations]);
 
-    const availableSegmentIds = new Set([...existingSegments, ...segments].map((segment) => segment.id));
-    const existingGroups = getSegmentGroups();
-    const normalizedGroups = (Array.isArray(payload.segmentGroups) ? payload.segmentGroups : [])
-      .map((group) => normalizeImportedGroup(group, segmentIdMap, availableSegmentIds))
-      .filter(Boolean);
-    const {
-      groups,
-      skippedDuplicates: skippedGroupDuplicates,
-      idMap: groupIdMap,
-    } = prepareImportedGroups(
-      existingGroups,
-      normalizedGroups
-    );
-    loadSegmentGroups([...existingGroups, ...groups]);
+      const existingSegments = getSegments();
+      const availablePdaIds = new Set(
+        [...existingAnnotations, ...annotations].map((annotation) => annotation.id).filter(Boolean)
+      );
+      const normalizedSegments = payload.marketSegments
+        .filter(isImportableSegment)
+        .map((segment) => normalizeImportedSegment(segment, idMap, availablePdaIds));
+      const preparedSegments = prepareImportedSegments(
+        existingSegments,
+        normalizedSegments
+      );
+      segments = preparedSegments.segments;
+      skippedSegmentDuplicates = preparedSegments.skippedDuplicates;
+      const segmentIdMap = preparedSegments.idMap;
+      loadSegments([...existingSegments, ...segments]);
 
-    const existingSmtRecords = getSmtRecords();
-    const {
-      records: smtRecords,
-      skippedDuplicates: skippedSmtDuplicates,
-      skippedInvalid: skippedInvalidSmt,
-      idMap: smtIdMap,
-    } = prepareImportedSmtRecords(existingSmtRecords, Array.isArray(payload.smtRecords) ? payload.smtRecords : []);
-    loadSmtRecords([...existingSmtRecords, ...smtRecords]);
+      const availableSegmentIds = new Set([...existingSegments, ...segments].map((segment) => segment.id));
+      const existingGroups = getSegmentGroups();
+      const normalizedGroups = (Array.isArray(payload.segmentGroups) ? payload.segmentGroups : [])
+        .map((group) => normalizeImportedGroup(group, segmentIdMap, availableSegmentIds))
+        .filter(Boolean);
+      const preparedGroups = prepareImportedGroups(
+        existingGroups,
+        normalizedGroups
+      );
+      groups = preparedGroups.groups;
+      skippedGroupDuplicates = preparedGroups.skippedDuplicates;
+      const groupIdMap = preparedGroups.idMap;
+      loadSegmentGroups([...existingGroups, ...groups]);
 
-    const existingOrderReviews = getOrderReviews();
-    const {
-      orders,
-      skippedDuplicates: skippedOrderDuplicates,
-      skippedInvalid: skippedInvalidOrders,
-    } = prepareImportedOrderReviews(
-      existingOrderReviews,
-      Array.isArray(payload.orderReviews) ? payload.orderReviews : [],
-      { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap }
-    );
-    loadOrderReviews([...existingOrderReviews, ...orders]);
+      const existingSmtRecords = getSmtRecords();
+      const preparedSmt = prepareImportedSmtRecords(existingSmtRecords, Array.isArray(payload.smtRecords) ? payload.smtRecords : []);
+      smtRecords = preparedSmt.records;
+      skippedSmtDuplicates = preparedSmt.skippedDuplicates;
+      skippedInvalidSmt = preparedSmt.skippedInvalid;
+      const smtIdMap = preparedSmt.idMap;
+      loadSmtRecords([...existingSmtRecords, ...smtRecords]);
+
+      const existingOrderReviews = getOrderReviews();
+      const preparedOrders = prepareImportedOrderReviews(
+        existingOrderReviews,
+        Array.isArray(payload.orderReviews) ? payload.orderReviews : [],
+        { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap }
+      );
+      orders = preparedOrders.orders;
+      skippedOrderDuplicates = preparedOrders.skippedDuplicates;
+      skippedInvalidOrders = preparedOrders.skippedInvalid;
+      loadOrderReviews([...existingOrderReviews, ...orders]);
+    });
 
     const skipped =
       skippedPdaDuplicates +
