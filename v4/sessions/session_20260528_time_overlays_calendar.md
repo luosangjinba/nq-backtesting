@@ -32,6 +32,14 @@
   - PDA / Segment / Composite rows expose a separate `Open` action for detail panels
   - detail panels opened from Calendar show `Back to Calendar`, preserving selected date and month
 - Locate feedback now uses a transient chart flash primitive and guards against empty timestamps being treated as epoch 0.
+- Calendar locate now also applies to the secondary split-screen chart:
+  - Inspector Calendar selected-date locate triggers secondary chart locate/flash when Split data is available
+  - Calendar object `Locate` triggers secondary chart locate/flash for the same time range
+- Time overlay display now covers both charts:
+  - `Days` / day-boundary markers, manual Time Lines, and Killzone primitives render on the secondary chart after secondary bars load
+  - `time-overlays:changed` redraws primary and secondary overlays together
+  - secondary overlay primitives are cleared when secondary bars are cleared or the secondary chart resets
+- `Grid` remains shared chart display state and continues to apply to both primary and secondary charts.
 
 ## Decisions
 
@@ -44,23 +52,28 @@
 - Overlapping killzones are not merged; renderer assigns them to stacked top layers so their separate meanings remain visible.
 - Calendar is an Inspector navigation surface, not a new persistence owner; it derives rows from existing stores.
 - Locate and Open are intentionally separate because most review navigation needs spatial context, not immediate object-detail editing.
+- Split Screen is still readonly, but global navigation and display helpers should stay visually consistent across primary and secondary charts when secondary data exists.
 
 ## Validation
 
 - `node --check` passed for modified modules during implementation.
 - `git diff --check` passed after the latest changes.
 - `node --check` passed for Calendar panel, Inspector sidebar, viewport controller, and locate flash primitive during Calendar implementation.
-- Browser visual checks are still manual for this step.
+- `node --check` passed for:
+  - `v4/src/chart/secondary-viewport-controller.js`
+  - `v4/src/time-overlays/time-overlay-renderer.js`
+  - `v4/src/ui/inspector-sidebar.js`
+- Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
+- Full visual acceptance across all requested timeframes remains part of Step 95.
 
 ## Current Git State
 
 - Last committed work:
-  - `0919ed0 feat(v4): separate calendar locate and open`
-  - `83e0664 feat(v4): mark calendar order setup days`
-  - `1ad867f fix(v4): flash located order setup range`
-- Uncommitted changes include:
-  - Calendar detail `Back to Calendar` return action
-  - TODO/session updates
+  - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
+  - `1c177e2 feat(v4): add calendar month object overview`
+  - `460e084 feat(v4): enhance calendar object actions`
+- Current uncommitted changes:
+  - TODO/session updates for secondary Calendar locate and secondary Time Overlay sync
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
   - `tmp/`
@@ -69,5 +82,6 @@
 
 ## Next Steps
 
-- Commit current Calendar return action and documentation updates.
-- Next likely step: refine Calendar row summaries so rows show useful review fields instead of long ids.
+- Commit this TODO/session handoff update.
+- Continue Phase 9 Step 94: decide how Calendar selected date should drive `selectedDate` filtering for Time Markers and Killzones without hiding useful multi-day context unexpectedly.
+- Then run Step 95 visual acceptance across 1M/5M/15M/1H/4H with Split Screen enabled.
