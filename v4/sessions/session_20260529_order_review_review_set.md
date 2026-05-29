@@ -101,3 +101,26 @@
 
 ## Next Step
 - Step 104: add a Setup Set adapter derived from current `OrderReview` records, with a node probe for reversal, entry, stop, targets, refs, and notes.
+
+## Step 104 Completed
+- Added `v4/src/order/setup-set.js`.
+- The adapter derives a Setup Set tree from the existing `OrderReview` schema without changing localStorage or Review JSON.
+- Exposed:
+  - `createSetupSetFromOrderReview()`
+  - `getSetupSets()`
+  - `getSetupSetById()`
+  - `getSetupSetTimeRange()`
+  - `locateSetupSet()`
+- Derived tree:
+  - `orderElements.reversal`
+  - `orderElements.entry`
+  - `orderElements.stopLoss`
+  - `orderElements.targets[]`
+  - `orderElements.result`
+  - `explanationElements.refs[]`
+  - `explanationElements.manualEvents[]`
+  - `explanationElements.notes[]`
+- Verified with a node probe covering reversal, entry, stop, targets, refs, notes, range, and locate callback.
+
+## Next Step
+- Step 105: update chart right-click actions to create and set order elements on the active Setup Set.
