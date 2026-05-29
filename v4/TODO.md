@@ -144,7 +144,7 @@
 - [x] Step 103: 定义 Setup Set 数据边界：一个 setup 是大集，包含 `orderElements` 与 `explanationElements`；订单元素包括 reversal、entry(time+price)、stopLoss、targets[]、result；解释元素包括 refs[]、manualEvents[]、note；regime/bias 等不能图表化的内容写入 note
 - [x] Step 104: 新增 Setup Set adapter：在不破坏现有 `orderReviews` schema 的情况下，从 `OrderReview` 派生 setup set tree；node probe 验证 reversal、entry、stop、targets、refs、note 映射正确
 - [x] Step 105: 图表右键创建/设置订单元素：Create Bullish/Bearish Setup、Set Reversal、Set Entry(time+price)、Set Stop Loss、Set Target1/2/3、Set Final Target；交互验证图表实时显示、切换周期位置正确
-- [ ] Step 106: 图表右键添加解释元素：Link PDA/Segment/Composite/SMT Set To Active Setup、Add Manual Explanation Event Here；manual event 第一版记录 time、price 可选、timeframe、type、note；验证 30m FVG CE、1m sweep EQL 等自由理由可挂入 setup
+- [x] Step 106: 图表右键添加解释元素：Link PDA/Segment/Composite/SMT Set To Active Setup、Add Manual Explanation Event Here；manual event 第一版记录 time、price 可选、timeframe、type、note；验证 30m FVG CE、1m sweep EQL 等自由理由可挂入 setup
 - [ ] Step 107: Setup Set 渲染：把 reversal、entry、stop、target1/2/3/final target 作为同一组标记绘制；active setup 更突出；多 setup 并存可分辨；不得使用遮挡 K 线的通贯竖线
 - [ ] Step 108: Inspector 改为 Setup Set 摘要面板：默认只展示 direction、reversal、entry、stop、targets、explanation count、note、result；order elements / explanation refs/events / note/result 放入折叠编辑区
 - [ ] Step 109: Calendar / Locate 适配 Setup Set：Calendar 按 setup set 聚合；有 setup 的日期红色角标；Locate 闪亮范围覆盖 setup 核心发生区域，不错误拉到自然日零点

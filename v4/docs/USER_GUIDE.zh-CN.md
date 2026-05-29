@@ -417,10 +417,13 @@ Order Review 用来把一次做单复盘拆成三层：
 - `Set Target2 Here`
 - `Set Target3 Here`
 - `Set Final Target Here`
+- `Add Manual Explanation Event Here`
 
 `Set Entry Here` 会同时记录入场时间和入场价格。创建后该 setup 会成为 active setup。后续右键操作会写入 active setup。
 
 Segment、Composite Move、PDA、SMT 都只是 linked refs，不是订单父级。比如 `1H FVG 回调后反弹` 可以直接作为 setup 事件记录，不需要强行绘制 1H segment。
+
+当理由不是已有的 Segment、PDA、SMT 或 Composite Move 时，使用 `Add Manual Explanation Event Here`。例如：1H K 线尊重前一个 1H FVG、30M 实体 touch FVG CE、1M sweep EQL，都可以先记录为 manual explanation event。
 
 Inspector 显示 Review Sets 列表，但默认是轻量摘要；完整字段在 `Advanced Edit` 里。
 

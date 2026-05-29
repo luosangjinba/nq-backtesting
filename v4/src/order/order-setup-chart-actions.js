@@ -45,6 +45,23 @@ function getContextPrice(price) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function promptManualEventField(label, fallback = '') {
+  if (typeof window === 'undefined' || typeof window.prompt !== 'function') return fallback;
+  const value = window.prompt(label, fallback);
+  return value === null ? null : String(value).trim();
+}
+
+function getManualEventPromptValues() {
+  const eventType = promptManualEventField('Manual explanation type', ORDER_EVENT_TYPES.OTHER);
+  if (eventType === null) return null;
+  const note = promptManualEventField('Manual explanation note', '');
+  if (note === null) return null;
+  return {
+    eventType: eventType || ORDER_EVENT_TYPES.OTHER,
+    note,
+  };
+}
+
 export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit } = {}) {
   const active = getActiveReviewSet();
   const disabled = bar ? '' : 'disabled';
@@ -72,6 +89,7 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
       <button class="pda-menu-item" data-pda-action="order-setup-link-segment" ${segmentDisabled}>Link Segment To Active Setup</button>
       <button class="pda-menu-item" data-pda-action="order-setup-link-composite" ${compositeDisabled}>Link Composite To Active Setup</button>
       <button class="pda-menu-item" data-pda-action="order-setup-link-latest-smt" ${smtDisabled}>Link Latest SMT To Active Setup</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-add-manual-event" ${activeDisabled || disabled}>Add Manual Explanation Event Here</button>
     </details>
   `;
 }
@@ -183,6 +201,36 @@ function linkContextObjectToActiveSetup(action, context) {
   }
 }
 
+function addManualExplanationEventToActiveSetup(context = {}) {
+  if (!context.bar) return;
+  const active = getActiveReviewSet();
+  if (!active?.orderReview) return;
+  const promptValues = getManualEventPromptValues();
+  if (!promptValues) {
+    bus.emit('status:update', { text: 'Manual explanation event cancelled', isError: false });
+    return;
+  }
+  const existingEvents = Array.isArray(active.orderReview.setupThesis?.manualEvents)
+    ? active.orderReview.setupThesis.manualEvents
+    : [];
+  const event = {
+    timestamp: context.bar.timestamp,
+    timeframe: context.timeframe,
+    eventType: promptValues.eventType,
+    price: getContextPrice(context.price),
+    note: promptValues.note,
+  };
+  const updated = updateActiveReviewSet({
+    setupThesis: {
+      manualEvents: [...existingEvents, event],
+    },
+  });
+  bus.emit('status:update', {
+    text: updated ? 'Manual explanation event added to active setup' : 'Manual explanation event add failed',
+    isError: !updated,
+  });
+}
+
 export function handleOrderSetupChartAction(action, context = {}) {
   if (action === 'order-setup-create-bullish' || action === 'order-setup-create-bearish') {
     createOrderSetupFromContext(
@@ -199,6 +247,11 @@ export function handleOrderSetupChartAction(action, context = {}) {
 
   if (action.startsWith('order-setup-link-')) {
     linkContextObjectToActiveSetup(action, context);
+    return true;
+  }
+
+  if (action === 'order-setup-add-manual-event') {
+    addManualExplanationEventToActiveSetup(context);
     return true;
   }
 

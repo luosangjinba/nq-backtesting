@@ -143,3 +143,22 @@
 
 ## Next Step
 - Step 106: add chart right-click actions for explanation elements, including manual explanation events.
+
+## Step 106 Completed
+- Added `manualEvents` support under `setupThesis` normalization in `v4/src/order/order-review-store.js`.
+- `manualEvents` are cloned, normalized, saved through localStorage, and remain compatible with Review JSON.
+- Updated chart right-click Order Setup actions:
+  - existing PDA / Segment / Composite / SMT links remain refs
+  - added `Add Manual Explanation Event Here`
+- Manual explanation event first version records:
+  - timestamp
+  - timeframe
+  - eventType
+  - optional price
+  - note
+- The right-click action prompts for type and note, while timestamp/timeframe/price come from the chart click context.
+- Updated user guides to explain when to use manual explanation events.
+- Verified with node checks and a probe that a manual event is persisted and appears in `explanationElements.manualEvents[]`.
+
+## Next Step
+- Step 107: render Setup Set order elements as one grouped chart annotation set.
