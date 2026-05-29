@@ -10,14 +10,10 @@ export const TIME_OVERLAY_TYPES = Object.freeze({
   KILLZONE: 'killzone',
 });
 
-export const DEFAULT_EVENT_TIME_COLOR = 'rgba(210, 86, 86, 0.34)';
-export const DEFAULT_DAY_BOUNDARY_COLOR = 'rgba(120, 72, 72, 0.28)';
+export const DEFAULT_EVENT_TIME_COLOR = 'rgba(210, 86, 86, 0.20)';
+export const DEFAULT_DAY_BOUNDARY_COLOR = 'rgba(120, 72, 72, 0.16)';
 
-export const DEFAULT_EVENT_TIMES = Object.freeze([
-  Object.freeze({ time: '09:30', label: '930', color: DEFAULT_EVENT_TIME_COLOR, enabled: true }),
-  Object.freeze({ time: '09:50', label: '950', color: DEFAULT_EVENT_TIME_COLOR, enabled: true }),
-  Object.freeze({ time: '10:00', label: '1000', color: DEFAULT_EVENT_TIME_COLOR, enabled: true }),
-]);
+export const DEFAULT_EVENT_TIMES = Object.freeze([]);
 
 export const DEFAULT_KILLZONE = Object.freeze({
   enabled: false,

@@ -48,6 +48,12 @@ import {
   renderOrderSetupMenuItems,
 } from '../order/order-setup-chart-actions.js';
 import {
+  addEventTime,
+  deleteEventTime,
+  getTimeOverlaySettings,
+  normalizeEventTimeValue,
+} from '../time-overlays/time-overlay-store.js';
+import {
   clampMenuPosition,
   getPdaLabel,
   getSegmentLabel,
@@ -86,6 +92,28 @@ function normalizeTimeKey(time) {
 
 function getBarChartTime(bar) {
   return store.getCurrentTimeframe() === 1440 ? bar.tradingDay : bar.timestamp;
+}
+
+function getBarEventTime(bar) {
+  if (!bar || !Number.isFinite(Number(bar.timestamp))) return '';
+  const date = new Date(Number(bar.timestamp) * 1000);
+  const hour = String(date.getUTCHours()).padStart(2, '0');
+  const minute = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${hour}:${minute}`;
+}
+
+function getEventTimeLabel(time) {
+  return normalizeEventTimeValue(time, '').replace(':', '').replace(/^0/, '');
+}
+
+function getContextEventTime() {
+  return normalizeEventTimeValue(getBarEventTime(contextMenuBar), '');
+}
+
+function getEventTimeAtContextBar() {
+  const time = getContextEventTime();
+  if (!time) return null;
+  return getTimeOverlaySettings().eventTimes.find((eventTime) => eventTime.time === time) || null;
 }
 
 function findDisplayBar(time) {
@@ -481,6 +509,23 @@ function locateSecondaryAtBar(bar) {
   bus.emit('status:update', { text: `副图已定位到 ${bar.tradingDay || bar.time}`, isError: false });
 }
 
+function renderTimeOverlayMenuItems(bar) {
+  const time = normalizeEventTimeValue(getBarEventTime(bar), '');
+  const existingEventTime = time
+    ? getTimeOverlaySettings().eventTimes.find((eventTime) => eventTime.time === time)
+    : null;
+  const disabled = time ? '' : 'disabled';
+  const removeDisabled = existingEventTime ? '' : 'disabled';
+  const label = time ? getEventTimeLabel(time) : '';
+  return `
+    <details class="pda-menu-section">
+      <summary>Time Overlays</summary>
+      <button class="pda-menu-item" data-pda-action="time-overlay-add-event" ${disabled}>Add ${label || 'Time'} Line Here</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-delete-event" ${removeDisabled}>Delete ${label || 'Time'} Line</button>
+    </details>
+  `;
+}
+
 function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGroupHit = null) {
   if (!controlsEl) return;
   contextMenuBar = bar;
@@ -547,6 +592,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     segmentGroupItems,
     segmentItems,
     pointSetItems,
+    timeOverlayItems: renderTimeOverlayMenuItems(bar),
   });
 }
 
@@ -628,6 +674,26 @@ function handleControlClick(e) {
     hideContextMenu();
   } else if (action === 'smt-fvg-bearish' || action === 'smt-fvg-bullish') {
     startFvgSmt(action === 'smt-fvg-bullish' ? 'bullish' : 'bearish');
+    hideContextMenu();
+  } else if (action === 'time-overlay-add-event') {
+    const time = getContextEventTime();
+    if (!time) {
+      bus.emit('status:update', { text: '无法添加时间线：没有可用 K 线时间', isError: true });
+    } else if (getEventTimeAtContextBar()) {
+      bus.emit('status:update', { text: `${getEventTimeLabel(time)} 时间线已存在`, isError: false });
+    } else {
+      addEventTime({ time, label: getEventTimeLabel(time) });
+      bus.emit('status:update', { text: `已添加 ${getEventTimeLabel(time)} 时间线`, isError: false });
+    }
+    hideContextMenu();
+  } else if (action === 'time-overlay-delete-event') {
+    const eventTime = getEventTimeAtContextBar();
+    if (!eventTime) {
+      bus.emit('status:update', { text: '当前时间没有可删除的时间线', isError: true });
+    } else {
+      deleteEventTime(eventTime.id);
+      bus.emit('status:update', { text: `已删除 ${eventTime.label || getEventTimeLabel(eventTime.time)} 时间线`, isError: false });
+    }
     hideContextMenu();
   } else if (action === 'eqh-start' || action === 'eql-start') {
     startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime);

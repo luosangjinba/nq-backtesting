@@ -1,7 +1,7 @@
 import { timestampToXCoordinate } from './time-coordinate.js';
 
 const DEFAULT_MARKER_OPTIONS = {
-  lineWidth: 2,
+  lineWidth: 3,
   labelFont: 'bold 12px sans-serif',
   labelColor: 'rgba(235, 238, 245, 0.78)',
   labelBottomOffset: 42,

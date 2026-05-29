@@ -91,6 +91,7 @@ export function renderManualContextMenu({
   segmentGroupItems,
   segmentItems,
   pointSetItems,
+  timeOverlayItems,
 }) {
   return `
     <div class="pda-menu" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
@@ -122,6 +123,7 @@ export function renderManualContextMenu({
       ${segmentGroupItems}
       ${segmentItems}
       ${pointSetItems}
+      ${timeOverlayItems}
       <details class="pda-menu-section">
         <summary>Objective Gaps</summary>
         <button class="pda-menu-item" data-pda-action="toggle-ndog" ${disabled}>Show/Hide Today NDOG</button>
