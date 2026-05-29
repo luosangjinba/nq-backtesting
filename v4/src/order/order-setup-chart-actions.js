@@ -6,10 +6,10 @@ import { getPdaType } from '../pda/pda-types.js';
 import { getSegmentById } from '../segment/segment-store.js';
 import { getSmtRecords } from '../smt/smt-store.js';
 import {
-  createChartOrderSetup,
-  getActiveOrderReview,
-  linkRefToActiveOrderReview,
-  updateActiveOrderReview,
+  createChartReviewSet,
+  getActiveReviewSet,
+  linkRefToActiveReviewSet,
+  updateActiveReviewSet,
 } from './order-review-active.js';
 import {
   ORDER_DIRECTIONS,
@@ -30,11 +30,11 @@ function getSegmentLabel(segment) {
 }
 
 function getActiveSetupLabel() {
-  const active = getActiveOrderReview();
+  const active = getActiveReviewSet();
   if (!active) return 'No active setup';
-  const direction = active.entryPlan?.direction === ORDER_DIRECTIONS.LONG
+  const direction = active.direction === ORDER_DIRECTIONS.LONG
     ? 'Long'
-    : active.entryPlan?.direction === ORDER_DIRECTIONS.SHORT
+    : active.direction === ORDER_DIRECTIONS.SHORT
       ? 'Short'
       : 'Unknown';
   return `${direction} · ${active.id.slice(0, 18)}`;
@@ -46,7 +46,7 @@ function getContextPrice(price) {
 }
 
 export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit } = {}) {
-  const active = getActiveOrderReview();
+  const active = getActiveReviewSet();
   const disabled = bar ? '' : 'disabled';
   const activeDisabled = active ? '' : 'disabled';
   const pdaDisabled = active && pdaHit ? '' : 'disabled';
@@ -79,7 +79,7 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
 }
 
 function createOrderSetupFromContext(direction, context) {
-  const order = createChartOrderSetup({
+  const reviewSet = createChartReviewSet({
     bar: context.bar,
     price: getContextPrice(context.price),
     direction,
@@ -87,8 +87,8 @@ function createOrderSetupFromContext(direction, context) {
     eventType: ORDER_EVENT_TYPES.OTHER,
   });
   bus.emit('status:update', {
-    text: order ? `Active Order Setup created: ${order.id}` : 'Order Setup 创建失败：没有可用 K 线',
-    isError: !order,
+    text: reviewSet ? `Active Order Setup created: ${reviewSet.id}` : 'Order Setup 创建失败：没有可用 K 线',
+    isError: !reviewSet,
   });
 }
 
@@ -97,7 +97,7 @@ function patchActiveSetupFromContext(action, context) {
   if (!context.bar) return;
 
   if (action === 'order-setup-set-event') {
-    updateActiveOrderReview({
+    updateActiveReviewSet({
       setupThesis: {
         primaryEventTimestamp: context.bar.timestamp,
         primaryEventTimeframe: context.timeframe,
@@ -105,30 +105,30 @@ function patchActiveSetupFromContext(action, context) {
       },
     });
   } else if (action === 'order-setup-set-entry-time') {
-    updateActiveOrderReview({
+    updateActiveReviewSet({
       entryPlan: {
         entryTimestamp: context.bar.timestamp,
         entryTimeframe: context.timeframe,
       },
     });
   } else if (action === 'order-setup-set-exit-time') {
-    updateActiveOrderReview({
+    updateActiveReviewSet({
       resultReview: {
         exitTimestamp: context.bar.timestamp,
       },
     });
   } else if (action === 'order-setup-set-entry-price') {
-    updateActiveOrderReview({ entryPlan: { entryPrice: price } });
+    updateActiveReviewSet({ entryPlan: { entryPrice: price } });
   } else if (action === 'order-setup-set-stop-loss') {
-    updateActiveOrderReview({ entryPlan: { stopLoss: price } });
+    updateActiveReviewSet({ entryPlan: { stopLoss: price } });
   } else if (action === 'order-setup-set-target-internal') {
-    updateActiveOrderReview({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
+    updateActiveReviewSet({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
   } else if (action === 'order-setup-set-target-swing') {
-    updateActiveOrderReview({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
+    updateActiveReviewSet({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
   } else if (action === 'order-setup-set-target-external') {
-    updateActiveOrderReview({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
+    updateActiveReviewSet({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
   } else if (action === 'order-setup-set-final-target') {
-    updateActiveOrderReview({ entryPlan: { finalTarget: price } });
+    updateActiveReviewSet({ entryPlan: { finalTarget: price } });
   }
 
   bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });
@@ -138,7 +138,7 @@ function linkContextObjectToActiveSetup(action, context) {
   if (action === 'order-setup-link-pda') {
     const annotation = context.pdaHit ? getAnnotationById(context.pdaHit.id) : null;
     if (annotation) {
-      linkRefToActiveOrderReview({
+      linkRefToActiveReviewSet({
         type: ORDER_REF_TYPES.PDA,
         id: annotation.id,
         role: ORDER_REF_ROLES.CONTEXT,
@@ -148,7 +148,7 @@ function linkContextObjectToActiveSetup(action, context) {
   } else if (action === 'order-setup-link-segment') {
     const segment = context.segmentHit ? getSegmentById(context.segmentHit.id) : null;
     if (segment) {
-      linkRefToActiveOrderReview({
+      linkRefToActiveReviewSet({
         type: ORDER_REF_TYPES.SEGMENT,
         id: segment.id,
         role: ORDER_REF_ROLES.CONTEXT,
@@ -157,7 +157,7 @@ function linkContextObjectToActiveSetup(action, context) {
     }
   } else if (action === 'order-setup-link-composite') {
     if (context.segmentGroupHit?.id) {
-      linkRefToActiveOrderReview({
+      linkRefToActiveReviewSet({
         type: ORDER_REF_TYPES.COMPOSITE,
         id: context.segmentGroupHit.id,
         role: ORDER_REF_ROLES.CONTEXT,
@@ -167,7 +167,7 @@ function linkContextObjectToActiveSetup(action, context) {
   } else if (action === 'order-setup-link-latest-smt') {
     const smt = getSmtRecords().at(-1);
     if (smt) {
-      linkRefToActiveOrderReview({
+      linkRefToActiveReviewSet({
         type: ORDER_REF_TYPES.SMT,
         id: smt.id,
         role: ORDER_REF_ROLES.CONFIRMATION,

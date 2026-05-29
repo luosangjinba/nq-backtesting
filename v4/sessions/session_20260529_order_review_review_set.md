@@ -34,3 +34,21 @@
 
 ## Next Step
 - Step 98: migrate active Order Setup semantics toward active Review Set while keeping existing active id compatibility.
+
+## Step 98 Completed
+- Updated `v4/src/order/order-review-active.js` so the internal active state is `activeReviewSetId`.
+- Added Review Set active APIs:
+  - `getActiveReviewSetId()`
+  - `getActiveReviewSet()`
+  - `setActiveReviewSet()`
+  - `clearActiveReviewSet()`
+  - `createChartReviewSet()`
+  - `updateActiveReviewSet()`
+  - `linkRefToActiveReviewSet()`
+- Kept existing Order Review active APIs as compatibility wrappers.
+- `order-review-active:changed` now emits both Review Set fields and legacy Order Review fields.
+- Updated chart right-click Order Setup actions to write through active Review Set APIs.
+- Updated Inspector active setup operations to use active Review Set APIs while preserving existing panel option names.
+
+## Next Step
+- Step 99: reorganize the Inspector Order Reviews panel around Review Set summaries and keep detailed editing collapsed.

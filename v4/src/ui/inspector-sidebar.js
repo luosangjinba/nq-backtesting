@@ -57,9 +57,9 @@ import {
 } from './inspector/calendar-panel.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
-  clearActiveOrderReview,
-  getActiveOrderReviewId,
-  setActiveOrderReview,
+  clearActiveReviewSet,
+  getActiveReviewSetId,
+  setActiveReviewSet,
 } from '../order/order-review-active.js';
 import {
   addOrderReview,
@@ -95,7 +95,7 @@ let calendarReturnContext = null;
 function getOrderReviewPanelOptions(extra = {}) {
   return {
     expandedOrderReviewId,
-    activeOrderReviewId: getActiveOrderReviewId(),
+    activeOrderReviewId: getActiveReviewSetId(),
     ...extra,
   };
 }
@@ -394,7 +394,7 @@ function createOrderReviewFromSegment(segment) {
     },
   });
   expandedOrderReviewId = order.id;
-  setActiveOrderReview(order.id);
+  setActiveReviewSet(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
@@ -422,7 +422,7 @@ function createOrderReviewFromComposite(group) {
     },
   });
   expandedOrderReviewId = order.id;
-  setActiveOrderReview(order.id);
+  setActiveReviewSet(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
   return order;
@@ -431,7 +431,7 @@ function createOrderReviewFromComposite(group) {
 function createBlankOrderReview() {
   const order = addOrderReview();
   expandedOrderReviewId = order.id;
-  setActiveOrderReview(order.id);
+  setActiveReviewSet(order.id);
   refreshSelection();
   bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
   return order;
@@ -1331,14 +1331,14 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'order-review-set-active') {
-    setActiveOrderReview(actionEl.dataset.orderReviewId);
+    setActiveReviewSet(actionEl.dataset.orderReviewId);
     expandedOrderReviewId = actionEl.dataset.orderReviewId;
     refreshSelection();
     return;
   }
 
   if (action === 'order-review-clear-active') {
-    clearActiveOrderReview();
+    clearActiveReviewSet();
     refreshSelection();
     return;
   }
