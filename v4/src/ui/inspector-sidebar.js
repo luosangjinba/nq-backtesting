@@ -728,6 +728,17 @@ function openCalendarObject(type, id) {
     type,
     id,
   };
+  if (type === 'order-setup') {
+    const selected = Boolean(setActiveReviewSet(id));
+    if (!selected) calendarReturnContext = null;
+    if (selected) {
+      clearPdaSelection();
+      clearSegmentSelection();
+      clearSegmentGroupSelection();
+      renderEmpty();
+    }
+    return selected;
+  }
   if (type === 'pda') {
     clearSegmentSelection();
     clearSegmentGroupSelection();

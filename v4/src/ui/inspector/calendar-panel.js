@@ -1,5 +1,5 @@
 import * as store from '../../data/bar-store.js';
-import { getOrderReviews } from '../../order/order-review-store.js';
+import { getSetupSets } from '../../order/setup-set.js';
 import { getAnnotations } from '../../pda/pda-store.js';
 import { getSegments, getSegmentById } from '../../segment/segment-store.js';
 import { getSegmentGroups } from '../../segment/segment-group-store.js';
@@ -120,29 +120,10 @@ function getMonthCells(viewDateKey, range) {
 
 function getOrderSetupDateKeys() {
   return new Set(
-    getOrderReviews()
-      .map((order) => dateKeyFromTimestamp(getTimestampForOrder(order)))
+    getSetupSets()
+      .map((setupSet) => dateKeyFromTimestamp(setupSet.primaryTimestamp))
       .filter(Boolean)
   );
-}
-
-function getTimestampForOrder(order) {
-  return toTimestamp(
-    order.entryPlan?.entryTimestamp ??
-    order.setupThesis?.primaryEventTimestamp ??
-    order.resultReview?.exitTimestamp ??
-    null
-  );
-}
-
-function getOrderTimestampRange(order) {
-  const timestamps = collectTimestamps([
-    order.setupThesis?.primaryEventTimestamp,
-    order.entryPlan?.entryTimestamp,
-    order.resultReview?.exitTimestamp,
-  ]);
-  if (!timestamps.length) return null;
-  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }
 
 function getPdaTimestamp(annotation) {
@@ -262,14 +243,16 @@ function formatCountLabel(count, singular, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-function summarizeOrder(order) {
-  const entry = order.entryPlan || {};
-  const result = order.resultReview || {};
+function summarizeSetupSet(setupSet) {
+  const entry = setupSet.orderElements?.entry || {};
+  const reversal = setupSet.orderElements?.reversal || {};
+  const result = setupSet.orderElements?.result || {};
   return joinSummary([
-    titleCase(entry.direction || order.direction, 'Setup'),
-    compactTime(entry.entryTimestamp || getTimestampForOrder(order)),
-    compactPrice(entry.entryPrice),
-    titleCase(result.result, ''),
+    titleCase(setupSet.direction, 'Setup'),
+    titleCase(reversal.eventType, ''),
+    compactTime(setupSet.primaryTimestamp),
+    compactPrice(entry.price),
+    titleCase(result.status, ''),
   ]);
 }
 
@@ -321,14 +304,14 @@ function buildDayItems(dateKey) {
   const settings = getTimeOverlaySettings();
   return [
     {
-      label: 'Order Setups',
-      rows: getOrderReviews()
-        .filter((order) => dateKeyFromTimestamp(getTimestampForOrder(order)) === dateKey)
-        .map((order) =>
+      label: 'Setup Sets',
+      rows: getSetupSets()
+        .filter((setupSet) => dateKeyFromTimestamp(setupSet.primaryTimestamp) === dateKey)
+        .map((setupSet) =>
           row(
-            summarizeOrder(order),
-            getOrderTimestampRange(order),
-            { type: 'order-setup', id: order.id }
+            summarizeSetupSet(setupSet),
+            setupSet.range,
+            { type: 'order-setup', id: setupSet.id }
           )
         ),
     },
@@ -408,7 +391,7 @@ function renderObjectGroup(group) {
     ? group.rows
         .map((item) => {
           const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
-          const canOpen = ['pda', 'segment', 'composite'].includes(item.ref?.type);
+          const canOpen = ['order-setup', 'pda', 'segment', 'composite'].includes(item.ref?.type);
           return `
             <div class="calendar-object-row">
               <span>${escapeHtml(item.label)}</span>

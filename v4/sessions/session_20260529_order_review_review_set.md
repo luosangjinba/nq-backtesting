@@ -198,3 +198,15 @@
 
 ## Next Step
 - Step 109: move Calendar / Locate grouping to Setup Set and ensure locate flash covers the setup core range.
+
+## Step 109 Completed
+- Updated `v4/src/ui/inspector/calendar-panel.js` to group setup rows from `getSetupSets()`.
+- Calendar setup badges now use Setup Set `primaryTimestamp`.
+- Calendar day rows now label the group as `Setup Sets`.
+- Setup Set calendar rows use the Setup Set `range`, derived from reversal / entry / result, instead of recomputing raw `OrderReview` timestamps.
+- Calendar `Open` now supports `order-setup` rows by setting the target Setup Set active and returning to the default Inspector view.
+- Locate continues to use the object range embedded in the calendar row, now sourced from Setup Set core range.
+- Marked Step 109 complete in `v4/TODO.md`.
+
+## Next Step
+- Step 110: compatibility and interaction acceptance pass for the Setup Set migration.
