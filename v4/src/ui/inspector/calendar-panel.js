@@ -125,7 +125,7 @@ function getObjectTypeLabel(item) {
 
 function renderObjectRow(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
-  const canOpen = ['order-setup', 'pda', 'segment', 'composite'].includes(item.ref?.type);
+  const canOpen = ['order-setup', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
   const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   return `
@@ -141,6 +141,7 @@ function renderObjectRow(item) {
           data-inspector-action="calendar-object-locate"
           data-locate-start="${canLocate ? item.range.start : ''}"
           data-locate-end="${canLocate ? item.range.end : ''}"
+          data-object-label="${escapeHtml(`${typeLabel} ${item.label}`)}"
           type="button"
           ${canLocate ? '' : 'disabled'}
         >Locate</button>

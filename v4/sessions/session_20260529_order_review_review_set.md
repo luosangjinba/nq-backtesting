@@ -642,3 +642,31 @@
 
 ## Next Step
 - Continue Phase 9 Step 92: object-level operation refinement from Day Details, especially Select + Open and optional Focus behavior.
+
+## 2026-05-29 Phase 9 Step 92 Calendar Object Operations
+- Reviewed current Calendar object behavior:
+  - PDA / Segment / Composite `Open` already selected the object through existing selection modules.
+  - Order Setup `Open` set the active review set, but the synchronous active-change refresh cleared the Calendar return context.
+  - SMT was only shown in the SMT panel and did not have a Calendar `Open` action.
+  - Locate only emitted a generic status message.
+- Updated `v4/src/ui/inspector/calendar-panel.js`:
+  - Calendar rows now expose `Open` for SMT as well as Order Setup / PDA / Segment / Composite.
+  - Locate buttons include a compact object label for status messages.
+- Updated `v4/src/ui/inspector-sidebar.js`:
+  - Order Setup Calendar `Open` now restores `calendarReturnContext` after `setActiveReviewSet()` and renders the panel with `Back to Calendar`.
+  - Added an SMT selection render path so Calendar `Open` can select an SMT record and show the SMT panel with `Back to Calendar`.
+  - Calendar `Locate` continues to only locate/flash and no longer changes the Inspector panel, but status now says `Located <object summary>`.
+  - Focus behavior was deliberately left out of this step; Structure Sets focus remains separate and session-only.
+- Validation:
+  - `node --check v4/src/ui/inspector/calendar-panel.js`
+  - `node --check v4/src/ui/inspector-sidebar.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - headless Chrome smoke with seeded Order Setup / SMT / PDA / Segments / Composite:
+    - Calendar Locate status includes object summary.
+    - Order Setup Open shows `Back to Calendar` and active order row.
+    - Back returns to Calendar with six Open buttons.
+    - SMT Open shows `Back to Calendar` and selected SMT row.
+- Marked Step 92 complete in `v4/TODO.md`.
+
+## Next Step
+- Continue Phase 9 Step 93: full month calendar UI / object overview badges, or review whether current Inspector calendar already covers enough before adding denser month-cell counts.

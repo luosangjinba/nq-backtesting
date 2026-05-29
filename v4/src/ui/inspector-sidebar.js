@@ -216,12 +216,21 @@ function renderSegmentGroup(segmentGroup) {
   `;
 }
 
-function renderEmpty() {
+function renderSmtSelection() {
+  currentPanel = 'selection';
+  bodyEl.innerHTML = `
+    ${renderCalendarReturnAction('smt', selectedSmtId)}
+    ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
+  `;
+}
+
+function renderEmpty({ preserveCalendarReturn = false } = {}) {
   currentPanel = 'empty';
-  calendarReturnContext = null;
+  if (!preserveCalendarReturn) calendarReturnContext = null;
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
   if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
+    ${preserveCalendarReturn ? renderCalendarReturnAction('order-setup', getActiveReviewSetId()) : ''}
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
@@ -735,12 +744,21 @@ function openCalendarObject(type, id) {
   };
   if (type === 'order-setup') {
     const selected = Boolean(setActiveReviewSet(id));
-    if (!selected) calendarReturnContext = null;
+    if (!selected) {
+      calendarReturnContext = null;
+      return false;
+    }
     if (selected) {
+      calendarReturnContext = {
+        selectedDate: calendarSelectedDate,
+        viewDate: calendarViewDate,
+        type,
+        id,
+      };
       clearPdaSelection();
       clearSegmentSelection();
       clearSegmentGroupSelection();
-      renderEmpty();
+      renderEmpty({ preserveCalendarReturn: true });
     }
     return selected;
   }
@@ -760,6 +778,19 @@ function openCalendarObject(type, id) {
     const selected = Boolean(selectSegmentGroup(id));
     if (!selected) calendarReturnContext = null;
     return selected;
+  }
+  if (type === 'smt') {
+    const selected = Boolean(getSmtRecordById(id));
+    if (!selected) {
+      calendarReturnContext = null;
+      return false;
+    }
+    selectedSmtId = id;
+    clearPdaSelection();
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+    renderSmtSelection();
+    return true;
   }
   calendarReturnContext = null;
   return false;
@@ -1246,7 +1277,8 @@ function handleInspectorClick(e) {
       return;
     }
     viewport.locateTimestampRange(start, end);
-    bus.emit('status:update', { text: 'Calendar object located', isError: false });
+    const label = actionEl.dataset.objectLabel || 'Calendar object';
+    bus.emit('status:update', { text: `Located ${label}`, isError: false });
     return;
   }
 
