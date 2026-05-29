@@ -210,3 +210,29 @@
 
 ## Next Step
 - Step 110: compatibility and interaction acceptance pass for the Setup Set migration.
+
+## Step 110 Completed
+- Ran full static check:
+  - `node --check` for every `v4/src/**/*.js`
+  - `git diff --check HEAD`
+- Ran store / compatibility probe:
+  - create `OrderReview`
+  - export through `getOrderReviews()`
+  - reload through `loadOrderReviews()`
+  - derive Setup Set via `getSetupSetById()`
+  - verified reversal, entry, targets, refs, manual event, notes, and core range
+- Ran Calendar render probe:
+  - setup badge present
+  - `Setup Sets` group present
+  - setup row supports Open
+  - locate start comes from Setup Set range
+- Ran headless Chrome smoke:
+  - page loaded
+  - injected compatible `orderReviews` localStorage payload
+  - loaded 932 1M bars for 2012-01-09
+  - verified Review Sets, Setup Set, Explanation Elements, manual event text, Calendar Setup Sets, and chart canvases
+  - no runtime exceptions
+- V4 API health check returned `{"status":"ok","version":"4.0"}`.
+
+## Next Step
+- Review current branch, then decide whether to commit Step 110 and merge this cleanup branch.
