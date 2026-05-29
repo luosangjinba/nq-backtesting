@@ -299,6 +299,7 @@ html, body {
 }
 
 .inspector-calendar-day {
+  position: relative;
   height: 26px;
   border: 1px solid #2a2e39;
   background: #171b26;
@@ -306,6 +307,18 @@ html, body {
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
+}
+
+.calendar-order-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef5350;
+  box-shadow: 0 0 0 1px rgba(19, 23, 34, 0.85), 0 0 6px rgba(239, 83, 80, 0.75);
+  pointer-events: none;
 }
 
 .inspector-calendar-day:hover:not(:disabled) {

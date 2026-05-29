@@ -118,6 +118,14 @@ function getMonthCells(viewDateKey, range) {
   return cells;
 }
 
+function getOrderSetupDateKeys() {
+  return new Set(
+    getOrderReviews()
+      .map((order) => dateKeyFromTimestamp(getTimestampForOrder(order)))
+      .filter(Boolean)
+  );
+}
+
 function getTimestampForOrder(order) {
   return toTimestamp(
     order.entryPlan?.entryTimestamp ??
@@ -346,6 +354,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const cells = getMonthCells(activeViewDate, range);
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const objectGroups = buildDayItems(activeDate);
+  const orderSetupDateKeys = getOrderSetupDateKeys();
 
   const calendarHtml = `
     <div class="inspector-calendar" data-calendar-selected="${escapeHtml(activeDate)}" data-calendar-view="${escapeHtml(activeViewDate)}">
@@ -365,9 +374,12 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
             const classes = ['inspector-calendar-day'];
             if (!cell.inRange) classes.push('disabled');
             if (cell.dateKey === activeDate) classes.push('selected');
+            const hasOrderSetup = orderSetupDateKeys.has(cell.dateKey);
+            if (hasOrderSetup) classes.push('has-order-setup');
             return `
               <button class="${classes.join(' ')}" data-inspector-action="calendar-select-date" data-calendar-date="${cell.dateKey}" type="button" ${cell.inRange ? '' : 'disabled'}>
-                ${cell.day}
+                <span>${cell.day}</span>
+                ${hasOrderSetup ? '<span class="calendar-order-badge" aria-label="Order Setup"></span>' : ''}
               </button>
             `;
           })
