@@ -132,14 +132,18 @@
 - [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
 
 ### Phase 9: Time Overlays / Calendar Review Navigator
-- [ ] Step 84: 设计独立 `time-overlays` 模块边界：不塞进 PDA / Segment / Order Review；overlay 状态只控制显示，不改变复盘对象数据
-- [ ] Step 85: 实现时间标记 overlay 基础：自然日边界竖线、09:30 / 09:50 / 10:00 等时间竖线；只在 4H 及以下显示，颜色区分日边界与事件时间，线条低透明但足够粗
-- [ ] Step 86: 实现 Killzone 顶部 band：贴近 canvas 上边缘绘制横线/细带，不依赖价格坐标；支持手工选择显示日期和时间窗口
-- [ ] Step 87: 实现日历跳转第一版：输入或选择日期，若当前加载区间内则定位 viewport，否则调整 start/end 并重新加载目标日期附近数据
-- [ ] Step 88: 实现 Calendar Review Index：按自然日聚合 Order Setup / PDA / Segment / Composite / SMT；Reaction Evidence 第一版挂在所属 Segment/PDA response 下，不做顶层对象
-- [ ] Step 89: 实现 Calendar Review Navigator UI：点击某日显示当天对象列表；支持每个对象 Locate / Select / Focus；Order Setups 区域置顶
-- [ ] Step 90: 日历日期格 setup 红色角标：当天存在 Order Setup 时显示红色 badge；第一版红点或数量均可，点击后默认展开当天 Order Setups
-- [ ] Step 91: 验证 1M/5M/15M/1H/4H 周期下日边界、09:30/09:50/10:00、killzone 与对象定位一致；确认不遮挡 K 线细节
+- [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引
+- [ ] Step 85: 实现共享时间坐标 helper：支持 exact bar timestamp 与 1H/4H 内部时间点插值，解决 09:30/09:50/10:00 在高周期 K 线内部没有 exact bar 的定位问题；主图 overlay、calendar locate、hit/hover 未来共用
+- [ ] Step 86: 实现 Time Overlay Store：保存 show/hide、selectedDate、day-boundary 开关、event-times 列表（默认 09:30/09:50/10:00）、killzone 配置；第一版可只存在前端会话，确认稳定后再决定 localStorage
+- [ ] Step 87: 实现基础 Time Marker Primitive/Renderer：绘制自然日边界竖线与 event-time 竖线；仅在 4H 及以下周期显示；自然日边界和 event-time 使用不同颜色；线条略粗但低透明，避免遮挡 K 线细节
+- [ ] Step 88: 实现 Killzone 顶部 band：贴近 canvas 上边缘绘制横线/细带，不依赖价格坐标；按 selectedDate + start/end time 显示；第一版支持一个 active killzone，后续再扩展 London/NY/Silver Bullet presets
+- [ ] Step 89: 实现日历跳转第一版：提供日期/时间输入入口；目标在当前加载区间内则调用 viewport 定位，目标不在区间内则自动调整 start/end 并重新加载目标日期附近数据；输入日期时默认定位到 09:30
+- [ ] Step 90: 实现 Calendar Review Index：按自然日聚合 Order Setup / PDA / Segment / Composite / SMT；Order Setup 归日优先级为 entryTimestamp -> setup primaryEventTimestamp -> exitTimestamp；Reaction Evidence 第一版挂在所属 Segment/PDA response 下，不做顶层对象
+- [ ] Step 91: 实现 Calendar Navigator 第一版 UI：先做日期输入 + Day Details 面板，不急着做完整月历；点击/打开某日后显示当天对象列表，分组顺序为 Order Setups、SMT、PDA、Segments、Composite；Order Setups 默认展开
+- [ ] Step 92: 实现对象级操作：Day Details 中每个对象支持 Locate；可选中对象时同时 Select 并打开 Inspector；Focus 第一版可复用 Structure Sets focus 语义，暂不写入对象数据
+- [ ] Step 93: 实现完整月历 UI 与 setup 红色角标：月历日期格显示当天对象概览；当天存在 Order Setup 时显示红色 badge/dot，第二版可显示数量；点击有 badge 的日期默认展开 Order Setups 区域
+- [ ] Step 94: 联动 selectedDate 与 overlays：Calendar 选中某日后，Time Markers / Killzone 默认只显示该日；允许手工切换显示日期，避免一次加载多日时全屏竖线过多
+- [ ] Step 95: 验证与视觉验收：覆盖 1M/5M/15M/1H/4H；检查自然日边界、09:30/09:50/10:00、killzone、calendar locate 与对象 locate 一致；确认线条不遮挡 K 线细节，Split Screen 开启时主图行为不受副图影响
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
