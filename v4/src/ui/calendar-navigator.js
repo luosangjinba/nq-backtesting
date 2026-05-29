@@ -242,6 +242,7 @@ async function selectDate(dateKey) {
 }
 
 function handlePopoverClick(event) {
+  event.stopPropagation();
   const button = event.target.closest('[data-calendar-action]');
   if (!button) return;
   const action = button.dataset.calendarAction;
