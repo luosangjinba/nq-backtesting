@@ -98,6 +98,7 @@ export function renderManualContextMenu({
   segmentItems,
   pointSetItems,
   timeOverlayItems,
+  clearItems,
   submenuDirection = 'right',
 }) {
   return `
@@ -145,7 +146,7 @@ export function renderManualContextMenu({
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Clear</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
+        ${clearItems}
         </div>
       </div>
     </div>

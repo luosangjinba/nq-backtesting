@@ -571,7 +571,6 @@ function renderTimeOverlayMenuItems(bar) {
   const killzoneDraft = settings.killzoneDraft;
   const endDisabled = killzoneDraft && date === killzoneDraft.date && time ? '' : 'disabled';
   const editKillzoneDisabled = hitKillzone ? '' : 'disabled';
-  const clearKillzonesDisabled = settings.killzones?.length ? '' : 'disabled';
   const draftLabel = killzoneDraft ? ` · ${killzoneDraft.date} ${getEventTimeLabel(killzoneDraft.startTime)}` : '';
   return `
     <div class="pda-menu-section pda-menu-submenu">
@@ -585,9 +584,18 @@ function renderTimeOverlayMenuItems(bar) {
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-end" ${endDisabled}>End Killzone Here${draftLabel}</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-rename" ${editKillzoneDisabled}>Rename Killzone Here</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-delete" ${editKillzoneDisabled}>Delete Killzone Here</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear" ${clearKillzonesDisabled}>Clear Killzones</button>
       </div>
     </div>
+  `;
+}
+
+function renderClearMenuItems() {
+  const settings = getTimeOverlaySettings();
+  const clearKillzonesDisabled = settings.killzones?.length ? '' : 'disabled';
+  return `
+    <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
+    <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
+    <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear" ${clearKillzonesDisabled}>Clear Killzones</button>
   `;
 }
 
@@ -649,7 +657,6 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start 1H Segment from Low</button>
         <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start 1H Segment from High</button>
-        <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
         </div>
       </div>
     `;
@@ -667,6 +674,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     segmentItems,
     pointSetItems,
     timeOverlayItems: renderTimeOverlayMenuItems(bar),
+    clearItems: renderClearMenuItems(),
   });
 }
 
