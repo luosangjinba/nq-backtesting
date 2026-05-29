@@ -5,7 +5,7 @@ import { getSegments, getSegmentById } from '../../segment/segment-store.js';
 import { getSegmentGroups } from '../../segment/segment-group-store.js';
 import { getSmtRecords } from '../../smt/smt-store.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
-import { escapeHtml, section } from './render-utils.js';
+import { escapeHtml, formatNumber, formatTime, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 const MONTHS = Object.freeze([
@@ -233,8 +233,88 @@ function row(label, range, ref = {}) {
   return { label, range, ref };
 }
 
+function compactTime(value) {
+  const formatted = formatTime(value);
+  if (formatted === '—') return formatted;
+  return formatted.includes(' ') ? formatted.split(' ')[1] : formatted;
+}
+
+function compactPrice(value) {
+  const formatted = formatNumber(value);
+  return formatted === '—' ? '' : `@ ${formatted}`;
+}
+
+function titleCase(value, fallback = '—') {
+  const text = String(value || '').trim();
+  if (!text) return fallback;
+  return text
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function joinSummary(parts = []) {
+  return parts.filter((part) => part !== undefined && part !== null && String(part).trim()).join(' · ');
+}
+
 function formatCountLabel(count, singular, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function summarizeOrder(order) {
+  const entry = order.entryPlan || {};
+  const result = order.resultReview || {};
+  return joinSummary([
+    titleCase(entry.direction || order.direction, 'Setup'),
+    compactTime(entry.entryTimestamp || getTimestampForOrder(order)),
+    compactPrice(entry.entryPrice),
+    titleCase(result.result, ''),
+  ]);
+}
+
+function summarizePda(annotation) {
+  const context = Array.isArray(annotation.contexts) && annotation.contexts.length
+    ? annotation.contexts[0]
+    : annotation.timeframe || annotation.sourceTimeframe || '';
+  const price = annotation.price ?? annotation.topPrice ?? annotation.priceHigh;
+  const bottom = annotation.bottomPrice ?? annotation.priceLow;
+  const priceText = bottom !== undefined && bottom !== null
+    ? `${formatNumber(price)}-${formatNumber(bottom)}`
+    : compactPrice(price);
+  return joinSummary([titleCase(annotation.type, 'PDA'), context, priceText]);
+}
+
+function summarizeSegment(segment) {
+  return joinSummary([
+    segment.timeframe || '1H',
+    titleCase(segment.direction, 'Segment'),
+    `${compactTime(segment.start?.timestamp ?? segment.start?.time)} -> ${compactTime(segment.end?.timestamp ?? segment.end?.time)}`,
+  ]);
+}
+
+function summarizeComposite(group) {
+  const children = (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
+    .map(getSegmentById)
+    .filter(Boolean);
+  const first = children[0];
+  const last = children[children.length - 1];
+  const timeRange = first && last
+    ? `${compactTime(first.start?.timestamp ?? first.start?.time)} -> ${compactTime(last.end?.timestamp ?? last.end?.time)}`
+    : '';
+  return joinSummary([
+    formatCountLabel(group.childSegmentIds?.length || 0, 'leg'),
+    titleCase(group.direction, ''),
+    timeRange,
+  ]);
+}
+
+function summarizeSmt(record) {
+  return joinSummary([
+    titleCase(record.direction, ''),
+    titleCase(record.type, 'SMT'),
+    record.timeframe,
+  ]);
 }
 
 function buildDayItems(dateKey) {
@@ -246,7 +326,7 @@ function buildDayItems(dateKey) {
         .filter((order) => dateKeyFromTimestamp(getTimestampForOrder(order)) === dateKey)
         .map((order) =>
           row(
-            `${order.direction || 'Setup'} · ${order.entryPlan?.entryModel || 'Manual'} · ${order.id}`,
+            summarizeOrder(order),
             getOrderTimestampRange(order),
             { type: 'order-setup', id: order.id }
           )
@@ -257,7 +337,7 @@ function buildDayItems(dateKey) {
       rows: getSmtRecords()
         .filter((record) => dateKeyFromTimestamp(getSmtTimestamp(record)) === dateKey)
         .map((record) =>
-          row(`${record.direction} ${record.type} · ${record.timeframe}`, getSmtTimestampRange(record), {
+          row(summarizeSmt(record), getSmtTimestampRange(record), {
             type: 'smt',
             id: record.id,
           })
@@ -268,7 +348,7 @@ function buildDayItems(dateKey) {
       rows: getAnnotations()
         .filter((annotation) => !annotation.draft && dateKeyFromTimestamp(getPdaTimestamp(annotation)) === dateKey)
         .map((annotation) =>
-          row(`${annotation.type?.toUpperCase() || 'PDA'} · ${annotation.id}`, getPdaTimestampRange(annotation), {
+          row(summarizePda(annotation), getPdaTimestampRange(annotation), {
             type: 'pda',
             id: annotation.id,
           })
@@ -280,7 +360,7 @@ function buildDayItems(dateKey) {
         .filter((segment) => dateKeyFromTimestamp(getSegmentTimestamp(segment)) === dateKey)
         .map((segment) =>
           row(
-            `${segment.timeframe || '1H'} ${segment.direction || 'segment'} · ${segment.id}`,
+            summarizeSegment(segment),
             getSegmentTimestampRange(segment),
             { type: 'segment', id: segment.id }
           )
@@ -292,7 +372,7 @@ function buildDayItems(dateKey) {
         .filter((group) => dateKeyFromTimestamp(getCompositeTimestamp(group)) === dateKey)
         .map((group) =>
           row(
-            `${formatCountLabel(group.childSegmentIds?.length || 0, 'leg')} · ${group.id}`,
+            summarizeComposite(group),
             getCompositeTimestampRange(group),
             { type: 'composite', id: group.id }
           )
