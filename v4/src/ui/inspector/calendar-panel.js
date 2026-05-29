@@ -4,6 +4,7 @@ import {
   getCalendarReviewIndex,
 } from '../../calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
+import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -264,6 +265,10 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
   const objectGroups = getCalendarDayGroups(activeDate, calendarIndex);
+  const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
+  const overlayFilterLabel = overlaySelectedDate
+    ? `Overlays: ${overlaySelectedDate}`
+    : 'Overlays: All loaded days';
 
   const calendarHtml = `
     <div class="inspector-calendar" data-calendar-selected="${escapeHtml(activeDate)}" data-calendar-view="${escapeHtml(activeViewDate)}">
@@ -297,7 +302,15 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
           })
           .join('')}
       </div>
-      <div class="inspector-calendar-selected">Selected: ${escapeHtml(activeDate)} 09:30</div>
+      <div class="inspector-calendar-selected">
+        <span>Selected: ${escapeHtml(activeDate)} 09:30</span>
+        <span class="inspector-calendar-overlay-state">${escapeHtml(overlayFilterLabel)}</span>
+        ${
+          overlaySelectedDate
+            ? `<button class="inspector-mini-btn" data-inspector-action="calendar-show-all-days" type="button">All loaded days</button>`
+            : ''
+        }
+      </div>
       <div class="calendar-object-list">
         ${objectGroups.map(renderObjectGroup).join('')}
       </div>

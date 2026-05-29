@@ -40,6 +40,11 @@
   - `time-overlays:changed` redraws primary and secondary overlays together
   - secondary overlay primitives are cleared when secondary bars are cleared or the secondary chart resets
 - `Grid` remains shared chart display state and continues to apply to both primary and secondary charts.
+- Step 94 selected-date overlay filtering:
+  - clicking an Inspector Calendar date writes `timeOverlaySettings.selectedDate`
+  - Days/day-boundary markers, manual Time Lines, and Killzones then render only for that natural date
+  - Calendar shows the active overlay filter and exposes `All loaded days` to clear `selectedDate`
+  - object-level `Locate` intentionally does not change `selectedDate`
 
 ## Decisions
 
@@ -53,6 +58,7 @@
 - Calendar is an Inspector navigation surface, not a new persistence owner; it derives rows from existing stores.
 - Locate and Open are intentionally separate because most review navigation needs spatial context, not immediate object-detail editing.
 - Split Screen is still readonly, but global navigation and display helpers should stay visually consistent across primary and secondary charts when secondary data exists.
+- Calendar date selection is the only automatic owner of Time Overlay `selectedDate`; locating a specific object is navigation, not a request to change overlay filtering.
 
 ## Validation
 
@@ -64,16 +70,17 @@
   - `v4/src/time-overlays/time-overlay-renderer.js`
   - `v4/src/ui/inspector-sidebar.js`
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
+- Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Full visual acceptance across all requested timeframes remains part of Step 95.
 
 ## Current Git State
 
 - Last committed work:
+  - pending: Step 94 selected-date overlay filtering
+  - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
-  - `1c177e2 feat(v4): add calendar month object overview`
-  - `460e084 feat(v4): enhance calendar object actions`
 - Current uncommitted changes:
-  - TODO/session updates for secondary Calendar locate and secondary Time Overlay sync
+  - Step 94 code and TODO/session updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
   - `tmp/`
@@ -82,6 +89,5 @@
 
 ## Next Steps
 
-- Commit this TODO/session handoff update.
-- Continue Phase 9 Step 94: decide how Calendar selected date should drive `selectedDate` filtering for Time Markers and Killzones without hiding useful multi-day context unexpectedly.
-- Then run Step 95 visual acceptance across 1M/5M/15M/1H/4H with Split Screen enabled.
+- Commit Step 94 implementation and handoff updates.
+- Run Step 95 visual acceptance across 1M/5M/15M/1H/4H with Split Screen enabled.

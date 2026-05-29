@@ -56,6 +56,7 @@ import {
   getNextCalendarViewDate,
   renderCalendarPanel,
 } from './inspector/calendar-panel.js';
+import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
   clearActiveReviewSet,
@@ -1256,6 +1257,7 @@ function handleInspectorClick(e) {
   if (action === 'calendar-select-date') {
     calendarSelectedDate = actionEl.dataset.calendarDate || calendarSelectedDate;
     calendarViewDate = calendarSelectedDate;
+    updateTimeOverlaySettings({ selectedDate: calendarSelectedDate });
     const targetTimestamp = getCalendarDateTimestamp(calendarSelectedDate, '09:30');
     if (targetTimestamp !== null) {
       viewport.locateTimestampRange(targetTimestamp, targetTimestamp);
@@ -1267,6 +1269,13 @@ function handleInspectorClick(e) {
         : `Calendar located ${calendarSelectedDate} 09:30`,
       isError: targetTimestamp === null,
     });
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'calendar-show-all-days') {
+    updateTimeOverlaySettings({ selectedDate: '' });
+    bus.emit('status:update', { text: 'Calendar overlays show all loaded days', isError: false });
     refreshSelection();
     return;
   }

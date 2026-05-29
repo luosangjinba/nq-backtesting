@@ -271,6 +271,17 @@ html, body {
   font-size: 11px;
 }
 
+.inspector-calendar-selected {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.inspector-calendar-overlay-state {
+  color: #b2b5be;
+}
+
 .inspector-calendar-header {
   display: grid;
   grid-template-columns: 28px 1fr 28px;
