@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
+import { formatTimeInput } from '../utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 const MONTHS = Object.freeze([
@@ -24,7 +25,9 @@ const LOAD_PADDING_DAYS = 3;
 let popover = null;
 let anchorButton = null;
 let viewDateKey = '';
-let selectedDateKey = '';
+let rangeStartDate = '';
+let rangeEndDate = '';
+let activeDateKey = '';
 
 function pad2(value) {
   return String(value).padStart(2, '0');
@@ -60,16 +63,38 @@ function getTodayDateKey() {
   return dateKeyFromParts(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 }
 
-function getInitialDateKey() {
+function getCurrentInputRange() {
+  return {
+    start: document.getElementById('startInput')?.value || '',
+    end: document.getElementById('endInput')?.value || '',
+  };
+}
+
+function getLoadedDateRange() {
+  const inputRange = getCurrentInputRange();
+  const inputStart = dateKeyFromInput(inputRange.start);
+  const inputEnd = dateKeyFromInput(inputRange.end);
+  if (inputStart || inputEnd) return { start: inputStart, end: inputEnd };
+
   const range = store.getCurrentRange();
   const rangeStart = dateKeyFromInput(range.start);
-  if (rangeStart) return rangeStart;
+  const rangeEnd = dateKeyFromInput(range.end);
+  if (rangeStart || rangeEnd) return { start: rangeStart, end: rangeEnd };
 
   const bars = store.getDisplayBars();
-  if (bars.length) return dateKeyFromTimestamp(bars[0].timestamp);
+  if (bars.length) {
+    return {
+      start: dateKeyFromTimestamp(bars[0].timestamp),
+      end: dateKeyFromTimestamp(bars[bars.length - 1].timestamp),
+    };
+  }
 
-  const startInputDate = dateKeyFromInput(document.getElementById('startInput')?.value);
-  return startInputDate || getTodayDateKey();
+  return { start: '', end: '' };
+}
+
+function getInitialDateKey() {
+  const range = getLoadedDateRange();
+  return range.start || range.end || getTodayDateKey();
 }
 
 function getCalendarDateTimestamp(dateKey, timeText = TARGET_TIME) {
@@ -96,6 +121,20 @@ function shiftMonth(dateKey, monthOffset) {
 
 function formatDateTime(dateKey, timeText) {
   return `${dateKey} ${timeText}`;
+}
+
+function formatRangeLabel(startDate, endDate) {
+  if (startDate && endDate) return `${startDate} - ${endDate}`;
+  if (startDate) return `${startDate} - ...`;
+  if (endDate) return `... - ${endDate}`;
+  return 'Date Range';
+}
+
+function normalizeRangeDates(startDate, endDate) {
+  if (startDate && endDate && startDate > endDate) {
+    return { startDate: endDate, endDate: startDate };
+  }
+  return { startDate, endDate };
 }
 
 function getMonthCells(dateKey) {
@@ -130,62 +169,138 @@ function setToolbarRange(start, end) {
   const endInput = document.getElementById('endInput');
   if (startInput) startInput.value = start;
   if (endInput) endInput.value = end;
+  updateDateRangeButton();
+}
+
+function getManualStartInput() {
+  return document.getElementById('dateRangeManualStart');
+}
+
+function getManualEndInput() {
+  return document.getElementById('dateRangeManualEnd');
+}
+
+function syncManualFields() {
+  const manualStart = getManualStartInput();
+  const manualEnd = getManualEndInput();
+  const range = getCurrentInputRange();
+  if (manualStart) manualStart.value = range.start;
+  if (manualEnd) manualEnd.value = range.end;
+}
+
+function syncRangeFromInputs() {
+  const range = getLoadedDateRange();
+  rangeStartDate = range.start || '';
+  rangeEndDate = range.end || '';
+  activeDateKey = rangeStartDate || rangeEndDate || getTodayDateKey();
+}
+
+function updateDateRangeButton() {
+  if (!anchorButton) return;
+  const range = getLoadedDateRange();
+  anchorButton.textContent = formatRangeLabel(range.start, range.end);
+  anchorButton.title = range.start || range.end ? `Date Range: ${formatRangeLabel(range.start, range.end)}` : 'Date Range';
 }
 
 function positionPopover() {
   if (!popover || !anchorButton) return;
   const rect = anchorButton.getBoundingClientRect();
-  const width = popover.offsetWidth || 280;
+  const width = popover.offsetWidth || 560;
   const left = Math.min(Math.max(8, rect.left), window.innerWidth - width - 8);
   popover.style.left = `${left}px`;
   popover.style.top = `${rect.bottom + 6}px`;
 }
 
-function renderPopover() {
-  if (!popover) return;
-  const parsed = parseDateKey(viewDateKey);
-  const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
-  const today = getTodayDateKey();
-  const cells = getMonthCells(viewDateKey);
+function getCellClasses(dateKey) {
+  const classes = ['toolbar-calendar-day'];
+  const normalized = normalizeRangeDates(rangeStartDate, rangeEndDate);
+  if (dateKey === getTodayDateKey()) classes.push('today');
+  if (dateKey === activeDateKey) classes.push('active');
+  if (dateKey === normalized.startDate) classes.push('range-start');
+  if (dateKey === normalized.endDate) classes.push('range-end');
+  if (normalized.startDate && normalized.endDate && dateKey > normalized.startDate && dateKey < normalized.endDate) {
+    classes.push('in-range');
+  }
+  return classes;
+}
 
-  popover.innerHTML = `
-    <div class="toolbar-calendar-header">
-      <button class="toolbar-calendar-nav" data-calendar-action="prev" type="button" title="Previous month">&lt;</button>
+function renderMonth(dateKey) {
+  const parsed = parseDateKey(dateKey);
+  const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
+  const cells = getMonthCells(dateKey);
+  return `
+    <div class="toolbar-calendar-month">
       <div class="toolbar-calendar-title">${title}</div>
-      <button class="toolbar-calendar-nav" data-calendar-action="next" type="button" title="Next month">&gt;</button>
-    </div>
-    <div class="toolbar-calendar-weekdays">
-      ${WEEKDAYS.map((day) => `<div>${day}</div>`).join('')}
-    </div>
-    <div class="toolbar-calendar-grid">
-      ${cells
-        .map((cell) => {
-          if (cell.empty) return '<div class="toolbar-calendar-day empty"></div>';
-          const classes = ['toolbar-calendar-day'];
-          if (cell.dateKey === selectedDateKey) classes.push('selected');
-          if (cell.dateKey === today) classes.push('today');
-          return `
-            <button class="${classes.join(' ')}" data-calendar-action="select" data-date="${cell.dateKey}" type="button">
-              ${cell.day}
-            </button>
-          `;
-        })
-        .join('')}
-    </div>
-    <div class="toolbar-calendar-footer">
-      <span>${selectedDateKey || viewDateKey} ${TARGET_TIME}</span>
+      <div class="toolbar-calendar-weekdays">
+        ${WEEKDAYS.map((day) => `<div>${day}</div>`).join('')}
+      </div>
+      <div class="toolbar-calendar-grid">
+        ${cells
+          .map((cell) => {
+            if (cell.empty) return '<div class="toolbar-calendar-day empty"></div>';
+            return `
+              <button class="${getCellClasses(cell.dateKey).join(' ')}" data-calendar-action="select" data-date="${cell.dateKey}" type="button">
+                ${cell.day}
+              </button>
+            `;
+          })
+          .join('')}
+      </div>
     </div>
   `;
+}
+
+function renderPopover() {
+  if (!popover) return;
+  const nextMonth = shiftMonth(viewDateKey, 1);
+  const selectedLabel = formatRangeLabel(rangeStartDate, rangeEndDate);
+
+  popover.innerHTML = `
+    <div class="toolbar-calendar-header range-header">
+      <button class="toolbar-calendar-nav" data-calendar-action="prev" type="button" title="Previous month">&lt;</button>
+      <div class="toolbar-calendar-heading">
+        <div class="toolbar-calendar-heading-title">Date Range</div>
+        <div class="toolbar-calendar-heading-subtitle">${selectedLabel}</div>
+      </div>
+      <button class="toolbar-calendar-nav" data-calendar-action="next" type="button" title="Next month">&gt;</button>
+    </div>
+    <div class="toolbar-calendar-months">
+      ${renderMonth(viewDateKey)}
+      ${renderMonth(nextMonth)}
+    </div>
+    <div class="toolbar-calendar-actions">
+      <button class="toolbar-calendar-action" data-calendar-action="load-range" type="button" ${rangeStartDate && rangeEndDate ? '' : 'disabled'}>Load Range</button>
+      <button class="toolbar-calendar-action" data-calendar-action="load-week" type="button">Load Week</button>
+      <button class="toolbar-calendar-action" data-calendar-action="jump-day" type="button">Jump 09:30</button>
+      <button class="toolbar-calendar-action secondary" data-calendar-action="clear-range" type="button">Clear</button>
+    </div>
+    <details class="toolbar-calendar-manual">
+      <summary>Manual time range</summary>
+      <div class="toolbar-calendar-manual-grid">
+        <label>
+          <span>Start</span>
+          <input id="dateRangeManualStart" class="toolbar-input toolbar-calendar-input" type="text" placeholder="YYYY-MM-DD HH:mm" />
+        </label>
+        <label>
+          <span>End</span>
+          <input id="dateRangeManualEnd" class="toolbar-input toolbar-calendar-input" type="text" placeholder="YYYY-MM-DD HH:mm" />
+        </label>
+        <button class="toolbar-calendar-action" data-calendar-action="load-manual" type="button">Load Manual</button>
+      </div>
+    </details>
+  `;
+  syncManualFields();
   positionPopover();
 }
 
 function ensurePopover() {
   if (popover) return popover;
   popover = document.createElement('div');
-  popover.className = 'toolbar-calendar-popover';
+  popover.className = 'toolbar-calendar-popover toolbar-date-range-popover';
   popover.hidden = true;
   document.body.appendChild(popover);
   popover.addEventListener('click', handlePopoverClick);
+  popover.addEventListener('keydown', handlePopoverKeydown);
   return popover;
 }
 
@@ -197,9 +312,9 @@ function closePopover() {
 
 function openPopover(button) {
   anchorButton = button;
-  const initialDate = selectedDateKey || getInitialDateKey();
+  syncRangeFromInputs();
+  const initialDate = activeDateKey || getInitialDateKey();
   const parsed = parseDateKey(initialDate) || parseDateKey(getTodayDateKey());
-  selectedDateKey = parseDateKey(initialDate) ? initialDate : getTodayDateKey();
   viewDateKey = dateKeyFromParts(parsed.year, parsed.monthIndex, 1);
   ensurePopover();
   renderPopover();
@@ -208,19 +323,55 @@ function openPopover(button) {
   positionPopover();
 }
 
-async function loadAroundDate(dateKey) {
+async function loadRange(start, end, successText) {
   const tf = parseInt(document.getElementById('tfSelect')?.value || store.getCurrentTimeframe(), 10);
-  const start = formatDateTime(shiftDate(dateKey, -LOAD_PADDING_DAYS), '00:00');
-  const end = formatDateTime(shiftDate(dateKey, LOAD_PADDING_DAYS), '23:59');
   setToolbarRange(start, end);
-  bus.emit('status:update', { text: `加载 ${dateKey} 附近数据...`, isError: false });
+  bus.emit('status:update', { text: '加载中...', isError: false });
   const result = await fetchBars(start, end, tf);
   store.setBars(result.bars, start, end, tf, result.requestedRange);
-  bus.emit('status:update', { text: `已加载 ${result.bars.length} 根K线，定位到 ${dateKey} ${TARGET_TIME}`, isError: false });
+  bus.emit('status:update', { text: successText || `已加载 ${result.bars.length} 根K线`, isError: false });
+  closePopover();
 }
 
-async function selectDate(dateKey) {
-  selectedDateKey = dateKey;
+async function loadSelectedRange() {
+  const normalized = normalizeRangeDates(rangeStartDate, rangeEndDate);
+  if (!normalized.startDate || !normalized.endDate) {
+    bus.emit('status:update', { text: '请选择开始和结束日期', isError: true });
+    return;
+  }
+  try {
+    await loadRange(
+      formatDateTime(normalized.startDate, '00:00'),
+      formatDateTime(normalized.endDate, '23:59'),
+      `Date Range: ${normalized.startDate} - ${normalized.endDate}`
+    );
+  } catch (err) {
+    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+  }
+}
+
+async function loadWeekAroundActiveDate() {
+  const dateKey = activeDateKey || rangeStartDate || getInitialDateKey();
+  try {
+    const startDate = shiftDate(dateKey, -LOAD_PADDING_DAYS);
+    const endDate = shiftDate(dateKey, LOAD_PADDING_DAYS);
+    rangeStartDate = startDate;
+    rangeEndDate = endDate;
+    renderPopover();
+    await loadRange(
+      formatDateTime(startDate, '00:00'),
+      formatDateTime(endDate, '23:59'),
+      `Loaded week around ${dateKey}`
+    );
+    const timestamp = getCalendarDateTimestamp(dateKey, TARGET_TIME);
+    requestAnimationFrame(() => locateTimestampRange(timestamp, timestamp));
+  } catch (err) {
+    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+  }
+}
+
+async function jumpToActiveDate() {
+  const dateKey = activeDateKey || rangeStartDate || getInitialDateKey();
   const targetTimestamp = getCalendarDateTimestamp(dateKey, TARGET_TIME);
   if (!Number.isFinite(targetTimestamp)) {
     bus.emit('status:update', { text: 'Calendar date is invalid', isError: true });
@@ -229,16 +380,58 @@ async function selectDate(dateKey) {
 
   try {
     if (!isTimestampLoaded(targetTimestamp)) {
-      await loadAroundDate(dateKey);
+      const startDate = shiftDate(dateKey, -LOAD_PADDING_DAYS);
+      const endDate = shiftDate(dateKey, LOAD_PADDING_DAYS);
+      await loadRange(
+        formatDateTime(startDate, '00:00'),
+        formatDateTime(endDate, '23:59'),
+        `Loaded week around ${dateKey}`
+      );
+    } else {
+      closePopover();
     }
     requestAnimationFrame(() => {
       locateTimestampRange(targetTimestamp, targetTimestamp);
       bus.emit('status:update', { text: `Calendar: ${dateKey} ${TARGET_TIME}`, isError: false });
     });
-    closePopover();
   } catch (err) {
     bus.emit('status:update', { text: `Calendar load failed: ${err.message}`, isError: true });
   }
+}
+
+async function loadManualRange() {
+  const manualStart = formatTimeInput(getManualStartInput()?.value.trim() || '');
+  const manualEnd = formatTimeInput(getManualEndInput()?.value.trim() || '');
+  if (!manualStart || !manualEnd) {
+    bus.emit('status:update', { text: '请输入开始和结束时间', isError: true });
+    return;
+  }
+  try {
+    await loadRange(manualStart, manualEnd);
+  } catch (err) {
+    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+  }
+}
+
+function selectDate(dateKey) {
+  activeDateKey = dateKey;
+  if (!rangeStartDate || (rangeStartDate && rangeEndDate)) {
+    rangeStartDate = dateKey;
+    rangeEndDate = '';
+  } else if (dateKey < rangeStartDate) {
+    rangeEndDate = rangeStartDate;
+    rangeStartDate = dateKey;
+  } else {
+    rangeEndDate = dateKey;
+  }
+  renderPopover();
+}
+
+function clearRangeSelection() {
+  rangeStartDate = '';
+  rangeEndDate = '';
+  activeDateKey = getInitialDateKey();
+  renderPopover();
 }
 
 function handlePopoverClick(event) {
@@ -253,6 +446,19 @@ function handlePopoverClick(event) {
   }
   if (action === 'select') {
     selectDate(button.dataset.date);
+    return;
+  }
+  if (action === 'load-range') loadSelectedRange();
+  if (action === 'load-week') loadWeekAroundActiveDate();
+  if (action === 'jump-day') jumpToActiveDate();
+  if (action === 'load-manual') loadManualRange();
+  if (action === 'clear-range') clearRangeSelection();
+}
+
+function handlePopoverKeydown(event) {
+  if (event.key !== 'Enter') return;
+  if (event.target === getManualStartInput() || event.target === getManualEndInput()) {
+    loadManualRange();
   }
 }
 
@@ -269,6 +475,7 @@ function handleKeydown(event) {
 export function initCalendarNavigator(button) {
   anchorButton = button;
   ensurePopover();
+  updateDateRangeButton();
   button.addEventListener('click', () => {
     if (popover && !popover.hidden) {
       closePopover();
@@ -276,6 +483,7 @@ export function initCalendarNavigator(button) {
     }
     openPopover(button);
   });
+  bus.on('bars:loaded', updateDateRangeButton);
   document.addEventListener('click', handleDocumentClick);
   window.addEventListener('keydown', handleKeydown);
   window.addEventListener('resize', positionPopover);

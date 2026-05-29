@@ -520,3 +520,32 @@
 
 ## Next Step
 - Implement Step 89A before Step 90.
+
+## 2026-05-29 Phase 9 Step 89A Date Range Calendar
+- Created branch `feature/v4-date-range-calendar` from `main`.
+- Replaced the always-visible `开始` / `结束` toolbar inputs with one visible `Date Range` control.
+- Kept hidden `startInput` / `endInput` fields as the compatibility state source for existing load code and API request formatting.
+- Reworked `v4/src/ui/calendar-navigator.js` into a Date Range picker:
+  - two-month calendar layout
+  - start/end range selection
+  - highlighted active date, range start, range end, and in-range days
+  - `Load Range` action
+  - `Load Week` action around the active date
+  - `Jump 09:30` action
+  - advanced manual `YYYY-MM-DD HH:mm` start/end fields inside the popover
+- Updated `v4/style.css` for the larger date-range popover and range states.
+- Marked Step 89A complete in `v4/TODO.md`.
+- Validation:
+  - `node --check v4/src/ui/calendar-navigator.js`
+  - `node --check v4/src/ui/toolbar.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+  - headless Chrome smoke: toolbar visible text shows only Date Range, hidden fields remain `type=hidden`, two-month popover opens, selecting `2012-01-09` to `2012-01-12` loads `2012-01-09 00:00` to `2012-01-12 23:59`
+
+## Next Step
+- Manual browser pass for Step 89A:
+  - range select forward and backward
+  - Load Week
+  - Jump 09:30 inside and outside loaded range
+  - manual time range input
+- Then continue Step 90: Calendar Review Index.

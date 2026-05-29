@@ -96,12 +96,10 @@ export function initToolbar() {
 
   container.innerHTML = `
     <div class="toolbar-group">
-      <span class="toolbar-label">开始:</span>
-      <input type="text" id="startInput" class="toolbar-input" placeholder="2025-01-02 09:30" />
-    </div>
-    <div class="toolbar-group">
-      <span class="toolbar-label">结束:</span>
-      <input type="text" id="endInput" class="toolbar-input" placeholder="2025-01-02 16:00" />
+      <span class="toolbar-label">Date:</span>
+      <button id="dateRangeBtn" class="toolbar-btn toolbar-secondary-btn toolbar-date-range-btn" type="button">Date Range</button>
+      <input type="hidden" id="startInput" />
+      <input type="hidden" id="endInput" />
     </div>
     <div class="toolbar-group">
       <span class="toolbar-label">周期:</span>
@@ -115,7 +113,6 @@ export function initToolbar() {
       </select>
     </div>
     <button id="loadBtn" class="toolbar-btn">加载</button>
-    <button id="calendarBtn" class="toolbar-btn toolbar-secondary-btn" type="button" title="Open calendar navigator">Calendar</button>
     <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
     <button id="undoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Undo">↶</button>
     <button id="redoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Redo">↷</button>
@@ -130,7 +127,7 @@ export function initToolbar() {
   const endInput = document.getElementById('endInput');
   const tfSelect = document.getElementById('tfSelect');
   const loadBtn = document.getElementById('loadBtn');
-  const calendarBtn = document.getElementById('calendarBtn');
+  const dateRangeBtn = document.getElementById('dateRangeBtn');
   const archiveBtn = document.getElementById('archiveBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
@@ -145,7 +142,7 @@ export function initToolbar() {
 
   syncSplitScreenLayout();
   loadBtn.addEventListener('click', handleLoad);
-  initCalendarNavigator(calendarBtn);
+  initCalendarNavigator(dateRangeBtn);
   archiveBtn.addEventListener('click', () => {
     bus.emit('inspector:open-archive');
   });
