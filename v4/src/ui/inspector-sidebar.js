@@ -47,6 +47,11 @@ import { parseTags, renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
+import {
+  getDefaultCalendarDate,
+  getNextCalendarViewDate,
+  renderCalendarPanel,
+} from './inspector/calendar-panel.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
   clearActiveOrderReview,
@@ -79,6 +84,8 @@ let orderReviewTimePickState = null;
 let orderReviewPricePickState = null;
 let expandedOrderReviewId = null;
 let selectedSmtId = null;
+let calendarSelectedDate = '';
+let calendarViewDate = '';
 
 function getOrderReviewPanelOptions(extra = {}) {
   return {
@@ -183,10 +190,13 @@ function renderSegmentGroup(segmentGroup) {
 
 function renderEmpty() {
   currentPanel = 'empty';
+  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
+  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
+    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-empty',
       createLabel: 'Create Order Setup',
@@ -199,7 +209,10 @@ function renderEmpty() {
 
 function renderArchivePanel() {
   currentPanel = 'archive';
+  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
+  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
+    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions())}
     ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
     ${renderArchiveActions()}
@@ -1141,6 +1154,23 @@ function handleInspectorClick(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
 
+  if (action === 'calendar-select-date') {
+    calendarSelectedDate = e.target.dataset.calendarDate || calendarSelectedDate;
+    calendarViewDate = calendarSelectedDate;
+    bus.emit('status:update', { text: `Calendar selected ${calendarSelectedDate} 09:30`, isError: false });
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'calendar-prev-month' || action === 'calendar-next-month') {
+    calendarViewDate = getNextCalendarViewDate(
+      calendarViewDate || calendarSelectedDate || getDefaultCalendarDate(),
+      action === 'calendar-prev-month' ? 'prev' : 'next'
+    );
+    refreshSelection();
+    return;
+  }
+
   if (action === 'export-pda') {
     exportPdaArchive();
     return;
@@ -1406,6 +1436,13 @@ export function initInspectorSidebar() {
     clearPdaSelection();
     clearSegmentSelection();
     clearSegmentGroupSelection();
+    calendarSelectedDate = '';
+    calendarViewDate = '';
     renderEmpty();
+  });
+  bus.on('bars:loaded', () => {
+    calendarSelectedDate = getDefaultCalendarDate();
+    calendarViewDate = calendarSelectedDate;
+    refreshSelection();
   });
 }

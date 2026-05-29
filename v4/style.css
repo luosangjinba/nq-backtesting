@@ -259,6 +259,114 @@ html, body {
   border-bottom: 1px solid #2a2e39;
 }
 
+.inspector-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inspector-calendar-range,
+.inspector-calendar-selected {
+  color: #8d919b;
+  font-size: 11px;
+}
+
+.inspector-calendar-header {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 6px;
+}
+
+.inspector-calendar-title {
+  color: #f0f3fa;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.inspector-calendar-weekdays,
+.inspector-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.inspector-calendar-weekdays {
+  color: #8d919b;
+  font-size: 11px;
+  text-align: center;
+}
+
+.inspector-calendar-day {
+  height: 26px;
+  border: 1px solid #2a2e39;
+  background: #171b26;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-calendar-day:hover:not(:disabled) {
+  border-color: #26a69a;
+  color: #f0f3fa;
+}
+
+.inspector-calendar-day.selected {
+  background: #26a69a;
+  border-color: #26a69a;
+  color: #fff;
+  font-weight: 600;
+}
+
+.inspector-calendar-day.disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.inspector-calendar-day.empty {
+  border-color: transparent;
+  background: transparent;
+  pointer-events: none;
+}
+
+.calendar-object-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calendar-object-group {
+  border: 1px solid #2a2e39;
+  border-radius: 6px;
+  background: rgba(23, 27, 38, 0.72);
+  padding: 6px;
+}
+
+.calendar-object-title {
+  margin-bottom: 4px;
+  color: #f0f3fa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.calendar-object-row,
+.calendar-object-empty {
+  color: #b2b5be;
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.calendar-object-row + .calendar-object-row {
+  margin-top: 3px;
+}
+
+.calendar-object-empty {
+  color: #787b86;
+}
+
 .inspector-section-title {
   margin-bottom: 8px;
   color: #f0f3fa;
