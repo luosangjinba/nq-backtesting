@@ -10,6 +10,7 @@ import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
+import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 
 function renderSecondaryTimeframeOptions(selectedTimeframe) {
   return Object.entries(TIMEFRAME_MAP)
@@ -61,8 +62,13 @@ function renderSplitScreenControls() {
 }
 
 function renderDisplayControls(displayMode) {
+  const timeOverlaySettings = getTimeOverlaySettings();
   return `
     <div class="toolbar-separator"></div>
+    <label class="toolbar-toggle" title="Show natural day boundary lines">
+      <input id="dayBoundaryToggle" type="checkbox"${timeOverlaySettings.showDayBoundary ? ' checked' : ''} />
+      <span>Days</span>
+    </label>
     <label class="toolbar-toggle" title="Show original chart background grid">
       <input id="chartGridToggle" type="checkbox"${isGridVisible() ? ' checked' : ''} />
       <span>Grid</span>
@@ -124,6 +130,7 @@ export function initToolbar() {
   const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const splitLayoutSelect = document.getElementById('splitLayoutSelect');
+  const dayBoundaryToggle = document.getElementById('dayBoundaryToggle');
   const chartGridToggle = document.getElementById('chartGridToggle');
   const displayModeSelect = document.getElementById('displayModeSelect');
   const displayRecentCountInput = document.getElementById('displayRecentCountInput');
@@ -155,6 +162,10 @@ export function initToolbar() {
     if (store.getBars().length > 0) {
       handleLoad();
     }
+  });
+
+  dayBoundaryToggle.addEventListener('change', (e) => {
+    updateTimeOverlaySettings({ showDayBoundary: e.target.checked });
   });
 
   chartGridToggle.addEventListener('change', (e) => {

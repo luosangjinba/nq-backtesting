@@ -203,7 +203,6 @@ export function addKillzone(input = {}) {
   if (!killzone) return null;
   settings = {
     ...settings,
-    selectedDate: killzone.date,
     killzones: [...settings.killzones, killzone],
   };
   emitChanged('killzone:add');
@@ -252,7 +251,6 @@ export function setKillzoneDraft(input = {}) {
   if (!draft) return null;
   settings = {
     ...settings,
-    selectedDate: draft.date,
     killzoneDraft: draft,
   };
   emitChanged('killzone:draft');
