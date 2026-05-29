@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
+import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -23,6 +24,8 @@ const TARGET_TIME = '09:30';
 const FULL_DAY_START_TIME = '00:00';
 const FULL_DAY_END_TIME = '23:59';
 const LOAD_PADDING_DAYS = 3;
+const RANGE_HISTORY_STORAGE_KEY = 'v4.dateRangeHistory';
+const RANGE_HISTORY_LIMIT = 8;
 
 let popover = null;
 let anchorButton = null;
@@ -57,6 +60,15 @@ function dateTimePartsFromInput(value) {
     dateKey: `${match[1]}-${match[2]}-${match[3]}`,
     time: match[4] && match[5] ? `${match[4]}:${match[5]}` : '',
   };
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function parseDateKey(dateKey) {
@@ -166,6 +178,123 @@ function formatLoadedRangeLabel(range) {
     return formatRangeLabel(range.rawStart || range.start, range.rawEnd || range.end);
   }
   return formatRangeLabel(range.start, range.end);
+}
+
+function getRangeHistory() {
+  try {
+    const raw = window.localStorage.getItem(RANGE_HISTORY_STORAGE_KEY);
+    const parsed = JSON.parse(raw || '[]');
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item) => dateTimePartsFromInput(item?.start) && dateTimePartsFromInput(item?.end))
+      .map((item) => ({
+        start: formatTimeInput(String(item.start || '')),
+        end: formatTimeInput(String(item.end || '')),
+        timeframe: Number(item.timeframe) || 0,
+        loadedAt: Number(item.loadedAt) || 0,
+      }))
+      .filter((item) => item.start && item.end)
+      .slice(0, RANGE_HISTORY_LIMIT);
+  } catch {
+    return [];
+  }
+}
+
+function saveRangeHistory(items) {
+  try {
+    window.localStorage.setItem(RANGE_HISTORY_STORAGE_KEY, JSON.stringify(items.slice(0, RANGE_HISTORY_LIMIT)));
+  } catch {
+    // localStorage may be unavailable in restricted browser contexts
+  }
+}
+
+function recordRangeHistory(start, end, timeframe) {
+  const normalizedStart = formatTimeInput(String(start || '').trim());
+  const normalizedEnd = formatTimeInput(String(end || '').trim());
+  if (!normalizedStart || !normalizedEnd) return;
+
+  const normalizedTimeframe = Number(timeframe) || store.getCurrentTimeframe();
+  const nextItem = {
+    start: normalizedStart,
+    end: normalizedEnd,
+    timeframe: normalizedTimeframe,
+    loadedAt: Date.now(),
+  };
+  const history = getRangeHistory().filter(
+    (item) =>
+      item.start !== nextItem.start ||
+      item.end !== nextItem.end ||
+      Number(item.timeframe) !== normalizedTimeframe
+  );
+  saveRangeHistory([nextItem, ...history]);
+}
+
+function removeRangeHistoryItem(index) {
+  const history = getRangeHistory();
+  if (index < 0 || index >= history.length) return;
+  history.splice(index, 1);
+  saveRangeHistory(history);
+}
+
+function clearRangeHistory() {
+  saveRangeHistory([]);
+}
+
+function formatHistoryItemLabel(item) {
+  const range = {
+    start: dateKeyFromInput(item.start),
+    end: dateKeyFromInput(item.end),
+    rawStart: item.start,
+    rawEnd: item.end,
+  };
+  return formatLoadedRangeLabel(range);
+}
+
+function renderRangeHistory() {
+  const history = getRangeHistory();
+  const content = history.length
+    ? history
+        .map((item, index) => {
+          const label = formatHistoryItemLabel(item);
+          const tfLabel = item.timeframe ? timeframeToString(item.timeframe) : 'TF';
+          return `
+            <div class="toolbar-calendar-history-row">
+              <button
+                class="toolbar-calendar-history-load"
+                data-calendar-action="load-history"
+                data-history-index="${index}"
+                type="button"
+                title="Load ${escapeHtml(tfLabel)} ${escapeHtml(label)}"
+              >
+                <span class="toolbar-calendar-history-range">${escapeHtml(label)}</span>
+                <span class="toolbar-calendar-history-tf">${escapeHtml(tfLabel)}</span>
+              </button>
+              <button
+                class="toolbar-calendar-history-remove"
+                data-calendar-action="remove-history"
+                data-history-index="${index}"
+                type="button"
+                title="Remove history range"
+              >X</button>
+            </div>
+          `;
+        })
+        .join('')
+    : '<div class="toolbar-calendar-history-empty">No history ranges</div>';
+
+  return `
+    <details class="toolbar-calendar-history" open>
+      <summary>History ranges</summary>
+      <div class="toolbar-calendar-history-list">
+        ${content}
+      </div>
+      ${
+        history.length
+          ? '<button class="toolbar-calendar-history-clear" data-calendar-action="clear-history" type="button">Clear history</button>'
+          : ''
+      }
+    </details>
+  `;
 }
 
 function normalizeRangeDates(startDate, endDate) {
@@ -296,12 +425,14 @@ function renderPopover() {
 
   popover.innerHTML = `
     <div class="toolbar-calendar-header range-header">
+      <button class="toolbar-calendar-nav" data-calendar-action="prev-year" type="button" title="Previous year">&lt;&lt;</button>
       <button class="toolbar-calendar-nav" data-calendar-action="prev" type="button" title="Previous month">&lt;</button>
       <div class="toolbar-calendar-heading">
         <div class="toolbar-calendar-heading-title">Date Range</div>
         <div class="toolbar-calendar-heading-subtitle">${selectedLabel}</div>
       </div>
       <button class="toolbar-calendar-nav" data-calendar-action="next" type="button" title="Next month">&gt;</button>
+      <button class="toolbar-calendar-nav" data-calendar-action="next-year" type="button" title="Next year">&gt;&gt;</button>
     </div>
     <div class="toolbar-calendar-months">
       ${renderMonth(viewDateKey)}
@@ -313,6 +444,7 @@ function renderPopover() {
       <button class="toolbar-calendar-action" data-calendar-action="jump-day" type="button">Jump 09:30</button>
       <button class="toolbar-calendar-action secondary" data-calendar-action="clear-range" type="button">Clear</button>
     </div>
+    ${renderRangeHistory()}
     <details class="toolbar-calendar-manual">
       <summary>Manual time range</summary>
       <div class="toolbar-calendar-manual-grid">
@@ -368,8 +500,28 @@ async function loadRange(start, end, successText) {
   const result = await fetchBars(start, end, tf);
   setToolbarRange(start, end, false);
   store.setBars(result.bars, start, end, tf, result.requestedRange);
+  recordRangeHistory(start, end, tf);
   bus.emit('status:update', { text: successText || `已加载 ${result.bars.length} 根K线`, isError: false });
   closePopover();
+}
+
+async function loadHistoryRange(index) {
+  const item = getRangeHistory()[index];
+  if (!item) {
+    bus.emit('status:update', { text: 'History range not found', isError: true });
+    return;
+  }
+
+  const tfSelect = document.getElementById('tfSelect');
+  if (tfSelect && item.timeframe) {
+    tfSelect.value = String(item.timeframe);
+  }
+
+  try {
+    await loadRange(item.start, item.end, `History Range: ${formatHistoryItemLabel(item)}`);
+  } catch (err) {
+    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+  }
 }
 
 async function loadSelectedRange() {
@@ -478,8 +630,14 @@ function handlePopoverClick(event) {
   const button = event.target.closest('[data-calendar-action]');
   if (!button) return;
   const action = button.dataset.calendarAction;
-  if (action === 'prev' || action === 'next') {
-    viewDateKey = shiftMonth(viewDateKey, action === 'prev' ? -1 : 1);
+  if (action === 'prev' || action === 'next' || action === 'prev-year' || action === 'next-year') {
+    const monthOffset = {
+      prev: -1,
+      next: 1,
+      'prev-year': -12,
+      'next-year': 12,
+    }[action];
+    viewDateKey = shiftMonth(viewDateKey, monthOffset);
     renderPopover();
     return;
   }
@@ -492,6 +650,15 @@ function handlePopoverClick(event) {
   if (action === 'jump-day') jumpToActiveDate();
   if (action === 'load-manual') loadManualRange();
   if (action === 'clear-range') clearRangeSelection();
+  if (action === 'load-history') loadHistoryRange(Number(button.dataset.historyIndex));
+  if (action === 'remove-history') {
+    removeRangeHistoryItem(Number(button.dataset.historyIndex));
+    renderPopover();
+  }
+  if (action === 'clear-history') {
+    clearRangeHistory();
+    renderPopover();
+  }
 }
 
 function handlePopoverKeydown(event) {

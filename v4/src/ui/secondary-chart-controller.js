@@ -9,11 +9,15 @@ import { getBucketStart } from '../pda/pda-context.js';
 import {
   clearSecondaryData,
   destroySecondaryChart,
+  getSecondaryActiveDataCount,
+  getSecondaryVisibleLogicalRange,
   hideSecondaryCursor,
   hideSecondaryHoverCursor,
   initSecondaryChart,
   setSecondaryChartInfo,
   setSecondaryData,
+  showSecondaryCursor,
+  showSecondaryEndOfData,
   showSecondaryHoverCursor,
   showSecondaryStartOfData,
 } from '../chart/secondary-chart-manager.js';
@@ -75,6 +79,31 @@ function toChartBar(bar, timeframe) {
   };
 }
 
+function findSecondaryReplayIndex(displayBars, cursorTimestamp, timeframe) {
+  if (!Array.isArray(displayBars) || !displayBars.length || cursorTimestamp === null) return -1;
+
+  const replayBucketStart = getBucketStart(Number(cursorTimestamp), timeframe);
+  let matchedIndex = -1;
+  for (let index = 0; index < displayBars.length; index += 1) {
+    const barTimestamp = Number(displayBars[index]?.timestamp);
+    if (!Number.isFinite(barTimestamp)) continue;
+    const barBucketStart = getBucketStart(barTimestamp, timeframe);
+    if (barBucketStart > replayBucketStart) break;
+    matchedIndex = index;
+  }
+  return matchedIndex;
+}
+
+function getReplaySyncedSecondaryBars(displayBars, timeframe) {
+  if (!lastReplayState.enabled || lastReplayState.cursorTimestamp === null) {
+    return displayBars;
+  }
+
+  const replayIndex = findSecondaryReplayIndex(displayBars, lastReplayState.cursorTimestamp, timeframe);
+  if (replayIndex < 0) return [];
+  return displayBars.slice(0, replayIndex + 1);
+}
+
 function renderSecondaryBars() {
   if (!secondaryStore.isSecondaryEnabled()) return;
   initSecondaryChart();
@@ -83,9 +112,16 @@ function renderSecondaryBars() {
   const instrument = secondaryStore.getSecondaryInstrument();
   setSecondaryChartInfo({ instrument, timeframe });
   const displayBars = secondaryStore.getSecondaryDisplayBars();
-  const chartData = displayBars.map((bar) => toChartBar(bar, timeframe));
+  const syncedBars = getReplaySyncedSecondaryBars(displayBars, timeframe);
+  const chartData = syncedBars.map((bar) => toChartBar(bar, timeframe));
+  const previousRange = getSecondaryVisibleLogicalRange();
+  const previousDataCount = getSecondaryActiveDataCount();
   setSecondaryData(chartData);
-  showSecondaryStartOfData(chartData.length);
+  if (lastReplayState.enabled) {
+    showSecondaryEndOfData(chartData.length, previousRange, previousDataCount);
+  } else {
+    showSecondaryStartOfData(chartData.length);
+  }
   syncSecondaryReplayCursor();
 }
 
@@ -195,6 +231,7 @@ function syncSecondaryReplayCursor() {
     hideSecondaryCursor();
     return;
   }
+
   showSecondaryCursor(cursorTime);
 }
 
@@ -203,7 +240,7 @@ function handleReplayChanged({ enabled, cursorTimestamp }) {
     enabled: Boolean(enabled),
     cursorTimestamp: cursorTimestamp ?? null,
   };
-  syncSecondaryReplayCursor();
+  renderSecondaryBars();
 }
 
 export function initSecondaryChartController() {

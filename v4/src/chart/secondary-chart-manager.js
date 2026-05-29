@@ -198,15 +198,23 @@ export function showSecondaryStartOfData(dataCount = activeDataCount) {
   }
 }
 
-export function showSecondaryEndOfData(dataCount = activeDataCount) {
+export function showSecondaryEndOfData(dataCount = activeDataCount, previousRange = null, previousDataCount = null) {
   if (!secondaryChart || dataCount <= 0) return;
   const width = secondaryContainer?.clientWidth || 800;
   const barSpacing = secondaryChart.timeScale().options().barSpacing || TIME_SCALE_DISPLAY.barSpacing || 6;
   const barsVisible = Math.ceil(width / barSpacing);
+  const rangeWidth =
+    previousRange && Number.isFinite(previousRange.to - previousRange.from)
+      ? previousRange.to - previousRange.from
+      : barsVisible;
+  const anchorOffset =
+    previousRange && previousDataCount !== null
+      ? previousRange.to - previousDataCount
+      : VIEWPORT_RIGHT_OFFSET_BARS;
 
   secondaryChart.timeScale().setVisibleLogicalRange({
-    from: dataCount - barsVisible + VIEWPORT_RIGHT_OFFSET_BARS,
-    to: dataCount + VIEWPORT_RIGHT_OFFSET_BARS,
+    from: dataCount - rangeWidth + anchorOffset,
+    to: dataCount + anchorOffset,
   });
 }
 

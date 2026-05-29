@@ -578,3 +578,33 @@
 ## Next Step
 - Run full JS syntax and browser smoke after Step 90.
 - Then continue Step 91: Calendar Day Details UI refinement.
+
+## 2026-05-29 Follow-up: Replay Sync and Date Range Usability
+- After merging `feature/v4-date-range-calendar` back to `main`, inserted two usability fixes before continuing Step 91.
+- Split Replay sync:
+  - `v4/src/ui/secondary-chart-controller.js` now renders secondary chart data replay-aware.
+  - Replay Bar On slices the secondary chart to the bucket matching the primary `cursorTimestamp`, so the readonly secondary chart no longer shows future bars.
+  - Replay Bar Off / Close restores the full loaded secondary data.
+  - `v4/src/chart/secondary-chart-manager.js` `showSecondaryEndOfData()` now accepts the previous logical range and previous data count, matching the primary replay anchoring behavior.
+  - This fixes the 1M primary / 1H secondary case where secondary latest bars became progressively thinner and drifted right before settling.
+- Date Range Calendar usability:
+  - `v4/src/ui/calendar-navigator.js` records successful loads into local `v4.dateRangeHistory`.
+  - History records store `start`, `end`, `timeframe`, and `loadedAt`.
+  - History ranges are de-duplicated, newest-first, limited to 8, and can be loaded, removed one by one, or cleared.
+  - Date Range popover now includes `<<` / `>>` year navigation while keeping `<` / `>` month navigation.
+  - `v4/style.css` adds history range list styling and a five-column calendar header.
+- Validation:
+  - `node --check v4/src/ui/secondary-chart-controller.js`
+  - `node --check v4/src/chart/secondary-chart-manager.js`
+  - `node --check v4/src/ui/calendar-navigator.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+  - headless Chrome smoke verified:
+    - Replay On secondary data slices from full count to replay count and restores on close.
+    - 1M primary / 1H secondary replay keeps secondary right anchor stable after entering the first 1H bucket.
+    - Date Range history appears after load, can reload the range, remove one item, and clear all.
+    - `>>` changes May/June 2026 to May/June 2027, `<<` returns and then changes to May/June 2025.
+
+## Next Step
+- Commit the Replay sync and Date Range usability changes.
+- Continue Phase 9 Step 91: Calendar Day Details UI refinement.

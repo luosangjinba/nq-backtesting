@@ -1305,7 +1305,7 @@ html, body {
 
 .toolbar-calendar-header {
   display: grid;
-  grid-template-columns: 30px 1fr 30px;
+  grid-template-columns: 34px 30px 1fr 30px 34px;
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
@@ -1477,10 +1477,86 @@ html, body {
   padding-top: 8px;
 }
 
+.toolbar-calendar-history {
+  margin-top: 10px;
+  border-top: 1px solid #2a2e39;
+  padding-top: 8px;
+}
+
+.toolbar-calendar-history summary,
 .toolbar-calendar-manual summary {
   color: #b2b5be;
   font-size: 12px;
   cursor: pointer;
+}
+
+.toolbar-calendar-history-list {
+  display: grid;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.toolbar-calendar-history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  gap: 6px;
+}
+
+.toolbar-calendar-history-load,
+.toolbar-calendar-history-remove,
+.toolbar-calendar-history-clear {
+  border: 1px solid #363a45;
+  background: #171b26;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toolbar-calendar-history-load {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 28px;
+  padding: 4px 8px;
+  text-align: left;
+}
+
+.toolbar-calendar-history-load:hover,
+.toolbar-calendar-history-remove:hover,
+.toolbar-calendar-history-clear:hover {
+  border-color: #26a69a;
+  color: #f0f3fa;
+}
+
+.toolbar-calendar-history-range {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar-calendar-history-tf {
+  color: #8d919b;
+  font-size: 11px;
+}
+
+.toolbar-calendar-history-remove {
+  height: 28px;
+  padding: 0;
+}
+
+.toolbar-calendar-history-clear {
+  width: 100%;
+  height: 26px;
+  margin-top: 6px;
+}
+
+.toolbar-calendar-history-empty {
+  color: #787b86;
+  font-size: 12px;
 }
 
 .toolbar-calendar-manual-grid {
