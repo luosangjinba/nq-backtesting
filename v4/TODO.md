@@ -133,7 +133,7 @@
 
 ### Phase 9: Time Overlays / Calendar Review Navigator
 - [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引
-- [ ] Step 85: 实现共享时间坐标 helper：支持 exact bar timestamp 与 1H/4H 内部时间点插值，解决 09:30/09:50/10:00 在高周期 K 线内部没有 exact bar 的定位问题；主图 overlay、calendar locate、hit/hover 未来共用
+- [x] Step 85: 实现共享时间坐标 helper：支持 exact bar timestamp 与 1H/4H 内部时间点插值，解决 09:30/09:50/10:00 在高周期 K 线内部没有 exact bar 的定位问题；主图 overlay、calendar locate、hit/hover 未来共用
 - [ ] Step 86: 实现 Time Overlay Store：保存 show/hide、selectedDate、day-boundary 开关、event-times 列表（默认 09:30/09:50/10:00）、killzone 配置；第一版可只存在前端会话，确认稳定后再决定 localStorage
 - [ ] Step 87: 实现基础 Time Marker Primitive/Renderer：绘制自然日边界竖线与 event-time 竖线；仅在 4H 及以下周期显示；自然日边界和 event-time 使用不同颜色；线条略粗但低透明，避免遮挡 K 线细节
 - [ ] Step 88: 实现 Killzone 顶部 band：贴近 canvas 上边缘绘制横线/细带，不依赖价格坐标；按 selectedDate + start/end time 显示；第一版支持一个 active killzone，后续再扩展 London/NY/Silver Bullet presets
