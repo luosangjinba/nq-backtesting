@@ -4,9 +4,15 @@ import * as store from '../data/bar-store.js';
 import { KillzoneBandPrimitive } from './killzone-band-primitive.js';
 import { TimeMarkerPrimitive } from './time-marker-primitive.js';
 import { getTimeOverlaySettings } from './time-overlay-store.js';
-import { DEFAULT_DAY_BOUNDARY_COLOR, isTimeOverlayTimeframe } from './time-overlay-types.js';
+import {
+  DEFAULT_DAY_BOUNDARY_COLOR,
+  DEFAULT_WEEKLY_CLOSE_COLOR,
+  WEEKLY_CLOSE_TIME,
+  isTimeOverlayTimeframe,
+} from './time-overlay-types.js';
 
 let renderedPrimitives = [];
+const WEEKDAY_LABELS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives) || [];
@@ -27,6 +33,12 @@ function getDateParts(timestamp) {
 
 function formatDateKey(parts) {
   return `${parts.year}-${pad2(parts.month)}-${pad2(parts.day)}`;
+}
+
+function getWeekdayFromDateKey(dateKey) {
+  const [year, month, day] = String(dateKey || '').split('-').map(Number);
+  if (![year, month, day].every(Number.isFinite)) return null;
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 }
 
 function timestampFromDateAndTime(dateKey, timeText = '00:00') {
@@ -51,17 +63,30 @@ function buildMarkers(displayBars, settings) {
 
   dateKeys.forEach((dateKey) => {
     if (settings.showDayBoundary) {
+      const weekday = getWeekdayFromDateKey(dateKey);
       const dayTimestamp = timestampFromDateAndTime(dateKey, '00:00');
-      if (dayTimestamp !== null) {
+      if (dayTimestamp !== null && weekday !== 0) {
         markers.push({
           type: 'day-boundary',
           timestamp: dayTimestamp,
           color: settings.dayBoundaryColor || DEFAULT_DAY_BOUNDARY_COLOR,
-          label: '',
+          label: weekday === null ? '' : WEEKDAY_LABELS[weekday],
         });
       }
-    }
 
+      if (weekday === 5) {
+        const weeklyCloseTimestamp = timestampFromDateAndTime(dateKey, WEEKLY_CLOSE_TIME);
+        if (weeklyCloseTimestamp !== null) {
+          markers.push({
+            type: 'weekly-close',
+            timestamp: weeklyCloseTimestamp,
+            color: DEFAULT_WEEKLY_CLOSE_COLOR,
+            label: 'Weekly close',
+            lineWidth: 4,
+          });
+        }
+      }
+    }
   });
 
   settings.eventTimes

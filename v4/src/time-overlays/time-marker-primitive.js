@@ -4,7 +4,7 @@ const DEFAULT_MARKER_OPTIONS = {
   lineWidth: 3,
   labelFont: 'bold 12px sans-serif',
   labelColor: 'rgba(235, 238, 245, 0.78)',
-  labelBottomOffset: 42,
+  labelBottomOffset: 10,
   labelXOffset: 6,
 };
 
@@ -28,7 +28,7 @@ class TimeMarkerRenderer {
       markers.forEach((marker) => {
         const x = Math.round(marker.x * hRatio) + 0.5;
         ctx.strokeStyle = marker.color;
-        ctx.lineWidth = options.lineWidth * ratio;
+        ctx.lineWidth = (marker.lineWidth || options.lineWidth) * ratio;
         ctx.setLineDash([]);
         ctx.beginPath();
         ctx.moveTo(x, 0);
