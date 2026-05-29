@@ -45,6 +45,85 @@ This boundary keeps the current storage compatible while fixing the mental model
 
 The migration should be incremental. Do not rename the persisted schema until the adapter boundary is stable and import/export compatibility is explicitly handled.
 
+## Setup Set Tree Boundary
+
+From Phase 8G onward, the target model is a Setup Set tree.
+
+A Setup Set is the full annotation package for one trade idea. It is not just an entry marker and it is not just a written order review. It contains the order elements that describe the trade plan and the explanation elements that describe why the trade plan existed.
+
+```text
+Setup Set
+  -> orderElements
+     -> reversal
+     -> entry
+     -> stopLoss
+     -> targets[]
+     -> result
+  -> explanationElements
+     -> refs[]
+     -> manualEvents[]
+     -> note
+  -> metadata
+```
+
+### Order Elements
+
+Order elements are the trade itself:
+
+- `reversal`
+  - the reversal time
+  - should be precise to 1M when possible
+  - does not need to be a full-height vertical line
+- `entry`
+  - one combined chart annotation containing time and price
+  - do not split entry time and entry price into unrelated objects
+- `stopLoss`
+  - price is required when known
+  - time is optional
+- `targets[]`
+  - target1 / target2 / target3 / final target
+  - each target should be addressable as part of the same Setup Set
+- `result`
+  - expected target reached / final target reached / exit / outcome
+  - first pass may continue to store this in the existing result review fields
+
+### Explanation Elements
+
+Explanation elements record what happened before the reversal and why the setup made sense. They must remain flexible.
+
+Do not require every setup to contain a 1H segment, a PDA, or a previous segment stop reason. A valid explanation can be a combination of complete existing sets and smaller manual event sets, for example:
+
+- a complete `1H Segment`
+- a complete `Composite Move`
+- a complete `PDA`
+- a complete `SMT`
+- a 30M body touch of FVG CE
+- a 1M sweep of EQL
+- another manually marked event set
+
+When an explanation references an existing object, the Setup Set stores a reference only. It must not copy or mutate the source object. When the explanation is not represented by an existing object, create a manual explanation event with at least:
+
+- timestamp
+- timeframe
+- type
+- optional price
+- optional note
+
+Regime, bias, and higher-level discretionary context should be written into notes because they are not reliably chart-markable.
+
+### Compatibility Rule
+
+The first implementation should derive this tree from the current `OrderReview` schema:
+
+- `setupThesis.primaryEventTimestamp` can initially map to `orderElements.reversal.timestamp`
+- `entryPlan.entryTimestamp + entryPlan.entryPrice` maps to `orderElements.entry`
+- `entryPlan.stopLoss` maps to `orderElements.stopLoss`
+- `entryPlan.targetInternal / targetSwing / targetExternal / finalTarget` map to `orderElements.targets[]`
+- `setupThesis.linkedObjectRefs` maps to `explanationElements.refs[]`
+- order-level notes and setup/entry/result notes map into `explanationElements.note` or section notes
+
+Do not break existing localStorage drafts or Review JSON import/export while this adapter boundary is being built.
+
 ## First Version Scope
 
 Included:

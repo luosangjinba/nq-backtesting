@@ -141,7 +141,7 @@
 - [ ] Step 102: 兼容性验证：旧 localStorage、Review JSON import/export、chart-first 右键创建、active setup 恢复、calendar locate、headless smoke 均保持可用
 
 ### Phase 8G: Setup Set Tree Model
-- [ ] Step 103: 定义 Setup Set 数据边界：一个 setup 是大集，包含 `orderElements` 与 `explanationElements`；订单元素包括 reversal、entry(time+price)、stopLoss、targets[]、result；解释元素包括 refs[]、manualEvents[]、note；regime/bias 等不能图表化的内容写入 note
+- [x] Step 103: 定义 Setup Set 数据边界：一个 setup 是大集，包含 `orderElements` 与 `explanationElements`；订单元素包括 reversal、entry(time+price)、stopLoss、targets[]、result；解释元素包括 refs[]、manualEvents[]、note；regime/bias 等不能图表化的内容写入 note
 - [ ] Step 104: 新增 Setup Set adapter：在不破坏现有 `orderReviews` schema 的情况下，从 `OrderReview` 派生 setup set tree；node probe 验证 reversal、entry、stop、targets、refs、note 映射正确
 - [ ] Step 105: 图表右键创建/设置订单元素：Create Bullish/Bearish Setup、Set Reversal、Set Entry(time+price)、Set Stop Loss、Set Target1/2/3、Set Final Target；交互验证图表实时显示、切换周期位置正确
 - [ ] Step 106: 图表右键添加解释元素：Link PDA/Segment/Composite/SMT Set To Active Setup、Add Manual Explanation Event Here；manual event 第一版记录 time、price 可选、timeframe、type、note；验证 30m FVG CE、1m sweep EQL 等自由理由可挂入 setup

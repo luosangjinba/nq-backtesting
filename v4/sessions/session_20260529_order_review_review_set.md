@@ -85,3 +85,19 @@
   - `explanationElements`: refs[], manualEvents[], note
 - Added Phase 8G Steps 103-110 to `v4/TODO.md`.
 - Recommended next implementation step is Step 103: write the Setup Set boundary into the design document before changing runtime code.
+
+## Step 103 Completed
+- Updated `v4/docs/ORDER_REVIEW_DESIGN.md` with the Setup Set tree boundary.
+- Defined `Setup Set` as the full annotation package for one trade idea.
+- Split the tree into:
+  - `orderElements`: reversal, entry(time+price), stopLoss, targets[], result
+  - `explanationElements`: refs[], manualEvents[], note
+  - `metadata`
+- Clarified that explanation elements are flexible and do not require every setup to contain 1H segment or PDA.
+- Clarified that complete explanation sets can include Segment, Composite, PDA, SMT, 30M FVG CE touch, 1M EQL sweep, or other manual event sets.
+- Clarified that existing objects are referenced only and must not be copied or mutated by the Setup Set.
+- Added compatibility mapping from the current `OrderReview` fields into the future Setup Set tree.
+- Marked Step 103 complete in `v4/TODO.md`.
+
+## Next Step
+- Step 104: add a Setup Set adapter derived from current `OrderReview` records, with a node probe for reversal, entry, stop, targets, refs, and notes.
