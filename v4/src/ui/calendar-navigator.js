@@ -20,6 +20,8 @@ const MONTHS = Object.freeze([
   'December',
 ]);
 const TARGET_TIME = '09:30';
+const FULL_DAY_START_TIME = '00:00';
+const FULL_DAY_END_TIME = '23:59';
 const LOAD_PADDING_DAYS = 3;
 
 let popover = null;
@@ -48,6 +50,15 @@ function dateKeyFromInput(value) {
   return match ? `${match[1]}-${match[2]}-${match[3]}` : '';
 }
 
+function dateTimePartsFromInput(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+  if (!match) return null;
+  return {
+    dateKey: `${match[1]}-${match[2]}-${match[3]}`,
+    time: match[4] && match[5] ? `${match[4]}:${match[5]}` : '',
+  };
+}
+
 function parseDateKey(dateKey) {
   const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -74,22 +85,38 @@ function getLoadedDateRange() {
   const inputRange = getCurrentInputRange();
   const inputStart = dateKeyFromInput(inputRange.start);
   const inputEnd = dateKeyFromInput(inputRange.end);
-  if (inputStart || inputEnd) return { start: inputStart, end: inputEnd };
+  if (inputStart || inputEnd) {
+    return {
+      start: inputStart,
+      end: inputEnd,
+      rawStart: inputRange.start,
+      rawEnd: inputRange.end,
+    };
+  }
 
   const range = store.getCurrentRange();
   const rangeStart = dateKeyFromInput(range.start);
   const rangeEnd = dateKeyFromInput(range.end);
-  if (rangeStart || rangeEnd) return { start: rangeStart, end: rangeEnd };
+  if (rangeStart || rangeEnd) {
+    return {
+      start: rangeStart,
+      end: rangeEnd,
+      rawStart: range.start,
+      rawEnd: range.end,
+    };
+  }
 
   const bars = store.getDisplayBars();
   if (bars.length) {
     return {
       start: dateKeyFromTimestamp(bars[0].timestamp),
       end: dateKeyFromTimestamp(bars[bars.length - 1].timestamp),
+      rawStart: '',
+      rawEnd: '',
     };
   }
 
-  return { start: '', end: '' };
+  return { start: '', end: '', rawStart: '', rawEnd: '' };
 }
 
 function getInitialDateKey() {
@@ -130,6 +157,17 @@ function formatRangeLabel(startDate, endDate) {
   return 'Date Range';
 }
 
+function formatLoadedRangeLabel(range) {
+  const startParts = dateTimePartsFromInput(range.rawStart);
+  const endParts = dateTimePartsFromInput(range.rawEnd);
+  const hasPreciseStart = startParts?.time && startParts.time !== FULL_DAY_START_TIME;
+  const hasPreciseEnd = endParts?.time && endParts.time !== FULL_DAY_END_TIME;
+  if (hasPreciseStart || hasPreciseEnd) {
+    return formatRangeLabel(range.rawStart || range.start, range.rawEnd || range.end);
+  }
+  return formatRangeLabel(range.start, range.end);
+}
+
 function normalizeRangeDates(startDate, endDate) {
   if (startDate && endDate && startDate > endDate) {
     return { startDate: endDate, endDate: startDate };
@@ -164,12 +202,12 @@ function isTimestampLoaded(timestamp) {
   return timestamp >= first && timestamp <= last;
 }
 
-function setToolbarRange(start, end) {
+function setToolbarRange(start, end, shouldUpdateButton = true) {
   const startInput = document.getElementById('startInput');
   const endInput = document.getElementById('endInput');
   if (startInput) startInput.value = start;
   if (endInput) endInput.value = end;
-  updateDateRangeButton();
+  if (shouldUpdateButton) updateDateRangeButton();
 }
 
 function getManualStartInput() {
@@ -198,8 +236,9 @@ function syncRangeFromInputs() {
 function updateDateRangeButton() {
   if (!anchorButton) return;
   const range = getLoadedDateRange();
-  anchorButton.textContent = formatRangeLabel(range.start, range.end);
-  anchorButton.title = range.start || range.end ? `Date Range: ${formatRangeLabel(range.start, range.end)}` : 'Date Range';
+  const label = formatLoadedRangeLabel(range);
+  anchorButton.textContent = label;
+  anchorButton.title = range.start || range.end ? `Date Range: ${label}` : 'Date Range';
 }
 
 function positionPopover() {
@@ -325,9 +364,9 @@ function openPopover(button) {
 
 async function loadRange(start, end, successText) {
   const tf = parseInt(document.getElementById('tfSelect')?.value || store.getCurrentTimeframe(), 10);
-  setToolbarRange(start, end);
   bus.emit('status:update', { text: '加载中...', isError: false });
   const result = await fetchBars(start, end, tf);
+  setToolbarRange(start, end, false);
   store.setBars(result.bars, start, end, tf, result.requestedRange);
   bus.emit('status:update', { text: successText || `已加载 ${result.bars.length} 根K线`, isError: false });
   closePopover();
