@@ -410,18 +410,19 @@ Order Review 用来把一次做单复盘拆成三层：
 
 - `Create Bullish Setup Here`
 - `Create Bearish Setup Here`
-- `Set Setup Event Here`
-- `Set Entry Time Here`
-- `Set Exit Time Here`
-- `Set Entry Price Here`
+- `Set Reversal Here`
+- `Set Entry Here`
 - `Set Stop Loss Here`
+- `Set Target1 Here`
+- `Set Target2 Here`
+- `Set Target3 Here`
 - `Set Final Target Here`
 
-创建后该 setup 会成为 active setup。后续右键操作会写入 active setup。
+`Set Entry Here` 会同时记录入场时间和入场价格。创建后该 setup 会成为 active setup。后续右键操作会写入 active setup。
 
 Segment、Composite Move、PDA、SMT 都只是 linked refs，不是订单父级。比如 `1H FVG 回调后反弹` 可以直接作为 setup 事件记录，不需要强行绘制 1H segment。
 
-Inspector 仍显示 Order Reviews 列表，但默认是轻量摘要；完整字段在 `Advanced Edit` 里。
+Inspector 显示 Review Sets 列表，但默认是轻量摘要；完整字段在 `Advanced Edit` 里。
 
 ### Order Review 操作
 

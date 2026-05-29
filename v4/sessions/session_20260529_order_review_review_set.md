@@ -124,3 +124,22 @@
 
 ## Next Step
 - Step 105: update chart right-click actions to create and set order elements on the active Setup Set.
+
+## Step 105 Completed
+- Updated `v4/src/order/order-setup-chart-actions.js`.
+- The chart right-click Order Setup menu now exposes order-element actions:
+  - `Create Bullish Setup Here`
+  - `Create Bearish Setup Here`
+  - `Set Reversal Here`
+  - `Set Entry Here`
+  - `Set Stop Loss Here`
+  - `Set Target1 Here`
+  - `Set Target2 Here`
+  - `Set Target3 Here`
+  - `Set Final Target Here`
+- `Set Entry Here` now writes entry timestamp, timeframe, and price in one action.
+- Legacy handlers for `Set Setup Event`, `Set Entry Time`, and `Set Entry Price` remain supported for compatibility, but are no longer shown in the menu.
+- Verified with node checks and a probe that create/reversal/entry/stop/targets are reflected in the derived Setup Set tree.
+
+## Next Step
+- Step 106: add chart right-click actions for explanation elements, including manual explanation events.

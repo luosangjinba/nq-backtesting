@@ -60,10 +60,8 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
       <button class="pda-menu-item" data-pda-action="order-setup-create-bullish" ${disabled}>Create Bullish Setup Here</button>
       <button class="pda-menu-item" data-pda-action="order-setup-create-bearish" ${disabled}>Create Bearish Setup Here</button>
       <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-event" ${activeDisabled || disabled}>Set Setup Event Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-entry-time" ${activeDisabled || disabled}>Set Entry Time Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-exit-time" ${activeDisabled || disabled}>Set Exit Time Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-entry-price" ${activeDisabled || disabled}>Set Entry Price Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-reversal" ${activeDisabled || disabled}>Set Reversal Here</button>
+      <button class="pda-menu-item" data-pda-action="order-setup-set-entry" ${activeDisabled || disabled}>Set Entry Here</button>
       <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
       <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
       <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
@@ -96,12 +94,20 @@ function patchActiveSetupFromContext(action, context) {
   const price = getContextPrice(context.price);
   if (!context.bar) return;
 
-  if (action === 'order-setup-set-event') {
+  if (action === 'order-setup-set-reversal' || action === 'order-setup-set-event') {
     updateActiveReviewSet({
       setupThesis: {
         primaryEventTimestamp: context.bar.timestamp,
         primaryEventTimeframe: context.timeframe,
         primaryEventPrice: price,
+      },
+    });
+  } else if (action === 'order-setup-set-entry') {
+    updateActiveReviewSet({
+      entryPlan: {
+        entryTimestamp: context.bar.timestamp,
+        entryTimeframe: context.timeframe,
+        entryPrice: price,
       },
     });
   } else if (action === 'order-setup-set-entry-time') {
