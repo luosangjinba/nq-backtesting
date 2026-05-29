@@ -267,8 +267,8 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const objectGroups = getCalendarDayGroups(activeDate, calendarIndex);
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
-    ? `Overlays: ${overlaySelectedDate}`
-    : 'Overlays: All loaded days';
+    ? `Manual overlays: ${overlaySelectedDate}`
+    : 'Manual overlays: All loaded days';
 
   const calendarHtml = `
     <div class="inspector-calendar" data-calendar-selected="${escapeHtml(activeDate)}" data-calendar-view="${escapeHtml(activeViewDate)}">

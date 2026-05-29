@@ -42,7 +42,8 @@
 - `Grid` remains shared chart display state and continues to apply to both primary and secondary charts.
 - Step 94 selected-date overlay filtering:
   - clicking an Inspector Calendar date writes `timeOverlaySettings.selectedDate`
-  - Days/day-boundary markers, manual Time Lines, and Killzones then render only for that natural date
+  - manual Time Lines and Killzones then render only for that natural date
+  - Days/day-boundary markers remain visible for all loaded dates so first date-switch after load does not hide the other day separator lines
   - Calendar shows the active overlay filter and exposes `All loaded days` to clear `selectedDate`
   - object-level `Locate` intentionally does not change `selectedDate`
 
