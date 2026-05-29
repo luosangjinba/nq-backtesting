@@ -31,9 +31,19 @@ function dateKeyFromParts(year, monthIndex, day) {
   return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
 }
 
+function toTimestamp(value) {
+  if (value === undefined || value === null || value === '') return null;
+  const timestamp = Number(value);
+  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+}
+
+function collectTimestamps(values = []) {
+  return values.map(toTimestamp).filter((value) => value !== null);
+}
+
 function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value)) return '';
+  const value = toTimestamp(timestamp);
+  if (value === null) return '';
   const date = new Date(value * 1000);
   return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
@@ -109,7 +119,7 @@ function getMonthCells(viewDateKey, range) {
 }
 
 function getTimestampForOrder(order) {
-  return (
+  return toTimestamp(
     order.entryPlan?.entryTimestamp ??
     order.setupThesis?.primaryEventTimestamp ??
     order.resultReview?.exitTimestamp ??
@@ -118,13 +128,11 @@ function getTimestampForOrder(order) {
 }
 
 function getOrderTimestampRange(order) {
-  const timestamps = [
+  const timestamps = collectTimestamps([
     order.setupThesis?.primaryEventTimestamp,
     order.entryPlan?.entryTimestamp,
     order.resultReview?.exitTimestamp,
-  ]
-    .map(Number)
-    .filter(Number.isFinite);
+  ]);
   if (!timestamps.length) return null;
   return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }
@@ -141,7 +149,7 @@ function getPdaTimestamp(annotation) {
 }
 
 function getPdaTimestampRange(annotation) {
-  const timestamps = [
+  const timestamps = collectTimestamps([
     annotation.canonicalTimestamp,
     annotation.timestamp,
     annotation.anchorTime,
@@ -149,9 +157,7 @@ function getPdaTimestampRange(annotation) {
     annotation.end?.timestamp,
     annotation.startTime,
     annotation.endTime,
-  ]
-    .map(Number)
-    .filter(Number.isFinite);
+  ]);
   if (!timestamps.length) return null;
   return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }
@@ -161,12 +167,10 @@ function getSegmentTimestamp(segment) {
 }
 
 function getSegmentTimestampRange(segment) {
-  const timestamps = [
+  const timestamps = collectTimestamps([
     segment?.start?.timestamp ?? segment?.start?.time,
     segment?.end?.timestamp ?? segment?.end?.time,
-  ]
-    .map(Number)
-    .filter(Number.isFinite);
+  ]);
   if (!timestamps.length) return null;
   return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }
@@ -182,8 +186,8 @@ function getCompositeTimestampRange(group) {
       const segment = getSegmentById(id);
       return [segment?.start?.timestamp ?? segment?.start?.time, segment?.end?.timestamp ?? segment?.end?.time];
     })
-    .map(Number)
-    .filter(Number.isFinite);
+    .map(toTimestamp)
+    .filter((value) => value !== null);
   if (!timestamps.length) return null;
   return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }
@@ -193,15 +197,13 @@ function getSmtTimestamp(record) {
 }
 
 function getSmtTimestampRange(record) {
-  const timestamps = [
+  const timestamps = collectTimestamps([
     record.leftTimestamp,
     record.rightTimestamp,
     record.timestamp,
     record.fvgStartTimestamp,
     record.fvgEndTimestamp,
-  ]
-    .map(Number)
-    .filter(Number.isFinite);
+  ]);
   if (!timestamps.length) return null;
   return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }

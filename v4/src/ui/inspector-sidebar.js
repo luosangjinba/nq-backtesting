@@ -685,14 +685,20 @@ function getPickedPrice(bar, currentPrice, source) {
   return Number(bar?.[source]);
 }
 
+function toOrderReviewTimestamp(value) {
+  if (value === undefined || value === null || value === '') return null;
+  const timestamp = Number(value);
+  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+}
+
 function locateOrderReview(order) {
   const timestamps = [
     order.setupThesis?.primaryEventTimestamp,
     order.entryPlan?.entryTimestamp,
     order.resultReview?.exitTimestamp,
   ]
-    .map(Number)
-    .filter((value) => Number.isFinite(value));
+    .map(toOrderReviewTimestamp)
+    .filter((value) => value !== null);
   if (!timestamps.length) {
     bus.emit('status:update', { text: '该 Order Review 没有可定位时间', isError: true });
     return;

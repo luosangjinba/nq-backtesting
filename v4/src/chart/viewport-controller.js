@@ -3,10 +3,63 @@
 import * as chart from './chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { VIEWPORT_RIGHT_OFFSET_BARS } from '../config.js';
+import { LocateFlashPrimitive } from './locate-flash-primitive.js';
 
 const ZOOM_FACTOR = 0.8;
 const SCROLL_FACTOR = 0.25;
 const LOCATE_PADDING_BARS = 8;
+const LOCATE_FLASH_DURATION_MS = 900;
+
+let locateFlashPrimitive = null;
+let locateFlashFrame = null;
+
+function clearLocateFlash() {
+  if (locateFlashFrame !== null) {
+    cancelAnimationFrame(locateFlashFrame);
+    locateFlashFrame = null;
+  }
+  if (locateFlashPrimitive) {
+    try {
+      chart.detachPrimitive(locateFlashPrimitive);
+    } catch (e) {
+      // Primitive may already be detached during chart/data reset.
+    }
+    locateFlashPrimitive = null;
+  }
+}
+
+function flashLocateRange(startTimestamp, endTimestamp, fallbackStartTimestamp = null, fallbackEndTimestamp = null) {
+  const chartInstance = chart.getChart();
+  const displayBars = store.getDisplayBars();
+  if (!chartInstance || !displayBars.length) return;
+
+  clearLocateFlash();
+  locateFlashPrimitive = new LocateFlashPrimitive(
+    chartInstance,
+    displayBars,
+    store.getCurrentTimeframe(),
+    startTimestamp,
+    endTimestamp,
+    {
+      fallbackStartTimestamp,
+      fallbackEndTimestamp,
+    }
+  );
+  chart.attachPrimitive(locateFlashPrimitive);
+
+  const startedAt = performance.now();
+  const tick = (now) => {
+    if (!locateFlashPrimitive) return;
+    const progress = Math.min(1, (now - startedAt) / LOCATE_FLASH_DURATION_MS);
+    locateFlashPrimitive.setProgress(progress);
+    if (progress < 1) {
+      locateFlashFrame = requestAnimationFrame(tick);
+      return;
+    }
+    clearLocateFlash();
+  };
+  locateFlashFrame = requestAnimationFrame(tick);
+}
 
 function getRange() {
   return chart.getVisibleLogicalRange();
@@ -116,6 +169,12 @@ export function locateTimestampRange(startTimestamp, endTimestamp) {
   const center = (minIndex + maxIndex) / 2;
   applyRange(center - targetWidth / 2, center + targetWidth / 2);
   chart.resetPriceScale();
+  flashLocateRange(
+    startTimestamp,
+    endTimestamp,
+    getTimestamp(bars[minIndex]),
+    getTimestamp(bars[maxIndex])
+  );
 }
 
 export function maximizeChart() {
