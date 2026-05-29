@@ -408,6 +408,10 @@ html, body {
   color: #787b86;
 }
 
+.inspector-return-bar {
+  margin-bottom: 8px;
+}
+
 .inspector-section-title {
   margin-bottom: 8px;
   color: #f0f3fa;

@@ -89,6 +89,7 @@ let expandedOrderReviewId = null;
 let selectedSmtId = null;
 let calendarSelectedDate = '';
 let calendarViewDate = '';
+let calendarReturnContext = null;
 
 function getOrderReviewPanelOptions(extra = {}) {
   return {
@@ -96,6 +97,23 @@ function getOrderReviewPanelOptions(extra = {}) {
     activeOrderReviewId: getActiveOrderReviewId(),
     ...extra,
   };
+}
+
+function renderCalendarReturnAction(type, id) {
+  if (
+    !calendarReturnContext ||
+    calendarReturnContext.type !== type ||
+    String(calendarReturnContext.id) !== String(id)
+  ) {
+    return '';
+  }
+  return `
+    <div class="inspector-return-bar">
+      <button class="inspector-button secondary" data-inspector-action="calendar-return" type="button">
+        Back to Calendar
+      </button>
+    </div>
+  `;
 }
 
 function normalizeTimeKey(time) {
@@ -166,12 +184,16 @@ function getOrderReviewPricePickLabel(field) {
 
 function renderAnnotation(annotation) {
   currentPanel = 'selection';
-  bodyEl.innerHTML = renderAnnotationPanel(annotation, renderArchiveActions());
+  bodyEl.innerHTML = `
+    ${renderCalendarReturnAction('pda', annotation.id)}
+    ${renderAnnotationPanel(annotation, renderArchiveActions())}
+  `;
 }
 
 function renderSegment(segment) {
   currentPanel = 'selection';
   bodyEl.innerHTML = `
+    ${renderCalendarReturnAction('segment', segment.id)}
     ${renderSegmentPanel(segment)}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-segment',
@@ -183,6 +205,7 @@ function renderSegment(segment) {
 function renderSegmentGroup(segmentGroup) {
   currentPanel = 'selection';
   bodyEl.innerHTML = `
+    ${renderCalendarReturnAction('composite', segmentGroup.id)}
     ${renderSegmentGroupPanel(segmentGroup)}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-composite',
@@ -193,6 +216,7 @@ function renderSegmentGroup(segmentGroup) {
 
 function renderEmpty() {
   currentPanel = 'empty';
+  calendarReturnContext = null;
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
   if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
@@ -212,6 +236,7 @@ function renderEmpty() {
 
 function renderArchivePanel() {
   currentPanel = 'archive';
+  calendarReturnContext = null;
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
   if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
@@ -710,17 +735,30 @@ function locateOrderReview(order) {
 
 function openCalendarObject(type, id) {
   if (!type || !id) return false;
+  calendarReturnContext = {
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+    type,
+    id,
+  };
   if (type === 'pda') {
     clearSegmentSelection();
     clearSegmentGroupSelection();
-    return Boolean(selectPda(id));
+    const selected = Boolean(selectPda(id));
+    if (!selected) calendarReturnContext = null;
+    return selected;
   }
   if (type === 'segment') {
-    return Boolean(selectSegment(id));
+    const selected = Boolean(selectSegment(id));
+    if (!selected) calendarReturnContext = null;
+    return selected;
   }
   if (type === 'composite') {
-    return Boolean(selectSegmentGroup(id));
+    const selected = Boolean(selectSegmentGroup(id));
+    if (!selected) calendarReturnContext = null;
+    return selected;
   }
+  calendarReturnContext = null;
   return false;
 }
 
@@ -1215,6 +1253,19 @@ function handleInspectorClick(e) {
       text: opened ? 'Calendar object opened' : 'Calendar object cannot be opened',
       isError: !opened,
     });
+    return;
+  }
+
+  if (action === 'calendar-return') {
+    const target = calendarReturnContext;
+    calendarReturnContext = null;
+    if (target?.selectedDate) calendarSelectedDate = target.selectedDate;
+    if (target?.viewDate) calendarViewDate = target.viewDate;
+    clearPdaSelection();
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+    renderEmpty();
+    bus.emit('status:update', { text: 'Returned to Calendar', isError: false });
     return;
   }
 

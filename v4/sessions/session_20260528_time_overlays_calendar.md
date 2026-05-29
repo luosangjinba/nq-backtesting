@@ -22,6 +22,16 @@
 - Time marker style adjusted to be thicker but lower opacity.
 - Step 88: added `KillzoneBandPrimitive`, rendered as top-of-canvas bands independent of price coordinates.
 - Right-click menu `Time Overlays` now supports multi-killzone Start/End creation, free-form naming, rename, delete, and clear actions.
+- Step 89-90: added Inspector Calendar navigator:
+  - defaults to the current loaded chart start/end range
+  - date click locates the primary chart to selected date 09:30
+  - selected date lists Order Setup, SMT, PDA, Segment, Composite, Killzone, and Time Line objects
+  - Order Setup dates show a red calendar badge
+- Calendar object rows now support chart-first navigation:
+  - `Locate` only scrolls/flashes the object time range and does not switch Inspector panels
+  - PDA / Segment / Composite rows expose a separate `Open` action for detail panels
+  - detail panels opened from Calendar show `Back to Calendar`, preserving selected date and month
+- Locate feedback now uses a transient chart flash primitive and guards against empty timestamps being treated as epoch 0.
 
 ## Decisions
 
@@ -32,23 +42,24 @@
 - Killzones are fully manual and do not use built-in presets yet.
 - Each killzone binds to a concrete `date + startTime/endTime`.
 - Overlapping killzones are not merged; renderer assigns them to stacked top layers so their separate meanings remain visible.
+- Calendar is an Inspector navigation surface, not a new persistence owner; it derives rows from existing stores.
+- Locate and Open are intentionally separate because most review navigation needs spatial context, not immediate object-detail editing.
 
 ## Validation
 
 - `node --check` passed for modified modules during implementation.
 - `git diff --check` passed after the latest changes.
+- `node --check` passed for Calendar panel, Inspector sidebar, viewport controller, and locate flash primitive during Calendar implementation.
 - Browser visual checks are still manual for this step.
 
 ## Current Git State
 
 - Last committed work:
-  - `1491c04 feat(v4): add manual time overlays controls`
-  - `2d14105 feat(v4): make time markers manual`
-  - `eb0a738 feat(v4): render time overlay markers`
+  - `0919ed0 feat(v4): separate calendar locate and open`
+  - `83e0664 feat(v4): mark calendar order setup days`
+  - `1ad867f fix(v4): flash located order setup range`
 - Uncommitted changes include:
-  - multi-killzone store refactor
-  - layered killzone renderer for overlaps
-  - Start/End create, rename, delete, and clear killzones from chart context menu
+  - Calendar detail `Back to Calendar` return action
   - TODO/session updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -58,5 +69,5 @@
 
 ## Next Steps
 
-- Commit current Phase 9 interaction updates when visually accepted.
-- Continue with Step 89-94: calendar jump, calendar index, day details, object locate, monthly badge view, and selectedDate overlay linkage.
+- Commit current Calendar return action and documentation updates.
+- Next likely step: refine Calendar row summaries so rows show useful review fields instead of long ids.
