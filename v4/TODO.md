@@ -150,7 +150,7 @@
 - [x] Step 109: Calendar / Locate 适配 Setup Set：Calendar 按 setup set 聚合；有 setup 的日期红色角标；Locate 闪亮范围覆盖 setup 核心发生区域，不错误拉到自然日零点
 - [x] Step 110: 兼容性与交互验收：旧 localStorage orderReviews、Review JSON import/export、chart-first 创建、刷新恢复、图表交互、Calendar locate、headless Chrome smoke、全量 node --check 均通过
 
-Phase 8F/8G 接驳状态：当前分支 `feature/order-review-cleanup` 已完成 Order Review -> Review Set -> Setup Set 的兼容迁移；持久化仍使用旧 `orderReviews` schema/localStorage key，运行时通过 adapter 派生 Setup Set tree。下一步建议先 review 当前分支，再决定是否合并到 `main`。
+Phase 8F/8G 接驳状态：`feature/order-review-cleanup` 已完成 Order Review -> Review Set -> Setup Set 的兼容迁移，并已合并到 `main`（merge commit `3a5af8c`）。持久化仍使用旧 `orderReviews` schema/localStorage key，运行时通过 adapter 派生 Setup Set tree。
 
 ### Phase 8H: Global Undo / Redo
 - [x] Step 111: 定义 undo/redo 边界：覆盖所有研究对象修改，不覆盖 zoom/scroll/replay/hover/selection/pick mode/数据加载等临时视图状态
@@ -160,6 +160,8 @@ Phase 8F/8G 接驳状态：当前分支 `feature/order-review-cleanup` 已完成
 - [x] Step 115: 接入 Inspector 写操作：PDA/Segment/Composite/SMT/Order Review 的编辑、删除、link/ref/evidence 变更通过 history transaction；文本输入按 change/blur 或 debounce 合并，避免每个 keypress 一步
 - [x] Step 116: 增加全局快捷键与 UI 状态：`Ctrl/Cmd+Z` undo，`Ctrl/Cmd+Shift+Z` 与 `Ctrl+Y` redo；输入控件聚焦时保留浏览器原生撤销；可选 toolbar icon 按钮与 status 提示
 - [x] Step 117: Undo/Redo 验收：覆盖新增/删除/编辑 PDA，创建/清空 Segment，Order Setup entry/stop/target/link，Clear PDA/Segments/Killzones，Inspector note 单步撤销，Review JSON import 策略，刷新/初始化不污染 undo 栈
+
+Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT 创建、NDOG/NWOG 显隐的 undo/redo 覆盖，并把 NWOG replay 可见范围改为渲染期计算，避免回放过程中写回 PDA store。BSL/SSL 默认延伸也已修复：没有显式 extend 时按当前图表周期默认 8 根 K 线显示，不再因 `D high/D low` context 被误换算成 1H 192 根或 4H 48 根。
 
 ### Phase 9: Time Overlays / Calendar Review Navigator
 - [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引
@@ -181,6 +183,7 @@ Phase 8F/8G 接驳状态：当前分支 `feature/order-review-cleanup` 已完成
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
 - 1W 周线聚合逻辑待实现（暂搁置）
 - 假日异常收盘时间（如13:14）暂不特殊处理
+- `main` 当前本地领先 `origin/main` 较多；如需远端同步，需单独执行 push。
 
 ## 架构决策记录
 - 2026-05-19: 所有 PDA 前端实时计算，不存 DB

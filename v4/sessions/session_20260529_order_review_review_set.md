@@ -402,3 +402,64 @@
   - clear PDA / segments / killzones and undo
   - edit Inspector notes and confirm one undo step per change
   - import a Review JSON and undo the full import
+
+## 2026-05-29 Branch Review Fixes
+- Code review found three undo/redo coverage gaps after the global history implementation:
+  - manual SMT creation was not recorded in history
+  - objective NDOG/NWOG show/hide actions were not recorded in history
+  - NWOG replay range sync updated PDA annotations during replay, creating view-driven persisted state changes outside history
+- Fixed SMT creation by wrapping manual Liquidity SMT and FVG SMT creation in `recordHistory()`.
+- Fixed objective gap toggles by wrapping NDOG/NWOG add/remove operations in `recordHistory()`.
+- Moved NWOG replay range behavior out of store mutation:
+  - `objective-gaps.js` no longer writes `startTime/endTime` on replay changes
+  - `pda-renderer.js` computes objective NWOG render bounds from replay-visible bars at render time
+- Validation:
+  - `node --check v4/src/smt/manual-smt.js`
+  - `node --check v4/src/pda/objective-gaps.js`
+  - `node --check v4/src/pda/pda-renderer.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+- Commit:
+  - `b68f3f7 fix(v4): cover smt and objective gaps in history`
+
+## 2026-05-29 BSL/SSL Default Extend Fix
+- User reported BSL/SSL lines were too long.
+- Root cause:
+  - liquidity-line fallback default was 8 bars
+  - when an annotation had `D high` / `D low` context but no explicit extend setting, `pda-extend.js` inferred the source timeframe from context
+  - this made the implicit fallback behave like 8 daily bars, displaying as 192 bars on 1H and 48 bars on 4H
+- Fix:
+  - implicit fallback extend now uses the current chart timeframe
+  - only explicit extend values saved on the annotation use source-timeframe / duration conversion
+- Probe result:
+  - implicit fallback: 1H = 8, 4H = 8
+  - explicit `extendBars: 8`, `extendTimeframe: D`: 1H = 192, 4H = 48
+- Validation:
+  - `node --check v4/src/pda/pda-extend.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+- Commit:
+  - `46ef4bc fix(v4): keep default liquidity extend local to chart timeframe`
+
+## 2026-05-29 Main Merge Closeout
+- Merged `feature/order-review-cleanup` into `main`.
+- Merge commit:
+  - `3a5af8c Merge branch 'feature/order-review-cleanup'`
+- Current branch after merge:
+  - `main`
+- Current tracked working tree after merge was clean before this documentation update.
+- Untracked local files remain intentionally untouched:
+  - `__pycache__/`
+  - `tmp/`
+  - `trading_data.duckdb`
+  - `v3/plans/`
+- `main` is ahead of `origin/main`; push was not performed in this handoff.
+
+## Next Step
+- Run a real browser regression pass on `main`:
+  - right-click flyout menus
+  - setup creation and order element updates
+  - PDA/Segment/Composite/SMT linking
+  - global Undo / Redo buttons and shortcuts
+  - BSL/SSL default line length on 1H and 4H
+- Then decide whether to push `main` to the remote.
