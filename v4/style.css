@@ -954,8 +954,7 @@ html, body {
   position: absolute;
   width: 220px;
   padding: 4px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
   background: rgba(19, 23, 34, 0.96);
   border: 1px solid rgba(54, 58, 69, 0.9);
   border-radius: 6px;
@@ -1038,6 +1037,60 @@ html, body {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+}
+
+.pda-menu-submenu {
+  position: relative;
+}
+
+.pda-menu-submenu-trigger {
+  position: relative;
+  padding-right: 22px;
+  padding-left: 8px;
+  line-height: 28px;
+}
+
+.pda-menu-submenu-trigger::after {
+  content: '›';
+  position: absolute;
+  right: 8px;
+  color: #787b86;
+}
+
+.pda-menu-submenu-trigger.is-disabled {
+  color: #5b5f6b;
+}
+
+.pda-menu-submenu:hover .pda-menu-submenu-trigger,
+.pda-menu-submenu:focus-within .pda-menu-submenu-trigger {
+  background: #1e222d;
+}
+
+.pda-submenu-panel {
+  position: absolute;
+  top: -4px;
+  left: calc(100% - 2px);
+  z-index: 13;
+  display: none;
+  width: 236px;
+  max-height: min(560px, calc(100vh - 24px));
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(19, 23, 34, 0.98);
+  border: 1px solid rgba(54, 58, 69, 0.95);
+  border-radius: 6px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+}
+
+.pda-menu-submenu-left .pda-submenu-panel {
+  right: calc(100% - 2px);
+  left: auto;
+}
+
+.pda-menu-submenu:hover .pda-submenu-panel,
+.pda-menu-submenu:focus-within .pda-submenu-panel {
+  display: block;
 }
 
 .pda-menu-item:hover:not(:disabled) {

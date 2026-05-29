@@ -574,8 +574,9 @@ function renderTimeOverlayMenuItems(bar) {
   const clearKillzonesDisabled = settings.killzones?.length ? '' : 'disabled';
   const draftLabel = killzoneDraft ? ` · ${killzoneDraft.date} ${getEventTimeLabel(killzoneDraft.startTime)}` : '';
   return `
-    <details class="pda-menu-section">
-      <summary>Time Overlays</summary>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Time Overlays</div>
+      <div class="pda-submenu-panel">
       <button class="pda-menu-item" data-pda-action="time-overlay-add-event" ${disabled}>Add ${label || 'Time'} Line Here</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-delete-event" ${removeDisabled}>Delete ${label || 'Time'} Line</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-clear-events" ${clearDisabled}>Clear Time Lines</button>
@@ -585,7 +586,8 @@ function renderTimeOverlayMenuItems(bar) {
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-rename" ${editKillzoneDisabled}>Rename Killzone Here</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-delete" ${editKillzoneDisabled}>Delete Killzone Here</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear" ${clearKillzonesDisabled}>Clear Killzones</button>
-    </details>
+      </div>
+    </div>
   `;
 }
 
@@ -595,7 +597,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
   contextMenuPdaHit = pdaHit;
   contextMenuSegmentHit = segmentHit;
   contextMenuSegmentGroupHit = segmentGroupHit;
-  const { x: left, y: top, maxHeight } = clampMenuPosition(controlsEl, x, y);
+  const { x: left, y: top, maxHeight, submenuDirection } = clampMenuPosition(controlsEl, x, y);
   const disabled = bar ? '' : 'disabled';
   const timeLabel = bar ? bar.tradingDay || bar.time : 'No bar';
   const activeSet = getPointSetSelectionSummary();
@@ -611,43 +613,52 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
       : '';
   const pointSetItems = activeSet
     ? `
-      <details class="pda-menu-section" open>
-        <summary>${activeSet.label} set · ${activeSet.count} point${activeSet.count === 1 ? '' : 's'}</summary>
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">${activeSet.label} set · ${activeSet.count} point${activeSet.count === 1 ? '' : 's'}</div>
+        <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="pointset-add" ${disabled}>Add ${activeSet.label} Point</button>
         <button class="pda-menu-item" data-pda-action="pointset-finish">Finish ${activeSet.label}</button>
         <button class="pda-menu-item" data-pda-action="pointset-cancel">Cancel Set</button>
-      </details>
+        </div>
+      </div>
     `
     : `
-      <details class="pda-menu-section">
-        <summary>Point Sets</summary>
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Point Sets</div>
+        <div class="pda-submenu-panel">
         ${selectedSetItem}
         <button class="pda-menu-item" data-pda-action="eqh-start" ${disabled}>Start EQH Set</button>
         <button class="pda-menu-item" data-pda-action="eql-start" ${disabled}>Start EQL Set</button>
-      </details>
+        </div>
+      </div>
     `;
   const segmentItems = activeSegment
     ? `
-      <details class="pda-menu-section" open>
-        <summary>${activeSegment.label}</summary>
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">${activeSegment.label}</div>
+        <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="segment-finish-high" ${disabled}>End 1H Segment at High</button>
         <button class="pda-menu-item" data-pda-action="segment-finish-low" ${disabled}>End 1H Segment at Low</button>
         <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel 1H Segment</button>
-      </details>
+        </div>
+      </div>
     `
     : `
-      <details class="pda-menu-section">
-        <summary>1H Segments</summary>
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">1H Segments</div>
+        <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start 1H Segment from Low</button>
         <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start 1H Segment from High</button>
         <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
-      </details>
+        </div>
+      </div>
     `;
 
   controlsEl.innerHTML = renderManualContextMenu({
     left,
     top,
     maxHeight,
+    submenuDirection,
     timeLabel,
     disabled,
     orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit }),

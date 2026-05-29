@@ -72,25 +72,27 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
   const smtDisabled = active && getSmtRecords().length ? '' : 'disabled';
 
   return `
-    <details class="pda-menu-section" open>
-      <summary>Order Setup · ${getActiveSetupLabel()}</summary>
-      <button class="pda-menu-item" data-pda-action="order-setup-create-bullish" ${disabled}>Create Bullish Setup Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-create-bearish" ${disabled}>Create Bearish Setup Here</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-reversal" ${activeDisabled || disabled}>Set Reversal Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-entry" ${activeDisabled || disabled}>Set Entry Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-target-external" ${activeDisabled || disabled}>Set Target3 Here</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-set-final-target" ${activeDisabled || disabled}>Set Final Target Here</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-pda" ${pdaDisabled}>Link PDA To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-segment" ${segmentDisabled}>Link Segment To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-composite" ${compositeDisabled}>Link Composite To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-link-latest-smt" ${smtDisabled}>Link Latest SMT To Active Setup</button>
-      <button class="pda-menu-item" data-pda-action="order-setup-add-manual-event" ${activeDisabled || disabled}>Add Manual Explanation Event Here</button>
-    </details>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup · ${getActiveSetupLabel()}</div>
+      <div class="pda-submenu-panel">
+        <button class="pda-menu-item" data-pda-action="order-setup-create-bullish" ${disabled}>Create Bullish Setup Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-create-bearish" ${disabled}>Create Bearish Setup Here</button>
+        <div class="pda-menu-divider"></div>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-reversal" ${activeDisabled || disabled}>Set Reversal Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-entry" ${activeDisabled || disabled}>Set Entry Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-target-external" ${activeDisabled || disabled}>Set Target3 Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-final-target" ${activeDisabled || disabled}>Set Final Target Here</button>
+        <div class="pda-menu-divider"></div>
+        <button class="pda-menu-item" data-pda-action="order-setup-link-pda" ${pdaDisabled}>Link PDA To Active Setup</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-link-segment" ${segmentDisabled}>Link Segment To Active Setup</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-link-composite" ${compositeDisabled}>Link Composite To Active Setup</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-link-latest-smt" ${smtDisabled}>Link Latest SMT To Active Setup</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-add-manual-event" ${activeDisabled || disabled}>Add Manual Explanation Event Here</button>
+      </div>
+    </div>
   `;
 }
 
