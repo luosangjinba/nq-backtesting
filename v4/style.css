@@ -721,6 +721,58 @@ html, body {
   min-height: 18px;
 }
 
+.order-review-action-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.order-review-action-row button {
+  min-width: 0;
+}
+
+.order-review-quick-edit {
+  border: 1px solid rgba(120, 123, 134, 0.22);
+  border-radius: 4px;
+  background: rgba(30, 34, 45, 0.42);
+}
+
+.order-review-quick-edit summary {
+  min-height: 24px;
+  padding: 4px 7px;
+  color: #b2b5be;
+  font-size: 11px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.order-review-quick-edit summary::-webkit-details-marker {
+  display: none;
+}
+
+.order-review-quick-edit summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 14px;
+  color: #787b86;
+}
+
+.order-review-quick-edit[open] > summary::before {
+  content: '▾';
+}
+
+.order-review-quick-edit-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 6px 6px;
+}
+
+.order-review-quick-edit-body .inspector-field {
+  grid-template-columns: 58px minmax(0, 1fr);
+}
+
 .order-review-editor {
   border: 1px solid rgba(38, 166, 154, 0.22);
   border-radius: 4px;

@@ -52,3 +52,36 @@
 
 ## Next Step
 - Step 99: reorganize the Inspector Order Reviews panel around Review Set summaries and keep detailed editing collapsed.
+
+## Step 99 Completed
+- Updated `v4/src/ui/inspector/order-review-panel.js` so the Inspector section is now titled `Review Sets`.
+- Each row derives a Review Set view from the existing `OrderReview`.
+- Default row content is now compact:
+  - title
+  - updated meta
+  - setup / entry / risk / targets / result / refs summary
+  - Set Active / Locate / Delete actions
+- Result and note controls moved into a collapsed `Quick Review` section.
+- Full setup / entry / result editing remains in collapsed `Advanced Edit`.
+- Added compact action and quick-edit styles in `v4/style.css`.
+
+## Next Step
+- Step 100: move Calendar object grouping and locate/open behavior onto the Review Set adapter.
+
+## 2026-05-29 Planning Update - Setup Set Tree
+- User clarified the desired setup workflow from zero:
+  - mark reversal time
+  - mark entry as one combined time + price annotation
+  - mark target1 / target2 / target3 / final target
+  - record what happened before reversal without forcing every setup to contain 1H segment or PDA
+  - allow complete explanation sets such as 1H segment, PDA, 30m body touch FVG CE, 1m sweep EQL, SMT, or other manual event sets
+  - keep regime / bias as notes because they are not reliably chart-markable
+- Decision: a setup should be modeled as a large set containing:
+  - `orderElements`
+  - `explanationElements`
+- Tree direction:
+  - `Setup Set`
+  - `orderElements`: reversal, entry(time+price), stopLoss, targets[], result
+  - `explanationElements`: refs[], manualEvents[], note
+- Added Phase 8G Steps 103-110 to `v4/TODO.md`.
+- Recommended next implementation step is Step 103: write the Setup Set boundary into the design document before changing runtime code.

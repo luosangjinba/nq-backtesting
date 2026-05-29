@@ -12,6 +12,7 @@ import {
   ORDER_TARGET_TYPE_DEFINITIONS,
   ORDER_TIMEFRAME_DEFINITIONS,
 } from '../../order/order-review-store.js';
+import { createReviewSetFromOrderReview } from '../../order/order-review-set.js';
 import {
   controlField,
   escapeHtml,
@@ -196,19 +197,28 @@ function renderResultOptions(selectedResult) {
   return renderDefinitionOptions(ORDER_RESULT_DEFINITIONS, selectedResult);
 }
 
-function renderOrderSummary(order, isActive) {
-  const setup = order.setupThesis || {};
-  const entry = order.entryPlan || {};
-  const result = order.resultReview || {};
-  const refs = Array.isArray(setup.linkedObjectRefs) ? setup.linkedObjectRefs : [];
+function formatTargetSummary(reviewSet) {
+  const targets = Array.isArray(reviewSet?.targets) ? reviewSet.targets : [];
+  if (!targets.length) return '—';
+  return targets
+    .map((target) => `${target.role}: ${formatNumber(target.price)}`)
+    .join(' · ');
+}
+
+function renderReviewSetSummary(order, reviewSet, isActive) {
+  const setup = reviewSet?.setupEvent || {};
+  const entry = reviewSet?.entry || {};
+  const risk = reviewSet?.risk || {};
+  const result = reviewSet?.result || {};
+  const refs = Array.isArray(reviewSet?.refs) ? reviewSet.refs : [];
   return `
     <div class="order-review-summary">
-      ${field('State', isActive ? 'Active Setup' : 'Saved Setup')}
-      ${field('Direction', formatDirection(entry.direction))}
-      ${field('Setup', `${labelFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS, setup.primaryEventType)} · ${setup.primaryEventTimeframe || '—'} · ${formatTime(setup.primaryEventTimestamp)}`)}
-      ${field('Entry', `${formatTime(entry.entryTimestamp)} · ${formatNumber(entry.entryPrice)}`)}
-      ${field('Stop/Target', `${formatNumber(entry.stopLoss)} / ${formatNumber(entry.finalTarget)}`)}
-      ${field('Result', labelFromDefinitions(ORDER_RESULT_DEFINITIONS, result.result))}
+      ${field('State', isActive ? 'Active Review Set' : 'Saved Review Set')}
+      ${field('Setup', `${labelFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS, setup.type)} · ${setup.timeframe || '—'} · ${formatTime(setup.timestamp)}`)}
+      ${field('Entry', `${formatTime(entry.timestamp)} · ${formatNumber(entry.price)} · ${labelFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS, entry.model)}`)}
+      ${field('Risk', `${formatNumber(risk.stopLoss)} stop`)}
+      ${field('Targets', formatTargetSummary(reviewSet))}
+      ${field('Result', labelFromDefinitions(ORDER_RESULT_DEFINITIONS, result.status))}
       ${field('Refs', refs.length ? String(refs.length) : '—')}
     </div>
   `;
@@ -290,37 +300,43 @@ function renderOrderEditor(order, options = {}) {
 function renderOrderActions(order, options = {}) {
   const isActive = options.activeOrderReviewId === order.id;
   return `
-    <button class="inspector-secondary" data-inspector-action="${isActive ? 'order-review-clear-active' : 'order-review-set-active'}" data-order-review-id="${escapeHtml(order.id)}" type="button">
-      ${isActive ? 'Clear Active Setup' : 'Set Active Setup'}
-    </button>
-    ${controlField(
-      'Result',
-      `<select class="inspector-input inspector-mini-select" data-inspector-action="order-review-result" data-order-review-id="${escapeHtml(order.id)}">
-        ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN)}
-      </select>`
-    )}
-    ${controlField(
-      'Note',
-      `<textarea class="inspector-textarea" data-inspector-action="order-review-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Order review note">${escapeHtml(order.note || '')}</textarea>`
-    )}
-    <button class="inspector-secondary" data-inspector-action="order-review-locate" data-order-review-id="${escapeHtml(order.id)}" type="button">Locate</button>
-    <button class="inspector-danger" data-inspector-action="order-review-delete" data-order-review-id="${escapeHtml(order.id)}" type="button">Delete</button>
+    <div class="order-review-action-row">
+      <button class="inspector-secondary" data-inspector-action="${isActive ? 'order-review-clear-active' : 'order-review-set-active'}" data-order-review-id="${escapeHtml(order.id)}" type="button">
+        ${isActive ? 'Clear Active' : 'Set Active'}
+      </button>
+      <button class="inspector-secondary" data-inspector-action="order-review-locate" data-order-review-id="${escapeHtml(order.id)}" type="button">Locate</button>
+      <button class="inspector-danger" data-inspector-action="order-review-delete" data-order-review-id="${escapeHtml(order.id)}" type="button">Delete</button>
+    </div>
+    <details class="order-review-quick-edit">
+      <summary>Quick Review</summary>
+      <div class="order-review-quick-edit-body">
+        ${controlField(
+          'Result',
+          `<select class="inspector-input inspector-mini-select" data-inspector-action="order-review-result" data-order-review-id="${escapeHtml(order.id)}">
+            ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN)}
+          </select>`
+        )}
+        ${controlField(
+          'Note',
+          `<textarea class="inspector-textarea" data-inspector-action="order-review-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Order review note">${escapeHtml(order.note || '')}</textarea>`
+        )}
+      </div>
+    </details>
   `;
 }
 
 function renderOrderRow(order, options = {}) {
+  const reviewSet = createReviewSetFromOrderReview(order);
   const setup = order.setupThesis || {};
-  const entry = order.entryPlan || {};
-  const result = order.resultReview || {};
   const title = [
-    formatDirection(entry.direction),
-    labelFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS, entry.entryModel),
-    formatTime(entry.entryTimestamp),
+    formatDirection(reviewSet?.direction),
+    labelFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS, setup.primaryEventType),
+    formatTime(reviewSet?.primaryTimestamp),
   ].join(' · ');
   const meta = [
-    labelFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS, setup.primaryEventType),
+    reviewSet?.label || 'Order Setup',
     setup.primaryEventTimeframe || '—',
-    labelFromDefinitions(ORDER_RESULT_DEFINITIONS, result.result),
+    `Updated ${formatDateTimeMs(order.updatedAt)}`,
   ].join(' · ');
   const isActive = options.activeOrderReviewId === order.id;
 
@@ -331,10 +347,9 @@ function renderOrderRow(order, options = {}) {
         <span>${escapeHtml(order.instrument || 'NQ')}</span>
       </div>
       <div class="drawing-set-meta">${escapeHtml(meta)}</div>
-      ${renderOrderSummary(order, isActive)}
-      ${renderOrderEditor(order, options)}
-      ${field('Updated', formatDateTimeMs(order.updatedAt))}
+      ${renderReviewSetSummary(order, reviewSet, isActive)}
       ${renderOrderActions(order, options)}
+      ${renderOrderEditor(order, options)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>
     </div>
   `;
@@ -347,7 +362,7 @@ export function renderOrderReviewPanel(orderReviews = [], options = {}) {
     : '';
   const content = orderReviews.length
     ? `<div class="inspector-evidence-list">${orderReviews.map((order) => renderOrderRow(order, options)).join('')}</div>`
-    : '<div class="drawing-set-empty">No Order Reviews yet.</div>';
+    : '<div class="drawing-set-empty">No Review Sets yet.</div>';
 
-  return section('Order Reviews', `${createButton}${content}`);
+  return section('Review Sets', `${createButton}${content}`);
 }
