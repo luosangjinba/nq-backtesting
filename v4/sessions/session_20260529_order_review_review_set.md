@@ -500,3 +500,23 @@
   - click an already-loaded date and confirm viewport locate
   - click an unloaded date and confirm auto-load + locate
 - Then continue Phase 9 Step 90: Calendar Review Index.
+
+## 2026-05-29 Phase 9 Plan Revision - Date Range Calendar
+- User pointed out that the new Calendar Navigator overlaps with the always-visible `开始` / `结束` toolbar inputs.
+- Decision: before building Calendar Review Index / Day Details, consolidate loading-range selection into a single Date Range Calendar control.
+- Added Step 89A to `v4/TODO.md`.
+- New UI direction:
+  - toolbar should show one `Date Range` control instead of separate always-visible start/end inputs plus a separate Calendar button
+  - Date Range control displays the current loaded range
+  - clicking it opens a two-month calendar popover similar to common date-range pickers
+  - selecting start/end dates loads that range
+  - `Load Week` and single-day jump to `09:30` remain available as explicit shortcut actions
+  - precise `YYYY-MM-DD HH:mm` start/end inputs move into advanced/manual fields inside the popover
+- Rationale:
+  - `Date Range` decides what data is loaded
+  - calendar day actions decide where to navigate
+  - Replay jump remains the precise replay-position jump tool
+  - removing duplicate top-level controls keeps the toolbar cleaner before adding object badges/details
+
+## Next Step
+- Implement Step 89A before Step 90.
