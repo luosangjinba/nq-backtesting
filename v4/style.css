@@ -1235,8 +1235,21 @@ html, body {
   cursor: pointer;
 }
 
+.toolbar-secondary-btn {
+  background: #2a2e39;
+  color: #d1d4dc;
+  border: 1px solid #363a45;
+}
+
 .toolbar-btn:hover {
   background: #2bbdac;
+}
+
+.toolbar-secondary-btn:hover,
+.toolbar-secondary-btn.active {
+  background: #363a45;
+  border-color: #26a69a;
+  color: #f0f3fa;
 }
 
 .toolbar-btn:disabled {
@@ -1260,6 +1273,112 @@ html, body {
   color: #b2b5be;
   font-size: 12px;
   margin-left: auto;
+}
+
+.toolbar-calendar-popover {
+  position: fixed;
+  z-index: 30;
+  width: 280px;
+  padding: 10px;
+  border: 1px solid #363a45;
+  border-radius: 6px;
+  background: #1e222d;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+}
+
+.toolbar-calendar-popover[hidden] {
+  display: none;
+}
+
+.toolbar-calendar-header {
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.toolbar-calendar-title {
+  color: #f0f3fa;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.toolbar-calendar-nav,
+.toolbar-calendar-day {
+  border: 1px solid #363a45;
+  background: #171b26;
+  color: #d1d4dc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toolbar-calendar-nav {
+  height: 26px;
+  font-size: 12px;
+}
+
+.toolbar-calendar-nav:hover,
+.toolbar-calendar-day:hover {
+  border-color: #26a69a;
+  color: #f0f3fa;
+}
+
+.toolbar-calendar-weekdays,
+.toolbar-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.toolbar-calendar-weekdays {
+  margin-bottom: 4px;
+  color: #8d919b;
+  font-size: 11px;
+  text-align: center;
+}
+
+.toolbar-calendar-day {
+  position: relative;
+  height: 28px;
+  font-size: 12px;
+}
+
+.toolbar-calendar-day.empty {
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+}
+
+.toolbar-calendar-day.selected {
+  background: #26a69a;
+  border-color: #26a69a;
+  color: #fff;
+  font-weight: 600;
+}
+
+.toolbar-calendar-day.today::after {
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffcc80;
+  content: '';
+  transform: translateX(-50%);
+}
+
+.toolbar-calendar-day.selected.today::after {
+  background: #fff;
+}
+
+.toolbar-calendar-footer {
+  margin-top: 8px;
+  color: #8d919b;
+  font-size: 11px;
+  text-align: center;
 }
 
 .loading-overlay {

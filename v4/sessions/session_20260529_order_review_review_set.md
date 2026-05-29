@@ -463,3 +463,40 @@
   - global Undo / Redo buttons and shortcuts
   - BSL/SSL default line length on 1H and 4H
 - Then decide whether to push `main` to the remote.
+
+## 2026-05-29 Phase 9 Step 89 Calendar Navigator
+- Added a top-toolbar `Calendar` button and a lightweight month popover.
+- The popover supports:
+  - previous month
+  - next month
+  - single-day selection
+  - today marker
+  - selected-day highlight
+- Date selection behavior:
+  - target time is fixed to `09:30`
+  - if the target timestamp is already inside the current display bars, it calls `locateTimestampRange()`
+  - if the target timestamp is outside the current display bars, it loads target date +/- 3 calendar days with the current toolbar timeframe, updates the toolbar start/end inputs, then locates `09:30`
+- First version intentionally does not:
+  - write selected date into Time Overlay state
+  - filter Time Markers / Killzones
+  - show setup badges or object lists in the toolbar popover
+  - implement date ranges, This Week, or Next Week shortcuts
+- Files changed:
+  - `v4/src/ui/calendar-navigator.js`
+  - `v4/src/ui/toolbar.js`
+  - `v4/style.css`
+  - `v4/TODO.md`
+- Validation:
+  - `node --check v4/src/ui/calendar-navigator.js`
+  - `node --check v4/src/ui/toolbar.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+  - headless Chrome smoke: opened Calendar popover on January 2012, selected `2012-01-09`, auto-loaded `2012-01-06 00:00` to `2012-01-12 23:59`, and status reached `Calendar: 2012-01-09 09:30`; only favicon 404 appeared in browser log
+
+## Next Step
+- Browser-test the Calendar button on `main`:
+  - open/close popover
+  - navigate previous/next month
+  - click an already-loaded date and confirm viewport locate
+  - click an unloaded date and confirm auto-load + locate
+- Then continue Phase 9 Step 90: Calendar Review Index.

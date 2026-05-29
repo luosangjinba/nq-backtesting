@@ -12,6 +12,7 @@ import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { canRedo, canUndo, getRedoLabel, getUndoLabel, redo, undo } from '../history/history-manager.js';
+import { initCalendarNavigator } from './calendar-navigator.js';
 
 function renderSecondaryTimeframeOptions(selectedTimeframe) {
   return Object.entries(TIMEFRAME_MAP)
@@ -114,6 +115,7 @@ export function initToolbar() {
       </select>
     </div>
     <button id="loadBtn" class="toolbar-btn">加载</button>
+    <button id="calendarBtn" class="toolbar-btn toolbar-secondary-btn" type="button" title="Open calendar navigator">Calendar</button>
     <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
     <button id="undoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Undo">↶</button>
     <button id="redoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Redo">↷</button>
@@ -128,6 +130,7 @@ export function initToolbar() {
   const endInput = document.getElementById('endInput');
   const tfSelect = document.getElementById('tfSelect');
   const loadBtn = document.getElementById('loadBtn');
+  const calendarBtn = document.getElementById('calendarBtn');
   const archiveBtn = document.getElementById('archiveBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
@@ -142,6 +145,7 @@ export function initToolbar() {
 
   syncSplitScreenLayout();
   loadBtn.addEventListener('click', handleLoad);
+  initCalendarNavigator(calendarBtn);
   archiveBtn.addEventListener('click', () => {
     bus.emit('inspector:open-archive');
   });
