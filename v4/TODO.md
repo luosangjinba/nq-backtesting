@@ -176,7 +176,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 90A: Date Range Calendar 易用性补强：成功加载后把 `start/end/timeframe` 写入本地 history ranges，支持一键 Load History Range、单条删除、清空历史；Date Range popover 增加 `<<` / `>>` 年切换，保留 `<` / `>` 月切换
 - [x] Step 91: 实现 Calendar Day Details 第一版 UI：点击/打开某日后显示当天对象列表，分组顺序为 Order Setups、SMT、PDA、Segments、Composite、Killzones/Time Lines；Order Setups 默认展开；先接在 Calendar popover 或右侧面板中，不做完整月历角标
 - [x] Step 92: 实现对象级操作：Day Details 中每个对象支持 Locate；可选中对象时同时 Select 并打开 Inspector；Focus 第一版可复用 Structure Sets focus 语义，暂不写入对象数据
-- [ ] Step 93: 实现完整月历 UI 与 setup 红色角标：月历日期格显示当天对象概览；当天存在 Order Setup 时显示红色 badge/dot，第二版可显示数量；点击有 badge 的日期默认展开 Order Setups 区域
+- [x] Step 93: 实现完整月历 UI 与 setup 红色角标：月历日期格显示当天对象概览；当天存在 Order Setup 时显示红色 badge/dot，第二版可显示数量；点击有 badge 的日期默认展开 Order Setups 区域
 - [ ] Step 94: 联动 selectedDate 与 overlays：Calendar 选中某日后，Time Markers / Killzone 默认只显示该日；允许手工切换显示日期，避免一次加载多日时全屏竖线过多
 - [ ] Step 95: 验证与视觉验收：覆盖 1M/5M/15M/1H/4H；检查自然日边界、09:30/09:50/10:00、killzone、calendar locate 与对象 locate 一致；确认线条不遮挡 K 线细节，Split Screen 开启时主图行为不受副图影响
 
@@ -353,3 +353,4 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - 2026-05-29: Date Range Calendar 易用性补强完成：成功加载 range 后自动写入 `localStorage` 历史范围，记录 `start/end/timeframe`，支持 Load History Range、单条删除、清空历史、最多保留 8 条并去重置顶；Date Range popover 增加 `<<` / `>>` 年切换按钮，`<` / `>` 继续切换月。
 - 2026-05-29: Phase 9 Step 91 Calendar Day Details 第一版 UI 完成：Inspector Calendar 的当天对象列表改为 `details` 分组，顺序固定为 Order Setups、SMT、PDA、Segments、Composite、Killzones / Time Lines；Order Setups 默认展开，其余默认折叠；对象行拆成时间、类型标签、摘要与 Locate/Open 动作区，避免长文本/长 ID 占据整行。Headless Chrome smoke 验证 6 组顺序、Order Setups 唯一默认展开、8 条对象行、Locate/Open 按钮存在。
 - 2026-05-29: Phase 9 Step 92 Calendar 对象级操作增强完成：Day Details 的 `Open` 现在覆盖 Order Setup、PDA、Segment、Composite、SMT；可选中对象会进入对应 selected/active 状态并打开 Inspector，Order Setup 与 SMT 从 Calendar Open 进入时保留 `Back to Calendar`；`Locate` 继续只定位不切换详情，并在状态栏显示对象摘要。Focus 行为本轮暂不接入，避免和现有 Structure Sets focus 语义混用。
+- 2026-05-29: Phase 9 Step 93 月历对象概览完成：Inspector Calendar 日期格保留 Order Setup 红色重点角标，并新增当天对象总数与类型色点概览；SMT / PDA / Structure(Segment+Composite) / Time(Killzone+Time Line) 使用不同颜色小点，日期 title 显示各类型计数；无对象日期不显示额外概览。点击日期后的 Day Details 与 Locate/Open 行为不变。

@@ -1,7 +1,6 @@
 import * as store from '../../data/bar-store.js';
 import {
   getCalendarDayGroups,
-  getCalendarObjectDateKeys,
   getCalendarReviewIndex,
 } from '../../calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
@@ -21,6 +20,33 @@ const MONTHS = Object.freeze([
   'October',
   'November',
   'December',
+]);
+
+const CALENDAR_CELL_INDICATORS = Object.freeze([
+  {
+    key: 'smt',
+    label: 'SMT',
+    className: 'smt',
+    types: [CALENDAR_OBJECT_TYPES.SMT],
+  },
+  {
+    key: 'pda',
+    label: 'PDA',
+    className: 'pda',
+    types: [CALENDAR_OBJECT_TYPES.PDA],
+  },
+  {
+    key: 'structure',
+    label: 'Structure',
+    className: 'structure',
+    types: [CALENDAR_OBJECT_TYPES.SEGMENT, CALENDAR_OBJECT_TYPES.COMPOSITE],
+  },
+  {
+    key: 'time',
+    label: 'Time',
+    className: 'time',
+    types: [CALENDAR_OBJECT_TYPES.KILLZONE],
+  },
 ]);
 
 function pad2(value) {
@@ -105,6 +131,48 @@ function getMonthCells(viewDateKey, range) {
   }
   while (cells.length % 7 !== 0) cells.push({ empty: true });
   return cells;
+}
+
+function getDayObjectOverview(dateKey, calendarIndex) {
+  const groups = getCalendarDayGroups(dateKey, calendarIndex);
+  const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
+  const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
+  const indicators = CALENDAR_CELL_INDICATORS.map((indicator) => {
+    const count = indicator.types.reduce((sum, type) => sum + (countByType.get(type) || 0), 0);
+    return { ...indicator, count };
+  }).filter((indicator) => indicator.count > 0);
+  const total = groups.reduce((sum, group) => sum + group.rows.length, 0);
+  return {
+    setupCount,
+    total,
+    indicators,
+  };
+}
+
+function renderCalendarDayOverview(overview) {
+  if (!overview.total) return '';
+  const dots = overview.indicators
+    .map(
+      (indicator) =>
+        `<span class="calendar-object-dot ${escapeHtml(indicator.className)}" title="${escapeHtml(`${indicator.label}: ${indicator.count}`)}"></span>`
+    )
+    .join('');
+  return `
+    <span class="calendar-day-overview" aria-label="${escapeHtml(`${overview.total} calendar objects`)}">
+      <span class="calendar-object-total">${escapeHtml(overview.total)}</span>
+      <span class="calendar-object-dots">${dots}</span>
+    </span>
+  `;
+}
+
+function getCalendarDayTitle(dateKey, overview) {
+  if (!overview.total) return dateKey;
+  const parts = [];
+  if (overview.setupCount) parts.push(`Order Setups: ${overview.setupCount}`);
+  overview.indicators.forEach((indicator) => {
+    parts.push(`${indicator.label}: ${indicator.count}`);
+  });
+  return `${dateKey} · ${parts.join(' · ')}`;
 }
 
 function compactTime(timestamp) {
@@ -196,7 +264,6 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
   const objectGroups = getCalendarDayGroups(activeDate, calendarIndex);
-  const orderSetupDateKeys = getCalendarObjectDateKeys(CALENDAR_OBJECT_TYPES.ORDER_SETUP, calendarIndex);
 
   const calendarHtml = `
     <div class="inspector-calendar" data-calendar-selected="${escapeHtml(activeDate)}" data-calendar-view="${escapeHtml(activeViewDate)}">
@@ -216,12 +283,15 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
             const classes = ['inspector-calendar-day'];
             if (!cell.inRange) classes.push('disabled');
             if (cell.dateKey === activeDate) classes.push('selected');
-            const hasOrderSetup = orderSetupDateKeys.has(cell.dateKey);
+            const overview = getDayObjectOverview(cell.dateKey, calendarIndex);
+            const hasOrderSetup = overview.setupCount > 0;
             if (hasOrderSetup) classes.push('has-order-setup');
+            if (overview.total) classes.push('has-calendar-objects');
             return `
-              <button class="${classes.join(' ')}" data-inspector-action="calendar-select-date" data-calendar-date="${cell.dateKey}" type="button" ${cell.inRange ? '' : 'disabled'}>
-                <span>${cell.day}</span>
+              <button class="${classes.join(' ')}" data-inspector-action="calendar-select-date" data-calendar-date="${cell.dateKey}" type="button" title="${escapeHtml(getCalendarDayTitle(cell.dateKey, overview))}" ${cell.inRange ? '' : 'disabled'}>
+                <span class="calendar-day-number">${cell.day}</span>
                 ${hasOrderSetup ? '<span class="calendar-order-badge" aria-label="Order Setup"></span>' : ''}
+                ${renderCalendarDayOverview(overview)}
               </button>
             `;
           })

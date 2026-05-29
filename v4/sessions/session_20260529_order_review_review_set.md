@@ -670,3 +670,36 @@
 
 ## Next Step
 - Continue Phase 9 Step 93: full month calendar UI / object overview badges, or review whether current Inspector calendar already covers enough before adding denser month-cell counts.
+
+## 2026-05-29 Phase 9 Step 93 Calendar Month Object Overview
+- Reviewed the current month calendar:
+  - It already showed an Order Setup red dot.
+  - It did not expose other object types until a date was selected.
+- Updated `v4/src/ui/inspector/calendar-panel.js`:
+  - Month date cells now derive overview counts from the Calendar Review Index.
+  - Order Setup keeps the red priority badge.
+  - Cells with any calendar object show a compact total count.
+  - Cells show colored type dots for:
+    - SMT
+    - PDA
+    - Structure (`Segment + Composite`)
+    - Time (`Killzone + Time Line`)
+  - Date cell `title` includes per-type counts for quick hover inspection.
+  - Empty dates render without count/dots.
+- Updated `v4/style.css`:
+  - Calendar day cells are slightly taller.
+  - Added fixed day number positioning, count pill, and compact dot row.
+  - Selected cells keep readable count styling.
+- Validation:
+  - `node --check v4/src/ui/inspector/calendar-panel.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - headless Chrome smoke with seeded multi-date fixtures:
+    - `2012-01-09` with Order Setup + PDA shows red setup badge, total `2`, PDA dot, and title counts.
+    - `2012-01-10` with Segment + Composite shows total `3` and Structure dot.
+    - `2012-01-11` with no objects shows no overview.
+    - `2012-01-12` with SMT + Killzone shows total `2` and SMT/Time dots.
+    - Selecting `2012-01-12` still renders the six Day Details groups and the expected two rows.
+- Marked Step 93 complete in `v4/TODO.md`.
+
+## Next Step
+- Continue Phase 9 Step 94: selectedDate / overlay linkage, deciding how Calendar selection should filter Time Markers and Killzones without hiding useful context unexpectedly.

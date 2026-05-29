@@ -300,13 +300,19 @@ html, body {
 
 .inspector-calendar-day {
   position: relative;
-  height: 26px;
+  height: 34px;
   border: 1px solid #2a2e39;
   background: #171b26;
   color: #d1d4dc;
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
+}
+
+.calendar-day-number {
+  position: absolute;
+  top: 4px;
+  left: 6px;
 }
 
 .calendar-order-badge {
@@ -321,6 +327,61 @@ html, body {
   pointer-events: none;
 }
 
+.calendar-day-overview {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  left: 4px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+}
+
+.calendar-object-total {
+  min-width: 13px;
+  height: 13px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: rgba(141, 145, 155, 0.24);
+  color: #d1d4dc;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 13px;
+  text-align: center;
+}
+
+.calendar-object-dots {
+  display: flex;
+  min-width: 0;
+  gap: 2px;
+  justify-content: flex-end;
+}
+
+.calendar-object-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #8d919b;
+}
+
+.calendar-object-dot.smt {
+  background: #ab47bc;
+}
+
+.calendar-object-dot.pda {
+  background: #26a69a;
+}
+
+.calendar-object-dot.structure {
+  background: #ffb74d;
+}
+
+.calendar-object-dot.time {
+  background: #42a5f5;
+}
+
 .inspector-calendar-day:hover:not(:disabled) {
   border-color: #26a69a;
   color: #f0f3fa;
@@ -331,6 +392,11 @@ html, body {
   border-color: #26a69a;
   color: #fff;
   font-weight: 600;
+}
+
+.inspector-calendar-day.selected .calendar-object-total {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
 }
 
 .inspector-calendar-day.disabled {
