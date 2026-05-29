@@ -136,9 +136,9 @@
 - [x] Step 97: 新增 Review Set adapter：从 `getOrderReviews()` 派生 `getReviewSets()`、`getReviewSetById()`、`getReviewSetTimeRange()`、`locateReviewSet()`；第一版不改 localStorage key、不改 Review JSON 字段
 - [x] Step 98: 迁移 active Order Setup 语义：保留现有 active id 行为，但命名和调用路径逐步转向 active Review Set；右键菜单写入 active Review Set
 - [x] Step 99: 重整 Inspector Order Reviews：默认显示 Review Set 列表与当前 active/focused set 摘要；详细编辑继续折叠，避免把输入表单堆满 Inspector
-- [ ] Step 100: Calendar 改为读取 Review Set adapter：日期归属、红色角标、对象 locate/open 都走 Review Set 派生信息，避免 Calendar 直接解析 raw order review 字段
-- [ ] Step 101: Renderer 改为消费 Review Set：entry/stop/target/final target/exit 作为同一组图表标记绘制；后续 visibility/focus 可以一次控制整组
-- [ ] Step 102: 兼容性验证：旧 localStorage、Review JSON import/export、chart-first 右键创建、active setup 恢复、calendar locate、headless smoke 均保持可用
+- [x] Step 100: Calendar 改为读取 Review Set adapter：日期归属、红色角标、对象 locate/open 都走 Review Set 派生信息，避免 Calendar 直接解析 raw order review 字段；已由 Phase 8G 的 Setup Set Calendar 适配覆盖完成
+- [x] Step 101: Renderer 改为消费 Review Set：entry/stop/target/final target/exit 作为同一组图表标记绘制；后续 visibility/focus 可以一次控制整组；已由 Phase 8G 的 Setup Set renderer 覆盖完成
+- [x] Step 102: 兼容性验证：旧 localStorage、Review JSON import/export、chart-first 右键创建、active setup 恢复、calendar locate、headless smoke 均保持可用；已由 Step 110 验收覆盖完成
 
 ### Phase 8G: Setup Set Tree Model
 - [x] Step 103: 定义 Setup Set 数据边界：一个 setup 是大集，包含 `orderElements` 与 `explanationElements`；订单元素包括 reversal、entry(time+price)、stopLoss、targets[]、result；解释元素包括 refs[]、manualEvents[]、note；regime/bias 等不能图表化的内容写入 note
@@ -149,6 +149,8 @@
 - [x] Step 108: Inspector 改为 Setup Set 摘要面板：默认只展示 direction、reversal、entry、stop、targets、explanation count、note、result；order elements / explanation refs/events / note/result 放入折叠编辑区
 - [x] Step 109: Calendar / Locate 适配 Setup Set：Calendar 按 setup set 聚合；有 setup 的日期红色角标；Locate 闪亮范围覆盖 setup 核心发生区域，不错误拉到自然日零点
 - [x] Step 110: 兼容性与交互验收：旧 localStorage orderReviews、Review JSON import/export、chart-first 创建、刷新恢复、图表交互、Calendar locate、headless Chrome smoke、全量 node --check 均通过
+
+Phase 8F/8G 接驳状态：当前分支 `feature/order-review-cleanup` 已完成 Order Review -> Review Set -> Setup Set 的兼容迁移；持久化仍使用旧 `orderReviews` schema/localStorage key，运行时通过 adapter 派生 Setup Set tree。下一步建议先 review 当前分支，再决定是否合并到 `main`。
 
 ### Phase 9: Time Overlays / Calendar Review Navigator
 - [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引

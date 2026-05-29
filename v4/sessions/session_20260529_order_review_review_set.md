@@ -236,3 +236,63 @@
 
 ## Next Step
 - Review current branch, then decide whether to commit Step 110 and merge this cleanup branch.
+
+## Context Handoff Before New
+- Current branch: `feature/order-review-cleanup`.
+- Latest commit: `8661496 docs(v4): record setup set acceptance pass`.
+- Tracked working tree state before this handoff update was clean; only unrelated untracked files were present:
+  - `__pycache__/`
+  - `tmp/`
+  - `trading_data.duckdb`
+  - `v3/plans/`
+- Current purpose of this branch:
+  - Clean up Order Review around the idea that one order setup is a set.
+  - Keep existing persistence compatibility (`OrderReview`, `orderReviews`, localStorage key `v4:order-reviews:NQ`).
+  - Add runtime adapters so UI, chart renderer, and Calendar can reason in Setup Set terms.
+- Important implemented files:
+  - `v4/src/order/order-review-set.js`
+  - `v4/src/order/setup-set.js`
+  - `v4/src/order/order-review-active.js`
+  - `v4/src/order/order-review-store.js`
+  - `v4/src/order/order-setup-chart-actions.js`
+  - `v4/src/order/order-review-renderer.js`
+  - `v4/src/ui/inspector/order-review-panel.js`
+  - `v4/src/ui/inspector/calendar-panel.js`
+  - `v4/src/ui/inspector-sidebar.js`
+  - `v4/docs/ORDER_REVIEW_DESIGN.md`
+  - `v4/docs/USER_GUIDE.zh-CN.md`
+  - `v4/docs/USER_GUIDE.en.md`
+- Setup Set tree boundary:
+  - `orderElements`: reversal, entry(time+price), stopLoss, targets[], result
+  - `explanationElements`: refs[], manualEvents[], notes[]
+  - `metadata`: ids, direction, instrument, timeframe, source schema
+- Current right-click Order Setup workflow:
+  - Create Bullish/Bearish Setup Here
+  - Set Reversal Here
+  - Set Entry Here, which sets time and price together
+  - Set Stop Loss Here
+  - Set Target1/2/3 Here
+  - Set Final Target Here
+  - Link PDA/Segment/Composite/Latest SMT To Active Setup
+  - Add Manual Explanation Event Here
+- Manual explanation events are for valid reasons not already represented by Segment/PDA/SMT/Composite, for example:
+  - 1H respected previous FVG
+  - 30M body touched FVG CE
+  - 1M swept EQL
+- Renderer now consumes Setup Sets and renders the order elements as one grouped chart set; it does not use full-height reversal vertical lines.
+- Inspector now defaults to a compact Review Sets / Setup Set tree summary; detailed edit sections stay collapsed.
+- Calendar now groups order rows as Setup Sets, uses Setup Set primary timestamp for badges, and locates by Setup Set core range rather than natural-day start.
+- Validation already passed:
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check HEAD`
+  - store compatibility probe
+  - Calendar render probe
+  - headless Chrome smoke on `http://127.0.0.1:8001/index.html`
+  - V4 API health returned `{"status":"ok","version":"4.0"}`
+- TODO was updated so Phase 8F Step 100-102 are marked complete as covered by Phase 8G / Step 110.
+
+## Recommended Next Step After New
+1. Run `git status --short --branch`.
+2. Commit this handoff doc/TODO update if not already committed.
+3. Review current branch against `main`.
+4. If review is clean, merge `feature/order-review-cleanup` into `main`.
