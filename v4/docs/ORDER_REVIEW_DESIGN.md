@@ -28,6 +28,23 @@ PDA / SMT / Reaction Evidence
 - `Order Review` references existing objects and records the setup thesis.
 - Lower timeframes such as `30M / 15M / 5M / 1M` are execution evidence, not replacements for the structure backbone.
 
+## Review Set Boundary
+
+From Phase 8F onward, the internal interaction model treats each Order Setup as one Review Set.
+
+A Review Set is the chart-facing container for one planned or reviewed trade idea. It groups the setup event, entry, stop, targets, exit, notes, result state, and linked references under one selectable unit. The existing `OrderReview` record remains the canonical persisted data shape in the first pass; `Review Set` is the infrastructure and interaction abstraction layered on top of that record.
+
+This boundary keeps the current storage compatible while fixing the mental model:
+
+- user-facing language may continue to say `Order Setup`
+- persisted Review JSON and localStorage continue to use `orderReviews`
+- code that needs chart interaction, calendar grouping, locate, active selection, visibility, or focus should consume a Review Set adapter instead of reaching directly into raw order review fields
+- linked `PDA / Segment / Composite / SMT` objects stay as references only; a Review Set must not copy or mutate those source objects
+- one Review Set can reference several evidence objects, because an order thesis may come from a combination of earlier structures
+- future visibility/focus controls should operate at Review Set level, not on isolated entry/target helper lines
+
+The migration should be incremental. Do not rename the persisted schema until the adapter boundary is stable and import/export compatibility is explicitly handled.
+
 ## First Version Scope
 
 Included:

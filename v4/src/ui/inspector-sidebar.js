@@ -71,6 +71,7 @@ import {
   ORDER_REF_TYPES,
   updateOrderReview,
 } from '../order/order-review-store.js';
+import { locateReviewSet } from '../order/order-review-set.js';
 import {
   EVIDENCE_TYPES,
   buildDefaultActorFromSegment,
@@ -712,25 +713,11 @@ function getPickedPrice(bar, currentPrice, source) {
   return Number(bar?.[source]);
 }
 
-function toOrderReviewTimestamp(value) {
-  if (value === undefined || value === null || value === '') return null;
-  const timestamp = Number(value);
-  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
-}
-
 function locateOrderReview(order) {
-  const timestamps = [
-    order.setupThesis?.primaryEventTimestamp,
-    order.entryPlan?.entryTimestamp,
-    order.resultReview?.exitTimestamp,
-  ]
-    .map(toOrderReviewTimestamp)
-    .filter((value) => value !== null);
-  if (!timestamps.length) {
+  if (!locateReviewSet(order?.id, viewport.locateTimestampRange)) {
     bus.emit('status:update', { text: '该 Order Review 没有可定位时间', isError: true });
     return;
   }
-  viewport.locateTimestampRange(Math.min(...timestamps), Math.max(...timestamps));
 }
 
 function openCalendarObject(type, id) {

@@ -131,6 +131,15 @@
 - [ ] Step 82: 拆分 Inspector action 层：Order Review / PDA / Segment / pick mode 从 `inspector-sidebar.js` 中分离
 - [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
 
+### Phase 8F: Order Setup Review Set Infrastructure
+- [x] Step 96: 定义 Review Set 边界：内部把一个 Order Setup 视为一个 Review Set；现有 `OrderReview` / `orderReviews` 仍作为兼容持久化 schema；Review Set 只是图表交互、定位、日历聚合与可见性控制的基础抽象
+- [x] Step 97: 新增 Review Set adapter：从 `getOrderReviews()` 派生 `getReviewSets()`、`getReviewSetById()`、`getReviewSetTimeRange()`、`locateReviewSet()`；第一版不改 localStorage key、不改 Review JSON 字段
+- [ ] Step 98: 迁移 active Order Setup 语义：保留现有 active id 行为，但命名和调用路径逐步转向 active Review Set；右键菜单写入 active Review Set
+- [ ] Step 99: 重整 Inspector Order Reviews：默认显示 Review Set 列表与当前 active/focused set 摘要；详细编辑继续折叠，避免把输入表单堆满 Inspector
+- [ ] Step 100: Calendar 改为读取 Review Set adapter：日期归属、红色角标、对象 locate/open 都走 Review Set 派生信息，避免 Calendar 直接解析 raw order review 字段
+- [ ] Step 101: Renderer 改为消费 Review Set：entry/stop/target/final target/exit 作为同一组图表标记绘制；后续 visibility/focus 可以一次控制整组
+- [ ] Step 102: 兼容性验证：旧 localStorage、Review JSON import/export、chart-first 右键创建、active setup 恢复、calendar locate、headless smoke 均保持可用
+
 ### Phase 9: Time Overlays / Calendar Review Navigator
 - [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引
 - [x] Step 85: 实现共享时间坐标 helper：支持 exact bar timestamp 与 1H/4H 内部时间点插值，解决 09:30/09:50/10:00 在高周期 K 线内部没有 exact bar 的定位问题；主图 overlay、calendar locate、hit/hover 未来共用
