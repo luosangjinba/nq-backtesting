@@ -1304,7 +1304,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'smt-locate') {
-    const record = getSmtRecordById(e.target.dataset.smtId);
+    const record = getSmtRecordById(actionEl.dataset.smtId);
     if (record) {
       viewport.locateTimestampRange(
         record.leftTimestamp ?? record.fvgStartTimestamp ?? record.timestamp,
@@ -1315,14 +1315,14 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'smt-delete') {
-    deleteSmtRecord(e.target.dataset.smtId);
-    if (selectedSmtId === e.target.dataset.smtId) selectedSmtId = null;
+    deleteSmtRecord(actionEl.dataset.smtId);
+    if (selectedSmtId === actionEl.dataset.smtId) selectedSmtId = null;
     if (currentPanel === 'archive') renderArchivePanel();
     return;
   }
 
   if (action === 'smt-select') {
-    selectedSmtId = e.target.dataset.smtId;
+    selectedSmtId = actionEl.dataset.smtId;
     refreshSelection();
     return;
   }
@@ -1333,19 +1333,19 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'order-review-locate') {
-    const order = getOrderReviewById(e.target.dataset.orderReviewId);
+    const order = getOrderReviewById(actionEl.dataset.orderReviewId);
     if (order) locateOrderReview(order);
     return;
   }
 
   if (action === 'order-review-delete') {
-    deleteOrderReview(e.target.dataset.orderReviewId);
+    deleteOrderReview(actionEl.dataset.orderReviewId);
     return;
   }
 
   if (action === 'order-review-set-active') {
-    setActiveOrderReview(e.target.dataset.orderReviewId);
-    expandedOrderReviewId = e.target.dataset.orderReviewId;
+    setActiveOrderReview(actionEl.dataset.orderReviewId);
+    expandedOrderReviewId = actionEl.dataset.orderReviewId;
     refreshSelection();
     return;
   }
@@ -1357,34 +1357,34 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'drawing-set-locate') {
-    locateDrawingSet(e.target.dataset.setType, e.target.dataset.setId);
+    locateDrawingSet(actionEl.dataset.setType, actionEl.dataset.setId);
     return;
   }
 
   const segment = getCurrentSegment();
   if (segment) {
     if (action === 'reaction-evidence-add-fvg') {
-      addReactionEvidence(segment, e.target.dataset.pdaId, EVIDENCE_TYPES.FVG_RESPECT);
+      addReactionEvidence(segment, actionEl.dataset.pdaId, EVIDENCE_TYPES.FVG_RESPECT);
       return;
     }
 
     if (action === 'reaction-evidence-add-liquidity') {
-      addReactionEvidence(segment, e.target.dataset.pdaId, EVIDENCE_TYPES.LIQUIDITY_SWEEP);
+      addReactionEvidence(segment, actionEl.dataset.pdaId, EVIDENCE_TYPES.LIQUIDITY_SWEEP);
       return;
     }
 
     if (action === 'reaction-evidence-delete') {
-      updateReactionEvidenceList(segment, e.target.dataset.pdaId, (evidenceList) =>
-        evidenceList.filter((evidence) => evidence.id !== e.target.dataset.evidenceId)
+      updateReactionEvidenceList(segment, actionEl.dataset.pdaId, (evidenceList) =>
+        evidenceList.filter((evidence) => evidence.id !== actionEl.dataset.evidenceId)
       );
       return;
     }
 
     if (action === 'reaction-evidence-pick-actor-bar') {
       startActorBarPick(segment, {
-        pdaId: e.target.dataset.pdaId,
-        evidenceId: e.target.dataset.evidenceId,
-        actorField: e.target.dataset.actorField,
+        pdaId: actionEl.dataset.pdaId,
+        evidenceId: actionEl.dataset.evidenceId,
+        actorField: actionEl.dataset.actorField,
       });
       return;
     }
@@ -1399,7 +1399,7 @@ function handleInspectorClick(e) {
     }
 
     if (action === 'segment-response-remove') {
-      removePdaResponse(segment.id, e.target.dataset.pdaId);
+      removePdaResponse(segment.id, actionEl.dataset.pdaId);
       return;
     }
 
@@ -1439,7 +1439,7 @@ function handleInspectorClick(e) {
     }
 
     if (action === 'segment-group-delete') {
-      deleteSegmentGroup(e.target.dataset.groupId);
+      deleteSegmentGroup(actionEl.dataset.groupId);
       return;
     }
   }
@@ -1470,7 +1470,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'remove-point') {
-    removePointFromSet(annotation, Number(e.target.dataset.pointIndex));
+    removePointFromSet(annotation, Number(actionEl.dataset.pointIndex));
   }
 }
 
