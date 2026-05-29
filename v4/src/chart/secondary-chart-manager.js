@@ -8,6 +8,7 @@ import {
   VIEWPORT_RIGHT_OFFSET_BARS,
 } from '../config.js';
 import { formatTickPrice, getInstrumentTickSize } from '../price-utils.js';
+import { getGridOptions } from './grid-visibility.js';
 import { VerticalLinePrimitive } from './primitives.js';
 
 let secondaryChart = null;
@@ -74,6 +75,7 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
 
   secondaryChart = LightweightCharts.createChart(container, {
     ...CHART_THEME,
+    grid: getGridOptions(),
     timeScale: {
       ...CHART_THEME.timeScale,
       ...TIME_SCALE_DISPLAY,
@@ -114,6 +116,10 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
   resizeObserver.observe(container);
 
   return { chart: secondaryChart, series: secondarySeries };
+}
+
+export function applyGridVisibility() {
+  secondaryChart?.applyOptions({ grid: getGridOptions() });
 }
 
 export function setSecondaryChartInfo({ instrument = activeInstrument, timeframe = activeTimeframe } = {}) {

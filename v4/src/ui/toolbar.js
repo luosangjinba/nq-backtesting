@@ -3,6 +3,9 @@
 import * as bus from '../event-bus.js';
 import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.js';
 import { fetchBars } from '../api.js';
+import * as chartManager from '../chart/chart-manager.js';
+import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
+import * as secondaryChartManager from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { formatTimeInput } from '../utils.js';
@@ -60,6 +63,10 @@ function renderSplitScreenControls() {
 function renderDisplayControls(displayMode) {
   return `
     <div class="toolbar-separator"></div>
+    <label class="toolbar-toggle" title="Show original chart background grid">
+      <input id="chartGridToggle" type="checkbox"${isGridVisible() ? ' checked' : ''} />
+      <span>Grid</span>
+    </label>
     <div class="toolbar-group">
       <span class="toolbar-label">Display:</span>
       <select id="displayModeSelect" class="toolbar-select toolbar-display-select" title="Chart display mode">
@@ -117,6 +124,7 @@ export function initToolbar() {
   const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const splitLayoutSelect = document.getElementById('splitLayoutSelect');
+  const chartGridToggle = document.getElementById('chartGridToggle');
   const displayModeSelect = document.getElementById('displayModeSelect');
   const displayRecentCountInput = document.getElementById('displayRecentCountInput');
 
@@ -147,6 +155,12 @@ export function initToolbar() {
     if (store.getBars().length > 0) {
       handleLoad();
     }
+  });
+
+  chartGridToggle.addEventListener('change', (e) => {
+    setGridVisible(e.target.checked);
+    chartManager.applyGridVisibility();
+    secondaryChartManager.applyGridVisibility();
   });
 
   displayModeSelect.addEventListener('change', (e) => {

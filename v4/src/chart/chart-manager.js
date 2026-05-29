@@ -8,6 +8,7 @@ import {
 } from '../config.js';
 import { formatTickPrice, getInstrumentTickSize } from '../price-utils.js';
 import { VerticalLinePrimitive } from './primitives.js';
+import { getGridOptions } from './grid-visibility.js';
 
 let chart = null;
 let series = null;
@@ -43,6 +44,7 @@ export function initChart(containerId) {
 
   chart = LightweightCharts.createChart(container, {
     ...CHART_THEME,
+    grid: getGridOptions(),
     timeScale: {
       ...CHART_THEME.timeScale,
       ...TIME_SCALE_DISPLAY,
@@ -102,6 +104,10 @@ export function initChart(containerId) {
   observer.observe(container);
 
   return { chart, series };
+}
+
+export function applyGridVisibility() {
+  chart?.applyOptions({ grid: getGridOptions() });
 }
 
 export function getChart() {

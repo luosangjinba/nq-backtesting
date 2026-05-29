@@ -1,6 +1,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
+import { KillzoneBandPrimitive } from './killzone-band-primitive.js';
 import { TimeMarkerPrimitive } from './time-marker-primitive.js';
 import { getTimeOverlaySettings } from './time-overlay-store.js';
 import { DEFAULT_DAY_BOUNDARY_COLOR, isTimeOverlayTimeframe } from './time-overlay-types.js';
@@ -61,22 +62,41 @@ function buildMarkers(displayBars, settings) {
       }
     }
 
-    settings.eventTimes
-      .filter((eventTime) => eventTime.enabled !== false)
-      .forEach((eventTime) => {
-        const timestamp = timestampFromDateAndTime(dateKey, eventTime.time);
-        if (timestamp === null) return;
-        markers.push({
-          type: 'event-time',
-          timestamp,
-          color: eventTime.color,
-          label: eventTime.label,
-          labelColor: eventTime.labelColor,
-        });
-      });
   });
 
+  settings.eventTimes
+    .filter((eventTime) => eventTime.enabled !== false && eventTime.date)
+    .filter((eventTime) => !settings.selectedDate || eventTime.date === settings.selectedDate)
+    .forEach((eventTime) => {
+      const timestamp = timestampFromDateAndTime(eventTime.date, eventTime.time);
+      if (timestamp === null) return;
+      markers.push({
+        type: 'event-time',
+        timestamp,
+        color: eventTime.color,
+        label: eventTime.label,
+        labelColor: eventTime.labelColor,
+      });
+    });
+
   return markers;
+}
+
+function buildKillzoneBand(settings) {
+  const killzone = settings.killzone || {};
+  if (!killzone.enabled || !settings.selectedDate) return null;
+  const startTimestamp = timestampFromDateAndTime(settings.selectedDate, killzone.startTime);
+  const endTimestamp = timestampFromDateAndTime(settings.selectedDate, killzone.endTime);
+  if (startTimestamp === null || endTimestamp === null || startTimestamp === endTimestamp) return null;
+
+  return {
+    type: 'killzone',
+    startTimestamp,
+    endTimestamp,
+    label: killzone.label || 'Killzone',
+    fillColor: killzone.fillColor,
+    lineColor: killzone.lineColor,
+  };
 }
 
 export function renderTimeOverlays() {
@@ -92,12 +112,22 @@ export function renderTimeOverlays() {
   if (!settings.enabled || !isTimeOverlayTimeframe(timeframe)) return;
 
   const markers = buildMarkers(displayBars, settings);
-  if (!markers.length) return;
+  const killzoneBand = buildKillzoneBand(settings);
+  if (!markers.length && !killzoneBand) return;
 
-  const primitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers);
-  chart.attachPrimitive(primitive);
-  primitive.requestUpdate?.();
-  renderedPrimitives.push(primitive);
+  if (markers.length) {
+    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers);
+    chart.attachPrimitive(markerPrimitive);
+    markerPrimitive.requestUpdate?.();
+    renderedPrimitives.push(markerPrimitive);
+  }
+
+  if (killzoneBand) {
+    const killzonePrimitive = new KillzoneBandPrimitive(chartInstance, displayBars, timeframe, killzoneBand);
+    chart.attachPrimitive(killzonePrimitive);
+    killzonePrimitive.requestUpdate?.();
+    renderedPrimitives.push(killzonePrimitive);
+  }
 }
 
 export function initTimeOverlayRenderer() {

@@ -49,9 +49,12 @@ import {
 } from '../order/order-setup-chart-actions.js';
 import {
   addEventTime,
+  clearEventTimes,
+  clearKillzone,
   deleteEventTime,
   getTimeOverlaySettings,
   normalizeEventTimeValue,
+  updateKillzone,
 } from '../time-overlays/time-overlay-store.js';
 import {
   clampMenuPosition,
@@ -102,6 +105,15 @@ function getBarEventTime(bar) {
   return `${hour}:${minute}`;
 }
 
+function getBarEventDate(bar) {
+  if (!bar || !Number.isFinite(Number(bar.timestamp))) return '';
+  const date = new Date(Number(bar.timestamp) * 1000);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getEventTimeLabel(time) {
   return normalizeEventTimeValue(time, '').replace(':', '').replace(/^0/, '');
 }
@@ -110,10 +122,19 @@ function getContextEventTime() {
   return normalizeEventTimeValue(getBarEventTime(contextMenuBar), '');
 }
 
+function getContextEventDate() {
+  return getBarEventDate(contextMenuBar);
+}
+
 function getEventTimeAtContextBar() {
   const time = getContextEventTime();
-  if (!time) return null;
-  return getTimeOverlaySettings().eventTimes.find((eventTime) => eventTime.time === time) || null;
+  const date = getContextEventDate();
+  if (!time || !date) return null;
+  return (
+    getTimeOverlaySettings().eventTimes.find(
+      (eventTime) => eventTime.date === date && eventTime.time === time
+    ) || null
+  );
 }
 
 function findDisplayBar(time) {
@@ -511,17 +532,31 @@ function locateSecondaryAtBar(bar) {
 
 function renderTimeOverlayMenuItems(bar) {
   const time = normalizeEventTimeValue(getBarEventTime(bar), '');
+  const date = getBarEventDate(bar);
+  const settings = getTimeOverlaySettings();
   const existingEventTime = time
-    ? getTimeOverlaySettings().eventTimes.find((eventTime) => eventTime.time === time)
+    ? settings.eventTimes.find(
+        (eventTime) => eventTime.date === date && eventTime.time === time
+      )
     : null;
-  const disabled = time ? '' : 'disabled';
+  const disabled = time && date ? '' : 'disabled';
   const removeDisabled = existingEventTime ? '' : 'disabled';
+  const clearDisabled = settings.eventTimes.length ? '' : 'disabled';
   const label = time ? getEventTimeLabel(time) : '';
+  const killzone = settings.killzone || {};
+  const killzoneToggleLabel = killzone.enabled ? 'Hide Killzone' : 'Show Killzone';
+  const killzoneDisabled = date ? '' : 'disabled';
   return `
     <details class="pda-menu-section">
       <summary>Time Overlays</summary>
       <button class="pda-menu-item" data-pda-action="time-overlay-add-event" ${disabled}>Add ${label || 'Time'} Line Here</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-delete-event" ${removeDisabled}>Delete ${label || 'Time'} Line</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-clear-events" ${clearDisabled}>Clear Time Lines</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-start" ${disabled}>Set Killzone Start Here</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-end" ${disabled}>Set Killzone End Here</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-toggle" ${killzoneDisabled}>${killzoneToggleLabel}</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear">Clear Killzone</button>
     </details>
   `;
 }
@@ -677,13 +712,14 @@ function handleControlClick(e) {
     hideContextMenu();
   } else if (action === 'time-overlay-add-event') {
     const time = getContextEventTime();
-    if (!time) {
+    const date = getContextEventDate();
+    if (!time || !date) {
       bus.emit('status:update', { text: '无法添加时间线：没有可用 K 线时间', isError: true });
     } else if (getEventTimeAtContextBar()) {
-      bus.emit('status:update', { text: `${getEventTimeLabel(time)} 时间线已存在`, isError: false });
+      bus.emit('status:update', { text: `${date} ${getEventTimeLabel(time)} 时间线已存在`, isError: false });
     } else {
-      addEventTime({ time, label: getEventTimeLabel(time) });
-      bus.emit('status:update', { text: `已添加 ${getEventTimeLabel(time)} 时间线`, isError: false });
+      addEventTime({ date, time, label: getEventTimeLabel(time) });
+      bus.emit('status:update', { text: `已添加 ${date} ${getEventTimeLabel(time)} 时间线`, isError: false });
     }
     hideContextMenu();
   } else if (action === 'time-overlay-delete-event') {
@@ -692,8 +728,46 @@ function handleControlClick(e) {
       bus.emit('status:update', { text: '当前时间没有可删除的时间线', isError: true });
     } else {
       deleteEventTime(eventTime.id);
-      bus.emit('status:update', { text: `已删除 ${eventTime.label || getEventTimeLabel(eventTime.time)} 时间线`, isError: false });
+      bus.emit('status:update', {
+        text: `已删除 ${eventTime.date} ${eventTime.label || getEventTimeLabel(eventTime.time)} 时间线`,
+        isError: false,
+      });
     }
+    hideContextMenu();
+  } else if (action === 'time-overlay-clear-events') {
+    const cleared = clearEventTimes();
+    bus.emit('status:update', {
+      text: cleared ? '已清除所有时间线' : '没有可清除的时间线',
+      isError: false,
+    });
+    hideContextMenu();
+  } else if (action === 'time-overlay-killzone-start' || action === 'time-overlay-killzone-end') {
+    const time = getContextEventTime();
+    const date = getContextEventDate();
+    if (!time || !date) {
+      bus.emit('status:update', { text: '无法设置 Killzone：没有可用 K 线时间', isError: true });
+    } else {
+      const field = action === 'time-overlay-killzone-start' ? 'startTime' : 'endTime';
+      updateKillzone({ selectedDate: date, enabled: true, [field]: time });
+      bus.emit('status:update', {
+        text: `已设置 ${date} Killzone ${field === 'startTime' ? '起点' : '终点'} ${getEventTimeLabel(time)}`,
+        isError: false,
+      });
+    }
+    hideContextMenu();
+  } else if (action === 'time-overlay-killzone-toggle') {
+    const date = getContextEventDate();
+    const settings = getTimeOverlaySettings();
+    const enabled = !settings.killzone?.enabled;
+    updateKillzone({ selectedDate: date || settings.selectedDate, enabled });
+    bus.emit('status:update', {
+      text: enabled ? 'Killzone 已显示' : 'Killzone 已隐藏',
+      isError: false,
+    });
+    hideContextMenu();
+  } else if (action === 'time-overlay-killzone-clear') {
+    clearKillzone();
+    bus.emit('status:update', { text: 'Killzone 已清除', isError: false });
     hideContextMenu();
   } else if (action === 'eqh-start' || action === 'eql-start') {
     startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime);

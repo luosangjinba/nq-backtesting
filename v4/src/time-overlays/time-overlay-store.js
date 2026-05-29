@@ -7,6 +7,8 @@ import {
   DEFAULT_EVENT_TIME_COLOR,
   DEFAULT_EVENT_TIMES,
   DEFAULT_KILLZONE,
+  DEFAULT_KILLZONE_FILL_COLOR,
+  DEFAULT_KILLZONE_LINE_COLOR,
 } from './time-overlay-types.js';
 
 let eventIdSequence = 0;
@@ -59,6 +61,7 @@ export function normalizeEventTime(input = {}) {
   const label = String(input.label || buildEventTimeLabel(time)).trim() || buildEventTimeLabel(time);
   return {
     id: String(input.id || nextEventId()),
+    date: normalizeDate(input.date, ''),
     time,
     label,
     color: String(input.color || DEFAULT_EVENT_TIME_COLOR),
@@ -79,6 +82,8 @@ function normalizeKillzone(input = {}) {
     label: String(input.label || DEFAULT_KILLZONE.label),
     startTime: normalizeEventTimeValue(input.startTime, DEFAULT_KILLZONE.startTime),
     endTime: normalizeEventTimeValue(input.endTime, DEFAULT_KILLZONE.endTime),
+    fillColor: String(input.fillColor || DEFAULT_KILLZONE_FILL_COLOR),
+    lineColor: String(input.lineColor || DEFAULT_KILLZONE_LINE_COLOR),
   };
 }
 
@@ -149,6 +154,36 @@ export function deleteEventTime(id) {
   const deleted = settings.eventTimes.length !== before;
   if (deleted) emitChanged('event-time:delete');
   return deleted;
+}
+
+export function clearEventTimes() {
+  const before = settings.eventTimes.length;
+  settings = {
+    ...settings,
+    eventTimes: [],
+  };
+  const cleared = before > 0;
+  if (cleared) emitChanged('event-time:clear');
+  return cleared;
+}
+
+export function updateKillzone(patch = {}) {
+  settings = {
+    ...settings,
+    selectedDate: patch.selectedDate === undefined ? settings.selectedDate : normalizeDate(patch.selectedDate, ''),
+    killzone: normalizeKillzone({ ...settings.killzone, ...patch }),
+  };
+  emitChanged('killzone:update');
+  return getTimeOverlaySettings().killzone;
+}
+
+export function clearKillzone() {
+  settings = {
+    ...settings,
+    killzone: normalizeKillzone({ ...DEFAULT_KILLZONE, enabled: false }),
+  };
+  emitChanged('killzone:clear');
+  return getTimeOverlaySettings().killzone;
 }
 
 export function resetTimeOverlaySettings() {
