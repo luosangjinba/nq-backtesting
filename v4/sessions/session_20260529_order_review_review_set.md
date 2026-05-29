@@ -178,3 +178,23 @@
 
 ## Next Step
 - Step 108: refit the Inspector summary/edit sections around the Setup Set tree and expose manual explanation events.
+
+## Step 108 Completed
+- Updated `v4/src/ui/inspector/order-review-panel.js` to derive rows from `createSetupSetFromOrderReview()`.
+- Default Inspector row now summarizes the Setup Set tree:
+  - reversal
+  - entry
+  - stop
+  - targets
+  - result
+  - explanation element count
+- Added an `Explanation Elements` compact block that lists:
+  - linked refs
+  - manual explanation events
+  - notes
+- Manual events now appear in the Inspector default view, so cases like `1H respect previous FVG` can be reviewed without opening the full advanced form.
+- Added compact CSS for explanation rows in `v4/style.css`.
+- Marked Step 108 complete in `v4/TODO.md`.
+
+## Next Step
+- Step 109: move Calendar / Locate grouping to Setup Set and ensure locate flash covers the setup core range.

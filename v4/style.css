@@ -721,6 +721,37 @@ html, body {
   min-height: 18px;
 }
 
+.order-review-explanation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgba(255, 183, 77, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 183, 77, 0.04);
+}
+
+.order-review-explanation-row {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 6px;
+  align-items: start;
+  min-height: 18px;
+  color: #d1d4dc;
+  font-size: 11px;
+}
+
+.order-review-explanation-row span {
+  color: #787b86;
+}
+
+.order-review-explanation-row strong {
+  min-width: 0;
+  color: #d1d4dc;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
 .order-review-action-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
