@@ -5,7 +5,7 @@ import * as chart from '../chart/chart-manager.js';
 import * as viewport from '../chart/viewport-controller.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
-import { clearSelection as clearPdaSelection, getSelectedPda } from '../pda/pda-selection.js';
+import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
@@ -17,6 +17,8 @@ import {
   clearSegmentSelection,
   getSelectedSegment,
   getSelectedSegmentGroup,
+  selectSegment,
+  selectSegmentGroup,
 } from '../segment/segment-selection.js';
 import {
   deleteSegment,
@@ -706,6 +708,22 @@ function locateOrderReview(order) {
   viewport.locateTimestampRange(Math.min(...timestamps), Math.max(...timestamps));
 }
 
+function openCalendarObject(type, id) {
+  if (!type || !id) return false;
+  if (type === 'pda') {
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+    return Boolean(selectPda(id));
+  }
+  if (type === 'segment') {
+    return Boolean(selectSegment(id));
+  }
+  if (type === 'composite') {
+    return Boolean(selectSegmentGroup(id));
+  }
+  return false;
+}
+
 function updateReactionEvidenceList(segment, pdaId, updater) {
   const response = getSegmentResponse(segment, pdaId);
   if (!response) return;
@@ -1188,6 +1206,15 @@ function handleInspectorClick(e) {
     }
     viewport.locateTimestampRange(start, end);
     bus.emit('status:update', { text: 'Calendar object located', isError: false });
+    return;
+  }
+
+  if (action === 'calendar-object-open') {
+    const opened = openCalendarObject(actionEl.dataset.objectType, actionEl.dataset.objectId);
+    bus.emit('status:update', {
+      text: opened ? 'Calendar object opened' : 'Calendar object cannot be opened',
+      isError: !opened,
+    });
     return;
   }
 

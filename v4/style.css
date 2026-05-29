@@ -386,11 +386,18 @@ html, body {
   overflow-wrap: anywhere;
 }
 
+.calendar-object-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
 .calendar-object-row + .calendar-object-row {
   margin-top: 3px;
 }
 
-.calendar-object-locate {
+.calendar-object-locate,
+.calendar-object-open {
   flex: 0 0 auto;
   height: 20px;
   padding: 1px 6px;

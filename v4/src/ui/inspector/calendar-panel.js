@@ -229,8 +229,8 @@ function getEventTimeTimestampRange(eventTime) {
   return { start: timestamp, end: timestamp };
 }
 
-function row(label, range) {
-  return { label, range };
+function row(label, range, ref = {}) {
+  return { label, range, ref };
 }
 
 function formatCountLabel(count, singular, plural = `${singular}s`) {
@@ -247,7 +247,8 @@ function buildDayItems(dateKey) {
         .map((order) =>
           row(
             `${order.direction || 'Setup'} · ${order.entryPlan?.entryModel || 'Manual'} · ${order.id}`,
-            getOrderTimestampRange(order)
+            getOrderTimestampRange(order),
+            { type: 'order-setup', id: order.id }
           )
         ),
     },
@@ -255,14 +256,22 @@ function buildDayItems(dateKey) {
       label: 'SMT',
       rows: getSmtRecords()
         .filter((record) => dateKeyFromTimestamp(getSmtTimestamp(record)) === dateKey)
-        .map((record) => row(`${record.direction} ${record.type} · ${record.timeframe}`, getSmtTimestampRange(record))),
+        .map((record) =>
+          row(`${record.direction} ${record.type} · ${record.timeframe}`, getSmtTimestampRange(record), {
+            type: 'smt',
+            id: record.id,
+          })
+        ),
     },
     {
       label: 'PDA',
       rows: getAnnotations()
         .filter((annotation) => !annotation.draft && dateKeyFromTimestamp(getPdaTimestamp(annotation)) === dateKey)
         .map((annotation) =>
-          row(`${annotation.type?.toUpperCase() || 'PDA'} · ${annotation.id}`, getPdaTimestampRange(annotation))
+          row(`${annotation.type?.toUpperCase() || 'PDA'} · ${annotation.id}`, getPdaTimestampRange(annotation), {
+            type: 'pda',
+            id: annotation.id,
+          })
         ),
     },
     {
@@ -272,7 +281,8 @@ function buildDayItems(dateKey) {
         .map((segment) =>
           row(
             `${segment.timeframe || '1H'} ${segment.direction || 'segment'} · ${segment.id}`,
-            getSegmentTimestampRange(segment)
+            getSegmentTimestampRange(segment),
+            { type: 'segment', id: segment.id }
           )
         ),
     },
@@ -283,7 +293,8 @@ function buildDayItems(dateKey) {
         .map((group) =>
           row(
             `${formatCountLabel(group.childSegmentIds?.length || 0, 'leg')} · ${group.id}`,
-            getCompositeTimestampRange(group)
+            getCompositeTimestampRange(group),
+            { type: 'composite', id: group.id }
           )
         ),
     },
@@ -295,13 +306,17 @@ function buildDayItems(dateKey) {
           .map((killzone) =>
             row(
               `${killzone.label || 'Killzone'} · ${killzone.startTime}-${killzone.endTime}`,
-              getKillzoneTimestampRange(killzone)
+              getKillzoneTimestampRange(killzone),
+              { type: 'killzone', id: killzone.id }
             )
           ),
         ...(settings.eventTimes || [])
           .filter((eventTime) => eventTime.date === dateKey)
           .map((eventTime) =>
-            row(`Time Line · ${eventTime.label || eventTime.time}`, getEventTimeTimestampRange(eventTime))
+            row(`Time Line · ${eventTime.label || eventTime.time}`, getEventTimeTimestampRange(eventTime), {
+              type: 'time-line',
+              id: eventTime.id,
+            })
           ),
       ],
     },
@@ -313,17 +328,31 @@ function renderObjectGroup(group) {
     ? group.rows
         .map((item) => {
           const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
+          const canOpen = ['pda', 'segment', 'composite'].includes(item.ref?.type);
           return `
             <div class="calendar-object-row">
               <span>${escapeHtml(item.label)}</span>
-              <button
-                class="inspector-mini-btn calendar-object-locate"
-                data-inspector-action="calendar-object-locate"
-                data-locate-start="${canLocate ? item.range.start : ''}"
-                data-locate-end="${canLocate ? item.range.end : ''}"
-                type="button"
-                ${canLocate ? '' : 'disabled'}
-              >Locate</button>
+              <div class="calendar-object-actions">
+                <button
+                  class="inspector-mini-btn calendar-object-locate"
+                  data-inspector-action="calendar-object-locate"
+                  data-locate-start="${canLocate ? item.range.start : ''}"
+                  data-locate-end="${canLocate ? item.range.end : ''}"
+                  type="button"
+                  ${canLocate ? '' : 'disabled'}
+                >Locate</button>
+                ${
+                  canOpen
+                    ? `<button
+                        class="inspector-mini-btn calendar-object-open"
+                        data-inspector-action="calendar-object-open"
+                        data-object-type="${escapeHtml(item.ref.type)}"
+                        data-object-id="${escapeHtml(item.ref.id)}"
+                        type="button"
+                      >Open</button>`
+                    : ''
+                }
+              </div>
             </div>
           `;
         })
