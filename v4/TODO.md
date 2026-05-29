@@ -216,6 +216,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - 2026-05-20: Replay 时间跳转按 UTC wall-clock timestamp 解析，避免浏览器本地时区导致跳转偏移
 - 2026-05-20: V4 PDA 改为手动标注优先，不做全量自动扫描；用户选择 PDA 后实时计算 HTF/session/midnight/LDN/NYAM 等上下文并打包标注
 - 2026-05-20: PDA 第一阶段只做当前会话内存 store，不写 DB；手动 BSL/SSL 右键标注后实时生成 current TF/session context 并用 LiquidityPrimitive 渲染
+- 2026-05-29: Review data storage direction is layered, not YAML-vs-DuckDB exclusive. Near term: localStorage remains the browser work draft, Review JSON/YAML remains the human-readable archive/exchange format while schemas keep evolving. Later, after Order Setup / PDA / Segment / Composite / SMT / Reaction Evidence object boundaries stabilize, add DuckDB import/export as the formal research database for batch query, statistics, cross-sample search, and reproducible analysis. YAML/JSON should continue as portable case files and migration/backup format even after DuckDB exists.
 - 2026-05-20: PDA session 划分采用 Asia / London Killzone / London Close / NY Premarket / NY Open / AM Silver Bullet / NY Late Morning / Lunch / PM Open / PM Silver Bullet / Power Hour / Post-Close / CME Break；CME Break 跳过极值判断
 - 2026-05-20: PDA context 计算区间与图表显示区间分离；右键标注时按所选 K 线所属 CME 交易日临时请求完整交易日数据，仅用于 PDA 极值计算，不改变图表显示
 - 2026-05-20: 图表 crosshair 时间格式化统一使用 UTC getter，匹配 UTC epoch 承载的美东墙钟时间，避免浏览器本地时区偏移

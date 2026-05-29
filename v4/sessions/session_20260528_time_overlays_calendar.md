@@ -59,6 +59,11 @@
 - Locate and Open are intentionally separate because most review navigation needs spatial context, not immediate object-detail editing.
 - Split Screen is still readonly, but global navigation and display helpers should stay visually consistent across primary and secondary charts when secondary data exists.
 - Calendar date selection is the only automatic owner of Time Overlay `selectedDate`; locating a specific object is navigation, not a request to change overlay filtering.
+- Review data storage should stay layered:
+  - localStorage is the near-term browser work draft
+  - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
+  - DuckDB should be added later as the formal research database after Order Setup / PDA / Segment / Composite / SMT / Reaction Evidence boundaries stabilize
+  - YAML/JSON should continue as portable case files and migration/backup format even after DuckDB exists
 
 ## Validation
 
@@ -76,11 +81,11 @@
 ## Current Git State
 
 - Last committed work:
-  - pending: Step 94 selected-date overlay filtering
+  - `ba516b3 feat(v4): filter overlays by calendar date`
   - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
 - Current uncommitted changes:
-  - Step 94 code and TODO/session updates
+  - storage architecture TODO/session notes
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
   - `tmp/`
@@ -89,5 +94,5 @@
 
 ## Next Steps
 
-- Commit Step 94 implementation and handoff updates.
 - Run Step 95 visual acceptance across 1M/5M/15M/1H/4H with Split Screen enabled.
+- After Step 95, consider drafting a future DuckDB research-store phase only after the current review object schemas stop changing weekly.
