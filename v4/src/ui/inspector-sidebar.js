@@ -49,6 +49,7 @@ import { renderSmtPanel } from './inspector/smt-panel.js';
 import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
 import {
   getDefaultCalendarDate,
+  getCalendarDateTimestamp,
   getNextCalendarViewDate,
   renderCalendarPanel,
 } from './inspector/calendar-panel.js';
@@ -1157,7 +1158,16 @@ function handleInspectorClick(e) {
   if (action === 'calendar-select-date') {
     calendarSelectedDate = e.target.dataset.calendarDate || calendarSelectedDate;
     calendarViewDate = calendarSelectedDate;
-    bus.emit('status:update', { text: `Calendar selected ${calendarSelectedDate} 09:30`, isError: false });
+    const targetTimestamp = getCalendarDateTimestamp(calendarSelectedDate, '09:30');
+    if (targetTimestamp !== null) {
+      viewport.locateTimestampRange(targetTimestamp, targetTimestamp);
+    }
+    bus.emit('status:update', {
+      text: targetTimestamp === null
+        ? `Calendar selected ${calendarSelectedDate}`
+        : `Calendar located ${calendarSelectedDate} 09:30`,
+      isError: targetTimestamp === null,
+    });
     refreshSelection();
     return;
   }

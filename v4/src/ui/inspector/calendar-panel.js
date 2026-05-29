@@ -60,6 +60,14 @@ function shiftDateKey(dateKey, monthOffset) {
   return dateKeyFromParts(shifted.getUTCFullYear(), shifted.getUTCMonth(), 1);
 }
 
+export function getCalendarDateTimestamp(dateKey, timeText = '09:30') {
+  const parsed = parseDateKey(dateKey);
+  if (!parsed) return null;
+  const [hour, minute] = String(timeText).split(':').map(Number);
+  if (![hour, minute].every(Number.isFinite)) return null;
+  return Math.floor(Date.UTC(parsed.year, parsed.monthIndex, parsed.day, hour, minute, 0) / 1000);
+}
+
 function getLoadedDateRange() {
   const currentRange = store.getCurrentRange();
   const start = dateKeyFromInput(currentRange.start);
