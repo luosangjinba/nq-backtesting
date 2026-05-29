@@ -117,6 +117,18 @@ function getTimestampForOrder(order) {
   );
 }
 
+function getOrderTimestampRange(order) {
+  const timestamps = [
+    order.setupThesis?.primaryEventTimestamp,
+    order.entryPlan?.entryTimestamp,
+    order.resultReview?.exitTimestamp,
+  ]
+    .map(Number)
+    .filter(Number.isFinite);
+  if (!timestamps.length) return null;
+  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
+}
+
 function getPdaTimestamp(annotation) {
   return (
     annotation.canonicalTimestamp ??
@@ -128,8 +140,35 @@ function getPdaTimestamp(annotation) {
   );
 }
 
+function getPdaTimestampRange(annotation) {
+  const timestamps = [
+    annotation.canonicalTimestamp,
+    annotation.timestamp,
+    annotation.anchorTime,
+    annotation.start?.timestamp,
+    annotation.end?.timestamp,
+    annotation.startTime,
+    annotation.endTime,
+  ]
+    .map(Number)
+    .filter(Number.isFinite);
+  if (!timestamps.length) return null;
+  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
+}
+
 function getSegmentTimestamp(segment) {
   return segment.start?.timestamp ?? segment.start?.time ?? null;
+}
+
+function getSegmentTimestampRange(segment) {
+  const timestamps = [
+    segment?.start?.timestamp ?? segment?.start?.time,
+    segment?.end?.timestamp ?? segment?.end?.time,
+  ]
+    .map(Number)
+    .filter(Number.isFinite);
+  if (!timestamps.length) return null;
+  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
 }
 
 function getCompositeTimestamp(group) {
@@ -137,8 +176,51 @@ function getCompositeTimestamp(group) {
   return getSegmentTimestamp(getSegmentById(firstId));
 }
 
+function getCompositeTimestampRange(group) {
+  const timestamps = (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
+    .flatMap((id) => {
+      const segment = getSegmentById(id);
+      return [segment?.start?.timestamp ?? segment?.start?.time, segment?.end?.timestamp ?? segment?.end?.time];
+    })
+    .map(Number)
+    .filter(Number.isFinite);
+  if (!timestamps.length) return null;
+  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
+}
+
 function getSmtTimestamp(record) {
   return record.leftTimestamp ?? record.timestamp ?? record.fvgStartTimestamp ?? null;
+}
+
+function getSmtTimestampRange(record) {
+  const timestamps = [
+    record.leftTimestamp,
+    record.rightTimestamp,
+    record.timestamp,
+    record.fvgStartTimestamp,
+    record.fvgEndTimestamp,
+  ]
+    .map(Number)
+    .filter(Number.isFinite);
+  if (!timestamps.length) return null;
+  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
+}
+
+function getKillzoneTimestampRange(killzone) {
+  const start = getCalendarDateTimestamp(killzone.date, killzone.startTime);
+  const end = getCalendarDateTimestamp(killzone.date, killzone.endTime);
+  if (![start, end].every(Number.isFinite)) return null;
+  return { start: Math.min(start, end), end: Math.max(start, end) };
+}
+
+function getEventTimeTimestampRange(eventTime) {
+  const timestamp = getCalendarDateTimestamp(eventTime.date, eventTime.time);
+  if (!Number.isFinite(timestamp)) return null;
+  return { start: timestamp, end: timestamp };
+}
+
+function row(label, range) {
+  return { label, range };
 }
 
 function formatCountLabel(count, singular, plural = `${singular}s`) {
@@ -152,41 +234,65 @@ function buildDayItems(dateKey) {
       label: 'Order Setups',
       rows: getOrderReviews()
         .filter((order) => dateKeyFromTimestamp(getTimestampForOrder(order)) === dateKey)
-        .map((order) => `${order.direction || 'Setup'} · ${order.entryPlan?.entryModel || 'Manual'} · ${order.id}`),
+        .map((order) =>
+          row(
+            `${order.direction || 'Setup'} · ${order.entryPlan?.entryModel || 'Manual'} · ${order.id}`,
+            getOrderTimestampRange(order)
+          )
+        ),
     },
     {
       label: 'SMT',
       rows: getSmtRecords()
         .filter((record) => dateKeyFromTimestamp(getSmtTimestamp(record)) === dateKey)
-        .map((record) => `${record.direction} ${record.type} · ${record.timeframe}`),
+        .map((record) => row(`${record.direction} ${record.type} · ${record.timeframe}`, getSmtTimestampRange(record))),
     },
     {
       label: 'PDA',
       rows: getAnnotations()
         .filter((annotation) => !annotation.draft && dateKeyFromTimestamp(getPdaTimestamp(annotation)) === dateKey)
-        .map((annotation) => `${annotation.type?.toUpperCase() || 'PDA'} · ${annotation.id}`),
+        .map((annotation) =>
+          row(`${annotation.type?.toUpperCase() || 'PDA'} · ${annotation.id}`, getPdaTimestampRange(annotation))
+        ),
     },
     {
       label: 'Segments',
       rows: getSegments()
         .filter((segment) => dateKeyFromTimestamp(getSegmentTimestamp(segment)) === dateKey)
-        .map((segment) => `${segment.timeframe || '1H'} ${segment.direction || 'segment'} · ${segment.id}`),
+        .map((segment) =>
+          row(
+            `${segment.timeframe || '1H'} ${segment.direction || 'segment'} · ${segment.id}`,
+            getSegmentTimestampRange(segment)
+          )
+        ),
     },
     {
       label: 'Composite',
       rows: getSegmentGroups()
         .filter((group) => dateKeyFromTimestamp(getCompositeTimestamp(group)) === dateKey)
-        .map((group) => `${formatCountLabel(group.childSegmentIds?.length || 0, 'leg')} · ${group.id}`),
+        .map((group) =>
+          row(
+            `${formatCountLabel(group.childSegmentIds?.length || 0, 'leg')} · ${group.id}`,
+            getCompositeTimestampRange(group)
+          )
+        ),
     },
     {
       label: 'Killzones / Time Lines',
       rows: [
         ...(settings.killzones || [])
           .filter((killzone) => killzone.date === dateKey)
-          .map((killzone) => `${killzone.label || 'Killzone'} · ${killzone.startTime}-${killzone.endTime}`),
+          .map((killzone) =>
+            row(
+              `${killzone.label || 'Killzone'} · ${killzone.startTime}-${killzone.endTime}`,
+              getKillzoneTimestampRange(killzone)
+            )
+          ),
         ...(settings.eventTimes || [])
           .filter((eventTime) => eventTime.date === dateKey)
-          .map((eventTime) => `Time Line · ${eventTime.label || eventTime.time}`),
+          .map((eventTime) =>
+            row(`Time Line · ${eventTime.label || eventTime.time}`, getEventTimeTimestampRange(eventTime))
+          ),
       ],
     },
   ];
@@ -195,7 +301,22 @@ function buildDayItems(dateKey) {
 function renderObjectGroup(group) {
   const rows = group.rows.length
     ? group.rows
-        .map((row) => `<div class="calendar-object-row">${escapeHtml(row)}</div>`)
+        .map((item) => {
+          const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
+          return `
+            <div class="calendar-object-row">
+              <span>${escapeHtml(item.label)}</span>
+              <button
+                class="inspector-mini-btn calendar-object-locate"
+                data-inspector-action="calendar-object-locate"
+                data-locate-start="${canLocate ? item.range.start : ''}"
+                data-locate-end="${canLocate ? item.range.end : ''}"
+                type="button"
+                ${canLocate ? '' : 'disabled'}
+              >Locate</button>
+            </div>
+          `;
+        })
         .join('')
     : '<div class="calendar-object-empty">None</div>';
   return `

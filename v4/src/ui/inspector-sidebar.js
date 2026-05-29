@@ -1152,11 +1152,12 @@ function handleInspectorChange(e) {
 }
 
 function handleInspectorClick(e) {
-  const action = e.target.dataset.inspectorAction;
+  const actionEl = e.target.closest('[data-inspector-action]');
+  const action = actionEl?.dataset.inspectorAction;
   if (!action) return;
 
   if (action === 'calendar-select-date') {
-    calendarSelectedDate = e.target.dataset.calendarDate || calendarSelectedDate;
+    calendarSelectedDate = actionEl.dataset.calendarDate || calendarSelectedDate;
     calendarViewDate = calendarSelectedDate;
     const targetTimestamp = getCalendarDateTimestamp(calendarSelectedDate, '09:30');
     if (targetTimestamp !== null) {
@@ -1169,6 +1170,18 @@ function handleInspectorClick(e) {
       isError: targetTimestamp === null,
     });
     refreshSelection();
+    return;
+  }
+
+  if (action === 'calendar-object-locate') {
+    const start = Number(actionEl.dataset.locateStart);
+    const end = Number(actionEl.dataset.locateEnd);
+    if (!Number.isFinite(start) || !Number.isFinite(end)) {
+      bus.emit('status:update', { text: 'Calendar object has no locatable time', isError: true });
+      return;
+    }
+    viewport.locateTimestampRange(start, end);
+    bus.emit('status:update', { text: 'Calendar object located', isError: false });
     return;
   }
 

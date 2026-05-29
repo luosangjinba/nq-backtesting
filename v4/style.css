@@ -351,7 +351,6 @@ html, body {
   font-weight: 600;
 }
 
-.calendar-object-row,
 .calendar-object-empty {
   color: #b2b5be;
   font-size: 11px;
@@ -359,8 +358,30 @@ html, body {
   overflow-wrap: anywhere;
 }
 
+.calendar-object-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  color: #b2b5be;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.calendar-object-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .calendar-object-row + .calendar-object-row {
   margin-top: 3px;
+}
+
+.calendar-object-locate {
+  flex: 0 0 auto;
+  height: 20px;
+  padding: 1px 6px;
+  font-size: 10px;
 }
 
 .calendar-object-empty {
