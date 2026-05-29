@@ -1,16 +1,20 @@
-// Render Order Review setup/entry/risk/target helpers without full-height chart blockers.
+// Render Setup Set order elements without full-height chart blockers.
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getBucketStart } from '../pda/pda-context.js';
-import { getOrderReviews, ORDER_DIRECTIONS } from './order-review-store.js';
+import { ORDER_DIRECTIONS } from './order-review-store.js';
+import { getActiveReviewSetId } from './order-review-active.js';
+import { getSetupSets } from './setup-set.js';
 
 const SETUP_COLOR = '#ffb74d';
 const ENTRY_TEXT_COLOR = '#80cbc4';
 const STOP_COLOR = '#ff4d6d';
 const TARGET_COLORS = ['#3d7eff', '#4d8bff', '#7ea8ff', '#ab47bc'];
+const ACTIVE_ENTRY_COLOR = '#b2dfdb';
+const ACTIVE_TARGET_COLORS = ['#6fa0ff', '#82adff', '#a5c2ff', '#ce93d8'];
 const RISK_ZONE_LONG = {
   fillColor: 'rgba(38, 166, 154, 0.13)',
   borderColor: 'rgba(38, 166, 154, 0.35)',
@@ -102,7 +106,7 @@ function getProjectedChartTime(timestamp, barsAhead = PLAN_ZONE_WIDTH_BARS) {
   return next ? mapTimestampToCurrentChartTime(next.timestamp) : mapTimestampToCurrentChartTime(timestamp);
 }
 
-function renderPlanLine(timestamp, price, label, color, position = 'above', lineLength = PLAN_LINE_LENGTH_BARS) {
+function renderPlanLine(timestamp, price, label, color, position = 'above', lineLength = PLAN_LINE_LENGTH_BARS, lineWidth = 2) {
   const time = mapTimestampToCurrentChartTime(timestamp);
   const parsedPrice = Number(price);
   if (time === null || !Number.isFinite(parsedPrice)) return;
@@ -119,7 +123,7 @@ function renderPlanLine(timestamp, price, label, color, position = 'above', line
       position,
       {
         lineLength,
-        lineWidth: 2,
+        lineWidth,
         labelFont: 'italic 11px sans-serif',
         labelPadding: 5,
         showLabel: true,
@@ -166,76 +170,93 @@ function addTarget(targets, price, label) {
   if (!duplicate) targets.push({ price: parsed, label });
 }
 
-function getTargetLines(entry = {}) {
+function getTargetLines(targetElements = []) {
   const targets = [];
-  addTarget(targets, entry.targetInternal, 'Target1');
-  addTarget(targets, entry.targetSwing, 'Target2');
-  addTarget(targets, entry.targetExternal, 'Target3');
-  addTarget(targets, entry.finalTarget, targets.length ? 'Final Target' : 'Target');
+  targetElements.forEach((target) => {
+    const label = target.role === 'finalTarget'
+      ? (targets.length ? 'Final Target' : 'Target')
+      : target.role.replace(/^target/, 'Target');
+    addTarget(targets, target.price, label);
+  });
   return targets;
 }
 
-function getLineLabelDirection(order) {
-  return order.entryPlan?.direction === ORDER_DIRECTIONS.SHORT ? 'Short' : 'Long';
+function getLineLabelDirection(direction) {
+  return direction === ORDER_DIRECTIONS.SHORT ? 'Short' : 'Long';
+}
+
+function renderSetupSet(setupSet, isActive = false) {
+  const elements = setupSet.orderElements || {};
+  const reversal = elements.reversal || {};
+  const entry = elements.entry || {};
+  const stopLoss = elements.stopLoss || {};
+  const result = elements.result || {};
+  const entryTimestamp = entry.timestamp || reversal.timestamp;
+  const direction = entry.direction || setupSet.direction;
+  const lineWidth = isActive ? 3 : 2;
+  const entryColor = isActive ? ACTIVE_ENTRY_COLOR : ENTRY_TEXT_COLOR;
+  const targetColors = isActive ? ACTIVE_TARGET_COLORS : TARGET_COLORS;
+
+  if (
+    Number.isFinite(Number(reversal.price)) &&
+    reversal.timestamp &&
+    reversal.timestamp !== entryTimestamp
+  ) {
+    renderPriceHelper(reversal.timestamp, reversal.price, 'Reversal', SETUP_COLOR, 'above');
+  }
+
+  if (Number.isFinite(Number(entry.price))) {
+    renderPlanLine(
+      entryTimestamp,
+      entry.price,
+      `${getLineLabelDirection(direction)} Entry`,
+      entryColor,
+      direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
+      PLAN_LINE_LENGTH_BARS,
+      lineWidth
+    );
+  }
+
+  renderRiskZone(entryTimestamp, entry.price, stopLoss.price, direction);
+
+  renderPlanLine(
+    entryTimestamp,
+    stopLoss.price,
+    'Stop-loss',
+    STOP_COLOR,
+    direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
+    PLAN_LINE_LENGTH_BARS + 6,
+    lineWidth
+  );
+
+  getTargetLines(elements.targets).forEach((target, index) => {
+    renderPlanLine(
+      entryTimestamp,
+      target.price,
+      target.label,
+      targetColors[index % targetColors.length],
+      direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
+      PLAN_LINE_LENGTH_BARS + index * 6,
+      lineWidth
+    );
+  });
+
+  if (Number.isFinite(Number(result.price))) {
+    renderPriceHelper(result.timestamp || entryTimestamp, result.price, 'Exit', '#90caf9', 'right');
+  }
 }
 
 export function renderOrderReviews() {
   clearRenderedPrimitives();
   if (!hasRenderableChart()) return;
 
-  getOrderReviews().forEach((order) => {
-    const setup = order.setupThesis || {};
-    const entry = order.entryPlan || {};
-    const result = order.resultReview || {};
-    const entryTimestamp = entry.entryTimestamp || setup.primaryEventTimestamp;
-    const direction = entry.direction;
-    const entryPrice = Number(entry.entryPrice);
-    const setupPrice = Number(setup.primaryEventPrice);
-
-    if (Number.isFinite(setupPrice) && setup.primaryEventTimestamp !== entryTimestamp) {
-      renderPriceHelper(setup.primaryEventTimestamp, setupPrice, 'Setup Event', SETUP_COLOR, 'above');
-    }
-
-    if (Number.isFinite(entryPrice)) {
-      renderPlanLine(
-        entryTimestamp,
-        entryPrice,
-        `${getLineLabelDirection(order)} Entry`,
-        ENTRY_TEXT_COLOR,
-        direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above'
-      );
-    }
-
-    renderRiskZone(entryTimestamp, entry.entryPrice, entry.stopLoss, direction);
-
-    renderPlanLine(
-      entryTimestamp,
-      entry.stopLoss,
-      'Stop-loss',
-      STOP_COLOR,
-      direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
-      PLAN_LINE_LENGTH_BARS + 6
-    );
-
-    getTargetLines(entry).forEach((target, index) => {
-      renderPlanLine(
-        entryTimestamp,
-        target.price,
-        target.label,
-        TARGET_COLORS[index % TARGET_COLORS.length],
-        direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
-        PLAN_LINE_LENGTH_BARS + index * 6
-      );
-    });
-
-    if (Number.isFinite(Number(result.exitPrice))) {
-      renderPriceHelper(result.exitTimestamp || entryTimestamp, result.exitPrice, 'Exit', '#90caf9', 'right');
-    }
-  });
+  const activeId = getActiveReviewSetId();
+  getSetupSets().forEach((setupSet) => renderSetupSet(setupSet, setupSet.id === activeId));
 }
 
 export function initOrderReviewRenderer() {
   bus.on('order-review:changed', renderOrderReviews);
+  bus.on('order-review-active:changed', renderOrderReviews);
   bus.on('bars:loaded', renderOrderReviews);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

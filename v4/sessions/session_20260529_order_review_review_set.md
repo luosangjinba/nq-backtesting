@@ -162,3 +162,19 @@
 
 ## Next Step
 - Step 107: render Setup Set order elements as one grouped chart annotation set.
+
+## Step 107 Completed
+- Updated `v4/src/order/order-review-renderer.js` to consume `getSetupSets()` instead of raw `getOrderReviews()`.
+- Renderer now uses the Setup Set tree:
+  - `orderElements.reversal`
+  - `orderElements.entry`
+  - `orderElements.stopLoss`
+  - `orderElements.targets[]`
+  - `orderElements.result`
+- Reversal renders as a local price helper label, not a full-height vertical line.
+- Entry, stop, target1/2/3/final target, risk zone, and exit render as one grouped set of primitives per Setup Set.
+- Active setup is rendered with slightly stronger entry/target line width and brighter entry/target colors.
+- Marked Step 107 complete in `v4/TODO.md`.
+
+## Next Step
+- Step 108: refit the Inspector summary/edit sections around the Setup Set tree and expose manual explanation events.
