@@ -549,3 +549,32 @@
   - Jump 09:30 inside and outside loaded range
   - manual time range input
 - Then continue Step 90: Calendar Review Index.
+
+## 2026-05-29 Phase 9 Step 90 Calendar Review Index
+- Added `v4/src/calendar/calendar-review-index.js`.
+- Extended `v4/src/calendar/calendar-types.js` with Calendar object types for existing time overlay rows.
+- Calendar Review Index now derives day-indexed groups from existing stores:
+  - Setup Sets / Order Setups
+  - SMT
+  - PDA
+  - 1H Segments
+  - Composite Moves
+  - existing Killzones / Time Lines are preserved in the same day details pipeline
+- Order Setup day ownership follows the Step 90 priority through the Setup Set tree:
+  - entry timestamp
+  - reversal / setup primary event timestamp
+  - result / exit timestamp
+- Updated `v4/src/ui/inspector/calendar-panel.js` so the Inspector Calendar consumes `getCalendarReviewIndex()`, `getCalendarDayGroups()`, and `getCalendarObjectDateKeys()` instead of reading every store directly.
+- Validation:
+  - `node --check v4/src/calendar/calendar-review-index.js`
+  - `node --check v4/src/calendar/calendar-types.js`
+  - `node --check v4/src/ui/inspector/calendar-panel.js`
+  - node probe covering one date with Order Setup, SMT, PDA, two Segments, one Composite, Killzone, and Time Line
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+  - headless Chrome smoke: Date Range load for `2012-01-09` to `2012-01-12` succeeded, Inspector Calendar rendered six object groups, and chart canvases rendered
+- Marked Step 90 complete in `v4/TODO.md`.
+
+## Next Step
+- Run full JS syntax and browser smoke after Step 90.
+- Then continue Step 91: Calendar Day Details UI refinement.

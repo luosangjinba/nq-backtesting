@@ -1,11 +1,11 @@
 import * as store from '../../data/bar-store.js';
-import { getSetupSets } from '../../order/setup-set.js';
-import { getAnnotations } from '../../pda/pda-store.js';
-import { getSegments, getSegmentById } from '../../segment/segment-store.js';
-import { getSegmentGroups } from '../../segment/segment-group-store.js';
-import { getSmtRecords } from '../../smt/smt-store.js';
-import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
-import { escapeHtml, formatNumber, formatTime, section } from './render-utils.js';
+import {
+  getCalendarDayGroups,
+  getCalendarObjectDateKeys,
+  getCalendarReviewIndex,
+} from '../../calendar/calendar-review-index.js';
+import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
+import { escapeHtml, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 const MONTHS = Object.freeze([
@@ -31,20 +31,9 @@ function dateKeyFromParts(year, monthIndex, day) {
   return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
 }
 
-function toTimestamp(value) {
-  if (value === undefined || value === null || value === '') return null;
-  const timestamp = Number(value);
-  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
-}
-
-function collectTimestamps(values = []) {
-  return values.map(toTimestamp).filter((value) => value !== null);
-}
-
 function dateKeyFromTimestamp(timestamp) {
-  const value = toTimestamp(timestamp);
-  if (value === null) return '';
-  const date = new Date(value * 1000);
+  if (!Number.isFinite(Number(timestamp))) return '';
+  const date = new Date(Number(timestamp) * 1000);
   return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
@@ -118,274 +107,6 @@ function getMonthCells(viewDateKey, range) {
   return cells;
 }
 
-function getOrderSetupDateKeys() {
-  return new Set(
-    getSetupSets()
-      .map((setupSet) => dateKeyFromTimestamp(setupSet.primaryTimestamp))
-      .filter(Boolean)
-  );
-}
-
-function getPdaTimestamp(annotation) {
-  return (
-    annotation.canonicalTimestamp ??
-    annotation.timestamp ??
-    annotation.anchorTime ??
-    annotation.start?.timestamp ??
-    annotation.startTime ??
-    null
-  );
-}
-
-function getPdaTimestampRange(annotation) {
-  const timestamps = collectTimestamps([
-    annotation.canonicalTimestamp,
-    annotation.timestamp,
-    annotation.anchorTime,
-    annotation.start?.timestamp,
-    annotation.end?.timestamp,
-    annotation.startTime,
-    annotation.endTime,
-  ]);
-  if (!timestamps.length) return null;
-  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
-}
-
-function getSegmentTimestamp(segment) {
-  return segment.start?.timestamp ?? segment.start?.time ?? null;
-}
-
-function getSegmentTimestampRange(segment) {
-  const timestamps = collectTimestamps([
-    segment?.start?.timestamp ?? segment?.start?.time,
-    segment?.end?.timestamp ?? segment?.end?.time,
-  ]);
-  if (!timestamps.length) return null;
-  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
-}
-
-function getCompositeTimestamp(group) {
-  const firstId = Array.isArray(group.childSegmentIds) ? group.childSegmentIds[0] : null;
-  return getSegmentTimestamp(getSegmentById(firstId));
-}
-
-function getCompositeTimestampRange(group) {
-  const timestamps = (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
-    .flatMap((id) => {
-      const segment = getSegmentById(id);
-      return [segment?.start?.timestamp ?? segment?.start?.time, segment?.end?.timestamp ?? segment?.end?.time];
-    })
-    .map(toTimestamp)
-    .filter((value) => value !== null);
-  if (!timestamps.length) return null;
-  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
-}
-
-function getSmtTimestamp(record) {
-  return record.leftTimestamp ?? record.timestamp ?? record.fvgStartTimestamp ?? null;
-}
-
-function getSmtTimestampRange(record) {
-  const timestamps = collectTimestamps([
-    record.leftTimestamp,
-    record.rightTimestamp,
-    record.timestamp,
-    record.fvgStartTimestamp,
-    record.fvgEndTimestamp,
-  ]);
-  if (!timestamps.length) return null;
-  return { start: Math.min(...timestamps), end: Math.max(...timestamps) };
-}
-
-function getKillzoneTimestampRange(killzone) {
-  const start = getCalendarDateTimestamp(killzone.date, killzone.startTime);
-  const end = getCalendarDateTimestamp(killzone.date, killzone.endTime);
-  if (![start, end].every(Number.isFinite)) return null;
-  return { start: Math.min(start, end), end: Math.max(start, end) };
-}
-
-function getEventTimeTimestampRange(eventTime) {
-  const timestamp = getCalendarDateTimestamp(eventTime.date, eventTime.time);
-  if (!Number.isFinite(timestamp)) return null;
-  return { start: timestamp, end: timestamp };
-}
-
-function row(label, range, ref = {}) {
-  return { label, range, ref };
-}
-
-function compactTime(value) {
-  const formatted = formatTime(value);
-  if (formatted === '—') return formatted;
-  return formatted.includes(' ') ? formatted.split(' ')[1] : formatted;
-}
-
-function compactPrice(value) {
-  const formatted = formatNumber(value);
-  return formatted === '—' ? '' : `@ ${formatted}`;
-}
-
-function titleCase(value, fallback = '—') {
-  const text = String(value || '').trim();
-  if (!text) return fallback;
-  return text
-    .split(/[-_\s]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-function joinSummary(parts = []) {
-  return parts.filter((part) => part !== undefined && part !== null && String(part).trim()).join(' · ');
-}
-
-function formatCountLabel(count, singular, plural = `${singular}s`) {
-  return `${count} ${count === 1 ? singular : plural}`;
-}
-
-function summarizeSetupSet(setupSet) {
-  const entry = setupSet.orderElements?.entry || {};
-  const reversal = setupSet.orderElements?.reversal || {};
-  const result = setupSet.orderElements?.result || {};
-  return joinSummary([
-    titleCase(setupSet.direction, 'Setup'),
-    titleCase(reversal.eventType, ''),
-    compactTime(setupSet.primaryTimestamp),
-    compactPrice(entry.price),
-    titleCase(result.status, ''),
-  ]);
-}
-
-function summarizePda(annotation) {
-  const context = Array.isArray(annotation.contexts) && annotation.contexts.length
-    ? annotation.contexts[0]
-    : annotation.timeframe || annotation.sourceTimeframe || '';
-  const price = annotation.price ?? annotation.topPrice ?? annotation.priceHigh;
-  const bottom = annotation.bottomPrice ?? annotation.priceLow;
-  const priceText = bottom !== undefined && bottom !== null
-    ? `${formatNumber(price)}-${formatNumber(bottom)}`
-    : compactPrice(price);
-  return joinSummary([titleCase(annotation.type, 'PDA'), context, priceText]);
-}
-
-function summarizeSegment(segment) {
-  return joinSummary([
-    segment.timeframe || '1H',
-    titleCase(segment.direction, 'Segment'),
-    `${compactTime(segment.start?.timestamp ?? segment.start?.time)} -> ${compactTime(segment.end?.timestamp ?? segment.end?.time)}`,
-  ]);
-}
-
-function summarizeComposite(group) {
-  const children = (Array.isArray(group.childSegmentIds) ? group.childSegmentIds : [])
-    .map(getSegmentById)
-    .filter(Boolean);
-  const first = children[0];
-  const last = children[children.length - 1];
-  const timeRange = first && last
-    ? `${compactTime(first.start?.timestamp ?? first.start?.time)} -> ${compactTime(last.end?.timestamp ?? last.end?.time)}`
-    : '';
-  return joinSummary([
-    formatCountLabel(group.childSegmentIds?.length || 0, 'leg'),
-    titleCase(group.direction, ''),
-    timeRange,
-  ]);
-}
-
-function summarizeSmt(record) {
-  return joinSummary([
-    titleCase(record.direction, ''),
-    titleCase(record.type, 'SMT'),
-    record.timeframe,
-  ]);
-}
-
-function buildDayItems(dateKey) {
-  const settings = getTimeOverlaySettings();
-  return [
-    {
-      label: 'Setup Sets',
-      rows: getSetupSets()
-        .filter((setupSet) => dateKeyFromTimestamp(setupSet.primaryTimestamp) === dateKey)
-        .map((setupSet) =>
-          row(
-            summarizeSetupSet(setupSet),
-            setupSet.range,
-            { type: 'order-setup', id: setupSet.id }
-          )
-        ),
-    },
-    {
-      label: 'SMT',
-      rows: getSmtRecords()
-        .filter((record) => dateKeyFromTimestamp(getSmtTimestamp(record)) === dateKey)
-        .map((record) =>
-          row(summarizeSmt(record), getSmtTimestampRange(record), {
-            type: 'smt',
-            id: record.id,
-          })
-        ),
-    },
-    {
-      label: 'PDA',
-      rows: getAnnotations()
-        .filter((annotation) => !annotation.draft && dateKeyFromTimestamp(getPdaTimestamp(annotation)) === dateKey)
-        .map((annotation) =>
-          row(summarizePda(annotation), getPdaTimestampRange(annotation), {
-            type: 'pda',
-            id: annotation.id,
-          })
-        ),
-    },
-    {
-      label: 'Segments',
-      rows: getSegments()
-        .filter((segment) => dateKeyFromTimestamp(getSegmentTimestamp(segment)) === dateKey)
-        .map((segment) =>
-          row(
-            summarizeSegment(segment),
-            getSegmentTimestampRange(segment),
-            { type: 'segment', id: segment.id }
-          )
-        ),
-    },
-    {
-      label: 'Composite',
-      rows: getSegmentGroups()
-        .filter((group) => dateKeyFromTimestamp(getCompositeTimestamp(group)) === dateKey)
-        .map((group) =>
-          row(
-            summarizeComposite(group),
-            getCompositeTimestampRange(group),
-            { type: 'composite', id: group.id }
-          )
-        ),
-    },
-    {
-      label: 'Killzones / Time Lines',
-      rows: [
-        ...(settings.killzones || [])
-          .filter((killzone) => killzone.date === dateKey)
-          .map((killzone) =>
-            row(
-              `${killzone.label || 'Killzone'} · ${killzone.startTime}-${killzone.endTime}`,
-              getKillzoneTimestampRange(killzone),
-              { type: 'killzone', id: killzone.id }
-            )
-          ),
-        ...(settings.eventTimes || [])
-          .filter((eventTime) => eventTime.date === dateKey)
-          .map((eventTime) =>
-            row(`Time Line · ${eventTime.label || eventTime.time}`, getEventTimeTimestampRange(eventTime), {
-              type: 'time-line',
-              id: eventTime.id,
-            })
-          ),
-      ],
-    },
-  ];
-}
-
 function renderObjectGroup(group) {
   const rows = group.rows.length
     ? group.rows
@@ -445,8 +166,9 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const parsed = parseDateKey(activeViewDate);
   const cells = getMonthCells(activeViewDate, range);
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
-  const objectGroups = buildDayItems(activeDate);
-  const orderSetupDateKeys = getOrderSetupDateKeys();
+  const calendarIndex = getCalendarReviewIndex();
+  const objectGroups = getCalendarDayGroups(activeDate, calendarIndex);
+  const orderSetupDateKeys = getCalendarObjectDateKeys(CALENDAR_OBJECT_TYPES.ORDER_SETUP, calendarIndex);
 
   const calendarHtml = `
     <div class="inspector-calendar" data-calendar-selected="${escapeHtml(activeDate)}" data-calendar-view="${escapeHtml(activeViewDate)}">
