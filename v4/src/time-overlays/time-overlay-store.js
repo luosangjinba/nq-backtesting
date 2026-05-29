@@ -151,6 +151,18 @@ export function updateTimeOverlaySettings(patch = {}) {
   return getTimeOverlaySettings();
 }
 
+export function loadTimeOverlaySettings(nextSettings = null) {
+  settings = nextSettings ? {
+    ...createDefaultSettings(),
+    ...nextSettings,
+    eventTimes: normalizeEventTimes(nextSettings.eventTimes),
+    killzones: normalizeKillzones(nextSettings.killzones),
+    killzoneDraft: normalizeKillzoneDraft(nextSettings.killzoneDraft),
+  } : createDefaultSettings();
+  emitChanged('load');
+  return getTimeOverlaySettings();
+}
+
 export function addEventTime(input = {}) {
   const eventTime = normalizeEventTime(input);
   if (!eventTime) return null;

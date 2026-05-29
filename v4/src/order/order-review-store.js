@@ -627,7 +627,7 @@ export function normalizeOrderReview(input = {}, options = {}) {
     instrument: normalizeString(input.instrument, DEFAULT_ORDER_INSTRUMENT),
     version: ORDER_REVIEW_VERSION,
     createdAt: normalizeTimestamp(input.createdAt, now),
-    updatedAt: now,
+    updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
     setupThesis,
     entryPlan,
     resultReview,

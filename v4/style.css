@@ -1239,6 +1239,23 @@ html, body {
   background: #2bbdac;
 }
 
+.toolbar-btn:disabled {
+  background: #363a45;
+  color: #787b86;
+  cursor: default;
+}
+
+.toolbar-btn:disabled:hover {
+  background: #363a45;
+}
+
+.toolbar-icon-btn {
+  width: 28px;
+  padding: 4px 0;
+  font-size: 15px;
+  line-height: 1;
+}
+
 .status-bar {
   color: #b2b5be;
   font-size: 12px;

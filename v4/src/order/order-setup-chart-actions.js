@@ -17,6 +17,7 @@ import {
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
 } from './order-review-store.js';
+import { recordHistory } from '../history/history-manager.js';
 
 function getPdaLabel(annotation) {
   if (!annotation) return 'PDA';
@@ -97,16 +98,18 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
 }
 
 function createOrderSetupFromContext(direction, context) {
-  const reviewSet = createChartReviewSet({
-    bar: context.bar,
-    price: getContextPrice(context.price),
-    direction,
-    timeframe: context.timeframe,
-    eventType: ORDER_EVENT_TYPES.OTHER,
-  });
-  bus.emit('status:update', {
-    text: reviewSet ? `Active Order Setup created: ${reviewSet.id}` : 'Order Setup 创建失败：没有可用 K 线',
-    isError: !reviewSet,
+  return recordHistory(`Create ${direction === ORDER_DIRECTIONS.LONG ? 'Bullish' : 'Bearish'} Setup`, () => {
+    const reviewSet = createChartReviewSet({
+      bar: context.bar,
+      price: getContextPrice(context.price),
+      direction,
+      timeframe: context.timeframe,
+      eventType: ORDER_EVENT_TYPES.OTHER,
+    });
+    bus.emit('status:update', {
+      text: reviewSet ? `Active Order Setup created: ${reviewSet.id}` : 'Order Setup 创建失败：没有可用 K 线',
+      isError: !reviewSet,
+    });
   });
 }
 
@@ -114,54 +117,57 @@ function patchActiveSetupFromContext(action, context) {
   const price = getContextPrice(context.price);
   if (!context.bar) return;
 
-  if (action === 'order-setup-set-reversal' || action === 'order-setup-set-event') {
-    updateActiveReviewSet({
-      setupThesis: {
-        primaryEventTimestamp: context.bar.timestamp,
-        primaryEventTimeframe: context.timeframe,
-        primaryEventPrice: price,
-      },
-    });
-  } else if (action === 'order-setup-set-entry') {
-    updateActiveReviewSet({
-      entryPlan: {
-        entryTimestamp: context.bar.timestamp,
-        entryTimeframe: context.timeframe,
-        entryPrice: price,
-      },
-    });
-  } else if (action === 'order-setup-set-entry-time') {
-    updateActiveReviewSet({
-      entryPlan: {
-        entryTimestamp: context.bar.timestamp,
-        entryTimeframe: context.timeframe,
-      },
-    });
-  } else if (action === 'order-setup-set-exit-time') {
-    updateActiveReviewSet({
-      resultReview: {
-        exitTimestamp: context.bar.timestamp,
-      },
-    });
-  } else if (action === 'order-setup-set-entry-price') {
-    updateActiveReviewSet({ entryPlan: { entryPrice: price } });
-  } else if (action === 'order-setup-set-stop-loss') {
-    updateActiveReviewSet({ entryPlan: { stopLoss: price } });
-  } else if (action === 'order-setup-set-target-internal') {
-    updateActiveReviewSet({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
-  } else if (action === 'order-setup-set-target-swing') {
-    updateActiveReviewSet({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
-  } else if (action === 'order-setup-set-target-external') {
-    updateActiveReviewSet({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
-  } else if (action === 'order-setup-set-final-target') {
-    updateActiveReviewSet({ entryPlan: { finalTarget: price } });
-  }
+  return recordHistory('Update Order Setup', () => {
+    if (action === 'order-setup-set-reversal' || action === 'order-setup-set-event') {
+      updateActiveReviewSet({
+        setupThesis: {
+          primaryEventTimestamp: context.bar.timestamp,
+          primaryEventTimeframe: context.timeframe,
+          primaryEventPrice: price,
+        },
+      });
+    } else if (action === 'order-setup-set-entry') {
+      updateActiveReviewSet({
+        entryPlan: {
+          entryTimestamp: context.bar.timestamp,
+          entryTimeframe: context.timeframe,
+          entryPrice: price,
+        },
+      });
+    } else if (action === 'order-setup-set-entry-time') {
+      updateActiveReviewSet({
+        entryPlan: {
+          entryTimestamp: context.bar.timestamp,
+          entryTimeframe: context.timeframe,
+        },
+      });
+    } else if (action === 'order-setup-set-exit-time') {
+      updateActiveReviewSet({
+        resultReview: {
+          exitTimestamp: context.bar.timestamp,
+        },
+      });
+    } else if (action === 'order-setup-set-entry-price') {
+      updateActiveReviewSet({ entryPlan: { entryPrice: price } });
+    } else if (action === 'order-setup-set-stop-loss') {
+      updateActiveReviewSet({ entryPlan: { stopLoss: price } });
+    } else if (action === 'order-setup-set-target-internal') {
+      updateActiveReviewSet({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
+    } else if (action === 'order-setup-set-target-swing') {
+      updateActiveReviewSet({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
+    } else if (action === 'order-setup-set-target-external') {
+      updateActiveReviewSet({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
+    } else if (action === 'order-setup-set-final-target') {
+      updateActiveReviewSet({ entryPlan: { finalTarget: price } });
+    }
 
-  bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });
+    bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });
+  });
 }
 
 function linkContextObjectToActiveSetup(action, context) {
-  if (action === 'order-setup-link-pda') {
+  return recordHistory('Link Object To Setup', () => {
+    if (action === 'order-setup-link-pda') {
     const annotation = context.pdaHit ? getAnnotationById(context.pdaHit.id) : null;
     if (annotation) {
       linkRefToActiveReviewSet({
@@ -171,7 +177,7 @@ function linkContextObjectToActiveSetup(action, context) {
       });
       bus.emit('status:update', { text: `${getPdaLabel(annotation)} linked to active setup`, isError: false });
     }
-  } else if (action === 'order-setup-link-segment') {
+    } else if (action === 'order-setup-link-segment') {
     const segment = context.segmentHit ? getSegmentById(context.segmentHit.id) : null;
     if (segment) {
       linkRefToActiveReviewSet({
@@ -181,7 +187,7 @@ function linkContextObjectToActiveSetup(action, context) {
       });
       bus.emit('status:update', { text: `${getSegmentLabel(segment)} linked to active setup`, isError: false });
     }
-  } else if (action === 'order-setup-link-composite') {
+    } else if (action === 'order-setup-link-composite') {
     if (context.segmentGroupHit?.id) {
       linkRefToActiveReviewSet({
         type: ORDER_REF_TYPES.COMPOSITE,
@@ -190,7 +196,7 @@ function linkContextObjectToActiveSetup(action, context) {
       });
       bus.emit('status:update', { text: 'Composite linked to active setup', isError: false });
     }
-  } else if (action === 'order-setup-link-latest-smt') {
+    } else if (action === 'order-setup-link-latest-smt') {
     const smt = getSmtRecords().at(-1);
     if (smt) {
       linkRefToActiveReviewSet({
@@ -200,7 +206,8 @@ function linkContextObjectToActiveSetup(action, context) {
       });
       bus.emit('status:update', { text: 'Latest SMT linked to active setup', isError: false });
     }
-  }
+    }
+  });
 }
 
 function addManualExplanationEventToActiveSetup(context = {}) {
@@ -222,14 +229,16 @@ function addManualExplanationEventToActiveSetup(context = {}) {
     price: getContextPrice(context.price),
     note: promptValues.note,
   };
-  const updated = updateActiveReviewSet({
-    setupThesis: {
-      manualEvents: [...existingEvents, event],
-    },
-  });
-  bus.emit('status:update', {
-    text: updated ? 'Manual explanation event added to active setup' : 'Manual explanation event add failed',
-    isError: !updated,
+  return recordHistory('Add Manual Explanation Event', () => {
+    const updated = updateActiveReviewSet({
+      setupThesis: {
+        manualEvents: [...existingEvents, event],
+      },
+    });
+    bus.emit('status:update', {
+      text: updated ? 'Manual explanation event added to active setup' : 'Manual explanation event add failed',
+      isError: !updated,
+    });
   });
 }
 

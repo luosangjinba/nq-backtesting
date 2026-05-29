@@ -47,6 +47,7 @@ import {
   handleOrderSetupChartAction,
   renderOrderSetupMenuItems,
 } from '../order/order-setup-chart-actions.js';
+import { recordHistory } from '../history/history-manager.js';
 import {
   addKillzone,
   addEventTime,
@@ -203,7 +204,7 @@ async function addManualPoint(type, bar) {
     validation,
   };
 
-  addAnnotation(annotation);
+  await recordHistory(`Mark ${pdaType.label}`, () => addAnnotation(annotation));
   hideContextMenu();
 
   const contextLabel = formatContextLabel(contexts);
@@ -271,7 +272,7 @@ function addManualFvg(bar, type = 'fvg') {
     ...colors,
   };
 
-  addAnnotation(annotation);
+  recordHistory(`Mark ${pdaType.label}`, () => addAnnotation(annotation));
   hideContextMenu();
 
   bus.emit('status:update', {
@@ -350,7 +351,7 @@ function addManualWickCe(side, bar) {
     contexts: [`${tfLabel} ${sideLabel} Wick CE`],
   };
 
-  addAnnotation(annotation);
+  recordHistory(`Mark ${sideLabel} Wick CE`, () => addAnnotation(annotation));
   hideContextMenu();
 
   bus.emit('status:update', {
@@ -450,7 +451,7 @@ function addManualRange(endBar) {
     ...getManualRangeColors(type, direction),
   };
 
-  addAnnotation(annotation);
+  recordHistory(`Mark ${pdaType?.label || type}`, () => addAnnotation(annotation));
   rangeSelectionState = null;
   hideContextMenu();
 
@@ -523,7 +524,7 @@ function addManualFib(endBar) {
     contexts: [`${tfLabel} ${direction} Fib`],
   };
 
-  addAnnotation(annotation);
+  recordHistory('Mark Fib', () => addAnnotation(annotation));
   fibSelectionState = null;
   hideContextMenu();
 
@@ -720,13 +721,13 @@ function handleContextMenu(e) {
   showContextMenu(x, y, bar, pdaHit, segmentHit, segmentGroupHit);
 }
 
-function handleControlClick(e) {
+async function handleControlClick(e) {
   const action = e.target.closest('[data-pda-action]')?.dataset.pdaAction;
   if (!action) return;
   e.stopPropagation();
 
   if (action === 'bsl' || action === 'ssl') {
-    addManualPoint(action, contextMenuBar);
+    await addManualPoint(action, contextMenuBar);
   } else if (handleOrderSetupChartAction(action, {
     bar: contextMenuBar,
     price: contextMenuPrice,
@@ -765,7 +766,7 @@ function handleControlClick(e) {
     } else if (getEventTimeAtContextBar()) {
       bus.emit('status:update', { text: `${date} ${getEventTimeLabel(time)} 时间线已存在`, isError: false });
     } else {
-      addEventTime({ date, time, label: getEventTimeLabel(time) });
+      recordHistory('Add Time Line', () => addEventTime({ date, time, label: getEventTimeLabel(time) }));
       bus.emit('status:update', { text: `已添加 ${date} ${getEventTimeLabel(time)} 时间线`, isError: false });
     }
     hideContextMenu();
@@ -774,7 +775,7 @@ function handleControlClick(e) {
     if (!eventTime) {
       bus.emit('status:update', { text: '当前时间没有可删除的时间线', isError: true });
     } else {
-      deleteEventTime(eventTime.id);
+      recordHistory('Delete Time Line', () => deleteEventTime(eventTime.id));
       bus.emit('status:update', {
         text: `已删除 ${eventTime.date} ${eventTime.label || getEventTimeLabel(eventTime.time)} 时间线`,
         isError: false,
@@ -782,7 +783,7 @@ function handleControlClick(e) {
     }
     hideContextMenu();
   } else if (action === 'time-overlay-clear-events') {
-    const cleared = clearEventTimes();
+    const cleared = await recordHistory('Clear Time Lines', () => clearEventTimes());
     bus.emit('status:update', {
       text: cleared ? '已清除所有时间线' : '没有可清除的时间线',
       isError: false,
@@ -794,7 +795,7 @@ function handleControlClick(e) {
     if (!time || !date) {
       bus.emit('status:update', { text: '无法设置 Killzone：没有可用 K 线时间', isError: true });
     } else {
-      setKillzoneDraft({ date, startTime: time });
+      recordHistory('Start Killzone', () => setKillzoneDraft({ date, startTime: time }));
       bus.emit('status:update', {
         text: `Killzone 起点: ${date} ${getEventTimeLabel(time)}`,
         isError: false,
@@ -812,13 +813,16 @@ function handleControlClick(e) {
     } else {
       const label = promptKillzoneLabel('Killzone');
       if (label !== null) {
-        const killzone = addKillzone({
-          date,
-          label,
-          startTime: killzoneDraft.startTime,
-          endTime: time,
+        const killzone = await recordHistory('Create Killzone', () => {
+          const nextKillzone = addKillzone({
+            date,
+            label,
+            startTime: killzoneDraft.startTime,
+            endTime: time,
+          });
+          clearKillzoneDraft();
+          return nextKillzone;
         });
-        clearKillzoneDraft();
         bus.emit('status:update', {
           text: killzone
             ? `已创建 Killzone: ${killzone.label} ${date} ${getEventTimeLabel(killzone.startTime)}-${getEventTimeLabel(killzone.endTime)}`
@@ -835,67 +839,75 @@ function handleControlClick(e) {
     } else {
       const label = promptKillzoneLabel(killzone.label || 'Killzone');
       if (label !== null) {
-        updateKillzone(killzone.id, { label });
+        recordHistory('Rename Killzone', () => updateKillzone(killzone.id, { label }));
         bus.emit('status:update', { text: `Killzone 已重命名为 ${label}`, isError: false });
       }
     }
     hideContextMenu();
   } else if (action === 'time-overlay-killzone-delete') {
     const killzone = getKillzoneAtContextBar();
-    const deleted = killzone ? deleteKillzone(killzone.id) : false;
+    const deleted = killzone ? await recordHistory('Delete Killzone', () => deleteKillzone(killzone.id)) : false;
     bus.emit('status:update', {
       text: deleted ? `已删除 Killzone: ${killzone.label}` : '当前位置没有可删除的 Killzone',
       isError: !deleted,
     });
     hideContextMenu();
   } else if (action === 'time-overlay-killzone-clear') {
-    const cleared = clearKillzones();
+    const cleared = await recordHistory('Clear Killzones', () => clearKillzones());
     bus.emit('status:update', {
       text: cleared ? 'Killzones 已清除' : '没有可清除的 Killzone',
       isError: false,
     });
     hideContextMenu();
   } else if (action === 'eqh-start' || action === 'eql-start') {
-    startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime);
+    recordHistory(`Start ${action === 'eqh-start' ? 'EQH' : 'EQL'} Set`, () =>
+      startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime)
+    );
     hideContextMenu();
   } else if (action === 'pointset-add') {
-    addPointSetPoint(contextMenuBar, getBarChartTime);
+    recordHistory('Add Point Set Point', () => addPointSetPoint(contextMenuBar, getBarChartTime));
     hideContextMenu();
   } else if (action === 'pointset-finish') {
-    finishPointSet();
+    recordHistory('Finish Point Set', () => finishPointSet());
     hideContextMenu();
   } else if (action === 'pointset-cancel') {
-    cancelPointSet();
+    recordHistory('Cancel Point Set', () => cancelPointSet());
     hideContextMenu();
   } else if (action === 'selected-pointset-add') {
     const selected = getSelectedPda();
-    if (selected) appendPointToPointSet(selected.id, contextMenuBar, getBarChartTime);
+    if (selected) recordHistory('Add Point To Selected Set', () => appendPointToPointSet(selected.id, contextMenuBar, getBarChartTime));
     hideContextMenu();
   } else if (action === 'segment-start-low' || action === 'segment-start-high') {
-    startSegment(contextMenuBar, action === 'segment-start-high' ? 'swing-high' : 'swing-low');
+    recordHistory('Start 1H Segment', () =>
+      startSegment(contextMenuBar, action === 'segment-start-high' ? 'swing-high' : 'swing-low')
+    );
     hideContextMenu();
   } else if (action === 'segment-finish-low' || action === 'segment-finish-high') {
-    finishSegment(contextMenuBar, action === 'segment-finish-high' ? 'swing-high' : 'swing-low').catch((err) => {
+    recordHistory('Finish 1H Segment', () =>
+      finishSegment(contextMenuBar, action === 'segment-finish-high' ? 'swing-high' : 'swing-low')
+    ).catch((err) => {
       console.warn('[manual-annotation] finish segment failed', err);
       bus.emit('status:update', { text: '1H 行情段创建失败', isError: true });
     });
     hideContextMenu();
   } else if (action === 'segment-cancel') {
-    cancelSegmentSelection();
+    recordHistory('Cancel 1H Segment', () => cancelSegmentSelection());
     hideContextMenu();
   } else if (action === 'segment-clear') {
-    clearManualSegments();
+    recordHistory('Clear 1H Segments', () => clearManualSegments());
     hideContextMenu();
   } else if (action === 'segment-link-pda') {
     const selectedSegment = getSelectedSegment();
     const annotation = contextMenuPdaHit ? getAnnotationById(contextMenuPdaHit.id) : null;
     const relation = e.target.closest('[data-relation]')?.dataset.relation;
     if (selectedSegment && annotation && relation) {
-      linkPdaResponse(selectedSegment.id, {
-        pdaId: annotation.id,
-        pdaType: annotation.type,
-        relation,
-      });
+      recordHistory('Link PDA To Segment', () =>
+        linkPdaResponse(selectedSegment.id, {
+          pdaId: annotation.id,
+          pdaType: annotation.type,
+          relation,
+        })
+      );
       bus.emit('status:update', {
         text: `${getPdaLabel(annotation)} linked to selected segment as ${relation}`,
         isError: false,
@@ -905,7 +917,7 @@ function handleControlClick(e) {
   } else if (action === 'segment-group-add') {
     const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
     if (segment) {
-      const draftIds = addSegmentToDraftGroup(segment.id) || [];
+      const draftIds = await recordHistory('Add Segment To Composite Draft', () => addSegmentToDraftGroup(segment.id) || []);
       bus.emit('status:update', {
         text: `${getSegmentLabel(segment)} added to Composite Draft (${draftIds.length})`,
         isError: false,
@@ -915,7 +927,7 @@ function handleControlClick(e) {
   } else if (action === 'segment-group-remove') {
     const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
     if (segment) {
-      const draftIds = removeSegmentFromDraftGroup(segment.id);
+      const draftIds = await recordHistory('Remove Segment From Composite Draft', () => removeSegmentFromDraftGroup(segment.id));
       bus.emit('status:update', {
         text: `${getSegmentLabel(segment)} removed from Composite Draft (${draftIds.length})`,
         isError: false,
@@ -925,7 +937,7 @@ function handleControlClick(e) {
   } else if (action === 'segment-group-set-target') {
     const segment = contextMenuSegmentHit ? getSegmentById(contextMenuSegmentHit.id) : null;
     if (segment) {
-      setDraftSegmentGroupTarget(segment.id);
+      recordHistory('Set Composite Target', () => setDraftSegmentGroupTarget(segment.id));
       bus.emit('status:update', {
         text: `${getSegmentLabel(segment)} set as Composite Target`,
         isError: false,
@@ -933,14 +945,14 @@ function handleControlClick(e) {
     }
     hideContextMenu();
   } else if (action === 'segment-group-create') {
-    const group = createCompositeMove({ outcome: 'pending' });
+    const group = await recordHistory('Create Composite Move', () => createCompositeMove({ outcome: 'pending' }));
     bus.emit('status:update', {
       text: group ? `Composite Move created: ${group.childSegmentIds.length} legs` : 'Composite Move 至少需要 2 个 staged segments',
       isError: !group,
     });
     hideContextMenu();
   } else if (action === 'segment-group-clear') {
-    clearDraftSegmentGroup();
+    recordHistory('Clear Composite Draft', () => clearDraftSegmentGroup());
     bus.emit('status:update', { text: 'Composite Draft cleared', isError: false });
     hideContextMenu();
   } else if (action === 'toggle-ndog') {
@@ -950,11 +962,13 @@ function handleControlClick(e) {
     toggleThisWeekNwog(contextMenuBar);
     hideContextMenu();
   } else if (action === 'clear') {
-    clearAnnotations();
-    clearAllPdaResponses();
-    rangeSelectionState = null;
-    fibSelectionState = null;
-    clearPointSetSelection({ silent: true });
+    recordHistory('Clear PDA', () => {
+      clearAnnotations();
+      clearAllPdaResponses();
+      rangeSelectionState = null;
+      fibSelectionState = null;
+      clearPointSetSelection({ silent: true });
+    });
     hideContextMenu();
     bus.emit('status:update', { text: 'PDA 标注已清除', isError: false });
   }

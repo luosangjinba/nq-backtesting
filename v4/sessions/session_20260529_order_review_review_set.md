@@ -351,3 +351,54 @@
   - add history manager
   - add time overlay load API
   - initialize global keyboard handling without wrapping all operations yet
+
+## 2026-05-29 Global Undo / Redo Implemented
+- Added `v4/src/history/history-manager.js`.
+- Snapshot contains:
+  - PDA annotations, excluding draft annotations
+  - 1H segments
+  - segment group state, including Composite draft ids and target id
+  - SMT records
+  - Order Reviews / Setup Sets
+  - Time Overlay settings
+- Restore uses existing store load APIs plus new restore helpers:
+  - `loadSegmentGroupState()`
+  - `loadTimeOverlaySettings()`
+- Added toolbar Undo / Redo buttons:
+  - `↶` Undo
+  - `↷` Redo
+  - disabled when no corresponding history entry exists
+  - tooltips show the next undo/redo label
+- Added shortcuts:
+  - `Ctrl/Cmd+Z` undo
+  - `Ctrl/Cmd+Shift+Z` redo
+  - `Ctrl+Y` redo
+  - input / textarea / select / contenteditable keep native browser undo
+- Wrapped chart right-click writes:
+  - PDA marks
+  - Order Setup create/update/link/manual event
+  - Time Lines and Killzones
+  - finished PDA range/fib and point-set changes
+  - Segment finish/clear/link
+  - Composite draft/create/clear
+  - Clear PDA / Clear Segments / Clear Killzones
+- Wrapped Inspector writes:
+  - PDA edit/delete/point removal
+  - Segment edit/delete/PDA responses/reaction evidence
+  - Composite edit/delete/draft
+  - SMT note/delete
+  - Order Review create/edit/delete/ref changes/pick time/pick price
+- Wrapped PDA and Review JSON import as single undoable transactions.
+- Validation:
+  - full `node --check` over `v4/src/**/*.js`
+  - `git diff --check`
+  - Node snapshot probe covering PDA, Segment, Composite draft/group, SMT, Order Review, and Killzone undo/redo
+  - headless Chrome smoke on `http://127.0.0.1:8001/index.html`; toolbar rendered Undo/Redo buttons disabled initially and page started without runtime failure
+- Phase 8H Step 111-117 marked complete in `v4/TODO.md`.
+
+## Current Next Step
+- Manually exercise browser workflows with real chart data:
+  - create order setup from chart and undo/redo each order element
+  - clear PDA / segments / killzones and undo
+  - edit Inspector notes and confirm one undo step per change
+  - import a Review JSON and undo the full import

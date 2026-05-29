@@ -11,6 +11,7 @@ import * as secondaryStore from '../data/secondary-chart-store.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
+import { canRedo, canUndo, getRedoLabel, getUndoLabel, redo, undo } from '../history/history-manager.js';
 
 function renderSecondaryTimeframeOptions(selectedTimeframe) {
   return Object.entries(TIMEFRAME_MAP)
@@ -114,6 +115,8 @@ export function initToolbar() {
     </div>
     <button id="loadBtn" class="toolbar-btn">加载</button>
     <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
+    <button id="undoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Undo">↶</button>
+    <button id="redoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Redo">↷</button>
     ${renderSplitScreenControls()}
     ${renderDisplayControls(displayMode)}
     <div class="status-bar">
@@ -126,6 +129,8 @@ export function initToolbar() {
   const tfSelect = document.getElementById('tfSelect');
   const loadBtn = document.getElementById('loadBtn');
   const archiveBtn = document.getElementById('archiveBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
   const splitScreenToggle = document.getElementById('splitScreenToggle');
   const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
@@ -140,6 +145,8 @@ export function initToolbar() {
   archiveBtn.addEventListener('click', () => {
     bus.emit('inspector:open-archive');
   });
+  undoBtn.addEventListener('click', undo);
+  redoBtn.addEventListener('click', redo);
   startInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleLoad();
   });
@@ -207,6 +214,21 @@ export function initToolbar() {
       el.style.color = isError ? '#ef5350' : '#b2b5be';
     }
   });
+  bus.on('history:changed', updateHistoryButtons);
+  updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  if (undoBtn) {
+    undoBtn.disabled = !canUndo();
+    undoBtn.title = getUndoLabel() ? `Undo: ${getUndoLabel()}` : 'Undo';
+  }
+  if (redoBtn) {
+    redoBtn.disabled = !canRedo();
+    redoBtn.title = getRedoLabel() ? `Redo: ${getRedoLabel()}` : 'Redo';
+  }
 }
 
 function syncSplitScreenLayout() {
