@@ -48,12 +48,16 @@ import {
   renderOrderSetupMenuItems,
 } from '../order/order-setup-chart-actions.js';
 import {
+  addKillzone,
   addEventTime,
   clearEventTimes,
-  clearKillzone,
+  clearKillzones,
+  clearKillzoneDraft,
   deleteEventTime,
+  deleteKillzone,
   getTimeOverlaySettings,
   normalizeEventTimeValue,
+  setKillzoneDraft,
   updateKillzone,
 } from '../time-overlays/time-overlay-store.js';
 import {
@@ -135,6 +139,26 @@ function getEventTimeAtContextBar() {
       (eventTime) => eventTime.date === date && eventTime.time === time
     ) || null
   );
+}
+
+function getKillzoneAtContextBar() {
+  const time = getContextEventTime();
+  const date = getContextEventDate();
+  if (!time || !date) return null;
+  return (
+    (getTimeOverlaySettings().killzones || []).find((killzone) => {
+      if (killzone.date !== date || killzone.enabled === false) return false;
+      const start = killzone.startTime <= killzone.endTime ? killzone.startTime : killzone.endTime;
+      const end = killzone.startTime <= killzone.endTime ? killzone.endTime : killzone.startTime;
+      return time >= start && time <= end;
+    }) || null
+  );
+}
+
+function promptKillzoneLabel(defaultLabel = 'Killzone') {
+  const value = window.prompt('Killzone name', defaultLabel);
+  if (value === null) return null;
+  return value.trim() || defaultLabel;
 }
 
 function findDisplayBar(time) {
@@ -543,9 +567,12 @@ function renderTimeOverlayMenuItems(bar) {
   const removeDisabled = existingEventTime ? '' : 'disabled';
   const clearDisabled = settings.eventTimes.length ? '' : 'disabled';
   const label = time ? getEventTimeLabel(time) : '';
-  const killzone = settings.killzone || {};
-  const killzoneToggleLabel = killzone.enabled ? 'Hide Killzone' : 'Show Killzone';
-  const killzoneDisabled = date ? '' : 'disabled';
+  const hitKillzone = getKillzoneAtContextBar();
+  const killzoneDraft = settings.killzoneDraft;
+  const endDisabled = killzoneDraft && date === killzoneDraft.date && time ? '' : 'disabled';
+  const editKillzoneDisabled = hitKillzone ? '' : 'disabled';
+  const clearKillzonesDisabled = settings.killzones?.length ? '' : 'disabled';
+  const draftLabel = killzoneDraft ? ` · ${killzoneDraft.date} ${getEventTimeLabel(killzoneDraft.startTime)}` : '';
   return `
     <details class="pda-menu-section">
       <summary>Time Overlays</summary>
@@ -553,10 +580,11 @@ function renderTimeOverlayMenuItems(bar) {
       <button class="pda-menu-item" data-pda-action="time-overlay-delete-event" ${removeDisabled}>Delete ${label || 'Time'} Line</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-clear-events" ${clearDisabled}>Clear Time Lines</button>
       <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-start" ${disabled}>Set Killzone Start Here</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-end" ${disabled}>Set Killzone End Here</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-toggle" ${killzoneDisabled}>${killzoneToggleLabel}</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear">Clear Killzone</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-start" ${disabled}>Start Killzone Here</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-end" ${endDisabled}>End Killzone Here${draftLabel}</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-rename" ${editKillzoneDisabled}>Rename Killzone Here</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-delete" ${editKillzoneDisabled}>Delete Killzone Here</button>
+      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear" ${clearKillzonesDisabled}>Clear Killzones</button>
     </details>
   `;
 }
@@ -741,33 +769,72 @@ function handleControlClick(e) {
       isError: false,
     });
     hideContextMenu();
-  } else if (action === 'time-overlay-killzone-start' || action === 'time-overlay-killzone-end') {
+  } else if (action === 'time-overlay-killzone-start') {
     const time = getContextEventTime();
     const date = getContextEventDate();
     if (!time || !date) {
       bus.emit('status:update', { text: '无法设置 Killzone：没有可用 K 线时间', isError: true });
     } else {
-      const field = action === 'time-overlay-killzone-start' ? 'startTime' : 'endTime';
-      updateKillzone({ selectedDate: date, enabled: true, [field]: time });
+      setKillzoneDraft({ date, startTime: time });
       bus.emit('status:update', {
-        text: `已设置 ${date} Killzone ${field === 'startTime' ? '起点' : '终点'} ${getEventTimeLabel(time)}`,
+        text: `Killzone 起点: ${date} ${getEventTimeLabel(time)}`,
         isError: false,
       });
     }
     hideContextMenu();
-  } else if (action === 'time-overlay-killzone-toggle') {
+  } else if (action === 'time-overlay-killzone-end') {
+    const time = getContextEventTime();
     const date = getContextEventDate();
-    const settings = getTimeOverlaySettings();
-    const enabled = !settings.killzone?.enabled;
-    updateKillzone({ selectedDate: date || settings.selectedDate, enabled });
+    const killzoneDraft = getTimeOverlaySettings().killzoneDraft;
+    if (!time || !date || !killzoneDraft || killzoneDraft.date !== date) {
+      bus.emit('status:update', { text: '无法完成 Killzone：请先在同一天设置起点', isError: true });
+    } else if (time === killzoneDraft.startTime) {
+      bus.emit('status:update', { text: 'Killzone 起点和终点不能相同', isError: true });
+    } else {
+      const label = promptKillzoneLabel('Killzone');
+      if (label !== null) {
+        const killzone = addKillzone({
+          date,
+          label,
+          startTime: killzoneDraft.startTime,
+          endTime: time,
+        });
+        clearKillzoneDraft();
+        bus.emit('status:update', {
+          text: killzone
+            ? `已创建 Killzone: ${killzone.label} ${date} ${getEventTimeLabel(killzone.startTime)}-${getEventTimeLabel(killzone.endTime)}`
+            : 'Killzone 创建失败',
+          isError: !killzone,
+        });
+      }
+    }
+    hideContextMenu();
+  } else if (action === 'time-overlay-killzone-rename') {
+    const killzone = getKillzoneAtContextBar();
+    if (!killzone) {
+      bus.emit('status:update', { text: '当前位置没有 Killzone', isError: true });
+    } else {
+      const label = promptKillzoneLabel(killzone.label || 'Killzone');
+      if (label !== null) {
+        updateKillzone(killzone.id, { label });
+        bus.emit('status:update', { text: `Killzone 已重命名为 ${label}`, isError: false });
+      }
+    }
+    hideContextMenu();
+  } else if (action === 'time-overlay-killzone-delete') {
+    const killzone = getKillzoneAtContextBar();
+    const deleted = killzone ? deleteKillzone(killzone.id) : false;
     bus.emit('status:update', {
-      text: enabled ? 'Killzone 已显示' : 'Killzone 已隐藏',
-      isError: false,
+      text: deleted ? `已删除 Killzone: ${killzone.label}` : '当前位置没有可删除的 Killzone',
+      isError: !deleted,
     });
     hideContextMenu();
   } else if (action === 'time-overlay-killzone-clear') {
-    clearKillzone();
-    bus.emit('status:update', { text: 'Killzone 已清除', isError: false });
+    const cleared = clearKillzones();
+    bus.emit('status:update', {
+      text: cleared ? 'Killzones 已清除' : '没有可清除的 Killzone',
+      isError: false,
+    });
     hideContextMenu();
   } else if (action === 'eqh-start' || action === 'eql-start') {
     startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime);
@@ -893,6 +960,9 @@ function handleKeydown(e) {
       clearPointSetSelection();
     } else if (getSegmentSelectionSummary()) {
       cancelSegmentSelection();
+    } else if (getTimeOverlaySettings().killzoneDraft) {
+      clearKillzoneDraft();
+      bus.emit('status:update', { text: 'Killzone 选择已取消', isError: false });
     }
     hideContextMenu();
   }
@@ -909,12 +979,14 @@ export function initManualAnnotation() {
   bus.on('bars:loaded', () => {
     rangeSelectionState = null;
     fibSelectionState = null;
+    clearKillzoneDraft();
     clearPointSetSelection({ silent: true });
     hideContextMenu();
   });
   bus.on('bars:cleared', () => {
     rangeSelectionState = null;
     fibSelectionState = null;
+    clearKillzoneDraft();
     clearPointSetSelection({ silent: true });
     clearPdaContextDataCache();
     hideContextMenu();

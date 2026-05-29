@@ -20,8 +20,8 @@
   - clear all manual time lines
 - Added toolbar `Grid` toggle to show/hide the original LightweightCharts background grid on both primary and secondary charts.
 - Time marker style adjusted to be thicker but lower opacity.
-- Step 88: added `KillzoneBandPrimitive`, rendered as a top-of-canvas band independent of price coordinates.
-- Right-click menu `Time Overlays` now supports Killzone start/end, show/hide, and clear actions.
+- Step 88: added `KillzoneBandPrimitive`, rendered as top-of-canvas bands independent of price coordinates.
+- Right-click menu `Time Overlays` now supports multi-killzone Start/End creation, free-form naming, rename, delete, and clear actions.
 
 ## Decisions
 
@@ -29,7 +29,9 @@
 - Default event-time list is empty. Users must add lines explicitly from the chart.
 - `clearEventTimes()` only clears manual event lines and does not reset day boundary, selected date, grid visibility, or future killzone settings.
 - Grid visibility is chart display state, separate from Time Overlay Store.
-- First Killzone version supports one active killzone only and uses `selectedDate + startTime/endTime` as its display range.
+- Killzones are fully manual and do not use built-in presets yet.
+- Each killzone binds to a concrete `date + startTime/endTime`.
+- Overlapping killzones are not merged; renderer assigns them to stacked top layers so their separate meanings remain visible.
 
 ## Validation
 
@@ -40,14 +42,13 @@
 ## Current Git State
 
 - Last committed work:
+  - `1491c04 feat(v4): add manual time overlays controls`
   - `2d14105 feat(v4): make time markers manual`
   - `eb0a738 feat(v4): render time overlay markers`
-  - `b4bf70b feat(v4): add time overlay store`
 - Uncommitted changes include:
-  - date-bound event time rendering
-  - clear time line action
-  - Grid toggle
-  - Killzone top band rendering and right-click controls
+  - multi-killzone store refactor
+  - layered killzone renderer for overlaps
+  - Start/End create, rename, delete, and clear killzones from chart context menu
   - TODO/session updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`

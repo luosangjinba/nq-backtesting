@@ -82,20 +82,63 @@ function buildMarkers(displayBars, settings) {
   return markers;
 }
 
-function buildKillzoneBand(settings) {
-  const killzone = settings.killzone || {};
-  if (!killzone.enabled || !settings.selectedDate) return null;
-  const startTimestamp = timestampFromDateAndTime(settings.selectedDate, killzone.startTime);
-  const endTimestamp = timestampFromDateAndTime(settings.selectedDate, killzone.endTime);
-  if (startTimestamp === null || endTimestamp === null || startTimestamp === endTimestamp) return null;
+function rangesOverlap(a, b) {
+  return a.startTimestamp < b.endTimestamp && b.startTimestamp < a.endTimestamp;
+}
 
+function assignKillzoneLayers(bands) {
+  const layers = [];
+  return [...bands]
+    .sort((a, b) => a.startTimestamp - b.startTimestamp || a.endTimestamp - b.endTimestamp)
+    .map((band) => {
+      const layer = layers.findIndex((layerBands) => !layerBands.some((candidate) => rangesOverlap(candidate, band)));
+      const targetLayer = layer === -1 ? layers.length : layer;
+      if (!layers[targetLayer]) layers[targetLayer] = [];
+      const layeredBand = { ...band, layer: targetLayer };
+      layers[targetLayer].push(layeredBand);
+      return layeredBand;
+    });
+}
+
+function buildKillzoneBands(settings) {
+  const bands = (settings.killzones || [])
+    .filter((killzone) => killzone.enabled !== false && killzone.date)
+    .filter((killzone) => !settings.selectedDate || killzone.date === settings.selectedDate)
+    .map((killzone) => {
+      const startTimestamp = timestampFromDateAndTime(killzone.date, killzone.startTime);
+      const endTimestamp = timestampFromDateAndTime(killzone.date, killzone.endTime);
+      if (startTimestamp === null || endTimestamp === null || startTimestamp === endTimestamp) return null;
+      return {
+        id: killzone.id,
+        type: 'killzone',
+        startTimestamp: Math.min(startTimestamp, endTimestamp),
+        endTimestamp: Math.max(startTimestamp, endTimestamp),
+        label: killzone.label || 'Killzone',
+        fillColor: killzone.fillColor,
+        lineColor: killzone.lineColor,
+      };
+    })
+    .filter(Boolean);
+
+  return assignKillzoneLayers(bands);
+}
+
+function buildKillzoneDraftMarker(settings) {
+  const draft = settings.killzoneDraft;
+  if (!draft?.date || !draft.startTime) return null;
+  if (settings.selectedDate && draft.date !== settings.selectedDate) return null;
+  const timestamp = timestampFromDateAndTime(draft.date, draft.startTime);
+  if (timestamp === null) return null;
   return {
-    type: 'killzone',
-    startTimestamp,
-    endTimestamp,
-    label: killzone.label || 'Killzone',
-    fillColor: killzone.fillColor,
-    lineColor: killzone.lineColor,
+    id: 'killzone-draft',
+    type: 'killzone-draft',
+    startTimestamp: timestamp,
+    endTimestamp: timestamp,
+    label: 'Killzone start',
+    fillColor: 'rgba(255, 224, 130, 0.34)',
+    lineColor: 'rgba(255, 224, 130, 0.72)',
+    draft: true,
+    layer: 0,
   };
 }
 
@@ -112,8 +155,9 @@ export function renderTimeOverlays() {
   if (!settings.enabled || !isTimeOverlayTimeframe(timeframe)) return;
 
   const markers = buildMarkers(displayBars, settings);
-  const killzoneBand = buildKillzoneBand(settings);
-  if (!markers.length && !killzoneBand) return;
+  const killzoneDraftMarker = buildKillzoneDraftMarker(settings);
+  const killzoneBands = [...buildKillzoneBands(settings), ...(killzoneDraftMarker ? [killzoneDraftMarker] : [])];
+  if (!markers.length && !killzoneBands.length) return;
 
   if (markers.length) {
     const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers);
@@ -122,8 +166,8 @@ export function renderTimeOverlays() {
     renderedPrimitives.push(markerPrimitive);
   }
 
-  if (killzoneBand) {
-    const killzonePrimitive = new KillzoneBandPrimitive(chartInstance, displayBars, timeframe, killzoneBand);
+  if (killzoneBands.length) {
+    const killzonePrimitive = new KillzoneBandPrimitive(chartInstance, displayBars, timeframe, killzoneBands);
     chart.attachPrimitive(killzonePrimitive);
     killzonePrimitive.requestUpdate?.();
     renderedPrimitives.push(killzonePrimitive);

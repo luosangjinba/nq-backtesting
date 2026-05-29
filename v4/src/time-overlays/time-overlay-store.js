@@ -12,6 +12,7 @@ import {
 } from './time-overlay-types.js';
 
 let eventIdSequence = 0;
+let killzoneIdSequence = 0;
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -55,6 +56,11 @@ function nextEventId() {
   return `event_time_${Date.now()}_${eventIdSequence}`;
 }
 
+function nextKillzoneId() {
+  killzoneIdSequence += 1;
+  return `killzone_${Date.now()}_${killzoneIdSequence}`;
+}
+
 export function normalizeEventTime(input = {}) {
   const time = normalizeEventTimeValue(input.time, '');
   if (!time) return null;
@@ -75,15 +81,37 @@ function normalizeEventTimes(input = DEFAULT_EVENT_TIMES) {
 }
 
 function normalizeKillzone(input = {}) {
+  const date = normalizeDate(input.date, '');
+  const startTime = normalizeEventTimeValue(input.startTime, DEFAULT_KILLZONE.startTime);
+  const endTime = normalizeEventTimeValue(input.endTime, DEFAULT_KILLZONE.endTime);
+  if (!date || !startTime || !endTime || startTime === endTime) return null;
   return {
     ...DEFAULT_KILLZONE,
     ...input,
-    enabled: input.enabled === true,
+    id: String(input.id || nextKillzoneId()),
+    date,
+    enabled: input.enabled !== false,
     label: String(input.label || DEFAULT_KILLZONE.label),
-    startTime: normalizeEventTimeValue(input.startTime, DEFAULT_KILLZONE.startTime),
-    endTime: normalizeEventTimeValue(input.endTime, DEFAULT_KILLZONE.endTime),
+    startTime,
+    endTime,
     fillColor: String(input.fillColor || DEFAULT_KILLZONE_FILL_COLOR),
     lineColor: String(input.lineColor || DEFAULT_KILLZONE_LINE_COLOR),
+  };
+}
+
+function normalizeKillzones(input = []) {
+  const source = Array.isArray(input) ? input : [];
+  return source.map(normalizeKillzone).filter(Boolean);
+}
+
+function normalizeKillzoneDraft(input = null) {
+  if (!input) return null;
+  const date = normalizeDate(input.date, '');
+  const startTime = normalizeEventTimeValue(input.startTime, '');
+  if (!date || !startTime) return null;
+  return {
+    date,
+    startTime,
   };
 }
 
@@ -94,7 +122,8 @@ function createDefaultSettings() {
     showDayBoundary: true,
     dayBoundaryColor: DEFAULT_DAY_BOUNDARY_COLOR,
     eventTimes: normalizeEventTimes(DEFAULT_EVENT_TIMES),
-    killzone: normalizeKillzone(DEFAULT_KILLZONE),
+    killzones: [],
+    killzoneDraft: null,
   };
 }
 
@@ -114,7 +143,9 @@ export function updateTimeOverlaySettings(patch = {}) {
       patch.showDayBoundary === undefined ? settings.showDayBoundary : patch.showDayBoundary !== false,
     dayBoundaryColor: String(patch.dayBoundaryColor || settings.dayBoundaryColor || DEFAULT_DAY_BOUNDARY_COLOR),
     eventTimes: patch.eventTimes === undefined ? settings.eventTimes : normalizeEventTimes(patch.eventTimes),
-    killzone: patch.killzone === undefined ? settings.killzone : normalizeKillzone(patch.killzone),
+    killzones: patch.killzones === undefined ? settings.killzones : normalizeKillzones(patch.killzones),
+    killzoneDraft:
+      patch.killzoneDraft === undefined ? settings.killzoneDraft : normalizeKillzoneDraft(patch.killzoneDraft),
   };
   emitChanged('update');
   return getTimeOverlaySettings();
@@ -167,23 +198,75 @@ export function clearEventTimes() {
   return cleared;
 }
 
-export function updateKillzone(patch = {}) {
+export function addKillzone(input = {}) {
+  const killzone = normalizeKillzone(input);
+  if (!killzone) return null;
   settings = {
     ...settings,
-    selectedDate: patch.selectedDate === undefined ? settings.selectedDate : normalizeDate(patch.selectedDate, ''),
-    killzone: normalizeKillzone({ ...settings.killzone, ...patch }),
+    selectedDate: killzone.date,
+    killzones: [...settings.killzones, killzone],
   };
-  emitChanged('killzone:update');
-  return getTimeOverlaySettings().killzone;
+  emitChanged('killzone:add');
+  return clone(killzone);
 }
 
-export function clearKillzone() {
+export function updateKillzone(id, patch = {}) {
+  let updated = null;
   settings = {
     ...settings,
-    killzone: normalizeKillzone({ ...DEFAULT_KILLZONE, enabled: false }),
+    killzones: settings.killzones.map((killzone) => {
+      if (killzone.id !== id) return killzone;
+      updated = normalizeKillzone({ ...killzone, ...patch, id: killzone.id });
+      return updated || killzone;
+    }),
   };
-  emitChanged('killzone:clear');
-  return getTimeOverlaySettings().killzone;
+  if (updated) emitChanged('killzone:update');
+  return clone(updated);
+}
+
+export function deleteKillzone(id) {
+  const before = settings.killzones.length;
+  settings = {
+    ...settings,
+    killzones: settings.killzones.filter((killzone) => killzone.id !== id),
+  };
+  const deleted = settings.killzones.length !== before;
+  if (deleted) emitChanged('killzone:delete');
+  return deleted;
+}
+
+export function clearKillzones() {
+  const before = settings.killzones.length;
+  settings = {
+    ...settings,
+    killzones: [],
+    killzoneDraft: null,
+  };
+  const cleared = before > 0;
+  if (cleared) emitChanged('killzone:clear');
+  return cleared;
+}
+
+export function setKillzoneDraft(input = {}) {
+  const draft = normalizeKillzoneDraft(input);
+  if (!draft) return null;
+  settings = {
+    ...settings,
+    selectedDate: draft.date,
+    killzoneDraft: draft,
+  };
+  emitChanged('killzone:draft');
+  return clone(draft);
+}
+
+export function clearKillzoneDraft() {
+  const hadDraft = Boolean(settings.killzoneDraft);
+  settings = {
+    ...settings,
+    killzoneDraft: null,
+  };
+  if (hadDraft) emitChanged('killzone:draft-clear');
+  return hadDraft;
 }
 
 export function resetTimeOverlaySettings() {

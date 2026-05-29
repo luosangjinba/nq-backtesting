@@ -3,6 +3,7 @@ import { timestampToXCoordinate } from './time-coordinate.js';
 const DEFAULT_BAND_OPTIONS = {
   height: 5,
   topOffset: 2,
+  layerGap: 3,
   fillColor: 'rgba(255, 193, 7, 0.24)',
   lineColor: 'rgba(255, 193, 7, 0.50)',
   lineWidth: 1,
@@ -19,8 +20,8 @@ class KillzoneBandRenderer {
 
   draw(target) {
     target.useBitmapCoordinateSpace((scope) => {
-      const band = this._view._band;
-      if (!band || band.x1 === null || band.x2 === null) return;
+      const bands = this._view._bands.filter((band) => band.x1 !== null && band.x2 !== null);
+      if (!bands.length) return;
 
       const source = this._view._source;
       const options = source._options;
@@ -28,32 +29,60 @@ class KillzoneBandRenderer {
       const hRatio = scope.horizontalPixelRatio;
       const vRatio = scope.verticalPixelRatio;
       const ratio = Math.min(hRatio, vRatio);
-      const x1 = Math.round(Math.min(band.x1, band.x2) * hRatio) + 0.5;
-      const x2 = Math.round(Math.max(band.x1, band.x2) * hRatio) + 0.5;
-      const y = Math.round(options.topOffset * vRatio) + 0.5;
       const height = Math.max(1, Math.round(options.height * vRatio));
 
       ctx.save();
-      ctx.fillStyle = band.fillColor || options.fillColor;
-      ctx.fillRect(x1, y, Math.max(1, x2 - x1), height);
-      ctx.strokeStyle = band.lineColor || options.lineColor;
-      ctx.lineWidth = options.lineWidth * ratio;
-      ctx.beginPath();
-      ctx.moveTo(x1, y + height);
-      ctx.lineTo(x2, y + height);
-      ctx.stroke();
+      bands.forEach((band) => {
+        const x1 = Math.round(Math.min(band.x1, band.x2) * hRatio) + 0.5;
+        const x2 = Math.round(Math.max(band.x1, band.x2) * hRatio) + 0.5;
+        const layerOffset = (options.height + options.layerGap) * (band.layer || 0);
+        const y = Math.round((options.topOffset + layerOffset) * vRatio) + 0.5;
 
-      if (band.label) {
-        ctx.fillStyle = band.labelColor || options.labelColor;
-        ctx.font = options.labelFont;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText(
-          band.label,
-          x1 + options.labelXOffset * hRatio,
-          y + options.labelYOffset * vRatio
-        );
-      }
+        if (band.draft) {
+          const draftHeight = Math.max(height * 3, Math.round(18 * vRatio));
+          ctx.strokeStyle = band.lineColor || options.lineColor;
+          ctx.lineWidth = Math.max(options.lineWidth * ratio, 2 * ratio);
+          ctx.beginPath();
+          ctx.moveTo(x1, y);
+          ctx.lineTo(x1, y + draftHeight);
+          ctx.stroke();
+          ctx.fillStyle = band.fillColor || options.fillColor;
+          ctx.fillRect(x1 - 2 * hRatio, y, Math.max(3, 4 * hRatio), height);
+          if (band.label) {
+            ctx.fillStyle = band.labelColor || options.labelColor;
+            ctx.font = options.labelFont;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(
+              band.label,
+              x1 + options.labelXOffset * hRatio,
+              y + options.labelYOffset * vRatio
+            );
+          }
+          return;
+        }
+
+        ctx.fillStyle = band.fillColor || options.fillColor;
+        ctx.fillRect(x1, y, Math.max(1, x2 - x1), height);
+        ctx.strokeStyle = band.lineColor || options.lineColor;
+        ctx.lineWidth = options.lineWidth * ratio;
+        ctx.beginPath();
+        ctx.moveTo(x1, y + height);
+        ctx.lineTo(x2, y + height);
+        ctx.stroke();
+
+        if (band.label) {
+          ctx.fillStyle = band.labelColor || options.labelColor;
+          ctx.font = options.labelFont;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          ctx.fillText(
+            band.label,
+            x1 + options.labelXOffset * hRatio,
+            y + options.labelYOffset * vRatio
+          );
+        }
+      });
       ctx.restore();
     });
   }
@@ -62,26 +91,26 @@ class KillzoneBandRenderer {
 class KillzoneBandView {
   constructor(source) {
     this._source = source;
-    this._band = null;
+    this._bands = [];
   }
 
   update() {
     const source = this._source;
-    this._band = {
-      ...source._band,
+    this._bands = source._bands.map((band) => ({
+      ...band,
       x1: timestampToXCoordinate({
         chartInstance: source._chart,
         displayBars: source._displayBars,
         timeframe: source._timeframe,
-        timestamp: source._band.startTimestamp,
+        timestamp: band.startTimestamp,
       }),
       x2: timestampToXCoordinate({
         chartInstance: source._chart,
         displayBars: source._displayBars,
         timeframe: source._timeframe,
-        timestamp: source._band.endTimestamp,
+        timestamp: band.endTimestamp,
       }),
-    };
+    }));
   }
 
   renderer() {
@@ -90,11 +119,11 @@ class KillzoneBandView {
 }
 
 export class KillzoneBandPrimitive {
-  constructor(chart, displayBars, timeframe, band, options = {}) {
+  constructor(chart, displayBars, timeframe, bands = [], options = {}) {
     this._chart = chart;
     this._displayBars = displayBars;
     this._timeframe = timeframe;
-    this._band = band;
+    this._bands = bands;
     this._options = { ...DEFAULT_BAND_OPTIONS, ...options };
     this._view = new KillzoneBandView(this);
     this._requestUpdate = null;
