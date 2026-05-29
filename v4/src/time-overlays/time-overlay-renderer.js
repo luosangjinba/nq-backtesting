@@ -1,6 +1,8 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
+import * as secondaryStore from '../data/secondary-chart-store.js';
 import { KillzoneBandPrimitive } from './killzone-band-primitive.js';
 import { TimeMarkerPrimitive } from './time-marker-primitive.js';
 import { getTimeOverlaySettings } from './time-overlay-store.js';
@@ -12,10 +14,15 @@ import {
 } from './time-overlay-types.js';
 
 let renderedPrimitives = [];
+let secondaryRenderedPrimitives = [];
 const WEEKDAY_LABELS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives) || [];
+}
+
+function clearSecondaryRenderedPrimitives() {
+  secondaryRenderedPrimitives = secondaryChart.clearSecondaryPrimitives(secondaryRenderedPrimitives) || [];
 }
 
 function pad2(value) {
@@ -199,8 +206,48 @@ export function renderTimeOverlays() {
   }
 }
 
+export function renderSecondaryTimeOverlays() {
+  clearSecondaryRenderedPrimitives();
+
+  const chartInstance = secondaryChart.getSecondaryChart();
+  const series = secondaryChart.getSecondarySeries();
+  const displayBars = secondaryStore.getSecondaryDisplayBars();
+  const timeframe = secondaryStore.getSecondaryTimeframe();
+  const settings = getTimeOverlaySettings();
+
+  if (!secondaryStore.isSecondaryEnabled() || !chartInstance || !series || !displayBars.length) return;
+  if (!settings.enabled || !isTimeOverlayTimeframe(timeframe)) return;
+
+  const markers = buildMarkers(displayBars, settings);
+  const killzoneDraftMarker = buildKillzoneDraftMarker(settings);
+  const killzoneBands = [...buildKillzoneBands(settings), ...(killzoneDraftMarker ? [killzoneDraftMarker] : [])];
+  if (!markers.length && !killzoneBands.length) return;
+
+  if (markers.length) {
+    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers);
+    secondaryChart.attachSecondaryPrimitive(markerPrimitive);
+    markerPrimitive.requestUpdate?.();
+    secondaryRenderedPrimitives.push(markerPrimitive);
+  }
+
+  if (killzoneBands.length) {
+    const killzonePrimitive = new KillzoneBandPrimitive(chartInstance, displayBars, timeframe, killzoneBands);
+    secondaryChart.attachSecondaryPrimitive(killzonePrimitive);
+    killzonePrimitive.requestUpdate?.();
+    secondaryRenderedPrimitives.push(killzonePrimitive);
+  }
+}
+
+function renderAllTimeOverlays() {
+  renderTimeOverlays();
+  renderSecondaryTimeOverlays();
+}
+
 export function initTimeOverlayRenderer() {
   bus.on('bars:loaded', renderTimeOverlays);
-  bus.on('time-overlays:changed', renderTimeOverlays);
+  bus.on('secondary-bars:loaded', renderSecondaryTimeOverlays);
+  bus.on('time-overlays:changed', renderAllTimeOverlays);
   bus.on('bars:cleared', clearRenderedPrimitives);
+  bus.on('secondary-bars:cleared', clearSecondaryRenderedPrimitives);
+  bus.on('secondary-chart:reset', clearSecondaryRenderedPrimitives);
 }

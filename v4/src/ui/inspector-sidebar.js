@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as viewport from '../chart/viewport-controller.js';
+import * as secondaryViewport from '../chart/secondary-viewport-controller.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
@@ -1258,6 +1259,7 @@ function handleInspectorClick(e) {
     const targetTimestamp = getCalendarDateTimestamp(calendarSelectedDate, '09:30');
     if (targetTimestamp !== null) {
       viewport.locateTimestampRange(targetTimestamp, targetTimestamp);
+      secondaryViewport.locateSecondaryTimestampRange(targetTimestamp, targetTimestamp);
     }
     bus.emit('status:update', {
       text: targetTimestamp === null
@@ -1277,6 +1279,7 @@ function handleInspectorClick(e) {
       return;
     }
     viewport.locateTimestampRange(start, end);
+    secondaryViewport.locateSecondaryTimestampRange(start, end);
     const label = actionEl.dataset.objectLabel || 'Calendar object';
     bus.emit('status:update', { text: `Located ${label}`, isError: false });
     return;
