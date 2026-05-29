@@ -296,3 +296,58 @@
 2. Commit this handoff doc/TODO update if not already committed.
 3. Review current branch against `main`.
 4. If review is clean, merge `feature/order-review-cleanup` into `main`.
+
+## 2026-05-29 Context Menu Cleanup
+- Updated chart right-click menu to use TradingView-style flyout submenus instead of long expanded `<details>` sections.
+- Flyout categories now include:
+  - Order Setup
+  - PDA
+  - SMT
+  - 1H Segments / active segment actions
+  - Point Sets / active point set actions
+  - Time Overlays
+  - Objective Gaps
+  - Clear
+  - hit-specific Link PDA / Composite actions
+- Submenus automatically open left when the menu is close to the right edge of the chart.
+- Destructive / bulk clear actions were grouped under Clear:
+  - Clear PDA
+  - Clear 1H Segments
+  - Clear Killzones
+- Commits:
+  - `859eb27 feat(v4): use flyout chart context menus`
+  - `a4d7996 refactor(v4): group destructive chart menu actions`
+
+## 2026-05-29 Undo / Redo Planning
+- User asked whether undo/redo can support all operations.
+- Decision: implement global undo/redo for research-object mutations, not for temporary view state.
+- Undoable scope:
+  - PDA annotations
+  - 1H Segments
+  - Composite Moves
+  - SMT records
+  - Order Reviews / Setup Sets
+  - Time Overlays, including event times and killzones
+  - Clear/bulk destructive operations
+- Non-undoable scope:
+  - chart zoom / scroll / locate
+  - Replay cursor and playback state
+  - hover / selection / sidebar tab / context menu open state
+  - pick mode temporary state
+  - data load range and timeframe switching
+- Recommended implementation:
+  - add `history/history-manager.js`
+  - capture one snapshot containing PDA, segments, segment groups, SMT, order reviews, and time overlay settings
+  - restore snapshots via existing store `load*` APIs
+  - add explicit `loadTimeOverlaySettings()` to `time-overlay-store.js`
+  - wrap user-facing writes in `recordHistory(label, mutator)`
+  - bind `Ctrl/Cmd+Z`, `Ctrl/Cmd+Shift+Z`, and `Ctrl+Y`
+  - keep native input undo while input/textarea/select/contenteditable is focused
+- Added Phase 8H Step 111-117 to `v4/TODO.md`.
+
+## Current Next Step
+- Implement Phase 8H Step 111-113 first:
+  - define snapshot shape
+  - add history manager
+  - add time overlay load API
+  - initialize global keyboard handling without wrapping all operations yet

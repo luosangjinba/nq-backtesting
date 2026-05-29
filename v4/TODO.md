@@ -152,6 +152,15 @@
 
 Phase 8F/8G 接驳状态：当前分支 `feature/order-review-cleanup` 已完成 Order Review -> Review Set -> Setup Set 的兼容迁移；持久化仍使用旧 `orderReviews` schema/localStorage key，运行时通过 adapter 派生 Setup Set tree。下一步建议先 review 当前分支，再决定是否合并到 `main`。
 
+### Phase 8H: Global Undo / Redo
+- [ ] Step 111: 定义 undo/redo 边界：覆盖所有研究对象修改，不覆盖 zoom/scroll/replay/hover/selection/pick mode/数据加载等临时视图状态
+- [ ] Step 112: 新增 `history/history-manager.js`：实现 `captureSnapshot()`、`restoreSnapshot()`、`recordHistory(label, mutator)`、`undo()`、`redo()`、`canUndo()`、`canRedo()`，并 emit `history:changed`
+- [ ] Step 113: 扩展 store 恢复接口：确认 `pda/segment/segment-group/smt/order-review` load 接口可用于 restore；为 `time-overlays` 增加显式 `loadTimeOverlaySettings()`；决定 Composite draft 是否纳入 snapshot
+- [ ] Step 114: 接入右键菜单写操作：PDA、1H Segment、Composite、SMT、Order Setup、Time Lines/Killzones、Clear 类批量操作全部通过 history transaction 包装；组合操作只入栈一次
+- [ ] Step 115: 接入 Inspector 写操作：PDA/Segment/Composite/SMT/Order Review 的编辑、删除、link/ref/evidence 变更通过 history transaction；文本输入按 change/blur 或 debounce 合并，避免每个 keypress 一步
+- [ ] Step 116: 增加全局快捷键与 UI 状态：`Ctrl/Cmd+Z` undo，`Ctrl/Cmd+Shift+Z` 与 `Ctrl+Y` redo；输入控件聚焦时保留浏览器原生撤销；可选 toolbar icon 按钮与 status 提示
+- [ ] Step 117: Undo/Redo 验收：覆盖新增/删除/编辑 PDA，创建/清空 Segment，Order Setup entry/stop/target/link，Clear PDA/Segments/Killzones，Inspector note 单步撤销，Review JSON import 策略，刷新/初始化不污染 undo 栈
+
 ### Phase 9: Time Overlays / Calendar Review Navigator
 - [x] Step 84: 明确 Phase 9 边界与数据原则：新增 `time-overlays/` 与 `calendar/` 独立模块；overlay 状态只影响视觉显示，不写入 PDA / Segment / SMT / Order Review 对象；Calendar Index 只读取各 store 并生成派生索引
 - [x] Step 85: 实现共享时间坐标 helper：支持 exact bar timestamp 与 1H/4H 内部时间点插值，解决 09:30/09:50/10:00 在高周期 K 线内部没有 exact bar 的定位问题；主图 overlay、calendar locate、hit/hover 未来共用
