@@ -174,7 +174,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 89A: 合并顶部 `开始/结束` 输入与 Calendar，改为 Date Range Calendar：toolbar 常驻只保留一个 Date Range 控件（显示当前加载范围）和加载动作；点击后弹出双月 calendar，可选择 start/end 日期并加载该范围；提供 `Load Week` / 单日跳转到 09:30 的快捷动作；精确到分钟的 start/end 输入移入 popover 的 advanced/manual fields，不再常驻占用顶部空间；保留当前 API 的 `YYYY-MM-DD HH:mm` 请求格式与 `formatTimeInput` 兼容能力
 - [x] Step 90: 实现 Calendar Review Index：按自然日聚合 Order Setup / PDA / Segment / Composite / SMT；Order Setup 归日优先级为 entryTimestamp -> setup primaryEventTimestamp -> exitTimestamp；Reaction Evidence 第一版挂在所属 Segment/PDA response 下，不做顶层对象
 - [x] Step 90A: Date Range Calendar 易用性补强：成功加载后把 `start/end/timeframe` 写入本地 history ranges，支持一键 Load History Range、单条删除、清空历史；Date Range popover 增加 `<<` / `>>` 年切换，保留 `<` / `>` 月切换
-- [ ] Step 91: 实现 Calendar Day Details 第一版 UI：点击/打开某日后显示当天对象列表，分组顺序为 Order Setups、SMT、PDA、Segments、Composite、Killzones/Time Lines；Order Setups 默认展开；先接在 Calendar popover 或右侧面板中，不做完整月历角标
+- [x] Step 91: 实现 Calendar Day Details 第一版 UI：点击/打开某日后显示当天对象列表，分组顺序为 Order Setups、SMT、PDA、Segments、Composite、Killzones/Time Lines；Order Setups 默认展开；先接在 Calendar popover 或右侧面板中，不做完整月历角标
 - [ ] Step 92: 实现对象级操作：Day Details 中每个对象支持 Locate；可选中对象时同时 Select 并打开 Inspector；Focus 第一版可复用 Structure Sets focus 语义，暂不写入对象数据
 - [ ] Step 93: 实现完整月历 UI 与 setup 红色角标：月历日期格显示当天对象概览；当天存在 Order Setup 时显示红色 badge/dot，第二版可显示数量；点击有 badge 的日期默认展开 Order Setups 区域
 - [ ] Step 94: 联动 selectedDate 与 overlays：Calendar 选中某日后，Time Markers / Killzone 默认只显示该日；允许手工切换显示日期，避免一次加载多日时全屏竖线过多
@@ -351,3 +351,4 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - 2026-05-28: Calendar 对象操作拆分为 `Locate` 与 `Open`：`Locate` 只定位 + 快闪，不切换 Inspector 面板；PDA / Segment / Composite 行单独提供 `Open`，需要查看细节时才进入对应详情面板。从 Calendar Open 进入详情后，详情顶部提供 `Back to Calendar` 返回按钮，并保留原 selected date / view month。
 - 2026-05-29: Split Replay 主副图同步补强：Replay Bar On 时副图不再显示完整未来 K 线，而是按主图 `cursorTimestamp` 截断到副图当前周期 bucket；Replay Off/Close 恢复完整副图数据；副图 `showSecondaryEndOfData()` 继承上一帧 logical range width 与右侧 anchor，修复主图 1M / 副图 1H replay 时副图最新 K 线逐步变细并向右漂移的问题。
 - 2026-05-29: Date Range Calendar 易用性补强完成：成功加载 range 后自动写入 `localStorage` 历史范围，记录 `start/end/timeframe`，支持 Load History Range、单条删除、清空历史、最多保留 8 条并去重置顶；Date Range popover 增加 `<<` / `>>` 年切换按钮，`<` / `>` 继续切换月。
+- 2026-05-29: Phase 9 Step 91 Calendar Day Details 第一版 UI 完成：Inspector Calendar 的当天对象列表改为 `details` 分组，顺序固定为 Order Setups、SMT、PDA、Segments、Composite、Killzones / Time Lines；Order Setups 默认展开，其余默认折叠；对象行拆成时间、类型标签、摘要与 Locate/Open 动作区，避免长文本/长 ID 占据整行。Headless Chrome smoke 验证 6 组顺序、Order Setups 唯一默认展开、8 条对象行、Locate/Open 按钮存在。

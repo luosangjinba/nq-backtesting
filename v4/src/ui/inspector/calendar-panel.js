@@ -107,46 +107,73 @@ function getMonthCells(viewDateKey, range) {
   return cells;
 }
 
+function compactTime(timestamp) {
+  if (!Number.isFinite(Number(timestamp))) return '--:--';
+  const date = new Date(Number(timestamp) * 1000);
+  return `${pad2(date.getUTCHours())}:${pad2(date.getUTCMinutes())}`;
+}
+
+function getObjectTypeLabel(item) {
+  if (item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Setup';
+  if (item.type === CALENDAR_OBJECT_TYPES.SMT) return 'SMT';
+  if (item.type === CALENDAR_OBJECT_TYPES.PDA) return 'PDA';
+  if (item.type === CALENDAR_OBJECT_TYPES.SEGMENT) return 'Seg';
+  if (item.type === CALENDAR_OBJECT_TYPES.COMPOSITE) return 'Comp';
+  if (item.type === CALENDAR_OBJECT_TYPES.KILLZONE) return item.ref?.type === CALENDAR_OBJECT_TYPES.TIME_LINE ? 'Time' : 'KZ';
+  return 'Obj';
+}
+
+function renderObjectRow(item) {
+  const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
+  const canOpen = ['order-setup', 'pda', 'segment', 'composite'].includes(item.ref?.type);
+  const timeLabel = compactTime(item.timestamp);
+  const typeLabel = getObjectTypeLabel(item);
+  return `
+    <div class="calendar-object-row">
+      <div class="calendar-object-main">
+        <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
+        <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
+        <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
+      </div>
+      <div class="calendar-object-actions">
+        <button
+          class="inspector-mini-btn calendar-object-locate"
+          data-inspector-action="calendar-object-locate"
+          data-locate-start="${canLocate ? item.range.start : ''}"
+          data-locate-end="${canLocate ? item.range.end : ''}"
+          type="button"
+          ${canLocate ? '' : 'disabled'}
+        >Locate</button>
+        ${
+          canOpen
+            ? `<button
+                class="inspector-mini-btn calendar-object-open"
+                data-inspector-action="calendar-object-open"
+                data-object-type="${escapeHtml(item.ref.type)}"
+                data-object-id="${escapeHtml(item.ref.id)}"
+                type="button"
+              >Open</button>`
+            : ''
+        }
+      </div>
+    </div>
+  `;
+}
+
 function renderObjectGroup(group) {
   const rows = group.rows.length
-    ? group.rows
-        .map((item) => {
-          const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
-          const canOpen = ['order-setup', 'pda', 'segment', 'composite'].includes(item.ref?.type);
-          return `
-            <div class="calendar-object-row">
-              <span>${escapeHtml(item.label)}</span>
-              <div class="calendar-object-actions">
-                <button
-                  class="inspector-mini-btn calendar-object-locate"
-                  data-inspector-action="calendar-object-locate"
-                  data-locate-start="${canLocate ? item.range.start : ''}"
-                  data-locate-end="${canLocate ? item.range.end : ''}"
-                  type="button"
-                  ${canLocate ? '' : 'disabled'}
-                >Locate</button>
-                ${
-                  canOpen
-                    ? `<button
-                        class="inspector-mini-btn calendar-object-open"
-                        data-inspector-action="calendar-object-open"
-                        data-object-type="${escapeHtml(item.ref.type)}"
-                        data-object-id="${escapeHtml(item.ref.id)}"
-                        type="button"
-                      >Open</button>`
-                    : ''
-                }
-              </div>
-            </div>
-          `;
-        })
-        .join('')
+    ? group.rows.map(renderObjectRow).join('')
     : '<div class="calendar-object-empty">None</div>';
+  const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
+  const countLabel = `${group.rows.length}`;
   return `
-    <div class="calendar-object-group">
-      <div class="calendar-object-title">${escapeHtml(group.label)}</div>
-      ${rows}
-    </div>
+    <details class="calendar-object-group" ${isOrderSetupGroup ? 'open' : ''}>
+      <summary class="calendar-object-title">
+        <span>${escapeHtml(group.label)}</span>
+        <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
+      </summary>
+      <div class="calendar-object-group-body">${rows}</div>
+    </details>
   `;
 }
 

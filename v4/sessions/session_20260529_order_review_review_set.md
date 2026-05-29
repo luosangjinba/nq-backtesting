@@ -608,3 +608,37 @@
 ## Next Step
 - Commit the Replay sync and Date Range usability changes.
 - Continue Phase 9 Step 91: Calendar Day Details UI refinement.
+
+## 2026-05-29 Phase 9 Step 91 Calendar Day Details UI
+- Reviewed the existing Calendar panel state:
+  - Calendar Review Index was already feeding day groups.
+  - Existing rows already supported Locate/Open.
+  - Missing pieces were clearer Day Details structure, default group expansion, and compact readable row summaries.
+- Updated `v4/src/ui/inspector/calendar-panel.js`:
+  - Day Details groups now render as native `details` sections.
+  - Group order remains fixed: Order Setups, SMT, PDA, Segments, Composite, Killzones / Time Lines.
+  - Order Setups is open by default; other groups are collapsed by default.
+  - Rows are structured into time, short object type chip, summary, and action buttons.
+  - Locate/Open data attributes are preserved.
+- Updated `v4/style.css`:
+  - Added compact group headers with count pills.
+  - Added structured row layout with fixed time/type columns and ellipsized summaries.
+- Validation:
+  - `node --check v4/src/ui/inspector/calendar-panel.js`
+  - full `node --check` over `v4/src/**/*.js`
+  - Node probe with seeded Order Setup, SMT, PDA, two Segments, Composite, Killzone, and Time Line:
+    - group order correct
+    - 8 object rows rendered
+    - Order Setups open by default
+    - structured row fields present
+    - Locate/Open buttons present
+  - Headless Chrome smoke in the page environment:
+    - six groups rendered in order
+    - only Order Setups default open
+    - 8 object rows
+    - 24 structured row subfields
+    - 8 Locate buttons and 5 Open buttons
+- Marked Step 91 complete in `v4/TODO.md`.
+
+## Next Step
+- Continue Phase 9 Step 92: object-level operation refinement from Day Details, especially Select + Open and optional Focus behavior.
