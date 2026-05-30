@@ -299,6 +299,17 @@ function closeSidebar() {
   sidebarEl?.classList.remove('open');
 }
 
+function focusActiveOrderSetupPanel() {
+  const section = bodyEl?.querySelector('.inspector-section:last-of-type');
+  section?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+
+function showActiveOrderSetupPanel() {
+  renderEmpty();
+  openSidebar();
+  requestAnimationFrame(() => focusActiveOrderSetupPanel());
+}
+
 function refreshSelection() {
   if (currentPanel === 'archive') {
     renderArchivePanel();
@@ -1652,7 +1663,13 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
-  bus.on('order-review-active:changed', refreshSelection);
+  bus.on('order-review-active:changed', ({ activeReviewSetId }) => {
+    if (activeReviewSetId) {
+      showActiveOrderSetupPanel();
+      return;
+    }
+    refreshSelection();
+  });
   bus.on('inspector:open-archive', () => {
     clearPdaSelection();
     clearSegmentSelection();
