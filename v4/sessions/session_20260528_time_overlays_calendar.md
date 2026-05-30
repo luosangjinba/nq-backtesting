@@ -1090,12 +1090,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- Last committed work: `accaab5 feat(v4): simplify order setup reasons and execution rows`
 - Current uncommitted changes: none for Step 147K
 
 Committed:
 
-- `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
 ## Phase 12 Execution Column Alignment
 
@@ -1127,12 +1127,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- Last committed work: `accaab5 feat(v4): simplify order setup reasons and execution rows`
 - Current uncommitted changes: none for Step 147L
 
 Committed:
 
-- `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
 ## Phase 12 Execution Two-Line Compact Layout
 
@@ -1163,9 +1163,9 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- Last committed work: `accaab5 feat(v4): simplify order setup reasons and execution rows`
 - Current uncommitted changes: none for Step 147M
 
 Committed:
 
-- `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- `accaab5 feat(v4): simplify order setup reasons and execution rows`
