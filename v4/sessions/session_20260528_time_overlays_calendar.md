@@ -272,3 +272,29 @@ Current Git State:
 Next Steps:
 
 - Step 132: enable secondary chart context-menu `Mark FVG` and wire it to `addManualFvg()` with the secondary chart context.
+
+## Phase 11 Step 132 Update
+
+Completed:
+
+- Enabled `Mark FVG` in the secondary chart PDA submenu when a secondary bar is available.
+- Wired `secondary-pda-fvg` to `addManualFvg(contextMenuBar, getSecondaryChartContext())`.
+- Kept `Mark Range PDA` disabled; generic secondary range PDA remains out of scope for this rollout.
+- Existing no-FVG behavior is reused from `addManualFvg()`: it emits `未识别到 FVG 结构` and creates no annotation.
+- Updated `v4/TODO.md` to mark Step 132 complete.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-context-menu.js`
+- Module import probe verified `secondary-context-menu.js` still imports and exports `initSecondaryContextMenu`.
+- Static check verified `secondary-pda-fvg` is no longer hard-disabled and calls `addManualFvg()`.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `82ebd30 feat(v4): harden secondary fvg metadata`
+- Current uncommitted changes: Phase 11 Step 132 secondary FVG menu enablement
+
+Next Steps:
+
+- Step 133: validate secondary FVG rendering, hit-test, selection, Inspector edit/delete, and locate/flash behavior.
