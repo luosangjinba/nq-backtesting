@@ -607,3 +607,28 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `a12d310 feat(v4): clean up order setup linked refs`
 - Current uncommitted changes: Order Setup locate adapter cleanup and TODO/session updates
+
+## Phase 12 Order Setup Persistence Compatibility
+
+Completed:
+
+- Verified localStorage, Review JSON import/export, and undo/redo continue to use the existing `orderReviews` compatibility schema.
+- Verified old Order Setup records without `display` normalize to `display.hidden=false`.
+- Verified `display.hidden=true` survives order review snapshots and restore through the history manager.
+- Updated user-visible persistence/archive/status labels from `Order Review` to `Order Setup`; internal file names and `orderReviews` JSON key remain unchanged for compatibility.
+- Kept comments/internal adapter names unchanged where they describe the compatibility layer rather than UI language.
+
+Validation:
+
+- `node --check v4/src/review/review-archive.js`
+- `node --check v4/src/order/order-review-persistence.js`
+- `node --check v4/src/history/history-manager.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verified old records default `display.hidden=false` and hidden state survives snapshot/restore.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `619a397 refactor(v4): locate order setups through setup sets`
+- Current uncommitted changes: Order Setup persistence compatibility labels, TODO/session updates

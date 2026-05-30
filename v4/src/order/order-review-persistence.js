@@ -19,7 +19,7 @@ function readPayload() {
     return JSON.parse(raw);
   } catch (err) {
     bus.emit('status:update', {
-      text: `Order Review 本地记录读取失败: ${err.message}`,
+      text: `Order Setup 本地记录读取失败: ${err.message}`,
       isError: true,
     });
     return null;
@@ -38,7 +38,7 @@ export function saveOrderReviews() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (err) {
     bus.emit('status:update', {
-      text: `Order Review 本地保存失败: ${err.message}`,
+      text: `Order Setup 本地保存失败: ${err.message}`,
       isError: true,
     });
   }
@@ -55,7 +55,7 @@ export function restoreOrderReviews() {
 
   if (orderReviews.length > 0) {
     bus.emit('status:update', {
-      text: `已恢复 ${orderReviews.length} 条本地 Order Review`,
+      text: `已恢复 ${orderReviews.length} 条本地 Order Setup`,
       isError: false,
     });
   }
@@ -64,10 +64,10 @@ export function restoreOrderReviews() {
 export function clearSavedOrderReviews() {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
-    bus.emit('status:update', { text: 'Order Review 本地保存已清除', isError: false });
+    bus.emit('status:update', { text: 'Order Setup 本地保存已清除', isError: false });
   } catch (err) {
     bus.emit('status:update', {
-      text: `Order Review 本地保存清除失败: ${err.message}`,
+      text: `Order Setup 本地保存清除失败: ${err.message}`,
       isError: true,
     });
   }

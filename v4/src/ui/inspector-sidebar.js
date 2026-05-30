@@ -168,7 +168,7 @@ function clearOrderReviewPickState({ silent = false } = {}) {
   orderReviewPricePickState = null;
   chart.hidePickPreviewCursor();
   if (!silent) {
-    bus.emit('status:update', { text: 'Order Review pick 已取消', isError: false });
+    bus.emit('status:update', { text: 'Order Setup pick 已取消', isError: false });
   }
   return true;
 }
@@ -1538,7 +1538,7 @@ function handleInspectorClick(e) {
     }
 
     if (action === 'order-review-create-segment') {
-      recordInspectorHistory('Create Order Review', () => createOrderReviewFromSegment(segment));
+      recordInspectorHistory('Create Order Setup', () => createOrderReviewFromSegment(segment));
       return;
     }
 
@@ -1551,7 +1551,7 @@ function handleInspectorClick(e) {
   const segmentGroup = getCurrentSegmentGroup();
   if (segmentGroup) {
     if (action === 'order-review-create-composite') {
-      recordInspectorHistory('Create Order Review', () => createOrderReviewFromComposite(segmentGroup));
+      recordInspectorHistory('Create Order Setup', () => createOrderReviewFromComposite(segmentGroup));
       return;
     }
 

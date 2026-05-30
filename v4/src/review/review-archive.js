@@ -438,7 +438,7 @@ export function exportReviewArchive() {
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT 与 ${payload.orderReviews.length} 条 Order Review`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT 与 ${payload.orderReviews.length} 条 Order Setup`,
     isError: false,
   });
 }
@@ -532,7 +532,7 @@ export async function importReviewArchive(file) {
       skippedOrderDuplicates +
       skippedInvalidOrders;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT 与 ${orders.length} 条 Order Review${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT 与 ${orders.length} 条 Order Setup${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,
