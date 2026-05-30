@@ -453,7 +453,7 @@ function createOrderReviewFromSegment(segment) {
       entryTimeframe: segment.timeframe || '1H',
     },
     display: {
-      hidden: true,
+      hidden: false,
     },
   });
   expandedOrderReviewId = order.id;
@@ -484,7 +484,7 @@ function createOrderReviewFromComposite(group) {
       entryTimeframe: '1H',
     },
     display: {
-      hidden: true,
+      hidden: false,
     },
   });
   expandedOrderReviewId = order.id;
@@ -497,7 +497,7 @@ function createOrderReviewFromComposite(group) {
 function createBlankOrderReview() {
   const order = addOrderReview({
     display: {
-      hidden: true,
+      hidden: false,
     },
   });
   expandedOrderReviewId = order.id;

@@ -969,6 +969,38 @@ Notes:
 - Reversal marker right-click now contains Set Active / Hide Setup / Delete Setup.
 - `Delete Setup` deletes the whole order review and clears selected setup element state.
 
+### Step 147S: Default New Order Setups To Visible
+
+Goal:
+
+- Revert the new-setup default from hidden to visible.
+- Keep manual Hide/Show behavior available from Inspector, Calendar, and chart reversal menus.
+- Preserve old-record compatibility: missing `display.hidden` still normalizes to visible.
+
+Main files:
+
+- `v4/src/order/order-review-active.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-active.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Commit:
+
+- `feat(v4): default order setups to visible`
+
+Notes:
+
+- Chart right-click creation now writes `display.hidden=false`.
+- Blank, Segment-created, and Composite-created Order Setups now write `display.hidden=false`.
+- This supersedes the hidden-default portion of Step 147O; helper line color/width changes from 147O remain unchanged.
+
 ## Next Step Template
 
 ### Step N: Title

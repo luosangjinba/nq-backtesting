@@ -65,7 +65,7 @@ export function createChartReviewSet({
       entryModel: ORDER_ENTRY_MODELS.MANUAL,
     },
     display: {
-      hidden: true,
+      hidden: false,
     },
   });
   activeReviewSetId = order.id;

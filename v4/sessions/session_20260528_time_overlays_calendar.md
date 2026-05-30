@@ -1097,6 +1097,41 @@ Committed:
 
 - `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
+## Phase 12 Default Visible Order Setups
+
+Operation Script:
+
+- Step: `147S`
+- Goal: make newly created Order Setups visible by default again.
+- Boundary: only change creation defaults; keep existing Hide/Show controls, hidden-state persistence, helper line colors, and old-record compatibility unchanged.
+
+Planned:
+
+- Change chart-created Order Setup default from `display.hidden=true` to `display.hidden=false`.
+- Change Segment-created, Composite-created, and blank Order Setup defaults to visible.
+- Record that this supersedes the hidden-default part of Step 147O.
+
+Implemented:
+
+- `createChartReviewSet()` now creates visible Order Setups.
+- Segment, Composite, and blank Inspector creation paths now create visible Order Setups.
+- Existing manually hidden setups remain hidden because persisted `display.hidden` is still respected.
+
+Validation:
+
+- `node --check v4/src/order/order-review-active.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `feat(v4): default order setups to visible`
+
+Committed:
+
+- `feat(v4): default order setups to visible`
+
 ## Phase 12 Multi-Reason MVP
 
 Operation Script:

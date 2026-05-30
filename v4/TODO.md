@@ -236,6 +236,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147P: Reversal 右键隐藏 setup：图表 reversal 右键菜单增加 Hide Setup，隐藏整个 setup；曾评估的排它/并存显示模式已撤销，不保留 Inspector 开关，避免扰乱显隐逻辑
 - [x] Step 147Q: Calendar Order Setup 行三点菜单：把 Order Setups 列表中的 Locate / Open / Hide(Show) 收进紧凑三点菜单，减少行宽占用；菜单动作复用现有 locate/open/toggle hidden 行为
 - [x] Step 147R: Calendar/Reversal 删除 setup 菜单：Calendar Order Setup 三点菜单增加 Delete；图表 reversal 右键菜单增加 Delete Setup；删除整个 setup 并复用历史记录/active 清理逻辑
+- [x] Step 147S: Order Setup 默认显示：撤回 147O 的新建默认隐藏策略；图表右键、空白、Segment、Composite 创建的 Order Setup 默认 `display.hidden=false`，保留手动 Hide/Show 与旧记录兼容
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
