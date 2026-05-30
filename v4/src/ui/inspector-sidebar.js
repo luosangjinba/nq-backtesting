@@ -507,6 +507,16 @@ function createBlankOrderReview() {
   return order;
 }
 
+function setOrderSetupHidden(order, hidden) {
+  if (!order) return;
+  updateOrderReview(order.id, {
+    display: {
+      ...(order.display || {}),
+      hidden,
+    },
+  });
+}
+
 function parseOrderReviewFieldValue(target) {
   const field = target.dataset.orderReviewField;
   if (target.type === 'checkbox') return target.checked;
@@ -1723,14 +1733,13 @@ function handleInspectorClick(e) {
     const order = getOrderReviewById(actionEl.dataset.orderReviewId);
     if (!order) return;
     const hidden = !order.display?.hidden;
-    recordInspectorHistory(hidden ? 'Hide Order Setup' : 'Show Order Setup', () =>
-      updateOrderReview(order.id, {
-        display: {
-          ...(order.display || {}),
-          hidden,
-        },
-      })
-    );
+    recordInspectorHistory(hidden ? 'Hide Order Setup' : 'Show Order Setup', () => {
+      if (hidden) {
+        setOrderSetupHidden(order, true);
+      } else {
+        setOrderSetupHidden(order, false);
+      }
+    });
     refreshSelection();
     return;
   }

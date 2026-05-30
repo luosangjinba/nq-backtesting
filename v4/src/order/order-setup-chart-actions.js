@@ -67,7 +67,10 @@ function getHitSetupMenuItems(orderSetupHit) {
     .map((hit) => {
       const active = hit.setupId === activeId;
       const label = `${active ? 'Active' : 'Set Active'} · ${hit.setupId.slice(0, 18)}`;
-      return `<button class="pda-menu-item" data-pda-action="order-setup-hit-set-active" data-order-setup-id="${hit.setupId}">${label}</button>`;
+      return `
+        <button class="pda-menu-item" data-pda-action="order-setup-hit-set-active" data-order-setup-id="${hit.setupId}">${label}</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-hit-hide" data-order-setup-id="${hit.setupId}">Hide Setup</button>
+      `;
     })
     .join('');
   const elementRows = elementHits
@@ -123,6 +126,19 @@ function deleteOrderSetupElement(setupId, element) {
   clearOrderSetupElementSelection();
   return true;
 }
+
+function setOrderSetupHidden(setupId, hidden) {
+  const order = getOrderReviewById(setupId);
+  if (!order) return false;
+  updateOrderReview(setupId, {
+    display: {
+      ...(order.display || {}),
+      hidden,
+    },
+  });
+  return true;
+}
+
 
 function getContextPrice(price) {
   const parsed = Number(price);
@@ -512,6 +528,15 @@ export function handleOrderSetupChartAction(action, context = {}) {
     bus.emit('status:update', {
       text: next ? `Active Order Setup: ${context.orderSetupId}` : 'Order Setup cannot be activated',
       isError: !next,
+    });
+    return true;
+  }
+
+  if (action === 'order-setup-hit-hide') {
+    const hidden = recordHistory('Hide Order Setup', () => setOrderSetupHidden(context.orderSetupId, true));
+    bus.emit('status:update', {
+      text: hidden ? `Order Setup hidden: ${context.orderSetupId}` : 'Order Setup cannot be hidden',
+      isError: !hidden,
     });
     return true;
   }

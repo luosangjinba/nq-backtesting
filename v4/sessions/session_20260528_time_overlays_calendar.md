@@ -1142,6 +1142,38 @@ Committed:
 
 - `117b3b4 feat(v4): support multi-reason setup notes`
 
+## Phase 12 Reversal Hide Setup
+
+Operation Script:
+
+- Step: `147P`
+- Goal: add a reversal right-click Hide Setup action.
+- Boundary: keep visibility simple and per-setup; do not keep the discarded exclusive/coexist mode.
+
+Planned:
+
+- Add `Hide Setup` to reversal hit context menu and handler.
+
+Implemented:
+
+- Reversal marker context menu now has `Hide Setup`, which hides the whole setup.
+- Removed the experimental exclusive/coexist display mode and Inspector switch.
+- Inspector Show/Hide remains simple per-setup visibility.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verified reversal Hide Setup menu and absence of the discarded display mode switch.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `4f472db docs(v4): record multi-reason setup commit`
+- Current uncommitted changes: Step 147P implementation and operation script updates
+
 ## Phase 12 Default Hidden Setups And Helper Line Colors
 
 Operation Script:

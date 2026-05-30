@@ -867,6 +867,41 @@ Notes:
 - Helper line widths now use `1 / 1.25 / 1.75` for normal / active / selected.
 - Entry color is direction-aware: long `#00695c`, short `#ef5350`; stop loss `#42a5f5`; targets `#ab47bc`.
 
+### Step 147P: Reversal Hide Setup
+
+Goal:
+
+- Add `Hide Setup` to the chart right-click menu when right-clicking a reversal marker.
+- Keep setup visibility simple: no exclusive/coexist Inspector switch.
+- Preserve existing per-setup Show/Hide behavior.
+
+Main files:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke for reversal Hide Setup menu/action and absence of the discarded display mode switch.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Reversal marker right-click now offers `Hide Setup`.
+- The exclusive/coexist mode was intentionally removed after review because it can make setup visibility harder to reason about.
+
 ## Next Step Template
 
 ### Step N: Title
