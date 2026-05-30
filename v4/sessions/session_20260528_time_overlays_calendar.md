@@ -358,3 +358,37 @@ Current Git State:
 Next Steps:
 
 - Step 135: validate secondary FVG persistence and workflow across localStorage, PDA JSON, Review JSON, undo/redo, Split on/off, and Replay Bar On.
+
+## Phase 11 Step 135 Update
+
+Completed:
+
+- Validated secondary FVG persistence and workflow end-to-end.
+- Confirmed secondary-created FVG source metadata survives localStorage save/restore.
+- Confirmed PDA JSON import preserves secondary source fields.
+- Confirmed Review JSON import preserves both the secondary FVG annotation and the active setup linked PDA ref metadata.
+- Confirmed undo/redo restores secondary FVG source metadata after create/undo/redo.
+- Confirmed Split secondary store can stay enabled and retain loaded secondary display bars while the same shared PDA annotation remains in the PDA store.
+- Confirmed Replay integration remains on existing paths: primary PDA renderer listens to `replay:changed`, secondary PDA renderer listens to secondary chart/data events, and secondary FVG metadata is independent of replay slicing.
+- No runtime code changes were required for Step 135.
+- Updated `v4/TODO.md` to mark Step 135 complete.
+
+Validation:
+
+- `node --check v4/src/pda/pda-persistence.js`
+- `node --check v4/src/pda/pda-archive.js`
+- `node --check v4/src/review/review-archive.js`
+- `node --check v4/src/history/history-manager.js`
+- `node --check v4/src/pda/pda-renderer.js`
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- Module smoke created a secondary 1H FVG and verified source metadata through localStorage restore, PDA JSON import, Review JSON import, active setup ref restore, undo/redo, and secondary split-store loaded state.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `cf1c31c fix(v4): preserve secondary fvg ref context`
+- Current uncommitted changes: Phase 11 Step 135 TODO/session validation updates only
+
+Next Steps:
+
+- Commit Step 135, then review the completed Phase 11 branch before deciding whether to merge back to `main`.
