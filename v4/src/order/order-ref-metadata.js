@@ -1,9 +1,11 @@
 import { getPdaType } from '../pda/pda-types.js';
 
 export function buildPdaOrderRefMetadata(annotation = {}) {
-  const sourceContext = Array.isArray(annotation.contexts)
-    ? annotation.contexts.filter(Boolean).join(' · ')
-    : '';
+  const sourceContext = annotation.sourceContext || (
+    Array.isArray(annotation.contexts)
+      ? annotation.contexts.filter(Boolean).join(' · ')
+      : ''
+  );
   return {
     sourceChartId: annotation.sourceChartId || 'primary',
     sourceChartLabel: annotation.sourceChartLabel || '',

@@ -329,3 +329,32 @@ Current Git State:
 Next Steps:
 
 - Step 134: validate linking a secondary-created FVG to the active Order Setup / setup set with source metadata preserved on the PDA ref.
+
+## Phase 11 Step 134 Update
+
+Completed:
+
+- Validated secondary-created FVG link metadata for active Order Setup / setup set refs.
+- Updated `buildPdaOrderRefMetadata()` to prefer `annotation.sourceContext` before falling back to joined `annotation.contexts`.
+- This keeps secondary FVG setup refs focused on the source context, for example `sourceContext='ES 1H'`, instead of mixing source and structure labels as `ES 1H · 1H FVG`.
+- Legacy/primary PDA annotations without `sourceContext` still fall back to joined contexts.
+- Verified `getPdaOrderRefLabel()` still renders secondary FVG refs as `FVG · ES 1H`.
+- Updated `v4/TODO.md` to mark Step 134 complete.
+
+Validation:
+
+- `node --check v4/src/order/order-ref-metadata.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module probe verified secondary FVG metadata normalizes to `sourceChartId=secondary`, `sourceChartLabel=Secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, `sourceTimeframeLabel=1H`, and `sourceContext=ES 1H`.
+- Module probe verified legacy PDA refs without `sourceContext` still use joined contexts as fallback.
+- Module smoke created a synthetic secondary 1H FVG, created an Order Review, made it active, linked the PDA ref, and verified the active setup ref preserves all secondary source fields.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `d9983b7 docs(v4): validate secondary fvg interaction`
+- Current uncommitted changes: Phase 11 Step 134 link metadata fix and TODO/session updates
+
+Next Steps:
+
+- Step 135: validate secondary FVG persistence and workflow across localStorage, PDA JSON, Review JSON, undo/redo, Split on/off, and Replay Bar On.
