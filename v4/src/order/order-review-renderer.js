@@ -7,6 +7,7 @@ import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart
 import { getBucketStart } from '../pda/pda-context.js';
 import { ORDER_DIRECTIONS } from './order-review-store.js';
 import { getActiveReviewSetId } from './order-review-active.js';
+import { getSelectedOrderSetupElement } from './order-setup-selection.js';
 import { getSetupSets } from './setup-set.js';
 
 const SETUP_COLOR = '#ffb74d';
@@ -18,6 +19,7 @@ const ACTIVE_TARGET_COLORS = ['#6fa0ff', '#82adff', '#a5c2ff', '#ce93d8'];
 const REVERSAL_BULLISH_COLOR = '#26a69a';
 const REVERSAL_BEARISH_COLOR = '#ef5350';
 const ACTIVE_REVERSAL_COLOR = '#ffd54f';
+const SELECTED_ELEMENT_COLOR = '#ffd54f';
 const RISK_ZONE_LONG = {
   fillColor: 'rgba(38, 166, 154, 0.13)',
   borderColor: 'rgba(38, 166, 154, 0.35)',
@@ -147,8 +149,14 @@ function getProjectedChartTime(timestamp, barsAhead = PLAN_ZONE_WIDTH_BARS) {
   return next ? mapTimestampToCurrentChartTime(next.timestamp) : mapTimestampToCurrentChartTime(timestamp);
 }
 
-function renderPlanLine(timestamp, price, label, color, position = 'above', lineLength = PLAN_LINE_LENGTH_BARS, lineWidth = 2) {
+function getElementLineLength(element, fallback) {
+  const length = Number(element?.lineLengthBars);
+  return Number.isFinite(length) && length >= 0 ? length : fallback;
+}
+
+function renderPlanLine(timestamp, price, label, color, position = 'above', lineLength = PLAN_LINE_LENGTH_BARS, lineWidth = 2, lineStyle = 'solid', endTimestamp = null) {
   const time = mapTimestampToCurrentChartTime(timestamp);
+  const endTime = mapTimestampToCurrentChartTime(endTimestamp);
   const parsedPrice = Number(price);
   if (time === null || !Number.isFinite(parsedPrice)) return;
 
@@ -167,6 +175,8 @@ function renderPlanLine(timestamp, price, label, color, position = 'above', line
         lineWidth,
         labelFont: 'italic 11px sans-serif',
         labelPadding: 5,
+        lineStyle,
+        endTime,
         showLabel: true,
       }
     )
@@ -240,42 +250,53 @@ function renderSetupSet(setupSet, isActive = false) {
   const lineWidth = isActive ? 3 : 2;
   const entryColor = isActive ? ACTIVE_ENTRY_COLOR : ENTRY_TEXT_COLOR;
   const targetColors = isActive ? ACTIVE_TARGET_COLORS : TARGET_COLORS;
+  const selected = getSelectedOrderSetupElement();
+  const isSelectedElement = (role) => selected?.setupId === setupSet.id && selected?.element === role;
 
   renderReversalMarker(reversal, direction, isActive);
 
   if (Number.isFinite(Number(entry.price))) {
+    const selectedEntry = isSelectedElement('entry');
     renderPlanLine(
       entryTimestamp,
       entry.price,
       `${getLineLabelDirection(direction)} Entry`,
-      entryColor,
+      selectedEntry ? SELECTED_ELEMENT_COLOR : entryColor,
       direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
-      PLAN_LINE_LENGTH_BARS,
-      lineWidth
+      getElementLineLength(entry, PLAN_LINE_LENGTH_BARS),
+      selectedEntry ? lineWidth + 1 : lineWidth,
+      selectedEntry ? 'dashed' : 'solid',
+      entry.endTimestamp
     );
   }
 
   renderRiskZone(entryTimestamp, entry.price, stopLoss.price, direction);
 
+  const selectedStop = isSelectedElement('stopLoss');
   renderPlanLine(
     stopLoss.timestamp || entryTimestamp,
     stopLoss.price,
     'Stop-loss',
-    STOP_COLOR,
+    selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
     direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
-    PLAN_LINE_LENGTH_BARS + 6,
-    lineWidth
+    getElementLineLength(stopLoss, PLAN_LINE_LENGTH_BARS + 6),
+    selectedStop ? lineWidth + 1 : lineWidth,
+    selectedStop ? 'dashed' : 'solid',
+    stopLoss.endTimestamp
   );
 
   getTargetLines(elements.targets).forEach((target, index) => {
+    const selectedTarget = isSelectedElement(target.role);
     renderPlanLine(
       target.timestamp || entryTimestamp,
       target.price,
       target.label,
-      targetColors[index % targetColors.length],
+      selectedTarget ? SELECTED_ELEMENT_COLOR : targetColors[index % targetColors.length],
       direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
-      PLAN_LINE_LENGTH_BARS + index * 6,
-      lineWidth
+      getElementLineLength(target, PLAN_LINE_LENGTH_BARS + index * 6),
+      selectedTarget ? lineWidth + 1 : lineWidth,
+      selectedTarget ? 'dashed' : 'solid',
+      target.endTimestamp
     );
   });
 
@@ -295,6 +316,8 @@ export function renderOrderReviews() {
 export function initOrderReviewRenderer() {
   bus.on('order-review:changed', renderOrderReviews);
   bus.on('order-review-active:changed', renderOrderReviews);
+  bus.on('order-setup-element:selected', renderOrderReviews);
+  bus.on('order-setup-element:selection-cleared', renderOrderReviews);
   bus.on('bars:loaded', renderOrderReviews);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

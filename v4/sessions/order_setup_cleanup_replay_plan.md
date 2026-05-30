@@ -351,6 +351,129 @@ Commit:
 - Step 147: Add length controls for selected helper lines.
 - Step 147: Add delete actions for selected setup elements.
 
+### Step 147D: Entry / Stop / Target Element Editing MVP
+
+Goal:
+
+- Add hit-test and selection for entry, stop loss, target1, target2, target3, and final target helper lines.
+- Show the selected setup element in Active Order Setup Inspector.
+- Allow selected helper line length to be edited by bars.
+- Allow deleting selected entry / stop / target elements.
+- Keep reversal deletion out of scope because reversal is the primary setup anchor.
+
+Implemented:
+
+- Added `order/order-setup-selection.js` for selected order setup element state.
+- Primary chart clicks can select entry, stop loss, target1, target2, target3, and final target helper lines.
+- Selecting a helper line also activates that setup and opens the Active Order Setup Inspector panel.
+- Renderer highlights the selected helper line in yellow dashed style.
+- Helper line lengths persist in `order.display.elementLengths[role]` without changing the existing `orderReviews` compatibility schema.
+- Active Order Setup Inspector shows the selected element, its time/price, a `Length bars` numeric input, and a delete button.
+- Right-clicking an editable helper line shows menu actions to select or delete that element.
+- Deleting entry / stop / target clears only that element's underlying entry plan fields; reversal deletion remains out of scope.
+
+Main files:
+
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/setup-set.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-selection.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/order/order-setup-selection.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/app.js`
+- Module smoke for hit-test, length persistence, and element deletion.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- First implementation should use numeric bars input instead of drag handles.
+- Hit-test should select an element by setup id and element role, not by nearest reversal.
+- Length input supports clearing the value to fall back to the default renderer length.
+
+### Step 147E: Time-Anchored Helper Line Endpoints
+
+Goal:
+
+- Replace the primary length workflow for entry / stop / targets with start and end timestamps.
+- Keep normal right-click actions as the start anchor setters.
+- Add Shift + right-click endpoint setters for entry / stop / target1 / target2 / target3 / final target.
+- Render helper lines from start timestamp to end timestamp when an end timestamp exists.
+- When timeframe changes, recompute the visible line span from start/end timestamps instead of preserving a fixed bar count.
+- Preserve Step 147D `Length bars` as a fallback/manual override for records without endpoint timestamps.
+
+Implemented:
+
+- `LiquidityPrimitive` now supports explicit `endTime`; when present it draws from anchor time to end time instead of fixed bar length.
+- Added normalized end timestamp/timeframe fields for entry, stop loss, target1, target2, target3, and final target.
+- Setup Set adapter projects those endpoint fields into order elements.
+- Renderer passes endpoint timestamps to helper line primitives; no endpoint keeps using `Length bars` / default length.
+- Hit-test uses endpoint coordinates when available, so selectable line bounds match the rendered time span.
+- Primary context menu records whether Shift was held.
+- Shift + right-click exposes `Set ... End Here` actions for entry, stop loss, target1, target2, target3, and final target.
+- Normal right-click start setters clear that element's old endpoint to avoid stale line spans.
+- Inspector selected element panel now shows Start and End timestamps.
+- Deleting an element clears both its start/value fields and endpoint fields.
+
+Main files:
+
+- `v4/src/chart/primitives.js`
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/setup-set.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/src/pda/manual-annotation.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/chart/primitives.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke for end timestamp normalization/projection/hit-test.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Endpoint setters should not require a valid price hit because they only define horizontal line end time.
+- If endpoint is earlier than start, renderer/hit-test should still handle it by drawing between the two times.
+- Existing records without endpoint timestamps remain compatible.
+
 ## Next Step Template
 
 ### Step N: Title

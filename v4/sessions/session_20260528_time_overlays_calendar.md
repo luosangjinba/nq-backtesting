@@ -815,3 +815,86 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `05d9cc7 feat(v4): open inspector for active setup`
 - Current uncommitted changes: TODO/session audit updates for Step 147B/147C
+
+## Phase 12 Order Setup Element Editing MVP
+
+Operation Script:
+
+- Step: `147D`
+- Goal: make entry / stop loss / target helper lines selectable, length-editable, and individually deletable.
+- Data boundary: keep persisted compatibility key as `orderReviews`; store per-element helper line length under `order.display.elementLengths[role]`.
+- Out of scope: deleting reversal, because reversal is the setup primary anchor.
+
+Implemented:
+
+- Added selected Order Setup element state in `order/order-setup-selection.js`.
+- Extended Order Setup hit-test from reversal markers to entry / stop / target helper lines.
+- Clicking a helper line selects that element, activates the owning setup, and opens the Active Order Setup Inspector panel.
+- Selected helper lines render yellow and dashed.
+- Active Order Setup Inspector shows selected element details plus `Length bars` and delete controls.
+- Right-clicking an editable helper line offers Select and Delete actions.
+- Element deletion clears only the corresponding entry plan fields.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-selection.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/app.js`
+- Module smoke verified hit-test, length persistence, and entry deletion.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `45e34d6 docs(v4): add order setup cleanup replay plan`
+- Current uncommitted changes: Step 147D implementation and operation script updates
+
+## Phase 12 Order Setup Time-Anchored Helper Line Endpoints
+
+Operation Script:
+
+- Step: `147E`
+- Goal: replace fixed-bar helper line sizing as the primary workflow with start/end timestamp anchors.
+- Interaction: normal right-click sets entry/stop/target start anchor; Shift + right-click sets the selected element endpoint through explicit menu actions.
+- Data boundary: keep `orderReviews`; add optional entry plan endpoint fields such as `entryEndTimestamp`, `stopLossEndTimestamp`, `targetInternalEndTimestamp`, etc.
+- Compatibility: records without endpoints continue using `display.elementLengths[role]` or renderer defaults.
+
+Implemented:
+
+- `LiquidityPrimitive` supports explicit `endTime`.
+- Entry / stop / target / final target endpoint timestamps normalize through `order-review-store.js`.
+- Setup Set adapter exposes endpoint timestamps on order elements.
+- Renderer draws helper lines from start time to end time when present.
+- Hit-test uses the rendered endpoint span when present.
+- Shift + right-click adds `Set ... End Here` menu actions.
+- Normal start setters clear prior endpoint timestamps for that element.
+- Inspector selected element panel shows Start and End.
+- Deleting an element clears both start/value and endpoint fields.
+
+Validation:
+
+- `node --check v4/src/chart/primitives.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-selection.js`
+- Module smoke verified endpoint normalization, Setup Set projection, endpoint hit-test, and endpoint clear.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `45e34d6 docs(v4): add order setup cleanup replay plan`
+- Current uncommitted changes: Step 147D and Step 147E implementation plus operation script updates

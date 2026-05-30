@@ -30,6 +30,7 @@ import { initSmtRenderer } from './smt/smt-renderer.js';
 import { initOrderReviewActive } from './order/order-review-active.js';
 import { initOrderReviewPersistence } from './order/order-review-persistence.js';
 import { initOrderReviewRenderer } from './order/order-review-renderer.js';
+import { initOrderSetupElementSelection } from './order/order-setup-selection.js';
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
 import { initHistoryManager } from './history/history-manager.js';
 
@@ -105,6 +106,7 @@ console.log('[V4] SMT controls initialized');
 
 initOrderReviewPersistence();
 initOrderReviewActive();
+initOrderSetupElementSelection();
 initOrderReviewRenderer();
 console.log('[V4] Order Review controls initialized');
 

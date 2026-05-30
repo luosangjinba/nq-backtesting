@@ -536,6 +536,64 @@ function renderExecutionPanel(setupSet) {
   `;
 }
 
+function getEditableElement(setupSet, role) {
+  const elements = setupSet?.orderElements || {};
+  if (role === 'entry') return elements.entry || null;
+  if (role === 'stopLoss') return elements.stopLoss || null;
+  if (role === 'target1' || role === 'target2' || role === 'target3' || role === 'finalTarget') {
+    return (Array.isArray(elements.targets) ? elements.targets : []).find((target) => target.role === role) || null;
+  }
+  return null;
+}
+
+function getElementLabel(role) {
+  if (role === 'entry') return 'Entry';
+  if (role === 'stopLoss') return 'Stop Loss';
+  if (role === 'target1') return 'Target 1';
+  if (role === 'target2') return 'Target 2';
+  if (role === 'target3') return 'Target 3';
+  if (role === 'finalTarget') return 'Final Target';
+  return role || 'Element';
+}
+
+function renderSelectedElementPanel(order, setupSet, selectedElement) {
+  const role = selectedElement?.setupId === order.id ? selectedElement.element : '';
+  const element = getEditableElement(setupSet, role);
+  if (!role || role === 'reversal') {
+    return `
+      <div class="order-review-compact">
+        <div class="order-review-compact-title">Selected Element</div>
+        <div class="drawing-set-empty">Select an entry, stop, or target line on chart.</div>
+      </div>
+    `;
+  }
+  if (!element) {
+    return `
+      <div class="order-review-compact">
+        <div class="order-review-compact-title">Selected Element</div>
+        <div class="drawing-set-empty">Selected element is no longer available.</div>
+      </div>
+    `;
+  }
+  const length = Number.isFinite(Number(element.lineLengthBars)) ? Number(element.lineLengthBars) : '';
+  return `
+    <div class="order-review-compact order-setup-selected-element">
+      <div class="order-review-compact-title">Selected Element</div>
+      ${field('Element', getElementLabel(role))}
+      ${field('Start', formatTime(element.timestamp))}
+      ${field('End', formatTime(element.endTimestamp))}
+      ${field('Price', formatNumber(element.price))}
+      ${controlField(
+        'Length bars',
+        `<input class="inspector-input" data-inspector-action="order-setup-element-length" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="number" min="0" step="1" value="${escapeHtml(length)}" placeholder="default" />`
+      )}
+      <div class="order-review-action-row">
+        <button class="inspector-danger" data-inspector-action="order-setup-element-delete" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="button">Delete ${escapeHtml(getElementLabel(role))}</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderReasonRows(order, setupSet) {
   const explanation = setupSet?.explanationElements || {};
   const refs = Array.isArray(explanation.refs) ? explanation.refs : [];
@@ -599,7 +657,7 @@ function renderResultPanel(order, setupSet) {
   `;
 }
 
-function renderActiveOrderSetup(order) {
+function renderActiveOrderSetup(order, options = {}) {
   const setupSet = createSetupSetFromOrderReview(order);
   if (!setupSet) return '<div class="drawing-set-empty">No active Order Setup.</div>';
   return `
@@ -608,6 +666,7 @@ function renderActiveOrderSetup(order) {
       ${renderActiveActions(order)}
       ${renderAnchorPanel(setupSet)}
       ${renderExecutionPanel(setupSet)}
+      ${renderSelectedElementPanel(order, setupSet, options.selectedOrderSetupElement)}
       ${renderReasonRows(order, setupSet)}
       ${renderResultPanel(order, setupSet)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>
@@ -618,7 +677,7 @@ function renderActiveOrderSetup(order) {
 export function renderOrderReviewPanel(orderReviews = [], options = {}) {
   const activeOrder = orderReviews.find((order) => order.id === options.activeOrderReviewId) || null;
   const content = activeOrder
-    ? renderActiveOrderSetup(activeOrder)
+    ? renderActiveOrderSetup(activeOrder, options)
     : '<div class="drawing-set-empty">No active Order Setup.</div>';
   return section('Active Order Setup', content);
 }

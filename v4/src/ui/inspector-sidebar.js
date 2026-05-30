@@ -66,6 +66,10 @@ import {
   setActiveReviewSet,
 } from '../order/order-review-active.js';
 import {
+  clearOrderSetupElementSelection,
+  getSelectedOrderSetupElement,
+} from '../order/order-setup-selection.js';
+import {
   addOrderReview,
   deleteOrderReview,
   getOrderReviewById,
@@ -107,6 +111,7 @@ function getOrderReviewPanelOptions(extra = {}) {
   return {
     expandedOrderReviewId,
     activeOrderReviewId: getActiveReviewSetId(),
+    selectedOrderSetupElement: getSelectedOrderSetupElement(),
     ...extra,
   };
 }
@@ -589,6 +594,111 @@ function updateOrderReviewResultField(target) {
   return true;
 }
 
+function getOrderSetupElementDeletePatch(role) {
+  if (role === 'entry') {
+    return {
+      entryPlan: {
+        entryTimestamp: null,
+        entryPrice: null,
+        entryEndTimestamp: null,
+        entryEndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'stopLoss') {
+    return {
+      entryPlan: {
+        stopLoss: null,
+        stopLossTimestamp: null,
+        stopLossTimeframe: 'manual',
+        stopLossEndTimestamp: null,
+        stopLossEndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'target1') {
+    return {
+      entryPlan: {
+        targetInternal: null,
+        targetInternalTimestamp: null,
+        targetInternalTimeframe: 'manual',
+        targetInternalEndTimestamp: null,
+        targetInternalEndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'target2') {
+    return {
+      entryPlan: {
+        targetSwing: null,
+        targetSwingTimestamp: null,
+        targetSwingTimeframe: 'manual',
+        targetSwingEndTimestamp: null,
+        targetSwingEndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'target3') {
+    return {
+      entryPlan: {
+        targetExternal: null,
+        targetExternalTimestamp: null,
+        targetExternalTimeframe: 'manual',
+        targetExternalEndTimestamp: null,
+        targetExternalEndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'finalTarget') {
+    return {
+      entryPlan: {
+        finalTarget: null,
+        finalTargetTimestamp: null,
+        finalTargetTimeframe: 'manual',
+        finalTargetEndTimestamp: null,
+        finalTargetEndTimeframe: 'manual',
+      },
+    };
+  }
+  return null;
+}
+
+function updateOrderSetupElementLength(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const role = target.dataset.orderSetupElement;
+  const order = getOrderReviewById(orderReviewId);
+  if (!order || !role) return false;
+  const parsed = Number(target.value);
+  if (target.value !== '' && (!Number.isFinite(parsed) || parsed < 0)) {
+    bus.emit('status:update', { text: 'Length bars 必须是 0 或正整数', isError: true });
+    return true;
+  }
+  const elementLengths = { ...(order.display?.elementLengths || {}) };
+  if (target.value === '') {
+    delete elementLengths[role];
+  } else {
+    elementLengths[role] = Math.floor(parsed);
+  }
+  recordInspectorHistory('Update Order Setup Element Length', () => updateOrderReview(orderReviewId, {
+    display: {
+      ...(order.display || {}),
+      elementLengths,
+    },
+  }));
+  return true;
+}
+
+function deleteOrderSetupElement(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const role = target.dataset.orderSetupElement;
+  const patch = getOrderSetupElementDeletePatch(role);
+  if (!orderReviewId || !patch) return false;
+  recordInspectorHistory('Delete Order Setup Element', () => updateOrderReview(orderReviewId, patch));
+  clearOrderSetupElementSelection();
+  refreshSelection();
+  return true;
+}
+
 function getOrderReviewRefs(order) {
   return Array.isArray(order?.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
 }
@@ -1040,6 +1150,11 @@ function handleInspectorChange(e) {
     return;
   }
 
+  if (action === 'order-setup-element-length') {
+    updateOrderSetupElementLength(e.target);
+    return;
+  }
+
   if (action === 'order-review-pick-time') {
     startOrderReviewTimePick(e.target);
     return;
@@ -1448,7 +1563,13 @@ function handleInspectorClick(e) {
 
   if (action === 'order-review-clear-active') {
     clearActiveReviewSet();
+    clearOrderSetupElementSelection();
     refreshSelection();
+    return;
+  }
+
+  if (action === 'order-setup-element-delete') {
+    deleteOrderSetupElement(actionEl);
     return;
   }
 
@@ -1663,6 +1784,10 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
+  bus.on('order-setup-element:selected', () => {
+    showActiveOrderSetupPanel();
+  });
+  bus.on('order-setup-element:selection-cleared', refreshSelection);
   bus.on('order-review-active:changed', ({ activeReviewSetId }) => {
     if (activeReviewSetId) {
       showActiveOrderSetupPanel();

@@ -341,7 +341,10 @@ function cloneOrderReview(order) {
     },
     entryPlan: { ...order.entryPlan },
     resultReview: { ...order.resultReview },
-    display: { ...(order.display || {}) },
+    display: {
+      ...(order.display || {}),
+      elementLengths: { ...(order.display?.elementLengths || {}) },
+    },
   };
 }
 
@@ -524,10 +527,24 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
     ),
+    entryEndTimestamp: normalizeTimestamp(input.entryEndTimestamp),
+    entryEndTimeframe: normalizeEnum(
+      input.entryEndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     stopLoss,
     stopLossTimestamp: normalizeTimestamp(input.stopLossTimestamp),
     stopLossTimeframe: normalizeEnum(
       input.stopLossTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    stopLossEndTimestamp: normalizeTimestamp(input.stopLossEndTimestamp),
+    stopLossEndTimeframe: normalizeEnum(
+      input.stopLossEndTimeframe,
       VALID_ORDER_TIMEFRAMES,
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
@@ -546,6 +563,13 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
     ),
+    targetInternalEndTimestamp: normalizeTimestamp(input.targetInternalEndTimestamp),
+    targetInternalEndTimeframe: normalizeEnum(
+      input.targetInternalEndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     targetSwing: normalizeNumber(input.targetSwing),
     targetSwingTimestamp: normalizeTimestamp(input.targetSwingTimestamp),
     targetSwingTimeframe: normalizeEnum(
@@ -554,10 +578,24 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
     ),
+    targetSwingEndTimestamp: normalizeTimestamp(input.targetSwingEndTimestamp),
+    targetSwingEndTimeframe: normalizeEnum(
+      input.targetSwingEndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     targetExternal: normalizeNumber(input.targetExternal),
     targetExternalTimestamp: normalizeTimestamp(input.targetExternalTimestamp),
     targetExternalTimeframe: normalizeEnum(
       input.targetExternalTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    targetExternalEndTimestamp: normalizeTimestamp(input.targetExternalEndTimestamp),
+    targetExternalEndTimeframe: normalizeEnum(
+      input.targetExternalEndTimeframe,
       VALID_ORDER_TIMEFRAMES,
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
@@ -572,6 +610,13 @@ export function normalizeEntryPlan(input = {}) {
     finalTargetTimestamp: normalizeTimestamp(input.finalTargetTimestamp),
     finalTargetTimeframe: normalizeEnum(
       input.finalTargetTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    finalTargetEndTimestamp: normalizeTimestamp(input.finalTargetEndTimestamp),
+    finalTargetEndTimeframe: normalizeEnum(
+      input.finalTargetEndTimeframe,
       VALID_ORDER_TIMEFRAMES,
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
@@ -633,8 +678,17 @@ export function normalizeResultReview(input = {}, entryPlan = {}) {
 }
 
 export function normalizeOrderDisplay(input = {}) {
+  const elementLengths = {};
+  if (input.elementLengths && typeof input.elementLengths === 'object') {
+    Object.entries(input.elementLengths).forEach(([key, value]) => {
+      const role = normalizeString(key, '');
+      const length = normalizeNumber(value);
+      if (role && length !== null && length >= 0) elementLengths[role] = Math.floor(length);
+    });
+  }
   return {
     hidden: normalizeBoolean(input.hidden, false),
+    elementLengths,
   };
 }
 

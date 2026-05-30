@@ -85,13 +85,18 @@ function createReversalElement(order = {}) {
 
 function createEntryElement(order = {}) {
   const entry = order.entryPlan || {};
+  const display = order.display || {};
   const timestamp = toTimestamp(entry.entryTimestamp);
   const price = toNumberOrNull(entry.entryPrice);
   return {
     type: SETUP_ELEMENT_TYPES.ENTRY,
+    role: 'entry',
     timestamp,
     timeframe: entry.entryTimeframe || '',
+    endTimestamp: toTimestamp(entry.entryEndTimestamp),
+    endTimeframe: entry.entryEndTimeframe || '',
     price,
+    lineLengthBars: toNumberOrNull(display.elementLengths?.entry),
     model: entry.entryModel || '',
     direction: entry.direction || 'unknown',
     complete: timestamp !== null && price !== null,
@@ -100,12 +105,17 @@ function createEntryElement(order = {}) {
 
 function createStopLossElement(order = {}) {
   const entry = order.entryPlan || {};
+  const display = order.display || {};
   const price = toNumberOrNull(entry.stopLoss);
   return {
     type: SETUP_ELEMENT_TYPES.STOP_LOSS,
+    role: 'stopLoss',
     timestamp: toTimestamp(entry.stopLossTimestamp),
     timeframe: entry.stopLossTimeframe || '',
+    endTimestamp: toTimestamp(entry.stopLossEndTimestamp),
+    endTimeframe: entry.stopLossEndTimeframe || '',
     price,
+    lineLengthBars: toNumberOrNull(display.elementLengths?.stopLoss),
     reason: entry.stopReason || '',
     complete: price !== null,
   };
@@ -113,34 +123,47 @@ function createStopLossElement(order = {}) {
 
 function createTargets(order = {}) {
   const entry = order.entryPlan || {};
+  const display = order.display || {};
   return [
     {
       role: 'target1',
       targetType: 'internal',
       timestamp: toTimestamp(entry.targetInternalTimestamp),
       timeframe: entry.targetInternalTimeframe || '',
+      endTimestamp: toTimestamp(entry.targetInternalEndTimestamp),
+      endTimeframe: entry.targetInternalEndTimeframe || '',
       price: toNumberOrNull(entry.targetInternal),
+      lineLengthBars: toNumberOrNull(display.elementLengths?.target1),
     },
     {
       role: 'target2',
       targetType: 'swing',
       timestamp: toTimestamp(entry.targetSwingTimestamp),
       timeframe: entry.targetSwingTimeframe || '',
+      endTimestamp: toTimestamp(entry.targetSwingEndTimestamp),
+      endTimeframe: entry.targetSwingEndTimeframe || '',
       price: toNumberOrNull(entry.targetSwing),
+      lineLengthBars: toNumberOrNull(display.elementLengths?.target2),
     },
     {
       role: 'target3',
       targetType: 'external',
       timestamp: toTimestamp(entry.targetExternalTimestamp),
       timeframe: entry.targetExternalTimeframe || '',
+      endTimestamp: toTimestamp(entry.targetExternalEndTimestamp),
+      endTimeframe: entry.targetExternalEndTimeframe || '',
       price: toNumberOrNull(entry.targetExternal),
+      lineLengthBars: toNumberOrNull(display.elementLengths?.target3),
     },
     {
       role: 'finalTarget',
       targetType: entry.selectedTargetType || '',
       timestamp: toTimestamp(entry.finalTargetTimestamp),
       timeframe: entry.finalTargetTimeframe || '',
+      endTimestamp: toTimestamp(entry.finalTargetEndTimestamp),
+      endTimeframe: entry.finalTargetEndTimeframe || '',
       price: toNumberOrNull(entry.finalTarget),
+      lineLengthBars: toNumberOrNull(display.elementLengths?.finalTarget),
     },
   ]
     .filter((target) => target.price !== null)

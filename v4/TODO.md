@@ -221,6 +221,8 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147A: Reversal marker 右键 MVP：新增 order setup element hit-test；右键命中 reversal 三角区域时菜单显示命中的 setup 列表；支持从共享 reversal 的多个 setup 中选择 Set Active，并支持 Close Active Setup
 - [x] Step 147B: Active reversal marker 高亮：普通 bullish reversal 保持绿色上三角，普通 bearish reversal 保持红色下三角；active setup 的 reversal marker 除了变大，还切换为黄色
 - [x] Step 147C: Active setup Inspector 自动聚焦：从 reversal 菜单或其它入口 Set Active 某个 setup 后，自动打开 Inspector，刷新到默认面板，并滚动定位到 Active Order Setup；Clear/Close Active 只刷新，不强制弹出
+- [x] Step 147D: Entry / stop / target element 编辑 MVP：entry / stop / target1-3 / final target 可命中并选中；Inspector 显示选中元素；支持按 bars 调整 helper line 长度；支持删除单个 entry/stop/target 元素；暂不删除 reversal 主锚点
+- [x] Step 147E: Entry / stop / target 时间锚定终点：普通右键继续设置线段起点；Shift+右键设置 entry/stop/target/final target 终点；保存起点/终点时间，切换周期时按时间重新投影线段长度；Length bars 仅作为旧数据/无终点 fallback
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

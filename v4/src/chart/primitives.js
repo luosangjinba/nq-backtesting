@@ -320,7 +320,9 @@ class LiquidityView {
     const anchorCoord = timeScale.timeToCoordinate(this._source._anchorTime);
     let rightX = null;
     if (anchorCoord !== null) {
-      rightX = extendXByBars(chart, anchorCoord, this._source._options.lineLength);
+      rightX = this._source._options.endTime === null || this._source._options.endTime === undefined
+        ? extendXByBars(chart, anchorCoord, this._source._options.lineLength)
+        : timeScale.timeToCoordinate(this._source._options.endTime);
     }
 
     this._p1 = { x: anchorCoord, y };

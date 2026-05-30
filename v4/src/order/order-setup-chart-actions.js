@@ -19,6 +19,8 @@ import {
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
+  getOrderReviewById,
+  updateOrderReview,
 } from './order-review-store.js';
 import {
   buildPdaOrderRefMetadata,
@@ -27,6 +29,10 @@ import {
   getSegmentOrderRefLabel,
 } from './order-ref-metadata.js';
 import { recordHistory } from '../history/history-manager.js';
+import {
+  clearOrderSetupElementSelection,
+  selectOrderSetupElement,
+} from './order-setup-selection.js';
 
 function getPdaLabel(annotation) {
   if (!annotation) return 'PDA';
@@ -53,11 +59,22 @@ function getHitSetupMenuItems(orderSetupHit) {
   const hits = Array.isArray(orderSetupHit?.hits) ? orderSetupHit.hits : [];
   if (!hits.length) return '';
   const activeId = getActiveReviewSetId();
-  const rows = hits
+  const reversalHits = hits.filter((hit) => hit.element === 'reversal');
+  const elementHits = hits.filter((hit) => hit.element !== 'reversal');
+  const reversalRows = reversalHits
     .map((hit) => {
       const active = hit.setupId === activeId;
       const label = `${active ? 'Active' : 'Set Active'} · ${hit.setupId.slice(0, 18)}`;
       return `<button class="pda-menu-item" data-pda-action="order-setup-hit-set-active" data-order-setup-id="${hit.setupId}">${label}</button>`;
+    })
+    .join('');
+  const elementRows = elementHits
+    .map((hit) => {
+      const label = `${getOrderSetupElementLabel(hit.element)} · ${hit.setupId.slice(0, 18)}`;
+      return `
+        <button class="pda-menu-item" data-pda-action="order-setup-hit-select-element" data-order-setup-id="${hit.setupId}" data-order-setup-element="${hit.element}">Select ${label}</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-hit-delete-element" data-order-setup-id="${hit.setupId}" data-order-setup-element="${hit.element}">Delete ${label}</button>
+      `;
     })
     .join('');
   const clearActive = activeId
@@ -65,13 +82,44 @@ function getHitSetupMenuItems(orderSetupHit) {
     : '';
   return `
     <div class="pda-menu-section pda-menu-submenu">
-      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Reversal Setup</div>
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Element</div>
       <div class="pda-submenu-panel">
-        ${rows}
+        ${reversalRows}
+        ${elementRows}
         ${clearActive}
       </div>
     </div>
   `;
+}
+
+function getOrderSetupElementLabel(role) {
+  if (role === 'entry') return 'Entry';
+  if (role === 'stopLoss') return 'Stop Loss';
+  if (role === 'target1') return 'Target1';
+  if (role === 'target2') return 'Target2';
+  if (role === 'target3') return 'Target3';
+  if (role === 'finalTarget') return 'Final Target';
+  if (role === 'reversal') return 'Reversal';
+  return role || 'Element';
+}
+
+function getOrderSetupElementDeletePatch(role) {
+  if (role === 'entry') return { entryPlan: { entryTimestamp: null, entryPrice: null, entryEndTimestamp: null, entryEndTimeframe: 'manual' } };
+  if (role === 'stopLoss') return { entryPlan: { stopLoss: null, stopLossTimestamp: null, stopLossTimeframe: 'manual', stopLossEndTimestamp: null, stopLossEndTimeframe: 'manual' } };
+  if (role === 'target1') return { entryPlan: { targetInternal: null, targetInternalTimestamp: null, targetInternalTimeframe: 'manual', targetInternalEndTimestamp: null, targetInternalEndTimeframe: 'manual' } };
+  if (role === 'target2') return { entryPlan: { targetSwing: null, targetSwingTimestamp: null, targetSwingTimeframe: 'manual', targetSwingEndTimestamp: null, targetSwingEndTimeframe: 'manual' } };
+  if (role === 'target3') return { entryPlan: { targetExternal: null, targetExternalTimestamp: null, targetExternalTimeframe: 'manual', targetExternalEndTimestamp: null, targetExternalEndTimeframe: 'manual' } };
+  if (role === 'finalTarget') return { entryPlan: { finalTarget: null, finalTargetTimestamp: null, finalTargetTimeframe: 'manual', finalTargetEndTimestamp: null, finalTargetEndTimeframe: 'manual' } };
+  return null;
+}
+
+function deleteOrderSetupElement(setupId, element) {
+  const order = getOrderReviewById(setupId);
+  const patch = getOrderSetupElementDeletePatch(element);
+  if (!order || !patch) return false;
+  recordHistory('Delete Order Setup Element', () => updateOrderReview(setupId, patch));
+  clearOrderSetupElementSelection();
+  return true;
 }
 
 function getContextPrice(price) {
@@ -114,7 +162,7 @@ function getManualEventPromptValues() {
   };
 }
 
-export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit } = {}) {
+export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit, isShift = false } = {}) {
   const active = getActiveReviewSet();
   const disabled = bar ? '' : 'disabled';
   const activeDisabled = active ? '' : 'disabled';
@@ -138,6 +186,15 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
         <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-target-external" ${activeDisabled || disabled}>Set Target3 Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-final-target" ${activeDisabled || disabled}>Set Final Target Here</button>
+        ${isShift ? `
+        <div class="pda-menu-divider"></div>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-entry-end" ${activeDisabled || disabled}>Set Entry End Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss-end" ${activeDisabled || disabled}>Set Stop Loss End Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal-end" ${activeDisabled || disabled}>Set Target1 End Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing-end" ${activeDisabled || disabled}>Set Target2 End Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-target-external-end" ${activeDisabled || disabled}>Set Target3 End Here</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-set-final-target-end" ${activeDisabled || disabled}>Set Final Target End Here</button>
+        ` : ''}
         <div class="pda-menu-divider"></div>
         <button class="pda-menu-item" data-pda-action="order-setup-link-pda" ${pdaDisabled}>Link PDA To Active Setup</button>
         <button class="pda-menu-item" data-pda-action="order-setup-link-segment" ${segmentDisabled}>Link Segment To Active Setup</button>
@@ -179,6 +236,8 @@ function patchActiveSetupFromContext(action, context) {
   const anchor = needsValidAnchor ? getValidBarAnchor(context, 'Order Setup element') : null;
   if (needsValidAnchor && !anchor) return;
   const price = anchor?.price ?? getContextPrice(context.price);
+  const endTimestamp = context.bar.timestamp;
+  const endTimeframe = context.timeframe;
 
   return recordHistory('Update Order Setup', () => {
     if (action === 'order-setup-set-reversal' || action === 'order-setup-set-event') {
@@ -195,6 +254,15 @@ function patchActiveSetupFromContext(action, context) {
           entryTimestamp: anchor.timestamp,
           entryTimeframe: anchor.timeframe,
           entryPrice: anchor.price,
+          entryEndTimestamp: null,
+          entryEndTimeframe: 'manual',
+        },
+      });
+    } else if (action === 'order-setup-set-entry-end') {
+      updateActiveReviewSet({
+        entryPlan: {
+          entryEndTimestamp: endTimestamp,
+          entryEndTimeframe: endTimeframe,
         },
       });
     } else if (action === 'order-setup-set-entry-time') {
@@ -218,6 +286,15 @@ function patchActiveSetupFromContext(action, context) {
           stopLoss: anchor.price,
           stopLossTimestamp: anchor.timestamp,
           stopLossTimeframe: anchor.timeframe,
+          stopLossEndTimestamp: null,
+          stopLossEndTimeframe: 'manual',
+        },
+      });
+    } else if (action === 'order-setup-set-stop-loss-end') {
+      updateActiveReviewSet({
+        entryPlan: {
+          stopLossEndTimestamp: endTimestamp,
+          stopLossEndTimeframe: endTimeframe,
         },
       });
     } else if (action === 'order-setup-set-target-internal') {
@@ -226,7 +303,16 @@ function patchActiveSetupFromContext(action, context) {
           targetInternal: anchor.price,
           targetInternalTimestamp: anchor.timestamp,
           targetInternalTimeframe: anchor.timeframe,
+          targetInternalEndTimestamp: null,
+          targetInternalEndTimeframe: 'manual',
           selectedTargetType: 'internal',
+        },
+      });
+    } else if (action === 'order-setup-set-target-internal-end') {
+      updateActiveReviewSet({
+        entryPlan: {
+          targetInternalEndTimestamp: endTimestamp,
+          targetInternalEndTimeframe: endTimeframe,
         },
       });
     } else if (action === 'order-setup-set-target-swing') {
@@ -235,7 +321,16 @@ function patchActiveSetupFromContext(action, context) {
           targetSwing: anchor.price,
           targetSwingTimestamp: anchor.timestamp,
           targetSwingTimeframe: anchor.timeframe,
+          targetSwingEndTimestamp: null,
+          targetSwingEndTimeframe: 'manual',
           selectedTargetType: 'swing',
+        },
+      });
+    } else if (action === 'order-setup-set-target-swing-end') {
+      updateActiveReviewSet({
+        entryPlan: {
+          targetSwingEndTimestamp: endTimestamp,
+          targetSwingEndTimeframe: endTimeframe,
         },
       });
     } else if (action === 'order-setup-set-target-external') {
@@ -244,7 +339,16 @@ function patchActiveSetupFromContext(action, context) {
           targetExternal: anchor.price,
           targetExternalTimestamp: anchor.timestamp,
           targetExternalTimeframe: anchor.timeframe,
+          targetExternalEndTimestamp: null,
+          targetExternalEndTimeframe: 'manual',
           selectedTargetType: 'external',
+        },
+      });
+    } else if (action === 'order-setup-set-target-external-end') {
+      updateActiveReviewSet({
+        entryPlan: {
+          targetExternalEndTimestamp: endTimestamp,
+          targetExternalEndTimeframe: endTimeframe,
         },
       });
     } else if (action === 'order-setup-set-final-target') {
@@ -253,6 +357,15 @@ function patchActiveSetupFromContext(action, context) {
           finalTarget: anchor.price,
           finalTargetTimestamp: anchor.timestamp,
           finalTargetTimeframe: anchor.timeframe,
+          finalTargetEndTimestamp: null,
+          finalTargetEndTimeframe: 'manual',
+        },
+      });
+    } else if (action === 'order-setup-set-final-target-end') {
+      updateActiveReviewSet({
+        entryPlan: {
+          finalTargetEndTimestamp: endTimestamp,
+          finalTargetEndTimeframe: endTimeframe,
         },
       });
     }
@@ -346,6 +459,24 @@ export function handleOrderSetupChartAction(action, context = {}) {
     bus.emit('status:update', {
       text: next ? `Active Order Setup: ${context.orderSetupId}` : 'Order Setup cannot be activated',
       isError: !next,
+    });
+    return true;
+  }
+
+  if (action === 'order-setup-hit-select-element') {
+    const selection = selectOrderSetupElement(context.orderSetupId, context.orderSetupElement);
+    bus.emit('status:update', {
+      text: selection ? `Selected ${getOrderSetupElementLabel(context.orderSetupElement)}` : 'Order Setup element cannot be selected',
+      isError: !selection,
+    });
+    return true;
+  }
+
+  if (action === 'order-setup-hit-delete-element') {
+    const deleted = deleteOrderSetupElement(context.orderSetupId, context.orderSetupElement);
+    bus.emit('status:update', {
+      text: deleted ? `${getOrderSetupElementLabel(context.orderSetupElement)} deleted` : 'Order Setup element cannot be deleted',
+      isError: !deleted,
     });
     return true;
   }

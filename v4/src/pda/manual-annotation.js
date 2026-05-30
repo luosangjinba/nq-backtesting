@@ -84,6 +84,7 @@ let contextMenuPdaHit = null;
 let contextMenuSegmentHit = null;
 let contextMenuSegmentGroupHit = null;
 let contextMenuOrderSetupHit = null;
+let contextMenuShiftKey = false;
 let rangeSelectionState = null;
 let fibSelectionState = null;
 
@@ -351,7 +352,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     submenuDirection,
     timeLabel,
     disabled,
-    orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit: contextMenuOrderSetupHit }),
+    orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit: contextMenuOrderSetupHit, isShift: contextMenuShiftKey }),
     segmentPdaLinkItems,
     segmentGroupItems,
     segmentItems,
@@ -368,6 +369,7 @@ function hideContextMenu() {
   contextMenuSegmentHit = null;
   contextMenuSegmentGroupHit = null;
   contextMenuOrderSetupHit = null;
+  contextMenuShiftKey = false;
   if (controlsEl) {
     controlsEl.innerHTML = '';
   }
@@ -392,6 +394,7 @@ function handleContextMenu(e) {
   const segmentGroupHit = hitTestSegmentGroups({ x, y });
   const orderSetupHit = hitTestOrderSetupElements({ x, y });
   contextMenuOrderSetupHit = orderSetupHit;
+  contextMenuShiftKey = e.shiftKey;
 
   if (e.shiftKey && fibSelectionState) {
     addManualFib(bar);
@@ -422,6 +425,7 @@ async function handleControlClick(e) {
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,
     orderSetupId: e.target.closest('[data-order-setup-id]')?.dataset.orderSetupId || '',
+    orderSetupElement: e.target.closest('[data-order-setup-element]')?.dataset.orderSetupElement || '',
   })) {
     hideContextMenu();
   } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {
