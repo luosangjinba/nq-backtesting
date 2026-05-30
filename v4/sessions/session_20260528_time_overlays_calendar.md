@@ -207,3 +207,41 @@
 ## Next Steps
 
 - Next: decide whether to merge Phase 10 to `main` or start the next feature phase after committing Step 129 docs.
+
+## Phase 11 Step 130 Update
+
+Completed:
+
+- Froze the secondary chart FVG design in `v4/docs/SECONDARY_FVG_DESIGN.md`.
+- Confirmed secondary FVG should reuse the existing PDA store and `type='fvg'` range annotation rather than introducing a separate secondary-FVG layer.
+- Froze the required secondary source metadata: `sourceChartId`, `sourceChartLabel`, `sourceInstrument`, `sourceTimeframe`, `sourceTimeframeLabel`, and `sourceContext`.
+- Kept secondary IFVG and generic range PDA out of the first FVG rollout; ordinary FVG is the MVP.
+- Updated `v4/TODO.md` with Phase 11 Steps 130-135.
+
+Design audit:
+
+- `v4/src/pda/manual-pda-actions.js` already centralizes FVG creation through `addManualFvg()`.
+- `v4/src/pda/fvg-identifier.js` is context-independent and can run on secondary display bars.
+- Existing PDA renderers and hit-test paths already support range PDA records.
+- PDA archive/import/export paths preserve unknown annotation fields, so source metadata can travel with the record.
+- Existing setup-link metadata normalization can reuse the same PDA ref type once FVG creation writes complete source fields.
+
+Validation:
+
+- Step 130 was a code-reading/design-freeze step only; no runtime behavior was changed.
+- Pending final local validation for this doc/TODO/session update: `git diff --check`.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `9a63b4d docs(v4): validate secondary segment workflow`
+- Current uncommitted changes: Phase 11 Step 130 design/TODO/session updates
+- Existing unrelated untracked local files remain ignored:
+  - `__pycache__/`
+  - `tmp/`
+  - `trading_data.duckdb`
+  - `v3/plans/`
+
+Next Steps:
+
+- Step 131: harden `addManualFvg()` source metadata and contexts for secondary-created FVG while keeping primary FVG behavior unchanged.

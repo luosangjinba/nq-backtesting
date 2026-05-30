@@ -195,6 +195,14 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 128: 副图 Segment link 到 setup：支持把副图 segment 作为 HTF structure evidence 关联到 active setup / setup set
 - [x] Step 129: 副图 Segment 验证：覆盖主图 1M 找 setup、副图 1H/4H 做结构标注的真实流程；验证 Review JSON、Calendar、undo/redo、Split on/off 与 replay 不回归
 
+### Phase 11: Secondary Chart FVG Workflow
+- [x] Step 130: 副图 FVG 设计冻结：明确副图 FVG 复用现有 PDA store 与 `type='fvg'` range annotation；冻结 source metadata、contexts、渲染/命中/Inspector、setup-link 与 archive 边界，写入 `docs/SECONDARY_FVG_DESIGN.md`
+- [ ] Step 131: 副图 FVG metadata hardening：让 `addManualFvg()` 与 point PDA 一样写入 `sourceChartId/sourceChartLabel/sourceInstrument/sourceTimeframe/sourceTimeframeLabel/sourceContext`，并让 contexts 同时包含来源与结构标签；主图 FVG 行为不变
+- [ ] Step 132: 启用副图 Mark FVG：在副图右键菜单开放 `Mark FVG`，用 secondary context 调用现有 FVG 识别/创建流程；无有效三根 FVG 时只提示不创建
+- [ ] Step 133: 副图 FVG 渲染/命中/Inspector 验证：确认副图创建的 FVG 可在主图/副图显示、命中选择、打开 Inspector、编辑 note/extend、删除，并支持 locate/flash
+- [ ] Step 134: 副图 FVG link setup 验证：确认副图 FVG 能作为 PDA evidence 关联 active Order Setup / setup set，setup ref 保留来源 chart/instrument/timeframe/context
+- [ ] Step 135: 副图 FVG 持久化与 workflow 验证：覆盖 localStorage、PDA JSON、Review JSON、undo/redo、Split on/off、Replay Bar On；确认主图 1M 找 setup + 副图 1H/4H 标 FVG 的真实流程不回归
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
