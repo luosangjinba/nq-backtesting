@@ -184,7 +184,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 ### Phase 10: Secondary Chart Annotation Workflow
 - [x] Step 118: 定义 chart context 边界：新增 `chart/chart-context.js`，用统一 context 描述 primary / secondary 的 chart、series、bars、timeframe、coordinate 转换、primitive attach/clear 与基础事件订阅；当前只作为后续接入基础，不改变现有主图/副图行为，secondary context 标记为 `readonly=true`
 - [x] Step 119: 抽离 PDA 创建动作：把 `manual-annotation.js` 中依赖主图单例的 PDA 创建流程拆成可接受 chart context 的 action/helper；第一步保持只调用 primary context，确保主图右键行为不变
-- [ ] Step 120: 副图右键菜单 MVP：在 secondary chart 上接入独立 context menu 入口，只暴露经过允许的只读/创建项；不复用主图 DOM 状态导致菜单互相覆盖
+- [x] Step 120: 副图右键菜单 MVP：在 secondary chart 上接入独立 context menu 入口，只暴露经过允许的只读/创建项；不复用主图 DOM 状态导致菜单互相覆盖
 - [ ] Step 121: 副图 PDA 创建 MVP：支持在副图上创建 BSL/SSL 与基础 range PDA，记录 `sourceChartId/sourceInstrument/sourceTimeframe`，并复用现有 PDA store / Review JSON
 - [ ] Step 122: PDA 主副图渲染一致性：确认副图创建的 PDA 能按现有 renderer 规则在主图/副图显示或投影；补齐 label、extend、CE、hit-test 的 timeframe 映射
 - [ ] Step 123: 副图 PDA hit-test / select / Inspector：副图点击 PDA 能选中同一 annotation 并打开 Inspector；Inspector 编辑、删除、note、extend 与 undo/redo 继续作用于同一 PDA store

@@ -192,7 +192,8 @@ html, body {
   pointer-events: auto;
 }
 
-#pda-context-menu {
+#pda-context-menu,
+#secondary-context-menu {
   position: absolute;
   inset: 0;
   z-index: 12;
