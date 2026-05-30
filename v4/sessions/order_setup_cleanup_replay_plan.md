@@ -557,7 +557,7 @@ Validation:
 
 Commit:
 
-- `accaab5 feat(v4): simplify order setup reasons and execution rows`
+- `e88cbc2 feat(v4): refine order setup execution editing`
 
 Notes:
 
@@ -596,7 +596,7 @@ Validation:
 
 Commit:
 
-- `accaab5 feat(v4): simplify order setup reasons and execution rows`
+- `e88cbc2 feat(v4): refine order setup execution editing`
 
 Notes:
 
@@ -634,7 +634,7 @@ Validation:
 
 Commit:
 
-- `accaab5 feat(v4): simplify order setup reasons and execution rows`
+- `a7d614e fix(v4): simplify setup line length controls`
 
 Notes:
 
@@ -674,7 +674,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `a7d614e fix(v4): simplify setup line length controls`
 
 Notes:
 
@@ -716,7 +716,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
 Notes:
 
@@ -746,7 +746,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
 Notes:
 
@@ -779,7 +779,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
 Notes:
 
