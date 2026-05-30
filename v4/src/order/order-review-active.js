@@ -64,6 +64,9 @@ export function createChartReviewSet({
       entryTimeframe: timeframe,
       entryModel: ORDER_ENTRY_MODELS.MANUAL,
     },
+    display: {
+      hidden: true,
+    },
   });
   activeReviewSetId = order.id;
   emitChanged();

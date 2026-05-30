@@ -787,6 +787,86 @@ Notes:
 - Implemented with a row grid containing `summary`, `time`, and `delete` areas.
 - `summary` aligns Type / Price / Kind; `time` spans the content width below it.
 
+### Step 147N: Multi-Reason MVP
+
+Goal:
+
+- Add multiple setup reasons under Active Order Setup.
+- Store reasons in `setupThesis.reasons[]`.
+- Each reason has independent note text and linked refs.
+- `Link Selected Object` links to the specific reason block that owns the button.
+- Preserve old records by mapping `setupThesis.narrative + linkedObjectRefs` to Reason 1.
+
+Main files:
+
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/setup-set.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke for add reason, per-reason note, per-reason link, ref removal, and legacy fallback.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- This is still an MVP; reason ordering is append-only for now.
+- Implemented `setupThesis.reasons[]` normalization and clone support.
+- `Reason 1` remains compatible with old `narrative + linkedObjectRefs`.
+- Active Order Setup now renders one card per reason, each with its own note, refs, and `Link Selected Object`.
+- Extra empty reasons can be removed with a compact `X`; non-empty reasons must be cleared first.
+
+### Step 147O: Default Hidden Setups And Helper Line Colors
+
+Goal:
+
+- New Order Setups should default to hidden so multiple setups do not clutter the chart immediately.
+- Keep old imported/stored records compatible by not changing the global `display.hidden` fallback.
+- Make Order Setup helper lines thinner.
+- Use distinct semantic colors: Long Entry dark green, Short Entry red, Stop Loss blue, Target purple.
+
+Main files:
+
+- `v4/src/order/order-review-active.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-active.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- Module smoke for new setup hidden defaults and renderer color constants.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Active setup selection remains separate from visibility; user can Show from Inspector/Calendar when they want it drawn.
+- Implemented `display.hidden=true` in chart, blank, segment, and composite setup creation paths.
+- Kept `normalizeOrderDisplay()` fallback as `hidden=false` so existing records/imports do not disappear unexpectedly.
+- Helper line widths now use `1 / 1.25 / 1.75` for normal / active / selected.
+- Entry color is direction-aware: long `#00695c`, short `#ef5350`; stop loss `#42a5f5`; targets `#ab47bc`.
+
 ## Next Step Template
 
 ### Step N: Title

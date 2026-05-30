@@ -1097,6 +1097,84 @@ Committed:
 
 - `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
+## Phase 12 Multi-Reason MVP
+
+Operation Script:
+
+- Step: `147N`
+- Goal: move Reasons from one fixed Reason 1 into multiple independent reason blocks.
+- Storage boundary: add `setupThesis.reasons[]`; keep old `narrative + linkedObjectRefs` as legacy Reason 1 fallback.
+- UI boundary: Add Reason, per-reason note, per-reason Link Selected Object, per-ref remove, delete only for empty extra reasons.
+
+Planned:
+
+- Normalize `setupThesis.reasons[]` in the order review store.
+- Clone/import/export reasons without losing nested refs.
+- Render each reason as its own card.
+- Wire note/link/remove/delete actions to the correct reason index.
+- Keep legacy data visible as Reason 1.
+
+Implemented:
+
+- Added `setupThesis.reasons[]` normalization and deep clone support.
+- Legacy `setupThesis.narrative + linkedObjectRefs` maps to Reason 1 when `reasons[]` is absent.
+- `setup-set` now exposes refs/notes from reason blocks for downstream adapters.
+- Active Order Setup renders multiple reason cards.
+- Added `Add Reason`, per-reason note editing, per-reason `Link Selected Object`, per-ref removal, and empty extra reason deletion.
+- Reason 1 note/refs continue syncing back to legacy `narrative + linkedObjectRefs` for compatibility.
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verified legacy fallback, multi-reason normalization, setup-set refs, and rendered Reason 1/2/Add Reason controls.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `98bbe1e docs(v4): fix order setup replay commit refs`
+- Current uncommitted changes: Step 147N implementation and operation script updates
+
+## Phase 12 Default Hidden Setups And Helper Line Colors
+
+Operation Script:
+
+- Step: `147O`
+- Goal: default new Order Setups to hidden and make helper lines thinner with semantic colors.
+- Compatibility boundary: do not change global `display.hidden` normalization fallback for old records.
+- Renderer boundary: only Order Setup entry/stop/target helper lines change; risk zones and other chart objects stay as-is.
+
+Planned:
+
+- Set `display.hidden=true` in chart/blank/segment/composite setup creation paths.
+- Thin Order Setup helper line widths.
+- Color Long Entry dark green, Short Entry red, Stop Loss blue, Target purple.
+
+Implemented:
+
+- Chart-created, blank, segment-created, and composite-created Order Setups now default to hidden.
+- Existing records keep the old display fallback and are not forced hidden.
+- Order Setup helper line widths are thinner.
+- Entry line color now follows direction: long is dark green, short is red.
+- Stop loss is blue and targets are purple.
+
+Validation:
+
+- `node --check v4/src/order/order-review-active.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- Module smoke verified chart-created setup hidden default and renderer color/line-width constants.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `98bbe1e docs(v4): fix order setup replay commit refs`
+- Current uncommitted changes: Step 147N/147O implementation and operation script updates
+
 ## Phase 12 Execution Column Alignment
 
 Operation Script:

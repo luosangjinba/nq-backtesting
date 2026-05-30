@@ -231,6 +231,8 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147K: Reason 1 MVP：Reasons 不再按 Add PDA/Segment/Composite/SMT 分类型按钮；先实现一个 Reason 1，支持自由 note，支持一个通用 Link Selected Object 自动识别当前选中 PDA/Segment/Composite/SMT 并挂入 refs；refs 可单独移除；底层暂复用现有 narrative + linkedObjectRefs
 - [x] Step 147L: Execution 行列式对齐：将 entry / stop / target 行拆成 Type / Price / Time Range / Kind 四列，保持类型、价格、时间段、顶点/模型类型等字段纵向对齐；保留行选中与紧凑 X 删除交互
 - [x] Step 147M: Execution 两行紧凑布局：修正 147L 单行列式过宽问题；第一行对齐 Type / Price / Kind / X，第二行展示完整 Time Range，避免 Inspector 横向滚动并保留选中/删除交互
+- [x] Step 147N: 多 Reason MVP：新增 `setupThesis.reasons[]`，支持 Add Reason、删除空 reason、每个 reason 独立 note/refs；Link Selected Object 挂到对应 reason；旧 `narrative + linkedObjectRefs` 自动映射为 Reason 1 兼容显示与编辑
+- [x] Step 147O: Order Setup 默认隐藏与 helper line 配色：新创建的 Order Setup 默认 `display.hidden=true`；entry/stop/target helper line 变细；Long Entry 墨绿色、Short Entry 红色、Stop Loss 蓝色、Target 紫色；不改变旧记录缺省显示兼容
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

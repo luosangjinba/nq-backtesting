@@ -568,27 +568,49 @@ function renderExecutionPanel(order, setupSet, selectedElement) {
   `;
 }
 
+function getOrderReviewReasons(order) {
+  const reasons = Array.isArray(order.setupThesis?.reasons) ? order.setupThesis.reasons : [];
+  if (reasons.length) return reasons;
+  const refs = Array.isArray(order.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
+  const note = order.setupThesis?.narrative || '';
+  if (!note && !refs.length) return [{ id: 'reason_1', note: '', refs: [] }];
+  return [{ id: 'reason_1', note, refs }];
+}
+
+function isReasonEmpty(reason = {}) {
+  return !reason.note && !(Array.isArray(reason.refs) && reason.refs.length);
+}
+
 function renderReasonRows(order, setupSet) {
-  const explanation = setupSet?.explanationElements || {};
-  const refs = Array.isArray(explanation.refs) ? explanation.refs : [];
-  const refRows = refs.map((ref, index) => `
-    <div class="order-review-ref-row">
-      <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
-      <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">X</button>
-    </div>
-  `);
+  const reasons = getOrderReviewReasons(order);
+  const reasonRows = reasons.map((reason, reasonIndex) => {
+    const refs = Array.isArray(reason.refs) ? reason.refs : [];
+    const refRows = refs.map((ref, refIndex) => `
+      <div class="order-review-ref-row">
+        <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button">X</button>
+      </div>
+    `);
+    return `
+      <div class="order-setup-reason-card">
+        <div class="order-setup-reason-title-row">
+          <div class="order-setup-reason-title">Reason ${reasonIndex + 1}</div>
+          ${reasonIndex > 0 && isReasonEmpty(reason) ? `<button class="inspector-mini-btn order-setup-reason-delete" data-inspector-action="order-review-reason-delete" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" type="button">X</button>` : ''}
+        </div>
+        <textarea class="inspector-textarea" data-inspector-action="order-review-reason-note" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" rows="2" placeholder="Write setup reason">${escapeHtml(reason.note || '')}</textarea>
+        <div class="order-review-ref-list">${refRows.join('') || '<div class="drawing-set-empty">No linked objects.</div>'}</div>
+        <div class="order-review-ref-actions">
+          <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-object" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" type="button">Link Selected Object</button>
+        </div>
+      </div>
+    `;
+  });
 
   return `
     <div class="order-review-explanation">
       <div class="order-review-compact-title">Reasons</div>
-      <div class="order-setup-reason-card">
-        <div class="order-setup-reason-title">Reason 1</div>
-        <textarea class="inspector-textarea" data-inspector-action="order-review-reason-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Write setup reason">${escapeHtml(order.setupThesis?.narrative || '')}</textarea>
-        <div class="order-review-ref-list">${refRows.join('') || '<div class="drawing-set-empty">No linked objects.</div>'}</div>
-      </div>
-      <div class="order-review-ref-actions">
-        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-object" data-order-review-id="${escapeHtml(order.id)}" type="button">Link Selected Object</button>
-      </div>
+      ${reasonRows.join('')}
+      <button class="inspector-secondary order-setup-add-reason" data-inspector-action="order-review-reason-add" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Reason</button>
     </div>
   `;
 }

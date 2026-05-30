@@ -452,6 +452,9 @@ function createOrderReviewFromSegment(segment) {
       entryTimestamp: timestamp,
       entryTimeframe: segment.timeframe || '1H',
     },
+    display: {
+      hidden: true,
+    },
   });
   expandedOrderReviewId = order.id;
   setActiveReviewSet(order.id);
@@ -480,6 +483,9 @@ function createOrderReviewFromComposite(group) {
       entryTimestamp: timestamp,
       entryTimeframe: '1H',
     },
+    display: {
+      hidden: true,
+    },
   });
   expandedOrderReviewId = order.id;
   setActiveReviewSet(order.id);
@@ -489,7 +495,11 @@ function createOrderReviewFromComposite(group) {
 }
 
 function createBlankOrderReview() {
-  const order = addOrderReview();
+  const order = addOrderReview({
+    display: {
+      hidden: true,
+    },
+  });
   expandedOrderReviewId = order.id;
   setActiveReviewSet(order.id);
   refreshSelection();
@@ -708,6 +718,83 @@ function getOrderReviewRefs(order) {
   return Array.isArray(order?.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
 }
 
+function getOrderReviewReasons(order) {
+  const reasons = Array.isArray(order?.setupThesis?.reasons) ? order.setupThesis.reasons : [];
+  if (reasons.length) {
+    return reasons.map((reason, index) => ({
+      id: reason.id || `reason_${index + 1}`,
+      note: reason.note || '',
+      refs: Array.isArray(reason.refs) ? reason.refs : [],
+    }));
+  }
+  const refs = getOrderReviewRefs(order);
+  const note = order?.setupThesis?.narrative || '';
+  return [{ id: 'reason_1', note, refs }];
+}
+
+function isOrderReviewReasonEmpty(reason = {}) {
+  return !reason.note && !(Array.isArray(reason.refs) && reason.refs.length);
+}
+
+function createOrderReviewReasonId() {
+  return `reason_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function patchOrderReviewReasons(orderReviewId, reasons) {
+  const normalizedReasons = reasons.map((reason, index) => ({
+    id: reason.id || `reason_${index + 1}`,
+    note: reason.note || '',
+    refs: Array.isArray(reason.refs) ? reason.refs : [],
+  }));
+  const firstReason = normalizedReasons[0] || { note: '', refs: [] };
+  expandedOrderReviewId = orderReviewId;
+  recordInspectorHistory('Update Order Reasons', () => updateOrderReview(orderReviewId, {
+    setupThesis: {
+      reasons: normalizedReasons,
+      narrative: firstReason.note || '',
+      linkedObjectRefs: firstReason.refs || [],
+    },
+  }));
+}
+
+function updateOrderReviewReasonNote(orderReviewId, reasonIndex, note) {
+  const order = getOrderReviewById(orderReviewId);
+  if (!order) return false;
+  const reasons = getOrderReviewReasons(order);
+  const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+  while (reasons.length <= index) {
+    reasons.push({ id: createOrderReviewReasonId(), note: '', refs: [] });
+  }
+  reasons[index] = { ...reasons[index], note };
+  patchOrderReviewReasons(orderReviewId, reasons);
+  return true;
+}
+
+function addOrderReviewReason(orderReviewId) {
+  const order = getOrderReviewById(orderReviewId);
+  if (!order) return false;
+  patchOrderReviewReasons(orderReviewId, [
+    ...getOrderReviewReasons(order),
+    { id: createOrderReviewReasonId(), note: '', refs: [] },
+  ]);
+  return true;
+}
+
+function deleteOrderReviewReason(orderReviewId, reasonIndex) {
+  const order = getOrderReviewById(orderReviewId);
+  const reasons = getOrderReviewReasons(order);
+  if (!order || reasonIndex <= 0 || reasonIndex >= reasons.length) return false;
+  if (!isOrderReviewReasonEmpty(reasons[reasonIndex])) {
+    bus.emit('status:update', { text: 'Only empty extra reasons can be deleted', isError: true });
+    return true;
+  }
+  patchOrderReviewReasons(
+    orderReviewId,
+    reasons.filter((_, index) => index !== reasonIndex)
+  );
+  return true;
+}
+
 function patchOrderReviewRefs(orderReviewId, refs) {
   expandedOrderReviewId = orderReviewId;
   recordInspectorHistory('Update Order Refs', () => updateOrderReview(orderReviewId, {
@@ -721,6 +808,22 @@ function addOrderReviewRef(orderReviewId, ref) {
   const order = getOrderReviewById(orderReviewId);
   if (!order || !ref?.type || !ref?.id) return false;
   patchOrderReviewRefs(orderReviewId, [...getOrderReviewRefs(order), ref]);
+  return true;
+}
+
+function addOrderReviewReasonRef(orderReviewId, reasonIndex, ref) {
+  const order = getOrderReviewById(orderReviewId);
+  if (!order || !ref?.type || !ref?.id) return false;
+  const reasons = getOrderReviewReasons(order);
+  const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+  while (reasons.length <= index) {
+    reasons.push({ id: createOrderReviewReasonId(), note: '', refs: [] });
+  }
+  const refs = Array.isArray(reasons[index].refs) ? reasons[index].refs : [];
+  const key = `${ref.type}:${ref.id}:${ref.role}`;
+  if (refs.some((existing) => `${existing.type}:${existing.id}:${existing.role}` === key)) return false;
+  reasons[index] = { ...reasons[index], refs: [...refs, ref] };
+  patchOrderReviewReasons(orderReviewId, reasons);
   return true;
 }
 
@@ -750,6 +853,20 @@ function removeOrderReviewRef(orderReviewId, refIndex) {
     orderReviewId,
     refs.filter((_, index) => index !== refIndex)
   );
+  return true;
+}
+
+function removeOrderReviewReasonRef(orderReviewId, reasonIndex, refIndex) {
+  const order = getOrderReviewById(orderReviewId);
+  const reasons = getOrderReviewReasons(order);
+  if (!order || reasonIndex < 0 || reasonIndex >= reasons.length) return false;
+  const refs = Array.isArray(reasons[reasonIndex].refs) ? reasons[reasonIndex].refs : [];
+  if (refIndex < 0 || refIndex >= refs.length) return false;
+  reasons[reasonIndex] = {
+    ...reasons[reasonIndex],
+    refs: refs.filter((_, index) => index !== refIndex),
+  };
+  patchOrderReviewReasons(orderReviewId, reasons);
   return true;
 }
 
@@ -794,16 +911,16 @@ function getSelectedOrderReviewRef() {
   return { error: '没有选中的 PDA / Segment / Composite / SMT' };
 }
 
-function addSelectedOrderReviewRef(action, orderReviewId) {
+function addSelectedOrderReviewRef(action, orderReviewId, reasonIndex = 0) {
   if (action === 'order-review-ref-add-selected-object') {
     const selected = getSelectedOrderReviewRef();
     if (selected.error) {
       bus.emit('status:update', { text: selected.error, isError: true });
       return true;
     }
-    const added = addOrderReviewRef(orderReviewId, selected.ref);
+    const added = addOrderReviewReasonRef(orderReviewId, reasonIndex, selected.ref);
     bus.emit('status:update', {
-      text: added ? `${selected.label} linked to Reason 1` : 'Link selected object failed',
+      text: added ? `${selected.label} linked to Reason ${reasonIndex + 1}` : 'Link selected object failed',
       isError: !added,
     });
     return true;
@@ -1200,9 +1317,11 @@ function handleInspectorChange(e) {
   }
 
   if (action === 'order-review-reason-note') {
-    recordInspectorHistory('Update Order Reason', () => updateOrderReview(e.target.dataset.orderReviewId, {
-      setupThesis: { narrative: e.target.value },
-    }));
+    updateOrderReviewReasonNote(
+      e.target.dataset.orderReviewId,
+      Number(e.target.dataset.reasonIndex),
+      e.target.value
+    );
     return;
   }
 
@@ -1228,12 +1347,17 @@ function handleInspectorChange(e) {
   }
 
   if (action === 'order-review-ref-remove') {
-    removeOrderReviewRef(e.target.dataset.orderReviewId, Number(e.target.dataset.refIndex));
+    const reasonIndex = Number(e.target.dataset.reasonIndex);
+    if (Number.isFinite(reasonIndex)) {
+      removeOrderReviewReasonRef(e.target.dataset.orderReviewId, reasonIndex, Number(e.target.dataset.refIndex));
+    } else {
+      removeOrderReviewRef(e.target.dataset.orderReviewId, Number(e.target.dataset.refIndex));
+    }
     return;
   }
 
   if (action.startsWith('order-review-ref-add-selected-')) {
-    addSelectedOrderReviewRef(action, e.target.dataset.orderReviewId);
+    addSelectedOrderReviewRef(action, e.target.dataset.orderReviewId, Number(e.target.dataset.reasonIndex) || 0);
     return;
   }
 
@@ -1627,6 +1751,35 @@ function handleInspectorClick(e) {
   if (action === 'order-review-clear-active') {
     clearActiveReviewSet();
     clearOrderSetupElementSelection();
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'order-review-reason-add') {
+    addOrderReviewReason(actionEl.dataset.orderReviewId);
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'order-review-reason-delete') {
+    deleteOrderReviewReason(actionEl.dataset.orderReviewId, Number(actionEl.dataset.reasonIndex));
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'order-review-ref-remove') {
+    const reasonIndex = Number(actionEl.dataset.reasonIndex);
+    if (Number.isFinite(reasonIndex)) {
+      removeOrderReviewReasonRef(actionEl.dataset.orderReviewId, reasonIndex, Number(actionEl.dataset.refIndex));
+    } else {
+      removeOrderReviewRef(actionEl.dataset.orderReviewId, Number(actionEl.dataset.refIndex));
+    }
+    refreshSelection();
+    return;
+  }
+
+  if (action.startsWith('order-review-ref-add-selected-')) {
+    addSelectedOrderReviewRef(action, actionEl.dataset.orderReviewId, Number(actionEl.dataset.reasonIndex) || 0);
     refreshSelection();
     return;
   }

@@ -1117,12 +1117,28 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  padding: 5px;
+  border: 1px solid rgba(120, 123, 134, 0.2);
+  border-radius: 4px;
+}
+
+.order-setup-reason-title-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  gap: 6px;
+  align-items: center;
 }
 
 .order-setup-reason-title {
   color: #b2b5be;
   font-size: 11px;
   font-weight: 600;
+}
+
+.order-setup-reason-delete {
+  width: 22px;
+  height: 20px;
+  padding: 0;
 }
 
 .order-review-ref-list {
@@ -1152,9 +1168,12 @@ html, body {
 }
 
 .order-review-ref-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.order-setup-add-reason {
+  width: 100%;
 }
 
 .inspector-evidence-header {

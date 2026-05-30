@@ -335,6 +335,12 @@ function cloneOrderReview(order) {
       linkedObjectRefs: Array.isArray(order.setupThesis?.linkedObjectRefs)
         ? order.setupThesis.linkedObjectRefs.map((ref) => ({ ...ref }))
         : [],
+      reasons: Array.isArray(order.setupThesis?.reasons)
+        ? order.setupThesis.reasons.map((reason) => ({
+            ...reason,
+            refs: Array.isArray(reason.refs) ? reason.refs.map((ref) => ({ ...ref })) : [],
+          }))
+        : [],
       manualEvents: Array.isArray(order.setupThesis?.manualEvents)
         ? order.setupThesis.manualEvents.map((event) => ({ ...event }))
         : [],
@@ -423,6 +429,36 @@ export function normalizeLinkedObjectRefs(input = []) {
   return uniqueBy(refs, (ref) => `${ref.type}:${ref.id}:${ref.role}`);
 }
 
+function normalizeSetupReason(input = {}, index = 0) {
+  const note = normalizeNote(input.note);
+  const refs = normalizeLinkedObjectRefs(input.refs);
+  const id = normalizeString(input.id, `reason_${index + 1}`);
+  if (!id && !note && !refs.length) return null;
+  return {
+    id: id || `reason_${index + 1}`,
+    note,
+    refs,
+  };
+}
+
+function normalizeSetupReasons(input = [], legacyNarrative = '', legacyRefs = []) {
+  const reasons = Array.isArray(input)
+    ? input.map(normalizeSetupReason).filter(Boolean)
+    : [];
+  if (reasons.length) return uniqueBy(reasons, (reason) => reason.id);
+
+  const note = normalizeNote(legacyNarrative);
+  const refs = normalizeLinkedObjectRefs(legacyRefs);
+  if (!note && !refs.length) return [];
+  return [
+    {
+      id: 'reason_1',
+      note,
+      refs,
+    },
+  ];
+}
+
 export function normalizeManualExplanationEvent(input = {}, index = 0) {
   const timestamp = normalizeTimestamp(input.timestamp);
   const eventType = normalizeEnum(
@@ -470,6 +506,8 @@ export function normalizeSetupThesis(input = {}) {
   );
   const derivedLowTimeframeWarning = isLowTimeframe(primaryEventTimeframe);
 
+  const linkedObjectRefs = normalizeLinkedObjectRefs(input.linkedObjectRefs);
+  const narrative = normalizeNote(input.narrative);
   return {
     primaryEventTimestamp: normalizeTimestamp(input.primaryEventTimestamp),
     primaryEventTimeframe,
@@ -480,14 +518,15 @@ export function normalizeSetupThesis(input = {}) {
       ORDER_EVENT_TYPES.OTHER
     ),
     primaryEventPrice: normalizeNumber(input.primaryEventPrice),
-    linkedObjectRefs: normalizeLinkedObjectRefs(input.linkedObjectRefs),
+    linkedObjectRefs,
+    reasons: normalizeSetupReasons(input.reasons, narrative, linkedObjectRefs),
     manualEvents: normalizeManualExplanationEvents(input.manualEvents),
     higherTimeframeJustification: normalizeNote(input.higherTimeframeJustification),
     lowTimeframeWarning:
       input.lowTimeframeWarning === undefined || input.lowTimeframeWarning === null
         ? derivedLowTimeframeWarning
         : normalizeBoolean(input.lowTimeframeWarning, derivedLowTimeframeWarning),
-    narrative: normalizeNote(input.narrative),
+    narrative,
     confidence: normalizeEnum(
       input.confidence,
       VALID_ORDER_CONFIDENCE,

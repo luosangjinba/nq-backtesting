@@ -50,13 +50,19 @@ function timestampRangeFromValues(values = []) {
 }
 
 function compactNotes(order = {}) {
+  const reasonNotes = Array.isArray(order.setupThesis?.reasons)
+    ? order.setupThesis.reasons
+        .filter((reason) => reason.note)
+        .map((reason, index) => ({ scope: `setup-reason-${index + 1}`, text: reason.note }))
+    : [];
   return [
     order.setupThesis?.higherTimeframeJustification
       ? { scope: 'setup-htf', text: order.setupThesis.higherTimeframeJustification }
       : null,
-    order.setupThesis?.narrative
+    !reasonNotes.length && order.setupThesis?.narrative
       ? { scope: 'setup-narrative', text: order.setupThesis.narrative }
       : null,
+    ...reasonNotes,
     order.entryPlan?.note
       ? { scope: 'entry', text: order.entryPlan.note }
       : null,
@@ -193,9 +199,18 @@ function createResultElement(order = {}) {
 }
 
 function createExplanationRefs(order = {}) {
-  const refs = Array.isArray(order.setupThesis?.linkedObjectRefs)
-    ? order.setupThesis.linkedObjectRefs
+  const reasonRefs = Array.isArray(order.setupThesis?.reasons)
+    ? order.setupThesis.reasons.flatMap((reason, reasonIndex) =>
+        Array.isArray(reason.refs)
+          ? reason.refs.map((ref) => ({ ...ref, reasonId: reason.id || `reason_${reasonIndex + 1}` }))
+          : []
+      )
     : [];
+  const refs = reasonRefs.length
+    ? reasonRefs
+    : Array.isArray(order.setupThesis?.linkedObjectRefs)
+      ? order.setupThesis.linkedObjectRefs
+      : [];
   return refs.map((ref) => ({
     type: EXPLANATION_ELEMENT_TYPES.REF,
     refType: ref.type || '',

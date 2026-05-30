@@ -11,15 +11,17 @@ import { getSelectedOrderSetupElement } from './order-setup-selection.js';
 import { getSetupSets } from './setup-set.js';
 
 const SETUP_COLOR = '#ffb74d';
-const ENTRY_TEXT_COLOR = '#80cbc4';
-const STOP_COLOR = '#ff4d6d';
-const TARGET_COLORS = ['#3d7eff', '#4d8bff', '#7ea8ff', '#ab47bc'];
-const ACTIVE_ENTRY_COLOR = '#b2dfdb';
-const ACTIVE_TARGET_COLORS = ['#6fa0ff', '#82adff', '#a5c2ff', '#ce93d8'];
+const LONG_ENTRY_COLOR = '#00695c';
+const SHORT_ENTRY_COLOR = '#ef5350';
+const STOP_COLOR = '#42a5f5';
+const TARGET_COLOR = '#ab47bc';
 const REVERSAL_BULLISH_COLOR = '#26a69a';
 const REVERSAL_BEARISH_COLOR = '#ef5350';
 const ACTIVE_REVERSAL_COLOR = '#ffd54f';
 const SELECTED_ELEMENT_COLOR = '#ffd54f';
+const PLAN_LINE_WIDTH = 1;
+const ACTIVE_PLAN_LINE_WIDTH = 1.25;
+const SELECTED_PLAN_LINE_WIDTH = 1.75;
 const RISK_ZONE_LONG = {
   fillColor: 'rgba(38, 166, 154, 0.13)',
   borderColor: 'rgba(38, 166, 154, 0.35)',
@@ -237,6 +239,10 @@ function getLineLabelDirection(direction) {
   return direction === ORDER_DIRECTIONS.SHORT ? 'Short' : 'Long';
 }
 
+function getEntryLineColor(direction) {
+  return direction === ORDER_DIRECTIONS.SHORT ? SHORT_ENTRY_COLOR : LONG_ENTRY_COLOR;
+}
+
 function renderSetupSet(setupSet, isActive = false) {
   if (setupSet.display?.hidden) return;
 
@@ -247,9 +253,8 @@ function renderSetupSet(setupSet, isActive = false) {
   const result = elements.result || {};
   const entryTimestamp = entry.timestamp || reversal.timestamp;
   const direction = entry.direction || setupSet.direction;
-  const lineWidth = isActive ? 3 : 2;
-  const entryColor = isActive ? ACTIVE_ENTRY_COLOR : ENTRY_TEXT_COLOR;
-  const targetColors = isActive ? ACTIVE_TARGET_COLORS : TARGET_COLORS;
+  const lineWidth = isActive ? ACTIVE_PLAN_LINE_WIDTH : PLAN_LINE_WIDTH;
+  const entryColor = getEntryLineColor(direction);
   const selected = getSelectedOrderSetupElement();
   const isSelectedElement = (role) => selected?.setupId === setupSet.id && selected?.element === role;
 
@@ -264,7 +269,7 @@ function renderSetupSet(setupSet, isActive = false) {
       selectedEntry ? SELECTED_ELEMENT_COLOR : entryColor,
       direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
       getElementLineLength(entry, PLAN_LINE_LENGTH_BARS),
-      selectedEntry ? lineWidth + 1 : lineWidth,
+      selectedEntry ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
       selectedEntry ? 'dashed' : 'solid',
       entry.endTimestamp
     );
@@ -280,7 +285,7 @@ function renderSetupSet(setupSet, isActive = false) {
     selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
     direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
     getElementLineLength(stopLoss, PLAN_LINE_LENGTH_BARS + 6),
-    selectedStop ? lineWidth + 1 : lineWidth,
+    selectedStop ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
     selectedStop ? 'dashed' : 'solid',
     stopLoss.endTimestamp
   );
@@ -291,10 +296,10 @@ function renderSetupSet(setupSet, isActive = false) {
       target.timestamp || entryTimestamp,
       target.price,
       target.label,
-      selectedTarget ? SELECTED_ELEMENT_COLOR : targetColors[index % targetColors.length],
+      selectedTarget ? SELECTED_ELEMENT_COLOR : TARGET_COLOR,
       direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
       getElementLineLength(target, PLAN_LINE_LENGTH_BARS + index * 6),
-      selectedTarget ? lineWidth + 1 : lineWidth,
+      selectedTarget ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
       selectedTarget ? 'dashed' : 'solid',
       target.endTimestamp
     );
