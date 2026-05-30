@@ -82,9 +82,9 @@ function getExtendBars(annotation, fallback = 0, context) {
   return getExtendBarsForTimeframe(annotation, fallback, getHitTimeframe(context));
 }
 
-function extendXByBars(x, extendBars) {
+function extendXByBars(x, extendBars, context) {
   if (x === null || extendBars <= 0) return x;
-  const timeScale = chart.getChart()?.timeScale();
+  const timeScale = getHitContext(context).getChart?.()?.timeScale() ?? chart.getChart()?.timeScale();
   const barSpacing = Number(timeScale?.options?.().barSpacing);
   const spacing = Number.isFinite(barSpacing) && barSpacing > 0 ? barSpacing : 6;
   return x + Number(extendBars) * spacing;
@@ -132,7 +132,7 @@ function hitRange(annotation, x, y, context) {
   const bottomY = getPriceCoordinate(annotation.bottomPrice ?? annotation.priceLow, context);
 
   if (startX === null || endX === null || topY === null || bottomY === null) return null;
-  endX = extendXByBars(endX, getExtendBars(annotation, 0, context));
+  endX = extendXByBars(endX, getExtendBars(annotation, 0, context), context);
 
   let hitStartX = startX;
   let hitEndX = endX;
@@ -184,7 +184,7 @@ function hitPointSet(annotation, x, y, context) {
   const xs = points.map((point) => point.x);
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
-  const endX = extendXByBars(maxX, getExtendBars(annotation, 0, context));
+  const endX = extendXByBars(maxX, getExtendBars(annotation, 0, context), context);
   const lineHit =
     Math.abs(y - referenceY) <= LINE_TOLERANCE_PX && between(x, minX, endX, LINE_TOLERANCE_PX);
 
@@ -219,7 +219,7 @@ function hitFib(annotation, x, y, context) {
   if (startX === null || rawEndX === null) return null;
   const extendBars = getExtendBars(annotation, 0, context);
   const minX = Math.min(startX, rawEndX);
-  const endX = extendXByBars(Math.max(startX, rawEndX), extendBars);
+  const endX = extendXByBars(Math.max(startX, rawEndX), extendBars, context);
   if (endX === null) return null;
 
   const levels = Array.isArray(annotation.levels) ? annotation.levels : [];

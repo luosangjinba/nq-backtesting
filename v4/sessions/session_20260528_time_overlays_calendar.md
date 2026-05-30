@@ -392,3 +392,28 @@ Current Git State:
 Next Steps:
 
 - Commit Step 135, then review the completed Phase 11 branch before deciding whether to merge back to `main`.
+
+## Phase 11 Review Fix
+
+Completed:
+
+- Reviewed the completed Phase 11 secondary FVG branch.
+- Found and fixed a secondary hit-test edge case: extended range/point-set/fib PDA hit-test used the primary chart bar spacing instead of the supplied chart context.
+- Updated `v4/src/pda/pda-hit-test.js` so `extendXByBars()` reads `context.getChart().timeScale()` when a chart context is supplied, with the primary chart retained as fallback.
+- This specifically protects secondary FVG after Inspector extend edits, where the extended hit area must use secondary chart spacing.
+
+Validation:
+
+- `node --check v4/src/pda/pda-hit-test.js`
+- Module smoke verified an extended secondary 1H FVG can be hit inside the secondary extended range area.
+- Full changed-JS syntax check across the branch passed.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `a0373a0 docs(v4): validate secondary fvg persistence`
+- Current uncommitted changes: Phase 11 review hit-test fix and session update
+
+Next Steps:
+
+- Commit the review fix, then decide whether to merge `feature/secondary-chart-annotation-workflow` back to `main`.
