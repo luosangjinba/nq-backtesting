@@ -245,3 +245,30 @@ Current Git State:
 Next Steps:
 
 - Step 131: harden `addManualFvg()` source metadata and contexts for secondary-created FVG while keeping primary FVG behavior unchanged.
+
+## Phase 11 Step 131 Update
+
+Completed:
+
+- Hardened `addManualFvg()` so FVG annotations now write source metadata through the shared source metadata helper.
+- Added `sourceChartLabel` and `sourceContext` support to the source metadata helper.
+- Secondary-created FVG records now get `sourceChartId=secondary`, `sourceChartLabel=Secondary`, `sourceInstrument`, `sourceTimeframe`, `sourceTimeframeLabel`, and `sourceContext`.
+- Secondary FVG contexts now include both the source context and structure label, for example `['ES 1H', '1H FVG']`.
+- Primary FVG context labels remain unchanged, for example `['1H FVG']`.
+- Updated `v4/TODO.md` to mark Step 131 complete.
+
+Validation:
+
+- `node --check v4/src/pda/manual-pda-actions.js`
+- Module probe verified a synthetic secondary 1H FVG creates one `type='fvg'` annotation with `contexts=['ES 1H', '1H FVG']` and complete secondary source metadata.
+- Module probe verified primary 1H FVG keeps `contexts=['1H FVG']` while still carrying source metadata.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `9e43966 docs(v4): freeze secondary fvg design`
+- Current uncommitted changes: Phase 11 Step 131 FVG metadata hardening
+
+Next Steps:
+
+- Step 132: enable secondary chart context-menu `Mark FVG` and wire it to `addManualFvg()` with the secondary chart context.

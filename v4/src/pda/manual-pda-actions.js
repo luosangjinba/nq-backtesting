@@ -65,12 +65,16 @@ export function getSelectedRangeBars(context, startBar, endBar) {
 }
 
 function buildSourceMetadata(context, extraMetadata = {}) {
+  const chartId = context?.chartId || context?.id || 'primary';
   const sourceTimeframe = context?.timeframe;
+  const sourceContext = buildSourceContextLabel(context);
   return {
-    sourceChartId: context?.chartId || context?.id || 'primary',
+    sourceChartId: chartId,
+    sourceChartLabel: context?.label || (chartId === 'secondary' ? 'Secondary' : 'Primary'),
     sourceInstrument: context?.instrument || 'NQ',
     sourceTimeframe,
     sourceTimeframeLabel: timeframeToString(sourceTimeframe),
+    ...(sourceContext ? { sourceContext } : {}),
     ...extraMetadata,
   };
 }
@@ -175,7 +179,11 @@ export function addManualFvg(bar, context, type = 'fvg') {
 
   const tfLabel = timeframeToString(context.timeframe);
   const direction = type === 'ifvg' ? invertDirection(result.direction) : result.direction;
-  const contexts = [`${tfLabel} ${pdaType.label}`];
+  const sourceContextLabel = buildSourceContextLabel(context);
+  const contexts = [
+    sourceContextLabel,
+    `${tfLabel} ${pdaType.label}`,
+  ].filter(Boolean);
   const colors = type === 'ifvg' ? getIfvgColors() : getFvgColors(direction);
   const annotation = {
     id: `manual_${type}_${result.anchorBar.timestamp}_${Date.now()}`,
@@ -191,6 +199,7 @@ export function addManualFvg(bar, context, type = 'fvg') {
     topPrice: result.topPrice,
     bottomPrice: result.bottomPrice,
     ce: buildCePrice(result.topPrice, result.bottomPrice),
+    ...buildSourceMetadata(context),
     contexts,
     ...colors,
   };
