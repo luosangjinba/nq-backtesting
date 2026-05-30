@@ -5,12 +5,17 @@ import * as bus from '../event-bus.js';
 import { getSecondaryChartContext } from '../chart/chart-context.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { timeframeToString } from '../config.js';
+import { recordHistory } from '../history/history-manager.js';
 import { clampMenuPosition } from './manual-context-menu.js';
 import {
   addManualPoint,
   findDisplayBarInContext,
   getBarChartTime,
 } from './manual-pda-actions.js';
+import {
+  finishSegmentInContext,
+  startSegmentInContext,
+} from '../segment/manual-segment.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -76,10 +81,12 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         </div>
       </div>
       <div class="pda-menu-section pda-menu-submenu">
-        <div class="pda-menu-item pda-menu-submenu-trigger is-disabled" tabindex="0">Segments</div>
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Segments</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-secondary-action="secondary-segment-start" disabled>Start Segment Here</button>
-        <button class="pda-menu-item" data-secondary-action="secondary-segment-end" disabled>End Segment Here</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-segment-start-low" ${disabled}>Start Segment from Low</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-segment-start-high" ${disabled}>Start Segment from High</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-segment-finish-low" ${disabled}>End Segment at Low</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-segment-finish-high" ${disabled}>End Segment at High</button>
         </div>
       </div>
     </div>
@@ -143,6 +150,32 @@ async function handleSecondaryMenuClick(e) {
         source: 'manual',
         sourceChartLabel: context.label,
       }
+    );
+    hideSecondaryContextMenu();
+  } else if (
+    action === 'secondary-segment-start-low' ||
+    action === 'secondary-segment-start-high'
+  ) {
+    const context = getSecondaryChartContext();
+    recordHistory('Start Secondary Segment', () =>
+      startSegmentInContext(
+        contextMenuBar,
+        action === 'secondary-segment-start-high' ? 'swing-high' : 'swing-low',
+        context
+      )
+    );
+    hideSecondaryContextMenu();
+  } else if (
+    action === 'secondary-segment-finish-low' ||
+    action === 'secondary-segment-finish-high'
+  ) {
+    const context = getSecondaryChartContext();
+    await recordHistory('Finish Secondary Segment', () =>
+      finishSegmentInContext(
+        contextMenuBar,
+        action === 'secondary-segment-finish-high' ? 'swing-high' : 'swing-low',
+        context
+      )
     );
     hideSecondaryContextMenu();
   } else if (action === 'secondary-show-cursor') {

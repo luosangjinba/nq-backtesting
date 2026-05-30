@@ -1,6 +1,7 @@
 // Pixel-based hit testing for market segments.
 
 import * as chart from '../chart/chart-manager.js';
+import { getPrimaryChartContext } from '../chart/chart-context.js';
 import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
 import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
@@ -10,14 +11,25 @@ import { getSegmentPointRenderTime } from './segment-time.js';
 const LINE_TOLERANCE_PX = 7;
 const MARKER_TOLERANCE_PX = 8;
 
-function getTimeCoordinate(time) {
-  if (time === undefined || time === null) return null;
-  return chart.timeToCoordinate(time);
+function getHitContext(context) {
+  return context || getPrimaryChartContext();
 }
 
-function getPriceCoordinate(price) {
+function getHitTimeframe(context) {
+  const timeframe = Number(context?.timeframe);
+  return Number.isFinite(timeframe) ? timeframe : undefined;
+}
+
+function getTimeCoordinate(time, context) {
+  if (time === undefined || time === null) return null;
+  const activeContext = getHitContext(context);
+  return activeContext.timeToCoordinate?.(time) ?? chart.timeToCoordinate(time);
+}
+
+function getPriceCoordinate(price, context) {
   if (price === undefined || price === null) return null;
-  return chart.priceToCoordinate(Number(price));
+  const activeContext = getHitContext(context);
+  return activeContext.priceToCoordinate?.(Number(price)) ?? chart.priceToCoordinate(Number(price));
 }
 
 function distanceToLineSegment(px, py, x1, y1, x2, y2) {
@@ -32,11 +44,12 @@ function distanceToLineSegment(px, py, x1, y1, x2, y2) {
   return Math.hypot(px - projectionX, py - projectionY);
 }
 
-function hitSegment(segment, x, y) {
-  const startX = getTimeCoordinate(getSegmentPointRenderTime(segment.start));
-  const startY = getPriceCoordinate(segment.start?.price);
-  const endX = getTimeCoordinate(getSegmentPointRenderTime(segment.end));
-  const endY = getPriceCoordinate(segment.end?.price);
+function hitSegment(segment, x, y, context) {
+  const timeframe = getHitTimeframe(context);
+  const startX = getTimeCoordinate(getSegmentPointRenderTime(segment.start, timeframe), context);
+  const startY = getPriceCoordinate(segment.start?.price, context);
+  const endX = getTimeCoordinate(getSegmentPointRenderTime(segment.end, timeframe), context);
+  const endY = getPriceCoordinate(segment.end?.price, context);
 
   if (startX === null || startY === null || endX === null || endY === null) return null;
 
@@ -54,7 +67,7 @@ function hitSegment(segment, x, y) {
   };
 }
 
-export function hitTestSegments({ x, y }) {
+export function hitTestSegments({ x, y, context = null }) {
   const hits = [];
   const isolatedSegment = getIsolatedSegment();
   const isolateVisibleIds = new Set(
@@ -66,7 +79,7 @@ export function hitTestSegments({ x, y }) {
   getSegments().forEach((segment) => {
     if (isolatedSegment && !isolateVisibleIds.has(segment.id)) return;
     if (!isolatedSegment && !shouldRenderSegment(segment)) return;
-    const hit = hitSegment(segment, x, y);
+    const hit = hitSegment(segment, x, y, context);
     if (hit) hits.push(hit);
   });
 
@@ -81,16 +94,17 @@ function getSortedGroupChildren(group) {
     .sort((a, b) => Number(a.start?.timestamp ?? a.start?.time ?? 0) - Number(b.start?.timestamp ?? b.start?.time ?? 0));
 }
 
-function hitSegmentGroup(group, x, y) {
+function hitSegmentGroup(group, x, y, context) {
   const children = getSortedGroupChildren(group);
   if (children.length < 2) return null;
 
   const first = children[0];
   const last = children[children.length - 1];
-  const startX = getTimeCoordinate(getSegmentPointRenderTime(first.start));
-  const startY = getPriceCoordinate(first.start?.price);
-  const endX = getTimeCoordinate(getSegmentPointRenderTime(last.end));
-  const endY = getPriceCoordinate(last.end?.price);
+  const timeframe = getHitTimeframe(context);
+  const startX = getTimeCoordinate(getSegmentPointRenderTime(first.start, timeframe), context);
+  const startY = getPriceCoordinate(first.start?.price, context);
+  const endX = getTimeCoordinate(getSegmentPointRenderTime(last.end, timeframe), context);
+  const endY = getPriceCoordinate(last.end?.price, context);
 
   if (startX === null || startY === null || endX === null || endY === null) return null;
 
@@ -108,7 +122,7 @@ function hitSegmentGroup(group, x, y) {
   };
 }
 
-export function hitTestSegmentGroups({ x, y }) {
+export function hitTestSegmentGroups({ x, y, context = null }) {
   const hits = [];
   const isolatedSegment = getIsolatedSegment();
   const isolateVisibleIds = new Set(
@@ -123,7 +137,7 @@ export function hitTestSegmentGroups({ x, y }) {
       const children = getSortedGroupChildren(group);
       if (!children.some((segment) => isolateVisibleIds.has(segment.id))) return;
     }
-    const hit = hitSegmentGroup(group, x, y);
+    const hit = hitSegmentGroup(group, x, y, context);
     if (hit) hits.push(hit);
   });
 

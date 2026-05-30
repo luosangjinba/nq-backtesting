@@ -89,6 +89,18 @@
   - verified PDA JSON import and Review JSON import preserve source chart/instrument/timeframe/context metadata
   - verified Inspector link participates in undo/redo by removing and restoring the setup ref
   - verified Calendar review index groups the secondary PDA under PDA with its `ES 1H` context and keeps Locate/Open/Back navigation working
+- Phase 10 Step 126 secondary Segment design freeze:
+  - added `v4/docs/SECONDARY_SEGMENT_DESIGN.md`
+  - decided secondary-created segments reuse the existing Segment store instead of introducing a separate HTF structure layer
+  - froze source metadata fields: `sourceChartId`, `sourceChartLabel`, `sourceInstrument`, `sourceTimeframe`, `sourceTimeframeLabel`, and `sourceContext`
+  - froze the follow-up implementation boundary: Step 127 creates/selects secondary segments in the shared store; Step 128 links those segments to active setups with copied source metadata
+- Phase 10 Step 127 secondary Segment MVP:
+  - made manual segment creation context-aware while keeping the primary wrapper restricted to 1H
+  - enabled secondary context-menu Segment actions: start from low/high and end at low/high
+  - secondary-created segments now write the shared Segment store with source chart/instrument/timeframe/context metadata
+  - segment hit-testing and selection now accept a chart context, so clicking a secondary-rendered segment opens the existing Segment Inspector
+  - Segment Inspector now shows source chart, source instrument, and source timeframe
+  - Segment identity now includes source chart and instrument to avoid primary/secondary or NQ/ES duplicate collisions
 
 ## Decisions
 
@@ -113,6 +125,10 @@
 - Step 123 only adds selection/Inspector entry. It does not add separate secondary Inspector state; edits remain centralized on the existing PDA annotation.
 - Step 124 preserves source metadata on refs but still stores the link as a normal PDA ref. There is no separate secondary-ref type.
 - Step 125 is validation-only. It did not require schema or runtime code changes; the current archive/localStorage paths already preserve the new source metadata.
+- Step 126 freezes secondary Segment as a shared Segment-store record with source metadata, not a new object type or independent HTF layer.
+- Secondary Segment setup links should remain normal `type: segment` refs with copied source metadata, mirroring the Step 124 PDA ref approach.
+- Step 127 should not block on context-aware occurrence lookup for non-NQ secondary instruments; endpoint occurrence can remain absent until a later dedicated refinement.
+- Step 127 keeps primary Segment creation behavior unchanged through the existing `startSegment()` / `finishSegment()` wrappers; only explicit secondary menu actions opt into secondary context writes.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -148,6 +164,8 @@
 - Headless Chrome smoke verified PDA Inspector `Link PDA To Active Setup` writes a secondary PDA ref with `sourceChartId=secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, `sourceTimeframeLabel=1H`, and `sourceContext=ES 1H`.
 - Headless Chrome smoke verified localStorage PDA/Order Review restore, PDA JSON import, Review JSON import, and undo/redo all preserve the same secondary PDA/link metadata.
 - Headless Chrome smoke verified Calendar groups a secondary PDA under PDA with `ES 1H`, shows Locate/Open actions, `Locate` updates status, `Open` enters PDA Inspector, and `Back to Calendar` returns to the selected calendar view.
+- Step 126 validation was code-reading and design audit only: Segment store, manual segment creation, primary/secondary renderers, selection, Inspector, Calendar, archive import/export, and setup-link paths were checked before freezing the shared-store design.
+- Headless Chrome smoke verified secondary context-menu Segment start/end actions create an ES 1H segment with source metadata, clicking the secondary-rendered segment selects it, and Inspector shows `Source Chart: secondary`, `Source Instrument: ES`, and `Source TF: 1H`.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -159,8 +177,9 @@
   - `6446fa2 fix(v4): align secondary PDA rendering metadata`
   - `ce9e1c8 feat(v4): select secondary chart PDA`
   - `b528ef1 feat(v4): link secondary PDA to active setup`
+  - `61da454 docs(v4): validate secondary PDA persistence`
 - Current uncommitted changes:
-  - Phase 10 Step 125 TODO/session validation updates
+  - Phase 10 Step 127 secondary Segment MVP
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -170,4 +189,4 @@
 
 ## Next Steps
 
-- Step 126: freeze the secondary Segment design before implementing segment creation on the secondary chart.
+- Step 128: link secondary-created segments to active Order Setups with copied source metadata.

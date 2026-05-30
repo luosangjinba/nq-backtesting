@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
+import { getPrimaryChartContext } from '../chart/chart-context.js';
 import { timeframeToString } from '../config.js';
 import { fetchBars } from '../api.js';
 import { addSegment, clearSegments } from './segment-store.js';
@@ -12,8 +13,12 @@ const PRICE_EPSILON = 0.0000001;
 
 let segmentSelectionState = null;
 
-function getBarChartTime(bar) {
-  return store.getCurrentTimeframe() === 1440 ? bar.tradingDay : bar.timestamp;
+function getContextTimeframe(context) {
+  return Number(context?.timeframe) || store.getCurrentTimeframe();
+}
+
+function getBarChartTime(context, bar) {
+  return getContextTimeframe(context) === 1440 ? bar.tradingDay : bar.timestamp;
 }
 
 function normalizeSwingKind(kind) {
@@ -63,7 +68,29 @@ function getOccurrenceBar(bars, price, kind, startTimestamp, endTimestamp) {
     .at(-1);
 }
 
-async function resolveEndpointOccurrence(bar, kind, price) {
+function getSourceContextLabel(context) {
+  const chartId = context?.chartId || context?.id || 'primary';
+  if (chartId === 'primary') return null;
+  return `${context?.instrument || 'NQ'} ${timeframeToString(getContextTimeframe(context))}`;
+}
+
+function buildSourceMetadata(context) {
+  const sourceTimeframe = getContextTimeframe(context);
+  return {
+    sourceChartId: context?.chartId || context?.id || 'primary',
+    sourceChartLabel: context?.label || '',
+    sourceInstrument: context?.instrument || 'NQ',
+    sourceTimeframe,
+    sourceTimeframeLabel: timeframeToString(sourceTimeframe),
+    sourceContext: getSourceContextLabel(context) || '',
+  };
+}
+
+async function resolveEndpointOccurrence(bar, kind, price, context) {
+  const timeframe = getContextTimeframe(context);
+  const instrument = context?.instrument || 'NQ';
+  if (timeframe !== SEGMENT_TIMEFRAME || instrument !== 'NQ') return {};
+
   const startTimestamp = Number(bar?.timestamp);
   if (!Number.isFinite(startTimestamp)) return {};
   const endTimestamp = startTimestamp + SEGMENT_TIMEFRAME * 60;
@@ -94,8 +121,9 @@ async function resolveEndpointOccurrence(bar, kind, price) {
   }
 }
 
-function ensureOneHourContext() {
-  const timeframe = store.getCurrentTimeframe();
+function ensureSegmentContext(context, { requireOneHour = false } = {}) {
+  const timeframe = getContextTimeframe(context);
+  if (!requireOneHour) return true;
   if (timeframe === SEGMENT_TIMEFRAME) return true;
   bus.emit('status:update', {
     text: `1H 行情段只能在 1H 图表创建，当前是 ${timeframeToString(timeframe)}`,
@@ -107,15 +135,15 @@ function ensureOneHourContext() {
 export function getSegmentSelectionSummary() {
   if (!segmentSelectionState) return null;
   return {
-    label: '1H Segment',
+    label: `${timeframeToString(segmentSelectionState.timeframe || SEGMENT_TIMEFRAME)} Segment`,
     startTime: segmentSelectionState.startBar?.tradingDay || segmentSelectionState.startBar?.time,
     startKind: segmentSelectionState.startKind,
     startKindLabel: getSwingKindLabel(segmentSelectionState.startKind),
   };
 }
 
-export function startSegment(bar, startKind = 'swing-low') {
-  if (!bar || !ensureOneHourContext()) return;
+export function startSegmentInContext(bar, startKind = 'swing-low', context = getPrimaryChartContext(), options = {}) {
+  if (!bar || !ensureSegmentContext(context, options)) return;
 
   const normalizedStartKind = normalizeSwingKind(startKind);
   const startPrice = getPointPrice(bar, normalizedStartKind);
@@ -127,16 +155,27 @@ export function startSegment(bar, startKind = 'swing-low') {
   segmentSelectionState = {
     startBar: bar,
     startKind: normalizedStartKind,
+    contextMetadata: buildSourceMetadata(context),
+    instrument: context?.instrument || 'NQ',
+    timeframe: getContextTimeframe(context),
+    chartTime: getBarChartTime(context, bar),
   };
 
+  const timeframeLabel = timeframeToString(getContextTimeframe(context));
   bus.emit('status:update', {
-    text: `1H 行情段起点已选择：${bar.tradingDay || bar.time} ${getSwingKindLabel(normalizedStartKind)} ${Number(startPrice).toFixed(2)}，右键选择终点`,
+    text: `${timeframeLabel} 行情段起点已选择：${bar.tradingDay || bar.time} ${getSwingKindLabel(normalizedStartKind)} ${Number(startPrice).toFixed(2)}，右键选择终点`,
     isError: false,
   });
 }
 
-export async function finishSegment(endBar, endKind = 'swing-high') {
-  if (!segmentSelectionState || !endBar || !ensureOneHourContext()) return;
+export async function finishSegmentInContext(endBar, endKind = 'swing-high', context = getPrimaryChartContext(), options = {}) {
+  if (!segmentSelectionState || !endBar || !ensureSegmentContext(context, options)) return;
+  const contextTimeframe = getContextTimeframe(context);
+  const selectionTimeframe = Number(segmentSelectionState.timeframe);
+  if (Number.isFinite(selectionTimeframe) && selectionTimeframe !== contextTimeframe) {
+    bus.emit('status:update', { text: '行情段起点和终点必须来自同一周期', isError: true });
+    return;
+  }
 
   const startBar = segmentSelectionState.startBar;
   if (startBar.timestamp === endBar.timestamp) {
@@ -155,31 +194,36 @@ export async function finishSegment(endBar, endKind = 'swing-high') {
 
   const direction = getDirection(startPrice, endPrice);
   const [startOccurrence, endOccurrence] = await Promise.all([
-    resolveEndpointOccurrence(startBar, startKind, startPrice),
-    resolveEndpointOccurrence(endBar, normalizedEndKind, endPrice),
+    resolveEndpointOccurrence(startBar, startKind, startPrice, context),
+    resolveEndpointOccurrence(endBar, normalizedEndKind, endPrice, context),
   ]);
+  const sourceMetadata = segmentSelectionState.contextMetadata || buildSourceMetadata(context);
+  const sourceTimeframe = sourceMetadata.sourceTimeframe || contextTimeframe;
+  const sourceTimeframeLabel = sourceMetadata.sourceTimeframeLabel || timeframeToString(sourceTimeframe);
+  const sourceChartId = sourceMetadata.sourceChartId || 'primary';
   const segment = {
-    id: `manual_segment_1h_${startBar.timestamp}_${endBar.timestamp}_${Date.now()}`,
-    instrument: 'NQ',
-    timeframe: '1H',
+    id: `manual_segment_${sourceChartId}_${sourceTimeframeLabel.toLowerCase()}_${startBar.timestamp}_${endBar.timestamp}_${Date.now()}`,
+    instrument: sourceMetadata.sourceInstrument || context?.instrument || 'NQ',
+    timeframe: sourceTimeframeLabel,
     source: 'manual',
+    ...sourceMetadata,
     direction,
     start: {
-      time: getBarChartTime(startBar),
+      time: segmentSelectionState.chartTime ?? getBarChartTime(context, startBar),
       timestamp: startBar.timestamp,
       price: startPrice,
       kind: startKind,
       barTime: startBar.time,
-      sourceTimeframe: SEGMENT_TIMEFRAME,
+      sourceTimeframe,
       ...startOccurrence,
     },
     end: {
-      time: getBarChartTime(endBar),
+      time: getBarChartTime(context, endBar),
       timestamp: endBar.timestamp,
       price: endPrice,
       kind: normalizedEndKind,
       barTime: endBar.time,
-      sourceTimeframe: SEGMENT_TIMEFRAME,
+      sourceTimeframe,
       ...endOccurrence,
     },
     pdaResponses: [],
@@ -194,9 +238,17 @@ export async function finishSegment(endBar, endKind = 'swing-high') {
   segmentSelectionState = null;
 
   bus.emit('status:update', {
-    text: `1H ${direction.toUpperCase()} 行情段：${getSwingKindLabel(startKind)} ${Number(startPrice).toFixed(2)} → ${getSwingKindLabel(normalizedEndKind)} ${Number(endPrice).toFixed(2)}`,
+    text: `${sourceTimeframeLabel} ${direction.toUpperCase()} 行情段：${getSwingKindLabel(startKind)} ${Number(startPrice).toFixed(2)} → ${getSwingKindLabel(normalizedEndKind)} ${Number(endPrice).toFixed(2)}`,
     isError: false,
   });
+}
+
+export function startSegment(bar, startKind = 'swing-low') {
+  return startSegmentInContext(bar, startKind, getPrimaryChartContext(), { requireOneHour: true });
+}
+
+export function finishSegment(endBar, endKind = 'swing-high') {
+  return finishSegmentInContext(endBar, endKind, getPrimaryChartContext(), { requireOneHour: true });
 }
 
 export function cancelSegmentSelection({ silent = false } = {}) {

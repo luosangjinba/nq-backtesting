@@ -13,6 +13,8 @@ function emitChanged() {
 export function getSegmentIdentity(segment) {
   return [
     segment.source || 'manual',
+    segment.sourceChartId || 'primary',
+    segment.instrument || segment.sourceInstrument || 'NQ',
     segment.timeframe || '1H',
     segment.start?.timestamp ?? segment.start?.time ?? 'na',
     segment.end?.timestamp ?? segment.end?.time ?? 'na',
