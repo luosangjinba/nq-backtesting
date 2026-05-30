@@ -17,6 +17,7 @@ import {
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
 } from './order-review-store.js';
+import { buildPdaOrderRefMetadata, getPdaOrderRefLabel } from './order-ref-metadata.js';
 import { recordHistory } from '../history/history-manager.js';
 
 function getPdaLabel(annotation) {
@@ -174,8 +175,9 @@ function linkContextObjectToActiveSetup(action, context) {
         type: ORDER_REF_TYPES.PDA,
         id: annotation.id,
         role: ORDER_REF_ROLES.CONTEXT,
+        ...buildPdaOrderRefMetadata(annotation),
       });
-      bus.emit('status:update', { text: `${getPdaLabel(annotation)} linked to active setup`, isError: false });
+      bus.emit('status:update', { text: `${getPdaOrderRefLabel(annotation)} linked to active setup`, isError: false });
     }
     } else if (action === 'order-setup-link-segment') {
     const segment = context.segmentHit ? getSegmentById(context.segmentHit.id) : null;

@@ -91,6 +91,7 @@ function renderEditFields(annotation) {
   return section(
     'Edit',
     [
+      `<button class="inspector-secondary" data-inspector-action="pda-link-active-setup" type="button">Link PDA To Active Setup</button>`,
       controlField(
         `Extend (${timeframeToString(store.getCurrentTimeframe())} bars)`,
         `<input class="inspector-input" data-inspector-action="extend-bars" type="number" min="0" step="0.25" value="${formatExtendBars(annotation)}" placeholder="0" />`

@@ -399,6 +399,12 @@ export function normalizeLinkedObjectRef(input = {}) {
       ORDER_REF_ROLES.CONTEXT
     ),
     note: normalizeNote(input.note),
+    sourceChartId: normalizeString(input.sourceChartId, ''),
+    sourceChartLabel: normalizeString(input.sourceChartLabel, ''),
+    sourceInstrument: normalizeString(input.sourceInstrument, ''),
+    sourceTimeframe: input.sourceTimeframe ?? null,
+    sourceTimeframeLabel: normalizeString(input.sourceTimeframeLabel, ''),
+    sourceContext: normalizeString(input.sourceContext, ''),
   };
 }
 

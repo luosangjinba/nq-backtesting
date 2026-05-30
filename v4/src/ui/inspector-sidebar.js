@@ -61,6 +61,8 @@ import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } fro
 import {
   clearActiveReviewSet,
   getActiveReviewSetId,
+  getActiveReviewSet,
+  linkRefToActiveReviewSet,
   setActiveReviewSet,
 } from '../order/order-review-active.js';
 import {
@@ -73,6 +75,7 @@ import {
   ORDER_REF_TYPES,
   updateOrderReview,
 } from '../order/order-review-store.js';
+import { buildPdaOrderRefMetadata, getPdaOrderRefLabel } from '../order/order-ref-metadata.js';
 import { locateReviewSet } from '../order/order-review-set.js';
 import {
   EVIDENCE_TYPES,
@@ -596,6 +599,15 @@ function addOrderReviewRef(orderReviewId, ref) {
   return true;
 }
 
+function buildPdaOrderReviewRef(annotation) {
+  return {
+    type: ORDER_REF_TYPES.PDA,
+    id: annotation.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildPdaOrderRefMetadata(annotation),
+  };
+}
+
 function removeOrderReviewRef(orderReviewId, refIndex) {
   const order = getOrderReviewById(orderReviewId);
   const refs = getOrderReviewRefs(order);
@@ -614,11 +626,12 @@ function addSelectedOrderReviewRef(action, orderReviewId) {
       bus.emit('status:update', { text: '没有选中的 PDA', isError: true });
       return true;
     }
-    addOrderReviewRef(orderReviewId, {
-      type: ORDER_REF_TYPES.PDA,
-      id: selection.id,
-      role: ORDER_REF_ROLES.CONTEXT,
-    });
+    const annotation = getAnnotationById(selection.id);
+    if (!annotation) {
+      bus.emit('status:update', { text: '选中的 PDA 不存在', isError: true });
+      return true;
+    }
+    addOrderReviewRef(orderReviewId, buildPdaOrderReviewRef(annotation));
     return true;
   }
 
@@ -1510,6 +1523,23 @@ function handleInspectorClick(e) {
 
   const annotation = getCurrentAnnotation();
   if (!annotation) return;
+
+  if (action === 'pda-link-active-setup') {
+    const active = getActiveReviewSet();
+    if (!active?.orderReview) {
+      bus.emit('status:update', { text: '没有 active setup 可链接', isError: true });
+      return;
+    }
+    recordInspectorHistory('Link PDA To Active Setup', () =>
+      linkRefToActiveReviewSet(buildPdaOrderReviewRef(annotation))
+    );
+    bus.emit('status:update', {
+      text: `${getPdaOrderRefLabel(annotation)} linked to active setup`,
+      isError: false,
+    });
+    refreshSelection();
+    return;
+  }
 
   if (action === 'delete') {
     recordInspectorHistory('Delete PDA', () => deleteAnnotation(annotation.id));

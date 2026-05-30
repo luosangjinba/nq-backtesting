@@ -76,7 +76,7 @@ export function updateActiveReviewSet(patch = {}) {
   return updated ? createReviewSetFromOrderReview(updated) : null;
 }
 
-export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONTEXT, note = '' } = {}) {
+export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONTEXT, note = '', ...metadata } = {}) {
   const order = getActiveReviewSet()?.orderReview || null;
   if (!order || !type || !id) return null;
   const refs = Array.isArray(order.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
@@ -89,6 +89,7 @@ export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONT
           id,
           role,
           note,
+          ...metadata,
         },
       ],
     },

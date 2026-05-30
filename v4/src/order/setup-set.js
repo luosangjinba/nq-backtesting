@@ -153,6 +153,12 @@ function createExplanationRefs(order = {}) {
     refId: ref.id || '',
     role: ref.role || 'context',
     note: ref.note || '',
+    sourceChartId: ref.sourceChartId || '',
+    sourceChartLabel: ref.sourceChartLabel || '',
+    sourceInstrument: ref.sourceInstrument || '',
+    sourceTimeframe: ref.sourceTimeframe ?? null,
+    sourceTimeframeLabel: ref.sourceTimeframeLabel || '',
+    sourceContext: ref.sourceContext || '',
   }));
 }
 

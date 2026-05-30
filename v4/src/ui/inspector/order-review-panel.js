@@ -230,7 +230,9 @@ function renderSetupSetSummary(setupSet, isActive) {
 }
 
 function summarizeRef(ref) {
-  return `${ref.role || 'context'}:${ref.refType || 'ref'}:${ref.refId || '—'}`;
+  const source = [ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' ');
+  const sourceText = source ? ` · ${source}` : '';
+  return `${ref.role || 'context'}:${ref.refType || 'ref'}:${ref.refId || '—'}${sourceText}`;
 }
 
 function summarizeManualEvent(event) {

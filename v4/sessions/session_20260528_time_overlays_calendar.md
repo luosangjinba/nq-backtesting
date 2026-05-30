@@ -79,6 +79,11 @@
   - `pda-hit-test.js` now accepts an optional chart context and maps PDA coordinates against primary or secondary chart/timeframe
   - `pda-selection.js` now listens for clicks on `#secondary-chart`, hit-tests secondary-rendered PDA, and calls the same `selectPda()` path used by the primary chart
   - Inspector opens from the existing `pda:selected` event, so selection/edit/delete still targets the same PDA store object
+- Phase 10 Step 124 secondary PDA to setup link:
+  - added PDA order-ref metadata helper for source chart/instrument/timeframe/context fields
+  - active setup link paths now preserve PDA source metadata in `linkedObjectRefs`
+  - PDA Inspector now exposes `Link PDA To Active Setup`, so a PDA selected from the secondary chart can be linked without returning to the primary right-click menu
+  - Setup Set explanation refs and Order Review summary keep/show the source instrument/timeframe
 
 ## Decisions
 
@@ -101,6 +106,7 @@
 - Step 121 intentionally starts with BSL/SSL only. Range PDA needs more validation around start/end selection state and cross-chart projection before it is enabled.
 - Step 122 does not add secondary hit-test/selection. That remains Step 123; this step only hardens rendering metadata, extension duration, and persistence/export behavior for secondary-created PDA.
 - Step 123 only adds selection/Inspector entry. It does not add separate secondary Inspector state; edits remain centralized on the existing PDA annotation.
+- Step 124 preserves source metadata on refs but still stores the link as a normal PDA ref. There is no separate secondary-ref type.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -131,6 +137,9 @@
 - Headless Chrome smoke verified secondary `Mark BSL` creates `contexts=["ES 1H"]`, `sourceTimeframeLabel=1H`, `display.extendSeconds=28800`, localStorage persistence and PDA export keep source fields, and extend maps to 480 primary 1M bars / 8 secondary 1H bars.
 - `node --check` passed for `v4/src/pda/pda-hit-test.js` and `v4/src/pda/pda-selection.js` after Step 123.
 - Headless Chrome smoke verified clicking a secondary-rendered BSL selects the same PDA id, opens Inspector, and shows the `ES 1H` source context.
+- `node --check` passed for order ref metadata/link modules and PDA/Order Review inspector panels after Step 124.
+- Module probe verified `normalizeLinkedObjectRef()` preserves `sourceChartId`, `sourceInstrument`, numeric `sourceTimeframe`, `sourceTimeframeLabel`, and source context.
+- Headless Chrome smoke verified PDA Inspector `Link PDA To Active Setup` writes a secondary PDA ref with `sourceChartId=secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, `sourceTimeframeLabel=1H`, and `sourceContext=ES 1H`.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -139,11 +148,11 @@
 ## Current Git State
 
 - Last committed work:
-  - `ba516b3 feat(v4): filter overlays by calendar date`
-  - `511e7c2 docs(v4): update calendar secondary sync handoff`
-  - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
+  - `a4391d7 feat(v4): create secondary chart liquidity PDA`
+  - `6446fa2 fix(v4): align secondary PDA rendering metadata`
+  - `ce9e1c8 feat(v4): select secondary chart PDA`
 - Current uncommitted changes:
-  - Phase 10 Step 123 secondary PDA hit-test/select/Inspector
+  - Phase 10 Step 124 secondary PDA to active setup link metadata
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -153,4 +162,4 @@
 
 ## Next Steps
 
-- Step 124: link secondary-selected PDA to the active setup while preserving source chart/timeframe information.
+- Step 125: verify Review JSON/localStorage/undo-redo around secondary-created and secondary-linked PDA before enabling range PDA.
