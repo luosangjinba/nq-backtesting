@@ -6,7 +6,11 @@ import { getSecondaryChartContext } from '../chart/chart-context.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { timeframeToString } from '../config.js';
 import { clampMenuPosition } from './manual-context-menu.js';
-import { findDisplayBarInContext, getBarChartTime } from './manual-pda-actions.js';
+import {
+  addManualPoint,
+  findDisplayBarInContext,
+  getBarChartTime,
+} from './manual-pda-actions.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -57,8 +61,8 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-secondary-action="secondary-pda-bsl" disabled>Mark BSL</button>
-        <button class="pda-menu-item" data-secondary-action="secondary-pda-ssl" disabled>Mark SSL</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-bsl" ${disabled}>Mark BSL</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-ssl" ${disabled}>Mark SSL</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-fvg" disabled>Mark FVG</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-range" disabled>Mark Range PDA</button>
         </div>
@@ -129,7 +133,19 @@ async function handleSecondaryMenuClick(e) {
   if (!action) return;
   e.stopPropagation();
 
-  if (action === 'secondary-show-cursor') {
+  if (action === 'secondary-pda-bsl' || action === 'secondary-pda-ssl') {
+    const context = getSecondaryChartContext();
+    await addManualPoint(
+      action === 'secondary-pda-bsl' ? 'bsl' : 'ssl',
+      contextMenuBar,
+      context,
+      {
+        source: 'manual',
+        sourceChartLabel: context.label,
+      }
+    );
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-show-cursor') {
     if (contextMenuBar) {
       secondaryChart.showSecondaryHoverCursor(getBarChartTime(getSecondaryChartContext(), contextMenuBar));
       bus.emit('status:update', { text: `副图 cursor: ${formatContextTime(contextMenuBar)}`, isError: false });

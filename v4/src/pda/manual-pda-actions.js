@@ -61,7 +61,16 @@ export function getSelectedRangeBars(context, startBar, endBar) {
   return displayBars.slice(from, to + 1);
 }
 
-export async function addManualPoint(type, bar, context) {
+function buildSourceMetadata(context, extraMetadata = {}) {
+  return {
+    sourceChartId: context?.chartId || context?.id || 'primary',
+    sourceInstrument: context?.instrument || 'NQ',
+    sourceTimeframe: context?.timeframe,
+    ...extraMetadata,
+  };
+}
+
+export async function addManualPoint(type, bar, context, metadata = {}) {
   const pdaType = getPdaType(type);
   if (!pdaType || !bar || !context) return false;
 
@@ -90,6 +99,7 @@ export async function addManualPoint(type, bar, context) {
     timestamp: bar.timestamp,
     barTime: bar.time,
     price,
+    ...buildSourceMetadata(context, metadata),
     contexts,
     validation,
   };

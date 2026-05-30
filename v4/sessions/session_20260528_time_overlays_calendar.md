@@ -66,6 +66,11 @@
   - added `v4/src/pda/secondary-context-menu.js` and initialized it from `app.js`
   - secondary right-click now opens its own flyout menu with PDA / Navigation / Segments groups
   - PDA and Segment write actions are intentionally disabled in Step 120; enabled actions are limited to showing a secondary cursor and copying secondary time/price
+- Phase 10 Step 121 secondary PDA MVP:
+  - enabled secondary chart `Mark BSL` and `Mark SSL`
+  - secondary PDA creation reuses `manual-pda-actions.addManualPoint()` with `getSecondaryChartContext()`
+  - created annotations include `sourceChartId`, `sourceInstrument`, `sourceTimeframe`, and `sourceChartLabel`
+  - range/FVG/Segment secondary write actions remain disabled until rendering/Inspector/persistence validation is broader
 
 ## Decisions
 
@@ -85,6 +90,7 @@
 - Step 118 is an architecture boundary only; it should not wire new context into user workflows yet.
 - Step 119 keeps user-visible write behavior on the primary chart. Secondary chart creation must still wait for a dedicated secondary context menu and explicit enablement.
 - Step 120 establishes secondary menu ownership and event routing only. It must not create PDA/Segment records yet; Step 121 is the first write-enabled secondary PDA step.
+- Step 121 intentionally starts with BSL/SSL only. Range PDA needs more validation around start/end selection state and cross-chart projection before it is enabled.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -108,6 +114,8 @@
 - Headless Chrome smoke verified the primary chart context menu still opens after Step 119 and includes PDA actions for BSL, SSL, FVG, and Fib.
 - `node --check` passed for `v4/src/pda/secondary-context-menu.js` and `v4/src/app.js` after Step 120.
 - Headless Chrome smoke verified Split Screen secondary right-click opens `#secondary-context-menu`, does not create a primary menu, keeps secondary PDA/Segment write actions disabled, and leaves secondary navigation/copy actions enabled.
+- `node --check` passed for `v4/src/pda/manual-pda-actions.js` and `v4/src/pda/secondary-context-menu.js` after Step 121.
+- Headless Chrome smoke verified secondary `Mark BSL` creates one PDA annotation with `sourceChartId=secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, and `sourceChartLabel=Secondary`.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -120,7 +128,7 @@
   - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
 - Current uncommitted changes:
-  - Phase 10 Step 120 secondary context menu MVP
+  - Phase 10 Step 121 secondary BSL/SSL PDA creation MVP
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -130,5 +138,4 @@
 
 ## Next Steps
 
-- Step 121: enable the first secondary PDA write actions, starting with BSL/SSL and preserving source chart/instrument/timeframe metadata.
-- Then verify secondary-created PDA rendering, selection, persistence, undo/redo, and Review JSON behavior before expanding to range PDA.
+- Step 122: validate and harden secondary-created PDA rendering/selection/persistence/undo/export behavior before expanding to range PDA.
