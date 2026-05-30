@@ -913,6 +913,7 @@ const BAR_MARKER_DEFAULTS = {
   textColor: '#ffcc80',
   label: '',
   position: 'above',
+  direction: 'auto',
   size: 6,
   offset: 10,
   labelOffset: 8,
@@ -940,17 +941,20 @@ class BarMarkerRenderer {
       const y = point.y * vRatio;
       const size = options.size * ratio;
       const markerY = y + (options.position === 'below' ? options.offset * vRatio : -options.offset * vRatio);
+      const markerDirection = options.direction === 'auto'
+        ? (options.position === 'below' ? 'up' : 'down')
+        : options.direction;
 
       ctx.fillStyle = options.color;
       ctx.beginPath();
-      if (options.position === 'below') {
-        ctx.moveTo(x, markerY + size);
-        ctx.lineTo(x - size, markerY - size);
-        ctx.lineTo(x + size, markerY - size);
-      } else {
+      if (markerDirection === 'up') {
         ctx.moveTo(x, markerY - size);
         ctx.lineTo(x - size, markerY + size);
         ctx.lineTo(x + size, markerY + size);
+      } else {
+        ctx.moveTo(x, markerY + size);
+        ctx.lineTo(x - size, markerY - size);
+        ctx.lineTo(x + size, markerY - size);
       }
       ctx.closePath();
       ctx.fill();

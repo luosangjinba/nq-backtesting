@@ -103,6 +103,8 @@ function createStopLossElement(order = {}) {
   const price = toNumberOrNull(entry.stopLoss);
   return {
     type: SETUP_ELEMENT_TYPES.STOP_LOSS,
+    timestamp: toTimestamp(entry.stopLossTimestamp),
+    timeframe: entry.stopLossTimeframe || '',
     price,
     reason: entry.stopReason || '',
     complete: price !== null,
@@ -112,10 +114,34 @@ function createStopLossElement(order = {}) {
 function createTargets(order = {}) {
   const entry = order.entryPlan || {};
   return [
-    { role: 'target1', targetType: 'internal', price: toNumberOrNull(entry.targetInternal) },
-    { role: 'target2', targetType: 'swing', price: toNumberOrNull(entry.targetSwing) },
-    { role: 'target3', targetType: 'external', price: toNumberOrNull(entry.targetExternal) },
-    { role: 'finalTarget', targetType: entry.selectedTargetType || '', price: toNumberOrNull(entry.finalTarget) },
+    {
+      role: 'target1',
+      targetType: 'internal',
+      timestamp: toTimestamp(entry.targetInternalTimestamp),
+      timeframe: entry.targetInternalTimeframe || '',
+      price: toNumberOrNull(entry.targetInternal),
+    },
+    {
+      role: 'target2',
+      targetType: 'swing',
+      timestamp: toTimestamp(entry.targetSwingTimestamp),
+      timeframe: entry.targetSwingTimeframe || '',
+      price: toNumberOrNull(entry.targetSwing),
+    },
+    {
+      role: 'target3',
+      targetType: 'external',
+      timestamp: toTimestamp(entry.targetExternalTimestamp),
+      timeframe: entry.targetExternalTimeframe || '',
+      price: toNumberOrNull(entry.targetExternal),
+    },
+    {
+      role: 'finalTarget',
+      targetType: entry.selectedTargetType || '',
+      timestamp: toTimestamp(entry.finalTargetTimestamp),
+      timeframe: entry.finalTargetTimeframe || '',
+      price: toNumberOrNull(entry.finalTarget),
+    },
   ]
     .filter((target) => target.price !== null)
     .map((target) => ({

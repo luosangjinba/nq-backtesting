@@ -52,6 +52,27 @@ Current UI rules:
 - Entry, stop, targets, risk zone, and result render as one grouped setup annotation set.
 - Manual explanation events are for reasons that are not already represented by a PDA, Segment, Composite, or SMT object.
 
+## Reversal Anchor Ownership
+
+The reversal marker is not a standalone global object. It is the primary anchor element of one Order Setup.
+
+Ownership rules:
+
+- Every Order Setup has one primary reversal anchor.
+- Entry, stop loss, targets, result, linked refs, manual explanation events, and notes belong to a specific Order Setup.
+- Later chart actions such as `Set Entry Here`, `Set Stop Loss Here`, `Set Target Here`, and `Add Manual Explanation Event Here` write to the current active Order Setup.
+- Do not auto-assign a later element to the nearest reversal marker. Time proximity is ambiguous when several setups overlap.
+- To edit another setup, the user should first make that setup active from the Inspector or Calendar `Open`.
+
+Multiple setups may share the same reversal bar. In that case, create separate Order Setups with the same reversal timestamp/anchor, rather than storing multiple entry plans inside one setup. This keeps execution plans, risk, targets, results, notes, and visibility independent.
+
+Example:
+
+- Setup A: 09:35 bullish reversal, 1M FVG entry, internal target.
+- Setup B: same 09:35 bullish reversal, later confirmation entry, external target.
+
+These are two independent Order Setups that happen to share a reversal anchor.
+
 ## Review Set Boundary
 
 From Phase 8F onward, the internal interaction model treats each Order Setup as one Review Set.

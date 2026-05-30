@@ -15,6 +15,8 @@ const STOP_COLOR = '#ff4d6d';
 const TARGET_COLORS = ['#3d7eff', '#4d8bff', '#7ea8ff', '#ab47bc'];
 const ACTIVE_ENTRY_COLOR = '#b2dfdb';
 const ACTIVE_TARGET_COLORS = ['#6fa0ff', '#82adff', '#a5c2ff', '#ce93d8'];
+const REVERSAL_BULLISH_COLOR = '#26a69a';
+const REVERSAL_BEARISH_COLOR = '#ef5350';
 const RISK_ZONE_LONG = {
   fillColor: 'rgba(38, 166, 154, 0.13)',
   borderColor: 'rgba(38, 166, 154, 0.35)',
@@ -88,22 +90,32 @@ function renderPriceHelper(timestamp, price, label, color, position = 'right') {
 
 function renderReversalMarker(reversal, direction, isActive = false) {
   const time = mapTimestampToCurrentChartTime(reversal?.timestamp);
-  const parsedPrice = Number(reversal?.price);
-  if (time === null || !Number.isFinite(parsedPrice)) return;
+  if (time === null) return;
 
-  const position = direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below';
+  const isBearish = direction === ORDER_DIRECTIONS.SHORT;
+  const position = isBearish ? 'above' : 'below';
+  const markerColor = isBearish ? REVERSAL_BEARISH_COLOR : REVERSAL_BULLISH_COLOR;
+  const barIndex = getDisplayBarIndexForTimestamp(reversal?.timestamp);
+  const bar = barIndex >= 0 ? store.getDisplayBars()[barIndex] : null;
+  const markerPrice = Number(isBearish ? bar?.high : bar?.low);
+  const fallbackPrice = Number(reversal?.price);
+  const anchorPrice = Number.isFinite(markerPrice) ? markerPrice : fallbackPrice;
+  if (!Number.isFinite(anchorPrice)) return;
+
   attachPrimitive(
     new BarMarkerPrimitive(
       chart.getChart(),
       chart.getSeries(),
       time,
-      parsedPrice,
+      anchorPrice,
       {
-        color: isActive ? '#ffd180' : SETUP_COLOR,
-        textColor: isActive ? '#ffe0b2' : SETUP_COLOR,
+        color: markerColor,
+        textColor: markerColor,
+        direction: isBearish ? 'down' : 'up',
         label: 'Reversal',
         position,
         size: isActive ? 7 : 6,
+        offset: isActive ? 24 : 22,
         showLabel: true,
       }
     )
@@ -187,11 +199,12 @@ function renderRiskZone(timestamp, entryPrice, stopLoss, direction) {
   );
 }
 
-function addTarget(targets, price, label) {
+function addTarget(targets, target, label) {
+  const price = target?.price;
   const parsed = Number(price);
   if (!Number.isFinite(parsed)) return;
   const duplicate = targets.some((target) => Math.abs(Number(target.price) - parsed) < 0.00001);
-  if (!duplicate) targets.push({ price: parsed, label });
+  if (!duplicate) targets.push({ ...target, price: parsed, label });
 }
 
 function getTargetLines(targetElements = []) {
@@ -200,7 +213,7 @@ function getTargetLines(targetElements = []) {
     const label = target.role === 'finalTarget'
       ? (targets.length ? 'Final Target' : 'Target')
       : target.role.replace(/^target/, 'Target');
-    addTarget(targets, target.price, label);
+    addTarget(targets, target, label);
   });
   return targets;
 }
@@ -240,7 +253,7 @@ function renderSetupSet(setupSet, isActive = false) {
   renderRiskZone(entryTimestamp, entry.price, stopLoss.price, direction);
 
   renderPlanLine(
-    entryTimestamp,
+    stopLoss.timestamp || entryTimestamp,
     stopLoss.price,
     'Stop-loss',
     STOP_COLOR,
@@ -251,7 +264,7 @@ function renderSetupSet(setupSet, isActive = false) {
 
   getTargetLines(elements.targets).forEach((target, index) => {
     renderPlanLine(
-      entryTimestamp,
+      target.timestamp || entryTimestamp,
       target.price,
       target.label,
       targetColors[index % targetColors.length],

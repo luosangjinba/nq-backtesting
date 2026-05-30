@@ -214,6 +214,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
 - [x] Step 142: 持久化兼容验证：localStorage、Review JSON import/export、undo/redo 仍使用 `orderReviews` schema；`display.hidden` 兼容旧数据且 import/export 不丢失；外层 UI 语言切换为 Order Setup 不破坏旧数据
 - [x] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录
+- [ ] Step 144: Reversal anchor 归属规则落实：`Create Bullish/Bearish Setup Here` 创建新 setup 并把点击 K 线作为该 setup 的唯一 primary reversal；后续 entry / stop / targets / reason / result 只写入当前 active setup；不按最近 reversal 自动归属；允许多个独立 setup 共享同一 reversal bar；考虑移除 `Set Reversal Here` 或改名为 `Move Active Reversal Here`
+- [x] Step 145: Active Order Setup UI 重建：抛弃旧 Setup Thesis / Entry Plan / Result Review 表单式容器；按新逻辑实现 Header / Anchor / Execution / Reasons / Result 四段式 active setup 面板；Inspector 只展示当前 active setup 状态与轻量操作，主要录入仍来自图表右键 active setup 动作
+- [x] Step 146: Order Setup 锚点与列表显隐补强：Calendar 的 Order Setups 列表提供 Hide/Show；entry/stop/target/final target 写入时必须命中某根 K 线有效 high/low 范围，否则报错不写入；stop/target/final target 保存各自鼠标锚点 timestamp/timeframe 并从该锚点起画线，旧数据 fallback 到 entry 起点
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -252,6 +255,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - 2026-05-20: PDA 第一阶段只做当前会话内存 store，不写 DB；手动 BSL/SSL 右键标注后实时生成 current TF/session context 并用 LiquidityPrimitive 渲染
 - 2026-05-29: Review data storage direction is layered, not YAML-vs-DuckDB exclusive. Near term: localStorage remains the browser work draft, Review JSON/YAML remains the human-readable archive/exchange format while schemas keep evolving. Later, after Order Setup / PDA / Segment / Composite / SMT / Reaction Evidence object boundaries stabilize, add DuckDB import/export as the formal research database for batch query, statistics, cross-sample search, and reproducible analysis. YAML/JSON should continue as portable case files and migration/backup format even after DuckDB exists.
 - 2026-05-30: Phase 12 Order Setup cleanup keeps `OrderReview` / `orderReviews` as the compatibility storage schema. User-facing language is `Order Setup`; runtime grouping should prefer `Setup Set`; persisted JSON/localStorage keys are not renamed until a dedicated migration exists.
+- 2026-05-30: Reversal is the primary anchor element of an Order Setup, not a standalone global object. Entry/stop/targets/reason/result ownership is determined by the active Order Setup, not by nearest-marker guessing. Multiple independent Order Setups may share the same reversal bar when one reversal supports more than one execution plan.
 - 2026-05-29: Secondary chart annotation workflow will be introduced through an explicit `chart-context` boundary first. Existing primary chart modules remain the default behavior surface; secondary chart write actions must opt in through context-aware helpers so readonly split-screen behavior is not accidentally changed.
 - 2026-05-20: PDA session 划分采用 Asia / London Killzone / London Close / NY Premarket / NY Open / AM Silver Bullet / NY Late Morning / Lunch / PM Open / PM Silver Bullet / Power Hour / Post-Close / CME Break；CME Break 跳过极值判断
 - 2026-05-20: PDA context 计算区间与图表显示区间分离；右键标注时按所选 K 线所属 CME 交易日临时请求完整交易日数据，仅用于 PDA 极值计算，不改变图表显示

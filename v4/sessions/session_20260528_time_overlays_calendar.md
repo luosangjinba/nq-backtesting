@@ -657,3 +657,84 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `21a69b1 chore(v4): verify order setup persistence compatibility`
 - Current uncommitted changes: Phase 12 docs/handoff and TODO/session updates
+
+## Phase 12 Reversal Anchor Ownership Decision
+
+Decision:
+
+- Reversal is the primary anchor element of an Order Setup, not a standalone global object.
+- Entry, stop loss, targets, result, linked refs, manual explanation events, and notes belong to the active Order Setup.
+- Later chart actions should write to the current active setup instead of guessing the nearest reversal marker.
+- Multiple independent Order Setups may share the same reversal bar if one reversal supports multiple execution plans.
+- Shared-reversal setups remain separate so each plan can have independent entry, risk, targets, result, notes, and visibility.
+
+Planning Impact:
+
+- Added Step 144 to formalize the rule in UI/actions.
+- `Create Bullish/Bearish Setup Here` should continue to create a new setup and set that K line as the setup reversal.
+- `Set Reversal Here` should be removed or renamed to `Move Active Reversal Here` if manual reversal correction remains needed.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `b50cf94 docs(v4): document order setup cleanup boundary`
+- Current uncommitted changes: reversal marker rendering adjustment, reversal anchor ownership docs/TODO/session updates
+
+## Phase 12 Active Order Setup UI Rebuild
+
+Plan:
+
+- Replace the old active setup container with a four-part panel: Header, Anchor, Execution, Reasons, Result.
+- Header identifies the active setup and keeps only light actions: Clear Active, Locate, Hide/Show, Delete.
+- Anchor shows the primary reversal anchor only.
+- Execution shows entry, stop, targets, and their current values.
+- Reasons groups linked PDA/Segment/Composite/SMT refs, manual explanation events, and notes.
+- Result keeps quick result status and note editing.
+- Keep the existing `orderReviews` schema and existing action handlers; this step is a derived UI rebuild, not a data migration.
+
+Implemented:
+
+- `renderOrderReviewPanel()` now renders only the active setup, using the four-part active setup layout.
+- Removed the visible old Setup Thesis / Entry Plan / Result Review / Advanced Edit form from the active setup container.
+- Existing buttons remain wired through current Inspector actions for clear active, locate, hide/show, delete, result, note, add selected refs, and remove refs.
+- Marked Step 145 complete in TODO.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `b50cf94 docs(v4): document order setup cleanup boundary`
+- Current uncommitted changes: reversal marker rendering adjustment, reversal anchor ownership docs/TODO/session updates, Active Order Setup UI rebuild
+
+## Phase 12 Order Setup Anchor Validation
+
+Plan:
+
+- Add Hide/Show directly to the Calendar Order Setups list so overlapping setups can be managed without opening each setup first.
+- Treat entry, stop loss, targets, and final target as anchored order elements.
+- Require chart-write actions for those elements to hit both a bar and a valid price inside that bar's high/low range.
+- Save stop/target/final target anchor timestamp/timeframe for new edits while keeping old records compatible.
+- Render stop/target/final target helper lines from their own anchor timestamp when present, falling back to entry timestamp for old data.
+
+Implemented:
+
+- Calendar Order Setup rows now include `Hide` / `Show`.
+- `order-setup-set-entry`, `order-setup-set-stop-loss`, `order-setup-set-target-*`, and `order-setup-set-final-target` validate that the mouse price is inside the clicked bar high/low range.
+- `entryPlan` normalization preserves stop/target/final target timestamp/timeframe fields.
+- Setup Set adapter exposes stop/target/final target anchor timestamps.
+- Renderer starts stop/target/final target lines at their own anchors when available.
+- Active Order Setup Execution panel now shows stop/target timestamps with prices.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `b50cf94 docs(v4): document order setup cleanup boundary`
+- Current uncommitted changes: reversal marker rendering, anchor ownership docs, Active Order Setup UI rebuild, anchor validation/list Hide-Show

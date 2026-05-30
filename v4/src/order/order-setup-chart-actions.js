@@ -51,6 +51,24 @@ function getContextPrice(price) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function getValidBarAnchor(context = {}, label = 'Order element') {
+  const price = getContextPrice(context.price);
+  const high = Number(context.bar?.high);
+  const low = Number(context.bar?.low);
+  if (!context.bar || price === null || !Number.isFinite(high) || !Number.isFinite(low) || price < low || price > high) {
+    bus.emit('status:update', {
+      text: `${label} 必须锚定在某根 K 线的有效 high/low 范围内`,
+      isError: true,
+    });
+    return null;
+  }
+  return {
+    timestamp: context.bar.timestamp,
+    timeframe: context.timeframe,
+    price,
+  };
+}
+
 function promptManualEventField(label, fallback = '') {
   if (typeof window === 'undefined' || typeof window.prompt !== 'function') return fallback;
   const value = window.prompt(label, fallback);
@@ -119,8 +137,19 @@ function createOrderSetupFromContext(direction, context) {
 }
 
 function patchActiveSetupFromContext(action, context) {
-  const price = getContextPrice(context.price);
   if (!context.bar) return;
+
+  const needsValidAnchor = [
+    'order-setup-set-entry',
+    'order-setup-set-stop-loss',
+    'order-setup-set-target-internal',
+    'order-setup-set-target-swing',
+    'order-setup-set-target-external',
+    'order-setup-set-final-target',
+  ].includes(action);
+  const anchor = needsValidAnchor ? getValidBarAnchor(context, 'Order Setup element') : null;
+  if (needsValidAnchor && !anchor) return;
+  const price = anchor?.price ?? getContextPrice(context.price);
 
   return recordHistory('Update Order Setup', () => {
     if (action === 'order-setup-set-reversal' || action === 'order-setup-set-event') {
@@ -134,9 +163,9 @@ function patchActiveSetupFromContext(action, context) {
     } else if (action === 'order-setup-set-entry') {
       updateActiveReviewSet({
         entryPlan: {
-          entryTimestamp: context.bar.timestamp,
-          entryTimeframe: context.timeframe,
-          entryPrice: price,
+          entryTimestamp: anchor.timestamp,
+          entryTimeframe: anchor.timeframe,
+          entryPrice: anchor.price,
         },
       });
     } else if (action === 'order-setup-set-entry-time') {
@@ -155,15 +184,48 @@ function patchActiveSetupFromContext(action, context) {
     } else if (action === 'order-setup-set-entry-price') {
       updateActiveReviewSet({ entryPlan: { entryPrice: price } });
     } else if (action === 'order-setup-set-stop-loss') {
-      updateActiveReviewSet({ entryPlan: { stopLoss: price } });
+      updateActiveReviewSet({
+        entryPlan: {
+          stopLoss: anchor.price,
+          stopLossTimestamp: anchor.timestamp,
+          stopLossTimeframe: anchor.timeframe,
+        },
+      });
     } else if (action === 'order-setup-set-target-internal') {
-      updateActiveReviewSet({ entryPlan: { targetInternal: price, selectedTargetType: 'internal' } });
+      updateActiveReviewSet({
+        entryPlan: {
+          targetInternal: anchor.price,
+          targetInternalTimestamp: anchor.timestamp,
+          targetInternalTimeframe: anchor.timeframe,
+          selectedTargetType: 'internal',
+        },
+      });
     } else if (action === 'order-setup-set-target-swing') {
-      updateActiveReviewSet({ entryPlan: { targetSwing: price, selectedTargetType: 'swing' } });
+      updateActiveReviewSet({
+        entryPlan: {
+          targetSwing: anchor.price,
+          targetSwingTimestamp: anchor.timestamp,
+          targetSwingTimeframe: anchor.timeframe,
+          selectedTargetType: 'swing',
+        },
+      });
     } else if (action === 'order-setup-set-target-external') {
-      updateActiveReviewSet({ entryPlan: { targetExternal: price, selectedTargetType: 'external' } });
+      updateActiveReviewSet({
+        entryPlan: {
+          targetExternal: anchor.price,
+          targetExternalTimestamp: anchor.timestamp,
+          targetExternalTimeframe: anchor.timeframe,
+          selectedTargetType: 'external',
+        },
+      });
     } else if (action === 'order-setup-set-final-target') {
-      updateActiveReviewSet({ entryPlan: { finalTarget: price } });
+      updateActiveReviewSet({
+        entryPlan: {
+          finalTarget: anchor.price,
+          finalTargetTimestamp: anchor.timestamp,
+          finalTargetTimeframe: anchor.timeframe,
+        },
+      });
     }
 
     bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });

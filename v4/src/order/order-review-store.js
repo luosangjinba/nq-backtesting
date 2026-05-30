@@ -525,6 +525,13 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TIMEFRAMES.MANUAL
     ),
     stopLoss,
+    stopLossTimestamp: normalizeTimestamp(input.stopLossTimestamp),
+    stopLossTimeframe: normalizeEnum(
+      input.stopLossTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     stopReason: normalizeEnum(
       input.stopReason,
       VALID_ORDER_STOP_REASONS,
@@ -532,8 +539,29 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_STOP_REASONS.MANUAL
     ),
     targetInternal: normalizeNumber(input.targetInternal),
+    targetInternalTimestamp: normalizeTimestamp(input.targetInternalTimestamp),
+    targetInternalTimeframe: normalizeEnum(
+      input.targetInternalTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     targetSwing: normalizeNumber(input.targetSwing),
+    targetSwingTimestamp: normalizeTimestamp(input.targetSwingTimestamp),
+    targetSwingTimeframe: normalizeEnum(
+      input.targetSwingTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     targetExternal: normalizeNumber(input.targetExternal),
+    targetExternalTimestamp: normalizeTimestamp(input.targetExternalTimestamp),
+    targetExternalTimeframe: normalizeEnum(
+      input.targetExternalTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     selectedTargetType: normalizeEnum(
       input.selectedTargetType,
       VALID_ORDER_TARGET_TYPES,
@@ -541,6 +569,13 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TARGET_TYPES.SWING
     ),
     finalTarget: normalizeNumber(input.finalTarget),
+    finalTargetTimestamp: normalizeTimestamp(input.finalTargetTimestamp),
+    finalTargetTimeframe: normalizeEnum(
+      input.finalTargetTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     riskPoints: deriveRiskPoints(entryPrice, stopLoss),
     note: normalizeNote(input.note),
   };

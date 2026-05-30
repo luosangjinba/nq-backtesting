@@ -195,6 +195,8 @@ function getObjectTypeLabel(item) {
 function renderObjectRow(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
   const canOpen = ['order-setup', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
+  const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
+  const setupHidden = Boolean(item.source?.display?.hidden);
   const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   return `
@@ -223,6 +225,16 @@ function renderObjectRow(item) {
                 data-object-id="${escapeHtml(item.ref.id)}"
                 type="button"
               >Open</button>`
+            : ''
+        }
+        ${
+          canToggleSetup
+            ? `<button
+                class="inspector-mini-btn calendar-object-open"
+                data-inspector-action="order-review-toggle-hidden"
+                data-order-review-id="${escapeHtml(item.ref.id)}"
+                type="button"
+              >${setupHidden ? 'Show' : 'Hide'}</button>`
             : ''
         }
       </div>

@@ -470,15 +470,155 @@ function renderOrderRow(order, options = {}) {
   `;
 }
 
+function renderActiveHeader(order, setupSet) {
+  const reversal = setupSet?.orderElements?.reversal || {};
+  const direction = formatDirection(setupSet?.direction);
+  const state = order.display?.hidden ? 'Hidden' : 'Visible';
+  const title = [
+    direction,
+    formatTime(reversal.timestamp),
+    reversal.timeframe || '—',
+  ].filter(Boolean).join(' · ');
+
+  return `
+    <div class="inspector-evidence-row order-review-row active">
+      <div class="inspector-evidence-header">
+        <span>${escapeHtml(title)}</span>
+        <span>${escapeHtml(order.instrument || setupSet?.instrument || 'NQ')}</span>
+      </div>
+      <div class="drawing-set-meta">${escapeHtml(`Active Setup · ${state} · Updated ${formatDateTimeMs(order.updatedAt)}`)}</div>
+    </div>
+  `;
+}
+
+function renderActiveActions(order) {
+  const isHidden = Boolean(order.display?.hidden);
+  return `
+    <div class="order-review-action-row">
+      <button class="inspector-secondary" data-inspector-action="order-review-clear-active" data-order-review-id="${escapeHtml(order.id)}" type="button">Clear Active</button>
+      <button class="inspector-secondary" data-inspector-action="order-review-locate" data-order-review-id="${escapeHtml(order.id)}" type="button">Locate</button>
+      <button class="inspector-secondary" data-inspector-action="order-review-toggle-hidden" data-order-review-id="${escapeHtml(order.id)}" type="button">${isHidden ? 'Show' : 'Hide'}</button>
+      <button class="inspector-danger" data-inspector-action="order-review-delete" data-order-review-id="${escapeHtml(order.id)}" type="button">Delete</button>
+    </div>
+  `;
+}
+
+function renderAnchorPanel(setupSet) {
+  const reversal = setupSet?.orderElements?.reversal || {};
+  const direction = setupSet?.direction === 'short' ? 'Bearish' : setupSet?.direction === 'long' ? 'Bullish' : 'Unknown';
+  return `
+    <div class="order-review-compact">
+      <div class="order-review-compact-title">Anchor</div>
+      ${field('Reversal', direction)}
+      ${field('Time', formatTime(reversal.timestamp))}
+      ${field('TF', reversal.timeframe || '—')}
+      ${field('Price', formatNumber(reversal.price))}
+    </div>
+  `;
+}
+
+function renderExecutionPanel(setupSet) {
+  const elements = setupSet?.orderElements || {};
+  const entry = elements.entry || {};
+  const stopLoss = elements.stopLoss || {};
+  const targets = Array.isArray(elements.targets) ? elements.targets : [];
+  const targetRows = targets.length
+    ? targets.map((target) => field(target.role, `${formatTime(target.timestamp)} · ${formatNumber(target.price)}`)).join('')
+    : field('Targets', '—');
+
+  return `
+    <div class="order-review-compact">
+      <div class="order-review-compact-title">Execution</div>
+      ${field('Entry', `${formatTime(entry.timestamp)} · ${formatNumber(entry.price)} · ${labelFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS, entry.model)}`)}
+      ${field('Stop', `${formatTime(stopLoss.timestamp)} · ${formatNumber(stopLoss.price)} · ${stopLoss.reason || '—'}`)}
+      ${targetRows}
+    </div>
+  `;
+}
+
+function renderReasonRows(order, setupSet) {
+  const explanation = setupSet?.explanationElements || {};
+  const refs = Array.isArray(explanation.refs) ? explanation.refs : [];
+  const manualEvents = Array.isArray(explanation.manualEvents) ? explanation.manualEvents : [];
+  const notes = Array.isArray(explanation.notes) ? explanation.notes : [];
+  const refRows = refs.map((ref, index) => `
+    <div class="order-review-ref-row">
+      <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
+      <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">Remove</button>
+    </div>
+  `);
+  const manualRows = manualEvents.map((event) => `
+    <div class="order-review-explanation-row">
+      <span>Manual</span>
+      <strong>${escapeHtml(summarizeManualEvent(event) || '—')}</strong>
+    </div>
+  `);
+  const noteRows = notes.map((note) => `
+    <div class="order-review-explanation-row">
+      <span>Note</span>
+      <strong>${escapeHtml(summarizeNote(note) || '—')}</strong>
+    </div>
+  `);
+  const rows = [...refRows, ...manualRows, ...noteRows].join('');
+
+  return `
+    <div class="order-review-explanation">
+      <div class="order-review-compact-title">Reasons</div>
+      ${rows || '<div class="drawing-set-empty">No reasons.</div>'}
+      <div class="order-review-ref-actions">
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-pda" data-order-review-id="${escapeHtml(order.id)}" type="button">Add PDA</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-segment" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Segment</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-composite" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Composite</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-smt" data-order-review-id="${escapeHtml(order.id)}" type="button">Add SMT</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderResultPanel(order, setupSet) {
+  const result = setupSet?.orderElements?.result || {};
+  return `
+    <div class="order-review-quick-edit">
+      <div class="order-review-compact-title">Result</div>
+      <div class="order-review-quick-edit-body">
+        ${controlField(
+          'Result',
+          `<select class="inspector-input inspector-mini-select" data-inspector-action="order-review-result" data-order-review-id="${escapeHtml(order.id)}">
+            ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN)}
+          </select>`
+        )}
+        ${field('Exit', `${formatTime(result.timestamp)} · ${formatNumber(result.price)}`)}
+        ${field('Points', formatNumber(result.outcomePoints))}
+        ${field('R', formatNumber(result.outcomeR))}
+        ${controlField(
+          'Note',
+          `<textarea class="inspector-textarea" data-inspector-action="order-review-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Result note">${escapeHtml(order.note || '')}</textarea>`
+        )}
+      </div>
+    </div>
+  `;
+}
+
+function renderActiveOrderSetup(order) {
+  const setupSet = createSetupSetFromOrderReview(order);
+  if (!setupSet) return '<div class="drawing-set-empty">No active Order Setup.</div>';
+  return `
+    <div class="inspector-evidence-list">
+      ${renderActiveHeader(order, setupSet)}
+      ${renderActiveActions(order)}
+      ${renderAnchorPanel(setupSet)}
+      ${renderExecutionPanel(setupSet)}
+      ${renderReasonRows(order, setupSet)}
+      ${renderResultPanel(order, setupSet)}
+      <div class="inspector-id">${escapeHtml(order.id)}</div>
+    </div>
+  `;
+}
+
 export function renderOrderReviewPanel(orderReviews = [], options = {}) {
-  const createAction = options.createAction || '';
-  const createButton = createAction
-    ? `<button class="inspector-secondary" data-inspector-action="${escapeHtml(createAction)}" type="button">${escapeHtml(options.createLabel || 'Create Order Setup')}</button>`
-    : '';
   const activeOrder = orderReviews.find((order) => order.id === options.activeOrderReviewId) || null;
   const content = activeOrder
-    ? `<div class="inspector-evidence-list">${renderOrderRow(activeOrder, options)}</div>`
+    ? renderActiveOrderSetup(activeOrder)
     : '<div class="drawing-set-empty">No active Order Setup.</div>';
-
-  return section('Active Order Setup', `${createButton}${content}`);
+  return section('Active Order Setup', content);
 }
