@@ -223,6 +223,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147C: Active setup Inspector 自动聚焦：从 reversal 菜单或其它入口 Set Active 某个 setup 后，自动打开 Inspector，刷新到默认面板，并滚动定位到 Active Order Setup；Clear/Close Active 只刷新，不强制弹出
 - [x] Step 147D: Entry / stop / target element 编辑 MVP：entry / stop / target1-3 / final target 可命中并选中；Inspector 显示选中元素；支持按 bars 调整 helper line 长度；支持删除单个 entry/stop/target 元素；暂不删除 reversal 主锚点
 - [x] Step 147E: Entry / stop / target 时间锚定终点：普通右键继续设置线段起点；Shift+右键设置 entry/stop/target/final target 终点；保存起点/终点时间，切换周期时按时间重新投影线段长度；Length bars 仅作为旧数据/无终点 fallback
+- [x] Step 147F: Execution 双向元素选择 UI：把 Selected Element 合并进 Execution；图表 helper line 与 Execution 行可双向选中并着重显示；delete 改为紧凑 X；Length bars 改为紧凑数字输入，不再占用独立面板空间
+- [x] Step 147G: Order Setup OHLC Magnet Anchor：entry/stop/target 起点设置时，鼠标价格在 K 线 high/low 内保留原价；若在范围外但接近 high/low，自动吸附到最近 high/low；超过容错才报错；状态提示说明实际吸附价格
+- [x] Step 147H: Active setup 同步 Inspector Calendar 日期：从图表/右键/Execution 选中或激活 setup 时，Inspector 跳到 Active Order Setup 的同时，将 Calendar selected/view date 同步到该 setup 所属自然日，并刷新当天事件列表
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

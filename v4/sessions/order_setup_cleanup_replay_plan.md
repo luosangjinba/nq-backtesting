@@ -403,7 +403,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `cb94ed8 feat(v4): edit order setup helper lines`
 
 Notes:
 
@@ -466,13 +466,141 @@ Validation:
 
 Commit:
 
-- `pending`
+- `cb94ed8 feat(v4): edit order setup helper lines`
 
 Notes:
 
 - Endpoint setters should not require a valid price hit because they only define horizontal line end time.
 - If endpoint is earlier than start, renderer/hit-test should still handle it by drawing between the two times.
 - Existing records without endpoint timestamps remain compatible.
+
+### Step 147F: Merge Selected Element Into Execution
+
+Goal:
+
+- Remove the separate `Selected Element` panel.
+- Render entry / stop / target rows directly inside `Execution` as selectable element rows.
+- Clicking an Execution row selects the matching chart helper line.
+- Clicking a chart helper line selects the matching Execution row.
+- Highlight the selected Execution row clearly.
+- Replace the large delete button with a compact `X`.
+- Replace the full-width `Length bars` control with a compact numeric input in the row.
+
+Implemented:
+
+- Removed the separate `Selected Element` panel from Active Order Setup.
+- Execution now renders entry / stop / target rows as selectable controls.
+- Chart helper line selection still drives the selected Execution row through shared selected element state.
+- Clicking an Execution row selects the corresponding chart helper line.
+- Selected Execution row uses yellow emphasis to match selected chart helper line styling.
+- Length editing is now a compact numeric input in the row.
+- Delete is now a compact `X` button in the row.
+- Input/delete clicks do not also trigger row selection.
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/src/order/order-setup-selection.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-selection.js`
+- Module smoke for Execution row selected styling/action attributes.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Keep chart-line selection behavior from Step 147D.
+- Keep endpoint timestamp behavior from Step 147E.
+
+### Step 147G: Order Setup OHLC Magnet Anchor
+
+Goal:
+
+- Reduce failed entry / stop / target start-anchor placement when the user intends to click a candle high/low.
+- Preserve exact mouse price when it is inside the candle high/low range.
+- If mouse price is outside high/low but visually close to high or low, snap to the nearest high/low.
+- Reject only when the mouse is outside range and not close enough to high/low.
+- Emit status text that shows when snapping happened and which OHLC point was used.
+
+Implemented:
+
+- `getValidBarAnchor()` now keeps exact mouse price when it is inside candle high/low.
+- If the mouse price is outside high/low, it checks pixel distance to the candle high and low.
+- If the nearest high/low is within 10 px, the anchor snaps to that high/low price.
+- If the mouse is outside range and outside magnet tolerance, the action still rejects.
+- Manual chart context now passes `priceToCoordinate` into Order Setup actions so tolerance is visual/pixel based.
+- Status text reports snapped high/low and price.
+
+Main files:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke for in-range price, high snap, low snap, and rejected out-of-range anchor.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- First pass snaps only to high/low for out-of-range prices.
+- Full OHLC magnet can be added later behind Alt/global magnet behavior.
+
+### Step 147H: Sync Calendar Date On Active Setup
+
+Goal:
+
+- When a setup is activated from chart/right-click/Execution row, keep Inspector Calendar focused on the setup's date.
+- Calendar `selectedDate` and `viewDate` should move to the setup date.
+- The day object list above Active Order Setup should refresh to that date.
+- Active Order Setup auto-scroll behavior should remain unchanged.
+
+Implemented:
+
+- Added setup calendar date extraction in Inspector using priority `entryTimestamp -> primaryEventTimestamp -> exitTimestamp`.
+- When Active Order Setup panel opens, Inspector Calendar `selectedDate` and `viewDate` sync to the active setup date.
+- Explicit Inspector `Set Active` also syncs Calendar before refresh.
+- Chart helper line selection continues to activate the owning setup, so it also syncs Calendar through the active setup panel path.
+- Calendar day event list now refreshes to the setup date when setup activation opens the Active Order Setup panel.
+
+Main files:
+
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke for setup date extraction priority.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Use the same date priority as Calendar Review Index: entry -> reversal -> result -> active primary timestamp.
 
 ## Next Step Template
 

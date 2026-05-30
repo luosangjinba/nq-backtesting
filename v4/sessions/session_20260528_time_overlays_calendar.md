@@ -898,3 +898,101 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `45e34d6 docs(v4): add order setup cleanup replay plan`
 - Current uncommitted changes: Step 147D and Step 147E implementation plus operation script updates
+
+Committed:
+
+- `cb94ed8 feat(v4): edit order setup helper lines`
+
+## Phase 12 Execution Element Selection UI
+
+Operation Script:
+
+- Step: `147F`
+- Goal: merge Selected Element controls into Execution and make chart helper line selection bidirectional with Execution rows.
+- UI boundary: no separate Selected Element panel; keep controls compact in each Execution row.
+- Data boundary: no schema change; reuse selected element state and existing length/delete handlers.
+
+Implemented:
+
+- Execution rows now represent entry / stop / targets as selectable UI rows.
+- Selecting a chart helper line highlights the matching Execution row.
+- Clicking an Execution row selects the matching chart helper line.
+- Selected Execution row uses yellow emphasis.
+- Length bars is now a compact number input in the row.
+- Delete is now a compact `X` button.
+- Removed the separate Selected Element panel.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-selection.js`
+- Module smoke verified Execution row selected styling/action attributes and absence of the old Selected Element panel.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `cb94ed8 feat(v4): edit order setup helper lines`
+- Current uncommitted changes: Step 147F implementation and operation script updates
+
+## Phase 12 Order Setup OHLC Magnet Anchor
+
+Operation Script:
+
+- Step: `147G`
+- Goal: reduce failed entry / stop / target start-anchor placement when the intended anchor is a candle high/low.
+- Interaction: normal right-click still sets start anchor; if mouse price is just outside the candle range, snap to high/low instead of rejecting.
+- Boundary: first pass only snaps outside-range prices to high/low; full OHLC magnet can be added later.
+
+Implemented:
+
+- In-range mouse price remains exact.
+- Outside-range mouse price snaps to nearest high/low when within 10 px.
+- Outside-range and outside tolerance still rejects.
+- Status message reports the snapped high/low price.
+- Primary chart context passes `priceToCoordinate` to Order Setup chart actions for pixel-based tolerance.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- Module smoke verified in-range anchor, high snap, low snap, and far out-of-range rejection.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `cb94ed8 feat(v4): edit order setup helper lines`
+- Current uncommitted changes: Step 147F/147G implementation and operation script updates
+
+## Phase 12 Active Setup Calendar Date Sync
+
+Operation Script:
+
+- Step: `147H`
+- Goal: when a setup is activated or selected from chart/right-click/Execution, keep Inspector Calendar focused on the setup's date.
+- Date priority: entry timestamp, then reversal primary event timestamp, then result exit timestamp.
+- UI boundary: retain Active Order Setup auto-open/scroll behavior.
+
+Implemented:
+
+- Added setup date extraction helper in Inspector.
+- Active Order Setup panel syncs Calendar selected/view date before rendering.
+- Inspector Set Active syncs Calendar date before refreshing.
+- Chart helper line selection activates its setup, so it now also syncs Calendar through the active setup panel path.
+
+Validation:
+
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module smoke verified entry/reversal/result date priority.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `cb94ed8 feat(v4): edit order setup helper lines`
+- Current uncommitted changes: Step 147F/147G/147H implementation and operation script updates

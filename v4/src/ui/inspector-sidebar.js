@@ -68,6 +68,7 @@ import {
 import {
   clearOrderSetupElementSelection,
   getSelectedOrderSetupElement,
+  selectOrderSetupElement,
 } from '../order/order-setup-selection.js';
 import {
   addOrderReview,
@@ -140,6 +141,34 @@ function normalizeTimeKey(time) {
     return `${time.year}-${month}-${day}`;
   }
   return time;
+}
+
+function dateKeyFromTimestamp(timestamp) {
+  const parsed = Number(timestamp);
+  if (!Number.isFinite(parsed) || parsed <= 0) return '';
+  const date = new Date(parsed * 1000);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function getOrderReviewCalendarDate(order = {}) {
+  return dateKeyFromTimestamp(
+    order.entryPlan?.entryTimestamp ??
+      order.setupThesis?.primaryEventTimestamp ??
+      order.resultReview?.exitTimestamp ??
+      null
+  );
+}
+
+function syncCalendarToOrderReview(orderReviewId) {
+  const order = getOrderReviewById(orderReviewId);
+  const dateKey = getOrderReviewCalendarDate(order);
+  if (!dateKey) return false;
+  calendarSelectedDate = dateKey;
+  calendarViewDate = dateKey;
+  return true;
 }
 
 function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
@@ -310,6 +339,7 @@ function focusActiveOrderSetupPanel() {
 }
 
 function showActiveOrderSetupPanel() {
+  syncCalendarToOrderReview(getActiveReviewSetId());
   renderEmpty();
   openSidebar();
   requestAnimationFrame(() => focusActiveOrderSetupPanel());
@@ -1556,6 +1586,7 @@ function handleInspectorClick(e) {
 
   if (action === 'order-review-set-active') {
     setActiveReviewSet(actionEl.dataset.orderReviewId);
+    syncCalendarToOrderReview(actionEl.dataset.orderReviewId);
     expandedOrderReviewId = actionEl.dataset.orderReviewId;
     refreshSelection();
     return;
@@ -1570,6 +1601,15 @@ function handleInspectorClick(e) {
 
   if (action === 'order-setup-element-delete') {
     deleteOrderSetupElement(actionEl);
+    return;
+  }
+
+  if (action === 'order-setup-element-select') {
+    selectOrderSetupElement(actionEl.dataset.orderReviewId, actionEl.dataset.orderSetupElement);
+    return;
+  }
+
+  if (action === 'order-setup-element-length') {
     return;
   }
 

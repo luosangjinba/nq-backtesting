@@ -517,35 +517,6 @@ function renderAnchorPanel(setupSet) {
   `;
 }
 
-function renderExecutionPanel(setupSet) {
-  const elements = setupSet?.orderElements || {};
-  const entry = elements.entry || {};
-  const stopLoss = elements.stopLoss || {};
-  const targets = Array.isArray(elements.targets) ? elements.targets : [];
-  const targetRows = targets.length
-    ? targets.map((target) => field(target.role, `${formatTime(target.timestamp)} · ${formatNumber(target.price)}`)).join('')
-    : field('Targets', '—');
-
-  return `
-    <div class="order-review-compact">
-      <div class="order-review-compact-title">Execution</div>
-      ${field('Entry', `${formatTime(entry.timestamp)} · ${formatNumber(entry.price)} · ${labelFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS, entry.model)}`)}
-      ${field('Stop', `${formatTime(stopLoss.timestamp)} · ${formatNumber(stopLoss.price)} · ${stopLoss.reason || '—'}`)}
-      ${targetRows}
-    </div>
-  `;
-}
-
-function getEditableElement(setupSet, role) {
-  const elements = setupSet?.orderElements || {};
-  if (role === 'entry') return elements.entry || null;
-  if (role === 'stopLoss') return elements.stopLoss || null;
-  if (role === 'target1' || role === 'target2' || role === 'target3' || role === 'finalTarget') {
-    return (Array.isArray(elements.targets) ? elements.targets : []).find((target) => target.role === role) || null;
-  }
-  return null;
-}
-
 function getElementLabel(role) {
   if (role === 'entry') return 'Entry';
   if (role === 'stopLoss') return 'Stop Loss';
@@ -556,40 +527,39 @@ function getElementLabel(role) {
   return role || 'Element';
 }
 
-function renderSelectedElementPanel(order, setupSet, selectedElement) {
-  const role = selectedElement?.setupId === order.id ? selectedElement.element : '';
-  const element = getEditableElement(setupSet, role);
-  if (!role || role === 'reversal') {
-    return `
-      <div class="order-review-compact">
-        <div class="order-review-compact-title">Selected Element</div>
-        <div class="drawing-set-empty">Select an entry, stop, or target line on chart.</div>
-      </div>
-    `;
-  }
-  if (!element) {
-    return `
-      <div class="order-review-compact">
-        <div class="order-review-compact-title">Selected Element</div>
-        <div class="drawing-set-empty">Selected element is no longer available.</div>
-      </div>
-    `;
-  }
+function renderExecutionElementRow(order, role, element, selectedElement, extra = '') {
+  if (!element || !Number.isFinite(Number(element.price))) return '';
+  const isSelected = selectedElement?.setupId === order.id && selectedElement?.element === role;
   const length = Number.isFinite(Number(element.lineLengthBars)) ? Number(element.lineLengthBars) : '';
   return `
-    <div class="order-review-compact order-setup-selected-element">
-      <div class="order-review-compact-title">Selected Element</div>
-      ${field('Element', getElementLabel(role))}
-      ${field('Start', formatTime(element.timestamp))}
-      ${field('End', formatTime(element.endTimestamp))}
-      ${field('Price', formatNumber(element.price))}
-      ${controlField(
-        'Length bars',
-        `<input class="inspector-input" data-inspector-action="order-setup-element-length" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="number" min="0" step="1" value="${escapeHtml(length)}" placeholder="default" />`
-      )}
-      <div class="order-review-action-row">
-        <button class="inspector-danger" data-inspector-action="order-setup-element-delete" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="button">Delete ${escapeHtml(getElementLabel(role))}</button>
+    <div class="order-setup-execution-row${isSelected ? ' active' : ''}" data-inspector-action="order-setup-element-select" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}">
+      <div class="order-setup-execution-main">
+        <span class="order-setup-execution-role">${escapeHtml(getElementLabel(role))}</span>
+        <strong>${escapeHtml(formatNumber(element.price))}</strong>
+        <span>${escapeHtml(formatTime(element.timestamp))}${element.endTimestamp ? ` -> ${escapeHtml(formatTime(element.endTimestamp))}` : ''}</span>
+        ${extra ? `<span>${escapeHtml(extra)}</span>` : ''}
       </div>
+      <input class="order-setup-execution-length" data-inspector-action="order-setup-element-length" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="number" min="0" step="1" value="${escapeHtml(length)}" placeholder="Len" title="Length bars fallback" />
+      <button class="order-setup-execution-delete" data-inspector-action="order-setup-element-delete" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="button" title="Delete ${escapeHtml(getElementLabel(role))}">X</button>
+    </div>
+  `;
+}
+
+function renderExecutionPanel(order, setupSet, selectedElement) {
+  const elements = setupSet?.orderElements || {};
+  const entry = elements.entry || {};
+  const stopLoss = elements.stopLoss || {};
+  const targets = Array.isArray(elements.targets) ? elements.targets : [];
+  const rows = [
+    renderExecutionElementRow(order, 'entry', entry, selectedElement, labelFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS, entry.model)),
+    renderExecutionElementRow(order, 'stopLoss', stopLoss, selectedElement, stopLoss.reason || ''),
+    ...targets.map((target) => renderExecutionElementRow(order, target.role, target, selectedElement, target.targetType || '')),
+  ].filter(Boolean);
+
+  return `
+    <div class="order-review-compact order-setup-execution">
+      <div class="order-review-compact-title">Execution</div>
+      ${rows.length ? rows.join('') : '<div class="drawing-set-empty">No execution elements.</div>'}
     </div>
   `;
 }
@@ -665,8 +635,7 @@ function renderActiveOrderSetup(order, options = {}) {
       ${renderActiveHeader(order, setupSet)}
       ${renderActiveActions(order)}
       ${renderAnchorPanel(setupSet)}
-      ${renderExecutionPanel(setupSet)}
-      ${renderSelectedElementPanel(order, setupSet, options.selectedOrderSetupElement)}
+      ${renderExecutionPanel(order, setupSet, options.selectedOrderSetupElement)}
       ${renderReasonRows(order, setupSet)}
       ${renderResultPanel(order, setupSet)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>

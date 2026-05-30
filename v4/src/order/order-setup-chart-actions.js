@@ -34,6 +34,8 @@ import {
   selectOrderSetupElement,
 } from './order-setup-selection.js';
 
+const ORDER_ELEMENT_MAGNET_TOLERANCE_PX = 10;
+
 function getPdaLabel(annotation) {
   if (!annotation) return 'PDA';
   return getPdaType(annotation.type)?.label || annotation.type?.toUpperCase() || 'PDA';
@@ -127,16 +129,53 @@ function getContextPrice(price) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function getValidBarAnchor(context = {}, label = 'Order element') {
+function getMagnetCandidate(context, price, high, low) {
+  const priceToCoordinate = context.priceToCoordinate;
+  if (typeof priceToCoordinate !== 'function') return null;
+  const y = priceToCoordinate(price);
+  const highY = priceToCoordinate(high);
+  const lowY = priceToCoordinate(low);
+  if (y === null || y === undefined || highY === null || highY === undefined || lowY === null || lowY === undefined) {
+    return null;
+  }
+  const highDistance = Math.abs(Number(y) - Number(highY));
+  const lowDistance = Math.abs(Number(y) - Number(lowY));
+  const nearest = highDistance <= lowDistance
+    ? { price: high, label: 'High', distance: highDistance }
+    : { price: low, label: 'Low', distance: lowDistance };
+  return nearest.distance <= ORDER_ELEMENT_MAGNET_TOLERANCE_PX ? nearest : null;
+}
+
+export function getValidBarAnchor(context = {}, label = 'Order element') {
   const price = getContextPrice(context.price);
   const high = Number(context.bar?.high);
   const low = Number(context.bar?.low);
-  if (!context.bar || price === null || !Number.isFinite(high) || !Number.isFinite(low) || price < low || price > high) {
+  if (!context.bar || price === null || !Number.isFinite(high) || !Number.isFinite(low)) {
     bus.emit('status:update', {
-      text: `${label} 必须锚定在某根 K 线的有效 high/low 范围内`,
+      text: `${label} 必须锚定在某根 K 线的有效 high/low 范围内或靠近 high/low`,
       isError: true,
     });
     return null;
+  }
+  if (price < low || price > high) {
+    const magnet = getMagnetCandidate(context, price, high, low);
+    if (!magnet) {
+      bus.emit('status:update', {
+        text: `${label} 必须锚定在 K 线 high/low 范围内，或靠近 high/low 以自动吸附`,
+        isError: true,
+      });
+      return null;
+    }
+    bus.emit('status:update', {
+      text: `${label} snapped to ${magnet.label} ${magnet.price.toFixed(2)}`,
+      isError: false,
+    });
+    return {
+      timestamp: context.bar.timestamp,
+      timeframe: context.timeframe,
+      price: magnet.price,
+      magnet: magnet.label,
+    };
   }
   return {
     timestamp: context.bar.timestamp,

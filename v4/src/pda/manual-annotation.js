@@ -420,6 +420,7 @@ async function handleControlClick(e) {
   } else if (handleOrderSetupChartAction(action, {
     bar: contextMenuBar,
     price: contextMenuPrice,
+    priceToCoordinate: chart.priceToCoordinate,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
