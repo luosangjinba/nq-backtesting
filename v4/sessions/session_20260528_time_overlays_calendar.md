@@ -1178,6 +1178,72 @@ Committed:
 
 - `2474357 feat(v4): hide setup from reversal menu`
 
+## Phase 12 Calendar Setup Row Overflow Menu
+
+Operation Script:
+
+- Step: `147Q`
+- Goal: move Calendar Order Setup row actions into a compact three-dot menu.
+- Boundary: keep existing locate/open/show-hide action semantics.
+
+Planned:
+
+- Render `Locate`, `Open`, and `Hide/Show` inside a row-level overflow menu for setup rows.
+- Keep non-setup row actions unchanged for now.
+- Use native `details/summary` so no new global menu state is needed.
+
+Implemented:
+
+- Calendar `Order Setup` rows now show a compact `...` menu.
+- The menu contains Locate, Open, and Hide/Show.
+- Existing action handlers are reused without changing locate/open/show-hide semantics.
+- Non-setup Calendar object rows keep their existing inline actions.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- Module smoke verified setup row menu contains Locate / Open / Hide.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `14afca4 docs(v4): record reversal hide setup commit`
+- Current uncommitted changes: Step 147Q implementation and operation script updates
+
+## Phase 12 Delete Setup From Calendar And Reversal Menus
+
+Operation Script:
+
+- Step: `147R`
+- Goal: expose whole-setup delete from the compact Calendar setup menu and reversal right-click menu.
+- Boundary: delete the Order Setup object, not just a setup element.
+
+Planned:
+
+- Add Delete to Calendar setup row overflow menu.
+- Add Delete Setup to reversal marker context menu.
+- Use history-backed delete actions.
+
+Implemented:
+
+- Calendar setup overflow menu now includes Delete.
+- Reversal right-click menu now includes Delete Setup.
+- Chart-side Delete Setup deletes the whole order review and clears selected setup element state.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke verified both menus include Delete.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `14afca4 docs(v4): record reversal hide setup commit`
+- Current uncommitted changes: Step 147Q/147R implementation and operation script updates
+
 ## Phase 12 Default Hidden Setups And Helper Line Colors
 
 Operation Script:

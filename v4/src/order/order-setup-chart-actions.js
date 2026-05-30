@@ -19,6 +19,7 @@ import {
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
+  deleteOrderReview,
   getOrderReviewById,
   updateOrderReview,
 } from './order-review-store.js';
@@ -70,6 +71,7 @@ function getHitSetupMenuItems(orderSetupHit) {
       return `
         <button class="pda-menu-item" data-pda-action="order-setup-hit-set-active" data-order-setup-id="${hit.setupId}">${label}</button>
         <button class="pda-menu-item" data-pda-action="order-setup-hit-hide" data-order-setup-id="${hit.setupId}">Hide Setup</button>
+        <button class="pda-menu-item" data-pda-action="order-setup-hit-delete-setup" data-order-setup-id="${hit.setupId}">Delete Setup</button>
       `;
     })
     .join('');
@@ -125,6 +127,14 @@ function deleteOrderSetupElement(setupId, element) {
   recordHistory('Delete Order Setup Element', () => updateOrderReview(setupId, patch));
   clearOrderSetupElementSelection();
   return true;
+}
+
+function deleteOrderSetup(setupId) {
+  const order = getOrderReviewById(setupId);
+  if (!order) return false;
+  const deleted = deleteOrderReview(setupId);
+  clearOrderSetupElementSelection();
+  return deleted;
 }
 
 function setOrderSetupHidden(setupId, hidden) {
@@ -537,6 +547,15 @@ export function handleOrderSetupChartAction(action, context = {}) {
     bus.emit('status:update', {
       text: hidden ? `Order Setup hidden: ${context.orderSetupId}` : 'Order Setup cannot be hidden',
       isError: !hidden,
+    });
+    return true;
+  }
+
+  if (action === 'order-setup-hit-delete-setup') {
+    const deleted = recordHistory('Delete Order Setup', () => deleteOrderSetup(context.orderSetupId));
+    bus.emit('status:update', {
+      text: deleted ? `Order Setup deleted: ${context.orderSetupId}` : 'Order Setup cannot be deleted',
+      isError: !deleted,
     });
     return true;
   }

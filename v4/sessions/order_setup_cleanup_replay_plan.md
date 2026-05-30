@@ -902,6 +902,73 @@ Notes:
 - Reversal marker right-click now offers `Hide Setup`.
 - The exclusive/coexist mode was intentionally removed after review because it can make setup visibility harder to reason about.
 
+### Step 147Q: Calendar Setup Row Overflow Menu
+
+Goal:
+
+- Reduce width pressure in the Calendar `Order Setups` list.
+- Move Locate / Open / Hide(Show) row actions into a compact three-dot menu.
+- Reuse existing action handlers and keep behavior unchanged.
+
+Main files:
+
+- `v4/src/ui/inspector/calendar-panel.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- Module smoke verifies setup rows render a three-dot menu with Locate / Open / Hide.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Implement with native `details/summary` to avoid adding sidebar popover state.
+- Implemented only for Calendar `Order Setup` rows; non-setup row actions remain unchanged.
+- The menu reuses existing `calendar-object-locate`, `calendar-object-open`, and `order-review-toggle-hidden` handlers.
+
+### Step 147R: Delete Setup From Calendar And Reversal Menus
+
+Goal:
+
+- Add Delete to the Calendar Order Setup three-dot menu.
+- Add Delete Setup to the chart reversal right-click menu.
+- Delete the whole Order Setup, not only the reversal element.
+- Reuse existing history and active cleanup behavior.
+
+Main files:
+
+- `v4/src/ui/inspector/calendar-panel.js`
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke verifies Calendar setup menu and reversal menu include Delete actions.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Reversal element delete remains separate for non-reversal helper line elements.
+- Calendar setup menu now contains Locate / Open / Hide(Show) / Delete.
+- Reversal marker right-click now contains Set Active / Hide Setup / Delete Setup.
+- `Delete Setup` deletes the whole order review and clears selected setup element state.
+
 ## Next Step Template
 
 ### Step N: Title

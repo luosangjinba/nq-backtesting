@@ -192,11 +192,70 @@ function getObjectTypeLabel(item) {
   return 'Obj';
 }
 
-function renderObjectRow(item) {
+function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
   const canOpen = ['order-setup', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
   const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
   const setupHidden = Boolean(item.source?.display?.hidden);
+  const typeLabel = getObjectTypeLabel(item);
+  return `
+    <button
+      class="inspector-mini-btn calendar-object-locate"
+      data-inspector-action="calendar-object-locate"
+      data-locate-start="${canLocate ? item.range.start : ''}"
+      data-locate-end="${canLocate ? item.range.end : ''}"
+      data-object-label="${escapeHtml(`${typeLabel} ${item.label}`)}"
+      type="button"
+      ${canLocate ? '' : 'disabled'}
+    >Locate</button>
+    ${
+      canOpen
+        ? `<button
+            class="inspector-mini-btn calendar-object-open"
+            data-inspector-action="calendar-object-open"
+            data-object-type="${escapeHtml(item.ref.type)}"
+            data-object-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >Open</button>`
+        : ''
+    }
+    ${
+      canToggleSetup
+        ? `<button
+            class="inspector-mini-btn calendar-object-open"
+            data-inspector-action="order-review-toggle-hidden"
+            data-order-review-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >${setupHidden ? 'Show' : 'Hide'}</button>`
+        : ''
+    }
+    ${
+      canToggleSetup
+        ? `<button
+            class="inspector-mini-btn calendar-object-open calendar-object-delete"
+            data-inspector-action="order-review-delete"
+            data-order-review-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >Delete</button>`
+        : ''
+    }
+  `;
+}
+
+function renderObjectActions(item) {
+  const actionButtons = renderObjectActionButtons(item);
+  if (item.ref?.type !== 'order-setup') {
+    return `<div class="calendar-object-actions">${actionButtons}</div>`;
+  }
+  return `
+    <details class="calendar-object-menu">
+      <summary class="calendar-object-menu-trigger" aria-label="Order Setup actions">...</summary>
+      <div class="calendar-object-menu-panel">${actionButtons}</div>
+    </details>
+  `;
+}
+
+function renderObjectRow(item) {
   const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   return `
@@ -206,38 +265,7 @@ function renderObjectRow(item) {
         <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
-      <div class="calendar-object-actions">
-        <button
-          class="inspector-mini-btn calendar-object-locate"
-          data-inspector-action="calendar-object-locate"
-          data-locate-start="${canLocate ? item.range.start : ''}"
-          data-locate-end="${canLocate ? item.range.end : ''}"
-          data-object-label="${escapeHtml(`${typeLabel} ${item.label}`)}"
-          type="button"
-          ${canLocate ? '' : 'disabled'}
-        >Locate</button>
-        ${
-          canOpen
-            ? `<button
-                class="inspector-mini-btn calendar-object-open"
-                data-inspector-action="calendar-object-open"
-                data-object-type="${escapeHtml(item.ref.type)}"
-                data-object-id="${escapeHtml(item.ref.id)}"
-                type="button"
-              >Open</button>`
-            : ''
-        }
-        ${
-          canToggleSetup
-            ? `<button
-                class="inspector-mini-btn calendar-object-open"
-                data-inspector-action="order-review-toggle-hidden"
-                data-order-review-id="${escapeHtml(item.ref.id)}"
-                type="button"
-              >${setupHidden ? 'Show' : 'Hide'}</button>`
-            : ''
-        }
-      </div>
+      ${renderObjectActions(item)}
     </div>
   `;
 }

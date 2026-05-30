@@ -537,6 +537,53 @@ html, body {
   gap: 4px;
 }
 
+.calendar-object-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.calendar-object-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.calendar-object-menu-trigger {
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #1e222d;
+  color: #b2b5be;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.calendar-object-menu-panel {
+  position: absolute;
+  right: 0;
+  z-index: 8;
+  display: none;
+  min-width: 76px;
+  padding: 4px;
+  border: 1px solid rgba(54, 58, 69, 0.95);
+  border-radius: 4px;
+  background: #131722;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+}
+
+.calendar-object-menu[open] .calendar-object-menu-panel {
+  display: grid;
+  gap: 4px;
+}
+
+.calendar-object-menu-panel .inspector-mini-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 .calendar-object-row + .calendar-object-row {
   border-top: 1px solid rgba(42, 46, 57, 0.7);
   margin-top: 3px;
