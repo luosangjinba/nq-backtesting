@@ -3,18 +3,24 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
+import { getPrimaryChartContext } from '../chart/chart-context.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { timeframeToString } from '../config.js';
-import { buildCePrice } from '../price-utils.js';
-import { addAnnotation, clearAnnotations, getAnnotationById } from './pda-store.js';
-import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
-import { clearPdaContextDataCache, fetchTradingDaySourceBars } from './pda-context-data.js';
-import { identifyFvg } from './fvg-identifier.js';
-import { validateManualSwing } from './pda-swing-validator.js';
+import { clearAnnotations, getAnnotationById } from './pda-store.js';
+import { clearPdaContextDataCache } from './pda-context-data.js';
 import { getPdaType } from './pda-types.js';
 import { hitTestPdaAnnotations } from './pda-hit-test.js';
 import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
+import {
+  addManualFib as addManualFibAction,
+  addManualFvg as addManualFvgAction,
+  addManualPoint as addManualPointAction,
+  addManualRange as addManualRangeAction,
+  addManualWickCe as addManualWickCeAction,
+  findDisplayBarInContext,
+  getBarChartTime as getContextBarChartTime,
+} from './manual-pda-actions.js';
 import {
   cancelSegmentSelection,
   clearManualSegments,
@@ -79,27 +85,12 @@ let contextMenuSegmentGroupHit = null;
 let rangeSelectionState = null;
 let fibSelectionState = null;
 
-const DEFAULT_FIB_LEVELS = [
-  { value: 1, visible: true, color: '#60636f' },
-  { value: 0.79, visible: true, color: '#00a6b4' },
-  { value: 0.705, visible: true, color: '#ffa726' },
-  { value: 0.62, visible: true, color: '#4caf50' },
-  { value: 0.5, visible: true, color: '#ff4d5d' },
-  { value: 0.236, visible: true, color: '#ab47bc' },
-  { value: 0, visible: true, color: '#60636f' },
-];
-
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
+function getPrimaryContext() {
+  return getPrimaryChartContext();
 }
 
 function getBarChartTime(bar) {
-  return store.getCurrentTimeframe() === 1440 ? bar.tradingDay : bar.timestamp;
+  return getContextBarChartTime(getPrimaryContext(), bar);
 }
 
 function getBarEventTime(bar) {
@@ -163,230 +154,7 @@ function promptKillzoneLabel(defaultLabel = 'Killzone') {
 }
 
 function findDisplayBar(time) {
-  if (time === undefined || time === null) return null;
-  const target = normalizeTimeKey(time);
-  return (
-    store
-      .getDisplayBars()
-      .find((bar) => normalizeTimeKey(getBarChartTime(bar)) === target) || null
-  );
-}
-
-async function addManualPoint(type, bar) {
-  const pdaType = getPdaType(type);
-  if (!pdaType || !bar) return;
-
-  const timeframe = store.getCurrentTimeframe();
-  let contextBars = store.getDisplayBars();
-  try {
-    contextBars = await fetchTradingDaySourceBars(bar.timestamp);
-  } catch (err) {
-    bus.emit('status:update', {
-      text: `PDA 1M context source 加载失败，暂用当前显示区间: ${err.message}`,
-      isError: true,
-    });
-  }
-
-  const contexts = buildPointContexts(type, bar, timeframe, contextBars);
-  const price = bar[pdaType.priceField];
-  const canonicalTimestamp = getPointCanonicalTimestamp(type, bar, timeframe, contextBars);
-  const validation = validateManualSwing(type, bar, timeframe, store.getDisplayBars());
-  const annotation = {
-    id: `manual_${type}_${canonicalTimestamp}_${Date.now()}`,
-    type,
-    source: 'manual',
-    anchorTime: getBarChartTime(bar),
-    canonicalTimestamp,
-    timestamp: bar.timestamp,
-    barTime: bar.time,
-    price,
-    contexts,
-    validation,
-  };
-
-  await recordHistory(`Mark ${pdaType.label}`, () => addAnnotation(annotation));
-  hideContextMenu();
-
-  const contextLabel = formatContextLabel(contexts);
-  const validationPrefix =
-    validation.checked && !validation.valid ? `Warning: ${validation.message}; marked anyway. ` : '';
-  bus.emit('status:update', {
-    text: `${validationPrefix}${pdaType.label}: ${price.toFixed(2)} ${bar.tradingDay || bar.time}${
-      contextLabel ? ` · ${contextLabel}` : ''
-    }`,
-    isError: validation.checked && !validation.valid,
-  });
-}
-
-function getFvgColors(direction) {
-  return direction === 'bullish'
-    ? { fillColor: '#26a69a33', borderColor: 'transparent', midlineColor: '#26a69a', textColor: '#b2dfdb' }
-    : { fillColor: '#ef535033', borderColor: 'transparent', midlineColor: '#ef5350', textColor: '#ffcdd2' };
-}
-
-function getIfvgColors() {
-  return {
-    fillColor: '#fdd83533',
-    borderColor: 'transparent',
-    midlineColor: '#fdd835',
-    textColor: '#fff9c4',
-  };
-}
-
-function invertDirection(direction) {
-  if (direction === 'bullish') return 'bearish';
-  if (direction === 'bearish') return 'bullish';
-  return direction;
-}
-
-function addManualFvg(bar, type = 'fvg') {
-  const pdaType = getPdaType(type);
-  if (!pdaType || !bar) return;
-
-  const result = identifyFvg(store.getDisplayBars(), bar);
-  if (!result) {
-    hideContextMenu();
-    bus.emit('status:update', { text: `未识别到 ${pdaType.label} 结构`, isError: true });
-    return;
-  }
-
-  const tfLabel = timeframeToString(store.getCurrentTimeframe());
-  const direction = type === 'ifvg' ? invertDirection(result.direction) : result.direction;
-  const contexts = [`${tfLabel} ${pdaType.label}`];
-  const colors = type === 'ifvg' ? getIfvgColors() : getFvgColors(direction);
-  const annotation = {
-    id: `manual_${type}_${result.anchorBar.timestamp}_${Date.now()}`,
-    type,
-    source: 'manual',
-    direction,
-    anchorTime: getBarChartTime(result.anchorBar),
-    canonicalTimestamp: result.anchorBar.timestamp,
-    timestamp: result.anchorBar.timestamp,
-    barTime: result.anchorBar.time,
-    startTime: getBarChartTime(result.startBar),
-    endTime: getBarChartTime(result.endBar),
-    topPrice: result.topPrice,
-    bottomPrice: result.bottomPrice,
-    ce: buildCePrice(result.topPrice, result.bottomPrice),
-    contexts,
-    ...colors,
-  };
-
-  recordHistory(`Mark ${pdaType.label}`, () => addAnnotation(annotation));
-  hideContextMenu();
-
-  bus.emit('status:update', {
-    text: `${pdaType.label}: ${direction} ${result.bottomPrice.toFixed(2)}-${result.topPrice.toFixed(2)} ${result.anchorBar.tradingDay || result.anchorBar.time}`,
-    isError: false,
-  });
-}
-
-function getWickCe(bar, side) {
-  if (!bar) return null;
-  const open = Number(bar.open);
-  const close = Number(bar.close);
-  const high = Number(bar.high);
-  const low = Number(bar.low);
-  if (![open, close, high, low].every(Number.isFinite)) return null;
-
-  const bodyHigh = Math.max(open, close);
-  const bodyLow = Math.min(open, close);
-
-  if (side === 'upper') {
-    const wickPoints = high - bodyHigh;
-    if (wickPoints <= 0) return null;
-    return {
-      price: (high + bodyHigh) / 2,
-      wickSide: 'upper',
-      wickPoints,
-      bodyHigh,
-      bodyLow,
-      high,
-      low,
-    };
-  }
-
-  const wickPoints = bodyLow - low;
-  if (wickPoints <= 0) return null;
-  return {
-    price: (low + bodyLow) / 2,
-    wickSide: 'lower',
-    wickPoints,
-    bodyHigh,
-    bodyLow,
-    high,
-    low,
-  };
-}
-
-function addManualWickCe(side, bar) {
-  const pdaType = getPdaType('wick-ce');
-  if (!pdaType || !bar) return;
-
-  const wickCe = getWickCe(bar, side);
-  const tfLabel = timeframeToString(store.getCurrentTimeframe());
-  const sideLabel = side === 'upper' ? 'Upper' : 'Lower';
-  if (!wickCe) {
-    hideContextMenu();
-    bus.emit('status:update', { text: `${tfLabel} ${sideLabel} Wick CE 无有效影线`, isError: true });
-    return;
-  }
-
-  const annotation = {
-    id: `manual_wick_ce_${side}_${store.getCurrentTimeframe()}_${bar.timestamp}_${Date.now()}`,
-    type: 'wick-ce',
-    source: 'manual',
-    timeframe: tfLabel,
-    wickSide: wickCe.wickSide,
-    anchorTime: getBarChartTime(bar),
-    canonicalTimestamp: bar.timestamp,
-    timestamp: bar.timestamp,
-    barTime: bar.time,
-    price: wickCe.price,
-    wickPoints: wickCe.wickPoints,
-    bodyHigh: wickCe.bodyHigh,
-    bodyLow: wickCe.bodyLow,
-    high: wickCe.high,
-    low: wickCe.low,
-    contexts: [`${tfLabel} ${sideLabel} Wick CE`],
-  };
-
-  recordHistory(`Mark ${sideLabel} Wick CE`, () => addAnnotation(annotation));
-  hideContextMenu();
-
-  bus.emit('status:update', {
-    text: `${tfLabel} ${sideLabel} Wick CE: ${wickCe.price.toFixed(2)} ${bar.tradingDay || bar.time}`,
-    isError: false,
-  });
-}
-
-function getManualRangeColors(type, direction) {
-  if (type === 'breaker') {
-    return direction === 'bullish'
-      ? { fillColor: '#00acc124', borderColor: 'transparent', textColor: '#ffab91' }
-      : { fillColor: '#ff704324', borderColor: 'transparent', textColor: '#ffab91' };
-  }
-
-  return direction === 'bullish'
-    ? { fillColor: '#26a69a24', borderColor: 'transparent', textColor: '#ffcc80' }
-    : { fillColor: '#ef535024', borderColor: 'transparent', textColor: '#ffcc80' };
-}
-
-function getDisplayBarIndex(bar) {
-  if (!bar) return -1;
-  return store.getDisplayBars().findIndex((candidate) => candidate.timestamp === bar.timestamp);
-}
-
-function getSelectedRangeBars(startBar, endBar) {
-  const displayBars = store.getDisplayBars();
-  const startIndex = getDisplayBarIndex(startBar);
-  const endIndex = getDisplayBarIndex(endBar);
-
-  if (startIndex < 0 || endIndex < 0) return [];
-
-  const from = Math.min(startIndex, endIndex);
-  const to = Math.max(startIndex, endIndex);
-  return displayBars.slice(from, to + 1);
+  return findDisplayBarInContext(getPrimaryContext(), time);
 }
 
 function startManualRange(type, direction, bar) {
@@ -410,55 +178,15 @@ function startManualRange(type, direction, bar) {
 
 function addManualRange(endBar) {
   if (!rangeSelectionState || !endBar) return;
-
-  const rangeBars = getSelectedRangeBars(rangeSelectionState.startBar, endBar);
-  const pdaType = getPdaType(rangeSelectionState.type);
-  if (!rangeBars.length) {
+  const added = addManualRangeAction(rangeSelectionState, endBar, getPrimaryContext());
+  if (!added) {
     rangeSelectionState = null;
     hideContextMenu();
-    bus.emit('status:update', { text: `${pdaType?.label || 'Range PDA'} 区间选择失败：未找到 K 线`, isError: true });
     return;
   }
 
-  const timeframe = store.getCurrentTimeframe();
-  const tfLabel = timeframeToString(timeframe);
-  const type = rangeSelectionState.type;
-  const direction = rangeSelectionState.direction;
-  const startBar = rangeBars[0];
-  const lastBar = rangeBars[rangeBars.length - 1];
-  const topPrice = Math.max(...rangeBars.map((bar) => bar.high));
-  const bottomPrice = Math.min(...rangeBars.map((bar) => bar.low));
-  const contexts = [`${tfLabel} ${direction} ${pdaType?.label || type}`];
-  const annotation = {
-    id: `manual_${type}_${startBar.timestamp}_${lastBar.timestamp}_${Date.now()}`,
-    type,
-    source: 'manual',
-    direction,
-    anchorTime: getBarChartTime(startBar),
-    canonicalTimestamp: startBar.timestamp,
-    timestamp: startBar.timestamp,
-    barTime: startBar.time,
-    startTime: getBarChartTime(startBar),
-    endTime: getBarChartTime(lastBar),
-    startTimeTimestamp: startBar.timestamp,
-    endTimeTimestamp: lastBar.timestamp,
-    topPrice,
-    bottomPrice,
-    priceHigh: topPrice,
-    priceLow: bottomPrice,
-    ce: buildCePrice(topPrice, bottomPrice),
-    contexts,
-    ...getManualRangeColors(type, direction),
-  };
-
-  recordHistory(`Mark ${pdaType?.label || type}`, () => addAnnotation(annotation));
   rangeSelectionState = null;
   hideContextMenu();
-
-  bus.emit('status:update', {
-    text: `${pdaType?.label || type}: ${direction} ${bottomPrice.toFixed(2)}-${topPrice.toFixed(2)} (${rangeBars.length}根${tfLabel})`,
-    isError: false,
-  });
 }
 
 function startManualFib(bar) {
@@ -475,63 +203,15 @@ function startManualFib(bar) {
 
 function addManualFib(endBar) {
   if (!fibSelectionState || !endBar) return;
-
-  const startBar = fibSelectionState.startBar;
-  const bullishMove = Math.abs(Number(endBar.high) - Number(startBar.low));
-  const bearishMove = Math.abs(Number(startBar.high) - Number(endBar.low));
-  const direction = bullishMove >= bearishMove ? 'bullish' : 'bearish';
-  const startPrice = direction === 'bullish' ? Number(startBar.low) : Number(startBar.high);
-  const endPrice = direction === 'bullish' ? Number(endBar.high) : Number(endBar.low);
-  if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice) || startBar.timestamp === endBar.timestamp) {
+  const added = addManualFibAction(fibSelectionState, endBar, getPrimaryContext());
+  if (!added) {
     fibSelectionState = null;
     hideContextMenu();
-    bus.emit('status:update', { text: 'Fib 选择失败：起点/终点无效', isError: true });
     return;
   }
 
-  const tfLabel = timeframeToString(store.getCurrentTimeframe());
-  const annotation = {
-    id: `manual_fib_${startBar.timestamp}_${endBar.timestamp}_${Date.now()}`,
-    type: 'fib',
-    source: 'manual',
-    direction,
-    anchorTime: getBarChartTime(startBar),
-    canonicalTimestamp: startBar.timestamp,
-    timestamp: startBar.timestamp,
-    barTime: startBar.time,
-    startTime: getBarChartTime(startBar),
-    endTime: getBarChartTime(endBar),
-    startTimeTimestamp: startBar.timestamp,
-    endTimeTimestamp: endBar.timestamp,
-    start: {
-      time: getBarChartTime(startBar),
-      timestamp: startBar.timestamp,
-      price: startPrice,
-      kind: direction === 'bullish' ? 'low' : 'high',
-    },
-    end: {
-      time: getBarChartTime(endBar),
-      timestamp: endBar.timestamp,
-      price: endPrice,
-      kind: direction === 'bullish' ? 'high' : 'low',
-    },
-    levels: DEFAULT_FIB_LEVELS.map((level) => ({ ...level })),
-    display: {
-      showLabels: true,
-      showTrendLine: false,
-      extend: 'none',
-    },
-    contexts: [`${tfLabel} ${direction} Fib`],
-  };
-
-  recordHistory('Mark Fib', () => addAnnotation(annotation));
   fibSelectionState = null;
   hideContextMenu();
-
-  bus.emit('status:update', {
-    text: `Fib: ${direction} ${startPrice.toFixed(2)} → ${endPrice.toFixed(2)}`,
-    isError: false,
-  });
 }
 
 function locateSecondaryAtBar(bar) {
@@ -727,7 +407,8 @@ async function handleControlClick(e) {
   e.stopPropagation();
 
   if (action === 'bsl' || action === 'ssl') {
-    await addManualPoint(action, contextMenuBar);
+    await addManualPointAction(action, contextMenuBar, getPrimaryContext());
+    hideContextMenu();
   } else if (handleOrderSetupChartAction(action, {
     bar: contextMenuBar,
     price: contextMenuPrice,
@@ -738,11 +419,14 @@ async function handleControlClick(e) {
   })) {
     hideContextMenu();
   } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {
-    addManualWickCe(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar);
+    addManualWickCeAction(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar, getPrimaryContext());
+    hideContextMenu();
   } else if (action === 'fvg') {
-    addManualFvg(contextMenuBar);
+    addManualFvgAction(contextMenuBar, getPrimaryContext());
+    hideContextMenu();
   } else if (action === 'ifvg') {
-    addManualFvg(contextMenuBar, 'ifvg');
+    addManualFvgAction(contextMenuBar, getPrimaryContext(), 'ifvg');
+    hideContextMenu();
   } else if (action === 'secondary-locate-time') {
     locateSecondaryAtBar(contextMenuBar);
     hideContextMenu();

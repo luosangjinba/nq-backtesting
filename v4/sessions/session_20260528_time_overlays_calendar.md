@@ -56,6 +56,11 @@
   - exposes primary and secondary context descriptors with chart/series access, display bars, all bars, timeframe, coordinate conversion, primitive attach/clear, and basic event subscription hooks
   - primary context remains the writable default surface
   - secondary context is explicitly marked `readonly=true` as a foundation for future opt-in write actions
+- Phase 10 Step 119 PDA action extraction:
+  - added `v4/src/pda/manual-pda-actions.js`
+  - moved PDA creation logic for BSL/SSL, FVG/IFVG, Wick CE, range PDA, and Fib into context-aware action helpers
+  - `manual-annotation.js` now calls those helpers with `getPrimaryChartContext()`, so the current right-click workflow still targets the primary chart only
+  - range/Fib selection state and context-menu ownership remain in `manual-annotation.js`
 
 ## Decisions
 
@@ -73,6 +78,7 @@
 - In Replay mode, a higher-timeframe secondary candle must not reveal future intrabar prices. Use lower-timeframe replay source bars to build a partial current candle whenever the secondary timeframe is higher than 1M.
 - Secondary chart PDA/segment work should start by making chart ownership explicit. Existing modules should keep primary chart behavior until they are intentionally converted to accept a chart context.
 - Step 118 is an architecture boundary only; it should not wire new context into user workflows yet.
+- Step 119 keeps user-visible write behavior on the primary chart. Secondary chart creation must still wait for a dedicated secondary context menu and explicit enablement.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -91,6 +97,9 @@
   - `v4/src/ui/inspector-sidebar.js`
   - `v4/src/ui/secondary-chart-controller.js`
 - Module import probe verified chart context exports return `primary` and `secondary` descriptors with expected helper functions.
+- `node --check` passed for `v4/src/pda/manual-pda-actions.js` and `v4/src/pda/manual-annotation.js` after PDA action extraction.
+- Module import probe verified `manual-pda-actions.js` exports the expected context-aware helper functions.
+- Headless Chrome smoke verified the primary chart context menu still opens after Step 119 and includes PDA actions for BSL, SSL, FVG, and Fib.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -103,8 +112,7 @@
   - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
 - Current uncommitted changes:
-  - Split Replay high-timeframe secondary progressive candle implementation
-  - Phase 10 Step 118 chart context foundation
+  - Phase 10 Step 119 PDA action extraction
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -114,5 +122,5 @@
 
 ## Next Steps
 
-- Step 119: extract PDA creation actions so the current primary chart path can call through a context-aware helper without behavior changes.
-- Then implement secondary context menu and secondary PDA MVP only after Step 119 is stable.
+- Step 120: implement secondary context menu MVP, using the chart context boundary without enabling PDA writes beyond the intended first actions.
+- Then implement secondary PDA MVP only after the menu ownership and event routing are stable.
