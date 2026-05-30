@@ -249,8 +249,6 @@ function renderEmpty({ preserveCalendarReturn = false } = {}) {
       createAction: 'order-review-create-empty',
       createLabel: 'Create Order Setup',
     }))}
-    ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
-    ${renderDrawingSetList()}
     ${renderArchiveActions()}
   `;
 }
@@ -263,7 +261,6 @@ function renderArchivePanel() {
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions())}
-    ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
     ${renderArchiveActions()}
   `;
 }

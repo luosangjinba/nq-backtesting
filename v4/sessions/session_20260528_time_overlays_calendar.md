@@ -538,3 +538,24 @@ Current Git State:
 Next Steps:
 
 - Run final diff check, then decide whether to commit this show/hide step or continue into Calendar-driven SMT/Structure list cleanup.
+
+## Phase 12 Inspector Navigation Cleanup
+
+Completed:
+
+- Removed default Inspector rendering of the full SMT panel from empty/archive states.
+- Removed default Inspector rendering of the Structure Sets list from empty state.
+- Calendar remains the object index for SMT, Segments, and Composite; `Open` still routes to the relevant object detail/selection.
+- Archive tools now render inside a collapsed `Import / Export` details block so they stay available without dominating the side panel.
+- Active Order Setup remains visible in the empty Inspector state.
+
+Validation pending:
+
+- `node --check v4/src/ui/inspector/archive-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `86f947b feat(v4): toggle order setup visibility`
+- Current uncommitted changes: Calendar-driven Inspector navigation cleanup and TODO/session updates
