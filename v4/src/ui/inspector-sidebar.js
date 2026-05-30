@@ -81,7 +81,7 @@ import {
   getPdaOrderRefLabel,
   getSegmentOrderRefLabel,
 } from '../order/order-ref-metadata.js';
-import { locateReviewSet } from '../order/order-review-set.js';
+import { locateSetupSet } from '../order/setup-set.js';
 import {
   EVIDENCE_TYPES,
   buildDefaultActorFromSegment,
@@ -752,7 +752,7 @@ function getPickedPrice(bar, currentPrice, source) {
 }
 
 function locateOrderReview(order) {
-  if (!locateReviewSet(order?.id, viewport.locateTimestampRange)) {
+  if (!locateSetupSet(order?.id, viewport.locateTimestampRange)) {
     bus.emit('status:update', { text: '该 Order Setup 没有可定位时间', isError: true });
     return;
   }

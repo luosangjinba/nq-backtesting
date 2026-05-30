@@ -582,3 +582,28 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `8c521d3 feat(v4): focus inspector on calendar navigation`
 - Current uncommitted changes: Order Setup linked refs cleanup and TODO/session updates
+
+## Phase 12 Order Setup Renderer Locate Validation
+
+Completed:
+
+- Verified Order Setup renderer still renders reversal through `BarMarkerPrimitive` as a single-bar triangle marker instead of a price line.
+- Verified entry, stop, targets, risk zone, result helper, hidden setup skip, and active setup color/width paths remain wired in `order-review-renderer.js`.
+- Switched Inspector `Locate` for Order Setup from the legacy `order-review-set` adapter to the current `setup-set` runtime locator.
+- Verified `locateSetupSet()` range calculation covers reversal, entry, and result timestamps.
+- Calendar object locate still routes through the shared primary and secondary viewport locate calls; no code change was needed there.
+
+Validation:
+
+- `node --check v4/src/chart/primitives.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-set.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verified Order Setup locate returns the expected Setup Set time range.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `a12d310 feat(v4): clean up order setup linked refs`
+- Current uncommitted changes: Order Setup locate adapter cleanup and TODO/session updates

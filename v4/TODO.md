@@ -211,7 +211,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 139: Inspector Order Setup 面板整顿：默认只显示 active/current setup，不再罗列全部 setup；order elements、explanation elements 和少量动作保留在当前 active setup 中；Advanced Edit 继续折叠，创建/删除/active/locate/show-hide 文案统一为 Order Setup；支持单个 setup 显/隐以处理多 setup 重叠
 - [x] Step 140: Order Setup linked refs 整顿：统一 PDA/Segment/Composite/SMT ref label、source metadata、去重与删除交互；确保副图来源信息在 Inspector 中可读
 - [x] Step 140A: Inspector 导航收敛：默认空状态只保留 Calendar + Active Order Setup + 折叠 Archive；不再常驻罗列 SMT Evidence / Structure Sets，相关对象通过 Calendar Open 或图表选择进入详情
-- [ ] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
+- [x] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
 - [ ] Step 142: 持久化兼容验证：localStorage、Review JSON import/export、undo/redo 仍使用 `orderReviews` schema；`display.hidden` 兼容旧数据且 import/export 不丢失；外层 UI 语言切换为 Order Setup 不破坏旧数据
 - [ ] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录
 
