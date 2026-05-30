@@ -230,6 +230,9 @@ export function createSetupSetFromOrderReview(order) {
     range,
     orderElements,
     explanationElements,
+    display: {
+      ...(order.display || {}),
+    },
     metadata: {
       createdAt: order.createdAt || null,
       updatedAt: order.updatedAt || null,

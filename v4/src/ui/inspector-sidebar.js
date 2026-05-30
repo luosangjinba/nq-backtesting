@@ -1410,6 +1410,22 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'order-review-toggle-hidden') {
+    const order = getOrderReviewById(actionEl.dataset.orderReviewId);
+    if (!order) return;
+    const hidden = !order.display?.hidden;
+    recordInspectorHistory(hidden ? 'Hide Order Setup' : 'Show Order Setup', () =>
+      updateOrderReview(order.id, {
+        display: {
+          ...(order.display || {}),
+          hidden,
+        },
+      })
+    );
+    refreshSelection();
+    return;
+  }
+
   if (action === 'order-review-delete') {
     recordInspectorHistory('Delete Order Setup', () => deleteOrderReview(actionEl.dataset.orderReviewId));
     return;

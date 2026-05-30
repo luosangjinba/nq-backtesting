@@ -508,3 +508,33 @@ Validation:
 Next Steps:
 
 - Commit the Phase 12 base cleanup, then plan Order Setups show/hide before implementation.
+
+## Phase 12 Order Setup Show Hide
+
+Completed:
+
+- Added per-setup visibility state as `order.display.hidden` in the existing `orderReviews` compatibility schema.
+- Normalization now defaults missing display data to `{ hidden: false }`, preserving old localStorage and Review JSON records.
+- `setup-set.js` carries the display state into the derived Setup Set tree.
+- Order Setup renderer skips hidden setup sets, so overlapping setups can be removed from the chart without deleting them.
+- Active Order Setup Inspector actions now include `Hide` / `Show`.
+- Hidden setups remain available through Calendar because Calendar still indexes the stored order review/setup set data.
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verified `display.hidden` normalize/update behavior, Setup Set display projection, and Inspector `Show` / `Hide` action rendering.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `55bc770 feat(v4): simplify order setup inspector focus`
+- Current uncommitted changes: Order Setup show/hide support and TODO/session updates
+
+Next Steps:
+
+- Run final diff check, then decide whether to commit this show/hide step or continue into Calendar-driven SMT/Structure list cleanup.

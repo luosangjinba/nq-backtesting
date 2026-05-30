@@ -210,6 +210,8 @@ function getLineLabelDirection(direction) {
 }
 
 function renderSetupSet(setupSet, isActive = false) {
+  if (setupSet.display?.hidden) return;
+
   const elements = setupSet.orderElements || {};
   const reversal = elements.reversal || {};
   const entry = elements.entry || {};

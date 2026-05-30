@@ -341,6 +341,7 @@ function cloneOrderReview(order) {
     },
     entryPlan: { ...order.entryPlan },
     resultReview: { ...order.resultReview },
+    display: { ...(order.display || {}) },
   };
 }
 
@@ -375,6 +376,10 @@ function mergeOrderReviewPatch(existing, patch = {}) {
     resultReview: {
       ...(existing.resultReview || {}),
       ...(safePatch.resultReview || {}),
+    },
+    display: {
+      ...(existing.display || {}),
+      ...(safePatch.display || {}),
     },
   };
 }
@@ -592,6 +597,12 @@ export function normalizeResultReview(input = {}, entryPlan = {}) {
   };
 }
 
+export function normalizeOrderDisplay(input = {}) {
+  return {
+    hidden: normalizeBoolean(input.hidden, false),
+  };
+}
+
 export function getOrderReviewIdentity(order = {}) {
   const setupEventTimestamp = normalizeTimestamp(order.setupThesis?.primaryEventTimestamp);
   const entryTimestamp = normalizeTimestamp(order.entryPlan?.entryTimestamp, setupEventTimestamp);
@@ -637,6 +648,7 @@ export function normalizeOrderReview(input = {}, options = {}) {
     setupThesis,
     entryPlan,
     resultReview,
+    display: normalizeOrderDisplay(input.display),
     note: normalizeNote(input.note),
   };
 

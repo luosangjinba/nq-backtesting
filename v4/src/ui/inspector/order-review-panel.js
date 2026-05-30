@@ -358,12 +358,14 @@ function renderOrderEditor(order, options = {}) {
 
 function renderOrderActions(order, options = {}) {
   const isActive = options.activeOrderReviewId === order.id;
+  const isHidden = Boolean(order.display?.hidden);
   return `
     <div class="order-review-action-row">
       <button class="inspector-secondary" data-inspector-action="${isActive ? 'order-review-clear-active' : 'order-review-set-active'}" data-order-review-id="${escapeHtml(order.id)}" type="button">
         ${isActive ? 'Clear Active' : 'Set Active'}
       </button>
       <button class="inspector-secondary" data-inspector-action="order-review-locate" data-order-review-id="${escapeHtml(order.id)}" type="button">Locate</button>
+      <button class="inspector-secondary" data-inspector-action="order-review-toggle-hidden" data-order-review-id="${escapeHtml(order.id)}" type="button">${isHidden ? 'Show' : 'Hide'}</button>
       <button class="inspector-danger" data-inspector-action="order-review-delete" data-order-review-id="${escapeHtml(order.id)}" type="button">Delete</button>
     </div>
     <details class="order-review-quick-edit">
@@ -396,6 +398,7 @@ function renderOrderRow(order, options = {}) {
   const meta = [
     'Setup Set',
     entry.timeframe || reversal.timeframe || '—',
+    order.display?.hidden ? 'Hidden' : 'Visible',
     `Updated ${formatDateTimeMs(order.updatedAt)}`,
   ].join(' · ');
   const isActive = options.activeOrderReviewId === order.id;
