@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
+import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getBucketStart } from '../pda/pda-context.js';
 import { ORDER_DIRECTIONS } from './order-review-store.js';
 import { getActiveReviewSetId } from './order-review-active.js';
@@ -80,6 +80,30 @@ function renderPriceHelper(timestamp, price, label, color, position = 'right') {
         lineLength: 10,
         lineWidth: 1,
         labelFont: '11px sans-serif',
+        showLabel: true,
+      }
+    )
+  );
+}
+
+function renderReversalMarker(reversal, direction, isActive = false) {
+  const time = mapTimestampToCurrentChartTime(reversal?.timestamp);
+  const parsedPrice = Number(reversal?.price);
+  if (time === null || !Number.isFinite(parsedPrice)) return;
+
+  const position = direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below';
+  attachPrimitive(
+    new BarMarkerPrimitive(
+      chart.getChart(),
+      chart.getSeries(),
+      time,
+      parsedPrice,
+      {
+        color: isActive ? '#ffd180' : SETUP_COLOR,
+        textColor: isActive ? '#ffe0b2' : SETUP_COLOR,
+        label: 'Reversal',
+        position,
+        size: isActive ? 7 : 6,
         showLabel: true,
       }
     )
@@ -197,13 +221,7 @@ function renderSetupSet(setupSet, isActive = false) {
   const entryColor = isActive ? ACTIVE_ENTRY_COLOR : ENTRY_TEXT_COLOR;
   const targetColors = isActive ? ACTIVE_TARGET_COLORS : TARGET_COLORS;
 
-  if (
-    Number.isFinite(Number(reversal.price)) &&
-    reversal.timestamp &&
-    reversal.timestamp !== entryTimestamp
-  ) {
-    renderPriceHelper(reversal.timestamp, reversal.price, 'Reversal', SETUP_COLOR, 'above');
-  }
+  renderReversalMarker(reversal, direction, isActive);
 
   if (Number.isFinite(Number(entry.price))) {
     renderPlanLine(

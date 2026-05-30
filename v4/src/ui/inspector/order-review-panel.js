@@ -419,11 +419,12 @@ function renderOrderRow(order, options = {}) {
 export function renderOrderReviewPanel(orderReviews = [], options = {}) {
   const createAction = options.createAction || '';
   const createButton = createAction
-    ? `<button class="inspector-secondary" data-inspector-action="${escapeHtml(createAction)}" type="button">${escapeHtml(options.createLabel || 'Create Order Review')}</button>`
+    ? `<button class="inspector-secondary" data-inspector-action="${escapeHtml(createAction)}" type="button">${escapeHtml(options.createLabel || 'Create Order Setup')}</button>`
     : '';
-  const content = orderReviews.length
-    ? `<div class="inspector-evidence-list">${orderReviews.map((order) => renderOrderRow(order, options)).join('')}</div>`
-    : '<div class="drawing-set-empty">No Review Sets yet.</div>';
+  const activeOrder = orderReviews.find((order) => order.id === options.activeOrderReviewId) || null;
+  const content = activeOrder
+    ? `<div class="inspector-evidence-list">${renderOrderRow(activeOrder, options)}</div>`
+    : '<div class="drawing-set-empty">No active Order Setup.</div>';
 
-  return section('Review Sets', `${createButton}${content}`);
+  return section('Active Order Setup', `${createButton}${content}`);
 }

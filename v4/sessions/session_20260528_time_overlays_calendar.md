@@ -474,3 +474,37 @@ Next Steps:
 
 - Commit this merge handoff update.
 - Next project step can be either a manual UI acceptance pass on `main`, pushing `main`, or starting the next feature phase.
+
+## Phase 12 Order Setup Cleanup Start
+
+Current branch:
+
+- Created `feature/order-setup-cleanup` from `main`.
+
+Decisions:
+
+- User-facing language should converge on `Order Setup(s)`.
+- `OrderReview / orderReviews` remains the compatibility storage schema for now.
+- `Review Set` should no longer be a visible UI concept; it can remain an internal compatibility adapter until replaced by `Setup Set`.
+- `Setup Set` is the runtime tree model for a complete trade idea.
+- Reversal is a single bar event, not a line segment. It should render as a small triangle marker on the reversal bar, above for short setups and below for long setups.
+
+Completed:
+
+- Added Phase 12 TODO plan for Order Setup cleanup.
+- Started visible terminology cleanup in Inspector Order Setup UI.
+- Changed the Inspector Order Setup panel to show only the active/current setup instead of listing all setup records; Calendar remains the browsing/open entry point for daily Order Setups.
+- Added `BarMarkerPrimitive` for single-bar chart markers.
+- Updated Order Setup renderer so reversal uses the new triangle marker instead of a short liquidity-style line.
+
+Validation:
+
+- `node --check v4/src/chart/primitives.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Next Steps:
+
+- Commit the Phase 12 base cleanup, then plan Order Setups show/hide before implementation.

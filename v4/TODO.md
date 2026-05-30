@@ -204,6 +204,16 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 134: 副图 FVG link setup 验证：确认副图 FVG 能作为 PDA evidence 关联 active Order Setup / setup set，setup ref 保留来源 chart/instrument/timeframe/context
 - [x] Step 135: 副图 FVG 持久化与 workflow 验证：覆盖 localStorage、PDA JSON、Review JSON、undo/redo、Split on/off、Replay Bar On；确认主图 1M 找 setup + 副图 1H/4H 标 FVG 的真实流程不回归
 
+### Phase 12: Order Setup Cleanup
+- [x] Step 136: Order Setup cleanup 分支启动与术语收敛：从 `main` 创建 `feature/order-setup-cleanup`；第一步把 Inspector 用户可见的 `Review Sets` / `Order Review` 创建提示收敛为 `Order Setups` / `Order Setup`，保留底层 `orderReviews` schema 不变
+- [ ] Step 137: 梳理 chart action 边界：清理 `order-setup-chart-actions.js` 中旧动作分支、缩进噪声和重复状态提示；建立 action map，保证右键菜单只暴露当前实际支持的 Order Setup 动作
+- [ ] Step 138: 收敛 Setup Set / Review Set adapter 使用：明确运行时优先消费 `setup-set.js`；保留 `order-review-set.js` 仅作 active/兼容桥，避免 Calendar/Renderer/Inspector 各自解析 raw order review
+- [ ] Step 139: Inspector Order Setup 面板整顿：默认只显示 active/current setup，不再罗列全部 setup；order elements、explanation elements 和少量动作保留在当前 active setup 中；Advanced Edit 继续折叠，创建/删除/active/locate 文案统一为 Order Setup
+- [ ] Step 140: Order Setup linked refs 整顿：统一 PDA/Segment/Composite/SMT ref label、source metadata、去重与删除交互；确保副图来源信息在 Inspector 中可读
+- [ ] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
+- [ ] Step 142: 持久化兼容验证：localStorage、Review JSON import/export、undo/redo 仍使用 `orderReviews` schema；外层 UI 语言切换为 Order Setup 不破坏旧数据
+- [ ] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案

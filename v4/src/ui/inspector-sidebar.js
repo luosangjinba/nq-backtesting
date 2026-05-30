@@ -184,14 +184,14 @@ function getOrderReviewPickLabel(section, field) {
   if (section === 'setupThesis' && field === 'primaryEventTimestamp') return 'Setup Event Time';
   if (section === 'entryPlan' && field === 'entryTimestamp') return 'Entry Time';
   if (section === 'resultReview' && field === 'exitTimestamp') return 'Exit Time';
-  return 'Order Review Time';
+  return 'Order Setup Time';
 }
 
 function getOrderReviewPricePickLabel(field) {
   if (field === 'entryPrice') return 'Entry Price';
   if (field === 'stopLoss') return 'Stop Loss';
   if (field === 'finalTarget') return 'Final Target';
-  return 'Order Review Price';
+  return 'Order Setup Price';
 }
 
 function renderAnnotation(annotation) {
@@ -413,7 +413,7 @@ function createOrderReviewFromSegment(segment) {
   expandedOrderReviewId = order.id;
   setActiveReviewSet(order.id);
   refreshSelection();
-  bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
+  bus.emit('status:update', { text: `已创建 Order Setup: ${order.id}`, isError: false });
   return order;
 }
 
@@ -441,7 +441,7 @@ function createOrderReviewFromComposite(group) {
   expandedOrderReviewId = order.id;
   setActiveReviewSet(order.id);
   refreshSelection();
-  bus.emit('status:update', { text: `已创建 Order Review: ${order.id}`, isError: false });
+  bus.emit('status:update', { text: `已创建 Order Setup: ${order.id}`, isError: false });
   return order;
 }
 
@@ -450,7 +450,7 @@ function createBlankOrderReview() {
   expandedOrderReviewId = order.id;
   setActiveReviewSet(order.id);
   refreshSelection();
-  bus.emit('status:update', { text: `已创建空白 Order Review: ${order.id}`, isError: false });
+  bus.emit('status:update', { text: `已创建空白 Order Setup: ${order.id}`, isError: false });
   return order;
 }
 
@@ -756,7 +756,7 @@ function getPickedPrice(bar, currentPrice, source) {
 
 function locateOrderReview(order) {
   if (!locateReviewSet(order?.id, viewport.locateTimestampRange)) {
-    bus.emit('status:update', { text: '该 Order Review 没有可定位时间', isError: true });
+    bus.emit('status:update', { text: '该 Order Setup 没有可定位时间', isError: true });
     return;
   }
 }
@@ -1400,7 +1400,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'order-review-create-empty') {
-    recordInspectorHistory('Create Order Review', () => createBlankOrderReview());
+    recordInspectorHistory('Create Order Setup', () => createBlankOrderReview());
     return;
   }
 
@@ -1411,7 +1411,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'order-review-delete') {
-    recordInspectorHistory('Delete Order Review', () => deleteOrderReview(actionEl.dataset.orderReviewId));
+    recordInspectorHistory('Delete Order Setup', () => deleteOrderReview(actionEl.dataset.orderReviewId));
     return;
   }
 

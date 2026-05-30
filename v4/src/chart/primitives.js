@@ -903,3 +903,117 @@ export class VerticalLinePrimitive {
     return [this._view];
   }
 }
+
+// ============================
+// Single bar marker
+// ============================
+
+const BAR_MARKER_DEFAULTS = {
+  color: '#ffb74d',
+  textColor: '#ffcc80',
+  label: '',
+  position: 'above',
+  size: 6,
+  offset: 10,
+  labelOffset: 8,
+  labelFont: '11px sans-serif',
+  showLabel: true,
+};
+
+class BarMarkerRenderer {
+  constructor(view) {
+    this._view = view;
+  }
+
+  draw(target) {
+    target.useBitmapCoordinateSpace((scope) => {
+      const point = this._view._point;
+      if (point.x === null || point.y === null) return;
+
+      const source = this._view._source;
+      const options = source._options;
+      const ctx = scope.context;
+      const ratio = Math.min(scope.horizontalPixelRatio, scope.verticalPixelRatio);
+      const hRatio = scope.horizontalPixelRatio;
+      const vRatio = scope.verticalPixelRatio;
+      const x = point.x * hRatio;
+      const y = point.y * vRatio;
+      const size = options.size * ratio;
+      const markerY = y + (options.position === 'below' ? options.offset * vRatio : -options.offset * vRatio);
+
+      ctx.fillStyle = options.color;
+      ctx.beginPath();
+      if (options.position === 'below') {
+        ctx.moveTo(x, markerY + size);
+        ctx.lineTo(x - size, markerY - size);
+        ctx.lineTo(x + size, markerY - size);
+      } else {
+        ctx.moveTo(x, markerY - size);
+        ctx.lineTo(x - size, markerY + size);
+        ctx.lineTo(x + size, markerY + size);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      if (options.showLabel && options.label) {
+        ctx.fillStyle = options.textColor;
+        ctx.font = options.labelFont;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = options.position === 'below' ? 'top' : 'bottom';
+        const labelY = markerY + (options.position === 'below' ? options.labelOffset * vRatio : -options.labelOffset * vRatio);
+        ctx.fillText(options.label, x, labelY);
+      }
+    });
+  }
+}
+
+class BarMarkerView {
+  constructor(source) {
+    this._source = source;
+    this._point = { x: null, y: null };
+  }
+
+  update() {
+    this._point = {
+      x: this._source._chart.timeScale().timeToCoordinate(this._source._time),
+      y: this._source._series.priceToCoordinate(this._source._price),
+    };
+  }
+
+  renderer() {
+    return new BarMarkerRenderer(this);
+  }
+}
+
+export class BarMarkerPrimitive {
+  constructor(chart, series, time, price, options = {}) {
+    this._chart = chart;
+    this._series = series;
+    this._time = time;
+    this._price = price;
+    this._options = { ...BAR_MARKER_DEFAULTS, ...options };
+    this._view = new BarMarkerView(this);
+    this._requestUpdate = null;
+  }
+
+  attached({ requestUpdate }) {
+    this._requestUpdate = requestUpdate;
+    this._requestUpdate?.();
+  }
+
+  detached() {
+    this._requestUpdate = null;
+  }
+
+  requestUpdate() {
+    this._requestUpdate?.();
+  }
+
+  updateAllViews() {
+    this._view.update();
+  }
+
+  paneViews() {
+    return [this._view];
+  }
+}
