@@ -437,3 +437,40 @@ Current Git State:
 - Branch: `feature/secondary-chart-annotation-workflow`
 - Last committed work: `788da3c fix(v4): use chart context for pda hit-test extension`
 - Current uncommitted changes: secondary context-menu primary locate action and session update
+
+## Phase 11 Main Merge Update
+
+Completed:
+
+- Merged `feature/secondary-chart-annotation-workflow` into `main`.
+- Merge was a fast-forward from `b3141da` to `f361899`, with no conflicts.
+- Main now includes the full secondary chart annotation workflow:
+  - secondary PDA BSL/SSL/FVG creation
+  - secondary Segment creation and setup linking
+  - source chart/instrument/timeframe/context metadata on annotations and setup refs
+  - secondary PDA/Segment hit-test, selection, Inspector, Calendar, archive, undo/redo validation
+  - secondary `Locate Time in Primary` navigation symmetry
+- Updated `v4/TODO.md` with Phase 11 merged status.
+
+Validation:
+
+- After merge on `main`:
+  - `node --check v4/src/pda/secondary-context-menu.js`
+  - `node --check v4/src/pda/manual-pda-actions.js`
+  - `node --check v4/src/pda/pda-hit-test.js`
+
+Current Git State:
+
+- Branch: `main`
+- HEAD after merge: `f361899 feat(v4): locate primary time from secondary chart`
+- `main` is ahead of `origin/main` by 476 commits.
+- Existing unrelated untracked local files remain ignored:
+  - `__pycache__/`
+  - `tmp/`
+  - `trading_data.duckdb`
+  - `v3/plans/`
+
+Next Steps:
+
+- Commit this merge handoff update.
+- Next project step can be either a manual UI acceptance pass on `main`, pushing `main`, or starting the next feature phase.

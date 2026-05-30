@@ -196,6 +196,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 129: 副图 Segment 验证：覆盖主图 1M 找 setup、副图 1H/4H 做结构标注的真实流程；验证 Review JSON、Calendar、undo/redo、Split on/off 与 replay 不回归
 
 ### Phase 11: Secondary Chart FVG Workflow
+Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、source metadata、setup-link、持久化、命中/Inspector 与主副图时间定位对称功能已完成。
 - [x] Step 130: 副图 FVG 设计冻结：明确副图 FVG 复用现有 PDA store 与 `type='fvg'` range annotation；冻结 source metadata、contexts、渲染/命中/Inspector、setup-link 与 archive 边界，写入 `docs/SECONDARY_FVG_DESIGN.md`
 - [x] Step 131: 副图 FVG metadata hardening：让 `addManualFvg()` 与 point PDA 一样写入 `sourceChartId/sourceChartLabel/sourceInstrument/sourceTimeframe/sourceTimeframeLabel/sourceContext`，并让 contexts 同时包含来源与结构标签；主图 FVG 行为不变
 - [x] Step 132: 启用副图 Mark FVG：在副图右键菜单开放 `Mark FVG`，用 secondary context 调用现有 FVG 识别/创建流程；无有效三根 FVG 时只提示不创建
