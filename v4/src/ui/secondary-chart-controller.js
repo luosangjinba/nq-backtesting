@@ -24,6 +24,8 @@ import {
 
 let requestSeq = 0;
 let lastReplayState = { enabled: false, cursorTimestamp: null };
+let replaySourceBars = [];
+let replaySourceRequestedRange = null;
 let lastSettings = {
   enabled: secondaryStore.isSecondaryEnabled(),
   timeframe: secondaryStore.getSecondaryTimeframe(),
@@ -79,6 +81,46 @@ function toChartBar(bar, timeframe) {
   };
 }
 
+function getReplaySourceDisplayBars() {
+  if (!replaySourceRequestedRange || replaySourceBars.length === 0) return replaySourceBars;
+  const { startTs, endTs } = replaySourceRequestedRange;
+  return replaySourceBars.filter((bar) => bar.timestamp >= startTs && bar.timestamp <= endTs);
+}
+
+function makeTradingDay(timestamp) {
+  const date = new Date(Number(timestamp) * 1000);
+  return date.toISOString().slice(0, 10);
+}
+
+function aggregatePartialBar(sourceBars, bucketStart, cursorTimestamp, timeframe) {
+  const bucketEnd = bucketStart + timeframe * 60;
+  const bars = sourceBars.filter((bar) => (
+    Number(bar?.timestamp) >= bucketStart &&
+    Number(bar?.timestamp) <= cursorTimestamp &&
+    Number(bar?.timestamp) < bucketEnd
+  ));
+  if (!bars.length) return null;
+
+  return bars.reduce((partial, bar, index) => {
+    if (index === 0) {
+      return {
+        timestamp: bucketStart,
+        tradingDay: timeframe === 1440 ? makeTradingDay(bucketStart + 24 * 60 * 60) : bar.tradingDay,
+        open: bar.open,
+        high: bar.high,
+        low: bar.low,
+        close: bar.close,
+        volume: bar.volume || 0,
+      };
+    }
+    partial.high = Math.max(partial.high, bar.high);
+    partial.low = Math.min(partial.low, bar.low);
+    partial.close = bar.close;
+    partial.volume += bar.volume || 0;
+    return partial;
+  }, null);
+}
+
 function findSecondaryReplayIndex(displayBars, cursorTimestamp, timeframe) {
   if (!Array.isArray(displayBars) || !displayBars.length || cursorTimestamp === null) return -1;
 
@@ -97,6 +139,19 @@ function findSecondaryReplayIndex(displayBars, cursorTimestamp, timeframe) {
 function getReplaySyncedSecondaryBars(displayBars, timeframe) {
   if (!lastReplayState.enabled || lastReplayState.cursorTimestamp === null) {
     return displayBars;
+  }
+
+  const cursorTimestamp = Number(lastReplayState.cursorTimestamp);
+  if (!Number.isFinite(cursorTimestamp)) return [];
+
+  if (Number(timeframe) > 1) {
+    const sourceBars = getReplaySourceDisplayBars();
+    if (sourceBars.length) {
+      const replayBucketStart = getBucketStart(cursorTimestamp, timeframe);
+      const completedBars = displayBars.filter((bar) => Number(bar?.timestamp) < replayBucketStart);
+      const partialBar = aggregatePartialBar(sourceBars, replayBucketStart, cursorTimestamp, timeframe);
+      return partialBar ? [...completedBars, partialBar] : completedBars;
+    }
   }
 
   const replayIndex = findSecondaryReplayIndex(displayBars, lastReplayState.cursorTimestamp, timeframe);
@@ -138,10 +193,17 @@ async function loadSecondaryForPrimaryRange() {
   const instrument = secondaryStore.getSecondaryInstrument();
   const seq = (requestSeq += 1);
   secondaryStore.clearSecondaryBars();
+  replaySourceBars = [];
+  replaySourceRequestedRange = null;
 
   try {
-    const result = await fetchBars(start, end, timeframe, instrument);
+    const [result, replaySourceResult] = await Promise.all([
+      fetchBars(start, end, timeframe, instrument),
+      Number(timeframe) > 1 ? fetchBars(start, end, 1, instrument) : Promise.resolve(null),
+    ]);
     if (seq !== requestSeq || !secondaryStore.isSecondaryEnabled()) return;
+    replaySourceBars = replaySourceResult?.bars || [];
+    replaySourceRequestedRange = replaySourceResult?.requestedRange || null;
     secondaryStore.setSecondaryBars(result.bars, start, end, timeframe, result.requestedRange);
     bus.emit('status:update', {
       text: `副图 ${instrument} 已加载 ${result.bars.length} 根K线`,
@@ -171,6 +233,8 @@ function handleSecondarySettingsChanged({ enabled, timeframe, instrument }) {
   if (!nextSettings.enabled) {
     if (!wasEnabled) return;
     requestSeq += 1;
+    replaySourceBars = [];
+    replaySourceRequestedRange = null;
     hideSecondaryHoverCursor();
     secondaryStore.clearSecondaryBars();
     destroySecondaryChart();
@@ -196,6 +260,8 @@ function handlePrimaryBarsLoaded() {
 
 function handlePrimaryBarsCleared() {
   requestSeq += 1;
+  replaySourceBars = [];
+  replaySourceRequestedRange = null;
   secondaryStore.clearSecondaryBars();
   clearSecondaryData();
 }
@@ -249,6 +315,8 @@ export function initSecondaryChartController() {
   bus.on('secondary-bars:cleared', clearSecondaryData);
   bus.on('secondary-chart:reset', () => {
     requestSeq += 1;
+    replaySourceBars = [];
+    replaySourceRequestedRange = null;
     destroySecondaryChart();
   });
   bus.on('bars:loaded', handlePrimaryBarsLoaded);

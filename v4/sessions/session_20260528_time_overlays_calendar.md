@@ -2,9 +2,9 @@
 
 ## Context
 
-- Branch: `feature/chart-first-order-setup`
-- Phase: Phase 9 Time Overlays / Calendar Review Navigator
-- Goal: add chart-level time helpers for manual review without mutating PDA, Segment, SMT, or Order Review records.
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Phase: Phase 10 Secondary Chart Annotation Workflow
+- Goal: prepare secondary chart PDA/segment operations without regressing the existing readonly split-screen behavior.
 
 ## Completed
 
@@ -46,6 +46,16 @@
   - Days/day-boundary markers remain visible for all loaded dates so first date-switch after load does not hide the other day separator lines
   - Calendar shows the active overlay filter and exposes `All loaded days` to clear `selectedDate`
   - object-level `Locate` intentionally does not change `selectedDate`
+- Split Replay high-timeframe secondary chart now uses progressive candles:
+  - when Replay is on and secondary timeframe is above 1M, the secondary controller also loads 1M bars for the secondary instrument
+  - completed secondary HTF candles still use the normal secondary bars
+  - the current unfinished HTF candle is aggregated from 1M bars up to the primary replay cursor
+  - this prevents a 1M primary replay at 07:13 from revealing the full 07:00-07:59 secondary 1H candle
+- Phase 10 Step 118 chart context boundary:
+  - added `v4/src/chart/chart-context.js`
+  - exposes primary and secondary context descriptors with chart/series access, display bars, all bars, timeframe, coordinate conversion, primitive attach/clear, and basic event subscription hooks
+  - primary context remains the writable default surface
+  - secondary context is explicitly marked `readonly=true` as a foundation for future opt-in write actions
 
 ## Decisions
 
@@ -60,6 +70,9 @@
 - Locate and Open are intentionally separate because most review navigation needs spatial context, not immediate object-detail editing.
 - Split Screen is still readonly, but global navigation and display helpers should stay visually consistent across primary and secondary charts when secondary data exists.
 - Calendar date selection is the only automatic owner of Time Overlay `selectedDate`; locating a specific object is navigation, not a request to change overlay filtering.
+- In Replay mode, a higher-timeframe secondary candle must not reveal future intrabar prices. Use lower-timeframe replay source bars to build a partial current candle whenever the secondary timeframe is higher than 1M.
+- Secondary chart PDA/segment work should start by making chart ownership explicit. Existing modules should keep primary chart behavior until they are intentionally converted to accept a chart context.
+- Step 118 is an architecture boundary only; it should not wire new context into user workflows yet.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -72,11 +85,15 @@
 - `git diff --check` passed after the latest changes.
 - `node --check` passed for Calendar panel, Inspector sidebar, viewport controller, and locate flash primitive during Calendar implementation.
 - `node --check` passed for:
+  - `v4/src/chart/chart-context.js`
   - `v4/src/chart/secondary-viewport-controller.js`
   - `v4/src/time-overlays/time-overlay-renderer.js`
   - `v4/src/ui/inspector-sidebar.js`
+  - `v4/src/ui/secondary-chart-controller.js`
+- Module import probe verified chart context exports return `primary` and `secondary` descriptors with expected helper functions.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
+- Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
 - Full visual acceptance across all requested timeframes remains part of Step 95.
 
 ## Current Git State
@@ -86,7 +103,9 @@
   - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
 - Current uncommitted changes:
-  - storage architecture TODO/session notes
+  - Split Replay high-timeframe secondary progressive candle implementation
+  - Phase 10 Step 118 chart context foundation
+  - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
   - `tmp/`
@@ -95,5 +114,5 @@
 
 ## Next Steps
 
-- Run Step 95 visual acceptance across 1M/5M/15M/1H/4H with Split Screen enabled.
-- After Step 95, consider drafting a future DuckDB research-store phase only after the current review object schemas stop changing weekly.
+- Step 119: extract PDA creation actions so the current primary chart path can call through a context-aware helper without behavior changes.
+- Then implement secondary context menu and secondary PDA MVP only after Step 119 is stable.

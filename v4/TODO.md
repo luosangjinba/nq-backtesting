@@ -181,6 +181,20 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 94: 联动 selectedDate 与 overlays：Calendar 选中某日后，手工 Time Lines / Killzone 默认只显示该日；自然日 Days 边界始终显示加载区间内全部日期，避免首次换日后除首日外的 day 竖线消失；允许手工切换显示日期，避免一次加载多日时手工 overlay 过多
 - [ ] Step 95: 验证与视觉验收：覆盖 1M/5M/15M/1H/4H；检查自然日边界、09:30/09:50/10:00、killzone、calendar locate 与对象 locate 一致；确认线条不遮挡 K 线细节，Split Screen 开启时主图行为不受副图影响
 
+### Phase 10: Secondary Chart Annotation Workflow
+- [x] Step 118: 定义 chart context 边界：新增 `chart/chart-context.js`，用统一 context 描述 primary / secondary 的 chart、series、bars、timeframe、coordinate 转换、primitive attach/clear 与基础事件订阅；当前只作为后续接入基础，不改变现有主图/副图行为，secondary context 标记为 `readonly=true`
+- [ ] Step 119: 抽离 PDA 创建动作：把 `manual-annotation.js` 中依赖主图单例的 PDA 创建流程拆成可接受 chart context 的 action/helper；第一步保持只调用 primary context，确保主图右键行为不变
+- [ ] Step 120: 副图右键菜单 MVP：在 secondary chart 上接入独立 context menu 入口，只暴露经过允许的只读/创建项；不复用主图 DOM 状态导致菜单互相覆盖
+- [ ] Step 121: 副图 PDA 创建 MVP：支持在副图上创建 BSL/SSL 与基础 range PDA，记录 `sourceChartId/sourceInstrument/sourceTimeframe`，并复用现有 PDA store / Review JSON
+- [ ] Step 122: PDA 主副图渲染一致性：确认副图创建的 PDA 能按现有 renderer 规则在主图/副图显示或投影；补齐 label、extend、CE、hit-test 的 timeframe 映射
+- [ ] Step 123: 副图 PDA hit-test / select / Inspector：副图点击 PDA 能选中同一 annotation 并打开 Inspector；Inspector 编辑、删除、note、extend 与 undo/redo 继续作用于同一 PDA store
+- [ ] Step 124: 副图 PDA link 到 active setup：允许从副图 PDA 关联当前 active Order Setup，并在 setup/review JSON 中保留来源 chart/timeframe 信息
+- [ ] Step 125: Review JSON / localStorage 验证：验证副图创建 PDA 的刷新恢复、export/import、undo/redo、Calendar index 与 Locate/Open 行为
+- [ ] Step 126: 副图 Segment 设计冻结：明确副图 segment 是同一 Segment store 的新 source，还是独立 HTF structure layer；冻结字段、显示规则与 link 到 setup 的关系后再实现
+- [ ] Step 127: 副图 Segment MVP：按 Step 126 决策实现副图起终点选择、创建、渲染与基础 Inspector 查看
+- [ ] Step 128: 副图 Segment link 到 setup：支持把副图 segment 作为 HTF structure evidence 关联到 active setup / setup set
+- [ ] Step 129: 副图 Segment 验证：覆盖主图 1M 找 setup、副图 1H/4H 做结构标注的真实流程；验证 Review JSON、Calendar、undo/redo、Split on/off 与 replay 不回归
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
@@ -217,6 +231,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - 2026-05-20: V4 PDA 改为手动标注优先，不做全量自动扫描；用户选择 PDA 后实时计算 HTF/session/midnight/LDN/NYAM 等上下文并打包标注
 - 2026-05-20: PDA 第一阶段只做当前会话内存 store，不写 DB；手动 BSL/SSL 右键标注后实时生成 current TF/session context 并用 LiquidityPrimitive 渲染
 - 2026-05-29: Review data storage direction is layered, not YAML-vs-DuckDB exclusive. Near term: localStorage remains the browser work draft, Review JSON/YAML remains the human-readable archive/exchange format while schemas keep evolving. Later, after Order Setup / PDA / Segment / Composite / SMT / Reaction Evidence object boundaries stabilize, add DuckDB import/export as the formal research database for batch query, statistics, cross-sample search, and reproducible analysis. YAML/JSON should continue as portable case files and migration/backup format even after DuckDB exists.
+- 2026-05-29: Secondary chart annotation workflow will be introduced through an explicit `chart-context` boundary first. Existing primary chart modules remain the default behavior surface; secondary chart write actions must opt in through context-aware helpers so readonly split-screen behavior is not accidentally changed.
 - 2026-05-20: PDA session 划分采用 Asia / London Killzone / London Close / NY Premarket / NY Open / AM Silver Bullet / NY Late Morning / Lunch / PM Open / PM Silver Bullet / Power Hour / Post-Close / CME Break；CME Break 跳过极值判断
 - 2026-05-20: PDA context 计算区间与图表显示区间分离；右键标注时按所选 K 线所属 CME 交易日临时请求完整交易日数据，仅用于 PDA 极值计算，不改变图表显示
 - 2026-05-20: 图表 crosshair 时间格式化统一使用 UTC getter，匹配 UTC epoch 承载的美东墙钟时间，避免浏览器本地时区偏移
@@ -352,6 +367,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - 2026-05-28: Phase 9 Calendar Navigator 第一轮完成：Inspector Calendar 默认覆盖当前加载图表 start/end，日期点击定位到当天 09:30；日期列表显示当天 Order Setup / SMT / PDA / Segment / Composite / Killzone / Time Line，并支持每个对象 `Locate`，定位后通过临时 flash primitive 高亮目标时间范围；有 Order Setup 的日期显示红色角标。
 - 2026-05-28: Calendar 对象操作拆分为 `Locate` 与 `Open`：`Locate` 只定位 + 快闪，不切换 Inspector 面板；PDA / Segment / Composite 行单独提供 `Open`，需要查看细节时才进入对应详情面板。从 Calendar Open 进入详情后，详情顶部提供 `Back to Calendar` 返回按钮，并保留原 selected date / view month。
 - 2026-05-29: Split Replay 主副图同步补强：Replay Bar On 时副图不再显示完整未来 K 线，而是按主图 `cursorTimestamp` 截断到副图当前周期 bucket；Replay Off/Close 恢复完整副图数据；副图 `showSecondaryEndOfData()` 继承上一帧 logical range width 与右侧 anchor，修复主图 1M / 副图 1H replay 时副图最新 K 线逐步变细并向右漂移的问题。
+- 2026-05-29: Split Replay 高周期副图渐进 K 线完成：副图 Replay On 时额外加载同品种 1M replay source；若副图周期高于 1M，当前未完成高周期 K 线按 replay cursor 聚合 1M bars 生成 partial OHLC，避免主图 1M 播到 07:13 时副图 1H 提前显示完整 07:00-07:59 K 线。Replay Off 仍显示完整副图 K 线。
 - 2026-05-29: Date Range Calendar 易用性补强完成：成功加载 range 后自动写入 `localStorage` 历史范围，记录 `start/end/timeframe`，支持 Load History Range、单条删除、清空历史、最多保留 8 条并去重置顶；Date Range popover 增加 `<<` / `>>` 年切换按钮，`<` / `>` 继续切换月。
 - 2026-05-29: Phase 9 Step 91 Calendar Day Details 第一版 UI 完成：Inspector Calendar 的当天对象列表改为 `details` 分组，顺序固定为 Order Setups、SMT、PDA、Segments、Composite、Killzones / Time Lines；Order Setups 默认展开，其余默认折叠；对象行拆成时间、类型标签、摘要与 Locate/Open 动作区，避免长文本/长 ID 占据整行。Headless Chrome smoke 验证 6 组顺序、Order Setups 唯一默认展开、8 条对象行、Locate/Open 按钮存在。
 - 2026-05-29: Phase 9 Step 92 Calendar 对象级操作增强完成：Day Details 的 `Open` 现在覆盖 Order Setup、PDA、Segment、Composite、SMT；可选中对象会进入对应 selected/active 状态并打开 Inspector，Order Setup 与 SMT 从 Calendar Open 进入时保留 `Back to Calendar`；`Locate` 继续只定位不切换详情，并在状态栏显示对象摘要。Focus 行为本轮暂不接入，避免和现有 Structure Sets focus 语义混用。
