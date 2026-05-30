@@ -693,31 +693,6 @@ function getOrderSetupElementDeletePatch(role) {
   return null;
 }
 
-function updateOrderSetupElementLength(target) {
-  const orderReviewId = target.dataset.orderReviewId;
-  const role = target.dataset.orderSetupElement;
-  const order = getOrderReviewById(orderReviewId);
-  if (!order || !role) return false;
-  const parsed = Number(target.value);
-  if (target.value !== '' && (!Number.isFinite(parsed) || parsed < 0)) {
-    bus.emit('status:update', { text: 'Length bars 必须是 0 或正整数', isError: true });
-    return true;
-  }
-  const elementLengths = { ...(order.display?.elementLengths || {}) };
-  if (target.value === '') {
-    delete elementLengths[role];
-  } else {
-    elementLengths[role] = Math.floor(parsed);
-  }
-  recordInspectorHistory('Update Order Setup Element Length', () => updateOrderReview(orderReviewId, {
-    display: {
-      ...(order.display || {}),
-      elementLengths,
-    },
-  }));
-  return true;
-}
-
 function deleteOrderSetupElement(target) {
   const orderReviewId = target.dataset.orderReviewId;
   const role = target.dataset.orderSetupElement;
@@ -1180,11 +1155,6 @@ function handleInspectorChange(e) {
     return;
   }
 
-  if (action === 'order-setup-element-length') {
-    updateOrderSetupElementLength(e.target);
-    return;
-  }
-
   if (action === 'order-review-pick-time') {
     startOrderReviewTimePick(e.target);
     return;
@@ -1606,10 +1576,6 @@ function handleInspectorClick(e) {
 
   if (action === 'order-setup-element-select') {
     selectOrderSetupElement(actionEl.dataset.orderReviewId, actionEl.dataset.orderSetupElement);
-    return;
-  }
-
-  if (action === 'order-setup-element-length') {
     return;
   }
 

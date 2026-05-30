@@ -996,3 +996,63 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `cb94ed8 feat(v4): edit order setup helper lines`
 - Current uncommitted changes: Step 147F/147G/147H implementation and operation script updates
+
+Committed:
+
+- `e88cbc2 feat(v4): refine order setup execution editing`
+
+## Phase 12 Target Free-Price Anchor
+
+Operation Script:
+
+- Step: `147I`
+- Goal: allow targets to use price levels that are not directly anchored to a candle high/low range while keeping entry/stop strict.
+- Boundary: only target1 / target2 / target3 / final target are free-price anchors.
+- Magnet: target anchors still snap to high/low when close enough.
+
+Implemented:
+
+- `getValidBarAnchor()` accepts `allowFreePrice`.
+- Entry and stop loss still reject far out-of-range prices.
+- Targets accept far out-of-range prices and store the clicked bar timestamp/timeframe as their left endpoint.
+- Targets still magnet to high/low when close enough.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke verified strict entry reject, target free price, target high magnet, and target low magnet.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `e88cbc2 feat(v4): refine order setup execution editing`
+- Current uncommitted changes: Step 147I implementation and operation script updates
+
+## Phase 12 Remove Execution Length Input
+
+Operation Script:
+
+- Step: `147J`
+- Goal: remove misleading Execution length numeric input now that helper line length is controlled by right-click start and Shift + right-click endpoint.
+- Boundary: keep compact row selection and `X` delete; keep persisted `display.elementLengths` compatibility but stop exposing UI.
+
+Implemented:
+
+- Removed the Execution row `Length` input.
+- Removed the Inspector `order-setup-element-length` update handler.
+- Execution row layout now has summary + compact `X` delete only.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke verified Execution rows no longer render `order-setup-element-length` or `order-setup-execution-length`, while select/delete actions remain.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `e88cbc2 feat(v4): refine order setup execution editing`
+- Current uncommitted changes: Step 147I/147J implementation and operation script updates

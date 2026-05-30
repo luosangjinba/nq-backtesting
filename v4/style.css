@@ -858,7 +858,7 @@ html, body {
 
 .order-setup-execution-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 44px 22px;
+  grid-template-columns: minmax(0, 1fr) 22px;
   gap: 4px;
   align-items: center;
   min-height: 24px;
@@ -891,18 +891,6 @@ html, body {
 .order-setup-execution-main strong {
   color: #d1d4dc;
   font-weight: 600;
-}
-
-.order-setup-execution-length {
-  width: 44px;
-  height: 20px;
-  min-width: 0;
-  padding: 1px 3px;
-  border: 1px solid #363a45;
-  border-radius: 3px;
-  background: #131722;
-  color: #d1d4dc;
-  font-size: 11px;
 }
 
 .order-setup-execution-delete {

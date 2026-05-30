@@ -602,6 +602,84 @@ Notes:
 
 - Use the same date priority as Calendar Review Index: entry -> reversal -> result -> active primary timestamp.
 
+### Step 147I: Target Free-Price Anchor
+
+Goal:
+
+- Allow target1 / target2 / target3 / final target to use a free price outside the clicked candle high/low range.
+- Keep magnet behavior for targets when the mouse is close to high/low.
+- Continue to require strict valid candle anchoring for entry and stop loss.
+- Keep the clicked candle timestamp as the target helper line start timestamp.
+
+Implemented:
+
+- `getValidBarAnchor()` now accepts an `allowFreePrice` option.
+- Entry and stop loss continue using strict anchoring.
+- Target1 / target2 / target3 / final target use free-price anchoring.
+- Target anchors still magnet to high/low when the mouse is close enough.
+- Target free-price anchors keep the clicked bar timestamp/timeframe as the helper line start.
+
+Main files:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke for strict entry reject, strict stop reject, target free price, and target high/low magnet.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- This is not a global relaxation. Only targets can be free-price anchors.
+
+### Step 147J: Remove Execution Length Input
+
+Goal:
+
+- Remove the misleading `Length bars` numeric control from Execution rows.
+- Keep helper line length controlled by right-click start and Shift + right-click endpoint.
+- Keep compact `X` delete and row selection behavior.
+- Leave existing persisted `display.elementLengths` compatibility in storage/renderer as fallback for old records, but stop exposing it in Inspector.
+
+Implemented:
+
+- Removed the row-level length input from Execution rows.
+- Removed the Inspector `order-setup-element-length` handler.
+- Execution rows now contain only the element summary and compact `X` delete.
+- Existing persisted `display.elementLengths` remains supported by store/renderer for compatibility but has no Inspector edit UI.
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verifies Execution rows no longer render `order-setup-element-length`.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Endpoint-based length remains the primary workflow.
+
 ## Next Step Template
 
 ### Step N: Title

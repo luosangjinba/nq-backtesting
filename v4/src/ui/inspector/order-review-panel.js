@@ -530,7 +530,6 @@ function getElementLabel(role) {
 function renderExecutionElementRow(order, role, element, selectedElement, extra = '') {
   if (!element || !Number.isFinite(Number(element.price))) return '';
   const isSelected = selectedElement?.setupId === order.id && selectedElement?.element === role;
-  const length = Number.isFinite(Number(element.lineLengthBars)) ? Number(element.lineLengthBars) : '';
   return `
     <div class="order-setup-execution-row${isSelected ? ' active' : ''}" data-inspector-action="order-setup-element-select" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}">
       <div class="order-setup-execution-main">
@@ -539,7 +538,6 @@ function renderExecutionElementRow(order, role, element, selectedElement, extra 
         <span>${escapeHtml(formatTime(element.timestamp))}${element.endTimestamp ? ` -> ${escapeHtml(formatTime(element.endTimestamp))}` : ''}</span>
         ${extra ? `<span>${escapeHtml(extra)}</span>` : ''}
       </div>
-      <input class="order-setup-execution-length" data-inspector-action="order-setup-element-length" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="number" min="0" step="1" value="${escapeHtml(length)}" placeholder="Len" title="Length bars fallback" />
       <button class="order-setup-execution-delete" data-inspector-action="order-setup-element-delete" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="button" title="Delete ${escapeHtml(getElementLabel(role))}">X</button>
     </div>
   `;

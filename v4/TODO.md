@@ -226,6 +226,8 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147F: Execution 双向元素选择 UI：把 Selected Element 合并进 Execution；图表 helper line 与 Execution 行可双向选中并着重显示；delete 改为紧凑 X；Length bars 改为紧凑数字输入，不再占用独立面板空间
 - [x] Step 147G: Order Setup OHLC Magnet Anchor：entry/stop/target 起点设置时，鼠标价格在 K 线 high/low 内保留原价；若在范围外但接近 high/low，自动吸附到最近 high/low；超过容错才报错；状态提示说明实际吸附价格
 - [x] Step 147H: Active setup 同步 Inspector Calendar 日期：从图表/右键/Execution 选中或激活 setup 时，Inspector 跳到 Active Order Setup 的同时，将 Calendar selected/view date 同步到该 setup 所属自然日，并刷新当天事件列表
+- [x] Step 147I: Target free-price anchor：target1-3/final target 起点允许不落在 K 线 high/low 范围内；若靠近 high/low 仍自动 magnet；entry/stop loss 继续要求有效 K 线范围或 high/low magnet；target 自由价格仍记录点击 K 线时间作为左端点
+- [x] Step 147J: 移除 Execution Length 数字输入：helper line 长度以右键起点 + Shift 右键终点为准；删除 Inspector Execution 行内 Length 数字框和对应更新 handler，避免数字初始值/行为误导
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

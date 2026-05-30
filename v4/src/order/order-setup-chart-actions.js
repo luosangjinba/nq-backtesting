@@ -146,7 +146,8 @@ function getMagnetCandidate(context, price, high, low) {
   return nearest.distance <= ORDER_ELEMENT_MAGNET_TOLERANCE_PX ? nearest : null;
 }
 
-export function getValidBarAnchor(context = {}, label = 'Order element') {
+export function getValidBarAnchor(context = {}, label = 'Order element', options = {}) {
+  const allowFreePrice = Boolean(options.allowFreePrice);
   const price = getContextPrice(context.price);
   const high = Number(context.bar?.high);
   const low = Number(context.bar?.low);
@@ -159,12 +160,20 @@ export function getValidBarAnchor(context = {}, label = 'Order element') {
   }
   if (price < low || price > high) {
     const magnet = getMagnetCandidate(context, price, high, low);
-    if (!magnet) {
+    if (!magnet && !allowFreePrice) {
       bus.emit('status:update', {
         text: `${label} 必须锚定在 K 线 high/low 范围内，或靠近 high/low 以自动吸附`,
         isError: true,
       });
       return null;
+    }
+    if (!magnet && allowFreePrice) {
+      return {
+        timestamp: context.bar.timestamp,
+        timeframe: context.timeframe,
+        price,
+        freePrice: true,
+      };
     }
     bus.emit('status:update', {
       text: `${label} snapped to ${magnet.label} ${magnet.price.toFixed(2)}`,
@@ -264,16 +273,21 @@ function createOrderSetupFromContext(direction, context) {
 function patchActiveSetupFromContext(action, context) {
   if (!context.bar) return;
 
-  const needsValidAnchor = [
+  const needsStrictAnchor = [
     'order-setup-set-entry',
     'order-setup-set-stop-loss',
+  ].includes(action);
+  const needsTargetAnchor = [
     'order-setup-set-target-internal',
     'order-setup-set-target-swing',
     'order-setup-set-target-external',
     'order-setup-set-final-target',
   ].includes(action);
-  const anchor = needsValidAnchor ? getValidBarAnchor(context, 'Order Setup element') : null;
-  if (needsValidAnchor && !anchor) return;
+  const needsAnchor = needsStrictAnchor || needsTargetAnchor;
+  const anchor = needsAnchor
+    ? getValidBarAnchor(context, 'Order Setup element', { allowFreePrice: needsTargetAnchor })
+    : null;
+  if (needsAnchor && !anchor) return;
   const price = anchor?.price ?? getContextPrice(context.price);
   const endTimestamp = context.bar.timestamp;
   const endTimeframe = context.timeframe;
