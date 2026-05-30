@@ -738,3 +738,40 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `b50cf94 docs(v4): document order setup cleanup boundary`
 - Current uncommitted changes: reversal marker rendering, anchor ownership docs, Active Order Setup UI rebuild, anchor validation/list Hide-Show
+
+## Phase 12 Order Setup Element Interaction Plan
+
+Plan:
+
+- Build an Order Setup element hit-test layer instead of treating setup drawings as passive primitives.
+- Elements that need selection: reversal, entry, stop loss, target1, target2, target3, final target.
+- Selection should identify both setup id and element role.
+- Selected entry/stop/target helper lines should later expose length controls and delete actions.
+- Reversal deletion should be treated carefully because reversal is the primary setup anchor; first implementation should prefer activating/closing setup from reversal marker, not deleting reversal directly.
+- Right-clicking a reversal triangle region should open a setup-specific menu.
+- If several setups share the same reversal bar, the menu should list each setup so the user can choose which setup to activate.
+- First implementation target: reversal marker right-click hit-test + Set Active / Clear Active menu.
+
+Implemented:
+
+- Added `order/order-setup-hit-test.js` for Order Setup element hit testing.
+- First hit target is the reversal triangle region.
+- Primary chart context menu now passes Order Setup hits into the Order Setup menu renderer.
+- Right-clicking a reversal marker shows a `Reversal Setup` submenu.
+- If multiple setups share the same reversal marker area, the submenu lists each setup id so one can be activated.
+- Added `Close Active Setup` from the reversal marker menu.
+- Marked Step 147A complete; Step 147 remains open for entry/stop/target selection, line length control, and element deletion.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- Module smoke verified reversal hit-test returns the expected setup id.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `5c59370 feat(v4): rebuild active order setup panel`
+- Current uncommitted changes: Step 147 planning and reversal marker right-click MVP

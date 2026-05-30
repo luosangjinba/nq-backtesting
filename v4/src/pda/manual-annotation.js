@@ -53,6 +53,7 @@ import {
   handleOrderSetupChartAction,
   renderOrderSetupMenuItems,
 } from '../order/order-setup-chart-actions.js';
+import { hitTestOrderSetupElements } from '../order/order-setup-hit-test.js';
 import { recordHistory } from '../history/history-manager.js';
 import {
   addKillzone,
@@ -82,6 +83,7 @@ let contextMenuPrice = null;
 let contextMenuPdaHit = null;
 let contextMenuSegmentHit = null;
 let contextMenuSegmentGroupHit = null;
+let contextMenuOrderSetupHit = null;
 let rangeSelectionState = null;
 let fibSelectionState = null;
 
@@ -349,7 +351,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     submenuDirection,
     timeLabel,
     disabled,
-    orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit }),
+    orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit: contextMenuOrderSetupHit }),
     segmentPdaLinkItems,
     segmentGroupItems,
     segmentItems,
@@ -365,6 +367,7 @@ function hideContextMenu() {
   contextMenuPdaHit = null;
   contextMenuSegmentHit = null;
   contextMenuSegmentGroupHit = null;
+  contextMenuOrderSetupHit = null;
   if (controlsEl) {
     controlsEl.innerHTML = '';
   }
@@ -387,6 +390,8 @@ function handleContextMenu(e) {
   const pdaHit = hitTestPdaAnnotations({ x, y, time, price });
   const segmentHit = hitTestSegments({ x, y });
   const segmentGroupHit = hitTestSegmentGroups({ x, y });
+  const orderSetupHit = hitTestOrderSetupElements({ x, y });
+  contextMenuOrderSetupHit = orderSetupHit;
 
   if (e.shiftKey && fibSelectionState) {
     addManualFib(bar);
@@ -416,6 +421,7 @@ async function handleControlClick(e) {
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,
+    orderSetupId: e.target.closest('[data-order-setup-id]')?.dataset.orderSetupId || '',
   })) {
     hideContextMenu();
   } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {

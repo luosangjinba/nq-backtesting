@@ -7,8 +7,11 @@ import { getSegmentById } from '../segment/segment-store.js';
 import { getSmtRecords } from '../smt/smt-store.js';
 import {
   createChartReviewSet,
+  clearActiveReviewSet,
   getActiveReviewSet,
+  getActiveReviewSetId,
   linkRefToActiveReviewSet,
+  setActiveReviewSet,
   updateActiveReviewSet,
 } from './order-review-active.js';
 import {
@@ -44,6 +47,31 @@ function getActiveSetupLabel() {
       ? 'Short'
       : 'Unknown';
   return `${direction} · ${active.id.slice(0, 18)}`;
+}
+
+function getHitSetupMenuItems(orderSetupHit) {
+  const hits = Array.isArray(orderSetupHit?.hits) ? orderSetupHit.hits : [];
+  if (!hits.length) return '';
+  const activeId = getActiveReviewSetId();
+  const rows = hits
+    .map((hit) => {
+      const active = hit.setupId === activeId;
+      const label = `${active ? 'Active' : 'Set Active'} · ${hit.setupId.slice(0, 18)}`;
+      return `<button class="pda-menu-item" data-pda-action="order-setup-hit-set-active" data-order-setup-id="${hit.setupId}">${label}</button>`;
+    })
+    .join('');
+  const clearActive = activeId
+    ? '<button class="pda-menu-item" data-pda-action="order-setup-hit-clear-active">Close Active Setup</button>'
+    : '';
+  return `
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Reversal Setup</div>
+      <div class="pda-submenu-panel">
+        ${rows}
+        ${clearActive}
+      </div>
+    </div>
+  `;
 }
 
 function getContextPrice(price) {
@@ -86,7 +114,7 @@ function getManualEventPromptValues() {
   };
 }
 
-export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit } = {}) {
+export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit } = {}) {
   const active = getActiveReviewSet();
   const disabled = bar ? '' : 'disabled';
   const activeDisabled = active ? '' : 'disabled';
@@ -96,6 +124,7 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
   const smtDisabled = active && getSmtRecords().length ? '' : 'disabled';
 
   return `
+    ${getHitSetupMenuItems(orderSetupHit)}
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup · ${getActiveSetupLabel()}</div>
       <div class="pda-submenu-panel">
@@ -312,6 +341,21 @@ function addManualExplanationEventToActiveSetup(context = {}) {
 }
 
 export function handleOrderSetupChartAction(action, context = {}) {
+  if (action === 'order-setup-hit-set-active') {
+    const next = setActiveReviewSet(context.orderSetupId);
+    bus.emit('status:update', {
+      text: next ? `Active Order Setup: ${context.orderSetupId}` : 'Order Setup cannot be activated',
+      isError: !next,
+    });
+    return true;
+  }
+
+  if (action === 'order-setup-hit-clear-active') {
+    clearActiveReviewSet();
+    bus.emit('status:update', { text: 'Active Order Setup closed', isError: false });
+    return true;
+  }
+
   if (action === 'order-setup-create-bullish' || action === 'order-setup-create-bearish') {
     createOrderSetupFromContext(
       action === 'order-setup-create-bullish' ? ORDER_DIRECTIONS.LONG : ORDER_DIRECTIONS.SHORT,

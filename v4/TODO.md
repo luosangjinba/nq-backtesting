@@ -217,6 +217,8 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [ ] Step 144: Reversal anchor 归属规则落实：`Create Bullish/Bearish Setup Here` 创建新 setup 并把点击 K 线作为该 setup 的唯一 primary reversal；后续 entry / stop / targets / reason / result 只写入当前 active setup；不按最近 reversal 自动归属；允许多个独立 setup 共享同一 reversal bar；考虑移除 `Set Reversal Here` 或改名为 `Move Active Reversal Here`
 - [x] Step 145: Active Order Setup UI 重建：抛弃旧 Setup Thesis / Entry Plan / Result Review 表单式容器；按新逻辑实现 Header / Anchor / Execution / Reasons / Result 四段式 active setup 面板；Inspector 只展示当前 active setup 状态与轻量操作，主要录入仍来自图表右键 active setup 动作
 - [x] Step 146: Order Setup 锚点与列表显隐补强：Calendar 的 Order Setups 列表提供 Hide/Show；entry/stop/target/final target 写入时必须命中某根 K 线有效 high/low 范围，否则报错不写入；stop/target/final target 保存各自鼠标锚点 timestamp/timeframe 并从该锚点起画线，旧数据 fallback 到 entry 起点
+- [ ] Step 147: Order Setup element interaction 设计落实：建立 order setup element hit-test 与 selection 状态；reversal / entry / stop / target / final target 都可选中；选中后可控制 helper line 长短并可删除该元素；右键 reversal marker 区域显示命中的 setup 列表，支持 Set Active / Clear Active，多个 setup 共享同一 reversal bar 时从菜单选择具体 setup；第一步先实现 reversal marker 右键命中与 active/close 菜单
+- [x] Step 147A: Reversal marker 右键 MVP：新增 order setup element hit-test；右键命中 reversal 三角区域时菜单显示命中的 setup 列表；支持从共享 reversal 的多个 setup 中选择 Set Active，并支持 Close Active Setup
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
