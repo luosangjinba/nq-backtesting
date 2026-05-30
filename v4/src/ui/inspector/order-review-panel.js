@@ -107,7 +107,10 @@ function renderLinkedRefs(refs = []) {
   if (!Array.isArray(refs) || !refs.length) return field('Refs', '—');
   return field(
     'Refs',
-    refs.map((ref) => `${ref.role}:${ref.type}:${ref.id}`).join(', ')
+    refs.map((ref) => {
+      const source = [ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' ');
+      return `${ref.role}:${ref.type}:${ref.id}${source ? ` · ${source}` : ''}`;
+    }).join(', ')
   );
 }
 
@@ -118,7 +121,7 @@ function renderLinkedRefsEditor(order) {
         .map(
           (ref, index) => `
             <div class="order-review-ref-row">
-              <span>${escapeHtml(ref.role)}:${escapeHtml(ref.type)}:${escapeHtml(ref.id)}</span>
+              <span>${escapeHtml(ref.role)}:${escapeHtml(ref.type)}:${escapeHtml(ref.id)}${ref.sourceInstrument || ref.sourceTimeframeLabel ? ` · ${escapeHtml([ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' '))}` : ''}</span>
               <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">Remove</button>
             </div>
           `

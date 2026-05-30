@@ -101,6 +101,11 @@
   - segment hit-testing and selection now accept a chart context, so clicking a secondary-rendered segment opens the existing Segment Inspector
   - Segment Inspector now shows source chart, source instrument, and source timeframe
   - Segment identity now includes source chart and instrument to avoid primary/secondary or NQ/ES duplicate collisions
+- Phase 10 Step 128 secondary Segment to setup link:
+  - extended `order-ref-metadata.js` with Segment metadata and label helpers
+  - Segment refs now copy source chart/instrument/timeframe/context metadata when linked through chart context menu, Segment Inspector, Order Review "Add Segment", and "Create Setup With Segment"
+  - Segment Inspector exposes `Link Segment To Active Setup`
+  - Order Review linked ref displays now include source instrument/timeframe when available
 
 ## Decisions
 
@@ -129,6 +134,7 @@
 - Secondary Segment setup links should remain normal `type: segment` refs with copied source metadata, mirroring the Step 124 PDA ref approach.
 - Step 127 should not block on context-aware occurrence lookup for non-NQ secondary instruments; endpoint occurrence can remain absent until a later dedicated refinement.
 - Step 127 keeps primary Segment creation behavior unchanged through the existing `startSegment()` / `finishSegment()` wrappers; only explicit secondary menu actions opt into secondary context writes.
+- Step 128 keeps Segment setup links as regular `type: segment` refs. Source metadata is copied onto the ref instead of introducing a new secondary-segment ref type.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -166,6 +172,7 @@
 - Headless Chrome smoke verified Calendar groups a secondary PDA under PDA with `ES 1H`, shows Locate/Open actions, `Locate` updates status, `Open` enters PDA Inspector, and `Back to Calendar` returns to the selected calendar view.
 - Step 126 validation was code-reading and design audit only: Segment store, manual segment creation, primary/secondary renderers, selection, Inspector, Calendar, archive import/export, and setup-link paths were checked before freezing the shared-store design.
 - Headless Chrome smoke verified secondary context-menu Segment start/end actions create an ES 1H segment with source metadata, clicking the secondary-rendered segment selects it, and Inspector shows `Source Chart: secondary`, `Source Instrument: ES`, and `Source TF: 1H`.
+- Headless Chrome smoke verified Segment Inspector `Link Segment To Active Setup` writes a `type=segment` ref with `sourceChartId=secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, `sourceTimeframeLabel=1H`, and `sourceContext=ES 1H`.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -178,8 +185,9 @@
   - `ce9e1c8 feat(v4): select secondary chart PDA`
   - `b528ef1 feat(v4): link secondary PDA to active setup`
   - `61da454 docs(v4): validate secondary PDA persistence`
+  - `a74878d feat(v4): create secondary chart segments`
 - Current uncommitted changes:
-  - Phase 10 Step 127 secondary Segment MVP
+  - Phase 10 Step 128 secondary Segment to active setup link
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -189,4 +197,4 @@
 
 ## Next Steps
 
-- Step 128: link secondary-created segments to active Order Setups with copied source metadata.
+- Step 129: validate the full secondary Segment workflow across Review JSON, Calendar, undo/redo, Split on/off, and replay.

@@ -192,7 +192,7 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 125: Review JSON / localStorage 验证：验证副图创建 PDA 的刷新恢复、export/import、undo/redo、Calendar index 与 Locate/Open 行为
 - [x] Step 126: 副图 Segment 设计冻结：明确副图 segment 复用同一 Segment store，以 source chart/instrument/timeframe metadata 区分来源；字段、显示规则、selection/Inspector、Calendar/archive、link 到 setup 规则已写入 `docs/SECONDARY_SEGMENT_DESIGN.md`
 - [x] Step 127: 副图 Segment MVP：按 Step 126 决策实现副图起终点选择、创建、渲染与基础 Inspector 查看
-- [ ] Step 128: 副图 Segment link 到 setup：支持把副图 segment 作为 HTF structure evidence 关联到 active setup / setup set
+- [x] Step 128: 副图 Segment link 到 setup：支持把副图 segment 作为 HTF structure evidence 关联到 active setup / setup set
 - [ ] Step 129: 副图 Segment 验证：覆盖主图 1M 找 setup、副图 1H/4H 做结构标注的真实流程；验证 Review JSON、Calendar、undo/redo、Split on/off 与 replay 不回归
 
 ## 已知问题

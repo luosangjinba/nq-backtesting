@@ -17,7 +17,12 @@ import {
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
 } from './order-review-store.js';
-import { buildPdaOrderRefMetadata, getPdaOrderRefLabel } from './order-ref-metadata.js';
+import {
+  buildPdaOrderRefMetadata,
+  buildSegmentOrderRefMetadata,
+  getPdaOrderRefLabel,
+  getSegmentOrderRefLabel,
+} from './order-ref-metadata.js';
 import { recordHistory } from '../history/history-manager.js';
 
 function getPdaLabel(annotation) {
@@ -27,8 +32,7 @@ function getPdaLabel(annotation) {
 
 function getSegmentLabel(segment) {
   if (!segment) return 'Segment';
-  const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
-  return `${segment.timeframe || '1H'} ${direction} LEG`;
+  return getSegmentOrderRefLabel(segment);
 }
 
 function getActiveSetupLabel() {
@@ -186,6 +190,7 @@ function linkContextObjectToActiveSetup(action, context) {
         type: ORDER_REF_TYPES.SEGMENT,
         id: segment.id,
         role: ORDER_REF_ROLES.CONTEXT,
+        ...buildSegmentOrderRefMetadata(segment),
       });
       bus.emit('status:update', { text: `${getSegmentLabel(segment)} linked to active setup`, isError: false });
     }

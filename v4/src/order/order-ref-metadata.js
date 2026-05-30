@@ -20,3 +20,25 @@ export function getPdaOrderRefLabel(annotation = {}) {
   const source = [metadata.sourceInstrument, metadata.sourceTimeframeLabel].filter(Boolean).join(' ');
   return source ? `${pdaLabel} · ${source}` : pdaLabel;
 }
+
+export function buildSegmentOrderRefMetadata(segment = {}) {
+  const sourceTimeframeLabel = segment.sourceTimeframeLabel || segment.timeframe || '';
+  const sourceInstrument = segment.sourceInstrument || segment.instrument || 'NQ';
+  const sourceContext = segment.sourceContext || [sourceInstrument, sourceTimeframeLabel].filter(Boolean).join(' ');
+  return {
+    sourceChartId: segment.sourceChartId || 'primary',
+    sourceChartLabel: segment.sourceChartLabel || '',
+    sourceInstrument,
+    sourceTimeframe: segment.sourceTimeframe ?? null,
+    sourceTimeframeLabel,
+    sourceContext,
+  };
+}
+
+export function getSegmentOrderRefLabel(segment = {}) {
+  const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
+  const segmentLabel = `${segment.timeframe || '1H'} ${direction} LEG`;
+  const metadata = buildSegmentOrderRefMetadata(segment);
+  const source = [metadata.sourceInstrument, metadata.sourceTimeframeLabel].filter(Boolean).join(' ');
+  return source ? `${segmentLabel} · ${source}` : segmentLabel;
+}

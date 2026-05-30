@@ -75,7 +75,12 @@ import {
   ORDER_REF_TYPES,
   updateOrderReview,
 } from '../order/order-review-store.js';
-import { buildPdaOrderRefMetadata, getPdaOrderRefLabel } from '../order/order-ref-metadata.js';
+import {
+  buildPdaOrderRefMetadata,
+  buildSegmentOrderRefMetadata,
+  getPdaOrderRefLabel,
+  getSegmentOrderRefLabel,
+} from '../order/order-ref-metadata.js';
 import { locateReviewSet } from '../order/order-review-set.js';
 import {
   EVIDENCE_TYPES,
@@ -389,6 +394,7 @@ function getCompositeTimestamp(group) {
 
 function createOrderReviewFromSegment(segment) {
   const timestamp = getSegmentTimestamp(segment);
+  const segmentRef = buildSegmentOrderReviewRef(segment);
   const order = addOrderReview({
     setupThesis: {
       primaryEventTimestamp: timestamp,
@@ -396,11 +402,7 @@ function createOrderReviewFromSegment(segment) {
       primaryEventType: ORDER_EVENT_TYPES.OTHER,
       primaryEventPrice: getSegmentPrice(segment),
       linkedObjectRefs: [
-        {
-          type: ORDER_REF_TYPES.SEGMENT,
-          id: segment.id,
-          role: ORDER_REF_ROLES.CONTEXT,
-        },
+        segmentRef,
       ],
     },
     entryPlan: {
@@ -608,6 +610,15 @@ function buildPdaOrderReviewRef(annotation) {
   };
 }
 
+function buildSegmentOrderReviewRef(segment) {
+  return {
+    type: ORDER_REF_TYPES.SEGMENT,
+    id: segment.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildSegmentOrderRefMetadata(segment),
+  };
+}
+
 function removeOrderReviewRef(orderReviewId, refIndex) {
   const order = getOrderReviewById(orderReviewId);
   const refs = getOrderReviewRefs(order);
@@ -641,11 +652,12 @@ function addSelectedOrderReviewRef(action, orderReviewId) {
       bus.emit('status:update', { text: '没有选中的 Segment', isError: true });
       return true;
     }
-    addOrderReviewRef(orderReviewId, {
-      type: ORDER_REF_TYPES.SEGMENT,
-      id: selection.id,
-      role: ORDER_REF_ROLES.CONTEXT,
-    });
+    const segment = getSegmentById(selection.id);
+    if (!segment) {
+      bus.emit('status:update', { text: '选中的 Segment 不存在', isError: true });
+      return true;
+    }
+    addOrderReviewRef(orderReviewId, buildSegmentOrderReviewRef(segment));
     return true;
   }
 
@@ -1451,6 +1463,23 @@ function handleInspectorClick(e) {
   }
 
   if (segment) {
+    if (action === 'segment-link-active-setup') {
+      const active = getActiveReviewSet();
+      if (!active?.orderReview) {
+        bus.emit('status:update', { text: '没有 active setup 可链接', isError: true });
+        return;
+      }
+      recordInspectorHistory('Link Segment To Active Setup', () =>
+        linkRefToActiveReviewSet(buildSegmentOrderReviewRef(segment))
+      );
+      bus.emit('status:update', {
+        text: `${getSegmentOrderRefLabel(segment)} linked to active setup`,
+        isError: false,
+      });
+      refreshSelection();
+      return;
+    }
+
     if (action === 'segment-delete') {
       recordInspectorHistory('Delete Segment', () => deleteSegment(segment.id));
       clearSegmentSelection();

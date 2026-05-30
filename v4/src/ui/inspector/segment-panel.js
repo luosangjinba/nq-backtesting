@@ -573,6 +573,7 @@ export function renderSegmentPanel(segment) {
   const edit = section(
     'Review Notes',
     [
+      `<button class="inspector-secondary" data-inspector-action="segment-link-active-setup" type="button">Link Segment To Active Setup</button>`,
       controlField(
         'Narrative',
         `<textarea class="inspector-textarea" data-inspector-action="segment-narrative" rows="5" placeholder="Why did this leg move this way?">${escapeHtml(segment.narrative || '')}</textarea>`
