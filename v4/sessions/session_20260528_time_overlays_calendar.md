@@ -775,3 +775,43 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `5c59370 feat(v4): rebuild active order setup panel`
 - Current uncommitted changes: Step 147 planning and reversal marker right-click MVP
+
+## Phase 12 Active Reversal Marker Highlight
+
+Completed:
+
+- Active setup reversal marker now stays larger and changes to yellow.
+- Non-active bullish reversal remains a green up triangle.
+- Non-active bearish reversal remains a red down triangle.
+
+Commit:
+
+- `18e6ffb style(v4): highlight active reversal marker`
+
+Validation:
+
+- `node --check v4/src/order/order-review-renderer.js`
+- `git diff --check`
+
+## Phase 12 Active Setup Inspector Focus
+
+Completed:
+
+- When any setup becomes active, Inspector now opens automatically.
+- Inspector refreshes to the default panel and scrolls to the `Active Order Setup` section.
+- Clearing/closing the active setup refreshes the panel but does not force the Inspector open.
+
+Commit:
+
+- `05d9cc7 feat(v4): open inspector for active setup`
+
+Validation:
+
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `05d9cc7 feat(v4): open inspector for active setup`
+- Current uncommitted changes: TODO/session audit updates for Step 147B/147C

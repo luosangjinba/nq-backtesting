@@ -219,6 +219,8 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 146: Order Setup 锚点与列表显隐补强：Calendar 的 Order Setups 列表提供 Hide/Show；entry/stop/target/final target 写入时必须命中某根 K 线有效 high/low 范围，否则报错不写入；stop/target/final target 保存各自鼠标锚点 timestamp/timeframe 并从该锚点起画线，旧数据 fallback 到 entry 起点
 - [ ] Step 147: Order Setup element interaction 设计落实：建立 order setup element hit-test 与 selection 状态；reversal / entry / stop / target / final target 都可选中；选中后可控制 helper line 长短并可删除该元素；右键 reversal marker 区域显示命中的 setup 列表，支持 Set Active / Clear Active，多个 setup 共享同一 reversal bar 时从菜单选择具体 setup；第一步先实现 reversal marker 右键命中与 active/close 菜单
 - [x] Step 147A: Reversal marker 右键 MVP：新增 order setup element hit-test；右键命中 reversal 三角区域时菜单显示命中的 setup 列表；支持从共享 reversal 的多个 setup 中选择 Set Active，并支持 Close Active Setup
+- [x] Step 147B: Active reversal marker 高亮：普通 bullish reversal 保持绿色上三角，普通 bearish reversal 保持红色下三角；active setup 的 reversal marker 除了变大，还切换为黄色
+- [x] Step 147C: Active setup Inspector 自动聚焦：从 reversal 菜单或其它入口 Set Active 某个 setup 后，自动打开 Inspector，刷新到默认面板，并滚动定位到 Active Order Setup；Clear/Close Active 只刷新，不强制弹出
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
