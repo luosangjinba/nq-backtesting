@@ -208,9 +208,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 136: Order Setup cleanup 分支启动与术语收敛：从 `main` 创建 `feature/order-setup-cleanup`；第一步把 Inspector 用户可见的 `Review Sets` / `Order Review` 创建提示收敛为 `Order Setups` / `Order Setup`，保留底层 `orderReviews` schema 不变
 - [ ] Step 137: 梳理 chart action 边界：清理 `order-setup-chart-actions.js` 中旧动作分支、缩进噪声和重复状态提示；建立 action map，保证右键菜单只暴露当前实际支持的 Order Setup 动作
 - [ ] Step 138: 收敛 Setup Set / Review Set adapter 使用：明确运行时优先消费 `setup-set.js`；保留 `order-review-set.js` 仅作 active/兼容桥，避免 Calendar/Renderer/Inspector 各自解析 raw order review
-- [ ] Step 139: Inspector Order Setup 面板整顿：默认只显示 active/current setup，不再罗列全部 setup；order elements、explanation elements 和少量动作保留在当前 active setup 中；Advanced Edit 继续折叠，创建/删除/active/locate/show-hide 文案统一为 Order Setup；支持单个 setup 显/隐以处理多 setup 重叠
-- [ ] Step 140: Order Setup linked refs 整顿：统一 PDA/Segment/Composite/SMT ref label、source metadata、去重与删除交互；确保副图来源信息在 Inspector 中可读
-- [ ] Step 140A: Inspector 导航收敛：默认空状态只保留 Calendar + Active Order Setup + 折叠 Archive；不再常驻罗列 SMT Evidence / Structure Sets，相关对象通过 Calendar Open 或图表选择进入详情
+- [x] Step 139: Inspector Order Setup 面板整顿：默认只显示 active/current setup，不再罗列全部 setup；order elements、explanation elements 和少量动作保留在当前 active setup 中；Advanced Edit 继续折叠，创建/删除/active/locate/show-hide 文案统一为 Order Setup；支持单个 setup 显/隐以处理多 setup 重叠
+- [x] Step 140: Order Setup linked refs 整顿：统一 PDA/Segment/Composite/SMT ref label、source metadata、去重与删除交互；确保副图来源信息在 Inspector 中可读
+- [x] Step 140A: Inspector 导航收敛：默认空状态只保留 Calendar + Active Order Setup + 折叠 Archive；不再常驻罗列 SMT Evidence / Structure Sets，相关对象通过 Calendar Open 或图表选择进入详情
 - [ ] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
 - [ ] Step 142: 持久化兼容验证：localStorage、Review JSON import/export、undo/redo 仍使用 `orderReviews` schema；`display.hidden` 兼容旧数据且 import/export 不丢失；外层 UI 语言切换为 Order Setup 不破坏旧数据
 - [ ] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录

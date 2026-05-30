@@ -103,15 +103,68 @@ function renderCheckbox(order, sectionName, fieldName, checked) {
   `;
 }
 
+function getRefType(ref = {}) {
+  return ref.type || ref.refType || 'ref';
+}
+
+function getRefId(ref = {}) {
+  return ref.id || ref.refId || '';
+}
+
+function formatRefType(type) {
+  const normalized = String(type || '').toLowerCase();
+  if (normalized === 'pda') return 'PDA';
+  if (normalized === 'smt') return 'SMT';
+  if (normalized === 'segment') return 'Segment';
+  if (normalized === 'composite') return 'Composite';
+  return type ? String(type).toUpperCase() : 'Ref';
+}
+
+function formatRefRole(role) {
+  const normalized = String(role || 'context').toLowerCase();
+  if (normalized === 'context') return 'Context';
+  if (normalized === 'confirmation') return 'Confirmation';
+  if (normalized === 'trigger') return 'Trigger';
+  if (normalized === 'target') return 'Target';
+  if (normalized === 'invalidation') return 'Invalidation';
+  if (normalized === 'evidence') return 'Evidence';
+  return normalized
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ') || 'Context';
+}
+
+function getRefSource(ref = {}) {
+  if (ref.sourceContext) return ref.sourceContext;
+  return [ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' ');
+}
+
+function shortRefId(id) {
+  const text = String(id || '');
+  return text.length > 24 ? `${text.slice(0, 18)}...${text.slice(-4)}` : text;
+}
+
+function summarizeLinkedRef(ref = {}, { includeId = true } = {}) {
+  const parts = [
+    formatRefRole(ref.role),
+    formatRefType(getRefType(ref)),
+    getRefSource(ref),
+    includeId ? shortRefId(getRefId(ref)) : '',
+  ].filter(Boolean);
+  return parts.join(' · ');
+}
+
 function renderLinkedRefs(refs = []) {
   if (!Array.isArray(refs) || !refs.length) return field('Refs', '—');
-  return field(
-    'Refs',
-    refs.map((ref) => {
-      const source = [ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' ');
-      return `${ref.role}:${ref.type}:${ref.id}${source ? ` · ${source}` : ''}`;
-    }).join(', ')
-  );
+  return `
+    <div class="inspector-field">
+      <div class="inspector-field-label">Refs</div>
+      <div class="inspector-field-value">
+        ${refs.map((ref) => `<div>${escapeHtml(summarizeLinkedRef(ref))}</div>`).join('')}
+      </div>
+    </div>
+  `;
 }
 
 function renderLinkedRefsEditor(order) {
@@ -121,7 +174,7 @@ function renderLinkedRefsEditor(order) {
         .map(
           (ref, index) => `
             <div class="order-review-ref-row">
-              <span>${escapeHtml(ref.role)}:${escapeHtml(ref.type)}:${escapeHtml(ref.id)}${ref.sourceInstrument || ref.sourceTimeframeLabel ? ` · ${escapeHtml([ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' '))}` : ''}</span>
+              <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
               <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">Remove</button>
             </div>
           `
@@ -233,9 +286,7 @@ function renderSetupSetSummary(setupSet, isActive) {
 }
 
 function summarizeRef(ref) {
-  const source = [ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' ');
-  const sourceText = source ? ` · ${source}` : '';
-  return `${ref.role || 'context'}:${ref.refType || 'ref'}:${ref.refId || '—'}${sourceText}`;
+  return summarizeLinkedRef(ref);
 }
 
 function summarizeManualEvent(event) {

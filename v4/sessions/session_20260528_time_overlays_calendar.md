@@ -557,5 +557,28 @@ Validation pending:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `86f947b feat(v4): toggle order setup visibility`
-- Current uncommitted changes: Calendar-driven Inspector navigation cleanup and TODO/session updates
+- Last committed work: `8c521d3 feat(v4): focus inspector on calendar navigation`
+- Current uncommitted changes: none
+
+## Phase 12 Order Setup Linked Refs Cleanup
+
+Completed:
+
+- Unified Order Setup linked ref labels in the Inspector so raw `role:type:id` strings are no longer shown.
+- Linked refs now display readable role/type/source/id summaries for PDA, Segment, Composite, and SMT refs.
+- Ref summaries support both raw order review refs (`type/id`) and derived Setup Set refs (`refType/refId`).
+- Secondary chart source metadata is surfaced through `sourceContext`, with instrument/timeframe as fallback.
+- Long ref IDs are shortened in visible text while the full ID remains available in the row title.
+- Confirmed existing store normalization still dedupes refs by `type:id:role`, and existing remove-by-row interaction still applies to the cleaned display.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module smoke verified rendered linked refs include readable role/type/source labels and no longer contain raw `context:pda:` text.
+- Module smoke verified duplicate linked refs collapse through `normalizeOrderReview()`.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `8c521d3 feat(v4): focus inspector on calendar navigation`
+- Current uncommitted changes: Order Setup linked refs cleanup and TODO/session updates
