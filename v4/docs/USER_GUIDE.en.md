@@ -398,9 +398,9 @@ The Inspector `SMT Evidence` section supports:
 
 SMT records keep their original timeframe. The current version renders SMT only when the record timeframe matches the current primary/secondary timeframe.
 
-## Order Review / Execution Lens
+## Order Setup / Execution Lens
 
-Order Review splits an execution review into three layers:
+Order Setup splits an execution review into three layers:
 
 - `Setup Thesis`: why this opportunity existed, with optional links to segments, Composite Moves, PDAs, SMT, or Reaction Evidence.
 - `Entry Plan`: direction, entry time/price, entry model, stoploss, and targets.
@@ -429,23 +429,26 @@ Segment, Composite Move, PDA, and SMT objects are linked refs, not order parents
 
 Use `Add Manual Explanation Event Here` when the reason is not an existing Segment, PDA, SMT, or Composite Move. For example, a 1H candle respecting a previous 1H FVG, a 30M body touch of FVG CE, or a 1M EQL sweep can be recorded as a manual explanation event.
 
-The Inspector shows the Review Sets list, but the default view is a compact summary. Full fields live under `Advanced Edit`.
+The Inspector defaults to the current `Active Order Setup`. It shows a compact summary, a small action set, and a folded `Advanced Edit` section. Browse older setups from the Calendar object list and use `Open`.
 
-### Order Review Actions
+### Order Setup Actions
 
-Each Order Review currently supports:
+Each Order Setup currently supports:
 
 - `Set Active Setup`: make this review the target for chart actions.
 - `Locate`: locate the setup / entry / exit time range.
+- `Hide` / `Show`: hide or restore the whole setup annotation group without deleting it.
 - `Delete`: delete the review.
 - `Result`: quickly update result state.
 - `Note`: edit the order-level note.
 
 The chart renders a lightweight overlay:
 
-- setup / entry / exit vertical markers
+- a single-bar reversal triangle marker
+- entry helper line
 - stoploss helper line
 - target helper line
+- risk zone / result helper
 
 The first version does not support order hit-testing, drag editing, automatic target-hit calculation, or statistics pages.
 
@@ -460,7 +463,7 @@ The browser automatically saves:
 - PDA annotations
 - market segments
 - segment groups / Composite Moves
-- Order Reviews
+- Order Setups
 
 This is a working draft, not a formal archive.
 
@@ -480,6 +483,8 @@ Review JSON includes:
 - SMT records
 - orderReviews
 
+`orderReviews` is the compatibility field name for Order Setups. It is intentionally unchanged so older archives and local drafts remain readable.
+
 It does not include candle data.
 
 ## Suggested Review Workflow
@@ -493,7 +498,7 @@ It does not include candle data.
 7. Create Composite Moves for multi-leg structures.
 8. Use isolate mode or Structure Sets focus to inspect local context.
 9. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
-10. Create Order Reviews for key opportunities and record setup, entry, and result.
+10. Create Order Setups for key opportunities and record setup, entry, and result.
 11. Export Review JSON for archiving.
 
 ## Notes And Common Pitfalls
@@ -505,6 +510,6 @@ It does not include candle data.
 - `target segment` is usually the prior leg being broken or referenced, and it does not have to be a child.
 - Wick CE is a PDA. It can be linked to a segment and can appear in terminal reaction review.
 - SMT is currently manual evidence. It does not scan candidates automatically.
-- Order Review is a review layer, not an order execution module; incomplete drafts are allowed in the first version.
+- Order Setup is a review layer, not an order execution module; incomplete drafts are allowed in the first version.
 - Review JSON does not include candle data. Another machine still needs local DuckDB market data.
 - Precision-review features such as actor-timeframe auto-fetching, canvas selection, and statistics pages are still deferred.

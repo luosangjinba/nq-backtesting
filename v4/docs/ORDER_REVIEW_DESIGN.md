@@ -1,8 +1,10 @@
-# Order Review / Execution Lens Design
+# Order Setup / Execution Lens Design
 
 ## Purpose
 
-Order Review records why a trade was considered, how it was entered, and whether the plan worked. It is not a raw entry/exit table and it is not an automatic signal engine.
+Order Setup records why a trade was considered, how it was entered, and whether the plan worked. It is not a raw entry/exit table and it is not an automatic signal engine.
+
+Historical code and persisted JSON still use the `OrderReview` / `orderReviews` names. That is a compatibility layer, not the user-facing model. Current UI, documentation, and workflow language should say `Order Setup`.
 
 The core chain is:
 
@@ -19,14 +21,36 @@ Order reasoning must stay flexible. A valid setup may come from one clear event,
 ```text
 PDA / SMT / Reaction Evidence
   -> 1H Segment / Composite Move
-  -> Order Review / Execution Lens
+  -> Order Setup / Execution Lens
   -> Entry Plan / Result Review
 ```
 
 - `1H Segment` remains the structure backbone.
 - `Composite Move` represents multi-leg structure.
-- `Order Review` references existing objects and records the setup thesis.
+- `Order Setup` references existing objects and records the setup thesis.
 - Lower timeframes such as `30M / 15M / 5M / 1M` are execution evidence, not replacements for the structure backbone.
+
+## Current Phase 12 Boundary
+
+The current operating model is:
+
+- User-facing object: `Order Setup`
+- Runtime tree: `Setup Set`
+- Compatibility storage schema: `OrderReview` records under the `orderReviews` key
+- Local draft key: `v4:order-reviews:NQ`
+
+The compatibility names remain because localStorage, Review JSON import/export, undo/redo snapshots, and older archives already depend on them. Do not rename persisted fields until a dedicated migration exists.
+
+Current UI rules:
+
+- The Inspector defaults to `Active Order Setup`, not a full list of every setup.
+- Calendar is the browsing/index entry for all daily Order Setups.
+- `Open` from Calendar selects the target setup; `Locate` only moves/flashes the chart range.
+- A setup can be hidden without deleting it via `display.hidden`.
+- Linked PDA / Segment / Composite / SMT objects are evidence refs only; the setup does not own or mutate those source objects.
+- Reversal is a single-bar event and renders as a small triangle marker, not a line segment.
+- Entry, stop, targets, risk zone, and result render as one grouped setup annotation set.
+- Manual explanation events are for reasons that are not already represented by a PDA, Segment, Composite, or SMT object.
 
 ## Review Set Boundary
 
@@ -43,7 +67,7 @@ This boundary keeps the current storage compatible while fixing the mental model
 - one Review Set can reference several evidence objects, because an order thesis may come from a combination of earlier structures
 - future visibility/focus controls should operate at Review Set level, not on isolated entry/target helper lines
 
-The migration should be incremental. Do not rename the persisted schema until the adapter boundary is stable and import/export compatibility is explicitly handled.
+The migration should be incremental. Do not rename the persisted schema until the adapter boundary is stable and import/export compatibility is explicitly handled. As of Phase 12, the schema is deliberately not migrated; only the user-facing language and runtime consumption path moved toward Order Setup / Setup Set.
 
 ## Setup Set Tree Boundary
 
@@ -216,6 +240,9 @@ The first implementation should normalize every record into this shape, even whe
     result: 'unknown',
     note: ''
   },
+  display: {
+    hidden: false
+  },
   note: ''
 }
 ```
@@ -253,6 +280,7 @@ The store should still allow incomplete drafts, because order reviews may be cre
 - Duplicate linked refs are collapsed by `type:id:role`.
 - `lowTimeframeWarning` is derived from `primaryEventTimeframe` when not explicitly set.
 - `updatedAt` is refreshed on every update.
+- `display.hidden` defaults to `false` for old records and is preserved by localStorage, Review JSON, and undo/redo.
 
 ## Setup Thesis
 
@@ -820,8 +848,9 @@ Implement the complete Inspector form before chart pick. Manual input must work 
 
 ### Create Order Review
 
-First version should allow creation from:
+Current creation paths:
 
+- chart right-click `Order Setup` menu
 - selected segment
 - selected Composite Move
 - Inspector empty state
@@ -840,12 +869,16 @@ Creation behavior:
 - From empty Inspector:
   - create blank draft with `source=manual`
   - user fills setup thesis manually
+- From chart right-click:
+  - create bullish or bearish Order Setup at the clicked bar
+  - activate the setup immediately
+  - later right-click actions write reversal, entry, stop, targets, result, and manual explanation events into the active setup
 
-Do not create an order directly from a chart right-click in the first version. That keeps the first implementation focused and avoids mixing PDA/SMT marking with order review creation.
+Chart-first creation is now the main workflow. Inspector creation remains a fallback, not the primary input path.
 
 ### Inspector Layout
 
-The Inspector should expose a dedicated `Order Reviews` section.
+The Inspector should expose a dedicated `Active Order Setup` section.
 
 Suggested row summary:
 
@@ -856,10 +889,11 @@ Suggested row summary:
 Each order row should provide:
 
 - `Locate`
-- `Edit`
+- `Set Active Setup` / `Clear Active`
+- `Hide` / `Show`
 - `Delete`
 
-When expanded or selected, the row should show three compact panels:
+When active, the row should show compact setup panels:
 
 - `Setup Thesis`
 - `Entry Plan`
@@ -1118,10 +1152,9 @@ First version should not support:
 
 - clicking order markers to select order
 - dragging entry/stop/target lines
-- right-click order marker menus
-- creating orders from chart context menu
+- dragging entry/stop/target lines
 
-This avoids mixing order review with existing PDA/SMT/segment chart interactions.
+Chart context menus are supported for Order Setup creation and updates. They should stay grouped under the `Order Setup` submenu so they do not mix ownership with PDA/SMT/segment actions.
 
 ## Persistence
 
@@ -1130,7 +1163,7 @@ Persistence has two layers:
 - localStorage for local working drafts
 - Review JSON for archive and transfer
 
-Do not write Order Reviews to DuckDB in the first version. Do not store candle data inside Order Reviews.
+Do not write Order Setups to DuckDB in the first version. Do not store candle data inside Order Setups.
 
 ### LocalStorage
 

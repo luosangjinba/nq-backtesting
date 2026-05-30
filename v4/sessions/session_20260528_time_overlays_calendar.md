@@ -632,3 +632,28 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `619a397 refactor(v4): locate order setups through setup sets`
 - Current uncommitted changes: Order Setup persistence compatibility labels, TODO/session updates
+
+## Phase 12 Order Setup Docs Handoff
+
+Completed:
+
+- Updated `docs/ORDER_REVIEW_DESIGN.md` so the current top-level user model is `Order Setup`, while `OrderReview` / `orderReviews` are documented as compatibility storage names.
+- Added the Phase 12 boundary: user-facing `Order Setup`, runtime `Setup Set`, persisted `orderReviews`, localStorage key `v4:order-reviews:NQ`.
+- Documented the current Inspector behavior: focus on `Active Order Setup`, Calendar as the browsing/index entry, setup hide/show, linked refs as evidence only, and reversal as a single-bar triangle marker.
+- Updated Chinese and English user guides to describe the current Order Setup workflow, active setup Inspector, hide/show, grouped chart overlay, and `orderReviews` compatibility key.
+- Added the schema migration decision to TODO architecture records: do not rename persisted fields until a dedicated migration exists.
+
+Validation:
+
+- `node --check v4/src/review/review-archive.js`
+- `node --check v4/src/order/order-review-persistence.js`
+- `node --check v4/src/history/history-manager.js`
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `21a69b1 chore(v4): verify order setup persistence compatibility`
+- Current uncommitted changes: Phase 12 docs/handoff and TODO/session updates

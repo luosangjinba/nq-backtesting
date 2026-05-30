@@ -213,7 +213,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 140A: Inspector 导航收敛：默认空状态只保留 Calendar + Active Order Setup + 折叠 Archive；不再常驻罗列 SMT Evidence / Structure Sets，相关对象通过 Calendar Open 或图表选择进入详情
 - [x] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
 - [x] Step 142: 持久化兼容验证：localStorage、Review JSON import/export、undo/redo 仍使用 `orderReviews` schema；`display.hidden` 兼容旧数据且 import/export 不丢失；外层 UI 语言切换为 Order Setup 不破坏旧数据
-- [ ] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录
+- [x] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
@@ -251,6 +251,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - 2026-05-20: V4 PDA 改为手动标注优先，不做全量自动扫描；用户选择 PDA 后实时计算 HTF/session/midnight/LDN/NYAM 等上下文并打包标注
 - 2026-05-20: PDA 第一阶段只做当前会话内存 store，不写 DB；手动 BSL/SSL 右键标注后实时生成 current TF/session context 并用 LiquidityPrimitive 渲染
 - 2026-05-29: Review data storage direction is layered, not YAML-vs-DuckDB exclusive. Near term: localStorage remains the browser work draft, Review JSON/YAML remains the human-readable archive/exchange format while schemas keep evolving. Later, after Order Setup / PDA / Segment / Composite / SMT / Reaction Evidence object boundaries stabilize, add DuckDB import/export as the formal research database for batch query, statistics, cross-sample search, and reproducible analysis. YAML/JSON should continue as portable case files and migration/backup format even after DuckDB exists.
+- 2026-05-30: Phase 12 Order Setup cleanup keeps `OrderReview` / `orderReviews` as the compatibility storage schema. User-facing language is `Order Setup`; runtime grouping should prefer `Setup Set`; persisted JSON/localStorage keys are not renamed until a dedicated migration exists.
 - 2026-05-29: Secondary chart annotation workflow will be introduced through an explicit `chart-context` boundary first. Existing primary chart modules remain the default behavior surface; secondary chart write actions must opt in through context-aware helpers so readonly split-screen behavior is not accidentally changed.
 - 2026-05-20: PDA session 划分采用 Asia / London Killzone / London Close / NY Premarket / NY Open / AM Silver Bullet / NY Late Morning / Lunch / PM Open / PM Silver Bullet / Power Hour / Post-Close / CME Break；CME Break 跳过极值判断
 - 2026-05-20: PDA context 计算区间与图表显示区间分离；右键标注时按所选 K 线所属 CME 交易日临时请求完整交易日数据，仅用于 PDA 极值计算，不改变图表显示
