@@ -819,7 +819,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `117b3b4 feat(v4): support multi-reason setup notes`
 
 Notes:
 
@@ -857,7 +857,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `117b3b4 feat(v4): support multi-reason setup notes`
 
 Notes:
 

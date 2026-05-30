@@ -1135,8 +1135,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `98bbe1e docs(v4): fix order setup replay commit refs`
-- Current uncommitted changes: Step 147N implementation and operation script updates
+- Last committed work: `117b3b4 feat(v4): support multi-reason setup notes`
+- Current uncommitted changes: none for Step 147N
+
+Committed:
+
+- `117b3b4 feat(v4): support multi-reason setup notes`
 
 ## Phase 12 Default Hidden Setups And Helper Line Colors
 
@@ -1172,8 +1176,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `98bbe1e docs(v4): fix order setup replay commit refs`
-- Current uncommitted changes: Step 147N/147O implementation and operation script updates
+- Last committed work: `117b3b4 feat(v4): support multi-reason setup notes`
+- Current uncommitted changes: none for Step 147O
+
+Committed:
+
+- `117b3b4 feat(v4): support multi-reason setup notes`
 
 ## Phase 12 Execution Column Alignment
 
