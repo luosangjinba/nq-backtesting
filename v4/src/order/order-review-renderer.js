@@ -17,6 +17,7 @@ const ACTIVE_ENTRY_COLOR = '#b2dfdb';
 const ACTIVE_TARGET_COLORS = ['#6fa0ff', '#82adff', '#a5c2ff', '#ce93d8'];
 const REVERSAL_BULLISH_COLOR = '#26a69a';
 const REVERSAL_BEARISH_COLOR = '#ef5350';
+const ACTIVE_REVERSAL_COLOR = '#ffd54f';
 const RISK_ZONE_LONG = {
   fillColor: 'rgba(38, 166, 154, 0.13)',
   borderColor: 'rgba(38, 166, 154, 0.35)',
@@ -94,7 +95,11 @@ function renderReversalMarker(reversal, direction, isActive = false) {
 
   const isBearish = direction === ORDER_DIRECTIONS.SHORT;
   const position = isBearish ? 'above' : 'below';
-  const markerColor = isBearish ? REVERSAL_BEARISH_COLOR : REVERSAL_BULLISH_COLOR;
+  const markerColor = isActive
+    ? ACTIVE_REVERSAL_COLOR
+    : isBearish
+      ? REVERSAL_BEARISH_COLOR
+      : REVERSAL_BULLISH_COLOR;
   const barIndex = getDisplayBarIndexForTimestamp(reversal?.timestamp);
   const bar = barIndex >= 0 ? store.getDisplayBars()[barIndex] : null;
   const markerPrice = Number(isBearish ? bar?.high : bar?.low);
