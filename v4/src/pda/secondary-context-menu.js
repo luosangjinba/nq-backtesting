@@ -4,6 +4,7 @@
 import * as bus from '../event-bus.js';
 import { getSecondaryChartContext } from '../chart/chart-context.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
+import * as viewport from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { recordHistory } from '../history/history-manager.js';
 import { clampMenuPosition } from './manual-context-menu.js';
@@ -38,6 +39,19 @@ function formatContextTime(bar) {
 
 function formatPrice(price) {
   return Number.isFinite(Number(price)) ? Number(price).toFixed(2) : '';
+}
+
+function formatPrimaryLocateRange(bar, context) {
+  const timestamp = Number(bar?.timestamp);
+  const timeframe = Number(context?.timeframe);
+  if (!Number.isFinite(timestamp) || !Number.isFinite(timeframe) || timeframe <= 0) {
+    return null;
+  }
+  const durationSeconds = timeframe * 60;
+  return {
+    start: timestamp,
+    end: timestamp + Math.max(60, durationSeconds) - 60,
+  };
 }
 
 async function copyText(value, label) {
@@ -77,6 +91,7 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Navigation</div>
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-secondary-action="secondary-show-cursor" ${disabled}>Show Cursor Here</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-locate-primary" ${disabled}>Locate Time in Primary</button>
         <button class="pda-menu-item" data-secondary-action="secondary-copy-time" ${disabled}>Copy Secondary Time</button>
         <button class="pda-menu-item" data-secondary-action="secondary-copy-price" ${priceDisabled}>Copy Price ${escapeHtml(priceLabel)}</button>
         </div>
@@ -188,6 +203,17 @@ async function handleSecondaryMenuClick(e) {
       secondaryChart.showSecondaryHoverCursor(getBarChartTime(getSecondaryChartContext(), contextMenuBar));
       bus.emit('status:update', { text: `副图 cursor: ${formatContextTime(contextMenuBar)}`, isError: false });
     }
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-locate-primary') {
+    const context = getSecondaryChartContext();
+    const range = formatPrimaryLocateRange(contextMenuBar, context);
+    if (!range) {
+      bus.emit('status:update', { text: '主图定位失败：副图时间不可用', isError: true });
+      hideSecondaryContextMenu();
+      return;
+    }
+    viewport.locateTimestampRange(range.start, range.end);
+    bus.emit('status:update', { text: `主图已定位到 ${formatContextTime(contextMenuBar)}`, isError: false });
     hideSecondaryContextMenu();
   } else if (action === 'secondary-copy-time') {
     await copyText(formatContextTime(contextMenuBar), '时间');

@@ -417,3 +417,23 @@ Current Git State:
 Next Steps:
 
 - Commit the review fix, then decide whether to merge `feature/secondary-chart-annotation-workflow` back to `main`.
+
+## Secondary Navigation Symmetry Update
+
+Completed:
+
+- Added `Locate Time in Primary` to the secondary chart Navigation submenu.
+- The action maps the clicked secondary bar timestamp to the matching primary chart time range and calls `viewport.locateTimestampRange()`.
+- For higher secondary timeframes, the located primary range spans the full secondary bar window, for example 1H maps to `timestamp` through `timestamp + 59m`.
+- The primary chart viewport scrolls to the corresponding area and uses the existing locate flash.
+- `Show Cursor Here` remains as a lightweight secondary-only temporary cursor marker.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-context-menu.js`
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `788da3c fix(v4): use chart context for pda hit-test extension`
+- Current uncommitted changes: secondary context-menu primary locate action and session update
