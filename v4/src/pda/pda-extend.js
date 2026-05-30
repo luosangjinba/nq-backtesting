@@ -11,8 +11,10 @@ function normalizeTimeframeLabel(value) {
 }
 
 function getSecondsForTimeframeLabel(value) {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value * 60;
   const label = normalizeTimeframeLabel(value);
   if (!label) return null;
+  if (/^\d+$/.test(label)) return Number(label) * 60;
   if (TIMEFRAME_TO_SECONDS[label]) return TIMEFRAME_TO_SECONDS[label];
   const minuteMatch = label.match(/^(\d+)M$/);
   if (minuteMatch) return Number(minuteMatch[1]) * 60;
@@ -26,6 +28,8 @@ function inferSourceTimeframeSeconds(annotation = {}) {
   const candidates = [
     annotation.display?.extendTimeframe,
     annotation.display?.sourceTimeframe,
+    annotation.sourceTimeframe,
+    annotation.sourceTimeframeLabel,
     annotation.timeframe,
     ...(Array.isArray(annotation.contexts) ? annotation.contexts : []),
   ];

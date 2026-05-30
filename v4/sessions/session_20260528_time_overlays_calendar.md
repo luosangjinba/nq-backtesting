@@ -71,6 +71,10 @@
   - secondary PDA creation reuses `manual-pda-actions.addManualPoint()` with `getSecondaryChartContext()`
   - created annotations include `sourceChartId`, `sourceInstrument`, `sourceTimeframe`, and `sourceChartLabel`
   - range/FVG/Segment secondary write actions remain disabled until rendering/Inspector/persistence validation is broader
+- Phase 10 Step 122 secondary PDA rendering consistency:
+  - secondary-created liquidity PDA now gets a source context label such as `ES 1H`, so primary/secondary labels and Calendar summaries show where it came from
+  - secondary-created liquidity PDA stores `sourceTimeframeLabel` plus default `display.extendSeconds`
+  - `pda-extend.js` now understands numeric `sourceTimeframe`, so explicit/source-duration PDA extension maps consistently across primary and secondary timeframes
 
 ## Decisions
 
@@ -91,6 +95,7 @@
 - Step 119 keeps user-visible write behavior on the primary chart. Secondary chart creation must still wait for a dedicated secondary context menu and explicit enablement.
 - Step 120 establishes secondary menu ownership and event routing only. It must not create PDA/Segment records yet; Step 121 is the first write-enabled secondary PDA step.
 - Step 121 intentionally starts with BSL/SSL only. Range PDA needs more validation around start/end selection state and cross-chart projection before it is enabled.
+- Step 122 does not add secondary hit-test/selection. That remains Step 123; this step only hardens rendering metadata, extension duration, and persistence/export behavior for secondary-created PDA.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -116,6 +121,9 @@
 - Headless Chrome smoke verified Split Screen secondary right-click opens `#secondary-context-menu`, does not create a primary menu, keeps secondary PDA/Segment write actions disabled, and leaves secondary navigation/copy actions enabled.
 - `node --check` passed for `v4/src/pda/manual-pda-actions.js` and `v4/src/pda/secondary-context-menu.js` after Step 121.
 - Headless Chrome smoke verified secondary `Mark BSL` creates one PDA annotation with `sourceChartId=secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, and `sourceChartLabel=Secondary`.
+- `node --check` passed for `v4/src/pda/manual-pda-actions.js` and `v4/src/pda/pda-extend.js` after Step 122.
+- Module probe verified a secondary 1H liquidity PDA with explicit source display extends as 8 bars on 1H and 480 bars on 1M.
+- Headless Chrome smoke verified secondary `Mark BSL` creates `contexts=["ES 1H"]`, `sourceTimeframeLabel=1H`, `display.extendSeconds=28800`, localStorage persistence and PDA export keep source fields, and extend maps to 480 primary 1M bars / 8 secondary 1H bars.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -128,7 +136,7 @@
   - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
 - Current uncommitted changes:
-  - Phase 10 Step 121 secondary BSL/SSL PDA creation MVP
+  - Phase 10 Step 122 secondary PDA rendering consistency
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -138,4 +146,4 @@
 
 ## Next Steps
 
-- Step 122: validate and harden secondary-created PDA rendering/selection/persistence/undo/export behavior before expanding to range PDA.
+- Step 123: implement secondary PDA hit-test/select/Inspector entry, then validate edit/delete/undo still targets the same PDA store.

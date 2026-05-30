@@ -8,9 +8,12 @@ import { recordHistory } from '../history/history-manager.js';
 import { addAnnotation } from './pda-store.js';
 import { buildPointContexts, formatContextLabel, getPointCanonicalTimestamp } from './pda-context.js';
 import { fetchTradingDaySourceBars } from './pda-context-data.js';
+import { buildExtendDisplayPatch } from './pda-extend.js';
 import { identifyFvg } from './fvg-identifier.js';
 import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType } from './pda-types.js';
+
+const DEFAULT_LIQUIDITY_EXTEND_BARS = 8;
 
 export const DEFAULT_FIB_LEVELS = [
   { value: 1, visible: true, color: '#60636f' },
@@ -62,12 +65,27 @@ export function getSelectedRangeBars(context, startBar, endBar) {
 }
 
 function buildSourceMetadata(context, extraMetadata = {}) {
+  const sourceTimeframe = context?.timeframe;
   return {
     sourceChartId: context?.chartId || context?.id || 'primary',
     sourceInstrument: context?.instrument || 'NQ',
-    sourceTimeframe: context?.timeframe,
+    sourceTimeframe,
+    sourceTimeframeLabel: timeframeToString(sourceTimeframe),
     ...extraMetadata,
   };
+}
+
+function buildSourceContextLabel(context) {
+  const chartId = context?.chartId || context?.id || 'primary';
+  if (chartId === 'primary') return null;
+  return `${context?.instrument || 'NQ'} ${timeframeToString(context?.timeframe)}`;
+}
+
+function buildDefaultDisplay(context, metadata = {}) {
+  if (metadata.display) return metadata.display;
+  const chartId = context?.chartId || context?.id || 'primary';
+  if (chartId !== 'secondary') return undefined;
+  return buildExtendDisplayPatch(DEFAULT_LIQUIDITY_EXTEND_BARS, context?.timeframe);
 }
 
 export async function addManualPoint(type, bar, context, metadata = {}) {
@@ -86,10 +104,15 @@ export async function addManualPoint(type, bar, context, metadata = {}) {
   }
 
   const displayBars = getDisplayBars(context);
-  const contexts = buildPointContexts(type, bar, timeframe, contextBars);
+  const sourceContextLabel = buildSourceContextLabel(context);
+  const contexts = [
+    sourceContextLabel,
+    ...buildPointContexts(type, bar, timeframe, contextBars),
+  ].filter(Boolean);
   const price = bar[pdaType.priceField];
   const canonicalTimestamp = getPointCanonicalTimestamp(type, bar, timeframe, contextBars);
   const validation = validateManualSwing(type, bar, timeframe, displayBars);
+  const display = buildDefaultDisplay(context, metadata);
   const annotation = {
     id: `manual_${type}_${canonicalTimestamp}_${Date.now()}`,
     type,
@@ -100,6 +123,7 @@ export async function addManualPoint(type, bar, context, metadata = {}) {
     barTime: bar.time,
     price,
     ...buildSourceMetadata(context, metadata),
+    ...(display ? { display } : {}),
     contexts,
     validation,
   };
