@@ -1,6 +1,7 @@
 // Pixel-based PDA hit testing for chart click selection.
 
 import * as chart from '../chart/chart-manager.js';
+import { getPrimaryChartContext } from '../chart/chart-context.js';
 import * as store from '../data/bar-store.js';
 import { getAnnotations } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
@@ -19,10 +20,18 @@ const MARKER_TOLERANCE_PX = 8;
 const DEFAULT_LINE_EXTEND_BARS = 8;
 const MIN_RANGE_HIT_WIDTH_PX = 8;
 
-function mapTimestampToCurrentChartTime(timestamp) {
+function getHitContext(context) {
+  return context || getPrimaryChartContext();
+}
+
+function getHitTimeframe(context) {
+  return Number(context?.timeframe) || store.getCurrentTimeframe();
+}
+
+function mapTimestampToCurrentChartTime(timestamp, context) {
   if (timestamp === undefined || timestamp === null) return null;
   if (!Number.isFinite(Number(timestamp))) return null;
-  const timeframe = store.getCurrentTimeframe();
+  const timeframe = getHitTimeframe(context);
   const bucketStart = getBucketStart(Number(timestamp), timeframe);
   if (timeframe === 1440) {
     const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
@@ -31,43 +40,46 @@ function mapTimestampToCurrentChartTime(timestamp) {
   return bucketStart;
 }
 
-function getPointRenderTime(annotation) {
+function getPointRenderTime(annotation, context) {
   return (
-    mapTimestampToCurrentChartTime(annotation.canonicalTimestamp) ??
-    mapTimestampToCurrentChartTime(annotation.timestamp) ??
+    mapTimestampToCurrentChartTime(annotation.canonicalTimestamp, context) ??
+    mapTimestampToCurrentChartTime(annotation.timestamp, context) ??
     annotation.anchorTime
   );
 }
 
-function getRangeRenderTime(annotation, field, fallbackField) {
+function getRangeRenderTime(annotation, field, fallbackField, context) {
   const rawTime = annotation[`${field}Timestamp`] ?? annotation[field];
   if (typeof rawTime === 'string') return rawTime;
-  return mapTimestampToCurrentChartTime(rawTime) ?? annotation[fallbackField] ?? annotation.anchorTime;
+  return mapTimestampToCurrentChartTime(rawTime, context) ?? annotation[fallbackField] ?? annotation.anchorTime;
 }
 
-function getTimeCoordinate(time) {
+function getTimeCoordinate(time, context) {
   if (time === undefined || time === null) return null;
-  return chart.getChart()?.timeScale().timeToCoordinate(time) ?? null;
+  const activeContext = getHitContext(context);
+  return activeContext.getChart?.()?.timeScale().timeToCoordinate(time) ?? null;
 }
 
-function getLogicalCoordinate(time) {
-  const x = getTimeCoordinate(time);
+function getLogicalCoordinate(time, context) {
+  const activeContext = getHitContext(context);
+  const x = getTimeCoordinate(time, activeContext);
   if (x === null) return null;
-  return chart.getChart()?.timeScale().coordinateToLogical(x) ?? null;
+  return activeContext.getChart?.()?.timeScale().coordinateToLogical(x) ?? null;
 }
 
-function getCoordinateForLogical(logical) {
+function getCoordinateForLogical(logical, context) {
   if (logical === null || logical === undefined) return null;
-  return chart.getChart()?.timeScale().logicalToCoordinate(logical) ?? null;
+  return getHitContext(context).getChart?.()?.timeScale().logicalToCoordinate(logical) ?? null;
 }
 
-function getPriceCoordinate(price) {
+function getPriceCoordinate(price, context) {
   if (price === undefined || price === null) return null;
-  return chart.priceToCoordinate(Number(price));
+  const activeContext = getHitContext(context);
+  return activeContext.priceToCoordinate?.(Number(price)) ?? chart.priceToCoordinate(Number(price));
 }
 
-function getExtendBars(annotation, fallback = 0) {
-  return getExtendBarsForTimeframe(annotation, fallback, store.getCurrentTimeframe());
+function getExtendBars(annotation, fallback = 0, context) {
+  return getExtendBarsForTimeframe(annotation, fallback, getHitTimeframe(context));
 }
 
 function extendXByBars(x, extendBars) {
@@ -87,13 +99,13 @@ function distanceToSegmentX(x, from, to) {
   return Math.min(Math.abs(x - from), Math.abs(x - to));
 }
 
-function hitLiquidity(annotation, x, y) {
-  const anchorTime = getPointRenderTime(annotation);
-  const anchorX = getTimeCoordinate(anchorTime);
-  const lineY = getPriceCoordinate(annotation.price);
-  const logical = getLogicalCoordinate(anchorTime);
-  const extendBars = getExtendBars(annotation, DEFAULT_LINE_EXTEND_BARS);
-  const endX = getCoordinateForLogical(logical === null ? null : logical + extendBars);
+function hitLiquidity(annotation, x, y, context) {
+  const anchorTime = getPointRenderTime(annotation, context);
+  const anchorX = getTimeCoordinate(anchorTime, context);
+  const lineY = getPriceCoordinate(annotation.price, context);
+  const logical = getLogicalCoordinate(anchorTime, context);
+  const extendBars = getExtendBars(annotation, DEFAULT_LINE_EXTEND_BARS, context);
+  const endX = getCoordinateForLogical(logical === null ? null : logical + extendBars, context);
 
   if (anchorX === null || lineY === null || endX === null) return null;
 
@@ -111,16 +123,16 @@ function hitLiquidity(annotation, x, y) {
   };
 }
 
-function hitRange(annotation, x, y) {
-  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
-  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
-  const startX = getTimeCoordinate(startTime);
-  let endX = getTimeCoordinate(endTime);
-  const topY = getPriceCoordinate(annotation.topPrice ?? annotation.priceHigh);
-  const bottomY = getPriceCoordinate(annotation.bottomPrice ?? annotation.priceLow);
+function hitRange(annotation, x, y, context) {
+  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime', context);
+  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime', context);
+  const startX = getTimeCoordinate(startTime, context);
+  let endX = getTimeCoordinate(endTime, context);
+  const topY = getPriceCoordinate(annotation.topPrice ?? annotation.priceHigh, context);
+  const bottomY = getPriceCoordinate(annotation.bottomPrice ?? annotation.priceLow, context);
 
   if (startX === null || endX === null || topY === null || bottomY === null) return null;
-  endX = extendXByBars(endX, getExtendBars(annotation, 0));
+  endX = extendXByBars(endX, getExtendBars(annotation, 0, context));
 
   let hitStartX = startX;
   let hitEndX = endX;
@@ -143,35 +155,36 @@ function hitRange(annotation, x, y) {
   };
 }
 
-function getPointSetRenderPoints(annotation) {
+function getPointSetRenderPoints(annotation, context) {
   if (!Array.isArray(annotation.points)) return [];
   return annotation.points
     .map((point) => ({
       x: getTimeCoordinate(
-        mapTimestampToCurrentChartTime(point.canonicalTimestamp) ??
-          mapTimestampToCurrentChartTime(point.timestamp) ??
-          point.anchorTime
+        mapTimestampToCurrentChartTime(point.canonicalTimestamp, context) ??
+          mapTimestampToCurrentChartTime(point.timestamp, context) ??
+          point.anchorTime,
+        context
       ),
       price: point.price,
     }))
     .filter((point) => point.x !== null && point.price !== undefined);
 }
 
-function hitPointSet(annotation, x, y) {
-  const points = getPointSetRenderPoints(annotation);
+function hitPointSet(annotation, x, y, context) {
+  const points = getPointSetRenderPoints(annotation, context);
   if (points.length < 2) return null;
 
   const referencePrice =
     annotation.referencePrice ??
     annotation.price ??
     points.reduce((sum, point) => sum + Number(point.price), 0) / points.length;
-  const referenceY = getPriceCoordinate(referencePrice);
+  const referenceY = getPriceCoordinate(referencePrice, context);
   if (referenceY === null) return null;
 
   const xs = points.map((point) => point.x);
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
-  const endX = extendXByBars(maxX, getExtendBars(annotation, 0));
+  const endX = extendXByBars(maxX, getExtendBars(annotation, 0, context));
   const lineHit =
     Math.abs(y - referenceY) <= LINE_TOLERANCE_PX && between(x, minX, endX, LINE_TOLERANCE_PX);
 
@@ -198,13 +211,13 @@ function getFibLevelPrice(annotation, levelValue) {
   return endPrice - (endPrice - startPrice) * Number(levelValue);
 }
 
-function hitFib(annotation, x, y) {
-  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime');
-  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime');
-  const startX = getTimeCoordinate(startTime);
-  const rawEndX = getTimeCoordinate(endTime);
+function hitFib(annotation, x, y, context) {
+  const startTime = getRangeRenderTime(annotation, 'startTime', 'startTime', context);
+  const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime', context);
+  const startX = getTimeCoordinate(startTime, context);
+  const rawEndX = getTimeCoordinate(endTime, context);
   if (startX === null || rawEndX === null) return null;
-  const extendBars = getExtendBars(annotation, 0);
+  const extendBars = getExtendBars(annotation, 0, context);
   const minX = Math.min(startX, rawEndX);
   const endX = extendXByBars(Math.max(startX, rawEndX), extendBars);
   if (endX === null) return null;
@@ -214,7 +227,7 @@ function hitFib(annotation, x, y) {
     .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
     .map((level) => ({
       value: level.value,
-      y: getPriceCoordinate(getFibLevelPrice(annotation, level.value)),
+      y: getPriceCoordinate(getFibLevelPrice(annotation, level.value), context),
     }))
     .filter((level) => level.y !== null);
 
@@ -233,7 +246,8 @@ function hitFib(annotation, x, y) {
   };
 }
 
-export function hitTestPdaAnnotations({ x, y }) {
+export function hitTestPdaAnnotations({ x, y, context = null }) {
+  const activeContext = getHitContext(context);
   const hits = [];
   const isolatedSegment = getIsolatedSegment();
   const isolatedVisiblePdaIds = new Set();
@@ -264,10 +278,10 @@ export function hitTestPdaAnnotations({ x, y }) {
     if (!pdaType) return;
 
     let hit = null;
-    if (pdaType.shape === 'liquidity-line') hit = hitLiquidity(annotation, x, y);
-    if (pdaType.shape === 'range') hit = hitRange(annotation, x, y);
-    if (pdaType.shape === 'point-set') hit = hitPointSet(annotation, x, y);
-    if (pdaType.shape === 'fib-retracement') hit = hitFib(annotation, x, y);
+    if (pdaType.shape === 'liquidity-line') hit = hitLiquidity(annotation, x, y, activeContext);
+    if (pdaType.shape === 'range') hit = hitRange(annotation, x, y, activeContext);
+    if (pdaType.shape === 'point-set') hit = hitPointSet(annotation, x, y, activeContext);
+    if (pdaType.shape === 'fib-retracement') hit = hitFib(annotation, x, y, activeContext);
     if (hit) hits.push(hit);
   });
 

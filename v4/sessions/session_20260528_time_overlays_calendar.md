@@ -75,6 +75,10 @@
   - secondary-created liquidity PDA now gets a source context label such as `ES 1H`, so primary/secondary labels and Calendar summaries show where it came from
   - secondary-created liquidity PDA stores `sourceTimeframeLabel` plus default `display.extendSeconds`
   - `pda-extend.js` now understands numeric `sourceTimeframe`, so explicit/source-duration PDA extension maps consistently across primary and secondary timeframes
+- Phase 10 Step 123 secondary PDA selection:
+  - `pda-hit-test.js` now accepts an optional chart context and maps PDA coordinates against primary or secondary chart/timeframe
+  - `pda-selection.js` now listens for clicks on `#secondary-chart`, hit-tests secondary-rendered PDA, and calls the same `selectPda()` path used by the primary chart
+  - Inspector opens from the existing `pda:selected` event, so selection/edit/delete still targets the same PDA store object
 
 ## Decisions
 
@@ -96,6 +100,7 @@
 - Step 120 establishes secondary menu ownership and event routing only. It must not create PDA/Segment records yet; Step 121 is the first write-enabled secondary PDA step.
 - Step 121 intentionally starts with BSL/SSL only. Range PDA needs more validation around start/end selection state and cross-chart projection before it is enabled.
 - Step 122 does not add secondary hit-test/selection. That remains Step 123; this step only hardens rendering metadata, extension duration, and persistence/export behavior for secondary-created PDA.
+- Step 123 only adds selection/Inspector entry. It does not add separate secondary Inspector state; edits remain centralized on the existing PDA annotation.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -124,6 +129,8 @@
 - `node --check` passed for `v4/src/pda/manual-pda-actions.js` and `v4/src/pda/pda-extend.js` after Step 122.
 - Module probe verified a secondary 1H liquidity PDA with explicit source display extends as 8 bars on 1H and 480 bars on 1M.
 - Headless Chrome smoke verified secondary `Mark BSL` creates `contexts=["ES 1H"]`, `sourceTimeframeLabel=1H`, `display.extendSeconds=28800`, localStorage persistence and PDA export keep source fields, and extend maps to 480 primary 1M bars / 8 secondary 1H bars.
+- `node --check` passed for `v4/src/pda/pda-hit-test.js` and `v4/src/pda/pda-selection.js` after Step 123.
+- Headless Chrome smoke verified clicking a secondary-rendered BSL selects the same PDA id, opens Inspector, and shows the `ES 1H` source context.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -136,7 +143,7 @@
   - `511e7c2 docs(v4): update calendar secondary sync handoff`
   - `e2a9cb9 fix(v4): sync inspector calendar and overlays to secondary chart`
 - Current uncommitted changes:
-  - Phase 10 Step 122 secondary PDA rendering consistency
+  - Phase 10 Step 123 secondary PDA hit-test/select/Inspector
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -146,4 +153,4 @@
 
 ## Next Steps
 
-- Step 123: implement secondary PDA hit-test/select/Inspector entry, then validate edit/delete/undo still targets the same PDA store.
+- Step 124: link secondary-selected PDA to the active setup while preserving source chart/timeframe information.
