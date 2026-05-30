@@ -84,6 +84,11 @@
   - active setup link paths now preserve PDA source metadata in `linkedObjectRefs`
   - PDA Inspector now exposes `Link PDA To Active Setup`, so a PDA selected from the secondary chart can be linked without returning to the primary right-click menu
   - Setup Set explanation refs and Order Review summary keep/show the source instrument/timeframe
+- Phase 10 Step 125 persistence/review validation:
+  - verified secondary-created and secondary-linked PDA metadata survives localStorage save/restore
+  - verified PDA JSON import and Review JSON import preserve source chart/instrument/timeframe/context metadata
+  - verified Inspector link participates in undo/redo by removing and restoring the setup ref
+  - verified Calendar review index groups the secondary PDA under PDA with its `ES 1H` context and keeps Locate/Open/Back navigation working
 
 ## Decisions
 
@@ -107,6 +112,7 @@
 - Step 122 does not add secondary hit-test/selection. That remains Step 123; this step only hardens rendering metadata, extension duration, and persistence/export behavior for secondary-created PDA.
 - Step 123 only adds selection/Inspector entry. It does not add separate secondary Inspector state; edits remain centralized on the existing PDA annotation.
 - Step 124 preserves source metadata on refs but still stores the link as a normal PDA ref. There is no separate secondary-ref type.
+- Step 125 is validation-only. It did not require schema or runtime code changes; the current archive/localStorage paths already preserve the new source metadata.
 - Review data storage should stay layered:
   - localStorage is the near-term browser work draft
   - Review JSON/YAML remains the human-readable archive and exchange format while schemas keep changing
@@ -140,6 +146,8 @@
 - `node --check` passed for order ref metadata/link modules and PDA/Order Review inspector panels after Step 124.
 - Module probe verified `normalizeLinkedObjectRef()` preserves `sourceChartId`, `sourceInstrument`, numeric `sourceTimeframe`, `sourceTimeframeLabel`, and source context.
 - Headless Chrome smoke verified PDA Inspector `Link PDA To Active Setup` writes a secondary PDA ref with `sourceChartId=secondary`, `sourceInstrument=ES`, `sourceTimeframe=60`, `sourceTimeframeLabel=1H`, and `sourceContext=ES 1H`.
+- Headless Chrome smoke verified localStorage PDA/Order Review restore, PDA JSON import, Review JSON import, and undo/redo all preserve the same secondary PDA/link metadata.
+- Headless Chrome smoke verified Calendar groups a secondary PDA under PDA with `ES 1H`, shows Locate/Open actions, `Locate` updates status, `Open` enters PDA Inspector, and `Back to Calendar` returns to the selected calendar view.
 - Headless Chrome smoke verified secondary locate moves the secondary logical range to include the target bar after the new secondary locate/flash path.
 - Headless Chrome smoke verified Calendar selected-date writes `selectedDate=2012-01-10`, shows the overlay filter state, and `All loaded days` clears it back to all loaded days.
 - Headless Chrome smoke verified secondary 1H progressive replay at `2014-05-01 07:13` matches the 1M aggregate for 07:00-07:13 instead of revealing the full 07:00-07:59 candle.
@@ -148,11 +156,11 @@
 ## Current Git State
 
 - Last committed work:
-  - `a4391d7 feat(v4): create secondary chart liquidity PDA`
   - `6446fa2 fix(v4): align secondary PDA rendering metadata`
   - `ce9e1c8 feat(v4): select secondary chart PDA`
+  - `b528ef1 feat(v4): link secondary PDA to active setup`
 - Current uncommitted changes:
-  - Phase 10 Step 124 secondary PDA to active setup link metadata
+  - Phase 10 Step 125 TODO/session validation updates
   - TODO/session handoff updates
 - Existing unrelated untracked local files remain ignored:
   - `__pycache__/`
@@ -162,4 +170,4 @@
 
 ## Next Steps
 
-- Step 125: verify Review JSON/localStorage/undo-redo around secondary-created and secondary-linked PDA before enabling range PDA.
+- Step 126: freeze the secondary Segment design before implementing segment creation on the secondary chart.
