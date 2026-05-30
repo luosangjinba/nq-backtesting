@@ -1208,8 +1208,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `14afca4 docs(v4): record reversal hide setup commit`
-- Current uncommitted changes: Step 147Q implementation and operation script updates
+- Last committed work: `4e22714 feat(v4): compact calendar setup actions`
+- Current uncommitted changes: none for Step 147Q
+
+Committed:
+
+- `4e22714 feat(v4): compact calendar setup actions`
 
 ## Phase 12 Delete Setup From Calendar And Reversal Menus
 
@@ -1241,8 +1245,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `14afca4 docs(v4): record reversal hide setup commit`
-- Current uncommitted changes: Step 147Q/147R implementation and operation script updates
+- Last committed work: `4e22714 feat(v4): compact calendar setup actions`
+- Current uncommitted changes: none for Step 147R
+
+Committed:
+
+- `4e22714 feat(v4): compact calendar setup actions`
 
 ## Phase 12 Default Hidden Setups And Helper Line Colors
 

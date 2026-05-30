@@ -926,7 +926,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `4e22714 feat(v4): compact calendar setup actions`
 
 Notes:
 
@@ -960,7 +960,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `4e22714 feat(v4): compact calendar setup actions`
 
 Notes:
 
