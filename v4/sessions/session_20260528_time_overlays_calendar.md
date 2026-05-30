@@ -1056,3 +1056,116 @@ Current Git State:
 - Branch: `feature/order-setup-cleanup`
 - Last committed work: `e88cbc2 feat(v4): refine order setup execution editing`
 - Current uncommitted changes: Step 147I/147J implementation and operation script updates
+
+Committed:
+
+- `a7d614e fix(v4): simplify setup line length controls`
+
+## Phase 12 Reason 1 MVP
+
+Operation Script:
+
+- Step: `147K`
+- Goal: make Reasons focus on setup reasoning instead of object type buckets.
+- UI boundary: one Reason 1 MVP with note + refs; no full reason schema migration yet.
+- Storage boundary: reuse `setupThesis.narrative` for note and `setupThesis.linkedObjectRefs` for refs.
+
+Implemented:
+
+- Active Order Setup Reasons now renders `Reason 1`.
+- `Reason 1` note writes to `setupThesis.narrative`.
+- Replaced per-type Add PDA / Add Segment / Add Composite / Add SMT with one `Link Selected Object`.
+- `Link Selected Object` detects the current selected PDA, Segment, Composite, or SMT and appends the matching ref.
+- Existing refs stay removable one by one.
+- Added basic Reason 1 styling.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Module smoke verified Reason 1 note, generic Link Selected Object, and absence of per-type add buttons.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- Current uncommitted changes: none for Step 147K
+
+Committed:
+
+- `a817a02 feat(v4): simplify order setup reasons and execution rows`
+
+## Phase 12 Execution Column Alignment
+
+Operation Script:
+
+- Step: `147L`
+- Goal: align Execution row fields so type, price, time range, and model/target kind read as stable columns.
+- Boundary: presentation-only; keep chart element selection, endpoint editing, and compact delete behavior unchanged.
+
+Planned:
+
+- Replace the free-wrapping Execution text summary with explicit Type / Price / Time Range / Kind cells.
+- Allow long time ranges to wrap inside their own column instead of pushing other fields out of alignment.
+- Preserve selected row highlight and row-level select/delete actions.
+
+Implemented:
+
+- Execution rows now render Type / Price / Time Range / Kind as separate grid cells.
+- Entry model, stop reason, and target type all live in the same Kind column.
+- Removed the old flex-wrapped summary from Execution rows.
+- Kept row selection, active highlight, and compact `X` delete behavior unchanged.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module smoke verified Execution rows render `order-setup-execution-type`, `order-setup-execution-price`, `order-setup-execution-time`, and `order-setup-execution-kind`.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- Current uncommitted changes: none for Step 147L
+
+Committed:
+
+- `a817a02 feat(v4): simplify order setup reasons and execution rows`
+
+## Phase 12 Execution Two-Line Compact Layout
+
+Operation Script:
+
+- Step: `147M`
+- Goal: fix Execution overflow by moving long time ranges to a second line.
+- Boundary: presentation-only; do not change setup element selection, endpoints, deletion, or stored data.
+
+Planned:
+
+- First line: Type / Price / Kind / X.
+- Second line: full Time Range.
+- Keep selected row highlight on the full row block.
+
+Implemented:
+
+- Execution row markup now has a `summary` line and a separate time line.
+- The summary line aligns Type / Price / Kind while `X` stays in a fixed delete column.
+- Full time ranges render below the summary line to avoid horizontal overflow.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module smoke verified `order-setup-execution-summary` plus the existing type/price/time/kind cells.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `a817a02 feat(v4): simplify order setup reasons and execution rows`
+- Current uncommitted changes: none for Step 147M
+
+Committed:
+
+- `a817a02 feat(v4): simplify order setup reasons and execution rows`

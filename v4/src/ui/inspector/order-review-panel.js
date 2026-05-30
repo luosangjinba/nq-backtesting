@@ -527,17 +527,23 @@ function getElementLabel(role) {
   return role || 'Element';
 }
 
+function formatExecutionTimeRange(element) {
+  const start = formatTime(element?.timestamp);
+  const end = element?.endTimestamp ? formatTime(element.endTimestamp) : '';
+  return end ? `${start} -> ${end}` : start;
+}
+
 function renderExecutionElementRow(order, role, element, selectedElement, extra = '') {
   if (!element || !Number.isFinite(Number(element.price))) return '';
   const isSelected = selectedElement?.setupId === order.id && selectedElement?.element === role;
   return `
     <div class="order-setup-execution-row${isSelected ? ' active' : ''}" data-inspector-action="order-setup-element-select" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}">
-      <div class="order-setup-execution-main">
-        <span class="order-setup-execution-role">${escapeHtml(getElementLabel(role))}</span>
-        <strong>${escapeHtml(formatNumber(element.price))}</strong>
-        <span>${escapeHtml(formatTime(element.timestamp))}${element.endTimestamp ? ` -> ${escapeHtml(formatTime(element.endTimestamp))}` : ''}</span>
-        ${extra ? `<span>${escapeHtml(extra)}</span>` : ''}
+      <div class="order-setup-execution-summary">
+        <span class="order-setup-execution-type">${escapeHtml(getElementLabel(role))}</span>
+        <strong class="order-setup-execution-price">${escapeHtml(formatNumber(element.price))}</strong>
+        <span class="order-setup-execution-kind">${escapeHtml(extra || '—')}</span>
       </div>
+      <span class="order-setup-execution-time">${escapeHtml(formatExecutionTimeRange(element))}</span>
       <button class="order-setup-execution-delete" data-inspector-action="order-setup-element-delete" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="button" title="Delete ${escapeHtml(getElementLabel(role))}">X</button>
     </div>
   `;
@@ -565,37 +571,23 @@ function renderExecutionPanel(order, setupSet, selectedElement) {
 function renderReasonRows(order, setupSet) {
   const explanation = setupSet?.explanationElements || {};
   const refs = Array.isArray(explanation.refs) ? explanation.refs : [];
-  const manualEvents = Array.isArray(explanation.manualEvents) ? explanation.manualEvents : [];
-  const notes = Array.isArray(explanation.notes) ? explanation.notes : [];
   const refRows = refs.map((ref, index) => `
     <div class="order-review-ref-row">
       <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
-      <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">Remove</button>
+      <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-ref-index="${index}" type="button">X</button>
     </div>
   `);
-  const manualRows = manualEvents.map((event) => `
-    <div class="order-review-explanation-row">
-      <span>Manual</span>
-      <strong>${escapeHtml(summarizeManualEvent(event) || '—')}</strong>
-    </div>
-  `);
-  const noteRows = notes.map((note) => `
-    <div class="order-review-explanation-row">
-      <span>Note</span>
-      <strong>${escapeHtml(summarizeNote(note) || '—')}</strong>
-    </div>
-  `);
-  const rows = [...refRows, ...manualRows, ...noteRows].join('');
 
   return `
     <div class="order-review-explanation">
       <div class="order-review-compact-title">Reasons</div>
-      ${rows || '<div class="drawing-set-empty">No reasons.</div>'}
+      <div class="order-setup-reason-card">
+        <div class="order-setup-reason-title">Reason 1</div>
+        <textarea class="inspector-textarea" data-inspector-action="order-review-reason-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Write setup reason">${escapeHtml(order.setupThesis?.narrative || '')}</textarea>
+        <div class="order-review-ref-list">${refRows.join('') || '<div class="drawing-set-empty">No linked objects.</div>'}</div>
+      </div>
       <div class="order-review-ref-actions">
-        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-pda" data-order-review-id="${escapeHtml(order.id)}" type="button">Add PDA</button>
-        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-segment" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Segment</button>
-        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-composite" data-order-review-id="${escapeHtml(order.id)}" type="button">Add Composite</button>
-        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-smt" data-order-review-id="${escapeHtml(order.id)}" type="button">Add SMT</button>
+        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-object" data-order-review-id="${escapeHtml(order.id)}" type="button">Link Selected Object</button>
       </div>
     </div>
   `;

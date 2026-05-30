@@ -859,8 +859,12 @@ html, body {
 .order-setup-execution-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 22px;
-  gap: 4px;
-  align-items: center;
+  grid-template-areas:
+    "summary delete"
+    "time delete";
+  column-gap: 6px;
+  row-gap: 1px;
+  align-items: start;
   min-height: 24px;
   padding: 2px 3px 2px 5px;
   border: 1px solid rgba(120, 123, 134, 0.18);
@@ -875,25 +879,48 @@ html, body {
   color: #f0f3fa;
 }
 
-.order-setup-execution-main {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+.order-setup-execution-summary {
+  grid-area: summary;
+  display: grid;
+  grid-template-columns: minmax(56px, 0.9fr) minmax(60px, 0.8fr) minmax(52px, 0.8fr);
+  gap: 6px;
   min-width: 0;
-  font-size: 11px;
-  line-height: 15px;
+  align-items: baseline;
 }
 
-.order-setup-execution-role {
+.order-setup-execution-type,
+.order-setup-execution-price,
+.order-setup-execution-time,
+.order-setup-execution-kind {
+  min-width: 0;
+  font-size: 11px;
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+
+.order-setup-execution-type {
   color: #787b86;
 }
 
-.order-setup-execution-main strong {
+.order-setup-execution-price {
   color: #d1d4dc;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.order-setup-execution-time {
+  grid-area: time;
+  color: #b2b5be;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.order-setup-execution-kind {
+  color: #b2b5be;
 }
 
 .order-setup-execution-delete {
+  grid-area: delete;
   width: 22px;
   height: 20px;
   padding: 0;
@@ -1084,6 +1111,18 @@ html, body {
   flex-direction: column;
   gap: 5px;
   padding: 0 6px 6px;
+}
+
+.order-setup-reason-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.order-setup-reason-title {
+  color: #b2b5be;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .order-review-ref-list {

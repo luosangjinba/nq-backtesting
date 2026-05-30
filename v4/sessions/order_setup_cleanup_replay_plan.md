@@ -516,7 +516,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `a7d614e fix(v4): simplify setup line length controls`
 
 Notes:
 
@@ -557,7 +557,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `a817a02 feat(v4): simplify order setup reasons and execution rows`
 
 Notes:
 
@@ -596,7 +596,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `a817a02 feat(v4): simplify order setup reasons and execution rows`
 
 Notes:
 
@@ -634,7 +634,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `a817a02 feat(v4): simplify order setup reasons and execution rows`
 
 Notes:
 
@@ -679,6 +679,113 @@ Commit:
 Notes:
 
 - Endpoint-based length remains the primary workflow.
+
+### Step 147K: Reason 1 MVP
+
+Goal:
+
+- Reframe Reasons around setup reasoning instead of object types.
+- Replace separate `Add PDA` / `Add Segment` / `Add Composite` / `Add SMT` buttons with one `Link Selected Object` action.
+- Support a free-text `Reason 1` note.
+- Allow `Reason 1` to have refs, note, or both.
+- Keep existing storage compatibility by mapping `Reason 1` note to `setupThesis.narrative` and refs to `setupThesis.linkedObjectRefs`.
+
+Implemented:
+
+- Active Order Setup Reasons now renders `Reason 1` instead of object-type add buttons.
+- `Reason 1` note edits `setupThesis.narrative`.
+- `Link Selected Object` automatically links the currently selected PDA, Segment, Composite, or SMT.
+- Existing refs still render in the Reason 1 ref list and can be removed individually.
+- Removed `Add PDA` / `Add Segment` / `Add Composite` / `Add SMT` buttons from the active Reasons UI.
+- Added minimal Reason 1 styling.
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Module smoke verifies Reason 1 note, generic Link Selected Object, and no per-type add buttons.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- This is a UI/data-adapter MVP, not a full reason schema migration.
+
+### Step 147L: Execution Column Alignment
+
+Goal:
+
+- Align Execution row fields into stable columns.
+- Show Type / Price / Time Range / Kind consistently for entry, stop loss, and targets.
+- Keep row selection, selected highlight, and compact `X` delete unchanged.
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module smoke verifies Execution rows render the new column classes.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- This is a presentation-only change; it does not change helper line anchors, endpoints, selection, or deletion behavior.
+- Implemented with four explicit cells: Type, Price, Time Range, and Kind.
+- Long time ranges wrap inside their own column instead of breaking column alignment.
+
+### Step 147M: Execution Two-Line Compact Layout
+
+Goal:
+
+- Fix the overly wide single-line Execution layout from Step 147L.
+- Keep Type / Price / Kind aligned on the first row.
+- Move the full Time Range to a second row so the Inspector does not require horizontal scrolling.
+- Preserve row selection, selected highlight, and compact `X` delete unchanged.
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module smoke verifies Execution rows render the new two-line classes.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- This keeps Inspector width stable instead of widening the sidebar.
+- Implemented with a row grid containing `summary`, `time`, and `delete` areas.
+- `summary` aligns Type / Price / Kind; `time` spans the content width below it.
 
 ## Next Step Template
 

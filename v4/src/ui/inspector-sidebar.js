@@ -753,7 +753,62 @@ function removeOrderReviewRef(orderReviewId, refIndex) {
   return true;
 }
 
+function getSelectedOrderReviewRef() {
+  const pdaSelection = getSelectedPda();
+  if (pdaSelection) {
+    const annotation = getAnnotationById(pdaSelection.id);
+    if (!annotation) return { error: '选中的 PDA 不存在' };
+    return { ref: buildPdaOrderReviewRef(annotation), label: getPdaOrderRefLabel(annotation) };
+  }
+
+  const segmentSelection = getSelectedSegment();
+  if (segmentSelection) {
+    const segment = getSegmentById(segmentSelection.id);
+    if (!segment) return { error: '选中的 Segment 不存在' };
+    return { ref: buildSegmentOrderReviewRef(segment), label: getSegmentOrderRefLabel(segment) };
+  }
+
+  const compositeSelection = getSelectedSegmentGroup();
+  if (compositeSelection) {
+    return {
+      ref: {
+        type: ORDER_REF_TYPES.COMPOSITE,
+        id: compositeSelection.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+      },
+      label: 'Composite Move',
+    };
+  }
+
+  if (selectedSmtId && getSmtRecordById(selectedSmtId)) {
+    return {
+      ref: {
+        type: ORDER_REF_TYPES.SMT,
+        id: selectedSmtId,
+        role: ORDER_REF_ROLES.CONFIRMATION,
+      },
+      label: 'SMT',
+    };
+  }
+
+  return { error: '没有选中的 PDA / Segment / Composite / SMT' };
+}
+
 function addSelectedOrderReviewRef(action, orderReviewId) {
+  if (action === 'order-review-ref-add-selected-object') {
+    const selected = getSelectedOrderReviewRef();
+    if (selected.error) {
+      bus.emit('status:update', { text: selected.error, isError: true });
+      return true;
+    }
+    const added = addOrderReviewRef(orderReviewId, selected.ref);
+    bus.emit('status:update', {
+      text: added ? `${selected.label} linked to Reason 1` : 'Link selected object failed',
+      isError: !added,
+    });
+    return true;
+  }
+
   if (action === 'order-review-ref-add-selected-pda') {
     const selection = getSelectedPda();
     if (!selection) {
@@ -1140,6 +1195,13 @@ function handleInspectorChange(e) {
   if (action === 'order-review-result') {
     recordInspectorHistory('Update Order Result', () => updateOrderReview(e.target.dataset.orderReviewId, {
       resultReview: { result: e.target.value },
+    }));
+    return;
+  }
+
+  if (action === 'order-review-reason-note') {
+    recordInspectorHistory('Update Order Reason', () => updateOrderReview(e.target.dataset.orderReviewId, {
+      setupThesis: { narrative: e.target.value },
     }));
     return;
   }

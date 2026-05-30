@@ -228,6 +228,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147H: Active setup 同步 Inspector Calendar 日期：从图表/右键/Execution 选中或激活 setup 时，Inspector 跳到 Active Order Setup 的同时，将 Calendar selected/view date 同步到该 setup 所属自然日，并刷新当天事件列表
 - [x] Step 147I: Target free-price anchor：target1-3/final target 起点允许不落在 K 线 high/low 范围内；若靠近 high/low 仍自动 magnet；entry/stop loss 继续要求有效 K 线范围或 high/low magnet；target 自由价格仍记录点击 K 线时间作为左端点
 - [x] Step 147J: 移除 Execution Length 数字输入：helper line 长度以右键起点 + Shift 右键终点为准；删除 Inspector Execution 行内 Length 数字框和对应更新 handler，避免数字初始值/行为误导
+- [x] Step 147K: Reason 1 MVP：Reasons 不再按 Add PDA/Segment/Composite/SMT 分类型按钮；先实现一个 Reason 1，支持自由 note，支持一个通用 Link Selected Object 自动识别当前选中 PDA/Segment/Composite/SMT 并挂入 refs；refs 可单独移除；底层暂复用现有 narrative + linkedObjectRefs
+- [x] Step 147L: Execution 行列式对齐：将 entry / stop / target 行拆成 Type / Price / Time Range / Kind 四列，保持类型、价格、时间段、顶点/模型类型等字段纵向对齐；保留行选中与紧凑 X 删除交互
+- [x] Step 147M: Execution 两行紧凑布局：修正 147L 单行列式过宽问题；第一行对齐 Type / Price / Kind / X，第二行展示完整 Time Range，避免 Inspector 横向滚动并保留选中/删除交互
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
