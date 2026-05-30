@@ -895,7 +895,7 @@ Validation:
 
 Commit:
 
-- `pending`
+- `2474357 feat(v4): hide setup from reversal menu`
 
 Notes:
 

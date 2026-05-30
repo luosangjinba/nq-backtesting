@@ -1171,8 +1171,12 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: `4f472db docs(v4): record multi-reason setup commit`
-- Current uncommitted changes: Step 147P implementation and operation script updates
+- Last committed work: `2474357 feat(v4): hide setup from reversal menu`
+- Current uncommitted changes: none for Step 147P
+
+Committed:
+
+- `2474357 feat(v4): hide setup from reversal menu`
 
 ## Phase 12 Default Hidden Setups And Helper Line Colors
 
