@@ -298,3 +298,34 @@ Current Git State:
 Next Steps:
 
 - Step 133: validate secondary FVG rendering, hit-test, selection, Inspector edit/delete, and locate/flash behavior.
+
+## Phase 11 Step 133 Update
+
+Completed:
+
+- Validated secondary-created FVG as a normal range PDA through the existing renderer/hit-test/Inspector/Calendar paths.
+- Confirmed `secondary-pda-renderer.js` already supports FVG/range primitives and source-context labels.
+- Confirmed `pda-hit-test.js` can hit-test a secondary FVG range using the secondary chart context.
+- Confirmed `pda-selection.js` selects the same PDA id from secondary chart hit-test results.
+- Confirmed `pda-panel.js` renders the FVG as a range PDA with contexts, note/edit controls, CE toggle, extend input, and delete action.
+- Confirmed Calendar object locate data includes the FVG start/end timestamp range; Inspector locate calls both primary and secondary viewport locate/flash controllers.
+- No runtime code changes were required for Step 133.
+- Updated `v4/TODO.md` to mark Step 133 complete.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- `node --check v4/src/pda/pda-hit-test.js`
+- `node --check v4/src/ui/inspector/pda-panel.js`
+- `node --check v4/src/calendar/calendar-review-index.js`
+- Module smoke created a synthetic secondary 1H FVG, verified range hit-test, PDA selection, Inspector render, note/display update, Calendar locate range, and delete.
+
+Current Git State:
+
+- Branch: `feature/secondary-chart-annotation-workflow`
+- Last committed work: `2adfaa0 feat(v4): enable secondary fvg marking`
+- Current uncommitted changes: Phase 11 Step 133 TODO/session validation updates only
+
+Next Steps:
+
+- Step 134: validate linking a secondary-created FVG to the active Order Setup / setup set with source metadata preserved on the PDA ref.
