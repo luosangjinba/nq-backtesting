@@ -134,7 +134,9 @@
   - 新增 `ui/inspector/order-review-actions.js`，集中 Order Setup 创建、active、locate、显隐、refs/reasons、元素选择/删除/显隐，以及 PDA/Segment link active setup
   - 新增 `ui/inspector/pda-actions.js`，集中 PDA Inspector 的 label/extend/note/CE、删除与 point set remove-point 行为
   - 新增 `ui/inspector/segment-actions.js`，集中 Segment/Composite Inspector 写操作、Reaction Evidence 操作与 actor bar pick mode；`inspector-sidebar.js` 保留侧栏状态、Calendar/Archive/SMT、selection render 与 action controller 分发
-- [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
+- [x] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
+  - 新增 `chart/primitives/`：`range-primitive.js`（含 FVG）、`liquidity-primitive.js`、`point-set-primitive.js`、`fib-primitive.js`、`segment-primitive.js`、`vertical-line-primitive.js`、`bar-marker-primitive.js` 与共享 `primitive-utils.js`
+  - `chart/primitives.js` 保留为兼容 re-export 入口；现有 renderer / chart manager import 路径无需修改
 
 ### Phase 8F: Order Setup Review Set Infrastructure
 - [x] Step 96: 定义 Review Set 边界：内部把一个 Order Setup 视为一个 Review Set；现有 `OrderReview` / `orderReviews` 仍作为兼容持久化 schema；Review Set 只是图表交互、定位、日历聚合与可见性控制的基础抽象

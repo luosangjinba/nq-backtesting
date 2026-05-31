@@ -2289,3 +2289,37 @@ Notes:
 - No storage schema changed.
 - No Inspector action names changed.
 - `inspector-sidebar.js` dropped from roughly 1845 lines to roughly 650 lines; action logic now lives in focused modules.
+
+## Phase 8E Step 83 Chart Primitive Split
+
+Goal:
+
+- Split the monolithic `v4/src/chart/primitives.js` into focused primitive files.
+- Keep the existing `../chart/primitives.js` import surface stable for current renderers and chart managers.
+
+Implemented:
+
+- Added `v4/src/chart/primitives/primitive-utils.js` for shared coordinate extension helper.
+- Added focused primitive modules:
+  - `bar-marker-primitive.js`
+  - `fib-primitive.js`
+  - `liquidity-primitive.js`
+  - `point-set-primitive.js`
+  - `range-primitive.js` (`RangePrimitive` and existing `FvgPrimitive`)
+  - `segment-primitive.js`
+  - `vertical-line-primitive.js`
+- Replaced `v4/src/chart/primitives.js` with a small compatibility re-export file.
+- Existing imports in PDA, SMT, Segment, Order Setup renderers, and chart managers continue to import from `chart/primitives.js`.
+
+Validation:
+
+- `node --check v4/src/chart/primitives.js`
+- `node --check v4/src/chart/primitives/*.js`
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Headless Chrome page initialization smoke passed against `127.0.0.1:8001/index.html`.
+
+Notes:
+
+- No renderer call sites changed.
+- No drawing behavior was intentionally changed; this is a file-boundary refactor.
