@@ -41,6 +41,8 @@ The current operating model is:
 
 The compatibility names remain because localStorage, Review JSON import/export, undo/redo snapshots, and older archives already depend on them. Do not rename persisted fields until a dedicated migration exists.
 
+Phase 12B is a cleanup-only phase. Order Setup feature expansion is frozen until the audit and cleanup pass is complete. New work in this phase should be limited to bug fixes, residual-code removal, duplicate-logic consolidation, and regression validation. New review concepts, new persisted fields, and large new UI sections should be deferred unless they are required to repair a current regression.
+
 Current UI rules:
 
 - The Inspector defaults to `Active Order Setup`, not a full list of every setup.

@@ -244,7 +244,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147X: Result 静态派生摘要：Result 为 Target 1/2/3、Stop Loss、Breakeven 时，从 Entry/Stop/Target 派生 Exit price、Points、R；暂不扫描 K 线寻找第一次触达时间
 
 ### Phase 12B: Order Setup 收敛审计与清理
-- [ ] Step 148: 冻结 Order Setup 新功能入口：本轮只修 bug、清理残留、合并重复逻辑；不再新增新的复盘概念、字段或大型 UI 区块，避免继续扩大混乱面
+- [x] Step 148: 冻结 Order Setup 新功能入口：本轮只修 bug、清理残留、合并重复逻辑；不再新增新的复盘概念、字段或大型 UI 区块，避免继续扩大混乱面
 - [ ] Step 149: 做 Order Setup 残留代码审计：检查 `order-review-panel`、`order-review-store`、`setup-set`、`order-setup-chart-actions`、renderer/context menu/calendar 里是否还残留旧 Review Sets、旧 Result Review 表单、废弃 action、重复 helper 和无用兼容字段；输出可执行 cleanup 清单
 - [ ] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
 - [ ] Step 151: 清理旧 UI 与入口：删除或隐藏已经不用的 Review Sets/Advanced Edit/旧 Result Review/旧 Setup Thesis 路径，只保留 Calendar、Order Setups 列表、Active Order Setup、Archive import/export 等当前有效入口

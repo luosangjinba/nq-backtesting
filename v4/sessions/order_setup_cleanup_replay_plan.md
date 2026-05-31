@@ -1173,6 +1173,35 @@ Notes:
 - Points and R derive from direction, entry, stop, and derived exit price.
 - Exit time remains explicit-only; no bar scan is performed.
 
+### Step 148: Freeze New Order Setup Features
+
+Goal:
+
+- Start the cleanup/audit phase after the large Order Setup rebuild.
+- Freeze new Order Setup feature expansion until the cleanup pass is complete.
+- Keep later steps limited to bug fixes, residual-code cleanup, duplicate-logic consolidation, and regression validation.
+
+Main files:
+
+- `v4/TODO.md`
+- `v4/docs/ORDER_REVIEW_DESIGN.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `git diff --check`
+
+Commit:
+
+- `docs(v4): freeze order setup cleanup scope`
+
+Notes:
+
+- Do not add new review concepts, storage fields, or large UI sections during Phase 12B.
+- Small UI changes are allowed only when they remove confusion, fix a bug, or support the cleanup audit.
+- Existing feature requests should be converted into cleanup/audit items unless they are required for regression repair.
+
 ## Next Step Template
 
 ### Step N: Title

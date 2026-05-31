@@ -1283,6 +1283,39 @@ Committed:
 
 - `feat(v4): derive order setup result summary`
 
+## Phase 12B Order Setup Cleanup Freeze
+
+Operation Script:
+
+- Step: `148`
+- Goal: freeze Order Setup feature expansion and start a bounded cleanup/audit phase.
+- Boundary: no new review concepts, no new persisted fields, and no large new UI sections until Phase 12B cleanup is complete.
+
+Planned:
+
+- Treat the current Order Setup rebuild as feature-complete for now.
+- Allow only bug fixes, residual-code cleanup, duplicate-logic consolidation, and regression validation.
+- Convert new ideas into cleanup/audit items unless they repair a current regression.
+
+Implemented:
+
+- TODO Step 148 is marked complete.
+- The replay script records the feature-freeze rule for rebuilding from a hard backup.
+- The design document records Phase 12B as a cleanup-only phase.
+
+Validation:
+
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `docs(v4): plan order setup cleanup audit`
+
+Committed:
+
+- `docs(v4): freeze order setup cleanup scope`
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:
