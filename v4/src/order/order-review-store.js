@@ -197,13 +197,11 @@ export const ORDER_TARGET_REACHED_DEFINITIONS = [
 ];
 
 export const ORDER_RESULT_DEFINITIONS = [
-  { value: 'win', label: 'Win', active: true, aliases: [] },
-  { value: 'loss', label: 'Loss', active: true, aliases: [] },
+  { value: 'target1', label: 'Target 1', active: true, aliases: ['target-1', 't1'] },
+  { value: 'target2', label: 'Target 2', active: true, aliases: ['target-2', 't2'] },
+  { value: 'target3', label: 'Target 3', active: true, aliases: ['target-3', 't3'] },
+  { value: 'stop-loss', label: 'Stop Loss', active: true, aliases: ['stop'] },
   { value: 'breakeven', label: 'Breakeven', active: true, aliases: ['break-even', 'be'] },
-  { value: 'missed', label: 'Missed', active: true, aliases: [] },
-  { value: 'skipped', label: 'Skipped', active: true, aliases: [] },
-  { value: 'invalidated', label: 'Invalidated', active: true, aliases: [] },
-  { value: 'managed-out', label: 'Managed Out', active: true, aliases: ['managed'] },
   { value: 'unknown', label: 'Unknown', active: true, aliases: [] },
 ];
 

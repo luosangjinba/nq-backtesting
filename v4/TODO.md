@@ -81,7 +81,7 @@
 - [x] Step 48: 定义 `Order Review` 对象边界：不是简单 entry/exit 表，而是 `Setup Thesis -> Entry Plan -> Result Review`；订单理由不限制为上一段行情结束原因，允许前面多段结构、Composite Move、PDA、SMT、Reaction Evidence 的组合拳
 - [x] Step 49: 定义 `Setup Thesis`：记录 primary event 的 1M 精确时间、事件周期、事件类型（sweep liquidity / touch FVG / touch NWOG/NDOG / SMT / other），并支持 `linkedObjectRefs[]` 引用多个 segment / composite / PDA / SMT / reactionEvidence；低周期 1M/5M 事件要提示是否违反“跟随高周期事件做单”的原则
 - [x] Step 50: 定义 `Entry Plan` 子对象：direction、entry time/price（1M 精度）、entry model（OB / FVG / OTE / OTE+OB / sweep / manual）、stoploss、target internal/swing/external、selected target、final target；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
-- [x] Step 51: 定义 `Result Review` 子对象：expected target reached、final target reached、exit time/price、result、note；支持 skipped / invalidated / managed-out 等非标准结果
+- [x] Step 51: 定义 `Result Review` 子对象：expected target reached、final target reached、exit time/price、result、note；当前复盘阶段 result 使用 target1/target2/target3/stop-loss/breakeven/unknown，暂不混入 trading journal 的执行反应字段
 - [x] Step 52: 设计 Inspector UI 入口：可从 segment/composite/空状态创建 Order Review，允许手工添加多个 setup linked refs，再在 Order 下添加 Entry Plan 与 Result Review；图表第一版只显示轻量 setup/entry/window marker，不做复杂下单 overlay
 - [x] Step 53: 设计 Chart Rendering：setup/entry/exit vertical markers，SL/target short helper lines，Inspector Locate，第一版不做 hit-test、拖拽、右键菜单或图表创建订单
 - [x] Step 54: 设计 localStorage 与 Review JSON schema：保存 order reviews、setup thesis、entry plan、result review、linked object refs；不写 DB，不包含 K 线数据
@@ -239,6 +239,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147S: Order Setup 默认显示：撤回 147O 的新建默认隐藏策略；图表右键、空白、Segment、Composite 创建的 Order Setup 默认 `display.hidden=false`，保留手动 Hide/Show 与旧记录兼容
 - [x] Step 147T: Calendar Order Setup 显隐状态按钮：Order Setup 行内增加紧凑显隐状态点；绿色表示 visible，灰色斜线表示 hidden；点击状态点直接切换 Show/Hide，三点菜单继续保留完整操作
 - [x] Step 147U: Entry Context 结构化描述：在 Active Order Setup 的 Execution 与 Reasons 之间增加 Entry Context；`entryPatterns[]` 多选支持 Purge + OB / OTE / Stop Market / Key Level；`entrySession` 单选支持 930 Judas Swing / 950 Macro / Silver Bullet
+- [x] Step 147V: Result 复盘选项整理：物理移除 win/loss/missed/skipped/invalidated/managed-out；Result 下拉改为 Target 1 / Target 2 / Target 3 / Stop Loss / Breakeven / Unknown
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

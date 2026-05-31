@@ -1067,6 +1067,37 @@ Notes:
 - `entryPlan.entrySession` is a single-select field: 930 Judas Swing, 950 Macro, Silver Bullet.
 - UI placement: Active Order Setup -> Execution -> Entry Context -> Reasons.
 
+### Step 147V: Review Result Options
+
+Goal:
+
+- Make `Result` match historical review rather than future trading-journal behavior.
+- Physically remove old journal/execution-reaction values from the result dropdown.
+
+Main files:
+
+- `v4/src/order/order-review-store.js`
+- `v4/docs/ORDER_REVIEW_DESIGN.md`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- Removed selectable `win`, `loss`, `missed`, `skipped`, `invalidated`, and `managed-out`.
+- Result values are now Target 1, Target 2, Target 3, Stop Loss, Breakeven, Unknown.
+- Journal-oriented execution responses can be reintroduced later as a separate journal field, not as setup review result.
+
 ## Next Step Template
 
 ### Step N: Title

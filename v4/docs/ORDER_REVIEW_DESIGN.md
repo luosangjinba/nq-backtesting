@@ -551,7 +551,7 @@ Rules:
 
 - It is separate from `setupThesis.primaryEventTimestamp`.
 - It may be later than the setup event.
-- It may be missing for a skipped setup.
+- It may be missing for an incomplete draft.
 - If the entry was hypothetical, the same field is still used; first version does not split actual/hypothetical order types.
 
 ### Entry Timeframe
@@ -638,10 +638,10 @@ First-version store validation should allow incomplete drafts.
 The UI should highlight records missing:
 
 - direction
-- entry timestamp, unless result is `skipped` or `missed`
+- entry timestamp
 - entry model
-- entry price, unless skipped
-- stop loss, unless skipped
+- entry price
+- stop loss
 - at least one target
 
 The UI should also highlight target inconsistency:
@@ -683,13 +683,11 @@ Fields:
 
 Initial result values:
 
-- `win`
-- `loss`
+- `target1`
+- `target2`
+- `target3`
+- `stop-loss`
 - `breakeven`
-- `missed`
-- `skipped`
-- `invalidated`
-- `managed-out`
 - `unknown`
 
 ### Target Reached Fields
@@ -734,13 +732,11 @@ Rules:
 
 Result values:
 
-- `win`: trade reached the reviewed target or ended profitably.
-- `loss`: trade hit stop or ended below acceptable loss threshold.
-- `breakeven`: trade ended at or near entry.
-- `missed`: setup was valid or interesting, but no entry was taken.
-- `skipped`: setup was intentionally skipped.
-- `invalidated`: thesis failed before or around entry.
-- `managed-out`: trade was actively exited before normal target/stop result.
+- `target1`: price reached the hanging-fruit target, commonly an internal target or nearby swing.
+- `target2`: price reached the second reviewed objective, commonly a fuller swing or main liquidity target.
+- `target3`: price reached an optional external target.
+- `stop-loss`: price reached the planned stop loss.
+- `breakeven`: reviewed result ended at or near entry.
 - `unknown`: draft or unresolved result.
 
 Result should not be inferred automatically in the first version.
@@ -770,12 +766,11 @@ First-version store validation should allow incomplete drafts.
 The UI should highlight:
 
 - `result=unknown` on completed reviews
-- `expectedTargetReached=unknown` when result is `win`, `loss`, or `managed-out`
+- `expectedTargetReached=unknown` when result is `target1`, `target2`, `target3`, `stop-loss`, or `breakeven`
 - `finalTargetReached=unknown` when `entryPlan.finalTarget` exists
-- missing exit price/time when result is `win`, `loss`, `breakeven`, or `managed-out`
-- missing note when result is `skipped`, `missed`, or `invalidated`
+- missing exit price/time when result is `target1`, `target2`, `target3`, `stop-loss`, or `breakeven`
 
-Skipped and missed setups are valid review records. They should not be treated as invalid orders.
+Trading-journal execution responses such as skipped, missed, invalidated, or managed-out are not part of the current historical review result set.
 
 ## UI Flow
 
@@ -1031,9 +1026,8 @@ Suggested states:
 - `Draft`: missing key setup or entry fields
 - `Planned`: setup and entry plan exist, result unknown
 - `Reviewed`: result is no longer unknown
-- `Skipped`: result is skipped
-- `Missed`: result is missed
-- `Invalidated`: result is invalidated
+- `Stopped`: result is stop-loss
+- `Target Reached`: result is target1, target2, or target3
 
 ## Chart Rendering
 
@@ -1104,7 +1098,7 @@ Suggested visual:
 - label: `Entry`
 - line width: 2
 
-If `resultReview.result` is `missed` or `skipped`, entry marker may be omitted unless an entry timestamp exists for hypothetical review.
+If entry data is missing, entry markers may be omitted until the setup is completed.
 
 ### Exit Marker
 
@@ -1112,11 +1106,9 @@ Render `resultReview.exitTimestamp` as a vertical marker when present.
 
 Suggested visual:
 
-- win: green/teal
-- loss: red
+- target1/target2/target3: green/teal
+- stop-loss: red
 - breakeven: gray
-- managed-out: blue/neutral
-- invalidated: orange/red
 - label: `Exit`
 - line width: 1
 

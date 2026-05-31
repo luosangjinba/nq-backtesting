@@ -1170,6 +1170,41 @@ Committed:
 
 - `feat(v4): add order setup entry context`
 
+## Phase 12 Review Result Options
+
+Operation Script:
+
+- Step: `147V`
+- Goal: make Result values reflect historical review target outcomes instead of trading-journal execution reactions.
+- Boundary: change result definitions only; do not add journal behavior or alter entry/stop/target drawing.
+
+Planned:
+
+- Physically remove `win`, `loss`, `missed`, `skipped`, `invalidated`, and `managed-out`.
+- Add target-specific review results.
+- Keep `breakeven` and `unknown`.
+
+Implemented:
+
+- Result dropdown values are now Target 1, Target 2, Target 3, Stop Loss, Breakeven, Unknown.
+- `ORDER_RESULT_DEFINITIONS` no longer includes the old journal/reaction values.
+- Core design doc now describes the target-specific result values.
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: pending for Step 147V
+
+Committed:
+
+- pending
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:
