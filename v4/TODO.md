@@ -259,7 +259,10 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Authority decision D: result summary、risk/reward box、execution rows、helper line projection 都是派生视图状态；优先放在 Setup Set 或共享 projection/result helper，不写回 store
   - Authority decision E: Inspector 只负责编辑明确的 persisted fields（entry/stop/target endpoint、reason refs/note、entry context、display flags、result status/note），不自己重新计算业务派生值
   - Authority decision F: renderer/hit-test 共享同一 element projection 语义；后续 Step 152 把 endTimestamp/lineLength fallback 抽到共享 helper
-- [ ] Step 151: 清理旧 UI 与入口：删除或隐藏已经不用的 Review Sets/Advanced Edit/旧 Result Review/旧 Setup Thesis 路径，只保留 Calendar、Order Setups 列表、Active Order Setup、Archive import/export 等当前有效入口
+- [x] Step 151: 清理旧 UI 与入口：删除或隐藏已经不用的 Review Sets/Advanced Edit/旧 Result Review/旧 Setup Thesis 路径，只保留 Calendar、Order Setups 列表、Active Order Setup、Archive import/export 等当前有效入口
+  - Removed dead `order-review-panel.js` full-row/form render path: old Setup Thesis / Entry Plan / Result Review / Advanced Edit / Quick Review renderers and their unused input helpers
+  - Removed old Order Setup time/price pick state and handlers from `inspector-sidebar.js`; chart-first entry/stop/target endpoint workflows remain in `order-setup-chart-actions.js`
+  - Kept Active Order Setup UI, Calendar Order Setups, Archive import/export, entry context, reasons, result status/note, display flags, element select/delete, and active/locate/hide/delete actions
 - [ ] Step 152: 合并重复计算与格式化 helper：统一 result/risk-reward/execution line/time range/visible-hidden state 的派生函数，避免 Inspector、renderer、store 各自算一套
 - [ ] Step 153: 清理右键菜单与 chart actions：收敛 reversal/entry/stop/target/reason/result 相关 action map，确认菜单只显示当前可执行动作；删除旧分支和重复状态提示
 - [ ] Step 154: 清理旧字段兼容策略：在不导入旧数据的前提下，移除已明确废弃的 result 值、旧 Review Set 文案和无意义 fallback；保留 `orderReviews` schema/localStorage key 直到单独 migration

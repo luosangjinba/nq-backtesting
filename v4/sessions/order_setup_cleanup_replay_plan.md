@@ -1288,6 +1288,61 @@ Notes:
 - This step is an architecture decision record, not a refactor.
 - The immediate next implementation step is Step 151: remove old UI/entry dead paths using the authority matrix above.
 
+### Step 151: Remove Old Order Setup UI Paths
+
+Goal:
+
+- Remove dead old Inspector UI paths that no longer match the chart-first Active Order Setup workflow.
+- Keep the current Active Order Setup, Calendar, and Archive paths intact.
+
+Implemented:
+
+- Removed old `order-review-panel.js` full-row/list render path:
+  - `renderOrderRow`
+  - `renderOrderActions`
+  - `renderOrderEditor`
+  - old Setup Thesis / Entry Plan / Result Review renderers
+  - old Advanced Edit / Quick Review helpers
+  - old timestamp/price/text input helpers that existed only for the removed form
+- Removed old `inspector-sidebar.js` Order Setup pick state and handlers:
+  - `orderReviewTimePickState`
+  - `orderReviewPricePickState`
+  - old setup/entry/result full-form field validation and pick flow
+  - old `order-review-pick-time` / `order-review-pick-price` actions
+- Preserved current Active Order Setup dependencies:
+  - entry context `entryPatterns` / `entrySession`
+  - reasons and linked refs
+  - result status and note
+  - display flags
+  - execution element select/delete
+  - active/locate/hide/delete actions
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- full `node --check` over `v4/src/**/*.js`
+- residual grep for old UI labels/actions/functions
+- `git diff --check`
+
+Commit:
+
+- `refactor(v4): remove legacy order setup inspector paths`
+
+Notes:
+
+- This removes Inspector-led full-form editing for setup/entry/result fields.
+- Chart-first entry/stop/target/reversal editing remains in `order-setup-chart-actions.js`.
+- Result status and note are still editable from Active Order Setup.
+
 ## Next Step Template
 
 ### Step N: Title

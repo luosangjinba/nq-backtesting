@@ -1384,6 +1384,37 @@ Committed:
 
 - `docs(v4): define order setup authority sources`
 
+## Phase 12B Remove Old Order Setup UI Paths
+
+Operation Script:
+
+- Step: `151`
+- Goal: remove dead old Inspector UI paths after freezing the Active Order Setup workflow.
+- Boundary: cleanup only; no new Order Setup features.
+
+Implemented:
+
+- Removed the old `order-review-panel.js` list/full-form path: Setup Thesis, Entry Plan, Result Review, Advanced Edit, Quick Review, and their unused input helpers.
+- Removed old `inspector-sidebar.js` Order Setup time/price pick state and full-form handlers.
+- Preserved current Active Order Setup UI and write paths: entry context, reasons, refs, result status/note, display flags, execution element select/delete, active/locate/hide/delete.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- full `node --check` over `v4/src/**/*.js`
+- residual grep for old UI labels/actions/functions
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `docs(v4): define order setup authority sources`
+
+Committed:
+
+- `refactor(v4): remove legacy order setup inspector paths`
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:
