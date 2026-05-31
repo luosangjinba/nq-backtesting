@@ -1607,6 +1607,28 @@ Commit:
 
 - `fix(v4): repair order setup review issues`
 
+### Merge To Main
+
+Goal:
+
+- Merge `feature/order-setup-cleanup` back to `main` after review fixes.
+
+Implemented:
+
+- Switched to `main`.
+- Fast-forward merged `feature/order-setup-cleanup` from `68c706f` to `32aceb5`.
+- No conflicts.
+
+Validation:
+
+- Full `node --check` over `v4/src/**/*.js`
+- `git diff --check HEAD~1..HEAD`
+- `curl -s -I http://127.0.0.1:8001/index.html` returned `200 OK`
+
+Commit:
+
+- `docs(v4): record order setup cleanup merge`
+
 ## Next Step Template
 
 ### Step N: Title

@@ -1258,6 +1258,36 @@ Committed:
 
 - `fix(v4): repair order setup review issues`
 
+## Phase 12B Merge To Main
+
+Operation Script:
+
+- Step: `merge`
+- Goal: merge `feature/order-setup-cleanup` back to `main` after review fixes.
+- Boundary: merge and handoff record only.
+
+Implemented:
+
+- Switched to `main`.
+- Merged `feature/order-setup-cleanup` with fast-forward from `68c706f` to `32aceb5`.
+- No merge conflicts.
+
+Validation:
+
+- Full `node --check` over `v4/src/**/*.js`
+- `git diff --check HEAD~1..HEAD`
+- `curl -s -I http://127.0.0.1:8001/index.html` returned `200 OK`
+
+Current Git State:
+
+- Branch: `main`
+- Last merged branch: `feature/order-setup-cleanup`
+- Current uncommitted changes: none for merge record
+
+Committed:
+
+- `docs(v4): record order setup cleanup merge`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:
