@@ -265,7 +265,7 @@ function renderSetupSet(setupSet, isActive = false) {
 
   renderReversalMarker(reversal, direction, isActive);
 
-  if (isOrderSetupElementVisible(setupSet, 'entry') && Number.isFinite(Number(entry.price))) {
+  if (isOrderSetupElementVisible(setupSet, 'entry') && entry.complete) {
     const selectedEntry = isSelectedElement('entry');
     renderPlanLine(
       entryTimestamp,
@@ -292,7 +292,7 @@ function renderSetupSet(setupSet, isActive = false) {
     renderRiskRewardBox(setupSet, entry, stopLoss, visibleTargets, result, direction);
   }
 
-  if (isOrderSetupElementVisible(setupSet, 'stopLoss')) {
+  if (isOrderSetupElementVisible(setupSet, 'stopLoss') && stopLoss.complete) {
     const selectedStop = isSelectedElement('stopLoss');
     renderPlanLine(
       stopLoss.timestamp || entryTimestamp,

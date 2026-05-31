@@ -1665,6 +1665,36 @@ Commit:
 
 - `feat(v4): toggle order setup execution elements`
 
+### Step 160: Execution Delete Residue Fix
+
+Goal:
+
+- Remove stale Active Order Setup Execution rows and helper lines after deleting execution elements.
+
+Implemented:
+
+- Changed Execution row rendering to require the Setup Set element `complete` flag.
+- Changed Order Setup renderer to require `entry.complete` before drawing entry helper lines.
+- Changed Order Setup renderer to require `stopLoss.complete` before drawing stop helper lines.
+- This prevents partially-cleared entry data, such as `entryPrice: 0` with no entry timestamp, from showing as `0.00` in the Inspector or leaving incomplete chart artifacts.
+
+Main files:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- Full `node --check` over `v4/src/**/*.js`
+- `git diff --check`
+- Module smoke confirmed an incomplete entry no longer renders an Execution row.
+- `curl -s -I http://127.0.0.1:8001/index.html` returned `200 OK`
+- `curl -s http://127.0.0.1:8766/v4/health` returned API health OK
+
 ## Next Step Template
 
 ### Step N: Title

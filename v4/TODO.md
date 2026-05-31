@@ -309,6 +309,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 157: Execution element 显隐开关：Active Order Setup 的 Execution 行增加状态点开关，可单独隐藏/显示 Entry、Stop Loss、Target1/2/3/Final Target；隐藏状态写入 `display.elementVisibility`，renderer、hit-test、risk/reward box 同步尊重该状态
 - [x] Step 158: Split layout 默认 Side：副图 Layout 默认值从 `stack` 改为 `side`；Split off 时仍可预设 layout，打开 Split 后默认左右布局
 - [x] Step 159: Context reset handoff：记录 `main` 当前收口点、最近提交、未跟踪文件与下一步建议；用于执行 `new` 清空 context 后继续接手
+- [x] Step 160: Execution 删除残留修复：Active Order Setup 的 Execution 面板与图表 renderer 改为按 Setup Set `complete` 状态判断 entry/stop 是否可显示，避免删除元素后留下 `0.00` 行或不完整 helper line 残影
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

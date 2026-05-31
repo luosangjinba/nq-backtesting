@@ -216,7 +216,7 @@ function formatExecutionTimeRange(element) {
 }
 
 function renderExecutionElementRow(order, role, element, selectedElement, extra = '') {
-  if (!element || !Number.isFinite(Number(element.price))) return '';
+  if (!element?.complete) return '';
   const isSelected = selectedElement?.setupId === order.id && selectedElement?.element === role;
   const isVisible = order.display?.elementVisibility?.[role] !== false;
   return `
