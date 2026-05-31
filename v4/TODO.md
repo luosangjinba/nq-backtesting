@@ -243,6 +243,17 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147W: Risk/Reward Box：用 `display.showRiskRewardBox` 控制每个 setup 的 risk/reward box 显隐；risk 区间由 Entry -> Stop Loss 派生，reward 区间按 Result 的 Target 1/2/3 派生，Unknown/Stop Loss/BE 不画 reward
 - [x] Step 147X: Result 静态派生摘要：Result 为 Target 1/2/3、Stop Loss、Breakeven 时，从 Entry/Stop/Target 派生 Exit price、Points、R；暂不扫描 K 线寻找第一次触达时间
 
+### Phase 12B: Order Setup 收敛审计与清理
+- [ ] Step 148: 冻结 Order Setup 新功能入口：本轮只修 bug、清理残留、合并重复逻辑；不再新增新的复盘概念、字段或大型 UI 区块，避免继续扩大混乱面
+- [ ] Step 149: 做 Order Setup 残留代码审计：检查 `order-review-panel`、`order-review-store`、`setup-set`、`order-setup-chart-actions`、renderer/context menu/calendar 里是否还残留旧 Review Sets、旧 Result Review 表单、废弃 action、重复 helper 和无用兼容字段；输出可执行 cleanup 清单
+- [ ] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
+- [ ] Step 151: 清理旧 UI 与入口：删除或隐藏已经不用的 Review Sets/Advanced Edit/旧 Result Review/旧 Setup Thesis 路径，只保留 Calendar、Order Setups 列表、Active Order Setup、Archive import/export 等当前有效入口
+- [ ] Step 152: 合并重复计算与格式化 helper：统一 result/risk-reward/execution line/time range/visible-hidden state 的派生函数，避免 Inspector、renderer、store 各自算一套
+- [ ] Step 153: 清理右键菜单与 chart actions：收敛 reversal/entry/stop/target/reason/result 相关 action map，确认菜单只显示当前可执行动作；删除旧分支和重复状态提示
+- [ ] Step 154: 清理旧字段兼容策略：在不导入旧数据的前提下，移除已明确废弃的 result 值、旧 Review Set 文案和无意义 fallback；保留 `orderReviews` schema/localStorage key 直到单独 migration
+- [ ] Step 155: 回归验证 Order Setup 主路径：覆盖 create bullish/bearish setup、set active/close/hide/show/delete、entry/stop/target 起止点、reason add/link、entry context、result target/stop/BE、risk/reward box、calendar locate/open、undo/redo、import/export、split/replay 基本不回归
+- [ ] Step 156: 收尾文档与剧本：把实际 cleanup commit、验证结果、保留的兼容边界、下一阶段迁移建议写入 TODO / sessions / order setup 剧本
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
