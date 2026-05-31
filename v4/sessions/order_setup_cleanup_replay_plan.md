@@ -1695,6 +1695,28 @@ Validation:
 - `curl -s -I http://127.0.0.1:8001/index.html` returned `200 OK`
 - `curl -s http://127.0.0.1:8766/v4/health` returned API health OK
 
+### Milestone Closeout: Order Setup Cleanup
+
+Status:
+
+- Phase 12 / 12B Order Setup engineering cleanup is closed as a milestone.
+- The current implementation is considered ready for real workflow use, not further speculative feature planning.
+- Next phase is practical usage: review real samples, record problems, and fix issues found during actual operation.
+
+Scope frozen:
+
+- No new Order Setup concepts should be added without evidence from real use.
+- `orderReviews` remains the persisted localStorage / Review JSON compatibility schema for now.
+- Setup Set remains the runtime/view-model authority for Inspector, renderer, hit-test, Calendar locate/open, and derived result/risk-reward display.
+- Old test YAML compatibility is intentionally not required.
+
+Next work mode:
+
+- Use the app on real review samples.
+- Capture concrete bugs, confusing interactions, missing fields, and persistence/import/export problems.
+- Convert only observed issues into small fix tasks.
+- Keep Step 46 open until 5-10 real samples have been reviewed.
+
 ## Next Step Template
 
 ### Step N: Title
