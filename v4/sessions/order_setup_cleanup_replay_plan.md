@@ -1136,6 +1136,43 @@ Notes:
 - Reward box uses Result Target 1/2/3 to select target1/target2/target3.
 - Stop Loss, Breakeven, and Unknown results do not render a reward box.
 
+### Step 147X: Derived Result Summary
+
+Goal:
+
+- Fill Result panel Exit price, Points, and R from existing setup elements.
+- Keep this as a derived summary, not stored manual data.
+- Do not derive first-touch exit time yet.
+
+Main files:
+
+- `v4/src/order/setup-set.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/docs/ORDER_REVIEW_DESIGN.md`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- module smoke for Target 1, Stop Loss, Breakeven, and Unknown derived result summaries
+- `git diff --check`
+
+Commit:
+
+- `feat(v4): derive order setup result summary`
+
+Notes:
+
+- Target 1/2/3 derive exit price from target1/target2/target3.
+- Stop Loss derives exit price from stop loss.
+- Breakeven derives exit price from entry.
+- Points and R derive from direction, entry, stop, and derived exit price.
+- Exit time remains explicit-only; no bar scan is performed.
+
 ## Next Step Template
 
 ### Step N: Title

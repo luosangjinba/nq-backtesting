@@ -331,8 +331,8 @@ function renderSetupSet(setupSet, isActive = false) {
     );
   });
 
-  if (Number.isFinite(Number(result.price))) {
-    renderPriceHelper(result.timestamp || entryTimestamp, result.price, 'Exit', '#90caf9', 'right');
+  if (result.timestamp && Number.isFinite(Number(result.price))) {
+    renderPriceHelper(result.timestamp, result.price, 'Exit', '#90caf9', 'right');
   }
 }
 

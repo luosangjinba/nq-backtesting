@@ -741,6 +741,14 @@ Result values:
 
 Result should not be inferred automatically in the first version.
 
+Derived result summary:
+
+- Target 1/2/3 derives exit price from target1/target2/target3.
+- Stop Loss derives exit price from `entryPlan.stopLoss`.
+- Breakeven derives exit price from `entryPlan.entryPrice`.
+- Points and R are derived from entry, stop, and the derived exit price.
+- First-touch exit time is not derived yet; it requires bar scanning and later rule decisions.
+
 ### Outcome Points And R
 
 `outcomePoints` can be derived when `entryPrice`, `exitPrice`, and `direction` exist:

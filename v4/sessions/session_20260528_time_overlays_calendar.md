@@ -1245,6 +1245,44 @@ Committed:
 
 - `feat(v4): render order setup risk reward box`
 
+## Phase 12 Derived Result Summary
+
+Operation Script:
+
+- Step: `147X`
+- Goal: make Result panel Exit price, Points, and R reflect the selected review outcome.
+- Boundary: derive static price/points/R only; do not scan bars for first-touch time and do not write derived values back into storage.
+
+Planned:
+
+- Target 1/2/3 results derive exit price from target1/target2/target3.
+- Stop Loss derives exit price from stop loss.
+- Breakeven derives exit price from entry.
+- Points and R derive from direction, entry, stop, and exit price.
+
+Implemented:
+
+- `setup-set` now derives result price, points, and R for target/stop/breakeven outcomes.
+- Unknown remains unresolved.
+- Exit marker rendering now requires an explicit exit timestamp so derived prices do not create misleading chart exit markers.
+
+Validation:
+
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- module smoke for target1, stop-loss, breakeven, and unknown result summaries
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `feat(v4): derive order setup result summary`
+
+Committed:
+
+- `feat(v4): derive order setup result summary`
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:

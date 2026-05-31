@@ -180,20 +180,52 @@ function createTargets(order = {}) {
     }));
 }
 
-function createResultElement(order = {}) {
+function deriveResultExit(status, entryElement, stopLossElement, targetElements = []) {
+  if (status === 'target1' || status === 'target2' || status === 'target3') {
+    const target = targetElements.find((item) => item.role === status);
+    return target?.price ?? null;
+  }
+  if (status === 'stop-loss') return stopLossElement?.price ?? null;
+  if (status === 'breakeven') return entryElement?.price ?? null;
+  return null;
+}
+
+function deriveResultPoints(exitPrice, entryElement) {
+  const entryPrice = toNumberOrNull(entryElement?.price);
+  const parsedExit = toNumberOrNull(exitPrice);
+  if (entryPrice === null || parsedExit === null) return null;
+  if (entryElement?.direction === 'long') return parsedExit - entryPrice;
+  if (entryElement?.direction === 'short') return entryPrice - parsedExit;
+  return null;
+}
+
+function deriveResultR(points, entryElement, stopLossElement) {
+  const entryPrice = toNumberOrNull(entryElement?.price);
+  const stopPrice = toNumberOrNull(stopLossElement?.price);
+  const parsedPoints = toNumberOrNull(points);
+  if (entryPrice === null || stopPrice === null || parsedPoints === null) return null;
+  const risk = Math.abs(entryPrice - stopPrice);
+  return risk > 0 ? parsedPoints / risk : null;
+}
+
+function createResultElement(order = {}, orderElements = {}) {
   const result = order.resultReview || {};
   const timestamp = toTimestamp(result.exitTimestamp);
-  const price = toNumberOrNull(result.exitPrice);
+  const status = result.result || 'unknown';
+  const derivedPrice = deriveResultExit(status, orderElements.entry, orderElements.stopLoss, orderElements.targets);
+  const price = derivedPrice ?? toNumberOrNull(result.exitPrice);
+  const derivedPoints = deriveResultPoints(price, orderElements.entry);
+  const outcomePoints = derivedPoints ?? toNumberOrNull(result.outcomePoints);
   return {
     type: SETUP_ELEMENT_TYPES.RESULT,
     timestamp,
     price,
-    status: result.result || 'unknown',
+    status,
     expectedTargetReached: result.expectedTargetReached || 'unknown',
     finalTargetReached: result.finalTargetReached || 'unknown',
     exitReason: result.exitReason || 'unknown',
-    outcomePoints: toNumberOrNull(result.outcomePoints),
-    outcomeR: toNumberOrNull(result.outcomeR),
+    outcomePoints,
+    outcomeR: deriveResultR(outcomePoints, orderElements.entry, orderElements.stopLoss) ?? toNumberOrNull(result.outcomeR),
     complete: timestamp !== null || price !== null || result.result !== 'unknown',
   };
 }
@@ -272,8 +304,8 @@ export function createSetupSetFromOrderReview(order) {
     entry: createEntryElement(order),
     stopLoss: createStopLossElement(order),
     targets: createTargets(order),
-    result: createResultElement(order),
   };
+  orderElements.result = createResultElement(order, orderElements);
   const explanationElements = {
     refs: createExplanationRefs(order),
     manualEvents: createManualEvents(order),

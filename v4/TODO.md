@@ -241,6 +241,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147U: Entry Context 结构化描述：在 Active Order Setup 的 Execution 与 Reasons 之间增加 Entry Context；`entryPatterns[]` 多选支持 Purge + OB / OTE / Stop Market / Key Level；`entrySession` 单选支持 930 Judas Swing / 950 Macro / Silver Bullet
 - [x] Step 147V: Result 复盘选项整理：物理移除 win/loss/missed/skipped/invalidated/managed-out；Result 下拉改为 Target 1 / Target 2 / Target 3 / Stop Loss / Breakeven / Unknown
 - [x] Step 147W: Risk/Reward Box：用 `display.showRiskRewardBox` 控制每个 setup 的 risk/reward box 显隐；risk 区间由 Entry -> Stop Loss 派生，reward 区间按 Result 的 Target 1/2/3 派生，Unknown/Stop Loss/BE 不画 reward
+- [x] Step 147X: Result 静态派生摘要：Result 为 Target 1/2/3、Stop Loss、Breakeven 时，从 Entry/Stop/Target 派生 Exit price、Points、R；暂不扫描 K 线寻找第一次触达时间
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
