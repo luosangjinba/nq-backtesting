@@ -252,7 +252,13 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Cleanup finding D: Result points/R 目前在 `order-review-store.js` 和 `setup-set.js` 两处派生；Step 152 应统一为 Setup Set/view-model 派生，store 只负责 normalize 明确输入
   - Cleanup finding E: helper line length/time projection 在 renderer 与 hit-test 各算一套；Step 152 应抽共享 helper，避免渲染长度与命中区域漂移
   - Cleanup finding F: `ORDER_EXIT_REASON_DEFINITIONS` 仍包含 trading-journal 风格值（model-invalidated/missed-entry/skipped）；当前 Result UI 不再使用 exit reason，Step 154 可删除或标记为 deferred journal 字段
-- [ ] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
+- [x] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
+  - Authority decision A: `orderReviews` 只作为兼容持久化 schema/localStorage/Review JSON/undo snapshot 的权威输入，不再作为图表或 Inspector 直接渲染模型
+  - Authority decision B: `Setup Set` 是 Order Setup 的运行时/view-model 权威层；renderer、hit-test、Calendar object open/locate、Active Inspector 都应消费 Setup Set 或 Setup Set 派生 helper
+  - Authority decision C: `order-review-set.js` 只允许作为 active id / legacy compatibility bridge；不再新增 Review Set 字段或让新代码消费 Review Set summary
+  - Authority decision D: result summary、risk/reward box、execution rows、helper line projection 都是派生视图状态；优先放在 Setup Set 或共享 projection/result helper，不写回 store
+  - Authority decision E: Inspector 只负责编辑明确的 persisted fields（entry/stop/target endpoint、reason refs/note、entry context、display flags、result status/note），不自己重新计算业务派生值
+  - Authority decision F: renderer/hit-test 共享同一 element projection 语义；后续 Step 152 把 endTimestamp/lineLength fallback 抽到共享 helper
 - [ ] Step 151: 清理旧 UI 与入口：删除或隐藏已经不用的 Review Sets/Advanced Edit/旧 Result Review/旧 Setup Thesis 路径，只保留 Calendar、Order Setups 列表、Active Order Setup、Archive import/export 等当前有效入口
 - [ ] Step 152: 合并重复计算与格式化 helper：统一 result/risk-reward/execution line/time range/visible-hidden state 的派生函数，避免 Inspector、renderer、store 各自算一套
 - [ ] Step 153: 清理右键菜单与 chart actions：收敛 reversal/entry/stop/target/reason/result 相关 action map，确认菜单只显示当前可执行动作；删除旧分支和重复状态提示

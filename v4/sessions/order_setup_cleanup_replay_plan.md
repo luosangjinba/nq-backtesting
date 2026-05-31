@@ -1237,13 +1237,56 @@ Validation:
 
 Commit:
 
-- `pending`
+- `docs(v4): audit order setup residual code`
 
 Notes:
 
 - No business logic should change in Step 149.
 - The cleanup should be executed as Step 150-156 in small commits.
 - Avoid deleting persisted `orderReviews` schema/localStorage names until a dedicated migration exists.
+
+### Step 150: Authority Source Audit
+
+Goal:
+
+- Define the authoritative source for each Order Setup layer before deleting old code.
+- Prevent cleanup work from moving duplicate calculations to another accidental location.
+
+Authority decisions:
+
+- `orderReviews` remains the persisted compatibility schema and owns localStorage, Review JSON, undo/redo snapshots, explicit user input, normalization, identity, and import/export compatibility.
+- `Setup Set` is the runtime/view-model authority for chart and Inspector behavior. Renderer, hit-test, Calendar object locate/open, Active Order Setup panels, result summary, execution rows, and risk/reward box should consume Setup Set or Setup Set derived helpers.
+- `order-review-set.js` is a legacy active/compatibility bridge only. New work should not add Review Set fields or use Review Set summary as the display authority.
+- Inspector owns user edits to persisted fields only: active id actions, display flags, endpoint fields, reasons/refs, entry context, result status, and notes.
+- Derived values such as result exit/points/R, risk/reward box bounds, execution row summaries, and helper line projection should not be written back into store merely for display.
+- Renderer and hit-test must share one projection semantic: explicit `endTimestamp` first, old `lineLengthBars` fallback second, final default length last.
+
+Cleanup implications:
+
+- Step 151 can remove dead full-form Inspector rendering once data-action dependencies are checked.
+- Step 152 should extract shared result/projection helpers rather than duplicating store/renderer/hit-test math.
+- Step 153 should route chart actions through a small action map but keep store writes explicit.
+- Step 154 can remove journal-only result/exit fields that are no longer part of the review UI, while keeping `orderReviews` key/schema name.
+
+Main files:
+
+- `v4/TODO.md`
+- `v4/docs/ORDER_REVIEW_DESIGN.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `git diff --check`
+
+Commit:
+
+- `docs(v4): define order setup authority sources`
+
+Notes:
+
+- This step is an architecture decision record, not a refactor.
+- The immediate next implementation step is Step 151: remove old UI/entry dead paths using the authority matrix above.
 
 ## Next Step Template
 

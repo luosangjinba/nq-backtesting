@@ -43,6 +43,18 @@ The compatibility names remain because localStorage, Review JSON import/export, 
 
 Phase 12B is a cleanup-only phase. Order Setup feature expansion is frozen until the audit and cleanup pass is complete. New work in this phase should be limited to bug fixes, residual-code removal, duplicate-logic consolidation, and regression validation. New review concepts, new persisted fields, and large new UI sections should be deferred unless they are required to repair a current regression.
 
+### Phase 12B Authority Matrix
+
+`orderReviews` remains the compatibility persistence authority. It owns localStorage, Review JSON import/export, undo/redo snapshots, normalization of explicit user input, and stable record identity. It should not be treated as the direct chart or Inspector render model.
+
+`Setup Set` is the runtime/view-model authority for Order Setup. Chart renderers, hit-tests, Calendar open/locate behavior, Active Order Setup Inspector panels, result summaries, risk/reward boxes, and execution element rows should consume Setup Set data or helpers derived from Setup Set.
+
+`Review Set` is a legacy compatibility bridge for active id and older adapter naming. Do not add new Review Set fields or route new chart/Inspector behavior through Review Set summaries. When practical, active-state APIs should keep the id behavior but derive current view data through Setup Set.
+
+Inspector writes only explicit persisted fields: entry/stop/target endpoints, reasons, refs, entry context, display flags, result status, and notes. Inspector should display derived values from Setup Set and should not duplicate result/risk/projection calculations.
+
+Renderer and hit-test must share the same element projection semantics. `endTimestamp` should win; `lineLengthBars` remains old-data fallback; final fallback lengths should be centralized so visual length and hit area cannot diverge.
+
 Current UI rules:
 
 - The Inspector defaults to `Active Order Setup`, not a full list of every setup.

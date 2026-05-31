@@ -1345,7 +1345,44 @@ Current Git State:
 
 Committed:
 
-- pending
+- `docs(v4): audit order setup residual code`
+
+## Phase 12B Order Setup Authority Source Audit
+
+Operation Script:
+
+- Step: `150`
+- Goal: define the authority source for persistence, runtime view model, Inspector editing, renderer elements, and derived values.
+- Boundary: architecture decision record only; no runtime behavior changes.
+
+Authority Decisions:
+
+- `orderReviews` remains the persisted compatibility schema and owns localStorage, Review JSON, undo/redo snapshots, explicit input normalization, identity, and import/export compatibility.
+- `Setup Set` is the runtime/view-model authority for chart and Inspector behavior.
+- `Review Set` remains only an active id / legacy compatibility bridge; new chart or Inspector display logic should not depend on Review Set summaries.
+- Inspector writes explicit persisted fields only and displays derived values from Setup Set.
+- Result exit/points/R, risk/reward box bounds, execution summaries, and helper line projections are derived view data.
+- Renderer and hit-test must share one projection semantic: `endTimestamp` first, `lineLengthBars` fallback second, default length last.
+
+Cleanup Implications:
+
+- Step 151 removes dead full-form Inspector UI after checking remaining data-action dependencies.
+- Step 152 extracts shared result/projection helpers.
+- Step 153 can simplify chart action routing without changing storage.
+- Step 154 can remove journal-only result/exit remnants while keeping `orderReviews` compatibility names.
+
+Validation:
+
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `docs(v4): audit order setup residual code`
+
+Committed:
+
+- `docs(v4): define order setup authority sources`
 
 ## Phase 12 Default Visible Order Setups
 
