@@ -1395,6 +1395,44 @@ Notes:
 - This step intentionally leaves `orderReviews` schema names unchanged.
 - Old explicit imported `outcomePoints/outcomeR` still normalize if present, but current display should prefer Setup Set derivation.
 
+### Step 153: Clean Order Setup Chart Actions
+
+Goal:
+
+- Route Order Setup chart actions through explicit action maps.
+- Preserve current behavior while removing long action if/else branches and duplicate status handling.
+- Keep the right-click action surface constrained to registered actions.
+
+Implemented:
+
+- Added `ORDER_SETUP_PATCH_ACTIONS` for active setup reversal/event/entry/stop/target/final-target updates.
+- Added `ORDER_SETUP_LINK_ACTIONS` for PDA, Segment, Composite, and latest SMT references.
+- Replaced the old long `patchActiveSetupFromContext()` branch with map-driven patch generation.
+- Replaced the old long `linkContextObjectToActiveSetup()` branch with map-driven link generation.
+- Tightened `handleOrderSetupChartAction()` so unknown `order-setup-set-*` or `order-setup-link-*` actions are not swallowed by prefix checks.
+
+Main files:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- full `node --check` over `v4/src/**/*.js`
+- residual grep for old `order-setup-set-*` / `order-setup-link-*` action branches
+- `git diff --check`
+
+Commit:
+
+- `refactor(v4): clean order setup chart actions`
+
+Notes:
+
+- This is a refactor-only cleanup. It does not change menu labels, stored data, or chart drawing semantics.
+
 ## Next Step Template
 
 ### Step N: Title

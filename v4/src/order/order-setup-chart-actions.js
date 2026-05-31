@@ -110,6 +110,209 @@ function getOrderSetupElementLabel(role) {
   return role || 'Element';
 }
 
+const ORDER_SETUP_PATCH_ACTIONS = Object.freeze({
+  'order-setup-set-reversal': {
+    patch: ({ context, price }) => ({
+      setupThesis: {
+        primaryEventTimestamp: context.bar.timestamp,
+        primaryEventTimeframe: context.timeframe,
+        primaryEventPrice: price,
+      },
+    }),
+  },
+  'order-setup-set-event': {
+    patch: ({ context, price }) => ({
+      setupThesis: {
+        primaryEventTimestamp: context.bar.timestamp,
+        primaryEventTimeframe: context.timeframe,
+        primaryEventPrice: price,
+      },
+    }),
+  },
+  'order-setup-set-entry': {
+    anchor: 'strict',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        entryTimestamp: anchor.timestamp,
+        entryTimeframe: anchor.timeframe,
+        entryPrice: anchor.price,
+        entryEndTimestamp: null,
+        entryEndTimeframe: 'manual',
+      },
+    }),
+  },
+  'order-setup-set-entry-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        entryEndTimestamp: endTimestamp,
+        entryEndTimeframe: endTimeframe,
+      },
+    }),
+  },
+  'order-setup-set-entry-time': {
+    patch: ({ context }) => ({
+      entryPlan: {
+        entryTimestamp: context.bar.timestamp,
+        entryTimeframe: context.timeframe,
+      },
+    }),
+  },
+  'order-setup-set-exit-time': {
+    patch: ({ context }) => ({
+      resultReview: {
+        exitTimestamp: context.bar.timestamp,
+      },
+    }),
+  },
+  'order-setup-set-entry-price': {
+    patch: ({ price }) => ({ entryPlan: { entryPrice: price } }),
+  },
+  'order-setup-set-stop-loss': {
+    anchor: 'strict',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        stopLoss: anchor.price,
+        stopLossTimestamp: anchor.timestamp,
+        stopLossTimeframe: anchor.timeframe,
+        stopLossEndTimestamp: null,
+        stopLossEndTimeframe: 'manual',
+      },
+    }),
+  },
+  'order-setup-set-stop-loss-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        stopLossEndTimestamp: endTimestamp,
+        stopLossEndTimeframe: endTimeframe,
+      },
+    }),
+  },
+  'order-setup-set-target-internal': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        targetInternal: anchor.price,
+        targetInternalTimestamp: anchor.timestamp,
+        targetInternalTimeframe: anchor.timeframe,
+        targetInternalEndTimestamp: null,
+        targetInternalEndTimeframe: 'manual',
+        selectedTargetType: 'internal',
+      },
+    }),
+  },
+  'order-setup-set-target-internal-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        targetInternalEndTimestamp: endTimestamp,
+        targetInternalEndTimeframe: endTimeframe,
+      },
+    }),
+  },
+  'order-setup-set-target-swing': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        targetSwing: anchor.price,
+        targetSwingTimestamp: anchor.timestamp,
+        targetSwingTimeframe: anchor.timeframe,
+        targetSwingEndTimestamp: null,
+        targetSwingEndTimeframe: 'manual',
+        selectedTargetType: 'swing',
+      },
+    }),
+  },
+  'order-setup-set-target-swing-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        targetSwingEndTimestamp: endTimestamp,
+        targetSwingEndTimeframe: endTimeframe,
+      },
+    }),
+  },
+  'order-setup-set-target-external': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        targetExternal: anchor.price,
+        targetExternalTimestamp: anchor.timestamp,
+        targetExternalTimeframe: anchor.timeframe,
+        targetExternalEndTimestamp: null,
+        targetExternalEndTimeframe: 'manual',
+        selectedTargetType: 'external',
+      },
+    }),
+  },
+  'order-setup-set-target-external-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        targetExternalEndTimestamp: endTimestamp,
+        targetExternalEndTimeframe: endTimeframe,
+      },
+    }),
+  },
+  'order-setup-set-final-target': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        finalTarget: anchor.price,
+        finalTargetTimestamp: anchor.timestamp,
+        finalTargetTimeframe: anchor.timeframe,
+        finalTargetEndTimestamp: null,
+        finalTargetEndTimeframe: 'manual',
+      },
+    }),
+  },
+  'order-setup-set-final-target-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        finalTargetEndTimestamp: endTimestamp,
+        finalTargetEndTimeframe: endTimeframe,
+      },
+    }),
+  },
+});
+
+const ORDER_SETUP_LINK_ACTIONS = Object.freeze({
+  'order-setup-link-pda': {
+    getTarget: (context) => context.pdaHit ? getAnnotationById(context.pdaHit.id) : null,
+    buildRef: (annotation) => ({
+      type: ORDER_REF_TYPES.PDA,
+      id: annotation.id,
+      role: ORDER_REF_ROLES.CONTEXT,
+      ...buildPdaOrderRefMetadata(annotation),
+    }),
+    label: (annotation) => `${getPdaOrderRefLabel(annotation)} linked to active setup`,
+  },
+  'order-setup-link-segment': {
+    getTarget: (context) => context.segmentHit ? getSegmentById(context.segmentHit.id) : null,
+    buildRef: (segment) => ({
+      type: ORDER_REF_TYPES.SEGMENT,
+      id: segment.id,
+      role: ORDER_REF_ROLES.CONTEXT,
+      ...buildSegmentOrderRefMetadata(segment),
+    }),
+    label: (segment) => `${getSegmentLabel(segment)} linked to active setup`,
+  },
+  'order-setup-link-composite': {
+    getTarget: (context) => context.segmentGroupHit?.id ? context.segmentGroupHit : null,
+    buildRef: (group) => ({
+      type: ORDER_REF_TYPES.COMPOSITE,
+      id: group.id,
+      role: ORDER_REF_ROLES.CONTEXT,
+    }),
+    label: () => 'Composite linked to active setup',
+  },
+  'order-setup-link-latest-smt': {
+    getTarget: () => getSmtRecords().at(-1) || null,
+    buildRef: (smt) => ({
+      type: ORDER_REF_TYPES.SMT,
+      id: smt.id,
+      role: ORDER_REF_ROLES.CONFIRMATION,
+    }),
+    label: () => 'Latest SMT linked to active setup',
+  },
+});
+
 function getOrderSetupElementDeletePatch(role) {
   if (role === 'entry') return { entryPlan: { entryTimestamp: null, entryPrice: null, entryEndTimestamp: null, entryEndTimeframe: 'manual' } };
   if (role === 'stopLoss') return { entryPlan: { stopLoss: null, stopLossTimestamp: null, stopLossTimeframe: 'manual', stopLossEndTimestamp: null, stopLossEndTimeframe: 'manual' } };
@@ -297,21 +500,13 @@ function createOrderSetupFromContext(direction, context) {
 }
 
 function patchActiveSetupFromContext(action, context) {
+  const actionConfig = ORDER_SETUP_PATCH_ACTIONS[action];
+  if (!actionConfig) return false;
   if (!context.bar) return;
 
-  const needsStrictAnchor = [
-    'order-setup-set-entry',
-    'order-setup-set-stop-loss',
-  ].includes(action);
-  const needsTargetAnchor = [
-    'order-setup-set-target-internal',
-    'order-setup-set-target-swing',
-    'order-setup-set-target-external',
-    'order-setup-set-final-target',
-  ].includes(action);
-  const needsAnchor = needsStrictAnchor || needsTargetAnchor;
+  const needsAnchor = actionConfig.anchor === 'strict' || actionConfig.anchor === 'target';
   const anchor = needsAnchor
-    ? getValidBarAnchor(context, 'Order Setup element', { allowFreePrice: needsTargetAnchor })
+    ? getValidBarAnchor(context, 'Order Setup element', { allowFreePrice: actionConfig.anchor === 'target' })
     : null;
   if (needsAnchor && !anchor) return;
   const price = anchor?.price ?? getContextPrice(context.price);
@@ -319,184 +514,36 @@ function patchActiveSetupFromContext(action, context) {
   const endTimeframe = context.timeframe;
 
   return recordHistory('Update Order Setup', () => {
-    if (action === 'order-setup-set-reversal' || action === 'order-setup-set-event') {
-      updateActiveReviewSet({
-        setupThesis: {
-          primaryEventTimestamp: context.bar.timestamp,
-          primaryEventTimeframe: context.timeframe,
-          primaryEventPrice: price,
-        },
-      });
-    } else if (action === 'order-setup-set-entry') {
-      updateActiveReviewSet({
-        entryPlan: {
-          entryTimestamp: anchor.timestamp,
-          entryTimeframe: anchor.timeframe,
-          entryPrice: anchor.price,
-          entryEndTimestamp: null,
-          entryEndTimeframe: 'manual',
-        },
-      });
-    } else if (action === 'order-setup-set-entry-end') {
-      updateActiveReviewSet({
-        entryPlan: {
-          entryEndTimestamp: endTimestamp,
-          entryEndTimeframe: endTimeframe,
-        },
-      });
-    } else if (action === 'order-setup-set-entry-time') {
-      updateActiveReviewSet({
-        entryPlan: {
-          entryTimestamp: context.bar.timestamp,
-          entryTimeframe: context.timeframe,
-        },
-      });
-    } else if (action === 'order-setup-set-exit-time') {
-      updateActiveReviewSet({
-        resultReview: {
-          exitTimestamp: context.bar.timestamp,
-        },
-      });
-    } else if (action === 'order-setup-set-entry-price') {
-      updateActiveReviewSet({ entryPlan: { entryPrice: price } });
-    } else if (action === 'order-setup-set-stop-loss') {
-      updateActiveReviewSet({
-        entryPlan: {
-          stopLoss: anchor.price,
-          stopLossTimestamp: anchor.timestamp,
-          stopLossTimeframe: anchor.timeframe,
-          stopLossEndTimestamp: null,
-          stopLossEndTimeframe: 'manual',
-        },
-      });
-    } else if (action === 'order-setup-set-stop-loss-end') {
-      updateActiveReviewSet({
-        entryPlan: {
-          stopLossEndTimestamp: endTimestamp,
-          stopLossEndTimeframe: endTimeframe,
-        },
-      });
-    } else if (action === 'order-setup-set-target-internal') {
-      updateActiveReviewSet({
-        entryPlan: {
-          targetInternal: anchor.price,
-          targetInternalTimestamp: anchor.timestamp,
-          targetInternalTimeframe: anchor.timeframe,
-          targetInternalEndTimestamp: null,
-          targetInternalEndTimeframe: 'manual',
-          selectedTargetType: 'internal',
-        },
-      });
-    } else if (action === 'order-setup-set-target-internal-end') {
-      updateActiveReviewSet({
-        entryPlan: {
-          targetInternalEndTimestamp: endTimestamp,
-          targetInternalEndTimeframe: endTimeframe,
-        },
-      });
-    } else if (action === 'order-setup-set-target-swing') {
-      updateActiveReviewSet({
-        entryPlan: {
-          targetSwing: anchor.price,
-          targetSwingTimestamp: anchor.timestamp,
-          targetSwingTimeframe: anchor.timeframe,
-          targetSwingEndTimestamp: null,
-          targetSwingEndTimeframe: 'manual',
-          selectedTargetType: 'swing',
-        },
-      });
-    } else if (action === 'order-setup-set-target-swing-end') {
-      updateActiveReviewSet({
-        entryPlan: {
-          targetSwingEndTimestamp: endTimestamp,
-          targetSwingEndTimeframe: endTimeframe,
-        },
-      });
-    } else if (action === 'order-setup-set-target-external') {
-      updateActiveReviewSet({
-        entryPlan: {
-          targetExternal: anchor.price,
-          targetExternalTimestamp: anchor.timestamp,
-          targetExternalTimeframe: anchor.timeframe,
-          targetExternalEndTimestamp: null,
-          targetExternalEndTimeframe: 'manual',
-          selectedTargetType: 'external',
-        },
-      });
-    } else if (action === 'order-setup-set-target-external-end') {
-      updateActiveReviewSet({
-        entryPlan: {
-          targetExternalEndTimestamp: endTimestamp,
-          targetExternalEndTimeframe: endTimeframe,
-        },
-      });
-    } else if (action === 'order-setup-set-final-target') {
-      updateActiveReviewSet({
-        entryPlan: {
-          finalTarget: anchor.price,
-          finalTargetTimestamp: anchor.timestamp,
-          finalTargetTimeframe: anchor.timeframe,
-          finalTargetEndTimestamp: null,
-          finalTargetEndTimeframe: 'manual',
-        },
-      });
-    } else if (action === 'order-setup-set-final-target-end') {
-      updateActiveReviewSet({
-        entryPlan: {
-          finalTargetEndTimestamp: endTimestamp,
-          finalTargetEndTimeframe: endTimeframe,
-        },
-      });
-    }
-
-    bus.emit('status:update', { text: 'Active Order Setup updated from chart', isError: false });
+    const updated = updateActiveReviewSet(actionConfig.patch({
+      context,
+      anchor,
+      price,
+      endTimestamp,
+      endTimeframe,
+    }));
+    bus.emit('status:update', {
+      text: updated ? 'Active Order Setup updated from chart' : 'Active Order Setup update failed',
+      isError: !updated,
+    });
+    return updated;
   });
 }
 
 function linkContextObjectToActiveSetup(action, context) {
+  const actionConfig = ORDER_SETUP_LINK_ACTIONS[action];
+  if (!actionConfig) return false;
   return recordHistory('Link Object To Setup', () => {
-    if (action === 'order-setup-link-pda') {
-    const annotation = context.pdaHit ? getAnnotationById(context.pdaHit.id) : null;
-    if (annotation) {
-      linkRefToActiveReviewSet({
-        type: ORDER_REF_TYPES.PDA,
-        id: annotation.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-        ...buildPdaOrderRefMetadata(annotation),
-      });
-      bus.emit('status:update', { text: `${getPdaOrderRefLabel(annotation)} linked to active setup`, isError: false });
+    const target = actionConfig.getTarget(context);
+    if (!target) {
+      bus.emit('status:update', { text: 'No linkable object for active setup', isError: true });
+      return null;
     }
-    } else if (action === 'order-setup-link-segment') {
-    const segment = context.segmentHit ? getSegmentById(context.segmentHit.id) : null;
-    if (segment) {
-      linkRefToActiveReviewSet({
-        type: ORDER_REF_TYPES.SEGMENT,
-        id: segment.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-        ...buildSegmentOrderRefMetadata(segment),
-      });
-      bus.emit('status:update', { text: `${getSegmentLabel(segment)} linked to active setup`, isError: false });
-    }
-    } else if (action === 'order-setup-link-composite') {
-    if (context.segmentGroupHit?.id) {
-      linkRefToActiveReviewSet({
-        type: ORDER_REF_TYPES.COMPOSITE,
-        id: context.segmentGroupHit.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-      });
-      bus.emit('status:update', { text: 'Composite linked to active setup', isError: false });
-    }
-    } else if (action === 'order-setup-link-latest-smt') {
-    const smt = getSmtRecords().at(-1);
-    if (smt) {
-      linkRefToActiveReviewSet({
-        type: ORDER_REF_TYPES.SMT,
-        id: smt.id,
-        role: ORDER_REF_ROLES.CONFIRMATION,
-      });
-      bus.emit('status:update', { text: 'Latest SMT linked to active setup', isError: false });
-    }
-    }
+    const updated = linkRefToActiveReviewSet(actionConfig.buildRef(target));
+    bus.emit('status:update', {
+      text: updated ? actionConfig.label(target) : 'Object link failed',
+      isError: !updated,
+    });
+    return updated;
   });
 }
 
@@ -592,12 +639,12 @@ export function handleOrderSetupChartAction(action, context = {}) {
     return true;
   }
 
-  if (action.startsWith('order-setup-set-')) {
+  if (Object.prototype.hasOwnProperty.call(ORDER_SETUP_PATCH_ACTIONS, action)) {
     patchActiveSetupFromContext(action, context);
     return true;
   }
 
-  if (action.startsWith('order-setup-link-')) {
+  if (Object.prototype.hasOwnProperty.call(ORDER_SETUP_LINK_ACTIONS, action)) {
     linkContextObjectToActiveSetup(action, context);
     return true;
   }

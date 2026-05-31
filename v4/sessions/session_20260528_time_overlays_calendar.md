@@ -1097,6 +1097,44 @@ Committed:
 
 - `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
+## Phase 12B Clean Order Setup Chart Actions
+
+Operation Script:
+
+- Step: `153`
+- Goal: remove duplicate Order Setup chart action branches and make the supported action surface explicit.
+- Boundary: refactor only; keep menu labels, stored data, active setup update semantics, and chart drawing behavior unchanged.
+
+Planned:
+
+- Consolidate reversal/event/entry/stop/target/final-target chart updates into a patch action map.
+- Consolidate PDA/Segment/Composite/SMT linking into a link action map.
+- Tighten handler dispatch so only registered Order Setup chart actions are consumed.
+
+Implemented:
+
+- Added `ORDER_SETUP_PATCH_ACTIONS` in `order-setup-chart-actions.js`.
+- Added `ORDER_SETUP_LINK_ACTIONS` in `order-setup-chart-actions.js`.
+- Replaced long update/link if/else chains with map-driven patch/link generation.
+- Handler now uses registered action maps instead of broad `startsWith()` dispatch for setup/link actions.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- Full `node --check` over `v4/src/**/*.js`
+- Residual grep found no old `order-setup-set-*` / `order-setup-link-*` if/else or broad prefix dispatch.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `refactor(v4): clean order setup chart actions`
+- Current uncommitted changes: none for Step 153
+
+Committed:
+
+- `refactor(v4): clean order setup chart actions`
+
 ## Phase 12 Inline Calendar Setup Visibility State
 
 Operation Script:
