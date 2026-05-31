@@ -952,10 +952,10 @@ html, body {
 
 .order-setup-execution-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22px;
+  grid-template-columns: 18px minmax(0, 1fr) 22px;
   grid-template-areas:
-    "summary delete"
-    "time delete";
+    "visibility summary delete"
+    "visibility time delete";
   column-gap: 6px;
   row-gap: 1px;
   align-items: start;
@@ -967,10 +967,54 @@ html, body {
   cursor: pointer;
 }
 
+.order-setup-execution-row.is-hidden {
+  color: #787b86;
+}
+
 .order-setup-execution-row.active {
   border-color: #ffd54f;
   background: rgba(255, 213, 79, 0.12);
   color: #f0f3fa;
+}
+
+.order-setup-execution-visibility {
+  grid-area: visibility;
+  position: relative;
+  width: 16px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.order-setup-execution-visibility::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #26a69a;
+  box-shadow: 0 0 0 1px rgba(38, 166, 154, 0.42);
+}
+
+.order-setup-execution-visibility.is-hidden::before {
+  background: #787b86;
+  box-shadow: 0 0 0 1px rgba(120, 123, 134, 0.42);
+}
+
+.order-setup-execution-visibility.is-hidden::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 10px;
+  width: 11px;
+  height: 1px;
+  background: #c8ccd7;
+  transform: rotate(-35deg);
+  transform-origin: center;
 }
 
 .order-setup-execution-summary {

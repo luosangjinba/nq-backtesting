@@ -1629,6 +1629,42 @@ Commit:
 
 - `docs(v4): record order setup cleanup merge`
 
+### Step 157: Execution Element Visibility
+
+Goal:
+
+- Let each Active Order Setup Execution element be shown or hidden independently.
+
+Implemented:
+
+- Added `display.elementVisibility` as a per-role visibility map.
+- Added compact visibility status buttons to Execution rows.
+- Inspector toggles visibility for Entry, Stop Loss, Target1/2/3, and Final Target without deleting data.
+- Renderer and hit-test skip hidden execution helper lines.
+- Risk/reward box respects hidden Entry, Stop Loss, and result target visibility.
+
+Main files:
+
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check` for touched JS files
+- full `node --check` over `v4/src/**/*.js`
+- `git diff --check`
+- module smoke for `display.elementVisibility` normalization and Setup Set carry-through
+
+Commit:
+
+- `feat(v4): toggle order setup execution elements`
+
 ## Next Step Template
 
 ### Step N: Title

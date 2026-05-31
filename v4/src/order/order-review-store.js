@@ -353,6 +353,7 @@ function cloneOrderReview(order) {
     display: {
       ...(order.display || {}),
       elementLengths: { ...(order.display?.elementLengths || {}) },
+      elementVisibility: { ...(order.display?.elementVisibility || {}) },
     },
   };
 }
@@ -697,6 +698,7 @@ export function normalizeResultReview(input = {}) {
 
 export function normalizeOrderDisplay(input = {}) {
   const elementLengths = {};
+  const elementVisibility = {};
   if (input.elementLengths && typeof input.elementLengths === 'object') {
     Object.entries(input.elementLengths).forEach(([key, value]) => {
       const role = normalizeString(key, '');
@@ -704,10 +706,17 @@ export function normalizeOrderDisplay(input = {}) {
       if (role && length !== null && length >= 0) elementLengths[role] = Math.floor(length);
     });
   }
+  if (input.elementVisibility && typeof input.elementVisibility === 'object') {
+    Object.entries(input.elementVisibility).forEach(([key, value]) => {
+      const role = normalizeString(key, '');
+      if (role) elementVisibility[role] = normalizeBoolean(value, true);
+    });
+  }
   return {
     hidden: normalizeBoolean(input.hidden, false),
     showRiskRewardBox: normalizeBoolean(input.showRiskRewardBox, true),
     elementLengths,
+    elementVisibility,
   };
 }
 

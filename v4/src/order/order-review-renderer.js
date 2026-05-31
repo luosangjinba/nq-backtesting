@@ -244,6 +244,10 @@ function getEntryLineColor(direction) {
   return direction === ORDER_DIRECTIONS.SHORT ? SHORT_ENTRY_COLOR : LONG_ENTRY_COLOR;
 }
 
+function isOrderSetupElementVisible(setupSet, role) {
+  return setupSet?.display?.elementVisibility?.[role] !== false;
+}
+
 function renderSetupSet(setupSet, isActive = false) {
   if (setupSet.display?.hidden) return;
 
@@ -261,7 +265,7 @@ function renderSetupSet(setupSet, isActive = false) {
 
   renderReversalMarker(reversal, direction, isActive);
 
-  if (Number.isFinite(Number(entry.price))) {
+  if (isOrderSetupElementVisible(setupSet, 'entry') && Number.isFinite(Number(entry.price))) {
     const selectedEntry = isSelectedElement('entry');
     renderPlanLine(
       entryTimestamp,
@@ -276,21 +280,32 @@ function renderSetupSet(setupSet, isActive = false) {
     );
   }
 
-  const targetLines = getTargetLines(elements.targets);
-  renderRiskRewardBox(setupSet, entry, stopLoss, elements.targets || [], result, direction);
+  const visibleTargets = (elements.targets || []).filter((target) => isOrderSetupElementVisible(setupSet, target.role));
+  const targetLines = getTargetLines(visibleTargets);
+  const canRenderRiskRewardBox =
+    isOrderSetupElementVisible(setupSet, 'entry') &&
+    isOrderSetupElementVisible(setupSet, 'stopLoss') &&
+    (result.status !== 'target1' && result.status !== 'target2' && result.status !== 'target3'
+      ? true
+      : isOrderSetupElementVisible(setupSet, result.status));
+  if (canRenderRiskRewardBox) {
+    renderRiskRewardBox(setupSet, entry, stopLoss, visibleTargets, result, direction);
+  }
 
-  const selectedStop = isSelectedElement('stopLoss');
-  renderPlanLine(
-    stopLoss.timestamp || entryTimestamp,
-    stopLoss.price,
-    'Stop-loss',
-    selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
-    direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
-    getOrderSetupElementLineLength(stopLoss, ORDER_SETUP_LINE_LENGTH_BARS + 6),
-    selectedStop ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
-    selectedStop ? 'dashed' : 'solid',
-    stopLoss.endTimestamp
-  );
+  if (isOrderSetupElementVisible(setupSet, 'stopLoss')) {
+    const selectedStop = isSelectedElement('stopLoss');
+    renderPlanLine(
+      stopLoss.timestamp || entryTimestamp,
+      stopLoss.price,
+      'Stop-loss',
+      selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
+      direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
+      getOrderSetupElementLineLength(stopLoss, ORDER_SETUP_LINE_LENGTH_BARS + 6),
+      selectedStop ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
+      selectedStop ? 'dashed' : 'solid',
+      stopLoss.endTimestamp
+    );
+  }
 
   targetLines.forEach((target, index) => {
     const selectedTarget = isSelectedElement(target.role);

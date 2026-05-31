@@ -1288,6 +1288,39 @@ Committed:
 
 - `docs(v4): record order setup cleanup merge`
 
+## Phase 12C Execution Element Visibility
+
+Operation Script:
+
+- Step: `157`
+- Goal: add per-element visibility controls for Active Order Setup Execution rows.
+- Boundary: preserve existing setup-level visibility and delete/select behavior.
+
+Implemented:
+
+- Added `display.elementVisibility` normalization and clone support.
+- Execution rows now show a compact visibility status button for Entry, Stop Loss, Target1/2/3, and Final Target.
+- Inspector toggle updates each element role independently.
+- Renderer skips hidden execution helper lines.
+- Hit-test skips hidden execution helper lines using the same visible target ordering as renderer.
+- Risk/reward box respects hidden Entry, Stop Loss, and result target visibility.
+
+Validation:
+
+- `node --check` for touched JS files
+- Full `node --check` over `v4/src/**/*.js`
+- `git diff --check`
+- Module smoke verified `display.elementVisibility` normalizes and carries into Setup Set.
+
+Current Git State:
+
+- Branch: `main`
+- Current uncommitted changes: none for Step 157
+
+Committed:
+
+- `feat(v4): toggle order setup execution elements`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:

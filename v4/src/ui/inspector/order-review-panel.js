@@ -218,8 +218,10 @@ function formatExecutionTimeRange(element) {
 function renderExecutionElementRow(order, role, element, selectedElement, extra = '') {
   if (!element || !Number.isFinite(Number(element.price))) return '';
   const isSelected = selectedElement?.setupId === order.id && selectedElement?.element === role;
+  const isVisible = order.display?.elementVisibility?.[role] !== false;
   return `
-    <div class="order-setup-execution-row${isSelected ? ' active' : ''}" data-inspector-action="order-setup-element-select" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}">
+    <div class="order-setup-execution-row${isSelected ? ' active' : ''}${isVisible ? '' : ' is-hidden'}" data-inspector-action="order-setup-element-select" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}">
+      <button class="order-setup-execution-visibility ${isVisible ? 'is-visible' : 'is-hidden'}" data-inspector-action="order-setup-element-toggle-visibility" data-order-review-id="${escapeHtml(order.id)}" data-order-setup-element="${escapeHtml(role)}" type="button" title="${isVisible ? 'Hide' : 'Show'} ${escapeHtml(getElementLabel(role))}" aria-label="${isVisible ? 'Hide' : 'Show'} ${escapeHtml(getElementLabel(role))}"></button>
       <div class="order-setup-execution-summary">
         <span class="order-setup-execution-type">${escapeHtml(getElementLabel(role))}</span>
         <strong class="order-setup-execution-price">${escapeHtml(formatNumber(element.price))}</strong>

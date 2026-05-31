@@ -82,6 +82,10 @@ function hitReversal(setupSet, x, y, context) {
   };
 }
 
+function isOrderSetupElementVisible(setupSet, role) {
+  return setupSet?.display?.elementVisibility?.[role] !== false;
+}
+
 export function hitTestOrderSetupElements({ x, y, context = null } = {}) {
   const activeContext = getHitContext(context);
   const hits = [];
@@ -91,11 +95,17 @@ export function hitTestOrderSetupElements({ x, y, context = null } = {}) {
     const entryTimestamp = elements.entry?.timestamp || elements.reversal?.timestamp;
     const reversalHit = hitReversal(setupSet, x, y, activeContext);
     if (reversalHit) hits.push(reversalHit);
-    const entryHit = hitHorizontalLine(setupSet, elements.entry, 'entry', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS);
-    if (entryHit) hits.push(entryHit);
-    const stopHit = hitHorizontalLine(setupSet, elements.stopLoss, 'stopLoss', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS + 6);
-    if (stopHit) hits.push(stopHit);
-    (Array.isArray(elements.targets) ? elements.targets : []).forEach((target, index) => {
+    if (isOrderSetupElementVisible(setupSet, 'entry')) {
+      const entryHit = hitHorizontalLine(setupSet, elements.entry, 'entry', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS);
+      if (entryHit) hits.push(entryHit);
+    }
+    if (isOrderSetupElementVisible(setupSet, 'stopLoss')) {
+      const stopHit = hitHorizontalLine(setupSet, elements.stopLoss, 'stopLoss', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS + 6);
+      if (stopHit) hits.push(stopHit);
+    }
+    const visibleTargets = (Array.isArray(elements.targets) ? elements.targets : [])
+      .filter((target) => isOrderSetupElementVisible(setupSet, target.role));
+    visibleTargets.forEach((target, index) => {
       const targetHit = hitHorizontalLine(
         setupSet,
         target,

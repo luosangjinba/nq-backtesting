@@ -537,6 +537,25 @@ function updateOrderReviewDisplayField(target) {
   return true;
 }
 
+function toggleOrderSetupElementVisibility(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const role = target.dataset.orderSetupElement;
+  const order = getOrderReviewById(orderReviewId);
+  if (!order || !role) return false;
+  const elementVisibility = {
+    ...(order.display?.elementVisibility || {}),
+    [role]: order.display?.elementVisibility?.[role] === false,
+  };
+  recordInspectorHistory('Toggle Order Setup Element Visibility', () => updateOrderReview(orderReviewId, {
+    display: {
+      ...(order.display || {}),
+      elementVisibility,
+    },
+  }));
+  refreshSelection();
+  return true;
+}
+
 function getOrderSetupElementDeletePatch(role) {
   if (role === 'entry') {
     return {
@@ -1568,6 +1587,11 @@ function handleInspectorClick(e) {
 
   if (action === 'order-setup-element-delete') {
     deleteOrderSetupElement(actionEl);
+    return;
+  }
+
+  if (action === 'order-setup-element-toggle-visibility') {
+    toggleOrderSetupElementVisibility(actionEl);
     return;
   }
 
