@@ -263,7 +263,10 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Removed dead `order-review-panel.js` full-row/form render path: old Setup Thesis / Entry Plan / Result Review / Advanced Edit / Quick Review renderers and their unused input helpers
   - Removed old Order Setup time/price pick state and handlers from `inspector-sidebar.js`; chart-first entry/stop/target endpoint workflows remain in `order-setup-chart-actions.js`
   - Kept Active Order Setup UI, Calendar Order Setups, Archive import/export, entry context, reasons, result status/note, display flags, element select/delete, and active/locate/hide/delete actions
-- [ ] Step 152: 合并重复计算与格式化 helper：统一 result/risk-reward/execution line/time range/visible-hidden state 的派生函数，避免 Inspector、renderer、store 各自算一套
+- [x] Step 152: 合并重复计算与格式化 helper：统一 result/risk-reward/execution line/time range/visible-hidden state 的派生函数，避免 Inspector、renderer、store 各自算一套
+  - Added `order-setup-projection.js` as shared renderer/hit-test projection helper: timestamp mapping, display bar lookup/index, `lineLengthBars` fallback, projected zone end, bar spacing, line end coordinate
+  - Updated renderer and hit-test to share `endTimestamp -> lineLengthBars -> default length` semantics
+  - Stopped deriving result points/R in `order-review-store`; store now normalizes explicit result input while Setup Set/view-model derives displayed Target/Stop/BE summary
 - [ ] Step 153: 清理右键菜单与 chart actions：收敛 reversal/entry/stop/target/reason/result 相关 action map，确认菜单只显示当前可执行动作；删除旧分支和重复状态提示
 - [ ] Step 154: 清理旧字段兼容策略：在不导入旧数据的前提下，移除已明确废弃的 result 值、旧 Review Set 文案和无意义 fallback；保留 `orderReviews` schema/localStorage key 直到单独 migration
 - [ ] Step 155: 回归验证 Order Setup 主路径：覆盖 create bullish/bearish setup、set active/close/hide/show/delete、entry/stop/target 起止点、reason add/link、entry context、result target/stop/BE、risk/reward box、calendar locate/open、undo/redo、import/export、split/replay 基本不回归

@@ -4,11 +4,18 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
-import { getBucketStart } from '../pda/pda-context.js';
 import { ORDER_DIRECTIONS } from './order-review-store.js';
 import { getActiveReviewSetId } from './order-review-active.js';
 import { getSelectedOrderSetupElement } from './order-setup-selection.js';
 import { getSetupSets } from './setup-set.js';
+import {
+  ORDER_SETUP_LINE_LENGTH_BARS,
+  ORDER_SETUP_ZONE_WIDTH_BARS,
+  getOrderSetupDisplayBarIndexForTimestamp,
+  getOrderSetupElementLineLength,
+  getOrderSetupProjectedChartTime,
+  mapTimestampToOrderSetupChartTime,
+} from './order-setup-projection.js';
 
 const SETUP_COLOR = '#ffb74d';
 const LONG_ENTRY_COLOR = '#00695c';
@@ -37,10 +44,14 @@ const REWARD_ZONE = {
   borderColor: 'rgba(38, 166, 154, 0.4)',
   textColor: '#80cbc4',
 };
-const PLAN_LINE_LENGTH_BARS = 38;
-const PLAN_ZONE_WIDTH_BARS = 28;
-
 let renderedPrimitives = [];
+
+function getRenderContext() {
+  return {
+    timeframe: store.getCurrentTimeframe(),
+    getDisplayBars: store.getDisplayBars,
+  };
+}
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives) || [];
@@ -54,19 +65,7 @@ function attachPrimitive(primitive) {
 }
 
 function mapTimestampToCurrentChartTime(timestamp) {
-  if (timestamp === undefined || timestamp === null) return null;
-  const parsed = Number(timestamp);
-  if (!Number.isFinite(parsed)) return null;
-
-  const timeframe = store.getCurrentTimeframe();
-  const bucketStart = getBucketStart(parsed, timeframe);
-  if (timeframe === 1440) {
-    const exactBar = store.getDisplayBars().find((bar) => Number(bar.timestamp) === parsed);
-    if (exactBar?.tradingDay) return exactBar.tradingDay;
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return bucketStart;
+  return mapTimestampToOrderSetupChartTime(timestamp, getRenderContext());
 }
 
 function hasRenderableChart() {
@@ -109,7 +108,7 @@ function renderReversalMarker(reversal, direction, isActive = false) {
     : isBearish
       ? REVERSAL_BEARISH_COLOR
       : REVERSAL_BULLISH_COLOR;
-  const barIndex = getDisplayBarIndexForTimestamp(reversal?.timestamp);
+  const barIndex = getOrderSetupDisplayBarIndexForTimestamp(reversal?.timestamp, getRenderContext());
   const bar = barIndex >= 0 ? store.getDisplayBars()[barIndex] : null;
   const markerPrice = Number(isBearish ? bar?.high : bar?.low);
   const fallbackPrice = Number(reversal?.price);
@@ -136,32 +135,7 @@ function renderReversalMarker(reversal, direction, isActive = false) {
   );
 }
 
-function getDisplayBarIndexForTimestamp(timestamp) {
-  const parsed = Number(timestamp);
-  if (!Number.isFinite(parsed)) return -1;
-  const timeframe = store.getCurrentTimeframe();
-  const bucketStart = getBucketStart(parsed, timeframe);
-  return store.getDisplayBars().findIndex((bar) => {
-    if (timeframe === 1440) return Number(bar.timestamp) === parsed || Number(bar.timestamp) === bucketStart;
-    return Number(bar.timestamp) === bucketStart;
-  });
-}
-
-function getProjectedChartTime(timestamp, barsAhead = PLAN_ZONE_WIDTH_BARS) {
-  const bars = store.getDisplayBars();
-  if (!bars.length) return mapTimestampToCurrentChartTime(timestamp);
-  const index = getDisplayBarIndexForTimestamp(timestamp);
-  if (index < 0) return mapTimestampToCurrentChartTime(timestamp);
-  const next = bars[Math.min(bars.length - 1, index + barsAhead)];
-  return next ? mapTimestampToCurrentChartTime(next.timestamp) : mapTimestampToCurrentChartTime(timestamp);
-}
-
-function getElementLineLength(element, fallback) {
-  const length = Number(element?.lineLengthBars);
-  return Number.isFinite(length) && length >= 0 ? length : fallback;
-}
-
-function renderPlanLine(timestamp, price, label, color, position = 'above', lineLength = PLAN_LINE_LENGTH_BARS, lineWidth = 2, lineStyle = 'solid', endTimestamp = null) {
+function renderPlanLine(timestamp, price, label, color, position = 'above', lineLength = ORDER_SETUP_LINE_LENGTH_BARS, lineWidth = 2, lineStyle = 'solid', endTimestamp = null) {
   const time = mapTimestampToCurrentChartTime(timestamp);
   const endTime = mapTimestampToCurrentChartTime(endTimestamp);
   const parsedPrice = Number(price);
@@ -196,7 +170,9 @@ function getZoneEndTimestamp(...elements) {
 
 function renderRangeZone(timestamp, endTimestamp, entryPrice, targetPrice, label, colors) {
   const startTime = mapTimestampToCurrentChartTime(timestamp);
-  const endTime = endTimestamp ? mapTimestampToCurrentChartTime(endTimestamp) : getProjectedChartTime(timestamp);
+  const endTime = endTimestamp
+    ? mapTimestampToCurrentChartTime(endTimestamp)
+    : getOrderSetupProjectedChartTime(timestamp, getRenderContext(), ORDER_SETUP_ZONE_WIDTH_BARS);
   const parsedEntry = Number(entryPrice);
   const parsedTarget = Number(targetPrice);
   if (startTime === null || endTime === null || !Number.isFinite(parsedEntry) || !Number.isFinite(parsedTarget)) return;
@@ -293,7 +269,7 @@ function renderSetupSet(setupSet, isActive = false) {
       `${getLineLabelDirection(direction)} Entry`,
       selectedEntry ? SELECTED_ELEMENT_COLOR : entryColor,
       direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
-      getElementLineLength(entry, PLAN_LINE_LENGTH_BARS),
+      getOrderSetupElementLineLength(entry, ORDER_SETUP_LINE_LENGTH_BARS),
       selectedEntry ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
       selectedEntry ? 'dashed' : 'solid',
       entry.endTimestamp
@@ -310,7 +286,7 @@ function renderSetupSet(setupSet, isActive = false) {
     'Stop-loss',
     selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
     direction === ORDER_DIRECTIONS.SHORT ? 'above' : 'below',
-    getElementLineLength(stopLoss, PLAN_LINE_LENGTH_BARS + 6),
+    getOrderSetupElementLineLength(stopLoss, ORDER_SETUP_LINE_LENGTH_BARS + 6),
     selectedStop ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
     selectedStop ? 'dashed' : 'solid',
     stopLoss.endTimestamp
@@ -324,7 +300,7 @@ function renderSetupSet(setupSet, isActive = false) {
       target.label,
       selectedTarget ? SELECTED_ELEMENT_COLOR : TARGET_COLOR,
       direction === ORDER_DIRECTIONS.SHORT ? 'below' : 'above',
-      getElementLineLength(target, PLAN_LINE_LENGTH_BARS + index * 6),
+      getOrderSetupElementLineLength(target, ORDER_SETUP_LINE_LENGTH_BARS + index * 6),
       selectedTarget ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
       selectedTarget ? 'dashed' : 'solid',
       target.endTimestamp

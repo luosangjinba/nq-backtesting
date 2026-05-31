@@ -1343,6 +1343,58 @@ Notes:
 - Chart-first entry/stop/target/reversal editing remains in `order-setup-chart-actions.js`.
 - Result status and note are still editable from Active Order Setup.
 
+### Step 152: Consolidate Order Setup Derived Helpers
+
+Goal:
+
+- Reduce duplicated Order Setup derived calculations after old UI cleanup.
+- Keep store normalization separate from Setup Set/view-model display derivation.
+- Make renderer and hit-test use the same helper-line projection semantics.
+
+Implemented:
+
+- Added `v4/src/order/order-setup-projection.js`.
+- Moved shared projection helpers into the new module:
+  - timestamp to current chart time mapping
+  - display bar lookup/index by timestamp
+  - `lineLengthBars` fallback handling
+  - projected zone end time
+  - chart bar spacing
+  - line end coordinate
+- Updated `order-review-renderer.js` to consume the shared projection helper.
+- Updated `order-setup-hit-test.js` to consume the same projection helper.
+- Changed `order-review-store.js` so `normalizeResultReview()` no longer derives `outcomePoints/outcomeR`; it only normalizes explicit input.
+- Kept Setup Set as the displayed result summary authority for Target/Stop/Breakeven Exit, Points, and R.
+
+Main files:
+
+- `v4/src/order/order-setup-projection.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/order/order-review-store.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-setup-projection.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-review-store.js`
+- full `node --check` over `v4/src/**/*.js`
+- module smoke: store no longer derives result points/R, Setup Set still derives target result summary
+- `git diff --check`
+
+Commit:
+
+- `refactor(v4): consolidate order setup derived helpers`
+
+Notes:
+
+- This step intentionally leaves `orderReviews` schema names unchanged.
+- Old explicit imported `outcomePoints/outcomeR` still normalize if present, but current display should prefer Setup Set derivation.
+
 ## Next Step Template
 
 ### Step N: Title

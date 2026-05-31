@@ -703,23 +703,8 @@ export function normalizeEntryPlan(input = {}) {
   };
 }
 
-function deriveOutcomePoints(entryPlan = {}, exitPrice = null) {
-  const entryPrice = normalizeNumber(entryPlan.entryPrice);
-  if (entryPrice === null || exitPrice === null) return null;
-  if (entryPlan.direction === ORDER_DIRECTIONS.LONG) return exitPrice - entryPrice;
-  if (entryPlan.direction === ORDER_DIRECTIONS.SHORT) return entryPrice - exitPrice;
-  return null;
-}
-
-function deriveOutcomeR(outcomePoints = null, entryPlan = {}) {
-  const riskPoints = normalizeNumber(entryPlan.riskPoints);
-  if (outcomePoints === null || riskPoints === null || riskPoints <= 0) return null;
-  return outcomePoints / riskPoints;
-}
-
-export function normalizeResultReview(input = {}, entryPlan = {}) {
+export function normalizeResultReview(input = {}) {
   const exitPrice = normalizeNumber(input.exitPrice);
-  const outcomePoints = deriveOutcomePoints(entryPlan, exitPrice);
 
   return {
     expectedTargetReached: normalizeEnum(
@@ -748,8 +733,8 @@ export function normalizeResultReview(input = {}, entryPlan = {}) {
       ORDER_EXIT_REASON_ALIASES,
       ORDER_EXIT_REASONS.UNKNOWN
     ),
-    outcomePoints,
-    outcomeR: deriveOutcomeR(outcomePoints, entryPlan),
+    outcomePoints: normalizeNumber(input.outcomePoints),
+    outcomeR: normalizeNumber(input.outcomeR),
     note: normalizeNote(input.note),
   };
 }

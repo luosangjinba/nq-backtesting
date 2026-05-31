@@ -1415,6 +1415,40 @@ Committed:
 
 - `refactor(v4): remove legacy order setup inspector paths`
 
+## Phase 12B Consolidate Order Setup Derived Helpers
+
+Operation Script:
+
+- Step: `152`
+- Goal: consolidate repeated result/projection calculations after removing the old Inspector form path.
+- Boundary: refactor only; no new Order Setup feature or schema migration.
+
+Implemented:
+
+- Added `order-setup-projection.js` for shared renderer/hit-test projection helpers.
+- Renderer and hit-test now share timestamp mapping, bar lookup/index, `lineLengthBars` fallback, projected zone end, bar spacing, and line end coordinate semantics.
+- `order-review-store` no longer derives result points/R during normalization; it normalizes explicit input only.
+- Setup Set remains the display/view-model authority for Target/Stop/Breakeven result summaries.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-projection.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/order/order-setup-hit-test.js`
+- `node --check v4/src/order/order-review-store.js`
+- full `node --check` over `v4/src/**/*.js`
+- module smoke for store-vs-Setup-Set result summary authority
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `refactor(v4): remove legacy order setup inspector paths`
+
+Committed:
+
+- `refactor(v4): consolidate order setup derived helpers`
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:
