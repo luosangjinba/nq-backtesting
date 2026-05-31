@@ -633,6 +633,21 @@ function updateOrderReviewEntryField(target) {
   return true;
 }
 
+function updateOrderReviewDisplayField(target) {
+  const orderReviewId = target.dataset.orderReviewId;
+  const field = target.dataset.orderReviewField;
+  if (!orderReviewId || !field) return false;
+
+  expandedOrderReviewId = orderReviewId;
+  const value = parseOrderReviewFieldValue(target);
+  recordInspectorHistory('Update Order Display', () => updateOrderReview(orderReviewId, {
+    display: {
+      [field]: value,
+    },
+  }));
+  return true;
+}
+
 function updateOrderReviewResultField(target) {
   const orderReviewId = target.dataset.orderReviewId;
   const field = target.dataset.orderReviewField;
@@ -1349,6 +1364,11 @@ function handleInspectorChange(e) {
     } else if (e.target.dataset.orderReviewSection === 'resultReview') {
       updateOrderReviewResultField(e.target);
     }
+    return;
+  }
+
+  if (action === 'order-review-display-field') {
+    updateOrderReviewDisplayField(e.target);
     return;
   }
 

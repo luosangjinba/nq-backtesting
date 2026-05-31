@@ -1199,11 +1199,51 @@ Validation:
 Current Git State:
 
 - Branch: `feature/order-setup-cleanup`
-- Last committed work: pending for Step 147V
+- Last committed work: `feat(v4): simplify order setup result outcomes`
 
 Committed:
 
-- pending
+- `feat(v4): simplify order setup result outcomes`
+
+## Phase 12 Risk Reward Box
+
+Operation Script:
+
+- Step: `147W`
+- Goal: render risk/reward zones derived from entry, stop, target, and result state.
+- Boundary: do not create a new manually editable chart element; the box is derived from existing setup elements.
+
+Planned:
+
+- Add `display.showRiskRewardBox` as a per-setup display flag.
+- Render risk from Entry to Stop Loss.
+- Render reward from Entry to the target selected by Result Target 1/2/3.
+- Add Active Order Setup UI to toggle the box.
+
+Implemented:
+
+- `display.showRiskRewardBox` defaults to true.
+- Active Order Setup now has a Display panel with `Risk / Reward Box`.
+- The renderer uses a red risk zone from Entry to Stop Loss.
+- The renderer uses a green reward zone from Entry to Target 1/2/3 based on `resultReview.result`.
+- Stop Loss, Breakeven, and Unknown results keep only the risk zone.
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `feat(v4): render order setup risk reward box`
+
+Committed:
+
+- `feat(v4): render order setup risk reward box`
 
 ## Phase 12 Default Visible Order Setups
 

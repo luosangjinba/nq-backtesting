@@ -1090,13 +1090,51 @@ Validation:
 
 Commit:
 
-- `pending`
+- `feat(v4): simplify order setup result outcomes`
 
 Notes:
 
 - Removed selectable `win`, `loss`, `missed`, `skipped`, `invalidated`, and `managed-out`.
 - Result values are now Target 1, Target 2, Target 3, Stop Loss, Breakeven, Unknown.
 - Journal-oriented execution responses can be reintroduced later as a separate journal field, not as setup review result.
+
+### Step 147W: Risk Reward Box
+
+Goal:
+
+- Render a true risk/reward box derived from existing entry, stop, target, and result data.
+- Keep the box derived, not a separately drawn/stored setup element.
+- Add per-setup visibility control.
+
+Main files:
+
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/docs/ORDER_REVIEW_DESIGN.md`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/order-review-renderer.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Commit:
+
+- `feat(v4): render order setup risk reward box`
+
+Notes:
+
+- `display.showRiskRewardBox` defaults to true and can be toggled from Active Order Setup -> Display.
+- Risk box is always Entry -> Stop Loss when entry/stop exist.
+- Reward box uses Result Target 1/2/3 to select target1/target2/target3.
+- Stop Loss, Breakeven, and Unknown results do not render a reward box.
 
 ## Next Step Template
 

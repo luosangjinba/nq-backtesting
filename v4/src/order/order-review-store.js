@@ -765,6 +765,7 @@ export function normalizeOrderDisplay(input = {}) {
   }
   return {
     hidden: normalizeBoolean(input.hidden, false),
+    showRiskRewardBox: normalizeBoolean(input.showRiskRewardBox, true),
     elementLengths,
   };
 }

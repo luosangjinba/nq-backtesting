@@ -23,14 +23,19 @@ const PLAN_LINE_WIDTH = 1;
 const ACTIVE_PLAN_LINE_WIDTH = 1.25;
 const SELECTED_PLAN_LINE_WIDTH = 1.75;
 const RISK_ZONE_LONG = {
-  fillColor: 'rgba(38, 166, 154, 0.13)',
-  borderColor: 'rgba(38, 166, 154, 0.35)',
-  textColor: '#80cbc4',
+  fillColor: 'rgba(239, 83, 80, 0.15)',
+  borderColor: 'rgba(239, 83, 80, 0.38)',
+  textColor: '#ffcdd2',
 };
 const RISK_ZONE_SHORT = {
-  fillColor: 'rgba(239, 83, 80, 0.13)',
-  borderColor: 'rgba(239, 83, 80, 0.35)',
+  fillColor: 'rgba(239, 83, 80, 0.15)',
+  borderColor: 'rgba(239, 83, 80, 0.38)',
   textColor: '#ffcdd2',
+};
+const REWARD_ZONE = {
+  fillColor: 'rgba(38, 166, 154, 0.16)',
+  borderColor: 'rgba(38, 166, 154, 0.4)',
+  textColor: '#80cbc4',
 };
 const PLAN_LINE_LENGTH_BARS = 38;
 const PLAN_ZONE_WIDTH_BARS = 28;
@@ -185,16 +190,19 @@ function renderPlanLine(timestamp, price, label, color, position = 'above', line
   );
 }
 
-function renderRiskZone(timestamp, entryPrice, stopLoss, direction) {
-  const startTime = mapTimestampToCurrentChartTime(timestamp);
-  const endTime = getProjectedChartTime(timestamp);
-  const parsedEntry = Number(entryPrice);
-  const parsedStop = Number(stopLoss);
-  if (startTime === null || endTime === null || !Number.isFinite(parsedEntry) || !Number.isFinite(parsedStop)) return;
+function getZoneEndTimestamp(...elements) {
+  return elements.find((element) => element?.endTimestamp)?.endTimestamp || null;
+}
 
-  const topPrice = Math.max(parsedEntry, parsedStop);
-  const bottomPrice = Math.min(parsedEntry, parsedStop);
-  const colors = direction === ORDER_DIRECTIONS.SHORT ? RISK_ZONE_SHORT : RISK_ZONE_LONG;
+function renderRangeZone(timestamp, endTimestamp, entryPrice, targetPrice, label, colors) {
+  const startTime = mapTimestampToCurrentChartTime(timestamp);
+  const endTime = endTimestamp ? mapTimestampToCurrentChartTime(endTimestamp) : getProjectedChartTime(timestamp);
+  const parsedEntry = Number(entryPrice);
+  const parsedTarget = Number(targetPrice);
+  if (startTime === null || endTime === null || !Number.isFinite(parsedEntry) || !Number.isFinite(parsedTarget)) return;
+
+  const topPrice = Math.max(parsedEntry, parsedTarget);
+  const bottomPrice = Math.min(parsedEntry, parsedTarget);
 
   attachPrimitive(
     new RangePrimitive(
@@ -204,7 +212,7 @@ function renderRiskZone(timestamp, entryPrice, stopLoss, direction) {
       endTime,
       topPrice,
       bottomPrice,
-      'Risk',
+      label,
       {
         ...colors,
         showMidline: false,
@@ -214,6 +222,18 @@ function renderRiskZone(timestamp, entryPrice, stopLoss, direction) {
       }
     )
   );
+}
+
+function renderRiskRewardBox(setupSet, entry, stopLoss, targets, result, direction) {
+  if (setupSet.display?.showRiskRewardBox === false) return;
+  const entryTimestamp = entry.timestamp || setupSet.primaryTimestamp;
+  const endTimestamp = getZoneEndTimestamp(entry, stopLoss, ...targets);
+  const riskColors = direction === ORDER_DIRECTIONS.SHORT ? RISK_ZONE_SHORT : RISK_ZONE_LONG;
+  renderRangeZone(entryTimestamp, endTimestamp, entry.price, stopLoss.price, 'Risk', riskColors);
+
+  const resultTarget = getResultTarget(targets, result.status);
+  if (!resultTarget) return;
+  renderRangeZone(entryTimestamp, resultTarget.endTimestamp || endTimestamp, entry.price, resultTarget.price, 'Reward', REWARD_ZONE);
 }
 
 function addTarget(targets, target, label) {
@@ -233,6 +253,11 @@ function getTargetLines(targetElements = []) {
     addTarget(targets, target, label);
   });
   return targets;
+}
+
+function getResultTarget(targetElements = [], resultStatus = '') {
+  if (resultStatus !== 'target1' && resultStatus !== 'target2' && resultStatus !== 'target3') return null;
+  return targetElements.find((target) => target.role === resultStatus && Number.isFinite(Number(target.price))) || null;
 }
 
 function getLineLabelDirection(direction) {
@@ -275,7 +300,8 @@ function renderSetupSet(setupSet, isActive = false) {
     );
   }
 
-  renderRiskZone(entryTimestamp, entry.price, stopLoss.price, direction);
+  const targetLines = getTargetLines(elements.targets);
+  renderRiskRewardBox(setupSet, entry, stopLoss, elements.targets || [], result, direction);
 
   const selectedStop = isSelectedElement('stopLoss');
   renderPlanLine(
@@ -290,7 +316,7 @@ function renderSetupSet(setupSet, isActive = false) {
     stopLoss.endTimestamp
   );
 
-  getTargetLines(elements.targets).forEach((target, index) => {
+  targetLines.forEach((target, index) => {
     const selectedTarget = isSelectedElement(target.role);
     renderPlanLine(
       target.timestamp || entryTimestamp,

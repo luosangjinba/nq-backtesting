@@ -528,6 +528,25 @@ function renderActiveActions(order) {
   `;
 }
 
+function renderActiveDisplayPanel(order) {
+  const showRiskRewardBox = order.display?.showRiskRewardBox !== false;
+  return `
+    <div class="order-review-compact">
+      <div class="order-review-compact-title">Display</div>
+      <label class="inspector-toggle">
+        <input
+          data-inspector-action="order-review-display-field"
+          data-order-review-id="${escapeHtml(order.id)}"
+          data-order-review-field="showRiskRewardBox"
+          type="checkbox"
+          ${showRiskRewardBox ? 'checked' : ''}
+        />
+        <span>Risk / Reward Box</span>
+      </label>
+    </div>
+  `;
+}
+
 function renderAnchorPanel(setupSet) {
   const reversal = setupSet?.orderElements?.reversal || {};
   const direction = setupSet?.direction === 'short' ? 'Bearish' : setupSet?.direction === 'long' ? 'Bullish' : 'Unknown';
@@ -682,6 +701,7 @@ function renderActiveOrderSetup(order, options = {}) {
     <div class="inspector-evidence-list">
       ${renderActiveHeader(order, setupSet)}
       ${renderActiveActions(order)}
+      ${renderActiveDisplayPanel(order)}
       ${renderAnchorPanel(setupSet)}
       ${renderExecutionPanel(order, setupSet, options.selectedOrderSetupElement)}
       ${renderEntryContextPanel(order)}

@@ -1133,7 +1133,13 @@ Suggested colors:
 - non-selected targets: muted gray/teal
 - final target: amber if it differs from selected target
 
-Do not render large profit/loss rectangles in the first version.
+Risk/reward box:
+
+- controlled per setup by `display.showRiskRewardBox`
+- risk box is derived from entry to stop loss
+- reward box is derived from entry to the target selected by `resultReview.result`
+- Target 1/2/3 results render reward to target1/target2/target3 respectively
+- Stop Loss, Breakeven, and Unknown do not render a reward box
 
 ### Visibility
 
