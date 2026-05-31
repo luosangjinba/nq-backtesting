@@ -1351,6 +1351,39 @@ Committed:
 
 - `feat(v4): default split layout to side`
 
+## Phase 12C Context Reset Handoff
+
+Operation Script:
+
+- Step: `159`
+- Goal: prepare a clean handoff before the user runs `new` and clears the conversation context.
+- Boundary: documentation only; no runtime code changes.
+
+Current Git State:
+
+- Branch: `main`
+- Latest commit before this handoff: `c778048 feat(v4): default split layout to side`
+- Local branch status before this handoff: `main...origin/main [ahead 521]`
+- Tracked working tree before this handoff: clean
+- Existing untracked files/directories: `__pycache__/`, `tmp/`, `trading_data.duckdb`, `v3/plans/`
+
+Recent Completed Work:
+
+- `32aceb5 fix(v4): repair order setup review issues`
+- `5a02951 docs(v4): record order setup cleanup merge`
+- `72f2526 feat(v4): toggle order setup execution elements`
+- `c778048 feat(v4): default split layout to side`
+
+Next Suggested Work:
+
+- Continue with small regression fixes only unless a new feature is explicitly chosen.
+- If continuing Order Setup cleanup, prefer narrow steps around active bridge / archive import-export / inspector handler extraction.
+- Data storage discussion remains open: localStorage is still browser draft storage; formal YAML/export or DuckDB persistence should be planned separately.
+
+Committed:
+
+- `docs(v4): record context reset handoff`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:
