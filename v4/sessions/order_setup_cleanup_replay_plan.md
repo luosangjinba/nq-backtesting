@@ -1525,6 +1525,55 @@ Notes:
 - This step records validation only; no runtime code changed.
 - The module smoke intentionally avoids mutating persisted browser localStorage.
 
+### Step 156: Cleanup Handoff Closeout
+
+Goal:
+
+- Close the Order Setup cleanup pass with a stable handoff record.
+- Capture the implemented commit range, validation status, compatibility boundaries, and recommended next work.
+
+Implemented:
+
+- Marked Step 156 complete in `v4/TODO.md`.
+- Recorded the cleanup commit sequence:
+  - `33ea5f3 docs(v4): freeze order setup cleanup scope`
+  - `058951d docs(v4): audit order setup residual code`
+  - `44c9387 docs(v4): define order setup authority sources`
+  - `5b6d2e9 refactor(v4): remove legacy order setup inspector paths`
+  - `8d54190 refactor(v4): consolidate order setup derived helpers`
+  - `937720c refactor(v4): clean order setup chart actions`
+  - `bac8f05 refactor(v4): remove legacy order result fields`
+  - `dfda684 docs(v4): record order setup regression pass`
+- Recorded the retained compatibility boundary:
+  - `orderReviews` remains the localStorage key and Review JSON field.
+  - `order-review-set.js` remains a legacy active-id bridge.
+  - Setup Set remains the runtime/view-model authority for chart, Inspector, Calendar, result summary, and risk/reward display.
+  - No DuckDB/schema migration is included in this cleanup pass.
+- Recorded next-stage guidance:
+  - Short term: only fix regressions found during use.
+  - If code splitting continues, split active bridge, archive import/export, and inspector action handlers in small focused commits.
+  - Trading journal concepts such as skipped/missed/invalidated should be introduced in a separate journal phase, not re-added to current review result.
+
+Main files:
+
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `git diff --check`
+- Documentation-only review of Step 148-156 completion state
+
+Commit:
+
+- `docs(v4): close order setup cleanup handoff`
+
+Notes:
+
+- This step is documentation-only.
+- Current tracked workspace should be clean after commit; existing untracked local files are intentionally left untouched.
+
 ## Next Step Template
 
 ### Step N: Title

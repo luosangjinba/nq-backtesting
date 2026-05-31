@@ -280,7 +280,10 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Module smoke covered chart-created setup, active/close, show/hide, delete, entry/stop/target/result derivation, reason link, calendar grouping, undo/redo snapshot restore, and import-shaped normalize/add
   - Full `v4/src/**/*.js` syntax check passed
   - Local page smoke passed on `http://127.0.0.1:8001/index.html`; toolbar, split controls, replay controls, Inspector, archive controls, and chart canvas rendered
-- [ ] Step 156: 收尾文档与剧本：把实际 cleanup commit、验证结果、保留的兼容边界、下一阶段迁移建议写入 TODO / sessions / order setup 剧本
+- [x] Step 156: 收尾文档与剧本：把实际 cleanup commit、验证结果、保留的兼容边界、下一阶段迁移建议写入 TODO / sessions / order setup 剧本
+  - Cleanup commit range: `33ea5f3` -> `dfda684`，核心收敛提交包括 `5b6d2e9`、`8d54190`、`937720c`、`bac8f05`、`dfda684`
+  - 保留兼容边界：`orderReviews` localStorage key / Review JSON 字段名仍保留；`order-review-set.js` 仍作为 active id / legacy bridge；当前不做 DB migration
+  - 后续建议：短期只修回归 bug；如果继续拆分，优先把 active bridge、archive import/export、inspector handlers 做小步拆分；trading journal 字段另开阶段，不回塞到当前 review result
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

@@ -1181,6 +1181,51 @@ Committed:
 
 - `docs(v4): record order setup regression pass`
 
+## Phase 12B Cleanup Handoff Closeout
+
+Operation Script:
+
+- Step: `156`
+- Goal: close the Order Setup cleanup pass with a stable handoff record.
+- Boundary: documentation-only; do not change runtime behavior.
+
+Implemented:
+
+- Marked Step 156 complete in TODO.
+- Recorded the cleanup commit range and key commits:
+  - `33ea5f3 docs(v4): freeze order setup cleanup scope`
+  - `058951d docs(v4): audit order setup residual code`
+  - `44c9387 docs(v4): define order setup authority sources`
+  - `5b6d2e9 refactor(v4): remove legacy order setup inspector paths`
+  - `8d54190 refactor(v4): consolidate order setup derived helpers`
+  - `937720c refactor(v4): clean order setup chart actions`
+  - `bac8f05 refactor(v4): remove legacy order result fields`
+  - `dfda684 docs(v4): record order setup regression pass`
+- Recorded retained compatibility boundaries:
+  - `orderReviews` remains the persisted localStorage key and Review JSON field.
+  - `order-review-set.js` remains only an active-id / legacy bridge.
+  - Setup Set remains the runtime/view-model authority for chart, Inspector, Calendar, result summary, and risk/reward display.
+  - No DuckDB/schema migration is included in this pass.
+- Recorded next-stage guidance:
+  - Short term: only fix regressions found during use.
+  - If splitting continues, split active bridge, archive import/export, and inspector action handlers in small focused commits.
+  - Trading journal concepts such as skipped/missed/invalidated should be introduced in a separate journal phase.
+
+Validation:
+
+- `git diff --check`
+- Documentation-only review of Step 148-156 completion state
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `docs(v4): close order setup cleanup handoff`
+- Current uncommitted changes: none for Step 156 docs
+
+Committed:
+
+- `docs(v4): close order setup cleanup handoff`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:
