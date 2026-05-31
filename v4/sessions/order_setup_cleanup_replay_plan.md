@@ -1202,6 +1202,49 @@ Notes:
 - Small UI changes are allowed only when they remove confusion, fix a bug, or support the cleanup audit.
 - Existing feature requests should be converted into cleanup/audit items unless they are required for regression repair.
 
+### Step 149: Order Setup Residual Code Audit
+
+Goal:
+
+- Inspect Order Setup code for residual old UI paths, duplicate adapters, duplicate derived calculations, and stale journal fields.
+- Produce a cleanup list that can be executed in small commits without changing behavior during the audit step.
+
+Main files inspected:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/order-review-set.js`
+- `v4/src/order/setup-set.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/src/ui/inspector/calendar-panel.js`
+
+Findings:
+
+- `order-review-panel.js` still contains old full-row UI functions: `renderOrderRow`, `renderOrderActions`, `renderOrderEditor`, `renderSetupThesis`, `renderEntryPlan`, and `renderResultReview`. Current `renderOrderReviewPanel()` only renders the active setup, so this path is dead or archive-only and should be removed in Step 151 if no hidden caller is found.
+- `inspector-sidebar.js` still has generic Advanced Edit handlers for setup/entry/result fields and time/price pickers. Some handlers are still used by the new Active Order Setup UI (`display`, `result`, `reason`, `refs`, `element select/delete`), so Step 151 must remove only the old full-form handlers after checking data attributes.
+- `order-review-set.js` and `setup-set.js` duplicate runtime adapter responsibilities. Renderer, hit-test, and Active Inspector already consume Setup Set; active state still exposes Review Set. Step 150 should define Setup Set as the chart/Inspector view-model authority and keep Review Set only as a small compatibility bridge or merge it away.
+- Result derived values are duplicated: `order-review-store.js` derives points/R from explicit exit price while `setup-set.js` derives static Target/Stop/BE result summaries from setup elements. Step 152 should move display/result summary derivation to the Setup Set/view-model layer and keep the store focused on normalized persisted input.
+- Helper line projection is duplicated between `order-review-renderer.js` and `order-setup-hit-test.js` (`lineLengthBars`, `endTimestamp`, fallback length, timestamp projection). Step 152 should extract shared projection helpers so visual line length and hit-test length cannot diverge.
+- `ORDER_EXIT_REASON_DEFINITIONS` still includes trading-journal style values (`model-invalidated`, `missed-entry`, `skipped`) even though the current review Result UI no longer exposes exit reason. Step 154 should remove or defer this field as journal-only.
+
+Validation:
+
+- Static grep audit over Order Setup related modules.
+- `git diff --check`
+
+Commit:
+
+- `pending`
+
+Notes:
+
+- No business logic should change in Step 149.
+- The cleanup should be executed as Step 150-156 in small commits.
+- Avoid deleting persisted `orderReviews` schema/localStorage names until a dedicated migration exists.
+
 ## Next Step Template
 
 ### Step N: Title

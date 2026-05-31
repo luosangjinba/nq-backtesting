@@ -245,7 +245,13 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 
 ### Phase 12B: Order Setup 收敛审计与清理
 - [x] Step 148: 冻结 Order Setup 新功能入口：本轮只修 bug、清理残留、合并重复逻辑；不再新增新的复盘概念、字段或大型 UI 区块，避免继续扩大混乱面
-- [ ] Step 149: 做 Order Setup 残留代码审计：检查 `order-review-panel`、`order-review-store`、`setup-set`、`order-setup-chart-actions`、renderer/context menu/calendar 里是否还残留旧 Review Sets、旧 Result Review 表单、废弃 action、重复 helper 和无用兼容字段；输出可执行 cleanup 清单
+- [x] Step 149: 做 Order Setup 残留代码审计：检查 `order-review-panel`、`order-review-store`、`setup-set`、`order-setup-chart-actions`、renderer/context menu/calendar 里是否还残留旧 Review Sets、旧 Result Review 表单、废弃 action、重复 helper 和无用兼容字段；输出可执行 cleanup 清单
+  - Cleanup finding A: `order-review-panel.js` 仍保留旧完整列表/表单路径：`renderOrderRow`、`renderOrderActions`、`renderOrderEditor`、`renderSetupThesis/EntryPlan/ResultReview`，但当前 `renderOrderReviewPanel()` 只渲染 active setup；后续 Step 151 可删除死 UI 路径及其旧文案
+  - Cleanup finding B: `inspector-sidebar.js` 仍保留旧 Advanced Edit 的通用字段/pick handlers；其中 `display/reason/result/element` 仍被新 UI 使用，`setupThesis/entryPlan/resultReview` 完整表单 handlers 需在 Step 151 逐项删减，避免误删新 UI 依赖
+  - Cleanup finding C: `order-review-set.js` 与 `setup-set.js` 是两套运行时 adapter；active 层仍返回 Review Set，renderer/hit-test/Inspector 已主要消费 Setup Set；Step 150 应明确 Setup Set 为图表/Inspector 权威派生层，Review Set 只保留 active/compat bridge 或被并入
+  - Cleanup finding D: Result points/R 目前在 `order-review-store.js` 和 `setup-set.js` 两处派生；Step 152 应统一为 Setup Set/view-model 派生，store 只负责 normalize 明确输入
+  - Cleanup finding E: helper line length/time projection 在 renderer 与 hit-test 各算一套；Step 152 应抽共享 helper，避免渲染长度与命中区域漂移
+  - Cleanup finding F: `ORDER_EXIT_REASON_DEFINITIONS` 仍包含 trading-journal 风格值（model-invalidated/missed-entry/skipped）；当前 Result UI 不再使用 exit reason，Step 154 可删除或标记为 deferred journal 字段
 - [ ] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
 - [ ] Step 151: 清理旧 UI 与入口：删除或隐藏已经不用的 Review Sets/Advanced Edit/旧 Result Review/旧 Setup Thesis 路径，只保留 Calendar、Order Setups 列表、Active Order Setup、Archive import/export 等当前有效入口
 - [ ] Step 152: 合并重复计算与格式化 helper：统一 result/risk-reward/execution line/time range/visible-hidden state 的派生函数，避免 Inspector、renderer、store 各自算一套

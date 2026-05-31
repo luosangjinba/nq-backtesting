@@ -1316,6 +1316,37 @@ Committed:
 
 - `docs(v4): freeze order setup cleanup scope`
 
+## Phase 12B Order Setup Residual Code Audit
+
+Operation Script:
+
+- Step: `149`
+- Goal: audit the rebuilt Order Setup code for residual old paths and duplicate logic before making cleanup edits.
+- Boundary: documentation/TODO output only; no business logic changes.
+
+Findings:
+
+- Old full-form Inspector path remains in `order-review-panel.js`: `renderOrderRow`, `renderOrderActions`, `renderOrderEditor`, `renderSetupThesis`, `renderEntryPlan`, and `renderResultReview`.
+- Generic Advanced Edit handlers remain in `inspector-sidebar.js`; only old setup/entry/result full-form handling should be removed, while active setup display/reason/result/element handlers stay.
+- `order-review-set.js` and `setup-set.js` overlap as adapters; Setup Set should become the chart/Inspector authority in the next cleanup step.
+- Result points/R are derived in both store and setup-set; result summary should become a view-model derivation, not duplicated store logic.
+- Renderer and hit-test duplicate helper line projection; they should share projection helpers.
+- Exit reason definitions still include journal-only values and are not part of the current review Result UI.
+
+Validation:
+
+- `rg` audit over Order Setup modules and docs.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `docs(v4): freeze order setup cleanup scope`
+
+Committed:
+
+- pending
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:
