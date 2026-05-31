@@ -519,6 +519,12 @@ function setOrderSetupHidden(order, hidden) {
 
 function parseOrderReviewFieldValue(target) {
   const field = target.dataset.orderReviewField;
+  if (field === 'entryPatterns') {
+    const container = target.closest('.order-entry-patterns');
+    return Array.from(container?.querySelectorAll('input[data-order-entry-pattern]:checked') || [])
+      .map((input) => input.dataset.orderEntryPattern)
+      .filter(Boolean);
+  }
   if (target.type === 'checkbox') return target.checked;
   if (
     field === 'primaryEventTimestamp' ||

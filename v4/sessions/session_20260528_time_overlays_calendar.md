@@ -1132,6 +1132,44 @@ Committed:
 
 - `feat(v4): show calendar setup visibility state`
 
+## Phase 12 Entry Context Structured Fields
+
+Operation Script:
+
+- Step: `147U`
+- Goal: add structured entry pattern/session fields to Active Order Setup.
+- Boundary: add entry-context metadata only; do not change execution line drawing, reason refs, result review, or existing entry/stop/target endpoint behavior.
+
+Planned:
+
+- Add `entryPlan.entryPatterns[]` as a multi-select entry-shape descriptor.
+- Add `entryPlan.entrySession` as a single-select entry-window descriptor.
+- Place the UI below `Execution` and above `Reasons`.
+
+Implemented:
+
+- Added entry pattern definitions: Purge + OB, OTE, Stop Market, Key Level.
+- Added entry session definitions: 930 Judas Swing, 950 Macro, Silver Bullet.
+- Store normalization now preserves only known entry pattern/session values.
+- Active Order Setup now renders an `Entry Context` panel with checkbox chips and a session select.
+- Inspector entry field update path now serializes the checked pattern list into `entryPlan.entryPatterns`.
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `feat(v4): add order setup entry context`
+
+Committed:
+
+- `feat(v4): add order setup entry context`
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:

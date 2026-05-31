@@ -238,6 +238,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 147R: Calendar/Reversal 删除 setup 菜单：Calendar Order Setup 三点菜单增加 Delete；图表 reversal 右键菜单增加 Delete Setup；删除整个 setup 并复用历史记录/active 清理逻辑
 - [x] Step 147S: Order Setup 默认显示：撤回 147O 的新建默认隐藏策略；图表右键、空白、Segment、Composite 创建的 Order Setup 默认 `display.hidden=false`，保留手动 Hide/Show 与旧记录兼容
 - [x] Step 147T: Calendar Order Setup 显隐状态按钮：Order Setup 行内增加紧凑显隐状态点；绿色表示 visible，灰色斜线表示 hidden；点击状态点直接切换 Show/Hide，三点菜单继续保留完整操作
+- [x] Step 147U: Entry Context 结构化描述：在 Active Order Setup 的 Execution 与 Reasons 之间增加 Entry Context；`entryPatterns[]` 多选支持 Purge + OB / OTE / Stop Market / Key Level；`entrySession` 单选支持 930 Judas Swing / 950 Macro / Silver Bullet
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

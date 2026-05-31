@@ -1032,6 +1032,41 @@ Notes:
 - Hidden setup rows render a gray status dot with a slash.
 - Clicking the status dot reuses `order-review-toggle-hidden`; the three-dot menu still contains Locate / Open / Show(Hide) / Delete.
 
+### Step 147U: Entry Context Structured Fields
+
+Goal:
+
+- Add structured entry-shape and entry-session descriptions to Active Order Setup.
+- Keep these fields separate from free-form `Reasons` because they describe the entry execution context.
+- Store them in `entryPlan` for later review/statistics.
+
+Main files:
+
+- `v4/src/order/order-review-store.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Commit:
+
+- `feat(v4): add order setup entry context`
+
+Notes:
+
+- `entryPlan.entryPatterns[]` is a multi-select list: Purge + OB, OTE, Stop Market, Key Level.
+- `entryPlan.entrySession` is a single-select field: 930 Judas Swing, 950 Macro, Silver Bullet.
+- UI placement: Active Order Setup -> Execution -> Entry Context -> Reasons.
+
 ## Next Step Template
 
 ### Step N: Title

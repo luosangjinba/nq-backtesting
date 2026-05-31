@@ -147,6 +147,20 @@ export const ORDER_ENTRY_MODEL_DEFINITIONS = [
   { value: 'manual', label: 'Manual', group: 'manual', active: true, aliases: [] },
 ];
 
+export const ORDER_ENTRY_PATTERN_DEFINITIONS = [
+  { value: 'purge-ob', label: 'Purge + OB', active: true, aliases: ['purge+ob', 'purge_ob'] },
+  { value: 'ote', label: 'OTE', active: true, aliases: [] },
+  { value: 'stop-market', label: 'Stop Market', active: true, aliases: ['stop_market'] },
+  { value: 'key-level', label: 'Key Level', active: true, aliases: ['key_level'] },
+];
+
+export const ORDER_ENTRY_SESSION_DEFINITIONS = [
+  { value: 'unknown', label: '—', active: true, aliases: ['', 'none'] },
+  { value: '930-judas-swing', label: '930 Judas Swing', active: true, aliases: ['930 judas swing', '930Judas Swing'] },
+  { value: '950-macro', label: '950 Macro', active: true, aliases: ['950 macro'] },
+  { value: 'silver-bullet', label: 'Silver Bullet', active: true, aliases: ['Silver Bullet'] },
+];
+
 export const ORDER_TIMEFRAME_DEFINITIONS = [
   { value: '1M', label: '1M', active: true, aliases: ['1m'] },
   { value: '5M', label: '5M', active: true, aliases: ['5m'] },
@@ -216,6 +230,8 @@ export const ORDER_REF_TYPES = valuesFromDefinitions(ORDER_REF_TYPE_DEFINITIONS)
 export const ORDER_REF_ROLES = valuesFromDefinitions(ORDER_REF_ROLE_DEFINITIONS);
 export const ORDER_DIRECTIONS = valuesFromDefinitions(ORDER_DIRECTION_DEFINITIONS);
 export const ORDER_ENTRY_MODELS = valuesFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS);
+export const ORDER_ENTRY_PATTERNS = valuesFromDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS);
+export const ORDER_ENTRY_SESSIONS = valuesFromDefinitions(ORDER_ENTRY_SESSION_DEFINITIONS);
 export const ORDER_TIMEFRAMES = valuesFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const ORDER_TARGET_TYPES = valuesFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const ORDER_STOP_REASONS = valuesFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
@@ -229,6 +245,8 @@ export const VALID_ORDER_REF_TYPES = validSetFromDefinitions(ORDER_REF_TYPE_DEFI
 export const VALID_ORDER_REF_ROLES = validSetFromDefinitions(ORDER_REF_ROLE_DEFINITIONS);
 export const VALID_ORDER_DIRECTIONS = validSetFromDefinitions(ORDER_DIRECTION_DEFINITIONS);
 export const VALID_ORDER_ENTRY_MODELS = validSetFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS);
+export const VALID_ORDER_ENTRY_PATTERNS = validSetFromDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS);
+export const VALID_ORDER_ENTRY_SESSIONS = validSetFromDefinitions(ORDER_ENTRY_SESSION_DEFINITIONS);
 export const VALID_ORDER_TIMEFRAMES = validSetFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const VALID_ORDER_TARGET_TYPES = validSetFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const VALID_ORDER_STOP_REASONS = validSetFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
@@ -242,6 +260,8 @@ export const ORDER_REF_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_REF_TYPE_DEF
 export const ORDER_REF_ROLE_ALIASES = aliasMapFromDefinitions(ORDER_REF_ROLE_DEFINITIONS);
 export const ORDER_DIRECTION_ALIASES = aliasMapFromDefinitions(ORDER_DIRECTION_DEFINITIONS);
 export const ORDER_ENTRY_MODEL_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS);
+export const ORDER_ENTRY_PATTERN_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS);
+export const ORDER_ENTRY_SESSION_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_SESSION_DEFINITIONS);
 export const ORDER_TIMEFRAME_ALIASES = aliasMapFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const ORDER_TARGET_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const ORDER_STOP_REASON_ALIASES = aliasMapFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
@@ -281,6 +301,15 @@ export function resolveDefinitionValue(value, validSet, aliasMap, fallback) {
 
 export function normalizeEnum(value, validSet, aliasMap, fallback) {
   return resolveDefinitionValue(value, validSet, aliasMap, fallback);
+}
+
+function normalizeEnumArray(value, validSet, aliasMap) {
+  const values = Array.isArray(value) ? value : [value];
+  return uniqueBy(
+    values
+      .map((item) => resolveDefinitionValue(item, validSet, aliasMap, ''))
+      .filter(Boolean)
+  );
 }
 
 export function uniqueBy(items = [], getKey = (item) => item) {
@@ -559,6 +588,17 @@ export function normalizeEntryPlan(input = {}) {
       VALID_ORDER_ENTRY_MODELS,
       ORDER_ENTRY_MODEL_ALIASES,
       ORDER_ENTRY_MODELS.MANUAL
+    ),
+    entryPatterns: normalizeEnumArray(
+      input.entryPatterns,
+      VALID_ORDER_ENTRY_PATTERNS,
+      ORDER_ENTRY_PATTERN_ALIASES
+    ),
+    entrySession: normalizeEnum(
+      input.entrySession,
+      VALID_ORDER_ENTRY_SESSIONS,
+      ORDER_ENTRY_SESSION_ALIASES,
+      ORDER_ENTRY_SESSIONS.UNKNOWN
     ),
     entryTimeframe: normalizeEnum(
       input.entryTimeframe,

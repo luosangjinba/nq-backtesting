@@ -1032,6 +1032,45 @@ html, body {
   color: #ffcdd2;
 }
 
+.order-entry-context .inspector-field {
+  align-items: start;
+}
+
+.order-entry-patterns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.order-entry-pattern-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+  padding: 1px 6px;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #161a24;
+  color: #b2b5be;
+  font-size: 10px;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+.order-entry-pattern-option input {
+  width: 11px;
+  height: 11px;
+  margin: 0;
+  accent-color: #26a69a;
+}
+
+.order-entry-pattern-option:has(input:checked) {
+  border-color: rgba(38, 166, 154, 0.6);
+  background: rgba(38, 166, 154, 0.12);
+  color: #f0f3fa;
+}
+
 .order-review-summary {
   display: flex;
   flex-direction: column;

@@ -3,6 +3,8 @@ import {
   ORDER_CONFIDENCE_DEFINITIONS,
   ORDER_DIRECTION_DEFINITIONS,
   ORDER_ENTRY_MODEL_DEFINITIONS,
+  ORDER_ENTRY_PATTERN_DEFINITIONS,
+  ORDER_ENTRY_SESSION_DEFINITIONS,
   ORDER_EXIT_REASON_DEFINITIONS,
   ORDER_EVENT_TYPE_DEFINITIONS,
   ORDER_RESULT_DEFINITIONS,
@@ -100,6 +102,29 @@ function renderCheckbox(order, sectionName, fieldName, checked) {
       <input ${orderFieldAttrs(order, sectionName, fieldName)} type="checkbox" ${checked ? 'checked' : ''} />
       <span>Enabled</span>
     </label>
+  `;
+}
+
+function renderEntryPatternCheckboxes(order, selectedPatterns = []) {
+  const selected = new Set(Array.isArray(selectedPatterns) ? selectedPatterns : []);
+  return `
+    <div class="order-entry-patterns">
+      ${getActiveDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS)
+        .map(
+          (definition) => `
+            <label class="order-entry-pattern-option">
+              <input
+                ${orderFieldAttrs(order, 'entryPlan', 'entryPatterns')}
+                data-order-entry-pattern="${escapeHtml(definition.value)}"
+                type="checkbox"
+                ${selected.has(definition.value) ? 'checked' : ''}
+              />
+              <span>${escapeHtml(definition.label)}</span>
+            </label>
+          `
+        )
+        .join('')}
+    </div>
   `;
 }
 
@@ -568,6 +593,17 @@ function renderExecutionPanel(order, setupSet, selectedElement) {
   `;
 }
 
+function renderEntryContextPanel(order) {
+  const entry = order.entryPlan || {};
+  return `
+    <div class="order-review-compact order-entry-context">
+      <div class="order-review-compact-title">Entry Context</div>
+      ${controlField('Pattern', renderEntryPatternCheckboxes(order, entry.entryPatterns))}
+      ${controlField('Session', renderSelect(order, 'entryPlan', 'entrySession', ORDER_ENTRY_SESSION_DEFINITIONS, entry.entrySession))}
+    </div>
+  `;
+}
+
 function getOrderReviewReasons(order) {
   const reasons = Array.isArray(order.setupThesis?.reasons) ? order.setupThesis.reasons : [];
   if (reasons.length) return reasons;
@@ -648,6 +684,7 @@ function renderActiveOrderSetup(order, options = {}) {
       ${renderActiveActions(order)}
       ${renderAnchorPanel(setupSet)}
       ${renderExecutionPanel(order, setupSet, options.selectedOrderSetupElement)}
+      ${renderEntryContextPanel(order)}
       ${renderReasonRows(order, setupSet)}
       ${renderResultPanel(order, setupSet)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>
