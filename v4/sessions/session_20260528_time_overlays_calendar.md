@@ -2077,3 +2077,215 @@ Current Git State:
 Committed:
 
 - `accaab5 feat(v4): simplify order setup reasons and execution rows`
+
+## Phase 9 Step 95 Calendar / Overlay Visual Acceptance
+
+Goal:
+
+- Close the deferred Phase 9 visual acceptance pass for Calendar Navigator and Time Overlays.
+- Cover the requested 1M / 5M / 15M / 1H / 4H chart periods.
+- Verify natural day boundaries, 09:30 / 09:50 / 10:00 manual time lines, killzone display, Calendar date locate, object locate, and Split Screen coexistence.
+
+Implemented:
+
+- Used a temporary headless Chrome harness against `http://127.0.0.1:8001/index.html`.
+- Loaded `2012-01-03 00:00` to `2012-01-05 23:59` across 1M, 5M, 15M, 1H, and 4H.
+- Injected manual Time Lines for `09:30`, `09:50`, and `10:00` on `2012-01-03` and `2012-01-04`.
+- Injected `NY Open 09:30-10:00` Killzones for both dates.
+- Verified Calendar Day Details shows the time line rows and killzone row.
+- Verified selecting `2012-01-04` updates the overlay filter to `Manual overlays: 2012-01-04`, exposes `All loaded days`, and locates the chart to `2012-01-04 09:30`.
+- Verified Calendar object `Locate` uses the existing object locate status path.
+- Verified Split Screen Side mode can be enabled after the Calendar checks, secondary ES data loads, secondary canvas renders, and the primary canvas remains rendered.
+
+Validation:
+
+- `google-chrome --headless=new --disable-gpu --no-sandbox --disable-dev-shm-usage --virtual-time-budget=120000 --dump-dom http://127.0.0.1:8001/step95_harness.html`
+- Result summary:
+  - 1M display bars: `3323`
+  - 5M display bars: `760`
+  - 15M display bars: `255`
+  - 1H display bars: `66`
+  - 4H display bars: `17`
+  - Split state: `enabled=true`, `layout=side`, secondary display bars `3808`, primary and secondary canvas counts `7`
+
+Notes:
+
+- The harness file was temporary and was removed after validation.
+- No runtime code changed for this step; only TODO/session documentation was updated.
+
+## TODO Convergence Audit
+
+Goal:
+
+- Reconcile old unchecked Phase 12 parent TODOs with the later cleanup implementation records.
+- Avoid keeping duplicate "open" work items after the actual behavior has already been implemented or superseded by a later design decision.
+
+Findings:
+
+- Step 137 is covered by Step 153:
+  - `order-setup-chart-actions.js` now uses `ORDER_SETUP_PATCH_ACTIONS` and `ORDER_SETUP_LINK_ACTIONS`.
+  - The previous broad `order-setup-set-*` / `order-setup-link-*` prefix dispatch was removed.
+  - Unknown setup actions are not silently swallowed.
+- Step 138 is covered by Step 150 / 152 / 156:
+  - Calendar, renderer, hit-test, locate, and Active Inspector consume Setup Set or Setup Set derived helpers.
+  - `order-review-set.js` remains only the active-id / legacy compatibility bridge.
+  - No storage schema migration is included.
+- Step 144 core behavior is in place:
+  - Chart-created Bullish/Bearish setups write their own reversal anchor and become active.
+  - Later chart actions write to the active setup via `updateActiveReviewSet()`.
+  - No nearest-reversal auto-assignment path is used.
+  - Multiple setups can share the same reversal bar.
+  - The remaining menu wording gap was closed by renaming `Set Reversal Here` to `Move Active Reversal Here`.
+- Step 147 parent item is covered by Step 147A-X:
+  - Reversal marker hit menu supports Set Active / Close Active / Hide / Delete Setup.
+  - Entry, stop, target1-3, and final target helper lines support hit-test, selection, Execution-row selection, endpoint-based length control, deletion, and per-element visibility.
+  - Reversal remains the setup anchor and is not treated as a deletable execution element; moving it is handled by `Move Active Reversal Here`.
+
+Validation:
+
+- `node --check v4/src/order/order-setup-chart-actions.js`
+- `git diff --check`
+
+Notes:
+
+- This audit updates TODO status and one menu label only.
+- Runtime storage remains `orderReviews`; runtime display authority remains Setup Set.
+
+## Setup Set Active Bridge Cleanup
+
+Goal:
+
+- Continue the Step 138 adapter convergence after the TODO audit.
+- Make active Order Setup state consume the Setup Set runtime model directly.
+- Keep `orderReviews` storage and old public active function names compatible.
+
+Implemented:
+
+- Added an `orderReview` alias to `createSetupSetFromOrderReview()` output, alongside the existing `sourceOrderReview`.
+- Changed `order-review-active.js` to import `createSetupSetFromOrderReview()` and `getSetupSetById()` from `setup-set.js`.
+- `getActiveReviewSet()`, `setActiveReviewSet()`, `createChartReviewSet()`, `updateActiveReviewSet()`, and `linkRefToActiveReviewSet()` now return Setup Set objects.
+- Existing callers that read `active.orderReview` or use `getActiveOrderReview()` remain compatible through the alias.
+- `order-review-set.js` now has no runtime imports from `v4/src`; it is retained only as a legacy adapter until a deliberate removal/migration step.
+
+Validation:
+
+- `node --check v4/src/order/order-review-active.js`
+- `node --check v4/src/order/setup-set.js`
+- Residual grep confirmed no `v4/src` imports of `order-review-set.js` remain.
+- Module smoke created an active chart setup, updated its entry, linked a PDA ref, and verified the returned object is `type='setup-set'` with `orderReview` compatibility data.
+
+Notes:
+
+- No storage schema or Review JSON key changed.
+- Public active naming remains `ReviewSet` for compatibility, but the returned runtime object is now a Setup Set.
+
+## Remove Legacy Review Set Adapter
+
+Goal:
+
+- Finish the Step 138 cleanup by removing the unused `order-review-set.js` adapter file.
+- Keep active Order Setup public function names stable while using Setup Set as the only runtime adapter.
+
+Implemented:
+
+- Deleted `v4/src/order/order-review-set.js`.
+- Confirmed there are no runtime imports of `order-review-set.js`.
+- Kept `order-review-active.js` as the active id owner and compatibility API surface.
+- Runtime active objects continue to come from `setup-set.js` and keep the `orderReview` alias for existing callers.
+
+Validation:
+
+- Residual grep before deletion showed only documentation references plus the file itself; no source import remained.
+- Full validation recorded after this section should include all JS syntax checks and page smoke.
+
+Notes:
+
+- `orderReviews` remains the localStorage / Review JSON compatibility schema.
+- The `order-review-set-active` Inspector action string is a UI action name only; it does not require the deleted adapter file.
+
+## Archive Compatibility Decision
+
+Decision:
+
+- Old YAML files were test artifacts only.
+- They will not be retained as long-term research assets.
+- V4 does not need to support old YAML schema compatibility.
+- Do not add YAML migration or fallback code for those old test files.
+
+Current Boundary:
+
+- Keep compatibility only for the current V4 `orderReviews` localStorage / Review JSON boundary.
+- Future formal archive work can target a new Review JSON/YAML or DuckDB schema directly.
+
+## Phase 8E Step 81 PDA Workflow Split
+
+Goal:
+
+- Continue splitting `manual-annotation.js`.
+- Move BSL/SSL, FVG/IFVG, Wick CE, OB/Breaker, and Fib creation workflow dispatch out of the main context-menu controller.
+- Preserve current primary-chart right-click behavior.
+
+Implemented:
+
+- Added `v4/src/pda/manual-pda-workflow.js`.
+- The new workflow module owns:
+  - range PDA start/end selection state for OB and Breaker
+  - Fib start/end selection state
+  - Escape cancellation for pending PDA range/Fib workflows
+  - dispatch for BSL/SSL, FVG/IFVG, Wick CE, OB/Breaker, and Fib menu actions
+  - cleanup on Clear PDA, bars loaded, and bars cleared
+- `manual-annotation.js` now delegates PDA creation actions to `handleManualPdaAction()`.
+- Shift-right-click PDA completion now delegates to `handleManualPdaShiftContext()`.
+- `manual-annotation.js` still owns the primary chart context menu, hit-test context, Segment/Composite/Point Set/SMT/Time Overlay workflows, and global menu hide behavior.
+
+Validation:
+
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/pda/manual-pda-workflow.js`
+- `node --check v4/src/pda/manual-pda-actions.js`
+- Residual grep confirmed `manual-annotation.js` no longer owns `rangeSelectionState` / `fibSelectionState` or directly calls the concrete PDA creation helpers.
+
+Notes:
+
+- No storage schema changed.
+- This keeps secondary chart PDA creation paths unchanged; they still call context-aware helpers directly where needed.
+
+## Phase 8E Step 82 Inspector Action Layer Split
+
+Goal:
+
+- Continue reducing `inspector-sidebar.js` into a sidebar state/render coordinator.
+- Move Order Review/Order Setup, PDA, Segment/Composite, and actor bar pick-mode action logic into focused Inspector action modules.
+- Preserve existing `data-inspector-action` names and user-facing behavior.
+
+Implemented:
+
+- Added `v4/src/ui/inspector/order-review-actions.js`.
+  - Owns Order Setup create/locate/show-hide/delete/set-active/clear-active actions.
+  - Owns Order Setup refs/reasons editing and selected-object ref linking.
+  - Owns Order Setup element delete/toggle/select actions.
+  - Owns PDA/Segment link-to-active-setup helpers and setup creation from Segment/Composite.
+- Added `v4/src/ui/inspector/pda-actions.js`.
+  - Owns PDA label, extend, note, CE visibility, delete, and point-set remove-point actions.
+- Added `v4/src/ui/inspector/segment-actions.js`.
+  - Owns Segment display/isolate/narrative/tags/PDA-response edits.
+  - Owns Composite draft/current edits and delete/create actions.
+  - Owns Reaction Evidence add/delete/edit flows.
+  - Owns actor bar pick mode state, chart click handling, hover preview, and Escape/bars-cleared cancellation.
+- `inspector-sidebar.js` now keeps sidebar state, Calendar/Archive/SMT actions, selection rendering, and controller dispatch.
+
+Validation:
+
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `node --check v4/src/ui/inspector/pda-actions.js`
+- `node --check v4/src/ui/inspector/segment-actions.js`
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Headless Chrome page initialization smoke passed after starting a temporary static server on `127.0.0.1:8001`.
+
+Notes:
+
+- No storage schema changed.
+- No Inspector action names changed.
+- `inspector-sidebar.js` dropped from roughly 1845 lines to roughly 650 lines; action logic now lives in focused modules.

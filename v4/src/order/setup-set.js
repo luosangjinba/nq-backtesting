@@ -316,6 +316,7 @@ export function createSetupSetFromOrderReview(order) {
     sourceType: SETUP_SET_SOURCE_TYPES.ORDER_REVIEW,
     sourceId: order.id,
     sourceOrderReview: order,
+    orderReview: order,
     instrument: normalizeString(order.instrument, 'NQ'),
     direction: orderElements.entry.direction,
     primaryTimestamp,

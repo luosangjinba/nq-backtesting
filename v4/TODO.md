@@ -127,13 +127,19 @@
 
 ### Phase 8E: V4 Frontend Refactor
 - [x] Step 80: 拆分 `manual-annotation.js` 第一阶段：抽出 `order/order-setup-chart-actions.js` 与 `pda/manual-context-menu.js`，保持右键菜单与 Order Setup 行为不变
-- [ ] Step 81: 继续拆分 PDA 创建动作：BSL/SSL/FVG/IFVG/Wick CE/OB/Breaker/Fib 创建逻辑移出 `manual-annotation.js`
-- [ ] Step 82: 拆分 Inspector action 层：Order Review / PDA / Segment / pick mode 从 `inspector-sidebar.js` 中分离
+- [x] Step 81: 继续拆分 PDA 创建动作：BSL/SSL/FVG/IFVG/Wick CE/OB/Breaker/Fib 创建逻辑移出 `manual-annotation.js`
+  - 新增 `pda/manual-pda-workflow.js` 管理 PDA 创建 UI workflow：BSL/SSL、FVG/IFVG、Wick CE、OB/Breaker range 起终点、Fib 起终点
+  - `manual-annotation.js` 不再持有 range/Fib PDA 选择状态，也不再直接调用具体 PDA 创建 helper；它只负责主图右键上下文、菜单路由、非 PDA workflow 与全局取消/清理协调
+- [x] Step 82: 拆分 Inspector action 层：Order Review / PDA / Segment / pick mode 从 `inspector-sidebar.js` 中分离
+  - 新增 `ui/inspector/order-review-actions.js`，集中 Order Setup 创建、active、locate、显隐、refs/reasons、元素选择/删除/显隐，以及 PDA/Segment link active setup
+  - 新增 `ui/inspector/pda-actions.js`，集中 PDA Inspector 的 label/extend/note/CE、删除与 point set remove-point 行为
+  - 新增 `ui/inspector/segment-actions.js`，集中 Segment/Composite Inspector 写操作、Reaction Evidence 操作与 actor bar pick mode；`inspector-sidebar.js` 保留侧栏状态、Calendar/Archive/SMT、selection render 与 action controller 分发
 - [ ] Step 83: 拆分 chart primitives：按 Range/Liquidity/PointSet/Fib/Segment/VerticalLine 分文件，并保留 `chart/primitives.js` re-export
 
 ### Phase 8F: Order Setup Review Set Infrastructure
 - [x] Step 96: 定义 Review Set 边界：内部把一个 Order Setup 视为一个 Review Set；现有 `OrderReview` / `orderReviews` 仍作为兼容持久化 schema；Review Set 只是图表交互、定位、日历聚合与可见性控制的基础抽象
 - [x] Step 97: 新增 Review Set adapter：从 `getOrderReviews()` 派生 `getReviewSets()`、`getReviewSetById()`、`getReviewSetTimeRange()`、`locateReviewSet()`；第一版不改 localStorage key、不改 Review JSON 字段
+  - 后续 Phase 12 cleanup 已废弃该独立 adapter；运行时 active bridge 和显示/定位均改为消费 `setup-set.js`
 - [x] Step 98: 迁移 active Order Setup 语义：保留现有 active id 行为，但命名和调用路径逐步转向 active Review Set；右键菜单写入 active Review Set
 - [x] Step 99: 重整 Inspector Order Reviews：默认显示 Review Set 列表与当前 active/focused set 摘要；详细编辑继续折叠，避免把输入表单堆满 Inspector
 - [x] Step 100: Calendar 改为读取 Review Set adapter：日期归属、红色角标、对象 locate/open 都走 Review Set 派生信息，避免 Calendar 直接解析 raw order review 字段；已由 Phase 8G 的 Setup Set Calendar 适配覆盖完成
@@ -179,7 +185,11 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 93: 实现完整月历 UI 与 setup 红色角标：月历日期格显示当天对象概览；当天存在 Order Setup 时显示红色 badge/dot，第二版可显示数量；点击有 badge 的日期默认展开 Order Setups 区域
 - [x] Step 93A: Split Screen 副图同步补强：Inspector Calendar 选日与对象 Locate 同时定位/快闪副图；Time Overlay 的 Days / Killzone / Time Line primitives 在副图加载、Days 开关变化、Split 清空/关闭时同步渲染或清理；Grid 开关继续同时作用于主图和副图
 - [x] Step 94: 联动 selectedDate 与 overlays：Calendar 选中某日后，手工 Time Lines / Killzone 默认只显示该日；自然日 Days 边界始终显示加载区间内全部日期，避免首次换日后除首日外的 day 竖线消失；允许手工切换显示日期，避免一次加载多日时手工 overlay 过多
-- [ ] Step 95: 验证与视觉验收：覆盖 1M/5M/15M/1H/4H；检查自然日边界、09:30/09:50/10:00、killzone、calendar locate 与对象 locate 一致；确认线条不遮挡 K 线细节，Split Screen 开启时主图行为不受副图影响
+- [x] Step 95: 验证与视觉验收：覆盖 1M/5M/15M/1H/4H；检查自然日边界、09:30/09:50/10:00、killzone、calendar locate 与对象 locate 一致；确认线条不遮挡 K 线细节，Split Screen 开启时主图行为不受副图影响
+  - Headless Chrome harness 覆盖 `2012-01-03 00:00` 到 `2012-01-05 23:59` 的 1M/5M/15M/1H/4H 加载与 Calendar range 渲染
+  - 验证手工 Time Lines `09:30 / 09:50 / 10:00` 与 `NY Open 09:30-10:00` Killzone 出现在 Calendar Day Details
+  - 验证 Calendar 选日写入 selectedDate、显示 `All loaded days` 恢复入口，并定位到当日 09:30
+  - 验证 Calendar 对象 Locate 状态路径可用；Split Screen Side 开启后副图加载并渲染 canvas，主图 canvas 保持渲染
 
 ### Phase 10: Secondary Chart Annotation Workflow
 - [x] Step 118: 定义 chart context 边界：新增 `chart/chart-context.js`，用统一 context 描述 primary / secondary 的 chart、series、bars、timeframe、coordinate 转换、primitive attach/clear 与基础事件订阅；当前只作为后续接入基础，不改变现有主图/副图行为，secondary context 标记为 `readonly=true`
@@ -206,18 +216,26 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 
 ### Phase 12: Order Setup Cleanup
 - [x] Step 136: Order Setup cleanup 分支启动与术语收敛：从 `main` 创建 `feature/order-setup-cleanup`；第一步把 Inspector 用户可见的 `Review Sets` / `Order Review` 创建提示收敛为 `Order Setups` / `Order Setup`，保留底层 `orderReviews` schema 不变
-- [ ] Step 137: 梳理 chart action 边界：清理 `order-setup-chart-actions.js` 中旧动作分支、缩进噪声和重复状态提示；建立 action map，保证右键菜单只暴露当前实际支持的 Order Setup 动作
-- [ ] Step 138: 收敛 Setup Set / Review Set adapter 使用：明确运行时优先消费 `setup-set.js`；保留 `order-review-set.js` 仅作 active/兼容桥，避免 Calendar/Renderer/Inspector 各自解析 raw order review
+- [x] Step 137: 梳理 chart action 边界：清理 `order-setup-chart-actions.js` 中旧动作分支、缩进噪声和重复状态提示；建立 action map，保证右键菜单只暴露当前实际支持的 Order Setup 动作
+  - Step 153 已完成实际收敛：`ORDER_SETUP_PATCH_ACTIONS` / `ORDER_SETUP_LINK_ACTIONS` 成为 chart action map，旧的宽泛 prefix 分支和重复状态提示已移除
+- [x] Step 138: 收敛 Setup Set / Review Set adapter 使用：明确运行时优先消费 `setup-set.js`；保留 `order-review-set.js` 仅作 active/兼容桥，避免 Calendar/Renderer/Inspector 各自解析 raw order review
+  - Step 150/152/156 已冻结边界：Calendar、renderer、hit-test、locate 与 Active Inspector 消费 Setup Set 或其派生 helper；`order-review-set.js` 仅保留 active id / legacy bridge，不再作为新显示权威
+  - 后续收敛已完成：`order-review-active.js` 改为直接通过 `setup-set.js` 派生 active setup；Setup Set 保留 `orderReview` alias 兼容旧调用，`order-review-set.js` 当前无运行时 import，仅作为 legacy adapter 文件保留
+  - Legacy adapter 文件已删除；`order-review-active.js` 保留旧 public function 名称，但返回的运行时对象是 Setup Set
 - [x] Step 139: Inspector Order Setup 面板整顿：默认只显示 active/current setup，不再罗列全部 setup；order elements、explanation elements 和少量动作保留在当前 active setup 中；Advanced Edit 继续折叠，创建/删除/active/locate/show-hide 文案统一为 Order Setup；支持单个 setup 显/隐以处理多 setup 重叠
 - [x] Step 140: Order Setup linked refs 整顿：统一 PDA/Segment/Composite/SMT ref label、source metadata、去重与删除交互；确保副图来源信息在 Inspector 中可读
 - [x] Step 140A: Inspector 导航收敛：默认空状态只保留 Calendar + Active Order Setup + 折叠 Archive；不再常驻罗列 SMT Evidence / Structure Sets，相关对象通过 Calendar Open 或图表选择进入详情
 - [x] Step 141: Order Setup renderer/locate 验证：确认 reversal 以单根 K 线小三角标记呈现，不再画价格线段；entry/stop/targets/result 绘制、active highlight、Calendar locate、Replay/Split 不回归
 - [x] Step 142: 持久化兼容验证：localStorage、Review JSON import/export、undo/redo 仍使用 `orderReviews` schema；`display.hidden` 兼容旧数据且 import/export 不丢失；外层 UI 语言切换为 Order Setup 不破坏旧数据
 - [x] Step 143: 文档与 handoff：更新 Order Setup 用户说明、架构边界与后续是否迁移 schema 的决策记录
-- [ ] Step 144: Reversal anchor 归属规则落实：`Create Bullish/Bearish Setup Here` 创建新 setup 并把点击 K 线作为该 setup 的唯一 primary reversal；后续 entry / stop / targets / reason / result 只写入当前 active setup；不按最近 reversal 自动归属；允许多个独立 setup 共享同一 reversal bar；考虑移除 `Set Reversal Here` 或改名为 `Move Active Reversal Here`
+- [x] Step 144: Reversal anchor 归属规则落实：`Create Bullish/Bearish Setup Here` 创建新 setup 并把点击 K 线作为该 setup 的唯一 primary reversal；后续 entry / stop / targets / reason / result 只写入当前 active setup；不按最近 reversal 自动归属；允许多个独立 setup 共享同一 reversal bar；考虑移除 `Set Reversal Here` 或改名为 `Move Active Reversal Here`
+  - 创建路径通过 `createChartReviewSet()` 写入该 setup 的 `setupThesis.primaryEventTimestamp` 并设为 active；后续 chart action 统一通过 `updateActiveReviewSet()` 写入当前 active setup，不做最近 reversal 自动归属
+  - 右键菜单文案已收敛为 `Move Active Reversal Here`，表达这是移动当前 active setup 的 reversal，而不是创建/归属到最近 reversal
 - [x] Step 145: Active Order Setup UI 重建：抛弃旧 Setup Thesis / Entry Plan / Result Review 表单式容器；按新逻辑实现 Header / Anchor / Execution / Reasons / Result 四段式 active setup 面板；Inspector 只展示当前 active setup 状态与轻量操作，主要录入仍来自图表右键 active setup 动作
 - [x] Step 146: Order Setup 锚点与列表显隐补强：Calendar 的 Order Setups 列表提供 Hide/Show；entry/stop/target/final target 写入时必须命中某根 K 线有效 high/low 范围，否则报错不写入；stop/target/final target 保存各自鼠标锚点 timestamp/timeframe 并从该锚点起画线，旧数据 fallback 到 entry 起点
-- [ ] Step 147: Order Setup element interaction 设计落实：建立 order setup element hit-test 与 selection 状态；reversal / entry / stop / target / final target 都可选中；选中后可控制 helper line 长短并可删除该元素；右键 reversal marker 区域显示命中的 setup 列表，支持 Set Active / Clear Active，多个 setup 共享同一 reversal bar 时从菜单选择具体 setup；第一步先实现 reversal marker 右键命中与 active/close 菜单
+- [x] Step 147: Order Setup element interaction 设计落实：建立 order setup element hit-test 与 selection 状态；reversal / entry / stop / target / final target 都可选中；选中后可控制 helper line 长短并可删除该元素；右键 reversal marker 区域显示命中的 setup 列表，支持 Set Active / Clear Active，多个 setup 共享同一 reversal bar 时从菜单选择具体 setup；第一步先实现 reversal marker 右键命中与 active/close 菜单
+  - Step 147A-X 已完成 umbrella 范围：reversal marker 右键可在共享 reversal 的多个 setup 中 Set Active / Close / Hide / Delete；entry、stop、target1-3、final target 支持 hit-test、selection、Execution 行双向选中、Shift 右键时间终点控制线段长度、单元素删除和单元素显隐
+  - Reversal 主锚点按当前设计作为 setup identity/anchor 管理，不作为可单独删除的 execution element；需要调整时使用 `Move Active Reversal Here`
 - [x] Step 147A: Reversal marker 右键 MVP：新增 order setup element hit-test；右键命中 reversal 三角区域时菜单显示命中的 setup 列表；支持从共享 reversal 的多个 setup 中选择 Set Active，并支持 Close Active Setup
 - [x] Step 147B: Active reversal marker 高亮：普通 bullish reversal 保持绿色上三角，普通 bearish reversal 保持红色下三角；active setup 的 reversal marker 除了变大，还切换为黄色
 - [x] Step 147C: Active setup Inspector 自动聚焦：从 reversal 菜单或其它入口 Set Active 某个 setup 后，自动打开 Inspector，刷新到默认面板，并滚动定位到 Active Order Setup；Clear/Close Active 只刷新，不强制弹出
@@ -255,7 +273,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
   - Authority decision A: `orderReviews` 只作为兼容持久化 schema/localStorage/Review JSON/undo snapshot 的权威输入，不再作为图表或 Inspector 直接渲染模型
   - Authority decision B: `Setup Set` 是 Order Setup 的运行时/view-model 权威层；renderer、hit-test、Calendar object open/locate、Active Inspector 都应消费 Setup Set 或 Setup Set 派生 helper
-  - Authority decision C: `order-review-set.js` 只允许作为 active id / legacy compatibility bridge；不再新增 Review Set 字段或让新代码消费 Review Set summary
+  - Authority decision C: 旧 `order-review-set.js` adapter 已删除；active id 仍由 `order-review-active.js` 管理，但派生对象直接来自 Setup Set，不再维护 Review Set summary
   - Authority decision D: result summary、risk/reward box、execution rows、helper line projection 都是派生视图状态；优先放在 Setup Set 或共享 projection/result helper，不写回 store
   - Authority decision E: Inspector 只负责编辑明确的 persisted fields（entry/stop/target endpoint、reason refs/note、entry context、display flags、result status/note），不自己重新计算业务派生值
   - Authority decision F: renderer/hit-test 共享同一 element projection 语义；后续 Step 152 把 endTimestamp/lineLength fallback 抽到共享 helper
@@ -282,7 +300,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Local page smoke passed on `http://127.0.0.1:8001/index.html`; toolbar, split controls, replay controls, Inspector, archive controls, and chart canvas rendered
 - [x] Step 156: 收尾文档与剧本：把实际 cleanup commit、验证结果、保留的兼容边界、下一阶段迁移建议写入 TODO / sessions / order setup 剧本
   - Cleanup commit range: `33ea5f3` -> `dfda684`，核心收敛提交包括 `5b6d2e9`、`8d54190`、`937720c`、`bac8f05`、`dfda684`
-  - 保留兼容边界：`orderReviews` localStorage key / Review JSON 字段名仍保留；`order-review-set.js` 仍作为 active id / legacy bridge；当前不做 DB migration
+  - 保留兼容边界：`orderReviews` localStorage key / Review JSON 字段名仍保留；active bridge 已直接消费 Setup Set；当前不做 DB migration
   - 后续建议：短期只修回归 bug；如果继续拆分，优先把 active bridge、archive import/export、inspector handlers 做小步拆分；trading journal 字段另开阶段，不回塞到当前 review result
   - Review fix: Review JSON import now remaps `setupThesis.reasons[].refs` as well as legacy `linkedObjectRefs`; Active Order Setup auto-focus now uses a stable section selector instead of the last Inspector section
   - Merge status: `feature/order-setup-cleanup` 已 fast-forward 合并到 `main`，合并后全量 `v4/src/**/*.js` 语法检查、`git diff --check HEAD~1..HEAD`、本地页面 `8001/index.html` HTTP smoke 均通过
@@ -328,6 +346,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - 2026-05-29: Review data storage direction is layered, not YAML-vs-DuckDB exclusive. Near term: localStorage remains the browser work draft, Review JSON/YAML remains the human-readable archive/exchange format while schemas keep evolving. Later, after Order Setup / PDA / Segment / Composite / SMT / Reaction Evidence object boundaries stabilize, add DuckDB import/export as the formal research database for batch query, statistics, cross-sample search, and reproducible analysis. YAML/JSON should continue as portable case files and migration/backup format even after DuckDB exists.
 - 2026-05-30: Phase 12 Order Setup cleanup keeps `OrderReview` / `orderReviews` as the compatibility storage schema. User-facing language is `Order Setup`; runtime grouping should prefer `Setup Set`; persisted JSON/localStorage keys are not renamed until a dedicated migration exists.
 - 2026-05-30: Reversal is the primary anchor element of an Order Setup, not a standalone global object. Entry/stop/targets/reason/result ownership is determined by the active Order Setup, not by nearest-marker guessing. Multiple independent Order Setups may share the same reversal bar when one reversal supports more than one execution plan.
+- 2026-05-31: 旧 YAML 文件都是测试性质，不作为长期研究资产保留；V4 后续不需要兼容旧 YAML schema，不为旧 YAML 保留 migration/fallback。当前兼容边界只针对 V4 `orderReviews` localStorage / Review JSON；未来正式归档可直接面向新的 Review JSON/YAML 或 DuckDB schema 设计。
 - 2026-05-29: Secondary chart annotation workflow will be introduced through an explicit `chart-context` boundary first. Existing primary chart modules remain the default behavior surface; secondary chart write actions must opt in through context-aware helpers so readonly split-screen behavior is not accidentally changed.
 - 2026-05-20: PDA session 划分采用 Asia / London Killzone / London Close / NY Premarket / NY Open / AM Silver Bullet / NY Late Morning / Lunch / PM Open / PM Silver Bullet / Power Hour / Post-Close / CME Break；CME Break 跳过极值判断
 - 2026-05-20: PDA context 计算区间与图表显示区间分离；右键标注时按所选 K 线所属 CME 交易日临时请求完整交易日数据，仅用于 PDA 极值计算，不改变图表显示

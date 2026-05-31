@@ -8,7 +8,7 @@ import {
   ORDER_REF_ROLES,
   updateOrderReview,
 } from './order-review-store.js';
-import { createReviewSetFromOrderReview, getReviewSetById } from './order-review-set.js';
+import { createSetupSetFromOrderReview, getSetupSetById } from './setup-set.js';
 
 let activeReviewSetId = null;
 
@@ -27,11 +27,11 @@ export function getActiveReviewSetId() {
 }
 
 export function getActiveReviewSet() {
-  return activeReviewSetId ? getReviewSetById(activeReviewSetId) : null;
+  return activeReviewSetId ? getSetupSetById(activeReviewSetId) : null;
 }
 
 export function setActiveReviewSet(id) {
-  if (id && !getReviewSetById(id)) return null;
+  if (id && !getSetupSetById(id)) return null;
   activeReviewSetId = id || null;
   emitChanged();
   return getActiveReviewSet();
@@ -70,13 +70,13 @@ export function createChartReviewSet({
   });
   activeReviewSetId = order.id;
   emitChanged();
-  return createReviewSetFromOrderReview(order);
+  return createSetupSetFromOrderReview(order);
 }
 
 export function updateActiveReviewSet(patch = {}) {
-  if (!activeReviewSetId || !getReviewSetById(activeReviewSetId)) return null;
+  if (!activeReviewSetId || !getSetupSetById(activeReviewSetId)) return null;
   const updated = updateOrderReview(activeReviewSetId, patch);
-  return updated ? createReviewSetFromOrderReview(updated) : null;
+  return updated ? createSetupSetFromOrderReview(updated) : null;
 }
 
 export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONTEXT, note = '', ...metadata } = {}) {
@@ -97,7 +97,7 @@ export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONT
       ],
     },
   });
-  return updated ? createReviewSetFromOrderReview(updated) : null;
+  return updated ? createSetupSetFromOrderReview(updated) : null;
 }
 
 export function getActiveOrderReviewId() {

@@ -13,14 +13,15 @@ import { getPdaType } from './pda-types.js';
 import { hitTestPdaAnnotations } from './pda-hit-test.js';
 import { toggleThisWeekNwog, toggleTodayNdog } from './objective-gaps.js';
 import {
-  addManualFib as addManualFibAction,
-  addManualFvg as addManualFvgAction,
-  addManualPoint as addManualPointAction,
-  addManualRange as addManualRangeAction,
-  addManualWickCe as addManualWickCeAction,
   findDisplayBarInContext,
   getBarChartTime as getContextBarChartTime,
 } from './manual-pda-actions.js';
+import {
+  cancelManualPdaWorkflow,
+  clearManualPdaWorkflowState,
+  handleManualPdaAction,
+  handleManualPdaShiftContext,
+} from './manual-pda-workflow.js';
 import {
   cancelSegmentSelection,
   clearManualSegments,
@@ -85,8 +86,6 @@ let contextMenuSegmentHit = null;
 let contextMenuSegmentGroupHit = null;
 let contextMenuOrderSetupHit = null;
 let contextMenuShiftKey = false;
-let rangeSelectionState = null;
-let fibSelectionState = null;
 
 function getPrimaryContext() {
   return getPrimaryChartContext();
@@ -158,63 +157,6 @@ function promptKillzoneLabel(defaultLabel = 'Killzone') {
 
 function findDisplayBar(time) {
   return findDisplayBarInContext(getPrimaryContext(), time);
-}
-
-function startManualRange(type, direction, bar) {
-  if (!bar) return;
-  const pdaType = getPdaType(type);
-  if (!pdaType) return;
-
-  fibSelectionState = null;
-  rangeSelectionState = {
-    type,
-    direction,
-    startBar: bar,
-  };
-
-  hideContextMenu();
-  bus.emit('status:update', {
-    text: `${direction} ${pdaType.label} 起点已选择，Shift + 右键选择终点`,
-    isError: false,
-  });
-}
-
-function addManualRange(endBar) {
-  if (!rangeSelectionState || !endBar) return;
-  const added = addManualRangeAction(rangeSelectionState, endBar, getPrimaryContext());
-  if (!added) {
-    rangeSelectionState = null;
-    hideContextMenu();
-    return;
-  }
-
-  rangeSelectionState = null;
-  hideContextMenu();
-}
-
-function startManualFib(bar) {
-  if (!bar) return;
-
-  rangeSelectionState = null;
-  fibSelectionState = { startBar: bar };
-  hideContextMenu();
-  bus.emit('status:update', {
-    text: 'Fib 起点已选择，Shift + 右键选择终点',
-    isError: false,
-  });
-}
-
-function addManualFib(endBar) {
-  if (!fibSelectionState || !endBar) return;
-  const added = addManualFibAction(fibSelectionState, endBar, getPrimaryContext());
-  if (!added) {
-    fibSelectionState = null;
-    hideContextMenu();
-    return;
-  }
-
-  fibSelectionState = null;
-  hideContextMenu();
 }
 
 function locateSecondaryAtBar(bar) {
@@ -396,13 +338,7 @@ function handleContextMenu(e) {
   contextMenuOrderSetupHit = orderSetupHit;
   contextMenuShiftKey = e.shiftKey;
 
-  if (e.shiftKey && fibSelectionState) {
-    addManualFib(bar);
-    return;
-  }
-
-  if (e.shiftKey && rangeSelectionState) {
-    addManualRange(bar);
+  if (e.shiftKey && handleManualPdaShiftContext({ bar, context: getPrimaryContext(), hideContextMenu })) {
     return;
   }
 
@@ -414,9 +350,8 @@ async function handleControlClick(e) {
   if (!action) return;
   e.stopPropagation();
 
-  if (action === 'bsl' || action === 'ssl') {
-    await addManualPointAction(action, contextMenuBar, getPrimaryContext());
-    hideContextMenu();
+  if (await handleManualPdaAction(action, { bar: contextMenuBar, context: getPrimaryContext(), hideContextMenu })) {
+    return;
   } else if (handleOrderSetupChartAction(action, {
     bar: contextMenuBar,
     price: contextMenuPrice,
@@ -429,24 +364,9 @@ async function handleControlClick(e) {
     orderSetupElement: e.target.closest('[data-order-setup-element]')?.dataset.orderSetupElement || '',
   })) {
     hideContextMenu();
-  } else if (action === 'wick-ce-upper' || action === 'wick-ce-lower') {
-    addManualWickCeAction(action === 'wick-ce-upper' ? 'upper' : 'lower', contextMenuBar, getPrimaryContext());
-    hideContextMenu();
-  } else if (action === 'fvg') {
-    addManualFvgAction(contextMenuBar, getPrimaryContext());
-    hideContextMenu();
-  } else if (action === 'ifvg') {
-    addManualFvgAction(contextMenuBar, getPrimaryContext(), 'ifvg');
-    hideContextMenu();
   } else if (action === 'secondary-locate-time') {
     locateSecondaryAtBar(contextMenuBar);
     hideContextMenu();
-  } else if (action === 'ob-bullish' || action === 'ob-bearish') {
-    startManualRange('ob', action === 'ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
-  } else if (action === 'breaker-bullish' || action === 'breaker-bearish') {
-    startManualRange('breaker', action === 'breaker-bullish' ? 'bullish' : 'bearish', contextMenuBar);
-  } else if (action === 'fib-start') {
-    startManualFib(contextMenuBar);
   } else if (action === 'smt-liquidity-bearish' || action === 'smt-liquidity-bullish') {
     startLiquiditySmt(action === 'smt-liquidity-bullish' ? 'bullish' : 'bearish', contextMenuBar);
     hideContextMenu();
@@ -660,8 +580,7 @@ async function handleControlClick(e) {
     recordHistory('Clear PDA', () => {
       clearAnnotations();
       clearAllPdaResponses();
-      rangeSelectionState = null;
-      fibSelectionState = null;
+      clearManualPdaWorkflowState();
       clearPointSetSelection({ silent: true });
     });
     hideContextMenu();
@@ -677,13 +596,8 @@ function handleGlobalClick(e) {
 
 function handleKeydown(e) {
   if (e.key === 'Escape') {
-    if (rangeSelectionState) {
-      const pdaType = getPdaType(rangeSelectionState.type);
-      rangeSelectionState = null;
-      bus.emit('status:update', { text: `${pdaType?.label || 'Range PDA'} 选择已取消`, isError: false });
-    } else if (fibSelectionState) {
-      fibSelectionState = null;
-      bus.emit('status:update', { text: 'Fib 选择已取消', isError: false });
+    if (cancelManualPdaWorkflow()) {
+      // handled by PDA workflow
     } else if (getPointSetSelectionSummary()) {
       clearPointSetSelection();
     } else if (getSegmentSelectionSummary()) {
@@ -705,15 +619,13 @@ export function initManualAnnotation() {
   document.addEventListener('click', handleGlobalClick);
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', () => {
-    rangeSelectionState = null;
-    fibSelectionState = null;
+    clearManualPdaWorkflowState();
     clearKillzoneDraft();
     clearPointSetSelection({ silent: true });
     hideContextMenu();
   });
   bus.on('bars:cleared', () => {
-    rangeSelectionState = null;
-    fibSelectionState = null;
+    clearManualPdaWorkflowState();
     clearKillzoneDraft();
     clearPointSetSelection({ silent: true });
     clearPdaContextDataCache();
