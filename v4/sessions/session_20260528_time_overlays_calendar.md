@@ -1226,6 +1226,38 @@ Committed:
 
 - `docs(v4): close order setup cleanup handoff`
 
+## Phase 12B Review Fixes
+
+Operation Script:
+
+- Step: `post-review`
+- Goal: fix issues found during review before merging cleanup back to `main`.
+- Boundary: bug fixes only.
+
+Implemented:
+
+- Review JSON import now remaps refs stored under `setupThesis.reasons[].refs`, not only legacy `setupThesis.linkedObjectRefs`.
+- Active Order Setup panel now renders `data-inspector-section="active-order-setup"`.
+- Inspector auto-focus now scrolls to the stable Active Order Setup selector instead of `.inspector-section:last-of-type`, which pointed at Archive in the empty panel layout.
+
+Validation:
+
+- `node --check v4/src/review/review-archive.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Full `node --check` over `v4/src/**/*.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `fix(v4): repair order setup review issues`
+- Current uncommitted changes: none for review fixes
+
+Committed:
+
+- `fix(v4): repair order setup review issues`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:

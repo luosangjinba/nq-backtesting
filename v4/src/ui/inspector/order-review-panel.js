@@ -355,5 +355,10 @@ export function renderOrderReviewPanel(orderReviews = [], options = {}) {
   const content = activeOrder
     ? renderActiveOrderSetup(activeOrder, options)
     : '<div class="drawing-set-empty">No active Order Setup.</div>';
-  return section('Active Order Setup', content);
+  return `
+    <section class="inspector-section" data-inspector-section="active-order-setup">
+      <div class="inspector-section-title">Active Order Setup</div>
+      ${content}
+    </section>
+  `;
 }

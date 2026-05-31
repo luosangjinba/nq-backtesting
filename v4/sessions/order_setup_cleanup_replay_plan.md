@@ -1574,6 +1574,39 @@ Notes:
 - This step is documentation-only.
 - Current tracked workspace should be clean after commit; existing untracked local files are intentionally left untouched.
 
+### Post-Review Fixes
+
+Goal:
+
+- Fix issues found during review before merging cleanup back to `main`.
+
+Implemented:
+
+- Review JSON import now remaps refs stored under `setupThesis.reasons[].refs`, not only legacy `setupThesis.linkedObjectRefs`.
+- Active Order Setup panel now renders `data-inspector-section="active-order-setup"`.
+- Inspector auto-focus now scrolls to the stable Active Order Setup selector instead of `.inspector-section:last-of-type`, which pointed at Archive in the empty panel layout.
+
+Main files:
+
+- `v4/src/review/review-archive.js`
+- `v4/src/ui/inspector/order-review-panel.js`
+- `v4/src/ui/inspector-sidebar.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/review/review-archive.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- full `node --check` over `v4/src/**/*.js`
+- `git diff --check`
+
+Commit:
+
+- `fix(v4): repair order setup review issues`
+
 ## Next Step Template
 
 ### Step N: Title

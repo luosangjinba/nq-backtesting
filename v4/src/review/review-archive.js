@@ -347,30 +347,41 @@ function prepareImportedSmtRecords(existingRecords, importedRecords) {
   return { records, skippedDuplicates, skippedInvalid, idMap };
 }
 
+function remapOrderReviewRef(ref, refIdMaps = {}) {
+  if (ref.type === ORDER_REF_TYPES.PDA) {
+    return { ...ref, id: refIdMaps.pdaIdMap?.get(ref.id) || ref.id };
+  }
+  if (ref.type === ORDER_REF_TYPES.SEGMENT) {
+    return { ...ref, id: refIdMaps.segmentIdMap?.get(ref.id) || ref.id };
+  }
+  if (ref.type === ORDER_REF_TYPES.COMPOSITE) {
+    return { ...ref, id: refIdMaps.groupIdMap?.get(ref.id) || ref.id };
+  }
+  if (ref.type === ORDER_REF_TYPES.SMT) {
+    return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
+  }
+  return ref;
+}
+
 function remapOrderReviewLinkedRefs(order, refIdMaps = {}) {
   const refs = Array.isArray(order.setupThesis?.linkedObjectRefs)
-    ? order.setupThesis.linkedObjectRefs.map((ref) => {
-        if (ref.type === ORDER_REF_TYPES.PDA) {
-          return { ...ref, id: refIdMaps.pdaIdMap?.get(ref.id) || ref.id };
-        }
-        if (ref.type === ORDER_REF_TYPES.SEGMENT) {
-          return { ...ref, id: refIdMaps.segmentIdMap?.get(ref.id) || ref.id };
-        }
-        if (ref.type === ORDER_REF_TYPES.COMPOSITE) {
-          return { ...ref, id: refIdMaps.groupIdMap?.get(ref.id) || ref.id };
-        }
-        if (ref.type === ORDER_REF_TYPES.SMT) {
-          return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
-        }
-        return ref;
-      })
+    ? order.setupThesis.linkedObjectRefs.map((ref) => remapOrderReviewRef(ref, refIdMaps))
     : [];
+  const reasons = Array.isArray(order.setupThesis?.reasons)
+    ? order.setupThesis.reasons.map((reason) => ({
+        ...reason,
+        refs: Array.isArray(reason.refs)
+          ? reason.refs.map((ref) => remapOrderReviewRef(ref, refIdMaps))
+          : [],
+      }))
+    : order.setupThesis?.reasons;
 
   return {
     ...order,
     setupThesis: {
       ...(order.setupThesis || {}),
       linkedObjectRefs: refs,
+      ...(reasons !== undefined ? { reasons } : {}),
     },
   };
 }

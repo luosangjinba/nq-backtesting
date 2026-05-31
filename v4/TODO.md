@@ -284,6 +284,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Cleanup commit range: `33ea5f3` -> `dfda684`，核心收敛提交包括 `5b6d2e9`、`8d54190`、`937720c`、`bac8f05`、`dfda684`
   - 保留兼容边界：`orderReviews` localStorage key / Review JSON 字段名仍保留；`order-review-set.js` 仍作为 active id / legacy bridge；当前不做 DB migration
   - 后续建议：短期只修回归 bug；如果继续拆分，优先把 active bridge、archive import/export、inspector handlers 做小步拆分；trading journal 字段另开阶段，不回塞到当前 review result
+  - Review fix: Review JSON import now remaps `setupThesis.reasons[].refs` as well as legacy `linkedObjectRefs`; Active Order Setup auto-focus now uses a stable section selector instead of the last Inspector section
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

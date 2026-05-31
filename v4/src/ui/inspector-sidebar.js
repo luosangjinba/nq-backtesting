@@ -307,7 +307,7 @@ function closeSidebar() {
 }
 
 function focusActiveOrderSetupPanel() {
-  const section = bodyEl?.querySelector('.inspector-section:last-of-type');
+  const section = bodyEl?.querySelector('[data-inspector-section="active-order-setup"]');
   section?.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
