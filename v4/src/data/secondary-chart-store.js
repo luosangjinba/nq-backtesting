@@ -5,7 +5,7 @@ import { INSTRUMENT_OPTIONS } from '../config.js';
 
 const DEFAULT_SECONDARY_TIMEFRAME = 60;
 const DEFAULT_SECONDARY_INSTRUMENT = 'ES';
-const DEFAULT_SPLIT_LAYOUT = 'stack';
+const DEFAULT_SPLIT_LAYOUT = 'side';
 const SPLIT_LAYOUTS = new Set(['stack', 'side']);
 const SUPPORTED_INSTRUMENTS = new Set(INSTRUMENT_OPTIONS);
 

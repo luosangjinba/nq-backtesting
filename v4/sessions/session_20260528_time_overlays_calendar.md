@@ -1321,6 +1321,36 @@ Committed:
 
 - `feat(v4): toggle order setup execution elements`
 
+## Phase 12C Split Layout Default Side
+
+Operation Script:
+
+- Step: `158`
+- Goal: make Split Screen default to the Side layout.
+- Boundary: only change the default layout value; keep the existing Stack/Side selector, Split preload behavior, and secondary chart loading unchanged.
+
+Implemented:
+
+- Changed `DEFAULT_SPLIT_LAYOUT` in `v4/src/data/secondary-chart-store.js` from `stack` to `side`.
+- Toolbar initialization now selects `Side` by default when there is no saved layout state.
+
+Validation:
+
+- `node --check v4/src/data/secondary-chart-store.js`
+- `node --check v4/src/ui/toolbar.js`
+- Module smoke verified `getSplitLayout() === 'side'`.
+- `git diff --check`
+- Headless Chrome DOM smoke confirmed the Layout select renders `Side` as selected.
+
+Current Git State:
+
+- Branch: `main`
+- Current uncommitted changes: none for Step 158
+
+Committed:
+
+- `feat(v4): default split layout to side`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:
