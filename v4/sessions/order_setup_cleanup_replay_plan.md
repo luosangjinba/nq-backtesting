@@ -1001,6 +1001,37 @@ Notes:
 - Blank, Segment-created, and Composite-created Order Setups now write `display.hidden=false`.
 - This supersedes the hidden-default portion of Step 147O; helper line color/width changes from 147O remain unchanged.
 
+### Step 147T: Inline Calendar Setup Visibility State
+
+Goal:
+
+- Make Calendar `Order Setups` rows show visible/hidden state without opening the three-dot menu.
+- Keep the row compact and avoid reintroducing wide Locate / Open / Hide buttons.
+- Let the state indicator also toggle Show/Hide directly.
+
+Main files:
+
+- `v4/src/ui/inspector/calendar-panel.js`
+- `v4/style.css`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `git diff --check`
+
+Commit:
+
+- `feat(v4): show calendar setup visibility state`
+
+Notes:
+
+- Visible setup rows render a green status dot.
+- Hidden setup rows render a gray status dot with a slash.
+- Clicking the status dot reuses `order-review-toggle-hidden`; the three-dot menu still contains Locate / Open / Show(Hide) / Delete.
+
 ## Next Step Template
 
 ### Step N: Title

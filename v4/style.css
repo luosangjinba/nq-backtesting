@@ -510,6 +510,10 @@ html, body {
   min-width: 0;
 }
 
+.calendar-object-main-setup {
+  grid-template-columns: 38px 40px 18px minmax(0, 1fr);
+}
+
 .calendar-object-time {
   color: #8d919b;
   font-variant-numeric: tabular-nums;
@@ -529,6 +533,49 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.calendar-setup-visibility {
+  position: relative;
+  width: 16px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.calendar-setup-visibility::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #26a69a;
+  box-shadow: 0 0 0 1px rgba(38, 166, 154, 0.42);
+}
+
+.calendar-setup-visibility.is-hidden::before {
+  background: #787b86;
+  box-shadow: 0 0 0 1px rgba(120, 123, 134, 0.42);
+}
+
+.calendar-setup-visibility.is-hidden::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 9px;
+  width: 11px;
+  height: 1px;
+  background: #b2b5be;
+  transform: rotate(-42deg);
+  transform-origin: center;
+}
+
+.calendar-setup-visibility:hover::before {
+  box-shadow: 0 0 0 2px rgba(67, 160, 255, 0.28);
 }
 
 .calendar-object-actions {

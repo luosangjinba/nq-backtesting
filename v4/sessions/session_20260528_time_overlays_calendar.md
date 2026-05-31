@@ -1097,6 +1097,41 @@ Committed:
 
 - `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
+## Phase 12 Inline Calendar Setup Visibility State
+
+Operation Script:
+
+- Step: `147T`
+- Goal: show each Calendar Order Setup row's visible/hidden state without opening the three-dot menu.
+- Boundary: compact Calendar row presentation and toggle only; keep the existing three-dot menu actions unchanged.
+
+Planned:
+
+- Add a small visibility status control to Order Setup rows.
+- Use a green visible state and a muted hidden state.
+- Reuse the existing `order-review-toggle-hidden` action so the status control can toggle Show/Hide directly.
+
+Implemented:
+
+- Order Setup rows now render `calendar-setup-visibility` beside the `Setup` tag.
+- Visible setup rows show a green status dot.
+- Hidden setup rows show a gray status dot with a slash.
+- Clicking the status indicator toggles Show/Hide through the existing Inspector handler.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `feat(v4): show calendar setup visibility state`
+
+Committed:
+
+- `feat(v4): show calendar setup visibility state`
+
 ## Phase 12 Default Visible Order Setups
 
 Operation Script:

@@ -255,14 +255,32 @@ function renderObjectActions(item) {
   `;
 }
 
+function renderSetupVisibilityToggle(item) {
+  if (item.ref?.type !== 'order-setup' || !item.ref?.id) return '';
+  const hidden = Boolean(item.source?.display?.hidden);
+  const label = hidden ? 'Hidden setup. Click to show.' : 'Visible setup. Click to hide.';
+  return `
+    <button
+      class="calendar-setup-visibility ${hidden ? 'is-hidden' : 'is-visible'}"
+      data-inspector-action="order-review-toggle-hidden"
+      data-order-review-id="${escapeHtml(item.ref.id)}"
+      aria-label="${label}"
+      title="${label}"
+      type="button"
+    ></button>
+  `;
+}
+
 function renderObjectRow(item) {
   const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
+  const isOrderSetup = item.ref?.type === 'order-setup';
   return `
-    <div class="calendar-object-row">
-      <div class="calendar-object-main">
+    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}">
+      <div class="calendar-object-main ${isOrderSetup ? 'calendar-object-main-setup' : ''}">
         <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
         <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
+        ${renderSetupVisibilityToggle(item)}
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
       ${renderObjectActions(item)}
