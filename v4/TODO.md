@@ -93,7 +93,7 @@
   - [x] Step 56.2: 实现基础 normalize helper：string enum fallback、number/null、timestamp/null、note string、array 去重
   - [x] Step 56.3: 实现 `normalizeSetupThesis()`：primary event、primaryEventPrice、linkedObjectRefs 去重、lowTimeframeWarning 派生、higherTimeframeJustification/narrative/confidence
   - [x] Step 56.4: 实现 `normalizeEntryPlan()`：direction、entry timestamp/price、entry timeframe/model、stopLoss/stopReason、targets、selectedTargetType、finalTarget、riskPoints 派生
-  - [x] Step 56.5: 实现 `normalizeResultReview()`：expected/final target reached、exit timestamp/price、result、exitReason、outcomePoints/outcomeR 派生
+  - [x] Step 56.5: 实现 `normalizeResultReview()`：exit timestamp/price、result、note；旧 expected/final target reached、exitReason、outcomePoints/outcomeR 字段已在 Step 154 精简，结果派生改由 Setup Set/view-model 负责
   - [x] Step 56.6: 实现 `normalizeOrderReview()` 与 `getOrderReviewIdentity()`，保留 `id/createdAt/importedFromId`，更新 `updatedAt`
   - [x] Step 56.7: 实现 store API：`addOrderReview`、`updateOrderReview`、`deleteOrderReview`、`loadOrderReviews`、`clearOrderReviews`、`getOrderReviews`、`getOrderReviewById`
   - [x] Step 56.8: 每次变更 emit `order-review:changed`；运行 `node --check`，并用轻量 node probe 覆盖 normalize / identity / CRUD
@@ -110,7 +110,7 @@
 - [x] Step 65: 扩展 `ui/inspector/order-review-panel.js`，为每条 Order Review 增加可折叠编辑区，支持 Setup Thesis / Entry Plan / Result Review 三组字段
 - [x] Step 66: 实现 Setup Thesis 编辑：primary event time/timeframe/type/price、confidence、higher timeframe justification、narrative、low timeframe warning
 - [x] Step 67: 实现 Entry Plan 编辑：direction、entry time/timeframe/price/model、stopLoss/stopReason、target internal/swing/external、selectedTargetType、finalTarget、note
-- [x] Step 68: 实现 Result Review 编辑：expected/final target reached、exit time/price、result、exitReason、note，并确认 outcomePoints/outcomeR 派生刷新
+- [x] Step 68: 实现 Result Review 编辑：exit time/price、result、note；旧 expected/final target reached、exitReason 编辑入口已在 Step 151/154 移除，outcomePoints/outcomeR 改由 Setup Set/view-model 派生
 - [x] Step 69: 实现 linked refs 管理第一版：显示 refs，支持删除 ref；从当前选中的 PDA / segment / Composite Move / SMT 追加 ref
 - [x] Step 70: 实现图表 pick 第一版：从 Inspector 按钮进入 pick mode，点击主图 K 线填入 setup / entry / exit timestamp；Escape 取消
 - [x] Step 71: 实现价格 pick 第一版：点击主图 K 线后可选择 OHLC 或当前价格，填入 entryPrice / stopLoss / finalTarget；暂不做拖拽
@@ -251,7 +251,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Cleanup finding C: `order-review-set.js` 与 `setup-set.js` 是两套运行时 adapter；active 层仍返回 Review Set，renderer/hit-test/Inspector 已主要消费 Setup Set；Step 150 应明确 Setup Set 为图表/Inspector 权威派生层，Review Set 只保留 active/compat bridge 或被并入
   - Cleanup finding D: Result points/R 目前在 `order-review-store.js` 和 `setup-set.js` 两处派生；Step 152 应统一为 Setup Set/view-model 派生，store 只负责 normalize 明确输入
   - Cleanup finding E: helper line length/time projection 在 renderer 与 hit-test 各算一套；Step 152 应抽共享 helper，避免渲染长度与命中区域漂移
-  - Cleanup finding F: `ORDER_EXIT_REASON_DEFINITIONS` 仍包含 trading-journal 风格值（model-invalidated/missed-entry/skipped）；当前 Result UI 不再使用 exit reason，Step 154 可删除或标记为 deferred journal 字段
+  - Cleanup finding F: `ORDER_EXIT_REASON_DEFINITIONS` 曾包含 trading-journal 风格值（model-invalidated/missed-entry/skipped）；当前 Result UI 不再使用 exit reason，已在 Step 154 删除
 - [x] Step 150: 权威数据源审计：明确 `orderReviews` 持久化 schema、运行时 `Setup Set` 派生层、Inspector view model、renderer element model 各自职责；找出同一概念多处重复存储/重复计算的位置，优先保留一个权威来源
   - Authority decision A: `orderReviews` 只作为兼容持久化 schema/localStorage/Review JSON/undo snapshot 的权威输入，不再作为图表或 Inspector 直接渲染模型
   - Authority decision B: `Setup Set` 是 Order Setup 的运行时/view-model 权威层；renderer、hit-test、Calendar object open/locate、Active Inspector 都应消费 Setup Set 或 Setup Set 派生 helper
@@ -271,7 +271,11 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - 已把 `order-setup-chart-actions.js` 中 active setup 的 reversal/entry/stop/target/final target 更新动作收敛到 `ORDER_SETUP_PATCH_ACTIONS`
   - 已把 PDA/Segment/Composite/SMT link 动作收敛到 `ORDER_SETUP_LINK_ACTIONS`
   - 已移除旧的长 if/else 分支和重复状态提示；handler 只接受已登记的 Order Setup action，避免未知 action 被误吞
-- [ ] Step 154: 清理旧字段兼容策略：在不导入旧数据的前提下，移除已明确废弃的 result 值、旧 Review Set 文案和无意义 fallback；保留 `orderReviews` schema/localStorage key 直到单独 migration
+- [x] Step 154: 清理旧字段兼容策略：在不导入旧数据的前提下，移除已明确废弃的 result 值、旧 Review Set 文案和无意义 fallback；保留 `orderReviews` schema/localStorage key 直到单独 migration
+  - Removed `ORDER_TARGET_REACHED_DEFINITIONS` / `ORDER_EXIT_REASON_DEFINITIONS` and their values/valid sets/alias maps from `order-review-store.js`
+  - Simplified `normalizeResultReview()` to persisted review fields still used by current UI: `exitTimestamp`、`exitPrice`、`result`、`note`
+  - Removed legacy `expectedTargetReached` / `finalTargetReached` / `exitReason` from Setup Set and Review Set runtime adapters
+  - Removed store fallback for persisted `outcomePoints/outcomeR`; displayed Points/R remain derived by Setup Set/view-model from entry、stop、result target/exit
 - [ ] Step 155: 回归验证 Order Setup 主路径：覆盖 create bullish/bearish setup、set active/close/hide/show/delete、entry/stop/target 起止点、reason add/link、entry context、result target/stop/BE、risk/reward box、calendar locate/open、undo/redo、import/export、split/replay 基本不回归
 - [ ] Step 156: 收尾文档与剧本：把实际 cleanup commit、验证结果、保留的兼容边界、下一阶段迁移建议写入 TODO / sessions / order setup 剧本
 

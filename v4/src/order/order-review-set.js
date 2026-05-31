@@ -122,8 +122,6 @@ export function createReviewSetFromOrderReview(order) {
       timestamp: toTimestamp(resultReview.exitTimestamp),
       price: toNumberOrNull(resultReview.exitPrice),
       status: resultReview.result || 'unknown',
-      expectedTargetReached: resultReview.expectedTargetReached || 'unknown',
-      finalTargetReached: resultReview.finalTargetReached || 'unknown',
     },
     refs: normalizeRefs(order),
     createdAt: order.createdAt || null,

@@ -189,30 +189,12 @@ export const ORDER_STOP_REASON_DEFINITIONS = [
   { value: 'manual', label: 'Manual', active: true, aliases: [] },
 ];
 
-export const ORDER_TARGET_REACHED_DEFINITIONS = [
-  { value: 'yes', label: 'Yes', active: true, aliases: [] },
-  { value: 'no', label: 'No', active: true, aliases: [] },
-  { value: 'partial', label: 'Partial', active: true, aliases: [] },
-  { value: 'unknown', label: 'Unknown', active: true, aliases: [] },
-];
-
 export const ORDER_RESULT_DEFINITIONS = [
   { value: 'target1', label: 'Target 1', active: true, aliases: ['target-1', 't1'] },
   { value: 'target2', label: 'Target 2', active: true, aliases: ['target-2', 't2'] },
   { value: 'target3', label: 'Target 3', active: true, aliases: ['target-3', 't3'] },
   { value: 'stop-loss', label: 'Stop Loss', active: true, aliases: ['stop'] },
   { value: 'breakeven', label: 'Breakeven', active: true, aliases: ['break-even', 'be'] },
-  { value: 'unknown', label: 'Unknown', active: true, aliases: [] },
-];
-
-export const ORDER_EXIT_REASON_DEFINITIONS = [
-  { value: 'target-hit', label: 'Target Hit', active: true, aliases: ['target'] },
-  { value: 'stop-hit', label: 'Stop Hit', active: true, aliases: ['stop'] },
-  { value: 'manual-close', label: 'Manual Close', active: true, aliases: ['manual'] },
-  { value: 'time-exit', label: 'Time Exit', active: true, aliases: ['time'] },
-  { value: 'model-invalidated', label: 'Model Invalidated', active: true, aliases: ['invalidated'] },
-  { value: 'missed-entry', label: 'Missed Entry', active: true, aliases: ['missed'] },
-  { value: 'skipped', label: 'Skipped', active: true, aliases: [] },
   { value: 'unknown', label: 'Unknown', active: true, aliases: [] },
 ];
 
@@ -233,9 +215,7 @@ export const ORDER_ENTRY_SESSIONS = valuesFromDefinitions(ORDER_ENTRY_SESSION_DE
 export const ORDER_TIMEFRAMES = valuesFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const ORDER_TARGET_TYPES = valuesFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const ORDER_STOP_REASONS = valuesFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
-export const ORDER_TARGET_REACHED = valuesFromDefinitions(ORDER_TARGET_REACHED_DEFINITIONS);
 export const ORDER_RESULTS = valuesFromDefinitions(ORDER_RESULT_DEFINITIONS);
-export const ORDER_EXIT_REASONS = valuesFromDefinitions(ORDER_EXIT_REASON_DEFINITIONS);
 export const ORDER_CONFIDENCE = valuesFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
 
 export const VALID_ORDER_EVENT_TYPES = validSetFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS);
@@ -248,9 +228,7 @@ export const VALID_ORDER_ENTRY_SESSIONS = validSetFromDefinitions(ORDER_ENTRY_SE
 export const VALID_ORDER_TIMEFRAMES = validSetFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const VALID_ORDER_TARGET_TYPES = validSetFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const VALID_ORDER_STOP_REASONS = validSetFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
-export const VALID_ORDER_TARGET_REACHED = validSetFromDefinitions(ORDER_TARGET_REACHED_DEFINITIONS);
 export const VALID_ORDER_RESULTS = validSetFromDefinitions(ORDER_RESULT_DEFINITIONS);
-export const VALID_ORDER_EXIT_REASONS = validSetFromDefinitions(ORDER_EXIT_REASON_DEFINITIONS);
 export const VALID_ORDER_CONFIDENCE = validSetFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
 
 export const ORDER_EVENT_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS);
@@ -263,9 +241,7 @@ export const ORDER_ENTRY_SESSION_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_S
 export const ORDER_TIMEFRAME_ALIASES = aliasMapFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const ORDER_TARGET_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const ORDER_STOP_REASON_ALIASES = aliasMapFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
-export const ORDER_TARGET_REACHED_ALIASES = aliasMapFromDefinitions(ORDER_TARGET_REACHED_DEFINITIONS);
 export const ORDER_RESULT_ALIASES = aliasMapFromDefinitions(ORDER_RESULT_DEFINITIONS);
-export const ORDER_EXIT_REASON_ALIASES = aliasMapFromDefinitions(ORDER_EXIT_REASON_DEFINITIONS);
 export const ORDER_CONFIDENCE_ALIASES = aliasMapFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
 
 export function normalizeString(value, fallback = '') {
@@ -707,18 +683,6 @@ export function normalizeResultReview(input = {}) {
   const exitPrice = normalizeNumber(input.exitPrice);
 
   return {
-    expectedTargetReached: normalizeEnum(
-      input.expectedTargetReached,
-      VALID_ORDER_TARGET_REACHED,
-      ORDER_TARGET_REACHED_ALIASES,
-      ORDER_TARGET_REACHED.UNKNOWN
-    ),
-    finalTargetReached: normalizeEnum(
-      input.finalTargetReached,
-      VALID_ORDER_TARGET_REACHED,
-      ORDER_TARGET_REACHED_ALIASES,
-      ORDER_TARGET_REACHED.UNKNOWN
-    ),
     exitTimestamp: normalizeTimestamp(input.exitTimestamp),
     exitPrice,
     result: normalizeEnum(
@@ -727,14 +691,6 @@ export function normalizeResultReview(input = {}) {
       ORDER_RESULT_ALIASES,
       ORDER_RESULTS.UNKNOWN
     ),
-    exitReason: normalizeEnum(
-      input.exitReason,
-      VALID_ORDER_EXIT_REASONS,
-      ORDER_EXIT_REASON_ALIASES,
-      ORDER_EXIT_REASONS.UNKNOWN
-    ),
-    outcomePoints: normalizeNumber(input.outcomePoints),
-    outcomeR: normalizeNumber(input.outcomeR),
     note: normalizeNote(input.note),
   };
 }

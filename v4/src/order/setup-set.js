@@ -214,18 +214,14 @@ function createResultElement(order = {}, orderElements = {}) {
   const status = result.result || 'unknown';
   const derivedPrice = deriveResultExit(status, orderElements.entry, orderElements.stopLoss, orderElements.targets);
   const price = derivedPrice ?? toNumberOrNull(result.exitPrice);
-  const derivedPoints = deriveResultPoints(price, orderElements.entry);
-  const outcomePoints = derivedPoints ?? toNumberOrNull(result.outcomePoints);
+  const outcomePoints = deriveResultPoints(price, orderElements.entry);
   return {
     type: SETUP_ELEMENT_TYPES.RESULT,
     timestamp,
     price,
     status,
-    expectedTargetReached: result.expectedTargetReached || 'unknown',
-    finalTargetReached: result.finalTargetReached || 'unknown',
-    exitReason: result.exitReason || 'unknown',
     outcomePoints,
-    outcomeR: deriveResultR(outcomePoints, orderElements.entry, orderElements.stopLoss) ?? toNumberOrNull(result.outcomeR),
+    outcomeR: deriveResultR(outcomePoints, orderElements.entry, orderElements.stopLoss),
     complete: timestamp !== null || price !== null || result.result !== 'unknown',
   };
 }

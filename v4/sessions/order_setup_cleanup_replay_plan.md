@@ -1433,6 +1433,53 @@ Notes:
 
 - This is a refactor-only cleanup. It does not change menu labels, stored data, or chart drawing semantics.
 
+### Step 154: Remove Legacy Result Compatibility Fields
+
+Goal:
+
+- Physically remove result fields that belong to the old Order Review / future journal model.
+- Keep the current review model focused on result status plus derived Setup Set display values.
+- Preserve the `orderReviews` storage key/schema boundary until a separate migration is planned.
+
+Implemented:
+
+- Removed `ORDER_TARGET_REACHED_DEFINITIONS` and `ORDER_EXIT_REASON_DEFINITIONS` from `order-review-store.js`.
+- Removed related exported value sets, valid sets, and alias maps.
+- Simplified `normalizeResultReview()` to current persisted fields:
+  - `exitTimestamp`
+  - `exitPrice`
+  - `result`
+  - `note`
+- Removed legacy `expectedTargetReached`, `finalTargetReached`, and `exitReason` from Setup Set and Review Set runtime adapters.
+- Removed store fallback for persisted `outcomePoints/outcomeR`; displayed Points/R are derived by Setup Set/view-model from entry, stop, and result target/exit.
+
+Main files:
+
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/setup-set.js`
+- `v4/src/order/order-review-set.js`
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-set.js`
+- full `node --check` over `v4/src/**/*.js`
+- residual grep for removed result/exit reason symbols
+- `git diff --check`
+
+Commit:
+
+- `refactor(v4): remove legacy order result fields`
+
+Notes:
+
+- Result selectable values remain Target 1 / Target 2 / Target 3 / Stop Loss / Breakeven / Unknown.
+- Trading-journal reaction concepts such as missed/skipped/invalidated remain out of the current review result model.
+
 ## Next Step Template
 
 ### Step N: Title

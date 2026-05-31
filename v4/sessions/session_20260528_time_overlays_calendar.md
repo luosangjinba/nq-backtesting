@@ -1097,6 +1097,47 @@ Committed:
 
 - `accaab5 feat(v4): simplify order setup reasons and execution rows`
 
+## Phase 12B Remove Legacy Result Compatibility Fields
+
+Operation Script:
+
+- Step: `154`
+- Goal: remove old Order Review / journal-oriented result compatibility fields from the current Order Setup review path.
+- Boundary: keep `orderReviews` storage key and active result status workflow; do not add migration or journal fields in this cleanup pass.
+
+Planned:
+
+- Remove target-reached and exit-reason definitions that no longer appear in the UI.
+- Keep Result focused on Target 1 / Target 2 / Target 3 / Stop Loss / Breakeven / Unknown.
+- Derive Points/R from Setup Set instead of accepting persisted fallback values.
+
+Implemented:
+
+- Removed `ORDER_TARGET_REACHED_DEFINITIONS` and `ORDER_EXIT_REASON_DEFINITIONS`.
+- Removed their exported value sets, valid sets, and alias maps.
+- `normalizeResultReview()` now keeps only `exitTimestamp`, `exitPrice`, `result`, and `note`.
+- Setup Set and Review Set adapters no longer expose `expectedTargetReached`, `finalTargetReached`, or `exitReason`.
+- Setup Set no longer falls back to persisted `outcomePoints/outcomeR`; Points/R are derived from entry, stop, and result target/exit.
+
+Validation:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/order/order-review-set.js`
+- Full `node --check` over `v4/src/**/*.js`
+- Residual grep verified removed result/exit reason symbols are gone from runtime code.
+- `git diff --check`
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `refactor(v4): remove legacy order result fields`
+- Current uncommitted changes: none for Step 154
+
+Committed:
+
+- `refactor(v4): remove legacy order result fields`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:
