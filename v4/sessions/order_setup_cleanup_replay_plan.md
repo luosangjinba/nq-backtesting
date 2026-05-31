@@ -1480,6 +1480,51 @@ Notes:
 - Result selectable values remain Target 1 / Target 2 / Target 3 / Stop Loss / Breakeven / Unknown.
 - Trading-journal reaction concepts such as missed/skipped/invalidated remain out of the current review result model.
 
+### Step 155: Order Setup Main Path Regression
+
+Goal:
+
+- Verify the cleanup pass did not break the main Order Setup review workflow.
+- Cover the chart-created setup path, active setup lifecycle, execution elements, reason links, result derivation, calendar grouping, undo/redo, import-shaped normalization, split/replay page boot surface, and archive controls.
+
+Implemented:
+
+- Ran module smoke covering:
+  - chart-created setup and automatic active setup assignment
+  - active setup update for entry, stop loss, target 1, and result
+  - reason/ref linking to the active setup
+  - Setup Set derivation for reversal, entry, stop, target, result, Points, and R
+  - Calendar grouping for Order Setups
+  - show/hide display state
+  - clear active / set active lifecycle
+  - delete setup with history-backed undo/redo restore
+  - import-shaped `addOrderReview()` normalization
+- Ran local page smoke against `http://127.0.0.1:8001/index.html`.
+- Confirmed the page rendered toolbar, split controls, replay controls, Inspector, archive controls, and chart canvas in headless Chrome.
+
+Main files:
+
+- `v4/TODO.md`
+- `v4/sessions/order_setup_cleanup_replay_plan.md`
+- `v4/sessions/session_20260528_time_overlays_calendar.md`
+
+Validation:
+
+- module smoke: `order setup regression smoke ok`
+- `for file in $(rg --files v4/src -g '*.js'); do node --check "$file" || exit 1; done`
+- `git diff --check`
+- `curl -s -I http://127.0.0.1:8001/index.html`
+- `google-chrome --headless=new --disable-gpu --no-sandbox --virtual-time-budget=3000 --dump-dom http://127.0.0.1:8001/index.html`
+
+Commit:
+
+- `docs(v4): record order setup regression pass`
+
+Notes:
+
+- This step records validation only; no runtime code changed.
+- The module smoke intentionally avoids mutating persisted browser localStorage.
+
 ## Next Step Template
 
 ### Step N: Title

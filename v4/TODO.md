@@ -276,7 +276,10 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - Simplified `normalizeResultReview()` to persisted review fields still used by current UI: `exitTimestamp`、`exitPrice`、`result`、`note`
   - Removed legacy `expectedTargetReached` / `finalTargetReached` / `exitReason` from Setup Set and Review Set runtime adapters
   - Removed store fallback for persisted `outcomePoints/outcomeR`; displayed Points/R remain derived by Setup Set/view-model from entry、stop、result target/exit
-- [ ] Step 155: 回归验证 Order Setup 主路径：覆盖 create bullish/bearish setup、set active/close/hide/show/delete、entry/stop/target 起止点、reason add/link、entry context、result target/stop/BE、risk/reward box、calendar locate/open、undo/redo、import/export、split/replay 基本不回归
+- [x] Step 155: 回归验证 Order Setup 主路径：覆盖 create bullish/bearish setup、set active/close/hide/show/delete、entry/stop/target 起止点、reason add/link、entry context、result target/stop/BE、risk/reward box、calendar locate/open、undo/redo、import/export、split/replay 基本不回归
+  - Module smoke covered chart-created setup, active/close, show/hide, delete, entry/stop/target/result derivation, reason link, calendar grouping, undo/redo snapshot restore, and import-shaped normalize/add
+  - Full `v4/src/**/*.js` syntax check passed
+  - Local page smoke passed on `http://127.0.0.1:8001/index.html`; toolbar, split controls, replay controls, Inspector, archive controls, and chart canvas rendered
 - [ ] Step 156: 收尾文档与剧本：把实际 cleanup commit、验证结果、保留的兼容边界、下一阶段迁移建议写入 TODO / sessions / order setup 剧本
 
 ## 已知问题

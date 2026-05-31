@@ -1138,6 +1138,49 @@ Committed:
 
 - `refactor(v4): remove legacy order result fields`
 
+## Phase 12B Order Setup Main Path Regression
+
+Operation Script:
+
+- Step: `155`
+- Goal: verify the cleanup pass did not break the main Order Setup review workflow.
+- Boundary: validation-only; do not change runtime code.
+
+Planned:
+
+- Smoke chart-created setup and active setup lifecycle.
+- Smoke entry/stop/target/result derivation and reason linking.
+- Smoke Calendar grouping, show/hide, delete, undo/redo, and import-shaped normalization.
+- Smoke local browser boot surface for toolbar, split/replay controls, Inspector, archive controls, and chart canvas.
+
+Implemented:
+
+- Module smoke created an Order Setup from a chart bar and verified it became active.
+- Updated active setup with entry, stop loss, target 1, result, and linked PDA ref.
+- Verified Setup Set derives reversal, entry, stop, target, result, Points, and R.
+- Verified Calendar includes the Order Setup group.
+- Verified hide/show, clear active/set active, delete, undo, and redo.
+- Verified import-shaped `addOrderReview()` still normalizes and stores a record.
+- Headless Chrome smoke loaded `http://127.0.0.1:8001/index.html` and rendered the main app surface.
+
+Validation:
+
+- module smoke: `order setup regression smoke ok`
+- Full `node --check` over `v4/src/**/*.js`
+- `git diff --check`
+- `curl -s -I http://127.0.0.1:8001/index.html` returned `200 OK`
+- Headless Chrome DOM smoke rendered toolbar, split controls, replay controls, Inspector, archive controls, and chart canvas.
+
+Current Git State:
+
+- Branch: `feature/order-setup-cleanup`
+- Last committed work: `docs(v4): record order setup regression pass`
+- Current uncommitted changes: none for Step 155 docs
+
+Committed:
+
+- `docs(v4): record order setup regression pass`
+
 ## Phase 12B Clean Order Setup Chart Actions
 
 Operation Script:
