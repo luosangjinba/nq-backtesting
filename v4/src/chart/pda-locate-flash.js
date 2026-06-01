@@ -1,4 +1,4 @@
-import { PdaRangeLocateFlashPrimitive } from './pda-locate-flash-primitive.js';
+import { PdaLocateFlashPrimitive } from './pda-locate-flash-primitive.js';
 
 const DEFAULT_DURATION_MS = 900;
 const activeFlashes = new Map();
@@ -70,9 +70,121 @@ function getRangeGeometry(annotation = {}) {
   };
 }
 
+function getLineGeometry(annotation = {}, chartContext = {}) {
+  const price = firstNumber([annotation.price, annotation.referencePrice]);
+  const startTimestamp = firstNumber([
+    annotation.canonicalTimestamp,
+    annotation.timestamp,
+    annotation.anchorTime,
+    annotation.startTimeTimestamp,
+    annotation.startTime,
+  ]);
+  const endTimestamp = firstNumber([
+    annotation.endTimeTimestamp,
+    annotation.end?.timestamp,
+    annotation.end?.time,
+    annotation.endTime,
+  ]);
+
+  if (price === null || startTimestamp === null) return null;
+  const fallbackEnd = startTimestamp + Math.max(1, Number(chartContext?.timeframe) || 1) * 60 * 8;
+  const resolvedEnd = endTimestamp ?? fallbackEnd;
+  return {
+    kind: 'line',
+    startTimestamp: Math.min(startTimestamp, resolvedEnd),
+    endTimestamp: Math.max(startTimestamp, resolvedEnd),
+    price,
+  };
+}
+
+function getPointTimestamp(point = {}) {
+  return firstNumber([
+    point.canonicalTimestamp,
+    point.timestamp,
+    point.anchorTime,
+    point.time,
+  ]);
+}
+
+function getPointSetGeometry(annotation = {}) {
+  const rawPoints = Array.isArray(annotation.points) ? annotation.points : [];
+  const points = rawPoints
+    .map((point) => ({
+      timestamp: getPointTimestamp(point),
+      price: firstNumber([point.price]),
+    }))
+    .filter((point) => point.timestamp !== null && point.price !== null)
+    .sort((a, b) => a.timestamp - b.timestamp);
+  if (!points.length) return null;
+
+  const referencePrice = firstNumber([
+    annotation.referencePrice,
+    annotation.price,
+    points.reduce((sum, point) => sum + point.price, 0) / points.length,
+  ]);
+  if (referencePrice === null) return null;
+
+  return {
+    kind: 'pointSet',
+    points,
+    referencePrice,
+  };
+}
+
+function getFibLevelPrice(startPrice, endPrice, levelValue) {
+  const value = Number(levelValue);
+  if (!Number.isFinite(value)) return null;
+  return endPrice - (endPrice - startPrice) * value;
+}
+
+function getFibGeometry(annotation = {}) {
+  const startTimestamp = getPointTimestamp(annotation.start);
+  const endTimestamp = getPointTimestamp(annotation.end);
+  const startPrice = firstNumber([annotation.start?.price]);
+  const endPrice = firstNumber([annotation.end?.price]);
+  if (
+    startTimestamp === null ||
+    endTimestamp === null ||
+    startPrice === null ||
+    endPrice === null
+  ) {
+    return null;
+  }
+
+  const levels = Array.isArray(annotation.levels)
+    ? annotation.levels
+        .filter((level) => level?.visible !== false)
+        .map((level) => ({
+          value: Number(level.value),
+          price: getFibLevelPrice(startPrice, endPrice, level.value),
+        }))
+        .filter((level) => Number.isFinite(level.value) && level.price !== null)
+    : [];
+  if (!levels.length) return null;
+
+  return {
+    kind: 'fib',
+    start: {
+      timestamp: startTimestamp,
+      price: startPrice,
+    },
+    end: {
+      timestamp: endTimestamp,
+      price: endPrice,
+    },
+    levels,
+  };
+}
+
 export function getPdaAnnotationFlashGeometry(annotation = {}, chartContext = null) {
   if (!annotation || !chartContext) return null;
-  return getRangeGeometry(annotation);
+  if (annotation.type === 'fib' || annotation.shape === 'fib-retracement') {
+    return getFibGeometry(annotation);
+  }
+  if (Array.isArray(annotation.points) && annotation.points.length) {
+    return getPointSetGeometry(annotation);
+  }
+  return getRangeGeometry(annotation) || getLineGeometry(annotation, chartContext);
 }
 
 export function clearPdaLocateFlash(chartContext) {
@@ -95,9 +207,9 @@ export function flashPdaAnnotation(annotation, chartContext, options = {}) {
   if (!hasChartTarget(chartContext)) return false;
 
   const geometry = getPdaAnnotationFlashGeometry(annotation, chartContext);
-  if (!geometry || geometry.kind !== 'range') return false;
+  if (!geometry) return false;
 
-  const primitive = new PdaRangeLocateFlashPrimitive(chartContext, geometry, options);
+  const primitive = new PdaLocateFlashPrimitive(chartContext, geometry, options);
   clearPdaLocateFlash(chartContext);
 
   try {

@@ -181,6 +181,53 @@ Validation:
   - fib: flash main fib anchor line or the fib bounding span.
 - Any unsupported or partially missing geometry should return `false`, not throw.
 
+## Step 177: Other PDA Shapes
+
+Status:
+
+- Complete.
+- Runtime integration into Reasons linked PDA Locate is still deferred to Step 178.
+
+Implemented:
+
+- `PdaRangeLocateFlashPrimitive` was generalized into `PdaLocateFlashPrimitive`.
+- The old `PdaRangeLocateFlashPrimitive` export remains as a compatibility subclass.
+- `pda-locate-flash.js` now resolves these geometry kinds:
+  - `range`
+  - `line`
+  - `pointSet`
+  - `fib`
+- `flashPdaAnnotation()` now creates the generic primitive for any supported geometry.
+
+Line geometry:
+
+- Supports BSL / SSL / Wick CE / key-level style PDA.
+- Uses:
+  - price: `price` or `referencePrice`
+  - start: `canonicalTimestamp`, `timestamp`, `anchorTime`, `startTimeTimestamp`, or `startTime`
+  - end: explicit end timestamp when present, otherwise 8 bars after start based on chart timeframe.
+
+Point-set geometry:
+
+- Supports EQH / EQL style PDA.
+- Uses each point's `canonicalTimestamp`, `timestamp`, `anchorTime`, or `time`.
+- Uses each point's `price`.
+- Uses `referencePrice`, `price`, or average point price as the reference line.
+
+Fib geometry:
+
+- Supports Fib PDA with `start`, `end`, and visible `levels`.
+- Computes each visible level price using the same formula as the renderer:
+  - `endPrice - (endPrice - startPrice) * levelValue`
+- Flashes the anchor trend line plus visible level lines.
+
+Validation:
+
+- `node --check v4/src/chart/pda-locate-flash-primitive.js`
+- `node --check v4/src/chart/pda-locate-flash.js`
+- Module smoke verified geometry output for line, point-set, and fib annotations.
+- `git diff --check` passed.
+
 ### Step 178: Wire Reasons Linked PDA Locate
 
 - In `order-review-actions.js`, linked PDA Locate should:
