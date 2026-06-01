@@ -399,3 +399,43 @@ Next implementation steps:
 - Step 182: implement finite-window 1m first-touch calculator.
 - Step 183: wire Result changes to auto-fill `exitTimestamp`.
 - Step 184-186: add UI input/Pick/Hold display.
+
+## Step 182 - 1m First Touch Calculator
+
+Goal:
+
+- Add the calculation layer only. Do not change Result UI and do not write `resultReview.exitTimestamp` yet.
+
+Implementation:
+
+- Added `v4/src/order/auto-exit-time.js`.
+- Exports:
+  - `getAutoExitTargetPrice(criteria)`
+  - `doesBarTouchAutoExit({ bar, direction, result, price })`
+  - `findFirstAutoExitTouchBar(bars, criteria)`
+  - `calculateAutoExitTime(criteria, options)`
+- `calculateAutoExitTime()` fetches a finite 1m window from `/v4/bars` via `fetchBars(start, end, 1, instrument)`.
+- Default lookahead is 72 hours; hard cap is 14 days.
+
+Touch rules:
+
+- Long target: first 1m bar with `high >= target`.
+- Long stop: first 1m bar with `low <= stop`.
+- Short target: first 1m bar with `low <= target`.
+- Short stop: first 1m bar with `high >= stop`.
+- Breakeven: first 1m bar with `low <= entryPrice <= high`.
+- Unknown or unsupported result returns `{ ok: false, reason: 'unsupported-result' }`.
+- Missing entry time / direction / exit price return explicit failure reasons and do not guess.
+
+Validation:
+
+- Module smoke verified:
+  - long Target 1 first touch
+  - long Stop Loss first touch
+  - short Target 1 first touch
+  - Breakeven touch
+  - unsupported result handling
+
+Next:
+
+- Step 183 will call this calculator when Result changes and write `resultReview.exitTimestamp` only on `ok: true`.
