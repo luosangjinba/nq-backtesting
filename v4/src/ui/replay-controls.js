@@ -100,6 +100,7 @@ function emitReplayChanged() {
     enabled,
     cursorIndex,
     cursorTimestamp: enabled && cursorIndex >= 0 ? displayBars[cursorIndex]?.timestamp : null,
+    speedIndex,
   });
 }
 
@@ -344,6 +345,7 @@ function handleSpeedChange(e) {
     stopTimer();
     togglePlay();
   }
+  emitReplayChanged();
   render();
 }
 

@@ -9,6 +9,7 @@ import {
   initReplayControls,
   syncReplayData,
 } from './ui/replay-controls.js';
+import { initReplayHistoryPersistence } from './ui/replay-history-persistence.js';
 import { initSecondaryChartController } from './ui/secondary-chart-controller.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
@@ -52,6 +53,7 @@ console.log('[V4] Secondary chart controller initialized');
 
 // 初始化 Replay 控制条
 initReplayControls();
+initReplayHistoryPersistence();
 console.log('[V4] Replay controls initialized');
 
 // 初始化图表视口控制条
