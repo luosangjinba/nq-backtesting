@@ -139,6 +139,10 @@ function renderAnnotation(annotation) {
   bodyEl.innerHTML = `
     ${renderCalendarReturnAction('pda', annotation.id)}
     ${renderAnnotationPanel(annotation, renderArchiveActions())}
+    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
+      createAction: 'order-review-create-empty',
+      createLabel: 'Create Order Setup',
+    }))}
   `;
 }
 

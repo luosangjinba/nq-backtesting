@@ -336,3 +336,32 @@ Final state:
 - No persisted state changes.
 - No broad PDA renderer refactor in the first pass.
 - No change to Replay History behavior.
+
+## Step 180 - Reason Link Selected Object Fix
+
+User finding:
+
+- After deleting the previously added Reason link, Fib still could not be linked to Reasons.
+- Other selected objects also could not be linked, so the Fib-specific diagnosis was a false lead.
+
+Cause:
+
+- `Link Selected Object` requires an active selected object.
+- Selecting a PDA caused the Inspector to switch to the PDA-only panel.
+- The PDA panel did not render the Active Order Setup / Reasons panel, so the user had to clear or lose selection before reaching the Reason button.
+- After selection was gone, the Reason button correctly reported no selected PDA / Segment / Composite / SMT.
+
+Fix:
+
+- `renderAnnotation()` now renders the Order Review panel below the PDA panel, matching the Segment/Composite inspector behavior.
+- This keeps the selected PDA available while the Active Order Setup Reasons controls remain clickable.
+
+Validated:
+
+- Isolated browser smoke seeded one PDA and one active Order Setup with an empty Reason.
+- Selected the PDA, clicked Reason `Link Selected Object`, and verified:
+  - UI status: `FVG · NQ linked to Reason 1`
+  - one `.order-review-ref-row` rendered
+  - persisted `setupThesis.reasons[0].refs.length === 1`
+  - legacy `setupThesis.linkedObjectRefs.length === 1`
+- `node --check v4/src/ui/inspector-sidebar.js`
