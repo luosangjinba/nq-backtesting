@@ -321,6 +321,13 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 167: Phase 13 收口验证：覆盖长/短 1m、1H、Calendar 目标窗口、Prev/Next 边界、displayBars 缓存、全量 JS 语法、Web/API smoke；确认 1m 长区间已从一次性全量加载改为 45 天窗口化使用
 - [x] Step 168: Replay cursor 视觉修复：副图 replay cursor 改为主图同款半透明宽竖带，避免 1px 亮线遮挡 K 线影线；主图与副图 replay cursor 底部增加精确时间标签，便于对齐 FXReplay 式回放读数
 
+### Replay History / 使用修复
+- [x] Step 169: Replay History 数据模型：新增 `replay-history-store.js`，定义 localStorage key、最多 10 条 history、主图窗口/outerRange、replay cursor、split 状态的数据结构，并提供 normalize / save / list / delete / clear 基础能力；不保存 K 线数据
+- [ ] Step 170: 自动保存 Replay checkpoint：Replay cursor、bars 加载、Split 设置变化时 debounce 保存有效 checkpoint，页面关闭前 flush；关闭 Replay 后不删除 history
+- [ ] Step 171: Replay History UI：Replay 控制条增加 History 入口，显示最近记录、Load/Delete/Clear 操作
+- [ ] Step 172: 手动恢复 Replay workspace：点击 history 后恢复主图窗口、1m outerRange、Split 状态，并按 cursorTimestamp 恢复 Replay 位置，默认暂停
+- [ ] Step 173: Replay History 验证与收口：覆盖刷新后 history 保留、Split 开关/品种/周期/layout 恢复、1m 窗口模式恢复、删除/清空与 localStorage 体积
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
