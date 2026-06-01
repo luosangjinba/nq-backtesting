@@ -24,6 +24,7 @@ import {
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
+  ORDER_RESULTS,
   updateOrderReview,
 } from '../../order/order-review-store.js';
 import {
@@ -32,7 +33,8 @@ import {
   getPdaOrderRefLabel,
   getSegmentOrderRefLabel,
 } from '../../order/order-ref-metadata.js';
-import { locateSetupSet } from '../../order/setup-set.js';
+import { calculateAutoExitTime } from '../../order/auto-exit-time.js';
+import { getSetupSetById, locateSetupSet } from '../../order/setup-set.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import { recordHistory } from '../../history/history-manager.js';
 
@@ -47,6 +49,27 @@ function getSegmentPrice(segment) {
 function asTimestamp(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function isAutoExitResult(result) {
+  return [
+    ORDER_RESULTS.TARGET1,
+    ORDER_RESULTS.TARGET2,
+    ORDER_RESULTS.TARGET3,
+    ORDER_RESULTS.STOP_LOSS,
+    ORDER_RESULTS.BREAKEVEN,
+  ].includes(result);
+}
+
+function getAutoExitReasonMessage(reason) {
+  const messages = {
+    'missing-entry-time': 'Auto exit time skipped: missing entry time',
+    'missing-direction': 'Auto exit time skipped: missing direction',
+    'missing-exit-price': 'Auto exit time skipped: missing target/stop/BE price',
+    'unsupported-result': 'Auto exit time skipped for this Result',
+    'not-touched': 'Auto exit time not found in the 1m lookahead window',
+  };
+  return messages[reason] || `Auto exit time skipped: ${reason || 'unknown reason'}`;
 }
 
 function getPointTimestamp(point = {}) {
@@ -732,6 +755,52 @@ export function createOrderReviewActionController({
     return true;
   }
 
+  async function updateOrderReviewResult(orderReviewId, result) {
+    let autoExit = null;
+    try {
+      await recordInspectorHistory('Update Order Result', async () => {
+        updateOrderReview(orderReviewId, {
+          resultReview: { result },
+        });
+
+        if (!isAutoExitResult(result)) {
+          autoExit = { ok: false, reason: 'unsupported-result', skipped: true };
+          return;
+        }
+
+        const setupSet = getSetupSetById(orderReviewId);
+        const elements = setupSet?.orderElements || {};
+        autoExit = await calculateAutoExitTime({
+          instrument: setupSet?.instrument || 'NQ',
+          entryTimestamp: elements.entry?.timestamp,
+          entryPrice: elements.entry?.price,
+          direction: elements.entry?.direction || setupSet?.direction,
+          stopPrice: elements.stopLoss?.price,
+          targets: elements.targets || [],
+          result,
+        });
+
+        if (autoExit?.ok) {
+          updateOrderReview(orderReviewId, {
+            resultReview: {
+              result,
+              exitTimestamp: autoExit.exitTimestamp,
+            },
+          });
+        }
+      });
+    } catch (err) {
+      bus.emit('status:update', { text: `Auto exit time failed: ${err.message}`, isError: true });
+      return;
+    }
+
+    if (autoExit?.ok) {
+      bus.emit('status:update', { text: `Auto exit time set: ${autoExit.bar?.time || autoExit.exitTimestamp}`, isError: false });
+    } else if (!autoExit?.skipped) {
+      bus.emit('status:update', { text: getAutoExitReasonMessage(autoExit?.reason), isError: true });
+    }
+  }
+
   function handleOrderReviewChange(action, target) {
     if (action === 'order-review-note') {
       recordInspectorHistory('Update Order Note', () =>
@@ -741,9 +810,7 @@ export function createOrderReviewActionController({
     }
 
     if (action === 'order-review-result') {
-      recordInspectorHistory('Update Order Result', () => updateOrderReview(target.dataset.orderReviewId, {
-        resultReview: { result: target.value },
-      }));
+      updateOrderReviewResult(target.dataset.orderReviewId, target.value);
       return true;
     }
 

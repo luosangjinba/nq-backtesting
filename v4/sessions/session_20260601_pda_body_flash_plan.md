@@ -439,3 +439,48 @@ Validation:
 Next:
 
 - Step 183 will call this calculator when Result changes and write `resultReview.exitTimestamp` only on `ok: true`.
+
+## Step 183 - Auto Fill Exit Time On Result Change
+
+Goal:
+
+- Wire Result changes to the Step 182 calculator.
+- Keep the behavior conservative: write `exitTimestamp` only when the 1m first-touch search succeeds.
+
+Implementation:
+
+- `order-review-actions.js` now imports `calculateAutoExitTime()` and `getSetupSetById()`.
+- Result changes call `updateOrderReviewResult(orderReviewId, result)`.
+- The update is recorded as one history action:
+  - first writes `resultReview.result`
+  - then calculates auto exit time for Target 1/2/3, Stop Loss, or Breakeven
+  - if calculation succeeds, writes `resultReview.exitTimestamp`
+  - if calculation fails, keeps the Result update and leaves any existing exit timestamp unchanged
+- Unsupported Result values such as `unknown` do not run auto calculation.
+
+Criteria passed to the calculator:
+
+- `instrument`
+- entry timestamp and price
+- entry direction
+- stop loss price
+- target elements
+- selected Result
+
+Status behavior:
+
+- Success: `Auto exit time set: <bar time>`.
+- Missing entry/direction/exit price or no touch in lookahead: explicit error status.
+- Fetch/API failures are caught and shown as `Auto exit time failed: ...`.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `node --check v4/src/order/auto-exit-time.js`
+- Local API smoke:
+  - NQ long Target 1 example with entry `2023-01-03 09:32`, target `11155.75`
+  - returned first touch at `2023-01-03 09:40`
+
+Next:
+
+- Step 184 should expose Exit Time / Exit Price / Hold in the Result UI so the auto-filled timestamp is visible and manually editable.
