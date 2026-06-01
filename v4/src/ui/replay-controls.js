@@ -1,8 +1,11 @@
 // TradingView-style bar replay controls — minimal version.
 
 import * as bus from '../event-bus.js';
+import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
+import * as secondaryStore from '../data/secondary-chart-store.js';
+import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
 import {
@@ -77,6 +80,57 @@ function formatSplitLabel(split) {
   if (!split?.enabled) return 'Split Off';
   const tf = timeframeToString(split.timeframe);
   return `${split.instrument} ${tf} ${split.layout}`;
+}
+
+function parseDateTime(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+  if (!match) return null;
+  const timestamp = Date.UTC(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+    Number(match[4] || 0),
+    Number(match[5] || 0),
+    0
+  );
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function isTimestampInRange(timestamp, start, end) {
+  const startMs = parseDateTime(start);
+  const endMs = parseDateTime(end);
+  const targetMs = Number(timestamp) * 1000;
+  return (
+    startMs !== null &&
+    endMs !== null &&
+    Number.isFinite(targetMs) &&
+    targetMs >= startMs &&
+    targetMs <= endMs
+  );
+}
+
+function setToolbarRange(start, end, timeframe) {
+  const startInput = document.getElementById('startInput');
+  const endInput = document.getElementById('endInput');
+  const tfSelect = document.getElementById('tfSelect');
+  if (startInput) startInput.value = start;
+  if (endInput) endInput.value = end;
+  if (tfSelect && timeframe) tfSelect.value = String(timeframe);
+}
+
+function applySplitState(split) {
+  if (!split?.enabled) {
+    secondaryStore.setSecondaryEnabled(false);
+    secondaryStore.setSplitLayout(split?.layout);
+    secondaryStore.setSecondaryInstrument(split?.instrument);
+    secondaryStore.setSecondaryTimeframe(split?.timeframe);
+    return;
+  }
+
+  secondaryStore.setSplitLayout(split.layout);
+  secondaryStore.setSecondaryInstrument(split.instrument);
+  secondaryStore.setSecondaryTimeframe(split.timeframe);
+  secondaryStore.setSecondaryEnabled(true);
 }
 
 function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
@@ -275,6 +329,60 @@ function jumpToTime() {
   });
 }
 
+export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex) {
+  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp);
+  if (index < 0) return false;
+  stopTimer();
+  speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : speedIndex;
+  mode = 'idle';
+  renderSlice(index, true, true);
+  return true;
+}
+
+async function loadReplayHistoryItem(id) {
+  const item = getReplayHistory().find((historyItem) => historyItem.id === id);
+  if (!item) {
+    bus.emit('status:update', { text: 'Replay History item not found', isError: true });
+    return;
+  }
+
+  const cursorTimestamp = item.replay.cursorTimestamp;
+  let loadStart = item.primary.start;
+  let loadEnd = item.primary.end;
+  let outerRange = item.primary.outerRange;
+  const timeframe = Number(item.primary.timeframe);
+
+  if (!isTimestampInRange(cursorTimestamp, loadStart, loadEnd) && outerRange) {
+    const resolved = resolveWindowAroundTimestamp(outerRange, cursorTimestamp);
+    if (!resolved.ok) {
+      bus.emit('status:update', { text: resolved.message, isError: true });
+      return;
+    }
+    loadStart = resolved.start;
+    loadEnd = resolved.end;
+    outerRange = resolved.outerRange;
+  }
+
+  bus.emit('status:update', { text: '恢复 Replay History...', isError: false });
+  try {
+    const result = await fetchBars(loadStart, loadEnd, timeframe, item.primary.instrument);
+    setToolbarRange(loadStart, loadEnd, timeframe);
+    store.setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
+
+    applySplitState(item.split);
+
+    if (!restoreReplayToTimestamp(cursorTimestamp, item.replay.speedIndex)) {
+      bus.emit('status:update', { text: 'Replay History restore failed: cursor is outside loaded window', isError: true });
+      return;
+    }
+    historyOpen = false;
+    render();
+    bus.emit('status:update', { text: `Replay History restored: ${item.label}`, isError: false });
+  } catch (err) {
+    bus.emit('status:update', { text: `Replay History restore failed: ${err.message}`, isError: true });
+  }
+}
+
 function enableReplay() {
   if (chartData.length === 0) return;
   const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
@@ -383,7 +491,8 @@ function handleControlClick(e) {
     return;
   }
   if (action === 'history-load') {
-    bus.emit('status:update', { text: 'Replay History restore will be added in Step 172', isError: false });
+    const id = e.target.closest('[data-history-id]')?.dataset.historyId;
+    loadReplayHistoryItem(id);
     return;
   }
 
@@ -498,7 +607,7 @@ function renderHistoryPanel(history) {
           <div class="replay-history-title">${escapeHtml(item.label || formatHistoryTime(item.replay.cursorTimestamp))}</div>
           <div class="replay-history-meta">${escapeHtml(formatHistoryDateRange(item.primary.start, item.primary.end))} · ${escapeHtml(formatSplitLabel(item.split))}</div>
         </div>
-        <button class="replay-history-action" data-action="history-load" type="button" title="Restore in Step 172" disabled>Load</button>
+        <button class="replay-history-action" data-action="history-load" type="button">Load</button>
         <button class="replay-history-action" data-action="history-delete" type="button">Delete</button>
       </div>
     `).join('')

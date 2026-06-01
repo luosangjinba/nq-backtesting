@@ -125,3 +125,44 @@ Validation:
 Next:
 
 - Step 172 should implement the `Load` action to restore the saved workspace.
+
+## Step 172: Manual Replay Workspace Restore
+
+Goal:
+
+- Make Replay History `Load` restore the saved workspace on demand.
+- Keep startup behavior unchanged: no automatic restore.
+
+Implemented:
+
+- Replay History rows now have an enabled `Load` action.
+- `Load` fetches the saved main chart window and calls `store.setBars()`.
+- Saved 1m `outerRange` is passed back into the main bar store.
+- If the saved cursor timestamp is outside the saved loaded window but inside `outerRange`, restore first resolves and loads a 45-day window around the cursor timestamp.
+- Toolbar hidden start/end inputs and timeframe selector are synchronized to the restored main chart window.
+- Split state is restored:
+  - enabled/disabled
+  - secondary instrument
+  - secondary timeframe
+  - layout
+- Replay is restored by `cursorTimestamp` and left paused.
+- Added exported `restoreReplayToTimestamp()` for timestamp-based replay positioning after data loads.
+
+Main files:
+
+- `v4/src/ui/replay-controls.js`
+- `v4/TODO.md`
+- `v4/sessions/session_20260601_replay_history.md`
+
+Validation:
+
+- `node --check v4/src/ui/replay-controls.js`
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Web `8001/index.html` returned `200 OK`.
+- API health returned OK.
+- Module smoke confirmed a cursor inside a 1m outer range can resolve to a target 45-day restore window.
+
+Next:
+
+- Step 173 should validate the full browser workflow including refresh, history panel load, split restore, and 1m outerRange restore.
