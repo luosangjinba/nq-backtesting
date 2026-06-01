@@ -346,6 +346,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 186: Holding Time 派生与展示：entryTimestamp 与 exitTimestamp 都存在时在 Setup Set Result 派生 `holdingSeconds` / `holdingDuration`，Result 面板显示自然持仓时长；缺字段显示 `—`
 - [x] Step 187: 验证与收口：覆盖 Target 自动计算、手动/Pick 覆盖、刷新恢复、持仓时长显示、模块语法、Web/API smoke；Stop/BE 与找不到触碰路径已由计算器规则和状态分支覆盖，后续实盘使用继续观察
 
+### PDA 视觉区分 / 使用修复
+- [x] Step 188: OB 统一灰色：bullish/bearish OB 不再使用接近 FVG 的绿/红色，统一为中性灰；新建手动 OB、PDA 类型 fallback、工具栏色标、主图/副图渲染均已覆盖，已保存旧 OB 的自带颜色在渲染时也会被灰色覆盖
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案

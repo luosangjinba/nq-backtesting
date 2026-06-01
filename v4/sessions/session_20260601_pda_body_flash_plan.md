@@ -651,3 +651,31 @@ Validation:
 - `node --check v4/src/ui/inspector/order-review-actions.js`
 - `git diff --check`
 - Re-ran `tmp/auto_exit_time_step187_smoke.js`; auto, manual, pick, hold display, and refresh persistence still pass.
+
+## Step 188 - OB Neutral Gray
+
+Context:
+
+- During visual use, bullish OB and bullish FVG were too similar, and bearish OB and bearish FVG were too similar.
+- Decision: OB direction should not carry bullish/bearish color. Both bullish and bearish OB should render as neutral gray.
+
+Implementation:
+
+- Added shared `OB_COLORS` in `pda-types.js`.
+- Manual OB creation now writes neutral gray fill/text colors.
+- PDA type fallback and toolbar config now use gray for OB.
+- Main and secondary PDA renderers force `type === 'ob'` to use neutral gray fill, midline, and text color, so previously saved OB annotations with old green/red fill colors also render gray.
+- FVG / IFVG / Breaker colors were left unchanged.
+
+Commit:
+
+- `6806f06 fix(v4): use neutral gray for order blocks`
+
+Validation:
+
+- `node --check v4/src/pda/manual-pda-actions.js`
+- `node --check v4/src/pda/pda-types.js`
+- `node --check v4/src/pda/pda-renderer.js`
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- `node --check v4/src/config.js`
+- `git diff --check`
