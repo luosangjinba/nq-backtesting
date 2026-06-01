@@ -34,6 +34,90 @@ Preferred implementation path:
 - Keep behavior non-persistent and visual-only.
 - Do not write to PDA store, selection state, order review state, or localStorage.
 
+## Step 175: PDA Body Flash Design Closeout
+
+Status:
+
+- Complete as a design/API step.
+- Runtime implementation starts at Step 176.
+
+Final API shape:
+
+- Add a small chart-level helper in Step 176, likely `v4/src/chart/pda-locate-flash.js`.
+- Export:
+  - `flashPdaAnnotation(annotation, chartContext, options = {})`
+  - `getPdaAnnotationFlashGeometry(annotation, chartContext)`
+- `flashPdaAnnotation()` returns:
+  - `true` when an object-body flash primitive is attached.
+  - `false` when no reliable body geometry can be resolved and caller should fallback to existing time-range locate flash.
+- It must not throw for unsupported PDA shapes or incomplete annotation data.
+
+Call flow:
+
+1. Caller resolves the linked PDA annotation by id.
+2. Caller resolves chart context from `sourceChartId`:
+   - `primary` -> `getPrimaryChartContext()`
+   - `secondary` -> `getSecondaryChartContext()`
+3. Caller moves the viewport to the annotation time range using existing locate behavior.
+4. Caller invokes `flashPdaAnnotation(annotation, chartContext)`.
+5. If it returns `false`, caller falls back to the current `LocateFlashPrimitive` time-range flash.
+
+Geometry contract:
+
+- Geometry is expressed in logical annotation terms first, not pixels.
+- The primitive converts time/price to pixels through `chartContext.timeToCoordinate()` and `chartContext.priceToCoordinate()`.
+- Supported geometry variants:
+  - `range`: `{ kind: 'range', startTimestamp, endTimestamp, topPrice, bottomPrice }`
+  - `line`: `{ kind: 'line', startTimestamp, endTimestamp, price }`
+  - `pointSet`: `{ kind: 'pointSet', points: [{ timestamp, price }], referencePrice }`
+  - `fib`: `{ kind: 'fib', start: { timestamp, price }, end: { timestamp, price }, levels }`
+- Step 176 only needs `range`; Step 177 extends the rest.
+
+Range geometry rules for Step 176:
+
+- Prefer explicit timestamp fields:
+  - `startTimeTimestamp`
+  - `endTimeTimestamp`
+- Then fallback to nested endpoints:
+  - `start.timestamp`
+  - `end.timestamp`
+- Then fallback to canonical single-anchor PDA:
+  - `canonicalTimestamp`
+  - `timestamp`
+  - `anchorTime`
+- Price bounds:
+  - top: `topPrice ?? priceHigh`
+  - bottom: `bottomPrice ?? priceLow`
+- If start/end collapse to one timestamp, the primitive should still draw a minimum visual width.
+- If any required range field is missing or invalid, return `false`.
+
+Rendering behavior:
+
+- The body flash is a temporary primitive, like the existing locate flash.
+- It should be detached automatically after the pulse duration.
+- Suggested visual defaults:
+  - duration: `900ms`
+  - fill: warm yellow with low opacity
+  - border: brighter yellow
+  - no persistent selection state
+- The primitive should clear any previous PDA body flash on the same chart before attaching a new one.
+
+Primary/secondary boundary:
+
+- Use chart context methods instead of hard-coding primary or secondary chart managers inside geometry resolution.
+- Attachment/detachment should go through:
+  - `chartContext.attachPrimitive`
+  - `chartContext.detachPrimitive`
+- Secondary chart must return `false` if disabled or missing chart/series, so caller can show status or fallback.
+
+Non-goals:
+
+- Do not select the PDA.
+- Do not mutate annotation display options.
+- Do not write localStorage.
+- Do not refactor existing PDA renderer primitives yet.
+- Do not change linked Segment locate behavior in Step 176.
+
 ### Step 176: Range PDA Body Flash Primitive
 
 - Add `v4/src/chart/pda-locate-flash-primitive.js`.
