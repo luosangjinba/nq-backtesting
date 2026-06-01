@@ -191,3 +191,34 @@ Remaining possible improvements:
 
 - Object locate/open can auto-load the target 1m window using the same resolver.
 - Future infinite scroll can build on `resolveAdjacentWindow()` if real usage needs it.
+
+## Phase 13 Step 168: Replay Cursor Visual Alignment
+
+Goal:
+
+- Make split-screen replay cursor easier to read and less destructive to candle wicks.
+- Add precise replay cursor time labels similar to FXReplay.
+
+Implemented:
+
+- `VerticalLinePrimitive` now supports an optional bottom time label.
+- Primary replay cursor passes a formatted `YYYY-MM-DD HH:mm` label into the primitive.
+- Secondary replay cursor now uses the same default semi-transparent wide vertical band as the primary chart instead of a thin bright 1px line.
+- Secondary replay cursor also passes the formatted time label into the primitive.
+
+Main files:
+
+- `v4/src/chart/primitives/vertical-line-primitive.js`
+- `v4/src/chart/chart-manager.js`
+- `v4/src/chart/secondary-chart-manager.js`
+- `v4/TODO.md`
+
+Validation:
+
+- `node --check` passed for touched JS files.
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+
+Notes:
+
+- This changes only replay cursor visuals; hover preview cursor and chart data behavior are unchanged.

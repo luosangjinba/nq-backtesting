@@ -40,6 +40,18 @@ function formatChartTime(time) {
   return `${y}-${m}-${day} ${h}:${min} ${weekdays[dt.getUTCDay()]}`;
 }
 
+function formatCursorTime(time) {
+  if (typeof time === 'string') return time;
+  if (!Number.isFinite(Number(time))) return '';
+  const dt = new Date(Number(time) * 1000);
+  const y = dt.getUTCFullYear();
+  const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(dt.getUTCDate()).padStart(2, '0');
+  const h = String(dt.getUTCHours()).padStart(2, '0');
+  const min = String(dt.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${m}-${day} ${h}:${min}`;
+}
+
 function renderInfoLabel() {
   if (!infoEl) return;
   infoEl.textContent = `${activeInstrument} ${TIMEFRAME_MAP[activeTimeframe] || `${activeTimeframe}M`}`;
@@ -247,17 +259,15 @@ export function locateSecondaryTimestamp(timestamp, displayBars = []) {
 
 export function showSecondaryCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+  const label = formatCursorTime(time);
 
   if (!cursorPrimitive) {
-    cursorPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
-      color: 'rgba(240, 243, 250, 0.34)',
-      lineWidth: 1,
-    });
+    cursorPrimitive = new VerticalLinePrimitive(secondaryChart, time, { label });
     secondarySeries.attachPrimitive(cursorPrimitive);
     return;
   }
 
-  cursorPrimitive.setTime(time);
+  cursorPrimitive.setTime(time, { label });
 }
 
 export function hideSecondaryCursor() {

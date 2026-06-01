@@ -36,6 +36,18 @@ function updateLegend(param) {
     `<span class="ohlc-label">C</span><span class="ohlc-value ${cls}">${fmt(data.close)}</span>`;
 }
 
+function formatCursorTime(time) {
+  if (typeof time === 'string') return time;
+  if (!Number.isFinite(Number(time))) return '';
+  const dt = new Date(Number(time) * 1000);
+  const y = dt.getUTCFullYear();
+  const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(dt.getUTCDate()).padStart(2, '0');
+  const h = String(dt.getUTCHours()).padStart(2, '0');
+  const min = String(dt.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${m}-${day} ${h}:${min}`;
+}
+
 export function initChart(containerId) {
   const container = document.getElementById(containerId);
   if (!container) throw new Error(`Chart container #${containerId} not found`);
@@ -140,14 +152,15 @@ export function getActiveDataCount() {
 
 export function showReplayCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
+  const label = formatCursorTime(time);
 
   if (!replayCursorPrimitive) {
-    replayCursorPrimitive = new VerticalLinePrimitive(chart, time);
+    replayCursorPrimitive = new VerticalLinePrimitive(chart, time, { label });
     series.attachPrimitive(replayCursorPrimitive);
     return;
   }
 
-  replayCursorPrimitive.setTime(time);
+  replayCursorPrimitive.setTime(time, { label });
 }
 
 export function hideReplayCursor() {

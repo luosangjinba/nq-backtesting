@@ -319,6 +319,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 165: Calendar 跳转触发 1m 窗口切换：在 1m 外层研究范围内点击/跳转到当前窗口外的日期时，自动加载目标日期附近的 45 天窗口并定位；无外层范围时保留原来的周窗口加载行为
 - [x] Step 166: 图表手动切换 1m 窗口：主图 viewport 控制条在 1m 窗口模式下显示 Prev/Next Window 按钮，按 45 天步长在外层研究范围内切换窗口，并同步 toolbar 当前窗口范围
 - [x] Step 167: Phase 13 收口验证：覆盖长/短 1m、1H、Calendar 目标窗口、Prev/Next 边界、displayBars 缓存、全量 JS 语法、Web/API smoke；确认 1m 长区间已从一次性全量加载改为 45 天窗口化使用
+- [x] Step 168: Replay cursor 视觉修复：副图 replay cursor 改为主图同款半透明宽竖带，避免 1px 亮线遮挡 K 线影线；主图与副图 replay cursor 底部增加精确时间标签，便于对齐 FXReplay 式回放读数
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
