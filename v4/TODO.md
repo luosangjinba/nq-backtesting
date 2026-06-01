@@ -328,6 +328,14 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 172: 手动恢复 Replay workspace：点击 history 后恢复主图窗口、1m outerRange、Split 状态，并按 cursorTimestamp 恢复 Replay 位置，默认暂停；若 cursor 不在保存窗口但有 outerRange，则先加载目标附近 1m 窗口
 - [x] Step 173: Replay History 验证与收口：覆盖刷新后 history 保留、Split 开关/品种/周期/layout 恢复、1m 窗口模式恢复、删除/清空与 localStorage 体积；修复程序化恢复 Split 时 toolbar checkbox 未同步的问题
 
+### PDA Locate Flash / 使用修复
+- [x] Step 174: Reasons linked refs 定位入口：Reason ref 行增加 Locate 动作，支持 linked PDA/Segment 定位并复用现有时间范围快闪；删除 X 改为 Execution 同款紧凑样式
+- [ ] Step 175: PDA 本体快闪设计收敛：明确 Locate 与 Flash 分层，保留视图定位，新增按 PDA 本体形状高亮的临时 primitive；时间范围快闪只作为 fallback
+- [ ] Step 176: 新增 `pda-locate-flash-primitive.js`：支持 range PDA 本体矩形快闪（FVG/IFVG/OB/Breaker/NDOG/NWOG 等），使用 annotation 的 `start/end` 时间与 `top/bottom` 价格绘制 pulse overlay
+- [ ] Step 177: 扩展 PDA 本体快闪类型：支持 liquidity line / key level / point-set / fib；无法解析本体几何时返回 false，让调用方 fallback 到时间范围快闪
+- [ ] Step 178: 接入 Reasons linked PDA Locate：linked PDA 的 Locate 先移动视图，再尝试本体快闪；主图/副图按 `sourceChartId` 调用对应 chart context；linked Segment 暂继续使用时间范围快闪
+- [ ] Step 179: PDA 本体快闪验证与收口：覆盖主图/副图、range PDA、line PDA、point-set/fib fallback、对象不在当前窗口、Split 关闭、全量 JS 语法与 Web/API smoke
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
