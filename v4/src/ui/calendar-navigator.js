@@ -1,7 +1,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
-import { validateSingleWindowRange } from '../data/load-range-policy.js';
+import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
@@ -497,16 +497,21 @@ function openPopover(button) {
 
 async function loadRange(start, end, successText) {
   const tf = parseInt(document.getElementById('tfSelect')?.value || store.getCurrentTimeframe(), 10);
-  const rangePolicy = validateSingleWindowRange(start, end, tf);
-  if (!rangePolicy.ok) {
-    throw new Error(rangePolicy.message);
+  const loadRange = resolveChartLoadRange(start, end, tf);
+  if (!loadRange.ok) {
+    throw new Error(loadRange.message);
   }
   bus.emit('status:update', { text: '加载中...', isError: false });
-  const result = await fetchBars(start, end, tf);
-  setToolbarRange(start, end, false);
-  store.setBars(result.bars, start, end, tf, result.requestedRange);
+  const result = await fetchBars(loadRange.start, loadRange.end, tf);
+  setToolbarRange(loadRange.start, loadRange.end, false);
+  store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
+    outerRange: loadRange.outerRange,
+  });
   recordRangeHistory(start, end, tf);
-  bus.emit('status:update', { text: successText || `已加载 ${result.bars.length} 根K线`, isError: false });
+  bus.emit('status:update', {
+    text: loadRange.windowed ? loadRange.message : successText || `已加载 ${result.bars.length} 根K线`,
+    isError: false,
+  });
   closePopover();
 }
 

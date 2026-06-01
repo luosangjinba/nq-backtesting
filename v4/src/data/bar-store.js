@@ -8,6 +8,7 @@ let currentStart = null;
 let currentEnd = null;
 let currentTimeframe = DEFAULT_TIMEFRAME;
 let requestedRange = null;
+let requestedOuterRange = null;
 let displayBars = [];
 
 function deriveDisplayBars(sourceBars, range) {
@@ -16,14 +17,23 @@ function deriveDisplayBars(sourceBars, range) {
   return sourceBars.filter((bar) => bar.timestamp >= startTs && bar.timestamp <= endTs);
 }
 
-export function setBars(newBars, start, end, tf, range = null) {
+export function setBars(newBars, start, end, tf, range = null, options = {}) {
   bars = newBars;
   currentStart = start;
   currentEnd = end;
   currentTimeframe = tf;
   requestedRange = range;
+  requestedOuterRange = options.outerRange || null;
   displayBars = deriveDisplayBars(bars, requestedRange);
-  bus.emit('bars:loaded', { bars, start, end, tf, requestedRange: range });
+  bus.emit('bars:loaded', {
+    bars,
+    start,
+    end,
+    tf,
+    requestedRange: range,
+    requestedOuterRange,
+    isWindowedRange: Boolean(requestedOuterRange),
+  });
 }
 
 export function getBars() {
@@ -32,6 +42,10 @@ export function getBars() {
 
 export function getRequestedRange() {
   return requestedRange;
+}
+
+export function getRequestedOuterRange() {
+  return requestedOuterRange;
 }
 
 // 只返回用户请求时间范围内的 bar（不含 padding），用于图表显示
@@ -70,5 +84,7 @@ export function clearBars() {
   currentStart = null;
   currentEnd = null;
   currentTimeframe = DEFAULT_TIMEFRAME;
+  requestedRange = null;
+  requestedOuterRange = null;
   bus.emit('bars:cleared');
 }

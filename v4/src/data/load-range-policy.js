@@ -22,9 +22,71 @@ function parseDateTime(value) {
   return Number.isFinite(timestamp) ? timestamp : null;
 }
 
+function formatDateTime(timestamp) {
+  const date = new Date(timestamp);
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  const h = String(date.getUTCHours()).padStart(2, '0');
+  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d} ${h}:${min}`;
+}
+
 export function getLoadRangeLimitDays(timeframe) {
   const tf = Number(timeframe);
   return LOAD_RANGE_LIMITS_DAYS[tf] || 365;
+}
+
+export function resolveChartLoadRange(start, end, timeframe) {
+  const validation = validateSingleWindowRange(start, end, timeframe);
+  if (validation.ok) {
+    return {
+      ok: true,
+      windowed: false,
+      start,
+      end,
+      outerRange: null,
+      message: '',
+    };
+  }
+
+  const tf = Number(timeframe);
+  if (tf !== 1 || validation.days === null) {
+    return {
+      ok: false,
+      windowed: false,
+      start,
+      end,
+      outerRange: null,
+      message: validation.message,
+    };
+  }
+
+  const startMs = parseDateTime(start);
+  const endMs = parseDateTime(end);
+  if (startMs === null || endMs === null || endMs < startMs) {
+    return {
+      ok: false,
+      windowed: false,
+      start,
+      end,
+      outerRange: null,
+      message: validation.message,
+    };
+  }
+
+  const limitMs = validation.limitDays * DAY_MS;
+  const windowEndMs = Math.min(endMs, startMs + limitMs);
+  const windowStart = formatDateTime(startMs);
+  const windowEnd = formatDateTime(windowEndMs);
+  return {
+    ok: true,
+    windowed: true,
+    start: windowStart,
+    end: windowEnd,
+    outerRange: { start, end, timeframe: tf },
+    message: `1m 长区间已进入窗口模式：当前加载 ${windowStart} - ${windowEnd}，外层范围 ${start} - ${end}`,
+  };
 }
 
 export function getRangeDays(start, end) {

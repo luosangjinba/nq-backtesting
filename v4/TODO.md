@@ -315,6 +315,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 ### Phase 13: Large Range / 1m Performance Guard
 - [x] Step 162: 加载范围保护：新增单次图表窗口上限 policy，Toolbar 与 Calendar 在请求 `/v4/bars` 前按 timeframe 校验范围；1m 单次窗口最多 45 天，超出时不直接全量加载，提示缩小窗口或等待窗口模式接管长期区间
 - [x] Step 163: 缓存 display bars：`bar-store.setBars()` 写入数据时一次性派生并缓存用户请求范围内的 display bars，`getDisplayBars()` 不再每次调用都对含 padding 的全量 bars 执行 filter
+- [x] Step 164: 1m 窗口加载模式第一版：1m 长区间请求不再直接失败；Toolbar 与 Calendar 会保存外层研究范围，并先加载从 start 开始的 45 天图表窗口，状态栏提示当前窗口与外层范围；副图/Replay 跟随当前窗口
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

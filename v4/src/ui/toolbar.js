@@ -8,7 +8,7 @@ import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as secondaryChartManager from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
-import { validateSingleWindowRange } from '../data/load-range-policy.js';
+import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
@@ -273,18 +273,27 @@ async function handleLoad() {
     return;
   }
 
-  const rangePolicy = validateSingleWindowRange(start, end, tf);
-  if (!rangePolicy.ok) {
-    bus.emit('status:update', { text: rangePolicy.message, isError: true });
+  const loadRange = resolveChartLoadRange(start, end, tf);
+  if (!loadRange.ok) {
+    bus.emit('status:update', { text: loadRange.message, isError: true });
     return;
   }
 
   bus.emit('status:update', { text: '加载中...', isError: false });
 
   try {
-    const result = await fetchBars(start, end, tf);
-    store.setBars(result.bars, start, end, tf, result.requestedRange);
-    bus.emit('status:update', { text: `已加载 ${result.bars.length} 根K线`, isError: false });
+    const result = await fetchBars(loadRange.start, loadRange.end, tf);
+    store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
+      outerRange: loadRange.outerRange,
+    });
+    if (loadRange.windowed) {
+      startEl.value = loadRange.start;
+      endEl.value = loadRange.end;
+    }
+    bus.emit('status:update', {
+      text: loadRange.windowed ? loadRange.message : `已加载 ${result.bars.length} 根K线`,
+      isError: false,
+    });
   } catch (err) {
     bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
   }
