@@ -312,6 +312,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 160: Execution 删除残留修复：Active Order Setup 的 Execution 面板与图表 renderer 改为按 Setup Set `complete` 状态判断 entry/stop 是否可显示，避免删除元素后留下 `0.00` 行或不完整 helper line 残影
 - [x] Step 161: Order Setup 里程碑收尾：Phase 12/12B 工程收敛阶段结束；不继续预设新功能 step，下一阶段进入真实使用与样例复盘，在实际流程中发现并记录 bug、缺口与交互摩擦
 
+### Phase 13: Large Range / 1m Performance Guard
+- [x] Step 162: 加载范围保护：新增单次图表窗口上限 policy，Toolbar 与 Calendar 在请求 `/v4/bars` 前按 timeframe 校验范围；1m 单次窗口最多 45 天，超出时不直接全量加载，提示缩小窗口或等待窗口模式接管长期区间
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案

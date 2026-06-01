@@ -1,6 +1,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
+import { validateSingleWindowRange } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
@@ -496,6 +497,10 @@ function openPopover(button) {
 
 async function loadRange(start, end, successText) {
   const tf = parseInt(document.getElementById('tfSelect')?.value || store.getCurrentTimeframe(), 10);
+  const rangePolicy = validateSingleWindowRange(start, end, tf);
+  if (!rangePolicy.ok) {
+    throw new Error(rangePolicy.message);
+  }
   bus.emit('status:update', { text: '加载中...', isError: false });
   const result = await fetchBars(start, end, tf);
   setToolbarRange(start, end, false);

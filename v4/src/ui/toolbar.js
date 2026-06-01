@@ -8,6 +8,7 @@ import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as secondaryChartManager from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { validateSingleWindowRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
@@ -269,6 +270,12 @@ async function handleLoad() {
 
   if (!start || !end) {
     bus.emit('status:update', { text: '请输入开始和结束时间', isError: true });
+    return;
+  }
+
+  const rangePolicy = validateSingleWindowRange(start, end, tf);
+  if (!rangePolicy.ok) {
+    bus.emit('status:update', { text: rangePolicy.message, isError: true });
     return;
   }
 
