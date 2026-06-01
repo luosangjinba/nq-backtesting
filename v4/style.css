@@ -1217,6 +1217,13 @@ html, body {
   grid-template-columns: 58px minmax(0, 1fr);
 }
 
+.order-review-inline-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+}
+
 .order-review-editor {
   border: 1px solid rgba(38, 166, 154, 0.22);
   border-radius: 4px;

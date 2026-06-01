@@ -484,3 +484,39 @@ Validation:
 Next:
 
 - Step 184 should expose Exit Time / Exit Price / Hold in the Result UI so the auto-filled timestamp is visible and manually editable.
+
+## Step 184 - Result Exit Time Controls
+
+Goal:
+
+- Make the auto-filled `resultReview.exitTimestamp` visible and manually editable before adding chart pick interaction.
+
+Implementation:
+
+- Result panel now shows:
+  - `Result` select
+  - `Exit Time` text input with `YYYY-MM-DD HH:mm`
+  - `Pick` button placeholder
+  - `Exit Price` read-only value
+  - `Hold` natural duration
+  - `Points`
+  - `R`
+  - `Note`
+- `Exit Time` input writes `resultReview.exitTimestamp`.
+- Clearing the input writes `null`.
+- Invalid input is rejected with a status message and does not update the order.
+- Input accepts compact forms through existing `formatTimeInput()`:
+  - `YYYYMMDD`
+  - `YYYYMMDDHHmm`
+- Hold display currently uses `exitTimestamp - entryTimestamp` and shows `—` if either side is missing or negative.
+- Pick button is rendered but intentionally only shows a Step 185 status message; chart click selection is not wired in Step 184.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `git diff --check`
+
+Next:
+
+- Step 185 will wire Pick Exit Bar to chart clicks and write the selected bar timestamp to `resultReview.exitTimestamp`.

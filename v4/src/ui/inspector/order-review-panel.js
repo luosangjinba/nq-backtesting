@@ -36,6 +36,26 @@ function formatDirection(direction) {
   return 'Unknown';
 }
 
+function formatTimestampInput(timestamp) {
+  const formatted = formatTime(timestamp);
+  return formatted === '—' ? '' : formatted;
+}
+
+function formatHoldDuration(entryTimestamp, exitTimestamp) {
+  const entry = Number(entryTimestamp);
+  const exit = Number(exitTimestamp);
+  if (!Number.isFinite(entry) || !Number.isFinite(exit) || exit < entry) return '—';
+  let seconds = Math.floor(exit - entry);
+  const days = Math.floor(seconds / 86400);
+  seconds %= 86400;
+  const hours = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  const minutes = Math.floor(seconds / 60);
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
 function orderFieldAttrs(order, sectionName, fieldName) {
   return [
     'data-inspector-action="order-review-edit-field"',
@@ -313,6 +333,8 @@ function renderReasonRows(order, setupSet) {
 
 function renderResultPanel(order, setupSet) {
   const result = setupSet?.orderElements?.result || {};
+  const entry = setupSet?.orderElements?.entry || {};
+  const exitTimestamp = order.resultReview?.exitTimestamp ?? result.timestamp;
   return `
     <div class="order-review-quick-edit">
       <div class="order-review-compact-title">Result</div>
@@ -323,7 +345,15 @@ function renderResultPanel(order, setupSet) {
             ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN)}
           </select>`
         )}
-        ${field('Exit', `${formatTime(result.timestamp)} · ${formatNumber(result.price)}`)}
+        ${controlField(
+          'Exit Time',
+          `<div class="order-review-inline-control">
+            <input class="inspector-input" data-inspector-action="order-review-result-exit-time" data-order-review-id="${escapeHtml(order.id)}" type="text" value="${escapeHtml(formatTimestampInput(exitTimestamp))}" placeholder="YYYY-MM-DD HH:mm" />
+            <button class="inspector-mini-btn" data-inspector-action="order-review-result-exit-pick" data-order-review-id="${escapeHtml(order.id)}" type="button">Pick</button>
+          </div>`
+        )}
+        ${field('Exit Price', formatNumber(result.price))}
+        ${field('Hold', formatHoldDuration(entry.timestamp, exitTimestamp))}
         ${field('Points', formatNumber(result.outcomePoints))}
         ${field('R', formatNumber(result.outcomeR))}
         ${controlField(

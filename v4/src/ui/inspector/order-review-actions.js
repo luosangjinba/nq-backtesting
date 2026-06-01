@@ -37,6 +37,7 @@ import { calculateAutoExitTime } from '../../order/auto-exit-time.js';
 import { getSetupSetById, locateSetupSet } from '../../order/setup-set.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import { recordHistory } from '../../history/history-manager.js';
+import { formatTimeInput } from '../../utils.js';
 
 function getSegmentTimestamp(segment) {
   return segment?.end?.timestamp ?? segment?.end?.time ?? segment?.start?.timestamp ?? segment?.start?.time ?? null;
@@ -49,6 +50,16 @@ function getSegmentPrice(segment) {
 function asTimestamp(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function parseDateTimeInput(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return { ok: true, timestamp: null, formatted: '' };
+  const formatted = formatTimeInput(trimmed);
+  const normalized = formatted.replace(' ', 'T');
+  const parsed = Date.parse(`${normalized.endsWith('Z') ? normalized : `${normalized}Z`}`);
+  if (!Number.isFinite(parsed)) return { ok: false, formatted };
+  return { ok: true, timestamp: Math.floor(parsed / 1000), formatted };
 }
 
 function isAutoExitResult(result) {
@@ -609,6 +620,29 @@ export function createOrderReviewActionController({
     return true;
   }
 
+  function updateOrderReviewExitTime(target) {
+    const orderReviewId = target.dataset.orderReviewId;
+    if (!orderReviewId) return false;
+    const parsed = parseDateTimeInput(target.value);
+    if (!parsed.ok) {
+      bus.emit('status:update', { text: 'Exit Time 格式无效，请使用 YYYY-MM-DD HH:mm', isError: true });
+      return true;
+    }
+
+    target.value = parsed.formatted;
+    expandOrder(orderReviewId);
+    recordInspectorHistory('Update Exit Time', () => updateOrderReview(orderReviewId, {
+      resultReview: {
+        exitTimestamp: parsed.timestamp,
+      },
+    }));
+    bus.emit('status:update', {
+      text: parsed.timestamp === null ? 'Exit Time cleared' : `Exit Time set: ${parsed.formatted}`,
+      isError: false,
+    });
+    return true;
+  }
+
   function toggleOrderSetupElementVisibility(target) {
     const orderReviewId = target.dataset.orderReviewId;
     const role = target.dataset.orderSetupElement;
@@ -814,6 +848,10 @@ export function createOrderReviewActionController({
       return true;
     }
 
+    if (action === 'order-review-result-exit-time') {
+      return updateOrderReviewExitTime(target);
+    }
+
     if (action === 'order-review-reason-note') {
       updateOrderReviewReasonNote(
         target.dataset.orderReviewId,
@@ -950,6 +988,11 @@ export function createOrderReviewActionController({
       const refIndex = Number(actionEl.dataset.refIndex);
       const ref = getOrderReviewReasonRef(actionEl.dataset.orderReviewId, reasonIndex, refIndex);
       if (ref) locateOrderReviewRef(ref);
+      return true;
+    }
+
+    if (action === 'order-review-result-exit-pick') {
+      bus.emit('status:update', { text: 'Pick Exit Bar will be available in Step 185', isError: false });
       return true;
     }
 
