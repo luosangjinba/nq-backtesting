@@ -133,6 +133,46 @@ Non-goals:
   - bright border
   - short duration matching current locate flash feel.
 
+## Step 176: Range PDA Body Flash Primitive
+
+Status:
+
+- Complete.
+- Runtime integration into Reasons linked PDA Locate is deferred to Step 178.
+
+Implemented:
+
+- Added `v4/src/chart/pda-locate-flash-primitive.js`.
+  - Defines `PdaRangeLocateFlashPrimitive`.
+  - Draws a temporary pulse rectangle over the PDA body.
+  - Uses `timestampRangeToXRange()` for x coordinates, so intrabar timestamps can interpolate within the currently loaded display bars.
+  - Uses `chartContext.priceToCoordinate()` for y coordinates.
+  - Enforces minimum width/height so narrow or same-bar PDA ranges remain visible.
+- Added `v4/src/chart/pda-locate-flash.js`.
+  - Exports `getPdaAnnotationFlashGeometry(annotation, chartContext)`.
+  - Exports `flashPdaAnnotation(annotation, chartContext, options = {})`.
+  - Exports `clearPdaLocateFlash(chartContext)`.
+  - Maintains one transient PDA body flash per chart context.
+  - Detaches the primitive automatically after the pulse duration.
+
+Range geometry support:
+
+- Supported when annotation has valid:
+  - top price: `topPrice` or `priceHigh`
+  - bottom price: `bottomPrice` or `priceLow`
+  - start timestamp: `startTimeTimestamp`, nested `start.timestamp/start.time`, `startTime`, `canonicalTimestamp`, `timestamp`, or `anchorTime`
+  - end timestamp: `endTimeTimestamp`, nested `end.timestamp/end.time`, `endTime`, `canonicalTimestamp`, `timestamp`, or `anchorTime`
+- Geometry output:
+  - `{ kind: 'range', startTimestamp, endTimestamp, topPrice, bottomPrice }`
+- Missing or invalid range fields return `null`, so callers can fallback to time-range flash.
+
+Validation:
+
+- `node --check v4/src/chart/pda-locate-flash-primitive.js`
+- `node --check v4/src/chart/pda-locate-flash.js`
+- Module smoke verified FVG-style annotation fields resolve to range geometry.
+- `git diff --check` passed.
+
 ### Step 177: Other PDA Shapes
 
 - Add support for:
