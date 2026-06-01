@@ -148,7 +148,7 @@ export function resetChartView() {
   scrollToLatest();
 }
 
-export function locateSecondaryTimestampRange(startTimestamp, endTimestamp) {
+export function locateSecondaryTimestampRange(startTimestamp, endTimestamp, options = {}) {
   if (!secondaryStore.isSecondaryEnabled()) return false;
 
   const bars = secondaryStore.getSecondaryDisplayBars();
@@ -166,12 +166,14 @@ export function locateSecondaryTimestampRange(startTimestamp, endTimestamp) {
   const center = (minIndex + maxIndex) / 2;
   applyRange(center - targetWidth / 2, center + targetWidth / 2);
   secondaryChart.resetSecondaryPriceScale();
-  flashLocateRange(
-    startTimestamp,
-    endTimestamp,
-    getTimestamp(bars[minIndex]),
-    getTimestamp(bars[maxIndex])
-  );
+  if (options.flash !== false) {
+    flashLocateRange(
+      startTimestamp,
+      endTimestamp,
+      getTimestamp(bars[minIndex]),
+      getTimestamp(bars[maxIndex])
+    );
+  }
   return true;
 }
 

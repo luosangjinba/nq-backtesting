@@ -1,6 +1,8 @@
 import * as bus from '../../event-bus.js';
 import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
+import { getPrimaryChartContext, getSecondaryChartContext } from '../../chart/chart-context.js';
+import { flashPdaAnnotation } from '../../chart/pda-locate-flash.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { getSelectedPda } from '../../pda/pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
@@ -634,9 +636,10 @@ export function createOrderReviewActionController({
     let range = null;
     let sourceChartId = ref?.sourceChartId || 'primary';
     let label = 'linked object';
+    let annotation = null;
 
     if (type === ORDER_REF_TYPES.PDA) {
-      const annotation = getAnnotationById(ref.id || ref.refId);
+      annotation = getAnnotationById(ref.id || ref.refId);
       if (!annotation) {
         bus.emit('status:update', { text: 'Linked PDA not found', isError: true });
         return true;
@@ -661,13 +664,36 @@ export function createOrderReviewActionController({
     }
 
     const useSecondary = sourceChartId === 'secondary';
+    const chartContext = useSecondary ? getSecondaryChartContext() : getPrimaryChartContext();
+    const locateOptions = type === ORDER_REF_TYPES.PDA ? { flash: false } : {};
     const located = useSecondary
-      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end)
-      : (viewport.locateTimestampRange(range.start, range.end), true);
+      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end, locateOptions)
+      : viewport.locateTimestampRange(range.start, range.end, locateOptions);
     if (!located) {
-      bus.emit('status:update', { text: 'Secondary chart is not available for this linked object', isError: true });
+      bus.emit('status:update', {
+        text: useSecondary
+          ? 'Secondary chart is not available for this linked object'
+          : 'Primary chart cannot locate this linked object',
+        isError: true,
+      });
       return true;
     }
+
+    if (type === ORDER_REF_TYPES.PDA) {
+      const flashed = flashPdaAnnotation(annotation, chartContext);
+      if (!flashed) {
+        if (useSecondary) {
+          secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+        } else {
+          viewport.locateTimestampRange(range.start, range.end);
+        }
+        bus.emit('status:update', { text: `Located ${label} with time-range fallback`, isError: false });
+        return true;
+      }
+      bus.emit('status:update', { text: `Located ${label} body`, isError: false });
+      return true;
+    }
+
     bus.emit('status:update', { text: `Located ${label}`, isError: false });
     return true;
   }

@@ -153,13 +153,13 @@ export function resetChartView() {
   scrollToLatest();
 }
 
-export function locateTimestampRange(startTimestamp, endTimestamp) {
+export function locateTimestampRange(startTimestamp, endTimestamp, options = {}) {
   const bars = store.getDisplayBars();
-  if (bars.length === 0) return;
+  if (bars.length === 0) return false;
 
   const leftIndex = findNearestBarIndex(startTimestamp);
   const rightIndex = findNearestBarIndex(endTimestamp);
-  if (leftIndex < 0 || rightIndex < 0) return;
+  if (leftIndex < 0 || rightIndex < 0) return false;
 
   const minIndex = Math.min(leftIndex, rightIndex);
   const maxIndex = Math.max(leftIndex, rightIndex);
@@ -169,12 +169,15 @@ export function locateTimestampRange(startTimestamp, endTimestamp) {
   const center = (minIndex + maxIndex) / 2;
   applyRange(center - targetWidth / 2, center + targetWidth / 2);
   chart.resetPriceScale();
-  flashLocateRange(
-    startTimestamp,
-    endTimestamp,
-    getTimestamp(bars[minIndex]),
-    getTimestamp(bars[maxIndex])
-  );
+  if (options.flash !== false) {
+    flashLocateRange(
+      startTimestamp,
+      endTimestamp,
+      getTimestamp(bars[minIndex]),
+      getTimestamp(bars[maxIndex])
+    );
+  }
+  return true;
 }
 
 export function maximizeChart() {

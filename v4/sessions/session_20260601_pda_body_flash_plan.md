@@ -238,6 +238,44 @@ Validation:
   - fallback to existing time-range flash if body flash is unavailable.
 - Linked Segment can stay on the current time-range flash path for now.
 
+## Step 178: Wire Reasons Linked PDA Locate
+
+Status:
+
+- Complete.
+
+Implemented:
+
+- `viewport.locateTimestampRange()` now returns `true/false` and accepts `options.flash`.
+- `secondaryViewport.locateSecondaryTimestampRange()` now accepts the same `options.flash`.
+- Default behavior is unchanged:
+  - existing callers still move viewport and show time-range flash.
+- Reasons linked PDA Locate now:
+  - resolves the PDA annotation,
+  - resolves primary/secondary chart context from `sourceChartId`,
+  - moves viewport with `{ flash: false }`,
+  - calls `flashPdaAnnotation(annotation, chartContext)`,
+  - falls back to existing time-range flash if body flash returns `false`.
+- Reasons linked Segment Locate is unchanged and still uses the time-range flash.
+
+User-facing behavior:
+
+- Clicking `L` on a linked PDA should now highlight the PDA body when geometry is supported.
+- Range PDA flashes its rectangle body.
+- Line / point-set / fib PDA use the body flash geometry added in Step 177.
+- If the linked PDA cannot be body-flashed in the active chart, the old time-range flash still appears.
+- Secondary PDA refs require the secondary chart to be enabled and loaded; otherwise the status bar reports that the secondary chart is unavailable.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `node --check v4/src/chart/viewport-controller.js`
+- `node --check v4/src/chart/secondary-viewport-controller.js`
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Web `8001/index.html` returned `200 OK`.
+- API health returned OK.
+
 ### Step 179: Validation and Closeout
 
 - Browser/manual checks:
