@@ -11,7 +11,7 @@ import { fetchTradingDaySourceBars } from './pda-context-data.js';
 import { buildExtendDisplayPatch } from './pda-extend.js';
 import { identifyFvg } from './fvg-identifier.js';
 import { validateManualSwing } from './pda-swing-validator.js';
-import { getPdaType } from './pda-types.js';
+import { getPdaType, OB_COLORS } from './pda-types.js';
 
 const DEFAULT_LIQUIDITY_EXTEND_BARS = 8;
 
@@ -298,9 +298,7 @@ function getManualRangeColors(type, direction) {
       : { fillColor: '#ff704324', borderColor: 'transparent', textColor: '#ffab91' };
   }
 
-  return direction === 'bullish'
-    ? { fillColor: '#26a69a24', borderColor: 'transparent', textColor: '#ffcc80' }
-    : { fillColor: '#ef535024', borderColor: 'transparent', textColor: '#ffcc80' };
+  return { fillColor: OB_COLORS.fillColor, borderColor: 'transparent', textColor: OB_COLORS.textColor };
 }
 
 export function addManualRange(selectionState, endBar, context) {

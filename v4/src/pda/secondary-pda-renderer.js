@@ -13,7 +13,7 @@ import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } f
 import { buildCePrice } from '../price-utils.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
 import { getAnnotations } from './pda-store.js';
-import { getPdaType } from './pda-types.js';
+import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
@@ -97,6 +97,7 @@ function getHighlightColor(isHighlighted, fallback) {
 
 function getRangeMidlineColor(annotation, pdaType, isHighlighted = false) {
   if (isHighlighted) return HIGHLIGHT_COLOR;
+  if (annotation.type === 'ob') return OB_COLORS.color;
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
   if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#26a69a';
@@ -166,10 +167,14 @@ function buildRangePrimitive(chartInstance, series, annotation, pdaType, isHighl
     bottomPrice,
     getAnnotationLabel(annotation, pdaType),
     {
-      fillColor: annotation.fillColor || alphaColor(pdaType.color, '26'),
+      fillColor:
+        annotation.type === 'ob' ? OB_COLORS.fillColor : annotation.fillColor || alphaColor(pdaType.color, '26'),
       borderColor: getRangeBorderColor(annotation, pdaType, isHighlighted),
       midlineColor: getRangeMidlineColor(annotation, pdaType, isHighlighted),
-      textColor: getHighlightColor(isHighlighted, annotation.textColor || pdaType.textColor || '#d1d4dc'),
+      textColor: getHighlightColor(
+        isHighlighted,
+        annotation.type === 'ob' ? OB_COLORS.textColor : annotation.textColor || pdaType.textColor || '#d1d4dc'
+      ),
       lineWidth: isFvg && !isHighlighted ? 0 : isHighlighted ? 2 : 1,
       showMidline: getShowCe(annotation),
       midlinePrice: ce?.price ?? null,

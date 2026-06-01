@@ -7,7 +7,7 @@ import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } f
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
-import { getPdaType } from './pda-types.js';
+import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
@@ -254,6 +254,7 @@ function isVisibleColor(color) {
 function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = false, isLinkedToSegment = false) {
   if (isCurrent) return SELECTED_COLOR;
   if (isLinkedToSegment) return LINKED_SEGMENT_COLOR;
+  if (annotation.type === 'ob') return OB_COLORS.color;
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
   if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#26a69a';
@@ -299,13 +300,14 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToS
     bottomPrice,
     label,
     {
-      fillColor: annotation.fillColor || alphaColor(pdaType.color, '33'),
+      fillColor:
+        annotation.type === 'ob' ? OB_COLORS.fillColor : annotation.fillColor || alphaColor(pdaType.color, '33'),
       borderColor: getRangeBorderColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
       midlineColor: getRangeMidlineColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
       textColor: getHighlightColor(
         isCurrent,
         isLinkedToSegment,
-        annotation.textColor || pdaType.textColor || '#d1d4dc'
+        annotation.type === 'ob' ? OB_COLORS.textColor : annotation.textColor || pdaType.textColor || '#d1d4dc'
       ),
       lineWidth: isFvg && !isCurrent && !isLinkedToSegment ? 0 : isCurrent || isLinkedToSegment ? 2 : 1,
       showMidline: getShowCe(annotation),

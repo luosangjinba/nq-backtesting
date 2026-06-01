@@ -1,5 +1,11 @@
 // PDA type registry for manual, session-scoped annotations.
 
+export const OB_COLORS = Object.freeze({
+  color: '#9e9e9e',
+  fillColor: '#9e9e9e24',
+  textColor: '#d1d4dc',
+});
+
 export const PDA_TYPES = {
   bsl: {
     id: 'bsl',
@@ -54,7 +60,8 @@ export const PDA_TYPES = {
     id: 'ob',
     label: 'OB',
     shape: 'range',
-    color: '#ffa726',
+    color: OB_COLORS.color,
+    textColor: OB_COLORS.textColor,
     objective: false,
     pointSet: false,
   },
