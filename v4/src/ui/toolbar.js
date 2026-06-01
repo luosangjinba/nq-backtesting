@@ -217,6 +217,7 @@ export function initToolbar() {
     }
   });
   bus.on('history:changed', updateHistoryButtons);
+  bus.on('secondary-chart:settings-changed', syncSplitScreenLayout);
   updateHistoryButtons();
 }
 
@@ -237,6 +238,7 @@ function syncSplitScreenLayout() {
   const enabled = secondaryStore.isSecondaryEnabled();
   const chartArea = document.getElementById('chart-area');
   const secondaryPanel = document.getElementById('secondary-chart-panel');
+  const splitScreenToggle = document.getElementById('splitScreenToggle');
   const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const splitLayoutSelect = document.getElementById('splitLayoutSelect');
@@ -247,6 +249,9 @@ function syncSplitScreenLayout() {
   chartArea?.classList.toggle('split-screen-stack', enabled && layout === 'stack');
   if (secondaryPanel) {
     secondaryPanel.hidden = !enabled;
+  }
+  if (splitScreenToggle) {
+    splitScreenToggle.checked = enabled;
   }
   if (secondaryInstrumentSelect) {
     secondaryInstrumentSelect.value = secondaryStore.getSecondaryInstrument();

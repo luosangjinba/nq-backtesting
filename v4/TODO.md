@@ -326,7 +326,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 170: 自动保存 Replay checkpoint：新增 `replay-history-persistence.js`，Replay cursor、bars 加载、Split 设置变化时 debounce 保存有效 checkpoint，页面关闭前 flush；关闭 Replay 后不删除 history
 - [x] Step 171: Replay History UI：Replay 控制条增加 History 入口，显示最近记录、窗口范围与 Split 状态；Delete/Clear 可操作；Load 按钮先展示但恢复动作留给 Step 172
 - [x] Step 172: 手动恢复 Replay workspace：点击 history 后恢复主图窗口、1m outerRange、Split 状态，并按 cursorTimestamp 恢复 Replay 位置，默认暂停；若 cursor 不在保存窗口但有 outerRange，则先加载目标附近 1m 窗口
-- [ ] Step 173: Replay History 验证与收口：覆盖刷新后 history 保留、Split 开关/品种/周期/layout 恢复、1m 窗口模式恢复、删除/清空与 localStorage 体积
+- [x] Step 173: Replay History 验证与收口：覆盖刷新后 history 保留、Split 开关/品种/周期/layout 恢复、1m 窗口模式恢复、删除/清空与 localStorage 体积；修复程序化恢复 Split 时 toolbar checkbox 未同步的问题
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

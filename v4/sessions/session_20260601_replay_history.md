@@ -166,3 +166,51 @@ Validation:
 Next:
 
 - Step 173 should validate the full browser workflow including refresh, history panel load, split restore, and 1m outerRange restore.
+
+## Step 173: Replay History Validation and Closeout
+
+Goal:
+
+- Validate the end-to-end Replay History workflow in the browser.
+- Close the milestone before moving into real usage and issue discovery.
+
+Implemented:
+
+- Added a browser-level smoke script for local validation of History `Load`.
+- Fixed a toolbar sync gap found by the smoke test:
+  - Programmatic Split restore updated `secondary-chart-store`.
+  - The toolbar select values were synchronized, but the `Split` checkbox itself was not written back.
+  - `syncSplitScreenLayout()` now also updates `splitScreenToggle.checked`.
+  - Toolbar now listens to `secondary-chart:settings-changed`, so programmatic restore and manual UI changes share the same layout/control sync path.
+
+Validated browser workflow:
+
+- Seeded `localStorage.v4.replayHistory` with a saved replay checkpoint.
+- Opened the Replay `History` panel.
+- Loaded the saved checkpoint.
+- Confirmed restored main chart state:
+  - start `2024-01-01 00:00`
+  - end `2024-02-15 00:00`
+  - timeframe `1`
+  - replay position `2024-01-02 09:57`
+- Confirmed restored Split state:
+  - enabled
+  - instrument `NQ`
+  - timeframe `60`
+  - layout `side`
+- Confirmed the History panel closes after load.
+
+Validation:
+
+- `node tmp/replay_history_restore_smoke.js`
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Web `8001/index.html` returned `200 OK`.
+- API health returned OK.
+
+Status:
+
+- Replay History milestone is closed.
+- Startup still does not auto-restore.
+- Recovery is manual through Replay `History` -> `Load`.
+- Next work should come from actual usage and bug discovery.
