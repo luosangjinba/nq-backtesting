@@ -283,7 +283,8 @@ function renderReasonRows(order, setupSet) {
     const refRows = refs.map((ref, refIndex) => `
       <div class="order-review-ref-row">
         <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
-        <button class="inspector-mini-btn" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button">X</button>
+        <button class="order-review-ref-locate" data-inspector-action="order-review-ref-locate" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button" title="Locate linked object">L</button>
+        <button class="order-review-ref-delete" data-inspector-action="order-review-ref-remove" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button" title="Remove linked object">X</button>
       </div>
     `);
     return `

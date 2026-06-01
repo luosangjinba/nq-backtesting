@@ -1,5 +1,6 @@
 import * as bus from '../../event-bus.js';
 import * as viewport from '../../chart/viewport-controller.js';
+import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { getSelectedPda } from '../../pda/pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
@@ -39,6 +40,64 @@ function getSegmentTimestamp(segment) {
 
 function getSegmentPrice(segment) {
   return segment?.end?.price ?? segment?.start?.price ?? null;
+}
+
+function asTimestamp(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function getPointTimestamp(point = {}) {
+  return asTimestamp(point.canonicalTimestamp ?? point.timestamp ?? point.anchorTime ?? point.time);
+}
+
+function getAnnotationTimestampRange(annotation = {}) {
+  const pointTimestamps = Array.isArray(annotation.points)
+    ? annotation.points.map(getPointTimestamp).filter((timestamp) => timestamp !== null)
+    : [];
+  if (pointTimestamps.length) {
+    return {
+      start: Math.min(...pointTimestamps),
+      end: Math.max(...pointTimestamps),
+    };
+  }
+
+  const startCandidates = [
+    annotation.startTimeTimestamp,
+    annotation.start?.timestamp,
+    annotation.start?.time,
+    annotation.startTime,
+    annotation.canonicalTimestamp,
+    annotation.timestamp,
+    annotation.anchorTime,
+  ];
+  const endCandidates = [
+    annotation.endTimeTimestamp,
+    annotation.end?.timestamp,
+    annotation.end?.time,
+    annotation.endTime,
+    annotation.canonicalTimestamp,
+    annotation.timestamp,
+    annotation.anchorTime,
+  ];
+  const start = startCandidates.map(asTimestamp).find((timestamp) => timestamp !== null);
+  const end = endCandidates.map(asTimestamp).find((timestamp) => timestamp !== null);
+  if (start === null || end === null) return null;
+
+  return {
+    start: Math.min(start, end),
+    end: Math.max(start, end),
+  };
+}
+
+function getSegmentTimestampRange(segment = {}) {
+  const start = asTimestamp(segment.start?.timestamp ?? segment.start?.time);
+  const end = asTimestamp(segment.end?.timestamp ?? segment.end?.time);
+  if (start === null || end === null) return null;
+  return {
+    start: Math.min(start, end),
+    end: Math.max(start, end),
+  };
 }
 
 function parseOrderReviewFieldValue(target) {
@@ -562,6 +621,57 @@ export function createOrderReviewActionController({
     }
   }
 
+  function getOrderReviewReasonRef(orderReviewId, reasonIndex, refIndex) {
+    const order = getOrderReviewById(orderReviewId);
+    const reasons = getOrderReviewReasons(order);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    const refs = Array.isArray(reasons[index]?.refs) ? reasons[index].refs : [];
+    return refs[refIndex] || null;
+  }
+
+  function locateOrderReviewRef(ref) {
+    const type = String(ref?.type || ref?.refType || '').toLowerCase();
+    let range = null;
+    let sourceChartId = ref?.sourceChartId || 'primary';
+    let label = 'linked object';
+
+    if (type === ORDER_REF_TYPES.PDA) {
+      const annotation = getAnnotationById(ref.id || ref.refId);
+      if (!annotation) {
+        bus.emit('status:update', { text: 'Linked PDA not found', isError: true });
+        return true;
+      }
+      range = getAnnotationTimestampRange(annotation);
+      sourceChartId = ref.sourceChartId || annotation.sourceChartId || sourceChartId;
+      label = getPdaOrderRefLabel(annotation);
+    } else if (type === ORDER_REF_TYPES.SEGMENT) {
+      const segment = getSegmentById(ref.id || ref.refId);
+      if (!segment) {
+        bus.emit('status:update', { text: 'Linked segment not found', isError: true });
+        return true;
+      }
+      range = getSegmentTimestampRange(segment);
+      sourceChartId = ref.sourceChartId || segment.sourceChartId || sourceChartId;
+      label = getSegmentOrderRefLabel(segment);
+    }
+
+    if (!range) {
+      bus.emit('status:update', { text: 'Linked object has no locatable time range', isError: true });
+      return true;
+    }
+
+    const useSecondary = sourceChartId === 'secondary';
+    const located = useSecondary
+      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end)
+      : (viewport.locateTimestampRange(range.start, range.end), true);
+    if (!located) {
+      bus.emit('status:update', { text: 'Secondary chart is not available for this linked object', isError: true });
+      return true;
+    }
+    bus.emit('status:update', { text: `Located ${label}`, isError: false });
+    return true;
+  }
+
   function linkSegmentToActiveSetup(segment) {
     const active = getActiveReviewSet();
     if (!active?.orderReview) {
@@ -639,6 +749,14 @@ export function createOrderReviewActionController({
       } else {
         removeOrderReviewRef(target.dataset.orderReviewId, Number(target.dataset.refIndex));
       }
+      return true;
+    }
+
+    if (action === 'order-review-ref-locate') {
+      const reasonIndex = Number(target.dataset.reasonIndex);
+      const refIndex = Number(target.dataset.refIndex);
+      const ref = getOrderReviewReasonRef(target.dataset.orderReviewId, reasonIndex, refIndex);
+      if (ref) locateOrderReviewRef(ref);
       return true;
     }
 
@@ -731,6 +849,14 @@ export function createOrderReviewActionController({
         removeOrderReviewRef(actionEl.dataset.orderReviewId, Number(actionEl.dataset.refIndex));
       }
       refreshSelection();
+      return true;
+    }
+
+    if (action === 'order-review-ref-locate') {
+      const reasonIndex = Number(actionEl.dataset.reasonIndex);
+      const refIndex = Number(actionEl.dataset.refIndex);
+      const ref = getOrderReviewReasonRef(actionEl.dataset.orderReviewId, reasonIndex, refIndex);
+      if (ref) locateOrderReviewRef(ref);
       return true;
     }
 
