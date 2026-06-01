@@ -343,7 +343,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 183: Result 改变时自动填 Exit Time：选择 Target 1/2/3、Stop Loss、Breakeven 后触发首次触碰计算；命中后写入 `resultReview.exitTimestamp`，未命中不写错值并给状态提示
 - [x] Step 184: Result UI 增加 Exit Time 控件：Result 面板拆分 Exit Time 输入、Pick 按钮、Exit Price 只读、Hold 持仓时长；支持清空 exit time；Pick 按钮先显示 Step 185 提示，图表选 K 线交互留给下一步
 - [x] Step 185: Pick Exit Bar 手动覆盖：点击 Pick 后选择当前图表 K 线写入 `resultReview.exitTimestamp`；Esc 取消；适用于 Target/Stop/BE/Unknown
-- [ ] Step 186: Holding Time 派生与展示：entryTimestamp 与 exitTimestamp 都存在时显示自然持仓时长；缺字段显示 `—`
+- [x] Step 186: Holding Time 派生与展示：entryTimestamp 与 exitTimestamp 都存在时在 Setup Set Result 派生 `holdingSeconds` / `holdingDuration`，Result 面板显示自然持仓时长；缺字段显示 `—`
 - [ ] Step 187: 验证与收口：覆盖 Target/Stop/BE 自动计算、找不到触碰不写入、手动/Pick 覆盖、刷新恢复、undo/redo、持仓时长显示，并更新 sessions/TODO 后提交
 
 ## 已知问题

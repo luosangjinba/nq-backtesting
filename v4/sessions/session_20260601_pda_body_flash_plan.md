@@ -549,3 +549,32 @@ Validation:
 Next:
 
 - Step 186 will consolidate holding-time display/formatting as a first-class derived value rather than only local panel formatting.
+
+## Step 186 - Holding Time Derived Value
+
+Goal:
+
+- Move holding-time calculation into Setup Set derivation so it is reusable and consistent with `outcomePoints` / `outcomeR`.
+
+Implementation:
+
+- `setup-set.js` now derives:
+  - `result.holdingSeconds`
+  - `result.holdingDuration`
+- Holding seconds are computed from `resultReview.exitTimestamp - entryPlan.entryTimestamp`.
+- If entry time or exit time is missing, or exit is before entry, holding values are `null`.
+- Natural display formatting:
+  - `Xm`
+  - `Xh Ym`
+  - `Xd Yh`
+- `order-review-panel.js` now displays `result.holdingDuration || '—'` instead of formatting locally.
+
+Validation:
+
+- `node --check v4/src/order/setup-set.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- Module probe confirmed a 09:32 -> 09:40 trade derives `480` seconds and `8m`.
+
+Next:
+
+- Step 187 should perform end-to-end browser/API regression around auto exit, manual exit, Pick Exit Bar, refresh, undo/redo, and hold display.

@@ -41,21 +41,6 @@ function formatTimestampInput(timestamp) {
   return formatted === '—' ? '' : formatted;
 }
 
-function formatHoldDuration(entryTimestamp, exitTimestamp) {
-  const entry = Number(entryTimestamp);
-  const exit = Number(exitTimestamp);
-  if (!Number.isFinite(entry) || !Number.isFinite(exit) || exit < entry) return '—';
-  let seconds = Math.floor(exit - entry);
-  const days = Math.floor(seconds / 86400);
-  seconds %= 86400;
-  const hours = Math.floor(seconds / 3600);
-  seconds %= 3600;
-  const minutes = Math.floor(seconds / 60);
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
-}
-
 function orderFieldAttrs(order, sectionName, fieldName) {
   return [
     'data-inspector-action="order-review-edit-field"',
@@ -333,7 +318,6 @@ function renderReasonRows(order, setupSet) {
 
 function renderResultPanel(order, setupSet) {
   const result = setupSet?.orderElements?.result || {};
-  const entry = setupSet?.orderElements?.entry || {};
   const exitTimestamp = order.resultReview?.exitTimestamp ?? result.timestamp;
   return `
     <div class="order-review-quick-edit">
@@ -353,7 +337,7 @@ function renderResultPanel(order, setupSet) {
           </div>`
         )}
         ${field('Exit Price', formatNumber(result.price))}
-        ${field('Hold', formatHoldDuration(entry.timestamp, exitTimestamp))}
+        ${field('Hold', result.holdingDuration || '—')}
         ${field('Points', formatNumber(result.outcomePoints))}
         ${field('R', formatNumber(result.outcomeR))}
         ${controlField(

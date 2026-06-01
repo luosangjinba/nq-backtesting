@@ -208,6 +208,27 @@ function deriveResultR(points, entryElement, stopLossElement) {
   return risk > 0 ? parsedPoints / risk : null;
 }
 
+function deriveHoldingSeconds(exitTimestamp, entryElement) {
+  const entryTimestamp = toTimestamp(entryElement?.timestamp);
+  const parsedExit = toTimestamp(exitTimestamp);
+  if (entryTimestamp === null || parsedExit === null || parsedExit < entryTimestamp) return null;
+  return parsedExit - entryTimestamp;
+}
+
+function formatHoldingDuration(seconds) {
+  const parsed = toNumberOrNull(seconds);
+  if (parsed === null || parsed < 0) return null;
+  let remaining = Math.floor(parsed);
+  const days = Math.floor(remaining / 86400);
+  remaining %= 86400;
+  const hours = Math.floor(remaining / 3600);
+  remaining %= 3600;
+  const minutes = Math.floor(remaining / 60);
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
 function createResultElement(order = {}, orderElements = {}) {
   const result = order.resultReview || {};
   const timestamp = toTimestamp(result.exitTimestamp);
@@ -215,6 +236,7 @@ function createResultElement(order = {}, orderElements = {}) {
   const derivedPrice = deriveResultExit(status, orderElements.entry, orderElements.stopLoss, orderElements.targets);
   const price = derivedPrice ?? toNumberOrNull(result.exitPrice);
   const outcomePoints = deriveResultPoints(price, orderElements.entry);
+  const holdingSeconds = deriveHoldingSeconds(timestamp, orderElements.entry);
   return {
     type: SETUP_ELEMENT_TYPES.RESULT,
     timestamp,
@@ -222,6 +244,8 @@ function createResultElement(order = {}, orderElements = {}) {
     status,
     outcomePoints,
     outcomeR: deriveResultR(outcomePoints, orderElements.entry, orderElements.stopLoss),
+    holdingSeconds,
+    holdingDuration: formatHoldingDuration(holdingSeconds),
     complete: timestamp !== null || price !== null || result.result !== 'unknown',
   };
 }
