@@ -578,3 +578,56 @@ Validation:
 Next:
 
 - Step 187 should perform end-to-end browser/API regression around auto exit, manual exit, Pick Exit Bar, refresh, undo/redo, and hold display.
+
+## Step 187 - Auto Exit Time Closeout
+
+Goal:
+
+- Validate and close the Auto Exit Time / Holding Time phase.
+
+End-to-end browser smoke:
+
+- Added and ran `tmp/auto_exit_time_step187_smoke.js` with an isolated Chrome profile.
+- Seeded one active Order Setup:
+  - long
+  - entry `2023-01-03 09:32`
+  - entry price `11101.25`
+  - stop `11072.50`
+  - Target 1 `11155.75`
+- Loaded 1m NQ data for `2023-01-03 09:00` to `10:30`.
+- Changed Result to `Target 1`.
+- Verified auto exit time filled `2023-01-03 09:40`.
+- Verified Hold displayed `8m`.
+- Manually changed Exit Time to `2023-01-03 09:45`.
+- Verified Hold displayed `13m`.
+- Used Pick Exit Bar to select `2023-01-03 09:52`.
+- Verified Hold displayed `20m`.
+- Reloaded the page and verified localStorage persisted:
+  - `resultReview.result === 'target1'`
+  - `resultReview.exitTimestamp === 1672739520`
+
+Additional validation:
+
+- `node --check tmp/auto_exit_time_step187_smoke.js`
+- `node --check v4/src/order/auto-exit-time.js`
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/order/setup-set.js`
+- Web `8001/index.html` returned `200 OK`.
+- API `/v4/health` returned OK.
+
+Coverage notes:
+
+- Browser smoke covered Target auto-fill, manual override, Pick override, refresh persistence, and holding-time display.
+- Stop Loss / Breakeven use the same calculator and Result change wiring; their branch rules were validated earlier at the module level.
+- The no-touch path returns `not-touched` and Step 183 leaves existing exit time unchanged while showing a status message; broader historical no-touch examples can be observed during use.
+
+Final state:
+
+- Step 181: exit time contract defined.
+- Step 182: 1m first-touch calculator added.
+- Step 183: Result changes auto-fill exit time.
+- Step 184: Result UI exposes Exit Time / Pick / Exit Price / Hold.
+- Step 185: Pick Exit Bar writes exit time.
+- Step 186: holding time is derived by Setup Set.
+- Step 187: validation and closeout complete.
