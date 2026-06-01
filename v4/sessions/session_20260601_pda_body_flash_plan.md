@@ -336,3 +336,28 @@ Final state:
 - No persisted state changes.
 - No broad PDA renderer refactor in the first pass.
 - No change to Replay History behavior.
+
+## Step 180 - Fib Reason Linking Fix
+
+User finding:
+
+- A manually added primary-chart Fib could be linked to the active setup, but it was not reliably available to Reasons via `Link Selected Object`.
+
+Cause:
+
+- `hitFib()` only treated horizontal Fib level lines as selectable.
+- Fib start/end anchors and the visible Fib trendline were not part of click hit-test, so selecting the Fib from the chart was unreliable.
+- The context/Inspector action `Link PDA To Active Setup` linked the PDA ref but did not update the current PDA selection; the next Reason link could still point at an older selected object or no object.
+
+Fix:
+
+- Added Fib start/end anchor hit-test.
+- Added Fib trendline hit-test when `display.showTrendLine` is enabled.
+- Kept existing horizontal level hit-test.
+- `Link PDA To Active Setup` now selects the linked PDA after the ref is added, so Reason `Link Selected Object` can immediately attach that same Fib.
+
+Validated:
+
+- `node --check v4/src/pda/pda-hit-test.js`
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- Module smoke verified Fib start anchor and visible trendline hit-test return the Fib annotation.
