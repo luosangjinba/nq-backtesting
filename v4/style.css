@@ -1582,6 +1582,11 @@ html, body {
   font-size: 15px;
 }
 
+.viewport-window {
+  width: 34px;
+  color: #80cbc4;
+}
+
 .viewport-btn:hover:not(:disabled) {
   border-color: #787b86;
   background: #2a2e39;

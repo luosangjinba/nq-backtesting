@@ -117,3 +117,35 @@ Notes:
 
 - This is explicit Calendar-driven switching, not automatic infinite scrolling.
 - Object locate/open can reuse the same window resolver later if needed.
+
+## Phase 13 Step 166: Manual 1m Window Controls
+
+Goal:
+
+- Provide explicit previous/next chart-window navigation for long 1m research ranges.
+
+Implemented:
+
+- Added `resolveAdjacentWindow()` to `v4/src/data/load-range-policy.js`.
+- Primary chart viewport controls now show `‹‹` / `››` only when a 1m `requestedOuterRange` is active.
+- `‹‹` loads the previous 45-day window inside the outer range.
+- `››` loads the next 45-day window inside the outer range.
+- Edge windows disable the corresponding button.
+- Toolbar start/end inputs update to the newly loaded chart window.
+- Secondary chart, replay, and renderers continue to follow the current loaded window through existing `bars:loaded` behavior.
+
+Main files:
+
+- `v4/src/data/load-range-policy.js`
+- `v4/src/ui/viewport-controls.js`
+- `v4/style.css`
+- `v4/TODO.md`
+
+Validation:
+
+- Policy smoke confirms previous/next window resolution and edge rejection.
+- `node --check` passed for touched JS files.
+
+Notes:
+
+- This keeps window movement explicit; no automatic infinite scroll is introduced yet.

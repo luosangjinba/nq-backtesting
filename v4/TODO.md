@@ -317,6 +317,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 163: 缓存 display bars：`bar-store.setBars()` 写入数据时一次性派生并缓存用户请求范围内的 display bars，`getDisplayBars()` 不再每次调用都对含 padding 的全量 bars 执行 filter
 - [x] Step 164: 1m 窗口加载模式第一版：1m 长区间请求不再直接失败；Toolbar 与 Calendar 会保存外层研究范围，并先加载从 start 开始的 45 天图表窗口，状态栏提示当前窗口与外层范围；副图/Replay 跟随当前窗口
 - [x] Step 165: Calendar 跳转触发 1m 窗口切换：在 1m 外层研究范围内点击/跳转到当前窗口外的日期时，自动加载目标日期附近的 45 天窗口并定位；无外层范围时保留原来的周窗口加载行为
+- [x] Step 166: 图表手动切换 1m 窗口：主图 viewport 控制条在 1m 窗口模式下显示 Prev/Next Window 按钮，按 45 天步长在外层研究范围内切换窗口，并同步 toolbar 当前窗口范围
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

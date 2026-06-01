@@ -147,6 +147,54 @@ export function resolveWindowAroundTimestamp(outerRange, timestamp) {
   };
 }
 
+export function resolveAdjacentWindow(outerRange, currentStart, currentEnd, direction) {
+  const tf = Number(outerRange?.timeframe);
+  const outerStartMs = parseDateTime(outerRange?.start);
+  const outerEndMs = parseDateTime(outerRange?.end);
+  const currentStartMs = parseDateTime(currentStart);
+  const currentEndMs = parseDateTime(currentEnd);
+  if (
+    tf !== 1 ||
+    outerStartMs === null ||
+    outerEndMs === null ||
+    currentStartMs === null ||
+    currentEndMs === null ||
+    outerEndMs < outerStartMs ||
+    currentEndMs <= currentStartMs
+  ) {
+    return {
+      ok: false,
+      message: '当前没有可切换的 1m 窗口',
+    };
+  }
+
+  const windowMs = getLoadRangeLimitDays(tf) * DAY_MS;
+  const isNext = direction === 'next';
+  let windowStartMs = isNext ? currentEndMs : currentStartMs - windowMs;
+  let windowEndMs = isNext ? windowStartMs + windowMs : currentStartMs;
+
+  if (isNext && currentEndMs >= outerEndMs) {
+    return { ok: false, message: '已经在外层范围的最后一个窗口' };
+  }
+  if (!isNext && currentStartMs <= outerStartMs) {
+    return { ok: false, message: '已经在外层范围的第一个窗口' };
+  }
+
+  if (windowStartMs < outerStartMs) windowStartMs = outerStartMs;
+  if (windowEndMs > outerEndMs) windowEndMs = outerEndMs;
+
+  const start = formatDateTime(windowStartMs);
+  const end = formatDateTime(windowEndMs);
+  return {
+    ok: true,
+    windowed: true,
+    start,
+    end,
+    outerRange,
+    message: `1m 窗口已切换：当前加载 ${start} - ${end}，外层范围 ${outerRange.start} - ${outerRange.end}`,
+  };
+}
+
 export function getRangeDays(start, end) {
   const startMs = parseDateTime(start);
   const endMs = parseDateTime(end);
