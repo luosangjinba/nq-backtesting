@@ -337,6 +337,15 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 179: PDA 本体快闪验证与收口：覆盖主图 range PDA linked ref 浏览器链路、line/point-set/fib geometry module smoke、fallback 规则、全量 JS 语法与 Web/API smoke；副图与更多实盘样例留给后续实际使用观察
 - [x] Step 180: Reasons 选中对象链接修复：PDA Inspector 面板也渲染 Active Order Setup 面板，避免选中 PDA 后 Reason 的 `Link Selected Object` 按钮消失；验证选中 PDA 后可直接把 PDA ref 写入 Reason
 
+### Auto Exit Time / Holding Time
+- [x] Step 181: Exit Time 语义与字段规则：复用现有 `resultReview.exitTimestamp` 作为最终离场时间；自动计算、手动输入、Pick Exit Bar 都写入同一字段；Target/Stop/BE/Unknown 都允许保存 exit time；Result 改变后的自动重算留给 Step 183，手动/Pick 覆盖策略需在 UI 中显式提示或保留用户值
+- [ ] Step 182: 1m 首次触碰计算器：给定 entry/direction/result/entryPrice/stopPrice/targetPrice，查询有限 1m 窗口并返回第一根触碰 K 线；Long target 用 `high >= target`，Long stop 用 `low <= stop`，Short 反向，BE 用 `low <= entry <= high`；找不到时返回无法自动计算
+- [ ] Step 183: Result 改变时自动填 Exit Time：选择 Target 1/2/3、Stop Loss、Breakeven 后触发首次触碰计算；命中后写入 `resultReview.exitTimestamp`，未命中不写错值并给状态提示
+- [ ] Step 184: Result UI 增加 Exit Time 控件：Result 面板拆分 Exit Time 输入、Pick 按钮、Exit Price 只读、Hold 持仓时长；支持清空 exit time
+- [ ] Step 185: Pick Exit Bar 手动覆盖：点击 Pick 后选择当前图表 K 线写入 `resultReview.exitTimestamp`；Esc 取消；适用于 Target/Stop/BE/Unknown
+- [ ] Step 186: Holding Time 派生与展示：entryTimestamp 与 exitTimestamp 都存在时显示自然持仓时长；缺字段显示 `—`
+- [ ] Step 187: 验证与收口：覆盖 Target/Stop/BE 自动计算、找不到触碰不写入、手动/Pick 覆盖、刷新恢复、undo/redo、持仓时长显示，并更新 sessions/TODO 后提交
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案

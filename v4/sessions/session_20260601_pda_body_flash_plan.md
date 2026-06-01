@@ -365,3 +365,37 @@ Validated:
   - persisted `setupThesis.reasons[0].refs.length === 1`
   - legacy `setupThesis.linkedObjectRefs.length === 1`
 - `node --check v4/src/ui/inspector-sidebar.js`
+
+## Step 181 - Auto Exit Time Data Contract
+
+Branch:
+
+- `auto-exit-time-step181`
+
+Goal:
+
+- Start the Auto Exit Time / Holding Time phase by fixing the field semantics before adding automatic 1m touch detection or UI controls.
+
+Existing support confirmed:
+
+- `resultReview.exitTimestamp` already exists and is normalized by `normalizeResultReview()`.
+- `cloneOrderReview()` preserves `resultReview`.
+- Local browser persistence stores full `getOrderReviews()` payloads, so `exitTimestamp` survives refresh.
+- Review archive export/import uses normalized order reviews, so `exitTimestamp` is preserved.
+- History snapshots include `orderReviews`, so undo/redo already preserves the field.
+- `setup-set` already exposes result `timestamp` from `resultReview.exitTimestamp`.
+- Chart context action `order-setup-set-exit-time` already writes `resultReview.exitTimestamp` from a clicked bar.
+
+Decision:
+
+- Reuse `resultReview.exitTimestamp` as the single final exit time field.
+- Automatic first-touch calculation, manual time input, and Pick Exit Bar all write to the same field.
+- The field is valid for `Target 1/2/3`, `Stop Loss`, `Breakeven`, and `Unknown`; Result controls exit price semantics, not whether an exit time may exist.
+- Automatic recalculation on Result changes is deferred to Step 183.
+- Manual/Pick override behavior must be made explicit in Step 184/185 UI rather than by adding a second timestamp field in Step 181.
+
+Next implementation steps:
+
+- Step 182: implement finite-window 1m first-touch calculator.
+- Step 183: wire Result changes to auto-fill `exitTimestamp`.
+- Step 184-186: add UI input/Pick/Hold display.
