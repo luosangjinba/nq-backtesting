@@ -290,6 +290,46 @@ Validation:
   - Web `8001/index.html` smoke
   - API `/v4/health` smoke
 
+## Step 179: Validation and Closeout
+
+Status:
+
+- Complete.
+- PDA Body Locate Flash milestone is closed for the current implementation pass.
+
+Validated:
+
+- Browser-level smoke:
+  - Seeded `localStorage` with one FVG PDA annotation and one active Order Setup reason ref.
+  - Loaded a 1H NQ chart window.
+  - Activated the seeded Order Setup.
+  - Clicked the Reason linked ref `L` button.
+  - Confirmed the UI status reached `Located FVG · NQ body`.
+- Module-level geometry smoke:
+  - line geometry resolves for BSL-style annotation.
+  - point-set geometry resolves for EQH/EQL-style annotation.
+  - fib geometry resolves and computes visible level prices.
+- Technical validation:
+  - Full `v4/src/**/*.js` syntax check passed.
+  - `git diff --check` passed.
+  - Web `8001/index.html` returned `200 OK`.
+  - API health returned OK.
+
+Notes:
+
+- The browser smoke validates the real Reasons linked PDA click path for primary-chart range PDA body flash.
+- Secondary chart and broader real-history examples should be observed during normal use because they depend on actual split-screen data availability and user-created refs.
+- Existing fallback behavior remains: if PDA body geometry cannot be drawn, Locate uses the older time-range flash.
+
+Final state:
+
+- Step 174: Reasons linked ref Locate entry added.
+- Step 175: body-flash API and fallback contract closed.
+- Step 176: range PDA body primitive added.
+- Step 177: line / point-set / fib geometry support added.
+- Step 178: Reasons linked PDA Locate wired to body flash.
+- Step 179: validation and closeout complete.
+
 ## Boundaries
 
 - No automatic selection change when locating.
