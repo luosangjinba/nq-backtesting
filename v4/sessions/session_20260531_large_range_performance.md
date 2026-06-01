@@ -32,3 +32,22 @@ Notes:
 
 - Step 162 only blocks unsafe single-window loads.
 - Step 164 should convert long 1m ranges into an outer research range plus a smaller loaded chart window.
+
+## Phase 13 Step 163: Display Bars Cache
+
+Goal:
+
+- Remove repeated `bars.filter(...)` work from hot read paths.
+- Keep `getBars()` as the full padded dataset and `getDisplayBars()` as the chart-visible requested range.
+
+Implemented:
+
+- Added a cached `displayBars` array in `v4/src/data/bar-store.js`.
+- `setBars()` now derives `displayBars` once from `requestedRange`.
+- `getDisplayBars()` now returns the cached array directly.
+- `clearBars()` clears both full bars and display bars.
+
+Validation:
+
+- `node --check v4/src/data/bar-store.js`
+- Module smoke confirmed padded bars stay in `getBars()` while `getDisplayBars()` returns only requested-range bars.

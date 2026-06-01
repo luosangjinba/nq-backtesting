@@ -8,6 +8,13 @@ let currentStart = null;
 let currentEnd = null;
 let currentTimeframe = DEFAULT_TIMEFRAME;
 let requestedRange = null;
+let displayBars = [];
+
+function deriveDisplayBars(sourceBars, range) {
+  if (!range || sourceBars.length === 0) return sourceBars;
+  const { startTs, endTs } = range;
+  return sourceBars.filter((bar) => bar.timestamp >= startTs && bar.timestamp <= endTs);
+}
 
 export function setBars(newBars, start, end, tf, range = null) {
   bars = newBars;
@@ -15,6 +22,7 @@ export function setBars(newBars, start, end, tf, range = null) {
   currentEnd = end;
   currentTimeframe = tf;
   requestedRange = range;
+  displayBars = deriveDisplayBars(bars, requestedRange);
   bus.emit('bars:loaded', { bars, start, end, tf, requestedRange: range });
 }
 
@@ -29,9 +37,7 @@ export function getRequestedRange() {
 // 只返回用户请求时间范围内的 bar（不含 padding），用于图表显示
 // getBars() 返回全量数据（含 padding），供指标计算用
 export function getDisplayBars() {
-  if (!requestedRange || bars.length === 0) return bars;
-  const { startTs, endTs } = requestedRange;
-  return bars.filter((b) => b.timestamp >= startTs && b.timestamp <= endTs);
+  return displayBars;
 }
 
 export function getBarAtTime(time) {
@@ -60,6 +66,7 @@ export function getBarsUpTo(index) {
 
 export function clearBars() {
   bars = [];
+  displayBars = [];
   currentStart = null;
   currentEnd = null;
   currentTimeframe = DEFAULT_TIMEFRAME;
