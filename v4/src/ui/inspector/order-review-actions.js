@@ -315,6 +315,7 @@ export function createOrderReviewActionController({
   }
 
   let exitPickState = null;
+  let autoExitRequestSeq = 0;
 
   function clearExitPickState({ silent = false } = {}) {
     if (!exitPickState) return false;
@@ -327,6 +328,7 @@ export function createOrderReviewActionController({
   }
 
   function startExitBarPick(orderReviewId) {
+    autoExitRequestSeq += 1;
     const order = getOrderReviewById(orderReviewId);
     if (!order) {
       bus.emit('status:update', { text: 'Order Setup not found', isError: true });
@@ -680,6 +682,7 @@ export function createOrderReviewActionController({
   function updateOrderReviewExitTime(target) {
     const orderReviewId = target.dataset.orderReviewId;
     if (!orderReviewId) return false;
+    autoExitRequestSeq += 1;
     const parsed = parseDateTimeInput(target.value);
     if (!parsed.ok) {
       bus.emit('status:update', { text: 'Exit Time 格式无效，请使用 YYYY-MM-DD HH:mm', isError: true });
@@ -847,20 +850,16 @@ export function createOrderReviewActionController({
   }
 
   async function updateOrderReviewResult(orderReviewId, result) {
+    const requestSeq = (autoExitRequestSeq += 1);
     let autoExit = null;
-    try {
-      await recordInspectorHistory('Update Order Result', async () => {
-        updateOrderReview(orderReviewId, {
-          resultReview: { result },
-        });
+    let autoExitError = null;
+    let setupSet = null;
+    let elements = {};
 
-        if (!isAutoExitResult(result)) {
-          autoExit = { ok: false, reason: 'unsupported-result', skipped: true };
-          return;
-        }
-
-        const setupSet = getSetupSetById(orderReviewId);
-        const elements = setupSet?.orderElements || {};
+    if (isAutoExitResult(result)) {
+      setupSet = getSetupSetById(orderReviewId);
+      elements = setupSet?.orderElements || {};
+      try {
         autoExit = await calculateAutoExitTime({
           instrument: setupSet?.instrument || 'NQ',
           entryTimestamp: elements.entry?.timestamp,
@@ -870,23 +869,35 @@ export function createOrderReviewActionController({
           targets: elements.targets || [],
           result,
         });
+      } catch (err) {
+        autoExitError = err;
+      }
+    } else {
+      autoExit = { ok: false, reason: 'unsupported-result', skipped: true };
+    }
 
+    if (requestSeq !== autoExitRequestSeq) return;
+    if (!getOrderReviewById(orderReviewId)) return;
+
+    try {
+      recordInspectorHistory('Update Order Result', () => {
+        const resultReview = { result };
         if (autoExit?.ok) {
-          updateOrderReview(orderReviewId, {
-            resultReview: {
-              result,
-              exitTimestamp: autoExit.exitTimestamp,
-            },
-          });
+          resultReview.exitTimestamp = autoExit.exitTimestamp;
         }
+        updateOrderReview(orderReviewId, {
+          resultReview,
+        });
       });
     } catch (err) {
-      bus.emit('status:update', { text: `Auto exit time failed: ${err.message}`, isError: true });
+      bus.emit('status:update', { text: `Update Result failed: ${err.message}`, isError: true });
       return;
     }
 
     if (autoExit?.ok) {
       bus.emit('status:update', { text: `Auto exit time set: ${autoExit.bar?.time || autoExit.exitTimestamp}`, isError: false });
+    } else if (autoExitError) {
+      bus.emit('status:update', { text: `Auto exit time failed: ${autoExitError.message}`, isError: true });
     } else if (!autoExit?.skipped) {
       bus.emit('status:update', { text: getAutoExitReasonMessage(autoExit?.reason), isError: true });
     }

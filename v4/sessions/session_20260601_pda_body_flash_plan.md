@@ -631,3 +631,23 @@ Final state:
 - Step 185: Pick Exit Bar writes exit time.
 - Step 186: holding time is derived by Setup Set.
 - Step 187: validation and closeout complete.
+
+## Post-Review Fix - Auto Exit Result Update Ordering
+
+Review findings:
+
+- API/fetch failures during auto exit calculation could update Result before `recordHistory()` finalized, leaving that Result change outside undo history.
+- Fast consecutive Result changes could let an older auto-exit request finish later and overwrite the newer Result/Exit Time.
+
+Fix:
+
+- Result changes now calculate auto exit first, then write Result and `exitTimestamp` together inside one synchronous `recordHistory()` call.
+- Auto-exit fetch errors still allow the Result value to be recorded in history; only `exitTimestamp` is omitted.
+- Added an `autoExitRequestSeq` guard.
+- Manual Exit Time edits and Pick Exit Bar increment the same sequence, so pending auto calculations cannot overwrite user overrides.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `git diff --check`
+- Re-ran `tmp/auto_exit_time_step187_smoke.js`; auto, manual, pick, hold display, and refresh persistence still pass.
