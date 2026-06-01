@@ -342,7 +342,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 182: 1m 首次触碰计算器：新增 `order/auto-exit-time.js`，给定 entry/direction/result/entryPrice/stopPrice/targetPrice，查询有限 1m 窗口并返回第一根触碰 K 线；Long target 用 `high >= target`，Long stop 用 `low <= stop`，Short 反向，BE 用 `low <= entry <= high`；找不到时返回无法自动计算
 - [x] Step 183: Result 改变时自动填 Exit Time：选择 Target 1/2/3、Stop Loss、Breakeven 后触发首次触碰计算；命中后写入 `resultReview.exitTimestamp`，未命中不写错值并给状态提示
 - [x] Step 184: Result UI 增加 Exit Time 控件：Result 面板拆分 Exit Time 输入、Pick 按钮、Exit Price 只读、Hold 持仓时长；支持清空 exit time；Pick 按钮先显示 Step 185 提示，图表选 K 线交互留给下一步
-- [ ] Step 185: Pick Exit Bar 手动覆盖：点击 Pick 后选择当前图表 K 线写入 `resultReview.exitTimestamp`；Esc 取消；适用于 Target/Stop/BE/Unknown
+- [x] Step 185: Pick Exit Bar 手动覆盖：点击 Pick 后选择当前图表 K 线写入 `resultReview.exitTimestamp`；Esc 取消；适用于 Target/Stop/BE/Unknown
 - [ ] Step 186: Holding Time 派生与展示：entryTimestamp 与 exitTimestamp 都存在时显示自然持仓时长；缺字段显示 `—`
 - [ ] Step 187: 验证与收口：覆盖 Target/Stop/BE 自动计算、找不到触碰不写入、手动/Pick 覆盖、刷新恢复、undo/redo、持仓时长显示，并更新 sessions/TODO 后提交
 

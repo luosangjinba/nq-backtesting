@@ -589,10 +589,13 @@ function handleInspectorClick(e) {
 
 export function initInspectorSidebar() {
   createSidebar();
+  document.getElementById('chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
   document.getElementById('chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
+  chart.onCrosshairMove(orderReviewActions.handleExitPickHover);
   chart.onCrosshairMove(segmentActions.handleActorPickHover);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      orderReviewActions.clearExitPickState();
       segmentActions.clearActorPickState();
     }
   });

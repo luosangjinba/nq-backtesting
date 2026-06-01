@@ -1,7 +1,10 @@
 import * as bus from '../../event-bus.js';
+import * as chart from '../../chart/chart-manager.js';
 import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
 import { getPrimaryChartContext, getSecondaryChartContext } from '../../chart/chart-context.js';
+import * as store from '../../data/bar-store.js';
+import { timeframeToString } from '../../config.js';
 import { flashPdaAnnotation } from '../../chart/pda-locate-flash.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { getSelectedPda } from '../../pda/pda-selection.js';
@@ -81,6 +84,30 @@ function getAutoExitReasonMessage(reason) {
     'not-touched': 'Auto exit time not found in the 1m lookahead window',
   };
   return messages[reason] || `Auto exit time skipped: ${reason || 'unknown reason'}`;
+}
+
+function normalizeTimeKey(time) {
+  if (time && typeof time === 'object') {
+    const month = String(time.month).padStart(2, '0');
+    const day = String(time.day).padStart(2, '0');
+    return `${time.year}-${month}-${day}`;
+  }
+  return time;
+}
+
+function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
+  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
+}
+
+function findDisplayBarByChartTime(time) {
+  if (time === undefined || time === null) return null;
+  const target = normalizeTimeKey(time);
+  const timeframe = store.getCurrentTimeframe();
+  return (
+    store
+      .getDisplayBars()
+      .find((bar) => normalizeTimeKey(getBarChartTime(bar, timeframe)) === target) || null
+  );
 }
 
 function getPointTimestamp(point = {}) {
@@ -285,6 +312,36 @@ export function createOrderReviewActionController({
 }) {
   function expandOrder(orderReviewId) {
     if (orderReviewId) setExpandedOrderReviewId(orderReviewId);
+  }
+
+  let exitPickState = null;
+
+  function clearExitPickState({ silent = false } = {}) {
+    if (!exitPickState) return false;
+    exitPickState = null;
+    chart.hidePickPreviewCursor();
+    if (!silent) {
+      bus.emit('status:update', { text: 'Exit bar pick 已取消', isError: false });
+    }
+    return true;
+  }
+
+  function startExitBarPick(orderReviewId) {
+    const order = getOrderReviewById(orderReviewId);
+    if (!order) {
+      bus.emit('status:update', { text: 'Order Setup not found', isError: true });
+      return true;
+    }
+    if (!store.getDisplayBars().length) {
+      bus.emit('status:update', { text: '当前图表没有可 pick 的 K 线', isError: true });
+      return true;
+    }
+
+    exitPickState = {
+      orderReviewId,
+    };
+    bus.emit('status:update', { text: '点击图表选择 Exit Bar', isError: false });
+    return true;
   }
 
   function patchOrderReviewReasons(orderReviewId, reasons) {
@@ -992,8 +1049,7 @@ export function createOrderReviewActionController({
     }
 
     if (action === 'order-review-result-exit-pick') {
-      bus.emit('status:update', { text: 'Pick Exit Bar will be available in Step 185', isError: false });
-      return true;
+      return startExitBarPick(actionEl.dataset.orderReviewId);
     }
 
     if (action.startsWith('order-review-ref-add-selected-')) {
@@ -1020,9 +1076,59 @@ export function createOrderReviewActionController({
     return false;
   }
 
+  function handleExitPickChartClick(e) {
+    if (!exitPickState) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const chartEl = document.getElementById('chart');
+    if (!chartEl) return;
+
+    const rect = chartEl.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const time = chart.coordinateToTime(x);
+    const bar = findDisplayBarByChartTime(time);
+    if (!bar) {
+      chart.hidePickPreviewCursor();
+      return;
+    }
+
+    const order = getOrderReviewById(exitPickState.orderReviewId);
+    if (!order) {
+      clearExitPickState({ silent: true });
+      return;
+    }
+
+    const orderReviewId = exitPickState.orderReviewId;
+    clearExitPickState({ silent: true });
+    recordInspectorHistory('Pick Exit Bar', () => updateOrderReview(orderReviewId, {
+      resultReview: {
+        exitTimestamp: bar.timestamp,
+      },
+    }));
+    bus.emit('status:update', {
+      text: `Exit Bar 已选择: ${bar.time || bar.tradingDay} (${timeframeToString(store.getCurrentTimeframe())})`,
+      isError: false,
+    });
+    refreshSelection();
+  }
+
+  function handleExitPickHover(param) {
+    if (!exitPickState) return;
+    const bar = findDisplayBarByChartTime(param?.time);
+    if (!bar) {
+      chart.hidePickPreviewCursor();
+      return;
+    }
+    chart.showPickPreviewCursor(getBarChartTime(bar));
+  }
+
   return {
+    clearExitPickState,
     createOrderReviewFromComposite,
     createOrderReviewFromSegment,
+    handleExitPickChartClick,
+    handleExitPickHover,
     handleOrderReviewChange,
     handleOrderReviewClick,
     getExpandedOrderReviewId,

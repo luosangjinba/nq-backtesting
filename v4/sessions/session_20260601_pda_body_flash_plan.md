@@ -520,3 +520,32 @@ Validation:
 Next:
 
 - Step 185 will wire Pick Exit Bar to chart clicks and write the selected bar timestamp to `resultReview.exitTimestamp`.
+
+## Step 185 - Pick Exit Bar
+
+Goal:
+
+- Let the user manually override `resultReview.exitTimestamp` by picking a currently visible primary-chart K line.
+
+Implementation:
+
+- `order-review-actions.js` now owns an `exitPickState`.
+- Result panel `Pick` starts exit bar pick mode for the target Order Setup.
+- Primary chart click while pick mode is active:
+  - resolves the clicked chart time to a display bar
+  - writes `resultReview.exitTimestamp = bar.timestamp`
+  - records one history entry: `Pick Exit Bar`
+  - refreshes the Inspector panel
+- Crosshair hover shows the existing pick preview cursor over the candidate bar.
+- `Esc` cancels pick mode.
+- The flow works for Target / Stop Loss / Breakeven / Unknown because it only writes time; Result continues to define price semantics.
+
+Validation:
+
+- `node --check v4/src/ui/inspector/order-review-actions.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `git diff --check`
+
+Next:
+
+- Step 186 will consolidate holding-time display/formatting as a first-class derived value rather than only local panel formatting.
