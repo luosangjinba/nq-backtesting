@@ -318,6 +318,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 164: 1m 窗口加载模式第一版：1m 长区间请求不再直接失败；Toolbar 与 Calendar 会保存外层研究范围，并先加载从 start 开始的 45 天图表窗口，状态栏提示当前窗口与外层范围；副图/Replay 跟随当前窗口
 - [x] Step 165: Calendar 跳转触发 1m 窗口切换：在 1m 外层研究范围内点击/跳转到当前窗口外的日期时，自动加载目标日期附近的 45 天窗口并定位；无外层范围时保留原来的周窗口加载行为
 - [x] Step 166: 图表手动切换 1m 窗口：主图 viewport 控制条在 1m 窗口模式下显示 Prev/Next Window 按钮，按 45 天步长在外层研究范围内切换窗口，并同步 toolbar 当前窗口范围
+- [x] Step 167: Phase 13 收口验证：覆盖长/短 1m、1H、Calendar 目标窗口、Prev/Next 边界、displayBars 缓存、全量 JS 语法、Web/API smoke；确认 1m 长区间已从一次性全量加载改为 45 天窗口化使用
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

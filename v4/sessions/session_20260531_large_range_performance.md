@@ -149,3 +149,45 @@ Validation:
 Notes:
 
 - This keeps window movement explicit; no automatic infinite scroll is introduced yet.
+
+## Phase 13 Step 167: Closeout Validation
+
+Goal:
+
+- Validate the Phase 13 large-range protection path end to end before returning to real usage.
+
+Validated:
+
+- `resolveChartLoadRange()`:
+  - 1-year 1m resolves to a 45-day window plus `outerRange`.
+  - 31-day 1m loads directly.
+  - 1-year 1H loads directly.
+  - invalid date ranges are rejected.
+- `resolveWindowAroundTimestamp()`:
+  - Calendar target inside a 1-year 1m outer range resolves to a 45-day natural-day window around the target.
+  - Target outside the outer range is rejected.
+- `resolveAdjacentWindow()`:
+  - Next window advances by 45 days.
+  - Previous window at the first window is rejected/disabled.
+  - Previous window from the second window returns to the first window.
+- `bar-store`:
+  - `getBars()` retains full padded bars.
+  - `getDisplayBars()` returns cached requested-range bars.
+  - `requestedOuterRange` is retained during windowed loads and cleared on `clearBars()`.
+- Runtime smoke:
+  - Full `v4/src/**/*.js` syntax check passed.
+  - `git diff --check` passed.
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+  - API health returned OK.
+  - API 45-day 1m window request returned bars successfully.
+
+Milestone status:
+
+- Phase 13 is closed for the first performance guard pass.
+- Long 1m ranges are no longer loaded as one chart dataset.
+- The working model is now: choose a long 1m research range, load/use 45-day chart windows, navigate by Calendar or manual Prev/Next window controls.
+
+Remaining possible improvements:
+
+- Object locate/open can auto-load the target 1m window using the same resolver.
+- Future infinite scroll can build on `resolveAdjacentWindow()` if real usage needs it.
