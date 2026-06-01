@@ -87,3 +87,33 @@ Notes:
 
 - This is not infinite scrolling yet.
 - Step 165 should use Calendar/object navigation to load the window around a target date inside the outer range.
+
+## Phase 13 Step 165: Calendar-Driven 1m Window Switching
+
+Goal:
+
+- Let Calendar navigation move across a long 1m outer research range without loading the full range.
+
+Implemented:
+
+- Added `resolveWindowAroundTimestamp()` to `v4/src/data/load-range-policy.js`.
+- Calendar `jump-day` now checks whether the target timestamp is already loaded.
+- If the target is outside the current chart window but inside the current 1m `requestedOuterRange`, Calendar loads a 45-day window centered around the target date, clamped to the outer range.
+- If there is no usable outer range, Calendar keeps the previous behavior and loads a small week around the target date.
+- The toolbar date inputs are updated to the newly loaded chart window while the outer range remains stored in `bar-store`.
+
+Main files:
+
+- `v4/src/data/load-range-policy.js`
+- `v4/src/ui/calendar-navigator.js`
+- `v4/TODO.md`
+
+Validation:
+
+- Policy smoke confirms a target date in a 1-year 1m outer range resolves to a 45-day window around that target.
+- Policy smoke confirms target dates outside the outer range are rejected.
+
+Notes:
+
+- This is explicit Calendar-driven switching, not automatic infinite scrolling.
+- Object locate/open can reuse the same window resolver later if needed.

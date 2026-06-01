@@ -89,6 +89,64 @@ export function resolveChartLoadRange(start, end, timeframe) {
   };
 }
 
+export function resolveWindowAroundTimestamp(outerRange, timestamp) {
+  const tf = Number(outerRange?.timeframe);
+  const targetMs = Number(timestamp) * 1000;
+  const outerStartMs = parseDateTime(outerRange?.start);
+  const outerEndMs = parseDateTime(outerRange?.end);
+  if (
+    tf !== 1 ||
+    !Number.isFinite(targetMs) ||
+    outerStartMs === null ||
+    outerEndMs === null ||
+    outerEndMs < outerStartMs
+  ) {
+    return {
+      ok: false,
+      message: '当前没有可用的 1m 外层研究范围',
+    };
+  }
+
+  if (targetMs < outerStartMs || targetMs > outerEndMs) {
+    return {
+      ok: false,
+      message: '目标日期不在当前 1m 外层研究范围内',
+    };
+  }
+
+  const limitDays = getLoadRangeLimitDays(tf);
+  const limitMs = limitDays * DAY_MS;
+  const targetDate = new Date(targetMs);
+  const targetDayStartMs = Date.UTC(
+    targetDate.getUTCFullYear(),
+    targetDate.getUTCMonth(),
+    targetDate.getUTCDate()
+  );
+  let windowStartMs = targetDayStartMs - Math.floor(limitDays / 2) * DAY_MS;
+  let windowEndMs = windowStartMs + limitMs;
+
+  if (windowStartMs < outerStartMs) {
+    windowStartMs = outerStartMs;
+    windowEndMs = Math.min(outerEndMs, windowStartMs + limitMs);
+  }
+
+  if (windowEndMs > outerEndMs) {
+    windowEndMs = outerEndMs;
+    windowStartMs = Math.max(outerStartMs, windowEndMs - limitMs);
+  }
+
+  const start = formatDateTime(windowStartMs);
+  const end = formatDateTime(windowEndMs);
+  return {
+    ok: true,
+    windowed: true,
+    start,
+    end,
+    outerRange,
+    message: `1m 窗口已切换：当前加载 ${start} - ${end}，外层范围 ${outerRange.start} - ${outerRange.end}`,
+  };
+}
+
 export function getRangeDays(start, end) {
   const startMs = parseDateTime(start);
   const endMs = parseDateTime(end);

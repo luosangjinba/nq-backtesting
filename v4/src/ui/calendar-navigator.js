@@ -1,7 +1,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
-import { resolveChartLoadRange } from '../data/load-range-policy.js';
+import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
@@ -515,6 +515,21 @@ async function loadRange(start, end, successText) {
   closePopover();
 }
 
+async function loadResolvedWindow(loadRange, successText) {
+  const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
+  bus.emit('status:update', { text: '加载中...', isError: false });
+  const result = await fetchBars(loadRange.start, loadRange.end, tf);
+  setToolbarRange(loadRange.start, loadRange.end, false);
+  store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
+    outerRange: loadRange.outerRange,
+  });
+  bus.emit('status:update', {
+    text: successText || loadRange.message,
+    isError: false,
+  });
+  closePopover();
+}
+
 async function loadHistoryRange(index) {
   const item = getRangeHistory()[index];
   if (!item) {
@@ -581,13 +596,19 @@ async function jumpToActiveDate() {
 
   try {
     if (!isTimestampLoaded(targetTimestamp)) {
-      const startDate = shiftDate(dateKey, -LOAD_PADDING_DAYS);
-      const endDate = shiftDate(dateKey, LOAD_PADDING_DAYS);
-      await loadRange(
-        formatDateTime(startDate, '00:00'),
-        formatDateTime(endDate, '23:59'),
-        `Loaded week around ${dateKey}`
-      );
+      const outerRange = store.getRequestedOuterRange();
+      const windowRange = resolveWindowAroundTimestamp(outerRange, targetTimestamp);
+      if (windowRange.ok) {
+        await loadResolvedWindow(windowRange);
+      } else {
+        const startDate = shiftDate(dateKey, -LOAD_PADDING_DAYS);
+        const endDate = shiftDate(dateKey, LOAD_PADDING_DAYS);
+        await loadRange(
+          formatDateTime(startDate, '00:00'),
+          formatDateTime(endDate, '23:59'),
+          `Loaded week around ${dateKey}`
+        );
+      }
     } else {
       closePopover();
     }
