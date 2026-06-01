@@ -87,3 +87,41 @@ Validation:
 Next:
 
 - Step 171 should add the Replay History UI in the Replay control bar.
+
+## Step 171: Replay History UI
+
+Goal:
+
+- Add a visible Replay History entry point without implementing restore yet.
+
+Implemented:
+
+- Replay control bar now has a `History` button.
+- The History button opens a compact panel above the replay controls.
+- The panel lists recent replay checkpoints from `v4.replayHistory`.
+- Each row shows:
+  - checkpoint label
+  - main loaded window date range
+  - split state (`Split Off` or secondary instrument/timeframe/layout)
+- `Delete` removes a single checkpoint.
+- `Clear` removes all checkpoints.
+- `Load` is shown but disabled until Step 172 implements workspace restore.
+
+Main files:
+
+- `v4/src/ui/replay-controls.js`
+- `v4/style.css`
+- `v4/TODO.md`
+
+Validation:
+
+- `node --check v4/src/ui/replay-controls.js`
+- Store action smoke covered list/delete/clear backing behavior used by the UI.
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Web `8001/index.html` returned `200 OK`.
+- API health returned OK.
+
+Next:
+
+- Step 172 should implement the `Load` action to restore the saved workspace.

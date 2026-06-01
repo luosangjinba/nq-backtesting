@@ -5,6 +5,11 @@ import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
+import {
+  clearReplayHistory,
+  deleteReplayHistoryItem,
+  getReplayHistory,
+} from './replay-history-store.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -23,6 +28,7 @@ let cursorIndex = -1;
 let lastCursorIndex = -1;
 let speedIndex = 2;
 let timer = null;
+let historyOpen = false;
 
 function toChartBar(bar) {
   const tf = store.getCurrentTimeframe();
@@ -38,6 +44,39 @@ function toChartBar(bar) {
 function formatReplayTime(bar) {
   if (!bar) return '--';
   return bar.tradingDay || bar.time || '--';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function formatHistoryTime(timestamp) {
+  if (!Number.isFinite(Number(timestamp))) return '--';
+  const date = new Date(Number(timestamp) * 1000);
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  const h = String(date.getUTCHours()).padStart(2, '0');
+  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d} ${h}:${min}`;
+}
+
+function formatHistoryDateRange(start, end) {
+  const startDate = String(start || '').slice(0, 10);
+  const endDate = String(end || '').slice(0, 10);
+  if (startDate && endDate) return `${startDate} - ${endDate}`;
+  return start || end || '--';
+}
+
+function formatSplitLabel(split) {
+  if (!split?.enabled) return 'Split Off';
+  const tf = timeframeToString(split.timeframe);
+  return `${split.instrument} ${tf} ${split.layout}`;
 }
 
 function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
@@ -328,6 +367,26 @@ function handleControlClick(e) {
   const action = e.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
 
+  if (action === 'history-toggle') {
+    historyOpen = !historyOpen;
+    render();
+    return;
+  }
+  if (action === 'history-delete') {
+    const id = e.target.closest('[data-history-id]')?.dataset.historyId;
+    if (deleteReplayHistoryItem(id)) render();
+    return;
+  }
+  if (action === 'history-clear') {
+    clearReplayHistory();
+    render();
+    return;
+  }
+  if (action === 'history-load') {
+    bus.emit('status:update', { text: 'Replay History restore will be added in Step 172', isError: false });
+    return;
+  }
+
   if (action === 'toggle') toggleReplayEnabled();
   if (action === 'pick') selectBar();
   if (action === 'first') jumpStart();
@@ -381,6 +440,8 @@ function render() {
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
   const replayDisabled = !hasData || !enabled;
   const lastDisabled = !hasData || lastCursorIndex < 0;
+  const history = getReplayHistory();
+  const historyPanel = historyOpen ? renderHistoryPanel(history) : '';
 
   controlsEl.innerHTML = `
     <div class="replay-main">
@@ -412,10 +473,12 @@ function render() {
         ${replayDisabled ? 'disabled' : ''}
       />
       <button class="replay-btn replay-jump-btn" data-action="jump" title="跳转到指定时间" ${replayDisabled ? 'disabled' : ''}>Go</button>
+      <button class="replay-btn replay-history-toggle ${historyOpen ? 'active' : ''}" data-action="history-toggle" title="Replay History">History</button>
       <span class="replay-tf">${tfLabel}</span>
       <span class="replay-info">${enabled && currentBar ? `${cursorIndex + 1}/${chartData.length} ${formatReplayTime(currentBar)}` : 'Replay Trading'}</span>
       <button class="replay-close" data-action="close" title="退出 Replay" ${replayDisabled ? 'disabled' : ''}>X</button>
     </div>
+    ${historyPanel}
   `;
 
   controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);
@@ -425,6 +488,31 @@ function render() {
       jumpToTime();
     }
   });
+}
+
+function renderHistoryPanel(history) {
+  const rows = history.length
+    ? history.map((item) => `
+      <div class="replay-history-row" data-history-id="${escapeHtml(item.id)}">
+        <div class="replay-history-summary">
+          <div class="replay-history-title">${escapeHtml(item.label || formatHistoryTime(item.replay.cursorTimestamp))}</div>
+          <div class="replay-history-meta">${escapeHtml(formatHistoryDateRange(item.primary.start, item.primary.end))} · ${escapeHtml(formatSplitLabel(item.split))}</div>
+        </div>
+        <button class="replay-history-action" data-action="history-load" type="button" title="Restore in Step 172" disabled>Load</button>
+        <button class="replay-history-action" data-action="history-delete" type="button">Delete</button>
+      </div>
+    `).join('')
+    : '<div class="replay-history-empty">No replay history.</div>';
+
+  return `
+    <div class="replay-history-panel">
+      <div class="replay-history-header">
+        <span>Replay History</span>
+        <button class="replay-history-clear" data-action="history-clear" type="button" ${history.length ? '' : 'disabled'}>Clear</button>
+      </div>
+      <div class="replay-history-list">${rows}</div>
+    </div>
+  `;
 }
 
 export function getReplayRestoreSnapshot() {

@@ -2110,7 +2110,8 @@ html, body {
 }
 
 .replay-toggle.active,
-.replay-action.active {
+.replay-action.active,
+.replay-history-toggle.active {
   border-color: #2962ff;
   color: #fff;
   background: #1d2b52;
@@ -2145,6 +2146,10 @@ html, body {
 
 .replay-jump-btn {
   min-width: 42px;
+}
+
+.replay-history-toggle {
+  min-width: 70px;
 }
 
 .replay-btn:hover:not(:disabled),
@@ -2187,4 +2192,113 @@ html, body {
   margin-left: auto;
   width: 32px;
   font-size: 14px;
+}
+
+.replay-history-panel {
+  position: absolute;
+  right: 52px;
+  bottom: 48px;
+  z-index: 15;
+  width: 390px;
+  max-width: calc(100vw - 96px);
+  max-height: 360px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(19, 23, 34, 0.98);
+  border: 1px solid #363a45;
+  border-radius: 6px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.replay-history-header {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-bottom: 1px solid #2a2e39;
+  color: #f0f3fa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.replay-history-list {
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.replay-history-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.replay-history-row:hover {
+  border-color: #363a45;
+  background: rgba(42, 46, 57, 0.45);
+}
+
+.replay-history-summary {
+  min-width: 0;
+}
+
+.replay-history-title {
+  color: #f0f3fa;
+  font-size: 12px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.replay-history-meta {
+  margin-top: 2px;
+  color: #8b8f9b;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.replay-history-action,
+.replay-history-clear {
+  height: 24px;
+  border: 1px solid #363a45;
+  background: #151821;
+  color: #d1d4dc;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.replay-history-action {
+  padding: 0 8px;
+}
+
+.replay-history-clear {
+  padding: 0 10px;
+}
+
+.replay-history-action:hover:not(:disabled),
+.replay-history-clear:hover:not(:disabled) {
+  border-color: #787b86;
+  background: #1e222d;
+}
+
+.replay-history-action:disabled,
+.replay-history-clear:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.replay-history-empty {
+  padding: 18px 10px;
+  color: #8b8f9b;
+  font-size: 12px;
+  text-align: center;
 }
