@@ -335,7 +335,6 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 177: 扩展 PDA 本体快闪类型：支持 liquidity line / key level / point-set / fib；无法解析本体几何时返回 false，让调用方 fallback 到时间范围快闪
 - [x] Step 178: 接入 Reasons linked PDA Locate：linked PDA 的 Locate 先移动视图，再尝试本体快闪；主图/副图按 `sourceChartId` 调用对应 chart context；linked Segment 暂继续使用时间范围快闪
 - [x] Step 179: PDA 本体快闪验证与收口：覆盖主图 range PDA linked ref 浏览器链路、line/point-set/fib geometry module smoke、fallback 规则、全量 JS 语法与 Web/API smoke；副图与更多实盘样例留给后续实际使用观察
-- [x] Step 180: Fib Reason linking 使用修复：Fib hit-test 除水平 level 外补齐起止锚点与可见趋势线命中；`Link PDA To Active Setup` 成功后同步选中该 PDA，避免图上 Fib 已链接 active setup 但 Reason 的 `Link Selected Object` 仍拿不到同一对象
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

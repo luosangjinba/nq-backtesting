@@ -99,17 +99,6 @@ function distanceToSegmentX(x, from, to) {
   return Math.min(Math.abs(x - from), Math.abs(x - to));
 }
 
-function distanceToSegment(x, y, x1, y1, x2, y2) {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const lengthSquared = dx * dx + dy * dy;
-  if (!lengthSquared) return Math.hypot(x - x1, y - y1);
-  const t = Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / lengthSquared));
-  const projectedX = x1 + t * dx;
-  const projectedY = y1 + t * dy;
-  return Math.hypot(x - projectedX, y - projectedY);
-}
-
 function hitLiquidity(annotation, x, y, context) {
   const anchorTime = getPointRenderTime(annotation, context);
   const anchorX = getTimeCoordinate(anchorTime, context);
@@ -233,26 +222,6 @@ function hitFib(annotation, x, y, context) {
   const endX = extendXByBars(Math.max(startX, rawEndX), extendBars, context);
   if (endX === null) return null;
 
-  const candidates = [];
-  const startY = getPriceCoordinate(annotation.start?.price, context);
-  const endY = getPriceCoordinate(annotation.end?.price, context);
-  if (startY !== null && endY !== null) {
-    const startDistance = Math.hypot(x - startX, y - startY);
-    const endDistance = Math.hypot(x - rawEndX, y - endY);
-    if (startDistance <= MARKER_TOLERANCE_PX) {
-      candidates.push({ distance: startDistance, reason: 'fib-start' });
-    }
-    if (endDistance <= MARKER_TOLERANCE_PX) {
-      candidates.push({ distance: endDistance, reason: 'fib-end' });
-    }
-    if (annotation.display?.showTrendLine) {
-      const trendDistance = distanceToSegment(x, y, startX, startY, rawEndX, endY);
-      if (trendDistance <= LINE_TOLERANCE_PX) {
-        candidates.push({ distance: trendDistance, reason: 'fib-trendline' });
-      }
-    }
-  }
-
   const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
   const visibleLevels = levels
     .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
@@ -262,23 +231,18 @@ function hitFib(annotation, x, y, context) {
     }))
     .filter((level) => level.y !== null);
 
-  if (visibleLevels.length && between(x, minX, endX, LINE_TOLERANCE_PX)) {
-    const nearest = visibleLevels
-      .map((level) => ({ ...level, distance: Math.abs(y - level.y) }))
-      .sort((a, b) => a.distance - b.distance)[0];
-    if (nearest && nearest.distance <= LINE_TOLERANCE_PX) {
-      candidates.push({ distance: nearest.distance, reason: 'fib-level' });
-    }
-  }
+  if (!visibleLevels.length || !between(x, minX, endX, LINE_TOLERANCE_PX)) return null;
 
-  const nearestHit = candidates.sort((a, b) => a.distance - b.distance)[0];
-  if (!nearestHit) return null;
+  const nearest = visibleLevels
+    .map((level) => ({ ...level, distance: Math.abs(y - level.y) }))
+    .sort((a, b) => a.distance - b.distance)[0];
+  if (!nearest || nearest.distance > LINE_TOLERANCE_PX) return null;
 
   return {
     id: annotation.id,
     type: annotation.type,
-    distance: nearestHit.distance,
-    reason: nearestHit.reason,
+    distance: nearest.distance,
+    reason: 'fib-level',
   };
 }
 

@@ -4,7 +4,7 @@ import * as secondaryViewport from '../../chart/secondary-viewport-controller.js
 import { getPrimaryChartContext, getSecondaryChartContext } from '../../chart/chart-context.js';
 import { flashPdaAnnotation } from '../../chart/pda-locate-flash.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
-import { getSelectedPda, selectPda } from '../../pda/pda-selection.js';
+import { getSelectedPda } from '../../pda/pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
 import { getSegmentById } from '../../segment/segment-store.js';
 import {
@@ -724,7 +724,6 @@ export function createOrderReviewActionController({
     recordInspectorHistory('Link PDA To Active Setup', () =>
       linkRefToActiveReviewSet(buildPdaOrderReviewRef(annotation))
     );
-    selectPda(annotation.id);
     bus.emit('status:update', {
       text: `${getPdaOrderRefLabel(annotation)} linked to active setup`,
       isError: false,
