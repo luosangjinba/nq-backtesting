@@ -807,16 +807,20 @@ html, body {
 .time-reaction-panel {
   display: grid;
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .time-reaction-list {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .time-reaction-card {
   display: grid;
   gap: 6px;
+  min-width: 0;
   padding: 8px;
   border: 1px solid #2a2e39;
   background: #171b26;
@@ -825,9 +829,10 @@ html, body {
 
 .time-reaction-card-header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
+  min-width: 0;
 }
 
 .time-reaction-time {
@@ -838,9 +843,45 @@ html, body {
 
 .time-reaction-locate-row {
   display: grid;
-  grid-template-columns: auto minmax(56px, 1fr) minmax(56px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 6px;
   align-items: center;
+  min-width: 0;
+}
+
+.time-reaction-locate-row .inspector-mini-btn {
+  min-width: 54px;
+}
+
+.time-reaction-subsection {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.time-reaction-subsection-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  color: #f0f3fa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.time-reaction-panel .inspector-textarea,
+.time-reaction-panel .inspector-input {
+  min-width: 0;
+}
+
+.time-reaction-panel .order-review-ref-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.time-reaction-panel .order-review-ref-actions {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .inspector-danger {

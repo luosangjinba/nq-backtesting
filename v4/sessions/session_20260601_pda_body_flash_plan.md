@@ -1402,3 +1402,22 @@ Completed validation:
 Remaining runtime note:
 
 - Headless smoke did not click through the full UI workflow. The module-level smokes cover store and Calendar rendering; browser smoke confirms no blank page on load.
+
+## Follow-up Fix - Daily Time Inspector Layout And Recording Model
+
+User feedback addressed:
+
+- Calendar `Time Reaction Observation` row no longer displays as a single `09:30` object.
+  - It now displays `Daily`, because Open enters the full day record.
+- Reaction rows no longer expose a category dropdown.
+  - Removed Observation/Reversal/Continuation/Sweep Reverse/No Trade/Noise UI.
+  - Reactions are now plain factual notes plus refs/locate.
+  - Legacy `reactionType` remains normalized for old data compatibility but is not used by the inspector UI.
+- `Pre 09:30 Context` is no longer a single locked item.
+  - Added `pre0930Context.items[]`.
+  - Each context item has its own note, refs, and locate controls.
+  - Old `pre0930Context.note/refs` imports/loads as the first context item.
+- Fixed inspector overflow in Time Reaction detail:
+  - moved the page to single-column blocks.
+  - constrained cards, textarea/select controls, refs, and locate rows to inspector width.
+- Review archive remap now includes `pre0930Context.items[].refs`.

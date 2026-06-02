@@ -458,6 +458,12 @@ function remapDailyTimeReviewRefs(review, refIdMaps = {}) {
     pre0930Context: {
       ...(review.pre0930Context || {}),
       refs: remapRefs(review.pre0930Context?.refs),
+      items: Array.isArray(review.pre0930Context?.items)
+        ? review.pre0930Context.items.map((item) => ({
+            ...item,
+            refs: remapRefs(item.refs),
+          }))
+        : review.pre0930Context?.items,
     },
     reactions: Array.isArray(review.reactions)
       ? review.reactions.map((reaction) => ({

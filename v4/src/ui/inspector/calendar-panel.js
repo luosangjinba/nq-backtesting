@@ -6,10 +6,7 @@ import {
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
-import {
-  DAILY_TIME_REACTION_TYPES,
-  getDailyTimeReviewByDate,
-} from '../../time-reaction/daily-time-review-store.js';
+import { getDailyTimeReviewByDate } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -333,10 +330,10 @@ function renderEconomicEventRow(item) {
 
 function renderObjectRow(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return renderEconomicEventRow(item);
-  const timeLabel = compactTime(item.timestamp);
+  const isTimeReaction = item.ref?.type === 'time-reaction';
+  const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const isOrderSetup = item.ref?.type === 'order-setup';
-  const isTimeReaction = item.ref?.type === 'time-reaction';
   return `
     <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}">
       <div class="calendar-object-main ${isOrderSetup ? 'calendar-object-main-setup' : ''}">
@@ -357,12 +354,16 @@ function countSectionContent(sectionData = {}) {
 function summarizeTimeReactionReview(review) {
   if (!review) return 'No observations yet';
   let sections = countSectionContent(review.pre0930Context) + countSectionContent(review.summary0930To1100);
-  let refs = (review.pre0930Context?.refs || []).length + (review.summary0930To1100?.refs || []).length;
+  (review.pre0930Context?.items || []).forEach((item) => {
+    if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
+  });
+  let refs = (review.pre0930Context?.refs || []).length
+    + (review.summary0930To1100?.refs || []).length
+    + (review.pre0930Context?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0);
   (review.reactions || []).forEach((reaction) => {
-    const hasType = reaction.reactionType && reaction.reactionType !== DAILY_TIME_REACTION_TYPES.OTHER;
     const hasNote = Boolean(reaction.note);
     const refCount = Array.isArray(reaction.refs) ? reaction.refs.length : 0;
-    if (hasType || hasNote || refCount) sections += 1;
+    if (hasNote || refCount) sections += 1;
     refs += refCount;
   });
   if (!sections && !refs) return 'No observations yet';

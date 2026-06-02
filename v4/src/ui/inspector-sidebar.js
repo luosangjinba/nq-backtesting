@@ -69,9 +69,12 @@ import {
 } from '../order/order-ref-metadata.js';
 import {
   addDailyTimeReviewRef,
+  addDailyTimeContextItem,
   getDailyTimeReviewByDate,
   getOrCreateDailyTimeReview,
   removeDailyTimeReviewRef,
+  removeDailyTimeContextItem,
+  updateDailyTimeContextItem,
   updateDailyTimeReaction,
   updateDailyTimeReviewSection,
 } from '../time-reaction/daily-time-review-store.js';
@@ -574,6 +577,12 @@ function getDailyTimeTargetFromElement(actionEl) {
       time: actionEl.dataset.dailyTimeReactionTime || '09:30',
     };
   }
+  if (section === 'pre0930Item') {
+    return {
+      section: 'pre0930Item',
+      itemId: actionEl.dataset.dailyTimeContextItemId || '',
+    };
+  }
   if (section === 'summary0930To1100') return { section: 'summary' };
   return { section: 'pre0930Context' };
 }
@@ -584,6 +593,7 @@ function getDailyTimeSectionName(target = {}) {
 
 function getDailyTimeTargetLabel(target = {}) {
   if (target.section === 'reaction') return target.time || 'reaction';
+  if (target.section === 'pre0930Item') return 'Pre 09:30 Context';
   if (target.section === 'summary') return '09:30-11:00 Summary';
   return 'Pre 09:30 Context';
 }
@@ -611,6 +621,9 @@ function getDailyTimeTargetLocate(date, target = {}) {
   if (target.section === 'reaction') {
     return review.reactions.find((reaction) => reaction.time === getDailyTimeTargetTime(target))?.locate || {};
   }
+  if (target.section === 'pre0930Item') {
+    return (review.pre0930Context?.items || []).find((item) => item.id === target.itemId)?.locate || {};
+  }
   return review[getDailyTimeSectionName(target)]?.locate || {};
 }
 
@@ -619,6 +632,9 @@ function patchDailyTimeTargetLocate(date, target = {}, patch = {}) {
   const locate = { ...currentLocate, ...patch };
   if (target.section === 'reaction') {
     return updateDailyTimeReaction(date, getDailyTimeTargetTime(target), { locate });
+  }
+  if (target.section === 'pre0930Item') {
+    return updateDailyTimeContextItem(date, target.itemId, { locate });
   }
   return updateDailyTimeReviewSection(date, getDailyTimeSectionName(target), { locate });
 }
@@ -916,21 +932,21 @@ function handleInspectorChange(e) {
     return;
   }
 
-  if (action === 'daily-time-reaction-type') {
-    const date = e.target.dataset.dailyTimeDate;
-    const time = e.target.dataset.dailyTimeReactionTime;
-    recordInspectorHistory('Update Time Reaction Type', () => (
-      updateDailyTimeReaction(date, time, { reactionType: e.target.value })
-    ));
-    refreshSelection();
-    return;
-  }
-
   if (action === 'daily-time-reaction-note') {
     const date = e.target.dataset.dailyTimeDate;
     const time = e.target.dataset.dailyTimeReactionTime;
     recordInspectorHistory('Update Time Reaction Note', () => (
       updateDailyTimeReaction(date, time, { note: e.target.value })
+    ));
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-context-item-note') {
+    const date = e.target.dataset.dailyTimeDate;
+    const itemId = e.target.dataset.dailyTimeContextItemId;
+    recordInspectorHistory('Update Time Context Note', () => (
+      updateDailyTimeContextItem(date, itemId, { note: e.target.value })
     ));
     refreshSelection();
     return;
@@ -1053,6 +1069,20 @@ function handleInspectorClick(e) {
         : 'Link selected object failed',
       isError: !added,
     });
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-context-item-add') {
+    recordInspectorHistory('Add Time Context', () => addDailyTimeContextItem(actionEl.dataset.dailyTimeDate));
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-context-item-remove') {
+    recordInspectorHistory('Remove Time Context', () => (
+      removeDailyTimeContextItem(actionEl.dataset.dailyTimeDate, actionEl.dataset.dailyTimeContextItemId)
+    ));
     refreshSelection();
     return;
   }

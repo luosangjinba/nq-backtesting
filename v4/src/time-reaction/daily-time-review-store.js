@@ -72,6 +72,44 @@ function normalizeSection(input = {}, dateKey = '', fallbackTime = '09:30') {
   };
 }
 
+function makeContextItemId() {
+  return `context_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeContextItem(input = {}, dateKey = '', fallbackTime = '09:30') {
+  return {
+    id: normalizeString(input.id, makeContextItemId()),
+    note: normalizeString(input.note),
+    refs: normalizeRefs(input.refs),
+    locate: normalizeLocate(input.locate, dateKey, fallbackTime),
+  };
+}
+
+function normalizeContextItems(input = {}, dateKey = '') {
+  const explicitItems = Array.isArray(input.items)
+    ? input.items.map((item) => normalizeContextItem(item, dateKey)).filter((item) => item.id)
+    : [];
+  if (explicitItems.length) return explicitItems;
+  if (input.note || (Array.isArray(input.refs) && input.refs.length)) {
+    return [normalizeContextItem({
+      id: 'context_1',
+      note: input.note,
+      refs: input.refs,
+      locate: input.locate,
+    }, dateKey)];
+  }
+  return [normalizeContextItem({ id: 'context_1' }, dateKey)];
+}
+
+function normalizePre0930Context(input = {}, dateKey = '') {
+  return {
+    note: '',
+    refs: [],
+    locate: normalizeLocate(input.locate, dateKey, '09:30'),
+    items: normalizeContextItems(input, dateKey),
+  };
+}
+
 function getTimestampForDateTime(dateKey, timeText) {
   const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -130,7 +168,7 @@ export function normalizeDailyTimeReview(input = {}, options = {}) {
     source: normalizeString(input.source, 'manual'),
     createdAt: normalizeTimestamp(input.createdAt, now),
     updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
-    pre0930Context: normalizeSection(input.pre0930Context, date, '09:30'),
+    pre0930Context: normalizePre0930Context(input.pre0930Context, date),
     reactions: normalizeReactions(input.reactions, date),
     summary0930To1100: normalizeSection(input.summary0930To1100, date, '11:00'),
   };
@@ -182,6 +220,45 @@ export function updateDailyTimeReviewSection(date, sectionName, patch = {}, inst
   });
 }
 
+export function addDailyTimeContextItem(date, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  if (!review) return null;
+  const item = normalizeContextItem({ id: makeContextItemId(), ...patch }, review.date);
+  return updateDailyTimeReview(review.id, {
+    pre0930Context: {
+      ...(review.pre0930Context || {}),
+      items: [...(review.pre0930Context?.items || []), item],
+    },
+  });
+}
+
+export function updateDailyTimeContextItem(date, itemId, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  return updateDailyTimeReview(review.id, {
+    pre0930Context: {
+      ...(review.pre0930Context || {}),
+      items: (review.pre0930Context?.items || []).map((item) => (
+        item.id === id ? { ...item, ...patch } : item
+      )),
+    },
+  });
+}
+
+export function removeDailyTimeContextItem(date, itemId, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  const items = (review.pre0930Context?.items || []).filter((item) => item.id !== id);
+  return updateDailyTimeReview(review.id, {
+    pre0930Context: {
+      ...(review.pre0930Context || {}),
+      items: items.length ? items : [normalizeContextItem({ id: 'context_1' }, review.date)],
+    },
+  });
+}
+
 export function updateDailyTimeReaction(date, time, patch = {}, instrument = 'NQ') {
   const review = getOrCreateDailyTimeReview(date, instrument);
   if (!review) return null;
@@ -220,6 +297,10 @@ function getSectionRefs(review, target = {}) {
     const reaction = review.reactions.find((item) => item.time === normalizeTimeText(target.time));
     return Array.isArray(reaction?.refs) ? reaction.refs : [];
   }
+  if (target.section === 'pre0930Item') {
+    const item = (review.pre0930Context?.items || []).find((candidate) => candidate.id === normalizeString(target.itemId));
+    return Array.isArray(item?.refs) ? item.refs : [];
+  }
   const sectionName = target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
   return Array.isArray(review[sectionName]?.refs) ? review[sectionName].refs : [];
 }
@@ -231,6 +312,17 @@ function updateSectionRefs(review, target = {}, refs = []) {
       reactions: review.reactions.map((reaction) => (
         reaction.time === time ? { ...reaction, refs } : reaction
       )),
+    };
+  }
+  if (target.section === 'pre0930Item') {
+    const itemId = normalizeString(target.itemId);
+    return {
+      pre0930Context: {
+        ...(review.pre0930Context || {}),
+        items: (review.pre0930Context?.items || []).map((item) => (
+          item.id === itemId ? { ...item, refs } : item
+        )),
+      },
     };
   }
   const sectionName = target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
