@@ -960,3 +960,20 @@ Validation:
 
 - `node --check` passed for `inspector-sidebar.js`.
 - `git diff --check` passed.
+
+## Step 203 Implementation - Remove Embedded Active Setup From Other Details
+
+Implemented:
+
+- Removed the embedded `renderOrderReviewPanel()` from PDA detail rendering.
+- Removed the embedded `renderOrderReviewPanel()` from Segment detail rendering.
+- Removed the embedded `renderOrderReviewPanel()` from Composite detail rendering.
+- SMT detail rendering already did not include the active setup panel.
+- Existing lightweight link actions remain:
+  - PDA: `Link PDA To Active Setup`
+  - Segment: `Link Segment To Active Setup`
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.

@@ -366,7 +366,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 200: Order Setup 详情页：把现有 `Active Order Setup` 内容迁移为 `Order Setup Detail` 页面；页面顶部显示 Back、setup 摘要、当前 active/visible 状态；正文保留 Display、Anchor、Execution、Entry Context、Reasons、Result
 - [x] Step 201: Order Setups 列表入口收敛：列表中的 `Open` 进入 `Order Setup Detail`；`Locate / Hide / Delete` 仍留在列表菜单；点击 Open 同步 set active，但不滚动到同层下方 section
 - [x] Step 202: Calendar Open 入口收敛：Calendar 中 Order Setup / PDA / Segment / Composite / SMT 的 `Open` 都进入对应详情页；`Locate` 继续只定位与快闪，不切换详情页
-- [ ] Step 203: PDA / Segment / Composite / SMT 详情页去除常驻 Active：打开这些对象详情时只显示该对象自己的字段与动作，不再在页面下方附带整套 Active Order Setup；仅保留必要的轻量动作，例如 link selected object/ref to active setup reason
+- [x] Step 203: PDA / Segment / Composite / SMT 详情页去除常驻 Active：打开这些对象详情时只显示该对象自己的字段与动作，不再在页面下方附带整套 Active Order Setup；仅保留必要的轻量动作，例如 link selected object/ref to active setup reason
 - [ ] Step 204: Back / 删除 / 空状态规则：Back 回到打开前的 Calendar/list 与 selected date；删除当前详情对象后返回上一层并刷新列表；无 active setup 不显示独立 Active 页，只在 Order Setups 列表提示选择或创建
 - [x] Step 205: 重复对象级动作收敛：Active Order Setup 顶部不再显示 Clear Active / Locate / Hide / Delete；Locate / Open / Hide / Delete 统一保留在 Order Setups 列表菜单，Active 区只保留 Display、Anchor、Execution、Entry Context、Reasons、Result 等当前 setup 内容控件
 - [ ] Step 206: 视觉与交互收口：详情页标题层级压缩，Back 固定在详情顶部；长标题、notes、reason refs 必须换行不撑爆 Inspector；避免详情页和列表页同时显示两个 competing current object

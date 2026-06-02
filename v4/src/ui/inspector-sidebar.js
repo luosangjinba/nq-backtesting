@@ -161,10 +161,6 @@ function renderAnnotation(annotation) {
     ${renderCalendarReturnAction('pda', annotation.id)}
     ${renderInspectorBackAction()}
     ${renderAnnotationPanel(annotation, renderArchiveActions())}
-    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
-      createAction: 'order-review-create-empty',
-      createLabel: 'Create Order Setup',
-    }))}
   `;
 }
 
@@ -175,10 +171,6 @@ function renderSegment(segment) {
     ${renderCalendarReturnAction('segment', segment.id)}
     ${renderInspectorBackAction()}
     ${renderSegmentPanel(segment)}
-    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
-      createAction: 'order-review-create-segment',
-      createLabel: 'Create Setup With Segment',
-    }))}
   `;
 }
 
@@ -189,10 +181,6 @@ function renderSegmentGroup(segmentGroup) {
     ${renderCalendarReturnAction('composite', segmentGroup.id)}
     ${renderInspectorBackAction()}
     ${renderSegmentGroupPanel(segmentGroup)}
-    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
-      createAction: 'order-review-create-composite',
-      createLabel: 'Create Setup With Composite',
-    }))}
   `;
 }
 
