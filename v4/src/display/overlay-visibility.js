@@ -123,6 +123,13 @@ export function getStructureOverlayVisibility({
     highlightPdaIds.add(id);
   });
 
+  segments.filter((segment) => segment.display?.hidden).forEach((segment) => visibleSegmentIds.delete(segment.id));
+  groups.filter((group) => group.display?.hidden).forEach((group) => visibleGroupIds.delete(group.id));
+  annotations.filter((annotation) => annotation.display?.hidden).forEach((annotation) => {
+    visiblePdaIds.delete(annotation.id);
+    highlightPdaIds.delete(annotation.id);
+  });
+
   return {
     visibleSegmentIds,
     hiddenSegmentIds: new Set(),

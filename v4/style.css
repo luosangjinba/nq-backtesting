@@ -629,7 +629,8 @@ html, body {
   border-color: #363a45;
 }
 
-.calendar-setup-visibility {
+.calendar-setup-visibility,
+.calendar-object-visibility {
   position: relative;
   width: 16px;
   height: 18px;
@@ -639,7 +640,8 @@ html, body {
   cursor: pointer;
 }
 
-.calendar-setup-visibility::before {
+.calendar-setup-visibility::before,
+.calendar-object-visibility::before {
   content: '';
   position: absolute;
   left: 4px;
@@ -651,12 +653,14 @@ html, body {
   box-shadow: 0 0 0 1px rgba(38, 166, 154, 0.42);
 }
 
-.calendar-setup-visibility.is-hidden::before {
+.calendar-setup-visibility.is-hidden::before,
+.calendar-object-visibility.is-hidden::before {
   background: #787b86;
   box-shadow: 0 0 0 1px rgba(120, 123, 134, 0.42);
 }
 
-.calendar-setup-visibility.is-hidden::after {
+.calendar-setup-visibility.is-hidden::after,
+.calendar-object-visibility.is-hidden::after {
   content: '';
   position: absolute;
   left: 3px;
@@ -668,14 +672,28 @@ html, body {
   transform-origin: center;
 }
 
-.calendar-setup-visibility:hover::before {
+.calendar-setup-visibility:hover::before,
+.calendar-object-visibility:hover::before {
   box-shadow: 0 0 0 2px rgba(67, 160, 255, 0.28);
+}
+
+.calendar-day-visibility-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 6px 0 8px;
 }
 
 .calendar-object-actions {
   display: flex;
   flex: 0 0 auto;
   gap: 4px;
+}
+
+.calendar-object-row.is-hidden .calendar-object-summary,
+.calendar-object-row.is-hidden .calendar-object-time,
+.calendar-object-row.is-hidden .calendar-object-type {
+  color: #787b86;
 }
 
 .calendar-object-menu {

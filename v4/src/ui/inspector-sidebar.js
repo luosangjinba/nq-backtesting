@@ -8,7 +8,7 @@ import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
-import { getAnnotationById } from '../pda/pda-store.js';
+import { getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import {
   clearSegmentGroupSelection,
   clearSegmentSelection,
@@ -17,8 +17,8 @@ import {
   selectSegment,
   selectSegmentGroup,
 } from '../segment/segment-selection.js';
-import { getSegmentById } from '../segment/segment-store.js';
-import { getSegmentGroupById } from '../segment/segment-group-store.js';
+import { getSegmentById, updateSegment } from '../segment/segment-store.js';
+import { getSegmentGroupById, updateSegmentGroup } from '../segment/segment-group-store.js';
 import { getDrawingSets, isDrawingSetFocused, locateDrawingSet } from '../segment/drawing-set-list.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
 import { renderAnnotationPanel } from './inspector/pda-panel.js';
@@ -45,7 +45,9 @@ import {
   getNextCalendarViewDate,
   renderCalendarPanel,
 } from './inspector/calendar-panel.js';
-import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
+import { updateEventTime, updateKillzone, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
+import { getCalendarDayGroups, getCalendarReviewIndex } from '../calendar/calendar-review-index.js';
+import { CALENDAR_OBJECT_TYPES } from '../calendar/calendar-types.js';
 import { updateEconomicCalendarFilters } from '../economic-calendar/economic-calendar-store.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
@@ -559,6 +561,83 @@ function getCompositeTimestamp(group) {
   return terminal?.end?.timestamp ?? terminal?.end?.time ?? terminal?.start?.timestamp ?? terminal?.start?.time ?? null;
 }
 
+function isCalendarVisibilityType(type) {
+  return [
+    CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.PDA,
+    CALENDAR_OBJECT_TYPES.SEGMENT,
+    CALENDAR_OBJECT_TYPES.COMPOSITE,
+    CALENDAR_OBJECT_TYPES.KILLZONE,
+    CALENDAR_OBJECT_TYPES.TIME_LINE,
+  ].includes(type);
+}
+
+function isCalendarChartObjectBulkType(type) {
+  return isCalendarVisibilityType(type);
+}
+
+function setCalendarObjectHidden(type, id, hidden) {
+  if (!type || !id || !isCalendarVisibilityType(type)) return false;
+  if (type === CALENDAR_OBJECT_TYPES.SMT) {
+    const record = getSmtRecordById(id);
+    if (!record) return false;
+    updateSmtRecord(id, { display: { ...(record.display || {}), hidden } });
+    return true;
+  }
+  if (type === CALENDAR_OBJECT_TYPES.PDA) {
+    const annotation = getAnnotationById(id);
+    if (!annotation) return false;
+    updateAnnotation(id, { display: { ...(annotation.display || {}), hidden } });
+    return true;
+  }
+  if (type === CALENDAR_OBJECT_TYPES.SEGMENT) {
+    const segment = getSegmentById(id);
+    if (!segment) return false;
+    updateSegment(id, { display: { ...(segment.display || {}), hidden } });
+    return true;
+  }
+  if (type === CALENDAR_OBJECT_TYPES.COMPOSITE) {
+    const group = getSegmentGroupById(id);
+    if (!group) return false;
+    updateSegmentGroup(id, { display: { ...(group.display || {}), hidden } });
+    return true;
+  }
+  if (type === CALENDAR_OBJECT_TYPES.KILLZONE) {
+    return Boolean(updateKillzone(id, { enabled: !hidden }));
+  }
+  if (type === CALENDAR_OBJECT_TYPES.TIME_LINE) {
+    return Boolean(updateEventTime(id, { enabled: !hidden }));
+  }
+  return false;
+}
+
+function isCalendarObjectHidden(type, id) {
+  if (type === CALENDAR_OBJECT_TYPES.SMT) return Boolean(getSmtRecordById(id)?.display?.hidden);
+  if (type === CALENDAR_OBJECT_TYPES.PDA) return Boolean(getAnnotationById(id)?.display?.hidden);
+  if (type === CALENDAR_OBJECT_TYPES.SEGMENT) return Boolean(getSegmentById(id)?.display?.hidden);
+  if (type === CALENDAR_OBJECT_TYPES.COMPOSITE) return Boolean(getSegmentGroupById(id)?.display?.hidden);
+  const index = getCalendarReviewIndex();
+  const item = Array.from(index.days.values())
+    .flatMap((day) => Array.from(day.groups.values()).flat())
+    .find((candidate) => candidate.ref?.type === type && candidate.ref?.id === id);
+  if (type === CALENDAR_OBJECT_TYPES.KILLZONE || type === CALENDAR_OBJECT_TYPES.TIME_LINE) {
+    return item?.source?.enabled === false;
+  }
+  return false;
+}
+
+function setCalendarDayChartObjectsHidden(dateKey, hidden) {
+  const groups = getCalendarDayGroups(dateKey, getCalendarReviewIndex());
+  let changed = 0;
+  groups.flatMap((group) => group.rows).forEach((item) => {
+    const type = item.ref?.type;
+    const id = item.ref?.id;
+    if (!isCalendarChartObjectBulkType(type) || !id) return;
+    if (setCalendarObjectHidden(type, id, hidden)) changed += 1;
+  });
+  return changed;
+}
+
 function openCalendarObject(type, id) {
   if (!type || !id) return false;
   if (type === 'order-setup') {
@@ -770,6 +849,37 @@ function handleInspectorClick(e) {
       text: opened ? 'Calendar object opened' : 'Calendar object cannot be opened',
       isError: !opened,
     });
+    return;
+  }
+
+  if (action === 'calendar-object-toggle-hidden') {
+    const type = actionEl.dataset.objectType;
+    const id = actionEl.dataset.objectId;
+    const nextHidden = !isCalendarObjectHidden(type, id);
+    const changed = recordInspectorHistory(nextHidden ? 'Hide Calendar Object' : 'Show Calendar Object', () => (
+      setCalendarObjectHidden(type, id, nextHidden)
+    ));
+    bus.emit('status:update', {
+      text: changed
+        ? `${nextHidden ? 'Hidden' : 'Shown'} calendar object`
+        : 'Calendar object visibility cannot be changed',
+      isError: !changed,
+    });
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'calendar-day-show-chart-objects' || action === 'calendar-day-hide-chart-objects') {
+    const date = actionEl.dataset.calendarDate || calendarSelectedDate;
+    const hidden = action === 'calendar-day-hide-chart-objects';
+    const changed = recordInspectorHistory(hidden ? 'Hide Calendar Day Objects' : 'Show Calendar Day Objects', () => (
+      setCalendarDayChartObjectsHidden(date, hidden)
+    ));
+    bus.emit('status:update', {
+      text: `${hidden ? 'Hidden' : 'Shown'} ${changed || 0} chart objects for ${date}`,
+      isError: !changed,
+    });
+    refreshSelection();
     return;
   }
 

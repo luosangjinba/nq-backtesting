@@ -62,6 +62,10 @@ export function normalizeSmtRecord(input = {}, { preserveId = false } = {}) {
     compareInstrument: 'ES',
     source: input.source || 'manual',
     note: input.note || '',
+    display: {
+      ...(input.display || {}),
+      hidden: Boolean(input.display?.hidden),
+    },
     createdAt: input.createdAt || now,
     updatedAt: input.updatedAt || now,
   };

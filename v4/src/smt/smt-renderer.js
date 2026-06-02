@@ -36,11 +36,12 @@ function attachSecondary(primitive) {
 }
 
 function shouldRenderOnPrimary(record) {
-  return record.timeframe === timeframeToString(store.getCurrentTimeframe());
+  return !record.display?.hidden && record.timeframe === timeframeToString(store.getCurrentTimeframe());
 }
 
 function shouldRenderOnSecondary(record) {
   return (
+    !record.display?.hidden &&
     secondaryStore.isSecondaryEnabled() &&
     secondaryStore.getSecondaryInstrument() === 'ES' &&
     record.timeframe === timeframeToString(secondaryStore.getSecondaryTimeframe())

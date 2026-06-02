@@ -1628,3 +1628,33 @@ Boundary:
   - Killzone / Time Line: overlay item `enabled=false`
 - Do not change Review JSON schema beyond existing display/overlay fields.
 - Economic Events, Time Reaction, and Order Setups are not part of the new day-level chart object bulk buttons.
+
+## Step 230 Implementation - Calendar Row Visibility Controls
+
+Completed:
+
+- Added a generic Calendar object visibility toggle using the same green/gray slash visual language as Order Setups.
+- Row-level visibility now supports:
+  - SMT via `record.display.hidden`
+  - PDA via `annotation.display.hidden`
+  - Segment via `segment.display.hidden`
+  - Composite via `segmentGroup.display.hidden`
+  - Killzone via `enabled=false`
+  - Time Line via `enabled=false`
+- Hidden rows are visually muted in the Calendar day list.
+- Renderers now respect the new hidden states:
+  - SMT renderer skips `display.hidden`.
+  - display resolver excludes hidden PDA / Segment / Composite and prevents Structure Sets focus from re-adding hidden objects.
+  - Time overlay renderer already respected `enabled=false`.
+- `inspector-sidebar.js` now handles `calendar-object-toggle-hidden` and records the change in history.
+
+Validation:
+
+- `node --check` passed for:
+  - `calendar-panel.js`
+  - `inspector-sidebar.js`
+  - `display-mode.js`
+  - `overlay-visibility.js`
+  - `smt-store.js`
+  - `smt-renderer.js`
+- `git diff --check` passed.

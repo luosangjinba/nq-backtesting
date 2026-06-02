@@ -230,6 +230,24 @@ function getObjectTypeLabel(item) {
   return 'Obj';
 }
 
+function canToggleObjectVisibility(item) {
+  return [
+    CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.PDA,
+    CALENDAR_OBJECT_TYPES.SEGMENT,
+    CALENDAR_OBJECT_TYPES.COMPOSITE,
+    CALENDAR_OBJECT_TYPES.KILLZONE,
+    CALENDAR_OBJECT_TYPES.TIME_LINE,
+  ].includes(item.ref?.type);
+}
+
+function isCalendarObjectHidden(item) {
+  if (item.ref?.type === CALENDAR_OBJECT_TYPES.KILLZONE || item.ref?.type === CALENDAR_OBJECT_TYPES.TIME_LINE) {
+    return item.source?.enabled === false;
+  }
+  return Boolean(item.source?.display?.hidden);
+}
+
 function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
   const canOpen = ['order-setup', 'time-reaction', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
@@ -312,6 +330,23 @@ function renderSetupVisibilityToggle(item) {
   `;
 }
 
+function renderObjectVisibilityToggle(item) {
+  if (!canToggleObjectVisibility(item) || !item.ref?.id) return '';
+  const hidden = isCalendarObjectHidden(item);
+  const label = hidden ? 'Hidden object. Click to show.' : 'Visible object. Click to hide.';
+  return `
+    <button
+      class="calendar-object-visibility ${hidden ? 'is-hidden' : 'is-visible'}"
+      data-inspector-action="calendar-object-toggle-hidden"
+      data-object-type="${escapeHtml(item.ref.type)}"
+      data-object-id="${escapeHtml(item.ref.id)}"
+      aria-label="${label}"
+      title="${label}"
+      type="button"
+    ></button>
+  `;
+}
+
 function renderEconomicEventRow(item) {
   const event = item.source || {};
   const impactLabel = getEconomicImpactLabel(event);
@@ -337,12 +372,14 @@ function renderObjectRow(item) {
   const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const isOrderSetup = item.ref?.type === 'order-setup';
+  const isHidden = isCalendarObjectHidden(item);
   return `
-    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}">
+    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
       <div class="calendar-object-main ${isOrderSetup ? 'calendar-object-main-setup' : ''}">
         <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
         <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
         ${renderSetupVisibilityToggle(item)}
+        ${renderObjectVisibilityToggle(item)}
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
       ${renderObjectActions(item)}
@@ -530,6 +567,20 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
             ? `<button class="inspector-mini-btn" data-inspector-action="calendar-show-all-days" type="button">All loaded days</button>`
             : ''
         }
+      </div>
+      <div class="calendar-day-visibility-actions">
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="calendar-day-show-chart-objects"
+          data-calendar-date="${escapeHtml(activeDate)}"
+          type="button"
+        >Show Day Objects</button>
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="calendar-day-hide-chart-objects"
+          data-calendar-date="${escapeHtml(activeDate)}"
+          type="button"
+        >Hide Day Objects</button>
       </div>
       <div class="calendar-object-list">
         ${objectGroups.map(renderObjectGroup).join('')}
