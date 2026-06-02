@@ -71,6 +71,7 @@ let expandedOrderReviewId = null;
 let selectedSmtId = null;
 let calendarSelectedDate = '';
 let calendarViewDate = '';
+let calendarOpenGroups = new Set();
 let suppressActiveReviewRender = false;
 let suppressSelectionBackTarget = false;
 
@@ -347,7 +348,7 @@ function renderEmpty() {
     viewDate: calendarViewDate,
   });
   bodyEl.innerHTML = `
-    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
+    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
     ${renderArchiveActions()}
   `;
 }
@@ -362,7 +363,7 @@ function renderArchivePanel() {
     viewDate: calendarViewDate,
   });
   bodyEl.innerHTML = `
-    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
+    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
     ${renderArchiveActions()}
   `;
 }
@@ -552,6 +553,15 @@ function getCurrentSegmentGroup() {
 
 function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
+}
+
+function captureCalendarOpenGroups() {
+  if (!bodyEl) return;
+  calendarOpenGroups = new Set(
+    Array.from(bodyEl.querySelectorAll('.calendar-object-group[open][data-calendar-group-type]'))
+      .map((groupEl) => groupEl.dataset.calendarGroupType)
+      .filter(Boolean)
+  );
 }
 
 function getCompositeTimestamp(group) {
@@ -858,6 +868,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'calendar-object-toggle-hidden') {
+    captureCalendarOpenGroups();
     const type = actionEl.dataset.objectType;
     const id = actionEl.dataset.objectId;
     const nextHidden = !isCalendarObjectHidden(type, id);
@@ -875,6 +886,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'calendar-day-show-chart-objects' || action === 'calendar-day-hide-chart-objects') {
+    captureCalendarOpenGroups();
     const date = actionEl.dataset.calendarDate || calendarSelectedDate;
     const hidden = action === 'calendar-day-hide-chart-objects';
     const changed = recordInspectorHistory(hidden ? 'Hide Calendar Day Objects' : 'Show Calendar Day Objects', () => (

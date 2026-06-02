@@ -468,15 +468,17 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
   ];
 }
 
-function renderObjectGroup(group) {
+function renderObjectGroup(group, options = {}) {
   const isEconomicGroup = group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT;
   const rows = group.rows.length
     ? group.rows.map(renderObjectRow).join('')
     : '<div class="calendar-object-empty">None</div>';
   const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
+  const openGroups = options.openGroups instanceof Set ? options.openGroups : new Set(options.openGroups || []);
+  const isOpen = isOrderSetupGroup || openGroups.has(group.type);
   const countLabel = `${group.rows.length}`;
   return `
-    <details class="calendar-object-group" ${isOrderSetupGroup ? 'open' : ''}>
+    <details class="calendar-object-group" data-calendar-group-type="${escapeHtml(group.type)}" ${isOpen ? 'open' : ''}>
       <summary class="calendar-object-title">
         <span>${escapeHtml(group.label)}</span>
         <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
@@ -520,7 +522,7 @@ export function getDefaultCalendarDate() {
   return range?.start || '';
 }
 
-export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
+export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGroups = [] } = {}) {
   const range = getLoadedDateRange();
   if (!range) {
     return section('Calendar', '<div class="inspector-empty">Load chart data to show calendar.</div>');
@@ -597,7 +599,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
         >Hide Day Objects${dayChartObjectCount ? ` (${dayChartObjectCount})` : ''}</button>
       </div>
       <div class="calendar-object-list">
-        ${objectGroups.map(renderObjectGroup).join('')}
+        ${objectGroups.map((group) => renderObjectGroup(group, { openGroups })).join('')}
       </div>
     </div>
   `;
