@@ -1374,3 +1374,31 @@ Validation:
   - `daily-time-review-store.js`
   - `time-reaction-panel.js`
   - `inspector-sidebar.js`
+
+## Step 223 Validation - Daily Time Reaction Observation
+
+Completed validation:
+
+- Full v4 source syntax:
+  - `rg --files v4/src -g '*.js' | xargs -I{} node --check {}`
+- API:
+  - `curl -s http://127.0.0.1:8766/v4/health` returned ok.
+- Static web:
+  - `curl -s -I http://127.0.0.1:8001/index.html` returned 200.
+  - Headless Chrome rendered `index.html` with toolbar, chart container, replay controls, and inspector.
+- Store smoke:
+  - created `2023-01-03`
+  - updated `pre0930Context.locate`
+  - updated `09:30` reaction type/note/locate
+  - added and removed a PDA ref
+  - confirmed four fixed reactions remain.
+- Calendar render smoke:
+  - loaded a minimal `2023-01-03` bar range into store.
+  - rendered Calendar panel.
+  - confirmed `Time Reaction Observation` group exists.
+  - confirmed `time-reaction` Open action exists.
+- `git diff --check` passed.
+
+Remaining runtime note:
+
+- Headless smoke did not click through the full UI workflow. The module-level smokes cover store and Calendar rendering; browser smoke confirms no blank page on load.

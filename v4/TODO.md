@@ -390,7 +390,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 220: Link Selected Object：支持把当前选中的 PDA / Segment / Composite / SMT / Order Setup 链接到 pre0930、某个 reaction 或 summary；refs 记录 role/source metadata，删除 ref 不影响原对象
 - [x] Step 221: Locate 第一版：每个 reaction/section 支持主图定位到 `date + time`；第一版支持手动选择 timeframe 并在 locate 时切换主图周期后定位与快闪；secondary chart 仅在当前已开启且已加载时可选，不自动打开副图
 - [x] Step 222: 高周期环境衔接：Pre 09:30 Context 与 Summary 支持链接 HTF Segment / Composite / PDA，用于记录“为什么这个时间反应有效或无效”；不做系统自动判断，不自动推荐 PDA
-- [ ] Step 223: 验证与收口：覆盖 localStorage 恢复、Review JSON export/import/remap、Calendar 日详情编辑、四个 reaction 编辑、Link Selected Object、ref locate、主图切周期定位、Economic Events 默认折叠不受影响、全量 JS 语法、Web smoke 与 `git diff --check`
+- [x] Step 223: 验证与收口：覆盖 localStorage 恢复、Review JSON export/import/remap、Calendar 日详情编辑、四个 reaction 编辑、Link Selected Object、ref locate、主图切周期定位、Economic Events 默认折叠不受影响、全量 JS 语法、Web smoke 与 `git diff --check`
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
