@@ -14,7 +14,6 @@ import {
   formatDateTimeMs,
   formatNumber,
   formatTime,
-  section,
 } from './render-utils.js';
 
 function labelFromDefinitions(definitions, value) {
@@ -361,19 +360,6 @@ export function renderOrderReviewDetailPanel(order, options = {}) {
   return `
     <section class="inspector-section" data-inspector-section="order-setup-detail">
       <div class="inspector-section-title">Order Setup Detail</div>
-      ${content}
-    </section>
-  `;
-}
-
-export function renderOrderReviewPanel(orderReviews = [], options = {}) {
-  const activeOrder = orderReviews.find((order) => order.id === options.activeOrderReviewId) || null;
-  const content = activeOrder
-    ? renderActiveOrderSetup(activeOrder, options)
-    : '<div class="drawing-set-empty">No active Order Setup.</div>';
-  return `
-    <section class="inspector-section" data-inspector-section="active-order-setup">
-      <div class="inspector-section-title">Active Order Setup</div>
       ${content}
     </section>
   `;

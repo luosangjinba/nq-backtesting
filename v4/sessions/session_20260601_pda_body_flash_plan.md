@@ -961,6 +961,33 @@ Validation:
 - `node --check` passed for `inspector-sidebar.js`.
 - `git diff --check` passed.
 
+## Step 204-206 Implementation - Back, Delete, Empty State, Layout Cleanup
+
+Implemented:
+
+- Back now restores the previous Inspector page state through the page stack.
+- Calendar selected/view dates are preserved when returning to home/archive pages.
+- Detail refresh now respects current page state:
+  - editing Order Setup detail no longer falls back to the empty page
+  - refreshing PDA / Segment / Composite / SMT details keeps the current detail context
+- Deleting the current detail object returns to the previous page:
+  - PDA delete
+  - Segment delete
+  - Composite delete
+  - SMT delete
+  - Order Setup delete via `order-review:changed` missing-detail fallback
+- Removed the old `Back to Calendar` special case and `calendarReturnContext`.
+- Removed the standalone `Active Order Setup` renderer/export and sidebar usage.
+- Home and Archive no longer render a competing active setup section below Calendar.
+- Order Setup is now shown only as `Order Setup Detail`.
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `node --check` passed for `order-review-panel.js`.
+- `git diff --check` passed.
+- Source search confirmed no remaining `Back to Calendar`, `calendar-return`, `active-order-setup`, or `renderOrderReviewPanel` usage.
+
 ## Step 203 Implementation - Remove Embedded Active Setup From Other Details
 
 Implemented:

@@ -25,10 +25,11 @@ import { renderAnnotationPanel } from './inspector/pda-panel.js';
 import { renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
-import { renderOrderReviewDetailPanel, renderOrderReviewPanel } from './inspector/order-review-panel.js';
+import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import {
   canPopInspectorPage,
+  getInspectorPage,
   popInspectorPage,
   pushInspectorPage,
   replaceInspectorPage,
@@ -52,7 +53,6 @@ import {
 import { getSelectedOrderSetupElement } from '../order/order-setup-selection.js';
 import {
   getOrderReviewById,
-  getOrderReviews,
 } from '../order/order-review-store.js';
 import { recordHistory } from '../history/history-manager.js';
 
@@ -63,7 +63,6 @@ let expandedOrderReviewId = null;
 let selectedSmtId = null;
 let calendarSelectedDate = '';
 let calendarViewDate = '';
-let calendarReturnContext = null;
 let suppressActiveReviewRender = false;
 
 const orderReviewActions = createOrderReviewActionController({
@@ -79,14 +78,14 @@ const orderReviewActions = createOrderReviewActionController({
 
 const pdaActions = createPdaInspectorActionController({
   getCurrentAnnotation,
-  renderEmpty,
+  renderEmpty: renderAfterDetailDeleted,
 });
 
 const segmentActions = createSegmentInspectorActionController({
   getCurrentSegment,
   getCurrentSegmentGroup,
   getBodyEl: () => bodyEl,
-  renderEmpty,
+  renderEmpty: renderAfterDetailDeleted,
 });
 
 function getOrderReviewPanelOptions(extra = {}) {
@@ -96,23 +95,6 @@ function getOrderReviewPanelOptions(extra = {}) {
     selectedOrderSetupElement: getSelectedOrderSetupElement(),
     ...extra,
   };
-}
-
-function renderCalendarReturnAction(type, id) {
-  if (
-    !calendarReturnContext ||
-    calendarReturnContext.type !== type ||
-    String(calendarReturnContext.id) !== String(id)
-  ) {
-    return '';
-  }
-  return `
-    <div class="inspector-return-bar">
-      <button class="inspector-button secondary" data-inspector-action="calendar-return" type="button">
-        Back to Calendar
-      </button>
-    </div>
-  `;
 }
 
 function renderInspectorBackAction() {
@@ -156,9 +138,14 @@ function syncCalendarToOrderReview(orderReviewId) {
 
 function renderAnnotation(annotation) {
   currentPanel = 'selection';
-  replaceInspectorPage({ kind: 'detail', objectType: 'pda', objectId: annotation.id });
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'pda',
+    objectId: annotation.id,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
   bodyEl.innerHTML = `
-    ${renderCalendarReturnAction('pda', annotation.id)}
     ${renderInspectorBackAction()}
     ${renderAnnotationPanel(annotation, renderArchiveActions())}
   `;
@@ -166,9 +153,14 @@ function renderAnnotation(annotation) {
 
 function renderSegment(segment) {
   currentPanel = 'selection';
-  replaceInspectorPage({ kind: 'detail', objectType: 'segment', objectId: segment.id });
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'segment',
+    objectId: segment.id,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
   bodyEl.innerHTML = `
-    ${renderCalendarReturnAction('segment', segment.id)}
     ${renderInspectorBackAction()}
     ${renderSegmentPanel(segment)}
   `;
@@ -176,9 +168,14 @@ function renderSegment(segment) {
 
 function renderSegmentGroup(segmentGroup) {
   currentPanel = 'selection';
-  replaceInspectorPage({ kind: 'detail', objectType: 'composite', objectId: segmentGroup.id });
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'composite',
+    objectId: segmentGroup.id,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
   bodyEl.innerHTML = `
-    ${renderCalendarReturnAction('composite', segmentGroup.id)}
     ${renderInspectorBackAction()}
     ${renderSegmentGroupPanel(segmentGroup)}
   `;
@@ -186,9 +183,14 @@ function renderSegmentGroup(segmentGroup) {
 
 function renderSmtSelection() {
   currentPanel = 'selection';
-  replaceInspectorPage({ kind: 'detail', objectType: 'smt', objectId: selectedSmtId });
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'smt',
+    objectId: selectedSmtId,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
   bodyEl.innerHTML = `
-    ${renderCalendarReturnAction('smt', selectedSmtId)}
     ${renderInspectorBackAction()}
     ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
   `;
@@ -212,43 +214,35 @@ function renderOrderSetupDetail(orderReviewId) {
   `;
 }
 
-function renderEmpty({ preserveCalendarReturn = false } = {}) {
+function renderEmpty() {
   currentPanel = 'empty';
+  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
+  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   replaceInspectorPage({
     kind: 'home',
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  if (!preserveCalendarReturn) calendarReturnContext = null;
-  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
-  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
-    ${preserveCalendarReturn ? renderCalendarReturnAction('order-setup', getActiveReviewSetId()) : ''}
     <div class="inspector-empty">
       Select a PDA or 1H segment on the chart.
     </div>
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
-    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
-      createAction: 'order-review-create-empty',
-      createLabel: 'Create Order Setup',
-    }))}
     ${renderArchiveActions()}
   `;
 }
 
 function renderArchivePanel() {
   currentPanel = 'archive';
+  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
+  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   replaceInspectorPage({
     kind: 'archive',
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  calendarReturnContext = null;
-  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
-  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
-    ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions())}
     ${renderArchiveActions()}
   `;
 }
@@ -288,7 +282,7 @@ function closeSidebar() {
 }
 
 function focusActiveOrderSetupPanel() {
-  const section = bodyEl?.querySelector('[data-inspector-section="order-setup-detail"], [data-inspector-section="active-order-setup"]');
+  const section = bodyEl?.querySelector('[data-inspector-section="order-setup-detail"]');
   section?.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
@@ -299,7 +293,69 @@ function showActiveOrderSetupPanel() {
   requestAnimationFrame(() => focusActiveOrderSetupPanel());
 }
 
+function restoreCalendarStateFromPage(page = {}) {
+  if (page.selectedDate) calendarSelectedDate = page.selectedDate;
+  if (page.viewDate) calendarViewDate = page.viewDate;
+}
+
+function renderPageFromState(page = getInspectorPage()) {
+  restoreCalendarStateFromPage(page);
+  if (page.kind === 'archive') {
+    renderArchivePanel();
+    return;
+  }
+  if (page.kind === 'detail') {
+    if (page.objectType === 'order-setup') {
+      if (getOrderReviewById(page.objectId)) {
+        renderOrderSetupDetail(page.objectId);
+        return;
+      }
+    } else if (page.objectType === 'pda') {
+      const annotation = getAnnotationById(page.objectId);
+      if (annotation) {
+        renderAnnotation(annotation);
+        return;
+      }
+    } else if (page.objectType === 'segment') {
+      const segment = getSegmentById(page.objectId);
+      if (segment) {
+        renderSegment(segment);
+        return;
+      }
+    } else if (page.objectType === 'composite') {
+      const segmentGroup = getSegmentGroupById(page.objectId);
+      if (segmentGroup) {
+        renderSegmentGroup(segmentGroup);
+        return;
+      }
+    } else if (page.objectType === 'smt') {
+      if (getSmtRecordById(page.objectId)) {
+        selectedSmtId = page.objectId;
+        renderSmtSelection();
+        return;
+      }
+    }
+    renderPageFromState(popInspectorPage());
+    return;
+  }
+  clearPdaSelection();
+  clearSegmentSelection();
+  clearSegmentGroupSelection();
+  selectedSmtId = null;
+  renderEmpty();
+}
+
+function renderAfterDetailDeleted() {
+  renderPageFromState(popInspectorPage());
+}
+
 function refreshSelection() {
+  const page = getInspectorPage();
+  if (page.kind === 'detail') {
+    renderPageFromState(page);
+    return;
+  }
+
   if (currentPanel === 'archive') {
     renderArchivePanel();
     return;
@@ -390,11 +446,9 @@ function openCalendarObject(type, id) {
       suppressActiveReviewRender = false;
     }
     if (!selected) {
-      calendarReturnContext = null;
       return false;
     }
     if (selected) {
-      calendarReturnContext = null;
       clearPdaSelection();
       clearSegmentSelection();
       clearSegmentGroupSelection();
@@ -412,7 +466,6 @@ function openCalendarObject(type, id) {
   }
   if (type === 'pda') {
     if (!getAnnotationById(id)) return false;
-    calendarReturnContext = null;
     clearSegmentSelection();
     clearSegmentGroupSelection();
     pushInspectorPage({
@@ -426,7 +479,6 @@ function openCalendarObject(type, id) {
   }
   if (type === 'segment') {
     if (!getSegmentById(id)) return false;
-    calendarReturnContext = null;
     pushInspectorPage({
       kind: 'detail',
       objectType: 'segment',
@@ -438,7 +490,6 @@ function openCalendarObject(type, id) {
   }
   if (type === 'composite') {
     if (!getSegmentGroupById(id)) return false;
-    calendarReturnContext = null;
     pushInspectorPage({
       kind: 'detail',
       objectType: 'composite',
@@ -450,7 +501,6 @@ function openCalendarObject(type, id) {
   }
   if (type === 'smt') {
     if (!getSmtRecordById(id)) return false;
-    calendarReturnContext = null;
     pushInspectorPage({
       kind: 'detail',
       objectType: 'smt',
@@ -465,7 +515,6 @@ function openCalendarObject(type, id) {
     renderSmtSelection();
     return true;
   }
-  calendarReturnContext = null;
   return false;
 }
 
@@ -564,31 +613,8 @@ function handleInspectorClick(e) {
     return;
   }
 
-  if (action === 'calendar-return') {
-    const target = calendarReturnContext;
-    calendarReturnContext = null;
-    if (target?.selectedDate) calendarSelectedDate = target.selectedDate;
-    if (target?.viewDate) calendarViewDate = target.viewDate;
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    renderEmpty();
-    bus.emit('status:update', { text: 'Returned to Calendar', isError: false });
-    return;
-  }
-
   if (action === 'inspector-back') {
-    const page = popInspectorPage();
-    if (page.selectedDate) calendarSelectedDate = page.selectedDate;
-    if (page.viewDate) calendarViewDate = page.viewDate;
-    if (page.kind === 'archive') {
-      renderArchivePanel();
-    } else {
-      clearPdaSelection();
-      clearSegmentSelection();
-      clearSegmentGroupSelection();
-      renderEmpty();
-    }
+    renderPageFromState(popInspectorPage());
     bus.emit('status:update', { text: 'Returned', isError: false });
     return;
   }
@@ -639,8 +665,14 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'smt-delete') {
+    const deletedId = actionEl.dataset.smtId;
     recordInspectorHistory('Delete SMT', () => deleteSmtRecord(actionEl.dataset.smtId));
-    if (selectedSmtId === actionEl.dataset.smtId) selectedSmtId = null;
+    if (selectedSmtId === deletedId) selectedSmtId = null;
+    const page = getInspectorPage();
+    if (page.kind === 'detail' && page.objectType === 'smt' && String(page.objectId) === String(deletedId)) {
+      renderAfterDetailDeleted();
+      return;
+    }
     if (currentPanel === 'archive') renderArchivePanel();
     return;
   }
