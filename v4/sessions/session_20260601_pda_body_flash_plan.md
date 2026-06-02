@@ -1722,3 +1722,69 @@ Validation completed:
 Runtime note:
 
 - Browser click-through was not run in this pass. The smoke validates render wiring; interactive regression should click row toggle and day Hide/Show in the running app.
+
+## Step 233-238 Plan - PDA Multi-Chart Projection Unification
+
+User reference:
+
+- TradingView can display one drawing object across multiple panes/areas and still operate it as one object.
+- The desired V4 behavior is the same conceptually:
+  - one logical PDA id
+  - multiple chart projections
+  - one shared selection / visibility / delete / locate / Inspector identity
+
+Core model:
+
+- A PDA remains a single annotation record with one `id`.
+- Existing source metadata remains authoritative:
+  - `sourceChartId`
+  - `sourceChartLabel`
+  - `sourceInstrument`
+  - `sourceTimeframe`
+  - `sourceTimeframeLabel`
+  - `sourceContext`
+- Main chart and secondary chart render projections of that same annotation where possible.
+- Do not create duplicated PDA records for each chart.
+
+Projection rules:
+
+- Same instrument projection:
+  - Example: Main NQ 4H PDA projected onto Sub NQ 1M.
+  - Render full PDA price geometry, CE, and label where timeframe mapping allows it.
+- Cross-instrument projection:
+  - Example: Sub ES 1H FVG referenced on Main NQ 1M.
+  - Do not project ES price boxes onto NQ price axis.
+  - Render only time range / vertical marker / source badge on the non-source chart.
+  - Source chart still renders the full price object.
+
+Interaction rules:
+
+- Click/select any projection -> select the same `annotation.id`.
+- Both charts should highlight their projection for the selected PDA.
+- Hide/Delete acts on the annotation id and removes every projection.
+- Locate acts on both charts when available:
+  - source chart can flash price area.
+  - non-source chart flashes time range only if price projection is not valid.
+- Calendar visibility and Daily Time linked refs continue operating on PDA id.
+
+Planned implementation:
+
+- Step 233: Freeze this boundary and document the projection model.
+- Step 234: Add a shared PDA source formatter / badge helper and use it in Inspector, Calendar, refs, and chart labels.
+- Step 235: Unify selection so primary and secondary PDA hit-test/renderers share the same selected PDA id.
+- Step 236: Update PDA renderers to support projection modes:
+  - full price projection for same instrument
+  - time-only projection for cross instrument
+- Step 237: Centralize PDA actions:
+  - locate both charts
+  - source chart price flash
+  - non-source chart time flash
+  - hide/delete by PDA id
+- Step 238: Validate with browser smoke and source-specific fixtures.
+
+Non-goals for this stage:
+
+- Do not add per-pane independent editing.
+- Do not drag one projection separately from the underlying PDA.
+- Do not project cross-instrument price ranges.
+- Do not expand the same model to Segment / Composite / SMT until PDA projection behavior is stable.
