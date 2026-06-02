@@ -1030,3 +1030,29 @@ Result:
 - Inspector now uses a single page-stack model.
 - Open enters a detail page with Back.
 - Object detail pages no longer compete with a same-level Active Order Setup panel.
+
+## Step 208-213 Plan - Chart To Inspector Calendar Locate
+
+Context:
+
+- User asked whether Calendar can be located from chart time, complementing the existing Calendar date click -> chart locate behavior.
+- Decision: implement explicit chart-to-Calendar synchronization, not hover synchronization.
+- Two supported paths:
+  - Primary chart right-click on a bar -> `Locate Date in Calendar`.
+  - Chart object selection -> detail page records that object's date, so Back returns to Calendar on the relevant day.
+
+Planned steps:
+
+- Step 208: Freeze interaction boundary. Do not sync Calendar from crosshair hover; only explicit menu action and object selection update Calendar date context.
+- Step 209: Add `inspector:open-calendar-date` bus event. Payload includes `timestamp/dateKey/source`. Inspector opens, sets `calendarSelectedDate/calendarViewDate`, renders home Calendar, and does not move chart viewport.
+- Step 210: Add `Locate Date in Calendar` to the primary chart right-click menu. Convert the context timestamp to `YYYY-MM-DD`; disable or status-error if no valid timestamp exists.
+- Step 211: Sync object detail page date context when selecting PDA / Segment / Composite / SMT / Order Setup from chart. Back should return Calendar to that object's date.
+- Step 212: Preserve Calendar group defaults after reverse locate: Order Setups open by default; Economic Events collapsed by default.
+- Step 213: Validate right-click date locate, missing timestamp guard, object selection -> Back date, selected date styling, Order Setups open / Economic Events collapsed, full JS syntax, Web smoke, and `git diff --check`.
+
+Non-goals:
+
+- Do not implement crosshair-hover Calendar sync.
+- Do not change Calendar date click -> chart locate behavior.
+- Do not create chart markers for this feature.
+- Do not change persisted Review JSON or order schema.
