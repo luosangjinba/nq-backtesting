@@ -5,6 +5,7 @@ import {
 } from '../../calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
+import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -358,6 +359,32 @@ function renderObjectGroup(group) {
   `;
 }
 
+function renderEconomicCalendarFilters() {
+  const filters = getEconomicCalendarFilters();
+  const items = [
+    ['high', 'High'],
+    ['medium', 'Medium'],
+    ['low', 'Low'],
+    ['holiday', 'Holiday'],
+  ];
+  return `
+    <div class="calendar-economic-filters" aria-label="Economic calendar filters">
+      ${items.map(([key, label]) => `
+        <label class="calendar-economic-filter ${filters[key] ? 'is-active' : ''}">
+          <input
+            type="checkbox"
+            data-inspector-action="economic-calendar-filter"
+            data-economic-filter="${escapeHtml(key)}"
+            ${filters[key] ? 'checked' : ''}
+          />
+          <span class="calendar-economic-dot economic-${escapeHtml(key === 'holiday' ? 'holiday' : key)}"></span>
+          <span>${escapeHtml(label)}</span>
+        </label>
+      `).join('')}
+    </div>
+  `;
+}
+
 export function getDefaultCalendarDate() {
   const range = getLoadedDateRange();
   return range?.start || '';
@@ -422,6 +449,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
             : ''
         }
       </div>
+      ${renderEconomicCalendarFilters()}
       <div class="calendar-object-list">
         ${objectGroups.map(renderObjectGroup).join('')}
       </div>
