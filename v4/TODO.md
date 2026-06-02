@@ -400,7 +400,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 230: 对象行显隐按钮：在 Inspector Calendar 单日对象行增加类似 Order Setup 的绿点/灰点+斜杠按钮；PDA 单对象显隐，Segment 单段显隐，Composite 按 composite group 整组显隐，Killzone/Time Line 按 overlay 项显隐
 - [x] Step 231: 单日批量显隐：Calendar 单日区域增加 `Show Day Objects` / `Hide Day Objects`，批量切换当天所有可显隐图表对象；Economic Events、Time Reaction、Order Setup 不纳入该批量图表对象按钮
 - [x] Step 232: 验证与收口：覆盖相关 JS 语法、对象显隐 smoke、批量显隐 smoke、Calendar render smoke，并记录边界
-- [ ] Step 233: PDA 多图投影统一边界：一个 PDA 只有一个逻辑 `id`，主图/副图只是同一对象的不同 projection；所有选择、显隐、删除、Calendar、ref link、locate 都操作同一 PDA id，不做 per-pane 独立编辑
+- [x] Step 233: PDA 多图投影统一边界：一个 PDA 只有一个逻辑 `id`，主图/副图只是同一对象的不同 projection；所有选择、显隐、删除、Calendar、ref link、locate 都操作同一 PDA id，不做 per-pane 独立编辑
 - [ ] Step 234: 来源标识统一：新增 PDA source formatter，统一输出 `Main NQ 1H` / `Sub ES 1H` 等来源 badge；在 Inspector PDA detail、Calendar row、linked refs、图表 label 中使用同一 formatter
 - [ ] Step 235: 选择统一：主图/副图 hit-test 和 renderer 都以同一 `annotation.id` 作为 selected key；点击任一 projection 选中同一 PDA，并在两张图对应 projection 上同步高亮
 - [ ] Step 236: Projection 渲染规则：同 instrument projection 画完整价格对象；跨 instrument projection 只画时间范围/竖线/来源 badge，不把 ES 价格 box 直接投到 NQ 价格轴

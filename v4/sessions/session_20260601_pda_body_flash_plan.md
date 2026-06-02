@@ -1788,3 +1788,17 @@ Non-goals for this stage:
 - Do not drag one projection separately from the underlying PDA.
 - Do not project cross-instrument price ranges.
 - Do not expand the same model to Segment / Composite / SMT until PDA projection behavior is stable.
+
+## Step 233 Execution - PDA Projection Boundary Frozen
+
+Status:
+
+- Frozen as the active implementation boundary.
+- PDA identity remains a single annotation `id`; primary and secondary charts are projection surfaces only.
+- Selection, visibility, delete, Calendar rows, linked refs, and locate actions must continue to target the annotation id rather than chart-specific projection ids.
+- No per-pane edit state will be introduced in this rollout.
+
+Implementation note:
+
+- Existing PDA store, Calendar visibility, Inspector detail, and order/time-reaction refs already operate on annotation ids.
+- Follow-up steps should harden formatter, selection highlight, projection render mode, and locate behavior without adding duplicate PDA records.
