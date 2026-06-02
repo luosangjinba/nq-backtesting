@@ -6,6 +6,10 @@ import {
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
+import {
+  getDailyTimeReviewByDate,
+  hasDailyTimeReviewContent,
+} from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -150,7 +154,7 @@ function getMonthCells(viewDateKey, range) {
 }
 
 function getDayObjectOverview(dateKey, calendarIndex) {
-  const groups = getCalendarDayGroups(dateKey, calendarIndex);
+  const groups = addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey, { includeEmpty: false });
   const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
   const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
   const economicGroup = groups.find((group) => group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT);
@@ -216,6 +220,7 @@ function compactTime(timestamp) {
 
 function getObjectTypeLabel(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Setup';
+  if (item.type === CALENDAR_OBJECT_TYPES.TIME_REACTION) return 'Time';
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return 'Econ';
   if (item.type === CALENDAR_OBJECT_TYPES.SMT) return 'SMT';
   if (item.type === CALENDAR_OBJECT_TYPES.PDA) return 'PDA';
@@ -227,7 +232,7 @@ function getObjectTypeLabel(item) {
 
 function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
-  const canOpen = ['order-setup', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
+  const canOpen = ['order-setup', 'time-reaction', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
   const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
   const setupHidden = Boolean(item.source?.display?.hidden);
   const typeLabel = getObjectTypeLabel(item);
@@ -328,11 +333,12 @@ function renderEconomicEventRow(item) {
 
 function renderObjectRow(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return renderEconomicEventRow(item);
-  const timeLabel = compactTime(item.timestamp);
+  const isTimeReaction = item.ref?.type === 'time-reaction';
+  const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const isOrderSetup = item.ref?.type === 'order-setup';
   return `
-    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}">
+    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}">
       <div class="calendar-object-main ${isOrderSetup ? 'calendar-object-main-setup' : ''}">
         <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
         <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
@@ -342,6 +348,76 @@ function renderObjectRow(item) {
       ${renderObjectActions(item)}
     </div>
   `;
+}
+
+function countSectionContent(sectionData = {}) {
+  return (sectionData.note ? 1 : 0) + (Array.isArray(sectionData.refs) && sectionData.refs.length ? 1 : 0);
+}
+
+function summarizeTimeReactionReview(review) {
+  if (!review) return 'No observations yet';
+  let sections = countSectionContent(review.pre0930Context) + countSectionContent(review.summary0930To1100);
+  (review.pre0930Context?.items || []).forEach((item) => {
+    if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
+  });
+  (review.summary0930To1100?.items || []).forEach((item) => {
+    if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
+  });
+  let refs = (review.pre0930Context?.refs || []).length
+    + (review.summary0930To1100?.refs || []).length
+    + (review.pre0930Context?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0)
+    + (review.summary0930To1100?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0);
+  (review.reactions || []).forEach((reaction) => {
+    const hasNote = Boolean(reaction.note);
+    const refCount = Array.isArray(reaction.refs) ? reaction.refs.length : 0;
+    if (hasNote || refCount) sections += 1;
+    refs += refCount;
+    (reaction.items || []).forEach((item) => {
+      const itemRefCount = Array.isArray(item.refs) ? item.refs.length : 0;
+      if (item.note || itemRefCount) sections += 1;
+      refs += itemRefCount;
+    });
+  });
+  if (!sections && !refs) return 'No observations yet';
+  return [
+    sections ? `${sections} sections` : '',
+    refs ? `${refs} refs` : '',
+  ].filter(Boolean).join(' · ');
+}
+
+function createTimeReactionItem(dateKey, review = getDailyTimeReviewByDate(dateKey)) {
+  const start = getCalendarDateTimestamp(dateKey, '09:30');
+  const end = getCalendarDateTimestamp(dateKey, '10:30');
+  return {
+    id: dateKey,
+    type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
+    dateKey,
+    timestamp: Number.isFinite(start) ? start : null,
+    label: summarizeTimeReactionReview(review),
+    range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
+    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey },
+    source: null,
+  };
+}
+
+function addTimeReactionGroup(groups, dateKey, options = {}) {
+  const review = getDailyTimeReviewByDate(dateKey);
+  if (!options.includeEmpty && !hasDailyTimeReviewContent(review)) {
+    return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
+  }
+  const group = {
+    type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
+    label: 'Time Reaction Observation',
+    rows: [createTimeReactionItem(dateKey, review)],
+  };
+  const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
+  const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);
+  if (orderSetupIndex < 0) return [group, ...existing];
+  return [
+    ...existing.slice(0, orderSetupIndex + 1),
+    group,
+    ...existing.slice(orderSetupIndex + 1),
+  ];
 }
 
 function renderObjectGroup(group) {
@@ -408,7 +484,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const cells = getMonthCells(activeViewDate, range);
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
-  const objectGroups = getCalendarDayGroups(activeDate, calendarIndex);
+  const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true });
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
     ? `Manual overlays: ${overlaySelectedDate}`

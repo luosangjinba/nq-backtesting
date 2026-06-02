@@ -1218,3 +1218,276 @@ Non-goals:
 - Do not make each time point an Order Setup.
 - Do not implement statistics/scoring in the first pass.
 - Do not auto-open or auto-load secondary chart in the first pass.
+
+## Step 214-216 Implementation - Daily Time Review Store
+
+Implemented:
+
+- Added `time-reaction/daily-time-review-store.js`.
+- Added `time-reaction/daily-time-review-persistence.js`.
+- Added `order-setup` to shared Order Review ref types so Time Reaction refs can point to Order Setups.
+- Store supports:
+  - normalize/load/get/getByDate/getOrCreate
+  - update whole review
+  - update pre-0930 and summary sections
+  - update fixed reactions
+  - add/remove refs
+  - delete review
+- Fixed reaction times:
+  - 09:30
+  - 09:50
+  - 10:00
+  - 10:30
+- Reaction fields are intentionally lightweight:
+  - `reactionType`
+  - `note`
+  - `refs`
+  - `locate`
+- Persistence:
+  - localStorage key `v4:daily-time-reviews:NQ`
+  - save on `daily-time-review:changed`
+  - restore during app init
+- History manager now captures/restores `dailyTimeReviews` for undo/redo.
+
+Validation:
+
+- `node --check` passed for:
+  - `daily-time-review-store.js`
+  - `daily-time-review-persistence.js`
+  - `app.js`
+  - `history-manager.js`
+  - `order-review-store.js`
+- Store smoke verified create/update reaction/add ref/default four reactions.
+- `git diff --check` passed.
+
+## Step 217 Implementation - Review JSON Daily Time Reviews
+
+Implemented:
+
+- Review export payload now includes `dailyTimeReviews`.
+- Review import validates `dailyTimeReviews` as an optional array.
+- Import normalizes Daily Time Review records through `normalizeDailyTimeReview()`.
+- Import remaps refs for:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- `prepareImportedOrderReviews()` now returns an `orderIdMap`, so imported Daily Time Review refs can point to remapped Order Setup ids.
+- Export/import status messages include Time Reaction counts.
+
+Validation:
+
+- `node --check` passed for `review-archive.js`.
+- `git diff --check` passed.
+- Source search confirmed payload, validation, remap, import, and status-message paths are wired.
+
+## Step 218-219 Implementation - Calendar Entry And Detail Editor
+
+Implemented:
+
+- Added Calendar object type `time-reaction`.
+- Inspector Calendar now shows a default-collapsed `Time Reaction Observation` group for the selected day.
+- The group has a single per-day row:
+  - `Open` enters the Daily Time Reaction detail page.
+  - `Locate` targets the 09:30-10:30 reaction window for the selected day.
+  - The row summary shows `No observations yet` until notes/refs/type selections exist.
+- Added `time-reaction-panel.js` detail editor:
+  - `Pre 09:30 Context` textarea.
+  - fixed reaction cards for 09:30 / 09:50 / 10:00 / 10:30.
+  - each reaction has a `Reaction Type` select and note textarea.
+  - `09:30-11:00 Summary` textarea.
+- Inspector page stack supports opening and returning from the Time Reaction detail page.
+- Change handlers persist section notes, reaction type, and reaction notes through the daily time review store.
+
+Deferred to later steps:
+
+- Ref list rendering and `Link Selected Object` remain Step 220.
+- Reaction/section timeframe locate controls remain Step 221.
+
+Validation:
+
+- `node --check` passed for:
+  - `calendar-panel.js`
+  - `time-reaction-panel.js`
+  - `inspector-sidebar.js`
+  - `calendar-types.js`
+- `git diff --check` passed.
+- Source search confirmed calendar entry, Open routing, detail rendering, change handlers, and docs are wired.
+
+## Step 220 Implementation - Daily Time Review Refs
+
+Implemented:
+
+- Daily Time detail editor now renders refs for:
+  - `Pre 09:30 Context`
+  - each fixed reaction
+  - `09:30-11:00 Summary`
+- Each block has `Link Selected Object`.
+- Supported selected object refs:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- PDA and Segment refs reuse existing Order Review metadata builders.
+- Composite, SMT, and Order Setup refs use the same normalized ref shape with `type`, `id`, `role`, and source metadata when available.
+- Removing a ref only removes the Daily Time Review link and does not delete the original object.
+
+Validation:
+
+- `node --check` passed for:
+  - `inspector-sidebar.js`
+  - `time-reaction-panel.js`
+
+## Step 221-222 Implementation - Locate And HTF Refs
+
+Implemented:
+
+- Added optional `locate` to Daily Time section records:
+  - `pre0930Context.locate`
+  - `summary0930To1100.locate`
+- Existing reaction `locate` controls are now exposed in the editor.
+- Each section/reaction renders:
+  - timeframe select
+  - chart select (`Main` / `Sub`)
+  - `Locate`
+- Primary locate behavior:
+  - if the selected timeframe differs from the loaded primary chart timeframe, reload the current primary range with that timeframe.
+  - after reload, locate the target timestamp/range.
+  - uses existing viewport locate flash.
+- Secondary locate behavior:
+  - only locates if the secondary chart is already enabled and loaded.
+  - does not auto-open secondary.
+  - does not auto-change secondary timeframe.
+- Target times:
+  - Pre 09:30 Context locates `09:30`.
+  - fixed reactions locate their own time.
+  - 09:30-11:00 Summary locates the `09:30-11:00` range.
+- HTF environment linking is covered through Step 220 refs:
+  - Pre/Summary can link PDA, Segment, Composite, SMT, and Order Setup.
+  - This remains manual analysis support only; no automatic PDA recommendation or setup validity judgment.
+
+Validation:
+
+- `node --check` passed for:
+  - `daily-time-review-store.js`
+  - `time-reaction-panel.js`
+  - `inspector-sidebar.js`
+
+## Step 223 Validation - Daily Time Reaction Observation
+
+Completed validation:
+
+- Full v4 source syntax:
+  - `rg --files v4/src -g '*.js' | xargs -I{} node --check {}`
+- API:
+  - `curl -s http://127.0.0.1:8766/v4/health` returned ok.
+- Static web:
+  - `curl -s -I http://127.0.0.1:8001/index.html` returned 200.
+  - Headless Chrome rendered `index.html` with toolbar, chart container, replay controls, and inspector.
+- Store smoke:
+  - created `2023-01-03`
+  - updated `pre0930Context.locate`
+  - updated `09:30` reaction type/note/locate
+  - added and removed a PDA ref
+  - confirmed four fixed reactions remain.
+- Calendar render smoke:
+  - loaded a minimal `2023-01-03` bar range into store.
+  - rendered Calendar panel.
+  - confirmed `Time Reaction Observation` group exists.
+  - confirmed `time-reaction` Open action exists.
+- `git diff --check` passed.
+
+Remaining runtime note:
+
+- Headless smoke did not click through the full UI workflow. The module-level smokes cover store and Calendar rendering; browser smoke confirms no blank page on load.
+
+## Follow-up Fix - Daily Time Inspector Layout And Recording Model
+
+User feedback addressed:
+
+- Calendar `Time Reaction Observation` row no longer displays as a single `09:30` object.
+  - It now displays `Daily`, because Open enters the full day record.
+- Reaction rows no longer expose a category dropdown.
+  - Removed Observation/Reversal/Continuation/Sweep Reverse/No Trade/Noise UI.
+  - Reactions are now plain factual notes plus refs/locate.
+  - Legacy `reactionType` remains normalized for old data compatibility but is not used by the inspector UI.
+- `Pre 09:30 Context` is no longer a single locked item.
+  - Added `pre0930Context.items[]`.
+  - Each context item has its own note, refs, and locate controls.
+  - Old `pre0930Context.note/refs` imports/loads as the first context item.
+- Fixed inspector overflow in Time Reaction detail:
+  - moved the page to single-column blocks.
+  - constrained cards, textarea/select controls, refs, and locate rows to inspector width.
+- Review archive remap now includes `pre0930Context.items[].refs`.
+
+## Follow-up Fix - Daily Time Ref Pick Mode
+
+User feedback addressed:
+
+- `Select Object` no longer reads the current selected object.
+- Clicking `Select Object` in a Time Reaction block now starts a pending pick mode for that exact block.
+- While pending:
+  - selecting a PDA links it directly and keeps the Time Reaction page open.
+  - selecting a Segment links it directly and keeps the Time Reaction page open.
+  - selecting a Composite links it directly and keeps the Time Reaction page open.
+  - selecting an Order Setup links it directly and keeps the Time Reaction page open.
+  - selecting an SMT row links it directly and keeps the Time Reaction page open.
+- The old behavior where selecting a PDA/Segment immediately jumps to its detail page is bypassed only during this pending pick mode.
+- `Cancel Select` and Escape cancel the pending pick.
+
+## Follow-up Fix - Multi Event Items And Ref Locate
+
+User feedback addressed:
+
+- Linked refs inside Daily Time records now show an `L` locate button.
+- Ref locate supports:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- PDA/Segment/Composite refs can auto-switch the primary chart timeframe before locating when source timeframe metadata is available.
+- Secondary refs only locate if secondary chart is already enabled and loaded.
+- 09:30 / 09:50 / 10:00 / 10:30 now support multiple event items via `Add`.
+- `09:30-11:00 Summary` now supports multiple event items via `Add`.
+- Legacy single-note reaction/summary records load as the first event item.
+- Calendar summaries count notes/refs from all event items.
+- Review archive ref remap now includes:
+  - `reactions[].items[].refs`
+  - `summary0930To1100.items[].refs`
+
+Validation:
+
+- `node --check` passed for store, panel, sidebar, calendar panel, and review archive.
+- Store smoke covered multiple reaction events, summary events, and reaction item refs.
+- Render smoke confirmed reaction `Add`, summary `Add`, and ref `L` locate buttons.
+- Headless Chrome loaded `index.html`.
+- `git diff --check` passed.
+
+## Step 224 Review Follow-up Fix - Daily Time Reaction Observation
+
+Review findings addressed:
+
+- Empty Daily Time Reaction drafts no longer count as real review objects.
+  - Added `hasDailyTimeReviewContent()` and `getDailyTimeReviewsWithContent()` in `daily-time-review-store.js`.
+  - Calendar month cell object overview uses only records with note/ref content.
+  - Review JSON export uses only records with content.
+  - localStorage draft persistence saves only records with content.
+- Calendar selected-day details still include the `Time Reaction Observation` row even when empty, preserving the user-facing creation entry.
+- `09:30-11:00 Summary` event item Locate now targets the full `09:30-11:00` range instead of only `11:00`.
+- Linked ref locate now reports `Located ... on secondary; primary unavailable` if a secondary-source ref located on the secondary chart but primary timeframe reload failed.
+
+Validation:
+
+- `node --check` passed for:
+  - `daily-time-review-store.js`
+  - `daily-time-review-persistence.js`
+  - `calendar-panel.js`
+  - `inspector-sidebar.js`
+  - `review-archive.js`
+- Module smoke confirmed:
+  - empty normalized Daily Time review returns `hasDailyTimeReviewContent=false`.
+  - review with note/ref returns `true`.
+  - exportable content list excludes the empty review and includes the populated review.
