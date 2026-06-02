@@ -386,11 +386,13 @@ function renderObjectRow(item) {
   const isHidden = isCalendarObjectHidden(item);
   return `
     <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
-      <div class="calendar-object-main ${isOrderSetup ? 'calendar-object-main-setup' : ''}">
-        <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
-        <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
-        ${renderSetupVisibilityToggle(item)}
-        ${renderObjectVisibilityToggle(item)}
+      <div class="calendar-object-main">
+        <div class="calendar-object-meta">
+          <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
+          <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
+          ${renderSetupVisibilityToggle(item)}
+          ${renderObjectVisibilityToggle(item)}
+        </div>
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
       ${renderObjectActions(item)}
