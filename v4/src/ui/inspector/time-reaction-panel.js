@@ -94,7 +94,17 @@ function targetAttrs(review, target = {}) {
   ].filter(Boolean).join(' ');
 }
 
-function renderRefList(review, target, refs = []) {
+function getTargetKey(target = {}) {
+  return [
+    target.section || '',
+    target.itemId || '',
+    target.time || '',
+  ].join(':');
+}
+
+function renderRefList(review, target, refs = [], options = {}) {
+  const isPicking = options.pendingRefPick?.date === review.date
+    && options.pendingRefPick?.targetKey === getTargetKey(target);
   const rows = (Array.isArray(refs) ? refs : []).map((ref, refIndex) => `
     <div class="order-review-ref-row">
       <span title="${escapeHtml(getRefId(ref) || '')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
@@ -113,10 +123,10 @@ function renderRefList(review, target, refs = []) {
     <div class="order-review-ref-actions">
       <button
         class="inspector-mini-btn"
-        data-inspector-action="daily-time-ref-add-selected-object"
+        data-inspector-action="${isPicking ? 'daily-time-ref-pick-cancel' : 'daily-time-ref-pick-start'}"
         ${targetAttrs(review, target)}
         type="button"
-      >Link Selected Object</button>
+      >${isPicking ? 'Cancel Select' : 'Select Object'}</button>
     </div>
   `;
 }
@@ -168,7 +178,7 @@ function renderLocateControls(review, target, locate = {}) {
   `;
 }
 
-function renderContextItem(review, item, itemIndex) {
+function renderContextItem(review, item, itemIndex, options = {}) {
   const target = { section: 'pre0930Item', itemId: item.id };
   return `
     <div class="time-reaction-card time-reaction-context-card">
@@ -196,12 +206,12 @@ function renderContextItem(review, item, itemIndex) {
         'Record one pre-09:30 context observation.'
       )}
       ${renderLocateControls(review, target, item.locate)}
-      ${renderRefList(review, target, item.refs)}
+      ${renderRefList(review, target, item.refs, options)}
     </div>
   `;
 }
 
-function renderReactionCard(review, reaction) {
+function renderReactionCard(review, reaction, options = {}) {
   const time = reaction.time;
   const noteAttrs = [
     'data-inspector-action="daily-time-reaction-note"',
@@ -218,7 +228,7 @@ function renderReactionCard(review, reaction) {
         'Record what happened at this algorithmic time.'
       )}
       ${renderLocateControls(review, { section: 'reaction', time }, reaction.locate)}
-      ${renderRefList(review, { section: 'reaction', time }, reaction.refs)}
+      ${renderRefList(review, { section: 'reaction', time }, reaction.refs, options)}
     </div>
   `;
 }
@@ -227,16 +237,16 @@ function getReactionByTime(review, time) {
   return (review.reactions || []).find((reaction) => reaction.time === time) || { time };
 }
 
-export function renderDailyTimeReviewPanel(review) {
+export function renderDailyTimeReviewPanel(review, options = {}) {
   if (!review) {
     return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid calendar day.</div>');
   }
 
   const reactions = DAILY_TIME_REACTION_TIMES
-    .map((time) => renderReactionCard(review, getReactionByTime(review, time)))
+    .map((time) => renderReactionCard(review, getReactionByTime(review, time), options))
     .join('');
   const contextItems = (review.pre0930Context?.items || [])
-    .map((item, itemIndex) => renderContextItem(review, item, itemIndex))
+    .map((item, itemIndex) => renderContextItem(review, item, itemIndex, options))
     .join('');
 
   return `
@@ -276,7 +286,7 @@ export function renderDailyTimeReviewPanel(review) {
           'Summarize the 09:30-11:00 move and whether the reactions became actionable.'
         )}
         ${renderLocateControls(review, { section: 'summary0930To1100' }, review.summary0930To1100?.locate)}
-        ${renderRefList(review, { section: 'summary0930To1100' }, review.summary0930To1100?.refs)}
+        ${renderRefList(review, { section: 'summary0930To1100' }, review.summary0930To1100?.refs, options)}
       </div>
     </section>
   `;

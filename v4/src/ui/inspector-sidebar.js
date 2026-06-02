@@ -89,6 +89,7 @@ let calendarSelectedDate = '';
 let calendarViewDate = '';
 let suppressActiveReviewRender = false;
 let suppressSelectionBackTarget = false;
+let pendingDailyTimeRefPick = null;
 
 const orderReviewActions = createOrderReviewActionController({
   getExpandedOrderReviewId: () => expandedOrderReviewId,
@@ -341,7 +342,7 @@ function renderDailyTimeReviewDetail(dateKey) {
   });
   bodyEl.innerHTML = `
     ${renderInspectorBackAction()}
-    ${renderDailyTimeReviewPanel(review)}
+    ${renderDailyTimeReviewPanel(review, { pendingRefPick: pendingDailyTimeRefPick })}
   `;
 }
 
@@ -587,6 +588,14 @@ function getDailyTimeTargetFromElement(actionEl) {
   return { section: 'pre0930Context' };
 }
 
+function getDailyTimeTargetKey(target = {}) {
+  return [
+    target.section || '',
+    target.itemId || '',
+    target.time || '',
+  ].join(':');
+}
+
 function getDailyTimeSectionName(target = {}) {
   return target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
 }
@@ -596,6 +605,48 @@ function getDailyTimeTargetLabel(target = {}) {
   if (target.section === 'pre0930Item') return 'Pre 09:30 Context';
   if (target.section === 'summary') return '09:30-11:00 Summary';
   return 'Pre 09:30 Context';
+}
+
+function startDailyTimeRefPick(actionEl) {
+  const date = actionEl.dataset.dailyTimeDate;
+  const target = getDailyTimeTargetFromElement(actionEl);
+  pendingDailyTimeRefPick = {
+    date,
+    target,
+    targetKey: getDailyTimeTargetKey(target),
+  };
+  bus.emit('status:update', {
+    text: `Select chart object for ${getDailyTimeTargetLabel(target)}. Press Escape to cancel.`,
+    isError: false,
+  });
+  refreshSelection();
+}
+
+function clearDailyTimeRefPick({ silent = false } = {}) {
+  if (!pendingDailyTimeRefPick) return;
+  pendingDailyTimeRefPick = null;
+  if (!silent) bus.emit('status:update', { text: 'Object select cancelled', isError: false });
+  refreshSelection();
+}
+
+function linkPickedDailyTimeRef(ref, label) {
+  if (!pendingDailyTimeRefPick || !ref?.type || !ref?.id) return false;
+  const { date, target } = pendingDailyTimeRefPick;
+  const added = recordInspectorHistory('Link Time Reaction Object', () => (
+    addDailyTimeReviewRef(date, target, ref)
+  ));
+  const targetLabel = getDailyTimeTargetLabel(target);
+  pendingDailyTimeRefPick = null;
+  if (added) {
+    setCalendarDateContext(date);
+    renderDailyTimeReviewDetail(date);
+    openSidebar();
+  }
+  bus.emit('status:update', {
+    text: added ? `${label} linked to ${targetLabel}` : 'Link selected object failed',
+    isError: !added,
+  });
+  return Boolean(added);
 }
 
 function getDailyTimeTargetTime(target = {}) {
@@ -719,6 +770,32 @@ function buildPdaDailyTimeRef(annotation) {
   };
 }
 
+function buildCompositeDailyTimeRef(segmentGroup) {
+  return {
+    type: ORDER_REF_TYPES.COMPOSITE,
+    id: segmentGroup.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+  };
+}
+
+function buildSmtDailyTimeRef(smtId) {
+  return {
+    type: ORDER_REF_TYPES.SMT,
+    id: smtId,
+    role: ORDER_REF_ROLES.CONFIRMATION,
+  };
+}
+
+function buildOrderSetupDailyTimeRef(order) {
+  return {
+    type: ORDER_REF_TYPES.ORDER_SETUP,
+    id: order.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    sourceInstrument: order.instrument || 'NQ',
+    sourceContext: 'Order Setup',
+  };
+}
+
 function buildSegmentDailyTimeRef(segment) {
   return {
     type: ORDER_REF_TYPES.SEGMENT,
@@ -726,64 +803,6 @@ function buildSegmentDailyTimeRef(segment) {
     role: ORDER_REF_ROLES.CONTEXT,
     ...buildSegmentOrderRefMetadata(segment),
   };
-}
-
-function getSelectedDailyTimeRef() {
-  const pdaSelection = getSelectedPda();
-  if (pdaSelection) {
-    const annotation = getAnnotationById(pdaSelection.id);
-    if (!annotation) return { error: '选中的 PDA 不存在' };
-    return { ref: buildPdaDailyTimeRef(annotation), label: getPdaOrderRefLabel(annotation) };
-  }
-
-  const segmentSelection = getSelectedSegment();
-  if (segmentSelection) {
-    const segment = getSegmentById(segmentSelection.id);
-    if (!segment) return { error: '选中的 Segment 不存在' };
-    return { ref: buildSegmentDailyTimeRef(segment), label: getSegmentOrderRefLabel(segment) };
-  }
-
-  const compositeSelection = getSelectedSegmentGroup();
-  if (compositeSelection) {
-    const segmentGroup = getSegmentGroupById(compositeSelection.id);
-    if (!segmentGroup) return { error: '选中的 Composite 不存在' };
-    return {
-      ref: {
-        type: ORDER_REF_TYPES.COMPOSITE,
-        id: segmentGroup.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-      },
-      label: 'Composite Move',
-    };
-  }
-
-  if (selectedSmtId && getSmtRecordById(selectedSmtId)) {
-    return {
-      ref: {
-        type: ORDER_REF_TYPES.SMT,
-        id: selectedSmtId,
-        role: ORDER_REF_ROLES.CONFIRMATION,
-      },
-      label: 'SMT',
-    };
-  }
-
-  const setupId = getSelectedOrderSetupElement()?.setupId || getActiveReviewSetId();
-  const order = setupId ? getOrderReviewById(setupId) : null;
-  if (order) {
-    return {
-      ref: {
-        type: ORDER_REF_TYPES.ORDER_SETUP,
-        id: order.id,
-        role: ORDER_REF_ROLES.CONTEXT,
-        sourceInstrument: order.instrument || 'NQ',
-        sourceContext: 'Order Setup',
-      },
-      label: 'Order Setup',
-    };
-  }
-
-  return { error: '没有选中的 PDA / Segment / Composite / SMT / Order Setup' };
 }
 
 function openCalendarObject(type, id) {
@@ -1052,24 +1071,13 @@ function handleInspectorClick(e) {
     return;
   }
 
-  if (action === 'daily-time-ref-add-selected-object') {
-    const selected = getSelectedDailyTimeRef();
-    if (selected.error) {
-      bus.emit('status:update', { text: selected.error, isError: true });
-      return;
-    }
-    const date = actionEl.dataset.dailyTimeDate;
-    const target = getDailyTimeTargetFromElement(actionEl);
-    const added = recordInspectorHistory('Link Time Reaction Object', () => (
-      addDailyTimeReviewRef(date, target, selected.ref)
-    ));
-    bus.emit('status:update', {
-      text: added
-        ? `${selected.label} linked to ${getDailyTimeTargetLabel(target)}`
-        : 'Link selected object failed',
-      isError: !added,
-    });
-    refreshSelection();
+  if (action === 'daily-time-ref-pick-start') {
+    startDailyTimeRefPick(actionEl);
+    return;
+  }
+
+  if (action === 'daily-time-ref-pick-cancel') {
+    clearDailyTimeRefPick();
     return;
   }
 
@@ -1167,6 +1175,11 @@ function handleInspectorClick(e) {
   if (action === 'smt-select') {
     const record = getSmtRecordById(actionEl.dataset.smtId);
     if (record) {
+      if (pendingDailyTimeRefPick) {
+        selectedSmtId = record.id;
+        linkPickedDailyTimeRef(buildSmtDailyTimeRef(record.id), 'SMT');
+        return;
+      }
       prepareDetailBackTarget(getSmtCalendarDate(record));
       selectedSmtId = record.id;
       renderSmtSelection();
@@ -1219,9 +1232,14 @@ export function initInspectorSidebar() {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();
       segmentActions.clearActorPickState();
+      clearDailyTimeRefPick({ silent: true });
     }
   });
   bus.on('pda:selected', ({ annotation }) => {
+    if (pendingDailyTimeRefPick) {
+      linkPickedDailyTimeRef(buildPdaDailyTimeRef(annotation), getPdaOrderRefLabel(annotation));
+      return;
+    }
     if (!suppressSelectionBackTarget) prepareDetailBackTarget(getAnnotationCalendarDate(annotation));
     renderAnnotation(annotation);
     openSidebar();
@@ -1229,11 +1247,19 @@ export function initInspectorSidebar() {
   bus.on('pda:selection-cleared', refreshSelection);
   bus.on('pda:changed', refreshSelection);
   bus.on('segment:selected', ({ segment }) => {
+    if (pendingDailyTimeRefPick) {
+      linkPickedDailyTimeRef(buildSegmentDailyTimeRef(segment), getSegmentOrderRefLabel(segment));
+      return;
+    }
     if (!suppressSelectionBackTarget) prepareDetailBackTarget(getSegmentCalendarDate(segment));
     renderSegment(segment);
     openSidebar();
   });
   bus.on('segment-group:selected', ({ segmentGroup }) => {
+    if (pendingDailyTimeRefPick) {
+      linkPickedDailyTimeRef(buildCompositeDailyTimeRef(segmentGroup), 'Composite Move');
+      return;
+    }
     if (!suppressSelectionBackTarget) prepareDetailBackTarget(getCompositeCalendarDate(segmentGroup));
     renderSegmentGroup(segmentGroup);
     openSidebar();
@@ -1249,11 +1275,21 @@ export function initInspectorSidebar() {
   bus.on('economic-calendar:changed', refreshSelection);
   bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
+    if (pendingDailyTimeRefPick) {
+      const order = getOrderReviewById(getSelectedOrderSetupElement()?.setupId);
+      if (order) linkPickedDailyTimeRef(buildOrderSetupDailyTimeRef(order), 'Order Setup');
+      return;
+    }
     showActiveOrderSetupPanel();
   });
   bus.on('order-setup-element:selection-cleared', refreshSelection);
   bus.on('order-review-active:changed', ({ activeReviewSetId }) => {
     if (suppressActiveReviewRender) return;
+    if (pendingDailyTimeRefPick && activeReviewSetId) {
+      const order = getOrderReviewById(activeReviewSetId);
+      if (order) linkPickedDailyTimeRef(buildOrderSetupDailyTimeRef(order), 'Order Setup');
+      return;
+    }
     if (activeReviewSetId) {
       showActiveOrderSetupPanel();
       return;

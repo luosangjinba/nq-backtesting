@@ -1421,3 +1421,18 @@ User feedback addressed:
   - moved the page to single-column blocks.
   - constrained cards, textarea/select controls, refs, and locate rows to inspector width.
 - Review archive remap now includes `pre0930Context.items[].refs`.
+
+## Follow-up Fix - Daily Time Ref Pick Mode
+
+User feedback addressed:
+
+- `Select Object` no longer reads the current selected object.
+- Clicking `Select Object` in a Time Reaction block now starts a pending pick mode for that exact block.
+- While pending:
+  - selecting a PDA links it directly and keeps the Time Reaction page open.
+  - selecting a Segment links it directly and keeps the Time Reaction page open.
+  - selecting a Composite links it directly and keeps the Time Reaction page open.
+  - selecting an Order Setup links it directly and keeps the Time Reaction page open.
+  - selecting an SMT row links it directly and keeps the Time Reaction page open.
+- The old behavior where selecting a PDA/Segment immediately jumps to its detail page is bypassed only during this pending pick mode.
+- `Cancel Select` and Escape cancel the pending pick.
