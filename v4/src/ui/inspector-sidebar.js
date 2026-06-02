@@ -314,9 +314,6 @@ function renderEmpty() {
     viewDate: calendarViewDate,
   });
   bodyEl.innerHTML = `
-    <div class="inspector-empty">
-      Select a PDA or 1H segment on the chart.
-    </div>
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
     ${renderArchiveActions()}
   `;
