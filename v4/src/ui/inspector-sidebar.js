@@ -8,6 +8,7 @@ import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
+import { fetchBars } from '../api.js';
 import { getAnnotationById } from '../pda/pda-store.js';
 import {
   clearSegmentGroupSelection,
@@ -47,6 +48,9 @@ import {
 import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { updateEconomicCalendarFilters } from '../economic-calendar/economic-calendar-store.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
+import * as store from '../data/bar-store.js';
+import * as secondaryStore from '../data/secondary-chart-store.js';
+import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import {
   getActiveReviewSetId,
   setActiveReviewSet,
@@ -574,10 +578,120 @@ function getDailyTimeTargetFromElement(actionEl) {
   return { section: 'pre0930Context' };
 }
 
+function getDailyTimeSectionName(target = {}) {
+  return target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
+}
+
 function getDailyTimeTargetLabel(target = {}) {
   if (target.section === 'reaction') return target.time || 'reaction';
   if (target.section === 'summary') return '09:30-11:00 Summary';
   return 'Pre 09:30 Context';
+}
+
+function getDailyTimeTargetTime(target = {}) {
+  if (target.section === 'reaction') return target.time || '09:30';
+  if (target.section === 'summary') return '11:00';
+  return '09:30';
+}
+
+function getDailyTimeLocateRange(date, target = {}) {
+  if (target.section === 'summary') {
+    return {
+      start: getCalendarDateTimestamp(date, '09:30'),
+      end: getCalendarDateTimestamp(date, '11:00'),
+    };
+  }
+  const timestamp = getCalendarDateTimestamp(date, getDailyTimeTargetTime(target));
+  return { start: timestamp, end: timestamp };
+}
+
+function getDailyTimeTargetLocate(date, target = {}) {
+  const review = getDailyTimeReviewByDate(date) || getOrCreateDailyTimeReview(date);
+  if (!review) return {};
+  if (target.section === 'reaction') {
+    return review.reactions.find((reaction) => reaction.time === getDailyTimeTargetTime(target))?.locate || {};
+  }
+  return review[getDailyTimeSectionName(target)]?.locate || {};
+}
+
+function patchDailyTimeTargetLocate(date, target = {}, patch = {}) {
+  const currentLocate = getDailyTimeTargetLocate(date, target);
+  const locate = { ...currentLocate, ...patch };
+  if (target.section === 'reaction') {
+    return updateDailyTimeReaction(date, getDailyTimeTargetTime(target), { locate });
+  }
+  return updateDailyTimeReviewSection(date, getDailyTimeSectionName(target), { locate });
+}
+
+function syncPrimaryToolbarRange(start, end, timeframe) {
+  const startInput = document.getElementById('startInput');
+  const endInput = document.getElementById('endInput');
+  const tfSelect = document.getElementById('tfSelect');
+  if (startInput) startInput.value = start || startInput.value;
+  if (endInput) endInput.value = end || endInput.value;
+  if (tfSelect && timeframe) tfSelect.value = String(timeframe);
+}
+
+async function ensurePrimaryTimeframe(timeframe) {
+  const targetTimeframe = Number(timeframe) || store.getCurrentTimeframe();
+  if (Number(store.getCurrentTimeframe()) === targetTimeframe) return true;
+  const currentRange = store.getCurrentRange();
+  if (!currentRange.start || !currentRange.end) {
+    bus.emit('status:update', { text: 'Cannot switch timeframe: no loaded primary range', isError: true });
+    return false;
+  }
+  const loadRange = resolveChartLoadRange(currentRange.start, currentRange.end, targetTimeframe);
+  if (!loadRange.ok) {
+    bus.emit('status:update', { text: loadRange.message, isError: true });
+    return false;
+  }
+  bus.emit('status:update', { text: 'Loading primary timeframe...', isError: false });
+  try {
+    const result = await fetchBars(loadRange.start, loadRange.end, targetTimeframe);
+    syncPrimaryToolbarRange(loadRange.start, loadRange.end, targetTimeframe);
+    store.setBars(result.bars, loadRange.start, loadRange.end, targetTimeframe, result.requestedRange, {
+      outerRange: loadRange.outerRange,
+    });
+    return true;
+  } catch (err) {
+    bus.emit('status:update', { text: `Timeframe load failed: ${err.message}`, isError: true });
+    return false;
+  }
+}
+
+async function locateDailyTimeTarget(actionEl) {
+  const date = actionEl.dataset.dailyTimeDate;
+  const target = getDailyTimeTargetFromElement(actionEl);
+  const locate = getDailyTimeTargetLocate(date, target);
+  const range = getDailyTimeLocateRange(date, target);
+  if (!Number.isFinite(range.start) || !Number.isFinite(range.end)) {
+    bus.emit('status:update', { text: 'Time Reaction locate target is invalid', isError: true });
+    return;
+  }
+
+  if (locate.chart === 'secondary') {
+    const located = secondaryStore.isSecondaryEnabled()
+      && secondaryStore.getSecondaryDisplayBars().length > 0
+      && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+    bus.emit('status:update', {
+      text: located
+        ? `Located ${date} ${getDailyTimeTargetLabel(target)} on secondary`
+        : 'Secondary chart is not enabled or loaded for this locate target',
+      isError: !located,
+    });
+    return;
+  }
+
+  if (!(await ensurePrimaryTimeframe(locate.timeframe))) return;
+  requestAnimationFrame(() => {
+    const located = viewport.locateTimestampRange(range.start, range.end);
+    bus.emit('status:update', {
+      text: located
+        ? `Located ${date} ${getDailyTimeTargetLabel(target)}`
+        : 'Primary chart cannot locate this time target',
+      isError: !located,
+    });
+  });
 }
 
 function buildPdaDailyTimeRef(annotation) {
@@ -822,6 +936,26 @@ function handleInspectorChange(e) {
     return;
   }
 
+  if (action === 'daily-time-locate-timeframe') {
+    const date = e.target.dataset.dailyTimeDate;
+    const target = getDailyTimeTargetFromElement(e.target);
+    recordInspectorHistory('Update Time Reaction Locate TF', () => (
+      patchDailyTimeTargetLocate(date, target, { timeframe: e.target.value })
+    ));
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-locate-chart') {
+    const date = e.target.dataset.dailyTimeDate;
+    const target = getDailyTimeTargetFromElement(e.target);
+    recordInspectorHistory('Update Time Reaction Locate Chart', () => (
+      patchDailyTimeTargetLocate(date, target, { chart: e.target.value })
+    ));
+    refreshSelection();
+    return;
+  }
+
   if (orderReviewActions.handleOrderReviewChange(action, e.target)) {
     return;
   }
@@ -920,6 +1054,11 @@ function handleInspectorClick(e) {
       isError: !added,
     });
     refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-locate') {
+    locateDailyTimeTarget(actionEl);
     return;
   }
 

@@ -1,4 +1,8 @@
 import {
+  TIMEFRAME_MAP,
+  timeframeToString,
+} from '../../config.js';
+import {
   DAILY_TIME_REACTION_TIMES,
   DAILY_TIME_REACTION_TYPES,
 } from '../../time-reaction/daily-time-review-store.js';
@@ -127,6 +131,54 @@ function renderRefList(review, target, refs = []) {
   `;
 }
 
+function renderTimeframeOptions(selectedTimeframe) {
+  const selected = String(selectedTimeframe || '1');
+  return Object.entries(TIMEFRAME_MAP)
+    .map(([value, label]) => `
+      <option value="${escapeHtml(value)}" ${String(value) === selected ? 'selected' : ''}>${escapeHtml(label)}</option>
+    `)
+    .join('');
+}
+
+function renderChartOptions(selectedChart) {
+  const selected = selectedChart === 'secondary' ? 'secondary' : 'primary';
+  return ['primary', 'secondary']
+    .map((value) => `
+      <option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(value === 'primary' ? 'Main' : 'Sub')}</option>
+    `)
+    .join('');
+}
+
+function renderLocateControls(review, target, locate = {}) {
+  const timeframe = locate.timeframe || '1';
+  const chart = locate.chart || 'primary';
+  return `
+    <div class="time-reaction-locate-row">
+      <span class="drawing-set-meta">${escapeHtml(timeframeToString(Number(timeframe)))}</span>
+      <select
+        class="inspector-input inspector-mini-select"
+        data-inspector-action="daily-time-locate-timeframe"
+        ${targetAttrs(review, target)}
+      >
+        ${renderTimeframeOptions(timeframe)}
+      </select>
+      <select
+        class="inspector-input inspector-mini-select"
+        data-inspector-action="daily-time-locate-chart"
+        ${targetAttrs(review, target)}
+      >
+        ${renderChartOptions(chart)}
+      </select>
+      <button
+        class="inspector-mini-btn"
+        data-inspector-action="daily-time-locate"
+        ${targetAttrs(review, target)}
+        type="button"
+      >Locate</button>
+    </div>
+  `;
+}
+
 function renderReactionTypeOptions(selectedValue) {
   return Object.values(DAILY_TIME_REACTION_TYPES)
     .map((value) => `
@@ -160,6 +212,7 @@ function renderReactionCard(review, reaction) {
         noteAttrs,
         'Record what happened at this algorithmic time.'
       )}
+      ${renderLocateControls(review, { section: 'reaction', time }, reaction.locate)}
       ${renderRefList(review, { section: 'reaction', time }, reaction.refs)}
     </div>
   `;
@@ -196,6 +249,7 @@ export function renderDailyTimeReviewPanel(review) {
             sectionNoteAttrs(review, 'pre0930Context'),
             'Record the higher-timeframe context before 09:30.'
           )}
+          ${renderLocateControls(review, { section: 'pre0930Context' }, review.pre0930Context?.locate)}
           ${renderRefList(review, { section: 'pre0930Context' }, review.pre0930Context?.refs)}
         `
       )}
@@ -210,6 +264,7 @@ export function renderDailyTimeReviewPanel(review) {
             sectionNoteAttrs(review, 'summary0930To1100'),
             'Summarize the 09:30-11:00 move and whether the reactions became actionable.'
           )}
+          ${renderLocateControls(review, { section: 'summary0930To1100' }, review.summary0930To1100?.locate)}
           ${renderRefList(review, { section: 'summary0930To1100' }, review.summary0930To1100?.refs)}
         `
       )}

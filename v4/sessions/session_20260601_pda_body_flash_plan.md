@@ -1339,3 +1339,38 @@ Validation:
 - `node --check` passed for:
   - `inspector-sidebar.js`
   - `time-reaction-panel.js`
+
+## Step 221-222 Implementation - Locate And HTF Refs
+
+Implemented:
+
+- Added optional `locate` to Daily Time section records:
+  - `pre0930Context.locate`
+  - `summary0930To1100.locate`
+- Existing reaction `locate` controls are now exposed in the editor.
+- Each section/reaction renders:
+  - timeframe select
+  - chart select (`Main` / `Sub`)
+  - `Locate`
+- Primary locate behavior:
+  - if the selected timeframe differs from the loaded primary chart timeframe, reload the current primary range with that timeframe.
+  - after reload, locate the target timestamp/range.
+  - uses existing viewport locate flash.
+- Secondary locate behavior:
+  - only locates if the secondary chart is already enabled and loaded.
+  - does not auto-open secondary.
+  - does not auto-change secondary timeframe.
+- Target times:
+  - Pre 09:30 Context locates `09:30`.
+  - fixed reactions locate their own time.
+  - 09:30-11:00 Summary locates the `09:30-11:00` range.
+- HTF environment linking is covered through Step 220 refs:
+  - Pre/Summary can link PDA, Segment, Composite, SMT, and Order Setup.
+  - This remains manual analysis support only; no automatic PDA recommendation or setup validity judgment.
+
+Validation:
+
+- `node --check` passed for:
+  - `daily-time-review-store.js`
+  - `time-reaction-panel.js`
+  - `inspector-sidebar.js`

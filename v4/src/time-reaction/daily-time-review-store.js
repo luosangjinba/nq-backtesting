@@ -64,10 +64,11 @@ function normalizeRefs(refs = []) {
   return Array.isArray(refs) ? refs.map(normalizeLinkedObjectRef).filter(Boolean) : [];
 }
 
-function normalizeSection(input = {}) {
+function normalizeSection(input = {}, dateKey = '', fallbackTime = '09:30') {
   return {
     note: normalizeString(input.note),
     refs: normalizeRefs(input.refs),
+    locate: normalizeLocate(input.locate, dateKey, fallbackTime),
   };
 }
 
@@ -129,9 +130,9 @@ export function normalizeDailyTimeReview(input = {}, options = {}) {
     source: normalizeString(input.source, 'manual'),
     createdAt: normalizeTimestamp(input.createdAt, now),
     updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
-    pre0930Context: normalizeSection(input.pre0930Context),
+    pre0930Context: normalizeSection(input.pre0930Context, date, '09:30'),
     reactions: normalizeReactions(input.reactions, date),
-    summary0930To1100: normalizeSection(input.summary0930To1100),
+    summary0930To1100: normalizeSection(input.summary0930To1100, date, '11:00'),
   };
 }
 
