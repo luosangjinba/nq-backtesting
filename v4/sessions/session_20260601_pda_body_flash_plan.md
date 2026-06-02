@@ -833,3 +833,28 @@ Non-goals:
 - Do not add new Order Setup fields.
 - Do not change chart-first setup creation/editing semantics.
 - Do not build a separate statistics/trading-journal panel in this pass.
+
+## Step 205 - Active Order Setup Duplicate Actions Cleanup
+
+Context:
+
+- User pointed out that `Order Setups` row menu already has Locate / Open / Hide / Delete.
+- `Active Order Setup` also exposed Clear Active / Locate / Hide / Delete, which duplicated object-level actions and made the detail panel feel like a second control surface.
+
+Decision:
+
+- Keep object-level actions in the `Order Setups` list/menu.
+- Remove the top action row from `Active Order Setup`.
+- Keep `Active Order Setup` focused on current setup content:
+  - Display
+  - Anchor
+  - Execution
+  - Entry Context
+  - Reasons
+  - Result
+
+Implementation notes:
+
+- Removed `renderActiveActions()` from `order-review-panel.js`.
+- Removed the unused `order-review-clear-active` Inspector action branch.
+- Kept Locate / Hide / Delete handlers because the Order Setups list menu still uses them.

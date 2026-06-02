@@ -159,18 +159,6 @@ function renderActiveHeader(order, setupSet) {
   `;
 }
 
-function renderActiveActions(order) {
-  const isHidden = Boolean(order.display?.hidden);
-  return `
-    <div class="order-review-action-row">
-      <button class="inspector-secondary" data-inspector-action="order-review-clear-active" data-order-review-id="${escapeHtml(order.id)}" type="button">Clear Active</button>
-      <button class="inspector-secondary" data-inspector-action="order-review-locate" data-order-review-id="${escapeHtml(order.id)}" type="button">Locate</button>
-      <button class="inspector-secondary" data-inspector-action="order-review-toggle-hidden" data-order-review-id="${escapeHtml(order.id)}" type="button">${isHidden ? 'Show' : 'Hide'}</button>
-      <button class="inspector-danger" data-inspector-action="order-review-delete" data-order-review-id="${escapeHtml(order.id)}" type="button">Delete</button>
-    </div>
-  `;
-}
-
 function renderActiveDisplayPanel(order) {
   const showRiskRewardBox = order.display?.showRiskRewardBox !== false;
   return `
@@ -355,7 +343,6 @@ function renderActiveOrderSetup(order, options = {}) {
   return `
     <div class="inspector-evidence-list">
       ${renderActiveHeader(order, setupSet)}
-      ${renderActiveActions(order)}
       ${renderActiveDisplayPanel(order)}
       ${renderAnchorPanel(setupSet)}
       ${renderExecutionPanel(order, setupSet, options.selectedOrderSetupElement)}

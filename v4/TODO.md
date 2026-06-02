@@ -368,6 +368,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [ ] Step 202: 空状态与删除后的选择规则：无 setup 时显示 `No Order Setups`；有 setup 但无 active 时提示选择一个 setup；删除 active setup 后优先选择同日下一个 setup，否则清空 active；隐藏/显示/Locate/Delete 行为不变
 - [ ] Step 203: 视觉与可用性细节：active 行用稳定高亮；详情支持折叠/展开；列表过长时不把 Calendar 推得过远；长文本和 Reasons refs 不横向撑爆 Inspector；不新增新复盘字段
 - [ ] Step 204: 验证与收口：覆盖 Calendar Open、列表 Open/Set Active、图表 Set Active、Hide/Show/Delete、active 删除后的 fallback、Entry/Stop/Target/Reasons/Result 编辑、undo/redo、刷新恢复、全量 JS 语法、Web smoke 与 `git diff --check`
+- [x] Step 205: 重复对象级动作收敛：Active Order Setup 顶部不再显示 Clear Active / Locate / Hide / Delete；Locate / Open / Hide / Delete 统一保留在 Order Setups 列表菜单，Active 区只保留 Display、Anchor、Execution、Entry Context、Reasons、Result 等当前 setup 内容控件
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

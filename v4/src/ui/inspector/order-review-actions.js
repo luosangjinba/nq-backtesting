@@ -11,7 +11,6 @@ import { getSelectedPda } from '../../pda/pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
 import { getSegmentById } from '../../segment/segment-store.js';
 import {
-  clearActiveReviewSet,
   getActiveReviewSet,
   linkRefToActiveReviewSet,
   setActiveReviewSet,
@@ -1017,13 +1016,6 @@ export function createOrderReviewActionController({
       setActiveReviewSet(actionEl.dataset.orderReviewId);
       syncCalendarToOrderReview(actionEl.dataset.orderReviewId);
       expandOrder(actionEl.dataset.orderReviewId);
-      refreshSelection();
-      return true;
-    }
-
-    if (action === 'order-review-clear-active') {
-      clearActiveReviewSet();
-      clearOrderSetupElementSelection();
       refreshSelection();
       return true;
     }
