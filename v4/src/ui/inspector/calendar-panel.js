@@ -241,6 +241,17 @@ function canToggleObjectVisibility(item) {
   ].includes(item.ref?.type);
 }
 
+function isDayBulkChartObject(item) {
+  return canToggleObjectVisibility(item);
+}
+
+function countDayBulkChartObjects(groups = []) {
+  return groups
+    .flatMap((group) => group.rows || [])
+    .filter(isDayBulkChartObject)
+    .length;
+}
+
 function isCalendarObjectHidden(item) {
   if (item.ref?.type === CALENDAR_OBJECT_TYPES.KILLZONE || item.ref?.type === CALENDAR_OBJECT_TYPES.TIME_LINE) {
     return item.source?.enabled === false;
@@ -522,6 +533,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
   const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true });
+  const dayChartObjectCount = countDayBulkChartObjects(objectGroups);
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
     ? `Manual overlays: ${overlaySelectedDate}`
@@ -574,13 +586,15 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
           data-inspector-action="calendar-day-show-chart-objects"
           data-calendar-date="${escapeHtml(activeDate)}"
           type="button"
-        >Show Day Objects</button>
+          ${dayChartObjectCount ? '' : 'disabled'}
+        >Show Day Objects${dayChartObjectCount ? ` (${dayChartObjectCount})` : ''}</button>
         <button
           class="inspector-mini-btn"
           data-inspector-action="calendar-day-hide-chart-objects"
           data-calendar-date="${escapeHtml(activeDate)}"
           type="button"
-        >Hide Day Objects</button>
+          ${dayChartObjectCount ? '' : 'disabled'}
+        >Hide Day Objects${dayChartObjectCount ? ` (${dayChartObjectCount})` : ''}</button>
       </div>
       <div class="calendar-object-list">
         ${objectGroups.map(renderObjectGroup).join('')}

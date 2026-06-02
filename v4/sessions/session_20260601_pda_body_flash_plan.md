@@ -1658,3 +1658,26 @@ Validation:
   - `smt-store.js`
   - `smt-renderer.js`
 - `git diff --check` passed.
+
+## Step 231 Implementation - Calendar Day Bulk Visibility
+
+Completed:
+
+- Calendar selected-day panel now includes:
+  - `Show Day Objects`
+  - `Hide Day Objects`
+- These actions target only chart objects with visibility state:
+  - SMT
+  - PDA
+  - Segment
+  - Composite
+  - Killzone
+  - Time Line
+- Economic Events, Time Reaction, and Order Setups are excluded from the day bulk buttons.
+- Buttons show the number of eligible day chart objects and are disabled when the selected day has none.
+- The bulk actions are handled through `calendar-day-show-chart-objects` and `calendar-day-hide-chart-objects`.
+
+Validation:
+
+- `node --check` passed for `calendar-panel.js`.
+- `git diff --check` passed.

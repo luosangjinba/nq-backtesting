@@ -398,7 +398,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 228: 验证与收口：覆盖相关 JS 语法、target/summary range/content filter smoke、Calendar Open、Add Event、Select Object pending、linked ref Locate，并记录拆分后边界
 - [ ] Step 229: Calendar 图表对象显隐计划：新增 `feature/calendar-object-visibility-controls`；复用既有 `display.hidden` / overlay `enabled=false` 语义，不新增 schema；覆盖 PDA、Segment、Composite、Killzone、Time Line，SMT 第一版仅在具备显示状态后接入
 - [x] Step 230: 对象行显隐按钮：在 Inspector Calendar 单日对象行增加类似 Order Setup 的绿点/灰点+斜杠按钮；PDA 单对象显隐，Segment 单段显隐，Composite 按 composite group 整组显隐，Killzone/Time Line 按 overlay 项显隐
-- [ ] Step 231: 单日批量显隐：Calendar 单日区域增加 `Show Day Objects` / `Hide Day Objects`，批量切换当天所有可显隐图表对象；Economic Events、Time Reaction、Order Setup 不纳入该批量图表对象按钮
+- [x] Step 231: 单日批量显隐：Calendar 单日区域增加 `Show Day Objects` / `Hide Day Objects`，批量切换当天所有可显隐图表对象；Economic Events、Time Reaction、Order Setup 不纳入该批量图表对象按钮
 - [ ] Step 232: 验证与收口：覆盖相关 JS 语法、对象显隐 smoke、批量显隐 smoke、Calendar render smoke，并记录边界
 
 ## 已知问题
