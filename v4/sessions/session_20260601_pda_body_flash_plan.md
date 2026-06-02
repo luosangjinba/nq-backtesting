@@ -1102,3 +1102,28 @@ Validation:
 - `node --check` passed for `manual-annotation.js`.
 - `git diff --check` passed.
 - Source search confirmed the menu action and event emission are wired.
+
+## Step 211-212 Implementation - Object Detail Calendar Back Date
+
+Implemented:
+
+- Added object date helpers in `inspector-sidebar.js` for:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- Chart selection for PDA / Segment / Composite now prepares a Calendar home back target using the selected object's date.
+- Order Setup active/detail rendering prepares a Calendar home back target using the setup date.
+- SMT `Select` prepares a Calendar home back target using the SMT date.
+- Calendar Open routes suppress this automatic back-target reset because they already push the correct Calendar page state.
+- Calendar date context writes `timeOverlaySettings.selectedDate`, matching existing Calendar date selection semantics without moving the chart viewport.
+- Confirmed Calendar group default remains:
+  - Order Setups open
+  - Economic Events collapsed
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+- Source search confirmed all date helper paths are wired.
