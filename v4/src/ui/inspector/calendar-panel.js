@@ -275,6 +275,8 @@ function renderObjectActionButtons(item) {
       data-locate-start="${canLocate ? item.range.start : ''}"
       data-locate-end="${canLocate ? item.range.end : ''}"
       data-object-label="${escapeHtml(locateLabel)}"
+      data-object-type="${escapeHtml(item.ref?.type || '')}"
+      data-object-id="${escapeHtml(item.ref?.id || '')}"
       type="button"
       ${canLocate ? '' : 'disabled'}
     >Locate</button>

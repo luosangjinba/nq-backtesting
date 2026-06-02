@@ -404,7 +404,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 234: 来源标识统一：新增 PDA source formatter，统一输出 `Main NQ 1H` / `Sub ES 1H` 等来源 badge；在 Inspector PDA detail、Calendar row、linked refs、图表 label 中使用同一 formatter
 - [x] Step 235: 选择统一：主图/副图 hit-test 和 renderer 都以同一 `annotation.id` 作为 selected key；点击任一 projection 选中同一 PDA，并在两张图对应 projection 上同步高亮
 - [x] Step 236: Projection 渲染规则：同 instrument projection 画完整价格对象；跨 instrument projection 只画时间范围/竖线/来源 badge，不把 ES 价格 box 直接投到 NQ 价格轴
-- [ ] Step 237: PDA actions 统一：PDA Locate 同时定位主副图；Hide/Delete/Calendar visibility/ref locate 都走同一个 PDA id；来源图 price area flash，非来源图只做 time flash
+- [x] Step 237: PDA actions 统一：PDA Locate 同时定位主副图；Hide/Delete/Calendar visibility/ref locate 都走同一个 PDA id；来源图 price area flash，非来源图只做 time flash
 - [ ] Step 238: 验证与收口：覆盖主/副图 PDA 创建、同品种高低周期 projection、跨品种 time-only projection、任一图选中同步高亮、Hide/Delete 双图消失、Locate Both、Calendar/ref 行为与全量 JS 语法
 
 ## 已知问题

@@ -2,11 +2,10 @@ import * as bus from '../../event-bus.js';
 import * as chart from '../../chart/chart-manager.js';
 import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
-import { getPrimaryChartContext, getSecondaryChartContext } from '../../chart/chart-context.js';
 import * as store from '../../data/bar-store.js';
 import { timeframeToString } from '../../config.js';
-import { flashPdaAnnotation } from '../../chart/pda-locate-flash.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
+import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
 import { getSelectedPda } from '../../pda/pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
 import { getSegmentById } from '../../segment/segment-store.js';
@@ -763,6 +762,18 @@ export function createOrderReviewActionController({
       range = getAnnotationTimestampRange(annotation);
       sourceChartId = ref.sourceChartId || annotation.sourceChartId || sourceChartId;
       label = getPdaOrderRefLabel(annotation);
+      const result = locatePdaProjection(annotation);
+      bus.emit('status:update', {
+        text: result.primary.located && result.secondary.located
+          ? `Located ${label} on primary and secondary`
+          : result.primary.located
+            ? `Located ${label} on primary`
+            : result.secondary.located
+              ? `Located ${label} on secondary`
+              : `${label} has no locatable loaded chart`,
+        isError: !result.located,
+      });
+      return true;
     } else if (type === ORDER_REF_TYPES.SEGMENT) {
       const segment = getSegmentById(ref.id || ref.refId);
       if (!segment) {
@@ -780,11 +791,9 @@ export function createOrderReviewActionController({
     }
 
     const useSecondary = sourceChartId === 'secondary';
-    const chartContext = useSecondary ? getSecondaryChartContext() : getPrimaryChartContext();
-    const locateOptions = type === ORDER_REF_TYPES.PDA ? { flash: false } : {};
     const located = useSecondary
-      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end, locateOptions)
-      : viewport.locateTimestampRange(range.start, range.end, locateOptions);
+      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end)
+      : viewport.locateTimestampRange(range.start, range.end);
     if (!located) {
       bus.emit('status:update', {
         text: useSecondary
@@ -792,21 +801,6 @@ export function createOrderReviewActionController({
           : 'Primary chart cannot locate this linked object',
         isError: true,
       });
-      return true;
-    }
-
-    if (type === ORDER_REF_TYPES.PDA) {
-      const flashed = flashPdaAnnotation(annotation, chartContext);
-      if (!flashed) {
-        if (useSecondary) {
-          secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
-        } else {
-          viewport.locateTimestampRange(range.start, range.end);
-        }
-        bus.emit('status:update', { text: `Located ${label} with time-range fallback`, isError: false });
-        return true;
-      }
-      bus.emit('status:update', { text: `Located ${label} body`, isError: false });
       return true;
     }
 

@@ -1848,3 +1848,19 @@ Implemented:
 Boundary:
 
 - Cross-instrument projections intentionally do not draw price boxes, liquidity lines, fib levels, or point-set prices on the target chart.
+
+## Step 237 Execution - Unified PDA Locate Actions
+
+Implemented:
+
+- Added `pda-locate-actions.js` as the shared PDA locate action helper.
+- PDA locate now targets the same annotation id and attempts both charts:
+  - same-instrument chart: locate without time flash, then flash PDA body/price geometry
+  - cross-instrument chart: locate with time-range flash only
+- Order Setup linked PDA refs now call the shared PDA locate helper.
+- Time Reaction linked PDA refs now call the shared PDA locate helper.
+- Calendar PDA row Locate now carries PDA type/id and uses the shared PDA locate helper.
+
+Boundary:
+
+- Segment / Composite / SMT / Order Setup locate paths are unchanged in this step.

@@ -8,6 +8,7 @@ import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
 import { clearSavedAnnotations } from '../pda/pda-persistence.js';
+import { locatePdaProjection } from '../pda/pda-locate-actions.js';
 import { getAnnotationById, updateAnnotation } from '../pda/pda-store.js';
 import {
   clearSegmentGroupSelection,
@@ -845,6 +846,26 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'calendar-object-locate') {
+    if (actionEl.dataset.objectType === CALENDAR_OBJECT_TYPES.PDA && actionEl.dataset.objectId) {
+      const annotation = getAnnotationById(actionEl.dataset.objectId);
+      if (!annotation) {
+        bus.emit('status:update', { text: 'Calendar PDA not found', isError: true });
+        return;
+      }
+      const result = locatePdaProjection(annotation);
+      const label = actionEl.dataset.objectLabel || 'PDA';
+      bus.emit('status:update', {
+        text: result.primary.located && result.secondary.located
+          ? `Located ${label} on primary and secondary`
+          : result.primary.located
+            ? `Located ${label} on primary`
+            : result.secondary.located
+              ? `Located ${label} on secondary`
+              : `${label} has no locatable loaded chart`,
+        isError: !result.located,
+      });
+      return;
+    }
     const start = Number(actionEl.dataset.locateStart);
     const end = Number(actionEl.dataset.locateEnd);
     if (!Number.isFinite(start) || !Number.isFinite(end)) {

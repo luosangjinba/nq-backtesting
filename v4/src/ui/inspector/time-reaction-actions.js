@@ -3,6 +3,7 @@ import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
 import { fetchBars } from '../../api.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
+import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
 import { getSegmentById } from '../../segment/segment-store.js';
 import { getSegmentGroupById } from '../../segment/segment-group-store.js';
 import { locateSetupSet } from '../../order/setup-set.js';
@@ -457,6 +458,18 @@ export function createDailyTimeInspectorActionController({
       }
       range = getAnnotationTimestampRange(annotation);
       label = getPdaOrderRefLabel(annotation);
+      const result = locatePdaProjection(annotation);
+      bus.emit('status:update', {
+        text: result.primary.located && result.secondary.located
+          ? `Located ${label} on primary and secondary`
+          : result.primary.located
+            ? `Located ${label} on primary`
+            : result.secondary.located
+              ? `Located ${label} on secondary`
+              : `${label} has no locatable loaded chart`,
+        isError: !result.located,
+      });
+      return;
     } else if (type === ORDER_REF_TYPES.SEGMENT) {
       const segment = getSegmentById(id);
       if (!segment) {
