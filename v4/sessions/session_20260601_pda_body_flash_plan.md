@@ -1281,3 +1281,36 @@ Validation:
 - `node --check` passed for `review-archive.js`.
 - `git diff --check` passed.
 - Source search confirmed payload, validation, remap, import, and status-message paths are wired.
+
+## Step 218-219 Implementation - Calendar Entry And Detail Editor
+
+Implemented:
+
+- Added Calendar object type `time-reaction`.
+- Inspector Calendar now shows a default-collapsed `Time Reaction Observation` group for the selected day.
+- The group has a single per-day row:
+  - `Open` enters the Daily Time Reaction detail page.
+  - `Locate` targets the 09:30-10:30 reaction window for the selected day.
+  - The row summary shows `No observations yet` until notes/refs/type selections exist.
+- Added `time-reaction-panel.js` detail editor:
+  - `Pre 09:30 Context` textarea.
+  - fixed reaction cards for 09:30 / 09:50 / 10:00 / 10:30.
+  - each reaction has a `Reaction Type` select and note textarea.
+  - `09:30-11:00 Summary` textarea.
+- Inspector page stack supports opening and returning from the Time Reaction detail page.
+- Change handlers persist section notes, reaction type, and reaction notes through the daily time review store.
+
+Deferred to later steps:
+
+- Ref list rendering and `Link Selected Object` remain Step 220.
+- Reaction/section timeframe locate controls remain Step 221.
+
+Validation:
+
+- `node --check` passed for:
+  - `calendar-panel.js`
+  - `time-reaction-panel.js`
+  - `inspector-sidebar.js`
+  - `calendar-types.js`
+- `git diff --check` passed.
+- Source search confirmed calendar entry, Open routing, detail rendering, change handlers, and docs are wired.

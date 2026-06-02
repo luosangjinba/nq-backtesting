@@ -26,6 +26,7 @@ import { renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
+import { renderDailyTimeReviewPanel } from './inspector/time-reaction-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import {
   canPopInspectorPage,
@@ -54,6 +55,12 @@ import { getSelectedOrderSetupElement } from '../order/order-setup-selection.js'
 import {
   getOrderReviewById,
 } from '../order/order-review-store.js';
+import {
+  getDailyTimeReviewByDate,
+  getOrCreateDailyTimeReview,
+  updateDailyTimeReaction,
+  updateDailyTimeReviewSection,
+} from '../time-reaction/daily-time-review-store.js';
 import { recordHistory } from '../history/history-manager.js';
 
 let sidebarEl = null;
@@ -304,6 +311,23 @@ function renderOrderSetupDetail(orderReviewId) {
   `;
 }
 
+function renderDailyTimeReviewDetail(dateKey) {
+  const review = getDailyTimeReviewByDate(dateKey) || getOrCreateDailyTimeReview(dateKey);
+  currentPanel = 'detail';
+  setCalendarDateContext(dateKey);
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'time-reaction',
+    objectId: dateKey,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
+  bodyEl.innerHTML = `
+    ${renderInspectorBackAction()}
+    ${renderDailyTimeReviewPanel(review)}
+  `;
+}
+
 function renderEmpty() {
   currentPanel = 'empty';
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
@@ -420,6 +444,11 @@ function renderPageFromState(page = getInspectorPage()) {
       if (getSmtRecordById(page.objectId)) {
         selectedSmtId = page.objectId;
         renderSmtSelection();
+        return;
+      }
+    } else if (page.objectType === 'time-reaction') {
+      if (String(page.objectId || '').match(/^\d{4}-\d{2}-\d{2}$/)) {
+        renderDailyTimeReviewDetail(page.objectId);
         return;
       }
     }
@@ -618,6 +647,23 @@ function openCalendarObject(type, id) {
     renderSmtSelection();
     return true;
   }
+  if (type === 'time-reaction') {
+    if (!String(id || '').match(/^\d{4}-\d{2}-\d{2}$/)) return false;
+    setCalendarDateContext(id);
+    clearPdaSelection();
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+    selectedSmtId = null;
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'time-reaction',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    renderDailyTimeReviewDetail(id);
+    return true;
+  }
   return false;
 }
 
@@ -639,6 +685,36 @@ function handleInspectorChange(e) {
 
   if (action === 'smt-note') {
     recordInspectorHistory('Update SMT Note', () => updateSmtRecord(e.target.dataset.smtId, { note: e.target.value }));
+    return;
+  }
+
+  if (action === 'daily-time-section-note') {
+    const date = e.target.dataset.dailyTimeDate;
+    const sectionName = e.target.dataset.dailyTimeSection;
+    recordInspectorHistory('Update Time Reaction Section', () => (
+      updateDailyTimeReviewSection(date, sectionName, { note: e.target.value })
+    ));
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-reaction-type') {
+    const date = e.target.dataset.dailyTimeDate;
+    const time = e.target.dataset.dailyTimeReactionTime;
+    recordInspectorHistory('Update Time Reaction Type', () => (
+      updateDailyTimeReaction(date, time, { reactionType: e.target.value })
+    ));
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-reaction-note') {
+    const date = e.target.dataset.dailyTimeDate;
+    const time = e.target.dataset.dailyTimeReactionTime;
+    recordInspectorHistory('Update Time Reaction Note', () => (
+      updateDailyTimeReaction(date, time, { note: e.target.value })
+    ));
+    refreshSelection();
     return;
   }
 
@@ -861,6 +937,7 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
+  bus.on('daily-time-review:changed', refreshSelection);
   bus.on('economic-calendar:changed', refreshSelection);
   bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
