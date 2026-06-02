@@ -973,11 +973,10 @@ async function locateDailyTimeRef(actionEl) {
     const located = secondaryStore.isSecondaryEnabled()
       && secondaryStore.getSecondaryDisplayBars().length > 0
       && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
-    bus.emit('status:update', {
-      text: located ? `Located ${label} on secondary` : 'Secondary chart is not enabled or loaded for this linked object',
-      isError: !located,
-    });
-    return;
+    if (located) {
+      bus.emit('status:update', { text: `Located ${label} on secondary`, isError: false });
+      return;
+    }
   }
 
   const targetTimeframe = getRefTimeframe(ref, store.getCurrentTimeframe());
@@ -985,7 +984,9 @@ async function locateDailyTimeRef(actionEl) {
   requestAnimationFrame(() => {
     const located = viewport.locateTimestampRange(range.start, range.end);
     bus.emit('status:update', {
-      text: located ? `Located ${label}` : 'Primary chart cannot locate this linked object',
+      text: located
+        ? `${useSecondary ? 'Secondary unavailable; ' : ''}Located ${label} on primary`
+        : 'Primary chart cannot locate this linked object',
       isError: !located,
     });
   });
