@@ -834,6 +834,47 @@ Non-goals:
 - Do not change chart-first setup creation/editing semantics.
 - Do not build a separate statistics/trading-journal panel in this pass.
 
+## Step 198-207 Revised Plan - Inspector Page Stack
+
+Context:
+
+- User raised a broader UI layering issue:
+  - `Active Order Setup` looks like a child/detail page of `Order Setups`, but currently renders at the same Inspector level.
+  - `Order Setups -> Open` jumps to another same-level `Active Order Setup` section instead of entering a detail page.
+  - Opening PDA / Segment detail pages still leaves a full `Active Order Setup` panel below, so unrelated detail contexts are mixed.
+- Two options were discussed:
+  - Single Inspector with `Open -> detail page -> Back`.
+  - A second parallel Inspector that temporarily takes chart space.
+
+Decision:
+
+- Use the single Inspector page-stack approach first.
+- Defer the second parallel Inspector.
+- Reasoning:
+  - The current pain is information architecture, not insufficient screen width.
+  - A second Inspector would add chart compression, split-screen pressure, and dual-detail state complexity.
+  - A page stack gives every object type one clear current detail context.
+
+Planned steps:
+
+- Step 198: Freeze the architecture target: one Inspector page stack, `Open` enters a detail page, `Back` returns to the prior list/calendar state.
+- Step 199: Add a unified Inspector page state/back-stack model for home/list/detail pages, including source page, selected date, object type, and object id. Do not change Review JSON or persisted order schema.
+- Step 200: Convert the old `Active Order Setup` content into an `Order Setup Detail` page. Keep Display, Anchor, Execution, Entry Context, Reasons, and Result.
+- Step 201: Make `Order Setups -> Open` enter `Order Setup Detail`; keep Locate / Hide / Delete in the list menu; Open can set active but must not scroll to another same-level section.
+- Step 202: Make Calendar `Open` enter the corresponding detail page for Order Setup, PDA, Segment, Composite, and SMT. `Locate` remains locate + flash only.
+- Step 203: Remove the full Active Order Setup panel from PDA / Segment / Composite / SMT detail pages. Keep only lightweight cross-object actions such as linking the selected object/ref to the active setup reason.
+- Step 204: Define Back, delete, and empty-state behavior. Back restores the previous Calendar/list state; deleting a detail object returns to the prior page and refreshes; no active setup should not show a standalone Active page.
+- Step 206: Polish detail-page layout: compact title hierarchy, stable Back placement, wrapping long text/refs, no competing current-object panels.
+- Step 207: Validate Order Setup Open/Back, Calendar Open/Back, PDA/Segment/Composite/SMT detail pages, Locate no-page-change behavior, Hide/Delete state, link selected object to active setup, edit flows, refresh restore, undo/redo, syntax checks, Web smoke, and `git diff --check`.
+
+Non-goals:
+
+- Do not build a second parallel Inspector in this pass.
+- Do not rename persisted `orderReviews`.
+- Do not add new review fields.
+- Do not change chart-first setup creation/editing semantics.
+- Do not add a statistics/trading-journal panel.
+
 ## Step 205 - Active Order Setup Duplicate Actions Cleanup
 
 Context:
