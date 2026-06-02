@@ -1511,3 +1511,17 @@ Planned steps:
 - Step 226: Add `ui/inspector/time-reaction-actions.js` and move Daily Time target parsing, pending pick state, labels, ranges, and ref helper logic behind a controller API while preserving behavior.
 - Step 227: Route Daily Time click/change handlers and bus pick handlers through the controller; keep sidebar responsible for page stack and rendering.
 - Step 228: Validate syntax and smoke cases, then document final boundaries.
+
+## Step 226 Implementation - Daily Time Action Helper Shell
+
+Completed:
+
+- Added `ui/inspector/time-reaction-actions.js`.
+- Moved reusable Daily Time helper API into the new module:
+  - pending ref pick state accessors
+  - target parsing from action elements
+  - target key / label / section name helpers
+  - target time and locate range helpers
+  - timestamp range helpers
+  - timeframe metadata resolution helpers
+- `inspector-sidebar.js` is not wired to the new module yet, so runtime behavior remains unchanged in this step.
