@@ -64,6 +64,7 @@ let selectedSmtId = null;
 let calendarSelectedDate = '';
 let calendarViewDate = '';
 let suppressActiveReviewRender = false;
+let suppressSelectionBackTarget = false;
 
 const orderReviewActions = createOrderReviewActionController({
   getExpandedOrderReviewId: () => expandedOrderReviewId,
@@ -118,6 +119,14 @@ function dateKeyFromTimestamp(timestamp) {
   return `${year}-${month}-${day}`;
 }
 
+function firstDateKeyFromValues(values = []) {
+  for (const value of values) {
+    const dateKey = dateKeyFromTimestamp(value);
+    if (dateKey) return dateKey;
+  }
+  return '';
+}
+
 export function getOrderReviewCalendarDate(order = {}) {
   return dateKeyFromTimestamp(
     order.entryPlan?.entryTimestamp ??
@@ -127,12 +136,93 @@ export function getOrderReviewCalendarDate(order = {}) {
   );
 }
 
+function getAnnotationCalendarDate(annotation = {}) {
+  return firstDateKeyFromValues([
+    annotation.canonicalTimestamp,
+    annotation.timestamp,
+    annotation.anchorTime,
+    annotation.start?.timestamp,
+    annotation.start?.time,
+    annotation.end?.timestamp,
+    annotation.end?.time,
+    ...(Array.isArray(annotation.points)
+      ? annotation.points.map((point) => point?.canonicalTimestamp ?? point?.timestamp ?? point?.anchorTime ?? point?.time)
+      : []),
+  ]);
+}
+
+function getSegmentCalendarDate(segment = {}) {
+  return firstDateKeyFromValues([
+    segment.end?.timestamp,
+    segment.end?.time,
+    segment.start?.timestamp,
+    segment.start?.time,
+  ]);
+}
+
+function getCompositeCalendarDate(segmentGroup = {}) {
+  return firstDateKeyFromValues([getCompositeTimestamp(segmentGroup)]);
+}
+
+function getSmtCalendarDate(record = {}) {
+  return firstDateKeyFromValues([
+    record.leftTimestamp,
+    record.fvgStartTimestamp,
+    record.timestamp,
+    record.rightTimestamp,
+    record.fvgEndTimestamp,
+  ]);
+}
+
 function syncCalendarToOrderReview(orderReviewId) {
   const order = getOrderReviewById(orderReviewId);
   const dateKey = getOrderReviewCalendarDate(order);
   if (!dateKey) return false;
   calendarSelectedDate = dateKey;
   calendarViewDate = dateKey;
+  return true;
+}
+
+function setCalendarDateContext(dateKey) {
+  if (!dateKey) return false;
+  calendarSelectedDate = dateKey;
+  calendarViewDate = dateKey;
+  updateTimeOverlaySettings({ selectedDate: dateKey });
+  return true;
+}
+
+function prepareDetailBackTarget(dateKey) {
+  if (!setCalendarDateContext(dateKey)) return false;
+  resetInspectorPage({ kind: 'home', selectedDate: dateKey, viewDate: dateKey });
+  pushInspectorPage({ kind: 'detail', selectedDate: dateKey, viewDate: dateKey });
+  return true;
+}
+
+function normalizeCalendarDatePayload(payload = {}) {
+  const dateKey = String(payload.dateKey || '').match(/^\d{4}-\d{2}-\d{2}$/)
+    ? String(payload.dateKey)
+    : dateKeyFromTimestamp(payload.timestamp);
+  return dateKey || '';
+}
+
+function openCalendarDate(payload = {}) {
+  const dateKey = normalizeCalendarDatePayload(payload);
+  if (!dateKey) {
+    bus.emit('status:update', { text: 'Cannot locate Calendar date: missing chart time', isError: true });
+    return false;
+  }
+  setCalendarDateContext(dateKey);
+  clearPdaSelection();
+  clearSegmentSelection();
+  clearSegmentGroupSelection();
+  selectedSmtId = null;
+  resetInspectorPage({ kind: 'home', selectedDate: dateKey, viewDate: dateKey });
+  renderEmpty();
+  openSidebar();
+  bus.emit('status:update', {
+    text: `Calendar selected ${dateKey}${payload.source ? ` from ${payload.source}` : ''}`,
+    isError: false,
+  });
   return true;
 }
 
@@ -224,9 +314,6 @@ function renderEmpty() {
     viewDate: calendarViewDate,
   });
   bodyEl.innerHTML = `
-    <div class="inspector-empty">
-      Select a PDA or 1H segment on the chart.
-    </div>
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate })}
     ${renderArchiveActions()}
   `;
@@ -287,7 +374,8 @@ function focusActiveOrderSetupPanel() {
 }
 
 function showActiveOrderSetupPanel() {
-  syncCalendarToOrderReview(getActiveReviewSetId());
+  const dateSynced = syncCalendarToOrderReview(getActiveReviewSetId());
+  if (dateSynced) prepareDetailBackTarget(calendarSelectedDate);
   renderOrderSetupDetail(getActiveReviewSetId());
   openSidebar();
   requestAnimationFrame(() => focusActiveOrderSetupPanel());
@@ -475,7 +563,12 @@ function openCalendarObject(type, id) {
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
     });
-    return Boolean(selectPda(id));
+    suppressSelectionBackTarget = true;
+    try {
+      return Boolean(selectPda(id));
+    } finally {
+      suppressSelectionBackTarget = false;
+    }
   }
   if (type === 'segment') {
     if (!getSegmentById(id)) return false;
@@ -486,7 +579,12 @@ function openCalendarObject(type, id) {
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
     });
-    return Boolean(selectSegment(id));
+    suppressSelectionBackTarget = true;
+    try {
+      return Boolean(selectSegment(id));
+    } finally {
+      suppressSelectionBackTarget = false;
+    }
   }
   if (type === 'composite') {
     if (!getSegmentGroupById(id)) return false;
@@ -497,7 +595,12 @@ function openCalendarObject(type, id) {
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
     });
-    return Boolean(selectSegmentGroup(id));
+    suppressSelectionBackTarget = true;
+    try {
+      return Boolean(selectSegmentGroup(id));
+    } finally {
+      suppressSelectionBackTarget = false;
+    }
   }
   if (type === 'smt') {
     if (!getSmtRecordById(id)) return false;
@@ -678,8 +781,13 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'smt-select') {
-    selectedSmtId = actionEl.dataset.smtId;
-    refreshSelection();
+    const record = getSmtRecordById(actionEl.dataset.smtId);
+    if (record) {
+      prepareDetailBackTarget(getSmtCalendarDate(record));
+      selectedSmtId = record.id;
+      renderSmtSelection();
+      openSidebar();
+    }
     return;
   }
 
@@ -730,16 +838,19 @@ export function initInspectorSidebar() {
     }
   });
   bus.on('pda:selected', ({ annotation }) => {
+    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getAnnotationCalendarDate(annotation));
     renderAnnotation(annotation);
     openSidebar();
   });
   bus.on('pda:selection-cleared', refreshSelection);
   bus.on('pda:changed', refreshSelection);
   bus.on('segment:selected', ({ segment }) => {
+    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getSegmentCalendarDate(segment));
     renderSegment(segment);
     openSidebar();
   });
   bus.on('segment-group:selected', ({ segmentGroup }) => {
+    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getCompositeCalendarDate(segmentGroup));
     renderSegmentGroup(segmentGroup);
     openSidebar();
   });
@@ -751,6 +862,7 @@ export function initInspectorSidebar() {
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
   bus.on('economic-calendar:changed', refreshSelection);
+  bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
     showActiveOrderSetupPanel();
   });

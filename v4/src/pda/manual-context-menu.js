@@ -104,6 +104,7 @@ export function renderManualContextMenu({
   return `
     <div class="pda-menu pda-menu-submenu-${submenuDirection}" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
       <div class="pda-menu-title">${timeLabel}</div>
+      <button class="pda-menu-item" data-pda-action="calendar-locate-date" ${disabled}>Locate Date in Calendar</button>
       ${orderSetupItems}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>

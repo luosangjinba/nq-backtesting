@@ -1056,3 +1056,96 @@ Non-goals:
 - Do not change Calendar date click -> chart locate behavior.
 - Do not create chart markers for this feature.
 - Do not change persisted Review JSON or order schema.
+
+## Step 208-209 Implementation - Inspector Open Calendar Date Event
+
+Implemented:
+
+- Added `inspector:open-calendar-date` handling in `inspector-sidebar.js`.
+- Payload accepts either:
+  - `dateKey` in `YYYY-MM-DD`
+  - `timestamp`, converted to UTC date
+- On success:
+  - opens Inspector sidebar
+  - sets `calendarSelectedDate`
+  - sets `calendarViewDate`
+  - renders home Calendar
+  - clears current PDA / Segment / Composite selections
+  - does not move the chart viewport
+- On missing/invalid date:
+  - emits status error
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+
+Boundary:
+
+- Right-click chart menu wiring is intentionally left for Step 210.
+
+## Step 210 Implementation - Primary Chart Locate Date Menu
+
+Implemented:
+
+- Added `Locate Date in Calendar` to the primary chart right-click menu.
+- The item uses existing context-menu disabled state, so it is disabled when no chart bar is available.
+- Click handling emits `inspector:open-calendar-date` with:
+  - `timestamp`
+  - `dateKey`
+  - `source: primary chart`
+- The action does not move the chart viewport.
+
+Validation:
+
+- `node --check` passed for `manual-context-menu.js`.
+- `node --check` passed for `manual-annotation.js`.
+- `git diff --check` passed.
+- Source search confirmed the menu action and event emission are wired.
+
+## Step 211-212 Implementation - Object Detail Calendar Back Date
+
+Implemented:
+
+- Added object date helpers in `inspector-sidebar.js` for:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- Chart selection for PDA / Segment / Composite now prepares a Calendar home back target using the selected object's date.
+- Order Setup active/detail rendering prepares a Calendar home back target using the setup date.
+- SMT `Select` prepares a Calendar home back target using the SMT date.
+- Calendar Open routes suppress this automatic back-target reset because they already push the correct Calendar page state.
+- Calendar date context writes `timeOverlaySettings.selectedDate`, matching existing Calendar date selection semantics without moving the chart viewport.
+- Confirmed Calendar group default remains:
+  - Order Setups open
+  - Economic Events collapsed
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+- Source search confirmed all date helper paths are wired.
+
+## Step 213 Validation - Chart To Calendar Locate
+
+Validation completed:
+
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Source search confirmed:
+  - `Locate Date in Calendar` menu item exists.
+  - `calendar-locate-date` click handler emits `inspector:open-calendar-date`.
+  - Inspector handles `inspector:open-calendar-date`.
+  - PDA / Segment / Composite / SMT / Order Setup date helpers are wired.
+  - Calendar group default still uses `isOrderSetupGroup ? 'open' : ''`, so Economic Events remains collapsed by default.
+- Web smoke:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+  - Headless Chrome `--dump-dom` initialized the app and Inspector without a white-screen failure.
+
+Result:
+
+- Chart right-click can locate the clicked bar's date in Inspector Calendar.
+- Chart/object detail pages now preserve a Calendar Back target date.
+- No crosshair-hover sync was added.
