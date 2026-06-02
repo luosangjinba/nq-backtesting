@@ -578,6 +578,7 @@ function isCalendarChartObjectBulkType(type) {
 
 function setCalendarObjectHidden(type, id, hidden) {
   if (!type || !id || !isCalendarVisibilityType(type)) return false;
+  if (isCalendarObjectHidden(type, id) === hidden) return false;
   if (type === CALENDAR_OBJECT_TYPES.SMT) {
     const record = getSmtRecordById(id);
     if (!record) return false;
@@ -629,10 +630,14 @@ function isCalendarObjectHidden(type, id) {
 function setCalendarDayChartObjectsHidden(dateKey, hidden) {
   const groups = getCalendarDayGroups(dateKey, getCalendarReviewIndex());
   let changed = 0;
+  const seen = new Set();
   groups.flatMap((group) => group.rows).forEach((item) => {
     const type = item.ref?.type;
     const id = item.ref?.id;
     if (!isCalendarChartObjectBulkType(type) || !id) return;
+    const key = `${type}:${id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
     if (setCalendarObjectHidden(type, id, hidden)) changed += 1;
   });
   return changed;

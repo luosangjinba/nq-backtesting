@@ -411,6 +411,7 @@ export function renderPdaAnnotations() {
   const segmentPdaState = getSelectedSegmentPdaState();
   const drawingSetPdaIds = getActiveDrawingSetVisibility().activePdaIds;
   getAnnotations().forEach((annotation) => {
+    if (annotation.display?.hidden) return;
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
     const isCurrent = isCurrentAnnotation(annotation, selected);
