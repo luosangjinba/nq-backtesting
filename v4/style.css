@@ -394,6 +394,26 @@ html, body {
   background: #42a5f5;
 }
 
+.calendar-object-dot.economic-high,
+.calendar-economic-dot.economic-high {
+  background: #ef5350;
+}
+
+.calendar-object-dot.economic-medium,
+.calendar-economic-dot.economic-medium {
+  background: #ff9800;
+}
+
+.calendar-object-dot.economic-low,
+.calendar-economic-dot.economic-low {
+  background: #fdd835;
+}
+
+.calendar-object-dot.economic-holiday,
+.calendar-economic-dot.economic-holiday {
+  background: #8d919b;
+}
+
 .inspector-calendar-day:hover:not(:disabled) {
   border-color: #26a69a;
   color: #f0f3fa;
@@ -533,6 +553,48 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.calendar-economic-row {
+  align-items: start;
+}
+
+.calendar-economic-main {
+  display: grid;
+  grid-template-columns: 8px 42px 50px 34px minmax(0, 1fr);
+  align-items: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.calendar-economic-dot {
+  width: 7px;
+  height: 7px;
+  margin-top: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(19, 23, 34, 0.7);
+}
+
+.calendar-economic-time {
+  color: #8d919b;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-economic-impact,
+.calendar-economic-currency {
+  color: #d1d4dc;
+  font-size: 10px;
+}
+
+.calendar-economic-impact {
+  font-weight: 600;
+}
+
+.calendar-economic-title {
+  min-width: 0;
+  color: #d1d4dc;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .calendar-setup-visibility {

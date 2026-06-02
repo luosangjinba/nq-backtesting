@@ -50,6 +50,20 @@ const CALENDAR_CELL_INDICATORS = Object.freeze([
   },
 ]);
 
+function getEconomicImpactClass(event = {}) {
+  if (event.allDay || event.eventType === 'holiday') return 'economic-holiday';
+  const impact = String(event.impact || '').toLowerCase();
+  if (impact === 'high') return 'economic-high';
+  if (impact === 'medium') return 'economic-medium';
+  if (impact === 'low') return 'economic-low';
+  return 'economic-holiday';
+}
+
+function getEconomicImpactLabel(event = {}) {
+  if (event.allDay || event.eventType === 'holiday') return 'Holiday';
+  return event.impact || 'Event';
+}
+
 function pad2(value) {
   return String(value).padStart(2, '0');
 }
@@ -138,6 +152,23 @@ function getDayObjectOverview(dateKey, calendarIndex) {
   const groups = getCalendarDayGroups(dateKey, calendarIndex);
   const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
   const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
+  const economicGroup = groups.find((group) => group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT);
+  const economicIndicators = [];
+  (economicGroup?.rows || []).forEach((item) => {
+    const className = getEconomicImpactClass(item.source);
+    const label = getEconomicImpactLabel(item.source);
+    const existing = economicIndicators.find((indicator) => indicator.className === className);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      economicIndicators.push({
+        key: className,
+        label,
+        className,
+        count: 1,
+      });
+    }
+  });
   const indicators = CALENDAR_CELL_INDICATORS.map((indicator) => {
     const count = indicator.types.reduce((sum, type) => sum + (countByType.get(type) || 0), 0);
     return { ...indicator, count };
@@ -146,7 +177,7 @@ function getDayObjectOverview(dateKey, calendarIndex) {
   return {
     setupCount,
     total,
-    indicators,
+    indicators: [...economicIndicators, ...indicators],
   };
 }
 
@@ -184,6 +215,7 @@ function compactTime(timestamp) {
 
 function getObjectTypeLabel(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Setup';
+  if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return 'Econ';
   if (item.type === CALENDAR_OBJECT_TYPES.SMT) return 'SMT';
   if (item.type === CALENDAR_OBJECT_TYPES.PDA) return 'PDA';
   if (item.type === CALENDAR_OBJECT_TYPES.SEGMENT) return 'Seg';
@@ -271,7 +303,27 @@ function renderSetupVisibilityToggle(item) {
   `;
 }
 
+function renderEconomicEventRow(item) {
+  const event = item.source || {};
+  const impactLabel = getEconomicImpactLabel(event);
+  const dotClass = getEconomicImpactClass(event);
+  const timeLabel = event.allDay ? 'All Day' : event.displayTime || compactTime(item.timestamp);
+  return `
+    <div class="calendar-object-row calendar-economic-row">
+      <div class="calendar-economic-main">
+        <span class="calendar-economic-dot ${escapeHtml(dotClass)}" title="${escapeHtml(impactLabel)}"></span>
+        <span class="calendar-economic-time">${escapeHtml(timeLabel)}</span>
+        <span class="calendar-economic-impact">${escapeHtml(impactLabel)}</span>
+        <span class="calendar-economic-currency">${escapeHtml(event.currency || 'USD')}</span>
+        <span class="calendar-economic-title">${escapeHtml(event.title || item.label)}</span>
+      </div>
+      ${renderObjectActions(item)}
+    </div>
+  `;
+}
+
 function renderObjectRow(item) {
+  if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return renderEconomicEventRow(item);
   const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const isOrderSetup = item.ref?.type === 'order-setup';
@@ -293,9 +345,10 @@ function renderObjectGroup(group) {
     ? group.rows.map(renderObjectRow).join('')
     : '<div class="calendar-object-empty">None</div>';
   const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
+  const isEconomicGroup = group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT;
   const countLabel = `${group.rows.length}`;
   return `
-    <details class="calendar-object-group" ${isOrderSetupGroup ? 'open' : ''}>
+    <details class="calendar-object-group" ${isOrderSetupGroup || isEconomicGroup ? 'open' : ''}>
       <summary class="calendar-object-title">
         <span>${escapeHtml(group.label)}</span>
         <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
