@@ -215,6 +215,35 @@ export function getDailyTimeReviews() {
   return dailyTimeReviews.map(clone);
 }
 
+function refsHaveContent(refs = []) {
+  return Array.isArray(refs) && refs.length > 0;
+}
+
+function sectionHasContent(sectionData = {}) {
+  if (normalizeString(sectionData.note)) return true;
+  if (refsHaveContent(sectionData.refs)) return true;
+  return Array.isArray(sectionData.items)
+    && sectionData.items.some((item) => normalizeString(item.note) || refsHaveContent(item.refs));
+}
+
+function reactionHasContent(reaction = {}) {
+  if (normalizeString(reaction.note)) return true;
+  if (refsHaveContent(reaction.refs)) return true;
+  return Array.isArray(reaction.items)
+    && reaction.items.some((item) => normalizeString(item.note) || refsHaveContent(item.refs));
+}
+
+export function hasDailyTimeReviewContent(review = {}) {
+  if (!review || typeof review !== 'object') return false;
+  return sectionHasContent(review.pre0930Context)
+    || sectionHasContent(review.summary0930To1100)
+    || (Array.isArray(review.reactions) && review.reactions.some(reactionHasContent));
+}
+
+export function getDailyTimeReviewsWithContent() {
+  return dailyTimeReviews.filter(hasDailyTimeReviewContent).map(clone);
+}
+
 export function getDailyTimeReviewByDate(date, instrument = 'NQ') {
   const dateKey = normalizeDateKey(date);
   return clone(dailyTimeReviews.find((review) => review.date === dateKey && review.instrument === instrument) || null);

@@ -2,7 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import {
-  getDailyTimeReviews,
+  getDailyTimeReviewsWithContent,
   loadDailyTimeReviews,
 } from './daily-time-review-store.js';
 
@@ -31,7 +31,7 @@ export function saveDailyTimeReviews() {
     const payload = {
       version: STORAGE_VERSION,
       savedAt: Date.now(),
-      dailyTimeReviews: getDailyTimeReviews(),
+      dailyTimeReviews: getDailyTimeReviewsWithContent(),
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (err) {

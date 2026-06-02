@@ -31,6 +31,7 @@ import {
 import {
   getDailyTimeReviewIdentity,
   getDailyTimeReviews,
+  getDailyTimeReviewsWithContent,
   loadDailyTimeReviews,
   normalizeDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
@@ -61,7 +62,7 @@ function buildReviewPayload() {
     segmentGroups: getExportableSegmentGroups(),
     smtRecords: getSmtRecords(),
     orderReviews: getOrderReviews(),
-    dailyTimeReviews: getDailyTimeReviews(),
+    dailyTimeReviews: getDailyTimeReviewsWithContent(),
   };
 }
 

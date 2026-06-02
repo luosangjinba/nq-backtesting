@@ -6,7 +6,10 @@ import {
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
-import { getDailyTimeReviewByDate } from '../../time-reaction/daily-time-review-store.js';
+import {
+  getDailyTimeReviewByDate,
+  hasDailyTimeReviewContent,
+} from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -151,7 +154,7 @@ function getMonthCells(viewDateKey, range) {
 }
 
 function getDayObjectOverview(dateKey, calendarIndex) {
-  const groups = addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey);
+  const groups = addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey, { includeEmpty: false });
   const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
   const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
   const economicGroup = groups.find((group) => group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT);
@@ -382,7 +385,7 @@ function summarizeTimeReactionReview(review) {
   ].filter(Boolean).join(' · ');
 }
 
-function createTimeReactionItem(dateKey) {
+function createTimeReactionItem(dateKey, review = getDailyTimeReviewByDate(dateKey)) {
   const start = getCalendarDateTimestamp(dateKey, '09:30');
   const end = getCalendarDateTimestamp(dateKey, '10:30');
   return {
@@ -390,18 +393,22 @@ function createTimeReactionItem(dateKey) {
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     dateKey,
     timestamp: Number.isFinite(start) ? start : null,
-    label: summarizeTimeReactionReview(getDailyTimeReviewByDate(dateKey)),
+    label: summarizeTimeReactionReview(review),
     range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
     ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey },
     source: null,
   };
 }
 
-function addTimeReactionGroup(groups, dateKey) {
+function addTimeReactionGroup(groups, dateKey, options = {}) {
+  const review = getDailyTimeReviewByDate(dateKey);
+  if (!options.includeEmpty && !hasDailyTimeReviewContent(review)) {
+    return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
+  }
   const group = {
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     label: 'Time Reaction Observation',
-    rows: [createTimeReactionItem(dateKey)],
+    rows: [createTimeReactionItem(dateKey, review)],
   };
   const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
   const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);
@@ -477,7 +484,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const cells = getMonthCells(activeViewDate, range);
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
-  const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate);
+  const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true });
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
     ? `Manual overlays: ${overlaySelectedDate}`

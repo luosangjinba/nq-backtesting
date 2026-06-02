@@ -678,7 +678,7 @@ function getDailyTimeTargetTime(target = {}) {
 }
 
 function getDailyTimeLocateRange(date, target = {}) {
-  if (target.section === 'summary') {
+  if (target.section === 'summary' || target.section === 'summaryItem') {
     return {
       start: getCalendarDateTimestamp(date, '09:30'),
       end: getCalendarDateTimestamp(date, '11:00'),
@@ -977,7 +977,15 @@ async function locateDailyTimeRef(actionEl) {
   }
 
   const targetTimeframe = getRefTimeframe(ref, store.getCurrentTimeframe());
-  if (!(await ensurePrimaryTimeframe(targetTimeframe))) return;
+  if (!(await ensurePrimaryTimeframe(targetTimeframe))) {
+    if (secondaryLocated) {
+      bus.emit('status:update', {
+        text: `Located ${label} on secondary; primary unavailable`,
+        isError: false,
+      });
+    }
+    return;
+  }
   requestAnimationFrame(() => {
     const primaryLocated = viewport.locateTimestampRange(range.start, range.end);
     const located = primaryLocated || secondaryLocated;

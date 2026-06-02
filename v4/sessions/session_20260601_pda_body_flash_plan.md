@@ -1465,3 +1465,29 @@ Validation:
 - Render smoke confirmed reaction `Add`, summary `Add`, and ref `L` locate buttons.
 - Headless Chrome loaded `index.html`.
 - `git diff --check` passed.
+
+## Step 224 Review Follow-up Fix - Daily Time Reaction Observation
+
+Review findings addressed:
+
+- Empty Daily Time Reaction drafts no longer count as real review objects.
+  - Added `hasDailyTimeReviewContent()` and `getDailyTimeReviewsWithContent()` in `daily-time-review-store.js`.
+  - Calendar month cell object overview uses only records with note/ref content.
+  - Review JSON export uses only records with content.
+  - localStorage draft persistence saves only records with content.
+- Calendar selected-day details still include the `Time Reaction Observation` row even when empty, preserving the user-facing creation entry.
+- `09:30-11:00 Summary` event item Locate now targets the full `09:30-11:00` range instead of only `11:00`.
+- Linked ref locate now reports `Located ... on secondary; primary unavailable` if a secondary-source ref located on the secondary chart but primary timeframe reload failed.
+
+Validation:
+
+- `node --check` passed for:
+  - `daily-time-review-store.js`
+  - `daily-time-review-persistence.js`
+  - `calendar-panel.js`
+  - `inspector-sidebar.js`
+  - `review-archive.js`
+- Module smoke confirmed:
+  - empty normalized Daily Time review returns `hasDailyTimeReviewContent=false`.
+  - review with note/ref returns `true`.
+  - exportable content list excludes the empty review and includes the populated review.
