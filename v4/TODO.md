@@ -361,16 +361,24 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 197: 验证与收口：覆盖 API range、High/Medium 默认显示、Low 默认隐藏、Holiday all-day 09:30 locate、小点颜色、长 title 换行、Split 同步 locate、全量 JS 语法、Web/API smoke 与 `git diff --check`
 
 ### Inspector Page Stack / Order Setup Detail 重构
-- [ ] Step 198: 冻结信息架构目标：采用单 Inspector 页面栈方案，`Open` 进入详情页并可 `Back` 返回上一层；暂不做第二并列 Inspector，避免挤占图表与引入双详情状态
-- [ ] Step 199: 建立 Inspector 页面状态模型：新增统一的 `inspectorPage` / back stack 状态，支持 `home/calendar/list` 与 `detail` 两类页面；记录来源页面、selected date、opened object type/id，不改 Review JSON / `orderReviews` schema
-- [ ] Step 200: Order Setup 详情页：把现有 `Active Order Setup` 内容迁移为 `Order Setup Detail` 页面；页面顶部显示 Back、setup 摘要、当前 active/visible 状态；正文保留 Display、Anchor、Execution、Entry Context、Reasons、Result
-- [ ] Step 201: Order Setups 列表入口收敛：列表中的 `Open` 进入 `Order Setup Detail`；`Locate / Hide / Delete` 仍留在列表菜单；点击 Open 同步 set active，但不滚动到同层下方 section
-- [ ] Step 202: Calendar Open 入口收敛：Calendar 中 Order Setup / PDA / Segment / Composite / SMT 的 `Open` 都进入对应详情页；`Locate` 继续只定位与快闪，不切换详情页
-- [ ] Step 203: PDA / Segment / Composite / SMT 详情页去除常驻 Active：打开这些对象详情时只显示该对象自己的字段与动作，不再在页面下方附带整套 Active Order Setup；仅保留必要的轻量动作，例如 link selected object/ref to active setup reason
-- [ ] Step 204: Back / 删除 / 空状态规则：Back 回到打开前的 Calendar/list 与 selected date；删除当前详情对象后返回上一层并刷新列表；无 active setup 不显示独立 Active 页，只在 Order Setups 列表提示选择或创建
+- [x] Step 198: 冻结信息架构目标：采用单 Inspector 页面栈方案，`Open` 进入详情页并可 `Back` 返回上一层；暂不做第二并列 Inspector，避免挤占图表与引入双详情状态
+- [x] Step 199: 建立 Inspector 页面状态模型：新增统一的 `inspectorPage` / back stack 状态，支持 `home/calendar/list` 与 `detail` 两类页面；记录来源页面、selected date、opened object type/id，不改 Review JSON / `orderReviews` schema
+- [x] Step 200: Order Setup 详情页：把现有 `Active Order Setup` 内容迁移为 `Order Setup Detail` 页面；页面顶部显示 Back、setup 摘要、当前 active/visible 状态；正文保留 Display、Anchor、Execution、Entry Context、Reasons、Result
+- [x] Step 201: Order Setups 列表入口收敛：列表中的 `Open` 进入 `Order Setup Detail`；`Locate / Hide / Delete` 仍留在列表菜单；点击 Open 同步 set active，但不滚动到同层下方 section
+- [x] Step 202: Calendar Open 入口收敛：Calendar 中 Order Setup / PDA / Segment / Composite / SMT 的 `Open` 都进入对应详情页；`Locate` 继续只定位与快闪，不切换详情页
+- [x] Step 203: PDA / Segment / Composite / SMT 详情页去除常驻 Active：打开这些对象详情时只显示该对象自己的字段与动作，不再在页面下方附带整套 Active Order Setup；仅保留必要的轻量动作，例如 link selected object/ref to active setup reason
+- [x] Step 204: Back / 删除 / 空状态规则：Back 回到打开前的 Calendar/list 与 selected date；删除当前详情对象后返回上一层并刷新列表；无 active setup 不显示独立 Active 页，只在 Order Setups 列表提示选择或创建
 - [x] Step 205: 重复对象级动作收敛：Active Order Setup 顶部不再显示 Clear Active / Locate / Hide / Delete；Locate / Open / Hide / Delete 统一保留在 Order Setups 列表菜单，Active 区只保留 Display、Anchor、Execution、Entry Context、Reasons、Result 等当前 setup 内容控件
-- [ ] Step 206: 视觉与交互收口：详情页标题层级压缩，Back 固定在详情顶部；长标题、notes、reason refs 必须换行不撑爆 Inspector；避免详情页和列表页同时显示两个 competing current object
-- [ ] Step 207: 验证与收口：覆盖 Order Setup Open/Back、Calendar Open/Back、PDA/Segment/Composite/SMT Open、Locate 不切页、Hide/Delete 后状态、link selected object to active setup、Entry/Reasons/Result 编辑、刷新恢复、undo/redo、全量 JS 语法、Web smoke 与 `git diff --check`
+- [x] Step 206: 视觉与交互收口：详情页标题层级压缩，Back 固定在详情顶部；长标题、notes、reason refs 必须换行不撑爆 Inspector；避免详情页和列表页同时显示两个 competing current object
+- [x] Step 207: 验证与收口：覆盖 Order Setup Open/Back、Calendar Open/Back、PDA/Segment/Composite/SMT Open、Locate 不切页、Hide/Delete 后状态、link selected object to active setup、Entry/Reasons/Result 编辑、刷新恢复、undo/redo、全量 JS 语法、Web smoke 与 `git diff --check`
+
+### Chart -> Inspector Calendar 双向定位
+- [ ] Step 208: 冻结交互边界：图表反向定位 Calendar 只通过显式动作触发，不跟随 crosshair hover；支持主图右键当前 K 线 `Locate Date in Calendar`，以及图表选择 PDA / Segment / Composite / SMT / Order Setup 后把详情页 Back 目标同步到对象日期
+- [ ] Step 209: 新增 Inspector Calendar 日期打开事件：定义 `inspector:open-calendar-date` bus event，payload 包含 `timestamp/dateKey/source`；Inspector 收到后打开 sidebar，设置 `calendarSelectedDate/calendarViewDate`，进入 home Calendar 页，不创建详情页，不改变 chart viewport
+- [ ] Step 210: 主图右键菜单接入：在主图 K 线右键菜单增加 `Locate Date in Calendar`；用右键上下文 timestamp 转 `YYYY-MM-DD`，emit `inspector:open-calendar-date`；若无有效 timestamp 则禁用或提示
+- [ ] Step 211: 对象选中日期同步：PDA / Segment / Composite / SMT / Order Setup 从图表选择进入详情页时，计算对象主日期并写入当前 detail page 的 `selectedDate/viewDate`；Back 回 Calendar 时自动落在该日期；不强制展开 Economic Events
+- [ ] Step 212: Calendar 分组默认状态确认：从图表反向定位到某日后，Order Setups 仍默认展开；Economic Events 默认折叠；`Locate` 行为仍只定位图表，不切页
+- [ ] Step 213: 验证与收口：覆盖主图右键日期定位、无 timestamp 保护、PDA/Segment/Composite/SMT/Order Setup 选中后 Back 日期、Calendar 日期格 selected 状态、Order Setups 展开/Economic Events 折叠、全量 JS 语法、Web smoke 与 `git diff --check`
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

@@ -899,3 +899,160 @@ Implementation notes:
 - Removed `renderActiveActions()` from `order-review-panel.js`.
 - Removed the unused `order-review-clear-active` Inspector action branch.
 - Kept Locate / Hide / Delete handlers because the Order Setups list menu still uses them.
+
+## Step 198-199 Implementation - Inspector Page Stack State
+
+Implemented:
+
+- Added `ui/inspector/page-stack.js` as a small in-memory page/back-stack model.
+- Inspector pages currently support:
+  - `home`
+  - `archive`
+  - `detail`
+- `detail` records `objectType` and `objectId`.
+- `home` / `archive` records can preserve Calendar selected/view dates.
+- Wired sidebar render paths to update page state without changing Review JSON, `orderReviews`, or localStorage schema.
+- Added a generic `inspector-back` action and Back renderer; it becomes visible once later Open routes push into the stack.
+
+Boundary:
+
+- This step establishes the navigation state only.
+- Calendar/Open routing is intentionally left for the next implementation step.
+
+## Step 200-201 Implementation - Order Setup Detail Page
+
+Implemented:
+
+- Added `renderOrderReviewDetailPanel()` with the title `Order Setup Detail`.
+- Reused the existing setup content blocks:
+  - Display
+  - Anchor
+  - Execution
+  - Entry Context
+  - Reasons
+  - Result
+- `order-setup` Open now pushes a detail page onto the Inspector page stack.
+- Opening an Order Setup still sets it active, but no longer renders the old same-level `Active Order Setup` block as a Calendar return special case.
+- Active setup changes and execution-element selection now render the Order Setup detail page directly.
+- Kept Locate / Hide / Delete in the existing list/menu action paths.
+
+Validation:
+
+- `node --check` passed for `order-review-panel.js`.
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+
+## Step 202 Implementation - Calendar Open Detail Routing
+
+Implemented:
+
+- Calendar `Open` now pushes detail pages for:
+  - Order Setup
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+- Calendar `Locate` behavior was left unchanged: locate + flash only, no page switch.
+- Removed the old Calendar return context setup from the Calendar Open path.
+- Existing object selection/render paths still render the detail contents, but now under the page-stack Back model.
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+
+## Step 203 Implementation - Remove Embedded Active Setup From Other Details
+
+Implemented:
+
+- Removed the embedded `renderOrderReviewPanel()` from PDA detail rendering.
+- Removed the embedded `renderOrderReviewPanel()` from Segment detail rendering.
+- Removed the embedded `renderOrderReviewPanel()` from Composite detail rendering.
+- SMT detail rendering already did not include the active setup panel.
+- Existing lightweight link actions remain:
+  - PDA: `Link PDA To Active Setup`
+  - Segment: `Link Segment To Active Setup`
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+
+## Step 204-206 Implementation - Back, Delete, Empty State, Layout Cleanup
+
+Implemented:
+
+- Back now restores the previous Inspector page state through the page stack.
+- Calendar selected/view dates are preserved when returning to home/archive pages.
+- Detail refresh now respects current page state:
+  - editing Order Setup detail no longer falls back to the empty page
+  - refreshing PDA / Segment / Composite / SMT details keeps the current detail context
+- Deleting the current detail object returns to the previous page:
+  - PDA delete
+  - Segment delete
+  - Composite delete
+  - SMT delete
+  - Order Setup delete via `order-review:changed` missing-detail fallback
+- Removed the old `Back to Calendar` special case and `calendarReturnContext`.
+- Removed the standalone `Active Order Setup` renderer/export and sidebar usage.
+- Home and Archive no longer render a competing active setup section below Calendar.
+- Order Setup is now shown only as `Order Setup Detail`.
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `node --check` passed for `order-review-panel.js`.
+- `git diff --check` passed.
+- Source search confirmed no remaining `Back to Calendar`, `calendar-return`, `active-order-setup`, or `renderOrderReviewPanel` usage.
+
+## Step 207 Validation - Inspector Page Stack
+
+Validation completed:
+
+- Full `v4/src/**/*.js` syntax check passed.
+- `git diff --check` passed.
+- Source search confirmed no remaining:
+  - `Back to Calendar`
+  - `calendar-return`
+  - `active-order-setup`
+  - `renderOrderReviewPanel`
+- Web server smoke:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+  - Headless Chrome `--dump-dom` initialized the page successfully.
+  - Initial Inspector DOM shows Calendar + Archive only; no standalone Active Order Setup section is rendered.
+- API health note:
+  - `8766/health` returned `Unknown endpoint`.
+  - `8765/health` was not reachable in this session.
+  - This pass did not require API changes; frontend syntax and page smoke were the relevant validation targets.
+
+Result:
+
+- Inspector now uses a single page-stack model.
+- Open enters a detail page with Back.
+- Object detail pages no longer compete with a same-level Active Order Setup panel.
+
+## Step 208-213 Plan - Chart To Inspector Calendar Locate
+
+Context:
+
+- User asked whether Calendar can be located from chart time, complementing the existing Calendar date click -> chart locate behavior.
+- Decision: implement explicit chart-to-Calendar synchronization, not hover synchronization.
+- Two supported paths:
+  - Primary chart right-click on a bar -> `Locate Date in Calendar`.
+  - Chart object selection -> detail page records that object's date, so Back returns to Calendar on the relevant day.
+
+Planned steps:
+
+- Step 208: Freeze interaction boundary. Do not sync Calendar from crosshair hover; only explicit menu action and object selection update Calendar date context.
+- Step 209: Add `inspector:open-calendar-date` bus event. Payload includes `timestamp/dateKey/source`. Inspector opens, sets `calendarSelectedDate/calendarViewDate`, renders home Calendar, and does not move chart viewport.
+- Step 210: Add `Locate Date in Calendar` to the primary chart right-click menu. Convert the context timestamp to `YYYY-MM-DD`; disable or status-error if no valid timestamp exists.
+- Step 211: Sync object detail page date context when selecting PDA / Segment / Composite / SMT / Order Setup from chart. Back should return Calendar to that object's date.
+- Step 212: Preserve Calendar group defaults after reverse locate: Order Setups open by default; Economic Events collapsed by default.
+- Step 213: Validate right-click date locate, missing timestamp guard, object selection -> Back date, selected date styling, Order Setups open / Economic Events collapsed, full JS syntax, Web smoke, and `git diff --check`.
+
+Non-goals:
+
+- Do not implement crosshair-hover Calendar sync.
+- Do not change Calendar date click -> chart locate behavior.
+- Do not create chart markers for this feature.
+- Do not change persisted Review JSON or order schema.
