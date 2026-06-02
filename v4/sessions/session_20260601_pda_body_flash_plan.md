@@ -1083,3 +1083,22 @@ Validation:
 Boundary:
 
 - Right-click chart menu wiring is intentionally left for Step 210.
+
+## Step 210 Implementation - Primary Chart Locate Date Menu
+
+Implemented:
+
+- Added `Locate Date in Calendar` to the primary chart right-click menu.
+- The item uses existing context-menu disabled state, so it is disabled when no chart bar is available.
+- Click handling emits `inspector:open-calendar-date` with:
+  - `timestamp`
+  - `dateKey`
+  - `source: primary chart`
+- The action does not move the chart viewport.
+
+Validation:
+
+- `node --check` passed for `manual-context-menu.js`.
+- `node --check` passed for `manual-annotation.js`.
+- `git diff --check` passed.
+- Source search confirmed the menu action and event emission are wired.

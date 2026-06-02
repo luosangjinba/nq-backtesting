@@ -367,6 +367,17 @@ async function handleControlClick(e) {
   } else if (action === 'secondary-locate-time') {
     locateSecondaryAtBar(contextMenuBar);
     hideContextMenu();
+  } else if (action === 'calendar-locate-date') {
+    if (!contextMenuBar || !Number.isFinite(Number(contextMenuBar.timestamp))) {
+      bus.emit('status:update', { text: 'Cannot locate Calendar date: no chart bar selected', isError: true });
+    } else {
+      bus.emit('inspector:open-calendar-date', {
+        timestamp: contextMenuBar.timestamp,
+        dateKey: getBarEventDate(contextMenuBar),
+        source: 'primary chart',
+      });
+    }
+    hideContextMenu();
   } else if (action === 'smt-liquidity-bearish' || action === 'smt-liquidity-bullish') {
     startLiquiditySmt(action === 'smt-liquidity-bullish' ? 'bullish' : 'bearish', contextMenuBar);
     hideContextMenu();
