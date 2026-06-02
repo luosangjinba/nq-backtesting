@@ -1314,3 +1314,28 @@ Validation:
   - `calendar-types.js`
 - `git diff --check` passed.
 - Source search confirmed calendar entry, Open routing, detail rendering, change handlers, and docs are wired.
+
+## Step 220 Implementation - Daily Time Review Refs
+
+Implemented:
+
+- Daily Time detail editor now renders refs for:
+  - `Pre 09:30 Context`
+  - each fixed reaction
+  - `09:30-11:00 Summary`
+- Each block has `Link Selected Object`.
+- Supported selected object refs:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- PDA and Segment refs reuse existing Order Review metadata builders.
+- Composite, SMT, and Order Setup refs use the same normalized ref shape with `type`, `id`, `role`, and source metadata when available.
+- Removing a ref only removes the Daily Time Review link and does not delete the original object.
+
+Validation:
+
+- `node --check` passed for:
+  - `inspector-sidebar.js`
+  - `time-reaction-panel.js`

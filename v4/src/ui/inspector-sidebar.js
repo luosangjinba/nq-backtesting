@@ -54,10 +54,20 @@ import {
 import { getSelectedOrderSetupElement } from '../order/order-setup-selection.js';
 import {
   getOrderReviewById,
+  ORDER_REF_ROLES,
+  ORDER_REF_TYPES,
 } from '../order/order-review-store.js';
 import {
+  buildPdaOrderRefMetadata,
+  buildSegmentOrderRefMetadata,
+  getPdaOrderRefLabel,
+  getSegmentOrderRefLabel,
+} from '../order/order-ref-metadata.js';
+import {
+  addDailyTimeReviewRef,
   getDailyTimeReviewByDate,
   getOrCreateDailyTimeReview,
+  removeDailyTimeReviewRef,
   updateDailyTimeReaction,
   updateDailyTimeReviewSection,
 } from '../time-reaction/daily-time-review-store.js';
@@ -552,6 +562,100 @@ function getCompositeTimestamp(group) {
   return terminal?.end?.timestamp ?? terminal?.end?.time ?? terminal?.start?.timestamp ?? terminal?.start?.time ?? null;
 }
 
+function getDailyTimeTargetFromElement(actionEl) {
+  const section = actionEl.dataset.dailyTimeTargetSection;
+  if (section === 'reaction') {
+    return {
+      section: 'reaction',
+      time: actionEl.dataset.dailyTimeReactionTime || '09:30',
+    };
+  }
+  if (section === 'summary0930To1100') return { section: 'summary' };
+  return { section: 'pre0930Context' };
+}
+
+function getDailyTimeTargetLabel(target = {}) {
+  if (target.section === 'reaction') return target.time || 'reaction';
+  if (target.section === 'summary') return '09:30-11:00 Summary';
+  return 'Pre 09:30 Context';
+}
+
+function buildPdaDailyTimeRef(annotation) {
+  return {
+    type: ORDER_REF_TYPES.PDA,
+    id: annotation.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildPdaOrderRefMetadata(annotation),
+  };
+}
+
+function buildSegmentDailyTimeRef(segment) {
+  return {
+    type: ORDER_REF_TYPES.SEGMENT,
+    id: segment.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildSegmentOrderRefMetadata(segment),
+  };
+}
+
+function getSelectedDailyTimeRef() {
+  const pdaSelection = getSelectedPda();
+  if (pdaSelection) {
+    const annotation = getAnnotationById(pdaSelection.id);
+    if (!annotation) return { error: '选中的 PDA 不存在' };
+    return { ref: buildPdaDailyTimeRef(annotation), label: getPdaOrderRefLabel(annotation) };
+  }
+
+  const segmentSelection = getSelectedSegment();
+  if (segmentSelection) {
+    const segment = getSegmentById(segmentSelection.id);
+    if (!segment) return { error: '选中的 Segment 不存在' };
+    return { ref: buildSegmentDailyTimeRef(segment), label: getSegmentOrderRefLabel(segment) };
+  }
+
+  const compositeSelection = getSelectedSegmentGroup();
+  if (compositeSelection) {
+    const segmentGroup = getSegmentGroupById(compositeSelection.id);
+    if (!segmentGroup) return { error: '选中的 Composite 不存在' };
+    return {
+      ref: {
+        type: ORDER_REF_TYPES.COMPOSITE,
+        id: segmentGroup.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+      },
+      label: 'Composite Move',
+    };
+  }
+
+  if (selectedSmtId && getSmtRecordById(selectedSmtId)) {
+    return {
+      ref: {
+        type: ORDER_REF_TYPES.SMT,
+        id: selectedSmtId,
+        role: ORDER_REF_ROLES.CONFIRMATION,
+      },
+      label: 'SMT',
+    };
+  }
+
+  const setupId = getSelectedOrderSetupElement()?.setupId || getActiveReviewSetId();
+  const order = setupId ? getOrderReviewById(setupId) : null;
+  if (order) {
+    return {
+      ref: {
+        type: ORDER_REF_TYPES.ORDER_SETUP,
+        id: order.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+        sourceInstrument: order.instrument || 'NQ',
+        sourceContext: 'Order Setup',
+      },
+      label: 'Order Setup',
+    };
+  }
+
+  return { error: '没有选中的 PDA / Segment / Composite / SMT / Order Setup' };
+}
+
 function openCalendarObject(type, id) {
   if (!type || !id) return false;
   if (type === 'order-setup') {
@@ -795,6 +899,41 @@ function handleInspectorClick(e) {
   if (action === 'inspector-back') {
     renderPageFromState(popInspectorPage());
     bus.emit('status:update', { text: 'Returned', isError: false });
+    return;
+  }
+
+  if (action === 'daily-time-ref-add-selected-object') {
+    const selected = getSelectedDailyTimeRef();
+    if (selected.error) {
+      bus.emit('status:update', { text: selected.error, isError: true });
+      return;
+    }
+    const date = actionEl.dataset.dailyTimeDate;
+    const target = getDailyTimeTargetFromElement(actionEl);
+    const added = recordInspectorHistory('Link Time Reaction Object', () => (
+      addDailyTimeReviewRef(date, target, selected.ref)
+    ));
+    bus.emit('status:update', {
+      text: added
+        ? `${selected.label} linked to ${getDailyTimeTargetLabel(target)}`
+        : 'Link selected object failed',
+      isError: !added,
+    });
+    refreshSelection();
+    return;
+  }
+
+  if (action === 'daily-time-ref-remove') {
+    const date = actionEl.dataset.dailyTimeDate;
+    const target = getDailyTimeTargetFromElement(actionEl);
+    const removed = recordInspectorHistory('Remove Time Reaction Ref', () => (
+      removeDailyTimeReviewRef(date, target, Number(actionEl.dataset.refIndex))
+    ));
+    bus.emit('status:update', {
+      text: removed ? `Removed linked object from ${getDailyTimeTargetLabel(target)}` : 'Remove linked object failed',
+      isError: !removed,
+    });
+    refreshSelection();
     return;
   }
 
