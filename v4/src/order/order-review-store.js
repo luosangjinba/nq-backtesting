@@ -119,6 +119,7 @@ export const ORDER_REF_TYPE_DEFINITIONS = [
   { value: 'composite', label: 'Composite Move', active: true, aliases: ['segment-group', 'composite-move'] },
   { value: 'pda', label: 'PDA', active: true, aliases: ['annotation'] },
   { value: 'smt', label: 'SMT', active: true, aliases: ['smt-record'] },
+  { value: 'order-setup', label: 'Order Setup', active: true, aliases: ['orderReview', 'order-review'] },
   { value: 'reactionEvidence', label: 'Reaction Evidence', active: true, aliases: ['reaction-evidence'] },
 ];
 

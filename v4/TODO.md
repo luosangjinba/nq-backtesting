@@ -381,9 +381,9 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 213: 验证与收口：覆盖主图右键日期定位、无 timestamp 保护、PDA/Segment/Composite/SMT/Order Setup 选中后 Back 日期、Calendar 日期格 selected 状态、Order Setups 展开/Economic Events 折叠、全量 JS 语法、Web smoke 与 `git diff --check`
 
 ### Daily Time Reaction Observation
-- [ ] Step 214: 冻结功能边界：新功能命名为 `Daily Time Reaction Observation`，按日期记录“时间理论反应观察”，不是交易计划表，也不是自动信号；目标是观察 09:30 / 09:50 / 10:00 / 10:30 这些算法时点在不同高周期环境下何时形成可交易形态、何时只是 noise
-- [ ] Step 215: 数据模型设计：新增 `dailyTimeReviews[]`，按 `date + instrument` 唯一；包含 `pre0930Context.note/refs`、四个固定 `reactions[]`、`summary0930To1100.note/refs`；每个 reaction 只保留 `time`、轻量 `reactionType`、`note`、`refs[]`、`locate{timestamp,timeframe,chart}`，不拆 Expectation / What happened / Why
-- [ ] Step 216: Store 与持久化：实现 daily time review store，支持 create/getByDate/update section/update reaction/link ref/remove ref/delete；接 localStorage 草稿保存；暂不入 DB
+- [x] Step 214: 冻结功能边界：新功能命名为 `Daily Time Reaction Observation`，按日期记录“时间理论反应观察”，不是交易计划表，也不是自动信号；目标是观察 09:30 / 09:50 / 10:00 / 10:30 这些算法时点在不同高周期环境下何时形成可交易形态、何时只是 noise
+- [x] Step 215: 数据模型设计：新增 `dailyTimeReviews[]`，按 `date + instrument` 唯一；包含 `pre0930Context.note/refs`、四个固定 `reactions[]`、`summary0930To1100.note/refs`；每个 reaction 只保留 `time`、轻量 `reactionType`、`note`、`refs[]`、`locate{timestamp,timeframe,chart}`，不拆 Expectation / What happened / Why
+- [x] Step 216: Store 与持久化：实现 daily time review store，支持 create/getByDate/update section/update reaction/link ref/remove ref/delete；接 localStorage 草稿保存；暂不入 DB
 - [ ] Step 217: Review JSON 接入：export/import 增加 `dailyTimeReviews`；import 时规范化字段并 remap refs，复用 PDA / Segment / Composite / SMT / Order Setup ref 结构
 - [ ] Step 218: Calendar 日维度 UI：在 Inspector Calendar 某日详情新增 `Time Reaction Observation` 分组，默认折叠；内部包含 `Pre 09:30 Context`、四个固定 reaction、`09:30-11:00 Summary`；每块以 textarea 为主，refs 列表为辅
 - [ ] Step 219: Reaction 交互：每个 09:30 / 09:50 / 10:00 / 10:30 reaction 提供 `Reaction Type` 下拉（reversal / continuation / sweep-reverse / no-trade / noise / other）、note textarea、refs、Locate；不把每个 reaction 强制当作 Order Setup

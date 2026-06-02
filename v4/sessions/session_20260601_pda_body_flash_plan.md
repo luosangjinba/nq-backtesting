@@ -1218,3 +1218,44 @@ Non-goals:
 - Do not make each time point an Order Setup.
 - Do not implement statistics/scoring in the first pass.
 - Do not auto-open or auto-load secondary chart in the first pass.
+
+## Step 214-216 Implementation - Daily Time Review Store
+
+Implemented:
+
+- Added `time-reaction/daily-time-review-store.js`.
+- Added `time-reaction/daily-time-review-persistence.js`.
+- Added `order-setup` to shared Order Review ref types so Time Reaction refs can point to Order Setups.
+- Store supports:
+  - normalize/load/get/getByDate/getOrCreate
+  - update whole review
+  - update pre-0930 and summary sections
+  - update fixed reactions
+  - add/remove refs
+  - delete review
+- Fixed reaction times:
+  - 09:30
+  - 09:50
+  - 10:00
+  - 10:30
+- Reaction fields are intentionally lightweight:
+  - `reactionType`
+  - `note`
+  - `refs`
+  - `locate`
+- Persistence:
+  - localStorage key `v4:daily-time-reviews:NQ`
+  - save on `daily-time-review:changed`
+  - restore during app init
+- History manager now captures/restores `dailyTimeReviews` for undo/redo.
+
+Validation:
+
+- `node --check` passed for:
+  - `daily-time-review-store.js`
+  - `daily-time-review-persistence.js`
+  - `app.js`
+  - `history-manager.js`
+  - `order-review-store.js`
+- Store smoke verified create/update reaction/add ref/default four reactions.
+- `git diff --check` passed.
