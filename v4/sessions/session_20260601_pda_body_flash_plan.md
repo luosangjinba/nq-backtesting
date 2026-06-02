@@ -1149,3 +1149,72 @@ Result:
 - Chart right-click can locate the clicked bar's date in Inspector Calendar.
 - Chart/object detail pages now preserve a Calendar Back target date.
 - No crosshair-hover sync was added.
+
+## Step 214-223 Plan - Daily Time Reaction Observation
+
+Context:
+
+- User wants a new review layer for time-theory based intraday analysis.
+- The key idea is not to predict every time point or force every time point into a trade setup.
+- The goal is to observe fixed algorithmic time reactions and learn:
+  - when the reaction becomes a tradable reversal / continuation
+  - when it is just noise
+  - how high timeframe environment, PDA, liquidity, FVG, and other refs explain the result
+
+Design decision:
+
+- Name the feature `Daily Time Reaction Observation`.
+- It is a date-level text review layer, not a chart annotation type and not an automatic signal engine.
+- Each fixed time point should stay lightweight:
+  - reaction type
+  - note describing what happened and why it mattered
+  - refs
+  - locate metadata
+- Do not split each reaction into Expectation / What happened / Why. That is too structured for this workflow.
+
+Planned data shape:
+
+```js
+{
+  date: '2023-01-03',
+  instrument: 'NQ',
+  pre0930Context: {
+    note: '',
+    refs: []
+  },
+  reactions: [
+    {
+      time: '09:30',
+      reactionType: 'sweep-reverse', // reversal | continuation | sweep-reverse | no-trade | noise | other
+      note: '',
+      refs: [],
+      locate: { timestamp, timeframe: '1', chart: 'primary' }
+    }
+  ],
+  summary0930To1100: {
+    note: '',
+    refs: []
+  }
+}
+```
+
+Planned steps:
+
+- Step 214: Freeze the feature boundary. This is observation, not trade planning, not automatic signals, not a new chart annotation layer.
+- Step 215: Define `dailyTimeReviews[]` model keyed by `date + instrument`. Keep sections: pre-0930 context, four fixed reactions, 09:30-11:00 summary.
+- Step 216: Implement store and localStorage persistence.
+- Step 217: Add Review JSON export/import and ref remapping.
+- Step 218: Add Calendar day UI group `Time Reaction Observation`, default collapsed.
+- Step 219: Build reaction UI for 09:30 / 09:50 / 10:00 / 10:30 with type, note, refs, locate.
+- Step 220: Add `Link Selected Object` for PDA / Segment / Composite / SMT / Order Setup.
+- Step 221: Add Locate. First version supports primary chart timeframe switch + locate + flash. Secondary only if already enabled/loaded.
+- Step 222: Keep high timeframe environment analysis as linked refs and text; do not auto-recommend PDA or judge reactions.
+- Step 223: Validate localStorage, Review JSON, Calendar editing, reactions, link refs, locate, timeframe switch, group default behavior, syntax, Web smoke, and `git diff --check`.
+
+Non-goals:
+
+- Do not auto-detect valid setups.
+- Do not auto-generate summaries.
+- Do not make each time point an Order Setup.
+- Do not implement statistics/scoring in the first pass.
+- Do not auto-open or auto-load secondary chart in the first pass.
