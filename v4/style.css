@@ -599,17 +599,17 @@ html, body {
 
 .calendar-economic-filters {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 5px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
 }
 
 .calendar-economic-filter {
   display: inline-grid;
-  grid-template-columns: 13px 8px minmax(0, 1fr);
+  grid-template-columns: 12px 7px minmax(0, 1fr);
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
-  padding: 3px 5px;
+  padding: 3px 4px;
   border: 1px solid #2a2e39;
   border-radius: 4px;
   background: rgba(23, 27, 38, 0.7);
@@ -619,8 +619,8 @@ html, body {
 }
 
 .calendar-economic-filter input {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   margin: 0;
 }
 

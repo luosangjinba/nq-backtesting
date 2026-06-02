@@ -345,11 +345,11 @@ function renderObjectRow(item) {
 }
 
 function renderObjectGroup(group) {
+  const isEconomicGroup = group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT;
   const rows = group.rows.length
     ? group.rows.map(renderObjectRow).join('')
     : '<div class="calendar-object-empty">None</div>';
   const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
-  const isEconomicGroup = group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT;
   const countLabel = `${group.rows.length}`;
   return `
     <details class="calendar-object-group" ${isOrderSetupGroup || isEconomicGroup ? 'open' : ''}>
@@ -357,7 +357,10 @@ function renderObjectGroup(group) {
         <span>${escapeHtml(group.label)}</span>
         <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
       </summary>
-      <div class="calendar-object-group-body">${rows}</div>
+      <div class="calendar-object-group-body">
+        ${isEconomicGroup ? renderEconomicCalendarFilters() : ''}
+        ${rows}
+      </div>
     </details>
   `;
 }
@@ -365,9 +368,9 @@ function renderObjectGroup(group) {
 function renderEconomicCalendarFilters() {
   const filters = getEconomicCalendarFilters();
   const items = [
-    ['high', 'High'],
-    ['medium', 'Medium'],
-    ['low', 'Low'],
+    ['high', 'H'],
+    ['medium', 'M'],
+    ['low', 'L'],
     ['holiday', 'Holiday'],
   ];
   return `
@@ -452,7 +455,6 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
             : ''
         }
       </div>
-      ${renderEconomicCalendarFilters()}
       <div class="calendar-object-list">
         ${objectGroups.map(renderObjectGroup).join('')}
       </div>
