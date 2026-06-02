@@ -352,7 +352,7 @@ function renderObjectGroup(group) {
   const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
   const countLabel = `${group.rows.length}`;
   return `
-    <details class="calendar-object-group" ${isOrderSetupGroup || isEconomicGroup ? 'open' : ''}>
+    <details class="calendar-object-group" ${isOrderSetupGroup ? 'open' : ''}>
       <summary class="calendar-object-title">
         <span>${escapeHtml(group.label)}</span>
         <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
