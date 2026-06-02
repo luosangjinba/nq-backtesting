@@ -34,6 +34,7 @@ import { initOrderReviewRenderer } from './order/order-review-renderer.js';
 import { initOrderSetupElementSelection } from './order/order-setup-selection.js';
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
 import { initHistoryManager } from './history/history-manager.js';
+import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 
 console.log('[V4] app.js loaded');
 
@@ -114,6 +115,9 @@ console.log('[V4] Order Review controls initialized');
 
 initTimeOverlayRenderer();
 console.log('[V4] Time Overlay controls initialized');
+
+initEconomicCalendarLoader();
+console.log('[V4] Economic Calendar loader initialized');
 
 initHistoryManager();
 console.log('[V4] History controls initialized');

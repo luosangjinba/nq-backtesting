@@ -4,6 +4,7 @@
 
 export const CALENDAR_OBJECT_TYPES = Object.freeze({
   ORDER_SETUP: 'order-setup',
+  ECONOMIC_EVENT: 'economic-event',
   PDA: 'pda',
   SEGMENT: 'segment',
   COMPOSITE: 'composite',
@@ -14,6 +15,7 @@ export const CALENDAR_OBJECT_TYPES = Object.freeze({
 
 export const CALENDAR_GROUP_ORDER = Object.freeze([
   CALENDAR_OBJECT_TYPES.ORDER_SETUP,
+  CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT,
   CALENDAR_OBJECT_TYPES.SMT,
   CALENDAR_OBJECT_TYPES.PDA,
   CALENDAR_OBJECT_TYPES.SEGMENT,
@@ -30,6 +32,7 @@ export const ORDER_SETUP_DAY_TIMESTAMP_PRIORITY = Object.freeze([
 
 export function getCalendarGroupLabel(type) {
   if (type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Order Setups';
+  if (type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return 'Economic Events';
   if (type === CALENDAR_OBJECT_TYPES.PDA) return 'PDA';
   if (type === CALENDAR_OBJECT_TYPES.SEGMENT) return 'Segments';
   if (type === CALENDAR_OBJECT_TYPES.COMPOSITE) return 'Composite';

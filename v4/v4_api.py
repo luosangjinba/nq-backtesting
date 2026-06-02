@@ -12,8 +12,9 @@ API 返回 { bars, requestedRange } 格式，requestedRange 供前端过滤 padd
 import json
 import sys
 import os
+import csv
 import yaml
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
@@ -30,10 +31,152 @@ DB_PATH = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), V4_CONFIG["database"]["trading_data"]["path"])
 )
 TABLE_NAME = V4_CONFIG["database"]["trading_data"]["table"]
+ECONOMIC_CALENDAR_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "data",
+    "economic_calendar",
+    "economic_calendar_usd_events.csv",
+)
+_ECONOMIC_EVENTS_CACHE = None
 
 # CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
 # 日线 = 前一天18:00 ~ 当天16:59
 DAILY_ANCHOR_OFFSET = 18 * 3600  # 64800 seconds
+
+
+def _parse_date(value):
+    if not value:
+        return None
+    return date.fromisoformat(str(value)[:10])
+
+
+def _parse_bool(value, default=False):
+    if value is None:
+        return default
+    text = str(value).strip().lower()
+    if text in ("1", "true", "yes", "y", "on"):
+        return True
+    if text in ("0", "false", "no", "n", "off"):
+        return False
+    return default
+
+
+def _parse_impact_filter(value):
+    if not value:
+        return None
+    impacts = {part.strip().lower() for part in str(value).split(",") if part.strip()}
+    return impacts or None
+
+
+def _event_time_from_et(event_time_et):
+    text = str(event_time_et or "").strip()
+    if not text:
+        return ""
+    try:
+        # The CSV stores America/New_York timestamps. V4 chart timestamps carry
+        # ET wall-clock values as UTC epoch seconds, so use the local clock fields.
+        parsed = datetime.fromisoformat(text)
+        return f"{parsed.hour:02d}:{parsed.minute:02d}"
+    except ValueError:
+        if "T" in text:
+            return text.split("T", 1)[1][:5]
+        return ""
+
+
+def _wall_timestamp_from_date_time(event_date, time_text):
+    parsed_date = _parse_date(event_date)
+    if parsed_date is None:
+        return None
+    try:
+        hour, minute = [int(part) for part in str(time_text).split(":", 1)]
+    except ValueError:
+        return None
+    if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+        return None
+    return int(datetime(
+        parsed_date.year,
+        parsed_date.month,
+        parsed_date.day,
+        hour,
+        minute,
+        tzinfo=timezone.utc,
+    ).timestamp())
+
+
+def _normalize_economic_event(row, index):
+    event_date = str(row.get("event_date") or "").strip()
+    currency = str(row.get("currency") or "").strip() or "USD"
+    title = str(row.get("title") or "").strip()
+    impact = str(row.get("impact") or "").strip() or "Low"
+    event_type = str(row.get("event_type") or "").strip() or "economic"
+    all_day = _parse_bool(row.get("all_day"), False)
+    default_visible = _parse_bool(row.get("default_visible"), False)
+    event_time = "" if all_day else _event_time_from_et(row.get("event_time_et"))
+    locate_time = "09:30" if all_day else event_time
+    locate_timestamp = _wall_timestamp_from_date_time(event_date, locate_time)
+    event_id = f"econ_{event_date}_{currency}_{index}"
+    return {
+        "id": event_id,
+        "eventDate": event_date,
+        "eventTimeEt": "" if all_day else str(row.get("event_time_et") or "").strip(),
+        "eventTimeUtc": "" if all_day else str(row.get("event_time_utc") or "").strip(),
+        "displayTime": "All Day" if all_day else event_time,
+        "locateTime": locate_time,
+        "locateTimestamp": locate_timestamp,
+        "currency": currency,
+        "title": title,
+        "impact": impact,
+        "eventType": event_type,
+        "allDay": all_day,
+        "defaultVisible": default_visible,
+    }
+
+
+def load_economic_events():
+    global _ECONOMIC_EVENTS_CACHE
+    if _ECONOMIC_EVENTS_CACHE is not None:
+        return _ECONOMIC_EVENTS_CACHE
+    events = []
+    if not os.path.exists(ECONOMIC_CALENDAR_PATH):
+        _ECONOMIC_EVENTS_CACHE = []
+        return _ECONOMIC_EVENTS_CACHE
+    with open(ECONOMIC_CALENDAR_PATH, "r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for index, row in enumerate(reader, start=1):
+            event = _normalize_economic_event(row, index)
+            if event["eventDate"] and event["currency"] and event["title"]:
+                events.append(event)
+    events.sort(key=lambda event: (event["eventDate"], event["locateTimestamp"] or 0, event["title"]))
+    _ECONOMIC_EVENTS_CACHE = events
+    return _ECONOMIC_EVENTS_CACHE
+
+
+def query_economic_events(params):
+    date_from = _parse_date(params.get("date_from", params.get("start", [None]))[0])
+    date_to = _parse_date(params.get("date_to", params.get("end", [None]))[0])
+    currency = str(params.get("currency", ["USD"])[0] or "USD").strip().upper()
+    impacts = _parse_impact_filter(params.get("impact", [None])[0])
+    include_holidays = _parse_bool(params.get("include_holidays", ["true"])[0], True)
+
+    if date_from is None or date_to is None:
+        raise ValueError("Missing 'date_from' and/or 'date_to' parameter (format: YYYY-MM-DD)")
+    if date_to < date_from:
+        raise ValueError("'date_to' must be on or after 'date_from'")
+
+    result = []
+    for event in load_economic_events():
+        event_date = _parse_date(event["eventDate"])
+        if event_date is None or event_date < date_from or event_date > date_to:
+            continue
+        if event["currency"].upper() != currency:
+            continue
+        if event["allDay"] or event["eventType"] == "holiday":
+            if not include_holidays:
+                continue
+        elif impacts is not None and event["impact"].lower() not in impacts:
+            continue
+        result.append(event)
+    return result
 
 
 def query_v4_bars(db_path, table, instrument, start, end, tf, padding=19):
@@ -125,6 +268,8 @@ class V4Handler(BaseHTTPRequestHandler):
             self._handle_bars(params)
         elif path == "/v4/price":
             self._handle_price(params)
+        elif path == "/v4/economic_events":
+            self._handle_economic_events(params)
         else:
             self._send_error(f"Unknown endpoint: {path}", 404)
 
@@ -168,6 +313,18 @@ class V4Handler(BaseHTTPRequestHandler):
         except Exception as e:
             self._send_error(str(e), 500)
 
+    def _handle_economic_events(self, params):
+        try:
+            events = query_economic_events(params)
+            self._send_json({
+                "events": events,
+                "count": len(events),
+            })
+        except ValueError as e:
+            self._send_error(str(e), 400)
+        except Exception as e:
+            self._send_error(str(e), 500)
+
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -185,7 +342,7 @@ def main():
     server = HTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")
     print(f"[V4 API] DB: {DB_PATH}")
-    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/price")
+    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/price, /v4/economic_events")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

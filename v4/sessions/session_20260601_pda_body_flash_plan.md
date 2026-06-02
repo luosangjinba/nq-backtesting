@@ -679,3 +679,119 @@ Validation:
 - `node --check v4/src/pda/secondary-pda-renderer.js`
 - `node --check v4/src/config.js`
 - `git diff --check`
+
+## Step 189-197 Plan - Economic Calendar Inspector Layer
+
+Context:
+
+- User restored the hard backup data directory:
+  - `v4/data/economic_calendar/`
+  - `economic_calendar_usd_events.csv`
+  - `README.md`
+- The previous economic-calendar implementation was not good enough, but the restored CSV data is usable.
+- Current CSV columns are:
+  - `event_date`
+  - `event_time_et`
+  - `event_time_utc`
+  - `currency`
+  - `title`
+  - `impact`
+  - `event_type`
+  - `all_day`
+  - `default_visible`
+  - `actual`
+  - `forecast`
+  - `previous`
+- `actual/forecast/previous` are intentionally ignored for ICT review usage.
+
+User decisions:
+
+- Do not render economic-calendar events as persistent chart markers.
+- Events are inspected in the Inspector Calendar only.
+- A chart flash is allowed only when the user clicks Locate.
+- `all_day=true` intercepts time semantics:
+  - `event_time_et` / `event_time_utc` are not used.
+  - Inspector displays `All Day`.
+  - Locate flashes the date's `09:30` area.
+- Timed events use their event time for Locate.
+- Inspector should show impact-level colored dots for quick scanning:
+  - High: red
+  - Medium: orange
+  - Low: yellow
+  - Holiday / all-day: gray
+- Event titles should be shown as completely as possible in the Inspector, with wrapping rather than hard truncation.
+
+Planned implementation:
+
+- Step 189: Close the data contract against the restored CSV and update docs where needed.
+- Step 190: Add `/v4/economic_events` in `v4_api.py`; filter by `date_from/date_to/currency/impact/include_holidays`; cache CSV rows in process; omit `actual/forecast/previous` from the response.
+- Step 191: Add a frontend economic-calendar store for the current loaded window plus UI filters. Defaults: High on, Medium on, Low off, Holiday/All Day on. No localStorage, undo/redo, or Review JSON.
+- Step 192: Load events after primary `bars:loaded`; reload when the 1m window changes; secondary chart reuses the primary loaded-window event set.
+- Step 193: Add `economic-event` to Calendar types and index. Put `Economic Events` after `Order Setups` and before `SMT`.
+- Step 194: Render Inspector Calendar economic rows with impact dot, time or `All Day`, impact label, currency, complete title, and Locate. Do not show actual/forecast/previous.
+- Step 195: Add Inspector filters for High / Medium / Low / Holiday; filters affect date-cell dots and event rows only.
+- Step 196: Wire Locate. Timed event flashes its event time. All-day/holiday flashes `event_date 09:30`. Split chart should locate/flash with the same Calendar object path.
+- Step 197: Validate API range, default filters, Low hidden by default, all-day 09:30 locate, dot colors, title wrapping, Split locate, full JS syntax, Web/API smoke, and `git diff --check`.
+
+Boundaries:
+
+- No persistent chart marker rendering for economic events.
+- No economic event editing.
+- No Review JSON export/import for the CSV dataset.
+- No automatic link to Order Setup reasons in this pass.
+
+## Step 189-197 Closeout - Economic Calendar Inspector Layer
+
+Implementation status:
+
+- Complete on branch `feature/economic-calendar-inspector`.
+- Commit sequence:
+  - `5128401 docs(v4): plan economic calendar inspector layer`
+  - `61e98e3 feat(v4): add economic events api`
+  - `7bff18a feat(v4): add economic calendar store`
+  - `5fa9045 feat(v4): load economic events with chart range`
+  - `5bb374e feat(v4): index economic events in calendar`
+  - `6000adf feat(v4): render economic events in inspector calendar`
+  - `5f73aa6 feat(v4): filter economic calendar events`
+  - `8ad418e feat(v4): locate economic calendar events`
+
+Implemented:
+
+- Restored CSV is tracked under `v4/data/economic_calendar/`.
+- `/v4/economic_events` reads and caches the CSV, filters by date/currency/impact/holiday, and omits `actual/forecast/previous`.
+- Frontend economic calendar store keeps current loaded-window events plus UI filters only.
+- Chart `bars:loaded` triggers event loading for the primary loaded range.
+- Calendar index adds `economic-event` after Order Setups and before SMT.
+- Inspector Calendar shows Economic Events with impact dots:
+  - High red
+  - Medium orange
+  - Low yellow
+  - Holiday / All Day gray
+- Event title wraps instead of hard truncating.
+- Filters are available in the Inspector:
+  - High on
+  - Medium on
+  - Low off
+  - Holiday on
+- Locate does not create persistent chart markers. It uses existing time-range flash only when clicked.
+- `all_day=true` events display `All Day` and locate to `event_date 09:30`.
+
+Validation:
+
+- Full `v4/src/**/*.js` syntax check passed.
+- `v4/v4_api.py` Python compile passed.
+- `git diff --check` passed.
+- API health returned OK.
+- `/v4/economic_events` smoke:
+  - `2007-01-03` High/Medium returned 4 timed events and no actual/forecast/previous fields.
+  - `2007-01-01` holiday returned `displayTime=All Day`, `locateTime=09:30`, and blank event time fields.
+- Browser smoke on `2023-01-02` to `2023-01-03` verified:
+  - Bank Holiday displays as All Day with gray dot and 09:30 locate timestamp.
+  - Medium event is visible by default.
+  - Low event is hidden by default.
+  - Toggling Low shows `Construction Spending m/m` and a yellow dot.
+- Web `8001/index.html` returned 200 OK.
+
+Remaining observation:
+
+- Split locate uses the existing Calendar object path, which calls primary and secondary locate. Dedicated screenshot-level Split verification can be done during real usage if needed.

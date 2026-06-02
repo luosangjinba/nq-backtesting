@@ -36,6 +36,7 @@ import {
   renderCalendarPanel,
 } from './inspector/calendar-panel.js';
 import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
+import { updateEconomicCalendarFilters } from '../economic-calendar/economic-calendar-store.js';
 import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
 import {
   getActiveReviewSetId,
@@ -460,6 +461,15 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'economic-calendar-filter') {
+    const key = actionEl.dataset.economicFilter;
+    if (key) {
+      updateEconomicCalendarFilters({ [key]: actionEl.checked });
+      refreshSelection();
+    }
+    return;
+  }
+
   if (action === 'calendar-object-locate') {
     const start = Number(actionEl.dataset.locateStart);
     const end = Number(actionEl.dataset.locateEnd);
@@ -620,6 +630,7 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
+  bus.on('economic-calendar:changed', refreshSelection);
   bus.on('order-setup-element:selected', () => {
     showActiveOrderSetupPanel();
   });
