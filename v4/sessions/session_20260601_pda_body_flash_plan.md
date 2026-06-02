@@ -1491,3 +1491,23 @@ Validation:
   - empty normalized Daily Time review returns `hasDailyTimeReviewContent=false`.
   - review with note/ref returns `true`.
   - exportable content list excludes the empty review and includes the populated review.
+
+## Step 225-228 Plan - Daily Time Inspector Action Split
+
+Branch:
+
+- Started from `main` after merging `feature/daily-time-reaction-observation`.
+- New branch: `refactor/daily-time-inspector-actions`.
+
+Scope:
+
+- This is a structure-only refactor for Daily Time inspector behavior.
+- Do not change Daily Time UI, store schema, Review JSON schema, localStorage key, Calendar behavior, or Order/PDA/Segment/SMT behavior.
+- Goal is to reduce `inspector-sidebar.js` responsibility by extracting Daily Time action state and event handling.
+
+Planned steps:
+
+- Step 225: Commit this baseline plan.
+- Step 226: Add `ui/inspector/time-reaction-actions.js` and move Daily Time target parsing, pending pick state, labels, ranges, and ref helper logic behind a controller API while preserving behavior.
+- Step 227: Route Daily Time click/change handlers and bus pick handlers through the controller; keep sidebar responsible for page stack and rendering.
+- Step 228: Validate syntax and smoke cases, then document final boundaries.
