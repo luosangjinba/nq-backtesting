@@ -1802,3 +1802,19 @@ Implementation note:
 
 - Existing PDA store, Calendar visibility, Inspector detail, and order/time-reaction refs already operate on annotation ids.
 - Follow-up steps should harden formatter, selection highlight, projection render mode, and locate behavior without adding duplicate PDA records.
+
+## Step 234 Execution - PDA Source Formatter
+
+Implemented:
+
+- Added `pda-source-format.js` as the shared formatter for PDA source badges.
+- Standardized chart labels to `Main` / `Sub`, producing labels such as `Main NQ 1H` and `Sub ES 1H`.
+- Reused the formatter in:
+  - PDA chart labels on primary and secondary renderers.
+  - PDA Inspector source field.
+  - Calendar PDA row summaries.
+  - Order Setup / Time Reaction linked PDA ref metadata and labels through `getPdaOrderRefLabel()`.
+
+Boundary:
+
+- The formatter is display-only; it does not change PDA source metadata or persistence schema.

@@ -2,6 +2,7 @@ import { timeframeToString } from '../../config.js';
 import * as store from '../../data/bar-store.js';
 import { buildCePrice } from '../../price-utils.js';
 import { getExtendBarsForTimeframe, getExtendSeconds } from '../../pda/pda-extend.js';
+import { formatPdaSourceBadge } from '../../pda/pda-source-format.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import {
   controlField,
@@ -233,6 +234,7 @@ export function renderAnnotationPanel(annotation, archiveActionsHtml = '') {
       field('Type', pdaType?.label || annotation.type),
       field('Shape', shape),
       field('Source', annotation.source || 'manual'),
+      field('Source Chart', formatPdaSourceBadge(annotation) || '—'),
       field('ID', annotation.id),
       renderContexts(annotation),
       field('Created', formatDateTimeMs(annotation.createdAt)),

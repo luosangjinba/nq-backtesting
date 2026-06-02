@@ -11,10 +11,11 @@ import * as secondaryStore from '../data/secondary-chart-store.js';
 import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
 import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
-import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
+import { getBucketStart } from './pda-context.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
+import { formatPdaDisplayLabel } from './pda-source-format.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
 
@@ -62,8 +63,7 @@ function getNestedPointRenderTime(point, fallbackTime) {
 }
 
 function getAnnotationLabel(annotation, pdaType) {
-  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
-  return contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  return formatPdaDisplayLabel(annotation, pdaType.label);
 }
 
 function getExtendBars(annotation, fallback = 0) {

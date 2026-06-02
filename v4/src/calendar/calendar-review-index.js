@@ -1,4 +1,5 @@
 import { getSetupSets } from '../order/setup-set.js';
+import { formatPdaSourceBadge } from '../pda/pda-source-format.js';
 import { getAnnotations } from '../pda/pda-store.js';
 import { getSegments, getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
@@ -158,9 +159,7 @@ function getPdaTimestampRange(annotation) {
 }
 
 function summarizePda(annotation) {
-  const context = Array.isArray(annotation.contexts) && annotation.contexts.length
-    ? annotation.contexts[0]
-    : annotation.timeframe || annotation.sourceTimeframe || '';
+  const context = formatPdaSourceBadge(annotation);
   const price = annotation.price ?? annotation.topPrice ?? annotation.priceHigh;
   const bottom = annotation.bottomPrice ?? annotation.priceLow;
   const priceText = bottom !== undefined && bottom !== null

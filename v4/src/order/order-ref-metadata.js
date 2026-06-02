@@ -1,11 +1,8 @@
 import { getPdaType } from '../pda/pda-types.js';
+import { formatPdaDisplayLabel, formatPdaSourceBadge } from '../pda/pda-source-format.js';
 
 export function buildPdaOrderRefMetadata(annotation = {}) {
-  const sourceContext = annotation.sourceContext || (
-    Array.isArray(annotation.contexts)
-      ? annotation.contexts.filter(Boolean).join(' · ')
-      : ''
-  );
+  const sourceContext = formatPdaSourceBadge(annotation) || annotation.sourceContext || '';
   return {
     sourceChartId: annotation.sourceChartId || 'primary',
     sourceChartLabel: annotation.sourceChartLabel || '',
@@ -18,9 +15,7 @@ export function buildPdaOrderRefMetadata(annotation = {}) {
 
 export function getPdaOrderRefLabel(annotation = {}) {
   const pdaLabel = getPdaType(annotation.type)?.label || annotation.type?.toUpperCase() || 'PDA';
-  const metadata = buildPdaOrderRefMetadata(annotation);
-  const source = [metadata.sourceInstrument, metadata.sourceTimeframeLabel].filter(Boolean).join(' ');
-  return source ? `${pdaLabel} · ${source}` : pdaLabel;
+  return formatPdaDisplayLabel(annotation, pdaLabel);
 }
 
 export function buildSegmentOrderRefMetadata(segment = {}) {

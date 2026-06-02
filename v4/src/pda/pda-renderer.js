@@ -6,9 +6,10 @@ import * as store from '../data/bar-store.js';
 import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
-import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
+import { getBucketStart } from './pda-context.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
+import { formatPdaDisplayLabel } from './pda-source-format.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
 import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
@@ -84,8 +85,7 @@ function getNestedPointRenderTime(point, fallbackTime) {
 }
 
 function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegment = false) {
-  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
-  const baseLabel = contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  const baseLabel = formatPdaDisplayLabel(annotation, pdaType.label);
   if (selected) return `● ${baseLabel}`;
   if (linkedToSegment) return `↔ ${baseLabel}`;
   return baseLabel;
