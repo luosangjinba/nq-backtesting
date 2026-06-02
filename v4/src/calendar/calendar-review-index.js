@@ -4,6 +4,7 @@ import { getSegments, getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
 import { getSmtRecords } from '../smt/smt-store.js';
 import { getTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
+import { getVisibleEconomicEvents } from '../economic-calendar/economic-calendar-store.js';
 import {
   CALENDAR_GROUP_ORDER,
   CALENDAR_OBJECT_TYPES,
@@ -287,6 +288,28 @@ function createSmtItem(record) {
   );
 }
 
+function summarizeEconomicEvent(event) {
+  return joinSummary([
+    event.displayTime || (event.allDay ? 'All Day' : ''),
+    titleCase(event.impact, ''),
+    event.currency || 'USD',
+    event.title,
+  ]);
+}
+
+function createEconomicEventItem(event) {
+  const timestamp = toTimestamp(event.locateTimestamp);
+  if (timestamp === null) return null;
+  return createCalendarItem(
+    CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT,
+    timestamp,
+    summarizeEconomicEvent(event),
+    { start: timestamp, end: timestamp },
+    { id: event.id },
+    event
+  );
+}
+
 function createKillzoneItem(killzone) {
   const start = calendarDateTimestamp(killzone.date, killzone.startTime);
   const end = calendarDateTimestamp(killzone.date, killzone.endTime);
@@ -318,6 +341,7 @@ function createCalendarItems() {
   const settings = getTimeOverlaySettings();
   return [
     ...getSetupSets().map(createSetupSetItem),
+    ...getVisibleEconomicEvents().map(createEconomicEventItem),
     ...getSmtRecords().map(createSmtItem),
     ...getAnnotations().map(createPdaItem),
     ...getSegments().map(createSegmentItem),
