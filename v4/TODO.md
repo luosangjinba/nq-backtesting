@@ -349,6 +349,17 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 ### PDA 视觉区分 / 使用修复
 - [x] Step 188: OB 统一灰色：bullish/bearish OB 不再使用接近 FVG 的绿/红色，统一为中性灰；新建手动 OB、PDA 类型 fallback、工具栏色标、主图/副图渲染均已覆盖，已保存旧 OB 的自带颜色在渲染时也会被灰色覆盖
 
+### Economic Calendar / Inspector 查看层
+- [ ] Step 189: Economic Calendar 数据契约收敛：以 `v4/data/economic_calendar/economic_calendar_usd_events.csv` 为只读来源；当前列为 `event_date/event_time_et/event_time_utc/currency/title/impact/event_type/all_day/default_visible/actual/forecast/previous`；功能层忽略 `actual/forecast/previous`；`all_day=true` 时不读取事件时间，Locate 固定使用当天 `09:30`
+- [ ] Step 190: 后端 API：在 `v4_api.py` 新增 `/v4/economic_events`，按 `date_from/date_to/currency/impact/include_holidays` 过滤 CSV 并进程内缓存；返回前端需要字段，不返回 `actual/forecast/previous`
+- [ ] Step 191: 前端 Economic Calendar store：新增当前加载窗口内事件 store 与 filter 状态；High/Medium 默认显示，Low 默认隐藏，Holiday/All Day 默认显示；不写 localStorage、不进 undo/redo、不进 Review JSON
+- [ ] Step 192: 数据加载接入：主图 `bars:loaded` 后按当前 loaded/requested 日期范围拉取 economic events；1m 窗口切换时重新拉取；Split 副图复用主图窗口事件，不单独拉取
+- [ ] Step 193: Calendar index 接入：新增 `economic-event` 类型与 `Economic Events` 分组，顺序放在 Order Setups 后、SMT 前；timed event 用 ET wall-clock 时间归档/定位，all-day event 用 `event_date 09:30` 定位
+- [ ] Step 194: Inspector 日期格与列表 UI：按 impact 显示红/橙/黄/灰小点（High 红、Medium 橙、Low 黄、Holiday/All Day 灰）；Economic Events 行显示时间/All Day、impact、currency、完整 title 与 Locate；title 允许换行，不显示 actual/forecast/previous
+- [ ] Step 195: Inspector filter：在 Calendar / Economic Events 区提供 High、Medium、Low、Holiday 开关；过滤影响日期格小点和当天事件列表，不影响其它 Calendar 对象
+- [ ] Step 196: Locate 快闪：不在图表常驻标记 economic events；点击 Locate 才移动主图/副图并复用现有 time-range flash；timed event 快闪事件时间，all-day/holiday 快闪当天 `09:30`
+- [ ] Step 197: 验证与收口：覆盖 API range、High/Medium 默认显示、Low 默认隐藏、Holiday all-day 09:30 locate、小点颜色、长 title 换行、Split 同步 locate、全量 JS 语法、Web/API smoke 与 `git diff --check`
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
