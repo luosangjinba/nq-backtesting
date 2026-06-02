@@ -1681,3 +1681,44 @@ Validation:
 
 - `node --check` passed for `calendar-panel.js`.
 - `git diff --check` passed.
+
+## Step 232 Validation - Calendar Chart Object Visibility Controls
+
+Final behavior:
+
+- Row-level visibility controls are available in Inspector Calendar for:
+  - SMT
+  - PDA
+  - Segment
+  - Composite
+  - Killzone
+  - Time Line
+- Hidden rows show the gray slash state and muted row text.
+- Chart renderers respect the hidden state:
+  - PDA / Segment / Composite through display visibility resolution.
+  - SMT through `record.display.hidden`.
+  - Killzone / Time Line through existing `enabled=false`.
+- Day-level bulk actions:
+  - `Show Day Objects`
+  - `Hide Day Objects`
+  - The buttons count only eligible chart objects and disable when the day has none.
+  - Economic Events, Time Reaction, and Order Setups are excluded.
+
+Validation completed:
+
+- Full source syntax:
+  - `rg --files v4/src -g '*.js' | xargs -n1 node --check`
+- Diff check:
+  - `git diff --check HEAD~2..HEAD`
+- Static web:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+- Calendar render smoke:
+  - loaded one bar for `2023-01-03`.
+  - loaded one PDA, one Segment, one Killzone, and one Time Line.
+  - rendered Calendar panel for that day.
+  - confirmed day show/hide actions are present.
+  - confirmed 4 row-level `calendar-object-toggle-hidden` controls are present.
+
+Runtime note:
+
+- Browser click-through was not run in this pass. The smoke validates render wiring; interactive regression should click row toggle and day Hide/Show in the running app.
