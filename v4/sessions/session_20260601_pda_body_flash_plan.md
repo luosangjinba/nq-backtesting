@@ -1553,3 +1553,41 @@ Validation:
 - `node --check` passed for:
   - `time-reaction-actions.js`
   - `inspector-sidebar.js`
+
+## Step 228 Validation - Daily Time Action Split
+
+Final boundaries:
+
+- `inspector-sidebar.js` owns:
+  - sidebar DOM lifecycle
+  - page stack and Back behavior
+  - Calendar routing and selected date state
+  - shared PDA / Segment / Composite / SMT / Order Setup selection state
+  - bus listener registration and delegation
+- `time-reaction-actions.js` owns:
+  - Daily Time pending ref pick state
+  - Daily Time target parsing and labels
+  - Daily Time change/click handlers
+  - Daily Time target locate and linked ref locate
+  - Daily Time picked-object linking
+- `time-reaction-panel.js` remains render-only.
+- `daily-time-review-store.js` remains the data/normalization/persistence-facing store.
+
+Validation completed:
+
+- Full source syntax:
+  - `rg --files v4/src -g '*.js' | xargs -n1 node --check`
+- Helper smoke:
+  - `summaryItem` locate range duration is `5400` seconds (`09:30-11:00`).
+  - reaction item target key remains `reactionItem:event_1:09:30`.
+  - `1H` source timeframe metadata resolves to `60`.
+- Store smoke:
+  - empty normalized Daily Time review remains non-content.
+  - populated Daily Time review remains content.
+  - exportable content list excludes the empty review.
+- Static web:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+
+Runtime note:
+
+- This pass did not use a browser click-through smoke for Select Object / ref Locate. The refactor preserves existing selectors and delegates the same action names through the controller; future UI regression checks should exercise Calendar Open, Add Event, Select Object pending mode, and linked ref Locate in-browser.

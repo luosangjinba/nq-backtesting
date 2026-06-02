@@ -395,7 +395,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [ ] Step 225: 拆分基线与边界：从 `main` 新建 `refactor/daily-time-inspector-actions`；本轮只拆 Daily Time inspector 行为，不改 UI、不改 store schema、不改 Review JSON/localStorage key
 - [x] Step 226: 新增 `ui/inspector/time-reaction-actions.js` controller，先迁移 Daily Time pending pick 状态、target 解析、target label/key、range/timeframe/ref helper，并保持 `inspector-sidebar.js` 行为不变
 - [x] Step 227: 迁移 Daily Time click/change/locate/ref-pick 行为到 controller；`inspector-sidebar.js` 仅保留 page routing、bus 接线和 shared selection 状态
-- [ ] Step 228: 验证与收口：覆盖相关 JS 语法、target/summary range/content filter smoke、Calendar Open、Add Event、Select Object pending、linked ref Locate，并记录拆分后边界
+- [x] Step 228: 验证与收口：覆盖相关 JS 语法、target/summary range/content filter smoke、Calendar Open、Add Event、Select Object pending、linked ref Locate，并记录拆分后边界
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
