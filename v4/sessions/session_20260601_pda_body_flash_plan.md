@@ -1831,3 +1831,20 @@ Result:
 
 - Clicking a PDA projection on either chart still calls `selectPda(annotation.id)`.
 - The same selected id is now highlighted on the secondary projection when it is visible.
+
+## Step 236 Execution - PDA Projection Render Modes
+
+Implemented:
+
+- Added `pda-projection.js` for shared projection helpers:
+  - source/target instrument comparison
+  - same-instrument price projection eligibility
+  - projection timestamp extraction
+- Primary and secondary PDA renderers now branch by instrument:
+  - same instrument: render the full PDA price geometry as before
+  - cross instrument: render dashed time-only vertical projections with the shared source label
+- PDA hit-test now supports time-only projections, so clicking the dashed cross-instrument projection still selects the same annotation id.
+
+Boundary:
+
+- Cross-instrument projections intentionally do not draw price boxes, liquidity lines, fib levels, or point-set prices on the target chart.

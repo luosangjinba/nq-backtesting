@@ -3,13 +3,14 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
+import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive, VerticalLinePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { formatPdaDisplayLabel } from './pda-source-format.js';
+import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
 import { getIsolatedSegment, getSegmentById } from '../segment/segment-store.js';
@@ -89,6 +90,22 @@ function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegme
   if (selected) return `● ${baseLabel}`;
   if (linkedToSegment) return `↔ ${baseLabel}`;
   return baseLabel;
+}
+
+function buildTimeOnlyProjectionPrimitives(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
+  const chartInstance = chart.getChart();
+  const label = getAnnotationLabel(annotation, pdaType, isCurrent, isLinkedToSegment);
+  const color = isCurrent ? SELECTED_COLOR : isLinkedToSegment ? LINKED_SEGMENT_COLOR : 'rgba(178, 181, 190, 0.72)';
+  return getPdaProjectionTimestamps(annotation)
+    .map(mapTimestampToCurrentChartTime)
+    .filter((time, index, times) => time !== null && time !== undefined && times.indexOf(time) === index)
+    .map((time, index) => new VerticalLinePrimitive(chartInstance, time, {
+      color,
+      lineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
+      lineDash: [4, 4],
+      label: index === 0 ? label : '',
+      labelBorderColor: color,
+    }));
 }
 
 function getExtendBars(annotation, fallback = 0) {
@@ -420,6 +437,14 @@ export function renderPdaAnnotations() {
     if (segmentPdaState.hiddenIds.has(annotation.id)) return;
     if (segmentPdaState.isolate && !segmentPdaState.visibleIds.has(annotation.id)) return;
     if (!segmentPdaState.isolate && !drawingSetPdaIds.has(annotation.id) && !shouldRenderPda(annotation)) return;
+    if (!canRenderPdaPriceProjection(annotation, 'NQ')) {
+      buildTimeOnlyProjectionPrimitives(annotation, pdaType, isCurrent, isLinkedToSegment).forEach((primitive) => {
+        chart.attachPrimitive(primitive);
+        primitive.requestUpdate();
+        renderedPrimitives.push(primitive);
+      });
+      return;
+    }
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(annotation, pdaType, isCurrent, isLinkedToSegment);

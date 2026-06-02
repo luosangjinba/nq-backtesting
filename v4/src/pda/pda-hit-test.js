@@ -7,6 +7,7 @@ import { getAnnotations } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
+import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
 import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
@@ -15,6 +16,7 @@ const LINE_TOLERANCE_PX = 6;
 const MARKER_TOLERANCE_PX = 8;
 const DEFAULT_LINE_EXTEND_BARS = 8;
 const MIN_RANGE_HIT_WIDTH_PX = 8;
+const TIME_ONLY_TOLERANCE_PX = 8;
 
 function getHitContext(context) {
   return context || getPrimaryChartContext();
@@ -72,6 +74,23 @@ function getPriceCoordinate(price, context) {
   if (price === undefined || price === null) return null;
   const activeContext = getHitContext(context);
   return activeContext.priceToCoordinate?.(Number(price)) ?? chart.priceToCoordinate(Number(price));
+}
+
+function hitTimeOnlyProjection(annotation, x, context) {
+  const candidates = getPdaProjectionTimestamps(annotation)
+    .map((timestamp) => mapTimestampToCurrentChartTime(timestamp, context))
+    .map((time) => getTimeCoordinate(time, context))
+    .filter((coordinate) => coordinate !== null && coordinate !== undefined)
+    .map((coordinate) => ({ coordinate, distance: Math.abs(x - coordinate) }))
+    .sort((a, b) => a.distance - b.distance);
+  const nearest = candidates[0];
+  if (!nearest || nearest.distance > TIME_ONLY_TOLERANCE_PX) return null;
+  return {
+    id: annotation.id,
+    type: annotation.type,
+    distance: nearest.distance,
+    reason: 'pda-time-projection',
+  };
 }
 
 function getExtendBars(annotation, fallback = 0, context) {
@@ -260,10 +279,12 @@ export function hitTestPdaAnnotations({ x, y, context = null }) {
     if (!pdaType) return;
 
     let hit = null;
-    if (pdaType.shape === 'liquidity-line') hit = hitLiquidity(annotation, x, y, activeContext);
-    if (pdaType.shape === 'range') hit = hitRange(annotation, x, y, activeContext);
-    if (pdaType.shape === 'point-set') hit = hitPointSet(annotation, x, y, activeContext);
-    if (pdaType.shape === 'fib-retracement') hit = hitFib(annotation, x, y, activeContext);
+    if (!canRenderPdaPriceProjection(annotation, activeContext)) {
+      hit = hitTimeOnlyProjection(annotation, x, activeContext);
+    } else if (pdaType.shape === 'liquidity-line') hit = hitLiquidity(annotation, x, y, activeContext);
+    else if (pdaType.shape === 'range') hit = hitRange(annotation, x, y, activeContext);
+    else if (pdaType.shape === 'point-set') hit = hitPointSet(annotation, x, y, activeContext);
+    else if (pdaType.shape === 'fib-retracement') hit = hitFib(annotation, x, y, activeContext);
     if (hit) hits.push(hit);
   });
 
