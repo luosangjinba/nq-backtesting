@@ -370,7 +370,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 204: Back / 删除 / 空状态规则：Back 回到打开前的 Calendar/list 与 selected date；删除当前详情对象后返回上一层并刷新列表；无 active setup 不显示独立 Active 页，只在 Order Setups 列表提示选择或创建
 - [x] Step 205: 重复对象级动作收敛：Active Order Setup 顶部不再显示 Clear Active / Locate / Hide / Delete；Locate / Open / Hide / Delete 统一保留在 Order Setups 列表菜单，Active 区只保留 Display、Anchor、Execution、Entry Context、Reasons、Result 等当前 setup 内容控件
 - [x] Step 206: 视觉与交互收口：详情页标题层级压缩，Back 固定在详情顶部；长标题、notes、reason refs 必须换行不撑爆 Inspector；避免详情页和列表页同时显示两个 competing current object
-- [ ] Step 207: 验证与收口：覆盖 Order Setup Open/Back、Calendar Open/Back、PDA/Segment/Composite/SMT Open、Locate 不切页、Hide/Delete 后状态、link selected object to active setup、Entry/Reasons/Result 编辑、刷新恢复、undo/redo、全量 JS 语法、Web smoke 与 `git diff --check`
+- [x] Step 207: 验证与收口：覆盖 Order Setup Open/Back、Calendar Open/Back、PDA/Segment/Composite/SMT Open、Locate 不切页、Hide/Delete 后状态、link selected object to active setup、Entry/Reasons/Result 编辑、刷新恢复、undo/redo、全量 JS 语法、Web smoke 与 `git diff --check`
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3

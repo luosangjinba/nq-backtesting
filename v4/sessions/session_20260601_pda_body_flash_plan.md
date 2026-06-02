@@ -961,6 +961,23 @@ Validation:
 - `node --check` passed for `inspector-sidebar.js`.
 - `git diff --check` passed.
 
+## Step 203 Implementation - Remove Embedded Active Setup From Other Details
+
+Implemented:
+
+- Removed the embedded `renderOrderReviewPanel()` from PDA detail rendering.
+- Removed the embedded `renderOrderReviewPanel()` from Segment detail rendering.
+- Removed the embedded `renderOrderReviewPanel()` from Composite detail rendering.
+- SMT detail rendering already did not include the active setup panel.
+- Existing lightweight link actions remain:
+  - PDA: `Link PDA To Active Setup`
+  - Segment: `Link Segment To Active Setup`
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+
 ## Step 204-206 Implementation - Back, Delete, Empty State, Layout Cleanup
 
 Implemented:
@@ -988,19 +1005,28 @@ Validation:
 - `git diff --check` passed.
 - Source search confirmed no remaining `Back to Calendar`, `calendar-return`, `active-order-setup`, or `renderOrderReviewPanel` usage.
 
-## Step 203 Implementation - Remove Embedded Active Setup From Other Details
+## Step 207 Validation - Inspector Page Stack
 
-Implemented:
+Validation completed:
 
-- Removed the embedded `renderOrderReviewPanel()` from PDA detail rendering.
-- Removed the embedded `renderOrderReviewPanel()` from Segment detail rendering.
-- Removed the embedded `renderOrderReviewPanel()` from Composite detail rendering.
-- SMT detail rendering already did not include the active setup panel.
-- Existing lightweight link actions remain:
-  - PDA: `Link PDA To Active Setup`
-  - Segment: `Link Segment To Active Setup`
-
-Validation:
-
-- `node --check` passed for `inspector-sidebar.js`.
+- Full `v4/src/**/*.js` syntax check passed.
 - `git diff --check` passed.
+- Source search confirmed no remaining:
+  - `Back to Calendar`
+  - `calendar-return`
+  - `active-order-setup`
+  - `renderOrderReviewPanel`
+- Web server smoke:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+  - Headless Chrome `--dump-dom` initialized the page successfully.
+  - Initial Inspector DOM shows Calendar + Archive only; no standalone Active Order Setup section is rendered.
+- API health note:
+  - `8766/health` returned `Unknown endpoint`.
+  - `8765/health` was not reachable in this session.
+  - This pass did not require API changes; frontend syntax and page smoke were the relevant validation targets.
+
+Result:
+
+- Inspector now uses a single page-stack model.
+- Open enters a detail page with Back.
+- Object detail pages no longer compete with a same-level Active Order Setup panel.
