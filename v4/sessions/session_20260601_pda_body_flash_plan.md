@@ -1591,3 +1591,40 @@ Validation completed:
 Runtime note:
 
 - This pass did not use a browser click-through smoke for Select Object / ref Locate. The refactor preserves existing selectors and delegates the same action names through the controller; future UI regression checks should exercise Calendar Open, Add Event, Select Object pending mode, and linked ref Locate in-browser.
+
+## Step 229-232 Plan - Calendar Chart Object Visibility Controls
+
+Branch:
+
+- Started from `refactor/daily-time-inspector-actions`.
+- New branch: `feature/calendar-object-visibility-controls`.
+
+User request:
+
+- Add inspector visibility controls for chart objects similar to Order Setup green/gray slash indicators.
+- Covered objects:
+  - PDA
+  - Segment
+  - Composite
+  - Killzone
+  - Time Line
+  - SMT if/when it has a persisted display hidden state available
+- Segment and Composite visibility should be object/group level, not individual drawn primitive fragments.
+- Add day-level buttons in Calendar to show all chart objects for the selected day and hide all chart objects for the selected day.
+
+Planned steps:
+
+- Step 229: Commit this plan and boundary.
+- Step 230: Add row-level visibility controls in Calendar object rows and wire actions in `inspector-sidebar.js`.
+- Step 231: Add selected-day bulk Show/Hide chart object actions.
+- Step 232: Validate syntax/smoke cases and document final boundary.
+
+Boundary:
+
+- Reuse existing `display.hidden` where available:
+  - PDA: `annotation.display.hidden`
+  - Segment: `segment.display.hidden`
+  - Composite: `segmentGroup.display.hidden`
+  - Killzone / Time Line: overlay item `enabled=false`
+- Do not change Review JSON schema beyond existing display/overlay fields.
+- Economic Events, Time Reaction, and Order Setups are not part of the new day-level chart object bulk buttons.
