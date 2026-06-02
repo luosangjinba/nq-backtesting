@@ -231,13 +231,16 @@ function renderObjectActionButtons(item) {
   const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
   const setupHidden = Boolean(item.source?.display?.hidden);
   const typeLabel = getObjectTypeLabel(item);
+  const locateLabel = item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT
+    ? `${item.source?.title || 'Economic Event'} · ${item.source?.displayTime || '09:30'}`
+    : `${typeLabel} ${item.label}`;
   return `
     <button
       class="inspector-mini-btn calendar-object-locate"
       data-inspector-action="calendar-object-locate"
       data-locate-start="${canLocate ? item.range.start : ''}"
       data-locate-end="${canLocate ? item.range.end : ''}"
-      data-object-label="${escapeHtml(`${typeLabel} ${item.label}`)}"
+      data-object-label="${escapeHtml(locateLabel)}"
       type="button"
       ${canLocate ? '' : 'disabled'}
     >Locate</button>
