@@ -27,6 +27,12 @@ import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
+import {
+  canPopInspectorPage,
+  popInspectorPage,
+  replaceInspectorPage,
+  resetInspectorPage,
+} from './inspector/page-stack.js';
 import { createPdaInspectorActionController } from './inspector/pda-actions.js';
 import { createSegmentInspectorActionController } from './inspector/segment-actions.js';
 import {
@@ -107,6 +113,17 @@ function renderCalendarReturnAction(type, id) {
   `;
 }
 
+function renderInspectorBackAction() {
+  if (!canPopInspectorPage()) return '';
+  return `
+    <div class="inspector-return-bar">
+      <button class="inspector-button secondary" data-inspector-action="inspector-back" type="button">
+        Back
+      </button>
+    </div>
+  `;
+}
+
 function dateKeyFromTimestamp(timestamp) {
   const parsed = Number(timestamp);
   if (!Number.isFinite(parsed) || parsed <= 0) return '';
@@ -137,8 +154,10 @@ function syncCalendarToOrderReview(orderReviewId) {
 
 function renderAnnotation(annotation) {
   currentPanel = 'selection';
+  replaceInspectorPage({ kind: 'detail', objectType: 'pda', objectId: annotation.id });
   bodyEl.innerHTML = `
     ${renderCalendarReturnAction('pda', annotation.id)}
+    ${renderInspectorBackAction()}
     ${renderAnnotationPanel(annotation, renderArchiveActions())}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-empty',
@@ -149,8 +168,10 @@ function renderAnnotation(annotation) {
 
 function renderSegment(segment) {
   currentPanel = 'selection';
+  replaceInspectorPage({ kind: 'detail', objectType: 'segment', objectId: segment.id });
   bodyEl.innerHTML = `
     ${renderCalendarReturnAction('segment', segment.id)}
+    ${renderInspectorBackAction()}
     ${renderSegmentPanel(segment)}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-segment',
@@ -161,8 +182,10 @@ function renderSegment(segment) {
 
 function renderSegmentGroup(segmentGroup) {
   currentPanel = 'selection';
+  replaceInspectorPage({ kind: 'detail', objectType: 'composite', objectId: segmentGroup.id });
   bodyEl.innerHTML = `
     ${renderCalendarReturnAction('composite', segmentGroup.id)}
+    ${renderInspectorBackAction()}
     ${renderSegmentGroupPanel(segmentGroup)}
     ${renderOrderReviewPanel(getOrderReviews(), getOrderReviewPanelOptions({
       createAction: 'order-review-create-composite',
@@ -173,14 +196,21 @@ function renderSegmentGroup(segmentGroup) {
 
 function renderSmtSelection() {
   currentPanel = 'selection';
+  replaceInspectorPage({ kind: 'detail', objectType: 'smt', objectId: selectedSmtId });
   bodyEl.innerHTML = `
     ${renderCalendarReturnAction('smt', selectedSmtId)}
+    ${renderInspectorBackAction()}
     ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
   `;
 }
 
 function renderEmpty({ preserveCalendarReturn = false } = {}) {
   currentPanel = 'empty';
+  replaceInspectorPage({
+    kind: 'home',
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
   if (!preserveCalendarReturn) calendarReturnContext = null;
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
   if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
@@ -200,6 +230,11 @@ function renderEmpty({ preserveCalendarReturn = false } = {}) {
 
 function renderArchivePanel() {
   currentPanel = 'archive';
+  replaceInspectorPage({
+    kind: 'archive',
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
   calendarReturnContext = null;
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
   if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
@@ -506,6 +541,22 @@ function handleInspectorClick(e) {
     return;
   }
 
+  if (action === 'inspector-back') {
+    const page = popInspectorPage();
+    if (page.selectedDate) calendarSelectedDate = page.selectedDate;
+    if (page.viewDate) calendarViewDate = page.viewDate;
+    if (page.kind === 'archive') {
+      renderArchivePanel();
+    } else {
+      clearPdaSelection();
+      clearSegmentSelection();
+      clearSegmentGroupSelection();
+      renderEmpty();
+    }
+    bus.emit('status:update', { text: 'Returned', isError: false });
+    return;
+  }
+
   if (action === 'calendar-prev-month' || action === 'calendar-next-month') {
     calendarViewDate = getNextCalendarViewDate(
       calendarViewDate || calendarSelectedDate || getDefaultCalendarDate(),
@@ -598,6 +649,7 @@ function handleInspectorClick(e) {
 }
 
 export function initInspectorSidebar() {
+  resetInspectorPage({ kind: 'home' });
   createSidebar();
   document.getElementById('chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
   document.getElementById('chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);

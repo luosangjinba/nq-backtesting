@@ -899,3 +899,22 @@ Implementation notes:
 - Removed `renderActiveActions()` from `order-review-panel.js`.
 - Removed the unused `order-review-clear-active` Inspector action branch.
 - Kept Locate / Hide / Delete handlers because the Order Setups list menu still uses them.
+
+## Step 198-199 Implementation - Inspector Page Stack State
+
+Implemented:
+
+- Added `ui/inspector/page-stack.js` as a small in-memory page/back-stack model.
+- Inspector pages currently support:
+  - `home`
+  - `archive`
+  - `detail`
+- `detail` records `objectType` and `objectId`.
+- `home` / `archive` records can preserve Calendar selected/view dates.
+- Wired sidebar render paths to update page state without changing Review JSON, `orderReviews`, or localStorage schema.
+- Added a generic `inspector-back` action and Back renderer; it becomes visible once later Open routes push into the stack.
+
+Boundary:
+
+- This step establishes the navigation state only.
+- Calendar/Open routing is intentionally left for the next implementation step.
