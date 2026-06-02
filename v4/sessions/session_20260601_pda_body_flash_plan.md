@@ -1436,3 +1436,32 @@ User feedback addressed:
   - selecting an SMT row links it directly and keeps the Time Reaction page open.
 - The old behavior where selecting a PDA/Segment immediately jumps to its detail page is bypassed only during this pending pick mode.
 - `Cancel Select` and Escape cancel the pending pick.
+
+## Follow-up Fix - Multi Event Items And Ref Locate
+
+User feedback addressed:
+
+- Linked refs inside Daily Time records now show an `L` locate button.
+- Ref locate supports:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- PDA/Segment/Composite refs can auto-switch the primary chart timeframe before locating when source timeframe metadata is available.
+- Secondary refs only locate if secondary chart is already enabled and loaded.
+- 09:30 / 09:50 / 10:00 / 10:30 now support multiple event items via `Add`.
+- `09:30-11:00 Summary` now supports multiple event items via `Add`.
+- Legacy single-note reaction/summary records load as the first event item.
+- Calendar summaries count notes/refs from all event items.
+- Review archive ref remap now includes:
+  - `reactions[].items[].refs`
+  - `summary0930To1100.items[].refs`
+
+Validation:
+
+- `node --check` passed for store, panel, sidebar, calendar panel, and review archive.
+- Store smoke covered multiple reaction events, summary events, and reaction item refs.
+- Render smoke confirmed reaction `Add`, summary `Add`, and ref `L` locate buttons.
+- Headless Chrome loaded `index.html`.
+- `git diff --check` passed.

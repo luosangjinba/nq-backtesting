@@ -6,22 +6,6 @@ import {
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
-function sectionNoteAttrs(review, sectionName) {
-  return [
-    'data-inspector-action="daily-time-section-note"',
-    `data-daily-time-date="${escapeHtml(review.date)}"`,
-    `data-daily-time-section="${escapeHtml(sectionName)}"`,
-  ].join(' ');
-}
-
-function reactionAttrs(review, time, fieldName) {
-  return [
-    `data-daily-time-date="${escapeHtml(review.date)}"`,
-    `data-daily-time-reaction-time="${escapeHtml(time)}"`,
-    fieldName ? `data-daily-time-reaction-field="${escapeHtml(fieldName)}"` : '',
-  ].filter(Boolean).join(' ');
-}
-
 function renderTextarea(value, attrs, placeholder = '') {
   return `
     <textarea
@@ -109,6 +93,14 @@ function renderRefList(review, target, refs = [], options = {}) {
     <div class="order-review-ref-row">
       <span title="${escapeHtml(getRefId(ref) || '')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
       <button
+        class="order-review-ref-locate"
+        data-inspector-action="daily-time-ref-locate"
+        ${targetAttrs(review, target)}
+        data-ref-index="${refIndex}"
+        type="button"
+        title="Locate linked object"
+      >L</button>
+      <button
         class="order-review-ref-delete"
         data-inspector-action="daily-time-ref-remove"
         ${targetAttrs(review, target)}
@@ -178,19 +170,29 @@ function renderLocateControls(review, target, locate = {}) {
   `;
 }
 
-function renderContextItem(review, item, itemIndex, options = {}) {
-  const target = { section: 'pre0930Item', itemId: item.id };
+function renderObservationItem(review, item, itemIndex, target, options = {}) {
+  const isFirst = itemIndex === 0;
+  const noteAction = target.section === 'reactionItem'
+    ? 'daily-time-reaction-item-note'
+    : target.section === 'summaryItem'
+      ? 'daily-time-summary-item-note'
+      : 'daily-time-context-item-note';
+  const removeAction = target.section === 'reactionItem'
+    ? 'daily-time-reaction-item-remove'
+    : target.section === 'summaryItem'
+      ? 'daily-time-summary-item-remove'
+      : 'daily-time-context-item-remove';
+  const label = target.section === 'pre0930Item' ? `Context ${itemIndex + 1}` : `Event ${itemIndex + 1}`;
   return `
-    <div class="time-reaction-card time-reaction-context-card">
+    <div class="time-reaction-card time-reaction-event-card">
       <div class="time-reaction-card-header">
-        <span class="time-reaction-time">Context ${itemIndex + 1}</span>
+        <span class="time-reaction-time">${escapeHtml(label)}</span>
         ${
-          itemIndex > 0
+          !isFirst
             ? `<button
                 class="inspector-mini-btn"
-                data-inspector-action="daily-time-context-item-remove"
-                data-daily-time-date="${escapeHtml(review.date)}"
-                data-daily-time-context-item-id="${escapeHtml(item.id)}"
+                data-inspector-action="${escapeHtml(removeAction)}"
+                ${targetAttrs(review, target)}
                 type="button"
               >Remove</button>`
             : ''
@@ -199,11 +201,12 @@ function renderContextItem(review, item, itemIndex, options = {}) {
       ${renderTextarea(
         item.note,
         [
-          'data-inspector-action="daily-time-context-item-note"',
-          `data-daily-time-date="${escapeHtml(review.date)}"`,
-          `data-daily-time-context-item-id="${escapeHtml(item.id)}"`,
+          `data-inspector-action="${escapeHtml(noteAction)}"`,
+          targetAttrs(review, target),
         ].join(' '),
-        'Record one pre-09:30 context observation.'
+        target.section === 'pre0930Item'
+          ? 'Record one pre-09:30 context observation.'
+          : 'Record one event observation.'
       )}
       ${renderLocateControls(review, target, item.locate)}
       ${renderRefList(review, target, item.refs, options)}
@@ -213,22 +216,28 @@ function renderContextItem(review, item, itemIndex, options = {}) {
 
 function renderReactionCard(review, reaction, options = {}) {
   const time = reaction.time;
-  const noteAttrs = [
-    'data-inspector-action="daily-time-reaction-note"',
-    reactionAttrs(review, time, 'note'),
-  ].join(' ');
+  const items = Array.isArray(reaction.items) ? reaction.items : [];
   return `
-    <div class="time-reaction-card">
-      <div class="time-reaction-card-header">
-        <span class="time-reaction-time">${escapeHtml(time)}</span>
+    <div class="time-reaction-subsection">
+      <div class="time-reaction-subsection-title">
+        <span>${escapeHtml(time)}</span>
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="daily-time-reaction-item-add"
+          data-daily-time-date="${escapeHtml(review.date)}"
+          data-daily-time-reaction-time="${escapeHtml(time)}"
+          type="button"
+        >Add</button>
       </div>
-      ${renderTextarea(
-        reaction.note,
-        noteAttrs,
-        'Record what happened at this algorithmic time.'
-      )}
-      ${renderLocateControls(review, { section: 'reaction', time }, reaction.locate)}
-      ${renderRefList(review, { section: 'reaction', time }, reaction.refs, options)}
+      <div class="time-reaction-list">
+        ${items.map((item, itemIndex) => renderObservationItem(
+          review,
+          item,
+          itemIndex,
+          { section: 'reactionItem', time, itemId: item.id },
+          options
+        )).join('')}
+      </div>
     </div>
   `;
 }
@@ -246,7 +255,22 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
     .map((time) => renderReactionCard(review, getReactionByTime(review, time), options))
     .join('');
   const contextItems = (review.pre0930Context?.items || [])
-    .map((item, itemIndex) => renderContextItem(review, item, itemIndex, options))
+    .map((item, itemIndex) => renderObservationItem(
+      review,
+      item,
+      itemIndex,
+      { section: 'pre0930Item', itemId: item.id },
+      options
+    ))
+    .join('');
+  const summaryItems = (review.summary0930To1100?.items || [])
+    .map((item, itemIndex) => renderObservationItem(
+      review,
+      item,
+      itemIndex,
+      { section: 'summaryItem', itemId: item.id },
+      options
+    ))
     .join('');
 
   return `
@@ -279,14 +303,16 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
       <div class="time-reaction-subsection">
         <div class="time-reaction-subsection-title">
           <span>09:30-11:00 Summary</span>
+          <button
+            class="inspector-mini-btn"
+            data-inspector-action="daily-time-summary-item-add"
+            data-daily-time-date="${escapeHtml(review.date)}"
+            type="button"
+          >Add</button>
         </div>
-        ${renderTextarea(
-          review.summary0930To1100?.note,
-          sectionNoteAttrs(review, 'summary0930To1100'),
-          'Summarize the 09:30-11:00 move and whether the reactions became actionable.'
-        )}
-        ${renderLocateControls(review, { section: 'summary0930To1100' }, review.summary0930To1100?.locate)}
-        ${renderRefList(review, { section: 'summary0930To1100' }, review.summary0930To1100?.refs, options)}
+        <div class="time-reaction-list">
+          ${summaryItems}
+        </div>
       </div>
     </section>
   `;

@@ -357,14 +357,23 @@ function summarizeTimeReactionReview(review) {
   (review.pre0930Context?.items || []).forEach((item) => {
     if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
   });
+  (review.summary0930To1100?.items || []).forEach((item) => {
+    if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
+  });
   let refs = (review.pre0930Context?.refs || []).length
     + (review.summary0930To1100?.refs || []).length
-    + (review.pre0930Context?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0);
+    + (review.pre0930Context?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0)
+    + (review.summary0930To1100?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0);
   (review.reactions || []).forEach((reaction) => {
     const hasNote = Boolean(reaction.note);
     const refCount = Array.isArray(reaction.refs) ? reaction.refs.length : 0;
     if (hasNote || refCount) sections += 1;
     refs += refCount;
+    (reaction.items || []).forEach((item) => {
+      const itemRefCount = Array.isArray(item.refs) ? item.refs.length : 0;
+      if (item.note || itemRefCount) sections += 1;
+      refs += itemRefCount;
+    });
   });
   if (!sections && !refs) return 'No observations yet';
   return [

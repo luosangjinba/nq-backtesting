@@ -469,11 +469,23 @@ function remapDailyTimeReviewRefs(review, refIdMaps = {}) {
       ? review.reactions.map((reaction) => ({
           ...reaction,
           refs: remapRefs(reaction.refs),
+          items: Array.isArray(reaction.items)
+            ? reaction.items.map((item) => ({
+                ...item,
+                refs: remapRefs(item.refs),
+              }))
+            : reaction.items,
         }))
       : [],
     summary0930To1100: {
       ...(review.summary0930To1100 || {}),
       refs: remapRefs(review.summary0930To1100?.refs),
+      items: Array.isArray(review.summary0930To1100?.items)
+        ? review.summary0930To1100.items.map((item) => ({
+            ...item,
+            refs: remapRefs(item.refs),
+          }))
+        : review.summary0930To1100?.items,
     },
   };
 }

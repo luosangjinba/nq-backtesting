@@ -101,6 +101,22 @@ function normalizeContextItems(input = {}, dateKey = '') {
   return [normalizeContextItem({ id: 'context_1' }, dateKey)];
 }
 
+function normalizeObservationItems(input = {}, dateKey = '', fallbackTime = '09:30', fallbackId = 'event_1') {
+  const explicitItems = Array.isArray(input.items)
+    ? input.items.map((item) => normalizeContextItem(item, dateKey, fallbackTime)).filter((item) => item.id)
+    : [];
+  if (explicitItems.length) return explicitItems;
+  if (input.note || (Array.isArray(input.refs) && input.refs.length)) {
+    return [normalizeContextItem({
+      id: fallbackId,
+      note: input.note,
+      refs: input.refs,
+      locate: input.locate,
+    }, dateKey, fallbackTime)];
+  }
+  return [normalizeContextItem({ id: fallbackId }, dateKey, fallbackTime)];
+}
+
 function normalizePre0930Context(input = {}, dateKey = '') {
   return {
     note: '',
@@ -138,6 +154,7 @@ function normalizeReaction(input = {}, dateKey, fallbackTime = '09:30') {
     note: normalizeString(input.note),
     refs: normalizeRefs(input.refs),
     locate: normalizeLocate(input.locate, dateKey, time),
+    items: normalizeObservationItems(input, dateKey, time),
   };
 }
 
@@ -170,7 +187,12 @@ export function normalizeDailyTimeReview(input = {}, options = {}) {
     updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
     pre0930Context: normalizePre0930Context(input.pre0930Context, date),
     reactions: normalizeReactions(input.reactions, date),
-    summary0930To1100: normalizeSection(input.summary0930To1100, date, '11:00'),
+    summary0930To1100: {
+      ...normalizeSection(input.summary0930To1100, date, '11:00'),
+      note: '',
+      refs: [],
+      items: normalizeObservationItems(input.summary0930To1100, date, '11:00', 'summary_1'),
+    },
   };
 }
 
@@ -259,6 +281,102 @@ export function removeDailyTimeContextItem(date, itemId, instrument = 'NQ') {
   });
 }
 
+export function addDailyTimeReactionItem(date, time, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  if (!review) return null;
+  const targetTime = normalizeTimeText(time);
+  return updateDailyTimeReview(review.id, {
+    reactions: review.reactions.map((reaction) => (
+      reaction.time === targetTime
+        ? {
+            ...reaction,
+            items: [
+              ...(reaction.items || []),
+              normalizeContextItem({ id: makeContextItemId(), ...patch }, review.date, targetTime),
+            ],
+          }
+        : reaction
+    )),
+  });
+}
+
+export function updateDailyTimeReactionItem(date, time, itemId, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const targetTime = normalizeTimeText(time);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  return updateDailyTimeReview(review.id, {
+    reactions: review.reactions.map((reaction) => (
+      reaction.time === targetTime
+        ? {
+            ...reaction,
+            items: (reaction.items || []).map((item) => (
+              item.id === id ? { ...item, ...patch } : item
+            )),
+          }
+        : reaction
+    )),
+  });
+}
+
+export function removeDailyTimeReactionItem(date, time, itemId, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const targetTime = normalizeTimeText(time);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  return updateDailyTimeReview(review.id, {
+    reactions: review.reactions.map((reaction) => {
+      if (reaction.time !== targetTime) return reaction;
+      const items = (reaction.items || []).filter((item) => item.id !== id);
+      return {
+        ...reaction,
+        items: items.length ? items : [normalizeContextItem({ id: 'event_1' }, review.date, targetTime)],
+      };
+    }),
+  });
+}
+
+export function addDailyTimeSummaryItem(date, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  if (!review) return null;
+  return updateDailyTimeReview(review.id, {
+    summary0930To1100: {
+      ...(review.summary0930To1100 || {}),
+      items: [
+        ...(review.summary0930To1100?.items || []),
+        normalizeContextItem({ id: makeContextItemId(), ...patch }, review.date, '11:00'),
+      ],
+    },
+  });
+}
+
+export function updateDailyTimeSummaryItem(date, itemId, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  return updateDailyTimeReview(review.id, {
+    summary0930To1100: {
+      ...(review.summary0930To1100 || {}),
+      items: (review.summary0930To1100?.items || []).map((item) => (
+        item.id === id ? { ...item, ...patch } : item
+      )),
+    },
+  });
+}
+
+export function removeDailyTimeSummaryItem(date, itemId, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  const items = (review.summary0930To1100?.items || []).filter((item) => item.id !== id);
+  return updateDailyTimeReview(review.id, {
+    summary0930To1100: {
+      ...(review.summary0930To1100 || {}),
+      items: items.length ? items : [normalizeContextItem({ id: 'summary_1' }, review.date, '11:00')],
+    },
+  });
+}
+
 export function updateDailyTimeReaction(date, time, patch = {}, instrument = 'NQ') {
   const review = getOrCreateDailyTimeReview(date, instrument);
   if (!review) return null;
@@ -297,8 +415,17 @@ function getSectionRefs(review, target = {}) {
     const reaction = review.reactions.find((item) => item.time === normalizeTimeText(target.time));
     return Array.isArray(reaction?.refs) ? reaction.refs : [];
   }
+  if (target.section === 'reactionItem') {
+    const reaction = review.reactions.find((item) => item.time === normalizeTimeText(target.time));
+    const item = (reaction?.items || []).find((candidate) => candidate.id === normalizeString(target.itemId));
+    return Array.isArray(item?.refs) ? item.refs : [];
+  }
   if (target.section === 'pre0930Item') {
     const item = (review.pre0930Context?.items || []).find((candidate) => candidate.id === normalizeString(target.itemId));
+    return Array.isArray(item?.refs) ? item.refs : [];
+  }
+  if (target.section === 'summaryItem') {
+    const item = (review.summary0930To1100?.items || []).find((candidate) => candidate.id === normalizeString(target.itemId));
     return Array.isArray(item?.refs) ? item.refs : [];
   }
   const sectionName = target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
@@ -314,12 +441,39 @@ function updateSectionRefs(review, target = {}, refs = []) {
       )),
     };
   }
+  if (target.section === 'reactionItem') {
+    const time = normalizeTimeText(target.time);
+    const itemId = normalizeString(target.itemId);
+    return {
+      reactions: review.reactions.map((reaction) => (
+        reaction.time === time
+          ? {
+              ...reaction,
+              items: (reaction.items || []).map((item) => (
+                item.id === itemId ? { ...item, refs } : item
+              )),
+            }
+          : reaction
+      )),
+    };
+  }
   if (target.section === 'pre0930Item') {
     const itemId = normalizeString(target.itemId);
     return {
       pre0930Context: {
         ...(review.pre0930Context || {}),
         items: (review.pre0930Context?.items || []).map((item) => (
+          item.id === itemId ? { ...item, refs } : item
+        )),
+      },
+    };
+  }
+  if (target.section === 'summaryItem') {
+    const itemId = normalizeString(target.itemId);
+    return {
+      summary0930To1100: {
+        ...(review.summary0930To1100 || {}),
+        items: (review.summary0930To1100?.items || []).map((item) => (
           item.id === itemId ? { ...item, refs } : item
         )),
       },

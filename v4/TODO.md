@@ -386,7 +386,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 216: Store 与持久化：实现 daily time review store，支持 create/getByDate/update section/update reaction/link ref/remove ref/delete；接 localStorage 草稿保存；暂不入 DB
 - [x] Step 217: Review JSON 接入：export/import 增加 `dailyTimeReviews`；import 时规范化字段并 remap refs，复用 PDA / Segment / Composite / SMT / Order Setup ref 结构
 - [x] Step 218: Calendar 日维度 UI：在 Inspector Calendar 某日详情新增 `Time Reaction Observation` 分组，默认折叠；Open 后进入按日期的 detail editor；包含 `Pre 09:30 Context`、四个固定 reaction、`09:30-11:00 Summary`，当前以 textarea 为主
-- [x] Step 219: Reaction 基础交互：每个 09:30 / 09:50 / 10:00 / 10:30 reaction 只提供事实记录 textarea，不做 reversal / continuation 等分类；不把每个 reaction 强制当作 Order Setup；refs 与 Locate 留到 Step 220-221
+- [x] Step 219: Reaction 基础交互：每个 09:30 / 09:50 / 10:00 / 10:30 reaction 支持添加多条事实 event，每条 event 有独立 textarea / refs / locate；不做 reversal / continuation 等分类；不把每个 reaction 强制当作 Order Setup
 - [x] Step 220: Link Selected Object：支持把当前选中的 PDA / Segment / Composite / SMT / Order Setup 链接到 pre0930、某个 reaction 或 summary；refs 记录 role/source metadata，删除 ref 不影响原对象
 - [x] Step 221: Locate 第一版：每个 reaction/section 支持主图定位到 `date + time`；第一版支持手动选择 timeframe 并在 locate 时切换主图周期后定位与快闪；secondary chart 仅在当前已开启且已加载时可选，不自动打开副图
 - [x] Step 222: 高周期环境衔接：Pre 09:30 Context 与 Summary 支持链接 HTF Segment / Composite / PDA，用于记录“为什么这个时间反应有效或无效”；不做系统自动判断，不自动推荐 PDA
