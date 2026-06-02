@@ -969,23 +969,25 @@ async function locateDailyTimeRef(actionEl) {
   }
 
   const useSecondary = ref.sourceChartId === 'secondary';
+  let secondaryLocated = false;
   if (useSecondary) {
-    const located = secondaryStore.isSecondaryEnabled()
+    secondaryLocated = secondaryStore.isSecondaryEnabled()
       && secondaryStore.getSecondaryDisplayBars().length > 0
       && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
-    if (located) {
-      bus.emit('status:update', { text: `Located ${label} on secondary`, isError: false });
-      return;
-    }
   }
 
   const targetTimeframe = getRefTimeframe(ref, store.getCurrentTimeframe());
   if (!(await ensurePrimaryTimeframe(targetTimeframe))) return;
   requestAnimationFrame(() => {
-    const located = viewport.locateTimestampRange(range.start, range.end);
+    const primaryLocated = viewport.locateTimestampRange(range.start, range.end);
+    const located = primaryLocated || secondaryLocated;
     bus.emit('status:update', {
-      text: located
-        ? `${useSecondary ? 'Secondary unavailable; ' : ''}Located ${label} on primary`
+      text: primaryLocated && secondaryLocated
+        ? `Located ${label} on primary and secondary`
+        : primaryLocated
+          ? `${useSecondary ? 'Secondary unavailable; ' : ''}Located ${label} on primary`
+          : secondaryLocated
+            ? `Located ${label} on secondary; primary unavailable`
         : 'Primary chart cannot locate this linked object',
       isError: !located,
     });
