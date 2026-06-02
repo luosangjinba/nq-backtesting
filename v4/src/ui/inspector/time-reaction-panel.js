@@ -221,14 +221,14 @@ function renderReactionCard(review, reaction, options = {}) {
     <div class="time-reaction-subsection">
       <div class="time-reaction-subsection-title">
         <span>${escapeHtml(time)}</span>
-        <button
-          class="inspector-mini-btn"
-          data-inspector-action="daily-time-reaction-item-add"
-          data-daily-time-date="${escapeHtml(review.date)}"
-          data-daily-time-reaction-time="${escapeHtml(time)}"
-          type="button"
-        >Add</button>
       </div>
+      <button
+        class="inspector-mini-btn time-reaction-add-btn"
+        data-inspector-action="daily-time-reaction-item-add"
+        data-daily-time-date="${escapeHtml(review.date)}"
+        data-daily-time-reaction-time="${escapeHtml(time)}"
+        type="button"
+      >Add Event</button>
       <div class="time-reaction-list">
         ${items.map((item, itemIndex) => renderObservationItem(
           review,
@@ -286,13 +286,13 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
       <div class="time-reaction-subsection">
         <div class="time-reaction-subsection-title">
           <span>Pre 09:30 Context</span>
-          <button
-            class="inspector-mini-btn"
-            data-inspector-action="daily-time-context-item-add"
-            data-daily-time-date="${escapeHtml(review.date)}"
-            type="button"
-          >Add Context</button>
         </div>
+        <button
+          class="inspector-mini-btn time-reaction-add-btn"
+          data-inspector-action="daily-time-context-item-add"
+          data-daily-time-date="${escapeHtml(review.date)}"
+          type="button"
+        >Add Context</button>
         <div class="time-reaction-list">
           ${contextItems}
         </div>
@@ -303,13 +303,13 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
       <div class="time-reaction-subsection">
         <div class="time-reaction-subsection-title">
           <span>09:30-11:00 Summary</span>
-          <button
-            class="inspector-mini-btn"
-            data-inspector-action="daily-time-summary-item-add"
-            data-daily-time-date="${escapeHtml(review.date)}"
-            type="button"
-          >Add</button>
         </div>
+        <button
+          class="inspector-mini-btn time-reaction-add-btn"
+          data-inspector-action="daily-time-summary-item-add"
+          data-daily-time-date="${escapeHtml(review.date)}"
+          type="button"
+        >Add Event</button>
         <div class="time-reaction-list">
           ${summaryItems}
         </div>

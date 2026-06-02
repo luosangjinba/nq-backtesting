@@ -853,6 +853,11 @@ html, body {
   min-width: 54px;
 }
 
+.time-reaction-add-btn {
+  width: max-content;
+  min-width: 82px;
+}
+
 .time-reaction-subsection {
   display: grid;
   gap: 6px;
