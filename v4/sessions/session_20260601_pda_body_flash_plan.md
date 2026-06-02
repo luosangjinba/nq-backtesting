@@ -1259,3 +1259,25 @@ Validation:
   - `order-review-store.js`
 - Store smoke verified create/update reaction/add ref/default four reactions.
 - `git diff --check` passed.
+
+## Step 217 Implementation - Review JSON Daily Time Reviews
+
+Implemented:
+
+- Review export payload now includes `dailyTimeReviews`.
+- Review import validates `dailyTimeReviews` as an optional array.
+- Import normalizes Daily Time Review records through `normalizeDailyTimeReview()`.
+- Import remaps refs for:
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+  - Order Setup
+- `prepareImportedOrderReviews()` now returns an `orderIdMap`, so imported Daily Time Review refs can point to remapped Order Setup ids.
+- Export/import status messages include Time Reaction counts.
+
+Validation:
+
+- `node --check` passed for `review-archive.js`.
+- `git diff --check` passed.
+- Source search confirmed payload, validation, remap, import, and status-message paths are wired.

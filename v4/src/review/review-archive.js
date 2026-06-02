@@ -28,6 +28,12 @@ import {
   normalizeOrderReview,
   ORDER_REF_TYPES,
 } from '../order/order-review-store.js';
+import {
+  getDailyTimeReviewIdentity,
+  getDailyTimeReviews,
+  loadDailyTimeReviews,
+  normalizeDailyTimeReview,
+} from '../time-reaction/daily-time-review-store.js';
 import { recordHistory } from '../history/history-manager.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
@@ -55,6 +61,7 @@ function buildReviewPayload() {
     segmentGroups: getExportableSegmentGroups(),
     smtRecords: getSmtRecords(),
     orderReviews: getOrderReviews(),
+    dailyTimeReviews: getDailyTimeReviews(),
   };
 }
 
@@ -94,6 +101,9 @@ function validateReviewPayload(payload) {
   }
   if (payload.orderReviews !== undefined && !Array.isArray(payload.orderReviews)) {
     throw new Error('review archive orderReviews must be an array');
+  }
+  if (payload.dailyTimeReviews !== undefined && !Array.isArray(payload.dailyTimeReviews)) {
+    throw new Error('review archive dailyTimeReviews must be an array');
   }
 }
 
@@ -360,6 +370,9 @@ function remapOrderReviewRef(ref, refIdMaps = {}) {
   if (ref.type === ORDER_REF_TYPES.SMT) {
     return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
   }
+  if (ref.type === ORDER_REF_TYPES.ORDER_SETUP) {
+    return { ...ref, id: refIdMaps.orderIdMap?.get(ref.id) || ref.id };
+  }
   return ref;
 }
 
@@ -396,6 +409,7 @@ function prepareImportedOrderReviews(existingOrders, importedOrders, refIdMaps =
   const importStamp = Date.now();
   let skippedDuplicates = 0;
   let skippedInvalid = 0;
+  const idMap = new Map();
   const orders = [];
 
   importedOrders.forEach((order, index) => {
@@ -413,6 +427,8 @@ function prepareImportedOrderReviews(existingOrders, importedOrders, refIdMaps =
     const identity = getOrderReviewIdentity(normalized);
     if (identity && existingByIdentity.has(identity)) {
       skippedDuplicates += 1;
+      const existing = existingByIdentity.get(identity);
+      if (existing) idMap.set(normalized.id, existing.id);
       return;
     }
 
@@ -428,10 +444,81 @@ function prepareImportedOrderReviews(existingOrders, importedOrders, refIdMaps =
 
     usedIds.add(normalized.id);
     if (identity) existingByIdentity.set(identity, normalized);
+    idMap.set(originalId, normalized.id);
     orders.push(normalized);
   });
 
-  return { orders, skippedDuplicates, skippedInvalid };
+  return { orders, skippedDuplicates, skippedInvalid, idMap };
+}
+
+function remapDailyTimeReviewRefs(review, refIdMaps = {}) {
+  const remapRefs = (refs = []) => (Array.isArray(refs) ? refs.map((ref) => remapOrderReviewRef(ref, refIdMaps)) : []);
+  return {
+    ...review,
+    pre0930Context: {
+      ...(review.pre0930Context || {}),
+      refs: remapRefs(review.pre0930Context?.refs),
+    },
+    reactions: Array.isArray(review.reactions)
+      ? review.reactions.map((reaction) => ({
+          ...reaction,
+          refs: remapRefs(reaction.refs),
+        }))
+      : [],
+    summary0930To1100: {
+      ...(review.summary0930To1100 || {}),
+      refs: remapRefs(review.summary0930To1100?.refs),
+    },
+  };
+}
+
+function prepareImportedDailyTimeReviews(existingReviews, importedReviews, refIdMaps = {}) {
+  const existingByIdentity = new Map(existingReviews.map((review) => [getDailyTimeReviewIdentity(review), review]));
+  const importStamp = Date.now();
+  let skippedDuplicates = 0;
+  let skippedInvalid = 0;
+  const usedIds = new Set(existingReviews.map((review) => review.id).filter(Boolean));
+  const reviews = [];
+
+  importedReviews.forEach((review, index) => {
+    let normalized;
+    try {
+      normalized = normalizeDailyTimeReview(
+        remapDailyTimeReviewRefs(review, refIdMaps),
+        { preserveId: true, preserveUpdatedAt: true }
+      );
+    } catch {
+      skippedInvalid += 1;
+      return;
+    }
+
+    if (!normalized.date) {
+      skippedInvalid += 1;
+      return;
+    }
+
+    const identity = getDailyTimeReviewIdentity(normalized);
+    if (existingByIdentity.has(identity)) {
+      skippedDuplicates += 1;
+      return;
+    }
+
+    const originalId = normalized.id;
+    if (usedIds.has(normalized.id)) {
+      normalized = {
+        ...normalized,
+        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
+        importedFromId: originalId,
+        updatedAt: Date.now(),
+      };
+    }
+
+    usedIds.add(normalized.id);
+    existingByIdentity.set(identity, normalized);
+    reviews.push(normalized);
+  });
+
+  return { reviews, skippedDuplicates, skippedInvalid };
 }
 
 export function exportReviewArchive() {
@@ -441,7 +528,8 @@ export function exportReviewArchive() {
     payload.marketSegments.length === 0 &&
     payload.segmentGroups.length === 0 &&
     payload.smtRecords.length === 0 &&
-    payload.orderReviews.length === 0
+    payload.orderReviews.length === 0 &&
+    payload.dailyTimeReviews.length === 0
   ) {
     bus.emit('status:update', { text: '没有可导出的复盘对象', isError: true });
     return;
@@ -449,7 +537,7 @@ export function exportReviewArchive() {
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT 与 ${payload.orderReviews.length} 条 Order Setup`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup 与 ${payload.dailyTimeReviews.length} 条 Time Reaction`,
     isError: false,
   });
 }
@@ -467,6 +555,7 @@ export async function importReviewArchive(file) {
     let groups = [];
     let smtRecords = [];
     let orders = [];
+    let dailyTimeReviews = [];
     let skippedPdaDuplicates = 0;
     let skippedSegmentDuplicates = 0;
     let skippedGroupDuplicates = 0;
@@ -474,6 +563,8 @@ export async function importReviewArchive(file) {
     let skippedInvalidSmt = 0;
     let skippedOrderDuplicates = 0;
     let skippedInvalidOrders = 0;
+    let skippedDailyTimeDuplicates = 0;
+    let skippedInvalidDailyTime = 0;
 
     await recordHistory('Import Review Archive', () => {
       const existingAnnotations = getAnnotations();
@@ -531,7 +622,19 @@ export async function importReviewArchive(file) {
       orders = preparedOrders.orders;
       skippedOrderDuplicates = preparedOrders.skippedDuplicates;
       skippedInvalidOrders = preparedOrders.skippedInvalid;
+      const orderIdMap = preparedOrders.idMap;
       loadOrderReviews([...existingOrderReviews, ...orders]);
+
+      const existingDailyTimeReviews = getDailyTimeReviews();
+      const preparedDailyTimeReviews = prepareImportedDailyTimeReviews(
+        existingDailyTimeReviews,
+        Array.isArray(payload.dailyTimeReviews) ? payload.dailyTimeReviews : [],
+        { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap, orderIdMap }
+      );
+      dailyTimeReviews = preparedDailyTimeReviews.reviews;
+      skippedDailyTimeDuplicates = preparedDailyTimeReviews.skippedDuplicates;
+      skippedInvalidDailyTime = preparedDailyTimeReviews.skippedInvalid;
+      loadDailyTimeReviews([...existingDailyTimeReviews, ...dailyTimeReviews], { preserveUpdatedAt: true });
     });
 
     const skipped =
@@ -541,9 +644,11 @@ export async function importReviewArchive(file) {
       skippedSmtDuplicates +
       skippedInvalidSmt +
       skippedOrderDuplicates +
-      skippedInvalidOrders;
+      skippedInvalidOrders +
+      skippedDailyTimeDuplicates +
+      skippedInvalidDailyTime;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT 与 ${orders.length} 条 Order Setup${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup 与 ${dailyTimeReviews.length} 条 Time Reaction${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,
