@@ -7,13 +7,9 @@ import { getAnnotations } from './pda-store.js';
 import { getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
-import { shouldRenderPda } from '../display/display-mode.js';
-import { getIsolatedSegment } from '../segment/segment-store.js';
-import {
-  getIsolateCompanionSegments,
-  getIsolatePreviousIncludePda,
-  getResponseDisplayMode,
-} from '../segment/segment-isolate-view.js';
+import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
+import { getSegments } from '../segment/segment-store.js';
+import { getSegmentGroups } from '../segment/segment-group-store.js';
 
 const LINE_TOLERANCE_PX = 6;
 const MARKER_TOLERANCE_PX = 8;
@@ -249,31 +245,17 @@ function hitFib(annotation, x, y, context) {
 export function hitTestPdaAnnotations({ x, y, context = null }) {
   const activeContext = getHitContext(context);
   const hits = [];
-  const isolatedSegment = getIsolatedSegment();
-  const isolatedVisiblePdaIds = new Set();
-  if (isolatedSegment) {
-    const responses = Array.isArray(isolatedSegment.pdaResponses) ? isolatedSegment.pdaResponses : [];
-    responses
-      .filter((response) => getResponseDisplayMode(response) !== 'hidden')
-      .forEach((response) => {
-        if (response.pdaId) isolatedVisiblePdaIds.add(response.pdaId);
-      });
-    if (getIsolatePreviousIncludePda(isolatedSegment)) {
-      getIsolateCompanionSegments(isolatedSegment).forEach((segment) => {
-        const companionResponses = Array.isArray(segment.pdaResponses) ? segment.pdaResponses : [];
-        companionResponses
-          .filter((response) => getResponseDisplayMode(response) !== 'hidden')
-          .forEach((response) => {
-            if (response.pdaId) isolatedVisiblePdaIds.add(response.pdaId);
-          });
-      });
-    }
-  }
+  const annotations = getAnnotations();
+  const visibility = getStructureOverlayVisibility({
+    annotations,
+    segments: getSegments(),
+    groups: getSegmentGroups(),
+  });
 
-  getAnnotations().forEach((annotation) => {
+  annotations.forEach((annotation) => {
     if (annotation.draft) return;
-    if (isolatedSegment && !isolatedVisiblePdaIds.has(annotation.id)) return;
-    if (!isolatedSegment && !shouldRenderPda(annotation)) return;
+    if (!visibility.visiblePdaIds.has(annotation.id)) return;
+    if (visibility.hiddenPdaIds.has(annotation.id)) return;
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
 

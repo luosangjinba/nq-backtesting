@@ -1818,3 +1818,16 @@ Implemented:
 Boundary:
 
 - The formatter is display-only; it does not change PDA source metadata or persistence schema.
+
+## Step 235 Execution - Shared PDA Selection / Hit-Test
+
+Implemented:
+
+- `pda-hit-test.js` now uses `getStructureOverlayVisibility()` instead of duplicating isolate/display-mode PDA visibility rules.
+- Primary and secondary PDA hit-test therefore use the same visible/hidden PDA id sets as the renderers.
+- Secondary PDA renderer now reads `getSelectedPda()` and highlights the selected annotation id in addition to segment-linked highlight ids.
+
+Result:
+
+- Clicking a PDA projection on either chart still calls `selectPda(annotation.id)`.
+- The same selected id is now highlighted on the secondary projection when it is visible.

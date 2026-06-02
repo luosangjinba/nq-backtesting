@@ -16,6 +16,7 @@ import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { formatPdaDisplayLabel } from './pda-source-format.js';
+import { getSelectedPda } from './pda-selection.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
 
@@ -279,6 +280,7 @@ export function renderSecondaryPdaAnnotations() {
     segments: getSegments(),
     groups: getSegmentGroups(),
   });
+  const selected = getSelectedPda();
 
   annotations.forEach((annotation) => {
     if (!visibility.visiblePdaIds.has(annotation.id)) return;
@@ -286,7 +288,7 @@ export function renderSecondaryPdaAnnotations() {
 
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
-    const isHighlighted = visibility.highlightPdaIds?.has(annotation.id);
+    const isHighlighted = selected?.id === annotation.id || visibility.highlightPdaIds?.has(annotation.id);
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(chartInstance, series, annotation, pdaType, isHighlighted);
