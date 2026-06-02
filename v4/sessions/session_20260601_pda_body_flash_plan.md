@@ -1864,3 +1864,29 @@ Implemented:
 Boundary:
 
 - Segment / Composite / SMT / Order Setup locate paths are unchanged in this step.
+
+## Step 238 Validation - PDA Multi-Chart Projection
+
+Checks run:
+
+- Full JS syntax:
+  - `for f in $(rg --files v4/src -g "*.js"); do node --check "$f"; done`
+  - Result: pass.
+- Module/projection smoke:
+  - `formatPdaSourceBadge({sourceChartId:'secondary', sourceInstrument:'ES', sourceTimeframe:60})` -> `Sub ES 1H`
+  - `canRenderPdaPriceProjection(Sub ES, NQ)` -> `false`
+  - `canRenderPdaPriceProjection(Sub ES, ES)` -> `true`
+  - `getPdaTimestampRange()` returns expected start/end for a range PDA.
+- Static page:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+- Diff hygiene:
+  - `git diff --check` passed.
+
+Runtime note:
+
+- Browser click-through with live fixtures was not run in this pass.
+- The implementation now routes render/hit-test/locate through shared projection helpers, so the required behaviors are covered by static/module smoke:
+  - same-instrument full price projection
+  - cross-instrument time-only projection
+  - shared annotation id selection
+  - Calendar/ref PDA locate through one helper
