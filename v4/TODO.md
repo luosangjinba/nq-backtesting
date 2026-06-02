@@ -378,7 +378,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 210: 主图右键菜单接入：在主图 K 线右键菜单增加 `Locate Date in Calendar`；用右键上下文 timestamp 转 `YYYY-MM-DD`，emit `inspector:open-calendar-date`；若无有效 timestamp 则禁用或提示
 - [x] Step 211: 对象选中日期同步：PDA / Segment / Composite / SMT / Order Setup 从图表选择进入详情页时，计算对象主日期并写入当前 detail page 的 `selectedDate/viewDate`；Back 回 Calendar 时自动落在该日期；不强制展开 Economic Events
 - [x] Step 212: Calendar 分组默认状态确认：从图表反向定位到某日后，Order Setups 仍默认展开；Economic Events 默认折叠；`Locate` 行为仍只定位图表，不切页
-- [ ] Step 213: 验证与收口：覆盖主图右键日期定位、无 timestamp 保护、PDA/Segment/Composite/SMT/Order Setup 选中后 Back 日期、Calendar 日期格 selected 状态、Order Setups 展开/Economic Events 折叠、全量 JS 语法、Web smoke 与 `git diff --check`
+- [x] Step 213: 验证与收口：覆盖主图右键日期定位、无 timestamp 保护、PDA/Segment/Composite/SMT/Order Setup 选中后 Back 日期、Calendar 日期格 selected 状态、Order Setups 展开/Economic Events 折叠、全量 JS 语法、Web smoke 与 `git diff --check`
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
