@@ -918,3 +918,26 @@ Boundary:
 
 - This step establishes the navigation state only.
 - Calendar/Open routing is intentionally left for the next implementation step.
+
+## Step 200-201 Implementation - Order Setup Detail Page
+
+Implemented:
+
+- Added `renderOrderReviewDetailPanel()` with the title `Order Setup Detail`.
+- Reused the existing setup content blocks:
+  - Display
+  - Anchor
+  - Execution
+  - Entry Context
+  - Reasons
+  - Result
+- `order-setup` Open now pushes a detail page onto the Inspector page stack.
+- Opening an Order Setup still sets it active, but no longer renders the old same-level `Active Order Setup` block as a Calendar return special case.
+- Active setup changes and execution-element selection now render the Order Setup detail page directly.
+- Kept Locate / Hide / Delete in the existing list/menu action paths.
+
+Validation:
+
+- `node --check` passed for `order-review-panel.js`.
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.

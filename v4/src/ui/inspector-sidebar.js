@@ -25,11 +25,12 @@ import { renderAnnotationPanel } from './inspector/pda-panel.js';
 import { renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
-import { renderOrderReviewPanel } from './inspector/order-review-panel.js';
+import { renderOrderReviewDetailPanel, renderOrderReviewPanel } from './inspector/order-review-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import {
   canPopInspectorPage,
   popInspectorPage,
+  pushInspectorPage,
   replaceInspectorPage,
   resetInspectorPage,
 } from './inspector/page-stack.js';
@@ -63,6 +64,7 @@ let selectedSmtId = null;
 let calendarSelectedDate = '';
 let calendarViewDate = '';
 let calendarReturnContext = null;
+let suppressActiveReviewRender = false;
 
 const orderReviewActions = createOrderReviewActionController({
   getExpandedOrderReviewId: () => expandedOrderReviewId,
@@ -204,6 +206,24 @@ function renderSmtSelection() {
   `;
 }
 
+function renderOrderSetupDetail(orderReviewId) {
+  const order = getOrderReviewById(orderReviewId);
+  currentPanel = 'detail';
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'order-setup',
+    objectId: orderReviewId,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
+  bodyEl.innerHTML = `
+    ${renderInspectorBackAction()}
+    ${renderOrderReviewDetailPanel(order, getOrderReviewPanelOptions({
+      activeOrderReviewId: orderReviewId,
+    }))}
+  `;
+}
+
 function renderEmpty({ preserveCalendarReturn = false } = {}) {
   currentPanel = 'empty';
   replaceInspectorPage({
@@ -280,13 +300,13 @@ function closeSidebar() {
 }
 
 function focusActiveOrderSetupPanel() {
-  const section = bodyEl?.querySelector('[data-inspector-section="active-order-setup"]');
+  const section = bodyEl?.querySelector('[data-inspector-section="order-setup-detail"], [data-inspector-section="active-order-setup"]');
   section?.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
 function showActiveOrderSetupPanel() {
   syncCalendarToOrderReview(getActiveReviewSetId());
-  renderEmpty();
+  renderOrderSetupDetail(getActiveReviewSetId());
   openSidebar();
   requestAnimationFrame(() => focusActiveOrderSetupPanel());
 }
@@ -380,22 +400,31 @@ function openCalendarObject(type, id) {
     id,
   };
   if (type === 'order-setup') {
-    const selected = Boolean(setActiveReviewSet(id));
+    suppressActiveReviewRender = true;
+    let selected = false;
+    try {
+      selected = Boolean(setActiveReviewSet(id));
+    } finally {
+      suppressActiveReviewRender = false;
+    }
     if (!selected) {
       calendarReturnContext = null;
       return false;
     }
     if (selected) {
-      calendarReturnContext = {
-        selectedDate: calendarSelectedDate,
-        viewDate: calendarViewDate,
-        type,
-        id,
-      };
+      calendarReturnContext = null;
       clearPdaSelection();
       clearSegmentSelection();
       clearSegmentGroupSelection();
-      renderEmpty({ preserveCalendarReturn: true });
+      syncCalendarToOrderReview(id);
+      pushInspectorPage({
+        kind: 'detail',
+        objectType: 'order-setup',
+        objectId: id,
+        selectedDate: calendarSelectedDate,
+        viewDate: calendarViewDate,
+      });
+      renderOrderSetupDetail(id);
     }
     return selected;
   }
@@ -688,6 +717,7 @@ export function initInspectorSidebar() {
   });
   bus.on('order-setup-element:selection-cleared', refreshSelection);
   bus.on('order-review-active:changed', ({ activeReviewSetId }) => {
+    if (suppressActiveReviewRender) return;
     if (activeReviewSetId) {
       showActiveOrderSetupPanel();
       return;

@@ -354,6 +354,18 @@ function renderActiveOrderSetup(order, options = {}) {
   `;
 }
 
+export function renderOrderReviewDetailPanel(order, options = {}) {
+  const content = order
+    ? renderActiveOrderSetup(order, options)
+    : '<div class="drawing-set-empty">Order Setup not found.</div>';
+  return `
+    <section class="inspector-section" data-inspector-section="order-setup-detail">
+      <div class="inspector-section-title">Order Setup Detail</div>
+      ${content}
+    </section>
+  `;
+}
+
 export function renderOrderReviewPanel(orderReviews = [], options = {}) {
   const activeOrder = orderReviews.find((order) => order.id === options.activeOrderReviewId) || null;
   const content = activeOrder
