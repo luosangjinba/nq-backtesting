@@ -136,6 +136,36 @@ function syncCalendarToOrderReview(orderReviewId) {
   return true;
 }
 
+function normalizeCalendarDatePayload(payload = {}) {
+  const dateKey = String(payload.dateKey || '').match(/^\d{4}-\d{2}-\d{2}$/)
+    ? String(payload.dateKey)
+    : dateKeyFromTimestamp(payload.timestamp);
+  return dateKey || '';
+}
+
+function openCalendarDate(payload = {}) {
+  const dateKey = normalizeCalendarDatePayload(payload);
+  if (!dateKey) {
+    bus.emit('status:update', { text: 'Cannot locate Calendar date: missing chart time', isError: true });
+    return false;
+  }
+  calendarSelectedDate = dateKey;
+  calendarViewDate = dateKey;
+  updateTimeOverlaySettings({ selectedDate: dateKey });
+  clearPdaSelection();
+  clearSegmentSelection();
+  clearSegmentGroupSelection();
+  selectedSmtId = null;
+  resetInspectorPage({ kind: 'home', selectedDate: dateKey, viewDate: dateKey });
+  renderEmpty();
+  openSidebar();
+  bus.emit('status:update', {
+    text: `Calendar selected ${dateKey}${payload.source ? ` from ${payload.source}` : ''}`,
+    isError: false,
+  });
+  return true;
+}
+
 function renderAnnotation(annotation) {
   currentPanel = 'selection';
   replaceInspectorPage({
@@ -751,6 +781,7 @@ export function initInspectorSidebar() {
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
   bus.on('economic-calendar:changed', refreshSelection);
+  bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
     showActiveOrderSetupPanel();
   });

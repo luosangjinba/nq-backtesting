@@ -1056,3 +1056,30 @@ Non-goals:
 - Do not change Calendar date click -> chart locate behavior.
 - Do not create chart markers for this feature.
 - Do not change persisted Review JSON or order schema.
+
+## Step 208-209 Implementation - Inspector Open Calendar Date Event
+
+Implemented:
+
+- Added `inspector:open-calendar-date` handling in `inspector-sidebar.js`.
+- Payload accepts either:
+  - `dateKey` in `YYYY-MM-DD`
+  - `timestamp`, converted to UTC date
+- On success:
+  - opens Inspector sidebar
+  - sets `calendarSelectedDate`
+  - sets `calendarViewDate`
+  - renders home Calendar
+  - clears current PDA / Segment / Composite selections
+  - does not move the chart viewport
+- On missing/invalid date:
+  - emits status error
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.
+
+Boundary:
+
+- Right-click chart menu wiring is intentionally left for Step 210.
