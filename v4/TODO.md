@@ -360,6 +360,15 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 196: Locate 快闪：不在图表常驻标记 economic events；点击 Locate 才移动主图/副图并复用现有 time-range flash；timed event 快闪事件时间，all-day/holiday 快闪当天 `09:30`
 - [x] Step 197: 验证与收口：覆盖 API range、High/Medium 默认显示、Low 默认隐藏、Holiday all-day 09:30 locate、小点颜色、长 title 换行、Split 同步 locate、全量 JS 语法、Web/API smoke 与 `git diff --check`
 
+### Order Setups / Active Setup Inspector 整合
+- [ ] Step 198: 冻结交互问题与目标：`Order Setups` 列表和 `Active Order Setup` 详情当前是两个分离区块，Open 某个 setup 后跳到下面一大段 active 详情，体验割裂；目标是把列表和当前详情整合为同一个 `Order Setups` section，不改 `orderReviews` 持久化 schema、不改 active id 语义
+- [ ] Step 199: 重构 Inspector Order Setup 面板结构：`Order Setups` section 顶部显示紧凑 setup 列表，当前 active/selected setup 行高亮；详情不再作为单独 `Active Order Setup` 大 section，而是在同一 section 内显示为当前 setup 详情或行内展开
+- [ ] Step 200: 收敛 Open / Set Active 行为：Calendar `Open`、Order Setup 列表点击、图表 reversal 菜单 Set Active 都走同一套 `setActive + focusCurrentSetup` 路径；不滚动到独立 Active 区块；打开后保持用户在 `Order Setups` section 内
+- [ ] Step 201: 保留并压缩当前详情内容：把现有 Active Order Setup 的 Anchor、Execution、Entry Context、Reasons、Result 迁移到当前 setup 详情中；减少标题层级和大块空白，避免一个 Open 动作展开出不必要的长页面
+- [ ] Step 202: 空状态与删除后的选择规则：无 setup 时显示 `No Order Setups`；有 setup 但无 active 时提示选择一个 setup；删除 active setup 后优先选择同日下一个 setup，否则清空 active；隐藏/显示/Locate/Delete 行为不变
+- [ ] Step 203: 视觉与可用性细节：active 行用稳定高亮；详情支持折叠/展开；列表过长时不把 Calendar 推得过远；长文本和 Reasons refs 不横向撑爆 Inspector；不新增新复盘字段
+- [ ] Step 204: 验证与收口：覆盖 Calendar Open、列表 Open/Set Active、图表 Set Active、Hide/Show/Delete、active 删除后的 fallback、Entry/Stop/Target/Reasons/Result 编辑、undo/redo、刷新恢复、全量 JS 语法、Web smoke 与 `git diff --check`
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案

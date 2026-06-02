@@ -795,3 +795,41 @@ Validation:
 Remaining observation:
 
 - Split locate uses the existing Calendar object path, which calls primary and secondary locate. Dedicated screenshot-level Split verification can be done during real usage if needed.
+
+## Step 198-204 Plan - Order Setups / Active Setup Inspector Integration
+
+Context:
+
+- User reported that the current `Order Setups` and `Active Order Setup` interaction is not smooth.
+- Main issue:
+  - The user opens an order setup from the upper `Order Setups` list.
+  - The Inspector then jumps to a long lower `Active Order Setup` section.
+  - This makes one object feel split across two separate UI regions and creates a jarring scroll/reading experience.
+
+Design decision:
+
+- Treat `Order Setups` as one integrated Inspector section:
+  - compact setup list
+  - current active/selected setup detail inside the same section
+- Keep the underlying runtime/data model unchanged:
+  - keep `orderReviews` storage schema
+  - keep active id semantics
+  - keep chart right-click actions writing to the active setup
+- Remove the user-facing separation between `Order Setups` and a standalone large `Active Order Setup` section.
+
+Planned steps:
+
+- Step 198: Freeze the UX problem and implementation boundary. This is UI structure cleanup only, not a data migration or new review concept.
+- Step 199: Rebuild the Inspector Order Setup panel so `Order Setups` contains the compact setup list and the current setup detail. The active/current row is highlighted.
+- Step 200: Consolidate Open / Set Active behavior. Calendar `Open`, setup list click, and chart reversal Set Active should all call the same `setActive + focusCurrentSetup` path and keep the user inside the `Order Setups` section.
+- Step 201: Move current Active Order Setup detail content into the integrated section. Preserve Anchor, Execution, Entry Context, Reasons, and Result, but reduce heading depth and large vertical gaps.
+- Step 202: Define empty and deletion behavior. No setups shows `No Order Setups`; setups without active prompt the user to choose one; deleting the active setup selects the next same-day setup when available, otherwise clears active.
+- Step 203: Polish the interaction and layout. Active row uses stable highlight; details can collapse/expand; long lists should not push Calendar too far away; long notes/reason refs must wrap without horizontal overflow.
+- Step 204: Validate Calendar Open, list Open/Set Active, chart Set Active, Hide/Show/Delete, active deletion fallback, Execution/Reasons/Result editing, undo/redo, refresh restore, full JS syntax, Web smoke, and `git diff --check`.
+
+Non-goals:
+
+- Do not rename persisted `orderReviews`.
+- Do not add new Order Setup fields.
+- Do not change chart-first setup creation/editing semantics.
+- Do not build a separate statistics/trading-journal panel in this pass.
