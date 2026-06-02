@@ -739,3 +739,59 @@ Boundaries:
 - No economic event editing.
 - No Review JSON export/import for the CSV dataset.
 - No automatic link to Order Setup reasons in this pass.
+
+## Step 189-197 Closeout - Economic Calendar Inspector Layer
+
+Implementation status:
+
+- Complete on branch `feature/economic-calendar-inspector`.
+- Commit sequence:
+  - `5128401 docs(v4): plan economic calendar inspector layer`
+  - `61e98e3 feat(v4): add economic events api`
+  - `7bff18a feat(v4): add economic calendar store`
+  - `5fa9045 feat(v4): load economic events with chart range`
+  - `5bb374e feat(v4): index economic events in calendar`
+  - `6000adf feat(v4): render economic events in inspector calendar`
+  - `5f73aa6 feat(v4): filter economic calendar events`
+  - `8ad418e feat(v4): locate economic calendar events`
+
+Implemented:
+
+- Restored CSV is tracked under `v4/data/economic_calendar/`.
+- `/v4/economic_events` reads and caches the CSV, filters by date/currency/impact/holiday, and omits `actual/forecast/previous`.
+- Frontend economic calendar store keeps current loaded-window events plus UI filters only.
+- Chart `bars:loaded` triggers event loading for the primary loaded range.
+- Calendar index adds `economic-event` after Order Setups and before SMT.
+- Inspector Calendar shows Economic Events with impact dots:
+  - High red
+  - Medium orange
+  - Low yellow
+  - Holiday / All Day gray
+- Event title wraps instead of hard truncating.
+- Filters are available in the Inspector:
+  - High on
+  - Medium on
+  - Low off
+  - Holiday on
+- Locate does not create persistent chart markers. It uses existing time-range flash only when clicked.
+- `all_day=true` events display `All Day` and locate to `event_date 09:30`.
+
+Validation:
+
+- Full `v4/src/**/*.js` syntax check passed.
+- `v4/v4_api.py` Python compile passed.
+- `git diff --check` passed.
+- API health returned OK.
+- `/v4/economic_events` smoke:
+  - `2007-01-03` High/Medium returned 4 timed events and no actual/forecast/previous fields.
+  - `2007-01-01` holiday returned `displayTime=All Day`, `locateTime=09:30`, and blank event time fields.
+- Browser smoke on `2023-01-02` to `2023-01-03` verified:
+  - Bank Holiday displays as All Day with gray dot and 09:30 locate timestamp.
+  - Medium event is visible by default.
+  - Low event is hidden by default.
+  - Toggling Low shows `Construction Spending m/m` and a yellow dot.
+- Web `8001/index.html` returned 200 OK.
+
+Remaining observation:
+
+- Split locate uses the existing Calendar object path, which calls primary and secondary locate. Dedicated screenshot-level Split verification can be done during real usage if needed.
