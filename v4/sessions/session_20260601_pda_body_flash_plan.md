@@ -1525,3 +1525,31 @@ Completed:
   - timestamp range helpers
   - timeframe metadata resolution helpers
 - `inspector-sidebar.js` is not wired to the new module yet, so runtime behavior remains unchanged in this step.
+
+## Step 227 Implementation - Daily Time Action Controller Wiring
+
+Completed:
+
+- `time-reaction-actions.js` now owns Daily Time inspector behavior:
+  - pending ref pick mode
+  - note/locate field change handlers
+  - context/reaction/summary item add/remove handlers
+  - target locate
+  - linked ref locate/remove
+  - picked PDA / Segment / Composite / SMT / Order Setup linking
+- `inspector-sidebar.js` now delegates Daily Time actions through:
+  - `dailyTimeActions.handleChange(action, target)`
+  - `dailyTimeActions.handleClick(action, actionEl)`
+  - `dailyTimeActions.handlePickedPda/Segment/Composite/Smt/OrderSetup`
+- Sidebar retains:
+  - page stack and detail rendering
+  - Calendar routing
+  - shared PDA/Segment/SMT/Order Setup selection state
+  - bus listener registration
+- Removed the duplicated Daily Time helper/locate/ref functions from `inspector-sidebar.js`.
+
+Validation:
+
+- `node --check` passed for:
+  - `time-reaction-actions.js`
+  - `inspector-sidebar.js`
