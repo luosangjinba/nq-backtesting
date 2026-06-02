@@ -941,3 +941,22 @@ Validation:
 - `node --check` passed for `order-review-panel.js`.
 - `node --check` passed for `inspector-sidebar.js`.
 - `git diff --check` passed.
+
+## Step 202 Implementation - Calendar Open Detail Routing
+
+Implemented:
+
+- Calendar `Open` now pushes detail pages for:
+  - Order Setup
+  - PDA
+  - Segment
+  - Composite
+  - SMT
+- Calendar `Locate` behavior was left unchanged: locate + flash only, no page switch.
+- Removed the old Calendar return context setup from the Calendar Open path.
+- Existing object selection/render paths still render the detail contents, but now under the page-stack Back model.
+
+Validation:
+
+- `node --check` passed for `inspector-sidebar.js`.
+- `git diff --check` passed.

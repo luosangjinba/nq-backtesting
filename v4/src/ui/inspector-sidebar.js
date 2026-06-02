@@ -393,12 +393,6 @@ function getCompositeTimestamp(group) {
 
 function openCalendarObject(type, id) {
   if (!type || !id) return false;
-  calendarReturnContext = {
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-    type,
-    id,
-  };
   if (type === 'order-setup') {
     suppressActiveReviewRender = true;
     let selected = false;
@@ -429,28 +423,53 @@ function openCalendarObject(type, id) {
     return selected;
   }
   if (type === 'pda') {
+    if (!getAnnotationById(id)) return false;
+    calendarReturnContext = null;
     clearSegmentSelection();
     clearSegmentGroupSelection();
-    const selected = Boolean(selectPda(id));
-    if (!selected) calendarReturnContext = null;
-    return selected;
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'pda',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    return Boolean(selectPda(id));
   }
   if (type === 'segment') {
-    const selected = Boolean(selectSegment(id));
-    if (!selected) calendarReturnContext = null;
-    return selected;
+    if (!getSegmentById(id)) return false;
+    calendarReturnContext = null;
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'segment',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    return Boolean(selectSegment(id));
   }
   if (type === 'composite') {
-    const selected = Boolean(selectSegmentGroup(id));
-    if (!selected) calendarReturnContext = null;
-    return selected;
+    if (!getSegmentGroupById(id)) return false;
+    calendarReturnContext = null;
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'composite',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    return Boolean(selectSegmentGroup(id));
   }
   if (type === 'smt') {
-    const selected = Boolean(getSmtRecordById(id));
-    if (!selected) {
-      calendarReturnContext = null;
-      return false;
-    }
+    if (!getSmtRecordById(id)) return false;
+    calendarReturnContext = null;
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'smt',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
     selectedSmtId = id;
     clearPdaSelection();
     clearSegmentSelection();
