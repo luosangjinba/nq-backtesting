@@ -429,7 +429,7 @@ P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问
 Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调整执行顺序。目标是降低重复逻辑和维护成本，不做新业务功能，不迁移 `orderReviews` schema，不改 localStorage key，不破坏 Review JSON 兼容。
 
 - [x] Step 249: P0 分支收口：确认未跟踪 docs 是否纳入提交；运行产物（`.web_pid`、`.web.log`、`__pycache__`、`tmp/*.png`、本地 duckdb）不纳入提交；重新跑 Order Setup smoke、全量 JS 语法检查、`git diff --check` 与 Web/API smoke；验证通过后将 `refactor/p0-order-setup-actions` 合并回 `main`
-- [ ] Step 250: 建立中性时间投影工具模块：新增 `chart/time-projection.js` 或 `data/timeframe-buckets.js`，承载 `getBarChartTime()`、`getBucketStart()`、`normalizeChartTime()`、`findDisplayBarByTime()`、`getDisplayBarIndex()`；基础层不得 import `pda-context.js`
+- [x] Step 250: 建立中性时间投影工具模块：新增 `chart/time-projection.js` 或 `data/timeframe-buckets.js`，承载 `getBarChartTime()`、`getBucketStart()`、`normalizeChartTime()`、`findDisplayBarByTime()`、`getDisplayBarIndex()`；基础层不得 import `pda-context.js`
 - [ ] Step 251: 为时间投影工具增加 smoke test：覆盖 1M/5M/1H timestamp、D `tradingDay`、4H bucket 对齐、非法输入 fallback；确保迁移前有可重复验证基线
 - [ ] Step 252: 第一批迁移 Order Setup 时间投影路径：优先处理 `order-setup-projection.js`、`order-review-renderer.js`、`order-setup-hit-test.js`、`ui/inspector/order-review-utils.js`；验证 Order Setup 创建、entry/stop/target 渲染、hit-test、Calendar locate 不回归
 - [ ] Step 253: 第二批迁移 PDA / Segment / Time Overlay 时间映射：分批替换重复 `getBarChartTime` / daily tradingDay 逻辑；每批后验证 PDA 创建/locate、Segment 创建/locate、Time Overlay、Calendar 跳转与 Split Screen 基础渲染
