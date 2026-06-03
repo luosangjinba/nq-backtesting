@@ -1,4 +1,8 @@
 // Read-only metrics for reviewing 1H market segments.
+//
+// This module reports observable review facts only. It does not classify segment
+// quality, produce a trading signal, or persist reviewer judgement back onto the
+// segment model.
 
 import { getPdaType } from '../pda/pda-types.js';
 
@@ -97,6 +101,10 @@ function computePreviousComparison(segment, previousSegment) {
     incompleteReason: null,
   };
 
+  // Extension math is meaningful only for a clean swing pair: the previous
+  // segment must end exactly where the current segment starts, and the two
+  // segments must move in opposite directions. Other shapes are reported as
+  // incomplete instead of being forced into a sweep/extension interpretation.
   if (!previousSegment) {
     return { ...base, incompleteReason: 'missing previous segment' };
   }
@@ -478,6 +486,9 @@ function computeTerminalPdaCandidates(segment, annotations, terminalBar, directi
   );
   const responses = Array.isArray(segment?.pdaResponses) ? segment.pdaResponses : [];
 
+  // Terminal PDA reactions describe how the segment endpoint bar interacted
+  // with linked PDA annotations. These are proximity/touch/delivery facts, not
+  // PDA validity, segment validity, or an automatic explanation selection.
   return responses
     .map((response) => {
       const annotation = annotationById.get(response.pdaId);
@@ -591,6 +602,10 @@ function computeFluencyMetrics(segment, bars, annotations, direction) {
   const endBarLoaded = segmentBars.some((bar) => asNumber(bar.timestamp) === endTimestamp);
   const segmentRangePoints = getRangePoints(segment);
 
+  // Fluency values are raw ingredients for review: path efficiency, body
+  // overlap, close direction, adverse excursion, and prior PDA interruptions.
+  // There is intentionally no final score here, because reviewer context still
+  // decides whether these components are favorable, unfavorable, or irrelevant.
   const base = {
     barCount: segmentBars.length,
     startBarLoaded,
