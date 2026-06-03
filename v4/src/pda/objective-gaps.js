@@ -2,9 +2,9 @@ import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
+import { getBucketStart } from '../chart/time-projection.js';
 import { buildCePrice } from '../price-utils.js';
 import { addAnnotation, getAnnotations, removeAnnotation } from './pda-store.js';
-import { getBucketStart } from './pda-context.js';
 import { recordHistory } from '../history/history-manager.js';
 
 const NDOG_TYPE = 'ndog';

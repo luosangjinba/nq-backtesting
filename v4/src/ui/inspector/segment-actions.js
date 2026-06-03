@@ -1,6 +1,10 @@
 import * as bus from '../../event-bus.js';
 import * as chart from '../../chart/chart-manager.js';
 import * as store from '../../data/bar-store.js';
+import {
+  findDisplayBarByTime,
+  getBarChartTime as getProjectedBarChartTime,
+} from '../../chart/time-projection.js';
 import { timeframeToString } from '../../config.js';
 import { clearSegmentGroupSelection, clearSegmentSelection } from '../../segment/segment-selection.js';
 import {
@@ -36,28 +40,13 @@ function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
 }
 
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
-}
-
 function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
-  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
+  return getProjectedBarChartTime(bar, timeframe);
 }
 
 function findDisplayBarByChartTime(time) {
   if (time === undefined || time === null) return null;
-  const target = normalizeTimeKey(time);
-  const timeframe = store.getCurrentTimeframe();
-  return (
-    store
-      .getDisplayBars()
-      .find((bar) => normalizeTimeKey(getBarChartTime(bar, timeframe)) === target) || null
-  );
+  return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
 }
 
 function getSegmentResponse(segment, pdaId) {

@@ -1,6 +1,7 @@
 // Realtime context tags for manually selected PDA points.
 
 import { timeframeToString } from '../config.js';
+import { getBucketStart as getProjectedBucketStart } from '../chart/time-projection.js';
 import { getPdaType } from './pda-types.js';
 
 export const CONTEXT_TIMEFRAMES = [1440];
@@ -22,8 +23,6 @@ export const SESSION_WINDOWS = [
 ];
 
 const PRICE_EPSILON = 0.0000001;
-const BASE_ANCHOR_EPOCH = 946684800; // 2000-01-01 00:00 UTC wall-clock anchor.
-const FOUR_HOUR_ANCHOR_OFFSET = 7200; // Match backend 4H bars: 02:00/06:00/.../22:00.
 const CONTEXT_LABEL_ORDER = ['D'];
 
 function getUtcParts(timestamp) {
@@ -50,25 +49,8 @@ function shiftUtcDay(parts, deltaDays) {
   };
 }
 
-function getTradingDaySessionStart(timestamp) {
-  const parts = getUtcParts(timestamp);
-  const date = new Date(Date.UTC(parts.year, parts.month, parts.day, 18, 0, 0, 0));
-
-  if (parts.hour < 18) {
-    date.setUTCDate(date.getUTCDate() - 1);
-  }
-
-  return Math.floor(date.getTime() / 1000);
-}
-
 export function getBucketStart(timestamp, timeframe) {
-  if (timeframe === 1440) {
-    return getTradingDaySessionStart(timestamp);
-  }
-
-  const tfSeconds = timeframe * 60;
-  const anchor = BASE_ANCHOR_EPOCH + (timeframe === 240 ? FOUR_HOUR_ANCHOR_OFFSET : 0);
-  return anchor + Math.floor((timestamp - anchor) / tfSeconds) * tfSeconds;
+  return getProjectedBucketStart(timestamp, timeframe);
 }
 
 function getCurrentBarInterval(bar, timeframe) {

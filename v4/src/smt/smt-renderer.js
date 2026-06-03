@@ -6,9 +6,9 @@ import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { RangePrimitive, SegmentPrimitive, VerticalLinePrimitive } from '../chart/primitives.js';
+import { mapTimestampToChartTime as mapSharedTimestampToChartTime } from '../chart/time-projection.js';
 import { getSmtRecords, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { timeframeToString } from '../config.js';
-import { getBucketStart } from '../pda/pda-context.js';
 
 let primaryPrimitives = [];
 let secondaryPrimitives = [];
@@ -53,17 +53,7 @@ function getLineColor(record) {
 }
 
 function mapTimestampToChartTime(timestamp, timeframe, bars = []) {
-  if (timestamp === undefined || timestamp === null) return null;
-  const parsed = Number(timestamp);
-  if (!Number.isFinite(parsed)) return null;
-  if (timeframe === 1440) {
-    const exactBar = bars.find((bar) => Number(bar.timestamp) === parsed);
-    if (exactBar?.tradingDay) return exactBar.tradingDay;
-    const bucketStart = getBucketStart(parsed, timeframe);
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return getBucketStart(parsed, timeframe);
+  return mapSharedTimestampToChartTime(timestamp, timeframe, bars);
 }
 
 function renderPrimary() {

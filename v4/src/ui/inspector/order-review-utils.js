@@ -1,4 +1,9 @@
 import * as store from '../../data/bar-store.js';
+import {
+  findDisplayBarByTime,
+  getBarChartTime as getProjectedBarChartTime,
+  normalizeChartTime,
+} from '../../chart/time-projection.js';
 import { ORDER_RESULTS } from '../../order/order-review-store.js';
 import { formatTimeInput } from '../../utils.js';
 
@@ -47,27 +52,16 @@ export function getAutoExitReasonMessage(reason) {
 }
 
 export function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
+  return normalizeChartTime(time);
 }
 
 export function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
-  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
+  return getProjectedBarChartTime(bar, timeframe);
 }
 
 export function findDisplayBarByChartTime(time) {
   if (time === undefined || time === null) return null;
-  const target = normalizeTimeKey(time);
-  const timeframe = store.getCurrentTimeframe();
-  return (
-    store
-      .getDisplayBars()
-      .find((bar) => normalizeTimeKey(getBarChartTime(bar, timeframe)) === target) || null
-  );
+  return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
 }
 
 export function getPointTimestamp(point = {}) {

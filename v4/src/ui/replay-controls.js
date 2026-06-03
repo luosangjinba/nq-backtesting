@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
+import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
@@ -36,7 +37,7 @@ let historyOpen = false;
 function toChartBar(bar) {
   const tf = store.getCurrentTimeframe();
   return {
-    time: tf === 1440 ? bar.tradingDay : bar.timestamp,
+    time: getBarChartTime(bar, tf),
     open: bar.open,
     high: bar.high,
     low: bar.low,
