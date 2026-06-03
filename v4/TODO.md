@@ -438,7 +438,7 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
   - [x] Step 254.2: 在 `order-review-types.js` 内派生并导出全部 `ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES`；新增轻量 smoke 覆盖 enum value、alias map、valid set、`getActiveDefinitions()`，确保 types 模块可独立验证
   - [x] Step 254.3: 改造 `order-review-store.js`：从 `order-review-types.js` import normalize 需要的 types，并 re-export Step 254.1/254.2 的全部 public types；保留 `ORDER_REVIEW_VERSION`、`DEFAULT_ORDER_INSTRUMENT`、normalize/CRUD/load API 在 store 内；外部旧 import 必须继续可用
   - [x] Step 254.4: 验证兼容 re-export：不迁移任何调用方 import，先运行 Order Setup smoke、types smoke、全量 `node --check` 与 `git diff --check`；确认 `order-review-store.js` 行数下降且旧 import 不破坏
-  - [ ] Step 254.5: 分离提交边界：如果 Step 254.1-254.4 通过，单独提交 `refactor(v4): extract order review types`；不要在同一提交中做 Step 255 的调用方 import 迁移
+  - [x] Step 254.5: 分离提交边界：如果 Step 254.1-254.4 通过，单独提交 `refactor(v4): extract order review types`；不要在同一提交中做 Step 255 的调用方 import 迁移
   - [ ] Step 254.6: 记录后续迁移批次：在 Step 255 执行前用 `rg` 生成仍从 `order-review-store.js` import types 的文件清单，按 tests/renderer/hit-test/panel -> chart actions/archive/time reaction 的顺序迁移
 - [ ] Step 255: 分批迁移 Order Review types imports：先迁移 tests、renderer、hit-test、inspector panel，再迁移 `order-setup-chart-actions.js`、`review-archive.js`、`time-reaction-actions.js`；每批后运行 Order Setup smoke 与全量 JS 语法检查
 - [ ] Step 256: 关键注释补强：只补业务规则和架构边界注释，包括 `pda-context.js` 的 18:00 trading day anchor / 4H 对齐 / session window，`setup-set.js` 的 storage schema vs runtime view-model / result 派生边界，`segment-review-metrics.js` 的 metrics 分类和 fluency component 非最终评分
