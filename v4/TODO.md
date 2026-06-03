@@ -466,6 +466,16 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
 
 Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews` schema、不重命名 Review JSON 字段、不新增 Service 层抽象、不机械拆分所有大文件、不以“所有文件低于 500 行”为目标。
 
+### Phase 17: 真实复盘试运行观察期
+当前系统以 `main` 的 `770e8a4` 作为试运行基线。先按现有功能做一段真实复盘工作，不立即开启新的 speculative refactor；后续开发由真实使用中暴露的高频问题驱动。
+
+- 记录问题时按 `Bug / Friction / Research Gap / Noise` 分类，并尽量包含日期、品种、周期、对象类型、复现步骤、期望行为、实际行为。
+- Bug 优先级最高，尤其是数据丢失、状态错乱、Review JSON/localStorage 恢复、Locate/Open 错误、图表渲染失败。
+- Friction 只在重复出现后再转开发任务，避免为单次不顺手过早改 UI。
+- Research Gap 需要多个真实样例支撑后再考虑新增字段、对象或 Review JSON schema。
+- Noise 类问题先记录是否应隐藏、折叠、改名或改为按需显示，不急着删除指标。
+- 试运行记录与接手说明见 `sessions/session_20260603_real_review_trial.md`。
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
