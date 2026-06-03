@@ -1357,6 +1357,19 @@ getOrderReviews()
 
 `review-archive.js` should call these helpers rather than duplicating order normalization logic.
 
+## Current Layer Boundary
+
+P0 refactor boundary as of 2026-06-02:
+
+- `order-review-store.js`: compatibility persistence input. It owns `orderReviews` normalization, CRUD, identity, localStorage / Review JSON shape compatibility, and emits `order-review:changed`.
+- `setup-set.js`: runtime view-model authority. Renderer, hit-test, Calendar, locate, active Inspector, result summary, and risk/reward display should consume Setup Set or helpers derived from it.
+- `order-review-active.js`: active id bridge. It owns the active setup id and returns Setup Set objects through `getActiveReviewSet()` / `setActiveReviewSet()`. Legacy `getActiveOrderReview*` aliases remain only for compatibility.
+- `ui/inspector/order-review-actions.js`: Inspector facade. It keeps the stable `createOrderReviewActionController()` entry point for `inspector-sidebar.js` and composes focused action modules.
+- `ui/inspector/order-review-*-actions.js`: focused Inspector behavior modules for utility helpers, refs/reasons, lifecycle, and edit/result actions.
+- Renderer / hit-test modules consume projected Setup Set state. They should not parse raw `orderReviews` directly or write persistence fields.
+
+The persisted `orderReviews` key and Review JSON field names are not renamed in this phase. Any schema migration must be a separate migration project with compatibility tests.
+
 ## Implementation Order
 
 1. `order-review-store.js`
