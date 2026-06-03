@@ -407,6 +407,23 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 237: PDA actions 统一：PDA Locate 同时定位主副图；Hide/Delete/Calendar visibility/ref locate 都走同一个 PDA id；来源图 price area flash，非来源图只做 time flash
 - [x] Step 238: 验证与收口：覆盖主/副图 PDA 创建、同品种高低周期 projection、跨品种 time-only projection、任一图选中同步高亮、Hide/Delete 双图消失、Locate Both、Calendar/ref 行为与全量 JS 语法
 
+### Phase 15: P0 Order Setup Refactor 执行计划
+P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问题。旧 AI review 方案已归档到 `docs/legacy/P0_REFACTOR_PLAN_legacy_ai_review.md`，仅作为参考，不作为执行清单。当前 P0 不做持久化统一、不迁移 `orderReviews` schema、不追求机械的“所有文件 < 500 行”。
+- [ ] Step 239: 建立最小回归基线：新增 Order Setup smoke，覆盖 create bullish/bearish setup、set active/close、entry/stop/target/result、reason link PDA/Segment/Composite/SMT、localStorage restore、undo/redo；用于后续拆分防回归
+- [ ] Step 240: 抽取 `order-review-actions.js` 纯 helper：迁移 date/time parse、timestamp range、selected ref 解析、auto-exit result 判断、field value parsing 等无 UI 状态函数；保持 `createOrderReviewActionController` 外部签名不变
+- [ ] Step 241: 抽取 Order Setup refs/reasons actions：集中 linked refs、reasons add/delete/update、Link Selected Object、reason ref locate/delete；保留现有 `setupThesis.reasons[]` 与旧 `linkedObjectRefs` 兼容路径
+- [ ] Step 242: 抽取 Order Setup create/lifecycle actions：集中 blank/segment/composite 创建、set active/close active、locate/open、hide/show/delete；不改变 Calendar、reversal 右键、Inspector 的用户行为
+- [ ] Step 243: 抽取 Order Setup edit/result actions：集中 entry context、display flags、execution element visibility/delete、result status、exit time auto-calc/manual pick；确保自动 exit time 与持仓时间派生不回归
+- [ ] Step 244: 保留 `ui/inspector/order-review-actions.js` 作为 facade/controller factory：只负责组合子模块、维护少量 controller 状态和对 `inspector-sidebar.js` 的兼容入口；不让 sidebar 重新承担 Order Setup 业务逻辑
+- [ ] Step 245: 轻量收敛 `order-review-active.js`：内部统一以 Setup Set / active review set id 为权威；旧 `getActiveOrderReview*` alias 暂留兼容但不新增使用；不改 localStorage key、不迁移 Review JSON 字段
+- [ ] Step 246: 文档化 Order Setup 分层：更新 TODO / session / 必要时 `docs/ORDER_REVIEW_DESIGN.md`，明确 store=兼容持久化输入、setup-set=view-model 权威、inspector actions=UI 操作协调、renderer/hit-test=投影消费层
+- [ ] Step 247: P0 验证与收口：运行全量 `v4/src/**/*.js` 语法检查、Order Setup smoke、Web/API smoke；手工覆盖 Calendar Open/Locate、图表右键创建/编辑、Reasons link、Result auto exit、undo/redo、Review JSON import/export
+
+### Deferred Refactor Backlog
+- [ ] Persistence manager 统一 localStorage 读写：当前实际 localStorage 使用点较少，重复但不阻塞；等 Order Setup P0 拆分稳定后再做，且必须保持 key 与 payload 兼容
+- [ ] `order-review-store.js` / `setup-set.js` 派生边界深度收敛：仅在有测试覆盖后处理；短期不再移动 result/risk/reward schema 字段，避免破坏保存数据与 UI 回填
+- [ ] `order-review-actions.js` 之外的大文件继续评估：`time-reaction-actions.js`、`segment-panel.js`、`order-setup-chart-actions.js` 按实际新增功能压力决定是否拆分
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
