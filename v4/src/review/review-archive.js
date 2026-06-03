@@ -26,8 +26,8 @@ import {
   getOrderReviews,
   loadOrderReviews,
   normalizeOrderReview,
-  ORDER_REF_TYPES,
 } from '../order/order-review-store.js';
+import { ORDER_REF_TYPES } from '../order/order-review-types.js';
 import {
   getDailyTimeReviewIdentity,
   getDailyTimeReviews,

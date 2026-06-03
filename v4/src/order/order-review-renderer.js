@@ -4,7 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
-import { ORDER_DIRECTIONS } from './order-review-store.js';
+import { ORDER_DIRECTIONS } from './order-review-types.js';
 import { getActiveReviewSetId } from './order-review-active.js';
 import { getSelectedOrderSetupElement } from './order-setup-selection.js';
 import { getSetupSets } from './setup-set.js';

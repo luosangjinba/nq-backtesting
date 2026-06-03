@@ -9,11 +9,13 @@ import {
   addOrderReview,
   deleteOrderReview,
   getOrderReviewById,
+  updateOrderReview,
+} from '../../order/order-review-store.js';
+import {
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
-  updateOrderReview,
-} from '../../order/order-review-store.js';
+} from '../../order/order-review-types.js';
 import {
   getPdaOrderRefLabel,
   getSegmentOrderRefLabel,

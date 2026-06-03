@@ -13,9 +13,11 @@ import { resolveChartLoadRange } from '../../data/load-range-policy.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import {
   getOrderReviewById,
+} from '../../order/order-review-store.js';
+import {
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
-} from '../../order/order-review-store.js';
+} from '../../order/order-review-types.js';
 import {
   buildPdaOrderRefMetadata,
   buildSegmentOrderRefMetadata,

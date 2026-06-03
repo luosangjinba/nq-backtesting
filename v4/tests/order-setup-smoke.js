@@ -5,13 +5,15 @@ import {
   getOrderReviewById,
   getOrderReviews,
   loadOrderReviews,
+  updateOrderReview,
+} from '../src/order/order-review-store.js';
+import {
   ORDER_DIRECTIONS,
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
   ORDER_RESULTS,
-  updateOrderReview,
-} from '../src/order/order-review-store.js';
+} from '../src/order/order-review-types.js';
 import {
   clearActiveReviewSet,
   createChartReviewSet,

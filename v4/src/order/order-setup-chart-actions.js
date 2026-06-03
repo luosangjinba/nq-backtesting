@@ -15,14 +15,16 @@ import {
   updateActiveReviewSet,
 } from './order-review-active.js';
 import {
-  ORDER_DIRECTIONS,
-  ORDER_EVENT_TYPES,
-  ORDER_REF_ROLES,
-  ORDER_REF_TYPES,
   deleteOrderReview,
   getOrderReviewById,
   updateOrderReview,
 } from './order-review-store.js';
+import {
+  ORDER_DIRECTIONS,
+  ORDER_EVENT_TYPES,
+  ORDER_REF_ROLES,
+  ORDER_REF_TYPES,
+} from './order-review-types.js';
 import {
   buildPdaOrderRefMetadata,
   buildSegmentOrderRefMetadata,

@@ -1,5 +1,5 @@
 import { fetchBars } from '../api.js';
-import { ORDER_DIRECTIONS, ORDER_RESULTS } from './order-review-store.js';
+import { ORDER_DIRECTIONS, ORDER_RESULTS } from './order-review-types.js';
 
 const DEFAULT_LOOKAHEAD_HOURS = 72;
 const MAX_LOOKAHEAD_HOURS = 24 * 14;

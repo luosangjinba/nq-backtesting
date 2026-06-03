@@ -5,7 +5,7 @@ import {
   ORDER_ENTRY_SESSION_DEFINITIONS,
   ORDER_RESULT_DEFINITIONS,
   ORDER_RESULTS,
-} from '../../order/order-review-store.js';
+} from '../../order/order-review-types.js';
 import { createSetupSetFromOrderReview } from '../../order/setup-set.js';
 import {
   controlField,
