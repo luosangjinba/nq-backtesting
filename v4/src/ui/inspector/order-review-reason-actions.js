@@ -8,10 +8,12 @@ import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segme
 import { getSegmentById } from '../../segment/segment-store.js';
 import {
   getOrderReviewById,
-  ORDER_REF_ROLES,
-  ORDER_REF_TYPES,
   updateOrderReview,
 } from '../../order/order-review-store.js';
+import {
+  ORDER_REF_ROLES,
+  ORDER_REF_TYPES,
+} from '../../order/order-review-types.js';
 import {
   buildPdaOrderRefMetadata,
   buildSegmentOrderRefMetadata,
