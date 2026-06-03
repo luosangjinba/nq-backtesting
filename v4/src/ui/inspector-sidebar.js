@@ -18,8 +18,8 @@ import {
 } from '../segment/segment-selection.js';
 import { getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroupById } from '../segment/segment-group-store.js';
-import { getDrawingSets, isDrawingSetFocused, locateDrawingSet } from '../segment/drawing-set-list.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
+import { createDrawingSetActionController, renderDrawingSetList } from './inspector/drawing-set-panel.js';
 import { renderAnnotationPanel } from './inspector/pda-panel.js';
 import { renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
@@ -122,6 +122,8 @@ const calendarActions = createCalendarActionController({
   recordInspectorHistory,
   openCalendarObject,
 });
+
+const drawingSetActions = createDrawingSetActionController();
 
 function getOrderReviewPanelOptions(extra = {}) {
   return {
@@ -317,32 +319,6 @@ function renderArchivePanel() {
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
     ${renderArchiveActions()}
-  `;
-}
-
-function renderDrawingSetList() {
-  const sets = getDrawingSets();
-  const rows = sets.length
-    ? sets
-        .map(
-          (set) => {
-            const isFocused = isDrawingSetFocused(set.type, set.id);
-            return `
-            <button class="drawing-set-row${isFocused ? ' active' : ''}" data-inspector-action="drawing-set-locate" data-set-type="${set.type}" data-set-id="${set.id}" type="button" aria-pressed="${isFocused ? 'true' : 'false'}">
-              <span class="drawing-set-main">${set.label}</span>
-              <span class="drawing-set-meta">${set.detail}</span>
-            </button>
-          `;
-          }
-        )
-        .join('')
-    : '<div class="drawing-set-empty">No segment or composite sets.</div>';
-
-  return `
-    <section class="inspector-section drawing-set-section">
-      <div class="inspector-section-title">Structure Sets</div>
-      <div class="drawing-set-list">${rows}</div>
-    </section>
   `;
 }
 
@@ -764,8 +740,7 @@ function handleInspectorClick(e) {
     return;
   }
 
-  if (action === 'drawing-set-locate') {
-    locateDrawingSet(actionEl.dataset.setType, actionEl.dataset.setId);
+  if (drawingSetActions.handleClick(action, actionEl)) {
     return;
   }
 
