@@ -432,7 +432,7 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
 - [x] Step 250: 建立中性时间投影工具模块：新增 `chart/time-projection.js` 或 `data/timeframe-buckets.js`，承载 `getBarChartTime()`、`getBucketStart()`、`normalizeChartTime()`、`findDisplayBarByTime()`、`getDisplayBarIndex()`；基础层不得 import `pda-context.js`
 - [x] Step 251: 为时间投影工具增加 smoke test：覆盖 1M/5M/1H timestamp、D `tradingDay`、4H bucket 对齐、非法输入 fallback；确保迁移前有可重复验证基线
 - [x] Step 252: 第一批迁移 Order Setup 时间投影路径：优先处理 `order-setup-projection.js`、`order-review-renderer.js`、`order-setup-hit-test.js`、`ui/inspector/order-review-utils.js`；验证 Order Setup 创建、entry/stop/target 渲染、hit-test、Calendar locate 不回归
-- [ ] Step 253: 第二批迁移 PDA / Segment / Time Overlay 时间映射：分批替换重复 `getBarChartTime` / daily tradingDay 逻辑；每批后验证 PDA 创建/locate、Segment 创建/locate、Time Overlay、Calendar 跳转与 Split Screen 基础渲染
+- [x] Step 253: 第二批迁移 PDA / Segment / Time Overlay 时间映射：分批替换重复 `getBarChartTime` / daily tradingDay 逻辑；每批后验证 PDA 创建/locate、Segment 创建/locate、Time Overlay、Calendar 跳转与 Split Screen 基础渲染
 - [ ] Step 254: 拆分 Order Review types：新增 `order/order-review-types.js`，迁移 `ORDER_*_DEFINITIONS`、`ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES` 与 `getActiveDefinitions()`；`order-review-store.js` 必须继续 re-export，保持旧 import 兼容
 - [ ] Step 255: 分批迁移 Order Review types imports：先迁移 tests、renderer、hit-test、inspector panel，再迁移 `order-setup-chart-actions.js`、`review-archive.js`、`time-reaction-actions.js`；每批后运行 Order Setup smoke 与全量 JS 语法检查
 - [ ] Step 256: 关键注释补强：只补业务规则和架构边界注释，包括 `pda-context.js` 的 18:00 trading day anchor / 4H 对齐 / session window，`setup-set.js` 的 storage schema vs runtime view-model / result 派生边界，`segment-review-metrics.js` 的 metrics 分类和 fluency component 非最终评分

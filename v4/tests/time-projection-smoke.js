@@ -3,6 +3,7 @@ import {
   getBarChartTime,
   getBucketStart,
   getDisplayBarIndex,
+  mapTimestampToChartTime,
   normalizeChartTime,
 } from '../src/chart/time-projection.js';
 
@@ -35,6 +36,18 @@ assert(
 assert(
   getBucketStart(timestamp('2012-01-03T18:30:00'), 1440) === timestamp('2012-01-03T18:00:00'),
   'daily bucket after 18:00 should anchor to same-day 18:00'
+);
+assert(
+  mapTimestampToChartTime(timestamp('2012-01-03T09:31:45'), 1) === timestamp('2012-01-03T09:31:00'),
+  'intraday timestamps map to bucket start'
+);
+assert(
+  mapTimestampToChartTime(dailyBar.timestamp, 1440, [dailyBar]) === dailyBar.tradingDay,
+  'daily timestamps use exact bar tradingDay when available'
+);
+assert(
+  mapTimestampToChartTime(timestamp('2012-01-03T18:30:00'), 1440, []) === '2012-01-04',
+  'daily timestamps fall back to next trading date'
 );
 
 assert(normalizeChartTime({ year: 2012, month: 1, day: 4 }) === '2012-01-04', 'date objects normalize to YYYY-MM-DD');

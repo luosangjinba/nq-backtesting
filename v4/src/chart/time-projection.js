@@ -50,6 +50,28 @@ export function getBarChartTime(bar, timeframe) {
   return Number(timeframe) === 1440 ? bar.tradingDay ?? null : bar.timestamp ?? null;
 }
 
+export function mapTimestampToChartTime(timestamp, timeframe, bars = []) {
+  const parsedTimestamp = toFiniteNumber(timestamp);
+  if (parsedTimestamp === null) return null;
+  const parsedTimeframe = toFiniteNumber(timeframe);
+  if (parsedTimeframe === null) return parsedTimestamp;
+
+  const bucketStart = getBucketStart(parsedTimestamp, parsedTimeframe);
+  if (bucketStart === null) return null;
+
+  if (parsedTimeframe === 1440) {
+    const exactBar = Array.isArray(bars)
+      ? bars.find((bar) => Number(bar?.timestamp) === parsedTimestamp)
+      : null;
+    if (exactBar?.tradingDay) return exactBar.tradingDay;
+
+    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
+    return date.toISOString().slice(0, 10);
+  }
+
+  return bucketStart;
+}
+
 export function normalizeChartTime(time) {
   if (time === undefined || time === null) return null;
   if (typeof time === 'object' && time.year && time.month && time.day) {

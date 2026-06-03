@@ -3,6 +3,8 @@
 // 09:30 inside a 1H/4H candle. LightweightCharts only has coordinates for bar
 // times, so we interpolate within the containing bar.
 
+import { getBarChartTime } from '../chart/time-projection.js';
+
 function toNumber(value, fallback = null) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -10,10 +12,6 @@ function toNumber(value, fallback = null) {
 
 function getBarTimestamp(bar) {
   return toNumber(bar?.timestamp);
-}
-
-function getBarChartTime(bar, timeframe) {
-  return Number(timeframe) === 1440 ? bar?.tradingDay : bar?.timestamp;
 }
 
 function getTimeScale(chartInstance) {

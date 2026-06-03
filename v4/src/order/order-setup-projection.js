@@ -1,4 +1,7 @@
-import { getBucketStart } from '../chart/time-projection.js';
+import {
+  getBucketStart,
+  mapTimestampToChartTime,
+} from '../chart/time-projection.js';
 
 export const ORDER_SETUP_LINE_LENGTH_BARS = 38;
 export const ORDER_SETUP_ZONE_WIDTH_BARS = 28;
@@ -8,14 +11,7 @@ export function mapTimestampToOrderSetupChartTime(timestamp, context = {}) {
   const parsed = Number(timestamp);
   if (!Number.isFinite(parsed)) return null;
   const timeframe = Number(context.timeframe);
-  const bucketStart = Number.isFinite(timeframe) ? getBucketStart(parsed, timeframe) : parsed;
-  if (timeframe === 1440) {
-    const exactBar = context.getDisplayBars?.().find((bar) => Number(bar.timestamp) === parsed);
-    if (exactBar?.tradingDay) return exactBar.tradingDay;
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return bucketStart;
+  return mapTimestampToChartTime(parsed, timeframe, context.getDisplayBars?.() || []);
 }
 
 export function getOrderSetupDisplayBarForTimestamp(timestamp, context = {}) {

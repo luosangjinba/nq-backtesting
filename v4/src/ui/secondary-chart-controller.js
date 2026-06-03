@@ -5,7 +5,12 @@ import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
-import { getBucketStart } from '../pda/pda-context.js';
+import {
+  findDisplayBarByTime,
+  getBarChartTime,
+  getBucketStart,
+  mapTimestampToChartTime,
+} from '../chart/time-projection.js';
 import {
   clearSecondaryData,
   destroySecondaryChart,
@@ -32,31 +37,9 @@ let lastSettings = {
   instrument: secondaryStore.getSecondaryInstrument(),
 };
 
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
-}
-
-function getBarChartTime(bar, timeframe) {
-  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
-}
-
 function mapTimestampToSecondaryChartTime(timestamp) {
-  if (timestamp === undefined || timestamp === null) return null;
-  const numericTimestamp = Number(timestamp);
-  if (!Number.isFinite(numericTimestamp)) return null;
-
   const timeframe = secondaryStore.getSecondaryTimeframe();
-  const bucketStart = getBucketStart(numericTimestamp, timeframe);
-  if (timeframe === 1440) {
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return bucketStart;
+  return mapTimestampToChartTime(timestamp, timeframe, secondaryStore.getSecondaryDisplayBars());
 }
 
 function getPrimaryHoverTimestamp(time) {
@@ -64,16 +47,13 @@ function getPrimaryHoverTimestamp(time) {
   if (Number.isFinite(Number(time))) return Number(time);
 
   const currentTimeframe = store.getCurrentTimeframe();
-  const target = normalizeTimeKey(time);
-  const bar = store
-    .getDisplayBars()
-    .find((displayBar) => normalizeTimeKey(getBarChartTime(displayBar, currentTimeframe)) === target);
+  const bar = findDisplayBarByTime(store.getDisplayBars(), time, currentTimeframe);
   return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
 }
 
 function toChartBar(bar, timeframe) {
   return {
-    time: timeframe === 1440 ? bar.tradingDay : bar.timestamp,
+    time: getBarChartTime(bar, timeframe),
     open: bar.open,
     high: bar.high,
     low: bar.low,

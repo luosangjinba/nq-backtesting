@@ -7,11 +7,11 @@ import {
   getSecondaryChart,
   getSecondarySeries,
 } from '../chart/secondary-chart-manager.js';
+import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
 import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive, VerticalLinePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
-import { getBucketStart } from './pda-context.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
@@ -34,12 +34,7 @@ function mapTimestampToSecondaryChartTime(timestamp) {
   if (!Number.isFinite(Number(timestamp))) return null;
 
   const timeframe = secondaryStore.getSecondaryTimeframe();
-  const bucketStart = getBucketStart(Number(timestamp), timeframe);
-  if (timeframe === 1440) {
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return bucketStart;
+  return mapTimestampToChartTime(Number(timestamp), timeframe, secondaryStore.getSecondaryDisplayBars());
 }
 
 function getPointRenderTime(annotation) {

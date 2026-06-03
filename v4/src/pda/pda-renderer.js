@@ -3,10 +3,10 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
+import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive, VerticalLinePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
-import { getBucketStart } from './pda-context.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { formatPdaDisplayLabel } from './pda-source-format.js';
@@ -37,12 +37,7 @@ function mapTimestampToCurrentChartTime(timestamp) {
   if (timestamp === undefined || timestamp === null) return null;
   if (!Number.isFinite(Number(timestamp))) return null;
   const timeframe = store.getCurrentTimeframe();
-  const bucketStart = getBucketStart(Number(timestamp), timeframe);
-  if (timeframe === 1440) {
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return bucketStart;
+  return mapTimestampToChartTime(Number(timestamp), timeframe, store.getDisplayBars());
 }
 
 function getPointRenderTime(annotation) {

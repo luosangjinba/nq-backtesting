@@ -2,6 +2,7 @@
 
 import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
+import { getBarChartTime } from './chart/time-projection.js';
 import * as store from './data/bar-store.js';
 import { initToolbar } from './ui/toolbar.js';
 import {
@@ -70,7 +71,7 @@ bus.on('bars:loaded', ({ bars }) => {
   // 日线用 tradingDay 日期字符串作为 LightweightCharts time（显示交易日日期）
   // 低周期用 timestamp 数值（显示精确时间）
   const chartData = displayBars.map((b) => ({
-    time: tf === 1440 ? b.tradingDay : b.timestamp,
+    time: getBarChartTime(b, tf),
     open: b.open,
     high: b.high,
     low: b.low,

@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryChartContext } from '../chart/chart-context.js';
+import { getBarChartTime as getProjectedBarChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { fetchBars } from '../api.js';
 import { addSegment, clearSegments } from './segment-store.js';
@@ -18,7 +19,7 @@ function getContextTimeframe(context) {
 }
 
 function getBarChartTime(context, bar) {
-  return getContextTimeframe(context) === 1440 ? bar.tradingDay : bar.timestamp;
+  return getProjectedBarChartTime(bar, getContextTimeframe(context));
 }
 
 function normalizeSwingKind(kind) {

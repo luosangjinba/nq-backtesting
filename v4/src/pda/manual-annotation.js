@@ -4,6 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { getPrimaryChartContext } from '../chart/chart-context.js';
+import { getBarChartTime as getProjectedBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { timeframeToString } from '../config.js';
@@ -175,7 +176,7 @@ function locateSecondaryAtBar(bar) {
     return;
   }
   secondaryChart.showSecondaryHoverCursor(
-    secondaryStore.getSecondaryTimeframe() === 1440 ? secondaryBar.tradingDay : secondaryBar.timestamp
+    getProjectedBarChartTime(secondaryBar, secondaryStore.getSecondaryTimeframe())
   );
   bus.emit('status:update', { text: `副图已定位到 ${bar.tradingDay || bar.time}`, isError: false });
 }

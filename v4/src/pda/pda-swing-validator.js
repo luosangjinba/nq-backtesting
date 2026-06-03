@@ -2,6 +2,10 @@
 // This is advisory only: invalid points are still allowed to be marked.
 
 import { timeframeToString } from '../config.js';
+import {
+  getBarChartTime,
+  normalizeChartTime,
+} from '../chart/time-projection.js';
 import { getPdaType } from './pda-types.js';
 
 export const SWING_VALIDATION_RULES = {
@@ -13,16 +17,7 @@ export const SWING_VALIDATION_RULES = {
 };
 
 function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
-}
-
-function getBarChartTime(bar, timeframe) {
-  return timeframe === 1440 ? bar.tradingDay : bar.timestamp;
+  return normalizeChartTime(time);
 }
 
 function findBarIndex(displayBars, selectedBar, timeframe) {

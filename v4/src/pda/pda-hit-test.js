@@ -2,9 +2,9 @@
 
 import * as chart from '../chart/chart-manager.js';
 import { getPrimaryChartContext } from '../chart/chart-context.js';
+import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getAnnotations } from './pda-store.js';
-import { getBucketStart } from './pda-context.js';
 import { getPdaType } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
@@ -30,12 +30,8 @@ function mapTimestampToCurrentChartTime(timestamp, context) {
   if (timestamp === undefined || timestamp === null) return null;
   if (!Number.isFinite(Number(timestamp))) return null;
   const timeframe = getHitTimeframe(context);
-  const bucketStart = getBucketStart(Number(timestamp), timeframe);
-  if (timeframe === 1440) {
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
-  }
-  return bucketStart;
+  const bars = getHitContext(context)?.getDisplayBars?.() || store.getDisplayBars();
+  return mapTimestampToChartTime(Number(timestamp), timeframe, bars);
 }
 
 function getPointRenderTime(annotation, context) {

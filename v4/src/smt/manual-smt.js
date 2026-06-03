@@ -4,6 +4,10 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import {
+  findDisplayBarByTime,
+  getBarChartTime,
+} from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { identifyFvg } from '../pda/fvg-identifier.js';
 import { addSmtRecord, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
@@ -11,22 +15,12 @@ import { recordHistory } from '../history/history-manager.js';
 
 let pickState = null;
 
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
-}
-
 function getPrimaryChartTime(bar) {
-  return store.getCurrentTimeframe() === 1440 ? bar.tradingDay : bar.timestamp;
+  return getBarChartTime(bar, store.getCurrentTimeframe());
 }
 
 function findPrimaryBarByChartTime(time) {
-  const target = normalizeTimeKey(time);
-  return store.getDisplayBars().find((bar) => normalizeTimeKey(getPrimaryChartTime(bar)) === target) || null;
+  return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
 }
 
 function findSecondaryBar(timestamp) {

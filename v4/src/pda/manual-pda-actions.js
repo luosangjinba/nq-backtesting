@@ -2,6 +2,10 @@
 // still uses the primary context until secondary write flows opt in.
 
 import * as bus from '../event-bus.js';
+import {
+  findDisplayBarByTime,
+  getBarChartTime as getProjectedBarChartTime,
+} from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { buildCePrice } from '../price-utils.js';
 import { recordHistory } from '../history/history-manager.js';
@@ -25,31 +29,18 @@ export const DEFAULT_FIB_LEVELS = [
   { value: 0, visible: true, color: '#60636f' },
 ];
 
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
-}
-
 function getDisplayBars(context) {
   const bars = context?.getDisplayBars?.();
   return Array.isArray(bars) ? bars : [];
 }
 
 export function getBarChartTime(context, bar) {
-  return Number(context?.timeframe) === 1440 ? bar.tradingDay : bar.timestamp;
+  return getProjectedBarChartTime(bar, context?.timeframe);
 }
 
 export function findDisplayBarInContext(context, time) {
   if (time === undefined || time === null) return null;
-  const target = normalizeTimeKey(time);
-  return (
-    getDisplayBars(context).find((bar) => normalizeTimeKey(getBarChartTime(context, bar)) === target) ||
-    null
-  );
+  return findDisplayBarByTime(getDisplayBars(context), time, context?.timeframe);
 }
 
 export function getSelectedRangeBars(context, startBar, endBar) {
