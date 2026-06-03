@@ -433,7 +433,7 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
 - [x] Step 251: 为时间投影工具增加 smoke test：覆盖 1M/5M/1H timestamp、D `tradingDay`、4H bucket 对齐、非法输入 fallback；确保迁移前有可重复验证基线
 - [x] Step 252: 第一批迁移 Order Setup 时间投影路径：优先处理 `order-setup-projection.js`、`order-review-renderer.js`、`order-setup-hit-test.js`、`ui/inspector/order-review-utils.js`；验证 Order Setup 创建、entry/stop/target 渲染、hit-test、Calendar locate 不回归
 - [x] Step 253: 第二批迁移 PDA / Segment / Time Overlay 时间映射：分批替换重复 `getBarChartTime` / daily tradingDay 逻辑；每批后验证 PDA 创建/locate、Segment 创建/locate、Time Overlay、Calendar 跳转与 Split Screen 基础渲染
-- [ ] Step 254: 拆分 Order Review types：新增 `order/order-review-types.js`，迁移 `ORDER_*_DEFINITIONS`、`ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES` 与 `getActiveDefinitions()`；`order-review-store.js` 必须继续 re-export，保持旧 import 兼容
+- [x] Step 254: 拆分 Order Review types：新增 `order/order-review-types.js`，迁移 `ORDER_*_DEFINITIONS`、`ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES` 与 `getActiveDefinitions()`；`order-review-store.js` 必须继续 re-export，保持旧 import 兼容
   - [x] Step 254.1: 建立 types 模块边界：新增 `order/order-review-types.js`，先只迁移 `keyFromValue()`、`valuesFromDefinitions()`、`validSetFromDefinitions()`、`aliasMapFromDefinitions()`、`getActiveDefinitions()` 以及全部 `ORDER_*_DEFINITIONS`
   - [x] Step 254.2: 在 `order-review-types.js` 内派生并导出全部 `ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES`；新增轻量 smoke 覆盖 enum value、alias map、valid set、`getActiveDefinitions()`，确保 types 模块可独立验证
   - [x] Step 254.3: 改造 `order-review-store.js`：从 `order-review-types.js` import normalize 需要的 types，并 re-export Step 254.1/254.2 的全部 public types；保留 `ORDER_REVIEW_VERSION`、`DEFAULT_ORDER_INSTRUMENT`、normalize/CRUD/load API 在 store 内；外部旧 import 必须继续可用
