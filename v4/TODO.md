@@ -450,11 +450,11 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
   - [x] Step 255.4: 迁移第二批 inspector/review 层混合 imports：`ui/inspector/order-review-edit-actions.js`、`ui/inspector/order-review-lifecycle-actions.js`、`ui/inspector/order-review-reason-actions.js`、`ui/inspector/time-reaction-actions.js`、`ui/inspector-sidebar.js`、`review/review-archive.js`
   - [x] Step 255.5: 明确保留 store imports 清单：`history/history-manager.js`、`order/setup-set.js`、`order/order-setup-selection.js`、`order/order-review-persistence.js`、`time-reaction/daily-time-review-store.js` 等只消费 normalize/CRUD/load API 的文件继续从 `order-review-store.js` 引入
   - [x] Step 255.6: Step 255 收口检查：用 `rg` 确认 `ORDER_*` / `getActiveDefinitions` 不再从 `order-review-store.js` 引入；运行 types smoke、Order Setup smoke、全量 `node --check`、`git diff --check`；标记 Step 255 完成
-- [ ] Step 256: 关键注释补强：只补业务规则和架构边界注释，包括 `pda-context.js` 的 18:00 trading day anchor / 4H 对齐 / session window，`setup-set.js` 的 storage schema vs runtime view-model / result 派生边界，`segment-review-metrics.js` 的 metrics 分类和 fluency component 非最终评分
+- [x] Step 256: 关键注释补强：只补业务规则和架构边界注释，包括 `pda-context.js` 的 18:00 trading day anchor / 4H 对齐 / session window，`setup-set.js` 的 storage schema vs runtime view-model / result 派生边界，`segment-review-metrics.js` 的 metrics 分类和 fluency component 非最终评分
   - [x] Step 256.1: 补强 `pda-context.js` 注释：解释 18:00 trading day anchor、4H 02:00/06:00 对齐、session window / `skipExtrema`、representative extreme 判断边界
   - [x] Step 256.2: 补强 `setup-set.js` 注释：解释 `orderReviews` storage compatibility schema 与 Setup Set runtime/view-model tree 的边界、result/points/R 派生不写回 store、explanation refs/events/note 映射
   - [x] Step 256.3: 补强 `segment-review-metrics.js` 注释：解释 metrics 是 read-only review facts、previous comparison 前提、terminal PDA reaction 范围、fluency components 非最终评分也不是交易信号
-  - [ ] Step 256.4: Step 256 收口验证：运行三个目标文件 `node --check`、全量 `node --check`、`git diff --check`；标记 Step 256 完成
+  - [x] Step 256.4: Step 256 收口验证：运行三个目标文件 `node --check`、全量 `node --check`、`git diff --check`；标记 Step 256 完成
 - [ ] Step 257: Phase 16 收口验证：运行新增时间投影 smoke、Order Setup smoke、全量 `node --check`、`git diff --check`，并手工覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路
 
 Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews` schema、不重命名 Review JSON 字段、不新增 Service 层抽象、不机械拆分所有大文件、不以“所有文件低于 500 行”为目标。
