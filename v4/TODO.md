@@ -457,7 +457,7 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
   - [x] Step 256.4: Step 256 收口验证：运行三个目标文件 `node --check`、全量 `node --check`、`git diff --check`；标记 Step 256 完成
 - [ ] Step 257: Phase 16 收口验证：运行新增时间投影 smoke、Order Setup smoke、全量 `node --check`、`git diff --check`，并手工覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路
   - [x] Step 257.1: 自动验证基线：运行 `v4/tests/time-projection-smoke.js`、`v4/tests/order-review-types-smoke.js`、`v4/tests/order-setup-smoke.js`、全量 `node --check`、`git diff --check`
-  - [ ] Step 257.2: 启动并验证 Web/API：确认 `v4/start.sh` 可启动 Web 与 API，检查 `/health`，保留当前本地运行产物未跟踪
+  - [x] Step 257.2: 启动并验证 Web/API：确认 `v4/start.sh` 可启动 Web 与 API，检查 `/health`，保留当前本地运行产物未跟踪
   - [ ] Step 257.3: 手工链路覆盖：覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路；发现问题则单独拆修复步骤
   - [ ] Step 257.4: Phase 16 收口记录：记录验证结果，标记 Step 257 完成；不引入业务改动
 
