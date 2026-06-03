@@ -455,11 +455,14 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
   - [x] Step 256.2: 补强 `setup-set.js` 注释：解释 `orderReviews` storage compatibility schema 与 Setup Set runtime/view-model tree 的边界、result/points/R 派生不写回 store、explanation refs/events/note 映射
   - [x] Step 256.3: 补强 `segment-review-metrics.js` 注释：解释 metrics 是 read-only review facts、previous comparison 前提、terminal PDA reaction 范围、fluency components 非最终评分也不是交易信号
   - [x] Step 256.4: Step 256 收口验证：运行三个目标文件 `node --check`、全量 `node --check`、`git diff --check`；标记 Step 256 完成
-- [ ] Step 257: Phase 16 收口验证：运行新增时间投影 smoke、Order Setup smoke、全量 `node --check`、`git diff --check`，并手工覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路
+- [x] Step 257: Phase 16 收口验证：运行新增时间投影 smoke、Order Setup smoke、全量 `node --check`、`git diff --check`，并手工覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路
   - [x] Step 257.1: 自动验证基线：运行 `v4/tests/time-projection-smoke.js`、`v4/tests/order-review-types-smoke.js`、`v4/tests/order-setup-smoke.js`、全量 `node --check`、`git diff --check`
   - [x] Step 257.2: 启动并验证 Web/API：确认 `v4/start.sh` 可启动 Web 与 API，检查 `/health`，保留当前本地运行产物未跟踪
   - [x] Step 257.3: 手工链路覆盖：覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路；发现问题则单独拆修复步骤
-  - [ ] Step 257.4: Phase 16 收口记录：记录验证结果，标记 Step 257 完成；不引入业务改动
+  - [x] Step 257.4: Phase 16 收口记录：记录验证结果，标记 Step 257 完成；不引入业务改动
+    - 验证记录：`time-projection-smoke.js`、`order-review-types-smoke.js`、`order-setup-smoke.js`、全量 `node --check`、`git diff --check` 通过；Node 仅输出既有 ES module package type warning。
+    - Web/API 记录：`/home/leo/miniconda3/bin/python3 v4_api.py` 前台启动正常，`/v4/health` 返回 OK；Web `http://127.0.0.1:8001/index.html` 返回 200。
+    - 手工链路记录：headless Chrome 覆盖 1M/5M/15M/1H/4H/D 加载、Order Setup/PDA/Segment/Time Line 创建、Calendar 分组计数、Split Screen ES 4H 副图与 side/stack layout；未发现 console error。
 
 Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews` schema、不重命名 Review JSON 字段、不新增 Service 层抽象、不机械拆分所有大文件、不以“所有文件低于 500 行”为目标。
 
