@@ -415,7 +415,7 @@ P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问
 - [x] Step 242: 抽取 Order Setup create/lifecycle actions：集中 blank/segment/composite 创建、set active/close active、locate/open、hide/show/delete；不改变 Calendar、reversal 右键、Inspector 的用户行为
 - [x] Step 243: 抽取 Order Setup edit/result actions：集中 entry context、display flags、execution element visibility/delete、result status、exit time auto-calc/manual pick；确保自动 exit time 与持仓时间派生不回归
 - [x] Step 244: 保留 `ui/inspector/order-review-actions.js` 作为 facade/controller factory：只负责组合子模块、维护少量 controller 状态和对 `inspector-sidebar.js` 的兼容入口；不让 sidebar 重新承担 Order Setup 业务逻辑
-- [ ] Step 245: 轻量收敛 `order-review-active.js`：内部统一以 Setup Set / active review set id 为权威；旧 `getActiveOrderReview*` alias 暂留兼容但不新增使用；不改 localStorage key、不迁移 Review JSON 字段
+- [x] Step 245: 轻量收敛 `order-review-active.js`：内部统一以 Setup Set / active review set id 为权威；旧 `getActiveOrderReview*` alias 暂留兼容但不新增使用；不改 localStorage key、不迁移 Review JSON 字段
 - [ ] Step 246: 文档化 Order Setup 分层：更新 TODO / session / 必要时 `docs/ORDER_REVIEW_DESIGN.md`，明确 store=兼容持久化输入、setup-set=view-model 权威、inspector actions=UI 操作协调、renderer/hit-test=投影消费层
 - [ ] Step 247: P0 验证与收口：运行全量 `v4/src/**/*.js` 语法检查、Order Setup smoke、Web/API smoke；手工覆盖 Calendar Open/Locate、图表右键创建/编辑、Reasons link、Result auto exit、undo/redo、Review JSON import/export
 
