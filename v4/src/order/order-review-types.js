@@ -198,3 +198,42 @@ export const ORDER_CONFIDENCE_DEFINITIONS = [
   { value: 'C', label: 'C', active: true, aliases: ['c'] },
   { value: 'review-only', label: 'Review Only', active: true, aliases: ['review'] },
 ];
+
+export const ORDER_EVENT_TYPES = valuesFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS);
+export const ORDER_REF_TYPES = valuesFromDefinitions(ORDER_REF_TYPE_DEFINITIONS);
+export const ORDER_REF_ROLES = valuesFromDefinitions(ORDER_REF_ROLE_DEFINITIONS);
+export const ORDER_DIRECTIONS = valuesFromDefinitions(ORDER_DIRECTION_DEFINITIONS);
+export const ORDER_ENTRY_MODELS = valuesFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS);
+export const ORDER_ENTRY_PATTERNS = valuesFromDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS);
+export const ORDER_ENTRY_SESSIONS = valuesFromDefinitions(ORDER_ENTRY_SESSION_DEFINITIONS);
+export const ORDER_TIMEFRAMES = valuesFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
+export const ORDER_TARGET_TYPES = valuesFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
+export const ORDER_STOP_REASONS = valuesFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
+export const ORDER_RESULTS = valuesFromDefinitions(ORDER_RESULT_DEFINITIONS);
+export const ORDER_CONFIDENCE = valuesFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
+
+export const VALID_ORDER_EVENT_TYPES = validSetFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS);
+export const VALID_ORDER_REF_TYPES = validSetFromDefinitions(ORDER_REF_TYPE_DEFINITIONS);
+export const VALID_ORDER_REF_ROLES = validSetFromDefinitions(ORDER_REF_ROLE_DEFINITIONS);
+export const VALID_ORDER_DIRECTIONS = validSetFromDefinitions(ORDER_DIRECTION_DEFINITIONS);
+export const VALID_ORDER_ENTRY_MODELS = validSetFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS);
+export const VALID_ORDER_ENTRY_PATTERNS = validSetFromDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS);
+export const VALID_ORDER_ENTRY_SESSIONS = validSetFromDefinitions(ORDER_ENTRY_SESSION_DEFINITIONS);
+export const VALID_ORDER_TIMEFRAMES = validSetFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
+export const VALID_ORDER_TARGET_TYPES = validSetFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
+export const VALID_ORDER_STOP_REASONS = validSetFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
+export const VALID_ORDER_RESULTS = validSetFromDefinitions(ORDER_RESULT_DEFINITIONS);
+export const VALID_ORDER_CONFIDENCE = validSetFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
+
+export const ORDER_EVENT_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_EVENT_TYPE_DEFINITIONS);
+export const ORDER_REF_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_REF_TYPE_DEFINITIONS);
+export const ORDER_REF_ROLE_ALIASES = aliasMapFromDefinitions(ORDER_REF_ROLE_DEFINITIONS);
+export const ORDER_DIRECTION_ALIASES = aliasMapFromDefinitions(ORDER_DIRECTION_DEFINITIONS);
+export const ORDER_ENTRY_MODEL_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS);
+export const ORDER_ENTRY_PATTERN_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS);
+export const ORDER_ENTRY_SESSION_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_SESSION_DEFINITIONS);
+export const ORDER_TIMEFRAME_ALIASES = aliasMapFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
+export const ORDER_TARGET_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
+export const ORDER_STOP_REASON_ALIASES = aliasMapFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
+export const ORDER_RESULT_ALIASES = aliasMapFromDefinitions(ORDER_RESULT_DEFINITIONS);
+export const ORDER_CONFIDENCE_ALIASES = aliasMapFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);

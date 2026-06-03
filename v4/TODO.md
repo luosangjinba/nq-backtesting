@@ -435,7 +435,7 @@ Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调�
 - [x] Step 253: 第二批迁移 PDA / Segment / Time Overlay 时间映射：分批替换重复 `getBarChartTime` / daily tradingDay 逻辑；每批后验证 PDA 创建/locate、Segment 创建/locate、Time Overlay、Calendar 跳转与 Split Screen 基础渲染
 - [ ] Step 254: 拆分 Order Review types：新增 `order/order-review-types.js`，迁移 `ORDER_*_DEFINITIONS`、`ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES` 与 `getActiveDefinitions()`；`order-review-store.js` 必须继续 re-export，保持旧 import 兼容
   - [x] Step 254.1: 建立 types 模块边界：新增 `order/order-review-types.js`，先只迁移 `keyFromValue()`、`valuesFromDefinitions()`、`validSetFromDefinitions()`、`aliasMapFromDefinitions()`、`getActiveDefinitions()` 以及全部 `ORDER_*_DEFINITIONS`
-  - [ ] Step 254.2: 在 `order-review-types.js` 内派生并导出全部 `ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES`；新增轻量 smoke 覆盖 enum value、alias map、valid set、`getActiveDefinitions()`，确保 types 模块可独立验证
+  - [x] Step 254.2: 在 `order-review-types.js` 内派生并导出全部 `ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES`；新增轻量 smoke 覆盖 enum value、alias map、valid set、`getActiveDefinitions()`，确保 types 模块可独立验证
   - [ ] Step 254.3: 改造 `order-review-store.js`：从 `order-review-types.js` import normalize 需要的 types，并 re-export Step 254.1/254.2 的全部 public types；保留 `ORDER_REVIEW_VERSION`、`DEFAULT_ORDER_INSTRUMENT`、normalize/CRUD/load API 在 store 内；外部旧 import 必须继续可用
   - [ ] Step 254.4: 验证兼容 re-export：不迁移任何调用方 import，先运行 Order Setup smoke、types smoke、全量 `node --check` 与 `git diff --check`；确认 `order-review-store.js` 行数下降且旧 import 不破坏
   - [ ] Step 254.5: 分离提交边界：如果 Step 254.1-254.4 通过，单独提交 `refactor(v4): extract order review types`；不要在同一提交中做 Step 255 的调用方 import 迁移
