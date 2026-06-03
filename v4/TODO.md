@@ -425,6 +425,21 @@ P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问
 - [ ] `order-review-store.js` / `setup-set.js` 派生边界深度收敛：仅在有测试覆盖后处理；短期不再移动 result/risk/reward schema 字段，避免破坏保存数据与 UI 回填
 - [ ] `order-review-actions.js` 之外的大文件继续评估：`time-reaction-actions.js`、`segment-panel.js`、`order-setup-chart-actions.js` 按实际新增功能压力决定是否拆分
 
+### Phase 16: P1 代码质量改进计划
+Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调整执行顺序。目标是降低重复逻辑和维护成本，不做新业务功能，不迁移 `orderReviews` schema，不改 localStorage key，不破坏 Review JSON 兼容。
+
+- [ ] Step 249: P0 分支收口：确认未跟踪 docs 是否纳入提交；运行产物（`.web_pid`、`.web.log`、`__pycache__`、`tmp/*.png`、本地 duckdb）不纳入提交；重新跑 Order Setup smoke、全量 JS 语法检查、`git diff --check` 与 Web/API smoke；验证通过后将 `refactor/p0-order-setup-actions` 合并回 `main`
+- [ ] Step 250: 建立中性时间投影工具模块：新增 `chart/time-projection.js` 或 `data/timeframe-buckets.js`，承载 `getBarChartTime()`、`getBucketStart()`、`normalizeChartTime()`、`findDisplayBarByTime()`、`getDisplayBarIndex()`；基础层不得 import `pda-context.js`
+- [ ] Step 251: 为时间投影工具增加 smoke test：覆盖 1M/5M/1H timestamp、D `tradingDay`、4H bucket 对齐、非法输入 fallback；确保迁移前有可重复验证基线
+- [ ] Step 252: 第一批迁移 Order Setup 时间投影路径：优先处理 `order-setup-projection.js`、`order-review-renderer.js`、`order-setup-hit-test.js`、`ui/inspector/order-review-utils.js`；验证 Order Setup 创建、entry/stop/target 渲染、hit-test、Calendar locate 不回归
+- [ ] Step 253: 第二批迁移 PDA / Segment / Time Overlay 时间映射：分批替换重复 `getBarChartTime` / daily tradingDay 逻辑；每批后验证 PDA 创建/locate、Segment 创建/locate、Time Overlay、Calendar 跳转与 Split Screen 基础渲染
+- [ ] Step 254: 拆分 Order Review types：新增 `order/order-review-types.js`，迁移 `ORDER_*_DEFINITIONS`、`ORDER_*`、`VALID_ORDER_*`、`ORDER_*_ALIASES` 与 `getActiveDefinitions()`；`order-review-store.js` 必须继续 re-export，保持旧 import 兼容
+- [ ] Step 255: 分批迁移 Order Review types imports：先迁移 tests、renderer、hit-test、inspector panel，再迁移 `order-setup-chart-actions.js`、`review-archive.js`、`time-reaction-actions.js`；每批后运行 Order Setup smoke 与全量 JS 语法检查
+- [ ] Step 256: 关键注释补强：只补业务规则和架构边界注释，包括 `pda-context.js` 的 18:00 trading day anchor / 4H 对齐 / session window，`setup-set.js` 的 storage schema vs runtime view-model / result 派生边界，`segment-review-metrics.js` 的 metrics 分类和 fluency component 非最终评分
+- [ ] Step 257: Phase 16 收口验证：运行新增时间投影 smoke、Order Setup smoke、全量 `node --check`、`git diff --check`，并手工覆盖 1M/5M/15M/1H/4H/D 切换、Order Setup、PDA、Segment、Time Overlay、Calendar、Split Screen 基础链路
+
+Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews` schema、不重命名 Review JSON 字段、不新增 Service 层抽象、不机械拆分所有大文件、不以“所有文件低于 500 行”为目标。
+
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
 - localStorage 只作为浏览器工作草稿保存；跨设备/正式研究归档仍待后续 YAML/export 或 DB 方案
