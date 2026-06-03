@@ -1,0 +1,458 @@
+import * as bus from '../../event-bus.js';
+import * as viewport from '../../chart/viewport-controller.js';
+import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
+import { getAnnotationById } from '../../pda/pda-store.js';
+import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
+import { getSelectedPda } from '../../pda/pda-selection.js';
+import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
+import { getSegmentById } from '../../segment/segment-store.js';
+import {
+  getOrderReviewById,
+  ORDER_REF_ROLES,
+  ORDER_REF_TYPES,
+  updateOrderReview,
+} from '../../order/order-review-store.js';
+import {
+  buildPdaOrderRefMetadata,
+  buildSegmentOrderRefMetadata,
+  getPdaOrderRefLabel,
+  getSegmentOrderRefLabel,
+} from '../../order/order-ref-metadata.js';
+import { getSmtRecordById } from '../../smt/smt-store.js';
+import {
+  getAnnotationTimestampRange,
+  getSegmentTimestampRange,
+} from './order-review-utils.js';
+
+export function buildPdaOrderReviewRef(annotation) {
+  return {
+    type: ORDER_REF_TYPES.PDA,
+    id: annotation.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildPdaOrderRefMetadata(annotation),
+  };
+}
+
+export function buildSegmentOrderReviewRef(segment) {
+  return {
+    type: ORDER_REF_TYPES.SEGMENT,
+    id: segment.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildSegmentOrderRefMetadata(segment),
+  };
+}
+
+export function getOrderReviewRefs(order) {
+  return Array.isArray(order?.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
+}
+
+export function getOrderReviewReasons(order) {
+  const reasons = Array.isArray(order?.setupThesis?.reasons) ? order.setupThesis.reasons : [];
+  if (reasons.length) {
+    return reasons.map((reason, index) => ({
+      id: reason.id || `reason_${index + 1}`,
+      note: reason.note || '',
+      refs: Array.isArray(reason.refs) ? reason.refs : [],
+    }));
+  }
+  const refs = getOrderReviewRefs(order);
+  const note = order?.setupThesis?.narrative || '';
+  return [{ id: 'reason_1', note, refs }];
+}
+
+function isOrderReviewReasonEmpty(reason = {}) {
+  return !reason.note && !(Array.isArray(reason.refs) && reason.refs.length);
+}
+
+function createOrderReviewReasonId() {
+  return `reason_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function createOrderReviewReasonActionController({
+  getSelectedSmtId,
+  expandOrder,
+  refreshSelection,
+  recordInspectorHistory,
+} = {}) {
+  function patchOrderReviewReasons(orderReviewId, reasons) {
+    const normalizedReasons = reasons.map((reason, index) => ({
+      id: reason.id || `reason_${index + 1}`,
+      note: reason.note || '',
+      refs: Array.isArray(reason.refs) ? reason.refs : [],
+    }));
+    const firstReason = normalizedReasons[0] || { note: '', refs: [] };
+    expandOrder?.(orderReviewId);
+    recordInspectorHistory?.('Update Order Reasons', () => updateOrderReview(orderReviewId, {
+      setupThesis: {
+        reasons: normalizedReasons,
+        narrative: firstReason.note || '',
+        linkedObjectRefs: firstReason.refs || [],
+      },
+    }));
+  }
+
+  function patchOrderReviewRefs(orderReviewId, refs) {
+    expandOrder?.(orderReviewId);
+    recordInspectorHistory?.('Update Order Refs', () => updateOrderReview(orderReviewId, {
+      setupThesis: {
+        linkedObjectRefs: refs,
+      },
+    }));
+  }
+
+  function addOrderReviewRef(orderReviewId, ref) {
+    const order = getOrderReviewById(orderReviewId);
+    if (!order || !ref?.type || !ref?.id) return false;
+    patchOrderReviewRefs(orderReviewId, [...getOrderReviewRefs(order), ref]);
+    return true;
+  }
+
+  function addOrderReviewReasonRef(orderReviewId, reasonIndex, ref) {
+    const order = getOrderReviewById(orderReviewId);
+    if (!order || !ref?.type || !ref?.id) return false;
+    const reasons = getOrderReviewReasons(order);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    while (reasons.length <= index) {
+      reasons.push({ id: createOrderReviewReasonId(), note: '', refs: [] });
+    }
+    const refs = Array.isArray(reasons[index].refs) ? reasons[index].refs : [];
+    const key = `${ref.type}:${ref.id}:${ref.role}`;
+    if (refs.some((existing) => `${existing.type}:${existing.id}:${existing.role}` === key)) return false;
+    reasons[index] = { ...reasons[index], refs: [...refs, ref] };
+    patchOrderReviewReasons(orderReviewId, reasons);
+    return true;
+  }
+
+  function updateOrderReviewReasonNote(orderReviewId, reasonIndex, note) {
+    const order = getOrderReviewById(orderReviewId);
+    if (!order) return false;
+    const reasons = getOrderReviewReasons(order);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    while (reasons.length <= index) {
+      reasons.push({ id: createOrderReviewReasonId(), note: '', refs: [] });
+    }
+    reasons[index] = { ...reasons[index], note };
+    patchOrderReviewReasons(orderReviewId, reasons);
+    return true;
+  }
+
+  function addOrderReviewReason(orderReviewId) {
+    const order = getOrderReviewById(orderReviewId);
+    if (!order) return false;
+    patchOrderReviewReasons(orderReviewId, [
+      ...getOrderReviewReasons(order),
+      { id: createOrderReviewReasonId(), note: '', refs: [] },
+    ]);
+    return true;
+  }
+
+  function deleteOrderReviewReason(orderReviewId, reasonIndex) {
+    const order = getOrderReviewById(orderReviewId);
+    const reasons = getOrderReviewReasons(order);
+    if (!order || reasonIndex <= 0 || reasonIndex >= reasons.length) return false;
+    if (!isOrderReviewReasonEmpty(reasons[reasonIndex])) {
+      bus.emit('status:update', { text: 'Only empty extra reasons can be deleted', isError: true });
+      return true;
+    }
+    patchOrderReviewReasons(
+      orderReviewId,
+      reasons.filter((_, index) => index !== reasonIndex)
+    );
+    return true;
+  }
+
+  function removeOrderReviewRef(orderReviewId, refIndex) {
+    const order = getOrderReviewById(orderReviewId);
+    const refs = getOrderReviewRefs(order);
+    if (!order || refIndex < 0 || refIndex >= refs.length) return false;
+    patchOrderReviewRefs(
+      orderReviewId,
+      refs.filter((_, index) => index !== refIndex)
+    );
+    return true;
+  }
+
+  function removeOrderReviewReasonRef(orderReviewId, reasonIndex, refIndex) {
+    const order = getOrderReviewById(orderReviewId);
+    const reasons = getOrderReviewReasons(order);
+    if (!order || reasonIndex < 0 || reasonIndex >= reasons.length) return false;
+    const refs = Array.isArray(reasons[reasonIndex].refs) ? reasons[reasonIndex].refs : [];
+    if (refIndex < 0 || refIndex >= refs.length) return false;
+    reasons[reasonIndex] = {
+      ...reasons[reasonIndex],
+      refs: refs.filter((_, index) => index !== refIndex),
+    };
+    patchOrderReviewReasons(orderReviewId, reasons);
+    return true;
+  }
+
+  function getSelectedOrderReviewRef() {
+    const pdaSelection = getSelectedPda();
+    if (pdaSelection) {
+      const annotation = getAnnotationById(pdaSelection.id);
+      if (!annotation) return { error: '选中的 PDA 不存在' };
+      return { ref: buildPdaOrderReviewRef(annotation), label: getPdaOrderRefLabel(annotation) };
+    }
+
+    const segmentSelection = getSelectedSegment();
+    if (segmentSelection) {
+      const segment = getSegmentById(segmentSelection.id);
+      if (!segment) return { error: '选中的 Segment 不存在' };
+      return { ref: buildSegmentOrderReviewRef(segment), label: getSegmentOrderRefLabel(segment) };
+    }
+
+    const compositeSelection = getSelectedSegmentGroup();
+    if (compositeSelection) {
+      return {
+        ref: {
+          type: ORDER_REF_TYPES.COMPOSITE,
+          id: compositeSelection.id,
+          role: ORDER_REF_ROLES.CONTEXT,
+        },
+        label: 'Composite Move',
+      };
+    }
+
+    const selectedSmtId = getSelectedSmtId?.();
+    if (selectedSmtId && getSmtRecordById(selectedSmtId)) {
+      return {
+        ref: {
+          type: ORDER_REF_TYPES.SMT,
+          id: selectedSmtId,
+          role: ORDER_REF_ROLES.CONFIRMATION,
+        },
+        label: 'SMT',
+      };
+    }
+
+    return { error: '没有选中的 PDA / Segment / Composite / SMT' };
+  }
+
+  function addSelectedOrderReviewRef(action, orderReviewId, reasonIndex = 0) {
+    if (action === 'order-review-ref-add-selected-object') {
+      const selected = getSelectedOrderReviewRef();
+      if (selected.error) {
+        bus.emit('status:update', { text: selected.error, isError: true });
+        return true;
+      }
+      const added = addOrderReviewReasonRef(orderReviewId, reasonIndex, selected.ref);
+      bus.emit('status:update', {
+        text: added ? `${selected.label} linked to Reason ${reasonIndex + 1}` : 'Link selected object failed',
+        isError: !added,
+      });
+      return true;
+    }
+
+    if (action === 'order-review-ref-add-selected-pda') {
+      const selection = getSelectedPda();
+      if (!selection) {
+        bus.emit('status:update', { text: '没有选中的 PDA', isError: true });
+        return true;
+      }
+      const annotation = getAnnotationById(selection.id);
+      if (!annotation) {
+        bus.emit('status:update', { text: '选中的 PDA 不存在', isError: true });
+        return true;
+      }
+      addOrderReviewRef(orderReviewId, buildPdaOrderReviewRef(annotation));
+      return true;
+    }
+
+    if (action === 'order-review-ref-add-selected-segment') {
+      const selection = getSelectedSegment();
+      if (!selection) {
+        bus.emit('status:update', { text: '没有选中的 Segment', isError: true });
+        return true;
+      }
+      const segment = getSegmentById(selection.id);
+      if (!segment) {
+        bus.emit('status:update', { text: '选中的 Segment 不存在', isError: true });
+        return true;
+      }
+      addOrderReviewRef(orderReviewId, buildSegmentOrderReviewRef(segment));
+      return true;
+    }
+
+    if (action === 'order-review-ref-add-selected-composite') {
+      const selection = getSelectedSegmentGroup();
+      if (!selection) {
+        bus.emit('status:update', { text: '没有选中的 Composite Move', isError: true });
+        return true;
+      }
+      addOrderReviewRef(orderReviewId, {
+        type: ORDER_REF_TYPES.COMPOSITE,
+        id: selection.id,
+        role: ORDER_REF_ROLES.CONTEXT,
+      });
+      return true;
+    }
+
+    if (action === 'order-review-ref-add-selected-smt') {
+      const selectedSmtId = getSelectedSmtId?.();
+      if (!selectedSmtId || !getSmtRecordById(selectedSmtId)) {
+        bus.emit('status:update', { text: '没有选中的 SMT', isError: true });
+        return true;
+      }
+      addOrderReviewRef(orderReviewId, {
+        type: ORDER_REF_TYPES.SMT,
+        id: selectedSmtId,
+        role: ORDER_REF_ROLES.CONFIRMATION,
+      });
+      return true;
+    }
+
+    return false;
+  }
+
+  function getOrderReviewReasonRef(orderReviewId, reasonIndex, refIndex) {
+    const order = getOrderReviewById(orderReviewId);
+    const reasons = getOrderReviewReasons(order);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    const refs = Array.isArray(reasons[index]?.refs) ? reasons[index].refs : [];
+    return refs[refIndex] || null;
+  }
+
+  function locateOrderReviewRef(ref) {
+    const type = String(ref?.type || ref?.refType || '').toLowerCase();
+    let range = null;
+    let sourceChartId = ref?.sourceChartId || 'primary';
+    let label = 'linked object';
+    let annotation = null;
+
+    if (type === ORDER_REF_TYPES.PDA) {
+      annotation = getAnnotationById(ref.id || ref.refId);
+      if (!annotation) {
+        bus.emit('status:update', { text: 'Linked PDA not found', isError: true });
+        return true;
+      }
+      range = getAnnotationTimestampRange(annotation);
+      sourceChartId = ref.sourceChartId || annotation.sourceChartId || sourceChartId;
+      label = getPdaOrderRefLabel(annotation);
+      const result = locatePdaProjection(annotation);
+      bus.emit('status:update', {
+        text: result.primary.located && result.secondary.located
+          ? `Located ${label} on primary and secondary`
+          : result.primary.located
+            ? `Located ${label} on primary`
+            : result.secondary.located
+              ? `Located ${label} on secondary`
+              : `${label} has no locatable loaded chart`,
+        isError: !result.located,
+      });
+      return true;
+    } else if (type === ORDER_REF_TYPES.SEGMENT) {
+      const segment = getSegmentById(ref.id || ref.refId);
+      if (!segment) {
+        bus.emit('status:update', { text: 'Linked segment not found', isError: true });
+        return true;
+      }
+      range = getSegmentTimestampRange(segment);
+      sourceChartId = ref.sourceChartId || segment.sourceChartId || sourceChartId;
+      label = getSegmentOrderRefLabel(segment);
+    }
+
+    if (!range) {
+      bus.emit('status:update', { text: 'Linked object has no locatable time range', isError: true });
+      return true;
+    }
+
+    const useSecondary = sourceChartId === 'secondary';
+    const located = useSecondary
+      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end)
+      : viewport.locateTimestampRange(range.start, range.end);
+    if (!located) {
+      bus.emit('status:update', {
+        text: useSecondary
+          ? 'Secondary chart is not available for this linked object'
+          : 'Primary chart cannot locate this linked object',
+        isError: true,
+      });
+      return true;
+    }
+
+    bus.emit('status:update', { text: `Located ${label}`, isError: false });
+    return true;
+  }
+
+  function removeRefFromTarget(target) {
+    const reasonIndex = Number(target.dataset.reasonIndex);
+    if (Number.isFinite(reasonIndex)) {
+      removeOrderReviewReasonRef(target.dataset.orderReviewId, reasonIndex, Number(target.dataset.refIndex));
+    } else {
+      removeOrderReviewRef(target.dataset.orderReviewId, Number(target.dataset.refIndex));
+    }
+  }
+
+  function locateRefFromTarget(target) {
+    const reasonIndex = Number(target.dataset.reasonIndex);
+    const refIndex = Number(target.dataset.refIndex);
+    const ref = getOrderReviewReasonRef(target.dataset.orderReviewId, reasonIndex, refIndex);
+    if (ref) locateOrderReviewRef(ref);
+  }
+
+  function handleChange(action, target) {
+    if (action === 'order-review-reason-note') {
+      updateOrderReviewReasonNote(
+        target.dataset.orderReviewId,
+        Number(target.dataset.reasonIndex),
+        target.value
+      );
+      return true;
+    }
+
+    if (action === 'order-review-ref-remove') {
+      removeRefFromTarget(target);
+      return true;
+    }
+
+    if (action === 'order-review-ref-locate') {
+      locateRefFromTarget(target);
+      return true;
+    }
+
+    if (action.startsWith('order-review-ref-add-selected-')) {
+      addSelectedOrderReviewRef(action, target.dataset.orderReviewId, Number(target.dataset.reasonIndex) || 0);
+      return true;
+    }
+
+    return false;
+  }
+
+  function handleClick(action, actionEl) {
+    if (action === 'order-review-reason-add') {
+      addOrderReviewReason(actionEl.dataset.orderReviewId);
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'order-review-reason-delete') {
+      deleteOrderReviewReason(actionEl.dataset.orderReviewId, Number(actionEl.dataset.reasonIndex));
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'order-review-ref-remove') {
+      removeRefFromTarget(actionEl);
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'order-review-ref-locate') {
+      locateRefFromTarget(actionEl);
+      return true;
+    }
+
+    if (action.startsWith('order-review-ref-add-selected-')) {
+      addSelectedOrderReviewRef(action, actionEl.dataset.orderReviewId, Number(actionEl.dataset.reasonIndex) || 0);
+      refreshSelection?.();
+      return true;
+    }
+
+    return false;
+  }
+
+  return {
+    handleChange,
+    handleClick,
+  };
+}
