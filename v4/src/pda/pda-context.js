@@ -1,4 +1,9 @@
 // Realtime context tags for manually selected PDA points.
+//
+// This module annotates a picked PDA point with review context such as
+// "D high", "NY Open low", or "Midnight high". It is advisory metadata for
+// manual review, not a validation gate: callers may still save a point that
+// does not match any context.
 
 import { timeframeToString } from '../config.js';
 import { getBucketStart as getProjectedBucketStart } from '../chart/time-projection.js';
@@ -6,6 +11,10 @@ import { getPdaType } from './pda-types.js';
 
 export const CONTEXT_TIMEFRAMES = [1440];
 
+// Session windows are expressed in the same wall-clock timestamp convention as
+// the bar data. The 18:00 boundary matches the CME futures trading day; the
+// 17:00-17:59 break is labeled but excluded from extrema checks because it is
+// not an actionable session range.
 export const SESSION_WINDOWS = [
   { id: 'asia', label: 'Asia Session', start: 18 * 60, end: 1 * 60 + 59, crossesMidnight: true },
   { id: 'london_kz', label: 'London Killzone', start: 2 * 60, end: 4 * 60 + 59 },
@@ -50,6 +59,9 @@ function shiftUtcDay(parts, deltaDays) {
 }
 
 export function getBucketStart(timestamp, timeframe) {
+  // Keep the bucket rule shared with chart projection: daily bars anchor at the
+  // 18:00 trading-day start, and 4H bars align to backend buckets
+  // 02:00/06:00/.../22:00. PDA context must not drift from render mapping.
   return getProjectedBucketStart(timestamp, timeframe);
 }
 
@@ -111,6 +123,9 @@ function aggregatePriceForType(aggregate, pdaType) {
 }
 
 function isRepresentativeExtreme(type, selectedBar, currentTimeframe, sourceBars, aggregate, targetTimeframe) {
+  // A high-TF context should point at the lower-TF bar that actually represents
+  // the aggregate extreme. When several current-TF bars share the same extreme,
+  // the last matching bar is used so labels stay stable as data is replayed.
   const pdaType = getPdaType(type);
   if (!pdaType) return false;
 
@@ -151,6 +166,9 @@ function findSessionWindow(timestamp) {
 }
 
 function getSessionKey(timestamp, session) {
+  // Cross-midnight sessions, especially Asia, belong to the trading day that
+  // started at 18:00. This keeps 00:30 Asia bars grouped with the prior
+  // evening instead of the calendar date after midnight.
   const parts = getUtcParts(timestamp);
   if (session?.crossesMidnight && parts.hour < 18) {
     const shifted = shiftUtcDay(parts, -1);
@@ -216,6 +234,9 @@ function getHtfContexts(type, bar, currentTimeframe, sourceBars) {
 }
 
 export function getPointCanonicalTimestamp(type, bar, currentTimeframe, sourceBars = []) {
+  // For higher timeframe picks, persist the lower-timeframe occurrence of the
+  // selected high/low when available. Rendering can still use the visible bar,
+  // while review/export has the precise source timestamp.
   const pdaType = getPdaType(type);
   if (!pdaType || !bar) return bar?.timestamp ?? null;
 
