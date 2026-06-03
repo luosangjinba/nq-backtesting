@@ -1,7 +1,7 @@
 // Pixel hit testing for Order Setup chart elements.
 
 import { getPrimaryChartContext } from '../chart/chart-context.js';
-import { ORDER_DIRECTIONS } from './order-review-store.js';
+import { ORDER_DIRECTIONS } from './order-review-types.js';
 import { getSetupSets } from './setup-set.js';
 import {
   ORDER_SETUP_LINE_LENGTH_BARS,

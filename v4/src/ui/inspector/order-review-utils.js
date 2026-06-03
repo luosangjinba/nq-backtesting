@@ -4,7 +4,7 @@ import {
   getBarChartTime as getProjectedBarChartTime,
   normalizeChartTime,
 } from '../../chart/time-projection.js';
-import { ORDER_RESULTS } from '../../order/order-review-store.js';
+import { ORDER_RESULTS } from '../../order/order-review-types.js';
 import { formatTimeInput } from '../../utils.js';
 
 export function getSegmentTimestamp(segment) {
