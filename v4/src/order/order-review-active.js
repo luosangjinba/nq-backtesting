@@ -8,7 +8,7 @@ import {
   ORDER_REF_ROLES,
   updateOrderReview,
 } from './order-review-store.js';
-import { createSetupSetFromOrderReview, getSetupSetById } from './setup-set.js';
+import { getSetupSetById } from './setup-set.js';
 
 let activeReviewSetId = null;
 
@@ -70,13 +70,13 @@ export function createChartReviewSet({
   });
   activeReviewSetId = order.id;
   emitChanged();
-  return createSetupSetFromOrderReview(order);
+  return getActiveReviewSet();
 }
 
 export function updateActiveReviewSet(patch = {}) {
   if (!activeReviewSetId || !getSetupSetById(activeReviewSetId)) return null;
   const updated = updateOrderReview(activeReviewSetId, patch);
-  return updated ? createSetupSetFromOrderReview(updated) : null;
+  return updated ? getSetupSetById(updated.id) : null;
 }
 
 export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONTEXT, note = '', ...metadata } = {}) {
@@ -97,9 +97,10 @@ export function linkRefToActiveReviewSet({ type, id, role = ORDER_REF_ROLES.CONT
       ],
     },
   });
-  return updated ? createSetupSetFromOrderReview(updated) : null;
+  return updated ? getSetupSetById(updated.id) : null;
 }
 
+// Legacy aliases kept for compatibility. New code should use ReviewSet / SetupSet APIs above.
 export function getActiveOrderReviewId() {
   return getActiveReviewSetId();
 }
