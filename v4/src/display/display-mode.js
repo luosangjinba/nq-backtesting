@@ -119,9 +119,9 @@ function getSegmentByIdMap() {
 
 function getAllIds() {
   return {
-    visiblePdaIds: new Set(getAnnotations().map((annotation) => annotation.id).filter(Boolean)),
-    visibleSegmentIds: new Set(getSegments().map((segment) => segment.id).filter(Boolean)),
-    visibleGroupIds: new Set(getSegmentGroups().map((group) => group.id).filter(Boolean)),
+    visiblePdaIds: new Set(getAnnotations().filter((annotation) => !annotation.display?.hidden).map((annotation) => annotation.id).filter(Boolean)),
+    visibleSegmentIds: new Set(getSegments().filter((segment) => !segment.display?.hidden).map((segment) => segment.id).filter(Boolean)),
+    visibleGroupIds: new Set(getSegmentGroups().filter((group) => !group.display?.hidden).map((group) => group.id).filter(Boolean)),
   };
 }
 
@@ -182,16 +182,19 @@ export function getDisplayVisibility() {
 
 export function shouldRenderPda(annotation) {
   if (!annotation?.id) return false;
+  if (annotation.display?.hidden) return false;
   return getDisplayVisibility().visiblePdaIds.has(annotation.id);
 }
 
 export function shouldRenderSegment(segment) {
   if (!segment?.id) return false;
+  if (segment.display?.hidden) return false;
   return getDisplayVisibility().visibleSegmentIds.has(segment.id);
 }
 
 export function shouldRenderSegmentGroup(group) {
   if (!group?.id) return false;
+  if (group.display?.hidden) return false;
   return getDisplayVisibility().visibleGroupIds.has(group.id);
 }
 

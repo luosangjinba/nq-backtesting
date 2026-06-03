@@ -63,6 +63,7 @@ export function renderSegments() {
   );
 
   getSegmentGroups().forEach((group) => {
+    if (group.display?.hidden) return;
     const children = getSortedGroupChildren(group);
     if (children.length < 2) return;
     if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
@@ -115,6 +116,7 @@ export function renderSegments() {
   const selectedGroupTargetId = selectedGroupModel?.targetSegmentId || '';
   getSegments().forEach((segment) => {
     if (!segment.start || !segment.end) return;
+    if (segment.display?.hidden) return;
     const isIsolated = isolatedSegment?.id === segment.id;
     const isIsolateCompanion = isolateCompanionIds.has(segment.id);
     const isolateMode = isIsolated ? getIsolateDisplayMode(segment) : null;

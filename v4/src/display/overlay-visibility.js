@@ -28,6 +28,15 @@ function getResponseIdsByMode(responses = [], mode) {
   );
 }
 
+function removeHiddenOverlayIds({ visibleSegmentIds, visibleGroupIds, visiblePdaIds, highlightPdaIds, segments, groups, annotations }) {
+  segments.filter((segment) => segment.display?.hidden).forEach((segment) => visibleSegmentIds.delete(segment.id));
+  groups.filter((group) => group.display?.hidden).forEach((group) => visibleGroupIds.delete(group.id));
+  annotations.filter((annotation) => annotation.display?.hidden).forEach((annotation) => {
+    visiblePdaIds.delete(annotation.id);
+    highlightPdaIds?.delete(annotation.id);
+  });
+}
+
 export function getStructureOverlayVisibility({
   segments = [],
   groups = [],
@@ -66,6 +75,16 @@ export function getStructureOverlayVisibility({
     const visiblePdaIds = new Set();
     addVisibleResponseIds(visiblePdaIds, isolatedResponses);
     addVisibleResponseIds(visiblePdaIds, companionResponses);
+    const highlightPdaIds = getResponseIdsByMode(isolatedResponses, 'highlight');
+    removeHiddenOverlayIds({
+      visibleSegmentIds,
+      visibleGroupIds,
+      visiblePdaIds,
+      highlightPdaIds,
+      segments,
+      groups,
+      annotations,
+    });
 
     return {
       visibleSegmentIds,
@@ -73,7 +92,7 @@ export function getStructureOverlayVisibility({
       visibleGroupIds,
       visiblePdaIds,
       hiddenPdaIds: getResponseIdsByMode(isolatedResponses, 'hidden'),
-      highlightPdaIds: getResponseIdsByMode(isolatedResponses, 'highlight'),
+      highlightPdaIds,
       activeSegmentIds: new Set(),
       activeGroupIds: new Set(),
       isolate: true,
@@ -121,6 +140,16 @@ export function getStructureOverlayVisibility({
   drawingSetVisibility.activePdaIds.forEach((id) => {
     visiblePdaIds.add(id);
     highlightPdaIds.add(id);
+  });
+
+  removeHiddenOverlayIds({
+    visibleSegmentIds,
+    visibleGroupIds,
+    visiblePdaIds,
+    highlightPdaIds,
+    segments,
+    groups,
+    annotations,
   });
 
   return {

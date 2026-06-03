@@ -9,12 +9,15 @@ import {
 } from '../chart/secondary-chart-manager.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
-import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive } from '../chart/primitives.js';
+import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive, VerticalLinePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
-import { formatPrimaryContextLabel, getBucketStart } from './pda-context.js';
+import { getBucketStart } from './pda-context.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
+import { formatPdaDisplayLabel } from './pda-source-format.js';
+import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
+import { getSelectedPda } from './pda-selection.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
 
@@ -62,8 +65,22 @@ function getNestedPointRenderTime(point, fallbackTime) {
 }
 
 function getAnnotationLabel(annotation, pdaType) {
-  const contextLabel = formatPrimaryContextLabel(annotation.contexts);
-  return contextLabel ? `${pdaType.label} · ${contextLabel}` : pdaType.label;
+  return formatPdaDisplayLabel(annotation, pdaType.label);
+}
+
+function buildTimeOnlyProjectionPrimitives(chartInstance, annotation, pdaType, isHighlighted = false) {
+  const color = isHighlighted ? HIGHLIGHT_COLOR : 'rgba(178, 181, 190, 0.72)';
+  const label = getAnnotationLabel(annotation, pdaType);
+  return getPdaProjectionTimestamps(annotation)
+    .map(mapTimestampToSecondaryChartTime)
+    .filter((time, index, times) => time !== null && time !== undefined && times.indexOf(time) === index)
+    .map((time, index) => new VerticalLinePrimitive(chartInstance, time, {
+      color,
+      lineWidth: isHighlighted ? 2 : 1,
+      lineDash: [4, 4],
+      label: index === 0 ? label : '',
+      labelBorderColor: color,
+    }));
 }
 
 function getExtendBars(annotation, fallback = 0) {
@@ -279,6 +296,7 @@ export function renderSecondaryPdaAnnotations() {
     segments: getSegments(),
     groups: getSegmentGroups(),
   });
+  const selected = getSelectedPda();
 
   annotations.forEach((annotation) => {
     if (!visibility.visiblePdaIds.has(annotation.id)) return;
@@ -286,7 +304,11 @@ export function renderSecondaryPdaAnnotations() {
 
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;
-    const isHighlighted = visibility.highlightPdaIds?.has(annotation.id);
+    const isHighlighted = selected?.id === annotation.id || visibility.highlightPdaIds?.has(annotation.id);
+    if (!canRenderPdaPriceProjection(annotation, secondaryStore.getSecondaryInstrument())) {
+      buildTimeOnlyProjectionPrimitives(chartInstance, annotation, pdaType, isHighlighted).forEach(attachPdaPrimitive);
+      return;
+    }
 
     if (pdaType.shape === 'liquidity-line') {
       const primitive = buildLiquidityPrimitive(chartInstance, series, annotation, pdaType, isHighlighted);

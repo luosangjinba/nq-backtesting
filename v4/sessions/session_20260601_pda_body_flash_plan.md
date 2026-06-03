@@ -1491,3 +1491,402 @@ Validation:
   - empty normalized Daily Time review returns `hasDailyTimeReviewContent=false`.
   - review with note/ref returns `true`.
   - exportable content list excludes the empty review and includes the populated review.
+
+## Step 225-228 Plan - Daily Time Inspector Action Split
+
+Branch:
+
+- Started from `main` after merging `feature/daily-time-reaction-observation`.
+- New branch: `refactor/daily-time-inspector-actions`.
+
+Scope:
+
+- This is a structure-only refactor for Daily Time inspector behavior.
+- Do not change Daily Time UI, store schema, Review JSON schema, localStorage key, Calendar behavior, or Order/PDA/Segment/SMT behavior.
+- Goal is to reduce `inspector-sidebar.js` responsibility by extracting Daily Time action state and event handling.
+
+Planned steps:
+
+- Step 225: Commit this baseline plan.
+- Step 226: Add `ui/inspector/time-reaction-actions.js` and move Daily Time target parsing, pending pick state, labels, ranges, and ref helper logic behind a controller API while preserving behavior.
+- Step 227: Route Daily Time click/change handlers and bus pick handlers through the controller; keep sidebar responsible for page stack and rendering.
+- Step 228: Validate syntax and smoke cases, then document final boundaries.
+
+## Step 226 Implementation - Daily Time Action Helper Shell
+
+Completed:
+
+- Added `ui/inspector/time-reaction-actions.js`.
+- Moved reusable Daily Time helper API into the new module:
+  - pending ref pick state accessors
+  - target parsing from action elements
+  - target key / label / section name helpers
+  - target time and locate range helpers
+  - timestamp range helpers
+  - timeframe metadata resolution helpers
+- `inspector-sidebar.js` is not wired to the new module yet, so runtime behavior remains unchanged in this step.
+
+## Step 227 Implementation - Daily Time Action Controller Wiring
+
+Completed:
+
+- `time-reaction-actions.js` now owns Daily Time inspector behavior:
+  - pending ref pick mode
+  - note/locate field change handlers
+  - context/reaction/summary item add/remove handlers
+  - target locate
+  - linked ref locate/remove
+  - picked PDA / Segment / Composite / SMT / Order Setup linking
+- `inspector-sidebar.js` now delegates Daily Time actions through:
+  - `dailyTimeActions.handleChange(action, target)`
+  - `dailyTimeActions.handleClick(action, actionEl)`
+  - `dailyTimeActions.handlePickedPda/Segment/Composite/Smt/OrderSetup`
+- Sidebar retains:
+  - page stack and detail rendering
+  - Calendar routing
+  - shared PDA/Segment/SMT/Order Setup selection state
+  - bus listener registration
+- Removed the duplicated Daily Time helper/locate/ref functions from `inspector-sidebar.js`.
+
+Validation:
+
+- `node --check` passed for:
+  - `time-reaction-actions.js`
+  - `inspector-sidebar.js`
+
+## Step 228 Validation - Daily Time Action Split
+
+Final boundaries:
+
+- `inspector-sidebar.js` owns:
+  - sidebar DOM lifecycle
+  - page stack and Back behavior
+  - Calendar routing and selected date state
+  - shared PDA / Segment / Composite / SMT / Order Setup selection state
+  - bus listener registration and delegation
+- `time-reaction-actions.js` owns:
+  - Daily Time pending ref pick state
+  - Daily Time target parsing and labels
+  - Daily Time change/click handlers
+  - Daily Time target locate and linked ref locate
+  - Daily Time picked-object linking
+- `time-reaction-panel.js` remains render-only.
+- `daily-time-review-store.js` remains the data/normalization/persistence-facing store.
+
+Validation completed:
+
+- Full source syntax:
+  - `rg --files v4/src -g '*.js' | xargs -n1 node --check`
+- Helper smoke:
+  - `summaryItem` locate range duration is `5400` seconds (`09:30-11:00`).
+  - reaction item target key remains `reactionItem:event_1:09:30`.
+  - `1H` source timeframe metadata resolves to `60`.
+- Store smoke:
+  - empty normalized Daily Time review remains non-content.
+  - populated Daily Time review remains content.
+  - exportable content list excludes the empty review.
+- Static web:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+
+Runtime note:
+
+- This pass did not use a browser click-through smoke for Select Object / ref Locate. The refactor preserves existing selectors and delegates the same action names through the controller; future UI regression checks should exercise Calendar Open, Add Event, Select Object pending mode, and linked ref Locate in-browser.
+
+## Step 229-232 Plan - Calendar Chart Object Visibility Controls
+
+Branch:
+
+- Started from `refactor/daily-time-inspector-actions`.
+- New branch: `feature/calendar-object-visibility-controls`.
+
+User request:
+
+- Add inspector visibility controls for chart objects similar to Order Setup green/gray slash indicators.
+- Covered objects:
+  - PDA
+  - Segment
+  - Composite
+  - Killzone
+  - Time Line
+  - SMT if/when it has a persisted display hidden state available
+- Segment and Composite visibility should be object/group level, not individual drawn primitive fragments.
+- Add day-level buttons in Calendar to show all chart objects for the selected day and hide all chart objects for the selected day.
+
+Planned steps:
+
+- Step 229: Commit this plan and boundary.
+- Step 230: Add row-level visibility controls in Calendar object rows and wire actions in `inspector-sidebar.js`.
+- Step 231: Add selected-day bulk Show/Hide chart object actions.
+- Step 232: Validate syntax/smoke cases and document final boundary.
+
+Boundary:
+
+- Reuse existing `display.hidden` where available:
+  - PDA: `annotation.display.hidden`
+  - Segment: `segment.display.hidden`
+  - Composite: `segmentGroup.display.hidden`
+  - Killzone / Time Line: overlay item `enabled=false`
+- Do not change Review JSON schema beyond existing display/overlay fields.
+- Economic Events, Time Reaction, and Order Setups are not part of the new day-level chart object bulk buttons.
+
+## Step 230 Implementation - Calendar Row Visibility Controls
+
+Completed:
+
+- Added a generic Calendar object visibility toggle using the same green/gray slash visual language as Order Setups.
+- Row-level visibility now supports:
+  - SMT via `record.display.hidden`
+  - PDA via `annotation.display.hidden`
+  - Segment via `segment.display.hidden`
+  - Composite via `segmentGroup.display.hidden`
+  - Killzone via `enabled=false`
+  - Time Line via `enabled=false`
+- Hidden rows are visually muted in the Calendar day list.
+- Renderers now respect the new hidden states:
+  - SMT renderer skips `display.hidden`.
+  - display resolver excludes hidden PDA / Segment / Composite and prevents Structure Sets focus from re-adding hidden objects.
+  - Time overlay renderer already respected `enabled=false`.
+- `inspector-sidebar.js` now handles `calendar-object-toggle-hidden` and records the change in history.
+
+Validation:
+
+- `node --check` passed for:
+  - `calendar-panel.js`
+  - `inspector-sidebar.js`
+  - `display-mode.js`
+  - `overlay-visibility.js`
+  - `smt-store.js`
+  - `smt-renderer.js`
+- `git diff --check` passed.
+
+## Step 231 Implementation - Calendar Day Bulk Visibility
+
+Completed:
+
+- Calendar selected-day panel now includes:
+  - `Show Day Objects`
+  - `Hide Day Objects`
+- These actions target only chart objects with visibility state:
+  - SMT
+  - PDA
+  - Segment
+  - Composite
+  - Killzone
+  - Time Line
+- Economic Events, Time Reaction, and Order Setups are excluded from the day bulk buttons.
+- Buttons show the number of eligible day chart objects and are disabled when the selected day has none.
+- The bulk actions are handled through `calendar-day-show-chart-objects` and `calendar-day-hide-chart-objects`.
+
+Validation:
+
+- `node --check` passed for `calendar-panel.js`.
+- `git diff --check` passed.
+
+## Step 232 Validation - Calendar Chart Object Visibility Controls
+
+Final behavior:
+
+- Row-level visibility controls are available in Inspector Calendar for:
+  - SMT
+  - PDA
+  - Segment
+  - Composite
+  - Killzone
+  - Time Line
+- Hidden rows show the gray slash state and muted row text.
+- Chart renderers respect the hidden state:
+  - PDA / Segment / Composite through display visibility resolution.
+  - SMT through `record.display.hidden`.
+  - Killzone / Time Line through existing `enabled=false`.
+- Day-level bulk actions:
+  - `Show Day Objects`
+  - `Hide Day Objects`
+  - The buttons count only eligible chart objects and disable when the day has none.
+  - Economic Events, Time Reaction, and Order Setups are excluded.
+
+Validation completed:
+
+- Full source syntax:
+  - `rg --files v4/src -g '*.js' | xargs -n1 node --check`
+- Diff check:
+  - `git diff --check HEAD~2..HEAD`
+- Static web:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+- Calendar render smoke:
+  - loaded one bar for `2023-01-03`.
+  - loaded one PDA, one Segment, one Killzone, and one Time Line.
+  - rendered Calendar panel for that day.
+  - confirmed day show/hide actions are present.
+  - confirmed 4 row-level `calendar-object-toggle-hidden` controls are present.
+
+Runtime note:
+
+- Browser click-through was not run in this pass. The smoke validates render wiring; interactive regression should click row toggle and day Hide/Show in the running app.
+
+## Step 233-238 Plan - PDA Multi-Chart Projection Unification
+
+User reference:
+
+- TradingView can display one drawing object across multiple panes/areas and still operate it as one object.
+- The desired V4 behavior is the same conceptually:
+  - one logical PDA id
+  - multiple chart projections
+  - one shared selection / visibility / delete / locate / Inspector identity
+
+Core model:
+
+- A PDA remains a single annotation record with one `id`.
+- Existing source metadata remains authoritative:
+  - `sourceChartId`
+  - `sourceChartLabel`
+  - `sourceInstrument`
+  - `sourceTimeframe`
+  - `sourceTimeframeLabel`
+  - `sourceContext`
+- Main chart and secondary chart render projections of that same annotation where possible.
+- Do not create duplicated PDA records for each chart.
+
+Projection rules:
+
+- Same instrument projection:
+  - Example: Main NQ 4H PDA projected onto Sub NQ 1M.
+  - Render full PDA price geometry, CE, and label where timeframe mapping allows it.
+- Cross-instrument projection:
+  - Example: Sub ES 1H FVG referenced on Main NQ 1M.
+  - Do not project ES price boxes onto NQ price axis.
+  - Render only time range / vertical marker / source badge on the non-source chart.
+  - Source chart still renders the full price object.
+
+Interaction rules:
+
+- Click/select any projection -> select the same `annotation.id`.
+- Both charts should highlight their projection for the selected PDA.
+- Hide/Delete acts on the annotation id and removes every projection.
+- Locate acts on both charts when available:
+  - source chart can flash price area.
+  - non-source chart flashes time range only if price projection is not valid.
+- Calendar visibility and Daily Time linked refs continue operating on PDA id.
+
+Planned implementation:
+
+- Step 233: Freeze this boundary and document the projection model.
+- Step 234: Add a shared PDA source formatter / badge helper and use it in Inspector, Calendar, refs, and chart labels.
+- Step 235: Unify selection so primary and secondary PDA hit-test/renderers share the same selected PDA id.
+- Step 236: Update PDA renderers to support projection modes:
+  - full price projection for same instrument
+  - time-only projection for cross instrument
+- Step 237: Centralize PDA actions:
+  - locate both charts
+  - source chart price flash
+  - non-source chart time flash
+  - hide/delete by PDA id
+- Step 238: Validate with browser smoke and source-specific fixtures.
+
+Non-goals for this stage:
+
+- Do not add per-pane independent editing.
+- Do not drag one projection separately from the underlying PDA.
+- Do not project cross-instrument price ranges.
+- Do not expand the same model to Segment / Composite / SMT until PDA projection behavior is stable.
+
+## Step 233 Execution - PDA Projection Boundary Frozen
+
+Status:
+
+- Frozen as the active implementation boundary.
+- PDA identity remains a single annotation `id`; primary and secondary charts are projection surfaces only.
+- Selection, visibility, delete, Calendar rows, linked refs, and locate actions must continue to target the annotation id rather than chart-specific projection ids.
+- No per-pane edit state will be introduced in this rollout.
+
+Implementation note:
+
+- Existing PDA store, Calendar visibility, Inspector detail, and order/time-reaction refs already operate on annotation ids.
+- Follow-up steps should harden formatter, selection highlight, projection render mode, and locate behavior without adding duplicate PDA records.
+
+## Step 234 Execution - PDA Source Formatter
+
+Implemented:
+
+- Added `pda-source-format.js` as the shared formatter for PDA source badges.
+- Standardized chart labels to `Main` / `Sub`, producing labels such as `Main NQ 1H` and `Sub ES 1H`.
+- Reused the formatter in:
+  - PDA chart labels on primary and secondary renderers.
+  - PDA Inspector source field.
+  - Calendar PDA row summaries.
+  - Order Setup / Time Reaction linked PDA ref metadata and labels through `getPdaOrderRefLabel()`.
+
+Boundary:
+
+- The formatter is display-only; it does not change PDA source metadata or persistence schema.
+
+## Step 235 Execution - Shared PDA Selection / Hit-Test
+
+Implemented:
+
+- `pda-hit-test.js` now uses `getStructureOverlayVisibility()` instead of duplicating isolate/display-mode PDA visibility rules.
+- Primary and secondary PDA hit-test therefore use the same visible/hidden PDA id sets as the renderers.
+- Secondary PDA renderer now reads `getSelectedPda()` and highlights the selected annotation id in addition to segment-linked highlight ids.
+
+Result:
+
+- Clicking a PDA projection on either chart still calls `selectPda(annotation.id)`.
+- The same selected id is now highlighted on the secondary projection when it is visible.
+
+## Step 236 Execution - PDA Projection Render Modes
+
+Implemented:
+
+- Added `pda-projection.js` for shared projection helpers:
+  - source/target instrument comparison
+  - same-instrument price projection eligibility
+  - projection timestamp extraction
+- Primary and secondary PDA renderers now branch by instrument:
+  - same instrument: render the full PDA price geometry as before
+  - cross instrument: render dashed time-only vertical projections with the shared source label
+- PDA hit-test now supports time-only projections, so clicking the dashed cross-instrument projection still selects the same annotation id.
+
+Boundary:
+
+- Cross-instrument projections intentionally do not draw price boxes, liquidity lines, fib levels, or point-set prices on the target chart.
+
+## Step 237 Execution - Unified PDA Locate Actions
+
+Implemented:
+
+- Added `pda-locate-actions.js` as the shared PDA locate action helper.
+- PDA locate now targets the same annotation id and attempts both charts:
+  - same-instrument chart: locate without time flash, then flash PDA body/price geometry
+  - cross-instrument chart: locate with time-range flash only
+- Order Setup linked PDA refs now call the shared PDA locate helper.
+- Time Reaction linked PDA refs now call the shared PDA locate helper.
+- Calendar PDA row Locate now carries PDA type/id and uses the shared PDA locate helper.
+
+Boundary:
+
+- Segment / Composite / SMT / Order Setup locate paths are unchanged in this step.
+
+## Step 238 Validation - PDA Multi-Chart Projection
+
+Checks run:
+
+- Full JS syntax:
+  - `for f in $(rg --files v4/src -g "*.js"); do node --check "$f"; done`
+  - Result: pass.
+- Module/projection smoke:
+  - `formatPdaSourceBadge({sourceChartId:'secondary', sourceInstrument:'ES', sourceTimeframe:60})` -> `Sub ES 1H`
+  - `canRenderPdaPriceProjection(Sub ES, NQ)` -> `false`
+  - `canRenderPdaPriceProjection(Sub ES, ES)` -> `true`
+  - `getPdaTimestampRange()` returns expected start/end for a range PDA.
+- Static page:
+  - `http://127.0.0.1:8001/index.html` returned `200 OK`.
+- Diff hygiene:
+  - `git diff --check` passed.
+
+Runtime note:
+
+- Browser click-through with live fixtures was not run in this pass.
+- The implementation now routes render/hit-test/locate through shared projection helpers, so the required behaviors are covered by static/module smoke:
+  - same-instrument full price projection
+  - cross-instrument time-only projection
+  - shared annotation id selection
+  - Calendar/ref PDA locate through one helper

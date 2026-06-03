@@ -77,6 +77,7 @@ export function hitTestSegments({ x, y, context = null }) {
   );
 
   getSegments().forEach((segment) => {
+    if (segment.display?.hidden) return;
     if (isolatedSegment && !isolateVisibleIds.has(segment.id)) return;
     if (!isolatedSegment && !shouldRenderSegment(segment)) return;
     const hit = hitSegment(segment, x, y, context);
@@ -132,6 +133,7 @@ export function hitTestSegmentGroups({ x, y, context = null }) {
   );
 
   getSegmentGroups().forEach((group) => {
+    if (group.display?.hidden) return;
     if (!isolatedSegment && !shouldRenderSegmentGroup(group)) return;
     if (isolatedSegment) {
       const children = getSortedGroupChildren(group);

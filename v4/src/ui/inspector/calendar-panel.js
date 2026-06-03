@@ -28,40 +28,12 @@ const MONTHS = Object.freeze([
   'December',
 ]);
 
-const CALENDAR_CELL_INDICATORS = Object.freeze([
-  {
-    key: 'smt',
-    label: 'SMT',
-    className: 'smt',
-    types: [CALENDAR_OBJECT_TYPES.SMT],
-  },
-  {
-    key: 'pda',
-    label: 'PDA',
-    className: 'pda',
-    types: [CALENDAR_OBJECT_TYPES.PDA],
-  },
-  {
-    key: 'structure',
-    label: 'Structure',
-    className: 'structure',
-    types: [CALENDAR_OBJECT_TYPES.SEGMENT, CALENDAR_OBJECT_TYPES.COMPOSITE],
-  },
-  {
-    key: 'time',
-    label: 'Time',
-    className: 'time',
-    types: [CALENDAR_OBJECT_TYPES.KILLZONE],
-  },
-]);
-
 function getEconomicImpactClass(event = {}) {
   if (event.allDay || event.eventType === 'holiday') return 'economic-holiday';
   const impact = String(event.impact || '').toLowerCase();
   if (impact === 'high') return 'economic-high';
   if (impact === 'medium') return 'economic-medium';
-  if (impact === 'low') return 'economic-low';
-  return 'economic-holiday';
+  return '';
 }
 
 function getEconomicImpactLabel(event = {}) {
@@ -161,6 +133,7 @@ function getDayObjectOverview(dateKey, calendarIndex) {
   const economicIndicators = [];
   (economicGroup?.rows || []).forEach((item) => {
     const className = getEconomicImpactClass(item.source);
+    if (!className) return;
     const label = getEconomicImpactLabel(item.source);
     const existing = economicIndicators.find((indicator) => indicator.className === className);
     if (existing) {
@@ -174,20 +147,15 @@ function getDayObjectOverview(dateKey, calendarIndex) {
       });
     }
   });
-  const indicators = CALENDAR_CELL_INDICATORS.map((indicator) => {
-    const count = indicator.types.reduce((sum, type) => sum + (countByType.get(type) || 0), 0);
-    return { ...indicator, count };
-  }).filter((indicator) => indicator.count > 0);
-  const total = groups.reduce((sum, group) => sum + group.rows.length, 0);
   return {
     setupCount,
-    total,
-    indicators: [...economicIndicators, ...indicators],
+    total: setupCount + economicIndicators.reduce((sum, indicator) => sum + indicator.count, 0),
+    indicators: economicIndicators,
   };
 }
 
 function renderCalendarDayOverview(overview) {
-  if (!overview.total) return '';
+  if (!overview.indicators.length) return '';
   const dots = overview.indicators
     .map(
       (indicator) =>
@@ -195,8 +163,7 @@ function renderCalendarDayOverview(overview) {
     )
     .join('');
   return `
-    <span class="calendar-day-overview" aria-label="${escapeHtml(`${overview.total} calendar objects`)}">
-      <span class="calendar-object-total">${escapeHtml(overview.total)}</span>
+    <span class="calendar-day-overview" aria-label="${escapeHtml(`${overview.indicators.length} calendar event markers`)}">
       <span class="calendar-object-dots">${dots}</span>
     </span>
   `;
@@ -230,6 +197,35 @@ function getObjectTypeLabel(item) {
   return 'Obj';
 }
 
+function canToggleObjectVisibility(item) {
+  return [
+    CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.PDA,
+    CALENDAR_OBJECT_TYPES.SEGMENT,
+    CALENDAR_OBJECT_TYPES.COMPOSITE,
+    CALENDAR_OBJECT_TYPES.KILLZONE,
+    CALENDAR_OBJECT_TYPES.TIME_LINE,
+  ].includes(item.ref?.type);
+}
+
+function isDayBulkChartObject(item) {
+  return canToggleObjectVisibility(item);
+}
+
+function countDayBulkChartObjects(groups = []) {
+  return groups
+    .flatMap((group) => group.rows || [])
+    .filter(isDayBulkChartObject)
+    .length;
+}
+
+function isCalendarObjectHidden(item) {
+  if (item.ref?.type === CALENDAR_OBJECT_TYPES.KILLZONE || item.ref?.type === CALENDAR_OBJECT_TYPES.TIME_LINE) {
+    return item.source?.enabled === false;
+  }
+  return Boolean(item.source?.display?.hidden);
+}
+
 function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
   const canOpen = ['order-setup', 'time-reaction', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
@@ -246,6 +242,8 @@ function renderObjectActionButtons(item) {
       data-locate-start="${canLocate ? item.range.start : ''}"
       data-locate-end="${canLocate ? item.range.end : ''}"
       data-object-label="${escapeHtml(locateLabel)}"
+      data-object-type="${escapeHtml(item.ref?.type || '')}"
+      data-object-id="${escapeHtml(item.ref?.id || '')}"
       type="button"
       ${canLocate ? '' : 'disabled'}
     >Locate</button>
@@ -312,6 +310,23 @@ function renderSetupVisibilityToggle(item) {
   `;
 }
 
+function renderObjectVisibilityToggle(item) {
+  if (!canToggleObjectVisibility(item) || !item.ref?.id) return '';
+  const hidden = isCalendarObjectHidden(item);
+  const label = hidden ? 'Hidden object. Click to show.' : 'Visible object. Click to hide.';
+  return `
+    <button
+      class="calendar-object-visibility ${hidden ? 'is-hidden' : 'is-visible'}"
+      data-inspector-action="calendar-object-toggle-hidden"
+      data-object-type="${escapeHtml(item.ref.type)}"
+      data-object-id="${escapeHtml(item.ref.id)}"
+      aria-label="${label}"
+      title="${label}"
+      type="button"
+    ></button>
+  `;
+}
+
 function renderEconomicEventRow(item) {
   const event = item.source || {};
   const impactLabel = getEconomicImpactLabel(event);
@@ -337,12 +352,16 @@ function renderObjectRow(item) {
   const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const isOrderSetup = item.ref?.type === 'order-setup';
+  const isHidden = isCalendarObjectHidden(item);
   return `
-    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}">
-      <div class="calendar-object-main ${isOrderSetup ? 'calendar-object-main-setup' : ''}">
-        <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
-        <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
-        ${renderSetupVisibilityToggle(item)}
+    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
+      <div class="calendar-object-main">
+        <div class="calendar-object-meta">
+          <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
+          <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
+          ${renderSetupVisibilityToggle(item)}
+          ${renderObjectVisibilityToggle(item)}
+        </div>
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
       ${renderObjectActions(item)}
@@ -420,15 +439,17 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
   ];
 }
 
-function renderObjectGroup(group) {
+function renderObjectGroup(group, options = {}) {
   const isEconomicGroup = group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT;
   const rows = group.rows.length
     ? group.rows.map(renderObjectRow).join('')
     : '<div class="calendar-object-empty">None</div>';
   const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
+  const openGroups = options.openGroups instanceof Set ? options.openGroups : new Set(options.openGroups || []);
+  const isOpen = isOrderSetupGroup || openGroups.has(group.type);
   const countLabel = `${group.rows.length}`;
   return `
-    <details class="calendar-object-group" ${isOrderSetupGroup ? 'open' : ''}>
+    <details class="calendar-object-group" data-calendar-group-type="${escapeHtml(group.type)}" ${isOpen ? 'open' : ''}>
       <summary class="calendar-object-title">
         <span>${escapeHtml(group.label)}</span>
         <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
@@ -472,7 +493,7 @@ export function getDefaultCalendarDate() {
   return range?.start || '';
 }
 
-export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
+export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGroups = [] } = {}) {
   const range = getLoadedDateRange();
   if (!range) {
     return section('Calendar', '<div class="inspector-empty">Load chart data to show calendar.</div>');
@@ -485,6 +506,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
   const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true });
+  const dayChartObjectCount = countDayBulkChartObjects(objectGroups);
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
     ? `Manual overlays: ${overlaySelectedDate}`
@@ -531,8 +553,24 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '' } = {}) {
             : ''
         }
       </div>
+      <div class="calendar-day-visibility-actions">
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="calendar-day-show-chart-objects"
+          data-calendar-date="${escapeHtml(activeDate)}"
+          type="button"
+          ${dayChartObjectCount ? '' : 'disabled'}
+        >Show Day Objects${dayChartObjectCount ? ` (${dayChartObjectCount})` : ''}</button>
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="calendar-day-hide-chart-objects"
+          data-calendar-date="${escapeHtml(activeDate)}"
+          type="button"
+          ${dayChartObjectCount ? '' : 'disabled'}
+        >Hide Day Objects${dayChartObjectCount ? ` (${dayChartObjectCount})` : ''}</button>
+      </div>
       <div class="calendar-object-list">
-        ${objectGroups.map(renderObjectGroup).join('')}
+        ${objectGroups.map((group) => renderObjectGroup(group, { openGroups })).join('')}
       </div>
     </div>
   `;
