@@ -353,19 +353,6 @@ html, body {
   pointer-events: none;
 }
 
-.calendar-object-total {
-  min-width: 13px;
-  height: 13px;
-  padding: 0 3px;
-  border-radius: 999px;
-  background: rgba(141, 145, 155, 0.24);
-  color: #d1d4dc;
-  font-size: 9px;
-  font-weight: 600;
-  line-height: 13px;
-  text-align: center;
-}
-
 .calendar-object-dots {
   display: flex;
   min-width: 0;
@@ -380,22 +367,6 @@ html, body {
   background: #8d919b;
 }
 
-.calendar-object-dot.smt {
-  background: #ab47bc;
-}
-
-.calendar-object-dot.pda {
-  background: #26a69a;
-}
-
-.calendar-object-dot.structure {
-  background: #ffb74d;
-}
-
-.calendar-object-dot.time {
-  background: #42a5f5;
-}
-
 .calendar-object-dot.economic-high,
 .calendar-economic-dot.economic-high {
   background: #ef5350;
@@ -406,7 +377,6 @@ html, body {
   background: #ff9800;
 }
 
-.calendar-object-dot.economic-low,
 .calendar-economic-dot.economic-low {
   background: #fdd835;
 }
@@ -426,11 +396,6 @@ html, body {
   border-color: #26a69a;
   color: #fff;
   font-weight: 600;
-}
-
-.inspector-calendar-day.selected .calendar-object-total {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
 }
 
 .inspector-calendar-day.disabled {

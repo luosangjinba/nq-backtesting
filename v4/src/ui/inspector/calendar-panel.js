@@ -28,40 +28,12 @@ const MONTHS = Object.freeze([
   'December',
 ]);
 
-const CALENDAR_CELL_INDICATORS = Object.freeze([
-  {
-    key: 'smt',
-    label: 'SMT',
-    className: 'smt',
-    types: [CALENDAR_OBJECT_TYPES.SMT],
-  },
-  {
-    key: 'pda',
-    label: 'PDA',
-    className: 'pda',
-    types: [CALENDAR_OBJECT_TYPES.PDA],
-  },
-  {
-    key: 'structure',
-    label: 'Structure',
-    className: 'structure',
-    types: [CALENDAR_OBJECT_TYPES.SEGMENT, CALENDAR_OBJECT_TYPES.COMPOSITE],
-  },
-  {
-    key: 'time',
-    label: 'Time',
-    className: 'time',
-    types: [CALENDAR_OBJECT_TYPES.KILLZONE],
-  },
-]);
-
 function getEconomicImpactClass(event = {}) {
   if (event.allDay || event.eventType === 'holiday') return 'economic-holiday';
   const impact = String(event.impact || '').toLowerCase();
   if (impact === 'high') return 'economic-high';
   if (impact === 'medium') return 'economic-medium';
-  if (impact === 'low') return 'economic-low';
-  return 'economic-holiday';
+  return '';
 }
 
 function getEconomicImpactLabel(event = {}) {
@@ -161,6 +133,7 @@ function getDayObjectOverview(dateKey, calendarIndex) {
   const economicIndicators = [];
   (economicGroup?.rows || []).forEach((item) => {
     const className = getEconomicImpactClass(item.source);
+    if (!className) return;
     const label = getEconomicImpactLabel(item.source);
     const existing = economicIndicators.find((indicator) => indicator.className === className);
     if (existing) {
@@ -174,20 +147,15 @@ function getDayObjectOverview(dateKey, calendarIndex) {
       });
     }
   });
-  const indicators = CALENDAR_CELL_INDICATORS.map((indicator) => {
-    const count = indicator.types.reduce((sum, type) => sum + (countByType.get(type) || 0), 0);
-    return { ...indicator, count };
-  }).filter((indicator) => indicator.count > 0);
-  const total = groups.reduce((sum, group) => sum + group.rows.length, 0);
   return {
     setupCount,
-    total,
-    indicators: [...economicIndicators, ...indicators],
+    total: setupCount + economicIndicators.reduce((sum, indicator) => sum + indicator.count, 0),
+    indicators: economicIndicators,
   };
 }
 
 function renderCalendarDayOverview(overview) {
-  if (!overview.total) return '';
+  if (!overview.indicators.length) return '';
   const dots = overview.indicators
     .map(
       (indicator) =>
@@ -195,8 +163,7 @@ function renderCalendarDayOverview(overview) {
     )
     .join('');
   return `
-    <span class="calendar-day-overview" aria-label="${escapeHtml(`${overview.total} calendar objects`)}">
-      <span class="calendar-object-total">${escapeHtml(overview.total)}</span>
+    <span class="calendar-day-overview" aria-label="${escapeHtml(`${overview.indicators.length} calendar event markers`)}">
       <span class="calendar-object-dots">${dots}</span>
     </span>
   `;
