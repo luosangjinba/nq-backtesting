@@ -418,6 +418,7 @@ P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问
 - [x] Step 245: 轻量收敛 `order-review-active.js`：内部统一以 Setup Set / active review set id 为权威；旧 `getActiveOrderReview*` alias 暂留兼容但不新增使用；不改 localStorage key、不迁移 Review JSON 字段
 - [x] Step 246: 文档化 Order Setup 分层：更新 TODO / session / 必要时 `docs/ORDER_REVIEW_DESIGN.md`，明确 store=兼容持久化输入、setup-set=view-model 权威、inspector actions=UI 操作协调、renderer/hit-test=投影消费层
 - [x] Step 247: P0 验证与收口：运行全量 `v4/src/**/*.js` 语法检查、Order Setup smoke、Web/API smoke；手工覆盖 Calendar Open/Locate、图表右键创建/编辑、Reasons link、Result auto exit、undo/redo、Review JSON import/export
+- [x] Step 248: Context reset handoff：在 `sessions/session_20260602_p0_order_setup_refactor.md` 记录当前分支、提交范围、验证结果、未跟踪文件状态与清空上下文后的接手步骤
 
 ### Deferred Refactor Backlog
 - [ ] Persistence manager 统一 localStorage 读写：当前实际 localStorage 使用点较少，重复但不阻塞；等 Order Setup P0 拆分稳定后再做，且必须保持 key 与 payload 兼容

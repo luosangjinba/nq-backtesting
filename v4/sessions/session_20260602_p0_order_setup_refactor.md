@@ -35,3 +35,33 @@ Persistence manager unification and deeper store/setup-set schema changes remain
 - `git diff --check`
 - Web smoke: `http://127.0.0.1:8001/index.html` returned HTTP 200.
 - API smoke: `/v4/health`, `/v4/bars`, and `/v4/economic_events` returned valid responses on port 8766.
+
+## Context Reset Handoff
+
+Current branch: `refactor/p0-order-setup-actions`.
+
+Latest committed P0 range:
+
+- `5457efe test(v4): add order setup smoke baseline`
+- `0249bd3 refactor(v4): extract order review action utils`
+- `0e58e45 refactor(v4): extract order review reason actions`
+- `7440a59 refactor(v4): extract order review lifecycle actions`
+- `1f043bf refactor(v4): extract order review edit actions`
+- `35f6ead refactor(v4): document order review action facade`
+- `43844c4 refactor(v4): tighten active order setup bridge`
+- `335ec5a docs(v4): record order setup refactor boundaries`
+- `10fce8a docs(v4): close p0 order setup refactor`
+
+State to resume from:
+
+- Phase 15 Step 239-247 are complete in `v4/TODO.md`.
+- `order-review-actions.js` is now a small facade; focused behavior lives in `order-review-utils.js`, `order-review-reason-actions.js`, `order-review-lifecycle-actions.js`, and `order-review-edit-actions.js`.
+- `order-review-active.js` returns Setup Set objects internally; legacy `ActiveOrderReview` aliases remain for compatibility.
+- Deferred work remains in TODO: persistence manager unification, deeper store/setup-set boundary cleanup, and future large-file splits.
+- There are untracked runtime/temp files and untracked docs in the worktree; they were intentionally not included in this P0 branch commit set.
+
+Suggested next action after context reset:
+
+1. Run `git status --short --branch`.
+2. Review whether the untracked docs should be adopted, archived, or ignored.
+3. Review/merge `refactor/p0-order-setup-actions` when ready, then decide whether to start the deferred P1 refactor backlog.
