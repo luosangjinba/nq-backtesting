@@ -46,6 +46,15 @@ import {
   getNextCalendarViewDate,
   renderCalendarPanel,
 } from './inspector/calendar-panel.js';
+import {
+  dateKeyFromTimestamp,
+  getAnnotationCalendarDate,
+  getCompositeCalendarDate,
+  getCompositeTimestamp,
+  getOrderReviewCalendarDate,
+  getSegmentCalendarDate,
+  getSmtCalendarDate,
+} from './inspector/calendar-object-date.js';
 import { updateEventTime, updateKillzone, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { getCalendarDayGroups, getCalendarReviewIndex } from '../calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../calendar/calendar-types.js';
@@ -125,71 +134,6 @@ function renderInspectorBackAction() {
       </button>
     </div>
   `;
-}
-
-function dateKeyFromTimestamp(timestamp) {
-  const parsed = Number(timestamp);
-  if (!Number.isFinite(parsed) || parsed <= 0) return '';
-  const date = new Date(parsed * 1000);
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function firstDateKeyFromValues(values = []) {
-  for (const value of values) {
-    const dateKey = dateKeyFromTimestamp(value);
-    if (dateKey) return dateKey;
-  }
-  return '';
-}
-
-export function getOrderReviewCalendarDate(order = {}) {
-  return dateKeyFromTimestamp(
-    order.entryPlan?.entryTimestamp ??
-      order.setupThesis?.primaryEventTimestamp ??
-      order.resultReview?.exitTimestamp ??
-      null
-  );
-}
-
-function getAnnotationCalendarDate(annotation = {}) {
-  return firstDateKeyFromValues([
-    annotation.canonicalTimestamp,
-    annotation.timestamp,
-    annotation.anchorTime,
-    annotation.start?.timestamp,
-    annotation.start?.time,
-    annotation.end?.timestamp,
-    annotation.end?.time,
-    ...(Array.isArray(annotation.points)
-      ? annotation.points.map((point) => point?.canonicalTimestamp ?? point?.timestamp ?? point?.anchorTime ?? point?.time)
-      : []),
-  ]);
-}
-
-function getSegmentCalendarDate(segment = {}) {
-  return firstDateKeyFromValues([
-    segment.end?.timestamp,
-    segment.end?.time,
-    segment.start?.timestamp,
-    segment.start?.time,
-  ]);
-}
-
-function getCompositeCalendarDate(segmentGroup = {}) {
-  return firstDateKeyFromValues([getCompositeTimestamp(segmentGroup)]);
-}
-
-function getSmtCalendarDate(record = {}) {
-  return firstDateKeyFromValues([
-    record.leftTimestamp,
-    record.fvgStartTimestamp,
-    record.timestamp,
-    record.rightTimestamp,
-    record.fvgEndTimestamp,
-  ]);
 }
 
 function syncCalendarToOrderReview(orderReviewId) {
@@ -563,13 +507,6 @@ function captureCalendarOpenGroups() {
       .map((groupEl) => groupEl.dataset.calendarGroupType)
       .filter(Boolean)
   );
-}
-
-function getCompositeTimestamp(group) {
-  const childIds = Array.isArray(group?.childSegmentIds) ? group.childSegmentIds : [];
-  const childSegments = childIds.map(getSegmentById).filter(Boolean);
-  const terminal = childSegments[childSegments.length - 1];
-  return terminal?.end?.timestamp ?? terminal?.end?.time ?? terminal?.start?.timestamp ?? terminal?.start?.time ?? null;
 }
 
 function isCalendarVisibilityType(type) {
