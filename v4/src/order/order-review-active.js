@@ -2,12 +2,14 @@ import * as bus from '../event-bus.js';
 import {
   addOrderReview,
   getOrderReviewById,
+  updateOrderReview,
+} from './order-review-store.js';
+import {
   ORDER_DIRECTIONS,
   ORDER_ENTRY_MODELS,
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
-  updateOrderReview,
-} from './order-review-store.js';
+} from './order-review-types.js';
 import { getSetupSetById } from './setup-set.js';
 
 let activeReviewSetId = null;
