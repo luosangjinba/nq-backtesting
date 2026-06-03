@@ -1,5 +1,13 @@
 // Setup Set tree adapter over the existing OrderReview store.
 // Phase 8G keeps orderReviews as storage and derives the richer tree here.
+//
+// Boundary:
+// - orderReviews is the compatibility storage schema used by localStorage,
+//   Review JSON, undo/redo snapshots, and old imports.
+// - Setup Set is the runtime/view-model shape consumed by renderers, hit-tests,
+//   Calendar, and Inspector summaries.
+// Derived fields in this file are display facts only; writes must still go
+// through order-review-store with explicit persisted fields.
 
 import { getOrderReviewById, getOrderReviews } from './order-review-store.js';
 
@@ -50,6 +58,8 @@ function timestampRangeFromValues(values = []) {
 }
 
 function compactNotes(order = {}) {
+  // Notes live in several persisted sections for compatibility. Setup Set
+  // presents them as one explanation list without changing where they are saved.
   const reasonNotes = Array.isArray(order.setupThesis?.reasons)
     ? order.setupThesis.reasons
         .filter((reason) => reason.note)
@@ -181,6 +191,9 @@ function createTargets(order = {}) {
 }
 
 function deriveResultExit(status, entryElement, stopLossElement, targetElements = []) {
+  // Result status determines the review exit price when it points to a known
+  // target/stop/BE element. This is a derived display value; it is not written
+  // back over resultReview.exitPrice.
   if (status === 'target1' || status === 'target2' || status === 'target3') {
     const target = targetElements.find((item) => item.role === status);
     return target?.price ?? null;
@@ -191,6 +204,9 @@ function deriveResultExit(status, entryElement, stopLossElement, targetElements 
 }
 
 function deriveResultPoints(exitPrice, entryElement) {
+  // Points and R are calculated from the Setup Set tree so the Inspector and
+  // chart agree. Persisted orderReviews intentionally keep only explicit user
+  // inputs and result status.
   const entryPrice = toNumberOrNull(entryElement?.price);
   const parsedExit = toNumberOrNull(exitPrice);
   if (entryPrice === null || parsedExit === null) return null;
@@ -251,6 +267,9 @@ function createResultElement(order = {}, orderElements = {}) {
 }
 
 function createExplanationRefs(order = {}) {
+  // Newer data stores refs under setupThesis.reasons[].refs so evidence can be
+  // grouped by reason. Older data stores setupThesis.linkedObjectRefs. The
+  // adapter exposes one refs list while preserving both storage shapes.
   const reasonRefs = Array.isArray(order.setupThesis?.reasons)
     ? order.setupThesis.reasons.flatMap((reason, reasonIndex) =>
         Array.isArray(reason.refs)
@@ -318,6 +337,9 @@ function getSetupSetRange(orderElements = {}) {
 }
 
 export function createSetupSetFromOrderReview(order) {
+  // This is the only conversion point from the flat OrderReview record to the
+  // tree used by display code. Keep schema fallback here instead of making
+  // renderers and panels parse raw orderReview fields independently.
   if (!order?.id) return null;
   const orderElements = {
     reversal: createReversalElement(order),
