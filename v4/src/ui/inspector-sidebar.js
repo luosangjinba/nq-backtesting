@@ -2,7 +2,6 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
-import * as viewport from '../chart/viewport-controller.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
@@ -24,6 +23,7 @@ import { renderAnnotationPanel } from './inspector/pda-panel.js';
 import { renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
+import { createSmtInspectorActionController } from './inspector/smt-actions.js';
 import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
 import { renderDailyTimeReviewPanel } from './inspector/time-reaction-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
@@ -51,10 +51,9 @@ import {
   getCompositeTimestamp,
   getOrderReviewCalendarDate,
   getSegmentCalendarDate,
-  getSmtCalendarDate,
 } from './inspector/calendar-object-date.js';
 import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
-import { deleteSmtRecord, getSmtRecordById, getSmtRecords, updateSmtRecord } from '../smt/smt-store.js';
+import { getSmtRecordById, getSmtRecords } from '../smt/smt-store.js';
 import {
   getActiveReviewSetId,
   setActiveReviewSet,
@@ -124,6 +123,22 @@ const calendarActions = createCalendarActionController({
 });
 
 const drawingSetActions = createDrawingSetActionController();
+
+const smtActions = createSmtInspectorActionController({
+  getSelectedSmtId: () => selectedSmtId,
+  setSelectedSmtId: (smtId) => {
+    selectedSmtId = smtId;
+  },
+  getInspectorPage,
+  getCurrentPanel: () => currentPanel,
+  dailyTimeActions,
+  prepareDetailBackTarget,
+  renderSmtSelection,
+  renderAfterDetailDeleted,
+  renderArchivePanel,
+  openSidebar,
+  recordInspectorHistory,
+});
 
 function getOrderReviewPanelOptions(extra = {}) {
   return {
@@ -623,8 +638,7 @@ function handleInspectorChange(e) {
     return;
   }
 
-  if (action === 'smt-note') {
-    recordInspectorHistory('Update SMT Note', () => updateSmtRecord(e.target.dataset.smtId, { note: e.target.value }));
+  if (smtActions.handleChange(action, e.target)) {
     return;
   }
 
@@ -696,43 +710,7 @@ function handleInspectorClick(e) {
     return;
   }
 
-  if (action === 'smt-locate') {
-    const record = getSmtRecordById(actionEl.dataset.smtId);
-    if (record) {
-      viewport.locateTimestampRange(
-        record.leftTimestamp ?? record.fvgStartTimestamp ?? record.timestamp,
-        record.rightTimestamp ?? record.fvgEndTimestamp ?? record.timestamp
-      );
-    }
-    return;
-  }
-
-  if (action === 'smt-delete') {
-    const deletedId = actionEl.dataset.smtId;
-    recordInspectorHistory('Delete SMT', () => deleteSmtRecord(actionEl.dataset.smtId));
-    if (selectedSmtId === deletedId) selectedSmtId = null;
-    const page = getInspectorPage();
-    if (page.kind === 'detail' && page.objectType === 'smt' && String(page.objectId) === String(deletedId)) {
-      renderAfterDetailDeleted();
-      return;
-    }
-    if (currentPanel === 'archive') renderArchivePanel();
-    return;
-  }
-
-  if (action === 'smt-select') {
-    const record = getSmtRecordById(actionEl.dataset.smtId);
-    if (record) {
-      if (dailyTimeActions.isPicking()) {
-        selectedSmtId = record.id;
-        dailyTimeActions.handlePickedSmt(record);
-        return;
-      }
-      prepareDetailBackTarget(getSmtCalendarDate(record));
-      selectedSmtId = record.id;
-      renderSmtSelection();
-      openSidebar();
-    }
+  if (smtActions.handleClick(action, actionEl)) {
     return;
   }
 
