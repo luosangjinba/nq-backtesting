@@ -15,6 +15,8 @@ The old AI review draft is archived at `v4/docs/legacy/P0_REFACTOR_PLAN_legacy_a
 - Step 243: Extracted edit/result/exit-pick behavior to `ui/inspector/order-review-edit-actions.js`.
 - Step 244: Kept `ui/inspector/order-review-actions.js` as the stable facade for `inspector-sidebar.js`.
 - Step 245: Tightened `order-review-active.js` so internal active operations return Setup Set objects from `setup-set.js`; legacy `ActiveOrderReview` aliases remain compatible.
+- Step 246: Documented the current Order Setup layer boundary in `docs/ORDER_REVIEW_DESIGN.md`.
+- Step 247: Completed P0 verification and marked the TODO plan complete.
 
 ## Current Layer Boundary
 
@@ -31,3 +33,5 @@ Persistence manager unification and deeper store/setup-set schema changes remain
 - `node v4/tests/order-setup-smoke.js`
 - Full `node --check` across `v4/src/**/*.js` and `v4/tests/**/*.js`
 - `git diff --check`
+- Web smoke: `http://127.0.0.1:8001/index.html` returned HTTP 200.
+- API smoke: `/v4/health`, `/v4/bars`, and `/v4/economic_events` returned valid responses on port 8766.
