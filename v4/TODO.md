@@ -409,7 +409,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 
 ### Phase 15: P0 Order Setup Refactor 执行计划
 P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问题。旧 AI review 方案已归档到 `docs/legacy/P0_REFACTOR_PLAN_legacy_ai_review.md`，仅作为参考，不作为执行清单。当前 P0 不做持久化统一、不迁移 `orderReviews` schema、不追求机械的“所有文件 < 500 行”。
-- [ ] Step 239: 建立最小回归基线：新增 Order Setup smoke，覆盖 create bullish/bearish setup、set active/close、entry/stop/target/result、reason link PDA/Segment/Composite/SMT、localStorage restore、undo/redo；用于后续拆分防回归
+- [x] Step 239: 建立最小回归基线：新增 Order Setup smoke，覆盖 create bullish/bearish setup、set active/close、entry/stop/target/result、reason link PDA/Segment/Composite/SMT、localStorage restore、undo/redo；用于后续拆分防回归
 - [ ] Step 240: 抽取 `order-review-actions.js` 纯 helper：迁移 date/time parse、timestamp range、selected ref 解析、auto-exit result 判断、field value parsing 等无 UI 状态函数；保持 `createOrderReviewActionController` 外部签名不变
 - [ ] Step 241: 抽取 Order Setup refs/reasons actions：集中 linked refs、reasons add/delete/update、Link Selected Object、reason ref locate/delete；保留现有 `setupThesis.reasons[]` 与旧 `linkedObjectRefs` 兼容路径
 - [ ] Step 242: 抽取 Order Setup create/lifecycle actions：集中 blank/segment/composite 创建、set active/close active、locate/open、hide/show/delete；不改变 Calendar、reversal 右键、Inspector 的用户行为
