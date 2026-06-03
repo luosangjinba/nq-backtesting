@@ -5,6 +5,7 @@ import { createOrderReviewEditActionController } from './order-review-edit-actio
 
 export { buildPdaOrderReviewRef, buildSegmentOrderReviewRef } from './order-review-reason-actions.js';
 
+// Facade kept as the stable Inspector entry point while focused action modules own behavior.
 function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
 }
