@@ -74,7 +74,7 @@
 - [x] Step 43: 实现 PDA-specific terminal reaction metrics（range wick/body 进入深度、liquidity sweep/approach/equality、Fib level 反应）
 - [x] Step 44: 实现 segment fluency 组件指标（先展示组件，不合成最终分数）
 - [x] Step 45: Segment Inspector 增加只读 Review Metrics 预览
-- [ ] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化
+- [x] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化；实际使用验证已完成，Segment Review Metrics 运行良好，且后续 Order Setup / Calendar / Phase 16 收口已覆盖更大的真实链路
 
 ### Phase 8A: Order Review / Execution Lens 设计
 - [x] Step 47: 整理订单复盘设计文档 `v4/docs/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
