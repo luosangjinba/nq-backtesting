@@ -1,6 +1,6 @@
 import { CHART_THEME } from '../config.js';
 
-let gridVisible = true;
+let gridVisible = false;
 
 const HIDDEN_GRID = {
   vertLines: { color: 'rgba(0, 0, 0, 0)' },
