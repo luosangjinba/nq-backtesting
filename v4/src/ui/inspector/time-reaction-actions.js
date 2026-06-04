@@ -121,6 +121,12 @@ export function getDailyTimeSectionName(target = {}) {
   return target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
 }
 
+function getDailyTimeDetailSection(target = {}) {
+  if (target.section === 'fixedTimeItem') return 'fixedTimeState';
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) return target.section;
+  return '';
+}
+
 export function getDailyTimeTargetLabel(target = {}) {
   if (target.section === 'fixedTimeItem') return '固定时点状态';
   const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
@@ -447,7 +453,7 @@ export function createDailyTimeInspectorActionController({
       setCalendarDateContext?.(date);
       renderDailyTimeReviewDetail?.(
         date,
-        DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section) ? target.section : ''
+        getDailyTimeDetailSection(target)
       );
       openSidebar?.();
     }

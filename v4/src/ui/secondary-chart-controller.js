@@ -229,6 +229,7 @@ function handleSecondarySettingsChanged({ enabled, timeframe, instrument }) {
     requestSeq += 1;
     replaySourceBars = [];
     replaySourceRequestedRange = null;
+    chart.hideSyncCrosshairCursor();
     hideSecondaryHoverCursor();
     hideSecondarySyncCrosshairCursor();
     secondaryStore.clearSecondaryBars();
@@ -257,6 +258,7 @@ function handlePrimaryBarsCleared() {
   requestSeq += 1;
   replaySourceBars = [];
   replaySourceRequestedRange = null;
+  chart.hideSyncCrosshairCursor();
   secondaryStore.clearSecondaryBars();
   clearSecondaryData();
 }
