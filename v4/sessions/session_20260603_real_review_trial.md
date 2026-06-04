@@ -414,3 +414,43 @@ Verification:
 - Daily regime modules `node --check` passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-04 - Step 260.8 Daily Regime Closeout Completed
+
+Coverage check:
+
+- Checked `tmp/v4-review-NQ-1M-2026-06-04_15-07-27.json`.
+- The old archive predates Step 260 and has no `dailyRegimes` field, so the
+  validation checked whether its review dates can be generated from the new
+  local regime layer.
+- Effective review dates found from Order Setup timestamps and Daily Time
+  Reviews: 6.
+- VIX coverage from `v4/data/vix-daily.csv`: 6 / 6.
+- Missing VIX dates: none.
+
+Manual sample confirmations:
+
+- `2012-01-10`: `VIX: Medium 20.69 | Trend: bull_trend | Range: small_range 0.78 ATR | Events: none`
+- `2023-01-03`: `VIX: High 22.90 | Trend: bear_trend | Range: normal_range 1.15 ATR | Events: none`
+- `2024-01-02`: `VIX: Low 13.20 | Trend: bull_trend | Range: large_range 1.97 ATR | Events: none`
+- `2024-01-04`: `VIX: Low 14.13 | Trend: range | Range: small_range 0.74 ATR | Events: none`
+- `2024-01-05`: `VIX: Low 13.35 | Trend: range | Range: normal_range 1.19 ATR | Events: none`
+
+Research closeout:
+
+- Step 260 completes the Daily Regime MVP as an automatic daily background
+  layer with VIX, trend, range, curated event tags, Calendar display, and Review
+  JSON archive support.
+- Do not add confidence scoring yet. Wait for at least 20-30 reviewed trading
+  days and repeated examples before defining scoring dimensions.
+- Do not build a complex composite-regime statistics page yet. A future entry
+  point can start with simple grouping by one dimension such as volatility or
+  trend once enough samples exist.
+
+Verification:
+
+- Review JSON coverage probe passed with 6 / 6 VIX-covered review dates.
+- Five manual daily regime samples were confirmed through local V4 daily bars.
+- All daily regime smoke probes passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.

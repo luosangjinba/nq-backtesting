@@ -492,7 +492,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 259.5: 评估并必要时限制主图 primitive 压力：统计当前可渲染 PDA / Segment / Composite / Time Overlay primitive 数量；如果主图 pan 仍卡，再拆后续步骤做可视范围裁剪或 overlay 数量降噪，本步骤不直接改变显示语义。
   - [x] Step 259.6: 验证与收口：运行 targeted smoke、全量 `node --check`、`git diff --check`；手工覆盖主图 hover、主图拖动/缩放、Replay Pick、SMT Pick、Order Exit Pick、Segment Actor Pick、Split on/off、对象多的真实复盘页面；记录优化前后体感。
 
-- [ ] Step 260: Daily Regime 自动背景层。目标是给每个复盘交易日自动附加市场环境，不增加手工录入负担；第一阶段只做日级背景和显示/export，不做 setup 置信度、不做复杂复合 regime 统计页。
+- [x] Step 260: Daily Regime 自动背景层。目标是给每个复盘交易日自动附加市场环境，不增加手工录入负担；第一阶段只做日级背景和显示/export，不做 setup 置信度、不做复杂复合 regime 统计页。
   - [x] Step 260.1: 定义 `daily-regime` 数据边界与命名：每条记录按 `date + instrument` 生成，字段包括 `volatilityRegime/vixClose/vixBucket`，预留 `trendRegime/rangeRegime/eventTags`；regime 属于交易日背景层，不挂到 PDA/Order/Segment 对象本体。
   - [x] Step 260.2: 实现 VIX 数据读取与分档 MVP：读取 `v4/data/vix-daily.csv`（`DATE,OPEN,HIGH,LOW,CLOSE`，当前覆盖 1990-01-02 到 2026-06-02），按日期 lookup `CLOSE`，生成 `vix_extreme_low / vix_low / vix_medium / vix_high / vix_extreme_high`。
   - [x] Step 260.3: 在 Inspector Calendar / Day Details 显示当天 VIX regime：选中日期后显示 `VIX: Low 13.20` 这类摘要；缺数据时显示 `VIX: n/a`，不阻塞复盘。
@@ -500,7 +500,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 260.5: 扩展 Trend Regime：用 NQ/ES 日线或可用 HTF bars 计算 `bull_trend / bear_trend / range`，第一版规则为 close 与 20EMA/50EMA 关系；缺少足够历史时返回 `unknown`。
   - [x] Step 260.6: 扩展 Range Regime：用日内 range 与 20日 ATR 比值生成 `small_range / normal_range / large_range`，记录 `rangeAtrRatio`；先做日级结果，不改变图表渲染。
   - [x] Step 260.7: 扩展 Event Regime：先支持手工维护的经济事件日期表（FOMC/CPI/NFP/PPI/major_earnings/none），后续再考虑自动下载；Calendar 显示 event tags。
-  - [ ] Step 260.8: 验证与研究收口：用当前一周 Review JSON 检查 dailyRegimes 覆盖情况；手工确认 3-5 个日期的 VIX/trend/range/event；记录后续统计入口，但暂不做 confidence rubric。
+  - [x] Step 260.8: 验证与研究收口：用当前一周 Review JSON 检查 dailyRegimes 覆盖情况；手工确认 3-5 个日期的 VIX/trend/range/event；记录后续统计入口，但暂不做 confidence rubric。
 
 ## 已知问题
 - 系统 Python 无 duckdb，需用 /home/leo/miniconda3/bin/python3
