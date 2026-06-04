@@ -524,13 +524,13 @@ function handleChartClick(param) {
 
 function handleCrosshairMove(param) {
   if (!enabled || mode !== 'picking') {
-    chart.hidePickPreviewCursor();
+    if (chart.hasPickPreviewCursor()) chart.hidePickPreviewCursor();
     return;
   }
 
   const index = findBarIndex(param?.time);
   if (index < 0) {
-    chart.hidePickPreviewCursor();
+    if (chart.hasPickPreviewCursor()) chart.hidePickPreviewCursor();
     return;
   }
 

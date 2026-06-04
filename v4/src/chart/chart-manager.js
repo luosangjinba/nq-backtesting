@@ -212,6 +212,10 @@ export function hidePickPreviewCursor() {
   pickPreviewPrimitive = null;
 }
 
+export function hasPickPreviewCursor() {
+  return Boolean(pickPreviewPrimitive);
+}
+
 export function showSyncCrosshairCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
   if (pickPreviewPrimitive || replayCursorPrimitive) return;
