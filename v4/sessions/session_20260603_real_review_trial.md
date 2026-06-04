@@ -68,3 +68,36 @@ These remain optional backlog items, not immediate next steps:
 - Further large-file evaluation for `time-reaction-actions.js`,
   `segment-panel.js`, and `order-setup-chart-actions.js`.
 
+## 2026-06-04 - Step 258.1 Secondary Chart Performance Baseline
+
+User-observed friction:
+
+- Split Screen secondary chart feels choppy while moving / hovering candles.
+- The issue is most visible in real review mode where Split is on and large
+  1M ranges or replay-related secondary updates may be active.
+
+Static baseline from current code:
+
+- Secondary chart mouse movement enters `secondary-chart-manager.js`
+  `notifySecondaryCrosshairMove()`.
+- That path updates the secondary OHLC legend on every crosshair event.
+- It then calls `secondary-chart-controller.js` `syncPrimaryHoverCursor()`.
+- `syncPrimaryHoverCursor()` currently resolves the secondary hover timestamp
+  via `findDisplayBarByTime(secondaryStore.getSecondaryDisplayBars(), ...)`,
+  then resolves the primary target bar with another `findDisplayBarByTime(...)`.
+- Both lookups are linear scans and run at mousemove frequency.
+- The same cost pattern exists in the primary-to-secondary direction through
+  `syncSecondaryHoverCursor()`.
+- Each resolved sync cursor update also calls a VerticalLine primitive update,
+  causing chart redraw work on the opposite chart.
+
+Optimization hypothesis:
+
+1. Replace high-frequency linear scans with display-bar lookup caches.
+2. Throttle cross-chart sync to one requestAnimationFrame callback per chart
+   direction.
+3. Avoid repeated legend `innerHTML` writes when the hovered OHLC did not change.
+4. Verify pick preview / replay cursor precedence after throttling.
+
+Manual DevTools performance profiling should be repeated after the code changes
+using a large Split Screen range, with Sub 1M and Replay On/Off both covered.
