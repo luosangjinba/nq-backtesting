@@ -36,12 +36,11 @@ import {
   normalizeDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
 import {
-  getDailyRegimeIdentity,
   getDailyRegimeLoadedRange,
   getDailyRegimes,
   loadDailyRegimes,
 } from '../daily-regime/daily-regime-store.js';
-import { normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
+import { getDailyRegimeIdentity, normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
 import { recordHistory } from '../history/history-manager.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
