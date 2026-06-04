@@ -163,6 +163,8 @@ export function normalizeDailyRegime(input = {}) {
     trendEma20: normalizeNumber(input.trendEma20),
     trendEma50: normalizeNumber(input.trendEma50),
     rangeRegime: normalizeEnum(input.rangeRegime, VALID_RANGE_REGIMES, RANGE_REGIMES.UNKNOWN),
+    dayRange: normalizeNumber(input.dayRange),
+    atr20: normalizeNumber(input.atr20),
     rangeAtrRatio: normalizeNumber(input.rangeAtrRatio),
     eventTags: normalizeEventTags(input.eventTags),
   };

@@ -498,7 +498,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 260.3: 在 Inspector Calendar / Day Details 显示当天 VIX regime：选中日期后显示 `VIX: Low 13.20` 这类摘要；缺数据时显示 `VIX: n/a`，不阻塞复盘。
   - [x] Step 260.4: Review JSON export/import 加入 `dailyRegimes`：导出当前 review range 中有复盘对象或 daily review 的日期 regime；导入时 normalize 但不覆盖本地实时计算优先级，确保历史归档可自带当时背景。
   - [x] Step 260.5: 扩展 Trend Regime：用 NQ/ES 日线或可用 HTF bars 计算 `bull_trend / bear_trend / range`，第一版规则为 close 与 20EMA/50EMA 关系；缺少足够历史时返回 `unknown`。
-  - [ ] Step 260.6: 扩展 Range Regime：用日内 range 与 20日 ATR 比值生成 `small_range / normal_range / large_range`，记录 `rangeAtrRatio`；先做日级结果，不改变图表渲染。
+  - [x] Step 260.6: 扩展 Range Regime：用日内 range 与 20日 ATR 比值生成 `small_range / normal_range / large_range`，记录 `rangeAtrRatio`；先做日级结果，不改变图表渲染。
   - [ ] Step 260.7: 扩展 Event Regime：先支持手工维护的经济事件日期表（FOMC/CPI/NFP/PPI/major_earnings/none），后续再考虑自动下载；Calendar 显示 event tags。
   - [ ] Step 260.8: 验证与研究收口：用当前一周 Review JSON 检查 dailyRegimes 覆盖情况；手工确认 3-5 个日期的 VIX/trend/range/event；记录后续统计入口，但暂不做 confidence rubric。
 

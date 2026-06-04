@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import { DEFAULT_DAILY_REGIME_INSTRUMENT, normalizeDailyRegime } from './daily-regime-types.js';
 import { clearDailyRegimes, loadDailyRegimes } from './daily-regime-store.js';
 import { applyTrendRegimes } from './daily-regime-trend.js';
+import { applyRangeRegimes } from './daily-regime-range.js';
 
 const VIX_DAILY_CSV_PATH = 'data/vix-daily.csv';
 
@@ -87,7 +88,11 @@ async function loadDailyRegimesForBars(payload = {}) {
   try {
     const vixByDate = await getVixDailyData();
     if (seq !== requestSeq) return;
-    loadDailyRegimes(applyTrendRegimes(buildVixDailyRegimes(vixByDate, range), payload.bars), range);
+    const regimes = applyRangeRegimes(
+      applyTrendRegimes(buildVixDailyRegimes(vixByDate, range), payload.bars),
+      payload.bars
+    );
+    loadDailyRegimes(regimes, range);
   } catch (error) {
     if (seq !== requestSeq) return;
     clearDailyRegimes();

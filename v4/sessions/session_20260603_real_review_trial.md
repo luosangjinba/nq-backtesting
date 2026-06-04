@@ -375,3 +375,22 @@ Verification:
 - Daily regime modules `node --check` passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-04 - Step 260.6 Range Regime Completed
+
+Implemented:
+
+- Added `daily-regime-range.js` to derive daily high/low/close from loaded
+  bars and calculate ATR20.
+- Daily regimes now include `rangeRegime`, `rangeAtrRatio`, and diagnostic
+  `dayRange/atr20` values when enough history exists.
+- First-pass thresholds are explicit: ratio `< 0.8` is `small_range`,
+  ratio `> 1.2` is `large_range`, otherwise `normal_range`.
+- Missing 20-day ATR history remains `unknown`.
+
+Verification:
+
+- `node tmp/daily_regime_range_smoke.mjs` passed.
+- Daily regime modules `node --check` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
