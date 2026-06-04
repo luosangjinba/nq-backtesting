@@ -18,8 +18,8 @@ import {
 } from './order-setup-projection.js';
 
 const SETUP_COLOR = '#ffb74d';
-const LONG_ENTRY_COLOR = '#00695c';
-const SHORT_ENTRY_COLOR = '#ef5350';
+const LONG_ENTRY_COLOR = '#4db6ac';
+const SHORT_ENTRY_COLOR = '#ff8a80';
 const STOP_COLOR = '#42a5f5';
 const TARGET_COLOR = '#ab47bc';
 const REVERSAL_BULLISH_COLOR = '#26a69a';
