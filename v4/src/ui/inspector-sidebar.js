@@ -193,6 +193,19 @@ function prepareDetailBackTarget(dateKey) {
   return true;
 }
 
+function prepareSelectionBackTarget(dateKey) {
+  const page = getInspectorPage();
+  if (page.kind === 'detail' && page.objectType && page.objectId) {
+    pushInspectorPage({
+      kind: 'detail',
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    return true;
+  }
+  return prepareDetailBackTarget(dateKey);
+}
+
 function normalizeCalendarDatePayload(payload = {}) {
   const dateKey = String(payload.dateKey || '').match(/^\d{4}-\d{2}-\d{2}$/)
     ? String(payload.dateKey)
@@ -802,7 +815,7 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedPda(annotation);
       return;
     }
-    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getAnnotationCalendarDate(annotation));
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getAnnotationCalendarDate(annotation));
     renderAnnotation(annotation);
     openSidebar();
   });
@@ -813,7 +826,7 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedSegment(segment);
       return;
     }
-    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getSegmentCalendarDate(segment));
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSegmentCalendarDate(segment));
     renderSegment(segment);
     openSidebar();
   });
@@ -822,7 +835,7 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedComposite(segmentGroup);
       return;
     }
-    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getCompositeCalendarDate(segmentGroup));
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getCompositeCalendarDate(segmentGroup));
     renderSegmentGroup(segmentGroup);
     openSidebar();
   });
