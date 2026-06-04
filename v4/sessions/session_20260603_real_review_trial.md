@@ -219,3 +219,56 @@ Manual follow-up:
   On/Off, Split on/off, object-heavy Display Mode, and active pick workflows.
   If pan remains slow after hover cleanup, start a follow-up specifically for
   attached primitive count measurement and visible-range clipping.
+
+## 2026-06-04 - Step 260 Daily Regime Plan
+
+Context:
+
+- User completed roughly one week of real review work and exported
+  `tmp/v4-review-NQ-1M-2026-06-04_15-07-27.json`.
+- Regime should be treated as an automatic daily background layer, not as a
+  manually entered field on every PDA, Segment, or Order Setup.
+- Local VIX daily data is available at `v4/data/vix-daily.csv` with
+  `DATE,OPEN,HIGH,LOW,CLOSE`, covering 1990-01-02 through 2026-06-02.
+- `cfevoloi.csv` and `VX_Series_09112019.csv` were checked and are not suitable
+  VIX close sources: they contain CFE volume/open-interest or option-series
+  contribution data rather than daily VIX OHLC.
+
+Implementation direction:
+
+1. Start with a `daily-regime` module that returns one record per
+   `date + instrument`.
+2. MVP only implements VIX volatility regime:
+   - `vix_extreme_low`: VIX close < 13
+   - `vix_low`: 13 <= close < 17
+   - `vix_medium`: 17 <= close < 22
+   - `vix_high`: 22 <= close < 30
+   - `vix_extreme_high`: close >= 30
+3. Show the selected date's VIX regime in Inspector Calendar / Day Details, so
+   review notes can reference market background without manual lookup.
+4. Add `dailyRegimes` to Review JSON export/import for archival completeness.
+5. Then extend the same daily record with trend, range, and event regimes:
+   - `trendRegime`: `bull_trend / bear_trend / range / unknown`, initially
+     based on close vs 20EMA and 20EMA vs 50EMA.
+   - `rangeRegime`: `small_range / normal_range / large_range / unknown`,
+     based on day range vs ATR20 ratio.
+   - `eventTags`: `FOMC / CPI / NFP / PPI / major_earnings / none`, initially
+     from a local curated date table.
+
+Boundaries:
+
+- Do not implement confidence scoring yet. Confidence rubric should wait until
+  there are at least 20-30 reviewed trading days and real examples can drive
+  the scoring dimensions.
+- Do not build a complex composite-regime statistics page in the first pass.
+  Single-dimension grouping is enough until sample size grows.
+- Do not let missing VIX/event data block existing Review JSON import/export or
+  daily review workflows; missing fields should normalize to `unknown` or `n/a`.
+
+Expected use in review:
+
+- Calendar selected day can show a compact line such as
+  `VIX: low 13.20 | Trend: bull_trend | Range: large 1.59 ATR | Events: none`.
+- Exported review files carry the same daily background so future analysis can
+  answer questions like whether `950 Macro Immediately` performs differently in
+  low-volatility bull-trend days versus high-volatility bear-trend days.
