@@ -354,3 +354,24 @@ Verification:
 - `review-archive.js` `node --check` passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-04 - Step 260.5 Trend Regime Completed
+
+Implemented:
+
+- Added `daily-regime-trend.js` to derive one daily close per trading day from
+  loaded bars.
+- Calculated 20EMA and 50EMA over the available daily closes.
+- Daily regimes now include `trendRegime`, plus diagnostic
+  `trendClose/trendEma20/trendEma50` values when enough history exists.
+- Rule: `close > 20EMA > 50EMA` is `bull_trend`,
+  `close < 20EMA < 50EMA` is `bear_trend`, otherwise `range`;
+  missing 50-day history remains `unknown`.
+- Calendar summary now uses the shared daily regime summary line.
+
+Verification:
+
+- `node tmp/daily_regime_trend_smoke.mjs` passed.
+- Daily regime modules `node --check` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.

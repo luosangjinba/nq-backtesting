@@ -7,7 +7,7 @@ import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { getDailyRegimeByDate } from '../../daily-regime/daily-regime-store.js';
-import { getVixBucketLabel } from '../../daily-regime/daily-regime-types.js';
+import { getDailyRegimeSummary } from '../../daily-regime/daily-regime-types.js';
 import {
   DAILY_TIME_REVIEW_SECTIONS,
   getDailyTimeReviewByDate,
@@ -508,9 +508,7 @@ function renderEconomicCalendarFilters() {
 
 function renderDailyRegimeSummary(dateKey) {
   const regime = getDailyRegimeByDate(dateKey);
-  const vixText = regime.vixClose === null
-    ? 'VIX: n/a'
-    : `VIX: ${getVixBucketLabel(regime.vixBucket)} ${regime.vixClose.toFixed(2)}`;
+  const vixText = getDailyRegimeSummary(regime);
   return `
     <div class="calendar-daily-regime" title="${escapeHtml(vixText)}">
       <span class="calendar-daily-regime-label">${escapeHtml(vixText)}</span>
