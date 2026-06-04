@@ -933,9 +933,11 @@ html, body {
 .order-review-ref-menu-panel {
   position: absolute;
   right: 0;
+  bottom: 100%;
   z-index: 9;
   display: none;
   min-width: 72px;
+  margin-bottom: 3px;
   padding: 4px;
   border: 1px solid rgba(54, 58, 69, 0.95);
   border-radius: 4px;
