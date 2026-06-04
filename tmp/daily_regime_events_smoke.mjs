@@ -26,6 +26,7 @@ assert.deepEqual(regimes[0].eventTags, [EVENT_TAGS.FOMC, EVENT_TAGS.CPI]);
 assert.deepEqual(regimes[1].eventTags, [EVENT_TAGS.NONE]);
 
 const economicEvents = [
+  { eventDate: '2024-01-03', title: 'ADP Non-Farm Employment Change', impact: 'High' },
   { eventDate: '2024-01-05', title: 'Non-Farm Employment Change', impact: 'High' },
   { eventDate: '2024-01-05', title: 'Unemployment Rate', impact: 'High' },
   { eventDate: '2024-01-05', title: 'Average Hourly Earnings m/m', impact: 'High' },
@@ -35,6 +36,7 @@ const economicEvents = [
   { eventDate: '2024-01-31', title: 'Federal Funds Rate', impact: 'High' },
 ];
 
+assert.deepEqual(getEconomicEventTagsForDate('2024-01-03', economicEvents), [EVENT_TAGS.NONE]);
 assert.deepEqual(getEconomicEventTagsForDate('2024-01-05', economicEvents), [EVENT_TAGS.NFP]);
 assert.deepEqual(getEconomicEventTagsForDate('2024-01-11', economicEvents), [EVENT_TAGS.CPI]);
 assert.deepEqual(getEconomicEventTagsForDate('2024-01-12', economicEvents), [EVENT_TAGS.PPI]);

@@ -46,6 +46,7 @@ export function applyEventRegimes(regimes = [], eventTable = CURATED_EVENT_TAGS_
 function getEconomicEventTag(event = {}) {
   const title = String(event.title || '').trim().toLowerCase();
   if (!title) return '';
+  if (title.includes('adp')) return '';
   if (title.includes('non-farm') || title.includes('nonfarm')) return EVENT_TAGS.NFP;
   if (title.includes('unemployment rate')) return EVENT_TAGS.NFP;
   if (title.includes('average hourly earnings')) return EVENT_TAGS.NFP;
