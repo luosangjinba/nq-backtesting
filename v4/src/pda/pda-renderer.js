@@ -58,6 +58,24 @@ function sameWeek(bar, weekStart) {
   return bar.timestamp >= weekStart && bar.timestamp < weekStart + secondsPerWeek;
 }
 
+function sameSession(bar, sessionStart) {
+  const secondsPerDay = 24 * 60 * 60;
+  return bar.timestamp >= sessionStart && bar.timestamp < sessionStart + secondsPerDay;
+}
+
+function getNdogRenderBounds(annotation) {
+  if (annotation.type !== 'ndog' || annotation.source !== 'objective') return null;
+  const replayBars = getReplayVisibleBars();
+  if (!replayBars?.length) return null;
+  const sessionStart = annotation.canonicalTimestamp ?? annotation.timestamp;
+  const sessionBars = replayBars.filter((bar) => sameSession(bar, sessionStart));
+  if (!sessionBars.length) return null;
+  return {
+    startTimestamp: sessionBars[0].timestamp,
+    endTimestamp: sessionBars[sessionBars.length - 1].timestamp,
+  };
+}
+
 function getNwogRenderBounds(annotation) {
   if (annotation.type !== 'nwog' || annotation.source !== 'objective') return null;
   const replayBars = getReplayVisibleBars();
@@ -284,7 +302,7 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToS
   const isFvg = annotation.type === 'fvg' || annotation.type === 'ifvg';
   const topPrice = annotation.topPrice ?? annotation.priceHigh;
   const bottomPrice = annotation.bottomPrice ?? annotation.priceLow;
-  const renderBounds = getNwogRenderBounds(annotation);
+  const renderBounds = getNdogRenderBounds(annotation) || getNwogRenderBounds(annotation);
   const startTime = renderBounds
     ? mapTimestampToCurrentChartTime(renderBounds.startTimestamp)
     : getRangeRenderTime(annotation, 'startTime', 'startTime');

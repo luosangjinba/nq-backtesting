@@ -99,6 +99,19 @@ async function getNwogReferenceBars(allBars, weekStart) {
   return mergeBars(referenceBars, result.bars || []);
 }
 
+async function getNdogReferenceBars(allBars, sessionStart) {
+  let referenceBars = allBars;
+  const openBar = findSessionOpenBar(referenceBars, sessionStart);
+  const previousCloseBar = findPreviousSessionCloseBar(referenceBars, sessionStart);
+
+  if (openBar && previousCloseBar) return referenceBars;
+
+  const start = formatApiDateTime(sessionStart - 2 * SECONDS_PER_DAY);
+  const end = formatApiDateTime(sessionStart + 2 * 60 * 60);
+  const result = await fetchBars(start, end, 60);
+  return mergeBars(referenceBars, result.bars || []);
+}
+
 function findPreviousWeekCloseBar(allBars, weekStart) {
   const before = allBars.filter((bar) => bar.timestamp < weekStart);
   if (!before.length) return null;
@@ -111,27 +124,40 @@ function findPreviousWeekCloseBar(allBars, weekStart) {
   return fridayCloseBars[fridayCloseBars.length - 1] || before[before.length - 1] || null;
 }
 
-function buildNdogAnnotation(anchorBar) {
+async function buildNdogAnnotation(anchorBar) {
   if (!anchorBar) {
     return { error: '无法显示 NDOG：未找到点击位置的 K 线' };
   }
 
   const allBars = store.getBars();
-  const displayBars = store.getDisplayBars();
+  const renderBars = getRenderBars();
   const sessionStart = getBucketStart(anchorBar.timestamp, 1440);
-  const sessionDisplayBars = displayBars.filter((bar) => sameSession(bar, sessionStart));
-  const openBar = findSessionOpenBar(displayBars, sessionStart);
-  const previousCloseBar = findPreviousSessionCloseBar(allBars, sessionStart);
+  const sessionRenderBars = renderBars.filter((bar) => sameSession(bar, sessionStart));
 
-  if (!sessionDisplayBars.length || !openBar) {
-    return { error: '无法显示 NDOG：当前显示范围缺少当日 18:00 open' };
+  if (!sessionRenderBars.length) {
+    return { error: '无法显示 NDOG：当前显示范围内没有当日 K 线' };
+  }
+
+  let referenceBars = allBars;
+  try {
+    referenceBars = await getNdogReferenceBars(allBars, sessionStart);
+  } catch (err) {
+    return { error: `无法显示 NDOG：读取当日 18:00 open 失败 (${err.message})` };
+  }
+
+  const openBar = findSessionOpenBar(referenceBars, sessionStart);
+  const previousCloseBar = findPreviousSessionCloseBar(referenceBars, sessionStart);
+
+  if (!openBar) {
+    return { error: '无法显示 NDOG：当前加载范围缺少当日 18:00 open' };
   }
 
   if (!previousCloseBar) {
     return { error: '无法显示 NDOG：当前加载范围缺少前一日 close' };
   }
 
-  const lastVisibleBar = sessionDisplayBars[sessionDisplayBars.length - 1];
+  const firstVisibleBar = sessionRenderBars[0];
+  const lastVisibleBar = sessionRenderBars[sessionRenderBars.length - 1];
   const topPrice = Math.max(previousCloseBar.close, openBar.open);
   const bottomPrice = Math.min(previousCloseBar.close, openBar.open);
   const sessionDate = formatSessionDate(sessionStart + 24 * 60 * 60);
@@ -141,12 +167,12 @@ function buildNdogAnnotation(anchorBar) {
       id: objectiveId(NDOG_TYPE, sessionStart),
       type: NDOG_TYPE,
       source: 'objective',
-      anchorTime: openBar.timestamp,
+      anchorTime: firstVisibleBar.timestamp,
       canonicalTimestamp: sessionStart,
       timestamp: sessionStart,
-      startTime: openBar.timestamp,
+      startTime: firstVisibleBar.timestamp,
       endTime: lastVisibleBar.timestamp,
-      startTimeTimestamp: openBar.timestamp,
+      startTimeTimestamp: firstVisibleBar.timestamp,
       endTimeTimestamp: lastVisibleBar.timestamp,
       topPrice,
       bottomPrice,
@@ -223,7 +249,7 @@ async function buildNwogAnnotation(anchorBar) {
   };
 }
 
-export function toggleTodayNdog(anchorBar) {
+export async function toggleTodayNdog(anchorBar) {
   const sessionStart = anchorBar ? getBucketStart(anchorBar.timestamp, 1440) : null;
   const id = sessionStart === null ? null : objectiveId(NDOG_TYPE, sessionStart);
   const existing = id ? getAnnotations().find((annotation) => annotation.id === id) : null;
@@ -234,7 +260,7 @@ export function toggleTodayNdog(anchorBar) {
     return;
   }
 
-  const result = buildNdogAnnotation(anchorBar);
+  const result = await buildNdogAnnotation(anchorBar);
   if (result.error) {
     bus.emit('status:update', { text: result.error, isError: true });
     return;
@@ -247,11 +273,11 @@ export function toggleTodayNdog(anchorBar) {
   });
 }
 
-function syncVisibleNwogRanges() {
+function syncVisibleObjectiveGapRanges() {
   bus.emit('pda:changed', { annotations: getAnnotations() });
 }
 
-bus.on('replay:changed', syncVisibleNwogRanges);
+bus.on('replay:changed', syncVisibleObjectiveGapRanges);
 
 export async function toggleThisWeekNwog(anchorBar) {
   const weekStart = anchorBar ? getWeekStart(anchorBar.timestamp) : null;

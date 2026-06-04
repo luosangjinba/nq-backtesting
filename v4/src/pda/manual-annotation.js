@@ -583,7 +583,7 @@ async function handleControlClick(e) {
     bus.emit('status:update', { text: 'Composite Draft cleared', isError: false });
     hideContextMenu();
   } else if (action === 'toggle-ndog') {
-    toggleTodayNdog(contextMenuBar);
+    await toggleTodayNdog(contextMenuBar);
     hideContextMenu();
   } else if (action === 'toggle-nwog') {
     toggleThisWeekNwog(contextMenuBar);
