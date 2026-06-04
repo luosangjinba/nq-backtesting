@@ -230,6 +230,7 @@ function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
   const canOpen = ['order-setup', 'time-reaction', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
   const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
+  const canDeletePda = item.ref?.type === 'pda' && item.ref?.id;
   const setupHidden = Boolean(item.source?.display?.hidden);
   const typeLabel = getObjectTypeLabel(item);
   const locateLabel = item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT
@@ -256,6 +257,18 @@ function renderObjectActionButtons(item) {
             data-object-id="${escapeHtml(item.ref.id)}"
             type="button"
           >Open</button>`
+        : ''
+    }
+    ${
+      canDeletePda
+        ? `<button
+            class="inspector-mini-btn calendar-pda-delete"
+            data-inspector-action="calendar-pda-delete"
+            data-object-id="${escapeHtml(item.ref.id)}"
+            type="button"
+            title="Delete PDA"
+            aria-label="Delete PDA"
+          >X</button>`
         : ''
     }
     ${
@@ -351,6 +364,7 @@ function renderObjectRow(item) {
   const isTimeReaction = item.ref?.type === 'time-reaction';
   const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
+  const showTypeLabel = item.ref?.type !== 'pda';
   const isOrderSetup = item.ref?.type === 'order-setup';
   const isHidden = isCalendarObjectHidden(item);
   return `
@@ -358,7 +372,7 @@ function renderObjectRow(item) {
       <div class="calendar-object-main">
         <div class="calendar-object-meta">
           <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
-          <span class="calendar-object-type">${escapeHtml(typeLabel)}</span>
+          ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
           ${renderSetupVisibilityToggle(item)}
           ${renderObjectVisibilityToggle(item)}
         </div>

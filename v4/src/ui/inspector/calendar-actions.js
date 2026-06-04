@@ -3,7 +3,8 @@ import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
 import { updateTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { updateEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
-import { getAnnotationById } from '../../pda/pda-store.js';
+import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
+import { deleteAnnotation, getAnnotationById } from '../../pda/pda-store.js';
 import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getCalendarDateTimestamp } from './calendar-panel.js';
@@ -122,6 +123,21 @@ export function createCalendarActionController({
           : 'Calendar object visibility cannot be changed',
         isError: !changed,
       });
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'calendar-pda-delete') {
+      captureCalendarOpenGroups?.();
+      const id = actionEl.dataset.objectId;
+      const annotation = getAnnotationById(id);
+      if (!annotation) {
+        bus.emit('status:update', { text: 'Calendar PDA not found', isError: true });
+        return true;
+      }
+      recordInspectorHistory?.('Delete PDA', () => deleteAnnotation(id));
+      clearPdaSelection();
+      bus.emit('status:update', { text: 'PDA deleted', isError: false });
       refreshSelection?.();
       return true;
     }
