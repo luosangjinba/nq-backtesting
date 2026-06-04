@@ -1,6 +1,7 @@
 // LightweightCharts v5 图表管理器
 
 import {
+  CHART_CROSSHAIR_OPTIONS,
   CHART_THEME,
   CANDLESTICK_STYLE,
   TIME_SCALE_DISPLAY,
@@ -82,11 +83,7 @@ export function initChart(containerId) {
     },
     width: container.clientWidth,
     height: container.clientHeight,
-    crosshair: {
-      mode: 0,
-      vertLine: { labelVisible: true },
-      horzLine: { labelVisible: true },
-    },
+    crosshair: CHART_CROSSHAIR_OPTIONS,
   });
 
   // v5 API: addSeries(CandlestickSeries, options)

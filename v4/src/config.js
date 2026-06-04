@@ -48,6 +48,22 @@ export const CHART_THEME = {
   },
 };
 
+export const CHART_CROSSHAIR_OPTIONS = {
+  mode: 0,
+  vertLine: {
+    color: 'rgba(209, 212, 220, 0.62)',
+    width: 1,
+    labelVisible: true,
+    labelBackgroundColor: '#2a2e39',
+  },
+  horzLine: {
+    color: 'rgba(209, 212, 220, 0.62)',
+    width: 1,
+    labelVisible: true,
+    labelBackgroundColor: '#2a2e39',
+  },
+};
+
 export const CANDLESTICK_STYLE = {
   upColor: '#26a69a',
   downColor: '#ef5350',

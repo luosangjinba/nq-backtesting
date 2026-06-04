@@ -2,6 +2,7 @@
 
 import {
   CANDLESTICK_STYLE,
+  CHART_CROSSHAIR_OPTIONS,
   CHART_THEME,
   TIMEFRAME_MAP,
   TIME_SCALE_DISPLAY,
@@ -17,12 +18,19 @@ let secondaryContainer = null;
 let resizeObserver = null;
 let cursorPrimitive = null;
 let hoverCursorPrimitive = null;
+let pickPreviewPrimitive = null;
 let infoEl = null;
 let legendEl = null;
 let activeInstrument = 'NQ';
 let activeTimeframe = 60;
 let activeDataCount = 0;
 let activeLastTime = null;
+const crosshairMoveCallbacks = new Set();
+
+function notifySecondaryCrosshairMove(param) {
+  updateSecondaryLegend(param);
+  crosshairMoveCallbacks.forEach((callback) => callback(param));
+}
 
 function formatChartTime(time) {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -98,11 +106,7 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
     },
     width: container.clientWidth,
     height: container.clientHeight,
-    crosshair: {
-      mode: 0,
-      vertLine: { labelVisible: true },
-      horzLine: { labelVisible: true },
-    },
+    crosshair: CHART_CROSSHAIR_OPTIONS,
   });
 
   secondarySeries = secondaryChart.addSeries(LightweightCharts.CandlestickSeries, {
@@ -115,7 +119,7 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
       minMove: getInstrumentTickSize(),
     },
   });
-  secondaryChart.subscribeCrosshairMove(updateSecondaryLegend);
+  secondaryChart.subscribeCrosshairMove(notifySecondaryCrosshairMove);
 
   resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -286,8 +290,8 @@ export function showSecondaryHoverCursor(time) {
 
   if (!hoverCursorPrimitive) {
     hoverCursorPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
-      color: 'rgba(240, 243, 250, 0.16)',
-      lineWidth: 1,
+      color: CHART_CROSSHAIR_OPTIONS.vertLine.color,
+      lineWidth: CHART_CROSSHAIR_OPTIONS.vertLine.width || 1,
     });
     secondarySeries.attachPrimitive(hoverCursorPrimitive);
     return;
@@ -305,6 +309,38 @@ export function hideSecondaryHoverCursor() {
     // primitive may already be detached during chart reset
   }
   hoverCursorPrimitive = null;
+}
+
+export function showSecondaryPickPreviewCursor(time) {
+  if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+
+  if (!pickPreviewPrimitive) {
+    pickPreviewPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
+      color: 'rgba(240, 243, 250, 0.18)',
+      lineWidth: 8,
+    });
+    secondarySeries.attachPrimitive(pickPreviewPrimitive);
+    return;
+  }
+
+  pickPreviewPrimitive.setTime(time);
+}
+
+export function hideSecondaryPickPreviewCursor() {
+  if (!secondarySeries || !pickPreviewPrimitive) return;
+
+  try {
+    secondarySeries.detachPrimitive(pickPreviewPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart reset
+  }
+  pickPreviewPrimitive = null;
+}
+
+export function onSecondaryCrosshairMove(callback) {
+  if (typeof callback !== 'function') return () => {};
+  crosshairMoveCallbacks.add(callback);
+  return () => crosshairMoveCallbacks.delete(callback);
 }
 
 export function attachSecondaryPrimitive(primitive) {
@@ -332,6 +368,7 @@ export function clearSecondaryPrimitives(primitives) {
 export function destroySecondaryChart() {
   hideSecondaryCursor();
   hideSecondaryHoverCursor();
+  hideSecondaryPickPreviewCursor();
   resizeObserver?.disconnect();
   resizeObserver = null;
   activeDataCount = 0;

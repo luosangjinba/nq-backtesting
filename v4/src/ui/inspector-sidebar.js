@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
@@ -804,8 +805,12 @@ export function initInspectorSidebar() {
   createSidebar();
   document.getElementById('chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
   document.getElementById('chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
+  document.getElementById('secondary-chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
+  document.getElementById('secondary-chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
   chart.onCrosshairMove(orderReviewActions.handleExitPickHover);
   chart.onCrosshairMove(segmentActions.handleActorPickHover);
+  secondaryChart.onSecondaryCrosshairMove(orderReviewActions.handleSecondaryExitPickHover);
+  secondaryChart.onSecondaryCrosshairMove(segmentActions.handleSecondaryActorPickHover);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();

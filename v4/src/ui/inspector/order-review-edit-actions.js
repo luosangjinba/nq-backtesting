@@ -1,6 +1,8 @@
 import * as bus from '../../event-bus.js';
 import * as chart from '../../chart/chart-manager.js';
+import * as secondaryChart from '../../chart/secondary-chart-manager.js';
 import * as store from '../../data/bar-store.js';
+import * as secondaryStore from '../../data/secondary-chart-store.js';
 import { timeframeToString } from '../../config.js';
 import {
   clearOrderSetupElementSelection,
@@ -90,6 +92,34 @@ function getOrderSetupElementDeletePatch(role) {
   return null;
 }
 
+function getPickChartContext(e) {
+  const isSecondary = e?.currentTarget?.id === 'secondary-chart';
+  if (isSecondary) {
+    return {
+      chartId: 'secondary',
+      chartEl: document.getElementById('secondary-chart'),
+      coordinateToTime: (x) => secondaryChart.getSecondaryChart()?.timeScale().coordinateToTime(x),
+      findBar: (time) => findDisplayBarByChartTime(
+        time,
+        secondaryStore.getSecondaryDisplayBars(),
+        secondaryStore.getSecondaryTimeframe()
+      ),
+      showCursor: secondaryChart.showSecondaryPickPreviewCursor,
+      hideCursor: secondaryChart.hideSecondaryPickPreviewCursor,
+      timeframe: () => secondaryStore.getSecondaryTimeframe(),
+    };
+  }
+  return {
+    chartId: 'primary',
+    chartEl: document.getElementById('chart'),
+    coordinateToTime: chart.coordinateToTime,
+    findBar: (time) => findDisplayBarByChartTime(time),
+    showCursor: chart.showPickPreviewCursor,
+    hideCursor: chart.hidePickPreviewCursor,
+    timeframe: () => store.getCurrentTimeframe(),
+  };
+}
+
 export function createOrderReviewEditActionController({
   expandOrder,
   refreshSelection,
@@ -102,6 +132,7 @@ export function createOrderReviewEditActionController({
     if (!exitPickState) return false;
     exitPickState = null;
     chart.hidePickPreviewCursor();
+    secondaryChart.hideSecondaryPickPreviewCursor();
     if (!silent) {
       bus.emit('status:update', { text: 'Exit bar pick 已取消', isError: false });
     }
@@ -326,15 +357,15 @@ export function createOrderReviewEditActionController({
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    const chartEl = document.getElementById('chart');
-    if (!chartEl) return;
+    const pickContext = getPickChartContext(e);
+    if (!pickContext.chartEl) return;
 
-    const rect = chartEl.getBoundingClientRect();
+    const rect = pickContext.chartEl.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const time = chart.coordinateToTime(x);
-    const bar = findDisplayBarByChartTime(time);
+    const time = pickContext.coordinateToTime(x);
+    const bar = pickContext.findBar(time);
     if (!bar) {
-      chart.hidePickPreviewCursor();
+      pickContext.hideCursor();
       return;
     }
 
@@ -352,20 +383,25 @@ export function createOrderReviewEditActionController({
       },
     }));
     bus.emit('status:update', {
-      text: `Exit Bar 已选择: ${bar.time || bar.tradingDay} (${timeframeToString(store.getCurrentTimeframe())})`,
+      text: `Exit Bar 已选择: ${bar.time || bar.tradingDay} (${timeframeToString(pickContext.timeframe())})`,
       isError: false,
     });
     refreshSelection?.();
   }
 
-  function handleExitPickHover(param) {
+  function handleExitPickHover(param, source = 'primary') {
     if (!exitPickState) return;
-    const bar = findDisplayBarByChartTime(param?.time);
+    if (source === 'secondary') chart.hidePickPreviewCursor();
+    else secondaryChart.hideSecondaryPickPreviewCursor();
+    const pickContext = source === 'secondary'
+      ? getPickChartContext({ currentTarget: { id: 'secondary-chart' } })
+      : getPickChartContext({ currentTarget: { id: 'chart' } });
+    const bar = pickContext.findBar(param?.time);
     if (!bar) {
-      chart.hidePickPreviewCursor();
+      pickContext.hideCursor();
       return;
     }
-    chart.showPickPreviewCursor(getBarChartTime(bar));
+    pickContext.showCursor(getBarChartTime(bar, pickContext.timeframe()));
   }
 
   return {
@@ -374,5 +410,6 @@ export function createOrderReviewEditActionController({
     handleClick,
     handleExitPickChartClick,
     handleExitPickHover,
+    handleSecondaryExitPickHover: (param) => handleExitPickHover(param, 'secondary'),
   };
 }
