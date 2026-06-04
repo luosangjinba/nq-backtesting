@@ -364,7 +364,7 @@ function renderEconomicEventRow(item) {
 function renderObjectRow(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return renderEconomicEventRow(item);
   const isTimeReaction = item.ref?.type === 'time-reaction';
-  const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
+  const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const showTypeLabel = item.ref?.type !== 'pda';
   const isOrderSetup = item.ref?.type === 'order-setup';
@@ -372,12 +372,16 @@ function renderObjectRow(item) {
   return `
     <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
       <div class="calendar-object-main">
-        <div class="calendar-object-meta">
-          <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
-          ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
-          ${renderSetupVisibilityToggle(item)}
-          ${renderObjectVisibilityToggle(item)}
-        </div>
+        ${
+          isTimeReaction
+            ? ''
+            : `<div class="calendar-object-meta">
+                <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
+                ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
+                ${renderSetupVisibilityToggle(item)}
+                ${renderObjectVisibilityToggle(item)}
+              </div>`
+        }
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
       ${renderObjectActions(item)}
