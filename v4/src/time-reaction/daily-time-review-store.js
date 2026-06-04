@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import { normalizeLinkedObjectRef } from '../order/order-review-store.js';
 
 export const DAILY_TIME_REACTION_TIMES = Object.freeze(['09:30', '09:50', '10:00', '10:30']);
+export const DEFAULT_FIXED_TIME_STATE_TIMES = Object.freeze(['09:30', '09:50', '10:00', '10:30']);
 
 export const DAILY_TIME_REVIEW_SECTIONS = Object.freeze([
   {
@@ -184,11 +185,11 @@ function getTimestampForDateTime(dateKey, timeText) {
   return Math.floor(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), hour, minute, 0) / 1000);
 }
 
-function normalizeLocate(input = {}, dateKey, timeText) {
+function normalizeLocate(input = {}, dateKey, timeText, fallbackTimeframe = '1') {
   const timestamp = normalizeTimestamp(input.timestamp, getTimestampForDateTime(dateKey, timeText));
   return {
     timestamp,
-    timeframe: normalizeTimeframe(input.timeframe),
+    timeframe: normalizeTimeframe(input.timeframe, fallbackTimeframe),
     chart: normalizeChart(input.chart),
   };
 }
@@ -243,12 +244,69 @@ function reactionRefsToSectionRefs(reactions = []) {
 
 function normalizeFixedTimeState(input = {}, reactions = [], dateKey = '') {
   const normalized = normalizeReviewSection('fixedTimeState', input, dateKey);
-  if (normalized.note || normalized.refs.length) return normalized;
   return {
     ...normalized,
-    note: reactionNotesToSectionNote(reactions),
-    refs: normalizeRefs(reactionRefsToSectionRefs(reactions)),
+    note: '',
+    refs: [],
+    items: normalizeFixedTimeItems(input, reactions, dateKey),
   };
+}
+
+function normalizeFixedTimeItem(input = {}, dateKey = '', fallbackTime = '09:30') {
+  const time = normalizeTimeText(input.time, fallbackTime);
+  return {
+    id: normalizeString(input.id, makeContextItemId()),
+    time,
+    note: normalizeString(input.note),
+    refs: normalizeRefs(input.refs),
+    locate: normalizeLocate(input.locate, dateKey, time, '1'),
+  };
+}
+
+function normalizeFixedTimeItems(input = {}, reactions = [], dateKey = '') {
+  const legacyNote = normalizeString(input.note);
+  const legacyRefs = normalizeRefs(input.refs);
+  const explicitItems = Array.isArray(input.items)
+    ? input.items
+        .map((item, index) => normalizeFixedTimeItem(item, dateKey, DEFAULT_FIXED_TIME_STATE_TIMES[index] || '09:30'))
+        .filter((item) => item.id)
+    : [];
+  if (explicitItems.length) {
+    if (!legacyNote && !legacyRefs.length) return explicitItems;
+    return explicitItems.map((item, index) => (
+      index === 0
+        ? {
+            ...item,
+            note: item.note || legacyNote,
+            refs: [...legacyRefs, ...(item.refs || [])],
+          }
+        : item
+    ));
+  }
+
+  const reactionItems = (Array.isArray(reactions) ? reactions.filter(reactionHasContent) : [])
+    .map((reaction) => normalizeFixedTimeItem({
+      id: `fixed_${normalizeTimeText(reaction.time).replace(':', '')}`,
+      time: reaction.time,
+      note: [
+        normalizeString(reaction.note),
+        ...(Array.isArray(reaction.items) ? reaction.items.map((item) => normalizeString(item.note)).filter(Boolean) : []),
+      ].filter(Boolean).join(' / '),
+      refs: [
+        ...(Array.isArray(reaction.refs) ? reaction.refs : []),
+        ...(Array.isArray(reaction.items) ? reaction.items.flatMap((item) => item.refs || []) : []),
+      ],
+      locate: reaction.locate,
+    }, dateKey, reaction.time))
+    .filter((item) => item.id);
+  if (reactionItems.length) return reactionItems;
+
+  return DEFAULT_FIXED_TIME_STATE_TIMES.map((time, index) => normalizeFixedTimeItem({
+    id: `fixed_${time.replace(':', '')}`,
+    time,
+    note: index === 0 ? legacyNote : '',
+    refs: index === 0 ? legacyRefs : [],
+  }, dateKey, time));
 }
 
 export function getDailyTimeReviewIdentity(review = {}) {
@@ -494,6 +552,51 @@ export function removeDailyTimeSummaryItem(date, itemId, instrument = 'NQ') {
   });
 }
 
+export function addFixedTimeStateItem(date, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  if (!review) return null;
+  const time = normalizeTimeText(patch.time, '09:30');
+  const item = normalizeFixedTimeItem({ id: makeContextItemId(), ...patch, time }, review.date, time);
+  return updateDailyTimeReview(review.id, {
+    fixedTimeState: {
+      ...(review.fixedTimeState || {}),
+      items: [...(review.fixedTimeState?.items || []), item],
+    },
+  });
+}
+
+export function updateFixedTimeStateItem(date, itemId, patch = {}, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  return updateDailyTimeReview(review.id, {
+    fixedTimeState: {
+      ...(review.fixedTimeState || {}),
+      items: (review.fixedTimeState?.items || []).map((item) => {
+        if (item.id !== id) return item;
+        const nextPatch = { ...patch };
+        if (patch.time && !patch.locate) {
+          nextPatch.locate = { ...(item.locate || {}), timestamp: null };
+        }
+        return normalizeFixedTimeItem({ ...item, ...nextPatch }, review.date, nextPatch.time || item.time);
+      }),
+    },
+  });
+}
+
+export function removeFixedTimeStateItem(date, itemId, instrument = 'NQ') {
+  const review = getOrCreateDailyTimeReview(date, instrument);
+  const id = normalizeString(itemId);
+  if (!review || !id) return null;
+  const items = (review.fixedTimeState?.items || []).filter((item) => item.id !== id);
+  return updateDailyTimeReview(review.id, {
+    fixedTimeState: {
+      ...(review.fixedTimeState || {}),
+      items: items.length ? items : [normalizeFixedTimeItem({ id: 'fixed_0930', time: '09:30' }, review.date, '09:30')],
+    },
+  });
+}
+
 export function updateDailyTimeReaction(date, time, patch = {}, instrument = 'NQ') {
   const review = getOrCreateDailyTimeReview(date, instrument);
   if (!review) return null;
@@ -528,6 +631,10 @@ export function updateDailyTimeReview(id, patch = {}, options = {}) {
 }
 
 function getSectionRefs(review, target = {}) {
+  if (target.section === 'fixedTimeItem') {
+    const item = (review.fixedTimeState?.items || []).find((candidate) => candidate.id === normalizeString(target.itemId));
+    return Array.isArray(item?.refs) ? item.refs : [];
+  }
   if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
     return Array.isArray(review[target.section]?.refs) ? review[target.section].refs : [];
   }
@@ -553,6 +660,17 @@ function getSectionRefs(review, target = {}) {
 }
 
 function updateSectionRefs(review, target = {}, refs = []) {
+  if (target.section === 'fixedTimeItem') {
+    const itemId = normalizeString(target.itemId);
+    return {
+      fixedTimeState: {
+        ...(review.fixedTimeState || {}),
+        items: (review.fixedTimeState?.items || []).map((item) => (
+          item.id === itemId ? { ...item, refs } : item
+        )),
+      },
+    };
+  }
   if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
     return {
       [target.section]: {

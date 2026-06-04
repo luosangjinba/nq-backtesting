@@ -900,6 +900,18 @@ html, body {
   white-space: pre-wrap;
 }
 
+.time-reaction-fixed-time-card {
+  gap: 7px;
+}
+
+.time-reaction-time-input {
+  max-width: 112px;
+}
+
+.time-reaction-panel .time-reaction-fixed-note {
+  min-height: 58px;
+}
+
 .time-reaction-panel .order-review-ref-row {
   grid-template-columns: minmax(0, 1fr) auto;
   min-width: 0;

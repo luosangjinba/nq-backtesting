@@ -388,13 +388,26 @@ function renderObjectRow(item) {
 }
 
 function getSectionRefCount(sectionData = {}) {
-  return Array.isArray(sectionData.refs) ? sectionData.refs.length : 0;
+  const sectionRefs = Array.isArray(sectionData.refs) ? sectionData.refs.length : 0;
+  const itemRefs = Array.isArray(sectionData.items)
+    ? sectionData.items.reduce((sum, item) => sum + (Array.isArray(item.refs) ? item.refs.length : 0), 0)
+    : 0;
+  return sectionRefs + itemRefs;
 }
 
 function getSectionPreview(sectionData = {}) {
   const note = String(sectionData.note || '').trim();
-  if (!note) return '';
-  return note.replace(/\s+/g, ' ').slice(0, 48);
+  const itemNote = Array.isArray(sectionData.items)
+    ? sectionData.items
+        .map((item) => {
+          const itemText = String(item.note || '').trim();
+          return itemText ? `${item.time || ''} ${itemText}`.trim() : '';
+        })
+        .find(Boolean)
+    : '';
+  const preview = note || itemNote;
+  if (!preview) return '';
+  return preview.replace(/\s+/g, ' ').slice(0, 48);
 }
 
 function summarizeTimeReactionSection(sectionData = {}) {

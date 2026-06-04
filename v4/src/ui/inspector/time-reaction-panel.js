@@ -227,6 +227,71 @@ function renderObservationItem(review, item, itemIndex, target, options = {}) {
   `;
 }
 
+function renderFixedTimeStateItem(review, item, itemIndex, itemCount, options = {}) {
+  const target = { section: 'fixedTimeItem', itemId: item.id, time: item.time };
+  return `
+    <div class="time-reaction-card time-reaction-fixed-time-card">
+      <div class="time-reaction-card-header">
+        <input
+          class="inspector-input time-reaction-time-input"
+          data-inspector-action="daily-time-fixed-item-time"
+          ${targetAttrs(review, target)}
+          type="time"
+          value="${escapeHtml(item.time || '09:30')}"
+        />
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="daily-time-fixed-item-remove"
+          ${targetAttrs(review, target)}
+          type="button"
+          ${itemCount <= 1 ? 'disabled' : ''}
+        >Remove</button>
+      </div>
+      <textarea
+        class="inspector-textarea time-reaction-fixed-note"
+        data-inspector-action="daily-time-fixed-item-note"
+        ${targetAttrs(review, target)}
+        rows="2"
+        placeholder="${escapeHtml(`Record ${item.time || 'fixed time'} state.`)}"
+      >${escapeHtml(item.note || '')}</textarea>
+      ${renderLocateControls(review, target, item.locate)}
+      ${renderRefList(review, target, item.refs, options)}
+    </div>
+  `;
+}
+
+function renderFixedTimeStatePanel(review, sectionDefinition, options = {}) {
+  const sectionData = review.fixedTimeState || {};
+  const items = Array.isArray(sectionData.items) ? sectionData.items : [];
+  return `
+    <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-section-detail">
+      <div class="inspector-section-title">${escapeHtml(sectionDefinition.label)}</div>
+      <div class="inspector-evidence-row">
+        <div class="inspector-evidence-header">
+          <span>${escapeHtml(review.date)}</span>
+          <span>${escapeHtml(review.instrument || 'NQ')}</span>
+        </div>
+        <div class="drawing-set-meta">Daily fixed-time state notes with linked chart evidence.</div>
+      </div>
+      <button
+        class="inspector-mini-btn time-reaction-add-btn"
+        data-inspector-action="daily-time-fixed-item-add"
+        data-daily-time-date="${escapeHtml(review.date)}"
+        type="button"
+      >Add Time</button>
+      <div class="time-reaction-list">
+        ${items.map((item, itemIndex) => renderFixedTimeStateItem(
+          review,
+          item,
+          itemIndex,
+          items.length,
+          options
+        )).join('')}
+      </div>
+    </section>
+  `;
+}
+
 function renderReactionCard(review, reaction, options = {}) {
   const time = reaction.time;
   const items = Array.isArray(reaction.items) ? reaction.items : [];
@@ -335,6 +400,10 @@ export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = 
   const sectionDefinition = getDailyTimeReviewSectionDefinition(sectionKey);
   if (!review || !sectionDefinition) {
     return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid review section.</div>');
+  }
+
+  if (sectionKey === 'fixedTimeState') {
+    return renderFixedTimeStatePanel(review, sectionDefinition, options);
   }
 
   const sectionData = review[sectionKey] || {};
