@@ -1,17 +1,16 @@
 import * as bus from '../event-bus.js';
-import { fetchBars } from '../api.js';
 import { DEFAULT_DAILY_REGIME_INSTRUMENT, normalizeDailyRegime } from './daily-regime-types.js';
 import { clearDailyRegimes, loadDailyRegimes } from './daily-regime-store.js';
-import { applyTrendRegimes } from './daily-regime-trend.js';
-import { applyRangeRegimes } from './daily-regime-range.js';
 import { applyEventRegimes } from './daily-regime-events.js';
 
 const VIX_DAILY_CSV_PATH = 'data/vix-daily.csv';
-const DAILY_TF = 1440;
-const DAILY_HISTORY_LOOKBACK_DAYS = 140;
+const DAILY_REGIME_CSV_PATH_BY_INSTRUMENT = Object.freeze({
+  NQ: 'data/daily-regime-nq.csv',
+});
 
 let requestSeq = 0;
 let vixDailyCache = null;
+let trendRangeCacheByInstrument = new Map();
 
 function normalizeDate(value) {
   const text = String(value || '').trim();
@@ -27,17 +26,6 @@ function dateKeyFromTimestamp(timestamp) {
   const value = Number(timestamp);
   if (!Number.isFinite(value) || value <= 0) return '';
   const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
-}
-
-function shiftDateKey(dateKey, dayOffset) {
-  const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return '';
-  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + dayOffset));
   return [
     date.getUTCFullYear(),
     String(date.getUTCMonth() + 1).padStart(2, '0'),
@@ -82,6 +70,32 @@ export function buildVixDailyRegimes(vixByDate, range, instrument = DEFAULT_DAIL
     .map(([date, vixClose]) => normalizeDailyRegime({ date, instrument, vixClose }));
 }
 
+export function parseDailyTrendRangeCsv(text) {
+  const rows = String(text || '').trim().split(/\r?\n/);
+  if (rows.length <= 1) return new Map();
+  const header = parseCsvLine(rows[0]);
+  const indexes = Object.fromEntries(header.map((name, index) => [name, index]));
+  if (indexes.date === undefined) return new Map();
+
+  const byDate = new Map();
+  rows.slice(1).forEach((line) => {
+    const cells = parseCsvLine(line);
+    const date = normalizeDate(cells[indexes.date]);
+    if (!date) return;
+    byDate.set(date, {
+      trendClose: cells[indexes.trendClose],
+      trendEma20: cells[indexes.trendEma20],
+      trendEma50: cells[indexes.trendEma50],
+      trendRegime: cells[indexes.trendRegime],
+      dayRange: cells[indexes.dayRange],
+      atr20: cells[indexes.atr20],
+      rangeAtrRatio: cells[indexes.rangeAtrRatio],
+      rangeRegime: cells[indexes.rangeRegime],
+    });
+  });
+  return byDate;
+}
+
 async function getVixDailyData() {
   if (vixDailyCache) return vixDailyCache;
   const response = await fetch(VIX_DAILY_CSV_PATH);
@@ -91,11 +105,31 @@ async function getVixDailyData() {
   return vixDailyCache;
 }
 
-async function fetchDailyHistoryBars(range, instrument = DEFAULT_DAILY_REGIME_INSTRUMENT) {
-  if (!range?.dateFrom || !range?.dateTo) return [];
-  const startDate = shiftDateKey(range.dateFrom, -DAILY_HISTORY_LOOKBACK_DAYS) || range.dateFrom;
-  const response = await fetchBars(`${startDate} 00:00`, `${range.dateTo} 23:59`, DAILY_TF, instrument);
-  return Array.isArray(response?.bars) ? response.bars : [];
+async function getDailyTrendRangeData(instrument = DEFAULT_DAILY_REGIME_INSTRUMENT) {
+  const normalizedInstrument = String(instrument || DEFAULT_DAILY_REGIME_INSTRUMENT).trim().toUpperCase();
+  if (trendRangeCacheByInstrument.has(normalizedInstrument)) {
+    return trendRangeCacheByInstrument.get(normalizedInstrument);
+  }
+
+  const path = DAILY_REGIME_CSV_PATH_BY_INSTRUMENT[normalizedInstrument];
+  if (!path) {
+    const empty = new Map();
+    trendRangeCacheByInstrument.set(normalizedInstrument, empty);
+    return empty;
+  }
+
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const parsed = parseDailyTrendRangeCsv(await response.text());
+  trendRangeCacheByInstrument.set(normalizedInstrument, parsed);
+  return parsed;
+}
+
+function applyStaticTrendRangeRegimes(regimes = [], trendRangeByDate = new Map()) {
+  return (Array.isArray(regimes) ? regimes : []).map((regime) => normalizeDailyRegime({
+    ...regime,
+    ...(trendRangeByDate.get(regime.date) || {}),
+  }));
 }
 
 async function loadDailyRegimesForBars(payload = {}) {
@@ -108,16 +142,14 @@ async function loadDailyRegimesForBars(payload = {}) {
   }
 
   try {
-    const [vixByDate, dailyHistoryBars] = await Promise.all([
+    const instrument = payload.instrument || DEFAULT_DAILY_REGIME_INSTRUMENT;
+    const [vixByDate, trendRangeByDate] = await Promise.all([
       getVixDailyData(),
-      fetchDailyHistoryBars(range, payload.instrument || DEFAULT_DAILY_REGIME_INSTRUMENT),
+      getDailyTrendRangeData(instrument),
     ]);
     if (seq !== requestSeq) return;
     const regimes = applyEventRegimes(
-      applyRangeRegimes(
-        applyTrendRegimes(buildVixDailyRegimes(vixByDate, range), dailyHistoryBars),
-        dailyHistoryBars
-      )
+      applyStaticTrendRangeRegimes(buildVixDailyRegimes(vixByDate, range, instrument), trendRangeByDate)
     );
     loadDailyRegimes(regimes, range);
   } catch (error) {
