@@ -10,6 +10,7 @@ import { timeframeToString } from '../config.js';
 import { identifyFvg } from '../pda/fvg-identifier.js';
 import { addSmtRecord, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { recordHistory } from '../history/history-manager.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 
 let pickState = null;
 
@@ -146,6 +147,8 @@ function handlePickHover(param) {
   chart.showPickPreviewCursor(getPrimaryChartTime(bar));
 }
 
+const handlePickHoverThrottled = createRafThrottle(handlePickHover);
+
 export function startLiquiditySmt(direction, leftBar) {
   try {
     assertCanMarkSmt();
@@ -185,7 +188,7 @@ export function startFvgSmt(direction) {
 
 export function initManualSmt() {
   chart.onClick(handlePickClick);
-  chart.onCrosshairMove(handlePickHover);
+  chart.onCrosshairMove(handlePickHoverThrottled);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') clearPickState();
   });

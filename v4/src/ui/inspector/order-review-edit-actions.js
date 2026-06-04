@@ -14,6 +14,7 @@ import {
 } from '../../order/order-review-store.js';
 import { calculateAutoExitTime } from '../../order/auto-exit-time.js';
 import { getSetupSetById } from '../../order/setup-set.js';
+import { createRafThrottle } from '../../utils/raf-throttle.js';
 import {
   findDisplayBarByChartTime,
   getAutoExitReasonMessage,
@@ -404,12 +405,17 @@ export function createOrderReviewEditActionController({
     pickContext.showCursor(getBarChartTime(bar, pickContext.timeframe()));
   }
 
+  const handleExitPickHoverThrottled = createRafThrottle(handleExitPickHover);
+  const handleSecondaryExitPickHoverThrottled = createRafThrottle((param) =>
+    handleExitPickHover(param, 'secondary')
+  );
+
   return {
     clearExitPickState,
     handleChange,
     handleClick,
     handleExitPickChartClick,
-    handleExitPickHover,
-    handleSecondaryExitPickHover: (param) => handleExitPickHover(param, 'secondary'),
+    handleExitPickHover: handleExitPickHoverThrottled,
+    handleSecondaryExitPickHover: handleSecondaryExitPickHoverThrottled,
   };
 }

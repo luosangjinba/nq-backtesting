@@ -10,6 +10,7 @@ import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 import {
   clearReplayHistory,
   deleteReplayHistoryItem,
@@ -536,6 +537,8 @@ function handleCrosshairMove(param) {
   chart.showPickPreviewCursor(chartData[index].time);
 }
 
+const handleCrosshairMoveThrottled = createRafThrottle(handleCrosshairMove);
+
 function handleControlClick(e) {
   const action = e.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
@@ -754,7 +757,7 @@ export function initReplayControls() {
   controlsEl.addEventListener('click', handleControlClick);
   window.addEventListener('keydown', handleKeydown);
   chart.onClick(handleChartClick);
-  chart.onCrosshairMove(handleCrosshairMove);
+  chart.onCrosshairMove(handleCrosshairMoveThrottled);
   bus.on('bars:cleared', resetReplayState);
   render();
 }

@@ -33,6 +33,7 @@ import {
 } from '../../segment/reaction-evidence.js';
 import { recordHistory } from '../../history/history-manager.js';
 import { parseTags } from './segment-panel.js';
+import { createRafThrottle } from '../../utils/raf-throttle.js';
 
 let actorPickState = null;
 
@@ -231,6 +232,11 @@ export function createSegmentInspectorActionController({
     }
     pickContext.showCursor(getBarChartTime(bar, pickContext.timeframe()));
   }
+
+  const handleActorPickHoverThrottled = createRafThrottle(handleActorPickHover);
+  const handleSecondaryActorPickHoverThrottled = createRafThrottle((param) =>
+    handleActorPickHover(param, 'secondary')
+  );
 
   function handleSegmentChange(action, target) {
     const segment = getCurrentSegment();
@@ -518,8 +524,8 @@ export function createSegmentInspectorActionController({
   return {
     clearActorPickState,
     handleActorPickChartClick,
-    handleActorPickHover,
-    handleSecondaryActorPickHover: (param) => handleActorPickHover(param, 'secondary'),
+    handleActorPickHover: handleActorPickHoverThrottled,
+    handleSecondaryActorPickHover: handleSecondaryActorPickHoverThrottled,
     handleSegmentChange,
     handleSegmentClick,
   };
