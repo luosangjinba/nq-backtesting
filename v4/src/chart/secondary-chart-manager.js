@@ -280,6 +280,7 @@ export function locateSecondaryTimestamp(timestamp, displayBars = []) {
 
 export function showSecondaryCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+  hideSecondarySyncCrosshairCursor();
   const label = formatCursorTime(time);
 
   if (!cursorPrimitive) {
@@ -304,6 +305,7 @@ export function hideSecondaryCursor() {
 
 export function showSecondaryHoverCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+  hideSecondarySyncCrosshairCursor();
 
   if (!hoverCursorPrimitive) {
     hoverCursorPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
@@ -356,6 +358,7 @@ export function hideSecondaryPickPreviewCursor() {
 
 export function showSecondarySyncCrosshairCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+  if (pickPreviewPrimitive || cursorPrimitive || hoverCursorPrimitive) return;
 
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(secondaryChart, time, {

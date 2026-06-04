@@ -481,7 +481,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 258.2: 为主图和副图 display bars 建轻量 lookup cache：按 `timeframe + displayBars identity/length/first/last timestamp` 缓存 `chartTime -> bar` 和 `bucketStart timestamp -> chartTime/bar`，替代 `findDisplayBarByTime()` 在 crosshair move 中的线性扫描；cache 只服务高频 hover/sync，不改变 store 数据结构。
   - [x] Step 258.3: 给主副图 crosshair 同步加 `requestAnimationFrame` 节流：副图移动时一帧最多执行一次 `syncPrimaryHoverCursor`，主图移动时一帧最多执行一次 `syncSecondaryHoverCursor`；保留最后一次 param，鼠标离开/无 time 时仍能及时隐藏同步线。
   - [x] Step 258.4: 降低 legend DOM 写入频率：主图/副图 legend 记录上一次 bar time + OHLC 值，未变化时不重复 `innerHTML`；确保跨 instrument 的价格 formatter 仍正确。
-  - [ ] Step 258.5: 处理 pick/replay 优先级：确认节流后的普通 sync crosshair 不覆盖 pick preview、replay cursor、manual secondary hover cursor；Pick 模式和 Replay On 状态下的清理路径必须保持无残线。
+  - [x] Step 258.5: 处理 pick/replay 优先级：确认节流后的普通 sync crosshair 不覆盖 pick preview、replay cursor、manual secondary hover cursor；Pick 模式和 Replay On 状态下的清理路径必须保持无残线。
   - [ ] Step 258.6: 验证与收口：运行 targeted node smoke、全量 `node --check`、`git diff --check`；手工覆盖 Split on/off、主图 hover、副图 hover、副图拖动/缩放、Replay On、Sub 1M 大区间、Sub ES/NQ 切换、Inspector locate/open；记录优化前后体感和 DevTools 结果。
 
 ## 已知问题

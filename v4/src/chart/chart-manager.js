@@ -162,6 +162,7 @@ export function getActiveDataCount() {
 
 export function showReplayCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
+  hideSyncCrosshairCursor();
   const label = formatCursorTime(time);
 
   if (!replayCursorPrimitive) {
@@ -213,6 +214,7 @@ export function hidePickPreviewCursor() {
 
 export function showSyncCrosshairCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
+  if (pickPreviewPrimitive || replayCursorPrimitive) return;
 
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(chart, time, {
