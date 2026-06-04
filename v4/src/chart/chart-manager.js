@@ -2,6 +2,7 @@
 
 import {
   CHART_CROSSHAIR_OPTIONS,
+  CHART_SYNC_CROSSHAIR_CURSOR,
   CHART_THEME,
   CANDLESTICK_STYLE,
   TIME_SCALE_DISPLAY,
@@ -204,8 +205,7 @@ export function showSyncCrosshairCursor(time) {
 
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(chart, time, {
-      color: CHART_CROSSHAIR_OPTIONS.vertLine.color,
-      lineWidth: CHART_CROSSHAIR_OPTIONS.vertLine.width || 1,
+      ...CHART_SYNC_CROSSHAIR_CURSOR,
     });
     series.attachPrimitive(syncCrosshairPrimitive);
     return;

@@ -3,6 +3,7 @@
 import {
   CANDLESTICK_STYLE,
   CHART_CROSSHAIR_OPTIONS,
+  CHART_SYNC_CROSSHAIR_CURSOR,
   CHART_THEME,
   TIMEFRAME_MAP,
   TIME_SCALE_DISPLAY,
@@ -292,8 +293,7 @@ export function showSecondaryHoverCursor(time) {
 
   if (!hoverCursorPrimitive) {
     hoverCursorPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
-      color: CHART_CROSSHAIR_OPTIONS.vertLine.color,
-      lineWidth: CHART_CROSSHAIR_OPTIONS.vertLine.width || 1,
+      ...CHART_SYNC_CROSSHAIR_CURSOR,
     });
     secondarySeries.attachPrimitive(hoverCursorPrimitive);
     return;
@@ -345,8 +345,7 @@ export function showSecondarySyncCrosshairCursor(time) {
 
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
-      color: CHART_CROSSHAIR_OPTIONS.vertLine.color,
-      lineWidth: CHART_CROSSHAIR_OPTIONS.vertLine.width || 1,
+      ...CHART_SYNC_CROSSHAIR_CURSOR,
     });
     secondarySeries.attachPrimitive(syncCrosshairPrimitive);
     return;

@@ -51,17 +51,25 @@ export const CHART_THEME = {
 export const CHART_CROSSHAIR_OPTIONS = {
   mode: 0,
   vertLine: {
-    color: 'rgba(209, 212, 220, 0.62)',
-    width: 1,
+    color: 'rgba(240, 243, 250, 0.16)',
+    width: 4,
+    style: 0,
     labelVisible: true,
     labelBackgroundColor: '#2a2e39',
   },
   horzLine: {
-    color: 'rgba(209, 212, 220, 0.62)',
-    width: 1,
+    color: 'rgba(240, 243, 250, 0.16)',
+    width: 4,
+    style: 0,
     labelVisible: true,
     labelBackgroundColor: '#2a2e39',
   },
+};
+
+export const CHART_SYNC_CROSSHAIR_CURSOR = {
+  color: 'rgba(240, 243, 250, 0.16)',
+  lineWidth: 6,
+  lineDash: [],
 };
 
 export const CANDLESTICK_STYLE = {
