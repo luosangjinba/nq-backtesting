@@ -197,9 +197,10 @@ function prepareSelectionBackTarget(dateKey) {
   const page = getInspectorPage();
   if (page.kind === 'detail' && page.objectType && page.objectId) {
     pushInspectorPage({
-      kind: 'detail',
+      ...page,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
+      openGroups: Array.from(calendarOpenGroups),
     });
     return true;
   }
