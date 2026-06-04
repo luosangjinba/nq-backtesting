@@ -101,3 +101,30 @@ Optimization hypothesis:
 
 Manual DevTools performance profiling should be repeated after the code changes
 using a large Split Screen range, with Sub 1M and Replay On/Off both covered.
+
+## 2026-06-04 - Step 258 Secondary Chart Performance Completed
+
+Implemented:
+
+- Added `chart/display-bar-lookup.js` to cache high-frequency display-bar
+  lookups by timeframe, bar count, first timestamp, and last timestamp.
+- Replaced primary/secondary crosshair sync linear scans with cached lookups.
+- Throttled primary-to-secondary and secondary-to-primary sync cursor work with
+  `requestAnimationFrame`, keeping only the latest hover time per frame.
+- Added legend update caching so unchanged OHLC hover data does not rewrite
+  `innerHTML`.
+- Preserved cursor priority: pick preview, replay cursor, and manual secondary
+  hover cursor clear or block ordinary split sync cursor lines.
+
+Verification:
+
+- Targeted Step 258 smoke passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
+
+Manual follow-up:
+
+- User should re-test the original slow scenario in browser, especially Split
+  on, Sub 1M large range, Replay On/Off, and ES/NQ switch. DevTools profiling
+  should show less time spent in hover bar lookup and fewer duplicate legend DOM
+  writes.
