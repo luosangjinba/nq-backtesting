@@ -3,6 +3,7 @@ import {
 } from '../../config.js';
 import {
   DAILY_TIME_REACTION_TIMES,
+  getDailyTimeReviewSectionDefinition,
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
@@ -314,6 +315,39 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
           ${summaryItems}
         </div>
       </div>
+    </section>
+  `;
+}
+
+export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = {}) {
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(sectionKey);
+  if (!review || !sectionDefinition) {
+    return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid review section.</div>');
+  }
+
+  const sectionData = review[sectionKey] || {};
+  const target = { section: sectionKey };
+  return `
+    <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-section-detail">
+      <div class="inspector-section-title">${escapeHtml(sectionDefinition.label)}</div>
+      <div class="inspector-evidence-row">
+        <div class="inspector-evidence-header">
+          <span>${escapeHtml(review.date)}</span>
+          <span>${escapeHtml(review.instrument || 'NQ')}</span>
+        </div>
+        <div class="drawing-set-meta">Daily review note with linked chart evidence.</div>
+      </div>
+      ${renderTextarea(
+        sectionData.note,
+        [
+          'data-inspector-action="daily-time-section-note"',
+          `data-daily-time-section="${escapeHtml(sectionKey)}"`,
+          targetAttrs(review, target),
+        ].join(' '),
+        `Record ${sectionDefinition.label}.`
+      )}
+      ${renderLocateControls(review, target, sectionData.locate)}
+      ${renderRefList(review, target, sectionData.refs, options)}
     </section>
   `;
 }

@@ -25,11 +25,13 @@ import {
   getSegmentOrderRefLabel,
 } from '../../order/order-ref-metadata.js';
 import {
+  DAILY_TIME_REVIEW_SECTION_KEYS,
   addDailyTimeReviewRef,
   addDailyTimeContextItem,
   addDailyTimeReactionItem,
   addDailyTimeSummaryItem,
   getDailyTimeReviewByDate,
+  getDailyTimeReviewSectionDefinition,
   getOrCreateDailyTimeReview,
   removeDailyTimeReviewRef,
   removeDailyTimeContextItem,
@@ -64,6 +66,9 @@ export function hasPendingDailyTimeRefPick() {
 
 export function getDailyTimeTargetFromElement(actionEl) {
   const section = actionEl.dataset.dailyTimeTargetSection;
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(section)) {
+    return { section };
+  }
   if (section === 'reaction') {
     return {
       section: 'reaction',
@@ -102,10 +107,13 @@ export function getDailyTimeTargetKey(target = {}) {
 }
 
 export function getDailyTimeSectionName(target = {}) {
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) return target.section;
   return target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
 }
 
 export function getDailyTimeTargetLabel(target = {}) {
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
+  if (sectionDefinition) return sectionDefinition.label;
   if (target.section === 'reaction') return target.time || 'reaction';
   if (target.section === 'reactionItem') return target.time || 'reaction';
   if (target.section === 'pre0930Item') return 'Pre 09:30 Context';
@@ -115,12 +123,24 @@ export function getDailyTimeTargetLabel(target = {}) {
 }
 
 export function getDailyTimeTargetTime(target = {}) {
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
+  if (sectionDefinition) return sectionDefinition.fallbackTime || '09:30';
   if (target.section === 'reaction' || target.section === 'reactionItem') return target.time || '09:30';
   if (target.section === 'summary' || target.section === 'summaryItem') return '11:00';
   return '09:30';
 }
 
 export function getDailyTimeLocateRange(date, target = {}) {
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
+  if (sectionDefinition) {
+    return {
+      start: getCalendarDateTimestamp(date, sectionDefinition.fallbackTime || '09:30'),
+      end: getCalendarDateTimestamp(
+        date,
+        sectionDefinition.rangeEndTime || sectionDefinition.fallbackTime || '09:30'
+      ),
+    };
+  }
   if (target.section === 'summary' || target.section === 'summaryItem') {
     return {
       start: getCalendarDateTimestamp(date, '09:30'),
@@ -214,6 +234,9 @@ function getSmtTimestampRange(record = {}) {
 function getDailyTimeRefsForTarget(date, target = {}) {
   const review = getDailyTimeReviewByDate(date);
   if (!review) return [];
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
+    return Array.isArray(review[target.section]?.refs) ? review[target.section].refs : [];
+  }
   if (target.section === 'reactionItem') {
     const reaction = review.reactions.find((item) => item.time === getDailyTimeTargetTime(target));
     const item = (reaction?.items || []).find((candidate) => candidate.id === target.itemId);
@@ -239,6 +262,9 @@ function getDailyTimeRefByTarget(date, target = {}, refIndex) {
 function getDailyTimeTargetLocate(date, target = {}) {
   const review = getDailyTimeReviewByDate(date) || getOrCreateDailyTimeReview(date);
   if (!review) return {};
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
+    return review[target.section]?.locate || {};
+  }
   if (target.section === 'reaction') {
     return review.reactions.find((reaction) => reaction.time === getDailyTimeTargetTime(target))?.locate || {};
   }

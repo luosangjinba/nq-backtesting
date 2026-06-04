@@ -25,7 +25,10 @@ import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { createSmtInspectorActionController } from './inspector/smt-actions.js';
 import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
-import { renderDailyTimeReviewPanel } from './inspector/time-reaction-panel.js';
+import {
+  renderDailyTimeReviewPanel,
+  renderDailyTimeReviewSectionPanel,
+} from './inspector/time-reaction-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
 import {
@@ -290,7 +293,7 @@ function renderOrderSetupDetail(orderReviewId) {
   `;
 }
 
-function renderDailyTimeReviewDetail(dateKey) {
+function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
   const review = getDailyTimeReviewByDate(dateKey) || getOrCreateDailyTimeReview(dateKey);
   currentPanel = 'detail';
   setCalendarDateContext(dateKey);
@@ -298,12 +301,17 @@ function renderDailyTimeReviewDetail(dateKey) {
     kind: 'detail',
     objectType: 'time-reaction',
     objectId: dateKey,
+    sectionKey,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
   bodyEl.innerHTML = `
     ${renderInspectorBackAction()}
-    ${renderDailyTimeReviewPanel(review, { pendingRefPick: dailyTimeActions.getPendingRefPick() })}
+    ${
+      sectionKey
+        ? renderDailyTimeReviewSectionPanel(review, sectionKey, { pendingRefPick: dailyTimeActions.getPendingRefPick() })
+        : renderDailyTimeReviewPanel(review, { pendingRefPick: dailyTimeActions.getPendingRefPick() })
+    }
   `;
 }
 
@@ -401,7 +409,7 @@ function renderPageFromState(page = getInspectorPage()) {
       }
     } else if (page.objectType === 'time-reaction') {
       if (String(page.objectId || '').match(/^\d{4}-\d{2}-\d{2}$/)) {
-        renderDailyTimeReviewDetail(page.objectId);
+        renderDailyTimeReviewDetail(page.objectId, page.sectionKey || '');
         return;
       }
     }
@@ -507,7 +515,7 @@ function captureCalendarOpenGroups() {
   );
 }
 
-function openCalendarObject(type, id) {
+function openCalendarObject(type, id, options = {}) {
   if (!type || !id) return false;
   if (type === 'order-setup') {
     suppressActiveReviewRender = true;
@@ -613,10 +621,11 @@ function openCalendarObject(type, id) {
       kind: 'detail',
       objectType: 'time-reaction',
       objectId: id,
+      sectionKey: options.sectionKey || '',
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
     });
-    renderDailyTimeReviewDetail(id);
+    renderDailyTimeReviewDetail(id, options.sectionKey || '');
     return true;
   }
   return false;

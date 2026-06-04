@@ -528,6 +528,9 @@ export function updateDailyTimeReview(id, patch = {}, options = {}) {
 }
 
 function getSectionRefs(review, target = {}) {
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
+    return Array.isArray(review[target.section]?.refs) ? review[target.section].refs : [];
+  }
   if (target.section === 'reaction') {
     const reaction = review.reactions.find((item) => item.time === normalizeTimeText(target.time));
     return Array.isArray(reaction?.refs) ? reaction.refs : [];
@@ -550,6 +553,14 @@ function getSectionRefs(review, target = {}) {
 }
 
 function updateSectionRefs(review, target = {}, refs = []) {
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
+    return {
+      [target.section]: {
+        ...(review[target.section] || {}),
+        refs,
+      },
+    };
+  }
   if (target.section === 'reaction') {
     const time = normalizeTimeText(target.time);
     return {
