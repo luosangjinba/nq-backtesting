@@ -153,6 +153,57 @@ function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
   return matchedIndex;
 }
 
+function getUtcDateKey(timestamp) {
+  if (!Number.isFinite(Number(timestamp))) return '';
+  return new Date(Number(timestamp) * 1000).toISOString().slice(0, 10);
+}
+
+function getUtcDateTimeTimestamp(dateKey, hour, minute) {
+  const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  return Math.floor(Date.UTC(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+    hour,
+    minute,
+    0
+  ) / 1000);
+}
+
+function findNextDailyTimeIndex(hour, minute) {
+  if (!enabled || cursorIndex < 0 || !displayBars.length) return -1;
+
+  const currentDate = getUtcDateKey(displayBars[cursorIndex]?.timestamp);
+  const tfSeconds = Number(store.getCurrentTimeframe()) * 60;
+  const visitedDates = new Set();
+
+  for (let index = cursorIndex + 1; index < displayBars.length; index += 1) {
+    const bar = displayBars[index];
+    const dateKey = getUtcDateKey(bar?.timestamp);
+    if (!dateKey || dateKey <= currentDate || visitedDates.has(dateKey)) continue;
+    visitedDates.add(dateKey);
+
+    const targetTimestamp = getUtcDateTimeTimestamp(dateKey, hour, minute);
+    if (targetTimestamp === null) continue;
+    const targetIndex = findBarIndexAtOrBeforeTimestamp(displayBars, targetTimestamp);
+    if (targetIndex >= index || getUtcDateKey(displayBars[targetIndex]?.timestamp) === dateKey) {
+      return targetIndex;
+    }
+
+    const barTimestamp = Number(bar?.timestamp);
+    if (
+      Number.isFinite(barTimestamp) &&
+      targetTimestamp >= barTimestamp &&
+      targetTimestamp < barTimestamp + tfSeconds
+    ) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
 function parseReplayJumpTimestamp(value) {
   const formatted = formatTimeInput(value.trim());
   const match = formatted.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/);
@@ -296,6 +347,27 @@ function jumpLastPosition() {
   stopTimer();
   mode = 'idle';
   renderSlice(lastCursorIndex, true, true);
+}
+
+function jumpNext0929() {
+  if (!enabled || chartData.length === 0) return;
+
+  const index = findNextDailyTimeIndex(9, 29);
+  if (index < 0) {
+    bus.emit('status:update', {
+      text: 'Replay 跳转失败: 当前加载区间内没有下一日 09:29',
+      isError: true,
+    });
+    return;
+  }
+
+  stopTimer();
+  mode = 'idle';
+  renderSlice(index, true, true);
+  bus.emit('status:update', {
+    text: `Replay 跳转到下一日 09:29: ${formatReplayTime(displayBars[index])}`,
+    isError: false,
+  });
 }
 
 function jumpToTime() {
@@ -501,6 +573,7 @@ function handleControlClick(e) {
   if (action === 'pick') selectBar();
   if (action === 'first') jumpStart();
   if (action === 'last') jumpLastPosition();
+  if (action === 'next-0929') jumpNext0929();
   if (action === 'back') stepBack();
   if (action === 'play') togglePlay();
   if (action === 'forward') stepForward();
@@ -562,6 +635,7 @@ function render() {
       <button class="replay-btn replay-action" data-action="first" title="回退到区间第一根K线" ${replayDisabled ? 'disabled' : ''}>First</button>
       <button class="replay-btn replay-action" data-action="last" title="回到上次操作位置" ${lastDisabled ? 'disabled' : ''}>Last Pos</button>
       <button class="replay-btn replay-action ${mode === 'picking' ? 'active' : ''}" data-action="pick" title="点击图表选择回退位置" ${replayDisabled ? 'disabled' : ''}>Pick</button>
+      <button class="replay-btn replay-action" data-action="next-0929" title="跳转到下一日 09:29" ${replayDisabled ? 'disabled' : ''}>Next 09:29</button>
       <span class="replay-divider"></span>
       <button class="replay-icon-btn" data-action="back" title="上一根" ${replayDisabled ? 'disabled' : ''}>&lt;</button>
       <button class="replay-icon-btn replay-play" data-action="play" title="${isPlaying ? '暂停' : '播放'}" ${replayDisabled ? 'disabled' : ''}>
