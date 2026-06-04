@@ -516,8 +516,8 @@ function captureCalendarOpenGroups() {
   );
 }
 
-function closeLinkedRefMenus(exceptMenu = null) {
-  bodyEl?.querySelectorAll('.order-review-ref-menu[open]').forEach((menu) => {
+function closeInspectorActionMenus(exceptMenu = null) {
+  bodyEl?.querySelectorAll('.order-review-ref-menu[open], .calendar-object-menu[open]').forEach((menu) => {
     if (menu !== exceptMenu) menu.removeAttribute('open');
   });
 }
@@ -674,10 +674,10 @@ function handleInspectorChange(e) {
 }
 
 function handleInspectorClick(e) {
-  const refMenu = e.target.closest('.order-review-ref-menu');
+  const actionMenu = e.target.closest('.order-review-ref-menu, .calendar-object-menu');
   const actionEl = e.target.closest('[data-inspector-action]');
-  const isRefMenuAction = Boolean(actionEl?.closest('.order-review-ref-menu-panel'));
-  closeLinkedRefMenus(isRefMenuAction ? null : refMenu);
+  const isMenuAction = Boolean(actionEl?.closest('.order-review-ref-menu-panel, .calendar-object-menu-panel'));
+  closeInspectorActionMenus(isMenuAction ? null : actionMenu);
 
   const action = actionEl?.dataset.inspectorAction;
   if (!action) return;
@@ -767,10 +767,10 @@ function handleInspectorClick(e) {
 }
 
 function handleInspectorFocusOut(e) {
-  const refMenu = e.target.closest('.order-review-ref-menu');
-  if (!refMenu) return;
+  const actionMenu = e.target.closest('.order-review-ref-menu, .calendar-object-menu');
+  if (!actionMenu) return;
   requestAnimationFrame(() => {
-    if (!refMenu.contains(document.activeElement)) refMenu.removeAttribute('open');
+    if (!actionMenu.contains(document.activeElement)) actionMenu.removeAttribute('open');
   });
 }
 

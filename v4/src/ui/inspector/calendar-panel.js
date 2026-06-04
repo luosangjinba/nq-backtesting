@@ -298,12 +298,10 @@ function renderObjectActionButtons(item) {
 
 function renderObjectActions(item) {
   const actionButtons = renderObjectActionButtons(item);
-  if (item.ref?.type !== 'order-setup') {
-    return `<div class="calendar-object-actions">${actionButtons}</div>`;
-  }
+  if (!actionButtons.trim()) return '';
   return `
     <details class="calendar-object-menu">
-      <summary class="calendar-object-menu-trigger" aria-label="Order Setup actions">...</summary>
+      <summary class="calendar-object-menu-trigger" aria-label="Calendar object actions">...</summary>
       <div class="calendar-object-menu-panel">${actionButtons}</div>
     </details>
   `;
