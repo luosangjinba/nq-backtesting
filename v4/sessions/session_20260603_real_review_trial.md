@@ -394,3 +394,23 @@ Verification:
 - Daily regime modules `node --check` passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-04 - Step 260.7 Event Regime Completed
+
+Implemented:
+
+- Added `daily-regime-events.js` with a manually maintained date table for
+  event tags.
+- Supported tags are `FOMC`, `CPI`, `NFP`, `PPI`, `major_earnings`, and
+  fallback `none`.
+- Daily regimes now receive `eventTags`; dates not present in the curated table
+  normalize to `Events: none`.
+- Calendar summary already displays the event tags through the shared daily
+  regime summary line.
+
+Verification:
+
+- `node tmp/daily_regime_events_smoke.mjs` passed.
+- Daily regime modules `node --check` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
