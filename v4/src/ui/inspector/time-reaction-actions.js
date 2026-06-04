@@ -419,7 +419,10 @@ export function createDailyTimeInspectorActionController({
     clearPendingDailyTimeRefPick();
     if (added) {
       setCalendarDateContext?.(date);
-      renderDailyTimeReviewDetail?.(date);
+      renderDailyTimeReviewDetail?.(
+        date,
+        DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section) ? target.section : ''
+      );
       openSidebar?.();
     }
     bus.emit('status:update', {
