@@ -37,7 +37,7 @@ export const DAILY_TIME_REVIEW_SECTIONS = Object.freeze([
     key: 'fullDaySummary',
     label: '全天 Summary',
     fallbackTime: '00:00',
-    rangeEndTime: '16:00',
+    rangeEndTime: '16:59',
   },
 ]);
 

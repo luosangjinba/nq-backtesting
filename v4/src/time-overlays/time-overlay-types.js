@@ -15,7 +15,7 @@ export const DEFAULT_DAY_BOUNDARY_COLOR = 'rgba(120, 72, 72, 0.16)';
 export const DEFAULT_WEEKLY_CLOSE_COLOR = 'rgba(210, 86, 86, 0.24)';
 export const DEFAULT_KILLZONE_FILL_COLOR = 'rgba(255, 193, 7, 0.24)';
 export const DEFAULT_KILLZONE_LINE_COLOR = 'rgba(255, 193, 7, 0.50)';
-export const WEEKLY_CLOSE_TIME = '16:00';
+export const WEEKLY_CLOSE_TIME = '16:59';
 
 export const DEFAULT_EVENT_TIMES = Object.freeze([]);
 
