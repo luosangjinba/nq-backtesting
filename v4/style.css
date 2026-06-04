@@ -809,7 +809,7 @@ html, body {
   gap: 8px;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .time-reaction-panel *,
@@ -904,6 +904,7 @@ html, body {
   grid-template-columns: minmax(0, 1fr) auto;
   min-width: 0;
   max-width: 100%;
+  overflow: visible;
 }
 
 .order-review-ref-menu {
