@@ -182,7 +182,13 @@ function setCalendarDateContext(dateKey) {
 
 function prepareDetailBackTarget(dateKey) {
   if (!setCalendarDateContext(dateKey)) return false;
-  resetInspectorPage({ kind: 'home', selectedDate: dateKey, viewDate: dateKey });
+  captureCalendarOpenGroups();
+  resetInspectorPage({
+    kind: 'home',
+    selectedDate: dateKey,
+    viewDate: dateKey,
+    openGroups: Array.from(calendarOpenGroups),
+  });
   pushInspectorPage({ kind: 'detail', selectedDate: dateKey, viewDate: dateKey });
   return true;
 }
@@ -323,6 +329,7 @@ function renderEmpty() {
     kind: 'home',
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
+    openGroups: Array.from(calendarOpenGroups),
   });
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
@@ -338,6 +345,7 @@ function renderArchivePanel() {
     kind: 'archive',
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
+    openGroups: Array.from(calendarOpenGroups),
   });
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
@@ -369,6 +377,7 @@ function showActiveOrderSetupPanel() {
 function restoreCalendarStateFromPage(page = {}) {
   if (page.selectedDate) calendarSelectedDate = page.selectedDate;
   if (page.viewDate) calendarViewDate = page.viewDate;
+  if (Array.isArray(page.openGroups)) calendarOpenGroups = new Set(page.openGroups);
 }
 
 function renderPageFromState(page = getInspectorPage()) {
