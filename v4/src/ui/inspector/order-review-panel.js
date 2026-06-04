@@ -161,7 +161,7 @@ function renderActiveHeader(order, setupSet) {
 function renderActiveDisplayPanel(order) {
   const showRiskRewardBox = order.display?.showRiskRewardBox !== false;
   return `
-    <div class="order-review-compact">
+    <div class="order-review-compact order-review-display-panel">
       <div class="order-review-compact-title">Display</div>
       <label class="inspector-toggle">
         <input
@@ -181,7 +181,7 @@ function renderAnchorPanel(setupSet) {
   const reversal = setupSet?.orderElements?.reversal || {};
   const direction = setupSet?.direction === 'short' ? 'Bearish' : setupSet?.direction === 'long' ? 'Bullish' : 'Unknown';
   return `
-    <div class="order-review-compact">
+    <div class="order-review-compact order-review-anchor-panel">
       <div class="order-review-compact-title">Anchor</div>
       ${field('Reversal', direction)}
       ${field('Time', formatTime(reversal.timestamp))}
