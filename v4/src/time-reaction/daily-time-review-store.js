@@ -15,16 +15,16 @@ export const DAILY_TIME_REVIEW_SECTIONS = Object.freeze([
     fallbackTime: '00:00',
   },
   {
-    key: 'fixedTimeState',
-    label: '固定时点状态',
-    fallbackTime: '09:30',
-    rangeEndTime: '11:00',
-  },
-  {
     key: 'pre0930Analysis',
     label: '09:30 前状态分析',
     fallbackTime: '00:00',
     rangeEndTime: '09:30',
+  },
+  {
+    key: 'fixedTimeState',
+    label: '固定时点状态',
+    fallbackTime: '09:30',
+    rangeEndTime: '11:00',
   },
   {
     key: 'summary0930To1100',
