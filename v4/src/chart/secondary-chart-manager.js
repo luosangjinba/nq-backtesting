@@ -19,6 +19,7 @@ let resizeObserver = null;
 let cursorPrimitive = null;
 let hoverCursorPrimitive = null;
 let pickPreviewPrimitive = null;
+let syncCrosshairPrimitive = null;
 let infoEl = null;
 let legendEl = null;
 let activeInstrument = 'NQ';
@@ -197,6 +198,7 @@ export function updateSecondaryBar(bar) {
 export function clearSecondaryData() {
   hideSecondaryCursor();
   hideSecondaryHoverCursor();
+  hideSecondarySyncCrosshairCursor();
   if (legendEl) legendEl.innerHTML = '';
   setSecondaryData([]);
 }
@@ -313,6 +315,7 @@ export function hideSecondaryHoverCursor() {
 
 export function showSecondaryPickPreviewCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+  hideSecondarySyncCrosshairCursor();
 
   if (!pickPreviewPrimitive) {
     pickPreviewPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
@@ -335,6 +338,32 @@ export function hideSecondaryPickPreviewCursor() {
     // primitive may already be detached during chart reset
   }
   pickPreviewPrimitive = null;
+}
+
+export function showSecondarySyncCrosshairCursor(time) {
+  if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
+
+  if (!syncCrosshairPrimitive) {
+    syncCrosshairPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
+      color: CHART_CROSSHAIR_OPTIONS.vertLine.color,
+      lineWidth: CHART_CROSSHAIR_OPTIONS.vertLine.width || 1,
+    });
+    secondarySeries.attachPrimitive(syncCrosshairPrimitive);
+    return;
+  }
+
+  syncCrosshairPrimitive.setTime(time);
+}
+
+export function hideSecondarySyncCrosshairCursor() {
+  if (!secondarySeries || !syncCrosshairPrimitive) return;
+
+  try {
+    secondarySeries.detachPrimitive(syncCrosshairPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart reset
+  }
+  syncCrosshairPrimitive = null;
 }
 
 export function onSecondaryCrosshairMove(callback) {
@@ -369,6 +398,7 @@ export function destroySecondaryChart() {
   hideSecondaryCursor();
   hideSecondaryHoverCursor();
   hideSecondaryPickPreviewCursor();
+  hideSecondarySyncCrosshairCursor();
   resizeObserver?.disconnect();
   resizeObserver = null;
   activeDataCount = 0;

@@ -16,6 +16,7 @@ let series = null;
 let legendEl = null;
 let replayCursorPrimitive = null;
 let pickPreviewPrimitive = null;
+let syncCrosshairPrimitive = null;
 let activeDataCount = 0;
 let activeLastTime = null;
 
@@ -173,6 +174,7 @@ export function hideReplayCursor() {
 
 export function showPickPreviewCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
+  hideSyncCrosshairCursor();
 
   if (!pickPreviewPrimitive) {
     pickPreviewPrimitive = new VerticalLinePrimitive(chart, time, {
@@ -195,6 +197,32 @@ export function hidePickPreviewCursor() {
     // primitive may already be detached during chart/data reset
   }
   pickPreviewPrimitive = null;
+}
+
+export function showSyncCrosshairCursor(time) {
+  if (!chart || !series || time === undefined || time === null) return;
+
+  if (!syncCrosshairPrimitive) {
+    syncCrosshairPrimitive = new VerticalLinePrimitive(chart, time, {
+      color: CHART_CROSSHAIR_OPTIONS.vertLine.color,
+      lineWidth: CHART_CROSSHAIR_OPTIONS.vertLine.width || 1,
+    });
+    series.attachPrimitive(syncCrosshairPrimitive);
+    return;
+  }
+
+  syncCrosshairPrimitive.setTime(time);
+}
+
+export function hideSyncCrosshairCursor() {
+  if (!series || !syncCrosshairPrimitive) return;
+
+  try {
+    series.detachPrimitive(syncCrosshairPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart/data reset
+  }
+  syncCrosshairPrimitive = null;
 }
 
 export function fitContent() {
