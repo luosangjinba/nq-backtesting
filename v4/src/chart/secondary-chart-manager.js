@@ -23,6 +23,7 @@ let pickPreviewPrimitive = null;
 let syncCrosshairPrimitive = null;
 let infoEl = null;
 let legendEl = null;
+let lastLegendKey = '';
 let activeInstrument = 'NQ';
 let activeTimeframe = 60;
 let activeDataCount = 0;
@@ -77,6 +78,16 @@ function updateSecondaryLegend(param) {
   const isUp = data.close >= data.open;
   const cls = isUp ? 'ohlc-up' : 'ohlc-down';
   const fmt = (value) => formatTickPrice(value, activeInstrument);
+  const legendKey = [
+    activeInstrument,
+    param.time,
+    data.open,
+    data.high,
+    data.low,
+    data.close,
+  ].join('|');
+  if (legendKey === lastLegendKey) return;
+  lastLegendKey = legendKey;
 
   legendEl.innerHTML =
     `<span class="ohlc-label">O</span><span class="ohlc-value ${cls}">${fmt(data.open)}</span>` +
@@ -143,6 +154,7 @@ export function applyGridVisibility() {
 export function setSecondaryChartInfo({ instrument = activeInstrument, timeframe = activeTimeframe } = {}) {
   activeInstrument = instrument;
   activeTimeframe = Number(timeframe) || activeTimeframe;
+  lastLegendKey = '';
   renderInfoLabel();
 }
 
@@ -182,6 +194,7 @@ export function resetSecondaryPriceScale() {
 
 export function setSecondaryData(data = []) {
   if (!secondarySeries) return;
+  lastLegendKey = '';
   secondarySeries.setData(data);
   activeDataCount = data.length;
   activeLastTime = data.length > 0 ? data[data.length - 1].time : null;
@@ -201,6 +214,7 @@ export function clearSecondaryData() {
   hideSecondaryHoverCursor();
   hideSecondarySyncCrosshairCursor();
   if (legendEl) legendEl.innerHTML = '';
+  lastLegendKey = '';
   setSecondaryData([]);
 }
 

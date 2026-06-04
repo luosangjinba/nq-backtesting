@@ -15,6 +15,7 @@ import { getGridOptions } from './grid-visibility.js';
 let chart = null;
 let series = null;
 let legendEl = null;
+let lastLegendKey = '';
 let replayCursorPrimitive = null;
 let pickPreviewPrimitive = null;
 let syncCrosshairPrimitive = null;
@@ -31,6 +32,15 @@ function updateLegend(param) {
   const isUp = data.close >= data.open;
   const cls = isUp ? 'ohlc-up' : 'ohlc-down';
   const fmt = (v) => formatTickPrice(v);
+  const legendKey = [
+    param.time,
+    data.open,
+    data.high,
+    data.low,
+    data.close,
+  ].join('|');
+  if (legendKey === lastLegendKey) return;
+  lastLegendKey = legendKey;
 
   legendEl.innerHTML =
     `<span class="ohlc-label">O</span><span class="ohlc-value ${cls}">${fmt(data.open)}</span>` +
@@ -131,6 +141,7 @@ export function getSeries() {
 
 export function setData(data) {
   if (!series) return;
+  lastLegendKey = '';
   series.setData(data);
   activeDataCount = data.length;
   activeLastTime = data.length > 0 ? data[data.length - 1].time : null;
