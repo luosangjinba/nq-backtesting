@@ -1,7 +1,13 @@
 import * as bus from '../event-bus.js';
+import { getEconomicEvents } from '../economic-calendar/economic-calendar-store.js';
 import { DEFAULT_DAILY_REGIME_INSTRUMENT, normalizeDailyRegime } from './daily-regime-types.js';
-import { clearDailyRegimes, loadDailyRegimes } from './daily-regime-store.js';
-import { applyEventRegimes } from './daily-regime-events.js';
+import {
+  clearDailyRegimes,
+  getDailyRegimeLoadedRange,
+  getDailyRegimes,
+  loadDailyRegimes,
+} from './daily-regime-store.js';
+import { applyEconomicEventRegimes, applyEventRegimes } from './daily-regime-events.js';
 
 const VIX_DAILY_CSV_PATH = 'data/vix-daily.csv';
 const DAILY_REGIME_CSV_PATH_BY_INSTRUMENT = Object.freeze({
@@ -148,8 +154,11 @@ async function loadDailyRegimesForBars(payload = {}) {
       getDailyTrendRangeData(instrument),
     ]);
     if (seq !== requestSeq) return;
-    const regimes = applyEventRegimes(
-      applyStaticTrendRangeRegimes(buildVixDailyRegimes(vixByDate, range, instrument), trendRangeByDate)
+    const regimes = applyEconomicEventRegimes(
+      applyEventRegimes(
+        applyStaticTrendRangeRegimes(buildVixDailyRegimes(vixByDate, range, instrument), trendRangeByDate)
+      ),
+      getEconomicEvents()
     );
     loadDailyRegimes(regimes, range);
   } catch (error) {
@@ -162,8 +171,20 @@ async function loadDailyRegimesForBars(payload = {}) {
   }
 }
 
+function refreshDailyRegimeEventTags() {
+  const range = getDailyRegimeLoadedRange();
+  const regimes = getDailyRegimes();
+  if (!range || !regimes.length) return;
+  loadDailyRegimes(
+    applyEconomicEventRegimes(applyEventRegimes(regimes), getEconomicEvents()),
+    range,
+    { reason: 'events:update' }
+  );
+}
+
 export function initDailyRegimeVixLoader() {
   bus.on('bars:loaded', loadDailyRegimesForBars);
+  bus.on('economic-calendar:changed', refreshDailyRegimeEventTags);
   bus.on('bars:cleared', () => {
     requestSeq += 1;
     clearDailyRegimes();

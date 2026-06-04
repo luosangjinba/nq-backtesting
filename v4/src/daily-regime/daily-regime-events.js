@@ -42,3 +42,50 @@ export function applyEventRegimes(regimes = [], eventTable = CURATED_EVENT_TAGS_
     eventTags: getCuratedEventTagsForDate(regime.date, eventTable),
   }));
 }
+
+function getEconomicEventTag(event = {}) {
+  const title = String(event.title || '').trim().toLowerCase();
+  if (!title) return '';
+  if (title.includes('non-farm') || title.includes('nonfarm')) return EVENT_TAGS.NFP;
+  if (title.includes('unemployment rate')) return EVENT_TAGS.NFP;
+  if (title.includes('average hourly earnings')) return EVENT_TAGS.NFP;
+  if (title.includes('consumer price index') || /\bcpi\b/.test(title)) return EVENT_TAGS.CPI;
+  if (title.includes('producer price index') || /\bppi\b/.test(title)) return EVENT_TAGS.PPI;
+  if (title.includes('federal funds rate')) return EVENT_TAGS.FOMC;
+  if (title.includes('fomc statement')) return EVENT_TAGS.FOMC;
+  if (title.includes('fomc meeting minutes')) return EVENT_TAGS.FOMC;
+  if (title.includes('fomc economic projections')) return EVENT_TAGS.FOMC;
+  if (title.includes('major earnings')) return EVENT_TAGS.MAJOR_EARNINGS;
+  return '';
+}
+
+export function getEconomicEventTagsForDate(date, economicEvents = []) {
+  const dateKey = normalizeDate(date);
+  if (!dateKey) return [EVENT_TAGS.UNKNOWN];
+  const tags = (Array.isArray(economicEvents) ? economicEvents : [])
+    .filter((event) => normalizeDate(event.eventDate || event.event_date) === dateKey)
+    .map(getEconomicEventTag)
+    .filter(Boolean);
+  return Array.from(new Set(tags.length ? tags : [EVENT_TAGS.NONE]));
+}
+
+function mergeEventTags(baseTags = [], economicTags = []) {
+  const normalizedBase = (Array.isArray(baseTags) ? baseTags : [baseTags])
+    .map(normalizeEventTag)
+    .filter((tag) => tag && tag !== EVENT_TAGS.NONE && tag !== EVENT_TAGS.UNKNOWN);
+  const normalizedEconomic = (Array.isArray(economicTags) ? economicTags : [economicTags])
+    .map(normalizeEventTag)
+    .filter((tag) => tag && tag !== EVENT_TAGS.NONE && tag !== EVENT_TAGS.UNKNOWN);
+  const merged = Array.from(new Set([...normalizedBase, ...normalizedEconomic]));
+  return merged.length ? merged : [EVENT_TAGS.NONE];
+}
+
+export function applyEconomicEventRegimes(regimes = [], economicEvents = []) {
+  return (Array.isArray(regimes) ? regimes : []).map((regime) => {
+    const economicTags = getEconomicEventTagsForDate(regime.date, economicEvents);
+    return normalizeDailyRegime({
+      ...regime,
+      eventTags: mergeEventTags(regime.eventTags, economicTags),
+    });
+  });
+}
