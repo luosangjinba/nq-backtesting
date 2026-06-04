@@ -47,9 +47,18 @@ export function controlField(label, controlHtml) {
   `;
 }
 
+function sectionClassFromTitle(title) {
+  return String(title || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'section';
+}
+
 export function section(title, content) {
+  const sectionClass = `inspector-section-${sectionClassFromTitle(title)}`;
   return `
-    <section class="inspector-section">
+    <section class="inspector-section ${sectionClass}">
       <div class="inspector-section-title">${escapeHtml(title)}</div>
       ${content}
     </section>
