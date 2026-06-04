@@ -37,6 +37,7 @@ import { initDailyTimeReviewPersistence } from './time-reaction/daily-time-revie
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
 import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
+import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
 
 console.log('[V4] app.js loaded');
 
@@ -123,6 +124,9 @@ console.log('[V4] Time Overlay controls initialized');
 
 initEconomicCalendarLoader();
 console.log('[V4] Economic Calendar loader initialized');
+
+initDailyRegimeVixLoader();
+console.log('[V4] Daily Regime VIX loader initialized');
 
 initHistoryManager();
 console.log('[V4] History controls initialized');

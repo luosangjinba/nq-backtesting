@@ -301,3 +301,22 @@ Next:
 
 - Step 260.2 should read `v4/data/vix-daily.csv` and use the Step 260.1
   boundary helpers to generate daily VIX regime records by date.
+
+## 2026-06-04 - Step 260.2 VIX Regime Loader Completed
+
+Implemented:
+
+- Added `daily-regime-store.js` as the in-memory daily regime store with
+  `daily-regime:changed` events and date/instrument lookup.
+- Added `daily-regime-vix-loader.js` to parse `data/vix-daily.csv`, listen for
+  loaded chart ranges, and populate daily VIX regime records.
+- Added the local `v4/data/vix-daily.csv` data source to the Step 260.2 change.
+- Wired the loader into `app.js`; failed or missing VIX data clears the regime
+  layer and emits a status message without blocking review workflows.
+
+Verification:
+
+- `node tmp/daily_regime_vix_smoke.mjs` passed.
+- Daily regime module `node --check` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
