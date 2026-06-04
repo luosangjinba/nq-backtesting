@@ -486,7 +486,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 259: 主图移动/hover 卡顿优化计划。目标是降低主图高频 crosshair/pick handler 与 overlay primitive 负担，不改变现有标注、Replay、Order Setup、SMT、Segment、Calendar 的用户语义。
   - [x] Step 259.1: 建立主图性能基线：记录复现状态（Split on/off、Replay on/off、Display Mode、对象数量、Time Overlay 开关、主图 timeframe/range/bar 数）；用 DevTools 确认卡顿是否集中在 crosshair handlers、pick preview primitive、legend 更新、或 primitives 绘制。
-  - [ ] Step 259.2: 复用 `display-bar-lookup.js` 到主图高频 pick 路径：Replay Pick、SMT Pick、Order Exit Pick、Segment Actor Pick 的 hover/click lookup 优先用 cached chartTime lookup；保持原有 timestamp/timeframe 映射语义。
+  - [x] Step 259.2: 复用 `display-bar-lookup.js` 到主图高频 pick 路径：Replay Pick、SMT Pick、Order Exit Pick、Segment Actor Pick 的 hover/click lookup 优先用 cached chartTime lookup；保持原有 timestamp/timeframe 映射语义。
   - [ ] Step 259.3: 给主图 pick hover 加 `requestAnimationFrame` 节流：Replay Pick、SMT Pick、Order Exit Pick、Segment Actor Pick 一帧最多更新一次 preview cursor；保留最后一次 hover param，并确保无 bar 时及时隐藏 preview。
   - [ ] Step 259.4: 消除无状态高频 no-op：Replay 非 picking 状态不在每个 crosshair move 中重复调用 `hidePickPreviewCursor()`；其他 pick controller 只在 active state 时做实际 lookup/primitive 更新。
   - [ ] Step 259.5: 评估并必要时限制主图 primitive 压力：统计当前可渲染 PDA / Segment / Composite / Time Overlay primitive 数量；如果主图 pan 仍卡，再拆后续步骤做可视范围裁剪或 overlay 数量降噪，本步骤不直接改变显示语义。

@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
+import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
@@ -222,15 +223,6 @@ function parseReplayJumpTimestamp(value) {
   );
 
   return { timestamp, formatted };
-}
-
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
 }
 
 function stopTimer() {
@@ -507,8 +499,8 @@ function cancelPick() {
 
 function findBarIndex(time) {
   if (time === undefined || time === null) return -1;
-  const target = normalizeTimeKey(time);
-  return chartData.findIndex((bar) => normalizeTimeKey(bar.time) === target);
+  const bar = findDisplayBarFast(displayBars, time, store.getCurrentTimeframe());
+  return bar ? displayBars.indexOf(bar) : -1;
 }
 
 function handleChartClick(param) {

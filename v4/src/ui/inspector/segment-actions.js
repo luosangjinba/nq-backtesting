@@ -1,12 +1,10 @@
 import * as bus from '../../event-bus.js';
 import * as chart from '../../chart/chart-manager.js';
+import { findDisplayBarFast } from '../../chart/display-bar-lookup.js';
 import * as secondaryChart from '../../chart/secondary-chart-manager.js';
 import * as store from '../../data/bar-store.js';
 import * as secondaryStore from '../../data/secondary-chart-store.js';
-import {
-  findDisplayBarByTime,
-  getBarChartTime as getProjectedBarChartTime,
-} from '../../chart/time-projection.js';
+import { getBarChartTime as getProjectedBarChartTime } from '../../chart/time-projection.js';
 import { timeframeToString } from '../../config.js';
 import { clearSegmentGroupSelection, clearSegmentSelection } from '../../segment/segment-selection.js';
 import {
@@ -48,12 +46,12 @@ function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
 
 function findDisplayBarByChartTime(time) {
   if (time === undefined || time === null) return null;
-  return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
+  return findDisplayBarFast(store.getDisplayBars(), time, store.getCurrentTimeframe());
 }
 
 function findSecondaryDisplayBarByChartTime(time) {
   if (time === undefined || time === null) return null;
-  return findDisplayBarByTime(
+  return findDisplayBarFast(
     secondaryStore.getSecondaryDisplayBars(),
     time,
     secondaryStore.getSecondaryTimeframe()

@@ -1,6 +1,6 @@
 import * as store from '../../data/bar-store.js';
+import { findDisplayBarFast } from '../../chart/display-bar-lookup.js';
 import {
-  findDisplayBarByTime,
   getBarChartTime as getProjectedBarChartTime,
   normalizeChartTime,
 } from '../../chart/time-projection.js';
@@ -61,7 +61,7 @@ export function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
 
 export function findDisplayBarByChartTime(time, bars = store.getDisplayBars(), timeframe = store.getCurrentTimeframe()) {
   if (time === undefined || time === null) return null;
-  return findDisplayBarByTime(bars, time, timeframe);
+  return findDisplayBarFast(bars, time, timeframe);
 }
 
 export function getPointTimestamp(point = {}) {

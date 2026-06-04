@@ -2,12 +2,10 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
-import {
-  findDisplayBarByTime,
-  getBarChartTime,
-} from '../chart/time-projection.js';
+import { getBarChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { identifyFvg } from '../pda/fvg-identifier.js';
 import { addSmtRecord, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
@@ -20,7 +18,7 @@ function getPrimaryChartTime(bar) {
 }
 
 function findPrimaryBarByChartTime(time) {
-  return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
+  return findDisplayBarFast(store.getDisplayBars(), time, store.getCurrentTimeframe());
 }
 
 function findSecondaryBar(timestamp) {
