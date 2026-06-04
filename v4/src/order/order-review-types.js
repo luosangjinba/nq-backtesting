@@ -163,6 +163,7 @@ export const ORDER_ENTRY_SESSION_DEFINITIONS = [
     aliases: ['930-judas-swing', '930 judas swing', '930Judas Swing', '930 judas swing classic'],
   },
   { value: '950-macro', label: '950 Macro', active: true, aliases: ['950 macro'] },
+  { value: '2022', label: '2022', active: true, aliases: [] },
   { value: 'silver-bullet', label: 'Silver Bullet', active: true, aliases: ['Silver Bullet'] },
 ];
 
