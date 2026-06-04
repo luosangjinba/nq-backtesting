@@ -869,6 +869,7 @@ export function initInspectorSidebar() {
   bus.on('order-review:changed', refreshSelection);
   bus.on('daily-time-review:changed', refreshSelection);
   bus.on('economic-calendar:changed', refreshSelection);
+  bus.on('daily-regime:changed', refreshSelection);
   bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
     if (dailyTimeActions.isPicking()) {

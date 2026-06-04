@@ -320,3 +320,20 @@ Verification:
 - Daily regime module `node --check` passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-04 - Step 260.3 Calendar VIX Display Completed
+
+Implemented:
+
+- Inspector Calendar selected-day details now show a compact VIX regime line,
+  e.g. `VIX: Low 15.77`.
+- Missing VIX data displays `VIX: n/a` and does not block Calendar rendering.
+- Inspector refreshes when `daily-regime:changed` fires after chart range loads.
+- The display intentionally shows only VIX in this step; trend, range, and
+  events remain hidden until their calculation steps are implemented.
+
+Verification:
+
+- Calendar/Inspector modules `node --check` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.

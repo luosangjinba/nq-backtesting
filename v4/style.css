@@ -337,6 +337,21 @@ html, body {
   gap: 6px;
 }
 
+.calendar-daily-regime {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 0;
+  color: #d6dce8;
+  font-size: 12px;
+}
+
+.calendar-daily-regime-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .inspector-calendar-overlay-state {
   color: #b2b5be;
 }
