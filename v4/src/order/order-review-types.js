@@ -163,7 +163,18 @@ export const ORDER_ENTRY_SESSION_DEFINITIONS = [
     active: true,
     aliases: ['930-judas-swing', '930 judas swing', '930Judas Swing', '930 judas swing classic'],
   },
-  { value: '950-macro', label: '950 Macro', active: true, aliases: ['950 macro'] },
+  {
+    value: '950-macro-immediately',
+    label: '950 Macro Immediately',
+    active: true,
+    aliases: ['950-macro', '950 macro', '950 macro immediately'],
+  },
+  {
+    value: '950-macro-classic',
+    label: '950 Macro Classic',
+    active: true,
+    aliases: ['950 macro classic'],
+  },
   { value: 'silver-bullet', label: 'Silver Bullet', active: true, aliases: ['Silver Bullet'] },
 ];
 
