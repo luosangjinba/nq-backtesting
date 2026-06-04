@@ -36,11 +36,22 @@ let requestSeq = 0;
 let lastReplayState = { enabled: false, cursorTimestamp: null };
 let replaySourceBars = [];
 let replaySourceRequestedRange = null;
+let pendingPrimaryHoverTime = null;
+let pendingSecondaryHoverTime = null;
+let primaryHoverFrame = null;
+let secondaryHoverFrame = null;
 let lastSettings = {
   enabled: secondaryStore.isSecondaryEnabled(),
   timeframe: secondaryStore.getSecondaryTimeframe(),
   instrument: secondaryStore.getSecondaryInstrument(),
 };
+
+function requestFrame(callback) {
+  const raf = globalThis.requestAnimationFrame || globalThis.window?.requestAnimationFrame;
+  if (typeof raf === 'function') return raf(callback);
+  callback();
+  return null;
+}
 
 function mapTimestampToSecondaryChartTime(timestamp) {
   const timeframe = secondaryStore.getSecondaryTimeframe();
@@ -283,6 +294,17 @@ function syncSecondaryHoverCursor(primaryTime) {
   showSecondarySyncCrosshairCursor(hoverTime);
 }
 
+function scheduleSecondaryHoverCursor(primaryTime) {
+  pendingPrimaryHoverTime = primaryTime;
+  if (primaryHoverFrame !== null) return;
+  primaryHoverFrame = requestFrame(() => {
+    primaryHoverFrame = null;
+    const time = pendingPrimaryHoverTime;
+    pendingPrimaryHoverTime = null;
+    syncSecondaryHoverCursor(time);
+  });
+}
+
 function syncPrimaryHoverCursor(secondaryTime) {
   hideSecondarySyncCrosshairCursor();
   if (!secondaryStore.isSecondaryEnabled() || store.getBarCount() <= 0) {
@@ -302,6 +324,17 @@ function syncPrimaryHoverCursor(secondaryTime) {
   }
 
   chart.showSyncCrosshairCursor(hoverTime);
+}
+
+function schedulePrimaryHoverCursor(secondaryTime) {
+  pendingSecondaryHoverTime = secondaryTime;
+  if (secondaryHoverFrame !== null) return;
+  secondaryHoverFrame = requestFrame(() => {
+    secondaryHoverFrame = null;
+    const time = pendingSecondaryHoverTime;
+    pendingSecondaryHoverTime = null;
+    syncPrimaryHoverCursor(time);
+  });
 }
 
 function syncSecondaryReplayCursor() {
@@ -345,6 +378,6 @@ export function initSecondaryChartController() {
   bus.on('bars:loaded', handlePrimaryBarsLoaded);
   bus.on('bars:cleared', handlePrimaryBarsCleared);
   bus.on('replay:changed', handleReplayChanged);
-  chart.onCrosshairMove((param) => syncSecondaryHoverCursor(param?.time));
-  onSecondaryCrosshairMove((param) => syncPrimaryHoverCursor(param?.time));
+  chart.onCrosshairMove((param) => scheduleSecondaryHoverCursor(param?.time));
+  onSecondaryCrosshairMove((param) => schedulePrimaryHoverCursor(param?.time));
 }
