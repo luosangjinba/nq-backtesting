@@ -193,3 +193,29 @@ Decision:
 - If the real review page still feels slow after the handler cleanup, create a
   focused follow-up to measure attached primitive counts by renderer and then
   prototype visible-range clipping for PDA/Segment/Order Setup independently.
+
+## 2026-06-04 - Step 259.6 Primary Chart Performance Closeout
+
+Completed changes:
+
+- Replay Pick, SMT Pick, Order Exit Pick, and Segment Actor Pick now resolve
+  primary bars through the cached display-bar lookup path.
+- Primary pick hover preview updates are RAF-throttled across Replay, SMT,
+  Order Exit, and Segment Actor pick workflows.
+- Replay no longer calls `hidePickPreviewCursor()` on every crosshair event
+  when no pick preview exists.
+- Primitive pressure was assessed but not clipped in this step, to avoid
+  changing object display semantics without a dedicated object-heavy profile.
+
+Verification:
+
+- Targeted primary-performance module smoke passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
+
+Manual follow-up:
+
+- Re-test the slow primary-chart review state in browser, especially Replay
+  On/Off, Split on/off, object-heavy Display Mode, and active pick workflows.
+  If pan remains slow after hover cleanup, start a follow-up specifically for
+  attached primitive count measurement and visible-range clipping.
