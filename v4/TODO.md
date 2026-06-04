@@ -493,7 +493,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 259.6: 验证与收口：运行 targeted smoke、全量 `node --check`、`git diff --check`；手工覆盖主图 hover、主图拖动/缩放、Replay Pick、SMT Pick、Order Exit Pick、Segment Actor Pick、Split on/off、对象多的真实复盘页面；记录优化前后体感。
 
 - [ ] Step 260: Daily Regime 自动背景层。目标是给每个复盘交易日自动附加市场环境，不增加手工录入负担；第一阶段只做日级背景和显示/export，不做 setup 置信度、不做复杂复合 regime 统计页。
-  - [ ] Step 260.1: 定义 `daily-regime` 数据边界与命名：每条记录按 `date + instrument` 生成，字段包括 `volatilityRegime/vixClose/vixBucket`，预留 `trendRegime/rangeRegime/eventTags`；regime 属于交易日背景层，不挂到 PDA/Order/Segment 对象本体。
+  - [x] Step 260.1: 定义 `daily-regime` 数据边界与命名：每条记录按 `date + instrument` 生成，字段包括 `volatilityRegime/vixClose/vixBucket`，预留 `trendRegime/rangeRegime/eventTags`；regime 属于交易日背景层，不挂到 PDA/Order/Segment 对象本体。
   - [ ] Step 260.2: 实现 VIX 数据读取与分档 MVP：读取 `v4/data/vix-daily.csv`（`DATE,OPEN,HIGH,LOW,CLOSE`，当前覆盖 1990-01-02 到 2026-06-02），按日期 lookup `CLOSE`，生成 `vix_extreme_low / vix_low / vix_medium / vix_high / vix_extreme_high`。
   - [ ] Step 260.3: 在 Inspector Calendar / Day Details 显示当天 VIX regime：选中日期后显示 `VIX: Low 13.20` 这类摘要；缺数据时显示 `VIX: n/a`，不阻塞复盘。
   - [ ] Step 260.4: Review JSON export/import 加入 `dailyRegimes`：导出当前 review range 中有复盘对象或 daily review 的日期 regime；导入时 normalize 但不覆盖本地实时计算优先级，确保历史归档可自带当时背景。

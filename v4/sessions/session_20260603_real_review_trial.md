@@ -272,3 +272,32 @@ Expected use in review:
 - Exported review files carry the same daily background so future analysis can
   answer questions like whether `950 Macro Immediately` performs differently in
   low-volatility bull-trend days versus high-volatility bear-trend days.
+
+## 2026-06-04 - Step 260.1 Daily Regime Boundary Completed
+
+Implemented:
+
+- Added `v4/src/daily-regime/daily-regime-types.js` as the data-boundary module
+  for daily background records.
+- A daily regime record is keyed by `date + instrument` and remains separate
+  from PDA, Segment, SMT, and Order Setup object bodies.
+- Normalized fields now include `volatilityRegime`, `vixClose`, `vixBucket`,
+  `trendRegime`, `rangeRegime`, `rangeAtrRatio`, and `eventTags`.
+- VIX bucket naming is frozen for the MVP:
+  `vix_extreme_low / vix_low / vix_medium / vix_high / vix_extreme_high`;
+  missing VIX data normalizes to `vixBucket: n/a` and
+  `volatilityRegime: unknown`.
+- Reserved trend/range/event fields normalize to explicit unknown values until
+  later steps provide real calculations or curated event data.
+
+Verification:
+
+- `node tmp/daily_regime_boundary_smoke.mjs` passed.
+- `node --check v4/src/daily-regime/daily-regime-types.js` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
+
+Next:
+
+- Step 260.2 should read `v4/data/vix-daily.csv` and use the Step 260.1
+  boundary helpers to generate daily VIX regime records by date.
