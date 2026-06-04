@@ -73,12 +73,19 @@ export function createOrderReviewActionController({
 
   return {
     clearExitPickState: editActions.clearExitPickState,
+    clearReasonRefPick: reasonActions.clearRefPick,
     createOrderReviewFromComposite: lifecycleActions.createOrderReviewFromComposite,
     createOrderReviewFromSegment: lifecycleActions.createOrderReviewFromSegment,
+    getPendingReasonRefPick: reasonActions.getPendingRefPick,
+    handlePickedComposite: reasonActions.handlePickedComposite,
+    handlePickedPda: reasonActions.handlePickedPda,
+    handlePickedSegment: reasonActions.handlePickedSegment,
+    handlePickedSmt: reasonActions.handlePickedSmt,
     handleExitPickChartClick: editActions.handleExitPickChartClick,
     handleExitPickHover: editActions.handleExitPickHover,
     handleOrderReviewChange,
     handleOrderReviewClick,
+    isReasonRefPicking: reasonActions.isPicking,
     getExpandedOrderReviewId,
   };
 }

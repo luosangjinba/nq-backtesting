@@ -8,6 +8,7 @@ export function createSmtInspectorActionController({
   getInspectorPage,
   getCurrentPanel,
   dailyTimeActions,
+  orderReviewActions,
   prepareDetailBackTarget,
   renderSmtSelection,
   renderAfterDetailDeleted,
@@ -53,6 +54,11 @@ export function createSmtInspectorActionController({
     if (dailyTimeActions?.isPicking()) {
       setSelectedSmtId?.(record.id);
       dailyTimeActions.handlePickedSmt(record);
+      return true;
+    }
+    if (orderReviewActions?.isReasonRefPicking()) {
+      setSelectedSmtId?.(record.id);
+      orderReviewActions.handlePickedSmt(record);
       return true;
     }
     prepareDetailBackTarget?.(getSmtCalendarDate(record));

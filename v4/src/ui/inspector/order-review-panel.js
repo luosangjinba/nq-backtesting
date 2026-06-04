@@ -268,10 +268,12 @@ function isReasonEmpty(reason = {}) {
   return !reason.note && !(Array.isArray(reason.refs) && reason.refs.length);
 }
 
-function renderReasonRows(order, setupSet) {
+function renderReasonRows(order, setupSet, options = {}) {
   const reasons = getOrderReviewReasons(order);
   const reasonRows = reasons.map((reason, reasonIndex) => {
     const refs = Array.isArray(reason.refs) ? reason.refs : [];
+    const isPicking = options.pendingReasonRefPick?.orderReviewId === order.id
+      && Number(options.pendingReasonRefPick?.reasonIndex) === reasonIndex;
     const refRows = refs.map((ref, refIndex) => `
       <div class="order-review-ref-row">
         <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
@@ -288,7 +290,13 @@ function renderReasonRows(order, setupSet) {
         <textarea class="inspector-textarea" data-inspector-action="order-review-reason-note" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" rows="2" placeholder="Write setup reason">${escapeHtml(reason.note || '')}</textarea>
         <div class="order-review-ref-list">${refRows.join('') || '<div class="drawing-set-empty">No linked objects.</div>'}</div>
         <div class="order-review-ref-actions">
-          <button class="inspector-mini-btn" data-inspector-action="order-review-ref-add-selected-object" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" type="button">Link Selected Object</button>
+          <button
+            class="inspector-mini-btn"
+            data-inspector-action="${isPicking ? 'order-review-ref-pick-cancel' : 'order-review-ref-pick-start'}"
+            data-order-review-id="${escapeHtml(order.id)}"
+            data-reason-index="${reasonIndex}"
+            type="button"
+          >${isPicking ? 'Cancel Select' : 'Select Object'}</button>
         </div>
       </div>
     `;
@@ -346,7 +354,7 @@ function renderActiveOrderSetup(order, options = {}) {
       ${renderAnchorPanel(setupSet)}
       ${renderExecutionPanel(order, setupSet, options.selectedOrderSetupElement)}
       ${renderEntryContextPanel(order)}
-      ${renderReasonRows(order, setupSet)}
+      ${renderReasonRows(order, setupSet, options)}
       ${renderResultPanel(order, setupSet)}
       <div class="inspector-id">${escapeHtml(order.id)}</div>
     </div>

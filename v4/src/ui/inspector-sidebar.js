@@ -135,6 +135,7 @@ const smtActions = createSmtInspectorActionController({
   getInspectorPage,
   getCurrentPanel: () => currentPanel,
   dailyTimeActions,
+  orderReviewActions,
   prepareDetailBackTarget,
   renderSmtSelection,
   renderAfterDetailDeleted,
@@ -148,6 +149,7 @@ function getOrderReviewPanelOptions(extra = {}) {
     expandedOrderReviewId,
     activeOrderReviewId: getActiveReviewSetId(),
     selectedOrderSetupElement: getSelectedOrderSetupElement(),
+    pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
     ...extra,
   };
 }
@@ -807,6 +809,7 @@ export function initInspectorSidebar() {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();
+      orderReviewActions.clearReasonRefPick?.({ silent: true });
       segmentActions.clearActorPickState();
       dailyTimeActions.clearRefPick({ silent: true });
     }
@@ -814,6 +817,10 @@ export function initInspectorSidebar() {
   bus.on('pda:selected', ({ annotation }) => {
     if (dailyTimeActions.isPicking()) {
       dailyTimeActions.handlePickedPda(annotation);
+      return;
+    }
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedPda(annotation);
       return;
     }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getAnnotationCalendarDate(annotation));
@@ -827,6 +834,10 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedSegment(segment);
       return;
     }
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedSegment(segment);
+      return;
+    }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSegmentCalendarDate(segment));
     renderSegment(segment);
     openSidebar();
@@ -834,6 +845,10 @@ export function initInspectorSidebar() {
   bus.on('segment-group:selected', ({ segmentGroup }) => {
     if (dailyTimeActions.isPicking()) {
       dailyTimeActions.handlePickedComposite(segmentGroup);
+      return;
+    }
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedComposite(segmentGroup);
       return;
     }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getCompositeCalendarDate(segmentGroup));
