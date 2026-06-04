@@ -902,9 +902,77 @@ html, body {
 }
 
 .time-reaction-panel .order-review-ref-row {
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   min-width: 0;
   max-width: 100%;
+}
+
+.order-review-ref-menu {
+  position: relative;
+}
+
+.order-review-ref-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.order-review-ref-menu-trigger {
+  width: 24px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #363a45;
+  border-radius: 3px;
+  background: transparent;
+  color: #b2b5be;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.order-review-ref-menu-panel {
+  position: absolute;
+  right: 0;
+  z-index: 9;
+  display: none;
+  min-width: 72px;
+  padding: 4px;
+  border: 1px solid rgba(54, 58, 69, 0.95);
+  border-radius: 4px;
+  background: #131722;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+}
+
+.order-review-ref-menu[open] .order-review-ref-menu-panel {
+  display: grid;
+  gap: 4px;
+}
+
+.order-review-ref-menu-item {
+  height: 22px;
+  padding: 1px 6px;
+  border: 1px solid #363a45;
+  border-radius: 3px;
+  background: #1e222d;
+  color: #b2b5be;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.order-review-ref-menu-item:hover {
+  border-color: #26a69a;
+  color: #b2dfdb;
+}
+
+.order-review-ref-menu-item.danger {
+  border-color: rgba(239, 83, 80, 0.45);
+  color: #ef9a9a;
+}
+
+.order-review-ref-menu-item.danger:hover {
+  border-color: #ef5350;
+  color: #ffcdd2;
 }
 
 .time-reaction-panel .order-review-ref-actions {

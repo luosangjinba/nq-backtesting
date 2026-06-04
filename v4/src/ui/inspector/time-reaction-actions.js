@@ -471,6 +471,7 @@ export function createDailyTimeInspectorActionController({
     const date = actionEl.dataset.dailyTimeDate;
     const target = getDailyTimeTargetFromElement(actionEl);
     const ref = getDailyTimeRefByTarget(date, target, actionEl.dataset.refIndex);
+    const locateChart = actionEl.dataset.locateChart === 'secondary' ? 'secondary' : 'primary';
     if (!ref) {
       bus.emit('status:update', { text: 'Linked object not found', isError: true });
       return;
@@ -489,7 +490,7 @@ export function createDailyTimeInspectorActionController({
       }
       range = getAnnotationTimestampRange(annotation);
       label = getPdaOrderRefLabel(annotation);
-      const result = locatePdaProjection(annotation);
+      const result = locatePdaProjection(annotation, { chart: locateChart });
       bus.emit('status:update', {
         text: result.primary.located && result.secondary.located
           ? `Located ${label} on primary and secondary`
@@ -526,6 +527,10 @@ export function createDailyTimeInspectorActionController({
       range = getSmtTimestampRange(record);
       label = 'SMT';
     } else if (type === ORDER_REF_TYPES.ORDER_SETUP) {
+      if (locateChart === 'secondary') {
+        bus.emit('status:update', { text: 'Order Setup can only locate on primary', isError: true });
+        return;
+      }
       const order = getOrderReviewById(id);
       if (!order) {
         bus.emit('status:update', { text: 'Linked Order Setup not found', isError: true });
@@ -546,36 +551,27 @@ export function createDailyTimeInspectorActionController({
       return;
     }
 
-    const useSecondary = ref.sourceChartId === 'secondary';
     let secondaryLocated = false;
-    if (useSecondary) {
+    if (locateChart === 'secondary') {
       secondaryLocated = secondaryStore.isSecondaryEnabled()
         && secondaryStore.getSecondaryDisplayBars().length > 0
         && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+      bus.emit('status:update', {
+        text: secondaryLocated
+          ? `Located ${label} on secondary`
+          : 'Secondary chart is not enabled or loaded for this linked object',
+        isError: !secondaryLocated,
+      });
+      return;
     }
 
     const targetTimeframe = getRefTimeframe(ref, store.getCurrentTimeframe());
-    if (!(await ensurePrimaryTimeframe(targetTimeframe))) {
-      if (secondaryLocated) {
-        bus.emit('status:update', {
-          text: `Located ${label} on secondary; primary unavailable`,
-          isError: false,
-        });
-      }
-      return;
-    }
+    if (!(await ensurePrimaryTimeframe(targetTimeframe))) return;
     requestAnimationFrame(() => {
       const primaryLocated = viewport.locateTimestampRange(range.start, range.end);
-      const located = primaryLocated || secondaryLocated;
       bus.emit('status:update', {
-        text: primaryLocated && secondaryLocated
-          ? `Located ${label} on primary and secondary`
-          : primaryLocated
-            ? `${useSecondary ? 'Secondary unavailable; ' : ''}Located ${label} on primary`
-            : secondaryLocated
-              ? `Located ${label} on secondary; primary unavailable`
-          : 'Primary chart cannot locate this linked object',
-        isError: !located,
+        text: primaryLocated ? `Located ${label} on primary` : 'Primary chart cannot locate this linked object',
+        isError: !primaryLocated,
       });
     });
   }

@@ -37,13 +37,14 @@ function locateSecondaryPda(annotation, range) {
   return { located, flashed, canPriceFlash };
 }
 
-export function locatePdaProjection(annotation = {}) {
+export function locatePdaProjection(annotation = {}, options = {}) {
   const range = getPdaTimestampRange(annotation);
   if (!range) {
     return { located: false, range: null, primary: { located: false }, secondary: { located: false } };
   }
-  const primary = locatePrimaryPda(annotation, range);
-  const secondary = locateSecondaryPda(annotation, range);
+  const targetChart = options.chart || 'both';
+  const primary = targetChart === 'secondary' ? { located: false } : locatePrimaryPda(annotation, range);
+  const secondary = targetChart === 'primary' ? { located: false } : locateSecondaryPda(annotation, range);
   return {
     located: primary.located || secondary.located,
     range,

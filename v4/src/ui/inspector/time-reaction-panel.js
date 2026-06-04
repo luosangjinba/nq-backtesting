@@ -93,22 +93,34 @@ function renderRefList(review, target, refs = [], options = {}) {
   const rows = (Array.isArray(refs) ? refs : []).map((ref, refIndex) => `
     <div class="order-review-ref-row">
       <span title="${escapeHtml(getRefId(ref) || '')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
-      <button
-        class="order-review-ref-locate"
-        data-inspector-action="daily-time-ref-locate"
-        ${targetAttrs(review, target)}
-        data-ref-index="${refIndex}"
-        type="button"
-        title="Locate linked object"
-      >L</button>
-      <button
-        class="order-review-ref-delete"
-        data-inspector-action="daily-time-ref-remove"
-        ${targetAttrs(review, target)}
-        data-ref-index="${refIndex}"
-        type="button"
-        title="Remove linked object"
-      >X</button>
+      <details class="order-review-ref-menu">
+        <summary class="order-review-ref-menu-trigger" aria-label="Linked object actions">...</summary>
+        <div class="order-review-ref-menu-panel">
+          <button
+            class="order-review-ref-menu-item"
+            data-inspector-action="daily-time-ref-locate"
+            ${targetAttrs(review, target)}
+            data-ref-index="${refIndex}"
+            data-locate-chart="primary"
+            type="button"
+          >Main</button>
+          <button
+            class="order-review-ref-menu-item"
+            data-inspector-action="daily-time-ref-locate"
+            ${targetAttrs(review, target)}
+            data-ref-index="${refIndex}"
+            data-locate-chart="secondary"
+            type="button"
+          >Sub</button>
+          <button
+            class="order-review-ref-menu-item danger"
+            data-inspector-action="daily-time-ref-remove"
+            ${targetAttrs(review, target)}
+            data-ref-index="${refIndex}"
+            type="button"
+          >Delete</button>
+        </div>
+      </details>
     </div>
   `);
   return `
