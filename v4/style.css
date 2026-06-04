@@ -894,6 +894,7 @@ html, body {
 }
 
 .time-reaction-panel .inspector-textarea {
+  min-height: 180px;
   overflow-x: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
