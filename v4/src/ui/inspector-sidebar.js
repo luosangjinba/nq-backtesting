@@ -484,6 +484,7 @@ function createSidebar() {
   sidebarEl.querySelector('.inspector-close')?.addEventListener('click', closeSidebar);
   sidebarEl.addEventListener('change', handleInspectorChange);
   sidebarEl.addEventListener('click', handleInspectorClick);
+  sidebarEl.addEventListener('focusout', handleInspectorFocusOut);
   renderEmpty();
 }
 
@@ -513,6 +514,12 @@ function captureCalendarOpenGroups() {
       .map((groupEl) => groupEl.dataset.calendarGroupType)
       .filter(Boolean)
   );
+}
+
+function closeLinkedRefMenus(exceptMenu = null) {
+  bodyEl?.querySelectorAll('.order-review-ref-menu[open]').forEach((menu) => {
+    if (menu !== exceptMenu) menu.removeAttribute('open');
+  });
 }
 
 function openCalendarObject(type, id, options = {}) {
@@ -667,7 +674,11 @@ function handleInspectorChange(e) {
 }
 
 function handleInspectorClick(e) {
+  const refMenu = e.target.closest('.order-review-ref-menu');
   const actionEl = e.target.closest('[data-inspector-action]');
+  const isRefMenuAction = Boolean(actionEl?.closest('.order-review-ref-menu-panel'));
+  closeLinkedRefMenus(isRefMenuAction ? null : refMenu);
+
   const action = actionEl?.dataset.inspectorAction;
   if (!action) return;
 
@@ -753,6 +764,14 @@ function handleInspectorClick(e) {
   }
 
   pdaActions.handlePdaClick(action, actionEl);
+}
+
+function handleInspectorFocusOut(e) {
+  const refMenu = e.target.closest('.order-review-ref-menu');
+  if (!refMenu) return;
+  requestAnimationFrame(() => {
+    if (!refMenu.contains(document.activeElement)) refMenu.removeAttribute('open');
+  });
 }
 
 export function initInspectorSidebar() {
