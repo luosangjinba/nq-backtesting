@@ -36,9 +36,7 @@ import {
   normalizeDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
 import {
-  getDailyRegimeLoadedRange,
   getDailyRegimes,
-  loadDailyRegimes,
 } from '../daily-regime/daily-regime-store.js';
 import { getDailyRegimeIdentity, normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
 import { recordHistory } from '../history/history-manager.js';
@@ -55,7 +53,103 @@ function getExportableSegmentGroups() {
   return getSegmentGroups().filter((group) => group.type === 'composite-move');
 }
 
+function dateKeyFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const date = new Date(value * 1000);
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, '0'),
+    String(date.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function addDateKeyFromTimestamp(keys, timestamp) {
+  const dateKey = dateKeyFromTimestamp(timestamp);
+  if (dateKey) keys.add(dateKey);
+}
+
+function collectReviewObjectDateKeys({
+  pdaAnnotations = [],
+  marketSegments = [],
+  segmentGroups = [],
+  smtRecords = [],
+  orderReviews = [],
+  dailyTimeReviews = [],
+} = {}) {
+  const keys = new Set();
+
+  pdaAnnotations.forEach((annotation) => {
+    addDateKeyFromTimestamp(keys, annotation.canonicalTimestamp);
+    addDateKeyFromTimestamp(keys, annotation.timestamp);
+    addDateKeyFromTimestamp(keys, annotation.anchorTime);
+    addDateKeyFromTimestamp(keys, annotation.start?.timestamp ?? annotation.start?.time);
+    addDateKeyFromTimestamp(keys, annotation.end?.timestamp ?? annotation.end?.time);
+    if (Array.isArray(annotation.points)) {
+      annotation.points.forEach((point) => {
+        addDateKeyFromTimestamp(keys, point?.canonicalTimestamp ?? point?.timestamp ?? point?.anchorTime ?? point?.time);
+      });
+    }
+  });
+
+  marketSegments.forEach((segment) => {
+    addDateKeyFromTimestamp(keys, segment.start?.timestamp ?? segment.start?.time);
+    addDateKeyFromTimestamp(keys, segment.end?.timestamp ?? segment.end?.time);
+  });
+
+  segmentGroups.forEach((group) => {
+    if (Array.isArray(group.childSegmentIds)) {
+      group.childSegmentIds.forEach((segmentId) => {
+        const segment = marketSegments.find((candidate) => candidate.id === segmentId);
+        addDateKeyFromTimestamp(keys, segment?.start?.timestamp ?? segment?.start?.time);
+        addDateKeyFromTimestamp(keys, segment?.end?.timestamp ?? segment?.end?.time);
+      });
+    }
+  });
+
+  smtRecords.forEach((record) => {
+    addDateKeyFromTimestamp(keys, record.leftTimestamp);
+    addDateKeyFromTimestamp(keys, record.rightTimestamp);
+    addDateKeyFromTimestamp(keys, record.timestamp);
+    addDateKeyFromTimestamp(keys, record.fvgStartTimestamp);
+    addDateKeyFromTimestamp(keys, record.fvgEndTimestamp);
+  });
+
+  orderReviews.forEach((order) => {
+    addDateKeyFromTimestamp(keys, order.entryPlan?.entryTimestamp);
+    addDateKeyFromTimestamp(keys, order.setupThesis?.primaryEventTimestamp);
+    addDateKeyFromTimestamp(keys, order.resultReview?.exitTimestamp);
+  });
+
+  dailyTimeReviews.forEach((review) => {
+    const date = String(review.date || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) keys.add(date);
+  });
+
+  return keys;
+}
+
+function getExportableDailyRegimes(reviewObjectDateKeys) {
+  if (!reviewObjectDateKeys?.size) return [];
+  return getDailyRegimes().filter((regime) => reviewObjectDateKeys.has(regime.date));
+}
+
 function buildReviewPayload() {
+  const pdaAnnotations = getExportableAnnotations();
+  const marketSegments = getExportableSegments();
+  const segmentGroups = getExportableSegmentGroups();
+  const smtRecords = getSmtRecords();
+  const orderReviews = getOrderReviews();
+  const dailyTimeReviews = getDailyTimeReviewsWithContent();
+  const reviewObjectDateKeys = collectReviewObjectDateKeys({
+    pdaAnnotations,
+    marketSegments,
+    segmentGroups,
+    smtRecords,
+    orderReviews,
+    dailyTimeReviews,
+  });
+
   return {
     app: REVIEW_ARCHIVE_APP,
     version: REVIEW_ARCHIVE_VERSION,
@@ -63,13 +157,13 @@ function buildReviewPayload() {
     instrument: DEFAULT_INSTRUMENT,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     range: getArchiveRange(),
-    pdaAnnotations: getExportableAnnotations(),
-    marketSegments: getExportableSegments(),
-    segmentGroups: getExportableSegmentGroups(),
-    smtRecords: getSmtRecords(),
-    orderReviews: getOrderReviews(),
-    dailyTimeReviews: getDailyTimeReviewsWithContent(),
-    dailyRegimes: getDailyRegimes(),
+    pdaAnnotations,
+    marketSegments,
+    segmentGroups,
+    smtRecords,
+    orderReviews,
+    dailyTimeReviews,
+    dailyRegimes: getExportableDailyRegimes(reviewObjectDateKeys),
   };
 }
 
@@ -591,8 +685,7 @@ export function exportReviewArchive() {
     payload.segmentGroups.length === 0 &&
     payload.smtRecords.length === 0 &&
     payload.orderReviews.length === 0 &&
-    payload.dailyTimeReviews.length === 0 &&
-    payload.dailyRegimes.length === 0
+    payload.dailyTimeReviews.length === 0
   ) {
     bus.emit('status:update', { text: '没有可导出的复盘对象', isError: true });
     return;
@@ -710,11 +803,6 @@ export async function importReviewArchive(file) {
       dailyRegimes = preparedDailyRegimes.regimes;
       skippedDailyRegimeDuplicates = preparedDailyRegimes.skippedDuplicates;
       skippedInvalidDailyRegimes = preparedDailyRegimes.skippedInvalid;
-      loadDailyRegimes(
-        [...existingDailyRegimes, ...dailyRegimes],
-        getDailyRegimeLoadedRange(),
-        { reason: 'regimes:import' }
-      );
     });
 
     const skipped =
@@ -730,7 +818,7 @@ export async function importReviewArchive(file) {
       skippedDailyRegimeDuplicates +
       skippedInvalidDailyRegimes;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${dailyTimeReviews.length} 条 Time Reaction 与 ${dailyRegimes.length} 条 Daily Regime${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${dailyTimeReviews.length} 条 Time Reaction，并校验 ${dailyRegimes.length} 条 Daily Regime${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,

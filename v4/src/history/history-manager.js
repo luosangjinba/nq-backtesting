@@ -8,7 +8,6 @@ import {
 import { getSmtRecords, loadSmtRecords } from '../smt/smt-store.js';
 import { getOrderReviews, loadOrderReviews } from '../order/order-review-store.js';
 import { getDailyTimeReviews, loadDailyTimeReviews } from '../time-reaction/daily-time-review-store.js';
-import { getDailyRegimes, loadDailyRegimes } from '../daily-regime/daily-regime-store.js';
 import {
   getTimeOverlaySettings,
   loadTimeOverlaySettings,
@@ -45,7 +44,6 @@ export function captureSnapshot() {
     smtRecords: getSmtRecords(),
     orderReviews: getOrderReviews(),
     dailyTimeReviews: getDailyTimeReviews(),
-    dailyRegimes: getDailyRegimes(),
     timeOverlaySettings: getTimeOverlaySettings(),
   };
 }
@@ -60,7 +58,6 @@ export function restoreSnapshot(snapshot) {
     loadSmtRecords(clone(snapshot.smtRecords || []));
     loadOrderReviews(clone(snapshot.orderReviews || []), { preserveUpdatedAt: true });
     loadDailyTimeReviews(clone(snapshot.dailyTimeReviews || []), { preserveUpdatedAt: true });
-    loadDailyRegimes(clone(snapshot.dailyRegimes || []), null, { reason: 'history:restore' });
     loadTimeOverlaySettings(clone(snapshot.timeOverlaySettings || null));
   } finally {
     isRestoring = false;
