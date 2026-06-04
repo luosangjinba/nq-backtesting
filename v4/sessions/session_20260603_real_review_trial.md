@@ -337,3 +337,20 @@ Verification:
 - Calendar/Inspector modules `node --check` passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-04 - Step 260.4 Review JSON Daily Regimes Completed
+
+Implemented:
+
+- Review JSON export now includes a top-level `dailyRegimes` array.
+- Review JSON import validates, normalizes, and de-duplicates `dailyRegimes`
+  by `date + instrument`.
+- Existing local daily regime records take priority during import; imported
+  archival records fill only missing identities.
+- Export/import status messages include Daily Regime counts.
+
+Verification:
+
+- `review-archive.js` `node --check` passed.
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.

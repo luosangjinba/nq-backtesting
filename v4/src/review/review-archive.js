@@ -35,6 +35,13 @@ import {
   loadDailyTimeReviews,
   normalizeDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
+import {
+  getDailyRegimeIdentity,
+  getDailyRegimeLoadedRange,
+  getDailyRegimes,
+  loadDailyRegimes,
+} from '../daily-regime/daily-regime-store.js';
+import { normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
 import { recordHistory } from '../history/history-manager.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
@@ -63,6 +70,7 @@ function buildReviewPayload() {
     smtRecords: getSmtRecords(),
     orderReviews: getOrderReviews(),
     dailyTimeReviews: getDailyTimeReviewsWithContent(),
+    dailyRegimes: getDailyRegimes(),
   };
 }
 
@@ -105,6 +113,9 @@ function validateReviewPayload(payload) {
   }
   if (payload.dailyTimeReviews !== undefined && !Array.isArray(payload.dailyTimeReviews)) {
     throw new Error('review archive dailyTimeReviews must be an array');
+  }
+  if (payload.dailyRegimes !== undefined && !Array.isArray(payload.dailyRegimes)) {
+    throw new Error('review archive dailyRegimes must be an array');
   }
 }
 
@@ -540,6 +551,39 @@ function prepareImportedDailyTimeReviews(existingReviews, importedReviews, refId
   return { reviews, skippedDuplicates, skippedInvalid };
 }
 
+function prepareImportedDailyRegimes(existingRegimes, importedRegimes) {
+  const existingByIdentity = new Map(existingRegimes.map((regime) => [getDailyRegimeIdentity(regime), regime]));
+  let skippedDuplicates = 0;
+  let skippedInvalid = 0;
+  const regimes = [];
+
+  (Array.isArray(importedRegimes) ? importedRegimes : []).forEach((regime) => {
+    let normalized;
+    try {
+      normalized = normalizeDailyRegime(regime);
+    } catch {
+      skippedInvalid += 1;
+      return;
+    }
+
+    if (!normalized.date) {
+      skippedInvalid += 1;
+      return;
+    }
+
+    const identity = getDailyRegimeIdentity(normalized);
+    if (existingByIdentity.has(identity)) {
+      skippedDuplicates += 1;
+      return;
+    }
+
+    existingByIdentity.set(identity, normalized);
+    regimes.push(normalized);
+  });
+
+  return { regimes, skippedDuplicates, skippedInvalid };
+}
+
 export function exportReviewArchive() {
   const payload = buildReviewPayload();
   if (
@@ -548,7 +592,8 @@ export function exportReviewArchive() {
     payload.segmentGroups.length === 0 &&
     payload.smtRecords.length === 0 &&
     payload.orderReviews.length === 0 &&
-    payload.dailyTimeReviews.length === 0
+    payload.dailyTimeReviews.length === 0 &&
+    payload.dailyRegimes.length === 0
   ) {
     bus.emit('status:update', { text: '没有可导出的复盘对象', isError: true });
     return;
@@ -556,7 +601,7 @@ export function exportReviewArchive() {
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup 与 ${payload.dailyTimeReviews.length} 条 Time Reaction`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup、${payload.dailyTimeReviews.length} 条 Time Reaction 与 ${payload.dailyRegimes.length} 条 Daily Regime`,
     isError: false,
   });
 }
@@ -575,6 +620,7 @@ export async function importReviewArchive(file) {
     let smtRecords = [];
     let orders = [];
     let dailyTimeReviews = [];
+    let dailyRegimes = [];
     let skippedPdaDuplicates = 0;
     let skippedSegmentDuplicates = 0;
     let skippedGroupDuplicates = 0;
@@ -584,6 +630,8 @@ export async function importReviewArchive(file) {
     let skippedInvalidOrders = 0;
     let skippedDailyTimeDuplicates = 0;
     let skippedInvalidDailyTime = 0;
+    let skippedDailyRegimeDuplicates = 0;
+    let skippedInvalidDailyRegimes = 0;
 
     await recordHistory('Import Review Archive', () => {
       const existingAnnotations = getAnnotations();
@@ -654,6 +702,20 @@ export async function importReviewArchive(file) {
       skippedDailyTimeDuplicates = preparedDailyTimeReviews.skippedDuplicates;
       skippedInvalidDailyTime = preparedDailyTimeReviews.skippedInvalid;
       loadDailyTimeReviews([...existingDailyTimeReviews, ...dailyTimeReviews], { preserveUpdatedAt: true });
+
+      const existingDailyRegimes = getDailyRegimes();
+      const preparedDailyRegimes = prepareImportedDailyRegimes(
+        existingDailyRegimes,
+        Array.isArray(payload.dailyRegimes) ? payload.dailyRegimes : []
+      );
+      dailyRegimes = preparedDailyRegimes.regimes;
+      skippedDailyRegimeDuplicates = preparedDailyRegimes.skippedDuplicates;
+      skippedInvalidDailyRegimes = preparedDailyRegimes.skippedInvalid;
+      loadDailyRegimes(
+        [...existingDailyRegimes, ...dailyRegimes],
+        getDailyRegimeLoadedRange(),
+        { reason: 'regimes:import' }
+      );
     });
 
     const skipped =
@@ -665,9 +727,11 @@ export async function importReviewArchive(file) {
       skippedOrderDuplicates +
       skippedInvalidOrders +
       skippedDailyTimeDuplicates +
-      skippedInvalidDailyTime;
+      skippedInvalidDailyTime +
+      skippedDailyRegimeDuplicates +
+      skippedInvalidDailyRegimes;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup 与 ${dailyTimeReviews.length} 条 Time Reaction${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${dailyTimeReviews.length} 条 Time Reaction 与 ${dailyRegimes.length} 条 Daily Regime${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,
