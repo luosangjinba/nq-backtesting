@@ -1,4 +1,5 @@
 import * as bus from '../event-bus.js';
+import { fetchBars } from '../api.js';
 import { DEFAULT_DAILY_REGIME_INSTRUMENT, normalizeDailyRegime } from './daily-regime-types.js';
 import { clearDailyRegimes, loadDailyRegimes } from './daily-regime-store.js';
 import { applyTrendRegimes } from './daily-regime-trend.js';
@@ -6,6 +7,8 @@ import { applyRangeRegimes } from './daily-regime-range.js';
 import { applyEventRegimes } from './daily-regime-events.js';
 
 const VIX_DAILY_CSV_PATH = 'data/vix-daily.csv';
+const DAILY_TF = 1440;
+const DAILY_HISTORY_LOOKBACK_DAYS = 140;
 
 let requestSeq = 0;
 let vixDailyCache = null;
@@ -24,6 +27,17 @@ function dateKeyFromTimestamp(timestamp) {
   const value = Number(timestamp);
   if (!Number.isFinite(value) || value <= 0) return '';
   const date = new Date(value * 1000);
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, '0'),
+    String(date.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function shiftDateKey(dateKey, dayOffset) {
+  const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return '';
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + dayOffset));
   return [
     date.getUTCFullYear(),
     String(date.getUTCMonth() + 1).padStart(2, '0'),
@@ -77,6 +91,13 @@ async function getVixDailyData() {
   return vixDailyCache;
 }
 
+async function fetchDailyHistoryBars(range, instrument = DEFAULT_DAILY_REGIME_INSTRUMENT) {
+  if (!range?.dateFrom || !range?.dateTo) return [];
+  const startDate = shiftDateKey(range.dateFrom, -DAILY_HISTORY_LOOKBACK_DAYS) || range.dateFrom;
+  const response = await fetchBars(`${startDate} 00:00`, `${range.dateTo} 23:59`, DAILY_TF, instrument);
+  return Array.isArray(response?.bars) ? response.bars : [];
+}
+
 async function loadDailyRegimesForBars(payload = {}) {
   const range = resolveLoadedDateRange(payload);
   requestSeq += 1;
@@ -87,12 +108,15 @@ async function loadDailyRegimesForBars(payload = {}) {
   }
 
   try {
-    const vixByDate = await getVixDailyData();
+    const [vixByDate, dailyHistoryBars] = await Promise.all([
+      getVixDailyData(),
+      fetchDailyHistoryBars(range, payload.instrument || DEFAULT_DAILY_REGIME_INSTRUMENT),
+    ]);
     if (seq !== requestSeq) return;
     const regimes = applyEventRegimes(
       applyRangeRegimes(
-        applyTrendRegimes(buildVixDailyRegimes(vixByDate, range), payload.bars),
-        payload.bars
+        applyTrendRegimes(buildVixDailyRegimes(vixByDate, range), dailyHistoryBars),
+        dailyHistoryBars
       )
     );
     loadDailyRegimes(regimes, range);
