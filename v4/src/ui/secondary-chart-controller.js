@@ -6,11 +6,14 @@ import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import {
-  findDisplayBarByTime,
   getBarChartTime,
   getBucketStart,
   mapTimestampToChartTime,
 } from '../chart/time-projection.js';
+import {
+  findDisplayBarFast,
+  resolveExistingChartTimeFast,
+} from '../chart/display-bar-lookup.js';
 import {
   clearSecondaryData,
   destroySecondaryChart,
@@ -47,22 +50,15 @@ function mapTimestampToSecondaryChartTime(timestamp) {
 function getPrimaryHoverTimestamp(time) {
   if (time === undefined || time === null) return null;
   const currentTimeframe = store.getCurrentTimeframe();
-  const bar = findDisplayBarByTime(store.getDisplayBars(), time, currentTimeframe);
+  const bar = findDisplayBarFast(store.getDisplayBars(), time, currentTimeframe);
   return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
 }
 
 function getSecondaryHoverTimestamp(time) {
   if (time === undefined || time === null) return null;
   const secondaryTimeframe = secondaryStore.getSecondaryTimeframe();
-  const bar = findDisplayBarByTime(secondaryStore.getSecondaryDisplayBars(), time, secondaryTimeframe);
+  const bar = findDisplayBarFast(secondaryStore.getSecondaryDisplayBars(), time, secondaryTimeframe);
   return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
-}
-
-function resolveExistingChartTime(timestamp, targetTimeframe, targetBars) {
-  const chartTime = mapTimestampToChartTime(timestamp, targetTimeframe, targetBars);
-  if (chartTime === null) return null;
-  const targetBar = findDisplayBarByTime(targetBars, chartTime, targetTimeframe);
-  return targetBar ? getBarChartTime(targetBar, targetTimeframe) : null;
 }
 
 function toChartBar(bar, timeframe) {
@@ -272,7 +268,7 @@ function syncSecondaryHoverCursor(primaryTime) {
   }
 
   const hoverTimestamp = getPrimaryHoverTimestamp(primaryTime);
-  const hoverTime = resolveExistingChartTime(
+  const hoverTime = resolveExistingChartTimeFast(
     hoverTimestamp,
     secondaryStore.getSecondaryTimeframe(),
     secondaryStore.getSecondaryDisplayBars()
@@ -295,7 +291,7 @@ function syncPrimaryHoverCursor(secondaryTime) {
   }
 
   const hoverTimestamp = getSecondaryHoverTimestamp(secondaryTime);
-  const hoverTime = resolveExistingChartTime(
+  const hoverTime = resolveExistingChartTimeFast(
     hoverTimestamp,
     store.getCurrentTimeframe(),
     store.getDisplayBars()
