@@ -128,3 +128,44 @@ Manual follow-up:
   on, Sub 1M large range, Replay On/Off, and ES/NQ switch. DevTools profiling
   should show less time spent in hover bar lookup and fewer duplicate legend DOM
   writes.
+
+## 2026-06-04 - Step 259.1 Primary Chart Performance Baseline
+
+User-observed friction:
+
+- After secondary chart smoothness improved, the primary chart still feels
+  choppy in some real review states.
+
+Static baseline from current code:
+
+- Primary chart crosshair currently has several subscribers:
+  primary OHLC legend, Split Screen sync, Replay Pick hover, Order Exit Pick
+  hover, Segment Actor Pick hover, and SMT Pick hover.
+- The primary legend already caches unchanged OHLC values after Step 258.
+- Split Screen primary-to-secondary sync is cached and RAF-throttled after
+  Step 258.
+- Remaining likely hot paths are mode-specific pick handlers:
+  - Replay Pick uses `chartData.findIndex(...)`.
+  - SMT Pick uses `findDisplayBarByTime(store.getDisplayBars(), ...)`.
+  - Order Exit Pick and Segment Actor Pick still resolve bars through their
+    local find helpers.
+- Replay crosshair handler also calls `chart.hidePickPreviewCursor()` on every
+  crosshair move while replay is enabled but not picking; this is usually an
+  early return, but it is still a high-frequency no-op.
+- Primary chart also carries more primitives than the secondary chart: PDA,
+  Segment, Composite, SMT, Order Setup, Time Overlay, replay cursor, pick
+  preview, and sync cursor can all coexist.
+
+Optimization hypothesis:
+
+1. Reuse `display-bar-lookup.js` in primary high-frequency pick lookup paths.
+2. RAF-throttle primary pick preview updates so mousemove cannot drive repeated
+   primitive updates faster than the screen refresh rate.
+3. Avoid repeated no-op `hidePickPreviewCursor()` calls when no preview is
+   currently visible.
+4. If pan remains slow after handler cleanup, measure primitive counts and split
+   visible-range clipping into a later, narrower step.
+
+Manual DevTools profiling should be repeated after the code changes in the
+original slow primary-chart scenario, with object-heavy and Replay On states
+covered.
