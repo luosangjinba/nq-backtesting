@@ -169,3 +169,27 @@ Optimization hypothesis:
 Manual DevTools profiling should be repeated after the code changes in the
 original slow primary-chart scenario, with object-heavy and Replay On states
 covered.
+
+## 2026-06-04 - Step 259.5 Primary Primitive Pressure Assessment
+
+Static renderer assessment:
+
+- Primary PDA, Segment, Order Setup, and Time Overlay renderers attach
+  LightweightCharts primitives from their current store/display-mode state.
+- Time Overlay is already grouped into a small number of marker/band primitives,
+  but PDA/Segment/Order Setup counts scale with visible enabled objects.
+- The renderers do not currently subscribe to visible-range changes to clip
+  primitives before attach; adding clipping would change which off-screen or
+  extended objects exist in the chart primitive layer during pan/locate/hit
+  interactions.
+- Because Step 259.2-259.4 addressed the clear high-frequency hover/pick
+  costs without changing display semantics, primitive clipping should remain a
+  separate follow-up only if primary pan is still slow in an object-heavy
+  profile.
+
+Decision:
+
+- No display-semantic change in Step 259.5.
+- If the real review page still feels slow after the handler cleanup, create a
+  focused follow-up to measure attached primitive counts by renderer and then
+  prototype visible-range clipping for PDA/Segment/Order Setup independently.
