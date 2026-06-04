@@ -344,12 +344,12 @@ html, body {
   padding: 4px 0;
   color: #d6dce8;
   font-size: 12px;
+  line-height: 1.45;
 }
 
 .calendar-daily-regime-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .inspector-calendar-overlay-state {
