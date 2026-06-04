@@ -3,6 +3,47 @@ import { normalizeLinkedObjectRef } from '../order/order-review-store.js';
 
 export const DAILY_TIME_REACTION_TIMES = Object.freeze(['09:30', '09:50', '10:00', '10:30']);
 
+export const DAILY_TIME_REVIEW_SECTIONS = Object.freeze([
+  {
+    key: 'weeklyBias',
+    label: '周 Bias 分析',
+    fallbackTime: '00:00',
+  },
+  {
+    key: 'dailyBias',
+    label: '日 Bias 分析',
+    fallbackTime: '00:00',
+  },
+  {
+    key: 'fixedTimeState',
+    label: '固定时点状态',
+    fallbackTime: '09:30',
+    rangeEndTime: '11:00',
+  },
+  {
+    key: 'pre0930Analysis',
+    label: '09:30 前状态分析',
+    fallbackTime: '00:00',
+    rangeEndTime: '09:30',
+  },
+  {
+    key: 'summary0930To1100',
+    label: '09:30-11:00 Summary',
+    fallbackTime: '09:30',
+    rangeEndTime: '11:00',
+  },
+  {
+    key: 'fullDaySummary',
+    label: '全天 Summary',
+    fallbackTime: '00:00',
+    rangeEndTime: '16:00',
+  },
+]);
+
+export const DAILY_TIME_REVIEW_SECTION_KEYS = Object.freeze(
+  DAILY_TIME_REVIEW_SECTIONS.map((section) => section.key)
+);
+
 export const DAILY_TIME_REACTION_TYPES = Object.freeze({
   OTHER: 'other',
   REVERSAL: 'reversal',
@@ -70,6 +111,15 @@ function normalizeSection(input = {}, dateKey = '', fallbackTime = '09:30') {
     refs: normalizeRefs(input.refs),
     locate: normalizeLocate(input.locate, dateKey, fallbackTime),
   };
+}
+
+export function getDailyTimeReviewSectionDefinition(sectionName) {
+  return DAILY_TIME_REVIEW_SECTIONS.find((section) => section.key === sectionName) || null;
+}
+
+function normalizeReviewSection(sectionName, input = {}, dateKey = '') {
+  const definition = getDailyTimeReviewSectionDefinition(sectionName);
+  return normalizeSection(input, dateKey, definition?.fallbackTime || '09:30');
 }
 
 function makeContextItemId() {
@@ -167,6 +217,40 @@ function normalizeReactions(input = [], dateKey) {
   return DAILY_TIME_REACTION_TIMES.map((time) => byTime.get(time) || normalizeReaction({ time }, dateKey, time));
 }
 
+function reactionNotesToSectionNote(reactions = []) {
+  return (Array.isArray(reactions) ? reactions : [])
+    .map((reaction) => {
+      const itemNotes = (Array.isArray(reaction.items) ? reaction.items : [])
+        .map((item) => normalizeString(item.note))
+        .filter(Boolean);
+      const notes = [
+        normalizeString(reaction.note),
+        ...itemNotes,
+      ].filter(Boolean);
+      return notes.length ? `${normalizeString(reaction.time, 'Time')}: ${notes.join(' / ')}` : '';
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+function reactionRefsToSectionRefs(reactions = []) {
+  return (Array.isArray(reactions) ? reactions : [])
+    .flatMap((reaction) => [
+      ...(Array.isArray(reaction.refs) ? reaction.refs : []),
+      ...(Array.isArray(reaction.items) ? reaction.items.flatMap((item) => item.refs || []) : []),
+    ]);
+}
+
+function normalizeFixedTimeState(input = {}, reactions = [], dateKey = '') {
+  const normalized = normalizeReviewSection('fixedTimeState', input, dateKey);
+  if (normalized.note || normalized.refs.length) return normalized;
+  return {
+    ...normalized,
+    note: reactionNotesToSectionNote(reactions),
+    refs: normalizeRefs(reactionRefsToSectionRefs(reactions)),
+  };
+}
+
 export function getDailyTimeReviewIdentity(review = {}) {
   return `${review.instrument || 'NQ'}:${review.date || ''}`;
 }
@@ -185,14 +269,17 @@ export function normalizeDailyTimeReview(input = {}, options = {}) {
     source: normalizeString(input.source, 'manual'),
     createdAt: normalizeTimestamp(input.createdAt, now),
     updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
+    weeklyBias: normalizeReviewSection('weeklyBias', input.weeklyBias, date),
+    dailyBias: normalizeReviewSection('dailyBias', input.dailyBias, date),
+    fixedTimeState: normalizeFixedTimeState(input.fixedTimeState, input.reactions, date),
+    pre0930Analysis: normalizeReviewSection('pre0930Analysis', input.pre0930Analysis || input.pre0930Context, date),
     pre0930Context: normalizePre0930Context(input.pre0930Context, date),
     reactions: normalizeReactions(input.reactions, date),
     summary0930To1100: {
-      ...normalizeSection(input.summary0930To1100, date, '11:00'),
-      note: '',
-      refs: [],
+      ...normalizeReviewSection('summary0930To1100', input.summary0930To1100, date),
       items: normalizeObservationItems(input.summary0930To1100, date, '11:00', 'summary_1'),
     },
+    fullDaySummary: normalizeReviewSection('fullDaySummary', input.fullDaySummary, date),
   };
 }
 
@@ -235,7 +322,8 @@ function reactionHasContent(reaction = {}) {
 
 export function hasDailyTimeReviewContent(review = {}) {
   if (!review || typeof review !== 'object') return false;
-  return sectionHasContent(review.pre0930Context)
+  return DAILY_TIME_REVIEW_SECTION_KEYS.some((sectionName) => sectionHasContent(review[sectionName]))
+    || sectionHasContent(review.pre0930Context)
     || sectionHasContent(review.summary0930To1100)
     || (Array.isArray(review.reactions) && review.reactions.some(reactionHasContent));
 }
@@ -262,7 +350,7 @@ export function getOrCreateDailyTimeReview(date, instrument = 'NQ') {
 
 export function updateDailyTimeReviewSection(date, sectionName, patch = {}, instrument = 'NQ') {
   const review = getOrCreateDailyTimeReview(date, instrument);
-  if (!review || !['pre0930Context', 'summary0930To1100'].includes(sectionName)) return null;
+  if (!review || !['pre0930Context', 'summary0930To1100', ...DAILY_TIME_REVIEW_SECTION_KEYS].includes(sectionName)) return null;
   return updateDailyTimeReview(review.id, {
     [sectionName]: {
       ...(review[sectionName] || {}),
