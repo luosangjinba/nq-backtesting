@@ -59,9 +59,9 @@ export function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
   return getProjectedBarChartTime(bar, timeframe);
 }
 
-export function findDisplayBarByChartTime(time) {
+export function findDisplayBarByChartTime(time, bars = store.getDisplayBars(), timeframe = store.getCurrentTimeframe()) {
   if (time === undefined || time === null) return null;
-  return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
+  return findDisplayBarByTime(bars, time, timeframe);
 }
 
 export function getPointTimestamp(point = {}) {

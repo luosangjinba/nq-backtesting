@@ -104,7 +104,13 @@ export function renderManualContextMenu({
   return `
     <div class="pda-menu pda-menu-submenu-${submenuDirection}" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
       <div class="pda-menu-title">${timeLabel}</div>
-      <button class="pda-menu-item" data-pda-action="calendar-locate-date" ${disabled}>Locate Date in Calendar</button>
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
+        <div class="pda-submenu-panel">
+        <button class="pda-menu-item" data-pda-action="calendar-locate-date" ${disabled}>Date in Calendar</button>
+        <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Time in Secondary</button>
+        </div>
+      </div>
       ${orderSetupItems}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
@@ -125,7 +131,6 @@ export function renderManualContextMenu({
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Locate Time in Secondary</button>
         <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${disabled}>Start Bearish Liquidity SMT</button>
         <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${disabled}>Start Bullish Liquidity SMT</button>
         <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${disabled}>Mark Bearish FVG SMT</button>

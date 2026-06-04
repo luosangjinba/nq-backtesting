@@ -26,6 +26,8 @@ import {
   getSegmentTimestampRange,
 } from './order-review-utils.js';
 
+let pendingOrderReasonRefPick = null;
+
 export function buildPdaOrderReviewRef(annotation) {
   return {
     type: ORDER_REF_TYPES.PDA,
@@ -60,6 +62,26 @@ export function getOrderReviewReasons(order) {
   const refs = getOrderReviewRefs(order);
   const note = order?.setupThesis?.narrative || '';
   return [{ id: 'reason_1', note, refs }];
+}
+
+export function getPendingOrderReasonRefPick() {
+  return pendingOrderReasonRefPick;
+}
+
+function setPendingOrderReasonRefPick(nextPick) {
+  pendingOrderReasonRefPick = nextPick || null;
+  return pendingOrderReasonRefPick;
+}
+
+export function clearPendingOrderReasonRefPick(options = {}) {
+  pendingOrderReasonRefPick = null;
+  if (!options.silent) {
+    bus.emit('status:update', { text: 'Order reason object selection cancelled', isError: false });
+  }
+}
+
+export function hasPendingOrderReasonRefPick() {
+  return Boolean(pendingOrderReasonRefPick);
 }
 
 function isOrderReviewReasonEmpty(reason = {}) {
@@ -123,6 +145,43 @@ export function createOrderReviewReasonActionController({
     reasons[index] = { ...reasons[index], refs: [...refs, ref] };
     patchOrderReviewReasons(orderReviewId, reasons);
     return true;
+  }
+
+  function startReasonRefPick(actionEl) {
+    const orderReviewId = actionEl.dataset.orderReviewId;
+    const reasonIndex = Number(actionEl.dataset.reasonIndex) || 0;
+    if (!getOrderReviewById(orderReviewId)) {
+      bus.emit('status:update', { text: 'Order Setup not found', isError: true });
+      return true;
+    }
+    setPendingOrderReasonRefPick({ orderReviewId, reasonIndex });
+    bus.emit('status:update', {
+      text: `Select a chart object to link to Reason ${reasonIndex + 1}`,
+      isError: false,
+    });
+    refreshSelection?.();
+    return true;
+  }
+
+  function cancelReasonRefPick() {
+    clearPendingOrderReasonRefPick();
+    refreshSelection?.();
+    return true;
+  }
+
+  function linkPickedReasonRef(ref, label = 'Object') {
+    const pendingPick = getPendingOrderReasonRefPick();
+    if (!pendingPick || !ref?.type || !ref?.id) return false;
+    const added = addOrderReviewReasonRef(pendingPick.orderReviewId, pendingPick.reasonIndex, ref);
+    clearPendingOrderReasonRefPick({ silent: true });
+    bus.emit('status:update', {
+      text: added
+        ? `${label} linked to Reason ${pendingPick.reasonIndex + 1}`
+        : 'Link selected object failed',
+      isError: !added,
+    });
+    refreshSelection?.();
+    return added;
   }
 
   function updateOrderReviewReasonNote(orderReviewId, reasonIndex, note) {
@@ -421,6 +480,14 @@ export function createOrderReviewReasonActionController({
   }
 
   function handleClick(action, actionEl) {
+    if (action === 'order-review-ref-pick-start') {
+      return startReasonRefPick(actionEl);
+    }
+
+    if (action === 'order-review-ref-pick-cancel') {
+      return cancelReasonRefPick();
+    }
+
     if (action === 'order-review-reason-add') {
       addOrderReviewReason(actionEl.dataset.orderReviewId);
       refreshSelection?.();
@@ -454,7 +521,22 @@ export function createOrderReviewReasonActionController({
   }
 
   return {
+    clearRefPick: clearPendingOrderReasonRefPick,
     handleChange,
     handleClick,
+    handlePickedPda: (annotation) => linkPickedReasonRef(buildPdaOrderReviewRef(annotation), getPdaOrderRefLabel(annotation)),
+    handlePickedSegment: (segment) => linkPickedReasonRef(buildSegmentOrderReviewRef(segment), getSegmentOrderRefLabel(segment)),
+    handlePickedComposite: (segmentGroup) => linkPickedReasonRef({
+      type: ORDER_REF_TYPES.COMPOSITE,
+      id: segmentGroup?.id || segmentGroup,
+      role: ORDER_REF_ROLES.CONTEXT,
+    }, 'Composite Move'),
+    handlePickedSmt: (record) => linkPickedReasonRef({
+      type: ORDER_REF_TYPES.SMT,
+      id: record?.id || record,
+      role: ORDER_REF_ROLES.CONFIRMATION,
+    }, 'SMT'),
+    isPicking: hasPendingOrderReasonRefPick,
+    getPendingRefPick: getPendingOrderReasonRefPick,
   };
 }

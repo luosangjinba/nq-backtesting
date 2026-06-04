@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
@@ -25,7 +26,10 @@ import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { createSmtInspectorActionController } from './inspector/smt-actions.js';
 import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
-import { renderDailyTimeReviewPanel } from './inspector/time-reaction-panel.js';
+import {
+  renderDailyTimeReviewPanel,
+  renderDailyTimeReviewSectionPanel,
+} from './inspector/time-reaction-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
 import {
@@ -132,6 +136,7 @@ const smtActions = createSmtInspectorActionController({
   getInspectorPage,
   getCurrentPanel: () => currentPanel,
   dailyTimeActions,
+  orderReviewActions,
   prepareDetailBackTarget,
   renderSmtSelection,
   renderAfterDetailDeleted,
@@ -145,6 +150,7 @@ function getOrderReviewPanelOptions(extra = {}) {
     expandedOrderReviewId,
     activeOrderReviewId: getActiveReviewSetId(),
     selectedOrderSetupElement: getSelectedOrderSetupElement(),
+    pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
     ...extra,
   };
 }
@@ -179,9 +185,29 @@ function setCalendarDateContext(dateKey) {
 
 function prepareDetailBackTarget(dateKey) {
   if (!setCalendarDateContext(dateKey)) return false;
-  resetInspectorPage({ kind: 'home', selectedDate: dateKey, viewDate: dateKey });
+  captureCalendarOpenGroups();
+  resetInspectorPage({
+    kind: 'home',
+    selectedDate: dateKey,
+    viewDate: dateKey,
+    openGroups: Array.from(calendarOpenGroups),
+  });
   pushInspectorPage({ kind: 'detail', selectedDate: dateKey, viewDate: dateKey });
   return true;
+}
+
+function prepareSelectionBackTarget(dateKey) {
+  const page = getInspectorPage();
+  if (page.kind === 'detail' && page.objectType && page.objectId) {
+    pushInspectorPage({
+      ...page,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+      openGroups: Array.from(calendarOpenGroups),
+    });
+    return true;
+  }
+  return prepareDetailBackTarget(dateKey);
 }
 
 function normalizeCalendarDatePayload(payload = {}) {
@@ -290,7 +316,7 @@ function renderOrderSetupDetail(orderReviewId) {
   `;
 }
 
-function renderDailyTimeReviewDetail(dateKey) {
+function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
   const review = getDailyTimeReviewByDate(dateKey) || getOrCreateDailyTimeReview(dateKey);
   currentPanel = 'detail';
   setCalendarDateContext(dateKey);
@@ -298,12 +324,17 @@ function renderDailyTimeReviewDetail(dateKey) {
     kind: 'detail',
     objectType: 'time-reaction',
     objectId: dateKey,
+    sectionKey,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
   bodyEl.innerHTML = `
     ${renderInspectorBackAction()}
-    ${renderDailyTimeReviewPanel(review, { pendingRefPick: dailyTimeActions.getPendingRefPick() })}
+    ${
+      sectionKey
+        ? renderDailyTimeReviewSectionPanel(review, sectionKey, { pendingRefPick: dailyTimeActions.getPendingRefPick() })
+        : renderDailyTimeReviewPanel(review, { pendingRefPick: dailyTimeActions.getPendingRefPick() })
+    }
   `;
 }
 
@@ -315,6 +346,7 @@ function renderEmpty() {
     kind: 'home',
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
+    openGroups: Array.from(calendarOpenGroups),
   });
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
@@ -330,6 +362,7 @@ function renderArchivePanel() {
     kind: 'archive',
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
+    openGroups: Array.from(calendarOpenGroups),
   });
   bodyEl.innerHTML = `
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
@@ -361,6 +394,7 @@ function showActiveOrderSetupPanel() {
 function restoreCalendarStateFromPage(page = {}) {
   if (page.selectedDate) calendarSelectedDate = page.selectedDate;
   if (page.viewDate) calendarViewDate = page.viewDate;
+  if (Array.isArray(page.openGroups)) calendarOpenGroups = new Set(page.openGroups);
 }
 
 function renderPageFromState(page = getInspectorPage()) {
@@ -401,7 +435,7 @@ function renderPageFromState(page = getInspectorPage()) {
       }
     } else if (page.objectType === 'time-reaction') {
       if (String(page.objectId || '').match(/^\d{4}-\d{2}-\d{2}$/)) {
-        renderDailyTimeReviewDetail(page.objectId);
+        renderDailyTimeReviewDetail(page.objectId, page.sectionKey || '');
         return;
       }
     }
@@ -476,6 +510,7 @@ function createSidebar() {
   sidebarEl.querySelector('.inspector-close')?.addEventListener('click', closeSidebar);
   sidebarEl.addEventListener('change', handleInspectorChange);
   sidebarEl.addEventListener('click', handleInspectorClick);
+  sidebarEl.addEventListener('focusout', handleInspectorFocusOut);
   renderEmpty();
 }
 
@@ -507,7 +542,13 @@ function captureCalendarOpenGroups() {
   );
 }
 
-function openCalendarObject(type, id) {
+function closeInspectorActionMenus(exceptMenu = null) {
+  bodyEl?.querySelectorAll('.order-review-ref-menu[open], .calendar-object-menu[open]').forEach((menu) => {
+    if (menu !== exceptMenu) menu.removeAttribute('open');
+  });
+}
+
+function openCalendarObject(type, id, options = {}) {
   if (!type || !id) return false;
   if (type === 'order-setup') {
     suppressActiveReviewRender = true;
@@ -613,10 +654,11 @@ function openCalendarObject(type, id) {
       kind: 'detail',
       objectType: 'time-reaction',
       objectId: id,
+      sectionKey: options.sectionKey || '',
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
     });
-    renderDailyTimeReviewDetail(id);
+    renderDailyTimeReviewDetail(id, options.sectionKey || '');
     return true;
   }
   return false;
@@ -658,7 +700,11 @@ function handleInspectorChange(e) {
 }
 
 function handleInspectorClick(e) {
+  const actionMenu = e.target.closest('.order-review-ref-menu, .calendar-object-menu');
   const actionEl = e.target.closest('[data-inspector-action]');
+  const isMenuAction = Boolean(actionEl?.closest('.order-review-ref-menu-panel, .calendar-object-menu-panel'));
+  closeInspectorActionMenus(isMenuAction ? null : actionMenu);
+
   const action = actionEl?.dataset.inspectorAction;
   if (!action) return;
 
@@ -746,16 +792,29 @@ function handleInspectorClick(e) {
   pdaActions.handlePdaClick(action, actionEl);
 }
 
+function handleInspectorFocusOut(e) {
+  const actionMenu = e.target.closest('.order-review-ref-menu, .calendar-object-menu');
+  if (!actionMenu) return;
+  requestAnimationFrame(() => {
+    if (!actionMenu.contains(document.activeElement)) actionMenu.removeAttribute('open');
+  });
+}
+
 export function initInspectorSidebar() {
   resetInspectorPage({ kind: 'home' });
   createSidebar();
   document.getElementById('chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
   document.getElementById('chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
+  document.getElementById('secondary-chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
+  document.getElementById('secondary-chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
   chart.onCrosshairMove(orderReviewActions.handleExitPickHover);
   chart.onCrosshairMove(segmentActions.handleActorPickHover);
+  secondaryChart.onSecondaryCrosshairMove(orderReviewActions.handleSecondaryExitPickHover);
+  secondaryChart.onSecondaryCrosshairMove(segmentActions.handleSecondaryActorPickHover);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();
+      orderReviewActions.clearReasonRefPick?.({ silent: true });
       segmentActions.clearActorPickState();
       dailyTimeActions.clearRefPick({ silent: true });
     }
@@ -765,7 +824,11 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedPda(annotation);
       return;
     }
-    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getAnnotationCalendarDate(annotation));
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedPda(annotation);
+      return;
+    }
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getAnnotationCalendarDate(annotation));
     renderAnnotation(annotation);
     openSidebar();
   });
@@ -776,7 +839,11 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedSegment(segment);
       return;
     }
-    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getSegmentCalendarDate(segment));
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedSegment(segment);
+      return;
+    }
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSegmentCalendarDate(segment));
     renderSegment(segment);
     openSidebar();
   });
@@ -785,7 +852,11 @@ export function initInspectorSidebar() {
       dailyTimeActions.handlePickedComposite(segmentGroup);
       return;
     }
-    if (!suppressSelectionBackTarget) prepareDetailBackTarget(getCompositeCalendarDate(segmentGroup));
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedComposite(segmentGroup);
+      return;
+    }
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getCompositeCalendarDate(segmentGroup));
     renderSegmentGroup(segmentGroup);
     openSidebar();
   });

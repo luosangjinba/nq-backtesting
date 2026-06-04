@@ -1,6 +1,8 @@
 import * as bus from '../../event-bus.js';
 import * as chart from '../../chart/chart-manager.js';
+import * as secondaryChart from '../../chart/secondary-chart-manager.js';
 import * as store from '../../data/bar-store.js';
+import * as secondaryStore from '../../data/secondary-chart-store.js';
 import {
   findDisplayBarByTime,
   getBarChartTime as getProjectedBarChartTime,
@@ -47,6 +49,37 @@ function getBarChartTime(bar, timeframe = store.getCurrentTimeframe()) {
 function findDisplayBarByChartTime(time) {
   if (time === undefined || time === null) return null;
   return findDisplayBarByTime(store.getDisplayBars(), time, store.getCurrentTimeframe());
+}
+
+function findSecondaryDisplayBarByChartTime(time) {
+  if (time === undefined || time === null) return null;
+  return findDisplayBarByTime(
+    secondaryStore.getSecondaryDisplayBars(),
+    time,
+    secondaryStore.getSecondaryTimeframe()
+  );
+}
+
+function getPickChartContext(e) {
+  const isSecondary = e?.currentTarget?.id === 'secondary-chart';
+  if (isSecondary) {
+    return {
+      chartEl: document.getElementById('secondary-chart'),
+      coordinateToTime: (x) => secondaryChart.getSecondaryChart()?.timeScale().coordinateToTime(x),
+      findBar: findSecondaryDisplayBarByChartTime,
+      showCursor: secondaryChart.showSecondaryPickPreviewCursor,
+      hideCursor: secondaryChart.hideSecondaryPickPreviewCursor,
+      timeframe: () => secondaryStore.getSecondaryTimeframe(),
+    };
+  }
+  return {
+    chartEl: document.getElementById('chart'),
+    coordinateToTime: chart.coordinateToTime,
+    findBar: findDisplayBarByChartTime,
+    showCursor: chart.showPickPreviewCursor,
+    hideCursor: chart.hidePickPreviewCursor,
+    timeframe: () => store.getCurrentTimeframe(),
+  };
 }
 
 function getSegmentResponse(segment, pdaId) {
@@ -112,10 +145,11 @@ function startActorBarPick(segment, target) {
   if (!evidence) return;
 
   const currentTimeframe = timeframeToString(store.getCurrentTimeframe());
+  const secondaryTimeframe = timeframeToString(secondaryStore.getSecondaryTimeframe());
   const actorTimeframe = evidence.actor?.timeframe || currentTimeframe;
-  if (actorTimeframe !== currentTimeframe) {
+  if (actorTimeframe !== currentTimeframe && actorTimeframe !== secondaryTimeframe) {
     bus.emit('status:update', {
-      text: `Actor TF ${actorTimeframe} 与当前图表周期 ${currentTimeframe} 不一致，不能从当前图表 pick`,
+      text: `Actor TF ${actorTimeframe} 与主图 ${currentTimeframe} / 副图 ${secondaryTimeframe} 都不一致，不能 pick`,
       isError: true,
     });
     return;
@@ -140,6 +174,7 @@ export function createSegmentInspectorActionController({
     if (!actorPickState) return false;
     actorPickState = null;
     chart.hidePickPreviewCursor();
+    secondaryChart.hideSecondaryPickPreviewCursor();
     if (!silent) {
       bus.emit('status:update', { text: 'Actor bar pick 已取消', isError: false });
     }
@@ -151,15 +186,15 @@ export function createSegmentInspectorActionController({
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    const chartEl = document.getElementById('chart');
-    if (!chartEl) return;
+    const pickContext = getPickChartContext(e);
+    if (!pickContext.chartEl) return;
 
-    const rect = chartEl.getBoundingClientRect();
+    const rect = pickContext.chartEl.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const time = chart.coordinateToTime(x);
-    const bar = findDisplayBarByChartTime(time);
+    const time = pickContext.coordinateToTime(x);
+    const bar = pickContext.findBar(time);
     if (!bar) {
-      chart.hidePickPreviewCursor();
+      pickContext.hideCursor();
       return;
     }
 
@@ -175,7 +210,7 @@ export function createSegmentInspectorActionController({
       actor: {
         ...(evidence.actor || {}),
         [actorField]: bar.timestamp,
-        timeframe: timeframeToString(store.getCurrentTimeframe()),
+        timeframe: timeframeToString(pickContext.timeframe()),
       },
     })));
     bus.emit('status:update', {
@@ -184,14 +219,19 @@ export function createSegmentInspectorActionController({
     });
   }
 
-  function handleActorPickHover(param) {
+  function handleActorPickHover(param, source = 'primary') {
     if (!actorPickState) return;
-    const bar = findDisplayBarByChartTime(param?.time);
+    if (source === 'secondary') chart.hidePickPreviewCursor();
+    else secondaryChart.hideSecondaryPickPreviewCursor();
+    const pickContext = source === 'secondary'
+      ? getPickChartContext({ currentTarget: { id: 'secondary-chart' } })
+      : getPickChartContext({ currentTarget: { id: 'chart' } });
+    const bar = pickContext.findBar(param?.time);
     if (!bar) {
-      chart.hidePickPreviewCursor();
+      pickContext.hideCursor();
       return;
     }
-    chart.showPickPreviewCursor(getBarChartTime(bar));
+    pickContext.showCursor(getBarChartTime(bar, pickContext.timeframe()));
   }
 
   function handleSegmentChange(action, target) {
@@ -481,6 +521,7 @@ export function createSegmentInspectorActionController({
     clearActorPickState,
     handleActorPickChartClick,
     handleActorPickHover,
+    handleSecondaryActorPickHover: (param) => handleActorPickHover(param, 'secondary'),
     handleSegmentChange,
     handleSegmentClick,
   };

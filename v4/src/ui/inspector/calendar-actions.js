@@ -101,7 +101,11 @@ export function createCalendarActionController({
     }
 
     if (action === 'calendar-object-open') {
-      const opened = Boolean(openCalendarObject?.(actionEl.dataset.objectType, actionEl.dataset.objectId));
+      const opened = Boolean(openCalendarObject?.(
+        actionEl.dataset.objectType,
+        actionEl.dataset.objectId,
+        { sectionKey: actionEl.dataset.timeReactionSection || '' }
+      ));
       bus.emit('status:update', {
         text: opened ? 'Calendar object opened' : 'Calendar object cannot be opened',
         isError: !opened,

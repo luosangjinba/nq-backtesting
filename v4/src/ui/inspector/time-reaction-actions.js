@@ -25,17 +25,22 @@ import {
   getSegmentOrderRefLabel,
 } from '../../order/order-ref-metadata.js';
 import {
+  DAILY_TIME_REVIEW_SECTION_KEYS,
+  addFixedTimeStateItem,
   addDailyTimeReviewRef,
   addDailyTimeContextItem,
   addDailyTimeReactionItem,
   addDailyTimeSummaryItem,
   getDailyTimeReviewByDate,
+  getDailyTimeReviewSectionDefinition,
   getOrCreateDailyTimeReview,
   removeDailyTimeReviewRef,
   removeDailyTimeContextItem,
   removeDailyTimeReactionItem,
   removeDailyTimeSummaryItem,
+  removeFixedTimeStateItem,
   updateDailyTimeContextItem,
+  updateFixedTimeStateItem,
   updateDailyTimeReactionItem,
   updateDailyTimeReaction,
   updateDailyTimeReviewSection,
@@ -64,6 +69,16 @@ export function hasPendingDailyTimeRefPick() {
 
 export function getDailyTimeTargetFromElement(actionEl) {
   const section = actionEl.dataset.dailyTimeTargetSection;
+  if (section === 'fixedTimeItem') {
+    return {
+      section: 'fixedTimeItem',
+      time: actionEl.dataset.dailyTimeReactionTime || '09:30',
+      itemId: actionEl.dataset.dailyTimeContextItemId || '',
+    };
+  }
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(section)) {
+    return { section };
+  }
   if (section === 'reaction') {
     return {
       section: 'reaction',
@@ -102,10 +117,20 @@ export function getDailyTimeTargetKey(target = {}) {
 }
 
 export function getDailyTimeSectionName(target = {}) {
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) return target.section;
   return target.section === 'summary' ? 'summary0930To1100' : 'pre0930Context';
 }
 
+function getDailyTimeDetailSection(target = {}) {
+  if (target.section === 'fixedTimeItem') return 'fixedTimeState';
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) return target.section;
+  return '';
+}
+
 export function getDailyTimeTargetLabel(target = {}) {
+  if (target.section === 'fixedTimeItem') return '固定时点状态';
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
+  if (sectionDefinition) return sectionDefinition.label;
   if (target.section === 'reaction') return target.time || 'reaction';
   if (target.section === 'reactionItem') return target.time || 'reaction';
   if (target.section === 'pre0930Item') return 'Pre 09:30 Context';
@@ -115,12 +140,29 @@ export function getDailyTimeTargetLabel(target = {}) {
 }
 
 export function getDailyTimeTargetTime(target = {}) {
+  if (target.section === 'fixedTimeItem') return target.time || '09:30';
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
+  if (sectionDefinition) return sectionDefinition.fallbackTime || '09:30';
   if (target.section === 'reaction' || target.section === 'reactionItem') return target.time || '09:30';
   if (target.section === 'summary' || target.section === 'summaryItem') return '11:00';
   return '09:30';
 }
 
 export function getDailyTimeLocateRange(date, target = {}) {
+  if (target.section === 'fixedTimeItem') {
+    const timestamp = getCalendarDateTimestamp(date, getDailyTimeTargetTime(target));
+    return { start: timestamp, end: timestamp };
+  }
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(target.section);
+  if (sectionDefinition) {
+    return {
+      start: getCalendarDateTimestamp(date, sectionDefinition.fallbackTime || '09:30'),
+      end: getCalendarDateTimestamp(
+        date,
+        sectionDefinition.rangeEndTime || sectionDefinition.fallbackTime || '09:30'
+      ),
+    };
+  }
   if (target.section === 'summary' || target.section === 'summaryItem') {
     return {
       start: getCalendarDateTimestamp(date, '09:30'),
@@ -214,6 +256,13 @@ function getSmtTimestampRange(record = {}) {
 function getDailyTimeRefsForTarget(date, target = {}) {
   const review = getDailyTimeReviewByDate(date);
   if (!review) return [];
+  if (target.section === 'fixedTimeItem') {
+    const item = (review.fixedTimeState?.items || []).find((candidate) => candidate.id === target.itemId);
+    return Array.isArray(item?.refs) ? item.refs : [];
+  }
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
+    return Array.isArray(review[target.section]?.refs) ? review[target.section].refs : [];
+  }
   if (target.section === 'reactionItem') {
     const reaction = review.reactions.find((item) => item.time === getDailyTimeTargetTime(target));
     const item = (reaction?.items || []).find((candidate) => candidate.id === target.itemId);
@@ -239,6 +288,12 @@ function getDailyTimeRefByTarget(date, target = {}, refIndex) {
 function getDailyTimeTargetLocate(date, target = {}) {
   const review = getDailyTimeReviewByDate(date) || getOrCreateDailyTimeReview(date);
   if (!review) return {};
+  if (target.section === 'fixedTimeItem') {
+    return (review.fixedTimeState?.items || []).find((item) => item.id === target.itemId)?.locate || {};
+  }
+  if (DAILY_TIME_REVIEW_SECTION_KEYS.includes(target.section)) {
+    return review[target.section]?.locate || {};
+  }
   if (target.section === 'reaction') {
     return review.reactions.find((reaction) => reaction.time === getDailyTimeTargetTime(target))?.locate || {};
   }
@@ -258,6 +313,9 @@ function getDailyTimeTargetLocate(date, target = {}) {
 function patchDailyTimeTargetLocate(date, target = {}, patch = {}) {
   const currentLocate = getDailyTimeTargetLocate(date, target);
   const locate = { ...currentLocate, ...patch };
+  if (target.section === 'fixedTimeItem') {
+    return updateFixedTimeStateItem(date, target.itemId, { locate });
+  }
   if (target.section === 'reaction') {
     return updateDailyTimeReaction(date, getDailyTimeTargetTime(target), { locate });
   }
@@ -393,7 +451,10 @@ export function createDailyTimeInspectorActionController({
     clearPendingDailyTimeRefPick();
     if (added) {
       setCalendarDateContext?.(date);
-      renderDailyTimeReviewDetail?.(date);
+      renderDailyTimeReviewDetail?.(
+        date,
+        getDailyTimeDetailSection(target)
+      );
       openSidebar?.();
     }
     bus.emit('status:update', {
@@ -442,6 +503,7 @@ export function createDailyTimeInspectorActionController({
     const date = actionEl.dataset.dailyTimeDate;
     const target = getDailyTimeTargetFromElement(actionEl);
     const ref = getDailyTimeRefByTarget(date, target, actionEl.dataset.refIndex);
+    const locateChart = actionEl.dataset.locateChart === 'secondary' ? 'secondary' : 'primary';
     if (!ref) {
       bus.emit('status:update', { text: 'Linked object not found', isError: true });
       return;
@@ -460,7 +522,7 @@ export function createDailyTimeInspectorActionController({
       }
       range = getAnnotationTimestampRange(annotation);
       label = getPdaOrderRefLabel(annotation);
-      const result = locatePdaProjection(annotation);
+      const result = locatePdaProjection(annotation, { chart: locateChart });
       bus.emit('status:update', {
         text: result.primary.located && result.secondary.located
           ? `Located ${label} on primary and secondary`
@@ -497,6 +559,10 @@ export function createDailyTimeInspectorActionController({
       range = getSmtTimestampRange(record);
       label = 'SMT';
     } else if (type === ORDER_REF_TYPES.ORDER_SETUP) {
+      if (locateChart === 'secondary') {
+        bus.emit('status:update', { text: 'Order Setup can only locate on primary', isError: true });
+        return;
+      }
       const order = getOrderReviewById(id);
       if (!order) {
         bus.emit('status:update', { text: 'Linked Order Setup not found', isError: true });
@@ -517,36 +583,27 @@ export function createDailyTimeInspectorActionController({
       return;
     }
 
-    const useSecondary = ref.sourceChartId === 'secondary';
     let secondaryLocated = false;
-    if (useSecondary) {
+    if (locateChart === 'secondary') {
       secondaryLocated = secondaryStore.isSecondaryEnabled()
         && secondaryStore.getSecondaryDisplayBars().length > 0
         && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+      bus.emit('status:update', {
+        text: secondaryLocated
+          ? `Located ${label} on secondary`
+          : 'Secondary chart is not enabled or loaded for this linked object',
+        isError: !secondaryLocated,
+      });
+      return;
     }
 
     const targetTimeframe = getRefTimeframe(ref, store.getCurrentTimeframe());
-    if (!(await ensurePrimaryTimeframe(targetTimeframe))) {
-      if (secondaryLocated) {
-        bus.emit('status:update', {
-          text: `Located ${label} on secondary; primary unavailable`,
-          isError: false,
-        });
-      }
-      return;
-    }
+    if (!(await ensurePrimaryTimeframe(targetTimeframe))) return;
     requestAnimationFrame(() => {
       const primaryLocated = viewport.locateTimestampRange(range.start, range.end);
-      const located = primaryLocated || secondaryLocated;
       bus.emit('status:update', {
-        text: primaryLocated && secondaryLocated
-          ? `Located ${label} on primary and secondary`
-          : primaryLocated
-            ? `${useSecondary ? 'Secondary unavailable; ' : ''}Located ${label} on primary`
-            : secondaryLocated
-              ? `Located ${label} on secondary; primary unavailable`
-          : 'Primary chart cannot locate this linked object',
-        isError: !located,
+        text: primaryLocated ? `Located ${label} on primary` : 'Primary chart cannot locate this linked object',
+        isError: !primaryLocated,
       });
     });
   }
@@ -576,6 +633,24 @@ export function createDailyTimeInspectorActionController({
       const itemId = targetEl.dataset.dailyTimeContextItemId;
       recordInspectorHistory?.('Update Time Reaction Event', () => (
         updateDailyTimeReactionItem(date, time, itemId, { note: targetEl.value })
+      ));
+      refreshSelection?.();
+      return true;
+    }
+    if (action === 'daily-time-fixed-item-time') {
+      const date = targetEl.dataset.dailyTimeDate;
+      const itemId = targetEl.dataset.dailyTimeContextItemId;
+      recordInspectorHistory?.('Update Fixed Time State Time', () => (
+        updateFixedTimeStateItem(date, itemId, { time: targetEl.value })
+      ));
+      refreshSelection?.();
+      return true;
+    }
+    if (action === 'daily-time-fixed-item-note') {
+      const date = targetEl.dataset.dailyTimeDate;
+      const itemId = targetEl.dataset.dailyTimeContextItemId;
+      recordInspectorHistory?.('Update Fixed Time State', () => (
+        updateFixedTimeStateItem(date, itemId, { note: targetEl.value })
       ));
       refreshSelection?.();
       return true;
@@ -645,6 +720,11 @@ export function createDailyTimeInspectorActionController({
       refreshSelection?.();
       return true;
     }
+    if (action === 'daily-time-fixed-item-add') {
+      recordInspectorHistory?.('Add Fixed Time State', () => addFixedTimeStateItem(actionEl.dataset.dailyTimeDate));
+      refreshSelection?.();
+      return true;
+    }
     if (action === 'daily-time-context-item-remove') {
       recordInspectorHistory?.('Remove Time Context', () => (
         removeDailyTimeContextItem(actionEl.dataset.dailyTimeDate, actionEl.dataset.dailyTimeContextItemId)
@@ -666,6 +746,13 @@ export function createDailyTimeInspectorActionController({
     if (action === 'daily-time-summary-item-remove') {
       recordInspectorHistory?.('Remove Time Summary Event', () => (
         removeDailyTimeSummaryItem(actionEl.dataset.dailyTimeDate, actionEl.dataset.dailyTimeContextItemId)
+      ));
+      refreshSelection?.();
+      return true;
+    }
+    if (action === 'daily-time-fixed-item-remove') {
+      recordInspectorHistory?.('Remove Fixed Time State', () => (
+        removeFixedTimeStateItem(actionEl.dataset.dailyTimeDate, actionEl.dataset.dailyTimeContextItemId)
       ));
       refreshSelection?.();
       return true;

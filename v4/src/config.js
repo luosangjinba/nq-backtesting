@@ -48,6 +48,30 @@ export const CHART_THEME = {
   },
 };
 
+export const CHART_CROSSHAIR_OPTIONS = {
+  mode: 0,
+  vertLine: {
+    color: 'rgba(186, 151, 255, 0.22)',
+    width: 4,
+    style: 0,
+    labelVisible: true,
+    labelBackgroundColor: '#2a2e39',
+  },
+  horzLine: {
+    color: 'rgba(186, 151, 255, 0.22)',
+    width: 4,
+    style: 0,
+    labelVisible: true,
+    labelBackgroundColor: '#2a2e39',
+  },
+};
+
+export const CHART_SYNC_CROSSHAIR_CURSOR = {
+  color: 'rgba(186, 151, 255, 0.22)',
+  lineWidth: 6,
+  lineDash: [],
+};
+
 export const CANDLESTICK_STYLE = {
   upColor: '#26a69a',
   downColor: '#ef5350',

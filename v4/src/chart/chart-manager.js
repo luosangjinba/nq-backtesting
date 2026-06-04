@@ -1,6 +1,8 @@
 // LightweightCharts v5 图表管理器
 
 import {
+  CHART_CROSSHAIR_OPTIONS,
+  CHART_SYNC_CROSSHAIR_CURSOR,
   CHART_THEME,
   CANDLESTICK_STYLE,
   TIME_SCALE_DISPLAY,
@@ -15,6 +17,7 @@ let series = null;
 let legendEl = null;
 let replayCursorPrimitive = null;
 let pickPreviewPrimitive = null;
+let syncCrosshairPrimitive = null;
 let activeDataCount = 0;
 let activeLastTime = null;
 
@@ -82,11 +85,7 @@ export function initChart(containerId) {
     },
     width: container.clientWidth,
     height: container.clientHeight,
-    crosshair: {
-      mode: 0,
-      vertLine: { labelVisible: true },
-      horzLine: { labelVisible: true },
-    },
+    crosshair: CHART_CROSSHAIR_OPTIONS,
   });
 
   // v5 API: addSeries(CandlestickSeries, options)
@@ -176,6 +175,7 @@ export function hideReplayCursor() {
 
 export function showPickPreviewCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
+  hideSyncCrosshairCursor();
 
   if (!pickPreviewPrimitive) {
     pickPreviewPrimitive = new VerticalLinePrimitive(chart, time, {
@@ -198,6 +198,31 @@ export function hidePickPreviewCursor() {
     // primitive may already be detached during chart/data reset
   }
   pickPreviewPrimitive = null;
+}
+
+export function showSyncCrosshairCursor(time) {
+  if (!chart || !series || time === undefined || time === null) return;
+
+  if (!syncCrosshairPrimitive) {
+    syncCrosshairPrimitive = new VerticalLinePrimitive(chart, time, {
+      ...CHART_SYNC_CROSSHAIR_CURSOR,
+    });
+    series.attachPrimitive(syncCrosshairPrimitive);
+    return;
+  }
+
+  syncCrosshairPrimitive.setTime(time);
+}
+
+export function hideSyncCrosshairCursor() {
+  if (!series || !syncCrosshairPrimitive) return;
+
+  try {
+    series.detachPrimitive(syncCrosshairPrimitive);
+  } catch (e) {
+    // primitive may already be detached during chart/data reset
+  }
+  syncCrosshairPrimitive = null;
 }
 
 export function fitContent() {

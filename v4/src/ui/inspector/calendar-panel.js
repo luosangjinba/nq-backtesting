@@ -7,6 +7,7 @@ import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import {
+  DAILY_TIME_REVIEW_SECTIONS,
   getDailyTimeReviewByDate,
   hasDailyTimeReviewContent,
 } from '../../time-reaction/daily-time-review-store.js';
@@ -255,6 +256,7 @@ function renderObjectActionButtons(item) {
             data-inspector-action="calendar-object-open"
             data-object-type="${escapeHtml(item.ref.type)}"
             data-object-id="${escapeHtml(item.ref.id)}"
+            data-time-reaction-section="${escapeHtml(item.ref.section || '')}"
             type="button"
           >Open</button>`
         : ''
@@ -296,12 +298,10 @@ function renderObjectActionButtons(item) {
 
 function renderObjectActions(item) {
   const actionButtons = renderObjectActionButtons(item);
-  if (item.ref?.type !== 'order-setup') {
-    return `<div class="calendar-object-actions">${actionButtons}</div>`;
-  }
+  if (!actionButtons.trim()) return '';
   return `
     <details class="calendar-object-menu">
-      <summary class="calendar-object-menu-trigger" aria-label="Order Setup actions">...</summary>
+      <summary class="calendar-object-menu-trigger" aria-label="Calendar object actions">...</summary>
       <div class="calendar-object-menu-panel">${actionButtons}</div>
     </details>
   `;
@@ -362,7 +362,7 @@ function renderEconomicEventRow(item) {
 function renderObjectRow(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return renderEconomicEventRow(item);
   const isTimeReaction = item.ref?.type === 'time-reaction';
-  const timeLabel = isTimeReaction ? 'Daily' : compactTime(item.timestamp);
+  const timeLabel = compactTime(item.timestamp);
   const typeLabel = getObjectTypeLabel(item);
   const showTypeLabel = item.ref?.type !== 'pda';
   const isOrderSetup = item.ref?.type === 'order-setup';
@@ -370,12 +370,16 @@ function renderObjectRow(item) {
   return `
     <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
       <div class="calendar-object-main">
-        <div class="calendar-object-meta">
-          <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
-          ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
-          ${renderSetupVisibilityToggle(item)}
-          ${renderObjectVisibilityToggle(item)}
-        </div>
+        ${
+          isTimeReaction
+            ? ''
+            : `<div class="calendar-object-meta">
+                <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
+                ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
+                ${renderSetupVisibilityToggle(item)}
+                ${renderObjectVisibilityToggle(item)}
+              </div>`
+        }
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
       </div>
       ${renderObjectActions(item)}
@@ -383,53 +387,51 @@ function renderObjectRow(item) {
   `;
 }
 
-function countSectionContent(sectionData = {}) {
-  return (sectionData.note ? 1 : 0) + (Array.isArray(sectionData.refs) && sectionData.refs.length ? 1 : 0);
+function getSectionRefCount(sectionData = {}) {
+  const sectionRefs = Array.isArray(sectionData.refs) ? sectionData.refs.length : 0;
+  const itemRefs = Array.isArray(sectionData.items)
+    ? sectionData.items.reduce((sum, item) => sum + (Array.isArray(item.refs) ? item.refs.length : 0), 0)
+    : 0;
+  return sectionRefs + itemRefs;
 }
 
-function summarizeTimeReactionReview(review) {
-  if (!review) return 'No observations yet';
-  let sections = countSectionContent(review.pre0930Context) + countSectionContent(review.summary0930To1100);
-  (review.pre0930Context?.items || []).forEach((item) => {
-    if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
-  });
-  (review.summary0930To1100?.items || []).forEach((item) => {
-    if (item.note || (Array.isArray(item.refs) && item.refs.length)) sections += 1;
-  });
-  let refs = (review.pre0930Context?.refs || []).length
-    + (review.summary0930To1100?.refs || []).length
-    + (review.pre0930Context?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0)
-    + (review.summary0930To1100?.items || []).reduce((sum, item) => sum + (item.refs || []).length, 0);
-  (review.reactions || []).forEach((reaction) => {
-    const hasNote = Boolean(reaction.note);
-    const refCount = Array.isArray(reaction.refs) ? reaction.refs.length : 0;
-    if (hasNote || refCount) sections += 1;
-    refs += refCount;
-    (reaction.items || []).forEach((item) => {
-      const itemRefCount = Array.isArray(item.refs) ? item.refs.length : 0;
-      if (item.note || itemRefCount) sections += 1;
-      refs += itemRefCount;
-    });
-  });
-  if (!sections && !refs) return 'No observations yet';
-  return [
-    sections ? `${sections} sections` : '',
-    refs ? `${refs} refs` : '',
-  ].filter(Boolean).join(' · ');
+function getSectionPreview(sectionData = {}) {
+  const note = String(sectionData.note || '').trim();
+  const itemNote = Array.isArray(sectionData.items)
+    ? sectionData.items
+        .map((item) => {
+          const itemText = String(item.note || '').trim();
+          return itemText ? `${item.time || ''} ${itemText}`.trim() : '';
+        })
+        .find(Boolean)
+    : '';
+  const preview = note || itemNote;
+  if (!preview) return '';
+  return preview.replace(/\s+/g, ' ').slice(0, 48);
 }
 
-function createTimeReactionItem(dateKey, review = getDailyTimeReviewByDate(dateKey)) {
-  const start = getCalendarDateTimestamp(dateKey, '09:30');
-  const end = getCalendarDateTimestamp(dateKey, '10:30');
+function summarizeTimeReactionSection(sectionData = {}) {
+  const refCount = getSectionRefCount(sectionData);
+  const preview = getSectionPreview(sectionData);
+  if (preview && refCount) return `${preview} · ${refCount} refs`;
+  if (preview) return preview;
+  if (refCount) return `${refCount} refs`;
+  return 'No notes yet';
+}
+
+function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByDate(dateKey)) {
+  const start = getCalendarDateTimestamp(dateKey, section.fallbackTime || '09:30');
+  const end = getCalendarDateTimestamp(dateKey, section.rangeEndTime || section.fallbackTime || '09:30');
+  const sectionData = review?.[section.key] || {};
   return {
-    id: dateKey,
+    id: `${dateKey}:${section.key}`,
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     dateKey,
     timestamp: Number.isFinite(start) ? start : null,
-    label: summarizeTimeReactionReview(review),
+    label: `${section.label} · ${summarizeTimeReactionSection(sectionData)}`,
     range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
-    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey },
-    source: null,
+    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey, section: section.key },
+    source: { sectionKey: section.key, sectionLabel: section.label, review },
   };
 }
 
@@ -441,7 +443,7 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
   const group = {
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     label: 'Time Reaction Observation',
-    rows: [createTimeReactionItem(dateKey, review)],
+    rows: DAILY_TIME_REVIEW_SECTIONS.map((section) => createTimeReactionItem(dateKey, section, review)),
   };
   const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
   const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);

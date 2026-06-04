@@ -146,11 +146,23 @@ export const ORDER_ENTRY_PATTERN_DEFINITIONS = [
   { value: 'ote', label: 'OTE', active: true, aliases: [] },
   { value: 'stop-market', label: 'Stop Market', active: true, aliases: ['stop_market'] },
   { value: 'key-level', label: 'Key Level', active: true, aliases: ['key_level'] },
+  { value: '2022', label: '2022', active: true, aliases: [] },
 ];
 
 export const ORDER_ENTRY_SESSION_DEFINITIONS = [
   { value: 'unknown', label: '—', active: true, aliases: ['', 'none'] },
-  { value: '930-judas-swing', label: '930 Judas Swing', active: true, aliases: ['930 judas swing', '930Judas Swing'] },
+  {
+    value: '930-judas-swing-immediately',
+    label: '930 Judas Swing Immediately',
+    active: true,
+    aliases: ['930 judas swing immediately', '930Judas Swing Immediately'],
+  },
+  {
+    value: '930-judas-swing-classic',
+    label: '930 Judas Swing Classic',
+    active: true,
+    aliases: ['930-judas-swing', '930 judas swing', '930Judas Swing', '930 judas swing classic'],
+  },
   { value: '950-macro', label: '950 Macro', active: true, aliases: ['950 macro'] },
   { value: 'silver-bullet', label: 'Silver Bullet', active: true, aliases: ['Silver Bullet'] },
 ];

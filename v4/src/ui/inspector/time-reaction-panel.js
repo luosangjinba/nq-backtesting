@@ -3,6 +3,7 @@ import {
 } from '../../config.js';
 import {
   DAILY_TIME_REACTION_TIMES,
+  getDailyTimeReviewSectionDefinition,
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
@@ -92,22 +93,34 @@ function renderRefList(review, target, refs = [], options = {}) {
   const rows = (Array.isArray(refs) ? refs : []).map((ref, refIndex) => `
     <div class="order-review-ref-row">
       <span title="${escapeHtml(getRefId(ref) || '')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
-      <button
-        class="order-review-ref-locate"
-        data-inspector-action="daily-time-ref-locate"
-        ${targetAttrs(review, target)}
-        data-ref-index="${refIndex}"
-        type="button"
-        title="Locate linked object"
-      >L</button>
-      <button
-        class="order-review-ref-delete"
-        data-inspector-action="daily-time-ref-remove"
-        ${targetAttrs(review, target)}
-        data-ref-index="${refIndex}"
-        type="button"
-        title="Remove linked object"
-      >X</button>
+      <details class="order-review-ref-menu">
+        <summary class="order-review-ref-menu-trigger" aria-label="Linked object actions">...</summary>
+        <div class="order-review-ref-menu-panel">
+          <button
+            class="order-review-ref-menu-item"
+            data-inspector-action="daily-time-ref-locate"
+            ${targetAttrs(review, target)}
+            data-ref-index="${refIndex}"
+            data-locate-chart="primary"
+            type="button"
+          >Main</button>
+          <button
+            class="order-review-ref-menu-item"
+            data-inspector-action="daily-time-ref-locate"
+            ${targetAttrs(review, target)}
+            data-ref-index="${refIndex}"
+            data-locate-chart="secondary"
+            type="button"
+          >Sub</button>
+          <button
+            class="order-review-ref-menu-item danger"
+            data-inspector-action="daily-time-ref-remove"
+            ${targetAttrs(review, target)}
+            data-ref-index="${refIndex}"
+            type="button"
+          >Delete</button>
+        </div>
+      </details>
     </div>
   `);
   return `
@@ -214,6 +227,71 @@ function renderObservationItem(review, item, itemIndex, target, options = {}) {
   `;
 }
 
+function renderFixedTimeStateItem(review, item, itemIndex, itemCount, options = {}) {
+  const target = { section: 'fixedTimeItem', itemId: item.id, time: item.time };
+  return `
+    <div class="time-reaction-card time-reaction-fixed-time-card">
+      <div class="time-reaction-card-header">
+        <input
+          class="inspector-input time-reaction-time-input"
+          data-inspector-action="daily-time-fixed-item-time"
+          ${targetAttrs(review, target)}
+          type="time"
+          value="${escapeHtml(item.time || '09:30')}"
+        />
+        <button
+          class="inspector-mini-btn"
+          data-inspector-action="daily-time-fixed-item-remove"
+          ${targetAttrs(review, target)}
+          type="button"
+          ${itemCount <= 1 ? 'disabled' : ''}
+        >Remove</button>
+      </div>
+      <textarea
+        class="inspector-textarea time-reaction-fixed-note"
+        data-inspector-action="daily-time-fixed-item-note"
+        ${targetAttrs(review, target)}
+        rows="2"
+        placeholder="${escapeHtml(`Record ${item.time || 'fixed time'} state.`)}"
+      >${escapeHtml(item.note || '')}</textarea>
+      ${renderLocateControls(review, target, item.locate)}
+      ${renderRefList(review, target, item.refs, options)}
+    </div>
+  `;
+}
+
+function renderFixedTimeStatePanel(review, sectionDefinition, options = {}) {
+  const sectionData = review.fixedTimeState || {};
+  const items = Array.isArray(sectionData.items) ? sectionData.items : [];
+  return `
+    <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-section-detail">
+      <div class="inspector-section-title">${escapeHtml(sectionDefinition.label)}</div>
+      <div class="inspector-evidence-row">
+        <div class="inspector-evidence-header">
+          <span>${escapeHtml(review.date)}</span>
+          <span>${escapeHtml(review.instrument || 'NQ')}</span>
+        </div>
+        <div class="drawing-set-meta">Daily fixed-time state notes with linked chart evidence.</div>
+      </div>
+      <button
+        class="inspector-mini-btn time-reaction-add-btn"
+        data-inspector-action="daily-time-fixed-item-add"
+        data-daily-time-date="${escapeHtml(review.date)}"
+        type="button"
+      >Add Time</button>
+      <div class="time-reaction-list">
+        ${items.map((item, itemIndex) => renderFixedTimeStateItem(
+          review,
+          item,
+          itemIndex,
+          items.length,
+          options
+        )).join('')}
+      </div>
+    </section>
+  `;
+}
+
 function renderReactionCard(review, reaction, options = {}) {
   const time = reaction.time;
   const items = Array.isArray(reaction.items) ? reaction.items : [];
@@ -314,6 +392,43 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
           ${summaryItems}
         </div>
       </div>
+    </section>
+  `;
+}
+
+export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = {}) {
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(sectionKey);
+  if (!review || !sectionDefinition) {
+    return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid review section.</div>');
+  }
+
+  if (sectionKey === 'fixedTimeState') {
+    return renderFixedTimeStatePanel(review, sectionDefinition, options);
+  }
+
+  const sectionData = review[sectionKey] || {};
+  const target = { section: sectionKey };
+  return `
+    <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-section-detail">
+      <div class="inspector-section-title">${escapeHtml(sectionDefinition.label)}</div>
+      <div class="inspector-evidence-row">
+        <div class="inspector-evidence-header">
+          <span>${escapeHtml(review.date)}</span>
+          <span>${escapeHtml(review.instrument || 'NQ')}</span>
+        </div>
+        <div class="drawing-set-meta">Daily review note with linked chart evidence.</div>
+      </div>
+      ${renderTextarea(
+        sectionData.note,
+        [
+          'data-inspector-action="daily-time-section-note"',
+          `data-daily-time-section="${escapeHtml(sectionKey)}"`,
+          targetAttrs(review, target),
+        ].join(' '),
+        `Record ${sectionDefinition.label}.`
+      )}
+      ${renderLocateControls(review, target, sectionData.locate)}
+      ${renderRefList(review, target, sectionData.refs, options)}
     </section>
   `;
 }
