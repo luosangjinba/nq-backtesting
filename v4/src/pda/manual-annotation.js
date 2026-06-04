@@ -69,6 +69,7 @@ import {
   normalizeEventTimeValue,
   setKillzoneDraft,
   updateKillzone,
+  updateTimeOverlaySettings,
 } from '../time-overlays/time-overlay-store.js';
 import {
   clampMenuPosition,
@@ -391,9 +392,13 @@ async function handleControlClick(e) {
     if (!time || !date) {
       bus.emit('status:update', { text: '无法添加时间线：没有可用 K 线时间', isError: true });
     } else if (getEventTimeAtContextBar()) {
+      updateTimeOverlaySettings({ selectedDate: '' });
       bus.emit('status:update', { text: `${date} ${getEventTimeLabel(time)} 时间线已存在`, isError: false });
     } else {
-      recordHistory('Add Time Line', () => addEventTime({ date, time, label: getEventTimeLabel(time) }));
+      recordHistory('Add Time Line', () => {
+        updateTimeOverlaySettings({ selectedDate: '' });
+        return addEventTime({ date, time, label: getEventTimeLabel(time) });
+      });
       bus.emit('status:update', { text: `已添加 ${date} ${getEventTimeLabel(time)} 时间线`, isError: false });
     }
     hideContextMenu();

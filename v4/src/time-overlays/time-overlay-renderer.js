@@ -65,7 +65,7 @@ function collectDateKeys(displayBars, selectedDate = '') {
 }
 
 function buildMarkers(displayBars, settings) {
-  const dateKeys = collectDateKeys(displayBars);
+  const dateKeys = collectDateKeys(displayBars, settings.selectedDate);
   const markers = [];
 
   dateKeys.forEach((dateKey) => {
