@@ -3,7 +3,6 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
-import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
@@ -36,18 +35,6 @@ let lastCursorIndex = -1;
 let speedIndex = 2;
 let timer = null;
 let historyOpen = false;
-let pickViewportSnapshot = null;
-
-function toSecondaryChartBar(bar) {
-  const tf = secondaryStore.getSecondaryTimeframe();
-  return {
-    time: getBarChartTime(bar, tf),
-    open: bar.open,
-    high: bar.high,
-    low: bar.low,
-    close: bar.close,
-  };
-}
 
 function toChartBar(bar) {
   const tf = store.getCurrentTimeframe();
@@ -273,7 +260,6 @@ function resetReplayState() {
   mode = 'idle';
   cursorIndex = -1;
   lastCursorIndex = -1;
-  pickViewportSnapshot = null;
   render();
 }
 
@@ -285,7 +271,6 @@ function restoreFullChart(savePosition = true) {
   enabled = false;
   mode = 'idle';
   cursorIndex = -1;
-  pickViewportSnapshot = null;
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
   if (chartData.length > 0) {
@@ -500,18 +485,6 @@ function togglePlay() {
 function selectBar() {
   if (!enabled || chartData.length === 0) return;
   stopTimer();
-  pickViewportSnapshot = {
-    visibleRange: chart.getVisibleLogicalRange(),
-    dataCount: cursorIndex + 1,
-  };
-  chart.setData(chartData);
-  if (cursorIndex >= 0) chart.showReplayCursor(chartData[cursorIndex].time);
-  chart.fitContent();
-  if (secondaryStore.isSecondaryEnabled() && secondaryStore.getSecondaryDisplayBars().length) {
-    const secondaryBars = secondaryStore.getSecondaryDisplayBars();
-    secondaryChart.setSecondaryData(secondaryBars.map(toSecondaryChartBar));
-    secondaryChart.fitSecondaryContent();
-  }
   setMode('picking');
   bus.emit('status:update', { text: '点击图表选择 Replay 回退位置', isError: false });
 }
@@ -520,18 +493,7 @@ function cancelPick() {
   if (mode !== 'picking') return false;
 
   chart.hidePickPreviewCursor();
-  if (cursorIndex >= 0) {
-    const snapshot = pickViewportSnapshot;
-    mode = 'idle';
-    pickViewportSnapshot = null;
-    renderSlice(cursorIndex, false, false, snapshot);
-    if (snapshot?.visibleRange) {
-      chart.setVisibleLogicalRange(snapshot.visibleRange.from, snapshot.visibleRange.to);
-    }
-  } else {
-    pickViewportSnapshot = null;
-    setMode('idle');
-  }
+  setMode('idle');
   bus.emit('status:update', { text: 'Replay Pick 已取消', isError: false });
   return true;
 }
@@ -549,7 +511,6 @@ function handleChartClick(param) {
 
   const currentRange = chart.getVisibleLogicalRange();
   chart.hidePickPreviewCursor();
-  pickViewportSnapshot = null;
   mode = 'idle';
   renderSlice(index, false, true);
   if (currentRange) {
@@ -763,7 +724,6 @@ export function syncReplayData(restoreSnapshot = null) {
   chart.hidePickPreviewCursor();
   displayBars = store.getDisplayBars();
   chartData = displayBars.map(toChartBar);
-  pickViewportSnapshot = null;
 
   if (shouldRestoreReplay && chartData.length > 0) {
     const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp);

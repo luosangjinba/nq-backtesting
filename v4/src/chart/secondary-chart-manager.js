@@ -231,11 +231,6 @@ export function showSecondaryStartOfData(dataCount = activeDataCount) {
   }
 }
 
-export function fitSecondaryContent() {
-  if (!secondaryChart) return;
-  secondaryChart.timeScale().fitContent();
-}
-
 export function showSecondaryEndOfData(dataCount = activeDataCount, previousRange = null, previousDataCount = null) {
   if (!secondaryChart || dataCount <= 0) return;
   const width = secondaryContainer?.clientWidth || 800;
