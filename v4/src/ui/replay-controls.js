@@ -3,14 +3,12 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
-import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
 import { formatTimeInput } from '../utils.js';
-import { createRafThrottle } from '../utils/raf-throttle.js';
 import {
   clearReplayHistory,
   deleteReplayHistoryItem,
@@ -224,6 +222,15 @@ function parseReplayJumpTimestamp(value) {
   );
 
   return { timestamp, formatted };
+}
+
+function normalizeTimeKey(time) {
+  if (time && typeof time === 'object') {
+    const month = String(time.month).padStart(2, '0');
+    const day = String(time.day).padStart(2, '0');
+    return `${time.year}-${month}-${day}`;
+  }
+  return time;
 }
 
 function stopTimer() {
@@ -500,8 +507,8 @@ function cancelPick() {
 
 function findBarIndex(time) {
   if (time === undefined || time === null) return -1;
-  const bar = findDisplayBarFast(displayBars, time, store.getCurrentTimeframe());
-  return bar ? displayBars.indexOf(bar) : -1;
+  const target = normalizeTimeKey(time);
+  return chartData.findIndex((bar) => normalizeTimeKey(bar.time) === target);
 }
 
 function handleChartClick(param) {
@@ -536,8 +543,6 @@ function handleCrosshairMove(param) {
 
   chart.showPickPreviewCursor(chartData[index].time);
 }
-
-const handleCrosshairMoveThrottled = createRafThrottle(handleCrosshairMove);
 
 function handleControlClick(e) {
   const action = e.target.closest('[data-action]')?.dataset.action;
@@ -757,7 +762,7 @@ export function initReplayControls() {
   controlsEl.addEventListener('click', handleControlClick);
   window.addEventListener('keydown', handleKeydown);
   chart.onClick(handleChartClick);
-  chart.onCrosshairMove(handleCrosshairMoveThrottled);
+  chart.onCrosshairMove(handleCrosshairMove);
   bus.on('bars:cleared', resetReplayState);
   render();
 }
