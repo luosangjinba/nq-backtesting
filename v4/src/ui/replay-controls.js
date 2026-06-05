@@ -494,12 +494,7 @@ function selectBar() {
   };
   chart.setData(chartData);
   if (cursorIndex >= 0) chart.showReplayCursor(chartData[cursorIndex].time);
-  if (pickViewportSnapshot.visibleRange) {
-    chart.setVisibleLogicalRange(
-      pickViewportSnapshot.visibleRange.from,
-      pickViewportSnapshot.visibleRange.to
-    );
-  }
+  chart.fitContent();
   setMode('picking');
   bus.emit('status:update', { text: '点击图表选择 Replay 回退位置', isError: false });
 }
