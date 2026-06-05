@@ -327,6 +327,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 171: Replay History UI：Replay 控制条增加 History 入口，显示最近记录、窗口范围与 Split 状态；Delete/Clear 可操作；Load 按钮先展示但恢复动作留给 Step 172
 - [x] Step 172: 手动恢复 Replay workspace：点击 history 后恢复主图窗口、1m outerRange、Split 状态，并按 cursorTimestamp 恢复 Replay 位置，默认暂停；若 cursor 不在保存窗口但有 outerRange，则先加载目标附近 1m 窗口
 - [x] Step 173: Replay History 验证与收口：覆盖刷新后 history 保留、Split 开关/品种/周期/layout 恢复、1m 窗口模式恢复、删除/清空与 localStorage 体积；修复程序化恢复 Split 时 toolbar checkbox 未同步的问题
+- [x] Step 261: Replay Pick / Split reload 使用修复：Pick 恢复为旧版语义，只在当前已 replay 出来的 `chartData` 内按 chart time 命中，不展开完整 date range、不移动视口、不加载未来 K 线；同时恢复直接 crosshair hover preview，避免性能优化后的 cached lookup / RAF throttle 破坏 Pick 光标响应。主图 reload / bars cleared / replay 无法恢复时显式广播 `replay:changed`，清理副图 stale replay 状态，避免 Split 副图在新 date range 加载成功后被旧 cursor 裁剪为空。
 
 ### PDA Locate Flash / 使用修复
 - [x] Step 174: Reasons linked refs 定位入口：Reason ref 行增加 Locate 动作，支持 linked PDA/Segment 定位并复用现有时间范围快闪；删除 X 改为 Execution 同款紧凑样式

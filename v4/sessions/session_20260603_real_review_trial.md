@@ -454,3 +454,40 @@ Verification:
 - All daily regime smoke probes passed.
 - Full `v4/src/**/*.js` `node --check` passed.
 - `git diff --check` passed.
+
+## 2026-06-05 - Replay Pick and Split Reload Follow-up
+
+Context:
+
+- During real review, Replay Pick was reported as non-responsive: hover preview
+  did not appear and clicking a chart bar no longer truncated replay to that
+  bar.
+- A hard backup at `/mnt/data/20260527/backtesting` showed the old working
+  behavior: Pick matched against the currently displayed replay `chartData`
+  and subscribed directly to `chart.onCrosshairMove(handleCrosshairMove)`.
+- Recent performance work had changed Replay Pick to cached display-bar lookup
+  plus RAF-throttled hover. That path was reverted for Replay Pick only.
+
+Implemented:
+
+- Restored Replay Pick hit handling to compare chart times against current
+  replay `chartData`, so Pick only acts on bars already revealed by replay.
+- Restored direct crosshair hover handling for Replay Pick preview.
+- Confirmed Pick does not expand the full loaded date range, does not move the
+  current viewport, and does not reveal future bars.
+- Fixed Split reload after stale replay state: `resetReplayState()` and the
+  non-restored `syncReplayData()` path now emit `replay:changed`, allowing the
+  secondary chart controller to clear old replay slicing state before rendering
+  a new loaded range.
+
+Verification:
+
+- `node --check v4/src/ui/replay-controls.js` passed.
+- `git diff --check` passed for the touched source files.
+- Headless Chrome initialization of `http://127.0.0.1:8001/index.html` passed
+  without module/runtime initialization errors.
+
+Notes:
+
+- The currently deleted `tmp/daily_regime_*_smoke.mjs` files were not part of
+  these fixes and were intentionally left out of the source commits.
