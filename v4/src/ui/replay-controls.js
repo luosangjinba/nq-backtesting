@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
+import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
@@ -36,6 +37,17 @@ let speedIndex = 2;
 let timer = null;
 let historyOpen = false;
 let pickViewportSnapshot = null;
+
+function toSecondaryChartBar(bar) {
+  const tf = secondaryStore.getSecondaryTimeframe();
+  return {
+    time: getBarChartTime(bar, tf),
+    open: bar.open,
+    high: bar.high,
+    low: bar.low,
+    close: bar.close,
+  };
+}
 
 function toChartBar(bar) {
   const tf = store.getCurrentTimeframe();
@@ -495,6 +507,11 @@ function selectBar() {
   chart.setData(chartData);
   if (cursorIndex >= 0) chart.showReplayCursor(chartData[cursorIndex].time);
   chart.fitContent();
+  if (secondaryStore.isSecondaryEnabled() && secondaryStore.getSecondaryDisplayBars().length) {
+    const secondaryBars = secondaryStore.getSecondaryDisplayBars();
+    secondaryChart.setSecondaryData(secondaryBars.map(toSecondaryChartBar));
+    secondaryChart.fitSecondaryContent();
+  }
   setMode('picking');
   bus.emit('status:update', { text: '点击图表选择 Replay 回退位置', isError: false });
 }
