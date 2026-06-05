@@ -267,6 +267,7 @@ function resetReplayState() {
   mode = 'idle';
   cursorIndex = -1;
   lastCursorIndex = -1;
+  emitReplayChanged();
   render();
 }
 
@@ -752,6 +753,7 @@ export function syncReplayData(restoreSnapshot = null) {
   if (restoreSnapshot?.enabled && chartData.length > 0) {
     chart.showStartOfData(chartData.length);
   }
+  emitReplayChanged();
   render();
 }
 
