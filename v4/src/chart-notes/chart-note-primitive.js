@@ -1,3 +1,5 @@
+import { buildChartNoteLayouts } from './chart-note-layout.js';
+
 export const CHART_NOTE_DEFAULT_OPTIONS = {
   backgroundColor: 'rgba(255, 247, 168, 0.92)',
   borderColor: 'rgba(255, 247, 168, 0.95)',
@@ -36,55 +38,6 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-function ellipsizeText(ctx, text, maxWidth) {
-  const value = String(text || '').trim();
-  if (!value || ctx.measureText(value).width <= maxWidth) return value;
-  const ellipsis = '...';
-  let output = value;
-  while (output.length > 1 && ctx.measureText(output + ellipsis).width > maxWidth) {
-    output = output.slice(0, -1);
-  }
-  return `${output}${ellipsis}`;
-}
-
-function wrapText(ctx, text, maxWidth, maxLines) {
-  const value = String(text || '').trim();
-  if (!value) return [];
-  const words = value.split(/\s+/).filter(Boolean);
-  const lines = [];
-  let current = '';
-
-  const pushLongWord = (word) => {
-    let chunk = '';
-    Array.from(word).forEach((char) => {
-      if (chunk && ctx.measureText(chunk + char).width > maxWidth) {
-        lines.push(chunk);
-        chunk = char;
-        return;
-      }
-      chunk += char;
-    });
-    return chunk;
-  };
-
-  words.forEach((word) => {
-    if (lines.length >= maxLines) return;
-    const candidate = current ? `${current} ${word}` : word;
-    if (ctx.measureText(candidate).width <= maxWidth) {
-      current = candidate;
-      return;
-    }
-    if (current) lines.push(current);
-    current = ctx.measureText(word).width > maxWidth ? pushLongWord(word) : word;
-  });
-  if (current && lines.length < maxLines) lines.push(current);
-  if (lines.length > maxLines) lines.length = maxLines;
-  if (lines.length === maxLines && ctx.measureText(lines[lines.length - 1]).width > maxWidth) {
-    lines[lines.length - 1] = ellipsizeText(ctx, lines[lines.length - 1], maxWidth);
-  }
-  return lines;
-}
-
 class ChartNoteRenderer {
   constructor(view) {
     this._view = view;
@@ -101,35 +54,22 @@ class ChartNoteRenderer {
       const hRatio = scope.horizontalPixelRatio;
       const vRatio = scope.verticalPixelRatio;
       const ratio = Math.min(hRatio, vRatio);
-      const paddingX = options.paddingX * hRatio;
       const paddingY = options.paddingY * vRatio;
-      const maxTextWidth = options.maxWidth * hRatio;
-      const expandedMaxTextWidth = options.expandedMaxWidth * hRatio;
-      const topOffset = options.topOffset * vRatio;
-      const rowGap = options.rowGap * vRatio;
       const lineHeight = options.lineHeight * vRatio;
       const canvasWidth = scope.bitmapSize.width;
-      let nextY = topOffset;
 
       ctx.save();
       ctx.font = options.font.replace(/(\d+(?:\.\d+)?)px/g, (_, size) => `${Number(size) * ratio}px`);
       ctx.textBaseline = 'middle';
-      notes.forEach((point) => {
-        const isExpanded = source._expandedNoteId === point.id;
-        const lines = isExpanded
-          ? wrapText(ctx, point.text, expandedMaxTextWidth, options.expandedMaxLines)
-          : [ellipsizeText(ctx, point.text, maxTextWidth)];
-        if (!lines.length || !lines[0]) return;
-
-        const textWidth = Math.max(...lines.map((line) => ctx.measureText(line).width));
-        const textHeight = Math.max(lineHeight, lines.length * lineHeight);
-        const boxWidth = textWidth + paddingX * 2;
-        const boxHeight = textHeight + paddingY * 2;
-        const anchorX = point.x * hRatio;
-        const anchorY = point.y * vRatio;
-        const x = Math.round(Math.min(Math.max(4 * hRatio, anchorX - boxWidth / 2), canvasWidth - boxWidth - 4 * hRatio));
-        const y = Math.round(nextY);
-        nextY += boxHeight + rowGap;
+      const layouts = buildChartNoteLayouts(notes, options, {
+        ctx,
+        hRatio,
+        vRatio,
+        canvasWidth,
+        expandedNoteId: source._expandedNoteId,
+      });
+      layouts.forEach((point) => {
+        const { lines, boxX: x, boxY: y, boxWidth, boxHeight, anchorX, anchorY } = point;
         const labelAnchorX = Math.min(Math.max(x + 8 * hRatio, anchorX), x + boxWidth - 8 * hRatio);
         const labelAnchorY = y + boxHeight;
         const anchorSize = options.leaderAnchorSize * ratio;
