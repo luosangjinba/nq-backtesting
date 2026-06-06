@@ -536,3 +536,21 @@ Result:
 - Validation: `find v4/src -name '*.js' -print0 | xargs -0 -n 1 node --check`,
   `git diff --check`, `curl -s -I http://127.0.0.1:8001/index.html`, and
   headless Chrome `--dump-dom` for `http://127.0.0.1:8001/index.html` passed.
+
+## 2026-06-06 - Step 263 Chart Note Display Polish
+
+Changes:
+
+- `2f90c55` moved Chart Note labels to the top of the primary chart canvas
+  area, added a leader line from each label to its owning K-line, and replaced
+  browser `prompt` input with an in-chart textarea editor.
+- `f0df21a` softened the leader line so it stays visible as a locator but does
+  not compete with candle reading.
+
+Usage:
+
+- Add: right-click a bar -> `Chart Note` -> `Add Note Here`.
+- Edit/delete: right-click the original bar that owns the note -> `Chart Note`
+  -> `Edit Note` or `Delete Note`.
+- The top label itself is currently display-only; hit actions are still bound
+  to the owning bar.
