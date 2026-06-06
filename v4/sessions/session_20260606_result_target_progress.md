@@ -24,3 +24,26 @@ Execution rules:
 - Each sub-step gets its own commit.
 - Existing unrelated workspace dirt must not be staged.
 - The existing `Result` enum and auto-exit behavior should remain compatible.
+
+Result:
+
+- Step 264.1 committed in `648b2b1`: added `order/target-progress.js` and
+  exposed `orderElements.targetProgress` from setup sets. The model derives
+  reached/final/points/R for Target 1-3 from entry, stop loss, setup targets,
+  and `resultReview.result`.
+- Step 264.2 committed in `693d757`: normalized and persisted
+  `resultReview.targetActions`, added Inspector Target Progress rows under
+  Result, and allowed per-target execution action selection:
+  None / Partial / Final / Manual Exit.
+- Step 264.3: chart target labels now include target progress state such as
+  `Target1 - Hit`, `Target2 - Partial`, or `Target3 - Final`.
+
+Verification:
+
+- Target progress module smoke verified Target 2 implies Target 1 reached and
+  Target 3 pending.
+- Explicit `None` target action overrides the default final action.
+- `node --check` passed for touched order modules.
+- `git diff --check` passed for touched files.
+- Headless Chrome loaded `http://127.0.0.1:8001/index.html` without boot
+  failure.

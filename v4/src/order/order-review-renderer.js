@@ -5,6 +5,10 @@ import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { ORDER_DIRECTIONS } from './order-review-types.js';
+import {
+  TARGET_EXECUTION_ACTION_LABELS,
+  TARGET_EXECUTION_ACTIONS,
+} from './target-progress.js';
 import { getActiveReviewSetId } from './order-review-active.js';
 import { getSelectedOrderSetupElement } from './order-setup-selection.js';
 import { getSetupSets } from './setup-set.js';
@@ -231,6 +235,26 @@ function getTargetLines(targetElements = []) {
   return targets;
 }
 
+function getTargetProgressStateLabel(progress) {
+  if (!progress) return '';
+  if (progress.executionAction && progress.executionAction !== TARGET_EXECUTION_ACTIONS.NONE) {
+    return TARGET_EXECUTION_ACTION_LABELS[progress.executionAction] || progress.executionAction;
+  }
+  if (progress.final) return 'Final';
+  if (progress.reached) return 'Hit';
+  return '';
+}
+
+function applyTargetProgressLabels(targetLines = [], targetProgress = []) {
+  const progressByRole = new Map(targetProgress.map((item) => [item.role, item]));
+  return targetLines.map((target) => {
+    const stateLabel = getTargetProgressStateLabel(progressByRole.get(target.role));
+    return stateLabel
+      ? { ...target, label: `${target.label} - ${stateLabel}` }
+      : target;
+  });
+}
+
 function getResultTarget(targetElements = [], resultStatus = '') {
   if (resultStatus !== 'target1' && resultStatus !== 'target2' && resultStatus !== 'target3') return null;
   return targetElements.find((target) => target.role === resultStatus && Number.isFinite(Number(target.price))) || null;
@@ -281,7 +305,10 @@ function renderSetupSet(setupSet, isActive = false) {
   }
 
   const visibleTargets = (elements.targets || []).filter((target) => isOrderSetupElementVisible(setupSet, target.role));
-  const targetLines = getTargetLines(visibleTargets);
+  const targetLines = applyTargetProgressLabels(
+    getTargetLines(visibleTargets),
+    elements.targetProgress || []
+  );
   const canRenderRiskRewardBox =
     isOrderSetupElementVisible(setupSet, 'entry') &&
     isOrderSetupElementVisible(setupSet, 'stopLoss') &&
