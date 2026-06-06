@@ -340,6 +340,14 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [x] Step 264: Chart Note Calendar / Inspector / Replay 收口：Chart Notes 独立显示在 Time Reaction Observation 中，支持 Inspector 三点菜单 locate/edit/delete/select-object；顶部 note box 按行占位复用最顶可用行，长文本保留截断并支持展开；Show/Hide Day Objects 纳入 chart note 外显对象；Calendar 选日、对象 locate、Show Day Objects 在 Replay 状态下使用当前 replay visible bars 作为聚焦 anchor，避免加载后续交易日后回看旧日期时 note box 被误清除；保持周期规则不变，1M 只显示 1M note，30M 只显示 30M note。
 
 ### PDA Locate Flash / 使用修复
+- [ ] Step 265: Secondary Chart Context Menu 增补计划。目标是把主图右键菜单中适合副图语义的功能迁移到副图，保持副图作为 HTF/ES evidence chart，而不是 NQ execution chart；不迁移会造成语义错乱的 Order Setup entry/stop/target、SMT 创建、NDOG/NWOG 全局切换和 Clear 全局清空。
+  - [ ] Step 265.1: PDA 增补第一组：在副图开放 Wick CE Upper/Lower、IFVG、Bullish/Bearish OB、Bullish/Bearish Breaker；复用 chart context 写入 source metadata，保持主图行为不变。
+  - [ ] Step 265.2: Range workflow 增补：在副图支持 Fib start/end 与必要的 range PDA workflow；右键菜单状态必须清楚显示 active draft，Esc/取消能清理副图 draft，不影响主图 draft。
+  - [ ] Step 265.3: Point Sets 增补：在副图支持 EQH/EQL start/add/finish/cancel；选中态、hit-test、Inspector 和 Review JSON 均复用同一 PDA store，并保留 source chart/timeframe。
+  - [ ] Step 265.4: Navigation / Calendar 增补：副图增加 `Locate Date in Calendar`，并保证 Calendar selectedDate、Time Overlay selectedDate 与主图定位互不冲突；保留现有 `Locate Time in Primary` / copy time/price。
+  - [ ] Step 265.5: Active Order Setup evidence 链接：副图菜单允许将命中的副图 PDA / Segment / FVG / Composite evidence 链接到 active Order Setup reason/ref；不允许从副图设置 entry、stop、target 或创建 execution setup。
+  - [ ] Step 265.6: 副图 Chart Notes 决策与实现计划：先冻结语义再实现；建议副图 note 只显示在副图同 instrument/timeframe，不进入主图 note box，是否进入 Calendar/Order reason 需要明确 source chart。
+  - [ ] Step 265.7: 验证与收口：覆盖 Split on/off、NQ/ES、1M/30M/1H、Replay On、source metadata、Inspector Open/Locate、Review JSON export/import、undo/redo、全量 JS 语法和 Web/API smoke。
 - [x] Step 174: Reasons linked refs 定位入口：Reason ref 行增加 Locate 动作，支持 linked PDA/Segment 定位并复用现有时间范围快闪；删除 X 改为 Execution 同款紧凑样式
 - [x] Step 175: PDA 本体快闪设计收敛：明确 Locate 与 Flash 分层，保留视图定位，新增按 PDA 本体形状高亮的临时 primitive；定义 `flashPdaAnnotation(annotation, chartContext)` 返回 true/false，时间范围快闪只作为 fallback
 - [x] Step 176: 新增 `pda-locate-flash-primitive.js`：支持 range PDA 本体矩形快闪（FVG/IFVG/OB/Breaker/NDOG/NWOG 等），使用 annotation 的 `start/end` 时间与 `top/bottom` 价格绘制 pulse overlay；新增 `pda-locate-flash.js` helper，当前尚未接入 Reasons Locate

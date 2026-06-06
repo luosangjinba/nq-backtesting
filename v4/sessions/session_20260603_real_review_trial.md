@@ -601,3 +601,59 @@ Key commits:
 - `ded708d` focused Chart Notes from day visibility.
 - `7b59294` focused Chart Notes on Calendar locate/select.
 - `a38065a` anchored Chart Note focus to replay visible bars.
+
+## 2026-06-06 - Step 265 Secondary Chart Context Menu Plan
+
+Context:
+
+- The primary chart context menu has grown into the main chart-first workflow:
+  PDA creation, SMT, Order Setup, Chart Notes, Time Overlays, Calendar locate,
+  segments, point sets, Composite Move drafts, objective gaps, and clear
+  actions.
+- The secondary chart menu is intentionally smaller today. It already supports
+  PDA BSL/SSL/FVG/OB Last Bar, secondary segment start/end, and navigation
+  actions such as show cursor, locate time in primary, copy time, and copy
+  price.
+- Not every primary action should move to the secondary chart. The secondary
+  chart is an HTF/ES evidence chart, not the NQ execution chart.
+
+Boundary decisions:
+
+- Keep off secondary:
+  - Order Setup create / entry / stop / target / final target actions, because
+    they would write execution prices from the secondary instrument/timeframe.
+  - SMT creation actions, because current SMT semantics are NQ follows ES and
+    should remain initiated from the NQ primary chart.
+  - NDOG/NWOG global toggles, because they are currently primary NQ background
+    overlays.
+  - Clear PDA / Clear Segments / Clear Killzones global actions, because a
+    secondary-context menu should not expose destructive global clears.
+- Candidate actions for secondary:
+  - PDA Wick CE Upper/Lower, IFVG, Bullish/Bearish OB, Bullish/Bearish Breaker.
+  - Fib and range workflow after draft-state isolation is verified.
+  - EQH/EQL point set workflow after selected/draft state can carry source
+    chart metadata cleanly.
+  - Locate Date in Calendar.
+  - Link secondary PDA / Segment / FVG / Composite evidence to active Order
+    Setup reason/ref.
+  - Optional secondary Chart Notes only after freezing display and Calendar
+    semantics.
+
+Planned steps:
+
+1. Step 265.1: Add the simple single-click PDA actions to the secondary menu:
+   Wick CE, IFVG, OB, Breaker. Reuse chart context and source metadata.
+2. Step 265.2: Add Fib/range workflows only if draft state can stay scoped to
+   the secondary context and cancel cleanly.
+3. Step 265.3: Add EQH/EQL point sets with source chart/timeframe metadata and
+   Inspector/Review JSON validation.
+4. Step 265.4: Add `Locate Date in Calendar` to the secondary Navigation
+   group.
+5. Step 265.5: Add active Order Setup evidence linking for secondary PDA /
+   Segment / FVG / Composite hits, without adding execution setters.
+6. Step 265.6: Decide whether secondary Chart Notes should exist. If yes, they
+   should render only on the secondary chart for matching instrument/timeframe
+   and carry explicit source chart metadata.
+7. Step 265.7: Validate Split on/off, NQ/ES, 1M/30M/1H, Replay On, source
+   metadata, Inspector Open/Locate, Review JSON export/import, undo/redo,
+   full JS syntax, and Web/API smoke.
