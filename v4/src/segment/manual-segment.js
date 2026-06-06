@@ -1,4 +1,4 @@
-// Manual 1H market segment creation workflow.
+// Manual market segment creation workflow.
 
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
@@ -149,7 +149,7 @@ export function startSegmentInContext(bar, startKind = 'swing-low', context = ge
   const normalizedStartKind = normalizeSwingKind(startKind);
   const startPrice = getPointPrice(bar, normalizedStartKind);
   if (!Number.isFinite(Number(startPrice))) {
-    bus.emit('status:update', { text: '1H 行情段起点无效：无法读取 High/Low', isError: true });
+    bus.emit('status:update', { text: '行情段起点无效：无法读取 High/Low', isError: true });
     return;
   }
 
@@ -189,7 +189,7 @@ export async function finishSegmentInContext(endBar, endKind = 'swing-high', con
   const startPrice = getPointPrice(startBar, startKind);
   const endPrice = getPointPrice(endBar, normalizedEndKind);
   if (!Number.isFinite(Number(startPrice)) || !Number.isFinite(Number(endPrice))) {
-    bus.emit('status:update', { text: '1H 行情段终点无效：无法读取 High/Low', isError: true });
+    bus.emit('status:update', { text: '行情段终点无效：无法读取 High/Low', isError: true });
     return;
   }
 
@@ -245,25 +245,25 @@ export async function finishSegmentInContext(endBar, endKind = 'swing-high', con
 }
 
 export function startSegment(bar, startKind = 'swing-low') {
-  return startSegmentInContext(bar, startKind, getPrimaryChartContext(), { requireOneHour: true });
+  return startSegmentInContext(bar, startKind, getPrimaryChartContext(), { requireOneHour: false });
 }
 
 export function finishSegment(endBar, endKind = 'swing-high') {
-  return finishSegmentInContext(endBar, endKind, getPrimaryChartContext(), { requireOneHour: true });
+  return finishSegmentInContext(endBar, endKind, getPrimaryChartContext(), { requireOneHour: false });
 }
 
 export function cancelSegmentSelection({ silent = false } = {}) {
   if (!segmentSelectionState) return;
   segmentSelectionState = null;
   if (!silent) {
-    bus.emit('status:update', { text: '1H 行情段选择已取消', isError: false });
+    bus.emit('status:update', { text: '行情段选择已取消', isError: false });
   }
 }
 
 export function clearManualSegments() {
   clearSegments();
   cancelSegmentSelection({ silent: true });
-  bus.emit('status:update', { text: '1H 行情段已清除', isError: false });
+  bus.emit('status:update', { text: '行情段已清除', isError: false });
 }
 
 export function initManualSegment() {

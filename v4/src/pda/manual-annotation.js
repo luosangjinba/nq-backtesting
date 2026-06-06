@@ -319,7 +319,7 @@ function renderClearMenuItems() {
   const clearKillzonesDisabled = settings.killzones?.length ? '' : 'disabled';
   return `
     <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
-    <button class="pda-menu-item" data-pda-action="segment-clear">Clear 1H Segments</button>
+    <button class="pda-menu-item" data-pda-action="segment-clear">Clear Segments</button>
     <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear" ${clearKillzonesDisabled}>Clear Killzones</button>
   `;
 }
@@ -338,6 +338,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
   const selected = getSelectedPda();
   const selectedAnnotation = selected ? getAnnotationById(selected.id) : null;
   const selectedPdaType = selectedAnnotation ? getPdaType(selectedAnnotation.type) : null;
+  const currentSegmentLabel = `${timeframeToString(store.getCurrentTimeframe())} Segments`;
   const segmentPdaLinkItems = renderSegmentPdaLinkItems(pdaHit);
   const segmentGroupItems = renderSegmentGroupItems(segmentHit);
   const selectedSetItem =
@@ -370,18 +371,18 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">${activeSegment.label}</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-pda-action="segment-finish-high" ${disabled}>End 1H Segment at High</button>
-        <button class="pda-menu-item" data-pda-action="segment-finish-low" ${disabled}>End 1H Segment at Low</button>
-        <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel 1H Segment</button>
+        <button class="pda-menu-item" data-pda-action="segment-finish-high" ${disabled}>End Segment at High</button>
+        <button class="pda-menu-item" data-pda-action="segment-finish-low" ${disabled}>End Segment at Low</button>
+        <button class="pda-menu-item" data-pda-action="segment-cancel">Cancel Segment</button>
         </div>
       </div>
     `
     : `
       <div class="pda-menu-section pda-menu-submenu">
-        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">1H Segments</div>
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">${currentSegmentLabel}</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start 1H Segment from Low</button>
-        <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start 1H Segment from High</button>
+        <button class="pda-menu-item" data-pda-action="segment-start-low" ${disabled}>Start Segment from Low</button>
+        <button class="pda-menu-item" data-pda-action="segment-start-high" ${disabled}>Start Segment from High</button>
         </div>
       </div>
     `;
@@ -672,23 +673,23 @@ async function handleControlClick(e) {
     if (selected) recordHistory('Add Point To Selected Set', () => appendPointToPointSet(selected.id, contextMenuBar, getBarChartTime));
     hideContextMenu();
   } else if (action === 'segment-start-low' || action === 'segment-start-high') {
-    recordHistory('Start 1H Segment', () =>
+    recordHistory('Start Segment', () =>
       startSegment(contextMenuBar, action === 'segment-start-high' ? 'swing-high' : 'swing-low')
     );
     hideContextMenu();
   } else if (action === 'segment-finish-low' || action === 'segment-finish-high') {
-    recordHistory('Finish 1H Segment', () =>
+    recordHistory('Finish Segment', () =>
       finishSegment(contextMenuBar, action === 'segment-finish-high' ? 'swing-high' : 'swing-low')
     ).catch((err) => {
       console.warn('[manual-annotation] finish segment failed', err);
-      bus.emit('status:update', { text: '1H 行情段创建失败', isError: true });
+      bus.emit('status:update', { text: '行情段创建失败', isError: true });
     });
     hideContextMenu();
   } else if (action === 'segment-cancel') {
-    recordHistory('Cancel 1H Segment', () => cancelSegmentSelection());
+    recordHistory('Cancel Segment', () => cancelSegmentSelection());
     hideContextMenu();
   } else if (action === 'segment-clear') {
-    recordHistory('Clear 1H Segments', () => clearManualSegments());
+    recordHistory('Clear Segments', () => clearManualSegments());
     hideContextMenu();
   } else if (action === 'segment-link-pda') {
     const selectedSegment = getSelectedSegment();

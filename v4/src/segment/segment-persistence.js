@@ -63,7 +63,7 @@ export function restoreSegments() {
 
   if (segments.length > 0 || segmentGroups.length > 0) {
     bus.emit('status:update', {
-      text: `已恢复 ${segments.length} 条本地 1H 行情段与 ${segmentGroups.length} 个 Composite Move`,
+      text: `已恢复 ${segments.length} 条本地行情段与 ${segmentGroups.length} 个 Composite Move`,
       isError: false,
     });
   }
