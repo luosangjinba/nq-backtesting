@@ -413,17 +413,6 @@ function getSectionPreview(sectionData = {}) {
   return preview.replace(/\s+/g, ' ').slice(0, 48);
 }
 
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
-}
-
 function hasChartNotesForDate(dateKey, instrument = 'NQ') {
   return getChartNotes().some(
     (note) => note.instrument === instrument && dateKeyFromTimestamp(note.timestamp) === dateKey
