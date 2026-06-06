@@ -343,7 +343,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 - [ ] Step 265: Secondary Chart Context Menu 增补计划。目标是把主图右键菜单中适合副图语义的功能迁移到副图，保持副图作为 HTF/ES evidence chart，而不是 NQ execution chart；不迁移会造成语义错乱的 Order Setup entry/stop/target、SMT 创建、NDOG/NWOG 全局切换和 Clear 全局清空。
   - [x] Step 265.1: PDA 增补第一组：在副图开放 Wick CE Upper/Lower 与 IFVG；复用 chart context 写入 source metadata，保持主图行为不变。Bullish/Bearish OB 与 Breaker 保持 range workflow 语义，拆到 Step 265.2 实现。
   - [x] Step 265.2: Range workflow 增补：在副图支持 Fib start/end 与 OB/Breaker range PDA workflow；右键菜单状态显示 active draft，Esc/取消/副图 reset 能清理副图 draft，不影响主图 draft。
-  - [ ] Step 265.3: Point Sets 增补：在副图支持 EQH/EQL start/add/finish/cancel；选中态、hit-test、Inspector 和 Review JSON 均复用同一 PDA store，并保留 source chart/timeframe。
+  - [x] Step 265.3: Point Sets 增补：在副图支持 EQH/EQL start/add/finish/cancel；draft state 按 primary/secondary scope 隔离，最终对象复用同一 PDA store，并保留 source chart/timeframe。
   - [ ] Step 265.4: Navigation / Calendar 增补：副图增加 `Locate Date in Calendar`，并保证 Calendar selectedDate、Time Overlay selectedDate 与主图定位互不冲突；保留现有 `Locate Time in Primary` / copy time/price。
   - [ ] Step 265.5: Active Order Setup evidence 链接：副图菜单允许将命中的副图 PDA / Segment / FVG / Composite evidence 链接到 active Order Setup reason/ref；不允许从副图设置 entry、stop、target 或创建 execution setup。
   - [ ] Step 265.6: 副图 Chart Notes 决策与实现计划：先冻结语义再实现；建议副图 note 只显示在副图同 instrument/timeframe，不进入主图 note box，是否进入 Calendar/Order reason 需要明确 source chart。

@@ -13,8 +13,35 @@ import {
 import { getPdaType } from './pda-types.js';
 
 const POINT_SET_DRAFT_ID = 'manual_point_set_draft';
+const DEFAULT_POINT_SET_SCOPE = 'primary';
 
-let pointSetSelectionState = null;
+const pointSetSelectionStates = new Map();
+
+function getPointSetScope(options = {}) {
+  return options.scope || DEFAULT_POINT_SET_SCOPE;
+}
+
+function getPointSetDraftId(scope = DEFAULT_POINT_SET_SCOPE) {
+  return scope === DEFAULT_POINT_SET_SCOPE ? POINT_SET_DRAFT_ID : `${POINT_SET_DRAFT_ID}_${scope}`;
+}
+
+function getPointSetState(options = {}) {
+  return pointSetSelectionStates.get(getPointSetScope(options)) || null;
+}
+
+function setPointSetState(scope, state) {
+  if (state) pointSetSelectionStates.set(scope, state);
+  else pointSetSelectionStates.delete(scope);
+}
+
+function buildPointSetOptions(options = {}) {
+  return {
+    scope: getPointSetScope(options),
+    timeframe: options.timeframe,
+    contextLabel: options.contextLabel,
+    metadata: options.metadata || {},
+  };
+}
 
 function getPointSetPrice(type, bar) {
   return type === 'eqh' ? bar.high : bar.low;
@@ -37,21 +64,25 @@ function buildPoint(type, bar, getBarChartTime) {
   };
 }
 
-function clearPointSetDraft() {
-  removeAnnotation(POINT_SET_DRAFT_ID);
+function clearPointSetDraft(scope = DEFAULT_POINT_SET_SCOPE) {
+  removeAnnotation(getPointSetDraftId(scope));
 }
 
-function buildPointSetAnnotation(type, points, { draft = false } = {}) {
+function buildPointSetAnnotation(type, points, { draft = false, options = {} } = {}) {
   const pdaType = getPdaType(type);
   if (!pdaType || points.length < 1) return null;
 
   const prices = points.map((point) => Number(point.price));
   const referencePrice = type === 'eqh' ? Math.max(...prices) : Math.min(...prices);
-  const tfLabel = timeframeToString(store.getCurrentTimeframe());
+  const tfLabel = timeframeToString(options.timeframe || store.getCurrentTimeframe());
   const sortedPoints = [...points].sort((a, b) => a.canonicalTimestamp - b.canonicalTimestamp);
+  const contexts = [
+    options.contextLabel,
+    `${tfLabel} ${pdaType.label}${draft ? ' draft' : ''} (${sortedPoints.length})`,
+  ].filter(Boolean);
 
   return {
-    id: draft ? POINT_SET_DRAFT_ID : `manual_${type}_${sortedPoints[0].canonicalTimestamp}_${Date.now()}`,
+    id: draft ? getPointSetDraftId(options.scope) : `manual_${type}_${sortedPoints[0].canonicalTimestamp}_${Date.now()}`,
     type,
     source: draft ? 'draft' : 'manual',
     draft,
@@ -62,29 +93,34 @@ function buildPointSetAnnotation(type, points, { draft = false } = {}) {
     referencePrice,
     markerPosition: type === 'eqh' ? 'above' : 'below',
     points: sortedPoints,
-    contexts: [`${tfLabel} ${pdaType.label}${draft ? ' draft' : ''} (${sortedPoints.length})`],
+    contexts,
+    ...options.metadata,
     ...getPointSetColors(type),
   };
 }
 
-function updatePointSetDraft() {
+function updatePointSetDraft(scope = DEFAULT_POINT_SET_SCOPE) {
+  const pointSetSelectionState = pointSetSelectionStates.get(scope);
   if (!pointSetSelectionState || pointSetSelectionState.points.length < 1) {
-    clearPointSetDraft();
+    clearPointSetDraft(scope);
     return;
   }
 
   const annotation = buildPointSetAnnotation(
     pointSetSelectionState.type,
     pointSetSelectionState.points,
-    { draft: true }
+    { draft: true, options: pointSetSelectionState.options }
   );
   if (annotation) upsertAnnotationById(annotation);
 }
 
-function addPointToSelection(type, bar, getBarChartTime) {
+function addPointToSelection(type, bar, getBarChartTime, options = {}) {
   if (!bar) return false;
+  const scope = getPointSetScope(options);
+  let pointSetSelectionState = pointSetSelectionStates.get(scope);
   if (!pointSetSelectionState || pointSetSelectionState.type !== type) {
-    pointSetSelectionState = { type, points: [] };
+    pointSetSelectionState = { type, points: [], options: buildPointSetOptions(options) };
+    setPointSetState(scope, pointSetSelectionState);
   }
 
   const canonicalTimestamp = bar.timestamp;
@@ -97,6 +133,7 @@ function addPointToSelection(type, bar, getBarChartTime) {
     ...pointSetSelectionState.points,
     buildPoint(type, bar, getBarChartTime),
   ];
+  setPointSetState(scope, pointSetSelectionState);
   return true;
 }
 
@@ -117,7 +154,20 @@ export function appendPointToPointSet(annotationId, bar, getBarChartTime) {
   }
 
   const nextPoints = [...(annotation.points || []), buildPoint(annotation.type, bar, getBarChartTime)];
-  const nextAnnotation = buildPointSetAnnotation(annotation.type, nextPoints);
+  const nextAnnotation = buildPointSetAnnotation(annotation.type, nextPoints, {
+    options: {
+      timeframe: annotation.sourceTimeframe,
+      contextLabel: annotation.sourceContext,
+      metadata: {
+        sourceChartId: annotation.sourceChartId,
+        sourceChartLabel: annotation.sourceChartLabel,
+        sourceInstrument: annotation.sourceInstrument,
+        sourceTimeframe: annotation.sourceTimeframe,
+        sourceTimeframeLabel: annotation.sourceTimeframeLabel,
+        sourceContext: annotation.sourceContext,
+      },
+    },
+  });
   updateAnnotation(annotation.id, {
     anchorTime: nextAnnotation.anchorTime,
     canonicalTimestamp: nextAnnotation.canonicalTimestamp,
@@ -137,7 +187,8 @@ export function appendPointToPointSet(annotationId, bar, getBarChartTime) {
   });
 }
 
-export function getPointSetSelectionSummary() {
+export function getPointSetSelectionSummary(options = {}) {
+  const pointSetSelectionState = getPointSetState(options);
   if (!pointSetSelectionState) return null;
   const pdaType = getPdaType(pointSetSelectionState.type);
   return {
@@ -147,43 +198,50 @@ export function getPointSetSelectionSummary() {
   };
 }
 
-export function startPointSet(type, bar, getBarChartTime) {
+export function startPointSet(type, bar, getBarChartTime, options = {}) {
   const pdaType = getPdaType(type);
   if (!pdaType || !bar) return;
 
-  pointSetSelectionState = { type, points: [] };
-  addPointToSelection(type, bar, getBarChartTime);
-  updatePointSetDraft();
+  const scope = getPointSetScope(options);
+  setPointSetState(scope, { type, points: [], options: buildPointSetOptions(options) });
+  addPointToSelection(type, bar, getBarChartTime, options);
+  updatePointSetDraft(scope);
   bus.emit('status:update', {
     text: `${pdaType.label} 集合已开始：1 个点，继续右键添加点，完成时选择 Finish ${pdaType.label}`,
     isError: false,
   });
 }
 
-export function addPointSetPoint(bar, getBarChartTime) {
+export function addPointSetPoint(bar, getBarChartTime, options = {}) {
+  const pointSetSelectionState = getPointSetState(options);
   if (!pointSetSelectionState) return;
   const { type } = pointSetSelectionState;
   const pdaType = getPdaType(type);
   if (!pdaType || !bar) return;
 
-  const added = addPointToSelection(type, bar, getBarChartTime);
-  updatePointSetDraft();
+  const scope = getPointSetScope(options);
+  const added = addPointToSelection(type, bar, getBarChartTime, pointSetSelectionState.options);
+  updatePointSetDraft(scope);
   bus.emit('status:update', {
     text: added
-      ? `${pdaType.label} 集合已添加：${pointSetSelectionState.points.length} 个点`
+      ? `${pdaType.label} 集合已添加：${getPointSetState(options)?.points.length || 0} 个点`
       : `${pdaType.label} 集合已包含该点`,
     isError: !added,
   });
 }
 
-export function cancelPointSet() {
+export function cancelPointSet(options = {}) {
+  const scope = getPointSetScope(options);
+  const pointSetSelectionState = getPointSetState(options);
   const label = pointSetSelectionState ? getPdaType(pointSetSelectionState.type)?.label : 'Point set';
-  pointSetSelectionState = null;
-  clearPointSetDraft();
+  setPointSetState(scope, null);
+  clearPointSetDraft(scope);
   bus.emit('status:update', { text: `${label} 集合已取消`, isError: false });
 }
 
-export function finishPointSet() {
+export function finishPointSet(options = {}) {
+  const scope = getPointSetScope(options);
+  const pointSetSelectionState = getPointSetState(options);
   if (!pointSetSelectionState) return;
 
   const { type, points } = pointSetSelectionState;
@@ -195,21 +253,21 @@ export function finishPointSet() {
 
   const prices = points.map((point) => Number(point.price));
   const spread = Math.max(...prices) - Math.min(...prices);
-  const annotation = buildPointSetAnnotation(type, points);
+  const annotation = buildPointSetAnnotation(type, points, { options: pointSetSelectionState.options });
 
-  clearPointSetDraft();
+  clearPointSetDraft(scope);
   addAnnotation(annotation);
-  pointSetSelectionState = null;
+  setPointSetState(scope, null);
   bus.emit('status:update', {
     text: `${pdaType.label}: ${annotation.points.length} 个点 · line ${annotation.referencePrice.toFixed(2)} · spread ${spread.toFixed(2)}`,
     isError: false,
   });
 }
 
-export function clearPointSetSelection({ silent = false } = {}) {
-  const hadSelection = Boolean(pointSetSelectionState);
-  pointSetSelectionState = null;
-  clearPointSetDraft();
+export function clearPointSetSelection({ silent = false, scope = DEFAULT_POINT_SET_SCOPE } = {}) {
+  const hadSelection = Boolean(pointSetSelectionStates.get(scope));
+  setPointSetState(scope, null);
+  clearPointSetDraft(scope);
   if (hadSelection && !silent) {
     bus.emit('status:update', { text: 'EQH/EQL 集合已取消', isError: false });
   }

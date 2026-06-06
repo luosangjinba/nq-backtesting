@@ -20,6 +20,14 @@ import {
 } from './manual-pda-actions.js';
 import { getPdaType } from './pda-types.js';
 import {
+  addPointSetPoint,
+  cancelPointSet,
+  clearPointSetSelection,
+  finishPointSet,
+  getPointSetSelectionSummary,
+  startPointSet,
+} from './point-set-annotation.js';
+import {
   finishSegmentInContext,
   startSegmentInContext,
 } from '../segment/manual-segment.js';
@@ -162,6 +170,56 @@ function renderSecondaryDraftItems(disabled) {
   `;
 }
 
+function getSecondaryPointSetOptions(context) {
+  const tfLabel = timeframeToString(context?.timeframe);
+  const instrument = context?.instrument || 'NQ';
+  const chartId = context?.chartId || context?.id || 'secondary';
+  const contextLabel = `${instrument} ${tfLabel}`;
+  return {
+    scope: 'secondary',
+    timeframe: context?.timeframe,
+    contextLabel,
+    metadata: {
+      sourceChartId: chartId,
+      sourceChartLabel: context?.label || 'Secondary',
+      sourceInstrument: instrument,
+      sourceTimeframe: context?.timeframe,
+      sourceTimeframeLabel: tfLabel,
+      sourceContext: contextLabel,
+    },
+  };
+}
+
+function getSecondaryPointSetChartTime(bar) {
+  return getBarChartTime(getSecondaryChartContext(), bar);
+}
+
+function renderSecondaryPointSetItems(disabled, context) {
+  const activeSet = getPointSetSelectionSummary(getSecondaryPointSetOptions(context));
+  if (activeSet) {
+    return `
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">${escapeHtml(activeSet.label)} set · ${activeSet.count} point${activeSet.count === 1 ? '' : 's'}</div>
+        <div class="pda-submenu-panel">
+        <button class="pda-menu-item" data-secondary-action="secondary-pointset-add" ${disabled}>Add ${escapeHtml(activeSet.label)} Point</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pointset-finish">Finish ${escapeHtml(activeSet.label)}</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pointset-cancel">Cancel Set</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Point Sets</div>
+        <div class="pda-submenu-panel">
+        <button class="pda-menu-item" data-secondary-action="secondary-eqh-start" ${disabled}>Start EQH Set</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-eql-start" ${disabled}>Start EQL Set</button>
+        </div>
+      </div>
+  `;
+}
+
 function formatPrimaryLocateRange(bar, context) {
   const timestamp = Number(bar?.timestamp);
   const timeframe = Number(context?.timeframe);
@@ -221,6 +279,7 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         <button class="pda-menu-item" data-secondary-action="secondary-copy-price" ${priceDisabled}>Copy Price ${escapeHtml(priceLabel)}</button>
         </div>
       </div>
+      ${renderSecondaryPointSetItems(disabled, context)}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Segments</div>
         <div class="pda-submenu-panel">
@@ -373,6 +432,36 @@ async function handleSecondaryMenuClick(e) {
       )
     );
     hideSecondaryContextMenu();
+  } else if (action === 'secondary-eqh-start' || action === 'secondary-eql-start') {
+    const context = getSecondaryChartContext();
+    const options = getSecondaryPointSetOptions(context);
+    recordHistory(`Start Secondary ${action === 'secondary-eqh-start' ? 'EQH' : 'EQL'} Set`, () =>
+      startPointSet(
+        action === 'secondary-eqh-start' ? 'eqh' : 'eql',
+        contextMenuBar,
+        getSecondaryPointSetChartTime,
+        options
+      )
+    );
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pointset-add') {
+    const context = getSecondaryChartContext();
+    recordHistory('Add Secondary Point Set Point', () =>
+      addPointSetPoint(contextMenuBar, getSecondaryPointSetChartTime, getSecondaryPointSetOptions(context))
+    );
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pointset-finish') {
+    const context = getSecondaryChartContext();
+    recordHistory('Finish Secondary Point Set', () =>
+      finishPointSet(getSecondaryPointSetOptions(context))
+    );
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pointset-cancel') {
+    const context = getSecondaryChartContext();
+    recordHistory('Cancel Secondary Point Set', () =>
+      cancelPointSet(getSecondaryPointSetOptions(context))
+    );
+    hideSecondaryContextMenu();
   } else if (action === 'secondary-show-cursor') {
     if (contextMenuBar) {
       secondaryChart.showSecondaryHoverCursor(getBarChartTime(getSecondaryChartContext(), contextMenuBar));
@@ -421,11 +510,13 @@ export function initSecondaryContextMenu() {
   bus.on('secondary-bars:cleared', () => {
     clearSecondaryRangeSelection();
     clearSecondaryFibSelection();
+    clearPointSetSelection({ silent: true, scope: 'secondary' });
     hideSecondaryContextMenu();
   });
   bus.on('secondary-chart:reset', () => {
     clearSecondaryRangeSelection();
     clearSecondaryFibSelection();
+    clearPointSetSelection({ silent: true, scope: 'secondary' });
     hideSecondaryContextMenu();
   });
 }

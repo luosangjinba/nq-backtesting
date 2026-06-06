@@ -698,3 +698,25 @@ Validation:
 - `node --check v4/src/pda/secondary-context-menu.js` passed.
 - `node --check v4/src/pda/manual-pda-actions.js` passed.
 - `git diff --check` passed for the touched files.
+
+## 2026-06-06 - Step 265.3 Secondary Point Sets
+
+Implemented:
+
+- Added secondary context-menu `Point Sets` actions for EQH/EQL start, add,
+  finish, and cancel.
+- Refactored point-set draft state from one global state into scoped states:
+  primary remains the default scope, secondary uses `scope: secondary`.
+- Secondary point-set draft annotations use a distinct draft id so primary and
+  secondary drafts do not overwrite each other.
+- Final EQH/EQL annotations still use the shared PDA store, but carry
+  `sourceChartId`, `sourceChartLabel`, `sourceInstrument`, `sourceTimeframe`,
+  `sourceTimeframeLabel`, and `sourceContext` metadata.
+- Appending to an existing point set preserves its source metadata.
+
+Validation:
+
+- `node --check v4/src/pda/point-set-annotation.js` passed.
+- `node --check v4/src/pda/secondary-context-menu.js` passed.
+- `node --check v4/src/pda/manual-annotation.js` passed.
+- `git diff --check` passed for the touched files.
