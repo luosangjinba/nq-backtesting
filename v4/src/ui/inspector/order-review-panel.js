@@ -333,6 +333,7 @@ function renderResultPanel(order, setupSet) {
         )}
         ${field('Exit Price', formatNumber(result.price))}
         ${field('Hold', result.holdingDuration || '—')}
+        ${field('Risk', formatNumber(result.riskPoints))}
         ${field('Points', formatNumber(result.outcomePoints))}
         ${field('R', formatNumber(result.outcomeR))}
         ${controlField(

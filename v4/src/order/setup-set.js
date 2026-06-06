@@ -224,6 +224,13 @@ function deriveResultR(points, entryElement, stopLossElement) {
   return risk > 0 ? parsedPoints / risk : null;
 }
 
+function deriveRiskPoints(entryElement, stopLossElement) {
+  const entryPrice = toNumberOrNull(entryElement?.price);
+  const stopPrice = toNumberOrNull(stopLossElement?.price);
+  if (entryPrice === null || stopPrice === null) return null;
+  return Math.abs(entryPrice - stopPrice);
+}
+
 function deriveHoldingSeconds(exitTimestamp, entryElement) {
   const entryTimestamp = toTimestamp(entryElement?.timestamp);
   const parsedExit = toTimestamp(exitTimestamp);
@@ -258,6 +265,7 @@ function createResultElement(order = {}, orderElements = {}) {
     timestamp,
     price,
     status,
+    riskPoints: deriveRiskPoints(orderElements.entry, orderElements.stopLoss),
     outcomePoints,
     outcomeR: deriveResultR(outcomePoints, orderElements.entry, orderElements.stopLoss),
     holdingSeconds,
