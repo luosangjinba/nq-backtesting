@@ -56,6 +56,19 @@ function formatPrice(price) {
   return Number.isFinite(Number(price)) ? Number(price).toFixed(2) : '';
 }
 
+function dateKeyFromTimestamp(timestamp) {
+  const numeric = Number(timestamp);
+  if (!Number.isFinite(numeric)) return '';
+  const date = new Date(numeric * 1000);
+  if (Number.isNaN(date.getTime())) return '';
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+function getSecondaryBarDateKey(bar) {
+  const tradingDay = String(bar?.tradingDay || '').match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  return tradingDay || dateKeyFromTimestamp(bar?.timestamp);
+}
+
 function formatDraftTime(bar) {
   if (!bar) return '';
   return bar.tradingDay || bar.time || String(bar.timestamp || '');
@@ -275,6 +288,7 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-secondary-action="secondary-show-cursor" ${disabled}>Show Cursor Here</button>
         <button class="pda-menu-item" data-secondary-action="secondary-locate-primary" ${disabled}>Locate Time in Primary</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-locate-calendar" ${disabled}>Locate Date in Calendar</button>
         <button class="pda-menu-item" data-secondary-action="secondary-copy-time" ${disabled}>Copy Secondary Time</button>
         <button class="pda-menu-item" data-secondary-action="secondary-copy-price" ${priceDisabled}>Copy Price ${escapeHtml(priceLabel)}</button>
         </div>
@@ -478,6 +492,18 @@ async function handleSecondaryMenuClick(e) {
     }
     viewport.locateTimestampRange(range.start, range.end);
     bus.emit('status:update', { text: `主图已定位到 ${formatContextTime(contextMenuBar)}`, isError: false });
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-locate-calendar') {
+    const dateKey = getSecondaryBarDateKey(contextMenuBar);
+    if (!dateKey) {
+      bus.emit('status:update', { text: 'Calendar 定位失败：副图日期不可用', isError: true });
+    } else {
+      bus.emit('inspector:open-calendar-date', {
+        timestamp: contextMenuBar.timestamp,
+        dateKey,
+        source: 'secondary chart',
+      });
+    }
     hideSecondaryContextMenu();
   } else if (action === 'secondary-copy-time') {
     await copyText(formatContextTime(contextMenuBar), '时间');

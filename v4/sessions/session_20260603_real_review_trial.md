@@ -720,3 +720,21 @@ Validation:
 - `node --check v4/src/pda/secondary-context-menu.js` passed.
 - `node --check v4/src/pda/manual-annotation.js` passed.
 - `git diff --check` passed for the touched files.
+
+## 2026-06-06 - Step 265.4 Secondary Calendar Navigation
+
+Implemented:
+
+- Added `Locate Date in Calendar` to the secondary chart Navigation submenu.
+- Reused the existing `inspector:open-calendar-date` event so Calendar
+  selectedDate, viewDate, and Time Overlay selectedDate update through the same
+  path as the primary chart.
+- The date key is derived from the secondary bar `tradingDay` when present,
+  falling back to UTC timestamp conversion.
+- Existing `Locate Time in Primary`, copy time, and copy price actions are
+  unchanged.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-context-menu.js` passed.
+- `git diff --check` passed for the touched files.
