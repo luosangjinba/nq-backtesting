@@ -5,6 +5,7 @@ import { getSegmentById, updateSegment } from '../../segment/segment-store.js';
 import { getSegmentGroupById, updateSegmentGroup } from '../../segment/segment-group-store.js';
 import { getSmtRecordById, updateSmtRecord } from '../../smt/smt-store.js';
 import { updateEventTime, updateKillzone } from '../../time-overlays/time-overlay-store.js';
+import { getChartNotes, updateChartNote } from '../../chart-notes/chart-note-store.js';
 
 function isCalendarVisibilityType(type) {
   return [
@@ -85,5 +86,23 @@ export function setCalendarDayChartObjectsHidden(dateKey, hidden) {
     seen.add(key);
     if (setCalendarObjectHidden(type, id, hidden)) changed += 1;
   });
+  getChartNotes()
+    .filter((note) => note.instrument === 'NQ')
+    .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
+    .forEach((note) => {
+      if (Boolean(note.display?.hidden) === hidden) return;
+      if (updateChartNote(note.id, { display: { ...(note.display || {}), hidden } })) changed += 1;
+    });
   return changed;
+}
+
+function dateKeyFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const date = new Date(value * 1000);
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, '0'),
+    String(date.getUTCDate()).padStart(2, '0'),
+  ].join('-');
 }

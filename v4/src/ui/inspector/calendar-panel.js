@@ -572,8 +572,11 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGrou
   const cells = getMonthCells(activeViewDate, range);
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
+  const review = getDailyTimeReviewByDate(activeDate);
   const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true });
-  const dayChartObjectCount = countDayBulkChartObjects(objectGroups);
+  const dayChartObjectCount =
+    countDayBulkChartObjects(objectGroups) +
+    getChartNotesForDate(activeDate, review?.instrument || 'NQ').length;
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
     ? `Manual overlays: ${overlaySelectedDate}`

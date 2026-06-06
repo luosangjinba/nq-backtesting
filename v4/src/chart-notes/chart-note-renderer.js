@@ -43,6 +43,7 @@ function buildNotePoints() {
   );
 
   return getChartNotes()
+    .filter((note) => !note.display?.hidden)
     .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
     .filter((note) => Number(note.timeframe) === Number(timeframe))
     .map((note) => {
