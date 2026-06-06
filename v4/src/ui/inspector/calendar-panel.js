@@ -4,6 +4,7 @@ import {
   getCalendarReviewIndex,
 } from '../../calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
+import { getChartNotes } from '../../chart-notes/chart-note-store.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { getDailyRegimeByDate } from '../../daily-regime/daily-regime-store.js';
@@ -412,6 +413,23 @@ function getSectionPreview(sectionData = {}) {
   return preview.replace(/\s+/g, ' ').slice(0, 48);
 }
 
+function dateKeyFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const date = new Date(value * 1000);
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, '0'),
+    String(date.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function hasChartNotesForDate(dateKey, instrument = 'NQ') {
+  return getChartNotes().some(
+    (note) => note.instrument === instrument && dateKeyFromTimestamp(note.timestamp) === dateKey
+  );
+}
+
 function summarizeTimeReactionSection(sectionData = {}) {
   const refCount = getSectionRefCount(sectionData);
   const preview = getSectionPreview(sectionData);
@@ -439,7 +457,8 @@ function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByD
 
 function addTimeReactionGroup(groups, dateKey, options = {}) {
   const review = getDailyTimeReviewByDate(dateKey);
-  if (!options.includeEmpty && !hasDailyTimeReviewContent(review)) {
+  const hasChartNotes = hasChartNotesForDate(dateKey, review?.instrument || 'NQ');
+  if (!options.includeEmpty && !hasDailyTimeReviewContent(review) && !hasChartNotes) {
     return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
   }
   const group = {

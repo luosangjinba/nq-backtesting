@@ -326,6 +326,7 @@ function renderFixedTimeStatePanel(review, sectionDefinition, options = {}) {
         </div>
         <div class="drawing-set-meta">Daily fixed-time state notes with linked chart evidence.</div>
       </div>
+      ${renderChartNotesSection(review)}
       <button
         class="inspector-mini-btn time-reaction-add-btn"
         data-inspector-action="daily-time-fixed-item-add"
@@ -472,6 +473,7 @@ export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = 
         </div>
         <div class="drawing-set-meta">Daily review note with linked chart evidence.</div>
       </div>
+      ${renderChartNotesSection(review)}
       ${renderTextarea(
         sectionData.note,
         [
