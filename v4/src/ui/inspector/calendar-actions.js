@@ -3,6 +3,7 @@ import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
 import { updateTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import * as store from '../../data/bar-store.js';
+import { getReplayVisibleBars } from '../replay-controls.js';
 import { updateEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, getAnnotationById } from '../../pda/pda-store.js';
@@ -21,6 +22,11 @@ function dateKeyFromTimestamp(timestamp) {
   const value = Number(timestamp);
   if (!Number.isFinite(value) || value <= 0) return '';
   return new Date(value * 1000).toISOString().slice(0, 10);
+}
+
+function getChartNoteFocusAnchorBars() {
+  const replayBars = getReplayVisibleBars();
+  return Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
 }
 
 export function createCalendarActionController({
@@ -66,7 +72,7 @@ export function createCalendarActionController({
     secondaryViewport.locateSecondaryTimestampRange(start, end);
     const dateKey = dateKeyFromTimestamp(start);
     if (dateKey) {
-      setChartNoteFocusedDate(dateKey, store.getDisplayBars());
+      setChartNoteFocusedDate(dateKey, getChartNoteFocusAnchorBars());
       renderChartNotes();
     }
     const label = actionEl.dataset.objectLabel || 'Calendar object';
@@ -79,7 +85,7 @@ export function createCalendarActionController({
       const date = actionEl.dataset.calendarDate || getSelectedDate?.() || '';
       setSelectedDate?.(date, date);
       updateTimeOverlaySettings({ selectedDate: date });
-      setChartNoteFocusedDate(date, store.getDisplayBars());
+      setChartNoteFocusedDate(date, getChartNoteFocusAnchorBars());
       renderChartNotes();
       const targetTimestamp = getCalendarDateTimestamp(date, '09:30');
       if (targetTimestamp !== null) {
@@ -174,7 +180,7 @@ export function createCalendarActionController({
       if (hidden) {
         clearChartNoteFocusedDate();
       } else {
-        setChartNoteFocusedDate(date, store.getDisplayBars());
+        setChartNoteFocusedDate(date, getChartNoteFocusAnchorBars());
       }
       renderChartNotes();
       bus.emit('status:update', {
