@@ -341,7 +341,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
 
 ### PDA Locate Flash / 使用修复
 - [ ] Step 265: Secondary Chart Context Menu 增补计划。目标是把主图右键菜单中适合副图语义的功能迁移到副图，保持副图作为 HTF/ES evidence chart，而不是 NQ execution chart；不迁移会造成语义错乱的 Order Setup entry/stop/target、SMT 创建、NDOG/NWOG 全局切换和 Clear 全局清空。
-  - [ ] Step 265.1: PDA 增补第一组：在副图开放 Wick CE Upper/Lower、IFVG、Bullish/Bearish OB、Bullish/Bearish Breaker；复用 chart context 写入 source metadata，保持主图行为不变。
+  - [x] Step 265.1: PDA 增补第一组：在副图开放 Wick CE Upper/Lower 与 IFVG；复用 chart context 写入 source metadata，保持主图行为不变。Bullish/Bearish OB 与 Breaker 保持 range workflow 语义，拆到 Step 265.2 实现。
   - [ ] Step 265.2: Range workflow 增补：在副图支持 Fib start/end 与必要的 range PDA workflow；右键菜单状态必须清楚显示 active draft，Esc/取消能清理副图 draft，不影响主图 draft。
   - [ ] Step 265.3: Point Sets 增补：在副图支持 EQH/EQL start/add/finish/cancel；选中态、hit-test、Inspector 和 Review JSON 均复用同一 PDA store，并保留 source chart/timeframe。
   - [ ] Step 265.4: Navigation / Calendar 增补：副图增加 `Locate Date in Calendar`，并保证 Calendar selectedDate、Time Overlay selectedDate 与主图定位互不冲突；保留现有 `Locate Time in Primary` / copy time/price。

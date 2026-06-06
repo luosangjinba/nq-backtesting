@@ -12,6 +12,7 @@ import {
   addManualFvg,
   addManualObLastBar,
   addManualPoint,
+  addManualWickCe,
   findDisplayBarInContext,
   getBarChartTime,
 } from './manual-pda-actions.js';
@@ -84,7 +85,10 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-secondary-action="secondary-pda-bsl" ${disabled}>Mark BSL</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-ssl" ${disabled}>Mark SSL</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-fvg" ${disabled}>Mark FVG</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-ifvg" ${disabled}>Mark IFVG</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-ob-last-bar" ${priceDisabled}>Mark OB Last Bar</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-range" disabled>Mark Range PDA</button>
         </div>
@@ -173,6 +177,17 @@ async function handleSecondaryMenuClick(e) {
   } else if (action === 'secondary-pda-fvg') {
     const context = getSecondaryChartContext();
     addManualFvg(contextMenuBar, context);
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pda-ifvg') {
+    const context = getSecondaryChartContext();
+    addManualFvg(contextMenuBar, context, 'ifvg');
+    hideSecondaryContextMenu();
+  } else if (
+    action === 'secondary-pda-wick-ce-upper' ||
+    action === 'secondary-pda-wick-ce-lower'
+  ) {
+    const context = getSecondaryChartContext();
+    addManualWickCe(action === 'secondary-pda-wick-ce-upper' ? 'upper' : 'lower', contextMenuBar, context);
     hideSecondaryContextMenu();
   } else if (action === 'secondary-pda-ob-last-bar') {
     const context = getSecondaryChartContext();

@@ -657,3 +657,21 @@ Planned steps:
 7. Step 265.7: Validate Split on/off, NQ/ES, 1M/30M/1H, Replay On, source
    metadata, Inspector Open/Locate, Review JSON export/import, undo/redo,
    full JS syntax, and Web/API smoke.
+
+## 2026-06-06 - Step 265.1 Secondary PDA Simple Actions
+
+Implemented:
+
+- Added secondary chart context-menu entries for `Mark Upper Wick CE`,
+  `Mark Lower Wick CE`, and `Mark IFVG`.
+- Reused existing context-aware PDA helpers:
+  - `addManualWickCe(side, bar, context)`
+  - `addManualFvg(bar, context, 'ifvg')`
+- Kept OB / Breaker off Step 265.1 because the existing primary semantics are
+  range workflows, not one-click annotations. They remain scheduled for Step
+  265.2.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-context-menu.js` passed.
+- `git diff --check` passed for the touched files.
