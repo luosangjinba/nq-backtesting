@@ -9,7 +9,7 @@ const DEFAULT_OPTIONS = {
   maxWidth: 180,
   topOffset: 8,
   rowGap: 6,
-  leaderColor: 'rgba(255, 247, 168, 0.72)',
+  leaderColor: 'rgba(255, 247, 168, 0.28)',
   leaderWidth: 1,
 };
 
@@ -82,7 +82,7 @@ class ChartNoteRenderer {
 
         ctx.strokeStyle = options.leaderColor;
         ctx.lineWidth = options.leaderWidth * ratio;
-        ctx.setLineDash([3 * ratio, 3 * ratio]);
+        ctx.setLineDash([2 * ratio, 7 * ratio]);
         ctx.beginPath();
         ctx.moveTo(labelAnchorX, labelAnchorY);
         ctx.lineTo(anchorX, anchorY);
