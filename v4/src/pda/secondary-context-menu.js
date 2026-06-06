@@ -7,8 +7,9 @@ import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as viewport from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { recordHistory } from '../history/history-manager.js';
-import { getActiveReviewSet } from '../order/order-review-active.js';
+import { getActiveReviewSet, updateActiveReviewSet } from '../order/order-review-active.js';
 import { handleOrderSetupChartAction } from '../order/order-setup-chart-actions.js';
+import { ORDER_EVENT_TYPES } from '../order/order-review-types.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
 import { clampMenuPosition } from './manual-context-menu.js';
 import {
@@ -250,14 +251,17 @@ function getActiveSetupLinkLabel() {
 function renderSecondaryOrderLinkItems({ pdaHit, segmentHit, segmentGroupHit } = {}) {
   const active = getActiveReviewSet();
   const activeDisabled = active ? '' : 'disabled';
+  const barDisabled = active && contextMenuBar ? '' : 'disabled';
   const pdaDisabled = active && pdaHit ? '' : 'disabled';
   const segmentDisabled = active && segmentHit ? '' : 'disabled';
   const compositeDisabled = active && segmentGroupHit ? '' : 'disabled';
 
   return `
       <div class="pda-menu-section pda-menu-submenu">
-        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Links · ${escapeHtml(getActiveSetupLinkLabel())}</div>
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Evidence · ${escapeHtml(getActiveSetupLinkLabel())}</div>
         <div class="pda-submenu-panel">
+        <button class="pda-menu-item" data-secondary-action="secondary-order-add-bar-evidence" ${activeDisabled || barDisabled}>Add Secondary Bar Evidence</button>
+        <div class="pda-menu-divider"></div>
         <button class="pda-menu-item" data-secondary-action="secondary-order-link-pda" ${activeDisabled || pdaDisabled}>Link PDA To Active Setup</button>
         <button class="pda-menu-item" data-secondary-action="secondary-order-link-segment" ${activeDisabled || segmentDisabled}>Link Segment To Active Setup</button>
         <button class="pda-menu-item" data-secondary-action="secondary-order-link-composite" ${activeDisabled || compositeDisabled}>Link Composite To Active Setup</button>
@@ -277,6 +281,57 @@ function formatPrimaryLocateRange(bar, context) {
     start: timestamp,
     end: timestamp + Math.max(60, durationSeconds) - 60,
   };
+}
+
+function buildSecondaryEvidenceNote(bar, price, context) {
+  const tfLabel = timeframeToString(context?.timeframe);
+  const instrument = context?.instrument || 'NQ';
+  const timeLabel = formatContextTime(bar);
+  const priceLabel = formatPrice(price);
+  return [
+    `Secondary ${instrument} ${tfLabel}`,
+    timeLabel,
+    priceLabel ? `@ ${priceLabel}` : '',
+  ].filter(Boolean).join(' · ');
+}
+
+function addSecondaryBarEvidenceToActiveSetup(bar, price, context) {
+  const active = getActiveReviewSet();
+  if (!active?.orderReview || !bar) {
+    bus.emit('status:update', { text: '没有 active setup 或副图 K 线，无法添加 evidence', isError: true });
+    return false;
+  }
+
+  const existingEvents = Array.isArray(active.orderReview.setupThesis?.manualEvents)
+    ? active.orderReview.setupThesis.manualEvents
+    : [];
+  const tfLabel = timeframeToString(context?.timeframe);
+  const event = {
+    timestamp: bar.timestamp,
+    timeframe: tfLabel,
+    eventType: ORDER_EVENT_TYPES.OTHER,
+    price: Number.isFinite(Number(price)) ? Number(price) : null,
+    note: buildSecondaryEvidenceNote(bar, price, context),
+    sourceChartId: context?.chartId || context?.id || 'secondary',
+    sourceChartLabel: context?.label || 'Secondary',
+    sourceInstrument: context?.instrument || 'NQ',
+    sourceTimeframe: context?.timeframe,
+    sourceTimeframeLabel: tfLabel,
+    sourceContext: `${context?.instrument || 'NQ'} ${tfLabel}`,
+  };
+
+  return recordHistory('Add Secondary Bar Evidence', () => {
+    const updated = updateActiveReviewSet({
+      setupThesis: {
+        manualEvents: [...existingEvents, event],
+      },
+    });
+    bus.emit('status:update', {
+      text: updated ? 'Secondary bar evidence added to active setup' : 'Secondary bar evidence add failed',
+      isError: !updated,
+    });
+    return updated;
+  });
 }
 
 async function copyText(value, label) {
@@ -541,6 +596,10 @@ async function handleSecondaryMenuClick(e) {
       segmentHit: contextMenuSegmentHit,
       segmentGroupHit: contextMenuSegmentGroupHit,
     });
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-order-add-bar-evidence') {
+    const context = getSecondaryChartContext();
+    addSecondaryBarEvidenceToActiveSetup(contextMenuBar, contextMenuPrice, context);
     hideSecondaryContextMenu();
   } else if (action === 'secondary-show-cursor') {
     if (contextMenuBar) {
