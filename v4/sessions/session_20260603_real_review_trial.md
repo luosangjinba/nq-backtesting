@@ -554,3 +554,50 @@ Usage:
   -> `Edit Note` or `Delete Note`.
 - The top label itself is currently display-only; hit actions are still bound
   to the owning bar.
+
+## 2026-06-06 - Step 264 Chart Note Calendar / Replay Closeout
+
+Context:
+
+- Chart Notes were usable on the original loaded day, but after loading later
+  trading days and running Replay forward, selecting an earlier date in the
+  Inspector Calendar did not always show that date's note boxes on the chart.
+- The failure was replay-specific: non-replay mode showed the boxes correctly
+  because the chart-note date focus used full display bars. In Replay, that
+  full range could have a much later final date than the currently revealed
+  replay slice, causing the focused note date to be cleared immediately.
+- The timeframe rule remains strict: a 1M note renders only on 1M, and a 30M
+  note renders only on 30M. No cross-timeframe projection is allowed.
+
+Implemented:
+
+- Added Chart Notes as a dedicated Inspector/Time Reaction section with
+  locate/edit/delete/select-object actions through the three-dot menu.
+- Added top-of-chart note-box packing so boxes use the highest available row
+  when their horizontal ranges do not overlap, and push downward only when
+  needed.
+- Kept long note text truncated by default while allowing interaction-driven
+  expansion/collapse.
+- Included Chart Note boxes/leaders in Calendar day object visibility via
+  Show Day Objects / Hide Day Objects.
+- Added date-focused Chart Note rendering for Calendar selection, Calendar
+  object locate, and Show Day Objects.
+- Fixed the Replay-specific focus anchor: Calendar actions now use
+  `getReplayVisibleBars()` when Replay is active and fall back to
+  `store.getDisplayBars()` otherwise.
+
+Validation:
+
+- `node --check` passed for the touched Chart Note and Calendar action modules.
+- `git diff --check` passed for the touched files.
+- Manual replay scenario validated by user screenshots: non-replay display was
+  already correct; the final fix targets the case where Replay has advanced to
+  a later day and the Calendar is used to jump back to a prior day with 1M
+  Chart Notes.
+
+Key commits:
+
+- `34299b4` packed Chart Note boxes by day and shared layout with hit-test.
+- `ded708d` focused Chart Notes from day visibility.
+- `7b59294` focused Chart Notes on Calendar locate/select.
+- `a38065a` anchored Chart Note focus to replay visible bars.

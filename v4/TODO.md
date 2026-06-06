@@ -337,6 +337,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - [x] Step 262.4: 接入 Review JSON 可选归档：导出当前 review payload 中相关日期/周期的 `chartNotes`，导入时 normalize + 去重；Calendar/Inspector 详情先不做独立分组。
   - [x] Step 262.5: 验证与收口：覆盖 1M/5M/1H 周期切换、Replay On 前进/回退、刷新恢复、Review JSON export/import、Split on/off 不回归；运行 `node --check` 与 `git diff --check`。
 - [x] Step 263: Chart Note 显示/输入体验修复：note label 固定显示在主图 canvas 顶部区域，增加弱化虚线 leader line 指向所属 K 线；Add/Edit 从浏览器 prompt 改为图表内 textarea 浮层，支持 Save/Cancel、Esc 关闭、Ctrl/Cmd+Enter 保存。修改/删除入口为右键原始 K 线 -> `Chart Note` -> `Edit Note` / `Delete Note`。
+- [x] Step 264: Chart Note Calendar / Inspector / Replay 收口：Chart Notes 独立显示在 Time Reaction Observation 中，支持 Inspector 三点菜单 locate/edit/delete/select-object；顶部 note box 按行占位复用最顶可用行，长文本保留截断并支持展开；Show/Hide Day Objects 纳入 chart note 外显对象；Calendar 选日、对象 locate、Show Day Objects 在 Replay 状态下使用当前 replay visible bars 作为聚焦 anchor，避免加载后续交易日后回看旧日期时 note box 被误清除；保持周期规则不变，1M 只显示 1M note，30M 只显示 30M note。
 
 ### PDA Locate Flash / 使用修复
 - [x] Step 174: Reasons linked refs 定位入口：Reason ref 行增加 Locate 动作，支持 linked PDA/Segment 定位并复用现有时间范围快闪；删除 X 改为 Execution 同款紧凑样式
