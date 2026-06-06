@@ -1730,12 +1730,11 @@ html, body {
 }
 
 .order-target-progress-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(88px, 112px);
-  gap: 5px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   min-width: 0;
-  padding: 3px 4px;
+  padding: 4px;
   border: 1px solid rgba(120, 123, 134, 0.18);
   border-radius: 4px;
   background: rgba(22, 26, 36, 0.58);
@@ -1750,21 +1749,33 @@ html, body {
   background: rgba(255, 183, 77, 0.08);
 }
 
-.order-target-progress-main {
+.order-target-progress-head {
   display: grid;
-  grid-template-columns: minmax(50px, 0.9fr) minmax(42px, 0.7fr) minmax(58px, 0.8fr) minmax(54px, 0.7fr) minmax(42px, 0.55fr);
+  grid-template-columns: minmax(58px, 1fr) minmax(44px, 0.75fr) minmax(82px, 112px);
   gap: 5px;
-  align-items: baseline;
+  align-items: center;
   min-width: 0;
   color: #b2b5be;
   font-size: 10px;
   line-height: 15px;
 }
 
+.order-target-progress-metrics {
+  display: grid;
+  grid-template-columns: minmax(62px, 1fr) minmax(56px, 0.9fr) minmax(42px, 0.7fr);
+  gap: 5px;
+  min-width: 0;
+  color: #9da3af;
+  font-size: 10px;
+  line-height: 14px;
+}
+
 .order-target-progress-label,
 .order-target-progress-state {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .order-target-progress-label {
@@ -1785,7 +1796,9 @@ html, body {
 }
 
 .order-target-progress-action {
+  width: 100%;
   min-width: 0;
+  height: 24px;
 }
 
 .order-review-inline-control {

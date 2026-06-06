@@ -368,21 +368,23 @@ function renderTargetProgress(order, targetProgress = []) {
     const state = item.final ? 'Final' : item.reached ? 'Hit' : 'Pending';
     return `
       <div class="order-target-progress-row ${item.reached ? 'is-hit' : 'is-pending'} ${item.final ? 'is-final' : ''}">
-        <div class="order-target-progress-main">
+        <div class="order-target-progress-head">
           <span class="order-target-progress-label">${escapeHtml(item.label)}</span>
           <span class="order-target-progress-state">${escapeHtml(state)}</span>
+          <select
+            class="inspector-input inspector-mini-select order-target-progress-action"
+            data-inspector-action="order-review-target-action"
+            data-order-review-id="${escapeHtml(order.id)}"
+            data-order-target-role="${escapeHtml(item.role)}"
+          >
+            ${renderTargetActionOptions(item.executionAction)}
+          </select>
+        </div>
+        <div class="order-target-progress-metrics">
           <span>${escapeHtml(formatNumber(item.price))}</span>
           <span>${escapeHtml(formatNumber(item.points))} pt</span>
           <span>${escapeHtml(formatNumber(item.r))} R</span>
         </div>
-        <select
-          class="inspector-input inspector-mini-select order-target-progress-action"
-          data-inspector-action="order-review-target-action"
-          data-order-review-id="${escapeHtml(order.id)}"
-          data-order-target-role="${escapeHtml(item.role)}"
-        >
-          ${renderTargetActionOptions(item.executionAction)}
-        </select>
       </div>
     `;
   });
