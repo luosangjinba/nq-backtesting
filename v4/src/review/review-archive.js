@@ -150,12 +150,8 @@ function isTimestampInsideRange(timestamp, range = {}) {
   return true;
 }
 
-function getExportableChartNotes(reviewObjectDateKeys, range) {
-  const notes = getChartNotes();
-  if (reviewObjectDateKeys?.size) {
-    return notes.filter((note) => reviewObjectDateKeys.has(dateKeyFromTimestamp(note.timestamp)));
-  }
-  return notes.filter((note) => isTimestampInsideRange(note.timestamp, range));
+function getExportableChartNotes(range) {
+  return getChartNotes().filter((note) => isTimestampInsideRange(note.timestamp, range));
 }
 
 function buildReviewPayload() {
@@ -174,7 +170,7 @@ function buildReviewPayload() {
     dailyTimeReviews,
   });
   const range = getArchiveRange();
-  const chartNotes = getExportableChartNotes(reviewObjectDateKeys, range);
+  const chartNotes = getExportableChartNotes(range);
 
   return {
     app: REVIEW_ARCHIVE_APP,
