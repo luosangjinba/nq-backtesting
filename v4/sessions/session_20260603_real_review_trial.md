@@ -698,6 +698,28 @@ Validation:
 - `node --check v4/src/order/order-setup-chart-actions.js` passed.
 - `git diff --check` passed for the touched files.
 
+## 2026-06-06 - Step 265.6 Secondary Chart Notes Decision
+
+Decision:
+
+- Do not add Chart Notes to the secondary chart context menu in this expansion
+  step.
+- Reason: current Chart Notes have strong primary-chart semantics:
+  - top-of-primary-canvas note boxes,
+  - primary timeframe filtering,
+  - Calendar / Time Reaction Observation integration,
+  - Order reason selection and locate behavior tuned around primary NQ review.
+- A future secondary-note implementation should be a distinct feature with:
+  - explicit `sourceChartId`, `sourceInstrument`, and `sourceTimeframe`,
+  - rendering only on the matching secondary chart context,
+  - no insertion into the primary chart note box layer,
+  - explicit rules for Calendar visibility and Order reason linking.
+
+Validation:
+
+- Documentation-only decision; no runtime code changed.
+- `git diff --check` passed for the touched files.
+
 ## 2026-06-06 - Step 265.2 Secondary Range PDA Workflows
 
 Implemented:
