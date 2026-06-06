@@ -1,6 +1,7 @@
 import {
   TIMEFRAME_MAP,
 } from '../../config.js';
+import { getChartNotes } from '../../chart-notes/chart-note-store.js';
 import {
   DAILY_TIME_REACTION_TIMES,
   getDailyTimeReviewSectionDefinition,
@@ -152,6 +153,58 @@ function renderChartOptions(selectedChart) {
       <option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(value === 'primary' ? 'Main' : 'Sub')}</option>
     `)
     .join('');
+}
+
+function dateKeyFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const date = new Date(value * 1000);
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, '0'),
+    String(date.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function timeTextFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '—';
+  const date = new Date(value * 1000);
+  return `${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}`;
+}
+
+function getChartNotesForDate(dateKey, instrument = 'NQ') {
+  return getChartNotes()
+    .filter((note) => note.instrument === instrument)
+    .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
+    .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+}
+
+function renderChartNotesSection(review) {
+  const notes = getChartNotesForDate(review.date, review.instrument || 'NQ');
+  const rows = notes.map((note) => {
+    const timeframe = TIMEFRAME_MAP[Number(note.timeframe)] || `${note.timeframe || '—'}M`;
+    return `
+      <div class="time-reaction-chart-note-row">
+        <div class="time-reaction-chart-note-meta">
+          <span>${escapeHtml(timeTextFromTimestamp(note.timestamp))}</span>
+          <span>${escapeHtml(timeframe)}</span>
+        </div>
+        <div class="time-reaction-chart-note-text">${escapeHtml(note.text)}</div>
+      </div>
+    `;
+  });
+  return `
+    <div class="time-reaction-subsection time-reaction-chart-notes">
+      <div class="time-reaction-subsection-title">
+        <span>Chart Notes</span>
+        <span class="time-reaction-chart-note-count">${notes.length}</span>
+      </div>
+      <div class="time-reaction-chart-note-list">
+        ${rows.join('') || '<div class="drawing-set-empty">No chart notes for this day.</div>'}
+      </div>
+    </div>
+  `;
 }
 
 function renderLocateControls(review, target, locate = {}) {
@@ -375,6 +428,7 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
           ${contextItems}
         </div>
       </div>
+      ${renderChartNotesSection(review)}
       <div class="time-reaction-list">
         ${reactions}
       </div>
