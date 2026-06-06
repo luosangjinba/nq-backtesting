@@ -2,6 +2,7 @@ import * as bus from '../../event-bus.js';
 import * as viewport from '../../chart/viewport-controller.js';
 import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
 import { updateTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
+import * as store from '../../data/bar-store.js';
 import { updateEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, getAnnotationById } from '../../pda/pda-store.js';
@@ -13,6 +14,8 @@ import {
   setCalendarDayChartObjectsHidden,
   setCalendarObjectHidden,
 } from './calendar-visibility-actions.js';
+import { clearChartNoteFocusedDate, setChartNoteFocusedDate } from '../../chart-notes/chart-note-visible-day.js';
+import { renderChartNotes } from '../../chart-notes/chart-note-renderer.js';
 
 export function createCalendarActionController({
   getSelectedDate,
@@ -82,6 +85,8 @@ export function createCalendarActionController({
 
     if (action === 'calendar-show-all-days') {
       updateTimeOverlaySettings({ selectedDate: '' });
+      clearChartNoteFocusedDate();
+      renderChartNotes();
       bus.emit('status:update', { text: 'Calendar overlays show all loaded days', isError: false });
       refreshSelection?.();
       return true;
@@ -153,9 +158,15 @@ export function createCalendarActionController({
       const changed = recordInspectorHistory?.(hidden ? 'Hide Calendar Day Objects' : 'Show Calendar Day Objects', () => (
         setCalendarDayChartObjectsHidden(date, hidden)
       ));
+      if (hidden) {
+        clearChartNoteFocusedDate();
+      } else {
+        setChartNoteFocusedDate(date, store.getDisplayBars());
+      }
+      renderChartNotes();
       bus.emit('status:update', {
         text: `${hidden ? 'Hidden' : 'Shown'} ${changed || 0} chart objects for ${date}`,
-        isError: !changed,
+        isError: !date,
       });
       refreshSelection?.();
       return true;

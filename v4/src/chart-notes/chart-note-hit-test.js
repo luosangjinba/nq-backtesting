@@ -6,7 +6,7 @@ import { getChartNotes } from './chart-note-store.js';
 import { CHART_NOTE_DEFAULT_OPTIONS } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText } from './chart-note-format.js';
 import { buildChartNoteLayouts } from './chart-note-layout.js';
-import { getActiveChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
+import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
 
 const DEFAULT_INSTRUMENT = 'NQ';
 const HIT_PADDING_PX = 4;
@@ -29,7 +29,7 @@ function getRenderableBars() {
 function buildHitPoints(options, expandedNoteId = '') {
   const timeframe = store.getCurrentTimeframe();
   const bars = getRenderableBars();
-  const activeDateKey = getActiveChartNoteDateKey(bars);
+  const visibleDateKey = getVisibleChartNoteDateKey(bars);
   const barByTimestamp = new Map(
     bars
       .filter((bar) => Number.isFinite(Number(bar?.timestamp)))
@@ -40,7 +40,7 @@ function buildHitPoints(options, expandedNoteId = '') {
     .filter((note) => !note.display?.hidden)
     .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
     .filter((note) => Number(note.timeframe) === Number(timeframe))
-    .filter((note) => isChartNoteInDate(note, activeDateKey))
+    .filter((note) => isChartNoteInDate(note, visibleDateKey))
     .map((note) => {
       const bar = barByTimestamp.get(Number(note.timestamp));
       if (!bar) return null;

@@ -6,7 +6,7 @@ import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes } from './chart-note-store.js';
 import { ChartNotePrimitive } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText } from './chart-note-format.js';
-import { getActiveChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
+import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
 
 const DEFAULT_INSTRUMENT = 'NQ';
 const CHART_NOTE_FLASH_DURATION_MS = 900;
@@ -37,7 +37,7 @@ function getRenderableBars() {
 function buildNotePoints() {
   const timeframe = store.getCurrentTimeframe();
   const bars = getRenderableBars();
-  const activeDateKey = getActiveChartNoteDateKey(bars);
+  const visibleDateKey = getVisibleChartNoteDateKey(bars);
   const barByTimestamp = new Map(
     bars
       .filter((bar) => Number.isFinite(Number(bar?.timestamp)))
@@ -48,7 +48,7 @@ function buildNotePoints() {
     .filter((note) => !note.display?.hidden)
     .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
     .filter((note) => Number(note.timeframe) === Number(timeframe))
-    .filter((note) => isChartNoteInDate(note, activeDateKey))
+    .filter((note) => isChartNoteInDate(note, visibleDateKey))
     .map((note) => {
       const bar = barByTimestamp.get(Number(note.timestamp));
       if (!bar) return null;

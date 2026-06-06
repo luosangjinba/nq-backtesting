@@ -4,6 +4,9 @@ function dateKeyFromTimestamp(timestamp) {
   return new Date(value * 1000).toISOString().slice(0, 10);
 }
 
+let focusedDateKey = '';
+let focusAnchorDateKey = '';
+
 export function getActiveChartNoteDateKey(bars = []) {
   if (!Array.isArray(bars) || !bars.length) return '';
   for (let index = bars.length - 1; index >= 0; index -= 1) {
@@ -11,6 +14,28 @@ export function getActiveChartNoteDateKey(bars = []) {
     if (dateKey) return dateKey;
   }
   return '';
+}
+
+export function setChartNoteFocusedDate(dateKey, bars = []) {
+  focusedDateKey = /^\d{4}-\d{2}-\d{2}$/.test(String(dateKey || '')) ? String(dateKey) : '';
+  focusAnchorDateKey = focusedDateKey ? getActiveChartNoteDateKey(bars) : '';
+}
+
+export function clearChartNoteFocusedDate() {
+  focusedDateKey = '';
+  focusAnchorDateKey = '';
+}
+
+export function getVisibleChartNoteDateKey(bars = []) {
+  const activeDateKey = getActiveChartNoteDateKey(bars);
+  if (focusedDateKey) {
+    if (focusAnchorDateKey && activeDateKey && activeDateKey !== focusAnchorDateKey) {
+      clearChartNoteFocusedDate();
+    } else {
+      return focusedDateKey;
+    }
+  }
+  return activeDateKey;
 }
 
 export function isChartNoteInDate(note, dateKey) {
