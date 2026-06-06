@@ -8,6 +8,8 @@ import {
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
+export const CHART_NOTES_SECTION_KEY = 'chartNotes';
+
 function renderTextarea(value, attrs, placeholder = '') {
   return `
     <textarea
@@ -367,7 +369,6 @@ function renderFixedTimeStatePanel(review, sectionDefinition, options = {}) {
         </div>
         <div class="drawing-set-meta">Daily fixed-time state notes with linked chart evidence.</div>
       </div>
-      ${renderChartNotesSection(review)}
       <button
         class="inspector-mini-btn time-reaction-add-btn"
         data-inspector-action="daily-time-fixed-item-add"
@@ -446,11 +447,6 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
     ))
     .join('');
 
-  const reviewContext = {
-    ...review,
-    pendingReasonRefPick: options.pendingReasonRefPick || null,
-  };
-
   return `
     <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-detail">
       <div class="inspector-section-title">Time Reaction Observation</div>
@@ -475,7 +471,6 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
           ${contextItems}
         </div>
       </div>
-      ${renderChartNotesSection(reviewContext)}
       <div class="time-reaction-list">
         ${reactions}
       </div>
@@ -498,6 +493,29 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
 }
 
 export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = {}) {
+  if (sectionKey === CHART_NOTES_SECTION_KEY) {
+    if (!review) {
+      return section('Chart Notes', '<div class="inspector-empty">Select a valid calendar day.</div>');
+    }
+    const reviewContext = {
+      ...review,
+      pendingReasonRefPick: options.pendingReasonRefPick || null,
+    };
+    return `
+      <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-chart-notes">
+        <div class="inspector-section-title">Chart Notes</div>
+        <div class="inspector-evidence-row">
+          <div class="inspector-evidence-header">
+            <span>${escapeHtml(reviewContext.date)}</span>
+            <span>${escapeHtml(reviewContext.instrument || 'NQ')}</span>
+          </div>
+          <div class="drawing-set-meta">Chart notes for this loaded day.</div>
+        </div>
+        ${renderChartNotesSection(reviewContext)}
+      </section>
+    `;
+  }
+
   const sectionDefinition = getDailyTimeReviewSectionDefinition(sectionKey);
   if (!review || !sectionDefinition) {
     return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid review section.</div>');
@@ -524,7 +542,6 @@ export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = 
         </div>
         <div class="drawing-set-meta">Daily review note with linked chart evidence.</div>
       </div>
-      ${renderChartNotesSection(reviewContext)}
       ${renderTextarea(
         sectionData.note,
         [

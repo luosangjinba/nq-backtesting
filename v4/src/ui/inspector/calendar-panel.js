@@ -15,6 +15,7 @@ import {
   hasDailyTimeReviewContent,
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
+import { CHART_NOTES_SECTION_KEY } from './time-reaction-panel.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 const MONTHS = Object.freeze([
@@ -419,6 +420,13 @@ function hasChartNotesForDate(dateKey, instrument = 'NQ') {
   );
 }
 
+function getChartNotesForDate(dateKey, instrument = 'NQ') {
+  return getChartNotes()
+    .filter((note) => note.instrument === instrument)
+    .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
+    .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+}
+
 function summarizeTimeReactionSection(sectionData = {}) {
   const refCount = getSectionRefCount(sectionData);
   const preview = getSectionPreview(sectionData);
@@ -426,6 +434,26 @@ function summarizeTimeReactionSection(sectionData = {}) {
   if (preview) return preview;
   if (refCount) return `${refCount} refs`;
   return 'No notes yet';
+}
+
+function createChartNotesTimeReactionItem(dateKey, review = getDailyTimeReviewByDate(dateKey)) {
+  const notes = getChartNotesForDate(dateKey, review?.instrument || 'NQ');
+  const timestamps = notes
+    .map((note) => Number(note.timestamp))
+    .filter((timestamp) => Number.isFinite(timestamp));
+  const start = timestamps.length ? Math.min(...timestamps) : null;
+  const end = timestamps.length ? Math.max(...timestamps) : null;
+  const summary = notes.length === 1 ? '1 note' : `${notes.length} notes`;
+  return {
+    id: `${dateKey}:${CHART_NOTES_SECTION_KEY}`,
+    type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
+    dateKey,
+    timestamp: Number.isFinite(start) ? start : null,
+    label: `Chart Notes · ${summary}`,
+    range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
+    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey, section: CHART_NOTES_SECTION_KEY },
+    source: { sectionKey: CHART_NOTES_SECTION_KEY, sectionLabel: 'Chart Notes', review },
+  };
 }
 
 function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByDate(dateKey)) {
@@ -453,7 +481,10 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
   const group = {
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     label: 'Time Reaction Observation',
-    rows: DAILY_TIME_REVIEW_SECTIONS.map((section) => createTimeReactionItem(dateKey, section, review)),
+    rows: [
+      ...DAILY_TIME_REVIEW_SECTIONS.map((section) => createTimeReactionItem(dateKey, section, review)),
+      createChartNotesTimeReactionItem(dateKey, review),
+    ],
   };
   const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
   const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);
