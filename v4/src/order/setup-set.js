@@ -10,6 +10,7 @@
 // through order-review-store with explicit persisted fields.
 
 import { getOrderReviewById, getOrderReviews } from './order-review-store.js';
+import { buildTargetProgress } from './target-progress.js';
 
 export const SETUP_SET_SOURCE_TYPES = Object.freeze({
   ORDER_REVIEW: 'order-review',
@@ -265,6 +266,7 @@ function createResultElement(order = {}, orderElements = {}) {
     timestamp,
     price,
     status,
+    targetActions: result.targetActions || {},
     riskPoints: deriveRiskPoints(orderElements.entry, orderElements.stopLoss),
     outcomePoints,
     outcomeR: deriveResultR(outcomePoints, orderElements.entry, orderElements.stopLoss),
@@ -356,6 +358,12 @@ export function createSetupSetFromOrderReview(order) {
     targets: createTargets(order),
   };
   orderElements.result = createResultElement(order, orderElements);
+  orderElements.targetProgress = buildTargetProgress({
+    targets: orderElements.targets,
+    entry: orderElements.entry,
+    stopLoss: orderElements.stopLoss,
+    result: orderElements.result,
+  });
   const explanationElements = {
     refs: createExplanationRefs(order),
     manualEvents: createManualEvents(order),
