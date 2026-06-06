@@ -65,6 +65,16 @@ export const PDA_TYPES = {
     objective: false,
     pointSet: false,
   },
+  'ob-last-bar': {
+    id: 'ob-last-bar',
+    label: 'OB Last Bar',
+    shape: 'liquidity-line',
+    color: '#8a8f98',
+    textColor: '#c4c8d0',
+    labelPosition: 'above',
+    objective: false,
+    pointSet: false,
+  },
   breaker: {
     id: 'breaker',
     label: 'Breaker',

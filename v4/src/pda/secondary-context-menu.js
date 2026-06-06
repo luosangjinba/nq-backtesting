@@ -10,6 +10,7 @@ import { recordHistory } from '../history/history-manager.js';
 import { clampMenuPosition } from './manual-context-menu.js';
 import {
   addManualFvg,
+  addManualObLastBar,
   addManualPoint,
   findDisplayBarInContext,
   getBarChartTime,
@@ -84,6 +85,7 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         <button class="pda-menu-item" data-secondary-action="secondary-pda-bsl" ${disabled}>Mark BSL</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-ssl" ${disabled}>Mark SSL</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-fvg" ${disabled}>Mark FVG</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-ob-last-bar" ${priceDisabled}>Mark OB Last Bar</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-range" disabled>Mark Range PDA</button>
         </div>
       </div>
@@ -171,6 +173,10 @@ async function handleSecondaryMenuClick(e) {
   } else if (action === 'secondary-pda-fvg') {
     const context = getSecondaryChartContext();
     addManualFvg(contextMenuBar, context);
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pda-ob-last-bar') {
+    const context = getSecondaryChartContext();
+    await addManualObLastBar(contextMenuBar, context, contextMenuPrice);
     hideSecondaryContextMenu();
   } else if (
     action === 'secondary-segment-start-low' ||

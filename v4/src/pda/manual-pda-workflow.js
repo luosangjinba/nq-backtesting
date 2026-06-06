@@ -5,6 +5,7 @@ import { getPdaType } from './pda-types.js';
 import {
   addManualFib,
   addManualFvg,
+  addManualObLastBar,
   addManualPoint,
   addManualRange,
   addManualWickCe,
@@ -98,9 +99,15 @@ export function handleManualPdaShiftContext({ bar, context, hideContextMenu } = 
   return false;
 }
 
-export async function handleManualPdaAction(action, { bar, context, hideContextMenu } = {}) {
+export async function handleManualPdaAction(action, { bar, context, price, hideContextMenu } = {}) {
   if (action === 'bsl' || action === 'ssl') {
     await addManualPoint(action, bar, context);
+    hideContextMenu?.();
+    return true;
+  }
+
+  if (action === 'ob-last-bar') {
+    await addManualObLastBar(bar, context, price);
     hideContextMenu?.();
     return true;
   }

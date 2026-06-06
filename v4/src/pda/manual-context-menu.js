@@ -124,6 +124,7 @@ export function renderManualContextMenu({
         <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
         <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
         <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
+        <button class="pda-menu-item" data-pda-action="ob-last-bar" ${disabled}>Mark OB Last Bar</button>
         <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
         <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
         <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>

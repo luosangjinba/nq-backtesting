@@ -99,7 +99,7 @@ function getNestedPointRenderTime(point, fallbackTime) {
 }
 
 function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegment = false) {
-  const baseLabel = formatPdaDisplayLabel(annotation, pdaType.label);
+  const baseLabel = annotation.displayLabel || formatPdaDisplayLabel(annotation, pdaType.label);
   if (selected) return `● ${baseLabel}`;
   if (linkedToSegment) return `↔ ${baseLabel}`;
   return baseLabel;

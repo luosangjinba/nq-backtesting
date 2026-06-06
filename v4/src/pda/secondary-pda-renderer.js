@@ -60,7 +60,7 @@ function getNestedPointRenderTime(point, fallbackTime) {
 }
 
 function getAnnotationLabel(annotation, pdaType) {
-  return formatPdaDisplayLabel(annotation, pdaType.label);
+  return annotation.displayLabel || formatPdaDisplayLabel(annotation, pdaType.label);
 }
 
 function buildTimeOnlyProjectionPrimitives(chartInstance, annotation, pdaType, isHighlighted = false) {

@@ -108,6 +108,7 @@ export const PDA_TYPES = [
   { id: 'fvg', name: 'FVG', category: 'range', color: '#ab47bc' },
   { id: 'ifvg', name: 'IFVG', category: 'range', color: '#fdd835' },
   { id: 'ob', name: 'OB', category: 'range', color: '#9e9e9e' },
+  { id: 'ob-last-bar', name: 'OB Last Bar', category: 'point', color: '#8a8f98', labelPosition: 'above' },
   { id: 'ndog', name: 'NDOG', category: 'range', color: '#42a5f5' },
   { id: 'nwog', name: 'NWOG', category: 'range', color: '#7e57c2' },
   { id: 'eqh', name: 'EQH', category: 'composite', color: '#26a69a', labelPosition: 'above' },

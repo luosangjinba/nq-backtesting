@@ -137,6 +137,40 @@ export async function addManualPoint(type, bar, context, metadata = {}) {
   return true;
 }
 
+export async function addManualObLastBar(bar, context, price) {
+  const pdaType = getPdaType('ob-last-bar');
+  const numericPrice = Number(price);
+  if (!pdaType || !bar || !context || !Number.isFinite(numericPrice)) {
+    bus.emit('status:update', { text: 'OB Last Bar 创建失败：没有有效 K 线或价格', isError: true });
+    return false;
+  }
+
+  const timeframe = context.timeframe;
+  const tfLabel = timeframeToString(timeframe);
+  const instrument = context.instrument || 'NQ';
+  const annotation = {
+    id: `manual_ob_last_bar_${context.timeframe}_${bar.timestamp}_${Date.now()}`,
+    type: 'ob-last-bar',
+    source: 'manual',
+    anchorTime: getBarChartTime(context, bar),
+    canonicalTimestamp: bar.timestamp,
+    timestamp: bar.timestamp,
+    barTime: bar.time,
+    price: numericPrice,
+    ...buildSourceMetadata(context),
+    displayLabel: `${pdaType.label} · ${instrument} ${tfLabel}`,
+    contexts: [`${tfLabel} ${pdaType.label}`],
+  };
+
+  await recordHistory(`Mark ${pdaType.label}`, () => addAnnotation(annotation));
+
+  bus.emit('status:update', {
+    text: `${pdaType.label}: ${numericPrice.toFixed(2)} ${bar.tradingDay || bar.time}`,
+    isError: false,
+  });
+  return true;
+}
+
 function getFvgColors(direction) {
   return direction === 'bullish'
     ? { fillColor: '#26a69a33', borderColor: 'transparent', midlineColor: '#26a69a', textColor: '#b2dfdb' }

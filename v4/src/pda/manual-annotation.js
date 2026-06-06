@@ -452,7 +452,12 @@ async function handleControlClick(e) {
   if (!action) return;
   e.stopPropagation();
 
-  if (await handleManualPdaAction(action, { bar: contextMenuBar, context: getPrimaryContext(), hideContextMenu })) {
+  if (await handleManualPdaAction(action, {
+    bar: contextMenuBar,
+    context: getPrimaryContext(),
+    price: contextMenuPrice,
+    hideContextMenu,
+  })) {
     return;
   } else if (handleOrderSetupChartAction(action, {
     bar: contextMenuBar,
