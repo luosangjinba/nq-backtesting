@@ -6,8 +6,11 @@ const DEFAULT_OPTIONS = {
   paddingX: 7,
   paddingY: 4,
   radius: 4,
-  offset: 18,
   maxWidth: 180,
+  topOffset: 8,
+  rowGap: 6,
+  leaderColor: 'rgba(255, 247, 168, 0.72)',
+  leaderWidth: 1,
 };
 
 function roundRect(ctx, x, y, width, height, radius) {
@@ -55,11 +58,14 @@ class ChartNoteRenderer {
       const paddingX = options.paddingX * hRatio;
       const paddingY = options.paddingY * vRatio;
       const maxTextWidth = options.maxWidth * hRatio;
+      const topOffset = options.topOffset * vRatio;
+      const rowGap = options.rowGap * vRatio;
+      const canvasWidth = scope.bitmapSize.width;
 
       ctx.save();
       ctx.font = options.font.replace(/(\d+(?:\.\d+)?)px/g, (_, size) => `${Number(size) * ratio}px`);
       ctx.textBaseline = 'middle';
-      notes.forEach((point) => {
+      notes.forEach((point, index) => {
         const text = ellipsizeText(ctx, point.text, maxTextWidth);
         if (!text) return;
 
@@ -67,11 +73,21 @@ class ChartNoteRenderer {
         const textHeight = 13 * ratio;
         const boxWidth = textWidth + paddingX * 2;
         const boxHeight = textHeight + paddingY * 2;
-        const x = Math.round(point.x * hRatio - boxWidth / 2);
-        const y =
-          point.position === 'below'
-            ? Math.round(point.y * vRatio + options.offset * vRatio)
-            : Math.round(point.y * vRatio - options.offset * vRatio - boxHeight);
+        const anchorX = point.x * hRatio;
+        const anchorY = point.y * vRatio;
+        const x = Math.round(Math.min(Math.max(4 * hRatio, anchorX - boxWidth / 2), canvasWidth - boxWidth - 4 * hRatio));
+        const y = Math.round(topOffset + index * (boxHeight + rowGap));
+        const labelAnchorX = Math.min(Math.max(x + 8 * hRatio, anchorX), x + boxWidth - 8 * hRatio);
+        const labelAnchorY = y + boxHeight;
+
+        ctx.strokeStyle = options.leaderColor;
+        ctx.lineWidth = options.leaderWidth * ratio;
+        ctx.setLineDash([3 * ratio, 3 * ratio]);
+        ctx.beginPath();
+        ctx.moveTo(labelAnchorX, labelAnchorY);
+        ctx.lineTo(anchorX, anchorY);
+        ctx.stroke();
+        ctx.setLineDash([]);
 
         ctx.fillStyle = point.color || options.backgroundColor;
         ctx.strokeStyle = point.borderColor || options.borderColor;

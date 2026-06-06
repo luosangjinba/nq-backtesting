@@ -94,6 +94,8 @@ let contextMenuSegmentHit = null;
 let contextMenuSegmentGroupHit = null;
 let contextMenuOrderSetupHit = null;
 let contextMenuShiftKey = false;
+let contextMenuPoint = null;
+let chartNoteEditorEl = null;
 
 function getPrimaryContext() {
   return getPrimaryChartContext();
@@ -163,14 +165,73 @@ function promptKillzoneLabel(defaultLabel = 'Killzone') {
   return value.trim() || defaultLabel;
 }
 
-function promptChartNoteText(defaultText = '') {
-  const value = window.prompt('Chart note', defaultText);
-  if (value === null) return null;
-  return value.trim();
-}
-
 function findDisplayBar(time) {
   return findDisplayBarInContext(getPrimaryContext(), time);
+}
+
+function closeChartNoteEditor() {
+  chartNoteEditorEl?.remove();
+  chartNoteEditorEl = null;
+}
+
+function showChartNoteEditor({ title, defaultText = '', x = 20, y = 20, onSave }) {
+  const chartEl = document.getElementById('chart');
+  if (!chartEl) return;
+
+  closeChartNoteEditor();
+
+  const editor = document.createElement('div');
+  editor.className = 'chart-note-editor';
+  editor.innerHTML = `
+    <div class="chart-note-editor-title"></div>
+    <textarea class="chart-note-editor-text" rows="4" spellcheck="false"></textarea>
+    <div class="chart-note-editor-actions">
+      <button class="chart-note-editor-btn chart-note-editor-save" type="button">Save</button>
+      <button class="chart-note-editor-btn" type="button" data-action="cancel">Cancel</button>
+    </div>
+  `;
+
+  const titleEl = editor.querySelector('.chart-note-editor-title');
+  const textarea = editor.querySelector('.chart-note-editor-text');
+  const saveBtn = editor.querySelector('.chart-note-editor-save');
+  const cancelBtn = editor.querySelector('[data-action="cancel"]');
+  titleEl.textContent = title || 'Chart Note';
+  textarea.value = defaultText || '';
+
+  chartEl.appendChild(editor);
+  const width = 260;
+  const height = 154;
+  const rect = chartEl.getBoundingClientRect();
+  editor.style.left = `${Math.min(Math.max(6, x), Math.max(6, rect.width - width - 6))}px`;
+  editor.style.top = `${Math.min(Math.max(6, y), Math.max(6, rect.height - height - 6))}px`;
+
+  const save = () => {
+    const text = textarea.value.trim();
+    if (!text) {
+      bus.emit('status:update', { text: 'Chart Note 内容不能为空', isError: true });
+      textarea.focus();
+      return;
+    }
+    onSave?.(text);
+    closeChartNoteEditor();
+  };
+
+  saveBtn.addEventListener('click', save);
+  cancelBtn.addEventListener('click', closeChartNoteEditor);
+  editor.addEventListener('keydown', (event) => {
+    event.stopPropagation();
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeChartNoteEditor();
+    } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'enter') {
+      event.preventDefault();
+      save();
+    }
+  });
+
+  textarea.focus();
+  textarea.select();
+  chartNoteEditorEl = editor;
 }
 
 function locateSecondaryAtBar(bar) {
@@ -351,6 +412,7 @@ function hideContextMenu() {
   contextMenuSegmentGroupHit = null;
   contextMenuOrderSetupHit = null;
   contextMenuShiftKey = false;
+  contextMenuPoint = null;
   if (controlsEl) {
     controlsEl.innerHTML = '';
   }
@@ -376,6 +438,7 @@ function handleContextMenu(e) {
   const orderSetupHit = hitTestOrderSetupElements({ x, y });
   contextMenuOrderSetupHit = orderSetupHit;
   contextMenuShiftKey = e.shiftKey;
+  contextMenuPoint = { x, y };
 
   if (e.shiftKey && handleManualPdaShiftContext({ bar, context: getPrimaryContext(), hideContextMenu })) {
     return;
@@ -427,18 +490,27 @@ async function handleControlClick(e) {
     if (!contextMenuBar) {
       bus.emit('status:update', { text: '无法添加 Chart Note：没有可用 K 线', isError: true });
     } else {
-      const text = promptChartNoteText();
-      if (text) {
-        recordHistory('Add Chart Note', () =>
-          upsertChartNote({
-            instrument: 'NQ',
-            timeframe: store.getCurrentTimeframe(),
-            timestamp: contextMenuBar.timestamp,
-            text,
-          })
-        );
-        bus.emit('status:update', { text: 'Chart Note 已添加', isError: false });
-      }
+      const bar = contextMenuBar;
+      const timeframe = store.getCurrentTimeframe();
+      const point = contextMenuPoint || { x: 20, y: 20 };
+      hideContextMenu();
+      showChartNoteEditor({
+        title: `Add Note · ${bar.tradingDay || bar.time || ''}`,
+        x: point.x,
+        y: point.y,
+        onSave: (text) => {
+          recordHistory('Add Chart Note', () =>
+            upsertChartNote({
+              instrument: 'NQ',
+              timeframe,
+              timestamp: bar.timestamp,
+              text,
+            })
+          );
+          bus.emit('status:update', { text: 'Chart Note 已添加', isError: false });
+        },
+      });
+      return;
     }
     hideContextMenu();
   } else if (action === 'chart-note-edit') {
@@ -446,11 +518,20 @@ async function handleControlClick(e) {
     if (!note) {
       bus.emit('status:update', { text: '当前 K 线没有可编辑的 Chart Note', isError: true });
     } else {
-      const text = promptChartNoteText(note.text);
-      if (text) {
-        recordHistory('Edit Chart Note', () => updateChartNote(note.id, { text }));
-        bus.emit('status:update', { text: 'Chart Note 已更新', isError: false });
-      }
+      const bar = contextMenuBar;
+      const point = contextMenuPoint || { x: 20, y: 20 };
+      hideContextMenu();
+      showChartNoteEditor({
+        title: `Edit Note · ${bar?.tradingDay || bar?.time || ''}`,
+        defaultText: note.text,
+        x: point.x,
+        y: point.y,
+        onSave: (text) => {
+          recordHistory('Edit Chart Note', () => updateChartNote(note.id, { text }));
+          bus.emit('status:update', { text: 'Chart Note 已更新', isError: false });
+        },
+      });
+      return;
     }
     hideContextMenu();
   } else if (action === 'chart-note-delete') {
@@ -689,7 +770,9 @@ function handleGlobalClick(e) {
 
 function handleKeydown(e) {
   if (e.key === 'Escape') {
-    if (cancelManualPdaWorkflow()) {
+    if (chartNoteEditorEl) {
+      closeChartNoteEditor();
+    } else if (cancelManualPdaWorkflow()) {
       // handled by PDA workflow
     } else if (getPointSetSelectionSummary()) {
       clearPointSetSelection();
@@ -716,6 +799,7 @@ export function initManualAnnotation() {
     clearKillzoneDraft();
     clearPointSetSelection({ silent: true });
     hideContextMenu();
+    closeChartNoteEditor();
   });
   bus.on('bars:cleared', () => {
     clearManualPdaWorkflowState();
@@ -723,5 +807,6 @@ export function initManualAnnotation() {
     clearPointSetSelection({ silent: true });
     clearPdaContextDataCache();
     hideContextMenu();
+    closeChartNoteEditor();
   });
 }
