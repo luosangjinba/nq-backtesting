@@ -5,6 +5,7 @@ import { getBarChartTime } from '../chart/time-projection.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes } from './chart-note-store.js';
 import { ChartNotePrimitive } from './chart-note-primitive.js';
+import { formatChartNoteDisplayText } from './chart-note-format.js';
 
 const DEFAULT_INSTRUMENT = 'NQ';
 const CHART_NOTE_FLASH_DURATION_MS = 900;
@@ -54,7 +55,7 @@ function buildNotePoints() {
         id: note.id,
         time: getBarChartTime(bar, timeframe),
         price,
-        text: note.text,
+        text: formatChartNoteDisplayText(note),
         color: note.color,
         position,
       };

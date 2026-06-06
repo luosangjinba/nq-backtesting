@@ -4,6 +4,7 @@ import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes } from './chart-note-store.js';
 import { CHART_NOTE_DEFAULT_OPTIONS } from './chart-note-primitive.js';
+import { formatChartNoteDisplayText } from './chart-note-format.js';
 
 const DEFAULT_INSTRUMENT = 'NQ';
 const HIT_PADDING_PX = 4;
@@ -58,7 +59,7 @@ function buildHitPoints(options) {
       if (anchorX === null || anchorY === null) return null;
       return {
         note,
-        text: note.text,
+        text: formatChartNoteDisplayText(note),
         anchorX,
         anchorY,
       };
