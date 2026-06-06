@@ -39,6 +39,12 @@ import {
   getDailyRegimes,
 } from '../daily-regime/daily-regime-store.js';
 import { getDailyRegimeIdentity, normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
+import {
+  getChartNoteIdentity,
+  getChartNotes,
+  loadChartNotes,
+  normalizeChartNote,
+} from '../chart-notes/chart-note-store.js';
 import { recordHistory } from '../history/history-manager.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
@@ -134,6 +140,24 @@ function getExportableDailyRegimes(reviewObjectDateKeys) {
   return getDailyRegimes().filter((regime) => reviewObjectDateKeys.has(regime.date));
 }
 
+function isTimestampInsideRange(timestamp, range = {}) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return false;
+  const start = Number(range.requestedStartTs ?? range.start);
+  const end = Number(range.requestedEndTs ?? range.end);
+  if (Number.isFinite(start) && value < start) return false;
+  if (Number.isFinite(end) && value > end) return false;
+  return true;
+}
+
+function getExportableChartNotes(reviewObjectDateKeys, range) {
+  const notes = getChartNotes();
+  if (reviewObjectDateKeys?.size) {
+    return notes.filter((note) => reviewObjectDateKeys.has(dateKeyFromTimestamp(note.timestamp)));
+  }
+  return notes.filter((note) => isTimestampInsideRange(note.timestamp, range));
+}
+
 function buildReviewPayload() {
   const pdaAnnotations = getExportableAnnotations();
   const marketSegments = getExportableSegments();
@@ -149,6 +173,8 @@ function buildReviewPayload() {
     orderReviews,
     dailyTimeReviews,
   });
+  const range = getArchiveRange();
+  const chartNotes = getExportableChartNotes(reviewObjectDateKeys, range);
 
   return {
     app: REVIEW_ARCHIVE_APP,
@@ -156,13 +182,14 @@ function buildReviewPayload() {
     exportedAt: new Date().toISOString(),
     instrument: DEFAULT_INSTRUMENT,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
-    range: getArchiveRange(),
+    range,
     pdaAnnotations,
     marketSegments,
     segmentGroups,
     smtRecords,
     orderReviews,
     dailyTimeReviews,
+    chartNotes,
     dailyRegimes: getExportableDailyRegimes(reviewObjectDateKeys),
   };
 }
@@ -206,6 +233,9 @@ function validateReviewPayload(payload) {
   }
   if (payload.dailyTimeReviews !== undefined && !Array.isArray(payload.dailyTimeReviews)) {
     throw new Error('review archive dailyTimeReviews must be an array');
+  }
+  if (payload.chartNotes !== undefined && !Array.isArray(payload.chartNotes)) {
+    throw new Error('review archive chartNotes must be an array');
   }
   if (payload.dailyRegimes !== undefined && !Array.isArray(payload.dailyRegimes)) {
     throw new Error('review archive dailyRegimes must be an array');
@@ -677,6 +707,46 @@ function prepareImportedDailyRegimes(existingRegimes, importedRegimes) {
   return { regimes, skippedDuplicates, skippedInvalid };
 }
 
+function prepareImportedChartNotes(existingNotes, importedNotes) {
+  const usedIds = new Set(existingNotes.map((note) => note.id).filter(Boolean));
+  const existingByIdentity = new Map(existingNotes.map((note) => [getChartNoteIdentity(note), note]));
+  const importStamp = Date.now();
+  let skippedDuplicates = 0;
+  let skippedInvalid = 0;
+  const notes = [];
+
+  (Array.isArray(importedNotes) ? importedNotes : []).forEach((note, index) => {
+    const normalized = normalizeChartNote(note);
+    if (!normalized) {
+      skippedInvalid += 1;
+      return;
+    }
+
+    const identity = getChartNoteIdentity(normalized);
+    if (existingByIdentity.has(identity)) {
+      skippedDuplicates += 1;
+      return;
+    }
+
+    let nextNote = normalized;
+    const originalId = normalized.id;
+    if (usedIds.has(normalized.id)) {
+      nextNote = {
+        ...normalized,
+        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
+        importedFromId: originalId,
+        updatedAt: Date.now(),
+      };
+    }
+
+    usedIds.add(nextNote.id);
+    existingByIdentity.set(identity, nextNote);
+    notes.push(nextNote);
+  });
+
+  return { notes, skippedDuplicates, skippedInvalid };
+}
+
 export function exportReviewArchive() {
   const payload = buildReviewPayload();
   if (
@@ -685,7 +755,8 @@ export function exportReviewArchive() {
     payload.segmentGroups.length === 0 &&
     payload.smtRecords.length === 0 &&
     payload.orderReviews.length === 0 &&
-    payload.dailyTimeReviews.length === 0
+    payload.dailyTimeReviews.length === 0 &&
+    payload.chartNotes.length === 0
   ) {
     bus.emit('status:update', { text: '没有可导出的复盘对象', isError: true });
     return;
@@ -693,7 +764,7 @@ export function exportReviewArchive() {
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup、${payload.dailyTimeReviews.length} 条 Time Reaction 与 ${payload.dailyRegimes.length} 条 Daily Regime`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup、${payload.dailyTimeReviews.length} 条 Time Reaction、${payload.chartNotes.length} 条 Chart Note 与 ${payload.dailyRegimes.length} 条 Daily Regime`,
     isError: false,
   });
 }
@@ -712,6 +783,7 @@ export async function importReviewArchive(file) {
     let smtRecords = [];
     let orders = [];
     let dailyTimeReviews = [];
+    let chartNotes = [];
     let dailyRegimes = [];
     let skippedPdaDuplicates = 0;
     let skippedSegmentDuplicates = 0;
@@ -722,6 +794,8 @@ export async function importReviewArchive(file) {
     let skippedInvalidOrders = 0;
     let skippedDailyTimeDuplicates = 0;
     let skippedInvalidDailyTime = 0;
+    let skippedChartNoteDuplicates = 0;
+    let skippedInvalidChartNotes = 0;
     let skippedDailyRegimeDuplicates = 0;
     let skippedInvalidDailyRegimes = 0;
 
@@ -795,6 +869,16 @@ export async function importReviewArchive(file) {
       skippedInvalidDailyTime = preparedDailyTimeReviews.skippedInvalid;
       loadDailyTimeReviews([...existingDailyTimeReviews, ...dailyTimeReviews], { preserveUpdatedAt: true });
 
+      const existingChartNotes = getChartNotes();
+      const preparedChartNotes = prepareImportedChartNotes(
+        existingChartNotes,
+        Array.isArray(payload.chartNotes) ? payload.chartNotes : []
+      );
+      chartNotes = preparedChartNotes.notes;
+      skippedChartNoteDuplicates = preparedChartNotes.skippedDuplicates;
+      skippedInvalidChartNotes = preparedChartNotes.skippedInvalid;
+      loadChartNotes([...existingChartNotes, ...chartNotes]);
+
       const existingDailyRegimes = getDailyRegimes();
       const preparedDailyRegimes = prepareImportedDailyRegimes(
         existingDailyRegimes,
@@ -815,10 +899,12 @@ export async function importReviewArchive(file) {
       skippedInvalidOrders +
       skippedDailyTimeDuplicates +
       skippedInvalidDailyTime +
+      skippedChartNoteDuplicates +
+      skippedInvalidChartNotes +
       skippedDailyRegimeDuplicates +
       skippedInvalidDailyRegimes;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${dailyTimeReviews.length} 条 Time Reaction，并校验 ${dailyRegimes.length} 条 Daily Regime${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${dailyTimeReviews.length} 条 Time Reaction、${chartNotes.length} 条 Chart Note，并校验 ${dailyRegimes.length} 条 Daily Regime${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,

@@ -12,6 +12,7 @@ import {
   getTimeOverlaySettings,
   loadTimeOverlaySettings,
 } from '../time-overlays/time-overlay-store.js';
+import { getChartNotes, loadChartNotes } from '../chart-notes/chart-note-store.js';
 
 const MAX_HISTORY = 100;
 
@@ -45,6 +46,7 @@ export function captureSnapshot() {
     orderReviews: getOrderReviews(),
     dailyTimeReviews: getDailyTimeReviews(),
     timeOverlaySettings: getTimeOverlaySettings(),
+    chartNotes: getChartNotes(),
   };
 }
 
@@ -59,6 +61,7 @@ export function restoreSnapshot(snapshot) {
     loadOrderReviews(clone(snapshot.orderReviews || []), { preserveUpdatedAt: true });
     loadDailyTimeReviews(clone(snapshot.dailyTimeReviews || []), { preserveUpdatedAt: true });
     loadTimeOverlaySettings(clone(snapshot.timeOverlaySettings || null));
+    loadChartNotes(clone(snapshot.chartNotes || []));
   } finally {
     isRestoring = false;
   }

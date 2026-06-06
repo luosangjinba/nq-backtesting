@@ -35,6 +35,7 @@ import { initOrderReviewRenderer } from './order/order-review-renderer.js';
 import { initOrderSetupElementSelection } from './order/order-setup-selection.js';
 import { initDailyTimeReviewPersistence } from './time-reaction/daily-time-review-persistence.js';
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
+import { initChartNotePersistence } from './chart-notes/chart-note-persistence.js';
 import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
@@ -121,6 +122,9 @@ console.log('[V4] Daily Time Reaction controls initialized');
 
 initTimeOverlayRenderer();
 console.log('[V4] Time Overlay controls initialized');
+
+initChartNotePersistence();
+console.log('[V4] Chart Notes persistence initialized');
 
 initEconomicCalendarLoader();
 console.log('[V4] Economic Calendar loader initialized');
