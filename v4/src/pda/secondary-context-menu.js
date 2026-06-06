@@ -7,6 +7,9 @@ import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as viewport from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { recordHistory } from '../history/history-manager.js';
+import { getActiveReviewSet } from '../order/order-review-active.js';
+import { handleOrderSetupChartAction } from '../order/order-setup-chart-actions.js';
+import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
 import { clampMenuPosition } from './manual-context-menu.js';
 import {
   addManualFib,
@@ -18,6 +21,7 @@ import {
   findDisplayBarInContext,
   getBarChartTime,
 } from './manual-pda-actions.js';
+import { hitTestPdaAnnotations } from './pda-hit-test.js';
 import { getPdaType } from './pda-types.js';
 import {
   addPointSetPoint,
@@ -35,6 +39,9 @@ import {
 let controlsEl = null;
 let contextMenuBar = null;
 let contextMenuPrice = null;
+let contextMenuPdaHit = null;
+let contextMenuSegmentHit = null;
+let contextMenuSegmentGroupHit = null;
 let secondaryRangeSelection = null;
 let secondaryFibSelection = null;
 
@@ -233,6 +240,32 @@ function renderSecondaryPointSetItems(disabled, context) {
   `;
 }
 
+function getActiveSetupLinkLabel() {
+  const active = getActiveReviewSet();
+  if (!active) return 'No active setup';
+  const direction = active.direction === 'long' ? 'Long' : active.direction === 'short' ? 'Short' : 'Setup';
+  return `${direction} · ${String(active.id || '').slice(0, 18)}`;
+}
+
+function renderSecondaryOrderLinkItems({ pdaHit, segmentHit, segmentGroupHit } = {}) {
+  const active = getActiveReviewSet();
+  const activeDisabled = active ? '' : 'disabled';
+  const pdaDisabled = active && pdaHit ? '' : 'disabled';
+  const segmentDisabled = active && segmentHit ? '' : 'disabled';
+  const compositeDisabled = active && segmentGroupHit ? '' : 'disabled';
+
+  return `
+      <div class="pda-menu-section pda-menu-submenu">
+        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Links · ${escapeHtml(getActiveSetupLinkLabel())}</div>
+        <div class="pda-submenu-panel">
+        <button class="pda-menu-item" data-secondary-action="secondary-order-link-pda" ${activeDisabled || pdaDisabled}>Link PDA To Active Setup</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-order-link-segment" ${activeDisabled || segmentDisabled}>Link Segment To Active Setup</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-order-link-composite" ${activeDisabled || compositeDisabled}>Link Composite To Active Setup</button>
+        </div>
+      </div>
+  `;
+}
+
 function formatPrimaryLocateRange(bar, context) {
   const timestamp = Number(bar?.timestamp);
   const timeframe = Number(context?.timeframe);
@@ -261,7 +294,7 @@ async function copyText(value, label) {
   }
 }
 
-function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, bar, price, context }) {
+function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, bar, price, context, hits }) {
   const disabled = bar ? '' : 'disabled';
   const priceDisabled = Number.isFinite(Number(price)) ? '' : 'disabled';
   const title = `${context.instrument} ${timeframeToString(context.timeframe)} · ${formatContextTime(bar)}`;
@@ -294,6 +327,7 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         </div>
       </div>
       ${renderSecondaryPointSetItems(disabled, context)}
+      ${renderSecondaryOrderLinkItems(hits)}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Segments</div>
         <div class="pda-submenu-panel">
@@ -310,15 +344,21 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
 function hideSecondaryContextMenu() {
   contextMenuBar = null;
   contextMenuPrice = null;
+  contextMenuPdaHit = null;
+  contextMenuSegmentHit = null;
+  contextMenuSegmentGroupHit = null;
   if (controlsEl) controlsEl.innerHTML = '';
 }
 
-function showSecondaryContextMenu(x, y, bar, price) {
+function showSecondaryContextMenu(x, y, bar, price, hits = {}) {
   if (!controlsEl) return;
   const context = getSecondaryChartContext();
   const { x: left, y: top, maxHeight, submenuDirection } = clampMenuPosition(controlsEl, x, y);
   contextMenuBar = bar;
   contextMenuPrice = price;
+  contextMenuPdaHit = hits.pdaHit || null;
+  contextMenuSegmentHit = hits.segmentHit || null;
+  contextMenuSegmentGroupHit = hits.segmentGroupHit || null;
   document.getElementById('pda-context-menu')?.replaceChildren();
   controlsEl.innerHTML = renderSecondaryContextMenu({
     left,
@@ -328,6 +368,7 @@ function showSecondaryContextMenu(x, y, bar, price) {
     bar,
     price,
     context,
+    hits,
   });
 }
 
@@ -346,6 +387,11 @@ function handleSecondaryContextMenu(e) {
   const time = context.coordinateToTime(x);
   const bar = findDisplayBarInContext(context, time);
   const price = context.coordinateToPrice(y);
+  const hits = {
+    pdaHit: hitTestPdaAnnotations({ x, y, context }),
+    segmentHit: hitTestSegments({ x, y, context }),
+    segmentGroupHit: hitTestSegmentGroups({ x, y, context }),
+  };
 
   if (e.shiftKey && hasSecondaryPdaDraft()) {
     finishSecondaryPdaDraft(bar, context);
@@ -353,7 +399,7 @@ function handleSecondaryContextMenu(e) {
     return;
   }
 
-  showSecondaryContextMenu(x, y, bar, price);
+  showSecondaryContextMenu(x, y, bar, price, hits);
 }
 
 async function handleSecondaryMenuClick(e) {
@@ -475,6 +521,26 @@ async function handleSecondaryMenuClick(e) {
     recordHistory('Cancel Secondary Point Set', () =>
       cancelPointSet(getSecondaryPointSetOptions(context))
     );
+    hideSecondaryContextMenu();
+  } else if (
+    action === 'secondary-order-link-pda' ||
+    action === 'secondary-order-link-segment' ||
+    action === 'secondary-order-link-composite'
+  ) {
+    const actionMap = {
+      'secondary-order-link-pda': 'order-setup-link-pda',
+      'secondary-order-link-segment': 'order-setup-link-segment',
+      'secondary-order-link-composite': 'order-setup-link-composite',
+    };
+    const context = getSecondaryChartContext();
+    handleOrderSetupChartAction(actionMap[action], {
+      bar: contextMenuBar,
+      price: contextMenuPrice,
+      timeframe: context.timeframe,
+      pdaHit: contextMenuPdaHit,
+      segmentHit: contextMenuSegmentHit,
+      segmentGroupHit: contextMenuSegmentGroupHit,
+    });
     hideSecondaryContextMenu();
   } else if (action === 'secondary-show-cursor') {
     if (contextMenuBar) {

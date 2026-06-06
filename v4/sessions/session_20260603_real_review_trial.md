@@ -676,6 +676,28 @@ Validation:
 - `node --check v4/src/pda/secondary-context-menu.js` passed.
 - `git diff --check` passed for the touched files.
 
+## 2026-06-06 - Step 265.5 Secondary Evidence Link To Active Setup
+
+Implemented:
+
+- Secondary right-click now hit-tests PDA annotations, segments, and segment
+  groups using the secondary chart context.
+- Added an `Order Setup Links` submenu to the secondary chart context menu.
+- The submenu exposes only evidence-linking actions:
+  - Link PDA To Active Setup.
+  - Link Segment To Active Setup.
+  - Link Composite To Active Setup.
+- Reused the existing order setup chart action handler for link mutations, so
+  reason/ref storage stays consistent with primary chart links.
+- Kept execution-writing actions off secondary: no create setup, entry, stop,
+  target, final target, or manual explanation event actions were added.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-context-menu.js` passed.
+- `node --check v4/src/order/order-setup-chart-actions.js` passed.
+- `git diff --check` passed for the touched files.
+
 ## 2026-06-06 - Step 265.2 Secondary Range PDA Workflows
 
 Implemented:

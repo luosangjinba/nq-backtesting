@@ -345,7 +345,7 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - [x] Step 265.2: Range workflow 增补：在副图支持 Fib start/end 与 OB/Breaker range PDA workflow；右键菜单状态显示 active draft，Esc/取消/副图 reset 能清理副图 draft，不影响主图 draft。
   - [x] Step 265.3: Point Sets 增补：在副图支持 EQH/EQL start/add/finish/cancel；draft state 按 primary/secondary scope 隔离，最终对象复用同一 PDA store，并保留 source chart/timeframe。
   - [x] Step 265.4: Navigation / Calendar 增补：副图增加 `Locate Date in Calendar`，复用 Inspector calendar open event；保留现有 `Locate Time in Primary` / copy time/price。
-  - [ ] Step 265.5: Active Order Setup evidence 链接：副图菜单允许将命中的副图 PDA / Segment / FVG / Composite evidence 链接到 active Order Setup reason/ref；不允许从副图设置 entry、stop、target 或创建 execution setup。
+  - [x] Step 265.5: Active Order Setup evidence 链接：副图菜单允许将命中的副图 PDA / Segment / Composite evidence 链接到 active Order Setup reason/ref；不允许从副图设置 entry、stop、target 或创建 execution setup。
   - [ ] Step 265.6: 副图 Chart Notes 决策与实现计划：先冻结语义再实现；建议副图 note 只显示在副图同 instrument/timeframe，不进入主图 note box，是否进入 Calendar/Order reason 需要明确 source chart。
   - [ ] Step 265.7: 验证与收口：覆盖 Split on/off、NQ/ES、1M/30M/1H、Replay On、source metadata、Inspector Open/Locate、Review JSON export/import、undo/redo、全量 JS 语法和 Web/API smoke。
 - [x] Step 174: Reasons linked refs 定位入口：Reason ref 行增加 Locate 动作，支持 linked PDA/Segment 定位并复用现有时间范围快闪；删除 X 改为 Execution 同款紧凑样式
