@@ -2109,6 +2109,16 @@ html, body {
   cursor: pointer;
 }
 
+.pda-menu-subtitle {
+  padding: 5px 8px 4px;
+  overflow: hidden;
+  color: #8aa0b3;
+  font-size: 11px;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .pda-menu-submenu {
   position: relative;
 }

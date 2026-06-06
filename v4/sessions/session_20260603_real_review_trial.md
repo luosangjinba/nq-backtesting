@@ -675,3 +675,26 @@ Validation:
 
 - `node --check v4/src/pda/secondary-context-menu.js` passed.
 - `git diff --check` passed for the touched files.
+
+## 2026-06-06 - Step 265.2 Secondary Range PDA Workflows
+
+Implemented:
+
+- Added secondary-only draft state for range PDA and Fib workflows.
+- Added secondary menu actions for:
+  - Start/finish Bullish OB and Bearish OB ranges.
+  - Start/finish Bullish Breaker and Bearish Breaker ranges.
+  - Start/finish Fib.
+  - Cancel active secondary draft.
+- Added Shift + right-click finish support while a secondary draft is active.
+- Esc, `secondary-bars:cleared`, and `secondary-chart:reset` now clear only
+  secondary PDA draft state, leaving primary manual PDA workflow state alone.
+- Added small context-menu subtitle styling for active draft display.
+- Added source metadata to context-aware Wick CE, range PDA, and Fib creation
+  so secondary-created objects retain chart/instrument/timeframe provenance.
+
+Validation:
+
+- `node --check v4/src/pda/secondary-context-menu.js` passed.
+- `node --check v4/src/pda/manual-pda-actions.js` passed.
+- `git diff --check` passed for the touched files.

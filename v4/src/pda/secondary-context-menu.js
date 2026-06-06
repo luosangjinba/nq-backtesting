@@ -9,13 +9,16 @@ import { timeframeToString } from '../config.js';
 import { recordHistory } from '../history/history-manager.js';
 import { clampMenuPosition } from './manual-context-menu.js';
 import {
+  addManualFib,
   addManualFvg,
   addManualObLastBar,
   addManualPoint,
+  addManualRange,
   addManualWickCe,
   findDisplayBarInContext,
   getBarChartTime,
 } from './manual-pda-actions.js';
+import { getPdaType } from './pda-types.js';
 import {
   finishSegmentInContext,
   startSegmentInContext,
@@ -24,6 +27,8 @@ import {
 let controlsEl = null;
 let contextMenuBar = null;
 let contextMenuPrice = null;
+let secondaryRangeSelection = null;
+let secondaryFibSelection = null;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -41,6 +46,120 @@ function formatContextTime(bar) {
 
 function formatPrice(price) {
   return Number.isFinite(Number(price)) ? Number(price).toFixed(2) : '';
+}
+
+function formatDraftTime(bar) {
+  if (!bar) return '';
+  return bar.tradingDay || bar.time || String(bar.timestamp || '');
+}
+
+function clearSecondaryRangeSelection() {
+  secondaryRangeSelection = null;
+}
+
+function clearSecondaryFibSelection() {
+  secondaryFibSelection = null;
+}
+
+function hasSecondaryPdaDraft() {
+  return Boolean(secondaryRangeSelection || secondaryFibSelection);
+}
+
+function cancelSecondaryPdaDraft() {
+  if (secondaryRangeSelection) {
+    const pdaType = getPdaType(secondaryRangeSelection.type);
+    clearSecondaryRangeSelection();
+    bus.emit('status:update', {
+      text: `副图 ${pdaType?.label || 'Range PDA'} 选择已取消`,
+      isError: false,
+    });
+    return true;
+  }
+
+  if (secondaryFibSelection) {
+    clearSecondaryFibSelection();
+    bus.emit('status:update', { text: '副图 Fib 选择已取消', isError: false });
+    return true;
+  }
+
+  return false;
+}
+
+function startSecondaryRange(type, direction, bar) {
+  if (!bar) return false;
+  const pdaType = getPdaType(type);
+  if (!pdaType) return false;
+
+  clearSecondaryFibSelection();
+  secondaryRangeSelection = {
+    type,
+    direction,
+    startBar: bar,
+  };
+  bus.emit('status:update', {
+    text: `副图 ${direction} ${pdaType.label} 起点已选择，再右键选择终点`,
+    isError: false,
+  });
+  return true;
+}
+
+function finishSecondaryRange(endBar, context) {
+  if (!secondaryRangeSelection || !endBar) return false;
+  const added = addManualRange(secondaryRangeSelection, endBar, context);
+  clearSecondaryRangeSelection();
+  return added;
+}
+
+function startSecondaryFib(bar) {
+  if (!bar) return false;
+  clearSecondaryRangeSelection();
+  secondaryFibSelection = { startBar: bar };
+  bus.emit('status:update', {
+    text: '副图 Fib 起点已选择，再右键选择终点',
+    isError: false,
+  });
+  return true;
+}
+
+function finishSecondaryFib(endBar, context) {
+  if (!secondaryFibSelection || !endBar) return false;
+  const added = addManualFib(secondaryFibSelection, endBar, context);
+  clearSecondaryFibSelection();
+  return added;
+}
+
+function finishSecondaryPdaDraft(bar, context) {
+  if (secondaryRangeSelection) return finishSecondaryRange(bar, context);
+  if (secondaryFibSelection) return finishSecondaryFib(bar, context);
+  return false;
+}
+
+function renderSecondaryDraftItems(disabled) {
+  if (secondaryRangeSelection) {
+    const pdaType = getPdaType(secondaryRangeSelection.type);
+    const label = `${secondaryRangeSelection.direction} ${pdaType?.label || secondaryRangeSelection.type}`;
+    return `
+        <div class="pda-menu-subtitle">Draft: ${escapeHtml(label)} from ${escapeHtml(formatDraftTime(secondaryRangeSelection.startBar))}</div>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-range-finish" ${disabled}>End Range Here</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-draft-cancel">Cancel Draft</button>
+    `;
+  }
+
+  if (secondaryFibSelection) {
+    return `
+        <div class="pda-menu-subtitle">Draft: Fib from ${escapeHtml(formatDraftTime(secondaryFibSelection.startBar))}</div>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-fib-finish" ${disabled}>End Fib Here</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-draft-cancel">Cancel Draft</button>
+    `;
+  }
+
+  return `
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-ob-bullish" ${disabled}>Start Bullish OB</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-ob-bearish" ${disabled}>Start Bearish OB</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-breaker-bullish" ${disabled}>Start Bullish Breaker</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-breaker-bearish" ${disabled}>Start Bearish Breaker</button>
+        <button class="pda-menu-item" data-secondary-action="secondary-pda-fib-start" ${disabled}>Start Fib</button>
+  `;
 }
 
 function formatPrimaryLocateRange(bar, context) {
@@ -90,7 +209,7 @@ function renderSecondaryContextMenu({ left, top, maxHeight, submenuDirection, ba
         <button class="pda-menu-item" data-secondary-action="secondary-pda-fvg" ${disabled}>Mark FVG</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-ifvg" ${disabled}>Mark IFVG</button>
         <button class="pda-menu-item" data-secondary-action="secondary-pda-ob-last-bar" ${priceDisabled}>Mark OB Last Bar</button>
-        <button class="pda-menu-item" data-secondary-action="secondary-pda-range" disabled>Mark Range PDA</button>
+        ${renderSecondaryDraftItems(disabled)}
         </div>
       </div>
       <div class="pda-menu-section pda-menu-submenu">
@@ -154,6 +273,13 @@ function handleSecondaryContextMenu(e) {
   const time = context.coordinateToTime(x);
   const bar = findDisplayBarInContext(context, time);
   const price = context.coordinateToPrice(y);
+
+  if (e.shiftKey && hasSecondaryPdaDraft()) {
+    finishSecondaryPdaDraft(bar, context);
+    hideSecondaryContextMenu();
+    return;
+  }
+
   showSecondaryContextMenu(x, y, bar, price);
 }
 
@@ -192,6 +318,34 @@ async function handleSecondaryMenuClick(e) {
   } else if (action === 'secondary-pda-ob-last-bar') {
     const context = getSecondaryChartContext();
     await addManualObLastBar(contextMenuBar, context, contextMenuPrice);
+    hideSecondaryContextMenu();
+  } else if (
+    action === 'secondary-pda-ob-bullish' ||
+    action === 'secondary-pda-ob-bearish'
+  ) {
+    startSecondaryRange('ob', action === 'secondary-pda-ob-bullish' ? 'bullish' : 'bearish', contextMenuBar);
+    hideSecondaryContextMenu();
+  } else if (
+    action === 'secondary-pda-breaker-bullish' ||
+    action === 'secondary-pda-breaker-bearish'
+  ) {
+    startSecondaryRange(
+      'breaker',
+      action === 'secondary-pda-breaker-bullish' ? 'bullish' : 'bearish',
+      contextMenuBar
+    );
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pda-range-finish') {
+    finishSecondaryRange(contextMenuBar, getSecondaryChartContext());
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pda-fib-start') {
+    startSecondaryFib(contextMenuBar);
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pda-fib-finish') {
+    finishSecondaryFib(contextMenuBar, getSecondaryChartContext());
+    hideSecondaryContextMenu();
+  } else if (action === 'secondary-pda-draft-cancel') {
+    cancelSecondaryPdaDraft();
     hideSecondaryContextMenu();
   } else if (
     action === 'secondary-segment-start-low' ||
@@ -250,7 +404,9 @@ function handleGlobalClick(e) {
 }
 
 function handleKeydown(e) {
-  if (e.key === 'Escape') hideSecondaryContextMenu();
+  if (e.key !== 'Escape') return;
+  cancelSecondaryPdaDraft();
+  hideSecondaryContextMenu();
 }
 
 export function initSecondaryContextMenu() {
@@ -262,6 +418,14 @@ export function initSecondaryContextMenu() {
   chartEl.addEventListener('contextmenu', handleSecondaryContextMenu);
   document.addEventListener('click', handleGlobalClick);
   window.addEventListener('keydown', handleKeydown);
-  bus.on('secondary-bars:cleared', hideSecondaryContextMenu);
-  bus.on('secondary-chart:reset', hideSecondaryContextMenu);
+  bus.on('secondary-bars:cleared', () => {
+    clearSecondaryRangeSelection();
+    clearSecondaryFibSelection();
+    hideSecondaryContextMenu();
+  });
+  bus.on('secondary-chart:reset', () => {
+    clearSecondaryRangeSelection();
+    clearSecondaryFibSelection();
+    hideSecondaryContextMenu();
+  });
 }

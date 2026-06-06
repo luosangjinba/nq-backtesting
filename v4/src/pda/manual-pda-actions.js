@@ -304,6 +304,7 @@ export function addManualWickCe(side, bar, context) {
     bodyLow: wickCe.bodyLow,
     high: wickCe.high,
     low: wickCe.low,
+    ...buildSourceMetadata(context),
     contexts: [`${tfLabel} ${sideLabel} Wick CE`],
   };
 
@@ -362,6 +363,7 @@ export function addManualRange(selectionState, endBar, context) {
     priceHigh: topPrice,
     priceLow: bottomPrice,
     ce: buildCePrice(topPrice, bottomPrice),
+    ...buildSourceMetadata(context),
     contexts,
     ...getManualRangeColors(type, direction),
   };
@@ -421,6 +423,7 @@ export function addManualFib(selectionState, endBar, context) {
       showTrendLine: false,
       extend: 'none',
     },
+    ...buildSourceMetadata(context),
     contexts: [`${tfLabel} ${direction} Fib`],
   };
 
