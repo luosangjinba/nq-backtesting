@@ -1722,6 +1722,72 @@ html, body {
   grid-template-columns: 58px minmax(0, 1fr);
 }
 
+.order-target-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.order-target-progress-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(88px, 112px);
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  padding: 3px 4px;
+  border: 1px solid rgba(120, 123, 134, 0.18);
+  border-radius: 4px;
+  background: rgba(22, 26, 36, 0.58);
+}
+
+.order-target-progress-row.is-hit {
+  border-color: rgba(38, 166, 154, 0.38);
+}
+
+.order-target-progress-row.is-final {
+  border-color: rgba(255, 183, 77, 0.58);
+  background: rgba(255, 183, 77, 0.08);
+}
+
+.order-target-progress-main {
+  display: grid;
+  grid-template-columns: minmax(50px, 0.9fr) minmax(42px, 0.7fr) minmax(58px, 0.8fr) minmax(54px, 0.7fr) minmax(42px, 0.55fr);
+  gap: 5px;
+  align-items: baseline;
+  min-width: 0;
+  color: #b2b5be;
+  font-size: 10px;
+  line-height: 15px;
+}
+
+.order-target-progress-label,
+.order-target-progress-state {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.order-target-progress-label {
+  color: #d1d4dc;
+  font-weight: 600;
+}
+
+.order-target-progress-state {
+  color: #787b86;
+}
+
+.order-target-progress-row.is-hit .order-target-progress-state {
+  color: #80cbc4;
+}
+
+.order-target-progress-row.is-final .order-target-progress-state {
+  color: #ffcc80;
+}
+
+.order-target-progress-action {
+  min-width: 0;
+}
+
 .order-review-inline-control {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

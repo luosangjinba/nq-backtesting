@@ -535,6 +535,15 @@ export function normalizeEntryPlan(input = {}) {
 
 export function normalizeResultReview(input = {}) {
   const exitPrice = normalizeNumber(input.exitPrice);
+  const targetActions = {};
+  if (input.targetActions && typeof input.targetActions === 'object') {
+    Object.entries(input.targetActions).forEach(([role, value]) => {
+      const key = normalizeString(role, '');
+      const rawAction = value && typeof value === 'object' ? value.action : value;
+      const action = normalizeString(rawAction, '');
+      if (key && action) targetActions[key] = { action };
+    });
+  }
 
   return {
     exitTimestamp: normalizeTimestamp(input.exitTimestamp),
@@ -545,6 +554,7 @@ export function normalizeResultReview(input = {}) {
       ORDER_RESULT_ALIASES,
       ORDER_RESULTS.UNKNOWN
     ),
+    targetActions,
     note: normalizeNote(input.note),
   };
 }

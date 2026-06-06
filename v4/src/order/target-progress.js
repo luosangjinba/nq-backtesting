@@ -67,11 +67,11 @@ function getDefaultExecutionAction(role, resultStatus) {
 }
 
 function getTargetAction(targetActions = {}, role, resultStatus) {
+  if (!Object.prototype.hasOwnProperty.call(targetActions || {}, role)) {
+    return getDefaultExecutionAction(role, resultStatus);
+  }
   const explicit = targetActions?.[role]?.action ?? targetActions?.[role];
-  const normalized = normalizeExecutionAction(explicit);
-  return normalized === TARGET_EXECUTION_ACTIONS.NONE
-    ? getDefaultExecutionAction(role, resultStatus)
-    : normalized;
+  return normalizeExecutionAction(explicit);
 }
 
 export function buildTargetProgress({ targets = [], entry = {}, stopLoss = {}, result = {} } = {}) {

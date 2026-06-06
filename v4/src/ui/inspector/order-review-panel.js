@@ -6,6 +6,10 @@ import {
   ORDER_RESULT_DEFINITIONS,
   ORDER_RESULTS,
 } from '../../order/order-review-types.js';
+import {
+  TARGET_EXECUTION_ACTION_LABELS,
+  TARGET_EXECUTION_ACTIONS,
+} from '../../order/target-progress.js';
 import { createSetupSetFromOrderReview } from '../../order/setup-set.js';
 import {
   controlField,
@@ -136,6 +140,14 @@ function summarizeLinkedRef(ref = {}, { includeId = true } = {}) {
 
 function renderResultOptions(selectedResult) {
   return renderDefinitionOptions(ORDER_RESULT_DEFINITIONS, selectedResult);
+}
+
+function renderTargetActionOptions(selectedAction) {
+  return Object.values(TARGET_EXECUTION_ACTIONS)
+    .map((action) => `
+      <option value="${escapeHtml(action)}" ${action === selectedAction ? 'selected' : ''}>${escapeHtml(TARGET_EXECUTION_ACTION_LABELS[action] || action)}</option>
+    `)
+    .join('');
 }
 
 function renderActiveHeader(order, setupSet) {
@@ -315,6 +327,9 @@ function renderReasonRows(order, setupSet, options = {}) {
 function renderResultPanel(order, setupSet) {
   const result = setupSet?.orderElements?.result || {};
   const exitTimestamp = order.resultReview?.exitTimestamp ?? result.timestamp;
+  const targetProgress = Array.isArray(setupSet?.orderElements?.targetProgress)
+    ? setupSet.orderElements.targetProgress
+    : [];
   return `
     <div class="order-review-quick-edit">
       <div class="order-review-compact-title">Result</div>
@@ -337,11 +352,44 @@ function renderResultPanel(order, setupSet) {
         ${field('Risk', formatNumber(result.riskPoints))}
         ${field('Points', formatNumber(result.outcomePoints))}
         ${field('R', formatNumber(result.outcomeR))}
+        ${renderTargetProgress(order, targetProgress)}
         ${controlField(
           'Note',
           `<textarea class="inspector-textarea" data-inspector-action="order-review-note" data-order-review-id="${escapeHtml(order.id)}" rows="2" placeholder="Result note">${escapeHtml(order.note || '')}</textarea>`
         )}
       </div>
+    </div>
+  `;
+}
+
+function renderTargetProgress(order, targetProgress = []) {
+  if (!targetProgress.length) return field('Target Progress', '—');
+  const rows = targetProgress.map((item) => {
+    const state = item.final ? 'Final' : item.reached ? 'Hit' : 'Pending';
+    return `
+      <div class="order-target-progress-row ${item.reached ? 'is-hit' : 'is-pending'} ${item.final ? 'is-final' : ''}">
+        <div class="order-target-progress-main">
+          <span class="order-target-progress-label">${escapeHtml(item.label)}</span>
+          <span class="order-target-progress-state">${escapeHtml(state)}</span>
+          <span>${escapeHtml(formatNumber(item.price))}</span>
+          <span>${escapeHtml(formatNumber(item.points))} pt</span>
+          <span>${escapeHtml(formatNumber(item.r))} R</span>
+        </div>
+        <select
+          class="inspector-input inspector-mini-select order-target-progress-action"
+          data-inspector-action="order-review-target-action"
+          data-order-review-id="${escapeHtml(order.id)}"
+          data-order-target-role="${escapeHtml(item.role)}"
+        >
+          ${renderTargetActionOptions(item.executionAction)}
+        </select>
+      </div>
+    `;
+  });
+  return `
+    <div class="inspector-field">
+      <div class="inspector-field-label">Target Progress</div>
+      <div class="order-target-progress-list">${rows.join('')}</div>
     </div>
   `;
 }

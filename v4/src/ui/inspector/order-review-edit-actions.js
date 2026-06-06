@@ -190,6 +190,25 @@ export function createOrderReviewEditActionController({
     return true;
   }
 
+  function updateOrderReviewTargetAction(target) {
+    const orderReviewId = target.dataset.orderReviewId;
+    const role = target.dataset.orderTargetRole;
+    if (!orderReviewId || !role) return false;
+    const order = getOrderReviewById(orderReviewId);
+    if (!order) return false;
+
+    expandOrder?.(orderReviewId);
+    recordInspectorHistory?.('Update Target Execution Action', () => updateOrderReview(orderReviewId, {
+      resultReview: {
+        targetActions: {
+          ...(order.resultReview?.targetActions || {}),
+          [role]: { action: target.value },
+        },
+      },
+    }));
+    return true;
+  }
+
   function updateOrderReviewExitTime(target) {
     const orderReviewId = target.dataset.orderReviewId;
     if (!orderReviewId) return false;
@@ -309,6 +328,10 @@ export function createOrderReviewEditActionController({
     if (action === 'order-review-result') {
       updateOrderReviewResult(target.dataset.orderReviewId, target.value);
       return true;
+    }
+
+    if (action === 'order-review-target-action') {
+      return updateOrderReviewTargetAction(target);
     }
 
     if (action === 'order-review-result-exit-time') {
