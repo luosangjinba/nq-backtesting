@@ -7,13 +7,24 @@ import { getChartNotes } from './chart-note-store.js';
 import { ChartNotePrimitive } from './chart-note-primitive.js';
 
 const DEFAULT_INSTRUMENT = 'NQ';
+const CHART_NOTE_FLASH_DURATION_MS = 900;
 
 let renderedPrimitive = null;
+let flashFrame = null;
 
 function clearRenderedNotes() {
+  clearChartNoteFlash();
   if (!renderedPrimitive) return;
   chart.detachPrimitive(renderedPrimitive);
   renderedPrimitive = null;
+}
+
+export function clearChartNoteFlash() {
+  if (flashFrame !== null) {
+    cancelAnimationFrame(flashFrame);
+    flashFrame = null;
+  }
+  renderedPrimitive?.clearFlash?.();
 }
 
 function getRenderableBars() {
@@ -64,6 +75,25 @@ export function renderChartNotes() {
   renderedPrimitive = new ChartNotePrimitive(chartInstance, series, notes);
   chart.attachPrimitive(renderedPrimitive);
   renderedPrimitive.requestUpdate();
+}
+
+export function flashChartNote(noteId) {
+  if (!renderedPrimitive?.hasNote?.(noteId)) return false;
+
+  clearChartNoteFlash();
+  const startedAt = performance.now();
+  const tick = (now) => {
+    if (!renderedPrimitive) return;
+    const progress = Math.min(1, (now - startedAt) / CHART_NOTE_FLASH_DURATION_MS);
+    renderedPrimitive.setFlash(noteId, progress);
+    if (progress < 1) {
+      flashFrame = requestAnimationFrame(tick);
+      return;
+    }
+    clearChartNoteFlash();
+  };
+  flashFrame = requestAnimationFrame(tick);
+  return true;
 }
 
 export function initChartNoteRenderer() {

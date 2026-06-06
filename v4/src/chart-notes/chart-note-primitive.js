@@ -11,6 +11,8 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   rowGap: 6,
   leaderColor: 'rgba(255, 247, 168, 0.28)',
   leaderWidth: 1,
+  flashBorderColor: 'rgba(255, 255, 255, 0.96)',
+  flashGlowColor: 'rgba(255, 247, 168, 0.55)',
 };
 
 function roundRect(ctx, x, y, width, height, radius) {
@@ -90,11 +92,18 @@ class ChartNoteRenderer {
         ctx.setLineDash([]);
 
         ctx.fillStyle = point.color || options.backgroundColor;
-        ctx.strokeStyle = point.borderColor || options.borderColor;
-        ctx.lineWidth = 1 * ratio;
+        const isFlashing = source._flashNoteId === point.id;
+        const flashPulse = isFlashing
+          ? Math.sin((1 - source._flashProgress) * Math.PI * 3) * (1 - source._flashProgress)
+          : 0;
+        ctx.strokeStyle = isFlashing ? options.flashBorderColor : (point.borderColor || options.borderColor);
+        ctx.lineWidth = (isFlashing ? 2 + Math.max(0, flashPulse) * 2 : 1) * ratio;
+        ctx.shadowColor = isFlashing ? options.flashGlowColor : 'transparent';
+        ctx.shadowBlur = isFlashing ? (8 + Math.max(0, flashPulse) * 10) * ratio : 0;
         roundRect(ctx, x, y, boxWidth, boxHeight, options.radius * ratio);
         ctx.fill();
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
         ctx.fillStyle = point.textColor || options.textColor;
         ctx.textAlign = 'center';
@@ -133,6 +142,8 @@ export class ChartNotePrimitive {
     this._options = { ...CHART_NOTE_DEFAULT_OPTIONS, ...options };
     this._view = new ChartNoteView(this);
     this._requestUpdate = null;
+    this._flashNoteId = '';
+    this._flashProgress = 1;
   }
 
   attached({ requestUpdate }) {
@@ -146,6 +157,22 @@ export class ChartNotePrimitive {
 
   requestUpdate() {
     this._requestUpdate?.();
+  }
+
+  hasNote(noteId) {
+    return this._notes.some((note) => note.id === noteId);
+  }
+
+  setFlash(noteId, progress = 0) {
+    this._flashNoteId = noteId || '';
+    this._flashProgress = Math.max(0, Math.min(1, Number(progress) || 0));
+    this.requestUpdate();
+  }
+
+  clearFlash() {
+    this._flashNoteId = '';
+    this._flashProgress = 1;
+    this.requestUpdate();
   }
 
   updateAllViews() {

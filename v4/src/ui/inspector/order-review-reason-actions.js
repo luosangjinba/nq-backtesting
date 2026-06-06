@@ -5,6 +5,7 @@ import { getAnnotationById } from '../../pda/pda-store.js';
 import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
 import { getSelectedPda } from '../../pda/pda-selection.js';
 import { getChartNoteById } from '../../chart-notes/chart-note-store.js';
+import { flashChartNote } from '../../chart-notes/chart-note-renderer.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
 import { getSegmentById } from '../../segment/segment-store.js';
 import {
@@ -428,9 +429,15 @@ export function createOrderReviewReasonActionController({
         bus.emit('status:update', { text: 'Linked Chart Note not found', isError: true });
         return true;
       }
-      range = { start: note.timestamp, end: note.timestamp };
-      sourceChartId = ref.sourceChartId || 'primary';
-      label = getChartNoteOrderRefLabel(note);
+      const located = viewport.locateTimestampRange(note.timestamp, note.timestamp, { flash: false });
+      const flashed = located && flashChartNote(note.id);
+      bus.emit('status:update', {
+        text: flashed
+          ? `Located ${getChartNoteOrderRefLabel(note)}`
+          : 'Chart Note box is not visible on the current chart/timeframe',
+        isError: !flashed,
+      });
+      return true;
     }
 
     if (!range) {

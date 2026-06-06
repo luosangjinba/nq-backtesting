@@ -5,6 +5,7 @@ import {
   getChartNoteById,
   updateChartNote,
 } from '../../chart-notes/chart-note-store.js';
+import { flashChartNote } from '../../chart-notes/chart-note-renderer.js';
 
 export function createChartNoteInspectorActionController({
   handlePickedOrderReasonChartNote,
@@ -17,10 +18,13 @@ export function createChartNoteInspectorActionController({
       return true;
     }
 
-    const located = viewport.locateTimestampRange(note.timestamp, note.timestamp);
+    const located = viewport.locateTimestampRange(note.timestamp, note.timestamp, { flash: false });
+    const flashed = located && flashChartNote(note.id);
     bus.emit('status:update', {
-      text: located ? 'Located Chart Note' : 'Chart Note time is not loaded on the current chart',
-      isError: !located,
+      text: flashed
+        ? 'Located Chart Note'
+        : 'Chart Note box is not visible on the current chart/timeframe',
+      isError: !flashed,
     });
     return true;
   }
