@@ -37,6 +37,9 @@ Result:
   None / Partial / Final / Manual Exit.
 - Step 264.3: chart target labels now include target progress state such as
   `Target1 - Hit`, `Target2 - Partial`, or `Target3 - Final`.
+- Follow-up committed in `ef4d76e`: fixed narrow Inspector clipping by changing
+  Target Progress rows to a two-line layout. Target/state/action stay on the
+  first line, while price/points/R move to a metrics line below.
 
 Verification:
 
@@ -47,3 +50,5 @@ Verification:
 - `git diff --check` passed for touched files.
 - Headless Chrome loaded `http://127.0.0.1:8001/index.html` without boot
   failure.
+- Follow-up layout fix verified with `node --check
+  v4/src/ui/inspector/order-review-panel.js` and `git diff --check`.
