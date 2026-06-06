@@ -39,3 +39,28 @@ export function getSegmentOrderRefLabel(segment = {}) {
   const source = [metadata.sourceInstrument, metadata.sourceTimeframeLabel].filter(Boolean).join(' ');
   return source ? `${segmentLabel} · ${source}` : segmentLabel;
 }
+
+function formatNoteTime(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const date = new Date(value * 1000);
+  return `${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}`;
+}
+
+export function buildChartNoteOrderRefMetadata(note = {}) {
+  const timeframeLabel = note.timeframeLabel || note.timeframe || '';
+  return {
+    sourceChartId: note.sourceChartId || 'primary',
+    sourceChartLabel: note.sourceChartLabel || '',
+    sourceInstrument: note.instrument || note.sourceInstrument || 'NQ',
+    sourceTimeframe: note.timeframe ?? null,
+    sourceTimeframeLabel: timeframeLabel,
+    sourceContext: [note.instrument || 'NQ', timeframeLabel, formatNoteTime(note.timestamp)].filter(Boolean).join(' '),
+  };
+}
+
+export function getChartNoteOrderRefLabel(note = {}) {
+  const time = formatNoteTime(note.timestamp);
+  const timeframe = note.timeframeLabel || note.timeframe || '';
+  return ['Chart Note', time, timeframe].filter(Boolean).join(' · ');
+}

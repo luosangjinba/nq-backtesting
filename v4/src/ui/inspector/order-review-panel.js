@@ -94,6 +94,7 @@ function formatRefType(type) {
   if (normalized === 'smt') return 'SMT';
   if (normalized === 'segment') return 'Segment';
   if (normalized === 'composite') return 'Composite';
+  if (normalized === 'chart-note') return 'Chart Note';
   return type ? String(type).toUpperCase() : 'Ref';
 }
 

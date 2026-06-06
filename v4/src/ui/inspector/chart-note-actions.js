@@ -7,6 +7,8 @@ import {
 } from '../../chart-notes/chart-note-store.js';
 
 export function createChartNoteInspectorActionController({
+  handlePickedOrderReasonChartNote,
+  isOrderReasonPicking,
   recordInspectorHistory,
 } = {}) {
   function locate(note) {
@@ -42,6 +44,19 @@ export function createChartNoteInspectorActionController({
         ?.querySelector('[data-inspector-action="chart-note-edit"]');
       input?.focus();
       input?.select?.();
+      return true;
+    }
+
+    if (action === 'chart-note-select-object') {
+      if (!isOrderReasonPicking?.()) {
+        bus.emit('status:update', { text: 'No active Order reason object selection', isError: true });
+        return true;
+      }
+      const linked = handlePickedOrderReasonChartNote?.(note);
+      bus.emit('status:update', {
+        text: linked ? 'Chart Note linked to Order reason' : 'Link Chart Note failed',
+        isError: !linked,
+      });
       return true;
     }
 

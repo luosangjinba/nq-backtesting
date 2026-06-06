@@ -505,6 +505,9 @@ function remapOrderReviewRef(ref, refIdMaps = {}) {
   if (ref.type === ORDER_REF_TYPES.SMT) {
     return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
   }
+  if (ref.type === ORDER_REF_TYPES.CHART_NOTE) {
+    return { ...ref, id: refIdMaps.chartNoteIdMap?.get(ref.id) || ref.id };
+  }
   if (ref.type === ORDER_REF_TYPES.ORDER_SETUP) {
     return { ...ref, id: refIdMaps.orderIdMap?.get(ref.id) || ref.id };
   }
@@ -714,6 +717,7 @@ function prepareImportedChartNotes(existingNotes, importedNotes) {
   let skippedDuplicates = 0;
   let skippedInvalid = 0;
   const notes = [];
+  const idMap = new Map();
 
   (Array.isArray(importedNotes) ? importedNotes : []).forEach((note, index) => {
     const normalized = normalizeChartNote(note);
@@ -725,6 +729,7 @@ function prepareImportedChartNotes(existingNotes, importedNotes) {
     const identity = getChartNoteIdentity(normalized);
     if (existingByIdentity.has(identity)) {
       skippedDuplicates += 1;
+      idMap.set(normalized.id, existingByIdentity.get(identity).id);
       return;
     }
 
@@ -741,10 +746,11 @@ function prepareImportedChartNotes(existingNotes, importedNotes) {
 
     usedIds.add(nextNote.id);
     existingByIdentity.set(identity, nextNote);
+    idMap.set(originalId, nextNote.id);
     notes.push(nextNote);
   });
 
-  return { notes, skippedDuplicates, skippedInvalid };
+  return { notes, skippedDuplicates, skippedInvalid, idMap };
 }
 
 export function exportReviewArchive() {
@@ -846,11 +852,22 @@ export async function importReviewArchive(file) {
       const smtIdMap = preparedSmt.idMap;
       loadSmtRecords([...existingSmtRecords, ...smtRecords]);
 
+      const existingChartNotes = getChartNotes();
+      const preparedChartNotes = prepareImportedChartNotes(
+        existingChartNotes,
+        Array.isArray(payload.chartNotes) ? payload.chartNotes : []
+      );
+      chartNotes = preparedChartNotes.notes;
+      skippedChartNoteDuplicates = preparedChartNotes.skippedDuplicates;
+      skippedInvalidChartNotes = preparedChartNotes.skippedInvalid;
+      const chartNoteIdMap = preparedChartNotes.idMap;
+      loadChartNotes([...existingChartNotes, ...chartNotes]);
+
       const existingOrderReviews = getOrderReviews();
       const preparedOrders = prepareImportedOrderReviews(
         existingOrderReviews,
         Array.isArray(payload.orderReviews) ? payload.orderReviews : [],
-        { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap }
+        { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap, chartNoteIdMap }
       );
       orders = preparedOrders.orders;
       skippedOrderDuplicates = preparedOrders.skippedDuplicates;
@@ -868,16 +885,6 @@ export async function importReviewArchive(file) {
       skippedDailyTimeDuplicates = preparedDailyTimeReviews.skippedDuplicates;
       skippedInvalidDailyTime = preparedDailyTimeReviews.skippedInvalid;
       loadDailyTimeReviews([...existingDailyTimeReviews, ...dailyTimeReviews], { preserveUpdatedAt: true });
-
-      const existingChartNotes = getChartNotes();
-      const preparedChartNotes = prepareImportedChartNotes(
-        existingChartNotes,
-        Array.isArray(payload.chartNotes) ? payload.chartNotes : []
-      );
-      chartNotes = preparedChartNotes.notes;
-      skippedChartNoteDuplicates = preparedChartNotes.skippedDuplicates;
-      skippedInvalidChartNotes = preparedChartNotes.skippedInvalid;
-      loadChartNotes([...existingChartNotes, ...chartNotes]);
 
       const existingDailyRegimes = getDailyRegimes();
       const preparedDailyRegimes = prepareImportedDailyRegimes(

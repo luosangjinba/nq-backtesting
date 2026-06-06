@@ -4,6 +4,7 @@ import * as secondaryViewport from '../../chart/secondary-viewport-controller.js
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
 import { getSelectedPda } from '../../pda/pda-selection.js';
+import { getChartNoteById } from '../../chart-notes/chart-note-store.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
 import { getSegmentById } from '../../segment/segment-store.js';
 import {
@@ -16,7 +17,9 @@ import {
 } from '../../order/order-review-types.js';
 import {
   buildPdaOrderRefMetadata,
+  buildChartNoteOrderRefMetadata,
   buildSegmentOrderRefMetadata,
+  getChartNoteOrderRefLabel,
   getPdaOrderRefLabel,
   getSegmentOrderRefLabel,
 } from '../../order/order-ref-metadata.js';
@@ -43,6 +46,15 @@ export function buildSegmentOrderReviewRef(segment) {
     id: segment.id,
     role: ORDER_REF_ROLES.CONTEXT,
     ...buildSegmentOrderRefMetadata(segment),
+  };
+}
+
+export function buildChartNoteOrderReviewRef(note) {
+  return {
+    type: ORDER_REF_TYPES.CHART_NOTE,
+    id: note.id,
+    role: ORDER_REF_ROLES.CONTEXT,
+    ...buildChartNoteOrderRefMetadata(note),
   };
 }
 
@@ -410,6 +422,15 @@ export function createOrderReviewReasonActionController({
       range = getSegmentTimestampRange(segment);
       sourceChartId = ref.sourceChartId || segment.sourceChartId || sourceChartId;
       label = getSegmentOrderRefLabel(segment);
+    } else if (type === ORDER_REF_TYPES.CHART_NOTE) {
+      const note = getChartNoteById(ref.id || ref.refId);
+      if (!note) {
+        bus.emit('status:update', { text: 'Linked Chart Note not found', isError: true });
+        return true;
+      }
+      range = { start: note.timestamp, end: note.timestamp };
+      sourceChartId = ref.sourceChartId || 'primary';
+      label = getChartNoteOrderRefLabel(note);
     }
 
     if (!range) {
@@ -525,6 +546,7 @@ export function createOrderReviewReasonActionController({
     handleChange,
     handleClick,
     handlePickedPda: (annotation) => linkPickedReasonRef(buildPdaOrderReviewRef(annotation), getPdaOrderRefLabel(annotation)),
+    handlePickedChartNote: (note) => linkPickedReasonRef(buildChartNoteOrderReviewRef(note), getChartNoteOrderRefLabel(note)),
     handlePickedSegment: (segment) => linkPickedReasonRef(buildSegmentOrderReviewRef(segment), getSegmentOrderRefLabel(segment)),
     handlePickedComposite: (segmentGroup) => linkPickedReasonRef({
       type: ORDER_REF_TYPES.COMPOSITE,

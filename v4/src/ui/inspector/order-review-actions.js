@@ -78,6 +78,7 @@ export function createOrderReviewActionController({
     createOrderReviewFromSegment: lifecycleActions.createOrderReviewFromSegment,
     getPendingReasonRefPick: reasonActions.getPendingRefPick,
     handlePickedComposite: reasonActions.handlePickedComposite,
+    handlePickedChartNote: reasonActions.handlePickedChartNote,
     handlePickedPda: reasonActions.handlePickedPda,
     handlePickedSegment: reasonActions.handlePickedSegment,
     handlePickedSmt: reasonActions.handlePickedSmt,

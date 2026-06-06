@@ -115,6 +115,8 @@ const dailyTimeActions = createDailyTimeInspectorActionController({
   recordInspectorHistory,
 });
 const chartNoteActions = createChartNoteInspectorActionController({
+  handlePickedOrderReasonChartNote: (note) => orderReviewActions.handlePickedChartNote(note),
+  isOrderReasonPicking: () => orderReviewActions.isReasonRefPicking(),
   recordInspectorHistory,
 });
 
@@ -336,8 +338,14 @@ function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
     ${renderInspectorBackAction()}
     ${
       sectionKey
-        ? renderDailyTimeReviewSectionPanel(review, sectionKey, { pendingRefPick: dailyTimeActions.getPendingRefPick() })
-        : renderDailyTimeReviewPanel(review, { pendingRefPick: dailyTimeActions.getPendingRefPick() })
+        ? renderDailyTimeReviewSectionPanel(review, sectionKey, {
+            pendingRefPick: dailyTimeActions.getPendingRefPick(),
+            pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
+          })
+        : renderDailyTimeReviewPanel(review, {
+            pendingRefPick: dailyTimeActions.getPendingRefPick(),
+            pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
+          })
     }
   `;
 }
