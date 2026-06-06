@@ -11,6 +11,9 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   rowGap: 6,
   leaderColor: 'rgba(255, 247, 168, 0.28)',
   leaderWidth: 1,
+  leaderAnchorColor: 'rgba(255, 247, 168, 0.96)',
+  leaderAnchorBorderColor: 'rgba(31, 36, 48, 0.62)',
+  leaderAnchorSize: 3,
   flashBorderColor: 'rgba(255, 255, 255, 0.96)',
   flashGlowColor: 'rgba(255, 247, 168, 0.55)',
 };
@@ -81,6 +84,7 @@ class ChartNoteRenderer {
         const y = Math.round(topOffset + index * (boxHeight + rowGap));
         const labelAnchorX = Math.min(Math.max(x + 8 * hRatio, anchorX), x + boxWidth - 8 * hRatio);
         const labelAnchorY = y + boxHeight;
+        const anchorSize = options.leaderAnchorSize * ratio;
 
         ctx.strokeStyle = options.leaderColor;
         ctx.lineWidth = options.leaderWidth * ratio;
@@ -90,6 +94,14 @@ class ChartNoteRenderer {
         ctx.lineTo(anchorX, anchorY);
         ctx.stroke();
         ctx.setLineDash([]);
+
+        ctx.fillStyle = options.leaderAnchorColor;
+        ctx.strokeStyle = options.leaderAnchorBorderColor;
+        ctx.lineWidth = 1 * ratio;
+        ctx.beginPath();
+        ctx.arc(labelAnchorX, labelAnchorY + anchorSize * 0.7, anchorSize, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
 
         ctx.fillStyle = point.color || options.backgroundColor;
         const isFlashing = source._flashNoteId === point.id;
