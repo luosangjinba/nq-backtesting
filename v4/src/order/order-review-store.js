@@ -344,6 +344,12 @@ export function normalizeManualExplanationEvent(input = {}, index = 0) {
     eventType,
     price: normalizeNumber(input.price),
     note: normalizeNote(input.note),
+    sourceChartId: normalizeString(input.sourceChartId, ''),
+    sourceChartLabel: normalizeString(input.sourceChartLabel, ''),
+    sourceInstrument: normalizeString(input.sourceInstrument, ''),
+    sourceTimeframe: input.sourceTimeframe ?? null,
+    sourceTimeframeLabel: normalizeString(input.sourceTimeframeLabel, ''),
+    sourceContext: normalizeString(input.sourceContext, ''),
   };
 }
 

@@ -3,13 +3,21 @@
 import * as store from '../data/bar-store.js';
 import { mapTimestampToChartTime } from '../chart/time-projection.js';
 
-export function mapSegmentTimestampToChartTime(timestamp, timeframe = store.getCurrentTimeframe()) {
+export function mapSegmentTimestampToChartTime(
+  timestamp,
+  timeframe = store.getCurrentTimeframe(),
+  displayBars = store.getDisplayBars()
+) {
   if (timestamp === undefined || timestamp === null) return null;
   if (!Number.isFinite(Number(timestamp))) return null;
-  return mapTimestampToChartTime(Number(timestamp), timeframe, store.getDisplayBars());
+  return mapTimestampToChartTime(Number(timestamp), timeframe, Array.isArray(displayBars) ? displayBars : []);
 }
 
-export function getSegmentPointRenderTime(point, timeframe = store.getCurrentTimeframe()) {
+export function getSegmentPointRenderTime(
+  point,
+  timeframe = store.getCurrentTimeframe(),
+  displayBars = store.getDisplayBars()
+) {
   if (!point) return null;
   const sourceTimeframe = Number(point.sourceTimeframe);
   const occurrenceTimestamp = Number(point.occurrenceTimestamp);
@@ -19,7 +27,11 @@ export function getSegmentPointRenderTime(point, timeframe = store.getCurrentTim
     Number.isFinite(occurrenceTimestamp);
 
   return (
-    mapSegmentTimestampToChartTime(shouldUseOccurrence ? occurrenceTimestamp : point.timestamp, timeframe) ??
+    mapSegmentTimestampToChartTime(
+      shouldUseOccurrence ? occurrenceTimestamp : point.timestamp,
+      timeframe,
+      displayBars
+    ) ??
     point.time
   );
 }

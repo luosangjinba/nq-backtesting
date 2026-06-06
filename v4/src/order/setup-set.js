@@ -318,6 +318,12 @@ function createManualEvents(order = {}) {
     eventType: event.eventType || event.type || 'other',
     price: toNumberOrNull(event.price),
     note: event.note || '',
+    sourceChartId: event.sourceChartId || '',
+    sourceChartLabel: event.sourceChartLabel || '',
+    sourceInstrument: event.sourceInstrument || '',
+    sourceTimeframe: event.sourceTimeframe ?? null,
+    sourceTimeframeLabel: event.sourceTimeframeLabel || '',
+    sourceContext: event.sourceContext || '',
   }));
 }
 

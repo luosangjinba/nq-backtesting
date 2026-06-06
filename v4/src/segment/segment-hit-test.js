@@ -20,6 +20,11 @@ function getHitTimeframe(context) {
   return Number.isFinite(timeframe) ? timeframe : undefined;
 }
 
+function getHitDisplayBars(context) {
+  const bars = context?.getDisplayBars?.();
+  return Array.isArray(bars) ? bars : undefined;
+}
+
 function getTimeCoordinate(time, context) {
   if (time === undefined || time === null) return null;
   const activeContext = getHitContext(context);
@@ -46,9 +51,10 @@ function distanceToLineSegment(px, py, x1, y1, x2, y2) {
 
 function hitSegment(segment, x, y, context) {
   const timeframe = getHitTimeframe(context);
-  const startX = getTimeCoordinate(getSegmentPointRenderTime(segment.start, timeframe), context);
+  const displayBars = getHitDisplayBars(context);
+  const startX = getTimeCoordinate(getSegmentPointRenderTime(segment.start, timeframe, displayBars), context);
   const startY = getPriceCoordinate(segment.start?.price, context);
-  const endX = getTimeCoordinate(getSegmentPointRenderTime(segment.end, timeframe), context);
+  const endX = getTimeCoordinate(getSegmentPointRenderTime(segment.end, timeframe, displayBars), context);
   const endY = getPriceCoordinate(segment.end?.price, context);
 
   if (startX === null || startY === null || endX === null || endY === null) return null;
@@ -102,9 +108,10 @@ function hitSegmentGroup(group, x, y, context) {
   const first = children[0];
   const last = children[children.length - 1];
   const timeframe = getHitTimeframe(context);
-  const startX = getTimeCoordinate(getSegmentPointRenderTime(first.start, timeframe), context);
+  const displayBars = getHitDisplayBars(context);
+  const startX = getTimeCoordinate(getSegmentPointRenderTime(first.start, timeframe, displayBars), context);
   const startY = getPriceCoordinate(first.start?.price, context);
-  const endX = getTimeCoordinate(getSegmentPointRenderTime(last.end, timeframe), context);
+  const endX = getTimeCoordinate(getSegmentPointRenderTime(last.end, timeframe, displayBars), context);
   const endY = getPriceCoordinate(last.end?.price, context);
 
   if (startX === null || startY === null || endX === null || endY === null) return null;
