@@ -32,6 +32,7 @@ import {
 } from './inspector/time-reaction-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
+import { createChartNoteInspectorActionController } from './inspector/chart-note-actions.js';
 import {
   canPopInspectorPage,
   getInspectorPage,
@@ -111,6 +112,9 @@ const dailyTimeActions = createDailyTimeInspectorActionController({
   refreshSelection,
   openSidebar,
   setCalendarDateContext,
+  recordInspectorHistory,
+});
+const chartNoteActions = createChartNoteInspectorActionController({
   recordInspectorHistory,
 });
 
@@ -688,6 +692,10 @@ function handleInspectorChange(e) {
     return;
   }
 
+  if (chartNoteActions.handleChange(action, e.target)) {
+    return;
+  }
+
   if (orderReviewActions.handleOrderReviewChange(action, e.target)) {
     return;
   }
@@ -719,6 +727,10 @@ function handleInspectorClick(e) {
   }
 
   if (dailyTimeActions.handleClick(action, actionEl)) {
+    return;
+  }
+
+  if (chartNoteActions.handleClick(action, actionEl)) {
     return;
   }
 

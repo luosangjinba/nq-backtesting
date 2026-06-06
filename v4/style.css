@@ -1028,12 +1028,32 @@ html, body {
   background: rgba(255, 247, 168, 0.06);
 }
 
+.time-reaction-chart-note-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .time-reaction-chart-note-meta {
   display: flex;
   gap: 8px;
   color: #fff7a8;
   font-size: 11px;
   font-weight: 600;
+}
+
+.time-reaction-chart-note-edit {
+  min-height: 54px;
+  padding: 6px 7px;
+  border-color: rgba(255, 247, 168, 0.22);
+  background: rgba(15, 19, 28, 0.72);
+  font-size: 12px;
+}
+
+.time-reaction-chart-note-edit:focus {
+  border-color: rgba(255, 247, 168, 0.72);
 }
 
 .time-reaction-chart-note-text {
@@ -1066,6 +1086,10 @@ html, body {
 
 .time-reaction-panel .time-reaction-fixed-note {
   min-height: 58px;
+}
+
+.time-reaction-panel .time-reaction-chart-note-edit {
+  min-height: 54px;
 }
 
 .time-reaction-panel .order-review-ref-row {

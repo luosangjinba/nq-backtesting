@@ -186,11 +186,41 @@ function renderChartNotesSection(review) {
     const timeframe = TIMEFRAME_MAP[Number(note.timeframe)] || `${note.timeframe || '—'}M`;
     return `
       <div class="time-reaction-chart-note-row">
-        <div class="time-reaction-chart-note-meta">
-          <span>${escapeHtml(timeTextFromTimestamp(note.timestamp))}</span>
-          <span>${escapeHtml(timeframe)}</span>
+        <div class="time-reaction-chart-note-header">
+          <div class="time-reaction-chart-note-meta">
+            <span>${escapeHtml(timeTextFromTimestamp(note.timestamp))}</span>
+            <span>${escapeHtml(timeframe)}</span>
+          </div>
+          <details class="order-review-ref-menu chart-note-action-menu">
+            <summary class="order-review-ref-menu-trigger" aria-label="Chart note actions">...</summary>
+            <div class="order-review-ref-menu-panel">
+              <button
+                class="order-review-ref-menu-item"
+                data-inspector-action="chart-note-locate"
+                data-chart-note-id="${escapeHtml(note.id)}"
+                type="button"
+              >Locate</button>
+              <button
+                class="order-review-ref-menu-item"
+                data-inspector-action="chart-note-edit-focus"
+                data-chart-note-id="${escapeHtml(note.id)}"
+                type="button"
+              >Edit</button>
+              <button
+                class="order-review-ref-menu-item danger"
+                data-inspector-action="chart-note-delete"
+                data-chart-note-id="${escapeHtml(note.id)}"
+                type="button"
+              >Delete</button>
+            </div>
+          </details>
         </div>
-        <div class="time-reaction-chart-note-text">${escapeHtml(note.text)}</div>
+        <textarea
+          class="inspector-textarea time-reaction-chart-note-edit"
+          data-inspector-action="chart-note-edit"
+          data-chart-note-id="${escapeHtml(note.id)}"
+          rows="2"
+        >${escapeHtml(note.text)}</textarea>
       </div>
     `;
   });
