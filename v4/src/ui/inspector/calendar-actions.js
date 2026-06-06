@@ -17,6 +17,12 @@ import {
 import { clearChartNoteFocusedDate, setChartNoteFocusedDate } from '../../chart-notes/chart-note-visible-day.js';
 import { renderChartNotes } from '../../chart-notes/chart-note-renderer.js';
 
+function dateKeyFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  return new Date(value * 1000).toISOString().slice(0, 10);
+}
+
 export function createCalendarActionController({
   getSelectedDate,
   setSelectedDate,
@@ -58,6 +64,11 @@ export function createCalendarActionController({
     }
     viewport.locateTimestampRange(start, end);
     secondaryViewport.locateSecondaryTimestampRange(start, end);
+    const dateKey = dateKeyFromTimestamp(start);
+    if (dateKey) {
+      setChartNoteFocusedDate(dateKey, store.getDisplayBars());
+      renderChartNotes();
+    }
     const label = actionEl.dataset.objectLabel || 'Calendar object';
     bus.emit('status:update', { text: `Located ${label}`, isError: false });
     return true;
@@ -68,6 +79,8 @@ export function createCalendarActionController({
       const date = actionEl.dataset.calendarDate || getSelectedDate?.() || '';
       setSelectedDate?.(date, date);
       updateTimeOverlaySettings({ selectedDate: date });
+      setChartNoteFocusedDate(date, store.getDisplayBars());
+      renderChartNotes();
       const targetTimestamp = getCalendarDateTimestamp(date, '09:30');
       if (targetTimestamp !== null) {
         viewport.locateTimestampRange(targetTimestamp, targetTimestamp);
