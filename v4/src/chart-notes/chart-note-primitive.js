@@ -1,4 +1,4 @@
-const DEFAULT_OPTIONS = {
+export const CHART_NOTE_DEFAULT_OPTIONS = {
   backgroundColor: 'rgba(255, 247, 168, 0.92)',
   borderColor: 'rgba(255, 247, 168, 0.95)',
   textColor: '#1f2430',
@@ -130,7 +130,7 @@ export class ChartNotePrimitive {
     this._chart = chart;
     this._series = series;
     this._notes = notes;
-    this._options = { ...DEFAULT_OPTIONS, ...options };
+    this._options = { ...CHART_NOTE_DEFAULT_OPTIONS, ...options };
     this._view = new ChartNoteView(this);
     this._requestUpdate = null;
   }

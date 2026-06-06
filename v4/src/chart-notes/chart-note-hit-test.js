@@ -1,0 +1,112 @@
+import * as chart from '../chart/chart-manager.js';
+import { getBarChartTime } from '../chart/time-projection.js';
+import * as store from '../data/bar-store.js';
+import { getReplayVisibleBars } from '../ui/replay-controls.js';
+import { getChartNotes } from './chart-note-store.js';
+import { CHART_NOTE_DEFAULT_OPTIONS } from './chart-note-primitive.js';
+
+const DEFAULT_INSTRUMENT = 'NQ';
+const HIT_PADDING_PX = 4;
+
+let measureContext = null;
+
+function getMeasureContext(options) {
+  if (!measureContext) {
+    measureContext = document.createElement('canvas').getContext('2d');
+  }
+  measureContext.font = options.font;
+  return measureContext;
+}
+
+function getRenderableBars() {
+  const replayBars = getReplayVisibleBars();
+  return Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
+}
+
+function ellipsizeText(ctx, text, maxWidth) {
+  const value = String(text || '').trim();
+  if (!value || ctx.measureText(value).width <= maxWidth) return value;
+  const ellipsis = '...';
+  let output = value;
+  while (output.length > 1 && ctx.measureText(output + ellipsis).width > maxWidth) {
+    output = output.slice(0, -1);
+  }
+  return `${output}${ellipsis}`;
+}
+
+function buildHitPoints(options) {
+  const timeframe = store.getCurrentTimeframe();
+  const bars = getRenderableBars();
+  const barByTimestamp = new Map(
+    bars
+      .filter((bar) => Number.isFinite(Number(bar?.timestamp)))
+      .map((bar) => [Number(bar.timestamp), bar])
+  );
+
+  return getChartNotes()
+    .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
+    .filter((note) => Number(note.timeframe) === Number(timeframe))
+    .map((note) => {
+      const bar = barByTimestamp.get(Number(note.timestamp));
+      if (!bar) return null;
+      const position = note.position === 'below' ? 'below' : 'above';
+      const price = position === 'below' ? Number(bar.low) : Number(bar.high);
+      if (!Number.isFinite(price)) return null;
+      const time = getBarChartTime(bar, timeframe);
+      const anchorX = chart.timeToCoordinate(time);
+      const anchorY = chart.priceToCoordinate(price);
+      if (anchorX === null || anchorY === null) return null;
+      return {
+        note,
+        text: note.text,
+        anchorX,
+        anchorY,
+      };
+    })
+    .filter(Boolean)
+    .map((point, index) => {
+      const ctx = getMeasureContext(options);
+      const text = ellipsizeText(ctx, point.text, options.maxWidth);
+      if (!text) return null;
+      const textWidth = ctx.measureText(text).width;
+      const textHeight = 13;
+      const boxWidth = textWidth + options.paddingX * 2;
+      const boxHeight = textHeight + options.paddingY * 2;
+      const chartEl = document.getElementById('chart');
+      const canvasWidth = chartEl?.clientWidth || 0;
+      const boxX = Math.round(Math.min(Math.max(4, point.anchorX - boxWidth / 2), canvasWidth - boxWidth - 4));
+      const boxY = Math.round(options.topOffset + index * (boxHeight + options.rowGap));
+      return {
+        ...point,
+        boxX,
+        boxY,
+        boxWidth,
+        boxHeight,
+      };
+    })
+    .filter(Boolean);
+}
+
+export function hitTestChartNotes({ x, y, options = CHART_NOTE_DEFAULT_OPTIONS } = {}) {
+  if (!Number.isFinite(Number(x)) || !Number.isFinite(Number(y))) return null;
+  const hits = buildHitPoints(options)
+    .map((point) => {
+      const left = point.boxX - HIT_PADDING_PX;
+      const right = point.boxX + point.boxWidth + HIT_PADDING_PX;
+      const top = point.boxY - HIT_PADDING_PX;
+      const bottom = point.boxY + point.boxHeight + HIT_PADDING_PX;
+      if (x < left || x > right || y < top || y > bottom) return null;
+      const centerX = point.boxX + point.boxWidth / 2;
+      const centerY = point.boxY + point.boxHeight / 2;
+      return {
+        id: point.note.id,
+        note: point.note,
+        type: 'chart-note',
+        distance: Math.hypot(x - centerX, y - centerY),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.distance - b.distance);
+
+  return hits[0] || null;
+}

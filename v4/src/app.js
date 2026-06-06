@@ -37,6 +37,7 @@ import { initDailyTimeReviewPersistence } from './time-reaction/daily-time-revie
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
 import { initChartNotePersistence } from './chart-notes/chart-note-persistence.js';
 import { initChartNoteRenderer } from './chart-notes/chart-note-renderer.js';
+import { initChartNoteSelection } from './chart-notes/chart-note-selection.js';
 import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
@@ -126,6 +127,7 @@ console.log('[V4] Time Overlay controls initialized');
 
 initChartNotePersistence();
 initChartNoteRenderer();
+initChartNoteSelection();
 console.log('[V4] Chart Notes controls initialized');
 
 initEconomicCalendarLoader();

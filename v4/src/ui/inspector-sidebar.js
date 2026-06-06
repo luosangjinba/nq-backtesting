@@ -889,6 +889,11 @@ export function initInspectorSidebar() {
   bus.on('order-review:changed', refreshSelection);
   bus.on('daily-time-review:changed', refreshSelection);
   bus.on('chart-notes:changed', refreshSelection);
+  bus.on('chart-note:selected', ({ note }) => {
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedChartNote(note);
+    }
+  });
   bus.on('economic-calendar:changed', refreshSelection);
   bus.on('daily-regime:changed', refreshSelection);
   bus.on('inspector:open-calendar-date', openCalendarDate);
