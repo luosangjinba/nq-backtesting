@@ -3,6 +3,7 @@
 .api_pid
 
 # Temporary directories
+tmp/
 v2/docs/tmp/
 
 # Test files (keep in working directory but don't commit)
