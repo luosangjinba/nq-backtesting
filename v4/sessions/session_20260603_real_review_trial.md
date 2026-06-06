@@ -521,3 +521,18 @@ Execution rule:
 - Each sub-step should be committed separately.
 - Existing unrelated workspace dirt, including deleted daily-regime smoke files
   and temporary screenshots/logs, must not be included in these commits.
+
+Result:
+
+- Created branch `feature/v4-chart-notes`.
+- Added chart note state in `2840934`: independent store, localStorage
+  persistence, undo/redo snapshots, and Review JSON import/export under
+  optional `chartNotes`.
+- Added renderer in `4965176`: note labels render only on the primary chart for
+  matching instrument/timeframe/timestamp; Replay On uses the current replay
+  visible slice, so future notes do not appear.
+- Added context menu actions in `49e48b6`: primary chart right-click menu has
+  `Chart Note -> Add Note Here / Edit Note / Delete Note`.
+- Validation: `find v4/src -name '*.js' -print0 | xargs -0 -n 1 node --check`,
+  `git diff --check`, `curl -s -I http://127.0.0.1:8001/index.html`, and
+  headless Chrome `--dump-dom` for `http://127.0.0.1:8001/index.html` passed.
