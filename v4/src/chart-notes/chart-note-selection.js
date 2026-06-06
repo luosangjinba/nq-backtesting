@@ -1,5 +1,8 @@
 import * as bus from '../event-bus.js';
 import { hitTestChartNotes } from './chart-note-hit-test.js';
+import { setExpandedChartNote } from './chart-note-renderer.js';
+
+let expandedNoteId = '';
 
 function shouldIgnoreClick(e) {
   return Boolean(
@@ -24,6 +27,7 @@ function handleChartClick(e) {
   const hit = hitTestChartNotes({
     x: e.clientX - rect.left,
     y: e.clientY - rect.top,
+    expandedNoteId,
   });
   if (!hit?.note) return;
 
@@ -32,6 +36,38 @@ function handleChartClick(e) {
   bus.emit('chart-note:selected', { note: hit.note, hit });
 }
 
+function setExpandedNote(noteId) {
+  const nextId = noteId || '';
+  if (expandedNoteId === nextId) return;
+  expandedNoteId = nextId;
+  setExpandedChartNote(expandedNoteId);
+}
+
+function handleChartMouseMove(e) {
+  if (shouldIgnoreClick(e)) {
+    setExpandedNote('');
+    return;
+  }
+
+  const chartEl = document.getElementById('chart');
+  if (!chartEl) return;
+
+  const rect = chartEl.getBoundingClientRect();
+  const hit = hitTestChartNotes({
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+    expandedNoteId,
+  });
+  setExpandedNote(hit?.note?.id || '');
+}
+
+function handleChartMouseLeave() {
+  setExpandedNote('');
+}
+
 export function initChartNoteSelection() {
-  document.getElementById('chart')?.addEventListener('click', handleChartClick, true);
+  const chartEl = document.getElementById('chart');
+  chartEl?.addEventListener('click', handleChartClick, true);
+  chartEl?.addEventListener('mousemove', handleChartMouseMove);
+  chartEl?.addEventListener('mouseleave', handleChartMouseLeave);
 }

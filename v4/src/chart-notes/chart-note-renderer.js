@@ -97,6 +97,10 @@ export function flashChartNote(noteId) {
   return true;
 }
 
+export function setExpandedChartNote(noteId) {
+  renderedPrimitive?.setExpandedNote?.(noteId || '');
+}
+
 export function initChartNoteRenderer() {
   bus.on('chart-notes:changed', renderChartNotes);
   bus.on('bars:loaded', renderChartNotes);
