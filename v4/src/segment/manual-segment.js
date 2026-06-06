@@ -90,18 +90,18 @@ function buildSourceMetadata(context) {
 async function resolveEndpointOccurrence(bar, kind, price, context) {
   const timeframe = getContextTimeframe(context);
   const instrument = context?.instrument || 'NQ';
-  if (timeframe !== SEGMENT_TIMEFRAME || instrument !== 'NQ') return {};
+  if (timeframe <= OCCURRENCE_SOURCE_TIMEFRAME || !instrument) return {};
 
   const startTimestamp = Number(bar?.timestamp);
   if (!Number.isFinite(startTimestamp)) return {};
-  const endTimestamp = startTimestamp + SEGMENT_TIMEFRAME * 60;
+  const endTimestamp = startTimestamp + timeframe * 60;
 
   try {
     const result = await fetchBars(
       formatTimestampInput(startTimestamp),
       formatTimestampInput(endTimestamp),
       OCCURRENCE_SOURCE_TIMEFRAME,
-      'NQ'
+      instrument
     );
     const occurrenceBar = getOccurrenceBar(
       Array.isArray(result.bars) ? result.bars : [],
