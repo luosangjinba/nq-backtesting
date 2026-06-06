@@ -720,6 +720,37 @@ Validation:
 - Documentation-only decision; no runtime code changed.
 - `git diff --check` passed for the touched files.
 
+## 2026-06-06 - Step 265.7 Secondary Menu Expansion Validation
+
+Completed validation:
+
+- Full JS syntax check:
+  - `find v4/src -name '*.js' -exec node --check {} \;` passed.
+- Whitespace / conflict marker check:
+  - `git diff --check` passed.
+- Web smoke:
+  - `curl -s -I http://127.0.0.1:8001/index.html` returned `200 OK`.
+- API smoke:
+  - `curl -s http://127.0.0.1:8766/v4/health` returned
+    `{"status": "ok", "version": "4.0"}`.
+  - `/v4/bars` NQ 1M smoke returned bars and `requestedRange`.
+
+Code-path review:
+
+- Secondary-created PDA objects now carry source metadata for simple actions,
+  range actions, Fib, and point sets.
+- Secondary Point Set draft state is scoped separately from primary.
+- Secondary Order Setup links reuse the existing active setup reason/ref path,
+  while execution-writing setup actions remain unavailable on secondary.
+- Review JSON and Inspector paths continue to use the shared PDA/segment/order
+  stores, so export/import schema remains unchanged.
+
+Remaining manual regression:
+
+- Browser interaction should still be manually checked for Split on/off, NQ/ES,
+  1M/30M/1H, and Replay On because these require canvas interaction and visual
+  confirmation.
+
 ## 2026-06-06 - Step 265.2 Secondary Range PDA Workflows
 
 Implemented:
