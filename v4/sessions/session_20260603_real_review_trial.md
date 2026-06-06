@@ -491,3 +491,33 @@ Notes:
 
 - The currently deleted `tmp/daily_regime_*_smoke.mjs` files were not part of
   these fixes and were intentionally left out of the source commits.
+
+## 2026-06-06 - Step 262 Chart Bar Notes Plan
+
+Goal:
+
+- Add lightweight chart notes bound to one instrument, one timeframe, and one
+  exact chart bar timestamp.
+- Notes should appear only on the bound timeframe. A 1M note must not project
+  onto 5M/15M/1H, and a 1H note must not appear on 1M.
+- Notes must not reveal future bars during Replay. Replay On should render only
+  notes whose timestamp is already inside the current replay slice.
+
+Planned implementation:
+
+1. Add an independent `chart-notes` store and persistence module with
+   normalize/CRUD/load/get APIs and localStorage persistence.
+2. Add a chart note renderer using a small label primitive on the primary
+   chart. First version renders text labels only; no rich text, no drag, no
+   automatic collision avoidance.
+3. Add primary chart right-click actions: `Add Note Here`, `Edit Note`, and
+   `Delete Note`.
+4. Extend Review JSON with an optional `chartNotes` array, normalized and
+   de-duplicated on import.
+5. Validate syntax, diff whitespace, page boot, and the core manual workflow.
+
+Execution rule:
+
+- Each sub-step should be committed separately.
+- Existing unrelated workspace dirt, including deleted daily-regime smoke files
+  and temporary screenshots/logs, must not be included in these commits.
