@@ -72,6 +72,12 @@ import {
   updateTimeOverlaySettings,
 } from '../time-overlays/time-overlay-store.js';
 import {
+  deleteChartNote,
+  getChartNoteForBar,
+  updateChartNote,
+  upsertChartNote,
+} from '../chart-notes/chart-note-store.js';
+import {
   clampMenuPosition,
   getPdaLabel,
   getSegmentLabel,
@@ -157,6 +163,12 @@ function promptKillzoneLabel(defaultLabel = 'Killzone') {
   return value.trim() || defaultLabel;
 }
 
+function promptChartNoteText(defaultText = '') {
+  const value = window.prompt('Chart note', defaultText);
+  if (value === null) return null;
+  return value.trim();
+}
+
 function findDisplayBar(time) {
   return findDisplayBarInContext(getPrimaryContext(), time);
 }
@@ -212,6 +224,30 @@ function renderTimeOverlayMenuItems(bar) {
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-end" ${endDisabled}>End Killzone Here${draftLabel}</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-rename" ${editKillzoneDisabled}>Rename Killzone Here</button>
       <button class="pda-menu-item" data-pda-action="time-overlay-killzone-delete" ${editKillzoneDisabled}>Delete Killzone Here</button>
+      </div>
+    </div>
+  `;
+}
+
+function getChartNoteAtContextBar() {
+  if (!contextMenuBar) return null;
+  return getChartNoteForBar({
+    instrument: 'NQ',
+    timeframe: store.getCurrentTimeframe(),
+    timestamp: contextMenuBar.timestamp,
+  });
+}
+
+function renderChartNoteMenuItems(bar) {
+  const disabled = bar ? '' : 'disabled';
+  const existingNote = bar ? getChartNoteAtContextBar() : null;
+  return `
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Chart Note</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" data-pda-action="chart-note-add" ${existingNote ? 'disabled' : disabled}>Add Note Here</button>
+      <button class="pda-menu-item" data-pda-action="chart-note-edit" ${existingNote ? '' : 'disabled'}>Edit Note</button>
+      <button class="pda-menu-item" data-pda-action="chart-note-delete" ${existingNote ? '' : 'disabled'}>Delete Note</button>
       </div>
     </div>
   `;
@@ -301,6 +337,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     segmentGroupItems,
     segmentItems,
     pointSetItems,
+    chartNoteItems: renderChartNoteMenuItems(bar),
     timeOverlayItems: renderTimeOverlayMenuItems(bar),
     clearItems: renderClearMenuItems(),
   });
@@ -385,6 +422,45 @@ async function handleControlClick(e) {
     hideContextMenu();
   } else if (action === 'smt-fvg-bearish' || action === 'smt-fvg-bullish') {
     startFvgSmt(action === 'smt-fvg-bullish' ? 'bullish' : 'bearish');
+    hideContextMenu();
+  } else if (action === 'chart-note-add') {
+    if (!contextMenuBar) {
+      bus.emit('status:update', { text: '无法添加 Chart Note：没有可用 K 线', isError: true });
+    } else {
+      const text = promptChartNoteText();
+      if (text) {
+        recordHistory('Add Chart Note', () =>
+          upsertChartNote({
+            instrument: 'NQ',
+            timeframe: store.getCurrentTimeframe(),
+            timestamp: contextMenuBar.timestamp,
+            text,
+          })
+        );
+        bus.emit('status:update', { text: 'Chart Note 已添加', isError: false });
+      }
+    }
+    hideContextMenu();
+  } else if (action === 'chart-note-edit') {
+    const note = getChartNoteAtContextBar();
+    if (!note) {
+      bus.emit('status:update', { text: '当前 K 线没有可编辑的 Chart Note', isError: true });
+    } else {
+      const text = promptChartNoteText(note.text);
+      if (text) {
+        recordHistory('Edit Chart Note', () => updateChartNote(note.id, { text }));
+        bus.emit('status:update', { text: 'Chart Note 已更新', isError: false });
+      }
+    }
+    hideContextMenu();
+  } else if (action === 'chart-note-delete') {
+    const note = getChartNoteAtContextBar();
+    if (!note) {
+      bus.emit('status:update', { text: '当前 K 线没有可删除的 Chart Note', isError: true });
+    } else {
+      recordHistory('Delete Chart Note', () => deleteChartNote(note.id));
+      bus.emit('status:update', { text: 'Chart Note 已删除', isError: false });
+    }
     hideContextMenu();
   } else if (action === 'time-overlay-add-event') {
     const time = getContextEventTime();

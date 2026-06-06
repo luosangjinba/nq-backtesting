@@ -97,6 +97,7 @@ export function renderManualContextMenu({
   segmentGroupItems,
   segmentItems,
   pointSetItems,
+  chartNoteItems,
   timeOverlayItems,
   clearItems,
   submenuDirection = 'right',
@@ -141,6 +142,7 @@ export function renderManualContextMenu({
       ${segmentGroupItems}
       ${segmentItems}
       ${pointSetItems}
+      ${chartNoteItems}
       ${timeOverlayItems}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Objective Gaps</div>
