@@ -1,16 +1,16 @@
 # V4 User Guide
 
-V4 is a chart-based review tool for marking PDAs, drawing 1H price legs, linking PDA responses, recording reaction evidence, grouping multiple legs into higher-timeframe Composite Moves, and manually marking SMT evidence with an ES secondary chart.
+V4 is a chart-based review tool for replaying NQ candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES secondary chart.
 
-The current version is centered on manual review. Most chart-review workflows are usable. The remaining "precision review" work is actor-timeframe auto-fetching, canvas selection of actor candle groups, final verdict workflow, and statistics pages.
+The current version is centered on manual review. It is not an automatic trading-signal system and does not decide whether a setup is valid. Most chart-review workflows are usable. The remaining "precision review" work is actor-timeframe auto-fetching, canvas selection of actor candle groups, final verdict workflow, and statistics pages.
 
 ## Start The App
 
-Start a static file server from the project root:
+Recommended start command:
 
 ```bash
 cd /home/leo/myworkspace/trading/backtesting
-python3 -m http.server 8001
+bash v4/start.sh start
 ```
 
 Open:
@@ -25,13 +25,22 @@ The V4 API is usually available at:
 http://127.0.0.1:8766/v4/health
 ```
 
+Common service commands:
+
+```bash
+bash v4/start.sh status
+bash v4/start.sh restart
+bash v4/start.sh stop
+```
+
+If you see `Failed to fetch`, Replay History restore failures, or Calendar/price lookup failures, first check whether the API is running on `8766`.
+
 ## Load A Chart
 
 The top toolbar provides:
 
-- `开始`: range start.
-- `结束`: range end.
-- `周期`: chart timeframe, such as `1H`, `4H`, or `D`.
+- `Date`: current loaded range. Click it to open the Date Range Calendar for start/end selection and manual precise time input.
+- `周期`: chart timeframe, such as `1M`, `30M`, `1H`, `4H`, or `D`.
 - `加载`: load candles.
 - `Archive`: open import/export actions.
 - `Split`: show or hide the secondary chart.
@@ -45,6 +54,58 @@ Use this time format when possible:
 YYYY-MM-DD HH:mm
 ```
 
+Large 1M ranges use windowed loading. The chart shows the current window instead of loading the full long 1M range into the browser at once.
+
+## Replay Bar
+
+Replay Bar is used to step through historical candles.
+
+Bottom controls include:
+
+- `Replay Bar On/Off`: enable or disable replay.
+- `First`: jump to the first loaded candle.
+- `Last Pos`: return to the previous replay position.
+- `Pick`: click a candle that has already been revealed and truncate replay to that position.
+- `Next`: jump to the next fixed time.
+- `<` / play / `>`: step backward, auto-play, step forward.
+- `History`: restore recent replay workspaces.
+
+Replay Pick rules:
+
+- It only hits candles already visible in the replay slice.
+- It does not expand the full date range.
+- It does not load future candles.
+- It is intended for backing up a small amount after the market has moved too far.
+
+Replay History stores workspace state such as the primary window, cursor, and Split settings. It does not store candle data. Restore failures usually mean the API is not running.
+
+## Calendar / Daily Regime / Economic Events
+
+The Calendar in the right Inspector is the daily review hub.
+
+Each day can aggregate:
+
+- Order Setups
+- Time Reaction Observation
+- Chart Notes
+- Economic Events
+- SMT
+- PDA
+- Segments
+- Composite
+- Killzones / Time Lines
+
+Click a day to open its details. `Show Day Objects` / `Hide Day Objects` show or hide that day's visible chart objects, including PDA, Segments, Composite, SMT, Time Lines, Killzones, and Chart Note boxes.
+
+Daily Regime appears in the day detail:
+
+- `VIX`: daily VIX bucket.
+- `Trend`: static daily trend regime.
+- `Range`: static daily range regime and ATR multiple.
+- `Events`: important event tags. `none` means no important event tag for the day; `unknown` means event data was unavailable.
+
+Economic Events are loaded from the local USD events CSV. High/Medium are visible by default, Low is hidden by default, and Holiday is visible by default. Economic events do not draw permanent chart lines; `Locate` moves the chart and flashes the event time.
+
 ## Split Screen
 
 Split Screen lets you compare the primary NQ chart with a secondary NQ/ES chart over the same absolute time range.
@@ -56,11 +117,12 @@ Common settings:
 - `Sub TF`: usually the same as the primary timeframe; SMT marking requires them to match.
 - `Layout`: `Stack` for vertical split, `Side` for side-by-side split.
 
-The secondary chart is read-only:
+The secondary chart has its own limited context-menu workflow:
 
-- It does not own the context menu.
-- It does not directly edit PDA or segment objects.
-- It can show synchronized hover cursor, replay cursor, and read-only PDA/segment/composite overlays.
+- It can create BSL/SSL, Segment, and FVG objects.
+- Created objects keep `sourceChartId/sourceInstrument/sourceTimeframe` metadata.
+- They can render on primary/secondary charts, be selected, open Inspector details, and be linked as active Order Setup reasons/refs.
+- It can show synchronized hover cursor, replay cursor, and PDA/segment/composite overlays.
 
 Use `SMT -> Locate Time in Secondary` from the primary chart context menu to center the secondary chart around the clicked primary candle time.
 
@@ -83,6 +145,7 @@ Common actions:
 - `Start Fib`
 - `Mark Upper Wick CE`
 - `Mark Lower Wick CE`
+- `PDA -> OB Last Bar`
 
 ### EQH / EQL
 
@@ -116,20 +179,88 @@ The label includes the current chart timeframe:
 4H Lower Wick CE
 ```
 
-## Draw 1H Segments
+### OB Last Bar
+
+`OB Last Bar` is a simplified PDA type.
+
+How to use it:
+
+1. Right-click the target candle.
+2. Choose `PDA -> OB Last Bar`.
+3. V4 draws a gray horizontal segment from that candle price to the right.
+
+The label shows the name, instrument, and timeframe. It shares the common PDA display / visibility / Review JSON behavior.
+
+## Draw Segments
 
 A segment represents one continuous price leg.
 
 The context menu provides explicit endpoint choices:
 
-- `Start 1H Segment from Low`
-- `Start 1H Segment from High`
-- `End 1H Segment at Low`
-- `End 1H Segment at High`
+- `Start Segment from Low`
+- `Start Segment from High`
+- `End Segment at Low`
+- `End Segment at High`
 
 Use candle high/low for segment endpoints. Do not use close when the goal is to represent swing extremes.
 
 New segment labels are hidden by default. Select a segment and enable `Show segment label` in the Inspector if needed.
+
+Segments can be drawn on 1H or lower timeframes. Each segment records its source timeframe. A 1H chart cannot place two 1H endpoints inside the same 1H candle; switch to 30M/15M/5M/1M when finer endpoints are needed.
+
+When switching timeframes, endpoints with recorded occurrence timestamps are mapped as closely as possible to their actual source time. Older segments created before that fix may need to be deleted and redrawn.
+
+## Chart Notes
+
+Chart Notes are lightweight text notes bound to one candle.
+
+Core rules:
+
+- A note is bound to `instrument + timeframe + timestamp`.
+- It renders only on the same timeframe. A `1M` note renders only on `1M`; a `30M` note renders only on `30M`.
+- With Replay On, only notes already inside the revealed replay slice render.
+- A Chart Note is not part of PDA/Segment/Order Setup, but it can be selected as an Order Setup reason object.
+
+### Add / Edit / Delete
+
+1. Right-click the target candle.
+2. Open `Chart Note`.
+3. Choose `Add Note Here`.
+4. Type in the in-chart textarea. `Save` saves, `Cancel` or `Esc` cancels.
+
+Right-click the original owner candle of an existing note to use:
+
+- `Edit Note`
+- `Delete Note`
+
+### Chart Display
+
+Chart Note boxes are pinned to the top of the primary chart canvas. They use pale yellow boxes and faint dashed leader lines pointing to their owner candles.
+
+Layout rules:
+
+- Each note owns one row.
+- Non-overlapping boxes reuse the highest available row.
+- Boxes move downward only when the top row is occupied.
+- Long text stays truncated by default and can expand/collapse through mouse interaction.
+
+### Inspector / Calendar
+
+Chart Notes have a dedicated `Chart Notes` module under `Time Reaction Observation`.
+
+The three-dot menu supports:
+
+- `Locate`
+- `Edit`
+- `Delete`
+- `Select Object`, for choosing the note as an Order Setup reason object.
+
+Calendar `Show Day Objects` / `Hide Day Objects` includes Chart Note boxes and leader lines.
+
+Replay-specific behavior:
+
+- If replay has advanced to a later day, selecting an earlier day from Calendar focuses that earlier day's Chart Notes using the current replay visible bars.
+- Normal replay day changes do not keep stacking previous-day note boxes.
 
 ## Link PDA Responses
 
@@ -404,7 +535,7 @@ Order Setup splits an execution review into three layers:
 
 - `Setup Thesis`: why this opportunity existed, with optional links to segments, Composite Moves, PDAs, SMT, or Reaction Evidence.
 - `Entry Plan`: direction, entry time/price, entry model, stoploss, and targets.
-- `Result Review`: exit, result, expected/final target status, points/R.
+- `Result Review`: exit, result, target progress, risk, points/R, holding time, and note.
 
 The current version is manual review. It does not automatically judge whether a 09:30 reversal, 09:50 continuation/reversal, or Silver Bullet setup is valid.
 
@@ -450,7 +581,17 @@ The chart renders a lightweight overlay:
 - target helper line
 - risk zone / result helper
 
-The first version does not support order hit-testing, drag editing, automatic target-hit calculation, or statistics pages.
+The Result panel derives:
+
+- `Risk`: points from entry to stoploss.
+- `Points`: outcome points from entry to exit.
+- `R`: points / risk.
+- `Hold`: holding time from entry to exit.
+- `Target Progress`: if result is `Target 2`, Target 1 is also shown as reached; if result is `Target 3`, Target 1 and Target 2 are also shown as reached. Each target can be marked `Partial` or `Final` for partial-profit review.
+
+Exit Time can be typed manually or selected with `Pick`. When choosing Target/Stop/BE results, V4 attempts to calculate the first touch using 1M data. If no valid touch is found, it does not write a false exit time.
+
+The current version does not support order drag editing, automatic setup verdicts, or statistics pages.
 
 ## Saving And Import/Export
 
@@ -464,6 +605,8 @@ The browser automatically saves:
 - market segments
 - segment groups / Composite Moves
 - Order Setups
+- SMT records
+- Chart Notes
 
 This is a working draft, not a formal archive.
 
@@ -482,6 +625,9 @@ Review JSON includes:
 - reactionEvidence under pdaResponses
 - SMT records
 - orderReviews
+- dailyTimeReviews
+- chartNotes
+- dailyRegimes
 
 `orderReviews` is the compatibility field name for Order Setups. It is intentionally unchanged so older archives and local drafts remain readable.
 
@@ -490,16 +636,20 @@ It does not include candle data.
 ## Suggested Review Workflow
 
 1. Load the target range and timeframe.
-2. Mark key PDAs.
-3. Draw continuous 1H segments.
-4. Link relevant PDAs to segments.
-5. Review `Review Metrics` and `Terminal PDA Candidates`.
-6. Add Reaction Evidence under PDA Responses when needed.
-7. Create Composite Moves for multi-leg structures.
-8. Use isolate mode or Structure Sets focus to inspect local context.
-9. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
-10. Create Order Setups for key opportunities and record setup, entry, and result.
-11. Export Review JSON for archiving.
+2. Check Calendar Daily Regime and Economic Events for the day.
+3. Turn on Replay Bar and step through candles.
+4. Add Chart Notes while observing the replay.
+5. Mark key PDAs.
+6. Draw continuous segments, using lower timeframes when fine endpoints are needed.
+7. Link relevant PDAs to segments.
+8. Review `Review Metrics` and `Terminal PDA Candidates`.
+9. Add Reaction Evidence under PDA Responses when needed.
+10. Create Composite Moves for multi-leg structures.
+11. Use isolate mode, Structure Sets focus, or Calendar Show/Hide Day Objects to inspect local context.
+12. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
+13. Create Order Setups for key opportunities and record setup, entry, stop, targets, and result.
+14. Review the day through Calendar/Inspector and complete Chart Notes / Time Reaction Observation.
+15. Export Review JSON for archiving.
 
 ## Notes And Common Pitfalls
 
@@ -509,6 +659,8 @@ It does not include candle data.
 - `child segment` means a formal child after Composite Move creation.
 - `target segment` is usually the prior leg being broken or referenced, and it does not have to be a child.
 - Wick CE is a PDA. It can be linked to a segment and can appear in terminal reaction review.
+- Chart Notes only render on their creation timeframe. They do not project across timeframes.
+- During Replay, selecting or locating an earlier day from Calendar focuses that day's Chart Note boxes; normal day changes do not stack previous-day boxes indefinitely.
 - SMT is currently manual evidence. It does not scan candidates automatically.
 - Order Setup is a review layer, not an order execution module; incomplete drafts are allowed in the first version.
 - Review JSON does not include candle data. Another machine still needs local DuckDB market data.

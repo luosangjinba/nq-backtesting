@@ -2,121 +2,89 @@
 
 ## V4 当前阶段
 
-当前主线入口在 `v4/`。除“精确复盘”相关的自动取数、统计化与最终 verdict 流程外，大部分图表式复盘能力已经完成，可以作为日常手工复盘工作台使用。
+当前主线入口在 `v4/`。V4 已经从旧 YAML 表单演进为图表式复盘工作台，核心定位是“手工结构标注 + Replay 复盘 + Calendar/Inspector 归档 + Review JSON 迁移”。它不是自动交易信号系统，也不自动判断 setup 是否成立。
 
 - 页面入口：[v4/index.html](/home/leo/myworkspace/trading/backtesting/v4/index.html)
 - API：[v4/v4_api.py](/home/leo/myworkspace/trading/backtesting/v4/v4_api.py)
-- Inspector 帮助：[v4/docs/INSPECTOR_HELP.md](/home/leo/myworkspace/trading/backtesting/v4/docs/INSPECTOR_HELP.md)
 - 中文用户说明书：[v4/docs/USER_GUIDE.zh-CN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.zh-CN.md)
 - English user guide：[v4/docs/USER_GUIDE.en.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.en.md)
-- Segment review 设计：[v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/SEGMENT_REVIEW_NOTES_DESIGN.md)
 - 当前 TODO：[v4/TODO.md](/home/leo/myworkspace/trading/backtesting/v4/TODO.md)
-
-### V4 能力边界
-
-V4 当前是“手工标注 + 图表复盘 + 结构证据归档”的工具，不是全自动交易信号系统。
-
-已完成的主要能力：
-
-- NQ 主图加载、周期切换、Replay Bar、视口控制、时间跳转。
-- 手工 PDA 标注：BSL/SSL、EQH/EQL、FVG/IFVG、OB、Breaker、Fib、Wick CE、NDOG/NWOG overlay。
-- PDA Inspector：查看、备注、删除、label/CE/extend 显示控制、EQH/EQL 点集合编辑。
-- 1H Market Segment：手工画段、选中、删除、备注、tags、display mode、isolate。
-- PDA Response：把 PDA 与 segment 关联为 respected/swept/approached/rejected/delivered-through，并控制显示状态。
-- Reaction Evidence：人工确认 FVG respect / liquidity sweep 证据，记录 actor K 线群和客观百分比指标。
-- Composite Move：多条 atomic segment 组合为高周期 move，支持 target segment、metrics 和高亮。
-- Structure Sets：在 Inspector 中定位/临时 focus segment 与 Composite Move 绘制集。
-- Split Screen：主图 NQ + 副图 NQ/ES，同一绝对时间区间，可选副图周期与上下/左右布局。
-- SMT 手工标注第一版：NQ follows ES，支持 Liquidity SMT 两点连线与 FVG SMT 标记；右侧 Inspector 显示、备注、定位、删除。
-- Order Review / Execution Lens：从空状态、segment 或 Composite Move 创建订单复盘，记录 Setup Thesis、Entry Plan、Result Review，图表显示 setup/entry/exit、SL、target 轻量标记。
-- Review JSON：导出/导入 PDA、segments、Composite Moves、Reaction Evidence、SMT records、Order Reviews；不包含 K 线数据。
-
-仍未完成或暂缓：
-
-- 精确复盘自动化：actor TF 自动取数、canvas 框选 K 线群、最终 verdict、统计页。
-- SMT 自动候选扫描：当前仅手工标注，不做无监督扫描。
-- 1W 周线聚合。
-- 假日异常收盘时间的特殊处理。
 
 ### V4 启动方式
 
-常用本地服务：
+推荐直接使用启动脚本：
 
 ```bash
 cd /home/leo/myworkspace/trading/backtesting
-python3 -m http.server 8001
+bash v4/start.sh start
 ```
 
-浏览器打开：
+脚本会启动 V4 API，并在 8001 端口启动静态 Web 服务。浏览器打开：
 
 ```text
 http://127.0.0.1:8001/v4/index.html
 ```
 
-V4 API 通常运行在：
+API 健康检查：
 
 ```text
 http://127.0.0.1:8766/v4/health
 ```
 
+只重启 API：
+
+```bash
+bash v4/start.sh restart
+```
+
+只看 API 状态：
+
+```bash
+bash v4/start.sh status
+```
+
+如果 8001 已经有静态服务，也可以只保持现有 Web 服务，再单独运行 API：
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting/v4
+/home/leo/miniconda3/bin/python3 v4_api.py
+```
+
 ### V4 当前能力
 
-V4 当前聚焦图表式复盘，而不是旧 YAML 表单：
+V4 当前聚焦图表式复盘，而不是旧 YAML 表单。主要能力如下：
 
-- 手工 PDA 标注：
-  - BSL / SSL
-  - EQH / EQL point set
-  - FVG / OB / Breaker
-  - Fib retracement
-  - Wick CE
-  - NDOG / NWOG 显示切换
-- 手工 1H Segment：
-  - 明确从 K 线 high/low 创建 start/end
-  - segment label 默认隐藏
-  - 支持 PDA response linking
-  - 支持 isolate mode 和前 N 个 segment 上下文显示
-- Segment Inspector：
-  - Review Metrics
-  - Terminal PDA Candidates
-  - Fluency Components
-  - PDA response display mode
-- Composite Move：
-  - 多条 atomic segment 组成一个高周期 move
-  - 右键 segment 可加入 child draft、设置 target、创建 Composite Move
-  - 创建后父级线可点击选中
-  - 独立 Composite Move Inspector 显示 children、target、net/path/efficiency/pullback/target extreme
-  - 选中 Composite Move 时，父级线白色，child segment 橙色，target segment 紫色
-- Split Screen / SMT：
-  - 主图 NQ，副图可选 NQ/ES
-  - 副图按同一绝对时间区间加载，周期可独立选择
-  - 支持上下或左右布局
-  - 支持从主图右键定位副图同时间
-  - SMT 标注目前只做 NQ follows ES 的手工 evidence
-- Order Review：
-  - Inspector 空状态可创建空白 Order Review
-  - 选中 segment 或 Composite Move 时可创建带 linked ref 的 Order Review
-  - Order Review 列表支持 Locate、Delete、Result、Note
-  - 主图渲染 setup/entry/exit vertical marker 与 SL/target helper line
-- 数据保存：
-  - PDA、Segment 与 Order Review 草稿保存在 browser localStorage
-  - Review JSON export/import 包含 PDA、market segments、segmentGroups、reactionEvidence、SMT records、orderReviews
+- Date Range Calendar：支持范围加载、单日定位、历史 range、1M 大范围窗口化加载。
+- Replay Bar：支持 First/Last Pos、Pick、Next、自动播放、Replay History 恢复；Pick 只截断当前已回放出来的 K 线，不展开未来数据。
+- Split Screen：主图 NQ + 副图 NQ/ES，支持独立副图周期、上下/左右布局、replay cursor 同步、Calendar/Locate 同步。
+- 手工 PDA：BSL/SSL、EQH/EQL、FVG/IFVG、OB、Breaker、Fib、Wick CE、NDOG/NWOG，以及 OB Last Bar PDA。
+- Segment：支持 1H 以及低周期 segment，端点按来源周期记录；切换低周期时可使用实际端点时间；支持 isolate、display mode、PDA response、Composite Move。
+- SMT Evidence：手工 NQ follows ES Liquidity SMT / FVG SMT；不自动扫描候选。
+- Order Setup / Execution Lens：以 setup 为中心记录 reversal、entry、stop、targets、result、reasons；支持 result target progress、risk/R/points/hold 显示。
+- Chart Notes：绑定 instrument + timeframe + exact timestamp；只在同周期显示；支持图表内编辑、顶部 box、leader line、Inspector locate/edit/delete/select-object、Calendar Day Objects 显隐、Replay 回看旧日期聚焦。
+- Daily Regime：Calendar 中显示 VIX、trend、range、important event tags，作为每日背景层。
+- Economic Calendar：读取本地 USD events CSV，Calendar/Inspector 显示 High/Medium/Low/Holiday，Locate 时才快闪，不在图表常驻。
+- Calendar Inspector：按日聚合 Order Setups、Time Reaction、Economic Events、SMT、PDA、Segments、Composite、Killzones/Time Lines；支持 Open/Locate/Show/Hide。
+- Review JSON：导出/导入 PDA、segments、Composite Moves、SMT、Order Setups、Daily Time Reviews、Chart Notes、Daily Regimes；不包含 K 线数据。
+- Undo/Redo：覆盖主要研究对象写操作，不覆盖 viewport/replay/hover 等临时视图状态。
 
-### V4 最近修复
+### V4 能力边界
 
-- SMT 渲染修复：日线周期也会把 timestamp 正确映射成 chart date。
-- Review JSON 已包含 SMT records，导入时按 SMT identity 去重。
-- Review JSON 已包含 Order Reviews，导入时按 semantic identity 去重，并 remap PDA/segment/SMT linked refs。
-- 右键菜单已折叠分组，靠近图表底部时自动上移并可内部滚动。
-- 主图右键菜单新增 `Locate Time in Secondary`，用于把副图定位到当前主图 K 线时间。
+已完成的日常工作流：
 
-### V4 下一步
+1. 加载目标 date range。
+2. 用 Replay 回放并逐步观察。
+3. 标注 PDA、segment、Composite Move、SMT、Chart Notes。
+4. 用 Order Setup 记录交易机会、entry/stop/targets/result。
+5. 用 Calendar/Inspector 按日复盘对象与背景 regime。
+6. 导出 Review JSON 归档。
 
-推荐下一步按顺序推进：
+仍未完成或暂缓：
 
-1. 用真实样例验收完整手工复盘链路：PDA → Segment → PDA Response → Reaction Evidence → Composite Move → SMT → Order Review → Review JSON。
-2. 验收 Order Review 样例：09:30 reversal、09:50 continuation/reversal、Silver Bullet、skipped、missed、invalidated、win/loss/breakeven。
-3. 进入精确复盘阶段：actor TF 自动取数、canvas 框选 actor K 线群、最终 verdict 是否需要落地、统计页是否需要推进。
-4. 补最小 node probe 或浏览器验证脚本，覆盖 Review JSON、Composite Move metrics、SMT records、Reaction Evidence metrics、Order Review renderer。
+- 自动交易信号、自动 setup verdict、自动 SMT 候选扫描。
+- 精确复盘自动化：actor TF 自动取数、canvas 框选 K 线群、最终 verdict、统计页。
+- 完整执行 journal / 统计报表。
+- 1W 周线聚合与假日异常收盘时间的完整特殊处理。
 
 ## Legacy / V2 主线说明
 

@@ -1,17 +1,19 @@
 # V4 用户说明书
 
-V4 是图表式复盘工具，用来在 NQ K 线图上手工标注 PDA、绘制 1H price legs、关联 PDA response、记录 reaction evidence、用 Composite Move 复盘多段式高周期移动，并通过 ES 副图手工标注 SMT evidence。
+V4 是图表式复盘工具，用来在 NQ K 线图上回放行情、手工标注 PDA、绘制 price legs、记录 Chart Notes、建立 Order Setup、按 Calendar/Inspector 做每日复盘，并通过 ES 副图手工标注 SMT evidence。
 
-当前版本以手工复盘为主。除精确复盘阶段的自动 actor TF 取数、canvas 框选 K 线群、最终 verdict 和统计页外，主要图表复盘流程已经可用。
+当前版本以手工复盘为主。它不是自动交易信号系统，不自动判断 setup 是否成立。除精确复盘阶段的自动 actor TF 取数、canvas 框选 K 线群、最终 verdict 和统计页外，主要图表复盘流程已经可用。
 
 ## 启动
 
-在项目目录启动静态服务：
+推荐启动方式：
 
 ```bash
 cd /home/leo/myworkspace/trading/backtesting
-python3 -m http.server 8001
+bash v4/start.sh start
 ```
+
+这个脚本会启动 V4 API，并在 8001 端口启动 Web 服务。
 
 浏览器打开：
 
@@ -25,13 +27,22 @@ V4 API 通常运行在：
 http://127.0.0.1:8766/v4/health
 ```
 
+常用服务命令：
+
+```bash
+bash v4/start.sh status
+bash v4/start.sh restart
+bash v4/start.sh stop
+```
+
+如果看到 `Failed to fetch`、Replay History restore failed、Calendar/价格查询失败，优先检查 API 是否在 `8766` 运行。
+
 ## 加载图表
 
 顶部工具栏提供：
 
-- `开始`：加载区间起点。
-- `结束`：加载区间终点。
-- `周期`：选择 K 线周期，例如 `1H`、`4H`、`D`。
+- `Date`：当前加载区间。点击后打开 Date Range Calendar，可选择 start/end，也可手工输入精确时间。
+- `周期`：选择 K 线周期，例如 `1M`、`30M`、`1H`、`4H`、`D`。
 - `加载`：请求并显示 K 线。
 - `Archive`：打开导入/导出区域。
 - `Split`：显示/隐藏副图。
@@ -45,6 +56,58 @@ http://127.0.0.1:8766/v4/health
 YYYY-MM-DD HH:mm
 ```
 
+1M 大范围加载会使用窗口化策略：图表只显示当前窗口，避免一次性把很长 1M 区间全部塞进浏览器。需要切换窗口时使用图表底部的窗口/定位控制。
+
+## Replay Bar
+
+Replay Bar 用来按历史 K 线逐根回放。
+
+底部控制包括：
+
+- `Replay Bar On/Off`：开启或关闭回放。
+- `First`：跳到当前加载数据第一根。
+- `Last Pos`：回到上次 replay 位置。
+- `Pick`：在当前已经回放出来的 K 线里点击一根，截断 replay 到该位置。
+- `Next`：前进到下一个固定时间点。
+- `<` / `播放` / `>`：单步后退、自动播放、单步前进。
+- `History`：恢复最近 replay workspace。
+
+Replay Pick 的规则：
+
+- 只命中当前已经显示出来的 replay K 线。
+- 不会展开完整 date range。
+- 不会加载未来 K 线。
+- 适合“感觉行情走多了，回退一小段”。
+
+Replay History 会保存主图窗口、cursor、Split 设置等工作区状态，但不保存 K 线数据。恢复失败时通常是 API 没开。
+
+## Calendar / Daily Regime / Economic Events
+
+右侧 Inspector 的 Calendar 是当前系统的日内复盘入口。
+
+Calendar 每天会聚合：
+
+- Order Setups
+- Time Reaction Observation
+- Chart Notes
+- Economic Events
+- SMT
+- PDA
+- Segments
+- Composite
+- Killzones / Time Lines
+
+点击某一天会打开当天详情。`Show Day Objects` / `Hide Day Objects` 用来显示或隐藏当天外显图表对象，包括 PDA、Segments、Composite、SMT、Time Lines、Killzones 和 Chart Note boxes。
+
+Daily Regime 显示在 Calendar 日期详情中：
+
+- `VIX`：按日 VIX 档位。
+- `Trend`：静态 daily trend regime。
+- `Range`：静态 daily range regime 与 ATR 倍数。
+- `Events`：重要事件标签。`none` 表示当天没有重要事件标签；`unknown` 表示没有可用事件判断数据。
+
+Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默认隐藏，Holiday 默认显示。经济事件不会在图表上常驻竖线；点击 Locate 时才定位并快闪。
+
 ## Split Screen 副图
 
 Split Screen 用来把主图 NQ 与副图 NQ/ES 放在同一个绝对时间区间里观察。
@@ -56,11 +119,12 @@ Split Screen 用来把主图 NQ 与副图 NQ/ES 放在同一个绝对时间区�
 - 副图 `Sub TF`：通常与主图周期一致；做 SMT 标注时必须一致。
 - `Layout`：`Stack` 为上下分屏，`Side` 为左右分屏。
 
-副图是只读图表：
+副图有独立右键菜单，支持有限的结构标注 workflow：
 
-- 不接管右键菜单。
-- 不直接编辑 PDA/segment。
-- 会显示同步 hover cursor、replay cursor，以及只读 PDA/segment/composite overlay。
+- 可在副图创建 BSL/SSL、Segment、FVG。
+- 标注会保留 `sourceChartId/sourceInstrument/sourceTimeframe` 等来源信息。
+- 可在主图/副图显示、选择、打开 Inspector，并可作为 active Order Setup 的 reason/ref。
+- 会显示同步 hover cursor、replay cursor，以及 PDA/segment/composite overlay。
 
 主图右键菜单的 `SMT -> Locate Time in Secondary` 可以把副图定位到当前主图 K 线附近，并显示副图 hover cursor。
 
@@ -83,6 +147,7 @@ Split Screen 用来把主图 NQ 与副图 NQ/ES 放在同一个绝对时间区�
 - `Start Fib`
 - `Mark Upper Wick CE`
 - `Mark Lower Wick CE`
+- `PDA -> OB Last Bar`
 
 ### EQH / EQL
 
@@ -116,20 +181,88 @@ Lower Wick CE = (low + bodyLow) / 2
 4H Lower Wick CE
 ```
 
-## 绘制 1H Segment
+### OB Last Bar
+
+`OB Last Bar` 是一种简化 PDA 类型。
+
+使用方式：
+
+1. 鼠标在目标 K 线上右键。
+2. 选择 `PDA -> OB Last Bar`。
+3. 系统会从该 K 线价格向右画一条灰色水平线段。
+
+label 会显示名称、品种和时间周期。它与其他 PDA 一样支持通用 display / visibility / Review JSON 属性。
+
+## 绘制 Segment
 
 Segment 表示一条连续 price leg。
 
 右键菜单提供显式端点选择：
 
-- `Start 1H Segment from Low`
-- `Start 1H Segment from High`
-- `End 1H Segment at Low`
-- `End 1H Segment at High`
+- `Start Segment from Low`
+- `Start Segment from High`
+- `End Segment at Low`
+- `End Segment at High`
 
 建议只用 K 线 high/low 创建 segment，不用 close 表达极值段。
 
 新建 segment 默认不显示 label。选中 segment 后，可以在 Inspector 的 `Display` 区开启 `Show segment label`。
+
+Segment 可以在 1H 或更低周期上绘制。每条 segment 会记录来源周期；1H 图上无法在同一根 1H K 线内部放两个 1H 端点，如果需要更细端点，切到 30M/15M/5M/1M 后绘制低周期 segment。
+
+切换周期时，已记录实际发生时间的端点会尽量映射到对应周期的真实位置。旧数据如果是在修复前创建、缺少 occurrence timestamp，可能需要删除后重画。
+
+## Chart Notes
+
+Chart Notes 是绑定到单根 K 线的轻量文字 note。
+
+关键规则：
+
+- note 绑定 `instrument + timeframe + timestamp`。
+- 只在同周期显示。`1M` note 只显示在 `1M` 图，`30M` note 只显示在 `30M` 图。
+- Replay On 时只显示当前已经 replay 出来的 note，不显示未来 note。
+- Chart Note 不是 PDA/Segment/Order Setup 的一部分，但可以作为 Order Setup reason 的 selected object。
+
+### 新增 / 编辑 / 删除
+
+1. 在目标 K 线上右键。
+2. 打开 `Chart Note`。
+3. 选择 `Add Note Here`。
+4. 在图表内 textarea 输入文字，`Save` 保存，`Cancel` 或 `Esc` 取消。
+
+已有 note 的原始 K 线上右键，可使用：
+
+- `Edit Note`
+- `Delete Note`
+
+### 图表显示
+
+Chart Note box 固定显示在主图 canvas 顶部，使用浅黄色 box 和弱化虚线 leader line 指向所属 K 线。
+
+布局规则：
+
+- 每个 note 独占一行。
+- 如果两个 box 水平不重叠，会尽量复用最顶行。
+- 顶行无法容纳时，自动推到下一行。
+- 文字默认截断，鼠标交互可展开/收起。
+
+### Inspector / Calendar
+
+Chart Notes 在 `Time Reaction Observation` 中有独立 `Chart Notes` 模块，不会再置顶到所有模块里。
+
+三点菜单支持：
+
+- `Locate`
+- `Edit`
+- `Delete`
+- `Select Object`，用于 Order Setup reason 选择对象。
+
+Calendar 的 `Show Day Objects` / `Hide Day Objects` 会包含当天 Chart Note boxes 和 leader lines。
+
+Replay 特别规则：
+
+- 如果 replay 已经走到后一天，再从 Calendar 选回前一天，Chart Notes 会按当前 replay visible bars 聚焦前一天。
+- 正常 replay 换日后，不会继续堆叠前一天的 note boxes。
 
 ## 关联 PDA Response
 
@@ -400,7 +533,7 @@ Order Setup 用来把一次做单复盘拆成三层：
 
 - `Setup Thesis`：为什么这里有机会，可以引用 segment、Composite Move、PDA、SMT 或 Reaction Evidence。
 - `Entry Plan`：方向、入场时间/价格、entry model、stoploss、target。
-- `Result Review`：出场、结果、是否达到预期目标、points/R。
+- `Result Review`：出场、结果、target progress、risk、points/R、持仓时间与备注。
 
 当前版本是手工复盘，不自动判断 09:30 reversal、09:50 continuation/reversal 或 Silver Bullet 是否成立。
 
@@ -446,7 +579,17 @@ Inspector 默认聚焦当前 `Active Order Setup`，只显示当前 setup 的轻
 - target helper line
 - risk zone / result helper
 
-第一版不做订单 hit-test、拖拽编辑、自动 target hit 判断或统计页。
+Result 面板会派生显示：
+
+- `Risk`：entry 到 stoploss 的点数风险。
+- `Points`：entry 到 exit 的结果点数。
+- `R`：points / risk。
+- `Hold`：entry 到 exit 的持仓时长。
+- `Target Progress`：当 result 是 `Target 2` 时，会同时展示 Target 1 已达；当 result 是 `Target 3` 时，会同时展示 Target 1/2 已达。每个 target 可标记 `Partial` 或 `Final`，用于表达分批止盈。
+
+Exit Time 可手工输入，也可以用 `Pick` 从图表选择。选择 Target/Stop/BE 结果时，系统会尝试用 1M 数据计算首次触碰时间；找不到时不会写错值。
+
+当前不做订单拖拽编辑、自动 setup verdict 或统计页。
 
 ## 保存与导入导出
 
@@ -460,6 +603,8 @@ V4 有两种保存方式：
 - market segments
 - segment groups / Composite Moves
 - Order Setups
+- SMT records
+- Chart Notes
 
 这是工作草稿，不是正式归档。
 
@@ -478,6 +623,9 @@ Review JSON 包含：
 - pdaResponses 里的 reactionEvidence
 - SMT records
 - orderReviews
+- dailyTimeReviews
+- chartNotes
+- dailyRegimes
 
 `orderReviews` 是兼容字段名，UI 中对应 `Order Setup`。当前不会迁移这个字段名，避免破坏旧归档和本地草稿。
 
@@ -486,16 +634,20 @@ Review JSON 包含：
 ## 推荐复盘流程
 
 1. 加载目标时间区间和周期。
-2. 标注关键 PDA。
-3. 手动画连续 1H segments。
-4. 把相关 PDA 链接到 segment。
-5. 查看 `Review Metrics` 与 `Terminal PDA Candidates`。
-6. 必要时在 PDA Response 下添加 Reaction Evidence。
-7. 对多段式 move 创建 Composite Move。
-8. 使用 isolate 或 Structure Sets focus 检查局部结构。
-9. 如果需要 NQ/ES 关系证据，开启 Split 并手工标注 SMT。
-10. 为关键机会创建 Order Setup，记录 setup、entry、result。
-11. 导出 Review JSON 归档。
+2. 查看 Calendar 当日 Daily Regime 与 Economic Events。
+3. 开启 Replay Bar，逐根推进行情。
+4. 观察中随手添加 Chart Notes，记录即时判断。
+5. 标注关键 PDA。
+6. 手动画连续 segments，必要时在低周期绘制细分段。
+7. 把相关 PDA 链接到 segment。
+8. 查看 `Review Metrics` 与 `Terminal PDA Candidates`。
+9. 必要时在 PDA Response 下添加 Reaction Evidence。
+10. 对多段式 move 创建 Composite Move。
+11. 使用 isolate、Structure Sets focus 或 Calendar Show/Hide Day Objects 检查局部结构。
+12. 如果需要 NQ/ES 关系证据，开启 Split 并手工标注 SMT。
+13. 为关键机会创建 Order Setup，记录 setup、entry、stop、targets、result。
+14. 在 Calendar/Inspector 中回看当天对象，补充 Chart Notes 与 Time Reaction Observation。
+15. 导出 Review JSON 归档。
 
 ## 常见注意事项
 
@@ -505,6 +657,8 @@ Review JSON 包含：
 - `child segment` 是 Composite Move 创建后的正式子段。
 - `target segment` 不一定是 child segment，通常是被突破或被参考的上一段。
 - Wick CE 是 PDA，可以链接到 segment，也会参与 terminal reaction 查看。
+- Chart Notes 只显示在创建它的周期，不跨周期投影。
+- Replay 回看旧日期时，如果从 Calendar 选日或 Locate 当天对象，Chart Note boxes 会聚焦该日期；正常换日不会无限堆叠旧日期 boxes。
 - SMT 当前是手工 evidence，不会自动扫描候选。
 - Order Setup 是复盘层，不是下单执行模块；第一版允许不完整草稿。
 - Review JSON 不包含 K 线数据，迁移到其他机器时仍需要准备本地 DuckDB 行情数据。
