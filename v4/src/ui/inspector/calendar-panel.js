@@ -9,6 +9,7 @@ import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.j
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { getDailyRegimeByDate } from '../../daily-regime/daily-regime-store.js';
 import { getDailyRegimeSummary } from '../../daily-regime/daily-regime-types.js';
+import { getCalendarVisibilitySummaryForItems } from './calendar-visibility-actions.js';
 import {
   DAILY_TIME_REVIEW_SECTIONS,
   getDailyTimeReviewByDate,
@@ -505,9 +506,11 @@ function renderObjectGroup(group, options = {}) {
   const openGroups = options.openGroups instanceof Set ? options.openGroups : new Set(options.openGroups || []);
   const isOpen = isOrderSetupGroup || openGroups.has(group.type);
   const countLabel = `${group.rows.length}`;
+  const visibilityControl = renderGroupVisibilityControl(group);
   return `
     <details class="calendar-object-group" data-calendar-group-type="${escapeHtml(group.type)}" ${isOpen ? 'open' : ''}>
       <summary class="calendar-object-title">
+        ${visibilityControl}
         <span>${escapeHtml(group.label)}</span>
         <span class="calendar-object-count">${escapeHtml(countLabel)}</span>
       </summary>
@@ -517,6 +520,44 @@ function renderObjectGroup(group, options = {}) {
       </div>
     </details>
   `;
+}
+
+function isVisibilityControlGroup(type) {
+  return [
+    CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.PDA,
+    CALENDAR_OBJECT_TYPES.SEGMENT,
+    CALENDAR_OBJECT_TYPES.COMPOSITE,
+    CALENDAR_OBJECT_TYPES.KILLZONE,
+  ].includes(type);
+}
+
+function renderGroupVisibilityControl(group) {
+  if (!isVisibilityControlGroup(group.type)) return '<span class="calendar-object-visibility-spacer"></span>';
+  const summary = getCalendarVisibilitySummaryForItems(group.rows);
+  const checked = summary.state === 'checked';
+  const disabled = summary.state === 'disabled';
+  const title = disabled
+    ? 'No chart objects for this day'
+    : `Visible ${summary.visible}/${summary.total}`;
+  return `
+    <input
+      class="calendar-object-visibility-toggle"
+      data-calendar-visibility-toggle
+      data-visibility-state="${escapeHtml(summary.state)}"
+      data-calendar-group-type="${escapeHtml(group.type)}"
+      type="checkbox"
+      title="${escapeHtml(title)}"
+      ${checked ? 'checked' : ''}
+      ${disabled ? 'disabled' : ''}
+    />
+  `;
+}
+
+export function hydrateCalendarVisibilityControls(root = document) {
+  root.querySelectorAll('[data-calendar-visibility-toggle]').forEach((input) => {
+    input.indeterminate = input.dataset.visibilityState === 'mixed';
+  });
 }
 
 function renderEconomicCalendarFilters() {

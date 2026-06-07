@@ -535,7 +535,7 @@ html, body {
 
 .calendar-object-title {
   display: grid;
-  grid-template-columns: 12px minmax(0, 1fr) auto;
+  grid-template-columns: 12px 14px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   min-height: 28px;
@@ -560,8 +560,27 @@ html, body {
   content: 'v';
 }
 
-.calendar-object-title span:first-child {
+.calendar-object-title > span:not(.calendar-object-count):not(.calendar-object-visibility-spacer) {
   min-width: 0;
+}
+
+.calendar-object-visibility-toggle {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--calendar-group-accent);
+  cursor: pointer;
+}
+
+.calendar-object-visibility-toggle:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.calendar-object-visibility-spacer {
+  display: block;
+  width: 13px;
+  height: 13px;
 }
 
 .calendar-object-count {

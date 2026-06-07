@@ -46,6 +46,7 @@ import { createSegmentInspectorActionController } from './inspector/segment-acti
 import {
   getDefaultCalendarDate,
   getNextCalendarViewDate,
+  hydrateCalendarVisibilityControls,
   renderCalendarPanel,
 } from './inspector/calendar-panel.js';
 import { createCalendarActionController } from './inspector/calendar-actions.js';
@@ -253,10 +254,10 @@ function renderAnnotation(annotation) {
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderInspectorBackAction()}
     ${renderAnnotationPanel(annotation, renderArchiveActions())}
-  `;
+  `);
 }
 
 function renderSegment(segment) {
@@ -268,10 +269,10 @@ function renderSegment(segment) {
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderInspectorBackAction()}
     ${renderSegmentPanel(segment)}
-  `;
+  `);
 }
 
 function renderSegmentGroup(segmentGroup) {
@@ -283,10 +284,10 @@ function renderSegmentGroup(segmentGroup) {
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderInspectorBackAction()}
     ${renderSegmentGroupPanel(segmentGroup)}
-  `;
+  `);
 }
 
 function renderSmtSelection() {
@@ -298,10 +299,10 @@ function renderSmtSelection() {
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderInspectorBackAction()}
     ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
-  `;
+  `);
 }
 
 function renderOrderSetupDetail(orderReviewId) {
@@ -314,12 +315,12 @@ function renderOrderSetupDetail(orderReviewId) {
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderInspectorBackAction()}
     ${renderOrderReviewDetailPanel(order, getOrderReviewPanelOptions({
       activeOrderReviewId: orderReviewId,
     }))}
-  `;
+  `);
 }
 
 function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
@@ -334,7 +335,7 @@ function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderInspectorBackAction()}
     ${
       sectionKey
@@ -347,7 +348,7 @@ function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
             pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
           })
     }
-  `;
+  `);
 }
 
 function renderEmpty() {
@@ -360,10 +361,10 @@ function renderEmpty() {
     viewDate: calendarViewDate,
     openGroups: Array.from(calendarOpenGroups),
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
     ${renderArchiveActions()}
-  `;
+  `);
 }
 
 function renderArchivePanel() {
@@ -376,10 +377,10 @@ function renderArchivePanel() {
     viewDate: calendarViewDate,
     openGroups: Array.from(calendarOpenGroups),
   });
-  bodyEl.innerHTML = `
+  setInspectorBody(`
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
     ${renderArchiveActions()}
-  `;
+  `);
 }
 
 function openSidebar() {
@@ -543,6 +544,17 @@ function getCurrentSegmentGroup() {
 
 function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
+}
+
+function hydrateInspector() {
+  if (!bodyEl) return;
+  hydrateCalendarVisibilityControls(bodyEl);
+}
+
+function setInspectorBody(html) {
+  if (!bodyEl) return;
+  bodyEl.innerHTML = html;
+  hydrateInspector();
 }
 
 function captureCalendarOpenGroups() {
