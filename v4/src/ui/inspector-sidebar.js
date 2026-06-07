@@ -513,6 +513,10 @@ function refreshSelection() {
 function refreshOnReplayDayChange({ enabled } = {}) {
   const replayDate = enabled ? getReplayCalendarDate() : '';
   if (replayDate === lastReplayCalendarDate) return;
+  if (replayDate && (!calendarSelectedDate || calendarSelectedDate === lastReplayCalendarDate)) {
+    calendarSelectedDate = replayDate;
+    calendarViewDate = replayDate;
+  }
   lastReplayCalendarDate = replayDate;
   refreshSelection();
 }

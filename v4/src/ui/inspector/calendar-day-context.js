@@ -14,5 +14,5 @@ export function getReplayCalendarDate() {
 }
 
 export function resolveInspectorCalendarDate({ selectedDate = '', fallbackDate = '' } = {}) {
-  return getReplayCalendarDate() || selectedDate || fallbackDate || '';
+  return selectedDate || getReplayCalendarDate() || fallbackDate || '';
 }
