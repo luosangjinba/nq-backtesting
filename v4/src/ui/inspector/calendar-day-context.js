@@ -13,6 +13,10 @@ export function getReplayCalendarDate() {
   return dateKeyFromTimestamp(latest?.timestamp);
 }
 
-export function resolveInspectorCalendarDate({ selectedDate = '', fallbackDate = '' } = {}) {
-  return selectedDate || getReplayCalendarDate() || fallbackDate || '';
+export function resolveInspectorCalendarDate({
+  selectedDate = '',
+  fallbackDate = '',
+  replayDate = getReplayCalendarDate(),
+} = {}) {
+  return selectedDate || replayDate || fallbackDate || '';
 }
