@@ -348,13 +348,13 @@ Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、s
   - [x] Step 265.5: Active Order Setup evidence 链接：副图菜单允许将命中的副图 PDA / Segment / Composite evidence 链接到 active Order Setup reason/ref；不允许从副图设置 entry、stop、target 或创建 execution setup。
   - [x] Step 265.6: 副图 Chart Notes 决策与实现计划：冻结语义为“暂不迁移主图 Chart Notes 到副图菜单”；未来若实现，副图 note 必须只显示在副图同 instrument/timeframe，带 source chart metadata，不进入主图 note box，进入 Calendar/Order reason 前需明确 source chart。
   - [x] Step 265.7: 验证与收口：覆盖 source metadata、Inspector Open/Locate 代码路径、Review JSON 共享 store 路径、undo/redo recordHistory 路径、全量 JS 语法和 Web/API smoke；Split on/off、NQ/ES、1M/30M/1H、Replay On 仍需浏览器人工回归确认。
-- [ ] Step 266: Inspector Day Object Visibility Controls。目标是在 Inspector 的 `SMT / PDA / Segments / Composite / Killzones / Timelines` 模块标题行增加当前日期范围内的三态显隐控制：全部显示为勾选，全部隐藏为未勾选，部分隐藏为圆点；点击模块 checkbox 只批量切换当前 selected day 的该类 chart objects，不监听 chart 渲染帧，只监听对象 store、Calendar selected day、Replay day anchor、Show/Hide Day Objects 状态变化。
-  - [ ] Step 266.1: 定义 day-scoped visibility summary 模型：按 `date + objectType` 派生 `total / visible / hidden / state(checked|unchecked|mixed)`，对象类型覆盖 SMT、PDA、Segments、Composite、Killzones、Timelines；无对象时 disabled，不显示误导性状态。
-  - [ ] Step 266.2: 统一当前日期对象过滤规则：非 Replay 使用 Inspector Calendar selected day / Time Overlay selectedDate；Replay 状态优先使用当前 replay visible bars 推导的当前交易日，避免回看旧日期或加载后续日期后跨日误统计。
-  - [ ] Step 266.3: 增加 Inspector 模块三态 checkbox UI：放在模块 header，使用 `input.indeterminate` 或等价 visual state；模块展开/折叠逻辑不变，状态文案保持紧凑。
-  - [ ] Step 266.4: 接入批量显隐动作：点击 checked -> 隐藏当前 day 该类全部对象；点击 unchecked/mixed -> 显示当前 day 该类全部对象；操作进入 undo/redo history，且不改变对象核心研究字段。
-  - [ ] Step 266.5: 事件驱动刷新与性能边界：只在相关 store changed、calendar selected day changed、replay day changed、display mode/day object visibility changed 时重算 summary；不监听 crosshair/mousemove/chart render；Replay 播放中仅在 day key 变化或 debounce 后刷新，避免每根 K 重算。
-  - [ ] Step 266.6: 验证与收口：覆盖各模块全显/全隐/部分隐藏、Show Day Objects / Hide Day Objects 联动、Replay On 回看旧日期、Split on/off、undo/redo、刷新恢复、Review JSON 不引入额外 schema 噪音；运行全量 JS 语法检查与 `git diff --check`。
+- [x] Step 266: Inspector Day Object Visibility Controls。目标是在 Inspector 的 `SMT / PDA / Segments / Composite / Killzones / Timelines` 模块标题行增加当前日期范围内的三态显隐控制：全部显示为勾选，全部隐藏为未勾选，部分隐藏为圆点；点击模块 checkbox 只批量切换当前 selected day 的该类 chart objects，不监听 chart 渲染帧，只监听对象 store、Calendar selected day、Replay day anchor、Show/Hide Day Objects 状态变化。
+  - [x] Step 266.1: 定义 day-scoped visibility summary 模型：按 `date + objectType` 派生 `total / visible / hidden / state(checked|unchecked|mixed)`，对象类型覆盖 SMT、PDA、Segments、Composite、Killzones、Timelines；无对象时 disabled，不显示误导性状态。
+  - [x] Step 266.2: 统一当前日期对象过滤规则：非 Replay 使用 Inspector Calendar selected day / Time Overlay selectedDate；Replay 状态优先使用当前 replay visible bars 推导的当前交易日，避免回看旧日期或加载后续日期后跨日误统计。
+  - [x] Step 266.3: 增加 Inspector 模块三态 checkbox UI：放在模块 header，使用 `input.indeterminate` 或等价 visual state；模块展开/折叠逻辑不变，状态文案保持紧凑。
+  - [x] Step 266.4: 接入批量显隐动作：点击 checked -> 隐藏当前 day 该类全部对象；点击 unchecked/mixed -> 显示当前 day 该类全部对象；操作进入 undo/redo history，且不改变对象核心研究字段。
+  - [x] Step 266.5: 事件驱动刷新与性能边界：只在相关 store changed、calendar selected day changed、replay day changed、display mode/day object visibility changed 时重算 summary；不监听 crosshair/mousemove/chart render；Replay 播放中仅在 day key 变化或 debounce 后刷新，避免每根 K 重算。
+  - [x] Step 266.6: 验证与收口：覆盖各模块全显/全隐/部分隐藏、Show Day Objects / Hide Day Objects 联动、Replay On 回看旧日期、Split on/off、undo/redo、刷新恢复、Review JSON 不引入额外 schema 噪音；运行全量 JS 语法检查与 `git diff --check`。
 - [x] Step 174: Reasons linked refs 定位入口：Reason ref 行增加 Locate 动作，支持 linked PDA/Segment 定位并复用现有时间范围快闪；删除 X 改为 Execution 同款紧凑样式
 - [x] Step 175: PDA 本体快闪设计收敛：明确 Locate 与 Flash 分层，保留视图定位，新增按 PDA 本体形状高亮的临时 primitive；定义 `flashPdaAnnotation(annotation, chartContext)` 返回 true/false，时间范围快闪只作为 fallback
 - [x] Step 176: 新增 `pda-locate-flash-primitive.js`：支持 range PDA 本体矩形快闪（FVG/IFVG/OB/Breaker/NDOG/NWOG 等），使用 annotation 的 `start/end` 时间与 `top/bottom` 价格绘制 pulse overlay；新增 `pda-locate-flash.js` helper，当前尚未接入 Reasons Locate

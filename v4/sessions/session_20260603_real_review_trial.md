@@ -882,3 +882,38 @@ Implementation plan:
    - Safety cases: undo/redo, refresh/localStorage, Review JSON should not gain
      unnecessary schema noise.
    - Run full JS syntax check and `git diff --check`.
+
+## 2026-06-06 - Step 266 Inspector Day Object Visibility Controls Completed
+
+Implemented:
+
+- Added a day-scoped visibility summary model for Calendar chart-object groups.
+- Added tri-state visibility checkboxes to Inspector Calendar group headers for
+  SMT, PDA, Segments, Composite, and Killzones / Time Lines.
+- The checkbox states are derived from current-day objects:
+  checked = all visible, unchecked = all hidden, indeterminate = mixed.
+- Clicking a group checkbox toggles only that selected/replay day's objects for
+  the group:
+  - checked -> hide all objects in that group for the day;
+  - unchecked or mixed -> show all objects in that group for the day.
+- Batch changes are wrapped in the existing undo/redo history path and update
+  display/visibility state only.
+- Calendar active day now resolves through replay context when Replay is on, so
+  group visibility summaries follow the replay day rather than stale loaded
+  future dates.
+- Inspector refresh for replay uses a day-key guard: `replay:changed` only
+  refreshes the panel when the replay day changes, not every bar/mouse/render
+  event.
+
+Validation:
+
+- Full `v4/src/**/*.js` `node --check` passed.
+- `git diff --check` passed.
+- No chart render, crosshair, mousemove, pan, or zoom listener was added for
+  this feature.
+
+Manual follow-up:
+
+- Browser-check the visual checkbox state on a real object-heavy day:
+  all-visible, all-hidden, mixed, Show Day Objects, Hide Day Objects, Replay On
+  day transitions, and undo/redo.
