@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
-import { getBarChartTime } from '../chart/time-projection.js';
+import { getBarChartTime, getBucketStart } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
@@ -30,6 +30,9 @@ let mode = 'idle';
 let enabled = false;
 let cursorIndex = -1;
 let lastCursorIndex = -1;
+let cursorTimestampAnchor = null;
+let lastCursorTimestampAnchor = null;
+let activeTimeframe = store.getCurrentTimeframe();
 let speedIndex = 2;
 let timer = null;
 let historyOpen = false;
@@ -171,6 +174,53 @@ function getUtcDateTimeTimestamp(dateKey, hour, minute) {
   ) / 1000);
 }
 
+function makeTradingDay(timestamp) {
+  return new Date(Number(timestamp) * 1000).toISOString().slice(0, 10);
+}
+
+function aggregatePartialBar(sourceBars, bucketStart, cursorTimestamp, timeframe) {
+  const bucketEnd = bucketStart + timeframe * 60;
+  const bars = sourceBars.filter((bar) => (
+    Number(bar?.timestamp) >= bucketStart &&
+    Number(bar?.timestamp) <= cursorTimestamp &&
+    Number(bar?.timestamp) < bucketEnd
+  ));
+  if (!bars.length) return null;
+
+  return bars.reduce((partial, bar, index) => {
+    if (index === 0) {
+      return {
+        timestamp: bucketStart,
+        tradingDay: timeframe === 1440 ? makeTradingDay(bucketStart + 24 * 60 * 60) : bar.tradingDay,
+        open: bar.open,
+        high: bar.high,
+        low: bar.low,
+        close: bar.close,
+        volume: bar.volume || 0,
+      };
+    }
+    partial.high = Math.max(partial.high, bar.high);
+    partial.low = Math.min(partial.low, bar.low);
+    partial.close = bar.close;
+    partial.volume += bar.volume || 0;
+    return partial;
+  }, null);
+}
+
+function getReplayRestoreDisplayBars(baseBars, timeframe, cursorTimestamp, restoreSnapshot = null) {
+  if (!restoreSnapshot?.enabled || !Number.isFinite(Number(cursorTimestamp))) return baseBars;
+  if (Number(timeframe) <= 1 || restoreSnapshot.sourceTimeframe !== 1) return baseBars;
+
+  const sourceBars = Array.isArray(restoreSnapshot.sourceBars) ? restoreSnapshot.sourceBars : [];
+  if (!sourceBars.length) return baseBars;
+
+  const replayBucketStart = getBucketStart(Number(cursorTimestamp), timeframe);
+  const completedBars = baseBars.filter((bar) => Number(bar?.timestamp) < replayBucketStart);
+  const futureBars = baseBars.filter((bar) => Number(bar?.timestamp) > replayBucketStart);
+  const partialBar = aggregatePartialBar(sourceBars, replayBucketStart, Number(cursorTimestamp), timeframe);
+  return partialBar ? [...completedBars, partialBar, ...futureBars] : baseBars;
+}
+
 function findNextDailyTimeIndex(hour, minute) {
   if (!enabled || cursorIndex < 0 || !displayBars.length) return -1;
 
@@ -240,11 +290,24 @@ function stopTimer() {
   }
 }
 
+function normalizeTimestamp(value) {
+  const timestamp = Number(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function getCursorTimestamp() {
+  return normalizeTimestamp(cursorTimestampAnchor ?? displayBars[cursorIndex]?.timestamp);
+}
+
+function getLastCursorTimestamp() {
+  return normalizeTimestamp(lastCursorTimestampAnchor ?? displayBars[lastCursorIndex]?.timestamp);
+}
+
 function emitReplayChanged() {
   bus.emit('replay:changed', {
     enabled,
     cursorIndex,
-    cursorTimestamp: enabled && cursorIndex >= 0 ? displayBars[cursorIndex]?.timestamp : null,
+    cursorTimestamp: enabled && cursorIndex >= 0 ? getCursorTimestamp() : null,
     speedIndex,
   });
 }
@@ -267,6 +330,8 @@ function resetReplayState() {
   mode = 'idle';
   cursorIndex = -1;
   lastCursorIndex = -1;
+  cursorTimestampAnchor = null;
+  lastCursorTimestampAnchor = null;
   emitReplayChanged();
   render();
 }
@@ -275,10 +340,12 @@ function restoreFullChart(savePosition = true) {
   stopTimer();
   if (savePosition && cursorIndex >= 0) {
     lastCursorIndex = cursorIndex;
+    lastCursorTimestampAnchor = getCursorTimestamp();
   }
   enabled = false;
   mode = 'idle';
   cursorIndex = -1;
+  cursorTimestampAnchor = null;
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
   if (chartData.length > 0) {
@@ -296,10 +363,13 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
     viewportSnapshot?.dataCount ?? (cursorIndex >= 0 ? cursorIndex + 1 : null);
   if (rememberPrevious && cursorIndex >= 0) {
     lastCursorIndex = cursorIndex;
+    lastCursorTimestampAnchor = getCursorTimestamp();
   }
   enabled = true;
   mode = mode === 'playing' ? 'playing' : 'idle';
   cursorIndex = Math.max(0, Math.min(index, chartData.length - 1));
+  cursorTimestampAnchor =
+    normalizeTimestamp(viewportSnapshot?.cursorTimestamp) ?? normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
   chart.setData(chartData.slice(0, cursorIndex + 1));
   if (followEnd) {
     chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
@@ -323,6 +393,7 @@ function stepForward() {
   const previousRange = chart.getVisibleLogicalRange();
   const previousDataCount = cursorIndex + 1;
   cursorIndex += 1;
+  cursorTimestampAnchor = normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
   chart.updateBar(chartData[cursorIndex]);
   chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
   chart.showReplayCursor(chartData[cursorIndex].time);
@@ -705,8 +776,10 @@ export function getReplayRestoreSnapshot() {
 
   return {
     enabled: true,
-    cursorTimestamp: displayBars[cursorIndex]?.timestamp,
-    lastTimestamp: lastCursorIndex >= 0 ? displayBars[lastCursorIndex]?.timestamp : null,
+    cursorTimestamp: getCursorTimestamp(),
+    lastTimestamp: lastCursorIndex >= 0 ? getLastCursorTimestamp() : null,
+    sourceTimeframe: activeTimeframe,
+    sourceBars: activeTimeframe === 1 ? displayBars : null,
     visibleRange: chart.getVisibleLogicalRange(),
     dataCount: cursorIndex + 1,
   };
@@ -721,23 +794,35 @@ export function syncReplayData(restoreSnapshot = null) {
   const shouldRestoreReplay =
     (restoreSnapshot?.enabled && restoreSnapshot.cursorTimestamp !== undefined) ||
     (enabled && cursorIndex >= 0);
-  const cursorTimestamp = restoreSnapshot?.cursorTimestamp ?? displayBars[cursorIndex]?.timestamp;
+  const cursorTimestamp = normalizeTimestamp(restoreSnapshot?.cursorTimestamp ?? getCursorTimestamp());
   const lastTimestamp =
-    restoreSnapshot?.lastTimestamp ?? (lastCursorIndex >= 0 ? displayBars[lastCursorIndex]?.timestamp : null);
+    normalizeTimestamp(restoreSnapshot?.lastTimestamp ?? (lastCursorIndex >= 0 ? getLastCursorTimestamp() : null));
 
   stopTimer();
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
-  displayBars = store.getDisplayBars();
+  const nextTimeframe = store.getCurrentTimeframe();
+  displayBars = getReplayRestoreDisplayBars(
+    store.getDisplayBars(),
+    nextTimeframe,
+    cursorTimestamp,
+    restoreSnapshot
+  );
   chartData = displayBars.map(toChartBar);
+  activeTimeframe = nextTimeframe;
 
   if (shouldRestoreReplay && chartData.length > 0) {
     const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp);
     if (restoredIndex >= 0) {
       lastCursorIndex = findBarIndexAtOrBeforeTimestamp(displayBars, lastTimestamp);
+      lastCursorTimestampAnchor = lastTimestamp;
       mode = 'idle';
       cursorIndex = -1;
-      renderSlice(restoredIndex, true, false, restoreSnapshot);
+      renderSlice(restoredIndex, true, false, {
+        ...restoreSnapshot,
+        cursorTimestamp,
+        lastTimestamp,
+      });
       bus.emit('status:update', {
         text: `Replay 对齐: ${formatReplayTime(displayBars[restoredIndex])}`,
         isError: false,
@@ -750,6 +835,8 @@ export function syncReplayData(restoreSnapshot = null) {
   mode = 'idle';
   cursorIndex = -1;
   lastCursorIndex = -1;
+  cursorTimestampAnchor = null;
+  lastCursorTimestampAnchor = null;
   if (restoreSnapshot?.enabled && chartData.length > 0) {
     chart.showStartOfData(chartData.length);
   }
