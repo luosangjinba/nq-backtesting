@@ -17,6 +17,7 @@ import {
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 import { CHART_NOTES_SECTION_KEY } from './time-reaction-panel.js';
+import { resolveInspectorCalendarDate } from './calendar-day-context.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 const MONTHS = Object.freeze([
@@ -609,7 +610,8 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGrou
     return section('Calendar', '<div class="inspector-empty">Load chart data to show calendar.</div>');
   }
 
-  const activeDate = clampDateKey(selectedDate || range.start, range);
+  const resolvedDate = resolveInspectorCalendarDate({ selectedDate, fallbackDate: range.start });
+  const activeDate = clampDateKey(resolvedDate, range);
   const activeViewDate = viewDate || activeDate;
   const parsed = parseDateKey(activeViewDate);
   const cells = getMonthCells(activeViewDate, range);

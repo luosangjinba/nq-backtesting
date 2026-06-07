@@ -58,6 +58,7 @@ import {
   getOrderReviewCalendarDate,
   getSegmentCalendarDate,
 } from './inspector/calendar-object-date.js';
+import { getReplayCalendarDate } from './inspector/calendar-day-context.js';
 import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { getSmtRecordById, getSmtRecords } from '../smt/smt-store.js';
 import {
@@ -84,6 +85,7 @@ let calendarViewDate = '';
 let calendarOpenGroups = new Set();
 let suppressActiveReviewRender = false;
 let suppressSelectionBackTarget = false;
+let lastReplayCalendarDate = '';
 
 const orderReviewActions = createOrderReviewActionController({
   getExpandedOrderReviewId: () => expandedOrderReviewId,
@@ -508,6 +510,13 @@ function refreshSelection() {
   renderEmpty();
 }
 
+function refreshOnReplayDayChange({ enabled } = {}) {
+  const replayDate = enabled ? getReplayCalendarDate() : '';
+  if (replayDate === lastReplayCalendarDate) return;
+  lastReplayCalendarDate = replayDate;
+  refreshSelection();
+}
+
 function createSidebar() {
   sidebarEl = document.createElement('aside');
   sidebarEl.id = 'inspector-sidebar';
@@ -912,6 +921,7 @@ export function initInspectorSidebar() {
   });
   bus.on('economic-calendar:changed', refreshSelection);
   bus.on('daily-regime:changed', refreshSelection);
+  bus.on('replay:changed', refreshOnReplayDayChange);
   bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
     if (dailyTimeActions.isPicking()) {
