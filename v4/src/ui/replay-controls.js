@@ -209,7 +209,15 @@ function aggregatePartialBar(sourceBars, bucketStart, cursorTimestamp, timeframe
 
 function getReplayRestoreDisplayBars(baseBars, timeframe, cursorTimestamp, restoreSnapshot = null) {
   if (!restoreSnapshot?.enabled || !Number.isFinite(Number(cursorTimestamp))) return baseBars;
-  if (Number(timeframe) <= 1 || restoreSnapshot.sourceTimeframe !== 1) return baseBars;
+  const sourceTimeframe = Number(restoreSnapshot.sourceTimeframe);
+  const targetTimeframe = Number(timeframe);
+  if (
+    !Number.isFinite(sourceTimeframe) ||
+    !Number.isFinite(targetTimeframe) ||
+    targetTimeframe <= sourceTimeframe
+  ) {
+    return baseBars;
+  }
 
   const sourceBars = Array.isArray(restoreSnapshot.sourceBars) ? restoreSnapshot.sourceBars : [];
   if (!sourceBars.length) return baseBars;
@@ -779,7 +787,7 @@ export function getReplayRestoreSnapshot() {
     cursorTimestamp: getCursorTimestamp(),
     lastTimestamp: lastCursorIndex >= 0 ? getLastCursorTimestamp() : null,
     sourceTimeframe: activeTimeframe,
-    sourceBars: activeTimeframe === 1 ? displayBars : null,
+    sourceBars: displayBars,
     visibleRange: chart.getVisibleLogicalRange(),
     dataCount: cursorIndex + 1,
   };

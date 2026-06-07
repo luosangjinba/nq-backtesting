@@ -20,7 +20,16 @@ function priceKey(price) {
   return Number.isFinite(Number(price)) ? Number(price).toFixed(5) : 'na';
 }
 
+function getAnnotationSourceIdentity(annotation = {}) {
+  return [
+    annotation.sourceChartId || annotation.chartId || 'primary',
+    annotation.sourceInstrument || annotation.instrument || 'NQ',
+    annotation.sourceTimeframe ?? annotation.sourceTimeframeLabel ?? annotation.timeframe ?? 'na',
+  ].join(':');
+}
+
 export function getAnnotationIdentity(annotation) {
+  const sourceIdentity = getAnnotationSourceIdentity(annotation);
   if (Array.isArray(annotation.points) && annotation.points.length > 0) {
     const pointKey = annotation.points
       .map((point) =>
@@ -30,12 +39,13 @@ export function getAnnotationIdentity(annotation) {
         ].join('@')
       )
       .join('|');
-    return [annotation.source || 'manual', annotation.type, 'point-set', pointKey].join(':');
+    return [annotation.source || 'manual', sourceIdentity, annotation.type, 'point-set', pointKey].join(':');
   }
 
   if (annotation.type === 'fib' && annotation.start && annotation.end) {
     return [
       annotation.source || 'manual',
+      sourceIdentity,
       annotation.type,
       annotation.start.timestamp ?? annotation.start.time ?? 'na',
       priceKey(annotation.start.price),
@@ -56,6 +66,7 @@ export function getAnnotationIdentity(annotation) {
 
   return [
     annotation.source || 'manual',
+    sourceIdentity,
     annotation.type,
     rangeKey,
     annotation.canonicalTimestamp ?? annotation.timestamp ?? annotation.anchorTime,
