@@ -813,3 +813,72 @@ Validation:
 
 - `node --check v4/src/pda/secondary-context-menu.js` passed.
 - `git diff --check` passed for the touched files.
+
+## 2026-06-06 - Step 266 Inspector Day Object Visibility Controls Plan
+
+User need:
+
+- Inspector day modules should expose clear per-module visibility state for
+  `SMT`, `PDA`, `Segments`, `Composite`, and `Killzones / Timelines`.
+- The control must be visually knowable:
+  - all current-day objects visible -> checkbox checked;
+  - all current-day objects hidden -> checkbox unchecked;
+  - some visible and some hidden -> checkbox indeterminate / dot state.
+- The control should operate at the current selected/replay day level, not as a
+  global all-history toggle.
+
+Performance decision:
+
+- Do not listen to chart render frames, crosshair, mousemove, or pan/zoom events.
+- The feature should be event-driven from object state and day context:
+  `pda:changed`, `segment:changed`, segment-group/composite changed,
+  `smt:changed`, time-overlay changed, Calendar selected day changes,
+  Display Mode / Show Day Objects / Hide Day Objects changes, and replay day
+  changes.
+- Replay playback should not recompute summaries on every bar unless the
+  current day key changes; if needed, debounce summary refresh to roughly
+  100-200ms.
+- Summary computation should scan only objects relevant to the current day and
+  module, producing `total / visible / hidden / state`, rather than touching
+  chart primitives or reattaching render layers directly.
+
+Implementation plan:
+
+1. Step 266.1: Define a day-scoped visibility summary helper.
+   - Inputs: selected/replay day key, object type, current stores, display
+     visibility state.
+   - Output: `{ total, visible, hidden, state }`, where state is
+     `checked | unchecked | mixed | disabled`.
+   - Cover object types: SMT, PDA, Segments, Composite, Killzones, Timelines.
+
+2. Step 266.2: Normalize current-day resolution.
+   - Non-replay: use Inspector Calendar selected day / Time Overlay selectedDate
+     when available.
+   - Replay: prefer current replay visible bars / cursor day so loading future
+     dates and then locating back does not make old-day objects disappear or
+     count the wrong day.
+
+3. Step 266.3: Add tri-state checkbox UI to Inspector module headers.
+   - Keep existing module expand/collapse behavior.
+   - Use native `input.indeterminate` or an equivalent visual state.
+   - Disable the checkbox when the module has zero current-day objects.
+
+4. Step 266.4: Add batch visibility actions.
+   - checked -> hide all current-day objects of that module.
+   - unchecked or mixed -> show all current-day objects of that module.
+   - Wrap changes in undo/redo history.
+   - Do not mutate core research fields; only update display/visibility state.
+
+5. Step 266.5: Wire event-driven refresh.
+   - Recompute summaries only on relevant store/day/display events.
+   - Avoid high-frequency chart listeners.
+   - Ensure Show Day Objects / Hide Day Objects updates the checkbox state
+     immediately after the batch action.
+
+6. Step 266.6: Validate and close.
+   - Manual cases: all visible, all hidden, mixed per module.
+   - Interaction cases: Show Day Objects, Hide Day Objects, Replay On day
+     changes, Calendar locate back to older day, Split on/off.
+   - Safety cases: undo/redo, refresh/localStorage, Review JSON should not gain
+     unnecessary schema noise.
+   - Run full JS syntax check and `git diff --check`.
