@@ -506,7 +506,7 @@ function renderObjectGroup(group, options = {}) {
   const openGroups = options.openGroups instanceof Set ? options.openGroups : new Set(options.openGroups || []);
   const isOpen = isOrderSetupGroup || openGroups.has(group.type);
   const countLabel = `${group.rows.length}`;
-  const visibilityControl = renderGroupVisibilityControl(group);
+  const visibilityControl = renderGroupVisibilityControl(group, options.activeDate || '');
   return `
     <details class="calendar-object-group" data-calendar-group-type="${escapeHtml(group.type)}" ${isOpen ? 'open' : ''}>
       <summary class="calendar-object-title">
@@ -532,7 +532,7 @@ function isVisibilityControlGroup(type) {
   ].includes(type);
 }
 
-function renderGroupVisibilityControl(group) {
+function renderGroupVisibilityControl(group, activeDate) {
   if (!isVisibilityControlGroup(group.type)) return '<span class="calendar-object-visibility-spacer"></span>';
   const summary = getCalendarVisibilitySummaryForItems(group.rows);
   const checked = summary.state === 'checked';
@@ -543,9 +543,11 @@ function renderGroupVisibilityControl(group) {
   return `
     <input
       class="calendar-object-visibility-toggle"
+      data-inspector-action="calendar-day-group-toggle-hidden"
       data-calendar-visibility-toggle
       data-visibility-state="${escapeHtml(summary.state)}"
       data-calendar-group-type="${escapeHtml(group.type)}"
+      data-calendar-date="${escapeHtml(activeDate)}"
       type="checkbox"
       title="${escapeHtml(title)}"
       ${checked ? 'checked' : ''}
@@ -682,7 +684,7 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGrou
         >Hide Day Objects${dayChartObjectCount ? ` (${dayChartObjectCount})` : ''}</button>
       </div>
       <div class="calendar-object-list">
-        ${objectGroups.map((group) => renderObjectGroup(group, { openGroups })).join('')}
+        ${objectGroups.map((group) => renderObjectGroup(group, { activeDate, openGroups })).join('')}
       </div>
     </div>
   `;

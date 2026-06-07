@@ -60,6 +60,25 @@ export function getCalendarDayVisibilitySummaries(dateKey) {
   );
 }
 
+export function setCalendarDayGroupObjectsHidden(dateKey, groupType, hidden) {
+  const groups = getCalendarDayGroups(dateKey, getCalendarReviewIndex());
+  const group = groups.find((candidate) => candidate.type === groupType);
+  if (!group) return 0;
+
+  let changed = 0;
+  const seen = new Set();
+  group.rows.forEach((item) => {
+    const type = item.ref?.type;
+    const id = item.ref?.id;
+    if (!isCalendarChartObjectBulkType(type) || !id) return;
+    const key = `${type}:${id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    if (setCalendarObjectHidden(type, id, hidden)) changed += 1;
+  });
+  return changed;
+}
+
 export function isCalendarObjectHidden(type, id) {
   if (type === CALENDAR_OBJECT_TYPES.SMT) return Boolean(getSmtRecordById(id)?.display?.hidden);
   if (type === CALENDAR_OBJECT_TYPES.PDA) return Boolean(getAnnotationById(id)?.display?.hidden);

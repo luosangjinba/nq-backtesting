@@ -13,6 +13,7 @@ import { getCalendarDateTimestamp } from './calendar-panel.js';
 import {
   isCalendarObjectHidden,
   setCalendarDayChartObjectsHidden,
+  setCalendarDayGroupObjectsHidden,
   setCalendarObjectHidden,
 } from './calendar-visibility-actions.js';
 import { clearChartNoteFocusedDate, setChartNoteFocusedDate } from '../../chart-notes/chart-note-visible-day.js';
@@ -186,6 +187,24 @@ export function createCalendarActionController({
       bus.emit('status:update', {
         text: `${hidden ? 'Hidden' : 'Shown'} ${changed || 0} chart objects for ${date}`,
         isError: !date,
+      });
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'calendar-day-group-toggle-hidden') {
+      captureCalendarOpenGroups?.();
+      const date = actionEl.dataset.calendarDate || getSelectedDate?.() || '';
+      const groupType = actionEl.dataset.calendarGroupType || '';
+      const state = actionEl.dataset.visibilityState || '';
+      const hidden = state === 'checked';
+      const label = actionEl.closest('.calendar-object-title')?.querySelector('span:not(.calendar-object-visibility-spacer)')?.textContent || 'Chart objects';
+      const changed = recordInspectorHistory?.(hidden ? `Hide ${label}` : `Show ${label}`, () => (
+        setCalendarDayGroupObjectsHidden(date, groupType, hidden)
+      ));
+      bus.emit('status:update', {
+        text: `${hidden ? 'Hidden' : 'Shown'} ${changed || 0} ${label} for ${date}`,
+        isError: !date || !groupType,
       });
       refreshSelection?.();
       return true;

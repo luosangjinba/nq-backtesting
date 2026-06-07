@@ -735,6 +735,10 @@ function handleInspectorClick(e) {
 
   const action = actionEl?.dataset.inspectorAction;
   if (!action) return;
+  if (action === 'calendar-day-group-toggle-hidden') {
+    e.preventDefault();
+    e.stopPropagation();
+  }
 
   if (calendarActions.handleClick(action, actionEl)) {
     return;
