@@ -5,11 +5,12 @@ import { getSegmentById, updateSegment } from '../../segment/segment-store.js';
 import { getSegmentGroupById, updateSegmentGroup } from '../../segment/segment-group-store.js';
 import { getSmtRecordById, updateSmtRecord } from '../../smt/smt-store.js';
 import { updateEventTime, updateKillzone } from '../../time-overlays/time-overlay-store.js';
-import { getChartNotes, updateChartNote } from '../../chart-notes/chart-note-store.js';
+import { getChartNoteById, getChartNotes, updateChartNote } from '../../chart-notes/chart-note-store.js';
 
 function isCalendarVisibilityType(type) {
   return [
     CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.CHART_NOTE,
     CALENDAR_OBJECT_TYPES.PDA,
     CALENDAR_OBJECT_TYPES.SEGMENT,
     CALENDAR_OBJECT_TYPES.COMPOSITE,
@@ -53,21 +54,34 @@ export function getCalendarVisibilitySummaryForItems(items = []) {
 
 export function getCalendarDayVisibilitySummaries(dateKey) {
   const groups = getCalendarDayGroups(dateKey, getCalendarReviewIndex());
-  return new Map(
+  const summaries = new Map(
     groups
       .filter((group) => isCalendarVisibilityType(group.type))
       .map((group) => [group.type, getCalendarVisibilitySummaryForItems(group.rows)])
   );
+  summaries.set(
+    CALENDAR_OBJECT_TYPES.CHART_NOTE,
+    getCalendarVisibilitySummaryForItems(getChartNoteItemsForDate(dateKey))
+  );
+  return summaries;
 }
 
 export function setCalendarDayGroupObjectsHidden(dateKey, groupType, hidden) {
+  if (groupType === CALENDAR_OBJECT_TYPES.CHART_NOTE) {
+    return setCalendarItemsHidden(getChartNoteItemsForDate(dateKey), hidden);
+  }
+
   const groups = getCalendarDayGroups(dateKey, getCalendarReviewIndex());
   const group = groups.find((candidate) => candidate.type === groupType);
   if (!group) return 0;
 
+  return setCalendarItemsHidden(group.rows, hidden);
+}
+
+function setCalendarItemsHidden(items = [], hidden) {
   let changed = 0;
   const seen = new Set();
-  group.rows.forEach((item) => {
+  items.forEach((item) => {
     const type = item.ref?.type;
     const id = item.ref?.id;
     if (!isCalendarChartObjectBulkType(type) || !id) return;
@@ -81,6 +95,7 @@ export function setCalendarDayGroupObjectsHidden(dateKey, groupType, hidden) {
 
 export function isCalendarObjectHidden(type, id) {
   if (type === CALENDAR_OBJECT_TYPES.SMT) return Boolean(getSmtRecordById(id)?.display?.hidden);
+  if (type === CALENDAR_OBJECT_TYPES.CHART_NOTE) return Boolean(getChartNoteById(id)?.display?.hidden);
   if (type === CALENDAR_OBJECT_TYPES.PDA) return Boolean(getAnnotationById(id)?.display?.hidden);
   if (type === CALENDAR_OBJECT_TYPES.SEGMENT) return Boolean(getSegmentById(id)?.display?.hidden);
   if (type === CALENDAR_OBJECT_TYPES.COMPOSITE) return Boolean(getSegmentGroupById(id)?.display?.hidden);
@@ -101,6 +116,12 @@ export function setCalendarObjectHidden(type, id, hidden) {
     const record = getSmtRecordById(id);
     if (!record) return false;
     updateSmtRecord(id, { display: { ...(record.display || {}), hidden } });
+    return true;
+  }
+  if (type === CALENDAR_OBJECT_TYPES.CHART_NOTE) {
+    const note = getChartNoteById(id);
+    if (!note) return false;
+    updateChartNote(id, { display: { ...(note.display || {}), hidden } });
     return true;
   }
   if (type === CALENDAR_OBJECT_TYPES.PDA) {
@@ -151,6 +172,16 @@ export function setCalendarDayChartObjectsHidden(dateKey, hidden) {
       if (updateChartNote(note.id, { display: { ...(note.display || {}), hidden } })) changed += 1;
     });
   return changed;
+}
+
+function getChartNoteItemsForDate(dateKey) {
+  return getChartNotes()
+    .filter((note) => note.instrument === 'NQ')
+    .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
+    .map((note) => ({
+      ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: note.id },
+      source: note,
+    }));
 }
 
 function dateKeyFromTimestamp(timestamp) {

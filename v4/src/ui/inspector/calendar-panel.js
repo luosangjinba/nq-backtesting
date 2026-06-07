@@ -16,7 +16,6 @@ import {
   hasDailyTimeReviewContent,
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
-import { CHART_NOTES_SECTION_KEY } from './time-reaction-panel.js';
 import { resolveInspectorCalendarDate } from './calendar-day-context.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -133,7 +132,11 @@ function getMonthCells(viewDateKey, range) {
 }
 
 function getDayObjectOverview(dateKey, calendarIndex) {
-  const groups = addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey, { includeEmpty: false });
+  const groups = addChartNotesGroup(
+    addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey, { includeEmpty: false }),
+    dateKey,
+    { includeEmpty: false }
+  );
   const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
   const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
   const economicGroup = groups.find((group) => group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT);
@@ -195,6 +198,7 @@ function compactTime(timestamp) {
 function getObjectTypeLabel(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Setup';
   if (item.type === CALENDAR_OBJECT_TYPES.TIME_REACTION) return 'Time';
+  if (item.type === CALENDAR_OBJECT_TYPES.CHART_NOTE) return 'Note';
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return 'Econ';
   if (item.type === CALENDAR_OBJECT_TYPES.SMT) return 'SMT';
   if (item.type === CALENDAR_OBJECT_TYPES.PDA) return 'PDA';
@@ -207,6 +211,7 @@ function getObjectTypeLabel(item) {
 function canToggleObjectVisibility(item) {
   return [
     CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.CHART_NOTE,
     CALENDAR_OBJECT_TYPES.PDA,
     CALENDAR_OBJECT_TYPES.SEGMENT,
     CALENDAR_OBJECT_TYPES.COMPOSITE,
@@ -416,17 +421,34 @@ function getSectionPreview(sectionData = {}) {
   return preview.replace(/\s+/g, ' ').slice(0, 48);
 }
 
-function hasChartNotesForDate(dateKey, instrument = 'NQ') {
-  return getChartNotes().some(
-    (note) => note.instrument === instrument && dateKeyFromTimestamp(note.timestamp) === dateKey
-  );
-}
-
 function getChartNotesForDate(dateKey, instrument = 'NQ') {
   return getChartNotes()
     .filter((note) => note.instrument === instrument)
     .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
     .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+}
+
+function createChartNoteItem(note) {
+  const timestamp = Number(note.timestamp);
+  const preview = String(note.text || '').replace(/\s+/g, ' ').trim() || 'Chart note';
+  return {
+    id: note.id,
+    type: CALENDAR_OBJECT_TYPES.CHART_NOTE,
+    dateKey: dateKeyFromTimestamp(timestamp),
+    timestamp: Number.isFinite(timestamp) ? timestamp : null,
+    label: preview,
+    range: Number.isFinite(timestamp) ? { start: timestamp, end: timestamp } : null,
+    ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: note.id },
+    source: note,
+  };
+}
+
+function createChartNotesGroup(dateKey, instrument = 'NQ') {
+  return {
+    type: CALENDAR_OBJECT_TYPES.CHART_NOTE,
+    label: 'Chart Notes',
+    rows: getChartNotesForDate(dateKey, instrument).map(createChartNoteItem),
+  };
 }
 
 function summarizeTimeReactionSection(sectionData = {}) {
@@ -436,26 +458,6 @@ function summarizeTimeReactionSection(sectionData = {}) {
   if (preview) return preview;
   if (refCount) return `${refCount} refs`;
   return 'No notes yet';
-}
-
-function createChartNotesTimeReactionItem(dateKey, review = getDailyTimeReviewByDate(dateKey)) {
-  const notes = getChartNotesForDate(dateKey, review?.instrument || 'NQ');
-  const timestamps = notes
-    .map((note) => Number(note.timestamp))
-    .filter((timestamp) => Number.isFinite(timestamp));
-  const start = timestamps.length ? Math.min(...timestamps) : null;
-  const end = timestamps.length ? Math.max(...timestamps) : null;
-  const summary = notes.length === 1 ? '1 note' : `${notes.length} notes`;
-  return {
-    id: `${dateKey}:${CHART_NOTES_SECTION_KEY}`,
-    type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
-    dateKey,
-    timestamp: Number.isFinite(start) ? start : null,
-    label: `Chart Notes · ${summary}`,
-    range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
-    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey, section: CHART_NOTES_SECTION_KEY },
-    source: { sectionKey: CHART_NOTES_SECTION_KEY, sectionLabel: 'Chart Notes', review },
-  };
 }
 
 function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByDate(dateKey)) {
@@ -476,8 +478,7 @@ function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByD
 
 function addTimeReactionGroup(groups, dateKey, options = {}) {
   const review = getDailyTimeReviewByDate(dateKey);
-  const hasChartNotes = hasChartNotesForDate(dateKey, review?.instrument || 'NQ');
-  if (!options.includeEmpty && !hasDailyTimeReviewContent(review) && !hasChartNotes) {
+  if (!options.includeEmpty && !hasDailyTimeReviewContent(review)) {
     return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
   }
   const group = {
@@ -485,10 +486,33 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
     label: 'Time Reaction Observation',
     rows: [
       ...DAILY_TIME_REVIEW_SECTIONS.map((section) => createTimeReactionItem(dateKey, section, review)),
-      createChartNotesTimeReactionItem(dateKey, review),
     ],
   };
   const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
+  const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);
+  if (orderSetupIndex < 0) return [group, ...existing];
+  return [
+    ...existing.slice(0, orderSetupIndex + 1),
+    group,
+    ...existing.slice(orderSetupIndex + 1),
+  ];
+}
+
+function addChartNotesGroup(groups, dateKey, options = {}) {
+  const review = getDailyTimeReviewByDate(dateKey);
+  const group = createChartNotesGroup(dateKey, review?.instrument || 'NQ');
+  if (!options.includeEmpty && !group.rows.length) {
+    return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.CHART_NOTE);
+  }
+  const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.CHART_NOTE);
+  const timeReactionIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.TIME_REACTION);
+  if (timeReactionIndex >= 0) {
+    return [
+      ...existing.slice(0, timeReactionIndex + 1),
+      group,
+      ...existing.slice(timeReactionIndex + 1),
+    ];
+  }
   const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);
   if (orderSetupIndex < 0) return [group, ...existing];
   return [
@@ -526,6 +550,7 @@ function renderObjectGroup(group, options = {}) {
 function isVisibilityControlGroup(type) {
   return [
     CALENDAR_OBJECT_TYPES.SMT,
+    CALENDAR_OBJECT_TYPES.CHART_NOTE,
     CALENDAR_OBJECT_TYPES.PDA,
     CALENDAR_OBJECT_TYPES.SEGMENT,
     CALENDAR_OBJECT_TYPES.COMPOSITE,
@@ -618,10 +643,12 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGrou
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
   const review = getDailyTimeReviewByDate(activeDate);
-  const objectGroups = addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true });
-  const dayChartObjectCount =
-    countDayBulkChartObjects(objectGroups) +
-    getChartNotesForDate(activeDate, review?.instrument || 'NQ').length;
+  const objectGroups = addChartNotesGroup(
+    addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true }),
+    activeDate,
+    { includeEmpty: true }
+  );
+  const dayChartObjectCount = countDayBulkChartObjects(objectGroups);
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;
   const overlayFilterLabel = overlaySelectedDate
     ? `Manual overlays: ${overlaySelectedDate}`

@@ -5,6 +5,7 @@
 export const CALENDAR_OBJECT_TYPES = Object.freeze({
   ORDER_SETUP: 'order-setup',
   TIME_REACTION: 'time-reaction',
+  CHART_NOTE: 'chart-note',
   ECONOMIC_EVENT: 'economic-event',
   PDA: 'pda',
   SEGMENT: 'segment',
@@ -17,6 +18,7 @@ export const CALENDAR_OBJECT_TYPES = Object.freeze({
 export const CALENDAR_GROUP_ORDER = Object.freeze([
   CALENDAR_OBJECT_TYPES.ORDER_SETUP,
   CALENDAR_OBJECT_TYPES.TIME_REACTION,
+  CALENDAR_OBJECT_TYPES.CHART_NOTE,
   CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT,
   CALENDAR_OBJECT_TYPES.SMT,
   CALENDAR_OBJECT_TYPES.PDA,
@@ -35,6 +37,7 @@ export const ORDER_SETUP_DAY_TIMESTAMP_PRIORITY = Object.freeze([
 export function getCalendarGroupLabel(type) {
   if (type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Order Setups';
   if (type === CALENDAR_OBJECT_TYPES.TIME_REACTION) return 'Time Reaction Observation';
+  if (type === CALENDAR_OBJECT_TYPES.CHART_NOTE) return 'Chart Notes';
   if (type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return 'Economic Events';
   if (type === CALENDAR_OBJECT_TYPES.PDA) return 'PDA';
   if (type === CALENDAR_OBJECT_TYPES.SEGMENT) return 'Segments';

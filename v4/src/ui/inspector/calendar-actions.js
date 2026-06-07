@@ -146,6 +146,9 @@ export function createCalendarActionController({
       const changed = recordInspectorHistory?.(nextHidden ? 'Hide Calendar Object' : 'Show Calendar Object', () => (
         setCalendarObjectHidden(type, id, nextHidden)
       ));
+      if (type === CALENDAR_OBJECT_TYPES.CHART_NOTE) {
+        renderChartNotes();
+      }
       bus.emit('status:update', {
         text: changed
           ? `${nextHidden ? 'Hidden' : 'Shown'} calendar object`
@@ -202,6 +205,14 @@ export function createCalendarActionController({
       const changed = recordInspectorHistory?.(hidden ? `Hide ${label}` : `Show ${label}`, () => (
         setCalendarDayGroupObjectsHidden(date, groupType, hidden)
       ));
+      if (groupType === CALENDAR_OBJECT_TYPES.CHART_NOTE) {
+        if (hidden) {
+          clearChartNoteFocusedDate();
+        } else {
+          setChartNoteFocusedDate(date, getChartNoteFocusAnchorBars());
+        }
+        renderChartNotes();
+      }
       bus.emit('status:update', {
         text: `${hidden ? 'Hidden' : 'Shown'} ${changed || 0} ${label} for ${date}`,
         isError: !date || !groupType,

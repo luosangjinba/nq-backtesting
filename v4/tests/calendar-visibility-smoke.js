@@ -14,6 +14,11 @@ import {
   getAnnotationById,
   loadAnnotations,
 } from '../src/pda/pda-store.js';
+import {
+  clearChartNotes,
+  getChartNoteById,
+  loadChartNotes,
+} from '../src/chart-notes/chart-note-store.js';
 
 const jan10_0930 = Date.UTC(2024, 0, 10, 9, 30, 0) / 1000;
 const jan10_1000 = Date.UTC(2024, 0, 10, 10, 0, 0) / 1000;
@@ -28,6 +33,17 @@ function makePda(id, timestamp, hidden = false) {
     sourceTimeframe: 1,
     timestamp,
     price: 16800,
+    display: { hidden },
+  };
+}
+
+function makeChartNote(id, timestamp, hidden = false) {
+  return {
+    id,
+    instrument: 'NQ',
+    timeframe: 1,
+    timestamp,
+    text: id,
     display: { hidden },
   };
 }
@@ -56,6 +72,11 @@ loadAnnotations([
   makePda('pda-hidden', jan10_1000, true),
   makePda('pda-other-day', jan11_0930, false),
 ]);
+loadChartNotes([
+  makeChartNote('note-visible', jan10_0930, false),
+  makeChartNote('note-hidden', jan10_1000, true),
+  makeChartNote('note-other-day', jan11_0930, false),
+]);
 
 const mixedSummary = getCalendarVisibilitySummaryForItems([
   { ref: { type: CALENDAR_OBJECT_TYPES.PDA, id: 'pda-visible' } },
@@ -68,6 +89,58 @@ assert.deepEqual(mixedSummary, {
   visible: 1,
   hidden: 1,
   state: 'mixed',
+});
+
+const chartNoteMixedSummary = getCalendarVisibilitySummaryForItems([
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-visible' } },
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-hidden' } },
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-hidden' } },
+]);
+assert.deepEqual(chartNoteMixedSummary, {
+  total: 2,
+  visible: 1,
+  hidden: 1,
+  state: 'mixed',
+});
+
+assert.equal(
+  setCalendarDayGroupObjectsHidden('2024-01-10', CALENDAR_OBJECT_TYPES.CHART_NOTE, true),
+  1,
+  'only the visible Jan 10 chart note should change when hiding the day Chart Notes group'
+);
+assert.equal(getChartNoteById('note-visible')?.display?.hidden, true);
+assert.equal(getChartNoteById('note-hidden')?.display?.hidden, true);
+assert.equal(
+  getChartNoteById('note-other-day')?.display?.hidden,
+  false,
+  'chart notes from another calendar date must not be changed'
+);
+
+const chartNoteUncheckedSummary = getCalendarVisibilitySummaryForItems([
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-visible' } },
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-hidden' } },
+]);
+assert.deepEqual(chartNoteUncheckedSummary, {
+  total: 2,
+  visible: 0,
+  hidden: 2,
+  state: 'unchecked',
+});
+
+assert.equal(
+  setCalendarDayGroupObjectsHidden('2024-01-10', CALENDAR_OBJECT_TYPES.CHART_NOTE, false),
+  2,
+  'both hidden Jan 10 chart notes should change when showing the day Chart Notes group'
+);
+const chartNoteCheckedSummary = getCalendarVisibilitySummaryForItems([
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-visible' } },
+  { ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: 'note-hidden' } },
+]);
+assert.deepEqual(chartNoteCheckedSummary, {
+  total: 2,
+  visible: 2,
+  hidden: 0,
+  state: 'checked',
 });
 
 assert.equal(
@@ -118,5 +191,6 @@ assert.deepEqual(getCalendarVisibilitySummaryForItems([]), {
 });
 
 clearAnnotations();
+clearChartNotes();
 
 console.log('calendar visibility smoke passed');
