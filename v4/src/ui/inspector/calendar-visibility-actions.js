@@ -22,6 +22,44 @@ function isCalendarChartObjectBulkType(type) {
   return isCalendarVisibilityType(type);
 }
 
+export function getCalendarVisibilitySummaryForItems(items = []) {
+  const seen = new Set();
+  let total = 0;
+  let hidden = 0;
+
+  items.forEach((item) => {
+    const type = item?.ref?.type;
+    const id = item?.ref?.id;
+    if (!isCalendarChartObjectBulkType(type) || !id) return;
+    const key = `${type}:${id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    total += 1;
+    if (isCalendarObjectHidden(type, id)) hidden += 1;
+  });
+
+  const visible = total - hidden;
+  const state =
+    total === 0
+      ? 'disabled'
+      : hidden === 0
+        ? 'checked'
+        : visible === 0
+          ? 'unchecked'
+          : 'mixed';
+
+  return { total, visible, hidden, state };
+}
+
+export function getCalendarDayVisibilitySummaries(dateKey) {
+  const groups = getCalendarDayGroups(dateKey, getCalendarReviewIndex());
+  return new Map(
+    groups
+      .filter((group) => isCalendarVisibilityType(group.type))
+      .map((group) => [group.type, getCalendarVisibilitySummaryForItems(group.rows)])
+  );
+}
+
 export function isCalendarObjectHidden(type, id) {
   if (type === CALENDAR_OBJECT_TYPES.SMT) return Boolean(getSmtRecordById(id)?.display?.hidden);
   if (type === CALENDAR_OBJECT_TYPES.PDA) return Boolean(getAnnotationById(id)?.display?.hidden);
