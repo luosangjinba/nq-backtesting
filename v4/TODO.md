@@ -734,5 +734,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 275.3: 增加纯手动 Setup 面板入口：在 Inspector Archive/Settings 或 toolbar 增加 `Display Setup` 折叠面板，提供 UI Scale `100% / 110% / 125% / 140%`、Chart Text `Normal / Large / XL`、Inspector Density `Compact / Normal / Comfortable`；提供 Reset defaults，不使用 alert。
   - [x] Step 275.4: 持久化 display preferences：使用现有 local persistence helper 保存到 `v4:display-preferences:NQ` 或全局 key；启动时尽早恢复并应用 CSS class/variables，避免页面先小字后跳变；Review JSON/export 不包含该设置，因为它是本机显示偏好。
   - [x] Step 275.5: 接入图表文字对象：让 Chart Notes、PDA/Segment/Composite/SMT labels、Order Setup helper labels、Time Lines/Killzones labels 读取 chart text scale；保持线条、颜色、价格坐标、对象时间逻辑不变。
-  - [ ] Step 275.6: 响应式与防截断修复：检查 125%/140% 下 toolbar 控件、Date Range、Sub/Sub TF/Layout、Replay bar、Inspector target progress、Calendar day cell、三点菜单是否溢出；必要时用 flex wrap、min-width、line-height 和密度变量调整。
+  - [x] Step 275.6: 响应式与防截断修复：检查 125%/140% 下 toolbar 控件、Date Range、Sub/Sub TF/Layout、Replay bar、Inspector target progress、Calendar day cell、三点菜单是否溢出；必要时用 flex wrap、min-width、line-height 和密度变量调整。
   - [ ] Step 275.7: 验证与收口：覆盖 Linux 1920x1080 默认值、模拟 Windows 4K 大 viewport、浏览器 zoom 100%/125%、Split on/off、Replay bar、Inspector Calendar、Chart Notes、右键菜单；运行全量 `node --check`、targeted UI smoke、`git diff --check`。

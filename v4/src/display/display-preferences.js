@@ -115,6 +115,7 @@ export function applyDisplayPreferences(nextPreferences = preferences) {
   root.style.setProperty('--inspector-font-size', px(12 * uiScale));
   root.style.setProperty('--chart-label-font-size', px(11 * uiScale * chartTextScale));
   root.style.setProperty('--chart-legend-font-size', px(12 * uiScale * chartTextScale));
+  root.style.setProperty('--inspector-width', px(Math.min(460, 320 * uiScale)));
   root.style.setProperty('--control-height', px(density.controlHeight * uiScale));
   root.style.setProperty('--panel-row-gap', px(density.panelRowGap * uiScale));
   root.style.setProperty('--inspector-section-padding-y', px(density.inspectorSectionPaddingY * uiScale));

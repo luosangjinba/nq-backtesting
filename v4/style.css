@@ -11,6 +11,7 @@
   --inspector-font-size: 12px;
   --chart-label-font-size: 11px;
   --chart-legend-font-size: 12px;
+  --inspector-width: 320px;
   --control-height: 24px;
   --panel-row-gap: 6px;
   --inspector-section-padding-y: 10px;
@@ -228,8 +229,8 @@ html, body {
 }
 
 #inspector-sidebar.open {
-  width: 320px;
-  flex-basis: 320px;
+  width: var(--inspector-width);
+  flex-basis: var(--inspector-width);
 }
 
 .inspector-header {
@@ -422,7 +423,7 @@ html, body {
 
 .inspector-calendar-day {
   position: relative;
-  height: 34px;
+  height: calc(var(--control-height) + 10px);
   border: 1px solid #2a2e39;
   background: #171b26;
   color: #d1d4dc;
@@ -922,7 +923,7 @@ html, body {
 
 .inspector-field {
   display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
+  grid-template-columns: minmax(82px, 0.36fr) minmax(0, 1fr);
   gap: 8px;
   min-height: var(--control-height);
   align-items: start;
@@ -960,7 +961,7 @@ html, body {
 }
 
 .inspector-textarea {
-  min-height: 74px;
+  min-height: calc(var(--control-height) * 3);
   padding: 6px;
   resize: vertical;
 }
@@ -1503,7 +1504,7 @@ html, body {
   column-gap: 6px;
   row-gap: 1px;
   align-items: start;
-  min-height: 24px;
+  min-height: var(--control-height);
   padding: 2px 3px 2px 5px;
   border: 1px solid rgba(120, 123, 134, 0.18);
   border-radius: 4px;
@@ -1575,8 +1576,8 @@ html, body {
 .order-setup-execution-time,
 .order-setup-execution-kind {
   min-width: 0;
-  font-size: 11px;
-  line-height: 16px;
+  font-size: var(--compact-font-size);
+  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
@@ -1593,8 +1594,8 @@ html, body {
 .order-setup-execution-time {
   grid-area: time;
   color: #b2b5be;
-  font-size: 10px;
-  line-height: 14px;
+  font-size: var(--compact-font-size);
+  line-height: 1.35;
 }
 
 .order-setup-execution-kind {
@@ -1604,14 +1605,14 @@ html, body {
 .order-setup-execution-delete {
   grid-area: delete;
   width: 22px;
-  height: 20px;
+  height: var(--control-height);
   padding: 0;
   border: 1px solid rgba(239, 83, 80, 0.45);
   border-radius: 3px;
   background: transparent;
   color: #ef9a9a;
-  font-size: 11px;
-  line-height: 18px;
+  font-size: var(--compact-font-size);
+  line-height: calc(var(--control-height) - 2px);
   cursor: pointer;
 }
 
@@ -1781,7 +1782,7 @@ html, body {
 .order-target-progress-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--panel-row-gap);
   min-width: 0;
 }
 
@@ -1807,13 +1808,13 @@ html, body {
 
 .order-target-progress-head {
   display: grid;
-  grid-template-columns: minmax(58px, 1fr) minmax(44px, 0.75fr) minmax(82px, 112px);
+  grid-template-columns: minmax(58px, 1fr) minmax(44px, 0.75fr) minmax(92px, 128px);
   gap: 5px;
   align-items: center;
   min-width: 0;
   color: #b2b5be;
-  font-size: 10px;
-  line-height: 15px;
+  font-size: var(--compact-font-size);
+  line-height: 1.35;
 }
 
 .order-target-progress-metrics {
@@ -1822,8 +1823,8 @@ html, body {
   gap: 5px;
   min-width: 0;
   color: #9da3af;
-  font-size: 10px;
-  line-height: 14px;
+  font-size: var(--compact-font-size);
+  line-height: 1.35;
 }
 
 .order-target-progress-label,
@@ -1854,7 +1855,7 @@ html, body {
 .order-target-progress-action {
   width: 100%;
   min-width: 0;
-  height: 24px;
+  height: var(--control-height);
 }
 
 .order-review-inline-control {
@@ -2397,7 +2398,8 @@ html, body {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: var(--toolbar-font-size);
-  width: 160px;
+  width: calc(160px + (var(--control-height) - 24px) * 2);
+  height: calc(var(--control-height) + 4px);
 }
 
 .toolbar-input:focus {
@@ -2412,6 +2414,7 @@ html, body {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: var(--toolbar-font-size);
+  height: calc(var(--control-height) + 4px);
 }
 
 .toolbar-display-select {
@@ -2479,8 +2482,8 @@ html, body {
 }
 
 .toolbar-date-range-btn {
-  min-width: 190px;
-  max-width: 260px;
+  min-width: calc(190px + (var(--control-height) - 24px) * 4);
+  max-width: calc(300px + (var(--control-height) - 24px) * 5);
   overflow: hidden;
   text-align: left;
   text-overflow: ellipsis;
@@ -2496,7 +2499,7 @@ html, body {
 .toolbar-calendar-popover {
   position: fixed;
   z-index: 30;
-  width: 280px;
+  width: calc(280px + (var(--control-height) - 24px) * 5);
   padding: 10px;
   border: 1px solid #363a45;
   border-radius: 6px;
@@ -2830,19 +2833,21 @@ html, body {
 
 #replay-controls {
   flex-shrink: 0;
-  min-height: 44px;
+  min-height: calc(var(--control-height) + 20px);
   background: #0f1014;
   border-top: 1px solid #2a2e39;
 }
 
 .replay-main {
-  height: 44px;
+  min-height: calc(var(--control-height) + 20px);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   padding: 0 12px;
   color: #d1d4dc;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .replay-btn,
@@ -2850,6 +2855,7 @@ html, body {
 .replay-close,
 .replay-speed,
 .replay-jump-input {
+  flex: 0 0 auto;
   height: calc(var(--control-height) + 4px);
   border: 1px solid #363a45;
   background: #151821;

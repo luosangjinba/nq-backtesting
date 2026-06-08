@@ -103,3 +103,9 @@ Progress:
   and Time Line/Killzone labels. Renderers listen to
   `display-preferences:changed` and redraw their primitives without changing
   object timestamps, prices, colors, or geometry.
+- Step 275.6 completed: large-scale layout hardening added. Inspector width now
+  scales up to 460px, common Inspector fields use proportional label columns,
+  textareas/control heights use density variables, Calendar days grow with
+  control height, Toolbar date/input controls gain scale-aware width, Replay bar
+  can scroll horizontally instead of compressing controls, and Target Progress
+  rows use variable font/height.
