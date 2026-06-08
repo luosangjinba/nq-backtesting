@@ -1400,6 +1400,28 @@ Verification:
 - `node v4/tests/local-persistence-smoke.js` passed.
 - `node --check v4/src/storage/local-persistence.js` passed.
 - `git diff --check` passed.
+
+### Step 273.2 Completed - Chart Notes persistence migration
+
+Implementation:
+
+- Migrated `v4/src/chart-notes/chart-note-persistence.js` to `createLocalPersistence()`.
+- Preserved the existing storage contract:
+  - key: `v4:chart-notes:NQ`;
+  - payload: `{ version, savedAt, chartNotes }`.
+- Preserved behavior:
+  - `chart-notes:changed` still triggers save;
+  - restore still calls `loadChartNotes(notes)`;
+  - restore still reports recovered note count;
+  - clear saved still emits the same success text;
+  - helper restoring guard prevents restore-triggered change events from overwriting saved data.
+
+Verification:
+
+- `node v4/tests/local-persistence-smoke.js` passed.
+- `node --check v4/src/chart-notes/chart-note-persistence.js` passed.
+- Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
+- `git diff --check` passed.
    - Daily Time Review;
    - Chart Notes.
 

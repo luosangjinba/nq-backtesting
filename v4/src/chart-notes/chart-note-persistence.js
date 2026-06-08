@@ -1,51 +1,42 @@
 import * as bus from '../event-bus.js';
+import { createLocalPersistence } from '../storage/local-persistence.js';
 import { getChartNotes, loadChartNotes } from './chart-note-store.js';
 
 const STORAGE_KEY = 'v4:chart-notes:NQ';
 const STORAGE_VERSION = 1;
 
-let restoring = false;
-
-function readPayload() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (err) {
+const persistence = createLocalPersistence({
+  key: STORAGE_KEY,
+  fallback: null,
+  onError(error, action) {
+    const label = action === 'read'
+      ? '读取'
+      : action === 'remove'
+        ? '清除'
+        : '保存';
     bus.emit('status:update', {
-      text: `Chart Notes 本地记录读取失败: ${err.message}`,
+      text: `Chart Notes 本地${label}失败: ${error.message}`,
       isError: true,
     });
-    return null;
-  }
-}
+  },
+});
 
 export function saveChartNotes() {
-  if (restoring) return;
-
-  try {
-    const payload = {
-      version: STORAGE_VERSION,
-      savedAt: Date.now(),
-      chartNotes: getChartNotes(),
-    };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  } catch (err) {
-    bus.emit('status:update', {
-      text: `Chart Notes 本地保存失败: ${err.message}`,
-      isError: true,
-    });
-  }
+  persistence.write({
+    version: STORAGE_VERSION,
+    savedAt: Date.now(),
+    chartNotes: getChartNotes(),
+  });
 }
 
 export function restoreChartNotes() {
-  const payload = readPayload();
+  const payload = persistence.read();
   if (!payload) return;
 
   const notes = Array.isArray(payload.chartNotes) ? payload.chartNotes : [];
-  restoring = true;
-  loadChartNotes(notes);
-  restoring = false;
+  persistence.runRestoring(() => {
+    loadChartNotes(notes);
+  });
 
   if (notes.length > 0) {
     bus.emit('status:update', {
@@ -56,14 +47,8 @@ export function restoreChartNotes() {
 }
 
 export function clearSavedChartNotes() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
+  if (persistence.remove()) {
     bus.emit('status:update', { text: 'Chart Notes 本地保存已清除', isError: false });
-  } catch (err) {
-    bus.emit('status:update', {
-      text: `Chart Notes 本地保存清除失败: ${err.message}`,
-      isError: true,
-    });
   }
 }
 
