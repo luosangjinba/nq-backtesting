@@ -925,6 +925,7 @@ export function initInspectorSidebar() {
   });
   bus.on('economic-calendar:changed', refreshSelection);
   bus.on('daily-regime:changed', refreshSelection);
+  bus.on('time-overlays:changed', refreshSelection);
   bus.on('replay:changed', refreshOnReplayDayChange);
   bus.on('inspector:open-calendar-date', openCalendarDate);
   bus.on('order-setup-element:selected', () => {
