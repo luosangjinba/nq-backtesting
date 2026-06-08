@@ -105,6 +105,10 @@ function createFvgRecord(bar, direction) {
   });
 }
 
+export function isSmtPicking() {
+  return Boolean(pickState);
+}
+
 function clearPickState({ silent = false } = {}) {
   if (!pickState) return;
   pickState = null;

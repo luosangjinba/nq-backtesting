@@ -3,6 +3,16 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
+import * as store from '../data/bar-store.js';
+import * as secondaryStore from '../data/secondary-chart-store.js';
+import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
+import {
+  didReplayPickJustHandleClick,
+  getReplayCursorTimestamp,
+  getReplayVisibleBars,
+  isReplayPicking,
+} from './replay-controls.js';
+import { isSmtPicking } from '../smt/manual-smt.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
@@ -245,6 +255,66 @@ function openCalendarDate(payload = {}) {
     isError: false,
   });
   return true;
+}
+
+function isCalendarClickFollowBlocked() {
+  return Boolean(
+    isReplayPicking() ||
+      didReplayPickJustHandleClick() ||
+      isSmtPicking() ||
+      orderReviewActions.isExitPicking?.() ||
+      orderReviewActions.didExitPickJustHandleClick?.() ||
+      orderReviewActions.isReasonRefPicking?.() ||
+      dailyTimeActions.isPicking?.() ||
+      segmentActions.isActorPicking?.() ||
+      segmentActions.didActorPickJustHandleClick?.()
+  );
+}
+
+function canFollowCalendarChartClick() {
+  if (!sidebarEl?.classList.contains('open')) return false;
+  if (isCalendarClickFollowBlocked()) return false;
+  const page = getInspectorPage();
+  return (
+    (currentPanel === 'empty' && page.kind === 'home') ||
+    (currentPanel === 'archive' && page.kind === 'archive')
+  );
+}
+
+function followCalendarDateFromChartClick(dateKey) {
+  if (!dateKey || !canFollowCalendarChartClick()) return false;
+  if (calendarSelectedDate === dateKey && calendarViewDate === dateKey) return false;
+  captureCalendarOpenGroups();
+  calendarSelectedDate = dateKey;
+  calendarViewDate = dateKey;
+  refreshSelection();
+  return true;
+}
+
+function getPrimaryClickDate(param = {}) {
+  const replayBars = getReplayVisibleBars();
+  const bars = Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
+  const bar = findDisplayBarFast(bars, param.time, store.getCurrentTimeframe());
+  return dateKeyFromTimestamp(bar?.timestamp);
+}
+
+function getSecondaryClickDate(param = {}) {
+  if (!secondaryStore.isSecondaryEnabled()) return '';
+  const cursorTimestamp = getReplayCursorTimestamp();
+  const displayBars = secondaryStore.getSecondaryDisplayBars();
+  const bars = Number.isFinite(Number(cursorTimestamp))
+    ? displayBars.filter((bar) => Number(bar?.timestamp) <= Number(cursorTimestamp))
+    : displayBars;
+  const bar = findDisplayBarFast(bars, param.time, secondaryStore.getSecondaryTimeframe());
+  return dateKeyFromTimestamp(bar?.timestamp);
+}
+
+function handlePrimaryCalendarClick(param = {}) {
+  followCalendarDateFromChartClick(getPrimaryClickDate(param));
+}
+
+function handleSecondaryCalendarClick(param = {}) {
+  followCalendarDateFromChartClick(getSecondaryClickDate(param));
 }
 
 function renderAnnotation(annotation) {
@@ -858,8 +928,10 @@ export function initInspectorSidebar() {
   document.getElementById('secondary-chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
   chart.onCrosshairMove(orderReviewActions.handleExitPickHover);
   chart.onCrosshairMove(segmentActions.handleActorPickHover);
+  chart.onClick(handlePrimaryCalendarClick);
   secondaryChart.onSecondaryCrosshairMove(orderReviewActions.handleSecondaryExitPickHover);
   secondaryChart.onSecondaryCrosshairMove(segmentActions.handleSecondaryActorPickHover);
+  secondaryChart.onSecondaryClick(handleSecondaryCalendarClick);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();

@@ -86,6 +86,8 @@ export function createOrderReviewActionController({
     handleExitPickHover: editActions.handleExitPickHover,
     handleOrderReviewChange,
     handleOrderReviewClick,
+    didExitPickJustHandleClick: editActions.didExitPickJustHandleClick,
+    isExitPicking: editActions.isExitPicking,
     isReasonRefPicking: reasonActions.isPicking,
     getExpandedOrderReviewId,
   };

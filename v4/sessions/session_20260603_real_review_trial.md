@@ -917,3 +917,152 @@ Manual follow-up:
 - Browser-check the visual checkbox state on a real object-heavy day:
   all-visible, all-hidden, mixed, Show Day Objects, Hide Day Objects, Replay On
   day transitions, and undo/redo.
+
+## 2026-06-07 - Clear Handoff Checkpoint
+
+Current repository state:
+
+- Branch: `main`.
+- HEAD: `2893fc3 fix(v4): refresh inspector on time overlays`.
+- `main` is ahead of `origin/main` by 24 commits.
+- There are no tracked working-tree changes after the Step 267 rollback except
+  this handoff documentation update.
+- Existing untracked runtime/local files are intentionally not part of git:
+  `.web_pid`, `__pycache__/`, `trading_data.duckdb`, `v3/plans/`,
+  `v4/.web.log`, `v4/__pycache__/`, `v4/data/vix-monthly.csv`,
+  `v4/docs/CODE_REVIEW_2026_06_02.md`, `v4/docs/P1_PLAN.md`,
+  `v4/docs/improvement_plan.html`.
+
+Recent committed work currently present on `main`:
+
+- `21b55d2 feat(v4): toggle chart notes from calendar`
+  - Chart Notes are a separate Calendar group.
+  - Chart Notes support day-level checkbox visibility like PDA/Segments.
+  - `v4/tests/calendar-visibility-smoke.js` covers Chart Notes visibility.
+- `007a33d fix(v4): sync crosshair during replay`
+  - Primary/secondary sync crosshair can coexist with replay cursor.
+  - Replay-aware sync uses current replay-visible primary/secondary bars.
+- `2893fc3 fix(v4): refresh inspector on time overlays`
+  - Inspector listens to `time-overlays:changed`, so newly created Killzone /
+    Time Line objects appear in Calendar immediately, including first creation
+    during replay.
+
+Important rollback note:
+
+- Step 267 Calendar follow crosshair / replay day was attempted after
+  `2893fc3`, but the user reported it was not actually working.
+- That attempt was fully rolled back at the user's request.
+- The user explicitly decided not to do Step 267 anymore. Do not resume or
+  re-plan Calendar auto-follow after context clear unless the user asks for a
+  new design from scratch.
+- Removed files from the rollback:
+  - `v4/src/ui/inspector/calendar-follow-state.js`
+  - `v4/tests/calendar-follow-smoke.js`
+- Restored files from the rollback:
+  - `v4/TODO.md`
+  - `v4/sessions/session_20260603_real_review_trial.md`
+  - `v4/src/ui/inspector-sidebar.js`
+- Therefore current code does not include any Step 267 crosshair-follow
+  implementation.
+
+Validation already run before this handoff:
+
+- After `2893fc3`, the code was at a clean tracked state.
+- The `time-overlays:changed` fix had passed:
+  - full `v4/src/**/*.js` `node --check`;
+  - `node v4/tests/calendar-visibility-smoke.js`;
+  - `git diff --check`.
+
+Recommended next step after context clear:
+
+- If continuing normal work, start from `main` at `2893fc3`.
+- Do not continue Step 267. Treat it as intentionally abandoned.
+
+## 2026-06-08 - Step 268 Inspector Calendar Click-Date Follow Plan
+
+Decision:
+
+- This is Step 268.
+- Do not restore the abandoned Step 267 crosshair/replay auto-follow design.
+- New scope is click-driven only: Inspector Calendar may jump to the date of the
+  K line under a primary or secondary chart left-click.
+- The goal is almost zero extra runtime cost: no `mousemove`, no crosshair-move
+  subscription, no replay-bar refresh loop, no per-frame work.
+
+Proposed implementation:
+
+1. Add a click-only date resolver for chart clicks.
+   - Reuse existing chart click hooks if practical; otherwise add one primary and
+     one secondary `click` listener.
+   - Resolve click coordinate -> chart time -> display bar -> `timestamp` -> UTC
+     date key using existing time projection / display-bar helpers.
+   - Ignore clicks that cannot resolve to a real bar.
+
+2. Add a small Inspector entry point such as `openCalendarDateFromChartClick()`.
+   - Update `calendarSelectedDate` and `calendarViewDate` only when the resolved
+     date differs from the current Calendar date.
+   - Refresh Inspector once for that date.
+   - Do not touch chart objects or persistence.
+
+3. Guard user intent aggressively.
+   - Only auto-jump when Inspector is on Calendar/Home or otherwise safe to
+     refresh without replacing an object detail panel.
+   - Do not override active object detail panels, order/segment/PDA pick states,
+     range/fib/point-set drafts, or other modal selection workflows.
+   - Do not use replay state as the driver; Replay on/off should only affect
+     which bars are available for click resolution.
+
+4. Keep overlay semantics conservative.
+   - Decide during implementation whether a chart click should also set
+     `timeOverlaySettings.selectedDate` like Calendar date click does.
+   - Default recommendation: align with explicit Calendar date selection only if
+     the user expects manual overlays to filter to the clicked date; otherwise
+     keep it Calendar-only to avoid surprising hidden overlays.
+
+Verification checklist:
+
+- Primary chart left-click on two different loaded dates jumps Calendar once per
+  date change.
+- Secondary chart left-click works in Split mode and is ignored when Split / data
+  is unavailable.
+- Replay on: clicking visible replay bars resolves to the clicked bar date, not
+  future loaded bars.
+- Calendar object detail panel is not interrupted by chart clicks.
+- Existing chart pick/draft flows are not interrupted.
+- No crosshair-move or mousemove listener is added.
+- Full `v4/src/**/*.js` `node --check` and `git diff --check` pass.
+
+## 2026-06-08 - Step 268 Inspector Calendar Click-Date Follow Completed
+
+Implemented:
+
+- Inspector Calendar now follows primary chart left-clicks by resolving the
+  clicked LightweightCharts `param.time` back to a loaded display bar date.
+- Secondary chart click support uses a callback set in `secondary-chart-manager`,
+  so the Inspector subscription survives secondary chart rebuilds.
+- The behavior is click-only: no `mousemove`, no crosshair-follow state, and no
+  per-frame replay/calendar sync was added.
+- Calendar follow only runs when Inspector is already open on Calendar/Home or
+  Archive; object detail panels and selected object panels are not replaced.
+- Chart clicks do not update `timeOverlaySettings.selectedDate`, so manual
+  overlay date filtering is not changed implicitly.
+- Guarded active pick workflows:
+  - Replay pick;
+  - SMT pick;
+  - Order exit pick;
+  - Order reason ref pick;
+  - Daily Time ref pick;
+  - Reaction Evidence actor pick.
+- Primary Replay uses current replay-visible bars for click resolution; secondary
+  Replay limits click resolution to bars at or before the replay cursor.
+
+Validation:
+
+- Full `v4/src/**/*.js` `node --check` passed.
+- `node v4/tests/calendar-visibility-smoke.js` passed.
+- `git diff --check -- v4` passed.
+- Headless Chrome CDP validation loaded `v4/index.html`, injected two days of
+  test bars, and confirmed a real chart click on the second day updated Calendar
+  from `2024-01-10` to `2024-01-11`.
+- Browser diagnostics confirmed LightweightCharts emitted `subscribeClick` with
+  `param.time=1704965400` for the clicked Jan 11 bar.

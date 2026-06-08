@@ -36,6 +36,7 @@ import { parseTags } from './segment-panel.js';
 import { createRafThrottle } from '../../utils/raf-throttle.js';
 
 let actorPickState = null;
+let lastActorPickHandledAt = 0;
 
 function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
@@ -204,6 +205,7 @@ export function createSegmentInspectorActionController({
     }
 
     const { pdaId, evidenceId, actorField } = actorPickState;
+    lastActorPickHandledAt = Date.now();
     clearActorPickState({ silent: true });
     recordInspectorHistory('Pick Reaction Evidence Bar', () => patchReactionEvidence(segment, pdaId, evidenceId, (evidence) => ({
       actor: {
@@ -528,5 +530,7 @@ export function createSegmentInspectorActionController({
     handleSecondaryActorPickHover: handleSecondaryActorPickHoverThrottled,
     handleSegmentChange,
     handleSegmentClick,
+    didActorPickJustHandleClick: () => Date.now() - lastActorPickHandledAt < 250,
+    isActorPicking: () => Boolean(actorPickState),
   };
 }

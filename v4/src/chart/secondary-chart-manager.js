@@ -29,10 +29,15 @@ let activeTimeframe = 60;
 let activeDataCount = 0;
 let activeLastTime = null;
 const crosshairMoveCallbacks = new Set();
+const clickCallbacks = new Set();
 
 function notifySecondaryCrosshairMove(param) {
   updateSecondaryLegend(param);
   crosshairMoveCallbacks.forEach((callback) => callback(param));
+}
+
+function notifySecondaryClick(param) {
+  clickCallbacks.forEach((callback) => callback(param));
 }
 
 function formatChartTime(time) {
@@ -133,6 +138,7 @@ export function initSecondaryChart(containerId = 'secondary-chart') {
     },
   });
   secondaryChart.subscribeCrosshairMove(notifySecondaryCrosshairMove);
+  secondaryChart.subscribeClick(notifySecondaryClick);
 
   resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -386,6 +392,12 @@ export function onSecondaryCrosshairMove(callback) {
   if (typeof callback !== 'function') return () => {};
   crosshairMoveCallbacks.add(callback);
   return () => crosshairMoveCallbacks.delete(callback);
+}
+
+export function onSecondaryClick(callback) {
+  if (typeof callback !== 'function') return () => {};
+  clickCallbacks.add(callback);
+  return () => clickCallbacks.delete(callback);
 }
 
 export function attachSecondaryPrimitive(primitive) {

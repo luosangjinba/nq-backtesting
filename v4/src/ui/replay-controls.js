@@ -33,6 +33,7 @@ let lastCursorIndex = -1;
 let cursorTimestampAnchor = null;
 let lastCursorTimestampAnchor = null;
 let activeTimeframe = store.getCurrentTimeframe();
+let lastReplayPickHandledAt = 0;
 let speedIndex = 2;
 let timer = null;
 let historyOpen = false;
@@ -598,6 +599,7 @@ function handleChartClick(param) {
 
   const currentRange = chart.getVisibleLogicalRange();
   chart.hidePickPreviewCursor();
+  lastReplayPickHandledAt = Date.now();
   mode = 'idle';
   renderSlice(index, false, true);
   if (currentRange) {
@@ -796,6 +798,18 @@ export function getReplayRestoreSnapshot() {
 export function getReplayVisibleBars() {
   if (!enabled || cursorIndex < 0) return null;
   return displayBars.slice(0, cursorIndex + 1);
+}
+
+export function getReplayCursorTimestamp() {
+  return enabled && cursorIndex >= 0 ? getCursorTimestamp() : null;
+}
+
+export function isReplayPicking() {
+  return enabled && mode === 'picking';
+}
+
+export function didReplayPickJustHandleClick() {
+  return Date.now() - lastReplayPickHandledAt < 250;
 }
 
 export function syncReplayData(restoreSnapshot = null) {

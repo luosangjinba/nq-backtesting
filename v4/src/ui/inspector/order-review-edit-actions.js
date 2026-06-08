@@ -127,6 +127,7 @@ export function createOrderReviewEditActionController({
   recordInspectorHistory,
 } = {}) {
   let exitPickState = null;
+  let lastExitPickHandledAt = 0;
   let autoExitRequestSeq = 0;
 
   function clearExitPickState({ silent = false } = {}) {
@@ -400,6 +401,7 @@ export function createOrderReviewEditActionController({
     }
 
     const orderReviewId = exitPickState.orderReviewId;
+    lastExitPickHandledAt = Date.now();
     clearExitPickState({ silent: true });
     recordInspectorHistory?.('Pick Exit Bar', () => updateOrderReview(orderReviewId, {
       resultReview: {
@@ -440,5 +442,7 @@ export function createOrderReviewEditActionController({
     handleExitPickChartClick,
     handleExitPickHover: handleExitPickHoverThrottled,
     handleSecondaryExitPickHover: handleSecondaryExitPickHoverThrottled,
+    didExitPickJustHandleClick: () => Date.now() - lastExitPickHandledAt < 250,
+    isExitPicking: () => Boolean(exitPickState),
   };
 }
