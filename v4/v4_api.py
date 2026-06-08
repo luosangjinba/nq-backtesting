@@ -24,7 +24,7 @@ from price_lookup_api import query_v2_bars, query_price, open_db, _parse_datetim
 
 # 加载配置
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "v4_config.yaml")
-with open(CONFIG_PATH, "r") as f:
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     V4_CONFIG = yaml.safe_load(f)
 
 DB_PATH = os.path.abspath(
