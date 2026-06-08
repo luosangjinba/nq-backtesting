@@ -34,6 +34,7 @@ import { initOrderReviewPersistence } from './order/order-review-persistence.js'
 import { initOrderReviewRenderer } from './order/order-review-renderer.js';
 import { initOrderSetupElementSelection } from './order/order-setup-selection.js';
 import { initDailyTimeReviewPersistence } from './time-reaction/daily-time-review-persistence.js';
+import { initTimeOverlayPersistence } from './time-overlays/time-overlay-persistence.js';
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
 import { initChartNotePersistence } from './chart-notes/chart-note-persistence.js';
 import { initChartNoteRenderer } from './chart-notes/chart-note-renderer.js';
@@ -122,6 +123,7 @@ console.log('[V4] Order Review controls initialized');
 initDailyTimeReviewPersistence();
 console.log('[V4] Daily Time Reaction controls initialized');
 
+initTimeOverlayPersistence();
 initTimeOverlayRenderer();
 console.log('[V4] Time Overlay controls initialized');
 
