@@ -4,12 +4,24 @@
   box-sizing: border-box;
 }
 
+:root {
+  --ui-font-size: 13px;
+  --compact-font-size: 11px;
+  --toolbar-font-size: 12px;
+  --inspector-font-size: 12px;
+  --chart-label-font-size: 11px;
+  --chart-legend-font-size: 12px;
+  --control-height: 24px;
+  --panel-row-gap: 6px;
+  --inspector-section-padding-y: 10px;
+}
+
 html, body {
   height: 100%;
   background: #131722;
   color: #d1d4dc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13px;
+  font-size: var(--ui-font-size);
 }
 
 #app {
@@ -97,6 +109,7 @@ html, body {
   border-bottom: 1px solid #2a2e39;
   flex-shrink: 0;
   min-width: 0;
+  font-size: var(--toolbar-font-size);
   overflow-x: auto;
 }
 
@@ -120,7 +133,7 @@ html, body {
   top: 8px;
   left: 12px;
   z-index: 5;
-  font-size: 12px;
+  font-size: var(--chart-legend-font-size);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
   pointer-events: none;
   display: flex;
@@ -162,7 +175,7 @@ html, body {
   left: 12px;
   z-index: 6;
   pointer-events: none;
-  font-size: 12px;
+  font-size: var(--chart-legend-font-size);
   font-weight: 600;
   color: #f0f3fa;
   background: rgba(19, 23, 34, 0.72);
@@ -230,18 +243,18 @@ html, body {
 
 .inspector-title {
   color: #f0f3fa;
-  font-size: 13px;
+  font-size: var(--ui-font-size);
   font-weight: 600;
 }
 
 .inspector-close {
   width: 24px;
-  height: 24px;
+  height: var(--control-height);
   border: 1px solid #363a45;
   background: #1e222d;
   color: #b2b5be;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   cursor: pointer;
 }
 
@@ -254,13 +267,14 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px 12px 18px;
+  font-size: var(--inspector-font-size);
 }
 
 .inspector-section {
   --inspector-section-accent: #78909c;
   --inspector-section-accent-soft: rgba(120, 144, 156, 0.1);
   min-width: 0;
-  padding: 10px 0 10px 8px;
+  padding: var(--inspector-section-padding-y) 0 var(--inspector-section-padding-y) 8px;
   border-bottom: 1px solid #2a2e39;
   border-left: 3px solid var(--inspector-section-accent);
   background: linear-gradient(90deg, var(--inspector-section-accent-soft), rgba(19, 23, 34, 0) 36px);
@@ -327,7 +341,7 @@ html, body {
 .inspector-calendar-range,
 .inspector-calendar-selected {
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-calendar-selected {
@@ -343,7 +357,7 @@ html, body {
   min-height: 24px;
   padding: 4px 0;
   color: #d6dce8;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   line-height: 1.45;
 }
 
@@ -365,7 +379,7 @@ html, body {
 
 .inspector-calendar-title {
   color: #f0f3fa;
-  font-size: 13px;
+  font-size: var(--ui-font-size);
   font-weight: 600;
   text-align: center;
 }
@@ -379,7 +393,7 @@ html, body {
 
 .inspector-calendar-weekdays {
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   text-align: center;
 }
 
@@ -390,7 +404,7 @@ html, body {
   background: #171b26;
   color: #d1d4dc;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   cursor: pointer;
 }
 
@@ -538,10 +552,10 @@ html, body {
   grid-template-columns: 12px 14px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  min-height: 28px;
+  min-height: var(--control-height);
   padding: 5px 7px;
   color: var(--calendar-group-accent);
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   font-weight: 600;
   cursor: pointer;
 }
@@ -589,7 +603,7 @@ html, body {
   border: 1px solid #363a45;
   border-radius: 999px;
   color: #b2b5be;
-  font-size: 10px;
+  font-size: var(--compact-font-size);
   font-weight: 500;
   text-align: center;
 }
@@ -602,7 +616,7 @@ html, body {
 
 .calendar-object-empty {
   color: #b2b5be;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -615,7 +629,7 @@ html, body {
   min-height: 30px;
   padding: 6px 0;
   color: #b2b5be;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   line-height: 1.35;
 }
 
@@ -645,7 +659,7 @@ html, body {
   border: 1px solid #363a45;
   border-radius: 4px;
   color: #d1d4dc;
-  font-size: 10px;
+  font-size: var(--compact-font-size);
   text-align: center;
 }
 
@@ -684,7 +698,7 @@ html, body {
 .calendar-economic-impact,
 .calendar-economic-currency {
   color: #d1d4dc;
-  font-size: 10px;
+  font-size: var(--compact-font-size);
 }
 
 .calendar-economic-impact {
@@ -715,7 +729,7 @@ html, body {
   border-radius: 4px;
   background: rgba(23, 27, 38, 0.7);
   color: #8d919b;
-  font-size: 10px;
+  font-size: var(--compact-font-size);
   cursor: pointer;
 }
 
@@ -809,13 +823,13 @@ html, body {
 
 .calendar-object-menu-trigger {
   width: 24px;
-  height: 22px;
+  height: var(--control-height);
   padding: 0;
   border: 1px solid #363a45;
   border-radius: 4px;
   background: #1e222d;
   color: #b2b5be;
-  font-size: 13px;
+  font-size: var(--ui-font-size);
   line-height: 18px;
   text-align: center;
   list-style: none;
@@ -854,18 +868,18 @@ html, body {
 .calendar-object-locate,
 .calendar-object-open {
   flex: 0 0 auto;
-  height: 20px;
+  height: var(--control-height);
   padding: 1px 6px;
-  font-size: 10px;
+  font-size: var(--compact-font-size);
 }
 
 .calendar-pda-delete {
-  height: 20px;
+  height: var(--control-height);
   padding: 1px 6px;
   border-color: rgba(239, 83, 80, 0.45);
   color: #ff8a80;
-  font-size: 10px;
-  line-height: 18px;
+  font-size: var(--compact-font-size);
+  line-height: calc(var(--control-height) - 2px);
 }
 
 .calendar-object-empty {
@@ -879,7 +893,7 @@ html, body {
 .inspector-section-title {
   margin-bottom: 8px;
   color: var(--inspector-section-accent, #f0f3fa);
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   font-weight: 600;
 }
 
@@ -887,19 +901,19 @@ html, body {
   display: grid;
   grid-template-columns: 82px minmax(0, 1fr);
   gap: 8px;
-  min-height: 24px;
+  min-height: var(--control-height);
   align-items: start;
 }
 
 .inspector-field-label {
   color: #787b86;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-field-value {
   min-width: 0;
   color: #d1d4dc;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   overflow-wrap: anywhere;
 }
 
@@ -918,7 +932,7 @@ html, body {
 }
 
 .inspector-input {
-  height: 26px;
+  height: var(--control-height);
   padding: 3px 6px;
 }
 
@@ -959,7 +973,7 @@ html, body {
   --time-reaction-card-accent: #64b5f6;
   --time-reaction-card-accent-soft: rgba(100, 181, 246, 0.08);
   display: grid;
-  gap: 6px;
+  gap: var(--panel-row-gap);
   min-width: 0;
   max-width: 100%;
   padding: 8px 8px 8px 10px;
@@ -985,7 +999,7 @@ html, body {
 
 .time-reaction-time {
   color: var(--time-reaction-card-accent);
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   font-weight: 600;
 }
 
@@ -1010,7 +1024,7 @@ html, body {
 
 .time-reaction-subsection {
   display: grid;
-  gap: 6px;
+  gap: var(--panel-row-gap);
   min-width: 0;
 }
 
@@ -1020,13 +1034,13 @@ html, body {
   gap: 8px;
   align-items: center;
   color: #f0f3fa;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   font-weight: 600;
 }
 
 .time-reaction-chart-note-count {
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   font-weight: 500;
 }
 
@@ -1059,7 +1073,7 @@ html, body {
   display: flex;
   gap: 8px;
   color: #fff7a8;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   font-weight: 600;
 }
 
@@ -1068,7 +1082,7 @@ html, body {
   padding: 6px 7px;
   border-color: rgba(255, 247, 168, 0.22);
   background: rgba(15, 19, 28, 0.72);
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
 }
 
 .time-reaction-chart-note-edit:focus {
@@ -1078,7 +1092,7 @@ html, body {
 .time-reaction-chart-note-text {
   min-width: 0;
   color: #d6dce8;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   line-height: 1.35;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -1128,13 +1142,13 @@ html, body {
 
 .order-review-ref-menu-trigger {
   width: 24px;
-  height: 20px;
+  height: var(--control-height);
   padding: 0;
   border: 1px solid #363a45;
   border-radius: 3px;
   background: transparent;
   color: #b2b5be;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   line-height: 16px;
   text-align: center;
   list-style: none;
@@ -1162,13 +1176,13 @@ html, body {
 }
 
 .order-review-ref-menu-item {
-  height: 22px;
+  height: var(--control-height);
   padding: 1px 6px;
   border: 1px solid #363a45;
   border-radius: 3px;
   background: #1e222d;
   color: #b2b5be;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   text-align: left;
   cursor: pointer;
 }
@@ -1195,13 +1209,13 @@ html, body {
 
 .inspector-danger {
   width: 100%;
-  height: 30px;
+  height: calc(var(--control-height) + 6px);
   margin-top: 8px;
   border: 1px solid #ef5350;
   background: rgba(239, 83, 80, 0.12);
   color: #ffcdd2;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   cursor: pointer;
 }
 
@@ -1211,13 +1225,13 @@ html, body {
 
 .inspector-secondary {
   width: 100%;
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   margin-top: 6px;
   border: 1px solid #363a45;
   background: #1e222d;
   color: #b2b5be;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   cursor: pointer;
 }
 
@@ -1232,7 +1246,7 @@ html, body {
 
 .inspector-id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-tags {
@@ -1247,16 +1261,16 @@ html, body {
   border-radius: 4px;
   background: #1e222d;
   color: #d1d4dc;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 26px;
+  min-height: var(--control-height);
   color: #d1d4dc;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   cursor: pointer;
 }
 
@@ -1268,13 +1282,13 @@ html, body {
 .inspector-empty {
   padding: 12px 0;
   color: #787b86;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
 }
 
 .drawing-set-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--panel-row-gap);
 }
 
 .drawing-set-row {
@@ -1321,13 +1335,13 @@ html, body {
 
 .drawing-set-main {
   color: var(--drawing-set-accent);
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
 }
 
 .drawing-set-meta,
 .drawing-set-empty {
   color: #787b86;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-point-list {
@@ -1347,7 +1361,7 @@ html, body {
   border: 1px solid #2a2e39;
   border-radius: 4px;
   color: #d1d4dc;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-response-row {
@@ -1360,7 +1374,7 @@ html, body {
   border: 1px solid #2a2e39;
   border-radius: 4px;
   color: #d1d4dc;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-response-row select,
@@ -1379,7 +1393,7 @@ html, body {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--panel-row-gap);
 }
 
 .inspector-evidence-row {
@@ -1437,7 +1451,7 @@ html, body {
 
 .order-review-compact-title {
   color: var(--order-section-accent);
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   font-weight: 600;
 }
 
@@ -2019,18 +2033,18 @@ html, body {
 }
 
 .inspector-mini-select {
-  height: 24px;
+  height: var(--control-height);
   padding: 2px 4px;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .inspector-mini-btn {
-  height: 22px;
+  height: var(--control-height);
   border: 1px solid #363a45;
   background: #131722;
   color: #b2b5be;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   cursor: pointer;
 }
 
@@ -2064,7 +2078,7 @@ html, body {
   overflow: hidden;
   padding: 6px 8px 5px;
   color: #787b86;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2079,14 +2093,14 @@ html, body {
 }
 
 .pda-menu-section summary {
-  height: 26px;
+  height: calc(var(--control-height) + 2px);
   padding: 0 8px;
   overflow: hidden;
   color: #b2b5be;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   font-weight: 600;
-  line-height: 26px;
+  line-height: calc(var(--control-height) + 2px);
   list-style: none;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2114,14 +2128,14 @@ html, body {
 
 .pda-menu-item {
   width: 100%;
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   padding: 0 8px 0 22px;
   overflow: hidden;
   border: none;
   background: transparent;
   color: #d1d4dc;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2132,7 +2146,7 @@ html, body {
   padding: 5px 8px 4px;
   overflow: hidden;
   color: #8aa0b3;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   line-height: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2146,7 +2160,7 @@ html, body {
   position: relative;
   padding-right: 22px;
   padding-left: 8px;
-  line-height: 28px;
+  line-height: calc(var(--control-height) + 4px);
 }
 
 .pda-menu-submenu-trigger::after {
@@ -2222,7 +2236,7 @@ html, body {
   height: 18px;
   overflow: hidden;
   color: #fff7a8;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   font-weight: 600;
   line-height: 18px;
   text-overflow: ellipsis;
@@ -2240,7 +2254,7 @@ html, body {
   outline: none;
   background: #0f131c;
   color: #f0f3fa;
-  font: 12px/1.35 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font: var(--inspector-font-size)/1.35 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .chart-note-editor-text:focus {
@@ -2255,13 +2269,13 @@ html, body {
 }
 
 .chart-note-editor-btn {
-  height: 24px;
+  height: var(--control-height);
   padding: 0 10px;
   border: 1px solid #363a45;
   border-radius: 4px;
   background: #1e222d;
   color: #d1d4dc;
-  font-size: 12px;
+  font-size: var(--inspector-font-size);
   cursor: pointer;
 }
 
@@ -2334,7 +2348,7 @@ html, body {
 
 .toolbar-label {
   color: #b2b5be;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
 }
 
 .toolbar-toggle {
@@ -2342,9 +2356,9 @@ html, body {
   align-items: center;
   gap: 5px;
   flex: 0 0 auto;
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   color: #b2b5be;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   cursor: pointer;
 }
 
@@ -2359,7 +2373,7 @@ html, body {
   color: #d1d4dc;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   width: 160px;
 }
 
@@ -2374,7 +2388,7 @@ html, body {
   color: #d1d4dc;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
 }
 
 .toolbar-display-select {
@@ -2403,7 +2417,7 @@ html, body {
   border: none;
   padding: 4px 12px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   cursor: pointer;
 }
 
@@ -2437,7 +2451,7 @@ html, body {
 .toolbar-icon-btn {
   width: 28px;
   padding: 4px 0;
-  font-size: 15px;
+  font-size: calc(var(--toolbar-font-size) + 3px);
   line-height: 1;
 }
 
@@ -2452,7 +2466,7 @@ html, body {
 
 .status-bar {
   color: #b2b5be;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   margin-left: auto;
 }
 
@@ -2490,14 +2504,14 @@ html, body {
 
 .toolbar-calendar-heading-title {
   color: #f0f3fa;
-  font-size: 13px;
+  font-size: var(--ui-font-size);
   font-weight: 600;
 }
 
 .toolbar-calendar-heading-subtitle {
   margin-top: 2px;
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2505,7 +2519,7 @@ html, body {
 
 .toolbar-calendar-title {
   color: #f0f3fa;
-  font-size: 13px;
+  font-size: var(--ui-font-size);
   font-weight: 600;
   text-align: center;
 }
@@ -2520,8 +2534,8 @@ html, body {
 }
 
 .toolbar-calendar-nav {
-  height: 26px;
-  font-size: 12px;
+  height: calc(var(--control-height) + 2px);
+  font-size: var(--toolbar-font-size);
 }
 
 .toolbar-calendar-nav:hover,
@@ -2550,14 +2564,14 @@ html, body {
 .toolbar-calendar-weekdays {
   margin-bottom: 4px;
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   text-align: center;
 }
 
 .toolbar-calendar-day {
   position: relative;
-  height: 28px;
-  font-size: 12px;
+  height: calc(var(--control-height) + 4px);
+  font-size: var(--toolbar-font-size);
 }
 
 .toolbar-calendar-day.empty {
@@ -2610,13 +2624,13 @@ html, body {
 }
 
 .toolbar-calendar-action {
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   padding: 4px 10px;
   border: 1px solid #26a69a;
   background: #26a69a;
   color: #fff;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   cursor: pointer;
 }
 
@@ -2658,7 +2672,7 @@ html, body {
 .toolbar-calendar-history summary,
 .toolbar-calendar-manual summary {
   color: #b2b5be;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   cursor: pointer;
 }
 
@@ -2681,7 +2695,7 @@ html, body {
   background: #171b26;
   color: #d1d4dc;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   cursor: pointer;
 }
 
@@ -2691,7 +2705,7 @@ html, body {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   padding: 4px 8px;
   text-align: left;
 }
@@ -2712,23 +2726,23 @@ html, body {
 
 .toolbar-calendar-history-tf {
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .toolbar-calendar-history-remove {
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   padding: 0;
 }
 
 .toolbar-calendar-history-clear {
   width: 100%;
-  height: 26px;
+  height: calc(var(--control-height) + 2px);
   margin-top: 6px;
 }
 
 .toolbar-calendar-history-empty {
   color: #787b86;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
 }
 
 .toolbar-calendar-manual-grid {
@@ -2745,7 +2759,7 @@ html, body {
   flex-direction: column;
   gap: 3px;
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
 }
 
 .toolbar-calendar-input {
@@ -2755,7 +2769,7 @@ html, body {
 .toolbar-calendar-footer {
   margin-top: 8px;
   color: #8d919b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   text-align: center;
 }
 
@@ -2788,7 +2802,7 @@ html, body {
 
 .loading-text {
   color: #d1d4dc;
-  font-size: 14px;
+  font-size: var(--ui-font-size);
 }
 
 #replay-controls {
@@ -2813,12 +2827,12 @@ html, body {
 .replay-close,
 .replay-speed,
 .replay-jump-input {
-  height: 28px;
+  height: calc(var(--control-height) + 4px);
   border: 1px solid #363a45;
   background: #151821;
   color: #d1d4dc;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
 }
 
 .replay-btn,
@@ -2908,13 +2922,13 @@ html, body {
 .replay-info {
   min-width: 220px;
   color: #b2b5be;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
 }
 
 .replay-close {
   margin-left: auto;
   width: 32px;
-  font-size: 14px;
+  font-size: calc(var(--toolbar-font-size) + 2px);
 }
 
 .replay-history-panel {
@@ -2942,7 +2956,7 @@ html, body {
   padding: 0 10px;
   border-bottom: 1px solid #2a2e39;
   color: #f0f3fa;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   font-weight: 600;
 }
 
@@ -2972,7 +2986,7 @@ html, body {
 
 .replay-history-title {
   color: #f0f3fa;
-  font-size: 12px;
+  font-size: var(--toolbar-font-size);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2982,7 +2996,7 @@ html, body {
 .replay-history-meta {
   margin-top: 2px;
   color: #8b8f9b;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2990,12 +3004,12 @@ html, body {
 
 .replay-history-action,
 .replay-history-clear {
-  height: 24px;
+  height: var(--control-height);
   border: 1px solid #363a45;
   background: #151821;
   color: #d1d4dc;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--compact-font-size);
   cursor: pointer;
 }
 

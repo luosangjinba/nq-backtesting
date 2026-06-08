@@ -79,3 +79,14 @@ Execution notes:
 - Do not include runtime files, database files, or untracked deployment files in
   these commits.
 - This step intentionally avoids automatic resolution detection.
+
+Progress:
+
+- Step 275.1 completed in `6d42e8d`: added `display/display-preferences.js`
+  and early app initialization. Defaults reproduce the existing UI while
+  exposing normalized `uiScale`, `chartTextScale`, and `inspectorDensity`
+  settings plus CSS variable application.
+- Step 275.2 completed: added CSS variables for UI, toolbar, Inspector, chart
+  labels, controls, and panel density; wired the main visible surfaces
+  including toolbar, context menu, Inspector, Calendar, Chart Note editor, and
+  Replay controls to those variables.
