@@ -731,7 +731,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 275: Display Setup 手动字体/密度控制。目标是在 Windows 4K 与 Linux 1080p 之间提供可控、可持久化的 UI 文字大小，不做自动分辨率/DPI 推断，避免误判导致布局撑爆。
   - [x] Step 275.1: 定义 display preferences 边界与默认值：新增 `display/display-preferences.js`，管理 `uiScale`、`chartTextScale`、`inspectorDensity`、`toolbarDensity` 等纯手动选项；第一版默认保持当前 Linux 1080p 视觉，不改变既有用户。
   - [x] Step 275.2: 建立 CSS 变量层：在全局样式中引入 `--ui-font-size`、`--compact-font-size`、`--toolbar-font-size`、`--inspector-font-size`、`--chart-label-font-size`、`--control-height`、`--panel-row-gap` 等变量；先覆盖 toolbar、buttons、inputs、context menu、Inspector、Calendar、Archive，不做逐个内联 style 硬改。
-  - [ ] Step 275.3: 增加纯手动 Setup 面板入口：在 Inspector Archive/Settings 或 toolbar 增加 `Display Setup` 折叠面板，提供 UI Scale `100% / 110% / 125% / 140%`、Chart Text `Normal / Large / XL`、Inspector Density `Compact / Normal / Comfortable`；提供 Reset defaults，不使用 alert。
+  - [x] Step 275.3: 增加纯手动 Setup 面板入口：在 Inspector Archive/Settings 或 toolbar 增加 `Display Setup` 折叠面板，提供 UI Scale `100% / 110% / 125% / 140%`、Chart Text `Normal / Large / XL`、Inspector Density `Compact / Normal / Comfortable`；提供 Reset defaults，不使用 alert。
   - [ ] Step 275.4: 持久化 display preferences：使用现有 local persistence helper 保存到 `v4:display-preferences:NQ` 或全局 key；启动时尽早恢复并应用 CSS class/variables，避免页面先小字后跳变；Review JSON/export 不包含该设置，因为它是本机显示偏好。
   - [ ] Step 275.5: 接入图表文字对象：让 Chart Notes、PDA/Segment/Composite/SMT labels、Order Setup helper labels、Time Lines/Killzones labels 读取 chart text scale；保持线条、颜色、价格坐标、对象时间逻辑不变。
   - [ ] Step 275.6: 响应式与防截断修复：检查 125%/140% 下 toolbar 控件、Date Range、Sub/Sub TF/Layout、Replay bar、Inspector target progress、Calendar day cell、三点菜单是否溢出；必要时用 flex wrap、min-width、line-height 和密度变量调整。

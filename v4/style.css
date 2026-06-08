@@ -317,6 +317,29 @@ html, body {
   --inspector-section-accent-soft: rgba(144, 164, 174, 0.09);
 }
 
+.inspector-section-display-setup {
+  --inspector-section-accent: #90a4ae;
+  --inspector-section-accent-soft: rgba(144, 164, 174, 0.09);
+}
+
+.display-setup-panel {
+  display: grid;
+  gap: var(--panel-row-gap);
+  min-width: 0;
+}
+
+.display-setup-field {
+  align-items: center;
+}
+
+.display-setup-select {
+  max-width: 100%;
+}
+
+.display-setup-reset {
+  margin-top: 2px;
+}
+
 .inspector-section-smt-evidence {
   --inspector-section-accent: #ffb74d;
   --inspector-section-accent-soft: rgba(255, 183, 77, 0.1);

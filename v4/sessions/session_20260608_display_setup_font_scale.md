@@ -90,3 +90,6 @@ Progress:
   labels, controls, and panel density; wired the main visible surfaces
   including toolbar, context menu, Inspector, Calendar, Chart Note editor, and
   Replay controls to those variables.
+- Step 275.3 completed: added an Inspector `Display Setup` panel with manual
+  UI Scale, Chart Text, Inspector Density, and Reset defaults controls. Changes
+  apply immediately without `alert` / `prompt`.
