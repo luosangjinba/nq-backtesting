@@ -1137,6 +1137,28 @@ Verification:
   - hidden notes are not hit-testable;
   - different timeframe does not reuse stale layout.
 
+### Step 269 Completed - Chart Notes mousemove hit-test load reduction
+
+Implemented:
+
+- `chart-note-selection.js` now routes `mousemove` through `createRafThrottle()`, so rapid mouse movement runs at most one hit-test per animation frame.
+- `chart-note-hit-test.js` now caches computed chart-note layouts for the current chart state.
+- Cache key includes:
+  - timeframe;
+  - visible chart-note date;
+  - expanded note id;
+  - chart width/height;
+  - visible logical range;
+  - renderable bars signature;
+  - chart notes version.
+- `chart-note-store.js` now exposes `getChartNotesVersion()` and increments the version on `chart-notes:changed`, so cache hits do not require scanning every note just to build a signature.
+
+Validation:
+
+- `node --check` passed for edited chart-note files.
+- `git diff --check` passed for Step 269 files.
+- Headless Chrome smoke loaded `v4/index.html`, injected test bars + one chart note, found a real hit-test point, and confirmed chart-note click emitted `chart-note:selected` for `note-step269`.
+
 ### Step 270 - Replay overlay redraw load reduction
 
 Problem:

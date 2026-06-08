@@ -5,6 +5,7 @@ const DEFAULT_NOTE_POSITION = 'above';
 const VALID_POSITIONS = new Set(['above', 'below']);
 
 let chartNotes = [];
+let chartNotesVersion = 0;
 
 function normalizeString(value, fallback = '') {
   const text = String(value ?? '').trim();
@@ -27,6 +28,7 @@ function normalizePosition(value) {
 }
 
 function emitChanged() {
+  chartNotesVersion += 1;
   bus.emit('chart-notes:changed', { chartNotes: getChartNotes() });
 }
 
@@ -72,6 +74,10 @@ export function normalizeChartNote(input = {}) {
 
 export function getChartNotes() {
   return [...chartNotes];
+}
+
+export function getChartNotesVersion() {
+  return chartNotesVersion;
 }
 
 export function getChartNoteById(id) {

@@ -2,7 +2,7 @@ import * as chart from '../chart/chart-manager.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
-import { getChartNotes } from './chart-note-store.js';
+import { getChartNotes, getChartNotesVersion } from './chart-note-store.js';
 import { CHART_NOTE_DEFAULT_OPTIONS } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText } from './chart-note-format.js';
 import { buildChartNoteLayouts } from './chart-note-layout.js';
@@ -12,6 +12,7 @@ const DEFAULT_INSTRUMENT = 'NQ';
 const HIT_PADDING_PX = 4;
 
 let measureContext = null;
+let cachedLayout = null;
 
 function getMeasureContext(options) {
   if (!measureContext) {
@@ -26,17 +27,49 @@ function getRenderableBars() {
   return Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
 }
 
+function getBarsSignature(bars = []) {
+  if (!Array.isArray(bars) || !bars.length) return 'bars:empty';
+  const first = bars[0]?.timestamp ?? '';
+  const last = bars[bars.length - 1]?.timestamp ?? '';
+  return `bars:${bars.length}:${first}:${last}`;
+}
+
+function getVisibleRangeSignature() {
+  const range = chart.getVisibleLogicalRange?.();
+  if (!range) return 'range:none';
+  return `range:${Number(range.from).toFixed(3)}:${Number(range.to).toFixed(3)}`;
+}
+
+function getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl }) {
+  return [
+    timeframe,
+    visibleDateKey,
+    expandedNoteId,
+    chartEl?.clientWidth || 0,
+    chartEl?.clientHeight || 0,
+    getVisibleRangeSignature(),
+    getBarsSignature(bars),
+    getChartNotesVersion(),
+  ].join('||');
+}
+
 function buildHitPoints(options, expandedNoteId = '') {
   const timeframe = store.getCurrentTimeframe();
   const bars = getRenderableBars();
   const visibleDateKey = getVisibleChartNoteDateKey(bars);
+  const chartEl = document.getElementById('chart');
+  const cacheKey = getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl });
+  if (cachedLayout?.key === cacheKey) return cachedLayout.points;
+
+  const notes = getChartNotes();
+
   const barByTimestamp = new Map(
     bars
       .filter((bar) => Number.isFinite(Number(bar?.timestamp)))
       .map((bar) => [Number(bar.timestamp), bar])
   );
 
-  const points = getChartNotes()
+  const points = notes
     .filter((note) => !note.display?.hidden)
     .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
     .filter((note) => Number(note.timeframe) === Number(timeframe))
@@ -62,13 +95,14 @@ function buildHitPoints(options, expandedNoteId = '') {
     .filter(Boolean)
     .map((point) => ({ ...point, note: point.note }));
 
-  const chartEl = document.getElementById('chart');
   const ctx = getMeasureContext(options);
-  return buildChartNoteLayouts(points, options, {
+  const layoutPoints = buildChartNoteLayouts(points, options, {
     ctx,
     canvasWidth: chartEl?.clientWidth || 0,
     expandedNoteId,
   });
+  cachedLayout = { key: cacheKey, points: layoutPoints };
+  return layoutPoints;
 }
 
 export function hitTestChartNotes({ x, y, options = CHART_NOTE_DEFAULT_OPTIONS, expandedNoteId = '' } = {}) {

@@ -1,4 +1,5 @@
 import * as bus from '../event-bus.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 import { hitTestChartNotes } from './chart-note-hit-test.js';
 import { setExpandedChartNote } from './chart-note-renderer.js';
 
@@ -61,6 +62,8 @@ function handleChartMouseMove(e) {
   setExpandedNote(hit?.note?.id || '');
 }
 
+const handleChartMouseMoveThrottled = createRafThrottle(handleChartMouseMove);
+
 function handleChartMouseLeave() {
   setExpandedNote('');
 }
@@ -68,6 +71,6 @@ function handleChartMouseLeave() {
 export function initChartNoteSelection() {
   const chartEl = document.getElementById('chart');
   chartEl?.addEventListener('click', handleChartClick, true);
-  chartEl?.addEventListener('mousemove', handleChartMouseMove);
+  chartEl?.addEventListener('mousemove', handleChartMouseMoveThrottled);
   chartEl?.addEventListener('mouseleave', handleChartMouseLeave);
 }
