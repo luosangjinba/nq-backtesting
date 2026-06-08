@@ -24,10 +24,6 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function snapshotKey(snapshot) {
-  return JSON.stringify(snapshot);
-}
-
 function emitChanged() {
   bus.emit('history:changed', {
     canUndo: canUndo(),
@@ -89,11 +85,8 @@ export function recordHistory(label, mutator) {
   }
 
   const before = captureSnapshot();
-  const beforeKey = snapshotKey(before);
   const finalize = (result) => {
-    const after = captureSnapshot();
-
-    if (snapshotKey(after) !== beforeKey) {
+    if (result !== false && result !== null) {
       undoStack = [...undoStack, { label: String(label || 'Change'), snapshot: before }].slice(-MAX_HISTORY);
       redoStack = [];
       emitChanged();
