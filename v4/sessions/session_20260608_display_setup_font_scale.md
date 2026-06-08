@@ -109,3 +109,15 @@ Progress:
   control height, Toolbar date/input controls gain scale-aware width, Replay bar
   can scroll horizontally instead of compressing controls, and Target Progress
   rows use variable font/height.
+- Step 275.7 completed: validation passed.
+
+Verification:
+
+- Full `find v4/src -name '*.js' -print -exec node --check {} \;` passed.
+- `node v4/tests/display-preferences-smoke.js` passed.
+- `node v4/tests/calendar-visibility-smoke.js` passed.
+- `node v4/tests/order-setup-smoke.js` passed.
+- `curl -s -I http://127.0.0.1:8001/index.html` returned HTTP 200.
+- Headless Chrome loaded `http://127.0.0.1:8001/index.html` at
+  `3840x2160`; DOM included Display Setup and default CSS variables.
+- `git diff --check` passed during sub-step validation.
