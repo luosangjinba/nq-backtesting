@@ -1195,6 +1195,24 @@ Verification:
 - Turning Replay off restores full chart overlays.
 - `node --check`, existing smoke tests, and browser replay smoke pass.
 
+### Step 270 Completed - Replay overlay redraw load reduction
+
+Implemented:
+
+- PDA renderer now uses a replay-specific RAF coalesced render handler for `replay:changed`.
+- Chart Notes renderer now uses a replay-specific RAF coalesced render handler for `replay:changed`.
+- Removed the objective-gaps replay listener that emitted `pda:changed` on every replay tick.
+  - PDA renderer already listens to `replay:changed` directly.
+  - NDOG/NWOG replay-visible bounds are still computed inside PDA rendering from `getReplayVisibleBars()`.
+  - Removing this path avoids duplicating primary/secondary PDA rerenders through a synthetic `pda:changed` event.
+
+Validation:
+
+- `node --check` passed for edited Step 270 files.
+- `git diff --check` passed for Step 270 files.
+- `node v4/tests/calendar-visibility-smoke.js` passed.
+- Headless Chrome replay smoke loaded `v4/index.html`, injected bars + one PDA + one Chart Note, emitted 20 `replay:changed` events, waited two animation frames, and confirmed no console errors and chart/PDA/note state remained available.
+
 ### Step 271 - Unified UTC date/time helper
 
 Problem:

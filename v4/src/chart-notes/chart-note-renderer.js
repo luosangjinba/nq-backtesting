@@ -7,6 +7,7 @@ import { getChartNotes } from './chart-note-store.js';
 import { ChartNotePrimitive } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText } from './chart-note-format.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 
 const DEFAULT_INSTRUMENT = 'NQ';
 const CHART_NOTE_FLASH_DURATION_MS = 900;
@@ -105,9 +106,11 @@ export function setExpandedChartNote(noteId) {
   renderedPrimitive?.setExpandedNote?.(noteId || '');
 }
 
+const renderChartNotesOnReplay = createRafThrottle(renderChartNotes);
+
 export function initChartNoteRenderer() {
   bus.on('chart-notes:changed', renderChartNotes);
   bus.on('bars:loaded', renderChartNotes);
-  bus.on('replay:changed', renderChartNotes);
+  bus.on('replay:changed', renderChartNotesOnReplay);
   bus.on('bars:cleared', clearRenderedNotes);
 }

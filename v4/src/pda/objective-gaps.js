@@ -273,12 +273,6 @@ export async function toggleTodayNdog(anchorBar) {
   });
 }
 
-function syncVisibleObjectiveGapRanges() {
-  bus.emit('pda:changed', { annotations: getAnnotations() });
-}
-
-bus.on('replay:changed', syncVisibleObjectiveGapRanges);
-
 export async function toggleThisWeekNwog(anchorBar) {
   const weekStart = anchorBar ? getWeekStart(anchorBar.timestamp) : null;
   const id = weekStart === null ? null : objectiveId(NWOG_TYPE, weekStart);

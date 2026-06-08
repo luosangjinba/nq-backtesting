@@ -23,6 +23,7 @@ import {
   getResponseDisplayMode,
 } from '../segment/segment-isolate-view.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -496,6 +497,8 @@ export function renderPdaAnnotations() {
   });
 }
 
+const renderPdaAnnotationsOnReplay = createRafThrottle(renderPdaAnnotations);
+
 export function initPdaRenderer() {
   bus.on('pda:changed', renderPdaAnnotations);
   bus.on('pda:selected', renderPdaAnnotations);
@@ -508,7 +511,7 @@ export function initPdaRenderer() {
   bus.on('segment-group:changed', renderPdaAnnotations);
   bus.on('drawing-set-focus:changed', renderPdaAnnotations);
   bus.on('display-mode:changed', renderPdaAnnotations);
-  bus.on('replay:changed', renderPdaAnnotations);
+  bus.on('replay:changed', renderPdaAnnotationsOnReplay);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }
