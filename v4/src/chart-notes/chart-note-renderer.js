@@ -4,7 +4,7 @@ import * as store from '../data/bar-store.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes } from './chart-note-store.js';
-import { ChartNotePrimitive } from './chart-note-primitive.js';
+import { ChartNotePrimitive, getChartNoteOptions } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText } from './chart-note-format.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
@@ -78,7 +78,7 @@ export function renderChartNotes() {
   const notes = buildNotePoints();
   if (!notes.length) return;
 
-  renderedPrimitive = new ChartNotePrimitive(chartInstance, series, notes);
+  renderedPrimitive = new ChartNotePrimitive(chartInstance, series, notes, getChartNoteOptions());
   chart.attachPrimitive(renderedPrimitive);
   renderedPrimitive.requestUpdate();
 }
@@ -112,5 +112,6 @@ export function initChartNoteRenderer() {
   bus.on('chart-notes:changed', renderChartNotes);
   bus.on('bars:loaded', renderChartNotes);
   bus.on('replay:changed', renderChartNotesOnReplay);
+  bus.on('display-preferences:changed', renderChartNotes);
   bus.on('bars:cleared', clearRenderedNotes);
 }

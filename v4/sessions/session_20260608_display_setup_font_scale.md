@@ -98,3 +98,8 @@ Progress:
   UI state, so it is intentionally not tied to instrument and not included in
   Review JSON. A smoke test covers normalize, save, reset, and CSS variable
   application with mock storage/document.
+- Step 275.5 completed: Chart Text scale now feeds Chart Notes layout/hit-test,
+  PDA labels, Segment/Composite labels, SMT labels, Order Setup helper labels,
+  and Time Line/Killzone labels. Renderers listen to
+  `display-preferences:changed` and redraw their primitives without changing
+  object timestamps, prices, colors, or geometry.

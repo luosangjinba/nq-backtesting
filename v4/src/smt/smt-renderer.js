@@ -9,6 +9,7 @@ import { RangePrimitive, SegmentPrimitive, VerticalLinePrimitive } from '../char
 import { mapTimestampToChartTime as mapSharedTimestampToChartTime } from '../chart/time-projection.js';
 import { getSmtRecords, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { timeframeToString } from '../config.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 let primaryPrimitives = [];
 let secondaryPrimitives = [];
@@ -84,6 +85,7 @@ function renderPrimary() {
             markerColor: '#ffcc80',
             lineWidth: 2,
             markerSize: 5,
+            labelFont: getChartLabelFont(11),
             showLabel: true,
           }
         )
@@ -130,6 +132,7 @@ function renderSecondary() {
             markerColor: '#80cbc4',
             lineWidth: 3,
             markerSize: 5,
+            labelFont: getChartLabelFont(11),
             showLabel: true,
           }
         )
@@ -155,6 +158,7 @@ function renderSecondary() {
           borderColor: getLineColor(record),
           midlineColor: getLineColor(record),
           textColor: '#d1d4dc',
+          labelFont: getChartLabelFont(11),
           showMidline: true,
           showLabel: true,
         }
@@ -170,6 +174,7 @@ function renderAll() {
 
 export function initSmtRenderer() {
   bus.on('smt:changed', renderAll);
+  bus.on('display-preferences:changed', renderAll);
   bus.on('bars:loaded', renderPrimary);
   bus.on('bars:cleared', clearPrimary);
   bus.on('secondary-bars:loaded', renderSecondary);

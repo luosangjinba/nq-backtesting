@@ -1,4 +1,5 @@
 import { buildChartNoteLayouts } from './chart-note-layout.js';
+import { getChartLabelFont, getDisplayPreferenceFactors } from '../display/display-preferences.js';
 
 export const CHART_NOTE_DEFAULT_OPTIONS = {
   backgroundColor: 'rgba(255, 247, 168, 0.92)',
@@ -22,6 +23,19 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   flashBorderColor: 'rgba(255, 255, 255, 0.96)',
   flashGlowColor: 'rgba(255, 247, 168, 0.55)',
 };
+
+export function getChartNoteOptions() {
+  const { uiScale, chartTextScale } = getDisplayPreferenceFactors();
+  const scale = uiScale * chartTextScale;
+  return {
+    ...CHART_NOTE_DEFAULT_OPTIONS,
+    font: getChartLabelFont(11, 'sans-serif', 'bold'),
+    lineHeight: 14 * scale,
+    maxWidth: 180 * scale,
+    expandedMaxWidth: 420 * scale,
+    rowGap: 6 * scale,
+  };
+}
 
 function roundRect(ctx, x, y, width, height, radius) {
   const r = Math.min(radius, width / 2, height / 2);

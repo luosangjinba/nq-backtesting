@@ -94,9 +94,10 @@ export function getDisplayPreferenceFactors(current = preferences) {
   };
 }
 
-export function getChartLabelFont(size = 11, family = 'sans-serif') {
+export function getChartLabelFont(size = 11, family = 'sans-serif', style = '') {
   const { uiScale, chartTextScale } = getDisplayPreferenceFactors();
-  return `${px(size * uiScale * chartTextScale)} ${family}`;
+  const prefix = style ? `${style} ` : '';
+  return `${prefix}${px(size * uiScale * chartTextScale)} ${family}`;
 }
 
 export function applyDisplayPreferences(nextPreferences = preferences) {

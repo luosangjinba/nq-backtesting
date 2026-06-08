@@ -20,6 +20,7 @@ import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-p
 import { getSelectedPda } from './pda-selection.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 let renderedPrimitives = [];
 const DEFAULT_EXTEND_BARS = 8;
@@ -146,7 +147,7 @@ function buildLiquidityPrimitive(chartInstance, series, annotation, pdaType, isH
     {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
       lineWidth: annotation.type === 'wick-ce' ? 1 : isHighlighted ? 3 : 2,
-      labelFont: isHighlighted ? '12px sans-serif' : '11px sans-serif',
+      labelFont: getChartLabelFont(isHighlighted ? 12 : 11),
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -191,7 +192,7 @@ function buildRangePrimitive(chartInstance, series, annotation, pdaType, isHighl
       showMidline: getShowCe(annotation),
       midlinePrice: ce?.price ?? null,
       extendBars: getExtendBars(annotation, 0),
-      labelFont: isHighlighted ? '12px sans-serif' : '11px sans-serif',
+      labelFont: getChartLabelFont(isHighlighted ? 12 : 11),
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -229,7 +230,7 @@ function buildPointSetPrimitive(chartInstance, series, annotation, pdaType, isHi
       lineWidth: isHighlighted ? 2 : 1,
       markerSize: isHighlighted ? 5 : 4,
       extendBars: getExtendBars(annotation, 0),
-      labelFont: isHighlighted ? '12px sans-serif' : '11px sans-serif',
+      labelFont: getChartLabelFont(isHighlighted ? 12 : 11),
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -268,6 +269,7 @@ function buildFibPrimitive(chartInstance, series, annotation, pdaType, isHighlig
     lineColor: getHighlightColor(isHighlighted, annotation.color || pdaType.color),
     textColor: getHighlightColor(isHighlighted, annotation.textColor || pdaType.textColor || '#d1d4dc'),
     lineWidth: isHighlighted ? 2 : 1,
+    labelFont: getChartLabelFont(isHighlighted ? 12 : 11),
     extendBars: getExtendBars(annotation, 0),
     showLabels: annotation.display?.showLabel ?? annotation.display?.showLabels ?? true,
     showTrendLine: annotation.display?.showTrendLine ?? false,
@@ -340,6 +342,7 @@ export function initSecondaryPdaRenderer() {
   bus.on('segment-group:selection-cleared', renderSecondaryPdaAnnotations);
   bus.on('drawing-set-focus:changed', renderSecondaryPdaAnnotations);
   bus.on('display-mode:changed', renderSecondaryPdaAnnotations);
+  bus.on('display-preferences:changed', renderSecondaryPdaAnnotations);
   bus.on('secondary-bars:loaded', renderSecondaryPdaAnnotations);
   bus.on('secondary-chart:settings-changed', renderSecondaryPdaAnnotations);
   bus.on('secondary-bars:cleared', clearRenderedPrimitives);

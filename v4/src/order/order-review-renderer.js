@@ -20,6 +20,7 @@ import {
   getOrderSetupProjectedChartTime,
   mapTimestampToOrderSetupChartTime,
 } from './order-setup-projection.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 const SETUP_COLOR = '#ffb74d';
 const LONG_ENTRY_COLOR = '#4db6ac';
@@ -94,7 +95,7 @@ function renderPriceHelper(timestamp, price, label, color, position = 'right') {
       {
         lineLength: 10,
         lineWidth: 1,
-        labelFont: '11px sans-serif',
+        labelFont: getChartLabelFont(11),
         showLabel: true,
       }
     )
@@ -133,6 +134,7 @@ function renderReversalMarker(reversal, direction, isActive = false) {
         position,
         size: isActive ? 7 : 6,
         offset: isActive ? 24 : 22,
+        labelFont: getChartLabelFont(11),
         showLabel: true,
       }
     )
@@ -158,7 +160,7 @@ function renderPlanLine(timestamp, price, label, color, position = 'above', line
       {
         lineLength,
         lineWidth,
-        labelFont: 'italic 11px sans-serif',
+        labelFont: getChartLabelFont(11, 'sans-serif', 'italic'),
         labelPadding: 5,
         lineStyle,
         endTime,
@@ -368,5 +370,6 @@ export function initOrderReviewRenderer() {
   bus.on('order-setup-element:selected', renderOrderReviews);
   bus.on('order-setup-element:selection-cleared', renderOrderReviews);
   bus.on('bars:loaded', renderOrderReviews);
+  bus.on('display-preferences:changed', renderOrderReviews);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

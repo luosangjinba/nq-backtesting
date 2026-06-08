@@ -24,6 +24,7 @@ import {
 } from '../segment/segment-isolate-view.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -268,7 +269,7 @@ function buildLiquidityPrimitive(annotation, pdaType, isCurrent = false, isLinke
     {
       lineLength: getExtendBars(annotation, DEFAULT_EXTEND_BARS),
       lineWidth,
-      labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
+      labelFont: getChartLabelFont(isCurrent || isLinkedToSegment ? 12 : 11),
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -344,7 +345,7 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToS
       showMidline: getShowCe(annotation),
       midlinePrice: ce?.price ?? null,
       extendBars: getExtendBars(annotation, 0),
-      labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
+      labelFont: getChartLabelFont(isCurrent || isLinkedToSegment ? 12 : 11),
       showLabel: shouldShowLabel(annotation),
     }
   );
@@ -381,7 +382,7 @@ function buildPointSetPrimitive(annotation, pdaType, isCurrent = false, isLinked
     lineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
     markerSize: isCurrent || isLinkedToSegment ? 5 : 4,
     extendBars: getExtendBars(annotation, 0),
-    labelFont: isCurrent || isLinkedToSegment ? '12px sans-serif' : '11px sans-serif',
+    labelFont: getChartLabelFont(isCurrent || isLinkedToSegment ? 12 : 11),
     showLabel: shouldShowLabel(annotation),
   });
 }
@@ -423,6 +424,7 @@ function buildFibPrimitive(annotation, pdaType, isCurrent = false, isLinkedToSeg
       annotation.textColor || pdaType.textColor || '#d1d4dc'
     ),
     lineWidth: isCurrent || isLinkedToSegment ? 2 : 1,
+    labelFont: getChartLabelFont(isCurrent || isLinkedToSegment ? 12 : 11),
     extendBars: getExtendBars(annotation, 0),
     showLabels: annotation.display?.showLabel ?? annotation.display?.showLabels ?? true,
     showTrendLine: annotation.display?.showTrendLine ?? false,
@@ -511,6 +513,7 @@ export function initPdaRenderer() {
   bus.on('segment-group:changed', renderPdaAnnotations);
   bus.on('drawing-set-focus:changed', renderPdaAnnotations);
   bus.on('display-mode:changed', renderPdaAnnotations);
+  bus.on('display-preferences:changed', renderPdaAnnotations);
   bus.on('replay:changed', renderPdaAnnotationsOnReplay);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);

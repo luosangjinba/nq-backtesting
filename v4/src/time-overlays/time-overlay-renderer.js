@@ -12,10 +12,19 @@ import {
   WEEKLY_CLOSE_TIME,
   isTimeOverlayTimeframe,
 } from './time-overlay-types.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 let renderedPrimitives = [];
 let secondaryRenderedPrimitives = [];
 const WEEKDAY_LABELS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+
+function getTimeMarkerOptions() {
+  return { labelFont: getChartLabelFont(12, 'sans-serif', 'bold') };
+}
+
+function getKillzoneOptions() {
+  return { labelFont: getChartLabelFont(11, 'sans-serif', 'bold') };
+}
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives) || [];
@@ -192,14 +201,20 @@ export function renderTimeOverlays() {
   if (!markers.length && !killzoneBands.length) return;
 
   if (markers.length) {
-    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers);
+    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers, getTimeMarkerOptions());
     chart.attachPrimitive(markerPrimitive);
     markerPrimitive.requestUpdate?.();
     renderedPrimitives.push(markerPrimitive);
   }
 
   if (killzoneBands.length) {
-    const killzonePrimitive = new KillzoneBandPrimitive(chartInstance, displayBars, timeframe, killzoneBands);
+    const killzonePrimitive = new KillzoneBandPrimitive(
+      chartInstance,
+      displayBars,
+      timeframe,
+      killzoneBands,
+      getKillzoneOptions()
+    );
     chart.attachPrimitive(killzonePrimitive);
     killzonePrimitive.requestUpdate?.();
     renderedPrimitives.push(killzonePrimitive);
@@ -224,14 +239,20 @@ export function renderSecondaryTimeOverlays() {
   if (!markers.length && !killzoneBands.length) return;
 
   if (markers.length) {
-    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers);
+    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers, getTimeMarkerOptions());
     secondaryChart.attachSecondaryPrimitive(markerPrimitive);
     markerPrimitive.requestUpdate?.();
     secondaryRenderedPrimitives.push(markerPrimitive);
   }
 
   if (killzoneBands.length) {
-    const killzonePrimitive = new KillzoneBandPrimitive(chartInstance, displayBars, timeframe, killzoneBands);
+    const killzonePrimitive = new KillzoneBandPrimitive(
+      chartInstance,
+      displayBars,
+      timeframe,
+      killzoneBands,
+      getKillzoneOptions()
+    );
     secondaryChart.attachSecondaryPrimitive(killzonePrimitive);
     killzonePrimitive.requestUpdate?.();
     secondaryRenderedPrimitives.push(killzonePrimitive);
@@ -247,6 +268,7 @@ export function initTimeOverlayRenderer() {
   bus.on('bars:loaded', renderTimeOverlays);
   bus.on('secondary-bars:loaded', renderSecondaryTimeOverlays);
   bus.on('time-overlays:changed', renderAllTimeOverlays);
+  bus.on('display-preferences:changed', renderAllTimeOverlays);
   bus.on('bars:cleared', clearRenderedPrimitives);
   bus.on('secondary-bars:cleared', clearSecondaryRenderedPrimitives);
   bus.on('secondary-chart:reset', clearSecondaryRenderedPrimitives);

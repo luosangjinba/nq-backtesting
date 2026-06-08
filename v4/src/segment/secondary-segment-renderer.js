@@ -13,6 +13,7 @@ import { SegmentPrimitive } from '../chart/primitives.js';
 import { getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 let renderedPrimitives = [];
 const SEGMENT_LINE_STYLE = {
@@ -102,7 +103,7 @@ export function renderSecondarySegments() {
         lineWidth: isHighlighted ? 2 : 1,
         markerSize: isHighlighted ? 5 : 3,
         showLabel: group.display?.showLabel ?? true,
-        labelFont: '10px sans-serif',
+        labelFont: getChartLabelFont(10),
       }
     );
     attachSegmentPrimitive(primitive);
@@ -139,6 +140,7 @@ export function renderSecondarySegments() {
         lineWidth: isHighlighted ? 3 : 2,
         markerSize: isHighlighted ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
+        labelFont: getChartLabelFont(11),
       }
     );
     attachSegmentPrimitive(primitive);
@@ -156,6 +158,7 @@ export function initSecondarySegmentRenderer() {
   bus.on('display-mode:changed', renderSecondarySegments);
   bus.on('secondary-bars:loaded', renderSecondarySegments);
   bus.on('secondary-chart:settings-changed', renderSecondarySegments);
+  bus.on('display-preferences:changed', renderSecondarySegments);
   bus.on('secondary-bars:cleared', clearRenderedPrimitives);
   bus.on('secondary-chart:reset', clearRenderedPrimitives);
 }

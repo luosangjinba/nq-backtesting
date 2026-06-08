@@ -14,6 +14,7 @@ import {
 import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
 import { getActiveDrawingSetVisibility } from './drawing-set-list.js';
+import { getChartLabelFont } from '../display/display-preferences.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -105,7 +106,7 @@ export function renderSegments() {
         lineWidth: shouldHighlight ? 2 : 1,
         markerSize: shouldHighlight ? 5 : 3,
         showLabel: group.display?.showLabel ?? true,
-        labelFont: '10px sans-serif',
+        labelFont: getChartLabelFont(10),
       }
     );
     chart.attachPrimitive(primitive);
@@ -173,6 +174,7 @@ export function renderSegments() {
         lineWidth: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 3 : 2,
         markerSize: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 5 : 4,
         showLabel: segment.display?.showLabel ?? true,
+        labelFont: getChartLabelFont(11),
       }
     );
     chart.attachPrimitive(primitive);
@@ -190,6 +192,7 @@ export function initSegmentRenderer() {
   bus.on('segment-group:selection-cleared', renderSegments);
   bus.on('drawing-set-focus:changed', renderSegments);
   bus.on('display-mode:changed', renderSegments);
+  bus.on('display-preferences:changed', renderSegments);
   bus.on('bars:loaded', renderSegments);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

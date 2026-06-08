@@ -3,7 +3,7 @@ import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes, getChartNotesVersion } from './chart-note-store.js';
-import { CHART_NOTE_DEFAULT_OPTIONS } from './chart-note-primitive.js';
+import { getChartNoteOptions } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText } from './chart-note-format.js';
 import { buildChartNoteLayouts } from './chart-note-layout.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
@@ -40,11 +40,13 @@ function getVisibleRangeSignature() {
   return `range:${Number(range.from).toFixed(3)}:${Number(range.to).toFixed(3)}`;
 }
 
-function getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl }) {
+function getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl, options }) {
   return [
     timeframe,
     visibleDateKey,
     expandedNoteId,
+    options?.font || '',
+    options?.lineHeight || '',
     chartEl?.clientWidth || 0,
     chartEl?.clientHeight || 0,
     getVisibleRangeSignature(),
@@ -58,7 +60,7 @@ function buildHitPoints(options, expandedNoteId = '') {
   const bars = getRenderableBars();
   const visibleDateKey = getVisibleChartNoteDateKey(bars);
   const chartEl = document.getElementById('chart');
-  const cacheKey = getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl });
+  const cacheKey = getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl, options });
   if (cachedLayout?.key === cacheKey) return cachedLayout.points;
 
   const notes = getChartNotes();
@@ -105,7 +107,7 @@ function buildHitPoints(options, expandedNoteId = '') {
   return layoutPoints;
 }
 
-export function hitTestChartNotes({ x, y, options = CHART_NOTE_DEFAULT_OPTIONS, expandedNoteId = '' } = {}) {
+export function hitTestChartNotes({ x, y, options = getChartNoteOptions(), expandedNoteId = '' } = {}) {
   if (!Number.isFinite(Number(x)) || !Number.isFinite(Number(y))) return null;
   const hits = buildHitPoints(options, expandedNoteId)
     .map((point) => {
