@@ -1446,6 +1446,55 @@ Verification:
 - `node --check v4/src/time-reaction/daily-time-review-persistence.js` passed.
 - Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
 - `git diff --check` passed.
+
+### Step 273.4 Completed - Chart object persistence migration
+
+Implementation:
+
+- Migrated `v4/src/pda/pda-persistence.js` to `createLocalPersistence()`.
+  - Preserved key `v4:pda-annotations:NQ`.
+  - Preserved payload `{ version, savedAt, annotations }`.
+  - Preserved draft/source filtering.
+- Migrated `v4/src/segment/segment-persistence.js` to `createLocalPersistence()`.
+  - Preserved key `v4:market-segments:NQ`.
+  - Preserved payload `{ version, savedAt, segments, segmentGroups }`.
+  - Preserved Segment draft/source filtering.
+  - Preserved Composite Move persistence through `segmentGroups`.
+- SMT currently has no independent localStorage persistence module, so no SMT migration was needed.
+- The main Step 273 target persistence modules no longer contain scattered direct `localStorage` calls or local `restoring` flags:
+  - PDA;
+  - Segment / Composite;
+  - Order Review;
+  - Daily Time Review;
+  - Chart Notes.
+- Remaining localStorage usage is intentionally outside this Step 273 migration:
+  - display mode;
+  - replay history;
+  - calendar date-range history.
+
+Verification:
+
+- `node v4/tests/calendar-visibility-smoke.js` passed.
+- `node v4/tests/order-setup-smoke.js` passed.
+- `node v4/tests/local-persistence-smoke.js` passed.
+- `node --check v4/src/pda/pda-persistence.js` passed.
+- `node --check v4/src/segment/segment-persistence.js` passed.
+- Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
+- `git diff --check` passed.
+
+### Step 273 Completed - Shared localStorage persistence helper
+
+Final state:
+
+- Shared helper exists in `v4/src/storage/local-persistence.js`.
+- The five primary browser-local draft persistence modules use the helper:
+  - Chart Notes;
+  - Daily Time Review;
+  - Order Review;
+  - PDA;
+  - Segment / Composite.
+- Existing keys and payload schemas were preserved.
+- Review JSON import/export format was not changed.
    - Daily Time Review;
    - Chart Notes.
 
