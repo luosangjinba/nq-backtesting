@@ -1,57 +1,48 @@
 // Browser-local Order Review draft persistence. This is not the formal research archive.
 
 import * as bus from '../event-bus.js';
+import { createLocalPersistence } from '../storage/local-persistence.js';
 import { getOrderReviews, loadOrderReviews } from './order-review-store.js';
 
 const STORAGE_KEY = 'v4:order-reviews:NQ';
 const STORAGE_VERSION = 1;
 
-let restoring = false;
-
 function getPersistableOrderReviews() {
   return getOrderReviews().filter((order) => order.source !== 'draft' && !order.draft);
 }
 
-function readPayload() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (err) {
+const persistence = createLocalPersistence({
+  key: STORAGE_KEY,
+  fallback: null,
+  onError(error, action) {
+    const label = action === 'read'
+      ? '读取'
+      : action === 'remove'
+        ? '清除'
+        : '保存';
     bus.emit('status:update', {
-      text: `Order Setup 本地记录读取失败: ${err.message}`,
+      text: `Order Setup 本地${label}失败: ${error.message}`,
       isError: true,
     });
-    return null;
-  }
-}
+  },
+});
 
 export function saveOrderReviews() {
-  if (restoring) return;
-
-  try {
-    const payload = {
-      version: STORAGE_VERSION,
-      savedAt: Date.now(),
-      orderReviews: getPersistableOrderReviews(),
-    };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  } catch (err) {
-    bus.emit('status:update', {
-      text: `Order Setup 本地保存失败: ${err.message}`,
-      isError: true,
-    });
-  }
+  persistence.write({
+    version: STORAGE_VERSION,
+    savedAt: Date.now(),
+    orderReviews: getPersistableOrderReviews(),
+  });
 }
 
 export function restoreOrderReviews() {
-  const payload = readPayload();
+  const payload = persistence.read();
   if (!payload) return;
 
   const orderReviews = Array.isArray(payload.orderReviews) ? payload.orderReviews : [];
-  restoring = true;
-  loadOrderReviews(orderReviews.filter((order) => order.source !== 'draft' && !order.draft));
-  restoring = false;
+  persistence.runRestoring(() => {
+    loadOrderReviews(orderReviews.filter((order) => order.source !== 'draft' && !order.draft));
+  });
 
   if (orderReviews.length > 0) {
     bus.emit('status:update', {
@@ -62,14 +53,8 @@ export function restoreOrderReviews() {
 }
 
 export function clearSavedOrderReviews() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
+  if (persistence.remove()) {
     bus.emit('status:update', { text: 'Order Setup 本地保存已清除', isError: false });
-  } catch (err) {
-    bus.emit('status:update', {
-      text: `Order Setup 本地保存清除失败: ${err.message}`,
-      isError: true,
-    });
   }
 }
 

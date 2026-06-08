@@ -1422,6 +1422,30 @@ Verification:
 - `node --check v4/src/chart-notes/chart-note-persistence.js` passed.
 - Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
 - `git diff --check` passed.
+
+### Step 273.3 Completed - Review persistence migration
+
+Implementation:
+
+- Migrated `v4/src/time-reaction/daily-time-review-persistence.js` to `createLocalPersistence()`.
+  - Preserved key `v4:daily-time-reviews:NQ`.
+  - Preserved payload `{ version, savedAt, dailyTimeReviews }`.
+  - Preserved restore call `loadDailyTimeReviews(reviews, { preserveUpdatedAt: true })`.
+- Migrated `v4/src/order/order-review-persistence.js` to `createLocalPersistence()`.
+  - Preserved key `v4:order-reviews:NQ`.
+  - Preserved payload `{ version, savedAt, orderReviews }`.
+  - Preserved draft/source filtering.
+- Restore-triggered change events are still guarded from overwriting saved local state.
+
+Verification:
+
+- `node v4/tests/order-review-types-smoke.js` passed.
+- `node v4/tests/order-setup-smoke.js` passed.
+- `node v4/tests/local-persistence-smoke.js` passed.
+- `node --check v4/src/order/order-review-persistence.js` passed.
+- `node --check v4/src/time-reaction/daily-time-review-persistence.js` passed.
+- Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
+- `git diff --check` passed.
    - Daily Time Review;
    - Chart Notes.
 
