@@ -1376,6 +1376,33 @@ Implementation steps:
    - Daily Time Review;
    - Chart Notes.
 
+### Step 273.1 Completed - Shared local persistence base
+
+Implementation:
+
+- Added `v4/src/storage/local-persistence.js`.
+- Exported:
+  - `readLocalJson(key, fallback, options)`;
+  - `writeLocalJson(key, value, options)`;
+  - `removeLocalJson(key, options)`;
+  - `createLocalPersistence({ key, fallback, storage, onError })`.
+- The helper supports:
+  - browser `window.localStorage` by default;
+  - injected storage for tests;
+  - JSON parse fallback;
+  - action-aware error callback;
+  - per-store restoring guard via `runRestoring()` / `isRestoring()`.
+- Added `v4/tests/local-persistence-smoke.js`.
+- No business persistence module migrated in this substep.
+
+Verification:
+
+- `node v4/tests/local-persistence-smoke.js` passed.
+- `node --check v4/src/storage/local-persistence.js` passed.
+- `git diff --check` passed.
+   - Daily Time Review;
+   - Chart Notes.
+
 4. Preserve storage keys and payload shape.
    - No data migration unless explicitly needed.
    - Existing localStorage should keep restoring.
