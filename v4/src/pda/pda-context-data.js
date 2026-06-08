@@ -1,6 +1,7 @@
 // PDA-only data fetches. These requests do not update the chart display store.
 
 import { fetchBars } from '../api.js';
+import { dateKeyFromUtcParts } from '../utils.js';
 
 const dayCache = new Map();
 const CONTEXT_SOURCE_TIMEFRAME = 1;
@@ -45,7 +46,11 @@ export function getTradingDayRange(timestamp) {
   end.setUTCHours(16, 59, 0, 0);
 
   return {
-    tradingDay: tradingDay.toISOString().slice(0, 10),
+    tradingDay: dateKeyFromUtcParts(
+      tradingDay.getUTCFullYear(),
+      tradingDay.getUTCMonth(),
+      tradingDay.getUTCDate()
+    ),
     start: formatDateTimeUtc(start),
     end: formatDateTimeUtc(end),
   };

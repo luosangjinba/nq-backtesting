@@ -1,5 +1,6 @@
 import * as bus from '../event-bus.js';
 import { getEconomicEvents } from '../economic-calendar/economic-calendar-store.js';
+import { dateKeyFromInput, dateKeyFromTimestamp } from '../utils.js';
 import { DEFAULT_DAILY_REGIME_INSTRUMENT, normalizeDailyRegime } from './daily-regime-types.js';
 import {
   clearDailyRegimes,
@@ -21,22 +22,6 @@ let trendRangeCacheByInstrument = new Map();
 function normalizeDate(value) {
   const text = String(value || '').trim();
   return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : '';
-}
-
-function dateKeyFromInput(value) {
-  const match = String(value || '').trim().match(/^(\d{4}-\d{2}-\d{2})/);
-  return match ? match[1] : '';
-}
-
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
 }
 
 function resolveLoadedDateRange(payload = {}) {

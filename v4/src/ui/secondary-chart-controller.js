@@ -15,6 +15,7 @@ import {
   findDisplayBarFast,
   resolveExistingChartTimeFast,
 } from '../chart/display-bar-lookup.js';
+import { dateKeyFromTimestamp } from '../utils.js';
 import {
   clearSecondaryData,
   destroySecondaryChart,
@@ -101,8 +102,7 @@ function getReplaySourceDisplayBars() {
 }
 
 function makeTradingDay(timestamp) {
-  const date = new Date(Number(timestamp) * 1000);
-  return date.toISOString().slice(0, 10);
+  return dateKeyFromTimestamp(timestamp);
 }
 
 function aggregatePartialBar(sourceBars, bucketStart, cursorTimestamp, timeframe) {

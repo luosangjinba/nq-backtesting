@@ -32,3 +32,40 @@ export function formatTimeInput(value) {
 
   return value;
 }
+
+export function pad2(value) {
+  return String(value).padStart(2, '0');
+}
+
+export function dateKeyFromUtcParts(year, monthIndex, day) {
+  return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
+}
+
+export function dateKeyFromTimestamp(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  const date = new Date(value * 1000);
+  if (Number.isNaN(date.getTime())) return '';
+  return dateKeyFromUtcParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
+export function dateKeyFromTradingDay(value) {
+  const match = String(value || '').trim().match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : '';
+}
+
+export function dateKeyFromInput(value) {
+  return dateKeyFromTradingDay(value);
+}
+
+export function dateKeyFromBar(bar = {}) {
+  return dateKeyFromTradingDay(bar.tradingDay || bar.trading_day) || dateKeyFromTimestamp(bar.timestamp);
+}
+
+export function compactUtcTime(timestamp, fallback = '—') {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return fallback;
+  const date = new Date(value * 1000);
+  if (Number.isNaN(date.getTime())) return fallback;
+  return `${pad2(date.getUTCHours())}:${pad2(date.getUTCMinutes())}`;
+}

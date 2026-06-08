@@ -1,3 +1,5 @@
+import { dateKeyFromTimestamp } from '../utils.js';
+
 const BASE_ANCHOR_EPOCH = 946684800; // 2000-01-01 00:00 wall-clock anchor.
 const FOUR_HOUR_ANCHOR_OFFSET = 7200; // Match backend 4H bars: 02:00/06:00/.../22:00.
 
@@ -65,8 +67,7 @@ export function mapTimestampToChartTime(timestamp, timeframe, bars = []) {
       : null;
     if (exactBar?.tradingDay) return exactBar.tradingDay;
 
-    const date = new Date((bucketStart + 24 * 60 * 60) * 1000);
-    return date.toISOString().slice(0, 10);
+    return dateKeyFromTimestamp(bucketStart + 24 * 60 * 60);
   }
 
   return bucketStart;

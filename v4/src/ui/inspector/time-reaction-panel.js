@@ -2,6 +2,7 @@ import {
   TIMEFRAME_MAP,
 } from '../../config.js';
 import { getChartNotes } from '../../chart-notes/chart-note-store.js';
+import { compactUtcTime, dateKeyFromTimestamp } from '../../utils.js';
 import {
   DAILY_TIME_REACTION_TIMES,
   getDailyTimeReviewSectionDefinition,
@@ -157,22 +158,8 @@ function renderChartOptions(selectedChart) {
     .join('');
 }
 
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
-}
-
 function timeTextFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '—';
-  const date = new Date(value * 1000);
-  return `${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}`;
+  return compactUtcTime(timestamp, '—');
 }
 
 function getChartNotesForDate(dateKey, instrument = 'NQ') {

@@ -8,7 +8,7 @@ import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
-import { formatTimeInput } from '../utils.js';
+import { dateKeyFromTimestamp, formatTimeInput } from '../utils.js';
 import {
   clearReplayHistory,
   deleteReplayHistoryItem,
@@ -158,8 +158,7 @@ function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
 }
 
 function getUtcDateKey(timestamp) {
-  if (!Number.isFinite(Number(timestamp))) return '';
-  return new Date(Number(timestamp) * 1000).toISOString().slice(0, 10);
+  return dateKeyFromTimestamp(timestamp);
 }
 
 function getUtcDateTimeTimestamp(dateKey, hour, minute) {
@@ -176,7 +175,7 @@ function getUtcDateTimeTimestamp(dateKey, hour, minute) {
 }
 
 function makeTradingDay(timestamp) {
-  return new Date(Number(timestamp) * 1000).toISOString().slice(0, 10);
+  return dateKeyFromTimestamp(timestamp);
 }
 
 function aggregatePartialBar(sourceBars, bucketStart, cursorTimestamp, timeframe) {

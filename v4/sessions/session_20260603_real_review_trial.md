@@ -1248,6 +1248,39 @@ Verification:
 - Existing calendar/review/daily-regime behavior unchanged.
 - `node --check` and relevant smoke tests pass.
 
+### Step 271 Completed - Unified UTC date/time helper
+
+Implementation:
+
+- Added shared date/time helpers in `v4/src/utils.js`:
+  - `dateKeyFromTimestamp()`
+  - `dateKeyFromUtcParts()`
+  - `dateKeyFromTradingDay()`
+  - `dateKeyFromInput()`
+  - `dateKeyFromBar()`
+  - `compactUtcTime()`
+- Replaced repeated local date-key implementations across:
+  - Calendar / Inspector modules;
+  - Daily Regime trend/range/VIX loader;
+  - Economic Calendar loader;
+  - Review Archive;
+  - Chart Notes visible-day logic;
+  - Secondary context menu;
+  - Replay / secondary trading-day helpers.
+- Kept existing semantics:
+  - epoch seconds input;
+  - UTC `YYYY-MM-DD` output;
+  - invalid or non-positive timestamps return empty string;
+  - `tradingDay` / `trading_day` values stay preferred where callers already had trading-day strings.
+
+Verification:
+
+- `rg "function dateKeyFromTimestamp|const dateKeyFromTimestamp|dateKeyFromTimestamp =" v4/src` now shows only the shared helper.
+- `node v4/tests/date-key-smoke.js` passed.
+- `node v4/tests/calendar-visibility-smoke.js` passed.
+- Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
+- `git diff --check` passed.
+
 ### Step 272 - `/v4/bars` large range guard
 
 Problem:

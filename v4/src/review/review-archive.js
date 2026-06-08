@@ -46,6 +46,7 @@ import {
   normalizeChartNote,
 } from '../chart-notes/chart-note-store.js';
 import { recordHistory } from '../history/history-manager.js';
+import { dateKeyFromTimestamp } from '../utils.js';
 
 const REVIEW_ARCHIVE_VERSION = 1;
 const REVIEW_ARCHIVE_APP = 'trading-v4-review';
@@ -57,17 +58,6 @@ function getExportableSegments() {
 
 function getExportableSegmentGroups() {
   return getSegmentGroups().filter((group) => group.type === 'composite-move');
-}
-
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
 }
 
 function addDateKeyFromTimestamp(keys, timestamp) {

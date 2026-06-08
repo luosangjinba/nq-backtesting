@@ -18,12 +18,7 @@ import {
 } from './calendar-visibility-actions.js';
 import { clearChartNoteFocusedDate, setChartNoteFocusedDate } from '../../chart-notes/chart-note-visible-day.js';
 import { renderChartNotes } from '../../chart-notes/chart-note-renderer.js';
-
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  return new Date(value * 1000).toISOString().slice(0, 10);
-}
+import { dateKeyFromTimestamp } from '../../utils.js';
 
 function getChartNoteFocusAnchorBars() {
   const replayBars = getReplayVisibleBars();

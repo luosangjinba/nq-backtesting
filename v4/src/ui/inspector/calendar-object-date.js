@@ -1,14 +1,7 @@
 import { getSegmentById } from '../../segment/segment-store.js';
+import { dateKeyFromTimestamp } from '../../utils.js';
 
-export function dateKeyFromTimestamp(timestamp) {
-  const parsed = Number(timestamp);
-  if (!Number.isFinite(parsed) || parsed <= 0) return '';
-  const date = new Date(parsed * 1000);
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+export { dateKeyFromTimestamp };
 
 export function firstDateKeyFromValues(values = []) {
   for (const value of values) {

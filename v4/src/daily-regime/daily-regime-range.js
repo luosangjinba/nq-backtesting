@@ -1,22 +1,6 @@
 import { RANGE_REGIMES, normalizeDailyRegime } from './daily-regime-types.js';
 import { getDailyClosesFromBars } from './daily-regime-trend.js';
-
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
-}
-
-function dateKeyFromBar(bar = {}) {
-  const tradingDay = String(bar.tradingDay || bar.trading_day || '').trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(tradingDay)) return tradingDay;
-  return dateKeyFromTimestamp(bar.timestamp);
-}
+import { dateKeyFromBar } from '../utils.js';
 
 export function getDailyRangeRowsFromBars(bars = []) {
   const closeByDate = new Map(getDailyClosesFromBars(bars).map((row) => [row.date, row]));

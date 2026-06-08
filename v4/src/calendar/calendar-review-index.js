@@ -7,18 +7,14 @@ import { getSmtRecords } from '../smt/smt-store.js';
 import { getTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { getVisibleEconomicEvents } from '../economic-calendar/economic-calendar-store.js';
 import {
+  compactUtcTime,
+  dateKeyFromTimestamp,
+} from '../utils.js';
+import {
   CALENDAR_GROUP_ORDER,
   CALENDAR_OBJECT_TYPES,
   getCalendarGroupLabel,
 } from './calendar-types.js';
-
-function pad2(value) {
-  return String(value).padStart(2, '0');
-}
-
-function dateKeyFromParts(year, monthIndex, day) {
-  return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
-}
 
 function toTimestamp(value) {
   if (value === undefined || value === null || value === '') return null;
@@ -30,12 +26,7 @@ function collectTimestamps(values = []) {
   return values.map(toTimestamp).filter((value) => value !== null);
 }
 
-export function dateKeyFromTimestamp(timestamp) {
-  const value = toTimestamp(timestamp);
-  if (value === null) return '';
-  const date = new Date(value * 1000);
-  return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
+export { dateKeyFromTimestamp };
 
 function timestampRangeFromValues(values = []) {
   const timestamps = collectTimestamps(values);
@@ -52,10 +43,7 @@ function calendarDateTimestamp(dateKey, timeText) {
 }
 
 function compactTime(value) {
-  const timestamp = toTimestamp(value);
-  if (timestamp === null) return '—';
-  const date = new Date(timestamp * 1000);
-  return `${pad2(date.getUTCHours())}:${pad2(date.getUTCMinutes())}`;
+  return compactUtcTime(value, '—');
 }
 
 function formatNumber(value) {

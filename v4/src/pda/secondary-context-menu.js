@@ -7,6 +7,7 @@ import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as viewport from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { recordHistory } from '../history/history-manager.js';
+import { dateKeyFromTimestamp, dateKeyFromTradingDay } from '../utils.js';
 import { getActiveReviewSet, updateActiveReviewSet } from '../order/order-review-active.js';
 import { handleOrderSetupChartAction } from '../order/order-setup-chart-actions.js';
 import { ORDER_EVENT_TYPES } from '../order/order-review-types.js';
@@ -64,17 +65,8 @@ function formatPrice(price) {
   return Number.isFinite(Number(price)) ? Number(price).toFixed(2) : '';
 }
 
-function dateKeyFromTimestamp(timestamp) {
-  const numeric = Number(timestamp);
-  if (!Number.isFinite(numeric)) return '';
-  const date = new Date(numeric * 1000);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-}
-
 function getSecondaryBarDateKey(bar) {
-  const tradingDay = String(bar?.tradingDay || '').match(/^\d{4}-\d{2}-\d{2}/)?.[0];
-  return tradingDay || dateKeyFromTimestamp(bar?.timestamp);
+  return dateKeyFromTradingDay(bar?.tradingDay) || dateKeyFromTimestamp(bar?.timestamp);
 }
 
 function formatDraftTime(bar) {

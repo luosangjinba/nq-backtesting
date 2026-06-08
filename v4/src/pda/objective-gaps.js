@@ -6,6 +6,7 @@ import { getBucketStart } from '../chart/time-projection.js';
 import { buildCePrice } from '../price-utils.js';
 import { addAnnotation, getAnnotations, removeAnnotation } from './pda-store.js';
 import { recordHistory } from '../history/history-manager.js';
+import { dateKeyFromTimestamp } from '../utils.js';
 
 const NDOG_TYPE = 'ndog';
 const NWOG_TYPE = 'nwog';
@@ -19,7 +20,7 @@ function objectiveId(type, bucketStart) {
 }
 
 function formatSessionDate(timestamp) {
-  return new Date(timestamp * 1000).toISOString().slice(0, 10);
+  return dateKeyFromTimestamp(timestamp);
 }
 
 function formatApiDateTime(timestamp) {

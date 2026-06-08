@@ -4,7 +4,12 @@ import * as store from '../data/bar-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
-import { formatTimeInput } from '../utils.js';
+import {
+  dateKeyFromInput,
+  dateKeyFromTimestamp,
+  dateKeyFromUtcParts,
+  formatTimeInput,
+} from '../utils.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 const MONTHS = Object.freeze([
@@ -34,25 +39,6 @@ let viewDateKey = '';
 let rangeStartDate = '';
 let rangeEndDate = '';
 let activeDateKey = '';
-
-function pad2(value) {
-  return String(value).padStart(2, '0');
-}
-
-function dateKeyFromParts(year, monthIndex, day) {
-  return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
-}
-
-function dateKeyFromTimestamp(timestamp) {
-  const date = new Date(Number(timestamp) * 1000);
-  if (!Number.isFinite(date.getTime())) return '';
-  return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
-
-function dateKeyFromInput(value) {
-  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return match ? `${match[1]}-${match[2]}-${match[3]}` : '';
-}
 
 function dateTimePartsFromInput(value) {
   const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
@@ -84,7 +70,7 @@ function parseDateKey(dateKey) {
 
 function getTodayDateKey() {
   const now = new Date();
-  return dateKeyFromParts(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return dateKeyFromUtcParts(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 }
 
 function getCurrentInputRange() {
@@ -149,14 +135,14 @@ function shiftDate(dateKey, dayOffset) {
   const parsed = parseDateKey(dateKey);
   if (!parsed) return dateKey;
   const date = new Date(Date.UTC(parsed.year, parsed.monthIndex, parsed.day + dayOffset));
-  return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  return dateKeyFromUtcParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
 function shiftMonth(dateKey, monthOffset) {
   const parsed = parseDateKey(dateKey);
   if (!parsed) return dateKey;
   const date = new Date(Date.UTC(parsed.year, parsed.monthIndex + monthOffset, 1));
-  return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), 1);
+  return dateKeyFromUtcParts(date.getUTCFullYear(), date.getUTCMonth(), 1);
 }
 
 function formatDateTime(dateKey, timeText) {
@@ -317,7 +303,7 @@ function getMonthCells(dateKey) {
     cells.push({
       empty: false,
       day,
-      dateKey: dateKeyFromParts(parsed.year, parsed.monthIndex, day),
+      dateKey: dateKeyFromUtcParts(parsed.year, parsed.monthIndex, day),
     });
   }
   while (cells.length % 7 !== 0) cells.push({ empty: true });
@@ -487,7 +473,7 @@ function openPopover(button) {
   syncRangeFromInputs();
   const initialDate = activeDateKey || getInitialDateKey();
   const parsed = parseDateKey(initialDate) || parseDateKey(getTodayDateKey());
-  viewDateKey = dateKeyFromParts(parsed.year, parsed.monthIndex, 1);
+  viewDateKey = dateKeyFromUtcParts(parsed.year, parsed.monthIndex, 1);
   ensurePopover();
   renderPopover();
   popover.hidden = false;

@@ -6,6 +6,7 @@ import { getSegmentGroupById, updateSegmentGroup } from '../../segment/segment-g
 import { getSmtRecordById, updateSmtRecord } from '../../smt/smt-store.js';
 import { updateEventTime, updateKillzone } from '../../time-overlays/time-overlay-store.js';
 import { getChartNoteById, getChartNotes, updateChartNote } from '../../chart-notes/chart-note-store.js';
+import { dateKeyFromTimestamp } from '../../utils.js';
 
 function isCalendarVisibilityType(type) {
   return [
@@ -182,15 +183,4 @@ function getChartNoteItemsForDate(dateKey) {
       ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: note.id },
       source: note,
     }));
-}
-
-function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  const date = new Date(value * 1000);
-  return [
-    date.getUTCFullYear(),
-    String(date.getUTCMonth() + 1).padStart(2, '0'),
-    String(date.getUTCDate()).padStart(2, '0'),
-  ].join('-');
 }

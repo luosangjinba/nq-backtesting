@@ -1,10 +1,7 @@
 import { getReplayVisibleBars } from '../replay-controls.js';
+import { dateKeyFromTimestamp } from '../../utils.js';
 
-export function dateKeyFromTimestamp(timestamp) {
-  const value = Number(timestamp);
-  if (!Number.isFinite(value) || value <= 0) return '';
-  return new Date(value * 1000).toISOString().slice(0, 10);
-}
+export { dateKeyFromTimestamp };
 
 export function getReplayCalendarDate() {
   const replayBars = getReplayVisibleBars();

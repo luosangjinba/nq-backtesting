@@ -9,6 +9,12 @@ import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.j
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { getDailyRegimeByDate } from '../../daily-regime/daily-regime-store.js';
 import { getDailyRegimeSummary } from '../../daily-regime/daily-regime-types.js';
+import {
+  compactUtcTime,
+  dateKeyFromInput,
+  dateKeyFromTimestamp,
+  dateKeyFromUtcParts,
+} from '../../utils.js';
 import { getCalendarVisibilitySummaryForItems } from './calendar-visibility-actions.js';
 import {
   DAILY_TIME_REVIEW_SECTIONS,
@@ -47,25 +53,6 @@ function getEconomicImpactLabel(event = {}) {
   return event.impact || 'Event';
 }
 
-function pad2(value) {
-  return String(value).padStart(2, '0');
-}
-
-function dateKeyFromParts(year, monthIndex, day) {
-  return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
-}
-
-function dateKeyFromTimestamp(timestamp) {
-  if (!Number.isFinite(Number(timestamp))) return '';
-  const date = new Date(Number(timestamp) * 1000);
-  return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
-
-function dateKeyFromInput(value) {
-  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return match ? `${match[1]}-${match[2]}-${match[3]}` : '';
-}
-
 function parseDateKey(dateKey) {
   const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -80,7 +67,7 @@ function shiftDateKey(dateKey, monthOffset) {
   const parsed = parseDateKey(dateKey);
   if (!parsed) return dateKey;
   const shifted = new Date(Date.UTC(parsed.year, parsed.monthIndex + monthOffset, 1));
-  return dateKeyFromParts(shifted.getUTCFullYear(), shifted.getUTCMonth(), 1);
+  return dateKeyFromUtcParts(shifted.getUTCFullYear(), shifted.getUTCMonth(), 1);
 }
 
 export function getCalendarDateTimestamp(dateKey, timeText = '09:30') {
@@ -124,7 +111,7 @@ function getMonthCells(viewDateKey, range) {
   const cells = [];
   for (let i = 0; i < firstWeekday; i += 1) cells.push({ empty: true });
   for (let day = 1; day <= daysInMonth; day += 1) {
-    const dateKey = dateKeyFromParts(parsed.year, parsed.monthIndex, day);
+    const dateKey = dateKeyFromUtcParts(parsed.year, parsed.monthIndex, day);
     cells.push({ empty: false, day, dateKey, inRange: isDateInRange(dateKey, range) });
   }
   while (cells.length % 7 !== 0) cells.push({ empty: true });
@@ -190,9 +177,7 @@ function getCalendarDayTitle(dateKey, overview) {
 }
 
 function compactTime(timestamp) {
-  if (!Number.isFinite(Number(timestamp))) return '--:--';
-  const date = new Date(Number(timestamp) * 1000);
-  return `${pad2(date.getUTCHours())}:${pad2(date.getUTCMinutes())}`;
+  return compactUtcTime(timestamp, '--:--');
 }
 
 function getObjectTypeLabel(item) {
