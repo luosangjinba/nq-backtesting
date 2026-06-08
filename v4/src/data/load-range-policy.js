@@ -5,10 +5,15 @@ export const LOAD_RANGE_LIMITS_DAYS = Object.freeze({
   1: 45,
   5: 90,
   15: 180,
+  30: 365,
   60: 730,
   240: 1460,
   1440: 3650,
+  10080: 3650,
 });
+
+const DEFAULT_LOAD_RANGE_LIMIT_DAYS = 365;
+const REQUEST_PADDING_BARS = 19;
 
 function parseDateTime(value) {
   const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
@@ -34,7 +39,25 @@ function formatDateTime(timestamp) {
 
 export function getLoadRangeLimitDays(timeframe) {
   const tf = Number(timeframe);
-  return LOAD_RANGE_LIMITS_DAYS[tf] || 365;
+  return LOAD_RANGE_LIMITS_DAYS[tf] || DEFAULT_LOAD_RANGE_LIMIT_DAYS;
+}
+
+export function estimateRequestedBars(start, end, timeframe, paddingBars = REQUEST_PADDING_BARS) {
+  const tf = Number(timeframe);
+  const startMs = parseDateTime(start);
+  const endMs = parseDateTime(end);
+  if (!Number.isFinite(tf) || tf <= 0 || startMs === null || endMs === null || endMs < startMs) {
+    return null;
+  }
+  const estimated = Math.floor((endMs - startMs) / (tf * MINUTE_MS)) + 1;
+  return Math.max(0, estimated) + paddingBars * 2;
+}
+
+export function getMaxEstimatedBars(timeframe, paddingBars = REQUEST_PADDING_BARS) {
+  const tf = Number(timeframe);
+  if (!Number.isFinite(tf) || tf <= 0) return null;
+  const limitDays = getLoadRangeLimitDays(tf);
+  return Math.floor((limitDays * DAY_MS) / (tf * MINUTE_MS)) + 1 + paddingBars * 2;
 }
 
 export function resolveChartLoadRange(start, end, timeframe) {
@@ -204,25 +227,47 @@ export function getRangeDays(start, end) {
 
 export function validateSingleWindowRange(start, end, timeframe) {
   const days = getRangeDays(start, end);
+  const tf = Number(timeframe);
   if (days === null) {
     return {
       ok: false,
       days: null,
       limitDays: getLoadRangeLimitDays(timeframe),
+      estimatedBars: null,
+      maxEstimatedBars: getMaxEstimatedBars(timeframe),
       message: '加载区间无效，请检查开始和结束时间',
     };
   }
 
   const limitDays = getLoadRangeLimitDays(timeframe);
-  if (days <= limitDays) {
-    return { ok: true, days, limitDays, message: '' };
+  const estimatedBars = estimateRequestedBars(start, end, timeframe);
+  const maxEstimatedBars = getMaxEstimatedBars(timeframe);
+  if (
+    days <= limitDays &&
+    estimatedBars !== null &&
+    maxEstimatedBars !== null &&
+    estimatedBars <= maxEstimatedBars
+  ) {
+    return { ok: true, days, limitDays, estimatedBars, maxEstimatedBars, message: '' };
   }
 
-  const tfLabel = Number(timeframe) === 1 ? '1m' : `${timeframe}m`;
+  const tfLabel = tf === 1 ? '1m' : `${timeframe}m`;
+  if (estimatedBars !== null && maxEstimatedBars !== null && estimatedBars > maxEstimatedBars) {
+    return {
+      ok: false,
+      days,
+      limitDays,
+      estimatedBars,
+      maxEstimatedBars,
+      message: `${tfLabel} 请求预计 ${estimatedBars} 根K线，单次上限 ${maxEstimatedBars} 根；请缩小日期范围或改用更高周期`,
+    };
+  }
   return {
     ok: false,
     days,
     limitDays,
+    estimatedBars,
+    maxEstimatedBars,
     message: `${tfLabel} 单次图表窗口最多加载 ${limitDays} 天；请缩小窗口或等待窗口模式接管长期区间`,
   };
 }

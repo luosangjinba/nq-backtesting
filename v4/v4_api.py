@@ -42,6 +42,63 @@ _ECONOMIC_EVENTS_CACHE = None
 # CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
 # 日线 = 前一天18:00 ~ 当天16:59
 DAILY_ANCHOR_OFFSET = 18 * 3600  # 64800 seconds
+LOAD_RANGE_LIMITS_DAYS = {
+    1: 45,
+    5: 90,
+    15: 180,
+    30: 365,
+    60: 730,
+    240: 1460,
+    1440: 3650,
+    10080: 3650,
+}
+DEFAULT_LOAD_RANGE_LIMIT_DAYS = 365
+
+
+def _estimate_bar_count(start_dt, end_dt, tf, padding=19):
+    if tf <= 0 or end_dt < start_dt:
+        return None
+    duration_seconds = (end_dt - start_dt).total_seconds()
+    estimated = int(duration_seconds // (tf * 60)) + 1
+    return max(0, estimated) + padding * 2
+
+
+def _get_load_range_limit_days(tf):
+    return LOAD_RANGE_LIMITS_DAYS.get(tf, DEFAULT_LOAD_RANGE_LIMIT_DAYS)
+
+
+def _get_load_range_max_estimated_bars(tf, padding=19):
+    limit_days = _get_load_range_limit_days(tf)
+    return int((limit_days * 24 * 60) // tf) + 1 + padding * 2
+
+
+def _validate_bars_request_range(start, end, tf, padding=19):
+    if tf <= 0:
+        raise ValueError("'tf' must be a positive timeframe in minutes")
+
+    start_dt = _parse_datetime(start)
+    end_dt = _parse_datetime(end)
+    if end_dt < start_dt:
+        raise ValueError("'end' must be on or after 'start'")
+
+    estimated = _estimate_bar_count(start_dt, end_dt, tf, padding)
+    max_estimated = _get_load_range_max_estimated_bars(tf, padding)
+    if estimated is None:
+        raise ValueError("Invalid bars request range")
+    if estimated <= max_estimated:
+        return {
+            "start_dt": start_dt,
+            "end_dt": end_dt,
+            "estimatedBars": estimated,
+            "maxEstimatedBars": max_estimated,
+            "limitDays": _get_load_range_limit_days(tf),
+        }
+
+    tf_label = "1m" if tf == 1 else f"{tf}m"
+    raise OverflowError(
+        f"{tf_label} request is too large: estimated {estimated} bars, limit {max_estimated}. "
+        "Narrow the date range or use a higher timeframe."
+    )
 
 
 def _parse_date(value):
@@ -276,7 +333,6 @@ class V4Handler(BaseHTTPRequestHandler):
     def _handle_bars(self, params):
         start = params.get("start", [None])[0]
         end = params.get("end", [None])[0]
-        tf = int(params.get("tf", ["1"])[0])
         instrument = params.get("instrument", ["NQ"])[0]
 
         if not start or not end:
@@ -284,9 +340,11 @@ class V4Handler(BaseHTTPRequestHandler):
             return
 
         try:
+            tf = int(params.get("tf", ["1"])[0])
+            validation = _validate_bars_request_range(start, end, tf)
             bars = query_v4_bars(DB_PATH, TABLE_NAME, instrument, start, end, tf)
-            start_dt = _parse_datetime(start)
-            end_dt = _parse_datetime(end)
+            start_dt = validation["start_dt"]
+            end_dt = validation["end_dt"]
             # 数据时间戳为美东时间语义，用 UTC epoch 避免系统时区偏移
             requested_start_ts = int(start_dt.replace(tzinfo=timezone.utc).timestamp())
             requested_end_ts = int(end_dt.replace(tzinfo=timezone.utc).timestamp())
@@ -297,6 +355,10 @@ class V4Handler(BaseHTTPRequestHandler):
                     "endTs": requested_end_ts,
                 },
             })
+        except OverflowError as e:
+            self._send_error(str(e), 413)
+        except ValueError as e:
+            self._send_error(str(e), 400)
         except Exception as e:
             self._send_error(str(e), 500)
 

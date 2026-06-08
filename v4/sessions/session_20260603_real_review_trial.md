@@ -1312,6 +1312,43 @@ Verification:
 - Oversized 1M request returns a clear error without DuckDB query.
 - UI displays the error without breaking chart state.
 
+### Step 272 Completed - `/v4/bars` large range guard
+
+Implementation:
+
+- Added backend hard guard in `v4/v4_api.py` before `query_v4_bars()`.
+  - Parses `start`, `end`, and `tf`.
+  - Estimates returned bars by timeframe plus existing padding.
+  - Returns 413 JSON error for oversized requests.
+  - Returns 400 for invalid timeframe/range input.
+- Extended frontend `v4/src/data/load-range-policy.js`.
+  - Added estimated bars and max estimated bars helpers.
+  - Kept Date Range behavior compatible with Step 162:
+    - normal ranges pass;
+    - long 1m ranges enter window mode;
+    - invalid/oversized single windows show actionable messages.
+- Adjusted secondary chart loading.
+  - High-timeframe secondary chart still loads its requested timeframe normally.
+  - Optional 1m replay source is fetched only when the same range passes the 1m guard.
+  - If the auxiliary 1m source is too large, it is skipped instead of failing the whole secondary chart load.
+- Added `v4/tests/load-range-policy-smoke.js`.
+
+Verification:
+
+- `node v4/tests/load-range-policy-smoke.js` passed.
+- `node v4/tests/date-key-smoke.js` passed.
+- Full `find v4/src -name '*.js' -exec node --check {} \;` passed.
+- `python3 -m py_compile v4/v4_api.py` passed.
+- Pure Python guard check confirmed:
+  - normal 1m range passes;
+  - oversized 1m range raises `OverflowError`.
+- API restarted with `setsid`.
+- HTTP checks after restart:
+  - `/v4/health` returned ok.
+  - Oversized 1m `/v4/bars` returned `HTTP/1.0 413 Content Too Large` with JSON error.
+  - Normal short 1m `/v4/bars` still returned bars and `requestedRange`.
+- `git diff --check` passed.
+
 ### Step 273 - Shared localStorage persistence helper
 
 Problem:

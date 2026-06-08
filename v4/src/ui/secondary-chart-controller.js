@@ -5,6 +5,7 @@ import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { validateSingleWindowRange } from '../data/load-range-policy.js';
 import { getReplayVisibleBars } from './replay-controls.js';
 import {
   getBarChartTime,
@@ -47,6 +48,11 @@ let lastSettings = {
   timeframe: secondaryStore.getSecondaryTimeframe(),
   instrument: secondaryStore.getSecondaryInstrument(),
 };
+
+function shouldLoadSecondaryReplaySource(start, end, timeframe) {
+  if (Number(timeframe) <= 1) return false;
+  return validateSingleWindowRange(start, end, 1).ok;
+}
 
 function requestFrame(callback) {
   const raf = globalThis.requestAnimationFrame || globalThis.window?.requestAnimationFrame;
@@ -210,9 +216,10 @@ async function loadSecondaryForPrimaryRange() {
   replaySourceRequestedRange = null;
 
   try {
+    const shouldLoadReplaySource = shouldLoadSecondaryReplaySource(start, end, timeframe);
     const [result, replaySourceResult] = await Promise.all([
       fetchBars(start, end, timeframe, instrument),
-      Number(timeframe) > 1 ? fetchBars(start, end, 1, instrument) : Promise.resolve(null),
+      shouldLoadReplaySource ? fetchBars(start, end, 1, instrument) : Promise.resolve(null),
     ]);
     if (seq !== requestSeq || !secondaryStore.isSecondaryEnabled()) return;
     replaySourceBars = replaySourceResult?.bars || [];
