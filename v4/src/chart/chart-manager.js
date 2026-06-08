@@ -218,7 +218,7 @@ export function hasPickPreviewCursor() {
 
 export function showSyncCrosshairCursor(time) {
   if (!chart || !series || time === undefined || time === null) return;
-  if (pickPreviewPrimitive || replayCursorPrimitive) return;
+  if (pickPreviewPrimitive) return;
 
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(chart, time, {

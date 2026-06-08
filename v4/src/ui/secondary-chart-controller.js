@@ -5,6 +5,7 @@ import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { getReplayVisibleBars } from './replay-controls.js';
 import {
   getBarChartTime,
   getBucketStart,
@@ -61,15 +62,26 @@ function mapTimestampToSecondaryChartTime(timestamp) {
 function getPrimaryHoverTimestamp(time) {
   if (time === undefined || time === null) return null;
   const currentTimeframe = store.getCurrentTimeframe();
-  const bar = findDisplayBarFast(store.getDisplayBars(), time, currentTimeframe);
+  const bar = findDisplayBarFast(getPrimarySyncBars(), time, currentTimeframe);
   return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
 }
 
 function getSecondaryHoverTimestamp(time) {
   if (time === undefined || time === null) return null;
   const secondaryTimeframe = secondaryStore.getSecondaryTimeframe();
-  const bar = findDisplayBarFast(secondaryStore.getSecondaryDisplayBars(), time, secondaryTimeframe);
+  const bar = findDisplayBarFast(getSecondarySyncBars(), time, secondaryTimeframe);
   return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
+}
+
+function getPrimarySyncBars() {
+  const replayBars = getReplayVisibleBars();
+  return Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
+}
+
+function getSecondarySyncBars() {
+  const bars = secondaryStore.getSecondaryDisplayBars();
+  if (!lastReplayState.enabled) return bars;
+  return getReplaySyncedSecondaryBars(bars, secondaryStore.getSecondaryTimeframe());
 }
 
 function toChartBar(bar, timeframe) {
@@ -282,7 +294,7 @@ function syncSecondaryHoverCursor(primaryTime) {
   const hoverTime = resolveExistingChartTimeFast(
     hoverTimestamp,
     secondaryStore.getSecondaryTimeframe(),
-    secondaryStore.getSecondaryDisplayBars()
+    getSecondarySyncBars()
   );
   if (hoverTime === null) {
     hideSecondaryHoverCursor();
@@ -316,7 +328,7 @@ function syncPrimaryHoverCursor(secondaryTime) {
   const hoverTime = resolveExistingChartTimeFast(
     hoverTimestamp,
     store.getCurrentTimeframe(),
-    store.getDisplayBars()
+    getPrimarySyncBars()
   );
   if (hoverTime === null) {
     chart.hideSyncCrosshairCursor();

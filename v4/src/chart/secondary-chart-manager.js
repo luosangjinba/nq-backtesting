@@ -358,7 +358,7 @@ export function hideSecondaryPickPreviewCursor() {
 
 export function showSecondarySyncCrosshairCursor(time) {
   if (!secondaryChart || !secondarySeries || time === undefined || time === null) return;
-  if (pickPreviewPrimitive || cursorPrimitive || hoverCursorPrimitive) return;
+  if (pickPreviewPrimitive || hoverCursorPrimitive) return;
 
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(secondaryChart, time, {
