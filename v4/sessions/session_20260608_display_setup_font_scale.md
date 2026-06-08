@@ -93,3 +93,8 @@ Progress:
 - Step 275.3 completed: added an Inspector `Display Setup` panel with manual
   UI Scale, Chart Text, Inspector Density, and Reset defaults controls. Changes
   apply immediately without `alert` / `prompt`.
+- Step 275.4 completed: display preferences now persist through the local
+  persistence helper under global key `v4:display-preferences`. This is machine
+  UI state, so it is intentionally not tied to instrument and not included in
+  Review JSON. A smoke test covers normalize, save, reset, and CSS variable
+  application with mock storage/document.

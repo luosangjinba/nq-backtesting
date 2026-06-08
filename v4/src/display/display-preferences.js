@@ -1,4 +1,5 @@
 import * as bus from '../event-bus.js';
+import { createLocalPersistence } from '../storage/local-persistence.js';
 
 export const UI_SCALE_OPTIONS = ['100', '110', '125', '140'];
 export const CHART_TEXT_SCALE_OPTIONS = ['normal', 'large', 'xl'];
@@ -8,6 +9,14 @@ export const DEFAULT_DISPLAY_PREFERENCES = Object.freeze({
   uiScale: '100',
   chartTextScale: 'normal',
   inspectorDensity: 'compact',
+});
+
+const STORAGE_KEY = 'v4:display-preferences';
+const STORAGE_VERSION = 1;
+const persistence = createLocalPersistence({
+  key: STORAGE_KEY,
+  fallback: null,
+  onError: (error, action) => console.warn(`[display-preferences] ${action} failed`, error),
 });
 
 const UI_SCALE_FACTORS = Object.freeze({
@@ -72,6 +81,10 @@ export function getDisplayPreferences() {
   return { ...preferences };
 }
 
+export function getDisplayPreferencesStorageKey() {
+  return STORAGE_KEY;
+}
+
 export function getDisplayPreferenceFactors(current = preferences) {
   const normalized = normalizeDisplayPreferences(current);
   return {
@@ -109,14 +122,29 @@ export function applyDisplayPreferences(nextPreferences = preferences) {
 
 export function setDisplayPreferences(nextPreferences = {}) {
   const normalized = applyDisplayPreferences({ ...preferences, ...nextPreferences });
+  persistence.write({
+    version: STORAGE_VERSION,
+    savedAt: new Date().toISOString(),
+    preferences: normalized,
+  });
   bus.emit('display-preferences:changed', { preferences: getDisplayPreferences() });
   return normalized;
 }
 
 export function resetDisplayPreferences() {
-  return setDisplayPreferences(DEFAULT_DISPLAY_PREFERENCES);
+  persistence.remove();
+  const normalized = applyDisplayPreferences(DEFAULT_DISPLAY_PREFERENCES);
+  bus.emit('display-preferences:changed', { preferences: getDisplayPreferences() });
+  return normalized;
 }
 
 export function initDisplayPreferences() {
+  const saved = persistence.read();
+  if (saved?.preferences) {
+    persistence.runRestoring(() => {
+      applyDisplayPreferences(saved.preferences);
+    });
+    return;
+  }
   applyDisplayPreferences(preferences);
 }
