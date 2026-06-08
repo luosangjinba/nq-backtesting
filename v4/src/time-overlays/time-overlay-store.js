@@ -18,6 +18,10 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function settingsKey(value) {
+  return JSON.stringify(value);
+}
+
 function emitChanged(reason) {
   bus.emit('time-overlays:changed', {
     reason,
@@ -134,7 +138,7 @@ export function getTimeOverlaySettings() {
 }
 
 export function updateTimeOverlaySettings(patch = {}) {
-  settings = {
+  const nextSettings = {
     ...settings,
     ...patch,
     enabled: patch.enabled === undefined ? settings.enabled : patch.enabled !== false,
@@ -147,6 +151,8 @@ export function updateTimeOverlaySettings(patch = {}) {
     killzoneDraft:
       patch.killzoneDraft === undefined ? settings.killzoneDraft : normalizeKillzoneDraft(patch.killzoneDraft),
   };
+  if (settingsKey(nextSettings) === settingsKey(settings)) return getTimeOverlaySettings();
+  settings = nextSettings;
   emitChanged('update');
   return getTimeOverlaySettings();
 }

@@ -736,3 +736,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 275.5: 接入图表文字对象：让 Chart Notes、PDA/Segment/Composite/SMT labels、Order Setup helper labels、Time Lines/Killzones labels 读取 chart text scale；保持线条、颜色、价格坐标、对象时间逻辑不变。
   - [x] Step 275.6: 响应式与防截断修复：检查 125%/140% 下 toolbar 控件、Date Range、Sub/Sub TF/Layout、Replay bar、Inspector target progress、Calendar day cell、三点菜单是否溢出；必要时用 flex wrap、min-width、line-height 和密度变量调整。
   - [x] Step 275.7: 验证与收口：覆盖 Linux 1920x1080 默认值、模拟 Windows 4K 大 viewport、浏览器 zoom 100%/125%、Split on/off、Replay bar、Inspector Calendar、Chart Notes、右键菜单；运行全量 `node --check`、targeted UI smoke、`git diff --check`。
+
+- 2026-06-08 hotfix completed: Time Overlay 同值更新 no-op guard。修复 Daily Time Review detail 输入后卡顿与 `time-overlays:changed` 最大调用栈溢出：`renderDailyTimeReviewDetail()` 渲染时会同步 `selectedDate`，此前 `updateTimeOverlaySettings({ selectedDate })` 即使值未变也会 emit，导致 `time-overlays:changed -> refreshSelection -> renderDailyTimeReviewDetail -> updateTimeOverlaySettings` 递归。现在规范化后的 settings 无变化时直接返回，不再 emit。验证：相关语法检查、全量 `v4/tests/*.js` smoke、重复设置同一 `selectedDate` 只触发一次事件。记录见 `v4/sessions/session_20260608_time_overlay_noop_guard.md`
