@@ -1066,3 +1066,253 @@ Validation:
   from `2024-01-10` to `2024-01-11`.
 - Browser diagnostics confirmed LightweightCharts emitted `subscribeClick` with
   `param.time=1704965400` for the clicked Jan 11 bar.
+
+## 2026-06-08 - Step 269-274 V4 Performance / Duplication Follow-up Plan
+
+Audit scope:
+
+- Full `v4` read-only review after Step 268.
+- Focus areas:
+  - runtime/system load risk;
+  - repeated wheels / reusable helpers;
+  - preserving the local single-user research-tool simplicity boundary.
+
+Priority order:
+
+1. Fix high-frequency work first.
+2. Fix replay/overlay churn second.
+3. Consolidate time helpers because time semantics are core to this project.
+4. Add request range guard to prevent accidental huge 1M loads.
+5. Defer broad renderer/hit-test refactors until touching those areas again.
+
+### Step 269 - Chart Notes mousemove hit-test load reduction
+
+Problem:
+
+- `chart-note-selection.js` listens to raw `mousemove`.
+- Each move calls `hitTestChartNotes()`.
+- `chart-note-hit-test.js` rebuilds the full hit geometry on every call:
+  - gets replay/display bars;
+  - builds a `Map(timestamp -> bar)`;
+  - reads all chart notes;
+  - filters by hidden/instrument/timeframe/date;
+  - resolves chart coordinates;
+  - measures/layouts note text.
+
+Implementation steps:
+
+1. Add RAF throttle around `handleChartMouseMove`.
+   - Similar style to existing `createRafThrottle()` usage in SMT / Inspector pick hover.
+   - Only the latest mouse event per animation frame should run hit-test.
+
+2. Add a hit-test layout cache.
+   - Cache key should include at least:
+     - current timeframe;
+     - renderable bars signature: count + first timestamp + last timestamp;
+     - chart notes version/signature;
+     - visible chart-note date key;
+     - expanded note id;
+     - chart width if it affects text layout.
+   - Invalidate on:
+     - `chart-notes:changed`;
+     - `bars:loaded` / `bars:cleared`;
+     - `replay:changed` only when replay-visible date or bar signature changes;
+     - chart resize if layout width changes.
+
+3. Keep click and hover semantics unchanged.
+   - Hover expands the same note as before.
+   - Click still selects the note under cursor.
+   - Hidden notes remain excluded.
+
+Verification:
+
+- `node --check` for touched files.
+- Browser smoke:
+  - notes visible on chart;
+  - hover expands note;
+  - click selects note;
+  - moving mouse rapidly does not trigger more than one hit-test per frame.
+- Regression checks:
+  - Replay on/off still uses visible replay bars;
+  - hidden notes are not hit-testable;
+  - different timeframe does not reuse stale layout.
+
+### Step 270 - Replay overlay redraw load reduction
+
+Problem:
+
+- Replay forward tick can run at 100ms.
+- `replay:changed` currently causes full overlay redraw paths, especially:
+  - PDA renderer clears all primitives and rebuilds all renderable annotations;
+  - Chart Notes renderer clears and rebuilds notes;
+  - Segment rendering has similar full-scan behavior on several events.
+- This is simple and safe, but can become sustained primitive churn as annotations grow.
+
+Implementation steps:
+
+1. Measure and map actual listeners.
+   - List every `bus.on('replay:changed', ...)` in `v4/src`.
+   - Separate visual cursor updates from heavy primitive rebuilds.
+
+2. Add RAF coalescing for heavy overlay redraws.
+   - If multiple replay/display events happen in one frame, render once.
+   - Keep immediate state changes for replay cursor itself.
+
+3. Add replay-visible/date filtering before primitive construction.
+   - Avoid building primitives that cannot be displayed at the current replay cursor.
+   - Use existing `getReplayVisibleBars()` / timestamp range helpers.
+
+4. Do not do a broad primitive diff yet.
+   - Full diff/update is more complex and can wait until object counts justify it.
+   - First pass should be: fewer calls + fewer candidates.
+
+Verification:
+
+- Replay play at fastest speed with PDAs, Segments, Chart Notes loaded.
+- Visual overlays should match pre-change behavior for current replay-visible data.
+- Turning Replay off restores full chart overlays.
+- `node --check`, existing smoke tests, and browser replay smoke pass.
+
+### Step 271 - Unified UTC date/time helper
+
+Problem:
+
+- `dateKeyFromTimestamp()` and compact UTC time formatting are repeated across many modules.
+- Time is the primary variable in this project, so duplicated time helpers increase drift risk.
+
+Implementation steps:
+
+1. Create a small shared module, e.g. `v4/src/time/date-key.js` or `v4/src/utils/time-format.js`.
+   - Provide:
+     - `dateKeyFromTimestamp(timestamp)`;
+     - optional `compactUtcTime(timestamp)` / `formatUtcDateTime(timestamp)` if it reduces clear duplication.
+
+2. Preserve existing semantics exactly.
+   - Input is epoch seconds.
+   - Output date key is UTC `YYYY-MM-DD`, matching current chart wall-clock convention.
+   - Invalid / non-positive timestamp returns empty string where current callers expect empty.
+
+3. Replace repeated implementations incrementally.
+   - Start with Calendar / Inspector modules.
+   - Then Daily Regime, Economic Calendar, Review Archive, Chart Notes, Secondary menu.
+
+4. Add a small smoke test.
+   - Valid epoch seconds.
+   - Invalid values.
+   - Date boundary case.
+   - Daily/tradingDay callers should not be forced into timestamp conversion if they already have a valid `tradingDay` string.
+
+Verification:
+
+- `grep -R "function dateKeyFromTimestamp" v4/src` should show only the shared helper, unless a local function has intentionally different semantics and is documented in the session note.
+- Existing calendar/review/daily-regime behavior unchanged.
+- `node --check` and relevant smoke tests pass.
+
+### Step 272 - `/v4/bars` large range guard
+
+Problem:
+
+- `/v4/bars` accepts arbitrary start/end/timeframe.
+- A mistaken multi-year 1M request can stress DuckDB, JSON serialization, frontend parsing, and chart rendering.
+
+Implementation steps:
+
+1. Define conservative local-tool limits.
+   - Example: max estimated bars per request, not just max date span.
+   - 1M should be stricter than 1H / 1D.
+
+2. Add backend guard in `v4/v4_api.py` before `query_v4_bars()`.
+   - Parse start/end.
+   - Estimate bar count from timeframe.
+   - Return clear JSON error if over limit.
+
+3. Add frontend Date Range guard.
+   - Prevent obvious accidental requests before hitting API.
+   - Keep message actionable: narrow date range or use higher timeframe.
+
+4. Do not block normal research windows.
+   - Common NY Open study ranges should remain frictionless.
+
+Verification:
+
+- Normal 1D/1H/1M expected ranges still load.
+- Oversized 1M request returns a clear error without DuckDB query.
+- UI displays the error without breaking chart state.
+
+### Step 273 - Shared localStorage persistence helper
+
+Problem:
+
+- Multiple persistence modules repeat the same browser-local persistence pattern.
+- Repeated restore/save/clear/restoring-guard logic makes future schema changes error-prone.
+
+Implementation steps:
+
+1. Extract a minimal helper only for the repeated pattern.
+   - Avoid a large persistence manager.
+   - Helper can cover:
+     - safe JSON read;
+     - save with restoring guard;
+     - clear key;
+     - optional status/error message emitter.
+
+2. Migrate one module first as proof.
+   - Recommended first target: Chart Notes or Daily Time Review, whichever has the smallest surface.
+
+3. Migrate remaining modules after proof is stable.
+   - PDA;
+   - Segment;
+   - Order Review;
+   - Daily Time Review;
+   - Chart Notes.
+
+4. Preserve storage keys and payload shape.
+   - No data migration unless explicitly needed.
+   - Existing localStorage should keep restoring.
+
+Verification:
+
+- Refresh restores data for each migrated store.
+- Clear saved still clears the same key.
+- Review JSON import/export unaffected.
+- Undo/redo behavior unaffected because persistence mirrors store changes only.
+
+### Step 274 - Renderer / hit-test reuse cleanup, deferred until next touch
+
+Problem:
+
+- Primary/secondary PDA renderers repeat projection and CE fallback logic.
+- PDA / Segment / Order Setup hit-test modules repeat chart context, coordinate, tolerance, and distance sorting patterns.
+
+Implementation steps when this area is next touched:
+
+1. Renderer reuse:
+   - Extract shared projection primitive builders where primary/secondary only differ by chart context.
+   - Keep chart-specific attach/detach in the calling renderer.
+   - Do not merge whole renderer modules in one pass.
+
+2. Hit-test reuse:
+   - Extract small context helpers:
+     - resolve chart context;
+     - time/price coordinate conversion;
+     - distance sorting;
+     - common tolerance checks.
+   - Keep object-specific hit semantics local.
+
+3. Validate primary/secondary parity.
+   - Same PDA renders consistently on both charts.
+   - Same hit-test target selects the same object type before/after refactor.
+
+Verification:
+
+- Manual browser checks for PDA, Segment, Composite, Order Setup hit-test.
+- Split on/off checks for secondary renderer parity.
+- `node --check` and `git diff --check` pass.
+
+Non-goals for Steps 269-274:
+
+- Do not redesign Inspector state management.
+- Do not introduce a global persistence manager beyond a small helper.
+- Do not replace LightweightCharts primitives wholesale.
+- Do not change time semantics from current UTC wall-clock convention.
+- Do not add automatic trading/order execution behavior.
