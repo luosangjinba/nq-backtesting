@@ -390,7 +390,10 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
 function stepForward() {
   if (!enabled || chartData.length === 0) return;
 
-  if (cursorIndex < 0) renderSlice(0);
+  if (cursorIndex < 0) {
+    renderSlice(0);
+    return;
+  }
 
   if (cursorIndex >= chartData.length - 1) {
     stopTimer();
@@ -597,15 +600,32 @@ function handleChartClick(param) {
   if (index < 0) return;
 
   const currentRange = chart.getVisibleLogicalRange();
+  const keepIndex = index - 1;
   chart.hidePickPreviewCursor();
   lastReplayPickHandledAt = Date.now();
   mode = 'idle';
-  renderSlice(index, false, true);
+  if (keepIndex < 0) {
+    if (cursorIndex >= 0) {
+      lastCursorIndex = cursorIndex;
+      lastCursorTimestampAnchor = getCursorTimestamp();
+    }
+    enabled = true;
+    cursorIndex = -1;
+    cursorTimestampAnchor = null;
+    chart.setData([]);
+    chart.hideReplayCursor();
+    emitReplayChanged();
+    render();
+  } else {
+    renderSlice(keepIndex, false, true);
+  }
   if (currentRange) {
     chart.setVisibleLogicalRange(currentRange.from, currentRange.to);
   }
   bus.emit('status:update', {
-    text: `Replay 位置: ${index + 1}/${chartData.length} ${formatReplayTime(displayBars[index])}`,
+    text: keepIndex < 0
+      ? `Replay 位置: 0/${chartData.length} before ${formatReplayTime(displayBars[index])}`
+      : `Replay 位置: ${keepIndex + 1}/${chartData.length} before ${formatReplayTime(displayBars[index])}`,
     isError: false,
   });
 }
