@@ -487,7 +487,7 @@ async function loadRange(start, end, successText) {
   if (!loadRange.ok) {
     throw new Error(loadRange.message);
   }
-  bus.emit('status:update', { text: '加载中...', isError: false });
+  bus.emit('status:update', { text: 'Loading...', isError: false });
   const result = await fetchBars(loadRange.start, loadRange.end, tf);
   setToolbarRange(loadRange.start, loadRange.end, false);
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
@@ -495,7 +495,7 @@ async function loadRange(start, end, successText) {
   });
   recordRangeHistory(start, end, tf);
   bus.emit('status:update', {
-    text: loadRange.windowed ? loadRange.message : successText || `已加载 ${result.bars.length} 根K线`,
+    text: loadRange.windowed ? loadRange.message : successText || `Loaded ${result.bars.length} bars`,
     isError: false,
   });
   closePopover();
@@ -503,7 +503,7 @@ async function loadRange(start, end, successText) {
 
 async function loadResolvedWindow(loadRange, successText) {
   const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
-  bus.emit('status:update', { text: '加载中...', isError: false });
+  bus.emit('status:update', { text: 'Loading...', isError: false });
   const result = await fetchBars(loadRange.start, loadRange.end, tf);
   setToolbarRange(loadRange.start, loadRange.end, false);
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
@@ -531,14 +531,14 @@ async function loadHistoryRange(index) {
   try {
     await loadRange(item.start, item.end, `History Range: ${formatHistoryItemLabel(item)}`);
   } catch (err) {
-    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+    bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
   }
 }
 
 async function loadSelectedRange() {
   const normalized = normalizeRangeDates(rangeStartDate, rangeEndDate);
   if (!normalized.startDate || !normalized.endDate) {
-    bus.emit('status:update', { text: '请选择开始和结束日期', isError: true });
+    bus.emit('status:update', { text: 'Choose start and end dates', isError: true });
     return;
   }
   try {
@@ -548,7 +548,7 @@ async function loadSelectedRange() {
       `Date Range: ${normalized.startDate} - ${normalized.endDate}`
     );
   } catch (err) {
-    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+    bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
   }
 }
 
@@ -568,7 +568,7 @@ async function loadWeekAroundActiveDate() {
     const timestamp = getCalendarDateTimestamp(dateKey, TARGET_TIME);
     requestAnimationFrame(() => locateTimestampRange(timestamp, timestamp));
   } catch (err) {
-    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+    bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
   }
 }
 
@@ -611,13 +611,13 @@ async function loadManualRange() {
   const manualStart = formatTimeInput(getManualStartInput()?.value.trim() || '');
   const manualEnd = formatTimeInput(getManualEndInput()?.value.trim() || '');
   if (!manualStart || !manualEnd) {
-    bus.emit('status:update', { text: '请输入开始和结束时间', isError: true });
+    bus.emit('status:update', { text: 'Enter start and end times', isError: true });
     return;
   }
   try {
     await loadRange(manualStart, manualEnd);
   } catch (err) {
-    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+    bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
   }
 }
 

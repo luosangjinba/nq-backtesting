@@ -90,9 +90,12 @@ Progress:
   labels, controls, and panel density; wired the main visible surfaces
   including toolbar, context menu, Inspector, Calendar, Chart Note editor, and
   Replay controls to those variables.
-- Step 275.3 completed: added an Inspector `Display Setup` panel with manual
-  UI Scale, Chart Text, Inspector Density, and Reset defaults controls. Changes
-  apply immediately without `alert` / `prompt`.
+- Step 275.3 completed: added manual UI Scale, Chart Text, Inspector Density,
+  and Reset defaults controls. The controls originally lived in Inspector, then
+  moved to a toolbar settings popover behind the gear button so display
+  preferences are available beside Date/Split/Display controls and the same
+  entry can hold future parameterized settings. Changes apply immediately
+  without `alert` / `prompt`.
 - Step 275.4 completed: display preferences now persist through the local
   persistence helper under global key `v4:display-preferences`. This is machine
   UI state, so it is intentionally not tied to instrument and not included in
@@ -121,3 +124,8 @@ Verification:
 - Headless Chrome loaded `http://127.0.0.1:8001/index.html` at
   `3840x2160`; DOM included Display Setup and default CSS variables.
 - `git diff --check` passed during sub-step validation.
+- Toolbar settings migration validation: full `v4/tests/*.js` smoke passed,
+  `git diff --check` passed, headless Chrome DOM included the gear settings
+  button and Display Setup popover, and CDP smoke verified opening the popover,
+  changing UI Scale to `125`, enabling Reset defaults, and removing the old
+  Inspector Display Setup section.

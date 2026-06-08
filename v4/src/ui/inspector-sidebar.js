@@ -40,7 +40,6 @@ import {
   renderDailyTimeReviewPanel,
   renderDailyTimeReviewSectionPanel,
 } from './inspector/time-reaction-panel.js';
-import { renderDisplaySetupPanel } from './inspector/display-setup-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
 import { createChartNoteInspectorActionController } from './inspector/chart-note-actions.js';
@@ -85,10 +84,6 @@ import {
   getOrCreateDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
 import { recordHistory } from '../history/history-manager.js';
-import {
-  resetDisplayPreferences,
-  setDisplayPreferences,
-} from '../display/display-preferences.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -440,7 +435,6 @@ function renderEmpty() {
   });
   setInspectorBody(`
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
-    ${renderDisplaySetupPanel()}
     ${renderArchiveActions()}
   `);
 }
@@ -457,7 +451,6 @@ function renderArchivePanel() {
   });
   setInspectorBody(`
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
-    ${renderDisplaySetupPanel()}
     ${renderArchiveActions()}
   `);
 }
@@ -782,27 +775,6 @@ function handleInspectorChange(e) {
   const action = e.target.dataset.inspectorAction;
   if (!action) return;
 
-  if (action === 'display-ui-scale') {
-    setDisplayPreferences({ uiScale: e.target.value });
-    refreshSelection();
-    bus.emit('status:update', { text: `UI scale ${e.target.value}%`, isError: false });
-    return;
-  }
-
-  if (action === 'display-chart-text-scale') {
-    setDisplayPreferences({ chartTextScale: e.target.value });
-    refreshSelection();
-    bus.emit('status:update', { text: `Chart text ${e.target.value}`, isError: false });
-    return;
-  }
-
-  if (action === 'display-inspector-density') {
-    setDisplayPreferences({ inspectorDensity: e.target.value });
-    refreshSelection();
-    bus.emit('status:update', { text: `Inspector density ${e.target.value}`, isError: false });
-    return;
-  }
-
   if (action === 'import-pda-file') {
     importPdaArchive(e.target.files?.[0]);
     e.target.value = '';
@@ -900,13 +872,6 @@ function handleInspectorClick(e) {
 
   if (action === 'clear-saved') {
     clearSavedAnnotations();
-    return;
-  }
-
-  if (action === 'display-reset-defaults') {
-    resetDisplayPreferences();
-    refreshSelection();
-    bus.emit('status:update', { text: 'Display setup reset', isError: false });
     return;
   }
 

@@ -318,29 +318,6 @@ html, body {
   --inspector-section-accent-soft: rgba(144, 164, 174, 0.09);
 }
 
-.inspector-section-display-setup {
-  --inspector-section-accent: #90a4ae;
-  --inspector-section-accent-soft: rgba(144, 164, 174, 0.09);
-}
-
-.display-setup-panel {
-  display: grid;
-  gap: var(--panel-row-gap);
-  min-width: 0;
-}
-
-.display-setup-field {
-  align-items: center;
-}
-
-.display-setup-select {
-  max-width: 100%;
-}
-
-.display-setup-reset {
-  margin-top: 2px;
-}
-
 .inspector-section-smt-evidence {
   --inspector-section-accent: #ffb74d;
   --inspector-section-accent-soft: rgba(255, 183, 77, 0.1);
@@ -2370,6 +2347,22 @@ html, body {
   flex: 0 0 auto;
 }
 
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.toolbar-section-display {
+  gap: 7px;
+}
+
+.toolbar-section-archive {
+  gap: 6px;
+}
+
 .toolbar-label {
   color: #b2b5be;
   font-size: var(--toolbar-font-size);
@@ -2481,6 +2474,10 @@ html, body {
   line-height: 1;
 }
 
+.toolbar-settings-btn {
+  font-size: calc(var(--toolbar-font-size) + 2px);
+}
+
 .toolbar-date-range-btn {
   min-width: calc(190px + (var(--control-height) - 24px) * 4);
   max-width: calc(300px + (var(--control-height) - 24px) * 5);
@@ -2509,6 +2506,59 @@ html, body {
 
 .toolbar-calendar-popover[hidden] {
   display: none;
+}
+
+.toolbar-settings-popover {
+  display: grid;
+  gap: 10px;
+}
+
+.toolbar-settings-header {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toolbar-settings-title {
+  color: #f0f3fa;
+  font-size: var(--ui-font-size);
+  font-weight: 700;
+}
+
+.toolbar-settings-subtitle {
+  color: #787b86;
+  font-size: var(--compact-font-size);
+}
+
+.toolbar-settings-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.toolbar-settings-field {
+  display: grid;
+  grid-template-columns: minmax(82px, 0.72fr) minmax(124px, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #b2b5be;
+  font-size: var(--toolbar-font-size);
+}
+
+.toolbar-settings-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar-settings-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.toolbar-settings-reset {
+  width: 100%;
 }
 
 .toolbar-date-range-popover {

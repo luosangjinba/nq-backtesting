@@ -1,4 +1,4 @@
-// 工具栏 UI — 时间输入、周期选择、加载按钮、状态文本
+// Toolbar UI: date range, chart settings, display filters, and status text.
 
 import * as bus from '../event-bus.js';
 import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.js';
@@ -11,9 +11,46 @@ import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
+import {
+  CHART_TEXT_SCALE_OPTIONS,
+  DEFAULT_DISPLAY_PREFERENCES,
+  INSPECTOR_DENSITY_OPTIONS,
+  UI_SCALE_OPTIONS,
+  getDisplayPreferences,
+  resetDisplayPreferences,
+  setDisplayPreferences,
+} from '../display/display-preferences.js';
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { canRedo, canUndo, getRedoLabel, getUndoLabel, redo, undo } from '../history/history-manager.js';
 import { initCalendarNavigator } from './calendar-navigator.js';
+
+const UI_SCALE_LABELS = {
+  100: '100%',
+  110: '110%',
+  125: '125%',
+  140: '140%',
+};
+
+const CHART_TEXT_LABELS = {
+  normal: 'Normal',
+  large: 'Large',
+  xl: 'XL',
+};
+
+const INSPECTOR_DENSITY_LABELS = {
+  compact: 'Compact',
+  normal: 'Normal',
+  comfortable: 'Comfortable',
+};
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
 
 function renderSecondaryTimeframeOptions(selectedTimeframe) {
   return Object.entries(TIMEFRAME_MAP)
@@ -22,6 +59,62 @@ function renderSecondaryTimeframeOptions(selectedTimeframe) {
         `<option value="${value}"${Number(value) === Number(selectedTimeframe) ? ' selected' : ''}>${label}</option>`
     )
     .join('\n        ');
+}
+
+function renderSettingsOptions(options, labels, current) {
+  return options
+    .map((option) => {
+      const selected = option === current ? ' selected' : '';
+      return `<option value="${escapeHtml(option)}"${selected}>${escapeHtml(labels[option] || option)}</option>`;
+    })
+    .join('');
+}
+
+function renderSettingsSelect(label, action, options, labels, current) {
+  return `
+    <label class="toolbar-settings-field">
+      <span class="toolbar-settings-label">${escapeHtml(label)}</span>
+      <select class="toolbar-select toolbar-settings-select" data-display-action="${escapeHtml(action)}">
+        ${renderSettingsOptions(options, labels, current)}
+      </select>
+    </label>
+  `;
+}
+
+function renderSettingsPopoverContent() {
+  const preferences = getDisplayPreferences();
+  const defaults = DEFAULT_DISPLAY_PREFERENCES;
+  const isDefault =
+    preferences.uiScale === defaults.uiScale &&
+    preferences.chartTextScale === defaults.chartTextScale &&
+    preferences.inspectorDensity === defaults.inspectorDensity;
+
+  return `
+    <div class="toolbar-settings-header">
+      <div class="toolbar-settings-title">Display Setup</div>
+      <div class="toolbar-settings-subtitle">Local display preferences</div>
+    </div>
+    <div class="toolbar-settings-grid">
+      ${renderSettingsSelect('UI Scale', 'ui-scale', UI_SCALE_OPTIONS, UI_SCALE_LABELS, preferences.uiScale)}
+      ${renderSettingsSelect(
+        'Chart Text',
+        'chart-text-scale',
+        CHART_TEXT_SCALE_OPTIONS,
+        CHART_TEXT_LABELS,
+        preferences.chartTextScale
+      )}
+      ${renderSettingsSelect(
+        'Inspector',
+        'inspector-density',
+        INSPECTOR_DENSITY_OPTIONS,
+        INSPECTOR_DENSITY_LABELS,
+        preferences.inspectorDensity
+      )}
+    </div>
+    <button class="toolbar-btn toolbar-secondary-btn toolbar-settings-reset" data-display-action="reset-defaults" type="button" ${isDefault ? 'disabled' : ''}>
+      Reset defaults
+    </button>
+  `;
 }
 
 function renderInstrumentOptions(selectedInstrument) {
@@ -37,7 +130,6 @@ function renderSplitScreenControls() {
   const instrument = secondaryStore.getSecondaryInstrument();
   const layout = secondaryStore.getSplitLayout();
   return `
-    <div class="toolbar-separator"></div>
     <label class="toolbar-toggle" title="Show readonly secondary chart">
       <input id="splitScreenToggle" type="checkbox"${enabled ? ' checked' : ''} />
       <span>Split</span>
@@ -64,10 +156,25 @@ function renderSplitScreenControls() {
   `;
 }
 
+function renderPrimaryTimeframeControls() {
+  return `
+    <div class="toolbar-group">
+      <span class="toolbar-label">Main TF:</span>
+      <select id="tfSelect" class="toolbar-select" title="Primary chart timeframe">
+        ${Object.entries(TIMEFRAME_MAP)
+          .map(
+            ([v, l]) =>
+              `<option value="${v}"${parseInt(v) === DEFAULT_TIMEFRAME ? ' selected' : ''}>${l}</option>`
+          )
+          .join('\n        ')}
+      </select>
+    </div>
+  `;
+}
+
 function renderDisplayControls(displayMode) {
   const timeOverlaySettings = getTimeOverlaySettings();
   return `
-    <div class="toolbar-separator"></div>
     <label class="toolbar-toggle" title="Show natural day boundary lines">
       <input id="dayBoundaryToggle" type="checkbox"${timeOverlaySettings.showDayBoundary ? ' checked' : ''} />
       <span>Days</span>
@@ -77,7 +184,7 @@ function renderDisplayControls(displayMode) {
       <span>Grid</span>
     </label>
     <div class="toolbar-group">
-      <span class="toolbar-label">Display:</span>
+      <span class="toolbar-label">Segments:</span>
       <select id="displayModeSelect" class="toolbar-select toolbar-display-select" title="Chart display mode">
         <option value="all"${displayMode.mode === 'all' ? ' selected' : ''}>All</option>
         <option value="selected-pda"${displayMode.mode === 'selected-pda' ? ' selected' : ''}>Selected PDA</option>
@@ -96,42 +203,47 @@ export function initToolbar() {
   const displayMode = getDisplayMode();
 
   container.innerHTML = `
-    <div class="toolbar-group">
-      <span class="toolbar-label">Date:</span>
+    <div class="toolbar-section toolbar-section-date">
       <button id="dateRangeBtn" class="toolbar-btn toolbar-secondary-btn toolbar-date-range-btn" type="button">Date Range</button>
       <input type="hidden" id="startInput" />
       <input type="hidden" id="endInput" />
     </div>
-    <div class="toolbar-group">
-      <span class="toolbar-label">周期:</span>
-      <select id="tfSelect" class="toolbar-select">
-        ${Object.entries(TIMEFRAME_MAP)
-          .map(
-            ([v, l]) =>
-              `<option value="${v}"${parseInt(v) === DEFAULT_TIMEFRAME ? ' selected' : ''}>${l}</option>`
-          )
-          .join('\n        ')}
-      </select>
+    <div class="toolbar-separator"></div>
+    <div class="toolbar-section toolbar-section-split">
+      ${renderSplitScreenControls()}
     </div>
-    <button id="loadBtn" class="toolbar-btn">加载</button>
-    <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
-    <button id="undoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Undo">↶</button>
-    <button id="redoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Redo">↷</button>
-    ${renderSplitScreenControls()}
-    ${renderDisplayControls(displayMode)}
+    <div class="toolbar-separator"></div>
+    <div class="toolbar-section toolbar-section-primary">
+      ${renderPrimaryTimeframeControls()}
+    </div>
+    <div class="toolbar-separator"></div>
+    <div class="toolbar-section toolbar-section-display">
+      ${renderDisplayControls(displayMode)}
+    </div>
+    <div class="toolbar-separator"></div>
+    <div class="toolbar-section toolbar-section-archive">
+      <button id="archiveBtn" class="toolbar-btn" type="button">Archive</button>
+      <button id="undoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Undo">↶</button>
+      <button id="redoBtn" class="toolbar-btn toolbar-icon-btn" type="button" disabled title="Redo">↷</button>
+      <button id="toolbarSettingsBtn" class="toolbar-btn toolbar-secondary-btn toolbar-icon-btn toolbar-settings-btn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⚙</button>
+      <div id="toolbarSettingsPopover" class="toolbar-calendar-popover toolbar-settings-popover" hidden>
+        ${renderSettingsPopoverContent()}
+      </div>
+    </div>
     <div class="status-bar">
-      <span id="statusText">就绪</span>
+      <span id="statusText">Ready</span>
     </div>
   `;
 
   const startInput = document.getElementById('startInput');
   const endInput = document.getElementById('endInput');
   const tfSelect = document.getElementById('tfSelect');
-  const loadBtn = document.getElementById('loadBtn');
   const dateRangeBtn = document.getElementById('dateRangeBtn');
   const archiveBtn = document.getElementById('archiveBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
+  const toolbarSettingsBtn = document.getElementById('toolbarSettingsBtn');
+  const toolbarSettingsPopover = document.getElementById('toolbarSettingsPopover');
   const splitScreenToggle = document.getElementById('splitScreenToggle');
   const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
@@ -142,21 +254,22 @@ export function initToolbar() {
   const displayRecentCountInput = document.getElementById('displayRecentCountInput');
 
   syncSplitScreenLayout();
-  loadBtn.addEventListener('click', handleLoad);
   initCalendarNavigator(dateRangeBtn);
   archiveBtn.addEventListener('click', () => {
     bus.emit('inspector:open-archive');
   });
   undoBtn.addEventListener('click', undo);
   redoBtn.addEventListener('click', redo);
-  startInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleLoad();
+  toolbarSettingsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSettingsPopover();
   });
-  endInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleLoad();
+  toolbarSettingsPopover.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
-
-  // 失焦自动格式化时间输入
+  toolbarSettingsPopover.addEventListener('change', handleSettingsChange);
+  toolbarSettingsPopover.addEventListener('click', handleSettingsClick);
+  // Keep hidden range fields normalized for reloads triggered by Main TF.
   [startInput, endInput].forEach((input) => {
     input.addEventListener('blur', (e) => {
       const formatted = formatTimeInput(e.target.value);
@@ -166,7 +279,6 @@ export function initToolbar() {
     });
   });
 
-  // 周期切换时自动重新加载
   tfSelect.addEventListener('change', () => {
     if (store.getBars().length > 0) {
       handleLoad();
@@ -218,7 +330,79 @@ export function initToolbar() {
   });
   bus.on('history:changed', updateHistoryButtons);
   bus.on('secondary-chart:settings-changed', syncSplitScreenLayout);
+  bus.on('display-preferences:changed', renderSettingsPopover);
+  document.addEventListener('click', closeSettingsPopover);
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSettingsPopover();
+  });
   updateHistoryButtons();
+}
+
+function renderSettingsPopover() {
+  const popover = document.getElementById('toolbarSettingsPopover');
+  if (!popover) return;
+  popover.innerHTML = renderSettingsPopoverContent();
+}
+
+function positionSettingsPopover() {
+  const button = document.getElementById('toolbarSettingsBtn');
+  const popover = document.getElementById('toolbarSettingsPopover');
+  if (!button || !popover) return;
+  const rect = button.getBoundingClientRect();
+  const width = Math.min(320, window.innerWidth - 16);
+  popover.style.width = `${width}px`;
+  popover.style.left = `${Math.max(8, Math.min(window.innerWidth - width - 8, rect.right - width))}px`;
+  popover.style.top = `${rect.bottom + 8}px`;
+}
+
+function openSettingsPopover() {
+  const button = document.getElementById('toolbarSettingsBtn');
+  const popover = document.getElementById('toolbarSettingsPopover');
+  if (!button || !popover) return;
+  renderSettingsPopover();
+  popover.hidden = false;
+  button.classList.add('active');
+  button.setAttribute('aria-expanded', 'true');
+  positionSettingsPopover();
+}
+
+function closeSettingsPopover() {
+  const button = document.getElementById('toolbarSettingsBtn');
+  const popover = document.getElementById('toolbarSettingsPopover');
+  if (!button || !popover || popover.hidden) return;
+  popover.hidden = true;
+  button.classList.remove('active');
+  button.setAttribute('aria-expanded', 'false');
+}
+
+function toggleSettingsPopover() {
+  const popover = document.getElementById('toolbarSettingsPopover');
+  if (!popover || popover.hidden) {
+    openSettingsPopover();
+    return;
+  }
+  closeSettingsPopover();
+}
+
+function handleSettingsChange(e) {
+  const action = e.target.dataset.displayAction;
+  if (action === 'ui-scale') {
+    setDisplayPreferences({ uiScale: e.target.value });
+    bus.emit('status:update', { text: `UI scale ${e.target.value}%`, isError: false });
+  } else if (action === 'chart-text-scale') {
+    setDisplayPreferences({ chartTextScale: e.target.value });
+    bus.emit('status:update', { text: `Chart text ${e.target.value}`, isError: false });
+  } else if (action === 'inspector-density') {
+    setDisplayPreferences({ inspectorDensity: e.target.value });
+    bus.emit('status:update', { text: `Inspector density ${e.target.value}`, isError: false });
+  }
+}
+
+function handleSettingsClick(e) {
+  const actionEl = e.target.closest('[data-display-action]');
+  if (actionEl?.dataset.displayAction !== 'reset-defaults') return;
+  resetDisplayPreferences();
+  bus.emit('status:update', { text: 'Display setup reset', isError: false });
 }
 
 function updateHistoryButtons() {
@@ -274,7 +458,7 @@ async function handleLoad() {
   const tf = parseInt(document.getElementById('tfSelect').value);
 
   if (!start || !end) {
-    bus.emit('status:update', { text: '请输入开始和结束时间', isError: true });
+    bus.emit('status:update', { text: 'Choose a date range first', isError: true });
     return;
   }
 
@@ -284,7 +468,7 @@ async function handleLoad() {
     return;
   }
 
-  bus.emit('status:update', { text: '加载中...', isError: false });
+  bus.emit('status:update', { text: 'Loading...', isError: false });
 
   try {
     const result = await fetchBars(loadRange.start, loadRange.end, tf);
@@ -296,10 +480,10 @@ async function handleLoad() {
       endEl.value = loadRange.end;
     }
     bus.emit('status:update', {
-      text: loadRange.windowed ? loadRange.message : `已加载 ${result.bars.length} 根K线`,
+      text: loadRange.windowed ? loadRange.message : `Loaded ${result.bars.length} bars`,
       isError: false,
     });
   } catch (err) {
-    bus.emit('status:update', { text: `加载失败: ${err.message}`, isError: true });
+    bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
   }
 }
