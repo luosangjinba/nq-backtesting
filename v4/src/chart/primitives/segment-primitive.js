@@ -3,11 +3,25 @@ const SEGMENT_DEFAULTS = {
   textColor: '#f0f3fa',
   markerColor: '#f0f3fa',
   lineWidth: 2,
+  lineOpacity: 1,
+  lineDash: [],
   markerSize: 4,
+  showMarkers: true,
   showLabel: true,
   labelFont: '11px sans-serif',
   labelPadding: 6,
 };
+
+function clampOpacity(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 1;
+  return Math.max(0, Math.min(1, parsed));
+}
+
+function getScaledLineDash(lineDash, ratio) {
+  if (!Array.isArray(lineDash)) return [];
+  return lineDash.map((value) => Math.max(0, Number(value) || 0) * ratio);
+}
 
 class SegmentRenderer {
   constructor(view) {
@@ -31,9 +45,11 @@ class SegmentRenderer {
       const x2 = p2.x * hRatio;
       const y2 = p2.y * vRatio;
 
+      ctx.save();
+      ctx.globalAlpha = clampOpacity(options.lineOpacity);
       ctx.strokeStyle = options.lineColor;
       ctx.lineWidth = options.lineWidth * ratio;
-      ctx.setLineDash([]);
+      ctx.setLineDash(getScaledLineDash(options.lineDash, ratio));
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -54,15 +70,18 @@ class SegmentRenderer {
         y2 - arrowLength * Math.sin(angle + arrowAngle)
       );
       ctx.stroke();
+      ctx.restore();
 
-      ctx.fillStyle = options.markerColor;
-      [p1, p2].forEach((point) => {
-        const x = point.x * hRatio;
-        const y = point.y * vRatio;
-        ctx.beginPath();
-        ctx.arc(x, y, options.markerSize * ratio, 0, Math.PI * 2);
-        ctx.fill();
-      });
+      if (options.showMarkers) {
+        ctx.fillStyle = options.markerColor;
+        [p1, p2].forEach((point) => {
+          const x = point.x * hRatio;
+          const y = point.y * vRatio;
+          ctx.beginPath();
+          ctx.arc(x, y, options.markerSize * ratio, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
 
       if (options.showLabel && source._label) {
         ctx.fillStyle = options.textColor;

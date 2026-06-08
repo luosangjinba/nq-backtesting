@@ -19,6 +19,11 @@ let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
 const DRAFT_CHILD_COLOR = '#ffb74d';
 const DRAFT_TARGET_COLOR = '#ba68c8';
+const SEGMENT_LINE_STYLE = {
+  lineDash: [6, 5],
+  lineOpacity: 0.72,
+  showMarkers: false,
+};
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
@@ -83,6 +88,7 @@ export function renderSegments() {
       last.end.price,
       getGroupLabel(group, children.length),
       {
+        ...SEGMENT_LINE_STYLE,
         lineColor: isCurrent
           ? SELECTED_COLOR
           : isDrawingSetActive
@@ -152,6 +158,7 @@ export function renderSegments() {
       segment.end.price,
       getSegmentLabel(segment),
       {
+        ...SEGMENT_LINE_STYLE,
         lineColor,
         textColor: '#f0f3fa',
         markerColor: isCurrent

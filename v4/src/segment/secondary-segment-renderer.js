@@ -15,6 +15,11 @@ import { getSegmentGroups } from './segment-group-store.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
 
 let renderedPrimitives = [];
+const SEGMENT_LINE_STYLE = {
+  lineDash: [6, 5],
+  lineOpacity: 0.72,
+  showMarkers: false,
+};
 
 function clearRenderedPrimitives() {
   renderedPrimitives = clearSecondaryPrimitives(renderedPrimitives);
@@ -86,6 +91,7 @@ export function renderSecondarySegments() {
       last.end.price,
       getGroupLabel(group, children.length),
       {
+        ...SEGMENT_LINE_STYLE,
         lineColor: isHighlighted
           ? '#ffb74d'
           : group.direction === 'down'
@@ -122,6 +128,7 @@ export function renderSecondarySegments() {
       segment.end.price,
       getSegmentLabel(segment),
       {
+        ...SEGMENT_LINE_STYLE,
         lineColor: isHighlighted
           ? '#ffb74d'
           : segment.direction === 'down'
