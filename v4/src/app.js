@@ -15,6 +15,7 @@ import { initSecondaryChartController } from './ui/secondary-chart-controller.js
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initDisplayMode } from './display/display-mode.js';
+import { initDisplayPreferences } from './display/display-preferences.js';
 import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
@@ -44,6 +45,9 @@ import { initEconomicCalendarLoader } from './economic-calendar/economic-calenda
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
 
 console.log('[V4] app.js loaded');
+
+initDisplayPreferences();
+console.log('[V4] Display preferences initialized');
 
 // 初始化图表
 chart.initChart('chart');
