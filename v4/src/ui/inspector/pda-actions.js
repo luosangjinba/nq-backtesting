@@ -3,13 +3,19 @@ import * as store from '../../data/bar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, updateAnnotation } from '../../pda/pda-store.js';
 import { buildExtendDisplayPatch } from '../../pda/pda-extend.js';
-import { updateFibLevel } from '../../pda/fib-levels.js';
+import { normalizeFibLevels, updateFibLevel } from '../../pda/fib-levels.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import { getPointSetContext, getPointSetReference } from './pda-panel.js';
 import { recordHistory } from '../../history/history-manager.js';
 
 function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
+}
+
+function getFibLevelAt(annotation, target) {
+  const index = Number(target?.dataset?.fibLevelIndex);
+  if (!Number.isInteger(index)) return null;
+  return normalizeFibLevels(annotation?.levels)[index] || null;
 }
 
 export function createPdaInspectorActionController({
@@ -82,6 +88,8 @@ export function createPdaInspectorActionController({
     }
 
     if (action === 'fib-level-visible') {
+      const level = getFibLevelAt(annotation, target);
+      if (!level || level.visible === target.checked) return true;
       recordInspectorHistory('Toggle Fib Level', () => updateAnnotation(annotation.id, {
         levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
           visible: target.checked,
@@ -93,6 +101,9 @@ export function createPdaInspectorActionController({
     if (action === 'fib-level-value') {
       const parsed = Number(target.value);
       if (!Number.isFinite(parsed)) return true;
+      const level = getFibLevelAt(annotation, target);
+      if (!level || level.value === parsed) return true;
+      target.value = String(parsed);
       recordInspectorHistory('Update Fib Level', () => updateAnnotation(annotation.id, {
         levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
           value: parsed,
@@ -102,9 +113,12 @@ export function createPdaInspectorActionController({
     }
 
     if (action === 'fib-level-color') {
+      const level = getFibLevelAt(annotation, target);
+      const color = String(target.value || '').toLowerCase();
+      if (!level || level.color === color) return true;
       recordInspectorHistory('Update Fib Level Color', () => updateAnnotation(annotation.id, {
         levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
-          color: target.value,
+          color,
         }),
       }));
       return true;
