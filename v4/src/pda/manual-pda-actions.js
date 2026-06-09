@@ -170,10 +170,10 @@ function getFvgColors(direction) {
 
 function getIfvgColors() {
   return {
-    fillColor: '#fdd83533',
+    fillColor: '#b39ddb33',
     borderColor: 'transparent',
-    midlineColor: '#fdd835',
-    textColor: '#fff9c4',
+    midlineColor: '#b39ddb',
+    textColor: '#ede7f6',
   };
 }
 

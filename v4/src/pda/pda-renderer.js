@@ -288,6 +288,7 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
   if (isCurrent) return SELECTED_COLOR;
   if (isLinkedToSegment) return LINKED_SEGMENT_COLOR;
   if (annotation.type === 'ob') return OB_COLORS.color;
+  if (annotation.type === 'ifvg') return '#b39ddb';
   if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fdd835';
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
@@ -302,12 +303,14 @@ function getRangeBorderColor(annotation, pdaType, isCurrent = false, isFvg = fal
 
 function getRangeFillColor(annotation, pdaType) {
   if (annotation.type === 'ob') return OB_COLORS.fillColor;
+  if (annotation.type === 'ifvg') return '#b39ddb33';
   if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fdd83533';
   return annotation.fillColor || alphaColor(pdaType.color, '33');
 }
 
 function getRangeTextColor(annotation, pdaType) {
   if (annotation.type === 'ob') return OB_COLORS.textColor;
+  if (annotation.type === 'ifvg') return '#ede7f6';
   if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fff9c4';
   return annotation.textColor || pdaType.textColor || '#d1d4dc';
 }
