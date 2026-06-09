@@ -238,6 +238,7 @@ function renderFibFields(annotation) {
       field('End', `${formatTime(annotation.end?.timestamp ?? annotation.end?.time)} @ ${formatNumber(annotation.end?.price)}`),
       field('Visible Levels', visibleCount),
       `<div class="inspector-fib-level-grid">${rows || '<div class="inspector-empty">No levels</div>'}</div>`,
+      `<button class="inspector-secondary" data-inspector-action="fib-level-reset" type="button">Reset Levels</button>`,
       `<details class="inspector-fib-level-summary">
         <summary>Visible level prices</summary>
         <div class="inspector-point-list">${readOnlyRows || '<div class="inspector-empty">No visible levels</div>'}</div>

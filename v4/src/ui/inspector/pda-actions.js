@@ -3,7 +3,7 @@ import * as store from '../../data/bar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, updateAnnotation } from '../../pda/pda-store.js';
 import { buildExtendDisplayPatch } from '../../pda/pda-extend.js';
-import { normalizeFibLevels, updateFibLevel } from '../../pda/fib-levels.js';
+import { getDefaultFibLevels, normalizeFibLevels, updateFibLevel } from '../../pda/fib-levels.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import { getPointSetContext, getPointSetReference } from './pda-panel.js';
 import { recordHistory } from '../../history/history-manager.js';
@@ -142,6 +142,13 @@ export function createPdaInspectorActionController({
       recordInspectorHistory('Remove Point From Set', () =>
         removePointFromSet(annotation, Number(actionEl.dataset.pointIndex))
       );
+      return true;
+    }
+
+    if (action === 'fib-level-reset') {
+      recordInspectorHistory('Reset Fib Levels', () => updateAnnotation(annotation.id, {
+        levels: getDefaultFibLevels(),
+      }));
       return true;
     }
 
