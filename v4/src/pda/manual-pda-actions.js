@@ -16,18 +16,9 @@ import { buildExtendDisplayPatch } from './pda-extend.js';
 import { identifyFvg } from './fvg-identifier.js';
 import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
+import { getDefaultFibLevels } from './fib-levels.js';
 
 const DEFAULT_LIQUIDITY_EXTEND_BARS = 8;
-
-export const DEFAULT_FIB_LEVELS = [
-  { value: 1, visible: true, color: '#60636f' },
-  { value: 0.79, visible: true, color: '#00a6b4' },
-  { value: 0.705, visible: true, color: '#ffa726' },
-  { value: 0.62, visible: true, color: '#4caf50' },
-  { value: 0.5, visible: true, color: '#ff4d5d' },
-  { value: 0.236, visible: true, color: '#ab47bc' },
-  { value: 0, visible: true, color: '#60636f' },
-];
 
 function getDisplayBars(context) {
   const bars = context?.getDisplayBars?.();
@@ -417,7 +408,7 @@ export function addManualFib(selectionState, endBar, context) {
       price: endPrice,
       kind: direction === 'bullish' ? 'high' : 'low',
     },
-    levels: DEFAULT_FIB_LEVELS.map((level) => ({ ...level })),
+    levels: getDefaultFibLevels(),
     display: {
       showLabels: true,
       showTrendLine: false,
