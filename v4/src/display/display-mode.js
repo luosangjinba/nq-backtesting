@@ -90,6 +90,33 @@ function getRecentGroups() {
     .slice(0, state.recentCount);
 }
 
+function getAnnotationActivityTime(annotation = {}) {
+  const explicitTime = Number(annotation.updatedAt ?? annotation.createdAt);
+  if (Number.isFinite(explicitTime)) return explicitTime;
+
+  return Math.max(
+    0,
+    ...[
+      annotation.canonicalTimestamp,
+      annotation.timestamp,
+      annotation.anchorTime,
+      annotation.startTimeTimestamp,
+      annotation.endTimeTimestamp,
+      annotation.start?.timestamp,
+      annotation.start?.time,
+      annotation.end?.timestamp,
+      annotation.end?.time,
+    ].map((value) => Number(value)).filter(Number.isFinite)
+  );
+}
+
+function getRecentAnnotations() {
+  return getAnnotations()
+    .filter((annotation) => annotation?.id && !annotation.display?.hidden)
+    .sort((a, b) => getAnnotationActivityTime(b) - getAnnotationActivityTime(a))
+    .slice(0, state.recentCount);
+}
+
 function getSelectedStructureSegmentIds() {
   if (selectedSegmentId) return new Set([selectedSegmentId]);
   if (!selectedGroupId) return new Set();
@@ -158,6 +185,7 @@ function buildVisibilitySets() {
 
     const visiblePdaIds = new Set();
     visibleSegmentIds.forEach((segmentId) => addSegmentResponseIds(visiblePdaIds, segmentMap.get(segmentId)));
+    getRecentAnnotations().forEach((annotation) => visiblePdaIds.add(annotation.id));
 
     return { visiblePdaIds, visibleSegmentIds, visibleGroupIds };
   }
