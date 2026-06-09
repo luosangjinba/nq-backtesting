@@ -1,4 +1,6 @@
 const DEFAULT_FIB_LEVEL_COLOR = '#60636f';
+export const FIB_LEVEL_MIN_VALUE = -12;
+export const FIB_LEVEL_MAX_VALUE = 12;
 
 export const DEFAULT_FIB_LEVELS = Object.freeze([
   { value: 1, visible: true, color: '#60636f' },
@@ -35,6 +37,7 @@ function normalizeColor(value, fallback = DEFAULT_FIB_LEVEL_COLOR) {
 export function normalizeFibLevel(level = {}) {
   const value = Number(level.value);
   if (!Number.isFinite(value)) return null;
+  if (value < FIB_LEVEL_MIN_VALUE || value > FIB_LEVEL_MAX_VALUE) return null;
   return {
     value,
     visible: level.visible !== false,

@@ -1374,7 +1374,7 @@ html, body {
 
 .inspector-fib-level-row {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) 30px minmax(54px, 0.65fr);
+  grid-template-columns: 18px minmax(0, 1fr) 30px;
   gap: 6px;
   align-items: center;
   min-width: 0;
@@ -1402,16 +1402,6 @@ html, body {
   border: 1px solid #363a45;
   border-radius: 4px;
   background: #131722;
-}
-
-.inspector-fib-level-price {
-  min-width: 0;
-  color: #8d919b;
-  font-size: var(--compact-font-size);
-  overflow: hidden;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .inspector-fib-level-summary {

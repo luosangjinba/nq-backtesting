@@ -2,7 +2,7 @@ import { timeframeToString } from '../../config.js';
 import * as store from '../../data/bar-store.js';
 import { buildCePrice } from '../../price-utils.js';
 import { getExtendBarsForTimeframe, getExtendSeconds } from '../../pda/pda-extend.js';
-import { normalizeFibLevels } from '../../pda/fib-levels.js';
+import { FIB_LEVEL_MAX_VALUE, FIB_LEVEL_MIN_VALUE, normalizeFibLevels } from '../../pda/fib-levels.js';
 import { formatPdaSourceBadge } from '../../pda/pda-source-format.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import {
@@ -204,13 +204,11 @@ function renderFibFields(annotation) {
   const rows = levels
     .map(
       (level, index) => {
-        const price = getFibLevelPrice(annotation, level.value);
         return `
           <label class="inspector-fib-level-row">
             <input data-inspector-action="fib-level-visible" data-fib-level-index="${index}" type="checkbox" ${level.visible !== false ? 'checked' : ''} />
-            <input class="inspector-input inspector-fib-level-value" data-inspector-action="fib-level-value" data-fib-level-index="${index}" type="number" step="0.001" value="${escapeHtml(level.value)}" />
+            <input class="inspector-input inspector-fib-level-value" data-inspector-action="fib-level-value" data-fib-level-index="${index}" type="number" min="${FIB_LEVEL_MIN_VALUE}" max="${FIB_LEVEL_MAX_VALUE}" step="0.001" value="${escapeHtml(level.value)}" title="Fib ratio (${FIB_LEVEL_MIN_VALUE} to ${FIB_LEVEL_MAX_VALUE})" />
             <input class="inspector-fib-level-color" data-inspector-action="fib-level-color" data-fib-level-index="${index}" type="color" value="${escapeHtml(level.color || '#60636f')}" title="Fib level color" />
-            <span class="inspector-fib-level-price">${escapeHtml(formatNumber(price))}</span>
           </label>
         `;
       }

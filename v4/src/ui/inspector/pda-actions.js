@@ -3,7 +3,13 @@ import * as store from '../../data/bar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, updateAnnotation } from '../../pda/pda-store.js';
 import { buildExtendDisplayPatch } from '../../pda/pda-extend.js';
-import { getDefaultFibLevels, normalizeFibLevels, updateFibLevel } from '../../pda/fib-levels.js';
+import {
+  FIB_LEVEL_MAX_VALUE,
+  FIB_LEVEL_MIN_VALUE,
+  getDefaultFibLevels,
+  normalizeFibLevels,
+  updateFibLevel,
+} from '../../pda/fib-levels.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import { getPointSetContext, getPointSetReference } from './pda-panel.js';
 import { recordHistory } from '../../history/history-manager.js';
@@ -103,6 +109,14 @@ export function createPdaInspectorActionController({
       if (!Number.isFinite(parsed)) return true;
       const level = getFibLevelAt(annotation, target);
       if (!level || level.value === parsed) return true;
+      if (parsed < FIB_LEVEL_MIN_VALUE || parsed > FIB_LEVEL_MAX_VALUE) {
+        target.value = String(level.value);
+        bus.emit('status:update', {
+          text: `Fib level must be between ${FIB_LEVEL_MIN_VALUE} and ${FIB_LEVEL_MAX_VALUE}`,
+          isError: true,
+        });
+        return true;
+      }
       target.value = String(parsed);
       recordInspectorHistory('Update Fib Level', () => updateAnnotation(annotation.id, {
         levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {

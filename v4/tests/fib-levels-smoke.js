@@ -29,4 +29,9 @@ assert.equal(updated[0].color, '#654321');
 assert.equal(getVisibleFibLevels(updated).some((level) => level.value === 1.1), false);
 assert.equal(getVisibleFibLevels(updated).every((level) => level.visible !== false), true);
 
+assert.equal(normalizeFibLevels([{ value: 12, visible: true }]).some((level) => level.value === 12), true);
+assert.equal(normalizeFibLevels([{ value: -12, visible: true }]).some((level) => level.value === -12), true);
+assert.equal(normalizeFibLevels([{ value: 12.001, visible: true }]).some((level) => level.value === 12.001), false);
+assert.equal(normalizeFibLevels([{ value: -12.001, visible: true }]).some((level) => level.value === -12.001), false);
+
 console.log('fib levels smoke passed');
