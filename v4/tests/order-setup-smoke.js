@@ -23,6 +23,10 @@ import {
   setActiveReviewSet,
   updateActiveReviewSet,
 } from '../src/order/order-review-active.js';
+import {
+  handleOrderSetupChartAction,
+  renderOrderSetupMenuItems,
+} from '../src/order/order-setup-chart-actions.js';
 import { getSetupSetById } from '../src/order/setup-set.js';
 import {
   restoreOrderReviews,
@@ -155,6 +159,37 @@ assertSetupCore(updatedBullish, {
 });
 assert.equal(updatedBullish.explanationElements.refs.length, 3, 'reason refs are exposed through setup set');
 assert.equal(updatedBullish.explanationElements.notes.length, 2, 'reason notes become explanation notes');
+
+const shiftOrderSetupMenu = renderOrderSetupMenuItems({
+  bar: { timestamp: 1672756860 },
+  isShift: true,
+});
+assert.match(shiftOrderSetupMenu, /order-setup-set-all-end/, 'shift setup menu includes Set All End action');
+assert.equal(handleOrderSetupChartAction('order-setup-set-all-end', {
+  bar: { timestamp: 1672756860 },
+  timeframe: '1M',
+}), true, 'set all end action is handled');
+const allEndEntryPlan = getOrderReviewById(bullish.id).entryPlan;
+[
+  'entryEndTimestamp',
+  'stopLossEndTimestamp',
+  'targetInternalEndTimestamp',
+  'targetSwingEndTimestamp',
+  'targetExternalEndTimestamp',
+  'finalTargetEndTimestamp',
+].forEach((field) => {
+  assert.equal(allEndEntryPlan[field], 1672756860, `${field} uses common end timestamp`);
+});
+[
+  'entryEndTimeframe',
+  'stopLossEndTimeframe',
+  'targetInternalEndTimeframe',
+  'targetSwingEndTimeframe',
+  'targetExternalEndTimeframe',
+  'finalTargetEndTimeframe',
+].forEach((field) => {
+  assert.equal(allEndEntryPlan[field], '1M', `${field} uses common end timeframe`);
+});
 
 const bearish = createChartReviewSet({
   bar: { timestamp: 1672763400 },

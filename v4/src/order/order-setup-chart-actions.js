@@ -272,6 +272,24 @@ const ORDER_SETUP_PATCH_ACTIONS = Object.freeze({
       },
     }),
   },
+  'order-setup-set-all-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        entryEndTimestamp: endTimestamp,
+        entryEndTimeframe: endTimeframe,
+        stopLossEndTimestamp: endTimestamp,
+        stopLossEndTimeframe: endTimeframe,
+        targetInternalEndTimestamp: endTimestamp,
+        targetInternalEndTimeframe: endTimeframe,
+        targetSwingEndTimestamp: endTimestamp,
+        targetSwingEndTimeframe: endTimeframe,
+        targetExternalEndTimestamp: endTimestamp,
+        targetExternalEndTimeframe: endTimeframe,
+        finalTargetEndTimestamp: endTimestamp,
+        finalTargetEndTimeframe: endTimeframe,
+      },
+    }),
+  },
 });
 
 const ORDER_SETUP_LINK_ACTIONS = Object.freeze({
@@ -459,6 +477,7 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
         <button class="pda-menu-item" data-pda-action="order-setup-create-bearish" ${disabled}>Create Bearish Setup Here</button>
         <div class="pda-menu-divider"></div>
         <button class="pda-menu-item" data-pda-action="order-setup-set-reversal" ${activeDisabled || disabled}>Move Active Reversal Here</button>
+        ${isShift ? `<button class="pda-menu-item" data-pda-action="order-setup-set-all-end" ${activeDisabled || disabled}>Set All End Here</button>` : ''}
         <button class="pda-menu-item" data-pda-action="order-setup-set-entry" ${activeDisabled || disabled}>Set Entry Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
