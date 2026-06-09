@@ -13,7 +13,6 @@ import subprocess
 import tempfile
 import uuid
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
 from email.parser import BytesParser
 from email.policy import default as default_email_policy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -2061,11 +2060,10 @@ order by ts
 
         # Database stores US/Eastern time as naive timestamps
         # Treat database time as UTC (no conversion) so chart displays ET time
-        utc_tz = ZoneInfo("UTC")
         return [
             {
              "time": row[0].strftime("%Y-%m-%d %H:%M"),
-              "timestamp": int(row[0].replace(tzinfo=utc_tz).timestamp()),
+              "timestamp": int(row[0].replace(tzinfo=timezone.utc).timestamp()),
                 "open": float(row[1]),
                 "high": float(row[2]),
                 "low": float(row[3]),

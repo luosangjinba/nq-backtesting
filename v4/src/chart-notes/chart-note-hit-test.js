@@ -77,6 +77,29 @@ function buildHitPoints(options, expandedNoteId = '') {
     .filter((note) => Number(note.timeframe) === Number(timeframe))
     .filter((note) => isChartNoteInDate(note, visibleDateKey))
     .map((note) => {
+      if (note.kind === 'range') {
+        const startTimestamp = Number(note.startTimestamp || note.timestamp);
+        const endTimestamp = Number(note.endTimestamp || note.timestamp);
+        const rangeBars = bars.filter((bar) => {
+          const timestamp = Number(bar?.timestamp);
+          return Number.isFinite(timestamp) && timestamp >= startTimestamp && timestamp <= endTimestamp;
+        });
+        if (!rangeBars.length) return null;
+        const highs = rangeBars.map((bar) => Number(bar.high)).filter(Number.isFinite);
+        if (!highs.length) return null;
+        const middleBar = rangeBars[Math.floor(rangeBars.length / 2)];
+        const time = getBarChartTime(middleBar, timeframe);
+        const anchorX = chart.timeToCoordinate(time);
+        const anchorY = chart.priceToCoordinate(Math.max(...highs));
+        if (anchorX === null || anchorY === null) return null;
+        return {
+          id: note.id,
+          note,
+          text: formatChartNoteDisplayText(note),
+          x: anchorX,
+          y: anchorY,
+        };
+      }
       const bar = barByTimestamp.get(Number(note.timestamp));
       if (!bar) return null;
       const position = note.position === 'below' ? 'below' : 'above';

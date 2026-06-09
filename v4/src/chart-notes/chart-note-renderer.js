@@ -51,6 +51,29 @@ function buildNotePoints() {
     .filter((note) => Number(note.timeframe) === Number(timeframe))
     .filter((note) => isChartNoteInDate(note, visibleDateKey))
     .map((note) => {
+      if (note.kind === 'range') {
+        const startTimestamp = Number(note.startTimestamp || note.timestamp);
+        const endTimestamp = Number(note.endTimestamp || note.timestamp);
+        const rangeBars = bars.filter((bar) => {
+          const timestamp = Number(bar?.timestamp);
+          return Number.isFinite(timestamp) && timestamp >= startTimestamp && timestamp <= endTimestamp;
+        });
+        if (!rangeBars.length) return null;
+        const highs = rangeBars.map((bar) => Number(bar.high)).filter(Number.isFinite);
+        if (!highs.length) return null;
+        const middleBar = rangeBars[Math.floor(rangeBars.length / 2)];
+        return {
+          id: note.id,
+          time: getBarChartTime(middleBar, timeframe),
+          rangeStartTime: getBarChartTime(rangeBars[0], timeframe),
+          rangeEndTime: getBarChartTime(rangeBars[rangeBars.length - 1], timeframe),
+          price: Math.max(...highs),
+          text: formatChartNoteDisplayText(note),
+          color: note.color,
+          position: 'above',
+          kind: 'range',
+        };
+      }
       const bar = barByTimestamp.get(Number(note.timestamp));
       if (!bar) return null;
       const position = note.position === 'below' ? 'below' : 'above';

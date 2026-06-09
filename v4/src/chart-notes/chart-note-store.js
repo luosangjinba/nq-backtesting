@@ -3,6 +3,7 @@ import * as bus from '../event-bus.js';
 const DEFAULT_NOTE_COLOR = '#fff7a8';
 const DEFAULT_NOTE_POSITION = 'above';
 const VALID_POSITIONS = new Set(['above', 'below']);
+const VALID_KINDS = new Set(['bar', 'range']);
 
 let chartNotes = [];
 let chartNotesVersion = 0;
@@ -27,15 +28,31 @@ function normalizePosition(value) {
   return VALID_POSITIONS.has(position) ? position : DEFAULT_NOTE_POSITION;
 }
 
+function normalizeKind(value) {
+  const kind = normalizeString(value, 'bar').toLowerCase();
+  return VALID_KINDS.has(kind) ? kind : 'bar';
+}
+
 function emitChanged() {
   chartNotesVersion += 1;
   bus.emit('chart-notes:changed', { chartNotes: getChartNotes() });
 }
 
 export function getChartNoteIdentity(note) {
+  const kind = normalizeKind(note?.kind);
+  if (kind === 'range') {
+    return [
+      normalizeString(note?.instrument, 'NQ').toUpperCase(),
+      normalizeTimeframe(note?.timeframe),
+      'range',
+      normalizeTimestamp(note?.startTimestamp ?? note?.timestamp),
+      normalizeTimestamp(note?.endTimestamp ?? note?.timestamp),
+    ].join(':');
+  }
   return [
     normalizeString(note?.instrument, 'NQ').toUpperCase(),
     normalizeTimeframe(note?.timeframe),
+    'bar',
     normalizeTimestamp(note?.timestamp),
   ].join(':');
 }
@@ -43,19 +60,33 @@ export function getChartNoteIdentity(note) {
 export function normalizeChartNote(input = {}) {
   const instrument = normalizeString(input.instrument, 'NQ').toUpperCase();
   const timeframe = normalizeTimeframe(input.timeframe);
-  const timestamp = normalizeTimestamp(input.timestamp);
+  const kind = normalizeKind(input.kind);
+  const rawStart = normalizeTimestamp(input.startTimestamp ?? input.timestamp);
+  const rawEnd = normalizeTimestamp(input.endTimestamp ?? input.timestamp);
+  const startTimestamp = kind === 'range' ? Math.min(rawStart, rawEnd) : rawStart;
+  const endTimestamp = kind === 'range' ? Math.max(rawStart, rawEnd) : rawStart;
+  const timestamp = kind === 'range' ? startTimestamp : rawStart;
   const text = normalizeString(input.text);
 
   if (!instrument || !timestamp || !text) return null;
+  if (kind === 'range' && (!startTimestamp || !endTimestamp || startTimestamp === endTimestamp)) return null;
 
-  const id = normalizeString(input.id, `chart-note-${instrument}-${timeframe}-${timestamp}`);
+  const id = normalizeString(
+    input.id,
+    kind === 'range'
+      ? `chart-note-range-${instrument}-${timeframe}-${startTimestamp}-${endTimestamp}`
+      : `chart-note-${instrument}-${timeframe}-${timestamp}`
+  );
   const createdAt = Number(input.createdAt);
   const updatedAt = Number(input.updatedAt);
   const normalized = {
     id,
+    kind,
     instrument,
     timeframe,
     timestamp,
+    startTimestamp,
+    endTimestamp,
     text,
     position: normalizePosition(input.position),
     color: normalizeString(input.color, DEFAULT_NOTE_COLOR),
@@ -85,8 +116,22 @@ export function getChartNoteById(id) {
 }
 
 export function getChartNoteForBar({ instrument = 'NQ', timeframe, timestamp } = {}) {
-  const identity = getChartNoteIdentity({ instrument, timeframe, timestamp });
+  const identity = getChartNoteIdentity({ kind: 'bar', instrument, timeframe, timestamp });
   return chartNotes.find((note) => getChartNoteIdentity(note) === identity) || null;
+}
+
+export function getChartNoteRangesForBar({ instrument = 'NQ', timeframe, timestamp } = {}) {
+  const normalizedInstrument = normalizeString(instrument, 'NQ').toUpperCase();
+  const normalizedTimeframe = normalizeTimeframe(timeframe);
+  const normalizedTimestamp = normalizeTimestamp(timestamp);
+  if (!normalizedTimestamp) return [];
+  return chartNotes.filter((note) =>
+    normalizeKind(note.kind) === 'range' &&
+    note.instrument === normalizedInstrument &&
+    Number(note.timeframe) === Number(normalizedTimeframe) &&
+    Number(note.startTimestamp) <= normalizedTimestamp &&
+    Number(note.endTimestamp) >= normalizedTimestamp
+  );
 }
 
 export function upsertChartNote(input = {}) {

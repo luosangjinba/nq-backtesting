@@ -27,4 +27,7 @@ assert.equal(windowed.end, '2024-02-15 00:00');
 const normalHourly = validateSingleWindowRange('2024-01-01 00:00', '2024-12-31 00:00', 60);
 assert.equal(normalHourly.ok, true);
 
+const normalFifteenMinuteYear = validateSingleWindowRange('2024-01-01 00:00', '2024-12-31 00:00', 15);
+assert.equal(normalFifteenMinuteYear.ok, true);
+
 console.log('load range policy smoke passed');

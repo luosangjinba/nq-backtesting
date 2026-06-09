@@ -22,6 +22,8 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   leaderAnchorSize: 3,
   flashBorderColor: 'rgba(255, 255, 255, 0.96)',
   flashGlowColor: 'rgba(255, 247, 168, 0.55)',
+  rangeFillColor: 'rgba(255, 247, 168, 0.10)',
+  rangeBorderColor: 'rgba(255, 247, 168, 0.32)',
 };
 
 export function getChartNoteOptions() {
@@ -82,6 +84,25 @@ class ChartNoteRenderer {
         canvasWidth,
         expandedNoteId: source._expandedNoteId,
       });
+
+      layouts
+        .filter((point) => point.kind === 'range' && point.xStart !== null && point.xEnd !== null)
+        .forEach((point) => {
+          const left = Math.min(point.xStart, point.xEnd) * hRatio;
+          const right = Math.max(point.xStart, point.xEnd) * hRatio;
+          const width = Math.max(2 * hRatio, right - left);
+          ctx.fillStyle = options.rangeFillColor;
+          ctx.strokeStyle = options.rangeBorderColor;
+          ctx.lineWidth = Math.max(1, ratio);
+          ctx.fillRect(left, 0, width, scope.bitmapSize.height);
+          ctx.beginPath();
+          ctx.moveTo(left, 0);
+          ctx.lineTo(left, scope.bitmapSize.height);
+          ctx.moveTo(left + width, 0);
+          ctx.lineTo(left + width, scope.bitmapSize.height);
+          ctx.stroke();
+        });
+
       layouts.forEach((point) => {
         const { lines, boxX: x, boxY: y, boxWidth, boxHeight, anchorX, anchorY } = point;
         const labelAnchorX = Math.min(Math.max(x + 8 * hRatio, anchorX), x + boxWidth - 8 * hRatio);
@@ -142,6 +163,8 @@ class ChartNoteView {
     this._points = source._notes.map((note) => ({
       ...note,
       x: source._chart.timeScale().timeToCoordinate(note.time),
+      xStart: note.rangeStartTime === undefined ? null : source._chart.timeScale().timeToCoordinate(note.rangeStartTime),
+      xEnd: note.rangeEndTime === undefined ? null : source._chart.timeScale().timeToCoordinate(note.rangeEndTime),
       y: source._series.priceToCoordinate(note.price),
     }));
   }

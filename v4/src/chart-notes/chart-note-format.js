@@ -6,7 +6,10 @@ export function formatChartNoteTime(timestamp) {
 }
 
 export function formatChartNoteDisplayText(note = {}) {
-  return [formatChartNoteTime(note.timestamp), String(note.text || '').trim()]
+  const timeLabel = note.kind === 'range'
+    ? `${formatChartNoteTime(note.startTimestamp || note.timestamp)}-${formatChartNoteTime(note.endTimestamp || note.timestamp)}`
+    : formatChartNoteTime(note.timestamp);
+  return [timeLabel, String(note.text || '').trim()]
     .filter(Boolean)
     .join(' ');
 }

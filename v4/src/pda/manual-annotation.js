@@ -74,6 +74,7 @@ import {
 import {
   deleteChartNote,
   getChartNoteForBar,
+  getChartNoteRangesForBar,
   updateChartNote,
   upsertChartNote,
 } from '../chart-notes/chart-note-store.js';
@@ -96,6 +97,7 @@ let contextMenuOrderSetupHit = null;
 let contextMenuShiftKey = false;
 let contextMenuPoint = null;
 let chartNoteEditorEl = null;
+let chartNoteRangeDraft = null;
 
 function getPrimaryContext() {
   return getPrimaryChartContext();
@@ -299,9 +301,23 @@ function getChartNoteAtContextBar() {
   });
 }
 
+function getChartNoteRangeAtContextBar() {
+  if (!contextMenuBar) return null;
+  return getChartNoteRangesForBar({
+    instrument: 'NQ',
+    timeframe: store.getCurrentTimeframe(),
+    timestamp: contextMenuBar.timestamp,
+  })[0] || null;
+}
+
 function renderChartNoteMenuItems(bar) {
   const disabled = bar ? '' : 'disabled';
   const existingNote = bar ? getChartNoteAtContextBar() : null;
+  const existingRangeNote = bar ? getChartNoteRangeAtContextBar() : null;
+  const rangeDraftLabel = chartNoteRangeDraft
+    ? ` · ${chartNoteRangeDraft.label || chartNoteRangeDraft.timestamp}`
+    : '';
+  const finishRangeDisabled = bar && chartNoteRangeDraft ? '' : 'disabled';
   return `
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Chart Note</div>
@@ -309,6 +325,11 @@ function renderChartNoteMenuItems(bar) {
       <button class="pda-menu-item" data-pda-action="chart-note-add" ${existingNote ? 'disabled' : disabled}>Add Note Here</button>
       <button class="pda-menu-item" data-pda-action="chart-note-edit" ${existingNote ? '' : 'disabled'}>Edit Note</button>
       <button class="pda-menu-item" data-pda-action="chart-note-delete" ${existingNote ? '' : 'disabled'}>Delete Note</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" data-pda-action="chart-note-range-start" ${disabled}>Start Range Note Here</button>
+      <button class="pda-menu-item" data-pda-action="chart-note-range-finish" ${finishRangeDisabled}>Finish Range Note Here${rangeDraftLabel}</button>
+      <button class="pda-menu-item" data-pda-action="chart-note-range-edit" ${existingRangeNote ? '' : 'disabled'}>Edit Range Note</button>
+      <button class="pda-menu-item" data-pda-action="chart-note-range-delete" ${existingRangeNote ? '' : 'disabled'}>Delete Range Note</button>
       </div>
     </div>
   `;
@@ -547,6 +568,91 @@ async function handleControlClick(e) {
     } else {
       recordHistory('Delete Chart Note', () => deleteChartNote(note.id));
       bus.emit('status:update', { text: 'Chart Note 已删除', isError: false });
+    }
+    hideContextMenu();
+  } else if (action === 'chart-note-range-start') {
+    if (!contextMenuBar) {
+      bus.emit('status:update', { text: 'Cannot start range note: no chart bar selected', isError: true });
+    } else {
+      chartNoteRangeDraft = {
+        timestamp: Number(contextMenuBar.timestamp),
+        timeframe: store.getCurrentTimeframe(),
+        label: contextMenuBar.tradingDay || contextMenuBar.time || '',
+      };
+      bus.emit('status:update', { text: 'Range note start selected', isError: false });
+    }
+    hideContextMenu();
+  } else if (action === 'chart-note-range-finish') {
+    if (!contextMenuBar || !chartNoteRangeDraft) {
+      bus.emit('status:update', { text: 'Cannot finish range note: missing start or end bar', isError: true });
+      hideContextMenu();
+    } else {
+      const startTimestamp = Number(chartNoteRangeDraft.timestamp);
+      const endTimestamp = Number(contextMenuBar.timestamp);
+      const timeframe = Number(chartNoteRangeDraft.timeframe);
+      if (Number(store.getCurrentTimeframe()) !== timeframe) {
+        bus.emit('status:update', { text: 'Range note must finish on the same timeframe', isError: true });
+        hideContextMenu();
+        return;
+      }
+      if (!Number.isFinite(startTimestamp) || !Number.isFinite(endTimestamp) || startTimestamp === endTimestamp) {
+        bus.emit('status:update', { text: 'Range note needs two different bars', isError: true });
+        hideContextMenu();
+        return;
+      }
+      const point = contextMenuPoint || { x: 20, y: 20 };
+      const rangeStart = Math.min(startTimestamp, endTimestamp);
+      const rangeEnd = Math.max(startTimestamp, endTimestamp);
+      chartNoteRangeDraft = null;
+      hideContextMenu();
+      showChartNoteEditor({
+        title: 'Add Range Note',
+        x: point.x,
+        y: point.y,
+        onSave: (text) => {
+          recordHistory('Add Range Chart Note', () =>
+            upsertChartNote({
+              kind: 'range',
+              instrument: 'NQ',
+              timeframe,
+              timestamp: rangeStart,
+              startTimestamp: rangeStart,
+              endTimestamp: rangeEnd,
+              text,
+            })
+          );
+          bus.emit('status:update', { text: 'Range Chart Note added', isError: false });
+        },
+      });
+      return;
+    }
+  } else if (action === 'chart-note-range-edit') {
+    const note = getChartNoteRangeAtContextBar();
+    if (!note) {
+      bus.emit('status:update', { text: 'No editable range Chart Note at this bar', isError: true });
+    } else {
+      const point = contextMenuPoint || { x: 20, y: 20 };
+      hideContextMenu();
+      showChartNoteEditor({
+        title: 'Edit Range Note',
+        defaultText: note.text,
+        x: point.x,
+        y: point.y,
+        onSave: (text) => {
+          recordHistory('Edit Range Chart Note', () => updateChartNote(note.id, { text }));
+          bus.emit('status:update', { text: 'Range Chart Note updated', isError: false });
+        },
+      });
+      return;
+    }
+    hideContextMenu();
+  } else if (action === 'chart-note-range-delete') {
+    const note = getChartNoteRangeAtContextBar();
+    if (!note) {
+      bus.emit('status:update', { text: 'No deletable range Chart Note at this bar', isError: true });
+    } else {
+      recordHistory('Delete Range Chart Note', () => deleteChartNote(note.id));
+      bus.emit('status:update', { text: 'Range Chart Note deleted', isError: false });
     }
     hideContextMenu();
   } else if (action === 'time-overlay-add-event') {
