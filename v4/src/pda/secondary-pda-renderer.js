@@ -112,9 +112,9 @@ function getHighlightColor(isHighlighted, fallback) {
 function getRangeMidlineColor(annotation, pdaType, isHighlighted = false) {
   if (isHighlighted) return HIGHLIGHT_COLOR;
   if (annotation.type === 'ob') return OB_COLORS.color;
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fdd835';
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
-  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#26a69a';
   if (annotation.type === 'fvg' && annotation.direction === 'bearish') return '#ef5350';
   return pdaType.color;
 }
@@ -124,6 +124,18 @@ function getRangeBorderColor(annotation, pdaType, isHighlighted = false) {
   if (isHighlighted) return HIGHLIGHT_COLOR;
   if (isFvg) return 'transparent';
   return annotation.borderColor || pdaType.color;
+}
+
+function getRangeFillColor(annotation, pdaType) {
+  if (annotation.type === 'ob') return OB_COLORS.fillColor;
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fdd83533';
+  return annotation.fillColor || alphaColor(pdaType.color, '26');
+}
+
+function getRangeTextColor(annotation, pdaType) {
+  if (annotation.type === 'ob') return OB_COLORS.textColor;
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fff9c4';
+  return annotation.textColor || pdaType.textColor || '#d1d4dc';
 }
 
 function attachPdaPrimitive(primitive) {
@@ -181,13 +193,12 @@ function buildRangePrimitive(chartInstance, series, annotation, pdaType, isHighl
     bottomPrice,
     getAnnotationLabel(annotation, pdaType),
     {
-      fillColor:
-        annotation.type === 'ob' ? OB_COLORS.fillColor : annotation.fillColor || alphaColor(pdaType.color, '26'),
+      fillColor: getRangeFillColor(annotation, pdaType),
       borderColor: getRangeBorderColor(annotation, pdaType, isHighlighted),
       midlineColor: getRangeMidlineColor(annotation, pdaType, isHighlighted),
       textColor: getHighlightColor(
         isHighlighted,
-        annotation.type === 'ob' ? OB_COLORS.textColor : annotation.textColor || pdaType.textColor || '#d1d4dc'
+        getRangeTextColor(annotation, pdaType)
       ),
       lineWidth: isFvg && !isHighlighted ? 0 : isHighlighted ? 2 : 1,
       showMidline: getShowCe(annotation),

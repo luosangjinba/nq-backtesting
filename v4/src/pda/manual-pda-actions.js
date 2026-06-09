@@ -164,7 +164,7 @@ export async function addManualObLastBar(bar, context, price) {
 
 function getFvgColors(direction) {
   return direction === 'bullish'
-    ? { fillColor: '#26a69a33', borderColor: 'transparent', midlineColor: '#26a69a', textColor: '#b2dfdb' }
+    ? { fillColor: '#fdd83533', borderColor: 'transparent', midlineColor: '#fdd835', textColor: '#fff9c4' }
     : { fillColor: '#ef535033', borderColor: 'transparent', midlineColor: '#ef5350', textColor: '#ffcdd2' };
 }
 

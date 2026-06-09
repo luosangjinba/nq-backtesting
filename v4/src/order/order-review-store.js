@@ -447,6 +447,21 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
     ),
+    marketStructureShift: normalizeNumber(input.marketStructureShift),
+    marketStructureShiftTimestamp: normalizeTimestamp(input.marketStructureShiftTimestamp),
+    marketStructureShiftTimeframe: normalizeEnum(
+      input.marketStructureShiftTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    marketStructureShiftEndTimestamp: normalizeTimestamp(input.marketStructureShiftEndTimestamp),
+    marketStructureShiftEndTimeframe: normalizeEnum(
+      input.marketStructureShiftEndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     stopLoss,
     stopLossTimestamp: normalizeTimestamp(input.stopLossTimestamp),
     stopLossTimeframe: normalizeEnum(

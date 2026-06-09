@@ -27,6 +27,7 @@ const LONG_ENTRY_COLOR = '#4db6ac';
 const SHORT_ENTRY_COLOR = '#ff8a80';
 const STOP_COLOR = '#42a5f5';
 const TARGET_COLOR = '#ab47bc';
+const MSS_COLOR = '#9ca3af';
 const REVERSAL_BULLISH_COLOR = '#26a69a';
 const REVERSAL_BEARISH_COLOR = '#ef5350';
 const ACTIVE_REVERSAL_COLOR = '#ffd54f';
@@ -280,6 +281,7 @@ function renderSetupSet(setupSet, isActive = false) {
   const elements = setupSet.orderElements || {};
   const reversal = elements.reversal || {};
   const entry = elements.entry || {};
+  const marketStructureShift = elements.marketStructureShift || {};
   const stopLoss = elements.stopLoss || {};
   const result = elements.result || {};
   const entryTimestamp = entry.timestamp || reversal.timestamp;
@@ -303,6 +305,21 @@ function renderSetupSet(setupSet, isActive = false) {
       selectedEntry ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
       selectedEntry ? 'dashed' : 'solid',
       entry.endTimestamp
+    );
+  }
+
+  if (isOrderSetupElementVisible(setupSet, 'marketStructureShift') && marketStructureShift.complete) {
+    const selectedMss = isSelectedElement('marketStructureShift');
+    renderPlanLine(
+      marketStructureShift.timestamp || entryTimestamp,
+      marketStructureShift.price,
+      'MSS',
+      selectedMss ? SELECTED_ELEMENT_COLOR : MSS_COLOR,
+      'above',
+      getOrderSetupElementLineLength(marketStructureShift, ORDER_SETUP_LINE_LENGTH_BARS + 4),
+      selectedMss ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
+      selectedMss ? 'dashed' : 'solid',
+      marketStructureShift.endTimestamp
     );
   }
 
