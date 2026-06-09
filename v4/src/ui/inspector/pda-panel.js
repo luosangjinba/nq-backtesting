@@ -2,6 +2,7 @@ import { timeframeToString } from '../../config.js';
 import * as store from '../../data/bar-store.js';
 import { buildCePrice } from '../../price-utils.js';
 import { getExtendBarsForTimeframe, getExtendSeconds } from '../../pda/pda-extend.js';
+import { normalizeFibLevels } from '../../pda/fib-levels.js';
 import { formatPdaSourceBadge } from '../../pda/pda-source-format.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import {
@@ -199,7 +200,7 @@ function getFibLevelPrice(annotation, levelValue) {
 }
 
 function renderFibFields(annotation) {
-  const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
+  const levels = normalizeFibLevels(annotation.levels);
   const rows = levels
     .filter((level) => level?.visible !== false)
     .map(
