@@ -16,15 +16,19 @@ const normalized = normalizeFibLevels([
   { value: 9.99, visible: true, color: '#123456' },
 ]);
 
-assert.equal(normalized.length, defaults.length + 1);
-assert.equal(normalized.find((level) => level.value === 0.705)?.visible, false);
-assert.equal(normalized.find((level) => level.value === 0.705)?.color, '#abcdef');
-assert.equal(normalized.at(-1).value, 9.99);
+assert.equal(normalized.length, defaults.length);
+assert.equal(normalized[0].value, 0.705);
+assert.equal(normalized[0].visible, false);
+assert.equal(normalized[0].color, '#abcdef');
+assert.equal(normalized[1].value, 9.99);
+assert.equal(normalized[2].value, defaults[2].value);
 
 const updated = updateFibLevel(normalized, 0, { value: 1.1, visible: false, color: '#654321' });
 assert.equal(updated[0].value, 1.1);
 assert.equal(updated[0].visible, false);
 assert.equal(updated[0].color, '#654321');
+assert.equal(normalizeFibLevels(updated)[0].value, 1.1);
+assert.equal(normalizeFibLevels(updated).some((level, index) => index !== 0 && level.value === 1), false);
 
 assert.equal(getVisibleFibLevels(updated).some((level) => level.value === 1.1), false);
 assert.equal(getVisibleFibLevels(updated).every((level) => level.visible !== false), true);

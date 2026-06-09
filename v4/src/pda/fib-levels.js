@@ -55,18 +55,15 @@ export function getDefaultFibLevels() {
   return DEFAULT_FIB_LEVELS.map((level) => ({ ...level }));
 }
 
-function levelKey(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed.toFixed(6) : '';
-}
-
 export function normalizeFibLevels(levels = []) {
   const normalized = normalizeFibLevelList(levels);
-  const byValue = new Map(normalized.map((level) => [levelKey(level.value), level]));
-  const defaults = getDefaultFibLevels().map((level) => byValue.get(levelKey(level.value)) || level);
-  const defaultKeys = new Set(defaults.map((level) => levelKey(level.value)));
-  const customLevels = normalized.filter((level) => !defaultKeys.has(levelKey(level.value)));
-  return [...defaults, ...customLevels];
+  const defaults = getDefaultFibLevels();
+  if (!normalized.length) return defaults;
+  if (normalized.length >= defaults.length) return normalized;
+  return [
+    ...normalized,
+    ...defaults.slice(normalized.length),
+  ];
 }
 
 export function updateFibLevel(levels = [], index, patch = {}) {
