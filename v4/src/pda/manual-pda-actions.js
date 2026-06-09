@@ -318,6 +318,31 @@ function getManualRangeColors(type, direction) {
   return { fillColor: OB_COLORS.fillColor, borderColor: 'transparent', textColor: OB_COLORS.textColor };
 }
 
+export function getManualRangePrices(type, direction, startBar, lastBar) {
+  if ((type === 'ob' || type === 'breaker') && direction === 'bullish') {
+    const firstHigh = Number(startBar?.high);
+    const lastLow = Number(lastBar?.low);
+    return {
+      topPrice: Math.max(firstHigh, lastLow),
+      bottomPrice: Math.min(firstHigh, lastLow),
+    };
+  }
+
+  if ((type === 'ob' || type === 'breaker') && direction === 'bearish') {
+    const firstLow = Number(startBar?.low);
+    const lastHigh = Number(lastBar?.high);
+    return {
+      topPrice: Math.max(firstLow, lastHigh),
+      bottomPrice: Math.min(firstLow, lastHigh),
+    };
+  }
+
+  return {
+    topPrice: Math.max(Number(startBar?.high), Number(lastBar?.high)),
+    bottomPrice: Math.min(Number(startBar?.low), Number(lastBar?.low)),
+  };
+}
+
 export function addManualRange(selectionState, endBar, context) {
   if (!selectionState || !endBar || !context) return false;
 
@@ -333,8 +358,11 @@ export function addManualRange(selectionState, endBar, context) {
   const direction = selectionState.direction;
   const startBar = rangeBars[0];
   const lastBar = rangeBars[rangeBars.length - 1];
-  const topPrice = Math.max(...rangeBars.map((bar) => bar.high));
-  const bottomPrice = Math.min(...rangeBars.map((bar) => bar.low));
+  const { topPrice, bottomPrice } = getManualRangePrices(type, direction, startBar, lastBar);
+  if (!Number.isFinite(topPrice) || !Number.isFinite(bottomPrice)) {
+    bus.emit('status:update', { text: `${pdaType?.label || 'Range PDA'} 区间选择失败：价格无效`, isError: true });
+    return false;
+  }
   const contexts = [`${tfLabel} ${direction} ${pdaType?.label || type}`];
   const annotation = {
     id: `manual_${type}_${startBar.timestamp}_${lastBar.timestamp}_${Date.now()}`,
