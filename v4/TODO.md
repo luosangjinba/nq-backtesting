@@ -741,7 +741,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [x] Step 276: Fib Inspector level controls。目标是在每个 Fib 实例的 Inspector 中提供类似 TradingView 的 level 设置面板，允许按实例控制 Fib 线显示、level 数值与颜色；第一版只改当前 Fib，不做全局模板保存。
   - [x] Step 276.1: 定义 Fib level 数据边界：继续使用每个 Fib annotation 自带 `levels[]`，每项保持 `{ value, visible, color }`；确认现有 renderer、hit-test、archive/localStorage 都能保存实例级 levels。
-  - [x] Step 276.2: 抽 Fib level preset/helper：提供 `getDefaultFibLevels()`、`normalizeFibLevels(levels)`、`updateFibLevel(levels, index, patch)`；默认 preset 包含常用启用线与扩展备用线，例如 `1/0.79/0.705/0.62/0.5/0.236/0/-0.272/-0.62/-1/-1.5/-2/-2.5/-3/-3.5/-4/-4.5/-5/1.272/2.272/3.272/4/4.414/4.764` 等。
+  - [x] Step 276.2: 抽 Fib level preset/helper：提供 `getDefaultFibLevels()`、`normalizeFibLevels(levels)`、`updateFibLevel(levels, index, patch)`；默认启用 `1/0.79/0.705/0.62/0.5/0.236/0`，备用线包含 `-0.272/-0.62/-1/-1.5/-2/-2.5/-3/-3.5/-4/1.5/2/2.5/3.5/4/4.5/5/6`，备用线默认不勾选。
   - [x] Step 276.3: 新建 Fib 时使用完整 preset：修改 `addManualFib()`，让新 Fib 创建时带完整 levels；常用线默认 `visible=true`，备用/扩展线默认 `visible=false`，保持每个实例 Inspector 行数稳定。
   - [x] Step 276.4: 兼容旧 Fib：Inspector 渲染或 normalize 时对旧的 7 条 levels 自动补齐默认 preset；不强制立即写回，用户编辑后再保存完整 levels。
   - [x] Step 276.5: Inspector Fib detail 增加可编辑 levels UI：每行包含 visible checkbox、level 数值输入、color swatch/color input；布局支持左右两列或 compact grid，避免窄 Inspector 下文本/控件重叠。
