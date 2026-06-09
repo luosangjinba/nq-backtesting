@@ -106,7 +106,7 @@ export const PDA_TYPES = [
   { id: 'bsl', name: 'BSL', category: 'point', color: '#26a69a', labelPosition: 'above' },
   { id: 'ssl', name: 'SSL', category: 'point', color: '#ef5350', labelPosition: 'below' },
   { id: 'fvg', name: 'FVG', category: 'range', color: '#ab47bc' },
-  { id: 'ifvg', name: 'IFVG', category: 'range', color: '#fdd835' },
+  { id: 'ifvg', name: 'IFVG', category: 'range', color: '#b39ddb' },
   { id: 'ob', name: 'OB', category: 'range', color: '#9e9e9e' },
   { id: 'ob-last-bar', name: 'OB Last Bar', category: 'point', color: '#8a8f98', labelPosition: 'above' },
   { id: 'ndog', name: 'NDOG', category: 'range', color: '#42a5f5' },

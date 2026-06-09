@@ -707,11 +707,6 @@ function handleKeydown(e) {
   } else if (e.key === 'Home') {
     e.preventDefault();
     jumpStart();
-  } else if (e.key === 'Escape') {
-    e.preventDefault();
-    if (!cancelPick()) {
-      restoreFullChart();
-    }
   }
 }
 

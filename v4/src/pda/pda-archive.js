@@ -7,6 +7,7 @@ import { timeframeToString } from '../config.js';
 import { getAnnotationIdentity, getAnnotations, loadAnnotations } from './pda-store.js';
 import { getPdaType } from './pda-types.js';
 import { recordHistory } from '../history/history-manager.js';
+import { normalizeFibLevels } from './fib-levels.js';
 
 const ARCHIVE_VERSION = 1;
 const ARCHIVE_APP = 'trading-v4';
@@ -137,15 +138,7 @@ function normalizeImportedAnnotation(annotation) {
   }
 
   if (pdaType?.shape === 'fib-retracement') {
-    normalized.levels = Array.isArray(normalized.levels)
-      ? normalized.levels
-          .filter((level) => Number.isFinite(Number(level?.value)))
-          .map((level) => ({
-            value: Number(level.value),
-            visible: level.visible !== false,
-            color: typeof level.color === 'string' ? level.color : '#60636f',
-          }))
-      : [];
+    normalized.levels = normalizeFibLevels(normalized.levels);
     normalized.display = {
       ...(normalized.display || {}),
       showLabels: normalized.display?.showLabels ?? true,

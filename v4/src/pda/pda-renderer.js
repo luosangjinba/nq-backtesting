@@ -8,6 +8,7 @@ import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive, Ve
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
+import { getVisibleFibLevels } from './fib-levels.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { formatPdaDisplayLabel } from './pda-source-format.js';
 import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
@@ -287,9 +288,10 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
   if (isCurrent) return SELECTED_COLOR;
   if (isLinkedToSegment) return LINKED_SEGMENT_COLOR;
   if (annotation.type === 'ob') return OB_COLORS.color;
+  if (annotation.type === 'ifvg') return '#b39ddb';
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fdd835';
   if (isVisibleColor(annotation.midlineColor)) return annotation.midlineColor;
   if (isVisibleColor(annotation.borderColor)) return annotation.borderColor;
-  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#26a69a';
   if (annotation.type === 'fvg' && annotation.direction === 'bearish') return '#ef5350';
   return pdaType.color;
 }
@@ -297,6 +299,20 @@ function getRangeMidlineColor(annotation, pdaType, isCurrent = false, isFvg = fa
 function getRangeBorderColor(annotation, pdaType, isCurrent = false, isFvg = false, isLinkedToSegment = false) {
   if (isFvg && !isCurrent && !isLinkedToSegment) return 'transparent';
   return getHighlightColor(isCurrent, isLinkedToSegment, annotation.borderColor || pdaType.color);
+}
+
+function getRangeFillColor(annotation, pdaType) {
+  if (annotation.type === 'ob') return OB_COLORS.fillColor;
+  if (annotation.type === 'ifvg') return '#b39ddb33';
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fdd83533';
+  return annotation.fillColor || alphaColor(pdaType.color, '33');
+}
+
+function getRangeTextColor(annotation, pdaType) {
+  if (annotation.type === 'ob') return OB_COLORS.textColor;
+  if (annotation.type === 'ifvg') return '#ede7f6';
+  if (annotation.type === 'fvg' && annotation.direction === 'bullish') return '#fff9c4';
+  return annotation.textColor || pdaType.textColor || '#d1d4dc';
 }
 
 function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToSegment = false) {
@@ -332,14 +348,13 @@ function buildRangePrimitive(annotation, pdaType, isCurrent = false, isLinkedToS
     bottomPrice,
     label,
     {
-      fillColor:
-        annotation.type === 'ob' ? OB_COLORS.fillColor : annotation.fillColor || alphaColor(pdaType.color, '33'),
+      fillColor: getRangeFillColor(annotation, pdaType),
       borderColor: getRangeBorderColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
       midlineColor: getRangeMidlineColor(annotation, pdaType, isCurrent, isFvg, isLinkedToSegment),
       textColor: getHighlightColor(
         isCurrent,
         isLinkedToSegment,
-        annotation.type === 'ob' ? OB_COLORS.textColor : annotation.textColor || pdaType.textColor || '#d1d4dc'
+        getRangeTextColor(annotation, pdaType)
       ),
       lineWidth: isFvg && !isCurrent && !isLinkedToSegment ? 0 : isCurrent || isLinkedToSegment ? 2 : 1,
       showMidline: getShowCe(annotation),
@@ -404,16 +419,13 @@ function buildFibPrimitive(annotation, pdaType, isCurrent = false, isLinkedToSeg
   if (startTime === undefined || startTime === null || endTime === undefined || endTime === null) return null;
   if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice)) return null;
 
-  const levels = Array.isArray(annotation.levels)
-    ? annotation.levels
-        .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
-        .map((level) => ({
-          value: level.value,
-          price: getFibLevelPrice(annotation, level.value),
-          color: getHighlightColor(isCurrent, isLinkedToSegment, level.color || pdaType.color),
-        }))
-        .filter((level) => Number.isFinite(Number(level.price)))
-    : [];
+  const levels = getVisibleFibLevels(annotation.levels)
+    .map((level) => ({
+      value: level.value,
+      price: getFibLevelPrice(annotation, level.value),
+      color: getHighlightColor(isCurrent, isLinkedToSegment, level.color || pdaType.color),
+    }))
+    .filter((level) => Number.isFinite(Number(level.price)));
   if (!levels.length) return null;
 
   return new FibPrimitive(chart.getChart(), chart.getSeries(), startTime, startPrice, endTime, endPrice, levels, {

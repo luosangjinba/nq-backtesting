@@ -16,18 +16,9 @@ import { buildExtendDisplayPatch } from './pda-extend.js';
 import { identifyFvg } from './fvg-identifier.js';
 import { validateManualSwing } from './pda-swing-validator.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
+import { getDefaultFibLevels } from './fib-levels.js';
 
 const DEFAULT_LIQUIDITY_EXTEND_BARS = 8;
-
-export const DEFAULT_FIB_LEVELS = [
-  { value: 1, visible: true, color: '#60636f' },
-  { value: 0.79, visible: true, color: '#00a6b4' },
-  { value: 0.705, visible: true, color: '#ffa726' },
-  { value: 0.62, visible: true, color: '#4caf50' },
-  { value: 0.5, visible: true, color: '#ff4d5d' },
-  { value: 0.236, visible: true, color: '#ab47bc' },
-  { value: 0, visible: true, color: '#60636f' },
-];
 
 function getDisplayBars(context) {
   const bars = context?.getDisplayBars?.();
@@ -173,16 +164,16 @@ export async function addManualObLastBar(bar, context, price) {
 
 function getFvgColors(direction) {
   return direction === 'bullish'
-    ? { fillColor: '#26a69a33', borderColor: 'transparent', midlineColor: '#26a69a', textColor: '#b2dfdb' }
+    ? { fillColor: '#fdd83533', borderColor: 'transparent', midlineColor: '#fdd835', textColor: '#fff9c4' }
     : { fillColor: '#ef535033', borderColor: 'transparent', midlineColor: '#ef5350', textColor: '#ffcdd2' };
 }
 
 function getIfvgColors() {
   return {
-    fillColor: '#fdd83533',
+    fillColor: '#b39ddb33',
     borderColor: 'transparent',
-    midlineColor: '#fdd835',
-    textColor: '#fff9c4',
+    midlineColor: '#b39ddb',
+    textColor: '#ede7f6',
   };
 }
 
@@ -327,6 +318,31 @@ function getManualRangeColors(type, direction) {
   return { fillColor: OB_COLORS.fillColor, borderColor: 'transparent', textColor: OB_COLORS.textColor };
 }
 
+export function getManualRangePrices(type, direction, startBar, lastBar) {
+  if ((type === 'ob' || type === 'breaker') && direction === 'bullish') {
+    const firstHigh = Number(startBar?.high);
+    const lastLow = Number(lastBar?.low);
+    return {
+      topPrice: Math.max(firstHigh, lastLow),
+      bottomPrice: Math.min(firstHigh, lastLow),
+    };
+  }
+
+  if ((type === 'ob' || type === 'breaker') && direction === 'bearish') {
+    const firstLow = Number(startBar?.low);
+    const lastHigh = Number(lastBar?.high);
+    return {
+      topPrice: Math.max(firstLow, lastHigh),
+      bottomPrice: Math.min(firstLow, lastHigh),
+    };
+  }
+
+  return {
+    topPrice: Math.max(Number(startBar?.high), Number(lastBar?.high)),
+    bottomPrice: Math.min(Number(startBar?.low), Number(lastBar?.low)),
+  };
+}
+
 export function addManualRange(selectionState, endBar, context) {
   if (!selectionState || !endBar || !context) return false;
 
@@ -342,8 +358,11 @@ export function addManualRange(selectionState, endBar, context) {
   const direction = selectionState.direction;
   const startBar = rangeBars[0];
   const lastBar = rangeBars[rangeBars.length - 1];
-  const topPrice = Math.max(...rangeBars.map((bar) => bar.high));
-  const bottomPrice = Math.min(...rangeBars.map((bar) => bar.low));
+  const { topPrice, bottomPrice } = getManualRangePrices(type, direction, startBar, lastBar);
+  if (!Number.isFinite(topPrice) || !Number.isFinite(bottomPrice)) {
+    bus.emit('status:update', { text: `${pdaType?.label || 'Range PDA'} 区间选择失败：价格无效`, isError: true });
+    return false;
+  }
   const contexts = [`${tfLabel} ${direction} ${pdaType?.label || type}`];
   const annotation = {
     id: `manual_${type}_${startBar.timestamp}_${lastBar.timestamp}_${Date.now()}`,
@@ -417,7 +436,7 @@ export function addManualFib(selectionState, endBar, context) {
       price: endPrice,
       kind: direction === 'bullish' ? 'high' : 'low',
     },
-    levels: DEFAULT_FIB_LEVELS.map((level) => ({ ...level })),
+    levels: getDefaultFibLevels(),
     display: {
       showLabels: true,
       showTrendLine: false,

@@ -19,6 +19,7 @@ export const SETUP_SET_SOURCE_TYPES = Object.freeze({
 export const SETUP_ELEMENT_TYPES = Object.freeze({
   REVERSAL: 'reversal',
   ENTRY: 'entry',
+  MARKET_STRUCTURE_SHIFT: 'marketStructureShift',
   STOP_LOSS: 'stopLoss',
   TARGET: 'target',
   RESULT: 'result',
@@ -134,6 +135,23 @@ function createStopLossElement(order = {}) {
     price,
     lineLengthBars: toNumberOrNull(display.elementLengths?.stopLoss),
     reason: entry.stopReason || '',
+    complete: price !== null,
+  };
+}
+
+function createMarketStructureShiftElement(order = {}) {
+  const entry = order.entryPlan || {};
+  const display = order.display || {};
+  const price = toNumberOrNull(entry.marketStructureShift);
+  return {
+    type: SETUP_ELEMENT_TYPES.MARKET_STRUCTURE_SHIFT,
+    role: 'marketStructureShift',
+    timestamp: toTimestamp(entry.marketStructureShiftTimestamp),
+    timeframe: entry.marketStructureShiftTimeframe || '',
+    endTimestamp: toTimestamp(entry.marketStructureShiftEndTimestamp),
+    endTimeframe: entry.marketStructureShiftEndTimeframe || '',
+    price,
+    lineLengthBars: toNumberOrNull(display.elementLengths?.marketStructureShift),
     complete: price !== null,
   };
 }
@@ -338,6 +356,7 @@ function createExplanationNotes(order = {}) {
 function getPrimaryTimestamp(orderElements = {}) {
   return (
     orderElements.entry?.timestamp ??
+    orderElements.marketStructureShift?.timestamp ??
     orderElements.reversal?.timestamp ??
     orderElements.result?.timestamp ??
     null
@@ -348,6 +367,7 @@ function getSetupSetRange(orderElements = {}) {
   return timestampRangeFromValues([
     orderElements.reversal?.timestamp,
     orderElements.entry?.timestamp,
+    orderElements.marketStructureShift?.timestamp,
     orderElements.result?.timestamp,
   ]);
 }
@@ -360,6 +380,7 @@ export function createSetupSetFromOrderReview(order) {
   const orderElements = {
     reversal: createReversalElement(order),
     entry: createEntryElement(order),
+    marketStructureShift: createMarketStructureShiftElement(order),
     stopLoss: createStopLossElement(order),
     targets: createTargets(order),
   };

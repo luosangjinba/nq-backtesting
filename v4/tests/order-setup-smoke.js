@@ -23,6 +23,10 @@ import {
   setActiveReviewSet,
   updateActiveReviewSet,
 } from '../src/order/order-review-active.js';
+import {
+  handleOrderSetupChartAction,
+  renderOrderSetupMenuItems,
+} from '../src/order/order-setup-chart-actions.js';
 import { getSetupSetById } from '../src/order/setup-set.js';
 import {
   restoreOrderReviews,
@@ -155,6 +159,53 @@ assertSetupCore(updatedBullish, {
 });
 assert.equal(updatedBullish.explanationElements.refs.length, 3, 'reason refs are exposed through setup set');
 assert.equal(updatedBullish.explanationElements.notes.length, 2, 'reason notes become explanation notes');
+
+const shiftOrderSetupMenu = renderOrderSetupMenuItems({
+  bar: { timestamp: 1672756860 },
+  isShift: true,
+});
+assert.match(shiftOrderSetupMenu, /order-setup-set-all-end/, 'shift setup menu includes Set All End action');
+assert.match(shiftOrderSetupMenu, /order-setup-set-market-structure-shift/, 'setup menu includes MSS action');
+assert.match(shiftOrderSetupMenu, /order-setup-set-market-structure-shift-end/, 'shift setup menu includes MSS end action');
+assert.equal(handleOrderSetupChartAction('order-setup-set-market-structure-shift', {
+  bar: { timestamp: 1672756320, high: 11025, low: 11015 },
+  timeframe: '1M',
+  price: 11020,
+}), true, 'set MSS action is handled');
+const mssSetup = getSetupSetById(bullish.id);
+assert.equal(mssSetup.orderElements.marketStructureShift.price, 11020, 'MSS price is derived');
+assert.equal(mssSetup.orderElements.marketStructureShift.timestamp, 1672756320, 'MSS timestamp is derived');
+assert.equal(handleOrderSetupChartAction('order-setup-set-market-structure-shift-end', {
+  bar: { timestamp: 1672756740 },
+  timeframe: '1M',
+}), true, 'set MSS end action is handled');
+assert.equal(getOrderReviewById(bullish.id).entryPlan.marketStructureShiftEndTimestamp, 1672756740, 'MSS end is set independently');
+assert.equal(handleOrderSetupChartAction('order-setup-set-all-end', {
+  bar: { timestamp: 1672756860 },
+  timeframe: '1M',
+}), true, 'set all end action is handled');
+const allEndEntryPlan = getOrderReviewById(bullish.id).entryPlan;
+assert.equal(allEndEntryPlan.marketStructureShiftEndTimestamp, 1672756740, 'Set All End does not overwrite MSS end');
+[
+  'entryEndTimestamp',
+  'stopLossEndTimestamp',
+  'targetInternalEndTimestamp',
+  'targetSwingEndTimestamp',
+  'targetExternalEndTimestamp',
+  'finalTargetEndTimestamp',
+].forEach((field) => {
+  assert.equal(allEndEntryPlan[field], 1672756860, `${field} uses common end timestamp`);
+});
+[
+  'entryEndTimeframe',
+  'stopLossEndTimeframe',
+  'targetInternalEndTimeframe',
+  'targetSwingEndTimeframe',
+  'targetExternalEndTimeframe',
+  'finalTargetEndTimeframe',
+].forEach((field) => {
+  assert.equal(allEndEntryPlan[field], '1M', `${field} uses common end timeframe`);
+});
 
 const bearish = createChartReviewSet({
   bar: { timestamp: 1672763400 },

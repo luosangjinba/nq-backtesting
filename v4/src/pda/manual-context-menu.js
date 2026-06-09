@@ -28,6 +28,49 @@ export function clampMenuPosition(containerEl, x, y) {
   };
 }
 
+function measureSubmenuPanel(panel) {
+  const previousDisplay = panel.style.display;
+  const previousVisibility = panel.style.visibility;
+  const previousPointerEvents = panel.style.pointerEvents;
+  panel.style.display = 'block';
+  panel.style.visibility = 'hidden';
+  panel.style.pointerEvents = 'none';
+  const rect = panel.getBoundingClientRect();
+  panel.style.display = previousDisplay;
+  panel.style.visibility = previousVisibility;
+  panel.style.pointerEvents = previousPointerEvents;
+  return rect;
+}
+
+function adjustSubmenuPanel(submenuEl) {
+  const panel = submenuEl?.querySelector(':scope > .pda-submenu-panel');
+  if (!panel) return;
+
+  panel.style.setProperty('--pda-submenu-offset-y', '-4px');
+  const bounds = submenuEl.closest('.pda-menu')?.parentElement?.getBoundingClientRect();
+  const panelRect = measureSubmenuPanel(panel);
+  const triggerRect = submenuEl.getBoundingClientRect();
+  const margin = 8;
+  const boundaryTop = bounds?.top ?? 0;
+  const boundaryBottom = bounds?.bottom ?? window.innerHeight;
+  const maxHeight = Math.max(96, boundaryBottom - boundaryTop - margin * 2);
+  panel.style.maxHeight = `${Math.min(560, maxHeight)}px`;
+
+  const overflow = panelRect.bottom - (boundaryBottom - margin);
+  if (overflow <= 0) return;
+
+  const naturalTop = triggerRect.top - 4;
+  const targetTop = Math.max(boundaryTop + margin, naturalTop - overflow);
+  panel.style.setProperty('--pda-submenu-offset-y', `${Math.round(targetTop - triggerRect.top)}px`);
+}
+
+export function initContextMenuSubmenuPositioning(menuEl) {
+  menuEl?.querySelectorAll('.pda-menu-submenu').forEach((submenuEl) => {
+    submenuEl.addEventListener('mouseenter', () => adjustSubmenuPanel(submenuEl));
+    submenuEl.addEventListener('focusin', () => adjustSubmenuPanel(submenuEl));
+  });
+}
+
 export function getPdaLabel(annotation) {
   if (!annotation) return 'PDA';
   return getPdaType(annotation.type)?.label || annotation.type?.toUpperCase() || 'PDA';

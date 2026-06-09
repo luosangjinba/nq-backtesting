@@ -3,12 +3,25 @@ import * as store from '../../data/bar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, updateAnnotation } from '../../pda/pda-store.js';
 import { buildExtendDisplayPatch } from '../../pda/pda-extend.js';
+import {
+  FIB_LEVEL_MAX_VALUE,
+  FIB_LEVEL_MIN_VALUE,
+  getDefaultFibLevels,
+  normalizeFibLevels,
+  updateFibLevel,
+} from '../../pda/fib-levels.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import { getPointSetContext, getPointSetReference } from './pda-panel.js';
 import { recordHistory } from '../../history/history-manager.js';
 
 function recordInspectorHistory(label, mutator) {
   return recordHistory(label, mutator);
+}
+
+function getFibLevelAt(annotation, target) {
+  const index = Number(target?.dataset?.fibLevelIndex);
+  if (!Number.isInteger(index)) return null;
+  return normalizeFibLevels(annotation?.levels)[index] || null;
 }
 
 export function createPdaInspectorActionController({
@@ -80,6 +93,51 @@ export function createPdaInspectorActionController({
       return true;
     }
 
+    if (action === 'fib-level-visible') {
+      const level = getFibLevelAt(annotation, target);
+      if (!level || level.visible === target.checked) return true;
+      recordInspectorHistory('Toggle Fib Level', () => updateAnnotation(annotation.id, {
+        levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
+          visible: target.checked,
+        }),
+      }));
+      return true;
+    }
+
+    if (action === 'fib-level-value') {
+      const parsed = Number(target.value);
+      if (!Number.isFinite(parsed)) return true;
+      const level = getFibLevelAt(annotation, target);
+      if (!level || level.value === parsed) return true;
+      if (parsed < FIB_LEVEL_MIN_VALUE || parsed > FIB_LEVEL_MAX_VALUE) {
+        target.value = String(level.value);
+        bus.emit('status:update', {
+          text: `Fib level must be between ${FIB_LEVEL_MIN_VALUE} and ${FIB_LEVEL_MAX_VALUE}`,
+          isError: true,
+        });
+        return true;
+      }
+      target.value = String(parsed);
+      recordInspectorHistory('Update Fib Level', () => updateAnnotation(annotation.id, {
+        levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
+          value: parsed,
+        }),
+      }));
+      return true;
+    }
+
+    if (action === 'fib-level-color') {
+      const level = getFibLevelAt(annotation, target);
+      const color = String(target.value || '').toLowerCase();
+      if (!level || level.color === color) return true;
+      recordInspectorHistory('Update Fib Level Color', () => updateAnnotation(annotation.id, {
+        levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
+          color,
+        }),
+      }));
+      return true;
+    }
+
     return false;
   }
 
@@ -98,6 +156,13 @@ export function createPdaInspectorActionController({
       recordInspectorHistory('Remove Point From Set', () =>
         removePointFromSet(annotation, Number(actionEl.dataset.pointIndex))
       );
+      return true;
+    }
+
+    if (action === 'fib-level-reset') {
+      recordInspectorHistory('Reset Fib Levels', () => updateAnnotation(annotation.id, {
+        levels: getDefaultFibLevels(),
+      }));
       return true;
     }
 

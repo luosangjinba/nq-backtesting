@@ -5,6 +5,7 @@
 // segment model.
 
 import { getPdaType } from '../pda/pda-types.js';
+import { getVisibleFibLevels } from '../pda/fib-levels.js';
 
 const PRICE_EPSILON = 0.0000001;
 
@@ -389,15 +390,12 @@ function getFibLevelPrice(annotation, levelValue) {
 
 function computeFibReaction(annotation, terminalBar, direction) {
   if (!terminalBar.found) return null;
-  const levels = Array.isArray(annotation?.levels)
-    ? annotation.levels
-        .filter((level) => level?.visible !== false)
-        .map((level) => ({
-          value: asNumber(level.value),
-          price: getFibLevelPrice(annotation, level.value),
-        }))
-        .filter((level) => level.value !== null && level.price !== null)
-    : [];
+  const levels = getVisibleFibLevels(annotation?.levels)
+    .map((level) => ({
+      value: asNumber(level.value),
+      price: getFibLevelPrice(annotation, level.value),
+    }))
+    .filter((level) => level.value !== null && level.price !== null);
   if (!levels.length) return null;
 
   const enrichedLevels = levels

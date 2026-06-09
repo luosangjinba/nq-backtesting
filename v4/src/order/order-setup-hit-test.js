@@ -99,6 +99,10 @@ export function hitTestOrderSetupElements({ x, y, context = null } = {}) {
       const entryHit = hitHorizontalLine(setupSet, elements.entry, 'entry', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS);
       if (entryHit) hits.push(entryHit);
     }
+    if (isOrderSetupElementVisible(setupSet, 'marketStructureShift')) {
+      const mssHit = hitHorizontalLine(setupSet, elements.marketStructureShift, 'marketStructureShift', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS + 4);
+      if (mssHit) hits.push(mssHit);
+    }
     if (isOrderSetupElementVisible(setupSet, 'stopLoss')) {
       const stopHit = hitHorizontalLine(setupSet, elements.stopLoss, 'stopLoss', x, y, activeContext, entryTimestamp, ORDER_SETUP_LINE_LENGTH_BARS + 6);
       if (stopHit) hits.push(stopHit);

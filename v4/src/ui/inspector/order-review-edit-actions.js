@@ -35,6 +35,17 @@ function getOrderSetupElementDeletePatch(role) {
       },
     };
   }
+  if (role === 'marketStructureShift') {
+    return {
+      entryPlan: {
+        marketStructureShift: null,
+        marketStructureShiftTimestamp: null,
+        marketStructureShiftTimeframe: 'manual',
+        marketStructureShiftEndTimestamp: null,
+        marketStructureShiftEndTimeframe: 'manual',
+      },
+    };
+  }
   if (role === 'stopLoss') {
     return {
       entryPlan: {

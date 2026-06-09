@@ -206,6 +206,7 @@ function renderAnchorPanel(setupSet) {
 
 function getElementLabel(role) {
   if (role === 'entry') return 'Entry';
+  if (role === 'marketStructureShift') return 'MSS';
   if (role === 'stopLoss') return 'Stop Loss';
   if (role === 'target1') return 'Target 1';
   if (role === 'target2') return 'Target 2';
@@ -241,10 +242,12 @@ function renderExecutionElementRow(order, role, element, selectedElement, extra 
 function renderExecutionPanel(order, setupSet, selectedElement) {
   const elements = setupSet?.orderElements || {};
   const entry = elements.entry || {};
+  const marketStructureShift = elements.marketStructureShift || {};
   const stopLoss = elements.stopLoss || {};
   const targets = Array.isArray(elements.targets) ? elements.targets : [];
   const rows = [
     renderExecutionElementRow(order, 'entry', entry, selectedElement, labelFromDefinitions(ORDER_ENTRY_MODEL_DEFINITIONS, entry.model)),
+    renderExecutionElementRow(order, 'marketStructureShift', marketStructureShift, selectedElement, 'Market Structure Shift'),
     renderExecutionElementRow(order, 'stopLoss', stopLoss, selectedElement, stopLoss.reason || ''),
     ...targets.map((target) => renderExecutionElementRow(order, target.role, target, selectedElement, target.targetType || '')),
   ].filter(Boolean);

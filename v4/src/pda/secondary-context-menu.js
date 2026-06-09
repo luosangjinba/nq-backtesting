@@ -12,7 +12,7 @@ import { getActiveReviewSet, updateActiveReviewSet } from '../order/order-review
 import { handleOrderSetupChartAction } from '../order/order-setup-chart-actions.js';
 import { ORDER_EVENT_TYPES } from '../order/order-review-types.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
-import { clampMenuPosition } from './manual-context-menu.js';
+import { clampMenuPosition, initContextMenuSubmenuPositioning } from './manual-context-menu.js';
 import {
   addManualFib,
   addManualFvg,
@@ -417,6 +417,7 @@ function showSecondaryContextMenu(x, y, bar, price, hits = {}) {
     context,
     hits,
   });
+  initContextMenuSubmenuPositioning(controlsEl.querySelector('.pda-menu'));
 }
 
 function handleSecondaryContextMenu(e) {

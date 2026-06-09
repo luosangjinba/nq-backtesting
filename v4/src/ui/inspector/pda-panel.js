@@ -2,6 +2,7 @@ import { timeframeToString } from '../../config.js';
 import * as store from '../../data/bar-store.js';
 import { buildCePrice } from '../../price-utils.js';
 import { getExtendBarsForTimeframe, getExtendSeconds } from '../../pda/pda-extend.js';
+import { FIB_LEVEL_MAX_VALUE, FIB_LEVEL_MIN_VALUE, normalizeFibLevels } from '../../pda/fib-levels.js';
 import { formatPdaSourceBadge } from '../../pda/pda-source-format.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import {
@@ -199,9 +200,23 @@ function getFibLevelPrice(annotation, levelValue) {
 }
 
 function renderFibFields(annotation) {
-  const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
+  const levels = normalizeFibLevels(annotation.levels);
   const rows = levels
-    .filter((level) => level?.visible !== false)
+    .map(
+      (level, index) => {
+        return `
+          <label class="inspector-fib-level-row">
+            <input data-inspector-action="fib-level-visible" data-fib-level-index="${index}" type="checkbox" ${level.visible !== false ? 'checked' : ''} />
+            <input class="inspector-input inspector-fib-level-value" data-inspector-action="fib-level-value" data-fib-level-index="${index}" type="number" min="${FIB_LEVEL_MIN_VALUE}" max="${FIB_LEVEL_MAX_VALUE}" step="0.001" value="${escapeHtml(level.value)}" title="Fib ratio (${FIB_LEVEL_MIN_VALUE} to ${FIB_LEVEL_MAX_VALUE})" />
+            <input class="inspector-fib-level-color" data-inspector-action="fib-level-color" data-fib-level-index="${index}" type="color" value="${escapeHtml(level.color || '#60636f')}" title="Fib level color" />
+          </label>
+        `;
+      }
+    )
+    .join('');
+  const visibleCount = levels.filter((level) => level.visible !== false).length;
+  const readOnlyRows = levels
+    .filter((level) => level.visible !== false)
     .map(
       (level) => `
         <div class="inspector-point-row">
@@ -219,7 +234,13 @@ function renderFibFields(annotation) {
       field('Direction', annotation.direction || '—'),
       field('Start', `${formatTime(annotation.start?.timestamp ?? annotation.start?.time)} @ ${formatNumber(annotation.start?.price)}`),
       field('End', `${formatTime(annotation.end?.timestamp ?? annotation.end?.time)} @ ${formatNumber(annotation.end?.price)}`),
-      `<div class="inspector-point-list">${rows || '<div class="inspector-empty">No levels</div>'}</div>`,
+      field('Visible Levels', visibleCount),
+      `<div class="inspector-fib-level-grid">${rows || '<div class="inspector-empty">No levels</div>'}</div>`,
+      `<button class="inspector-secondary" data-inspector-action="fib-level-reset" type="button">Reset Levels</button>`,
+      `<details class="inspector-fib-level-summary">
+        <summary>Visible level prices</summary>
+        <div class="inspector-point-list">${readOnlyRows || '<div class="inspector-empty">No visible levels</div>'}</div>
+      </details>`,
     ].join('')
   );
 }

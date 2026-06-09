@@ -1,4 +1,5 @@
 import { PdaLocateFlashPrimitive } from './pda-locate-flash-primitive.js';
+import { getVisibleFibLevels } from '../pda/fib-levels.js';
 
 const DEFAULT_DURATION_MS = 900;
 const activeFlashes = new Map();
@@ -151,15 +152,12 @@ function getFibGeometry(annotation = {}) {
     return null;
   }
 
-  const levels = Array.isArray(annotation.levels)
-    ? annotation.levels
-        .filter((level) => level?.visible !== false)
-        .map((level) => ({
-          value: Number(level.value),
-          price: getFibLevelPrice(startPrice, endPrice, level.value),
-        }))
-        .filter((level) => Number.isFinite(level.value) && level.price !== null)
-    : [];
+  const levels = getVisibleFibLevels(annotation.levels)
+    .map((level) => ({
+      value: Number(level.value),
+      price: getFibLevelPrice(startPrice, endPrice, level.value),
+    }))
+    .filter((level) => Number.isFinite(level.value) && level.price !== null);
   if (!levels.length) return null;
 
   return {
