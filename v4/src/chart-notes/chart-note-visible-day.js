@@ -36,5 +36,11 @@ export function getVisibleChartNoteDateKey(bars = []) {
 
 export function isChartNoteInDate(note, dateKey) {
   if (!dateKey) return true;
-  return dateKeyFromTimestamp(note?.timestamp) === dateKey;
+  if (note?.kind !== 'range') return dateKeyFromTimestamp(note?.timestamp) === dateKey;
+
+  const startDateKey = dateKeyFromTimestamp(note.startTimestamp ?? note.timestamp);
+  const endDateKey = dateKeyFromTimestamp(note.endTimestamp ?? note.timestamp);
+  if (!startDateKey || !endDateKey) return dateKeyFromTimestamp(note?.timestamp) === dateKey;
+
+  return dateKey >= startDateKey && dateKey <= endDateKey;
 }

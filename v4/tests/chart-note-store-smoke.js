@@ -7,6 +7,7 @@ import {
   getChartNotes,
   upsertChartNote,
 } from '../src/chart-notes/chart-note-store.js';
+import { isChartNoteInDate } from '../src/chart-notes/chart-note-visible-day.js';
 
 clearChartNotes();
 
@@ -40,5 +41,18 @@ assert.equal(
   rangeNote.id
 );
 assert.equal(getChartNotes().length, 2);
+
+const crossDayRangeNote = upsertChartNote({
+  kind: 'range',
+  instrument: 'NQ',
+  timeframe: 60,
+  startTimestamp: Date.UTC(2024, 0, 10, 23, 0) / 1000,
+  endTimestamp: Date.UTC(2024, 0, 11, 1, 0) / 1000,
+  text: 'Cross day range note',
+});
+
+assert.equal(isChartNoteInDate(crossDayRangeNote, '2024-01-10'), true);
+assert.equal(isChartNoteInDate(crossDayRangeNote, '2024-01-11'), true);
+assert.equal(isChartNoteInDate(crossDayRangeNote, '2024-01-12'), false);
 
 console.log('chart note store smoke passed');

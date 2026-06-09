@@ -738,3 +738,14 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 275.7: 验证与收口：覆盖 Linux 1920x1080 默认值、模拟 Windows 4K 大 viewport、浏览器 zoom 100%/125%、Split on/off、Replay bar、Inspector Calendar、Chart Notes、右键菜单；运行全量 `node --check`、targeted UI smoke、`git diff --check`。
 
 - 2026-06-08 hotfix completed: Time Overlay 同值更新 no-op guard。修复 Daily Time Review detail 输入后卡顿与 `time-overlays:changed` 最大调用栈溢出：`renderDailyTimeReviewDetail()` 渲染时会同步 `selectedDate`，此前 `updateTimeOverlaySettings({ selectedDate })` 即使值未变也会 emit，导致 `time-overlays:changed -> refreshSelection -> renderDailyTimeReviewDetail -> updateTimeOverlaySettings` 递归。现在规范化后的 settings 无变化时直接返回，不再 emit。验证：相关语法检查、全量 `v4/tests/*.js` smoke、重复设置同一 `selectedDate` 只触发一次事件。记录见 `v4/sessions/session_20260608_time_overlay_noop_guard.md`
+
+- [ ] Step 276: Fib Inspector level controls。目标是在每个 Fib 实例的 Inspector 中提供类似 TradingView 的 level 设置面板，允许按实例控制 Fib 线显示、level 数值与颜色；第一版只改当前 Fib，不做全局模板保存。
+  - [ ] Step 276.1: 定义 Fib level 数据边界：继续使用每个 Fib annotation 自带 `levels[]`，每项保持 `{ value, visible, color }`；确认现有 renderer、hit-test、archive/localStorage 都能保存实例级 levels。
+  - [ ] Step 276.2: 抽 Fib level preset/helper：提供 `getDefaultFibLevels()`、`normalizeFibLevels(levels)`、`updateFibLevel(levels, index, patch)`；默认 preset 包含常用启用线与扩展备用线，例如 `1/0.79/0.705/0.62/0.5/0.236/0/-0.272/-0.62/-1/-1.5/-2/-2.5/-3/-3.5/-4/-4.5/-5/1.272/2.272/3.272/4/4.414/4.764` 等。
+  - [ ] Step 276.3: 新建 Fib 时使用完整 preset：修改 `addManualFib()`，让新 Fib 创建时带完整 levels；常用线默认 `visible=true`，备用/扩展线默认 `visible=false`，保持每个实例 Inspector 行数稳定。
+  - [ ] Step 276.4: 兼容旧 Fib：Inspector 渲染或 normalize 时对旧的 7 条 levels 自动补齐默认 preset；不强制立即写回，用户编辑后再保存完整 levels。
+  - [ ] Step 276.5: Inspector Fib detail 增加可编辑 levels UI：每行包含 visible checkbox、level 数值输入、color swatch/color input；布局支持左右两列或 compact grid，避免窄 Inspector 下文本/控件重叠。
+  - [ ] Step 276.6: 接入 Inspector actions：新增 Fib level visible/value/color/reset 操作，更新对应 annotation 的 `levels` 并触发 `pda:changed`，主图和副图立即重绘。
+  - [ ] Step 276.7: Undo/redo 策略：checkbox/color 改动立即记录 history；level 数值输入按 `change` 或 blur 记录，不在每个 keypress 生成 undo step。
+  - [ ] Step 276.8: Reset Levels：第一版提供 `Reset Levels`，恢复当前 Fib 到默认 preset；暂不做 `Save as Default`、拖拽排序、批量套用模板或无限新增/删除行。
+  - [ ] Step 276.9: 验证与测试：新增 smoke test 覆盖旧 levels 补齐、visible/value/color 更新、hidden level 不参与 renderer levels；运行相关 `node --check`、全量 `v4/tests/*.js`、`git diff --check`。
