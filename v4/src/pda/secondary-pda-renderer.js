@@ -14,6 +14,7 @@ import { FibPrimitive, LiquidityPrimitive, PointSetPrimitive, RangePrimitive, Ve
 import { buildCePrice } from '../price-utils.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
+import { getVisibleFibLevels } from './fib-levels.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { formatPdaDisplayLabel } from './pda-source-format.js';
 import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
@@ -253,16 +254,13 @@ function buildFibPrimitive(chartInstance, series, annotation, pdaType, isHighlig
   if (startTime === undefined || startTime === null || endTime === undefined || endTime === null) return null;
   if (!Number.isFinite(startPrice) || !Number.isFinite(endPrice)) return null;
 
-  const levels = Array.isArray(annotation.levels)
-    ? annotation.levels
-        .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
-        .map((level) => ({
-          value: level.value,
-          price: getFibLevelPrice(annotation, level.value),
-          color: getHighlightColor(isHighlighted, level.color || pdaType.color),
-        }))
-        .filter((level) => Number.isFinite(Number(level.price)))
-    : [];
+  const levels = getVisibleFibLevels(annotation.levels)
+    .map((level) => ({
+      value: level.value,
+      price: getFibLevelPrice(annotation, level.value),
+      color: getHighlightColor(isHighlighted, level.color || pdaType.color),
+    }))
+    .filter((level) => Number.isFinite(Number(level.price)));
   if (!levels.length) return null;
 
   return new FibPrimitive(chartInstance, series, startTime, startPrice, endTime, endPrice, levels, {

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  getVisibleFibLevels,
   getDefaultFibLevels,
   normalizeFibLevels,
   updateFibLevel,
@@ -24,5 +25,8 @@ const updated = updateFibLevel(normalized, 0, { value: 1.1, visible: false, colo
 assert.equal(updated[0].value, 1.1);
 assert.equal(updated[0].visible, false);
 assert.equal(updated[0].color, '#654321');
+
+assert.equal(getVisibleFibLevels(updated).some((level) => level.value === 1.1), false);
+assert.equal(getVisibleFibLevels(updated).every((level) => level.visible !== false), true);
 
 console.log('fib levels smoke passed');

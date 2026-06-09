@@ -6,6 +6,7 @@ import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType } from './pda-types.js';
+import { getVisibleFibLevels } from './fib-levels.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
 import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
 import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
@@ -233,9 +234,7 @@ function hitFib(annotation, x, y, context) {
   const endX = extendXByBars(Math.max(startX, rawEndX), extendBars, context);
   if (endX === null) return null;
 
-  const levels = Array.isArray(annotation.levels) ? annotation.levels : [];
-  const visibleLevels = levels
-    .filter((level) => level?.visible !== false && Number.isFinite(Number(level.value)))
+  const visibleLevels = getVisibleFibLevels(annotation.levels)
     .map((level) => ({
       value: level.value,
       y: getPriceCoordinate(getFibLevelPrice(annotation, level.value), context),

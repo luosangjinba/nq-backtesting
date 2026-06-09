@@ -77,3 +77,7 @@ export function updateFibLevel(levels = [], index, patch = {}) {
   if (!next) return normalized;
   return normalized.map((level, itemIndex) => (itemIndex === targetIndex ? next : level));
 }
+
+export function getVisibleFibLevels(levels = []) {
+  return normalizeFibLevels(levels).filter((level) => level.visible !== false);
+}
