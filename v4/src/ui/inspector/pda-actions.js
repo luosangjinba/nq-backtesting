@@ -3,6 +3,7 @@ import * as store from '../../data/bar-store.js';
 import { clearSelection as clearPdaSelection } from '../../pda/pda-selection.js';
 import { deleteAnnotation, updateAnnotation } from '../../pda/pda-store.js';
 import { buildExtendDisplayPatch } from '../../pda/pda-extend.js';
+import { updateFibLevel } from '../../pda/fib-levels.js';
 import { getPdaType } from '../../pda/pda-types.js';
 import { getPointSetContext, getPointSetReference } from './pda-panel.js';
 import { recordHistory } from '../../history/history-manager.js';
@@ -76,6 +77,35 @@ export function createPdaInspectorActionController({
           ...(annotation.display || {}),
           showCe: target.checked,
         },
+      }));
+      return true;
+    }
+
+    if (action === 'fib-level-visible') {
+      recordInspectorHistory('Toggle Fib Level', () => updateAnnotation(annotation.id, {
+        levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
+          visible: target.checked,
+        }),
+      }));
+      return true;
+    }
+
+    if (action === 'fib-level-value') {
+      const parsed = Number(target.value);
+      if (!Number.isFinite(parsed)) return true;
+      recordInspectorHistory('Update Fib Level', () => updateAnnotation(annotation.id, {
+        levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
+          value: parsed,
+        }),
+      }));
+      return true;
+    }
+
+    if (action === 'fib-level-color') {
+      recordInspectorHistory('Update Fib Level Color', () => updateAnnotation(annotation.id, {
+        levels: updateFibLevel(annotation.levels, Number(target.dataset.fibLevelIndex), {
+          color: target.value,
+        }),
       }));
       return true;
     }
