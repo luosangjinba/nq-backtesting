@@ -202,7 +202,23 @@ function getFibLevelPrice(annotation, levelValue) {
 function renderFibFields(annotation) {
   const levels = normalizeFibLevels(annotation.levels);
   const rows = levels
-    .filter((level) => level?.visible !== false)
+    .map(
+      (level, index) => {
+        const price = getFibLevelPrice(annotation, level.value);
+        return `
+          <label class="inspector-fib-level-row">
+            <input data-inspector-action="fib-level-visible" data-fib-level-index="${index}" type="checkbox" ${level.visible !== false ? 'checked' : ''} />
+            <input class="inspector-input inspector-fib-level-value" data-inspector-action="fib-level-value" data-fib-level-index="${index}" type="number" step="0.001" value="${escapeHtml(level.value)}" />
+            <input class="inspector-fib-level-color" data-inspector-action="fib-level-color" data-fib-level-index="${index}" type="color" value="${escapeHtml(level.color || '#60636f')}" title="Fib level color" />
+            <span class="inspector-fib-level-price">${escapeHtml(formatNumber(price))}</span>
+          </label>
+        `;
+      }
+    )
+    .join('');
+  const visibleCount = levels.filter((level) => level.visible !== false).length;
+  const readOnlyRows = levels
+    .filter((level) => level.visible !== false)
     .map(
       (level) => `
         <div class="inspector-point-row">
@@ -220,7 +236,12 @@ function renderFibFields(annotation) {
       field('Direction', annotation.direction || '—'),
       field('Start', `${formatTime(annotation.start?.timestamp ?? annotation.start?.time)} @ ${formatNumber(annotation.start?.price)}`),
       field('End', `${formatTime(annotation.end?.timestamp ?? annotation.end?.time)} @ ${formatNumber(annotation.end?.price)}`),
-      `<div class="inspector-point-list">${rows || '<div class="inspector-empty">No levels</div>'}</div>`,
+      field('Visible Levels', visibleCount),
+      `<div class="inspector-fib-level-grid">${rows || '<div class="inspector-empty">No levels</div>'}</div>`,
+      `<details class="inspector-fib-level-summary">
+        <summary>Visible level prices</summary>
+        <div class="inspector-point-list">${readOnlyRows || '<div class="inspector-empty">No visible levels</div>'}</div>
+      </details>`,
     ].join('')
   );
 }

@@ -1365,6 +1365,65 @@ html, body {
   font-size: var(--compact-font-size);
 }
 
+.inspector-fib-level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 8px;
+  margin-top: 6px;
+}
+
+.inspector-fib-level-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 30px minmax(54px, 0.65fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  padding: 4px 5px;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  background: #1e222d;
+}
+
+.inspector-fib-level-row input[type='checkbox'] {
+  margin: 0;
+}
+
+.inspector-fib-level-value {
+  min-width: 0;
+  height: calc(var(--control-height) - 2px);
+  padding: 2px 5px;
+  font-size: var(--compact-font-size);
+}
+
+.inspector-fib-level-color {
+  width: 30px;
+  height: calc(var(--control-height) - 2px);
+  padding: 2px;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #131722;
+}
+
+.inspector-fib-level-price {
+  min-width: 0;
+  color: #8d919b;
+  font-size: var(--compact-font-size);
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector-fib-level-summary {
+  margin-top: 8px;
+  color: #b2b5be;
+  font-size: var(--compact-font-size);
+}
+
+.inspector-fib-level-summary summary {
+  cursor: pointer;
+}
+
 .inspector-response-row {
   display: grid;
   grid-template-columns: 22px minmax(42px, 0.7fr) minmax(0, 1.2fr);
