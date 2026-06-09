@@ -22,8 +22,8 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   leaderAnchorSize: 3,
   flashBorderColor: 'rgba(255, 255, 255, 0.96)',
   flashGlowColor: 'rgba(255, 247, 168, 0.55)',
-  rangeFillColor: 'rgba(255, 247, 168, 0.10)',
-  rangeBorderColor: 'rgba(255, 247, 168, 0.32)',
+  rangeFillColor: 'rgba(226, 232, 240, 0.06)',
+  rangeBorderColor: 'rgba(226, 232, 240, 0.20)',
 };
 
 export function getChartNoteOptions() {
