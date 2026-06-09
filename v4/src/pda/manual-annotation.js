@@ -82,6 +82,7 @@ import {
   clampMenuPosition,
   getPdaLabel,
   getSegmentLabel,
+  initContextMenuSubmenuPositioning,
   renderManualContextMenu,
   renderSegmentGroupItems,
   renderSegmentPdaLinkItems,
@@ -424,6 +425,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     timeOverlayItems: renderTimeOverlayMenuItems(bar),
     clearItems: renderClearMenuItems(),
   });
+  initContextMenuSubmenuPositioning(controlsEl.querySelector('.pda-menu'));
 }
 
 function hideContextMenu() {
