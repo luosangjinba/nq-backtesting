@@ -159,48 +159,67 @@ function createMarketStructureShiftElement(order = {}) {
 function createTargets(order = {}) {
   const entry = order.entryPlan || {};
   const display = order.display || {};
-  return [
+  const definitions = [
     {
       role: 'target1',
+      label: 'Target Internal 1',
       targetType: 'internal',
-      timestamp: toTimestamp(entry.targetInternalTimestamp),
-      timeframe: entry.targetInternalTimeframe || '',
-      endTimestamp: toTimestamp(entry.targetInternalEndTimestamp),
-      endTimeframe: entry.targetInternalEndTimeframe || '',
-      price: toNumberOrNull(entry.targetInternal),
-      lineLengthBars: toNumberOrNull(display.elementLengths?.target1),
+      priceField: 'targetInternal',
+      lengthRole: 'target1',
+    },
+    {
+      role: 'targetInternal2',
+      label: 'Target Internal 2',
+      targetType: 'internal',
+      priceField: 'targetInternal2',
+      lengthRole: 'targetInternal2',
+    },
+    {
+      role: 'targetInternal3',
+      label: 'Target Internal 3',
+      targetType: 'internal',
+      priceField: 'targetInternal3',
+      lengthRole: 'targetInternal3',
     },
     {
       role: 'target2',
-      targetType: 'swing',
-      timestamp: toTimestamp(entry.targetSwingTimestamp),
-      timeframe: entry.targetSwingTimeframe || '',
-      endTimestamp: toTimestamp(entry.targetSwingEndTimestamp),
-      endTimeframe: entry.targetSwingEndTimeframe || '',
-      price: toNumberOrNull(entry.targetSwing),
-      lineLengthBars: toNumberOrNull(display.elementLengths?.target2),
+      label: 'Target Swing Point',
+      targetType: 'swing-point',
+      priceField: 'targetSwing',
+      lengthRole: 'target2',
     },
     {
       role: 'target3',
+      label: 'Target External 1',
       targetType: 'external',
-      timestamp: toTimestamp(entry.targetExternalTimestamp),
-      timeframe: entry.targetExternalTimeframe || '',
-      endTimestamp: toTimestamp(entry.targetExternalEndTimestamp),
-      endTimeframe: entry.targetExternalEndTimeframe || '',
-      price: toNumberOrNull(entry.targetExternal),
-      lineLengthBars: toNumberOrNull(display.elementLengths?.target3),
+      priceField: 'targetExternal',
+      lengthRole: 'target3',
+    },
+    {
+      role: 'targetExternal2',
+      label: 'Target External 2',
+      targetType: 'external',
+      priceField: 'targetExternal2',
+      lengthRole: 'targetExternal2',
     },
     {
       role: 'finalTarget',
-      targetType: entry.selectedTargetType || '',
-      timestamp: toTimestamp(entry.finalTargetTimestamp),
-      timeframe: entry.finalTargetTimeframe || '',
-      endTimestamp: toTimestamp(entry.finalTargetEndTimestamp),
-      endTimeframe: entry.finalTargetEndTimeframe || '',
-      price: toNumberOrNull(entry.finalTarget),
-      lineLengthBars: toNumberOrNull(display.elementLengths?.finalTarget),
+      label: 'Target External The Best',
+      targetType: 'external-best',
+      priceField: 'finalTarget',
+      lengthRole: 'finalTarget',
     },
-  ]
+  ];
+  return definitions
+    .map((definition) => ({
+      ...definition,
+      timestamp: toTimestamp(entry[`${definition.priceField}Timestamp`]),
+      timeframe: entry[`${definition.priceField}Timeframe`] || '',
+      endTimestamp: toTimestamp(entry[`${definition.priceField}EndTimestamp`]),
+      endTimeframe: entry[`${definition.priceField}EndTimeframe`] || '',
+      price: toNumberOrNull(entry[definition.priceField]),
+      lineLengthBars: toNumberOrNull(display.elementLengths?.[definition.lengthRole]),
+    }))
     .filter((target) => target.price !== null)
     .map((target) => ({
       type: SETUP_ELEMENT_TYPES.TARGET,

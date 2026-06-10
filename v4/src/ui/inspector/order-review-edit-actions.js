@@ -68,6 +68,28 @@ function getOrderSetupElementDeletePatch(role) {
       },
     };
   }
+  if (role === 'targetInternal2') {
+    return {
+      entryPlan: {
+        targetInternal2: null,
+        targetInternal2Timestamp: null,
+        targetInternal2Timeframe: 'manual',
+        targetInternal2EndTimestamp: null,
+        targetInternal2EndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'targetInternal3') {
+    return {
+      entryPlan: {
+        targetInternal3: null,
+        targetInternal3Timestamp: null,
+        targetInternal3Timeframe: 'manual',
+        targetInternal3EndTimestamp: null,
+        targetInternal3EndTimeframe: 'manual',
+      },
+    };
+  }
   if (role === 'target2') {
     return {
       entryPlan: {
@@ -87,6 +109,17 @@ function getOrderSetupElementDeletePatch(role) {
         targetExternalTimeframe: 'manual',
         targetExternalEndTimestamp: null,
         targetExternalEndTimeframe: 'manual',
+      },
+    };
+  }
+  if (role === 'targetExternal2') {
+    return {
+      entryPlan: {
+        targetExternal2: null,
+        targetExternal2Timestamp: null,
+        targetExternal2Timeframe: 'manual',
+        targetExternal2EndTimestamp: null,
+        targetExternal2EndTimeframe: 'manual',
       },
     };
   }

@@ -105,12 +105,45 @@ function getOrderSetupElementLabel(role) {
   if (role === 'entry') return 'Entry';
   if (role === 'marketStructureShift') return 'MSS';
   if (role === 'stopLoss') return 'Stop Loss';
-  if (role === 'target1') return 'Target1';
-  if (role === 'target2') return 'Target2';
-  if (role === 'target3') return 'Target3';
-  if (role === 'finalTarget') return 'Final Target';
+  if (role === 'target1') return 'Target Internal 1';
+  if (role === 'targetInternal2') return 'Target Internal 2';
+  if (role === 'targetInternal3') return 'Target Internal 3';
+  if (role === 'target2') return 'Target Swing Point';
+  if (role === 'target3') return 'Target External 1';
+  if (role === 'targetExternal2') return 'Target External 2';
+  if (role === 'finalTarget') return 'Target External The Best';
   if (role === 'reversal') return 'Reversal';
   return role || 'Element';
+}
+
+const ORDER_SETUP_TARGET_MENU_ITEMS = Object.freeze([
+  ['order-setup-set-target-internal', 'order-setup-set-target-internal-end', 'Target Internal 1'],
+  ['order-setup-set-target-internal-2', 'order-setup-set-target-internal-2-end', 'Target Internal 2'],
+  ['order-setup-set-target-internal-3', 'order-setup-set-target-internal-3-end', 'Target Internal 3'],
+  ['order-setup-set-target-swing', 'order-setup-set-target-swing-end', 'Target Swing Point'],
+  ['order-setup-set-target-external', 'order-setup-set-target-external-end', 'Target External 1'],
+  ['order-setup-set-target-external-2', 'order-setup-set-target-external-2-end', 'Target External 2'],
+  ['order-setup-set-final-target', 'order-setup-set-final-target-end', 'Target External The Best'],
+]);
+
+function renderTargetSubmenu({ activeDisabled, disabled, isEnd = false } = {}) {
+  const actionDisabled = activeDisabled || disabled;
+  const label = isEnd ? 'Target Ends' : 'Targets';
+  const rows = ORDER_SETUP_TARGET_MENU_ITEMS
+    .map(([setAction, endAction, itemLabel]) => `
+      <button class="pda-menu-item" data-pda-action="${isEnd ? endAction : setAction}" ${actionDisabled}>
+        ${isEnd ? `Set ${itemLabel} End Here` : `Set ${itemLabel} Here`}
+      </button>
+    `)
+    .join('');
+  return `
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">${label}</div>
+      <div class="pda-submenu-panel">
+        ${rows}
+      </div>
+    </div>
+  `;
 }
 
 const ORDER_SETUP_PATCH_ACTIONS = Object.freeze({
@@ -231,6 +264,48 @@ const ORDER_SETUP_PATCH_ACTIONS = Object.freeze({
       },
     }),
   },
+  'order-setup-set-target-internal-2': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        targetInternal2: anchor.price,
+        targetInternal2Timestamp: anchor.timestamp,
+        targetInternal2Timeframe: anchor.timeframe,
+        targetInternal2EndTimestamp: null,
+        targetInternal2EndTimeframe: 'manual',
+        selectedTargetType: 'internal',
+      },
+    }),
+  },
+  'order-setup-set-target-internal-2-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        targetInternal2EndTimestamp: endTimestamp,
+        targetInternal2EndTimeframe: endTimeframe,
+      },
+    }),
+  },
+  'order-setup-set-target-internal-3': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        targetInternal3: anchor.price,
+        targetInternal3Timestamp: anchor.timestamp,
+        targetInternal3Timeframe: anchor.timeframe,
+        targetInternal3EndTimestamp: null,
+        targetInternal3EndTimeframe: 'manual',
+        selectedTargetType: 'internal',
+      },
+    }),
+  },
+  'order-setup-set-target-internal-3-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        targetInternal3EndTimestamp: endTimestamp,
+        targetInternal3EndTimeframe: endTimeframe,
+      },
+    }),
+  },
   'order-setup-set-target-swing': {
     anchor: 'target',
     patch: ({ anchor }) => ({
@@ -273,6 +348,27 @@ const ORDER_SETUP_PATCH_ACTIONS = Object.freeze({
       },
     }),
   },
+  'order-setup-set-target-external-2': {
+    anchor: 'target',
+    patch: ({ anchor }) => ({
+      entryPlan: {
+        targetExternal2: anchor.price,
+        targetExternal2Timestamp: anchor.timestamp,
+        targetExternal2Timeframe: anchor.timeframe,
+        targetExternal2EndTimestamp: null,
+        targetExternal2EndTimeframe: 'manual',
+        selectedTargetType: 'external',
+      },
+    }),
+  },
+  'order-setup-set-target-external-2-end': {
+    patch: ({ endTimestamp, endTimeframe }) => ({
+      entryPlan: {
+        targetExternal2EndTimestamp: endTimestamp,
+        targetExternal2EndTimeframe: endTimeframe,
+      },
+    }),
+  },
   'order-setup-set-final-target': {
     anchor: 'target',
     patch: ({ anchor }) => ({
@@ -302,10 +398,16 @@ const ORDER_SETUP_PATCH_ACTIONS = Object.freeze({
         stopLossEndTimeframe: endTimeframe,
         targetInternalEndTimestamp: endTimestamp,
         targetInternalEndTimeframe: endTimeframe,
+        targetInternal2EndTimestamp: endTimestamp,
+        targetInternal2EndTimeframe: endTimeframe,
+        targetInternal3EndTimestamp: endTimestamp,
+        targetInternal3EndTimeframe: endTimeframe,
         targetSwingEndTimestamp: endTimestamp,
         targetSwingEndTimeframe: endTimeframe,
         targetExternalEndTimestamp: endTimestamp,
         targetExternalEndTimeframe: endTimeframe,
+        targetExternal2EndTimestamp: endTimestamp,
+        targetExternal2EndTimeframe: endTimeframe,
         finalTargetEndTimestamp: endTimestamp,
         finalTargetEndTimeframe: endTimeframe,
       },
@@ -359,8 +461,11 @@ function getOrderSetupElementDeletePatch(role) {
   if (role === 'marketStructureShift') return { entryPlan: { marketStructureShift: null, marketStructureShiftTimestamp: null, marketStructureShiftTimeframe: 'manual', marketStructureShiftEndTimestamp: null, marketStructureShiftEndTimeframe: 'manual' } };
   if (role === 'stopLoss') return { entryPlan: { stopLoss: null, stopLossTimestamp: null, stopLossTimeframe: 'manual', stopLossEndTimestamp: null, stopLossEndTimeframe: 'manual' } };
   if (role === 'target1') return { entryPlan: { targetInternal: null, targetInternalTimestamp: null, targetInternalTimeframe: 'manual', targetInternalEndTimestamp: null, targetInternalEndTimeframe: 'manual' } };
+  if (role === 'targetInternal2') return { entryPlan: { targetInternal2: null, targetInternal2Timestamp: null, targetInternal2Timeframe: 'manual', targetInternal2EndTimestamp: null, targetInternal2EndTimeframe: 'manual' } };
+  if (role === 'targetInternal3') return { entryPlan: { targetInternal3: null, targetInternal3Timestamp: null, targetInternal3Timeframe: 'manual', targetInternal3EndTimestamp: null, targetInternal3EndTimeframe: 'manual' } };
   if (role === 'target2') return { entryPlan: { targetSwing: null, targetSwingTimestamp: null, targetSwingTimeframe: 'manual', targetSwingEndTimestamp: null, targetSwingEndTimeframe: 'manual' } };
   if (role === 'target3') return { entryPlan: { targetExternal: null, targetExternalTimestamp: null, targetExternalTimeframe: 'manual', targetExternalEndTimestamp: null, targetExternalEndTimeframe: 'manual' } };
+  if (role === 'targetExternal2') return { entryPlan: { targetExternal2: null, targetExternal2Timestamp: null, targetExternal2Timeframe: 'manual', targetExternal2EndTimestamp: null, targetExternal2EndTimeframe: 'manual' } };
   if (role === 'finalTarget') return { entryPlan: { finalTarget: null, finalTargetTimestamp: null, finalTargetTimeframe: 'manual', finalTargetEndTimestamp: null, finalTargetEndTimeframe: 'manual' } };
   return null;
 }
@@ -502,20 +607,14 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
         <button class="pda-menu-item" data-pda-action="order-setup-set-entry" ${activeDisabled || disabled}>Set Entry Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-market-structure-shift" ${activeDisabled || disabled}>Set MSS Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss" ${activeDisabled || disabled}>Set Stop Loss Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal" ${activeDisabled || disabled}>Set Target1 Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing" ${activeDisabled || disabled}>Set Target2 Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-target-external" ${activeDisabled || disabled}>Set Target3 Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-final-target" ${activeDisabled || disabled}>Set Final Target Here</button>
+        ${renderTargetSubmenu({ activeDisabled, disabled })}
         ${isShift ? `
         <div class="pda-menu-divider"></div>
         <button class="pda-menu-item" data-pda-action="order-setup-set-all-end" ${activeDisabled || disabled}>Set All End Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-entry-end" ${activeDisabled || disabled}>Set Entry End Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-market-structure-shift-end" ${activeDisabled || disabled}>Set MSS End Here</button>
         <button class="pda-menu-item" data-pda-action="order-setup-set-stop-loss-end" ${activeDisabled || disabled}>Set Stop Loss End Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-target-internal-end" ${activeDisabled || disabled}>Set Target1 End Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-target-swing-end" ${activeDisabled || disabled}>Set Target2 End Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-target-external-end" ${activeDisabled || disabled}>Set Target3 End Here</button>
-        <button class="pda-menu-item" data-pda-action="order-setup-set-final-target-end" ${activeDisabled || disabled}>Set Final Target End Here</button>
+        ${renderTargetSubmenu({ activeDisabled, disabled, isEnd: true })}
         ` : ''}
         <div class="pda-menu-divider"></div>
         <button class="pda-menu-item" data-pda-action="order-setup-link-pda" ${pdaDisabled}>Link PDA To Active Setup</button>

@@ -169,6 +169,10 @@ const shiftOrderSetupMenu = renderOrderSetupMenuItems({
 assert.match(shiftOrderSetupMenu, /order-setup-set-all-end/, 'shift setup menu includes Set All End action');
 assert.match(shiftOrderSetupMenu, /order-setup-set-market-structure-shift/, 'setup menu includes MSS action');
 assert.match(shiftOrderSetupMenu, /order-setup-set-market-structure-shift-end/, 'shift setup menu includes MSS end action');
+assert.match(shiftOrderSetupMenu, /Targets/, 'setup menu groups target actions in a nested submenu');
+assert.match(shiftOrderSetupMenu, /Target Internal 3/, 'setup menu includes internal target variants');
+assert.match(shiftOrderSetupMenu, /Target External 2/, 'setup menu includes external target variants');
+assert.match(shiftOrderSetupMenu, /Target External The Best/, 'setup menu includes best external target');
 assert.equal(handleOrderSetupChartAction('order-setup-set-market-structure-shift', {
   bar: { timestamp: 1672756320, high: 11025, low: 11015 },
   timeframe: '1M',
@@ -192,8 +196,11 @@ assert.equal(allEndEntryPlan.marketStructureShiftEndTimestamp, 1672756740, 'Set 
   'entryEndTimestamp',
   'stopLossEndTimestamp',
   'targetInternalEndTimestamp',
+  'targetInternal2EndTimestamp',
+  'targetInternal3EndTimestamp',
   'targetSwingEndTimestamp',
   'targetExternalEndTimestamp',
+  'targetExternal2EndTimestamp',
   'finalTargetEndTimestamp',
 ].forEach((field) => {
   assert.equal(allEndEntryPlan[field], 1672756860, `${field} uses common end timestamp`);
@@ -202,8 +209,11 @@ assert.equal(allEndEntryPlan.marketStructureShiftEndTimestamp, 1672756740, 'Set 
   'entryEndTimeframe',
   'stopLossEndTimeframe',
   'targetInternalEndTimeframe',
+  'targetInternal2EndTimeframe',
+  'targetInternal3EndTimeframe',
   'targetSwingEndTimeframe',
   'targetExternalEndTimeframe',
+  'targetExternal2EndTimeframe',
   'finalTargetEndTimeframe',
 ].forEach((field) => {
   assert.equal(allEndEntryPlan[field], '1M', `${field} uses common end timeframe`);

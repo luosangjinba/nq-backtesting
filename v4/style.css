@@ -2226,7 +2226,7 @@ html, body {
 .pda-menu-submenu-trigger {
   position: relative;
   padding-right: 22px;
-  padding-left: 8px;
+  padding-left: 22px;
   line-height: calc(var(--control-height) + 4px);
 }
 
@@ -2241,8 +2241,8 @@ html, body {
   color: #5b5f6b;
 }
 
-.pda-menu-submenu:hover .pda-menu-submenu-trigger,
-.pda-menu-submenu:focus-within .pda-menu-submenu-trigger {
+.pda-menu-submenu:hover > .pda-menu-submenu-trigger,
+.pda-menu-submenu:focus-within > .pda-menu-submenu-trigger {
   background: #1e222d;
 }
 
@@ -2268,8 +2268,20 @@ html, body {
   left: auto;
 }
 
-.pda-menu-submenu:hover .pda-submenu-panel,
-.pda-menu-submenu:focus-within .pda-submenu-panel {
+.pda-submenu-panel .pda-submenu-panel {
+  position: fixed;
+  top: var(--pda-submenu-fixed-top, 0);
+  left: var(--pda-submenu-fixed-left, 0);
+  right: auto;
+}
+
+.pda-menu-submenu-left .pda-submenu-panel .pda-submenu-panel {
+  right: auto;
+  left: var(--pda-submenu-fixed-left, 0);
+}
+
+.pda-menu-submenu:hover > .pda-submenu-panel,
+.pda-menu-submenu:focus-within > .pda-submenu-panel {
   display: block;
 }
 

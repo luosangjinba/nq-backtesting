@@ -223,10 +223,13 @@ function getElementLabel(role) {
   if (role === 'entry') return 'Entry';
   if (role === 'marketStructureShift') return 'MSS';
   if (role === 'stopLoss') return 'Stop Loss';
-  if (role === 'target1') return 'Target 1';
-  if (role === 'target2') return 'Target 2';
-  if (role === 'target3') return 'Target 3';
-  if (role === 'finalTarget') return 'Final Target';
+  if (role === 'target1') return 'Target Internal 1';
+  if (role === 'targetInternal2') return 'Target Internal 2';
+  if (role === 'targetInternal3') return 'Target Internal 3';
+  if (role === 'target2') return 'Target Swing Point';
+  if (role === 'target3') return 'Target External 1';
+  if (role === 'targetExternal2') return 'Target External 2';
+  if (role === 'finalTarget') return 'Target External The Best';
   return role || 'Element';
 }
 

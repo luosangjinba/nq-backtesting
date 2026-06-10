@@ -208,9 +208,9 @@ export const ORDER_STOP_REASON_DEFINITIONS = [
 ];
 
 export const ORDER_RESULT_DEFINITIONS = [
-  { value: 'target1', label: 'Target 1', active: true, aliases: ['target-1', 't1'] },
-  { value: 'target2', label: 'Target 2', active: true, aliases: ['target-2', 't2'] },
-  { value: 'target3', label: 'Target 3', active: true, aliases: ['target-3', 't3'] },
+  { value: 'target1', label: 'Target Internal 1', active: true, aliases: ['target-1', 't1'] },
+  { value: 'target2', label: 'Target Swing Point', active: true, aliases: ['target-2', 't2'] },
+  { value: 'target3', label: 'Target External 1', active: true, aliases: ['target-3', 't3'] },
   { value: 'stop-loss', label: 'Stop Loss', active: true, aliases: ['stop'] },
   { value: 'breakeven', label: 'Breakeven', active: true, aliases: ['break-even', 'be'] },
   { value: 'unknown', label: 'Unknown', active: true, aliases: [] },

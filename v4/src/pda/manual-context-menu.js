@@ -47,14 +47,33 @@ function adjustSubmenuPanel(submenuEl) {
   if (!panel) return;
 
   panel.style.setProperty('--pda-submenu-offset-y', '-4px');
+  panel.style.removeProperty('--pda-submenu-fixed-left');
+  panel.style.removeProperty('--pda-submenu-fixed-top');
   const bounds = submenuEl.closest('.pda-menu')?.parentElement?.getBoundingClientRect();
   const panelRect = measureSubmenuPanel(panel);
   const triggerRect = submenuEl.getBoundingClientRect();
   const margin = 8;
+  const boundaryLeft = bounds?.left ?? 0;
+  const boundaryRight = bounds?.right ?? window.innerWidth;
   const boundaryTop = bounds?.top ?? 0;
   const boundaryBottom = bounds?.bottom ?? window.innerHeight;
   const maxHeight = Math.max(96, boundaryBottom - boundaryTop - margin * 2);
   panel.style.maxHeight = `${Math.min(560, maxHeight)}px`;
+
+  const nested = Boolean(submenuEl.parentElement?.closest('.pda-submenu-panel'));
+  if (nested) {
+    const menuEl = submenuEl.closest('.pda-menu');
+    const opensLeft = menuEl?.classList.contains('pda-menu-submenu-left');
+    const naturalLeft = opensLeft ? triggerRect.left - panelRect.width + 2 : triggerRect.right - 2;
+    const maxLeft = boundaryRight - panelRect.width - margin;
+    const targetLeft = Math.min(Math.max(boundaryLeft + margin, naturalLeft), Math.max(boundaryLeft + margin, maxLeft));
+    const naturalTop = triggerRect.top - 4;
+    const maxTop = boundaryBottom - Math.min(panelRect.height, maxHeight) - margin;
+    const targetTop = Math.min(Math.max(boundaryTop + margin, naturalTop), Math.max(boundaryTop + margin, maxTop));
+    panel.style.setProperty('--pda-submenu-fixed-left', `${Math.round(targetLeft)}px`);
+    panel.style.setProperty('--pda-submenu-fixed-top', `${Math.round(targetTop)}px`);
+    return;
+  }
 
   const overflow = panelRect.bottom - (boundaryBottom - margin);
   if (overflow <= 0) return;

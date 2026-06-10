@@ -6,6 +6,12 @@ const TARGET_RESULT_RANK = Object.freeze({
   target3: 3,
 });
 
+const TARGET_PROGRESS_LABELS = Object.freeze({
+  target1: 'Target Internal 1',
+  target2: 'Target Swing Point',
+  target3: 'Target External 1',
+});
+
 export const TARGET_EXECUTION_ACTIONS = Object.freeze({
   NONE: 'none',
   PARTIAL: 'partial',
@@ -89,7 +95,7 @@ export function buildTargetProgress({ targets = [], entry = {}, stopLoss = {}, r
       const points = derivePoints(target.price, entry);
       return {
         role,
-        label: role.replace(/^target/, 'Target '),
+        label: TARGET_PROGRESS_LABELS[role] || role.replace(/^target/, 'Target '),
         target,
         price: toNumberOrNull(target.price),
         points,

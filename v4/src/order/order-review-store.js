@@ -498,6 +498,36 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL
     ),
+    targetInternal2: normalizeNumber(input.targetInternal2),
+    targetInternal2Timestamp: normalizeTimestamp(input.targetInternal2Timestamp),
+    targetInternal2Timeframe: normalizeEnum(
+      input.targetInternal2Timeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    targetInternal2EndTimestamp: normalizeTimestamp(input.targetInternal2EndTimestamp),
+    targetInternal2EndTimeframe: normalizeEnum(
+      input.targetInternal2EndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    targetInternal3: normalizeNumber(input.targetInternal3),
+    targetInternal3Timestamp: normalizeTimestamp(input.targetInternal3Timestamp),
+    targetInternal3Timeframe: normalizeEnum(
+      input.targetInternal3Timeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    targetInternal3EndTimestamp: normalizeTimestamp(input.targetInternal3EndTimestamp),
+    targetInternal3EndTimeframe: normalizeEnum(
+      input.targetInternal3EndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
     targetSwing: normalizeNumber(input.targetSwing),
     targetSwingTimestamp: normalizeTimestamp(input.targetSwingTimestamp),
     targetSwingTimeframe: normalizeEnum(
@@ -524,6 +554,21 @@ export function normalizeEntryPlan(input = {}) {
     targetExternalEndTimestamp: normalizeTimestamp(input.targetExternalEndTimestamp),
     targetExternalEndTimeframe: normalizeEnum(
       input.targetExternalEndTimeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    targetExternal2: normalizeNumber(input.targetExternal2),
+    targetExternal2Timestamp: normalizeTimestamp(input.targetExternal2Timestamp),
+    targetExternal2Timeframe: normalizeEnum(
+      input.targetExternal2Timeframe,
+      VALID_ORDER_TIMEFRAMES,
+      ORDER_TIMEFRAME_ALIASES,
+      ORDER_TIMEFRAMES.MANUAL
+    ),
+    targetExternal2EndTimestamp: normalizeTimestamp(input.targetExternal2EndTimestamp),
+    targetExternal2EndTimeframe: normalizeEnum(
+      input.targetExternal2EndTimeframe,
       VALID_ORDER_TIMEFRAMES,
       ORDER_TIMEFRAME_ALIASES,
       ORDER_TIMEFRAMES.MANUAL

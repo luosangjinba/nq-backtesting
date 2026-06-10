@@ -227,13 +227,22 @@ function addTarget(targets, target, label) {
   if (!duplicate) targets.push({ ...target, price: parsed, label });
 }
 
+function getTargetLabel(target = {}) {
+  if (target.label) return target.label;
+  if (target.role === 'target1') return 'Target Internal 1';
+  if (target.role === 'targetInternal2') return 'Target Internal 2';
+  if (target.role === 'targetInternal3') return 'Target Internal 3';
+  if (target.role === 'target2') return 'Target Swing Point';
+  if (target.role === 'target3') return 'Target External 1';
+  if (target.role === 'targetExternal2') return 'Target External 2';
+  if (target.role === 'finalTarget') return 'Target External The Best';
+  return target.role ? target.role.replace(/^target/, 'Target ') : 'Target';
+}
+
 function getTargetLines(targetElements = []) {
   const targets = [];
   targetElements.forEach((target) => {
-    const label = target.role === 'finalTarget'
-      ? (targets.length ? 'Final Target' : 'Target')
-      : target.role.replace(/^target/, 'Target');
-    addTarget(targets, target, label);
+    addTarget(targets, target, getTargetLabel(target));
   });
   return targets;
 }
