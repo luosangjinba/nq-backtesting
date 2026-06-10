@@ -96,3 +96,11 @@ Current Status:
   - Calendar preview reads `Bias` and `Opening Thesis Review` summaries through null-safe helpers.
   - Blank new-structure drafts are filtered from exportable Daily Time Review content.
   - Added `v4/tests/daily-time-review-archive-smoke.js` and extended `v4/tests/calendar-visibility-smoke.js`.
+- Step 277.5 completed:
+  - Legacy Daily Time notes normalize into the new `Bias` and `Opening Thesis Review` structures.
+  - Bias supports weekly bias, daily bias, and after-the-fact review.
+  - Opening Thesis Review supports pre-open thesis, 09:30-11:00 summary, full day summary, and final thesis review.
+  - Fixed Time State remains unchanged.
+  - Validation passed:
+    - `for f in v4/tests/*.js; do node "$f" || exit 1; done`
+    - `for f in $(rg --files v4/src v4/tests -g '*.js'); do node --check "$f" || exit 1; done`
