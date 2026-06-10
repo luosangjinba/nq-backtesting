@@ -7,6 +7,7 @@ import { compactUtcTime } from '../../utils.js';
 import {
   DAILY_TIME_REACTION_TIMES,
   getDailyTimeReviewSectionDefinition,
+  isWeekStartDateKey,
 } from '../../time-reaction/daily-time-review-store.js';
 import { escapeHtml, section } from './render-utils.js';
 
@@ -38,6 +39,14 @@ function reviewFieldAttrs(review, action, field) {
     `data-daily-time-date="${escapeHtml(review.date)}"`,
     `data-daily-time-field="${escapeHtml(field)}"`,
   ].join(' ');
+}
+
+function weeklyBiasFieldAttrs(review, field) {
+  const disabled = isWeekStartDateKey(review.date) ? '' : 'disabled title="周 Bias 只在周一可更改"';
+  return [
+    reviewFieldAttrs(review, 'daily-time-bias-field', field),
+    disabled,
+  ].filter(Boolean).join(' ');
 }
 
 function renderReviewCard(title, body) {
@@ -508,12 +517,12 @@ function renderBiasPanel(review) {
     ${renderTitledTextarea(
       '周 Bias 预判（周一填写）',
       bias.weeklyBiasPrediction || bias.weeklyBias,
-      reviewFieldAttrs(review, 'daily-time-bias-field', 'weeklyBiasPrediction')
+      weeklyBiasFieldAttrs(review, 'weeklyBiasPrediction')
     )}
     ${renderTitledTextarea(
-      '周 Bias 验证（周五填写）',
+      '周 Bias 验证（周一可改）',
       bias.weeklyBiasReview,
-      reviewFieldAttrs(review, 'daily-time-bias-field', 'weeklyBiasReview')
+      weeklyBiasFieldAttrs(review, 'weeklyBiasReview')
     )}
   `);
 }

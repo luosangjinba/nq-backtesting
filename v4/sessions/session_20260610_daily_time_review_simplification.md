@@ -131,3 +131,7 @@ Current Status:
   - Weekly bias prediction/review fields are stored on the Monday review for that week.
   - The same weekly bias text is merged into every day in that week when viewing Bias, so Monday's prediction stays visible through Friday.
   - Friday's weekly bias validation writes back to the same Monday weekly record instead of the Friday daily record.
+- Weekly Bias edit lock:
+  - Weekly bias prediction/review fields remain visible through the week but are editable only on Monday.
+  - Non-Monday Bias panels render weekly fields disabled, and store updates reject non-Monday weekly bias writes.
+  - This supersedes the prior Friday validation edit behavior.

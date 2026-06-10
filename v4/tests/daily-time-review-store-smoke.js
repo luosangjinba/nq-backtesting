@@ -6,6 +6,7 @@ import {
   getDailyTimeReviews,
   getWeekStartDateKey,
   hasDailyTimeReviewContent,
+  isWeekStartDateKey,
   normalizeDailyTimeReview,
   updateDailyTimeBiasField,
 } from '../src/time-reaction/daily-time-review-store.js';
@@ -54,13 +55,20 @@ assert.equal(direct.openingThesisReview.thesisReview, 'Opening thesis matched th
 assert.equal(hasDailyTimeReviewContent(direct), true, 'direct new structures count as content');
 
 assert.equal(getWeekStartDateKey('2024-01-10'), '2024-01-08', 'week starts on Monday');
+assert.equal(isWeekStartDateKey('2024-01-08'), true, 'Monday is editable week start');
+assert.equal(isWeekStartDateKey('2024-01-12'), false, 'Friday is not editable week start');
 clearDailyTimeReviews();
 updateDailyTimeBiasField('2024-01-08', 'weeklyBiasPrediction', 'Weekly bullish from Monday.');
 let midWeekReview = getDailyTimeReviewByDate('2024-01-10');
 assert.equal(midWeekReview.bias.weeklyBiasPrediction, 'Weekly bullish from Monday.', 'weekly bias prediction carries through the week');
-updateDailyTimeBiasField('2024-01-12', 'weeklyBiasReview', 'Weekly bias validated Friday.');
+assert.equal(
+  updateDailyTimeBiasField('2024-01-12', 'weeklyBiasReview', 'Weekly bias validated Friday.'),
+  null,
+  'weekly bias cannot be edited outside Monday'
+);
+updateDailyTimeBiasField('2024-01-08', 'weeklyBiasReview', 'Weekly bias validation entered Monday.');
 midWeekReview = getDailyTimeReviewByDate('2024-01-11');
-assert.equal(midWeekReview.bias.weeklyBiasReview, 'Weekly bias validated Friday.', 'weekly bias review carries through the week after Friday entry');
+assert.equal(midWeekReview.bias.weeklyBiasReview, 'Weekly bias validation entered Monday.', 'weekly bias review carries through the week');
 const storedReviews = getDailyTimeReviews();
 assert.equal(storedReviews.length, 1, 'weekly bias fields are stored on the Monday review only');
 assert.equal(storedReviews[0].date, '2024-01-08', 'weekly bias storage date is week start');

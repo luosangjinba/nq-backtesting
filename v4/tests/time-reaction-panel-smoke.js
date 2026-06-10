@@ -37,7 +37,7 @@ assert.match(html, /daily-time-opening-thesis-field/, 'Opening Thesis fields use
 assert.match(html, /日 Bias 预判/, 'Daily bias prediction title is visible');
 assert.match(html, /日 Bias 验证/, 'Daily bias review title is visible');
 assert.match(html, /周 Bias 预判（周一填写）/, 'Weekly bias prediction title is visible');
-assert.match(html, /周 Bias 验证（周五填写）/, 'Weekly bias review title is visible');
+assert.match(html, /周 Bias 验证（周一可改）/, 'Weekly bias review title is visible');
 assert.match(html, /data-daily-time-field="dailyBiasPrediction"/, 'Daily bias prediction field is present');
 assert.match(html, /data-daily-time-field="dailyBiasReview"/, 'Daily bias review field is present');
 assert.match(html, /data-daily-time-field="weeklyBiasPrediction"/, 'Weekly bias prediction field is present');
@@ -68,5 +68,28 @@ assert.match(fixedTimeHtml, /固定时点状态/, 'Fixed Time section shows Fixe
 assert.match(fixedTimeHtml, /daily-time-fixed-item-note/, 'Fixed Time section keeps fixed time editing');
 assert.doesNotMatch(fixedTimeHtml, /日 Bias 预判/, 'Fixed Time section does not show Bias fields');
 assert.doesNotMatch(fixedTimeHtml, /Opening Thesis Review/, 'Fixed Time section does not show Opening Thesis');
+
+const mondayReview = normalizeDailyTimeReview({
+  ...review,
+  date: '2024-01-08',
+}, { preserveUpdatedAt: true });
+const mondayBiasHtml = renderDailyTimeReviewSectionPanel(mondayReview, 'bias');
+assert.match(
+  mondayBiasHtml,
+  /data-daily-time-field="weeklyBiasPrediction"(?![^>]*disabled)/,
+  'Weekly bias prediction is editable on Monday'
+);
+
+const wednesdayBiasHtml = renderDailyTimeReviewSectionPanel(review, 'bias');
+assert.match(
+  wednesdayBiasHtml,
+  /data-daily-time-field="weeklyBiasPrediction"[^>]*disabled/,
+  'Weekly bias prediction is disabled outside Monday'
+);
+assert.match(
+  wednesdayBiasHtml,
+  /data-daily-time-field="weeklyBiasReview"[^>]*disabled/,
+  'Weekly bias review is disabled outside Monday'
+);
 
 console.log('time reaction panel smoke ok');

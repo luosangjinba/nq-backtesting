@@ -93,6 +93,11 @@ export function getWeekStartDateKey(value) {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
 }
 
+export function isWeekStartDateKey(value) {
+  const dateKey = normalizeDateKey(value);
+  return Boolean(dateKey && getWeekStartDateKey(dateKey) === dateKey);
+}
+
 function normalizeTimeText(value, fallback = '09:30') {
   const text = normalizeString(value);
   return /^\d{2}:\d{2}$/.test(text) ? text : fallback;
@@ -516,6 +521,7 @@ export function updateDailyTimeBiasField(date, field, value, instrument = 'NQ') 
   const fieldName = normalizeString(field);
   if (!dateKey || !fieldName) return null;
   const isWeeklyField = ['weeklyBiasPrediction', 'weeklyBiasReview'].includes(fieldName);
+  if (isWeeklyField && !isWeekStartDateKey(dateKey)) return null;
   const targetDate = isWeeklyField ? getWeekStartDateKey(dateKey) : dateKey;
   const review = getOrCreateDailyTimeReview(targetDate, instrument);
   if (!review) return null;
