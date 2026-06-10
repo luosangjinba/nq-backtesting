@@ -39,10 +39,10 @@ assert.match(html, /data-daily-time-field="dailyBiasPrediction"/, 'Daily bias pr
 assert.match(html, /data-daily-time-field="dailyBiasReview"/, 'Daily bias review field is present');
 assert.match(html, /data-daily-time-field="weeklyBiasPrediction"/, 'Weekly bias prediction field is present');
 assert.match(html, /data-daily-time-field="weeklyBiasReview"/, 'Weekly bias review field is present');
-assert.match(html, /Opening Thesis 预判/, 'Opening thesis prediction title is visible');
-assert.match(html, /09:30-11:00 Summary/, 'Morning summary title is visible');
-assert.match(html, /Full Day Summary/, 'Full day summary title is visible');
-assert.match(html, /Opening Thesis 验证/, 'Opening thesis validation title is visible');
+assert.match(html, /预判（09:30 前）/, 'Opening thesis prediction title is visible');
+assert.match(html, /验证（09:30-11:00）/, 'Morning summary title is visible');
+assert.match(html, /验证（全天）/, 'Full day summary title is visible');
+assert.match(html, /结论（Opening Thesis Review）/, 'Opening thesis validation title is visible');
 assert.match(html, /daily-time-fixed-item-note/, 'Fixed Time State editing remains available');
 assert.equal(
   html.match(/<section class="inspector-section time-reaction-panel"/g).length,

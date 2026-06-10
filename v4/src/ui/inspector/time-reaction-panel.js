@@ -522,22 +522,22 @@ function renderOpeningThesisPanel(review) {
   const opening = review.openingThesisReview || {};
   return renderReviewCard('Opening Thesis Review', `
     ${renderTitledTextarea(
-      'Opening Thesis 预判',
+      '预判（09:30 前）',
       opening.preOpenThesis,
       reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'preOpenThesis')
     )}
     ${renderTitledTextarea(
-      '09:30-11:00 Summary',
+      '验证（09:30-11:00）',
       opening.morningSummary0930To1100,
       reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'morningSummary0930To1100')
     )}
     ${renderTitledTextarea(
-      'Full Day Summary',
+      '验证（全天）',
       opening.fullDaySummary,
       reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'fullDaySummary')
     )}
     ${renderTitledTextarea(
-      'Opening Thesis 验证',
+      '结论（Opening Thesis Review）',
       opening.thesisReview,
       reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'thesisReview')
     )}

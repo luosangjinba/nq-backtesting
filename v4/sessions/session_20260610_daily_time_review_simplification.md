@@ -120,3 +120,6 @@ Current Status:
   - The main Daily Time panel now renders `Bias`, `Opening Thesis Review`, and `固定时点状态` as sibling cards.
   - `固定时点状态` no longer embeds the full fixed-time detail section inside the main panel.
   - Opening Thesis Review fields now use explicit titles so they do not visually inherit Bias or Fixed Time content.
+- Opening Thesis title follow-up:
+  - Opening Thesis Review field titles are now explicit fixed labels: `预判（09:30 前）`, `验证（09:30-11:00）`, `验证（全天）`, and `结论（Opening Thesis Review）`.
+  - The titles are rendered above each textarea, not as placeholder text inside the input.
