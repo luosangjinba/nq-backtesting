@@ -23,6 +23,25 @@ function renderTextarea(value, attrs, placeholder = '') {
   `;
 }
 
+function reviewFieldAttrs(review, action, field) {
+  return [
+    `data-inspector-action="${escapeHtml(action)}"`,
+    `data-daily-time-date="${escapeHtml(review.date)}"`,
+    `data-daily-time-field="${escapeHtml(field)}"`,
+  ].join(' ');
+}
+
+function renderReviewCard(title, body) {
+  return `
+    <div class="time-reaction-card">
+      <div class="time-reaction-card-header">
+        <span class="time-reaction-time">${escapeHtml(title)}</span>
+      </div>
+      ${body}
+    </div>
+  `;
+}
+
 function getRefType(ref = {}) {
   return ref.type || ref.refType || 'ref';
 }
@@ -425,32 +444,57 @@ function getReactionByTime(review, time) {
   return (review.reactions || []).find((reaction) => reaction.time === time) || { time };
 }
 
+function renderBiasPanel(review) {
+  const bias = review.bias || {};
+  return renderReviewCard('Bias', `
+    ${renderTextarea(
+      bias.weeklyBias,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'weeklyBias'),
+      'Weekly bias.'
+    )}
+    ${renderTextarea(
+      bias.dailyBias,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'dailyBias'),
+      'Daily bias.'
+    )}
+    ${renderTextarea(
+      bias.biasReview,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'biasReview'),
+      'After-the-fact bias validation.'
+    )}
+  `);
+}
+
+function renderOpeningThesisPanel(review) {
+  const opening = review.openingThesisReview || {};
+  return renderReviewCard('Opening Thesis Review', `
+    ${renderTextarea(
+      opening.preOpenThesis,
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'preOpenThesis'),
+      'Pre-open thesis: 09:30前状态、liquidity / FVG / premium-discount / scenarios.'
+    )}
+    ${renderTextarea(
+      opening.morningSummary0930To1100,
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'morningSummary0930To1100'),
+      '09:30-11:00 summary for validating the opening thesis.'
+    )}
+    ${renderTextarea(
+      opening.fullDaySummary,
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'fullDaySummary'),
+      'Full day summary for validating the opening thesis.'
+    )}
+    ${renderTextarea(
+      opening.thesisReview,
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'thesisReview'),
+      'After-the-fact thesis review: what was right, wrong, or useful.'
+    )}
+  `);
+}
+
 export function renderDailyTimeReviewPanel(review, options = {}) {
   if (!review) {
     return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid calendar day.</div>');
   }
-
-  const reactions = DAILY_TIME_REACTION_TIMES
-    .map((time) => renderReactionCard(review, getReactionByTime(review, time), options))
-    .join('');
-  const contextItems = (review.pre0930Context?.items || [])
-    .map((item, itemIndex) => renderObservationItem(
-      review,
-      item,
-      itemIndex,
-      { section: 'pre0930Item', itemId: item.id },
-      options
-    ))
-    .join('');
-  const summaryItems = (review.summary0930To1100?.items || [])
-    .map((item, itemIndex) => renderObservationItem(
-      review,
-      item,
-      itemIndex,
-      { section: 'summaryItem', itemId: item.id },
-      options
-    ))
-    .join('');
 
   return `
     <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-detail">
@@ -460,38 +504,12 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
           <span>${escapeHtml(review.date)}</span>
           <span>${escapeHtml(review.instrument || 'NQ')}</span>
         </div>
-        <div class="drawing-set-meta">Daily observation notes for fixed algorithmic time reactions.</div>
-      </div>
-      <div class="time-reaction-subsection">
-        <div class="time-reaction-subsection-title">
-          <span>Pre 09:30 Context</span>
-        </div>
-        <button
-          class="inspector-mini-btn time-reaction-add-btn"
-          data-inspector-action="daily-time-context-item-add"
-          data-daily-time-date="${escapeHtml(review.date)}"
-          type="button"
-        >Add Context</button>
-        <div class="time-reaction-list">
-          ${contextItems}
-        </div>
+        <div class="drawing-set-meta">Bias, opening thesis validation, and fixed-time state notes.</div>
       </div>
       <div class="time-reaction-list">
-        ${reactions}
-      </div>
-      <div class="time-reaction-subsection">
-        <div class="time-reaction-subsection-title">
-          <span>09:30-11:00 Summary</span>
-        </div>
-        <button
-          class="inspector-mini-btn time-reaction-add-btn"
-          data-inspector-action="daily-time-summary-item-add"
-          data-daily-time-date="${escapeHtml(review.date)}"
-          type="button"
-        >Add Event</button>
-        <div class="time-reaction-list">
-          ${summaryItems}
-        </div>
+        ${renderBiasPanel(review)}
+        ${renderOpeningThesisPanel(review)}
+        ${renderFixedTimeStatePanel(review, getDailyTimeReviewSectionDefinition('fixedTimeState'), options)}
       </div>
     </section>
   `;

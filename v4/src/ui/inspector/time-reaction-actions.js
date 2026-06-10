@@ -43,6 +43,7 @@ import {
   updateFixedTimeStateItem,
   updateDailyTimeReactionItem,
   updateDailyTimeReaction,
+  updateDailyTimeReview,
   updateDailyTimeReviewSection,
   updateDailyTimeSummaryItem,
 } from '../../time-reaction/daily-time-review-store.js';
@@ -609,6 +610,38 @@ export function createDailyTimeInspectorActionController({
   }
 
   function handleChange(action, targetEl) {
+    if (action === 'daily-time-bias-field') {
+      const date = targetEl.dataset.dailyTimeDate;
+      const field = targetEl.dataset.dailyTimeField;
+      const review = getOrCreateDailyTimeReview(date);
+      if (!review || !field) return false;
+      recordInspectorHistory?.('Update Daily Time Bias', () => (
+        updateDailyTimeReview(review.id, {
+          bias: {
+            ...(review.bias || {}),
+            [field]: targetEl.value,
+          },
+        })
+      ));
+      refreshSelection?.();
+      return true;
+    }
+    if (action === 'daily-time-opening-thesis-field') {
+      const date = targetEl.dataset.dailyTimeDate;
+      const field = targetEl.dataset.dailyTimeField;
+      const review = getOrCreateDailyTimeReview(date);
+      if (!review || !field) return false;
+      recordInspectorHistory?.('Update Opening Thesis Review', () => (
+        updateDailyTimeReview(review.id, {
+          openingThesisReview: {
+            ...(review.openingThesisReview || {}),
+            [field]: targetEl.value,
+          },
+        })
+      ));
+      refreshSelection?.();
+      return true;
+    }
     if (action === 'daily-time-section-note') {
       const date = targetEl.dataset.dailyTimeDate;
       const sectionName = targetEl.dataset.dailyTimeSection;

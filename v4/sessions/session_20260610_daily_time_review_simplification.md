@@ -84,3 +84,9 @@ Current Status:
   - Legacy note fields seed the new structures during normalization.
   - Empty new structures do not count as Calendar/exportable content.
   - Added `v4/tests/daily-time-review-store-smoke.js`.
+- Step 277.3 completed:
+  - Daily Time detail now renders `Bias`, `Opening Thesis Review`, and `Fixed Time State` as the main blocks.
+  - `Bias` includes weekly bias, daily bias, and bias review text.
+  - `Opening Thesis Review` includes pre-open thesis, 09:30-11:00 summary, full day summary, and thesis review text.
+  - Fixed Time State editing remains available.
+  - Added `v4/tests/time-reaction-panel-smoke.js`.
