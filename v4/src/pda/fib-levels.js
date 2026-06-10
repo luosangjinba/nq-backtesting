@@ -22,9 +22,9 @@ export const DEFAULT_FIB_LEVELS = Object.freeze([
   { value: 1.5, visible: false, color: '#8a5a0a' },
   { value: 2, visible: false, color: '#9e6d11' },
   { value: 2.5, visible: false, color: '#1d6f60' },
+  { value: 3, visible: false, color: '#5f6368' },
   { value: 3.5, visible: false, color: '#2c7a83' },
   { value: 4, visible: false, color: '#5f6368' },
-  { value: 4.5, visible: false, color: '#8d2d5d' },
   { value: 5, visible: false, color: '#5f6368' },
   { value: 6, visible: false, color: '#1d6f60' },
 ]);

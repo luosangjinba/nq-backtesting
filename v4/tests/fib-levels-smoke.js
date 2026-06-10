@@ -14,7 +14,7 @@ assert.deepEqual(
   defaults.filter((level) => level.visible).map((level) => level.value),
   [1, 0.79, 0.705, 0.62, 0.5, 0.236, 0]
 );
-assert.deepEqual(defaults.slice(-8).map((level) => level.value), [1.5, 2, 2.5, 3.5, 4, 4.5, 5, 6]);
+assert.deepEqual(defaults.slice(-8).map((level) => level.value), [1.5, 2, 2.5, 3, 3.5, 4, 5, 6]);
 assert.equal(defaults.slice(-8).every((level) => level.visible === false), true);
 
 const normalized = normalizeFibLevels([

@@ -236,7 +236,7 @@ function isCalendarObjectHidden(item) {
 
 function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
-  const canOpen = ['order-setup', 'time-reaction', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
+  const canOpen = ['order-setup', 'time-reaction', 'economic-event', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
   const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
   const canDeletePda = item.ref?.type === 'pda' && item.ref?.id;
   const setupHidden = Boolean(item.source?.display?.hidden);
