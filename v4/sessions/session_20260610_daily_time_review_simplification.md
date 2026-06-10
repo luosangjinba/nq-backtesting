@@ -90,3 +90,9 @@ Current Status:
   - `Opening Thesis Review` includes pre-open thesis, 09:30-11:00 summary, full day summary, and thesis review text.
   - Fixed Time State editing remains available.
   - Added `v4/tests/time-reaction-panel-smoke.js`.
+- Step 277.4 completed:
+  - Kept the Daily Time Review localStorage key stable as `v4:daily-time-reviews:NQ`.
+  - Review JSON export includes populated `bias` and `openingThesisReview` structures.
+  - Calendar preview reads `Bias` and `Opening Thesis Review` summaries through null-safe helpers.
+  - Blank new-structure drafts are filtered from exportable Daily Time Review content.
+  - Added `v4/tests/daily-time-review-archive-smoke.js` and extended `v4/tests/calendar-visibility-smoke.js`.

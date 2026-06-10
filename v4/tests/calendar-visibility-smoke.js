@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 
 import { CALENDAR_OBJECT_TYPES } from '../src/calendar/calendar-types.js';
+import { setBars } from '../src/data/bar-store.js';
+import { clearDailyTimeReviews } from '../src/time-reaction/daily-time-review-store.js';
 import {
   getCalendarVisibilitySummaryForItems,
   setCalendarDayGroupObjectsHidden,
 } from '../src/ui/inspector/calendar-visibility-actions.js';
+import { renderCalendarPanel } from '../src/ui/inspector/calendar-panel.js';
 import {
   dateKeyFromTimestamp,
   resolveInspectorCalendarDate,
@@ -189,6 +192,21 @@ assert.deepEqual(getCalendarVisibilitySummaryForItems([]), {
   hidden: 0,
   state: 'disabled',
 });
+
+clearDailyTimeReviews();
+setBars(
+  [
+    { timestamp: jan10_0930, open: 1, high: 1, low: 1, close: 1 },
+    { timestamp: jan10_1000, open: 1, high: 1, low: 1, close: 1 },
+  ],
+  jan10_0930,
+  jan10_1000,
+  1
+);
+assert.doesNotThrow(
+  () => renderCalendarPanel({ selectedDate: '2024-01-10', viewDate: '2024-01-10' }),
+  'Calendar renders when selected day has no Daily Time review'
+);
 
 clearAnnotations();
 clearChartNotes();

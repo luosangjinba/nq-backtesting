@@ -144,7 +144,7 @@ function getExportableChartNotes(range) {
   return getChartNotes().filter((note) => isTimestampInsideRange(note.timestamp, range));
 }
 
-function buildReviewPayload() {
+export function buildReviewPayload() {
   const pdaAnnotations = getExportableAnnotations();
   const marketSegments = getExportableSegments();
   const segmentGroups = getExportableSegmentGroups();

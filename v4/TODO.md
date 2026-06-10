@@ -757,5 +757,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 277.1: 命名与边界确认：新对象命名为 `Opening Thesis Review`，包含 `preOpenThesis`、`morningSummary0930To1100`、`fullDaySummary`、`thesisReview`；`Bias` 包含 `weeklyBias`、`dailyBias`、`biasReview`；`Fixed Time State` 不改 schema、不改 UI 语义。
   - [x] Step 277.2: Store schema：在 Daily Time Review 中新增/规范 `openingThesisReview` 与 `bias` 结构；保留旧 `weeklyBias`、`dailyBias`、`pre0930Analysis`、`summary0930To1100`、`fullDaySummary` 读取兼容，旧数据迁移/normalize 到新结构。
   - [x] Step 277.3: UI 改造：Daily Time detail 中显示三个主块：`Bias`、`Opening Thesis Review`、`Fixed Time State`；`Opening Thesis Review` 内按预判、09:30-11:00 summary、full day summary、事后验证排列。
-  - [ ] Step 277.4: Persistence / Archive / Calendar：保持 `v4:daily-time-reviews:NQ` key；Review JSON 包含新结构；Calendar 对象概览使用 `Bias` 与 `Opening Thesis Review` 的摘要；空白草稿不计入对象概览。
+  - [x] Step 277.4: Persistence / Archive / Calendar：保持 `v4:daily-time-reviews:NQ` key；Review JSON 包含新结构；Calendar 对象概览使用 `Bias` 与 `Opening Thesis Review` 的摘要；空白草稿不计入对象概览。
   - [ ] Step 277.5: 验收：旧 Daily Time note 正常恢复；Bias 可同时记录周/日并填写事后验证；Opening Thesis Review 可完成预判和两段 summary 验证；Fixed Time State 行为不变。

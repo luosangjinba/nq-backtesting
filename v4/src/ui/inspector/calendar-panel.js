@@ -463,9 +463,19 @@ function createChartNotesGroup(dateKey, instrument = 'NQ') {
   };
 }
 
-function summarizeTimeReactionSection(sectionData = {}) {
+function getDailyTimeReviewPreview(sectionKey, review = {}) {
+  const safeReview = review || {};
+  if (sectionKey === 'weeklyBias') return safeReview.bias?.weeklyBias || '';
+  if (sectionKey === 'dailyBias') return safeReview.bias?.dailyBias || '';
+  if (sectionKey === 'pre0930Analysis') return safeReview.openingThesisReview?.preOpenThesis || '';
+  if (sectionKey === 'summary0930To1100') return safeReview.openingThesisReview?.morningSummary0930To1100 || '';
+  if (sectionKey === 'fullDaySummary') return safeReview.openingThesisReview?.fullDaySummary || '';
+  return '';
+}
+
+function summarizeTimeReactionSection(sectionData = {}, sectionKey = '', review = {}) {
   const refCount = getSectionRefCount(sectionData);
-  const preview = getSectionPreview(sectionData);
+  const preview = getDailyTimeReviewPreview(sectionKey, review) || getSectionPreview(sectionData);
   if (preview && refCount) return `${preview} · ${refCount} refs`;
   if (preview) return preview;
   if (refCount) return `${refCount} refs`;
@@ -481,7 +491,7 @@ function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByD
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     dateKey,
     timestamp: Number.isFinite(start) ? start : null,
-    label: `${section.label} · ${summarizeTimeReactionSection(sectionData)}`,
+    label: `${section.label} · ${summarizeTimeReactionSection(sectionData, section.key, review)}`,
     range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
     ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey, section: section.key },
     source: { sectionKey: section.key, sectionLabel: section.label, review },

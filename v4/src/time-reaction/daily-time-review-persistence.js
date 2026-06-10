@@ -55,6 +55,10 @@ export function clearSavedDailyTimeReviews() {
   }
 }
 
+export function getDailyTimeReviewStorageKey() {
+  return STORAGE_KEY;
+}
+
 export function initDailyTimeReviewPersistence() {
   restoreDailyTimeReviews();
   bus.on('daily-time-review:changed', saveDailyTimeReviews);
