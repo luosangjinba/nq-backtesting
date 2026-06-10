@@ -51,6 +51,18 @@ function renderReviewCard(title, body) {
   `;
 }
 
+function renderReviewCardWithAction(title, actionHtml, body) {
+  return `
+    <div class="time-reaction-card">
+      <div class="time-reaction-card-header">
+        <span class="time-reaction-time">${escapeHtml(title)}</span>
+        ${actionHtml}
+      </div>
+      ${body}
+    </div>
+  `;
+}
+
 function getRefType(ref = {}) {
   return ref.type || ref.refType || 'ref';
 }
@@ -421,6 +433,33 @@ function renderFixedTimeStatePanel(review, sectionDefinition, options = {}) {
   `;
 }
 
+function renderFixedTimeStateCard(review, options = {}) {
+  const sectionData = review.fixedTimeState || {};
+  const items = Array.isArray(sectionData.items) ? sectionData.items : [];
+  return renderReviewCardWithAction(
+    '固定时点状态',
+    `
+      <button
+        class="inspector-mini-btn time-reaction-add-btn"
+        data-inspector-action="daily-time-fixed-item-add"
+        data-daily-time-date="${escapeHtml(review.date)}"
+        type="button"
+      >Add Time</button>
+    `,
+    `
+      <div class="time-reaction-list">
+        ${items.map((item, itemIndex) => renderFixedTimeStateItem(
+          review,
+          item,
+          itemIndex,
+          items.length,
+          options
+        )).join('')}
+      </div>
+    `
+  );
+}
+
 function renderReactionCard(review, reaction, options = {}) {
   const time = reaction.time;
   const items = Array.isArray(reaction.items) ? reaction.items : [];
@@ -482,25 +521,25 @@ function renderBiasPanel(review) {
 function renderOpeningThesisPanel(review) {
   const opening = review.openingThesisReview || {};
   return renderReviewCard('Opening Thesis Review', `
-    ${renderTextarea(
+    ${renderTitledTextarea(
+      'Opening Thesis 预判',
       opening.preOpenThesis,
-      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'preOpenThesis'),
-      'Pre-open thesis: 09:30前状态、liquidity / FVG / premium-discount / scenarios.'
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'preOpenThesis')
     )}
-    ${renderTextarea(
+    ${renderTitledTextarea(
+      '09:30-11:00 Summary',
       opening.morningSummary0930To1100,
-      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'morningSummary0930To1100'),
-      '09:30-11:00 summary for validating the opening thesis.'
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'morningSummary0930To1100')
     )}
-    ${renderTextarea(
+    ${renderTitledTextarea(
+      'Full Day Summary',
       opening.fullDaySummary,
-      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'fullDaySummary'),
-      'Full day summary for validating the opening thesis.'
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'fullDaySummary')
     )}
-    ${renderTextarea(
+    ${renderTitledTextarea(
+      'Opening Thesis 验证',
       opening.thesisReview,
-      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'thesisReview'),
-      'After-the-fact thesis review: what was right, wrong, or useful.'
+      reviewFieldAttrs(review, 'daily-time-opening-thesis-field', 'thesisReview')
     )}
   `);
 }
@@ -523,7 +562,7 @@ export function renderDailyTimeReviewPanel(review, options = {}) {
       <div class="time-reaction-list">
         ${renderBiasPanel(review)}
         ${renderOpeningThesisPanel(review)}
-        ${renderFixedTimeStatePanel(review, getDailyTimeReviewSectionDefinition('fixedTimeState'), options)}
+        ${renderFixedTimeStateCard(review, options)}
       </div>
     </section>
   `;

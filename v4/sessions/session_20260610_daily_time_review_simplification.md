@@ -116,3 +116,7 @@ Current Status:
   - Bias now has four explicit long-text fields: `日 Bias 预判`, `日 Bias 验证`, `周 Bias 预判（周一填写）`, and `周 Bias 验证（周五填写）`.
   - Field titles are visible labels above each textarea, not placeholder text.
   - Legacy `dailyBias` / `weeklyBias` still map to the new prediction fields, and legacy `biasReview` maps to daily bias review.
+- Panel structure fix:
+  - The main Daily Time panel now renders `Bias`, `Opening Thesis Review`, and `固定时点状态` as sibling cards.
+  - `固定时点状态` no longer embeds the full fixed-time detail section inside the main panel.
+  - Opening Thesis Review fields now use explicit titles so they do not visually inherit Bias or Fixed Time content.
