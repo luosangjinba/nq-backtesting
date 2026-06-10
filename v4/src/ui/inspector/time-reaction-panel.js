@@ -23,6 +23,15 @@ function renderTextarea(value, attrs, placeholder = '') {
   `;
 }
 
+function renderTitledTextarea(title, value, attrs) {
+  return `
+    <label class="time-reaction-field">
+      <div class="time-reaction-field-title">${escapeHtml(title)}</div>
+      ${renderTextarea(value, attrs, '')}
+    </label>
+  `;
+}
+
 function reviewFieldAttrs(review, action, field) {
   return [
     `data-inspector-action="${escapeHtml(action)}"`,
@@ -447,20 +456,25 @@ function getReactionByTime(review, time) {
 function renderBiasPanel(review) {
   const bias = review.bias || {};
   return renderReviewCard('Bias', `
-    ${renderTextarea(
-      bias.weeklyBias,
-      reviewFieldAttrs(review, 'daily-time-bias-field', 'weeklyBias'),
-      'Weekly bias.'
+    ${renderTitledTextarea(
+      '日 Bias 预判',
+      bias.dailyBiasPrediction || bias.dailyBias,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'dailyBiasPrediction')
     )}
-    ${renderTextarea(
-      bias.dailyBias,
-      reviewFieldAttrs(review, 'daily-time-bias-field', 'dailyBias'),
-      'Daily bias.'
+    ${renderTitledTextarea(
+      '日 Bias 验证',
+      bias.dailyBiasReview || bias.biasReview,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'dailyBiasReview')
     )}
-    ${renderTextarea(
-      bias.biasReview,
-      reviewFieldAttrs(review, 'daily-time-bias-field', 'biasReview'),
-      'After-the-fact bias validation.'
+    ${renderTitledTextarea(
+      '周 Bias 预判（周一填写）',
+      bias.weeklyBiasPrediction || bias.weeklyBias,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'weeklyBiasPrediction')
+    )}
+    ${renderTitledTextarea(
+      '周 Bias 验证（周五填写）',
+      bias.weeklyBiasReview,
+      reviewFieldAttrs(review, 'daily-time-bias-field', 'weeklyBiasReview')
     )}
   `);
 }

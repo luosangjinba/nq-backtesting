@@ -491,7 +491,11 @@ function createChartNotesGroup(dateKey, instrument = 'NQ') {
 function getDailyTimeReviewPreview(rowKey, review = {}) {
   const safeReview = review || {};
   if (rowKey === 'bias') {
-    return safeReview.bias?.weeklyBias
+    return safeReview.bias?.dailyBiasPrediction
+      || safeReview.bias?.dailyBiasReview
+      || safeReview.bias?.weeklyBiasPrediction
+      || safeReview.bias?.weeklyBiasReview
+      || safeReview.bias?.weeklyBias
       || safeReview.bias?.dailyBias
       || safeReview.bias?.biasReview
       || '';

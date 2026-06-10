@@ -112,3 +112,7 @@ Current Status:
   - Bias and Opening Thesis Review text changes no longer force an immediate Inspector re-render.
   - `daily-time-review:changed` skips refresh while a Daily Time long-text field is actively focused.
   - This keeps local save/history behavior while avoiding textarea DOM rebuilds during editing.
+- Bias field follow-up:
+  - Bias now has four explicit long-text fields: `日 Bias 预判`, `日 Bias 验证`, `周 Bias 预判（周一填写）`, and `周 Bias 验证（周五填写）`.
+  - Field titles are visible labels above each textarea, not placeholder text.
+  - Legacy `dailyBias` / `weeklyBias` still map to the new prediction fields, and legacy `biasReview` maps to daily bias review.

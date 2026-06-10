@@ -228,12 +228,12 @@ loadDailyTimeReviews([
   {
     date: '2024-01-10',
     instrument: 'NQ',
-    bias: { weeklyBias: 'Weekly bullish.' },
+    bias: { dailyBiasPrediction: 'Daily bullish.' },
     openingThesisReview: { preOpenThesis: 'Pre-open discount thesis.' },
   },
 ], { preserveUpdatedAt: true });
 const populatedDailyTimeCalendar = renderCalendarPanel({ selectedDate: '2024-01-10', viewDate: '2024-01-10' });
-assert.match(populatedDailyTimeCalendar, /Bias · Weekly bullish\./, 'Calendar previews Bias content');
+assert.match(populatedDailyTimeCalendar, /Bias · Daily bullish\./, 'Calendar previews Bias content');
 assert.match(
   populatedDailyTimeCalendar,
   /Opening Thesis Review · Pre-open discount thesis\./,

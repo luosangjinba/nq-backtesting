@@ -31,9 +31,10 @@ loadDailyTimeReviews([
     date: '2024-01-10',
     instrument: 'NQ',
     bias: {
-      weeklyBias: 'Weekly bullish.',
-      dailyBias: 'Daily expects ONH continuation.',
-      biasReview: 'Bias matched.',
+      dailyBiasPrediction: 'Daily expects ONH continuation.',
+      dailyBiasReview: 'Daily bias matched.',
+      weeklyBiasPrediction: 'Weekly bullish.',
+      weeklyBiasReview: 'Weekly bias matched by Friday.',
     },
     openingThesisReview: {
       preOpenThesis: '09:30前 discount with liquidity above.',
@@ -55,7 +56,8 @@ assert.equal(exportableReviews.length, 1, 'blank new-structure draft is not expo
 
 const payload = buildReviewPayload();
 assert.equal(payload.dailyTimeReviews.length, 1, 'Review JSON includes populated Daily Time Review');
-assert.equal(payload.dailyTimeReviews[0].bias.biasReview, 'Bias matched.', 'Bias review exports');
+assert.equal(payload.dailyTimeReviews[0].bias.dailyBiasReview, 'Daily bias matched.', 'Daily bias review exports');
+assert.equal(payload.dailyTimeReviews[0].bias.weeklyBiasReview, 'Weekly bias matched by Friday.', 'Weekly bias review exports');
 assert.equal(payload.dailyTimeReviews[0].openingThesisReview.thesisReview, 'Opening thesis was useful.', 'Opening thesis review exports');
 
 assert.equal(getDailyTimeReviewStorageKey(), 'v4:daily-time-reviews:NQ', 'Daily Time storage key remains stable');

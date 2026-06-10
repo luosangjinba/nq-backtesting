@@ -115,9 +115,21 @@ function normalizeSection(input = {}, dateKey = '', fallbackTime = '09:30') {
 }
 
 function normalizeBias(input = {}, legacySections = {}) {
+  const dailyBiasPrediction = normalizeString(
+    input.dailyBiasPrediction,
+    normalizeString(input.dailyBias, normalizeString(legacySections.dailyBias?.note))
+  );
+  const weeklyBiasPrediction = normalizeString(
+    input.weeklyBiasPrediction,
+    normalizeString(input.weeklyBias, normalizeString(legacySections.weeklyBias?.note))
+  );
   return {
-    weeklyBias: normalizeString(input.weeklyBias, normalizeString(legacySections.weeklyBias?.note)),
-    dailyBias: normalizeString(input.dailyBias, normalizeString(legacySections.dailyBias?.note)),
+    dailyBiasPrediction,
+    dailyBiasReview: normalizeString(input.dailyBiasReview, normalizeString(input.biasReview)),
+    weeklyBiasPrediction,
+    weeklyBiasReview: normalizeString(input.weeklyBiasReview),
+    weeklyBias: weeklyBiasPrediction,
+    dailyBias: dailyBiasPrediction,
     biasReview: normalizeString(input.biasReview),
   };
 }
@@ -409,7 +421,11 @@ function reactionHasContent(reaction = {}) {
 
 function biasHasContent(bias = {}) {
   return Boolean(
-    normalizeString(bias.weeklyBias)
+    normalizeString(bias.dailyBiasPrediction)
+      || normalizeString(bias.dailyBiasReview)
+      || normalizeString(bias.weeklyBiasPrediction)
+      || normalizeString(bias.weeklyBiasReview)
+      || normalizeString(bias.weeklyBias)
       || normalizeString(bias.dailyBias)
       || normalizeString(bias.biasReview)
   );

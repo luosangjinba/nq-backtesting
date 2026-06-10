@@ -1004,6 +1004,19 @@ html, body {
   font-weight: 600;
 }
 
+.time-reaction-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.time-reaction-field-title {
+  color: #d6deea;
+  font-size: var(--compact-font-size);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
 .time-reaction-locate-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

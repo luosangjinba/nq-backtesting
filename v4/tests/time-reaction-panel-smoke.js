@@ -6,9 +6,10 @@ import { renderDailyTimeReviewPanel } from '../src/ui/inspector/time-reaction-pa
 const review = normalizeDailyTimeReview({
   date: '2024-01-10',
   bias: {
-    weeklyBias: 'Weekly bullish.',
-    dailyBias: 'Daily expects continuation.',
-    biasReview: 'Bias was correct.',
+    dailyBiasPrediction: 'Daily expects continuation.',
+    dailyBiasReview: 'Daily bias was correct.',
+    weeklyBiasPrediction: 'Weekly bullish.',
+    weeklyBiasReview: 'Weekly bias validated on Friday.',
   },
   openingThesisReview: {
     preOpenThesis: '09:30前 discount, liquidity above ONH.',
@@ -30,7 +31,14 @@ assert.match(html, /Opening Thesis Review/, 'main panel renders Opening Thesis R
 assert.match(html, /固定时点状态/, 'main panel keeps Fixed Time State block');
 assert.match(html, /daily-time-bias-field/, 'Bias fields use new save action');
 assert.match(html, /daily-time-opening-thesis-field/, 'Opening Thesis fields use new save action');
-assert.match(html, /After-the-fact bias validation/, 'Bias review textarea is present');
+assert.match(html, /日 Bias 预判/, 'Daily bias prediction title is visible');
+assert.match(html, /日 Bias 验证/, 'Daily bias review title is visible');
+assert.match(html, /周 Bias 预判（周一填写）/, 'Weekly bias prediction title is visible');
+assert.match(html, /周 Bias 验证（周五填写）/, 'Weekly bias review title is visible');
+assert.match(html, /data-daily-time-field="dailyBiasPrediction"/, 'Daily bias prediction field is present');
+assert.match(html, /data-daily-time-field="dailyBiasReview"/, 'Daily bias review field is present');
+assert.match(html, /data-daily-time-field="weeklyBiasPrediction"/, 'Weekly bias prediction field is present');
+assert.match(html, /data-daily-time-field="weeklyBiasReview"/, 'Weekly bias review field is present');
 assert.match(html, /09:30-11:00 summary/, 'Morning summary textarea is present');
 assert.match(html, /Full day summary/, 'Full day summary textarea is present');
 assert.match(html, /daily-time-fixed-item-note/, 'Fixed Time State editing remains available');
