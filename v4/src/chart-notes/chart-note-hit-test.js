@@ -4,7 +4,7 @@ import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes, getChartNotesVersion } from './chart-note-store.js';
 import { getChartNoteOptions } from './chart-note-primitive.js';
-import { formatChartNoteDisplayText } from './chart-note-format.js';
+import { formatChartNoteDisplayText, formatChartNoteTime } from './chart-note-format.js';
 import { buildChartNoteLayouts } from './chart-note-layout.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
 
@@ -96,6 +96,8 @@ function buildHitPoints(options, expandedNoteId = '') {
           id: note.id,
           note,
           text: formatChartNoteDisplayText(note),
+          timeLabel: `${formatChartNoteTime(note.startTimestamp || note.timestamp)}-${formatChartNoteTime(note.endTimestamp || note.timestamp)}`,
+          noteText: note.text,
           x: anchorX,
           y: anchorY,
         };
@@ -113,6 +115,8 @@ function buildHitPoints(options, expandedNoteId = '') {
         id: note.id,
         note,
         text: formatChartNoteDisplayText(note),
+        timeLabel: formatChartNoteTime(note.timestamp),
+        noteText: note.text,
         x: anchorX,
         y: anchorY,
       };

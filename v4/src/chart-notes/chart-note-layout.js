@@ -70,6 +70,7 @@ export function buildChartNoteLayouts(points, options, measure) {
   const expandedMaxTextWidth = options.expandedMaxWidth * hRatio;
   const lineHeight = options.lineHeight * vRatio;
   const rowGap = options.rowGap * vRatio;
+  const timeColumnGap = (options.timeColumnGap || 0) * hRatio;
   const horizontalGap = Math.max(4 * hRatio, rowGap);
   const canvasRight = Math.max(4 * hRatio, canvasWidth - 4 * hRatio);
   const lanes = [];
@@ -77,14 +78,21 @@ export function buildChartNoteLayouts(points, options, measure) {
 
   notes.forEach((point) => {
     const isExpanded = expandedNoteId === point.id;
+    const timeLabel = String(point.timeLabel || '').trim();
+    const timeWidth = timeLabel ? ctx.measureText(timeLabel).width : 0;
+    const separatorWidth = timeLabel ? Math.max(1 * hRatio, 1) : 0;
+    const fixedWidth = timeLabel ? timeWidth + timeColumnGap * 2 + separatorWidth : 0;
+    const maxNoteWidth = Math.max(24 * hRatio, (isExpanded ? expandedMaxTextWidth : maxTextWidth) - fixedWidth);
+    const noteText = String(point.noteText ?? point.text ?? '').trim();
     const lines = isExpanded
-      ? wrapText(ctx, point.text, expandedMaxTextWidth, options.expandedMaxLines)
-      : [ellipsizeText(ctx, point.text, maxTextWidth)];
+      ? wrapText(ctx, noteText, maxNoteWidth, options.expandedMaxLines)
+      : [ellipsizeText(ctx, noteText, maxNoteWidth)];
     if (!lines.length || !lines[0]) return;
 
     const textWidth = Math.max(...lines.map((line) => ctx.measureText(line).width));
+    const contentWidth = fixedWidth + textWidth;
     const textHeight = Math.max(lineHeight, lines.length * lineHeight);
-    const boxWidth = textWidth + paddingX * 2;
+    const boxWidth = contentWidth + paddingX * 2;
     const boxHeight = textHeight + paddingY * 2;
     const anchorX = point.x * hRatio;
     const anchorY = point.y * vRatio;
@@ -109,9 +117,13 @@ export function buildChartNoteLayouts(points, options, measure) {
       ...point,
       laneIndex,
       lines,
+      timeLabel,
       boxX,
       boxWidth,
       boxHeight,
+      timeTextX: boxX + paddingX,
+      separatorX: boxX + paddingX + timeWidth + timeColumnGap,
+      noteTextX: boxX + paddingX + fixedWidth,
       anchorX,
       anchorY,
     });

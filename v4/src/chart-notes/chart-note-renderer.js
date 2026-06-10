@@ -5,7 +5,7 @@ import { getBarChartTime } from '../chart/time-projection.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { getChartNotes } from './chart-note-store.js';
 import { ChartNotePrimitive, getChartNoteOptions } from './chart-note-primitive.js';
-import { formatChartNoteDisplayText } from './chart-note-format.js';
+import { formatChartNoteDisplayText, formatChartNoteTime } from './chart-note-format.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 
@@ -69,6 +69,8 @@ function buildNotePoints() {
           rangeEndTime: getBarChartTime(rangeBars[rangeBars.length - 1], timeframe),
           price: Math.max(...highs),
           text: formatChartNoteDisplayText(note),
+          timeLabel: `${formatChartNoteTime(note.startTimestamp || note.timestamp)}-${formatChartNoteTime(note.endTimestamp || note.timestamp)}`,
+          noteText: note.text,
           color: note.color,
           showGuides: Boolean(note.display?.showGuides),
           position: 'above',
@@ -85,6 +87,8 @@ function buildNotePoints() {
         time: getBarChartTime(bar, timeframe),
         price,
         text: formatChartNoteDisplayText(note),
+        timeLabel: formatChartNoteTime(note.timestamp),
+        noteText: note.text,
         color: note.color,
         showGuides: Boolean(note.display?.showGuides),
         position,

@@ -2,9 +2,9 @@ import { buildChartNoteLayouts } from './chart-note-layout.js';
 import { getChartLabelFont, getDisplayPreferenceFactors } from '../display/display-preferences.js';
 
 export const CHART_NOTE_DEFAULT_OPTIONS = {
-  backgroundColor: 'rgba(255, 247, 168, 0.92)',
-  borderColor: 'rgba(255, 247, 168, 0.95)',
-  textColor: '#1f2430',
+  backgroundColor: 'transparent',
+  borderColor: '#ffb74d',
+  textColor: '#ffb74d',
   font: 'bold 11px sans-serif',
   paddingX: 7,
   paddingY: 4,
@@ -15,6 +15,8 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   lineHeight: 14,
   topOffset: 8,
   rowGap: 6,
+  timeColumnGap: 7,
+  timeSeparatorColor: 'rgba(255, 183, 77, 0.42)',
   leaderColor: 'rgba(255, 247, 168, 0.28)',
   leaderWidth: 1,
   leaderAnchorColor: 'rgba(255, 247, 168, 0.96)',
@@ -134,7 +136,7 @@ class ChartNoteRenderer {
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = point.color || options.backgroundColor;
+        ctx.fillStyle = options.backgroundColor;
         const isFlashing = source._flashNoteId === point.id;
         const flashPulse = isFlashing
           ? Math.sin((1 - source._flashProgress) * Math.PI * 3) * (1 - source._flashProgress)
@@ -146,16 +148,26 @@ class ChartNoteRenderer {
         ctx.shadowColor = isFlashing ? options.flashGlowColor : 'transparent';
         ctx.shadowBlur = isFlashing ? (8 + Math.max(0, flashPulse) * 10) * ratio : 0;
         roundRect(ctx, x, y, boxWidth, boxHeight, options.radius * ratio);
-        ctx.fill();
+        if (options.backgroundColor !== 'transparent') ctx.fill();
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        ctx.fillStyle = point.textColor || options.textColor;
-        ctx.textAlign = 'center';
+        ctx.fillStyle = options.textColor;
+        ctx.textAlign = 'left';
         const firstLineY = y + paddingY + lineHeight / 2;
         lines.forEach((line, lineIndex) => {
-          ctx.fillText(line, x + boxWidth / 2, firstLineY + lineIndex * lineHeight);
+          ctx.fillText(line, point.noteTextX, firstLineY + lineIndex * lineHeight);
         });
+        if (point.timeLabel) {
+          const separatorX = point.separatorX;
+          ctx.fillText(point.timeLabel, point.timeTextX, firstLineY);
+          ctx.strokeStyle = options.timeSeparatorColor;
+          ctx.lineWidth = Math.max(1, ratio);
+          ctx.beginPath();
+          ctx.moveTo(separatorX, y + paddingY);
+          ctx.lineTo(separatorX, y + boxHeight - paddingY);
+          ctx.stroke();
+        }
       });
       ctx.restore();
     });
