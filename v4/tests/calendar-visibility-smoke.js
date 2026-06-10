@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 
 import { CALENDAR_OBJECT_TYPES } from '../src/calendar/calendar-types.js';
 import { setBars } from '../src/data/bar-store.js';
-import { clearDailyTimeReviews } from '../src/time-reaction/daily-time-review-store.js';
+import {
+  clearDailyTimeReviews,
+  loadDailyTimeReviews,
+} from '../src/time-reaction/daily-time-review-store.js';
 import {
   getCalendarVisibilitySummaryForItems,
   setCalendarDayGroupObjectsHidden,
@@ -206,6 +209,35 @@ setBars(
 assert.doesNotThrow(
   () => renderCalendarPanel({ selectedDate: '2024-01-10', viewDate: '2024-01-10' }),
   'Calendar renders when selected day has no Daily Time review'
+);
+const emptyDailyTimeCalendar = renderCalendarPanel({ selectedDate: '2024-01-10', viewDate: '2024-01-10' });
+assert.match(emptyDailyTimeCalendar, /Bias · No notes yet/, 'Calendar shows merged Bias row');
+assert.match(
+  emptyDailyTimeCalendar,
+  /Opening Thesis Review · No notes yet/,
+  'Calendar shows merged Opening Thesis Review row'
+);
+assert.match(emptyDailyTimeCalendar, /固定时点状态 · No notes yet/, 'Calendar keeps Fixed Time State row');
+assert.doesNotMatch(emptyDailyTimeCalendar, /周 Bias 分析/, 'Calendar does not show old weekly bias row');
+assert.doesNotMatch(emptyDailyTimeCalendar, /日 Bias 分析/, 'Calendar does not show old daily bias row');
+assert.doesNotMatch(emptyDailyTimeCalendar, /09:30 前状态分析/, 'Calendar does not show old pre-open row');
+assert.doesNotMatch(emptyDailyTimeCalendar, /09:30-11:00 Summary/, 'Calendar does not show old morning summary row');
+assert.doesNotMatch(emptyDailyTimeCalendar, /全天 Summary/, 'Calendar does not show old full-day summary row');
+
+loadDailyTimeReviews([
+  {
+    date: '2024-01-10',
+    instrument: 'NQ',
+    bias: { weeklyBias: 'Weekly bullish.' },
+    openingThesisReview: { preOpenThesis: 'Pre-open discount thesis.' },
+  },
+], { preserveUpdatedAt: true });
+const populatedDailyTimeCalendar = renderCalendarPanel({ selectedDate: '2024-01-10', viewDate: '2024-01-10' });
+assert.match(populatedDailyTimeCalendar, /Bias · Weekly bullish\./, 'Calendar previews Bias content');
+assert.match(
+  populatedDailyTimeCalendar,
+  /Opening Thesis Review · Pre-open discount thesis\./,
+  'Calendar previews Opening Thesis Review content'
 );
 
 clearAnnotations();

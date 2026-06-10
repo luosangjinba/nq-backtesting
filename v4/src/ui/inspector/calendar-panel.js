@@ -18,7 +18,6 @@ import {
 } from '../../utils.js';
 import { getCalendarVisibilitySummaryForItems } from './calendar-visibility-actions.js';
 import {
-  DAILY_TIME_REVIEW_SECTIONS,
   getDailyTimeReviewByDate,
   hasDailyTimeReviewContent,
 } from '../../time-reaction/daily-time-review-store.js';
@@ -39,6 +38,32 @@ const MONTHS = Object.freeze([
   'October',
   'November',
   'December',
+]);
+
+const DAILY_TIME_REVIEW_CALENDAR_ROWS = Object.freeze([
+  {
+    key: 'bias',
+    label: 'Bias',
+    fallbackTime: '00:00',
+    legacySections: ['weeklyBias', 'dailyBias'],
+    openSection: '',
+  },
+  {
+    key: 'openingThesisReview',
+    label: 'Opening Thesis Review',
+    fallbackTime: '00:00',
+    rangeEndTime: '16:59',
+    legacySections: ['pre0930Analysis', 'summary0930To1100', 'fullDaySummary'],
+    openSection: '',
+  },
+  {
+    key: 'fixedTimeState',
+    label: '固定时点状态',
+    fallbackTime: '09:30',
+    rangeEndTime: '11:00',
+    legacySections: ['fixedTimeState'],
+    openSection: 'fixedTimeState',
+  },
 ]);
 
 function getEconomicImpactClass(event = {}) {
@@ -463,38 +488,53 @@ function createChartNotesGroup(dateKey, instrument = 'NQ') {
   };
 }
 
-function getDailyTimeReviewPreview(sectionKey, review = {}) {
+function getDailyTimeReviewPreview(rowKey, review = {}) {
   const safeReview = review || {};
-  if (sectionKey === 'weeklyBias') return safeReview.bias?.weeklyBias || '';
-  if (sectionKey === 'dailyBias') return safeReview.bias?.dailyBias || '';
-  if (sectionKey === 'pre0930Analysis') return safeReview.openingThesisReview?.preOpenThesis || '';
-  if (sectionKey === 'summary0930To1100') return safeReview.openingThesisReview?.morningSummary0930To1100 || '';
-  if (sectionKey === 'fullDaySummary') return safeReview.openingThesisReview?.fullDaySummary || '';
+  if (rowKey === 'bias') {
+    return safeReview.bias?.weeklyBias
+      || safeReview.bias?.dailyBias
+      || safeReview.bias?.biasReview
+      || '';
+  }
+  if (rowKey === 'openingThesisReview') {
+    return safeReview.openingThesisReview?.preOpenThesis
+      || safeReview.openingThesisReview?.morningSummary0930To1100
+      || safeReview.openingThesisReview?.fullDaySummary
+      || safeReview.openingThesisReview?.thesisReview
+      || '';
+  }
   return '';
 }
 
-function summarizeTimeReactionSection(sectionData = {}, sectionKey = '', review = {}) {
-  const refCount = getSectionRefCount(sectionData);
-  const preview = getDailyTimeReviewPreview(sectionKey, review) || getSectionPreview(sectionData);
+function getDailyTimeReviewRowRefCount(row, review = {}) {
+  return (row.legacySections || []).reduce((total, sectionKey) => (
+    total + getSectionRefCount(review?.[sectionKey] || {})
+  ), 0);
+}
+
+function summarizeTimeReactionRow(row, review = {}) {
+  const sectionData = review?.[row.key] || {};
+  const refCount = getDailyTimeReviewRowRefCount(row, review);
+  const preview = getDailyTimeReviewPreview(row.key, review) || getSectionPreview(sectionData);
   if (preview && refCount) return `${preview} · ${refCount} refs`;
   if (preview) return preview;
   if (refCount) return `${refCount} refs`;
   return 'No notes yet';
 }
 
-function createTimeReactionItem(dateKey, section, review = getDailyTimeReviewByDate(dateKey)) {
-  const start = getCalendarDateTimestamp(dateKey, section.fallbackTime || '09:30');
-  const end = getCalendarDateTimestamp(dateKey, section.rangeEndTime || section.fallbackTime || '09:30');
-  const sectionData = review?.[section.key] || {};
+function createTimeReactionItem(dateKey, row, review = getDailyTimeReviewByDate(dateKey)) {
+  const start = getCalendarDateTimestamp(dateKey, row.fallbackTime || '09:30');
+  const end = getCalendarDateTimestamp(dateKey, row.rangeEndTime || row.fallbackTime || '09:30');
+  const sectionKey = row.openSection || '';
   return {
-    id: `${dateKey}:${section.key}`,
+    id: `${dateKey}:${row.key}`,
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     dateKey,
     timestamp: Number.isFinite(start) ? start : null,
-    label: `${section.label} · ${summarizeTimeReactionSection(sectionData, section.key, review)}`,
+    label: `${row.label} · ${summarizeTimeReactionRow(row, review)}`,
     range: Number.isFinite(start) && Number.isFinite(end) ? { start, end } : null,
-    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey, section: section.key },
-    source: { sectionKey: section.key, sectionLabel: section.label, review },
+    ref: { type: CALENDAR_OBJECT_TYPES.TIME_REACTION, id: dateKey, section: sectionKey },
+    source: { sectionKey, sectionLabel: row.label, review },
   };
 }
 
@@ -507,7 +547,7 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
     type: CALENDAR_OBJECT_TYPES.TIME_REACTION,
     label: 'Time Reaction Observation',
     rows: [
-      ...DAILY_TIME_REVIEW_SECTIONS.map((section) => createTimeReactionItem(dateKey, section, review)),
+      ...DAILY_TIME_REVIEW_CALENDAR_ROWS.map((row) => createTimeReactionItem(dateKey, row, review)),
     ],
   };
   const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);

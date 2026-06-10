@@ -104,3 +104,7 @@ Current Status:
   - Validation passed:
     - `for f in v4/tests/*.js; do node "$f" || exit 1; done`
     - `for f in $(rg --files v4/src v4/tests -g '*.js'); do node --check "$f" || exit 1; done`
+- Follow-up fix:
+  - Calendar `Time Reaction Observation` rows now match the simplified model: `Bias`, `Opening Thesis Review`, and `固定时点状态`.
+  - Removed old Calendar row labels from the display path: `周 Bias 分析`, `日 Bias 分析`, `09:30 前状态分析`, `09:30-11:00 Summary`, and `全天 Summary`.
+  - Added calendar smoke assertions for the new row labels and previews.
