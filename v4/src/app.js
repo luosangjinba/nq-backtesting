@@ -40,6 +40,7 @@ import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.j
 import { initChartNotePersistence } from './chart-notes/chart-note-persistence.js';
 import { initChartNoteRenderer } from './chart-notes/chart-note-renderer.js';
 import { initChartNoteSelection } from './chart-notes/chart-note-selection.js';
+import { initEconomicEventNotePersistence } from './economic-calendar/economic-event-note-persistence.js';
 import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
@@ -137,6 +138,7 @@ initChartNoteSelection();
 console.log('[V4] Chart Notes controls initialized');
 
 initEconomicCalendarLoader();
+initEconomicEventNotePersistence();
 console.log('[V4] Economic Calendar loader initialized');
 
 initDailyRegimeVixLoader();

@@ -109,6 +109,12 @@ export function getEconomicEvents() {
   return clone(events);
 }
 
+export function getEconomicEventById(id) {
+  const eventId = String(id || '');
+  const event = events.find((item) => item.id === eventId);
+  return event ? { ...event } : null;
+}
+
 export function getEconomicCalendarLoadedRange() {
   return loadedRange ? { ...loadedRange } : null;
 }

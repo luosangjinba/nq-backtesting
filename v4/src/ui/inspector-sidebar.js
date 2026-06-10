@@ -40,9 +40,11 @@ import {
   renderDailyTimeReviewPanel,
   renderDailyTimeReviewSectionPanel,
 } from './inspector/time-reaction-panel.js';
+import { renderEconomicEventDetailPanel } from './inspector/economic-event-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
 import { createChartNoteInspectorActionController } from './inspector/chart-note-actions.js';
+import { createEconomicEventActionController } from './inspector/economic-event-actions.js';
 import {
   canPopInspectorPage,
   getInspectorPage,
@@ -84,6 +86,7 @@ import {
   getOrCreateDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
 import { recordHistory } from '../history/history-manager.js';
+import { getEconomicEventById } from '../economic-calendar/economic-calendar-store.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -130,6 +133,10 @@ const dailyTimeActions = createDailyTimeInspectorActionController({
 const chartNoteActions = createChartNoteInspectorActionController({
   handlePickedOrderReasonChartNote: (note) => orderReviewActions.handlePickedChartNote(note),
   isOrderReasonPicking: () => orderReviewActions.isReasonRefPicking(),
+  recordInspectorHistory,
+});
+
+const economicEventActions = createEconomicEventActionController({
   recordInspectorHistory,
 });
 
@@ -423,6 +430,24 @@ function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
   `);
 }
 
+function renderEconomicEventDetail(eventId) {
+  const event = getEconomicEventById(eventId);
+  if (!event) return false;
+  currentPanel = 'economic-event-detail';
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'economic-event',
+    objectId: eventId,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
+  setInspectorBody(`
+    ${renderInspectorBackAction()}
+    ${renderEconomicEventDetailPanel(event)}
+  `);
+  return true;
+}
+
 function renderEmpty() {
   currentPanel = 'empty';
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
@@ -521,6 +546,10 @@ function renderPageFromState(page = getInspectorPage()) {
     } else if (page.objectType === 'time-reaction') {
       if (String(page.objectId || '').match(/^\d{4}-\d{2}-\d{2}$/)) {
         renderDailyTimeReviewDetail(page.objectId, page.sectionKey || '');
+        return;
+      }
+    } else if (page.objectType === 'economic-event') {
+      if (renderEconomicEventDetail(page.objectId)) {
         return;
       }
     }
@@ -768,6 +797,22 @@ function openCalendarObject(type, id, options = {}) {
     renderDailyTimeReviewDetail(id, options.sectionKey || '');
     return true;
   }
+  if (type === 'economic-event') {
+    if (!getEconomicEventById(id)) return false;
+    clearPdaSelection();
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+    selectedSmtId = null;
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'economic-event',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    renderEconomicEventDetail(id);
+    return true;
+  }
   return false;
 }
 
@@ -796,6 +841,10 @@ function handleInspectorChange(e) {
   }
 
   if (chartNoteActions.handleChange(action, e.target)) {
+    return;
+  }
+
+  if (economicEventActions.handleChange(action, e.target)) {
     return;
   }
 
@@ -990,6 +1039,7 @@ export function initInspectorSidebar() {
   bus.on('order-review:changed', refreshSelection);
   bus.on('daily-time-review:changed', refreshSelection);
   bus.on('chart-notes:changed', refreshSelection);
+  bus.on('economic-event-notes:changed', refreshSelection);
   bus.on('chart-note:selected', ({ note }) => {
     if (orderReviewActions.isReasonRefPicking()) {
       orderReviewActions.handlePickedChartNote(note);

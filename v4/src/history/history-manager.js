@@ -13,6 +13,7 @@ import {
   loadTimeOverlaySettings,
 } from '../time-overlays/time-overlay-store.js';
 import { getChartNotes, loadChartNotes } from '../chart-notes/chart-note-store.js';
+import { getEconomicEventNotes, loadEconomicEventNotes } from '../economic-calendar/economic-event-note-store.js';
 
 const MAX_HISTORY = 100;
 
@@ -47,6 +48,7 @@ export function captureSnapshot() {
     dailyTimeReviews: getDailyTimeReviews(),
     timeOverlaySettings: getTimeOverlaySettings(),
     chartNotes: getChartNotes(),
+    economicEventNotes: getEconomicEventNotes(),
   };
 }
 
@@ -62,6 +64,7 @@ export function restoreSnapshot(snapshot) {
     loadDailyTimeReviews(clone(snapshot.dailyTimeReviews || []), { preserveUpdatedAt: true });
     loadTimeOverlaySettings(clone(snapshot.timeOverlaySettings || null));
     loadChartNotes(clone(snapshot.chartNotes || []));
+    loadEconomicEventNotes(clone(snapshot.economicEventNotes || []));
   } finally {
     isRestoring = false;
   }
