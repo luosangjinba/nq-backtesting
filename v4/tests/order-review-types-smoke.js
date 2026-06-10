@@ -19,6 +19,8 @@ assert(ORDER_DIRECTIONS.SHORT === 'short', 'direction enum should expose SHORT')
 assert(ORDER_EVENT_TYPES.SWEEP_LIQUIDITY === 'sweep-liquidity', 'event enum should derive key from value');
 assert(ORDER_REF_TYPES.ORDER_SETUP === 'order-setup', 'ref enum should derive compound key');
 assert(ORDER_RESULTS.STOP_LOSS === 'stop-loss', 'result enum should derive STOP_LOSS');
+assert(ORDER_RESULTS.TARGETINTERNAL2 === 'targetInternal2', 'result enum should include Target Internal 2');
+assert(ORDER_RESULTS.FINALTARGET === 'finalTarget', 'result enum should include Target External 3');
 assert(VALID_ORDER_DIRECTIONS.has('long'), 'valid direction set should include long');
 assert(!VALID_ORDER_DIRECTIONS.has('buy'), 'valid direction set should not include aliases');
 assert(ORDER_DIRECTION_ALIASES.get('buy') === 'long', 'direction alias map should resolve buy');

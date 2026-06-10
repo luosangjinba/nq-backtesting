@@ -9,6 +9,7 @@ import {
 import {
   TARGET_EXECUTION_ACTION_LABELS,
   TARGET_EXECUTION_ACTIONS,
+  isTargetResult,
 } from '../../order/target-progress.js';
 import { createSetupSetFromOrderReview } from '../../order/setup-set.js';
 import {
@@ -138,8 +139,26 @@ function summarizeLinkedRef(ref = {}, { includeId = true } = {}) {
 }
 
 
-function renderResultOptions(selectedResult) {
-  return renderDefinitionOptions(ORDER_RESULT_DEFINITIONS, selectedResult);
+function renderResultOptions(selectedResult, setupSet) {
+  const activeDefinitions = getActiveDefinitions(ORDER_RESULT_DEFINITIONS);
+  const definitionByValue = new Map(activeDefinitions.map((definition) => [definition.value, definition]));
+  const targetRoles = new Set();
+  const targetOptions = (setupSet?.orderElements?.targets || [])
+    .filter((target) => target?.complete)
+    .map((target) => {
+      targetRoles.add(target.role);
+      return `<option value="${escapeHtml(target.role)}" ${target.role === selectedResult ? 'selected' : ''}>${escapeHtml(target.label || definitionByValue.get(target.role)?.label || target.role)}</option>`;
+    });
+  if (isTargetResult(selectedResult) && !targetRoles.has(selectedResult)) {
+    const label = definitionByValue.get(selectedResult)?.label || selectedResult;
+    targetOptions.push(`<option value="${escapeHtml(selectedResult)}" selected disabled>${escapeHtml(`${label} (not in execution)`)}</option>`);
+  }
+  const nonTargetOptions = activeDefinitions
+    .filter((definition) => !isTargetResult(definition.value))
+    .map((definition) =>
+      `<option value="${escapeHtml(definition.value)}" ${definition.value === selectedResult ? 'selected' : ''}>${escapeHtml(definition.label)}</option>`
+    );
+  return [...targetOptions, ...nonTargetOptions].join('');
 }
 
 function renderTargetActionOptions(selectedAction) {
@@ -229,7 +248,7 @@ function getElementLabel(role) {
   if (role === 'target2') return 'Target Swing Point';
   if (role === 'target3') return 'Target External 1';
   if (role === 'targetExternal2') return 'Target External 2';
-  if (role === 'finalTarget') return 'Target External The Best';
+  if (role === 'finalTarget') return 'Target External 3';
   return role || 'Element';
 }
 
@@ -358,7 +377,7 @@ function renderResultPanel(order, setupSet) {
         ${controlField(
           'Result',
           `<select class="inspector-input inspector-mini-select" data-inspector-action="order-review-result" data-order-review-id="${escapeHtml(order.id)}">
-            ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN)}
+            ${renderResultOptions(order.resultReview?.result || ORDER_RESULTS.UNKNOWN, setupSet)}
           </select>`
         )}
         ${controlField(

@@ -1,29 +1,45 @@
-export const TARGET_PROGRESS_ROLES = Object.freeze(['target1', 'target2', 'target3']);
+export const TARGET_PROGRESS_ROLES = Object.freeze([
+  'target1',
+  'targetInternal2',
+  'targetInternal3',
+  'target2',
+  'target3',
+  'targetExternal2',
+  'finalTarget',
+]);
 
 const TARGET_RESULT_RANK = Object.freeze({
   target1: 1,
-  target2: 2,
-  target3: 3,
+  targetInternal2: 2,
+  targetInternal3: 3,
+  target2: 4,
+  target3: 5,
+  targetExternal2: 6,
+  finalTarget: 7,
 });
 
 const TARGET_PROGRESS_LABELS = Object.freeze({
   target1: 'Target Internal 1',
+  targetInternal2: 'Target Internal 2',
+  targetInternal3: 'Target Internal 3',
   target2: 'Target Swing Point',
   target3: 'Target External 1',
+  targetExternal2: 'Target External 2',
+  finalTarget: 'Target External 3',
 });
 
 export const TARGET_EXECUTION_ACTIONS = Object.freeze({
   NONE: 'none',
-  PARTIAL: 'partial',
-  FINAL: 'final',
-  MANUAL_EXIT: 'manual-exit',
+  FRUIT: 'fruit',
+  NEUTRAL: 'neutral',
+  BEST: 'best',
 });
 
 export const TARGET_EXECUTION_ACTION_LABELS = Object.freeze({
   [TARGET_EXECUTION_ACTIONS.NONE]: 'None',
-  [TARGET_EXECUTION_ACTIONS.PARTIAL]: 'Partial',
-  [TARGET_EXECUTION_ACTIONS.FINAL]: 'Final',
-  [TARGET_EXECUTION_ACTIONS.MANUAL_EXIT]: 'Manual Exit',
+  [TARGET_EXECUTION_ACTIONS.FRUIT]: 'Fruit',
+  [TARGET_EXECUTION_ACTIONS.NEUTRAL]: 'Neutral',
+  [TARGET_EXECUTION_ACTIONS.BEST]: 'Best',
 });
 
 export function isTargetResult(result) {
@@ -69,7 +85,7 @@ function normalizeExecutionAction(value) {
 }
 
 function getDefaultExecutionAction(role, resultStatus) {
-  return role === resultStatus ? TARGET_EXECUTION_ACTIONS.FINAL : TARGET_EXECUTION_ACTIONS.NONE;
+  return role === resultStatus ? TARGET_EXECUTION_ACTIONS.BEST : TARGET_EXECUTION_ACTIONS.NONE;
 }
 
 function getTargetAction(targetActions = {}, role, resultStatus) {

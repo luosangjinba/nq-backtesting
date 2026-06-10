@@ -8,6 +8,7 @@ import { ORDER_DIRECTIONS } from './order-review-types.js';
 import {
   TARGET_EXECUTION_ACTION_LABELS,
   TARGET_EXECUTION_ACTIONS,
+  isTargetResult,
 } from './target-progress.js';
 import { getActiveReviewSetId } from './order-review-active.js';
 import { getSelectedOrderSetupElement } from './order-setup-selection.js';
@@ -235,7 +236,7 @@ function getTargetLabel(target = {}) {
   if (target.role === 'target2') return 'Target Swing Point';
   if (target.role === 'target3') return 'Target External 1';
   if (target.role === 'targetExternal2') return 'Target External 2';
-  if (target.role === 'finalTarget') return 'Target External The Best';
+  if (target.role === 'finalTarget') return 'Target External 3';
   return target.role ? target.role.replace(/^target/, 'Target ') : 'Target';
 }
 
@@ -268,7 +269,7 @@ function applyTargetProgressLabels(targetLines = [], targetProgress = []) {
 }
 
 function getResultTarget(targetElements = [], resultStatus = '') {
-  if (resultStatus !== 'target1' && resultStatus !== 'target2' && resultStatus !== 'target3') return null;
+  if (!isTargetResult(resultStatus)) return null;
   return targetElements.find((target) => target.role === resultStatus && Number.isFinite(Number(target.price))) || null;
 }
 
@@ -340,7 +341,7 @@ function renderSetupSet(setupSet, isActive = false) {
   const canRenderRiskRewardBox =
     isOrderSetupElementVisible(setupSet, 'entry') &&
     isOrderSetupElementVisible(setupSet, 'stopLoss') &&
-    (result.status !== 'target1' && result.status !== 'target2' && result.status !== 'target3'
+    (!isTargetResult(result.status)
       ? true
       : isOrderSetupElementVisible(setupSet, result.status));
   if (canRenderRiskRewardBox) {

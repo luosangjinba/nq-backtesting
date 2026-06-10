@@ -172,7 +172,7 @@ assert.match(shiftOrderSetupMenu, /order-setup-set-market-structure-shift-end/, 
 assert.match(shiftOrderSetupMenu, /Targets/, 'setup menu groups target actions in a nested submenu');
 assert.match(shiftOrderSetupMenu, /Target Internal 3/, 'setup menu includes internal target variants');
 assert.match(shiftOrderSetupMenu, /Target External 2/, 'setup menu includes external target variants');
-assert.match(shiftOrderSetupMenu, /Target External The Best/, 'setup menu includes best external target');
+assert.match(shiftOrderSetupMenu, /Target External 3/, 'setup menu includes best external target');
 assert.equal(handleOrderSetupChartAction('order-setup-set-market-structure-shift', {
   bar: { timestamp: 1672756320, high: 11025, low: 11015 },
   timeframe: '1M',
@@ -229,6 +229,28 @@ const bearish = createChartReviewSet({
 assert.ok(bearish?.id, 'bearish setup created');
 assert.equal(setActiveReviewSet(bullish.id)?.id, bullish.id, 'set active works');
 assert.equal(getActiveReviewSet()?.id, bullish.id, 'active setup can be read');
+updateOrderReview(bullish.id, {
+  entryPlan: {
+    finalTarget: 11060,
+    finalTargetTimestamp: 1672756920,
+    finalTargetTimeframe: '1M',
+  },
+  resultReview: {
+    result: ORDER_RESULTS.FINALTARGET,
+  },
+});
+const finalTargetSetup = getSetupSetById(bullish.id);
+assert.equal(finalTargetSetup.orderElements.result.price, 11060, 'final target result derives exit price');
+assert.equal(
+  finalTargetSetup.orderElements.targetProgress.find((target) => target.role === 'finalTarget')?.final,
+  true,
+  'final target progress follows finalTarget result'
+);
+assert.equal(
+  finalTargetSetup.orderElements.targetProgress.find((target) => target.role === 'finalTarget')?.executionAction,
+  'best',
+  'final target result defaults progress action to best'
+);
 
 saveOrderReviews();
 const persistedRaw = window.localStorage.getItem('v4:order-reviews:NQ');

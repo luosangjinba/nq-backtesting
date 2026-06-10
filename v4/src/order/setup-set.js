@@ -10,7 +10,7 @@
 // through order-review-store with explicit persisted fields.
 
 import { getOrderReviewById, getOrderReviews } from './order-review-store.js';
-import { buildTargetProgress } from './target-progress.js';
+import { buildTargetProgress, isTargetResult } from './target-progress.js';
 
 export const SETUP_SET_SOURCE_TYPES = Object.freeze({
   ORDER_REVIEW: 'order-review',
@@ -204,7 +204,7 @@ function createTargets(order = {}) {
     },
     {
       role: 'finalTarget',
-      label: 'Target External The Best',
+      label: 'Target External 3',
       targetType: 'external-best',
       priceField: 'finalTarget',
       lengthRole: 'finalTarget',
@@ -232,7 +232,7 @@ function deriveResultExit(status, entryElement, stopLossElement, targetElements 
   // Result status determines the review exit price when it points to a known
   // target/stop/BE element. This is a derived display value; it is not written
   // back over resultReview.exitPrice.
-  if (status === 'target1' || status === 'target2' || status === 'target3') {
+  if (isTargetResult(status)) {
     const target = targetElements.find((item) => item.role === status);
     return target?.price ?? null;
   }

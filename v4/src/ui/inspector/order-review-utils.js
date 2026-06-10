@@ -5,6 +5,7 @@ import {
   normalizeChartTime,
 } from '../../chart/time-projection.js';
 import { ORDER_RESULTS } from '../../order/order-review-types.js';
+import { isTargetResult } from '../../order/target-progress.js';
 import { formatTimeInput } from '../../utils.js';
 
 export function getSegmentTimestamp(segment) {
@@ -31,10 +32,7 @@ export function parseDateTimeInput(value) {
 }
 
 export function isAutoExitResult(result) {
-  return [
-    ORDER_RESULTS.TARGET1,
-    ORDER_RESULTS.TARGET2,
-    ORDER_RESULTS.TARGET3,
+  return isTargetResult(result) || [
     ORDER_RESULTS.STOP_LOSS,
     ORDER_RESULTS.BREAKEVEN,
   ].includes(result);

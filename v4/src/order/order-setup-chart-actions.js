@@ -111,7 +111,7 @@ function getOrderSetupElementLabel(role) {
   if (role === 'target2') return 'Target Swing Point';
   if (role === 'target3') return 'Target External 1';
   if (role === 'targetExternal2') return 'Target External 2';
-  if (role === 'finalTarget') return 'Target External The Best';
+  if (role === 'finalTarget') return 'Target External 3';
   if (role === 'reversal') return 'Reversal';
   return role || 'Element';
 }
@@ -123,7 +123,7 @@ const ORDER_SETUP_TARGET_MENU_ITEMS = Object.freeze([
   ['order-setup-set-target-swing', 'order-setup-set-target-swing-end', 'Target Swing Point'],
   ['order-setup-set-target-external', 'order-setup-set-target-external-end', 'Target External 1'],
   ['order-setup-set-target-external-2', 'order-setup-set-target-external-2-end', 'Target External 2'],
-  ['order-setup-set-final-target', 'order-setup-set-final-target-end', 'Target External The Best'],
+  ['order-setup-set-final-target', 'order-setup-set-final-target-end', 'Target External 3'],
 ]);
 
 function renderTargetSubmenu({ activeDisabled, disabled, isEnd = false } = {}) {

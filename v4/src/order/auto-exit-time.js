@@ -1,5 +1,6 @@
 import { fetchBars } from '../api.js';
 import { ORDER_DIRECTIONS, ORDER_RESULTS } from './order-review-types.js';
+import { isTargetResult } from './target-progress.js';
 
 const DEFAULT_LOOKAHEAD_HOURS = 72;
 const MAX_LOOKAHEAD_HOURS = 24 * 14;
@@ -25,7 +26,7 @@ function normalizeDirection(direction) {
 export function getAutoExitTargetPrice({ result, entryPrice, stopPrice, targets = [] } = {}) {
   if (result === ORDER_RESULTS.STOP_LOSS) return toFiniteNumber(stopPrice);
   if (result === ORDER_RESULTS.BREAKEVEN) return toFiniteNumber(entryPrice);
-  if (![ORDER_RESULTS.TARGET1, ORDER_RESULTS.TARGET2, ORDER_RESULTS.TARGET3].includes(result)) return null;
+  if (!isTargetResult(result)) return null;
   const target = targets.find((item) => item?.role === result);
   return toFiniteNumber(target?.price);
 }
@@ -39,13 +40,13 @@ export function doesBarTouchAutoExit({ bar, direction, result, price }) {
 
   if (result === ORDER_RESULTS.BREAKEVEN) return low <= targetPrice && targetPrice <= high;
   if (direction === ORDER_DIRECTIONS.LONG) {
-    if ([ORDER_RESULTS.TARGET1, ORDER_RESULTS.TARGET2, ORDER_RESULTS.TARGET3].includes(result)) {
+    if (isTargetResult(result)) {
       return high >= targetPrice;
     }
     if (result === ORDER_RESULTS.STOP_LOSS) return low <= targetPrice;
   }
   if (direction === ORDER_DIRECTIONS.SHORT) {
-    if ([ORDER_RESULTS.TARGET1, ORDER_RESULTS.TARGET2, ORDER_RESULTS.TARGET3].includes(result)) {
+    if (isTargetResult(result)) {
       return low <= targetPrice;
     }
     if (result === ORDER_RESULTS.STOP_LOSS) return high >= targetPrice;
@@ -60,7 +61,7 @@ export function findFirstAutoExitTouchBar(bars = [], criteria = {}) {
   if (direction === ORDER_DIRECTIONS.UNKNOWN) return { ok: false, reason: 'missing-direction' };
 
   const result = criteria.result || ORDER_RESULTS.UNKNOWN;
-  if (![ORDER_RESULTS.TARGET1, ORDER_RESULTS.TARGET2, ORDER_RESULTS.TARGET3, ORDER_RESULTS.STOP_LOSS, ORDER_RESULTS.BREAKEVEN].includes(result)) {
+  if (![ORDER_RESULTS.STOP_LOSS, ORDER_RESULTS.BREAKEVEN].includes(result) && !isTargetResult(result)) {
     return { ok: false, reason: 'unsupported-result' };
   }
 
