@@ -10,7 +10,11 @@ import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segme
 import { getSegmentById } from '../../segment/segment-store.js';
 import {
   getOrderReviewById,
+  normalizeEnum,
+  ORDER_REASON_CATEGORIES,
+  ORDER_REASON_CATEGORY_ALIASES,
   updateOrderReview,
+  VALID_ORDER_REASON_CATEGORIES,
 } from '../../order/order-review-store.js';
 import {
   ORDER_REF_ROLES,
@@ -68,13 +72,14 @@ export function getOrderReviewReasons(order) {
   if (reasons.length) {
     return reasons.map((reason, index) => ({
       id: reason.id || `reason_${index + 1}`,
+      category: normalizeReasonCategory(reason.category ?? reason.type),
       note: reason.note || '',
       refs: Array.isArray(reason.refs) ? reason.refs : [],
     }));
   }
   const refs = getOrderReviewRefs(order);
   const note = order?.setupThesis?.narrative || '';
-  return [{ id: 'reason_1', note, refs }];
+  return [{ id: 'reason_1', category: ORDER_REASON_CATEGORIES.OTHER, note, refs }];
 }
 
 export function getPendingOrderReasonRefPick() {
@@ -105,6 +110,15 @@ function createOrderReviewReasonId() {
   return `reason_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function normalizeReasonCategory(value) {
+  return normalizeEnum(
+    value,
+    VALID_ORDER_REASON_CATEGORIES,
+    ORDER_REASON_CATEGORY_ALIASES,
+    ORDER_REASON_CATEGORIES.OTHER
+  );
+}
+
 export function createOrderReviewReasonActionController({
   getSelectedSmtId,
   expandOrder,
@@ -114,6 +128,7 @@ export function createOrderReviewReasonActionController({
   function patchOrderReviewReasons(orderReviewId, reasons) {
     const normalizedReasons = reasons.map((reason, index) => ({
       id: reason.id || `reason_${index + 1}`,
+      category: normalizeReasonCategory(reason.category ?? reason.type),
       note: reason.note || '',
       refs: Array.isArray(reason.refs) ? reason.refs : [],
     }));
@@ -150,7 +165,7 @@ export function createOrderReviewReasonActionController({
     const reasons = getOrderReviewReasons(order);
     const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
     while (reasons.length <= index) {
-      reasons.push({ id: createOrderReviewReasonId(), note: '', refs: [] });
+      reasons.push({ id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] });
     }
     const refs = Array.isArray(reasons[index].refs) ? reasons[index].refs : [];
     const key = `${ref.type}:${ref.id}:${ref.role}`;
@@ -203,7 +218,7 @@ export function createOrderReviewReasonActionController({
     const reasons = getOrderReviewReasons(order);
     const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
     while (reasons.length <= index) {
-      reasons.push({ id: createOrderReviewReasonId(), note: '', refs: [] });
+      reasons.push({ id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] });
     }
     reasons[index] = { ...reasons[index], note };
     patchOrderReviewReasons(orderReviewId, reasons);
@@ -215,8 +230,21 @@ export function createOrderReviewReasonActionController({
     if (!order) return false;
     patchOrderReviewReasons(orderReviewId, [
       ...getOrderReviewReasons(order),
-      { id: createOrderReviewReasonId(), note: '', refs: [] },
+      { id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] },
     ]);
+    return true;
+  }
+
+  function updateOrderReviewReasonCategory(orderReviewId, reasonIndex, category) {
+    const order = getOrderReviewById(orderReviewId);
+    if (!order) return false;
+    const reasons = getOrderReviewReasons(order);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    while (reasons.length <= index) {
+      reasons.push({ id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] });
+    }
+    reasons[index] = { ...reasons[index], category: normalizeReasonCategory(category) };
+    patchOrderReviewReasons(orderReviewId, reasons);
     return true;
   }
 
@@ -482,6 +510,15 @@ export function createOrderReviewReasonActionController({
   function handleChange(action, target) {
     if (action === 'order-review-reason-note') {
       updateOrderReviewReasonNote(
+        target.dataset.orderReviewId,
+        Number(target.dataset.reasonIndex),
+        target.value
+      );
+      return true;
+    }
+
+    if (action === 'order-review-reason-category') {
+      updateOrderReviewReasonCategory(
         target.dataset.orderReviewId,
         Number(target.dataset.reasonIndex),
         target.value

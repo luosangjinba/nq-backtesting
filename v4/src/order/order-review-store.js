@@ -18,6 +18,8 @@ import {
   ORDER_REF_ROLE_ALIASES,
   ORDER_REF_TYPES,
   ORDER_REF_TYPE_ALIASES,
+  ORDER_REASON_CATEGORIES,
+  ORDER_REASON_CATEGORY_ALIASES,
   ORDER_RESULTS,
   ORDER_RESULT_ALIASES,
   ORDER_STOP_REASONS,
@@ -34,6 +36,7 @@ import {
   VALID_ORDER_EVENT_TYPES,
   VALID_ORDER_REF_ROLES,
   VALID_ORDER_REF_TYPES,
+  VALID_ORDER_REASON_CATEGORIES,
   VALID_ORDER_RESULTS,
   VALID_ORDER_STOP_REASONS,
   VALID_ORDER_TARGET_TYPES,
@@ -65,6 +68,9 @@ export {
   ORDER_REF_TYPES,
   ORDER_REF_TYPE_ALIASES,
   ORDER_REF_TYPE_DEFINITIONS,
+  ORDER_REASON_CATEGORIES,
+  ORDER_REASON_CATEGORY_ALIASES,
+  ORDER_REASON_CATEGORY_DEFINITIONS,
   ORDER_RESULTS,
   ORDER_RESULT_ALIASES,
   ORDER_RESULT_DEFINITIONS,
@@ -85,6 +91,7 @@ export {
   VALID_ORDER_EVENT_TYPES,
   VALID_ORDER_REF_ROLES,
   VALID_ORDER_REF_TYPES,
+  VALID_ORDER_REASON_CATEGORIES,
   VALID_ORDER_RESULTS,
   VALID_ORDER_STOP_REASONS,
   VALID_ORDER_TARGET_TYPES,
@@ -293,6 +300,12 @@ function normalizeSetupReason(input = {}, index = 0) {
   if (!id && !note && !refs.length) return null;
   return {
     id: id || `reason_${index + 1}`,
+    category: normalizeEnum(
+      input.category ?? input.type,
+      VALID_ORDER_REASON_CATEGORIES,
+      ORDER_REASON_CATEGORY_ALIASES,
+      ORDER_REASON_CATEGORIES.OTHER
+    ),
     note,
     refs,
   };
@@ -310,6 +323,7 @@ function normalizeSetupReasons(input = [], legacyNarrative = '', legacyRefs = []
   return [
     {
       id: 'reason_1',
+      category: ORDER_REASON_CATEGORIES.OTHER,
       note,
       refs,
     },

@@ -12,6 +12,7 @@ import {
   ORDER_EVENT_TYPES,
   ORDER_REF_ROLES,
   ORDER_REF_TYPES,
+  ORDER_REASON_CATEGORIES,
   ORDER_RESULTS,
 } from '../src/order/order-review-types.js';
 import {
@@ -117,6 +118,7 @@ updateOrderReview(bullish.id, {
     reasons: [
       {
         id: 'reason_1',
+        category: 'macro',
         note: 'PDA reaction confirmed.',
         refs: [
           {
@@ -128,6 +130,7 @@ updateOrderReview(bullish.id, {
       },
       {
         id: 'reason_2',
+        category: 'invalid-category',
         note: 'SMT confirmation.',
         refs: [
           {
@@ -161,6 +164,8 @@ assertSetupCore(updatedBullish, {
 assert.equal(updatedBullish.explanationElements.refs.length, 3, 'reason refs are exposed through setup set');
 assert.equal(updatedBullish.explanationElements.notes.length, 2, 'reason notes become explanation notes');
 assert.equal(getOrderReviewById(bullish.id).summary, 'Opening reversal setup summary.', 'order setup summary persists');
+assert.equal(getOrderReviewById(bullish.id).setupThesis.reasons[0].category, ORDER_REASON_CATEGORIES.MACROS, 'reason category alias normalizes to macros');
+assert.equal(getOrderReviewById(bullish.id).setupThesis.reasons[1].category, ORDER_REASON_CATEGORIES.OTHER, 'invalid reason category falls back to other');
 
 const shiftOrderSetupMenu = renderOrderSetupMenuItems({
   bar: { timestamp: 1672756860 },

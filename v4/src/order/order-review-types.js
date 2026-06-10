@@ -207,6 +207,12 @@ export const ORDER_STOP_REASON_DEFINITIONS = [
   { value: 'manual', label: 'Manual', active: true, aliases: [] },
 ];
 
+export const ORDER_REASON_CATEGORY_DEFINITIONS = [
+  { value: 'macros', label: 'macros', active: true, aliases: ['macro'] },
+  { value: 'micros', label: 'micros', active: true, aliases: ['micro'] },
+  { value: 'other', label: 'other', active: true, aliases: [] },
+];
+
 export const ORDER_RESULT_DEFINITIONS = [
   { value: 'target1', label: 'Target Internal 1', active: true, aliases: ['target-1', 't1'] },
   { value: 'targetInternal2', label: 'Target Internal 2', active: true, aliases: ['target-internal-2', 'internal-2', 'ti2'] },
@@ -237,6 +243,7 @@ export const ORDER_ENTRY_SESSIONS = valuesFromDefinitions(ORDER_ENTRY_SESSION_DE
 export const ORDER_TIMEFRAMES = valuesFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const ORDER_TARGET_TYPES = valuesFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const ORDER_STOP_REASONS = valuesFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
+export const ORDER_REASON_CATEGORIES = valuesFromDefinitions(ORDER_REASON_CATEGORY_DEFINITIONS);
 export const ORDER_RESULTS = valuesFromDefinitions(ORDER_RESULT_DEFINITIONS);
 export const ORDER_CONFIDENCE = valuesFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
 
@@ -250,6 +257,7 @@ export const VALID_ORDER_ENTRY_SESSIONS = validSetFromDefinitions(ORDER_ENTRY_SE
 export const VALID_ORDER_TIMEFRAMES = validSetFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const VALID_ORDER_TARGET_TYPES = validSetFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const VALID_ORDER_STOP_REASONS = validSetFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
+export const VALID_ORDER_REASON_CATEGORIES = validSetFromDefinitions(ORDER_REASON_CATEGORY_DEFINITIONS);
 export const VALID_ORDER_RESULTS = validSetFromDefinitions(ORDER_RESULT_DEFINITIONS);
 export const VALID_ORDER_CONFIDENCE = validSetFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);
 
@@ -263,5 +271,6 @@ export const ORDER_ENTRY_SESSION_ALIASES = aliasMapFromDefinitions(ORDER_ENTRY_S
 export const ORDER_TIMEFRAME_ALIASES = aliasMapFromDefinitions(ORDER_TIMEFRAME_DEFINITIONS);
 export const ORDER_TARGET_TYPE_ALIASES = aliasMapFromDefinitions(ORDER_TARGET_TYPE_DEFINITIONS);
 export const ORDER_STOP_REASON_ALIASES = aliasMapFromDefinitions(ORDER_STOP_REASON_DEFINITIONS);
+export const ORDER_REASON_CATEGORY_ALIASES = aliasMapFromDefinitions(ORDER_REASON_CATEGORY_DEFINITIONS);
 export const ORDER_RESULT_ALIASES = aliasMapFromDefinitions(ORDER_RESULT_DEFINITIONS);
 export const ORDER_CONFIDENCE_ALIASES = aliasMapFromDefinitions(ORDER_CONFIDENCE_DEFINITIONS);

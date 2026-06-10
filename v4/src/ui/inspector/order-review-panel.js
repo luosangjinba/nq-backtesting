@@ -3,6 +3,8 @@ import {
   ORDER_ENTRY_MODEL_DEFINITIONS,
   ORDER_ENTRY_PATTERN_DEFINITIONS,
   ORDER_ENTRY_SESSION_DEFINITIONS,
+  ORDER_REASON_CATEGORIES,
+  ORDER_REASON_CATEGORY_DEFINITIONS,
   ORDER_RESULT_DEFINITIONS,
   ORDER_RESULTS,
 } from '../../order/order-review-types.js';
@@ -313,8 +315,8 @@ function getOrderReviewReasons(order) {
   if (reasons.length) return reasons;
   const refs = Array.isArray(order.setupThesis?.linkedObjectRefs) ? order.setupThesis.linkedObjectRefs : [];
   const note = order.setupThesis?.narrative || '';
-  if (!note && !refs.length) return [{ id: 'reason_1', note: '', refs: [] }];
-  return [{ id: 'reason_1', note, refs }];
+  if (!note && !refs.length) return [{ id: 'reason_1', category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] }];
+  return [{ id: 'reason_1', category: ORDER_REASON_CATEGORIES.OTHER, note, refs }];
 }
 
 function isReasonEmpty(reason = {}) {
@@ -327,6 +329,7 @@ function renderReasonRows(order, setupSet, options = {}) {
     const refs = Array.isArray(reason.refs) ? reason.refs : [];
     const isPicking = options.pendingReasonRefPick?.orderReviewId === order.id
       && Number(options.pendingReasonRefPick?.reasonIndex) === reasonIndex;
+    const category = reason.category || ORDER_REASON_CATEGORIES.OTHER;
     const refRows = refs.map((ref, refIndex) => `
       <div class="order-review-ref-row">
         <span title="${escapeHtml(getRefId(ref) || '—')}">${escapeHtml(summarizeLinkedRef(ref))}</span>
@@ -338,6 +341,14 @@ function renderReasonRows(order, setupSet, options = {}) {
       <div class="order-setup-reason-card">
         <div class="order-setup-reason-title-row">
           <div class="order-setup-reason-title">Reason ${reasonIndex + 1}</div>
+          <select
+            class="inspector-input inspector-mini-select order-setup-reason-category"
+            data-inspector-action="order-review-reason-category"
+            data-order-review-id="${escapeHtml(order.id)}"
+            data-reason-index="${reasonIndex}"
+          >
+            ${renderDefinitionOptions(ORDER_REASON_CATEGORY_DEFINITIONS, category)}
+          </select>
           ${reasonIndex > 0 && isReasonEmpty(reason) ? `<button class="inspector-mini-btn order-setup-reason-delete" data-inspector-action="order-review-reason-delete" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" type="button">X</button>` : ''}
         </div>
         <textarea class="inspector-textarea" data-inspector-action="order-review-reason-note" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" rows="2" placeholder="Write setup reason">${escapeHtml(reason.note || '')}</textarea>

@@ -1995,7 +1995,7 @@ html, body {
 
 .order-setup-reason-title-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22px;
+  grid-template-columns: minmax(0, 1fr) minmax(86px, auto) 22px;
   gap: 6px;
   align-items: center;
 }
@@ -2004,6 +2004,10 @@ html, body {
   color: var(--order-reason-accent);
   font-size: 11px;
   font-weight: 600;
+}
+
+.order-setup-reason-category {
+  min-width: 86px;
 }
 
 .order-setup-reason-delete {
