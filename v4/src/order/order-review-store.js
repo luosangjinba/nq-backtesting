@@ -650,6 +650,7 @@ export function normalizeOrderReview(input = {}, options = {}) {
     entryPlan,
     resultReview,
     display: normalizeOrderDisplay(input.display),
+    summary: normalizeNote(input.summary),
     note: normalizeNote(input.note),
   };
 

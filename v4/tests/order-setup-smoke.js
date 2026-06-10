@@ -101,6 +101,7 @@ updateActiveReviewSet({
     result: ORDER_RESULTS.TARGET1,
     exitTimestamp: 1672756800,
   },
+  summary: 'Opening reversal setup summary.',
 });
 
 linkRefToActiveReviewSet({
@@ -159,6 +160,7 @@ assertSetupCore(updatedBullish, {
 });
 assert.equal(updatedBullish.explanationElements.refs.length, 3, 'reason refs are exposed through setup set');
 assert.equal(updatedBullish.explanationElements.notes.length, 2, 'reason notes become explanation notes');
+assert.equal(getOrderReviewById(bullish.id).summary, 'Opening reversal setup summary.', 'order setup summary persists');
 
 const shiftOrderSetupMenu = renderOrderSetupMenuItems({
   bar: { timestamp: 1672756860 },

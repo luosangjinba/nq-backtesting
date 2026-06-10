@@ -337,6 +337,13 @@ export function createOrderReviewEditActionController({
       return true;
     }
 
+    if (action === 'order-review-summary') {
+      recordInspectorHistory?.('Update Order Summary', () =>
+        updateOrderReview(target.dataset.orderReviewId, { summary: target.value })
+      );
+      return true;
+    }
+
     if (action === 'order-review-result') {
       updateOrderReviewResult(target.dataset.orderReviewId, target.value);
       return true;

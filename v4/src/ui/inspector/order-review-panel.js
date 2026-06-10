@@ -190,6 +190,21 @@ function renderActiveDisplayPanel(order) {
   `;
 }
 
+function renderSummaryPanel(order) {
+  return `
+    <div class="order-review-compact order-review-summary-panel">
+      <div class="order-review-compact-title">Summary</div>
+      <textarea
+        class="inspector-textarea"
+        data-inspector-action="order-review-summary"
+        data-order-review-id="${escapeHtml(order.id)}"
+        rows="4"
+        placeholder="Write setup summary"
+      >${escapeHtml(order.summary || '')}</textarea>
+    </div>
+  `;
+}
+
 function renderAnchorPanel(setupSet) {
   const reversal = setupSet?.orderElements?.reversal || {};
   const direction = setupSet?.direction === 'short' ? 'Bearish' : setupSet?.direction === 'long' ? 'Bullish' : 'Unknown';
@@ -406,6 +421,7 @@ function renderActiveOrderSetup(order, options = {}) {
     <div class="inspector-evidence-list">
       ${renderActiveHeader(order, setupSet)}
       ${renderActiveDisplayPanel(order)}
+      ${renderSummaryPanel(order)}
       ${renderAnchorPanel(setupSet)}
       ${renderExecutionPanel(order, setupSet, options.selectedOrderSetupElement)}
       ${renderEntryContextPanel(order)}
