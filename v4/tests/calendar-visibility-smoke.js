@@ -218,6 +218,17 @@ assert.match(
   'Calendar shows merged Opening Thesis Review row'
 );
 assert.match(emptyDailyTimeCalendar, /固定时点状态 · No notes yet/, 'Calendar keeps Fixed Time State row');
+assert.match(emptyDailyTimeCalendar, /data-time-reaction-section="bias"/, 'Calendar opens Bias section only');
+assert.match(
+  emptyDailyTimeCalendar,
+  /data-time-reaction-section="openingThesisReview"/,
+  'Calendar opens Opening Thesis section only'
+);
+assert.match(
+  emptyDailyTimeCalendar,
+  /data-time-reaction-section="fixedTimeState"/,
+  'Calendar opens Fixed Time State section only'
+);
 assert.doesNotMatch(emptyDailyTimeCalendar, /周 Bias 分析/, 'Calendar does not show old weekly bias row');
 assert.doesNotMatch(emptyDailyTimeCalendar, /日 Bias 分析/, 'Calendar does not show old daily bias row');
 assert.doesNotMatch(emptyDailyTimeCalendar, /09:30 前状态分析/, 'Calendar does not show old pre-open row');

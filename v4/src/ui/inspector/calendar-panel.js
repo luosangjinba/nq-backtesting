@@ -46,7 +46,7 @@ const DAILY_TIME_REVIEW_CALENDAR_ROWS = Object.freeze([
     label: 'Bias',
     fallbackTime: '00:00',
     legacySections: ['weeklyBias', 'dailyBias'],
-    openSection: '',
+    openSection: 'bias',
   },
   {
     key: 'openingThesisReview',
@@ -54,7 +54,7 @@ const DAILY_TIME_REVIEW_CALENDAR_ROWS = Object.freeze([
     fallbackTime: '00:00',
     rangeEndTime: '16:59',
     legacySections: ['pre0930Analysis', 'summary0930To1100', 'fullDaySummary'],
-    openSection: '',
+    openSection: 'openingThesisReview',
   },
   {
     key: 'fixedTimeState',

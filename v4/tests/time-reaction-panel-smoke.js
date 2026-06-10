@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 
 import { normalizeDailyTimeReview } from '../src/time-reaction/daily-time-review-store.js';
-import { renderDailyTimeReviewPanel } from '../src/ui/inspector/time-reaction-panel.js';
+import {
+  renderDailyTimeReviewPanel,
+  renderDailyTimeReviewSectionPanel,
+} from '../src/ui/inspector/time-reaction-panel.js';
 
 const review = normalizeDailyTimeReview({
   date: '2024-01-10',
@@ -49,5 +52,21 @@ assert.equal(
   1,
   'main Daily Time panel does not nest section panels inside cards'
 );
+
+const biasHtml = renderDailyTimeReviewSectionPanel(review, 'bias');
+assert.match(biasHtml, /日 Bias 预判/, 'Bias section shows Bias fields');
+assert.doesNotMatch(biasHtml, /Opening Thesis Review/, 'Bias section does not show Opening Thesis');
+assert.doesNotMatch(biasHtml, /固定时点状态/, 'Bias section does not show Fixed Time State');
+
+const openingHtml = renderDailyTimeReviewSectionPanel(review, 'openingThesisReview');
+assert.match(openingHtml, /预判（09:30 前）/, 'Opening section shows Opening Thesis fields');
+assert.doesNotMatch(openingHtml, /日 Bias 预判/, 'Opening section does not show Bias fields');
+assert.doesNotMatch(openingHtml, /固定时点状态/, 'Opening section does not show Fixed Time State');
+
+const fixedTimeHtml = renderDailyTimeReviewSectionPanel(review, 'fixedTimeState');
+assert.match(fixedTimeHtml, /固定时点状态/, 'Fixed Time section shows Fixed Time State');
+assert.match(fixedTimeHtml, /daily-time-fixed-item-note/, 'Fixed Time section keeps fixed time editing');
+assert.doesNotMatch(fixedTimeHtml, /日 Bias 预判/, 'Fixed Time section does not show Bias fields');
+assert.doesNotMatch(fixedTimeHtml, /Opening Thesis Review/, 'Fixed Time section does not show Opening Thesis');
 
 console.log('time reaction panel smoke ok');

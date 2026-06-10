@@ -544,6 +544,42 @@ function renderOpeningThesisPanel(review) {
   `);
 }
 
+function renderDailyTimeReviewCardSection(review, title, body, metaText) {
+  return `
+    <section class="inspector-section time-reaction-panel" data-inspector-section="daily-time-review-section-detail">
+      <div class="inspector-section-title">${escapeHtml(title)}</div>
+      <div class="inspector-evidence-row">
+        <div class="inspector-evidence-header">
+          <span>${escapeHtml(review.date)}</span>
+          <span>${escapeHtml(review.instrument || 'NQ')}</span>
+        </div>
+        <div class="drawing-set-meta">${escapeHtml(metaText)}</div>
+      </div>
+      <div class="time-reaction-list">
+        ${body}
+      </div>
+    </section>
+  `;
+}
+
+function renderBiasSectionPanel(review) {
+  return renderDailyTimeReviewCardSection(
+    review,
+    'Bias',
+    renderBiasPanel(review),
+    'Daily and weekly bias prediction and validation.'
+  );
+}
+
+function renderOpeningThesisSectionPanel(review) {
+  return renderDailyTimeReviewCardSection(
+    review,
+    'Opening Thesis Review',
+    renderOpeningThesisPanel(review),
+    'Opening thesis prediction and later validation summaries.'
+  );
+}
+
 export function renderDailyTimeReviewPanel(review, options = {}) {
   if (!review) {
     return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid calendar day.</div>');
@@ -592,8 +628,7 @@ export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = 
     `;
   }
 
-  const sectionDefinition = getDailyTimeReviewSectionDefinition(sectionKey);
-  if (!review || !sectionDefinition) {
+  if (!review) {
     return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid review section.</div>');
   }
 
@@ -601,6 +636,19 @@ export function renderDailyTimeReviewSectionPanel(review, sectionKey, options = 
     ...review,
     pendingReasonRefPick: options.pendingReasonRefPick || null,
   };
+
+  if (sectionKey === 'bias') {
+    return renderBiasSectionPanel(reviewContext);
+  }
+
+  if (sectionKey === 'openingThesisReview') {
+    return renderOpeningThesisSectionPanel(reviewContext);
+  }
+
+  const sectionDefinition = getDailyTimeReviewSectionDefinition(sectionKey);
+  if (!sectionDefinition) {
+    return section('Time Reaction Observation', '<div class="inspector-empty">Select a valid review section.</div>');
+  }
 
   if (sectionKey === 'fixedTimeState') {
     return renderFixedTimeStatePanel(reviewContext, sectionDefinition, options);

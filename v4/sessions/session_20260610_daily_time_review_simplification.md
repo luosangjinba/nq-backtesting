@@ -123,3 +123,7 @@ Current Status:
 - Opening Thesis title follow-up:
   - Opening Thesis Review field titles are now explicit fixed labels: `预判（09:30 前）`, `验证（09:30-11:00）`, `验证（全天）`, and `结论（Opening Thesis Review）`.
   - The titles are rendered above each textarea, not as placeholder text inside the input.
+- Section open isolation fix:
+  - Calendar `Time Reaction Observation` rows now open section-specific detail panels.
+  - `Bias`, `Opening Thesis Review`, and `固定时点状态` each render only their own fields when opened from Calendar.
+  - Smoke coverage asserts the Calendar row section keys and that each section panel excludes the other two groups.
