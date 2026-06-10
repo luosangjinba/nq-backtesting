@@ -545,16 +545,23 @@ The primary entry point is the `Order Setup` group in the main chart right-click
 
 - `Create Bullish Setup Here`
 - `Create Bearish Setup Here`
-- `Set Reversal Here`
+- `Move Active Reversal Here`
 - `Set Entry Here`
+- `Set MSS Here`
 - `Set Stop Loss Here`
-- `Set Target1 Here`
-- `Set Target2 Here`
-- `Set Target3 Here`
-- `Set Final Target Here`
+- `Targets` submenu:
+  - `Set Target Internal 1 Here`
+  - `Set Target Internal 2 Here`
+  - `Set Target Internal 3 Here`
+  - `Set Target Swing Point Here`
+  - `Set Target External 1 Here`
+  - `Set Target External 2 Here`
+  - `Set Target External 3 Here`
 - `Add Manual Explanation Event Here`
 
 `Set Entry Here` records entry time and entry price together. After creation, the setup becomes the active setup. Later chart right-click actions write into that active setup.
+
+Shift-right-click on a bar exposes line end controls, including `Set All End Here` and matching end actions for entry, MSS, stop loss, and each target.
 
 Segment, Composite Move, PDA, and SMT objects are linked refs, not order parents. For example, a 1H FVG touch and bounce can be recorded directly as a setup event without forcing a 1H segment.
 
@@ -587,7 +594,7 @@ The Result panel derives:
 - `Points`: outcome points from entry to exit.
 - `R`: points / risk.
 - `Hold`: holding time from entry to exit.
-- `Target Progress`: if result is `Target 2`, Target 1 is also shown as reached; if result is `Target 3`, Target 1 and Target 2 are also shown as reached. Each target can be marked `Partial` or `Final` for partial-profit review.
+- `Target Progress`: target results follow the current ladder (`Target Internal 1/2/3`, `Target Swing Point`, `Target External 1/2/3`). When a later target is selected as the result, earlier targets are shown as reached. Each target action can be marked `None`, `Fruit`, `Neutral`, or `Best`.
 
 Exit Time can be typed manually or selected with `Pick`. When choosing Target/Stop/BE results, V4 attempts to calculate the first touch using 1M data. If no valid touch is found, it does not write a false exit time.
 

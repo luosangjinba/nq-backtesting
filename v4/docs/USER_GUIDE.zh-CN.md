@@ -543,16 +543,23 @@ Order Setup 用来把一次做单复盘拆成三层：
 
 - `Create Bullish Setup Here`
 - `Create Bearish Setup Here`
-- `Set Reversal Here`
+- `Move Active Reversal Here`
 - `Set Entry Here`
+- `Set MSS Here`
 - `Set Stop Loss Here`
-- `Set Target1 Here`
-- `Set Target2 Here`
-- `Set Target3 Here`
-- `Set Final Target Here`
+- `Targets` 子菜单：
+  - `Set Target Internal 1 Here`
+  - `Set Target Internal 2 Here`
+  - `Set Target Internal 3 Here`
+  - `Set Target Swing Point Here`
+  - `Set Target External 1 Here`
+  - `Set Target External 2 Here`
+  - `Set Target External 3 Here`
 - `Add Manual Explanation Event Here`
 
 `Set Entry Here` 会同时记录入场时间和入场价格。创建后该 setup 会成为 active setup。后续右键操作会写入 active setup。
+
+Shift 右键某根 K 线会显示线段结束控制，包括 `Set All End Here`，以及 entry、MSS、stop loss 和每个 target 对应的 end 操作。
 
 Segment、Composite Move、PDA、SMT 都只是 linked refs，不是订单父级。比如 `1H FVG 回调后反弹` 可以直接作为 setup 事件记录，不需要强行绘制 1H segment。
 
@@ -585,7 +592,7 @@ Result 面板会派生显示：
 - `Points`：entry 到 exit 的结果点数。
 - `R`：points / risk。
 - `Hold`：entry 到 exit 的持仓时长。
-- `Target Progress`：当 result 是 `Target 2` 时，会同时展示 Target 1 已达；当 result 是 `Target 3` 时，会同时展示 Target 1/2 已达。每个 target 可标记 `Partial` 或 `Final`，用于表达分批止盈。
+- `Target Progress`：target 结果跟随当前阶梯（`Target Internal 1/2/3`、`Target Swing Point`、`Target External 1/2/3`）。当 result 选择更远的 target 时，前面的 target 会显示为已达。每个 target action 可标记为 `None`、`Fruit`、`Neutral` 或 `Best`。
 
 Exit Time 可手工输入，也可以用 `Pick` 从图表选择。选择 Target/Stop/BE 结果时，系统会尝试用 1M 数据计算首次触碰时间；找不到时不会写错值。
 
