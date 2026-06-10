@@ -6,6 +6,7 @@ import {
   getChartNoteRangesForBar,
   getChartNotes,
   upsertChartNote,
+  updateChartNote,
 } from '../src/chart-notes/chart-note-store.js';
 import { isChartNoteInDate } from '../src/chart-notes/chart-note-visible-day.js';
 
@@ -19,8 +20,10 @@ const barNote = upsertChartNote({
 });
 
 assert.equal(barNote.kind, 'bar');
+assert.equal(barNote.display.showGuides, false);
 assert.equal(getChartNoteForBar({ instrument: 'NQ', timeframe: 60, timestamp: 1_704_896_400 })?.id, barNote.id);
 assert.equal(getChartNoteIdentity(barNote), 'NQ:60:bar:1704896400');
+assert.equal(updateChartNote(barNote.id, { display: { showGuides: true } })?.display.showGuides, true);
 
 const rangeNote = upsertChartNote({
   kind: 'range',

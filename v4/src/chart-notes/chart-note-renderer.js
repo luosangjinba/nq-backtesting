@@ -70,6 +70,7 @@ function buildNotePoints() {
           price: Math.max(...highs),
           text: formatChartNoteDisplayText(note),
           color: note.color,
+          showGuides: Boolean(note.display?.showGuides),
           position: 'above',
           kind: 'range',
         };
@@ -85,6 +86,7 @@ function buildNotePoints() {
         price,
         text: formatChartNoteDisplayText(note),
         color: note.color,
+        showGuides: Boolean(note.display?.showGuides),
         position,
       };
     })

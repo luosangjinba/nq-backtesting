@@ -77,11 +77,29 @@ export function createChartNoteInspectorActionController({
   }
 
   function handleChange(action, targetEl) {
-    if (action !== 'chart-note-edit') return false;
+    if (action !== 'chart-note-edit' && action !== 'chart-note-toggle-guides') return false;
 
     const note = getChartNoteById(targetEl.dataset.chartNoteId || '');
     if (!note) {
       bus.emit('status:update', { text: 'Chart Note not found', isError: true });
+      return true;
+    }
+
+    if (action === 'chart-note-toggle-guides') {
+      const showGuides = Boolean(targetEl.checked);
+      if (showGuides === Boolean(note.display?.showGuides)) return true;
+      const updated = recordInspectorHistory?.('Toggle Chart Note Guides', () =>
+        updateChartNote(note.id, {
+          display: {
+            ...(note.display || {}),
+            showGuides,
+          },
+        })
+      );
+      bus.emit('status:update', {
+        text: updated ? 'Chart Note guides updated' : 'Update Chart Note guides failed',
+        isError: !updated,
+      });
       return true;
     }
 

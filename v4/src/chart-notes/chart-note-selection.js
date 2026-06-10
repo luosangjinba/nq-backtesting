@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 import { hitTestChartNotes } from './chart-note-hit-test.js';
 import { setExpandedChartNote } from './chart-note-renderer.js';
+import { updateChartNote } from './chart-note-store.js';
 
 let expandedNoteId = '';
 
@@ -35,6 +36,37 @@ function handleChartClick(e) {
   e.preventDefault();
   e.stopPropagation();
   bus.emit('chart-note:selected', { note: hit.note, hit });
+}
+
+function handleChartDoubleClick(e) {
+  if (shouldIgnoreClick(e)) return;
+
+  const chartEl = document.getElementById('chart');
+  if (!chartEl) return;
+
+  const rect = chartEl.getBoundingClientRect();
+  const hit = hitTestChartNotes({
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+    expandedNoteId,
+  });
+  if (!hit?.note) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+  const showGuides = !hit.note.display?.showGuides;
+  const updated = updateChartNote(hit.note.id, {
+    display: {
+      ...(hit.note.display || {}),
+      showGuides,
+    },
+  });
+  bus.emit('status:update', {
+    text: updated
+      ? `Chart Note guides ${showGuides ? 'shown' : 'hidden'}`
+      : 'Update Chart Note guides failed',
+    isError: !updated,
+  });
 }
 
 function setExpandedNote(noteId) {
@@ -71,6 +103,7 @@ function handleChartMouseLeave() {
 export function initChartNoteSelection() {
   const chartEl = document.getElementById('chart');
   chartEl?.addEventListener('click', handleChartClick, true);
+  chartEl?.addEventListener('dblclick', handleChartDoubleClick, true);
   chartEl?.addEventListener('mousemove', handleChartMouseMoveThrottled);
   chartEl?.addEventListener('mouseleave', handleChartMouseLeave);
 }

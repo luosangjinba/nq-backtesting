@@ -5,6 +5,7 @@ import {
 } from '../../calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getChartNotes } from '../../chart-notes/chart-note-store.js';
+import { isChartNoteInDate } from '../../chart-notes/chart-note-visible-day.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { getDailyRegimeByDate } from '../../daily-regime/daily-regime-store.js';
@@ -178,6 +179,16 @@ function getCalendarDayTitle(dateKey, overview) {
 
 function compactTime(timestamp) {
   return compactUtcTime(timestamp, '--:--');
+}
+
+function getObjectTimeLabel(item) {
+  if (item.type === CALENDAR_OBJECT_TYPES.CHART_NOTE && item.source?.kind === 'range') {
+    return [
+      compactTime(item.source.startTimestamp || item.timestamp),
+      compactTime(item.source.endTimestamp || item.timestamp),
+    ].join('-');
+  }
+  return compactTime(item.timestamp);
 }
 
 function getObjectTypeLabel(item) {
@@ -358,11 +369,22 @@ function renderEconomicEventRow(item) {
 function renderObjectRow(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return renderEconomicEventRow(item);
   const isTimeReaction = item.ref?.type === 'time-reaction';
-  const timeLabel = compactTime(item.timestamp);
+  const timeLabel = getObjectTimeLabel(item);
   const typeLabel = getObjectTypeLabel(item);
   const showTypeLabel = item.ref?.type !== 'pda';
   const isOrderSetup = item.ref?.type === 'order-setup';
   const isHidden = isCalendarObjectHidden(item);
+  const chartNoteGuidesToggle = item.ref?.type === CALENDAR_OBJECT_TYPES.CHART_NOTE
+    ? `<label class="inspector-toggle calendar-chart-note-guides">
+        <input
+          data-inspector-action="chart-note-toggle-guides"
+          data-chart-note-id="${escapeHtml(item.ref.id)}"
+          type="checkbox"
+          ${item.source?.display?.showGuides ? 'checked' : ''}
+        />
+        <span>Guides</span>
+      </label>`
+    : '';
   return `
     <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
       <div class="calendar-object-main">
@@ -374,6 +396,7 @@ function renderObjectRow(item) {
                 ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
                 ${renderSetupVisibilityToggle(item)}
                 ${renderObjectVisibilityToggle(item)}
+                ${chartNoteGuidesToggle}
               </div>`
         }
         <span class="calendar-object-summary" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
@@ -409,7 +432,7 @@ function getSectionPreview(sectionData = {}) {
 function getChartNotesForDate(dateKey, instrument = 'NQ') {
   return getChartNotes()
     .filter((note) => note.instrument === instrument)
-    .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
+    .filter((note) => isChartNoteInDate(note, dateKey))
     .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 }
 
@@ -422,7 +445,11 @@ function createChartNoteItem(note) {
     dateKey: dateKeyFromTimestamp(timestamp),
     timestamp: Number.isFinite(timestamp) ? timestamp : null,
     label: preview,
-    range: Number.isFinite(timestamp) ? { start: timestamp, end: timestamp } : null,
+    range: note.kind === 'range'
+      ? { start: Number(note.startTimestamp), end: Number(note.endTimestamp) }
+      : Number.isFinite(timestamp)
+        ? { start: timestamp, end: timestamp }
+        : null,
     ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: note.id },
     source: note,
   };

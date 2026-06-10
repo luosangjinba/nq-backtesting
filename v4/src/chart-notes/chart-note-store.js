@@ -92,6 +92,7 @@ export function normalizeChartNote(input = {}) {
     color: normalizeString(input.color, DEFAULT_NOTE_COLOR),
     display: {
       hidden: Boolean(input.display?.hidden),
+      showGuides: Boolean(input.display?.showGuides),
     },
     createdAt: Number.isFinite(createdAt) && createdAt > 0 ? createdAt : Date.now(),
     updatedAt: Number.isFinite(updatedAt) && updatedAt > 0 ? updatedAt : Date.now(),

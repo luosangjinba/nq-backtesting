@@ -22,6 +22,7 @@ export const CHART_NOTE_DEFAULT_OPTIONS = {
   leaderAnchorSize: 3,
   flashBorderColor: 'rgba(255, 255, 255, 0.96)',
   flashGlowColor: 'rgba(255, 247, 168, 0.55)',
+  guideAnchorColor: 'rgba(255, 46, 46, 1)',
   rangeFillColor: 'rgba(226, 232, 240, 0.06)',
   rangeBorderColor: 'rgba(226, 232, 240, 0.20)',
 };
@@ -86,7 +87,12 @@ class ChartNoteRenderer {
       });
 
       layouts
-        .filter((point) => point.kind === 'range' && point.xStart !== null && point.xEnd !== null)
+        .filter((point) =>
+          point.showGuides &&
+          point.kind === 'range' &&
+          point.xStart !== null &&
+          point.xEnd !== null
+        )
         .forEach((point) => {
           const left = Math.min(point.xStart, point.xEnd) * hRatio;
           const right = Math.max(point.xStart, point.xEnd) * hRatio;
@@ -109,16 +115,18 @@ class ChartNoteRenderer {
         const labelAnchorY = y + boxHeight;
         const anchorSize = options.leaderAnchorSize * ratio;
 
-        ctx.strokeStyle = options.leaderColor;
-        ctx.lineWidth = options.leaderWidth * ratio;
-        ctx.setLineDash([2 * ratio, 7 * ratio]);
-        ctx.beginPath();
-        ctx.moveTo(labelAnchorX, labelAnchorY);
-        ctx.lineTo(anchorX, anchorY);
-        ctx.stroke();
-        ctx.setLineDash([]);
+        if (point.showGuides) {
+          ctx.strokeStyle = options.leaderColor;
+          ctx.lineWidth = options.leaderWidth * ratio;
+          ctx.setLineDash([2 * ratio, 7 * ratio]);
+          ctx.beginPath();
+          ctx.moveTo(labelAnchorX, labelAnchorY);
+          ctx.lineTo(anchorX, anchorY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
 
-        ctx.fillStyle = options.leaderAnchorColor;
+        ctx.fillStyle = point.showGuides ? options.guideAnchorColor : options.leaderAnchorColor;
         ctx.strokeStyle = options.leaderAnchorBorderColor;
         ctx.lineWidth = 1 * ratio;
         ctx.beginPath();
@@ -131,7 +139,9 @@ class ChartNoteRenderer {
         const flashPulse = isFlashing
           ? Math.sin((1 - source._flashProgress) * Math.PI * 3) * (1 - source._flashProgress)
           : 0;
-        ctx.strokeStyle = isFlashing ? options.flashBorderColor : (point.borderColor || options.borderColor);
+        ctx.strokeStyle = isFlashing
+          ? options.flashBorderColor
+          : (point.borderColor || options.borderColor);
         ctx.lineWidth = (isFlashing ? 2 + Math.max(0, flashPulse) * 2 : 1) * ratio;
         ctx.shadowColor = isFlashing ? options.flashGlowColor : 'transparent';
         ctx.shadowBlur = isFlashing ? (8 + Math.max(0, flashPulse) * 10) * ratio : 0;

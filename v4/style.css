@@ -1072,6 +1072,8 @@ html, body {
 
 .time-reaction-chart-note-meta {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   color: #fff7a8;
   font-size: var(--compact-font-size);
@@ -1088,6 +1090,21 @@ html, body {
 
 .time-reaction-chart-note-edit:focus {
   border-color: rgba(255, 247, 168, 0.72);
+}
+
+.time-reaction-chart-note-toggle {
+  justify-self: start;
+  min-height: 18px;
+  color: #aeb4c2;
+  font-size: var(--compact-font-size);
+  font-weight: 500;
+}
+
+.calendar-chart-note-guides {
+  min-height: 16px;
+  gap: 4px;
+  color: #aeb4c2;
+  font-size: var(--compact-font-size);
 }
 
 .time-reaction-chart-note-text {

@@ -2,7 +2,8 @@ import {
   TIMEFRAME_MAP,
 } from '../../config.js';
 import { getChartNotes } from '../../chart-notes/chart-note-store.js';
-import { compactUtcTime, dateKeyFromTimestamp } from '../../utils.js';
+import { isChartNoteInDate } from '../../chart-notes/chart-note-visible-day.js';
+import { compactUtcTime } from '../../utils.js';
 import {
   DAILY_TIME_REACTION_TIMES,
   getDailyTimeReviewSectionDefinition,
@@ -162,10 +163,18 @@ function timeTextFromTimestamp(timestamp) {
   return compactUtcTime(timestamp, '—');
 }
 
+function getChartNoteTimeLabel(note) {
+  if (note?.kind !== 'range') return timeTextFromTimestamp(note?.timestamp);
+  return [
+    timeTextFromTimestamp(note.startTimestamp || note.timestamp),
+    timeTextFromTimestamp(note.endTimestamp || note.timestamp),
+  ].join('-');
+}
+
 function getChartNotesForDate(dateKey, instrument = 'NQ') {
   return getChartNotes()
     .filter((note) => note.instrument === instrument)
-    .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
+    .filter((note) => isChartNoteInDate(note, dateKey))
     .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 }
 
@@ -178,8 +187,17 @@ function renderChartNotesSection(review) {
       <div class="time-reaction-chart-note-row">
         <div class="time-reaction-chart-note-header">
           <div class="time-reaction-chart-note-meta">
-            <span>${escapeHtml(timeTextFromTimestamp(note.timestamp))}</span>
+            <span>${escapeHtml(getChartNoteTimeLabel(note))}</span>
             <span>${escapeHtml(timeframe)}</span>
+            <label class="inspector-toggle time-reaction-chart-note-toggle">
+              <input
+                data-inspector-action="chart-note-toggle-guides"
+                data-chart-note-id="${escapeHtml(note.id)}"
+                type="checkbox"
+                ${note.display?.showGuides ? 'checked' : ''}
+              />
+              <span>Guides</span>
+            </label>
           </div>
           <details class="order-review-ref-menu chart-note-action-menu">
             <summary class="order-review-ref-menu-trigger" aria-label="Chart note actions">...</summary>
