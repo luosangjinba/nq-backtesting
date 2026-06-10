@@ -79,3 +79,8 @@ Current Status:
   - Naming is fixed as `Opening Thesis Review`.
   - `Bias` and `Fixed Time State` boundaries are fixed.
   - Fixed Time State remains an unchanged statistical observation block.
+- Step 277.2 completed:
+  - Added normalized `bias` and `openingThesisReview` objects to Daily Time Review.
+  - Legacy note fields seed the new structures during normalization.
+  - Empty new structures do not count as Calendar/exportable content.
+  - Added `v4/tests/daily-time-review-store-smoke.js`.

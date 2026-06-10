@@ -114,6 +114,26 @@ function normalizeSection(input = {}, dateKey = '', fallbackTime = '09:30') {
   };
 }
 
+function normalizeBias(input = {}, legacySections = {}) {
+  return {
+    weeklyBias: normalizeString(input.weeklyBias, normalizeString(legacySections.weeklyBias?.note)),
+    dailyBias: normalizeString(input.dailyBias, normalizeString(legacySections.dailyBias?.note)),
+    biasReview: normalizeString(input.biasReview),
+  };
+}
+
+function normalizeOpeningThesisReview(input = {}, legacySections = {}) {
+  return {
+    preOpenThesis: normalizeString(input.preOpenThesis, normalizeString(legacySections.pre0930Analysis?.note)),
+    morningSummary0930To1100: normalizeString(
+      input.morningSummary0930To1100,
+      normalizeString(legacySections.summary0930To1100?.note)
+    ),
+    fullDaySummary: normalizeString(input.fullDaySummary, normalizeString(legacySections.fullDaySummary?.note)),
+    thesisReview: normalizeString(input.thesisReview),
+  };
+}
+
 export function getDailyTimeReviewSectionDefinition(sectionName) {
   return DAILY_TIME_REVIEW_SECTIONS.find((section) => section.key === sectionName) || null;
 }
@@ -329,8 +349,17 @@ export function normalizeDailyTimeReview(input = {}, options = {}) {
     updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
     weeklyBias: normalizeReviewSection('weeklyBias', input.weeklyBias, date),
     dailyBias: normalizeReviewSection('dailyBias', input.dailyBias, date),
+    bias: normalizeBias(input.bias, {
+      weeklyBias: input.weeklyBias,
+      dailyBias: input.dailyBias,
+    }),
     fixedTimeState: normalizeFixedTimeState(input.fixedTimeState, input.reactions, date),
     pre0930Analysis: normalizeReviewSection('pre0930Analysis', input.pre0930Analysis || input.pre0930Context, date),
+    openingThesisReview: normalizeOpeningThesisReview(input.openingThesisReview, {
+      pre0930Analysis: input.pre0930Analysis || input.pre0930Context,
+      summary0930To1100: input.summary0930To1100,
+      fullDaySummary: input.fullDaySummary,
+    }),
     pre0930Context: normalizePre0930Context(input.pre0930Context, date),
     reactions: normalizeReactions(input.reactions, date),
     summary0930To1100: {
@@ -378,9 +407,28 @@ function reactionHasContent(reaction = {}) {
     && reaction.items.some((item) => normalizeString(item.note) || refsHaveContent(item.refs));
 }
 
+function biasHasContent(bias = {}) {
+  return Boolean(
+    normalizeString(bias.weeklyBias)
+      || normalizeString(bias.dailyBias)
+      || normalizeString(bias.biasReview)
+  );
+}
+
+function openingThesisReviewHasContent(openingThesisReview = {}) {
+  return Boolean(
+    normalizeString(openingThesisReview.preOpenThesis)
+      || normalizeString(openingThesisReview.morningSummary0930To1100)
+      || normalizeString(openingThesisReview.fullDaySummary)
+      || normalizeString(openingThesisReview.thesisReview)
+  );
+}
+
 export function hasDailyTimeReviewContent(review = {}) {
   if (!review || typeof review !== 'object') return false;
   return DAILY_TIME_REVIEW_SECTION_KEYS.some((sectionName) => sectionHasContent(review[sectionName]))
+    || biasHasContent(review.bias)
+    || openingThesisReviewHasContent(review.openingThesisReview)
     || sectionHasContent(review.pre0930Context)
     || sectionHasContent(review.summary0930To1100)
     || (Array.isArray(review.reactions) && review.reactions.some(reactionHasContent));
