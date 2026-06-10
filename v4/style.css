@@ -2242,7 +2242,8 @@ html, body {
 }
 
 .pda-menu-submenu:hover > .pda-menu-submenu-trigger,
-.pda-menu-submenu:focus-within > .pda-menu-submenu-trigger {
+.pda-menu-submenu:focus-within > .pda-menu-submenu-trigger,
+.pda-menu-submenu.is-open > .pda-menu-submenu-trigger {
   background: #1e222d;
 }
 
@@ -2281,7 +2282,8 @@ html, body {
 }
 
 .pda-menu-submenu:hover > .pda-submenu-panel,
-.pda-menu-submenu:focus-within > .pda-submenu-panel {
+.pda-menu-submenu:focus-within > .pda-submenu-panel,
+.pda-menu-submenu.is-open > .pda-submenu-panel {
   display: block;
 }
 

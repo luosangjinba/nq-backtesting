@@ -83,10 +83,50 @@ function adjustSubmenuPanel(submenuEl) {
   panel.style.setProperty('--pda-submenu-offset-y', `${Math.round(targetTop - triggerRect.top)}px`);
 }
 
+function closeSubmenuTree(submenuEl) {
+  submenuEl?.classList.remove('is-open');
+  submenuEl?.querySelectorAll('.pda-menu-submenu.is-open').forEach((child) => {
+    child.classList.remove('is-open');
+  });
+}
+
+function closeSiblingSubmenus(submenuEl) {
+  const parent = submenuEl?.parentElement;
+  if (!parent) return;
+  Array.from(parent.children).forEach((child) => {
+    if (child !== submenuEl && child.classList?.contains('pda-menu-submenu')) {
+      closeSubmenuTree(child);
+    }
+  });
+}
+
+function closeDirectSubmenus(levelEl) {
+  levelEl?.querySelectorAll(':scope > .pda-menu-submenu.is-open').forEach(closeSubmenuTree);
+}
+
+function openSubmenu(submenuEl) {
+  closeSiblingSubmenus(submenuEl);
+  submenuEl.classList.add('is-open');
+  adjustSubmenuPanel(submenuEl);
+}
+
+function initSubmenuLevel(levelEl) {
+  if (!levelEl) return;
+  Array.from(levelEl.children).forEach((child) => {
+    if (child.classList?.contains('pda-menu-submenu')) {
+      child.addEventListener('mouseenter', () => openSubmenu(child));
+      child.addEventListener('focusin', () => openSubmenu(child));
+      return;
+    }
+    child.addEventListener?.('mouseenter', () => closeDirectSubmenus(levelEl));
+    child.addEventListener?.('focusin', () => closeDirectSubmenus(levelEl));
+  });
+}
+
 export function initContextMenuSubmenuPositioning(menuEl) {
-  menuEl?.querySelectorAll('.pda-menu-submenu').forEach((submenuEl) => {
-    submenuEl.addEventListener('mouseenter', () => adjustSubmenuPanel(submenuEl));
-    submenuEl.addEventListener('focusin', () => adjustSubmenuPanel(submenuEl));
+  initSubmenuLevel(menuEl);
+  menuEl?.querySelectorAll('.pda-submenu-panel').forEach((panelEl) => {
+    initSubmenuLevel(panelEl);
   });
 }
 
