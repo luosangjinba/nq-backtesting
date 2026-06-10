@@ -108,3 +108,7 @@ Current Status:
   - Calendar `Time Reaction Observation` rows now match the simplified model: `Bias`, `Opening Thesis Review`, and `固定时点状态`.
   - Removed old Calendar row labels from the display path: `周 Bias 分析`, `日 Bias 分析`, `09:30 前状态分析`, `09:30-11:00 Summary`, and `全天 Summary`.
   - Added calendar smoke assertions for the new row labels and previews.
+- Input performance hotfix:
+  - Bias and Opening Thesis Review text changes no longer force an immediate Inspector re-render.
+  - `daily-time-review:changed` skips refresh while a Daily Time long-text field is actively focused.
+  - This keeps local save/history behavior while avoiding textarea DOM rebuilds during editing.

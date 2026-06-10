@@ -623,7 +623,6 @@ export function createDailyTimeInspectorActionController({
           },
         })
       ));
-      refreshSelection?.();
       return true;
     }
     if (action === 'daily-time-opening-thesis-field') {
@@ -639,7 +638,6 @@ export function createDailyTimeInspectorActionController({
           },
         })
       ));
-      refreshSelection?.();
       return true;
     }
     if (action === 'daily-time-section-note') {

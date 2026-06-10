@@ -609,6 +609,19 @@ function refreshSelection() {
   renderEmpty();
 }
 
+function isEditingDailyTimeTextField() {
+  const action = document.activeElement?.dataset?.inspectorAction || '';
+  return [
+    'daily-time-bias-field',
+    'daily-time-opening-thesis-field',
+  ].includes(action);
+}
+
+function refreshSelectionUnlessEditingDailyTimeText() {
+  if (isEditingDailyTimeTextField()) return;
+  refreshSelection();
+}
+
 function refreshOnReplayDayChange({ enabled } = {}) {
   const replayDate = enabled ? getReplayCalendarDate() : '';
   if (replayDate === lastReplayCalendarDate) return;
@@ -1037,7 +1050,7 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
-  bus.on('daily-time-review:changed', refreshSelection);
+  bus.on('daily-time-review:changed', refreshSelectionUnlessEditingDailyTimeText);
   bus.on('chart-notes:changed', refreshSelection);
   bus.on('economic-event-notes:changed', refreshSelection);
   bus.on('chart-note:selected', ({ note }) => {
