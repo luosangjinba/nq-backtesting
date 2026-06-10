@@ -82,6 +82,17 @@ function normalizeDateKey(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : '';
 }
 
+export function getWeekStartDateKey(value) {
+  const dateKey = normalizeDateKey(value);
+  if (!dateKey) return '';
+  const date = new Date(`${dateKey}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return '';
+  const weekday = date.getUTCDay();
+  const daysFromMonday = (weekday + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - daysFromMonday);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
 function normalizeTimeText(value, fallback = '09:30') {
   const text = normalizeString(value);
   return /^\d{2}:\d{2}$/.test(text) ? text : fallback;
@@ -397,6 +408,11 @@ function findReviewIndex(date, instrument = 'NQ') {
   return dailyTimeReviews.findIndex((review) => review.date === date && review.instrument === instrument);
 }
 
+function getStoredDailyTimeReview(date, instrument = 'NQ') {
+  const dateKey = normalizeDateKey(date);
+  return dailyTimeReviews.find((review) => review.date === dateKey && review.instrument === instrument) || null;
+}
+
 export function getDailyTimeReviews() {
   return dailyTimeReviews.map(clone);
 }
@@ -456,18 +472,59 @@ export function getDailyTimeReviewsWithContent() {
 
 export function getDailyTimeReviewByDate(date, instrument = 'NQ') {
   const dateKey = normalizeDateKey(date);
-  return clone(dailyTimeReviews.find((review) => review.date === dateKey && review.instrument === instrument) || null);
+  if (!dateKey) return null;
+  const stored = getStoredDailyTimeReview(dateKey, instrument);
+  const weekStartDate = getWeekStartDateKey(dateKey);
+  const weeklyReview = weekStartDate ? getStoredDailyTimeReview(weekStartDate, instrument) : null;
+  const weeklyBias = weeklyReview?.bias || {};
+  const hasWeeklyBias = Boolean(
+    normalizeString(weeklyBias.weeklyBiasPrediction)
+      || normalizeString(weeklyBias.weeklyBiasReview)
+      || normalizeString(weeklyBias.weeklyBias)
+  );
+  if (!stored && !hasWeeklyBias) return null;
+  const base = stored || normalizeDailyTimeReview({ date: dateKey, instrument }, { preserveUpdatedAt: true });
+  const merged = {
+    ...base,
+    bias: {
+      ...(base.bias || {}),
+      ...(hasWeeklyBias
+        ? {
+          weeklyBiasPrediction: normalizeString(weeklyBias.weeklyBiasPrediction, normalizeString(weeklyBias.weeklyBias)),
+          weeklyBiasReview: normalizeString(weeklyBias.weeklyBiasReview),
+          weeklyBias: normalizeString(weeklyBias.weeklyBiasPrediction, normalizeString(weeklyBias.weeklyBias)),
+        }
+        : {}),
+    },
+  };
+  return clone(merged);
 }
 
 export function getOrCreateDailyTimeReview(date, instrument = 'NQ') {
   const dateKey = normalizeDateKey(date);
   if (!dateKey) return null;
-  const existing = getDailyTimeReviewByDate(dateKey, instrument);
-  if (existing) return existing;
+  const existing = getStoredDailyTimeReview(dateKey, instrument);
+  if (existing) return clone(existing);
   const normalized = ensureUniqueReviewId(normalizeDailyTimeReview({ date: dateKey, instrument }));
   dailyTimeReviews = [...dailyTimeReviews, normalized];
   emitChanged('add', normalized);
   return clone(normalized);
+}
+
+export function updateDailyTimeBiasField(date, field, value, instrument = 'NQ') {
+  const dateKey = normalizeDateKey(date);
+  const fieldName = normalizeString(field);
+  if (!dateKey || !fieldName) return null;
+  const isWeeklyField = ['weeklyBiasPrediction', 'weeklyBiasReview'].includes(fieldName);
+  const targetDate = isWeeklyField ? getWeekStartDateKey(dateKey) : dateKey;
+  const review = getOrCreateDailyTimeReview(targetDate, instrument);
+  if (!review) return null;
+  return updateDailyTimeReview(review.id, {
+    bias: {
+      ...(review.bias || {}),
+      [fieldName]: value,
+    },
+  });
 }
 
 export function updateDailyTimeReviewSection(date, sectionName, patch = {}, instrument = 'NQ') {

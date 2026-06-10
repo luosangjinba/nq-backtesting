@@ -43,6 +43,7 @@ import {
   updateFixedTimeStateItem,
   updateDailyTimeReactionItem,
   updateDailyTimeReaction,
+  updateDailyTimeBiasField,
   updateDailyTimeReview,
   updateDailyTimeReviewSection,
   updateDailyTimeSummaryItem,
@@ -613,15 +614,9 @@ export function createDailyTimeInspectorActionController({
     if (action === 'daily-time-bias-field') {
       const date = targetEl.dataset.dailyTimeDate;
       const field = targetEl.dataset.dailyTimeField;
-      const review = getOrCreateDailyTimeReview(date);
-      if (!review || !field) return false;
+      if (!date || !field) return false;
       recordInspectorHistory?.('Update Daily Time Bias', () => (
-        updateDailyTimeReview(review.id, {
-          bias: {
-            ...(review.bias || {}),
-            [field]: targetEl.value,
-          },
-        })
+        updateDailyTimeBiasField(date, field, targetEl.value)
       ));
       return true;
     }

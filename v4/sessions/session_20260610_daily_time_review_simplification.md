@@ -127,3 +127,7 @@ Current Status:
   - Calendar `Time Reaction Observation` rows now open section-specific detail panels.
   - `Bias`, `Opening Thesis Review`, and `固定时点状态` each render only their own fields when opened from Calendar.
   - Smoke coverage asserts the Calendar row section keys and that each section panel excludes the other two groups.
+- Weekly Bias retention:
+  - Weekly bias prediction/review fields are stored on the Monday review for that week.
+  - The same weekly bias text is merged into every day in that week when viewing Bias, so Monday's prediction stays visible through Friday.
+  - Friday's weekly bias validation writes back to the same Monday weekly record instead of the Friday daily record.
