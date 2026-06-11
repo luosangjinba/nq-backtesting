@@ -61,6 +61,7 @@ Important official notes:
 - `auto_adjust` defaults to `True`; for raw futures OHLC ingestion it should be set to `False`.
 - `prepost` exists, but futures behavior must be verified empirically.
 - `ignore_tz` defaults differ by interval; intraday defaults to timezone-aware handling.
+- Empirical validation on 2026-06-11 showed `period="30d"` for `interval="1m"` failed with a Yahoo message saying only 8 days of 1m granularity are available per request. Use <=7-day chunks even though documentation discusses the broader intraday history limit.
 
 Candidate Yahoo tickers:
 
@@ -95,10 +96,16 @@ Important implication:
 
 ## Proposed Data Pipeline Prototype
 
-Add a script under `v4/scripts/`, not in the API server path:
+Added a read-only validation script under `v4/scripts/`, not in the API server path:
 
 ```text
 v4/scripts/update_yfinance_1m.py
+```
+
+Implemented first:
+
+```text
+v4/scripts/validate_yfinance_1m.py
 ```
 
 Inputs:
@@ -149,6 +156,7 @@ Quality checks:
 - Report missing expected minute counts by session/day.
 - Report first/last imported timestamp per instrument.
 - Keep a local import log outside git.
+- Print the largest OHLC overlap differences before approving writes.
 
 Recommended first prototype:
 
@@ -156,6 +164,58 @@ Recommended first prototype:
 2. Compare Yahoo bars with existing ES rows.
 3. Dry-run recent `NQ=F`.
 4. Only after timestamp/price alignment is understood, enable `--write`.
+
+Validation commands:
+
+```bash
+python3 -m pip install -r v4/requirements-data.txt
+python3 v4/scripts/validate_yfinance_1m.py --symbol ES=F:ES --period 5d
+python3 v4/scripts/validate_yfinance_1m.py --symbol NQ=F:NQ --period 5d
+python3 v4/scripts/validate_yfinance_1m.py --symbol ES=F:ES --date 2026-05-22 --compare-db
+```
+
+Validation results on 2026-06-11:
+
+```text
+ES=F period 5d:
+  rows: 5074
+  timezone: America/New_York
+  normalized: 2026-06-07 18:10 -> 2026-06-11 10:24
+  duplicate keys: 0
+
+NQ=F period 5d:
+  rows: 5075
+  timezone: America/New_York
+  normalized: 2026-06-07 18:10 -> 2026-06-11 10:25
+  duplicate keys: 0
+
+ES=F date 2026-05-22 compare-db:
+  yahoo rows: 1011
+  db rows: 1011
+  overlap rows: 1011
+  missing in yahoo: 0
+  missing in db: 0
+  max open diff: 0.5
+  max high diff: 6.5
+  max low diff: 0.0
+  max close diff: 6.75
+  max volume diff: 254
+  largest diff row:
+    2026-05-22 16:59
+    Yahoo high/close: 7491.00 / 7491.00
+    DB high/close:    7484.50 / 7484.25
+
+ES=F period 30d:
+  failed/empty because Yahoo reported only 8 days of 1m granularity are available per request.
+```
+
+Implication:
+
+- Timestamp conversion is correct at the basic level.
+- 1m downloads work for current ES/NQ.
+- Updates must be chunked.
+- Existing DB and Yahoo can differ on overlap; do not auto-write until the largest-diff rows are reviewed.
+- The largest observed ES overlap difference was at 16:59. This may be a source/session-close/settlement-style difference, not necessarily a timestamp mapping failure, but it is large enough to require manual policy before writes.
 
 ## Journal System Direction
 
