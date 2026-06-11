@@ -194,3 +194,60 @@ Decision:
 - ES can be considered first for future write mode.
 - NQ should remain dry-run only until the 2026-03 roll date is manually resolved.
 - Marked `NQH6 -> NQM6` as `inferred_volume_conflict`.
+
+## Guarded ES Write
+
+Implemented guarded write mode in `v4/scripts/update_databento_1m.py`.
+
+Write constraints:
+
+- `--write` requires `--confirm-write`.
+- Write mode is currently allowed only for ES.
+- Every roll segment must have `status=validated`.
+- Inserts are insert-only on `(instrument, ts)` and run inside a transaction.
+- Databento requests are split with `--chunk-days` and transient 504/gateway failures are retried per chunk.
+
+First single-range write attempt failed before transaction with Databento `504 The remote gateway timed out`; DB coverage stayed unchanged:
+
+```text
+ES rows: 6,431,985
+ES max ts: 2026-05-22 16:59:00
+```
+
+After adding chunked requests, ES dry-run succeeded:
+
+```text
+range ET: 2026-05-22 17:00:00 -> 2026-06-11 04:45:00
+contract: ESM6
+chunk_days: 3
+would_insert_rows: 18,345
+duplicate_candidate_keys: 0
+existing_candidate_keys: 0
+warning: 2026-05-24 degraded quality
+```
+
+Executed ES insert-only write on 2026-06-11:
+
+```text
+range ET: 2026-05-22 17:00:00 -> 2026-06-11 04:48:00
+contract: ESM6
+downloaded_normalized_rows: 18,348
+candidate_rows_after_dedupe: 18,348
+duplicate_candidate_keys: 0
+existing_candidate_keys: 0
+inserted_rows: 18,348
+before_rows: 6,431,985
+after_rows: 6,450,333
+before_max_ts: 2026-05-22 16:59:00
+after_max_ts: 2026-06-11 04:47:00
+```
+
+Independent DB verification:
+
+```text
+ES: 6,450,333 rows, min ts 2008-01-02 06:01:00, max ts 2026-06-11 04:47:00
+NQ: 5,906,274 rows, min ts 2008-01-02 06:01:00, max ts 2025-11-04 18:39:00
+ES duplicate timestamps: 0
+```
+
+NQ was not written. It remains blocked by the unresolved `NQH6 -> NQM6` roll conflict.

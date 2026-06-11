@@ -270,3 +270,46 @@ Decision:
 - ES is the safer first write candidate after write mode is implemented.
 - NQ should not be written until the 2026-03 NQ roll date is manually resolved.
 - `NQH6 -> NQM6` is marked `inferred_volume_conflict` in the roll calendar.
+
+## Guarded Write Result
+
+Write mode is implemented in `v4/scripts/update_databento_1m.py` with these guards:
+
+- `--write` requires `--confirm-write`.
+- ES is the only write-enabled instrument.
+- All selected roll segments must have `status=validated`.
+- Inserts are insert-only on `(instrument, ts)` inside a transaction.
+- Databento requests are chunked with `--chunk-days` and transient gateway failures are retried per chunk.
+
+The first ES write attempt over the full range failed before transaction with Databento `504 The remote gateway timed out`; DB coverage remained unchanged. Chunked dry-run then succeeded with `--chunk-days 3`.
+
+Executed ES write on 2026-06-11:
+
+```text
+range ET: 2026-05-22 17:00:00 -> 2026-06-11 04:48:00
+contract: ESM6
+downloaded normalized rows: 18,348
+candidate rows after dedupe: 18,348
+duplicate candidate keys: 0
+existing candidate keys: 0
+inserted rows: 18,348
+before rows: 6,431,985
+after rows: 6,450,333
+before max ts: 2026-05-22 16:59:00
+after max ts: 2026-06-11 04:47:00
+warning:
+  2026-05-24 degraded quality
+```
+
+Independent DB verification:
+
+```text
+ES max ts: 2026-06-11 04:47:00
+ES duplicate timestamps: 0
+NQ max ts unchanged: 2025-11-04 18:39:00
+```
+
+Next maintenance work:
+
+- Keep NQ dry-run only until the 2026-03 roll conflict is resolved.
+- Add a daily ES refresh wrapper only after deciding the intended operating time window and whether degraded-condition days require manual acknowledgement.
