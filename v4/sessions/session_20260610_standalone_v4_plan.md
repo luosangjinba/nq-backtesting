@@ -31,3 +31,10 @@ Step 278.1 boundary check:
 - Move V4 price/K-line query code inside `v4/`; do not import parent `price_lookup_api.py`.
 - Default runtime DB location is inside `v4/data/`, with an env var override for local installs.
 - Runtime logs, pid files, pycache, and the large DuckDB file stay untracked.
+
+Step 278.2 implementation:
+
+- Added local `v4/server/price_lookup.py` with `open_db`, `_parse_datetime`, `query_v2_bars`, and timestamp-based `query_price`.
+- Added `v4/server/__init__.py`.
+- Updated `v4_api.py` to use `#!/usr/bin/env python3` and import from `server.price_lookup`.
+- Removed the parent-directory `sys.path` insertion and parent `price_lookup_api.py` dependency.

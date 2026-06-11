@@ -1,7 +1,6 @@
-#!/home/leo/miniconda3/bin/python3
+#!/usr/bin/env python3
 """V4 精简 API 服务器 — 仅含 K 线查询所需端点
 
-从 price_lookup_api.py 导入查询函数，不复制代码。
 端口 8766，与 v3 的 8765 并行运行。
 
 日线聚合使用 CME 交易日分界 (18:00 ET)，
@@ -10,7 +9,6 @@ API 返回 { bars, requestedRange } 格式，requestedRange 供前端过滤 padd
 """
 
 import json
-import sys
 import os
 import csv
 import yaml
@@ -18,9 +16,7 @@ from datetime import date, datetime, timezone, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
-# 导入父目录的查询函数（price_lookup_api.py 在 backtesting/ 根目录）
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from price_lookup_api import query_v2_bars, query_price, open_db, _parse_datetime
+from server.price_lookup import query_v2_bars, query_price, open_db, _parse_datetime
 
 # 加载配置
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "v4_config.yaml")
