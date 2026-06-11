@@ -232,3 +232,41 @@ Interpretation:
 - The dry-run updater produces clean insert-only candidate sets for both ES and NQ.
 - NQ depends on inferred roll entries because there is no local NQ overlap after 2025-11-04.
 - Databento dataset condition warnings must be kept visible before write mode is considered.
+
+## Dry-Run Audit
+
+Added:
+
+```text
+v4/scripts/audit_databento_dry_run.py
+```
+
+Dataset condition results:
+
+```text
+2025-11-28: degraded, last_modified_date=2025-12-02
+2026-03-15: degraded, last_modified_date=2026-03-16
+2026-03-16: degraded, last_modified_date=2026-03-19
+2026-04-10: degraded, last_modified_date=2026-04-11
+2026-05-24: degraded, last_modified_date=2026-05-25
+```
+
+NQ inferred roll volume audit:
+
+```text
+NQZ5 -> NQH6, roll_date_et=2025-12-14:
+  NQZ5 volume dominates before roll.
+  NQH6 volume overtakes on 2025-12-15.
+  This is close to the Sunday roll date and remains plausible, but not DB-validated.
+
+NQH6 -> NQM6, roll_date_et=2026-03-13:
+  NQH6 volume remains much larger on 2026-03-13.
+  NQM6 volume only overtakes on 2026-03-16.
+  This conflicts with the ES-inferred 2026-03-13 NQ roll date.
+```
+
+Decision:
+
+- ES is the safer first write candidate after write mode is implemented.
+- NQ should not be written until the 2026-03 NQ roll date is manually resolved.
+- `NQH6 -> NQM6` is marked `inferred_volume_conflict` in the roll calendar.

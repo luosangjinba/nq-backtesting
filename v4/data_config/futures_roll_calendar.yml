@@ -38,8 +38,8 @@ rolls:
     old_contract: NQH6
     new_contract: NQM6
     roll_date_et: 2026-03-13
-    status: inferred_no_db_overlap
-    note: Candidate for 2026-H to 2026-M rollover; NQ DB has no overlap here, infer from ES after validation.
+    status: inferred_volume_conflict
+    note: NQ DB has no overlap. ES validated roll_date_et=2026-03-13, but NQ volume audit shows NQM6 only overtakes NQH6 on 2026-03-16; manual review required before NQ write.
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6

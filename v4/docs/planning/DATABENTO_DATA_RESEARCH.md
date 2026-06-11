@@ -344,3 +344,10 @@ Dry-run updater status:
 - ES current gap dry-run would insert 18,318 rows.
 - NQ current gap dry-run would insert 210,486 rows.
 - Both dry-runs reported 0 duplicate candidate keys and 0 existing candidate keys.
+
+Dry-run audit status:
+
+- `v4/scripts/audit_databento_dry_run.py` confirms all Databento warning dates are actually `condition=degraded`.
+- NQ 2025-12 inferred roll is plausible by volume but still not DB-validated.
+- NQ 2026-03 inferred roll conflicts with volume; `NQM6` only overtakes `NQH6` on 2026-03-16, not 2026-03-13.
+- Do not write NQ until the 2026-03 roll date is manually resolved.

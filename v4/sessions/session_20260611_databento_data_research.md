@@ -171,3 +171,26 @@ NQ:
 ```
 
 The NQ dry-run uses `inferred_no_db_overlap` roll entries and prints them as warnings.
+
+## Dry-Run Audit
+
+Added `v4/scripts/audit_databento_dry_run.py`.
+
+Dataset condition audit:
+
+- `2025-11-28`: degraded
+- `2026-03-15`: degraded
+- `2026-03-16`: degraded
+- `2026-04-10`: degraded
+- `2026-05-24`: degraded
+
+NQ inferred roll audit:
+
+- `NQZ5 -> NQH6`, roll `2025-12-14`: old contract dominates before roll; new contract overtakes on `2025-12-15`. Plausible but not DB-validated.
+- `NQH6 -> NQM6`, roll `2026-03-13`: volume conflicts with the inferred roll date; `NQM6` only overtakes `NQH6` on `2026-03-16`.
+
+Decision:
+
+- ES can be considered first for future write mode.
+- NQ should remain dry-run only until the 2026-03 roll date is manually resolved.
+- Marked `NQH6 -> NQM6` as `inferred_volume_conflict`.
