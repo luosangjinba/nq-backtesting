@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""Dry-run Databento 1m updater for V4 futures data.
+"""Databento 1m insert-only updater for V4 futures data.
 
-This first version is intentionally read-only. It downloads candidate bars from
-Databento raw quarterly contracts selected by `futures_roll_calendar.yml`,
-normalizes timestamps to V4's ET-naive convention, compares candidate keys with
-DuckDB, and prints an insert-only dry-run report.
-
-It never writes to DuckDB. `--write` is deliberately rejected.
+By default this script runs a dry-run. Write mode is deliberately narrow:
+only ES is allowed, `--confirm-write` is required, all roll segments must be
+validated, and insertion is `insert where not exists` inside a transaction.
 """
 
 from __future__ import annotations
@@ -28,7 +25,7 @@ except ImportError as exc:  # pragma: no cover - exercised by CLI environment
     raise SystemExit("Missing dependency: databento. Install with `python3 -m pip install databento`.") from exc
 
 
-warnings.filterwarnings("ignore", category=ResourceWarning)
+warnings.simplefilter("ignore", ResourceWarning)
 
 V4_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = V4_ROOT / "data" / "trading_data.duckdb"
@@ -67,7 +64,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", help="Override Databento dataset from roll calendar.")
     parser.add_argument("--schema", help="Override Databento schema from roll calendar.")
     parser.add_argument("--dry-run", action="store_true", help="Explicitly run read-only dry-run. This is the default.")
-    parser.add_argument("--write", action="store_true", help="Rejected in this version; no writes are implemented.")
+    parser.add_argument("--write", action="store_true", help="Execute insert-only write. Currently allowed only for ES.")
+    parser.add_argument("--confirm-write", action="store_true", help="Required with --write.")
     parser.add_argument("--show-sample", type=int, default=3, help="Number of would-insert sample rows to print.")
     return parser.parse_args()
 
@@ -115,6 +113,17 @@ def get_db_max_ts(db_path: Path, instrument: str) -> datetime:
     if value is None:
         raise RuntimeError(f"no DB rows found for instrument {instrument}")
     return value
+
+
+def get_db_coverage(db_path: Path, instrument: str) -> dict[str, object]:
+    query = """
+select min(ts) as min_ts, max(ts) as max_ts, count(*) as rows
+from futures_1m
+where instrument = ?
+""".strip()
+    with duckdb.connect(str(db_path), read_only=True) as conn:
+        row = conn.execute(query, [instrument]).fetchone()
+    return {"min_ts": row[0], "max_ts": row[1], "rows": row[2]}
 
 
 def get_existing_keys(db_path: Path, instrument: str, start_et: datetime, end_et: datetime) -> set[datetime]:
@@ -231,10 +240,61 @@ def download_segment(client: db.Historical, dataset: str, schema: str, segment: 
     return normalized.sort_values(["instrument", "ts"]).reset_index(drop=True), warning_messages
 
 
+def validate_write_allowed(args: argparse.Namespace, segments: list[Segment]) -> None:
+    if not args.write:
+        return
+    if not args.confirm_write:
+        raise SystemExit("--write requires --confirm-write")
+    if args.instrument != "ES":
+        raise SystemExit("--write is currently allowed only for ES")
+    non_validated = [segment for segment in segments if segment.roll_status != "validated"]
+    if non_validated:
+        details = ", ".join(f"{segment.contract}:{segment.roll_status}" for segment in non_validated)
+        raise SystemExit(f"--write rejected because all segments must be validated: {details}")
+
+
+def insert_missing_rows(db_path: Path, rows: pd.DataFrame) -> int:
+    if rows.empty:
+        return 0
+    insert_rows = rows[["instrument", "ts", "open", "high", "low", "close", "volume"]].copy()
+    with duckdb.connect(str(db_path)) as conn:
+        before_count = conn.execute(
+            "select count(*) from futures_1m where instrument = ?",
+            [str(insert_rows["instrument"].iloc[0])],
+        ).fetchone()[0]
+        conn.register("candidate_rows", insert_rows)
+        conn.execute("begin transaction")
+        try:
+            conn.execute(
+                """
+insert into futures_1m (instrument, ts, open, high, low, close, volume)
+select c.instrument, c.ts, c.open, c.high, c.low, c.close, c.volume
+from candidate_rows c
+where not exists (
+  select 1
+  from futures_1m f
+  where f.instrument = c.instrument
+    and f.ts = c.ts
+)
+""".strip()
+            )
+            conn.execute("commit")
+        except Exception:
+            conn.execute("rollback")
+            raise
+        after_count = conn.execute(
+            "select count(*) from futures_1m where instrument = ?",
+            [str(insert_rows["instrument"].iloc[0])],
+        ).fetchone()[0]
+    return int(after_count - before_count)
+
+
 def main() -> None:
     args = parse_args()
-    if args.write:
-        raise SystemExit("--write is intentionally disabled in this dry-run-only version")
+    if args.write and not args.confirm_write:
+        raise SystemExit("--write requires --confirm-write")
+    if args.write and args.instrument != "ES":
+        raise SystemExit("--write is currently allowed only for ES")
 
     db_path = Path(args.db).expanduser().resolve()
     if not db_path.exists():
@@ -257,6 +317,8 @@ def main() -> None:
         raise SystemExit(f"empty requested range after clamp: {start_et} -> {end_et}")
 
     segments = build_segments(args.instrument, entries, start_et, end_et)
+    validate_write_allowed(args, segments)
+    before_coverage = get_db_coverage(db_path, args.instrument)
     print(f"dataset: {dataset}")
     print(f"schema: {schema}")
     print(f"instrument: {args.instrument}")
@@ -317,7 +379,18 @@ def main() -> None:
         for message in sorted(set(all_warnings)):
             print(f"- {message}")
 
-    print("\nwrite_status: disabled; no DB changes were made")
+    if args.write:
+        print("\nwrite execution")
+        print(f"before_rows: {before_coverage['rows']}")
+        print(f"before_max_ts: {before_coverage['max_ts']}")
+        inserted_count = insert_missing_rows(db_path, would_insert)
+        after_coverage = get_db_coverage(db_path, args.instrument)
+        print(f"inserted_rows: {inserted_count}")
+        print(f"after_rows: {after_coverage['rows']}")
+        print(f"after_max_ts: {after_coverage['max_ts']}")
+        print("write_status: committed insert-only transaction")
+    else:
+        print("\nwrite_status: dry-run; no DB changes were made")
 
 
 if __name__ == "__main__":
