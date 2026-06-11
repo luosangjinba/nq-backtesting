@@ -761,7 +761,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 277.5: 验收：旧 Daily Time note 正常恢复；Bias 可同时记录周/日并填写事后验证；Opening Thesis Review 可完成预判和两段 summary 验证；Fixed Time State 行为不变。
 
 - [ ] Step 278: V4 standalone folder。目标是让 `v4/` 脱离 backtesting 上级目录后仍可完整运行 Web + API + K 线查询；计划见 `v4/docs/planning/STANDALONE_V4_PLAN.md`。
-  - [ ] Step 278.1: 冻结 standalone 边界：保留纯静态前端 + Python stdlib HTTP API；不引入构建系统；不把运行产物、pycache、本机 log 纳入提交。
+  - [x] Step 278.1: 冻结 standalone 边界：保留纯静态前端 + Python stdlib HTTP API；不引入构建系统；不把运行产物、pycache、本机 log 纳入提交。
   - [ ] Step 278.2: 抽离 price lookup 依赖：把 `price_lookup_api.py` 中 V4 需要的 `query_v2_bars/query_price/open_db/_parse_datetime` 迁入 `v4/server/` 或 `v4/price_lookup.py`，`v4_api.py` 不再 `sys.path` 到父目录。
   - [ ] Step 278.3: 数据文件位置独立化：配置默认读取 `v4/data/trading_data.duckdb`；保留环境变量覆盖能力；文档说明大数据库不进 git、由用户复制或软链接。
   - [ ] Step 278.4: 启动脚本去本机化：`start.sh` 使用 `${PYTHON_BIN:-python3}`；Web 服务从 standalone 根启动，访问路径固定为 `http://127.0.0.1:8001/index.html` 或文档明确 `/v4/index.html` 兼容模式。

@@ -23,3 +23,11 @@ Execution boundary:
 - Do not commit large runtime data.
 - Do not move V2/V3/root historical folders as part of standalone V4.
 - Validate by copying `v4/` into `/tmp/v4-standalone-smoke` before marking the work done.
+
+Step 278.1 boundary check:
+
+- Keep the frontend as static files: `index.html`, `style.css`, `src/`, `vendor/`.
+- Keep the API as a local Python stdlib HTTP server plus installed runtime packages already required by V4.
+- Move V4 price/K-line query code inside `v4/`; do not import parent `price_lookup_api.py`.
+- Default runtime DB location is inside `v4/data/`, with an env var override for local installs.
+- Runtime logs, pid files, pycache, and the large DuckDB file stay untracked.
