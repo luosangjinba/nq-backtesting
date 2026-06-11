@@ -44,3 +44,10 @@ Step 278.3 implementation:
 - Changed `v4_config.yaml` default trading DB path to `data/trading_data.duckdb`.
 - Added `V4_TRADING_DB` support in `v4_api.py`; absolute paths are used as-is, relative paths resolve from the V4 folder.
 - Kept large DuckDB runtime data out of git.
+
+Step 278.4 implementation:
+
+- Updated `start.sh` to use `${PYTHON_BIN:-python3}` instead of a machine-specific interpreter path.
+- Added `V4_WEB_PORT` override for the static server port.
+- Changed the standalone page URL to `http://127.0.0.1:8001/index.html`.
+- Kept all runtime files local to the V4 folder.

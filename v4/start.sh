@@ -6,8 +6,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-PYTHON="/home/leo/miniconda3/bin/python3"
+PYTHON="${PYTHON_BIN:-python3}"
 PORT=8766
+WEB_PORT="${V4_WEB_PORT:-8001}"
 PID_FILE=".api_pid"
 
 echo "=== V4 NQ K-Line Viewer 启动 ==="
@@ -25,6 +26,7 @@ check_api() {
 
 start_api() {
   echo "启动 API 服务器..."
+  echo "Python: $PYTHON"
   nohup "$PYTHON" v4_api.py > .api.log 2>&1 &
   echo $! > "$PID_FILE"
   sleep 2
@@ -54,12 +56,12 @@ stop_api() {
 start_web() {
   echo ""
   echo "启动 Web 服务器..."
-  echo "访问地址: http://127.0.0.1:8001/v4/index.html"
+  echo "访问地址: http://127.0.0.1:${WEB_PORT}/index.html"
   echo ""
   echo "按 Ctrl+C 停止所有服务器"
   echo ""
 
-  python3 -m http.server 8001
+  "$PYTHON" -m http.server "$WEB_PORT"
 }
 
 main() {
