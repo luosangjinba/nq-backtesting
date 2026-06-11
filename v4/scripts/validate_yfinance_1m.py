@@ -222,8 +222,8 @@ def compare_to_db(db_path: Path, spec: SymbolSpec, normalized: pd.DataFrame) -> 
     print(f"db rows in range: {len(db_rows)}")
     if db_rows.empty:
         print("overlap rows: 0")
-        print(f"would insert: {len(normalized)}")
-        print("would replace: 0")
+        print(f"insert-only candidate rows: {len(normalized)}")
+        print("existing rows preserved: 0")
         return
 
     left = normalized.copy()
@@ -244,8 +244,8 @@ def compare_to_db(db_path: Path, spec: SymbolSpec, normalized: pd.DataFrame) -> 
     print(f"overlap rows: {len(both)}")
     print(f"missing in yahoo: {len(right_only)}")
     print(f"missing in db: {len(left_only)}")
-    print(f"would insert: {len(left_only)}")
-    print(f"would replace: {len(both)}")
+    print(f"insert-only candidate rows: {len(left_only)}")
+    print(f"existing rows preserved: {len(both)}")
 
     if both.empty:
         return

@@ -24,6 +24,8 @@ Initial conclusion:
 
 - yfinance is suitable for recent rolling refresh and journal freshness.
 - yfinance is not enough to backfill the full NQ gap from 2025-11-04 to 2026-06-11 because 1m intraday history is limited to the recent window.
+- User confirmed the existing DB is accurate and Yahoo data is not accurate enough to overwrite it.
+- Future yfinance import must be insert-only: preserve any existing `(instrument, ts)` row.
 
 Validation script behavior:
 
@@ -31,6 +33,7 @@ Validation script behavior:
 - Converts timestamps to America/New_York wall-clock and drops timezone to match V4 DuckDB timestamps.
 - Prints raw and normalized summaries.
 - Optionally compares overlap against `futures_1m`.
+- Reports insert-only candidate rows and existing rows that would be preserved.
 - Does not write to the database.
 
 Validation run:

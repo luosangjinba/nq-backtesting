@@ -778,6 +778,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 280: Journal + yfinance data research。目标是在 V4 复盘平台旁规划 journal 系统，并先研究用 yfinance 增补 NQ/ES 1m 数据的可行性；研究文档见 `v4/docs/planning/YFINANCE_DATA_RESEARCH.md`。
   - [x] Step 280.1: 开分支 `feature/research-yfinance-data-journal`，确认当前数据库 schema 与覆盖范围。
   - [x] Step 280.2: 查 yfinance 官方项目/API 文档，确认 1m interval、60-day intraday 限制、personal-use/legal 风险。
-  - [x] Step 280.3: 设计数据增补原型：下载、标准化时区、去重/upsert、质量审计、dry-run。
+  - [x] Step 280.3: 设计数据增补原型：下载、标准化时区、去重、insert-only 候选、质量审计、dry-run；DB 是权威数据源，Yahoo 不覆盖已有 K 线。
   - [ ] Step 280.4: 设计 Journal MVP：与复盘平台共享 chart/replay/calendar，但记录临场状态、实时想法、订单、情绪/执行纪律。
   - [x] Step 280.5: 实现前验证：小窗口 NQ/ES 下载样本，与现有 DB 重叠区对齐比较。

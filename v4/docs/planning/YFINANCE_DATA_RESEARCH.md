@@ -74,6 +74,14 @@ These symbols must be verified by sample downloads before importing.
 
 ## Fit For Our Use Case
 
+Authoritative-source decision:
+
+- The existing DuckDB data is the authority.
+- Yahoo/yfinance data is not accurate enough to overwrite existing DB bars.
+- yfinance may only be used as a recent missing-row candidate source.
+- Any writer must default to insert-only behavior: if `(instrument, ts)` already exists, preserve the DB row.
+- Overlap comparison remains useful as a quality check, but not as a replacement trigger.
+
 Good fit:
 
 - Ongoing near-current data refresh.
@@ -144,9 +152,9 @@ Normalization requirements:
 Write strategy:
 
 - Stage downloaded bars into a temp table.
-- Delete matching `(instrument, ts)` keys from `futures_1m`.
-- Insert staged rows.
-- Report inserted/replaced/skipped counts.
+- Insert only rows whose `(instrument, ts)` does not already exist in `futures_1m`.
+- Never delete or overwrite existing DB rows from yfinance data.
+- Report inserted-candidate / existing-preserved / skipped counts.
 
 Quality checks:
 
@@ -195,6 +203,8 @@ ES=F date 2026-05-22 compare-db:
   overlap rows: 1011
   missing in yahoo: 0
   missing in db: 0
+  insert-only candidate rows: 0
+  existing rows preserved: 1011
   max open diff: 0.5
   max high diff: 6.5
   max low diff: 0.0
@@ -214,7 +224,7 @@ Implication:
 - Timestamp conversion is correct at the basic level.
 - 1m downloads work for current ES/NQ.
 - Updates must be chunked.
-- Existing DB and Yahoo can differ on overlap; do not auto-write until the largest-diff rows are reviewed.
+- Existing DB and Yahoo can differ on overlap; DB remains authoritative and yfinance must not overwrite existing rows.
 - The largest observed ES overlap difference was at 16:59. This may be a source/session-close/settlement-style difference, not necessarily a timestamp mapping failure, but it is large enough to require manual policy before writes.
 
 ## Journal System Direction
