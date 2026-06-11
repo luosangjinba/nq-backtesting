@@ -31,6 +31,9 @@ Databento was selected for research as a higher-quality CME data source.
 - `v4/scripts/validate_databento_1m.py`
 - `v4/scripts/validate_databento_roll.py`
 - `v4/scripts/validate_databento_raw_calendar.py`
+- `v4/scripts/scan_databento_gaps.py`
+- `v4/data_config/futures_roll_calendar.yml`
+- `v4/docs/planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md`
 - `databento` entry in `v4/requirements-data.txt`
 
 ## Validation Run
@@ -100,6 +103,23 @@ Results:
 
 ## Next
 
-1. Expand the explicit roll calendar for missing ranges.
-2. Design insert-only updater using that calendar.
+1. Validate the draft 2025-12 and 2026-03 roll calendar entries.
+2. Implement a dry-run-only Databento updater that reads the calendar.
 3. Keep live journal data source research separate.
+
+## Gap Scan
+
+Run on 2026-06-11:
+
+```text
+Databento end UTC:      2026-06-11T08:01:50.437951+00:00
+Databento ET-naive end: 2026-06-11 04:01:50.437951
+
+ES:
+  max DB ts: 2026-05-22 16:59:00
+  candidate minute-span upper bound: 28,022
+
+NQ:
+  max DB ts: 2025-11-04 18:39:00
+  candidate minute-span upper bound: 314,482
+```

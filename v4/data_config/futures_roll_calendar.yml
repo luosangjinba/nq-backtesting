@@ -1,0 +1,54 @@
+# V4 futures raw-contract roll calendar.
+#
+# Purpose:
+# - Databento continuous symbols do not match the existing DB roll behavior.
+# - Use raw quarterly contracts and explicit ET roll dates.
+# - This file is configuration only; it is not an import log.
+#
+# Semantics:
+# - `roll_date_et` is a US/Eastern calendar date.
+# - Bars whose ET-naive timestamp date is before `roll_date_et` use `old_contract`.
+# - Bars whose ET-naive timestamp date is on/after `roll_date_et` use `new_contract`.
+# - Existing DB rows remain authoritative; future importers must be insert-only.
+
+version: 1
+timezone: America/New_York
+dataset: GLBX.MDP3
+schema: ohlcv-1m
+rolls:
+  - instrument: ES
+    old_contract: ESZ5
+    new_contract: ESH6
+    roll_date_et: 2025-12-14
+    status: needs_validation
+    note: Candidate for post-2025-09 ES continuity; validate before write.
+  - instrument: NQ
+    old_contract: NQZ5
+    new_contract: NQH6
+    roll_date_et: 2025-12-14
+    status: needs_validation
+    note: Candidate for NQ gap after 2025-11-04; validate before write.
+  - instrument: ES
+    old_contract: ESH6
+    new_contract: ESM6
+    roll_date_et: 2026-03-15
+    status: needs_validation
+    note: Candidate for 2026-H to 2026-M rollover; validate before write.
+  - instrument: NQ
+    old_contract: NQH6
+    new_contract: NQM6
+    roll_date_et: 2026-03-15
+    status: needs_validation
+    note: Candidate for 2026-H to 2026-M rollover; validate before write.
+  - instrument: ES
+    old_contract: ESM6
+    new_contract: ESU6
+    roll_date_et: 2026-06-14
+    status: future_candidate
+    note: Candidate for daily refresh after June 2026 roll.
+  - instrument: NQ
+    old_contract: NQM6
+    new_contract: NQU6
+    roll_date_et: 2026-06-14
+    status: future_candidate
+    note: Candidate for daily refresh after June 2026 roll.

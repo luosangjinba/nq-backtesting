@@ -322,6 +322,11 @@ Decision:
 
 ## Recommended Next Steps
 
-1. Expand the explicit roll calendar for the missing data ranges.
+1. Validate the draft roll calendar entries in `v4/data_config/futures_roll_calendar.yml`.
 2. Design an insert-only updater that reads that calendar and only fills missing `(instrument, ts)`.
 3. Keep live journal data research separate from this historical refresh path.
+
+See also:
+
+- `v4/docs/planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md`
+- `v4/scripts/scan_databento_gaps.py`
