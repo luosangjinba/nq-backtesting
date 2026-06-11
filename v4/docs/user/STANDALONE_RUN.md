@@ -45,7 +45,7 @@ The environment variable can be absolute or relative to the `v4/` folder.
 
 ## Start
 
-From inside the V4 folder:
+From inside the V4 folder on Linux:
 
 ```bash
 cd v4
@@ -76,6 +76,34 @@ Common commands:
 bash start.sh status
 bash start.sh restart
 bash start.sh stop
+```
+
+On Windows:
+
+```powershell
+cd v4
+.\start_windows.ps1 -Action start
+```
+
+or double-click/run:
+
+```text
+start_windows.bat
+```
+
+Windows service commands:
+
+```powershell
+.\start_windows.ps1 -Action status
+.\start_windows.ps1 -Action restart
+.\start_windows.ps1 -Action stop
+.\start_windows.ps1 -Action log
+```
+
+If Python is not on PATH:
+
+```powershell
+.\start_windows.ps1 -Action start -Python C:\Path\To\python.exe
 ```
 
 ## Ports

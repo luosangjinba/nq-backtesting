@@ -768,3 +768,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 278.5: 独立运行文档：新增 standalone run guide，列出目录结构、依赖、数据准备、启动、健康检查、常见故障。
   - [x] Step 278.6: 验证与打包 smoke：复制 `v4/` 到 `/tmp/v4-standalone-smoke`，不依赖父目录运行 API health、短区间 bars、静态页面 200、现有 `v4/tests/*.js`。
     - 验收记录：`v4/tests/*.js` 全部通过；`/tmp/v4-standalone-smoke` 不含父级 `price_lookup_api.py`；临时复制 `trading_data.duckdb` 到 `data/trading_data.duckdb` 后，独立副本 `/v4/health` 返回 OK，`/v4/bars` 返回 NQ 5M bars，`/index.html` 返回 HTTP 200。
+
+- [x] Step 279: V4 standalone Windows startup scripts。目标是让 Windows 启动入口也位于 `v4/` 内，并按 standalone 目录运行。
+  - [x] 新增 `v4/start_windows.bat` 和 `v4/start_windows.ps1`，从脚本所在 V4 目录启动 API/Web。
+  - [x] 默认数据库位置为 `data/trading_data.duckdb`，并支持 `V4_TRADING_DB` 覆盖。
+  - [x] Windows 访问路径固定为 `http://127.0.0.1:8001/index.html`，支持 start/stop/restart/status/log。
+  - [x] 更新 standalone run guide，补充 Windows 启动方式。
