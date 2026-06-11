@@ -30,6 +30,7 @@ Databento was selected for research as a higher-quality CME data source.
 - `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`
 - `v4/scripts/validate_databento_1m.py`
 - `v4/scripts/validate_databento_roll.py`
+- `v4/scripts/validate_databento_raw_calendar.py`
 - `databento` entry in `v4/requirements-data.txt`
 
 ## Validation Run
@@ -78,8 +79,27 @@ Decision:
 - Do not use Databento continuous symbols directly for DB maintenance.
 - Use raw quarterly contracts and a local roll calendar aligned to the existing DB.
 
+## Raw Calendar Validation
+
+Tested explicit raw-contract roll calendar entries:
+
+- `2025-03 ES`: `ESH5 -> ESM5`, roll date ET `2025-03-14`
+- `2025-03 NQ`: `NQH5 -> NQM5`, roll date ET `2025-03-14`
+- `2025-06 ES`: `ESM5 -> ESU5`, roll date ET `2025-06-13`
+- `2025-06 NQ`: `NQM5 -> NQU5`, roll date ET `2025-06-13`
+- `2025-09 ES`: `ESU5 -> ESZ5`, roll date ET `2025-09-14`
+- `2025-09 NQ`: `NQU5 -> NQZ5`, roll date ET `2025-09-14`
+
+Results:
+
+- All six stitched raw-contract cases had `0` missing rows in either direction.
+- All six had `0` duplicate `(instrument, ts)` keys.
+- ES max OHLC differences were `0.25-0.50`.
+- NQ max OHLC differences were `0.75-3.75`, with no row-count or session-boundary mismatch.
+- This validates the raw-contract plus explicit ET roll-date path for the 2025 tested windows.
+
 ## Next
 
-1. Formalize the raw-contract roll calendar that matches the current DB.
-2. Run broader overlap validation using that roll calendar.
-3. Implement insert-only updater only after the above alignment is settled.
+1. Expand the explicit roll calendar for missing ranges.
+2. Design insert-only updater using that calendar.
+3. Keep live journal data source research separate.

@@ -122,6 +122,7 @@ Added:
 ```text
 v4/scripts/validate_databento_1m.py
 v4/scripts/validate_databento_roll.py
+v4/scripts/validate_databento_raw_calendar.py
 ```
 
 The script is read-only:
@@ -140,6 +141,13 @@ The roll script is also read-only:
 - Compares Databento `ES.c.0/NQ.c.0`, `ES.v.0/NQ.v.0`, old raw contracts, and new raw contracts.
 - Scores each source against the current DB by overlap and OHLC/volume differences.
 - Prints daily best-source breakdown around rollover.
+
+The raw calendar script validates the production-like path:
+
+- Downloads old/new raw quarterly contracts.
+- Stitches them with an explicit ET roll date.
+- Compares the stitched raw-contract series against the authoritative DB.
+- Reports duplicate keys, missing rows, OHLCV differences, and per-day source symbols.
 
 Example:
 
@@ -249,6 +257,46 @@ Decision:
 - Use Databento raw quarterly contracts plus a local roll calendar that matches the current DB.
 - Existing DB remains authoritative; the roll calendar should be inferred/validated against DB before any missing-row insert.
 
+## Raw Roll Calendar Validation Results
+
+Run on 2026-06-11 with `v4/scripts/validate_databento_raw_calendar.py`.
+
+Validated explicit raw-contract roll dates:
+
+```text
+2025-03 ES: ESH5 -> ESM5, roll_date_et=2025-03-14
+2025-03 NQ: NQH5 -> NQM5, roll_date_et=2025-03-14
+2025-06 ES: ESM5 -> ESU5, roll_date_et=2025-06-13
+2025-06 NQ: NQM5 -> NQU5, roll_date_et=2025-06-13
+2025-09 ES: ESU5 -> ESZ5, roll_date_et=2025-09-14
+2025-09 NQ: NQU5 -> NQZ5, roll_date_et=2025-09-14
+```
+
+Summary:
+
+```text
+case                 stitched  DB rows  overlap  missing stitched/db  max OHLC diff  duplicate keys
+2025-03 ES H-to-M       8278     8278     8278        0 / 0             0.50              0
+2025-03 NQ H-to-M       8207     8207     8207        0 / 0             3.75              0
+2025-06 ES M-to-U       8280     8280     8280        0 / 0             0.25              0
+2025-06 NQ M-to-U       8213     8213     8213        0 / 0             2.25              0
+2025-09 ES U-to-Z       8269     8269     8269        0 / 0             0.25              0
+2025-09 NQ U-to-Z       8274     8274     8274        0 / 0             0.75              0
+```
+
+Interpretation:
+
+- The current DB can be reproduced around tested rollover windows by stitching raw contracts with explicit ET roll dates.
+- ES differences are only tick-level or sub-tick data-vendor differences.
+- NQ has a few larger one-minute differences, but no timestamp/session/row-count mismatch.
+- Session boundaries matched the DB in every tested case: no missing rows after stitching and no duplicate `(instrument, ts)` keys.
+
+Decision:
+
+- Step 281.6 passes for the 2025 H/M/U/Z tested windows.
+- Future updater design should use explicit roll calendar entries, not formula-only roll inference at first.
+- Before broad historical backfill, expand the roll calendar backward for the years that need filling and validate representative windows.
+
 ## Open Validation Questions
 
 1. Roll model:
@@ -259,8 +307,8 @@ Decision:
    - Next task is to formalize that local roll calendar.
 
 2. Session/day boundary:
-   - Confirm whether DB expects all Globex minutes, RTH-only, or prior importer-specific filtering.
-   - Validate Sunday open, 17:00 maintenance gap, holidays, and early closes.
+   - 2025 tested roll windows matched DB row counts exactly after raw-contract stitching.
+   - Broader non-roll holidays and early closes still need validation before full backfill.
 
 3. Historical gap plan:
    - ES currently extends to 2026-05-22.
@@ -274,7 +322,6 @@ Decision:
 
 ## Recommended Next Steps
 
-1. Formalize the raw-contract roll calendar that matches the current DB.
-2. Run broader overlap validation using that roll calendar.
-3. Only then implement an insert-only updater.
-4. Keep live journal data research separate from this historical refresh path.
+1. Expand the explicit roll calendar for the missing data ranges.
+2. Design an insert-only updater that reads that calendar and only fills missing `(instrument, ts)`.
+3. Keep live journal data research separate from this historical refresh path.
