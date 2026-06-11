@@ -29,6 +29,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [P1 plan](planning/P1_PLAN.md)
 - [Improvement plan](planning/improvement_plan.html)
 - [Standalone V4 plan](planning/STANDALONE_V4_PLAN.md)
+- [Yfinance data research for V4 Journal](planning/YFINANCE_DATA_RESEARCH.md)
 
 ## Historical Docs
 
