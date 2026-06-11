@@ -97,6 +97,18 @@ python3 v4/scripts/update_databento_1m.py \
 
 Default mode must remain dry-run.
 
+Implemented first:
+
+```text
+v4/scripts/update_databento_1m.py
+```
+
+Current implementation is dry-run-only. Passing `--write` exits with:
+
+```text
+--write is intentionally disabled in this dry-run-only version
+```
+
 ## Implementation Shape
 
 1. Load DB coverage.
@@ -173,3 +185,50 @@ Databento returned a degraded-quality warning for 2026-03-15 and 2026-03-16 duri
 - Confirm exact Databento historical end at run time.
 - Decide whether daily automation should run after midnight ET or before next RTH open.
 - Decide import audit log location outside git.
+
+## Dry-Run Results
+
+Run on 2026-06-11.
+
+ES default dry-run:
+
+```text
+range ET: 2026-05-22 17:00:00 -> 2026-06-11 04:18:00
+segment:
+  ESM6 validated
+downloaded normalized rows: 18,318
+candidate rows after dedupe: 18,318
+duplicate candidate keys: 0
+existing candidate keys: 0
+would insert rows: 18,318
+would insert first ts: 2026-05-24 18:00:00
+would insert last ts:  2026-06-11 04:17:00
+warning:
+  2026-05-24 degraded quality
+```
+
+NQ default dry-run:
+
+```text
+range ET: 2025-11-04 18:40:00 -> 2026-06-11 04:20:00
+segments:
+  NQZ5 2025-11-04 18:40 -> 2025-12-14 00:00, inferred_no_db_overlap
+  NQH6 2025-12-14 00:00 -> 2026-03-13 00:00, inferred_no_db_overlap
+  NQM6 2026-03-13 00:00 -> 2026-06-11 04:20, inferred_no_db_overlap
+downloaded normalized rows: 210,486
+candidate rows after dedupe: 210,486
+duplicate candidate keys: 0
+existing candidate keys: 0
+would insert rows: 210,486
+would insert first ts: 2025-11-04 18:40:00
+would insert last ts:  2026-06-11 04:19:00
+warnings:
+  2025-11-28 degraded quality
+  2026-03-15 / 2026-03-16 / 2026-04-10 degraded quality
+```
+
+Interpretation:
+
+- The dry-run updater produces clean insert-only candidate sets for both ES and NQ.
+- NQ depends on inferred roll entries because there is no local NQ overlap after 2025-11-04.
+- Databento dataset condition warnings must be kept visible before write mode is considered.

@@ -32,6 +32,7 @@ Databento was selected for research as a higher-quality CME data source.
 - `v4/scripts/validate_databento_roll.py`
 - `v4/scripts/validate_databento_raw_calendar.py`
 - `v4/scripts/scan_databento_gaps.py`
+- `v4/scripts/update_databento_1m.py`
 - `v4/data_config/futures_roll_calendar.yml`
 - `v4/docs/planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md`
 - `databento` entry in `v4/requirements-data.txt`
@@ -134,3 +135,39 @@ Validated after the initial updater-plan commit:
 NQ 2025-12 and 2026-03 cannot be directly validated against local DB because NQ stops at `2025-11-04 18:39`. They are marked `inferred_no_db_overlap` in the roll calendar and must be highlighted by the future dry-run updater.
 
 Databento warned that 2026-03-15 and 2026-03-16 had degraded quality during the 2026-03 ES request. The corrected stitched data still matched the current DB.
+
+## Dry-Run Updater
+
+Added `v4/scripts/update_databento_1m.py`.
+
+Current behavior:
+
+- Dry-run only.
+- `--write` is intentionally rejected.
+- Reads `v4/data_config/futures_roll_calendar.yml`.
+- Downloads raw contracts by segment.
+- Normalizes Databento UTC `ts_event` to ET-naive `ts`.
+- Compares candidate keys against DB.
+- Prints segment statuses and Databento warnings.
+
+Dry-run results:
+
+```text
+ES:
+  range: 2026-05-22 17:00 -> 2026-06-11 04:18
+  contract: ESM6
+  would_insert_rows: 18,318
+  duplicate_candidate_keys: 0
+  existing_candidate_keys: 0
+  warning: 2026-05-24 degraded quality
+
+NQ:
+  range: 2025-11-04 18:40 -> 2026-06-11 04:20
+  contracts: NQZ5 / NQH6 / NQM6
+  would_insert_rows: 210,486
+  duplicate_candidate_keys: 0
+  existing_candidate_keys: 0
+  warnings: 2025-11-28, 2026-03-15, 2026-03-16, 2026-04-10 degraded quality
+```
+
+The NQ dry-run uses `inferred_no_db_overlap` roll entries and prints them as warnings.
