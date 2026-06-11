@@ -9,8 +9,8 @@ V4 是图表式复盘工具，用来在 NQ K 线图上回放行情、手工标�
 推荐启动方式：
 
 ```bash
-cd /home/leo/myworkspace/trading/backtesting
-bash v4/start.sh start
+cd v4
+bash start.sh start
 ```
 
 这个脚本会启动 V4 API，并在 8001 端口启动 Web 服务。
@@ -18,7 +18,7 @@ bash v4/start.sh start
 浏览器打开：
 
 ```text
-http://127.0.0.1:8001/v4/index.html
+http://127.0.0.1:8001/index.html
 ```
 
 V4 API 通常运行在：
@@ -30,12 +30,14 @@ http://127.0.0.1:8766/v4/health
 常用服务命令：
 
 ```bash
-bash v4/start.sh status
-bash v4/start.sh restart
-bash v4/start.sh stop
+bash start.sh status
+bash start.sh restart
+bash start.sh stop
 ```
 
 如果看到 `Failed to fetch`、Replay History restore failed、Calendar/价格查询失败，优先检查 API 是否在 `8766` 运行。
+
+如果把 `v4/` 复制为独立目录运行，先准备 `data/trading_data.duckdb`，或设置 `V4_TRADING_DB`。详细步骤见 [Standalone Run Guide](STANDALONE_RUN.md)。
 
 ## 加载图表
 

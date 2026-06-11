@@ -8,6 +8,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 
 - [Chinese user guide](user/USER_GUIDE.zh-CN.md)
 - [English user guide](user/USER_GUIDE.en.md)
+- [Standalone run guide](user/STANDALONE_RUN.md)
 - [Inspector help](user/INSPECTOR_HELP.md)
 
 ### Design
@@ -27,6 +28,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [Code review 2026-06-02](planning/CODE_REVIEW_2026_06_02.md)
 - [P1 plan](planning/P1_PLAN.md)
 - [Improvement plan](planning/improvement_plan.html)
+- [Standalone V4 plan](planning/STANDALONE_V4_PLAN.md)
 
 ## Historical Docs
 

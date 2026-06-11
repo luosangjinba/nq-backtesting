@@ -9,14 +9,14 @@ The current version is centered on manual review. It is not an automatic trading
 Recommended start command:
 
 ```bash
-cd /home/leo/myworkspace/trading/backtesting
-bash v4/start.sh start
+cd v4
+bash start.sh start
 ```
 
 Open:
 
 ```text
-http://127.0.0.1:8001/v4/index.html
+http://127.0.0.1:8001/index.html
 ```
 
 The V4 API is usually available at:
@@ -28,12 +28,14 @@ http://127.0.0.1:8766/v4/health
 Common service commands:
 
 ```bash
-bash v4/start.sh status
-bash v4/start.sh restart
-bash v4/start.sh stop
+bash start.sh status
+bash start.sh restart
+bash start.sh stop
 ```
 
 If you see `Failed to fetch`, Replay History restore failures, or Calendar/price lookup failures, first check whether the API is running on `8766`.
+
+When copying `v4/` as a standalone folder, prepare `data/trading_data.duckdb` first or set `V4_TRADING_DB`. See [Standalone Run Guide](STANDALONE_RUN.md).
 
 ## Load A Chart
 

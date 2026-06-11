@@ -51,3 +51,9 @@ Step 278.4 implementation:
 - Added `V4_WEB_PORT` override for the static server port.
 - Changed the standalone page URL to `http://127.0.0.1:8001/index.html`.
 - Kept all runtime files local to the V4 folder.
+
+Step 278.5 implementation:
+
+- Added `docs/user/STANDALONE_RUN.md` with folder shape, data setup, startup, ports, health check, and troubleshooting.
+- Updated both user guides to start from the V4 folder and open `/index.html`.
+- Linked the standalone run guide and plan from `docs/README.md`.
