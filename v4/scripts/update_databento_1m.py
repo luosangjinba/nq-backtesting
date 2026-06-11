@@ -9,6 +9,7 @@ validated, and insertion is `insert where not exists` inside a transaction.
 from __future__ import annotations
 
 import argparse
+import time as time_lib
 import warnings
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
@@ -66,6 +67,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="Explicitly run read-only dry-run. This is the default.")
     parser.add_argument("--write", action="store_true", help="Execute insert-only write. Currently allowed only for ES.")
     parser.add_argument("--confirm-write", action="store_true", help="Required with --write.")
+    parser.add_argument("--chunk-days", type=int, default=5, help="Databento request chunk size in ET days.")
+    parser.add_argument("--retries", type=int, default=2, help="Retries per Databento request chunk for transient failures.")
+    parser.add_argument("--retry-sleep", type=float, default=2.0, help="Seconds to sleep before retrying a transient request failure.")
     parser.add_argument("--show-sample", type=int, default=3, help="Number of would-insert sample rows to print.")
     return parser.parse_args()
 
@@ -203,20 +207,68 @@ def build_segments(instrument: str, entries: list[RollEntry], start_et: datetime
     return segments
 
 
-def download_segment(client: db.Historical, dataset: str, schema: str, segment: Segment) -> tuple[pd.DataFrame, list[str]]:
-    warning_messages: list[str] = []
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        data = client.timeseries.get_range(
-            dataset=dataset,
-            symbols=[segment.contract],
-            schema=schema,
-            start=et_naive_to_utc_iso(segment.start_et),
-            end=et_naive_to_utc_iso(segment.end_et),
-            stype_in="raw_symbol",
+def split_segment_by_days(segment: Segment, chunk_days: int) -> list[Segment]:
+    if chunk_days <= 0:
+        raise SystemExit("--chunk-days must be greater than 0")
+    chunks: list[Segment] = []
+    left = segment.start_et
+    while left < segment.end_et:
+        right = min(left + timedelta(days=chunk_days), segment.end_et)
+        chunks.append(
+            Segment(
+                instrument=segment.instrument,
+                contract=segment.contract,
+                start_et=left,
+                end_et=right,
+                roll_status=segment.roll_status,
+                roll_note=segment.roll_note,
+            )
         )
-    for warning in caught:
-        warning_messages.append(str(warning.message))
+        left = right
+    return chunks
+
+
+def is_transient_databento_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return any(token in message for token in ["504", "gateway", "timed out", "timeout", "temporarily unavailable"])
+
+
+def request_segment(
+    client: db.Historical,
+    dataset: str,
+    schema: str,
+    segment: Segment,
+    retries: int,
+    retry_sleep: float,
+) -> tuple[pd.DataFrame, list[str]]:
+    warning_messages: list[str] = []
+    last_exc: Exception | None = None
+    for attempt in range(max(0, retries) + 1):
+        try:
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                data = client.timeseries.get_range(
+                    dataset=dataset,
+                    symbols=[segment.contract],
+                    schema=schema,
+                    start=et_naive_to_utc_iso(segment.start_et),
+                    end=et_naive_to_utc_iso(segment.end_et),
+                    stype_in="raw_symbol",
+                )
+            for warning in caught:
+                warning_messages.append(str(warning.message))
+            break
+        except Exception as exc:
+            last_exc = exc
+            if attempt >= retries or not is_transient_databento_error(exc):
+                raise
+            print(
+                f"transient Databento failure for {segment.contract} "
+                f"{segment.start_et} -> {segment.end_et}; retry {attempt + 1}/{retries}: {exc}"
+            )
+            time_lib.sleep(max(0.0, retry_sleep))
+    else:
+        raise RuntimeError("Databento request failed") from last_exc
 
     raw = data.to_df()
     if raw.empty:
@@ -238,6 +290,30 @@ def download_segment(client: db.Historical, dataset: str, schema: str, segment: 
     })
     normalized = normalized.dropna(subset=OHLC_COLUMNS)
     return normalized.sort_values(["instrument", "ts"]).reset_index(drop=True), warning_messages
+
+
+def download_segment(
+    client: db.Historical,
+    dataset: str,
+    schema: str,
+    segment: Segment,
+    chunk_days: int,
+    retries: int,
+    retry_sleep: float,
+) -> tuple[pd.DataFrame, list[str], list[tuple[datetime, datetime, int]]]:
+    frames = []
+    warning_messages: list[str] = []
+    chunk_counts: list[tuple[datetime, datetime, int]] = []
+    for chunk in split_segment_by_days(segment, chunk_days):
+        frame, chunk_warnings = request_segment(client, dataset, schema, chunk, retries, retry_sleep)
+        frames.append(frame)
+        warning_messages.extend(chunk_warnings)
+        chunk_counts.append((chunk.start_et, chunk.end_et, len(frame)))
+    if not frames:
+        empty = pd.DataFrame(columns=["instrument", "ts", *OHLC_COLUMNS, "volume", "source_symbol"])
+        return empty, warning_messages, chunk_counts
+    combined = pd.concat(frames, ignore_index=True)
+    return combined.sort_values(["instrument", "ts"]).reset_index(drop=True), warning_messages, chunk_counts
 
 
 def validate_write_allowed(args: argparse.Namespace, segments: list[Segment]) -> None:
@@ -338,11 +414,22 @@ def main() -> None:
     frames = []
     all_warnings: list[str] = []
     segment_counts = []
+    chunk_counts_by_contract: list[tuple[str, datetime, datetime, int]] = []
     for segment in segments:
-        frame, warning_messages = download_segment(client, dataset, schema, segment)
+        frame, warning_messages, chunk_counts = download_segment(
+            client,
+            dataset,
+            schema,
+            segment,
+            args.chunk_days,
+            args.retries,
+            args.retry_sleep,
+        )
         frames.append(frame)
         all_warnings.extend(warning_messages)
         segment_counts.append((segment.contract, len(frame)))
+        for chunk_start, chunk_end, chunk_count in chunk_counts:
+            chunk_counts_by_contract.append((segment.contract, chunk_start, chunk_end, chunk_count))
 
     candidates = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     duplicate_count = int(candidates.duplicated(subset=["instrument", "ts"]).sum()) if not candidates.empty else 0
@@ -360,6 +447,10 @@ def main() -> None:
     print("\nsegment downloaded rows")
     for contract, count in segment_counts:
         print(f"- {contract}: {count}")
+    if chunk_counts_by_contract:
+        print("\nchunk downloaded rows")
+        for contract, chunk_start, chunk_end, count in chunk_counts_by_contract:
+            print(f"- {contract}: {chunk_start} -> {chunk_end}: {count}")
 
     print("\ndry-run report")
     print(f"downloaded_normalized_rows: {sum(count for _, count in segment_counts)}")
