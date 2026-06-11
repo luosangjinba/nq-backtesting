@@ -38,3 +38,9 @@ Step 278.2 implementation:
 - Added `v4/server/__init__.py`.
 - Updated `v4_api.py` to use `#!/usr/bin/env python3` and import from `server.price_lookup`.
 - Removed the parent-directory `sys.path` insertion and parent `price_lookup_api.py` dependency.
+
+Step 278.3 implementation:
+
+- Changed `v4_config.yaml` default trading DB path to `data/trading_data.duckdb`.
+- Added `V4_TRADING_DB` support in `v4_api.py`; absolute paths are used as-is, relative paths resolve from the V4 folder.
+- Kept large DuckDB runtime data out of git.

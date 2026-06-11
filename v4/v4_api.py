@@ -23,12 +23,21 @@ CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "v4_confi
 with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     V4_CONFIG = yaml.safe_load(f)
 
-DB_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), V4_CONFIG["database"]["trading_data"]["path"])
-)
+V4_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+def _resolve_db_path():
+    env_path = os.environ.get("V4_TRADING_DB", "").strip()
+    configured_path = env_path or V4_CONFIG["database"]["trading_data"]["path"]
+    if os.path.isabs(configured_path):
+        return configured_path
+    return os.path.abspath(os.path.join(V4_ROOT, configured_path))
+
+
+DB_PATH = _resolve_db_path()
 TABLE_NAME = V4_CONFIG["database"]["trading_data"]["table"]
 ECONOMIC_CALENDAR_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
+    V4_ROOT,
     "data",
     "economic_calendar",
     "economic_calendar_usd_events.csv",

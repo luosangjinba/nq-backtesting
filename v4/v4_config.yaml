@@ -10,7 +10,7 @@ api:
 # 数据库配置（仅 trading_data）
 database:
   trading_data:
-    path: "../trading_data.duckdb"
+    path: "data/trading_data.duckdb"
     table: "futures_1m"
   instrument: "NQ"
 
