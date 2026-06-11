@@ -29,6 +29,7 @@ Databento was selected for research as a higher-quality CME data source.
 
 - `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`
 - `v4/scripts/validate_databento_1m.py`
+- `v4/scripts/validate_databento_roll.py`
 - `databento` entry in `v4/requirements-data.txt`
 
 ## Validation Run
@@ -55,9 +56,30 @@ Result:
 - `ES.c.0/NQ.c.0` continuous symbology is valid and matched the same non-roll-window profile.
 - `ES.FUT/NQ.FUT` is not a valid Databento continuous symbol format.
 
+## Roll Validation
+
+Tested windows:
+
+- `2025-03 H-to-M`
+- `2025-06 M-to-U`
+- `2025-09 U-to-Z`
+
+Result:
+
+- Databento `ES.c.0/ES.v.0` and `NQ.c.0/NQ.v.0` matched the old raw contract through the tested rollover windows.
+- The current DB matched the old raw contract before roll and the new raw contract after roll.
+- Examples:
+  - 2025-03: DB switched to `ESM5/NQM5` from March 14/16/17.
+  - 2025-06: DB switched to `ESU5/NQU5` from June 13/15/16.
+  - 2025-09: DB switched to `ESZ5/NQZ5` from September 14/15.
+
+Decision:
+
+- Do not use Databento continuous symbols directly for DB maintenance.
+- Use raw quarterly contracts and a local roll calendar aligned to the existing DB.
+
 ## Next
 
-1. Run overlap validation for trusted DB dates.
-2. Validate continuous contract behavior vs current DB.
-3. Decide whether production updater should use Databento continuous symbols or raw contracts plus local roll rules.
-4. Implement insert-only updater only after the above alignment is settled.
+1. Formalize the raw-contract roll calendar that matches the current DB.
+2. Run broader overlap validation using that roll calendar.
+3. Implement insert-only updater only after the above alignment is settled.

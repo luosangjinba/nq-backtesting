@@ -121,6 +121,7 @@ Added:
 
 ```text
 v4/scripts/validate_databento_1m.py
+v4/scripts/validate_databento_roll.py
 ```
 
 The script is read-only:
@@ -132,6 +133,13 @@ The script is read-only:
 - Normalizes UTC `ts_event` to ET-naive `ts`.
 - Optionally compares overlap against `futures_1m`.
 - Does not write to DuckDB.
+
+The roll script is also read-only:
+
+- Downloads preset rollover windows.
+- Compares Databento `ES.c.0/NQ.c.0`, `ES.v.0/NQ.v.0`, old raw contracts, and new raw contracts.
+- Scores each source against the current DB by overlap and OHLC/volume differences.
+- Prints daily best-source breakdown around rollover.
 
 Example:
 
@@ -198,13 +206,57 @@ invalid: ES.FUT, NQ.FUT for continuous
 
 For the 2025-06-02 test window, `ES.c.0/NQ.c.0` produced the same overlap profile as raw active contracts. This is not enough to approve continuous import because the key question is roll behavior; it must be tested around rollover windows.
 
+## Roll Validation Results
+
+Run on 2026-06-11 with `v4/scripts/validate_databento_roll.py`.
+
+Rollover windows tested:
+
+```text
+2025-03 H-to-M: 2025-03-10T00:00:00Z -> 2025-03-18T00:00:00Z
+2025-06 M-to-U: 2025-06-09T00:00:00Z -> 2025-06-17T00:00:00Z
+2025-09 U-to-Z: 2025-09-08T00:00:00Z -> 2025-09-16T00:00:00Z
+```
+
+Observed pattern:
+
+```text
+Databento ES.c.0 / ES.v.0 matched the old raw contract through the tested roll window.
+Databento NQ.c.0 / NQ.v.0 matched the old raw contract through the tested roll window.
+
+The current DB matched the old raw contract before roll, then matched the new raw contract after roll.
+```
+
+Daily best-source examples:
+
+```text
+2025-03 H-to-M:
+  ES old/c.0 best through 2025-03-13; ES new raw ESM5 best from 2025-03-14/16/17.
+  NQ old/c.0 best through 2025-03-13; NQ new raw NQM5 best from 2025-03-14/16/17.
+
+2025-06 M-to-U:
+  ES old/c.0 best through 2025-06-12; ES new raw ESU5 best from 2025-06-13/15/16.
+  NQ old/c.0 best through 2025-06-12; NQ new raw NQU5 best from 2025-06-13/15/16.
+
+2025-09 U-to-Z:
+  ES old/c.0 best through 2025-09-12; ES new raw ESZ5 best from 2025-09-14/15.
+  NQ old/c.0 best through 2025-09-12; NQ new raw NQZ5 best from 2025-09-14/15.
+```
+
+Decision:
+
+- Do not use Databento `continuous` symbols directly for production DB maintenance.
+- Use Databento raw quarterly contracts plus a local roll calendar that matches the current DB.
+- Existing DB remains authoritative; the roll calendar should be inferred/validated against DB before any missing-row insert.
+
 ## Open Validation Questions
 
 1. Roll model:
    - Current DB stores continuous `ES` and `NQ`.
    - Databento raw symbols like `ESM5` and `NQM5` are contract-specific.
-   - Need confirm whether Databento `continuous` symbology matches current DB roll rules around rollover.
-   - If not, use raw contracts plus a local roll calendar.
+   - Databento `continuous` symbology does not match the current DB roll behavior in the tested rollover windows.
+   - Use raw contracts plus a local roll calendar.
+   - Next task is to formalize that local roll calendar.
 
 2. Session/day boundary:
    - Confirm whether DB expects all Globex minutes, RTH-only, or prior importer-specific filtering.
@@ -222,8 +274,7 @@ For the 2025-06-02 test window, `ES.c.0/NQ.c.0` produced the same overlap profil
 
 ## Recommended Next Steps
 
-1. Run the Databento validator on overlapping dates where current DB is trusted.
-2. Test Databento continuous symbology for ES/NQ and compare to DB.
-3. Decide raw-contract plus local-roll vs Databento continuous.
-4. Only then implement an insert-only updater.
-5. Keep live journal data research separate from this historical refresh path.
+1. Formalize the raw-contract roll calendar that matches the current DB.
+2. Run broader overlap validation using that roll calendar.
+3. Only then implement an insert-only updater.
+4. Keep live journal data research separate from this historical refresh path.

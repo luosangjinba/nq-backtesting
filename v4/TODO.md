@@ -788,6 +788,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 281.2: 查询 `GLBX.MDP3` `ohlcv-1m` pricing、dataset range 和成本估算；确认 ES/NQ 每日增量成本很低。
   - [x] Step 281.3: 明确 Historical API 不是 intraday live journal 数据源；live journal 后续单独评估 Live API 或已有行情源。
   - [x] Step 281.4: 新增只读验证脚本 `v4/scripts/validate_databento_1m.py`，支持价格/范围/成本查询、小样本下载、ET-naive 标准化和 DB overlap 对比。
-  - [ ] Step 281.5: 验证 Databento continuous symbology 与当前 DB roll 规则是否一致。
+  - [x] Step 281.5: 验证 Databento continuous symbology 与当前 DB roll 规则是否一致；结论：`ES.c.0/NQ.c.0` 与 `ES.v.0/NQ.v.0` 在 2025-03/06/09 rollover 窗口不匹配当前 DB，后续不能直接用 Databento continuous 写库，必须使用 raw quarterly contracts + 本地 roll calendar。
   - [ ] Step 281.6: 在可信重叠日期上比较 raw contract 与当前 DB 的 timestamp / OHLCV / session boundary。
   - [ ] Step 281.7: 对齐通过后，再设计 insert-only updater：只插缺失 `(instrument, ts)`，不覆盖已有 DB。
