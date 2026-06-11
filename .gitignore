@@ -1,11 +1,23 @@
 # API runtime files
 .api.log
 .api_pid
+.web.log
+.web_pid
+
+# Python runtime files
+__pycache__/
+*.pyc
+
+# V4 runtime data
+v4/data/trading_data.duckdb
+v4/data/vix-monthly.csv
+v4/.api.log
+v4/.api_pid
+v4/.web.log
+v4/.web_pid
 
 # Temporary directories
 tmp/
-v2/docs/tmp/
 
 # Test files (keep in working directory but don't commit)
 test_*.html
-v2/test_*.html

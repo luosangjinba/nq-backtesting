@@ -1,11 +1,5 @@
 # V3 Historical Docs
 
-V3 source docs remain in their original locations:
+V3 source docs were removed from the active tree in the v4-only cleanup.
 
-- [`../../../../v3`](../../../../v3)
-- [`../../../../v3/docs`](../../../../v3/docs)
-- [`../../../../v3/sessions`](../../../../v3/sessions)
-- [`../../../../v3/modules`](../../../../v3/modules)
-- [`../../../../v3/plans`](../../../../v3/plans)
-
-Use these files as historical context only. Current product docs live under [`../../README.md`](../../README.md).
+Use git history before the v4-only cleanup to inspect them. Current product docs live under [`../../README.md`](../../README.md).

@@ -32,7 +32,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 
 ## Historical Docs
 
-Historical V2/V3/root architecture notes are indexed under [legacy/README.md](legacy/README.md). The original historical directories are intentionally kept in place so old demos, notes, and references remain inspectable without rewriting their internal links.
+Historical V2/V3/root architecture source directories were removed from this v4-only branch. The legacy index under [legacy/README.md](legacy/README.md) records what was removed and where to recover it from git history.
 
 ## Session Logs
 

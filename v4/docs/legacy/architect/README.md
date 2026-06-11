@@ -1,8 +1,5 @@
 # Architecture Historical Docs
 
-Architecture and pendulum notes remain in their original locations:
+Architecture and pendulum notes were removed from the active tree in the v4-only cleanup.
 
-- [`../../../../architect`](../../../../architect)
-- [`../../../../architect/about pendulum`](<../../../../architect/about pendulum>)
-
-Use these files as historical context only. Current V4 docs live under [`../../README.md`](../../README.md).
+Use git history before the v4-only cleanup to inspect them. Current V4 docs live under [`../../README.md`](../../README.md).
