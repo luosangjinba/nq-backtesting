@@ -57,3 +57,15 @@ Step 278.5 implementation:
 - Added `docs/user/STANDALONE_RUN.md` with folder shape, data setup, startup, ports, health check, and troubleshooting.
 - Updated both user guides to start from the V4 folder and open `/index.html`.
 - Linked the standalone run guide and plan from `docs/README.md`.
+
+Step 278.6 validation:
+
+- Ran all existing `v4/tests/*.js`; all passed with only existing Node module-type warnings.
+- Copied `v4/` to `/tmp/v4-standalone-smoke`.
+- Confirmed the standalone copy does not contain parent `price_lookup_api.py`.
+- Copied runtime DB to `/tmp/v4-standalone-smoke/data/trading_data.duckdb` for smoke only.
+- Started `/tmp/v4-standalone-smoke/v4_api.py` outside the sandbox because local port binding is restricted in the sandbox.
+- Verified `http://127.0.0.1:8766/v4/health` returned `{"status":"ok","version":"4.0"}`.
+- Verified `/v4/bars?instrument=NQ&start=2012-01-06%2009:30&end=2012-01-06%2010:00&tf=5` returned NQ bars.
+- Started a temporary static server from `/tmp/v4-standalone-smoke` and verified `/index.html` returned HTTP 200.
+- Stopped the temporary API/Web processes after validation.
