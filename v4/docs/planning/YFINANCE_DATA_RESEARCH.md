@@ -4,6 +4,10 @@ Date: 2026-06-11
 
 Branch: `feature/research-yfinance-data-journal`
 
+Status: Abandoned as a production data source. Kept as historical research only.
+
+Superseded by: `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`
+
 ## Goal
 
 Before building a parallel Journal system on top of the V4 review platform, improve the freshness and reliability of the `futures_1m` database.
@@ -218,6 +222,22 @@ ES=F date 2026-05-22 compare-db:
 ES=F period 30d:
   failed/empty because Yahoo reported only 8 days of 1m granularity are available per request.
 ```
+
+## Final Decision
+
+yfinance/Yahoo is abandoned for V4 `futures_1m` maintenance.
+
+Reason:
+
+- Existing DuckDB data is authoritative.
+- Overlap validation showed Yahoo bars can diverge materially from the DB.
+- Yahoo 1m retention/request constraints make it unsuitable for NQ's larger historical gap.
+- It may still be useful as a rough market-data reference, but not as an automated source for the main database.
+
+Replacement research path:
+
+- Databento `GLBX.MDP3` `ohlcv-1m`.
+- See `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`.
 
 Implication:
 

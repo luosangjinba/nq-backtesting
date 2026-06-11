@@ -1,4 +1,5 @@
 yfinance
+databento
 pandas
 duckdb
 PyYAML

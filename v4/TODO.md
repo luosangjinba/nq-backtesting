@@ -775,9 +775,19 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Windows 访问路径固定为 `http://127.0.0.1:8001/index.html`，支持 start/stop/restart/status/log。
   - [x] 更新 standalone run guide，补充 Windows 启动方式。
 
-- [ ] Step 280: Journal + yfinance data research。目标是在 V4 复盘平台旁规划 journal 系统，并先研究用 yfinance 增补 NQ/ES 1m 数据的可行性；研究文档见 `v4/docs/planning/YFINANCE_DATA_RESEARCH.md`。
+- [ ] Step 280: Journal + yfinance data research。yfinance 数据源研究已废弃为生产路线，仅保留历史记录；原因是 Yahoo/yfinance 与权威 DB 重叠区存在明显 OHLCV 偏差，且 1m 历史限制无法可靠补全 NQ/ES 缺口。研究文档见 `v4/docs/planning/YFINANCE_DATA_RESEARCH.md`；后续数据补全改走 Step 281 Databento。
   - [x] Step 280.1: 开分支 `feature/research-yfinance-data-journal`，确认当前数据库 schema 与覆盖范围。
   - [x] Step 280.2: 查 yfinance 官方项目/API 文档，确认 1m interval、60-day intraday 限制、personal-use/legal 风险。
   - [x] Step 280.3: 设计数据增补原型：下载、标准化时区、去重、insert-only 候选、质量审计、dry-run；DB 是权威数据源，Yahoo 不覆盖已有 K 线。
   - [ ] Step 280.4: 设计 Journal MVP：与复盘平台共享 chart/replay/calendar，但记录临场状态、实时想法、订单、情绪/执行纪律。
   - [x] Step 280.5: 实现前验证：小窗口 NQ/ES 下载样本，与现有 DB 重叠区对齐比较。
+  - [x] Step 280.6: 基于重叠区验证结果正式放弃 yfinance/Yahoo 作为主 DB 自动补全来源。
+
+- [ ] Step 281: Databento 1m data research。目标是验证 Databento `GLBX.MDP3` / `ohlcv-1m` 是否可作为 V4 `futures_1m` 的历史补全和每日盘后增量来源；研究文档见 `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`。
+  - [x] Step 281.1: 开分支 `feature/research-databento-data-journal`，安装官方 `databento` Python client。
+  - [x] Step 281.2: 查询 `GLBX.MDP3` `ohlcv-1m` pricing、dataset range 和成本估算；确认 ES/NQ 每日增量成本很低。
+  - [x] Step 281.3: 明确 Historical API 不是 intraday live journal 数据源；live journal 后续单独评估 Live API 或已有行情源。
+  - [x] Step 281.4: 新增只读验证脚本 `v4/scripts/validate_databento_1m.py`，支持价格/范围/成本查询、小样本下载、ET-naive 标准化和 DB overlap 对比。
+  - [ ] Step 281.5: 验证 Databento continuous symbology 与当前 DB roll 规则是否一致。
+  - [ ] Step 281.6: 在可信重叠日期上比较 raw contract 与当前 DB 的 timestamp / OHLCV / session boundary。
+  - [ ] Step 281.7: 对齐通过后，再设计 insert-only updater：只插缺失 `(instrument, ts)`，不覆盖已有 DB。
