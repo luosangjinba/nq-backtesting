@@ -77,7 +77,7 @@
 - [x] Step 46: 验证 5-10 个真实样例后，再决定是否做 controlled review selection 与 Review JSON 持久化；实际使用验证已完成，Segment Review Metrics 运行良好，且后续 Order Setup / Calendar / Phase 16 收口已覆盖更大的真实链路
 
 ### Phase 8A: Order Review / Execution Lens 设计
-- [x] Step 47: 整理订单复盘设计文档 `v4/docs/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
+- [x] Step 47: 整理订单复盘设计文档 `v4/docs/design/ORDER_REVIEW_DESIGN.md`，参考 `v4/sessions/session_20260525_930_execution_lens.md`、旧 YAML schema 与 pendulum 示例，但不把旧 YAML 一比一搬进 V4
 - [x] Step 48: 定义 `Order Review` 对象边界：不是简单 entry/exit 表，而是 `Setup Thesis -> Entry Plan -> Result Review`；订单理由不限制为上一段行情结束原因，允许前面多段结构、Composite Move、PDA、SMT、Reaction Evidence 的组合拳
 - [x] Step 49: 定义 `Setup Thesis`：记录 primary event 的 1M 精确时间、事件周期、事件类型（sweep liquidity / touch FVG / touch NWOG/NDOG / SMT / other），并支持 `linkedObjectRefs[]` 引用多个 segment / composite / PDA / SMT / reactionEvidence；低周期 1M/5M 事件要提示是否违反“跟随高周期事件做单”的原则
 - [x] Step 50: 定义 `Entry Plan` 子对象：direction、entry time/price（1M 精度）、entry model（OB / FVG / OTE / OTE+OB / sweep / manual）、stoploss、target internal/swing/external、selected target、final target；第一版人工录入，MAE/MFE 与自动 target hit 计算延后
@@ -202,14 +202,14 @@ Phase 8H 收尾状态：已在 `main` 合并。后续 review 修复补齐了 SMT
 - [x] Step 123: 副图 PDA hit-test / select / Inspector：副图点击 PDA 能选中同一 annotation 并打开 Inspector；Inspector 编辑、删除、note、extend 与 undo/redo 继续作用于同一 PDA store
 - [x] Step 124: 副图 PDA link 到 active setup：允许从副图 PDA 关联当前 active Order Setup，并在 setup/review JSON 中保留来源 chart/timeframe 信息
 - [x] Step 125: Review JSON / localStorage 验证：验证副图创建 PDA 的刷新恢复、export/import、undo/redo、Calendar index 与 Locate/Open 行为
-- [x] Step 126: 副图 Segment 设计冻结：明确副图 segment 复用同一 Segment store，以 source chart/instrument/timeframe metadata 区分来源；字段、显示规则、selection/Inspector、Calendar/archive、link 到 setup 规则已写入 `docs/SECONDARY_SEGMENT_DESIGN.md`
+- [x] Step 126: 副图 Segment 设计冻结：明确副图 segment 复用同一 Segment store，以 source chart/instrument/timeframe metadata 区分来源；字段、显示规则、selection/Inspector、Calendar/archive、link 到 setup 规则已写入 `docs/design/SECONDARY_SEGMENT_DESIGN.md`
 - [x] Step 127: 副图 Segment MVP：按 Step 126 决策实现副图起终点选择、创建、渲染与基础 Inspector 查看
 - [x] Step 128: 副图 Segment link 到 setup：支持把副图 segment 作为 HTF structure evidence 关联到 active setup / setup set
 - [x] Step 129: 副图 Segment 验证：覆盖主图 1M 找 setup、副图 1H/4H 做结构标注的真实流程；验证 Review JSON、Calendar、undo/redo、Split on/off 与 replay 不回归
 
 ### Phase 11: Secondary Chart FVG Workflow
 Phase 11 收尾状态：已在 `main` 合并；副图 PDA/Segment/FVG 创建、source metadata、setup-link、持久化、命中/Inspector 与主副图时间定位对称功能已完成。
-- [x] Step 130: 副图 FVG 设计冻结：明确副图 FVG 复用现有 PDA store 与 `type='fvg'` range annotation；冻结 source metadata、contexts、渲染/命中/Inspector、setup-link 与 archive 边界，写入 `docs/SECONDARY_FVG_DESIGN.md`
+- [x] Step 130: 副图 FVG 设计冻结：明确副图 FVG 复用现有 PDA store 与 `type='fvg'` range annotation；冻结 source metadata、contexts、渲染/命中/Inspector、setup-link 与 archive 边界，写入 `docs/design/SECONDARY_FVG_DESIGN.md`
 - [x] Step 131: 副图 FVG metadata hardening：让 `addManualFvg()` 与 point PDA 一样写入 `sourceChartId/sourceChartLabel/sourceInstrument/sourceTimeframe/sourceTimeframeLabel/sourceContext`，并让 contexts 同时包含来源与结构标签；主图 FVG 行为不变
 - [x] Step 132: 启用副图 Mark FVG：在副图右键菜单开放 `Mark FVG`，用 secondary context 调用现有 FVG 识别/创建流程；无有效三根 FVG 时只提示不创建
 - [x] Step 133: 副图 FVG 渲染/命中/Inspector 验证：确认副图创建的 FVG 可在主图/副图显示、命中选择、打开 Inspector、编辑 note/extend、删除，并支持 locate/flash
@@ -442,7 +442,7 @@ P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问
 - [x] Step 243: 抽取 Order Setup edit/result actions：集中 entry context、display flags、execution element visibility/delete、result status、exit time auto-calc/manual pick；确保自动 exit time 与持仓时间派生不回归
 - [x] Step 244: 保留 `ui/inspector/order-review-actions.js` 作为 facade/controller factory：只负责组合子模块、维护少量 controller 状态和对 `inspector-sidebar.js` 的兼容入口；不让 sidebar 重新承担 Order Setup 业务逻辑
 - [x] Step 245: 轻量收敛 `order-review-active.js`：内部统一以 Setup Set / active review set id 为权威；旧 `getActiveOrderReview*` alias 暂留兼容但不新增使用；不改 localStorage key、不迁移 Review JSON 字段
-- [x] Step 246: 文档化 Order Setup 分层：更新 TODO / session / 必要时 `docs/ORDER_REVIEW_DESIGN.md`，明确 store=兼容持久化输入、setup-set=view-model 权威、inspector actions=UI 操作协调、renderer/hit-test=投影消费层
+- [x] Step 246: 文档化 Order Setup 分层：更新 TODO / session / 必要时 `docs/design/ORDER_REVIEW_DESIGN.md`，明确 store=兼容持久化输入、setup-set=view-model 权威、inspector actions=UI 操作协调、renderer/hit-test=投影消费层
 - [x] Step 247: P0 验证与收口：运行全量 `v4/src/**/*.js` 语法检查、Order Setup smoke、Web/API smoke；手工覆盖 Calendar Open/Locate、图表右键创建/编辑、Reasons link、Result auto exit、undo/redo、Review JSON import/export
 - [x] Step 248: Context reset handoff：在 `sessions/session_20260602_p0_order_setup_refactor.md` 记录当前分支、提交范围、验证结果、未跟踪文件状态与清空上下文后的接手步骤
 
@@ -452,7 +452,7 @@ P0 执行边界：优先解决阻碍后续开发的 Order Setup action 混乱问
 - [ ] `order-review-actions.js` 之外的大文件继续评估：`time-reaction-actions.js`、`segment-panel.js`、`order-setup-chart-actions.js` 按实际新增功能压力决定是否拆分
 
 ### Phase 16: P1 代码质量改进计划
-Phase 16 参考 `docs/improvement_plan.html`，但按当前 V4 实际边界调整执行顺序。目标是降低重复逻辑和维护成本，不做新业务功能，不迁移 `orderReviews` schema，不改 localStorage key，不破坏 Review JSON 兼容。
+Phase 16 参考 `docs/planning/improvement_plan.html`，但按当前 V4 实际边界调整执行顺序。目标是降低重复逻辑和维护成本，不做新业务功能，不迁移 `orderReviews` schema，不改 localStorage key，不破坏 Review JSON 兼容。
 
 - [x] Step 249: P0 分支收口：确认未跟踪 docs 是否纳入提交；运行产物（`.web_pid`、`.web.log`、`__pycache__`、`tmp/*.png`、本地 duckdb）不纳入提交；重新跑 Order Setup smoke、全量 JS 语法检查、`git diff --check` 与 Web/API smoke；验证通过后将 `refactor/p0-order-setup-actions` 合并回 `main`
 - [x] Step 250: 建立中性时间投影工具模块：新增 `chart/time-projection.js` 或 `data/timeframe-buckets.js`，承载 `getBarChartTime()`、`getBucketStart()`、`normalizeChartTime()`、`findDisplayBarByTime()`、`getDisplayBarIndex()`；基础层不得 import `pda-context.js`
@@ -630,7 +630,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - 2026-05-22: PDA-specific terminal reaction metrics 完成只读版：Segment Inspector 基于 segment 已关联 PDA 展示 Terminal PDA Candidates；range PDA 计算 wick/body 进入深度、CE 触碰、swept/reversed/delivered-through，liquidity/point-set PDA 计算 sweep/equality/approach/close-back-through，Fib 计算最近 level 与 wick/body/sweep/delivered-through；候选按触碰与距离排序，不写入 `segment.review`
 - 2026-05-22: Segment fluency 组件指标完成只读版：基于当前加载的 segment 内 bars 展示 bar count、path range、directional efficiency、overlap ratio、counter/directional close ratio、average body percent、max adverse excursion、points per bar、terminal 前 PDA interruption count；仅展示组件，不合成最终分数，不写入 archive
 - 2026-05-22: 1H segment 手动创建改为显式端点语义：右键菜单提供 `Start 1H Segment from Low/High` 与 `End 1H Segment at High/Low`，新建 segment 的 start/end price 完全按用户选择的本根 K 线 high/low 写入；暂不做自动区间高低点推断，为未来方案预留
-- 2026-05-22: Segment Inspector Review Metrics 收敛为 `Extension Ratio` + `Extension State` 主解释，不再显示 `Overshoot/Overshoot Ratio/Stopped Inside`；Terminal PDA Candidates 改为按 Range/Liquidity/Fib 展开详细反应字段；新建 segment 默认 `showLabel=false`，并新增 `v4/docs/INSPECTOR_HELP.md`
+- 2026-05-22: Segment Inspector Review Metrics 收敛为 `Extension Ratio` + `Extension State` 主解释，不再显示 `Overshoot/Overshoot Ratio/Stopped Inside`；Terminal PDA Candidates 改为按 Range/Liquidity/Fib 展开详细反应字段；新建 segment 默认 `showLabel=false`，并新增 `v4/docs/user/INSPECTOR_HELP.md`
 - 2026-05-22: Wick CE 作为独立 PDA 类型接入：`type=wick-ce` / `shape=liquidity-line`；右键菜单支持 `Mark Upper Wick CE` 与 `Mark Lower Wick CE`，按当前周期生成 `<TF> Upper/Lower Wick CE`，上影线 CE = `(high + bodyHigh)/2`，下影线 CE = `(low + bodyLow)/2`
 - 2026-05-23: Segment isolate 增加上下文显示选项：`Prev segments` 可临时显示当前 isolate segment 前 N 个 segment，`Include previous PDA responses` 可同时显示这些前序 segment 的 PDA responses；前序对象只做普通上下文显示，不抢当前 isolate segment 高亮
 - 2026-05-23: Wick CE 线段渲染改细：`type=wick-ce` 单独使用 `lineWidth=1`，不跟随普通 liquidity-line 的 `2/3` 加粗规则；BSL/SSL 等其它 liquidity-line 不受影响

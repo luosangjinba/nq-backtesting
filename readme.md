@@ -6,8 +6,9 @@
 
 - 页面入口：[v4/index.html](/home/leo/myworkspace/trading/backtesting/v4/index.html)
 - API：[v4/v4_api.py](/home/leo/myworkspace/trading/backtesting/v4/v4_api.py)
-- 中文用户说明书：[v4/docs/USER_GUIDE.zh-CN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.zh-CN.md)
-- English user guide：[v4/docs/USER_GUIDE.en.md](/home/leo/myworkspace/trading/backtesting/v4/docs/USER_GUIDE.en.md)
+- V4 文档入口：[v4/docs/README.md](/home/leo/myworkspace/trading/backtesting/v4/docs/README.md)
+- 中文用户说明书：[v4/docs/user/USER_GUIDE.zh-CN.md](/home/leo/myworkspace/trading/backtesting/v4/docs/user/USER_GUIDE.zh-CN.md)
+- English user guide：[v4/docs/user/USER_GUIDE.en.md](/home/leo/myworkspace/trading/backtesting/v4/docs/user/USER_GUIDE.en.md)
 - 当前 TODO：[v4/TODO.md](/home/leo/myworkspace/trading/backtesting/v4/TODO.md)
 
 ### V4 启动方式
