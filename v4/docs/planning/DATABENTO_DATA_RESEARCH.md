@@ -330,3 +330,9 @@ See also:
 
 - `v4/docs/planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md`
 - `v4/scripts/scan_databento_gaps.py`
+
+Follow-up roll-calendar validation:
+
+- 2025-12 ES `ESZ5 -> ESH6`, `roll_date_et=2025-12-14`, validated.
+- 2026-03 ES `ESH6 -> ESM6`, initial `2026-03-15` candidate failed; corrected to `roll_date_et=2026-03-13` and validated.
+- NQ 2025-12 and 2026-03 cannot be directly DB-validated because local NQ data stops before those windows; they remain inferred from ES validation and 2025 ES/NQ shared behavior.

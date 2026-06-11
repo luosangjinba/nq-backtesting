@@ -123,3 +123,14 @@ NQ:
   max DB ts: 2025-11-04 18:39:00
   candidate minute-span upper bound: 314,482
 ```
+
+## Roll Calendar Draft Validation
+
+Validated after the initial updater-plan commit:
+
+- `2025-12 ESZ5 -> ESH6`, `roll_date_et=2025-12-14`: 0 missing, 0 duplicate, max OHLC diff 0.25.
+- `2026-03 ESH6 -> ESM6`: candidate `roll_date_et=2026-03-15` failed; corrected to `2026-03-13`, then 0 missing, 0 duplicate, max OHLC diff 0.25.
+
+NQ 2025-12 and 2026-03 cannot be directly validated against local DB because NQ stops at `2025-11-04 18:39`. They are marked `inferred_no_db_overlap` in the roll calendar and must be highlighted by the future dry-run updater.
+
+Databento warned that 2026-03-15 and 2026-03-16 had degraded quality during the 2026-03 ES request. The corrected stitched data still matched the current DB.

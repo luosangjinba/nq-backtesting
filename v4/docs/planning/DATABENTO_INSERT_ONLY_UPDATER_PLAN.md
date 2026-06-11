@@ -133,15 +133,39 @@ v4/data_config/futures_roll_calendar.yml
 Initial entries cover the currently relevant missing ranges:
 
 ```text
-ESZ5 -> ESH6, roll_date_et=2025-12-14, status=needs_validation
-NQZ5 -> NQH6, roll_date_et=2025-12-14, status=needs_validation
-ESH6 -> ESM6, roll_date_et=2026-03-15, status=needs_validation
-NQH6 -> NQM6, roll_date_et=2026-03-15, status=needs_validation
+ESZ5 -> ESH6, roll_date_et=2025-12-14, status=validated
+NQZ5 -> NQH6, roll_date_et=2025-12-14, status=inferred_no_db_overlap
+ESH6 -> ESM6, roll_date_et=2026-03-13, status=validated
+NQH6 -> NQM6, roll_date_et=2026-03-13, status=inferred_no_db_overlap
 ESM6 -> ESU6, roll_date_et=2026-06-14, status=future_candidate
 NQM6 -> NQU6, roll_date_et=2026-06-14, status=future_candidate
 ```
 
-These are candidates, not approved writer inputs. They must be validated before `--write`.
+ES entries were validated against existing DB overlap. NQ entries after 2025-11 cannot be directly validated because local NQ data stops before those roll windows; they are inferred from ES validation and the 2025 shared ES/NQ roll behavior. The updater must report inferred roll entries prominently in dry-run output before any write.
+
+Additional roll validation on 2026-06-11:
+
+```text
+2025-12 ES Z-to-H, roll_date_et=2025-12-14:
+  stitched rows: 8,280
+  DB rows: 8,280
+  overlap: 8,280
+  missing stitched/db: 0 / 0
+  max OHLC diff: 0.25
+  duplicate keys: 0
+
+2026-03 ES H-to-M:
+  initial candidate roll_date_et=2026-03-15 failed with max OHLC diff 52.0 on 2026-03-13.
+  corrected roll_date_et=2026-03-13:
+    stitched rows: 8,280
+    DB rows: 8,280
+    overlap: 8,280
+    missing stitched/db: 0 / 0
+    max OHLC diff: 0.25
+    duplicate keys: 0
+```
+
+Databento returned a degraded-quality warning for 2026-03-15 and 2026-03-16 during the 2026-03 ES validation. The data still matched the current DB after correcting the roll date, but updater dry-run should surface dataset condition warnings.
 
 ## Open Items Before Write
 

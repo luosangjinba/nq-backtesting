@@ -20,26 +20,26 @@ rolls:
     old_contract: ESZ5
     new_contract: ESH6
     roll_date_et: 2025-12-14
-    status: needs_validation
-    note: Candidate for post-2025-09 ES continuity; validate before write.
+    status: validated
+    note: Validated against ES DB overlap; 0 missing, 0 duplicate, max OHLC diff 0.25.
   - instrument: NQ
     old_contract: NQZ5
     new_contract: NQH6
     roll_date_et: 2025-12-14
-    status: needs_validation
-    note: Candidate for NQ gap after 2025-11-04; validate before write.
+    status: inferred_no_db_overlap
+    note: NQ DB stops before this roll; inferred from ES validation and 2025 ES/NQ shared roll behavior.
   - instrument: ES
     old_contract: ESH6
     new_contract: ESM6
-    roll_date_et: 2026-03-15
-    status: needs_validation
-    note: Candidate for 2026-H to 2026-M rollover; validate before write.
+    roll_date_et: 2026-03-13
+    status: validated
+    note: Validated against ES DB overlap after correcting candidate date from 2026-03-15 to 2026-03-13; 0 missing, 0 duplicate, max OHLC diff 0.25. Databento flagged 2026-03-15/16 as degraded quality.
   - instrument: NQ
     old_contract: NQH6
     new_contract: NQM6
-    roll_date_et: 2026-03-15
-    status: needs_validation
-    note: Candidate for 2026-H to 2026-M rollover; validate before write.
+    roll_date_et: 2026-03-13
+    status: inferred_no_db_overlap
+    note: Candidate for 2026-H to 2026-M rollover; NQ DB has no overlap here, infer from ES after validation.
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6
