@@ -163,6 +163,50 @@ Ensure workspace switching is stable:
 - Journal and Backtesting can be switched without resetting chart state.
 - Refresh restores active workspace.
 
+## Step 285.5 / 285.6 Status
+
+Completed.
+
+Added:
+
+- `v4/tests/journal-workspace-browser-smoke.js`
+
+Browser smoke coverage:
+
+- Opens the real V4 page.
+- Switches from Backtesting to Journal.
+- Writes Journal date and pre-market plan.
+- Verifies localStorage payload.
+- Reloads page and verifies Journal data restored.
+- Switches back to Backtesting.
+- Confirms backtesting chart canvas still exists.
+
+Implementation notes:
+
+- `app-shell.js` now uses delegated click handling for workspace switch buttons.
+- Journal persistence/workspace initialization runs before chart initialization so Journal can render independently of chart startup.
+- The browser smoke starts Chrome on `about:blank` and navigates once via CDP to avoid stale-document timing during workspace tests.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
+## Step 285 Completion
+
+Completed.
+
+Phase B now provides:
+
+- Shared `index.html` app shell with Backtesting / Journal workspaces.
+- Minimal Journal Day store and local persistence.
+- Journal workspace UI for account/date/day mode and day-level notes.
+- Browser smoke for workspace switching and Journal persistence.
+
 ### Step 285.6 - Tests / Smoke
 
 Validation:

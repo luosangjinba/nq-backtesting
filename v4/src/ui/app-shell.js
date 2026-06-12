@@ -61,10 +61,10 @@ export function setActiveWorkspace(workspace, options = {}) {
 
 export function initAppShell() {
   activeWorkspace = readInitialWorkspace();
-  document.querySelectorAll('[data-workspace-switch]').forEach((button) => {
-    button.addEventListener('click', () => {
-      setActiveWorkspace(button.dataset.workspaceSwitch);
-    });
+  document.addEventListener('click', (event) => {
+    const button = event.target?.closest?.('[data-workspace-switch]');
+    if (!button) return;
+    setActiveWorkspace(button.dataset.workspaceSwitch);
   });
   setActiveWorkspace(activeWorkspace, { force: true });
 }

@@ -60,6 +60,12 @@ console.log('[V4] Display preferences initialized');
 initPrimaryInstrumentStore();
 console.log('[V4] Primary instrument initialized');
 
+initJournalPersistence();
+console.log('[V4] Journal persistence initialized');
+
+initJournalWorkspace();
+console.log('[V4] Journal workspace initialized');
+
 // 初始化图表
 chart.initChart('chart');
 console.log('[V4] Chart initialized');
@@ -153,12 +159,6 @@ console.log('[V4] Economic Calendar loader initialized');
 
 initDailyRegimeVixLoader();
 console.log('[V4] Daily Regime VIX loader initialized');
-
-initJournalPersistence();
-console.log('[V4] Journal persistence initialized');
-
-initJournalWorkspace();
-console.log('[V4] Journal workspace initialized');
 
 initHistoryManager();
 console.log('[V4] History controls initialized');
