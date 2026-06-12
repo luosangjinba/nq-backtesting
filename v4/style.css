@@ -91,14 +91,107 @@ html, body {
   min-width: 0;
   min-height: 0;
   flex-direction: column;
-  padding: 16px;
+  padding: 14px;
   overflow: auto;
 }
 
-#journal-page h1 {
+.journal-layout {
+  width: min(1180px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.journal-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #2a2e39;
+}
+
+#journal-page h1,
+.journal-section h2 {
   color: #f0f3fa;
-  font-size: 18px;
   font-weight: 650;
+}
+
+#journal-page h1 {
+  font-size: 18px;
+}
+
+.journal-section h2 {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.journal-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.journal-control,
+.journal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #9aa4b2;
+  font-size: var(--compact-font-size);
+  font-weight: 650;
+}
+
+.journal-control input,
+.journal-control select,
+.journal-field textarea {
+  color: #d1d4dc;
+  background: #151923;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.journal-control input,
+.journal-control select {
+  height: 28px;
+  min-width: 132px;
+  padding: 0 8px;
+}
+
+.journal-field textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 8px;
+  resize: vertical;
+  line-height: 1.45;
+  font-size: var(--ui-font-size);
+}
+
+.journal-field-title {
+  color: #c6ccd6;
+}
+
+.journal-section {
+  min-width: 0;
+}
+
+.journal-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 820px) {
+  .journal-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .journal-field-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 #workspace {

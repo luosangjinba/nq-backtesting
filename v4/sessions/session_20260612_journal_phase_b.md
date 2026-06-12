@@ -124,6 +124,37 @@ Scope:
   - Post-market summary
   - Discipline summary
 
+## Step 285.4 Status
+
+Completed.
+
+Added:
+
+- `v4/src/journal/journal-workspace.js`
+- Journal workspace form in `#journal-page`
+- Account input
+- Date input
+- Day mode select
+- Pre-market plan textarea
+- Mental state before textarea
+- Post-market summary textarea
+- Discipline summary textarea
+
+Behavior:
+
+- Updates `JournalDay` by `accountId + date`.
+- Text input updates are debounced.
+- Account/date selections are remembered locally.
+- Account changes restore the matching `v4:journal:<accountId>` payload.
+
+Validation:
+
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `git diff --check`
+
 ### Step 285.5 - Navigation Boundary
 
 Ensure workspace switching is stable:

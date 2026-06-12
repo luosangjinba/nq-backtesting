@@ -805,7 +805,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.1: App shell boundary：在单一 `index.html` 内增加 `Backtesting | Journal` workspace switch；保留 backtesting DOM/逻辑，Journal 作为独立 workspace surface；持久化当前 workspace。已新增 `src/ui/app-shell.js`，包装 backtesting workspace，新增 Journal placeholder workspace；验证 primary instrument browser smoke、全量 JS syntax check、diff check 通过。
   - [x] Step 285.2: Journal store schema：新增 `journal-store`，按 `accountId + date` normalize/load/update/get JournalDay，并 emit `journal:changed`。已新增 `v4/src/journal/journal-store.js` 和 `v4/tests/journal-store-smoke.js`；store 覆盖 Phase A 冻结对象，包括 `liveTrades/fills`、`idealTrades` 和 `disciplineReview`，但 Phase B UI 仍只暴露 day-level 字段。
   - [x] Step 285.3: Journal persistence：使用 local persistence helper，key `v4:journal:<accountId>`，payload `{ version, savedAt, journalDays }`。已新增 `journal-persistence` 和 smoke test；默认恢复/saves `default` account，保留 account-scoped key，app 启动时初始化。
-  - [ ] Step 285.4: Journal workspace UI MVP：日期、account、day mode、pre-market plan、mental state、post-market summary、discipline summary。
+  - [x] Step 285.4: Journal workspace UI MVP：日期、account、day mode、pre-market plan、mental state、post-market summary、discipline summary。已新增 `journal-workspace.js`，渲染 Journal 独立 workspace 的最小 day-level 表单；文本输入 debounce 写入 `JournalDay`，account/date 本地记忆，切换 account 会恢复对应 `v4:journal:<accountId>`。
   - [ ] Step 285.5: Navigation boundary：切换 workspace 不重置 backtesting chart state；刷新恢复当前 workspace。
   - [ ] Step 285.6: Tests / smoke：store/persistence/browser smoke、JS syntax check、diff check。
 

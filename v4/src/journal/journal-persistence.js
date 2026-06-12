@@ -86,5 +86,8 @@ export function clearSavedJournalDays(accountId = DEFAULT_JOURNAL_ACCOUNT_ID) {
 
 export function initJournalPersistence(accountId = DEFAULT_JOURNAL_ACCOUNT_ID) {
   restoreJournalDays(accountId);
-  bus.on('journal:changed', () => saveJournalDays(accountId));
+  bus.on('journal:changed', ({ reason, journalDay } = {}) => {
+    if (reason === 'restore') return;
+    saveJournalDays(journalDay?.accountId || accountId);
+  });
 }
