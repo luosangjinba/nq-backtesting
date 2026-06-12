@@ -78,6 +78,31 @@ Boundary:
 
 Add targeted smoke coverage for NQ and ES daily trend/range parsing/loading behavior.
 
+## Step 284.4 Status
+
+Completed.
+
+Added `v4/tests/daily-regime-loader-smoke.js`.
+
+Coverage:
+
+- Mocks browser `fetch()` by reading local V4 data files.
+- Emits `bars:loaded` with `instrument: ES`.
+- Verifies ES receives shared VIX from `vix-daily.csv`.
+- Verifies ES receives trend/range from `daily-regime-es.csv`.
+- Verifies Main instrument change clears stale Daily Regime records.
+- Emits `bars:loaded` for an instrument without a trend/range CSV and verifies VIX still loads while trend/range remain `unknown`.
+
+Validation:
+
+- `node v4/tests/daily-regime-loader-smoke.js`
+- `node v4/tests/primary-instrument-compat-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+
+Note:
+
+- Node reports the existing module-type warning for ES module smoke files; smoke exits successfully.
+
 ### Step 284.5 - Browser/API Validation
 
 Verify Main=NQ and Main=ES can load chart data and Daily Regime lookup returns current Main instrument data.
