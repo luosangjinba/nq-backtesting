@@ -810,7 +810,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.6: Tests / smoke：store/persistence/browser smoke、JS syntax check、diff check。已新增 `v4/tests/journal-workspace-browser-smoke.js`；验证 Journal workspace 输入、localStorage 保存、刷新恢复、切回 Backtesting，以及既有 primary instrument browser smoke 不回归。
 
 - [ ] Step 286: Journal Phase C - Actual Trade Logging。目标是在 Journal Day 中增加真实/模拟实际交易记录；不做 IdealTradeReview UI、broker import、自动 PnL/R、统计页。计划见 `v4/sessions/session_20260612_journal_phase_c_plan.md`。
-  - [ ] Step 286.1: LiveTradeLog UI shape：Journal workspace 增加 Actual Trades section，支持添加 trade、compact row、展开编辑 tradeType/instrument/direction/result/net PnL/manual R/reflection 核心字段。
+  - [x] Step 286.1: LiveTradeLog UI shape：Journal workspace 增加 Actual Trades section，支持添加 trade、compact row、展开编辑 tradeType/instrument/direction/result/net PnL/manual R/reflection 核心字段。已完成 Actual Trades section；支持 Add Trade、compact row、展开编辑核心字段，fill editor 留给 Step 286.2。
   - [ ] Step 286.2: Fill editor MVP：expanded trade 内支持 `fills[]` 编辑，字段为 type/time/price/quantity/reason，支持 entry/add/partial/final/stop/manual exit，不自动计算 PnL/R。
   - [ ] Step 286.3: Actual trade persistence path：trade/fill edits 写入当前 `JournalDay.liveTrades`，刷新恢复，account/date 切换不串数据，不在页面加载时创建空 trade。
   - [ ] Step 286.4: Minimal validation examples：用真实违规亏损、按计划模拟、多合约 partial/final exit 三个样例验收。

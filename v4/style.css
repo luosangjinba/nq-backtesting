@@ -177,10 +177,129 @@ html, body {
   min-width: 0;
 }
 
+.journal-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .journal-field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.journal-action-button {
+  height: 28px;
+  padding: 0 10px;
+  color: #f0f3fa;
+  background: #263241;
+  border: 1px solid #3a4658;
+  border-radius: 4px;
+  font-size: var(--toolbar-font-size);
+  cursor: pointer;
+}
+
+.journal-action-button:hover {
+  background: #314052;
+}
+
+.journal-empty-state {
+  color: #7f8794;
+  font-size: var(--compact-font-size);
+}
+
+.journal-trade-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.journal-trade-row {
+  border: 1px solid #2a2e39;
+  border-radius: 6px;
+  background: #151923;
+  overflow: hidden;
+}
+
+.journal-trade-row.expanded {
+  border-color: #3a4658;
+}
+
+.journal-trade-summary {
+  width: 100%;
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: 92px 72px 72px minmax(90px, 1fr) 90px 72px 72px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  color: #d1d4dc;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font-size: var(--compact-font-size);
+  cursor: pointer;
+}
+
+.journal-trade-summary:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.journal-trade-pill {
+  color: #f0f3fa;
+  font-weight: 650;
+}
+
+.journal-trade-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #2a2e39;
+}
+
+.journal-trade-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.journal-trade-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  color: #9aa4b2;
+  font-size: var(--compact-font-size);
+  font-weight: 650;
+}
+
+.journal-trade-field input,
+.journal-trade-field select,
+.journal-trade-field textarea {
+  width: 100%;
+  color: #d1d4dc;
+  background: #10141d;
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.journal-trade-field input,
+.journal-trade-field select {
+  height: 28px;
+  padding: 0 8px;
+}
+
+.journal-trade-field textarea {
+  min-height: 76px;
+  padding: 8px;
+  resize: vertical;
+  line-height: 1.45;
+  font-size: var(--ui-font-size);
 }
 
 @media (max-width: 820px) {
@@ -190,6 +309,11 @@ html, body {
   }
 
   .journal-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .journal-trade-summary,
+  .journal-trade-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -4,7 +4,7 @@ import { rm } from 'node:fs/promises';
 import http from 'node:http';
 
 const CHROME_BIN = process.env.CHROME_BIN || 'google-chrome';
-const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9339);
+const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9341);
 const PAGE_URL = process.env.V4_PAGE_URL || 'http://127.0.0.1:8001/index.html';
 const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || `/tmp/v4-journal-workspace-browser-smoke-profile-${process.pid}`;
 
@@ -101,6 +101,40 @@ function waitForProcessExit(child, timeoutMs = 2_000) {
   });
 }
 
+async function clickWorkspaceSwitch(client, workspace) {
+  const selector = `[data-workspace-switch="${workspace}"]`;
+  const result = await client.send('Runtime.evaluate', {
+    expression: `
+      (() => {
+        const button = document.querySelector(${JSON.stringify(selector)});
+        if (!button) return null;
+        const rect = button.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+      })()
+    `,
+    returnByValue: true,
+  });
+  const point = result.result?.value;
+  if (!point) throw new Error(`missing workspace switch: ${workspace}`);
+  await client.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed',
+    x: point.x,
+    y: point.y,
+    button: 'left',
+    clickCount: 1,
+  });
+  await client.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased',
+    x: point.x,
+    y: point.y,
+    button: 'left',
+    clickCount: 1,
+  });
+}
+
 async function main() {
   const chrome = spawn(CHROME_BIN, [
     '--headless=new',
@@ -123,13 +157,13 @@ async function main() {
     await client.send('Network.setCacheDisabled', { cacheDisabled: true });
     await client.send('Page.navigate', { url: PAGE_URL });
     await new Promise((resolve) => setTimeout(resolve, 2_500));
+    await clickWorkspaceSwitch(client, 'journal');
 
     const writeExpression = `
       (async () => {
         const journalButton = document.querySelector('[data-workspace-switch="journal"]');
         const backtestingButton = document.querySelector('[data-workspace-switch="backtesting"]');
         if (!journalButton || !backtestingButton) return JSON.stringify({ error: 'missing workspace switch' });
-        journalButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
         const deadline = Date.now() + 5_000;
         while (
           (!document.querySelector('#journalPreMarketPlan') || document.body.dataset.workspace !== 'journal') &&
@@ -174,19 +208,21 @@ async function main() {
 
     const restoreExpression = `
       (async () => {
+        const deadline = Date.now() + 5_000;
+        while (
+          (!document.querySelector('#journalPreMarketPlan') || document.body.dataset.workspace !== 'journal') &&
+          Date.now() < deadline
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         const restoredPlanInput = document.querySelector('#journalPreMarketPlan');
         const restoredDateInput = document.querySelector('#journalDateInput');
         const workspaceAfterReload = document.body.dataset.workspace;
-        document.querySelector('[data-workspace-switch="backtesting"]').click();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         return JSON.stringify({
           error: '',
           workspaceAfterReload,
-          workspaceAfterBacktestingSwitch: document.body.dataset.workspace,
           restoredPlan: restoredPlanInput?.value || '',
           restoredDate: restoredDateInput?.value || '',
-          backtestingHiddenAfterSwitch: document.querySelector('#backtesting-workspace')?.hidden || false,
-          chartCanvasCount: document.querySelectorAll('#chart canvas').length,
         });
       })()
     `;
@@ -198,11 +234,23 @@ async function main() {
     const value = JSON.parse(result.result?.value || '{}');
     assert.equal(value.error, '', value.error || 'journal workspace browser smoke failed');
     assert.equal(value.workspaceAfterReload, 'journal');
-    assert.equal(value.workspaceAfterBacktestingSwitch, 'backtesting');
     assert.equal(value.restoredPlan, 'Wait < confirm');
     assert.equal(value.restoredDate, '2026-06-12');
-    assert.equal(value.backtestingHiddenAfterSwitch, false);
-    assert.ok(value.chartCanvasCount > 0, 'backtesting chart canvas should still exist');
+
+    await clickWorkspaceSwitch(client, 'backtesting');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const backtestingResult = await client.send('Runtime.evaluate', {
+      expression: `JSON.stringify({
+        workspaceAfterBacktestingSwitch: document.body.dataset.workspace,
+        backtestingHiddenAfterSwitch: document.querySelector('#backtesting-workspace')?.hidden || false,
+        chartCanvasCount: document.querySelectorAll('#chart canvas').length,
+      })`,
+      returnByValue: true,
+    });
+    const backtestingValue = JSON.parse(backtestingResult.result?.value || '{}');
+    assert.equal(backtestingValue.workspaceAfterBacktestingSwitch, 'backtesting');
+    assert.equal(backtestingValue.backtestingHiddenAfterSwitch, false);
+    assert.ok(backtestingValue.chartCanvasCount > 0, 'backtesting chart canvas should still exist');
   } finally {
     client?.close();
     chrome.kill('SIGTERM');

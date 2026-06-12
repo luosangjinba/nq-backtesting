@@ -56,6 +56,48 @@ Requirements:
 - Expand a trade to edit core fields.
 - Keep UI practical; do not expose every future schema field at once.
 
+## Step 286.1 Status
+
+Completed.
+
+Added Actual Trades section to `journal-workspace.js`.
+
+Current UI:
+
+- Add Trade button.
+- Compact trade rows.
+- Row summary:
+  - trade type
+  - instrument
+  - direction
+  - result
+  - net PnL
+  - manual R
+  - fill count
+- Expanded detail fields:
+  - trade type
+  - instrument
+  - direction
+  - result
+  - net PnL
+  - manual R
+  - timing
+  - followed plan
+  - reflection
+
+Not included yet:
+
+- Fill editor. This remains Step 286.2.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 286.2 - Fill Editor MVP
 
 Add a fills editor inside expanded trade detail.
