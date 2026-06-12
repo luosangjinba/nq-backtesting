@@ -294,3 +294,57 @@ last_bar time: 2026-06-11 04:47
 ```
 
 Added `v4/docs/user/DATABENTO_DAILY_REFRESH.md` and linked Databento docs from `v4/docs/README.md`.
+
+## First Daily Refresh Write
+
+Executed the first formal ES daily refresh through `v4/scripts/daily_databento_refresh.py`.
+
+Command shape:
+
+```text
+python3 v4/scripts/daily_databento_refresh.py --write --confirm-write --chunk-days 3 --show-sample 1
+```
+
+Wrapper dry-run:
+
+```text
+db_max_ts: 2026-06-11 04:47:00
+dry_run_range_et: 2026-06-11 04:48:00 -> 2026-06-11 17:11:00
+contract: ESM6
+would_insert_rows: 732
+duplicate_candidate_keys: 0
+existing_candidate_keys: 0
+would_insert_first_ts: 2026-06-11 04:48:00
+would_insert_last_ts: 2026-06-11 16:59:00
+```
+
+Write result:
+
+```text
+inserted_rows: 732
+before_rows: 6,450,333
+after_rows: 6,451,065
+before_max_ts: 2026-06-11 04:47:00
+after_max_ts: 2026-06-11 16:59:00
+write_status: committed insert-only transaction
+```
+
+Independent DB verification:
+
+```text
+ES: 6,451,065 rows, min ts 2008-01-02 06:01:00, max ts 2026-06-11 16:59:00
+NQ: 5,906,274 rows, min ts 2008-01-02 06:01:00, max ts 2025-11-04 18:39:00
+ES duplicate timestamps: 0
+```
+
+API smoke:
+
+```text
+api_status: ok
+instrument: ES
+db_max_ts: 2026-06-11 16:59:00
+returned_bars: 50
+last_bar time: 2026-06-11 16:59
+```
+
+NQ remains unchanged and write-disabled.
