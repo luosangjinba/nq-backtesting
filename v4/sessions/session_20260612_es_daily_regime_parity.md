@@ -133,3 +133,24 @@ Validation:
 ### Step 284.6 - Documentation Closeout
 
 Update user docs to state that VIX is shared, while trend/range regime follows Main instrument.
+
+## Step 284.6 Status
+
+Completed.
+
+Updated:
+
+- `v4/docs/user/USER_GUIDE.zh-CN.md`
+- `v4/docs/user/USER_GUIDE.en.md`
+- `v4/TODO.md`
+
+Documentation now states:
+
+- VIX is shared through `data/vix-daily.csv`.
+- Trend/range regime follows the current Main instrument.
+- NQ reads `data/daily-regime-nq.csv`.
+- ES reads `data/daily-regime-es.csv`.
+- ES Daily Regime currently covers `2008-01-02 -> 2026-06-11`.
+- After refreshing candle data, the matching `daily-regime-*.csv` must be regenerated for Calendar Trend/Range to reflect new bars.
+
+Step 284 completed.

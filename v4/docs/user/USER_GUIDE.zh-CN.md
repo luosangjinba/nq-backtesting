@@ -70,6 +70,7 @@ YYYY-MM-DD HH:mm
 - 默认 Main 是 `NQ`，旧 NQ 复盘数据继续按 NQ workspace 读取。
 - 新建对象会写入当前 Main 的本地分区，例如 NQ 对象和 ES 对象互不混用。
 - Calendar、Archive、Replay History 只显示/导入/导出当前 Main 对应的数据；导入不同 instrument 的 archive 会被拒绝，避免静默混入。
+- Daily Regime 中的 `VIX` 是共享市场背景；`Trend` / `Range` 跟随当前 Main，NQ 读取 `data/daily-regime-nq.csv`，ES 读取 `data/daily-regime-es.csv`。
 - 其他品种只有扩展接口。要完整支持，需要先补齐数据库数据、tick 配置、roll 规则和相关 workflow 规则。
 
 ## Replay Bar
@@ -115,10 +116,12 @@ Calendar 每天会聚合：
 
 Daily Regime 显示在 Calendar 日期详情中：
 
-- `VIX`：按日 VIX 档位。
-- `Trend`：静态 daily trend regime。
-- `Range`：静态 daily range regime 与 ATR 倍数。
+- `VIX`：按日 VIX 档位，NQ/ES 共用 `data/vix-daily.csv`。
+- `Trend`：当前 Main instrument 的静态 daily trend regime。
+- `Range`：当前 Main instrument 的静态 daily range regime 与 ATR 倍数。
 - `Events`：重要事件标签。`none` 表示当天没有重要事件标签；`unknown` 表示没有可用事件判断数据。
+
+当前 ES Daily Regime 文件覆盖 `2008-01-02` 到 `2026-06-11`。如果后续用 Databento 或其他流程刷新了 K 线数据库，需要重新生成对应 instrument 的 `daily-regime-*.csv`，否则 Calendar 里的 Trend/Range 仍停留在旧 CSV。
 
 Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默认隐藏，Holiday 默认显示。经济事件不会在图表上常驻竖线；点击 Locate 时才定位并快闪。
 

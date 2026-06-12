@@ -68,6 +68,7 @@ Compatibility and isolation rules:
 - The default Main is `NQ`, and existing NQ review data continues to load under the NQ workspace.
 - New objects are written to the current Main's local partition, so NQ objects and ES objects do not mix.
 - Calendar, Archive, and Replay History show/import/export data for the current Main instrument. Archive imports for a different instrument are rejected instead of silently merged.
+- Daily Regime `VIX` is shared market context; `Trend` / `Range` follow the current Main instrument. NQ reads `data/daily-regime-nq.csv`, and ES reads `data/daily-regime-es.csv`.
 - Other instruments only have extension hooks. Full support requires database coverage, tick configuration, roll rules, and workflow-specific rules.
 
 ## Replay Bar
@@ -113,10 +114,12 @@ Click a day to open its details. `Show Day Objects` / `Hide Day Objects` show or
 
 Daily Regime appears in the day detail:
 
-- `VIX`: daily VIX bucket.
-- `Trend`: static daily trend regime.
-- `Range`: static daily range regime and ATR multiple.
+- `VIX`: daily VIX bucket from shared `data/vix-daily.csv` for both NQ and ES.
+- `Trend`: static daily trend regime for the current Main instrument.
+- `Range`: static daily range regime and ATR multiple for the current Main instrument.
 - `Events`: important event tags. `none` means no important event tag for the day; `unknown` means event data was unavailable.
+
+The current ES Daily Regime file covers `2008-01-02` through `2026-06-11`. After refreshing candle data with Databento or another flow, regenerate the relevant instrument's `daily-regime-*.csv`; otherwise Calendar Trend/Range remains based on the older CSV.
 
 Economic Events are loaded from the local USD events CSV. High/Medium are visible by default, Low is hidden by default, and Holiday is visible by default. Economic events do not draw permanent chart lines; `Locate` moves the chart and flashes the event time.
 
