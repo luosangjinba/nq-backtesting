@@ -1,28 +1,27 @@
 import * as bus from '../event-bus.js';
-import { createLocalPersistence } from '../storage/local-persistence.js';
+import { readLocalJson, removeLocalJson, writeLocalJson } from '../storage/local-persistence.js';
+import { getInstrumentStorageKey } from '../storage/instrument-storage.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getTimeOverlaySettings,
   loadTimeOverlaySettings,
 } from './time-overlay-store.js';
 
-const STORAGE_KEY = 'v4:time-overlays:NQ';
+const STORAGE_KEY_BASE = 'v4:time-overlays';
 const STORAGE_VERSION = 1;
+let restoring = false;
 
-const persistence = createLocalPersistence({
-  key: STORAGE_KEY,
-  fallback: null,
-  onError(error, action) {
-    const label = action === 'read'
-      ? '读取'
-      : action === 'remove'
-        ? '清除'
-        : '保存';
-    bus.emit('status:update', {
-      text: `Time Overlays 本地${label}失败: ${error.message}`,
-      isError: true,
-    });
-  },
-});
+function handleStorageError(error, action) {
+  const label = action === 'read'
+    ? '读取'
+    : action === 'remove'
+      ? '清除'
+      : '保存';
+  bus.emit('status:update', {
+    text: `Time Overlays 本地${label}失败: ${error.message}`,
+    isError: true,
+  });
+}
 
 function getPersistableSettings() {
   const settings = getTimeOverlaySettings();
@@ -35,28 +34,31 @@ function getPersistableSettings() {
   };
 }
 
-export function saveTimeOverlaySettings() {
-  persistence.write({
+export function saveTimeOverlaySettings(instrument = getPrimaryInstrument()) {
+  if (restoring) return false;
+  return writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), {
     version: STORAGE_VERSION,
     savedAt: Date.now(),
     settings: getPersistableSettings(),
-  });
+  }, { onError: handleStorageError });
 }
 
-export function restoreTimeOverlaySettings() {
-  const payload = persistence.read();
-  if (!payload?.settings) return;
+export function restoreTimeOverlaySettings(instrument = getPrimaryInstrument()) {
+  const payload = readLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), null, { onError: handleStorageError });
 
-  persistence.runRestoring(() => {
+  restoring = true;
+  try {
     loadTimeOverlaySettings({
-      ...payload.settings,
+      ...(payload?.settings || {}),
       selectedDate: '',
       killzoneDraft: null,
     });
-  });
+  } finally {
+    restoring = false;
+  }
 
-  const eventCount = Array.isArray(payload.settings.eventTimes) ? payload.settings.eventTimes.length : 0;
-  const killzoneCount = Array.isArray(payload.settings.killzones) ? payload.settings.killzones.length : 0;
+  const eventCount = Array.isArray(payload?.settings?.eventTimes) ? payload.settings.eventTimes.length : 0;
+  const killzoneCount = Array.isArray(payload?.settings?.killzones) ? payload.settings.killzones.length : 0;
   if (eventCount || killzoneCount) {
     bus.emit('status:update', {
       text: `已恢复 ${eventCount} 条 Time Lines 与 ${killzoneCount} 个 Killzones`,
@@ -66,12 +68,16 @@ export function restoreTimeOverlaySettings() {
 }
 
 export function clearSavedTimeOverlaySettings() {
-  if (persistence.remove()) {
+  if (removeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE), { onError: handleStorageError })) {
     bus.emit('status:update', { text: 'Time Overlays 本地保存已清除', isError: false });
   }
 }
 
 export function initTimeOverlayPersistence() {
   restoreTimeOverlaySettings();
-  bus.on('time-overlays:changed', saveTimeOverlaySettings);
+  bus.on('time-overlays:changed', () => saveTimeOverlaySettings());
+  bus.on('primary-instrument:changed', ({ instrument, previousInstrument }) => {
+    saveTimeOverlaySettings(previousInstrument);
+    restoreTimeOverlaySettings(instrument);
+  });
 }

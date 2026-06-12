@@ -244,3 +244,33 @@ Notes:
 - Secondary chart loads continue to use secondary instrument state.
 - Object/context fetches that already pass `context.instrument` were left unchanged.
 - `auto-exit-time` already receives an explicit instrument from order/setup context and was not changed in this substep.
+
+## Step 283.4 Status
+
+Completed.
+
+Added:
+
+- `v4/src/storage/instrument-storage.js`
+
+Instrument-scoped persistence now covers:
+
+- PDA annotations: `v4:pda-annotations:<instrument>`
+- Market segments and composite moves: `v4:market-segments:<instrument>`
+- Chart Notes: `v4:chart-notes:<instrument>`
+- Daily Time Review / Bias / Opening Thesis Review: `v4:daily-time-reviews:<instrument>`
+- Order Setup / Order Review: `v4:order-reviews:<instrument>`
+- Time Overlays: `v4:time-overlays:<instrument>`
+- Economic Event Notes: `v4:economic-event-notes:<instrument>`
+- Display Mode: `v4:display-mode:<instrument>`
+
+Compatibility:
+
+- NQ keys remain byte-for-byte compatible with existing names such as `v4:pda-annotations:NQ`.
+- Switching Main instrument saves the previous in-memory state to the previous instrument key, then loads the new instrument key.
+- If the new instrument has no payload, the relevant in-memory store is loaded with an empty/default state so NQ objects do not remain visible on Main=ES.
+
+Replay history:
+
+- Step 283.3 already records primary instrument in replay history items.
+- Step 283.5 should filter Calendar/Inspector/History views by current Main instrument where relevant.

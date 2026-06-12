@@ -1,11 +1,14 @@
 // View-only display presets for chart PDA, segment, and composite objects.
 
 import * as bus from '../event-bus.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getAnnotations } from '../pda/pda-store.js';
 import { getSegmentGroupById, getSegmentGroups } from '../segment/segment-group-store.js';
 import { getSegments } from '../segment/segment-store.js';
 
-const STORAGE_KEY = 'v4:display-mode:NQ';
+import { getInstrumentStorageKey } from '../storage/instrument-storage.js';
+
+const STORAGE_KEY_BASE = 'v4:display-mode';
 
 const DEFAULT_STATE = {
   mode: 'all',
@@ -31,10 +34,13 @@ function normalizeState(nextState = {}) {
   };
 }
 
-function loadState() {
+function loadState(instrument = getPrimaryInstrument()) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    const raw = localStorage.getItem(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument));
+    if (!raw) {
+      state = { ...DEFAULT_STATE };
+      return;
+    }
     state = normalizeState({ ...DEFAULT_STATE, ...JSON.parse(raw) });
   } catch (err) {
     console.warn('[display-mode] load failed', err);
@@ -42,9 +48,9 @@ function loadState() {
   }
 }
 
-function saveState() {
+function saveState(instrument = getPrimaryInstrument()) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), JSON.stringify(state));
   } catch (err) {
     console.warn('[display-mode] save failed', err);
   }
@@ -228,6 +234,13 @@ export function shouldRenderSegmentGroup(group) {
 
 export function initDisplayMode() {
   loadState();
+  bus.on('primary-instrument:changed', ({ instrument, previousInstrument }) => {
+    saveState(previousInstrument);
+    selectedSegmentId = '';
+    selectedGroupId = '';
+    loadState(instrument);
+    emitChanged();
+  });
   bus.on('segment:selected', ({ selection }) => {
     selectedSegmentId = selection?.id || '';
     selectedGroupId = '';
