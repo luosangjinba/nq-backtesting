@@ -115,6 +115,37 @@ Requirements:
 - Deleting a fill is allowed.
 - No automatic PnL/R calculation.
 
+## Step 286.2 Status
+
+Completed.
+
+Added fill editor inside expanded trade detail.
+
+Current UI:
+
+- Add Fill button.
+- Fill rows with:
+  - type
+  - time
+  - price
+  - quantity
+  - reason
+- Delete fill button.
+
+Behavior:
+
+- Updates `JournalDay.liveTrades[].fills[]`.
+- No automatic PnL/R calculation.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 286.3 - Actual Trade Persistence Path
 
 Wire the UI into existing Journal Day store/persistence.

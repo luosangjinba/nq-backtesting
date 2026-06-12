@@ -103,21 +103,37 @@ function waitForProcessExit(child, timeoutMs = 2_000) {
 
 async function clickWorkspaceSwitch(client, workspace) {
   const selector = `[data-workspace-switch="${workspace}"]`;
-  const result = await client.send('Runtime.evaluate', {
-    expression: `
-      (() => {
-        const button = document.querySelector(${JSON.stringify(selector)});
-        if (!button) return null;
-        const rect = button.getBoundingClientRect();
-        return {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        };
-      })()
-    `,
-    returnByValue: true,
-  });
-  const point = result.result?.value;
+  const getPoint = async () => {
+    const result = await client.send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          const button = document.querySelector(${JSON.stringify(selector)});
+          if (!button) return null;
+          const rect = button.getBoundingClientRect();
+          return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+          };
+        })()
+      `,
+      returnByValue: true,
+    });
+    return result.result?.value || null;
+  };
+  const waitForWorkspace = async () => {
+    const deadline = Date.now() + 2_000;
+    while (Date.now() < deadline) {
+      const state = await client.send('Runtime.evaluate', {
+        expression: `document.body.dataset.workspace || ''`,
+        returnByValue: true,
+      });
+      if (state.result?.value === workspace) return true;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    return false;
+  };
+
+  const point = await getPoint();
   if (!point) throw new Error(`missing workspace switch: ${workspace}`);
   await client.send('Input.dispatchMouseEvent', {
     type: 'mousePressed',
@@ -133,6 +149,22 @@ async function clickWorkspaceSwitch(client, workspace) {
     button: 'left',
     clickCount: 1,
   });
+  if (await waitForWorkspace()) return;
+
+  await client.send('Runtime.evaluate', {
+    expression: `
+      (() => {
+        const button = document.querySelector(${JSON.stringify(selector)});
+        if (!button) return false;
+        button.click();
+        return true;
+      })()
+    `,
+    returnByValue: true,
+  });
+  if (!(await waitForWorkspace())) {
+    throw new Error(`workspace switch did not activate: ${workspace}`);
+  }
 }
 
 async function main() {
@@ -183,10 +215,67 @@ async function main() {
         nextPlanInput.dispatchEvent(new Event('input', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 350));
 
+        document.querySelector('#journalAddTradeButton').click();
+        const tradeDeadline = Date.now() + 5_000;
+        while (!document.querySelector('[data-journal-trade-field="netPnl"]') && Date.now() < tradeDeadline) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        const tradeType = document.querySelector('[data-journal-trade-field="tradeType"]');
+        const instrument = document.querySelector('[data-journal-trade-field="instrument"]');
+        const direction = document.querySelector('[data-journal-trade-field="direction"]');
+        const result = document.querySelector('[data-journal-trade-field="result"]');
+        const netPnl = document.querySelector('[data-journal-trade-field="netPnl"]');
+        const manualR = document.querySelector('[data-journal-trade-field="rMultipleManual"]');
+        const reflection = document.querySelector('[data-journal-trade-field="reflection"]');
+        tradeType.value = 'simulation';
+        tradeType.dispatchEvent(new Event('change', { bubbles: true }));
+        instrument.value = 'ES';
+        instrument.dispatchEvent(new Event('input', { bubbles: true }));
+        direction.value = 'short';
+        direction.dispatchEvent(new Event('change', { bubbles: true }));
+        result.value = 'target';
+        result.dispatchEvent(new Event('input', { bubbles: true }));
+        netPnl.value = '125.5';
+        netPnl.dispatchEvent(new Event('input', { bubbles: true }));
+        manualR.value = '1.25';
+        manualR.dispatchEvent(new Event('input', { bubbles: true }));
+        reflection.value = 'Followed plan';
+        reflection.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 350));
+
+        document.querySelector('[data-journal-add-fill]').click();
+        const fillDeadline = Date.now() + 5_000;
+        while (!document.querySelector('[data-journal-fill-field="price"]') && Date.now() < fillDeadline) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        const fillType = document.querySelector('[data-journal-fill-field="type"]');
+        const fillTime = document.querySelector('[data-journal-fill-field="time"]');
+        const fillPrice = document.querySelector('[data-journal-fill-field="price"]');
+        const fillQuantity = document.querySelector('[data-journal-fill-field="quantity"]');
+        const fillReason = document.querySelector('[data-journal-fill-field="reason"]');
+        fillType.value = 'entry';
+        fillType.dispatchEvent(new Event('change', { bubbles: true }));
+        fillTime.value = '2026-06-12 09:45';
+        fillTime.dispatchEvent(new Event('input', { bubbles: true }));
+        fillPrice.value = '5400.25';
+        fillPrice.dispatchEvent(new Event('input', { bubbles: true }));
+        fillQuantity.value = '2';
+        fillQuantity.dispatchEvent(new Event('input', { bubbles: true }));
+        fillReason.value = 'entry trigger';
+        fillReason.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 350));
+
         const savedBeforeReload = JSON.parse(localStorage.getItem('v4:journal:default') || '{}');
+        const savedTrade = savedBeforeReload.journalDays?.[0]?.liveTrades?.[0] || {};
         return JSON.stringify({
           error: '',
           savedPlan: savedBeforeReload.journalDays?.[0]?.preMarketPlan || '',
+          savedTradeType: savedTrade.tradeType || '',
+          savedInstrument: savedTrade.instrument || '',
+          savedNetPnl: savedTrade.netPnl,
+          savedManualR: savedTrade.rMultipleManual,
+          savedFillCount: savedTrade.fills?.length || 0,
+          savedFillPrice: savedTrade.fills?.[0]?.price,
           workspaceBeforeReload: document.body.dataset.workspace,
           journalHiddenBeforeReload: document.querySelector('#journal-workspace')?.hidden || false,
         });
@@ -200,11 +289,17 @@ async function main() {
     const writeValue = JSON.parse(writeResult.result?.value || '{}');
     assert.equal(writeValue.error, '', writeValue.error || 'journal workspace write failed');
     assert.equal(writeValue.savedPlan, 'Wait < confirm');
+    assert.equal(writeValue.savedTradeType, 'simulation');
+    assert.equal(writeValue.savedInstrument, 'ES');
+    assert.equal(writeValue.savedNetPnl, 125.5);
+    assert.equal(writeValue.savedManualR, 1.25);
+    assert.equal(writeValue.savedFillCount, 1);
+    assert.equal(writeValue.savedFillPrice, 5400.25);
     assert.equal(writeValue.workspaceBeforeReload, 'journal');
     assert.equal(writeValue.journalHiddenBeforeReload, false);
 
     await client.send('Page.reload', { ignoreCache: true });
-    await new Promise((resolve) => setTimeout(resolve, 1_200));
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
 
     const restoreExpression = `
       (async () => {
@@ -218,11 +313,13 @@ async function main() {
         const restoredPlanInput = document.querySelector('#journalPreMarketPlan');
         const restoredDateInput = document.querySelector('#journalDateInput');
         const workspaceAfterReload = document.body.dataset.workspace;
+        const restoredTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
         return JSON.stringify({
           error: '',
           workspaceAfterReload,
           restoredPlan: restoredPlanInput?.value || '',
           restoredDate: restoredDateInput?.value || '',
+          restoredTradeText,
         });
       })()
     `;
@@ -236,6 +333,10 @@ async function main() {
     assert.equal(value.workspaceAfterReload, 'journal');
     assert.equal(value.restoredPlan, 'Wait < confirm');
     assert.equal(value.restoredDate, '2026-06-12');
+    assert.match(value.restoredTradeText, /simulation/);
+    assert.match(value.restoredTradeText, /ES/);
+    assert.match(value.restoredTradeText, /PnL 125.5/);
+    assert.match(value.restoredTradeText, /Fills 1/);
 
     await clickWorkspaceSwitch(client, 'backtesting');
     await new Promise((resolve) => setTimeout(resolve, 100));

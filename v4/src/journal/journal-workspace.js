@@ -40,6 +40,14 @@ const FOLLOWED_PLAN_OPTIONS = [
   ['partial', 'Partial'],
   ['no', 'No'],
 ];
+const FILL_TYPE_OPTIONS = [
+  ['entry', 'Entry'],
+  ['add', 'Add'],
+  ['partial_exit', 'Partial Exit'],
+  ['final_exit', 'Final Exit'],
+  ['stop_exit', 'Stop Exit'],
+  ['manual_exit', 'Manual Exit'],
+];
 
 let activeAccountId = DEFAULT_JOURNAL_ACCOUNT_ID;
 let activeDate = '';
@@ -151,6 +159,10 @@ function updateTrade(tradeId, patch = {}) {
   setLiveTrades(nextTrades);
 }
 
+function getTrade(tradeId) {
+  return getLiveTrades().find((trade) => trade.id === tradeId) || null;
+}
+
 function scheduleTradeFieldUpdate(tradeId, field, value) {
   const accountId = activeAccountId;
   const date = activeDate;
@@ -161,6 +173,65 @@ function scheduleTradeFieldUpdate(tradeId, field, value) {
     const liveTrades = Array.isArray(day?.liveTrades) ? day.liveTrades : [];
     updateJournalDay(accountId, date, {
       liveTrades: liveTrades.map((trade) => (trade.id === tradeId ? { ...trade, [field]: value } : trade)),
+    });
+    saveTimers.delete(key);
+  }, 180));
+}
+
+function addFill(tradeId) {
+  const trade = getTrade(tradeId);
+  if (!trade) return;
+  const nextFill = {
+    id: `journal_fill_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    type: 'entry',
+    time: '',
+    price: null,
+    quantity: null,
+    reason: '',
+  };
+  updateTrade(tradeId, {
+    fills: [...(Array.isArray(trade.fills) ? trade.fills : []), nextFill],
+  });
+  renderJournalWorkspace();
+}
+
+function updateFill(tradeId, fillId, patch = {}) {
+  const trade = getTrade(tradeId);
+  if (!trade) return;
+  updateTrade(tradeId, {
+    fills: (Array.isArray(trade.fills) ? trade.fills : []).map((fill) => (
+      fill.id === fillId ? { ...fill, ...patch } : fill
+    )),
+  });
+}
+
+function deleteFill(tradeId, fillId) {
+  const trade = getTrade(tradeId);
+  if (!trade) return;
+  updateTrade(tradeId, {
+    fills: (Array.isArray(trade.fills) ? trade.fills : []).filter((fill) => fill.id !== fillId),
+  });
+  renderJournalWorkspace();
+}
+
+function scheduleFillFieldUpdate(tradeId, fillId, field, value) {
+  const accountId = activeAccountId;
+  const date = activeDate;
+  const key = `${accountId}|${date}|${tradeId}|${fillId}|${field}`;
+  clearTimeout(saveTimers.get(key));
+  saveTimers.set(key, setTimeout(() => {
+    const day = getJournalDay(accountId, date);
+    const liveTrades = Array.isArray(day?.liveTrades) ? day.liveTrades : [];
+    updateJournalDay(accountId, date, {
+      liveTrades: liveTrades.map((trade) => {
+        if (trade.id !== tradeId) return trade;
+        return {
+          ...trade,
+          fills: (Array.isArray(trade.fills) ? trade.fills : []).map((fill) => (
+            fill.id === fillId ? { ...fill, [field]: value } : fill
+          )),
+        };
+      }),
     });
     saveTimers.delete(key);
   }, 180));
@@ -274,6 +345,92 @@ function renderTradeDetail(trade) {
         <span>Reflection</span>
         <textarea data-journal-trade-id="${escapeHtml(trade.id)}" data-journal-trade-field="reflection" rows="3">${escapeHtml(trade.reflection)}</textarea>
       </label>
+      ${renderFillEditor(trade)}
+    </div>
+  `;
+}
+
+function renderFillRow(trade, fill, index) {
+  return `
+    <div class="journal-fill-row">
+      <span class="journal-fill-index">#${index + 1}</span>
+      <label class="journal-fill-field">
+        <span>Type</span>
+        <select
+          data-journal-trade-id="${escapeHtml(trade.id)}"
+          data-journal-fill-id="${escapeHtml(fill.id)}"
+          data-journal-fill-field="type"
+        >
+          ${makeOptions(FILL_TYPE_OPTIONS, fill.type)}
+        </select>
+      </label>
+      <label class="journal-fill-field">
+        <span>Time</span>
+        <input
+          type="text"
+          data-journal-trade-id="${escapeHtml(trade.id)}"
+          data-journal-fill-id="${escapeHtml(fill.id)}"
+          data-journal-fill-field="time"
+          value="${escapeHtml(fill.time)}"
+        />
+      </label>
+      <label class="journal-fill-field">
+        <span>Price</span>
+        <input
+          type="number"
+          data-journal-trade-id="${escapeHtml(trade.id)}"
+          data-journal-fill-id="${escapeHtml(fill.id)}"
+          data-journal-fill-field="price"
+          value="${escapeHtml(fill.price ?? '')}"
+        />
+      </label>
+      <label class="journal-fill-field">
+        <span>Qty</span>
+        <input
+          type="number"
+          data-journal-trade-id="${escapeHtml(trade.id)}"
+          data-journal-fill-id="${escapeHtml(fill.id)}"
+          data-journal-fill-field="quantity"
+          value="${escapeHtml(fill.quantity ?? '')}"
+        />
+      </label>
+      <label class="journal-fill-field journal-fill-reason">
+        <span>Reason</span>
+        <input
+          type="text"
+          data-journal-trade-id="${escapeHtml(trade.id)}"
+          data-journal-fill-id="${escapeHtml(fill.id)}"
+          data-journal-fill-field="reason"
+          value="${escapeHtml(fill.reason)}"
+        />
+      </label>
+      <button
+        type="button"
+        class="journal-icon-button"
+        data-journal-delete-fill="${escapeHtml(fill.id)}"
+        data-journal-trade-id="${escapeHtml(trade.id)}"
+        title="Delete fill"
+      >x</button>
+    </div>
+  `;
+}
+
+function renderFillEditor(trade) {
+  const fills = Array.isArray(trade.fills) ? trade.fills : [];
+  const fillRows = fills.length
+    ? fills.map((fill, index) => renderFillRow(trade, fill, index)).join('')
+    : '<p class="journal-empty-state">No fills recorded.</p>';
+  return `
+    <div class="journal-fill-editor">
+      <div class="journal-fill-header">
+        <h3>Fills</h3>
+        <button
+          type="button"
+          class="journal-action-button"
+          data-journal-add-fill="${escapeHtml(trade.id)}"
+        >Add Fill</button>
+      </div>
+      <div class="journal-fill-list">${fillRows}</div>
     </div>
   `;
 }
@@ -383,6 +540,13 @@ function bindJournalWorkspace() {
   const root = document.getElementById(WORKSPACE_ID);
   if (!root) return;
   root.addEventListener('input', (event) => {
+    const fillId = event.target?.dataset?.journalFillId;
+    const fillField = event.target?.dataset?.journalFillField;
+    const fillTradeId = event.target?.dataset?.journalTradeId;
+    if (fillTradeId && fillId && fillField) {
+      scheduleFillFieldUpdate(fillTradeId, fillId, fillField, event.target.value);
+      return;
+    }
     const tradeId = event.target?.dataset?.journalTradeId;
     const tradeField = event.target?.dataset?.journalTradeField;
     if (tradeId && tradeField) {
@@ -394,6 +558,13 @@ function bindJournalWorkspace() {
     scheduleFieldUpdate(field, event.target.value);
   });
   root.addEventListener('change', (event) => {
+    const fillId = event.target?.dataset?.journalFillId;
+    const fillField = event.target?.dataset?.journalFillField;
+    const fillTradeId = event.target?.dataset?.journalTradeId;
+    if (fillTradeId && fillId && fillField) {
+      updateFill(fillTradeId, fillId, { [fillField]: event.target.value });
+      return;
+    }
     const tradeId = event.target?.dataset?.journalTradeId;
     const tradeField = event.target?.dataset?.journalTradeField;
     if (tradeId && tradeField) {
@@ -419,6 +590,17 @@ function bindJournalWorkspace() {
     }
   });
   root.addEventListener('click', (event) => {
+    const addFillTradeId = event.target?.dataset?.journalAddFill;
+    if (addFillTradeId) {
+      addFill(addFillTradeId);
+      return;
+    }
+    const deleteFillId = event.target?.dataset?.journalDeleteFill;
+    const deleteFillTradeId = event.target?.dataset?.journalTradeId;
+    if (deleteFillTradeId && deleteFillId) {
+      deleteFill(deleteFillTradeId, deleteFillId);
+      return;
+    }
     if (event.target?.id === 'journalAddTradeButton') {
       createTrade();
       return;
