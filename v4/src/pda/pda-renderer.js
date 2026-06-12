@@ -26,6 +26,7 @@ import {
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -465,7 +466,7 @@ export function renderPdaAnnotations() {
     if (segmentPdaState.hiddenIds.has(annotation.id)) return;
     if (segmentPdaState.isolate && !segmentPdaState.visibleIds.has(annotation.id)) return;
     if (!segmentPdaState.isolate && !drawingSetPdaIds.has(annotation.id) && !shouldRenderPda(annotation)) return;
-    if (!canRenderPdaPriceProjection(annotation, 'NQ')) {
+    if (!canRenderPdaPriceProjection(annotation, getPrimaryInstrument())) {
       buildTimeOnlyProjectionPrimitives(annotation, pdaType, isCurrent, isLinkedToSegment).forEach((primitive) => {
         chart.attachPrimitive(primitive);
         primitive.requestUpdate();
@@ -526,6 +527,7 @@ export function initPdaRenderer() {
   bus.on('drawing-set-focus:changed', renderPdaAnnotations);
   bus.on('display-mode:changed', renderPdaAnnotations);
   bus.on('display-preferences:changed', renderPdaAnnotations);
+  bus.on('primary-instrument:changed', renderPdaAnnotations);
   bus.on('replay:changed', renderPdaAnnotationsOnReplay);
   bus.on('bars:loaded', renderPdaAnnotations);
   bus.on('bars:cleared', clearRenderedPrimitives);

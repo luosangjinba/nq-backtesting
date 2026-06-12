@@ -298,3 +298,24 @@ Replay History:
 
 - Replay History panel lists only records for current Main instrument.
 - Replay History clear only clears current Main instrument records.
+
+## Step 283.6 Status
+
+Completed.
+
+Rendering:
+
+- PDA price projection now compares annotation source against current Main instrument instead of hardcoded `NQ`.
+- PDA renderer refreshes on Main instrument changes.
+- Chart Notes renderer filters by current Main instrument.
+- Chart Notes hit-test filters by current Main instrument and includes instrument in its layout cache key.
+
+Interactions:
+
+- Context-menu Chart Note lookup and creation use current Main instrument.
+- Range Chart Note drafts store their starting Main instrument and must finish on the same Main instrument.
+- Order Setup refs added into Time Reaction fall back to current Main instrument instead of `NQ` when the order lacks an explicit instrument.
+
+Validation target for the next steps:
+
+- SMT actions still need explicit Main/Sub guard handling in Step 283.7.

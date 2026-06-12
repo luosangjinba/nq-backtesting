@@ -7,8 +7,8 @@ import { getChartNoteOptions } from './chart-note-primitive.js';
 import { formatChartNoteDisplayText, formatChartNoteTime } from './chart-note-format.js';
 import { buildChartNoteLayouts } from './chart-note-layout.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 
-const DEFAULT_INSTRUMENT = 'NQ';
 const HIT_PADDING_PX = 4;
 
 let measureContext = null;
@@ -40,8 +40,9 @@ function getVisibleRangeSignature() {
   return `range:${Number(range.from).toFixed(3)}:${Number(range.to).toFixed(3)}`;
 }
 
-function getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl, options }) {
+function getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl, options, instrument }) {
   return [
+    instrument,
     timeframe,
     visibleDateKey,
     expandedNoteId,
@@ -57,10 +58,11 @@ function getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, ch
 
 function buildHitPoints(options, expandedNoteId = '') {
   const timeframe = store.getCurrentTimeframe();
+  const instrument = getPrimaryInstrument();
   const bars = getRenderableBars();
   const visibleDateKey = getVisibleChartNoteDateKey(bars);
   const chartEl = document.getElementById('chart');
-  const cacheKey = getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl, options });
+  const cacheKey = getLayoutCacheKey({ bars, timeframe, visibleDateKey, expandedNoteId, chartEl, options, instrument });
   if (cachedLayout?.key === cacheKey) return cachedLayout.points;
 
   const notes = getChartNotes();
@@ -73,7 +75,7 @@ function buildHitPoints(options, expandedNoteId = '') {
 
   const points = notes
     .filter((note) => !note.display?.hidden)
-    .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
+    .filter((note) => note.instrument === instrument)
     .filter((note) => Number(note.timeframe) === Number(timeframe))
     .filter((note) => isChartNoteInDate(note, visibleDateKey))
     .map((note) => {

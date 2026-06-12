@@ -400,7 +400,7 @@ function buildOrderSetupDailyTimeRef(order) {
     type: ORDER_REF_TYPES.ORDER_SETUP,
     id: order.id,
     role: ORDER_REF_ROLES.CONTEXT,
-    sourceInstrument: order.instrument || 'NQ',
+    sourceInstrument: order.instrument || getPrimaryInstrument(),
     sourceContext: 'Order Setup',
   };
 }

@@ -8,8 +8,8 @@ import { ChartNotePrimitive, getChartNoteOptions } from './chart-note-primitive.
 import { formatChartNoteDisplayText, formatChartNoteTime } from './chart-note-format.js';
 import { getVisibleChartNoteDateKey, isChartNoteInDate } from './chart-note-visible-day.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 
-const DEFAULT_INSTRUMENT = 'NQ';
 const CHART_NOTE_FLASH_DURATION_MS = 900;
 
 let renderedPrimitive = null;
@@ -47,7 +47,7 @@ function buildNotePoints() {
 
   return getChartNotes()
     .filter((note) => !note.display?.hidden)
-    .filter((note) => note.instrument === DEFAULT_INSTRUMENT)
+    .filter((note) => note.instrument === getPrimaryInstrument())
     .filter((note) => Number(note.timeframe) === Number(timeframe))
     .filter((note) => isChartNoteInDate(note, visibleDateKey))
     .map((note) => {
@@ -142,5 +142,6 @@ export function initChartNoteRenderer() {
   bus.on('bars:loaded', renderChartNotes);
   bus.on('replay:changed', renderChartNotesOnReplay);
   bus.on('display-preferences:changed', renderChartNotes);
+  bus.on('primary-instrument:changed', renderChartNotes);
   bus.on('bars:cleared', clearRenderedNotes);
 }

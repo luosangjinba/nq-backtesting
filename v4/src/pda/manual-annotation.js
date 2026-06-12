@@ -78,6 +78,7 @@ import {
   updateChartNote,
   upsertChartNote,
 } from '../chart-notes/chart-note-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   clampMenuPosition,
   getPdaLabel,
@@ -296,7 +297,7 @@ function renderTimeOverlayMenuItems(bar) {
 function getChartNoteAtContextBar() {
   if (!contextMenuBar) return null;
   return getChartNoteForBar({
-    instrument: 'NQ',
+    instrument: getPrimaryInstrument(),
     timeframe: store.getCurrentTimeframe(),
     timestamp: contextMenuBar.timestamp,
   });
@@ -305,7 +306,7 @@ function getChartNoteAtContextBar() {
 function getChartNoteRangeAtContextBar() {
   if (!contextMenuBar) return null;
   return getChartNoteRangesForBar({
-    instrument: 'NQ',
+    instrument: getPrimaryInstrument(),
     timeframe: store.getCurrentTimeframe(),
     timestamp: contextMenuBar.timestamp,
   })[0] || null;
@@ -521,6 +522,7 @@ async function handleControlClick(e) {
     } else {
       const bar = contextMenuBar;
       const timeframe = store.getCurrentTimeframe();
+      const instrument = getPrimaryInstrument();
       const point = contextMenuPoint || { x: 20, y: 20 };
       hideContextMenu();
       showChartNoteEditor({
@@ -530,7 +532,7 @@ async function handleControlClick(e) {
         onSave: (text) => {
           recordHistory('Add Chart Note', () =>
             upsertChartNote({
-              instrument: 'NQ',
+              instrument,
               timeframe,
               timestamp: bar.timestamp,
               text,
@@ -579,6 +581,7 @@ async function handleControlClick(e) {
       chartNoteRangeDraft = {
         timestamp: Number(contextMenuBar.timestamp),
         timeframe: store.getCurrentTimeframe(),
+        instrument: getPrimaryInstrument(),
         label: contextMenuBar.tradingDay || contextMenuBar.time || '',
       };
       bus.emit('status:update', { text: 'Range note start selected', isError: false });
@@ -592,6 +595,12 @@ async function handleControlClick(e) {
       const startTimestamp = Number(chartNoteRangeDraft.timestamp);
       const endTimestamp = Number(contextMenuBar.timestamp);
       const timeframe = Number(chartNoteRangeDraft.timeframe);
+      const instrument = getPrimaryInstrument();
+      if (chartNoteRangeDraft.instrument && chartNoteRangeDraft.instrument !== instrument) {
+        bus.emit('status:update', { text: 'Range note must finish on the same Main instrument', isError: true });
+        hideContextMenu();
+        return;
+      }
       if (Number(store.getCurrentTimeframe()) !== timeframe) {
         bus.emit('status:update', { text: 'Range note must finish on the same timeframe', isError: true });
         hideContextMenu();
@@ -615,7 +624,7 @@ async function handleControlClick(e) {
           recordHistory('Add Range Chart Note', () =>
             upsertChartNote({
               kind: 'range',
-              instrument: 'NQ',
+              instrument,
               timeframe,
               timestamp: rangeStart,
               startTimestamp: rangeStart,
