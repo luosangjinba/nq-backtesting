@@ -27,15 +27,30 @@ check_api() {
 start_api() {
   echo "启动 API 服务器..."
   echo "Python: $PYTHON"
-  nohup "$PYTHON" v4_api.py > .api.log 2>&1 &
-  echo $! > "$PID_FILE"
-  sleep 2
+  if command -v setsid >/dev/null 2>&1; then
+    setsid nohup "$PYTHON" v4_api.py > .api.log 2>&1 < /dev/null &
+  else
+    nohup "$PYTHON" v4_api.py > .api.log 2>&1 < /dev/null &
+  fi
+  API_PID=$!
+  echo "$API_PID" > "$PID_FILE"
 
-  if check_api; then
+  for _ in 1 2 3 4 5; do
+    if check_api; then
+      break
+    fi
+    if ! kill -0 "$API_PID" 2>/dev/null; then
+      break
+    fi
+    sleep 1
+  done
+
+  if kill -0 "$API_PID" 2>/dev/null && check_api; then
     echo "✓ API 服务器启动成功 (PID=$(cat "$PID_FILE"))"
   else
     echo "✗ API 服务器启动失败，查看日志："
     tail -20 .api.log
+    rm -f "$PID_FILE"
     exit 1
   fi
 }
