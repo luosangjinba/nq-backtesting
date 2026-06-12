@@ -2,7 +2,7 @@
 
 Branch: `feature/research-databento-data-journal`
 
-Status: Planned, not implemented.
+Status: Completed.
 
 ## Goal
 
@@ -217,6 +217,30 @@ Add a browser smoke covering:
 - Enter manual PnL/R.
 - Reload and verify trade/fills restored.
 - Switch back to Backtesting and verify chart still exists.
+
+## Step 286.5 Status
+
+Completed.
+
+`v4/tests/journal-workspace-browser-smoke.js` now covers:
+
+- Switching to Journal.
+- Creating an actual trade.
+- Adding and editing fills.
+- Entering manual PnL/R.
+- Reopening the page and verifying trade/fills restore.
+- Switching account/date and verifying no trade leakage.
+- Switching back to Backtesting and verifying the chart still exists.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/journal-actual-trade-examples-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
 
 ## Recommended Commit Boundaries
 

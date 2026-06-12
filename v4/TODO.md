@@ -809,12 +809,12 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.5: Navigation boundary：切换 workspace 不重置 backtesting chart state；刷新恢复当前 workspace。已新增 Journal browser smoke 覆盖 workspace switch、刷新恢复和切回 Backtesting；app shell 使用 delegated click，避免初始化顺序导致 switch handler 丢失。
   - [x] Step 285.6: Tests / smoke：store/persistence/browser smoke、JS syntax check、diff check。已新增 `v4/tests/journal-workspace-browser-smoke.js`；验证 Journal workspace 输入、localStorage 保存、刷新恢复、切回 Backtesting，以及既有 primary instrument browser smoke 不回归。
 
-- [ ] Step 286: Journal Phase C - Actual Trade Logging。目标是在 Journal Day 中增加真实/模拟实际交易记录；不做 IdealTradeReview UI、broker import、自动 PnL/R、统计页。计划见 `v4/sessions/session_20260612_journal_phase_c_plan.md`。
+- [x] Step 286: Journal Phase C - Actual Trade Logging。目标是在 Journal Day 中增加真实/模拟实际交易记录；不做 IdealTradeReview UI、broker import、自动 PnL/R、统计页。计划见 `v4/sessions/session_20260612_journal_phase_c_plan.md`。已完成 MVP：Actual Trades UI、fill editor、local persistence path、样例验收、browser smoke。
   - [x] Step 286.1: LiveTradeLog UI shape：Journal workspace 增加 Actual Trades section，支持添加 trade、compact row、展开编辑 tradeType/instrument/direction/result/net PnL/manual R/reflection 核心字段。已完成 Actual Trades section；支持 Add Trade、compact row、展开编辑核心字段，fill editor 留给 Step 286.2。
   - [x] Step 286.2: Fill editor MVP：expanded trade 内支持 `fills[]` 编辑，字段为 type/time/price/quantity/reason，支持 entry/add/partial/final/stop/manual exit，不自动计算 PnL/R。已完成：expanded trade 已加入 fill editor、Add Fill、Delete Fill、fill row 字段编辑，并通过 browser smoke 刷新恢复验证。
   - [x] Step 286.3: Actual trade persistence path：trade/fill edits 写入当前 `JournalDay.liveTrades`，刷新恢复，account/date 切换不串数据，不在页面加载时创建空 trade。已完成：browser smoke 覆盖初始无 trade、刷新恢复、换日期/账户隔离、切回原 account/date 后 trade/fill 恢复。
   - [x] Step 286.4: Minimal validation examples：用真实违规亏损、按计划模拟、多合约 partial/final exit 三个样例验收。已完成：新增 `journal-actual-trade-examples-smoke.js` 固化三类样例。
-  - [ ] Step 286.5: Browser smoke：创建 trade、添加 fills、输入手工 PnL/R、刷新恢复、切回 Backtesting 不破坏图表。
+  - [x] Step 286.5: Browser smoke：创建 trade、添加 fills、输入手工 PnL/R、刷新恢复、切回 Backtesting 不破坏图表。已完成：`journal-workspace-browser-smoke.js` 覆盖 Journal/Backtesting 切换、trade/fill 编辑、手工 PnL/R、重开恢复、account/date 隔离。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
