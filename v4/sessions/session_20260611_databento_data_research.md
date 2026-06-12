@@ -348,3 +348,46 @@ last_bar time: 2026-06-11 16:59
 ```
 
 NQ remains unchanged and write-disabled.
+
+## No-Row Daily Refresh Validation
+
+Validated the no-row daily refresh path after ES reached `2026-06-11 16:59:00`.
+
+Dry-run result:
+
+```text
+db_max_ts: 2026-06-11 16:59:00
+dry_run_range_et: 2026-06-11 17:00:00 -> 2026-06-11 17:19:00
+contract: ESM6
+downloaded_normalized_rows: 0
+candidate_rows_after_dedupe: 0
+duplicate_candidate_keys: 0
+existing_candidate_keys: 0
+would_insert_rows: 0
+databento warning: No data found for the request you submitted.
+write_status: dry-run only; no DB changes were made
+```
+
+Observation:
+
+- Databento can advance its available end into a market-closed/no-bars region.
+- That is a normal no-op path for this wrapper, not a data quality failure.
+
+Wrapper fix:
+
+- `daily_databento_refresh.py` now checks `would_insert_rows == 0` before warning blocking.
+- This prevents `No data found` from blocking a no-row `--write --confirm-write` run.
+
+Validation after the fix:
+
+```text
+write_status: skipped; dry-run found no missing ES rows
+```
+
+Independent DB verification stayed unchanged:
+
+```text
+ES: 6,451,065 rows, max ts 2026-06-11 16:59:00
+NQ: 5,906,274 rows, max ts 2025-11-04 18:39:00
+ES duplicate timestamps: 0
+```

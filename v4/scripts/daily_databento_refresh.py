@@ -111,15 +111,15 @@ def main() -> int:
         print("\nwrite_status: dry-run only; no DB changes were made")
         return 0
 
-    warning_blocked = has_databento_warnings(dry_run.stdout) and not args.allow_degraded
-    if warning_blocked:
-        print("\nwrite_status: blocked; Databento warnings require --allow-degraded")
-        return 3
-
     would_insert = parse_metric(dry_run.stdout, "would_insert_rows")
     if would_insert == 0:
         print("\nwrite_status: skipped; dry-run found no missing ES rows")
         return 0
+
+    warning_blocked = has_databento_warnings(dry_run.stdout) and not args.allow_degraded
+    if warning_blocked:
+        print("\nwrite_status: blocked; Databento warnings require --allow-degraded")
+        return 3
 
     write = run_command(updater_command(args, write=True))
     print_section("ES write", write.stdout)
