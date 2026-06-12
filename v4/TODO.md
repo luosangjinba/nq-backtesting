@@ -816,6 +816,14 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 286.4: Minimal validation examples：用真实违规亏损、按计划模拟、多合约 partial/final exit 三个样例验收。已完成：新增 `journal-actual-trade-examples-smoke.js` 固化三类样例。
   - [x] Step 286.5: Browser smoke：创建 trade、添加 fills、输入手工 PnL/R、刷新恢复、切回 Backtesting 不破坏图表。已完成：`journal-workspace-browser-smoke.js` 覆盖 Journal/Backtesting 切换、trade/fill 编辑、手工 PnL/R、重开恢复、account/date 隔离。
 
+- [ ] Step 287: Journal Phase D - Practical Day Review。目标是把 Journal Day 从“能记录交易”推进到“能完整记录一天”：盘前计划/状态、盘中状态、盘后总结、纪律复盘、明日重点；保持表单短、可每日完成。计划见 `v4/sessions/session_20260612_journal_phase_d_plan.md`。
+  - [ ] Step 287.1: Freeze day-level information architecture：冻结 Journal 页面分区和字段顺序，围绕“盘前计划与状态 / 盘中发生了什么 / 盘后学到什么”三件事组织。
+  - [ ] Step 287.2: Journal Day UI reorganization：重排 Journal workspace，增加 Pre-Market、During Session、Post Session、Discipline Review 区块；保留 Actual Trades 独立 section。
+  - [ ] Step 287.3: Day-level field persistence：把 `sessionIntent`、`intradayStateNotes`、`mainMistake`、`bestBehavior`、`nextSessionFocus` 等高价值字段接入当前 `JournalDay`，验证 account/date 不串数据。
+  - [ ] Step 287.4: Minimal discipline review shape：决定 Phase D 是否只保留 `disciplineSummary` 文本，或额外暴露少量结构化纪律字段；避免复杂评分系统。
+  - [ ] Step 287.5: Browser smoke / regression：覆盖 day-level 字段填写、actual trade/fill、重开恢复、account/date 隔离、切回 Backtesting 图表不破坏。
+  - [ ] Step 287.6: Documentation closeout：更新 TODO/session，记录最终字段取舍和验证命令。
+
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。已新增 `primary-instrument-store`，Toolbar `Main` 下拉可选择 NQ/ES，Toolbar 主图加载使用当前 Main instrument，chart context 返回当前 Main instrument；其他主图加载路径留给 Step 283.3。
