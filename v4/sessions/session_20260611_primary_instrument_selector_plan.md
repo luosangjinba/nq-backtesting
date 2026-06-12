@@ -192,3 +192,13 @@ Record final support matrix:
 - Replay history restores the correct primary instrument.
 - Review JSON round-trip preserves instrument.
 - SMT is safely disabled outside supported instrument pair(s).
+
+## Step 283.1 Status
+
+Completed. The execution boundary is frozen in this file:
+
+- Main instrument is workspace-level state.
+- NQ remains default.
+- ES must support ordinary primary-chart review workflows.
+- Other instruments require data/config/rules before they are product-supported.
+- Current SMT remains limited to `Main=NQ, Sub=ES`.

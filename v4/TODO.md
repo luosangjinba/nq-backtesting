@@ -802,7 +802,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 282: Journal MVP data model / UI scope。目标是在当前 V4 复盘平台上平行出 journal 系统，优先定义临场记录的数据模型和最小 UI 范围；不先做行情源自动化，不复用 Order Setup 作为 journal order log。初始研究重点：临场状态、当时想法、计划/冲动、实际订单、执行纪律、情绪/身体状态、复盘后对照。
 
 - [ ] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
-  - [ ] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。
+  - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [ ] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。
   - [ ] Step 283.3: 主图数据加载路径接入 instrument：所有主图 `fetchBars` / Calendar jump / Replay load / history restore / price lookup / auto-exit time 请求都使用当前 primary instrument；保持副图 instrument 独立。
   - [ ] Step 283.4: 对象 store 与 persistence 按 instrument 分区：PDA、Segment、Chart Notes、Daily Time Review/Bias、Order Setup、display mode、visibility、economic event notes、Replay history 等不再固定写入 `...:NQ` 或硬过滤 NQ；选择方案优先保证旧 NQ localStorage 自动兼容。
