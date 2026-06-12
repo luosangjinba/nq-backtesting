@@ -1,6 +1,6 @@
 # V4 用户说明书
 
-V4 是图表式复盘工具，用来在 NQ K 线图上回放行情、手工标注 PDA、绘制 price legs、记录 Chart Notes、建立 Order Setup、按 Calendar/Inspector 做每日复盘，并通过 ES 副图手工标注 SMT evidence。
+V4 是图表式复盘工具，用来在 NQ/ES K 线图上回放行情、手工标注 PDA、绘制 price legs、记录 Chart Notes、建立 Order Setup、按 Calendar/Inspector 做每日复盘，并通过 ES 副图手工标注 SMT evidence。
 
 当前版本以手工复盘为主。它不是自动交易信号系统，不自动判断 setup 是否成立。除精确复盘阶段的自动 actor TF 取数、canvas 框选 K 线群、最终 verdict 和统计页外，主要图表复盘流程已经可用。
 
@@ -44,7 +44,8 @@ bash start.sh stop
 顶部工具栏提供：
 
 - `Date`：当前加载区间。点击后打开 Date Range Calendar，可选择 start/end，也可手工输入精确时间。
-- `周期`：选择 K 线周期，例如 `1M`、`30M`、`1H`、`4H`、`D`。
+- `Main`：主图品种。当前完整支持 `NQ` 和 `ES` 常规复盘；默认仍是 `NQ`。
+- `Main TF`：选择主图 K 线周期，例如 `1M`、`30M`、`1H`、`4H`、`D`。
 - `加载`：请求并显示 K 线。
 - `Archive`：打开导入/导出区域。
 - `Split`：显示/隐藏副图。
@@ -59,6 +60,17 @@ YYYY-MM-DD HH:mm
 ```
 
 1M 大范围加载会使用窗口化策略：图表只显示当前窗口，避免一次性把很长 1M 区间全部塞进浏览器。需要切换窗口时使用图表底部的窗口/定位控制。
+
+## Main Instrument
+
+`Main` 是 workspace 级状态。切换 `NQ` / `ES` 后，主图加载、Replay History、PDA、Segments、Chart Notes、Time Reaction、Order Setup、Time Lines、Economic Event notes 和 display mode 都会以当前 Main 为上下文。
+
+兼容与隔离规则：
+
+- 默认 Main 是 `NQ`，旧 NQ 复盘数据继续按 NQ workspace 读取。
+- 新建对象会写入当前 Main 的本地分区，例如 NQ 对象和 ES 对象互不混用。
+- Calendar、Archive、Replay History 只显示/导入/导出当前 Main 对应的数据；导入不同 instrument 的 archive 会被拒绝，避免静默混入。
+- 其他品种只有扩展接口。要完整支持，需要先补齐数据库数据、tick 配置、roll 规则和相关 workflow 规则。
 
 ## Replay Bar
 
@@ -112,11 +124,11 @@ Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默
 
 ## Split Screen 副图
 
-Split Screen 用来把主图 NQ 与副图 NQ/ES 放在同一个绝对时间区间里观察。
+Split Screen 用来把主图 Main 与副图 NQ/ES 放在同一个绝对时间区间里观察。
 
 常用设置：
 
-- 主图：NQ。
+- 主图 `Main`：NQ 或 ES。
 - 副图 `Sub`：ES。
 - 副图 `Sub TF`：通常与主图周期一致；做 SMT 标注时必须一致。
 - `Layout`：`Stack` 为上下分屏，`Side` 为左右分屏。
@@ -463,11 +475,12 @@ segment3: second up leg that breaks target
 
 ## SMT Evidence
 
-SMT 当前只做手工标注，第一版逻辑是 `NQ follows ES`，也就是以 NQ 做单为主，不做 ES follows NQ。
+SMT 当前只做手工标注，第一版逻辑是 `NQ follows ES`，也就是以 NQ 做单为主，不做 ES follows NQ。即使主图 Main 已支持 ES 常规复盘，SMT 仍只在 `Main=NQ`、`Sub=ES`、主副图周期一致时启用。
 
 使用前提：
 
 - 开启 `Split`。
+- `Main` 选择 `NQ`。
 - `Sub` 选择 `ES`。
 - 主图周期与 `Sub TF` 必须一致。
 - 主图和副图都已经加载 K 线。

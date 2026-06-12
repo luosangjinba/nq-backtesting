@@ -11,7 +11,7 @@ PORT=8766
 WEB_PORT="${V4_WEB_PORT:-8001}"
 PID_FILE=".api_pid"
 
-echo "=== V4 NQ K-Line Viewer 启动 ==="
+echo "=== V4 K-Line Viewer 启动 ==="
 echo ""
 
 check_api() {

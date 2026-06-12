@@ -404,3 +404,33 @@ Environment note:
 Scope note:
 
 - Full click-by-click browser regression for PDA/Segment/Chart Note/Time Reaction/Order Setup creation, Replay save/restore, Archive import/export, and Calendar locate/open remains better as a manual acceptance pass. This step automated the Main selector, ES switch, frontend NQ/ES data path, and render boot path most directly affected by Step 283.
+
+## Step 283.10 Status
+
+Completed.
+
+Documentation updates:
+
+- Updated `v4/docs/user/USER_GUIDE.zh-CN.md`.
+- Updated `v4/docs/user/USER_GUIDE.en.md`.
+- Marked Step 283 and Step 283.10 complete in `v4/TODO.md`.
+
+Documented behavior:
+
+- Main defaults to `NQ`.
+- Regular review workflows now support Main `NQ` and `ES`.
+- Local objects and workspace state are partitioned by current Main instrument.
+- Calendar, Archive, and Replay History use the current Main instrument as their boundary.
+- Archive imports for a different instrument are rejected rather than silently merged.
+- Other instruments are extension hooks only until DB coverage, tick config, roll rules, and workflow-specific logic exist.
+- SMT remains first-version `NQ follows ES` only: `Main=NQ`, `Sub=ES`, matching primary/sub timeframes.
+
+User-facing wording cleanup:
+
+- `index.html` title now says `K-Line Viewer V4`.
+- `start.sh` startup banner now says `V4 K-Line Viewer`.
+
+Step 283 closeout:
+
+- Completed substeps 283.1 through 283.10.
+- Last automated coverage includes primary instrument compatibility smoke, browser Main selector smoke, NQ/ES frontend fetch smoke, full JS syntax check, diff whitespace check, and Databento key scan.

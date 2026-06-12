@@ -1,6 +1,6 @@
 # V4 User Guide
 
-V4 is a chart-based review tool for replaying NQ candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES secondary chart.
+V4 is a chart-based review tool for replaying NQ/ES candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES secondary chart.
 
 The current version is centered on manual review. It is not an automatic trading-signal system and does not decide whether a setup is valid. Most chart-review workflows are usable. The remaining "precision review" work is actor-timeframe auto-fetching, canvas selection of actor candle groups, final verdict workflow, and statistics pages.
 
@@ -42,7 +42,8 @@ When copying `v4/` as a standalone folder, prepare `data/trading_data.duckdb` fi
 The top toolbar provides:
 
 - `Date`: current loaded range. Click it to open the Date Range Calendar for start/end selection and manual precise time input.
-- `周期`: chart timeframe, such as `1M`, `30M`, `1H`, `4H`, or `D`.
+- `Main`: primary chart instrument. Regular review workflows currently support `NQ` and `ES`; the default remains `NQ`.
+- `Main TF`: primary chart timeframe, such as `1M`, `30M`, `1H`, `4H`, or `D`.
 - `加载`: load candles.
 - `Archive`: open import/export actions.
 - `Split`: show or hide the secondary chart.
@@ -57,6 +58,17 @@ YYYY-MM-DD HH:mm
 ```
 
 Large 1M ranges use windowed loading. The chart shows the current window instead of loading the full long 1M range into the browser at once.
+
+## Main Instrument
+
+`Main` is workspace-level state. After switching between `NQ` and `ES`, primary chart loading, Replay History, PDA, Segments, Chart Notes, Time Reaction, Order Setup, Time Lines, Economic Event notes, and display mode all use the current Main instrument as context.
+
+Compatibility and isolation rules:
+
+- The default Main is `NQ`, and existing NQ review data continues to load under the NQ workspace.
+- New objects are written to the current Main's local partition, so NQ objects and ES objects do not mix.
+- Calendar, Archive, and Replay History show/import/export data for the current Main instrument. Archive imports for a different instrument are rejected instead of silently merged.
+- Other instruments only have extension hooks. Full support requires database coverage, tick configuration, roll rules, and workflow-specific rules.
 
 ## Replay Bar
 
@@ -110,11 +122,11 @@ Economic Events are loaded from the local USD events CSV. High/Medium are visibl
 
 ## Split Screen
 
-Split Screen lets you compare the primary NQ chart with a secondary NQ/ES chart over the same absolute time range.
+Split Screen lets you compare the primary Main chart with a secondary NQ/ES chart over the same absolute time range.
 
 Common settings:
 
-- Primary chart: NQ.
+- Primary `Main`: NQ or ES.
 - `Sub`: ES.
 - `Sub TF`: usually the same as the primary timeframe; SMT marking requires them to match.
 - `Layout`: `Stack` for vertical split, `Side` for side-by-side split.
@@ -465,11 +477,12 @@ It shows:
 
 ## SMT Evidence
 
-SMT is manual-only in the current version. The first version supports `NQ follows ES`: NQ is the primary trading chart, and ES is the comparison chart. ES follows NQ is intentionally out of scope.
+SMT is manual-only in the current version. The first version supports `NQ follows ES`: NQ is the primary trading chart, and ES is the comparison chart. ES follows NQ is intentionally out of scope. Even though the primary Main chart now supports regular ES review, SMT is enabled only when `Main=NQ`, `Sub=ES`, and the primary/sub timeframes match.
 
 Requirements:
 
 - Enable `Split`.
+- Set `Main` to `NQ`.
 - Set `Sub` to `ES`.
 - Primary timeframe and `Sub TF` must match.
 - Both NQ and ES candles must be loaded.
