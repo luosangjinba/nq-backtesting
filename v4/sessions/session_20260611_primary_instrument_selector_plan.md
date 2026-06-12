@@ -367,3 +367,40 @@ Validation:
 Note:
 
 - Node reports the existing module-type warning for ES module smoke files because the repo has no package-level `"type": "module"` declaration; the smoke exits successfully.
+
+## Step 283.9 Status
+
+Completed.
+
+Added `v4/tests/primary-instrument-browser-smoke.js`.
+
+Browser smoke:
+
+- Starts headless Chrome through CDP against `http://127.0.0.1:8001/index.html`.
+- Verifies the Toolbar Main selector exists with `NQ` and `ES`.
+- Switches Main to `ES` through the primary instrument store and confirms the UI select syncs to `ES`.
+- Imports the frontend API module in the page and confirms NQ and ES `fetchBars` calls return bars.
+- Confirms the primary chart canvas exists.
+
+HTTP/API smoke:
+
+- `/v4/health` returned OK.
+- `/v4/bars?instrument=NQ&start=2024-01-08%2009:30&end=2024-01-08%2011:00&tf=60` returned HTTP 200 with bars.
+- `/v4/bars?instrument=ES&start=2024-01-08%2009:30&end=2024-01-08%2011:00&tf=60` returned HTTP 200 with bars.
+
+Validation:
+
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+- Databento key scan under `v4`
+
+Environment note:
+
+- `bash start.sh start` could not own port 8001 because an existing static server was already serving `index.html`.
+- `bash start.sh restart` reported API startup, but the background process did not stay visible/reachable in this execution environment. Running `/home/leo/miniconda3/bin/python3 v4_api.py` in the foreground kept the API healthy for the smoke.
+- Node reports the existing module-type warning for ES module smoke files; the smoke exits successfully.
+
+Scope note:
+
+- Full click-by-click browser regression for PDA/Segment/Chart Note/Time Reaction/Order Setup creation, Replay save/restore, Archive import/export, and Calendar locate/open remains better as a manual acceptance pass. This step automated the Main selector, ES switch, frontend NQ/ES data path, and render boot path most directly affected by Step 283.
