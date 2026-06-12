@@ -212,8 +212,42 @@ async function main() {
         await new Promise((resolve) => setTimeout(resolve, 100));
         const initialTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
         const nextPlanInput = document.querySelector('#journalPreMarketPlan');
+        const sessionIntent = document.querySelector('#journalSessionIntent');
+        const mentalStateBefore = document.querySelector('#journalMentalStateBefore');
+        const intradayStateNotes = document.querySelector('#journalIntradayStateNotes');
+        const postMarketSummary = document.querySelector('#journalPostMarketSummary');
+        const mainMistake = document.querySelector('#journalMainMistake');
+        const bestBehavior = document.querySelector('#journalBestBehavior');
+        const nextSessionFocus = document.querySelector('#journalNextSessionFocus');
+        const disciplineSummary = document.querySelector('#journalDisciplineSummary');
+        if (
+          !sessionIntent ||
+          !mentalStateBefore ||
+          !intradayStateNotes ||
+          !postMarketSummary ||
+          !mainMistake ||
+          !bestBehavior ||
+          !nextSessionFocus ||
+          !disciplineSummary
+        ) return JSON.stringify({ error: 'missing day-level journal inputs' });
         nextPlanInput.value = 'Wait < confirm';
         nextPlanInput.dispatchEvent(new Event('input', { bubbles: true }));
+        sessionIntent.value = 'One A+ setup only';
+        sessionIntent.dispatchEvent(new Event('input', { bubbles: true }));
+        mentalStateBefore.value = 'Calm but cautious';
+        mentalStateBefore.dispatchEvent(new Event('input', { bubbles: true }));
+        intradayStateNotes.value = 'Felt urge to chase after first move';
+        intradayStateNotes.dispatchEvent(new Event('input', { bubbles: true }));
+        postMarketSummary.value = 'Executed one planned simulation trade';
+        postMarketSummary.dispatchEvent(new Event('input', { bubbles: true }));
+        mainMistake.value = 'Watched low-quality chop too long';
+        mainMistake.dispatchEvent(new Event('input', { bubbles: true }));
+        bestBehavior.value = 'Waited for confirmation before entry';
+        bestBehavior.dispatchEvent(new Event('input', { bubbles: true }));
+        nextSessionFocus.value = 'Reduce screen time in chop';
+        nextSessionFocus.dispatchEvent(new Event('input', { bubbles: true }));
+        disciplineSummary.value = 'No real-money impulse trade';
+        disciplineSummary.dispatchEvent(new Event('input', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 350));
 
         document.querySelector('#journalAddTradeButton').click();
@@ -272,6 +306,14 @@ async function main() {
           error: '',
           initialTradeText,
           savedPlan: savedBeforeReload.journalDays?.[0]?.preMarketPlan || '',
+          savedSessionIntent: savedBeforeReload.journalDays?.[0]?.sessionIntent || '',
+          savedMentalStateBefore: savedBeforeReload.journalDays?.[0]?.mentalStateBefore || '',
+          savedIntradayStateNotes: savedBeforeReload.journalDays?.[0]?.intradayStateNotes || '',
+          savedPostMarketSummary: savedBeforeReload.journalDays?.[0]?.postMarketSummary || '',
+          savedMainMistake: savedBeforeReload.journalDays?.[0]?.mainMistake || '',
+          savedBestBehavior: savedBeforeReload.journalDays?.[0]?.bestBehavior || '',
+          savedNextSessionFocus: savedBeforeReload.journalDays?.[0]?.nextSessionFocus || '',
+          savedDisciplineSummary: savedBeforeReload.journalDays?.[0]?.disciplineSummary || '',
           savedTradeType: savedTrade.tradeType || '',
           savedInstrument: savedTrade.instrument || '',
           savedNetPnl: savedTrade.netPnl,
@@ -292,6 +334,14 @@ async function main() {
     assert.equal(writeValue.error, '', writeValue.error || 'journal workspace write failed');
     assert.match(writeValue.initialTradeText, /No actual trades recorded/);
     assert.equal(writeValue.savedPlan, 'Wait < confirm');
+    assert.equal(writeValue.savedSessionIntent, 'One A+ setup only');
+    assert.equal(writeValue.savedMentalStateBefore, 'Calm but cautious');
+    assert.equal(writeValue.savedIntradayStateNotes, 'Felt urge to chase after first move');
+    assert.equal(writeValue.savedPostMarketSummary, 'Executed one planned simulation trade');
+    assert.equal(writeValue.savedMainMistake, 'Watched low-quality chop too long');
+    assert.equal(writeValue.savedBestBehavior, 'Waited for confirmation before entry');
+    assert.equal(writeValue.savedNextSessionFocus, 'Reduce screen time in chop');
+    assert.equal(writeValue.savedDisciplineSummary, 'No real-money impulse trade');
     assert.equal(writeValue.savedTradeType, 'simulation');
     assert.equal(writeValue.savedInstrument, 'ES');
     assert.equal(writeValue.savedNetPnl, 125.5);
@@ -314,6 +364,14 @@ async function main() {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
         const restoredPlanInput = document.querySelector('#journalPreMarketPlan');
+        const restoredSessionIntent = document.querySelector('#journalSessionIntent');
+        const restoredMentalStateBefore = document.querySelector('#journalMentalStateBefore');
+        const restoredIntradayStateNotes = document.querySelector('#journalIntradayStateNotes');
+        const restoredPostMarketSummary = document.querySelector('#journalPostMarketSummary');
+        const restoredMainMistake = document.querySelector('#journalMainMistake');
+        const restoredBestBehavior = document.querySelector('#journalBestBehavior');
+        const restoredNextSessionFocus = document.querySelector('#journalNextSessionFocus');
+        const restoredDisciplineSummary = document.querySelector('#journalDisciplineSummary');
         const restoredDateInput = document.querySelector('#journalDateInput');
         const workspaceAfterReload = document.body.dataset.workspace;
         const restoredTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
@@ -321,6 +379,14 @@ async function main() {
           error: '',
           workspaceAfterReload,
           restoredPlan: restoredPlanInput?.value || '',
+          restoredSessionIntent: restoredSessionIntent?.value || '',
+          restoredMentalStateBefore: restoredMentalStateBefore?.value || '',
+          restoredIntradayStateNotes: restoredIntradayStateNotes?.value || '',
+          restoredPostMarketSummary: restoredPostMarketSummary?.value || '',
+          restoredMainMistake: restoredMainMistake?.value || '',
+          restoredBestBehavior: restoredBestBehavior?.value || '',
+          restoredNextSessionFocus: restoredNextSessionFocus?.value || '',
+          restoredDisciplineSummary: restoredDisciplineSummary?.value || '',
           restoredDate: restoredDateInput?.value || '',
           restoredTradeText,
         });
@@ -335,6 +401,14 @@ async function main() {
     assert.equal(value.error, '', value.error || 'journal workspace browser smoke failed');
     assert.equal(value.workspaceAfterReload, 'journal');
     assert.equal(value.restoredPlan, 'Wait < confirm');
+    assert.equal(value.restoredSessionIntent, 'One A+ setup only');
+    assert.equal(value.restoredMentalStateBefore, 'Calm but cautious');
+    assert.equal(value.restoredIntradayStateNotes, 'Felt urge to chase after first move');
+    assert.equal(value.restoredPostMarketSummary, 'Executed one planned simulation trade');
+    assert.equal(value.restoredMainMistake, 'Watched low-quality chop too long');
+    assert.equal(value.restoredBestBehavior, 'Waited for confirmation before entry');
+    assert.equal(value.restoredNextSessionFocus, 'Reduce screen time in chop');
+    assert.equal(value.restoredDisciplineSummary, 'No real-money impulse trade');
     assert.equal(value.restoredDate, '2026-06-12');
     assert.match(value.restoredTradeText, /simulation/);
     assert.match(value.restoredTradeText, /ES/);
@@ -357,12 +431,16 @@ async function main() {
         dateInput.dispatchEvent(new Event('change', { bubbles: true }));
         await wait(250);
         const nextDateTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
+        const nextDatePlan = document.querySelector('#journalPreMarketPlan')?.value || '';
+        const nextDateFocus = document.querySelector('#journalNextSessionFocus')?.value || '';
 
         const accountInput = await waitForSelector('#journalAccountInput');
         accountInput.value = 'funded';
         accountInput.dispatchEvent(new Event('change', { bubbles: true }));
         await wait(250);
         const fundedTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
+        const fundedPlan = document.querySelector('#journalPreMarketPlan')?.value || '';
+        const fundedFocus = document.querySelector('#journalNextSessionFocus')?.value || '';
 
         const restoredAccountInput = await waitForSelector('#journalAccountInput');
         restoredAccountInput.value = 'default';
@@ -380,7 +458,11 @@ async function main() {
         const fundedDay = fundedPayload.journalDays?.find((day) => day.date === '2026-06-13') || {};
         return JSON.stringify({
           nextDateTradeText,
+          nextDatePlan,
+          nextDateFocus,
           fundedTradeText,
+          fundedPlan,
+          fundedFocus,
           restoredDefaultTradeText,
           defaultTradeCount: defaultDay.liveTrades?.length || 0,
           defaultFillCount: defaultDay.liveTrades?.[0]?.fills?.length || 0,
@@ -395,7 +477,11 @@ async function main() {
     });
     const isolationValue = JSON.parse(isolationResult.result?.value || '{}');
     assert.match(isolationValue.nextDateTradeText, /No actual trades recorded/);
+    assert.equal(isolationValue.nextDatePlan, '');
+    assert.equal(isolationValue.nextDateFocus, '');
     assert.match(isolationValue.fundedTradeText, /No actual trades recorded/);
+    assert.equal(isolationValue.fundedPlan, '');
+    assert.equal(isolationValue.fundedFocus, '');
     assert.match(isolationValue.restoredDefaultTradeText, /simulation/);
     assert.match(isolationValue.restoredDefaultTradeText, /ES/);
     assert.equal(isolationValue.defaultTradeCount, 1);

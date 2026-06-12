@@ -818,8 +818,8 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 287: Journal Phase D - Practical Day Review。目标是把 Journal Day 从“能记录交易”推进到“能完整记录一天”：盘前计划/状态、盘中状态、盘后总结、纪律复盘、明日重点；保持表单短、可每日完成。计划见 `v4/sessions/session_20260612_journal_phase_d_plan.md`。
   - [x] Step 287.1: Freeze day-level information architecture：冻结 Journal 页面分区和字段顺序，围绕“盘前计划与状态 / 盘中发生了什么 / 盘后学到什么”三件事组织。已完成：最终分区为 Day Header / Pre-Market / During Session / Actual Trades / Post Session / Discipline Review；Phase D 暂不暴露完整 `disciplineReview` 结构化对象。
-  - [ ] Step 287.2: Journal Day UI reorganization：重排 Journal workspace，增加 Pre-Market、During Session、Post Session、Discipline Review 区块；保留 Actual Trades 独立 section。
-  - [ ] Step 287.3: Day-level field persistence：把 `sessionIntent`、`intradayStateNotes`、`mainMistake`、`bestBehavior`、`nextSessionFocus` 等高价值字段接入当前 `JournalDay`，验证 account/date 不串数据。
+  - [x] Step 287.2: Journal Day UI reorganization：重排 Journal workspace，增加 Pre-Market、During Session、Post Session、Discipline Review 区块；保留 Actual Trades 独立 section。已完成：Journal workspace 按冻结结构渲染 day-level sections，Actual Trades 保持独立。
+  - [x] Step 287.3: Day-level field persistence：把 `sessionIntent`、`intradayStateNotes`、`mainMistake`、`bestBehavior`、`nextSessionFocus` 等高价值字段接入当前 `JournalDay`，验证 account/date 不串数据。已完成：新增字段通过现有 `data-journal-field` debounce path 写入，browser smoke 覆盖重开恢复与 account/date 隔离。
   - [ ] Step 287.4: Minimal discipline review shape：Phase D 已决定先采用 text-first discipline，只保留 `disciplineSummary` 作为主字段；本子步骤后续只需在 UI/docs closeout 中确认没有引入复杂评分系统。
   - [ ] Step 287.5: Browser smoke / regression：覆盖 day-level 字段填写、actual trade/fill、重开恢复、account/date 隔离、切回 Backtesting 图表不破坏。
   - [ ] Step 287.6: Documentation closeout：更新 TODO/session，记录最终字段取舍和验证命令。

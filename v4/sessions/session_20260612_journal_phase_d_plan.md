@@ -152,6 +152,34 @@ Requirements:
 - Avoid nested cards and oversized marketing layout.
 - Keep mobile layout usable.
 
+## Step 287.2 Status
+
+Completed.
+
+Journal workspace now renders the Phase D information architecture:
+
+- Day Header:
+  - account
+  - date
+  - day mode
+- Pre-Market:
+  - pre-market plan
+  - session intent
+  - mental state before
+- During Session:
+  - intraday state notes
+- Actual Trades:
+  - unchanged actual trade list/editor
+- Post Session:
+  - post-market summary
+  - main mistake
+  - best behavior
+  - next-session focus
+- Discipline Review:
+  - discipline summary
+
+Actual Trades remain a distinct section and were not merged into During Session.
+
 ### Step 287.3 - Day-Level Field Persistence
 
 Wire newly visible day-level fields into existing `JournalDay`.
@@ -173,6 +201,36 @@ Requirements:
 - Account/date switching does not leak fields.
 - Refresh/reopen restores all day-level fields.
 - Empty page load does not create unnecessary trade rows.
+
+## Step 287.3 Status
+
+Completed.
+
+Newly visible fields use the existing `data-journal-field` debounce update path and existing `JournalDay` store fields:
+
+- `sessionIntent`
+- `intradayStateNotes`
+- `mainMistake`
+- `bestBehavior`
+- `nextSessionFocus`
+
+Browser smoke now verifies:
+
+- all day-level fields save to `v4:journal:<accountId>`
+- reopening the page restores all day-level fields
+- switching date shows empty day-level fields and no trade leakage
+- switching account shows empty day-level fields and no trade leakage
+- switching back to original account/date restores original day-level fields and trade/fill
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `node v4/tests/journal-actual-trade-examples-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
 
 ### Step 287.4 - Minimal Discipline Review Shape
 

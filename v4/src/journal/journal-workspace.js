@@ -100,9 +100,14 @@ function getActiveJournalDay() {
     accountType: 'real',
     dayMode: 'review_only',
     preMarketPlan: '',
+    sessionIntent: '',
     mentalStateBefore: '',
+    intradayStateNotes: '',
     postMarketSummary: '',
     disciplineSummary: '',
+    mainMistake: '',
+    bestBehavior: '',
+    nextSessionFocus: '',
   };
 }
 
@@ -248,11 +253,11 @@ function makeOptions(options, selectedValue) {
   )).join('');
 }
 
-function makeTextarea({ id, label, value, field }) {
+function makeTextarea({ id, label, value, field, rows = 4 }) {
   return `
     <label class="journal-field" for="${id}">
       <span class="journal-field-title">${label}</span>
-      <textarea id="${id}" data-journal-field="${field}" rows="4">${escapeHtml(value)}</textarea>
+      <textarea id="${id}" data-journal-field="${field}" rows="${rows}">${escapeHtml(value)}</textarea>
     </label>
   `;
 }
@@ -498,7 +503,7 @@ function renderJournalWorkspace() {
         </div>
       </header>
       <section class="journal-section">
-        <h2>Plan / State</h2>
+        <h2>Pre-Market</h2>
         <div class="journal-field-grid">
           ${makeTextarea({
             id: 'journalPreMarketPlan',
@@ -507,10 +512,27 @@ function renderJournalWorkspace() {
             field: 'preMarketPlan',
           })}
           ${makeTextarea({
+            id: 'journalSessionIntent',
+            label: 'Session intent',
+            value: day.sessionIntent,
+            field: 'sessionIntent',
+          })}
+          ${makeTextarea({
             id: 'journalMentalStateBefore',
             label: 'Mental state before',
             value: day.mentalStateBefore,
             field: 'mentalStateBefore',
+          })}
+        </div>
+      </section>
+      <section class="journal-section">
+        <h2>During Session</h2>
+        <div class="journal-field-grid">
+          ${makeTextarea({
+            id: 'journalIntradayStateNotes',
+            label: 'Intraday state notes',
+            value: day.intradayStateNotes,
+            field: 'intradayStateNotes',
           })}
         </div>
       </section>
@@ -524,6 +546,29 @@ function renderJournalWorkspace() {
             value: day.postMarketSummary,
             field: 'postMarketSummary',
           })}
+          ${makeTextarea({
+            id: 'journalMainMistake',
+            label: 'Main mistake',
+            value: day.mainMistake,
+            field: 'mainMistake',
+          })}
+          ${makeTextarea({
+            id: 'journalBestBehavior',
+            label: 'Best behavior',
+            value: day.bestBehavior,
+            field: 'bestBehavior',
+          })}
+          ${makeTextarea({
+            id: 'journalNextSessionFocus',
+            label: 'Next-session focus',
+            value: day.nextSessionFocus,
+            field: 'nextSessionFocus',
+          })}
+        </div>
+      </section>
+      <section class="journal-section">
+        <h2>Discipline Review</h2>
+        <div class="journal-field-grid">
           ${makeTextarea({
             id: 'journalDisciplineSummary',
             label: 'Discipline summary',
