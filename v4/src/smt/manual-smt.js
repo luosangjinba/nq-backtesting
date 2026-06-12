@@ -5,6 +5,7 @@ import * as chart from '../chart/chart-manager.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { identifyFvg } from '../pda/fvg-identifier.js';
@@ -26,16 +27,28 @@ function findSecondaryBar(timestamp) {
   return secondaryStore.getSecondaryDisplayBars().find((bar) => Number(bar.timestamp) === Number(timestamp)) || null;
 }
 
-function assertCanMarkSmt() {
-  if (!secondaryStore.isSecondaryEnabled() || secondaryStore.getSecondaryInstrument() !== 'ES') {
-    throw new Error('SMT requires Split on with Sub=ES');
+export function getSmtDisabledReason({ requireLoadedBars = false } = {}) {
+  if (getPrimaryInstrument() !== 'NQ') {
+    return 'SMT currently supports Main=NQ only';
+  }
+  if (!secondaryStore.isSecondaryEnabled()) {
+    return 'SMT requires Split on with Sub=ES';
+  }
+  if (secondaryStore.getSecondaryInstrument() !== 'ES') {
+    return 'SMT requires Sub=ES';
   }
   if (secondaryStore.getSecondaryTimeframe() !== store.getCurrentTimeframe()) {
-    throw new Error('SMT requires primary TF and Sub TF to match');
+    return 'SMT requires Main TF and Sub TF to match';
   }
-  if (!store.getDisplayBars().length || !secondaryStore.getSecondaryDisplayBars().length) {
-    throw new Error('SMT requires loaded NQ and ES bars');
+  if (requireLoadedBars && (!store.getDisplayBars().length || !secondaryStore.getSecondaryDisplayBars().length)) {
+    return 'SMT requires loaded NQ and ES bars';
   }
+  return '';
+}
+
+function assertCanMarkSmt() {
+  const reason = getSmtDisabledReason({ requireLoadedBars: true });
+  if (reason) throw new Error(reason);
 }
 
 function getDirectionPrice(bar, direction) {
@@ -63,6 +76,8 @@ function createLiquidityRecord(leftBar, rightBar, direction) {
     type: SMT_TYPES.LIQUIDITY,
     direction,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
+    primaryInstrument: 'NQ',
+    compareInstrument: 'ES',
     leftTimestamp: leftBar.timestamp,
     rightTimestamp: rightBar.timestamp,
     primaryLeftPrice: getDirectionPrice(leftBar, direction),
@@ -97,6 +112,8 @@ function createFvgRecord(bar, direction) {
     type: SMT_TYPES.FVG,
     direction,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
+    primaryInstrument: 'NQ',
+    compareInstrument: 'ES',
     timestamp: bar.timestamp,
     fvgStartTimestamp: fvg.startBar.timestamp,
     fvgEndTimestamp: fvg.endBar.timestamp,
@@ -198,4 +215,6 @@ export function initManualSmt() {
   });
   bus.on('bars:loaded', () => clearPickState({ silent: true }));
   bus.on('bars:cleared', () => clearPickState({ silent: true }));
+  bus.on('primary-instrument:changed', () => clearPickState({ silent: true }));
+  bus.on('secondary-chart:settings-changed', () => clearPickState({ silent: true }));
 }

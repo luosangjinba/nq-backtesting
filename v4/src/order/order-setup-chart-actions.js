@@ -5,6 +5,7 @@ import { getAnnotationById } from '../pda/pda-store.js';
 import { getPdaType } from '../pda/pda-types.js';
 import { getSegmentById } from '../segment/segment-store.js';
 import { getSmtRecords } from '../smt/smt-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   createChartReviewSet,
   clearActiveReviewSet,
@@ -47,6 +48,11 @@ function getPdaLabel(annotation) {
 function getSegmentLabel(segment) {
   if (!segment) return 'Segment';
   return getSegmentOrderRefLabel(segment);
+}
+
+function getCurrentMainSmtRecords() {
+  const instrument = getPrimaryInstrument();
+  return getSmtRecords().filter((record) => record.primaryInstrument === instrument);
 }
 
 function getActiveSetupLabel() {
@@ -446,7 +452,7 @@ const ORDER_SETUP_LINK_ACTIONS = Object.freeze({
     label: () => 'Composite linked to active setup',
   },
   'order-setup-link-latest-smt': {
-    getTarget: () => getSmtRecords().at(-1) || null,
+    getTarget: () => getCurrentMainSmtRecords().at(-1) || null,
     buildRef: (smt) => ({
       type: ORDER_REF_TYPES.SMT,
       id: smt.id,
@@ -593,7 +599,7 @@ export function renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGrou
   const pdaDisabled = active && pdaHit ? '' : 'disabled';
   const segmentDisabled = active && segmentHit ? '' : 'disabled';
   const compositeDisabled = active && segmentGroupHit ? '' : 'disabled';
-  const smtDisabled = active && getSmtRecords().length ? '' : 'disabled';
+  const smtDisabled = active && getCurrentMainSmtRecords().length ? '' : 'disabled';
 
   return `
     ${getHitSetupMenuItems(orderSetupHit)}

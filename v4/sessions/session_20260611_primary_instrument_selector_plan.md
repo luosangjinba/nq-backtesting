@@ -319,3 +319,24 @@ Interactions:
 Validation target for the next steps:
 
 - SMT actions still need explicit Main/Sub guard handling in Step 283.7.
+
+## Step 283.7 Status
+
+Completed.
+
+Guard:
+
+- SMT creation now requires `Main=NQ`, `Sub=ES`, matching primary/sub timeframes, and loaded NQ/ES bars.
+- The right-click SMT submenu uses the same guard, disables actions when unsupported, and shows a short reason.
+- Starting a SMT action still revalidates the guard before entering pick mode.
+- Active SMT pick mode clears when Main instrument or secondary chart settings change.
+
+Rendering and linking:
+
+- SMT rendering filters records by current Main instrument and current secondary instrument.
+- Order Setup "Link Latest SMT" only considers SMT records whose primary instrument matches current Main.
+
+Boundary:
+
+- This step preserves the existing first-version rule: NQ follows ES only.
+- ES follows NQ, alternative compare instruments, and generic pair logic remain future work.

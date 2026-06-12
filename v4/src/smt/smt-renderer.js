@@ -10,6 +10,7 @@ import { mapTimestampToChartTime as mapSharedTimestampToChartTime } from '../cha
 import { getSmtRecords, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { timeframeToString } from '../config.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 
 let primaryPrimitives = [];
 let secondaryPrimitives = [];
@@ -37,14 +38,19 @@ function attachSecondary(primitive) {
 }
 
 function shouldRenderOnPrimary(record) {
-  return !record.display?.hidden && record.timeframe === timeframeToString(store.getCurrentTimeframe());
+  return (
+    !record.display?.hidden &&
+    record.primaryInstrument === getPrimaryInstrument() &&
+    record.timeframe === timeframeToString(store.getCurrentTimeframe())
+  );
 }
 
 function shouldRenderOnSecondary(record) {
   return (
     !record.display?.hidden &&
     secondaryStore.isSecondaryEnabled() &&
-    secondaryStore.getSecondaryInstrument() === 'ES' &&
+    record.primaryInstrument === getPrimaryInstrument() &&
+    record.compareInstrument === secondaryStore.getSecondaryInstrument() &&
     record.timeframe === timeframeToString(secondaryStore.getSecondaryTimeframe())
   );
 }
@@ -175,6 +181,7 @@ function renderAll() {
 export function initSmtRenderer() {
   bus.on('smt:changed', renderAll);
   bus.on('display-preferences:changed', renderAll);
+  bus.on('primary-instrument:changed', renderAll);
   bus.on('bars:loaded', renderPrimary);
   bus.on('bars:cleared', clearPrimary);
   bus.on('secondary-bars:loaded', renderSecondary);

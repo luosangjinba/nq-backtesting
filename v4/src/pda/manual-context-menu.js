@@ -6,6 +6,7 @@ import {
   getDraftSegmentGroupChildIds,
   getDraftSegmentGroupTargetId,
 } from '../segment/segment-group-store.js';
+import { getSmtDisabledReason } from '../smt/manual-smt.js';
 
 export function clampMenuPosition(containerEl, x, y) {
   const rect = containerEl.parentElement.getBoundingClientRect();
@@ -204,6 +205,13 @@ export function renderManualContextMenu({
   clearItems,
   submenuDirection = 'right',
 }) {
+  const smtDisabledReason = getSmtDisabledReason();
+  const smtDisabled = disabled || smtDisabledReason ? 'disabled' : '';
+  const smtTitle = smtDisabledReason ? ` title="${smtDisabledReason}"` : '';
+  const smtReasonItem = smtDisabledReason
+    ? `<div class="pda-menu-subtitle">${smtDisabledReason}</div>`
+    : '';
+
   return `
     <div class="pda-menu pda-menu-submenu-${submenuDirection}" style="left: ${left}px; top: ${top}px; max-height: ${maxHeight}px;">
       <div class="pda-menu-title">${timeLabel}</div>
@@ -235,10 +243,11 @@ export function renderManualContextMenu({
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
         <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${disabled}>Start Bearish Liquidity SMT</button>
-        <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${disabled}>Start Bullish Liquidity SMT</button>
-        <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${disabled}>Mark Bearish FVG SMT</button>
-        <button class="pda-menu-item" data-pda-action="smt-fvg-bullish" ${disabled}>Mark Bullish FVG SMT</button>
+        ${smtReasonItem}
+        <button class="pda-menu-item" data-pda-action="smt-liquidity-bearish" ${smtDisabled}${smtTitle}>Start Bearish Liquidity SMT</button>
+        <button class="pda-menu-item" data-pda-action="smt-liquidity-bullish" ${smtDisabled}${smtTitle}>Start Bullish Liquidity SMT</button>
+        <button class="pda-menu-item" data-pda-action="smt-fvg-bearish" ${smtDisabled}${smtTitle}>Mark Bearish FVG SMT</button>
+        <button class="pda-menu-item" data-pda-action="smt-fvg-bullish" ${smtDisabled}${smtTitle}>Mark Bullish FVG SMT</button>
         </div>
       </div>
       ${segmentPdaLinkItems}
