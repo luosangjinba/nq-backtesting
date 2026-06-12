@@ -2,7 +2,7 @@
 
 Branch: `feature/research-databento-data-journal`
 
-Status: Design updated, not fully frozen.
+Status: Phase A frozen for MVP implementation.
 
 ## Context
 
@@ -69,13 +69,15 @@ Rationale:
 
 ## Phase A Status
 
-Phase A is not complete yet.
+Phase A is frozen for MVP implementation.
 
 Current status:
 
 - Decisions have been updated.
 - A1-A7 are written as a detailed design-freeze checklist.
-- The next step is to review A1-A7 and either freeze them or revise specific fields.
+- Step 282.A validation examples have been added to the design document.
+- Step 282.A examples mapped cleanly to the current model.
+- Phase A freeze decision has been written to the design document.
 
 A1-A7:
 
@@ -101,16 +103,37 @@ Updated `v4/TODO.md` Step 282 to point to the new design document and summarize 
 
 Do not start implementation yet.
 
+Step 282.A completed:
+
+- Added concrete validation examples for:
+  - Real-money losing trade that violated plan.
+  - Simulation trade that followed plan.
+  - No-trade day with ideal missed trade.
+  - Mixed real/sim day.
+  - Good result but poor discipline.
+  - Multi-contract trade with partial and final exits.
+- All examples map to the current Journal model.
+- Carry-forward notes:
+  - Keep `unknown` available for discipline checks where live awareness is unclear.
+  - Explain in UI that `failedToTradeWhenShould = yes` should be reserved for opportunities noticed in real time.
+  - Manual PnL/R fields are necessary in MVP.
+  - `fills[]` is enough for partial execution in the first version.
+
+## Phase A Freeze Decision
+
+Frozen decisions:
+
+- `JournalDay` identity is `accountId + date`.
+- Nested trades and ideal trades carry their own `instrument`.
+- Real-money and simulation actual trades share `LiveTradeLog` with `tradeType`.
+- One `LiveTradeLog` represents one trade idea / position lifecycle.
+- `fills[]` records actual executions, including partial and final exits.
+- PnL/size/R fields are manual in MVP.
+- `IdealTradeReview` handles missed-trade cases via `relationshipToActualTrade = missed_trade` and `noticedInRealTime`.
+- Journal is a separate workspace inside the shared `index.html` app shell.
+- No separate duplicated `journal.html` app in MVP.
+
 Next recommended work:
 
-1. Review A1-A7 in `JOURNAL_MVP_DESIGN.md`.
-2. Write concrete validation examples for:
-   - Real-money losing trade that violated plan.
-   - Simulation trade that followed plan.
-   - No-trade day with ideal missed trade.
-   - Mixed real/sim day.
-   - Good result but poor discipline.
-   - Multi-contract trade with partial and final exits.
-3. Freeze Phase A after examples map cleanly to the fields.
-
-Only after that should implementation begin with the app shell/workspace split and minimal Journal Day store.
+1. Commit the Phase A freeze.
+2. Begin Phase B implementation with the app shell/workspace split and minimal Journal Day store.

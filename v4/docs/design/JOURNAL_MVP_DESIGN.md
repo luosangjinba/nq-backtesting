@@ -2,7 +2,7 @@
 
 Date: 2026-06-12
 
-Status: Decision updated, not fully frozen. The current decisions reflect the latest Phase A discussion, but A1-A7 still need final review before implementation.
+Status: Phase A frozen for MVP implementation. The current decisions and validation examples define the implementation boundary for the first Journal slice.
 
 ## Purpose
 
@@ -21,7 +21,7 @@ The main value is honesty and repeatability. The system should make it easy to r
 
 ## Latest Phase A Decisions
 
-These decisions are accepted for the next design pass:
+These decisions are frozen for MVP implementation:
 
 - `JournalDay` is scoped by `accountId + date`, not `instrument + date`.
 - `LiveTradeLog` entries share one list and use `tradeType` to distinguish real-money and simulation trades.
@@ -33,6 +33,33 @@ These decisions are accepted for the next design pass:
 - `IdealTradeReview` distinguishes `hindsight_optimal` from `plan_valid`.
 - Journal is a separate workspace inside the shared `index.html` app shell, not a separate duplicated `journal.html` app.
 - Backtesting and Journal should have a visible boundary while still allowing navigation links between them.
+
+## Phase A Freeze Decision
+
+Phase A is frozen after validating the model against 6 concrete scenarios:
+
+- Real-money losing trade that violated plan.
+- Simulation trade that followed plan.
+- No-trade day with ideal missed trade.
+- Mixed day with one real trade and one simulation trade.
+- Day with good result but poor discipline.
+- Multi-contract trade with partial exit, final exit, manual net PnL, and manual R.
+
+Freeze result:
+
+- The current `JournalDay`, `LiveTradeLog`, `fills[]`, `IdealTradeReview`, and `DisciplineReview` model can represent the target MVP use cases.
+- No standalone `MissedTrade` object is needed in the first version.
+- No separate `journal.html` page is needed in the first version.
+- Manual PnL/R fields are required in MVP.
+- Automatic PnL/R calculation, broker import, and broker reconciliation remain non-goals.
+- Implementation may begin with the shared `index.html` app shell and a minimal Journal workspace.
+
+Carry-forward notes for implementation:
+
+- Keep `unknown` available for discipline checks where live awareness is unclear.
+- UI should explain that `failedToTradeWhenShould = yes` is reserved for opportunities noticed in real time.
+- Trade detail must show `fills[]` clearly enough to record partial exits without splitting one trade into unrelated rows.
+- Journal Day identity is `accountId + date`; nested trades and ideal trades carry their own `instrument`.
 
 ## Core Distinction
 
@@ -549,7 +576,7 @@ Deliverables:
 
 Stop condition:
 
-- The plan is clear enough that implementation can begin without re-debating the purpose of Journal.
+- Completed. The model and UI boundary are frozen for MVP implementation.
 
 #### Phase A Detailed Plan
 
@@ -690,7 +717,7 @@ Acceptance:
 
 ##### A7 - Freeze Validation Examples
 
-Before implementation starts, write 5 manual acceptance examples:
+Before implementation starts, write 6 manual acceptance examples:
 
 - Real-money losing trade that violated plan.
 - Simulation trade that followed plan.
@@ -703,6 +730,378 @@ Acceptance:
 
 - Each example maps to the frozen fields.
 - The examples expose missing fields before coding starts.
+
+#### Step 282.A Validation Examples
+
+These examples test whether the current fields can represent real Journal use without adding new object types.
+
+##### Example 1 - Real-Money Losing Trade That Violated Plan
+
+Scenario:
+
+- Account day is real-money focused.
+- Pre-market plan said only trade after 09:30 liquidity sweep.
+- Trader entered early from FOMO before confirmation.
+- Trade lost money and violated plan.
+
+`JournalDay` mapping:
+
+- `accountId`: `default`
+- `accountType`: `real`
+- `dayMode`: `real_money`
+- `preMarketPlan`: Trade only after sweep plus displacement; no pre-confirmation entry.
+- `mentalStateBefore`: Restless, wanted to recover from prior missed opportunity.
+- `postMarketSummary`: Loss was caused by entering before the planned trigger.
+- `disciplineSummary`: Did not wait for setup; risk was technically respected but decision quality was poor.
+- `mainMistake`: FOMO entry before confirmation.
+- `bestBehavior`: Exited at stop without moving it.
+- `nextSessionFocus`: No entry before planned trigger.
+
+`LiveTradeLog` mapping:
+
+- `tradeType`: `real_money`
+- `instrument`: `NQ`
+- `direction`: `long`
+- `fills`:
+  - entry at 09:27, quantity 1
+  - stop_exit at 09:35, quantity 1
+- `stopLoss`: manual stop price
+- `target`: planned target, if any
+- `result`: loss
+- `positionSize`: 1
+- `plannedRisk`: manual dollar risk
+- `grossPnl`: manual negative value
+- `netPnl`: manual negative value after commissions
+- `rMultipleManual`: manual negative R
+- `beforeEntryThoughts`: Felt price would leave without me.
+- `entryReason`: Premature anticipation, not confirmed setup.
+- `timingAssessment`: `early`
+- `followedPlan`: `no`
+- `ruleBreaks`: Entered before confirmation.
+- `managementNotes`: Held to stop; did not average down.
+- `reflection`: Trade should not have been taken.
+- `whatWasRight`: Stop was accepted.
+- `whatWasWrong`: Entry trigger was ignored.
+
+`IdealTradeReview` mapping:
+
+- Optional. If the valid setup occurred later, add one ideal trade:
+  - `idealType`: `plan_valid`
+  - `relationshipToActualTrade`: `actual_was_early`
+  - `noticedInRealTime`: `yes`
+
+`DisciplineReview` mapping:
+
+- `plannedTradesOnly`: `no`
+- `waitedForSetup`: `no`
+- `respectedRisk`: `yes`
+- `overtraded`: `no`
+- `fomo`: `yes`
+- `revengeTrading`: `no`
+- `tradedWhenShouldNot`: `yes`
+- `disciplineReflection`: The setup was not ready; the loss was behavioral.
+- `oneRuleForTomorrow`: Wait for confirmation before entry.
+
+Field gap:
+
+- No blocking gap. `ruleBreaks` as text is enough for MVP.
+
+##### Example 2 - Simulation Trade That Followed Plan
+
+Scenario:
+
+- Trader chose simulation only.
+- Trade matched pre-market plan and was managed correctly.
+
+`JournalDay` mapping:
+
+- `accountId`: `default`
+- `accountType`: `sim`
+- `dayMode`: `simulation`
+- `preMarketPlan`: Practice one clean reversal setup only.
+- `mentalStateBefore`: Calm, no pressure because this is simulation.
+- `postMarketSummary`: Sim trade matched plan.
+- `disciplineSummary`: Good waiting and execution.
+- `bestBehavior`: Waited for setup instead of anticipating.
+- `nextSessionFocus`: Repeat the same patience with real-money constraints.
+
+`LiveTradeLog` mapping:
+
+- `tradeType`: `simulation`
+- `instrument`: `ES`
+- `direction`: `short`
+- `fills`:
+  - entry at planned trigger
+  - final_exit at target
+- `positionSize`: simulated size
+- `grossPnl`: simulated manual PnL
+- `netPnl`: same or commission-adjusted simulated PnL
+- `rMultipleManual`: manual positive R
+- `entryReason`: Planned setup appeared.
+- `timingAssessment`: `good`
+- `followedPlan`: `yes`
+- `ruleBreaks`: empty
+- `managementNotes`: Target held; no premature exit.
+- `reflection`: Good process; should not be discounted because it was simulation.
+
+`IdealTradeReview` mapping:
+
+- Optional:
+  - `idealType`: `plan_valid`
+  - `relationshipToActualTrade`: `matched_actual`
+  - `noticedInRealTime`: `yes`
+
+`DisciplineReview` mapping:
+
+- `plannedTradesOnly`: `yes`
+- `waitedForSetup`: `yes`
+- `respectedRisk`: `yes`
+- `overtraded`: `no`
+- `fomo`: `no`
+- `disciplineReflection`: Good execution in simulation.
+- `oneRuleForTomorrow`: Keep same decision standard if trading real money.
+
+Field gap:
+
+- No blocking gap.
+
+##### Example 3 - No-Trade Day With Ideal Missed Trade
+
+Scenario:
+
+- Trader did not trade.
+- Post-session review found a valid plan trade.
+- Trader did not notice it live.
+
+`JournalDay` mapping:
+
+- `accountId`: `default`
+- `accountType`: `mixed`
+- `dayMode`: `no_trade`
+- `preMarketPlan`: Observe only unless A+ setup appears.
+- `mentalStateBefore`: Tired; chose to avoid real-money execution.
+- `postMarketSummary`: No live trades; post-session review found one clean opportunity.
+- `disciplineSummary`: No impulsive trades; missed opportunity was not noticed live.
+- `mainMistake`: Low attention during key window.
+- `bestBehavior`: Did not force trades while tired.
+- `nextSessionFocus`: Mark key windows more deliberately.
+
+`LiveTradeLog` mapping:
+
+- None.
+
+`IdealTradeReview` mapping:
+
+- `instrument`: `NQ`
+- `idealType`: `plan_valid`
+- `direction`: `short`
+- `idealEntryTime`: reviewed setup time
+- `idealEntryPrice`: reviewed setup price
+- `idealStopLoss`: reviewed invalidation
+- `idealTarget`: reviewed target
+- `reason`: Valid setup according to plan.
+- `whyThisWasIdeal`: Clean condition with defined risk and target.
+- `relationshipToActualTrade`: `missed_trade`
+- `noticedInRealTime`: `no`
+- `reviewNotes`: This was not a hesitation mistake; it was not seen live.
+
+`DisciplineReview` mapping:
+
+- `plannedTradesOnly`: `yes`
+- `waitedForSetup`: `unknown`
+- `respectedRisk`: `yes`
+- `tradedWhenShouldNot`: `no`
+- `failedToTradeWhenShould`: `no` or `unknown`, because the setup was not noticed live.
+- `disciplineReflection`: Good restraint, but attention process needs work.
+- `oneRuleForTomorrow`: Define alert/checkpoints for key windows.
+
+Field gap:
+
+- `failedToTradeWhenShould` may need clear UI guidance: if not noticed live, use `unknown` instead of `yes`.
+
+##### Example 4 - Mixed Day With One Real Trade And One Simulation Trade
+
+Scenario:
+
+- One real-money trade was taken in the morning.
+- Trader later switched to simulation for practice.
+
+`JournalDay` mapping:
+
+- `accountId`: `default`
+- `accountType`: `mixed`
+- `dayMode`: `mixed`
+- `preMarketPlan`: Real money only for first A+ opportunity; simulation after daily risk is used or focus drops.
+- `mentalStateBefore`: Alert but cautious.
+- `postMarketSummary`: Real trade was acceptable; sim trade was useful practice.
+- `disciplineSummary`: Correctly separated real risk from later practice.
+- `bestBehavior`: Switched to simulation instead of increasing real exposure.
+- `nextSessionFocus`: Keep clear transition rule from real to sim.
+
+`LiveTradeLog` mapping:
+
+- Trade 1:
+  - `tradeType`: `real_money`
+  - `instrument`: `NQ`
+  - real entry/exit fills
+  - manual PnL/R
+  - `followedPlan`: `yes`
+- Trade 2:
+  - `tradeType`: `simulation`
+  - `instrument`: `ES`
+  - simulated entry/exit fills
+  - simulated manual PnL/R
+  - `followedPlan`: `yes` or `partial`
+
+`IdealTradeReview` mapping:
+
+- Optional for either trade.
+
+`DisciplineReview` mapping:
+
+- `plannedTradesOnly`: `yes`
+- `waitedForSetup`: `yes`
+- `respectedRisk`: `yes`
+- `overtraded`: `no`
+- `disciplineReflection`: Good mode separation.
+- `oneRuleForTomorrow`: Keep simulation clearly labeled after real-money limit.
+
+Field gap:
+
+- No blocking gap. The shared `LiveTradeLog` with `tradeType` handles mixed days.
+
+##### Example 5 - Good Result But Poor Discipline
+
+Scenario:
+
+- Trade made money.
+- Entry was impulsive and outside plan.
+- Result should not be treated as good process.
+
+`JournalDay` mapping:
+
+- `accountId`: `default`
+- `accountType`: `real`
+- `dayMode`: `real_money`
+- `postMarketSummary`: Positive PnL but poor execution quality.
+- `disciplineSummary`: Result was lucky; process was not acceptable.
+- `mainMistake`: Rewarded bad entry with a good outcome.
+- `bestBehavior`: Took profits instead of adding risk.
+- `nextSessionFocus`: Grade process separately from PnL.
+
+`LiveTradeLog` mapping:
+
+- `tradeType`: `real_money`
+- `instrument`: `NQ`
+- `direction`: `long`
+- `fills`:
+  - entry
+  - final_exit
+- `grossPnl`: positive manual value
+- `netPnl`: positive manual value
+- `rMultipleManual`: positive manual R
+- `entryReason`: Impulsive entry, not plan-valid.
+- `timingAssessment`: `unnecessary` or `early`
+- `followedPlan`: `no`
+- `ruleBreaks`: Took trade without valid setup.
+- `reflection`: PnL was positive, but behavior should not be repeated.
+- `whatWasRight`: Exited without overstaying.
+- `whatWasWrong`: Entry did not meet criteria.
+
+`IdealTradeReview` mapping:
+
+- If a valid trade existed:
+  - `idealType`: `plan_valid`
+  - `relationshipToActualTrade`: `actual_was_early` or `actual_wrong_direction`
+  - `noticedInRealTime`: `unsure`
+
+`DisciplineReview` mapping:
+
+- `plannedTradesOnly`: `no`
+- `waitedForSetup`: `no`
+- `respectedRisk`: `partial`
+- `overtraded`: `no`
+- `fomo`: `yes`
+- `tradedWhenShouldNot`: `yes`
+- `disciplineReflection`: Winning trade still counts as a discipline failure.
+- `oneRuleForTomorrow`: Do not let PnL override process grade.
+
+Field gap:
+
+- No blocking gap. Manual PnL plus discipline fields allow "profitable but bad" records.
+
+##### Example 6 - Multi-Contract Trade With Partial And Final Exit
+
+Scenario:
+
+- Real-money trade with two contracts.
+- First contract exits at partial target.
+- Second contract exits later.
+- PnL and R are manually recorded.
+
+`JournalDay` mapping:
+
+- `accountId`: `default`
+- `accountType`: `real`
+- `dayMode`: `real_money`
+- `preMarketPlan`: One planned setup with two-contract management allowed.
+- `postMarketSummary`: Trade management followed the partial/final plan.
+- `disciplineSummary`: Good management; no emotional exits.
+- `bestBehavior`: Took partial according to plan and held runner.
+- `nextSessionFocus`: Keep partial/final plan written before entry.
+
+`LiveTradeLog` mapping:
+
+- `tradeType`: `real_money`
+- `instrument`: `ES`
+- `direction`: `short`
+- `fills`:
+  - `entry`, time 09:45, price A, quantity 2
+  - `partial_exit`, time 10:05, price B, quantity 1, reason target 1
+  - `final_exit`, time 10:38, price C, quantity 1, reason target 2 or manual exit
+- `positionSize`: 2
+- `plannedRisk`: manual total planned risk
+- `riskPerContract`: manual per-contract risk
+- `grossPnl`: manual gross result
+- `netPnl`: manual net result
+- `rMultipleManual`: manual R
+- `commissions`: manual commissions
+- `managementNotes`: Partial and runner matched plan.
+- `timingAssessment`: `good`
+- `followedPlan`: `yes`
+- `reflection`: Management plan was clear before entry.
+
+`IdealTradeReview` mapping:
+
+- Optional:
+  - `idealType`: `plan_valid`
+  - `relationshipToActualTrade`: `matched_actual`
+  - `noticedInRealTime`: `yes`
+
+`DisciplineReview` mapping:
+
+- `plannedTradesOnly`: `yes`
+- `waitedForSetup`: `yes`
+- `respectedRisk`: `yes`
+- `overtraded`: `no`
+- `disciplineReflection`: Good execution and management.
+- `oneRuleForTomorrow`: Continue defining partial/final plan before entry.
+
+Field gap:
+
+- No blocking gap for MVP.
+- Future improvement: optional automatic derived PnL/R from fills, but manual fields are enough for first use.
+
+#### Step 282.A Result
+
+All 6 validation examples map to the current model.
+
+Field/design adjustments to carry forward:
+
+- Keep `unknown` available for discipline checks where live awareness is unclear.
+- Explain in UI that `failedToTradeWhenShould = yes` should be reserved for opportunities noticed in real time.
+- Manual PnL/R fields are necessary in MVP, especially for partial/final exits.
+- `fills[]` is sufficient for partial execution without creating separate trade objects.
 
 ### Phase B - Minimal Daily Journal
 
