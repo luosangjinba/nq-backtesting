@@ -227,6 +227,39 @@ Possible low-risk changes:
 
 Do not add new trade fields in this step.
 
+## Step 288.4 Status
+
+Completed.
+
+Changes:
+
+- Reduced Actual Trades list gap.
+- Reduced expanded trade detail padding and grid gaps.
+- Reduced Reflection textarea minimum height.
+- Reduced fill editor gap, fill list gap, fill row gap, and fill row padding.
+- Improved mobile collapsed trade row from one-column summary to two-column summary.
+
+No schema or field changes were made.
+
+Post-change audit metrics:
+
+- Desktop expanded page height improved from about `1494px` to `1467px`.
+- Actual Trades expanded section improved from about `494px` to `467px`.
+- Expanded trade detail improved from about `422px` to `395px`.
+- Small-screen page height improved from about `1641px` to `1575px`.
+- Small-screen Actual Trades collapsed section improved from about `182px` to `116px`.
+- Small-screen collapsed trade summary improved from about `144px` to `78px`.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `node v4/tests/journal-actual-trade-examples-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 288.5 - Browser Smoke / Regression
 
 Run the standard Journal and Backtesting smoke set.

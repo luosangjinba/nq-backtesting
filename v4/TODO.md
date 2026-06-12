@@ -828,7 +828,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 288.1: Browser usability audit：用真实页面检查首屏、字段顺序、文本框高度、Actual Trades 展开后的占用、header 控制和小屏布局，并在 session 记录审计结果。已完成：桌面 collapsed/expanded 与 390px 小屏审计已记录；must fix 为日期导航、短字段高度压缩、小屏密度改善。
   - [x] Step 288.2: Quick navigation controls：评估并按需添加 Today / Previous day / Next day，复用现有 `activeDate` 路径，不创建空 trade。已完成：Day Header 日期旁增加 Previous / Next / Today，browser smoke 覆盖 Next/Previous 日期切换和 account/date 隔离。
   - [x] Step 288.3: Textarea ergonomics：调优 day-level textarea 高度，短字段更短、长字段更适合记录，保留显式 label。已完成：short fields 降到 68px，long fields 保持 112px；桌面 collapsed 高度约 `1160 -> 1072`，小屏高度约 `1804 -> 1641`。
-  - [ ] Step 288.4: Actual Trades usability：检查并按需压缩 expanded trade editor、fill editor 和 row summary，不新增 trade 字段。
+  - [x] Step 288.4: Actual Trades usability：检查并按需压缩 expanded trade editor、fill editor 和 row summary，不新增 trade 字段。已完成：压缩 trade detail/fill spacing 和 Reflection 高度；mobile collapsed trade row 约 `144px -> 78px`，expanded detail 约 `422px -> 395px`。
   - [ ] Step 288.5: Browser smoke / regression：复跑 Journal 和 Backtesting smoke，必要时扩展日期导航相关覆盖。
   - [ ] Step 288.6: Documentation closeout：更新 TODO/session，记录改动、未改动项和验证命令。
 
