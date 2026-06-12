@@ -107,6 +107,29 @@ Note:
 
 Verify Main=NQ and Main=ES can load chart data and Daily Regime lookup returns current Main instrument data.
 
+## Step 284.5 Status
+
+Completed.
+
+Updated `v4/tests/primary-instrument-browser-smoke.js`.
+
+Browser/API coverage:
+
+- Uses a fresh temporary Chrome profile per run and disables browser cache.
+- Loads the real V4 page.
+- Switches Main to `ES`.
+- Fetches NQ and ES bars through the frontend API.
+- Sets ES bars into the primary bar store and emits `bars:loaded`.
+- Verifies ES Daily Regime has shared VIX from `vix-daily.csv`.
+- Verifies ES Daily Regime has trend/range from `daily-regime-es.csv`.
+- Confirms primary chart canvas still renders.
+
+Validation:
+
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/daily-regime-loader-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+
 ### Step 284.6 - Documentation Closeout
 
 Update user docs to state that VIX is shared, while trend/range regime follows Main instrument.

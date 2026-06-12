@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { rm } from 'node:fs/promises';
 import http from 'node:http';
 
 const CHROME_BIN = process.env.CHROME_BIN || 'google-chrome';
 const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9339);
 const PAGE_URL = process.env.V4_PAGE_URL || 'http://127.0.0.1:8001/index.html';
-const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || '/tmp/v4-primary-instrument-browser-smoke-profile';
+const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || `/tmp/v4-primary-instrument-browser-smoke-profile-${process.pid}`;
 
 function getJson(url) {
   return new Promise((resolve, reject) => {
@@ -89,6 +90,17 @@ function createCdpClient(webSocketDebuggerUrl) {
   };
 }
 
+function waitForProcessExit(child, timeoutMs = 2_000) {
+  if (child.exitCode !== null || child.signalCode !== null) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timeout = setTimeout(resolve, timeoutMs);
+    child.once('exit', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
+  });
+}
+
 async function main() {
   const chrome = spawn(CHROME_BIN, [
     '--headless=new',
@@ -107,6 +119,8 @@ async function main() {
     await client.open();
     await client.send('Runtime.enable');
     await client.send('Page.enable');
+    await client.send('Network.enable');
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
     await client.send('Page.navigate', { url: PAGE_URL });
     await new Promise((resolve) => setTimeout(resolve, 1_500));
 
@@ -115,6 +129,9 @@ async function main() {
         try {
           const api = await import('/src/api.js');
           const primary = await import('/src/data/primary-instrument-store.js');
+          const store = await import('/src/data/bar-store.js');
+          const bus = await import('/src/event-bus.js');
+          const dailyRegime = await import('/src/daily-regime/daily-regime-store.js');
           const deadline = Date.now() + 5_000;
           while (!document.querySelector('#primaryInstrumentSelect') && Date.now() < deadline) {
             await new Promise((resolve) => setTimeout(resolve, 100));
@@ -127,6 +144,22 @@ async function main() {
             api.fetchBars('2024-01-08 09:30', '2024-01-08 11:00', 60, 'NQ'),
             api.fetchBars('2024-01-08 09:30', '2024-01-08 11:00', 60, 'ES'),
           ]);
+          const regimePromise = new Promise((resolve) => {
+            const handleChanged = () => {
+              const nextRegime = dailyRegime.getDailyRegimeByDate('2024-01-08', 'ES');
+              if (nextRegime.vixClose !== null) {
+                bus.off('daily-regime:changed', handleChanged);
+                resolve(nextRegime);
+              }
+            };
+            bus.on('daily-regime:changed', handleChanged);
+            setTimeout(() => {
+              bus.off('daily-regime:changed', handleChanged);
+              resolve(dailyRegime.getDailyRegimeByDate('2024-01-08', 'ES'));
+            }, 8_000);
+          });
+          store.setBars(es.bars, '2024-01-08 09:30', '2024-01-08 11:00', 60, es.requestedRange, { instrument: 'ES' });
+          const esRegime = await regimePromise;
           return JSON.stringify({
             error: '',
             options: Array.from(select.options).map((option) => option.value),
@@ -134,6 +167,10 @@ async function main() {
             primaryInstrument: primary.getPrimaryInstrument(),
             nqBars: Array.isArray(nq.bars) ? nq.bars.length : 0,
             esBars: Array.isArray(es.bars) ? es.bars.length : 0,
+            esVixClose: esRegime.vixClose,
+            esTrendClose: esRegime.trendClose,
+            esTrendRegime: esRegime.trendRegime,
+            esRangeRegime: esRegime.rangeRegime,
             hasCanvas: Boolean(document.querySelector('#chart canvas')),
           });
         } catch (error) {
@@ -153,10 +190,21 @@ async function main() {
     assert.equal(value.primaryInstrument, 'ES');
     assert.ok(value.nqBars > 0, 'NQ bars should load through frontend API');
     assert.ok(value.esBars > 0, 'ES bars should load through frontend API');
+    assert.equal(value.esVixClose, 13.08, 'ES Daily Regime should use shared VIX');
+    assert.equal(value.esTrendClose, 4798, 'ES Daily Regime should use ES trend/range CSV');
+    assert.equal(value.esTrendRegime, 'bull_trend');
+    assert.equal(value.esRangeRegime, 'large_range');
     assert.equal(value.hasCanvas, true, 'primary chart canvas should render');
   } finally {
     client?.close();
     chrome.kill('SIGTERM');
+    await waitForProcessExit(chrome);
+    await rm(PROFILE_DIR, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    }).catch(() => {});
   }
 }
 
