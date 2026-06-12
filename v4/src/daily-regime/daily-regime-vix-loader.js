@@ -13,6 +13,7 @@ import { applyEconomicEventRegimes, applyEventRegimes } from './daily-regime-eve
 const VIX_DAILY_CSV_PATH = 'data/vix-daily.csv';
 const DAILY_REGIME_CSV_PATH_BY_INSTRUMENT = Object.freeze({
   NQ: 'data/daily-regime-nq.csv',
+  ES: 'data/daily-regime-es.csv',
 });
 
 let requestSeq = 0;
@@ -110,7 +111,15 @@ async function getDailyTrendRangeData(instrument = DEFAULT_DAILY_REGIME_INSTRUME
   }
 
   const response = await fetch(path);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) {
+    const empty = new Map();
+    trendRangeCacheByInstrument.set(normalizedInstrument, empty);
+    bus.emit('status:update', {
+      text: `Daily regime trend/range unavailable for ${normalizedInstrument}`,
+      isError: false,
+    });
+    return empty;
+  }
   const parsed = parseDailyTrendRangeCsv(await response.text());
   trendRangeCacheByInstrument.set(normalizedInstrument, parsed);
   return parsed;
@@ -170,6 +179,10 @@ function refreshDailyRegimeEventTags() {
 export function initDailyRegimeVixLoader() {
   bus.on('bars:loaded', loadDailyRegimesForBars);
   bus.on('economic-calendar:changed', refreshDailyRegimeEventTags);
+  bus.on('primary-instrument:changed', () => {
+    requestSeq += 1;
+    clearDailyRegimes();
+  });
   bus.on('bars:cleared', () => {
     requestSeq += 1;
     clearDailyRegimes();

@@ -58,6 +58,22 @@ Validation:
 
 Update the Daily Regime loader so `Main=ES` reads `data/daily-regime-es.csv` while VIX remains shared.
 
+## Step 284.3 Status
+
+Completed.
+
+Implemented:
+
+- `bar-store.setBars()` now includes current Main instrument in the `bars:loaded` payload.
+- `daily-regime-vix-loader.js` maps `ES` to `data/daily-regime-es.csv`.
+- Missing instrument trend/range CSV files return an empty map and do not block shared VIX loading.
+- Main instrument changes clear the in-memory Daily Regime layer so stale NQ/ES regimes are not shown while a new Main reload is pending.
+
+Boundary:
+
+- VIX stays shared through `data/vix-daily.csv`.
+- Trend/range remains instrument-specific by CSV file.
+
 ### Step 284.4 - Smoke Tests
 
 Add targeted smoke coverage for NQ and ES daily trend/range parsing/loading behavior.

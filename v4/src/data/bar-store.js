@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import { DEFAULT_TIMEFRAME } from '../config.js';
+import { getPrimaryInstrument } from './primary-instrument-store.js';
 
 let bars = [];
 let currentStart = null;
@@ -18,6 +19,7 @@ function deriveDisplayBars(sourceBars, range) {
 }
 
 export function setBars(newBars, start, end, tf, range = null, options = {}) {
+  const instrument = options.instrument || getPrimaryInstrument();
   bars = newBars;
   currentStart = start;
   currentEnd = end;
@@ -32,6 +34,7 @@ export function setBars(newBars, start, end, tf, range = null, options = {}) {
     tf,
     requestedRange: range,
     requestedOuterRange,
+    instrument,
     isWindowedRange: Boolean(requestedOuterRange),
   });
 }
