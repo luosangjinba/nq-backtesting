@@ -56,7 +56,7 @@ If a field does not help answer one of these, it should not be added in Phase D.
 
 Define the Journal Day sections and field order.
 
-Proposed layout:
+Frozen layout:
 
 - Day Header:
   - account
@@ -68,7 +68,9 @@ Proposed layout:
   - mental state before
 - During Session:
   - intraday state notes
-  - actual trades
+- Actual Trades:
+  - keep as its own section, placed after During Session
+  - do not merge into During Session, because trades have their own lifecycle and fill editor
 - Post Session:
   - post-market summary
   - discipline summary
@@ -76,13 +78,67 @@ Proposed layout:
   - best behavior
   - next-session focus
 - Discipline Review:
-  - first version should stay text-first unless a small set of toggles is clearly useful.
+  - Phase D stays text-first
+  - do not expose structured discipline toggles yet
 
 Requirements:
 
 - Keep the page short enough to complete daily.
 - Do not expose every existing schema field just because it exists.
 - Keep Actual Trades as a distinct section.
+
+## Step 287.1 Status
+
+Completed.
+
+The Journal Day information architecture is frozen for Phase D.
+
+Final page sections:
+
+- Day Header
+- Pre-Market
+- During Session
+- Actual Trades
+- Post Session
+- Discipline Review
+
+Fields shown in Phase D:
+
+- `accountId`
+- `date`
+- `dayMode`
+- `preMarketPlan`
+- `sessionIntent`
+- `mentalStateBefore`
+- `intradayStateNotes`
+- `liveTrades`
+- `postMarketSummary`
+- `disciplineSummary`
+- `mainMistake`
+- `bestBehavior`
+- `nextSessionFocus`
+
+Fields intentionally not shown in Phase D:
+
+- `idealTrades`
+- full `disciplineReview` structured object
+- automatic score or grading fields
+- broker/order import fields
+- chart object linking fields
+- trade statistics fields
+
+Discipline decision:
+
+- Keep discipline text-first in Phase D.
+- `disciplineSummary` is the primary discipline field.
+- Do not add planned-trades-only / respected-risk / overtraded controls yet.
+- Revisit structured discipline controls only after using the text-first version for several sessions.
+
+Rationale:
+
+- Phase D should be quick enough to complete every day.
+- Actual Trades remain distinct from During Session because they have their own expanded editor and fills.
+- The visible fields map to the three practical questions: plan/state before trading, what happened during trading, and what should change after trading.
 
 ### Step 287.2 - Journal Day UI Reorganization
 
