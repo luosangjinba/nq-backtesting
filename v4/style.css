@@ -160,13 +160,39 @@ html, body {
   padding: 0 8px;
 }
 
+.journal-date-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.journal-date-field {
+  min-width: 284px;
+}
+
+.journal-date-control input {
+  min-width: 132px;
+}
+
+.journal-today-button {
+  flex: 0 0 auto;
+}
+
 .journal-field textarea {
   width: 100%;
-  min-height: 112px;
   padding: 8px;
   resize: vertical;
   line-height: 1.45;
   font-size: var(--ui-font-size);
+}
+
+.journal-textarea-short {
+  min-height: 68px;
+}
+
+.journal-textarea-long {
+  min-height: 112px;
 }
 
 .journal-field-title {
@@ -396,6 +422,25 @@ html, body {
   .journal-trade-grid,
   .journal-fill-row {
     grid-template-columns: 1fr;
+  }
+
+  .journal-date-control {
+    align-items: stretch;
+  }
+
+  .journal-date-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .journal-date-control input {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .journal-date-control .journal-icon-button,
+  .journal-date-control .journal-action-button {
+    flex: 0 0 auto;
   }
 }
 

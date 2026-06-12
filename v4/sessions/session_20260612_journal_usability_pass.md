@@ -175,6 +175,45 @@ Requirements:
 - Preserve visible labels.
 - Keep mobile usable.
 
+## Step 288.2 / 288.3 Status
+
+Completed.
+
+Date navigation changes:
+
+- Added Previous day, Next day, and Today controls beside the Journal date input.
+- All controls reuse the same `activeDate` update path.
+- Date navigation clears expanded trade state but does not create trades.
+- Browser smoke covers:
+  - Next day from `2026-06-12` to `2026-06-13`
+  - empty day-level fields on the next date
+  - no trade leakage on the next date
+  - account switch isolation
+  - Previous day back to `2026-06-12`
+  - original day-level fields and trade/fill restored
+
+Textarea ergonomics changes:
+
+- Short fields now use a compact textarea height:
+  - session intent
+  - mental state before
+  - main mistake
+  - best behavior
+  - next-session focus
+- Long fields keep the larger textarea height:
+  - pre-market plan
+  - intraday state notes
+  - post-market summary
+  - discipline summary
+
+Post-change audit metrics:
+
+- Desktop collapsed page height improved from about `1160px` to `1072px`.
+- Desktop expanded page height improved from about `1582px` to `1494px`.
+- Small-screen page height improved from about `1804px` to `1641px`.
+- Small-screen first viewport now reaches Actual Trades instead of stopping at During Session.
+- Small-screen header increased versus pre-navigation baseline because of the new date controls, but a follow-up CSS fix kept the date navigation on one line and reduced header height from `248px` to `216px`.
+
 ### Step 288.4 - Actual Trades Usability
 
 Review whether the expanded actual trade editor is too visually heavy.

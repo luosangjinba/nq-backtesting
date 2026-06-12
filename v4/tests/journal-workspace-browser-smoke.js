@@ -430,10 +430,10 @@ async function main() {
           return document.querySelector(selector);
         };
 
-        const dateInput = await waitForSelector('#journalDateInput');
-        dateInput.value = '2026-06-13';
-        dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        const nextDateButton = await waitForSelector('[data-journal-date-shift="1"]');
+        nextDateButton.click();
         await wait(250);
+        const nextDateValue = document.querySelector('#journalDateInput')?.value || '';
         const nextDateTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
         const nextDatePlan = document.querySelector('#journalPreMarketPlan')?.value || '';
         const nextDateFocus = document.querySelector('#journalNextSessionFocus')?.value || '';
@@ -450,10 +450,10 @@ async function main() {
         restoredAccountInput.value = 'default';
         restoredAccountInput.dispatchEvent(new Event('change', { bubbles: true }));
         await wait(250);
-        const restoredDateInput = await waitForSelector('#journalDateInput');
-        restoredDateInput.value = '2026-06-12';
-        restoredDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        const previousDateButton = await waitForSelector('[data-journal-date-shift="-1"]');
+        previousDateButton.click();
         await wait(250);
+        const restoredDateValue = document.querySelector('#journalDateInput')?.value || '';
         const restoredDefaultTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
 
         const defaultPayload = JSON.parse(localStorage.getItem('v4:journal:default') || '{}');
@@ -461,12 +461,14 @@ async function main() {
         const defaultDay = defaultPayload.journalDays?.find((day) => day.date === '2026-06-12') || {};
         const fundedDay = fundedPayload.journalDays?.find((day) => day.date === '2026-06-13') || {};
         return JSON.stringify({
+          nextDateValue,
           nextDateTradeText,
           nextDatePlan,
           nextDateFocus,
           fundedTradeText,
           fundedPlan,
           fundedFocus,
+          restoredDateValue,
           restoredDefaultTradeText,
           defaultTradeCount: defaultDay.liveTrades?.length || 0,
           defaultFillCount: defaultDay.liveTrades?.[0]?.fills?.length || 0,
@@ -480,12 +482,14 @@ async function main() {
       returnByValue: true,
     });
     const isolationValue = JSON.parse(isolationResult.result?.value || '{}');
+    assert.equal(isolationValue.nextDateValue, '2026-06-13');
     assert.match(isolationValue.nextDateTradeText, /No actual trades recorded/);
     assert.equal(isolationValue.nextDatePlan, '');
     assert.equal(isolationValue.nextDateFocus, '');
     assert.match(isolationValue.fundedTradeText, /No actual trades recorded/);
     assert.equal(isolationValue.fundedPlan, '');
     assert.equal(isolationValue.fundedFocus, '');
+    assert.equal(isolationValue.restoredDateValue, '2026-06-12');
     assert.match(isolationValue.restoredDefaultTradeText, /simulation/);
     assert.match(isolationValue.restoredDefaultTradeText, /ES/);
     assert.equal(isolationValue.defaultTradeCount, 1);

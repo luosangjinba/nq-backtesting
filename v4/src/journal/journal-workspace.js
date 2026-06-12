@@ -69,6 +69,19 @@ function normalizeDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : todayDateKey();
 }
 
+function shiftDate(date, deltaDays) {
+  const [year, month, day] = normalizeDate(date).split('-').map(Number);
+  const nextDate = new Date(Date.UTC(year, month - 1, day + deltaDays));
+  return nextDate.toISOString().slice(0, 10);
+}
+
+function setActiveDate(date) {
+  activeDate = normalizeDate(date);
+  expandedTradeId = '';
+  writeLocalValue(DATE_STORAGE_KEY, activeDate);
+  renderJournalWorkspace();
+}
+
 function readLocalValue(key, fallback) {
   try {
     return localStorage.getItem(key) || fallback;
@@ -253,11 +266,15 @@ function makeOptions(options, selectedValue) {
   )).join('');
 }
 
-function makeTextarea({ id, label, value, field, rows = 4 }) {
+function makeTextarea({ id, label, value, field, size = 'long' }) {
   return `
     <label class="journal-field" for="${id}">
       <span class="journal-field-title">${label}</span>
-      <textarea id="${id}" data-journal-field="${field}" rows="${rows}">${escapeHtml(value)}</textarea>
+      <textarea
+        id="${id}"
+        class="journal-textarea-${escapeHtml(size)}"
+        data-journal-field="${field}"
+      >${escapeHtml(value)}</textarea>
     </label>
   `;
 }
@@ -492,9 +509,14 @@ function renderJournalWorkspace() {
             <span>Account</span>
             <input id="journalAccountInput" type="text" value="${escapeHtml(activeAccountId)}" autocomplete="off" />
           </label>
-          <label class="journal-control" for="journalDateInput">
+          <label class="journal-control journal-date-field" for="journalDateInput">
             <span>Date</span>
-            <input id="journalDateInput" type="date" value="${escapeHtml(activeDate)}" />
+            <span class="journal-date-control">
+              <button type="button" class="journal-icon-button" data-journal-date-shift="-1" title="Previous day">&lsaquo;</button>
+              <input id="journalDateInput" type="date" value="${escapeHtml(activeDate)}" />
+              <button type="button" class="journal-icon-button" data-journal-date-shift="1" title="Next day">&rsaquo;</button>
+              <button type="button" class="journal-action-button journal-today-button" id="journalTodayButton">Today</button>
+            </span>
           </label>
           <label class="journal-control" for="journalDayModeSelect">
             <span>Day Mode</span>
@@ -516,12 +538,14 @@ function renderJournalWorkspace() {
             label: 'Session intent',
             value: day.sessionIntent,
             field: 'sessionIntent',
+            size: 'short',
           })}
           ${makeTextarea({
             id: 'journalMentalStateBefore',
             label: 'Mental state before',
             value: day.mentalStateBefore,
             field: 'mentalStateBefore',
+            size: 'short',
           })}
         </div>
       </section>
@@ -551,18 +575,21 @@ function renderJournalWorkspace() {
             label: 'Main mistake',
             value: day.mainMistake,
             field: 'mainMistake',
+            size: 'short',
           })}
           ${makeTextarea({
             id: 'journalBestBehavior',
             label: 'Best behavior',
             value: day.bestBehavior,
             field: 'bestBehavior',
+            size: 'short',
           })}
           ${makeTextarea({
             id: 'journalNextSessionFocus',
             label: 'Next-session focus',
             value: day.nextSessionFocus,
             field: 'nextSessionFocus',
+            size: 'short',
           })}
         </div>
       </section>
@@ -621,9 +648,7 @@ function bindJournalWorkspace() {
       return;
     }
     if (event.target?.id === 'journalDateInput') {
-      activeDate = normalizeDate(event.target.value);
-      writeLocalValue(DATE_STORAGE_KEY, activeDate);
-      renderJournalWorkspace();
+      setActiveDate(event.target.value);
       return;
     }
     if (event.target?.id === 'journalAccountInput') {
@@ -635,6 +660,15 @@ function bindJournalWorkspace() {
     }
   });
   root.addEventListener('click', (event) => {
+    if (event.target?.id === 'journalTodayButton') {
+      setActiveDate(todayDateKey());
+      return;
+    }
+    const dateShift = event.target?.dataset?.journalDateShift;
+    if (dateShift) {
+      setActiveDate(shiftDate(activeDate, Number(dateShift)));
+      return;
+    }
     const addFillTradeId = event.target?.dataset?.journalAddFill;
     if (addFillTradeId) {
       addFill(addFillTradeId);
