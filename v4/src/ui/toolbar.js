@@ -7,6 +7,7 @@ import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as secondaryChartManager from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
+import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
@@ -157,7 +158,14 @@ function renderSplitScreenControls() {
 }
 
 function renderPrimaryTimeframeControls() {
+  const instrument = getPrimaryInstrument();
   return `
+    <div class="toolbar-group">
+      <span class="toolbar-label">Main:</span>
+      <select id="primaryInstrumentSelect" class="toolbar-select" title="Primary chart instrument">
+        ${renderInstrumentOptions(instrument)}
+      </select>
+    </div>
     <div class="toolbar-group">
       <span class="toolbar-label">Main TF:</span>
       <select id="tfSelect" class="toolbar-select" title="Primary chart timeframe">
@@ -237,6 +245,7 @@ export function initToolbar() {
 
   const startInput = document.getElementById('startInput');
   const endInput = document.getElementById('endInput');
+  const primaryInstrumentSelect = document.getElementById('primaryInstrumentSelect');
   const tfSelect = document.getElementById('tfSelect');
   const dateRangeBtn = document.getElementById('dateRangeBtn');
   const archiveBtn = document.getElementById('archiveBtn');
@@ -277,6 +286,15 @@ export function initToolbar() {
         e.target.value = formatted;
       }
     });
+  });
+
+  primaryInstrumentSelect.addEventListener('change', () => {
+    const instrument = setPrimaryInstrument(primaryInstrumentSelect.value);
+    primaryInstrumentSelect.value = instrument;
+    bus.emit('status:update', { text: `Main ${instrument}`, isError: false });
+    if (store.getBars().length > 0) {
+      handleLoad();
+    }
   });
 
   tfSelect.addEventListener('change', () => {
@@ -330,6 +348,10 @@ export function initToolbar() {
   });
   bus.on('history:changed', updateHistoryButtons);
   bus.on('secondary-chart:settings-changed', syncSplitScreenLayout);
+  bus.on('primary-instrument:changed', ({ instrument }) => {
+    const select = document.getElementById('primaryInstrumentSelect');
+    if (select) select.value = instrument;
+  });
   bus.on('display-preferences:changed', renderSettingsPopover);
   document.addEventListener('click', closeSettingsPopover);
   window.addEventListener('keydown', (e) => {
@@ -456,6 +478,7 @@ async function handleLoad() {
   const start = startEl.value;
   const end = endEl.value;
   const tf = parseInt(document.getElementById('tfSelect').value);
+  const instrument = getPrimaryInstrument();
 
   if (!start || !end) {
     bus.emit('status:update', { text: 'Choose a date range first', isError: true });
@@ -471,7 +494,7 @@ async function handleLoad() {
   bus.emit('status:update', { text: 'Loading...', isError: false });
 
   try {
-    const result = await fetchBars(loadRange.start, loadRange.end, tf);
+    const result = await fetchBars(loadRange.start, loadRange.end, tf, instrument);
     store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
       outerRange: loadRange.outerRange,
     });

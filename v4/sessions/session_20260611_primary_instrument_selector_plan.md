@@ -202,3 +202,24 @@ Completed. The execution boundary is frozen in this file:
 - ES must support ordinary primary-chart review workflows.
 - Other instruments require data/config/rules before they are product-supported.
 - Current SMT remains limited to `Main=NQ, Sub=ES`.
+
+## Step 283.2 Status
+
+Completed.
+
+Changes:
+
+- Added `v4/src/data/primary-instrument-store.js`.
+- Added `DEFAULT_PRIMARY_INSTRUMENT = 'NQ'`.
+- Initialized primary instrument state during app startup.
+- Toolbar now shows `Main: NQ / ES`.
+- Toolbar primary chart loads call `/v4/bars` with the selected Main instrument.
+- Primary chart context now reports the selected Main instrument instead of hardcoded NQ.
+
+Remaining for Step 283.3:
+
+- Calendar jump.
+- Replay restore and replay history.
+- Viewport window navigation.
+- Time Reaction timeframe reload.
+- Other primary fetch paths that still rely on default `fetchBars(..., 'NQ')`.

@@ -803,7 +803,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
-  - [ ] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。
+  - [x] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。已新增 `primary-instrument-store`，Toolbar `Main` 下拉可选择 NQ/ES，Toolbar 主图加载使用当前 Main instrument，chart context 返回当前 Main instrument；其他主图加载路径留给 Step 283.3。
   - [ ] Step 283.3: 主图数据加载路径接入 instrument：所有主图 `fetchBars` / Calendar jump / Replay load / history restore / price lookup / auto-exit time 请求都使用当前 primary instrument；保持副图 instrument 独立。
   - [ ] Step 283.4: 对象 store 与 persistence 按 instrument 分区：PDA、Segment、Chart Notes、Daily Time Review/Bias、Order Setup、display mode、visibility、economic event notes、Replay history 等不再固定写入 `...:NQ` 或硬过滤 NQ；选择方案优先保证旧 NQ localStorage 自动兼容。
   - [ ] Step 283.5: Calendar / Inspector / Archive instrument 过滤：Calendar 对象概览、day visibility、Inspector detail、Review JSON export/import 都以 current primary instrument 为上下文；导入不同 instrument 的 review 时必须显式保留 instrument，不能默默混入当前品种。

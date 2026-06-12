@@ -4,14 +4,13 @@
 import * as primaryChart from './chart-manager.js';
 import * as secondaryChart from './secondary-chart-manager.js';
 import * as primaryStore from '../data/bar-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 
 export const CHART_CONTEXT_IDS = Object.freeze({
   PRIMARY: 'primary',
   SECONDARY: 'secondary',
 });
-
-const DEFAULT_PRIMARY_INSTRUMENT = 'NQ';
 
 function cloneBars(getter) {
   const bars = getter?.();
@@ -23,7 +22,7 @@ function getPrimaryContext() {
     id: CHART_CONTEXT_IDS.PRIMARY,
     chartId: CHART_CONTEXT_IDS.PRIMARY,
     label: 'Primary',
-    instrument: DEFAULT_PRIMARY_INSTRUMENT,
+    instrument: getPrimaryInstrument(),
     timeframe: primaryStore.getCurrentTimeframe(),
     enabled: Boolean(primaryChart.getChart() && primaryChart.getSeries()),
     readonly: false,

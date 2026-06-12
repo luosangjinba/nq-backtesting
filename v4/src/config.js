@@ -25,6 +25,7 @@ export const TIMEFRAME_TO_SECONDS = {
 };
 
 export const DEFAULT_TIMEFRAME = 60;
+export const DEFAULT_PRIMARY_INSTRUMENT = 'NQ';
 
 export const CHART_THEME = {
   layout: {

@@ -4,6 +4,7 @@ import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
 import { getBarChartTime } from './chart/time-projection.js';
 import * as store from './data/bar-store.js';
+import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
 import {
   getReplayRestoreSnapshot,
@@ -49,6 +50,9 @@ console.log('[V4] app.js loaded');
 
 initDisplayPreferences();
 console.log('[V4] Display preferences initialized');
+
+initPrimaryInstrumentStore();
+console.log('[V4] Primary instrument initialized');
 
 // 初始化图表
 chart.initChart('chart');
