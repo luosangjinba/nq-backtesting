@@ -815,7 +815,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 284: ES Daily Regime Parity。目标是补齐 Main=ES 常规复盘中的 Daily Regime 背景层，使 ES 与 NQ 一样拥有 trend/range regime；VIX 仍共用 `v4/data/vix-daily.csv`，SMT pair 对称化不在本步范围。计划见 `v4/sessions/session_20260612_es_daily_regime_parity.md`。
   - [x] Step 284.1: 冻结边界：VIX 是共享市场背景序列；trend/range regime 按 instrument 分文件；NQ 使用 `daily-regime-nq.csv`，ES 新增 `daily-regime-es.csv`；Main=ES 应显示 ES trend/range + shared VIX；SMT 仍只支持 `Main=NQ, Sub=ES, same TF`。
-  - [ ] Step 284.2: ES Daily Regime 生成器：从 `v4/data/trading_data.duckdb` 读取 ES daily bars，生成与 NQ 文件同字段的 `v4/data/daily-regime-es.csv`。
+  - [x] Step 284.2: ES Daily Regime 生成器：从 `v4/data/trading_data.duckdb` 读取 ES daily bars，生成与 NQ 文件同字段的 `v4/data/daily-regime-es.csv`。已新增 `v4/scripts/generate_daily_regime_csv.py`，按 futures trading day 聚合，排除 17:00-17:59，生成 ES 4765 行，覆盖 `2008-01-02 -> 2026-06-11`。
   - [ ] Step 284.3: Loader 支持：Daily Regime loader 在 `Main=ES` 时读取 `data/daily-regime-es.csv`，VIX 继续读取共享 `data/vix-daily.csv`，缺文件不阻塞图表。
   - [ ] Step 284.4: Smoke tests：新增/扩展测试覆盖 NQ/ES trend/range CSV parsing/loading、shared VIX 叠加和 missing file graceful behavior。
   - [ ] Step 284.5: Browser/API 验证：确认 Main=NQ 不回归，Main=ES Calendar day detail 可读取 ES Daily Regime；Review export dailyRegimes instrument 正确。
