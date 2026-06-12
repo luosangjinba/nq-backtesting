@@ -187,6 +187,26 @@ Use Phase A examples as acceptance checks:
 - Simulation trade that followed plan.
 - Multi-contract trade with partial and final exit.
 
+## Step 286.4 Status
+
+Completed.
+
+Added `v4/tests/journal-actual-trade-examples-smoke.js` with three acceptance examples:
+
+- Real-money losing trade that violated the pre-market plan.
+- Simulation trade that followed the plan.
+- Multi-contract trade with partial and final exit fills.
+
+Validation:
+
+- `node v4/tests/journal-actual-trade-examples-smoke.js`
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 286.5 - Browser Smoke
 
 Add a browser smoke covering:

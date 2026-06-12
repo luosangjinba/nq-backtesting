@@ -813,7 +813,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 286.1: LiveTradeLog UI shape：Journal workspace 增加 Actual Trades section，支持添加 trade、compact row、展开编辑 tradeType/instrument/direction/result/net PnL/manual R/reflection 核心字段。已完成 Actual Trades section；支持 Add Trade、compact row、展开编辑核心字段，fill editor 留给 Step 286.2。
   - [x] Step 286.2: Fill editor MVP：expanded trade 内支持 `fills[]` 编辑，字段为 type/time/price/quantity/reason，支持 entry/add/partial/final/stop/manual exit，不自动计算 PnL/R。已完成：expanded trade 已加入 fill editor、Add Fill、Delete Fill、fill row 字段编辑，并通过 browser smoke 刷新恢复验证。
   - [x] Step 286.3: Actual trade persistence path：trade/fill edits 写入当前 `JournalDay.liveTrades`，刷新恢复，account/date 切换不串数据，不在页面加载时创建空 trade。已完成：browser smoke 覆盖初始无 trade、刷新恢复、换日期/账户隔离、切回原 account/date 后 trade/fill 恢复。
-  - [ ] Step 286.4: Minimal validation examples：用真实违规亏损、按计划模拟、多合约 partial/final exit 三个样例验收。
+  - [x] Step 286.4: Minimal validation examples：用真实违规亏损、按计划模拟、多合约 partial/final exit 三个样例验收。已完成：新增 `journal-actual-trade-examples-smoke.js` 固化三类样例。
   - [ ] Step 286.5: Browser smoke：创建 trade、添加 fills、输入手工 PnL/R、刷新恢复、切回 Backtesting 不破坏图表。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。

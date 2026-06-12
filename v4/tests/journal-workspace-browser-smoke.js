@@ -301,7 +301,7 @@ async function main() {
     assert.equal(writeValue.workspaceBeforeReload, 'journal');
     assert.equal(writeValue.journalHiddenBeforeReload, false);
 
-    await client.send('Page.reload', { ignoreCache: true });
+    await client.send('Page.navigate', { url: PAGE_URL });
     await new Promise((resolve) => setTimeout(resolve, 3_000));
 
     const restoreExpression = `
