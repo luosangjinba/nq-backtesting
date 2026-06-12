@@ -251,3 +251,46 @@ ES duplicate timestamps: 0
 ```
 
 NQ was not written. It remains blocked by the unresolved `NQH6 -> NQM6` roll conflict.
+
+## Daily Refresh Wrapper
+
+Added `v4/scripts/daily_databento_refresh.py`.
+
+Behavior:
+
+- ES only.
+- Requires `DATABENTO_API_KEY` in the environment.
+- Default mode is dry-run.
+- `--write` requires `--confirm-write`.
+- Write mode always runs dry-run first.
+- Databento warnings block write by default; `--allow-degraded` is required after manual review.
+- Optional `--verify-api` can run `/v4/bars` smoke after successful write.
+
+Added `v4/scripts/verify_v4_bars_api.py` to verify V4 API reads latest DB bars.
+
+Dry-run validation after the first ES write:
+
+```text
+db_max_ts: 2026-06-11 04:47:00
+dry_run_range_et: 2026-06-11 04:48:00 -> 2026-06-11 17:04:00
+contract: ESM6
+would_insert_rows: 732
+duplicate_candidate_keys: 0
+existing_candidate_keys: 0
+would_insert_first_ts: 2026-06-11 04:48:00
+would_insert_last_ts: 2026-06-11 16:59:00
+```
+
+No write was executed for these 732 rows during wrapper validation.
+
+API smoke validation:
+
+```text
+api_status: ok
+instrument: ES
+db_max_ts: 2026-06-11 04:47:00
+returned_bars: 50
+last_bar time: 2026-06-11 04:47
+```
+
+Added `v4/docs/user/DATABENTO_DAILY_REFRESH.md` and linked Databento docs from `v4/docs/README.md`.

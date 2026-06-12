@@ -10,6 +10,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [English user guide](user/USER_GUIDE.en.md)
 - [Standalone run guide](user/STANDALONE_RUN.md)
 - [Inspector help](user/INSPECTOR_HELP.md)
+- [Databento daily refresh](user/DATABENTO_DAILY_REFRESH.md)
 
 ### Design
 
@@ -30,6 +31,8 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [Improvement plan](planning/improvement_plan.html)
 - [Standalone V4 plan](planning/STANDALONE_V4_PLAN.md)
 - [Yfinance data research for V4 Journal](planning/YFINANCE_DATA_RESEARCH.md)
+- [Databento data research](planning/DATABENTO_DATA_RESEARCH.md)
+- [Databento insert-only updater plan](planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md)
 
 ## Historical Docs
 
