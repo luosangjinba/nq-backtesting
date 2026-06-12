@@ -146,10 +146,12 @@ function writeRawHistory(items) {
   storage.setItem(STORAGE_KEY, JSON.stringify(nextItems));
 }
 
-export function getReplayHistory() {
+export function getReplayHistory(instrument = null) {
+  const normalizedInstrument = instrument ? normalizeString(instrument).toUpperCase() : '';
   return readRawHistory()
     .map((item) => normalizeReplayHistoryItem(item, { now: item?.updatedAt }))
     .filter(isValidHistoryItem)
+    .filter((item) => !normalizedInstrument || item.primary.instrument === normalizedInstrument)
     .sort((a, b) => b.updatedAt - a.updatedAt)
     .slice(0, MAX_HISTORY_ITEMS);
 }
@@ -191,8 +193,13 @@ export function deleteReplayHistoryItem(id) {
   return true;
 }
 
-export function clearReplayHistory() {
-  writeRawHistory([]);
+export function clearReplayHistory(instrument = null) {
+  const normalizedInstrument = instrument ? normalizeString(instrument).toUpperCase() : '';
+  if (!normalizedInstrument) {
+    writeRawHistory([]);
+    return;
+  }
+  writeRawHistory(getReplayHistory().filter((item) => item.primary.instrument !== normalizedInstrument));
 }
 
 export function getReplayHistoryStorageKey() {

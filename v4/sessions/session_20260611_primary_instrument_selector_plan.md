@@ -274,3 +274,27 @@ Replay history:
 
 - Step 283.3 already records primary instrument in replay history items.
 - Step 283.5 should filter Calendar/Inspector/History views by current Main instrument where relevant.
+
+## Step 283.5 Status
+
+Completed.
+
+Calendar / Inspector:
+
+- Calendar Time Reaction rows now request `getDailyTimeReviewByDate(date, currentMainInstrument)`.
+- Calendar Chart Notes groups use current Main instrument when no review exists.
+- Calendar Daily Regime summary requests current Main instrument.
+- Calendar day-object visibility bulk actions filter Chart Notes by current Main instrument.
+
+Archive:
+
+- PDA archive export writes current Main instrument.
+- Review archive export writes current Main instrument.
+- Review archive Daily Regime export filters by current Main instrument.
+- Review archive SMT export filters records whose primary instrument equals current Main.
+- PDA/Review archive import rejects payloads whose instrument does not match current Main, preventing silent cross-instrument merge.
+
+Replay History:
+
+- Replay History panel lists only records for current Main instrument.
+- Replay History clear only clears current Main instrument records.

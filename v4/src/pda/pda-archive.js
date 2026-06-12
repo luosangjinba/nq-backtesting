@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { buildCePrice } from '../price-utils.js';
 import { timeframeToString } from '../config.js';
 import { getAnnotationIdentity, getAnnotations, loadAnnotations } from './pda-store.js';
@@ -11,7 +12,6 @@ import { normalizeFibLevels } from './fib-levels.js';
 
 const ARCHIVE_VERSION = 1;
 const ARCHIVE_APP = 'trading-v4';
-export const DEFAULT_INSTRUMENT = 'NQ';
 
 export function getExportableAnnotations() {
   return getAnnotations().filter((annotation) => annotation.source !== 'draft' && !annotation.draft);
@@ -37,7 +37,7 @@ function buildArchivePayload() {
     app: ARCHIVE_APP,
     version: ARCHIVE_VERSION,
     exportedAt: new Date().toISOString(),
-    instrument: DEFAULT_INSTRUMENT,
+    instrument: getPrimaryInstrument(),
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     range: getArchiveRange(),
     annotations: getExportableAnnotations(),
@@ -68,6 +68,14 @@ function validateArchivePayload(payload) {
   }
   if (!Array.isArray(payload.annotations)) {
     throw new Error('archive annotations must be an array');
+  }
+}
+
+function validateArchiveInstrument(payloadInstrument) {
+  const archiveInstrument = String(payloadInstrument || 'NQ').trim().toUpperCase();
+  const currentInstrument = getPrimaryInstrument();
+  if (archiveInstrument !== currentInstrument) {
+    throw new Error(`archive instrument ${archiveInstrument} does not match current Main ${currentInstrument}`);
   }
 }
 
@@ -206,6 +214,7 @@ export async function importPdaArchive(file) {
     const text = await readFileAsText(file);
     const payload = JSON.parse(text);
     validateArchivePayload(payload);
+    validateArchiveInstrument(payload.instrument);
 
     let imported = [];
     let skippedDuplicates = 0;

@@ -6,6 +6,7 @@ import {
 import { CALENDAR_OBJECT_TYPES } from '../../calendar/calendar-types.js';
 import { getChartNotes } from '../../chart-notes/chart-note-store.js';
 import { isChartNoteInDate } from '../../chart-notes/chart-note-visible-day.js';
+import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import { getTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import { getEconomicCalendarFilters } from '../../economic-calendar/economic-calendar-store.js';
 import { getDailyRegimeByDate } from '../../daily-regime/daily-regime-store.js';
@@ -145,10 +146,11 @@ function getMonthCells(viewDateKey, range) {
 }
 
 function getDayObjectOverview(dateKey, calendarIndex) {
+  const instrument = getPrimaryInstrument();
   const groups = addChartNotesGroup(
-    addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey, { includeEmpty: false }),
+    addTimeReactionGroup(getCalendarDayGroups(dateKey, calendarIndex), dateKey, { includeEmpty: false, instrument }),
     dateKey,
-    { includeEmpty: false }
+    { includeEmpty: false, instrument }
   );
   const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
   const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
@@ -543,7 +545,8 @@ function createTimeReactionItem(dateKey, row, review = getDailyTimeReviewByDate(
 }
 
 function addTimeReactionGroup(groups, dateKey, options = {}) {
-  const review = getDailyTimeReviewByDate(dateKey);
+  const instrument = options.instrument || getPrimaryInstrument();
+  const review = getDailyTimeReviewByDate(dateKey, instrument);
   if (!options.includeEmpty && !hasDailyTimeReviewContent(review)) {
     return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
   }
@@ -565,8 +568,9 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
 }
 
 function addChartNotesGroup(groups, dateKey, options = {}) {
-  const review = getDailyTimeReviewByDate(dateKey);
-  const group = createChartNotesGroup(dateKey, review?.instrument || 'NQ');
+  const instrument = options.instrument || getPrimaryInstrument();
+  const review = getDailyTimeReviewByDate(dateKey, instrument);
+  const group = createChartNotesGroup(dateKey, review?.instrument || instrument);
   if (!options.includeEmpty && !group.rows.length) {
     return groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.CHART_NOTE);
   }
@@ -681,7 +685,7 @@ function renderEconomicCalendarFilters() {
 }
 
 function renderDailyRegimeSummary(dateKey) {
-  const regime = getDailyRegimeByDate(dateKey);
+  const regime = getDailyRegimeByDate(dateKey, getPrimaryInstrument());
   const vixText = getDailyRegimeSummary(regime);
   return `
     <div class="calendar-daily-regime" title="${escapeHtml(vixText)}">
@@ -708,11 +712,12 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGrou
   const cells = getMonthCells(activeViewDate, range);
   const title = parsed ? `${MONTHS[parsed.monthIndex]} ${parsed.year}` : 'Calendar';
   const calendarIndex = getCalendarReviewIndex();
-  const review = getDailyTimeReviewByDate(activeDate);
+  const instrument = getPrimaryInstrument();
+  const review = getDailyTimeReviewByDate(activeDate, instrument);
   const objectGroups = addChartNotesGroup(
-    addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true }),
+    addTimeReactionGroup(getCalendarDayGroups(activeDate, calendarIndex), activeDate, { includeEmpty: true, instrument }),
     activeDate,
-    { includeEmpty: true }
+    { includeEmpty: true, instrument }
   );
   const dayChartObjectCount = countDayBulkChartObjects(objectGroups);
   const overlaySelectedDate = getTimeOverlaySettings().selectedDate;

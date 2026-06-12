@@ -3,8 +3,8 @@
 import * as bus from '../event-bus.js';
 import { timeframeToString } from '../config.js';
 import * as store from '../data/bar-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
-  DEFAULT_INSTRUMENT,
   formatDateForFile,
   getArchiveRange,
   getExportableAnnotations,
@@ -127,7 +127,10 @@ function collectReviewObjectDateKeys({
 
 function getExportableDailyRegimes(reviewObjectDateKeys) {
   if (!reviewObjectDateKeys?.size) return [];
-  return getDailyRegimes().filter((regime) => reviewObjectDateKeys.has(regime.date));
+  const instrument = getPrimaryInstrument();
+  return getDailyRegimes().filter((regime) => (
+    reviewObjectDateKeys.has(regime.date) && regime.instrument === instrument
+  ));
 }
 
 function isTimestampInsideRange(timestamp, range = {}) {
@@ -148,7 +151,8 @@ export function buildReviewPayload() {
   const pdaAnnotations = getExportableAnnotations();
   const marketSegments = getExportableSegments();
   const segmentGroups = getExportableSegmentGroups();
-  const smtRecords = getSmtRecords();
+  const instrument = getPrimaryInstrument();
+  const smtRecords = getSmtRecords().filter((record) => record.primaryInstrument === instrument);
   const orderReviews = getOrderReviews();
   const dailyTimeReviews = getDailyTimeReviewsWithContent();
   const reviewObjectDateKeys = collectReviewObjectDateKeys({
@@ -166,7 +170,7 @@ export function buildReviewPayload() {
     app: REVIEW_ARCHIVE_APP,
     version: REVIEW_ARCHIVE_VERSION,
     exportedAt: new Date().toISOString(),
-    instrument: DEFAULT_INSTRUMENT,
+    instrument,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     range,
     pdaAnnotations,
@@ -225,6 +229,14 @@ function validateReviewPayload(payload) {
   }
   if (payload.dailyRegimes !== undefined && !Array.isArray(payload.dailyRegimes)) {
     throw new Error('review archive dailyRegimes must be an array');
+  }
+}
+
+function validateArchiveInstrument(payloadInstrument) {
+  const archiveInstrument = String(payloadInstrument || 'NQ').trim().toUpperCase();
+  const currentInstrument = getPrimaryInstrument();
+  if (archiveInstrument !== currentInstrument) {
+    throw new Error(`archive instrument ${archiveInstrument} does not match current Main ${currentInstrument}`);
   }
 }
 
@@ -768,6 +780,7 @@ export async function importReviewArchive(file) {
     const text = await readFileAsText(file);
     const payload = JSON.parse(text);
     validateReviewPayload(payload);
+    validateArchiveInstrument(payload.instrument);
 
     let annotations = [];
     let segments = [];

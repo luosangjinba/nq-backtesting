@@ -5,7 +5,7 @@ import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import { getBarChartTime, getBucketStart } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
-import { setPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
@@ -504,7 +504,7 @@ export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex)
 }
 
 async function loadReplayHistoryItem(id) {
-  const item = getReplayHistory().find((historyItem) => historyItem.id === id);
+  const item = getReplayHistory(getPrimaryInstrument()).find((historyItem) => historyItem.id === id);
   if (!item) {
     bus.emit('status:update', { text: 'Replay History item not found', isError: true });
     return;
@@ -669,7 +669,7 @@ function handleControlClick(e) {
     return;
   }
   if (action === 'history-clear') {
-    clearReplayHistory();
+    clearReplayHistory(getPrimaryInstrument());
     render();
     return;
   }
@@ -728,7 +728,7 @@ function render() {
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
   const replayDisabled = !hasData || !enabled;
   const lastDisabled = !hasData || lastCursorIndex < 0;
-  const history = getReplayHistory();
+  const history = getReplayHistory(getPrimaryInstrument());
   const historyPanel = historyOpen ? renderHistoryPanel(history) : '';
 
   controlsEl.innerHTML = `

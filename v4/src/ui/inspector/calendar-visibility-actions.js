@@ -6,6 +6,7 @@ import { getSegmentGroupById, updateSegmentGroup } from '../../segment/segment-g
 import { getSmtRecordById, updateSmtRecord } from '../../smt/smt-store.js';
 import { updateEventTime, updateKillzone } from '../../time-overlays/time-overlay-store.js';
 import { getChartNoteById, getChartNotes, updateChartNote } from '../../chart-notes/chart-note-store.js';
+import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import { dateKeyFromTimestamp } from '../../utils.js';
 
 function isCalendarVisibilityType(type) {
@@ -166,7 +167,7 @@ export function setCalendarDayChartObjectsHidden(dateKey, hidden) {
     if (setCalendarObjectHidden(type, id, hidden)) changed += 1;
   });
   getChartNotes()
-    .filter((note) => note.instrument === 'NQ')
+    .filter((note) => note.instrument === getPrimaryInstrument())
     .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
     .forEach((note) => {
       if (Boolean(note.display?.hidden) === hidden) return;
@@ -177,7 +178,7 @@ export function setCalendarDayChartObjectsHidden(dateKey, hidden) {
 
 function getChartNoteItemsForDate(dateKey) {
   return getChartNotes()
-    .filter((note) => note.instrument === 'NQ')
+    .filter((note) => note.instrument === getPrimaryInstrument())
     .filter((note) => dateKeyFromTimestamp(note.timestamp) === dateKey)
     .map((note) => ({
       ref: { type: CALENDAR_OBJECT_TYPES.CHART_NOTE, id: note.id },
