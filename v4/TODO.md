@@ -812,3 +812,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 283.8: 迁移与兼容验证：旧 NQ localStorage key、Review JSON、Replay history 能正常读取；新写入按 instrument 分区；NQ 与 ES 对象互不污染；切回 NQ 不丢旧数据。已新增 `v4/tests/primary-instrument-compat-smoke.js`，覆盖 storage key/当前 Main 默认、Chart Notes NQ/ES 查询隔离、Daily Time Review NQ/ES 查询隔离、Replay History NQ/ES 过滤与按品种清理。
   - [x] Step 283.9: 浏览器回归验收：覆盖 Main=NQ 不回归、Main=ES 1M/5M/1H/D 加载、PDA/Segment/Chart Note/Time Reaction/Order Setup 创建和恢复、Calendar locate/open、Replay save/restore、Archive export/import、Split 副图 NQ/ES 组合、SMT 禁用/启用边界。已新增 `v4/tests/primary-instrument-browser-smoke.js`，用 headless Chrome 在真实页面里验证 Main selector、切换 ES、前端 NQ/ES `fetchBars`、主图 canvas；HTTP smoke 验证 API health 与 NQ/ES 1H bars。对象创建/恢复类交互本轮由 Step 283.8 store smoke 与全量语法检查覆盖，完整人工浏览器路径留作后续手动回归。
   - [x] Step 283.10: 文档收口：更新 TODO/session/必要用户文档，明确 Main instrument selector 的支持范围、旧数据兼容策略、其他品种扩展条件和已知限制。已更新中英文用户指南，说明 Main=NQ/ES 支持范围、对象按 current Main 分区、archive/replay/calendar 当前 Main 边界、SMT 仍只支持 `Main=NQ, Sub=ES`；页面 title 和启动脚本文案已去掉 NQ-only 表述。
+
+- [ ] Step 284: ES Daily Regime Parity。目标是补齐 Main=ES 常规复盘中的 Daily Regime 背景层，使 ES 与 NQ 一样拥有 trend/range regime；VIX 仍共用 `v4/data/vix-daily.csv`，SMT pair 对称化不在本步范围。计划见 `v4/sessions/session_20260612_es_daily_regime_parity.md`。
+  - [x] Step 284.1: 冻结边界：VIX 是共享市场背景序列；trend/range regime 按 instrument 分文件；NQ 使用 `daily-regime-nq.csv`，ES 新增 `daily-regime-es.csv`；Main=ES 应显示 ES trend/range + shared VIX；SMT 仍只支持 `Main=NQ, Sub=ES, same TF`。
+  - [ ] Step 284.2: ES Daily Regime 生成器：从 `v4/data/trading_data.duckdb` 读取 ES daily bars，生成与 NQ 文件同字段的 `v4/data/daily-regime-es.csv`。
+  - [ ] Step 284.3: Loader 支持：Daily Regime loader 在 `Main=ES` 时读取 `data/daily-regime-es.csv`，VIX 继续读取共享 `data/vix-daily.csv`，缺文件不阻塞图表。
+  - [ ] Step 284.4: Smoke tests：新增/扩展测试覆盖 NQ/ES trend/range CSV parsing/loading、shared VIX 叠加和 missing file graceful behavior。
+  - [ ] Step 284.5: Browser/API 验证：确认 Main=NQ 不回归，Main=ES Calendar day detail 可读取 ES Daily Regime；Review export dailyRegimes instrument 正确。
+  - [ ] Step 284.6: 文档收口：更新用户文档，明确 VIX 共用、trend/range 按 Main instrument、ES Daily Regime 覆盖范围和已知限制。
