@@ -800,3 +800,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 281.14: Databento 研究收口。结论：ES historical/manual daily refresh 已可用，当前 DB 中 ES 覆盖到 `2026-06-11 16:59`；NQ 因 `NQH6 -> NQM6` roll conflict 继续禁写；Databento Historical API 适合盘后/延迟补全，不作为 live journal 行情源；当前不启用 cron，先保持人工 dry-run/write；DB 是权威源，Databento updater 只做 insert-only。后续拆为 Step 282 Journal MVP data model / UI scope、NQ roll conflict 单独研究、ES refresh 多次稳定后再评估自动化。
 
 - [ ] Step 282: Journal MVP data model / UI scope。目标是在当前 V4 复盘平台上平行出 journal 系统，优先定义临场记录的数据模型和最小 UI 范围；不先做行情源自动化，不复用 Order Setup 作为 journal order log。初始研究重点：临场状态、当时想法、计划/冲动、实际订单、执行纪律、情绪/身体状态、复盘后对照。
+
+- [ ] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
+  - [ ] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。
+  - [ ] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。
+  - [ ] Step 283.3: 主图数据加载路径接入 instrument：所有主图 `fetchBars` / Calendar jump / Replay load / history restore / price lookup / auto-exit time 请求都使用当前 primary instrument；保持副图 instrument 独立。
+  - [ ] Step 283.4: 对象 store 与 persistence 按 instrument 分区：PDA、Segment、Chart Notes、Daily Time Review/Bias、Order Setup、display mode、visibility、economic event notes、Replay history 等不再固定写入 `...:NQ` 或硬过滤 NQ；选择方案优先保证旧 NQ localStorage 自动兼容。
+  - [ ] Step 283.5: Calendar / Inspector / Archive instrument 过滤：Calendar 对象概览、day visibility、Inspector detail、Review JSON export/import 都以 current primary instrument 为上下文；导入不同 instrument 的 review 时必须显式保留 instrument，不能默默混入当前品种。
+  - [ ] Step 283.6: 渲染与交互 hardcode 清理：PDA projection、Chart Notes renderer/hit-test、manual PDA/Segment metadata、Order Setup creation、Time Reaction actions 等全部从 chart context 读取 instrument；跨 instrument projection 继续只做 time-only，避免 ES 价格对象画到 NQ 价格轴或反向。
+  - [ ] Step 283.7: SMT 和跨品种规则降级：当前 SMT UI/右键/Inspector 仅在 `Main=NQ, Sub=ES, same TF` 时启用；Main=ES 或其他组合时禁用相关动作并显示简短原因。后续若要支持 ES follows NQ 或其他品种，另开任务设计规则。
+  - [ ] Step 283.8: 迁移与兼容验证：旧 NQ localStorage key、Review JSON、Replay history 能正常读取；新写入按 instrument 分区；NQ 与 ES 对象互不污染；切回 NQ 不丢旧数据。
+  - [ ] Step 283.9: 浏览器回归验收：覆盖 Main=NQ 不回归、Main=ES 1M/5M/1H/D 加载、PDA/Segment/Chart Note/Time Reaction/Order Setup 创建和恢复、Calendar locate/open、Replay save/restore、Archive export/import、Split 副图 NQ/ES 组合、SMT 禁用/启用边界。
+  - [ ] Step 283.10: 文档收口：更新 TODO/session/必要用户文档，明确 Main instrument selector 的支持范围、旧数据兼容策略、其他品种扩展条件和已知限制。
