@@ -31,6 +31,76 @@ html, body {
   height: 100vh;
 }
 
+.app-workspace {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.app-workspace[hidden] {
+  display: none;
+}
+
+#app-shell-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: #151923;
+  border-bottom: 1px solid #2a2e39;
+  flex-shrink: 0;
+}
+
+#workspace-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: #0f131d;
+  border: 1px solid #2a2e39;
+  border-radius: 6px;
+}
+
+.workspace-switch-button {
+  height: 24px;
+  padding: 0 10px;
+  color: #9aa4b2;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  font-size: var(--toolbar-font-size);
+  cursor: pointer;
+}
+
+.workspace-switch-button:hover {
+  color: #f0f3fa;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.workspace-switch-button.active {
+  color: #f0f3fa;
+  background: #263241;
+}
+
+#journal-page {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  padding: 16px;
+  overflow: auto;
+}
+
+#journal-page h1 {
+  color: #f0f3fa;
+  font-size: 18px;
+  font-weight: 650;
+}
+
 #workspace {
   display: flex;
   flex: 1;

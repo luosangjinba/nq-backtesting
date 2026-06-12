@@ -6,6 +6,7 @@ import { getBarChartTime } from './chart/time-projection.js';
 import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
+import { initAppShell } from './ui/app-shell.js';
 import {
   getReplayRestoreSnapshot,
   initReplayControls,
@@ -47,6 +48,9 @@ import { initEconomicCalendarLoader } from './economic-calendar/economic-calenda
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
 
 console.log('[V4] app.js loaded');
+
+initAppShell();
+console.log('[V4] App shell initialized');
 
 initDisplayPreferences();
 console.log('[V4] Display preferences initialized');

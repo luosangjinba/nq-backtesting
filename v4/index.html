@@ -8,29 +8,42 @@
   </head>
   <body>
     <div id="app">
-      <div id="toolbar"></div>
-      <div id="workspace">
-        <main id="chart-area">
-          <div id="chart-stack">
-            <section id="primary-chart-panel" class="chart-panel primary-chart-panel">
-              <div id="chart">
-                <div id="ohlc-legend"></div>
-                <div id="pda-context-menu"></div>
-                <div id="viewport-controls"></div>
-              </div>
-            </section>
-            <section id="secondary-chart-panel" class="chart-panel secondary-chart-panel" hidden>
-              <div id="secondary-chart">
-                <div id="secondary-chart-info"></div>
-                <div id="secondary-ohlc-legend"></div>
-                <div id="secondary-context-menu"></div>
-                <div id="secondary-viewport-controls"></div>
-              </div>
-            </section>
-          </div>
-          <div id="replay-controls"></div>
+      <header id="app-shell-header">
+        <nav id="workspace-switcher" aria-label="Workspace switcher">
+          <button type="button" class="workspace-switch-button" data-workspace-switch="backtesting">Backtesting</button>
+          <button type="button" class="workspace-switch-button" data-workspace-switch="journal">Journal</button>
+        </nav>
+      </header>
+      <section id="backtesting-workspace" class="app-workspace" data-workspace-target="backtesting">
+        <div id="toolbar"></div>
+        <div id="workspace">
+          <main id="chart-area">
+            <div id="chart-stack">
+              <section id="primary-chart-panel" class="chart-panel primary-chart-panel">
+                <div id="chart">
+                  <div id="ohlc-legend"></div>
+                  <div id="pda-context-menu"></div>
+                  <div id="viewport-controls"></div>
+                </div>
+              </section>
+              <section id="secondary-chart-panel" class="chart-panel secondary-chart-panel" hidden>
+                <div id="secondary-chart">
+                  <div id="secondary-chart-info"></div>
+                  <div id="secondary-ohlc-legend"></div>
+                  <div id="secondary-context-menu"></div>
+                  <div id="secondary-viewport-controls"></div>
+                </div>
+              </section>
+            </div>
+            <div id="replay-controls"></div>
+          </main>
+        </div>
+      </section>
+      <section id="journal-workspace" class="app-workspace journal-workspace" data-workspace-target="journal" hidden>
+        <main id="journal-page">
+          <h1>Journal</h1>
         </main>
-      </div>
+      </section>
     </div>
     <script src="https://unpkg.com/lightweight-charts@5.2.0/dist/lightweight-charts.standalone.production.js"></script>
     <script type="module" src="src/app.js"></script>
