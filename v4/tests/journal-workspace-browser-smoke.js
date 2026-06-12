@@ -356,9 +356,13 @@ async function main() {
 
     const restoreExpression = `
       (async () => {
-        const deadline = Date.now() + 5_000;
+        const deadline = Date.now() + 10_000;
         while (
-          (!document.querySelector('#journalPreMarketPlan') || document.body.dataset.workspace !== 'journal') &&
+          (
+            document.readyState !== 'complete' ||
+            !document.querySelector('#journalPreMarketPlan') ||
+            document.body.dataset.workspace !== 'journal'
+          ) &&
           Date.now() < deadline
         ) {
           await new Promise((resolve) => setTimeout(resolve, 100));

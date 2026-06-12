@@ -2,7 +2,7 @@
 
 Branch: `feature/research-databento-data-journal`
 
-Status: Planned, not implemented.
+Status: Completed.
 
 ## Goal
 
@@ -246,6 +246,22 @@ Recommended first version:
 
 Do not expose the full `disciplineReview` object in Phase D unless the UI remains quick to fill.
 
+## Step 287.4 Status
+
+Completed.
+
+Phase D uses the text-first discipline design:
+
+- `disciplineSummary` is the only visible discipline field.
+- No discipline toggles were added.
+- The full `disciplineReview` structured object remains hidden.
+- No scoring or grading system was added.
+
+Reason:
+
+- The Journal page should remain fast enough to fill every day.
+- Structured discipline controls should be based on repeated real usage, not premature modeling.
+
 ### Step 287.5 - Browser Smoke / Regression
 
 Extend Journal browser smoke.
@@ -259,11 +275,51 @@ Required coverage:
 - Switch account/date and verify no leakage.
 - Switch back to Backtesting and verify chart still exists.
 
+## Step 287.5 Status
+
+Completed.
+
+`v4/tests/journal-workspace-browser-smoke.js` now covers:
+
+- Journal workspace switch.
+- Phase D day-level fields:
+  - pre-market plan
+  - session intent
+  - mental state before
+  - intraday state notes
+  - post-market summary
+  - main mistake
+  - best behavior
+  - next-session focus
+  - discipline summary
+- Actual trade creation.
+- Fill creation/editing.
+- Manual PnL/R entry.
+- Reopen/restore behavior.
+- Account/date isolation.
+- Backtesting workspace switch and chart presence.
+
 ### Step 287.6 - Documentation Closeout
 
 Update TODO/session with implementation status and validation commands.
 
 If UI field choices differ from this plan, record the reason in this session file.
+
+## Step 287.6 Status
+
+Completed.
+
+Final Phase D field choices match Step 287.1 except that `disciplineSummary` is rendered under the standalone Discipline Review section, while Post Session keeps post-market summary, main mistake, best behavior, and next-session focus.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `node v4/tests/journal-actual-trade-examples-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
 
 ## Recommended Commit Boundaries
 
