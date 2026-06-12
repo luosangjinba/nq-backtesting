@@ -46,6 +46,7 @@ import { initEconomicEventNotePersistence } from './economic-calendar/economic-e
 import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
+import { initJournalPersistence } from './journal/journal-persistence.js';
 
 console.log('[V4] app.js loaded');
 
@@ -151,6 +152,9 @@ console.log('[V4] Economic Calendar loader initialized');
 
 initDailyRegimeVixLoader();
 console.log('[V4] Daily Regime VIX loader initialized');
+
+initJournalPersistence();
+console.log('[V4] Journal persistence initialized');
 
 initHistoryManager();
 console.log('[V4] History controls initialized');

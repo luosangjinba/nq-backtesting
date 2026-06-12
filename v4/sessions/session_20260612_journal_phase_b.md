@@ -84,6 +84,31 @@ Scope:
 - Preserve schema `{ version, savedAt, journalDays }`.
 - Restore on startup and save on `journal:changed`.
 
+## Step 285.3 Status
+
+Completed.
+
+Added:
+
+- `v4/src/journal/journal-persistence.js`
+- `v4/tests/journal-persistence-smoke.js`
+
+Persistence behavior:
+
+- Uses `createLocalPersistence()`.
+- Key: `v4:journal:<accountId>`.
+- Payload: `{ version, savedAt, journalDays }`.
+- Default account is `default`.
+- Startup initializes default Journal persistence from `app.js`.
+- Saves on `journal:changed`.
+
+Validation:
+
+- `node v4/tests/journal-persistence-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 285.4 - Journal Workspace UI MVP
 
 Add minimal Journal UI.
