@@ -313,3 +313,34 @@ Next maintenance work:
 
 - Keep NQ dry-run only until the 2026-03 roll conflict is resolved.
 - Add a daily ES refresh wrapper only after deciding the intended operating time window and whether degraded-condition days require manual acknowledgement.
+
+## Final Operational Status
+
+The daily ES refresh wrapper has been implemented:
+
+```text
+v4/scripts/daily_databento_refresh.py
+```
+
+Current behavior:
+
+- Default mode is dry-run.
+- `--write` requires `--confirm-write`.
+- ES is the only write-enabled instrument.
+- Wrapper always runs dry-run before write.
+- Degraded Databento warnings block write unless `--allow-degraded` is provided.
+- `would_insert_rows=0` safely skips write before warning blocking, so market-closed/no-data windows are normal no-ops.
+- Optional API smoke is available through `v4/scripts/verify_v4_bars_api.py`.
+
+Current DB status:
+
+```text
+ES rows: 6,451,065
+ES max ts: 2026-06-11 16:59:00
+ES duplicate timestamps: 0
+
+NQ rows: 5,906,274
+NQ max ts: 2025-11-04 18:39:00
+```
+
+Step 281 is complete. Keep this path manual for now; do not enable cron until ES refresh has been observed across several ordinary sessions. NQ remains write-disabled until the roll conflict is resolved.

@@ -351,3 +351,38 @@ Dry-run audit status:
 - NQ 2025-12 inferred roll is plausible by volume but still not DB-validated.
 - NQ 2026-03 inferred roll conflicts with volume; `NQM6` only overtakes `NQH6` on 2026-03-16, not 2026-03-13.
 - Do not write NQ until the 2026-03 roll date is manually resolved.
+
+## Final Step 281 Conclusion
+
+Status: complete.
+
+Databento `GLBX.MDP3` / `ohlcv-1m` is acceptable for V4 historical backfill and delayed daily refresh when used with raw quarterly contracts and a local roll calendar. It should not be used through Databento continuous symbols for this DB because continuous roll behavior did not match the current local DB in tested rollover windows.
+
+Production boundary after this research:
+
+- ES manual daily refresh is available.
+- NQ write remains blocked by the unresolved `NQH6 -> NQM6` roll conflict.
+- Databento Historical API is delayed and is not the live journal feed.
+- The local DB remains authoritative.
+- Imports are insert-only and never overwrite existing `(instrument, ts)` bars.
+- No cron job is enabled yet.
+
+Current local DB status after validation writes:
+
+```text
+ES rows: 6,451,065
+ES max ts: 2026-06-11 16:59:00
+ES duplicate timestamps: 0
+
+NQ rows: 5,906,274
+NQ max ts: 2025-11-04 18:39:00
+```
+
+Operational command:
+
+```bash
+DATABENTO_API_KEY=... python3 v4/scripts/daily_databento_refresh.py
+DATABENTO_API_KEY=... python3 v4/scripts/daily_databento_refresh.py --write --confirm-write
+```
+
+Next work should move to Journal MVP scope and data model. NQ roll repair and refresh automation should be separate tasks.

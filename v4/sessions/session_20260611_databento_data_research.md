@@ -391,3 +391,24 @@ ES: 6,451,065 rows, max ts 2026-06-11 16:59:00
 NQ: 5,906,274 rows, max ts 2025-11-04 18:39:00
 ES duplicate timestamps: 0
 ```
+
+## Step 281 Closeout
+
+Step 281 is complete.
+
+Final decisions:
+
+- Databento `GLBX.MDP3` / `ohlcv-1m` is acceptable for V4 historical backfill and delayed daily refresh.
+- ES manual daily refresh is usable through `v4/scripts/daily_databento_refresh.py`.
+- ES write path remains guarded: dry-run first, `--write --confirm-write`, insert-only, validated roll segments only.
+- Current ES DB coverage is `2026-06-11 16:59:00` with `6,451,065` rows and 0 duplicate timestamps.
+- NQ remains write-disabled because `NQH6 -> NQM6` has an unresolved roll conflict.
+- Databento Historical API is not the live journal feed. Live journal market data should be researched separately if needed.
+- No cron/automatic job is enabled yet. Keep the workflow manual until several ordinary refreshes confirm stable behavior.
+- The local DB remains authoritative; Databento never overwrites existing bars.
+
+Backlog:
+
+- Resolve NQ 2026-03 roll conflict as a separate task before any NQ write.
+- Revisit automation only after repeated ES manual refresh runs.
+- Start Step 282 for Journal MVP data model and UI scope.

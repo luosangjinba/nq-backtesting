@@ -783,7 +783,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 280.5: 实现前验证：小窗口 NQ/ES 下载样本，与现有 DB 重叠区对齐比较。
   - [x] Step 280.6: 基于重叠区验证结果正式放弃 yfinance/Yahoo 作为主 DB 自动补全来源。
 
-- [ ] Step 281: Databento 1m data research。目标是验证 Databento `GLBX.MDP3` / `ohlcv-1m` 是否可作为 V4 `futures_1m` 的历史补全和每日盘后增量来源；研究文档见 `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`。
+- [x] Step 281: Databento 1m data research。目标是验证 Databento `GLBX.MDP3` / `ohlcv-1m` 是否可作为 V4 `futures_1m` 的历史补全和每日盘后增量来源；研究文档见 `v4/docs/planning/DATABENTO_DATA_RESEARCH.md`。
   - [x] Step 281.1: 开分支 `feature/research-databento-data-journal`，安装官方 `databento` Python client。
   - [x] Step 281.2: 查询 `GLBX.MDP3` `ohlcv-1m` pricing、dataset range 和成本估算；确认 ES/NQ 每日增量成本很低。
   - [x] Step 281.3: 明确 Historical API 不是 intraday live journal 数据源；live journal 后续单独评估 Live API 或已有行情源。
@@ -797,3 +797,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 281.11: 产品化 ES 每日刷新流程。新增 `v4/scripts/daily_databento_refresh.py`，默认 dry-run，写入前强制先 dry-run；`--write --confirm-write` 仅允许 ES，遇到 Databento degraded warning 默认阻止写入，需 `--allow-degraded` 显式放行。新增 `v4/scripts/verify_v4_bars_api.py` 验证 `/v4/bars` 可读取最新 DB bars，并新增用户文档 `v4/docs/user/DATABENTO_DAILY_REFRESH.md`。验证记录：wrapper dry-run 成功发现 732 根 ES 候选、0 duplicate、0 existing；API smoke 返回 ES latest bar `2026-06-11 04:47`。
   - [x] Step 281.12: 执行 ES daily refresh wrapper 首次正式日常写入。`daily_databento_refresh.py --write --confirm-write` 先 dry-run 再写入，插入 `732` 根 ES 1m bars，范围 `2026-06-11 04:48` 到 `2026-06-11 16:59`；ES 行数 `6,450,333 -> 6,451,065`，max ts `2026-06-11 04:47 -> 2026-06-11 16:59`，重复 timestamp 为 0。API smoke `/v4/bars` 返回 ES latest bar `2026-06-11 16:59`。NQ 未变化。
   - [x] Step 281.13: 验证 ES daily refresh 无新增路径。当前 ES max ts `2026-06-11 16:59`，dry-run 请求 `2026-06-11 17:00 -> 17:19/17:20` 返回 `downloaded_normalized_rows=0`、`would_insert_rows=0`、0 duplicate / 0 existing，并有 Databento `No data found` warning；DB 行数保持 `6,451,065`、max ts 不变。修正 wrapper 判断顺序：`would_insert_rows=0` 时优先安全 skip，再处理 warning block，避免无数据窗口在 `--write --confirm-write` 下被误判为 degraded blocked；验证 `--write --confirm-write` 无新增时只 dry-run 后 skip，未写库。
+  - [x] Step 281.14: Databento 研究收口。结论：ES historical/manual daily refresh 已可用，当前 DB 中 ES 覆盖到 `2026-06-11 16:59`；NQ 因 `NQH6 -> NQM6` roll conflict 继续禁写；Databento Historical API 适合盘后/延迟补全，不作为 live journal 行情源；当前不启用 cron，先保持人工 dry-run/write；DB 是权威源，Databento updater 只做 insert-only。后续拆为 Step 282 Journal MVP data model / UI scope、NQ roll conflict 单独研究、ES refresh 多次稳定后再评估自动化。
+
+- [ ] Step 282: Journal MVP data model / UI scope。目标是在当前 V4 复盘平台上平行出 journal 系统，优先定义临场记录的数据模型和最小 UI 范围；不先做行情源自动化，不复用 Order Setup 作为 journal order log。初始研究重点：临场状态、当时想法、计划/冲动、实际订单、执行纪律、情绪/身体状态、复盘后对照。
