@@ -5,6 +5,7 @@ import { fetchBars } from '../api.js';
 import * as viewport from '../chart/viewport-controller.js';
 import * as secondaryViewport from '../chart/secondary-viewport-controller.js';
 import * as store from '../data/bar-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
 
 let controlsEl = null;
@@ -55,7 +56,7 @@ async function loadAdjacentWindow(direction) {
   bus.emit('status:update', { text: '加载中...', isError: false });
   try {
     const tf = Number(resolved.outerRange?.timeframe || store.getCurrentTimeframe());
-    const result = await fetchBars(resolved.start, resolved.end, tf);
+    const result = await fetchBars(resolved.start, resolved.end, tf, getPrimaryInstrument());
     setToolbarRange(resolved.start, resolved.end);
     store.setBars(result.bars, resolved.start, resolved.end, tf, result.requestedRange, {
       outerRange: resolved.outerRange,

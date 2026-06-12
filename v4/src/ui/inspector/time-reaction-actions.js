@@ -8,6 +8,7 @@ import { getSegmentById } from '../../segment/segment-store.js';
 import { getSegmentGroupById } from '../../segment/segment-group-store.js';
 import { locateSetupSet } from '../../order/setup-set.js';
 import * as store from '../../data/bar-store.js';
+import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import * as secondaryStore from '../../data/secondary-chart-store.js';
 import { resolveChartLoadRange } from '../../data/load-range-policy.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
@@ -357,7 +358,7 @@ async function ensurePrimaryTimeframe(timeframe) {
   }
   bus.emit('status:update', { text: 'Loading primary timeframe...', isError: false });
   try {
-    const result = await fetchBars(loadRange.start, loadRange.end, targetTimeframe);
+    const result = await fetchBars(loadRange.start, loadRange.end, targetTimeframe, getPrimaryInstrument());
     syncPrimaryToolbarRange(loadRange.start, loadRange.end, targetTimeframe);
     store.setBars(result.bars, loadRange.start, loadRange.end, targetTimeframe, result.requestedRange, {
       outerRange: loadRange.outerRange,

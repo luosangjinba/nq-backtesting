@@ -1,10 +1,10 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { saveReplayHistoryItem } from './replay-history-store.js';
 
 const SAVE_DEBOUNCE_MS = 800;
-const PRIMARY_INSTRUMENT = 'NQ';
 
 let lastReplayState = null;
 let saveTimer = null;
@@ -34,7 +34,7 @@ export function createReplayHistoryCheckpoint(replayState = lastReplayState) {
 
   return {
     primary: {
-      instrument: PRIMARY_INSTRUMENT,
+      instrument: getPrimaryInstrument(),
       timeframe: store.getCurrentTimeframe(),
       start: currentRange.start,
       end: currentRange.end,

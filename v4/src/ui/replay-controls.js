@@ -5,6 +5,7 @@ import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import { getBarChartTime, getBucketStart } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
+import { setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
@@ -121,6 +122,13 @@ function setToolbarRange(start, end, timeframe) {
   if (startInput) startInput.value = start;
   if (endInput) endInput.value = end;
   if (tfSelect && timeframe) tfSelect.value = String(timeframe);
+}
+
+function setToolbarPrimaryInstrument(instrument) {
+  const normalizedInstrument = setPrimaryInstrument(instrument);
+  const primaryInstrumentSelect = document.getElementById('primaryInstrumentSelect');
+  if (primaryInstrumentSelect) primaryInstrumentSelect.value = normalizedInstrument;
+  return normalizedInstrument;
 }
 
 function applySplitState(split) {
@@ -521,7 +529,8 @@ async function loadReplayHistoryItem(id) {
 
   bus.emit('status:update', { text: '恢复 Replay History...', isError: false });
   try {
-    const result = await fetchBars(loadStart, loadEnd, timeframe, item.primary.instrument);
+    const instrument = setToolbarPrimaryInstrument(item.primary.instrument);
+    const result = await fetchBars(loadStart, loadEnd, timeframe, instrument);
     setToolbarRange(loadStart, loadEnd, timeframe);
     store.setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
 

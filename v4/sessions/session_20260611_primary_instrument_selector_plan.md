@@ -223,3 +223,24 @@ Remaining for Step 283.3:
 - Viewport window navigation.
 - Time Reaction timeframe reload.
 - Other primary fetch paths that still rely on default `fetchBars(..., 'NQ')`.
+
+## Step 283.3 Status
+
+Completed.
+
+Main data loading now uses the current primary instrument in these paths:
+
+- Toolbar primary load.
+- Calendar date range load.
+- Calendar resolved 1m window load.
+- Viewport previous/next 1m window load.
+- Time Reaction primary timeframe reload.
+- Replay history checkpoint save.
+- Replay history restore.
+- PDA objective-gap reference bar fetches.
+
+Notes:
+
+- Secondary chart loads continue to use secondary instrument state.
+- Object/context fetches that already pass `context.instrument` were left unchanged.
+- `auto-exit-time` already receives an explicit instrument from order/setup context and was not changed in this substep.
