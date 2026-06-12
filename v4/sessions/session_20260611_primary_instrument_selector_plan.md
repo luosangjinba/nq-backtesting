@@ -340,3 +340,30 @@ Boundary:
 
 - This step preserves the existing first-version rule: NQ follows ES only.
 - ES follows NQ, alternative compare instruments, and generic pair logic remain future work.
+
+## Step 283.8 Status
+
+Completed.
+
+Added `v4/tests/primary-instrument-compat-smoke.js`.
+
+Smoke coverage:
+
+- Default Main instrument remains `NQ`.
+- Storage instrument normalization accepts `ES` and falls unknown values back to `NQ`.
+- Instrument-scoped storage keys are generated as `v4:<domain>:<instrument>`.
+- Default storage key resolution follows the current Main instrument after switching to `ES`.
+- Chart Notes can hold same-time NQ and ES notes without query collision.
+- Daily Time Review can hold same-date NQ and ES bias records without query collision.
+- Replay History can save NQ and ES records, filter by requested Main instrument, and clear only one instrument.
+
+Validation:
+
+- `node v4/tests/primary-instrument-compat-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+- Databento key scan under `v4`
+
+Note:
+
+- Node reports the existing module-type warning for ES module smoke files because the repo has no package-level `"type": "module"` declaration; the smoke exits successfully.
