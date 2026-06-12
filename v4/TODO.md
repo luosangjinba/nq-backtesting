@@ -824,13 +824,13 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 287.5: Browser smoke / regression：覆盖 day-level 字段填写、actual trade/fill、重开恢复、account/date 隔离、切回 Backtesting 图表不破坏。已完成：`journal-workspace-browser-smoke.js` 覆盖 Phase D 字段和既有 actual trade/fill workflow。
   - [x] Step 287.6: Documentation closeout：更新 TODO/session，记录最终字段取舍和验证命令。已完成。
 
-- [ ] Step 288: Journal Usability Pass。目标是在不扩 schema 的前提下打磨 Journal MVP 的实际填写体验：字段高度、页面密度、日期导航、Actual Trades 展开体验、小屏可用性。计划见 `v4/sessions/session_20260612_journal_usability_pass.md`。
+- [x] Step 288: Journal Usability Pass。目标是在不扩 schema 的前提下打磨 Journal MVP 的实际填写体验：字段高度、页面密度、日期导航、Actual Trades 展开体验、小屏可用性。计划见 `v4/sessions/session_20260612_journal_usability_pass.md`。已完成：日期导航、textarea 密度、Actual Trades 压缩、小屏密度改善；schema 未扩展。
   - [x] Step 288.1: Browser usability audit：用真实页面检查首屏、字段顺序、文本框高度、Actual Trades 展开后的占用、header 控制和小屏布局，并在 session 记录审计结果。已完成：桌面 collapsed/expanded 与 390px 小屏审计已记录；must fix 为日期导航、短字段高度压缩、小屏密度改善。
   - [x] Step 288.2: Quick navigation controls：评估并按需添加 Today / Previous day / Next day，复用现有 `activeDate` 路径，不创建空 trade。已完成：Day Header 日期旁增加 Previous / Next / Today，browser smoke 覆盖 Next/Previous 日期切换和 account/date 隔离。
   - [x] Step 288.3: Textarea ergonomics：调优 day-level textarea 高度，短字段更短、长字段更适合记录，保留显式 label。已完成：short fields 降到 68px，long fields 保持 112px；桌面 collapsed 高度约 `1160 -> 1072`，小屏高度约 `1804 -> 1641`。
   - [x] Step 288.4: Actual Trades usability：检查并按需压缩 expanded trade editor、fill editor 和 row summary，不新增 trade 字段。已完成：压缩 trade detail/fill spacing 和 Reflection 高度；mobile collapsed trade row 约 `144px -> 78px`，expanded detail 约 `422px -> 395px`。
-  - [ ] Step 288.5: Browser smoke / regression：复跑 Journal 和 Backtesting smoke，必要时扩展日期导航相关覆盖。
-  - [ ] Step 288.6: Documentation closeout：更新 TODO/session，记录改动、未改动项和验证命令。
+  - [x] Step 288.5: Browser smoke / regression：复跑 Journal 和 Backtesting smoke，必要时扩展日期导航相关覆盖。已完成：Journal browser smoke 覆盖日期导航，完整 smoke/regression 通过。
+  - [x] Step 288.6: Documentation closeout：更新 TODO/session，记录改动、未改动项和验证命令。已完成。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。

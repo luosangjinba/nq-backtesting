@@ -2,7 +2,7 @@
 
 Branch: `feature/research-databento-data-journal`
 
-Status: Planned, not implemented.
+Status: Completed.
 
 ## Goal
 
@@ -274,6 +274,20 @@ Required validation:
 - `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
 - `git diff --check`
 
+## Step 288.5 Status
+
+Completed.
+
+Final regression passed:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `node v4/tests/journal-actual-trade-examples-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 288.6 - Documentation Closeout
 
 Update TODO/session with:
@@ -281,6 +295,29 @@ Update TODO/session with:
 - What was changed.
 - What was intentionally left unchanged.
 - Validation commands.
+
+## Step 288.6 Status
+
+Completed.
+
+Final changes:
+
+- Added Journal date navigation: Previous day, Next day, Today.
+- Added short/long textarea sizing for day-level fields.
+- Compacted Actual Trades list/detail/fill editor spacing.
+- Improved mobile collapsed trade summary density.
+- Extended browser smoke to cover date navigation and account/date isolation.
+
+Intentionally unchanged:
+
+- No new Journal schema fields.
+- No structured discipline toggles.
+- No IdealTradeReview UI.
+- No statistics dashboard.
+- No broker import.
+- No automatic PnL/R calculation.
+- No separate `journal.html`.
+- No sticky Journal header.
 
 ## Recommended Commit Boundaries
 
