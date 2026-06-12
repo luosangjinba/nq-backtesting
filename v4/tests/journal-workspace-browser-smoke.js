@@ -210,6 +210,7 @@ async function main() {
         dateInput.value = '2026-06-12';
         dateInput.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((resolve) => setTimeout(resolve, 100));
+        const initialTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
         const nextPlanInput = document.querySelector('#journalPreMarketPlan');
         nextPlanInput.value = 'Wait < confirm';
         nextPlanInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -269,6 +270,7 @@ async function main() {
         const savedTrade = savedBeforeReload.journalDays?.[0]?.liveTrades?.[0] || {};
         return JSON.stringify({
           error: '',
+          initialTradeText,
           savedPlan: savedBeforeReload.journalDays?.[0]?.preMarketPlan || '',
           savedTradeType: savedTrade.tradeType || '',
           savedInstrument: savedTrade.instrument || '',
@@ -288,6 +290,7 @@ async function main() {
     });
     const writeValue = JSON.parse(writeResult.result?.value || '{}');
     assert.equal(writeValue.error, '', writeValue.error || 'journal workspace write failed');
+    assert.match(writeValue.initialTradeText, /No actual trades recorded/);
     assert.equal(writeValue.savedPlan, 'Wait < confirm');
     assert.equal(writeValue.savedTradeType, 'simulation');
     assert.equal(writeValue.savedInstrument, 'ES');
@@ -337,6 +340,67 @@ async function main() {
     assert.match(value.restoredTradeText, /ES/);
     assert.match(value.restoredTradeText, /PnL 125.5/);
     assert.match(value.restoredTradeText, /Fills 1/);
+
+    const isolationExpression = `
+      (async () => {
+        const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        const waitForSelector = async (selector) => {
+          const deadline = Date.now() + 5_000;
+          while (!document.querySelector(selector) && Date.now() < deadline) {
+            await wait(100);
+          }
+          return document.querySelector(selector);
+        };
+
+        const dateInput = await waitForSelector('#journalDateInput');
+        dateInput.value = '2026-06-13';
+        dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        await wait(250);
+        const nextDateTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
+
+        const accountInput = await waitForSelector('#journalAccountInput');
+        accountInput.value = 'funded';
+        accountInput.dispatchEvent(new Event('change', { bubbles: true }));
+        await wait(250);
+        const fundedTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
+
+        const restoredAccountInput = await waitForSelector('#journalAccountInput');
+        restoredAccountInput.value = 'default';
+        restoredAccountInput.dispatchEvent(new Event('change', { bubbles: true }));
+        await wait(250);
+        const restoredDateInput = await waitForSelector('#journalDateInput');
+        restoredDateInput.value = '2026-06-12';
+        restoredDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        await wait(250);
+        const restoredDefaultTradeText = document.querySelector('.journal-trade-list')?.innerText || '';
+
+        const defaultPayload = JSON.parse(localStorage.getItem('v4:journal:default') || '{}');
+        const fundedPayload = JSON.parse(localStorage.getItem('v4:journal:funded') || '{}');
+        const defaultDay = defaultPayload.journalDays?.find((day) => day.date === '2026-06-12') || {};
+        const fundedDay = fundedPayload.journalDays?.find((day) => day.date === '2026-06-13') || {};
+        return JSON.stringify({
+          nextDateTradeText,
+          fundedTradeText,
+          restoredDefaultTradeText,
+          defaultTradeCount: defaultDay.liveTrades?.length || 0,
+          defaultFillCount: defaultDay.liveTrades?.[0]?.fills?.length || 0,
+          fundedTradeCount: fundedDay.liveTrades?.length || 0,
+        });
+      })()
+    `;
+    const isolationResult = await client.send('Runtime.evaluate', {
+      expression: isolationExpression,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    const isolationValue = JSON.parse(isolationResult.result?.value || '{}');
+    assert.match(isolationValue.nextDateTradeText, /No actual trades recorded/);
+    assert.match(isolationValue.fundedTradeText, /No actual trades recorded/);
+    assert.match(isolationValue.restoredDefaultTradeText, /simulation/);
+    assert.match(isolationValue.restoredDefaultTradeText, /ES/);
+    assert.equal(isolationValue.defaultTradeCount, 1);
+    assert.equal(isolationValue.defaultFillCount, 1);
+    assert.equal(isolationValue.fundedTradeCount, 0);
 
     await clickWorkspaceSwitch(client, 'backtesting');
     await new Promise((resolve) => setTimeout(resolve, 100));

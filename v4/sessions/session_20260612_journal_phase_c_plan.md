@@ -157,6 +157,28 @@ Requirements:
 - Account/date switch shows the correct day trades.
 - No accidental empty trade creation on page load.
 
+## Step 286.3 Status
+
+Completed.
+
+Validation added to `v4/tests/journal-workspace-browser-smoke.js`:
+
+- Initial Journal day has no empty trade.
+- Trade/fill edits persist under the current `JournalDay.liveTrades`.
+- Refresh restores the same trade/fill.
+- Switching to a different date shows no trade leakage.
+- Switching to a different account shows no trade leakage.
+- Switching back to the original account/date restores the original trade/fill.
+
+Validation:
+
+- `node v4/tests/journal-workspace-browser-smoke.js`
+- `node v4/tests/primary-instrument-browser-smoke.js`
+- `node v4/tests/journal-store-smoke.js`
+- `node v4/tests/journal-persistence-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 286.4 - Minimal Validation Examples
 
 Use Phase A examples as acceptance checks:
