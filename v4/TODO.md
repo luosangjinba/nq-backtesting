@@ -825,7 +825,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 287.6: Documentation closeout：更新 TODO/session，记录最终字段取舍和验证命令。已完成。
 
 - [ ] Step 288: Journal Usability Pass。目标是在不扩 schema 的前提下打磨 Journal MVP 的实际填写体验：字段高度、页面密度、日期导航、Actual Trades 展开体验、小屏可用性。计划见 `v4/sessions/session_20260612_journal_usability_pass.md`。
-  - [ ] Step 288.1: Browser usability audit：用真实页面检查首屏、字段顺序、文本框高度、Actual Trades 展开后的占用、header 控制和小屏布局，并在 session 记录审计结果。
+  - [x] Step 288.1: Browser usability audit：用真实页面检查首屏、字段顺序、文本框高度、Actual Trades 展开后的占用、header 控制和小屏布局，并在 session 记录审计结果。已完成：桌面 collapsed/expanded 与 390px 小屏审计已记录；must fix 为日期导航、短字段高度压缩、小屏密度改善。
   - [ ] Step 288.2: Quick navigation controls：评估并按需添加 Today / Previous day / Next day，复用现有 `activeDate` 路径，不创建空 trade。
   - [ ] Step 288.3: Textarea ergonomics：调优 day-level textarea 高度，短字段更短、长字段更适合记录，保留显式 label。
   - [ ] Step 288.4: Actual Trades usability：检查并按需压缩 expanded trade editor、fill editor 和 row summary，不新增 trade 字段。

@@ -80,6 +80,62 @@ Output:
 - A short audit note in this session file.
 - A concrete list of changes, or a decision that no UI change is needed.
 
+## Step 288.1 Status
+
+Completed.
+
+Audit method:
+
+- Opened Journal in a real headless Chrome context.
+- Seeded one complete Journal Day with day-level fields and one actual trade with two fills.
+- Captured desktop collapsed, desktop expanded, and small-screen views.
+
+Observed metrics:
+
+- Desktop collapsed, 1365x900:
+  - Journal page scroll height: 1160px
+  - visible client height: 857px
+  - first viewport reaches Post Session start, but Discipline Review is below fold
+  - all day-level textareas are 112px high
+- Desktop with one trade expanded:
+  - Journal page scroll height: 1582px
+  - Actual Trades section height: 494px
+  - expanded trade detail height: 422px
+  - first viewport reaches Actual Trades but pushes Post Session below fold
+- Small screen, 390x844:
+  - Journal page scroll height: 1804px
+  - header height: 159px
+  - first viewport only reaches During Session
+  - collapsed trade row height: 144px
+
+Must fix:
+
+- Add simple date navigation controls: Today, previous day, next day.
+- Reduce textarea height for short fields:
+  - session intent
+  - mental state before
+  - main mistake
+  - best behavior
+  - next-session focus
+- Keep taller textareas for fields that naturally need narrative text:
+  - pre-market plan
+  - intraday state notes
+  - post-market summary
+  - discipline summary
+- Improve small-screen density so Pre-Market does not consume most of the first screen.
+
+Nice to have:
+
+- Slightly compact expanded trade detail and fill editor.
+- Consider a more scannable collapsed trade row on mobile.
+
+No change for now:
+
+- Do not add new Journal schema fields.
+- Do not add structured discipline toggles.
+- Do not split Journal into `journal.html`.
+- Do not add sticky header until date navigation and field height improvements are tested.
+
 ### Step 288.2 - Quick Navigation Controls
 
 Evaluate and, if useful, add low-risk date navigation:
