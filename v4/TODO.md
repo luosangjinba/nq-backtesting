@@ -803,7 +803,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 285: Journal Phase B - Minimal Daily Journal。目标是在 Phase A 冻结后实现最小可用 Journal Day，不做 LiveTradeLog/fills/IdealTradeReview/statistics。计划见 `v4/sessions/session_20260612_journal_phase_b.md`。
   - [x] Step 285.1: App shell boundary：在单一 `index.html` 内增加 `Backtesting | Journal` workspace switch；保留 backtesting DOM/逻辑，Journal 作为独立 workspace surface；持久化当前 workspace。已新增 `src/ui/app-shell.js`，包装 backtesting workspace，新增 Journal placeholder workspace；验证 primary instrument browser smoke、全量 JS syntax check、diff check 通过。
-  - [ ] Step 285.2: Journal store schema：新增 `journal-store`，按 `accountId + date` normalize/load/update/get JournalDay，并 emit `journal:changed`。
+  - [x] Step 285.2: Journal store schema：新增 `journal-store`，按 `accountId + date` normalize/load/update/get JournalDay，并 emit `journal:changed`。已新增 `v4/src/journal/journal-store.js` 和 `v4/tests/journal-store-smoke.js`；store 覆盖 Phase A 冻结对象，包括 `liveTrades/fills`、`idealTrades` 和 `disciplineReview`，但 Phase B UI 仍只暴露 day-level 字段。
   - [ ] Step 285.3: Journal persistence：使用 local persistence helper，key `v4:journal:<accountId>`，payload `{ version, savedAt, journalDays }`。
   - [ ] Step 285.4: Journal workspace UI MVP：日期、account、day mode、pre-market plan、mental state、post-market summary、discipline summary。
   - [ ] Step 285.5: Navigation boundary：切换 workspace 不重置 backtesting chart state；刷新恢复当前 workspace。

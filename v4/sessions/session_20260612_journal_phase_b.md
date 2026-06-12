@@ -48,6 +48,31 @@ Scope:
 - Manage load/get/update/clear.
 - Emit `journal:changed`.
 
+## Step 285.2 Status
+
+Completed.
+
+Added:
+
+- `v4/src/journal/journal-store.js`
+- `v4/tests/journal-store-smoke.js`
+
+Store coverage:
+
+- `JournalDay` identity: `accountId + date`.
+- Normalizes account/day fields.
+- Normalizes `LiveTradeLog` and `fills[]` for future Phase C use.
+- Normalizes `IdealTradeReview` for future Phase D use.
+- Normalizes `DisciplineReview`.
+- Provides load/get/upsert/update/delete/clear APIs.
+- Emits `journal:changed`.
+
+Validation:
+
+- `node v4/tests/journal-store-smoke.js`
+- `find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n1 node --check`
+- `git diff --check`
+
 ### Step 285.3 - Journal Persistence
 
 Add `journal/journal-persistence.js`.
