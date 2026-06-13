@@ -849,11 +849,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 292.2: Expanded linked editor：linked execution 隐藏重复 setup 字段，显示只读 linked setup summary；unlinked execution 保持 fallback setup-like 字段可编辑。已完成：linked detail 显示只读 setup summary，并隐藏可编辑 Instrument/Direction/Result；Trade type、PnL、R、Timing、Followed plan、Reflection、Fills 仍可编辑；missing-linked setup 保持 fallback 可编辑；browser smoke 覆盖 unlinked editable 与 linked hidden-editor 行为。
   - [x] Step 292.3: Expanded detail polish：检查 linked/missing/unlinked 展开区的标签、密度和空值显示；不新增 link/open/create setup actions。已完成：三种状态的 expanded detail 都有紧凑状态说明；linked 明确 setup 字段来自 Backtesting，missing 明确本地 setup 缺失，unlinked 明确没有 setup 链接；browser smoke 覆盖三种状态。
 
-- [ ] Step 293: Journal Link Existing Setup / Open In Backtesting。目标是在 Step 292 UI 分层完成后，增加实际链接与跳转工作流。范围建议：从同日/同品种 setup 中选择 link；linked execution 提供 Open in Backtesting；先不做 broker import、不做自动匹配、不做 localStorage migration。计划见 `v4/sessions/session_20260612_journal_actual_trades_ui_rework.md`。
+- [x] Step 293: Journal Link Existing Setup / Open In Backtesting。目标是在 Step 292 UI 分层完成后，增加实际链接与跳转工作流。范围建议：从同日/同品种 setup 中选择 link；linked execution 提供 Open in Backtesting；先不做 broker import、不做自动匹配、不做 localStorage migration。计划见 `v4/sessions/session_20260612_journal_actual_trades_ui_rework.md`。
   - [x] Step 293.1: Link candidates read model。已完成：新增 `journal-setup-link-candidates`，从 Backtesting setup-set 生成候选，按同日期/同品种打分排序，并输出 entry/stop/target/result/summary 等 UI 需要的只读字段；新增 smoke 覆盖排序和 fallback。
   - [x] Step 293.2: Link existing setup UI：unlinked/missing-linked execution 展开时显示候选下拉，选择后写入 `orderReviewId`。已完成：expanded detail 增加 `Link setup` select，候选来自 Step 293.1 read model；选择后立即写入 `orderReviewId` 并重渲染为 linked；browser smoke 覆盖 missing-linked 通过下拉链接到 setup 并持久化。
   - [x] Step 293.3: Open in Backtesting：linked execution 提供跳转按钮，切换 Backtesting workspace 并激活对应 Order Setup。已完成：linked setup summary 增加 `Open in Backtesting`；点击后设置 active Order Setup 并切换到 Backtesting workspace；browser smoke 覆盖跳转。
-  - [ ] Step 293.4: Browser smoke / documentation closeout。
+  - [x] Step 293.4: Browser smoke / documentation closeout。已完成：复跑 candidates、execution adapter、linked setup summary、journal browser smoke 和 syntax/diff checks；Step 293 完成范围记录到 session，broker import/自动匹配/create setup/migration 继续暂缓。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。

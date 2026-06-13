@@ -365,3 +365,44 @@ node v4/tests/journal-workspace-browser-smoke.js
 ```
 
 All passed.
+
+## Step 293.4 Plan
+
+Goal:
+
+- Close Step 293 with verification and documentation.
+- Confirm link/open workflow is covered.
+- Keep deferred items explicit.
+
+## Step 293.4 Status
+
+Completed.
+
+Verification:
+
+```text
+node v4/tests/journal-setup-link-candidates-smoke.js
+node v4/tests/journal-execution-setup-summary-smoke.js
+node v4/tests/journal-execution-adapter-smoke.js
+node --check v4/src/journal/journal-workspace.js
+node v4/tests/journal-workspace-browser-smoke.js
+git diff --check
+```
+
+All passed.
+
+Step 293 completed scope:
+
+- setup link candidates read model
+- link existing setup select for unlinked/missing-linked executions
+- immediate relink render through existing `orderReviewId`
+- `Open in Backtesting` for linked executions
+- browser smoke coverage for link, persistence, and workspace switch
+
+Deferred:
+
+- broker import
+- automatic setup matching
+- create setup from execution
+- localStorage migration from `liveTrades[]`
+- automatic PnL/R calculation
