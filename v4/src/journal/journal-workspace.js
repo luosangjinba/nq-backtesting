@@ -274,6 +274,15 @@ function formatSetupTarget(setupSummary = {}) {
   return target ? target.price : null;
 }
 
+function renderSetupSummaryItem(label, value) {
+  return `
+    <span class="journal-linked-setup-item">
+      <span>${label}</span>
+      <strong>${escapeHtml(formatSummaryValue(value))}</strong>
+    </span>
+  `;
+}
+
 function makeOptions(options, selectedValue) {
   return options.map(([value, label]) => (
     `<option value="${value}"${selectedValue === value ? ' selected' : ''}>${label}</option>`
@@ -318,9 +327,55 @@ function makeTradeSelect({ label, tradeId, field, value, options }) {
   `;
 }
 
-function renderTradeDetail(trade) {
+function renderLinkedSetupSummary(displayModel = {}) {
+  const setupSummary = displayModel.setupSummary || {};
+  return `
+    <div class="journal-linked-setup-summary">
+      <div class="journal-linked-setup-header">
+        <span>${escapeHtml(formatLinkStatus(displayModel.linkStatus))}</span>
+        <strong>${escapeHtml(formatSummaryValue(setupSummary.summary, 'No setup summary'))}</strong>
+      </div>
+      <div class="journal-linked-setup-grid">
+        ${renderSetupSummaryItem('Instrument', setupSummary.instrument)}
+        ${renderSetupSummaryItem('Direction', setupSummary.direction)}
+        ${renderSetupSummaryItem('Entry', setupSummary.entry?.price)}
+        ${renderSetupSummaryItem('Stop', setupSummary.stopLoss?.price)}
+        ${renderSetupSummaryItem('Target', formatSetupTarget(setupSummary))}
+        ${renderSetupSummaryItem('Result', setupSummary.result?.status)}
+      </div>
+    </div>
+  `;
+}
+
+function renderFallbackSetupFields(trade) {
+  return `
+    ${makeTradeField({
+      label: 'Instrument',
+      tradeId: trade.id,
+      field: 'instrument',
+      value: trade.instrument,
+    })}
+    ${makeTradeSelect({
+      label: 'Direction',
+      tradeId: trade.id,
+      field: 'direction',
+      value: trade.direction,
+      options: DIRECTION_OPTIONS,
+    })}
+    ${makeTradeField({
+      label: 'Result',
+      tradeId: trade.id,
+      field: 'result',
+      value: trade.result,
+    })}
+  `;
+}
+
+function renderTradeDetail(trade, displayModel = null) {
+  const isLinked = displayModel?.linkStatus === 'linked';
   return `
     <div class="journal-trade-detail">
+      ${isLinked ? renderLinkedSetupSummary(displayModel) : ''}
       <div class="journal-trade-grid">
         ${makeTradeSelect({
           label: 'Trade type',
@@ -329,25 +384,7 @@ function renderTradeDetail(trade) {
           value: trade.tradeType,
           options: TRADE_TYPE_OPTIONS,
         })}
-        ${makeTradeField({
-          label: 'Instrument',
-          tradeId: trade.id,
-          field: 'instrument',
-          value: trade.instrument,
-        })}
-        ${makeTradeSelect({
-          label: 'Direction',
-          tradeId: trade.id,
-          field: 'direction',
-          value: trade.direction,
-          options: DIRECTION_OPTIONS,
-        })}
-        ${makeTradeField({
-          label: 'Result',
-          tradeId: trade.id,
-          field: 'result',
-          value: trade.result,
-        })}
+        ${isLinked ? '' : renderFallbackSetupFields(trade)}
         ${makeTradeField({
           label: 'Net PnL',
           tradeId: trade.id,
@@ -495,7 +532,7 @@ function renderTradeRow(trade, displayModel = null) {
         <span>R ${escapeHtml(formatSummaryValue(trade.rMultipleManual))}</span>
         <span>Fills ${fillCount}</span>
       </button>
-      ${isExpanded ? renderTradeDetail(trade) : ''}
+      ${isExpanded ? renderTradeDetail(trade, displayModel) : ''}
     </article>
   `;
 }

@@ -420,6 +420,27 @@ async function main() {
     assert.match(value.restoredTradeText, /PnL 125.5/);
     assert.match(value.restoredTradeText, /Fills 1/);
 
+    const unlinkedDetailResult = await client.send('Runtime.evaluate', {
+      expression: `
+        (async () => {
+          const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+          document.querySelector('[data-journal-toggle-trade]')?.click();
+          await wait(250);
+          const tradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
+            .map((input) => input.dataset.journalTradeField);
+          const detailText = document.querySelector('.journal-trade-detail')?.innerText || '';
+          return JSON.stringify({ tradeFields, detailText });
+        })()
+      `,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    const unlinkedDetailValue = JSON.parse(unlinkedDetailResult.result?.value || '{}');
+    assert.ok(unlinkedDetailValue.tradeFields.includes('instrument'), 'unlinked detail keeps Instrument editable');
+    assert.ok(unlinkedDetailValue.tradeFields.includes('direction'), 'unlinked detail keeps Direction editable');
+    assert.ok(unlinkedDetailValue.tradeFields.includes('result'), 'unlinked detail keeps Result editable');
+    assert.match(unlinkedDetailValue.detailText, /Reflection/);
+
     const isolationExpression = `
       (async () => {
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -496,6 +517,134 @@ async function main() {
     assert.equal(isolationValue.defaultTradeCount, 1);
     assert.equal(isolationValue.defaultFillCount, 1);
     assert.equal(isolationValue.fundedTradeCount, 0);
+
+    const linkedSeedExpression = `
+      (() => {
+        localStorage.setItem('v4:primary-instrument', 'NQ');
+        const orderPayload = JSON.stringify({
+          version: 1,
+          savedAt: Date.now(),
+          orderReviews: [
+            {
+              id: 'journal-linked-setup-smoke',
+              instrument: 'ES',
+              setupThesis: {
+                primaryEventTimestamp: 1781270000,
+                primaryEventPrice: 5405
+              },
+              entryPlan: {
+                direction: 'short',
+                entryTimestamp: 1781270100,
+                entryPrice: 5400.25,
+                stopLoss: 5410.25,
+                targetInternal: 5388.25
+              },
+              resultReview: {
+                result: 'target1',
+                exitTimestamp: 1781271300
+              },
+              summary: 'Linked setup smoke summary'
+            }
+          ]
+        });
+        localStorage.setItem('v4:order-reviews:NQ', orderPayload);
+        localStorage.setItem('v4:order-reviews:ES', orderPayload);
+        localStorage.setItem('v4:journal:default', JSON.stringify({
+          version: 1,
+          savedAt: Date.now(),
+          journalDays: [
+            {
+              id: 'journal-day-linked-smoke',
+              date: '2026-06-15',
+              accountId: 'default',
+              dayMode: 'mixed',
+              liveTrades: [
+                {
+                  id: 'journal-linked-trade-smoke',
+                  date: '2026-06-15',
+                  accountId: 'default',
+                  orderReviewId: 'journal-linked-setup-smoke',
+                  tradeType: 'real_money',
+                  instrument: 'NQ',
+                  direction: 'long',
+                  result: 'raw result should not edit',
+                  netPnl: 250,
+                  rMultipleManual: 1.5,
+                  fills: []
+                }
+              ]
+            }
+          ]
+        }));
+        localStorage.setItem('v4:journal-active-account', 'default');
+        localStorage.setItem('v4:journal-active-date', '2026-06-15');
+        return true;
+      })()
+    `;
+    await client.send('Runtime.evaluate', {
+      expression: linkedSeedExpression,
+      returnByValue: true,
+    });
+    await client.send('Page.navigate', { url: PAGE_URL });
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+    await clickWorkspaceSwitch(client, 'journal');
+    const linkedDetailResult = await client.send('Runtime.evaluate', {
+      expression: `
+        (async () => {
+          const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+          const orderStore = await import('/src/order/order-review-store.js');
+          orderStore.loadOrderReviews([
+            {
+              id: 'journal-linked-setup-smoke',
+              instrument: 'ES',
+              setupThesis: {
+                primaryEventTimestamp: 1781270000,
+                primaryEventPrice: 5405
+              },
+              entryPlan: {
+                direction: 'short',
+                entryTimestamp: 1781270100,
+                entryPrice: 5400.25,
+                stopLoss: 5410.25,
+                targetInternal: 5388.25
+              },
+              resultReview: {
+                result: 'target1',
+                exitTimestamp: 1781271300
+              },
+              summary: 'Linked setup smoke summary'
+            }
+          ], { now: 1781270000 });
+          const dateInput = document.querySelector('#journalDateInput');
+          if (dateInput) dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+          await wait(250);
+          const deadline = Date.now() + 5_000;
+          while (!document.querySelector('[data-journal-toggle-trade]') && Date.now() < deadline) {
+            await wait(100);
+          }
+          const rowText = document.querySelector('.journal-trade-list')?.innerText || '';
+          document.querySelector('[data-journal-toggle-trade]')?.click();
+          await wait(250);
+          const tradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
+            .map((input) => input.dataset.journalTradeField);
+          const detailText = document.querySelector('.journal-trade-detail')?.innerText || '';
+          return JSON.stringify({ rowText, tradeFields, detailText });
+        })()
+      `,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    const linkedDetailValue = JSON.parse(linkedDetailResult.result?.value || '{}');
+    assert.match(linkedDetailValue.rowText, /Linked setup/);
+    assert.match(linkedDetailValue.rowText, /ES/);
+    assert.match(linkedDetailValue.rowText, /Entry 5400.25/);
+    assert.match(linkedDetailValue.detailText, /Linked setup/);
+    assert.match(linkedDetailValue.detailText, /Linked setup smoke summary/);
+    assert.ok(!linkedDetailValue.tradeFields.includes('instrument'), 'linked detail hides Instrument editor');
+    assert.ok(!linkedDetailValue.tradeFields.includes('direction'), 'linked detail hides Direction editor');
+    assert.ok(!linkedDetailValue.tradeFields.includes('result'), 'linked detail hides Result editor');
+    assert.ok(linkedDetailValue.tradeFields.includes('tradeType'), 'linked detail keeps Trade type editable');
+    assert.ok(linkedDetailValue.tradeFields.includes('netPnl'), 'linked detail keeps Net PnL editable');
 
     await clickWorkspaceSwitch(client, 'backtesting');
     await new Promise((resolve) => setTimeout(resolve, 100));

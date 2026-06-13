@@ -846,7 +846,8 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 292: Journal Actual Trades UI Rework。目标是让 Journal Actual Trades 使用 `JournalExecutionDisplayModel`，linked trade 显示 Backtesting setup summary，Journal 只编辑 execution/fills/PnL/R/discipline/reflection；保持 unlinked execution 可用。计划见 `v4/sessions/session_20260612_journal_actual_trades_ui_rework.md`。
   - [x] Step 292.1: Collapsed row summary 接入 display model。已完成：Actual Trades 折叠行显示 `Linked setup` / `Missing setup` / `Unlinked execution`；linked row 可使用 setup-derived instrument/direction/result/entry/stop/target，unlinked row 使用 Journal fallback；expanded editor、写入路径、fills、localStorage 均未改变；browser smoke 增加 `Unlinked execution` 断言。
-  - [ ] Step 292.2: Expanded linked editor：linked execution 隐藏重复 setup 字段，显示只读 linked setup summary；unlinked execution 保持 fallback setup-like 字段可编辑。
+  - [x] Step 292.2: Expanded linked editor：linked execution 隐藏重复 setup 字段，显示只读 linked setup summary；unlinked execution 保持 fallback setup-like 字段可编辑。已完成：linked detail 显示只读 setup summary，并隐藏可编辑 Instrument/Direction/Result；Trade type、PnL、R、Timing、Followed plan、Reflection、Fills 仍可编辑；missing-linked setup 保持 fallback 可编辑；browser smoke 覆盖 unlinked editable 与 linked hidden-editor 行为。
+  - [ ] Step 292.3: Expanded detail polish：检查 linked/missing/unlinked 展开区的标签、密度和空值显示；不新增 link/open/create setup actions。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。

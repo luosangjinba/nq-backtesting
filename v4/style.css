@@ -287,6 +287,55 @@ html, body {
   border-top: 1px solid #2a2e39;
 }
 
+.journal-linked-setup-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: #10141d;
+  border: 1px solid #252b36;
+  border-radius: 4px;
+}
+
+.journal-linked-setup-header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  color: #8b96a6;
+  font-size: var(--compact-font-size);
+}
+
+.journal-linked-setup-header strong {
+  min-width: 0;
+  color: #d1d4dc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journal-linked-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.journal-linked-setup-item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  color: #7f8794;
+  font-size: var(--compact-font-size);
+}
+
+.journal-linked-setup-item strong {
+  color: #c6ccd6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .journal-trade-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -419,7 +468,8 @@ html, body {
   }
 
   .journal-trade-grid,
-  .journal-fill-row {
+  .journal-fill-row,
+  .journal-linked-setup-grid {
     grid-template-columns: 1fr;
   }
 
