@@ -149,6 +149,7 @@ export function normalizeLiveTradeLog(input = {}, parent = {}) {
     reflection: normalizeString(input.reflection),
     whatWasRight: normalizeString(input.whatWasRight),
     whatWasWrong: normalizeString(input.whatWasWrong),
+    orderReviewId: normalizeString(input.orderReviewId),
     linkedOrderSetupIds: normalizeStringArray(input.linkedOrderSetupIds),
     linkedChartNoteIds: normalizeStringArray(input.linkedChartNoteIds),
     ...timestamps,
