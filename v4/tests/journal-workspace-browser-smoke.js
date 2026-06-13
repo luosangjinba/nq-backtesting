@@ -439,6 +439,7 @@ async function main() {
     assert.ok(unlinkedDetailValue.tradeFields.includes('instrument'), 'unlinked detail keeps Instrument editable');
     assert.ok(unlinkedDetailValue.tradeFields.includes('direction'), 'unlinked detail keeps Direction editable');
     assert.ok(unlinkedDetailValue.tradeFields.includes('result'), 'unlinked detail keeps Result editable');
+    assert.match(unlinkedDetailValue.detailText, /No setup is linked/);
     assert.match(unlinkedDetailValue.detailText, /Reflection/);
 
     const isolationExpression = `
@@ -571,6 +572,19 @@ async function main() {
                   netPnl: 250,
                   rMultipleManual: 1.5,
                   fills: []
+                },
+                {
+                  id: 'journal-missing-linked-trade-smoke',
+                  date: '2026-06-15',
+                  accountId: 'default',
+                  orderReviewId: 'journal-missing-setup-smoke',
+                  tradeType: 'simulation',
+                  instrument: 'NQ',
+                  direction: 'short',
+                  result: 'missing fallback result',
+                  netPnl: -50,
+                  rMultipleManual: -0.5,
+                  fills: []
                 }
               ]
             }
@@ -623,12 +637,19 @@ async function main() {
             await wait(100);
           }
           const rowText = document.querySelector('.journal-trade-list')?.innerText || '';
-          document.querySelector('[data-journal-toggle-trade]')?.click();
+          Array.from(document.querySelectorAll('[data-journal-toggle-trade]'))[0]?.click();
           await wait(250);
           const tradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
             .map((input) => input.dataset.journalTradeField);
           const detailText = document.querySelector('.journal-trade-detail')?.innerText || '';
-          return JSON.stringify({ rowText, tradeFields, detailText });
+          Array.from(document.querySelectorAll('[data-journal-toggle-trade]'))[0]?.click();
+          await wait(100);
+          Array.from(document.querySelectorAll('[data-journal-toggle-trade]'))[1]?.click();
+          await wait(250);
+          const missingTradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
+            .map((input) => input.dataset.journalTradeField);
+          const missingDetailText = document.querySelector('.journal-trade-detail')?.innerText || '';
+          return JSON.stringify({ rowText, tradeFields, detailText, missingTradeFields, missingDetailText });
         })()
       `,
       awaitPromise: true,
@@ -636,15 +657,22 @@ async function main() {
     });
     const linkedDetailValue = JSON.parse(linkedDetailResult.result?.value || '{}');
     assert.match(linkedDetailValue.rowText, /Linked setup/);
+    assert.match(linkedDetailValue.rowText, /Missing setup/);
     assert.match(linkedDetailValue.rowText, /ES/);
     assert.match(linkedDetailValue.rowText, /Entry 5400.25/);
     assert.match(linkedDetailValue.detailText, /Linked setup/);
+    assert.match(linkedDetailValue.detailText, /Setup fields are read from Backtesting/);
     assert.match(linkedDetailValue.detailText, /Linked setup smoke summary/);
     assert.ok(!linkedDetailValue.tradeFields.includes('instrument'), 'linked detail hides Instrument editor');
     assert.ok(!linkedDetailValue.tradeFields.includes('direction'), 'linked detail hides Direction editor');
     assert.ok(!linkedDetailValue.tradeFields.includes('result'), 'linked detail hides Result editor');
     assert.ok(linkedDetailValue.tradeFields.includes('tradeType'), 'linked detail keeps Trade type editable');
     assert.ok(linkedDetailValue.tradeFields.includes('netPnl'), 'linked detail keeps Net PnL editable');
+    assert.match(linkedDetailValue.missingDetailText, /Missing setup/);
+    assert.match(linkedDetailValue.missingDetailText, /Linked setup was not found locally/);
+    assert.ok(linkedDetailValue.missingTradeFields.includes('instrument'), 'missing linked detail keeps Instrument editable');
+    assert.ok(linkedDetailValue.missingTradeFields.includes('direction'), 'missing linked detail keeps Direction editable');
+    assert.ok(linkedDetailValue.missingTradeFields.includes('result'), 'missing linked detail keeps Result editable');
 
     await clickWorkspaceSwitch(client, 'backtesting');
     await new Promise((resolve) => setTimeout(resolve, 100));

@@ -287,6 +287,42 @@ html, body {
   border-top: 1px solid #2a2e39;
 }
 
+.journal-trade-detail-status {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  color: #9aa4b2;
+  background: #10141d;
+  border: 1px solid #252b36;
+  border-left: 3px solid #586170;
+  border-radius: 4px;
+  font-size: var(--compact-font-size);
+  line-height: 1.35;
+}
+
+.journal-trade-detail-status.linked {
+  border-left-color: #4f8cff;
+}
+
+.journal-trade-detail-status.missing-linked-setup {
+  border-left-color: #d39b36;
+}
+
+.journal-trade-detail-status.unlinked {
+  border-left-color: #7f8794;
+}
+
+.journal-trade-detail-status strong {
+  flex: 0 0 auto;
+  color: #d1d4dc;
+}
+
+.journal-trade-detail-status span {
+  min-width: 0;
+}
+
 .journal-linked-setup-summary {
   display: flex;
   flex-direction: column;
@@ -471,6 +507,12 @@ html, body {
   .journal-fill-row,
   .journal-linked-setup-grid {
     grid-template-columns: 1fr;
+  }
+
+  .journal-trade-detail-status {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
   }
 
   .journal-trade-summary {

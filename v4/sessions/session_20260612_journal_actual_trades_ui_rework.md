@@ -155,3 +155,71 @@ Step 292.3 should make the expanded detail more useful without adding new persis
 - review labels and density
 - add a clearer missing-linked setup state if needed
 - keep create/link/open setup actions for Step 293
+
+## Step 292.3 Plan
+
+Goal:
+
+- Polish expanded trade detail states without adding fields or persistence.
+- Make `linked`, `missing-linked-setup`, and `unlinked` visually and semantically clear.
+- Keep Step 293 actions out of this pass.
+
+Scope:
+
+- Add compact state text to expanded detail.
+- `linked`: state that setup fields are read from Backtesting.
+- `missing-linked-setup`: state that linked setup is not available locally.
+- `unlinked`: state that no setup is linked.
+- Keep fallback fields editable for missing/unlinked.
+- Keep linked setup fields read-only.
+- Preserve mobile layout.
+
+## Step 292.3 Status
+
+Completed.
+
+Implemented:
+
+- Added compact expanded-detail status strip for all link states.
+- `linked` detail now explicitly says setup facts are read from Backtesting and Journal edits execution/fills/PnL/discipline/reflection.
+- `missing-linked-setup` detail now explicitly says the linked setup was not found locally and fallback fields remain editable.
+- `unlinked` detail now explicitly says no setup is linked and fallback fields remain editable.
+- Added responsive styling so the status strip stacks cleanly on small screens.
+
+Unchanged:
+
+- No link existing setup action.
+- No open in Backtesting action.
+- No create setup from execution action.
+- No localStorage migration.
+- No new journal fields.
+
+Verification:
+
+```text
+node --check v4/src/journal/journal-workspace.js
+node v4/tests/journal-execution-setup-summary-smoke.js
+node v4/tests/journal-execution-adapter-smoke.js
+node v4/tests/journal-workspace-browser-smoke.js
+```
+
+All passed.
+
+Known non-blocking warning:
+
+- Node emits the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM test files because the repo has no local `type: module` package setting.
+
+## Step 292 Closeout
+
+Step 292 is functionally complete for the current UI rework scope:
+
+- collapsed rows use `JournalExecutionDisplayModel`
+- expanded linked detail separates setup facts from execution fields
+- missing/unlinked states remain editable fallbacks
+- browser smoke covers unlinked, linked, and missing-linked detail behavior
+
+Step 293 should add the actual workflow actions:
+
+- link existing setup
+- open linked setup in Backtesting
+- optionally create setup from execution later if needed

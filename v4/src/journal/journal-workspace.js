@@ -283,6 +283,26 @@ function renderSetupSummaryItem(label, value) {
   `;
 }
 
+function getTradeDetailStatusText(linkStatus) {
+  if (linkStatus === 'linked') {
+    return 'Setup fields are read from Backtesting. Journal edits only execution, fills, PnL, discipline, and reflection.';
+  }
+  if (linkStatus === 'missing-linked-setup') {
+    return 'Linked setup was not found locally. Fallback setup fields remain editable for this execution.';
+  }
+  return 'No setup is linked. Fallback setup fields remain editable for this execution.';
+}
+
+function renderTradeDetailStatus(displayModel = {}) {
+  const linkStatus = displayModel?.linkStatus || 'unlinked';
+  return `
+    <div class="journal-trade-detail-status ${escapeHtml(linkStatus)}">
+      <strong>${escapeHtml(formatLinkStatus(linkStatus))}</strong>
+      <span>${escapeHtml(getTradeDetailStatusText(linkStatus))}</span>
+    </div>
+  `;
+}
+
 function makeOptions(options, selectedValue) {
   return options.map(([value, label]) => (
     `<option value="${value}"${selectedValue === value ? ' selected' : ''}>${label}</option>`
@@ -375,6 +395,7 @@ function renderTradeDetail(trade, displayModel = null) {
   const isLinked = displayModel?.linkStatus === 'linked';
   return `
     <div class="journal-trade-detail">
+      ${renderTradeDetailStatus(displayModel)}
       ${isLinked ? renderLinkedSetupSummary(displayModel) : ''}
       <div class="journal-trade-grid">
         ${makeTradeSelect({
