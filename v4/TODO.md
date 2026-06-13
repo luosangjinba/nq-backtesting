@@ -859,6 +859,8 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [x] Step 295: Journal Migration Decision / Schema Closeout。目标是在 Journal linking 可用后冻结当前阶段的数据层策略。已完成：短期继续持久化 `JournalDay.liveTrades[]`，不引入 `executions[]`，不迁移 localStorage；新代码统一通过 `JournalExecution` adapter/read model；`orderReviewId` 是主 setup link；`linkedOrderSetupIds[]` 只作为 legacy read fallback；broker import、正式 Journal export/import、自动 PnL/R 或多账户导入等再触发 schema 变更评估。计划见 `v4/sessions/session_20260612_journal_actual_trades_ui_rework.md`。
 
+- [x] Step 296: Journal Linking Phase Review / Merge Readiness。目标是在 Step 290-295 完成后做合并前收口。已完成：先 push 当前分支，确认分支与 origin 同步；复跑 journal adapter、linked setup summary、setup candidates、order setup、journal browser smoke、全量 `v4/src`/`v4/tests` JS syntax、`git diff --check` 和敏感信息扫描；全部通过。当前阶段可进入 merge review，broker import、auto-match、create setup、migration、自动 PnL/R 和 statistics 继续暂缓。计划见 `v4/sessions/session_20260612_journal_actual_trades_ui_rework.md`。
+
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。已新增 `primary-instrument-store`，Toolbar `Main` 下拉可选择 NQ/ES，Toolbar 主图加载使用当前 Main instrument，chart context 返回当前 Main instrument；其他主图加载路径留给 Step 283.3。

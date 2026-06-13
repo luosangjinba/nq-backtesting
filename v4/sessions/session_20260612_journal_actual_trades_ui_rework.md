@@ -168,6 +168,79 @@ git diff --check
 
 Passed.
 
+# Session 2026-06-13 - Journal Linking Phase Merge Readiness
+
+Branch: `feature/research-databento-data-journal`
+
+## Step 296 Plan
+
+Goal:
+
+- Review the completed Journal linking phase before merge.
+- Confirm branch is pushed and clean.
+- Confirm key Journal/Order smoke tests pass.
+- Confirm docs/TODO are aligned.
+- Confirm no sensitive tokens are present in V4 files.
+
+Scope:
+
+- No feature changes.
+- No schema changes.
+- No UI changes.
+- Documentation closeout only if checks pass.
+
+## Step 296 Status
+
+Completed.
+
+Branch status before closeout:
+
+- `feature/research-databento-data-journal` was pushed to origin.
+- Local branch was even with origin before Step 296 docs closeout.
+- Working tree was clean before Step 296 docs closeout.
+
+Verified phase coverage:
+
+- Step 290: Journal Execution Adapter
+- Step 291: Linked Setup Summary Read Model
+- Step 292: Journal Actual Trades UI Rework
+- Step 293: Journal Link Existing Setup / Open In Backtesting
+- Step 294: Journal Order Linking Usability Review
+- Step 295: Journal Migration Decision / Schema Closeout
+
+Verification commands:
+
+```text
+git rev-list --left-right --count origin/feature/research-databento-data-journal...HEAD
+node v4/tests/journal-execution-adapter-smoke.js
+node v4/tests/journal-execution-setup-summary-smoke.js
+node v4/tests/journal-setup-link-candidates-smoke.js
+node v4/tests/order-setup-smoke.js
+node v4/tests/journal-workspace-browser-smoke.js
+find v4/src v4/tests -name '*.js' -print0 | xargs -0 -n 1 node --check
+git diff --check
+rg "<token-patterns>" v4
+```
+
+Results:
+
+- Branch was even with origin before this closeout commit: `0 0`.
+- All smoke tests passed.
+- All JS syntax checks passed.
+- `git diff --check` passed.
+- Sensitive scan had no matches.
+
+Merge readiness decision:
+
+- Journal linking phase is ready for merge review.
+- Remaining deferred work should stay out of this merge:
+  - broker import
+  - automatic setup matching
+  - create setup from execution
+  - localStorage migration from `liveTrades[]`
+  - automatic PnL/R calculation
+  - Journal statistics
+
 Known non-blocking warning:
 
 - Node emits the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM test files because the repo has no local `type: module` package setting.
