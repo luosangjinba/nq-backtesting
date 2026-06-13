@@ -287,3 +287,43 @@ node --check v4/src/journal/journal-setup-link-candidates.js
 ```
 
 All passed.
+
+## Step 293.2 Plan
+
+Goal:
+
+- Let unlinked and missing-linked Journal executions link to an existing Backtesting setup.
+- Keep linked executions read-only for setup facts.
+- Do not add navigation yet.
+
+Scope:
+
+- Add `Link setup` select in expanded detail for:
+  - `unlinked`
+  - `missing-linked-setup`
+- Use Step 293.1 candidates.
+- Selecting a setup writes `orderReviewId`.
+- Selecting blank clears `orderReviewId`.
+- Re-render immediately after link selection.
+
+## Step 293.2 Status
+
+Completed.
+
+Implemented:
+
+- Expanded unlinked/missing-linked trade detail now shows a `Link setup` select.
+- Candidate labels include date, instrument, direction, entry, and summary.
+- Missing current links remain visible as `Missing setup: <id>`.
+- Selecting a setup updates `orderReviewId`, persists through the existing `liveTrades[]` path, and immediately re-renders as linked.
+
+Verification:
+
+```text
+node --check v4/src/journal/journal-workspace.js
+node v4/tests/journal-setup-link-candidates-smoke.js
+node v4/tests/journal-execution-setup-summary-smoke.js
+node v4/tests/journal-workspace-browser-smoke.js
+```
+
+All passed.

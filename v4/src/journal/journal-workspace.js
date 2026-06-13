@@ -5,6 +5,7 @@ import {
 } from './journal-store.js';
 import { getJournalExecutions } from './journal-execution-adapter.js';
 import { getJournalExecutionDisplayModels } from './journal-execution-setup-summary.js';
+import { getJournalSetupLinkCandidates } from './journal-setup-link-candidates.js';
 import { restoreJournalDays, saveJournalDays } from './journal-persistence.js';
 
 const WORKSPACE_ID = 'journal-page';
@@ -303,6 +304,43 @@ function renderTradeDetailStatus(displayModel = {}) {
   `;
 }
 
+function formatSetupCandidateLabel(candidate = {}) {
+  const parts = [
+    candidate.date,
+    candidate.instrument,
+    candidate.direction,
+    candidate.entryPrice !== null && candidate.entryPrice !== undefined ? `Entry ${candidate.entryPrice}` : '',
+    candidate.summary,
+  ].filter(Boolean);
+  return parts.join(' | ') || candidate.orderReviewId || 'Order Setup';
+}
+
+function renderSetupLinkSelect(trade, displayModel = {}) {
+  if (displayModel?.linkStatus === 'linked') return '';
+  const candidates = getJournalSetupLinkCandidates({
+    date: trade.date || activeDate,
+    instrument: trade.instrument,
+  });
+  const currentOrderReviewId = displayModel?.orderReviewId || trade.orderReviewId || '';
+  const hasCurrentCandidate = candidates.some((candidate) => candidate.orderReviewId === currentOrderReviewId);
+  const currentMissingOption = currentOrderReviewId && !hasCurrentCandidate
+    ? `<option value="${escapeHtml(currentOrderReviewId)}" selected>Missing setup: ${escapeHtml(currentOrderReviewId)}</option>`
+    : '';
+  const candidateOptions = candidates.map((candidate) => (
+    `<option value="${escapeHtml(candidate.orderReviewId)}"${candidate.orderReviewId === currentOrderReviewId ? ' selected' : ''}>${escapeHtml(formatSetupCandidateLabel(candidate))}</option>`
+  )).join('');
+  return `
+    <label class="journal-trade-field journal-setup-link-field">
+      <span>Link setup</span>
+      <select data-journal-trade-id="${escapeHtml(trade.id)}" data-journal-trade-field="orderReviewId">
+        <option value="">No linked setup</option>
+        ${currentMissingOption}
+        ${candidateOptions}
+      </select>
+    </label>
+  `;
+}
+
 function makeOptions(options, selectedValue) {
   return options.map(([value, label]) => (
     `<option value="${value}"${selectedValue === value ? ' selected' : ''}>${label}</option>`
@@ -397,6 +435,7 @@ function renderTradeDetail(trade, displayModel = null) {
     <div class="journal-trade-detail">
       ${renderTradeDetailStatus(displayModel)}
       ${isLinked ? renderLinkedSetupSummary(displayModel) : ''}
+      ${renderSetupLinkSelect(trade, displayModel)}
       <div class="journal-trade-grid">
         ${makeTradeSelect({
           label: 'Trade type',
@@ -727,6 +766,7 @@ function bindJournalWorkspace() {
     const tradeField = event.target?.dataset?.journalTradeField;
     if (tradeId && tradeField) {
       updateTrade(tradeId, { [tradeField]: event.target.value });
+      if (tradeField === 'orderReviewId') renderJournalWorkspace();
       return;
     }
     if (event.target?.id === 'journalDayModeSelect') {

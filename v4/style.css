@@ -405,6 +405,10 @@ html, body {
   padding: 0 8px;
 }
 
+.journal-setup-link-field {
+  width: min(100%, 720px);
+}
+
 .journal-trade-field textarea {
   min-height: 60px;
   padding: 8px;

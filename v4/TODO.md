@@ -851,7 +851,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 293: Journal Link Existing Setup / Open In Backtesting。目标是在 Step 292 UI 分层完成后，增加实际链接与跳转工作流。范围建议：从同日/同品种 setup 中选择 link；linked execution 提供 Open in Backtesting；先不做 broker import、不做自动匹配、不做 localStorage migration。计划见 `v4/sessions/session_20260612_journal_actual_trades_ui_rework.md`。
   - [x] Step 293.1: Link candidates read model。已完成：新增 `journal-setup-link-candidates`，从 Backtesting setup-set 生成候选，按同日期/同品种打分排序，并输出 entry/stop/target/result/summary 等 UI 需要的只读字段；新增 smoke 覆盖排序和 fallback。
-  - [ ] Step 293.2: Link existing setup UI：unlinked/missing-linked execution 展开时显示候选下拉，选择后写入 `orderReviewId`。
+  - [x] Step 293.2: Link existing setup UI：unlinked/missing-linked execution 展开时显示候选下拉，选择后写入 `orderReviewId`。已完成：expanded detail 增加 `Link setup` select，候选来自 Step 293.1 read model；选择后立即写入 `orderReviewId` 并重渲染为 linked；browser smoke 覆盖 missing-linked 通过下拉链接到 setup 并持久化。
   - [ ] Step 293.3: Open in Backtesting：linked execution 提供跳转按钮，切换 Backtesting workspace 并激活对应 Order Setup。
   - [ ] Step 293.4: Browser smoke / documentation closeout。
 

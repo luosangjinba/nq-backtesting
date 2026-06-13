@@ -649,7 +649,32 @@ async function main() {
           const missingTradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
             .map((input) => input.dataset.journalTradeField);
           const missingDetailText = document.querySelector('.journal-trade-detail')?.innerText || '';
-          return JSON.stringify({ rowText, tradeFields, detailText, missingTradeFields, missingDetailText });
+          const linkSelect = document.querySelector('[data-journal-trade-field="orderReviewId"]');
+          if (linkSelect) {
+            linkSelect.value = 'journal-linked-setup-smoke';
+            linkSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          await wait(350);
+          const relinkedRowText = document.querySelector('.journal-trade-list')?.innerText || '';
+          const relinkedTradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
+            .map((input) => input.dataset.journalTradeField);
+          const relinkedDetailText = document.querySelector('.journal-trade-detail')?.innerText || '';
+          const savedPayload = JSON.parse(localStorage.getItem('v4:journal:default') || '{}');
+          const savedRelinkedTrade = savedPayload.journalDays
+            ?.find((day) => day.date === '2026-06-15')
+            ?.liveTrades
+            ?.find((trade) => trade.id === 'journal-missing-linked-trade-smoke') || {};
+          return JSON.stringify({
+            rowText,
+            tradeFields,
+            detailText,
+            missingTradeFields,
+            missingDetailText,
+            relinkedRowText,
+            relinkedTradeFields,
+            relinkedDetailText,
+            savedRelinkedOrderReviewId: savedRelinkedTrade.orderReviewId || ''
+          });
         })()
       `,
       awaitPromise: true,
@@ -673,6 +698,10 @@ async function main() {
     assert.ok(linkedDetailValue.missingTradeFields.includes('instrument'), 'missing linked detail keeps Instrument editable');
     assert.ok(linkedDetailValue.missingTradeFields.includes('direction'), 'missing linked detail keeps Direction editable');
     assert.ok(linkedDetailValue.missingTradeFields.includes('result'), 'missing linked detail keeps Result editable');
+    assert.match(linkedDetailValue.relinkedRowText, /Linked setup/);
+    assert.match(linkedDetailValue.relinkedDetailText, /Setup fields are read from Backtesting/);
+    assert.ok(!linkedDetailValue.relinkedTradeFields.includes('instrument'), 'linked-by-select detail hides Instrument editor');
+    assert.equal(linkedDetailValue.savedRelinkedOrderReviewId, 'journal-linked-setup-smoke');
 
     await clickWorkspaceSwitch(client, 'backtesting');
     await new Promise((resolve) => setTimeout(resolve, 100));
