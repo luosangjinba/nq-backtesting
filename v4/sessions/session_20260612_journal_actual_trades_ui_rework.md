@@ -223,3 +223,67 @@ Step 293 should add the actual workflow actions:
 - link existing setup
 - open linked setup in Backtesting
 - optionally create setup from execution later if needed
+
+# Session 2026-06-13 - Journal Link Existing Setup
+
+Branch: `feature/research-databento-data-journal`
+
+## Step 293 Plan
+
+Goal:
+
+- Add a practical workflow to link Journal executions to existing Backtesting Order Setups.
+- Add navigation from linked Journal execution to the Backtesting setup.
+- Preserve the Step 292 boundary: Backtesting owns setup facts; Journal owns execution facts.
+
+Substeps:
+
+- Step 293.1: Link candidates read model.
+- Step 293.2: Link existing setup UI.
+- Step 293.3: Open in Backtesting action.
+- Step 293.4: Browser smoke and documentation closeout.
+
+## Step 293.1 Plan
+
+Goal:
+
+- Provide a read model for setup link candidates.
+- Prefer same date and same instrument, but keep fallback candidates available.
+- Do not change UI.
+
+Scope:
+
+- Add `journal-setup-link-candidates`.
+- Candidate fields:
+  - `orderReviewId`
+  - `instrument`
+  - `date`
+  - `direction`
+  - `summary`
+  - `entryPrice`
+  - `stopPrice`
+  - `targetPrice`
+  - `result`
+  - `matchDate`
+  - `matchInstrument`
+  - `score`
+- Add smoke coverage.
+
+## Step 293.1 Status
+
+Completed.
+
+Implemented:
+
+- `summarizeJournalSetupLinkCandidate(setup, context)`
+- `getJournalSetupLinkCandidates(context)`
+- Smoke coverage for same-date/same-instrument ranking and fallback candidates.
+
+Verification:
+
+```text
+node v4/tests/journal-setup-link-candidates-smoke.js
+node --check v4/src/journal/journal-setup-link-candidates.js
+```
+
+All passed.
