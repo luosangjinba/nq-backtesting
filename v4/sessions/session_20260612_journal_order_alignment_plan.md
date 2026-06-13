@@ -388,6 +388,84 @@ Need explicit decision:
 - Whether old `liveTrades[]` remains readable.
 - Whether UI shows old live trades during transition.
 
+## Step 289.4 Status
+
+Completed.
+
+Compatibility decision:
+
+- Do not migrate existing localStorage immediately.
+- Do not remove `JournalDay.liveTrades[]` immediately.
+- Introduce an adapter layer first.
+- Treat current `liveTrades[]` as legacy execution records.
+- New target records should conceptually be `JournalExecution`, but may be stored in a new field only after adapter tests exist.
+
+Unlinked execution rule:
+
+- Unlinked actual executions are allowed.
+- They represent:
+  - impulsive trades without a planned setup
+  - real/sim trades taken before a setup was recorded
+  - imported broker executions that cannot yet be matched
+- UI must label them clearly as `Unlinked execution`.
+- Unlinked execution may keep fallback fields like `instrument` and `direction`.
+- Once linked to an Order Setup, setup-derived fields should be read from `orderReviewId` instead.
+
+Legacy `liveTrades[]` handling:
+
+- Existing `liveTrades[]` remain readable.
+- Existing `liveTrades[]` should render as unlinked executions unless:
+  - `linkedOrderSetupIds[0]` exists, or
+  - future migration adds a primary `orderReviewId`.
+- No destructive migration in the first implementation.
+- No field deletion in the first implementation.
+
+Adapter mapping:
+
+```js
+function toJournalExecution(liveTrade) {
+  return {
+    id: liveTrade.id,
+    accountId: liveTrade.accountId,
+    date: liveTrade.date,
+    orderReviewId: liveTrade.orderReviewId || liveTrade.linkedOrderSetupIds?.[0] || '',
+    tradeType: liveTrade.tradeType,
+    executionStatus: liveTrade.executionStatus || 'taken',
+    fills: liveTrade.fills || [],
+    positionSize: liveTrade.positionSize,
+    grossPnl: liveTrade.grossPnl,
+    netPnl: liveTrade.netPnl,
+    commissions: liveTrade.commissions,
+    rMultipleManual: liveTrade.rMultipleManual,
+    timingAssessment: liveTrade.timingAssessment,
+    followedPlan: liveTrade.followedPlan,
+    ruleBreaks: liveTrade.ruleBreaks,
+    beforeEntryThoughts: liveTrade.beforeEntryThoughts,
+    managementNotes: liveTrade.managementNotes,
+    exitReason: liveTrade.exitReason,
+    reflection: liveTrade.reflection,
+    unlinkedSnapshot: {
+      instrument: liveTrade.instrument,
+      direction: liveTrade.direction,
+      result: liveTrade.result,
+      stopLoss: liveTrade.stopLoss,
+      target: liveTrade.target,
+      entryReason: liveTrade.entryReason
+    }
+  };
+}
+```
+
+Future storage options:
+
+- Option A: keep storing under `liveTrades[]` but normalize toward `orderReviewId` + execution fields.
+- Option B: add `executions[]`, read both `executions[]` and legacy `liveTrades[]`, write new data to `executions[]`.
+
+Preferred implementation path:
+
+- Start with Option A adapter to minimize persistence churn.
+- Revisit Option B only after linked setup UI is stable.
+
 ### Step 289.5 - Implementation Plan
 
 Break the future implementation into small safe commits.
@@ -398,6 +476,128 @@ Likely future implementation phases:
 - 289.B: Journal UI links actual execution to Order Setup id.
 - 289.C: Backtesting action to open/create setup from Journal date.
 - 289.D: Browser smoke and migration coverage.
+
+## Step 289.5 Status
+
+Completed.
+
+Implementation sequence:
+
+### Step 290 - Journal Execution Adapter
+
+Goal:
+
+- Add adapter functions that project current `JournalDay.liveTrades[]` into `JournalExecution` view models.
+- No UI behavior change.
+
+Scope:
+
+- `toJournalExecution(liveTrade)`
+- `getJournalExecutions(day)`
+- normalize optional `orderReviewId`
+- preserve legacy `linkedOrderSetupIds[]`
+- unit/smoke coverage for linked and unlinked records
+
+Commit boundary:
+
+- adapter + tests only
+
+### Step 291 - Linked Setup Summary Read Model
+
+Goal:
+
+- Join Journal executions with Backtesting Order Setup / setup-set view model.
+- No editing UI yet.
+
+Scope:
+
+- Build a read model:
+  - execution overlay fields
+  - linked setup summary if `orderReviewId` exists
+  - unlinked snapshot fallback otherwise
+- Tests for:
+  - linked execution uses setup instrument/direction/entry/stop/targets
+  - unlinked execution uses fallback snapshot
+
+Commit boundary:
+
+- read model + tests only
+
+### Step 292 - Journal Actual Trades UI Rework
+
+Goal:
+
+- Replace current duplicate order fields with execution-overlay UI.
+
+Scope:
+
+- Rows show linked setup summary where possible.
+- Linked setup fields read-only in Journal.
+- Journal editor shows:
+  - link status
+  - trade type
+  - execution status
+  - fills
+  - PnL/R
+  - timing/followed-plan/rule-break fields
+  - management/reflection notes
+- Hide duplicated linked fields:
+  - direction selector
+  - stop/target
+  - entry reason
+
+Commit boundary:
+
+- UI + browser smoke
+
+### Step 293 - Link Existing Setup / Open In Backtesting
+
+Goal:
+
+- Add basic linking workflow and navigation to Backtesting.
+
+Scope:
+
+- Link existing setup from same date/instrument first.
+- Show `Open in Backtesting` on linked execution.
+- Switch workspace to Backtesting and locate/set active setup.
+
+Commit boundary:
+
+- actions + smoke
+
+### Step 294 - Unlinked Execution Workflow
+
+Goal:
+
+- Keep unlinked execution as a first-class fallback.
+
+Scope:
+
+- `Add unlinked execution`
+- clear visual label
+- no setup-derived fields required
+- optional create setup from execution remains future work unless clearly needed
+
+Commit boundary:
+
+- unlinked workflow + smoke
+
+### Step 295 - Migration Decision
+
+Goal:
+
+- Decide whether to keep `liveTrades[]` indefinitely or introduce `executions[]`.
+
+Decision inputs:
+
+- linked UI stability
+- whether current localStorage compatibility is enough
+- whether import/export needs a clearer schema
+
+Default:
+
+- Do not migrate until needed.
 
 ### Step 289.6 - Documentation Closeout
 
