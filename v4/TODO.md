@@ -832,6 +832,14 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 288.5: Browser smoke / regression：复跑 Journal 和 Backtesting smoke，必要时扩展日期导航相关覆盖。已完成：Journal browser smoke 覆盖日期导航，完整 smoke/regression 通过。
   - [x] Step 288.6: Documentation closeout：更新 TODO/session，记录改动、未改动项和验证命令。已完成。
 
+- [ ] Step 289: Journal Order Model Alignment。目标是把 Journal 的实际订单/成交记录重新对齐 Backtesting Order Setup 模型：Backtesting 继续作为 setup/订单逻辑权威，Journal 只补实盘/模拟执行、fills、PnL/R、纪律和临场反思。计划见 `v4/sessions/session_20260612_journal_order_alignment_plan.md`。
+  - [ ] Step 289.1: Order model mapping audit：对比 `orderReviews` / `setup-set` / `JournalDay.liveTrades` 字段，列出复用、Journal-only、待迁移、应弱化字段。
+  - [ ] Step 289.2: Alignment design decision：冻结目标模型，优先采用 Order Setup + Journal execution overlay，而不是 Journal 独立完整 order 模型。
+  - [ ] Step 289.3: UI strategy：设计 Journal 如何显示 linked Order Setups、编辑 execution overlay，并提供 open/create/link setup 的入口。
+  - [ ] Step 289.4: Migration / compatibility plan：决定当前 `liveTrades[]` 的兼容、迁移、unlinked trade 规则。
+  - [ ] Step 289.5: Implementation plan：拆出后续安全实现步骤，避免一次性重写 Journal order UI。
+  - [ ] Step 289.6: Documentation closeout：记录最终 alignment 决策、目标数据形状、迁移规则和后续实现子步骤。
+
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.2: 新增 primary instrument state：建立主图 instrument store 或等价状态源，复用 `INSTRUMENT_OPTIONS` / `INSTRUMENT_CONFIG`，Toolbar 增加 `Main` 下拉；切换时清理当前选择、重载主图 bars、同步 chart context、状态栏和 replay primary instrument。已新增 `primary-instrument-store`，Toolbar `Main` 下拉可选择 NQ/ES，Toolbar 主图加载使用当前 Main instrument，chart context 返回当前 Main instrument；其他主图加载路径留给 Step 283.3。
