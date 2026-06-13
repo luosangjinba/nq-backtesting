@@ -278,7 +278,7 @@ function formatSummaryValue(value, fallback = '-') {
 
 function formatLinkStatus(value) {
   if (value === 'linked') return 'Linked setup';
-  if (value === 'missing-linked-setup') return 'Missing setup';
+  if (value === 'missing-linked-setup') return 'Missing linked setup';
   return 'Unlinked execution';
 }
 
@@ -318,11 +318,21 @@ function renderTradeDetailStatus(displayModel = {}) {
 }
 
 function formatSetupCandidateLabel(candidate = {}) {
+  const matchLabel = candidate.matchDate && candidate.matchInstrument
+    ? 'Best match'
+    : candidate.matchDate
+      ? 'Same date'
+      : candidate.matchInstrument
+        ? 'Same instrument'
+        : 'Other setup';
   const parts = [
+    matchLabel,
     candidate.date,
     candidate.instrument,
     candidate.direction,
     candidate.entryPrice !== null && candidate.entryPrice !== undefined ? `Entry ${candidate.entryPrice}` : '',
+    candidate.targetPrice !== null && candidate.targetPrice !== undefined ? `Target ${candidate.targetPrice}` : '',
+    candidate.result && candidate.result !== 'unknown' ? `Result ${candidate.result}` : '',
     candidate.summary,
   ].filter(Boolean);
   return parts.join(' | ') || candidate.orderReviewId || 'Order Setup';
@@ -337,16 +347,19 @@ function renderSetupLinkSelect(trade, displayModel = {}) {
   const currentOrderReviewId = displayModel?.orderReviewId || trade.orderReviewId || '';
   const hasCurrentCandidate = candidates.some((candidate) => candidate.orderReviewId === currentOrderReviewId);
   const currentMissingOption = currentOrderReviewId && !hasCurrentCandidate
-    ? `<option value="${escapeHtml(currentOrderReviewId)}" selected>Missing setup: ${escapeHtml(currentOrderReviewId)}</option>`
+    ? `<option value="${escapeHtml(currentOrderReviewId)}" selected>Current missing link: ${escapeHtml(currentOrderReviewId)}</option>`
     : '';
   const candidateOptions = candidates.map((candidate) => (
     `<option value="${escapeHtml(candidate.orderReviewId)}"${candidate.orderReviewId === currentOrderReviewId ? ' selected' : ''}>${escapeHtml(formatSetupCandidateLabel(candidate))}</option>`
   )).join('');
+  const emptyOption = candidates.length
+    ? '<option value="">No linked setup</option>'
+    : '<option value="">No setup candidates available</option>';
   return `
     <label class="journal-trade-field journal-setup-link-field">
       <span>Link setup</span>
       <select data-journal-trade-id="${escapeHtml(trade.id)}" data-journal-trade-field="orderReviewId">
-        <option value="">No linked setup</option>
+        ${emptyOption}
         ${currentMissingOption}
         ${candidateOptions}
       </select>
@@ -407,6 +420,8 @@ function renderLinkedSetupSummary(displayModel = {}) {
         <strong>${escapeHtml(formatSummaryValue(setupSummary.summary, 'No setup summary'))}</strong>
       </div>
       <div class="journal-linked-setup-grid">
+        ${renderSetupSummaryItem('Setup ID', displayModel.orderReviewId)}
+        ${renderSetupSummaryItem('Date', setupSummary.date)}
         ${renderSetupSummaryItem('Instrument', setupSummary.instrument)}
         ${renderSetupSummaryItem('Direction', setupSummary.direction)}
         ${renderSetupSummaryItem('Entry', setupSummary.entry?.price)}

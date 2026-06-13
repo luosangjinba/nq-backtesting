@@ -1,4 +1,5 @@
 import { getSetupSetById } from '../order/setup-set.js';
+import { dateKeyFromTimestamp } from '../utils.js';
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -21,6 +22,7 @@ function summarizeSetupSet(setupSet = {}) {
     direction: setupSet.direction || elements.entry?.direction || 'unknown',
     summary: setupSet.sourceOrderReview?.summary || setupSet.orderReview?.summary || '',
     note: setupSet.sourceOrderReview?.note || setupSet.orderReview?.note || '',
+    date: dateKeyFromTimestamp(setupSet.primaryTimestamp),
     primaryTimestamp: setupSet.primaryTimestamp ?? null,
     range: setupSet.range ? { ...setupSet.range } : null,
     entry: elements.entry ? { ...elements.entry } : null,
@@ -43,6 +45,7 @@ function summarizeUnlinkedSnapshot(snapshot = {}) {
     direction: snapshot.direction || 'unknown',
     summary: '',
     note: snapshot.entryReason || '',
+    date: '',
     primaryTimestamp: null,
     range: null,
     entry: null,

@@ -650,6 +650,7 @@ async function main() {
             .map((input) => input.dataset.journalTradeField);
           const missingDetailText = document.querySelector('.journal-trade-detail')?.innerText || '';
           const linkSelect = document.querySelector('[data-journal-trade-field="orderReviewId"]');
+          const linkOptionsText = Array.from(linkSelect?.options || []).map((option) => option.textContent || '').join('\\n');
           if (linkSelect) {
             linkSelect.value = 'journal-linked-setup-smoke';
             linkSelect.dispatchEvent(new Event('change', { bubbles: true }));
@@ -674,6 +675,7 @@ async function main() {
             detailText,
             missingTradeFields,
             missingDetailText,
+            linkOptionsText,
             relinkedRowText,
             relinkedTradeFields,
             relinkedDetailText,
@@ -688,19 +690,26 @@ async function main() {
     });
     const linkedDetailValue = JSON.parse(linkedDetailResult.result?.value || '{}');
     assert.match(linkedDetailValue.rowText, /Linked setup/);
-    assert.match(linkedDetailValue.rowText, /Missing setup/);
+    assert.match(linkedDetailValue.rowText, /Missing linked setup/);
     assert.match(linkedDetailValue.rowText, /ES/);
     assert.match(linkedDetailValue.rowText, /Entry 5400.25/);
     assert.match(linkedDetailValue.detailText, /Linked setup/);
     assert.match(linkedDetailValue.detailText, /Setup fields are read from Backtesting/);
     assert.match(linkedDetailValue.detailText, /Linked setup smoke summary/);
+    assert.match(linkedDetailValue.detailText, /Setup ID/);
+    assert.match(linkedDetailValue.detailText, /journal-linked-setup-smoke/);
+    assert.match(linkedDetailValue.detailText, /Date/);
+    assert.match(linkedDetailValue.detailText, /2026-06-12/);
     assert.ok(!linkedDetailValue.tradeFields.includes('instrument'), 'linked detail hides Instrument editor');
     assert.ok(!linkedDetailValue.tradeFields.includes('direction'), 'linked detail hides Direction editor');
     assert.ok(!linkedDetailValue.tradeFields.includes('result'), 'linked detail hides Result editor');
     assert.ok(linkedDetailValue.tradeFields.includes('tradeType'), 'linked detail keeps Trade type editable');
     assert.ok(linkedDetailValue.tradeFields.includes('netPnl'), 'linked detail keeps Net PnL editable');
-    assert.match(linkedDetailValue.missingDetailText, /Missing setup/);
+    assert.match(linkedDetailValue.missingDetailText, /Missing linked setup/);
     assert.match(linkedDetailValue.missingDetailText, /Linked setup was not found locally/);
+    assert.match(linkedDetailValue.linkOptionsText, /Other setup/);
+    assert.match(linkedDetailValue.linkOptionsText, /Target 5388.25/);
+    assert.match(linkedDetailValue.linkOptionsText, /Result target1/);
     assert.ok(linkedDetailValue.missingTradeFields.includes('instrument'), 'missing linked detail keeps Instrument editable');
     assert.ok(linkedDetailValue.missingTradeFields.includes('direction'), 'missing linked detail keeps Direction editable');
     assert.ok(linkedDetailValue.missingTradeFields.includes('result'), 'missing linked detail keeps Result editable');

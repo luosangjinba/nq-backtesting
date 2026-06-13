@@ -406,3 +406,65 @@ Deferred:
 - create setup from execution
 - localStorage migration from `liveTrades[]`
 - automatic PnL/R calculation
+
+# Session 2026-06-13 - Journal Order Linking Usability Review
+
+Branch: `feature/research-databento-data-journal`
+
+## Step 294 Plan
+
+Goal:
+
+- Review and polish the Step 293 linking workflow before adding more features.
+- Keep changes limited to usability clarity.
+- Do not add create/import/auto-match behavior.
+
+Review findings:
+
+- Candidate labels did not explain why a setup was shown first.
+- Linked setup summary did not expose setup id/date, making it harder to confirm the exact link.
+- Missing-linked wording was too short in the row summary.
+- Empty candidate state needed an explicit label.
+
+## Step 294 Status
+
+Completed.
+
+Implemented:
+
+- Candidate labels now include match context:
+  - `Best match`
+  - `Same date`
+  - `Same instrument`
+  - `Other setup`
+- Candidate labels now include target and non-unknown result when available.
+- Linked setup summary now shows:
+  - Setup ID
+  - Date
+  - Instrument
+  - Direction
+  - Entry
+  - Stop
+  - Target
+  - Result
+- Missing row/status label now reads `Missing linked setup`.
+- Link setup select shows `No setup candidates available` when there are no candidates.
+
+Unchanged:
+
+- No create setup from execution.
+- No broker import.
+- No automatic matching.
+- No localStorage migration.
+
+Verification:
+
+```text
+node v4/tests/journal-execution-setup-summary-smoke.js
+node v4/tests/journal-setup-link-candidates-smoke.js
+node --check v4/src/journal/journal-workspace.js
+node v4/tests/journal-workspace-browser-smoke.js
+git diff --check
+```
+
+All passed.

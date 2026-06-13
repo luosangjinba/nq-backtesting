@@ -92,6 +92,7 @@ const directSummary = getJournalExecutionSetupSummary(direct);
 assert.equal(directSummary.linkStatus, 'linked');
 assert.equal(directSummary.orderReviewId, 'setup-linked-direct');
 assert.equal(directSummary.setup.source, 'order-setup');
+assert.equal(directSummary.setup.date, '2026-06-12');
 assert.equal(directSummary.setup.instrument, 'ES');
 assert.equal(directSummary.setup.direction, 'short');
 assert.equal(directSummary.setup.entry.price, 5400.25);
