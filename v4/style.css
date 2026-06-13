@@ -372,6 +372,10 @@ html, body {
   white-space: nowrap;
 }
 
+.journal-open-setup-button {
+  align-self: flex-start;
+}
+
 .journal-trade-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

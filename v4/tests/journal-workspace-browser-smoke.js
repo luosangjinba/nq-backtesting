@@ -659,6 +659,10 @@ async function main() {
           const relinkedTradeFields = Array.from(document.querySelectorAll('[data-journal-trade-field]'))
             .map((input) => input.dataset.journalTradeField);
           const relinkedDetailText = document.querySelector('.journal-trade-detail')?.innerText || '';
+          document.querySelector('[data-journal-open-order-setup]')?.click();
+          await wait(250);
+          const workspaceAfterOpen = document.body.dataset.workspace || '';
+          const backtestingHiddenAfterOpen = document.querySelector('#backtesting-workspace')?.hidden || false;
           const savedPayload = JSON.parse(localStorage.getItem('v4:journal:default') || '{}');
           const savedRelinkedTrade = savedPayload.journalDays
             ?.find((day) => day.date === '2026-06-15')
@@ -673,6 +677,8 @@ async function main() {
             relinkedRowText,
             relinkedTradeFields,
             relinkedDetailText,
+            workspaceAfterOpen,
+            backtestingHiddenAfterOpen,
             savedRelinkedOrderReviewId: savedRelinkedTrade.orderReviewId || ''
           });
         })()
@@ -702,6 +708,8 @@ async function main() {
     assert.match(linkedDetailValue.relinkedDetailText, /Setup fields are read from Backtesting/);
     assert.ok(!linkedDetailValue.relinkedTradeFields.includes('instrument'), 'linked-by-select detail hides Instrument editor');
     assert.equal(linkedDetailValue.savedRelinkedOrderReviewId, 'journal-linked-setup-smoke');
+    assert.equal(linkedDetailValue.workspaceAfterOpen, 'backtesting');
+    assert.equal(linkedDetailValue.backtestingHiddenAfterOpen, false);
 
     await clickWorkspaceSwitch(client, 'backtesting');
     await new Promise((resolve) => setTimeout(resolve, 100));

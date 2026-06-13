@@ -327,3 +327,41 @@ node v4/tests/journal-workspace-browser-smoke.js
 ```
 
 All passed.
+
+## Step 293.3 Plan
+
+Goal:
+
+- Let linked Journal executions open their Backtesting Order Setup.
+- Keep this as navigation only; no setup editing inside Journal.
+
+Scope:
+
+- Add `Open in Backtesting` button for linked executions.
+- On click:
+  - set the linked setup as active Order Setup
+  - switch workspace to Backtesting
+  - emit status feedback
+- If the linked setup is missing locally, show status error and do not switch.
+
+## Step 293.3 Status
+
+Completed.
+
+Implemented:
+
+- Linked setup summary now includes `Open in Backtesting`.
+- Click action calls `setActiveReviewSet(orderReviewId)` and `setActiveWorkspace('backtesting')`.
+- Missing setup click path emits a status error.
+- Browser smoke verifies linked setup opens the Backtesting workspace.
+
+Verification:
+
+```text
+node --check v4/src/journal/journal-workspace.js
+node v4/tests/journal-setup-link-candidates-smoke.js
+node v4/tests/journal-execution-setup-summary-smoke.js
+node v4/tests/journal-workspace-browser-smoke.js
+```
+
+All passed.

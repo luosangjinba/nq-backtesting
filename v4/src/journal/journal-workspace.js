@@ -3,6 +3,9 @@ import {
   getJournalDay,
   updateJournalDay,
 } from './journal-store.js';
+import * as bus from '../event-bus.js';
+import { setActiveReviewSet } from '../order/order-review-active.js';
+import { setActiveWorkspace } from '../ui/app-shell.js';
 import { getJournalExecutions } from './journal-execution-adapter.js';
 import { getJournalExecutionDisplayModels } from './journal-execution-setup-summary.js';
 import { getJournalSetupLinkCandidates } from './journal-setup-link-candidates.js';
@@ -258,6 +261,16 @@ function scheduleFillFieldUpdate(tradeId, fillId, field, value) {
   }, 180));
 }
 
+function openOrderSetupInBacktesting(orderReviewId) {
+  const active = setActiveReviewSet(orderReviewId);
+  if (!active) {
+    bus.emit('status:update', { text: 'Linked Order Setup not found', isError: true });
+    return;
+  }
+  setActiveWorkspace('backtesting');
+  bus.emit('status:update', { text: 'Opened linked Order Setup', isError: false });
+}
+
 function formatSummaryValue(value, fallback = '-') {
   const text = String(value ?? '').trim();
   return text || fallback;
@@ -401,6 +414,11 @@ function renderLinkedSetupSummary(displayModel = {}) {
         ${renderSetupSummaryItem('Target', formatSetupTarget(setupSummary))}
         ${renderSetupSummaryItem('Result', setupSummary.result?.status)}
       </div>
+      <button
+        type="button"
+        class="journal-action-button journal-open-setup-button"
+        data-journal-open-order-setup="${escapeHtml(displayModel.orderReviewId || '')}"
+      >Open in Backtesting</button>
     </div>
   `;
 }
@@ -808,6 +826,11 @@ function bindJournalWorkspace() {
     }
     if (event.target?.id === 'journalAddTradeButton') {
       createTrade();
+      return;
+    }
+    const openOrderSetupId = event.target?.dataset?.journalOpenOrderSetup;
+    if (openOrderSetupId) {
+      openOrderSetupInBacktesting(openOrderSetupId);
       return;
     }
     const toggleTradeId = event.target?.closest?.('[data-journal-toggle-trade]')?.dataset?.journalToggleTrade;
