@@ -608,6 +608,87 @@ Update TODO/session with:
 - migration rule for existing `liveTrades[]`
 - implementation substeps
 
+## Step 289.6 Status
+
+Completed.
+
+Final alignment decision:
+
+- Journal and Backtesting should not maintain two separate order-recording systems.
+- They should share one top-level order/setup/execution domain model.
+- Backtesting remains the authority for setup, thesis, planned entry, invalidation, target, and review logic.
+- Journal remains the authority for account/day context, real or simulated execution, fills, partials, PnL/R, discipline, mental state, and in-the-moment reflection.
+- The UI should still keep two clear workspaces:
+  - Backtesting: planning and review workspace.
+  - Journal: live/sim execution and day review workspace.
+
+Target domain split:
+
+```text
+Order / Setup / Execution Domain
+├─ Order Setup / Thesis
+│  └─ Backtesting-owned setup and review logic
+├─ Journal Execution
+│  └─ Journal-owned account/day execution overlay
+└─ Order Execution Link
+   └─ Optional link from Journal execution to Backtesting setup
+```
+
+Practical module direction:
+
+- Keep Backtesting code under its current Order Review / setup-set modules.
+- Keep Journal UI under `src/journal`.
+- Add shared adapter/read-model code only where duplication would otherwise grow:
+  - `JournalExecution` adapter
+  - linked setup summary read model
+  - optional order/execution link helpers
+- Do not move the current Backtesting Order Review UI into Journal.
+- Do not let Journal edit setup fields when the execution is linked to a Backtesting setup.
+
+Final target data shape:
+
+```js
+JournalExecution = {
+  id,
+  accountId,
+  date,
+  orderReviewId,        // optional link to Backtesting setup
+  tradeType,            // real_money / simulation
+  executionStatus,
+  fills,
+  positionSize,
+  grossPnl,
+  netPnl,
+  commissions,
+  rMultipleManual,
+  timingAssessment,
+  followedPlan,
+  ruleBreaks,
+  beforeEntryThoughts,
+  managementNotes,
+  exitReason,
+  reflection,
+  unlinkedSnapshot      // fallback setup-like fields only when no orderReviewId exists
+}
+```
+
+Migration rule:
+
+- Existing `JournalDay.liveTrades[]` remains the stored field for now.
+- Existing records remain readable.
+- Existing `linkedOrderSetupIds[0]` can be treated as a legacy setup link.
+- New code should read through an adapter instead of assuming raw `liveTrades[]` is the final shape.
+- No destructive localStorage migration until linked Journal execution UI is stable.
+
+Follow-up implementation queue:
+
+- Step 290: Journal Execution Adapter.
+- Step 291: Linked Setup Summary Read Model.
+- Step 292: Journal Actual Trades UI Rework.
+- Step 293: Link Existing Setup / Open In Backtesting.
+- Step 294: Unlinked Execution Workflow.
+- Step 295: Migration Decision.
+
 ## Boundaries
 
 This step is planning and design only unless explicitly expanded.

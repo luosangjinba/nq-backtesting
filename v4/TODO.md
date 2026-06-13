@@ -832,13 +832,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 288.5: Browser smoke / regression：复跑 Journal 和 Backtesting smoke，必要时扩展日期导航相关覆盖。已完成：Journal browser smoke 覆盖日期导航，完整 smoke/regression 通过。
   - [x] Step 288.6: Documentation closeout：更新 TODO/session，记录改动、未改动项和验证命令。已完成。
 
-- [ ] Step 289: Journal Order Model Alignment。目标是把 Journal 的实际订单/成交记录重新对齐 Backtesting Order Setup 模型：Backtesting 继续作为 setup/订单逻辑权威，Journal 只补实盘/模拟执行、fills、PnL/R、纪律和临场反思。计划见 `v4/sessions/session_20260612_journal_order_alignment_plan.md`。
+- [x] Step 289: Journal Order Model Alignment。目标是把 Journal 的实际订单/成交记录重新对齐 Backtesting Order Setup 模型：Backtesting 继续作为 setup/订单逻辑权威，Journal 只补实盘/模拟执行、fills、PnL/R、纪律和临场反思。计划见 `v4/sessions/session_20260612_journal_order_alignment_plan.md`。
   - [x] Step 289.1: Order model mapping audit：对比 `orderReviews` / `setup-set` / `JournalDay.liveTrades` 字段，列出复用、Journal-only、待迁移、应弱化字段。已完成：Backtesting 复用 setup/order idea，Journal-only 保留 fills/account/day/PnL/R/discipline/execution reflection，linked Journal UI 应弱化 direction/stop/target/entryReason 等重复字段。
   - [x] Step 289.2: Alignment design decision：冻结目标模型，优先采用 Order Setup + Journal execution overlay，而不是 Journal 独立完整 order 模型。已完成：采用 `Order Setup + Journal Execution Overlay`，`orderReviewId` 为主链接，允许 unlinked execution 作为冲动/无计划交易 fallback。
   - [x] Step 289.3: UI strategy：设计 Journal 如何显示 linked Order Setups、编辑 execution overlay，并提供 open/create/link setup 的入口。已完成：Journal Actual Trades 优先显示 linked setup summary，setup 逻辑在 Backtesting 编辑，Journal 只编辑 execution overlay；后续支持 Open in Backtesting / Link existing setup / Add unlinked execution。
   - [x] Step 289.4: Migration / compatibility plan：决定当前 `liveTrades[]` 的兼容、迁移、unlinked trade 规则。已完成：不立即迁移 localStorage；`liveTrades[]` 保持可读；先用 adapter 投影为 JournalExecution；允许 unlinked execution 并明确标记。
   - [x] Step 289.5: Implementation plan：拆出后续安全实现步骤，避免一次性重写 Journal order UI。已完成：后续拆为 Step 290 adapter、291 linked setup read model、292 UI rework、293 link/open actions、294 unlinked workflow、295 migration decision。
-  - [ ] Step 289.6: Documentation closeout：记录最终 alignment 决策、目标数据形状、迁移规则和后续实现子步骤。
+  - [x] Step 289.6: Documentation closeout：记录最终 alignment 决策、目标数据形状、迁移规则和后续实现子步骤。已完成：Journal 与 Backtesting 共用顶层 Order/Setup/Execution domain，但保留两个独立 workspace；Backtesting 管 setup/thesis/review，Journal 管 execution/fills/PnL/R/discipline/reflection；`liveTrades[]` 暂不迁移，后续先通过 adapter 投影为 JournalExecution。
+
+- [ ] Step 290: Journal Execution Adapter。目标是在不改变 UI、不迁移 localStorage 的前提下，把当前 `JournalDay.liveTrades[]` 投影为 `JournalExecution` read model，为后续 linked setup summary 和 Actual Trades UI rework 做准备。范围：新增 `toJournalExecution` / `getJournalExecutions` 等 adapter；兼容 `orderReviewId` 与 legacy `linkedOrderSetupIds[0]`；保留 unlinked fallback snapshot；补 smoke/unit 覆盖 linked、legacy linked、unlinked 三类记录。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
