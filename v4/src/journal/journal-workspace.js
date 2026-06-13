@@ -3,6 +3,8 @@ import {
   getJournalDay,
   updateJournalDay,
 } from './journal-store.js';
+import { getJournalExecutions } from './journal-execution-adapter.js';
+import { getJournalExecutionDisplayModels } from './journal-execution-setup-summary.js';
 import { restoreJournalDays, saveJournalDays } from './journal-persistence.js';
 
 const WORKSPACE_ID = 'journal-page';
@@ -260,6 +262,18 @@ function formatSummaryValue(value, fallback = '-') {
   return text || fallback;
 }
 
+function formatLinkStatus(value) {
+  if (value === 'linked') return 'Linked setup';
+  if (value === 'missing-linked-setup') return 'Missing setup';
+  return 'Unlinked execution';
+}
+
+function formatSetupTarget(setupSummary = {}) {
+  const targets = Array.isArray(setupSummary.targets) ? setupSummary.targets : [];
+  const target = targets.find((item) => item?.price !== undefined && item?.price !== null);
+  return target ? target.price : null;
+}
+
 function makeOptions(options, selectedValue) {
   return options.map(([value, label]) => (
     `<option value="${value}"${selectedValue === value ? ' selected' : ''}>${label}</option>`
@@ -457,16 +471,26 @@ function renderFillEditor(trade) {
   `;
 }
 
-function renderTradeRow(trade) {
+function renderTradeRow(trade, displayModel = null) {
   const isExpanded = trade.id === expandedTradeId;
   const fillCount = Array.isArray(trade.fills) ? trade.fills.length : 0;
+  const setupSummary = displayModel?.setupSummary || {};
+  const direction = setupSummary.direction ?? trade.direction;
+  const result = setupSummary.result?.status ?? trade.result;
+  const entryPrice = setupSummary.entry?.price ?? null;
+  const stopPrice = setupSummary.stopLoss?.price ?? null;
+  const targetPrice = formatSetupTarget(setupSummary);
   return `
     <article class="journal-trade-row${isExpanded ? ' expanded' : ''}">
       <button type="button" class="journal-trade-summary" data-journal-toggle-trade="${escapeHtml(trade.id)}">
         <span class="journal-trade-pill">${escapeHtml(formatSummaryValue(trade.tradeType))}</span>
-        <span>${escapeHtml(formatSummaryValue(trade.instrument))}</span>
-        <span>${escapeHtml(formatSummaryValue(trade.direction))}</span>
-        <span>${escapeHtml(formatSummaryValue(trade.result, 'No result'))}</span>
+        <span>${escapeHtml(formatLinkStatus(displayModel?.linkStatus))}</span>
+        <span>${escapeHtml(formatSummaryValue(setupSummary.instrument ?? trade.instrument))}</span>
+        <span>${escapeHtml(formatSummaryValue(direction))}</span>
+        <span>${escapeHtml(formatSummaryValue(result, 'No result'))}</span>
+        <span>Entry ${escapeHtml(formatSummaryValue(entryPrice))}</span>
+        <span>Stop ${escapeHtml(formatSummaryValue(stopPrice))}</span>
+        <span>Target ${escapeHtml(formatSummaryValue(targetPrice))}</span>
         <span>PnL ${escapeHtml(formatSummaryValue(trade.netPnl))}</span>
         <span>R ${escapeHtml(formatSummaryValue(trade.rMultipleManual))}</span>
         <span>Fills ${fillCount}</span>
@@ -478,8 +502,12 @@ function renderTradeRow(trade) {
 
 function renderActualTradesSection(day) {
   const liveTrades = Array.isArray(day.liveTrades) ? day.liveTrades : [];
+  const executions = getJournalExecutions(day);
+  const displayModelsById = new Map(
+    getJournalExecutionDisplayModels(executions).map((model) => [model.id, model])
+  );
   const body = liveTrades.length
-    ? liveTrades.map(renderTradeRow).join('')
+    ? liveTrades.map((trade) => renderTradeRow(trade, displayModelsById.get(trade.id))).join('')
     : '<p class="journal-empty-state">No actual trades recorded.</p>';
   return `
     <section class="journal-section">

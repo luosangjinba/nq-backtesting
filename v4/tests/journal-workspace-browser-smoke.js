@@ -415,6 +415,7 @@ async function main() {
     assert.equal(value.restoredDisciplineSummary, 'No real-money impulse trade');
     assert.equal(value.restoredDate, '2026-06-12');
     assert.match(value.restoredTradeText, /simulation/);
+    assert.match(value.restoredTradeText, /Unlinked execution/);
     assert.match(value.restoredTradeText, /ES/);
     assert.match(value.restoredTradeText, /PnL 125.5/);
     assert.match(value.restoredTradeText, /Fills 1/);

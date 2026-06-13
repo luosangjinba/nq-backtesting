@@ -258,7 +258,7 @@ html, body {
   width: 100%;
   min-height: 34px;
   display: grid;
-  grid-template-columns: 92px 72px 72px minmax(90px, 1fr) 90px 72px 72px;
+  grid-template-columns: 92px 126px 64px 64px minmax(82px, 1fr) 82px 76px 88px 90px 72px 72px;
   gap: 8px;
   align-items: center;
   padding: 6px 8px;
