@@ -68,6 +68,106 @@ node v4/tests/journal-workspace-browser-smoke.js
 
 All passed.
 
+# Session 2026-06-13 - Journal Migration Decision
+
+Branch: `feature/research-databento-data-journal`
+
+## Step 295 Plan
+
+Goal:
+
+- Close the current Journal order-linking architecture with a storage/schema decision.
+- Avoid premature migration while the Journal UI is still evolving.
+- Make the compatibility rules explicit for future code.
+
+Decision questions:
+
+- Keep `JournalDay.liveTrades[]` or introduce `executions[]` now?
+- Migrate existing localStorage now or defer?
+- Which field is the primary setup link?
+- How should legacy `linkedOrderSetupIds[]` behave?
+- What future work would justify a schema change?
+
+## Step 295 Decision
+
+Use `JournalDay.liveTrades[]` as the persisted field for the current phase.
+
+Do not introduce `JournalDay.executions[]` yet.
+
+Do not migrate localStorage yet.
+
+Reasoning:
+
+- Current Journal data is local-only and still changing rapidly.
+- The UI is already isolated from raw storage through:
+  - `JournalExecution` adapter
+  - linked setup summary read model
+  - setup link candidate read model
+- A storage rename now would add migration risk without improving the current workflow.
+- Broker import, formal Journal export/import, or multi-account execution import may later justify a cleaner `executions[]` schema.
+
+## Compatibility Rules
+
+Persisted shape:
+
+- Keep writing actual trades under `JournalDay.liveTrades[]`.
+- New code should not treat raw `liveTrades[]` as the final domain model.
+- New code should read actual trades through `getJournalExecutions(day)` or a later equivalent read model.
+
+Primary setup link:
+
+- `liveTrade.orderReviewId` is the primary link from Journal execution to Backtesting Order Setup.
+- Journal UI should write `orderReviewId` when linking a setup.
+
+Legacy setup link:
+
+- `liveTrade.linkedOrderSetupIds[]` remains readable as legacy fallback.
+- `linkedOrderSetupIds[0]` can populate `JournalExecution.orderReviewId` when `orderReviewId` is absent.
+- New Journal UI should not write new `linkedOrderSetupIds[]` values.
+
+Migration:
+
+- No destructive migration.
+- No localStorage rewrite.
+- No field deletion.
+- Existing local Journal days remain readable.
+
+Future schema-change triggers:
+
+- broker import needs a clearer execution schema
+- Journal archive/export/import becomes a first-class feature
+- fills/partials need broker execution IDs
+- multiple accounts require richer account metadata
+- automatic PnL/R needs normalized contract metadata
+- actual trade import needs idempotent merge semantics
+
+If one of those happens, revisit:
+
+- adding `JournalDay.executions[]`
+- reading both `executions[]` and legacy `liveTrades[]`
+- writing only to `executions[]`
+- providing an explicit migration/export tool rather than silent destructive migration
+
+## Step 295 Status
+
+Completed.
+
+Final state:
+
+- `liveTrades[]` remains persisted storage.
+- `JournalExecution` remains the read model.
+- `orderReviewId` is the primary setup link.
+- `linkedOrderSetupIds[]` is legacy read fallback only.
+- No migration is needed for the current Journal/Backtesting linking workflow.
+
+Verification:
+
+```text
+git diff --check
+```
+
+Passed.
+
 Known non-blocking warning:
 
 - Node emits the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM test files because the repo has no local `type: module` package setting.
