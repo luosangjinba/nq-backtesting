@@ -833,9 +833,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 288.6: Documentation closeout：更新 TODO/session，记录改动、未改动项和验证命令。已完成。
 
 - [ ] Step 289: Journal Order Model Alignment。目标是把 Journal 的实际订单/成交记录重新对齐 Backtesting Order Setup 模型：Backtesting 继续作为 setup/订单逻辑权威，Journal 只补实盘/模拟执行、fills、PnL/R、纪律和临场反思。计划见 `v4/sessions/session_20260612_journal_order_alignment_plan.md`。
-  - [ ] Step 289.1: Order model mapping audit：对比 `orderReviews` / `setup-set` / `JournalDay.liveTrades` 字段，列出复用、Journal-only、待迁移、应弱化字段。
-  - [ ] Step 289.2: Alignment design decision：冻结目标模型，优先采用 Order Setup + Journal execution overlay，而不是 Journal 独立完整 order 模型。
-  - [ ] Step 289.3: UI strategy：设计 Journal 如何显示 linked Order Setups、编辑 execution overlay，并提供 open/create/link setup 的入口。
+  - [x] Step 289.1: Order model mapping audit：对比 `orderReviews` / `setup-set` / `JournalDay.liveTrades` 字段，列出复用、Journal-only、待迁移、应弱化字段。已完成：Backtesting 复用 setup/order idea，Journal-only 保留 fills/account/day/PnL/R/discipline/execution reflection，linked Journal UI 应弱化 direction/stop/target/entryReason 等重复字段。
+  - [x] Step 289.2: Alignment design decision：冻结目标模型，优先采用 Order Setup + Journal execution overlay，而不是 Journal 独立完整 order 模型。已完成：采用 `Order Setup + Journal Execution Overlay`，`orderReviewId` 为主链接，允许 unlinked execution 作为冲动/无计划交易 fallback。
+  - [x] Step 289.3: UI strategy：设计 Journal 如何显示 linked Order Setups、编辑 execution overlay，并提供 open/create/link setup 的入口。已完成：Journal Actual Trades 优先显示 linked setup summary，setup 逻辑在 Backtesting 编辑，Journal 只编辑 execution overlay；后续支持 Open in Backtesting / Link existing setup / Add unlinked execution。
   - [ ] Step 289.4: Migration / compatibility plan：决定当前 `liveTrades[]` 的兼容、迁移、unlinked trade 规则。
   - [ ] Step 289.5: Implementation plan：拆出后续安全实现步骤，避免一次性重写 Journal order UI。
   - [ ] Step 289.6: Documentation closeout：记录最终 alignment 决策、目标数据形状、迁移规则和后续实现子步骤。

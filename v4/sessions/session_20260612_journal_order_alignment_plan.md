@@ -109,6 +109,88 @@ Output:
   - fields to remove/deprecate from Journal UI
   - fields needing adapter/migration
 
+## Step 289.1 Status
+
+Completed.
+
+Reviewed:
+
+- `v4/src/order/order-review-store.js`
+- `v4/src/order/setup-set.js`
+- `v4/src/journal/journal-store.js`
+
+Mapping audit:
+
+| Concept | Order Setup authority | Setup Set runtime | Current Journal field | Decision |
+| --- | --- | --- | --- | --- |
+| Instrument | `orderReview.instrument` | setup set source/order alias | `liveTrade.instrument` | Reuse Order Setup when linked; keep Journal only for unlinked execution fallback. |
+| Direction | `entryPlan.direction` | `entry.direction` | `liveTrade.direction` | Reuse Order Setup; Journal direction becomes legacy/fallback only. |
+| Setup/reversal event | `setupThesis.primaryEventTimestamp/Price/Type/Timeframe` | `reversal` | none | Reuse Order Setup. Journal should not recreate this. |
+| Reasons/context | `setupThesis.reasons[]`, `linkedObjectRefs`, `manualEvents` | explanation refs/notes | `entryReason`, `linkedChartNoteIds` | Reuse Order Setup reasons/refs; Journal should only add execution psychology notes. |
+| Entry idea | `entryPlan.entryTimestamp/entryPrice/entryModel/entrySession/patterns` | `entry` | first fill may imply entry | Reuse Order Setup as planned/ideal entry; Journal fills record actual execution. |
+| Stop | `entryPlan.stopLoss`, stop timestamp/timeframe/reason | `stopLoss` | `liveTrade.stopLoss` | Reuse Order Setup; Journal stop field should be deprecated or become actual stop execution note only. |
+| Targets | `entryPlan.target*`, `finalTarget`, selected target type | `targets[]` | `liveTrade.target` | Reuse Order Setup; Journal target field should be deprecated. |
+| Backtesting result | `resultReview.result/exitTimestamp/exitPrice/note` | `result`, derived points/R | `liveTrade.result` | Reuse Order Setup for review/ideal result; Journal result should describe actual execution outcome only if needed. |
+| Actual fills | none | none | `liveTrade.fills[]` | Journal-only; this is the primary value of Journal execution. |
+| Trade type | none | none | `tradeType` | Journal-only: real money / simulation. |
+| Account/day | none | none | `accountId`, `date` | Journal-only: execution belongs to account/day. |
+| Position sizing | none | none | `positionSize`, fill quantity | Journal-only. |
+| Commissions/PnL | none | derived review points/R only | `grossPnl`, `netPnl`, `commissions`, `rMultipleManual` | Journal-only; actual money result is not the same as setup review result. |
+| Timing assessment | none | none | `timingAssessment` | Journal-only execution assessment, optionally compared to linked setup entry. |
+| Followed plan | indirectly implied by linked setup | none | `followedPlan` | Journal-only discipline/execution assessment. |
+| Rule breaks | none | none | `ruleBreaks` | Journal-only. |
+| Before-entry thoughts | none | none | `beforeEntryThoughts` | Journal-only live state. |
+| Management notes | `resultReview.note` is review-oriented | note element | `managementNotes` | Journal-only actual management note. |
+| Reflection | `resultReview.note`, `order.note` | note elements | `reflection`, `whatWasRight`, `whatWasWrong` | Split: setup/result review notes remain in Order Setup; live execution reflection stays Journal-only. |
+| Links to setup | order id is authority | setup set id/orderReview alias | `linkedOrderSetupIds` | Replace with primary `orderReviewId`; support unlinked fallback. |
+
+Fields to keep Journal-only:
+
+- `tradeType`
+- `accountId`
+- `date`
+- `fills[]`
+- `positionSize`
+- `grossPnl`
+- `netPnl`
+- `commissions`
+- `rMultipleManual`
+- `timingAssessment`
+- `followedPlan`
+- `ruleBreaks`
+- `beforeEntryThoughts`
+- `managementNotes`
+- `exitReason`
+- `reflection`
+- optional unlinked `instrument`
+
+Fields to reuse from Order Setup when linked:
+
+- instrument
+- direction
+- setup event/reversal
+- reasons/context refs
+- entry plan
+- stop
+- targets
+- setup review result
+- chart locate/render behavior
+
+Fields to deprecate or hide from linked Journal UI:
+
+- `liveTrade.direction`
+- `liveTrade.stopLoss`
+- `liveTrade.target`
+- `liveTrade.entryReason`
+- `linkedChartNoteIds`
+- broad `result` if it duplicates `resultReview.result`
+
+Fields needing adapter/migration:
+
+- `linkedOrderSetupIds[]` should collapse toward a primary `orderReviewId`.
+- existing unlinked `liveTrades[]` need a compatibility view.
+- `liveTrade.result` must be clarified as actual execution outcome or migrated out of the linked setup path.
+
 ### Step 289.2 - Alignment Design Decision
 
 Choose the target model.
@@ -145,6 +227,58 @@ Possible target shape:
 }
 ```
 
+## Step 289.2 Status
+
+Completed.
+
+Alignment decision:
+
+- Adopt `Order Setup + Journal Execution Overlay`.
+- Backtesting `orderReviews` remains the authority for setup/order idea.
+- `setup-set.js` remains the runtime/view-model authority for chart rendering, locate, Calendar summaries, and Inspector/backtesting interactions.
+- Journal actual execution should become a thin overlay linked to an `orderReviewId`.
+- Journal must not duplicate setup thesis, reasons, entry plan, stop, targets, or chart refs when an Order Setup exists.
+
+Target naming:
+
+- Use `JournalExecution` as the conceptual target name.
+- It may continue to be stored under `JournalDay` for account/day persistence.
+- The UI can still label the section `Actual Trades` if that is clearer to the user.
+
+Target shape, refined:
+
+```js
+{
+  id,
+  accountId,
+  date,
+  orderReviewId,          // primary link to Backtesting Order Setup
+  tradeType,              // real_money | simulation
+  executionStatus,        // planned | taken | missed | skipped | invalidated
+  fills,
+  positionSize,
+  grossPnl,
+  netPnl,
+  commissions,
+  rMultipleManual,
+  timingAssessment,
+  followedPlan,
+  ruleBreaks,
+  beforeEntryThoughts,
+  managementNotes,
+  exitReason,
+  reflection,
+  unlinkedSnapshot        // optional legacy/fallback metadata only
+}
+```
+
+Rules:
+
+- If `orderReviewId` is present, display setup/instrument/direction/entry/stop/targets from Order Setup.
+- If `orderReviewId` is absent, allow an unlinked execution record, but clearly mark it as unlinked.
+- Unlinked execution is valid because real trading can include impulsive or undocumented trades.
+- Ideal hindsight trades should remain Order Setups, not Journal executions.
+
 ### Step 289.3 - UI Strategy
 
 Decide how Journal should expose execution data without duplicating Order Setup UI.
@@ -167,6 +301,76 @@ Out of scope for this design step:
 - Full implementation.
 - Broker import.
 - Automatic PnL/R.
+
+## Step 289.3 Status
+
+Completed.
+
+Target Journal UI strategy:
+
+- Rename the current data concept from full `LiveTradeLog` toward `Journal Execution`.
+- Keep the visible section label as `Actual Trades` for now because it is user-friendly.
+- Actual Trades rows should be grouped by selected Journal date/account.
+- Each row should prefer a linked Order Setup summary:
+  - setup id / label
+  - instrument
+  - direction
+  - planned entry
+  - stop
+  - targets
+  - setup result/review status
+- Journal overlay row fields should focus on execution:
+  - real/sim
+  - execution status
+  - fills count
+  - net PnL
+  - manual R
+  - followed plan
+  - timing assessment
+  - rule break marker
+
+Editor strategy:
+
+- Linked setup summary is read-only in Journal.
+- Editing setup logic happens in Backtesting Order Setup.
+- Editing actual execution happens in Journal.
+- Expanded Journal editor should show:
+  - link/unlink Order Setup
+  - execution metadata
+  - fills editor
+  - execution reflection / rule breaks / management notes
+  - button: Open setup in Backtesting
+
+Actions:
+
+- `Open in Backtesting`
+  - switch workspace to Backtesting
+  - set/locate active Order Setup
+  - optionally load the selected Journal date context
+- `Link existing setup`
+  - choose from Order Setups on the same date/instrument first
+  - allow searching all setup ids later
+- `Create setup from execution`
+  - allowed only as a follow-up implementation step
+  - should create a normal Order Setup, then link this Journal execution
+- `Add unlinked execution`
+  - allowed for impulsive/undocumented trades
+  - UI should label it `Unlinked execution`
+
+What should disappear from linked Journal editor:
+
+- direction selector
+- stop/target fields
+- entry reason as setup thesis
+- chart refs
+
+What should remain in Journal editor:
+
+- trade type
+- fills
+- actual PnL/R
+- timing/followed-plan/rule-break assessment
+- execution/management/reflection notes
 
 ### Step 289.4 - Migration / Compatibility Plan
 
