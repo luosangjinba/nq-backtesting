@@ -1,4 +1,4 @@
-import { getSetupSets } from '../order/setup-set.js';
+import { getSetupSetById, getSetupSets } from '../order/setup-set.js';
 import { getLiveRecordSets } from '../live-record/live-record-set.js';
 import {
   getLiveRecordStatusLabel,
@@ -154,6 +154,9 @@ function summarizeLiveRecordSet(liveRecordSet) {
   const reviewStatus = needsLiveRecordReview(liveRecordSet.liveRecord || liveRecordSet)
     ? 'Needs Review'
     : '';
+  const linkedSetup = liveRecordSet.orderSetupId && getSetupSetById(liveRecordSet.orderSetupId)
+    ? `Setup ${String(liveRecordSet.orderSetupId).slice(0, 12)}`
+    : '';
   const resultStatus = String(result.status || '').toLowerCase() === 'unknown'
     ? ''
     : titleCase(result.status, '');
@@ -162,6 +165,7 @@ function summarizeLiveRecordSet(liveRecordSet) {
     status,
     compactTime(getLiveRecordDateTimestamp(liveRecordSet)),
     compactPrice(entry.price ?? anchor.price),
+    linkedSetup,
     reviewStatus,
     resultStatus,
     exit,

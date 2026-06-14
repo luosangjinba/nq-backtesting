@@ -504,3 +504,26 @@ Verification:
 - Ran `node v4/tests/live-record-chart-actions-smoke.js`.
 
 Next step: Step 288.8 polishes the optional Live Record to Order Setup review link workflow.
+
+## Step 288.8 Completion - Linked Setup Workflow Polished
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Live Record Detail now includes a compact `Linked Order Setup` panel.
+- The panel shows:
+  - linked setup label;
+  - missing setup label when the stored id no longer resolves;
+  - `Open Setup` when a linked setup exists;
+  - `Link Active Setup`;
+  - `Unlink Setup`.
+- Calendar Live Record summary now includes a short linked setup id when the linked setup exists.
+- Live Records remain standalone by default; linking does not mutate Order Setup execution fields.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to cover the linked setup panel, Open Setup action rendering, link/unlink, and Calendar linked setup summary.
+- Ran `node v4/tests/live-record-smoke.js`.
+
+Next step: Step 288.9 adds lightweight review filtering/search support without introducing a standalone Live Orders panel.

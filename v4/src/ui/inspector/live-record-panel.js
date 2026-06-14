@@ -7,6 +7,7 @@ import {
   LIVE_RECORD_REASON_CATEGORIES,
   LIVE_RECORD_RESULT_STATUSES,
 } from '../../live-record/live-record-types.js';
+import { getSetupSetById } from '../../order/setup-set.js';
 import { createLiveRecordSet } from '../../live-record/live-record-set.js';
 import { getSelectedLiveRecordElement } from '../../live-record/live-record-selection.js';
 import {
@@ -181,6 +182,33 @@ function renderAnchorPanel(liveSet) {
   `;
 }
 
+function renderLinkedSetupPanel(record) {
+  const setupId = record.orderSetupId || '';
+  const setup = setupId ? getSetupSetById(setupId) : null;
+  const setupLabel = setup
+    ? `Order Setup · ${shortRefId(setup.id)}`
+    : setupId
+      ? `Missing Order Setup · ${shortRefId(setupId)}`
+      : 'No linked Order Setup';
+  return `
+    <div class="order-review-compact order-review-linked-setup-panel">
+      <div class="order-review-compact-title">Linked Order Setup</div>
+      <div class="drawing-set-meta">${escapeHtml(setupLabel)}</div>
+      <div class="order-review-actions order-review-compact-actions">
+        ${setup ? `<button
+          class="inspector-secondary"
+          data-inspector-action="calendar-object-open"
+          data-object-type="order-setup"
+          data-object-id="${escapeHtml(setup.id)}"
+          type="button"
+        >Open Setup</button>` : ''}
+        <button class="inspector-secondary" data-inspector-action="live-record-link-active-setup" data-live-record-id="${escapeHtml(record.id)}" type="button">Link Active Setup</button>
+        ${setupId ? `<button class="inspector-secondary" data-inspector-action="live-record-unlink-setup" data-live-record-id="${escapeHtml(record.id)}" type="button">Unlink Setup</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
 function formatExecutionMetaPart(value) {
   const text = String(value || '').trim();
   if (!text) return '';
@@ -339,6 +367,7 @@ function renderLiveRecord(record) {
       ${renderDisplayPanel(record)}
       ${renderSummaryPanel(record)}
       ${renderAnchorPanel(liveSet)}
+      ${renderLinkedSetupPanel(record)}
       ${renderExecutionPanel(liveSet)}
       ${renderReasonRows(record)}
       ${renderResultPanel(record, liveSet)}

@@ -421,6 +421,7 @@ assert.match(detailHtml, /Mark Reviewed/, 'detail header renders review lifecycl
 assert.match(detailHtml, /Display/, 'detail renders Display');
 assert.match(detailHtml, /Summary/, 'detail renders Summary');
 assert.match(detailHtml, /Anchor/, 'detail renders Anchor');
+assert.match(detailHtml, /Linked Order Setup/, 'detail renders linked setup panel');
 assert.match(detailHtml, /Short/, 'detail uses Order Setup direction vocabulary');
 assert.doesNotMatch(detailHtml, /Bearish/, 'detail does not mix bullish/bearish direction vocabulary');
 assert.match(detailHtml, /Execution/, 'detail renders Execution');
@@ -469,6 +470,11 @@ assert.equal(actions.handleClick('live-record-toggle-hidden', makeTarget(chartLi
 assert.equal(getLiveRecordById(chartLiveId).display.hidden, true, 'hide action updates');
 assert.equal(actions.handleClick('live-record-link-active-setup', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).orderSetupId, setup.id, 'link active setup action updates live record');
+const linkedDetailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
+assert.match(linkedDetailHtml, /Order Setup · setup-live-smoke/, 'detail renders linked setup label');
+assert.match(linkedDetailHtml, /Open Setup/, 'detail renders linked setup open action');
+const linkedCalendarGroup = getCalendarDayGroups('2024-03-18').find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
+assert.match(linkedCalendarGroup.rows[0].label, /Setup setup-live-s/, 'Calendar live row shows linked setup');
 assert.equal(actions.handleClick('live-record-unlink-setup', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).orderSetupId, '', 'unlink action updates live record');
 assert.equal(actions.handleClick('live-record-reason-add', makeTarget(chartLiveId)), true);
