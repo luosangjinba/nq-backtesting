@@ -4,7 +4,8 @@ import {
   getLiveRecordById,
   updateLiveRecord,
 } from './live-record-store.js';
-import { LIVE_RECORD_DIRECTIONS, LIVE_RECORD_STATUSES } from './live-record-types.js';
+import { getLiveRecordDefaultChartStatus } from './live-record-lifecycle.js';
+import { LIVE_RECORD_DIRECTIONS } from './live-record-types.js';
 
 let activeLiveRecordId = null;
 let initialized = false;
@@ -46,7 +47,7 @@ export function createLiveRecordFromAnchor(anchor = {}, options = {}) {
   const record = addLiveRecord({
     instrument: options.instrument,
     direction: options.direction || LIVE_RECORD_DIRECTIONS.UNKNOWN,
-    status: options.status || LIVE_RECORD_STATUSES.DRAFT,
+    status: options.status || getLiveRecordDefaultChartStatus(),
     summary: options.summary || '',
     anchor,
   }, options);

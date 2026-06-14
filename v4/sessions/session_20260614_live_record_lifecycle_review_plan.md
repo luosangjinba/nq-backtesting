@@ -397,3 +397,29 @@ Note:
 - This substep intentionally does not yet change chart creation or action behavior. Step 288.3 wires the helpers into mutation actions.
 
 Next step: Step 288.3 adds lifecycle mutation actions and connects chart-created records to the frozen default status.
+
+## Step 288.3 Completion - Lifecycle Actions Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Added `v4/src/live-record/live-record-lifecycle-actions.js`.
+- Added `setLiveRecordLifecycleStatus()`.
+- Added wrappers:
+  - `closeLiveRecord()`
+  - `cancelLiveRecord()`
+  - `markLiveRecordReviewed()`
+  - `reopenLiveRecord()`
+- Lifecycle mutations validate the frozen transition table from Step 288.1.
+- Lifecycle mutations are wrapped in `recordHistory()`.
+- Terminal statuses clear active Live Record selection when the affected record is active.
+- `createLiveRecordFromAnchor()` now defaults chart-created records to `active` via `getLiveRecordDefaultChartStatus()`.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to cover invalid transitions, close/cancel/review/reopen actions, active clearing on terminal status, and chart-created default `active` status.
+- Ran `node v4/tests/live-record-smoke.js`.
+- Ran `node v4/tests/live-record-chart-actions-smoke.js`.
+
+Next step: Step 288.4 exposes compact lifecycle controls in the Live Record Detail header.

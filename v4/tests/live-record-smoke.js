@@ -19,8 +19,16 @@ import {
 import {
   getActiveLiveRecordId,
   initLiveRecordActive,
+  setActiveLiveRecord,
 } from '../src/live-record/live-record-active.js';
 import { createLiveRecordSet } from '../src/live-record/live-record-set.js';
+import {
+  cancelLiveRecord,
+  closeLiveRecord,
+  markLiveRecordReviewed,
+  reopenLiveRecord,
+  setLiveRecordLifecycleStatus,
+} from '../src/live-record/live-record-lifecycle-actions.js';
 import {
   canTransitionLiveRecordStatus,
   getLiveRecordAllowedNextStatuses,
@@ -116,6 +124,26 @@ record.summary = 'mutated outside';
 assert.equal(getLiveRecordById('live-smoke').summary, 'Initial live record', 'store returns clones');
 assert.equal(getOrderReviewById(setup.id).id, setup.id, 'adding live record does not mutate setup');
 
+const lifecycleRecord = addLiveRecord({
+  id: 'live-lifecycle',
+  instrument: 'NQ',
+  status: 'draft',
+}, { now: 4 });
+assert.equal(markLiveRecordReviewed(lifecycleRecord.id, { emitStatus: false }), null, 'invalid lifecycle transition is rejected');
+assert.ok(setLiveRecordLifecycleStatus(lifecycleRecord.id, 'active', { emitStatus: false }), 'draft record can become active');
+assert.equal(setActiveLiveRecord(lifecycleRecord.id), true, 'lifecycle record can be active');
+assert.ok(closeLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'active record can close');
+assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'closed', 'close action stores closed status');
+assert.equal(getActiveLiveRecordId(), null, 'terminal lifecycle status clears active live record');
+assert.ok(reopenLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'closed record can reopen');
+assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'active', 'reopen action stores active status');
+assert.ok(cancelLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'active record can cancel');
+assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'cancelled', 'cancel action stores cancelled status');
+assert.ok(reopenLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'cancelled record can reopen');
+assert.ok(closeLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'reopened record can close again');
+assert.ok(markLiveRecordReviewed(lifecycleRecord.id, { emitStatus: false }), 'closed record can be marked reviewed');
+assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'reviewed', 'review action stores reviewed status');
+
 const richRecord = addLiveRecord({
   id: 'live-rich-shape',
   instrument: 'NQ',
@@ -187,7 +215,7 @@ addLiveRecord({
 }, { now: 3 });
 assert.equal(saveLiveRecords('ES'), true, 'ES live records save');
 loadLiveRecords([]);
-assert.equal(restoreLiveRecords('NQ'), 2, 'NQ restore loads instrument records');
+assert.equal(restoreLiveRecords('NQ'), 3, 'NQ restore loads instrument records');
 assert.equal(getLiveRecordById('live-smoke').instrument, 'NQ', 'NQ record restored');
 assert.equal(getLiveRecordById('live-rich-shape').execution.targets[0].role, 'targetExternal1', 'NQ rich record shape restored');
 loadLiveRecords([]);
@@ -227,6 +255,7 @@ assert.equal(handleLiveRecordChartAction('live-record-create-bearish', {
 const chartLiveId = getActiveLiveRecordId();
 assert.ok(chartLiveId, 'chart-created live record becomes active');
 assert.equal(getLiveRecordById(chartLiveId).direction, 'short', 'bearish chart-created live record is short');
+assert.equal(getLiveRecordById(chartLiveId).status, 'active', 'chart-created live record defaults to active status');
 assert.equal(getLiveRecordById(chartLiveId).anchor.price, 18366.5, 'chart price becomes live anchor');
 assert.equal(getActiveReviewSetId(), activeSetupBefore, 'chart-created live record preserves active setup');
 assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } }), /Close Active Live Record/, 'chart menu renders active close action');
