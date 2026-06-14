@@ -487,3 +487,28 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.7 adds the Live Record chart renderer.
+
+## Step 286.7 Completion - Live Record Renderer Added
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Added `live-record-projection.js` for Live Record timestamp mapping, display bar lookup, and line length handling.
+- Added `live-record-renderer.js` for primary chart rendering.
+- Renderer draws anchor marker, entry line, MSS line, stop line, target lines, and result exit helper.
+- Renderer respects hidden Live Records, per-element hidden state, and active Live Record emphasis.
+- `createLiveRecordSet()` now exposes display settings for renderer use.
+- `app.js` initializes the Live Record renderer with the rest of Live Record runtime.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-projection.js`
+- `node --check v4/src/live-record/live-record-renderer.js`
+- `node --check v4/src/live-record/live-record-set.js`
+- `node --check v4/src/app.js`
+- `node v4/tests/live-record-smoke.js`
+
+Note: Visual/browser verification is kept for Step 286.12. Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.8 adds Live Record hit-test and selection.

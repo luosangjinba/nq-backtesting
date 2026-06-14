@@ -58,6 +58,10 @@ export function createLiveRecordSet(record = {}) {
     status: record.status,
     summary: record.summary || '',
     orderSetupId: record.orderSetupId || '',
+    display: {
+      ...(record.display || {}),
+      elementVisibility: { ...(record.display?.elementVisibility || {}) },
+    },
     primaryTimestamp,
     range: timestampRangeFromValues([
       anchor.timestamp,
