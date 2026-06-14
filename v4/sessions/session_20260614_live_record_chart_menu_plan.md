@@ -512,3 +512,34 @@ Verification:
 Note: Visual/browser verification is kept for Step 286.12. Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.8 adds Live Record hit-test and selection.
+
+## Step 286.8 Completion - Live Record Hit-Test And Selection Added
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Added `live-record-hit-test.js` with anchor, entry, MSS, stop, target, and result hit metadata.
+- Added `live-record-selection.js` with isolated Live Record element selection state and bus events.
+- `manual-annotation.js` now runs Live Record hit-test on primary chart right-click and passes hit metadata into the Live Record menu.
+- Live Record menu now includes a `Live Record Element` submenu for Set Active, Select Element, Hide Element, Delete Element, and Delete Record.
+- Hit actions mutate only Live Records and are wrapped in history where they change data.
+- Renderer now highlights selected Live Record elements with selected line style.
+- Fixed Live Record line-length projection so `lineLengthBars: null` falls back to the default length instead of becoming zero.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-hit-test.js`
+- `node --check v4/src/live-record/live-record-selection.js`
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/src/live-record/live-record-renderer.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/app.js`
+- `node --check v4/src/live-record/live-record-projection.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `git diff --check`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.9 polishes Inspector and Calendar sync after chart-first edits.

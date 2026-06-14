@@ -6,8 +6,18 @@ import {
   clearActiveLiveRecord,
   createLiveRecordFromAnchor,
   getActiveLiveRecord,
+  setActiveLiveRecord,
   patchActiveLiveRecord,
 } from './live-record-active.js';
+import {
+  deleteLiveRecord,
+  getLiveRecordById,
+  updateLiveRecord,
+} from './live-record-store.js';
+import {
+  clearLiveRecordElementSelection,
+  selectLiveRecordElement,
+} from './live-record-selection.js';
 import {
   LIVE_RECORD_DIRECTIONS,
   LIVE_RECORD_REASON_CATEGORIES,
@@ -48,6 +58,11 @@ export const LIVE_RECORD_CHART_ACTIONS = Object.freeze({
   LINK_COMPOSITE: 'live-record-link-composite',
   LINK_LATEST_SMT: 'live-record-link-latest-smt',
   LINK_CHART_NOTE: 'live-record-link-chart-note',
+  HIT_SET_ACTIVE: 'live-record-hit-set-active',
+  HIT_SELECT_ELEMENT: 'live-record-hit-select-element',
+  HIT_HIDE_ELEMENT: 'live-record-hit-hide-element',
+  HIT_DELETE_ELEMENT: 'live-record-hit-delete-element',
+  HIT_DELETE_RECORD: 'live-record-hit-delete-record',
 });
 
 const LIVE_RECORD_TARGET_MENU_ITEMS = Object.freeze([
@@ -330,6 +345,47 @@ function getActiveLiveRecordLabel() {
   return `${direction} · ${active.id.slice(0, 18)}`;
 }
 
+function getLiveRecordElementLabel(role) {
+  if (role === 'anchor') return 'Anchor';
+  if (role === 'entry') return 'Entry';
+  if (role === 'marketStructureShift') return 'MSS';
+  if (role === 'stopLoss') return 'Stop Loss';
+  if (role === 'targetInternal1') return 'Target Internal 1';
+  if (role === 'targetInternal2') return 'Target Internal 2';
+  if (role === 'targetInternal3') return 'Target Internal 3';
+  if (role === 'targetSwingPoint') return 'Target Swing Point';
+  if (role === 'targetExternal1') return 'Target External 1';
+  if (role === 'targetExternal2') return 'Target External 2';
+  if (role === 'finalTarget') return 'Target External 3';
+  if (role === 'result') return 'Result';
+  return role || 'Element';
+}
+
+function getHitLiveRecordMenuItems(liveRecordHit) {
+  const hits = Array.isArray(liveRecordHit?.hits) ? liveRecordHit.hits : [];
+  if (!hits.length) return '';
+  const rows = hits
+    .map((hit) => {
+      const label = `${getLiveRecordElementLabel(hit.element)} · ${hit.liveRecordId.slice(0, 18)}`;
+      return `
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${hit.liveRecordId}">Set Active · ${hit.liveRecordId.slice(0, 18)}</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SELECT_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Select ${label}</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_HIDE_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Hide ${label}</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Delete ${label}</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${hit.liveRecordId}">Delete Live Record</button>
+      `;
+    })
+    .join('');
+  return `
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Live Record Element</div>
+      <div class="pda-submenu-panel">
+        ${rows}
+      </div>
+    </div>
+  `;
+}
+
 function renderTargetSubmenu({ activeDisabled, disabled, isEnd = false } = {}) {
   const actionDisabled = activeDisabled || disabled;
   const label = isEnd ? 'Target Ends' : 'Targets';
@@ -356,6 +412,7 @@ export function renderLiveRecordMenuItems({
   segmentHit = null,
   segmentGroupHit = null,
   chartNote = null,
+  liveRecordHit = null,
   isShift = false,
 } = {}) {
   const disabled = bar ? '' : 'disabled';
@@ -381,6 +438,7 @@ export function renderLiveRecordMenuItems({
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_RESULT_EXIT}" ${activeDisabled || disabled}>Set Result / Exit Here</button>
       `;
   return `
+    ${getHitLiveRecordMenuItems(liveRecordHit)}
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Live Records</div>
       <div class="pda-submenu-panel">
@@ -394,6 +452,54 @@ export function renderLiveRecordMenuItems({
   `;
 }
 
+function deleteLiveRecordElement(liveRecordId, element) {
+  const record = getLiveRecordById(liveRecordId);
+  if (!record) return false;
+  if (element === 'anchor') {
+    return Boolean(updateLiveRecord(liveRecordId, { anchor: { timestamp: null, price: null, timeframe: 'manual' } }));
+  }
+  if (element === 'entry' || element === 'marketStructureShift' || element === 'stopLoss') {
+    return Boolean(updateLiveRecord(liveRecordId, {
+      execution: {
+        [element]: {
+          timestamp: null,
+          timeframe: 'manual',
+          price: null,
+          endTimestamp: null,
+          endTimeframe: 'manual',
+        },
+      },
+    }));
+  }
+  if (element === 'result') {
+    return Boolean(updateLiveRecord(liveRecordId, {
+      result: {
+        exitTimestamp: null,
+        exitTimeframe: 'manual',
+        exitPrice: null,
+      },
+    }));
+  }
+  const targets = Array.isArray(record.execution?.targets)
+    ? record.execution.targets.filter((target) => target.role !== element && target.id !== element)
+    : [];
+  return Boolean(updateLiveRecord(liveRecordId, { execution: { targets } }));
+}
+
+function hideLiveRecordElement(liveRecordId, element) {
+  const record = getLiveRecordById(liveRecordId);
+  if (!record || !element) return false;
+  return Boolean(updateLiveRecord(liveRecordId, {
+    display: {
+      ...(record.display || {}),
+      elementVisibility: {
+        ...(record.display?.elementVisibility || {}),
+        [element]: false,
+      },
+    },
+  }));
+}
+
 export function handleLiveRecordChartAction(action, {
   bar = null,
   price = null,
@@ -402,7 +508,51 @@ export function handleLiveRecordChartAction(action, {
   segmentHit = null,
   segmentGroupHit = null,
   chartNote = null,
+  liveRecordId = '',
+  liveRecordElement = '',
 } = {}) {
+  if (action === LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE) {
+    const active = setActiveLiveRecord(liveRecordId);
+    bus.emit('status:update', {
+      text: active ? `Active Live Record: ${liveRecordId}` : 'Live Record cannot be activated',
+      isError: !active,
+    });
+    return true;
+  }
+  if (action === LIVE_RECORD_CHART_ACTIONS.HIT_SELECT_ELEMENT) {
+    const selection = selectLiveRecordElement(liveRecordId, liveRecordElement);
+    bus.emit('status:update', {
+      text: selection ? `Selected ${getLiveRecordElementLabel(liveRecordElement)}` : 'Live Record element cannot be selected',
+      isError: !selection,
+    });
+    return true;
+  }
+  if (action === LIVE_RECORD_CHART_ACTIONS.HIT_HIDE_ELEMENT) {
+    const hidden = recordHistory('Hide Live Record Element', () => hideLiveRecordElement(liveRecordId, liveRecordElement));
+    bus.emit('status:update', {
+      text: hidden ? `${getLiveRecordElementLabel(liveRecordElement)} hidden` : 'Live Record element cannot be hidden',
+      isError: !hidden,
+    });
+    return true;
+  }
+  if (action === LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_ELEMENT) {
+    const deleted = recordHistory('Delete Live Record Element', () => deleteLiveRecordElement(liveRecordId, liveRecordElement));
+    if (deleted) clearLiveRecordElementSelection();
+    bus.emit('status:update', {
+      text: deleted ? `${getLiveRecordElementLabel(liveRecordElement)} deleted` : 'Live Record element cannot be deleted',
+      isError: !deleted,
+    });
+    return true;
+  }
+  if (action === LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD) {
+    const deleted = recordHistory('Delete Live Record', () => deleteLiveRecord(liveRecordId));
+    clearLiveRecordElementSelection();
+    bus.emit('status:update', {
+      text: deleted ? `Live Record deleted: ${liveRecordId}` : 'Live Record cannot be deleted',
+      isError: !deleted,
+    });
+    return true;
+  }
   if (action === LIVE_RECORD_CHART_ACTIONS.CLEAR_ACTIVE) {
     const cleared = clearActiveLiveRecord();
     bus.emit('status:update', {

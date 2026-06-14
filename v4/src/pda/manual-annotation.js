@@ -59,6 +59,7 @@ import {
   handleLiveRecordChartAction,
   renderLiveRecordMenuItems,
 } from '../live-record/live-record-chart-actions.js';
+import { hitTestLiveRecordElements } from '../live-record/live-record-hit-test.js';
 import { hitTestOrderSetupElements } from '../order/order-setup-hit-test.js';
 import { recordHistory } from '../history/history-manager.js';
 import {
@@ -100,6 +101,7 @@ let contextMenuPdaHit = null;
 let contextMenuSegmentHit = null;
 let contextMenuSegmentGroupHit = null;
 let contextMenuOrderSetupHit = null;
+let contextMenuLiveRecordHit = null;
 let contextMenuShiftKey = false;
 let contextMenuPoint = null;
 let chartNoteEditorEl = null;
@@ -428,6 +430,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
       segmentHit,
       segmentGroupHit,
       chartNote: getChartNoteAtContextBar() || getChartNoteRangeAtContextBar(),
+      liveRecordHit: contextMenuLiveRecordHit,
       isShift: contextMenuShiftKey,
     }),
     segmentPdaLinkItems,
@@ -448,6 +451,7 @@ function hideContextMenu() {
   contextMenuSegmentHit = null;
   contextMenuSegmentGroupHit = null;
   contextMenuOrderSetupHit = null;
+  contextMenuLiveRecordHit = null;
   contextMenuShiftKey = false;
   contextMenuPoint = null;
   if (controlsEl) {
@@ -473,7 +477,9 @@ function handleContextMenu(e) {
   const segmentHit = hitTestSegments({ x, y });
   const segmentGroupHit = hitTestSegmentGroups({ x, y });
   const orderSetupHit = hitTestOrderSetupElements({ x, y });
+  const liveRecordHit = hitTestLiveRecordElements({ x, y });
   contextMenuOrderSetupHit = orderSetupHit;
+  contextMenuLiveRecordHit = liveRecordHit;
   contextMenuShiftKey = e.shiftKey;
   contextMenuPoint = { x, y };
 
@@ -504,6 +510,8 @@ async function handleControlClick(e) {
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,
     chartNote: getChartNoteAtContextBar() || getChartNoteRangeAtContextBar(),
+    liveRecordId: e.target.closest('[data-live-record-id]')?.dataset.liveRecordId || '',
+    liveRecordElement: e.target.closest('[data-live-record-element]')?.dataset.liveRecordElement || '',
   })) {
     hideContextMenu();
   } else if (handleOrderSetupChartAction(action, {

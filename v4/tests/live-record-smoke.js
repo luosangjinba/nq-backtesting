@@ -21,6 +21,8 @@ import {
   initLiveRecordActive,
 } from '../src/live-record/live-record-active.js';
 import { createLiveRecordSet } from '../src/live-record/live-record-set.js';
+import { hitTestLiveRecordElements } from '../src/live-record/live-record-hit-test.js';
+import { getSelectedLiveRecordElement } from '../src/live-record/live-record-selection.js';
 import {
   clearSavedLiveRecords,
   getLiveRecordStorageKey,
@@ -263,6 +265,51 @@ assert.equal(chartRecordAfterLinks.reasons[0].refs.length, 5, 'evidence links ar
 assert.equal(chartRecordAfterLinks.linkedObjectRefs.length, 5, 'evidence links are de-duped in linked refs');
 assert.equal(chartRecordAfterLinks.reasons[0].refs.filter((ref) => ref.type === 'pda').length, 1, 'duplicate PDA ref is de-duped');
 assert.equal(getOrderReviewById(setup.id).setupThesis.reasons?.[0]?.refs?.length || 0, 0, 'live evidence links do not mutate setup refs');
+const liveHit = hitTestLiveRecordElements({
+  x: 110,
+  y: 250,
+  context: {
+    timeframe: 5,
+    getDisplayBars: () => [{ timestamp: 1710770400, high: 18365, low: 18355 }],
+    timeToCoordinate: (time) => (Number(time) === 1710770400 ? 100 : null),
+    priceToCoordinate: (value) => (Number(value) === 18361.25 ? 250 : null),
+  },
+}).primaryHit;
+assert.equal(liveHit?.liveRecordId, chartLiveId, 'hit-test returns live record id');
+assert.equal(liveHit?.element, 'entry', 'hit-test returns live record element');
+
+const hitRecord = addLiveRecord({
+  id: 'live-hit-actions',
+  instrument: 'NQ',
+  anchor: { timestamp: 1710770400, timeframe: '1H', price: 18366.36 },
+  execution: {
+    entry: { timestamp: 1710770460, timeframe: '1M', price: 18361.25 },
+    targets: [{ role: 'targetExternal1', timestamp: 1710770580, timeframe: '5M', price: 18325.5 }],
+  },
+}, { now: 7 });
+assert.equal(handleLiveRecordChartAction('live-record-hit-set-active', {
+  liveRecordId: hitRecord.id,
+}), true, 'hit action sets active live record');
+assert.equal(getActiveLiveRecordId(), hitRecord.id, 'hit set active changes active live record');
+assert.equal(handleLiveRecordChartAction('live-record-hit-select-element', {
+  liveRecordId: hitRecord.id,
+  liveRecordElement: 'entry',
+}), true, 'hit action selects live record element');
+assert.equal(getSelectedLiveRecordElement()?.element, 'entry', 'selected live record element is stored');
+assert.equal(handleLiveRecordChartAction('live-record-hit-hide-element', {
+  liveRecordId: hitRecord.id,
+  liveRecordElement: 'entry',
+}), true, 'hit action hides live record element');
+assert.equal(getLiveRecordById(hitRecord.id).display.elementVisibility.entry, false, 'hit hide stores element visibility');
+assert.equal(handleLiveRecordChartAction('live-record-hit-delete-element', {
+  liveRecordId: hitRecord.id,
+  liveRecordElement: 'targetExternal1',
+}), true, 'hit action deletes live record element');
+assert.equal(getLiveRecordById(hitRecord.id).execution.targets.length, 0, 'hit delete removes only selected target');
+assert.equal(handleLiveRecordChartAction('live-record-hit-delete-record', {
+  liveRecordId: hitRecord.id,
+}), true, 'hit action deletes live record');
+assert.equal(getLiveRecordById(hitRecord.id), null, 'hit delete record removes only live record');
 
 const liveDateGroups = getCalendarDayGroups('2024-03-18');
 const liveGroup = liveDateGroups.find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);

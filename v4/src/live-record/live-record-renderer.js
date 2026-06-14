@@ -4,6 +4,7 @@ import * as store from '../data/bar-store.js';
 import { BarMarkerPrimitive, LiquidityPrimitive } from '../chart/primitives.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { getActiveLiveRecordId } from './live-record-active.js';
+import { getSelectedLiveRecordElement } from './live-record-selection.js';
 import { LIVE_RECORD_DIRECTIONS } from './live-record-types.js';
 import { getLiveRecordSets } from './live-record-set.js';
 import {
@@ -20,8 +21,10 @@ const MSS_COLOR = '#b0bec5';
 const STOP_COLOR = '#64b5f6';
 const TARGET_COLOR = '#ba68c8';
 const RESULT_COLOR = '#90caf9';
+const SELECTED_ELEMENT_COLOR = '#ffd54f';
 const PLAN_LINE_WIDTH = 1;
 const ACTIVE_PLAN_LINE_WIDTH = 1.35;
+const SELECTED_PLAN_LINE_WIDTH = 1.85;
 
 let renderedPrimitives = [];
 
@@ -175,47 +178,52 @@ function renderLiveRecordSet(liveSet, isActive = false) {
   const lineWidth = isActive ? ACTIVE_PLAN_LINE_WIDTH : PLAN_LINE_WIDTH;
   const entryColor = getEntryLineColor(direction);
   const targetPosition = direction === LIVE_RECORD_DIRECTIONS.SHORT ? 'below' : 'above';
+  const selected = getSelectedLiveRecordElement();
+  const isSelectedElement = (role) => selected?.liveRecordId === liveSet.id && selected?.element === role;
 
   renderAnchorMarker(anchor, direction, isActive);
 
   if (isElementVisible(liveSet, 'entry', entry) && entry.complete) {
+    const selectedEntry = isSelectedElement('entry');
     renderPlanLine(
       entryTimestamp,
       entry.price,
       `${getLineLabelDirection(direction)} Live Entry`,
-      entryColor,
+      selectedEntry ? SELECTED_ELEMENT_COLOR : entryColor,
       targetPosition,
       getLiveRecordElementLineLength(entry),
-      lineWidth,
-      'solid',
+      selectedEntry ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
+      selectedEntry ? 'dashed' : 'solid',
       entry.endTimestamp
     );
   }
 
   if (isElementVisible(liveSet, 'marketStructureShift', marketStructureShift) && marketStructureShift.complete) {
+    const selectedMss = isSelectedElement('marketStructureShift');
     renderPlanLine(
       marketStructureShift.timestamp || entryTimestamp,
       marketStructureShift.price,
       'Live MSS',
-      MSS_COLOR,
+      selectedMss ? SELECTED_ELEMENT_COLOR : MSS_COLOR,
       'above',
       getLiveRecordElementLineLength(marketStructureShift, LIVE_RECORD_LINE_LENGTH_BARS + 4),
-      lineWidth,
-      'solid',
+      selectedMss ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
+      selectedMss ? 'dashed' : 'solid',
       marketStructureShift.endTimestamp
     );
   }
 
   if (isElementVisible(liveSet, 'stopLoss', stopLoss) && stopLoss.complete) {
+    const selectedStop = isSelectedElement('stopLoss');
     renderPlanLine(
       stopLoss.timestamp || entryTimestamp,
       stopLoss.price,
       'Live Stop',
-      STOP_COLOR,
+      selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
       direction === LIVE_RECORD_DIRECTIONS.SHORT ? 'above' : 'below',
       getLiveRecordElementLineLength(stopLoss, LIVE_RECORD_LINE_LENGTH_BARS + 6),
-      lineWidth,
-      'solid',
+      selectedStop ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
+      selectedStop ? 'dashed' : 'solid',
       stopLoss.endTimestamp
     );
   }
@@ -223,15 +231,16 @@ function renderLiveRecordSet(liveSet, isActive = false) {
   targets
     .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && target.complete)
     .forEach((target, index) => {
+      const selectedTarget = isSelectedElement(target.role || target.id);
       renderPlanLine(
         target.timestamp || entryTimestamp,
         target.price,
         target.label || 'Live Target',
-        TARGET_COLOR,
+        selectedTarget ? SELECTED_ELEMENT_COLOR : TARGET_COLOR,
         targetPosition,
         getLiveRecordElementLineLength(target, LIVE_RECORD_LINE_LENGTH_BARS + index * 6),
-        lineWidth,
-        'solid',
+        selectedTarget ? SELECTED_PLAN_LINE_WIDTH : lineWidth,
+        selectedTarget ? 'dashed' : 'solid',
         target.endTimestamp
       );
     });
@@ -252,6 +261,8 @@ export function renderLiveRecords() {
 export function initLiveRecordRenderer() {
   bus.on('live-record:changed', renderLiveRecords);
   bus.on('live-record-active:changed', renderLiveRecords);
+  bus.on('live-record-element:selected', renderLiveRecords);
+  bus.on('live-record-element:selection-cleared', renderLiveRecords);
   bus.on('bars:loaded', renderLiveRecords);
   bus.on('display-preferences:changed', renderLiveRecords);
   bus.on('primary-instrument:changed', renderLiveRecords);
