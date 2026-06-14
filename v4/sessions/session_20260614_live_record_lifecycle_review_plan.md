@@ -573,3 +573,36 @@ Verification:
 - Ran `node v4/tests/daily-time-review-archive-smoke.js`.
 
 Next step: Step 288.11 runs the focused and browser verification pass for the full lifecycle/review workflow.
+
+## Step 288.11 Completion - Focused And Browser Verification
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Extended `v4/tests/live-record-browser-smoke.js` so the browser workflow now covers:
+  - chart-created bearish and bullish Live Records;
+  - execution writes;
+  - result exit;
+  - evidence link;
+  - lifecycle close -> reviewed;
+  - execution review note rendering;
+  - Calendar reviewed summary;
+  - Detail reviewed/review note rendering;
+  - no standalone `Live Orders` panel.
+
+Verification commands:
+
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/daily-time-review-archive-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `git diff --check`
+
+Result:
+
+- All commands passed.
+- Node still reports the existing typeless package ES module warning.
+
+Next step: Step 288.12 updates final documentation and marks Step 288 complete.

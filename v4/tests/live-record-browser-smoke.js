@@ -193,6 +193,16 @@ async function main() {
             price: 18380,
             timeframe: '1H',
           });
+          const shortRecord = liveStore.getLiveRecords().find((record) => record.direction === 'short');
+          liveStore.updateLiveRecord(shortRecord.id, {
+            result: { executionReviewNote: 'Browser reviewed execution' },
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-status-closed', {
+            liveRecordId: shortRecord.id,
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-status-reviewed', {
+            liveRecordId: shortRecord.id,
+          });
           await new Promise((resolve) => setTimeout(resolve, 300));
           const groups = Array.from(document.querySelectorAll('.calendar-object-group[data-calendar-group-type]'))
             .map((group) => group.dataset.calendarGroupType);
@@ -212,6 +222,7 @@ async function main() {
             liveCount: liveGroup?.querySelector('.calendar-object-count')?.textContent?.trim(),
             rowText: shortRow?.textContent?.replace(/\\s+/g, ' ').trim() || '',
             rowTexts,
+            liveSummaryText: liveGroup?.textContent?.replace(/\\s+/g, ' ').trim() || '',
             hasStatusDot: Boolean(shortRow?.querySelector('.calendar-setup-visibility')),
             hasMenu: Boolean(shortRow?.querySelector('.calendar-object-menu')),
             detailTitle: detail?.querySelector('.inspector-section-title')?.textContent?.trim() || '',
@@ -240,8 +251,9 @@ async function main() {
     );
     assert.equal(value.liveCount, '2', 'Live Records group should show count 2 after bullish/bearish creation');
     assert.match(value.rowText, /Live/, 'Live Records row should show Live type label');
-    assert.match(value.rowText, /Short|Active|Draft/i, 'Live Records row should show bearish live summary/status');
+    assert.match(value.rowText, /Short|Reviewed/i, 'Live Records row should show bearish live summary/status');
     assert.match(value.rowText, /Exit/i, 'Live Records row should show chart-written exit');
+    assert.match(value.liveSummaryText, /Reviewed 1/, 'Live Records group should summarize reviewed records');
     assert.ok(value.rowTexts.some((text) => /Long/.test(text)), 'Live Records rows should include bullish record');
     assert.ok(value.rowTexts.some((text) => /Short/.test(text)), 'Live Records rows should include bearish record');
     assert.equal(value.hasStatusDot, true, 'Live Records row should show status dot');
@@ -255,6 +267,9 @@ async function main() {
     assert.match(value.detailText, /Stop Loss/);
     assert.match(value.detailText, /Target External 1/);
     assert.match(value.detailText, /Exit Price/);
+    assert.match(value.detailText, /Execution Review/);
+    assert.match(value.detailText, /Browser reviewed execution/);
+    assert.match(value.detailText, /Reviewed/);
     assert.match(value.detailText, /PDA/);
     assert.ok(value.canvasCount > 0, 'chart should render canvas layers');
     assert.equal(value.hasStandaloneLiveOrders, false, 'standalone Live Orders panel should not exist');
