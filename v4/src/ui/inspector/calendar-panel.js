@@ -21,6 +21,8 @@ import { getCalendarVisibilitySummaryForItems } from './calendar-visibility-acti
 import {
   getLiveRecordAllowedNextStatuses,
   getLiveRecordStatusLabel,
+  isLiveRecordOpenStatus,
+  needsLiveRecordReview,
 } from '../../live-record/live-record-lifecycle.js';
 import {
   getDailyTimeReviewByDate,
@@ -695,6 +697,7 @@ function renderObjectGroup(group, options = {}) {
   const isOpen = isOrderSetupGroup || isLiveRecordGroup || openGroups.has(group.type);
   const countLabel = `${group.rows.length}`;
   const visibilityControl = renderGroupVisibilityControl(group, options.activeDate || '');
+  const liveReviewSummary = isLiveRecordGroup ? renderLiveRecordReviewSummary(group.rows) : '';
   return `
     <details class="calendar-object-group" data-calendar-group-type="${escapeHtml(group.type)}" ${isOpen ? 'open' : ''}>
       <summary class="calendar-object-title">
@@ -704,9 +707,30 @@ function renderObjectGroup(group, options = {}) {
       </summary>
       <div class="calendar-object-group-body">
         ${isEconomicGroup ? renderEconomicCalendarFilters() : ''}
+        ${liveReviewSummary}
         ${rows}
       </div>
     </details>
+  `;
+}
+
+function renderLiveRecordReviewSummary(rows = []) {
+  if (!rows.length) return '';
+  const counts = rows.reduce((acc, row) => {
+    const record = row.source?.liveRecord || row.source || {};
+    if (record.status === 'reviewed') acc.reviewed += 1;
+    else if (needsLiveRecordReview(record)) acc.needsReview += 1;
+    else if (record.status === 'cancelled') acc.cancelled += 1;
+    else if (isLiveRecordOpenStatus(record.status)) acc.open += 1;
+    return acc;
+  }, { open: 0, needsReview: 0, reviewed: 0, cancelled: 0 });
+  return `
+    <div class="calendar-live-review-summary">
+      <span>Open ${counts.open}</span>
+      <span>Needs Review ${counts.needsReview}</span>
+      <span>Reviewed ${counts.reviewed}</span>
+      <span>Cancelled ${counts.cancelled}</span>
+    </div>
   `;
 }
 

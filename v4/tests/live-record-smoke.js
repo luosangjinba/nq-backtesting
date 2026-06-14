@@ -412,6 +412,7 @@ const calendarPanelHtml = renderCalendarPanel({ selectedDate: '2024-03-18', view
 assert.match(calendarPanelHtml, /data-inspector-action="live-record-status"/, 'Calendar live row renders lifecycle actions');
 assert.match(calendarPanelHtml, /Close/, 'Calendar live row can close records');
 assert.match(calendarPanelHtml, /Mark Reviewed/, 'Calendar live row can mark reviewed');
+assert.match(calendarPanelHtml, /Open 1/, 'Calendar live group summarizes open records');
 
 const detailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
 assert.match(detailHtml, /Live Record Detail/, 'detail renders title');
@@ -460,10 +461,12 @@ assert.equal(getLiveRecordById(chartLiveId).status, 'closed', 'status action upd
 const closedLiveGroup = getCalendarDayGroups('2024-03-18').find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
 assert.match(closedLiveGroup.rows[0].label, /Closed/, 'Calendar summary shows closed status');
 assert.match(closedLiveGroup.rows[0].label, /Needs Review/, 'Calendar summary shows needs-review status');
+assert.match(renderCalendarPanel({ selectedDate: '2024-03-18', viewDate: '2024-03-18' }), /Needs Review 1/, 'Calendar live group summarizes needs-review records');
 assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'reviewed' })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'reviewed', 'status action can mark reviewed');
 const reviewedLiveGroup = getCalendarDayGroups('2024-03-18').find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
 assert.match(reviewedLiveGroup.rows[0].label, /Reviewed/, 'Calendar summary shows reviewed status');
+assert.match(renderCalendarPanel({ selectedDate: '2024-03-18', viewDate: '2024-03-18' }), /Reviewed 1/, 'Calendar live group summarizes reviewed records');
 assert.equal(actions.handleChange('live-record-reviewed-toggle', makeTarget(chartLiveId, { checked: false })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'active', 'reviewed toggle can reopen reviewed record');
 assert.equal(actions.handleClick('live-record-toggle-hidden', makeTarget(chartLiveId)), true);

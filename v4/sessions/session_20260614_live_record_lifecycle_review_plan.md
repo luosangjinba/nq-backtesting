@@ -527,3 +527,24 @@ Verification:
 - Ran `node v4/tests/live-record-smoke.js`.
 
 Next step: Step 288.9 adds lightweight review filtering/search support without introducing a standalone Live Orders panel.
+
+## Step 288.9 Completion - Calendar Review Summary Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Calendar Live Records group now shows a lightweight review summary:
+  - `Open`
+  - `Needs Review`
+  - `Reviewed`
+  - `Cancelled`
+- This provides the intended scan/filter aid without adding a standalone Live Orders panel or dashboard.
+- Archive search/filtering is intentionally kept out of this substep because the Calendar Day Details workflow already exposes the needed review queue signal with much lower scope.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to verify Open, Needs Review, and Reviewed summary counts.
+- Ran `node v4/tests/live-record-smoke.js`.
+
+Next step: Step 288.10 audits persistence and Review JSON behavior for Live Records.
