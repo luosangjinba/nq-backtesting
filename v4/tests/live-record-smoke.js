@@ -20,6 +20,7 @@ import {
   getActiveLiveRecordId,
   initLiveRecordActive,
 } from '../src/live-record/live-record-active.js';
+import { createLiveRecordSet } from '../src/live-record/live-record-set.js';
 import {
   clearSavedLiveRecords,
   getLiveRecordStorageKey,
@@ -86,6 +87,67 @@ record.summary = 'mutated outside';
 assert.equal(getLiveRecordById('live-smoke').summary, 'Initial live record', 'store returns clones');
 assert.equal(getOrderReviewById(setup.id).id, setup.id, 'adding live record does not mutate setup');
 
+const richRecord = addLiveRecord({
+  id: 'live-rich-shape',
+  instrument: 'NQ',
+  execution: {
+    entry: {
+      timestamp: 1710770410,
+      timeframe: '5m',
+      price: '18360.5',
+      endTimestamp: 1710770710,
+      endTimeframe: '5m',
+      lineLengthBars: '12',
+    },
+    marketStructureShift: {
+      timestamp: 1710770430,
+      timeframe: '1m',
+      price: '18358.25',
+    },
+    stopLoss: {
+      price: '18370.75',
+      visible: false,
+    },
+    targets: [{
+      role: 'targetExternal1',
+      timestamp: 1710770490,
+      timeframe: '5m',
+      price: '18320.25',
+      endTimestamp: 1710770790,
+    }],
+  },
+  result: {
+    status: 'profit',
+    exitTimestamp: 1710770800,
+    exitTimeframe: '1m',
+    exitPrice: '18322.5',
+  },
+}, { now: 5 });
+assert.equal(richRecord.execution.entry.timeframe, '5M', 'entry timeframe normalizes');
+assert.equal(richRecord.execution.entry.endTimeframe, '5M', 'entry end timeframe normalizes');
+assert.equal(richRecord.execution.marketStructureShift.timeframe, '1M', 'MSS timeframe normalizes');
+assert.equal(richRecord.execution.stopLoss.visible, false, 'element visibility normalizes');
+assert.equal(richRecord.execution.targets[0].label, 'Target External 1', 'target role gets setup-like label');
+assert.equal(richRecord.execution.targets[0].targetType, 'external', 'target type derives from role');
+assert.equal(richRecord.result.status, 'win', 'result alias still normalizes');
+assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe normalizes');
+richRecord.execution.entry.price = 1;
+assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18360.5, 'execution clone is isolated');
+
+updateLiveRecord('live-rich-shape', {
+  execution: {
+    entry: { price: 18361 },
+  },
+}, { now: 6 });
+assert.equal(getLiveRecordById('live-rich-shape').execution.entry.timestamp, 1710770410, 'partial execution patch preserves entry timestamp');
+assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18361, 'partial execution patch updates entry price');
+
+const richSet = createLiveRecordSet(getLiveRecordById('live-rich-shape'));
+assert.equal(richSet.execution.entry.endTimestamp, 1710770710, 'projection keeps entry end timestamp');
+assert.equal(richSet.execution.marketStructureShift.complete, true, 'projection includes MSS element');
+assert.equal(richSet.execution.targets[0].role, 'targetExternal1', 'projection keeps target role');
+assert.equal(richSet.result.exitTimeframe, '1M', 'projection keeps result exit timeframe');
+
 assert.equal(saveLiveRecords('NQ'), true, 'NQ live records save');
 assert.ok(storageData.has(getLiveRecordStorageKey('NQ')), 'NQ live record key is instrument-scoped');
 loadLiveRecords([]);
@@ -96,8 +158,9 @@ addLiveRecord({
 }, { now: 3 });
 assert.equal(saveLiveRecords('ES'), true, 'ES live records save');
 loadLiveRecords([]);
-assert.equal(restoreLiveRecords('NQ'), 1, 'NQ restore loads one record');
+assert.equal(restoreLiveRecords('NQ'), 2, 'NQ restore loads instrument records');
 assert.equal(getLiveRecordById('live-smoke').instrument, 'NQ', 'NQ record restored');
+assert.equal(getLiveRecordById('live-rich-shape').execution.targets[0].role, 'targetExternal1', 'NQ rich record shape restored');
 loadLiveRecords([]);
 assert.equal(restoreLiveRecords('ES'), 1, 'ES restore loads one record');
 assert.equal(getLiveRecordById('live-es').instrument, 'ES', 'ES record restored');

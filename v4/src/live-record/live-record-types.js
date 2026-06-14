@@ -59,6 +59,23 @@ export const LIVE_RECORD_REF_ROLES = Object.freeze({
   REVIEW: 'review',
 });
 
+export const LIVE_RECORD_TARGET_ROLES = Object.freeze({
+  INTERNAL_1: 'targetInternal1',
+  INTERNAL_2: 'targetInternal2',
+  INTERNAL_3: 'targetInternal3',
+  SWING_POINT: 'targetSwingPoint',
+  EXTERNAL_1: 'targetExternal1',
+  EXTERNAL_2: 'targetExternal2',
+  FINAL: 'finalTarget',
+});
+
+export const LIVE_RECORD_TARGET_TYPES = Object.freeze({
+  INTERNAL: 'internal',
+  SWING: 'swing',
+  EXTERNAL: 'external',
+  FINAL: 'final',
+});
+
 export const LIVE_RECORD_TIMEFRAMES = Object.freeze({
   '1M': '1M',
   '5M': '5M',
@@ -76,6 +93,8 @@ export const VALID_LIVE_RECORD_RESULT_STATUSES = new Set(Object.values(LIVE_RECO
 export const VALID_LIVE_RECORD_REASON_CATEGORIES = new Set(Object.values(LIVE_RECORD_REASON_CATEGORIES));
 export const VALID_LIVE_RECORD_REF_TYPES = new Set(Object.values(LIVE_RECORD_REF_TYPES));
 export const VALID_LIVE_RECORD_REF_ROLES = new Set(Object.values(LIVE_RECORD_REF_ROLES));
+export const VALID_LIVE_RECORD_TARGET_ROLES = new Set(Object.values(LIVE_RECORD_TARGET_ROLES));
+export const VALID_LIVE_RECORD_TARGET_TYPES = new Set(Object.values(LIVE_RECORD_TARGET_TYPES));
 export const VALID_LIVE_RECORD_TIMEFRAMES = new Set(Object.values(LIVE_RECORD_TIMEFRAMES));
 
 export const LIVE_RECORD_DIRECTION_ALIASES = new Map([

@@ -98,13 +98,16 @@ function renderAnchorPanel(liveSet) {
 
 function renderExecutionElement(label, element = {}, extra = '') {
   if (!element?.complete) return '';
+  const visibilityClass = element.visible === false ? 'is-hidden' : 'is-visible';
+  const endLabel = element.endTimestamp ? `End ${formatTime(element.endTimestamp)}` : '';
+  const meta = [extra || '', endLabel].filter(Boolean).join(' · ') || '—';
   return `
     <div class="order-setup-execution-row">
-      <span class="order-setup-execution-visibility is-visible" aria-hidden="true"></span>
+      <span class="order-setup-execution-visibility ${escapeHtml(visibilityClass)}" aria-hidden="true"></span>
       <div class="order-setup-execution-summary">
         <span class="order-setup-execution-type">${escapeHtml(label)}</span>
         <strong class="order-setup-execution-price">${escapeHtml(formatNumber(element.price))}</strong>
-        <span class="order-setup-execution-kind">${escapeHtml(extra || '—')}</span>
+        <span class="order-setup-execution-kind">${escapeHtml(meta)}</span>
       </div>
       <span class="order-setup-execution-time">${escapeHtml(formatTime(element.timestamp))}</span>
     </div>
@@ -115,9 +118,10 @@ function renderExecutionPanel(liveSet) {
   const execution = liveSet?.execution || {};
   const rows = [
     renderExecutionElement('Entry', execution.entry, execution.entry?.timeframe || ''),
+    renderExecutionElement('MSS', execution.marketStructureShift, execution.marketStructureShift?.timeframe || ''),
     renderExecutionElement('Stop Loss', execution.stopLoss, execution.stopLoss?.timeframe || ''),
     ...(Array.isArray(execution.targets) ? execution.targets : []).map((target) => (
-      renderExecutionElement(target.label || 'Target', target, target.timeframe || '')
+      renderExecutionElement(target.label || 'Target', target, [target.targetType, target.timeframe].filter(Boolean).join(' · '))
     )),
   ].filter(Boolean);
   return `
@@ -184,7 +188,7 @@ function renderResultPanel(record, liveSet) {
             )).join('')}
           </select>`
         )}
-        ${field('Exit Time', formatTime(result.exitTimestamp))}
+        ${field('Exit Time', [formatTime(result.exitTimestamp), result.exitTimeframe || ''].filter(Boolean).join(' · '))}
         ${field('Exit Price', formatNumber(result.exitPrice))}
         ${controlField(
           'Note',

@@ -10,6 +10,8 @@ import {
   LIVE_RECORD_RESULT_STATUSES,
   LIVE_RECORD_STATUS_ALIASES,
   LIVE_RECORD_STATUSES,
+  LIVE_RECORD_TARGET_ROLES,
+  LIVE_RECORD_TARGET_TYPES,
   LIVE_RECORD_TIMEFRAME_ALIASES,
   LIVE_RECORD_TIMEFRAMES,
   LIVE_RECORD_VERSION,
@@ -19,6 +21,8 @@ import {
   VALID_LIVE_RECORD_REF_TYPES,
   VALID_LIVE_RECORD_RESULT_STATUSES,
   VALID_LIVE_RECORD_STATUSES,
+  VALID_LIVE_RECORD_TARGET_ROLES,
+  VALID_LIVE_RECORD_TARGET_TYPES,
   VALID_LIVE_RECORD_TIMEFRAMES,
 } from './live-record-types.js';
 
@@ -73,6 +77,7 @@ export function cloneLiveRecord(record) {
     execution: {
       ...(record.execution || {}),
       entry: { ...(record.execution?.entry || {}) },
+      marketStructureShift: { ...(record.execution?.marketStructureShift || {}) },
       stopLoss: { ...(record.execution?.stopLoss || {}) },
       targets: Array.isArray(record.execution?.targets)
         ? record.execution.targets.map((target) => ({ ...target }))
@@ -159,6 +164,9 @@ function normalizeAnchor(input = {}) {
 
 function normalizeExecutionElement(input = {}) {
   return {
+    id: normalizeString(input.id, ''),
+    role: normalizeString(input.role, ''),
+    label: normalizeString(input.label, ''),
     timestamp: normalizeTimestamp(input.timestamp),
     timeframe: normalizeEnum(
       input.timeframe,
@@ -167,28 +175,86 @@ function normalizeExecutionElement(input = {}) {
       LIVE_RECORD_TIMEFRAMES.MANUAL
     ),
     price: normalizeNumber(input.price),
+    endTimestamp: normalizeTimestamp(input.endTimestamp),
+    endTimeframe: normalizeEnum(
+      input.endTimeframe,
+      VALID_LIVE_RECORD_TIMEFRAMES,
+      LIVE_RECORD_TIMEFRAME_ALIASES,
+      LIVE_RECORD_TIMEFRAMES.MANUAL
+    ),
+    lineLengthBars: normalizeNumber(input.lineLengthBars),
+    visible: normalizeBoolean(input.visible, true),
+    complete: normalizeBoolean(input.complete, false),
     note: normalizeString(input.note, ''),
+  };
+}
+
+function normalizeTargetRole(target = {}, index = 0) {
+  const defaultRoles = [
+    LIVE_RECORD_TARGET_ROLES.INTERNAL_1,
+    LIVE_RECORD_TARGET_ROLES.INTERNAL_2,
+    LIVE_RECORD_TARGET_ROLES.INTERNAL_3,
+    LIVE_RECORD_TARGET_ROLES.SWING_POINT,
+    LIVE_RECORD_TARGET_ROLES.EXTERNAL_1,
+    LIVE_RECORD_TARGET_ROLES.EXTERNAL_2,
+    LIVE_RECORD_TARGET_ROLES.FINAL,
+  ];
+  return normalizeEnum(
+    target.role || target.id,
+    VALID_LIVE_RECORD_TARGET_ROLES,
+    null,
+    defaultRoles[index] || `target_${index + 1}`
+  );
+}
+
+function normalizeTargetType(target = {}, role = '') {
+  if (role === LIVE_RECORD_TARGET_ROLES.SWING_POINT) return LIVE_RECORD_TARGET_TYPES.SWING;
+  if (role === LIVE_RECORD_TARGET_ROLES.FINAL) return LIVE_RECORD_TARGET_TYPES.FINAL;
+  if (role === LIVE_RECORD_TARGET_ROLES.EXTERNAL_1 || role === LIVE_RECORD_TARGET_ROLES.EXTERNAL_2) {
+    return LIVE_RECORD_TARGET_TYPES.EXTERNAL;
+  }
+  return normalizeEnum(
+    target.targetType || target.type,
+    VALID_LIVE_RECORD_TARGET_TYPES,
+    null,
+    LIVE_RECORD_TARGET_TYPES.INTERNAL
+  );
+}
+
+function defaultTargetLabel(role = '', index = 0) {
+  if (role === LIVE_RECORD_TARGET_ROLES.INTERNAL_1) return 'Target Internal 1';
+  if (role === LIVE_RECORD_TARGET_ROLES.INTERNAL_2) return 'Target Internal 2';
+  if (role === LIVE_RECORD_TARGET_ROLES.INTERNAL_3) return 'Target Internal 3';
+  if (role === LIVE_RECORD_TARGET_ROLES.SWING_POINT) return 'Target Swing Point';
+  if (role === LIVE_RECORD_TARGET_ROLES.EXTERNAL_1) return 'Target External 1';
+  if (role === LIVE_RECORD_TARGET_ROLES.EXTERNAL_2) return 'Target External 2';
+  if (role === LIVE_RECORD_TARGET_ROLES.FINAL) return 'Target External 3';
+  return `Target ${index + 1}`;
+}
+
+function normalizeTarget(input = {}, index = 0) {
+  const role = normalizeTargetRole(input, index);
+  const targetType = normalizeTargetType(input, role);
+  const element = normalizeExecutionElement({
+    ...input,
+    id: input.id || role,
+    role,
+    label: input.label || defaultTargetLabel(role, index),
+  });
+  return {
+    ...element,
+    role,
+    targetType,
   };
 }
 
 function normalizeExecution(input = {}) {
   return {
     entry: normalizeExecutionElement(input.entry),
+    marketStructureShift: normalizeExecutionElement(input.marketStructureShift),
     stopLoss: normalizeExecutionElement(input.stopLoss),
     targets: Array.isArray(input.targets)
-      ? input.targets.map((target, index) => ({
-          id: normalizeString(target.id, `target_${index + 1}`),
-          label: normalizeString(target.label, `Target ${index + 1}`),
-          timestamp: normalizeTimestamp(target.timestamp),
-          timeframe: normalizeEnum(
-            target.timeframe,
-            VALID_LIVE_RECORD_TIMEFRAMES,
-            LIVE_RECORD_TIMEFRAME_ALIASES,
-            LIVE_RECORD_TIMEFRAMES.MANUAL
-          ),
-          price: normalizeNumber(target.price),
-          note: normalizeString(target.note, ''),
-        }))
+      ? input.targets.map(normalizeTarget)
       : [],
     orders: Array.isArray(input.orders)
       ? input.orders.map((order, index) => ({
@@ -218,6 +284,12 @@ function normalizeResult(input = {}) {
       LIVE_RECORD_RESULT_STATUSES.UNKNOWN
     ),
     exitTimestamp: normalizeTimestamp(input.exitTimestamp),
+    exitTimeframe: normalizeEnum(
+      input.exitTimeframe,
+      VALID_LIVE_RECORD_TIMEFRAMES,
+      LIVE_RECORD_TIMEFRAME_ALIASES,
+      LIVE_RECORD_TIMEFRAMES.MANUAL
+    ),
     exitPrice: normalizeNumber(input.exitPrice),
     note: normalizeString(input.note, ''),
   };
@@ -246,6 +318,8 @@ function ensureUniqueLiveRecordId(record, records = liveRecords) {
 
 function mergeLiveRecordPatch(existing, patch = {}) {
   const { id: _ignoredId, createdAt: _ignoredCreatedAt, ...safePatch } = patch;
+  const existingExecution = existing.execution || {};
+  const patchExecution = safePatch.execution || {};
   return {
     ...existing,
     ...safePatch,
@@ -256,8 +330,25 @@ function mergeLiveRecordPatch(existing, patch = {}) {
       ...(safePatch.anchor || {}),
     },
     execution: {
-      ...(existing.execution || {}),
-      ...(safePatch.execution || {}),
+      ...existingExecution,
+      ...patchExecution,
+      entry: {
+        ...(existingExecution.entry || {}),
+        ...(patchExecution.entry || {}),
+      },
+      marketStructureShift: {
+        ...(existingExecution.marketStructureShift || {}),
+        ...(patchExecution.marketStructureShift || {}),
+      },
+      stopLoss: {
+        ...(existingExecution.stopLoss || {}),
+        ...(patchExecution.stopLoss || {}),
+      },
+      targets: Array.isArray(patchExecution.targets)
+        ? patchExecution.targets
+        : Array.isArray(existingExecution.targets)
+          ? existingExecution.targets
+          : [],
     },
     result: {
       ...(existing.result || {}),

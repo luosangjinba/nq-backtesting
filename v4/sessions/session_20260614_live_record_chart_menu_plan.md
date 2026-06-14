@@ -378,3 +378,33 @@ Postponed from the audit:
 - No broker/order-routing fields.
 
 Next step: Step 286.3 extends the Live Record execution data shape while preserving old Step 285 records.
+
+## Step 286.3 Completion - Live Record Execution Shape Extended
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Added Live Record target role/type constants mirroring the Order Setup target vocabulary.
+- Extended normalized execution elements with id, role, label, timestamp, timeframe, price, end timestamp, end timeframe, line length, visibility, completion, and note fields.
+- Added `execution.marketStructureShift`.
+- Extended target normalization with setup-like labels and role-derived target types.
+- Extended result normalization with `exitTimeframe`.
+- Fixed Live Record partial execution patch merging so element-level updates preserve existing element fields.
+
+Projection/detail changes:
+
+- `createLiveRecordSet()` now preserves execution end fields, element visibility, target role/type, MSS, and result exit timeframe.
+- Live Record Detail now displays MSS rows, target type metadata, element end times, hidden element state, and result exit timeframe.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-store.js`
+- `node --check v4/src/live-record/live-record-set.js`
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.4 expands the Live Record chart context menu shell without wiring all write handlers yet.
