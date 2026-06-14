@@ -523,3 +523,34 @@ Verification:
 - `node --check v4/src/pda/manual-annotation.js`
 - `node --check v4/src/pda/manual-context-menu.js`
 - Inline ESM probe covered menu rendering, creation from chart anchor, active live record update, and active Order Setup preservation.
+
+## Step 285.6 Completion - Calendar Live Records Group
+
+Completed on 2026-06-14.
+
+Updated Calendar object definitions and index:
+
+- Added `CALENDAR_OBJECT_TYPES.LIVE_RECORD = 'live-record'`.
+- Added `Live Records` group label.
+- Inserted Live Records directly after Order Setups in `CALENDAR_GROUP_ORDER`.
+- Calendar index now projects `getLiveRecordSets()` into standard Calendar items.
+
+Updated Calendar UI:
+
+- `Live Records` group is always present for the selected day, including empty state.
+- Empty state uses the same `None` body as Order Setups.
+- Live record rows reuse the Order Setup row class/density.
+- Live rows show time, `Live` type pill, a status dot, summary text, and the existing `...` action affordance when actions are available.
+- Calendar day title/total count includes Live Records.
+
+Current scope:
+
+- This step adds Calendar visibility only.
+- Open/detail/edit/delete actions are intentionally deferred to Step 285.7 and Step 285.8.
+
+Verification:
+
+- `node --check v4/src/calendar/calendar-types.js`
+- `node --check v4/src/calendar/calendar-review-index.js`
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- Inline ESM Calendar projection probe covered empty group existence, populated live record row projection, `live-record` ref shape, and group order immediately after Order Setups.

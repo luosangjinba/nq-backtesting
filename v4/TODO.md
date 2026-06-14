@@ -827,7 +827,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.3: 从 Order Setup 模式克隆 Live Record runtime skeleton：新增 live-record types/store/active 和必要 adapter；第一版字段尽量贴近 Order Setup 的 anchor、summary、display、execution、reasons、result 结构。已新增独立 `v4/src/live-record/` types/store/active/set，不 import 或写入 Order Setup store，inline probe 覆盖 CRUD、active、clone 隔离和 projection。
   - [x] Step 285.4: 增加 instrument-scoped persistence：使用独立 `v4:live-records:<instrument>` key，NQ/ES 隔离，restore guard 防覆盖，不读写或迁移 `orderReviews`。已新增 `live-record-persistence.js` 并在 `app.js` 初始化，inline localStorage probe 覆盖 NQ/ES 分区保存恢复。
   - [x] Step 285.5: 增加 chart context 创建入口：右键 `New Live Record Here` 从点击 K 线创建 standalone live record 并设为 active，不创建 Order Setup，不显示独立 Live Orders 面板。已在主图右键菜单加入 `Live Records` submenu，inline probe 确认创建 live record 后 active Order Setup 不变。
-  - [ ] Step 285.6: 在 Calendar / Day Details 增加 `Live Records` group：直接靠近 `Order Setups`，使用同样 group shell、count badge、空状态 `None`、展开/折叠和 row density。
+  - [x] Step 285.6: 在 Calendar / Day Details 增加 `Live Records` group：直接靠近 `Order Setups`，使用同样 group shell、count badge、空状态 `None`、展开/折叠和 row density。已新增 `live-record` Calendar object type，group 顺序紧跟 Order Setups，projection probe 覆盖空组与 populated row。
   - [ ] Step 285.7: 克隆 Order Setup Detail 为 Live Record Detail：Header、Display、Summary、Anchor、Execution、Reasons/Notes、Result/Review 结构保持同密度，只按 live 语义改必要 label/字段。
   - [ ] Step 285.8: 克隆 row menu 与 detail actions：Open、Locate、Set Active、Hide/Show、Delete、Link To Active Order Setup、Unlink Setup；所有写操作只影响 Live Record。
   - [ ] Step 285.9: 增加 focused smoke：覆盖 live record CRUD、instrument persistence、chart 创建、Calendar empty/populated group、detail open/edit/delete、Order Setup isolation。

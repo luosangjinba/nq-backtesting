@@ -1,4 +1,5 @@
 import { getSetupSets } from '../order/setup-set.js';
+import { getLiveRecordSets } from '../live-record/live-record-set.js';
 import { formatPdaSourceBadge } from '../pda/pda-source-format.js';
 import { getAnnotations } from '../pda/pda-store.js';
 import { getSegments, getSegmentById } from '../segment/segment-store.js';
@@ -120,6 +121,44 @@ function createSetupSetItem(setupSet) {
     setupSet.range,
     { id: setupSet.id },
     setupSet
+  );
+}
+
+function getLiveRecordDateTimestamp(liveRecordSet) {
+  return (
+    liveRecordSet.execution?.entry?.timestamp ??
+    liveRecordSet.anchor?.timestamp ??
+    liveRecordSet.result?.exitTimestamp ??
+    liveRecordSet.primaryTimestamp ??
+    null
+  );
+}
+
+function summarizeLiveRecordSet(liveRecordSet) {
+  const entry = liveRecordSet.execution?.entry || {};
+  const anchor = liveRecordSet.anchor || {};
+  const result = liveRecordSet.result || {};
+  return joinSummary([
+    titleCase(liveRecordSet.direction, 'Live'),
+    titleCase(liveRecordSet.status, 'Draft'),
+    compactTime(getLiveRecordDateTimestamp(liveRecordSet)),
+    compactPrice(entry.price ?? anchor.price),
+    titleCase(result.status, ''),
+  ]);
+}
+
+function createLiveRecordItem(liveRecordSet) {
+  return createCalendarItem(
+    CALENDAR_OBJECT_TYPES.LIVE_RECORD,
+    getLiveRecordDateTimestamp(liveRecordSet),
+    summarizeLiveRecordSet(liveRecordSet),
+    liveRecordSet.range || (
+      getLiveRecordDateTimestamp(liveRecordSet)
+        ? { start: getLiveRecordDateTimestamp(liveRecordSet), end: getLiveRecordDateTimestamp(liveRecordSet) }
+        : null
+    ),
+    { id: liveRecordSet.id },
+    liveRecordSet
   );
 }
 
@@ -328,6 +367,7 @@ function createCalendarItems() {
   const settings = getTimeOverlaySettings();
   return [
     ...getSetupSets().map(createSetupSetItem),
+    ...getLiveRecordSets().map(createLiveRecordItem),
     ...getVisibleEconomicEvents().map(createEconomicEventItem),
     ...getSmtRecords().map(createSmtItem),
     ...getAnnotations().map(createPdaItem),

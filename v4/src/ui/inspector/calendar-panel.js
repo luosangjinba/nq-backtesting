@@ -154,6 +154,7 @@ function getDayObjectOverview(dateKey, calendarIndex) {
   );
   const countByType = new Map(groups.map((group) => [group.type, group.rows.length]));
   const setupCount = countByType.get(CALENDAR_OBJECT_TYPES.ORDER_SETUP) || 0;
+  const liveRecordCount = countByType.get(CALENDAR_OBJECT_TYPES.LIVE_RECORD) || 0;
   const economicGroup = groups.find((group) => group.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT);
   const economicIndicators = [];
   (economicGroup?.rows || []).forEach((item) => {
@@ -174,7 +175,8 @@ function getDayObjectOverview(dateKey, calendarIndex) {
   });
   return {
     setupCount,
-    total: setupCount + economicIndicators.reduce((sum, indicator) => sum + indicator.count, 0),
+    liveRecordCount,
+    total: setupCount + liveRecordCount + economicIndicators.reduce((sum, indicator) => sum + indicator.count, 0),
     indicators: economicIndicators,
   };
 }
@@ -198,6 +200,7 @@ function getCalendarDayTitle(dateKey, overview) {
   if (!overview.total) return dateKey;
   const parts = [];
   if (overview.setupCount) parts.push(`Order Setups: ${overview.setupCount}`);
+  if (overview.liveRecordCount) parts.push(`Live Records: ${overview.liveRecordCount}`);
   overview.indicators.forEach((indicator) => {
     parts.push(`${indicator.label}: ${indicator.count}`);
   });
@@ -220,6 +223,7 @@ function getObjectTimeLabel(item) {
 
 function getObjectTypeLabel(item) {
   if (item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) return 'Setup';
+  if (item.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD) return 'Live';
   if (item.type === CALENDAR_OBJECT_TYPES.TIME_REACTION) return 'Time';
   if (item.type === CALENDAR_OBJECT_TYPES.CHART_NOTE) return 'Note';
   if (item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT) return 'Econ';
@@ -357,6 +361,19 @@ function renderSetupVisibilityToggle(item) {
   `;
 }
 
+function renderLiveRecordStatusDot(item) {
+  if (item.ref?.type !== CALENDAR_OBJECT_TYPES.LIVE_RECORD || !item.ref?.id) return '';
+  const hidden = Boolean(item.source?.liveRecord?.display?.hidden || item.source?.display?.hidden);
+  const label = hidden ? 'Hidden live record.' : 'Visible live record.';
+  return `
+    <span
+      class="calendar-setup-visibility ${hidden ? 'is-hidden' : 'is-visible'}"
+      aria-label="${label}"
+      title="${label}"
+    ></span>
+  `;
+}
+
 function renderObjectVisibilityToggle(item) {
   if (!canToggleObjectVisibility(item) || !item.ref?.id) return '';
   const hidden = isCalendarObjectHidden(item);
@@ -400,6 +417,7 @@ function renderObjectRow(item) {
   const typeLabel = getObjectTypeLabel(item);
   const showTypeLabel = item.ref?.type !== 'pda';
   const isOrderSetup = item.ref?.type === 'order-setup';
+  const isLiveRecord = item.ref?.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD;
   const isHidden = isCalendarObjectHidden(item);
   const chartNoteGuidesToggle = item.ref?.type === CALENDAR_OBJECT_TYPES.CHART_NOTE
     ? `<label class="inspector-toggle calendar-chart-note-guides">
@@ -413,7 +431,7 @@ function renderObjectRow(item) {
       </label>`
     : '';
   return `
-    <div class="calendar-object-row ${isOrderSetup ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
+    <div class="calendar-object-row ${isOrderSetup || isLiveRecord ? 'calendar-object-row-setup' : ''}${isTimeReaction ? ' calendar-object-row-time-reaction' : ''}${isHidden ? ' is-hidden' : ''}">
       <div class="calendar-object-main">
         ${
           isTimeReaction
@@ -422,6 +440,7 @@ function renderObjectRow(item) {
                 <span class="calendar-object-time">${escapeHtml(timeLabel)}</span>
                 ${showTypeLabel ? `<span class="calendar-object-type">${escapeHtml(typeLabel)}</span>` : ''}
                 ${renderSetupVisibilityToggle(item)}
+                ${renderLiveRecordStatusDot(item)}
                 ${renderObjectVisibilityToggle(item)}
                 ${chartNoteGuidesToggle}
               </div>`
@@ -598,8 +617,9 @@ function renderObjectGroup(group, options = {}) {
     ? group.rows.map(renderObjectRow).join('')
     : '<div class="calendar-object-empty">None</div>';
   const isOrderSetupGroup = group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP;
+  const isLiveRecordGroup = group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD;
   const openGroups = options.openGroups instanceof Set ? options.openGroups : new Set(options.openGroups || []);
-  const isOpen = isOrderSetupGroup || openGroups.has(group.type);
+  const isOpen = isOrderSetupGroup || isLiveRecordGroup || openGroups.has(group.type);
   const countLabel = `${group.rows.length}`;
   const visibilityControl = renderGroupVisibilityControl(group, options.activeDate || '');
   return `
