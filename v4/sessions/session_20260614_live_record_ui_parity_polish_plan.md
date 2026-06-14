@@ -312,3 +312,24 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.5 polishes Reasons and evidence link labels.
+
+## Step 287.5 Completion - Reasons And Evidence Labels Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record Detail now uses local linked-ref formatting equivalent to Order Setup Detail.
+- Ref rows now render readable role/type/source/id labels for PDA, SMT, Segment, Composite, Chart Note, Order Setup, and Time Reaction refs.
+- Long ref ids are shortened to keep reason cards compact.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.6 polishes Live Record context menu grouping and order.

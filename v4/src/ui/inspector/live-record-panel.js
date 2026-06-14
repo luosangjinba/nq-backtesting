@@ -29,6 +29,55 @@ function titleCase(value, fallback = '—') {
     .join(' ');
 }
 
+function getRefType(ref = {}) {
+  return ref.type || ref.refType || 'ref';
+}
+
+function getRefId(ref = {}) {
+  return ref.id || ref.refId || '';
+}
+
+function formatRefType(type) {
+  const normalized = String(type || '').toLowerCase();
+  if (normalized === 'pda') return 'PDA';
+  if (normalized === 'smt') return 'SMT';
+  if (normalized === 'segment') return 'Segment';
+  if (normalized === 'composite') return 'Composite';
+  if (normalized === 'chart-note') return 'Chart Note';
+  if (normalized === 'order-setup') return 'Order Setup';
+  if (normalized === 'time-reaction') return 'Time Reaction';
+  return type ? titleCase(type, 'Ref') : 'Ref';
+}
+
+function formatRefRole(role) {
+  const normalized = String(role || 'context').toLowerCase();
+  if (normalized === 'context') return 'Context';
+  if (normalized === 'setup') return 'Setup';
+  if (normalized === 'trigger') return 'Trigger';
+  if (normalized === 'execution') return 'Execution';
+  if (normalized === 'review') return 'Review';
+  return titleCase(normalized, 'Context');
+}
+
+function getRefSource(ref = {}) {
+  if (ref.sourceContext) return ref.sourceContext;
+  return [ref.sourceInstrument, ref.sourceTimeframeLabel].filter(Boolean).join(' ');
+}
+
+function shortRefId(id) {
+  const text = String(id || '');
+  return text.length > 24 ? `${text.slice(0, 18)}...${text.slice(-4)}` : text;
+}
+
+function summarizeLinkedRef(ref = {}) {
+  return [
+    formatRefRole(ref.role),
+    formatRefType(getRefType(ref)),
+    getRefSource(ref),
+    shortRefId(getRefId(ref)),
+  ].filter(Boolean).join(' · ');
+}
+
 function renderActiveHeader(record, liveSet) {
   const anchor = liveSet?.anchor || {};
   const state = record.display?.hidden ? 'Hidden' : 'Visible';
@@ -192,7 +241,7 @@ function renderReasonRows(record) {
         </div>
         <textarea class="inspector-textarea" data-inspector-action="live-record-reason-note" data-live-record-id="${escapeHtml(record.id)}" data-reason-index="${reasonIndex}" rows="2" placeholder="Write live record reason">${escapeHtml(reason.note || '')}</textarea>
         <div class="order-review-ref-list">${refs.length ? refs.map((ref) => (
-          `<div class="order-review-ref-row"><span>${escapeHtml(`${titleCase(ref.role, 'Context')} · ${titleCase(ref.type, 'Ref')} · ${ref.id || '—'}`)}</span></div>`
+          `<div class="order-review-ref-row"><span>${escapeHtml(summarizeLinkedRef(ref))}</span></div>`
         )).join('') : '<div class="drawing-set-empty">No linked objects.</div>'}</div>
       </div>
     `;

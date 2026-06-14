@@ -346,6 +346,8 @@ assert.match(detailHtml, /External · 5M/, 'detail title-cases target execution 
 assert.match(detailHtml, /End: /, 'detail renders normalized execution end metadata');
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');
 assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
+assert.match(detailHtml, /Context · PDA · fvg · pda-live-link/, 'detail renders formatted PDA ref source');
+assert.match(detailHtml, /Context · Chart Note · bar · chart-note-live-link/, 'detail renders formatted chart note ref source');
 assert.match(detailHtml, /Result/, 'detail renders Result');
 
 const calls = { refresh: 0, captures: 0, history: [] };
