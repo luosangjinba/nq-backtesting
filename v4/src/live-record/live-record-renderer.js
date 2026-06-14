@@ -188,7 +188,7 @@ function renderLiveRecordSet(liveSet, isActive = false) {
     renderPlanLine(
       entryTimestamp,
       entry.price,
-      `${getLineLabelDirection(direction)} Live Entry`,
+      `${getLineLabelDirection(direction)} Entry`,
       selectedEntry ? SELECTED_ELEMENT_COLOR : entryColor,
       targetPosition,
       getLiveRecordElementLineLength(entry),
@@ -218,7 +218,7 @@ function renderLiveRecordSet(liveSet, isActive = false) {
     renderPlanLine(
       stopLoss.timestamp || entryTimestamp,
       stopLoss.price,
-      'Live Stop',
+      'Stop-loss',
       selectedStop ? SELECTED_ELEMENT_COLOR : STOP_COLOR,
       direction === LIVE_RECORD_DIRECTIONS.SHORT ? 'above' : 'below',
       getLiveRecordElementLineLength(stopLoss, LIVE_RECORD_LINE_LENGTH_BARS + 6),
@@ -246,7 +246,7 @@ function renderLiveRecordSet(liveSet, isActive = false) {
     });
 
   if (result.exitTimestamp && Number.isFinite(Number(result.exitPrice))) {
-    renderPriceHelper(result.exitTimestamp, result.exitPrice, 'Live Exit', RESULT_COLOR, 'right');
+    renderPriceHelper(result.exitTimestamp, result.exitPrice, 'Exit', RESULT_COLOR, 'right');
   }
 }
 

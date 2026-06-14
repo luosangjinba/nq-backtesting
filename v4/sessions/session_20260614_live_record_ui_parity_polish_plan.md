@@ -362,3 +362,25 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.7 polishes chart renderer labels and visual emphasis.
+
+## Step 287.7 Completion - Chart Renderer Labels Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record renderer line labels now match Order Setup naming more closely:
+  - `Short Entry` / `Long Entry` instead of `Short Live Entry` / `Long Live Entry`;
+  - `Stop-loss` instead of `Live Stop`;
+  - `Exit` instead of `Live Exit`.
+- Anchor marker still uses `Live` to identify the object family without making every line label verbose.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-renderer.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.8 polishes Live Record element hit menu and action behavior.
