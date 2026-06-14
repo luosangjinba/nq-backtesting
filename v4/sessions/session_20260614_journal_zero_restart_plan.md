@@ -554,3 +554,38 @@ Verification:
 - `node --check v4/src/calendar/calendar-review-index.js`
 - `node --check v4/src/ui/inspector/calendar-panel.js`
 - Inline ESM Calendar projection probe covered empty group existence, populated live record row projection, `live-record` ref shape, and group order immediately after Order Setups.
+
+## Step 285.7 Completion - Live Record Detail Route And Panel
+
+Completed on 2026-06-14.
+
+Added `v4/src/ui/inspector/live-record-panel.js`, cloned from the Order Setup detail layout:
+
+- Header
+- Display
+- Summary
+- Anchor
+- Execution
+- Reasons
+- Result
+
+Updated Inspector routing:
+
+- Calendar Open now allows `live-record` objects.
+- `inspector-sidebar.js` imports `renderLiveRecordDetailPanel()`.
+- Added `renderLiveRecordDetail(liveRecordId)`.
+- Added `renderPageFromState()` branch for `objectType === 'live-record'`.
+- Added `openCalendarObject('live-record', id)` branch that sets active Live Record and opens detail.
+- Added `live-record:changed` refresh listener.
+
+Current scope:
+
+- This step opens and renders the detail page.
+- Edit/delete/link action behavior is intentionally deferred to Step 285.8.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- Inline ESM render probe confirmed the detail HTML contains the matching Header/Display/Summary/Anchor/Execution/Reasons/Result structure and live-record data attributes.

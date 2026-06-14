@@ -36,6 +36,7 @@ import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
 import { renderSmtPanel } from './inspector/smt-panel.js';
 import { createSmtInspectorActionController } from './inspector/smt-actions.js';
 import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
+import { renderLiveRecordDetailPanel } from './inspector/live-record-panel.js';
 import {
   renderDailyTimeReviewPanel,
   renderDailyTimeReviewSectionPanel,
@@ -81,6 +82,12 @@ import { getSelectedOrderSetupElement } from '../order/order-setup-selection.js'
 import {
   getOrderReviewById,
 } from '../order/order-review-store.js';
+import {
+  getLiveRecordById,
+} from '../live-record/live-record-store.js';
+import {
+  setActiveLiveRecord,
+} from '../live-record/live-record-active.js';
 import {
   getDailyTimeReviewByDate,
   getOrCreateDailyTimeReview,
@@ -402,6 +409,22 @@ function renderOrderSetupDetail(orderReviewId) {
   `);
 }
 
+function renderLiveRecordDetail(liveRecordId) {
+  const record = getLiveRecordById(liveRecordId);
+  currentPanel = 'detail';
+  replaceInspectorPage({
+    kind: 'detail',
+    objectType: 'live-record',
+    objectId: liveRecordId,
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+  });
+  setInspectorBody(`
+    ${renderInspectorBackAction()}
+    ${renderLiveRecordDetailPanel(record)}
+  `);
+}
+
 function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
   const review = getDailyTimeReviewByDate(dateKey) || getOrCreateDailyTimeReview(dateKey);
   currentPanel = 'detail';
@@ -517,6 +540,11 @@ function renderPageFromState(page = getInspectorPage()) {
     if (page.objectType === 'order-setup') {
       if (getOrderReviewById(page.objectId)) {
         renderOrderSetupDetail(page.objectId);
+        return;
+      }
+    } else if (page.objectType === 'live-record') {
+      if (getLiveRecordById(page.objectId)) {
+        renderLiveRecordDetail(page.objectId);
         return;
       }
     } else if (page.objectType === 'pda') {
@@ -725,6 +753,22 @@ function openCalendarObject(type, id, options = {}) {
       renderOrderSetupDetail(id);
     }
     return selected;
+  }
+  if (type === 'live-record') {
+    if (!getLiveRecordById(id)) return false;
+    setActiveLiveRecord(id);
+    clearPdaSelection();
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+    pushInspectorPage({
+      kind: 'detail',
+      objectType: 'live-record',
+      objectId: id,
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+    });
+    renderLiveRecordDetail(id);
+    return true;
   }
   if (type === 'pda') {
     if (!getAnnotationById(id)) return false;
@@ -1050,6 +1094,7 @@ export function initInspectorSidebar() {
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
   bus.on('order-review:changed', refreshSelection);
+  bus.on('live-record:changed', refreshSelection);
   bus.on('daily-time-review:changed', refreshSelectionUnlessEditingDailyTimeText);
   bus.on('chart-notes:changed', refreshSelection);
   bus.on('economic-event-notes:changed', refreshSelection);
