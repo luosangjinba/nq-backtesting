@@ -9,6 +9,7 @@ import {
   getActiveLiveRecordId,
   setActiveLiveRecord,
 } from '../../live-record/live-record-active.js';
+import { setLiveRecordLifecycleStatus } from '../../live-record/live-record-lifecycle-actions.js';
 import { getActiveReviewSetId } from '../../order/order-review-active.js';
 
 function updateReason(record, reasonIndex, patch = {}) {
@@ -138,6 +139,13 @@ export function createLiveRecordActionController({
         },
       }));
       bus.emit('status:update', { text: nextHidden ? 'Live Record hidden' : 'Live Record shown', isError: false });
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-status') {
+      const status = actionEl.dataset.liveRecordStatus;
+      setLiveRecordLifecycleStatus(liveRecordId, status);
       refreshSelection?.();
       return true;
     }

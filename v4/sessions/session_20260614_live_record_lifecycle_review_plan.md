@@ -423,3 +423,22 @@ Verification:
 - Ran `node v4/tests/live-record-chart-actions-smoke.js`.
 
 Next step: Step 288.4 exposes compact lifecycle controls in the Live Record Detail header.
+
+## Step 288.4 Completion - Detail Lifecycle Controls Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Live Record Detail header now shows the lifecycle status next to the instrument.
+- Header metadata shows `Needs Review` for records that are closed/filled but not reviewed.
+- Header renders compact transition buttons from the lifecycle transition table.
+- Button labels use review-friendly text such as `Close`, `Cancel`, `Mark Reviewed`, and `Reopen`.
+- Inspector action controller handles `live-record-status` and delegates to lifecycle actions.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to verify status rendering, transition buttons, and close/review status updates from Detail actions.
+- Ran `node v4/tests/live-record-smoke.js`.
+
+Next step: Step 288.5 polishes the Detail review fields without adding a large standalone review form.

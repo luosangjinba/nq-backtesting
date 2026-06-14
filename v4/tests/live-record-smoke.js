@@ -399,6 +399,9 @@ assert.equal(
 
 const detailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
 assert.match(detailHtml, /Live Record Detail/, 'detail renders title');
+assert.match(detailHtml, /Active/, 'detail header renders lifecycle status');
+assert.match(detailHtml, /Close/, 'detail header renders lifecycle transition action');
+assert.match(detailHtml, /Mark Reviewed/, 'detail header renders review lifecycle action');
 assert.match(detailHtml, /Display/, 'detail renders Display');
 assert.match(detailHtml, /Summary/, 'detail renders Summary');
 assert.match(detailHtml, /Anchor/, 'detail renders Anchor');
@@ -431,6 +434,10 @@ assert.equal(actions.handleChange('live-record-display-field', makeTarget(chartL
 assert.equal(getLiveRecordById(chartLiveId).display.showRiskRewardBox, false, 'display action updates');
 assert.equal(actions.handleChange('live-record-result-status', makeTarget(chartLiveId, { value: 'win' })), true);
 assert.equal(getLiveRecordById(chartLiveId).result.status, 'win', 'result action updates');
+assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'closed' })), true);
+assert.equal(getLiveRecordById(chartLiveId).status, 'closed', 'status action updates lifecycle status');
+assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'reviewed' })), true);
+assert.equal(getLiveRecordById(chartLiveId).status, 'reviewed', 'status action can mark reviewed');
 assert.equal(actions.handleClick('live-record-toggle-hidden', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).display.hidden, true, 'hide action updates');
 assert.equal(actions.handleClick('live-record-link-active-setup', makeTarget(chartLiveId)), true);

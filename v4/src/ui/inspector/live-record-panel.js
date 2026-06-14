@@ -1,4 +1,9 @@
 import {
+  getLiveRecordAllowedNextStatuses,
+  getLiveRecordStatusLabel,
+  needsLiveRecordReview,
+} from '../../live-record/live-record-lifecycle.js';
+import {
   LIVE_RECORD_REASON_CATEGORIES,
   LIVE_RECORD_RESULT_STATUSES,
 } from '../../live-record/live-record-types.js';
@@ -91,9 +96,40 @@ function renderActiveHeader(record, liveSet) {
     <div class="inspector-evidence-row order-review-row active">
       <div class="inspector-evidence-header">
         <span>${escapeHtml(title)}</span>
-        <span>${escapeHtml(record.instrument || liveSet?.instrument || 'NQ')}</span>
+        <span>${escapeHtml(record.instrument || liveSet?.instrument || 'NQ')} · ${escapeHtml(getLiveRecordStatusLabel(record.status))}</span>
       </div>
-      <div class="drawing-set-meta">${escapeHtml(`Active Live Record · ${state} · Updated ${formatDateTimeMs(record.updatedAt)}`)}</div>
+      <div class="drawing-set-meta">${escapeHtml([
+        needsLiveRecordReview(record) ? 'Needs Review' : 'Live Record',
+        state,
+        `Updated ${formatDateTimeMs(record.updatedAt)}`,
+      ].join(' · '))}</div>
+      ${renderLifecycleControls(record)}
+    </div>
+  `;
+}
+
+function getLifecycleActionLabel(status) {
+  if (status === 'active') return 'Reopen';
+  if (status === 'cancelled') return 'Cancel';
+  if (status === 'closed') return 'Close';
+  if (status === 'reviewed') return 'Mark Reviewed';
+  return getLiveRecordStatusLabel(status);
+}
+
+function renderLifecycleControls(record) {
+  const nextStatuses = getLiveRecordAllowedNextStatuses(record.status);
+  if (!nextStatuses.length) return '';
+  return `
+    <div class="order-review-actions order-review-compact-actions">
+      ${nextStatuses.map((status) => (
+        `<button
+          class="inspector-secondary"
+          data-inspector-action="live-record-status"
+          data-live-record-id="${escapeHtml(record.id)}"
+          data-live-record-status="${escapeHtml(status)}"
+          type="button"
+        >${escapeHtml(getLifecycleActionLabel(status))}</button>`
+      )).join('')}
     </div>
   `;
 }
