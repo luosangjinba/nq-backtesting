@@ -338,6 +338,8 @@ assert.match(detailHtml, /Live Record Detail/, 'detail renders title');
 assert.match(detailHtml, /Display/, 'detail renders Display');
 assert.match(detailHtml, /Summary/, 'detail renders Summary');
 assert.match(detailHtml, /Anchor/, 'detail renders Anchor');
+assert.match(detailHtml, /Short/, 'detail uses Order Setup direction vocabulary');
+assert.doesNotMatch(detailHtml, /Bearish/, 'detail does not mix bullish/bearish direction vocabulary');
 assert.match(detailHtml, /Execution/, 'detail renders Execution');
 assert.match(detailHtml, /Hidden · Selected/, 'detail renders hidden and selected execution state');
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');

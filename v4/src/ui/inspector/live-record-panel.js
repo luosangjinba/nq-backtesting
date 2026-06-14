@@ -85,11 +85,10 @@ function renderSummaryPanel(record) {
 
 function renderAnchorPanel(liveSet) {
   const anchor = liveSet?.anchor || {};
-  const direction = liveSet?.direction === 'short' ? 'Bearish' : liveSet?.direction === 'long' ? 'Bullish' : 'Unknown';
   return `
     <div class="order-review-compact order-review-anchor-panel">
       <div class="order-review-compact-title">Anchor</div>
-      ${field('Direction', direction)}
+      ${field('Direction', formatDirection(liveSet?.direction))}
       ${field('Time', formatTime(anchor.timestamp))}
       ${field('TF', anchor.timeframe || '—')}
       ${field('Price', formatNumber(anchor.price))}

@@ -271,3 +271,23 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.3 polishes Live Record Detail header and core panels.
+
+## Step 287.3 Completion - Detail Header And Core Panels Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record Detail Anchor direction now uses the same Long/Short/Unknown vocabulary as the header and Order Setup Detail.
+- The panel no longer mixes Bullish/Bearish in Anchor with Long/Short in the active header.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.4 polishes Execution and Result detail rows.
