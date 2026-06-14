@@ -35,6 +35,10 @@ function projectElement(element = {}, options = {}) {
   };
 }
 
+function elementRangeValues(element = {}) {
+  return element.complete ? [element.timestamp, element.endTimestamp] : [];
+}
+
 export function createLiveRecordSet(record = {}) {
   if (!record?.id) return null;
   const anchor = record.anchor || {};
@@ -49,6 +53,14 @@ export function createLiveRecordSet(record = {}) {
     toTimestamp(anchor.timestamp) ??
     toTimestamp(result.exitTimestamp)
   );
+  const projectedEntry = projectElement(entry);
+  const projectedMarketStructureShift = projectElement(marketStructureShift);
+  const projectedStopLoss = projectElement(stopLoss, {
+    completeWhen: ({ price }) => price !== null,
+  });
+  const projectedTargets = targets.map((target) => projectElement(target, {
+    completeWhen: ({ price }) => price !== null,
+  }));
   return {
     id: record.id,
     sourceType: 'live-record',
@@ -65,14 +77,10 @@ export function createLiveRecordSet(record = {}) {
     primaryTimestamp,
     range: timestampRangeFromValues([
       anchor.timestamp,
-      entry.timestamp,
-      entry.endTimestamp,
-      marketStructureShift.timestamp,
-      marketStructureShift.endTimestamp,
-      stopLoss.timestamp,
-      stopLoss.endTimestamp,
-      ...targets.map((target) => target.timestamp),
-      ...targets.map((target) => target.endTimestamp),
+      ...elementRangeValues(projectedEntry),
+      ...elementRangeValues(projectedMarketStructureShift),
+      ...elementRangeValues(projectedStopLoss),
+      ...projectedTargets.flatMap(elementRangeValues),
       result.exitTimestamp,
     ]),
     anchor: {
@@ -81,14 +89,10 @@ export function createLiveRecordSet(record = {}) {
       price: toNumberOrNull(anchor.price),
     },
     execution: {
-      entry: projectElement(entry),
-      marketStructureShift: projectElement(marketStructureShift),
-      stopLoss: projectElement(stopLoss, {
-        completeWhen: ({ price }) => price !== null,
-      }),
-      targets: targets.map((target) => projectElement(target, {
-        completeWhen: ({ price }) => price !== null,
-      })),
+      entry: projectedEntry,
+      marketStructureShift: projectedMarketStructureShift,
+      stopLoss: projectedStopLoss,
+      targets: projectedTargets,
       orders: Array.isArray(execution.orders) ? execution.orders : [],
       fills: Array.isArray(execution.fills) ? execution.fills : [],
     },

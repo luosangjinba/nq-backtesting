@@ -203,10 +203,8 @@ function getChartEnd({ bar = null, timeframe = '' } = {}) {
 }
 
 function hasElementValue(element = {}) {
-  return element.timestamp !== null
-    || element.timestamp !== undefined
-    || element.price !== null
-    || element.price !== undefined;
+  return (element.timestamp !== null && element.timestamp !== undefined)
+    || (element.price !== null && element.price !== undefined);
 }
 
 function upsertTarget(targets = [], targetPatch = {}) {
@@ -230,11 +228,13 @@ function upsertTarget(targets = [], targetPatch = {}) {
 
 function setTargetEnd(targets = [], role = '', end = {}) {
   const existingTargets = Array.isArray(targets) ? targets : [];
-  return existingTargets.map((target) => (
-    target.role === role || target.id === role
-      ? { ...target, ...end }
-      : target
-  ));
+  let changed = false;
+  const nextTargets = existingTargets.map((target) => {
+    if (target.role !== role && target.id !== role) return target;
+    changed = true;
+    return { ...target, ...end };
+  });
+  return changed ? nextTargets : null;
 }
 
 function setAllElementEnds(execution = {}, end = {}) {
@@ -288,6 +288,10 @@ function patchActiveFromChart(label, patchFactory, context = {}) {
     return true;
   }
   const patch = patchFactory(active);
+  if (!patch) {
+    bus.emit('status:update', { text: `${label} failed`, isError: true });
+    return true;
+  }
   const updated = recordHistory(label, () => patchActiveLiveRecord(patch));
   bus.emit('status:update', {
     text: updated?.id ? `${label}: ${updated.id}` : `${label} failed`,
@@ -648,15 +652,15 @@ export function handleLiveRecordChartAction(action, {
     }, { bar });
   }
   if (LIVE_RECORD_TARGET_END_ACTIONS[action]) {
-    return patchActiveFromChart('Set Live Record Target End', (active) => ({
-      execution: {
-        targets: setTargetEnd(
-          active.execution?.targets,
-          LIVE_RECORD_TARGET_END_ACTIONS[action],
-          getChartEnd({ bar, timeframe })
-        ),
-      },
-    }), { bar });
+    return patchActiveFromChart('Set Live Record Target End', (active) => {
+      const targets = setTargetEnd(
+        active.execution?.targets,
+        LIVE_RECORD_TARGET_END_ACTIONS[action],
+        getChartEnd({ bar, timeframe })
+      );
+      if (!targets) return null;
+      return { execution: { targets } };
+    }, { bar });
   }
   if (action === LIVE_RECORD_CHART_ACTIONS.SET_RESULT_EXIT) {
     return patchActiveFromChart('Set Live Record Result Exit', () => {

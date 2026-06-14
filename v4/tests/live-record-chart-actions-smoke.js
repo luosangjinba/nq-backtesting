@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 
+import * as bus from '../src/event-bus.js';
 import {
   addOrderReview,
   clearOrderReviews,
@@ -22,8 +23,14 @@ import {
   LIVE_RECORD_LINE_LENGTH_BARS,
   getLiveRecordElementLineLength,
 } from '../src/live-record/live-record-projection.js';
+import { createLiveRecordSet } from '../src/live-record/live-record-set.js';
 import { hitTestLiveRecordElements } from '../src/live-record/live-record-hit-test.js';
 import { getSelectedLiveRecordElement } from '../src/live-record/live-record-selection.js';
+
+let lastStatus = null;
+bus.on('status:update', (payload) => {
+  lastStatus = payload;
+});
 
 function resetState() {
   clearOrderReviews();
@@ -177,5 +184,53 @@ assert.equal(handleLiveRecordChartAction('live-record-hit-delete-record', {
 }), true, 'delete record hit action is handled');
 assert.equal(getLiveRecordById(extra.id), null, 'delete record removes live record');
 assert.ok(getOrderReviewById(setup.id), 'delete live record does not delete setup');
+
+loadLiveRecords([]);
+assert.equal(handleLiveRecordChartAction('live-record-create-bearish', {
+  bar: { timestamp: 1710780000, close: 18366.25 },
+  price: 18366.5,
+  timeframe: '1H',
+}), true, 'partial record creation is handled');
+const partialLiveRecordId = getActiveLiveRecordId();
+assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
+  bar: { timestamp: 1710780060, close: 18361 },
+  price: 18361.25,
+  timeframe: '5M',
+}), true, 'partial record entry is handled');
+assert.equal(handleLiveRecordChartAction('live-record-set-all-ends', {
+  bar: { timestamp: 1710780120, close: 18331 },
+  price: 18331,
+  timeframe: '1M',
+}), true, 'partial record set all ends is handled');
+const partialLiveRecord = getLiveRecordById(partialLiveRecordId);
+assert.equal(partialLiveRecord.execution.entry.endTimestamp, 1710780120, 'set all ends updates existing entry');
+assert.equal(partialLiveRecord.execution.marketStructureShift.endTimestamp, null, 'set all ends does not write empty MSS');
+assert.equal(partialLiveRecord.execution.stopLoss.endTimestamp, null, 'set all ends does not write empty stop');
+assert.equal(partialLiveRecord.execution.targets.length, 0, 'set all ends does not create targets');
+assert.equal(createLiveRecordSet(partialLiveRecord).range.end, 1710780120, 'partial range includes existing entry end');
+lastStatus = null;
+assert.equal(handleLiveRecordChartAction('live-record-set-target-external-2-end', {
+  bar: { timestamp: 1710780180, close: 18300 },
+  price: 18300,
+  timeframe: '1M',
+}), true, 'missing target end action is handled');
+assert.equal(lastStatus?.isError, true, 'missing target end action reports an error');
+assert.equal(getLiveRecordById(partialLiveRecordId).execution.targets.length, 0, 'missing target end does not mutate targets');
+
+const dirtyLiveRecord = addLiveRecord({
+  id: 'dirty-live-record-range',
+  instrument: 'NQ',
+  anchor: { timestamp: 1710790000, timeframe: '1H', price: 18366.5 },
+  execution: {
+    marketStructureShift: {
+      timestamp: null,
+      timeframe: 'manual',
+      price: null,
+      endTimestamp: 1710799999,
+      endTimeframe: '1M',
+    },
+  },
+}, { now: 3 });
+assert.equal(createLiveRecordSet(dirtyLiveRecord).range.end, 1710790000, 'range ignores empty element end timestamps');
 
 console.log('live record chart actions smoke ok');
