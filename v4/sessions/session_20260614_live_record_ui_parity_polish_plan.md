@@ -212,3 +212,40 @@ Each implementation substep should be committed separately. If Step 287.1 finds 
 - Context menu ordering is easy to regress because Live Record and Order Setup menus are rendered in the same primary chart menu.
 - Renderer polish should avoid introducing heavy abstractions or changing Order Setup primitives.
 - Browser screenshot checks are useful here because the user-facing goal is visual/interaction parity, not only data correctness.
+
+## Step 287.1 Completion - UI Parity Audit
+
+Completed on 2026-06-14.
+
+Audit inputs:
+
+- `v4/tests/live-record-browser-smoke.js` passed against the current page.
+- Compared Calendar row rendering in `v4/src/ui/inspector/calendar-panel.js`.
+- Compared Calendar summaries in `v4/src/calendar/calendar-review-index.js`.
+- Compared Order Setup Detail and Live Record Detail in:
+  - `v4/src/ui/inspector/order-review-panel.js`
+  - `v4/src/ui/inspector/live-record-panel.js`
+- Compared Order Setup and Live Record chart menus/renderers in:
+  - `v4/src/order/order-setup-chart-actions.js`
+  - `v4/src/live-record/live-record-chart-actions.js`
+  - `v4/src/order/order-review-renderer.js`
+  - `v4/src/live-record/live-record-renderer.js`
+
+Concrete parity gaps:
+
+- Calendar row summary: Live Record summary includes status and an `Exit` phrase, while Order Setup summary is tighter. Step 287.2 should keep live-specific result data but make the row scan like Order Setup.
+- Calendar row actions: Live Record has extra Set Active / Link Active Setup actions. Step 287.2 should keep these, but order and labels should mirror Order Setup row action rhythm.
+- Detail header/core panels: Live Record already reuses compact Order Setup sections, but header metadata says `Active Live Record` and anchor direction uses Bullish/Bearish while header uses Long/Short. Step 287.3 should make direction vocabulary consistent.
+- Execution/Result: Live Record rows render execution fields, but empty/hidden/selected state and end-time metadata are more verbose than Order Setup. Step 287.4 should tighten row metadata.
+- Reasons/evidence: Live Record ref rows use generic `titleCase(type)` and raw ids. Order Setup has dedicated ref label helpers, source context, and shortened ids. Step 287.5 should clone those formatting helpers locally.
+- Context menu: Live Record menu lacks the same divider structure as Order Setup. Evidence links are currently before write actions, while Order Setup places link actions after write/target actions. Step 287.6 should reorder/group with dividers.
+- Renderer: Live Record labels include `Live Entry`, `Live Stop`, and `Live Exit`; colors are close but not deliberately paired with Order Setup. Step 287.7 should decide whether to keep `Live` prefixes only where needed and tune colors/labels.
+- Hit menu: Live Record element menu repeats Delete Live Record for every hit row and has no clear-active row. Step 287.8 should reduce repeated destructive actions and align wording/order.
+
+Verification:
+
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.2 polishes Calendar row parity.
