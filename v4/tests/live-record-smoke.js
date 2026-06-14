@@ -167,7 +167,17 @@ assert.equal(getLiveRecordById('live-es').instrument, 'ES', 'ES record restored'
 assert.equal(clearSavedLiveRecords('ES'), true, 'clear saved ES live records');
 
 loadLiveRecords([]);
-assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } }), /New Live Record Here/, 'chart menu renders live record entry');
+const inactiveMenuHtml = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } });
+assert.match(inactiveMenuHtml, /New Live Record Here/, 'chart menu renders live record entry');
+assert.match(inactiveMenuHtml, /No active live record/, 'chart menu shows inactive label');
+assert.match(inactiveMenuHtml, /Set Entry Here/, 'chart menu renders entry action shell');
+assert.match(inactiveMenuHtml, /Set Target External 3 Here/, 'chart menu renders target action shell');
+assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 }, isShift: true }), /Set All Ends Here/, 'shift chart menu renders end action shell');
+assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
+  bar: { timestamp: 1710770400, close: 18366.25 },
+  price: 18366.5,
+  timeframe: '1H',
+}), true, 'planned live record action is claimed by live record handler');
 const activeSetupBefore = getActiveReviewSetId();
 assert.equal(handleLiveRecordChartAction('live-record-new-here', {
   bar: { timestamp: 1710770400, close: 18366.25 },
@@ -178,6 +188,7 @@ const chartLiveId = getActiveLiveRecordId();
 assert.ok(chartLiveId, 'chart-created live record becomes active');
 assert.equal(getLiveRecordById(chartLiveId).anchor.price, 18366.5, 'chart price becomes live anchor');
 assert.equal(getActiveReviewSetId(), activeSetupBefore, 'chart-created live record preserves active setup');
+assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } }), /Close Active Live Record/, 'chart menu renders active close action');
 
 const liveDateGroups = getCalendarDayGroups('2024-03-18');
 const liveGroup = liveDateGroups.find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);

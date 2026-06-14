@@ -408,3 +408,26 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.4 expands the Live Record chart context menu shell without wiring all write handlers yet.
+
+## Step 286.4 Completion - Live Record Context Menu Shell Expanded
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Expanded `LIVE_RECORD_CHART_ACTIONS` with anchor, entry, MSS, stop, target, result, end, all-end, and clear-active action IDs.
+- `renderLiveRecordMenuItems()` now shows the active Live Record label, `New Live Record Here`, write actions, setup-like target submenu, Shift end actions, `Set All Ends Here`, and `Close Active Live Record`.
+- Write actions are disabled when no active Live Record exists or no chart bar is selected.
+- `manual-annotation.js` now passes the Shift context into the Live Record menu renderer.
+- `Clear Active Live Record` is handled immediately; other new write actions are claimed with a Step 286.5 placeholder status so they do not fall through to unrelated handlers.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.5 wires the menu actions to active Live Record chart writes.

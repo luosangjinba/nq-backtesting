@@ -422,7 +422,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     timeLabel,
     disabled,
     orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit: contextMenuOrderSetupHit, isShift: contextMenuShiftKey }),
-    liveRecordItems: renderLiveRecordMenuItems({ bar }),
+    liveRecordItems: renderLiveRecordMenuItems({ bar, isShift: contextMenuShiftKey }),
     segmentPdaLinkItems,
     segmentGroupItems,
     segmentItems,
