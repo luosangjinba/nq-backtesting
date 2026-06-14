@@ -799,7 +799,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 281.13: 验证 ES daily refresh 无新增路径。当前 ES max ts `2026-06-11 16:59`，dry-run 请求 `2026-06-11 17:00 -> 17:19/17:20` 返回 `downloaded_normalized_rows=0`、`would_insert_rows=0`、0 duplicate / 0 existing，并有 Databento `No data found` warning；DB 行数保持 `6,451,065`、max ts 不变。修正 wrapper 判断顺序：`would_insert_rows=0` 时优先安全 skip，再处理 warning block，避免无数据窗口在 `--write --confirm-write` 下被误判为 degraded blocked；验证 `--write --confirm-write` 无新增时只 dry-run 后 skip，未写库。
   - [x] Step 281.14: Databento 研究收口。结论：ES historical/manual daily refresh 已可用，当前 DB 中 ES 覆盖到 `2026-06-11 16:59`；NQ 因 `NQH6 -> NQM6` roll conflict 继续禁写；Databento Historical API 适合盘后/延迟补全，不作为 live journal 行情源；当前不启用 cron，先保持人工 dry-run/write；DB 是权威源，Databento updater 只做 insert-only。后续拆为 Step 282 Journal MVP data model / UI scope、NQ roll conflict 单独研究、ES refresh 多次稳定后再评估自动化。
 
-- [ ] Step 282: Journal MVP data model / UI scope。目标是在当前 V4 复盘平台上平行出 journal 系统，优先定义临场记录的数据模型和最小 UI 范围；不先做行情源自动化，不复用 Order Setup 作为 journal order log。初始研究重点：临场状态、当时想法、计划/冲动、实际订单、执行纪律、情绪/身体状态、复盘后对照。
+- [ ] Step 282: Journal MVP data model / UI scope。旧方向已在 2026-06-14 重置：不再从独立 Journal workspace 或 standalone Live Orders panel 开始；后续由 Step 285 重新从 Order Setups clone-first 设计开始。
 
 - [x] Step 283: Primary Instrument Selector。目标是把主图从 hardcoded NQ workspace 改为 instrument-scoped workspace；第一版完整支持 Main=NQ/ES，架构上允许后续扩展到其他有数据和配置的品种。计划见 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
   - [x] Step 283.1: 冻结边界和风险：主图 instrument 是 workspace 级状态；NQ 默认不变；ES 主图必须能像 NQ 一样做常规复盘；其他品种只保留扩展接口，不承诺无数据/无规则时完整可用。SMT 第一版仍只支持 `Main=NQ, Sub=ES`，其他组合禁用并显示原因。边界已写入 `v4/sessions/session_20260611_primary_instrument_selector_plan.md`。
@@ -820,3 +820,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 284.4: Smoke tests：新增/扩展测试覆盖 NQ/ES trend/range CSV parsing/loading、shared VIX 叠加和 missing file graceful behavior。已新增 `v4/tests/daily-regime-loader-smoke.js`，覆盖 Main=ES 加载 shared VIX + ES trend/range、Main 切换清空旧 regime、缺少 instrument trend/range 文件时仍保留 VIX 且 trend/range 为 unknown。
   - [x] Step 284.5: Browser/API 验证：确认 Main=NQ 不回归，Main=ES Calendar day detail 可读取 ES Daily Regime；Review export dailyRegimes instrument 正确。已扩展 `primary-instrument-browser-smoke`，在真实页面里切 Main=ES、拉 ES bars、触发 `bar-store.setBars()` / `bars:loaded`，断言 ES Daily Regime 使用 shared VIX 与 `daily-regime-es.csv` 的 trend/range；同时禁用 Chrome cache 并使用临时 profile。
   - [x] Step 284.6: 文档收口：更新用户文档，明确 VIX 共用、trend/range 按 Main instrument、ES Daily Regime 覆盖范围和已知限制。已更新中英文用户指南：VIX 共用 `vix-daily.csv`；NQ/ES trend/range 分别读取 `daily-regime-nq.csv` / `daily-regime-es.csv`；ES 当前覆盖 `2008-01-02 -> 2026-06-11`；刷新 K 线后需要重新生成对应 `daily-regime-*.csv`。
+
+- [ ] Step 285: Journal zero restart - clone Order Setups into Live Records first。当前分支已整体回退到分支起点 `340f3ac`，旧 Journal Phase A-C 工作保存在 `backup/journal-redesign-before-zero-reset-20260614`；新目标是不做独立 Live Orders 面板，而是先克隆一套几乎一模一样的 Order Setups UI/交互，再在其基础上改成 Live Records。计划见 `v4/sessions/session_20260614_journal_zero_restart_plan.md`。
+  - [ ] Step 285.1: 冻结 zero-restart 边界：记录 reset 点、备份分支、产品目标、非目标与验收标准；确认旧 Phase A-C live-order 代码不在当前活动分支，下一步从 Order Setups parity 开始。
+  - [ ] Step 285.2: 审计 Order Setups clone points：读取 store/types/setup-set、active、persistence、chart actions、Calendar index/group、Inspector detail/actions、sidebar route 和 smoke，决定哪些先 clone、哪些先共享、哪些暂不碰。
+  - [ ] Step 285.3: 从 Order Setup 模式克隆 Live Record runtime skeleton：新增 live-record types/store/active 和必要 adapter；第一版字段尽量贴近 Order Setup 的 anchor、summary、display、execution、reasons、result 结构。
+  - [ ] Step 285.4: 增加 instrument-scoped persistence：使用独立 `v4:live-records:<instrument>` key，NQ/ES 隔离，restore guard 防覆盖，不读写或迁移 `orderReviews`。
+  - [ ] Step 285.5: 增加 chart context 创建入口：右键 `New Live Record Here` 从点击 K 线创建 standalone live record 并设为 active，不创建 Order Setup，不显示独立 Live Orders 面板。
+  - [ ] Step 285.6: 在 Calendar / Day Details 增加 `Live Records` group：直接靠近 `Order Setups`，使用同样 group shell、count badge、空状态 `None`、展开/折叠和 row density。
+  - [ ] Step 285.7: 克隆 Order Setup Detail 为 Live Record Detail：Header、Display、Summary、Anchor、Execution、Reasons/Notes、Result/Review 结构保持同密度，只按 live 语义改必要 label/字段。
+  - [ ] Step 285.8: 克隆 row menu 与 detail actions：Open、Locate、Set Active、Hide/Show、Delete、Link To Active Order Setup、Unlink Setup；所有写操作只影响 Live Record。
+  - [ ] Step 285.9: 增加 focused smoke：覆盖 live record CRUD、instrument persistence、chart 创建、Calendar empty/populated group、detail open/edit/delete、Order Setup isolation。
+  - [ ] Step 285.10: 浏览器视觉验收：确认无记录/有记录/详情页分别与 Order Setups 截图风格一致，且页面不存在 standalone Live Orders panel。
