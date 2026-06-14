@@ -1,5 +1,9 @@
 import { getSetupSets } from '../order/setup-set.js';
 import { getLiveRecordSets } from '../live-record/live-record-set.js';
+import {
+  getLiveRecordStatusLabel,
+  needsLiveRecordReview,
+} from '../live-record/live-record-lifecycle.js';
 import { formatPdaSourceBadge } from '../pda/pda-source-format.js';
 import { getAnnotations } from '../pda/pda-store.js';
 import { getSegments, getSegmentById } from '../segment/segment-store.js';
@@ -146,7 +150,10 @@ function summarizeLiveRecordSet(liveRecordSet) {
     : '';
   const status = ['draft', 'active'].includes(String(liveRecordSet.status || '').toLowerCase())
     ? ''
-    : titleCase(liveRecordSet.status, '');
+    : getLiveRecordStatusLabel(liveRecordSet.status);
+  const reviewStatus = needsLiveRecordReview(liveRecordSet.liveRecord || liveRecordSet)
+    ? 'Needs Review'
+    : '';
   const resultStatus = String(result.status || '').toLowerCase() === 'unknown'
     ? ''
     : titleCase(result.status, '');
@@ -155,6 +162,7 @@ function summarizeLiveRecordSet(liveRecordSet) {
     status,
     compactTime(getLiveRecordDateTimestamp(liveRecordSet)),
     compactPrice(entry.price ?? anchor.price),
+    reviewStatus,
     resultStatus,
     exit,
   ]);

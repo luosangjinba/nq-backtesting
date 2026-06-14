@@ -19,6 +19,10 @@ import {
 } from '../../utils.js';
 import { getCalendarVisibilitySummaryForItems } from './calendar-visibility-actions.js';
 import {
+  getLiveRecordAllowedNextStatuses,
+  getLiveRecordStatusLabel,
+} from '../../live-record/live-record-lifecycle.js';
+import {
   getDailyTimeReviewByDate,
   hasDailyTimeReviewContent,
 } from '../../time-reaction/daily-time-review-store.js';
@@ -282,6 +286,22 @@ function renderObjectActionButtons(item) {
   const locateLabel = item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT
     ? `${item.source?.title || 'Economic Event'} · ${item.source?.displayTime || '09:30'}`
     : `${typeLabel} ${item.label}`;
+  const getLiveStatusActionLabel = (status) => {
+    if (status === 'active') return 'Reopen';
+    if (status === 'reviewed') return 'Mark Reviewed';
+    return getLiveRecordStatusLabel(status);
+  };
+  const liveStatusButtons = canManageLiveRecord
+    ? getLiveRecordAllowedNextStatuses(liveRecord?.status).map((status) => `
+        <button
+          class="inspector-mini-btn calendar-object-open"
+          data-inspector-action="live-record-status"
+          data-live-record-id="${escapeHtml(item.ref.id)}"
+          data-live-record-status="${escapeHtml(status)}"
+          type="button"
+        >${escapeHtml(getLiveStatusActionLabel(status))}</button>
+      `).join('')
+    : '';
   return `
     <button
       class="inspector-mini-btn calendar-object-locate"
@@ -348,6 +368,7 @@ function renderObjectActionButtons(item) {
           >Set Active</button>`
         : ''
     }
+    ${liveStatusButtons}
     ${
       canManageLiveRecord
         ? `<button

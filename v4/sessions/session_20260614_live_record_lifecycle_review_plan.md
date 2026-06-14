@@ -465,3 +465,21 @@ Verification:
 - Ran `node v4/tests/live-record-smoke.js`.
 
 Next step: Step 288.6 adds lifecycle status and actions to Calendar Live Record rows.
+
+## Step 288.6 Completion - Calendar Lifecycle Rows Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Calendar Live Record summaries now show lifecycle terminal statuses such as `Closed` and `Reviewed`.
+- Calendar summaries show `Needs Review` for closed/filled records that have not been reviewed.
+- Calendar Live Record row menu now renders lifecycle transition actions using the same transition table as Detail.
+- Calendar lifecycle menu labels use review workflow wording such as `Close`, `Mark Reviewed`, and `Reopen`.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to render Calendar panel rows, assert lifecycle action buttons, and verify closed/reviewed summary text.
+- Ran `node v4/tests/live-record-smoke.js`.
+
+Next step: Step 288.7 separates chart `Clear Active` wording from actual lifecycle close and guards terminal records from chart writes.

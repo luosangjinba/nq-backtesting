@@ -53,9 +53,11 @@ import {
 import { getCalendarDayGroups } from '../src/calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../src/calendar/calendar-types.js';
 import { renderLiveRecordDetailPanel } from '../src/ui/inspector/live-record-panel.js';
+import { renderCalendarPanel } from '../src/ui/inspector/calendar-panel.js';
 import { createLiveRecordActionController } from '../src/ui/inspector/live-record-actions.js';
 import { recordHistory, redo, undo } from '../src/history/history-manager.js';
 import { addSmtRecord, clearSmtRecords } from '../src/smt/smt-store.js';
+import * as barStore from '../src/data/bar-store.js';
 
 const storageData = new Map();
 globalThis.localStorage = {
@@ -398,6 +400,16 @@ assert.equal(
   liveDateGroups.findIndex((group) => group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) + 1,
   'Live Records group is directly after Order Setups'
 );
+barStore.setBars(
+  [{ timestamp: 1710770400, time: 1710770400, open: 1, high: 1, low: 1, close: 1 }],
+  '2024-03-18 00:00',
+  '2024-03-18 23:59',
+  '1M'
+);
+const calendarPanelHtml = renderCalendarPanel({ selectedDate: '2024-03-18', viewDate: '2024-03-18' });
+assert.match(calendarPanelHtml, /data-inspector-action="live-record-status"/, 'Calendar live row renders lifecycle actions');
+assert.match(calendarPanelHtml, /Close/, 'Calendar live row can close records');
+assert.match(calendarPanelHtml, /Mark Reviewed/, 'Calendar live row can mark reviewed');
 
 const detailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
 assert.match(detailHtml, /Live Record Detail/, 'detail renders title');
@@ -442,8 +454,13 @@ assert.equal(actions.handleChange('live-record-result-execution-review', makeTar
 assert.equal(getLiveRecordById(chartLiveId).result.executionReviewNote, 'Execution was disciplined', 'execution review action updates');
 assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'closed' })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'closed', 'status action updates lifecycle status');
+const closedLiveGroup = getCalendarDayGroups('2024-03-18').find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
+assert.match(closedLiveGroup.rows[0].label, /Closed/, 'Calendar summary shows closed status');
+assert.match(closedLiveGroup.rows[0].label, /Needs Review/, 'Calendar summary shows needs-review status');
 assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'reviewed' })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'reviewed', 'status action can mark reviewed');
+const reviewedLiveGroup = getCalendarDayGroups('2024-03-18').find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
+assert.match(reviewedLiveGroup.rows[0].label, /Reviewed/, 'Calendar summary shows reviewed status');
 assert.equal(actions.handleChange('live-record-reviewed-toggle', makeTarget(chartLiveId, { checked: false })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'active', 'reviewed toggle can reopen reviewed record');
 assert.equal(actions.handleClick('live-record-toggle-hidden', makeTarget(chartLiveId)), true);
