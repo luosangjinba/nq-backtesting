@@ -371,3 +371,29 @@ Non-goals reaffirmed:
 - No broad shared abstraction with Order Setup modules.
 
 Next step: Step 288.2 adds lifecycle helpers and status metadata around these frozen semantics.
+
+## Step 288.2 Completion - Lifecycle Helpers Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Added `v4/src/live-record/live-record-lifecycle.js`.
+- Centralized Live Record status labels.
+- Added `getLiveRecordDefaultChartStatus()` returning `active` for chart-created records.
+- Added open/terminal status guards.
+- Added `needsLiveRecordReview()` for closed/filled records that are not reviewed.
+- Added transition table helpers:
+  - `getLiveRecordAllowedNextStatuses()`
+  - `canTransitionLiveRecordStatus()`
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to cover default chart status, labels, open/terminal guards, needs-review semantics, and transition validation.
+- Ran `node v4/tests/live-record-smoke.js`.
+
+Note:
+
+- This substep intentionally does not yet change chart creation or action behavior. Step 288.3 wires the helpers into mutation actions.
+
+Next step: Step 288.3 adds lifecycle mutation actions and connects chart-created records to the frozen default status.

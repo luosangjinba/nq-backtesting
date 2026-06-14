@@ -21,6 +21,15 @@ import {
   initLiveRecordActive,
 } from '../src/live-record/live-record-active.js';
 import { createLiveRecordSet } from '../src/live-record/live-record-set.js';
+import {
+  canTransitionLiveRecordStatus,
+  getLiveRecordAllowedNextStatuses,
+  getLiveRecordDefaultChartStatus,
+  getLiveRecordStatusLabel,
+  isLiveRecordOpenStatus,
+  isLiveRecordTerminalStatus,
+  needsLiveRecordReview,
+} from '../src/live-record/live-record-lifecycle.js';
 import { hitTestLiveRecordElements } from '../src/live-record/live-record-hit-test.js';
 import { getSelectedLiveRecordElement } from '../src/live-record/live-record-selection.js';
 import {
@@ -64,6 +73,22 @@ function makeTarget(liveRecordId, dataset = {}) {
 
 resetState();
 initLiveRecordActive();
+
+assert.equal(getLiveRecordDefaultChartStatus(), 'active', 'chart-created live records default to active status');
+assert.equal(getLiveRecordStatusLabel('submitted'), 'Submitted', 'status helper formats known status');
+assert.equal(getLiveRecordStatusLabel('bad-status'), 'Draft', 'status helper falls back safely');
+assert.equal(isLiveRecordOpenStatus('filled'), true, 'filled is still an open lifecycle status');
+assert.equal(isLiveRecordTerminalStatus('closed'), true, 'closed is terminal');
+assert.equal(isLiveRecordTerminalStatus('active'), false, 'active is not terminal');
+assert.deepEqual(
+  getLiveRecordAllowedNextStatuses('closed'),
+  ['reviewed', 'active'],
+  'closed records can be reviewed or reopened'
+);
+assert.equal(canTransitionLiveRecordStatus('active', 'closed'), true, 'active can transition to closed');
+assert.equal(canTransitionLiveRecordStatus('reviewed', 'closed'), false, 'reviewed cannot transition back to closed directly');
+assert.equal(needsLiveRecordReview({ status: 'closed' }), true, 'closed records need review');
+assert.equal(needsLiveRecordReview({ status: 'reviewed' }), false, 'reviewed records do not need review');
 
 const setup = addOrderReview({
   id: 'setup-live-smoke',
