@@ -9,7 +9,11 @@ import {
   getActiveLiveRecordId,
   setActiveLiveRecord,
 } from '../../live-record/live-record-active.js';
-import { setLiveRecordLifecycleStatus } from '../../live-record/live-record-lifecycle-actions.js';
+import {
+  markLiveRecordReviewed,
+  reopenLiveRecord,
+  setLiveRecordLifecycleStatus,
+} from '../../live-record/live-record-lifecycle-actions.js';
 import { getActiveReviewSetId } from '../../order/order-review-active.js';
 
 function updateReason(record, reasonIndex, patch = {}) {
@@ -81,6 +85,24 @@ export function createLiveRecordActionController({
           note: target.value || '',
         },
       }));
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-result-execution-review') {
+      mutate('Edit Live Record Execution Review', () => updateLiveRecord(liveRecordId, {
+        result: {
+          ...(record.result || {}),
+          executionReviewNote: target.value || '',
+        },
+      }));
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-reviewed-toggle') {
+      if (target.checked) markLiveRecordReviewed(liveRecordId);
+      else reopenLiveRecord(liveRecordId);
       refreshSelection?.();
       return true;
     }

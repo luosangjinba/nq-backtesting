@@ -178,6 +178,7 @@ const richRecord = addLiveRecord({
     exitTimestamp: 1710770800,
     exitTimeframe: '1m',
     exitPrice: '18322.5',
+    executionReviewNote: 'Managed exit cleanly',
   },
 }, { now: 5 });
 assert.equal(richRecord.execution.entry.timeframe, '5M', 'entry timeframe normalizes');
@@ -188,6 +189,7 @@ assert.equal(richRecord.execution.targets[0].label, 'Target External 1', 'target
 assert.equal(richRecord.execution.targets[0].targetType, 'external', 'target type derives from role');
 assert.equal(richRecord.result.status, 'win', 'result alias still normalizes');
 assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe normalizes');
+assert.equal(richRecord.result.executionReviewNote, 'Managed exit cleanly', 'execution review note normalizes');
 richRecord.execution.entry.price = 1;
 assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18360.5, 'execution clone is isolated');
 
@@ -417,6 +419,8 @@ assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Context · PDA · fvg · pda-live-link/, 'detail renders formatted PDA ref source');
 assert.match(detailHtml, /Context · Chart Note · bar · chart-note-live-link/, 'detail renders formatted chart note ref source');
 assert.match(detailHtml, /Result/, 'detail renders Result');
+assert.match(detailHtml, /Execution Review/, 'detail renders execution review field');
+assert.match(detailHtml, /Reviewed/, 'detail renders reviewed toggle');
 
 const calls = { refresh: 0, captures: 0, history: [] };
 const actions = createLiveRecordActionController({
@@ -434,10 +438,14 @@ assert.equal(actions.handleChange('live-record-display-field', makeTarget(chartL
 assert.equal(getLiveRecordById(chartLiveId).display.showRiskRewardBox, false, 'display action updates');
 assert.equal(actions.handleChange('live-record-result-status', makeTarget(chartLiveId, { value: 'win' })), true);
 assert.equal(getLiveRecordById(chartLiveId).result.status, 'win', 'result action updates');
+assert.equal(actions.handleChange('live-record-result-execution-review', makeTarget(chartLiveId, { value: 'Execution was disciplined' })), true);
+assert.equal(getLiveRecordById(chartLiveId).result.executionReviewNote, 'Execution was disciplined', 'execution review action updates');
 assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'closed' })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'closed', 'status action updates lifecycle status');
 assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'reviewed' })), true);
 assert.equal(getLiveRecordById(chartLiveId).status, 'reviewed', 'status action can mark reviewed');
+assert.equal(actions.handleChange('live-record-reviewed-toggle', makeTarget(chartLiveId, { checked: false })), true);
+assert.equal(getLiveRecordById(chartLiveId).status, 'active', 'reviewed toggle can reopen reviewed record');
 assert.equal(actions.handleClick('live-record-toggle-hidden', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).display.hidden, true, 'hide action updates');
 assert.equal(actions.handleClick('live-record-link-active-setup', makeTarget(chartLiveId)), true);

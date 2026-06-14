@@ -292,6 +292,7 @@ function normalizeResult(input = {}) {
     ),
     exitPrice: normalizeNumber(input.exitPrice),
     note: normalizeString(input.note, ''),
+    executionReviewNote: normalizeString(input.executionReviewNote, ''),
   };
 }
 

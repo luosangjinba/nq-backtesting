@@ -442,3 +442,26 @@ Verification:
 - Ran `node v4/tests/live-record-smoke.js`.
 
 Next step: Step 288.5 polishes the Detail review fields without adding a large standalone review form.
+
+## Step 288.5 Completion - Detail Review Fields Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Added normalized `result.executionReviewNote`.
+- Live Record Detail Result panel now includes:
+  - result status;
+  - result note;
+  - execution review note;
+  - reviewed checkbox.
+- Reviewed checkbox marks the record `reviewed` when checked.
+- Unchecking a reviewed record reopens it to `active`.
+- Discipline/mistake information continues to use existing `reasons[]` categories, especially `discipline`, instead of adding another large review form.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to cover result normalization, Detail rendering, execution review editing, and reviewed toggle behavior.
+- Ran `node v4/tests/live-record-smoke.js`.
+
+Next step: Step 288.6 adds lifecycle status and actions to Calendar Live Record rows.

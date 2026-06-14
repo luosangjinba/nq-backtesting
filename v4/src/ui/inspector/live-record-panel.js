@@ -312,6 +312,19 @@ function renderResultPanel(record, liveSet) {
           'Note',
           `<textarea class="inspector-textarea" data-inspector-action="live-record-result-note" data-live-record-id="${escapeHtml(record.id)}" rows="2" placeholder="Result note">${escapeHtml(record.result?.note || '')}</textarea>`
         )}
+        ${controlField(
+          'Execution Review',
+          `<textarea class="inspector-textarea" data-inspector-action="live-record-result-execution-review" data-live-record-id="${escapeHtml(record.id)}" rows="3" placeholder="Execution review note">${escapeHtml(record.result?.executionReviewNote || '')}</textarea>`
+        )}
+        <label class="inspector-toggle">
+          <input
+            data-inspector-action="live-record-reviewed-toggle"
+            data-live-record-id="${escapeHtml(record.id)}"
+            type="checkbox"
+            ${record.status === 'reviewed' ? 'checked' : ''}
+          />
+          <span>Reviewed</span>
+        </label>
       </div>
     </div>
   `;
