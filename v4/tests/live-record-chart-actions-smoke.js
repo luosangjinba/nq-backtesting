@@ -59,6 +59,17 @@ assert.ok(
 const inactiveShiftMenu = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 }, isShift: true });
 assert.match(inactiveShiftMenu, /Set Entry Here/, 'shift menu keeps regular write actions');
 assert.match(inactiveShiftMenu, /Set All Ends Here/, 'shift menu adds end actions');
+const hitMenu = renderLiveRecordMenuItems({
+  bar: { timestamp: 1710770400 },
+  liveRecordHit: {
+    hits: [
+      { liveRecordId: 'live-menu-hit', element: 'entry' },
+      { liveRecordId: 'live-menu-hit', element: 'stopLoss' },
+    ],
+  },
+});
+assert.equal((hitMenu.match(/Delete Live Record/g) || []).length, 1, 'hit menu renders delete record once per record');
+assert.match(hitMenu, /Select Entry · live-menu-hit/, 'hit menu renders element actions');
 
 assert.equal(handleLiveRecordChartAction('live-record-create-bullish', {
   bar: { timestamp: 1710770340, close: 18360 },
@@ -149,6 +160,7 @@ assert.equal(handleLiveRecordChartAction('live-record-hit-hide-element', {
   liveRecordElement: 'entry',
 }), true, 'hide hit action is handled');
 assert.equal(getLiveRecordById(liveRecordId).display.elementVisibility.entry, false, 'hide hit action updates element visibility');
+assert.equal(getSelectedLiveRecordElement(), null, 'hide hit action clears selected element');
 assert.equal(handleLiveRecordChartAction('live-record-hit-delete-element', {
   liveRecordId,
   liveRecordElement: 'targetExternal1',

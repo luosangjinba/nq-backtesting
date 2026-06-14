@@ -366,15 +366,19 @@ function getLiveRecordElementLabel(role) {
 function getHitLiveRecordMenuItems(liveRecordHit) {
   const hits = Array.isArray(liveRecordHit?.hits) ? liveRecordHit.hits : [];
   if (!hits.length) return '';
-  const rows = hits
+  const recordRows = Array.from(new Set(hits.map((hit) => hit.liveRecordId).filter(Boolean)))
+    .map((liveRecordId) => `
+      <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${liveRecordId}">Set Active · ${liveRecordId.slice(0, 18)}</button>
+      <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${liveRecordId}">Delete Live Record</button>
+    `)
+    .join('');
+  const elementRows = hits
     .map((hit) => {
       const label = `${getLiveRecordElementLabel(hit.element)} · ${hit.liveRecordId.slice(0, 18)}`;
       return `
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${hit.liveRecordId}">Set Active · ${hit.liveRecordId.slice(0, 18)}</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SELECT_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Select ${label}</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_HIDE_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Hide ${label}</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Delete ${label}</button>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${hit.liveRecordId}">Delete Live Record</button>
       `;
     })
     .join('');
@@ -382,7 +386,9 @@ function getHitLiveRecordMenuItems(liveRecordHit) {
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Live Record Element</div>
       <div class="pda-submenu-panel">
-        ${rows}
+        ${recordRows}
+        <div class="pda-menu-divider"></div>
+        ${elementRows}
       </div>
     </div>
   `;
@@ -540,6 +546,7 @@ export function handleLiveRecordChartAction(action, {
   }
   if (action === LIVE_RECORD_CHART_ACTIONS.HIT_HIDE_ELEMENT) {
     const hidden = recordHistory('Hide Live Record Element', () => hideLiveRecordElement(liveRecordId, liveRecordElement));
+    if (hidden) clearLiveRecordElementSelection();
     bus.emit('status:update', {
       text: hidden ? `${getLiveRecordElementLabel(liveRecordElement)} hidden` : 'Live Record element cannot be hidden',
       isError: !hidden,

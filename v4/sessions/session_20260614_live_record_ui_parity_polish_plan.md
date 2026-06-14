@@ -384,3 +384,25 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.8 polishes Live Record element hit menu and action behavior.
+
+## Step 287.8 Completion - Hit Menu And Element Actions Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record element hit menu now separates record-level actions from element-level actions.
+- `Delete Live Record` appears once per hit record instead of once per hit element.
+- `Hide Element` now clears Live Record element selection after a successful hide, matching delete behavior.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.9 adds browser visual verification coverage for the polished parity surfaces.
