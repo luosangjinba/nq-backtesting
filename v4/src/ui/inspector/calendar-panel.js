@@ -627,12 +627,14 @@ function addTimeReactionGroup(groups, dateKey, options = {}) {
     ],
   };
   const existing = groups.filter((item) => item.type !== CALENDAR_OBJECT_TYPES.TIME_REACTION);
+  const liveRecordIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
   const orderSetupIndex = existing.findIndex((item) => item.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP);
-  if (orderSetupIndex < 0) return [group, ...existing];
+  const insertAfterIndex = liveRecordIndex >= 0 ? liveRecordIndex : orderSetupIndex;
+  if (insertAfterIndex < 0) return [group, ...existing];
   return [
-    ...existing.slice(0, orderSetupIndex + 1),
+    ...existing.slice(0, insertAfterIndex + 1),
     group,
-    ...existing.slice(orderSetupIndex + 1),
+    ...existing.slice(insertAfterIndex + 1),
   ];
 }
 

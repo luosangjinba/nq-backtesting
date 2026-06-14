@@ -516,6 +516,11 @@ html, body {
   --calendar-group-accent-soft: rgba(38, 166, 154, 0.1);
 }
 
+.calendar-object-group[data-calendar-group-type="live-record"] {
+  --calendar-group-accent: #26a69a;
+  --calendar-group-accent-soft: rgba(38, 166, 154, 0.1);
+}
+
 .calendar-object-group[data-calendar-group-type="time-reaction"] {
   --calendar-group-accent: #64b5f6;
   --calendar-group-accent-soft: rgba(100, 181, 246, 0.1);

@@ -655,3 +655,40 @@ Verification:
 - `node v4/tests/order-setup-smoke.js`
 - `node --check v4/tests/live-record-smoke.js`
 - `git diff --check`
+
+## Step 285.10 Completion - Browser Visual Verification
+
+Completed on 2026-06-14.
+
+Added `v4/tests/live-record-browser-smoke.js` to verify the real browser UI against the clone-first target.
+
+Browser validation covered:
+
+- Static page loads from `http://127.0.0.1:8001/index.html`.
+- Calendar renders `Order Setups` and `Live Records` groups.
+- Empty `Live Records` group shows count `0` and `None`.
+- After creating one Live Record in the browser, `Live Records` shows count `1`.
+- `Live Records` is directly after `Order Setups` in the rendered Calendar DOM.
+- Populated row includes the `Live` type label, status dot, summary/status text, and `...` menu.
+- Opening the row shows `Live Record Detail`.
+- Detail includes Display, Summary, Anchor, and Execution sections.
+- The page does not contain a standalone `Live Orders` panel.
+
+Visual fix made during verification:
+
+- `Live Records` Calendar group now uses the same teal accent as `Order Setups`.
+- `addTimeReactionGroup()` now inserts Time Reaction after Live Records when Live Records exists, preserving the required Order Setups -> Live Records adjacency.
+
+Verification:
+
+- `node v4/tests/live-record-browser-smoke.js` with elevated local Chrome debug access.
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/tests/live-record-browser-smoke.js`
+- `git diff --check`
+
+Note:
+
+- API `http://127.0.0.1:8765/health` was not running during this visual check.
+- The browser smoke does not require API data; it injects a tiny in-page bars fixture to verify the UI.
