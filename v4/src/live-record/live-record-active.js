@@ -43,6 +43,15 @@ export function clearActiveLiveRecord() {
   return true;
 }
 
+export function loadActiveLiveRecordId(id = null) {
+  const nextId = id && getLiveRecordById(id) ? id : null;
+  if (activeLiveRecordId === nextId) return true;
+  const previousId = activeLiveRecordId;
+  activeLiveRecordId = nextId;
+  emitActiveChanged(previousId);
+  return true;
+}
+
 export function createLiveRecordFromAnchor(anchor = {}, options = {}) {
   const record = addLiveRecord({
     instrument: options.instrument,

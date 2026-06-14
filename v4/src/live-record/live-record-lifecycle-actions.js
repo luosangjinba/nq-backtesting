@@ -23,8 +23,21 @@ function clearActiveIfTerminal(recordId, status) {
 
 export function setLiveRecordLifecycleStatus(liveRecordId, status, options = {}) {
   const record = getLiveRecordById(liveRecordId);
-  if (!record) return null;
-  if (!canTransitionLiveRecordStatus(record.status, status)) return null;
+  if (!record) {
+    if (options.emitStatus !== false) {
+      bus.emit('status:update', { text: 'Live Record not found', isError: true });
+    }
+    return null;
+  }
+  if (!canTransitionLiveRecordStatus(record.status, status)) {
+    if (options.emitStatus !== false) {
+      bus.emit('status:update', {
+        text: `Cannot move Live Record from ${getLiveRecordStatusLabel(record.status)} to ${getLiveRecordStatusLabel(status)}`,
+        isError: true,
+      });
+    }
+    return null;
+  }
   const label = options.label || `Set Live Record ${getLiveRecordStatusLabel(status)}`;
   const updated = recordHistory(label, () => {
     const next = updateLiveRecord(liveRecordId, { status });
@@ -69,4 +82,3 @@ export function reopenLiveRecord(liveRecordId, options = {}) {
     ...options,
   });
 }
-

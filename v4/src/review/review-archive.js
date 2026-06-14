@@ -672,10 +672,15 @@ function prepareImportedLiveRecords(existingRecords, importedRecords, refIdMaps 
   const records = [];
 
   (Array.isArray(importedRecords) ? importedRecords : []).forEach((record, index) => {
+    const recordInstrument = String(record?.instrument || '').trim().toUpperCase();
+    if (recordInstrument && recordInstrument !== instrument) {
+      skippedInvalid += 1;
+      return;
+    }
     let normalized;
     try {
       normalized = normalizeLiveRecord(
-        { ...remapLiveRecordRefs(record, refIdMaps), instrument },
+        { ...remapLiveRecordRefs(record, refIdMaps), instrument: recordInstrument || instrument },
         { now: Date.now() }
       );
     } catch {

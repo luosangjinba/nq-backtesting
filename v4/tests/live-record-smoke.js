@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 
+import * as bus from '../src/event-bus.js';
 import {
   addOrderReview,
   clearOrderReviews,
@@ -58,13 +59,25 @@ import { createLiveRecordActionController } from '../src/ui/inspector/live-recor
 import { recordHistory, redo, undo } from '../src/history/history-manager.js';
 import { addSmtRecord, clearSmtRecords } from '../src/smt/smt-store.js';
 import * as barStore from '../src/data/bar-store.js';
-import { buildReviewPayload } from '../src/review/review-archive.js';
+import { buildReviewPayload, importReviewArchive } from '../src/review/review-archive.js';
 
 const storageData = new Map();
 globalThis.localStorage = {
   getItem: (key) => (storageData.has(key) ? storageData.get(key) : null),
   setItem: (key, value) => storageData.set(key, String(value)),
   removeItem: (key) => storageData.delete(key),
+};
+
+let lastStatus = null;
+bus.on('status:update', (payload) => {
+  lastStatus = payload;
+});
+
+globalThis.FileReader = class {
+  readAsText(file) {
+    this.result = file?.text || '';
+    this.onload?.();
+  }
 };
 
 function resetState() {
@@ -132,12 +145,26 @@ const lifecycleRecord = addLiveRecord({
   instrument: 'NQ',
   status: 'draft',
 }, { now: 4 });
+assert.match(
+  renderLiveRecordDetailPanel(getLiveRecordById(lifecycleRecord.id)),
+  /data-inspector-action="live-record-reviewed-toggle"[\s\S]*disabled/,
+  'draft record disables reviewed toggle'
+);
+lastStatus = null;
 assert.equal(markLiveRecordReviewed(lifecycleRecord.id, { emitStatus: false }), null, 'invalid lifecycle transition is rejected');
+assert.equal(markLiveRecordReviewed(lifecycleRecord.id), null, 'invalid lifecycle transition still returns null');
+assert.equal(lastStatus?.isError, true, 'invalid lifecycle transition emits an error');
 assert.ok(setLiveRecordLifecycleStatus(lifecycleRecord.id, 'active', { emitStatus: false }), 'draft record can become active');
 assert.equal(setActiveLiveRecord(lifecycleRecord.id), true, 'lifecycle record can be active');
 assert.ok(closeLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'active record can close');
 assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'closed', 'close action stores closed status');
 assert.equal(getActiveLiveRecordId(), null, 'terminal lifecycle status clears active live record');
+assert.equal(undo(), true, 'undo live record close');
+assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'active', 'undo restores live record status');
+assert.equal(getActiveLiveRecordId(), lifecycleRecord.id, 'undo restores active live record id');
+assert.equal(redo(), true, 'redo live record close');
+assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'closed', 'redo restores closed status');
+assert.equal(getActiveLiveRecordId(), null, 'redo clears active live record again');
 assert.ok(reopenLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'closed record can reopen');
 assert.equal(getLiveRecordById(lifecycleRecord.id).status, 'active', 'reopen action stores active status');
 assert.ok(cancelLiveRecord(lifecycleRecord.id, { emitStatus: false }), 'active record can cancel');
@@ -485,6 +512,25 @@ assert.ok(payloadLiveRecord, 'Review JSON payload includes Live Records');
 assert.equal(payloadLiveRecord.status, 'active', 'Review JSON payload keeps lifecycle status');
 assert.equal(payloadLiveRecord.orderSetupId, setup.id, 'Review JSON payload keeps linked setup id');
 assert.equal(payloadLiveRecord.result.executionReviewNote, 'Execution was disciplined', 'Review JSON payload keeps execution review note');
+await importReviewArchive({
+  text: JSON.stringify({
+    ...reviewPayload,
+    pdaAnnotations: [],
+    marketSegments: [],
+    segmentGroups: [],
+    smtRecords: [],
+    orderReviews: [],
+    dailyTimeReviews: [],
+    chartNotes: [],
+    dailyRegimes: [],
+    liveRecords: [{
+      id: 'live-es-import',
+      instrument: 'ES',
+      anchor: { timestamp: 1710770400, timeframe: '1H', price: 5000 },
+    }],
+  }),
+});
+assert.equal(getLiveRecordById('live-es-import'), null, 'Review JSON import skips mismatched Live Record instrument');
 assert.equal(actions.handleClick('live-record-unlink-setup', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).orderSetupId, '', 'unlink action updates live record');
 assert.equal(actions.handleClick('live-record-reason-add', makeTarget(chartLiveId)), true);

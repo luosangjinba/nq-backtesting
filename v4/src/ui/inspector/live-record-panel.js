@@ -1,4 +1,5 @@
 import {
+  canTransitionLiveRecordStatus,
   getLiveRecordAllowedNextStatuses,
   getLiveRecordStatusLabel,
   needsLiveRecordReview,
@@ -322,6 +323,9 @@ function renderReasonRows(record) {
 
 function renderResultPanel(record, liveSet) {
   const result = liveSet?.result || {};
+  const canMarkReviewed = canTransitionLiveRecordStatus(record.status, 'reviewed');
+  const canReopenReviewed = record.status === 'reviewed' && canTransitionLiveRecordStatus(record.status, 'active');
+  const reviewedToggleDisabled = record.status === 'reviewed' ? !canReopenReviewed : !canMarkReviewed;
   return `
     <div class="order-review-quick-edit">
       <div class="order-review-compact-title">Result</div>
@@ -350,6 +354,7 @@ function renderResultPanel(record, liveSet) {
             data-live-record-id="${escapeHtml(record.id)}"
             type="checkbox"
             ${record.status === 'reviewed' ? 'checked' : ''}
+            ${reviewedToggleDisabled ? 'disabled' : ''}
           />
           <span>Reviewed</span>
         </label>
