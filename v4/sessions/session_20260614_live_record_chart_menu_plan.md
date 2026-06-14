@@ -588,3 +588,24 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.11 adds focused smoke tests for chart actions, renderer projection, hit-test, hide/delete, and isolation.
+
+## Step 286.11 Completion - Focused Smoke Tests Added
+
+Completed on 2026-06-14.
+
+Test changes:
+
+- Added `v4/tests/live-record-chart-actions-smoke.js`.
+- Focused smoke covers menu shell, chart writes, all-ends, evidence link de-dupe, projection line-length fallback, hit-test metadata, select/hide/delete element, delete record, and Order Setup isolation.
+
+Verification:
+
+- `node --check v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `git diff --check`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.12 runs browser verification and closes out Step 286.
