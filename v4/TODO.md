@@ -825,7 +825,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.1: 冻结 zero-restart 边界：记录 reset 点、备份分支、产品目标、非目标与验收标准；确认旧 Phase A-C live-order 代码不在当前活动分支，下一步从 Order Setups parity 开始。当前活动分支相对 `main` 只有 zero-restart 计划文档，旧 live-order runtime 仅保存在备份分支。
   - [x] Step 285.2: 审计 Order Setups clone points：读取 store/types/setup-set、active、persistence、chart actions、Calendar index/group、Inspector detail/actions、sidebar route 和 smoke，决定哪些先 clone、哪些先共享、哪些暂不碰。结论：新增独立 `live-record` store/active/persistence/detail/actions，Calendar item shape 复用现有通用结构，UI 先复制 Order Setups 密度与路由，不先抽泛型对象系统。
   - [x] Step 285.3: 从 Order Setup 模式克隆 Live Record runtime skeleton：新增 live-record types/store/active 和必要 adapter；第一版字段尽量贴近 Order Setup 的 anchor、summary、display、execution、reasons、result 结构。已新增独立 `v4/src/live-record/` types/store/active/set，不 import 或写入 Order Setup store，inline probe 覆盖 CRUD、active、clone 隔离和 projection。
-  - [ ] Step 285.4: 增加 instrument-scoped persistence：使用独立 `v4:live-records:<instrument>` key，NQ/ES 隔离，restore guard 防覆盖，不读写或迁移 `orderReviews`。
+  - [x] Step 285.4: 增加 instrument-scoped persistence：使用独立 `v4:live-records:<instrument>` key，NQ/ES 隔离，restore guard 防覆盖，不读写或迁移 `orderReviews`。已新增 `live-record-persistence.js` 并在 `app.js` 初始化，inline localStorage probe 覆盖 NQ/ES 分区保存恢复。
   - [ ] Step 285.5: 增加 chart context 创建入口：右键 `New Live Record Here` 从点击 K 线创建 standalone live record 并设为 active，不创建 Order Setup，不显示独立 Live Orders 面板。
   - [ ] Step 285.6: 在 Calendar / Day Details 增加 `Live Records` group：直接靠近 `Order Setups`，使用同样 group shell、count badge、空状态 `None`、展开/折叠和 row density。
   - [ ] Step 285.7: 克隆 Order Setup Detail 为 Live Record Detail：Header、Display、Summary、Anchor、Execution、Reasons/Notes、Result/Review 结构保持同密度，只按 live 语义改必要 label/字段。

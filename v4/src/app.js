@@ -35,6 +35,8 @@ import { initOrderReviewActive } from './order/order-review-active.js';
 import { initOrderReviewPersistence } from './order/order-review-persistence.js';
 import { initOrderReviewRenderer } from './order/order-review-renderer.js';
 import { initOrderSetupElementSelection } from './order/order-setup-selection.js';
+import { initLiveRecordActive } from './live-record/live-record-active.js';
+import { initLiveRecordPersistence } from './live-record/live-record-persistence.js';
 import { initDailyTimeReviewPersistence } from './time-reaction/daily-time-review-persistence.js';
 import { initTimeOverlayPersistence } from './time-overlays/time-overlay-persistence.js';
 import { initTimeOverlayRenderer } from './time-overlays/time-overlay-renderer.js';
@@ -128,6 +130,10 @@ initOrderReviewActive();
 initOrderSetupElementSelection();
 initOrderReviewRenderer();
 console.log('[V4] Order Review controls initialized');
+
+initLiveRecordPersistence();
+initLiveRecordActive();
+console.log('[V4] Live Record controls initialized');
 
 initDailyTimeReviewPersistence();
 console.log('[V4] Daily Time Reaction controls initialized');

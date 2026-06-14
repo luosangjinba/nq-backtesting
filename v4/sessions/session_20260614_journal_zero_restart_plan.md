@@ -464,3 +464,32 @@ Verification:
 - `node --check v4/src/live-record/live-record-active.js`
 - `node --check v4/src/live-record/live-record-set.js`
 - Inline ESM runtime probe covered add/update/delete/load, clone isolation, setup id query, active record creation, stale active cleanup, and live-record-set projection.
+
+## Step 285.4 Completion - Instrument-Scoped Live Record Persistence
+
+Completed on 2026-06-14.
+
+Added `v4/src/live-record/live-record-persistence.js`:
+
+- Storage key family: `v4:live-records:<instrument>`.
+- Payload: `version`, `savedAt`, `instrument`, `liveRecords`.
+- Restore guard prevents save-on-restore overwrite.
+- Restore filters mismatched instrument records and rewrites restored records to the requested instrument scope.
+- `primary-instrument:changed` saves previous instrument and restores next instrument, matching the existing Order Setup persistence pattern.
+
+Updated `v4/src/app.js`:
+
+- Initializes `initLiveRecordPersistence()`.
+- Initializes `initLiveRecordActive()`.
+
+Isolation confirmed:
+
+- Persistence does not import Order Setup store/actions.
+- Persistence does not read, write, migrate, or delete `orderReviews`.
+- NQ and ES live records restore separately.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-persistence.js`
+- `node --check v4/src/app.js`
+- Inline ESM localStorage probe covered save/restore for NQ and ES, key generation, and clear saved behavior.
