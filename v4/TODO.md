@@ -846,3 +846,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 286.10: Isolation/history audit：确认 Live Record chart actions 不写 `orderReviews`，history 捕获 liveRecords，instrument switching 不混，secondary menu 不回归，无 standalone `Live Orders`。已完成审计：Live Record 模块未引用 Order Review 写入 API，history snapshot 包含 `liveRecords`，instrument-scoped persistence 已由 smoke 覆盖，`Live Orders` standalone 关键词无结果，live/order setup smoke 通过。
   - [x] Step 286.11: Focused smoke tests：覆盖 chart actions、disabled/no-active、evidence link、renderer projection、hit-test metadata、hide/delete element、Order Setup isolation，并跑 live-record/order-setup smoke 与 `git diff --check`。已新增 `v4/tests/live-record-chart-actions-smoke.js`，覆盖 chart writes、evidence dedupe、projection fallback、hit-test metadata、hide/delete/select、delete record 与 Order Setup isolation；相关 smoke 全通过。
   - [x] Step 286.12: Browser verification and closeout：真实页面验证右键创建、设置 entry/stop/target/result、图表元素可见、hit menu 可用、Calendar/Detail 同步、无 standalone `Live Orders`，更新 TODO/session 收口。已完成：browser smoke 扩展并通过，验证 chart action 写入 entry/stop/target/result/all-end、Calendar row exit、Detail execution/result、chart canvas 和无 standalone `Live Orders`。
+
+- [ ] Step 287: Live Record UI parity polish。目标是在 Step 286 功能闭环基础上，逐项对照 Order Setups 做真实 UI/交互 polish，使 Live Records 在 Calendar、Detail、右键菜单、chart renderer、hit menu 和浏览器验收中更像同一套对象系统；继续禁止 standalone `Live Orders`。计划见 `v4/sessions/session_20260614_live_record_ui_parity_polish_plan.md`。
+  - [ ] Step 287.1: UI parity audit：真实浏览器/DOM 对照 Order Setups，记录 Calendar group/row、Detail、右键菜单、Shift 菜单、element hit menu、chart renderer 的具体差异和文件级修改目标；不改运行时代码。
+  - [ ] Step 287.2: Calendar row parity polish：优化 Live Record row summary、bullish/bearish 显示、status dot、action menu 顺序/命名、empty/populated group density，保持 Live Records 紧跟 Order Setups。
+  - [ ] Step 287.3: Detail header/core panels polish：对齐 Live Record Detail 的 header/meta、Display、Summary、Anchor、Active/Visible/Updated 信息密度和命名。
+  - [ ] Step 287.4: Execution / Result detail polish：优化 Entry/MSS/Stop/Targets/Result 行展示、end-time metadata、hidden/selected 状态和 empty execution 状态。
+  - [ ] Step 287.5: Reasons / evidence link polish：对齐 reason card、category、ref row label、linked PDA/Segment/Composite/SMT/Chart Note 文案和可读性，保留去重行为。
+  - [ ] Step 287.6: Context menu parity polish：调整 Live Record chart menu 分组/顺序/分隔线/disabled/status，使 bullish/bearish 创建、write actions、targets、Shift ends、evidence links 更像 Order Setup sibling menu。
+  - [ ] Step 287.7: Chart renderer visual polish：调整 anchor marker、entry/stop/target/result labels、active/selected emphasis、hidden handling 和颜色，使 Live Record 可区分但仍贴近 Order Setup 风格。
+  - [ ] Step 287.8: Hit menu and element actions polish：优化右键命中 Live Record element 后的 Set Active/Select/Hide/Delete/Delete Record 文案、顺序、状态消息和 selection clearing。
+  - [ ] Step 287.9: Browser screenshot / visual verification：验证 empty group、bullish/bearish row、detail execution/target/result/evidence、chart canvas rendered elements、无 standalone `Live Orders`。
+  - [ ] Step 287.10: Closeout：跑 focused Live Record smoke、Order Setup smoke、browser smoke、`git diff --check`，更新 TODO/session 并按子步骤提交。
