@@ -438,3 +438,29 @@ Expected existing files to edit:
 ### Guardrail Confirmed
 
 The first code step should not abstract Order Setup into a shared generic object system. The safer path is to copy the proven structure into a separate Live Record path, keep names explicit, and only extract shared helpers after the UI matches Order Setups.
+
+## Step 285.3 Completion - Live Record Runtime Skeleton
+
+Completed on 2026-06-14.
+
+Added an independent `v4/src/live-record/` runtime skeleton:
+
+- `live-record-types.js`: direction/status/result/reason/ref/timeframe definitions and aliases.
+- `live-record-store.js`: normalize helpers, clone-on-read, add/update/delete/load/clear/query APIs, and `live-record:changed` event.
+- `live-record-active.js`: active live record id, create-from-anchor helper, active patch helper, stale active cleanup, and `live-record-active:changed` event.
+- `live-record-set.js`: setup-set-like projection for Calendar/detail use, including primary timestamp, range, anchor, execution, and result derived fields.
+
+Runtime boundaries confirmed:
+
+- No writes to `orderReviews`.
+- No imports from Order Setup store/actions.
+- Active Live Record state is independent from active Order Setup.
+- A live record can stay standalone with `orderSetupId = ''`.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-types.js`
+- `node --check v4/src/live-record/live-record-store.js`
+- `node --check v4/src/live-record/live-record-active.js`
+- `node --check v4/src/live-record/live-record-set.js`
+- Inline ESM runtime probe covered add/update/delete/load, clone isolation, setup id query, active record creation, stale active cleanup, and live-record-set projection.

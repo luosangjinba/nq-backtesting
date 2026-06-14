@@ -1,0 +1,115 @@
+// Live Record runtime definitions. This object family intentionally mirrors
+// Order Setups at the UI boundary while keeping storage and events separate.
+
+export const LIVE_RECORD_VERSION = 1;
+export const DEFAULT_LIVE_RECORD_INSTRUMENT = 'NQ';
+
+export const LIVE_RECORD_DIRECTIONS = Object.freeze({
+  LONG: 'long',
+  SHORT: 'short',
+  UNKNOWN: 'unknown',
+});
+
+export const LIVE_RECORD_STATUSES = Object.freeze({
+  DRAFT: 'draft',
+  PLANNED: 'planned',
+  ACTIVE: 'active',
+  SUBMITTED: 'submitted',
+  FILLED: 'filled',
+  CANCELLED: 'cancelled',
+  CLOSED: 'closed',
+  REVIEWED: 'reviewed',
+});
+
+export const LIVE_RECORD_RESULT_STATUSES = Object.freeze({
+  UNKNOWN: 'unknown',
+  WIN: 'win',
+  LOSS: 'loss',
+  BREAKEVEN: 'breakeven',
+  SCRATCH: 'scratch',
+  MISSED: 'missed',
+  INVALID: 'invalid',
+});
+
+export const LIVE_RECORD_REASON_CATEGORIES = Object.freeze({
+  OTHER: 'other',
+  MACROS: 'macros',
+  STRUCTURE: 'structure',
+  LIQUIDITY: 'liquidity',
+  ENTRY_MODEL: 'entry-model',
+  EXECUTION: 'execution',
+  DISCIPLINE: 'discipline',
+});
+
+export const LIVE_RECORD_REF_TYPES = Object.freeze({
+  ORDER_SETUP: 'order-setup',
+  PDA: 'pda',
+  SEGMENT: 'segment',
+  COMPOSITE: 'composite',
+  SMT: 'smt',
+  CHART_NOTE: 'chart-note',
+  TIME_REACTION: 'time-reaction',
+});
+
+export const LIVE_RECORD_REF_ROLES = Object.freeze({
+  CONTEXT: 'context',
+  SETUP: 'setup',
+  TRIGGER: 'trigger',
+  EXECUTION: 'execution',
+  REVIEW: 'review',
+});
+
+export const LIVE_RECORD_TIMEFRAMES = Object.freeze({
+  '1M': '1M',
+  '5M': '5M',
+  '15M': '15M',
+  '30M': '30M',
+  '1H': '1H',
+  '4H': '4H',
+  D: 'D',
+  MANUAL: 'manual',
+});
+
+export const VALID_LIVE_RECORD_DIRECTIONS = new Set(Object.values(LIVE_RECORD_DIRECTIONS));
+export const VALID_LIVE_RECORD_STATUSES = new Set(Object.values(LIVE_RECORD_STATUSES));
+export const VALID_LIVE_RECORD_RESULT_STATUSES = new Set(Object.values(LIVE_RECORD_RESULT_STATUSES));
+export const VALID_LIVE_RECORD_REASON_CATEGORIES = new Set(Object.values(LIVE_RECORD_REASON_CATEGORIES));
+export const VALID_LIVE_RECORD_REF_TYPES = new Set(Object.values(LIVE_RECORD_REF_TYPES));
+export const VALID_LIVE_RECORD_REF_ROLES = new Set(Object.values(LIVE_RECORD_REF_ROLES));
+export const VALID_LIVE_RECORD_TIMEFRAMES = new Set(Object.values(LIVE_RECORD_TIMEFRAMES));
+
+export const LIVE_RECORD_DIRECTION_ALIASES = new Map([
+  ['bullish', LIVE_RECORD_DIRECTIONS.LONG],
+  ['bearish', LIVE_RECORD_DIRECTIONS.SHORT],
+  ['buy', LIVE_RECORD_DIRECTIONS.LONG],
+  ['sell', LIVE_RECORD_DIRECTIONS.SHORT],
+]);
+
+export const LIVE_RECORD_STATUS_ALIASES = new Map([
+  ['open', LIVE_RECORD_STATUSES.ACTIVE],
+  ['done', LIVE_RECORD_STATUSES.CLOSED],
+  ['complete', LIVE_RECORD_STATUSES.CLOSED],
+]);
+
+export const LIVE_RECORD_RESULT_ALIASES = new Map([
+  ['profit', LIVE_RECORD_RESULT_STATUSES.WIN],
+  ['winner', LIVE_RECORD_RESULT_STATUSES.WIN],
+  ['loser', LIVE_RECORD_RESULT_STATUSES.LOSS],
+  ['be', LIVE_RECORD_RESULT_STATUSES.BREAKEVEN],
+]);
+
+export const LIVE_RECORD_TIMEFRAME_ALIASES = new Map([
+  ['1', LIVE_RECORD_TIMEFRAMES['1M']],
+  ['1m', LIVE_RECORD_TIMEFRAMES['1M']],
+  ['5', LIVE_RECORD_TIMEFRAMES['5M']],
+  ['5m', LIVE_RECORD_TIMEFRAMES['5M']],
+  ['15', LIVE_RECORD_TIMEFRAMES['15M']],
+  ['15m', LIVE_RECORD_TIMEFRAMES['15M']],
+  ['30', LIVE_RECORD_TIMEFRAMES['30M']],
+  ['30m', LIVE_RECORD_TIMEFRAMES['30M']],
+  ['60', LIVE_RECORD_TIMEFRAMES['1H']],
+  ['1h', LIVE_RECORD_TIMEFRAMES['1H']],
+  ['4h', LIVE_RECORD_TIMEFRAMES['4H']],
+  ['daily', LIVE_RECORD_TIMEFRAMES.D],
+  ['day', LIVE_RECORD_TIMEFRAMES.D],
+]);
