@@ -58,6 +58,7 @@ import { createLiveRecordActionController } from '../src/ui/inspector/live-recor
 import { recordHistory, redo, undo } from '../src/history/history-manager.js';
 import { addSmtRecord, clearSmtRecords } from '../src/smt/smt-store.js';
 import * as barStore from '../src/data/bar-store.js';
+import { buildReviewPayload } from '../src/review/review-archive.js';
 
 const storageData = new Map();
 globalThis.localStorage = {
@@ -478,6 +479,12 @@ assert.match(linkedDetailHtml, /Order Setup · setup-live-smoke/, 'detail render
 assert.match(linkedDetailHtml, /Open Setup/, 'detail renders linked setup open action');
 const linkedCalendarGroup = getCalendarDayGroups('2024-03-18').find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
 assert.match(linkedCalendarGroup.rows[0].label, /Setup setup-live-s/, 'Calendar live row shows linked setup');
+const reviewPayload = buildReviewPayload();
+const payloadLiveRecord = reviewPayload.liveRecords.find((item) => item.id === chartLiveId);
+assert.ok(payloadLiveRecord, 'Review JSON payload includes Live Records');
+assert.equal(payloadLiveRecord.status, 'active', 'Review JSON payload keeps lifecycle status');
+assert.equal(payloadLiveRecord.orderSetupId, setup.id, 'Review JSON payload keeps linked setup id');
+assert.equal(payloadLiveRecord.result.executionReviewNote, 'Execution was disciplined', 'Review JSON payload keeps execution review note');
 assert.equal(actions.handleClick('live-record-unlink-setup', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).orderSetupId, '', 'unlink action updates live record');
 assert.equal(actions.handleClick('live-record-reason-add', makeTarget(chartLiveId)), true);

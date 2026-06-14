@@ -548,3 +548,28 @@ Verification:
 - Ran `node v4/tests/live-record-smoke.js`.
 
 Next step: Step 288.10 audits persistence and Review JSON behavior for Live Records.
+
+## Step 288.10 Completion - Review JSON Supports Live Records
+
+Completed on 2026-06-14.
+
+Audit result:
+
+- LocalStorage persistence was already instrument-scoped through `v4:live-records:<instrument>`.
+- Review JSON did not include Live Records before this substep.
+
+Implemented:
+
+- `buildReviewPayload()` now includes `liveRecords` for the current Main instrument.
+- Review object date key collection now includes Live Record anchor, execution, target, and result timestamps.
+- Review payload validation accepts optional `liveRecords` for backward compatibility with older archives.
+- Review import normalizes Live Records, preserves lifecycle/review/result/reasons fields, remaps evidence refs, remaps `orderSetupId`, handles id conflicts, and keeps current Main instrument scope.
+- Export/import status text now includes Live Record counts.
+
+Verification:
+
+- Extended `v4/tests/live-record-smoke.js` to assert Review JSON payload includes lifecycle status, linked setup id, and execution review note.
+- Ran `node v4/tests/live-record-smoke.js`.
+- Ran `node v4/tests/daily-time-review-archive-smoke.js`.
+
+Next step: Step 288.11 runs the focused and browser verification pass for the full lifecycle/review workflow.

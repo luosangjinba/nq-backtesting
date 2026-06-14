@@ -27,6 +27,11 @@ import {
   loadOrderReviews,
   normalizeOrderReview,
 } from '../order/order-review-store.js';
+import {
+  getLiveRecords,
+  loadLiveRecords,
+  normalizeLiveRecord,
+} from '../live-record/live-record-store.js';
 import { ORDER_REF_TYPES } from '../order/order-review-types.js';
 import {
   getDailyTimeReviewIdentity,
@@ -71,6 +76,7 @@ function collectReviewObjectDateKeys({
   segmentGroups = [],
   smtRecords = [],
   orderReviews = [],
+  liveRecords = [],
   dailyTimeReviews = [],
 } = {}) {
   const keys = new Set();
@@ -117,6 +123,23 @@ function collectReviewObjectDateKeys({
     addDateKeyFromTimestamp(keys, order.resultReview?.exitTimestamp);
   });
 
+  liveRecords.forEach((record) => {
+    addDateKeyFromTimestamp(keys, record.anchor?.timestamp);
+    addDateKeyFromTimestamp(keys, record.execution?.entry?.timestamp);
+    addDateKeyFromTimestamp(keys, record.execution?.entry?.endTimestamp);
+    addDateKeyFromTimestamp(keys, record.execution?.marketStructureShift?.timestamp);
+    addDateKeyFromTimestamp(keys, record.execution?.marketStructureShift?.endTimestamp);
+    addDateKeyFromTimestamp(keys, record.execution?.stopLoss?.timestamp);
+    addDateKeyFromTimestamp(keys, record.execution?.stopLoss?.endTimestamp);
+    if (Array.isArray(record.execution?.targets)) {
+      record.execution.targets.forEach((target) => {
+        addDateKeyFromTimestamp(keys, target.timestamp);
+        addDateKeyFromTimestamp(keys, target.endTimestamp);
+      });
+    }
+    addDateKeyFromTimestamp(keys, record.result?.exitTimestamp);
+  });
+
   dailyTimeReviews.forEach((review) => {
     const date = String(review.date || '').trim();
     if (/^\d{4}-\d{2}-\d{2}$/.test(date)) keys.add(date);
@@ -154,6 +177,7 @@ export function buildReviewPayload() {
   const instrument = getPrimaryInstrument();
   const smtRecords = getSmtRecords().filter((record) => record.primaryInstrument === instrument);
   const orderReviews = getOrderReviews();
+  const liveRecords = getLiveRecords().filter((record) => record.instrument === instrument);
   const dailyTimeReviews = getDailyTimeReviewsWithContent();
   const reviewObjectDateKeys = collectReviewObjectDateKeys({
     pdaAnnotations,
@@ -161,6 +185,7 @@ export function buildReviewPayload() {
     segmentGroups,
     smtRecords,
     orderReviews,
+    liveRecords,
     dailyTimeReviews,
   });
   const range = getArchiveRange();
@@ -178,6 +203,7 @@ export function buildReviewPayload() {
     segmentGroups,
     smtRecords,
     orderReviews,
+    liveRecords,
     dailyTimeReviews,
     chartNotes,
     dailyRegimes: getExportableDailyRegimes(reviewObjectDateKeys),
@@ -220,6 +246,9 @@ function validateReviewPayload(payload) {
   }
   if (payload.orderReviews !== undefined && !Array.isArray(payload.orderReviews)) {
     throw new Error('review archive orderReviews must be an array');
+  }
+  if (payload.liveRecords !== undefined && !Array.isArray(payload.liveRecords)) {
+    throw new Error('review archive liveRecords must be an array');
   }
   if (payload.dailyTimeReviews !== undefined && !Array.isArray(payload.dailyTimeReviews)) {
     throw new Error('review archive dailyTimeReviews must be an array');
@@ -587,6 +616,101 @@ function prepareImportedOrderReviews(existingOrders, importedOrders, refIdMaps =
   return { orders, skippedDuplicates, skippedInvalid, idMap };
 }
 
+function remapLiveRecordRef(ref = {}, refIdMaps = {}) {
+  if (!ref?.id) return ref;
+  if (ref.type === 'pda') return { ...ref, id: refIdMaps.pdaIdMap?.get(ref.id) || ref.id };
+  if (ref.type === 'segment') return { ...ref, id: refIdMaps.segmentIdMap?.get(ref.id) || ref.id };
+  if (ref.type === 'composite') return { ...ref, id: refIdMaps.groupIdMap?.get(ref.id) || ref.id };
+  if (ref.type === 'smt') return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
+  if (ref.type === 'chart-note') return { ...ref, id: refIdMaps.chartNoteIdMap?.get(ref.id) || ref.id };
+  if (ref.type === 'order-setup') return { ...ref, id: refIdMaps.orderIdMap?.get(ref.id) || ref.id };
+  return ref;
+}
+
+function remapLiveRecordRefs(record = {}, refIdMaps = {}) {
+  const reasons = Array.isArray(record.reasons)
+    ? record.reasons.map((reason) => ({
+        ...reason,
+        refs: Array.isArray(reason.refs)
+          ? reason.refs.map((ref) => remapLiveRecordRef(ref, refIdMaps))
+          : [],
+      }))
+    : record.reasons;
+  return {
+    ...record,
+    orderSetupId: refIdMaps.orderIdMap?.get(record.orderSetupId) || record.orderSetupId || '',
+    reasons,
+    linkedObjectRefs: Array.isArray(record.linkedObjectRefs)
+      ? record.linkedObjectRefs.map((ref) => remapLiveRecordRef(ref, refIdMaps))
+      : [],
+  };
+}
+
+function getLiveRecordImportIdentity(record = {}) {
+  return [
+    record.instrument || '',
+    record.direction || '',
+    record.anchor?.timestamp || '',
+    record.anchor?.price ?? '',
+    record.execution?.entry?.timestamp || '',
+    record.execution?.entry?.price ?? '',
+    record.result?.exitTimestamp || '',
+  ].join('|');
+}
+
+function prepareImportedLiveRecords(existingRecords, importedRecords, refIdMaps = {}) {
+  const instrument = getPrimaryInstrument();
+  const usedIds = new Set(existingRecords.map((record) => record.id).filter(Boolean));
+  const existingByIdentity = new Map(
+    existingRecords
+      .map((record) => [getLiveRecordImportIdentity(record), record])
+      .filter(([identity]) => identity)
+  );
+  const importStamp = Date.now();
+  let skippedDuplicates = 0;
+  let skippedInvalid = 0;
+  const records = [];
+
+  (Array.isArray(importedRecords) ? importedRecords : []).forEach((record, index) => {
+    let normalized;
+    try {
+      normalized = normalizeLiveRecord(
+        { ...remapLiveRecordRefs(record, refIdMaps), instrument },
+        { now: Date.now() }
+      );
+    } catch {
+      skippedInvalid += 1;
+      return;
+    }
+    if (normalized.instrument !== instrument) {
+      skippedInvalid += 1;
+      return;
+    }
+
+    const identity = getLiveRecordImportIdentity(normalized);
+    if (identity && existingByIdentity.has(identity)) {
+      skippedDuplicates += 1;
+      return;
+    }
+
+    const originalId = normalized.id;
+    if (usedIds.has(normalized.id)) {
+      normalized = {
+        ...normalized,
+        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
+        importedFromId: normalized.importedFromId || originalId,
+        updatedAt: Date.now(),
+      };
+    }
+
+    usedIds.add(normalized.id);
+    if (identity) existingByIdentity.set(identity, normalized);
+    records.push(normalized);
+  });
+
+  return { records, skippedDuplicates, skippedInvalid };
+}
+
 function remapDailyTimeReviewRefs(review, refIdMaps = {}) {
   const remapRefs = (refs = []) => (Array.isArray(refs) ? refs.map((ref) => remapOrderReviewRef(ref, refIdMaps)) : []);
   return {
@@ -759,6 +883,7 @@ export function exportReviewArchive() {
     payload.segmentGroups.length === 0 &&
     payload.smtRecords.length === 0 &&
     payload.orderReviews.length === 0 &&
+    payload.liveRecords.length === 0 &&
     payload.dailyTimeReviews.length === 0 &&
     payload.chartNotes.length === 0
   ) {
@@ -768,7 +893,7 @@ export function exportReviewArchive() {
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup、${payload.dailyTimeReviews.length} 条 Time Reaction、${payload.chartNotes.length} 条 Chart Note 与 ${payload.dailyRegimes.length} 条 Daily Regime`,
+    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup、${payload.liveRecords.length} 条 Live Record、${payload.dailyTimeReviews.length} 条 Time Reaction、${payload.chartNotes.length} 条 Chart Note 与 ${payload.dailyRegimes.length} 条 Daily Regime`,
     isError: false,
   });
 }
@@ -787,6 +912,7 @@ export async function importReviewArchive(file) {
     let groups = [];
     let smtRecords = [];
     let orders = [];
+    let liveRecords = [];
     let dailyTimeReviews = [];
     let chartNotes = [];
     let dailyRegimes = [];
@@ -797,6 +923,8 @@ export async function importReviewArchive(file) {
     let skippedInvalidSmt = 0;
     let skippedOrderDuplicates = 0;
     let skippedInvalidOrders = 0;
+    let skippedLiveRecordDuplicates = 0;
+    let skippedInvalidLiveRecords = 0;
     let skippedDailyTimeDuplicates = 0;
     let skippedInvalidDailyTime = 0;
     let skippedChartNoteDuplicates = 0;
@@ -874,6 +1002,17 @@ export async function importReviewArchive(file) {
       const orderIdMap = preparedOrders.idMap;
       loadOrderReviews([...existingOrderReviews, ...orders]);
 
+      const existingLiveRecords = getLiveRecords();
+      const preparedLiveRecords = prepareImportedLiveRecords(
+        existingLiveRecords,
+        Array.isArray(payload.liveRecords) ? payload.liveRecords : [],
+        { pdaIdMap: idMap, segmentIdMap, groupIdMap, smtIdMap, chartNoteIdMap, orderIdMap }
+      );
+      liveRecords = preparedLiveRecords.records;
+      skippedLiveRecordDuplicates = preparedLiveRecords.skippedDuplicates;
+      skippedInvalidLiveRecords = preparedLiveRecords.skippedInvalid;
+      loadLiveRecords([...existingLiveRecords, ...liveRecords]);
+
       const existingDailyTimeReviews = getDailyTimeReviews();
       const preparedDailyTimeReviews = prepareImportedDailyTimeReviews(
         existingDailyTimeReviews,
@@ -903,6 +1042,8 @@ export async function importReviewArchive(file) {
       skippedInvalidSmt +
       skippedOrderDuplicates +
       skippedInvalidOrders +
+      skippedLiveRecordDuplicates +
+      skippedInvalidLiveRecords +
       skippedDailyTimeDuplicates +
       skippedInvalidDailyTime +
       skippedChartNoteDuplicates +
@@ -910,7 +1051,7 @@ export async function importReviewArchive(file) {
       skippedDailyRegimeDuplicates +
       skippedInvalidDailyRegimes;
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${dailyTimeReviews.length} 条 Time Reaction、${chartNotes.length} 条 Chart Note，并校验 ${dailyRegimes.length} 条 Daily Regime${
+      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${liveRecords.length} 条 Live Record、${dailyTimeReviews.length} 条 Time Reaction、${chartNotes.length} 条 Chart Note，并校验 ${dailyRegimes.length} 条 Daily Regime${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''
       }`,
       isError: false,
