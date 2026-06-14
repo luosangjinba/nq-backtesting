@@ -618,6 +618,22 @@ Exit Time can be typed manually or selected with `Pick`. When choosing Target/St
 
 The current version does not support order drag editing, automatic setup verdicts, or statistics pages.
 
+## Live Records
+
+Live Records are the live execution / journal companion to Order Setups. They deliberately use the same Calendar and Inspector shape as Order Setups, but they are stored as independent `liveRecords`.
+
+Create them from the main chart `Live Records` right-click submenu:
+
+- `Create Bullish Live Record Here`
+- `Create Bearish Live Record Here`
+- chart writes such as `Set Entry Here`, `Set Stop Loss Here`, targets, result/exit, and Shift end controls
+
+Lifecycle states are manual: `draft`, `planned`, `active`, `submitted`, `filled`, `cancelled`, `closed`, and `reviewed`. `Clear Active Live Record` only clears the active selection; `Close` changes the record lifecycle state.
+
+Use the Live Record Detail panel to write result notes, execution review notes, and mark the record reviewed. Calendar shows Live Records directly under Order Setups and summarizes `Open`, `Needs Review`, `Reviewed`, and `Cancelled` counts for the selected day.
+
+A Live Record can stay standalone. Optionally link it to the active Order Setup to make it execution/review evidence. Linking does not mutate the Order Setup execution fields.
+
 ## Saving And Import/Export
 
 V4 has two persistence layers.
@@ -632,6 +648,7 @@ The browser automatically saves:
 - Order Setups
 - SMT records
 - Chart Notes
+- Live Records
 
 This is a working draft, not a formal archive.
 
@@ -650,11 +667,13 @@ Review JSON includes:
 - reactionEvidence under pdaResponses
 - SMT records
 - orderReviews
+- liveRecords
 - dailyTimeReviews
 - chartNotes
 - dailyRegimes
 
 `orderReviews` is the compatibility field name for Order Setups. It is intentionally unchanged so older archives and local drafts remain readable.
+`liveRecords` stores Live Record lifecycle, execution, result, review notes, reasons, evidence refs, and optional linked Order Setup id.
 
 It does not include candle data.
 
@@ -673,6 +692,7 @@ It does not include candle data.
 11. Use isolate mode, Structure Sets focus, or Calendar Show/Hide Day Objects to inspect local context.
 12. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
 13. Create Order Setups for key opportunities and record setup, entry, stop, targets, and result.
+14. Create Live Records for live execution/journal observations; close, review, and optionally link them to Order Setups.
 14. Review the day through Calendar/Inspector and complete Chart Notes / Time Reaction Observation.
 15. Export Review JSON for archiving.
 

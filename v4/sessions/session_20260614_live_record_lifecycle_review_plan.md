@@ -606,3 +606,42 @@ Result:
 - Node still reports the existing typeless package ES module warning.
 
 Next step: Step 288.12 updates final documentation and marks Step 288 complete.
+
+## Step 288.12 Completion - Documentation And Closeout
+
+Completed on 2026-06-14.
+
+Documentation updated:
+
+- `v4/docs/user/USER_GUIDE.en.md`
+- `v4/docs/user/USER_GUIDE.zh-CN.md`
+- `readme.md`
+- `v4/TODO.md`
+
+Documented:
+
+- Live Records as independent live execution / journal objects.
+- Main chart creation and chart-first write workflow.
+- Lifecycle states and the distinction between `Clear Active` and `Close`.
+- Detail review fields and reviewed status.
+- Calendar review summary counts.
+- Optional Order Setup link behavior.
+- LocalStorage and Review JSON inclusion of `liveRecords`.
+- Continued non-goal: no standalone `Live Orders` panel.
+
+Final Step 288 verification set:
+
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/daily-time-review-archive-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `git diff --check`
+
+Result:
+
+- All verification commands passed during Step 288.11.
+- `git diff --check` will be rerun before the Step 288.12 commit.
+- Node still reports the existing typeless package ES module warning.
+
+Step 288 is complete. Live Records now support lifecycle status, close/cancel/review/reopen, Detail review notes, Calendar lifecycle rows and review summary, terminal chart-write guards, optional Order Setup evidence linking, localStorage persistence, Review JSON export/import, and browser verification while still avoiding any standalone `Live Orders` panel.

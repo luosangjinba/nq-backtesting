@@ -616,6 +616,22 @@ Exit Time 可手工输入，也可以用 `Pick` 从图表选择。选择 Target/
 
 当前不做订单拖拽编辑、自动 setup verdict 或统计页。
 
+## Live Records
+
+Live Records 是 Order Setups 的 live execution / journal 伴随对象。它们在 Calendar 和 Inspector 中刻意保持与 Order Setups 相同的结构与密度，但底层独立保存为 `liveRecords`。
+
+主入口是主图右键菜单里的 `Live Records` 子菜单：
+
+- `Create Bullish Live Record Here`
+- `Create Bearish Live Record Here`
+- `Set Entry Here`、`Set Stop Loss Here`、targets、result/exit，以及 Shift 右键的 end controls
+
+生命周期状态是手工维护：`draft`、`planned`、`active`、`submitted`、`filled`、`cancelled`、`closed`、`reviewed`。`Clear Active Live Record` 只清除当前 active selection；`Close` 才会把记录状态改成 closed。
+
+在 Live Record Detail 中可以记录 result note、execution review note，并把记录标记为 reviewed。Calendar 会把 Live Records 放在 Order Setups 下方，并显示当天 `Open`、`Needs Review`、`Reviewed`、`Cancelled` 数量。
+
+Live Record 可以独立存在。也可以选择 link 到 active Order Setup，把它作为 execution/review evidence；link 不会改写 Order Setup 的 execution 字段。
+
 ## 保存与导入导出
 
 V4 有两种保存方式：
@@ -630,6 +646,7 @@ V4 有两种保存方式：
 - Order Setups
 - SMT records
 - Chart Notes
+- Live Records
 
 这是工作草稿，不是正式归档。
 
@@ -648,11 +665,13 @@ Review JSON 包含：
 - pdaResponses 里的 reactionEvidence
 - SMT records
 - orderReviews
+- liveRecords
 - dailyTimeReviews
 - chartNotes
 - dailyRegimes
 
 `orderReviews` 是兼容字段名，UI 中对应 `Order Setup`。当前不会迁移这个字段名，避免破坏旧归档和本地草稿。
+`liveRecords` 保存 Live Record 的生命周期、execution、result、review notes、reasons、evidence refs，以及可选 linked Order Setup id。
 
 不包含 K 线数据。
 
@@ -671,6 +690,7 @@ Review JSON 包含：
 11. 使用 isolate、Structure Sets focus 或 Calendar Show/Hide Day Objects 检查局部结构。
 12. 如果需要 NQ/ES 关系证据，开启 Split 并手工标注 SMT。
 13. 为关键机会创建 Order Setup，记录 setup、entry、stop、targets、result。
+14. 为 live execution / journal 观察创建 Live Record，关闭、复盘，并可选择 link 到对应 Order Setup。
 14. 在 Calendar/Inspector 中回看当天对象，补充 Chart Notes 与 Time Reaction Observation。
 15. 导出 Review JSON 归档。
 

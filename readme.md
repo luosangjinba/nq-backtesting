@@ -2,7 +2,7 @@
 
 This repository now keeps the current V4 chart-review workspace only.
 
-V4 is a standalone chart-based review tool for replaying NQ candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES secondary chart.
+V4 is a standalone chart-based review tool for replaying NQ/ES candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, maintaining Live Records, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES secondary chart.
 
 ## Start
 
