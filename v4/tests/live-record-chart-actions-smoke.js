@@ -48,6 +48,17 @@ assert.match(inactiveMenu, /No active live record/, 'inactive menu labels no act
 assert.match(inactiveMenu, /Create Bullish Live Record Here/, 'inactive menu renders bullish create');
 assert.match(inactiveMenu, /Create Bearish Live Record Here/, 'inactive menu renders bearish create');
 assert.match(inactiveMenu, /Set Entry Here/, 'inactive menu still renders write action shell');
+assert.ok(
+  inactiveMenu.indexOf('Create Bearish Live Record Here') < inactiveMenu.indexOf('Set Entry Here'),
+  'menu renders create actions before write actions'
+);
+assert.ok(
+  inactiveMenu.indexOf('Set Result / Exit Here') < inactiveMenu.indexOf('Link PDA To Active Live Record'),
+  'menu renders evidence actions after write actions'
+);
+const inactiveShiftMenu = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 }, isShift: true });
+assert.match(inactiveShiftMenu, /Set Entry Here/, 'shift menu keeps regular write actions');
+assert.match(inactiveShiftMenu, /Set All Ends Here/, 'shift menu adds end actions');
 
 assert.equal(handleLiveRecordChartAction('live-record-create-bullish', {
   bar: { timestamp: 1710770340, close: 18360 },

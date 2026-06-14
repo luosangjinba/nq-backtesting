@@ -333,3 +333,32 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.6 polishes Live Record context menu grouping and order.
+
+## Step 287.6 Completion - Context Menu Parity Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record chart menu now follows the Order Setup grouping rhythm:
+  - active label and create actions;
+  - divider;
+  - write actions and target submenu;
+  - Shift-only end actions;
+  - divider;
+  - evidence link actions;
+  - optional close-active action.
+- Shift-right-click now appends end actions while keeping normal write actions visible, matching Order Setup behavior.
+- Focused smoke asserts create actions precede write actions, evidence links follow write actions, and Shift menu includes both write and end actions.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.7 polishes chart renderer labels and visual emphasis.

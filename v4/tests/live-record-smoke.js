@@ -177,7 +177,17 @@ assert.match(inactiveMenuHtml, /Create Bearish Live Record Here/, 'chart menu re
 assert.match(inactiveMenuHtml, /No active live record/, 'chart menu shows inactive label');
 assert.match(inactiveMenuHtml, /Set Entry Here/, 'chart menu renders entry action shell');
 assert.match(inactiveMenuHtml, /Set Target External 3 Here/, 'chart menu renders target action shell');
-assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 }, isShift: true }), /Set All Ends Here/, 'shift chart menu renders end action shell');
+assert.ok(
+  inactiveMenuHtml.indexOf('Create Bearish Live Record Here') < inactiveMenuHtml.indexOf('Set Entry Here'),
+  'chart menu renders creation actions before write actions'
+);
+assert.ok(
+  inactiveMenuHtml.indexOf('Set Result / Exit Here') < inactiveMenuHtml.indexOf('Link PDA To Active Live Record'),
+  'chart menu renders evidence links after write actions'
+);
+const shiftMenuHtml = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 }, isShift: true });
+assert.match(shiftMenuHtml, /Set Entry Here/, 'shift chart menu keeps write action shell');
+assert.match(shiftMenuHtml, /Set All Ends Here/, 'shift chart menu renders end action shell');
 assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
   bar: { timestamp: 1710770400, close: 18366.25 },
   price: 18366.5,

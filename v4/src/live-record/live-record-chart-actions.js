@@ -423,22 +423,27 @@ export function renderLiveRecordMenuItems({
   const clearActiveRow = active
     ? `<button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CLEAR_ACTIVE}">Close Active Live Record</button>`
     : '';
-  const actionRows = isShift
+  const writeRows = `
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.MOVE_ANCHOR}" ${activeDisabled || disabled}>Set Active Live Record Anchor Here</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_ENTRY}" ${activeDisabled || disabled}>Set Entry Here</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_MARKET_STRUCTURE_SHIFT}" ${activeDisabled || disabled}>Set MSS Here</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_STOP_LOSS}" ${activeDisabled || disabled}>Set Stop Loss Here</button>
+    ${renderTargetSubmenu({ activeDisabled, disabled })}
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_RESULT_EXIT}" ${activeDisabled || disabled}>Set Result / Exit Here</button>
+  `;
+  const endRows = isShift
     ? `
+        <div class="pda-menu-divider"></div>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_ALL_ENDS}" ${activeDisabled || disabled}>Set All Ends Here</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_ENTRY_END}" ${activeDisabled || disabled}>Set Entry End Here</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_MARKET_STRUCTURE_SHIFT_END}" ${activeDisabled || disabled}>Set MSS End Here</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_STOP_LOSS_END}" ${activeDisabled || disabled}>Set Stop Loss End Here</button>
         ${renderTargetSubmenu({ activeDisabled, disabled, isEnd: true })}
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_ALL_ENDS}" ${activeDisabled || disabled}>Set All Ends Here</button>
       `
-    : `
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.MOVE_ANCHOR}" ${activeDisabled || disabled}>Set Active Live Record Anchor Here</button>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_ENTRY}" ${activeDisabled || disabled}>Set Entry Here</button>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_MARKET_STRUCTURE_SHIFT}" ${activeDisabled || disabled}>Set MSS Here</button>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_STOP_LOSS}" ${activeDisabled || disabled}>Set Stop Loss Here</button>
-        ${renderTargetSubmenu({ activeDisabled, disabled })}
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.SET_RESULT_EXIT}" ${activeDisabled || disabled}>Set Result / Exit Here</button>
-      `;
+    : '';
+  const closeActiveSection = clearActiveRow
+    ? `<div class="pda-menu-divider"></div>${clearActiveRow}`
+    : '';
   return `
     ${getHitLiveRecordMenuItems(liveRecordHit)}
     <div class="pda-menu-section pda-menu-submenu">
@@ -447,9 +452,12 @@ export function renderLiveRecordMenuItems({
         <div class="pda-menu-item is-muted">${getActiveLiveRecordLabel()}</div>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CREATE_BULLISH}" ${disabled}>Create Bullish Live Record Here</button>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CREATE_BEARISH}" ${disabled}>Create Bearish Live Record Here</button>
+        <div class="pda-menu-divider"></div>
+        ${writeRows}
+        ${endRows}
+        <div class="pda-menu-divider"></div>
         ${renderEvidenceLinkRows({ active, pdaHit, segmentHit, segmentGroupHit, chartNote })}
-        ${actionRows}
-        ${clearActiveRow}
+        ${closeActiveSection}
       </div>
     </div>
   `;
