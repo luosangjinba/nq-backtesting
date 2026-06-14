@@ -630,3 +630,28 @@ Verification:
 - `node --check v4/src/history/history-manager.js`
 - Inline ESM action probe covered summary/display/result/reason edits, set active, hide/show, link/unlink active setup, add reason, delete, and refresh/capture callbacks.
 - Inline ESM history probe covered undo/redo restoring Live Record summary changes.
+
+## Step 285.9 Completion - Focused Smoke Tests
+
+Completed on 2026-06-14.
+
+Added `v4/tests/live-record-smoke.js`.
+
+Coverage:
+
+- Live Record normalize/CRUD and clone isolation.
+- Order Setup isolation when Live Records are created/updated/deleted.
+- Instrument-scoped persistence key/save/restore/clear for NQ and ES.
+- Chart context creation through `live-record-new-here`.
+- Active Live Record update while preserving active Order Setup.
+- Calendar `Live Records` group projection and placement directly after `Order Setups`.
+- Live Record Detail render structure.
+- Inspector action controller: summary/display/result/reason edits, set active, hide/show, link/unlink setup, add reason, delete.
+- History undo/redo restores Live Record changes.
+
+Verification:
+
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `git diff --check`
