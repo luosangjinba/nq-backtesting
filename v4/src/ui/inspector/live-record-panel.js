@@ -96,14 +96,29 @@ function renderAnchorPanel(liveSet) {
   `;
 }
 
+function formatExecutionMetaPart(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (/^\d+[A-Z]$/.test(text) || text === 'D') return text;
+  return titleCase(text, text);
+}
+
+function formatExecutionMeta(value) {
+  return String(value || '')
+    .split('·')
+    .map(formatExecutionMetaPart)
+    .filter(Boolean)
+    .join(' · ');
+}
+
 function renderExecutionElement(label, element = {}, extra = '', state = {}) {
   if (!element?.complete) return '';
   const visible = state.visible !== false && element.visible !== false;
   const selected = Boolean(state.selected);
   const visibilityClass = visible ? 'is-visible' : 'is-hidden';
-  const endLabel = element.endTimestamp ? `End ${formatTime(element.endTimestamp)}` : '';
+  const endLabel = element.endTimestamp ? `End: ${formatTime(element.endTimestamp)}` : '';
   const stateLabels = [visible ? '' : 'Hidden', selected ? 'Selected' : ''].filter(Boolean).join(' · ');
-  const meta = [extra || '', endLabel, stateLabels].filter(Boolean).join(' · ') || '—';
+  const meta = [formatExecutionMeta(extra), endLabel, stateLabels].filter(Boolean).join(' · ') || '—';
   return `
     <div class="order-setup-execution-row${selected ? ' active' : ''}">
       <span class="order-setup-execution-visibility ${escapeHtml(visibilityClass)}" aria-hidden="true"></span>

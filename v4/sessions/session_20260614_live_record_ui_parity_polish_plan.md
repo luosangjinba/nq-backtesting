@@ -291,3 +291,24 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.4 polishes Execution and Result detail rows.
+
+## Step 287.4 Completion - Execution And Result Detail Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Execution metadata now title-cases readable values such as target type while preserving timeframe labels.
+- Execution end metadata now uses a consistent `End: time` form.
+- Hidden/selected state remains visible in the same metadata line.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.5 polishes Reasons and evidence link labels.

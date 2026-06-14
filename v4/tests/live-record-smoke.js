@@ -342,6 +342,8 @@ assert.match(detailHtml, /Short/, 'detail uses Order Setup direction vocabulary'
 assert.doesNotMatch(detailHtml, /Bearish/, 'detail does not mix bullish/bearish direction vocabulary');
 assert.match(detailHtml, /Execution/, 'detail renders Execution');
 assert.match(detailHtml, /Hidden · Selected/, 'detail renders hidden and selected execution state');
+assert.match(detailHtml, /External · 5M/, 'detail title-cases target execution metadata');
+assert.match(detailHtml, /End: /, 'detail renders normalized execution end metadata');
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');
 assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Result/, 'detail renders Result');
