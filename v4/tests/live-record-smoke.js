@@ -36,6 +36,7 @@ import { CALENDAR_OBJECT_TYPES } from '../src/calendar/calendar-types.js';
 import { renderLiveRecordDetailPanel } from '../src/ui/inspector/live-record-panel.js';
 import { createLiveRecordActionController } from '../src/ui/inspector/live-record-actions.js';
 import { recordHistory, redo, undo } from '../src/history/history-manager.js';
+import { addSmtRecord, clearSmtRecords } from '../src/smt/smt-store.js';
 
 const storageData = new Map();
 globalThis.localStorage = {
@@ -47,6 +48,7 @@ globalThis.localStorage = {
 function resetState() {
   clearOrderReviews();
   loadLiveRecords([]);
+  clearSmtRecords();
   storageData.clear();
 }
 
@@ -223,6 +225,44 @@ assert.equal(chartRecordAfterWrites.execution.targets[0].endTimestamp, 171077070
 assert.equal(chartRecordAfterWrites.result.exitTimeframe, '1M', 'result timeframe stored from chart');
 assert.equal(chartRecordAfterWrites.result.exitPrice, 18330.25, 'result price stored from chart');
 assert.equal(getOrderReviewById(setup.id).setupThesis.primaryEventTimestamp, 1710770400, 'live chart writes do not mutate setup thesis');
+assert.match(renderLiveRecordMenuItems({
+  bar: { timestamp: 1710770400 },
+  pdaHit: { id: 'pda-live-link', type: 'fvg' },
+  segmentHit: { id: 'segment-live-link' },
+  segmentGroupHit: { id: 'composite-live-link' },
+  chartNote: { id: 'chart-note-live-link', kind: 'bar', timeframe: '5M' },
+}), /Link Chart Note To Active Live Record/, 'chart menu renders evidence link actions');
+assert.equal(handleLiveRecordChartAction('live-record-link-pda', {
+  pdaHit: { id: 'pda-live-link', type: 'fvg' },
+}), true, 'chart action links PDA evidence');
+assert.equal(handleLiveRecordChartAction('live-record-link-pda', {
+  pdaHit: { id: 'pda-live-link', type: 'fvg' },
+}), true, 'duplicate PDA evidence link is accepted');
+assert.equal(handleLiveRecordChartAction('live-record-link-segment', {
+  segmentHit: { id: 'segment-live-link' },
+}), true, 'chart action links segment evidence');
+assert.equal(handleLiveRecordChartAction('live-record-link-composite', {
+  segmentGroupHit: { id: 'composite-live-link' },
+}), true, 'chart action links composite evidence');
+addSmtRecord({
+  id: 'smt-live-link',
+  type: 'fvg',
+  direction: 'bearish',
+  timestamp: 1710770600,
+  fvgStartTimestamp: 1710770580,
+  fvgEndTimestamp: 1710770640,
+  fvgTop: 18350,
+  fvgBottom: 18340,
+});
+assert.equal(handleLiveRecordChartAction('live-record-link-latest-smt'), true, 'chart action links latest SMT evidence');
+assert.equal(handleLiveRecordChartAction('live-record-link-chart-note', {
+  chartNote: { id: 'chart-note-live-link', kind: 'bar', timeframe: '5M' },
+}), true, 'chart action links chart note evidence');
+const chartRecordAfterLinks = getLiveRecordById(chartLiveId);
+assert.equal(chartRecordAfterLinks.reasons[0].refs.length, 5, 'evidence links are de-duped in first reason refs');
+assert.equal(chartRecordAfterLinks.linkedObjectRefs.length, 5, 'evidence links are de-duped in linked refs');
+assert.equal(chartRecordAfterLinks.reasons[0].refs.filter((ref) => ref.type === 'pda').length, 1, 'duplicate PDA ref is de-duped');
+assert.equal(getOrderReviewById(setup.id).setupThesis.reasons?.[0]?.refs?.length || 0, 0, 'live evidence links do not mutate setup refs');
 
 const liveDateGroups = getCalendarDayGroups('2024-03-18');
 const liveGroup = liveDateGroups.find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
@@ -241,6 +281,7 @@ assert.match(detailHtml, /Summary/, 'detail renders Summary');
 assert.match(detailHtml, /Anchor/, 'detail renders Anchor');
 assert.match(detailHtml, /Execution/, 'detail renders Execution');
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');
+assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Result/, 'detail renders Result');
 
 const calls = { refresh: 0, captures: 0, history: [] };

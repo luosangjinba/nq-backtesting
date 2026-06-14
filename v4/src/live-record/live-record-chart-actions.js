@@ -1,6 +1,7 @@
 import * as bus from '../event-bus.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { recordHistory } from '../history/history-manager.js';
+import { getSmtRecords } from '../smt/smt-store.js';
 import {
   clearActiveLiveRecord,
   createLiveRecordFromAnchor,
@@ -9,6 +10,9 @@ import {
 } from './live-record-active.js';
 import {
   LIVE_RECORD_DIRECTIONS,
+  LIVE_RECORD_REASON_CATEGORIES,
+  LIVE_RECORD_REF_ROLES,
+  LIVE_RECORD_REF_TYPES,
   LIVE_RECORD_TARGET_ROLES,
   LIVE_RECORD_TARGET_TYPES,
 } from './live-record-types.js';
@@ -39,6 +43,11 @@ export const LIVE_RECORD_CHART_ACTIONS = Object.freeze({
   SET_FINAL_TARGET_END: 'live-record-set-final-target-end',
   SET_RESULT_EXIT: 'live-record-set-result-exit',
   SET_ALL_ENDS: 'live-record-set-all-ends',
+  LINK_PDA: 'live-record-link-pda',
+  LINK_SEGMENT: 'live-record-link-segment',
+  LINK_COMPOSITE: 'live-record-link-composite',
+  LINK_LATEST_SMT: 'live-record-link-latest-smt',
+  LINK_CHART_NOTE: 'live-record-link-chart-note',
 });
 
 const LIVE_RECORD_TARGET_MENU_ITEMS = Object.freeze([
@@ -97,6 +106,59 @@ const LIVE_RECORD_TARGET_END_ACTIONS = Object.freeze({
   [LIVE_RECORD_CHART_ACTIONS.SET_TARGET_EXTERNAL_1_END]: LIVE_RECORD_TARGET_ROLES.EXTERNAL_1,
   [LIVE_RECORD_CHART_ACTIONS.SET_TARGET_EXTERNAL_2_END]: LIVE_RECORD_TARGET_ROLES.EXTERNAL_2,
   [LIVE_RECORD_CHART_ACTIONS.SET_FINAL_TARGET_END]: LIVE_RECORD_TARGET_ROLES.FINAL,
+});
+
+const LIVE_RECORD_LINK_ACTIONS = Object.freeze({
+  [LIVE_RECORD_CHART_ACTIONS.LINK_PDA]: {
+    getTarget: (context) => context.pdaHit?.id ? context.pdaHit : null,
+    buildRef: (hit) => ({
+      type: LIVE_RECORD_REF_TYPES.PDA,
+      id: hit.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      sourceContext: hit.type || '',
+    }),
+    label: () => 'PDA linked to active Live Record',
+  },
+  [LIVE_RECORD_CHART_ACTIONS.LINK_SEGMENT]: {
+    getTarget: (context) => context.segmentHit?.id ? context.segmentHit : null,
+    buildRef: (hit) => ({
+      type: LIVE_RECORD_REF_TYPES.SEGMENT,
+      id: hit.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      sourceContext: hit.type || hit.kind || '',
+    }),
+    label: () => 'Segment linked to active Live Record',
+  },
+  [LIVE_RECORD_CHART_ACTIONS.LINK_COMPOSITE]: {
+    getTarget: (context) => context.segmentGroupHit?.id ? context.segmentGroupHit : null,
+    buildRef: (hit) => ({
+      type: LIVE_RECORD_REF_TYPES.COMPOSITE,
+      id: hit.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+    }),
+    label: () => 'Composite linked to active Live Record',
+  },
+  [LIVE_RECORD_CHART_ACTIONS.LINK_LATEST_SMT]: {
+    getTarget: () => getSmtRecords().filter((record) => record.primaryInstrument === getPrimaryInstrument()).at(-1) || null,
+    buildRef: (smt) => ({
+      type: LIVE_RECORD_REF_TYPES.SMT,
+      id: smt.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      sourceContext: smt.type || '',
+    }),
+    label: () => 'Latest SMT linked to active Live Record',
+  },
+  [LIVE_RECORD_CHART_ACTIONS.LINK_CHART_NOTE]: {
+    getTarget: (context) => context.chartNote?.id ? context.chartNote : null,
+    buildRef: (note) => ({
+      type: LIVE_RECORD_REF_TYPES.CHART_NOTE,
+      id: note.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      sourceTimeframeLabel: note.timeframe ? String(note.timeframe) : '',
+      sourceContext: note.kind || '',
+    }),
+    label: () => 'Chart Note linked to active Live Record',
+  },
 });
 
 function getAnchorPrice(bar = {}, fallbackPrice = null) {
@@ -170,6 +232,34 @@ function setAllElementEnds(execution = {}, end = {}) {
   };
 }
 
+function refsEqual(left = {}, right = {}) {
+  return left.type === right.type
+    && left.id === right.id
+    && left.role === right.role;
+}
+
+function appendUniqueRef(refs = [], ref = {}) {
+  const existing = Array.isArray(refs) ? refs : [];
+  return existing.some((item) => refsEqual(item, ref)) ? existing : [...existing, ref];
+}
+
+function buildLiveRecordRefPatch(active = {}, ref = {}) {
+  const reasons = Array.isArray(active.reasons) && active.reasons.length
+    ? active.reasons
+    : [{ id: 'reason_1', category: LIVE_RECORD_REASON_CATEGORIES.OTHER, note: '', refs: [] }];
+  const firstReason = reasons[0] || {};
+  return {
+    reasons: [
+      {
+        ...firstReason,
+        refs: appendUniqueRef(firstReason.refs, ref),
+      },
+      ...reasons.slice(1),
+    ],
+    linkedObjectRefs: appendUniqueRef(active.linkedObjectRefs, ref),
+  };
+}
+
 function patchActiveFromChart(label, patchFactory, context = {}) {
   const active = getActiveLiveRecord();
   if (!active) {
@@ -187,6 +277,46 @@ function patchActiveFromChart(label, patchFactory, context = {}) {
     isError: !updated?.id,
   });
   return true;
+}
+
+function linkContextObjectToActiveLiveRecord(action, context = {}) {
+  const active = getActiveLiveRecord();
+  if (!active) {
+    bus.emit('status:update', { text: 'No active Live Record', isError: true });
+    return true;
+  }
+  const actionConfig = LIVE_RECORD_LINK_ACTIONS[action];
+  if (!actionConfig) return false;
+  const target = actionConfig.getTarget(context);
+  if (!target) {
+    bus.emit('status:update', { text: 'No context object to link to active Live Record', isError: true });
+    return true;
+  }
+  const ref = actionConfig.buildRef(target);
+  const updated = recordHistory('Link Evidence To Live Record', () =>
+    patchActiveLiveRecord(buildLiveRecordRefPatch(active, ref))
+  );
+  bus.emit('status:update', {
+    text: updated?.id ? actionConfig.label(target) : 'Live Record evidence link failed',
+    isError: !updated?.id,
+  });
+  return true;
+}
+
+function renderEvidenceLinkRows({ active, pdaHit, segmentHit, segmentGroupHit, chartNote } = {}) {
+  const activeDisabled = active ? '' : 'disabled';
+  const pdaDisabled = active && pdaHit ? '' : 'disabled';
+  const segmentDisabled = active && segmentHit ? '' : 'disabled';
+  const compositeDisabled = active && segmentGroupHit ? '' : 'disabled';
+  const smtDisabled = active && getSmtRecords().filter((record) => record.primaryInstrument === getPrimaryInstrument()).length ? '' : 'disabled';
+  const chartNoteDisabled = active && chartNote ? '' : 'disabled';
+  return `
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.LINK_PDA}" ${activeDisabled || pdaDisabled}>Link PDA To Active Live Record</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.LINK_SEGMENT}" ${activeDisabled || segmentDisabled}>Link Segment To Active Live Record</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.LINK_COMPOSITE}" ${activeDisabled || compositeDisabled}>Link Composite To Active Live Record</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.LINK_LATEST_SMT}" ${activeDisabled || smtDisabled}>Link Latest SMT To Active Live Record</button>
+    <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.LINK_CHART_NOTE}" ${activeDisabled || chartNoteDisabled}>Link Chart Note To Active Live Record</button>
+  `;
 }
 
 function getActiveLiveRecordLabel() {
@@ -220,7 +350,14 @@ function renderTargetSubmenu({ activeDisabled, disabled, isEnd = false } = {}) {
   `;
 }
 
-export function renderLiveRecordMenuItems({ bar, isShift = false } = {}) {
+export function renderLiveRecordMenuItems({
+  bar,
+  pdaHit = null,
+  segmentHit = null,
+  segmentGroupHit = null,
+  chartNote = null,
+  isShift = false,
+} = {}) {
   const disabled = bar ? '' : 'disabled';
   const active = getActiveLiveRecord();
   const activeDisabled = active ? '' : 'disabled';
@@ -249,6 +386,7 @@ export function renderLiveRecordMenuItems({ bar, isShift = false } = {}) {
       <div class="pda-submenu-panel">
         <div class="pda-menu-item is-muted">${getActiveLiveRecordLabel()}</div>
         <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.NEW_HERE}" ${disabled}>New Live Record Here</button>
+        ${renderEvidenceLinkRows({ active, pdaHit, segmentHit, segmentGroupHit, chartNote })}
         ${actionRows}
         ${clearActiveRow}
       </div>
@@ -260,6 +398,10 @@ export function handleLiveRecordChartAction(action, {
   bar = null,
   price = null,
   timeframe = '',
+  pdaHit = null,
+  segmentHit = null,
+  segmentGroupHit = null,
+  chartNote = null,
 } = {}) {
   if (action === LIVE_RECORD_CHART_ACTIONS.CLEAR_ACTIVE) {
     const cleared = clearActiveLiveRecord();
@@ -364,6 +506,14 @@ export function handleLiveRecordChartAction(action, {
     return patchActiveFromChart('Set Live Record Ends', (active) => ({
       execution: setAllElementEnds(active.execution, getChartEnd({ bar, timeframe })),
     }), { bar });
+  }
+  if (LIVE_RECORD_LINK_ACTIONS[action]) {
+    return linkContextObjectToActiveLiveRecord(action, {
+      pdaHit,
+      segmentHit,
+      segmentGroupHit,
+      chartNote,
+    });
   }
   if (action !== LIVE_RECORD_CHART_ACTIONS.NEW_HERE) return false;
   if (!bar || !Number.isFinite(Number(bar.timestamp))) {

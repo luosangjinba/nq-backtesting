@@ -459,3 +459,31 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.6 links PDA/Segment/Composite/SMT/Chart Note evidence to the active Live Record.
+
+## Step 286.6 Completion - Evidence Linking Added
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Added Live Record chart actions for linking PDA, Segment, Composite, latest SMT, and Chart Note evidence.
+- Live Record menu now renders evidence link rows with active/hit-based disabled state.
+- `manual-annotation.js` passes PDA, Segment, Composite, and Chart Note context into the Live Record menu and action handler.
+- Evidence refs are written to both `reasons[0].refs` and `linkedObjectRefs`.
+- Ref writes are de-duped by `type/id/role`.
+
+Isolation:
+
+- Evidence linking uses `patchActiveLiveRecord()` only.
+- Smoke verifies linked Live Record refs do not mutate Order Setup reason refs.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.7 adds the Live Record chart renderer.

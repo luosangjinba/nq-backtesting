@@ -422,7 +422,14 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     timeLabel,
     disabled,
     orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit: contextMenuOrderSetupHit, isShift: contextMenuShiftKey }),
-    liveRecordItems: renderLiveRecordMenuItems({ bar, isShift: contextMenuShiftKey }),
+    liveRecordItems: renderLiveRecordMenuItems({
+      bar,
+      pdaHit,
+      segmentHit,
+      segmentGroupHit,
+      chartNote: getChartNoteAtContextBar() || getChartNoteRangeAtContextBar(),
+      isShift: contextMenuShiftKey,
+    }),
     segmentPdaLinkItems,
     segmentGroupItems,
     segmentItems,
@@ -493,6 +500,10 @@ async function handleControlClick(e) {
     bar: contextMenuBar,
     price: contextMenuPrice,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
+    pdaHit: contextMenuPdaHit,
+    segmentHit: contextMenuSegmentHit,
+    segmentGroupHit: contextMenuSegmentGroupHit,
+    chartNote: getChartNoteAtContextBar() || getChartNoteRangeAtContextBar(),
   })) {
     hideContextMenu();
   } else if (handleOrderSetupChartAction(action, {
