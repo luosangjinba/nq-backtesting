@@ -431,3 +431,19 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.10 runs final closeout checks and marks Step 287 complete.
+
+## Step 287.10 Completion - Closeout
+
+Completed on 2026-06-14.
+
+Final verification:
+
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `git diff --check`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Step 287 is complete. Live Records now have a tighter Order Setup parity pass across Calendar rows, Detail panels, execution/result metadata, evidence labels, chart context menu grouping, renderer labels, hit menu behavior, and browser verification while continuing to avoid any standalone `Live Orders` panel.
