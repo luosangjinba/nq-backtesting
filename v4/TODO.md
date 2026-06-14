@@ -834,7 +834,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.10: 浏览器视觉验收：确认无记录/有记录/详情页分别与 Order Setups 截图风格一致，且页面不存在 standalone Live Orders panel。已新增并跑通 `v4/tests/live-record-browser-smoke.js`：验证空态 count 0/None、创建后 count 1、Live Records 紧跟 Order Setups、row 有 status dot/菜单、Open 进入 Live Record Detail，且 DOM 中不存在 standalone `Live Orders` 面板。
 
 - [ ] Step 286: Live Record chart menu and chart interaction parity。目标是在 Step 285 的 Order Setups 同构 UI 基础上，补齐 Live Record 的图表右键操作、execution 写入、evidence linking、图表渲染、hit-test/selection 与浏览器验收；继续禁止 standalone `Live Orders` 面板。计划见 `v4/sessions/session_20260614_live_record_chart_menu_plan.md`。
-  - [ ] Step 286.1: 冻结 chart interaction 边界：确认本步只做 primary chart 右键、active Live Record menu state、execution element writes、evidence linking、renderer/hit-test 最小闭环、smoke/browser 验证；不做 broker/PnL/dashboard/Review JSON。
+  - [x] Step 286.1: 冻结 chart interaction 边界：确认本步只做 primary chart 右键、active Live Record menu state、execution element writes、evidence linking、renderer/hit-test 最小闭环、smoke/browser 验证；不做 broker/PnL/dashboard/Review JSON。已记录边界：Step 286 只做 Live Record primary chart 交互闭环，不恢复 standalone `Live Orders` 面板。
   - [ ] Step 286.2: 审计 Order Setup chart action / renderer / hit-test 路径：读取 menu rendering、action map、anchor validation、target submenu、Set All End、projection、hit-test、selection event 和 Inspector sync，记录 copy/adapt/postpone 决策。
   - [ ] Step 286.3: 扩展 Live Record execution shape：补 entry/stop/target/result/end/visibility 等 chart-first 字段，保持旧 Step 285 数据兼容和 clone-on-read，不接 renderer。
   - [ ] Step 286.4: 扩展 Live Records 右键菜单 shell：显示 active Live Record label，加入 move anchor、Set Entry、Set Stop、Targets、Set Result/Exit、Set All Ends、clear active 等菜单项；无 active 时禁用写入动作。

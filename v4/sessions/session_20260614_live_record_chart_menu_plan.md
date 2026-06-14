@@ -296,3 +296,34 @@ Acceptance:
 Execute Step 286.1 through Step 286.12 sequentially, committing after each substep.
 
 If implementation risk becomes too high, stop after Step 286.6 with chart write actions and evidence linking; renderer/hit-test can be split into Step 287. The preferred path is still to finish all Step 286 substeps if they remain small.
+
+## Step 286.1 Completion - Chart Interaction Boundary Frozen
+
+Completed on 2026-06-14.
+
+Frozen scope for Step 286:
+
+- Primary chart right-click interactions for Live Records.
+- Active Live Record menu state and disabled behavior.
+- Chart actions that write anchor, entry, stop, target, result, and end fields to the active Live Record.
+- Evidence linking from chart/context objects to the active Live Record.
+- Minimal primary chart renderer for Live Record elements.
+- Minimal primary chart hit-test and selection for rendered Live Record elements.
+- Inspector and Calendar sync after chart-first edits.
+- Targeted smoke tests and browser verification.
+
+Frozen non-goals:
+
+- No standalone `Live Orders` panel.
+- No broker API, order routing, fill import, PnL/statistics dashboard, or large Journal workspace.
+- No Review JSON import/export in Step 286.
+- No secondary-chart Live Record parity unless needed to avoid regression.
+- No broad generic abstraction of Order Setup and Live Record internals.
+
+Implementation rule:
+
+- Copy/adapt the proven Order Setup chart workflow first.
+- Extract shared helpers only when a small helper avoids obvious duplication without changing Order Setup behavior.
+- Every substep remains independently committed.
+
+Next step: Step 286.2 audits the exact Order Setup chart action, renderer, hit-test, and selection paths before code changes.
