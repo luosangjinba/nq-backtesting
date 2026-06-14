@@ -140,14 +140,22 @@ function summarizeLiveRecordSet(liveRecordSet) {
   const result = liveRecordSet.result || {};
   const hasExit = Boolean(result.exitTimestamp || (result.exitPrice !== null && result.exitPrice !== undefined));
   const exit = hasExit
-    ? joinSummary(['Exit', compactTime(result.exitTimestamp), compactPrice(result.exitPrice)])
+    ? ['Exit', compactTime(result.exitTimestamp), compactPrice(result.exitPrice)]
+        .filter((part) => part && part !== '—')
+        .join(' ')
     : '';
+  const status = ['draft', 'active'].includes(String(liveRecordSet.status || '').toLowerCase())
+    ? ''
+    : titleCase(liveRecordSet.status, '');
+  const resultStatus = String(result.status || '').toLowerCase() === 'unknown'
+    ? ''
+    : titleCase(result.status, '');
   return joinSummary([
     titleCase(liveRecordSet.direction, 'Live'),
-    titleCase(liveRecordSet.status, 'Draft'),
+    status,
     compactTime(getLiveRecordDateTimestamp(liveRecordSet)),
     compactPrice(entry.price ?? anchor.price),
-    titleCase(result.status, ''),
+    resultStatus,
     exit,
   ]);
 }

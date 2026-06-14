@@ -411,7 +411,7 @@ function renderSetupVisibilityToggle(item) {
 function renderLiveRecordStatusDot(item) {
   if (item.ref?.type !== CALENDAR_OBJECT_TYPES.LIVE_RECORD || !item.ref?.id) return '';
   const hidden = Boolean(item.source?.liveRecord?.display?.hidden || item.source?.display?.hidden);
-  const label = hidden ? 'Hidden live record.' : 'Visible live record.';
+  const label = hidden ? 'Hidden live record. Click to show.' : 'Visible live record. Click to hide.';
   return `
     <button
       class="calendar-setup-visibility ${hidden ? 'is-hidden' : 'is-visible'}"

@@ -249,3 +249,25 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.2 polishes Calendar row parity.
+
+## Step 287.2 Completion - Calendar Row Parity Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record Calendar summary now omits default `Draft` and `Unknown` noise.
+- Exit summary is compacted from separate `Exit · time · price` tokens into a single `Exit time @ price` phrase.
+- Live Record status dot title/aria text now mirrors Order Setup semantics: visible/hidden plus click-to-hide/show.
+
+Verification:
+
+- `node --check v4/src/calendar/calendar-review-index.js`
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.3 polishes Live Record Detail header and core panels.

@@ -849,7 +849,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 287: Live Record UI parity polish。目标是在 Step 286 功能闭环基础上，逐项对照 Order Setups 做真实 UI/交互 polish，使 Live Records 在 Calendar、Detail、右键菜单、chart renderer、hit menu 和浏览器验收中更像同一套对象系统；继续禁止 standalone `Live Orders`。计划见 `v4/sessions/session_20260614_live_record_ui_parity_polish_plan.md`。
   - [x] Step 287.1: UI parity audit：真实浏览器/DOM 对照 Order Setups，记录 Calendar group/row、Detail、右键菜单、Shift 菜单、element hit menu、chart renderer 的具体差异和文件级修改目标；不改运行时代码。已记录差异：Calendar summary/actions、Detail direction vocabulary、Execution/Result metadata、Reasons ref labels、context menu dividers/order、renderer labels/colors、hit menu destructive action重复。
-  - [ ] Step 287.2: Calendar row parity polish：优化 Live Record row summary、bullish/bearish 显示、status dot、action menu 顺序/命名、empty/populated group density，保持 Live Records 紧跟 Order Setups。
+  - [x] Step 287.2: Calendar row parity polish：优化 Live Record row summary、bullish/bearish 显示、status dot、action menu 顺序/命名、empty/populated group density，保持 Live Records 紧跟 Order Setups。已完成：Live Record row summary 去掉 Draft/Unknown 默认噪音，Exit 压缩为单段，status dot title/aria 对齐 Order Setup 的 click-to-hide/show 语义，smoke/browser smoke 通过。
   - [ ] Step 287.3: Detail header/core panels polish：对齐 Live Record Detail 的 header/meta、Display、Summary、Anchor、Active/Visible/Updated 信息密度和命名。
   - [ ] Step 287.4: Execution / Result detail polish：优化 Entry/MSS/Stop/Targets/Result 行展示、end-time metadata、hidden/selected 状态和 empty execution 状态。
   - [ ] Step 287.5: Reasons / evidence link polish：对齐 reason card、category、ref row label、linked PDA/Segment/Composite/SMT/Chart Note 文案和可读性，保留去重行为。

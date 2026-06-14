@@ -326,6 +326,7 @@ const liveGroup = liveDateGroups.find((group) => group.type === CALENDAR_OBJECT_
 assert.ok(liveGroup, 'Live Records Calendar group exists');
 assert.equal(liveGroup.rows.length, 1, 'Calendar group includes chart-created live record');
 assert.match(liveGroup.rows[0].label, /Exit/, 'Calendar live record summary includes exit');
+assert.doesNotMatch(liveGroup.rows[0].label, /Draft|Unknown/, 'Calendar live record summary omits default status noise');
 assert.equal(
   liveDateGroups.findIndex((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD),
   liveDateGroups.findIndex((group) => group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) + 1,
