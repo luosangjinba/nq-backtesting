@@ -259,6 +259,9 @@ function countDayBulkChartObjects(groups = []) {
 }
 
 function isCalendarObjectHidden(item) {
+  if (item.ref?.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD) {
+    return Boolean(item.source?.liveRecord?.display?.hidden || item.source?.display?.hidden);
+  }
   if (item.ref?.type === CALENDAR_OBJECT_TYPES.KILLZONE || item.ref?.type === CALENDAR_OBJECT_TYPES.TIME_LINE) {
     return item.source?.enabled === false;
   }
@@ -269,8 +272,12 @@ function renderObjectActionButtons(item) {
   const canLocate = Number.isFinite(item.range?.start) && Number.isFinite(item.range?.end);
   const canOpen = ['order-setup', 'live-record', 'time-reaction', 'economic-event', 'pda', 'segment', 'composite', 'smt'].includes(item.ref?.type);
   const canToggleSetup = item.ref?.type === 'order-setup' && item.ref?.id;
+  const canManageLiveRecord = item.ref?.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD && item.ref?.id;
   const canDeletePda = item.ref?.type === 'pda' && item.ref?.id;
   const setupHidden = Boolean(item.source?.display?.hidden);
+  const liveRecord = item.source?.liveRecord || item.source;
+  const liveHidden = Boolean(liveRecord?.display?.hidden);
+  const liveLinked = Boolean(liveRecord?.orderSetupId);
   const typeLabel = getObjectTypeLabel(item);
   const locateLabel = item.type === CALENDAR_OBJECT_TYPES.ECONOMIC_EVENT
     ? `${item.source?.title || 'Economic Event'} · ${item.source?.displayTime || '09:30'}`
@@ -331,6 +338,46 @@ function renderObjectActionButtons(item) {
           >Delete</button>`
         : ''
     }
+    ${
+      canManageLiveRecord
+        ? `<button
+            class="inspector-mini-btn calendar-object-open"
+            data-inspector-action="live-record-set-active"
+            data-live-record-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >Set Active</button>`
+        : ''
+    }
+    ${
+      canManageLiveRecord
+        ? `<button
+            class="inspector-mini-btn calendar-object-open"
+            data-inspector-action="live-record-toggle-hidden"
+            data-live-record-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >${liveHidden ? 'Show' : 'Hide'}</button>`
+        : ''
+    }
+    ${
+      canManageLiveRecord
+        ? `<button
+            class="inspector-mini-btn calendar-object-open"
+            data-inspector-action="${liveLinked ? 'live-record-unlink-setup' : 'live-record-link-active-setup'}"
+            data-live-record-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >${liveLinked ? 'Unlink Setup' : 'Link Active Setup'}</button>`
+        : ''
+    }
+    ${
+      canManageLiveRecord
+        ? `<button
+            class="inspector-mini-btn calendar-object-open calendar-object-delete"
+            data-inspector-action="live-record-delete"
+            data-live-record-id="${escapeHtml(item.ref.id)}"
+            type="button"
+          >Delete</button>`
+        : ''
+    }
   `;
 }
 
@@ -366,11 +413,14 @@ function renderLiveRecordStatusDot(item) {
   const hidden = Boolean(item.source?.liveRecord?.display?.hidden || item.source?.display?.hidden);
   const label = hidden ? 'Hidden live record.' : 'Visible live record.';
   return `
-    <span
+    <button
       class="calendar-setup-visibility ${hidden ? 'is-hidden' : 'is-visible'}"
+      data-inspector-action="live-record-toggle-hidden"
+      data-live-record-id="${escapeHtml(item.ref.id)}"
       aria-label="${label}"
       title="${label}"
-    ></span>
+      type="button"
+    ></button>
   `;
 }
 

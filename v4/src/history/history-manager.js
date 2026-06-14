@@ -7,6 +7,7 @@ import {
 } from '../segment/segment-group-store.js';
 import { getSmtRecords, loadSmtRecords } from '../smt/smt-store.js';
 import { getOrderReviews, loadOrderReviews } from '../order/order-review-store.js';
+import { getLiveRecords, loadLiveRecords } from '../live-record/live-record-store.js';
 import { getDailyTimeReviews, loadDailyTimeReviews } from '../time-reaction/daily-time-review-store.js';
 import {
   getTimeOverlaySettings,
@@ -45,6 +46,7 @@ export function captureSnapshot() {
     segmentGroupState: getSegmentGroupState(),
     smtRecords: getSmtRecords(),
     orderReviews: getOrderReviews(),
+    liveRecords: getLiveRecords(),
     dailyTimeReviews: getDailyTimeReviews(),
     timeOverlaySettings: getTimeOverlaySettings(),
     chartNotes: getChartNotes(),
@@ -61,6 +63,7 @@ export function restoreSnapshot(snapshot) {
     loadSegmentGroupState(clone(snapshot.segmentGroupState || {}));
     loadSmtRecords(clone(snapshot.smtRecords || []));
     loadOrderReviews(clone(snapshot.orderReviews || []), { preserveUpdatedAt: true });
+    loadLiveRecords(clone(snapshot.liveRecords || []));
     loadDailyTimeReviews(clone(snapshot.dailyTimeReviews || []), { preserveUpdatedAt: true });
     loadTimeOverlaySettings(clone(snapshot.timeOverlaySettings || null));
     loadChartNotes(clone(snapshot.chartNotes || []));

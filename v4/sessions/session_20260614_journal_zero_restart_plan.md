@@ -589,3 +589,44 @@ Verification:
 - `node --check v4/src/ui/inspector/calendar-panel.js`
 - `node --check v4/src/ui/inspector-sidebar.js`
 - Inline ESM render probe confirmed the detail HTML contains the matching Header/Display/Summary/Anchor/Execution/Reasons/Result structure and live-record data attributes.
+
+## Step 285.8 Completion - Live Record Row And Detail Actions
+
+Completed on 2026-06-14.
+
+Added `v4/src/ui/inspector/live-record-actions.js`:
+
+- Summary edit.
+- Display field edit.
+- Result status/note edit.
+- Reason category/note edit.
+- Add reason.
+- Set active.
+- Hide/show.
+- Delete.
+- Link to active Order Setup.
+- Unlink Order Setup.
+
+Updated Calendar rows:
+
+- Live Record `...` menu now exposes Set Active, Hide/Show, Link Active Setup or Unlink Setup, and Delete.
+- Live Record status dot now toggles hide/show.
+- Hidden Live Records use the existing hidden row styling.
+
+Updated Inspector wiring:
+
+- `inspector-sidebar.js` creates and dispatches `live-record-actions`.
+- Live Record changes refresh Calendar/detail like Order Setup changes.
+
+Updated history support:
+
+- `history-manager.js` now captures/restores `liveRecords`, so Live Record edits participate in undo/redo like Order Setup edits.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-actions.js`
+- `node --check v4/src/ui/inspector/calendar-panel.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/src/history/history-manager.js`
+- Inline ESM action probe covered summary/display/result/reason edits, set active, hide/show, link/unlink active setup, add reason, delete, and refresh/capture callbacks.
+- Inline ESM history probe covered undo/redo restoring Live Record summary changes.

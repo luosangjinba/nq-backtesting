@@ -37,6 +37,7 @@ import { renderSmtPanel } from './inspector/smt-panel.js';
 import { createSmtInspectorActionController } from './inspector/smt-actions.js';
 import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
 import { renderLiveRecordDetailPanel } from './inspector/live-record-panel.js';
+import { createLiveRecordActionController } from './inspector/live-record-actions.js';
 import {
   renderDailyTimeReviewPanel,
   renderDailyTimeReviewSectionPanel,
@@ -144,6 +145,12 @@ const chartNoteActions = createChartNoteInspectorActionController({
 });
 
 const economicEventActions = createEconomicEventActionController({
+  recordInspectorHistory,
+});
+
+const liveRecordActions = createLiveRecordActionController({
+  refreshSelection,
+  captureCalendarOpenGroups,
   recordInspectorHistory,
 });
 
@@ -905,6 +912,10 @@ function handleInspectorChange(e) {
     return;
   }
 
+  if (liveRecordActions.handleChange(action, e.target)) {
+    return;
+  }
+
   if (orderReviewActions.handleOrderReviewChange(action, e.target)) {
     return;
   }
@@ -982,6 +993,10 @@ function handleInspectorClick(e) {
   }
 
   if (smtActions.handleClick(action, actionEl)) {
+    return;
+  }
+
+  if (liveRecordActions.handleClick(action, actionEl)) {
     return;
   }
 
