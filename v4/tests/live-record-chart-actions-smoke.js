@@ -45,15 +45,26 @@ const setup = addOrderReview({
 
 const inactiveMenu = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } });
 assert.match(inactiveMenu, /No active live record/, 'inactive menu labels no active live record');
+assert.match(inactiveMenu, /Create Bullish Live Record Here/, 'inactive menu renders bullish create');
+assert.match(inactiveMenu, /Create Bearish Live Record Here/, 'inactive menu renders bearish create');
 assert.match(inactiveMenu, /Set Entry Here/, 'inactive menu still renders write action shell');
 
-assert.equal(handleLiveRecordChartAction('live-record-new-here', {
+assert.equal(handleLiveRecordChartAction('live-record-create-bullish', {
+  bar: { timestamp: 1710770340, close: 18360 },
+  price: 18360,
+  timeframe: '1H',
+}), true, 'bullish create action is handled');
+assert.equal(getLiveRecordById(getActiveLiveRecordId()).direction, 'long', 'bullish create stores long direction');
+loadLiveRecords([]);
+
+assert.equal(handleLiveRecordChartAction('live-record-create-bearish', {
   bar: { timestamp: 1710770400, close: 18366.25 },
   price: 18366.5,
   timeframe: '1H',
-}), true, 'new here action is handled');
+}), true, 'bearish create action is handled');
 const liveRecordId = getActiveLiveRecordId();
 assert.ok(liveRecordId, 'new live record becomes active');
+assert.equal(getLiveRecordById(liveRecordId).direction, 'short', 'bearish create stores short direction');
 
 assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
   bar: { timestamp: 1710770460, close: 18361 },

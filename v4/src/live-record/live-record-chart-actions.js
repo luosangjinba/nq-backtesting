@@ -29,6 +29,8 @@ import {
 
 export const LIVE_RECORD_CHART_ACTIONS = Object.freeze({
   NEW_HERE: 'live-record-new-here',
+  CREATE_BULLISH: 'live-record-create-bullish',
+  CREATE_BEARISH: 'live-record-create-bearish',
   CLEAR_ACTIVE: 'live-record-clear-active',
   MOVE_ANCHOR: 'live-record-move-anchor',
   SET_ENTRY: 'live-record-set-entry',
@@ -443,7 +445,8 @@ export function renderLiveRecordMenuItems({
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Live Records</div>
       <div class="pda-submenu-panel">
         <div class="pda-menu-item is-muted">${getActiveLiveRecordLabel()}</div>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.NEW_HERE}" ${disabled}>New Live Record Here</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CREATE_BULLISH}" ${disabled}>Create Bullish Live Record Here</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CREATE_BEARISH}" ${disabled}>Create Bearish Live Record Here</button>
         ${renderEvidenceLinkRows({ active, pdaHit, segmentHit, segmentGroupHit, chartNote })}
         ${actionRows}
         ${clearActiveRow}
@@ -665,22 +668,35 @@ export function handleLiveRecordChartAction(action, {
       chartNote,
     });
   }
-  if (action !== LIVE_RECORD_CHART_ACTIONS.NEW_HERE) return false;
+  const createDirection = action === LIVE_RECORD_CHART_ACTIONS.CREATE_BULLISH
+    ? LIVE_RECORD_DIRECTIONS.LONG
+    : action === LIVE_RECORD_CHART_ACTIONS.CREATE_BEARISH
+      ? LIVE_RECORD_DIRECTIONS.SHORT
+      : action === LIVE_RECORD_CHART_ACTIONS.NEW_HERE
+        ? LIVE_RECORD_DIRECTIONS.UNKNOWN
+        : '';
+  if (!createDirection) return false;
   if (!bar || !Number.isFinite(Number(bar.timestamp))) {
     bus.emit('status:update', { text: 'Cannot create Live Record: no chart bar selected', isError: true });
     return true;
   }
   const anchorPrice = getAnchorPrice(bar, price);
-  const created = recordHistory('Create Live Record', () => createLiveRecordFromAnchor({
+  const createLabel = createDirection === LIVE_RECORD_DIRECTIONS.LONG
+    ? 'Create Bullish Live Record'
+    : createDirection === LIVE_RECORD_DIRECTIONS.SHORT
+      ? 'Create Bearish Live Record'
+      : 'Create Live Record';
+  const created = recordHistory(createLabel, () => createLiveRecordFromAnchor({
     timestamp: Number(bar.timestamp),
     timeframe,
     price: anchorPrice,
   }, {
     instrument: getPrimaryInstrument(),
+    direction: createDirection,
     summary: '',
   }));
   bus.emit('status:update', {
-    text: created?.id ? `Live Record created: ${created.id}` : 'Live Record creation failed',
+    text: created?.id ? `${createLabel}: ${created.id}` : 'Live Record creation failed',
     isError: !created?.id,
   });
   return true;

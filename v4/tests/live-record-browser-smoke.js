@@ -155,7 +155,7 @@ async function main() {
           if (!emptyLiveGroup || !orderGroup) return JSON.stringify({ error: 'missing order/live groups' });
           const emptyState = emptyLiveGroup.textContent.includes('None');
           const emptyCount = emptyLiveGroup.querySelector('.calendar-object-count')?.textContent?.trim();
-          liveChartActions.handleLiveRecordChartAction('live-record-new-here', {
+          liveChartActions.handleLiveRecordChartAction('live-record-create-bearish', {
             bar: bars[0],
             price: 18366.36,
             timeframe: '1H',
@@ -229,7 +229,7 @@ async function main() {
     );
     assert.equal(value.liveCount, '1', 'Live Records group should show count 1 after creation');
     assert.match(value.rowText, /Live/, 'Live Records row should show Live type label');
-    assert.match(value.rowText, /Unknown|Active|Draft/i, 'Live Records row should show live summary/status');
+    assert.match(value.rowText, /Short|Active|Draft/i, 'Live Records row should show bearish live summary/status');
     assert.match(value.rowText, /Exit/i, 'Live Records row should show chart-written exit');
     assert.equal(value.hasStatusDot, true, 'Live Records row should show status dot');
     assert.equal(value.hasMenu, true, 'Live Records row should show action menu');
