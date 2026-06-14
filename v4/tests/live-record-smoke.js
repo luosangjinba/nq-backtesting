@@ -310,11 +310,20 @@ assert.equal(handleLiveRecordChartAction('live-record-hit-delete-record', {
   liveRecordId: hitRecord.id,
 }), true, 'hit action deletes live record');
 assert.equal(getLiveRecordById(hitRecord.id), null, 'hit delete record removes only live record');
+assert.equal(handleLiveRecordChartAction('live-record-hit-select-element', {
+  liveRecordId: chartLiveId,
+  liveRecordElement: 'entry',
+}), true, 'chart-created live record entry can be selected');
+assert.equal(handleLiveRecordChartAction('live-record-hit-hide-element', {
+  liveRecordId: chartLiveId,
+  liveRecordElement: 'entry',
+}), true, 'chart-created live record entry can be hidden');
 
 const liveDateGroups = getCalendarDayGroups('2024-03-18');
 const liveGroup = liveDateGroups.find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
 assert.ok(liveGroup, 'Live Records Calendar group exists');
 assert.equal(liveGroup.rows.length, 1, 'Calendar group includes chart-created live record');
+assert.match(liveGroup.rows[0].label, /Exit/, 'Calendar live record summary includes exit');
 assert.equal(
   liveDateGroups.findIndex((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD),
   liveDateGroups.findIndex((group) => group.type === CALENDAR_OBJECT_TYPES.ORDER_SETUP) + 1,
@@ -327,6 +336,7 @@ assert.match(detailHtml, /Display/, 'detail renders Display');
 assert.match(detailHtml, /Summary/, 'detail renders Summary');
 assert.match(detailHtml, /Anchor/, 'detail renders Anchor');
 assert.match(detailHtml, /Execution/, 'detail renders Execution');
+assert.match(detailHtml, /Hidden · Selected/, 'detail renders hidden and selected execution state');
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');
 assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Result/, 'detail renders Result');

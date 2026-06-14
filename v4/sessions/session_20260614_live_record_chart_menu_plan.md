@@ -543,3 +543,24 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.9 polishes Inspector and Calendar sync after chart-first edits.
+
+## Step 286.9 Completion - Inspector And Calendar Sync Polished
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Live Record Detail execution rows now read `display.elementVisibility` as well as element `visible`.
+- Detail execution rows now show `Hidden` and `Selected` states when chart actions hide/select elements.
+- Calendar Live Record summaries now include exit information when result exit time/price exists.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/src/calendar/calendar-review-index.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.10 audits isolation, history, instrument switching, and no-standalone-UI boundaries.

@@ -3,6 +3,7 @@ import {
   LIVE_RECORD_RESULT_STATUSES,
 } from '../../live-record/live-record-types.js';
 import { createLiveRecordSet } from '../../live-record/live-record-set.js';
+import { getSelectedLiveRecordElement } from '../../live-record/live-record-selection.js';
 import {
   controlField,
   escapeHtml,
@@ -96,13 +97,16 @@ function renderAnchorPanel(liveSet) {
   `;
 }
 
-function renderExecutionElement(label, element = {}, extra = '') {
+function renderExecutionElement(label, element = {}, extra = '', state = {}) {
   if (!element?.complete) return '';
-  const visibilityClass = element.visible === false ? 'is-hidden' : 'is-visible';
+  const visible = state.visible !== false && element.visible !== false;
+  const selected = Boolean(state.selected);
+  const visibilityClass = visible ? 'is-visible' : 'is-hidden';
   const endLabel = element.endTimestamp ? `End ${formatTime(element.endTimestamp)}` : '';
-  const meta = [extra || '', endLabel].filter(Boolean).join(' · ') || '—';
+  const stateLabels = [visible ? '' : 'Hidden', selected ? 'Selected' : ''].filter(Boolean).join(' · ');
+  const meta = [extra || '', endLabel, stateLabels].filter(Boolean).join(' · ') || '—';
   return `
-    <div class="order-setup-execution-row">
+    <div class="order-setup-execution-row${selected ? ' active' : ''}">
       <span class="order-setup-execution-visibility ${escapeHtml(visibilityClass)}" aria-hidden="true"></span>
       <div class="order-setup-execution-summary">
         <span class="order-setup-execution-type">${escapeHtml(label)}</span>
@@ -116,12 +120,27 @@ function renderExecutionElement(label, element = {}, extra = '') {
 
 function renderExecutionPanel(liveSet) {
   const execution = liveSet?.execution || {};
+  const selected = getSelectedLiveRecordElement();
+  const isSelectedElement = (role) => selected?.liveRecordId === liveSet?.id && selected?.element === role;
+  const isVisibleElement = (role) => liveSet?.display?.elementVisibility?.[role] !== false;
   const rows = [
-    renderExecutionElement('Entry', execution.entry, execution.entry?.timeframe || ''),
-    renderExecutionElement('MSS', execution.marketStructureShift, execution.marketStructureShift?.timeframe || ''),
-    renderExecutionElement('Stop Loss', execution.stopLoss, execution.stopLoss?.timeframe || ''),
+    renderExecutionElement('Entry', execution.entry, execution.entry?.timeframe || '', {
+      visible: isVisibleElement('entry'),
+      selected: isSelectedElement('entry'),
+    }),
+    renderExecutionElement('MSS', execution.marketStructureShift, execution.marketStructureShift?.timeframe || '', {
+      visible: isVisibleElement('marketStructureShift'),
+      selected: isSelectedElement('marketStructureShift'),
+    }),
+    renderExecutionElement('Stop Loss', execution.stopLoss, execution.stopLoss?.timeframe || '', {
+      visible: isVisibleElement('stopLoss'),
+      selected: isSelectedElement('stopLoss'),
+    }),
     ...(Array.isArray(execution.targets) ? execution.targets : []).map((target) => (
-      renderExecutionElement(target.label || 'Target', target, [target.targetType, target.timeframe].filter(Boolean).join(' · '))
+      renderExecutionElement(target.label || 'Target', target, [target.targetType, target.timeframe].filter(Boolean).join(' · '), {
+        visible: isVisibleElement(target.role || target.id),
+        selected: isSelectedElement(target.role || target.id),
+      })
     )),
   ].filter(Boolean);
   return `

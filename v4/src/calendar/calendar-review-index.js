@@ -138,12 +138,17 @@ function summarizeLiveRecordSet(liveRecordSet) {
   const entry = liveRecordSet.execution?.entry || {};
   const anchor = liveRecordSet.anchor || {};
   const result = liveRecordSet.result || {};
+  const hasExit = Boolean(result.exitTimestamp || (result.exitPrice !== null && result.exitPrice !== undefined));
+  const exit = hasExit
+    ? joinSummary(['Exit', compactTime(result.exitTimestamp), compactPrice(result.exitPrice)])
+    : '';
   return joinSummary([
     titleCase(liveRecordSet.direction, 'Live'),
     titleCase(liveRecordSet.status, 'Draft'),
     compactTime(getLiveRecordDateTimestamp(liveRecordSet)),
     compactPrice(entry.price ?? anchor.price),
     titleCase(result.status, ''),
+    exit,
   ]);
 }
 
