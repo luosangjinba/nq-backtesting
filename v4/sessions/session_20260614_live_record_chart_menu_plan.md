@@ -1,0 +1,298 @@
+# Step 286 Plan - Live Record Chart Menu And Chart Interaction Parity
+
+Date: 2026-06-14
+
+Branch: `feature/journal-order-recording-redesign`
+
+Prerequisite: Step 285 completed Live Records clone-first foundation:
+
+- independent Live Record runtime/store/active/persistence;
+- `New Live Record Here` chart context action;
+- Calendar `Live Records` group directly after `Order Setups`;
+- Live Record Detail cloned from Order Setup Detail;
+- row/detail actions and focused browser smoke.
+
+## Goal
+
+Make Live Records usable from the chart in the same style as Order Setups.
+
+The user-facing target is:
+
+- right-click chart -> create or update the active Live Record;
+- right-click chart -> set live entry / stop / target / result points;
+- right-click PDA / Segment / Composite / SMT / Chart Note -> link evidence to active Live Record;
+- Live Record execution elements render on the chart;
+- right-click a rendered Live Record element -> set active / select / hide / delete;
+- Calendar and Detail update immediately.
+
+## Non-Goals
+
+- No standalone `Live Orders` panel.
+- No broker API, order routing, fill import, PnL dashboard, or statistics dashboard.
+- No major generic object abstraction before parity is proven.
+- No Review JSON import/export in this step.
+- No drag handles or freeform geometry editing unless already needed for click actions.
+- No secondary-chart parity until primary chart behavior is stable, except preserving existing secondary menu behavior.
+
+## Design Constraints
+
+- Follow `Order Setups` menu/action/renderer/hit-test patterns closely.
+- Keep Live Record data isolated from `orderReviews`.
+- All write actions must target the active Live Record unless the user explicitly clicked a Live Record element and selected an object-specific action.
+- If there is no active Live Record, setup-writing actions are disabled with a clear menu state.
+- Creating a Live Record must not create or activate an Order Setup.
+- Linking evidence to a Live Record must not link evidence to Order Setup unless the user uses the existing Order Setup menu.
+
+## Existing Code To Mirror
+
+Order Setup references:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-projection.js`
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/order/order-setup-selection.js`
+- `v4/src/ui/inspector/order-review-edit-actions.js`
+- `v4/src/ui/inspector/order-review-reason-actions.js`
+- `v4/src/pda/manual-annotation.js`
+- `v4/src/pda/manual-context-menu.js`
+
+Live Record files from Step 285:
+
+- `v4/src/live-record/live-record-types.js`
+- `v4/src/live-record/live-record-store.js`
+- `v4/src/live-record/live-record-active.js`
+- `v4/src/live-record/live-record-set.js`
+- `v4/src/live-record/live-record-chart-actions.js`
+- `v4/src/ui/inspector/live-record-panel.js`
+- `v4/src/ui/inspector/live-record-actions.js`
+
+## Substeps
+
+### Step 286.1 - Freeze Chart Interaction Boundary
+
+Confirm exact Step 286 scope before code:
+
+- primary chart right-click actions;
+- active Live Record menu state;
+- execution element writes;
+- evidence linking;
+- renderer / hit-test / selection minimum;
+- smoke and browser verification.
+
+Acceptance:
+
+- TODO and session docs define Step 286 scope.
+- No runtime behavior change.
+
+### Step 286.2 - Audit Order Setup Chart Action / Renderer / Hit-Test Paths
+
+Read and map the Order Setup flow:
+
+- menu rendering;
+- action map;
+- anchor validation;
+- target submenu;
+- Set All End behavior;
+- renderer projections;
+- hit-test structure;
+- selection event flow;
+- Inspector execution row sync.
+
+Acceptance:
+
+- Session doc records which pieces will be copied, adapted, or postponed.
+- No runtime behavior change.
+
+### Step 286.3 - Extend Live Record Execution Shape For Chart Elements
+
+Current Live Record execution shape is minimal. Extend normalization/projection only as needed for chart parity:
+
+- entry timestamp/timeframe/price/end timestamp;
+- market structure shift or live trigger element if useful;
+- stop loss timestamp/timeframe/price/end timestamp;
+- target roles mirroring Order Setup target roles where practical;
+- result exit timestamp/price;
+- per-element visibility;
+- optional line length/end controls.
+
+Acceptance:
+
+- Existing Step 285 records still normalize.
+- New fields preserve clone-on-read behavior.
+- No renderer yet.
+- Live Record smoke updated for schema compatibility.
+
+### Step 286.4 - Expand Live Records Context Menu Shell
+
+Update `renderLiveRecordMenuItems()` to match Order Setup menu shape:
+
+- active Live Record label;
+- `New Live Record Here`;
+- `Set Active Live Record Anchor Here`;
+- `Set Entry Here`;
+- `Set Stop Loss Here`;
+- `Targets` submenu;
+- `Set Result / Exit Here`;
+- `Set All Ends Here`;
+- disabled state when no active Live Record exists;
+- clear active Live Record if useful.
+
+Acceptance:
+
+- Menu appears beside Order Setup menu.
+- Write actions are disabled without active Live Record.
+- Existing Order Setup menu remains unchanged.
+
+### Step 286.5 - Implement Primary Chart Write Actions
+
+Add Live Record chart action handlers:
+
+- move anchor;
+- set entry;
+- set stop loss;
+- set internal/swing/external targets;
+- set target end timestamps;
+- set result exit time/price;
+- set all active execution ends here.
+
+Rules:
+
+- Actions write only to active Live Record.
+- Price actions use mouse price with bar close fallback only where appropriate.
+- Timestamp/timeframe comes from clicked bar and current timeframe.
+- Use `recordHistory()`.
+
+Acceptance:
+
+- Detail Execution/Result updates immediately after each action.
+- Calendar row summary reflects entry/anchor/result changes.
+- Active Order Setup is untouched.
+
+### Step 286.6 - Link Evidence To Active Live Record
+
+Add chart/context evidence links parallel to Order Setup evidence links:
+
+- PDA hit -> Link PDA To Active Live Record;
+- Segment hit -> Link Segment To Active Live Record;
+- Composite hit -> Link Composite To Active Live Record;
+- SMT hit -> Link SMT To Active Live Record;
+- Chart Note -> Link Chart Note To Active Live Record if an existing chart note is at the bar.
+
+First persistence target:
+
+- append to `reasons[0].refs` and/or `linkedObjectRefs` using Live Record ref types.
+
+Acceptance:
+
+- Linked evidence appears in Live Record Detail reasons/refs.
+- Existing Order Setup linked refs do not change.
+- Duplicate links are ignored or de-duped.
+
+### Step 286.7 - Add Live Record Renderer
+
+Add a primary chart renderer for Live Records, copying the minimal Order Setup rendering style:
+
+- anchor marker;
+- entry marker/line;
+- stop line;
+- target lines;
+- result marker/line;
+- active Live Record emphasis;
+- hidden record / hidden element handling.
+
+Acceptance:
+
+- Renderer initializes in `app.js`.
+- Live Record chart elements appear after chart actions.
+- Hidden Live Records do not render.
+- Existing Order Setup renderer still passes smoke.
+
+### Step 286.8 - Add Live Record Hit-Test And Selection
+
+Add primary chart hit-test for Live Record elements:
+
+- detect anchor / entry / stop / target / result;
+- expose hit metadata similar to Order Setup hit-test;
+- right-click hit menu includes Set Active, Select Element, Hide Element, Delete Element, Delete Record;
+- selected element highlights in chart and detail if practical.
+
+Acceptance:
+
+- Right-click on a rendered Live Record element shows Live Record element actions.
+- Delete element clears only that Live Record field.
+- Delete record removes only the Live Record.
+- Order Setup hit-test remains unchanged.
+
+### Step 286.9 - Inspector / Calendar Sync Polish
+
+Make detail and Calendar reflect chart-first edits cleanly:
+
+- Execution section displays all live elements written from chart actions.
+- Result section reflects exit timestamp/price.
+- Row summary prioritizes entry -> anchor -> result the same way Calendar projection expects.
+- Hidden element / hidden record states are readable.
+
+Acceptance:
+
+- After right-click actions, detail updates without page reload.
+- Calendar row summary updates.
+- Undo/redo restores detail and chart state.
+
+### Step 286.10 - Isolation And History Audit
+
+Audit runtime boundaries:
+
+- no accidental `orderReviews` mutation from Live Record actions;
+- Live Record changes are captured in history;
+- instrument switching persists/restores Live Records correctly;
+- primary/secondary menu behavior does not regress;
+- no standalone `Live Orders` UI appears.
+
+Acceptance:
+
+- `rg` isolation checks pass.
+- Order Setup smoke still passes.
+- Live Record smoke covers history and isolation.
+
+### Step 286.11 - Focused Smoke Tests
+
+Add or extend tests:
+
+- chart action helper writes anchor/entry/stop/targets/result;
+- disabled/no-active behavior;
+- evidence link de-dupe;
+- renderer projection primitives;
+- hit-test metadata;
+- delete/hide element behavior;
+- Order Setup isolation.
+
+Acceptance:
+
+- `node v4/tests/live-record-smoke.js` passes.
+- New targeted chart action/renderer smoke passes.
+- `node v4/tests/order-setup-smoke.js` passes.
+- `git diff --check` passes.
+
+### Step 286.12 - Browser Verification And Closeout
+
+Use browser smoke or manual browser verification to confirm:
+
+- right-click creates Live Record;
+- right-click sets entry/stop/target/result;
+- rendered chart elements are visible;
+- hit menu works on Live Record elements;
+- Calendar and Detail update;
+- no standalone `Live Orders` panel.
+
+Acceptance:
+
+- Browser smoke or documented manual verification passes.
+- TODO and session closeout are updated.
+- Step 286 is ready for the next phase.
+
+## Suggested Execution Order
+
+Execute Step 286.1 through Step 286.12 sequentially, committing after each substep.
+
+If implementation risk becomes too high, stop after Step 286.6 with chart write actions and evidence linking; renderer/hit-test can be split into Step 287. The preferred path is still to finish all Step 286 substeps if they remain small.

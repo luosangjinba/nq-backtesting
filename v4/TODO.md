@@ -832,3 +832,17 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 285.8: 克隆 row menu 与 detail actions：Open、Locate、Set Active、Hide/Show、Delete、Link To Active Order Setup、Unlink Setup；所有写操作只影响 Live Record。已新增独立 `live-record-actions.js`，Calendar row menu/status dot 与 detail fields 可操作，history snapshot 已纳入 `liveRecords` 以支持 undo/redo。
   - [x] Step 285.9: 增加 focused smoke：覆盖 live record CRUD、instrument persistence、chart 创建、Calendar empty/populated group、detail open/edit/delete、Order Setup isolation。已新增 `v4/tests/live-record-smoke.js`，并跑通 live record smoke、order setup smoke、目标语法检查与 `git diff --check`。
   - [x] Step 285.10: 浏览器视觉验收：确认无记录/有记录/详情页分别与 Order Setups 截图风格一致，且页面不存在 standalone Live Orders panel。已新增并跑通 `v4/tests/live-record-browser-smoke.js`：验证空态 count 0/None、创建后 count 1、Live Records 紧跟 Order Setups、row 有 status dot/菜单、Open 进入 Live Record Detail，且 DOM 中不存在 standalone `Live Orders` 面板。
+
+- [ ] Step 286: Live Record chart menu and chart interaction parity。目标是在 Step 285 的 Order Setups 同构 UI 基础上，补齐 Live Record 的图表右键操作、execution 写入、evidence linking、图表渲染、hit-test/selection 与浏览器验收；继续禁止 standalone `Live Orders` 面板。计划见 `v4/sessions/session_20260614_live_record_chart_menu_plan.md`。
+  - [ ] Step 286.1: 冻结 chart interaction 边界：确认本步只做 primary chart 右键、active Live Record menu state、execution element writes、evidence linking、renderer/hit-test 最小闭环、smoke/browser 验证；不做 broker/PnL/dashboard/Review JSON。
+  - [ ] Step 286.2: 审计 Order Setup chart action / renderer / hit-test 路径：读取 menu rendering、action map、anchor validation、target submenu、Set All End、projection、hit-test、selection event 和 Inspector sync，记录 copy/adapt/postpone 决策。
+  - [ ] Step 286.3: 扩展 Live Record execution shape：补 entry/stop/target/result/end/visibility 等 chart-first 字段，保持旧 Step 285 数据兼容和 clone-on-read，不接 renderer。
+  - [ ] Step 286.4: 扩展 Live Records 右键菜单 shell：显示 active Live Record label，加入 move anchor、Set Entry、Set Stop、Targets、Set Result/Exit、Set All Ends、clear active 等菜单项；无 active 时禁用写入动作。
+  - [ ] Step 286.5: 实现 primary chart 写入动作：右键写入 active Live Record 的 anchor、entry、stop、targets、result/exit 和 element ends；使用 `recordHistory()`，不修改 active Order Setup。
+  - [ ] Step 286.6: 增加 evidence linking 到 active Live Record：PDA/Segment/Composite/SMT/Chart Note 可加入 Live Record reasons/refs 或 linked refs，去重，且不污染 Order Setup refs。
+  - [ ] Step 286.7: 增加 Live Record renderer：按 Order Setup 最小样式绘制 anchor、entry、stop、targets、result，支持 active emphasis、hidden record/element。
+  - [ ] Step 286.8: 增加 Live Record hit-test 与 selection：右键命中 Live Record element 后可 Set Active、Select、Hide Element、Delete Element、Delete Record；不影响 Order Setup hit-test。
+  - [ ] Step 286.9: Inspector / Calendar sync polish：右键写入后 Detail Execution/Result 和 Calendar row summary 立即更新，hidden/selected 状态可读，undo/redo 恢复一致。
+  - [ ] Step 286.10: Isolation/history audit：确认 Live Record chart actions 不写 `orderReviews`，history 捕获 liveRecords，instrument switching 不混，secondary menu 不回归，无 standalone `Live Orders`。
+  - [ ] Step 286.11: Focused smoke tests：覆盖 chart actions、disabled/no-active、evidence link、renderer projection、hit-test metadata、hide/delete element、Order Setup isolation，并跑 live-record/order-setup smoke 与 `git diff --check`。
+  - [ ] Step 286.12: Browser verification and closeout：真实页面验证右键创建、设置 entry/stop/target/result、图表元素可见、hit menu 可用、Calendar/Detail 同步、无 standalone `Live Orders`，更新 TODO/session 收口。
