@@ -252,3 +252,189 @@ Frozen execution boundary:
 - Keep every Step 285 substep independently committed.
 
 Step 285.2 should audit the existing Order Setups code paths before writing runtime code.
+
+## Step 285.2 Completion - Order Setups Clone Points Audit
+
+Completed on 2026-06-14.
+
+Audited the active Order Setups implementation and confirmed the clone-first route.
+
+### Runtime / Store
+
+Order Setups persist through `orderReviews` but are displayed through a richer Setup Set adapter:
+
+- `v4/src/order/order-review-types.js`: enum definitions and allowed values.
+- `v4/src/order/order-review-store.js`: normalize helpers, CRUD, clone-on-read, and `order-review:changed` event.
+- `v4/src/order/setup-set.js`: runtime/view-model projection consumed by Calendar, renderer, hit-test, and Inspector.
+- `v4/src/order/order-review-active.js`: active setup id and chart-first creation helpers.
+
+Live Records should clone the same layering:
+
+- `live-record-types.js`
+- `live-record-store.js`
+- `live-record-active.js`
+- `live-record-set.js` only if the Calendar/detail projection needs setup-set-like derived fields.
+
+Do not write Live Records into `orderReviews`; use a separate store and event name.
+
+### Persistence
+
+Order Setups use:
+
+- `v4/src/order/order-review-persistence.js`
+- `v4:order-reviews:<instrument>` through `getInstrumentStorageKey()`
+- restore guard with `restoring`
+- `primary-instrument:changed` save previous / restore next behavior
+
+Live Records should clone this pattern with:
+
+- `v4:live-records:<instrument>`
+- `live-record:changed`
+- no migration from `orderReviews`
+
+### Calendar Index
+
+Order Setups enter Calendar through:
+
+- `v4/src/calendar/calendar-types.js`
+- `v4/src/calendar/calendar-review-index.js`
+- `getSetupSets() -> createSetupSetItem() -> createCalendarItem()`
+- `CALENDAR_OBJECT_TYPES.ORDER_SETUP`
+- group label `Order Setups`
+
+Live Records should add:
+
+- `CALENDAR_OBJECT_TYPES.LIVE_RECORD = 'live-record'`
+- group label `Live Records`
+- group order directly after `ORDER_SETUP`
+- `getLiveRecords() -> createLiveRecordItem()`
+
+The item should reuse the same Calendar item shape: `id`, `type`, `dateKey`, `timestamp`, `label`, `range`, `ref`, `source`.
+
+### Calendar UI
+
+Order Setup row behavior lives in `v4/src/ui/inspector/calendar-panel.js`:
+
+- `getObjectTypeLabel()` returns `Setup`.
+- `renderObjectGroup()` opens the Order Setups group by default.
+- `renderObjectRow()` applies `calendar-object-row-setup`.
+- `renderSetupVisibilityToggle()` draws the setup visibility dot.
+- `renderObjectActionButtons()` enables Open / Locate / Hide / Delete for setup rows.
+
+Live Records should initially reuse the same row shell and density:
+
+- add `Live` type label
+- use the same status dot/visibility button style with a live-record-specific action
+- open the Live Records group by default like Order Setups
+- do not add a separate panel under Calendar
+
+### Inspector Detail / Routing
+
+Order Setup detail route lives in `v4/src/ui/inspector-sidebar.js`:
+
+- `openCalendarObject('order-setup', id)`
+- `renderOrderSetupDetail(orderReviewId)`
+- `renderPageFromState()` branch for `objectType === 'order-setup'`
+- `order-review:changed` refreshes the active/detail view
+
+Order Setup detail panel lives in:
+
+- `v4/src/ui/inspector/order-review-panel.js`
+
+It renders:
+
+- Header
+- Display
+- Summary
+- Anchor
+- Execution
+- Entry Context
+- Reasons
+- Result
+
+Live Record detail should add a parallel route:
+
+- `objectType === 'live-record'`
+- `renderLiveRecordDetail(liveRecordId)`
+- `renderLiveRecordDetailPanel(record, options)`
+- `live-record:changed` refresh listener
+
+The first detail panel should copy the Order Setup density and section order before field semantics are refined.
+
+### Actions
+
+Order Setup Inspector actions are split across:
+
+- `v4/src/ui/inspector/order-review-actions.js`
+- `order-review-edit-actions.js`
+- `order-review-lifecycle-actions.js`
+- `order-review-reason-actions.js`
+
+For Live Records, create a separate action facade instead of mixing handlers into Order Setup actions:
+
+- `v4/src/ui/inspector/live-record-actions.js`
+
+First action scope:
+
+- summary edit
+- display hidden/show
+- set active
+- delete
+- optional link/unlink active Order Setup after runtime link field exists
+
+### Chart Context Creation
+
+Order Setup chart creation and context menu entries are in:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- primary context menu code that calls `handleOrderSetupChartAction()`
+
+Live Records should not clone the full Order Setup chart action set first. Step 285.5 should add only one chart action:
+
+- `New Live Record Here`
+
+It should create a standalone record from the clicked bar anchor, set it active, and leave active Order Setup untouched.
+
+### Tests
+
+Order Setup baseline:
+
+- `v4/tests/order-setup-smoke.js`
+
+Live Records should add focused smoke rather than broad browser coverage first:
+
+- store normalize/CRUD
+- instrument persistence
+- chart context creation helper
+- Calendar group item projection
+- detail edit/delete
+- Order Setup isolation
+
+### Files To Add Later
+
+Expected new files:
+
+- `v4/src/live-record/live-record-types.js`
+- `v4/src/live-record/live-record-store.js`
+- `v4/src/live-record/live-record-active.js`
+- `v4/src/live-record/live-record-persistence.js`
+- `v4/src/live-record/live-record-chart-actions.js`
+- `v4/src/ui/inspector/live-record-panel.js`
+- `v4/src/ui/inspector/live-record-actions.js`
+- `v4/tests/live-record-smoke.js`
+
+Expected existing files to edit:
+
+- `v4/src/app.js`
+- `v4/src/calendar/calendar-types.js`
+- `v4/src/calendar/calendar-review-index.js`
+- `v4/src/ui/inspector/calendar-panel.js`
+- `v4/src/ui/inspector/calendar-actions.js` only if open/locate behavior needs special handling
+- `v4/src/ui/inspector-sidebar.js`
+- the primary chart context menu module where Order Setup actions are rendered
+- `v4/TODO.md`
+- this session document
+
+### Guardrail Confirmed
+
+The first code step should not abstract Order Setup into a shared generic object system. The safer path is to copy the proven structure into a separate Live Record path, keep names explicit, and only extract shared helpers after the UI matches Order Setups.
