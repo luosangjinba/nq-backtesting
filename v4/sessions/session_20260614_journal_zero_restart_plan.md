@@ -493,3 +493,33 @@ Verification:
 - `node --check v4/src/live-record/live-record-persistence.js`
 - `node --check v4/src/app.js`
 - Inline ESM localStorage probe covered save/restore for NQ and ES, key generation, and clear saved behavior.
+
+## Step 285.5 Completion - Chart Context Creation
+
+Completed on 2026-06-14.
+
+Added `v4/src/live-record/live-record-chart-actions.js`:
+
+- `renderLiveRecordMenuItems()` renders a `Live Records` submenu.
+- `handleLiveRecordChartAction()` handles `live-record-new-here`.
+- The action creates a standalone Live Record from the clicked bar anchor.
+- The clicked bar supplies timestamp/timeframe, and mouse price falls back to bar close.
+- Created records become active Live Records.
+
+Updated primary chart context menu wiring:
+
+- `v4/src/pda/manual-context-menu.js` accepts a `liveRecordItems` slot after `Order Setup`.
+- `v4/src/pda/manual-annotation.js` renders the Live Records menu and dispatches live-record chart actions before Order Setup actions.
+
+Isolation confirmed:
+
+- Creating a Live Record does not create or mutate an Order Setup.
+- Active Order Setup id remains unchanged.
+- No standalone Live Orders panel was added.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/src/pda/manual-annotation.js`
+- `node --check v4/src/pda/manual-context-menu.js`
+- Inline ESM probe covered menu rendering, creation from chart anchor, active live record update, and active Order Setup preservation.

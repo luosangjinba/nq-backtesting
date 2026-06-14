@@ -55,6 +55,10 @@ import {
   handleOrderSetupChartAction,
   renderOrderSetupMenuItems,
 } from '../order/order-setup-chart-actions.js';
+import {
+  handleLiveRecordChartAction,
+  renderLiveRecordMenuItems,
+} from '../live-record/live-record-chart-actions.js';
 import { hitTestOrderSetupElements } from '../order/order-setup-hit-test.js';
 import { recordHistory } from '../history/history-manager.js';
 import {
@@ -418,6 +422,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     timeLabel,
     disabled,
     orderSetupItems: renderOrderSetupMenuItems({ bar, pdaHit, segmentHit, segmentGroupHit, orderSetupHit: contextMenuOrderSetupHit, isShift: contextMenuShiftKey }),
+    liveRecordItems: renderLiveRecordMenuItems({ bar }),
     segmentPdaLinkItems,
     segmentGroupItems,
     segmentItems,
@@ -484,6 +489,12 @@ async function handleControlClick(e) {
     hideContextMenu,
   })) {
     return;
+  } else if (handleLiveRecordChartAction(action, {
+    bar: contextMenuBar,
+    price: contextMenuPrice,
+    timeframe: timeframeToString(store.getCurrentTimeframe()),
+  })) {
+    hideContextMenu();
   } else if (handleOrderSetupChartAction(action, {
     bar: contextMenuBar,
     price: contextMenuPrice,

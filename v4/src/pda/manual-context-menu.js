@@ -198,6 +198,7 @@ export function renderManualContextMenu({
   orderSetupItems,
   segmentPdaLinkItems,
   segmentGroupItems,
+  liveRecordItems,
   segmentItems,
   pointSetItems,
   chartNoteItems,
@@ -223,6 +224,7 @@ export function renderManualContextMenu({
         </div>
       </div>
       ${orderSetupItems}
+      ${liveRecordItems || ''}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
         <div class="pda-submenu-panel">
