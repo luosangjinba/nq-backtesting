@@ -406,3 +406,28 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 287.9 adds browser visual verification coverage for the polished parity surfaces.
+
+## Step 287.9 Completion - Browser Visual Verification Expanded
+
+Completed on 2026-06-14.
+
+Test changes:
+
+- Extended `v4/tests/live-record-browser-smoke.js` to create both bearish and bullish Live Records in the real page.
+- Browser smoke now verifies:
+  - empty Live Records group count/None;
+  - populated Live Records count `2`;
+  - both Long and Short rows;
+  - Short row with chart-written exit summary;
+  - Short detail with execution, target, result, and PDA evidence;
+  - chart canvas presence;
+  - no standalone `Live Orders` panel.
+
+Verification:
+
+- `node --check v4/tests/live-record-browser-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 287.10 runs final closeout checks and marks Step 287 complete.

@@ -185,12 +185,22 @@ async function main() {
             price: 18331,
             timeframe: '1M',
           });
+          liveChartActions.handleLiveRecordChartAction('live-record-link-pda', {
+            pdaHit: { id: 'browser-smoke-pda', type: 'fvg' },
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-create-bullish', {
+            bar: bars[1],
+            price: 18380,
+            timeframe: '1H',
+          });
           await new Promise((resolve) => setTimeout(resolve, 300));
           const groups = Array.from(document.querySelectorAll('.calendar-object-group[data-calendar-group-type]'))
             .map((group) => group.dataset.calendarGroupType);
           const liveGroup = document.querySelector('[data-calendar-group-type="live-record"]');
-          const liveRow = liveGroup?.querySelector('.calendar-object-row');
-          const liveOpen = liveGroup?.querySelector('[data-inspector-action="calendar-object-open"][data-object-type="live-record"]');
+          const liveRows = Array.from(liveGroup?.querySelectorAll('.calendar-object-row') || []);
+          const rowTexts = liveRows.map((row) => row.textContent?.replace(/\\s+/g, ' ').trim() || '');
+          const shortRow = liveRows.find((row) => /Short/.test(row.textContent || '')) || liveRows[0];
+          const liveOpen = shortRow?.querySelector('[data-inspector-action="calendar-object-open"][data-object-type="live-record"]');
           liveOpen?.click();
           await new Promise((resolve) => setTimeout(resolve, 250));
           const detail = document.querySelector('[data-inspector-section="live-record-detail"]');
@@ -200,9 +210,10 @@ async function main() {
             emptyCount,
             groups,
             liveCount: liveGroup?.querySelector('.calendar-object-count')?.textContent?.trim(),
-            rowText: liveRow?.textContent?.replace(/\\s+/g, ' ').trim() || '',
-            hasStatusDot: Boolean(liveRow?.querySelector('.calendar-setup-visibility')),
-            hasMenu: Boolean(liveRow?.querySelector('.calendar-object-menu')),
+            rowText: shortRow?.textContent?.replace(/\\s+/g, ' ').trim() || '',
+            rowTexts,
+            hasStatusDot: Boolean(shortRow?.querySelector('.calendar-setup-visibility')),
+            hasMenu: Boolean(shortRow?.querySelector('.calendar-object-menu')),
             detailTitle: detail?.querySelector('.inspector-section-title')?.textContent?.trim() || '',
             detailText: detail?.textContent || '',
             canvasCount: document.querySelectorAll('#chart canvas').length,
@@ -227,10 +238,12 @@ async function main() {
       value.groups.indexOf('order-setup') + 1,
       'Live Records group should be directly after Order Setups'
     );
-    assert.equal(value.liveCount, '1', 'Live Records group should show count 1 after creation');
+    assert.equal(value.liveCount, '2', 'Live Records group should show count 2 after bullish/bearish creation');
     assert.match(value.rowText, /Live/, 'Live Records row should show Live type label');
     assert.match(value.rowText, /Short|Active|Draft/i, 'Live Records row should show bearish live summary/status');
     assert.match(value.rowText, /Exit/i, 'Live Records row should show chart-written exit');
+    assert.ok(value.rowTexts.some((text) => /Long/.test(text)), 'Live Records rows should include bullish record');
+    assert.ok(value.rowTexts.some((text) => /Short/.test(text)), 'Live Records rows should include bearish record');
     assert.equal(value.hasStatusDot, true, 'Live Records row should show status dot');
     assert.equal(value.hasMenu, true, 'Live Records row should show action menu');
     assert.equal(value.detailTitle, 'Live Record Detail', 'Open should show Live Record Detail');
@@ -242,6 +255,7 @@ async function main() {
     assert.match(value.detailText, /Stop Loss/);
     assert.match(value.detailText, /Target External 1/);
     assert.match(value.detailText, /Exit Price/);
+    assert.match(value.detailText, /PDA/);
     assert.ok(value.canvasCount > 0, 'chart should render canvas layers');
     assert.equal(value.hasStandaloneLiveOrders, false, 'standalone Live Orders panel should not exist');
   } finally {
