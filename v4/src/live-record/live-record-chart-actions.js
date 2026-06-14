@@ -15,6 +15,12 @@ import {
   updateLiveRecord,
 } from './live-record-store.js';
 import {
+  getLiveRecordAllowedNextStatuses,
+  getLiveRecordStatusLabel,
+  isLiveRecordTerminalStatus,
+} from './live-record-lifecycle.js';
+import { setLiveRecordLifecycleStatus } from './live-record-lifecycle-actions.js';
+import {
   clearLiveRecordElementSelection,
   selectLiveRecordElement,
 } from './live-record-selection.js';
@@ -23,6 +29,7 @@ import {
   LIVE_RECORD_REASON_CATEGORIES,
   LIVE_RECORD_REF_ROLES,
   LIVE_RECORD_REF_TYPES,
+  LIVE_RECORD_STATUSES,
   LIVE_RECORD_TARGET_ROLES,
   LIVE_RECORD_TARGET_TYPES,
 } from './live-record-types.js';
@@ -65,6 +72,23 @@ export const LIVE_RECORD_CHART_ACTIONS = Object.freeze({
   HIT_HIDE_ELEMENT: 'live-record-hit-hide-element',
   HIT_DELETE_ELEMENT: 'live-record-hit-delete-element',
   HIT_DELETE_RECORD: 'live-record-hit-delete-record',
+  SET_STATUS_PLANNED: 'live-record-status-planned',
+  SET_STATUS_ACTIVE: 'live-record-status-active',
+  SET_STATUS_SUBMITTED: 'live-record-status-submitted',
+  SET_STATUS_FILLED: 'live-record-status-filled',
+  SET_STATUS_CANCELLED: 'live-record-status-cancelled',
+  SET_STATUS_CLOSED: 'live-record-status-closed',
+  SET_STATUS_REVIEWED: 'live-record-status-reviewed',
+});
+
+const LIVE_RECORD_STATUS_ACTIONS = Object.freeze({
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_PLANNED]: LIVE_RECORD_STATUSES.PLANNED,
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_ACTIVE]: LIVE_RECORD_STATUSES.ACTIVE,
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_SUBMITTED]: LIVE_RECORD_STATUSES.SUBMITTED,
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_FILLED]: LIVE_RECORD_STATUSES.FILLED,
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_CANCELLED]: LIVE_RECORD_STATUSES.CANCELLED,
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_CLOSED]: LIVE_RECORD_STATUSES.CLOSED,
+  [LIVE_RECORD_CHART_ACTIONS.SET_STATUS_REVIEWED]: LIVE_RECORD_STATUSES.REVIEWED,
 });
 
 const LIVE_RECORD_TARGET_MENU_ITEMS = Object.freeze([
@@ -283,6 +307,10 @@ function patchActiveFromChart(label, patchFactory, context = {}) {
     bus.emit('status:update', { text: 'No active Live Record', isError: true });
     return true;
   }
+  if (isLiveRecordTerminalStatus(active.status)) {
+    bus.emit('status:update', { text: 'Reopen Live Record before editing chart elements', isError: true });
+    return true;
+  }
   if (!context.bar || !Number.isFinite(Number(context.bar.timestamp))) {
     bus.emit('status:update', { text: 'Cannot update Live Record: no chart bar selected', isError: true });
     return true;
@@ -351,6 +379,30 @@ function getActiveLiveRecordLabel() {
   return `${direction} · ${active.id.slice(0, 18)}`;
 }
 
+function getStatusActionLabel(status) {
+  if (status === LIVE_RECORD_STATUSES.ACTIVE) return 'Reopen';
+  if (status === LIVE_RECORD_STATUSES.CANCELLED) return 'Cancel';
+  if (status === LIVE_RECORD_STATUSES.CLOSED) return 'Close';
+  if (status === LIVE_RECORD_STATUSES.REVIEWED) return 'Mark Reviewed';
+  return getLiveRecordStatusLabel(status);
+}
+
+function getStatusActionForStatus(status) {
+  return Object.entries(LIVE_RECORD_STATUS_ACTIONS)
+    .find(([, actionStatus]) => actionStatus === status)?.[0] || '';
+}
+
+function renderLiveRecordStatusRows(record = {}, extraAttrs = '') {
+  if (!record) return '';
+  const statuses = getLiveRecordAllowedNextStatuses(record.status);
+  if (!record?.id || !statuses.length) return '';
+  return statuses.map((status) => {
+    const action = getStatusActionForStatus(status);
+    if (!action) return '';
+    return `<button class="pda-menu-item" data-pda-action="${action}" data-live-record-id="${record.id}" ${extraAttrs}>${getStatusActionLabel(status)}</button>`;
+  }).join('');
+}
+
 function getLiveRecordElementLabel(role) {
   if (role === 'anchor') return 'Anchor';
   if (role === 'entry') return 'Entry';
@@ -371,10 +423,14 @@ function getHitLiveRecordMenuItems(liveRecordHit) {
   const hits = Array.isArray(liveRecordHit?.hits) ? liveRecordHit.hits : [];
   if (!hits.length) return '';
   const recordRows = Array.from(new Set(hits.map((hit) => hit.liveRecordId).filter(Boolean)))
-    .map((liveRecordId) => `
-      <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${liveRecordId}">Set Active · ${liveRecordId.slice(0, 18)}</button>
-      <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${liveRecordId}">Delete Live Record</button>
-    `)
+    .map((liveRecordId) => {
+      const record = getLiveRecordById(liveRecordId);
+      return `
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${liveRecordId}">Set Active · ${liveRecordId.slice(0, 18)}</button>
+        ${renderLiveRecordStatusRows(record)}
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${liveRecordId}">Delete Live Record</button>
+      `;
+    })
     .join('');
   const elementRows = hits
     .map((hit) => {
@@ -429,9 +485,13 @@ export function renderLiveRecordMenuItems({
 } = {}) {
   const disabled = bar ? '' : 'disabled';
   const active = getActiveLiveRecord();
-  const activeDisabled = active ? '' : 'disabled';
+  const activeTerminal = Boolean(active && isLiveRecordTerminalStatus(active.status));
+  const activeDisabled = active && !activeTerminal ? '' : 'disabled';
   const clearActiveRow = active
-    ? `<button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CLEAR_ACTIVE}">Close Active Live Record</button>`
+    ? `<button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CLEAR_ACTIVE}">Clear Active Live Record</button>`
+    : '';
+  const lifecycleRows = active
+    ? renderLiveRecordStatusRows(active)
     : '';
   const writeRows = `
     <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.MOVE_ANCHOR}" ${activeDisabled || disabled}>Set Active Live Record Anchor Here</button>
@@ -451,8 +511,8 @@ export function renderLiveRecordMenuItems({
         ${renderTargetSubmenu({ activeDisabled, disabled, isEnd: true })}
       `
     : '';
-  const closeActiveSection = clearActiveRow
-    ? `<div class="pda-menu-divider"></div>${clearActiveRow}`
+  const closeActiveSection = clearActiveRow || lifecycleRows
+    ? `<div class="pda-menu-divider"></div>${lifecycleRows}${clearActiveRow}`
     : '';
   return `
     ${getHitLiveRecordMenuItems(liveRecordHit)}
@@ -532,6 +592,11 @@ export function handleLiveRecordChartAction(action, {
   liveRecordId = '',
   liveRecordElement = '',
 } = {}) {
+  if (LIVE_RECORD_STATUS_ACTIONS[action]) {
+    const targetId = liveRecordId || getActiveLiveRecord()?.id || '';
+    const updated = setLiveRecordLifecycleStatus(targetId, LIVE_RECORD_STATUS_ACTIONS[action]);
+    return Boolean(updated) || true;
+  }
   if (action === LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE) {
     const active = setActiveLiveRecord(liveRecordId);
     bus.emit('status:update', {

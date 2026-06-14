@@ -483,3 +483,24 @@ Verification:
 - Ran `node v4/tests/live-record-smoke.js`.
 
 Next step: Step 288.7 separates chart `Clear Active` wording from actual lifecycle close and guards terminal records from chart writes.
+
+## Step 288.7 Completion - Chart Lifecycle Guard Added
+
+Completed on 2026-06-14.
+
+Implemented:
+
+- Renamed chart menu view-state action from `Close Active Live Record` to `Clear Active Live Record`.
+- Added Live Record lifecycle status actions to the chart menu and hit menu.
+- Terminal active records disable chart write menu rows.
+- `patchActiveFromChart()` rejects writes to terminal records with a reopen-first status message.
+- Synthetic hit-menu rows without a stored record continue to render safely.
+
+Verification:
+
+- Updated `v4/tests/live-record-smoke.js` for the new `Clear Active` wording and lifecycle chart menu actions.
+- Extended `v4/tests/live-record-chart-actions-smoke.js` to close a record, force it active for guard coverage, assert chart writes fail, and reopen it.
+- Ran `node v4/tests/live-record-smoke.js`.
+- Ran `node v4/tests/live-record-chart-actions-smoke.js`.
+
+Next step: Step 288.8 polishes the optional Live Record to Order Setup review link workflow.

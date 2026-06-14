@@ -262,7 +262,9 @@ assert.equal(getLiveRecordById(chartLiveId).direction, 'short', 'bearish chart-c
 assert.equal(getLiveRecordById(chartLiveId).status, 'active', 'chart-created live record defaults to active status');
 assert.equal(getLiveRecordById(chartLiveId).anchor.price, 18366.5, 'chart price becomes live anchor');
 assert.equal(getActiveReviewSetId(), activeSetupBefore, 'chart-created live record preserves active setup');
-assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } }), /Close Active Live Record/, 'chart menu renders active close action');
+const activeLiveMenuHtml = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } });
+assert.match(activeLiveMenuHtml, /Clear Active Live Record/, 'chart menu renders clear active action');
+assert.match(activeLiveMenuHtml, /Close/, 'chart menu renders lifecycle close action');
 assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
   bar: { timestamp: 1710770460, close: 18361 },
   price: 18361.25,

@@ -14,6 +14,7 @@ import {
 import {
   getActiveLiveRecordId,
   initLiveRecordActive,
+  setActiveLiveRecord,
 } from '../src/live-record/live-record-active.js';
 import {
   handleLiveRecordChartAction,
@@ -216,6 +217,24 @@ assert.equal(handleLiveRecordChartAction('live-record-set-target-external-2-end'
 }), true, 'missing target end action is handled');
 assert.equal(lastStatus?.isError, true, 'missing target end action reports an error');
 assert.equal(getLiveRecordById(partialLiveRecordId).execution.targets.length, 0, 'missing target end does not mutate targets');
+
+assert.equal(handleLiveRecordChartAction('live-record-status-closed', {
+  liveRecordId: partialLiveRecordId,
+}), true, 'chart lifecycle close action is handled');
+assert.equal(getLiveRecordById(partialLiveRecordId).status, 'closed', 'chart lifecycle action closes record');
+assert.equal(setActiveLiveRecord(partialLiveRecordId), true, 'terminal record can still be selected active for guard test');
+lastStatus = null;
+assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
+  bar: { timestamp: 1710780240, close: 18200 },
+  price: 18200,
+  timeframe: '1M',
+}), true, 'terminal record write action is handled');
+assert.equal(lastStatus?.isError, true, 'terminal record write reports an error');
+assert.equal(getLiveRecordById(partialLiveRecordId).execution.entry.price, 18361.25, 'terminal record write does not mutate entry');
+assert.equal(handleLiveRecordChartAction('live-record-status-active', {
+  liveRecordId: partialLiveRecordId,
+}), true, 'chart lifecycle reopen action is handled');
+assert.equal(getLiveRecordById(partialLiveRecordId).status, 'active', 'chart lifecycle action reopens record');
 
 const dirtyLiveRecord = addLiveRecord({
   id: 'dirty-live-record-range',
