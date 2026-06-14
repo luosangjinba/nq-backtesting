@@ -609,3 +609,28 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.12 runs browser verification and closes out Step 286.
+
+## Step 286.12 Completion - Browser Verification And Closeout
+
+Completed on 2026-06-14.
+
+Browser verification:
+
+- Extended `v4/tests/live-record-browser-smoke.js` to exercise chart-first Live Record actions in the real page.
+- Browser smoke now creates a Live Record through the chart action handler.
+- Browser smoke writes entry, stop, target, result/exit, and all-end fields.
+- Browser smoke verifies Calendar row count, Calendar exit summary, action menu, Live Record Detail, Execution rows, Result exit price, chart canvas presence, and no standalone `Live Orders` panel.
+
+Final verification:
+
+- `curl -s -I http://127.0.0.1:8001/index.html`
+- `node --check v4/tests/live-record-browser-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `git diff --check`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Step 286 is complete. Live Records now have primary chart menu parity, chart-first execution writes, evidence links, chart rendering, hit-test/selection, Calendar/Detail sync, isolation checks, focused smoke coverage, and browser verification without restoring a standalone `Live Orders` UI.

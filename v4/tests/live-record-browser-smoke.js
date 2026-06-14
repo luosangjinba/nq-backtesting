@@ -129,7 +129,7 @@ async function main() {
         try {
           const store = await import('/src/data/bar-store.js');
           const liveStore = await import('/src/live-record/live-record-store.js');
-          const liveActive = await import('/src/live-record/live-record-active.js');
+          const liveChartActions = await import('/src/live-record/live-record-chart-actions.js');
           const waitFor = async (predicate, label) => {
             const deadline = Date.now() + 5_000;
             while (Date.now() < deadline) {
@@ -155,14 +155,35 @@ async function main() {
           if (!emptyLiveGroup || !orderGroup) return JSON.stringify({ error: 'missing order/live groups' });
           const emptyState = emptyLiveGroup.textContent.includes('None');
           const emptyCount = emptyLiveGroup.querySelector('.calendar-object-count')?.textContent?.trim();
-          liveActive.createLiveRecordFromAnchor({
-            timestamp: 1710770400,
-            timeframe: '1H',
+          liveChartActions.handleLiveRecordChartAction('live-record-new-here', {
+            bar: bars[0],
             price: 18366.36,
-          }, {
-            instrument: 'NQ',
-            direction: 'short',
-            summary: 'Browser smoke live record',
+            timeframe: '1H',
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-set-entry', {
+            bar: { ...bars[0], timestamp: 1710770460, close: 18361.25 },
+            price: 18361.25,
+            timeframe: '5M',
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-set-stop-loss', {
+            bar: { ...bars[0], timestamp: 1710770520, close: 18372.5 },
+            price: 18372.5,
+            timeframe: '5M',
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-set-target-external-1', {
+            bar: { ...bars[0], timestamp: 1710770580, close: 18325.5 },
+            price: 18325.5,
+            timeframe: '5M',
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-set-result-exit', {
+            bar: { ...bars[0], timestamp: 1710770640, close: 18330.25 },
+            price: 18330.25,
+            timeframe: '1M',
+          });
+          liveChartActions.handleLiveRecordChartAction('live-record-set-all-ends', {
+            bar: { ...bars[0], timestamp: 1710770700, close: 18331 },
+            price: 18331,
+            timeframe: '1M',
           });
           await new Promise((resolve) => setTimeout(resolve, 300));
           const groups = Array.from(document.querySelectorAll('.calendar-object-group[data-calendar-group-type]'))
@@ -184,6 +205,7 @@ async function main() {
             hasMenu: Boolean(liveRow?.querySelector('.calendar-object-menu')),
             detailTitle: detail?.querySelector('.inspector-section-title')?.textContent?.trim() || '',
             detailText: detail?.textContent || '',
+            canvasCount: document.querySelectorAll('#chart canvas').length,
             hasStandaloneLiveOrders: document.body.textContent.includes('Live Orders'),
           });
         } catch (error) {
@@ -207,7 +229,8 @@ async function main() {
     );
     assert.equal(value.liveCount, '1', 'Live Records group should show count 1 after creation');
     assert.match(value.rowText, /Live/, 'Live Records row should show Live type label');
-    assert.match(value.rowText, /Browser smoke live record|Short|Active|Draft/i, 'Live Records row should show live summary/status');
+    assert.match(value.rowText, /Unknown|Active|Draft/i, 'Live Records row should show live summary/status');
+    assert.match(value.rowText, /Exit/i, 'Live Records row should show chart-written exit');
     assert.equal(value.hasStatusDot, true, 'Live Records row should show status dot');
     assert.equal(value.hasMenu, true, 'Live Records row should show action menu');
     assert.equal(value.detailTitle, 'Live Record Detail', 'Open should show Live Record Detail');
@@ -215,6 +238,11 @@ async function main() {
     assert.match(value.detailText, /Summary/);
     assert.match(value.detailText, /Anchor/);
     assert.match(value.detailText, /Execution/);
+    assert.match(value.detailText, /Entry/);
+    assert.match(value.detailText, /Stop Loss/);
+    assert.match(value.detailText, /Target External 1/);
+    assert.match(value.detailText, /Exit Price/);
+    assert.ok(value.canvasCount > 0, 'chart should render canvas layers');
     assert.equal(value.hasStandaloneLiveOrders, false, 'standalone Live Orders panel should not exist');
   } finally {
     client?.close();
