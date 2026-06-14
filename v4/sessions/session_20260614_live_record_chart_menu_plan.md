@@ -564,3 +564,27 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.10 audits isolation, history, instrument switching, and no-standalone-UI boundaries.
+
+## Step 286.10 Completion - Isolation And History Audited
+
+Completed on 2026-06-14.
+
+Audit results:
+
+- `rg` found no Order Review write API usage inside `v4/src/live-record` or `live-record-actions.js`.
+- `history-manager.js` includes `liveRecords` in snapshots and restores through `loadLiveRecords()`.
+- Live Record smoke covers instrument-scoped persistence/restore and undo/redo for Live Record mutations.
+- `rg` found no standalone `Live Orders` UI strings in `v4/src`, `v4/index.html`, or `v4/style.css`.
+- Existing Order Setup smoke still passes after Live Record chart interaction changes.
+
+Verification:
+
+- `rg -n "orderReview|orderReviews|updateOrderReview|addOrderReview|deleteOrderReview|updateActiveReviewSet|linkRefToActiveReviewSet|createChartReviewSet" v4/src/live-record v4/src/ui/inspector/live-record-actions.js`
+- `rg -n "liveRecords|getLiveRecords|loadLiveRecords|live-record" v4/src/history/history-manager.js v4/src/live-record v4/src/pda/manual-annotation.js`
+- `rg -n "Live Orders|live orders|live-orders|liveOrders" v4/src v4/index.html v4/style.css`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.11 adds focused smoke tests for chart actions, renderer projection, hit-test, hide/delete, and isolation.
