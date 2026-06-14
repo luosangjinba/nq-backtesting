@@ -822,7 +822,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 284.6: 文档收口：更新用户文档，明确 VIX 共用、trend/range 按 Main instrument、ES Daily Regime 覆盖范围和已知限制。已更新中英文用户指南：VIX 共用 `vix-daily.csv`；NQ/ES trend/range 分别读取 `daily-regime-nq.csv` / `daily-regime-es.csv`；ES 当前覆盖 `2008-01-02 -> 2026-06-11`；刷新 K 线后需要重新生成对应 `daily-regime-*.csv`。
 
 - [ ] Step 285: Journal zero restart - clone Order Setups into Live Records first。当前分支已整体回退到分支起点 `340f3ac`，旧 Journal Phase A-C 工作保存在 `backup/journal-redesign-before-zero-reset-20260614`；新目标是不做独立 Live Orders 面板，而是先克隆一套几乎一模一样的 Order Setups UI/交互，再在其基础上改成 Live Records。计划见 `v4/sessions/session_20260614_journal_zero_restart_plan.md`。
-  - [ ] Step 285.1: 冻结 zero-restart 边界：记录 reset 点、备份分支、产品目标、非目标与验收标准；确认旧 Phase A-C live-order 代码不在当前活动分支，下一步从 Order Setups parity 开始。
+  - [x] Step 285.1: 冻结 zero-restart 边界：记录 reset 点、备份分支、产品目标、非目标与验收标准；确认旧 Phase A-C live-order 代码不在当前活动分支，下一步从 Order Setups parity 开始。当前活动分支相对 `main` 只有 zero-restart 计划文档，旧 live-order runtime 仅保存在备份分支。
   - [ ] Step 285.2: 审计 Order Setups clone points：读取 store/types/setup-set、active、persistence、chart actions、Calendar index/group、Inspector detail/actions、sidebar route 和 smoke，决定哪些先 clone、哪些先共享、哪些暂不碰。
   - [ ] Step 285.3: 从 Order Setup 模式克隆 Live Record runtime skeleton：新增 live-record types/store/active 和必要 adapter；第一版字段尽量贴近 Order Setup 的 anchor、summary、display、execution、reasons、result 结构。
   - [ ] Step 285.4: 增加 instrument-scoped persistence：使用独立 `v4:live-records:<instrument>` key，NQ/ES 隔离，restore guard 防覆盖，不读写或迁移 `orderReviews`。

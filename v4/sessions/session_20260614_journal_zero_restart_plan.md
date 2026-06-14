@@ -230,3 +230,25 @@ Acceptance:
 ## Next Immediate Action
 
 Execute Step 285.1, then commit. After that, proceed through Step 285.2 to Step 285.10 in order, committing after each substep.
+
+## Step 285.1 Completion - Zero-Restart Boundary Frozen
+
+Completed on 2026-06-14.
+
+Confirmed current branch state:
+
+- Active branch: `feature/journal-order-recording-redesign`.
+- Current branch starts from `340f3ac docs(v4): close es daily regime parity`.
+- The only active Journal restart commit before Step 285 execution is `1af0def docs(v4): plan journal zero restart`.
+- Relative to `main`, the active branch contained only TODO/session planning docs before Step 285.1.
+- No `v4/src` or `v4/tests` live-order/live-record runtime files from the previous Phase A-C implementation are active on this branch.
+
+Frozen execution boundary:
+
+- Implement `Live Records` by cloning the `Order Setups` UI and interaction model first.
+- Do not revive the previous standalone `Live Orders` panel design.
+- Do not reuse previous Phase A-C live-order runtime modules directly from backup; use them only as historical reference if needed.
+- Keep all live record storage separate from existing `orderReviews`.
+- Keep every Step 285 substep independently committed.
+
+Step 285.2 should audit the existing Order Setups code paths before writing runtime code.
