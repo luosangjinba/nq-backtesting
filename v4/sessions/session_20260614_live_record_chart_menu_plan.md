@@ -327,3 +327,54 @@ Implementation rule:
 - Every substep remains independently committed.
 
 Next step: Step 286.2 audits the exact Order Setup chart action, renderer, hit-test, and selection paths before code changes.
+
+## Step 286.2 Completion - Order Setup Chart Paths Audited
+
+Completed on 2026-06-14.
+
+Audited files:
+
+- `v4/src/order/order-setup-chart-actions.js`
+- `v4/src/order/order-setup-projection.js`
+- `v4/src/order/order-review-renderer.js`
+- `v4/src/order/order-setup-hit-test.js`
+- `v4/src/order/order-setup-selection.js`
+- `v4/src/pda/manual-annotation.js`
+- `v4/src/chart/chart-context.js`
+
+Order Setup menu/action flow to copy:
+
+- `renderOrderSetupMenuItems()` builds a chart submenu with hit-specific actions first, then create / active setup actions.
+- Active setup actions are disabled when there is no active setup.
+- Target actions are grouped under a `Targets` submenu.
+- Shift-right-click changes the menu from write actions to end-time actions.
+- `handleOrderSetupChartAction()` dispatches through a concrete action map and records history before mutations.
+- Write actions patch only the active setup unless a hit-specific action explicitly targets the clicked setup element.
+
+Renderer/projection pieces to adapt:
+
+- `order-setup-projection.js` maps timestamps to visible bars and computes display indexes/end coordinates.
+- `order-review-renderer.js` renders markers, horizontal lines, target lines, risk/reward boxes, active emphasis, and selected element emphasis through chart primitives.
+- Live Record should get its own projection and renderer modules first, with copied minimal helpers, instead of extracting a shared abstraction during Step 286.
+
+Hit-test/selection pieces to adapt:
+
+- `order-setup-hit-test.js` builds hit metadata around projected horizontal lines and reversal marker proximity.
+- `order-setup-selection.js` keeps selected element state isolated, emits bus events, and lets the renderer consume selected metadata.
+- Live Record should get separate hit-test and selection modules to avoid accidental Order Setup coupling.
+
+Data-shape decisions for Step 286.3:
+
+- Add execution fields for `entry`, `marketStructureShift`, `stopLoss`, and `targets`.
+- Each chart element should support timestamp, timeframe, price, end timestamp, end timeframe, optional line length, visibility, and completion where useful.
+- Target roles should mirror Order Setup roles closely enough for menu parity: internal targets, swing point target, external targets, and final target.
+- Result should keep `exitTimestamp`, `exitTimeframe`, and `exitPrice`.
+
+Postponed from the audit:
+
+- No shared Order Setup / Live Record abstraction until parity proves the shape.
+- No drag editing.
+- No secondary chart Live Record renderer unless needed for regression safety.
+- No broker/order-routing fields.
+
+Next step: Step 286.3 extends the Live Record execution data shape while preserving old Step 285 records.
