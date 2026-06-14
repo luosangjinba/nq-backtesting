@@ -431,3 +431,31 @@ Verification:
 Note: Node still reports the existing typeless package warning for ES module tests.
 
 Next step: Step 286.5 wires the menu actions to active Live Record chart writes.
+
+## Step 286.5 Completion - Primary Chart Write Actions Implemented
+
+Completed on 2026-06-14.
+
+Runtime changes:
+
+- Added active Live Record chart write handlers for anchor, entry, MSS, stop loss, targets, result/exit, individual ends, target ends, and all active execution ends.
+- Chart writes use clicked bar timestamp/current timeframe and mouse price with bar close fallback.
+- Target writes upsert by Live Record target role.
+- `Set All Ends Here` updates existing execution elements and targets without creating new ones.
+- All write actions are wrapped in `recordHistory()`.
+- No-active and no-bar states emit status errors and do not mutate data.
+
+Isolation:
+
+- Live Record chart writes go through `patchActiveLiveRecord()`.
+- Smoke verifies active Order Setup thesis is not changed by Live Record chart writes.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-chart-actions.js`
+- `node --check v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+
+Note: Node still reports the existing typeless package warning for ES module tests.
+
+Next step: Step 286.6 links PDA/Segment/Composite/SMT/Chart Note evidence to the active Live Record.

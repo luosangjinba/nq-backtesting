@@ -189,6 +189,40 @@ assert.ok(chartLiveId, 'chart-created live record becomes active');
 assert.equal(getLiveRecordById(chartLiveId).anchor.price, 18366.5, 'chart price becomes live anchor');
 assert.equal(getActiveReviewSetId(), activeSetupBefore, 'chart-created live record preserves active setup');
 assert.match(renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } }), /Close Active Live Record/, 'chart menu renders active close action');
+assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
+  bar: { timestamp: 1710770460, close: 18361 },
+  price: 18361.25,
+  timeframe: '5M',
+}), true, 'chart action writes entry');
+assert.equal(handleLiveRecordChartAction('live-record-set-stop-loss', {
+  bar: { timestamp: 1710770520, close: 18372 },
+  price: 18372.5,
+  timeframe: '5M',
+}), true, 'chart action writes stop loss');
+assert.equal(handleLiveRecordChartAction('live-record-set-target-external-1', {
+  bar: { timestamp: 1710770580, close: 18325 },
+  price: 18325.5,
+  timeframe: '5M',
+}), true, 'chart action writes target');
+assert.equal(handleLiveRecordChartAction('live-record-set-result-exit', {
+  bar: { timestamp: 1710770640, close: 18330 },
+  price: 18330.25,
+  timeframe: '1M',
+}), true, 'chart action writes result exit');
+assert.equal(handleLiveRecordChartAction('live-record-set-all-ends', {
+  bar: { timestamp: 1710770700, close: 18331 },
+  price: 18331,
+  timeframe: '1M',
+}), true, 'chart action writes execution ends');
+const chartRecordAfterWrites = getLiveRecordById(chartLiveId);
+assert.equal(chartRecordAfterWrites.execution.entry.price, 18361.25, 'entry price stored from chart');
+assert.equal(chartRecordAfterWrites.execution.entry.endTimestamp, 1710770700, 'entry end stored from chart');
+assert.equal(chartRecordAfterWrites.execution.stopLoss.price, 18372.5, 'stop loss price stored from chart');
+assert.equal(chartRecordAfterWrites.execution.targets[0].role, 'targetExternal1', 'target role stored from chart');
+assert.equal(chartRecordAfterWrites.execution.targets[0].endTimestamp, 1710770700, 'target end stored from chart');
+assert.equal(chartRecordAfterWrites.result.exitTimeframe, '1M', 'result timeframe stored from chart');
+assert.equal(chartRecordAfterWrites.result.exitPrice, 18330.25, 'result price stored from chart');
+assert.equal(getOrderReviewById(setup.id).setupThesis.primaryEventTimestamp, 1710770400, 'live chart writes do not mutate setup thesis');
 
 const liveDateGroups = getCalendarDayGroups('2024-03-18');
 const liveGroup = liveDateGroups.find((group) => group.type === CALENDAR_OBJECT_TYPES.LIVE_RECORD);
