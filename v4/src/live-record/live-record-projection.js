@@ -4,6 +4,7 @@ import {
 } from '../chart/time-projection.js';
 
 export const LIVE_RECORD_LINE_LENGTH_BARS = 34;
+export const LIVE_RECORD_ZONE_WIDTH_BARS = 28;
 
 export function mapTimestampToLiveRecordChartTime(timestamp, context = {}) {
   if (timestamp === undefined || timestamp === null) return null;
@@ -30,6 +31,15 @@ export function getLiveRecordElementLineLength(element, fallback = LIVE_RECORD_L
   }
   const length = Number(element?.lineLengthBars);
   return Number.isFinite(length) && length >= 0 ? length : fallback;
+}
+
+export function getLiveRecordProjectedChartTime(timestamp, context = {}, barsAhead = LIVE_RECORD_ZONE_WIDTH_BARS) {
+  const bars = context.getDisplayBars?.() || [];
+  if (!bars.length) return mapTimestampToLiveRecordChartTime(timestamp, context);
+  const index = getLiveRecordDisplayBarIndexForTimestamp(timestamp, context);
+  if (index < 0) return mapTimestampToLiveRecordChartTime(timestamp, context);
+  const next = bars[Math.min(bars.length - 1, index + barsAhead)];
+  return next ? mapTimestampToLiveRecordChartTime(next.timestamp, context) : mapTimestampToLiveRecordChartTime(timestamp, context);
 }
 
 export function getLiveRecordBarSpacing(context = {}) {

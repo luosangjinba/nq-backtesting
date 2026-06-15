@@ -1,7 +1,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { BarMarkerPrimitive, LiquidityPrimitive } from '../chart/primitives.js';
+import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { getActiveLiveRecordId } from './live-record-active.js';
 import { getSelectedLiveRecordElement } from './live-record-selection.js';
@@ -9,8 +9,10 @@ import { LIVE_RECORD_DIRECTIONS } from './live-record-types.js';
 import { getLiveRecordSets } from './live-record-set.js';
 import {
   LIVE_RECORD_LINE_LENGTH_BARS,
+  LIVE_RECORD_ZONE_WIDTH_BARS,
   getLiveRecordDisplayBarIndexForTimestamp,
   getLiveRecordElementLineLength,
+  getLiveRecordProjectedChartTime,
   mapTimestampToLiveRecordChartTime,
 } from './live-record-projection.js';
 
@@ -25,6 +27,16 @@ const SELECTED_ELEMENT_COLOR = '#ffd54f';
 const PLAN_LINE_WIDTH = 1;
 const ACTIVE_PLAN_LINE_WIDTH = 1.35;
 const SELECTED_PLAN_LINE_WIDTH = 1.85;
+const RISK_ZONE = {
+  fillColor: 'rgba(239, 83, 80, 0.15)',
+  borderColor: 'rgba(239, 83, 80, 0.38)',
+  textColor: '#ffcdd2',
+};
+const REWARD_ZONE = {
+  fillColor: 'rgba(38, 166, 154, 0.16)',
+  borderColor: 'rgba(38, 166, 154, 0.4)',
+  textColor: '#80cbc4',
+};
 
 let renderedPrimitives = [];
 
@@ -164,6 +176,58 @@ function renderPriceHelper(timestamp, price, label, color, position = 'right') {
   );
 }
 
+function getZoneEndTimestamp(...elements) {
+  return elements.find((element) => element?.endTimestamp)?.endTimestamp || null;
+}
+
+function renderRangeZone(timestamp, endTimestamp, entryPrice, targetPrice, label, colors) {
+  const startTime = mapTimestampToCurrentChartTime(timestamp);
+  const endTime = endTimestamp
+    ? mapTimestampToCurrentChartTime(endTimestamp)
+    : getLiveRecordProjectedChartTime(timestamp, getRenderContext(), LIVE_RECORD_ZONE_WIDTH_BARS);
+  const parsedEntry = Number(entryPrice);
+  const parsedTarget = Number(targetPrice);
+  if (startTime === null || endTime === null || !Number.isFinite(parsedEntry) || !Number.isFinite(parsedTarget)) return;
+
+  const topPrice = Math.max(parsedEntry, parsedTarget);
+  const bottomPrice = Math.min(parsedEntry, parsedTarget);
+
+  attachPrimitive(
+    new RangePrimitive(
+      chart.getChart(),
+      chart.getSeries(),
+      startTime,
+      endTime,
+      topPrice,
+      bottomPrice,
+      label,
+      {
+        ...colors,
+        showMidline: false,
+        showLabel: false,
+        lineWidth: 1,
+        minWidth: 24,
+      }
+    )
+  );
+}
+
+function renderRiskRewardBox(liveSet, entry, stopLoss, targets) {
+  if (liveSet.display?.showRiskRewardBox === false) return;
+  if (!entry.complete || !stopLoss.complete) return;
+
+  const entryTimestamp = entry.timestamp || liveSet.anchor?.timestamp || liveSet.primaryTimestamp;
+  const visibleTargets = (Array.isArray(targets) ? targets : [])
+    .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && target.complete);
+  const rewardTarget = visibleTargets.find((target) => Number.isFinite(Number(target.price)));
+  const endTimestamp = getZoneEndTimestamp(entry, stopLoss, rewardTarget);
+
+  renderRangeZone(entryTimestamp, endTimestamp, entry.price, stopLoss.price, 'Risk', RISK_ZONE);
+  if (rewardTarget) {
+    renderRangeZone(entryTimestamp, rewardTarget.endTimestamp || endTimestamp, entry.price, rewardTarget.price, 'Reward', REWARD_ZONE);
+  }
+}
+
 function renderLiveRecordSet(liveSet, isActive = false) {
   if (liveSet.display?.hidden) return;
   const execution = liveSet.execution || {};
@@ -182,6 +246,13 @@ function renderLiveRecordSet(liveSet, isActive = false) {
   const isSelectedElement = (role) => selected?.liveRecordId === liveSet.id && selected?.element === role;
 
   renderAnchorMarker(anchor, direction, isActive);
+
+  if (
+    isElementVisible(liveSet, 'entry', entry) &&
+    isElementVisible(liveSet, 'stopLoss', stopLoss)
+  ) {
+    renderRiskRewardBox(liveSet, entry, stopLoss, targets);
+  }
 
   if (isElementVisible(liveSet, 'entry', entry) && entry.complete) {
     const selectedEntry = isSelectedElement('entry');
