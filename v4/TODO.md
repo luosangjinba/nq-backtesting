@@ -901,7 +901,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 291: Economic Calendar Backfill Importer。目标是把 `v4/data/economic_calendar/economic_calendar_usd_events.csv` 从当前最新 `2025-01-05` 之后补到最新可用月份，并建立可重复的手动更新流程；默认 dry-run，正式写入必须 backup + append-only，不覆盖旧历史。计划见 `v4/sessions/session_20260615_economic_calendar_backfill_plan.md`。
   - [x] Step 291.1: Freeze data boundary and append-only rules：固定当前数据范围 `2007-01-01 -> 2025-01-05`、正常补全起点 `2025-01-06`、主 CSV schema、backup/write guard、overlap 只报告不覆盖、forecast/previous 当前允许为空。
-  - [ ] Step 291.2: Add ForexFactory month selector support：支持 `YYYY-MM -> mon.YYYY`、`this`、`next`，并加离线测试。
+  - [x] Step 291.2: Add ForexFactory month selector support：已新增 `v4/scripts/update_economic_calendar.py` 的 `YYYY-MM -> mon.YYYY`、`this`、`next` selector 和 inclusive month range 逻辑，并用离线 unittest 覆盖跨年、非法月份与 ForexFactory URL selector。
   - [ ] Step 291.3: Add standalone fetch script：新增只写临时 raw output 的 ForexFactory 抓取脚本，默认 USD/all impact，不写主 CSV。
   - [ ] Step 291.4: Add V4 CSV converter：将 raw rows 转成现有 V4 economic-calendar schema，处理 ET/UTC、impact、all-day/holiday/default_visible。
   - [ ] Step 291.5: Add dry-run comparison report：报告当前最新日期、请求范围、抓取月份、候选行、追加行、重复/重叠差异和 actual/forecast/previous 统计。
