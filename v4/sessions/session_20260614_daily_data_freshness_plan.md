@@ -253,6 +253,20 @@ Acceptance:
 - Existing historical rows are preserved.
 - CSV remains parseable by `parseVixDailyCsv()`.
 
+Step 289.3 result:
+
+- Added `v4/scripts/update_vix_daily.py`.
+- Default mode is dry-run; `--write` without `--confirm-write` exits with code 2 before any network/file write.
+- Primary source defaults to Cboe official VIX history CSV:
+  `https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv`.
+- `--source-file` supports local CSV input for offline tests and fixtures.
+- Parser accepts Cboe `MM/DD/YYYY` dates and local `YYYY-MM-DD` dates.
+- Output CSV schema is preserved as `DATE,OPEN,HIGH,LOW,CLOSE`.
+- Merge behavior preserves existing history, dedupes by `DATE`, sorts ascending, inserts new Cboe rows, and updates changed existing rows if Cboe revises them.
+- Writes are atomic via temp file + replace.
+- Network/parse errors fail closed with readable CLI output.
+- Real Cboe dry-run on 2026-06-14 reported local latest `2026-06-02`, source latest `2026-06-12`, `inserted_rows: 8`, `updated_rows: 0`, and did not write the CSV.
+
 ### Step 289.4 - Implement Freshness Verifier
 
 Add a script such as `v4/scripts/verify_data_freshness.py`:
