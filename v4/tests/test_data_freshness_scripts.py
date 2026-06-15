@@ -177,6 +177,39 @@ class DataFreshnessScriptTests(unittest.TestCase):
             self.assertIn("malformed_rows: 1", result.stdout)
             self.assertIn("data_freshness_status: failed", result.stdout)
 
+    def test_freshness_verifier_reports_current_nq_deferred_status(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            db_path = temp / "trading_data.duckdb"
+            vix_path = temp / "vix-daily.csv"
+            create_test_db(db_path)
+            write_text(
+                vix_path,
+                "\n".join([
+                    "DATE,OPEN,HIGH,LOW,CLOSE",
+                    "2026-06-12,15.000000,16.000000,14.000000,15.500000",
+                    "",
+                ]),
+            )
+
+            result = run_cli([
+                FRESHNESS_VERIFIER,
+                "--db",
+                db_path,
+                "--vix-csv",
+                vix_path,
+                "--instrument",
+                "NQ",
+                "--warn-vix-stale-days",
+                "999999",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn(
+                "write_status: deferred; NQ full refresh remains blocked until selected roll segments are write-eligible",
+                result.stdout,
+            )
+
     def test_refresh_runner_manual_local_path_and_write_guard(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)

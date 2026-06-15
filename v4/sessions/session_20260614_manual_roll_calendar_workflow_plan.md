@@ -540,6 +540,34 @@ Acceptance:
 
 - Roll workflow is documented and enforceable.
 - NQ status is explicitly resolved or still intentionally blocked with a documented reason.
+
+Step 290.12 result:
+
+- Focused roll workflow tests passed:
+  - `python3 v4/tests/test_databento_write_guard.py`;
+  - `python3 v4/tests/test_roll_volume_scanner.py`.
+- Existing data freshness tests passed:
+  - `python3 v4/tests/test_data_freshness_scripts.py`.
+- Roll reminder report passed:
+  - `python3 v4/scripts/scan_roll_volume_candidates.py --report-calendar`;
+  - current attention entries are `NQZ5 -> NQH6` (`inferred_no_db_overlap`) and ES/NQ 2026-06 `future_candidate` entries.
+- NQ roll-status preflight confirmed the full default NQ range remains blocked:
+  - `NQZ5` / `NQH6` segments are `inferred_no_db_overlap`;
+  - `NQM6` from `2026-03-16` to `2026-06-14` is `volume_validated` and write-eligible.
+- Data freshness verifier passed without API smoke:
+  - hard errors `0`;
+  - warnings `1` because ES max timestamp is older than 72 hours.
+- V4 API health returned ok at `http://127.0.0.1:8766/v4/health`.
+- Standalone API bar smokes passed for ES and NQ.
+- Full freshness verifier with API smoke passed after running with local socket permission:
+  - ES API returned 50 bars ending at `2026-06-11 16:59`;
+  - NQ API returned 40 bars ending at `2025-11-04 18:39`;
+  - hard errors `0`, warnings `1`.
+- `git diff --check` passed.
+- Final NQ status:
+  - `NQH6 -> NQM6` is resolved as `2026-03-16`, `volume_validated`;
+  - full default NQ refresh remains intentionally blocked by other non-write-eligible roll segments;
+  - no NQ write was executed.
 - Next task can be NQ write trial or Journal data-entry trial, depending on the decision.
 
 ## Initial Recommendation

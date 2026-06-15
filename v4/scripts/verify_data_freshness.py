@@ -199,7 +199,7 @@ def print_futures_report(coverage: FuturesCoverage, warn_hours: float, api_url: 
     if coverage.duplicate_timestamps:
         hard_errors += 1
     if coverage.instrument == "NQ":
-        print("write_status: deferred; NQ write remains disabled until roll conflict is resolved")
+        print("write_status: deferred; NQ full refresh remains blocked until selected roll segments are write-eligible")
     if coverage.instrument == "ES" and age is not None and age > warn_hours:
         warnings += 1
         print(f"warning: ES max_ts is older than {warn_hours:g} hours")
