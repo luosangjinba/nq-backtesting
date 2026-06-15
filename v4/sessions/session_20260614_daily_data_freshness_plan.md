@@ -458,6 +458,29 @@ Acceptance:
 - Worktree clean after final commit.
 - The next task can safely be real Journal data-entry trial.
 
+Step 289.10 result:
+
+- Step 289 is complete.
+- Final VIX coverage: `2026-06-12`.
+- Final ES coverage remains `2026-06-11 16:59:00` because `DATABENTO_API_KEY` was not available for ES write trial.
+- NQ remains report-only at `2025-11-04 18:39:00`.
+- Final freshness verifier reported `hard_errors: 0`, ES duplicate timestamps `0`, NQ duplicate timestamps `0`, VIX duplicate dates `0`, and VIX malformed rows `0`.
+- Final ES API smoke passed through `/v4/bars`, returning 50 bars ending at ES DB max.
+- Scheduler remains documented but not enabled.
+- Final validation commands passed:
+  - `python3 v4/tests/test_data_freshness_scripts.py`
+  - `node v4/tests/daily-regime-loader-smoke.js`
+  - `python3 v4/scripts/verify_data_freshness.py`
+  - `python3 v4/scripts/daily_data_refresh.py --manual --skip-es --vix-source-file v4/data/vix-daily.csv --show-sample 0`
+  - `python3 -m py_compile v4/scripts/daily_data_refresh.py v4/scripts/update_vix_daily.py v4/scripts/verify_data_freshness.py v4/tests/test_data_freshness_scripts.py`
+  - `python3 v4/scripts/verify_v4_bars_api.py --instrument ES --api-url http://127.0.0.1:8766`
+  - `git diff --check`
+
+Next task:
+
+- Proceed to real Journal data-entry trial with the data freshness path fixed.
+- If ES needs to be refreshed first, provide `DATABENTO_API_KEY` and run the documented guarded manual command.
+
 ## Validation Commands
 
 Expected focused validation set:
@@ -486,4 +509,4 @@ python3 v4/scripts/verify_v4_bars_api.py --instrument ES --api-url http://127.0.
 
 ## Next Recommended Action
 
-Execute Step 289 in order, committing after each substep if requested.
+Proceed to real Journal data-entry trial.
