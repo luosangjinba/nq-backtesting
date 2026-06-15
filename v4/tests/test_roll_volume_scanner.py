@@ -157,6 +157,139 @@ class RollVolumeScannerTests(unittest.TestCase):
         self.assertIn("scan_status: failed", result.stdout)
         self.assertIn("missing required scan arguments", result.stdout)
 
+    def test_confirm_roll_preview_does_not_write_calendar(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            calendar = Path(temp_dir) / "roll.yml"
+            original = "\n".join([
+                "version: 1",
+                "timezone: America/New_York",
+                "dataset: GLBX.MDP3",
+                "schema: ohlcv-1m",
+                "rolls:",
+                "  - instrument: NQ",
+                "    old_contract: NQH6",
+                "    new_contract: NQM6",
+                "    roll_date_et: 2026-03-13",
+                "    status: inferred_volume_conflict",
+                "    note: conflict",
+                "",
+            ])
+            calendar.write_text(original, encoding="utf-8")
+
+            result = run_scanner([
+                "--confirm-roll",
+                "--roll-calendar",
+                calendar,
+                "--instrument",
+                "NQ",
+                "--old-contract",
+                "NQH6",
+                "--new-contract",
+                "NQM6",
+                "--confirmed-roll-date",
+                "2026-03-16",
+                "--confirmed-status",
+                "manual_validated",
+                "--confirmed-note",
+                "Confirmed against actual trading roll date.",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("roll_confirmation_status: ok", result.stdout)
+            self.assertIn("write_status: preview-only", result.stdout)
+            self.assertIn("-    roll_date_et: 2026-03-13", result.stdout)
+            self.assertIn("+    roll_date_et: 2026-03-16", result.stdout)
+            self.assertEqual(calendar.read_text(encoding="utf-8"), original)
+
+    def test_confirm_roll_write_requires_confirm_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            calendar = Path(temp_dir) / "roll.yml"
+            calendar.write_text(
+                "\n".join([
+                    "version: 1",
+                    "rolls:",
+                    "  - instrument: ES",
+                    "    old_contract: ESM6",
+                    "    new_contract: ESU6",
+                    "    roll_date_et: 2026-06-14",
+                    "    status: future_candidate",
+                    "    note: pending",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_scanner([
+                "--confirm-roll",
+                "--roll-calendar",
+                calendar,
+                "--instrument",
+                "ES",
+                "--old-contract",
+                "ESM6",
+                "--new-contract",
+                "ESU6",
+                "--confirmed-roll-date",
+                "2026-06-15",
+                "--confirmed-status",
+                "volume_validated",
+                "--confirmed-note",
+                "Volume scan confirmed.",
+                "--write",
+            ])
+
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn("roll_confirmation_status: failed", result.stdout)
+            self.assertIn("--write requires --confirm-write", result.stdout)
+
+    def test_confirm_roll_write_updates_calendar_with_explicit_confirmation(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            calendar = Path(temp_dir) / "roll.yml"
+            calendar.write_text(
+                "\n".join([
+                    "version: 1",
+                    "timezone: America/New_York",
+                    "dataset: GLBX.MDP3",
+                    "schema: ohlcv-1m",
+                    "rolls:",
+                    "  - instrument: ES",
+                    "    old_contract: ESM6",
+                    "    new_contract: ESU6",
+                    "    roll_date_et: 2026-06-14",
+                    "    status: future_candidate",
+                    "    note: pending",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_scanner([
+                "--confirm-roll",
+                "--roll-calendar",
+                calendar,
+                "--instrument",
+                "ES",
+                "--old-contract",
+                "ESM6",
+                "--new-contract",
+                "ESU6",
+                "--confirmed-roll-date",
+                "2026-06-15",
+                "--confirmed-status",
+                "volume_validated",
+                "--confirmed-note",
+                "Volume scan confirmed.",
+                "--write",
+                "--confirm-write",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("write_status: written", result.stdout)
+            written = calendar.read_text(encoding="utf-8")
+            self.assertIn("roll_date_et: 2026-06-15", written)
+            self.assertIn("status: volume_validated", written)
+            self.assertIn("note: Volume scan confirmed.", written)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import difflib
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
@@ -55,6 +56,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--roll-calendar", default=str(DEFAULT_ROLL_CALENDAR), help="Roll calendar YAML path.")
     parser.add_argument("--report-calendar", action="store_true", help="Print roll calendar reminder report.")
     parser.add_argument("--attention-days", type=int, default=30, help="Report validated entries within this many days of today.")
+    parser.add_argument("--confirm-roll", action="store_true", help="Preview or write a manual roll calendar confirmation.")
+    parser.add_argument("--confirmed-roll-date", help="Confirmed ET roll date for --confirm-roll, e.g. 2026-03-16.")
+    parser.add_argument(
+        "--confirmed-status",
+        choices=sorted(WRITE_ELIGIBLE_STATUSES),
+        help="Write-eligible status to record for --confirm-roll.",
+    )
+    parser.add_argument("--confirmed-note", help="Evidence note to record for --confirm-roll.")
+    parser.add_argument("--write", action="store_true", help="Write the confirmed roll calendar change.")
+    parser.add_argument("--confirm-write", action="store_true", help="Required with --write for roll calendar mutation.")
     return parser.parse_args()
 
 
@@ -259,6 +270,16 @@ def load_roll_calendar(path: Path) -> tuple[str, str, list[dict[str, object]]]:
     return dataset, schema, list(data.get("rolls") or [])
 
 
+def load_roll_calendar_data(path: Path) -> dict[str, object]:
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        raise ValueError("roll calendar root must be a mapping")
+    rolls = data.get("rolls")
+    if not isinstance(rolls, list):
+        raise ValueError("roll calendar requires a rolls list")
+    return data
+
+
 def print_calendar_report(args: argparse.Namespace) -> int:
     calendar_path = Path(args.roll_calendar).expanduser().resolve()
     dataset, schema, entries = load_roll_calendar(calendar_path)
@@ -296,6 +317,129 @@ def print_calendar_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def validate_confirm_roll_args(args: argparse.Namespace) -> None:
+    missing = [
+        name for name, value in [
+            ("--instrument", args.instrument),
+            ("--old-contract", args.old_contract),
+            ("--new-contract", args.new_contract),
+            ("--confirmed-roll-date", args.confirmed_roll_date),
+            ("--confirmed-status", args.confirmed_status),
+            ("--confirmed-note", args.confirmed_note),
+        ]
+        if not value
+    ]
+    if missing:
+        raise ValueError(f"missing required confirmation arguments: {', '.join(missing)}")
+    try:
+        datetime.fromisoformat(str(args.confirmed_roll_date)).date()
+    except ValueError as exc:
+        raise ValueError("--confirmed-roll-date must be an ISO date, e.g. 2026-03-16") from exc
+    if args.write and not args.confirm_write:
+        raise ValueError("--write requires --confirm-write")
+    if "\n" in str(args.confirmed_note):
+        raise ValueError("--confirmed-note must be a single line")
+
+
+def apply_roll_confirmation(data: dict[str, object], args: argparse.Namespace) -> dict[str, object]:
+    rolls = data["rolls"]
+    assert isinstance(rolls, list)
+    matches = [
+        entry for entry in rolls
+        if isinstance(entry, dict)
+        and str(entry.get("instrument") or "").upper() == args.instrument
+        and str(entry.get("old_contract") or "") == args.old_contract
+        and str(entry.get("new_contract") or "") == args.new_contract
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            "expected exactly one roll calendar entry for "
+            f"{args.instrument} {args.old_contract}->{args.new_contract}, found {len(matches)}"
+        )
+    entry = matches[0]
+    entry["roll_date_et"] = str(args.confirmed_roll_date)
+    entry["status"] = str(args.confirmed_status)
+    entry["note"] = str(args.confirmed_note)
+    return data
+
+
+def find_roll_entry_line_span(lines: list[str], args: argparse.Namespace) -> tuple[int, int]:
+    start = None
+    for index, line in enumerate(lines):
+        if line.strip() == f"- instrument: {args.instrument}":
+            start = index
+            end = len(lines)
+            for next_index in range(index + 1, len(lines)):
+                if lines[next_index].startswith("  - instrument: "):
+                    end = next_index
+                    break
+            block = "\n".join(lines[start:end])
+            if (
+                f"old_contract: {args.old_contract}" in block
+                and f"new_contract: {args.new_contract}" in block
+            ):
+                return start, end
+    raise ValueError(
+        "could not locate roll calendar text block for "
+        f"{args.instrument} {args.old_contract}->{args.new_contract}"
+    )
+
+
+def replace_entry_field(block: list[str], key: str, value: str) -> list[str]:
+    replacement = f"    {key}: {value}"
+    for index, line in enumerate(block):
+        if line.startswith(f"    {key}:"):
+            return [*block[:index], replacement, *block[index + 1:]]
+    return [*block, replacement]
+
+
+def apply_roll_confirmation_text(old_text: str, args: argparse.Namespace) -> str:
+    lines = old_text.splitlines()
+    start, end = find_roll_entry_line_span(lines, args)
+    block = lines[start:end]
+    block = replace_entry_field(block, "roll_date_et", str(args.confirmed_roll_date))
+    block = replace_entry_field(block, "status", str(args.confirmed_status))
+    block = replace_entry_field(block, "note", str(args.confirmed_note))
+    suffix = "\n" if old_text.endswith("\n") else ""
+    return "\n".join([*lines[:start], *block, *lines[end:]]) + suffix
+
+
+def print_or_write_roll_confirmation(args: argparse.Namespace) -> int:
+    validate_confirm_roll_args(args)
+    calendar_path = Path(args.roll_calendar).expanduser().resolve()
+    old_text = calendar_path.read_text(encoding="utf-8")
+    data = load_roll_calendar_data(calendar_path)
+    apply_roll_confirmation(data, args)
+    new_text = apply_roll_confirmation_text(old_text, args)
+    print("roll_confirmation_status: ok")
+    print(f"calendar: {calendar_path}")
+    print(f"instrument: {args.instrument}")
+    print(f"old_contract: {args.old_contract}")
+    print(f"new_contract: {args.new_contract}")
+    print(f"confirmed_roll_date: {args.confirmed_roll_date}")
+    print(f"confirmed_status: {args.confirmed_status}")
+    if old_text == new_text:
+        print("change_status: no-op")
+    else:
+        print("change_status: pending")
+    if args.write:
+        calendar_path.write_text(new_text, encoding="utf-8")
+        print("write_status: written")
+        return 0
+    print("write_status: preview-only")
+    print("\npatch preview")
+    diff = difflib.unified_diff(
+        old_text.splitlines(),
+        new_text.splitlines(),
+        fromfile=str(calendar_path),
+        tofile=str(calendar_path),
+        lineterm="",
+    )
+    for line in diff:
+        print(line)
+    return 0
+
+
 def main() -> int:
     args = parse_args()
     if args.report_calendar:
@@ -303,6 +447,13 @@ def main() -> int:
             return print_calendar_report(args)
         except Exception as exc:
             print("roll_calendar_report_status: failed")
+            print(f"error: {exc}")
+            return 1
+    if args.confirm_roll:
+        try:
+            return print_or_write_roll_confirmation(args)
+        except Exception as exc:
+            print("roll_confirmation_status: failed")
             print(f"error: {exc}")
             return 1
     try:

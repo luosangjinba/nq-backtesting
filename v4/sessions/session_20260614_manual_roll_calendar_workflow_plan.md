@@ -322,6 +322,18 @@ Acceptance:
 - Notes must preserve why the roll date was accepted.
 - Existing validated ES entries are not changed accidentally.
 
+Step 290.5 result:
+
+- Extended `v4/scripts/scan_roll_volume_candidates.py` with `--confirm-roll`.
+- Confirmation mode identifies exactly one calendar entry by `instrument`, `old_contract`, and `new_contract`.
+- User must supply `--confirmed-roll-date`, `--confirmed-status`, and `--confirmed-note`.
+- `--confirmed-status` is limited to write-eligible statuses: `validated`, `volume_validated`, `manual_validated`.
+- Default behavior is preview-only: it prints a unified diff patch for `futures_roll_calendar.yml` and does not write the file.
+- Actual calendar mutation requires both `--write` and `--confirm-write`.
+- Missing confirmation fields, invalid dates, ambiguous entries, and `--write` without `--confirm-write` fail readably.
+- Added offline tests for preview-only behavior, write guard rejection, and explicit confirmed writes against a temp calendar.
+- No real roll calendar entry was changed in this step.
+
 ### Step 290.6 - Resolve NQ 2026-03 Conflict
 
 Use the scanner and confirmation workflow for:
