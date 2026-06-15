@@ -334,6 +334,7 @@ Step 289.5 result:
 - ES stage delegates to `v4/scripts/daily_databento_refresh.py`, preserving dry-run-first, warning blocking, and guarded ES-only writes.
 - VIX stage delegates to `v4/scripts/update_vix_daily.py`, preserving dry-run default and Cboe/local source support.
 - Verification delegates to `v4/scripts/verify_data_freshness.py`.
+- Runner supports `--db` passthrough for isolated verification fixtures and non-default databases.
 - Local verification covered manual dry-run with skipped ES and local VIX source, write-confirm guard, auto state skip, and auto lock failure.
 
 ### Step 289.6 - Documentation And Scheduler Plan
@@ -381,6 +382,17 @@ Acceptance:
 - Tests do not require network.
 - Tests use temp files or fixtures.
 - Existing Daily Regime loader smoke still passes.
+
+Step 289.7 result:
+
+- Added `v4/tests/test_data_freshness_scripts.py`.
+- Tests cover VIX dry-run no-write reporting for inserted/updated rows.
+- Tests cover VIX write merge/dedupe/sort using temp CSV files.
+- Tests cover freshness verifier duplicate DB timestamp groups, duplicate VIX dates, and malformed VIX rows using a temp DuckDB.
+- Tests cover unified runner write-confirm guard and manual local refresh path with temp DB/VIX fixtures.
+- Tests cover auto run-state skip and existing-lock failure.
+- Added `--db` passthrough to `v4/scripts/daily_data_refresh.py` so runner tests and non-default verifier runs stay isolated.
+- Verification run: `python3 v4/tests/test_data_freshness_scripts.py`, `node v4/tests/daily-regime-loader-smoke.js`, Python compile check, and `git diff --check` all passed.
 
 ### Step 289.8 - Real Dry-Run Verification
 

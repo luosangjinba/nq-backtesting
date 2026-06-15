@@ -49,6 +49,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--vix-source-file", help="Use local VIX source CSV instead of network URL.")
     parser.add_argument("--vix-csv", help="Target VIX CSV path.")
 
+    parser.add_argument("--db", help="DuckDB path passed to freshness verification.")
     parser.add_argument("--api-url", help="Optional V4 API base URL for freshness API smoke.")
     parser.add_argument("--warn-es-stale-hours", type=float, default=72.0, help="Freshness warning threshold for ES.")
     parser.add_argument("--warn-vix-stale-days", type=int, default=7, help="Freshness warning threshold for VIX.")
@@ -142,6 +143,8 @@ def verify_command(args: argparse.Namespace) -> list[str]:
     ]
     if args.vix_csv:
         command.extend(["--vix-csv", args.vix_csv])
+    if args.db:
+        command.extend(["--db", args.db])
     if args.api_url:
         command.extend(["--api-url", args.api_url])
     return command
