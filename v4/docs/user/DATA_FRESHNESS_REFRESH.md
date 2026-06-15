@@ -17,7 +17,7 @@ ES 1m:
 
 - Source: Databento Historical `GLBX.MDP3` / `ohlcv-1m`.
 - Target: `v4/data/trading_data.duckdb`, table `futures_1m`.
-- Write policy: insert-only, guarded, ES-only.
+- Write policy: insert-only and guarded.
 - Freshness: Databento available end is discovered by the updater; do not assume a fixed delay.
 
 VIX daily:
@@ -29,9 +29,11 @@ VIX daily:
 
 NQ 1m:
 
-- Current status: report-only.
+- Current status: guarded write for explicitly selected write-eligible ranges only.
+- Latest controlled selected-range write refreshed NQ through `2026-06-12 16:59`.
+- `NQZ5 -> NQH6` is resolved as `2025-12-15`, `volume_validated`.
 - `NQH6 -> NQM6` is resolved as `2026-03-16`, `volume_validated`.
-- Full default NQ refresh remains blocked by earlier `inferred_no_db_overlap` coverage and later `future_candidate` coverage.
+- Full default NQ refresh remains blocked by `NQM6 -> NQU6` `future_candidate` coverage.
 - Use `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md` before any NQ write discussion.
 
 ## Environment

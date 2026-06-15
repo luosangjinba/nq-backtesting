@@ -575,3 +575,45 @@ Step 290.12 result:
 Start Step 290 with read-only scanning and reporting.
 
 Do not edit `futures_roll_calendar.yml` or enable NQ writes until the volume evidence and the user's actual trading roll date agree.
+
+## Post-Closeout NQ Selected-Range Refresh
+
+After Step 290 closeout, the user provided a persistent Databento key and asked to proceed with the recommended NQ refresh sequence.
+
+Actions:
+
+- Persisted `DATABENTO_API_KEY` in the local shell profile; the key is not stored in the repository.
+- Scanned `NQZ5 -> NQH6`, `2025-12-10` through `2025-12-18`:
+  - first overtake `2025-12-15`;
+  - first 2-day new-contract dominance `2025-12-15`;
+  - candidate roll date `2025-12-15`.
+- Updated `NQZ5 -> NQH6` in `futures_roll_calendar.yml`:
+  - `roll_date_et: 2025-12-15`;
+  - `status: volume_validated`.
+- Scanned `NQM6 -> NQU6`, `2026-06-10` through available licensed data ending `2026-06-14T14:30:00`:
+  - no new-contract dominance detected;
+  - `NQM6 -> NQU6` remains `future_candidate`.
+- Updated `update_databento_1m.py` so `--write --confirm-write` is no longer ES-only; writes are allowed for ES or NQ only when all selected roll segments are write-eligible.
+- NQ preflight to `2026-06-14T00:00:00` passed with all selected segments write-eligible.
+- NQ preflight across `2026-06-14T00:00:00` remained blocked by `NQU6: future_candidate`.
+- NQ dry-run to `2026-06-14T00:00:00`:
+  - downloaded normalized rows `212,701`;
+  - duplicate candidate keys `0`;
+  - existing candidate keys `0`;
+  - would insert rows `212,701`;
+  - candidate range `2025-11-04 18:40:00 -> 2026-06-12 16:59:00`;
+  - Databento degraded warnings appeared for `2025-11-28`, `2026-03-15`, `2026-03-16`, `2026-04-10`, and `2026-05-24`.
+- Executed guarded NQ write for the same selected range:
+  - before rows `5,906,274`;
+  - inserted rows `212,701`;
+  - after rows `6,118,975`;
+  - NQ max timestamp updated from `2025-11-04 18:39:00` to `2026-06-12 16:59:00`.
+- Verification:
+  - `python3 v4/scripts/verify_data_freshness.py` passed with hard errors `0`, warnings `1` for ES stale age;
+  - `python3 v4/scripts/verify_v4_bars_api.py --instrument NQ --api-url http://127.0.0.1:8766` passed, returning 50 NQ bars ending `2026-06-12 16:59`;
+  - `python3 v4/scripts/verify_data_freshness.py --api-url http://127.0.0.1:8766` passed with ES and NQ API smoke ok.
+
+Current NQ status:
+
+- NQ 1m data is refreshed through `2026-06-12 16:59`.
+- Full default NQ refresh beyond the June roll boundary remains blocked until `NQM6 -> NQU6` is volume/manual validated.

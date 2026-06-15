@@ -2,9 +2,8 @@
 """Databento 1m insert-only updater for V4 futures data.
 
 By default this script runs a dry-run. Write mode is deliberately narrow:
-only ES is allowed, `--confirm-write` is required, all roll segments must have
-write-eligible roll statuses, and insertion is `insert where not exists` inside
-a transaction.
+`--confirm-write` is required, all roll segments must have write-eligible roll
+statuses, and insertion is `insert where not exists` inside a transaction.
 """
 
 from __future__ import annotations
@@ -67,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", help="Override Databento dataset from roll calendar.")
     parser.add_argument("--schema", help="Override Databento schema from roll calendar.")
     parser.add_argument("--dry-run", action="store_true", help="Explicitly run read-only dry-run. This is the default.")
-    parser.add_argument("--write", action="store_true", help="Execute insert-only write. Currently allowed only for ES.")
+    parser.add_argument("--write", action="store_true", help="Execute guarded insert-only write.")
     parser.add_argument("--confirm-write", action="store_true", help="Required with --write.")
     parser.add_argument(
         "--roll-status-preflight",
@@ -357,8 +356,6 @@ def validate_write_allowed(args: argparse.Namespace, segments: list[Segment]) ->
         return
     if not args.confirm_write:
         raise SystemExit("--write requires --confirm-write")
-    if args.instrument != "ES":
-        raise SystemExit("--write is currently allowed only for ES")
     blocked = [segment for segment in segments if not is_write_eligible_roll_status(segment.roll_status)]
     if blocked:
         details = ", ".join(f"{segment.contract}:{segment.roll_status}" for segment in blocked)
@@ -409,9 +406,6 @@ def main() -> None:
     args = parse_args()
     if args.write and not args.confirm_write:
         raise SystemExit("--write requires --confirm-write")
-    if args.write and args.instrument != "ES":
-        raise SystemExit("--write is currently allowed only for ES")
-
     db_path = Path(args.db).expanduser().resolve()
     if not db_path.exists():
         raise SystemExit(f"database not found: {db_path}")

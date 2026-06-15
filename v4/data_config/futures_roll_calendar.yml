@@ -25,9 +25,9 @@ rolls:
   - instrument: NQ
     old_contract: NQZ5
     new_contract: NQH6
-    roll_date_et: 2025-12-14
-    status: inferred_no_db_overlap
-    note: NQ DB stops before this roll; inferred from ES validation and 2025 ES/NQ shared roll behavior.
+    roll_date_et: 2025-12-15
+    status: volume_validated
+    note: 'Volume audit resolved no-overlap entry: NQH6 first overtakes NQZ5 on 2025-12-15; local NQ DB has no direct overlap for validation.'
   - instrument: ES
     old_contract: ESH6
     new_contract: ESM6

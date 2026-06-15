@@ -8,7 +8,7 @@ For the current combined manual/automatic ES + VIX workflow, see
 Current production boundary:
 
 - ES only.
-- NQ full refresh is not write-enabled; check `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md` before any NQ write discussion.
+- NQ selected-range write is available only when roll preflight and dry-run are clean; check `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md` before any NQ write.
 - The local DuckDB remains authoritative. Databento refresh is insert-only.
 - The API key must be supplied through `DATABENTO_API_KEY`; do not save it in repo files.
 
@@ -59,4 +59,4 @@ The API server must be running first. If only API verification is needed, start 
 
 - Databento Historical API is delayed relative to live market data and is not the live journal feed.
 - Daily refresh should stay manual until several runs confirm stable behavior around Databento end time and degraded-condition warnings.
-- NQ roll preflight can be used for research. `NQH6 -> NQM6` is resolved, but full default NQ refresh remains blocked by other non-write-eligible roll segments.
+- NQ roll preflight must be used before NQ writes. `NQH6 -> NQM6` and `NQZ5 -> NQH6` are resolved, but full default NQ refresh beyond the June 2026 boundary remains blocked by `NQM6 -> NQU6`.

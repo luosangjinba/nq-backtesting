@@ -26,7 +26,7 @@ Blocked statuses:
 - `inferred_volume_conflict`: volume evidence conflicts with the current candidate date.
 - unknown or blank status.
 
-`update_databento_1m.py --write` only accepts write-eligible roll segments. NQ write mode is still not opened for full refresh; use preflight and dry-run first.
+`update_databento_1m.py --write` only accepts write-eligible roll segments. For NQ, use preflight and dry-run first, and only write an explicitly selected range whose segments are all write-eligible.
 
 ## Reminder Report
 
@@ -100,8 +100,10 @@ python3 v4/scripts/update_databento_1m.py \
 
 Current state:
 
+- `NQZ5 -> NQH6` is resolved as `2025-12-15`, `volume_validated`.
 - `NQH6 -> NQM6` is resolved as `2026-03-16`, `volume_validated`.
-- Full default NQ refresh remains blocked by earlier `inferred_no_db_overlap` coverage and later `future_candidate` coverage.
+- NQ has been refreshed through `2026-06-12 16:59` by a guarded selected-range write ending before the June roll boundary.
+- Full default NQ refresh remains blocked by `NQM6 -> NQU6` `future_candidate` coverage.
 - No NQ write should run until the selected range is write-eligible, Databento dry-run is clean, and the user explicitly confirms.
 
 ## Quarterly Checklist

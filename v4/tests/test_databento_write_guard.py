@@ -134,11 +134,14 @@ class DatabentoWriteGuardTests(unittest.TestCase):
                     updater.validate_write_allowed(args(), [segment(status)])
                 self.assertIn("write-eligible roll statuses", str(raised.exception))
 
-    def test_write_guard_still_rejects_nq_write(self) -> None:
-        with self.assertRaises(SystemExit) as raised:
-            updater.validate_write_allowed(args(instrument="NQ"), [segment("volume_validated")])
+    def test_write_guard_allows_nq_when_selected_segments_are_write_eligible(self) -> None:
+        updater.validate_write_allowed(args(instrument="NQ"), [segment("volume_validated")])
 
-        self.assertIn("currently allowed only for ES", str(raised.exception))
+    def test_write_guard_rejects_nq_blocked_segments(self) -> None:
+        with self.assertRaises(SystemExit) as raised:
+            updater.validate_write_allowed(args(instrument="NQ"), [segment("future_candidate")])
+
+        self.assertIn("write-eligible roll statuses", str(raised.exception))
 
     def test_dry_run_skips_write_guard_status_rejection(self) -> None:
         updater.validate_write_allowed(args(write=False, confirm_write=False), [segment("future_candidate")])
