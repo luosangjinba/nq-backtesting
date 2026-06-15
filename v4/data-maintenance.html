@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V4 Data Maintenance</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f141a;
+      --panel: #151c24;
+      --panel-2: #111820;
+      --border: #263241;
+      --text: #d9e2ec;
+      --muted: #8fa1b4;
+      --accent: #2fb7a4;
+      --danger: #e06262;
+      --warn: #d5a03a;
+      --ok: #6fc17a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: #111821;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+    main {
+      display: grid;
+      grid-template-columns: minmax(360px, 520px) 1fr;
+      gap: 14px;
+      padding: 14px;
+      min-height: calc(100vh - 58px);
+    }
+    section {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-2);
+      font-weight: 650;
+      color: #c8d6e3;
+    }
+    .content { padding: 12px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    input, select, textarea, button {
+      font: inherit;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: #0d131a;
+      color: var(--text);
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 9px;
+      min-height: 36px;
+    }
+    textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+    button {
+      min-height: 36px;
+      padding: 8px 10px;
+      cursor: pointer;
+      background: #16232e;
+    }
+    button.primary {
+      border-color: #238d81;
+      background: #12342f;
+      color: #dff7f3;
+    }
+    button.danger {
+      border-color: #804040;
+      background: #321719;
+      color: #ffe1e1;
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .row button { flex: 1 1 150px; }
+    .preset {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .status {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0d131a;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pill.ok { color: var(--ok); border-color: #345f3a; }
+    .pill.warn { color: var(--warn); border-color: #665225; }
+    .pill.fail { color: var(--danger); border-color: #6b3636; }
+    pre {
+      margin: 0;
+      padding: 12px;
+      min-height: calc(100vh - 118px);
+      max-height: calc(100vh - 118px);
+      overflow: auto;
+      background: #090d12;
+      color: #c8d6e3;
+      font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .stack { display: grid; gap: 12px; }
+    .compact { margin-top: 10px; }
+    @media (max-width: 920px) {
+      main { grid-template-columns: 1fr; }
+      pre { min-height: 420px; max-height: 70vh; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>V4 Data Maintenance</h1>
+    <div class="row" style="margin:0">
+      <span id="statePill" class="pill">idle</span>
+      <button id="clearOutput" type="button">Clear Output</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stack">
+      <section>
+        <div class="section-header">Roll Calendar</div>
+        <div class="content">
+          <div class="preset">
+            <label>
+              Preset
+              <select id="preset">
+                <option value="ES_JUN">ESM6 -> ESU6 manual roll</option>
+                <option value="NQ_JUN">NQM6 -> NQU6 manual roll</option>
+                <option value="CUSTOM">Custom</option>
+              </select>
+            </label>
+            <div class="grid">
+              <label>Instrument <select id="instrument"><option>ES</option><option>NQ</option></select></label>
+              <label>Roll date <input id="rollDate" value="2026-06-15"></label>
+              <label>Old contract <input id="oldContract" value="ESM6"></label>
+              <label>New contract <input id="newContract" value="ESU6"></label>
+            </div>
+            <label>
+              Status
+              <select id="status">
+                <option>manual_validated</option>
+                <option>volume_validated</option>
+                <option>validated</option>
+              </select>
+            </label>
+            <label>Note <textarea id="note">Manual trading system switched to ESU6 on 2026-06-15.</textarea></label>
+          </div>
+          <div class="row">
+            <button data-action="roll_report" type="button">Roll Report</button>
+            <button id="previewRoll" class="primary" type="button">Preview Confirm</button>
+            <button id="writeRoll" class="danger" type="button">Write Confirm</button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-header">Refresh Range</div>
+        <div class="content">
+          <div class="grid">
+            <label>Instrument <select id="refreshInstrument"><option>ES</option><option>NQ</option></select></label>
+            <label>Chunk days <input id="chunkDays" type="number" min="1" max="30" value="3"></label>
+            <label>Start optional <input id="start" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
+            <label>End required <input id="end" value="2026-06-16T00:00:00"></label>
+          </div>
+          <div class="row">
+            <button id="preflight" type="button">Preflight</button>
+            <button id="dryRun" class="primary" type="button">Dry Run</button>
+          </div>
+          <div class="compact">
+            <label>Write confirmation <input id="confirmText" placeholder="WRITE ES or WRITE NQ"></label>
+            <div class="row">
+              <button id="writeData" class="danger" type="button">Write Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-header">Verification</div>
+        <div class="content">
+          <div class="row">
+            <button data-action="verify" type="button">Verify Data</button>
+            <button data-action="verify_api" type="button">Verify Data + API</button>
+            <button id="smokeEs" type="button">ES API Smoke</button>
+            <button id="smokeNq" type="button">NQ API Smoke</button>
+          </div>
+          <p class="status">Write actions require the backend API on port 8766 and the Databento key in the API process environment.</p>
+        </div>
+      </section>
+    </div>
+
+    <section>
+      <div class="section-header">Output</div>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script>
+    const API = 'http://127.0.0.1:8766/v4/data_maintenance/run';
+    const output = document.getElementById('output');
+    const pill = document.getElementById('statePill');
+    const presets = {
+      ES_JUN: {
+        instrument: 'ES',
+        oldContract: 'ESM6',
+        newContract: 'ESU6',
+        rollDate: '2026-06-15',
+        note: 'Manual trading system switched to ESU6 on 2026-06-15.'
+      },
+      NQ_JUN: {
+        instrument: 'NQ',
+        oldContract: 'NQM6',
+        newContract: 'NQU6',
+        rollDate: '2026-06-15',
+        note: 'Manual trading system switched to NQU6 on 2026-06-15.'
+      }
+    };
+
+    function value(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function setValue(id, next) {
+      document.getElementById(id).value = next;
+    }
+
+    function append(text) {
+      output.textContent = `${output.textContent}\n\n${text}`.trim();
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function setState(state, kind = '') {
+      pill.textContent = state;
+      pill.className = `pill ${kind}`;
+      document.querySelectorAll('button').forEach((button) => {
+        if (button.id !== 'clearOutput') button.disabled = state === 'running';
+      });
+    }
+
+    async function run(payload) {
+      setState('running', 'warn');
+      append(`> ${payload.action}`);
+      try {
+        const response = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
+        append(`${header}\n${data.output || data.error || ''}`);
+        setState(data.ok ? 'ok' : 'failed', data.ok ? 'ok' : 'fail');
+      } catch (error) {
+        append(`request failed: ${error.message}`);
+        setState('failed', 'fail');
+      }
+    }
+
+    function rollPayload(action) {
+      return {
+        action,
+        instrument: value('instrument'),
+        oldContract: value('oldContract'),
+        newContract: value('newContract'),
+        rollDate: value('rollDate'),
+        status: value('status'),
+        note: value('note')
+      };
+    }
+
+    function refreshPayload(action) {
+      return {
+        action,
+        instrument: value('refreshInstrument'),
+        start: value('start'),
+        end: value('end'),
+        chunkDays: value('chunkDays'),
+        confirmText: value('confirmText')
+      };
+    }
+
+    document.getElementById('preset').addEventListener('change', (event) => {
+      const preset = presets[event.target.value];
+      if (!preset) return;
+      setValue('instrument', preset.instrument);
+      setValue('oldContract', preset.oldContract);
+      setValue('newContract', preset.newContract);
+      setValue('rollDate', preset.rollDate);
+      setValue('note', preset.note);
+      setValue('refreshInstrument', preset.instrument);
+      setValue('confirmText', '');
+    });
+
+    document.querySelectorAll('[data-action]').forEach((button) => {
+      button.addEventListener('click', () => run({ action: button.dataset.action }));
+    });
+    document.getElementById('previewRoll').addEventListener('click', () => run(rollPayload('confirm_roll_preview')));
+    document.getElementById('writeRoll').addEventListener('click', () => run(rollPayload('confirm_roll_write')));
+    document.getElementById('preflight').addEventListener('click', () => run(refreshPayload('preflight')));
+    document.getElementById('dryRun').addEventListener('click', () => run(refreshPayload('dry_run')));
+    document.getElementById('writeData').addEventListener('click', () => run(refreshPayload('write')));
+    document.getElementById('smokeEs').addEventListener('click', () => run({ action: 'api_smoke', instrument: 'ES' }));
+    document.getElementById('smokeNq').addEventListener('click', () => run({ action: 'api_smoke', instrument: 'NQ' }));
+    document.getElementById('clearOutput').addEventListener('click', () => {
+      output.textContent = 'Ready.';
+      setState('idle');
+    });
+  </script>
+</body>
+</html>

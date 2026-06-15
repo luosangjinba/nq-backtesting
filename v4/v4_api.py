@@ -12,6 +12,8 @@ import json
 import os
 import csv
 import yaml
+import subprocess
+import sys
 from datetime import date, datetime, timezone, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -24,6 +26,7 @@ with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     V4_CONFIG = yaml.safe_load(f)
 
 V4_ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(V4_ROOT)
 
 
 def _resolve_db_path():
@@ -128,6 +131,152 @@ def _parse_impact_filter(value):
         return None
     impacts = {part.strip().lower() for part in str(value).split(",") if part.strip()}
     return impacts or None
+
+
+def _read_json_body(handler):
+    length = int(handler.headers.get("Content-Length", "0") or "0")
+    if length <= 0:
+        return {}
+    raw = handler.rfile.read(length)
+    if not raw:
+        return {}
+    return json.loads(raw.decode("utf-8"))
+
+
+def _clean_text(value, max_length=500):
+    text = str(value or "").strip()
+    if "\n" in text or "\r" in text:
+        raise ValueError("Values must be single-line text")
+    if len(text) > max_length:
+        raise ValueError(f"Value is too long; max {max_length} characters")
+    return text
+
+
+def _choice(value, allowed, field):
+    text = _clean_text(value)
+    if text not in allowed:
+        raise ValueError(f"Invalid {field}: {text}")
+    return text
+
+
+def _optional_datetime(value, field):
+    text = _clean_text(value)
+    if not text:
+        return ""
+    # Accept date or datetime strings; downstream scripts parse the same format.
+    datetime.fromisoformat(text if "T" in text or " " in text else f"{text}T00:00:00")
+    return text
+
+
+def _iso_date(value, field):
+    text = _clean_text(value)
+    date.fromisoformat(text)
+    return text
+
+
+def _run_maintenance_command(args, timeout=600):
+    env = os.environ.copy()
+    result = subprocess.run(
+        args,
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=timeout,
+        check=False,
+    )
+    command_label = " ".join(args[:3] + (["..."] if len(args) > 3 else []))
+    return {
+        "ok": result.returncode == 0,
+        "returncode": result.returncode,
+        "command": command_label,
+        "output": result.stdout,
+    }
+
+
+def run_data_maintenance_action(payload):
+    action = _choice(payload.get("action"), {
+        "roll_report",
+        "confirm_roll_preview",
+        "confirm_roll_write",
+        "preflight",
+        "dry_run",
+        "write",
+        "verify",
+        "verify_api",
+        "api_smoke",
+    }, "action")
+
+    python = sys.executable
+    if action == "roll_report":
+        return _run_maintenance_command([python, "v4/scripts/scan_roll_volume_candidates.py", "--report-calendar"])
+
+    if action in {"confirm_roll_preview", "confirm_roll_write"}:
+        instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
+        old_contract = _clean_text(payload.get("oldContract"), 20)
+        new_contract = _clean_text(payload.get("newContract"), 20)
+        roll_date = _iso_date(payload.get("rollDate"), "rollDate")
+        status = _choice(payload.get("status"), {"validated", "volume_validated", "manual_validated"}, "status")
+        note = _clean_text(payload.get("note"), 500)
+        args = [
+            python, "v4/scripts/scan_roll_volume_candidates.py",
+            "--confirm-roll",
+            "--instrument", instrument,
+            "--old-contract", old_contract,
+            "--new-contract", new_contract,
+            "--confirmed-roll-date", roll_date,
+            "--confirmed-status", status,
+            "--confirmed-note", note,
+        ]
+        if action == "confirm_roll_write":
+            args.extend(["--write", "--confirm-write"])
+        return _run_maintenance_command(args)
+
+    if action in {"preflight", "dry_run", "write"}:
+        instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
+        start = _optional_datetime(payload.get("start"), "start")
+        end = _optional_datetime(payload.get("end"), "end")
+        chunk_days = int(payload.get("chunkDays") or 3)
+        if chunk_days <= 0 or chunk_days > 30:
+            raise ValueError("chunkDays must be between 1 and 30")
+        args = [python, "v4/scripts/update_databento_1m.py", "--instrument", instrument]
+        if start:
+            args.extend(["--start", start])
+        if end:
+            args.extend(["--end", end])
+        if action == "preflight":
+            if not end:
+                raise ValueError("preflight requires an end datetime")
+            args.append("--roll-status-preflight")
+        else:
+            args.extend(["--chunk-days", str(chunk_days), "--show-sample", "2"])
+            if action == "write":
+                confirm_text = _clean_text(payload.get("confirmText"), 80)
+                expected = f"WRITE {instrument}"
+                if confirm_text != expected:
+                    raise ValueError(f"Type '{expected}' to enable write")
+                args.extend(["--write", "--confirm-write"])
+        return _run_maintenance_command(args, timeout=900)
+
+    if action == "verify":
+        return _run_maintenance_command([python, "v4/scripts/verify_data_freshness.py"])
+
+    if action == "verify_api":
+        return _run_maintenance_command([
+            python, "v4/scripts/verify_data_freshness.py",
+            "--api-url", "http://127.0.0.1:8766",
+        ])
+
+    if action == "api_smoke":
+        instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
+        return _run_maintenance_command([
+            python, "v4/scripts/verify_v4_bars_api.py",
+            "--instrument", instrument,
+            "--api-url", "http://127.0.0.1:8766",
+        ])
+
+    raise ValueError(f"Unsupported action: {action}")
 
 
 def _event_time_from_et(event_time_et):
@@ -335,6 +484,25 @@ class V4Handler(BaseHTTPRequestHandler):
         else:
             self._send_error(f"Unknown endpoint: {path}", 404)
 
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path != "/v4/data_maintenance/run":
+            self._send_error(f"Unknown endpoint: {path}", 404)
+            return
+
+        try:
+            payload = _read_json_body(self)
+            result = run_data_maintenance_action(payload)
+            self._send_json(result, 200 if result.get("ok") else 409)
+        except subprocess.TimeoutExpired:
+            self._send_error("Command timed out", 504)
+        except (ValueError, json.JSONDecodeError) as e:
+            self._send_error(str(e), 400)
+        except Exception as e:
+            self._send_error(str(e), 500)
+
     def _handle_bars(self, params):
         start = params.get("start", [None])[0]
         end = params.get("end", [None])[0]
@@ -395,7 +563,7 @@ class V4Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 

@@ -52,6 +52,8 @@ VIX refresh does not require a key.
 
 Manual refresh is the normal command when you want data before review, including after the 09:30-11:00 main trading window.
 
+For button-based local maintenance, open `http://127.0.0.1:8001/data-maintenance.html` while the V4 API and web server are running.
+
 Dry-run plus verification:
 
 ```bash
