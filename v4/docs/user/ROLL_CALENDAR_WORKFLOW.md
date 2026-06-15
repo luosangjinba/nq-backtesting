@@ -38,6 +38,8 @@ python3 v4/scripts/scan_roll_volume_candidates.py --report-calendar
 
 The report shows old/new contracts, roll date, status, write eligibility, attention flag, recommended action, and note.
 
+The same workflow is available through `http://127.0.0.1:8001/data-maintenance.html`. Page-specific help is in `v4/docs/user/DATA_MAINTENANCE_PAGE.md`.
+
 ## Volume Scan
 
 Use raw contract volume to find candidate roll dates:
