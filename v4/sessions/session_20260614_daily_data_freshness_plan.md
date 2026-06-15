@@ -321,6 +321,21 @@ Acceptance:
 - VIX write cannot happen accidentally.
 - Manual and automatic modes have distinct output labels.
 
+Step 289.5 result:
+
+- Added `v4/scripts/daily_data_refresh.py`.
+- Default mode is manual dry-run plus freshness verification.
+- `--manual` is user-triggered and can run repeatedly.
+- `--auto` uses a lock file and run-state file under `/tmp` by default.
+- `--auto` records the last successful run date and skips another same-day auto run unless `--force-auto` is supplied.
+- Existing lock files fail auto mode with exit code 3 to prevent overlapping scheduler runs.
+- `--write-es` and `--write-vix` are independent and both require `--confirm-write`.
+- `--skip-es`, `--skip-vix`, and `--skip-verify` support local/offline validation and partial operations.
+- ES stage delegates to `v4/scripts/daily_databento_refresh.py`, preserving dry-run-first, warning blocking, and guarded ES-only writes.
+- VIX stage delegates to `v4/scripts/update_vix_daily.py`, preserving dry-run default and Cboe/local source support.
+- Verification delegates to `v4/scripts/verify_data_freshness.py`.
+- Local verification covered manual dry-run with skipped ES and local VIX source, write-confirm guard, auto state skip, and auto lock failure.
+
 ### Step 289.6 - Documentation And Scheduler Plan
 
 Document the manual and scheduler-ready workflow:
