@@ -148,6 +148,18 @@ Acceptance:
 - Session doc and TODO record the boundary.
 - No runtime code changes.
 
+Step 289.1 result:
+
+- ES 1m is the only write-enabled futures series for this pipeline.
+- NQ 1m remains report-only until the `NQH6 -> NQM6` roll conflict is resolved.
+- Manual refresh is an explicit first-class workflow and may be run any time, any number of times.
+- Automatic refresh is a scheduler-oriented workflow intended to run once after the regular session is closed.
+- Manual and automatic refresh use the same insert-only ES updater, Cboe VIX updater, and freshness verifier.
+- Databento delay is not modeled as a fixed number of minutes; the pipeline must discover the available end from Databento metadata and report the actual lag.
+- VIX uses Cboe official `VIX_History.csv` as the primary source; yfinance is fallback-only.
+- API keys and run-state files must stay outside repo-tracked source files.
+- Scheduler activation remains deferred until explicitly requested.
+
 ### Step 289.2 - Audit Existing Refresh Scripts And Data Files
 
 Audit:

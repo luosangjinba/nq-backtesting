@@ -874,7 +874,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 288.12: Documentation and closeout：更新 TODO/session/必要用户文档，记录 lifecycle 语义、工作流、Order Setup 关系、非目标、验证结果；最终 clean worktree。已更新中英文用户指南和 README，session 记录最终收口；Step 288 完成。
 
 - [ ] Step 289: Daily data freshness pipeline。目标是在真实 Journal 数据录入前，固定 ES 1m + shared VIX 的刷新、验证和后续调度准备流程；支持用户随时手动刷新且可无限次运行，自动刷新只设计为每日休市后一次补全；ES 使用既有 guarded Databento insert-only 路径，NQ 因 `NQH6 -> NQM6` roll conflict 继续禁写，VIX 使用 Cboe 官方 CSV，最后提供一个统一 manual/auto dry-run/write/verify runner。计划见 `v4/sessions/session_20260614_daily_data_freshness_plan.md`。
-  - [ ] Step 289.1: Freeze data freshness boundary：冻结 ES write、NQ defer、VIX Cboe 官方来源、manual unlimited、auto once-after-close、secrets-in-env 的生产边界；只改文档。
+  - [x] Step 289.1: Freeze data freshness boundary：冻结 ES write、NQ defer、VIX Cboe 官方来源、manual unlimited、auto once-after-close、secrets-in-env 的生产边界；只改文档。已明确：手动刷新可随时无限次执行，自动刷新面向每日休市后一次；Databento 不写死固定 delay，必须按 metadata available end clamp 并报告实际 lag；scheduler 暂不启用。
   - [ ] Step 289.2: Audit existing refresh scripts and data files：审计 Databento wrapper/updater/API smoke、VIX CSV、Daily Regime VIX loader，记录已有能力和缺口。
   - [ ] Step 289.3: Implement VIX daily updater：从 Cboe 官方 VIX history CSV 拉取，新增 dry-run 默认、`--write --confirm-write` 写入、merge/dedupe/sort、保持 `DATE,OPEN,HIGH,LOW,CLOSE` schema 的 VIX updater。
   - [ ] Step 289.4: Implement freshness verifier：检查 ES/NQ row count/max ts/duplicates、VIX latest date/duplicates/malformed rows，并支持可选 API smoke。
