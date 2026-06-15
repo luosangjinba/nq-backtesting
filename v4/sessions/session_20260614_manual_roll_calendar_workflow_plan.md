@@ -119,6 +119,17 @@ Acceptance:
 - Session doc and TODO capture the boundary.
 - No runtime code changes.
 
+Step 290.1 result:
+
+- Manual confirmation is the only authority for changing `futures_roll_calendar.yml`.
+- Volume crossover is a candidate/reminder signal only; it must not mutate the calendar or enable writes by itself.
+- ES and NQ will use the same quarterly roll maintenance workflow going forward.
+- NQ remains write-disabled until `NQH6 -> NQM6` and any selected future segments have write-eligible statuses.
+- Write-eligible statuses are limited to `validated`, `volume_validated`, and `manual_validated`.
+- Blocked statuses remain `inferred_no_db_overlap`, `inferred_volume_conflict`, `future_candidate`, and unknown/blank statuses.
+- The workflow stitches raw Databento contracts into the existing continuous DB convention; it does not back-adjust prices and does not adopt Databento continuous symbols as authoritative.
+- Scheduler behavior is out of scope; roll reminders may be run manually first.
+
 ### Step 290.2 - Audit Existing Roll Scripts And Calendar
 
 Audit:
@@ -339,4 +350,3 @@ Acceptance:
 Start Step 290 with read-only scanning and reporting.
 
 Do not edit `futures_roll_calendar.yml` or enable NQ writes until the volume evidence and the user's actual trading roll date agree.
-

@@ -886,7 +886,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 289.10: Closeout：更新 TODO/session/文档，跑 focused tests 与 `git diff --check`，收口到 clean worktree；之后进入真实 Journal 数据录入试跑。最终验证通过：data freshness Python tests、Daily Regime loader smoke、freshness verifier、manual runner local dry-run、Python compile、ES API smoke 和 `git diff --check`；当前 VIX latest `2026-06-12`，ES latest `2026-06-11 16:59`，hard_errors 0。
 
 - [ ] Step 290: Manual Roll Calendar Workflow。目标是把 ES/NQ 换季 roll date 维护从一次性推断改成可重复的手动确认流程：系统用 raw contract volume 扫描候选切换日期并提醒，用户按实际交易切换确认，roll calendar 记录 `manual_validated` / `volume_validated` 后才允许写入；先解决 `NQH6 -> NQM6`，同一流程也适用于后续 ES/NQ 季度切换。计划见 `v4/sessions/session_20260614_manual_roll_calendar_workflow_plan.md`。
-  - [ ] Step 290.1: Freeze manual roll workflow boundary：确认 volume crossover 只是提醒/候选，不自动改 calendar；用户手动确认才写入；ES/NQ 共用流程；NQ 仍禁写直到冲突解决。
+  - [x] Step 290.1: Freeze manual roll workflow boundary：确认 volume crossover 只是提醒/候选，不自动改 calendar；用户手动确认才写入；ES/NQ 共用流程；NQ 仍禁写直到冲突解决。已冻结：calendar mutation 必须手动确认；write-eligible 仅 `validated` / `volume_validated` / `manual_validated`；`inferred_*`、`future_candidate`、unknown 继续阻断；不做 back-adjust、不采用 Databento continuous symbols 为权威。
   - [ ] Step 290.2: Audit existing roll scripts and calendar：审计 `futures_roll_calendar.yml`、Databento roll/raw validation scripts、updater write guard 和 Step 281/289 文档，列出可复用能力和待处理 roll entries。
   - [ ] Step 290.3: Implement roll volume candidate scanner：新增只读 scanner，按 old/new raw contract 聚合 ET daily volume，输出 overtakes date、连续 dominance candidate 和置信说明。
   - [ ] Step 290.4: Add roll reminder report：读取 roll calendar，报告 `future_candidate`、`inferred_*`、接近当前日期的 ES/NQ roll entries、候选日期和是否 write-eligible。
