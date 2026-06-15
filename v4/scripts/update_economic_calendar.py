@@ -23,6 +23,21 @@ from zoneinfo import ZoneInfo
 V4_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ECONOMIC_CALENDAR_CSV = V4_ROOT / "data" / "economic_calendar" / "economic_calendar_usd_events.csv"
 DEFAULT_OUTPUT_DIR = V4_ROOT / "data" / "economic_calendar" / "forex_factory_raw"
+DEFAULT_CANDIDATE_CSV = V4_ROOT / "data" / "economic_calendar" / "economic_calendar_candidate.csv"
+V4_COLUMNS = [
+    "event_date",
+    "event_time_et",
+    "event_time_utc",
+    "currency",
+    "title",
+    "impact",
+    "event_type",
+    "all_day",
+    "default_visible",
+    "actual",
+    "forecast",
+    "previous",
+]
 RAW_COLUMNS = [
     "time",
     "timezone",
@@ -43,6 +58,12 @@ IMPACT_CLASS_MAP = {
     "icon--ff-impact-ora": "orange",
     "icon--ff-impact-yel": "yellow",
     "icon--ff-impact-gra": "gray",
+}
+IMPACT_LABEL_MAP = {
+    "red": "High",
+    "orange": "Medium",
+    "yellow": "Low",
+    "gray": "Low",
 }
 
 
@@ -308,6 +329,114 @@ def write_raw_month(
     return csv_path
 
 
+def parse_raw_date(value: str) -> date:
+    return datetime.strptime(str(value or "").strip(), "%d/%m/%Y").date()
+
+
+def is_all_day_time(value: str) -> bool:
+    return str(value or "").strip() in {"All Day", "Tentative", ""}
+
+
+def convert_raw_row_to_v4(row: dict[str, str]) -> dict[str, str]:
+    event_date = parse_raw_date(row.get("date", "")).isoformat()
+    time_text = str(row.get("time") or "").strip()
+    timezone_text = str(row.get("timezone") or "America/New_York").strip() or "America/New_York"
+    currency = str(row.get("currency") or "USD").strip().upper() or "USD"
+    title = str(row.get("event") or "").strip()
+    impact = IMPACT_LABEL_MAP.get(str(row.get("impact") or "").strip().lower(), "Low")
+    all_day = is_all_day_time(time_text)
+    is_holiday = "holiday" in title.lower()
+    event_type = "holiday" if is_holiday else ("all_day" if all_day else "economic")
+    event_time_et = ""
+    event_time_utc = ""
+    if not all_day:
+        try:
+            hour, minute = [int(part) for part in time_text.split(":", 1)]
+        except ValueError as exc:
+            raise ValueError(f"invalid event time {time_text!r} for {event_date} {title!r}") from exc
+        dt_et = datetime(
+            int(event_date[:4]),
+            int(event_date[5:7]),
+            int(event_date[8:10]),
+            hour,
+            minute,
+            tzinfo=ZoneInfo(timezone_text),
+        )
+        event_time_et = dt_et.isoformat()
+        event_time_utc = dt_et.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    default_visible = is_holiday or impact in {"High", "Medium"}
+    return {
+        "event_date": event_date,
+        "event_time_et": event_time_et,
+        "event_time_utc": event_time_utc,
+        "currency": currency,
+        "title": title,
+        "impact": impact,
+        "event_type": event_type,
+        "all_day": "true" if all_day else "false",
+        "default_visible": "true" if default_visible else "false",
+        "actual": str(row.get("actual") or "").strip(),
+        "forecast": str(row.get("forecast") or "").strip(),
+        "previous": str(row.get("previous") or "").strip(),
+    }
+
+
+def convert_raw_rows_to_v4(
+    rows: list[dict[str, str]],
+    *,
+    date_from: date | None = None,
+    date_to: date | None = None,
+) -> list[dict[str, str]]:
+    converted: list[dict[str, str]] = []
+    for row in rows:
+        converted_row = convert_raw_row_to_v4(row)
+        row_date = date.fromisoformat(converted_row["event_date"])
+        if date_from and row_date < date_from:
+            continue
+        if date_to and row_date > date_to:
+            continue
+        if not converted_row["title"]:
+            continue
+        converted.append(converted_row)
+    converted.sort(key=lambda item: (item["event_date"], item["event_time_et"], item["title"]))
+    return converted
+
+
+def read_raw_csvs(raw_dir: Path) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for path in sorted(raw_dir.glob("*.csv")):
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows.extend(csv.DictReader(handle))
+    return rows
+
+
+def write_v4_rows(path: Path, rows: list[dict[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=V4_COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def convert_raw_calendar(args: argparse.Namespace) -> int:
+    raw_dir = Path(args.raw_dir or args.output_dir).expanduser().resolve()
+    candidate_csv = Path(args.candidate_csv).expanduser().resolve()
+    date_from = parse_iso_date(args.from_date, "--from-date") if args.from_date else None
+    date_to = parse_iso_date(args.to_date, "--to-date") if args.to_date else None
+    raw_rows = read_raw_csvs(raw_dir)
+    rows = convert_raw_rows_to_v4(raw_rows, date_from=date_from, date_to=date_to)
+    write_v4_rows(candidate_csv, rows)
+    print("economic_calendar_convert_status: ok")
+    print(f"raw_dir: {raw_dir}")
+    print(f"raw_rows: {len(raw_rows)}")
+    print(f"converted_rows: {len(rows)}")
+    if rows:
+        print(f"date_min: {rows[0]['event_date']}")
+        print(f"date_max: {rows[-1]['event_date']}")
+    print(f"candidate_csv: {candidate_csv}")
+    return 0
+
+
 def fetch_raw_calendar(args: argparse.Namespace) -> int:
     selectors = resolve_requested_months(args)
     currencies = {value.upper() for value in args.currencies}
@@ -350,19 +479,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--from-date", help="Inclusive start date for deriving monthly fetches.")
     parser.add_argument("--to-date", help="Inclusive end date for deriving monthly fetches.")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Directory for raw ForexFactory CSV output.")
+    parser.add_argument("--raw-dir", help="Directory containing raw ForexFactory CSVs for conversion.")
+    parser.add_argument("--candidate-csv", default=str(DEFAULT_CANDIDATE_CSV), help="Converted V4-format candidate CSV path.")
     parser.add_argument("--timezone", default="America/New_York", help="Target timezone for event times.")
     parser.add_argument("--currencies", nargs="+", default=["USD"], help="Currencies to keep.")
     parser.add_argument("--impacts", nargs="+", default=["red", "orange", "yellow", "gray"], help="Impact colors to keep.")
     parser.add_argument("--show-browser", action="store_true", help="Run Chrome visibly instead of headless.")
     parser.add_argument("--fetch-only", action="store_true", help="Fetch raw ForexFactory month CSVs and exit.")
+    parser.add_argument("--convert-only", action="store_true", help="Convert raw ForexFactory month CSVs to V4 candidate CSV and exit.")
     return parser.parse_args(argv)
 
 
 def main() -> int:
     args = parse_args()
     try:
+        if args.fetch_only and args.convert_only:
+            raise ValueError("--fetch-only cannot be combined with --convert-only")
         if args.fetch_only:
             return fetch_raw_calendar(args)
+        if args.convert_only:
+            return convert_raw_calendar(args)
         print("economic_calendar_status: not implemented")
         print("hint: use --fetch-only to write raw ForexFactory month CSVs")
         return 0

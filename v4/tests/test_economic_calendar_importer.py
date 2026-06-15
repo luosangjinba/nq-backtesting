@@ -121,6 +121,73 @@ class EconomicCalendarImporterTests(unittest.TestCase):
             self.assertEqual(loaded[0]["event"], "Unemployment Claims")
             self.assertTrue((Path(temp_dir) / "2025-01.json").exists())
 
+    def test_convert_raw_rows_to_v4_schema(self) -> None:
+        importer = load_importer()
+        rows = importer.convert_raw_rows_to_v4([
+            {
+                "date": "02/01/2025",
+                "time": "08:30",
+                "timezone": "America/New_York",
+                "currency": "USD",
+                "impact": "red",
+                "event": "Unemployment Claims",
+                "actual": "211K",
+                "forecast": "222K",
+                "previous": "220K",
+            },
+            {
+                "date": "01/01/2025",
+                "time": "All Day",
+                "timezone": "America/New_York",
+                "currency": "USD",
+                "impact": "gray",
+                "event": "Bank Holiday",
+            },
+        ])
+
+        self.assertEqual([row["title"] for row in rows], ["Bank Holiday", "Unemployment Claims"])
+        self.assertEqual(rows[0]["event_type"], "holiday")
+        self.assertEqual(rows[0]["all_day"], "true")
+        self.assertEqual(rows[0]["default_visible"], "true")
+        self.assertEqual(rows[1]["event_date"], "2025-01-02")
+        self.assertEqual(rows[1]["event_time_et"], "2025-01-02T08:30:00-05:00")
+        self.assertEqual(rows[1]["event_time_utc"], "2025-01-02T13:30:00Z")
+        self.assertEqual(rows[1]["impact"], "High")
+        self.assertEqual(rows[1]["forecast"], "222K")
+
+    def test_convert_only_reads_raw_dir_and_writes_candidate_csv(self) -> None:
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            raw = temp / "raw"
+            raw.mkdir()
+            raw_csv = raw / "2025-01.csv"
+            raw_csv.write_text(
+                "\n".join([
+                    ",".join(importer.RAW_COLUMNS),
+                    "08:30,America/New_York,USD,red,Unemployment Claims,,211K,222K,220K,Thu,02/01/2025,now",
+                    "10:00,America/New_York,USD,yellow,Construction Spending m/m,,0.0%,0.3%,0.5%,Thu,02/01/2025,now",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+            out = temp / "candidate.csv"
+
+            result = importer.convert_raw_calendar(type("Args", (), {
+                "raw_dir": str(raw),
+                "output_dir": str(raw),
+                "candidate_csv": str(out),
+                "from_date": "2025-01-02",
+                "to_date": "2025-01-02",
+            })())
+
+            self.assertEqual(result, 0)
+            with out.open(newline="", encoding="utf-8") as handle:
+                loaded = list(csv.DictReader(handle))
+            self.assertEqual(len(loaded), 2)
+            self.assertEqual(loaded[0]["event_date"], "2025-01-02")
+            self.assertEqual(loaded[0]["title"], "Unemployment Claims")
+
 
 if __name__ == "__main__":
     unittest.main()
