@@ -43,12 +43,12 @@ rolls:
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6
-    roll_date_et: 2026-06-14
-    status: future_candidate
-    note: Blocked pending Databento raw volume scan for 2026-06 roll window and manual confirmation before write.
+    roll_date_et: 2026-06-15
+    status: manual_validated
+    note: Manual trading system switched to ESU6 on 2026-06-15.
   - instrument: NQ
     old_contract: NQM6
     new_contract: NQU6
-    roll_date_et: 2026-06-14
-    status: future_candidate
-    note: Blocked pending Databento raw volume scan for 2026-06 roll window and manual confirmation before write.
+    roll_date_et: 2026-06-15
+    status: manual_validated
+    note: Manual trading system switched to NQU6 on 2026-06-15.
