@@ -908,5 +908,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 291.6: Add append-only write：已新增 `--write --confirm-write`，写入前备份到 `data/economic_calendar/backups`，只追加 `event_date > existing_date_max` 且 key 不存在的候选行，旧日期 overlap new key 只报告/跳过；离线 temp write 测试覆盖 backup、confirm guard、排序与 append-only。
   - [x] Step 291.7: Add economic-calendar verifier：已新增 `v4/scripts/verify_economic_calendar.py`，检查 header、日期、ET/UTC timestamp pair、duplicate key、排序、impact、bool、all-day timestamp 规则和最新日期；离线测试通过，当前主 CSV 验证通过：21768 行、`2007-01-01 -> 2025-01-05`、duplicate 0、malformed 0。
   - [x] Step 291.8: Add data-maintenance API/UI actions：已在 `v4_api.py` 增加 `economic_status` / `economic_verify` / `economic_dry_run` / `economic_write`，write 要求输入 `WRITE ECONOMIC`；`data-maintenance.html` 新增 Economic Calendar 区块，支持 Status、Dry Run、Verify、Write Calendar 和友好摘要。API 只读 smoke 通过。
-  - [ ] Step 291.9: Add user documentation：新增中文帮助，说明 dry-run/write/status/限制/排错。
+  - [x] Step 291.9: Add user documentation：已新增 `v4/docs/user/ECONOMIC_CALENDAR_REFRESH.zh-CN.md`，说明数据源、append-only 边界、依赖、status/dry-run/write/verify、Data Maintenance 页面、forecast/previous 限制和排错；同步更新 Data Maintenance 中文页。
   - [ ] Step 291.10: Full backfill verification and closeout：执行 dry-run/write/verify/API or UI smoke，更新 TODO/session 并收口。

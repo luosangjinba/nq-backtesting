@@ -38,6 +38,19 @@ Verification：
 
 - `Verify Data`：检查 DB/VIX freshness，不跑 API smoke。
 - `Verify Data + API`：检查 DB/VIX freshness，并验证 `/v4/bars`。
+
+Economic Calendar：
+
+- `Status`：查看当前 economic calendar CSV 范围和完整性。
+- `Dry Run`：预览 ForexFactory economic calendar 会追加多少行。
+- `Verify`：验证主 CSV header、日期、timestamp、重复 key 和排序。
+- `Write Calendar`：输入 `WRITE ECONOMIC` 后执行 append-only 写入。
+
+详细说明见：
+
+```text
+v4/docs/user/ECONOMIC_CALENDAR_REFRESH.zh-CN.md
+```
 - `ES API Smoke` / `NQ API Smoke`：单独验证 API 能否读到最新 ES/NQ bars。
 
 ## 手动换季流程
