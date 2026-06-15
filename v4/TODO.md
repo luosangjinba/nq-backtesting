@@ -898,3 +898,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 290.10: Documentation and user workflow：新增 `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md`，说明 raw quarterly contracts vs Databento continuous/main DB、roll calendar status model、manual confirmation preview/write、volume reminder report、write-eligible statuses、NQ preflight 和季度维护 checklist；同步更新 `DATA_FRESHNESS_REFRESH.md` / `DATABENTO_DAILY_REFRESH.md`，移除“NQ 只因 NQH6->NQM6 conflict 禁写”的过期表述，改为当前状态：NQH6->NQM6 已解决，但 full default NQ refresh 仍被其他 non-write-eligible roll segments 阻断；未启用 scheduler。
   - [x] Step 290.11: Focused tests：离线 focused tests 已覆盖 volume scanner temp CSV 聚合/候选、manual confirmation preview/write/YAML quoting、roll status parser、build_segments status propagation、write guard allowlist/blocked statuses、NQ 仍 ES-only guard、roll-status preflight blocked/write-eligible 输出；新增 `test_databento_write_guard.py` 对 `load_roll_calendar()` 和 NQ 多段 `build_segments()` 做直接覆盖。测试不需要网络、Databento key、浏览器或 DB write。
   - [x] Step 290.12: Browser/API/Data verification and closeout：最终验证完成；focused roll tests、data freshness tests、roll reminder report、freshness verifier、ES/NQ API bar smoke、freshness verifier with API smoke 和 `git diff --check` 均通过。Verifier hard_errors 为 0，warnings 为 1（ES max ts 超过 72 小时）；VIX latest `2026-06-12`；ES API 返回 50 bars ending `2026-06-11 16:59`，NQ API 返回 40 bars ending `2025-11-04 18:39`。最终状态：`NQH6 -> NQM6` 已解决为 `2026-03-16 / volume_validated`；full default NQ refresh 仍因 `NQZ5/NQH6 inferred_no_db_overlap` 和后续 future candidates intentionally blocked，未执行 NQ 写库。
+
+- [ ] Step 291: Economic Calendar Backfill Importer。目标是把 `v4/data/economic_calendar/economic_calendar_usd_events.csv` 从当前最新 `2025-01-05` 之后补到最新可用月份，并建立可重复的手动更新流程；默认 dry-run，正式写入必须 backup + append-only，不覆盖旧历史。计划见 `v4/sessions/session_20260615_economic_calendar_backfill_plan.md`。
+  - [x] Step 291.1: Freeze data boundary and append-only rules：固定当前数据范围 `2007-01-01 -> 2025-01-05`、正常补全起点 `2025-01-06`、主 CSV schema、backup/write guard、overlap 只报告不覆盖、forecast/previous 当前允许为空。
+  - [ ] Step 291.2: Add ForexFactory month selector support：支持 `YYYY-MM -> mon.YYYY`、`this`、`next`，并加离线测试。
+  - [ ] Step 291.3: Add standalone fetch script：新增只写临时 raw output 的 ForexFactory 抓取脚本，默认 USD/all impact，不写主 CSV。
+  - [ ] Step 291.4: Add V4 CSV converter：将 raw rows 转成现有 V4 economic-calendar schema，处理 ET/UTC、impact、all-day/holiday/default_visible。
+  - [ ] Step 291.5: Add dry-run comparison report：报告当前最新日期、请求范围、抓取月份、候选行、追加行、重复/重叠差异和 actual/forecast/previous 统计。
+  - [ ] Step 291.6: Add append-only write：写入前备份，`--write --confirm-write` 后只追加缺失 key，排序后写回。
+  - [ ] Step 291.7: Add economic-calendar verifier：检查 header、日期、timestamp、一致性、重复 key、排序、impact/all-day 规则和最新日期。
+  - [ ] Step 291.8: Add data-maintenance API/UI actions：页面支持 status/dry-run/write/verify，并显示友好 output。
+  - [ ] Step 291.9: Add user documentation：新增中文帮助，说明 dry-run/write/status/限制/排错。
+  - [ ] Step 291.10: Full backfill verification and closeout：执行 dry-run/write/verify/API or UI smoke，更新 TODO/session 并收口。
