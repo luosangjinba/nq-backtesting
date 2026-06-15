@@ -5,7 +5,7 @@ This workflow refreshes the data needed before Journal review and Live Record en
 Current production boundary:
 
 - ES 1m futures data is refreshed from Databento Historical through the guarded insert-only path.
-- NQ 1m writes remain disabled until the `NQH6 -> NQM6` roll conflict is resolved.
+- NQ 1m full refresh remains intentionally blocked until all selected roll calendar segments are write-eligible.
 - VIX daily data is refreshed from Cboe official `VIX_History.csv`.
 - Manual refresh can be run any time and any number of times.
 - Automatic refresh is designed for once per trading day after the regular session is closed.
@@ -30,7 +30,9 @@ VIX daily:
 NQ 1m:
 
 - Current status: report-only.
-- Do not enable NQ writes until the roll conflict is resolved.
+- `NQH6 -> NQM6` is resolved as `2026-03-16`, `volume_validated`.
+- Full default NQ refresh remains blocked by earlier `inferred_no_db_overlap` coverage and later `future_candidate` coverage.
+- Use `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md` before any NQ write discussion.
 
 ## Environment
 
@@ -207,6 +209,12 @@ If verification fails:
 - stale warnings can be acceptable during weekends, holidays, or provider delay;
 - duplicate DB timestamps require DB/data investigation before further writes.
 
+If NQ refresh is considered:
+
+- run `python3 v4/scripts/scan_roll_volume_candidates.py --report-calendar`;
+- run `python3 v4/scripts/update_databento_1m.py --instrument NQ --start ... --end ... --roll-status-preflight`;
+- proceed only when the selected range is write-eligible, Databento dry-run is clean, and the user explicitly confirms.
+
 If auto mode skips unexpectedly:
 
 - inspect `/tmp/v4_daily_data_refresh_state.json`;
@@ -216,4 +224,3 @@ If auto mode reports a lock:
 
 - inspect `/tmp/v4_daily_data_refresh.lock`;
 - remove it only after confirming no refresh process is running.
-

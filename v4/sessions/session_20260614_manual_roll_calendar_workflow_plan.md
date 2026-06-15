@@ -10,6 +10,13 @@ Prerequisite:
 - Step 289 completed the data freshness pipeline with ES guarded refresh, VIX refresh, verifier, manual/auto runner, and docs.
 - NQ remains write-disabled because `NQH6 -> NQM6` is marked `inferred_volume_conflict`.
 
+Current result after Step 290.10:
+
+- `NQH6 -> NQM6` is resolved as `2026-03-16`, `volume_validated`.
+- Full default NQ refresh remains blocked by other non-write-eligible roll segments.
+- `ESM6 -> ESU6` and `NQM6 -> NQU6` remain `future_candidate` until raw volume scan and manual confirmation are completed.
+- User-facing workflow documentation lives in `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md`.
+
 ## Goal
 
 Create a repeatable manual roll-calendar workflow for ES and NQ.
@@ -32,7 +39,7 @@ The workflow should help the user keep Databento raw-contract stitching aligned 
 - No broker/order-routing integration.
 - No scheduler activation.
 
-## Current State
+## Initial State At Step 290 Start
 
 Existing DB:
 
@@ -466,6 +473,23 @@ Acceptance:
 
 - User can understand how to maintain ES/NQ roll dates each quarter.
 - No scheduler is enabled.
+
+Step 290.10 result:
+
+- Added `v4/docs/user/ROLL_CALENDAR_WORKFLOW.md`.
+- The document explains:
+  - raw quarterly contracts vs Databento continuous symbols and the existing DB;
+  - roll calendar status model;
+  - write-eligible statuses: `validated`, `volume_validated`, `manual_validated`;
+  - blocked statuses: `future_candidate`, `inferred_no_db_overlap`, `inferred_volume_conflict`, unknown/blank;
+  - reminder report command;
+  - raw volume scan command;
+  - manual confirmation preview and guarded write commands;
+  - NQ roll status preflight;
+  - quarterly maintenance checklist.
+- Updated `v4/docs/user/DATA_FRESHNESS_REFRESH.md` and `v4/docs/user/DATABENTO_DAILY_REFRESH.md` to remove the outdated statement that NQ is blocked only by `NQH6 -> NQM6`.
+- Current docs state that `NQH6 -> NQM6` is resolved, while full default NQ refresh remains blocked by other non-write-eligible roll segments.
+- No scheduler was enabled.
 
 ### Step 290.11 - Focused Tests
 
