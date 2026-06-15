@@ -872,3 +872,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 288.10: Review JSON / persistence audit：审计并必要时扩展 Review JSON import/export，确保 lifecycle/review/result/reasons/linked setup/instrument scope 可保存恢复；若范围过大则明确 defer。已将 `liveRecords` 接入 Review JSON payload、date key、validation、import normalize/id conflict/ref remap、export/import status text；localStorage 既有 instrument-scoped persistence 覆盖继续通过。
   - [x] Step 288.11: Focused and browser verification：覆盖 create -> execution writes -> close/cancel/review -> review notes -> link/unlink setup -> Calendar status/menu -> persistence reload -> no standalone panel，并跑 live/order/browser smoke 与 `git diff --check`。已扩展 browser smoke 覆盖 reviewed lifecycle、review note、review summary；已跑 live-record、chart-actions、order-setup、archive、browser smoke 和 `git diff --check`。
   - [x] Step 288.12: Documentation and closeout：更新 TODO/session/必要用户文档，记录 lifecycle 语义、工作流、Order Setup 关系、非目标、验证结果；最终 clean worktree。已更新中英文用户指南和 README，session 记录最终收口；Step 288 完成。
+
+- [ ] Step 289: Daily data freshness pipeline。目标是在真实 Journal 数据录入前，固定 ES 1m + shared VIX 的刷新、验证和后续调度准备流程；支持用户随时手动刷新且可无限次运行，自动刷新只设计为每日休市后一次补全；ES 使用既有 guarded Databento insert-only 路径，NQ 因 `NQH6 -> NQM6` roll conflict 继续禁写，VIX 使用 Cboe 官方 CSV，最后提供一个统一 manual/auto dry-run/write/verify runner。计划见 `v4/sessions/session_20260614_daily_data_freshness_plan.md`。
+  - [ ] Step 289.1: Freeze data freshness boundary：冻结 ES write、NQ defer、VIX Cboe 官方来源、manual unlimited、auto once-after-close、secrets-in-env 的生产边界；只改文档。
+  - [ ] Step 289.2: Audit existing refresh scripts and data files：审计 Databento wrapper/updater/API smoke、VIX CSV、Daily Regime VIX loader，记录已有能力和缺口。
+  - [ ] Step 289.3: Implement VIX daily updater：从 Cboe 官方 VIX history CSV 拉取，新增 dry-run 默认、`--write --confirm-write` 写入、merge/dedupe/sort、保持 `DATE,OPEN,HIGH,LOW,CLOSE` schema 的 VIX updater。
+  - [ ] Step 289.4: Implement freshness verifier：检查 ES/NQ row count/max ts/duplicates、VIX latest date/duplicates/malformed rows，并支持可选 API smoke。
+  - [ ] Step 289.5: Add unified manual/automatic refresh runner：一个命令编排 ES dry-run/write、VIX dry-run/write 和 freshness verification；`--manual` 可无限次运行，`--auto` 面向每日休市后一次调度，默认不写入。
+  - [ ] Step 289.6: Documentation and scheduler plan：写用户文档，说明 manual/auto dry-run/write、env vars、建议自动执行时间、cron/systemd 示例和失败处理；不默认启用 scheduler。
+  - [ ] Step 289.7: Focused tests：覆盖 VIX merge/dedupe/sort、dry-run no-write、freshness verifier malformed/duplicate detection、必要 runner 行为；测试不依赖网络。
+  - [ ] Step 289.8: Real dry-run verification：在可用 API key/network 条件下跑 ES dry-run、VIX dry-run 和 freshness verifier；不可用则记录跳过原因。
+  - [ ] Step 289.9: Controlled write trial：dry-run clean 后，经确认执行 ES/VIX 写入并复验；确保 DB insert-only、VIX CSV 更新、无 unrelated 文件改动。
+  - [ ] Step 289.10: Closeout：更新 TODO/session/文档，跑 focused tests 与 `git diff --check`，收口到 clean worktree；之后进入真实 Journal 数据录入试跑。
