@@ -506,6 +506,20 @@ Acceptance:
 - Tests use temp files/fixtures.
 - Existing data freshness tests still pass.
 
+Step 290.11 result:
+
+- Existing focused tests already covered:
+  - volume scanner aggregation/candidate detection from temp CSV fixtures;
+  - manual confirmation preview-only behavior;
+  - guarded calendar write with `--write --confirm-write`;
+  - YAML quoting for confirmation notes;
+  - write-eligible and blocked status guard behavior;
+  - roll status preflight blocked/write-eligible output.
+- Added more direct offline coverage in `v4/tests/test_databento_write_guard.py`:
+  - `load_roll_calendar()` preserves status, date, and note values from temp YAML;
+  - `build_segments()` preserves blocked and write-eligible statuses across NQ roll boundaries.
+- No network, Databento key, browser, or DB write is required for these tests.
+
 ### Step 290.12 - Browser/API/Data Verification And Closeout
 
 Run:
