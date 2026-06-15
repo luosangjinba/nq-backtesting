@@ -884,3 +884,17 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 289.8: Real dry-run verification：在可用 API key/network 条件下跑 ES dry-run、VIX dry-run 和 freshness verifier；不可用则记录跳过原因。已执行：环境缺少 `DATABENTO_API_KEY`，ES dry-run 记录为跳过；真实 Cboe VIX dry-run 成功，local latest `2026-06-02`、source latest `2026-06-12`、would insert 8、dry-run 未写；freshness verifier 通过，ES max `2026-06-11 16:59:00`，VIX latest `2026-06-02`，hard_errors 0，仅 stale warnings。
   - [x] Step 289.9: Controlled write trial：dry-run clean 后，经确认执行 ES/VIX 写入并复验；确保 DB insert-only、VIX CSV 更新、无 unrelated 文件改动。已执行 VIX controlled write，`v4/data/vix-daily.csv` 从 `2026-06-02` 更新到 `2026-06-12`，新增 8 行；ES 因缺少 `DATABENTO_API_KEY` 跳过写入；freshness verifier hard_errors 0，ES API smoke 通过；VIX CSV 规范为 LF 并加固 updater 行尾保留逻辑。
   - [x] Step 289.10: Closeout：更新 TODO/session/文档，跑 focused tests 与 `git diff --check`，收口到 clean worktree；之后进入真实 Journal 数据录入试跑。最终验证通过：data freshness Python tests、Daily Regime loader smoke、freshness verifier、manual runner local dry-run、Python compile、ES API smoke 和 `git diff --check`；当前 VIX latest `2026-06-12`，ES latest `2026-06-11 16:59`，hard_errors 0。
+
+- [ ] Step 290: Manual Roll Calendar Workflow。目标是把 ES/NQ 换季 roll date 维护从一次性推断改成可重复的手动确认流程：系统用 raw contract volume 扫描候选切换日期并提醒，用户按实际交易切换确认，roll calendar 记录 `manual_validated` / `volume_validated` 后才允许写入；先解决 `NQH6 -> NQM6`，同一流程也适用于后续 ES/NQ 季度切换。计划见 `v4/sessions/session_20260614_manual_roll_calendar_workflow_plan.md`。
+  - [ ] Step 290.1: Freeze manual roll workflow boundary：确认 volume crossover 只是提醒/候选，不自动改 calendar；用户手动确认才写入；ES/NQ 共用流程；NQ 仍禁写直到冲突解决。
+  - [ ] Step 290.2: Audit existing roll scripts and calendar：审计 `futures_roll_calendar.yml`、Databento roll/raw validation scripts、updater write guard 和 Step 281/289 文档，列出可复用能力和待处理 roll entries。
+  - [ ] Step 290.3: Implement roll volume candidate scanner：新增只读 scanner，按 old/new raw contract 聚合 ET daily volume，输出 overtakes date、连续 dominance candidate 和置信说明。
+  - [ ] Step 290.4: Add roll reminder report：读取 roll calendar，报告 `future_candidate`、`inferred_*`、接近当前日期的 ES/NQ roll entries、候选日期和是否 write-eligible。
+  - [ ] Step 290.5: Manual confirmation workflow：实现或定义安全确认路径；写 calendar 必须显式 `--write --confirm-write`，记录 confirmed date/status/note，默认只输出 patch preview。
+  - [ ] Step 290.6: Resolve NQ 2026-03 conflict：用 scanner 和用户实际交易切换决定 `NQH6 -> NQM6` 是 `2026-03-13` 还是 `2026-03-16`，清除 `inferred_volume_conflict` 或继续明确阻断。
+  - [ ] Step 290.7: Resolve current/future ES and NQ candidates：用同一流程审计 `ESM6 -> ESU6`、`NQM6 -> NQU6` 等 future candidates，确认或保留阻断。
+  - [ ] Step 290.8: Update write guard status policy：允许 `validated`、`volume_validated`、`manual_validated` 写入；继续拒绝 `future_candidate`、`inferred_no_db_overlap`、`inferred_volume_conflict` 和 unknown。
+  - [ ] Step 290.9: NQ guarded dry-run and optional write enablement：roll statuses 解决后跑 NQ dry-run；只有 dry-run clean 且用户确认才执行 NQ `--write --confirm-write`。
+  - [ ] Step 290.10: Documentation and user workflow：说明 raw contract vs 主连 DB、手动确认、volume reminder、write-eligible statuses 和季度维护 checklist。
+  - [ ] Step 290.11: Focused tests：用离线 fixture 覆盖 volume scanner、roll status parser/write guard、manual confirmation preview、blocked statuses。
+  - [ ] Step 290.12: Browser/API/Data verification and closeout：跑 focused tests、data freshness tests、freshness verifier、API smoke 和 `git diff --check`；记录 NQ 是已解决并可写，还是继续明确阻断。
