@@ -382,6 +382,21 @@ Acceptance:
 - Current `future_candidate` entries are either left blocked with clear notes or manually/volume validated.
 - ES and NQ use the same process.
 
+Step 290.7 result:
+
+- Reviewed current `future_candidate` entries:
+  - `ESM6 -> ESU6`, candidate `roll_date_et: 2026-06-14`;
+  - `NQM6 -> NQU6`, candidate `roll_date_et: 2026-06-14`.
+- Ran the same scanner workflow for both 2026-06 candidates:
+  - `ESM6 -> ESU6`, `2026-06-10` through `2026-06-16`;
+  - `NQM6 -> NQU6`, `2026-06-10` through `2026-06-16`.
+- Both real Databento scanner runs failed because `DATABENTO_API_KEY` was not present in the current shell.
+- Because there is no fresh raw contract volume evidence and no explicit manual trading roll confirmation in this step, neither entry was promoted to a write-eligible status.
+- Updated both calendar notes to clearly state that they remain blocked pending Databento raw volume scan and manual confirmation before write.
+- Final status:
+  - `ESM6 -> ESU6`: remains `future_candidate`;
+  - `NQM6 -> NQU6`: remains `future_candidate`.
+
 ### Step 290.8 - Update Write Guard Status Policy
 
 Update `v4/scripts/update_databento_1m.py`:

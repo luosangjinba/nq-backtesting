@@ -45,10 +45,10 @@ rolls:
     new_contract: ESU6
     roll_date_et: 2026-06-14
     status: future_candidate
-    note: Candidate for daily refresh after June 2026 roll.
+    note: Blocked pending Databento raw volume scan for 2026-06 roll window and manual confirmation before write.
   - instrument: NQ
     old_contract: NQM6
     new_contract: NQU6
     roll_date_et: 2026-06-14
     status: future_candidate
-    note: Candidate for daily refresh after June 2026 roll.
+    note: Blocked pending Databento raw volume scan for 2026-06 roll window and manual confirmation before write.
