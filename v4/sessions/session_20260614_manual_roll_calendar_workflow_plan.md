@@ -151,6 +151,64 @@ Acceptance:
 - Audit notes are added to this session doc.
 - No behavior changes.
 
+Step 290.2 audit result:
+
+Roll calendar:
+
+- `v4/data_config/futures_roll_calendar.yml` is a config file, not an import log.
+- It uses ET calendar dates: timestamps before `roll_date_et` use `old_contract`; timestamps on/after use `new_contract`.
+- Existing DB rows remain authoritative; importers must be insert-only.
+- Current write-eligible entries by existing policy:
+  - `ESZ5 -> ESH6`, `2025-12-14`, `validated`.
+  - `ESH6 -> ESM6`, `2026-03-13`, `validated`.
+- Current blocked entries:
+  - `NQZ5 -> NQH6`, `2025-12-14`, `inferred_no_db_overlap`.
+  - `NQH6 -> NQM6`, `2026-03-13`, `inferred_volume_conflict`.
+  - `ESM6 -> ESU6`, `2026-06-14`, `future_candidate`.
+  - `NQM6 -> NQU6`, `2026-06-14`, `future_candidate`.
+
+Existing roll validation scripts:
+
+- `v4/scripts/validate_databento_roll.py` compares Databento continuous symbols (`*.c.0`, `*.v.0`) and raw contracts against the authoritative DB around preset 2025 roll windows.
+- It can show daily best source with `--show-daily`.
+- It is useful for research, but Step 290 should not use Databento continuous symbols as authoritative.
+- `v4/scripts/validate_databento_raw_calendar.py` validates the actual updater path: download old/new raw contracts, stitch with explicit `roll_date_et`, normalize to ET-naive timestamps, and compare against DB.
+- It has preset cases through 2026-03, including `2026-03 NQ H-to-M`, but cannot validate NQ 2026 against DB overlap because local NQ stops at `2025-11-04`.
+- Neither existing validation script provides a reusable daily volume crossover candidate scanner or roll reminder report.
+
+Updater write guard:
+
+- `v4/scripts/update_databento_1m.py` currently rejects all write mode except `instrument=ES`.
+- It also rejects any selected segment whose `roll_status != "validated"`.
+- Dry-run prints segment statuses and marks non-validated segments with `WARNING inferred`.
+- It already downloads raw contracts, splits by roll calendar boundaries, dedupes candidate keys, compares with DB keys, and inserts only missing keys in a transaction.
+- Step 290.8 must generalize the guard from exact `validated` to an allowlist: `validated`, `volume_validated`, `manual_validated`.
+- NQ write will still need an instrument-level gate change after roll entries become write-eligible.
+
+Relevant documented evidence:
+
+- Step 281 dry-run produced clean candidate sets for both ES and NQ, but NQ relied on inferred roll entries.
+- Dataset condition warnings observed during NQ/ES dry-runs include degraded days on `2025-11-28`, `2026-03-15`, `2026-03-16`, `2026-04-10`, and `2026-05-24`.
+- NQ volume audit found:
+  - `NQZ5 -> NQH6`: `NQH6` overtook on `2025-12-15`; plausible but not DB-validated.
+  - `NQH6 -> NQM6`: `NQM6` only overtook on `2026-03-16`, conflicting with current `2026-03-13`.
+- ES 2025-12 and 2026-03 were DB-overlap validated with 0 missing, 0 duplicate, and max OHLC diff 0.25.
+
+Reusable pieces for Step 290:
+
+- Databento raw contract download and ET normalization from `validate_databento_raw_calendar.py`.
+- Roll calendar parsing and segment construction from `update_databento_1m.py`.
+- Insert-only / candidate key reporting from `update_databento_1m.py`.
+- Offline style from Step 289 tests for future roll scanner tests.
+
+Gaps to implement:
+
+- A read-only daily old/new raw-contract volume scanner.
+- A roll reminder report that reads calendar statuses and explains write eligibility.
+- A manual confirmation path for updating roll date/status/note.
+- Shared status allowlist helpers for write eligibility.
+- Focused tests for scanner/report/guard behavior.
+
 ### Step 290.3 - Implement Roll Volume Candidate Scanner
 
 Add a read-only script such as `v4/scripts/scan_roll_volume_candidates.py`.
