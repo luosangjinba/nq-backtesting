@@ -3,3 +3,4 @@ databento
 pandas
 duckdb
 PyYAML
+selenium
