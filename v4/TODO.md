@@ -906,7 +906,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 291.4: Add V4 CSV converter：已新增 `--convert-only`，可把 raw ForexFactory CSV 转为 V4 schema，处理 ET/UTC、impact label、holiday/all-day/default_visible、date range filter；离线测试通过，真实 `2025-01` raw 转换出 114 行 V4 candidate。
   - [x] Step 291.5: Add dry-run comparison report：已新增 `--dry-run`，报告 existing range、requested range、months、candidate rows、duplicate keys、existing candidate keys、overlap new keys、would append rows 和 actual/forecast/previous 非空统计；真实 `/tmp` 2025-01 raw dry-run 显示候选 114 行、可追加 102 行、主 CSV 未写入。
   - [x] Step 291.6: Add append-only write：已新增 `--write --confirm-write`，写入前备份到 `data/economic_calendar/backups`，只追加 `event_date > existing_date_max` 且 key 不存在的候选行，旧日期 overlap new key 只报告/跳过；离线 temp write 测试覆盖 backup、confirm guard、排序与 append-only。
-  - [ ] Step 291.7: Add economic-calendar verifier：检查 header、日期、timestamp、一致性、重复 key、排序、impact/all-day 规则和最新日期。
+  - [x] Step 291.7: Add economic-calendar verifier：已新增 `v4/scripts/verify_economic_calendar.py`，检查 header、日期、ET/UTC timestamp pair、duplicate key、排序、impact、bool、all-day timestamp 规则和最新日期；离线测试通过，当前主 CSV 验证通过：21768 行、`2007-01-01 -> 2025-01-05`、duplicate 0、malformed 0。
   - [ ] Step 291.8: Add data-maintenance API/UI actions：页面支持 status/dry-run/write/verify，并显示友好 output。
   - [ ] Step 291.9: Add user documentation：新增中文帮助，说明 dry-run/write/status/限制/排错。
   - [ ] Step 291.10: Full backfill verification and closeout：执行 dry-run/write/verify/API or UI smoke，更新 TODO/session 并收口。
