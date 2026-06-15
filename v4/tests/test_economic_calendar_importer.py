@@ -219,7 +219,7 @@ class EconomicCalendarImporterTests(unittest.TestCase):
                 "\n".join([
                     ",".join(importer.RAW_COLUMNS),
                     "08:30,America/New_York,USD,red,Unemployment Claims,,211K,,,Thu,02/01/2025,now",
-                    "10:00,America/New_York,USD,yellow,Construction Spending m/m,,0.0%,,,Thu,02/01/2025,now",
+                    "10:00,America/New_York,USD,yellow,Construction Spending m/m,,0.0%,,,Fri,03/01/2025,now",
                     "",
                 ]),
                 encoding="utf-8",
@@ -234,7 +234,7 @@ class EconomicCalendarImporterTests(unittest.TestCase):
                 "--from-date",
                 "2025-01-02",
                 "--to-date",
-                "2025-01-02",
+                "2025-01-03",
             ])
 
             self.assertEqual(result.returncode, 0, result.stdout)
@@ -243,8 +243,73 @@ class EconomicCalendarImporterTests(unittest.TestCase):
             self.assertIn("candidate_rows: 2", result.stdout)
             self.assertIn("existing_candidate_keys: 1", result.stdout)
             self.assertIn("would_append_rows: 1", result.stdout)
+            self.assertIn("skipped_overlap_rows: 0", result.stdout)
             self.assertIn("write_status: dry-run; no CSV changes were made", result.stdout)
             self.assertEqual(existing.read_text(encoding="utf-8").count("\n"), 2)
+
+    def test_write_appends_only_after_existing_max_and_creates_backup(self) -> None:
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            existing = temp / "economic_calendar.csv"
+            raw = temp / "raw"
+            backups = temp / "backups"
+            raw.mkdir()
+            existing.write_text(
+                "\n".join([
+                    ",".join(importer.V4_COLUMNS),
+                    "2025-01-02,2025-01-02T08:30:00-05:00,2025-01-02T13:30:00Z,USD,Unemployment Claims,High,economic,false,true,211K,222K,220K",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+            (raw / "2025-01.csv").write_text(
+                "\n".join([
+                    ",".join(importer.RAW_COLUMNS),
+                    "08:30,America/New_York,USD,red,Unemployment Claims,,211K,,,Thu,02/01/2025,now",
+                    "09:45,America/New_York,USD,orange,Final Manufacturing PMI,,49.4,,,Thu,02/01/2025,now",
+                    "10:00,America/New_York,USD,yellow,Construction Spending m/m,,0.0%,,,Fri,03/01/2025,now",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_importer([
+                "--write",
+                "--confirm-write",
+                "--csv",
+                existing,
+                "--backup-dir",
+                backups,
+                "--raw-dir",
+                raw,
+                "--from-date",
+                "2025-01-02",
+                "--to-date",
+                "2025-01-03",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("economic_calendar_write_status: ok", result.stdout)
+            self.assertIn("appended_rows: 1", result.stdout)
+            self.assertIn("skipped_overlap_rows: 1", result.stdout)
+            self.assertEqual(len(list(backups.glob("economic_calendar_*.csv"))), 1)
+            with existing.open(newline="", encoding="utf-8") as handle:
+                loaded = list(csv.DictReader(handle))
+            self.assertEqual([row["title"] for row in loaded], ["Unemployment Claims", "Construction Spending m/m"])
+
+    def test_write_requires_confirm_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            existing = temp / "economic_calendar.csv"
+            raw = temp / "raw"
+            raw.mkdir()
+            existing.write_text(",".join(load_importer().V4_COLUMNS) + "\n", encoding="utf-8")
+
+            result = run_importer(["--write", "--csv", existing, "--raw-dir", raw])
+
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn("--write requires --confirm-write", result.stdout)
 
 
 if __name__ == "__main__":

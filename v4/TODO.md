@@ -905,7 +905,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 291.3: Add standalone fetch script：已扩展 `update_economic_calendar.py --fetch-only`，支持按 `--months` 或 date range 抓 ForexFactory 月度数据，默认 USD/all impact，只写 raw CSV/metadata output dir，不碰主 CSV；主环境缺 Selenium 时友好报错，临时 Selenium venv 真实抓取 `2025-01` 成功输出 114 行。
   - [x] Step 291.4: Add V4 CSV converter：已新增 `--convert-only`，可把 raw ForexFactory CSV 转为 V4 schema，处理 ET/UTC、impact label、holiday/all-day/default_visible、date range filter；离线测试通过，真实 `2025-01` raw 转换出 114 行 V4 candidate。
   - [x] Step 291.5: Add dry-run comparison report：已新增 `--dry-run`，报告 existing range、requested range、months、candidate rows、duplicate keys、existing candidate keys、overlap new keys、would append rows 和 actual/forecast/previous 非空统计；真实 `/tmp` 2025-01 raw dry-run 显示候选 114 行、可追加 102 行、主 CSV 未写入。
-  - [ ] Step 291.6: Add append-only write：写入前备份，`--write --confirm-write` 后只追加缺失 key，排序后写回。
+  - [x] Step 291.6: Add append-only write：已新增 `--write --confirm-write`，写入前备份到 `data/economic_calendar/backups`，只追加 `event_date > existing_date_max` 且 key 不存在的候选行，旧日期 overlap new key 只报告/跳过；离线 temp write 测试覆盖 backup、confirm guard、排序与 append-only。
   - [ ] Step 291.7: Add economic-calendar verifier：检查 header、日期、timestamp、一致性、重复 key、排序、impact/all-day 规则和最新日期。
   - [ ] Step 291.8: Add data-maintenance API/UI actions：页面支持 status/dry-run/write/verify，并显示友好 output。
   - [ ] Step 291.9: Add user documentation：新增中文帮助，说明 dry-run/write/status/限制/排错。

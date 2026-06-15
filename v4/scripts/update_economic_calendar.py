@@ -11,6 +11,7 @@ import argparse
 import calendar
 import csv
 import json
+import shutil
 import re
 import sys
 import time
@@ -24,6 +25,7 @@ V4_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ECONOMIC_CALENDAR_CSV = V4_ROOT / "data" / "economic_calendar" / "economic_calendar_usd_events.csv"
 DEFAULT_OUTPUT_DIR = V4_ROOT / "data" / "economic_calendar" / "forex_factory_raw"
 DEFAULT_CANDIDATE_CSV = V4_ROOT / "data" / "economic_calendar" / "economic_calendar_candidate.csv"
+DEFAULT_BACKUP_DIR = V4_ROOT / "data" / "economic_calendar" / "backups"
 V4_COLUMNS = [
     "event_date",
     "event_time_et",
@@ -506,12 +508,17 @@ def dry_run_report(args: argparse.Namespace) -> int:
     candidate_rows, selectors = build_candidate_rows(args)
     existing_keys = {event_key(row) for row in existing_rows}
     candidate_keys = [event_key(row) for row in candidate_rows]
-    append_rows = [row for row in candidate_rows if event_key(row) not in existing_keys]
+    existing_latest = max_event_date(existing_rows)
+    append_rows = [
+        row for row in candidate_rows
+        if event_key(row) not in existing_keys
+        and (existing_latest == "n/a" or row["event_date"] > existing_latest)
+    ]
     existing_candidate_keys = sum(1 for key in candidate_keys if key in existing_keys)
     overlap_new_keys = [
         row for row in candidate_rows
-        if max_event_date(existing_rows) != "n/a"
-        and row["event_date"] <= max_event_date(existing_rows)
+        if existing_latest != "n/a"
+        and row["event_date"] <= existing_latest
         and event_key(row) not in existing_keys
     ]
 
@@ -532,7 +539,63 @@ def dry_run_report(args: argparse.Namespace) -> int:
     print(f"actual_nonempty: {count_nonempty(candidate_rows, 'actual')}")
     print(f"forecast_nonempty: {count_nonempty(candidate_rows, 'forecast')}")
     print(f"previous_nonempty: {count_nonempty(candidate_rows, 'previous')}")
+    print(f"skipped_overlap_rows: {len(overlap_new_keys)}")
     print("write_status: dry-run; no CSV changes were made")
+    return 0
+
+
+def backup_csv(csv_path: Path, backup_dir: Path) -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    backup_path = backup_dir / f"{csv_path.stem}_{timestamp}{csv_path.suffix}"
+    shutil.copy2(csv_path, backup_path)
+    return backup_path
+
+
+def write_append_only_update(args: argparse.Namespace) -> int:
+    if not args.confirm_write:
+        raise ValueError("--write requires --confirm-write")
+    csv_path = Path(args.csv).expanduser().resolve()
+    backup_dir = Path(args.backup_dir).expanduser().resolve()
+    existing_rows = read_v4_rows(csv_path)
+    if not existing_rows:
+        raise ValueError(f"target CSV has no existing rows: {csv_path}")
+    if not args.from_date:
+        args.from_date = default_from_date(existing_rows)
+    if not args.to_date:
+        args.to_date = date.today().isoformat()
+
+    candidate_rows, selectors = build_candidate_rows(args)
+    existing_latest = max_event_date(existing_rows)
+    existing_keys = {event_key(row) for row in existing_rows}
+    append_rows = [
+        row for row in candidate_rows
+        if event_key(row) not in existing_keys
+        and row["event_date"] > existing_latest
+    ]
+    skipped_overlap_rows = [
+        row for row in candidate_rows
+        if event_key(row) not in existing_keys
+        and row["event_date"] <= existing_latest
+    ]
+    backup_path = backup_csv(csv_path, backup_dir)
+    merged = [*existing_rows, *append_rows]
+    merged.sort(key=lambda item: (item["event_date"], item["event_time_et"], item["currency"], item["title"]))
+    write_v4_rows(csv_path, merged)
+
+    print("economic_calendar_write_status: ok")
+    print(f"csv: {csv_path}")
+    print(f"backup_csv: {backup_path}")
+    print(f"requested_range: {args.from_date} -> {args.to_date}")
+    print(f"months: {', '.join(selector.slug for selector in selectors)}")
+    print(f"existing_rows_before: {len(existing_rows)}")
+    print(f"candidate_rows: {len(candidate_rows)}")
+    print(f"appended_rows: {len(append_rows)}")
+    print(f"skipped_overlap_rows: {len(skipped_overlap_rows)}")
+    print(f"rows_after: {len(merged)}")
+    print(f"date_max_before: {existing_latest}")
+    print(f"date_max_after: {max_event_date(merged)}")
+    print("write_status: committed append-only economic calendar update")
     return 0
 
 
@@ -598,6 +661,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--to-date", help="Inclusive end date for deriving monthly fetches.")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Directory for raw ForexFactory CSV output.")
     parser.add_argument("--csv", default=str(DEFAULT_ECONOMIC_CALENDAR_CSV), help="Target V4 economic calendar CSV path.")
+    parser.add_argument("--backup-dir", default=str(DEFAULT_BACKUP_DIR), help="Directory for CSV backups before writes.")
     parser.add_argument("--raw-dir", help="Directory containing raw ForexFactory CSVs for conversion.")
     parser.add_argument("--candidate-csv", default=str(DEFAULT_CANDIDATE_CSV), help="Converted V4-format candidate CSV path.")
     parser.add_argument("--timezone", default="America/New_York", help="Target timezone for event times.")
@@ -607,21 +671,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--fetch-only", action="store_true", help="Fetch raw ForexFactory month CSVs and exit.")
     parser.add_argument("--convert-only", action="store_true", help="Convert raw ForexFactory month CSVs to V4 candidate CSV and exit.")
     parser.add_argument("--dry-run", action="store_true", help="Report append-only update impact without writing the main CSV.")
+    parser.add_argument("--write", action="store_true", help="Append missing rows to the main CSV.")
+    parser.add_argument("--confirm-write", action="store_true", help="Required with --write.")
     return parser.parse_args(argv)
 
 
 def main() -> int:
     args = parse_args()
     try:
-        selected_modes = sum(bool(value) for value in (args.fetch_only, args.convert_only, args.dry_run))
+        selected_modes = sum(bool(value) for value in (args.fetch_only, args.convert_only, args.dry_run, args.write))
         if selected_modes > 1:
-            raise ValueError("--fetch-only, --convert-only, and --dry-run are mutually exclusive")
+            raise ValueError("--fetch-only, --convert-only, --dry-run, and --write are mutually exclusive")
         if args.fetch_only:
             return fetch_raw_calendar(args)
         if args.convert_only:
             return convert_raw_calendar(args)
         if args.dry_run:
             return dry_run_report(args)
+        if args.write:
+            return write_append_only_update(args)
         print("economic_calendar_status: not implemented")
         print("hint: use --fetch-only to write raw ForexFactory month CSVs")
         return 0
