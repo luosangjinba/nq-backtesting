@@ -239,6 +239,24 @@ Acceptance:
 - Works for `ESM6 -> ESU6` and `NQM6 -> NQU6` when data is available.
 - Network/API-key failures are readable.
 
+Step 290.3 result:
+
+- Added read-only `v4/scripts/scan_roll_volume_candidates.py`.
+- The scanner supports Databento mode using old/new raw contracts and local `--source-file` mode for offline fixtures.
+- Inputs include `--instrument`, `--old-contract`, `--new-contract`, `--start`, `--end`, `--dataset`, `--schema`, `--min-consecutive-days`, and `--show-empty-days`.
+- It normalizes Databento timestamps to ET dates, aggregates daily volume by old/new contract, prints old volume, new volume, winner, and new/old ratio.
+- It reports:
+  - `first_new_overtake_date`;
+  - `first_consecutive_new_dominance_date`;
+  - `candidate_roll_date`;
+  - `candidate_status: manual confirmation required`.
+- It never writes DB or roll calendar.
+- Friendly failures are returned as `scan_status: failed` with an error message.
+- Added `v4/tests/test_roll_volume_scanner.py` with offline fixture coverage for:
+  - `NQH6 -> NQM6` first overtake and 2-day dominance candidate on `2026-03-16`;
+  - no-candidate behavior when old contract remains dominant.
+- `DATABENTO_API_KEY` was not present in the environment, so a real Databento scan was not run in this substep.
+
 ### Step 290.4 - Add Roll Reminder Report
 
 Add a report command or extend the scanner to read `futures_roll_calendar.yml` and report all entries needing attention:
