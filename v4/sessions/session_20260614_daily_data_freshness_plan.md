@@ -181,6 +181,58 @@ Acceptance:
 - Audit notes are added to this session doc.
 - No behavioral change.
 
+Step 289.2 audit result:
+
+Existing ES Databento wrapper:
+
+- `v4/scripts/daily_databento_refresh.py` is already a guarded ES-only wrapper.
+- It requires `DATABENTO_API_KEY`.
+- It always runs ES dry-run before write.
+- `--write` requires `--confirm-write`.
+- Databento warnings block write unless `--allow-degraded` is supplied.
+- It treats empty clamped ranges as safe no-op.
+- It can optionally run `v4/scripts/verify_v4_bars_api.py` after write.
+- Gap for Step 289: it has no `--manual` / `--auto` distinction, no unified VIX refresh, no freshness verifier, and no scheduler lock/run-state behavior.
+
+Existing Databento 1m updater:
+
+- `v4/scripts/update_databento_1m.py` supports `ES` and `NQ` as input instruments, but write mode explicitly rejects anything except `ES`.
+- Default mode is dry-run.
+- Start defaults to DB `max(ts) + 1 minute`.
+- End defaults to Databento metadata available end from `metadata.get_dataset_range()`.
+- Requested end is clamped to Databento available end.
+- Roll calendar comes from `v4/data_config/futures_roll_calendar.yml`.
+- Write mode requires all selected roll segments to be `validated`.
+- Inserts are transaction-wrapped and insert-only via `where not exists`.
+- Output already includes dataset, schema, DB max ts, clamped dry-run range, `databento_end_et`, segments, candidate row counts, duplicate candidate keys, existing candidate keys, would-insert first/last timestamps, warnings, and write before/after coverage.
+- Gap for Step 289: it does not directly print wall-clock lag from Databento available end, and freshness validation lives outside this script.
+
+Existing API smoke:
+
+- `v4/scripts/verify_v4_bars_api.py` reads DB `max(ts)` for one instrument and requests a recent `/v4/bars` window.
+- It verifies the API returns bars and prints the URL, DB max timestamp, returned bar count, and last bar.
+- Gap for Step 289: it is API-specific and does not validate DB duplicate timestamps, VIX freshness, malformed CSV rows, or NQ deferred status.
+
+Existing VIX data and loader:
+
+- `v4/data/vix-daily.csv` currently has 9,199 lines including header.
+- File schema is `DATE,OPEN,HIGH,LOW,CLOSE`.
+- Current local latest date is `2026-06-02`.
+- Cboe official CSV was manually verified as accessible at:
+  `https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv`.
+- Cboe CSV uses the same columns, with `MM/DD/YYYY` dates; updater must normalize to `YYYY-MM-DD`.
+- On 2026-06-14, the Cboe CSV latest observed row was `06/12/2026`, so local VIX is stale by multiple market days.
+- `v4/src/daily-regime/daily-regime-vix-loader.js` fetches `data/vix-daily.csv` in the browser.
+- The loader requires `DATE` and `CLOSE`; it ignores `OPEN/HIGH/LOW` for regime construction but the file should keep all five columns for compatibility and future audit.
+- The loader caches VIX data in memory; after a CSV update, a page reload is the simplest way to pick up new VIX rows.
+- Gap for Step 289: there is no VIX updater, no VIX dry-run/write guard, no duplicate/malformed CSV verifier, and no source fallback behavior.
+
+Documentation state:
+
+- `v4/docs/user/DATABENTO_DAILY_REFRESH.md` documents the existing guarded ES manual workflow.
+- It explicitly says NQ write remains blocked and Databento Historical is delayed relative to live market data.
+- Gap for Step 289: docs do not yet cover manual unlimited refresh, automatic once-after-close refresh, Cboe VIX refresh, unified command, lock/run-state, or failure handling.
+
 ### Step 289.3 - Implement VIX Daily Updater
 
 Add a script such as `v4/scripts/update_vix_daily.py`:
