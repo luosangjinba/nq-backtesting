@@ -12,6 +12,7 @@ __pycache__/
 v4/data/trading_data.duckdb
 v4/data/vix-monthly.csv
 v4/data/economic_calendar/backups/
+v4/data/economic_calendar/forex_factory_raw/
 v4/.api.log
 v4/.api_pid
 v4/.web.log
