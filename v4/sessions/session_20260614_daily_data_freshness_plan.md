@@ -283,6 +283,19 @@ Acceptance:
 - Returns clear warnings for stale-but-not-fatal conditions.
 - Does not require network access.
 
+Step 289.4 result:
+
+- Added `v4/scripts/verify_data_freshness.py`.
+- The verifier is read-only and does not require network access unless `--api-url` is supplied.
+- It reports ES/NQ row counts, min/max timestamps, age in hours, and duplicate timestamp groups.
+- NQ output explicitly reports write is deferred until the roll conflict is resolved.
+- It reports VIX row count, first/latest date, age in calendar days, duplicate dates, and malformed rows.
+- Stale ES/VIX data produces warnings but returns exit code 0 when there are no hard integrity errors.
+- Duplicate DB timestamps, malformed/missing VIX CSV, or requested API smoke failure are hard errors and return non-zero.
+- Optional `/v4/bars` smoke is available with `--api-url`.
+- Local verification on 2026-06-14 reported ES max `2026-06-11 16:59:00`, NQ max `2025-11-04 18:39:00`, VIX latest `2026-06-02`, no duplicate DB timestamps, no malformed VIX rows, and stale warnings for ES/VIX.
+- Negative verification with a missing VIX CSV returned exit code 1 with `hard_errors: 1`.
+
 ### Step 289.5 - Add Unified Manual/Automatic Refresh Runner
 
 Add a script such as `v4/scripts/daily_data_refresh.py` that orchestrates:
