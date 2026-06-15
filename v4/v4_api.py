@@ -206,6 +206,10 @@ def run_data_maintenance_action(payload):
         "verify",
         "verify_api",
         "api_smoke",
+        "economic_status",
+        "economic_dry_run",
+        "economic_write",
+        "economic_verify",
     }, "action")
 
     python = sys.executable
@@ -275,6 +279,30 @@ def run_data_maintenance_action(payload):
             "--instrument", instrument,
             "--api-url", "http://127.0.0.1:8766",
         ])
+
+    if action in {"economic_status", "economic_verify"}:
+        return _run_maintenance_command([python, "v4/scripts/verify_economic_calendar.py"])
+
+    if action in {"economic_dry_run", "economic_write"}:
+        start = _iso_date(payload.get("fromDate"), "fromDate")
+        end = _iso_date(payload.get("toDate"), "toDate")
+        args = [
+            python,
+            "v4/scripts/update_economic_calendar.py",
+            "--from-date",
+            start,
+            "--to-date",
+            end,
+        ]
+        if action == "economic_write":
+            confirm_text = _clean_text(payload.get("confirmText"), 120)
+            expected = "WRITE ECONOMIC"
+            if confirm_text != expected:
+                raise ValueError(f"Type '{expected}' to enable economic calendar write")
+            args.extend(["--write", "--confirm-write"])
+        else:
+            args.append("--dry-run")
+        return _run_maintenance_command(args, timeout=1800)
 
     raise ValueError(f"Unsupported action: {action}")
 

@@ -243,6 +243,28 @@
           <p class="status">Write actions require the backend API on port 8766 and the Databento key in the API process environment.</p>
         </div>
       </section>
+
+      <section>
+        <div class="section-header">Economic Calendar</div>
+        <div class="content">
+          <div class="grid">
+            <label>From date <input id="economicFrom" value="2025-01-06"></label>
+            <label>To date <input id="economicTo" value="2026-06-15"></label>
+          </div>
+          <div class="row">
+            <button id="economicStatus" type="button">Status</button>
+            <button id="economicDryRun" class="primary" type="button">Dry Run</button>
+            <button id="economicVerify" type="button">Verify</button>
+          </div>
+          <div class="compact">
+            <label>Write confirmation <input id="economicConfirmText" placeholder="WRITE ECONOMIC"></label>
+            <div class="row">
+              <button id="economicWrite" class="danger" type="button">Write Calendar</button>
+            </div>
+          </div>
+          <p class="status">Forecast/previous may remain blank with the current ForexFactory list-page source.</p>
+        </div>
+      </section>
     </div>
 
     <section>
@@ -392,6 +414,32 @@
         const returned = extract(out, /^returned_bars:\s*(.+)$/m);
         const dbMax = extract(out, /^db_max_ts:\s*(.+)$/m);
         lines.push(`API returned bars: ${returned || 'unknown'}; DB latest: ${dbMax || 'unknown'}.`);
+      } else if (payload.action === 'economic_status' || payload.action === 'economic_verify') {
+        const status = extract(out, /^economic_calendar_verify_status:\s*(.+)$/m);
+        const rows = extract(out, /^rows:\s*(.+)$/m);
+        const minDate = extract(out, /^date_min:\s*(.+)$/m);
+        const maxDate = extract(out, /^date_max:\s*(.+)$/m);
+        const duplicates = extract(out, /^duplicate_keys:\s*(.+)$/m);
+        const malformed = extract(out, /^malformed_rows:\s*(.+)$/m);
+        lines.push(`Economic calendar status: ${status || 'unknown'}; rows: ${rows || 'unknown'}; range: ${minDate || 'unknown'} -> ${maxDate || 'unknown'}.`);
+        lines.push(`Duplicate keys: ${duplicates || 'unknown'}; malformed rows: ${malformed || 'unknown'}.`);
+      } else if (payload.action === 'economic_dry_run' || payload.action === 'economic_write') {
+        const existingMax = extract(out, /^existing_date_max:\s*(.+)$/m) || extract(out, /^date_max_before:\s*(.+)$/m);
+        const requested = extract(out, /^requested_range:\s*(.+)$/m);
+        const months = extract(out, /^months:\s*(.+)$/m);
+        const candidateRows = extract(out, /^candidate_rows:\s*(.+)$/m);
+        const wouldAppend = extract(out, /^would_append_rows:\s*(.+)$/m);
+        const appended = extract(out, /^appended_rows:\s*(.+)$/m);
+        const skippedOverlap = extract(out, /^skipped_overlap_rows:\s*(.+)$/m);
+        const afterMax = extract(out, /^date_max_after:\s*(.+)$/m);
+        if (existingMax) lines.push(`Current economic calendar latest date: ${existingMax}.`);
+        if (requested) lines.push(`Requested range: ${requested}.`);
+        if (months) lines.push(`Months involved: ${months}.`);
+        if (candidateRows) lines.push(`Candidate rows: ${candidateRows}.`);
+        if (wouldAppend) lines.push(`Rows that would be appended: ${wouldAppend}.`);
+        if (appended) lines.push(`Rows appended: ${appended}.`);
+        if (skippedOverlap) lines.push(`Skipped overlap rows: ${skippedOverlap}.`);
+        if (afterMax) lines.push(`Economic calendar latest date after write: ${afterMax}.`);
       }
 
       return lines.join('\n');
@@ -435,6 +483,15 @@
       };
     }
 
+    function economicPayload(action) {
+      return {
+        action,
+        fromDate: value('economicFrom'),
+        toDate: value('economicTo'),
+        confirmText: value('economicConfirmText')
+      };
+    }
+
     document.getElementById('preset').addEventListener('change', (event) => {
       const preset = presets[event.target.value];
       if (!preset) return;
@@ -457,6 +514,10 @@
     document.getElementById('writeData').addEventListener('click', () => run(refreshPayload('write')));
     document.getElementById('smokeEs').addEventListener('click', () => run({ action: 'api_smoke', instrument: 'ES' }));
     document.getElementById('smokeNq').addEventListener('click', () => run({ action: 'api_smoke', instrument: 'NQ' }));
+    document.getElementById('economicStatus').addEventListener('click', () => run({ action: 'economic_status' }));
+    document.getElementById('economicVerify').addEventListener('click', () => run({ action: 'economic_verify' }));
+    document.getElementById('economicDryRun').addEventListener('click', () => run(economicPayload('economic_dry_run')));
+    document.getElementById('economicWrite').addEventListener('click', () => run(economicPayload('economic_write')));
     document.getElementById('clearOutput').addEventListener('click', () => {
       output.textContent = 'Ready.';
       setState('idle');
