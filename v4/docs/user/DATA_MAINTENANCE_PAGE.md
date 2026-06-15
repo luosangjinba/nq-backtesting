@@ -1,5 +1,7 @@
 # V4 Data Maintenance Page
 
+Chinese version: `v4/docs/user/DATA_MAINTENANCE_PAGE.zh-CN.md`
+
 Use this page for data maintenance tasks that used to require long terminal commands.
 
 Open:
