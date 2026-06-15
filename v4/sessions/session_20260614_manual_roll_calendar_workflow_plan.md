@@ -411,6 +411,17 @@ Acceptance:
 - NQ writes remain blocked until all selected segments are write-eligible.
 - Focused tests cover allowed and blocked statuses.
 
+Step 290.8 result:
+
+- Updated `v4/scripts/update_databento_1m.py` write guard from exact `validated` to write-eligible status allowlist:
+  - `validated`;
+  - `volume_validated`;
+  - `manual_validated`.
+- `future_candidate`, `inferred_no_db_overlap`, `inferred_volume_conflict`, unknown, and blank statuses remain blocked for write mode.
+- Dry-run segment output now marks non-write-eligible statuses as `WARNING blocked`; write-eligible statuses do not get a warning marker.
+- NQ write enablement was not changed in this step: `--write` still rejects instruments other than ES. NQ dry-run/write enablement remains Step 290.9.
+- Added offline focused tests in `v4/tests/test_databento_write_guard.py` for allowed statuses, blocked statuses, ES-only write guard, and dry-run bypass behavior.
+
 ### Step 290.9 - NQ Guarded Dry-Run And Optional Write Enablement
 
 After roll statuses are resolved:

@@ -2,8 +2,9 @@
 """Databento 1m insert-only updater for V4 futures data.
 
 By default this script runs a dry-run. Write mode is deliberately narrow:
-only ES is allowed, `--confirm-write` is required, all roll segments must be
-validated, and insertion is `insert where not exists` inside a transaction.
+only ES is allowed, `--confirm-write` is required, all roll segments must have
+write-eligible roll statuses, and insertion is `insert where not exists` inside
+a transaction.
 """
 
 from __future__ import annotations
@@ -33,6 +34,7 @@ DEFAULT_DB = V4_ROOT / "data" / "trading_data.duckdb"
 DEFAULT_ROLL_CALENDAR = V4_ROOT / "data_config" / "futures_roll_calendar.yml"
 ET = ZoneInfo("America/New_York")
 OHLC_COLUMNS = ["open", "high", "low", "close"]
+WRITE_ELIGIBLE_ROLL_STATUSES = frozenset({"validated", "volume_validated", "manual_validated"})
 
 
 @dataclass(frozen=True)
@@ -316,6 +318,10 @@ def download_segment(
     return combined.sort_values(["instrument", "ts"]).reset_index(drop=True), warning_messages, chunk_counts
 
 
+def is_write_eligible_roll_status(status: str) -> bool:
+    return str(status or "").strip() in WRITE_ELIGIBLE_ROLL_STATUSES
+
+
 def validate_write_allowed(args: argparse.Namespace, segments: list[Segment]) -> None:
     if not args.write:
         return
@@ -323,10 +329,14 @@ def validate_write_allowed(args: argparse.Namespace, segments: list[Segment]) ->
         raise SystemExit("--write requires --confirm-write")
     if args.instrument != "ES":
         raise SystemExit("--write is currently allowed only for ES")
-    non_validated = [segment for segment in segments if segment.roll_status != "validated"]
-    if non_validated:
-        details = ", ".join(f"{segment.contract}:{segment.roll_status}" for segment in non_validated)
-        raise SystemExit(f"--write rejected because all segments must be validated: {details}")
+    blocked = [segment for segment in segments if not is_write_eligible_roll_status(segment.roll_status)]
+    if blocked:
+        details = ", ".join(f"{segment.contract}:{segment.roll_status}" for segment in blocked)
+        allowed = ", ".join(sorted(WRITE_ELIGIBLE_ROLL_STATUSES))
+        raise SystemExit(
+            "--write rejected because all segments must have write-eligible "
+            f"roll statuses ({allowed}): {details}"
+        )
 
 
 def insert_missing_rows(db_path: Path, rows: pd.DataFrame) -> int:
@@ -403,12 +413,12 @@ def main() -> None:
     print(f"databento_end_et: {databento_end_et}")
     print("\nsegments")
     for segment in segments:
-        marker = " WARNING inferred" if segment.roll_status != "validated" else ""
+        marker = "" if is_write_eligible_roll_status(segment.roll_status) else " WARNING blocked"
         print(
             f"- {segment.contract}: {segment.start_et} -> {segment.end_et} "
             f"status={segment.roll_status}{marker}"
         )
-        if segment.roll_status != "validated":
+        if not is_write_eligible_roll_status(segment.roll_status):
             print(f"  note: {segment.roll_note}")
 
     frames = []
