@@ -432,6 +432,18 @@ Acceptance:
 - VIX CSV latest date advances when newer data exists.
 - No unrelated files are modified.
 
+Step 289.9 result:
+
+- `DATABENTO_API_KEY` was not present, so ES write was skipped; ES DB remained unchanged and verifier still reported duplicate timestamps `0`.
+- Ran controlled VIX write with `python3 v4/scripts/update_vix_daily.py --write --confirm-write`.
+- Cboe VIX source latest was `2026-06-12`; local VIX advanced from `2026-06-02` to `2026-06-12`.
+- VIX write inserted 8 rows and updated 0 rows.
+- `v4/data/vix-daily.csv` now has 9,206 data rows, duplicate dates `0`, malformed rows `0`.
+- During the write trial, the updater was hardened to preserve target line endings by reading source/target bytes before decoding.
+- The VIX CSV was normalized to LF so `git diff --check` stays clean for newly added rows and future updater writes preserve that style.
+- Freshness verifier passed after write with `hard_errors: 0`; only ES stale warning remains because ES write was skipped.
+- V4 API smoke passed against `http://127.0.0.1:8766/v4/bars` for ES, returning 50 bars ending at DB max `2026-06-11 16:59:00`.
+
 ### Step 289.10 - Closeout
 
 Close the step:

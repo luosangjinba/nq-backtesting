@@ -111,7 +111,7 @@ def parse_vix_csv(text: str, source_label: str) -> dict[str, VixRow]:
 
 
 def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8-sig")
+    return path.read_bytes().decode("utf-8-sig")
 
 
 def fetch_source_text(args: argparse.Namespace) -> tuple[str, str]:
@@ -139,9 +139,13 @@ def merge_rows(existing: dict[str, VixRow], source: dict[str, VixRow]) -> tuple[
     return merged, inserted, updated
 
 
-def render_csv(rows: dict[str, VixRow]) -> str:
+def detect_lineterminator(text: str) -> str:
+    return "\r\n" if "\r\n" in text else "\n"
+
+
+def render_csv(rows: dict[str, VixRow], lineterminator: str = "\n") -> str:
     output = StringIO()
-    writer = csv.writer(output, lineterminator="\n")
+    writer = csv.writer(output, lineterminator=lineterminator)
     writer.writerow(CSV_COLUMNS)
     for date in sorted(rows):
         writer.writerow(rows[date].values())
@@ -215,7 +219,7 @@ def main() -> int:
     print_sample("updated sample", updated, args.show_sample)
 
     if args.write:
-        write_atomic(target_path, render_csv(merged_rows))
+        write_atomic(target_path, render_csv(merged_rows, detect_lineterminator(existing_text)))
         print("\nwrite_status: committed VIX CSV update")
     else:
         print("\nwrite_status: dry-run; no CSV changes were made")
