@@ -167,6 +167,20 @@ class EconomicCalendarImporterTests(unittest.TestCase):
         self.assertEqual(rows[1]["impact"], "High")
         self.assertEqual(rows[1]["forecast"], "222K")
 
+    def test_non_clock_time_is_skipped_without_crashing(self) -> None:
+        importer = load_importer()
+
+        rows = importer.convert_raw_rows_to_v4([{
+            "date": "03/11/2025",
+            "time": "Sep 27th",
+            "timezone": "America/New_York",
+            "currency": "USD",
+            "impact": "yellow",
+            "event": "Nonstandard Date Event",
+        }])
+
+        self.assertEqual(rows, [])
+
     def test_convert_only_reads_raw_dir_and_writes_candidate_csv(self) -> None:
         importer = load_importer()
         with tempfile.TemporaryDirectory() as temp_dir:

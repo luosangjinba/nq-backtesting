@@ -56,6 +56,7 @@ RAW_COLUMNS = [
     "scraped_at",
 ]
 DATE_RE = re.compile(r"\b(?P<day>Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b\s+(?P<month>Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(?P<date>\d{1,2})\b")
+CLOCK_TIME_RE = re.compile(r"^\d{2}:\d{2}$")
 IMPACT_CLASS_MAP = {
     "icon--ff-impact-red": "red",
     "icon--ff-impact-ora": "orange",
@@ -156,11 +157,14 @@ def clean_cell_text(value: str) -> str:
 def convert_time_to_target(date_text: str, time_text: str, source_tz: str, target_tz: str) -> str:
     if not date_text or not time_text or time_text in {"All Day", "Tentative"}:
         return time_text
-    parsed_date = datetime.strptime(date_text, "%d/%m/%Y").date()
-    parsed_time = datetime.strptime(time_text, "%I:%M%p").time()
-    source_dt = datetime.combine(parsed_date, parsed_time, tzinfo=ZoneInfo(source_tz))
-    target_dt = source_dt.astimezone(ZoneInfo(target_tz))
-    return target_dt.strftime("%H:%M")
+    try:
+        parsed_date = datetime.strptime(date_text, "%d/%m/%Y").date()
+        parsed_time = datetime.strptime(time_text, "%I:%M%p").time()
+        source_dt = datetime.combine(parsed_date, parsed_time, tzinfo=ZoneInfo(source_tz))
+        target_dt = source_dt.astimezone(ZoneInfo(target_tz))
+        return target_dt.strftime("%H:%M")
+    except ValueError:
+        return time_text
 
 
 def extract_date_parts(text: str, year: int) -> tuple[str, str] | None:
@@ -337,7 +341,13 @@ def parse_raw_date(value: str) -> date:
 
 
 def is_all_day_time(value: str) -> bool:
-    return str(value or "").strip() in {"All Day", "Tentative", ""}
+    text = str(value or "").strip()
+    return text in {"All Day", "Tentative", ""}
+
+
+def is_supported_time(value: str) -> bool:
+    text = str(value or "").strip()
+    return text == "" or is_all_day_time(text) or bool(CLOCK_TIME_RE.fullmatch(text))
 
 
 def convert_raw_row_to_v4(row: dict[str, str]) -> dict[str, str]:
@@ -392,6 +402,8 @@ def convert_raw_rows_to_v4(
 ) -> list[dict[str, str]]:
     converted: list[dict[str, str]] = []
     for row in rows:
+        if not is_supported_time(str(row.get("time") or "").strip()):
+            continue
         converted_row = convert_raw_row_to_v4(row)
         row_date = date.fromisoformat(converted_row["event_date"])
         if date_from and row_date < date_from:
@@ -416,7 +428,7 @@ def read_raw_csvs(raw_dir: Path) -> list[dict[str, str]]:
 def write_v4_rows(path: Path, rows: list[dict[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=V4_COLUMNS)
+        writer = csv.DictWriter(handle, fieldnames=V4_COLUMNS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -468,6 +480,7 @@ def build_candidate_rows(args: argparse.Namespace) -> tuple[list[dict[str, str]]
         scraped_at = datetime.now(timezone.utc).isoformat()
         output_dir = Path(args.output_dir).expanduser().resolve()
         for selector in selectors:
+            print(f"fetch_month_start: {selector.slug} {selector.forex_factory_selector}", flush=True)
             fetched_rows, metadata = fetch_month_rows(selector, target_timezone=args.timezone, headless=not args.show_browser)
             normalized = normalize_raw_rows(
                 fetched_rows,
@@ -485,6 +498,10 @@ def build_candidate_rows(args: argparse.Namespace) -> tuple[list[dict[str, str]]
                 "filtered_rows": str(len(normalized)),
                 "scraped_at": scraped_at,
             })
+            print(
+                f"fetch_month_done: {selector.slug} raw_rows={len(fetched_rows)} filtered_rows={len(normalized)}",
+                flush=True,
+            )
     date_from = parse_iso_date(args.from_date, "--from-date") if args.from_date else None
     date_to = parse_iso_date(args.to_date, "--to-date") if args.to_date else None
     return convert_raw_rows_to_v4(raw_rows, date_from=date_from, date_to=date_to), selectors
@@ -625,11 +642,12 @@ def fetch_raw_calendar(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir).expanduser().resolve()
     scraped_at = datetime.now(timezone.utc).isoformat()
 
-    print("economic_calendar_fetch_status: running")
-    print(f"output_dir: {output_dir}")
-    print(f"months: {', '.join(selector.slug for selector in selectors)}")
+    print("economic_calendar_fetch_status: running", flush=True)
+    print(f"output_dir: {output_dir}", flush=True)
+    print(f"months: {', '.join(selector.slug for selector in selectors)}", flush=True)
     total_rows = 0
     for selector in selectors:
+        print(f"fetch_month_start: {selector.slug} {selector.forex_factory_selector}", flush=True)
         raw_rows, metadata = fetch_month_rows(selector, target_timezone=args.timezone, headless=not args.show_browser)
         rows = normalize_raw_rows(
             raw_rows,
@@ -648,9 +666,9 @@ def fetch_raw_calendar(args: argparse.Namespace) -> int:
         }
         csv_path = write_raw_month(output_dir, selector, rows, metadata)
         total_rows += len(rows)
-        print(f"{selector.slug}: raw_rows={len(raw_rows)} filtered_rows={len(rows)} output={csv_path}")
-    print(f"total_filtered_rows: {total_rows}")
-    print("economic_calendar_fetch_status: ok")
+        print(f"{selector.slug}: raw_rows={len(raw_rows)} filtered_rows={len(rows)} output={csv_path}", flush=True)
+    print(f"total_filtered_rows: {total_rows}", flush=True)
+    print("economic_calendar_fetch_status: ok", flush=True)
     return 0
 
 
