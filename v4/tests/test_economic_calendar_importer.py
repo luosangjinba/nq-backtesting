@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib.util
 import csv
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -14,6 +15,17 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 IMPORTER = REPO_ROOT / "v4" / "scripts" / "update_economic_calendar.py"
+
+
+def run_importer(args: list[object]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(IMPORTER), *[str(arg) for arg in args]],
+        cwd=str(REPO_ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
 
 
 def load_importer():
@@ -187,6 +199,52 @@ class EconomicCalendarImporterTests(unittest.TestCase):
             self.assertEqual(len(loaded), 2)
             self.assertEqual(loaded[0]["event_date"], "2025-01-02")
             self.assertEqual(loaded[0]["title"], "Unemployment Claims")
+
+    def test_dry_run_reports_append_only_counts_from_raw_dir(self) -> None:
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            existing = temp / "economic_calendar.csv"
+            raw = temp / "raw"
+            raw.mkdir()
+            existing.write_text(
+                "\n".join([
+                    ",".join(importer.V4_COLUMNS),
+                    "2025-01-02,2025-01-02T08:30:00-05:00,2025-01-02T13:30:00Z,USD,Unemployment Claims,High,economic,false,true,211K,222K,220K",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+            (raw / "2025-01.csv").write_text(
+                "\n".join([
+                    ",".join(importer.RAW_COLUMNS),
+                    "08:30,America/New_York,USD,red,Unemployment Claims,,211K,,,Thu,02/01/2025,now",
+                    "10:00,America/New_York,USD,yellow,Construction Spending m/m,,0.0%,,,Thu,02/01/2025,now",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_importer([
+                "--dry-run",
+                "--csv",
+                existing,
+                "--raw-dir",
+                raw,
+                "--from-date",
+                "2025-01-02",
+                "--to-date",
+                "2025-01-02",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("economic_calendar_dry_run_status: ok", result.stdout)
+            self.assertIn("existing_rows: 1", result.stdout)
+            self.assertIn("candidate_rows: 2", result.stdout)
+            self.assertIn("existing_candidate_keys: 1", result.stdout)
+            self.assertIn("would_append_rows: 1", result.stdout)
+            self.assertIn("write_status: dry-run; no CSV changes were made", result.stdout)
+            self.assertEqual(existing.read_text(encoding="utf-8").count("\n"), 2)
 
 
 if __name__ == "__main__":

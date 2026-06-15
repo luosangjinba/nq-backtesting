@@ -15,7 +15,7 @@ import re
 import sys
 import time
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -38,6 +38,7 @@ V4_COLUMNS = [
     "forecast",
     "previous",
 ]
+EVENT_KEY_FIELDS = ["event_date", "event_time_et", "currency", "title"]
 RAW_COLUMNS = [
     "time",
     "timezone",
@@ -418,6 +419,123 @@ def write_v4_rows(path: Path, rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
+def read_v4_rows(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))
+
+
+def event_key(row: dict[str, str]) -> tuple[str, str, str, str]:
+    return tuple(str(row.get(field) or "").strip() for field in EVENT_KEY_FIELDS)
+
+
+def duplicate_key_count(rows: list[dict[str, str]]) -> int:
+    seen: set[tuple[str, str, str, str]] = set()
+    duplicates = 0
+    for row in rows:
+        key = event_key(row)
+        if key in seen:
+            duplicates += 1
+        seen.add(key)
+    return duplicates
+
+
+def max_event_date(rows: list[dict[str, str]]) -> str:
+    dates = [str(row.get("event_date") or "").strip() for row in rows if str(row.get("event_date") or "").strip()]
+    return max(dates) if dates else "n/a"
+
+
+def min_event_date(rows: list[dict[str, str]]) -> str:
+    dates = [str(row.get("event_date") or "").strip() for row in rows if str(row.get("event_date") or "").strip()]
+    return min(dates) if dates else "n/a"
+
+
+def count_nonempty(rows: list[dict[str, str]], field: str) -> int:
+    return sum(1 for row in rows if str(row.get(field) or "").strip())
+
+
+def build_candidate_rows(args: argparse.Namespace) -> tuple[list[dict[str, str]], list[MonthSelector]]:
+    selectors = resolve_requested_months(args)
+    if args.raw_dir:
+        raw_rows = read_raw_csvs(Path(args.raw_dir).expanduser().resolve())
+    else:
+        raw_rows = []
+        currencies = {value.upper() for value in args.currencies}
+        impacts = {value.lower() for value in args.impacts}
+        scraped_at = datetime.now(timezone.utc).isoformat()
+        output_dir = Path(args.output_dir).expanduser().resolve()
+        for selector in selectors:
+            fetched_rows, metadata = fetch_month_rows(selector, target_timezone=args.timezone, headless=not args.show_browser)
+            normalized = normalize_raw_rows(
+                fetched_rows,
+                selector=selector,
+                source_timezone=metadata["source_timezone"],
+                target_timezone=args.timezone,
+                currencies=currencies,
+                impacts=impacts,
+                scraped_at=scraped_at,
+            )
+            raw_rows.extend(normalized)
+            write_raw_month(output_dir, selector, normalized, {
+                **metadata,
+                "raw_rows": str(len(fetched_rows)),
+                "filtered_rows": str(len(normalized)),
+                "scraped_at": scraped_at,
+            })
+    date_from = parse_iso_date(args.from_date, "--from-date") if args.from_date else None
+    date_to = parse_iso_date(args.to_date, "--to-date") if args.to_date else None
+    return convert_raw_rows_to_v4(raw_rows, date_from=date_from, date_to=date_to), selectors
+
+
+def default_from_date(existing_rows: list[dict[str, str]]) -> str:
+    latest = max_event_date(existing_rows)
+    if latest == "n/a":
+        return "1900-01-01"
+    return (date.fromisoformat(latest) + timedelta(days=1)).isoformat()
+
+
+def dry_run_report(args: argparse.Namespace) -> int:
+    csv_path = Path(args.csv).expanduser().resolve()
+    existing_rows = read_v4_rows(csv_path)
+    if not args.from_date:
+        args.from_date = default_from_date(existing_rows)
+    if not args.to_date:
+        args.to_date = date.today().isoformat()
+
+    candidate_rows, selectors = build_candidate_rows(args)
+    existing_keys = {event_key(row) for row in existing_rows}
+    candidate_keys = [event_key(row) for row in candidate_rows]
+    append_rows = [row for row in candidate_rows if event_key(row) not in existing_keys]
+    existing_candidate_keys = sum(1 for key in candidate_keys if key in existing_keys)
+    overlap_new_keys = [
+        row for row in candidate_rows
+        if max_event_date(existing_rows) != "n/a"
+        and row["event_date"] <= max_event_date(existing_rows)
+        and event_key(row) not in existing_keys
+    ]
+
+    print("economic_calendar_dry_run_status: ok")
+    print(f"csv: {csv_path}")
+    print(f"existing_rows: {len(existing_rows)}")
+    print(f"existing_date_min: {min_event_date(existing_rows)}")
+    print(f"existing_date_max: {max_event_date(existing_rows)}")
+    print(f"requested_range: {args.from_date} -> {args.to_date}")
+    print(f"months: {', '.join(selector.slug for selector in selectors)}")
+    print(f"candidate_rows: {len(candidate_rows)}")
+    print(f"candidate_date_min: {min_event_date(candidate_rows)}")
+    print(f"candidate_date_max: {max_event_date(candidate_rows)}")
+    print(f"duplicate_candidate_keys: {duplicate_key_count(candidate_rows)}")
+    print(f"existing_candidate_keys: {existing_candidate_keys}")
+    print(f"overlap_new_keys: {len(overlap_new_keys)}")
+    print(f"would_append_rows: {len(append_rows)}")
+    print(f"actual_nonempty: {count_nonempty(candidate_rows, 'actual')}")
+    print(f"forecast_nonempty: {count_nonempty(candidate_rows, 'forecast')}")
+    print(f"previous_nonempty: {count_nonempty(candidate_rows, 'previous')}")
+    print("write_status: dry-run; no CSV changes were made")
+    return 0
+
+
 def convert_raw_calendar(args: argparse.Namespace) -> int:
     raw_dir = Path(args.raw_dir or args.output_dir).expanduser().resolve()
     candidate_csv = Path(args.candidate_csv).expanduser().resolve()
@@ -479,6 +597,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--from-date", help="Inclusive start date for deriving monthly fetches.")
     parser.add_argument("--to-date", help="Inclusive end date for deriving monthly fetches.")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Directory for raw ForexFactory CSV output.")
+    parser.add_argument("--csv", default=str(DEFAULT_ECONOMIC_CALENDAR_CSV), help="Target V4 economic calendar CSV path.")
     parser.add_argument("--raw-dir", help="Directory containing raw ForexFactory CSVs for conversion.")
     parser.add_argument("--candidate-csv", default=str(DEFAULT_CANDIDATE_CSV), help="Converted V4-format candidate CSV path.")
     parser.add_argument("--timezone", default="America/New_York", help="Target timezone for event times.")
@@ -487,18 +606,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--show-browser", action="store_true", help="Run Chrome visibly instead of headless.")
     parser.add_argument("--fetch-only", action="store_true", help="Fetch raw ForexFactory month CSVs and exit.")
     parser.add_argument("--convert-only", action="store_true", help="Convert raw ForexFactory month CSVs to V4 candidate CSV and exit.")
+    parser.add_argument("--dry-run", action="store_true", help="Report append-only update impact without writing the main CSV.")
     return parser.parse_args(argv)
 
 
 def main() -> int:
     args = parse_args()
     try:
-        if args.fetch_only and args.convert_only:
-            raise ValueError("--fetch-only cannot be combined with --convert-only")
+        selected_modes = sum(bool(value) for value in (args.fetch_only, args.convert_only, args.dry_run))
+        if selected_modes > 1:
+            raise ValueError("--fetch-only, --convert-only, and --dry-run are mutually exclusive")
         if args.fetch_only:
             return fetch_raw_calendar(args)
         if args.convert_only:
             return convert_raw_calendar(args)
+        if args.dry_run:
+            return dry_run_report(args)
         print("economic_calendar_status: not implemented")
         print("hint: use --fetch-only to write raw ForexFactory month CSVs")
         return 0
