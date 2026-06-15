@@ -2,6 +2,9 @@
 
 This is the guarded daily workflow for refreshing V4 futures 1-minute data from Databento.
 
+For the current combined manual/automatic ES + VIX workflow, see
+`v4/docs/user/DATA_FRESHNESS_REFRESH.md`.
+
 Current production boundary:
 
 - ES only.

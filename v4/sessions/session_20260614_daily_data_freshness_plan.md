@@ -355,6 +355,18 @@ Acceptance:
 - User doc exists under `v4/docs/user/`.
 - Planning doc notes that scheduler activation is deferred.
 
+Step 289.6 result:
+
+- Added `v4/docs/user/DATA_FRESHNESS_REFRESH.md`.
+- Documented current production boundary: ES write-enabled, NQ report-only, VIX from Cboe, manual unlimited, auto once-after-close.
+- Documented required `DATABENTO_API_KEY` handling and that secrets must not be committed.
+- Documented manual dry-run/write commands for combined, VIX-only, and ES-only refresh.
+- Documented automatic dry-run/write commands and the default `/tmp` lock/state files.
+- Documented verification commands and hard-error vs stale-warning behavior.
+- Added cron and systemd examples but explicitly left scheduler activation deferred.
+- Added failure handling checklist for ES, VIX, verifier, auto state, and auto lock issues.
+- Linked the new workflow from the older Databento-only document and docs README.
+
 ### Step 289.7 - Focused Tests
 
 Add focused tests for:

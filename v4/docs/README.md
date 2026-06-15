@@ -33,6 +33,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [Yfinance data research for V4 Journal](planning/YFINANCE_DATA_RESEARCH.md)
 - [Databento data research](planning/DATABENTO_DATA_RESEARCH.md)
 - [Databento insert-only updater plan](planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md)
+- [Data freshness refresh workflow](user/DATA_FRESHNESS_REFRESH.md)
 
 ## Historical Docs
 
