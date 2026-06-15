@@ -407,6 +407,16 @@ Acceptance:
 - Output clearly states latest ES timestamp and latest VIX date.
 - If network/API key is unavailable, document the skipped command and keep tests green.
 
+Step 289.8 result:
+
+- `DATABENTO_API_KEY` was not present in the environment, so the ES Databento dry-run was skipped and documented rather than faking a run.
+- Real Cboe VIX dry-run succeeded with `python3 v4/scripts/update_vix_daily.py`.
+- VIX dry-run reported local latest `2026-06-02`, source latest `2026-06-12`, `inserted_rows: 8`, `updated_rows: 0`, `merged_rows: 9206`, and `write_status: dry-run; no CSV changes were made`.
+- Freshness verifier succeeded with `python3 v4/scripts/verify_data_freshness.py`.
+- Verifier reported ES max `2026-06-11 16:59:00`, ES duplicate timestamps `0`, NQ max `2025-11-04 18:39:00`, NQ duplicate timestamps `0`, VIX latest `2026-06-02`, VIX duplicate dates `0`, VIX malformed rows `0`.
+- Verifier emitted stale warnings for ES and VIX, but `hard_errors: 0` and `data_freshness_status: ok`.
+- `git status` stayed clean after dry-run commands; no DB or CSV writes occurred.
+
 ### Step 289.9 - Controlled Write Trial
 
 Only after dry-run output is clean:
