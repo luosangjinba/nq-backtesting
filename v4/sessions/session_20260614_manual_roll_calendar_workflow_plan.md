@@ -282,6 +282,21 @@ Acceptance:
 - Report is read-only.
 - Can be run before daily refresh to explain why NQ is blocked.
 
+Step 290.4 result:
+
+- Extended `v4/scripts/scan_roll_volume_candidates.py` with `--report-calendar`.
+- The report reads `v4/data_config/futures_roll_calendar.yml` by default.
+- It prints instrument, old/new contract, configured roll date, status, write eligibility, attention flag, recommended action, and note.
+- Write-eligible status logic currently recognizes `validated`, `volume_validated`, and `manual_validated`.
+- Attention entries include `future_candidate`, `inferred_no_db_overlap`, `inferred_volume_conflict`, unknown statuses, and write-eligible entries close to today's date.
+- The report is read-only and does not scan Databento by default, so it can run before daily refresh without a network/API key.
+- Current report output includes four attention entries:
+  - `NQZ5 -> NQH6`, `inferred_no_db_overlap`;
+  - `NQH6 -> NQM6`, `inferred_volume_conflict`;
+  - `ESM6 -> ESU6`, `future_candidate`;
+  - `NQM6 -> NQU6`, `future_candidate`.
+- Added tests for report output and readable missing scan argument failures.
+
 ### Step 290.5 - Manual Confirmation Workflow
 
 Define and implement the safest confirmation path.

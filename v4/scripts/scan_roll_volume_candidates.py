@@ -13,6 +13,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+import yaml
 
 try:
     import databento as db
@@ -24,6 +25,10 @@ ET = ZoneInfo("America/New_York")
 UTC = ZoneInfo("UTC")
 DEFAULT_DATASET = "GLBX.MDP3"
 DEFAULT_SCHEMA = "ohlcv-1m"
+V4_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_ROLL_CALENDAR = V4_ROOT / "data_config" / "futures_roll_calendar.yml"
+WRITE_ELIGIBLE_STATUSES = frozenset({"validated", "volume_validated", "manual_validated"})
+ATTENTION_STATUSES = frozenset({"future_candidate", "inferred_no_db_overlap", "inferred_volume_conflict"})
 
 
 @dataclass(frozen=True)
@@ -37,17 +42,35 @@ class DailyVolume:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Scan old/new futures contract volume for roll candidates.")
-    parser.add_argument("--instrument", required=True, choices=["ES", "NQ"], help="Internal instrument label.")
-    parser.add_argument("--old-contract", required=True, help="Old raw quarterly contract, e.g. NQH6.")
-    parser.add_argument("--new-contract", required=True, help="New raw quarterly contract, e.g. NQM6.")
-    parser.add_argument("--start", required=True, help="Start timestamp/date. Interpreted as ET if no timezone.")
-    parser.add_argument("--end", required=True, help="End timestamp/date. Interpreted as ET if no timezone.")
+    parser.add_argument("--instrument", choices=["ES", "NQ"], help="Internal instrument label.")
+    parser.add_argument("--old-contract", help="Old raw quarterly contract, e.g. NQH6.")
+    parser.add_argument("--new-contract", help="New raw quarterly contract, e.g. NQM6.")
+    parser.add_argument("--start", help="Start timestamp/date. Interpreted as ET if no timezone.")
+    parser.add_argument("--end", help="End timestamp/date. Interpreted as ET if no timezone.")
     parser.add_argument("--dataset", default=DEFAULT_DATASET, help="Databento dataset.")
     parser.add_argument("--schema", default=DEFAULT_SCHEMA, help="Databento schema.")
     parser.add_argument("--source-file", help="Read normalized raw rows from local CSV instead of Databento.")
     parser.add_argument("--min-consecutive-days", type=int, default=2, help="Required consecutive new-dominant days.")
     parser.add_argument("--show-empty-days", action="store_true", help="Print days where both contracts have zero volume.")
+    parser.add_argument("--roll-calendar", default=str(DEFAULT_ROLL_CALENDAR), help="Roll calendar YAML path.")
+    parser.add_argument("--report-calendar", action="store_true", help="Print roll calendar reminder report.")
+    parser.add_argument("--attention-days", type=int, default=30, help="Report validated entries within this many days of today.")
     return parser.parse_args()
+
+
+def validate_scan_args(args: argparse.Namespace) -> None:
+    missing = [
+        name for name, value in [
+            ("--instrument", args.instrument),
+            ("--old-contract", args.old_contract),
+            ("--new-contract", args.new_contract),
+            ("--start", args.start),
+            ("--end", args.end),
+        ]
+        if not value
+    ]
+    if missing:
+        raise ValueError(f"missing required scan arguments: {', '.join(missing)}")
 
 
 def parse_datetime_et(value: str) -> datetime:
@@ -210,9 +233,80 @@ def print_summary(args: argparse.Namespace, daily: list[DailyVolume]) -> None:
         print("candidate_status: no new-contract dominance detected")
 
 
+def is_write_eligible(status: str) -> bool:
+    return str(status or "").strip() in WRITE_ELIGIBLE_STATUSES
+
+
+def recommended_action(status: str) -> str:
+    normalized = str(status or "").strip()
+    if normalized == "validated":
+        return "no action"
+    if normalized in {"volume_validated", "manual_validated"}:
+        return "write-eligible; keep evidence note"
+    if normalized == "inferred_volume_conflict":
+        return "scan volume and manually confirm roll date"
+    if normalized == "inferred_no_db_overlap":
+        return "scan volume; manual confirmation required before write"
+    if normalized == "future_candidate":
+        return "scan near roll window; manual confirmation required"
+    return "unknown status; keep blocked"
+
+
+def load_roll_calendar(path: Path) -> tuple[str, str, list[dict[str, object]]]:
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    dataset = str(data.get("dataset") or DEFAULT_DATASET)
+    schema = str(data.get("schema") or DEFAULT_SCHEMA)
+    return dataset, schema, list(data.get("rolls") or [])
+
+
+def print_calendar_report(args: argparse.Namespace) -> int:
+    calendar_path = Path(args.roll_calendar).expanduser().resolve()
+    dataset, schema, entries = load_roll_calendar(calendar_path)
+    print("roll_calendar_report_status: ok")
+    print(f"calendar: {calendar_path}")
+    print(f"dataset: {dataset}")
+    print(f"schema: {schema}")
+    print("\nroll reminders")
+    print("instrument old_contract new_contract roll_date_et status write_eligible attention recommended_action note")
+    today = datetime.now(ET).date()
+    shown = 0
+    for entry in entries:
+        instrument = str(entry.get("instrument") or "").upper()
+        old_contract = str(entry.get("old_contract") or "")
+        new_contract = str(entry.get("new_contract") or "")
+        roll_date = str(entry.get("roll_date_et") or "")
+        status = str(entry.get("status") or "unknown")
+        note = str(entry.get("note") or "").replace("\n", " ")
+        attention = status in ATTENTION_STATUSES
+        try:
+            distance = abs((datetime.fromisoformat(roll_date).date() - today).days)
+            attention = attention or distance <= max(0, args.attention_days)
+        except ValueError:
+            attention = True
+        if not attention and is_write_eligible(status):
+            continue
+        shown += 1
+        print(
+            f"{instrument} {old_contract} {new_contract} {roll_date} {status} "
+            f"{str(is_write_eligible(status)).lower()} {str(attention).lower()} "
+            f"{recommended_action(status)} | {note}"
+        )
+    print(f"\nreported_entries: {shown}")
+    print("report_mode: read-only")
+    return 0
+
+
 def main() -> int:
     args = parse_args()
+    if args.report_calendar:
+        try:
+            return print_calendar_report(args)
+        except Exception as exc:
+            print("roll_calendar_report_status: failed")
+            print(f"error: {exc}")
+            return 1
     try:
+        validate_scan_args(args)
         if args.source_file:
             rows = read_source_file(Path(args.source_file).expanduser().resolve(), args.old_contract, args.new_contract)
         else:

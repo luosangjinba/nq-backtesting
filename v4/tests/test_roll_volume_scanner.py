@@ -104,6 +104,59 @@ class RollVolumeScannerTests(unittest.TestCase):
             self.assertIn("candidate_roll_date: n/a", result.stdout)
             self.assertIn("candidate_status: no new-contract dominance detected", result.stdout)
 
+    def test_calendar_report_marks_blocked_entries_and_write_eligible_statuses(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            calendar = Path(temp_dir) / "roll.yml"
+            calendar.write_text(
+                "\n".join([
+                    "version: 1",
+                    "dataset: GLBX.MDP3",
+                    "schema: ohlcv-1m",
+                    "rolls:",
+                    "  - instrument: ES",
+                    "    old_contract: ESZ5",
+                    "    new_contract: ESH6",
+                    "    roll_date_et: 2025-12-14",
+                    "    status: validated",
+                    "    note: already checked",
+                    "  - instrument: NQ",
+                    "    old_contract: NQH6",
+                    "    new_contract: NQM6",
+                    "    roll_date_et: 2026-03-13",
+                    "    status: inferred_volume_conflict",
+                    "    note: conflict",
+                    "  - instrument: ES",
+                    "    old_contract: ESM6",
+                    "    new_contract: ESU6",
+                    "    roll_date_et: 2026-06-14",
+                    "    status: future_candidate",
+                    "    note: scan later",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_scanner(["--report-calendar", "--roll-calendar", calendar])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("roll_calendar_report_status: ok", result.stdout)
+            self.assertIn("NQ NQH6 NQM6 2026-03-13 inferred_volume_conflict false true scan volume", result.stdout)
+            self.assertIn("ES ESM6 ESU6 2026-06-14 future_candidate false true scan near roll window", result.stdout)
+            self.assertIn("reported_entries: 2", result.stdout)
+            self.assertIn("report_mode: read-only", result.stdout)
+
+    def test_missing_scan_arguments_fail_readably(self) -> None:
+        result = run_scanner([
+            "--instrument",
+            "NQ",
+            "--old-contract",
+            "NQH6",
+        ])
+
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("scan_status: failed", result.stdout)
+        self.assertIn("missing required scan arguments", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
