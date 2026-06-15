@@ -69,6 +69,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="Explicitly run read-only dry-run. This is the default.")
     parser.add_argument("--write", action="store_true", help="Execute insert-only write. Currently allowed only for ES.")
     parser.add_argument("--confirm-write", action="store_true", help="Required with --write.")
+    parser.add_argument(
+        "--roll-status-preflight",
+        action="store_true",
+        help="Check roll calendar write eligibility for --start/--end without contacting Databento.",
+    )
     parser.add_argument("--chunk-days", type=int, default=5, help="Databento request chunk size in ET days.")
     parser.add_argument("--retries", type=int, default=2, help="Retries per Databento request chunk for transient failures.")
     parser.add_argument("--retry-sleep", type=float, default=2.0, help="Seconds to sleep before retrying a transient request failure.")
@@ -322,6 +327,31 @@ def is_write_eligible_roll_status(status: str) -> bool:
     return str(status or "").strip() in WRITE_ELIGIBLE_ROLL_STATUSES
 
 
+def print_roll_status_preflight(args: argparse.Namespace, dataset: str, schema: str, segments: list[Segment]) -> None:
+    print("roll_status_preflight: ok")
+    print(f"dataset: {dataset}")
+    print(f"schema: {schema}")
+    print(f"instrument: {args.instrument}")
+    print("\nsegments")
+    blocked = []
+    for segment in segments:
+        eligible = is_write_eligible_roll_status(segment.roll_status)
+        marker = "" if eligible else " WARNING blocked"
+        print(
+            f"- {segment.contract}: {segment.start_et} -> {segment.end_et} "
+            f"status={segment.roll_status} write_eligible={str(eligible).lower()}{marker}"
+        )
+        if not eligible:
+            blocked.append(segment)
+            print(f"  note: {segment.roll_note}")
+    if blocked:
+        print("preflight_status: blocked")
+        details = ", ".join(f"{segment.contract}:{segment.roll_status}" for segment in blocked)
+        print(f"blocked_segments: {details}")
+        raise SystemExit(1)
+    print("preflight_status: write-eligible")
+
+
 def validate_write_allowed(args: argparse.Namespace, segments: list[Segment]) -> None:
     if not args.write:
         return
@@ -392,10 +422,24 @@ def main() -> None:
     calendar_dataset, calendar_schema, entries = load_roll_calendar(calendar_path)
     dataset = args.dataset or calendar_dataset
     schema = args.schema or calendar_schema
-    client = db.Historical()
 
     db_max_ts = get_db_max_ts(db_path, args.instrument)
     start_et = parse_et_naive(args.start) if args.start else db_max_ts + timedelta(minutes=1)
+    if args.roll_status_preflight:
+        if not args.end:
+            raise SystemExit("--roll-status-preflight requires --end because it does not contact Databento")
+        end_et = parse_et_naive(args.end)
+        if start_et >= end_et:
+            raise SystemExit(f"empty requested range: {start_et} -> {end_et}")
+        segments = build_segments(args.instrument, entries, start_et, end_et)
+        print_roll_status_preflight(args, dataset, schema, segments)
+        return
+
+    try:
+        client = db.Historical()
+    except ValueError as exc:
+        raise SystemExit("DATABENTO_API_KEY is required in the environment for Databento dry-run/write") from exc
+
     requested_end_et = parse_et_naive(args.end) if args.end else get_databento_end_et(client, dataset, schema)
     databento_end_et = get_databento_end_et(client, dataset, schema)
     end_et = min(requested_end_et, databento_end_et)

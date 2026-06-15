@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import importlib.util
+import io
 import sys
 import unittest
 from datetime import datetime
@@ -58,6 +60,37 @@ class DatabentoWriteGuardTests(unittest.TestCase):
 
     def test_dry_run_skips_write_guard_status_rejection(self) -> None:
         updater.validate_write_allowed(args(write=False, confirm_write=False), [segment("future_candidate")])
+
+    def test_roll_status_preflight_reports_blocked_segments(self) -> None:
+        output = io.StringIO()
+        with self.assertRaises(SystemExit) as raised:
+            with contextlib.redirect_stdout(output):
+                updater.print_roll_status_preflight(
+                    args(write=False, confirm_write=False),
+                    "GLBX.MDP3",
+                    "ohlcv-1m",
+                    [segment("future_candidate")],
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        text = output.getvalue()
+        self.assertIn("roll_status_preflight: ok", text)
+        self.assertIn("status=future_candidate write_eligible=false WARNING blocked", text)
+        self.assertIn("preflight_status: blocked", text)
+
+    def test_roll_status_preflight_accepts_write_eligible_segments(self) -> None:
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            updater.print_roll_status_preflight(
+                args(write=False, confirm_write=False),
+                "GLBX.MDP3",
+                "ohlcv-1m",
+                [segment("volume_validated")],
+            )
+
+        text = output.getvalue()
+        self.assertIn("status=volume_validated write_eligible=true", text)
+        self.assertIn("preflight_status: write-eligible", text)
 
 
 if __name__ == "__main__":

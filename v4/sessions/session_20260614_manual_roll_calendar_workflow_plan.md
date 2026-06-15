@@ -437,6 +437,21 @@ Acceptance:
 - If written, freshness verifier and API smoke pass.
 - If not written, TODO/session records that NQ remains intentionally blocked.
 
+Step 290.9 result:
+
+- Added `--roll-status-preflight` to `v4/scripts/update_databento_1m.py`.
+- Preflight checks roll calendar segment write eligibility for an explicit `--start/--end` range without contacting Databento.
+- Databento dry-run now fails readably when `DATABENTO_API_KEY` is missing instead of printing a traceback.
+- Ran NQ default-window preflight through `2026-06-14T00:00:00`; result was blocked:
+  - `NQZ5`: `2025-11-04 18:40:00 -> 2025-12-14 00:00:00`, `inferred_no_db_overlap`, not write-eligible;
+  - `NQH6`: `2025-12-14 00:00:00 -> 2026-03-16 00:00:00`, `inferred_no_db_overlap`, not write-eligible;
+  - `NQM6`: `2026-03-16 00:00:00 -> 2026-06-14 00:00:00`, `volume_validated`, write-eligible.
+- Ran focused NQ March-to-June preflight for `2026-03-16T00:00:00 -> 2026-06-14T00:00:00`; result was write-eligible for `NQM6`.
+- Attempted actual NQ dry-run; it stopped before network work with `DATABENTO_API_KEY is required in the environment for Databento dry-run/write`.
+- No NQ write was executed.
+- NQ remains intentionally blocked for full default refresh until `NQZ5 -> NQH6` / `NQH6` inferred-no-overlap coverage is manually resolved or the user chooses a narrower confirmed write range after a clean Databento dry-run.
+- Added offline tests for roll status preflight blocked and write-eligible output.
+
 ### Step 290.10 - Documentation And User Workflow
 
 Update user docs:
