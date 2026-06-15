@@ -6,6 +6,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+if [ -f "$HOME/.bashrc" ]; then
+  # Load persistent local environment such as DATABENTO_API_KEY for API subprocesses.
+  source "$HOME/.bashrc" || true
+fi
+
 PYTHON="${PYTHON_BIN:-python3}"
 PORT=8766
 WEB_PORT="${V4_WEB_PORT:-8001}"
