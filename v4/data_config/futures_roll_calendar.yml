@@ -37,9 +37,9 @@ rolls:
   - instrument: NQ
     old_contract: NQH6
     new_contract: NQM6
-    roll_date_et: 2026-03-13
-    status: inferred_volume_conflict
-    note: NQ DB has no overlap. ES validated roll_date_et=2026-03-13, but NQ volume audit shows NQM6 only overtakes NQH6 on 2026-03-16; manual review required before NQ write.
+    roll_date_et: 2026-03-16
+    status: volume_validated
+    note: 'Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16; ES 2026-03 remains validated on 2026-03-13; no DB overlap exists for direct NQ validation.'
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6

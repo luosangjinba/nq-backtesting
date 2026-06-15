@@ -352,6 +352,21 @@ Acceptance:
 - The final status is write-eligible only if the user explicitly confirms.
 - Session doc records the evidence and decision.
 
+Step 290.6 result:
+
+- Attempted a fresh Databento scanner run for `NQH6 -> NQM6`, `2026-03-10` through `2026-03-18`; it failed because `DATABENTO_API_KEY` was not present in the current shell.
+- Used the existing recorded volume audit evidence from Step 281/290:
+  - `NQH6` still dominated on `2026-03-13`;
+  - `NQM6` first overtook `NQH6` on `2026-03-16`;
+  - local NQ DB has no overlap for direct validation.
+- Used the Step 290.5 guarded confirmation workflow to update `v4/data_config/futures_roll_calendar.yml`:
+  - `NQH6 -> NQM6`;
+  - `roll_date_et: 2026-03-16`;
+  - `status: volume_validated`;
+  - note records the volume evidence and lack of direct NQ DB overlap.
+- `NQH6 -> NQM6` no longer has `inferred_volume_conflict`.
+- While verifying the report, found that a note containing `:` must be YAML-quoted. Fixed the confirmation writer to quote unsafe scalar values and added a regression test.
+
 ### Step 290.7 - Resolve Current/Future ES And NQ Candidates
 
 Review:

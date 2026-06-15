@@ -386,11 +386,26 @@ def find_roll_entry_line_span(lines: list[str], args: argparse.Namespace) -> tup
 
 
 def replace_entry_field(block: list[str], key: str, value: str) -> list[str]:
-    replacement = f"    {key}: {value}"
+    replacement = f"    {key}: {format_yaml_scalar(value)}"
     for index, line in enumerate(block):
         if line.startswith(f"    {key}:"):
             return [*block[:index], replacement, *block[index + 1:]]
     return [*block, replacement]
+
+
+def format_yaml_scalar(value: str) -> str:
+    text = str(value)
+    needs_quotes = (
+        not text
+        or text != text.strip()
+        or ": " in text
+        or " #" in text
+        or text[0] in {"@", "`", "&", "*", "!", "|", ">", "{", "}", "[", "]", ",", "%"}
+        or text.lower() in {"null", "true", "false", "yes", "no", "on", "off"}
+    )
+    if not needs_quotes:
+        return text
+    return "'" + text.replace("'", "''") + "'"
 
 
 def apply_roll_confirmation_text(old_text: str, args: argparse.Namespace) -> str:

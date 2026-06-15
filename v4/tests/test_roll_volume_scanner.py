@@ -9,6 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import yaml
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCANNER = REPO_ROOT / "v4" / "scripts" / "scan_roll_volume_candidates.py"
@@ -289,6 +291,50 @@ class RollVolumeScannerTests(unittest.TestCase):
             self.assertIn("roll_date_et: 2026-06-15", written)
             self.assertIn("status: volume_validated", written)
             self.assertIn("note: Volume scan confirmed.", written)
+
+    def test_confirm_roll_quotes_yaml_note_when_needed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            calendar = Path(temp_dir) / "roll.yml"
+            calendar.write_text(
+                "\n".join([
+                    "version: 1",
+                    "rolls:",
+                    "  - instrument: NQ",
+                    "    old_contract: NQH6",
+                    "    new_contract: NQM6",
+                    "    roll_date_et: 2026-03-13",
+                    "    status: inferred_volume_conflict",
+                    "    note: pending",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_scanner([
+                "--confirm-roll",
+                "--roll-calendar",
+                calendar,
+                "--instrument",
+                "NQ",
+                "--old-contract",
+                "NQH6",
+                "--new-contract",
+                "NQM6",
+                "--confirmed-roll-date",
+                "2026-03-16",
+                "--confirmed-status",
+                "volume_validated",
+                "--confirmed-note",
+                "Resolved: volume crossover confirmed.",
+                "--write",
+                "--confirm-write",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            written = calendar.read_text(encoding="utf-8")
+            self.assertIn("note: 'Resolved: volume crossover confirmed.'", written)
+            parsed = yaml.safe_load(written)
+            self.assertEqual(parsed["rolls"][0]["note"], "Resolved: volume crossover confirmed.")
 
 
 if __name__ == "__main__":
