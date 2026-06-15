@@ -304,12 +304,112 @@
         });
         const data = await response.json();
         const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
-        append(`${header}\n${data.output || data.error || ''}`);
+        append(formatResult(payload, data, response.status, header));
         setState(data.ok ? 'ok' : 'failed', data.ok ? 'ok' : 'fail');
       } catch (error) {
         append(`request failed: ${error.message}`);
         setState('failed', 'fail');
       }
+    }
+
+    function extract(text, pattern) {
+      const match = String(text || '').match(pattern);
+      return match ? match[1].trim() : '';
+    }
+
+    function collectLines(text, startsWith) {
+      return String(text || '')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.startsWith(startsWith));
+    }
+
+    function summarize(payload, data, responseStatus) {
+      const out = data.output || data.error || '';
+      const lines = [];
+      const ok = Boolean(data.ok);
+      lines.push(ok ? 'Result: completed.' : `Result: needs attention. HTTP/return status ${data.returncode ?? responseStatus}.`);
+
+      if (payload.action === 'dry_run' || payload.action === 'write') {
+        const instrument = extract(out, /^instrument:\s*(.+)$/m) || payload.instrument;
+        const dbMax = extract(out, /^db_max_ts:\s*(.+)$/m);
+        const requested = extract(out, /^dry_run_range_et:\s*(.+)$/m);
+        const dataEnd = extract(out, /^databento_end_et:\s*(.+)$/m);
+        const downloaded = extract(out, /^downloaded_normalized_rows:\s*(.+)$/m);
+        const duplicates = extract(out, /^duplicate_candidate_keys:\s*(.+)$/m);
+        const existing = extract(out, /^existing_candidate_keys:\s*(.+)$/m);
+        const wouldInsert = extract(out, /^would_insert_rows:\s*(.+)$/m);
+        const first = extract(out, /^would_insert_first_ts:\s*(.+)$/m);
+        const last = extract(out, /^would_insert_last_ts:\s*(.+)$/m);
+        const inserted = extract(out, /^inserted_rows:\s*(.+)$/m);
+        const afterMax = extract(out, /^after_max_ts:\s*(.+)$/m);
+        if (instrument) lines.push(`Instrument: ${instrument}.`);
+        if (dbMax) lines.push(`Current DB latest bar before this run: ${dbMax}.`);
+        if (requested) lines.push(`Actual checked range: ${requested}.`);
+        if (dataEnd) lines.push(`Databento available end used by the updater: ${dataEnd}.`);
+        if (downloaded) lines.push(`Downloaded normalized rows: ${downloaded}.`);
+        if (wouldInsert === '0') {
+          lines.push('No new rows would be inserted.');
+          if (/weekend/i.test(out)) {
+            lines.push('Reason: the checked range falls in a weekend/no-trading window.');
+          } else if (/No data found/i.test(out)) {
+            lines.push('Reason: Databento returned no bars for the checked range.');
+          }
+        } else if (wouldInsert) {
+          lines.push(`Rows that would be inserted: ${wouldInsert}.`);
+          if (first && last) lines.push(`Candidate insert range: ${first} -> ${last}.`);
+        }
+        if (duplicates) lines.push(`Duplicate candidate keys: ${duplicates}.`);
+        if (existing) lines.push(`Existing candidate keys already in DB: ${existing}.`);
+        if (inserted) lines.push(`Rows inserted: ${inserted}.`);
+        if (afterMax) lines.push(`DB latest bar after write: ${afterMax}.`);
+        const warnings = collectLines(out, '- The streaming request').length + collectLines(out, '- No data found').length;
+        if (warnings) lines.push(`Databento warnings: ${warnings}. Review Raw Output before writing.`);
+      } else if (payload.action === 'preflight') {
+        const status = extract(out, /^preflight_status:\s*(.+)$/m);
+        if (status === 'write-eligible') {
+          lines.push('The selected range is write-eligible.');
+        } else if (status === 'blocked') {
+          lines.push('The selected range is blocked. Do not dry-run/write across this range yet.');
+          const blocked = extract(out, /^blocked_segments:\s*(.+)$/m);
+          if (blocked) lines.push(`Blocked segments: ${blocked}.`);
+        }
+      } else if (payload.action === 'roll_report') {
+        const count = extract(out, /^reported_entries:\s*(.+)$/m);
+        lines.push(count === '0' ? 'No roll entries currently need attention.' : `Roll entries needing attention: ${count || 'unknown'}.`);
+      } else if (payload.action === 'confirm_roll_preview') {
+        lines.push('Preview only. No calendar file was changed.');
+        if (/^\+/m.test(out) || /^-/m.test(out)) lines.push('Review the diff in Raw Output before using Write Confirm.');
+      } else if (payload.action === 'confirm_roll_write') {
+        const writeStatus = extract(out, /^write_status:\s*(.+)$/m);
+        lines.push(writeStatus === 'written' ? 'Roll calendar confirmation was written.' : `Write status: ${writeStatus || 'unknown'}.`);
+      } else if (payload.action === 'verify' || payload.action === 'verify_api') {
+        const hard = extract(out, /^hard_errors:\s*(.+)$/m);
+        const warnings = extract(out, /^warnings:\s*(.+)$/m);
+        const status = extract(out, /^data_freshness_status:\s*(.+)$/m);
+        lines.push(`Freshness status: ${status || 'unknown'}; hard errors: ${hard || 'unknown'}; warnings: ${warnings || 'unknown'}.`);
+      } else if (payload.action === 'api_smoke') {
+        const returned = extract(out, /^returned_bars:\s*(.+)$/m);
+        const dbMax = extract(out, /^db_max_ts:\s*(.+)$/m);
+        lines.push(`API returned bars: ${returned || 'unknown'}; DB latest: ${dbMax || 'unknown'}.`);
+      }
+
+      return lines.join('\n');
+    }
+
+    function formatResult(payload, data, responseStatus, header) {
+      const raw = data.output || data.error || '';
+      return [
+        header,
+        '',
+        'Summary',
+        '-------',
+        summarize(payload, data, responseStatus),
+        '',
+        'Raw Output',
+        '----------',
+        raw
+      ].join('\n');
     }
 
     function rollPayload(action) {
