@@ -98,6 +98,7 @@ export function createLiveRecordSet(record = {}) {
     },
     result: {
       ...result,
+      exitType: result.exitType || 'unknown',
       exitTimestamp: toTimestamp(result.exitTimestamp),
       exitTimeframe: result.exitTimeframe || '',
       exitPrice: toNumberOrNull(result.exitPrice),

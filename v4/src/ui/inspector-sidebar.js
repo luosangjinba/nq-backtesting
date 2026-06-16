@@ -89,6 +89,7 @@ import {
 import {
   setActiveLiveRecord,
 } from '../live-record/live-record-active.js';
+import { getSelectedLiveRecordElement } from '../live-record/live-record-selection.js';
 import {
   getDailyTimeReviewByDate,
   getOrCreateDailyTimeReview,
@@ -529,6 +530,16 @@ function showActiveOrderSetupPanel() {
   renderOrderSetupDetail(getActiveReviewSetId());
   openSidebar();
   requestAnimationFrame(() => focusActiveOrderSetupPanel());
+}
+
+function showSelectedLiveRecordPanel() {
+  const liveRecordId = getSelectedLiveRecordElement()?.liveRecordId;
+  if (!liveRecordId || !getLiveRecordById(liveRecordId)) {
+    refreshSelection();
+    return;
+  }
+  renderLiveRecordDetail(liveRecordId);
+  openSidebar();
 }
 
 function restoreCalendarStateFromPage(page = {}) {
@@ -1132,6 +1143,8 @@ export function initInspectorSidebar() {
     showActiveOrderSetupPanel();
   });
   bus.on('order-setup-element:selection-cleared', refreshSelection);
+  bus.on('live-record-element:selected', showSelectedLiveRecordPanel);
+  bus.on('live-record-element:selection-cleared', refreshSelection);
   bus.on('order-review-active:changed', ({ activeReviewSetId }) => {
     if (suppressActiveReviewRender) return;
     if (dailyTimeActions.isPicking() && activeReviewSetId) {

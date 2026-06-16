@@ -40,6 +40,14 @@ import {
   redo,
   undo,
 } from '../src/history/history-manager.js';
+import {
+  addLiveRecord,
+  loadLiveRecords,
+} from '../src/live-record/live-record-store.js';
+import {
+  getActiveLiveRecordId,
+  setActiveLiveRecord,
+} from '../src/live-record/live-record-active.js';
 
 function installLocalStorageMock() {
   const items = new Map();
@@ -79,6 +87,7 @@ function assertSetupCore(setupSet, expected) {
 installLocalStorageMock();
 clearActiveReviewSet();
 clearOrderReviews();
+loadLiveRecords([]);
 
 const bullish = createChartReviewSet({
   bar: { timestamp: 1672756200 },
@@ -283,5 +292,18 @@ assert.equal(getOrderReviewById(bullish.id).entryPlan.entryPrice, 11010, 'undo r
 assert.equal(canRedo(), true, 'redo available after undo');
 assert.equal(redo(), true, 'redo succeeds');
 assert.equal(getOrderReviewById(bullish.id).entryPlan.entryPrice, 11012, 'redo reapplies entry update');
+
+const liveRecord = addLiveRecord({
+  id: 'live-before-order-setup-create',
+  instrument: 'NQ',
+  anchor: { timestamp: 1672760100, timeframe: '1M', price: 11102 },
+}, { now: 20 });
+assert.equal(setActiveLiveRecord(liveRecord.id), true, 'live record can be active before order setup creation');
+assert.equal(handleOrderSetupChartAction('order-setup-create-bullish', {
+  bar: { timestamp: 1672760200, close: 11110 },
+  price: 11110,
+  timeframe: '5M',
+}), true, 'chart action handles bullish setup creation while live is active');
+assert.equal(getActiveLiveRecordId(), null, 'creating order setup clears active live record highlight');
 
 console.log('order setup smoke ok');

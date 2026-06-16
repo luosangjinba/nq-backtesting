@@ -267,8 +267,11 @@ async function main() {
     assert.match(value.detailText, /Stop Loss/);
     assert.match(value.detailText, /Target External 1/);
     assert.match(value.detailText, /Exit Price/);
-    assert.match(value.detailText, /Execution Review/);
-    assert.match(value.detailText, /Browser reviewed execution/);
+    assert.match(value.detailText, /Profit/);
+    assert.match(value.detailText, /Stop Loss/);
+    assert.match(value.detailText, /Hold/);
+    assert.match(value.detailText, /Risk/);
+    assert.match(value.detailText, /Points/);
     assert.match(value.detailText, /Reviewed/);
     assert.match(value.detailText, /PDA/);
     assert.ok(value.canvasCount > 0, 'chart should render canvas layers');

@@ -265,6 +265,37 @@
           <p class="status">Forecast/previous may remain blank with the current ForexFactory list-page source.</p>
         </div>
       </section>
+
+      <section>
+        <div class="section-header">Tradovate Live Records</div>
+        <div class="content">
+          <div class="grid">
+            <label>Performance CSV <input id="tradovateCsv" type="file" accept=".csv,text/csv"></label>
+            <label>
+              Instrument
+              <select id="tradovateInstrument">
+                <option value="auto">Auto</option>
+                <option value="NQ">NQ</option>
+                <option value="ES">ES</option>
+              </select>
+            </label>
+            <label>
+              Timestamp timezone
+              <select id="tradovateTimezone">
+                <option value="UTC">V4 chart wall time</option>
+                <option value="America/New_York">America/New_York real UTC</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+              </select>
+            </label>
+            <label>Output filename <input id="tradovateFilename" value="tradovate-live-records.json"></label>
+          </div>
+          <div class="row">
+            <button id="tradovatePreview" type="button">Preview CSV</button>
+            <button id="tradovateDownload" class="primary" type="button">Download Review JSON</button>
+          </div>
+          <p class="status">Each Tradovate Performance row becomes one closed Live Record. Setup links, stops, targets, and reasons stay manual.</p>
+        </div>
+      </section>
     </div>
 
     <section>
@@ -521,6 +552,130 @@
     document.getElementById('clearOutput').addEventListener('click', () => {
       output.textContent = 'Ready.';
       setState('idle');
+    });
+  </script>
+  <script type="module">
+    import {
+      buildTradovateLiveRecordArchives,
+      formatTradovatePnl,
+    } from './src/live-record/tradovate-performance-importer.js';
+
+    const output = document.getElementById('output');
+    const pill = document.getElementById('statePill');
+    const fileInput = document.getElementById('tradovateCsv');
+    const instrumentInput = document.getElementById('tradovateInstrument');
+    const timezoneInput = document.getElementById('tradovateTimezone');
+    const filenameInput = document.getElementById('tradovateFilename');
+
+    function appendTradovateOutput(text) {
+      output.textContent = `${output.textContent}\n\n${text}`.trim();
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function setTradovateState(state, kind = '') {
+      pill.textContent = state;
+      pill.className = `pill ${kind}`;
+    }
+
+    function getTradovateFile() {
+      const file = fileInput.files?.[0];
+      if (!file) throw new Error('Choose a Tradovate Performance CSV first.');
+      return file;
+    }
+
+    async function buildArchivesFromSelectedFile() {
+      const file = getTradovateFile();
+      const text = await file.text();
+      return buildTradovateLiveRecordArchives(text, {
+        instrument: instrumentInput.value,
+        timeZone: timezoneInput.value,
+      });
+    }
+
+    function formatSinglePreview(result) {
+      return [
+        `Instrument: ${result.payload.instrument}`,
+        `Timestamp timezone: ${result.payload.source.timezone}`,
+        `Source rows: ${result.sourceRows}`,
+        `Live Records: ${result.liveRecords}`,
+        `Skipped rows: ${result.skippedRows}`,
+        `Wins / Losses / Breakeven: ${result.wins} / ${result.losses} / ${result.breakeven}`,
+        `Total P/L: ${formatTradovatePnl(result.totalPnl)}`,
+      ].join('\n');
+    }
+
+    function formatPreview(results, fileName) {
+      const resultList = Array.isArray(results) ? results : [results];
+      const lines = [
+        '> tradovate_live_record_preview',
+        '',
+        'Summary',
+        '-------',
+        `File: ${fileName}`,
+      ];
+      resultList.forEach((result, index) => {
+        if (index > 0) lines.push('');
+        lines.push(formatSinglePreview(result));
+      });
+      lines.push(
+        '',
+        'Import behavior',
+        '---------------',
+        'Status: closed',
+        'One CSV row becomes one Live Record.',
+        'Stops, targets, setup links, and reasons are left for manual review.'
+      );
+      if (resultList.length > 1) {
+        lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Main instrument matches that file.');
+      }
+      return lines.join('\n');
+    }
+
+    function outputFilenameForPayload(payload, totalFiles = 1) {
+      const rawName = filenameInput.value.trim() || `tradovate-live-records-${payload.instrument}.json`;
+      const baseName = rawName.endsWith('.json') ? rawName.slice(0, -5) : rawName;
+      return totalFiles > 1
+        ? `${baseName}-${payload.instrument}.json`
+        : `${baseName}.json`;
+    }
+
+    function downloadJson(payload, totalFiles = 1) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = outputFilenameForPayload(payload, totalFiles);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('tradovatePreview').addEventListener('click', async () => {
+      try {
+        setTradovateState('running', 'warn');
+        const file = getTradovateFile();
+        const results = await buildArchivesFromSelectedFile();
+        appendTradovateOutput(formatPreview(results, file.name));
+        setTradovateState('ok', 'ok');
+      } catch (error) {
+        appendTradovateOutput(`> tradovate_live_record_preview\n\nfailed: ${error.message}`);
+        setTradovateState('failed', 'fail');
+      }
+    });
+
+    document.getElementById('tradovateDownload').addEventListener('click', async () => {
+      try {
+        setTradovateState('running', 'warn');
+        const file = getTradovateFile();
+        const results = await buildArchivesFromSelectedFile();
+        results.forEach((result) => downloadJson(result.payload, results.length));
+        appendTradovateOutput(`${formatPreview(results, file.name)}\n\nwrite_status: downloaded ${results.length} review JSON file${results.length === 1 ? '' : 's'}`);
+        setTradovateState('ok', 'ok');
+      } catch (error) {
+        appendTradovateOutput(`> tradovate_live_record_download\n\nfailed: ${error.message}`);
+        setTradovateState('failed', 'fail');
+      }
     });
   </script>
 </body>

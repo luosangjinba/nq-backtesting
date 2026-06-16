@@ -5,9 +5,14 @@ import {
   needsLiveRecordReview,
 } from '../../live-record/live-record-lifecycle.js';
 import {
+  LIVE_RECORD_EXIT_TYPES,
   LIVE_RECORD_REASON_CATEGORIES,
-  LIVE_RECORD_RESULT_STATUSES,
 } from '../../live-record/live-record-types.js';
+import {
+  getActiveDefinitions,
+  ORDER_ENTRY_PATTERN_DEFINITIONS,
+  ORDER_ENTRY_SESSION_DEFINITIONS,
+} from '../../order/order-review-types.js';
 import { getSetupSetById } from '../../order/setup-set.js';
 import { createLiveRecordSet } from '../../live-record/live-record-set.js';
 import { getSelectedLiveRecordElement } from '../../live-record/live-record-selection.js';
@@ -34,6 +39,43 @@ function titleCase(value, fallback = '—') {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function renderDefinitionOptions(definitions, selectedValue) {
+  return getActiveDefinitions(definitions)
+    .map((definition) =>
+      `<option value="${escapeHtml(definition.value)}" ${definition.value === selectedValue ? 'selected' : ''}>${escapeHtml(definition.label)}</option>`
+    )
+    .join('');
+}
+
+function liveRecordFieldAttrs(record, fieldName) {
+  return [
+    'data-inspector-action="live-record-entry-context-field"',
+    `data-live-record-id="${escapeHtml(record.id)}"`,
+    `data-live-record-field="${escapeHtml(fieldName)}"`,
+  ].join(' ');
+}
+
+function renderEntryPatternCheckboxes(record, selectedPatterns = []) {
+  const selected = new Set(Array.isArray(selectedPatterns) ? selectedPatterns : []);
+  return `
+    <div class="order-entry-patterns">
+      ${getActiveDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS)
+        .map((definition) => `
+          <label class="order-entry-pattern-option">
+            <input
+              ${liveRecordFieldAttrs(record, 'patterns')}
+              data-live-record-entry-pattern="${escapeHtml(definition.value)}"
+              type="checkbox"
+              ${selected.has(definition.value) ? 'checked' : ''}
+            />
+            <span>${escapeHtml(definition.label)}</span>
+          </label>
+        `)
+        .join('')}
+    </div>
+  `;
 }
 
 function getRefType(ref = {}) {
@@ -225,6 +267,69 @@ function formatExecutionMeta(value) {
     .join(' · ');
 }
 
+function toNumberOrNull(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatHoldingDuration(seconds) {
+  const parsed = toNumberOrNull(seconds);
+  if (parsed === null || parsed < 0) return '—';
+  let remaining = Math.floor(parsed);
+  const days = Math.floor(remaining / 86400);
+  remaining %= 86400;
+  const hours = Math.floor(remaining / 3600);
+  remaining %= 3600;
+  const minutes = Math.floor(remaining / 60);
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+function deriveLiveResultMetrics(liveSet) {
+  const entry = liveSet?.execution?.entry || {};
+  const stopLoss = liveSet?.execution?.stopLoss || {};
+  const result = liveSet?.result || {};
+  const entryPrice = toNumberOrNull(entry.price);
+  const stopPrice = toNumberOrNull(stopLoss.price);
+  const exitPrice = toNumberOrNull(result.exitPrice);
+  const entryTimestamp = toNumberOrNull(entry.timestamp);
+  const exitTimestamp = toNumberOrNull(result.exitTimestamp);
+  const isShort = liveSet?.direction === 'short';
+  const risk = entryPrice !== null && stopPrice !== null ? Math.abs(entryPrice - stopPrice) : null;
+  const points = entryPrice !== null && exitPrice !== null
+    ? (isShort ? entryPrice - exitPrice : exitPrice - entryPrice)
+    : null;
+  const holdingSeconds = entryTimestamp !== null && exitTimestamp !== null && exitTimestamp >= entryTimestamp
+    ? exitTimestamp - entryTimestamp
+    : null;
+  return {
+    hold: formatHoldingDuration(holdingSeconds),
+    risk,
+    points,
+    r: risk !== null && risk > 0 && points !== null ? points / risk : null,
+  };
+}
+
+function getLiveRecordExitType(record = {}) {
+  const explicit = record.result?.exitType || '';
+  if (explicit) return explicit;
+  if (record.result?.status === 'win') return LIVE_RECORD_EXIT_TYPES.PROFIT;
+  if (record.result?.status === 'loss') return LIVE_RECORD_EXIT_TYPES.STOP_LOSS;
+  return LIVE_RECORD_EXIT_TYPES.UNKNOWN;
+}
+
+function renderExitTypeOptions(selectedExitType) {
+  const labels = {
+    [LIVE_RECORD_EXIT_TYPES.UNKNOWN]: 'Unknown',
+    [LIVE_RECORD_EXIT_TYPES.PROFIT]: 'Profit',
+    [LIVE_RECORD_EXIT_TYPES.STOP_LOSS]: 'Stop Loss',
+  };
+  return Object.values(LIVE_RECORD_EXIT_TYPES)
+    .map((type) => `<option value="${escapeHtml(type)}" ${type === selectedExitType ? 'selected' : ''}>${escapeHtml(labels[type] || titleCase(type))}</option>`)
+    .join('');
+}
+
 function renderExecutionElement(label, element = {}, extra = '', state = {}) {
   if (!element?.complete) return '';
   const visible = state.visible !== false && element.visible !== false;
@@ -279,6 +384,22 @@ function renderExecutionPanel(liveSet) {
   `;
 }
 
+function renderEntryContextPanel(record) {
+  const entryContext = record.entryContext || {};
+  return `
+    <div class="order-review-compact order-entry-context">
+      <div class="order-review-compact-title">Entry Context</div>
+      ${controlField('Pattern', renderEntryPatternCheckboxes(record, entryContext.patterns))}
+      ${controlField(
+        'Session',
+        `<select class="inspector-input" ${liveRecordFieldAttrs(record, 'session')}>
+          ${renderDefinitionOptions(ORDER_ENTRY_SESSION_DEFINITIONS, entryContext.session || 'unknown')}
+        </select>`
+      )}
+    </div>
+  `;
+}
+
 function getReasonRows(record) {
   const reasons = Array.isArray(record.reasons) && record.reasons.length
     ? record.reasons
@@ -323,6 +444,7 @@ function renderReasonRows(record) {
 
 function renderResultPanel(record, liveSet) {
   const result = liveSet?.result || {};
+  const metrics = deriveLiveResultMetrics(liveSet);
   const canMarkReviewed = canTransitionLiveRecordStatus(record.status, 'reviewed');
   const canReopenReviewed = record.status === 'reviewed' && canTransitionLiveRecordStatus(record.status, 'active');
   const reviewedToggleDisabled = record.status === 'reviewed' ? !canReopenReviewed : !canMarkReviewed;
@@ -332,21 +454,19 @@ function renderResultPanel(record, liveSet) {
       <div class="order-review-quick-edit-body">
         ${controlField(
           'Result',
-          `<select class="inspector-input inspector-mini-select" data-inspector-action="live-record-result-status" data-live-record-id="${escapeHtml(record.id)}">
-            ${Object.values(LIVE_RECORD_RESULT_STATUSES).map((status) => (
-              `<option value="${escapeHtml(status)}" ${status === record.result?.status ? 'selected' : ''}>${escapeHtml(titleCase(status))}</option>`
-            )).join('')}
+          `<select class="inspector-input inspector-mini-select" data-inspector-action="live-record-result-exit-type" data-live-record-id="${escapeHtml(record.id)}">
+            ${renderExitTypeOptions(getLiveRecordExitType(record))}
           </select>`
         )}
         ${field('Exit Time', [formatTime(result.exitTimestamp), result.exitTimeframe || ''].filter(Boolean).join(' · '))}
         ${field('Exit Price', formatNumber(result.exitPrice))}
+        ${field('Hold', metrics.hold)}
+        ${field('Risk', formatNumber(metrics.risk))}
+        ${field('Points', formatNumber(metrics.points))}
+        ${field('R', formatNumber(metrics.r))}
         ${controlField(
           'Note',
           `<textarea class="inspector-textarea" data-inspector-action="live-record-result-note" data-live-record-id="${escapeHtml(record.id)}" rows="2" placeholder="Result note">${escapeHtml(record.result?.note || '')}</textarea>`
-        )}
-        ${controlField(
-          'Execution Review',
-          `<textarea class="inspector-textarea" data-inspector-action="live-record-result-execution-review" data-live-record-id="${escapeHtml(record.id)}" rows="3" placeholder="Execution review note">${escapeHtml(record.result?.executionReviewNote || '')}</textarea>`
         )}
         <label class="inspector-toggle">
           <input
@@ -374,6 +494,7 @@ function renderLiveRecord(record) {
       ${renderAnchorPanel(liveSet)}
       ${renderLinkedSetupPanel(record)}
       ${renderExecutionPanel(liveSet)}
+      ${renderEntryContextPanel(record)}
       ${renderReasonRows(record)}
       ${renderResultPanel(record, liveSet)}
       <div class="inspector-id">${escapeHtml(record.id)}</div>

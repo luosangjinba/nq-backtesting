@@ -3,6 +3,8 @@ import {
   DEFAULT_LIVE_RECORD_INSTRUMENT,
   LIVE_RECORD_DIRECTION_ALIASES,
   LIVE_RECORD_DIRECTIONS,
+  LIVE_RECORD_EXIT_TYPE_ALIASES,
+  LIVE_RECORD_EXIT_TYPES,
   LIVE_RECORD_REASON_CATEGORIES,
   LIVE_RECORD_REF_ROLES,
   LIVE_RECORD_REF_TYPES,
@@ -16,6 +18,7 @@ import {
   LIVE_RECORD_TIMEFRAMES,
   LIVE_RECORD_VERSION,
   VALID_LIVE_RECORD_DIRECTIONS,
+  VALID_LIVE_RECORD_EXIT_TYPES,
   VALID_LIVE_RECORD_REASON_CATEGORIES,
   VALID_LIVE_RECORD_REF_ROLES,
   VALID_LIVE_RECORD_REF_TYPES,
@@ -87,6 +90,12 @@ export function cloneLiveRecord(record) {
         : [],
       fills: Array.isArray(record.execution?.fills)
         ? record.execution.fills.map((fill) => ({ ...fill }))
+        : [],
+    },
+    entryContext: {
+      ...(record.entryContext || {}),
+      patterns: Array.isArray(record.entryContext?.patterns)
+        ? [...record.entryContext.patterns]
         : [],
     },
     reasons: Array.isArray(record.reasons)
@@ -275,6 +284,18 @@ function normalizeExecution(input = {}) {
   };
 }
 
+function normalizeEntryContext(input = {}) {
+  const rawPatterns = Array.isArray(input.patterns)
+    ? input.patterns
+    : Array.isArray(input.entryPatterns)
+      ? input.entryPatterns
+      : [];
+  return {
+    patterns: rawPatterns.map((pattern) => normalizeString(pattern, '')).filter(Boolean),
+    session: normalizeString(input.session || input.entrySession, 'unknown'),
+  };
+}
+
 function normalizeResult(input = {}) {
   return {
     status: normalizeEnum(
@@ -282,6 +303,12 @@ function normalizeResult(input = {}) {
       VALID_LIVE_RECORD_RESULT_STATUSES,
       LIVE_RECORD_RESULT_ALIASES,
       LIVE_RECORD_RESULT_STATUSES.UNKNOWN
+    ),
+    exitType: normalizeEnum(
+      input.exitType || input.exit_type,
+      VALID_LIVE_RECORD_EXIT_TYPES,
+      LIVE_RECORD_EXIT_TYPE_ALIASES,
+      LIVE_RECORD_EXIT_TYPES.UNKNOWN
     ),
     exitTimestamp: normalizeTimestamp(input.exitTimestamp),
     exitTimeframe: normalizeEnum(
@@ -351,6 +378,10 @@ function mergeLiveRecordPatch(existing, patch = {}) {
           ? existingExecution.targets
           : [],
     },
+    entryContext: {
+      ...(existing.entryContext || {}),
+      ...(safePatch.entryContext || {}),
+    },
     result: {
       ...(existing.result || {}),
       ...(safePatch.result || {}),
@@ -393,6 +424,7 @@ export function normalizeLiveRecord(input = {}, options = {}) {
     summary: normalizeString(input.summary, ''),
     anchor,
     execution: normalizeExecution(input.execution),
+    entryContext: normalizeEntryContext(input.entryContext),
     reasons: Array.isArray(input.reasons)
       ? input.reasons.map(normalizeReason)
       : [normalizeReason()],

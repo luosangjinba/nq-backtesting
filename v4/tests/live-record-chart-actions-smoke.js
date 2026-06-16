@@ -7,6 +7,10 @@ import {
   getOrderReviewById,
 } from '../src/order/order-review-store.js';
 import {
+  getActiveReviewSetId,
+  setActiveReviewSet,
+} from '../src/order/order-review-active.js';
+import {
   addLiveRecord,
   getLiveRecordById,
   loadLiveRecords,
@@ -50,6 +54,7 @@ const setup = addOrderReview({
     reasons: [{ id: 'reason_1', category: 'other', note: '', refs: [] }],
   },
 }, { now: 1 });
+assert.ok(setActiveReviewSet(setup.id), 'setup can be active before live creation');
 
 const inactiveMenu = renderLiveRecordMenuItems({ bar: { timestamp: 1710770400 } });
 assert.match(inactiveMenu, /No active live record/, 'inactive menu labels no active live record');
@@ -85,6 +90,7 @@ assert.equal(handleLiveRecordChartAction('live-record-create-bullish', {
   timeframe: '1H',
 }), true, 'bullish create action is handled');
 assert.equal(getLiveRecordById(getActiveLiveRecordId()).direction, 'long', 'bullish create stores long direction');
+assert.equal(getActiveReviewSetId(), null, 'creating live record clears active order setup highlight');
 loadLiveRecords([]);
 
 assert.equal(handleLiveRecordChartAction('live-record-create-bearish', {
@@ -223,14 +229,19 @@ assert.equal(handleLiveRecordChartAction('live-record-status-closed', {
 }), true, 'chart lifecycle close action is handled');
 assert.equal(getLiveRecordById(partialLiveRecordId).status, 'closed', 'chart lifecycle action closes record');
 assert.equal(setActiveLiveRecord(partialLiveRecordId), true, 'terminal record can still be selected active for guard test');
+const closedActiveMenuHtml = renderLiveRecordMenuItems({ bar: { timestamp: 1710780240 } });
+assert.match(closedActiveMenuHtml, /Set Active Live Record Anchor Here/, 'closed active record still renders anchor edit action');
+assert.doesNotMatch(closedActiveMenuHtml, /Set Entry Here" disabled/, 'closed active record keeps entry edit action enabled');
+assert.match(closedActiveMenuHtml, /Reopen/, 'closed active record renders reopen lifecycle action');
+assert.match(closedActiveMenuHtml, /Mark Reviewed/, 'closed active record renders reviewed lifecycle action');
 lastStatus = null;
 assert.equal(handleLiveRecordChartAction('live-record-set-entry', {
   bar: { timestamp: 1710780240, close: 18200 },
   price: 18200,
   timeframe: '1M',
-}), true, 'terminal record write action is handled');
-assert.equal(lastStatus?.isError, true, 'terminal record write reports an error');
-assert.equal(getLiveRecordById(partialLiveRecordId).execution.entry.price, 18361.25, 'terminal record write does not mutate entry');
+}), true, 'closed record write action is handled');
+assert.notEqual(lastStatus?.isError, true, 'closed record write does not report an error');
+assert.equal(getLiveRecordById(partialLiveRecordId).execution.entry.price, 18200, 'closed record write mutates entry for review correction');
 assert.equal(handleLiveRecordChartAction('live-record-status-active', {
   liveRecordId: partialLiveRecordId,
 }), true, 'chart lifecycle reopen action is handled');

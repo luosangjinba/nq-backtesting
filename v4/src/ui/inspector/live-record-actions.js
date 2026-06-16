@@ -67,11 +67,44 @@ export function createLiveRecordActionController({
       return true;
     }
 
+    if (action === 'live-record-entry-context-field') {
+      const field = target.dataset.liveRecordField;
+      if (!field) return true;
+      const entryContext = record.entryContext || {};
+      let value = target.value || 'unknown';
+      if (field === 'patterns') {
+        const pattern = target.dataset.liveRecordEntryPattern;
+        const selectedPatterns = new Set(Array.isArray(entryContext.patterns) ? entryContext.patterns : []);
+        if (target.checked) selectedPatterns.add(pattern);
+        else selectedPatterns.delete(pattern);
+        value = [...selectedPatterns].filter(Boolean);
+      }
+      mutate('Edit Live Record Entry Context', () => updateLiveRecord(liveRecordId, {
+        entryContext: {
+          ...entryContext,
+          [field]: value,
+        },
+      }));
+      refreshSelection?.();
+      return true;
+    }
+
     if (action === 'live-record-result-status') {
       mutate('Edit Live Record Result', () => updateLiveRecord(liveRecordId, {
         result: {
           ...(record.result || {}),
           status: target.value || 'unknown',
+        },
+      }));
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-result-exit-type') {
+      mutate('Edit Live Record Result', () => updateLiveRecord(liveRecordId, {
+        result: {
+          ...(record.result || {}),
+          exitType: target.value || 'unknown',
         },
       }));
       refreshSelection?.();

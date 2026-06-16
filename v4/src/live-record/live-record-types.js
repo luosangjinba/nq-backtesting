@@ -31,6 +31,12 @@ export const LIVE_RECORD_RESULT_STATUSES = Object.freeze({
   INVALID: 'invalid',
 });
 
+export const LIVE_RECORD_EXIT_TYPES = Object.freeze({
+  UNKNOWN: 'unknown',
+  PROFIT: 'profit',
+  STOP_LOSS: 'stopLoss',
+});
+
 export const LIVE_RECORD_REASON_CATEGORIES = Object.freeze({
   OTHER: 'other',
   MACROS: 'macros',
@@ -90,6 +96,7 @@ export const LIVE_RECORD_TIMEFRAMES = Object.freeze({
 export const VALID_LIVE_RECORD_DIRECTIONS = new Set(Object.values(LIVE_RECORD_DIRECTIONS));
 export const VALID_LIVE_RECORD_STATUSES = new Set(Object.values(LIVE_RECORD_STATUSES));
 export const VALID_LIVE_RECORD_RESULT_STATUSES = new Set(Object.values(LIVE_RECORD_RESULT_STATUSES));
+export const VALID_LIVE_RECORD_EXIT_TYPES = new Set(Object.values(LIVE_RECORD_EXIT_TYPES));
 export const VALID_LIVE_RECORD_REASON_CATEGORIES = new Set(Object.values(LIVE_RECORD_REASON_CATEGORIES));
 export const VALID_LIVE_RECORD_REF_TYPES = new Set(Object.values(LIVE_RECORD_REF_TYPES));
 export const VALID_LIVE_RECORD_REF_ROLES = new Set(Object.values(LIVE_RECORD_REF_ROLES));
@@ -115,6 +122,17 @@ export const LIVE_RECORD_RESULT_ALIASES = new Map([
   ['winner', LIVE_RECORD_RESULT_STATUSES.WIN],
   ['loser', LIVE_RECORD_RESULT_STATUSES.LOSS],
   ['be', LIVE_RECORD_RESULT_STATUSES.BREAKEVEN],
+]);
+
+export const LIVE_RECORD_EXIT_TYPE_ALIASES = new Map([
+  ['win', LIVE_RECORD_EXIT_TYPES.PROFIT],
+  ['winner', LIVE_RECORD_EXIT_TYPES.PROFIT],
+  ['target', LIVE_RECORD_EXIT_TYPES.PROFIT],
+  ['loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
+  ['loser', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
+  ['stop-loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
+  ['stop_loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
+  ['sl', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
 ]);
 
 export const LIVE_RECORD_TIMEFRAME_ALIASES = new Map([

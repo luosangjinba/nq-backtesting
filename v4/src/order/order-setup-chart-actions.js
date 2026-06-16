@@ -33,6 +33,7 @@ import {
   getSegmentOrderRefLabel,
 } from './order-ref-metadata.js';
 import { recordHistory } from '../history/history-manager.js';
+import { clearActiveLiveRecord } from '../live-record/live-record-active.js';
 import {
   clearOrderSetupElementSelection,
   selectOrderSetupElement,
@@ -642,6 +643,7 @@ function createOrderSetupFromContext(direction, context) {
       timeframe: context.timeframe,
       eventType: ORDER_EVENT_TYPES.OTHER,
     });
+    if (reviewSet) clearActiveLiveRecord();
     bus.emit('status:update', {
       text: reviewSet ? `Active Order Setup created: ${reviewSet.id}` : 'Order Setup 创建失败：没有可用 K 线',
       isError: !reviewSet,
@@ -732,6 +734,7 @@ function addManualExplanationEventToActiveSetup(context = {}) {
 export function handleOrderSetupChartAction(action, context = {}) {
   if (action === 'order-setup-hit-set-active') {
     const next = setActiveReviewSet(context.orderSetupId);
+    if (next) clearActiveLiveRecord();
     bus.emit('status:update', {
       text: next ? `Active Order Setup: ${context.orderSetupId}` : 'Order Setup cannot be activated',
       isError: !next,

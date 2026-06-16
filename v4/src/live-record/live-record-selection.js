@@ -1,6 +1,7 @@
 import * as bus from '../event-bus.js';
 import { getLiveRecordById } from './live-record-store.js';
 import { setActiveLiveRecord } from './live-record-active.js';
+import { clearActiveReviewSet } from '../order/order-review-active.js';
 import { hitTestLiveRecordElements } from './live-record-hit-test.js';
 
 let selectedElement = null;
@@ -21,6 +22,7 @@ export function selectLiveRecordElement(liveRecordId, element) {
     liveRecordId: normalizedLiveRecordId,
     element: normalizedElement,
   };
+  clearActiveReviewSet();
   setActiveLiveRecord(normalizedLiveRecordId);
   bus.emit('live-record-element:selected', { selection: getSelectedLiveRecordElement() });
   return getSelectedLiveRecordElement();
@@ -74,5 +76,6 @@ export function initLiveRecordElementSelection() {
   document.getElementById('chart')?.addEventListener('click', handleChartClick, true);
   window.addEventListener('keydown', handleKeydown);
   bus.on('live-record:changed', handleLiveRecordsChanged);
+  bus.on('order-setup-element:selected', clearLiveRecordElementSelection);
   bus.on('bars:cleared', clearLiveRecordElementSelection);
 }

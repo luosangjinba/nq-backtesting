@@ -11,6 +11,9 @@ import {
   setActiveReviewSet,
 } from '../src/order/order-review-active.js';
 import {
+  selectOrderSetupElement,
+} from '../src/order/order-setup-selection.js';
+import {
   addLiveRecord,
   getLiveRecordById,
   getLiveRecords,
@@ -40,7 +43,10 @@ import {
   needsLiveRecordReview,
 } from '../src/live-record/live-record-lifecycle.js';
 import { hitTestLiveRecordElements } from '../src/live-record/live-record-hit-test.js';
-import { getSelectedLiveRecordElement } from '../src/live-record/live-record-selection.js';
+import {
+  getSelectedLiveRecordElement,
+  selectLiveRecordElement,
+} from '../src/live-record/live-record-selection.js';
 import {
   clearSavedLiveRecords,
   getLiveRecordStorageKey,
@@ -140,6 +146,12 @@ record.summary = 'mutated outside';
 assert.equal(getLiveRecordById('live-smoke').summary, 'Initial live record', 'store returns clones');
 assert.equal(getOrderReviewById(setup.id).id, setup.id, 'adding live record does not mutate setup');
 
+assert.equal(setActiveLiveRecord(record.id), true, 'live record can be active before setup selection');
+assert.equal(selectOrderSetupElement(setup.id, 'anchor')?.setupId, setup.id, 'order setup anchor can be selected');
+assert.equal(getActiveLiveRecordId(), null, 'selecting order setup anchor clears active live record highlight');
+assert.equal(selectLiveRecordElement(record.id, 'anchor')?.liveRecordId, record.id, 'live record anchor can be selected');
+assert.equal(getActiveReviewSetId(), null, 'selecting live record anchor clears active order setup highlight');
+
 const lifecycleRecord = addLiveRecord({
   id: 'live-lifecycle',
   instrument: 'NQ',
@@ -218,6 +230,7 @@ assert.equal(richRecord.execution.stopLoss.visible, false, 'element visibility n
 assert.equal(richRecord.execution.targets[0].label, 'Target External 1', 'target role gets setup-like label');
 assert.equal(richRecord.execution.targets[0].targetType, 'external', 'target type derives from role');
 assert.equal(richRecord.result.status, 'win', 'result alias still normalizes');
+assert.equal(richRecord.result.exitType, 'unknown', 'missing live result exit type normalizes');
 assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe normalizes');
 assert.equal(richRecord.result.executionReviewNote, 'Managed exit cleanly', 'execution review note normalizes');
 richRecord.execution.entry.price = 1;
@@ -459,11 +472,19 @@ assert.doesNotMatch(detailHtml, /Hidden · Selected/, 'hidden element selection 
 assert.match(detailHtml, /External · 5M/, 'detail title-cases target execution metadata');
 assert.match(detailHtml, /End: /, 'detail renders normalized execution end metadata');
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');
+assert.match(detailHtml, /Entry Context/, 'detail renders Entry Context');
+assert.match(detailHtml, /Purge \+ OB/, 'detail renders live entry pattern options');
+assert.match(detailHtml, /Silver Bullet/, 'detail renders live entry session options');
 assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Context · PDA · fvg · pda-live-link/, 'detail renders formatted PDA ref source');
 assert.match(detailHtml, /Context · Chart Note · bar · chart-note-live-link/, 'detail renders formatted chart note ref source');
 assert.match(detailHtml, /Result/, 'detail renders Result');
-assert.match(detailHtml, /Execution Review/, 'detail renders execution review field');
+assert.match(detailHtml, /Profit/, 'detail renders live exit type option');
+assert.match(detailHtml, /Stop Loss/, 'detail renders live stop loss exit type option');
+assert.match(detailHtml, /Hold/, 'detail renders result hold metric');
+assert.match(detailHtml, /Risk/, 'detail renders result risk metric');
+assert.match(detailHtml, /Points/, 'detail renders result points metric');
+assert.doesNotMatch(detailHtml, /Execution Review/, 'detail does not render separate execution review field');
 assert.match(detailHtml, /Reviewed/, 'detail renders reviewed toggle');
 
 const calls = { refresh: 0, captures: 0, history: [] };
@@ -480,8 +501,14 @@ assert.equal(actions.handleChange('live-record-summary', makeTarget(chartLiveId,
 assert.equal(getLiveRecordById(chartLiveId).summary, 'Action summary', 'summary action updates');
 assert.equal(actions.handleChange('live-record-display-field', makeTarget(chartLiveId, { liveRecordField: 'showRiskRewardBox', checked: false })), true);
 assert.equal(getLiveRecordById(chartLiveId).display.showRiskRewardBox, false, 'display action updates');
+assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'patterns', liveRecordEntryPattern: 'ote', checked: true })), true);
+assert.deepEqual(getLiveRecordById(chartLiveId).entryContext.patterns, ['ote'], 'entry context pattern action updates');
+assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'session', value: 'silver-bullet' })), true);
+assert.equal(getLiveRecordById(chartLiveId).entryContext.session, 'silver-bullet', 'entry context session action updates');
 assert.equal(actions.handleChange('live-record-result-status', makeTarget(chartLiveId, { value: 'win' })), true);
 assert.equal(getLiveRecordById(chartLiveId).result.status, 'win', 'result action updates');
+assert.equal(actions.handleChange('live-record-result-exit-type', makeTarget(chartLiveId, { value: 'profit' })), true);
+assert.equal(getLiveRecordById(chartLiveId).result.exitType, 'profit', 'result exit type action updates');
 assert.equal(actions.handleChange('live-record-result-execution-review', makeTarget(chartLiveId, { value: 'Execution was disciplined' })), true);
 assert.equal(getLiveRecordById(chartLiveId).result.executionReviewNote, 'Execution was disciplined', 'execution review action updates');
 assert.equal(actions.handleClick('live-record-status', makeTarget(chartLiveId, { liveRecordStatus: 'closed' })), true);
@@ -499,6 +526,7 @@ assert.equal(actions.handleChange('live-record-reviewed-toggle', makeTarget(char
 assert.equal(getLiveRecordById(chartLiveId).status, 'active', 'reviewed toggle can reopen reviewed record');
 assert.equal(actions.handleClick('live-record-toggle-hidden', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).display.hidden, true, 'hide action updates');
+assert.equal(setActiveReviewSet(setup.id)?.id, setup.id, 'setup can be made active before linking live record');
 assert.equal(actions.handleClick('live-record-link-active-setup', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).orderSetupId, setup.id, 'link active setup action updates live record');
 const linkedDetailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
@@ -511,7 +539,10 @@ const payloadLiveRecord = reviewPayload.liveRecords.find((item) => item.id === c
 assert.ok(payloadLiveRecord, 'Review JSON payload includes Live Records');
 assert.equal(payloadLiveRecord.status, 'active', 'Review JSON payload keeps lifecycle status');
 assert.equal(payloadLiveRecord.orderSetupId, setup.id, 'Review JSON payload keeps linked setup id');
+assert.deepEqual(payloadLiveRecord.entryContext.patterns, ['ote'], 'Review JSON payload keeps entry context patterns');
+assert.equal(payloadLiveRecord.entryContext.session, 'silver-bullet', 'Review JSON payload keeps entry context session');
 assert.equal(payloadLiveRecord.result.executionReviewNote, 'Execution was disciplined', 'Review JSON payload keeps execution review note');
+assert.equal(payloadLiveRecord.result.exitType, 'profit', 'Review JSON payload keeps result exit type');
 await importReviewArchive({
   text: JSON.stringify({
     ...reviewPayload,

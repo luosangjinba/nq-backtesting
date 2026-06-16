@@ -1,6 +1,7 @@
 import * as bus from '../event-bus.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { recordHistory } from '../history/history-manager.js';
+import { clearActiveReviewSet } from '../order/order-review-active.js';
 import { getSmtRecords } from '../smt/smt-store.js';
 import {
   clearActiveLiveRecord,
@@ -17,7 +18,6 @@ import {
 import {
   getLiveRecordAllowedNextStatuses,
   getLiveRecordStatusLabel,
-  isLiveRecordTerminalStatus,
 } from './live-record-lifecycle.js';
 import { setLiveRecordLifecycleStatus } from './live-record-lifecycle-actions.js';
 import {
@@ -307,10 +307,6 @@ function patchActiveFromChart(label, patchFactory, context = {}) {
     bus.emit('status:update', { text: 'No active Live Record', isError: true });
     return true;
   }
-  if (isLiveRecordTerminalStatus(active.status)) {
-    bus.emit('status:update', { text: 'Reopen Live Record before editing chart elements', isError: true });
-    return true;
-  }
   if (!context.bar || !Number.isFinite(Number(context.bar.timestamp))) {
     bus.emit('status:update', { text: 'Cannot update Live Record: no chart bar selected', isError: true });
     return true;
@@ -485,8 +481,7 @@ export function renderLiveRecordMenuItems({
 } = {}) {
   const disabled = bar ? '' : 'disabled';
   const active = getActiveLiveRecord();
-  const activeTerminal = Boolean(active && isLiveRecordTerminalStatus(active.status));
-  const activeDisabled = active && !activeTerminal ? '' : 'disabled';
+  const activeDisabled = active ? '' : 'disabled';
   const clearActiveRow = active
     ? `<button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.CLEAR_ACTIVE}">Clear Active Live Record</button>`
     : '';
@@ -599,6 +594,7 @@ export function handleLiveRecordChartAction(action, {
   }
   if (action === LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE) {
     const active = setActiveLiveRecord(liveRecordId);
+    if (active) clearActiveReviewSet();
     bus.emit('status:update', {
       text: active ? `Active Live Record: ${liveRecordId}` : 'Live Record cannot be activated',
       isError: !active,
@@ -779,6 +775,7 @@ export function handleLiveRecordChartAction(action, {
     direction: createDirection,
     summary: '',
   }));
+  if (created?.id) clearActiveReviewSet();
   bus.emit('status:update', {
     text: created?.id ? `${createLabel}: ${created.id}` : 'Live Record creation failed',
     isError: !created?.id,

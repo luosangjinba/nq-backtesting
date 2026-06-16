@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { setActiveReviewSet } from './order-review-active.js';
+import { clearActiveLiveRecord } from '../live-record/live-record-active.js';
 import { getOrderReviewById } from './order-review-store.js';
 import { hitTestOrderSetupElements } from './order-setup-hit-test.js';
 
@@ -24,6 +25,7 @@ export function selectOrderSetupElement(setupId, element) {
     setupId: normalizedSetupId,
     element: normalizedElement,
   };
+  clearActiveLiveRecord();
   setActiveReviewSet(normalizedSetupId);
   bus.emit('order-setup-element:selected', { selection: getSelectedOrderSetupElement() });
   return getSelectedOrderSetupElement();
@@ -77,5 +79,6 @@ export function initOrderSetupElementSelection() {
   document.getElementById('chart')?.addEventListener('click', handleChartClick, true);
   window.addEventListener('keydown', handleKeydown);
   bus.on('order-review:changed', handleOrderReviewsChanged);
+  bus.on('live-record-element:selected', clearOrderSetupElementSelection);
   bus.on('bars:cleared', clearOrderSetupElementSelection);
 }
