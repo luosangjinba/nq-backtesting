@@ -70,6 +70,28 @@ This file records the post-Step-291 work that was not previously captured in TOD
 - Added calendar date derivation for Live Records.
 - Fixed Live Record Detail opened from chart selection so it prepares a back target and displays the same `Back` button behavior as Order Setup Detail.
 
+### Full Chinese Operation Manual
+
+- Added `v4/docs/user/OPERATION_MANUAL.zh-CN.html` as the detailed Chinese operation manual.
+- Linked the manual from `v4/docs/README.md`.
+- The manual covers:
+  - startup and service URLs;
+  - Backtesting workspace workflow;
+  - Main/Sub instrument usage;
+  - Order Setups and Live Records;
+  - Tradovate Performance CSV import;
+  - Review JSON import/export;
+  - Data Maintenance refresh range, economic calendar, roll calendar, and verification actions;
+  - common failure messages and recovery guidance.
+- The manual is intentionally HTML so it can be opened directly in the browser alongside `index.html` and `data-maintenance.html`.
+
+### Merge / Push Closeout
+
+- Merged `origin/main` after local work was ahead and remote had older Journal workspace history.
+- Conflict was limited to `v4/TODO.md`.
+- Resolution preserved the current zero-restart Live Record direction and did not reintroduce the older standalone Journal workspace implementation.
+- Pushed `main` to GitHub at `bd5472030e16ffeaaa5db8ddd8432d1932f19852`.
+
 ## Validation Run
 
 - `git diff --check`
@@ -79,6 +101,8 @@ This file records the post-Step-291 work that was not previously captured in TOD
 - `node --check v4/src/ui/inspector/live-record-actions.js`
 - `node v4/tests/live-record-browser-smoke.js`
 - `node v4/tests/tradovate-performance-importer-smoke.js`
+- `git diff --check` after merge conflict resolution
+- `git status --short --branch` after push confirmed local `main` matched `origin/main`
 
 The Node module-type warnings are existing package metadata warnings and did not fail the checks.
 
