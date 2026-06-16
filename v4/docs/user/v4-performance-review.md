@@ -1,5 +1,9 @@
 # V4 执行效率 Review
 
+> 状态：历史归档 / 已处理
+> 处理结论：本报告已纳入并完成 Step 293 Performance Baseline（见 `v4/sessions/session_20260616_performance_baseline_plan.md` 与 `v4/TODO.md`）。本文保留为 2026-06-16 当时的性能评审快照，不再作为当前待办清单使用。
+> 后续查看方式：以 Step 293 session 中的实测 benchmark 和 decision matrix 为准；不要直接按本文原始 P0/P1 顺序执行优化。
+>
 > 评审范围：前端 `src/`（~3.9 万行）+ 后端 `v4_api.py` / `server/price_lookup.py` + 945MB DuckDB
 > 关注重点：运行时性能热点（非微优化，聚焦系统性放大效应）
 > 评审日期：2026-06-16
