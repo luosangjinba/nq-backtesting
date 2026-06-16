@@ -86,6 +86,46 @@ class ArchitectureReviewFixTests(unittest.TestCase):
             "X-V4-Maintenance-Request": "data-maintenance",
         }))
 
+    def test_data_maintenance_origin_guard_allows_only_local_static_page_origins(self) -> None:
+        self.assertTrue(v4_api._is_allowed_maintenance_origin({}))
+        self.assertTrue(v4_api._is_allowed_maintenance_origin({
+            "Origin": "http://127.0.0.1:8001",
+        }))
+        self.assertTrue(v4_api._is_allowed_maintenance_origin({
+            "Origin": "http://localhost:8001",
+        }))
+        self.assertFalse(v4_api._is_allowed_maintenance_origin({
+            "Origin": "http://evil.example",
+        }))
+
+    def test_data_maintenance_post_guard_requires_header_and_allowed_origin(self) -> None:
+        self.assertFalse(v4_api._is_allowed_maintenance_post({
+            "Origin": "http://127.0.0.1:8001",
+        }))
+        self.assertFalse(v4_api._is_allowed_maintenance_post({
+            "Origin": "http://evil.example",
+            "X-V4-Maintenance-Request": "data-maintenance",
+        }))
+        self.assertTrue(v4_api._is_allowed_maintenance_post({
+            "Origin": "http://127.0.0.1:8001",
+            "X-V4-Maintenance-Request": "data-maintenance",
+        }))
+        self.assertTrue(v4_api._is_allowed_maintenance_post({
+            "X-V4-Maintenance-Request": "data-maintenance",
+        }))
+
+    def test_data_maintenance_cors_origin_only_echoes_allowed_origins(self) -> None:
+        self.assertEqual(v4_api._get_allowed_cors_origin({
+            "Origin": "http://127.0.0.1:8001",
+        }), "http://127.0.0.1:8001")
+        self.assertEqual(v4_api._get_allowed_cors_origin({
+            "Origin": "http://localhost:8001",
+        }), "http://localhost:8001")
+        self.assertEqual(v4_api._get_allowed_cors_origin({
+            "Origin": "http://evil.example",
+        }), "")
+        self.assertEqual(v4_api._get_allowed_cors_origin({}), "")
+
     def test_daily_regime_and_api_daily_aggregation_exclude_maintenance_hour(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             db_path = Path(temp_dir) / "test.duckdb"

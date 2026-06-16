@@ -931,10 +931,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 293.5: Performance decision matrix：实测后决定下一步优先前端 selection/render split；连接复用保留为后续较低风险优化，DB 物理重排暂缓，ChartNote/replay 热点留作后续局部优化。
   - [x] Step 293.6: Closeout：已跑 py_compile、node --check、后端 benchmark、physical order scan、前端 selection benchmark；更新 TODO/session；本 step 没混入生产行为优化。
 
-- [ ] Step 294: Data Maintenance Origin Guard Follow-up。目标是处理 `v4/docs/user/v4-fix-review.md` 中最有价值的复审发现：Step 292 的自定义 header guard 仍被 wildcard CORS 架空，需给 `/v4/data_maintenance/run` 增加 Origin 白名单并收紧 maintenance preflight；不处理性能优化、不做 DB 重排、不改变 Step 293 的下一步优先级。计划见 `v4/sessions/session_20260616_fix_review_followup_plan.md`。
+- [x] Step 294: Data Maintenance Origin Guard Follow-up。目标是处理 `v4/docs/user/v4-fix-review.md` 中最有价值的复审发现：Step 292 的自定义 header guard 仍被 wildcard CORS 架空，需给 `/v4/data_maintenance/run` 增加 Origin 白名单并收紧 maintenance preflight；不处理性能优化、不做 DB 重排、不改变 Step 293 的下一步优先级。已完成 maintenance Origin 白名单、POST enforcement、maintenance preflight CORS 收紧、focused tests，并将 fix review 标记为历史归档。计划与收口见 `v4/sessions/session_20260616_fix_review_followup_plan.md`。
   - [x] Step 294.1: Track fix review report：将 `v4/docs/user/v4-fix-review.md` 纳入仓库，并从 `v4/docs/README.md` 链接；本 step 只记录 report 与 follow-up 计划。
-  - [ ] Step 294.2: Define allowed maintenance origins：定义本地静态页面白名单，至少包括 `http://127.0.0.1:8001` 与 `http://localhost:8001`；明确是否允许无 Origin 的本地 CLI/curl 请求。
-  - [ ] Step 294.3: Enforce Origin on maintenance POST：`/v4/data_maintenance/run` 同时要求合法 custom header 与允许的 Origin；恶意 Origin 在任何 maintenance action 运行前被拒绝。
-  - [ ] Step 294.4: Tighten CORS preflight for maintenance endpoint：`do_OPTIONS()` 对 maintenance endpoint 只向允许 Origin 返回 maintenance custom header，不再对 wildcard Origin 放行 `X-V4-Maintenance-Request`。
-  - [ ] Step 294.5: Focused tests：补无 socket 的 deterministic tests，覆盖 allowed Origin、evil Origin、missing header 和 CORS helper 行为。
-  - [ ] Step 294.6: Closeout：实现后将 `v4-fix-review.md` 标记为 archived/handled，更新 TODO/session，跑 focused tests 与 `git diff --check`。
+  - [x] Step 294.2: Define allowed maintenance origins：新增 `ALLOWED_MAINTENANCE_ORIGINS`，允许 `http://127.0.0.1:8001` 与 `http://localhost:8001`；无 Origin 的本地非浏览器请求允许继续通过 origin check，但仍必须带 maintenance custom header。
+  - [x] Step 294.3: Enforce Origin on maintenance POST：`/v4/data_maintenance/run` 同时要求合法 custom header 与允许的 Origin；恶意 Origin 在任何 maintenance action 运行前被拒绝。
+  - [x] Step 294.4: Tighten CORS preflight for maintenance endpoint：`do_OPTIONS()` 对 maintenance endpoint 只向允许 Origin 返回 maintenance custom header，不再对 wildcard Origin 放行 `X-V4-Maintenance-Request`；其他 read-only GET endpoint 保持 wildcard CORS。
+  - [x] Step 294.5: Focused tests：扩展 `v4/tests/test_architecture_review_fixes.py`，覆盖 allowed Origin、evil Origin、missing header、no-Origin local request 和 CORS helper 行为。
+  - [x] Step 294.6: Closeout：`v4-fix-review.md` 已标记 archived/handled；已跑 focused tests、py_compile 和 `git diff --check`。

@@ -51,6 +51,10 @@ _MAINTENANCE_LOCK = threading.Lock()
 _MAINTENANCE_JOB = None
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
+ALLOWED_MAINTENANCE_ORIGINS = {
+    "http://127.0.0.1:8001",
+    "http://localhost:8001",
+}
 
 # CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
 # 日线 = 前一天18:00 ~ 当天16:59
@@ -363,6 +367,22 @@ def _is_valid_maintenance_request(headers):
     return headers.get(MAINTENANCE_REQUEST_HEADER, "") == MAINTENANCE_REQUEST_VALUE
 
 
+def _is_allowed_maintenance_origin(headers):
+    origin = str(headers.get("Origin", "") or "").strip()
+    if not origin:
+        return True
+    return origin in ALLOWED_MAINTENANCE_ORIGINS
+
+
+def _get_allowed_cors_origin(headers):
+    origin = str(headers.get("Origin", "") or "").strip()
+    return origin if origin in ALLOWED_MAINTENANCE_ORIGINS else ""
+
+
+def _is_allowed_maintenance_post(headers):
+    return _is_valid_maintenance_request(headers) and _is_allowed_maintenance_origin(headers)
+
+
 def _parse_price_request(params):
     timestamp = params.get("timestamp", [None])[0]
     instrument = params.get("instrument", ["NQ"])[0]
@@ -550,15 +570,18 @@ order by bucket
 
 
 class V4Handler(BaseHTTPRequestHandler):
-    def _send_json(self, data, status=200):
+    def _send_json(self, data, status=200, cors_origin="*"):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        if cors_origin:
+            self.send_header("Access-Control-Allow-Origin", cors_origin)
+            if cors_origin != "*":
+                self.send_header("Vary", "Origin")
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    def _send_error(self, message, status=400):
-        self._send_json({"error": message}, status)
+    def _send_error(self, message, status=400, cors_origin="*"):
+        self._send_json({"error": message}, status, cors_origin=cors_origin)
 
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -584,20 +607,25 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(f"Unknown endpoint: {path}", 404)
             return
 
+        allowed_origin = _get_allowed_cors_origin(self.headers)
         if not _is_valid_maintenance_request(self.headers):
-            self._send_error("Missing or invalid data maintenance request header", 403)
+            self._send_error("Missing or invalid data maintenance request header", 403, cors_origin=allowed_origin)
+            return
+
+        if not _is_allowed_maintenance_origin(self.headers):
+            self._send_error("Origin is not allowed for data maintenance requests", 403, cors_origin="")
             return
 
         try:
             payload = _read_json_body(self)
             result = run_data_maintenance_action_guarded(payload)
-            self._send_json(result, 200 if result.get("ok") else 409)
+            self._send_json(result, 200 if result.get("ok") else 409, cors_origin=allowed_origin)
         except subprocess.TimeoutExpired:
-            self._send_error("Command timed out", 504)
+            self._send_error("Command timed out", 504, cors_origin=allowed_origin)
         except (ValueError, json.JSONDecodeError) as e:
-            self._send_error(str(e), 400)
+            self._send_error(str(e), 400, cors_origin=allowed_origin)
         except Exception as e:
-            self._send_error(str(e), 500)
+            self._send_error(str(e), 500, cors_origin=allowed_origin)
 
     def _handle_bars(self, params):
         start = params.get("start", [None])[0]
@@ -654,10 +682,19 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(str(e), 500)
 
     def do_OPTIONS(self):
+        parsed = urlparse(self.path)
+        allowed_origin = _get_allowed_cors_origin(self.headers)
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", f"Content-Type, {MAINTENANCE_REQUEST_HEADER}")
+        if parsed.path == "/v4/data_maintenance/run":
+            if allowed_origin:
+                self.send_header("Access-Control-Allow-Origin", allowed_origin)
+                self.send_header("Vary", "Origin")
+                self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+                self.send_header("Access-Control-Allow-Headers", f"Content-Type, {MAINTENANCE_REQUEST_HEADER}")
+        else:
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
     def log_message(self, format, *args):

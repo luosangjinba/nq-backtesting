@@ -37,7 +37,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [Data freshness refresh workflow](user/DATA_FRESHNESS_REFRESH.md)
 - [Archived V4 architecture review 2026-06-16](user/v4-architecture-review.md) - high-priority items handled in Step 292
 - [Archived V4 performance review 2026-06-16](user/v4-performance-review.md) - baseline handled in Step 293
-- [V4 fix review 2026-06-16](user/v4-fix-review.md) - pending Origin guard follow-up in Step 294
+- [Archived V4 fix review 2026-06-16](user/v4-fix-review.md) - Origin guard handled in Step 294
 
 ## Historical Docs
 

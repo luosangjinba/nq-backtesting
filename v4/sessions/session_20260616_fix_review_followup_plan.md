@@ -100,3 +100,45 @@ Acceptance:
 - DuckDB physical reorder remains deferred because Step 293 found the current table is not obviously physically chaotic.
 - Full DST-wide maintenance-window proof can be added later if Daily Regime mismatch appears.
 - Generic 500 error message cleanup is reasonable hardening, but lower priority than Origin guard.
+
+## Implementation Notes
+
+### Step 294.2 Complete - Allowed Origins
+
+- Added explicit `ALLOWED_MAINTENANCE_ORIGINS` in `v4_api.py`.
+- Allowed browser origins:
+  - `http://127.0.0.1:8001`
+  - `http://localhost:8001`
+- Requests with no `Origin` are allowed so local CLI/curl/non-browser maintenance probes remain possible, but they still require the custom maintenance header.
+
+### Step 294.3 Complete - POST Origin Enforcement
+
+- `/v4/data_maintenance/run` now requires:
+  - `X-V4-Maintenance-Request: data-maintenance`
+  - an allowed Origin when an Origin header is present.
+- Evil browser origins are rejected before any maintenance action is parsed or run.
+- Missing/wrong custom header still returns `403`.
+
+### Step 294.4 Complete - Maintenance Preflight CORS
+
+- `do_OPTIONS()` now treats `/v4/data_maintenance/run` separately.
+- Maintenance preflight only echoes `Access-Control-Allow-Origin` and grants `X-V4-Maintenance-Request` for whitelisted origins.
+- Other endpoints keep simple wildcard GET-compatible CORS behavior.
+- Maintenance POST responses now echo only the whitelisted origin; no-Origin local calls do not receive a wildcard CORS header.
+
+### Step 294.5 Complete - Focused Tests
+
+- Extended `v4/tests/test_architecture_review_fixes.py`.
+- Covered:
+  - missing/wrong custom header;
+  - allowed Origin;
+  - evil Origin;
+  - no-Origin local call behavior;
+  - CORS origin echo helper behavior.
+
+### Step 294.6 Verification
+
+- `python3 -m unittest v4.tests.test_architecture_review_fixes`
+- `python3 -m py_compile v4/v4_api.py v4/tests/test_architecture_review_fixes.py`
+
+The fix review report was marked as archived/handled after this implementation.

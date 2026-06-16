@@ -1,5 +1,9 @@
 # V4 修复复审 Review
 
+> 状态：历史归档 / 已处理
+> 处理结论：本报告中的维护端点 Origin/CORS follow-up 已纳入并完成 Step 294（见 `v4/sessions/session_20260616_fix_review_followup_plan.md` 与 `v4/TODO.md`）。本文保留为 2026-06-16 当时的修复复审快照，不再作为当前待办清单使用。
+> 后续查看方式：以 Step 294 session 的实现记录和验证命令为准；性能优化优先级继续以 Step 293 baseline 为准。
+>
 > 评审范围：架构 review + 效率 review 提出问题后的修复状态
 > 复审基准：commit `93e8414 Fix architecture review issues`、`9011598 Add performance baseline benchmarks`、`61b1aca Archive performance review report`
 > 工作区状态：干净，改动已提交
