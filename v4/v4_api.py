@@ -14,8 +14,9 @@ import csv
 import yaml
 import subprocess
 import sys
+import threading
 from datetime import date, datetime, timezone, timedelta
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 from server.price_lookup import query_v2_bars, query_price, open_db, _parse_datetime
@@ -46,6 +47,8 @@ ECONOMIC_CALENDAR_PATH = os.path.join(
     "economic_calendar_usd_events.csv",
 )
 _ECONOMIC_EVENTS_CACHE = None
+_MAINTENANCE_LOCK = threading.Lock()
+_MAINTENANCE_JOB = None
 
 # CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
 # 日线 = 前一天18:00 ~ 当天16:59
@@ -307,6 +310,35 @@ def run_data_maintenance_action(payload):
     raise ValueError(f"Unsupported action: {action}")
 
 
+def run_data_maintenance_action_guarded(payload):
+    global _MAINTENANCE_JOB
+    action = str(payload.get("action") or "unknown")
+    if not _MAINTENANCE_LOCK.acquire(blocking=False):
+        job = _MAINTENANCE_JOB or {}
+        started_at = job.get("startedAt", "unknown")
+        running_action = job.get("action", "unknown")
+        return {
+            "ok": False,
+            "returncode": 423,
+            "command": "data_maintenance busy",
+            "output": (
+                "Another data maintenance action is already running.\n"
+                f"running_action: {running_action}\n"
+                f"started_at: {started_at}\n"
+                "Wait for it to finish, or restart the V4 API if the job is known to be stale."
+            ),
+        }
+    _MAINTENANCE_JOB = {
+        "action": action,
+        "startedAt": datetime.now(timezone.utc).isoformat(),
+    }
+    try:
+        return run_data_maintenance_action(payload)
+    finally:
+        _MAINTENANCE_JOB = None
+        _MAINTENANCE_LOCK.release()
+
+
 def _event_time_from_et(event_time_et):
     text = str(event_time_et or "").strip()
     if not text:
@@ -522,7 +554,7 @@ class V4Handler(BaseHTTPRequestHandler):
 
         try:
             payload = _read_json_body(self)
-            result = run_data_maintenance_action(payload)
+            result = run_data_maintenance_action_guarded(payload)
             self._send_json(result, 200 if result.get("ok") else 409)
         except subprocess.TimeoutExpired:
             self._send_error("Command timed out", 504)
@@ -602,7 +634,7 @@ class V4Handler(BaseHTTPRequestHandler):
 def main():
     host = V4_CONFIG["api"]["host"]
     port = V4_CONFIG["api"]["port"]
-    server = HTTPServer((host, port), V4Handler)
+    server = ThreadingHTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")
     print(f"[V4 API] DB: {DB_PATH}")
     print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/price, /v4/economic_events")

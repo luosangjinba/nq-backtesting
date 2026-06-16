@@ -276,7 +276,11 @@
             <label>Instrument <select id="refreshInstrument"><option>ES</option><option>NQ</option></select></label>
             <label>Chunk days <input id="chunkDays" type="number" min="1" max="30" value="3"></label>
             <label>Start optional <input id="start" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
-            <label>End required <input id="end" value="2026-06-16T00:00:00"></label>
+            <label>End required <input id="end" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
+          </div>
+          <div class="row">
+            <button id="endNow" type="button">Now</button>
+            <button id="endSessionClose" type="button">Session Close</button>
           </div>
           <div class="row">
             <button id="preflight" type="button">Preflight</button>
@@ -397,6 +401,28 @@
 
     function setValue(id, next) {
       document.getElementById(id).value = next;
+    }
+
+    function pad2(value) {
+      return String(value).padStart(2, '0');
+    }
+
+    function formatLocalDateTimeInput(date) {
+      return [
+        date.getFullYear(),
+        pad2(date.getMonth() + 1),
+        pad2(date.getDate()),
+      ].join('-') + `T${pad2(date.getHours())}:${pad2(date.getMinutes())}:00`;
+    }
+
+    function setEndToNow() {
+      setValue('end', formatLocalDateTimeInput(new Date()));
+    }
+
+    function setEndToSessionClose() {
+      const date = new Date();
+      date.setHours(17, 0, 0, 0);
+      setValue('end', formatLocalDateTimeInput(date));
     }
 
     function append(text) {
@@ -610,6 +636,8 @@
     });
     document.getElementById('previewRoll').addEventListener('click', () => run(rollPayload('confirm_roll_preview')));
     document.getElementById('writeRoll').addEventListener('click', () => run(rollPayload('confirm_roll_write')));
+    document.getElementById('endNow').addEventListener('click', setEndToNow);
+    document.getElementById('endSessionClose').addEventListener('click', setEndToSessionClose);
     document.getElementById('preflight').addEventListener('click', () => run(refreshPayload('preflight')));
     document.getElementById('dryRun').addEventListener('click', () => run(refreshPayload('dry_run')));
     document.getElementById('writeData').addEventListener('click', () => run(refreshPayload('write')));
@@ -635,6 +663,7 @@
         setState('failed', 'fail');
       }
     });
+    setEndToNow();
   </script>
   <script type="module">
     import {
