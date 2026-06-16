@@ -385,7 +385,7 @@
             <button id="tradovatePreview" type="button">Preview CSV</button>
             <button id="tradovateDownload" class="primary" type="button">Download Review JSON</button>
           </div>
-          <p class="status">Each Tradovate Performance row becomes one closed Live Record. Setup links, stops, targets, and reasons stay manual.</p>
+          <p class="status">Each Tradovate Performance row becomes one closed Live Record. Losing exits become stop losses; winning exits become Target Internal 1. Setup links and reasons stay manual.</p>
         </div>
       </section>
     </div>
@@ -1004,7 +1004,7 @@
         '---------------',
         'Status: closed',
         'One CSV row becomes one Live Record.',
-        'Stops, targets, setup links, and reasons are left for manual review.'
+        'Losing exits become stop losses; winning exits become Target Internal 1. Setup links and reasons stay manual.'
       );
       if (resultList.length > 1) {
         lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Main instrument matches that file.');
