@@ -22,8 +22,10 @@
     html { height: 100%; }
     body {
       margin: 0;
-      min-height: 100vh;
-      overflow: auto;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       background: var(--bg);
       color: var(--text);
       font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -39,6 +41,7 @@
       position: sticky;
       top: 0;
       z-index: 2;
+      flex: 0 0 auto;
     }
     h1 {
       margin: 0;
@@ -50,7 +53,8 @@
       display: grid;
       grid-template-columns: minmax(380px, 520px) minmax(480px, 1fr);
       gap: 12px;
-      min-height: calc(100vh - 78px);
+      flex: 1 1 auto;
+      min-height: 0;
       padding: 12px;
     }
     section {
@@ -160,20 +164,24 @@
     .pill.warn { color: var(--warn); border-color: #665225; }
     .pill.fail { color: var(--danger); border-color: #6b3636; }
     .tools-column {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
-      align-content: start;
       min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
       padding-right: 3px;
+    }
+    .tools-column > section {
+      flex: 0 0 auto;
     }
     .output-panel {
       display: flex;
       flex-direction: column;
       min-width: 0;
       min-height: 0;
-      height: calc(100vh - 102px);
-      position: sticky;
-      top: 90px;
+      height: 100%;
+      overscroll-behavior: contain;
     }
     .output-actions {
       display: flex;
@@ -194,6 +202,7 @@
       min-height: 0;
       max-height: none;
       overflow: auto;
+      overscroll-behavior: contain;
       background: #090d12;
       color: #c8d6e3;
       font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -203,8 +212,10 @@
     .compact { margin-top: 10px; }
     @media (max-width: 920px) {
       body {
+        height: auto;
         min-height: 100vh;
         overflow: auto;
+        display: block;
       }
       main {
         grid-template-columns: 1fr;
@@ -212,6 +223,7 @@
         min-height: 0;
       }
       .tools-column {
+        overflow: visible;
         padding-right: 0;
       }
       .output-panel {
