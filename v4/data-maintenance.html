@@ -486,6 +486,10 @@
       setValue('economicTo', toDate);
     }
 
+    function clearRollCandidate() {
+      lastRollCandidateDate = '';
+    }
+
     function setRollScanRangeAroundRollDate() {
       const rollDate = value('rollDate');
       if (!parseDateInput(rollDate)) return;
@@ -797,6 +801,7 @@
 
     document.getElementById('preset').addEventListener('change', (event) => {
       const preset = presets[event.target.value];
+      clearRollCandidate();
       if (!preset) return;
       setValue('instrument', preset.instrument);
       setValue('oldContract', preset.oldContract);
@@ -830,7 +835,13 @@
     document.getElementById('writeRoll').addEventListener('click', () => run(rollPayload('confirm_roll_write')));
     document.getElementById('endNow').addEventListener('click', setEndToNow);
     document.getElementById('endSessionClose').addEventListener('click', setEndToSessionClose);
-    document.getElementById('rollDate').addEventListener('change', setRollScanRangeAroundRollDate);
+    document.getElementById('rollDate').addEventListener('change', () => {
+      clearRollCandidate();
+      setRollScanRangeAroundRollDate();
+    });
+    ['instrument', 'oldContract', 'newContract', 'rollScanStart', 'rollScanEnd'].forEach((id) => {
+      document.getElementById(id).addEventListener('change', clearRollCandidate);
+    });
     document.getElementById('preflight').addEventListener('click', () => run(refreshPayload('preflight')));
     document.getElementById('dryRun').addEventListener('click', () => run(refreshPayload('dry_run')));
     document.getElementById('writeData').addEventListener('click', () => run(refreshPayload('write')));
