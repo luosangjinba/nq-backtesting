@@ -109,3 +109,84 @@ Acceptance:
 - Step 295: guarded DB physical reorder design, if range scans remain slow after connection reuse or layout diagnostics show poor pruning.
 - Step 296: frontend renderer selection benchmark fix, if selection latency is observable with realistic object counts.
 - Step 297: smaller targeted UI hot-path improvements such as ChartNote layout cache or replay bar index cache.
+
+## Implementation Notes
+
+### Step 293.2 Complete - Backend Query Benchmark Script
+
+- Added `v4/scripts/benchmark_v4_performance.py`.
+- The script is read-only and benchmarks:
+  - NQ / ES 1m range loads;
+  - NQ / ES 5m aggregation;
+  - NQ / ES 1H aggregation;
+  - NQ / ES daily aggregation;
+  - exact timestamp price lookup equivalent to `/v4/price`.
+- Baseline command:
+  - `python3 v4/scripts/benchmark_v4_performance.py --runs 3`
+
+Baseline result summary:
+
+- NQ 1m 1-day range: median `35.65ms`, rows `1400`.
+- ES 1m 1-day range: median `35.64ms`, rows `1400`.
+- NQ 5m 14-day aggregation: median `56.53ms`, rows `2780`.
+- ES 5m 14-day aggregation: median `53.45ms`, rows `2780`.
+- NQ 1H 365-day aggregation: median `137.07ms`, rows `5911`.
+- ES 1H 365-day aggregation: median `129.89ms`, rows `5906`.
+- NQ daily 365-day aggregation: median `97.04ms`, rows `273`.
+- ES daily 365-day aggregation: median `77.68ms`, rows `273`.
+- NQ price lookup at latest ts: median `23.34ms`.
+- ES price lookup at latest ts: median `26.70ms`.
+
+### Step 293.3 Complete - DuckDB Layout Diagnostics
+
+- `benchmark_v4_performance.py` also reports layout diagnostics.
+- Baseline DB status:
+  - ES rows `6,454,274`, duplicate timestamps `0`, range `2008-01-02 06:01:00 -> 2026-06-16 01:28:00`.
+  - NQ rows `6,120,805`, duplicate timestamps `0`, range `2008-01-02 06:01:00 -> 2026-06-16 01:29:00`.
+  - duplicate key groups: none.
+- Physical order scan command:
+  - `python3 v4/scripts/benchmark_v4_performance.py --skip-query --physical-order-scan`
+- Physical order scan result:
+  - `instrument_inversions=3`
+  - `ts_inversions_same_instrument=1`
+
+Decision: the current table is not obviously physically chaotic. Do not prioritize a production DB rewrite/reorder before a more targeted benchmark proves it is needed.
+
+### Step 293.4 Complete - Frontend Selection Benchmark
+
+- Added `v4/tests/performance-selection-benchmark.js`.
+- It loads the real page in headless Chrome, seeds synthetic bars plus controlled PDA/Segment object counts, then measures selection-triggered render latency.
+- Baseline command:
+  - `node v4/tests/performance-selection-benchmark.js`
+- Sandbox note: local Chrome remote-debugging access required elevated execution in this environment.
+
+Baseline result summary:
+
+- 25 Segment/PDA objects:
+  - segment selection render: `78.3ms`
+  - PDA selection render: `41.9ms`
+- 100 Segment/PDA objects:
+  - segment selection render: `114.2ms`
+  - PDA selection render: `52.4ms`
+- 250 Segment/PDA objects:
+  - segment selection render: `288.0ms`
+  - PDA selection render: `159.6ms`
+
+### Step 293.5 Complete - Performance Decision Matrix
+
+Current priority based on measurement:
+
+1. Frontend selection/render split is the strongest next optimization candidate. At 250 objects, a single selection event can exceed the threshold for visible UI delay.
+2. Backend connection reuse remains a reasonable later optimization, but current read timings are not the largest measured pain point.
+3. DuckDB physical reorder should be deferred. The physical order scan found only 3 instrument inversions and 1 same-instrument timestamp inversion across the current ES/NQ table.
+4. ChartNote layout cache and replay index/RAF remain targeted later improvements, but they were not measured as the immediate bottleneck in this baseline.
+
+Recommended next step: Step 294 should target frontend selection-render optimization, starting with Segment/PDA selection events. It should be behavior-preserving and backed by `performance-selection-benchmark.js`.
+
+### Step 293.6 Verification
+
+- `python3 -m py_compile v4/scripts/benchmark_v4_performance.py`
+- `node --check v4/tests/performance-selection-benchmark.js`
+- `python3 v4/scripts/benchmark_v4_performance.py --runs 3`
+- `python3 v4/scripts/benchmark_v4_performance.py --skip-query --physical-order-scan`
+- `node v4/tests/performance-selection-benchmark.js`
