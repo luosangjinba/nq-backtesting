@@ -1,5 +1,9 @@
 # V4 架构总览 Review
 
+> 状态：历史归档 / 已处理
+> 处理结论：本报告中的高优先级事项已纳入并完成 Step 292（见 `v4/sessions/session_20260616_architecture_review_fix_plan.md` 与 `v4/TODO.md`）。本文保留为 2026-06-16 当时的架构评审快照，不再作为当前待办清单使用。
+> 后续查看方式：若要看仍然 deferred 的架构重构项，请看 Step 292 session 的 `Deferred Architecture Work`，不要直接按本文的原始优先级执行。
+>
 > 评审范围：V4 整体架构总览
 > 关注重点：正确性 Bug、代码质量、性能
 > 评审日期：2026-06-16
