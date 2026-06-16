@@ -9,6 +9,9 @@ const BAR_MARKER_DEFAULTS = {
   labelOffset: 8,
   labelFont: '11px sans-serif',
   showLabel: true,
+  fill: true,
+  strokeColor: '',
+  lineWidth: 1.5,
 };
 
 class BarMarkerRenderer {
@@ -35,7 +38,6 @@ class BarMarkerRenderer {
         ? (options.position === 'below' ? 'up' : 'down')
         : options.direction;
 
-      ctx.fillStyle = options.color;
       ctx.beginPath();
       if (markerDirection === 'up') {
         ctx.moveTo(x, markerY - size);
@@ -47,7 +49,13 @@ class BarMarkerRenderer {
         ctx.lineTo(x + size, markerY - size);
       }
       ctx.closePath();
-      ctx.fill();
+      if (options.fill !== false) {
+        ctx.fillStyle = options.color;
+        ctx.fill();
+      }
+      ctx.strokeStyle = options.strokeColor || options.color;
+      ctx.lineWidth = Math.max(1, options.lineWidth * ratio);
+      ctx.stroke();
 
       if (options.showLabel && options.label) {
         ctx.fillStyle = options.textColor;

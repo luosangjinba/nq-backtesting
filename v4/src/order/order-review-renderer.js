@@ -138,6 +138,8 @@ function renderReversalMarker(reversal, direction, isActive = false) {
         offset: isActive ? 24 : 22,
         labelFont: getChartLabelFont(11),
         showLabel: true,
+        fill: false,
+        lineWidth: isActive ? 2 : 1.7,
       }
     )
   );
