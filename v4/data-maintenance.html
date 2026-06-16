@@ -272,6 +272,28 @@
       </section>
 
       <section>
+        <div class="section-header">Economic Calendar</div>
+        <div class="content">
+          <div class="grid">
+            <label>From date <input id="economicFrom" value="2025-01-06"></label>
+            <label>To date <input id="economicTo" value="2026-06-15"></label>
+          </div>
+          <div class="row">
+            <button id="economicStatus" type="button">Status</button>
+            <button id="economicDryRun" class="primary" type="button">Dry Run</button>
+            <button id="economicVerify" type="button">Verify</button>
+          </div>
+          <div class="compact">
+            <label>Write confirmation <input id="economicConfirmText" placeholder="WRITE ECONOMIC"></label>
+            <div class="row">
+              <button id="economicWrite" class="danger" type="button">Write Calendar</button>
+            </div>
+          </div>
+          <p class="status">Forecast/previous may remain blank with the current ForexFactory list-page source.</p>
+        </div>
+      </section>
+
+      <section>
         <div class="section-header">Roll Calendar</div>
         <div class="content">
           <div class="preset">
@@ -317,28 +339,6 @@
             <button id="smokeNq" type="button">NQ API Smoke</button>
           </div>
           <p class="status">Write actions require the backend API on port 8766 and the Databento key in the API process environment.</p>
-        </div>
-      </section>
-
-      <section>
-        <div class="section-header">Economic Calendar</div>
-        <div class="content">
-          <div class="grid">
-            <label>From date <input id="economicFrom" value="2025-01-06"></label>
-            <label>To date <input id="economicTo" value="2026-06-15"></label>
-          </div>
-          <div class="row">
-            <button id="economicStatus" type="button">Status</button>
-            <button id="economicDryRun" class="primary" type="button">Dry Run</button>
-            <button id="economicVerify" type="button">Verify</button>
-          </div>
-          <div class="compact">
-            <label>Write confirmation <input id="economicConfirmText" placeholder="WRITE ECONOMIC"></label>
-            <div class="row">
-              <button id="economicWrite" class="danger" type="button">Write Calendar</button>
-            </div>
-          </div>
-          <p class="status">Forecast/previous may remain blank with the current ForexFactory list-page source.</p>
         </div>
       </section>
 
