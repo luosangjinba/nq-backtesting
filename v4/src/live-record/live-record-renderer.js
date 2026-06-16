@@ -214,7 +214,7 @@ function renderRangeZone(timestamp, endTimestamp, entryPrice, targetPrice, label
 
 function renderRiskRewardBox(liveSet, entry, stopLoss, targets) {
   if (liveSet.display?.showRiskRewardBox === false) return;
-  if (!entry.complete || !stopLoss.complete) return;
+  if (!entry.complete) return;
 
   const entryTimestamp = entry.timestamp || liveSet.anchor?.timestamp || liveSet.primaryTimestamp;
   const visibleTargets = (Array.isArray(targets) ? targets : [])
@@ -222,7 +222,9 @@ function renderRiskRewardBox(liveSet, entry, stopLoss, targets) {
   const rewardTarget = visibleTargets.find((target) => Number.isFinite(Number(target.price)));
   const endTimestamp = getZoneEndTimestamp(entry, stopLoss, rewardTarget);
 
-  renderRangeZone(entryTimestamp, endTimestamp, entry.price, stopLoss.price, 'Risk', RISK_ZONE);
+  if (stopLoss.complete && Number.isFinite(Number(stopLoss.price))) {
+    renderRangeZone(entryTimestamp, endTimestamp, entry.price, stopLoss.price, 'Risk', RISK_ZONE);
+  }
   if (rewardTarget) {
     renderRangeZone(entryTimestamp, rewardTarget.endTimestamp || endTimestamp, entry.price, rewardTarget.price, 'Reward', REWARD_ZONE);
   }
@@ -247,10 +249,7 @@ function renderLiveRecordSet(liveSet, isActive = false) {
 
   renderAnchorMarker(anchor, direction, isActive);
 
-  if (
-    isElementVisible(liveSet, 'entry', entry) &&
-    isElementVisible(liveSet, 'stopLoss', stopLoss)
-  ) {
+  if (isElementVisible(liveSet, 'entry', entry)) {
     renderRiskRewardBox(liveSet, entry, stopLoss, targets);
   }
 
