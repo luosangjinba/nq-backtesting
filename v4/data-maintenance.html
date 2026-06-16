@@ -676,6 +676,64 @@
       });
     }
 
+    function slugForFilename(value, fallback = 'performance') {
+      const slug = String(value || '')
+        .replace(/\.[^.]+$/, '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      return slug || fallback;
+    }
+
+    function ymdFromEpochSeconds(epochSeconds) {
+      const date = new Date(Number(epochSeconds) * 1000);
+      if (Number.isNaN(date.getTime())) return '';
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      return `${year}${month}${day}`;
+    }
+
+    function dateRangeForPayload(payload) {
+      const dates = (payload.liveRecords || [])
+        .flatMap((record) => [
+          record.anchor?.timestamp,
+          record.result?.exitTimestamp,
+        ])
+        .map(ymdFromEpochSeconds)
+        .filter(Boolean)
+        .sort();
+      if (!dates.length) return '';
+      return dates[0] === dates[dates.length - 1]
+        ? dates[0]
+        : `${dates[0]}-${dates[dates.length - 1]}`;
+    }
+
+    function filenameForResults(results, sourceFileName, instrument = '') {
+      const resultList = Array.isArray(results) ? results : [results];
+      const sourceSlug = slugForFilename(sourceFileName);
+      const instruments = instrument
+        ? [instrument]
+        : [...new Set(resultList.map((result) => result.payload.instrument).filter(Boolean))];
+      const instrumentSlug = instruments.map((item) => slugForFilename(item, '')).filter(Boolean).join('-');
+      const range = resultList.map((result) => dateRangeForPayload(result.payload)).filter(Boolean).sort()[0] || '';
+      return [
+        'tradovate-live-records',
+        instrumentSlug,
+        range,
+        sourceSlug,
+      ].filter(Boolean).join('-') + '.json';
+    }
+
+    function updateFilenameFromSourceFile(file) {
+      filenameInput.value = filenameForResults([], file?.name || '');
+    }
+
+    function updateFilenameFromResults(results, sourceFileName) {
+      filenameInput.value = filenameForResults(results, sourceFileName);
+    }
+
     function formatSinglePreview(result) {
       return [
         `Instrument: ${result.payload.instrument}`,
@@ -719,7 +777,7 @@
       const rawName = filenameInput.value.trim() || `tradovate-live-records-${payload.instrument}.json`;
       const baseName = rawName.endsWith('.json') ? rawName.slice(0, -5) : rawName;
       return totalFiles > 1
-        ? `${baseName}-${payload.instrument}.json`
+        ? filenameForResults([{ payload }], fileInput.files?.[0]?.name || baseName, payload.instrument)
         : `${baseName}.json`;
     }
 
@@ -735,11 +793,17 @@
       URL.revokeObjectURL(url);
     }
 
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (file) updateFilenameFromSourceFile(file);
+    });
+
     document.getElementById('tradovatePreview').addEventListener('click', async () => {
       try {
         setTradovateState('running', 'warn');
         const file = getTradovateFile();
         const results = await buildArchivesFromSelectedFile();
+        updateFilenameFromResults(results, file.name);
         appendTradovateOutput(formatPreview(results, file.name));
         setTradovateState('ok', 'ok');
       } catch (error) {
@@ -753,6 +817,7 @@
         setTradovateState('running', 'warn');
         const file = getTradovateFile();
         const results = await buildArchivesFromSelectedFile();
+        updateFilenameFromResults(results, file.name);
         results.forEach((result) => downloadJson(result.payload, results.length));
         appendTradovateOutput(`${formatPreview(results, file.name)}\n\nwrite_status: downloaded ${results.length} review JSON file${results.length === 1 ? '' : 's'}`);
         setTradovateState('ok', 'ok');

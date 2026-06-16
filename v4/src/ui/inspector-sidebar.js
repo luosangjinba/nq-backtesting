@@ -69,6 +69,7 @@ import {
   getAnnotationCalendarDate,
   getCompositeCalendarDate,
   getCompositeTimestamp,
+  getLiveRecordCalendarDate,
   getOrderReviewCalendarDate,
   getSegmentCalendarDate,
 } from './inspector/calendar-object-date.js';
@@ -534,10 +535,12 @@ function showActiveOrderSetupPanel() {
 
 function showSelectedLiveRecordPanel() {
   const liveRecordId = getSelectedLiveRecordElement()?.liveRecordId;
-  if (!liveRecordId || !getLiveRecordById(liveRecordId)) {
+  const record = liveRecordId ? getLiveRecordById(liveRecordId) : null;
+  if (!liveRecordId || !record) {
     refreshSelection();
     return;
   }
+  prepareDetailBackTarget(getLiveRecordCalendarDate(record));
   renderLiveRecordDetail(liveRecordId);
   openSidebar();
 }

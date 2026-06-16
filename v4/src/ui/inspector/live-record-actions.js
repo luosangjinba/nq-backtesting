@@ -15,6 +15,7 @@ import {
   setLiveRecordLifecycleStatus,
 } from '../../live-record/live-record-lifecycle-actions.js';
 import { getActiveReviewSetId } from '../../order/order-review-active.js';
+import { getSetupSetById } from '../../order/setup-set.js';
 
 function updateReason(record, reasonIndex, patch = {}) {
   const reasons = Array.isArray(record.reasons) ? record.reasons.map((reason) => ({ ...reason })) : [];
@@ -85,6 +86,21 @@ export function createLiveRecordActionController({
           [field]: value,
         },
       }));
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-match-setup') {
+      const setupId = String(target.value || '').trim();
+      if (setupId && !getSetupSetById(setupId)) {
+        bus.emit('status:update', { text: 'Selected Setup is missing', isError: true });
+        return true;
+      }
+      mutate('Match Live Record To Setup', () => updateLiveRecord(liveRecordId, { orderSetupId: setupId }));
+      bus.emit('status:update', {
+        text: setupId ? 'Live Record matched to Setup' : 'Live Record setup match cleared',
+        isError: false,
+      });
       refreshSelection?.();
       return true;
     }
@@ -221,18 +237,18 @@ export function createLiveRecordActionController({
     if (action === 'live-record-link-active-setup') {
       const activeSetupId = getActiveReviewSetId();
       if (!activeSetupId) {
-        bus.emit('status:update', { text: 'No active Order Setup to link', isError: true });
+        bus.emit('status:update', { text: 'No active Setup to match', isError: true });
         return true;
       }
       mutate('Link Live Record To Setup', () => updateLiveRecord(liveRecordId, { orderSetupId: activeSetupId }));
-      bus.emit('status:update', { text: 'Live Record linked to active Order Setup', isError: false });
+      bus.emit('status:update', { text: 'Live Record matched to active Setup', isError: false });
       refreshSelection?.();
       return true;
     }
 
     if (action === 'live-record-unlink-setup') {
       mutate('Unlink Live Record Setup', () => updateLiveRecord(liveRecordId, { orderSetupId: '' }));
-      bus.emit('status:update', { text: 'Live Record setup link removed', isError: false });
+      bus.emit('status:update', { text: 'Live Record setup match cleared', isError: false });
       refreshSelection?.();
       return true;
     }

@@ -27,6 +27,14 @@ export function getOrderReviewCalendarDate(order = {}) {
   );
 }
 
+export function getLiveRecordCalendarDate(record = {}) {
+  return firstDateKeyFromValues([
+    record.anchor?.timestamp,
+    record.execution?.entry?.timestamp,
+    record.result?.exitTimestamp,
+  ]);
+}
+
 export function getAnnotationCalendarDate(annotation = {}) {
   return firstDateKeyFromValues([
     annotation.canonicalTimestamp,

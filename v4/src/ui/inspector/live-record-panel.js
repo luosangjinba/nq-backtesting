@@ -13,7 +13,7 @@ import {
   ORDER_ENTRY_PATTERN_DEFINITIONS,
   ORDER_ENTRY_SESSION_DEFINITIONS,
 } from '../../order/order-review-types.js';
-import { getSetupSetById } from '../../order/setup-set.js';
+import { getSetupSetById, getSetupSets } from '../../order/setup-set.js';
 import { createLiveRecordSet } from '../../live-record/live-record-set.js';
 import { getSelectedLiveRecordElement } from '../../live-record/live-record-selection.js';
 import {
@@ -225,18 +225,90 @@ function renderAnchorPanel(liveSet) {
   `;
 }
 
+function getSetupMatchLabel(setup) {
+  const order = setup?.orderReview || {};
+  const thesis = order.setupThesis || {};
+  const entryPlan = order.entryPlan || {};
+  const entry = setup?.orderElements?.entry || {};
+  const reversal = setup?.orderElements?.reversal || {};
+  return [
+    entry.timestamp ? `Entry ${formatIntradayTime(entry.timestamp)}` : '',
+    reversal.timestamp ? `Reversal ${formatIntradayTime(reversal.timestamp)}` : '',
+    formatDirection(entryPlan.direction),
+    thesis.primaryEventType ? titleCase(thesis.primaryEventType) : 'Setup',
+    entry.timeframe || thesis.primaryEventTimeframe || '',
+    shortRefId(setup?.id),
+  ].filter(Boolean).join(' · ');
+}
+
+function timestampDateKey(timestamp) {
+  if (!Number.isFinite(Number(timestamp))) return '';
+  return formatTime(timestamp).slice(0, 10);
+}
+
+function formatIntradayTime(timestamp) {
+  const formatted = formatTime(timestamp);
+  return formatted.includes(' ') ? formatted.split(' ')[1] : formatted;
+}
+
+function getSetupMatchTimestamp(setup) {
+  return setup?.orderElements?.entry?.timestamp || setup?.primaryTimestamp || null;
+}
+
+function isSetupSameDayCandidate(setup, record) {
+  const liveDate = timestampDateKey(record?.anchor?.timestamp);
+  const setupDate = timestampDateKey(getSetupMatchTimestamp(setup));
+  const sameDate = liveDate && setupDate && liveDate === setupDate;
+  const sameInstrument = !record?.instrument || !setup?.instrument || setup.instrument === record.instrument;
+  return sameDate && sameInstrument;
+}
+
+function getSetupMatchCandidates(record, selectedSetupId) {
+  const selected = selectedSetupId ? getSetupSetById(selectedSetupId) : null;
+  const candidates = getSetupSets()
+    .filter((setup) => isSetupSameDayCandidate(setup, record));
+  if (selected && !candidates.some((setup) => setup.id === selected.id)) {
+    candidates.push(selected);
+  }
+  return candidates
+    .slice()
+    .sort((left, right) => (getSetupMatchTimestamp(left) || 0) - (getSetupMatchTimestamp(right) || 0));
+}
+
+function renderSetupMatchOptions(record, selectedSetupId) {
+  const setups = getSetupMatchCandidates(record, selectedSetupId);
+  return [
+    `<option value="">No matched setup</option>`,
+    ...setups.map((setup) => `
+      <option value="${escapeHtml(setup.id)}" ${setup.id === selectedSetupId ? 'selected' : ''}>
+        ${escapeHtml(getSetupMatchLabel(setup))}
+      </option>
+    `),
+  ].join('');
+}
+
 function renderLinkedSetupPanel(record) {
   const setupId = record.orderSetupId || '';
   const setup = setupId ? getSetupSetById(setupId) : null;
   const setupLabel = setup
-    ? `Order Setup · ${shortRefId(setup.id)}`
+    ? getSetupMatchLabel(setup)
     : setupId
-      ? `Missing Order Setup · ${shortRefId(setupId)}`
-      : 'No linked Order Setup';
+      ? `Missing Setup · ${shortRefId(setupId)}`
+      : 'No matched setup';
   return `
     <div class="order-review-compact order-review-linked-setup-panel">
-      <div class="order-review-compact-title">Linked Order Setup</div>
+      <div class="order-review-compact-title">Matched Setup</div>
       <div class="drawing-set-meta">${escapeHtml(setupLabel)}</div>
+      <label class="inspector-label">
+        Setup
+        <select
+          class="inspector-input"
+          data-inspector-action="live-record-match-setup"
+          data-live-record-id="${escapeHtml(record.id)}"
+        >
+          ${renderSetupMatchOptions(record, setupId)}
+        </select>
+      </label>
       <div class="order-review-actions order-review-compact-actions">
         ${setup ? `<button
           class="inspector-secondary"
@@ -245,8 +317,8 @@ function renderLinkedSetupPanel(record) {
           data-object-id="${escapeHtml(setup.id)}"
           type="button"
         >Open Setup</button>` : ''}
-        <button class="inspector-secondary" data-inspector-action="live-record-link-active-setup" data-live-record-id="${escapeHtml(record.id)}" type="button">Link Active Setup</button>
-        ${setupId ? `<button class="inspector-secondary" data-inspector-action="live-record-unlink-setup" data-live-record-id="${escapeHtml(record.id)}" type="button">Unlink Setup</button>` : ''}
+        <button class="inspector-secondary" data-inspector-action="live-record-link-active-setup" data-live-record-id="${escapeHtml(record.id)}" type="button">Match Active Setup</button>
+        ${setupId ? `<button class="inspector-secondary" data-inspector-action="live-record-unlink-setup" data-live-record-id="${escapeHtml(record.id)}" type="button">Clear Match</button>` : ''}
       </div>
     </div>
   `;
