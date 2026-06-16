@@ -7,6 +7,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 ### User
 
 - [Chinese user guide](user/USER_GUIDE.zh-CN.md)
+- [Chinese operation manual HTML](user/OPERATION_MANUAL.zh-CN.html)
 - [English user guide](user/USER_GUIDE.en.md)
 - [Standalone run guide](user/STANDALONE_RUN.md)
 - [Inspector help](user/INSPECTOR_HELP.md)

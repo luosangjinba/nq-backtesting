@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V4 操作手册</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f141a;
+      --panel: #151c24;
+      --panel-2: #111820;
+      --border: #263241;
+      --text: #d9e2ec;
+      --muted: #93a4b7;
+      --accent: #2fb7a4;
+      --warn: #d5a03a;
+      --danger: #e06262;
+      --code: #0b1016;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: #70d8cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 18px;
+      border-right: 1px solid var(--border);
+      background: var(--panel-2);
+    }
+    nav h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+    nav ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    nav li {
+      margin: 6px 0;
+      color: var(--muted);
+    }
+    main {
+      max-width: 1180px;
+      padding: 28px 36px 72px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+    h2 {
+      margin: 42px 0 14px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 23px;
+    }
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 18px;
+    }
+    p { margin: 10px 0; }
+    .lead {
+      color: #c8d6e3;
+      font-size: 17px;
+    }
+    .note, .warning {
+      margin: 14px 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      background: var(--panel);
+    }
+    .warning { border-left-color: var(--warn); }
+    .danger { border-left-color: var(--danger); }
+    code, kbd {
+      padding: 2px 5px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--code);
+      color: #e6edf6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow: auto;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--code);
+    }
+    table {
+      width: 100%;
+      margin: 12px 0 22px;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+    th, td {
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #17212c;
+      color: #c8d6e3;
+      font-weight: 650;
+    }
+    td:first-child {
+      width: 220px;
+      color: #e4edf7;
+      font-weight: 600;
+    }
+    .steps {
+      padding-left: 23px;
+    }
+    .steps li {
+      margin: 7px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      padding: 14px;
+    }
+    .muted { color: var(--muted); }
+    @media (max-width: 920px) {
+      .page { display: block; }
+      nav {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+      main { padding: 22px 18px 56px; }
+      .grid { grid-template-columns: 1fr; }
+      td:first-child { width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav aria-label="目录">
+      <h2>V4 操作手册</h2>
+      <ol>
+        <li><a href="#overview">系统用途</a></li>
+        <li><a href="#start">启动与服务</a></li>
+        <li><a href="#main-ui">主页面项目</a></li>
+        <li><a href="#chart-menu">图表右键菜单</a></li>
+        <li><a href="#replay">Replay Bar</a></li>
+        <li><a href="#calendar">Calendar 与 Inspector</a></li>
+        <li><a href="#order-setup">Order Setup</a></li>
+        <li><a href="#live-record">Live Record</a></li>
+        <li><a href="#archive">Archive 导入导出</a></li>
+        <li><a href="#data-maintenance">Data Maintenance</a></li>
+        <li><a href="#workflows">常用操作流程</a></li>
+        <li><a href="#troubleshooting">排错</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <h1>V4 复盘系统详细操作手册</h1>
+      <p class="lead">本文面向日常使用，逐项说明 V4 主图、Calendar、Order Setup、Live Record、数据维护、换季、经济日历和 Tradovate 导入的操作方式。</p>
+      <p class="muted">适用页面：<code>index.html</code> 与 <code>data-maintenance.html</code>。当前主要品种为 <code>NQ</code> 和 <code>ES</code>。</p>
+
+      <section id="overview">
+        <h2>1. 系统用途</h2>
+        <p>V4 是图表式手工复盘系统，用于加载 NQ/ES K 线、回放行情、标注 PDA/Segment/SMT/Chart Note、记录 backtesting setup，并把真实或模拟成交复原为 Live Record。</p>
+        <div class="warning">
+          <strong>边界：</strong>V4 不是自动交易系统，也不自动判断 setup 是否成立。Order Setup 和 Live Record 的复盘结论仍然由用户人工判断。
+        </div>
+      </section>
+
+      <section id="start">
+        <h2>2. 启动与服务</h2>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>启动服务</td><td>启动 API 与网页服务。</td><td><code>bash v4/start.sh start</code></td></tr>
+            <tr><td>重启服务</td><td>修改 API 代码或环境变量后使用。</td><td><code>bash v4/start.sh restart</code></td></tr>
+            <tr><td>停止服务</td><td>关闭 V4 服务。</td><td><code>bash v4/start.sh stop</code></td></tr>
+            <tr><td>主页面</td><td>图表复盘、标注、Order Setup、Live Record。</td><td><code>http://127.0.0.1:8001/index.html</code></td></tr>
+            <tr><td>数据维护页面</td><td>刷新 Databento、经济日历、VIX、换季、Tradovate 转换。</td><td><code>http://127.0.0.1:8001/data-maintenance.html</code></td></tr>
+            <tr><td>API 健康检查</td><td>确认后端是否运行。</td><td><code>http://127.0.0.1:8766/v4/health</code></td></tr>
+          </tbody>
+        </table>
+        <p>如果页面提示 <code>Failed to fetch</code>，先检查 API 是否在 <code>8766</code> 端口运行。</p>
+      </section>
+
+      <section id="main-ui">
+        <h2>3. 主页面项目</h2>
+        <h3>顶部工具栏</h3>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>使用说明</th></tr></thead>
+          <tbody>
+            <tr><td>Date Range</td><td>设置主图加载日期范围。</td><td>输入或选择开始/结束日期。1M 大范围会使用窗口化显示，避免浏览器一次加载太多 K 线。</td></tr>
+            <tr><td>Split</td><td>打开或关闭副图。</td><td>做 ES/NQ 对照、SMT 或同步 replay 时打开。</td></tr>
+            <tr><td>Sub</td><td>副图品种。</td><td>常用为 <code>ES</code>；主图为 NQ 时，用 ES 副图观察同步结构。</td></tr>
+            <tr><td>Sub TF</td><td>副图周期。</td><td>做 SMT 时建议与主图周期一致。</td></tr>
+            <tr><td>Layout</td><td>副图布局。</td><td><code>Stack</code> 上下分屏，<code>Side</code> 左右分屏。</td></tr>
+            <tr><td>Main</td><td>主图品种。</td><td>选择 <code>NQ</code> 或 <code>ES</code>。主图品种决定当前 workspace 的对象隔离。</td></tr>
+            <tr><td>Main TF</td><td>主图周期。</td><td>常用 <code>1M</code>、<code>5M</code>、<code>1H</code>、<code>D</code>。</td></tr>
+            <tr><td>Days</td><td>显示/隐藏交易日分隔。</td><td>日内复盘时建议打开。</td></tr>
+            <tr><td>Grid</td><td>显示/隐藏网格。</td><td>按视觉偏好使用。</td></tr>
+            <tr><td>Segments</td><td>控制 segment 显示范围。</td><td>可按 All 或其他过滤方式显示。</td></tr>
+            <tr><td>N</td><td>窗口/加载参数。</td><td>用于控制部分窗口化显示或定位相关数量，日常保持默认即可。</td></tr>
+            <tr><td>Archive</td><td>打开导入/导出入口。</td><td>用于导出当前 Main 的 Review JSON，或导入对应 Main 的复盘对象。</td></tr>
+            <tr><td>设置按钮</td><td>显示偏好。</td><td>调整显示模式、字体等图表展示选项。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Main Instrument 规则</h3>
+        <ul>
+          <li>当前 Main 是 NQ 时，只显示和保存 NQ 的 PDA、Order Setup、Live Record 等对象。</li>
+          <li>当前 Main 是 ES 时，只显示和保存 ES 的对象。</li>
+          <li>导入 Review JSON 时，archive instrument 必须与当前 Main 一致，否则系统会拒绝导入。</li>
+          <li>Tradovate/MES 会映射到 ES，MNQ/NQ 会映射到 NQ。</li>
+        </ul>
+      </section>
+
+      <section id="chart-menu">
+        <h2>4. 图表右键菜单</h2>
+        <table>
+          <thead><tr><th>菜单项目</th><th>用途</th><th>操作方式</th></tr></thead>
+          <tbody>
+            <tr><td>Locate</td><td>定位当前 K 线或对象。</td><td>用于快速回到对象所在时间。</td></tr>
+            <tr><td>Order Setup</td><td>创建或操作 backtesting setup。</td><td>选择 bullish/bearish setup，并继续设置 entry、stop、target、result。</td></tr>
+            <tr><td>Live Records</td><td>创建或操作真实/模拟成交复盘对象。</td><td>新建 bullish/bearish live record，设置 active record 的 entry、stop、target、exit，或关联证据。</td></tr>
+            <tr><td>PDA</td><td>创建 PDA 标注。</td><td>包括 BSL/SSL/FVG/IFVG/OB/Breaker/Wick CE/Fib 等。</td></tr>
+            <tr><td>SMT</td><td>标注或定位 SMT 相关对象。</td><td>主图与副图时间对齐后使用。</td></tr>
+            <tr><td>1M Segments</td><td>绘制 1M price leg。</td><td>从 high/low 起点开始，再选择终点。</td></tr>
+            <tr><td>Point Sets</td><td>绘制 EQH/EQL 等点集。</td><td>先 start，再 add point，最后 finish。</td></tr>
+            <tr><td>Chart Note</td><td>添加图表备注。</td><td>可作为 setup 或 live record 的证据引用。</td></tr>
+            <tr><td>Time Overlays</td><td>显示时间线、killzone 等。</td><td>用于日内时间段复盘。</td></tr>
+            <tr><td>Objective Gaps</td><td>标注 objective gap。</td><td>用于记录目标缺口或价格目标区。</td></tr>
+            <tr><td>Clear</td><td>清理当前选择或对象。</td><td>根据上下文清除选择、隐藏或删除对象。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="replay">
+        <h2>5. Replay Bar</h2>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Replay Bar On/Off</td><td>打开/关闭回放。</td><td>打开后只显示 replay cursor 之前的 K 线。</td></tr>
+            <tr><td>First</td><td>跳到当前加载区间第一根。</td><td>用于从头复盘。</td></tr>
+            <tr><td>Last Pos</td><td>回到上次 replay 位置。</td><td>适合中断后继续。</td></tr>
+            <tr><td>Pick</td><td>从图上点选 replay 位置。</td><td>只能选择已经显示出来的 K 线。</td></tr>
+            <tr><td>&lt;</td><td>后退一根或一个步长。</td><td>用于细节复盘。</td></tr>
+            <tr><td>播放</td><td>自动播放。</td><td>再次点击可停止。</td></tr>
+            <tr><td>&gt;</td><td>前进一根或一个步长。</td><td>用于逐根查看。</td></tr>
+            <tr><td>Next</td><td>跳到下一个关键时间点。</td><td>例如 09:29、09:30 等 replay 时间节点。</td></tr>
+            <tr><td>History</td><td>恢复 replay workspace。</td><td>恢复视图、cursor、Split 设置，不保存 K 线本身。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="calendar">
+        <h2>6. Calendar 与 Inspector</h2>
+        <p>右侧 Inspector 是对象详情和每日复盘入口。Calendar 会按日期聚合当前 Main 的对象。</p>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Calendar 日期</td><td>打开某一天的复盘对象列表。</td><td>会显示 Order Setups、Live Records、Economic Events、PDA、Segments、SMT、Chart Notes 等。</td></tr>
+            <tr><td>Show Day Objects</td><td>显示当天对象。</td><td>将当天 PDA、Segments、Chart Notes 等显示到图表。</td></tr>
+            <tr><td>Hide Day Objects</td><td>隐藏当天对象。</td><td>用于清理视图。</td></tr>
+            <tr><td>Open</td><td>打开对象详情。</td><td>进入 Order Setup Detail、Live Record Detail 等详情面板。</td></tr>
+            <tr><td>Locate</td><td>定位对象所在时间。</td><td>图表会跳转到对象时间附近。</td></tr>
+            <tr><td>Back</td><td>返回上一层面板。</td><td>从 detail 回到 Calendar 日期页或上一面板。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="order-setup">
+        <h2>7. Order Setup</h2>
+        <p>Order Setup 用于 backtesting 或完美 setup 记录。图表上的 setup anchor 使用空心三角，与 Live Record 的实心三角区分。</p>
+        <table>
+          <thead><tr><th>详情项目</th><th>用途</th><th>使用说明</th></tr></thead>
+          <tbody>
+            <tr><td>Header</td><td>显示方向、时间、周期、品种、状态。</td><td>双击 setup 三角会打开详情；同一时刻只应有一个 active setup。</td></tr>
+            <tr><td>Display / Risk Reward Box</td><td>显示或隐藏风险收益框。</td><td>用于视觉检查 entry、stop、target 的结构。</td></tr>
+            <tr><td>Summary</td><td>记录 setup 总结。</td><td>写主要判断，不需要写操作教程。</td></tr>
+            <tr><td>Anchor</td><td>记录 reversal anchor。</td><td>包括 reversal 类型、时间、TF、价格。</td></tr>
+            <tr><td>Execution</td><td>显示 entry、stop、targets 等执行元素。</td><td>如果没有设置，会显示 No execution elements。</td></tr>
+            <tr><td>Entry Context</td><td>记录入场上下文。</td><td>勾选 Purge + OB、OTE、Stop Market、Key Level、2022，选择 session。</td></tr>
+            <tr><td>Reasons</td><td>记录 setup 理由。</td><td>每条 reason 可选择类别、写 note，并链接 PDA/Segment/Chart Note 等对象。</td></tr>
+            <tr><td>Result</td><td>记录结果。</td><td>选择目标、失败、止损、最终结果，记录 exit time/price、points、R 等。</td></tr>
+          </tbody>
+        </table>
+        <h3>创建 Order Setup 流程</h3>
+        <ol class="steps">
+          <li>在目标 K 线右键，进入 <code>Order Setup</code>。</li>
+          <li>选择方向，例如 bullish 或 bearish setup。</li>
+          <li>双击图上的空心三角，打开 Order Setup Detail。</li>
+          <li>在图上右键设置 entry、stop loss、target、result。</li>
+          <li>在 Inspector 中填写 Summary、Entry Context、Reasons。</li>
+          <li>确认 Risk / Reward Box 是否正确显示。</li>
+          <li>复盘结束后填写 Result。</li>
+        </ol>
+      </section>
+
+      <section id="live-record">
+        <h2>8. Live Record</h2>
+        <p>Live Record 用于记录真实或模拟成交。它的 UI 尽量与 Order Setup 一致，但对象含义是“实际发生的交易”。图表上的 live anchor 使用实心三角。</p>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Create Bullish Live Record Here</td><td>创建多头 live record。</td><td>在当前 K 线价格创建 active live record。</td></tr>
+            <tr><td>Create Bearish Live Record Here</td><td>创建空头 live record。</td><td>在当前 K 线价格创建 active live record。</td></tr>
+            <tr><td>Set Active Live Record Anchor Here</td><td>移动当前 active live record 的 anchor。</td><td>只对 active live record 生效。</td></tr>
+            <tr><td>Set Entry Here</td><td>设置成交 entry。</td><td>用于标出真实入场价和时间。</td></tr>
+            <tr><td>Set MSS Here</td><td>设置 market structure shift。</td><td>可选，用于记录入场后结构确认。</td></tr>
+            <tr><td>Set Stop Loss Here</td><td>设置止损。</td><td>用于 risk box。</td></tr>
+            <tr><td>Targets</td><td>设置目标。</td><td>可设置 Target Internal 1/2/3、Swing Point、External 1/2/3。</td></tr>
+            <tr><td>Set Result / Exit Here</td><td>设置最终 exit。</td><td>用于结果面板与 exit 线。</td></tr>
+            <tr><td>Set All Ends Here</td><td>设置所有元素结束时间。</td><td>按住 Shift 打开右键菜单时可用，用于统一延长/截断 entry、stop、target 线。</td></tr>
+            <tr><td>Link PDA/Segment/Composite/SMT/Chart Note</td><td>把当前上下文对象链接到 active live record。</td><td>用于记录这笔 live trade 的证据。</td></tr>
+            <tr><td>Submitted</td><td>标记订单已提交。</td><td>生命周期状态。</td></tr>
+            <tr><td>Filled</td><td>标记订单已成交。</td><td>生命周期状态。</td></tr>
+            <tr><td>Cancel</td><td>标记订单取消。</td><td>生命周期状态。</td></tr>
+            <tr><td>Close</td><td>标记交易关闭。</td><td>关闭后不代表 reviewed。</td></tr>
+            <tr><td>Mark Reviewed</td><td>标记复盘完成。</td><td>通常在填写结果、原因、匹配 setup 后使用。</td></tr>
+            <tr><td>Clear Active Live Record</td><td>取消当前 active live record。</td><td>不删除对象，只取消 active 状态。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Live Record Detail 项目</h3>
+        <table>
+          <thead><tr><th>详情项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Header</td><td>显示方向、时间、TF、品种和状态。</td><td>双击 live 三角可打开详情并设为 active。</td></tr>
+            <tr><td>Lifecycle Buttons</td><td>提交、成交、取消、关闭、review。</td><td>根据当前状态显示允许的下一步。</td></tr>
+            <tr><td>Display</td><td>控制 Risk / Reward Box。</td><td>关闭后只隐藏 box，不删除元素。</td></tr>
+            <tr><td>Summary</td><td>写这笔交易摘要。</td><td>Tradovate 导入会自动填初始摘要。</td></tr>
+            <tr><td>Anchor</td><td>记录 live anchor。</td><td>显示方向、时间、TF、价格。</td></tr>
+            <tr><td>Matched Setup</td><td>把 live trade 与当日 setup 匹配。</td><td>下拉候选会优先显示同日同品种 setup，并带 entry/reversal 时间。</td></tr>
+            <tr><td>Execution</td><td>显示 entry、stop、targets。</td><td>可选择、隐藏、删除单个元素。</td></tr>
+            <tr><td>Entry Context</td><td>记录实际入场上下文。</td><td>与 Order Setup 的 entry context 保持一致。</td></tr>
+            <tr><td>Reasons</td><td>记录交易理由。</td><td>可追加 reason，并显示已链接证据对象。</td></tr>
+            <tr><td>Result</td><td>记录结果。</td><td>Exit type 可选 Profit / Stop Loss / Unknown；显示 hold、risk、points、R。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>创建 Live Record 流程</h3>
+        <ol class="steps">
+          <li>在实际做单位置右键，进入 <code>Live Records</code>。</li>
+          <li>选择 <code>Create Bullish Live Record Here</code> 或 <code>Create Bearish Live Record Here</code>。</li>
+          <li>右键设置 <code>Set Entry Here</code>、<code>Set Stop Loss Here</code>、targets 和 exit。</li>
+          <li>双击实心三角，打开 Live Record Detail。</li>
+          <li>填写 Summary、Entry Context、Reasons。</li>
+          <li>在 Matched Setup 中选择同日 setup，或点 Match Active Setup。</li>
+          <li>检查 Result 面板的 exit type、points、R。</li>
+          <li>复盘完成后点击 <code>Mark Reviewed</code>。</li>
+        </ol>
+      </section>
+
+      <section id="archive">
+        <h2>9. Archive 导入导出</h2>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Export Review JSON</td><td>导出当前 Main 的复盘对象。</td><td>包括 PDA、Segments、SMT、Order Setup、Live Record、Chart Notes 等。</td></tr>
+            <tr><td>Import Review JSON</td><td>导入复盘对象。</td><td>导入文件的 instrument 必须与当前 Main 一致。</td></tr>
+            <tr><td>Clear Saved Annotations</td><td>清理本地保存对象。</td><td>谨慎使用。会影响当前浏览器本地存储。</td></tr>
+          </tbody>
+        </table>
+        <div class="warning">
+          导入 ES archive 前，必须把顶部 <code>Main</code> 切到 <code>ES</code>。导入 NQ archive 前，必须把 <code>Main</code> 切到 <code>NQ</code>。
+        </div>
+      </section>
+
+      <section id="data-maintenance">
+        <h2>10. Data Maintenance 页面</h2>
+        <p>地址：<code>http://127.0.0.1:8001/data-maintenance.html</code>。这个页面用于避免手写复杂命令。</p>
+
+        <h3>Refresh Range</h3>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Instrument</td><td>选择刷新 ES 或 NQ。</td><td>影响 Databento 拉取与 DB 写入品种。</td></tr>
+            <tr><td>Chunk days</td><td>把请求拆成几天一段。</td><td>常用 1 或 3。排查失败时用 1；补几天数据用 3。</td></tr>
+            <tr><td>Start optional</td><td>手工指定起点。</td><td>为空时从 DB 当前最新 bar 的下一分钟开始。</td></tr>
+            <tr><td>End required</td><td>指定 exclusive end。</td><td><code>2026-06-16T00:00:00</code> 表示抓到这个时间之前。</td></tr>
+            <tr><td>Now</td><td>把 End 填为当前美东时间。</td><td>适合盘中手动刷新。</td></tr>
+            <tr><td>Session Close</td><td>把 End 填为当天美东 17:00。</td><td>适合收盘后补数据。</td></tr>
+            <tr><td>Preflight</td><td>检查 roll segments 是否 write-eligible。</td><td>跨换季边界写库前必须先跑。</td></tr>
+            <tr><td>Dry Run</td><td>预览会下载和写入多少行。</td><td>不写 DB。</td></tr>
+            <tr><td>Write confirmation</td><td>写库保护确认框。</td><td>ES 输入 <code>WRITE ES</code>，NQ 输入 <code>WRITE NQ</code>。</td></tr>
+            <tr><td>Write Data</td><td>执行真实写库。</td><td>只有 dry-run 合理后再点。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Economic Calendar</h3>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>From date</td><td>经济日历开始日期。</td><td>格式 <code>YYYY-MM-DD</code>。</td></tr>
+            <tr><td>To date</td><td>经济日历结束日期。</td><td>格式 <code>YYYY-MM-DD</code>。</td></tr>
+            <tr><td>Today</td><td>设置为今天。</td><td>From/To 都填今天美东日期。</td></tr>
+            <tr><td>This Week</td><td>设置为本周。</td><td>本周一到本周日。</td></tr>
+            <tr><td>Next Week</td><td>设置为下周。</td><td>下周一到下周日。</td></tr>
+            <tr><td>To Today</td><td>从本地 CSV 最新日期补到今天。</td><td>先跑 status，自动填 <code>date_max + 1</code> 到今天。</td></tr>
+            <tr><td>Status</td><td>检查当前 CSV 状态。</td><td>显示 rows、date_min、date_max、duplicate keys、malformed rows。</td></tr>
+            <tr><td>Dry Run</td><td>预览新增事件。</td><td>不写 CSV。</td></tr>
+            <tr><td>Verify</td><td>校验本地 CSV 完整性。</td><td>不联网、不写文件。</td></tr>
+            <tr><td>Write confirmation</td><td>写入保护。</td><td>必须输入 <code>WRITE ECONOMIC</code>。</td></tr>
+            <tr><td>Write Calendar</td><td>append-only 写入经济日历。</td><td>会先备份 CSV，再追加新日期数据。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Roll Calendar</h3>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Preset</td><td>选择常用换季预设。</td><td>当前包含 ES/NQ June 2026 预设，也可选 Custom。</td></tr>
+            <tr><td>Instrument</td><td>换季品种。</td><td>ES 或 NQ。</td></tr>
+            <tr><td>Roll date</td><td>你确认实际切换的日期。</td><td>必须与你交易系统实际切换一致。</td></tr>
+            <tr><td>Old contract</td><td>旧合约。</td><td>例如 <code>ESM6</code>、<code>NQM6</code>。</td></tr>
+            <tr><td>New contract</td><td>新合约。</td><td>例如 <code>ESU6</code>、<code>NQU6</code>。</td></tr>
+            <tr><td>Status</td><td>换季确认状态。</td><td><code>manual_validated</code> 表示人工确认；<code>volume_validated</code> 表示成交量验证。</td></tr>
+            <tr><td>Note</td><td>证据说明。</td><td>写明为什么确认该 roll date。</td></tr>
+            <tr><td>Scan start/end</td><td>成交量扫描区间。</td><td>默认围绕 roll date 前后几天。</td></tr>
+            <tr><td>Scan Volume</td><td>比较 old/new contract 成交量。</td><td>输出 old/new 总量、first overtake、candidate roll date。</td></tr>
+            <tr><td>Use Candidate Date</td><td>使用扫描候选日期。</td><td>会把 candidate 填到 Roll date；字段变化后旧 candidate 会失效。</td></tr>
+            <tr><td>Roll Report</td><td>查看需要注意的 roll entries。</td><td>不会写文件。</td></tr>
+            <tr><td>Preview Confirm</td><td>预览换季确认 diff。</td><td>必须先看 diff。</td></tr>
+            <tr><td>Write Confirm</td><td>写入 futures roll calendar。</td><td>确认无误后再用。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Verification</h3>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Verify Data</td><td>检查 DB/VIX freshness。</td><td>不调用 API smoke。</td></tr>
+            <tr><td>Verify Data + API</td><td>检查数据和 API。</td><td>适合写库后验证。</td></tr>
+            <tr><td>ES API Smoke</td><td>单独测试 ES bars API。</td><td>确认 ES 可读。</td></tr>
+            <tr><td>NQ API Smoke</td><td>单独测试 NQ bars API。</td><td>确认 NQ 可读。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Tradovate Live Records</h3>
+        <table>
+          <thead><tr><th>项目</th><th>用途</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>Performance CSV</td><td>选择 Tradovate 导出的 Performance CSV。</td><td>每一行会转换为一条 closed Live Record。</td></tr>
+            <tr><td>Instrument</td><td>选择导出品种。</td><td>Auto 会按 CSV 自动分 ES/NQ；混合 CSV 会生成多个 JSON。</td></tr>
+            <tr><td>Timestamp timezone</td><td>解释 CSV 时间。</td><td>当前常用 <code>V4 chart wall time</code>；如果 CSV 是真实时区时间，可选择 New York 或 Los Angeles。</td></tr>
+            <tr><td>Output filename</td><td>输出 JSON 文件名。</td><td>选择 CSV 后会按文件名、品种、日期范围自动生成。</td></tr>
+            <tr><td>Preview CSV</td><td>预览转换结果。</td><td>显示 rows、records、wins/losses、P/L。</td></tr>
+            <tr><td>Download Review JSON</td><td>下载可导入 V4 的 Review JSON。</td><td>导入前切换 Main 到对应 instrument。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="workflows">
+        <h2>11. 常用操作流程</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>流程 A：盘中手动刷新最新 1M 数据</h3>
+            <ol class="steps">
+              <li>打开 <code>data-maintenance.html</code>。</li>
+              <li>在 Refresh Range 选择 ES 或 NQ。</li>
+              <li>点击 <code>Now</code>，End 会填当前美东时间。</li>
+              <li>点击 <code>Preflight</code>，确认 write-eligible。</li>
+              <li>点击 <code>Dry Run</code>，检查 would insert rows。</li>
+              <li>确认无误后输入 <code>WRITE ES</code> 或 <code>WRITE NQ</code>。</li>
+              <li>点击 <code>Write Data</code>。</li>
+              <li>点击 <code>Verify Data + API</code>。</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>流程 B：更新今天经济日历</h3>
+            <ol class="steps">
+              <li>打开 Economic Calendar。</li>
+              <li>点击 <code>To Today</code>。</li>
+              <li>点击 <code>Dry Run</code>。</li>
+              <li>检查 <code>would_append_rows</code>。</li>
+              <li>输入 <code>WRITE ECONOMIC</code>。</li>
+              <li>点击 <code>Write Calendar</code>。</li>
+              <li>点击 <code>Status</code> 或 <code>Verify</code>。</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>流程 C：手动确认换季</h3>
+            <ol class="steps">
+              <li>选择 Roll Calendar preset 或 Custom。</li>
+              <li>确认 Instrument、Old contract、New contract。</li>
+              <li>设置 Scan start/end，点击 <code>Scan Volume</code>。</li>
+              <li>如认可 candidate，点击 <code>Use Candidate Date</code>。</li>
+              <li>在 Note 写明人工确认依据。</li>
+              <li>点击 <code>Preview Confirm</code> 看 diff。</li>
+              <li>确认只修改目标 entry 后，点击 <code>Write Confirm</code>。</li>
+              <li>回到 Refresh Range 跑 Preflight。</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>流程 D：导入 Tradovate 成交为 Live Record</h3>
+            <ol class="steps">
+              <li>打开 Data Maintenance 的 Tradovate Live Records。</li>
+              <li>选择 Performance CSV。</li>
+              <li>Instrument 用 Auto 或指定 ES/NQ。</li>
+              <li>选择正确 Timestamp timezone。</li>
+              <li>点击 <code>Preview CSV</code> 检查结果。</li>
+              <li>点击 <code>Download Review JSON</code>。</li>
+              <li>回到主页面，切换 Main 到 JSON 对应品种。</li>
+              <li>Archive 导入 JSON。</li>
+              <li>在 Calendar 当日 Live Records 中逐条打开复盘。</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>流程 E：把 Live Record 匹配到 Setup</h3>
+            <ol class="steps">
+              <li>打开当天 Calendar。</li>
+              <li>打开目标 Live Record Detail。</li>
+              <li>在 Matched Setup 下拉中选择同日 setup。</li>
+              <li>如果已经点亮目标 setup，可点 <code>Match Active Setup</code>。</li>
+              <li>确认 matched setup label 包含正确 entry/reversal 时间。</li>
+              <li>填写 Reasons 和 Result。</li>
+              <li>点击 <code>Mark Reviewed</code>。</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>流程 F：导出当天或当前区间复盘</h3>
+            <ol class="steps">
+              <li>确认顶部 Main 是目标品种。</li>
+              <li>确认 Date Range 覆盖要导出的对象。</li>
+              <li>点击 <code>Archive</code>。</li>
+              <li>点击 Export Review JSON。</li>
+              <li>文件名中应包含品种、时间等信息。</li>
+              <li>导入时必须先切换到同一 Main。</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>12. 排错</h2>
+        <table>
+          <thead><tr><th>现象</th><th>可能原因</th><th>处理</th></tr></thead>
+          <tbody>
+            <tr><td>页面 Failed to fetch</td><td>API 未运行或端口不对。</td><td>运行 <code>bash v4/start.sh restart</code>，再检查 <code>/v4/health</code>。</td></tr>
+            <tr><td>Databento dry-run 提示缺 key</td><td>API 进程环境缺少 <code>DATABENTO_API_KEY</code>。</td><td>设置环境变量后重启 API。</td></tr>
+            <tr><td>Preflight blocked</td><td>刷新范围跨过未确认 roll boundary。</td><td>先在 Roll Calendar 确认换季，再重新 Preflight。</td></tr>
+            <tr><td>Economic dry-run 一直 running</td><td>后端任务仍在跑或锁未释放。</td><td>先点 Status；如果仍 busy，重启 API。</td></tr>
+            <tr><td>导入 JSON 失败 instrument mismatch</td><td>当前 Main 与 archive instrument 不一致。</td><td>切换 Main 到 JSON 对应品种后再导入。</td></tr>
+            <tr><td>Risk / Reward Box 不显示</td><td>Display 关闭，或 entry/stop/target/exit 不完整。</td><td>打开 Display，检查 execution 元素是否 complete。</td></tr>
+            <tr><td>Live 菜单操作不可用</td><td>没有 active live record。</td><td>双击 live 三角或在 hit menu 选择 Set Active。</td></tr>
+            <tr><td>Refresh Range 输出无新数据</td><td>时间段在周末、数据源尚未更新、或 DB 已有数据。</td><td>检查 dry-run range、databento_end_et、would_insert_rows。</td></tr>
+          </tbody>
+        </table>
+
+        <div class="danger note">
+          <strong>写入前安全顺序：</strong>Roll 先 Preview 再 Write；数据刷新先 Preflight，再 Dry Run，再 Write；经济日历先 Dry Run，再 Write Calendar。
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
