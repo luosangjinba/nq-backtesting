@@ -19,8 +19,11 @@
       --ok: #6fc17a;
     }
     * { box-sizing: border-box; }
+    html { height: 100%; }
     body {
       margin: 0;
+      min-height: 100vh;
+      overflow: auto;
       background: var(--bg);
       color: var(--text);
       font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -45,18 +48,23 @@
     }
     main {
       display: grid;
-      grid-template-columns: minmax(360px, 520px) 1fr;
-      gap: 14px;
-      padding: 14px;
-      min-height: calc(100vh - 58px);
+      grid-template-columns: minmax(380px, 520px) minmax(480px, 1fr);
+      gap: 12px;
+      min-height: calc(100vh - 78px);
+      padding: 12px;
     }
     section {
       border: 1px solid var(--border);
       background: var(--panel);
       border-radius: 6px;
       overflow: hidden;
+      min-height: 0;
     }
     .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
       padding: 10px 12px;
       border-bottom: 1px solid var(--border);
       background: var(--panel-2);
@@ -119,6 +127,15 @@
       margin-top: 10px;
     }
     .row button { flex: 1 1 150px; }
+    .header-actions {
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
+      margin: 0;
+    }
+    .header-actions button {
+      flex: 0 0 auto;
+      min-width: 128px;
+    }
     .preset {
       display: grid;
       gap: 10px;
@@ -142,11 +159,40 @@
     .pill.ok { color: var(--ok); border-color: #345f3a; }
     .pill.warn { color: var(--warn); border-color: #665225; }
     .pill.fail { color: var(--danger); border-color: #6b3636; }
+    .tools-column {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-height: 0;
+      padding-right: 3px;
+    }
+    .output-panel {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      height: calc(100vh - 102px);
+      position: sticky;
+      top: 90px;
+    }
+    .output-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+    .output-actions button {
+      min-height: 28px;
+      padding: 4px 8px;
+      flex: 0 0 auto;
+      font-size: 12px;
+    }
     pre {
+      flex: 1 1 auto;
       margin: 0;
       padding: 12px;
-      min-height: calc(100vh - 118px);
-      max-height: calc(100vh - 118px);
+      min-height: 0;
+      max-height: none;
       overflow: auto;
       background: #090d12;
       color: #c8d6e3;
@@ -154,25 +200,39 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .stack { display: grid; gap: 12px; }
     .compact { margin-top: 10px; }
     @media (max-width: 920px) {
-      main { grid-template-columns: 1fr; }
-      pre { min-height: 420px; max-height: 70vh; }
+      body {
+        min-height: 100vh;
+        overflow: auto;
+      }
+      main {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 0;
+      }
+      .tools-column {
+        padding-right: 0;
+      }
+      .output-panel {
+        position: static;
+        height: 60vh;
+        min-height: 420px;
+      }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>V4 Data Maintenance</h1>
-    <div class="row" style="margin:0">
+    <div class="row header-actions">
       <span id="statePill" class="pill">idle</span>
       <button id="clearOutput" type="button">Clear Output</button>
     </div>
   </header>
 
   <main>
-    <div class="stack">
+    <div class="tools-column">
       <section>
         <div class="section-header">Roll Calendar</div>
         <div class="content">
@@ -298,8 +358,14 @@
       </section>
     </div>
 
-    <section>
-      <div class="section-header">Output</div>
+    <section class="output-panel">
+      <div class="section-header">
+        <span>Output</span>
+        <span class="output-actions">
+          <button id="copyOutput" type="button">Copy</button>
+          <button id="scrollOutput" type="button">Latest</button>
+        </span>
+      </div>
       <pre id="output">Ready.</pre>
     </section>
   </main>
@@ -335,14 +401,18 @@
 
     function append(text) {
       output.textContent = `${output.textContent}\n\n${text}`.trim();
-      output.scrollTop = output.scrollHeight;
+      requestAnimationFrame(() => {
+        output.scrollTop = output.scrollHeight;
+      });
     }
 
     function setState(state, kind = '') {
       pill.textContent = state;
       pill.className = `pill ${kind}`;
       document.querySelectorAll('button').forEach((button) => {
-        if (button.id !== 'clearOutput') button.disabled = state === 'running';
+        if (!['clearOutput', 'copyOutput', 'scrollOutput'].includes(button.id)) {
+          button.disabled = state === 'running';
+        }
       });
     }
 
@@ -553,6 +623,18 @@
       output.textContent = 'Ready.';
       setState('idle');
     });
+    document.getElementById('scrollOutput').addEventListener('click', () => {
+      output.scrollTop = output.scrollHeight;
+    });
+    document.getElementById('copyOutput').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(output.textContent);
+        setState('copied', 'ok');
+      } catch (error) {
+        append(`copy failed: ${error.message}`);
+        setState('failed', 'fail');
+      }
+    });
   </script>
   <script type="module">
     import {
@@ -569,7 +651,9 @@
 
     function appendTradovateOutput(text) {
       output.textContent = `${output.textContent}\n\n${text}`.trim();
-      output.scrollTop = output.scrollHeight;
+      requestAnimationFrame(() => {
+        output.scrollTop = output.scrollHeight;
+      });
     }
 
     function setTradovateState(state, kind = '') {
