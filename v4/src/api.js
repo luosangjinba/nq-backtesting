@@ -12,8 +12,9 @@ export async function fetchBars(start, end, tf = 1, instrument = 'NQ') {
   return res.json();
 }
 
-export async function fetchPrice(timestamp) {
-  const res = await fetch(`${API_BASE}/v4/price?timestamp=${timestamp}`);
+export async function fetchPrice(timestamp, instrument = 'NQ') {
+  const params = new URLSearchParams({ timestamp: String(timestamp), instrument });
+  const res = await fetch(`${API_BASE}/v4/price?${params}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(err.error || `HTTP ${res.status}`);

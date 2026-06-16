@@ -559,7 +559,10 @@
       try {
         const response = await fetch(API, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-V4-Maintenance-Request': 'data-maintenance'
+          },
           body: JSON.stringify(payload),
           signal: controller.signal
         });
@@ -587,7 +590,10 @@
       try {
         const response = await fetch(API, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-V4-Maintenance-Request': 'data-maintenance'
+          },
           body: JSON.stringify({ action: 'economic_status' }),
           signal: controller.signal
         });

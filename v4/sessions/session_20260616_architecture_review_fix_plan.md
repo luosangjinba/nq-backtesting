@@ -116,3 +116,36 @@ Acceptance:
 - Split large UI/action modules when touching those areas for feature work.
 - Normalize old `v4.dateRangeHistory` / `v4.replayHistory` storage keys if cross-instrument history becomes a real workflow problem.
 - Consider documented display-read-path float usage instead of Decimal conversion in JSON read paths.
+
+## Implementation Notes
+
+### Step 292.2 Complete - `/v4/price` Instrument Scope
+
+- Backend `_handle_price` now parses `instrument` from query params and passes it into `query_price`.
+- Missing timestamp now returns a 400 instead of falling through as a generic 500.
+- Frontend `fetchPrice(timestamp, instrument = 'NQ')` now sends both timestamp and instrument.
+- Backward compatibility is preserved: omitting `instrument` still defaults to NQ.
+
+### Step 292.3 Complete - Maintenance Window Verification
+
+- Added focused regression coverage using a temporary DuckDB dataset.
+- The API daily aggregation path and `generate_daily_regime_csv.py` both exclude the 17:00-17:59 maintenance hour for the tested CME session boundary.
+- No production aggregation code change was needed because the two expressions are equivalent for the tested hour-level exclusion.
+
+### Step 292.4 Complete - Data Maintenance Request Guard
+
+- `/v4/data_maintenance/run` now requires `X-V4-Maintenance-Request: data-maintenance`.
+- `data-maintenance.html` sends the header for all maintenance POST calls.
+- Existing action allowlists, confirmation strings, mutex, and localhost binding remain unchanged.
+- This is a minimal CSRF-style guard against accidental/simple cross-site POSTs, not a full authentication system.
+
+### Step 292.5 Complete - SMT Persistence Decision
+
+- SMT records are included in history snapshots and Review JSON export/import.
+- SMT records do not have dedicated localStorage persistence.
+- Decision for this phase: keep SMT review-archive/history-scoped and document the limitation rather than adding new persistence now.
+- Rationale: current SMT is narrow-scope (`Main=NQ`, `Sub=ES`, matching timeframe), lower-frequency than Live Records / Order Setups, and not central to the current data-entry stabilization pass.
+
+### Step 292.6 Verification
+
+- `python3 -m unittest v4.tests.test_architecture_review_fixes`

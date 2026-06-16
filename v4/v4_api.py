@@ -49,6 +49,8 @@ ECONOMIC_CALENDAR_PATH = os.path.join(
 _ECONOMIC_EVENTS_CACHE = None
 _MAINTENANCE_LOCK = threading.Lock()
 _MAINTENANCE_JOB = None
+MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
+MAINTENANCE_REQUEST_VALUE = "data-maintenance"
 
 # CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
 # 日线 = 前一天18:00 ~ 当天16:59
@@ -357,6 +359,18 @@ def run_data_maintenance_action_guarded(payload):
         _MAINTENANCE_LOCK.release()
 
 
+def _is_valid_maintenance_request(headers):
+    return headers.get(MAINTENANCE_REQUEST_HEADER, "") == MAINTENANCE_REQUEST_VALUE
+
+
+def _parse_price_request(params):
+    timestamp = params.get("timestamp", [None])[0]
+    instrument = params.get("instrument", ["NQ"])[0]
+    if not timestamp:
+        raise ValueError("Missing 'timestamp' parameter")
+    return int(timestamp), instrument
+
+
 def _event_time_from_et(event_time_et):
     text = str(event_time_et or "").strip()
     if not text:
@@ -570,6 +584,10 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(f"Unknown endpoint: {path}", 404)
             return
 
+        if not _is_valid_maintenance_request(self.headers):
+            self._send_error("Missing or invalid data maintenance request header", 403)
+            return
+
         try:
             payload = _read_json_body(self)
             result = run_data_maintenance_action_guarded(payload)
@@ -614,15 +632,12 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(str(e), 500)
 
     def _handle_price(self, params):
-        timestamp = params.get("timestamp", [None])[0]
-
-        if not timestamp:
-            self._send_error("Missing 'timestamp' parameter")
-            return
-
         try:
-            result = query_price(int(timestamp), DB_PATH, TABLE_NAME)
+            timestamp, instrument = _parse_price_request(params)
+            result = query_price(timestamp, DB_PATH, TABLE_NAME, instrument)
             self._send_json(result)
+        except ValueError as e:
+            self._send_error(str(e), 400)
         except Exception as e:
             self._send_error(str(e), 500)
 
@@ -642,7 +657,7 @@ class V4Handler(BaseHTTPRequestHandler):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", f"Content-Type, {MAINTENANCE_REQUEST_HEADER}")
         self.end_headers()
 
     def log_message(self, format, *args):
