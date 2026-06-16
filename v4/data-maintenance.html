@@ -246,6 +246,32 @@
   <main>
     <div class="tools-column">
       <section>
+        <div class="section-header">Refresh Range</div>
+        <div class="content">
+          <div class="grid">
+            <label>Instrument <select id="refreshInstrument"><option>ES</option><option>NQ</option></select></label>
+            <label>Chunk days <input id="chunkDays" type="number" min="1" max="30" value="3"></label>
+            <label>Start optional <input id="start" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
+            <label>End required <input id="end" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
+          </div>
+          <div class="row">
+            <button id="endNow" type="button">Now</button>
+            <button id="endSessionClose" type="button">Session Close</button>
+          </div>
+          <div class="row">
+            <button id="preflight" type="button">Preflight</button>
+            <button id="dryRun" class="primary" type="button">Dry Run</button>
+          </div>
+          <div class="compact">
+            <label>Write confirmation <input id="confirmText" placeholder="WRITE ES or WRITE NQ"></label>
+            <div class="row">
+              <button id="writeData" class="danger" type="button">Write Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
         <div class="section-header">Roll Calendar</div>
         <div class="content">
           <div class="preset">
@@ -277,32 +303,6 @@
             <button data-action="roll_report" type="button">Roll Report</button>
             <button id="previewRoll" class="primary" type="button">Preview Confirm</button>
             <button id="writeRoll" class="danger" type="button">Write Confirm</button>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="section-header">Refresh Range</div>
-        <div class="content">
-          <div class="grid">
-            <label>Instrument <select id="refreshInstrument"><option>ES</option><option>NQ</option></select></label>
-            <label>Chunk days <input id="chunkDays" type="number" min="1" max="30" value="3"></label>
-            <label>Start optional <input id="start" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
-            <label>End required <input id="end" placeholder="YYYY-MM-DDTHH:MM:SS"></label>
-          </div>
-          <div class="row">
-            <button id="endNow" type="button">Now</button>
-            <button id="endSessionClose" type="button">Session Close</button>
-          </div>
-          <div class="row">
-            <button id="preflight" type="button">Preflight</button>
-            <button id="dryRun" class="primary" type="button">Dry Run</button>
-          </div>
-          <div class="compact">
-            <label>Write confirmation <input id="confirmText" placeholder="WRITE ES or WRITE NQ"></label>
-            <div class="row">
-              <button id="writeData" class="danger" type="button">Write Data</button>
-            </div>
           </div>
         </div>
       </section>
