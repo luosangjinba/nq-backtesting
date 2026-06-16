@@ -279,6 +279,12 @@
             <label>To date <input id="economicTo" placeholder="YYYY-MM-DD"></label>
           </div>
           <div class="row">
+            <button id="economicToday" type="button">Today</button>
+            <button id="economicThisWeek" type="button">This Week</button>
+            <button id="economicNextWeek" type="button">Next Week</button>
+            <button id="economicToToday" type="button">To Today</button>
+          </div>
+          <div class="row">
             <button id="economicStatus" type="button">Status</button>
             <button id="economicDryRun" class="primary" type="button">Dry Run</button>
             <button id="economicVerify" type="button">Verify</button>
@@ -320,6 +326,16 @@
               </select>
             </label>
             <label>Note <textarea id="note">Manual trading system switched to ESU6 on 2026-06-15.</textarea></label>
+          </div>
+          <div class="compact">
+            <div class="grid">
+              <label>Scan start <input id="rollScanStart" placeholder="YYYY-MM-DD"></label>
+              <label>Scan end <input id="rollScanEnd" placeholder="YYYY-MM-DD"></label>
+            </div>
+            <div class="row">
+              <button id="scanRollVolume" type="button">Scan Volume</button>
+              <button id="useRollCandidate" type="button">Use Candidate Date</button>
+            </div>
           </div>
           <div class="row">
             <button data-action="roll_report" type="button">Roll Report</button>
@@ -391,6 +407,7 @@
     const REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');
+    let lastRollCandidateDate = '';
     const presets = {
       ES_JUN: {
         instrument: 'ES',
@@ -443,6 +460,50 @@
       return `${parts.year}-${parts.month}-${parts.day}`;
     }
 
+    function parseDateInput(dateText) {
+      const match = String(dateText || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return null;
+      return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+    }
+
+    function formatDateInputFromUtc(date) {
+      return [
+        date.getUTCFullYear(),
+        String(date.getUTCMonth() + 1).padStart(2, '0'),
+        String(date.getUTCDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    function addDateInputDays(dateText, days) {
+      const date = parseDateInput(dateText);
+      if (!date) return '';
+      date.setUTCDate(date.getUTCDate() + days);
+      return formatDateInputFromUtc(date);
+    }
+
+    function setEconomicDateRange(fromDate, toDate) {
+      setValue('economicFrom', fromDate);
+      setValue('economicTo', toDate);
+    }
+
+    function setRollScanRangeAroundRollDate() {
+      const rollDate = value('rollDate');
+      if (!parseDateInput(rollDate)) return;
+      setValue('rollScanStart', addDateInputDays(rollDate, -5));
+      setValue('rollScanEnd', addDateInputDays(rollDate, 4));
+    }
+
+    function getWeekRange(dateText, offsetWeeks = 0) {
+      const date = parseDateInput(dateText);
+      if (!date) return { from: dateText, to: dateText };
+      const day = date.getUTCDay();
+      const daysFromMonday = day === 0 ? 6 : day - 1;
+      date.setUTCDate(date.getUTCDate() - daysFromMonday + offsetWeeks * 7);
+      const from = formatDateInputFromUtc(date);
+      date.setUTCDate(date.getUTCDate() + 6);
+      return { from, to: formatDateInputFromUtc(date) };
+    }
+
     function setEndToNow() {
       setValue('end', formatEasternDateTimeInput(new Date()));
     }
@@ -454,8 +515,19 @@
 
     function setEconomicDatesToToday() {
       const today = formatEasternDateInput(new Date());
-      setValue('economicFrom', today);
-      setValue('economicTo', today);
+      setEconomicDateRange(today, today);
+    }
+
+    function setEconomicDatesToThisWeek() {
+      const today = formatEasternDateInput(new Date());
+      const range = getWeekRange(today, 0);
+      setEconomicDateRange(range.from, range.to);
+    }
+
+    function setEconomicDatesToNextWeek() {
+      const today = formatEasternDateInput(new Date());
+      const range = getWeekRange(today, 1);
+      setEconomicDateRange(range.from, range.to);
     }
 
     function append(text) {
@@ -491,9 +563,45 @@
         const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
         append(formatResult(payload, data, response.status, header));
         setState(data.ok ? 'ok' : 'failed', data.ok ? 'ok' : 'fail');
+        return data;
       } catch (error) {
         append(error.name === 'AbortError'
           ? `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds. The backend may still be finishing the action; use Status/Verify or restart the API if it stays busy.`
+          : `request failed: ${error.message}`);
+        setState('failed', 'fail');
+        return null;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    async function setEconomicDatesToLatestGap() {
+      setState('running', 'warn');
+      append('> economic_status');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const response = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'economic_status' }),
+          signal: controller.signal
+        });
+        const data = await response.json();
+        const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
+        append(formatResult({ action: 'economic_status' }, data, response.status, header));
+        if (!data.ok) {
+          setState('failed', 'fail');
+          return;
+        }
+        const latest = extract(data.output || '', /^date_max:\s*(.+)$/m);
+        const today = formatEasternDateInput(new Date());
+        const nextDate = addDateInputDays(latest, 1);
+        setEconomicDateRange(nextDate && nextDate <= today ? nextDate : today, today);
+        setState('ok', 'ok');
+      } catch (error) {
+        append(error.name === 'AbortError'
+          ? `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds.`
           : `request failed: ${error.message}`);
         setState('failed', 'fail');
       } finally {
@@ -566,6 +674,23 @@
       } else if (payload.action === 'roll_report') {
         const count = extract(out, /^reported_entries:\s*(.+)$/m);
         lines.push(count === '0' ? 'No roll entries currently need attention.' : `Roll entries needing attention: ${count || 'unknown'}.`);
+      } else if (payload.action === 'roll_scan_volume') {
+        const oldTotal = extract(out, /^old_total_volume:\s*(.+)$/m);
+        const newTotal = extract(out, /^new_total_volume:\s*(.+)$/m);
+        const overtake = extract(out, /^first_new_overtake_date:\s*(.+)$/m);
+        const consecutive = extract(out, /^first_consecutive_new_dominance_date:\s*(.+)$/m);
+        const candidate = extract(out, /^candidate_roll_date:\s*(.+)$/m);
+        const candidateStatus = extract(out, /^candidate_status:\s*(.+)$/m);
+        if (oldTotal) lines.push(`Old contract total volume: ${oldTotal}.`);
+        if (newTotal) lines.push(`New contract total volume: ${newTotal}.`);
+        if (overtake) lines.push(`First new-contract overtake date: ${overtake}.`);
+        if (consecutive) lines.push(`First consecutive new-dominance date: ${consecutive}.`);
+        if (candidate && candidate !== 'n/a') {
+          lines.push(`Candidate roll date: ${candidate}. Use Candidate Date can fill Roll date.`);
+        } else {
+          lines.push('No candidate roll date was detected.');
+        }
+        if (candidateStatus) lines.push(`Candidate status: ${candidateStatus}.`);
       } else if (payload.action === 'confirm_roll_preview') {
         lines.push('Preview only. No calendar file was changed.');
         if (/^\+/m.test(out) || /^-/m.test(out)) lines.push('Review the diff in Raw Output before using Write Confirm.');
@@ -639,6 +764,17 @@
       };
     }
 
+    function rollScanPayload() {
+      return {
+        action: 'roll_scan_volume',
+        instrument: value('instrument'),
+        oldContract: value('oldContract'),
+        newContract: value('newContract'),
+        scanStart: value('rollScanStart'),
+        scanEnd: value('rollScanEnd')
+      };
+    }
+
     function refreshPayload(action) {
       return {
         action,
@@ -669,20 +805,41 @@
       setValue('note', preset.note);
       setValue('refreshInstrument', preset.instrument);
       setValue('confirmText', '');
+      setRollScanRangeAroundRollDate();
     });
 
     document.querySelectorAll('[data-action]').forEach((button) => {
       button.addEventListener('click', () => run({ action: button.dataset.action }));
     });
+    document.getElementById('scanRollVolume').addEventListener('click', async () => {
+      lastRollCandidateDate = '';
+      const payload = rollScanPayload();
+      const data = await run(payload);
+      const candidate = extract(data?.output || '', /^candidate_roll_date:\s*(.+)$/m);
+      lastRollCandidateDate = candidate && candidate !== 'n/a' ? candidate : '';
+    });
+    document.getElementById('useRollCandidate').addEventListener('click', () => {
+      if (!lastRollCandidateDate) {
+        append('No roll volume candidate date is available yet. Run Scan Volume first.');
+        return;
+      }
+      setValue('rollDate', lastRollCandidateDate);
+      append(`Roll date set to candidate ${lastRollCandidateDate}. Preview before writing.`);
+    });
     document.getElementById('previewRoll').addEventListener('click', () => run(rollPayload('confirm_roll_preview')));
     document.getElementById('writeRoll').addEventListener('click', () => run(rollPayload('confirm_roll_write')));
     document.getElementById('endNow').addEventListener('click', setEndToNow);
     document.getElementById('endSessionClose').addEventListener('click', setEndToSessionClose);
+    document.getElementById('rollDate').addEventListener('change', setRollScanRangeAroundRollDate);
     document.getElementById('preflight').addEventListener('click', () => run(refreshPayload('preflight')));
     document.getElementById('dryRun').addEventListener('click', () => run(refreshPayload('dry_run')));
     document.getElementById('writeData').addEventListener('click', () => run(refreshPayload('write')));
     document.getElementById('smokeEs').addEventListener('click', () => run({ action: 'api_smoke', instrument: 'ES' }));
     document.getElementById('smokeNq').addEventListener('click', () => run({ action: 'api_smoke', instrument: 'NQ' }));
+    document.getElementById('economicToday').addEventListener('click', setEconomicDatesToToday);
+    document.getElementById('economicThisWeek').addEventListener('click', setEconomicDatesToThisWeek);
+    document.getElementById('economicNextWeek').addEventListener('click', setEconomicDatesToNextWeek);
+    document.getElementById('economicToToday').addEventListener('click', setEconomicDatesToLatestGap);
     document.getElementById('economicStatus').addEventListener('click', () => run({ action: 'economic_status' }));
     document.getElementById('economicVerify').addEventListener('click', () => run({ action: 'economic_verify' }));
     document.getElementById('economicDryRun').addEventListener('click', () => run(economicPayload('economic_dry_run')));
@@ -705,6 +862,7 @@
     });
     setEndToNow();
     setEconomicDatesToToday();
+    setRollScanRangeAroundRollDate();
   </script>
   <script type="module">
     import {

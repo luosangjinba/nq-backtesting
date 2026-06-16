@@ -201,6 +201,7 @@ def _run_maintenance_command(args, timeout=600):
 def run_data_maintenance_action(payload):
     action = _choice(payload.get("action"), {
         "roll_report",
+        "roll_scan_volume",
         "confirm_roll_preview",
         "confirm_roll_write",
         "preflight",
@@ -218,6 +219,23 @@ def run_data_maintenance_action(payload):
     python = sys.executable
     if action == "roll_report":
         return _run_maintenance_command([python, "v4/scripts/scan_roll_volume_candidates.py", "--report-calendar"])
+
+    if action == "roll_scan_volume":
+        instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
+        old_contract = _clean_text(payload.get("oldContract"), 20)
+        new_contract = _clean_text(payload.get("newContract"), 20)
+        start = _optional_datetime(payload.get("scanStart"), "scanStart")
+        end = _optional_datetime(payload.get("scanEnd"), "scanEnd")
+        if not start or not end:
+            raise ValueError("scanStart and scanEnd are required")
+        return _run_maintenance_command([
+            python, "v4/scripts/scan_roll_volume_candidates.py",
+            "--instrument", instrument,
+            "--old-contract", old_contract,
+            "--new-contract", new_contract,
+            "--start", start,
+            "--end", end,
+        ], timeout=1800)
 
     if action in {"confirm_roll_preview", "confirm_roll_write"}:
         instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
