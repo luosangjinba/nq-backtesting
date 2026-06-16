@@ -403,26 +403,35 @@
       document.getElementById(id).value = next;
     }
 
-    function pad2(value) {
-      return String(value).padStart(2, '0');
+    function getEasternParts(date = new Date()) {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).formatToParts(date);
+      return Object.fromEntries(
+        parts
+          .filter((part) => part.type !== 'literal')
+          .map((part) => [part.type, part.value])
+      );
     }
 
-    function formatLocalDateTimeInput(date) {
-      return [
-        date.getFullYear(),
-        pad2(date.getMonth() + 1),
-        pad2(date.getDate()),
-      ].join('-') + `T${pad2(date.getHours())}:${pad2(date.getMinutes())}:00`;
+    function formatEasternDateTimeInput(date) {
+      const parts = getEasternParts(date);
+      return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:00`;
     }
 
     function setEndToNow() {
-      setValue('end', formatLocalDateTimeInput(new Date()));
+      setValue('end', formatEasternDateTimeInput(new Date()));
     }
 
     function setEndToSessionClose() {
-      const date = new Date();
-      date.setHours(17, 0, 0, 0);
-      setValue('end', formatLocalDateTimeInput(date));
+      const parts = getEasternParts(new Date());
+      setValue('end', `${parts.year}-${parts.month}-${parts.day}T17:00:00`);
     }
 
     function append(text) {
