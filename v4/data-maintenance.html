@@ -275,8 +275,8 @@
         <div class="section-header">Economic Calendar</div>
         <div class="content">
           <div class="grid">
-            <label>From date <input id="economicFrom" value="2025-01-06"></label>
-            <label>To date <input id="economicTo" value="2026-06-15"></label>
+            <label>From date <input id="economicFrom" placeholder="YYYY-MM-DD"></label>
+            <label>To date <input id="economicTo" placeholder="YYYY-MM-DD"></label>
           </div>
           <div class="row">
             <button id="economicStatus" type="button">Status</button>
@@ -388,6 +388,7 @@
 
   <script>
     const API = 'http://127.0.0.1:8766/v4/data_maintenance/run';
+    const REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');
     const presets = {
@@ -437,6 +438,11 @@
       return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:00`;
     }
 
+    function formatEasternDateInput(date = new Date()) {
+      const parts = getEasternParts(date);
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
+
     function setEndToNow() {
       setValue('end', formatEasternDateTimeInput(new Date()));
     }
@@ -444,6 +450,12 @@
     function setEndToSessionClose() {
       const parts = getEasternParts(new Date());
       setValue('end', `${parts.year}-${parts.month}-${parts.day}T17:00:00`);
+    }
+
+    function setEconomicDatesToToday() {
+      const today = formatEasternDateInput(new Date());
+      setValue('economicFrom', today);
+      setValue('economicTo', today);
     }
 
     function append(text) {
@@ -466,19 +478,26 @@
     async function run(payload) {
       setState('running', 'warn');
       append(`> ${payload.action}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
       try {
         const response = await fetch(API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
         const data = await response.json();
         const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
         append(formatResult(payload, data, response.status, header));
         setState(data.ok ? 'ok' : 'failed', data.ok ? 'ok' : 'fail');
       } catch (error) {
-        append(`request failed: ${error.message}`);
+        append(error.name === 'AbortError'
+          ? `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds. The backend may still be finishing the action; use Status/Verify or restart the API if it stays busy.`
+          : `request failed: ${error.message}`);
         setState('failed', 'fail');
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
@@ -685,6 +704,7 @@
       }
     });
     setEndToNow();
+    setEconomicDatesToToday();
   </script>
   <script type="module">
     import {
