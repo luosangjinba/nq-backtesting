@@ -922,3 +922,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 292.4: Add Data Maintenance request guard：`/v4/data_maintenance/run` 增加 `X-V4-Maintenance-Request: data-maintenance` guard；`data-maintenance.html` 所有 maintenance POST 都发送该 header；保留现有 action allowlist、确认串、mutex 和 localhost 边界。
   - [x] Step 292.5: Decide SMT persistence status：审计确认 SMT 进入 history snapshot 与 Review JSON export/import，但无 dedicated localStorage；本阶段决策为 review-archive/history-scoped，不新增 persistence，避免扩大当前数据录入稳定化范围。
   - [x] Step 292.6: Regression and closeout：新增并通过 `v4/tests/test_architecture_review_fixes.py`；P3 架构重构继续 deferred，包括大文件拆分、persistence factory、旧 storage key 收敛和 JSON read-path Decimal 说明。
+
+- [ ] Step 293: Performance Baseline / Benchmark。目标是吸收 `v4/docs/user/v4-performance-review.md` 的效率发现，但先建立可重复的性能基线，不直接做 DuckDB 物理重排、连接池或 renderer diff 大改。计划见 `v4/sessions/session_20260616_performance_baseline_plan.md`。
+  - [x] Step 293.1: Track performance review report：将 `v4/docs/user/v4-performance-review.md` 纳入仓库，并从 `v4/docs/README.md` 链接；明确这是 pending baseline，不是已完成修复清单。
+  - [ ] Step 293.2: Backend query benchmark script：新增只读 benchmark，覆盖 NQ/ES 的 1m、5m/15m、1H、D 聚合和 `/v4/price` 等价查价；输出 rows、elapsed ms、instrument、timeframe、range 和 run 次数。
+  - [ ] Step 293.3: DuckDB physical layout / zonemap inspection：新增只读诊断 row count、min/max ts、duplicate keys、物理排序迹象和可行的 `EXPLAIN` 信息；本步不改写生产 DB。
+  - [ ] Step 293.4: Frontend render selection benchmark：新增浏览器或页面内 benchmark，构造可控数量的 PDA/Segment/Order Setup/Live Record，测 selection-change render 与 data-change render 的耗时。
+  - [ ] Step 293.5: Performance decision matrix：基于实测结果决定后续是否进入连接复用、DB 物理重排、renderer selection split、ChartNote layout cache 或 replay index/RAF 优化。
+  - [ ] Step 293.6: Closeout：跑新增 benchmark/smoke 和 `git diff --check`，更新 TODO/session；确保本 step 没混入生产行为优化。

@@ -36,6 +36,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [Databento insert-only updater plan](planning/DATABENTO_INSERT_ONLY_UPDATER_PLAN.md)
 - [Data freshness refresh workflow](user/DATA_FRESHNESS_REFRESH.md)
 - [Archived V4 architecture review 2026-06-16](user/v4-architecture-review.md) - high-priority items handled in Step 292
+- [V4 performance review 2026-06-16](user/v4-performance-review.md) - pending baseline in Step 293
 
 ## Historical Docs
 
