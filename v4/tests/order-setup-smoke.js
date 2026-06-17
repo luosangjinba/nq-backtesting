@@ -4,6 +4,7 @@ import {
   clearOrderReviews,
   getOrderReviewById,
   getOrderReviews,
+  isLowTimeframe,
   loadOrderReviews,
   updateOrderReview,
 } from '../src/order/order-review-store.js';
@@ -40,6 +41,7 @@ import {
   redo,
   undo,
 } from '../src/history/history-manager.js';
+
 import {
   addLiveRecord,
   loadLiveRecords,
@@ -48,6 +50,11 @@ import {
   getActiveLiveRecordId,
   setActiveLiveRecord,
 } from '../src/live-record/live-record-active.js';
+
+assert.equal(isLowTimeframe('2m'), true, '2M should normalize as a low timeframe');
+assert.equal(isLowTimeframe('3M'), true, '3M should normalize as a low timeframe');
+assert.equal(isLowTimeframe('4m'), true, '4M should normalize as a low timeframe');
+assert.equal(isLowTimeframe('10M'), true, '10M should normalize as a low timeframe');
 
 function installLocalStorageMock() {
   const items = new Map();

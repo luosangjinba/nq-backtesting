@@ -4,7 +4,11 @@ export const API_BASE = 'http://127.0.0.1:8766';
 
 export const TIMEFRAME_MAP = {
   1: '1M',
+  2: '2M',
+  3: '3M',
+  4: '4M',
   5: '5M',
+  10: '10M',
   15: '15M',
   30: '30M',
   60: '1H',
@@ -15,7 +19,11 @@ export const TIMEFRAME_MAP = {
 
 export const TIMEFRAME_TO_SECONDS = {
   '1M': 60,
+  '2M': 120,
+  '3M': 180,
+  '4M': 240,
   '5M': 300,
+  '10M': 600,
   '15M': 900,
   '30M': 1800,
   '1H': 3600,

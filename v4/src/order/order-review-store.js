@@ -166,7 +166,9 @@ export function isLowTimeframe(timeframe) {
     ORDER_TIMEFRAME_ALIASES,
     ''
   );
-  return normalized === ORDER_TIMEFRAMES['1M'] || normalized === ORDER_TIMEFRAMES['5M'];
+  return ['1M', '2M', '3M', '4M', '5M', '10M'].some(
+    (key) => normalized === ORDER_TIMEFRAMES[key]
+  );
 }
 
 function normalizeBoolean(value, fallback = false) {

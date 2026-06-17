@@ -8,6 +8,10 @@ import {
 
 assert.equal(estimateRequestedBars('2024-01-01 00:00', '2024-01-02 00:00', 1), 1479);
 assert.equal(getMaxEstimatedBars(1), 64839);
+assert.equal(getMaxEstimatedBars(2), 32439);
+assert.equal(getMaxEstimatedBars(3), 21639);
+assert.equal(getMaxEstimatedBars(4), 16239);
+assert.equal(getMaxEstimatedBars(10), 25959);
 
 const normalOneMinute = validateSingleWindowRange('2024-01-01 00:00', '2024-01-15 00:00', 1);
 assert.equal(normalOneMinute.ok, true);
@@ -29,5 +33,12 @@ assert.equal(normalHourly.ok, true);
 
 const normalFifteenMinuteYear = validateSingleWindowRange('2024-01-01 00:00', '2024-12-31 00:00', 15);
 assert.equal(normalFifteenMinuteYear.ok, true);
+
+const normalTenMinuteHalfYear = validateSingleWindowRange('2024-01-01 00:00', '2024-06-15 00:00', 10);
+assert.equal(normalTenMinuteHalfYear.ok, true);
+
+const oversizedTwoMinute = validateSingleWindowRange('2024-01-01 00:00', '2024-03-01 00:00', 2);
+assert.equal(oversizedTwoMinute.ok, false);
+assert.match(oversizedTwoMinute.message, /2m/);
 
 console.log('load range policy smoke passed');

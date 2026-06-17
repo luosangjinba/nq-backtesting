@@ -56,6 +56,13 @@ def create_test_db(path: Path) -> None:
 
 
 class ArchitectureReviewFixTests(unittest.TestCase):
+    def test_short_intraday_timeframes_have_explicit_backend_load_limits(self) -> None:
+        self.assertEqual(v4_api._get_load_range_limit_days(2), 45)
+        self.assertEqual(v4_api._get_load_range_limit_days(3), 45)
+        self.assertEqual(v4_api._get_load_range_limit_days(4), 45)
+        self.assertEqual(v4_api._get_load_range_limit_days(10), 180)
+        self.assertEqual(v4_api._get_load_range_max_estimated_bars(10), 25959)
+
     def test_price_request_parser_and_lookup_respect_instrument_parameter(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             db_path = Path(temp_dir) / "test.duckdb"

@@ -21,7 +21,11 @@ const intradayBar = { timestamp: timestamp('2012-01-03T09:30:00'), tradingDay: '
 const dailyBar = { timestamp: timestamp('2012-01-03T18:00:00'), tradingDay: '2012-01-04' };
 
 assert(getBarChartTime(intradayBar, 1) === intradayBar.timestamp, '1M bars should use timestamp');
+assert(getBarChartTime(intradayBar, 2) === intradayBar.timestamp, '2M bars should use timestamp');
+assert(getBarChartTime(intradayBar, 3) === intradayBar.timestamp, '3M bars should use timestamp');
+assert(getBarChartTime(intradayBar, 4) === intradayBar.timestamp, '4M bars should use timestamp');
 assert(getBarChartTime(intradayBar, 5) === intradayBar.timestamp, '5M bars should use timestamp');
+assert(getBarChartTime(intradayBar, 10) === intradayBar.timestamp, '10M bars should use timestamp');
 assert(getBarChartTime(intradayBar, 60) === intradayBar.timestamp, '1H bars should use timestamp');
 assert(getBarChartTime(dailyBar, 1440) === '2012-01-04', 'D bars should use tradingDay');
 
@@ -40,6 +44,10 @@ assert(
 assert(
   mapTimestampToChartTime(timestamp('2012-01-03T09:31:45'), 1) === timestamp('2012-01-03T09:31:00'),
   'intraday timestamps map to bucket start'
+);
+assert(
+  mapTimestampToChartTime(timestamp('2012-01-03T09:39:45'), 10) === timestamp('2012-01-03T09:30:00'),
+  '10M timestamps map to the 10 minute bucket start'
 );
 assert(
   mapTimestampToChartTime(dailyBar.timestamp, 1440, [dailyBar]) === dailyBar.tradingDay,

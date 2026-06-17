@@ -61,7 +61,11 @@ ALLOWED_MAINTENANCE_ORIGINS = {
 DAILY_ANCHOR_OFFSET = 18 * 3600  # 64800 seconds
 LOAD_RANGE_LIMITS_DAYS = {
     1: 45,
+    2: 45,
+    3: 45,
+    4: 45,
     5: 90,
+    10: 180,
     15: 365,
     30: 365,
     60: 730,

@@ -181,7 +181,11 @@ export const ORDER_ENTRY_SESSION_DEFINITIONS = [
 
 export const ORDER_TIMEFRAME_DEFINITIONS = [
   { value: '1M', label: '1M', active: true, aliases: ['1m'] },
+  { value: '2M', label: '2M', active: true, aliases: ['2m'] },
+  { value: '3M', label: '3M', active: true, aliases: ['3m'] },
+  { value: '4M', label: '4M', active: true, aliases: ['4m'] },
   { value: '5M', label: '5M', active: true, aliases: ['5m'] },
+  { value: '10M', label: '10M', active: true, aliases: ['10m'] },
   { value: '15M', label: '15M', active: true, aliases: ['15m'] },
   { value: '30M', label: '30M', active: true, aliases: ['30m'] },
   { value: '1H', label: '1H', active: true, aliases: ['60M', '60m', '1h'] },

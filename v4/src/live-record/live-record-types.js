@@ -84,7 +84,11 @@ export const LIVE_RECORD_TARGET_TYPES = Object.freeze({
 
 export const LIVE_RECORD_TIMEFRAMES = Object.freeze({
   '1M': '1M',
+  '2M': '2M',
+  '3M': '3M',
+  '4M': '4M',
   '5M': '5M',
+  '10M': '10M',
   '15M': '15M',
   '30M': '30M',
   '1H': '1H',
@@ -138,8 +142,16 @@ export const LIVE_RECORD_EXIT_TYPE_ALIASES = new Map([
 export const LIVE_RECORD_TIMEFRAME_ALIASES = new Map([
   ['1', LIVE_RECORD_TIMEFRAMES['1M']],
   ['1m', LIVE_RECORD_TIMEFRAMES['1M']],
+  ['2', LIVE_RECORD_TIMEFRAMES['2M']],
+  ['2m', LIVE_RECORD_TIMEFRAMES['2M']],
+  ['3', LIVE_RECORD_TIMEFRAMES['3M']],
+  ['3m', LIVE_RECORD_TIMEFRAMES['3M']],
+  ['4', LIVE_RECORD_TIMEFRAMES['4M']],
+  ['4m', LIVE_RECORD_TIMEFRAMES['4M']],
   ['5', LIVE_RECORD_TIMEFRAMES['5M']],
   ['5m', LIVE_RECORD_TIMEFRAMES['5M']],
+  ['10', LIVE_RECORD_TIMEFRAMES['10M']],
+  ['10m', LIVE_RECORD_TIMEFRAMES['10M']],
   ['15', LIVE_RECORD_TIMEFRAMES['15M']],
   ['15m', LIVE_RECORD_TIMEFRAMES['15M']],
   ['30', LIVE_RECORD_TIMEFRAMES['30M']],

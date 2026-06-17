@@ -938,3 +938,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 294.4: Tighten CORS preflight for maintenance endpoint：`do_OPTIONS()` 对 maintenance endpoint 只向允许 Origin 返回 maintenance custom header，不再对 wildcard Origin 放行 `X-V4-Maintenance-Request`；其他 read-only GET endpoint 保持 wildcard CORS。
   - [x] Step 294.5: Focused tests：扩展 `v4/tests/test_architecture_review_fixes.py`，覆盖 allowed Origin、evil Origin、missing header、no-Origin local request 和 CORS helper 行为。
   - [x] Step 294.6: Closeout：`v4-fix-review.md` 已标记 archived/handled；已跑 focused tests、py_compile 和 `git diff --check`。
+
+- [x] Step 295: Short Intraday Timeframes。目标是在不新增原始数据和不改变 DB schema 的前提下，给 V4 增加 `2M` / `3M` / `4M` / `10M` 图表周期，并保证 Order Setup、Live Record、Replay/Archive 显示和加载范围策略都能识别这些周期。已完成前端 `TIMEFRAME_MAP`、秒数映射、前后端 load-range limit、Order/Live timeframe enum 与 alias、low-timeframe 判定、focused smoke 和 backend helper tests。计划与收口见 `v4/sessions/session_20260616_short_intraday_timeframes_plan.md`。
+  - [x] Step 295.1: Audit timeframe entry points：确认 Toolbar、Inspector timeframe dropdown、secondary chart label 等从 `TIMEFRAME_MAP` 派生；后端 bars 查询支持任意正整数分钟聚合，主要缺口是显式映射、加载范围和 Journal enum。
+  - [x] Step 295.2: Add chart timeframe mappings：`TIMEFRAME_MAP` / `TIMEFRAME_TO_SECONDS` 增加 `2M`、`3M`、`4M`、`10M`，Toolbar Main/Sub TF 自动出现新选项。
+  - [x] Step 295.3: Add load-range limits：前端 `load-range-policy` 和后端 `v4_api.py` 同步新增 limit；`2/3/4m` 单窗口 45 天，`10m` 单窗口 180 天，控制单次 bars 数量。
+  - [x] Step 295.4: Add Journal timeframe compatibility：Order Setup timeframe definitions、Live Record timeframe definitions/aliases 增加新周期；`2/3/4/10M` 归入 low timeframe，避免低周期提示/派生行为不一致。
+  - [x] Step 295.5: Focused verification：更新并通过 load-range、order-review-types、order-setup、live-record、time-projection 和 backend architecture focused tests；确认新周期能被选择、规范化、持久化和恢复。

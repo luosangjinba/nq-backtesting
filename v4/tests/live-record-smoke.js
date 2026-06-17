@@ -146,6 +146,23 @@ record.summary = 'mutated outside';
 assert.equal(getLiveRecordById('live-smoke').summary, 'Initial live record', 'store returns clones');
 assert.equal(getOrderReviewById(setup.id).id, setup.id, 'adding live record does not mutate setup');
 
+const shortTimeframeRecord = addLiveRecord({
+  id: 'live-short-timeframes',
+  instrument: 'NQ',
+  anchor: { timestamp: 1710770400, timeframe: '2m', price: 18366.36 },
+  execution: {
+    entry: { timestamp: 1710770460, timeframe: '3m', price: 18361.25 },
+    stopLoss: { timestamp: 1710770520, timeframe: '4m', price: 18371.25 },
+    targets: [{ role: 'targetInternal1', timestamp: 1710770580, timeframe: '10m', price: 18325.5 }],
+  },
+  result: { exitTimestamp: 1710770640, exitTimeframe: '10m', exitPrice: 18325.5 },
+}, { now: 3 });
+assert.equal(shortTimeframeRecord.anchor.timeframe, '2M', '2m anchor timeframe normalizes');
+assert.equal(shortTimeframeRecord.execution.entry.timeframe, '3M', '3m entry timeframe normalizes');
+assert.equal(shortTimeframeRecord.execution.stopLoss.timeframe, '4M', '4m stop timeframe normalizes');
+assert.equal(shortTimeframeRecord.execution.targets[0].timeframe, '10M', '10m target timeframe normalizes');
+assert.equal(shortTimeframeRecord.result.exitTimeframe, '10M', '10m result timeframe normalizes');
+
 assert.equal(setActiveLiveRecord(record.id), true, 'live record can be active before setup selection');
 assert.equal(selectOrderSetupElement(setup.id, 'anchor')?.setupId, setup.id, 'order setup anchor can be selected');
 assert.equal(getActiveLiveRecordId(), null, 'selecting order setup anchor clears active live record highlight');
@@ -260,8 +277,9 @@ addLiveRecord({
 }, { now: 3 });
 assert.equal(saveLiveRecords('ES'), true, 'ES live records save');
 loadLiveRecords([]);
-assert.equal(restoreLiveRecords('NQ'), 3, 'NQ restore loads instrument records');
+assert.equal(restoreLiveRecords('NQ'), 4, 'NQ restore loads instrument records');
 assert.equal(getLiveRecordById('live-smoke').instrument, 'NQ', 'NQ record restored');
+assert.equal(getLiveRecordById('live-short-timeframes').anchor.timeframe, '2M', 'NQ short timeframe record restored');
 assert.equal(getLiveRecordById('live-rich-shape').execution.targets[0].role, 'targetExternal1', 'NQ rich record shape restored');
 loadLiveRecords([]);
 assert.equal(restoreLiveRecords('ES'), 1, 'ES restore loads one record');

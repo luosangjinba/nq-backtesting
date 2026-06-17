@@ -3,7 +3,11 @@ const DAY_MS = 24 * 60 * MINUTE_MS;
 
 export const LOAD_RANGE_LIMITS_DAYS = Object.freeze({
   1: 45,
+  2: 45,
+  3: 45,
+  4: 45,
   5: 90,
+  10: 180,
   15: 365,
   30: 365,
   60: 730,
