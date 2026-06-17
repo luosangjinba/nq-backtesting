@@ -149,6 +149,29 @@
       color: var(--muted);
       font-size: 12px;
     }
+    .env-table {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .env-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) minmax(92px, auto) minmax(92px, auto);
+      gap: 8px;
+      align-items: center;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: #0d131a;
+    }
+    .env-row strong {
+      color: #c8d6e3;
+      font-weight: 650;
+    }
+    .env-row span {
+      color: var(--muted);
+    }
     .pill {
       display: inline-flex;
       align-items: center;
@@ -245,6 +268,30 @@
 
   <main>
     <div class="tools-column">
+      <section>
+        <div class="section-header">Environment</div>
+        <div class="content">
+          <div class="grid">
+            <label>
+              Variable
+              <select id="envKey">
+                <option value="DATABENTO_API_KEY">DATABENTO_API_KEY</option>
+                <option value="V4_TRADING_DB">V4_TRADING_DB</option>
+                <option value="V4_WEB_PORT">V4_WEB_PORT</option>
+              </select>
+            </label>
+            <label>Value <input id="envValue" type="password" autocomplete="off" placeholder="New value"></label>
+          </div>
+          <div class="row">
+            <button id="envStatus" type="button">Status</button>
+            <button id="envSave" class="primary" type="button">Save Variable</button>
+            <button id="envDelete" class="danger" type="button">Delete Variable</button>
+          </div>
+          <div id="envTable" class="env-table"></div>
+          <p class="status">Writes to local v4/.env.local only. Secrets are masked and never returned in output. DATABENTO_API_KEY applies immediately to this API process; path/port changes may require restart.</p>
+        </div>
+      </section>
+
       <section>
         <div class="section-header">Refresh Range</div>
         <div class="content">
@@ -407,6 +454,7 @@
     const REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');
+    const envTable = document.getElementById('envTable');
     let lastRollCandidateDate = '';
     const presets = {
       ES_JUN: {
@@ -568,6 +616,10 @@
         });
         const data = await response.json();
         const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
+        if (Array.isArray(data.environment)) {
+          renderEnvironmentStatus(data.environment);
+          if (payload.action === 'environment_write') setValue('envValue', '');
+        }
         append(formatResult(payload, data, response.status, header));
         setState(data.ok ? 'ok' : 'failed', data.ok ? 'ok' : 'fail');
         return data;
@@ -631,13 +683,48 @@
         .filter((line) => line.startsWith(startsWith));
     }
 
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderEnvironmentStatus(rows = []) {
+      if (!envTable) return;
+      if (!rows.length) {
+        envTable.innerHTML = '<div class="status">No environment status loaded.</div>';
+        return;
+      }
+      envTable.innerHTML = rows.map((row) => `
+        <div class="env-row">
+          <strong title="${escapeHtml(row.description || '')}">${escapeHtml(row.key)}</strong>
+          <span>file: ${escapeHtml(row.fileMasked || 'unknown')}</span>
+          <span>API: ${escapeHtml(row.processMasked || 'unknown')}${row.requiresRestart ? ' · restart' : ''}</span>
+        </div>
+      `).join('');
+    }
+
     function summarize(payload, data, responseStatus) {
       const out = data.output || data.error || '';
       const lines = [];
       const ok = Boolean(data.ok);
       lines.push(ok ? 'Result: completed.' : `Result: needs attention. HTTP/return status ${data.returncode ?? responseStatus}.`);
 
-      if (payload.action === 'dry_run' || payload.action === 'write') {
+      if (payload.action === 'environment_status' || payload.action === 'environment_write' || payload.action === 'environment_delete') {
+        const file = extract(out, /^file:\s*(.+)$/m);
+        const exists = extract(out, /^file_exists:\s*(.+)$/m);
+        const updated = extract(out, /^updated_key:\s*(.+)$/m);
+        if (file) lines.push(`Local environment file: ${file}.`);
+        if (exists) lines.push(`File exists: ${exists}.`);
+        if (updated) lines.push(`Updated variable: ${updated}.`);
+        if (payload.action === 'environment_write') {
+          lines.push('Value saved to .env.local and applied to the current API process.');
+          lines.push('Variables marked restart still require a service restart for full effect.');
+        }
+      } else if (payload.action === 'dry_run' || payload.action === 'write') {
         const instrument = extract(out, /^instrument:\s*(.+)$/m) || payload.instrument;
         const dbMax = extract(out, /^db_max_ts:\s*(.+)$/m);
         const requested = extract(out, /^dry_run_range_et:\s*(.+)$/m);
@@ -805,6 +892,14 @@
       };
     }
 
+    function environmentPayload(action) {
+      return {
+        action,
+        key: value('envKey'),
+        value: value('envValue')
+      };
+    }
+
     document.getElementById('preset').addEventListener('change', (event) => {
       const preset = presets[event.target.value];
       clearRollCandidate();
@@ -822,6 +917,9 @@
     document.querySelectorAll('[data-action]').forEach((button) => {
       button.addEventListener('click', () => run({ action: button.dataset.action }));
     });
+    document.getElementById('envStatus').addEventListener('click', () => run({ action: 'environment_status' }));
+    document.getElementById('envSave').addEventListener('click', () => run(environmentPayload('environment_write')));
+    document.getElementById('envDelete').addEventListener('click', () => run(environmentPayload('environment_delete')));
     document.getElementById('scanRollVolume').addEventListener('click', async () => {
       lastRollCandidateDate = '';
       const payload = rollScanPayload();
@@ -878,6 +976,7 @@
       }
     });
     setEndToNow();
+    run({ action: 'environment_status' });
     setEconomicDatesToToday();
     setRollScanRangeAroundRollDate();
   </script>

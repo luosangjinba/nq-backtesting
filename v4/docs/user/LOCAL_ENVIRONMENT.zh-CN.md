@@ -55,6 +55,22 @@ bash start.sh restart
 
 修改 `.env.local` 后，必须重启 API。只刷新浏览器不会让 API 进程拿到新参数。
 
+## 前端页面修改
+
+也可以在 Data Maintenance 页面修改本地环境：
+
+```text
+http://127.0.0.1:8001/data-maintenance.html
+```
+
+页面顶部的 `Environment` 区域可以：
+
+- 查看 `DATABENTO_API_KEY` / `V4_TRADING_DB` / `V4_WEB_PORT` 是否在 `.env.local` 和当前 API 进程中存在
+- 保存变量到 `v4/.env.local`
+- 删除变量
+
+Secret 值不会在页面输出里明文显示，只显示 masked 状态。保存 `DATABENTO_API_KEY` 后，会立即写入当前 API 进程环境，Refresh Range 的 dry-run/write 可以直接使用；`V4_TRADING_DB` 和 `V4_WEB_PORT` 这类启动参数仍建议重启服务后再用。
+
 ## 和系统环境变量的关系
 
 `.env.local` 是项目级本地配置，优先适合这套 V4 系统使用。

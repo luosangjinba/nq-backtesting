@@ -6,6 +6,7 @@ from __future__ import annotations
 import sys
 import tempfile
 import unittest
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -132,6 +133,52 @@ class ArchitectureReviewFixTests(unittest.TestCase):
             "Origin": "http://evil.example",
         }), "")
         self.assertEqual(v4_api._get_allowed_cors_origin({}), "")
+
+    def test_local_env_write_masks_secret_and_updates_process_environment(self) -> None:
+        previous = os.environ.get("DATABENTO_API_KEY")
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                env_path = Path(temp_dir) / ".env.local"
+                rows = v4_api._set_local_env_value(
+                    "DATABENTO_API_KEY",
+                    "db-test-secret-1234",
+                    str(env_path),
+                )
+                content = env_path.read_text(encoding="utf-8")
+                formatted = v4_api._format_local_env_status(rows, str(env_path))
+
+            self.assertIn("DATABENTO_API_KEY=db-test-secret-1234", content)
+            self.assertEqual(os.environ.get("DATABENTO_API_KEY"), "db-test-secret-1234")
+            self.assertIn("DATABENTO_API_KEY: file=set ****1234", formatted)
+            self.assertNotIn("db-test-secret-1234", formatted)
+        finally:
+            if previous is None:
+                os.environ.pop("DATABENTO_API_KEY", None)
+            else:
+                os.environ["DATABENTO_API_KEY"] = previous
+
+    def test_local_env_delete_removes_value_from_file_and_process_environment(self) -> None:
+        previous = os.environ.get("DATABENTO_API_KEY")
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                env_path = Path(temp_dir) / ".env.local"
+                env_path.write_text(
+                    "# local\nDATABENTO_API_KEY=db-test-secret-1234\nV4_WEB_PORT=8010\n",
+                    encoding="utf-8",
+                )
+                os.environ["DATABENTO_API_KEY"] = "db-test-secret-1234"
+                rows = v4_api._delete_local_env_value("DATABENTO_API_KEY", str(env_path))
+                content = env_path.read_text(encoding="utf-8")
+
+            self.assertNotIn("DATABENTO_API_KEY=", content)
+            self.assertIn("V4_WEB_PORT=8010", content)
+            self.assertIsNone(os.environ.get("DATABENTO_API_KEY"))
+            self.assertFalse(next(row for row in rows if row["key"] == "DATABENTO_API_KEY")["fileSet"])
+        finally:
+            if previous is None:
+                os.environ.pop("DATABENTO_API_KEY", None)
+            else:
+                os.environ["DATABENTO_API_KEY"] = previous
 
     def test_daily_regime_and_api_daily_aggregation_exclude_maintenance_hour(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
