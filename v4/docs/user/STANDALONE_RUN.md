@@ -27,6 +27,22 @@ v4/
 
 `data/trading_data.duckdb` is runtime data. It is intentionally not committed to git.
 
+## Local Environment File
+
+Copy the local environment template when this machine needs secrets or machine-specific paths:
+
+```bash
+cp .env.local.example .env.local
+```
+
+On Windows:
+
+```powershell
+copy .env.local.example .env.local
+```
+
+`v4/.env.local` is ignored by git. Both `start.sh` and `start_windows.ps1` load it before starting the API, so values such as `DATABENTO_API_KEY` are available to Data Maintenance actions. See `docs/user/LOCAL_ENVIRONMENT.zh-CN.md`.
+
 ## Data Setup
 
 Use one of these options:

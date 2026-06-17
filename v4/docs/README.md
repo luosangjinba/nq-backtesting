@@ -10,6 +10,7 @@ This directory is the documentation entry point for the current V4 backtesting w
 - [Chinese operation manual HTML](user/OPERATION_MANUAL.zh-CN.html)
 - [English user guide](user/USER_GUIDE.en.md)
 - [Standalone run guide](user/STANDALONE_RUN.md)
+- [Local environment variables](user/LOCAL_ENVIRONMENT.zh-CN.md)
 - [Inspector help](user/INSPECTOR_HELP.md)
 - [Databento daily refresh](user/DATABENTO_DAILY_REFRESH.md)
 

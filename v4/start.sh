@@ -11,6 +11,13 @@ if [ -f "$HOME/.bashrc" ]; then
   source "$HOME/.bashrc" || true
 fi
 
+if [ -f "$SCRIPT_DIR/.env.local" ]; then
+  # Load machine-local secrets/config. This file is ignored by git.
+  set -a
+  source "$SCRIPT_DIR/.env.local"
+  set +a
+fi
+
 PYTHON="${PYTHON_BIN:-python3}"
 PORT=8766
 WEB_PORT="${V4_WEB_PORT:-8001}"

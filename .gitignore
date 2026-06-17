@@ -9,6 +9,7 @@ __pycache__/
 *.pyc
 
 # V4 runtime data
+v4/.env.local
 v4/data/trading_data.duckdb
 v4/data/vix-monthly.csv
 v4/data/economic_calendar/backups/

@@ -13,6 +13,7 @@ http://127.0.0.1:8001/data-maintenance.html
 - V4 API：`http://127.0.0.1:8766/v4/health`
 - Web 服务：`http://127.0.0.1:8001`
 - 如果要跑 Databento dry-run 或写库，API 进程环境里必须有 `DATABENTO_API_KEY`
+- 推荐把本机参数写入 `v4/.env.local`，启动脚本会自动加载；说明见 `v4/docs/user/LOCAL_ENVIRONMENT.zh-CN.md`
 
 从仓库目录启动或重启：
 

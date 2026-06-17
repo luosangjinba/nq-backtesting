@@ -20,9 +20,35 @@ $ApiOutLog = Join-Path $V4Dir ".api.win.out.log"
 $ApiErrLog = Join-Path $V4Dir ".api.win.err.log"
 $WebOutLog = Join-Path $V4Dir ".web.win.out.log"
 $WebErrLog = Join-Path $V4Dir ".web.win.err.log"
+$LocalEnvFile = Join-Path $V4Dir ".env.local"
 
 function Write-Step($Message) {
   Write-Host "[v4-windows] $Message"
+}
+
+function Import-LocalEnvFile {
+  if (-not (Test-Path $LocalEnvFile)) {
+    return
+  }
+  Write-Step "Loading local environment: $LocalEnvFile"
+  foreach ($line in Get-Content $LocalEnvFile) {
+    $trimmed = $line.Trim()
+    if ($trimmed.Length -eq 0 -or $trimmed.StartsWith("#")) {
+      continue
+    }
+    if ($trimmed -notmatch "^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$") {
+      continue
+    }
+    $name = $Matches[1]
+    $value = $Matches[2].Trim()
+    if (
+      ($value.StartsWith('"') -and $value.EndsWith('"')) -or
+      ($value.StartsWith("'") -and $value.EndsWith("'"))
+    ) {
+      $value = $value.Substring(1, $value.Length - 2)
+    }
+    [Environment]::SetEnvironmentVariable($name, $value, "Process")
+  }
 }
 
 function Test-HttpOk($Url) {
@@ -184,6 +210,8 @@ function Show-Logs {
     }
   }
 }
+
+Import-LocalEnvFile
 
 switch ($Action) {
   "setup" { Setup-V4 }
