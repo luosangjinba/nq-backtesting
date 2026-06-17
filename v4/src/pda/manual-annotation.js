@@ -92,6 +92,7 @@ import {
   renderManualContextMenu,
   renderSegmentGroupItems,
   renderSegmentPdaLinkItems,
+  repositionContextMenu,
 } from './manual-context-menu.js';
 
 let controlsEl = null;
@@ -441,7 +442,9 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     timeOverlayItems: renderTimeOverlayMenuItems(bar),
     clearItems: renderClearMenuItems(),
   });
-  initContextMenuSubmenuPositioning(controlsEl.querySelector('.pda-menu'));
+  const menuEl = controlsEl.querySelector('.pda-menu');
+  repositionContextMenu(menuEl, x, y);
+  initContextMenuSubmenuPositioning(menuEl);
 }
 
 function hideContextMenu() {

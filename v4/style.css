@@ -2154,6 +2154,11 @@ html, body {
   pointer-events: auto;
 }
 
+.pda-menu.is-scroll-constrained {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .pda-menu::-webkit-scrollbar {
   width: 8px;
 }

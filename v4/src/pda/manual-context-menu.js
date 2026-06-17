@@ -14,16 +14,55 @@ export function clampMenuPosition(containerEl, x, y) {
   const submenuWidth = 236;
   const margin = 4;
   const availableHeight = Math.max(160, rect.height - margin * 2);
-  const estimatedMenuHeight = 420;
-  const maxHeight = Math.min(estimatedMenuHeight, availableHeight);
   const clampedX = Math.min(Math.max(margin, x), Math.max(margin, rect.width - menuWidth - margin));
   let clampedY = y;
-  if (y + maxHeight + margin > rect.height) {
-    clampedY = Math.max(margin, rect.height - maxHeight - margin);
+  if (y + availableHeight + margin > rect.height) {
+    clampedY = Math.max(margin, rect.height - availableHeight - margin);
   }
   return {
-    maxHeight,
+    maxHeight: availableHeight,
     submenuDirection: clampedX + menuWidth + submenuWidth + margin > rect.width ? 'left' : 'right',
+    x: clampedX,
+    y: Math.max(margin, clampedY),
+  };
+}
+
+export function repositionContextMenu(menuEl, anchorX, anchorY) {
+  if (!menuEl) return null;
+  const containerEl = menuEl.parentElement;
+  const bounds = containerEl?.parentElement?.getBoundingClientRect();
+  if (!bounds) return null;
+
+  const margin = 4;
+  const submenuWidth = 236;
+  const availableHeight = Math.max(160, bounds.height - margin * 2);
+  const menuRect = menuEl.getBoundingClientRect();
+  const menuWidth = Math.max(220, menuRect.width);
+  const naturalHeight = Math.max(1, menuEl.scrollHeight || 0, menuRect.height);
+  const visibleHeight = Math.min(naturalHeight, availableHeight);
+  const clampedX = Math.min(Math.max(margin, anchorX), Math.max(margin, bounds.width - menuWidth - margin));
+  let clampedY = anchorY;
+  if (clampedY + visibleHeight + margin > bounds.height) {
+    clampedY = Math.max(margin, bounds.height - visibleHeight - margin);
+  }
+
+  const constrained = naturalHeight > availableHeight;
+  menuEl.classList.toggle('is-scroll-constrained', constrained);
+  menuEl.style.left = `${Math.round(clampedX)}px`;
+  menuEl.style.top = `${Math.round(Math.max(margin, clampedY))}px`;
+  menuEl.style.maxHeight = `${Math.round(availableHeight)}px`;
+  menuEl.classList.toggle(
+    'pda-menu-submenu-left',
+    clampedX + menuWidth + submenuWidth + margin > bounds.width
+  );
+  menuEl.classList.toggle(
+    'pda-menu-submenu-right',
+    clampedX + menuWidth + submenuWidth + margin <= bounds.width
+  );
+
+  return {
+    constrained,
+    maxHeight: availableHeight,
     x: clampedX,
     y: Math.max(margin, clampedY),
   };
