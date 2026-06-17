@@ -31,6 +31,7 @@ import { initSegmentSelection } from './segment/segment-selection.js';
 import { initSegmentGroups } from './segment/segment-group-store.js';
 import { initManualSmt } from './smt/manual-smt.js';
 import { initSmtRenderer } from './smt/smt-renderer.js';
+import { initSmtSelection } from './smt/smt-selection.js';
 import { initOrderReviewActive } from './order/order-review-active.js';
 import { initOrderReviewPersistence } from './order/order-review-persistence.js';
 import { initOrderReviewRenderer } from './order/order-review-renderer.js';
@@ -125,6 +126,7 @@ console.log('[V4] Segment controls initialized');
 
 initSmtRenderer();
 initManualSmt();
+initSmtSelection();
 console.log('[V4] SMT controls initialized');
 
 initOrderReviewPersistence();

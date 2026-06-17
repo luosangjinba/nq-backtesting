@@ -11,6 +11,7 @@ import { getSmtRecords, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { timeframeToString } from '../config.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { getSelectedSmt } from './smt-selection.js';
 
 let primaryPrimitives = [];
 let secondaryPrimitives = [];
@@ -59,6 +60,11 @@ function getLineColor(record) {
   return record.direction === SMT_DIRECTIONS.BULLISH ? '#26a69a' : '#ef5350';
 }
 
+function isSelectedRecord(record) {
+  const selection = getSelectedSmt();
+  return Boolean(selection?.id && record?.id && String(selection.id) === String(record.id));
+}
+
 function mapTimestampToChartTime(timestamp, timeframe, bars = []) {
   return mapSharedTimestampToChartTime(timestamp, timeframe, bars);
 }
@@ -72,6 +78,7 @@ function renderPrimary() {
   const bars = store.getDisplayBars();
 
   getSmtRecords().filter(shouldRenderOnPrimary).forEach((record) => {
+    const selected = isSelectedRecord(record);
     if (record.type === SMT_TYPES.LIQUIDITY) {
       const leftTime = mapTimestampToChartTime(record.leftTimestamp, timeframe, bars);
       const rightTime = mapTimestampToChartTime(record.rightTimestamp, timeframe, bars);
@@ -86,11 +93,11 @@ function renderPrimary() {
           record.primaryRightPrice,
           'NQ no sweep',
           {
-            lineColor: getLineColor(record),
-            textColor: '#ffcc80',
-            markerColor: '#ffcc80',
-            lineWidth: 2,
-            markerSize: 5,
+            lineColor: selected ? '#ffd54f' : getLineColor(record),
+            textColor: selected ? '#ffd54f' : '#ffcc80',
+            markerColor: selected ? '#ffd54f' : '#ffcc80',
+            lineWidth: selected ? 4 : 2,
+            markerSize: selected ? 7 : 5,
             labelFont: getChartLabelFont(11),
             showLabel: true,
           }
@@ -103,8 +110,8 @@ function renderPrimary() {
     if (markerTime === null) return;
     attachPrimary(
       new VerticalLinePrimitive(chartInstance, markerTime, {
-        color: 'rgba(255, 204, 128, 0.38)',
-        lineWidth: 3,
+        color: selected ? 'rgba(255, 213, 79, 0.75)' : 'rgba(255, 204, 128, 0.38)',
+        lineWidth: selected ? 5 : 3,
       })
     );
   });
@@ -119,6 +126,7 @@ function renderSecondary() {
   const bars = secondaryStore.getSecondaryDisplayBars();
 
   getSmtRecords().filter(shouldRenderOnSecondary).forEach((record) => {
+    const selected = isSelectedRecord(record);
     if (record.type === SMT_TYPES.LIQUIDITY) {
       const leftTime = mapTimestampToChartTime(record.leftTimestamp, timeframe, bars);
       const rightTime = mapTimestampToChartTime(record.rightTimestamp, timeframe, bars);
@@ -133,11 +141,11 @@ function renderSecondary() {
           record.compareRightPrice,
           'ES sweep',
           {
-            lineColor: getLineColor(record),
-            textColor: '#80cbc4',
-            markerColor: '#80cbc4',
-            lineWidth: 3,
-            markerSize: 5,
+            lineColor: selected ? '#ffd54f' : getLineColor(record),
+            textColor: selected ? '#ffd54f' : '#80cbc4',
+            markerColor: selected ? '#ffd54f' : '#80cbc4',
+            lineWidth: selected ? 5 : 3,
+            markerSize: selected ? 7 : 5,
             labelFont: getChartLabelFont(11),
             showLabel: true,
           }
@@ -160,10 +168,12 @@ function renderSecondary() {
         'ES FVG SMT',
         {
           fillColor:
-            record.direction === SMT_DIRECTIONS.BULLISH ? 'rgba(38, 166, 154, 0.16)' : 'rgba(239, 83, 80, 0.14)',
-          borderColor: getLineColor(record),
-          midlineColor: getLineColor(record),
-          textColor: '#d1d4dc',
+            selected
+              ? 'rgba(255, 213, 79, 0.16)'
+              : record.direction === SMT_DIRECTIONS.BULLISH ? 'rgba(38, 166, 154, 0.16)' : 'rgba(239, 83, 80, 0.14)',
+          borderColor: selected ? '#ffd54f' : getLineColor(record),
+          midlineColor: selected ? '#ffd54f' : getLineColor(record),
+          textColor: selected ? '#ffd54f' : '#d1d4dc',
           labelFont: getChartLabelFont(11),
           showMidline: true,
           showLabel: true,
@@ -180,6 +190,8 @@ function renderAll() {
 
 export function initSmtRenderer() {
   bus.on('smt:changed', renderAll);
+  bus.on('smt:selected', renderAll);
+  bus.on('smt:selection-cleared', renderAll);
   bus.on('display-preferences:changed', renderAll);
   bus.on('primary-instrument:changed', renderAll);
   bus.on('bars:loaded', renderPrimary);

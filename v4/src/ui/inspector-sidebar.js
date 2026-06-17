@@ -72,6 +72,7 @@ import {
   getLiveRecordCalendarDate,
   getOrderReviewCalendarDate,
   getSegmentCalendarDate,
+  getSmtCalendarDate,
 } from './inspector/calendar-object-date.js';
 import { getReplayCalendarDate } from './inspector/calendar-day-context.js';
 import { updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
@@ -1122,6 +1123,25 @@ export function initInspectorSidebar() {
   bus.on('segment-group:changed', refreshSelection);
   bus.on('drawing-set-focus:changed', refreshSelection);
   bus.on('smt:changed', refreshSelection);
+  bus.on('smt:selected', ({ record }) => {
+    if (!record) return;
+    if (dailyTimeActions.isPicking()) {
+      dailyTimeActions.handlePickedSmt(record);
+      return;
+    }
+    if (orderReviewActions.isReasonRefPicking()) {
+      orderReviewActions.handlePickedSmt(record);
+      return;
+    }
+    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSmtCalendarDate(record));
+    selectedSmtId = record.id;
+    renderSmtSelection();
+    openSidebar();
+  });
+  bus.on('smt:selection-cleared', () => {
+    selectedSmtId = null;
+    refreshSelection();
+  });
   bus.on('order-review:changed', refreshSelection);
   bus.on('live-record:changed', refreshSelection);
   bus.on('daily-time-review:changed', refreshSelectionUnlessEditingDailyTimeText);
