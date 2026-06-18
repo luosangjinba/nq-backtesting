@@ -474,6 +474,31 @@ Acceptance:
 - Worktree clean after commit.
 - Step 297 scope remains limited to PDA/Segment primitive reuse unless explicitly expanded.
 
+Status: complete.
+
+Final summary:
+
+- PDA/Segment primary and secondary renderers now use `createPrimitiveCache(...)` with stable descriptor keys and primitive `update(...)` calls.
+- Selection-heavy render paths no longer detach/recreate every visible PDA/Segment primitive.
+- Stale primitive lifecycle coverage now includes primary bars clear, hidden/delete, secondary bars clear, and secondary chart reset.
+- Final Step 297.9 250-object benchmark runs:
+  - Segment `258.6 / 330.6 / 273.6ms`
+  - PDA `119.9 / 166.9 / 139.1ms`
+- Compared with Step 296 baseline of Segment `327.7ms` and PDA `191ms`, PDA improved consistently and Segment improved in 2 of 3 final runs with one near-baseline noisy run.
+
+Renderers still using array clear/rebuild outside Step 297 scope:
+
+- `live-record/live-record-renderer.js`
+- `order/order-review-renderer.js`
+- `time-overlays/time-overlay-renderer.js`
+- `smt/smt-renderer.js`
+
+Step 298 candidates:
+
+- Apply primitive cache to Order Review / Live Record renderers if selection or hover paths become slow.
+- Apply primitive cache to Time Overlay / SMT if split-screen overlay churn becomes visible.
+- Add dedicated browser smoke for replay objective gap geometry if a future test harness exposes replay cursor controls without UI interaction.
+
 ## Risk Notes
 
 - The main risk is stale primitives: deleted/hidden objects remaining on chart.
