@@ -7,6 +7,13 @@ const LIQUIDITY_DEFAULTS = {
   labelFont: '11px sans-serif',
   labelPadding: 4,
   lineStyle: 'solid',
+  showStartTick: false,
+  showEndTick: false,
+  tickHeight: 12,
+  tickLineWidth: 1.5,
+  tickColor: null,
+  tickHaloColor: 'rgba(3, 7, 18, 0.86)',
+  tickHaloWidth: 3,
 };
 
 class LiquidityRenderer {
@@ -42,6 +49,36 @@ class LiquidityRenderer {
       ctx.moveTo(x1, y);
       ctx.lineTo(x2, y);
       ctx.stroke();
+
+      const drawEndpointTick = (x) => {
+        if (x === null || x === undefined) return;
+        const tickHeight = Math.max(6, Number(source._options.tickHeight) || LIQUIDITY_DEFAULTS.tickHeight) * vRatio;
+        const tickLineWidth = Math.max(1, Number(source._options.tickLineWidth) || LIQUIDITY_DEFAULTS.tickLineWidth)
+          * Math.min(hRatio, vRatio);
+        const halfHeight = tickHeight / 2;
+        const tickColor = source._options.tickColor || source._lineColor;
+        const haloWidth = Number(source._options.tickHaloWidth) || LIQUIDITY_DEFAULTS.tickHaloWidth;
+
+        ctx.setLineDash([]);
+        if (source._options.tickHaloColor && haloWidth > 0) {
+          ctx.strokeStyle = source._options.tickHaloColor;
+          ctx.lineWidth = Math.max(tickLineWidth + haloWidth * Math.min(hRatio, vRatio), tickLineWidth);
+          ctx.beginPath();
+          ctx.moveTo(x, y - halfHeight);
+          ctx.lineTo(x, y + halfHeight);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = tickColor;
+        ctx.lineWidth = tickLineWidth;
+        ctx.beginPath();
+        ctx.moveTo(x, y - halfHeight);
+        ctx.lineTo(x, y + halfHeight);
+        ctx.stroke();
+      };
+
+      if (source._options.showStartTick) drawEndpointTick(x1);
+      if (source._options.showEndTick) drawEndpointTick(x2);
 
       if (source._options.showLabel && source._label) {
         ctx.fillStyle = source._textColor;
