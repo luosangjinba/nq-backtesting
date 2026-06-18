@@ -1,4 +1,14 @@
 import * as bus from '../../event-bus.js';
+import { getAnnotationById } from '../../pda/pda-store.js';
+import { getSelectedPda } from '../../pda/pda-selection.js';
+import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
+import { getSegmentById } from '../../segment/segment-store.js';
+import {
+  buildPdaOrderRefMetadata,
+  buildSegmentOrderRefMetadata,
+  getPdaOrderRefLabel,
+  getSegmentOrderRefLabel,
+} from '../../order/order-ref-metadata.js';
 import {
   deleteLiveRecord,
   getLiveRecordById,
@@ -16,13 +26,44 @@ import {
 } from '../../live-record/live-record-lifecycle-actions.js';
 import { getActiveReviewSetId } from '../../order/order-review-active.js';
 import { getSetupSetById } from '../../order/setup-set.js';
+import { getSmtRecordById } from '../../smt/smt-store.js';
+import {
+  LIVE_RECORD_REASON_CATEGORIES,
+  LIVE_RECORD_REF_ROLES,
+  LIVE_RECORD_REF_TYPES,
+} from '../../live-record/live-record-types.js';
+
+function createLiveRecordReasonId() {
+  return `reason_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function createEmptyLiveRecordReason() {
+  return {
+    id: createLiveRecordReasonId(),
+    category: LIVE_RECORD_REASON_CATEGORIES.OTHER,
+    note: '',
+    refs: [],
+  };
+}
+
+function getLiveRecordReasons(record) {
+  const reasons = Array.isArray(record?.reasons) ? record.reasons : [];
+  return reasons.length
+    ? reasons.map((reason, index) => ({
+      id: reason.id || `reason_${index + 1}`,
+      category: reason.category || LIVE_RECORD_REASON_CATEGORIES.OTHER,
+      note: reason.note || '',
+      refs: Array.isArray(reason.refs) ? reason.refs : [],
+    }))
+    : [createEmptyLiveRecordReason()];
+}
 
 function updateReason(record, reasonIndex, patch = {}) {
-  const reasons = Array.isArray(record.reasons) ? record.reasons.map((reason) => ({ ...reason })) : [];
+  const reasons = getLiveRecordReasons(record).map((reason) => ({ ...reason }));
   const index = Number(reasonIndex);
   if (!Number.isInteger(index) || index < 0) return false;
   while (reasons.length <= index) {
-    reasons.push({ id: `reason_${reasons.length + 1}`, category: 'other', note: '', refs: [] });
+    reasons.push(createEmptyLiveRecordReason());
   }
   reasons[index] = {
     ...reasons[index],
@@ -32,12 +73,109 @@ function updateReason(record, reasonIndex, patch = {}) {
 }
 
 export function createLiveRecordActionController({
+  getSelectedSmtId,
   refreshSelection,
   captureCalendarOpenGroups,
   recordInspectorHistory,
 } = {}) {
   function mutate(label, mutator) {
     return recordInspectorHistory?.(label, mutator) ?? mutator();
+  }
+
+  function addLiveRecordReasonRef(liveRecordId, reasonIndex, ref) {
+    const record = getLiveRecordById(liveRecordId);
+    if (!record || !ref?.type || !ref?.id) return false;
+    const reasons = getLiveRecordReasons(record);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    while (reasons.length <= index) {
+      reasons.push(createEmptyLiveRecordReason());
+    }
+    const refs = Array.isArray(reasons[index].refs) ? reasons[index].refs : [];
+    const key = `${ref.type}:${ref.id}:${ref.role}`;
+    if (refs.some((existing) => `${existing.type}:${existing.id}:${existing.role}` === key)) return false;
+    reasons[index] = { ...reasons[index], refs: [...refs, ref] };
+    return mutate('Link Live Record Reason Object', () => updateLiveRecord(liveRecordId, { reasons }));
+  }
+
+  function getSelectedLiveRecordRef() {
+    const pdaSelection = getSelectedPda();
+    if (pdaSelection) {
+      const annotation = getAnnotationById(pdaSelection.id);
+      if (!annotation) return { error: 'Selected PDA is missing' };
+      return {
+        ref: {
+          type: LIVE_RECORD_REF_TYPES.PDA,
+          id: annotation.id,
+          role: LIVE_RECORD_REF_ROLES.CONTEXT,
+          ...buildPdaOrderRefMetadata(annotation),
+        },
+        label: getPdaOrderRefLabel(annotation),
+      };
+    }
+
+    const segmentSelection = getSelectedSegment();
+    if (segmentSelection) {
+      const segment = getSegmentById(segmentSelection.id);
+      if (!segment) return { error: 'Selected Segment is missing' };
+      return {
+        ref: {
+          type: LIVE_RECORD_REF_TYPES.SEGMENT,
+          id: segment.id,
+          role: LIVE_RECORD_REF_ROLES.CONTEXT,
+          ...buildSegmentOrderRefMetadata(segment),
+        },
+        label: getSegmentOrderRefLabel(segment),
+      };
+    }
+
+    const compositeSelection = getSelectedSegmentGroup();
+    if (compositeSelection) {
+      return {
+        ref: {
+          type: LIVE_RECORD_REF_TYPES.COMPOSITE,
+          id: compositeSelection.id,
+          role: LIVE_RECORD_REF_ROLES.CONTEXT,
+        },
+        label: 'Composite Move',
+      };
+    }
+
+    const selectedSmtId = getSelectedSmtId?.();
+    if (selectedSmtId && getSmtRecordById(selectedSmtId)) {
+      return {
+        ref: {
+          type: LIVE_RECORD_REF_TYPES.SMT,
+          id: selectedSmtId,
+          role: LIVE_RECORD_REF_ROLES.CONTEXT,
+        },
+        label: 'SMT',
+      };
+    }
+
+    return { error: 'No selected PDA / Segment / Composite / SMT' };
+  }
+
+  function removeLiveRecordReasonRef(liveRecordId, reasonIndex, refIndex) {
+    const record = getLiveRecordById(liveRecordId);
+    const reasons = getLiveRecordReasons(record);
+    if (!record || reasonIndex < 0 || reasonIndex >= reasons.length) return false;
+    const refs = Array.isArray(reasons[reasonIndex].refs) ? reasons[reasonIndex].refs : [];
+    if (refIndex < 0 || refIndex >= refs.length) return false;
+    reasons[reasonIndex] = {
+      ...reasons[reasonIndex],
+      refs: refs.filter((_, index) => index !== refIndex),
+    };
+    return mutate('Remove Live Record Reason Object', () => updateLiveRecord(liveRecordId, { reasons }));
+  }
+
+  function deleteLiveRecordReason(liveRecordId, reasonIndex) {
+    const record = getLiveRecordById(liveRecordId);
+    const reasons = getLiveRecordReasons(record);
+    if (!record || reasonIndex < 0 || reasonIndex >= reasons.length) return false;
+    const nextReasons = reasons.filter((_, index) => index !== reasonIndex);
+    return mutate('Delete Live Record Reason', () => updateLiveRecord(liveRecordId, {
+      reasons: nextReasons.length ? nextReasons : [createEmptyLiveRecordReason()],
+    }));
   }
 
   function handleChange(action, target) {
@@ -254,13 +392,53 @@ export function createLiveRecordActionController({
     }
 
     if (action === 'live-record-reason-add') {
-      const reasons = Array.isArray(record.reasons) ? record.reasons : [];
+      const reasons = getLiveRecordReasons(record);
       mutate('Add Live Record Reason', () => updateLiveRecord(liveRecordId, {
         reasons: [
           ...reasons,
-          { id: `reason_${reasons.length + 1}`, category: 'other', note: '', refs: [] },
+          createEmptyLiveRecordReason(),
         ],
       }));
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-reason-delete') {
+      const deleted = deleteLiveRecordReason(liveRecordId, Number(actionEl.dataset.reasonIndex));
+      bus.emit('status:update', {
+        text: deleted ? 'Live Record reason deleted' : 'Live Record reason delete failed',
+        isError: !deleted,
+      });
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-ref-remove') {
+      const removed = removeLiveRecordReasonRef(
+        liveRecordId,
+        Number(actionEl.dataset.reasonIndex),
+        Number(actionEl.dataset.refIndex)
+      );
+      bus.emit('status:update', {
+        text: removed ? 'Live Record linked object removed' : 'Remove linked object failed',
+        isError: !removed,
+      });
+      refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-ref-add-selected-object') {
+      const selected = getSelectedLiveRecordRef();
+      if (selected.error) {
+        bus.emit('status:update', { text: selected.error, isError: true });
+        return true;
+      }
+      const reasonIndex = Number(actionEl.dataset.reasonIndex) || 0;
+      const added = addLiveRecordReasonRef(liveRecordId, reasonIndex, selected.ref);
+      bus.emit('status:update', {
+        text: added ? `${selected.label} linked to Live Record Reason ${reasonIndex + 1}` : 'Link selected object failed',
+        isError: !added,
+      });
       refreshSelection?.();
       return true;
     }

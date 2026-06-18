@@ -16,6 +16,7 @@ v4/data/economic_calendar/backups/
 v4/data/economic_calendar/forex_factory_raw/
 v4/.api.log
 v4/.api_pid
+v4/.api-restart.log
 v4/.web.log
 v4/.web_pid
 

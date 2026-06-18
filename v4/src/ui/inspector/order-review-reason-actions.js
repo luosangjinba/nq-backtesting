@@ -102,12 +102,17 @@ export function hasPendingOrderReasonRefPick() {
   return Boolean(pendingOrderReasonRefPick);
 }
 
-function isOrderReviewReasonEmpty(reason = {}) {
-  return !reason.note && !(Array.isArray(reason.refs) && reason.refs.length);
-}
-
 function createOrderReviewReasonId() {
   return `reason_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function createEmptyOrderReviewReason() {
+  return {
+    id: createOrderReviewReasonId(),
+    category: ORDER_REASON_CATEGORIES.OTHER,
+    note: '',
+    refs: [],
+  };
 }
 
 function normalizeReasonCategory(value) {
@@ -165,7 +170,7 @@ export function createOrderReviewReasonActionController({
     const reasons = getOrderReviewReasons(order);
     const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
     while (reasons.length <= index) {
-      reasons.push({ id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] });
+      reasons.push(createEmptyOrderReviewReason());
     }
     const refs = Array.isArray(reasons[index].refs) ? reasons[index].refs : [];
     const key = `${ref.type}:${ref.id}:${ref.role}`;
@@ -218,7 +223,7 @@ export function createOrderReviewReasonActionController({
     const reasons = getOrderReviewReasons(order);
     const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
     while (reasons.length <= index) {
-      reasons.push({ id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] });
+      reasons.push(createEmptyOrderReviewReason());
     }
     reasons[index] = { ...reasons[index], note };
     patchOrderReviewReasons(orderReviewId, reasons);
@@ -230,7 +235,7 @@ export function createOrderReviewReasonActionController({
     if (!order) return false;
     patchOrderReviewReasons(orderReviewId, [
       ...getOrderReviewReasons(order),
-      { id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] },
+      createEmptyOrderReviewReason(),
     ]);
     return true;
   }
@@ -241,7 +246,7 @@ export function createOrderReviewReasonActionController({
     const reasons = getOrderReviewReasons(order);
     const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
     while (reasons.length <= index) {
-      reasons.push({ id: createOrderReviewReasonId(), category: ORDER_REASON_CATEGORIES.OTHER, note: '', refs: [] });
+      reasons.push(createEmptyOrderReviewReason());
     }
     reasons[index] = { ...reasons[index], category: normalizeReasonCategory(category) };
     patchOrderReviewReasons(orderReviewId, reasons);
@@ -251,14 +256,11 @@ export function createOrderReviewReasonActionController({
   function deleteOrderReviewReason(orderReviewId, reasonIndex) {
     const order = getOrderReviewById(orderReviewId);
     const reasons = getOrderReviewReasons(order);
-    if (!order || reasonIndex <= 0 || reasonIndex >= reasons.length) return false;
-    if (!isOrderReviewReasonEmpty(reasons[reasonIndex])) {
-      bus.emit('status:update', { text: 'Only empty extra reasons can be deleted', isError: true });
-      return true;
-    }
+    if (!order || reasonIndex < 0 || reasonIndex >= reasons.length) return false;
+    const nextReasons = reasons.filter((_, index) => index !== reasonIndex);
     patchOrderReviewReasons(
       orderReviewId,
-      reasons.filter((_, index) => index !== reasonIndex)
+      nextReasons.length ? nextReasons : [createEmptyOrderReviewReason()]
     );
     return true;
   }

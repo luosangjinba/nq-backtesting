@@ -152,6 +152,7 @@ const economicEventActions = createEconomicEventActionController({
 });
 
 const liveRecordActions = createLiveRecordActionController({
+  getSelectedSmtId: () => selectedSmtId,
   refreshSelection,
   captureCalendarOpenGroups,
   recordInspectorHistory,

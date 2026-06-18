@@ -289,6 +289,10 @@
           </div>
           <div id="envTable" class="env-table"></div>
           <p class="status">Writes to local v4/.env.local only. Secrets are masked and never returned in output. DATABENTO_API_KEY applies immediately to this API process; path/port changes may require restart.</p>
+          <div class="row">
+            <button id="apiRestart" class="danger" type="button">Restart API</button>
+          </div>
+          <p class="status">Use Restart API when a maintenance action is stale/busy, or after changing restart-required environment values.</p>
         </div>
       </section>
 
@@ -724,6 +728,16 @@
           lines.push('Value saved to .env.local and applied to the current API process.');
           lines.push('Variables marked restart still require a service restart for full effect.');
         }
+      } else if (payload.action === 'api_restart') {
+        const status = extract(out, /^api_restart_status:\s*(.+)$/m);
+        const delay = extract(out, /^restart_delay_seconds:\s*(.+)$/m);
+        const activeProcess = extract(out, /^active_maintenance_process:\s*(.+)$/m);
+        lines.push(`API restart status: ${status || 'unknown'}.`);
+        if (activeProcess && activeProcess !== 'none') {
+          lines.push(`Active maintenance process was ${activeProcess} before restart.`);
+        }
+        if (delay) lines.push(`Restart will begin in about ${delay} seconds.`);
+        lines.push('Refresh or run Environment Status again after a few seconds.');
       } else if (payload.action === 'dry_run' || payload.action === 'write') {
         const instrument = extract(out, /^instrument:\s*(.+)$/m) || payload.instrument;
         const dbMax = extract(out, /^db_max_ts:\s*(.+)$/m);
@@ -920,6 +934,10 @@
     document.getElementById('envStatus').addEventListener('click', () => run({ action: 'environment_status' }));
     document.getElementById('envSave').addEventListener('click', () => run(environmentPayload('environment_write')));
     document.getElementById('envDelete').addEventListener('click', () => run(environmentPayload('environment_delete')));
+    document.getElementById('apiRestart').addEventListener('click', () => {
+      if (!window.confirm('Restart the V4 API now? The page may be unavailable for a few seconds.')) return;
+      run({ action: 'api_restart', confirmText: 'RESTART API' });
+    });
     document.getElementById('scanRollVolume').addEventListener('click', async () => {
       lastRollCandidateDate = '';
       const payload = rollScanPayload();

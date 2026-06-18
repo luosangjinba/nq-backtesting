@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import sys
+import subprocess
 import tempfile
 import unittest
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 import duckdb
 
@@ -157,6 +159,26 @@ class ArchitectureReviewFixTests(unittest.TestCase):
             else:
                 os.environ["DATABENTO_API_KEY"] = previous
 
+    def test_local_env_write_quotes_shell_sensitive_values(self) -> None:
+        previous = os.environ.get("V4_TRADING_DB")
+        value = r"G:\Trading Data\v4 db;$(bad)'x.duckdb"
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                env_path = Path(temp_dir) / ".env.local"
+                v4_api._set_local_env_value("V4_TRADING_DB", value, str(env_path))
+                content = env_path.read_text(encoding="utf-8")
+                parsed = v4_api._parse_local_env_lines(str(env_path))
+
+            self.assertIn("V4_TRADING_DB=", content)
+            self.assertNotIn(f"V4_TRADING_DB={value}", content)
+            self.assertEqual(parsed[0]["value"], value)
+            self.assertEqual(os.environ.get("V4_TRADING_DB"), value)
+        finally:
+            if previous is None:
+                os.environ.pop("V4_TRADING_DB", None)
+            else:
+                os.environ["V4_TRADING_DB"] = previous
+
     def test_local_env_delete_removes_value_from_file_and_process_environment(self) -> None:
         previous = os.environ.get("DATABENTO_API_KEY")
         try:
@@ -179,6 +201,29 @@ class ArchitectureReviewFixTests(unittest.TestCase):
                 os.environ.pop("DATABENTO_API_KEY", None)
             else:
                 os.environ["DATABENTO_API_KEY"] = previous
+
+    def test_api_restart_rejects_windows_backend(self) -> None:
+        with patch.object(v4_api.os, "name", "nt"):
+            with self.assertRaisesRegex(ValueError, "only supported on Linux"):
+                v4_api._run_api_restart_action({"confirmText": "RESTART API"})
+
+    def test_api_restart_terminates_active_maintenance_process(self) -> None:
+        process = subprocess.Popen([
+            sys.executable,
+            "-c",
+            "import time; time.sleep(30)",
+        ])
+        try:
+            v4_api._MAINTENANCE_PROCESS = process
+            status = v4_api._terminate_active_maintenance_process(timeout=2)
+            self.assertIn(status, {"terminated", "killed"})
+            self.assertIsNotNone(process.poll())
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=2)
+            if v4_api._MAINTENANCE_PROCESS is process:
+                v4_api._MAINTENANCE_PROCESS = None
 
     def test_daily_regime_and_api_daily_aggregation_exclude_maintenance_hour(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

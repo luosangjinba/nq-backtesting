@@ -496,6 +496,9 @@ assert.match(detailHtml, /Silver Bullet/, 'detail renders live entry session opt
 assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Context · PDA · fvg · pda-live-link/, 'detail renders formatted PDA ref source');
 assert.match(detailHtml, /Context · Chart Note · bar · chart-note-live-link/, 'detail renders formatted chart note ref source');
+assert.match(detailHtml, /data-inspector-action="live-record-ref-remove"/, 'detail renders live reason linked object delete action');
+assert.match(detailHtml, /data-inspector-action="live-record-ref-add-selected-object"/, 'detail renders live reason selected object action');
+assert.match(detailHtml, /data-inspector-action="live-record-reason-delete"/, 'detail renders live reason delete action');
 assert.match(detailHtml, /Result/, 'detail renders Result');
 assert.match(detailHtml, /Profit/, 'detail renders live exit type option');
 assert.match(detailHtml, /Stop Loss/, 'detail renders live stop loss exit type option');
@@ -584,6 +587,11 @@ assert.equal(actions.handleClick('live-record-unlink-setup', makeTarget(chartLiv
 assert.equal(getLiveRecordById(chartLiveId).orderSetupId, '', 'unlink action updates live record');
 assert.equal(actions.handleClick('live-record-reason-add', makeTarget(chartLiveId)), true);
 assert.equal(getLiveRecordById(chartLiveId).reasons.length, 2, 'add reason action updates');
+assert.equal(actions.handleClick('live-record-reason-delete', makeTarget(chartLiveId, { reasonIndex: '1' })), true);
+assert.equal(getLiveRecordById(chartLiveId).reasons.length, 1, 'delete reason action removes extra reason');
+const refCountBeforeRemove = getLiveRecordById(chartLiveId).reasons[0].refs.length;
+assert.equal(actions.handleClick('live-record-ref-remove', makeTarget(chartLiveId, { reasonIndex: '0', refIndex: '0' })), true);
+assert.equal(getLiveRecordById(chartLiveId).reasons[0].refs.length, refCountBeforeRemove - 1, 'remove linked object action updates reason refs');
 assert.ok(calls.refresh > 0, 'actions refresh inspector');
 assert.ok(calls.captures > 0, 'visibility/delete actions capture open groups');
 

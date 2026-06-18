@@ -13,8 +13,10 @@ import os
 import csv
 import yaml
 import subprocess
+import shlex
 import sys
 import threading
+import time
 from datetime import date, datetime, timezone, timedelta
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -50,6 +52,7 @@ LOCAL_ENV_PATH = os.path.join(V4_ROOT, ".env.local")
 _ECONOMIC_EVENTS_CACHE = None
 _MAINTENANCE_LOCK = threading.Lock()
 _MAINTENANCE_JOB = None
+_MAINTENANCE_PROCESS = None
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
 ALLOWED_MAINTENANCE_ORIGINS = {
@@ -209,23 +212,32 @@ def _iso_date(value, field):
 
 
 def _run_maintenance_command(args, timeout=600):
+    global _MAINTENANCE_PROCESS
     env = os.environ.copy()
-    result = subprocess.run(
+    process = subprocess.Popen(
         args,
         cwd=REPO_ROOT,
         env=env,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        timeout=timeout,
-        check=False,
     )
+    _MAINTENANCE_PROCESS = process
+    try:
+        output, _ = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        output, _ = process.communicate()
+        raise
+    finally:
+        if _MAINTENANCE_PROCESS is process:
+            _MAINTENANCE_PROCESS = None
     command_label = " ".join(args[:3] + (["..."] if len(args) > 3 else []))
     return {
-        "ok": result.returncode == 0,
-        "returncode": result.returncode,
+        "ok": process.returncode == 0,
+        "returncode": process.returncode,
         "command": command_label,
-        "output": result.stdout,
+        "output": output,
     }
 
 
@@ -245,15 +257,19 @@ def _parse_local_env_lines(path=LOCAL_ENV_PATH):
                 entries.append({"kind": "raw", "line": raw_line})
                 continue
             value = value.strip()
-            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
+            try:
+                parts = shlex.split(value, posix=True)
+                value = parts[0] if parts else ""
+            except ValueError:
+                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
             entries.append({"kind": "entry", "key": key, "value": value, "line": raw_line})
     return entries
 
 
 def _format_env_line(key, value):
     clean_value = _clean_text(value, 1000)
-    return f"{key}={clean_value}"
+    return f"{key}={shlex.quote(clean_value)}"
 
 
 def _write_local_env_entries(entries, path=LOCAL_ENV_PATH):
@@ -389,11 +405,77 @@ def _run_local_env_action(payload):
     }
 
 
+def _terminate_active_maintenance_process(timeout=2.0):
+    process = _MAINTENANCE_PROCESS
+    if not process or process.poll() is not None:
+        return "none"
+    process.terminate()
+    try:
+        process.wait(timeout=timeout)
+        return "terminated"
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=timeout)
+        return "killed"
+
+
+def _schedule_api_restart():
+    def restart_later():
+        time.sleep(0.6)
+        log_path = os.path.join(V4_ROOT, ".api-restart.log")
+        try:
+            log = open(log_path, "a", encoding="utf-8")
+            log.write(f"\n[{datetime.now(timezone.utc).isoformat()}] scheduled restart\n")
+            log.flush()
+            subprocess.Popen(
+                ["bash", "start.sh", "restart"],
+                cwd=V4_ROOT,
+                env=os.environ.copy(),
+                stdin=subprocess.DEVNULL,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        except Exception as exc:
+            try:
+                with open(log_path, "a", encoding="utf-8") as f:
+                    f.write(f"restart_schedule_error: {exc}\n")
+            except Exception:
+                pass
+
+    thread = threading.Thread(target=restart_later, name="v4-api-restart", daemon=True)
+    thread.start()
+
+
+def _run_api_restart_action(payload):
+    confirm_text = _clean_text(payload.get("confirmText"), 80)
+    if confirm_text != "RESTART API":
+        raise ValueError("Type 'RESTART API' to restart the V4 API")
+    if os.name == "nt":
+        raise ValueError("Restart API from data-maintenance.html is only supported on Linux; use v4/start_windows.ps1 restart on Windows")
+    child_status = _terminate_active_maintenance_process()
+    _schedule_api_restart()
+    return {
+        "ok": True,
+        "returncode": 0,
+        "command": "api restart scheduled",
+        "output": (
+            "api_restart_status: scheduled\n"
+            "restart_delay_seconds: 0.6\n"
+            f"active_maintenance_process: {child_status}\n"
+            "service: V4 API\n"
+            "health_url: http://127.0.0.1:8766/v4/health\n"
+            "note: The API may be unavailable for a few seconds while start.sh restarts it.\n"
+        ),
+    }
+
+
 def run_data_maintenance_action(payload):
     action = _choice(payload.get("action"), {
         "environment_status",
         "environment_write",
         "environment_delete",
+        "api_restart",
         "roll_report",
         "roll_scan_volume",
         "confirm_roll_preview",
@@ -412,6 +494,9 @@ def run_data_maintenance_action(payload):
 
     if action in {"environment_status", "environment_write", "environment_delete"}:
         return _run_local_env_action(payload)
+
+    if action == "api_restart":
+        return _run_api_restart_action(payload)
 
     python = sys.executable
     if action == "roll_report":
@@ -528,6 +613,8 @@ def run_data_maintenance_action(payload):
 def run_data_maintenance_action_guarded(payload):
     global _MAINTENANCE_JOB
     action = str(payload.get("action") or "unknown")
+    if action == "api_restart":
+        return run_data_maintenance_action(payload)
     if not _MAINTENANCE_LOCK.acquire(blocking=False):
         job = _MAINTENANCE_JOB or {}
         started_at = job.get("startedAt", "unknown")

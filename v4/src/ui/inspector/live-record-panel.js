@@ -482,6 +482,12 @@ function getReasonRows(record) {
 function renderReasonRows(record) {
   const rows = getReasonRows(record).map((reason, reasonIndex) => {
     const refs = Array.isArray(reason.refs) ? reason.refs : [];
+    const refRows = refs.map((ref, refIndex) => `
+      <div class="order-review-ref-row">
+        <span>${escapeHtml(summarizeLinkedRef(ref))}</span>
+        <button class="order-review-ref-delete" data-inspector-action="live-record-ref-remove" data-live-record-id="${escapeHtml(record.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button" title="Remove linked object">X</button>
+      </div>
+    `);
     return `
       <div class="order-setup-reason-card">
         <div class="order-setup-reason-title-row">
@@ -496,11 +502,19 @@ function renderReasonRows(record) {
               `<option value="${escapeHtml(category)}" ${category === reason.category ? 'selected' : ''}>${escapeHtml(titleCase(category))}</option>`
             )).join('')}
           </select>
+          <button class="inspector-mini-btn order-setup-reason-delete" data-inspector-action="live-record-reason-delete" data-live-record-id="${escapeHtml(record.id)}" data-reason-index="${reasonIndex}" type="button" title="Delete reason">X</button>
         </div>
         <textarea class="inspector-textarea" data-inspector-action="live-record-reason-note" data-live-record-id="${escapeHtml(record.id)}" data-reason-index="${reasonIndex}" rows="2" placeholder="Write live record reason">${escapeHtml(reason.note || '')}</textarea>
-        <div class="order-review-ref-list">${refs.length ? refs.map((ref) => (
-          `<div class="order-review-ref-row"><span>${escapeHtml(summarizeLinkedRef(ref))}</span></div>`
-        )).join('') : '<div class="drawing-set-empty">No linked objects.</div>'}</div>
+        <div class="order-review-ref-list">${refRows.join('') || '<div class="drawing-set-empty">No linked objects.</div>'}</div>
+        <div class="order-review-ref-actions">
+          <button
+            class="inspector-mini-btn"
+            data-inspector-action="live-record-ref-add-selected-object"
+            data-live-record-id="${escapeHtml(record.id)}"
+            data-reason-index="${reasonIndex}"
+            type="button"
+          >Select Object</button>
+        </div>
       </div>
     `;
   });

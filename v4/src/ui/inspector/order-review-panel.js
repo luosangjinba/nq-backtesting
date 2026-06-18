@@ -319,10 +319,6 @@ function getOrderReviewReasons(order) {
   return [{ id: 'reason_1', category: ORDER_REASON_CATEGORIES.OTHER, note, refs }];
 }
 
-function isReasonEmpty(reason = {}) {
-  return !reason.note && !(Array.isArray(reason.refs) && reason.refs.length);
-}
-
 function renderReasonRows(order, setupSet, options = {}) {
   const reasons = getOrderReviewReasons(order);
   const reasonRows = reasons.map((reason, reasonIndex) => {
@@ -349,7 +345,7 @@ function renderReasonRows(order, setupSet, options = {}) {
           >
             ${renderDefinitionOptions(ORDER_REASON_CATEGORY_DEFINITIONS, category)}
           </select>
-          ${reasonIndex > 0 && isReasonEmpty(reason) ? `<button class="inspector-mini-btn order-setup-reason-delete" data-inspector-action="order-review-reason-delete" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" type="button">X</button>` : ''}
+          <button class="inspector-mini-btn order-setup-reason-delete" data-inspector-action="order-review-reason-delete" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" type="button" title="Delete reason">X</button>
         </div>
         <textarea class="inspector-textarea" data-inspector-action="order-review-reason-note" data-order-review-id="${escapeHtml(order.id)}" data-reason-index="${reasonIndex}" rows="2" placeholder="Write setup reason">${escapeHtml(reason.note || '')}</textarea>
         <div class="order-review-ref-list">${refRows.join('') || '<div class="drawing-set-empty">No linked objects.</div>'}</div>
