@@ -285,6 +285,43 @@ Acceptance:
 - PDA selection changes update selected style without rebuilding all PDA primitives.
 - PDA create/delete/hide/show, source-instrument time-only projection, CE toggle, label toggle, extend, objective NDOG/NWOG replay bounds, drawing-set focus, and display-mode filters remain correct.
 
+Status: complete.
+
+Implementation:
+
+- Migrated `pda-renderer.js` to `createPrimitiveCache(...)`.
+- Converts each visible PDA annotation into descriptors and calls `primitiveCache.sync(descriptors)`.
+- Uses stable primary keys:
+  - `pda:${id}:primary:liquidity`
+  - `pda:${id}:primary:range`
+  - `pda:${id}:primary:point-set`
+  - `pda:${id}:primary:fib`
+  - `pda:${id}:primary:time:${index}`
+- Reuses Liquidity, Range, PointSet, Fib, and VerticalLine primitives through their `update(...)` APIs.
+- Clears the PDA cache when chart/series/display bars are unavailable and on `bars:cleared`.
+
+Verification:
+
+- `node --check v4/src/pda/pda-renderer.js`
+- `node v4/tests/pda-hit-test-smoke.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/performance-selection-benchmark.js`
+- `node v4/tests/calendar-visibility-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/display-mode-smoke.js`
+- `node v4/tests/fib-levels-smoke.js`
+- `node v4/tests/manual-range-prices-smoke.js`
+- `node v4/tests/time-projection-smoke.js`
+- `node v4/tests/primitive-mutation-smoke.js`
+- `git diff --check`
+
+Benchmark after this step:
+
+- 25 objects: Segment `123ms`, PDA `94.3ms`
+- 100 objects: Segment `93.4ms`, PDA `44.6ms`
+- 250 objects: Segment `259.9ms`, PDA `112.1ms`
+
 ## Step 297.7: Migrate Secondary PDA Renderer
 
 Tasks:
