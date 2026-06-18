@@ -428,6 +428,39 @@ Acceptance:
 - No smoke regressions.
 - Visual checks cover primary/secondary PDA and Segment selection.
 
+Status: complete.
+
+Benchmark comparison:
+
+- Step 296 baseline after coalescing: 250 objects Segment `327.7ms`, PDA `191ms`.
+- Step 297.9 run 1: 25 objects Segment `163.9ms`, PDA `64.8ms`; 100 objects Segment `90.9ms`, PDA `43.4ms`; 250 objects Segment `258.6ms`, PDA `119.9ms`.
+- Step 297.9 run 2: 25 objects Segment `100.4ms`, PDA `93.7ms`; 100 objects Segment `96.3ms`, PDA `53ms`; 250 objects Segment `330.6ms`, PDA `166.9ms`.
+- Step 297.9 run 3: 25 objects Segment `166.4ms`, PDA `65.6ms`; 100 objects Segment `95ms`, PDA `55.3ms`; 250 objects Segment `273.6ms`, PDA `139.1ms`.
+
+Verification:
+
+- `node v4/tests/performance-selection-benchmark.js` x3
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/primitive-mutation-smoke.js`
+- `node v4/tests/primitive-cache-smoke.js`
+- `node v4/tests/pda-hit-test-smoke.js`
+- `node v4/tests/display-mode-smoke.js`
+- `node v4/tests/calendar-visibility-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/fib-levels-smoke.js`
+- `node v4/tests/manual-range-prices-smoke.js`
+- `node v4/tests/time-projection-smoke.js`
+- `node v4/tests/history-manager-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Existing tmp split/replay browser smoke files were not present in this workspace. Secondary bars clear and secondary chart reset are covered by `primitive-render-lifecycle-smoke.js`.
+- The old `live-record-browser-smoke.js` was not run in this pass; `live-record-smoke.js` and `live-record-chart-actions-smoke.js` passed.
+
 ## Step 297.10: Closeout
 
 Tasks:
