@@ -15,6 +15,7 @@ import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/displa
 import { getSegmentPointRenderTime } from './segment-time.js';
 import { getActiveDrawingSetVisibility } from './drawing-set-list.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 
 let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
@@ -183,14 +184,16 @@ export function renderSegments() {
   });
 }
 
+const renderSegmentsOnSelection = createRafThrottle(renderSegments);
+
 export function initSegmentRenderer() {
   bus.on('segment:changed', renderSegments);
   bus.on('segment-group:changed', renderSegments);
-  bus.on('segment:selected', renderSegments);
-  bus.on('segment-group:selected', renderSegments);
-  bus.on('segment:selection-cleared', renderSegments);
-  bus.on('segment-group:selection-cleared', renderSegments);
-  bus.on('drawing-set-focus:changed', renderSegments);
+  bus.on('segment:selected', renderSegmentsOnSelection);
+  bus.on('segment-group:selected', renderSegmentsOnSelection);
+  bus.on('segment:selection-cleared', renderSegmentsOnSelection);
+  bus.on('segment-group:selection-cleared', renderSegmentsOnSelection);
+  bus.on('drawing-set-focus:changed', renderSegmentsOnSelection);
   bus.on('display-mode:changed', renderSegments);
   bus.on('display-preferences:changed', renderSegments);
   bus.on('bars:loaded', renderSegments);

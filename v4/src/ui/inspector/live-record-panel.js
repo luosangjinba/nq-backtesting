@@ -489,6 +489,7 @@ function renderReasonRows(record, options = {}) {
     const refRows = refs.map((ref, refIndex) => `
       <div class="order-review-ref-row">
         <span>${escapeHtml(summarizeLinkedRef(ref))}</span>
+        <button class="order-review-ref-locate" data-inspector-action="live-record-ref-locate" data-live-record-id="${escapeHtml(record.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button" title="Locate linked object">L</button>
         <button class="order-review-ref-delete" data-inspector-action="live-record-ref-remove" data-live-record-id="${escapeHtml(record.id)}" data-reason-index="${reasonIndex}" data-ref-index="${refIndex}" type="button" title="Remove linked object">X</button>
       </div>
     `);

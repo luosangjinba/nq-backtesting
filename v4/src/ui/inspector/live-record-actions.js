@@ -1,4 +1,11 @@
 import * as bus from '../../event-bus.js';
+import * as viewport from '../../chart/viewport-controller.js';
+import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
+import { getChartNoteById } from '../../chart-notes/chart-note-store.js';
+import { flashChartNote } from '../../chart-notes/chart-note-renderer.js';
+import { getAnnotationById } from '../../pda/pda-store.js';
+import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
+import { getSegmentById } from '../../segment/segment-store.js';
 import {
   buildPdaOrderRefMetadata,
   buildChartNoteOrderRefMetadata,
@@ -29,6 +36,10 @@ import {
   LIVE_RECORD_REF_ROLES,
   LIVE_RECORD_REF_TYPES,
 } from '../../live-record/live-record-types.js';
+import {
+  getAnnotationTimestampRange,
+  getSegmentTimestampRange,
+} from './order-review-utils.js';
 
 let pendingLiveRecordReasonRefPick = null;
 
@@ -190,6 +201,101 @@ export function createLiveRecordActionController({
       refs: refs.filter((_, index) => index !== refIndex),
     };
     return mutate('Remove Live Record Reason Object', () => updateLiveRecord(liveRecordId, { reasons }));
+  }
+
+  function getLiveRecordReasonRef(liveRecordId, reasonIndex, refIndex) {
+    const record = getLiveRecordById(liveRecordId);
+    const reasons = getLiveRecordReasons(record);
+    const index = Number.isInteger(reasonIndex) && reasonIndex >= 0 ? reasonIndex : 0;
+    const refs = Array.isArray(reasons[index]?.refs) ? reasons[index].refs : [];
+    return refs[refIndex] || null;
+  }
+
+  function locateLiveRecordReasonRef(ref) {
+    const type = String(ref?.type || ref?.refType || '').toLowerCase();
+    let range = null;
+    let sourceChartId = ref?.sourceChartId || 'primary';
+    let label = 'linked object';
+
+    if (type === LIVE_RECORD_REF_TYPES.PDA) {
+      const annotation = getAnnotationById(ref.id || ref.refId);
+      if (!annotation) {
+        bus.emit('status:update', { text: 'Linked PDA not found', isError: true });
+        return true;
+      }
+      const result = locatePdaProjection(annotation);
+      label = getPdaOrderRefLabel(annotation);
+      bus.emit('status:update', {
+        text: result.primary.located && result.secondary.located
+          ? `Located ${label} on primary and secondary`
+          : result.primary.located
+            ? `Located ${label} on primary`
+            : result.secondary.located
+              ? `Located ${label} on secondary`
+              : `${label} has no locatable loaded chart`,
+        isError: !result.located,
+      });
+      return true;
+    }
+
+    if (type === LIVE_RECORD_REF_TYPES.SEGMENT) {
+      const segment = getSegmentById(ref.id || ref.refId);
+      if (!segment) {
+        bus.emit('status:update', { text: 'Linked segment not found', isError: true });
+        return true;
+      }
+      range = getSegmentTimestampRange(segment);
+      sourceChartId = ref.sourceChartId || segment.sourceChartId || sourceChartId;
+      label = getSegmentOrderRefLabel(segment);
+    } else if (type === LIVE_RECORD_REF_TYPES.CHART_NOTE) {
+      const note = getChartNoteById(ref.id || ref.refId);
+      if (!note) {
+        bus.emit('status:update', { text: 'Linked Chart Note not found', isError: true });
+        return true;
+      }
+      const located = viewport.locateTimestampRange(note.timestamp, note.timestamp, { flash: false });
+      const flashed = located && flashChartNote(note.id);
+      bus.emit('status:update', {
+        text: flashed
+          ? `Located ${getChartNoteOrderRefLabel(note)}`
+          : 'Chart Note box is not visible on the current chart/timeframe',
+        isError: !flashed,
+      });
+      return true;
+    } else if (type === LIVE_RECORD_REF_TYPES.ORDER_SETUP) {
+      const setup = getSetupSetById(ref.id || ref.refId);
+      const start = setup?.range?.start ?? setup?.primaryTimestamp;
+      const end = setup?.range?.end ?? setup?.primaryTimestamp;
+      range = Number.isFinite(Number(start)) && Number.isFinite(Number(end))
+        ? { start: Number(start), end: Number(end) }
+        : null;
+      label = 'Order Setup';
+    } else {
+      const annotation = type ? null : getAnnotationById(ref.id || ref.refId);
+      range = annotation ? getAnnotationTimestampRange(annotation) : null;
+    }
+
+    if (!range) {
+      bus.emit('status:update', { text: 'Linked object has no locatable time range', isError: true });
+      return true;
+    }
+
+    const useSecondary = sourceChartId === 'secondary';
+    const located = useSecondary
+      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end)
+      : viewport.locateTimestampRange(range.start, range.end);
+    if (!located) {
+      bus.emit('status:update', {
+        text: useSecondary
+          ? 'Secondary chart is not available for this linked object'
+          : 'Primary chart cannot locate this linked object',
+        isError: true,
+      });
+      return true;
+    }
+
+    bus.emit('status:update', { text: `Located ${label}`, isError: false });
+    return true;
   }
 
   function deleteLiveRecordReason(liveRecordId, reasonIndex) {
@@ -448,6 +554,17 @@ export function createLiveRecordActionController({
         isError: !removed,
       });
       refreshSelection?.();
+      return true;
+    }
+
+    if (action === 'live-record-ref-locate') {
+      const ref = getLiveRecordReasonRef(
+        liveRecordId,
+        Number(actionEl.dataset.reasonIndex),
+        Number(actionEl.dataset.refIndex)
+      );
+      if (ref) locateLiveRecordReasonRef(ref);
+      else bus.emit('status:update', { text: 'Live Record linked object not found', isError: true });
       return true;
     }
 

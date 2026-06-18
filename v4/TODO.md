@@ -945,3 +945,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 295.3: Add load-range limits：前端 `load-range-policy` 和后端 `v4_api.py` 同步新增 limit；`2/3/4m` 单窗口 45 天，`10m` 单窗口 180 天，控制单次 bars 数量。
   - [x] Step 295.4: Add Journal timeframe compatibility：Order Setup timeframe definitions、Live Record timeframe definitions/aliases 增加新周期；`2/3/4/10M` 归入 low timeframe，避免低周期提示/派生行为不一致。
   - [x] Step 295.5: Focused verification：更新并通过 load-range、order-review-types、order-setup、live-record、time-projection 和 backend architecture focused tests；确认新周期能被选择、规范化、持久化和恢复。
+
+- [x] Step 296: Selection Render Coalescing。目标是接续 Step 293 的前端 selection/render 优化，但先做低风险的事件合并，不改 store schema、primitive geometry 或 hit-test。已将主图/副图 PDA 与 Segment renderer 的 selection / selection-cleared / drawing-set focus 事件改为 RAF 合并，数据变更和 bars loaded 仍即时渲染。计划与收口见 `v4/sessions/session_20260617_selection_render_coalescing.md`。
+  - [x] Step 296.1: PDA selection render coalescing：`pda-renderer.js` 对 PDA/Segment/Segment Group selection 相关事件使用 `createRafThrottle()`，避免一次选择链路触发多次全量 primitive rebuild。
+  - [x] Step 296.2: Segment selection render coalescing：`segment-renderer.js` 对 Segment/Segment Group selection 与 drawing-set focus 使用 RAF 合并，保留 `segment:changed` / `segment-group:changed` 即时渲染。
+  - [x] Step 296.3: Secondary chart parity：`secondary-pda-renderer.js` 与 `secondary-segment-renderer.js` 应用同样策略，Split Screen 开启时主副图 overlay 行为一致。
+  - [x] Step 296.4: Verification：语法检查、PDA hit-test、Order Setup、Calendar visibility、SMT selection smoke、`git diff --check` 均通过；selection benchmark 两次运行中，第二次 250 对象 Segment `263ms`、PDA `134.4ms`，较 Step 293 基线 Segment `288ms`、PDA `159.6ms` 改善；第一轮 Segment 250 对象有噪声升至 `337.5ms`，因此本步定位为小幅事件合并优化，完整 primitive reuse/diff 仍保留后续。

@@ -14,6 +14,7 @@ import { getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 
 let renderedPrimitives = [];
 const SEGMENT_LINE_STYLE = {
@@ -147,14 +148,16 @@ export function renderSecondarySegments() {
   });
 }
 
+const renderSecondarySegmentsOnSelection = createRafThrottle(renderSecondarySegments);
+
 export function initSecondarySegmentRenderer() {
   bus.on('segment:changed', renderSecondarySegments);
   bus.on('segment-group:changed', renderSecondarySegments);
-  bus.on('segment:selected', renderSecondarySegments);
-  bus.on('segment-group:selected', renderSecondarySegments);
-  bus.on('segment:selection-cleared', renderSecondarySegments);
-  bus.on('segment-group:selection-cleared', renderSecondarySegments);
-  bus.on('drawing-set-focus:changed', renderSecondarySegments);
+  bus.on('segment:selected', renderSecondarySegmentsOnSelection);
+  bus.on('segment-group:selected', renderSecondarySegmentsOnSelection);
+  bus.on('segment:selection-cleared', renderSecondarySegmentsOnSelection);
+  bus.on('segment-group:selection-cleared', renderSecondarySegmentsOnSelection);
+  bus.on('drawing-set-focus:changed', renderSecondarySegmentsOnSelection);
   bus.on('display-mode:changed', renderSecondarySegments);
   bus.on('secondary-bars:loaded', renderSecondarySegments);
   bus.on('secondary-chart:settings-changed', renderSecondarySegments);

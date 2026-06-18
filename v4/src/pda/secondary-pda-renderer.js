@@ -22,6 +22,7 @@ import { getSelectedPda } from './pda-selection.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getSegmentGroups } from '../segment/segment-group-store.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
+import { createRafThrottle } from '../utils/raf-throttle.js';
 
 let renderedPrimitives = [];
 const DEFAULT_EXTEND_BARS = 8;
@@ -344,15 +345,17 @@ export function renderSecondaryPdaAnnotations() {
   });
 }
 
+const renderSecondaryPdaAnnotationsOnSelection = createRafThrottle(renderSecondaryPdaAnnotations);
+
 export function initSecondaryPdaRenderer() {
   bus.on('pda:changed', renderSecondaryPdaAnnotations);
-  bus.on('pda:selected', renderSecondaryPdaAnnotations);
-  bus.on('pda:selection-cleared', renderSecondaryPdaAnnotations);
-  bus.on('segment:selected', renderSecondaryPdaAnnotations);
-  bus.on('segment:selection-cleared', renderSecondaryPdaAnnotations);
-  bus.on('segment-group:selected', renderSecondaryPdaAnnotations);
-  bus.on('segment-group:selection-cleared', renderSecondaryPdaAnnotations);
-  bus.on('drawing-set-focus:changed', renderSecondaryPdaAnnotations);
+  bus.on('pda:selected', renderSecondaryPdaAnnotationsOnSelection);
+  bus.on('pda:selection-cleared', renderSecondaryPdaAnnotationsOnSelection);
+  bus.on('segment:selected', renderSecondaryPdaAnnotationsOnSelection);
+  bus.on('segment:selection-cleared', renderSecondaryPdaAnnotationsOnSelection);
+  bus.on('segment-group:selected', renderSecondaryPdaAnnotationsOnSelection);
+  bus.on('segment-group:selection-cleared', renderSecondaryPdaAnnotationsOnSelection);
+  bus.on('drawing-set-focus:changed', renderSecondaryPdaAnnotationsOnSelection);
   bus.on('display-mode:changed', renderSecondaryPdaAnnotations);
   bus.on('display-preferences:changed', renderSecondaryPdaAnnotations);
   bus.on('secondary-bars:loaded', renderSecondaryPdaAnnotations);

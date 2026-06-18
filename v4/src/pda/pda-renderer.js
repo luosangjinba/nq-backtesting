@@ -513,18 +513,19 @@ export function renderPdaAnnotations() {
 }
 
 const renderPdaAnnotationsOnReplay = createRafThrottle(renderPdaAnnotations);
+const renderPdaAnnotationsOnSelection = createRafThrottle(renderPdaAnnotations);
 
 export function initPdaRenderer() {
   bus.on('pda:changed', renderPdaAnnotations);
-  bus.on('pda:selected', renderPdaAnnotations);
-  bus.on('pda:selection-cleared', renderPdaAnnotations);
-  bus.on('segment:selected', renderPdaAnnotations);
-  bus.on('segment:selection-cleared', renderPdaAnnotations);
+  bus.on('pda:selected', renderPdaAnnotationsOnSelection);
+  bus.on('pda:selection-cleared', renderPdaAnnotationsOnSelection);
+  bus.on('segment:selected', renderPdaAnnotationsOnSelection);
+  bus.on('segment:selection-cleared', renderPdaAnnotationsOnSelection);
   bus.on('segment:changed', renderPdaAnnotations);
-  bus.on('segment-group:selected', renderPdaAnnotations);
-  bus.on('segment-group:selection-cleared', renderPdaAnnotations);
+  bus.on('segment-group:selected', renderPdaAnnotationsOnSelection);
+  bus.on('segment-group:selection-cleared', renderPdaAnnotationsOnSelection);
   bus.on('segment-group:changed', renderPdaAnnotations);
-  bus.on('drawing-set-focus:changed', renderPdaAnnotations);
+  bus.on('drawing-set-focus:changed', renderPdaAnnotationsOnSelection);
   bus.on('display-mode:changed', renderPdaAnnotations);
   bus.on('display-preferences:changed', renderPdaAnnotations);
   bus.on('primary-instrument:changed', renderPdaAnnotations);
