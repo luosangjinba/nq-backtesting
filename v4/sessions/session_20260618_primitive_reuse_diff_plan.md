@@ -6,6 +6,8 @@ Step 293 measured selection-triggered render latency as the largest current fron
 
 The user has taken a full hard backup, so Step 297 can be more aggressive than Step 296. The plan still keeps verification checkpoints small so regressions can be isolated quickly.
 
+Additional user constraint update: V4 data is still in testing and old persisted data is not fixed yet. Step 297 does not need to preserve compatibility for old localStorage / Review JSON shapes if a cleaner implementation requires changing them. This step still avoids schema changes unless renderer reuse actually needs them.
+
 ## Goal
 
 Replace full detach/recreate render passes for PDA and Segment overlays with cached primitive reuse and diffing, starting with selection-heavy paths and expanding only after measurable improvement.
@@ -42,6 +44,33 @@ Acceptance:
 
 - Baseline numbers are recorded in this session before implementation.
 - Smoke fails if a primitive remains after deletion or hidden display.
+
+Status: Complete.
+
+Baseline after Step 296 / before reuse-diff implementation:
+
+- 25 objects: Segment `114.7ms`, PDA `64.6ms`.
+- 100 objects: Segment `152.7ms`, PDA `53.4ms`.
+- 250 objects: Segment `327.7ms`, PDA `191ms`.
+
+Implementation notes:
+
+- Added `v4/tests/primitive-render-lifecycle-smoke.js`.
+- The smoke wraps primary chart `attachPrimitive` / `detachPrimitive` and tracks only PDA/Segment overlay primitive classes.
+- It verifies Segment hidden/delete, PDA hidden, and `bars:cleared` detaches all tracked primitives.
+- The first run exposed a stale `LiquidityPrimitive` after `bars:cleared`.
+- Fixed by adding no-display-bars guards to primary/secondary PDA and Segment renderers so late or follow-up renders clear and return instead of recreating overlay primitives on an empty chart.
+
+Verification:
+
+- `node --check v4/src/pda/pda-renderer.js`
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- `node --check v4/src/segment/segment-renderer.js`
+- `node --check v4/src/segment/secondary-segment-renderer.js`
+- `node --check v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/performance-selection-benchmark.js`
+- `git diff --check`
 
 ## Step 297.2: Add Primitive Mutation APIs
 

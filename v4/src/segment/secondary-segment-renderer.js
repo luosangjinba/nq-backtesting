@@ -62,6 +62,7 @@ export function renderSecondarySegments() {
   const chartInstance = getSecondaryChart();
   const series = getSecondarySeries();
   if (!chartInstance || !series) return;
+  if (!secondaryStore.getSecondaryDisplayBars().length) return;
 
   const secondaryTf = secondaryStore.getSecondaryTimeframe();
   const segments = getSegments();

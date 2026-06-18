@@ -299,6 +299,7 @@ export function renderSecondaryPdaAnnotations() {
   const chartInstance = getSecondaryChart();
   const series = getSecondarySeries();
   if (!chartInstance || !series) return;
+  if (!secondaryStore.getSecondaryDisplayBars().length) return;
 
   const annotations = getAnnotations();
   const visibility = getStructureOverlayVisibility({

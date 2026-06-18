@@ -2,6 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
+import * as store from '../data/bar-store.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
 import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from './segment-selection.js';
@@ -59,6 +60,7 @@ export function renderSegments() {
   const chartInstance = chart.getChart();
   const series = chart.getSeries();
   if (!chartInstance || !series) return;
+  if (!store.getDisplayBars().length) return;
 
   const selected = getSelectedSegment();
   const selectedGroup = getSelectedSegmentGroup();

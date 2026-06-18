@@ -452,6 +452,7 @@ export function renderPdaAnnotations() {
   const chartInstance = chart.getChart();
   const series = chart.getSeries();
   if (!chartInstance || !series) return;
+  if (!store.getDisplayBars().length) return;
 
   const selected = getSelectedPda();
   const segmentPdaState = getSelectedSegmentPdaState();
