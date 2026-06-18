@@ -335,6 +335,43 @@ Acceptance:
 - Secondary-created PDA and primary-created PDA render correctly on both charts.
 - Split reset and secondary chart settings changes clear or update cache correctly.
 
+Status: complete.
+
+Implementation:
+
+- Migrated `secondary-pda-renderer.js` to `createPrimitiveCache(...)`.
+- Builds stable secondary keys:
+  - `pda:${id}:secondary:liquidity`
+  - `pda:${id}:secondary:range`
+  - `pda:${id}:secondary:point-set`
+  - `pda:${id}:secondary:fib`
+  - `pda:${id}:secondary:time:${index}`
+- Preserves `getStructureOverlayVisibility()` filtering and secondary instrument/timeframe projection rules.
+- Clears cache when split is disabled, secondary chart/series/bars are unavailable, `secondary-bars:cleared`, and `secondary-chart:reset`.
+
+Verification:
+
+- `node --check v4/src/pda/secondary-pda-renderer.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/pda-hit-test-smoke.js`
+- `node v4/tests/fib-levels-smoke.js`
+- `node v4/tests/performance-selection-benchmark.js`
+- `node v4/tests/manual-range-prices-smoke.js`
+- `node v4/tests/time-projection-smoke.js`
+- `node v4/tests/display-mode-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `git diff --check`
+
+Benchmark after this step:
+
+- 25 objects: Segment `74.2ms`, PDA `40ms`
+- 100 objects: Segment `93.2ms`, PDA `42.7ms`
+- 250 objects: Segment `398.6ms`, PDA `131.5ms`
+
+Note:
+
+- The 250-object Segment number is noisy in this run and should be rechecked in Step 297.9. This step only changed secondary PDA rendering, which is not the primary Segment selection benchmark path.
+
 ## Step 297.8: Replay And Objective Gap Safety
 
 Tasks:
