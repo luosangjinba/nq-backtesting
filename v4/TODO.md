@@ -955,7 +955,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 297: Primitive Reuse / Diff Renderer。目标是在已有全量硬备份基础上，系统性改造 PDA 与 Segment overlay renderer：由 selection 触发的全量 detach/recreate 改为稳定 key + primitive cache + descriptor diff，优先让旧 selected / 新 selected 两个对象更新样式，其它对象保持复用。计划见 `v4/sessions/session_20260618_primitive_reuse_diff_plan.md`。
   - [x] Step 297.1: Freeze baseline and failure tests：已记录 Step 296 后 selection benchmark（250 对象 Segment `327.7ms`、PDA `191ms`），新增 `primitive-render-lifecycle-smoke.js` 捕获 Segment/PDA hidden/delete/bars clear 后的 stale primitive；测试暴露并已修复无 display bars 时 PDA/Segment renderer 可重新挂载旧 primitive 的问题，主/副图 renderer 均增加 no-display-bars guard。
   - [x] Step 297.2: Add primitive mutation APIs：已给 Liquidity/Range/FVG/PointSet/Fib/Segment/VerticalLine primitive 增加最小 `update()` / `setOptions()` 能力，保持 constructor 兼容；新增 `primitive-mutation-smoke.js` 覆盖字段更新与 requestUpdate 触发。
-  - [ ] Step 297.3: Introduce renderer cache helper：新增 chart-level primitive cache helper，负责 attach new、update existing、detach missing、clear all。
+  - [x] Step 297.3: Introduce renderer cache helper：已新增 `chart/primitive-cache.js`，支持 stable key、type diff、attach new、update existing、detach missing、clear all，并用 `primitive-cache-smoke.js` 覆盖 fake attach/detach/update 路径。
   - [ ] Step 297.4: Migrate primary Segment renderer：先迁移 `segment-renderer.js`，用 `segment:${id}:primary` / `segment-group:${id}:primary` 稳定 key。
   - [ ] Step 297.5: Migrate secondary Segment renderer：迁移 `secondary-segment-renderer.js`，处理 Split reset / secondary bars clear。
   - [ ] Step 297.6: Migrate primary PDA renderer by shape：按 liquidity -> range -> point set -> fib -> time-only projection 顺序迁移 `pda-renderer.js`。

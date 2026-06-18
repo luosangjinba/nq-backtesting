@@ -137,6 +137,29 @@ Acceptance:
 - Helper has a focused smoke test with fake attach/detach/update functions.
 - It handles key changes and missing keys deterministically.
 
+Status: Complete.
+
+Implementation notes:
+
+- Added `v4/src/chart/primitive-cache.js`.
+- `createPrimitiveCache({ attach, detach })` supports:
+  - stable descriptor key;
+  - descriptor type checks;
+  - create + attach for new entries;
+  - update existing entries when key/type match;
+  - detach/recreate when key matches but type changes;
+  - detach missing entries;
+  - clear all;
+  - inspection helpers `get()`, `keys()`, `size()`.
+- Added `v4/tests/primitive-cache-smoke.js` with fake primitives and fake attach/detach hooks.
+
+Verification:
+
+- `node --check v4/src/chart/primitive-cache.js`
+- `node --check v4/tests/primitive-cache-smoke.js`
+- `node v4/tests/primitive-cache-smoke.js`
+- `git diff --check`
+
 ## Step 297.4: Migrate Segment Renderer First
 
 Rationale:
