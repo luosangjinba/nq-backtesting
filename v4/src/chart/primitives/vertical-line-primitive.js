@@ -102,6 +102,17 @@ export class VerticalLinePrimitive {
     this._requestUpdate?.();
   }
 
+  setOptions(options = {}) {
+    this._options = { ...this._options, ...options };
+    this._requestUpdate?.();
+  }
+
+  update({ time = this._time, options = {} } = {}) {
+    this._time = time;
+    this._options = { ...this._options, ...options };
+    this._requestUpdate?.();
+  }
+
   updateAllViews() {
     this._view.update();
   }

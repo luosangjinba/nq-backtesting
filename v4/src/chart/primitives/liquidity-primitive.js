@@ -178,6 +178,30 @@ export class LiquidityPrimitive {
     this._requestUpdate?.();
   }
 
+  setOptions(options = {}) {
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
+  update({
+    anchorTime = this._anchorTime,
+    price = this._price,
+    lineColor = this._lineColor,
+    textColor = this._textColor,
+    label = this._label,
+    position = this._position,
+    options = {},
+  } = {}) {
+    this._anchorTime = anchorTime;
+    this._price = price;
+    this._lineColor = lineColor;
+    this._textColor = textColor;
+    this._label = label;
+    this._position = position;
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
   updateAllViews() {
     this._view.update();
   }

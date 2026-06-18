@@ -91,6 +91,34 @@ Acceptance:
 - Existing constructors and current renderers still work unchanged.
 - Unit/smoke coverage proves a primitive can update style and geometry without detach/attach.
 
+Status: Complete.
+
+Implementation notes:
+
+- Added object-style `update(...)` and `setOptions(...)` APIs where applicable:
+  - `LiquidityPrimitive`
+  - `RangePrimitive`
+  - `FvgPrimitive`
+  - `PointSetPrimitive`
+  - `FibPrimitive`
+  - `SegmentPrimitive`
+  - `VerticalLinePrimitive`
+- Constructors remain compatible with existing renderers.
+- `FvgPrimitive` now supports `attached` / `detached` / `requestUpdate` so it can participate in cache reuse if needed later.
+- Added `v4/tests/primitive-mutation-smoke.js` to assert updates mutate geometry/style fields and trigger requestUpdate callbacks.
+
+Verification:
+
+- `node --check v4/src/chart/primitives/liquidity-primitive.js`
+- `node --check v4/src/chart/primitives/range-primitive.js`
+- `node --check v4/src/chart/primitives/point-set-primitive.js`
+- `node --check v4/src/chart/primitives/fib-primitive.js`
+- `node --check v4/src/chart/primitives/segment-primitive.js`
+- `node --check v4/src/chart/primitives/vertical-line-primitive.js`
+- `node v4/tests/primitive-mutation-smoke.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `git diff --check`
+
 ## Step 297.3: Introduce Renderer Cache Helper
 
 Tasks:

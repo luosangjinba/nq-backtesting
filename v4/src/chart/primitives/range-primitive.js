@@ -136,6 +136,28 @@ export class RangePrimitive {
     this._requestUpdate?.();
   }
 
+  setOptions(options = {}) {
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
+  update({
+    startTime = this._startTime,
+    endTime = this._endTime,
+    topPrice = this._topPrice,
+    bottomPrice = this._bottomPrice,
+    label = this._label,
+    options = {},
+  } = {}) {
+    this._startTime = startTime;
+    this._endTime = endTime;
+    this._topPrice = topPrice;
+    this._bottomPrice = bottomPrice;
+    this._label = label;
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
   updateAllViews() {
     this._view.update();
   }
@@ -214,6 +236,35 @@ export class FvgPrimitive {
     this._bottomPrice = bottomPrice;
     this._fillColor = color;
     this._view = new FvgView(this);
+    this._requestUpdate = null;
+  }
+
+  attached({ requestUpdate }) {
+    this._requestUpdate = requestUpdate;
+    this._requestUpdate?.();
+  }
+
+  detached() {
+    this._requestUpdate = null;
+  }
+
+  requestUpdate() {
+    this._requestUpdate?.();
+  }
+
+  update({
+    startTime = this._startTime,
+    endTime = this._endTime,
+    topPrice = this._topPrice,
+    bottomPrice = this._bottomPrice,
+    color = this._fillColor,
+  } = {}) {
+    this._startTime = startTime;
+    this._endTime = endTime;
+    this._topPrice = topPrice;
+    this._bottomPrice = bottomPrice;
+    this._fillColor = color;
+    this.requestUpdate();
   }
 
   updateAllViews() {

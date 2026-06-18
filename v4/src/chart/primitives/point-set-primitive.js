@@ -139,6 +139,24 @@ export class PointSetPrimitive {
     this._requestUpdate?.();
   }
 
+  setOptions(options = {}) {
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
+  update({
+    points = this._points,
+    referencePrice = this._referencePrice,
+    label = this._label,
+    options = {},
+  } = {}) {
+    this._points = points;
+    this._referencePrice = referencePrice;
+    this._label = label;
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
   updateAllViews() {
     this._view.update();
   }

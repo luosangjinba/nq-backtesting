@@ -148,6 +148,28 @@ export class SegmentPrimitive {
     this._requestUpdate?.();
   }
 
+  setOptions(options = {}) {
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
+  update({
+    startTime = this._startTime,
+    startPrice = this._startPrice,
+    endTime = this._endTime,
+    endPrice = this._endPrice,
+    label = this._label,
+    options = {},
+  } = {}) {
+    this._startTime = startTime;
+    this._startPrice = startPrice;
+    this._endTime = endTime;
+    this._endPrice = endPrice;
+    this._label = label;
+    this._options = { ...this._options, ...options };
+    this.requestUpdate();
+  }
+
   updateAllViews() {
     this._view.update();
   }
