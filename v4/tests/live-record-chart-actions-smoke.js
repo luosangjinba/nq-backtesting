@@ -83,6 +83,20 @@ const hitMenu = renderLiveRecordMenuItems({
 });
 assert.equal((hitMenu.match(/Delete Live Record/g) || []).length, 1, 'hit menu renders delete record once per record');
 assert.match(hitMenu, /Select Entry · live-menu-hit/, 'hit menu renders element actions');
+assert.doesNotMatch(hitMenu, /Select Stop Loss · live-menu-hit/, 'hit menu renders only the primary hit element');
+const primaryHitMenu = renderLiveRecordMenuItems({
+  bar: { timestamp: 1710770400 },
+  liveRecordHit: {
+    primaryHit: { liveRecordId: 'live-menu-primary', element: 'anchor', timestamp: 1710770460 },
+    hits: [
+      { liveRecordId: 'live-menu-other', element: 'result', timestamp: 1710770520 },
+      { liveRecordId: 'live-menu-primary', element: 'anchor', timestamp: 1710770460 },
+    ],
+  },
+});
+assert.match(primaryHitMenu, /Set Active · live-menu-primary/, 'hit menu prefers primary hit record');
+assert.match(primaryHitMenu, /Select Anchor · live-menu-primary/, 'hit menu renders primary hit element');
+assert.doesNotMatch(primaryHitMenu, /live-menu-other/, 'hit menu excludes nearby non-primary hit records');
 
 assert.equal(handleLiveRecordChartAction('live-record-create-bullish', {
   bar: { timestamp: 1710770340, close: 18360 },

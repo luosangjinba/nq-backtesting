@@ -226,11 +226,20 @@ function hasRenderablePriceElement(element = {}) {
   return Number.isFinite(Number(element.price));
 }
 
-function getRewardTargetFromResult(result = {}) {
-  const isProfit = result.exitType === 'profit' || result.status === 'win';
-  if (!isProfit || !Number.isFinite(Number(result.exitPrice))) return null;
+export function getRewardTargetFromResult(result = {}, targets = []) {
+  if (result.exitType !== 'profit' || !Number.isFinite(Number(result.exitPrice))) return null;
+  const exitPrice = Number(result.exitPrice);
+  const matchingTarget = (Array.isArray(targets) ? targets : [])
+    .find((target) => Number.isFinite(Number(target.price)) && Math.abs(Number(target.price) - exitPrice) < 0.00001);
+  if (matchingTarget) {
+    return {
+      ...matchingTarget,
+      price: exitPrice,
+      endTimestamp: result.exitTimestamp || matchingTarget.endTimestamp,
+    };
+  }
   return {
-    price: result.exitPrice,
+    price: exitPrice,
     endTimestamp: result.exitTimestamp,
   };
 }
@@ -242,8 +251,7 @@ function renderRiskRewardBox(liveSet, entry, stopLoss, targets, result = {}) {
   const entryTimestamp = entry.timestamp || liveSet.anchor?.timestamp || liveSet.primaryTimestamp;
   const visibleTargets = (Array.isArray(targets) ? targets : [])
     .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && hasRenderablePriceElement(target));
-  const rewardTarget = visibleTargets.find((target) => Number.isFinite(Number(target.price)))
-    || getRewardTargetFromResult(result);
+  const rewardTarget = getRewardTargetFromResult(result, visibleTargets);
   const endTimestamp = getZoneEndTimestamp(entry, stopLoss, rewardTarget);
 
   if (hasRenderablePriceElement(stopLoss)) {

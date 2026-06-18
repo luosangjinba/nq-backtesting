@@ -415,36 +415,45 @@ function getLiveRecordElementLabel(role) {
   return role || 'Element';
 }
 
+function formatHitTimestamp(timestamp) {
+  if (!Number.isFinite(Number(timestamp))) return '';
+  const date = new Date(Number(timestamp) * 1000);
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+function getLiveRecordHitLabel(liveRecordId, hit = {}) {
+  const record = getLiveRecordById(liveRecordId);
+  if (!record) return liveRecordId.slice(0, 18);
+  const direction = record?.direction === LIVE_RECORD_DIRECTIONS.LONG
+    ? 'Long'
+    : record?.direction === LIVE_RECORD_DIRECTIONS.SHORT
+      ? 'Short'
+      : 'Live';
+  const timestamp = formatHitTimestamp(record?.anchor?.timestamp || hit.timestamp);
+  const suffix = timestamp ? `${direction} ${timestamp}` : liveRecordId.slice(0, 18);
+  return suffix;
+}
+
 function getHitLiveRecordMenuItems(liveRecordHit) {
-  const hits = Array.isArray(liveRecordHit?.hits) ? liveRecordHit.hits : [];
-  if (!hits.length) return '';
-  const recordRows = Array.from(new Set(hits.map((hit) => hit.liveRecordId).filter(Boolean)))
-    .map((liveRecordId) => {
-      const record = getLiveRecordById(liveRecordId);
-      return `
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${liveRecordId}">Set Active · ${liveRecordId.slice(0, 18)}</button>
-        ${renderLiveRecordStatusRows(record)}
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${liveRecordId}">Delete Live Record</button>
-      `;
-    })
-    .join('');
-  const elementRows = hits
-    .map((hit) => {
-      const label = `${getLiveRecordElementLabel(hit.element)} · ${hit.liveRecordId.slice(0, 18)}`;
-      return `
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SELECT_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Select ${label}</button>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_HIDE_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Hide ${label}</button>
-        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_ELEMENT}" data-live-record-id="${hit.liveRecordId}" data-live-record-element="${hit.element}">Delete ${label}</button>
-      `;
-    })
-    .join('');
+  const hit = liveRecordHit?.primaryHit || (Array.isArray(liveRecordHit?.hits) ? liveRecordHit.hits[0] : null);
+  if (!hit?.liveRecordId) return '';
+  const liveRecordId = hit.liveRecordId;
+  const record = getLiveRecordById(liveRecordId);
+  const recordLabel = getLiveRecordHitLabel(liveRecordId, hit);
+  const elementLabel = `${getLiveRecordElementLabel(hit.element)} · ${recordLabel}`;
   return `
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Live Record Element</div>
       <div class="pda-submenu-panel">
-        ${recordRows}
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SET_ACTIVE}" data-live-record-id="${liveRecordId}">Set Active · ${recordLabel}</button>
+        ${renderLiveRecordStatusRows(record)}
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_RECORD}" data-live-record-id="${liveRecordId}">Delete Live Record</button>
         <div class="pda-menu-divider"></div>
-        ${elementRows}
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_SELECT_ELEMENT}" data-live-record-id="${liveRecordId}" data-live-record-element="${hit.element}">Select ${elementLabel}</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_HIDE_ELEMENT}" data-live-record-id="${liveRecordId}" data-live-record-element="${hit.element}">Hide ${elementLabel}</button>
+        <button class="pda-menu-item" data-pda-action="${LIVE_RECORD_CHART_ACTIONS.HIT_DELETE_ELEMENT}" data-live-record-id="${liveRecordId}" data-live-record-element="${hit.element}">Delete ${elementLabel}</button>
       </div>
     </div>
   `;

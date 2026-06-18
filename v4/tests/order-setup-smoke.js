@@ -194,6 +194,18 @@ assert.match(shiftOrderSetupMenu, /Targets/, 'setup menu groups target actions i
 assert.match(shiftOrderSetupMenu, /Target Internal 3/, 'setup menu includes internal target variants');
 assert.match(shiftOrderSetupMenu, /Target External 2/, 'setup menu includes external target variants');
 assert.match(shiftOrderSetupMenu, /Target External 3/, 'setup menu includes best external target');
+const hitOrderSetupMenu = renderOrderSetupMenuItems({
+  bar: { timestamp: 1672756860 },
+  orderSetupHit: {
+    primaryHit: { setupId: bullish.id, element: 'entry' },
+    hits: [
+      { setupId: 'setup-nearby-non-primary', element: 'reversal' },
+      { setupId: bullish.id, element: 'entry' },
+    ],
+  },
+});
+assert.match(hitOrderSetupMenu, new RegExp(`Select Entry · ${bullish.id.slice(0, 18)}`), 'setup hit menu renders primary element');
+assert.doesNotMatch(hitOrderSetupMenu, /setup-nearby-non-primary/, 'setup hit menu excludes nearby non-primary setup');
 assert.equal(handleOrderSetupChartAction('order-setup-set-market-structure-shift', {
   bar: { timestamp: 1672756320, high: 11025, low: 11015 },
   timeframe: '1M',

@@ -68,40 +68,34 @@ function getActiveSetupLabel() {
 }
 
 function getHitSetupMenuItems(orderSetupHit) {
-  const hits = Array.isArray(orderSetupHit?.hits) ? orderSetupHit.hits : [];
-  if (!hits.length) return '';
+  const hit = orderSetupHit?.primaryHit || (Array.isArray(orderSetupHit?.hits) ? orderSetupHit.hits[0] : null);
+  if (!hit?.setupId) return '';
   const activeId = getActiveReviewSetId();
-  const reversalHits = hits.filter((hit) => hit.element === 'reversal');
-  const elementHits = hits.filter((hit) => hit.element !== 'reversal');
-  const reversalRows = reversalHits
-    .map((hit) => {
-      const active = hit.setupId === activeId;
-      const label = `${active ? 'Active' : 'Set Active'} · ${hit.setupId.slice(0, 18)}`;
-      return `
+  const clearActive = activeId
+    ? '<button class="pda-menu-item" data-pda-action="order-setup-hit-clear-active">Close Active Setup</button>'
+    : '';
+  const primaryRows = hit.element === 'reversal'
+    ? (() => {
+        const active = hit.setupId === activeId;
+        const label = `${active ? 'Active' : 'Set Active'} · ${hit.setupId.slice(0, 18)}`;
+        return `
         <button class="pda-menu-item" data-pda-action="order-setup-hit-set-active" data-order-setup-id="${hit.setupId}">${label}</button>
         <button class="pda-menu-item" data-pda-action="order-setup-hit-hide" data-order-setup-id="${hit.setupId}">Hide Setup</button>
         <button class="pda-menu-item" data-pda-action="order-setup-hit-delete-setup" data-order-setup-id="${hit.setupId}">Delete Setup</button>
       `;
-    })
-    .join('');
-  const elementRows = elementHits
-    .map((hit) => {
-      const label = `${getOrderSetupElementLabel(hit.element)} · ${hit.setupId.slice(0, 18)}`;
-      return `
+      })()
+    : (() => {
+        const label = `${getOrderSetupElementLabel(hit.element)} · ${hit.setupId.slice(0, 18)}`;
+        return `
         <button class="pda-menu-item" data-pda-action="order-setup-hit-select-element" data-order-setup-id="${hit.setupId}" data-order-setup-element="${hit.element}">Select ${label}</button>
         <button class="pda-menu-item" data-pda-action="order-setup-hit-delete-element" data-order-setup-id="${hit.setupId}" data-order-setup-element="${hit.element}">Delete ${label}</button>
       `;
-    })
-    .join('');
-  const clearActive = activeId
-    ? '<button class="pda-menu-item" data-pda-action="order-setup-hit-clear-active">Close Active Setup</button>'
-    : '';
+      })();
   return `
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Element</div>
       <div class="pda-submenu-panel">
-        ${reversalRows}
-        ${elementRows}
+        ${primaryRows}
         ${clearActive}
       </div>
     </div>

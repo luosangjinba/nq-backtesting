@@ -57,6 +57,9 @@ import {
   handleLiveRecordChartAction,
   renderLiveRecordMenuItems,
 } from '../src/live-record/live-record-chart-actions.js';
+import {
+  getRewardTargetFromResult,
+} from '../src/live-record/live-record-renderer.js';
 import { getCalendarDayGroups } from '../src/calendar/calendar-review-index.js';
 import { CALENDAR_OBJECT_TYPES } from '../src/calendar/calendar-types.js';
 import { renderLiveRecordDetailPanel } from '../src/ui/inspector/live-record-panel.js';
@@ -294,6 +297,25 @@ assert.equal(richSet.execution.marketStructureShift.complete, true, 'projection 
 assert.equal(richSet.execution.stopLoss.complete, true, 'projection treats priced stop as renderable plan');
 assert.equal(richSet.execution.targets[0].role, 'targetExternal1', 'projection keeps target role');
 assert.equal(richSet.result.exitTimeframe, '1M', 'projection keeps result exit timeframe');
+assert.equal(
+  getRewardTargetFromResult({ status: 'win', exitType: 'unknown', exitPrice: 18320 }, richSet.execution.targets),
+  null,
+  'risk/reward reward ignores stale winning status when exit type is unknown'
+);
+assert.equal(
+  getRewardTargetFromResult({ status: 'loss', exitType: 'stopLoss', exitPrice: 18320 }, richSet.execution.targets),
+  null,
+  'risk/reward reward is not drawn for stop loss result'
+);
+assert.deepEqual(
+  getRewardTargetFromResult({ status: 'win', exitType: 'profit', exitTimestamp: 1710770800, exitPrice: 18320.25 }, richSet.execution.targets),
+  {
+    ...richSet.execution.targets[0],
+    price: 18320.25,
+    endTimestamp: 1710770800,
+  },
+  'risk/reward reward uses matching target only for profit result'
+);
 
 assert.equal(saveLiveRecords('NQ'), true, 'NQ live records save');
 assert.ok(storageData.has(getLiveRecordStorageKey('NQ')), 'NQ live record key is instrument-scoped');
