@@ -547,7 +547,7 @@ assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Context · PDA · fvg · pda-live-link/, 'detail renders formatted PDA ref source');
 assert.match(detailHtml, /Context · Chart Note · bar · chart-note-live-link/, 'detail renders formatted chart note ref source');
 assert.match(detailHtml, /data-inspector-action="live-record-ref-remove"/, 'detail renders live reason linked object delete action');
-assert.match(detailHtml, /data-inspector-action="live-record-ref-add-selected-object"/, 'detail renders live reason selected object action');
+assert.match(detailHtml, /data-inspector-action="live-record-ref-pick-start"/, 'detail renders live reason object picker action');
 assert.match(detailHtml, /data-inspector-action="live-record-reason-delete"/, 'detail renders live reason delete action');
 assert.match(detailHtml, /Result/, 'detail renders Result');
 assert.match(detailHtml, /Profit/, 'detail renders live exit type option');
@@ -575,6 +575,32 @@ assert.equal(actions.handleChange('live-record-display-field', makeTarget(chartL
 assert.equal(getLiveRecordById(chartLiveId).display.showRiskRewardBox, false, 'display action updates');
 assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'patterns', liveRecordEntryPattern: 'ote', checked: true })), true);
 assert.deepEqual(getLiveRecordById(chartLiveId).entryContext.patterns, ['ote'], 'entry context pattern action updates');
+assert.equal(actions.handleClick('live-record-ref-pick-start', makeTarget(chartLiveId, { reasonIndex: '0' })), true);
+assert.equal(actions.isPicking(), true, 'live reason object picker starts');
+assert.match(lastStatus.text, /Select a chart object to link to reason 1/, 'live picker status prompts chart object selection');
+assert.match(
+  renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId), { pendingReasonRefPick: actions.getPendingRefPick() }),
+  /Cancel Select/,
+  'detail renders cancel select while live reason picker is active'
+);
+assert.equal(actions.handleClick('live-record-ref-pick-cancel', makeTarget(chartLiveId, { reasonIndex: '0' })), true);
+assert.equal(actions.isPicking(), false, 'live reason object picker cancels');
+assert.equal(actions.handleClick('live-record-ref-pick-start', makeTarget(chartLiveId, { reasonIndex: '0' })), true);
+assert.equal(actions.handlePickedPda({
+  id: 'fib-live-reason-link',
+  type: 'fib',
+  sourceInstrument: 'NQ',
+  sourceTimeframeLabel: '1M',
+}), true);
+assert.ok(
+  getLiveRecordById(chartLiveId).reasons[0].refs.some((ref) => ref.type === 'pda' && ref.id === 'fib-live-reason-link'),
+  'picked Fib/PDA object can be linked to a live reason'
+);
+assert.match(
+  renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId)),
+  /Context · PDA · Main NQ 1M · fib-live-reason-link/,
+  'detail renders linked live PDA ref'
+);
 assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'session', value: 'silver-bullet' })), true);
 assert.equal(getLiveRecordById(chartLiveId).entryContext.session, 'silver-bullet', 'entry context session action updates');
 assert.equal(actions.handleChange('live-record-result-status', makeTarget(chartLiveId, { value: 'win' })), true);

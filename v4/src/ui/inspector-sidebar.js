@@ -432,7 +432,9 @@ function renderLiveRecordDetail(liveRecordId) {
   });
   setInspectorBody(`
     ${renderInspectorBackAction()}
-    ${renderLiveRecordDetailPanel(record)}
+    ${renderLiveRecordDetailPanel(record, {
+      pendingReasonRefPick: liveRecordActions.getPendingRefPick?.(),
+    })}
   `);
 }
 
@@ -1073,6 +1075,7 @@ export function initInspectorSidebar() {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();
       orderReviewActions.clearReasonRefPick?.({ silent: true });
+      liveRecordActions.clearRefPick?.({ silent: true });
       segmentActions.clearActorPickState();
       dailyTimeActions.clearRefPick({ silent: true });
     }
@@ -1084,6 +1087,10 @@ export function initInspectorSidebar() {
     }
     if (orderReviewActions.isReasonRefPicking()) {
       orderReviewActions.handlePickedPda(annotation);
+      return;
+    }
+    if (liveRecordActions.isPicking()) {
+      liveRecordActions.handlePickedPda(annotation);
       return;
     }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getAnnotationCalendarDate(annotation));
@@ -1101,6 +1108,10 @@ export function initInspectorSidebar() {
       orderReviewActions.handlePickedSegment(segment);
       return;
     }
+    if (liveRecordActions.isPicking()) {
+      liveRecordActions.handlePickedSegment(segment);
+      return;
+    }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSegmentCalendarDate(segment));
     renderSegment(segment);
     openSidebar();
@@ -1112,6 +1123,10 @@ export function initInspectorSidebar() {
     }
     if (orderReviewActions.isReasonRefPicking()) {
       orderReviewActions.handlePickedComposite(segmentGroup);
+      return;
+    }
+    if (liveRecordActions.isPicking()) {
+      liveRecordActions.handlePickedComposite(segmentGroup);
       return;
     }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getCompositeCalendarDate(segmentGroup));
@@ -1134,6 +1149,10 @@ export function initInspectorSidebar() {
       orderReviewActions.handlePickedSmt(record);
       return;
     }
+    if (liveRecordActions.isPicking()) {
+      liveRecordActions.handlePickedSmt(record);
+      return;
+    }
     if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSmtCalendarDate(record));
     selectedSmtId = record.id;
     renderSmtSelection();
@@ -1151,6 +1170,10 @@ export function initInspectorSidebar() {
   bus.on('chart-note:selected', ({ note }) => {
     if (orderReviewActions.isReasonRefPicking()) {
       orderReviewActions.handlePickedChartNote(note);
+      return;
+    }
+    if (liveRecordActions.isPicking()) {
+      liveRecordActions.handlePickedChartNote(note);
     }
   });
   bus.on('economic-calendar:changed', refreshSelection);

@@ -106,6 +106,19 @@ function between(value, a, b, tolerance = 0) {
   return value >= Math.min(a, b) - tolerance && value <= Math.max(a, b) + tolerance;
 }
 
+function distanceToSegment(x, y, x1, y1, x2, y2) {
+  const dx = Number(x2) - Number(x1);
+  const dy = Number(y2) - Number(y1);
+  const lengthSq = dx * dx + dy * dy;
+  if (!Number.isFinite(lengthSq) || lengthSq <= 0) {
+    return Math.hypot(Number(x) - Number(x1), Number(y) - Number(y1));
+  }
+  const t = Math.max(0, Math.min(1, ((Number(x) - Number(x1)) * dx + (Number(y) - Number(y1)) * dy) / lengthSq));
+  const projectedX = Number(x1) + t * dx;
+  const projectedY = Number(y1) + t * dy;
+  return Math.hypot(Number(x) - projectedX, Number(y) - projectedY);
+}
+
 function distanceToSegmentX(x, from, to) {
   if (between(x, from, to)) return 0;
   return Math.min(Math.abs(x - from), Math.abs(x - to));
@@ -228,7 +241,9 @@ function hitFib(annotation, x, y, context) {
   const endTime = getRangeRenderTime(annotation, 'endTime', 'endTime', context);
   const startX = getTimeCoordinate(startTime, context);
   const rawEndX = getTimeCoordinate(endTime, context);
-  if (startX === null || rawEndX === null) return null;
+  const startY = getPriceCoordinate(annotation.start?.price, context);
+  const endY = getPriceCoordinate(annotation.end?.price, context);
+  if (startX === null || rawEndX === null || startY === null || endY === null) return null;
   const extendBars = getExtendBars(annotation, 0, context);
   const minX = Math.min(startX, rawEndX);
   const endX = extendXByBars(Math.max(startX, rawEndX), extendBars, context);
@@ -240,6 +255,20 @@ function hitFib(annotation, x, y, context) {
       y: getPriceCoordinate(getFibLevelPrice(annotation, level.value), context),
     }))
     .filter((level) => level.y !== null);
+
+  const endpointDistance = Math.min(
+    Math.hypot(x - startX, y - startY),
+    Math.hypot(x - rawEndX, y - endY)
+  );
+  const trendDistance = distanceToSegment(x, y, startX, startY, rawEndX, endY);
+  if (endpointDistance <= MARKER_TOLERANCE_PX || trendDistance <= LINE_TOLERANCE_PX) {
+    return {
+      id: annotation.id,
+      type: annotation.type,
+      distance: Math.min(endpointDistance, trendDistance),
+      reason: endpointDistance <= MARKER_TOLERANCE_PX ? 'fib-endpoint' : 'fib-trend',
+    };
+  }
 
   if (!visibleLevels.length || !between(x, minX, endX, LINE_TOLERANCE_PX)) return null;
 

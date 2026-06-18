@@ -481,9 +481,11 @@ function getReasonRows(record) {
   return reasons;
 }
 
-function renderReasonRows(record) {
+function renderReasonRows(record, options = {}) {
   const rows = getReasonRows(record).map((reason, reasonIndex) => {
     const refs = Array.isArray(reason.refs) ? reason.refs : [];
+    const isPicking = options.pendingReasonRefPick?.liveRecordId === record.id
+      && Number(options.pendingReasonRefPick?.reasonIndex) === reasonIndex;
     const refRows = refs.map((ref, refIndex) => `
       <div class="order-review-ref-row">
         <span>${escapeHtml(summarizeLinkedRef(ref))}</span>
@@ -511,11 +513,11 @@ function renderReasonRows(record) {
         <div class="order-review-ref-actions">
           <button
             class="inspector-mini-btn"
-            data-inspector-action="live-record-ref-add-selected-object"
+            data-inspector-action="${isPicking ? 'live-record-ref-pick-cancel' : 'live-record-ref-pick-start'}"
             data-live-record-id="${escapeHtml(record.id)}"
             data-reason-index="${reasonIndex}"
             type="button"
-          >Select Object</button>
+          >${isPicking ? 'Cancel Select' : 'Select Object'}</button>
         </div>
       </div>
     `;
@@ -571,7 +573,7 @@ function renderResultPanel(record, liveSet) {
   `;
 }
 
-function renderLiveRecord(record) {
+function renderLiveRecord(record, options = {}) {
   const liveSet = createLiveRecordSet(record);
   if (!liveSet) return '<div class="drawing-set-empty">No active Live Record.</div>';
   return `
@@ -583,16 +585,16 @@ function renderLiveRecord(record) {
       ${renderLinkedSetupPanel(record)}
       ${renderExecutionPanel(liveSet)}
       ${renderEntryContextPanel(record)}
-      ${renderReasonRows(record)}
+      ${renderReasonRows(record, options)}
       ${renderResultPanel(record, liveSet)}
       <div class="inspector-id">${escapeHtml(record.id)}</div>
     </div>
   `;
 }
 
-export function renderLiveRecordDetailPanel(record) {
+export function renderLiveRecordDetailPanel(record, options = {}) {
   const content = record
-    ? renderLiveRecord(record)
+    ? renderLiveRecord(record, options)
     : '<div class="drawing-set-empty">Live Record not found.</div>';
   return `
     <section class="inspector-section" data-inspector-section="live-record-detail">

@@ -1,11 +1,9 @@
 import * as bus from '../../event-bus.js';
-import { getAnnotationById } from '../../pda/pda-store.js';
-import { getSelectedPda } from '../../pda/pda-selection.js';
-import { getSelectedSegment, getSelectedSegmentGroup } from '../../segment/segment-selection.js';
-import { getSegmentById } from '../../segment/segment-store.js';
 import {
   buildPdaOrderRefMetadata,
+  buildChartNoteOrderRefMetadata,
   buildSegmentOrderRefMetadata,
+  getChartNoteOrderRefLabel,
   getPdaOrderRefLabel,
   getSegmentOrderRefLabel,
 } from '../../order/order-ref-metadata.js';
@@ -26,12 +24,33 @@ import {
 } from '../../live-record/live-record-lifecycle-actions.js';
 import { getActiveReviewSetId } from '../../order/order-review-active.js';
 import { getSetupSetById } from '../../order/setup-set.js';
-import { getSmtRecordById } from '../../smt/smt-store.js';
 import {
   LIVE_RECORD_REASON_CATEGORIES,
   LIVE_RECORD_REF_ROLES,
   LIVE_RECORD_REF_TYPES,
 } from '../../live-record/live-record-types.js';
+
+let pendingLiveRecordReasonRefPick = null;
+
+export function getPendingLiveRecordReasonRefPick() {
+  return pendingLiveRecordReasonRefPick;
+}
+
+function setPendingLiveRecordReasonRefPick(nextPick) {
+  pendingLiveRecordReasonRefPick = nextPick || null;
+  return pendingLiveRecordReasonRefPick;
+}
+
+export function clearPendingLiveRecordReasonRefPick(options = {}) {
+  pendingLiveRecordReasonRefPick = null;
+  if (!options.silent) {
+    bus.emit('status:update', { text: 'Live Record reason object selection cancelled', isError: false });
+  }
+}
+
+export function hasPendingLiveRecordReasonRefPick() {
+  return Boolean(pendingLiveRecordReasonRefPick);
+}
 
 function createLiveRecordReasonId() {
   return `reason_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -73,7 +92,6 @@ function updateReason(record, reasonIndex, patch = {}) {
 }
 
 export function createLiveRecordActionController({
-  getSelectedSmtId,
   refreshSelection,
   captureCalendarOpenGroups,
   recordInspectorHistory,
@@ -97,62 +115,68 @@ export function createLiveRecordActionController({
     return mutate('Link Live Record Reason Object', () => updateLiveRecord(liveRecordId, { reasons }));
   }
 
-  function getSelectedLiveRecordRef() {
-    const pdaSelection = getSelectedPda();
-    if (pdaSelection) {
-      const annotation = getAnnotationById(pdaSelection.id);
-      if (!annotation) return { error: 'Selected PDA is missing' };
-      return {
-        ref: {
-          type: LIVE_RECORD_REF_TYPES.PDA,
-          id: annotation.id,
-          role: LIVE_RECORD_REF_ROLES.CONTEXT,
-          ...buildPdaOrderRefMetadata(annotation),
-        },
-        label: getPdaOrderRefLabel(annotation),
-      };
+  function startReasonRefPick(actionEl) {
+    const liveRecordId = actionEl.dataset.liveRecordId;
+    const reasonIndex = Number(actionEl.dataset.reasonIndex) || 0;
+    if (!getLiveRecordById(liveRecordId)) {
+      bus.emit('status:update', { text: 'Live Record not found', isError: true });
+      return true;
     }
+    setPendingLiveRecordReasonRefPick({ liveRecordId, reasonIndex });
+    bus.emit('status:update', {
+      text: `Select a chart object to link to reason ${reasonIndex + 1}`,
+      isError: false,
+    });
+    refreshSelection?.();
+    return true;
+  }
 
-    const segmentSelection = getSelectedSegment();
-    if (segmentSelection) {
-      const segment = getSegmentById(segmentSelection.id);
-      if (!segment) return { error: 'Selected Segment is missing' };
-      return {
-        ref: {
-          type: LIVE_RECORD_REF_TYPES.SEGMENT,
-          id: segment.id,
-          role: LIVE_RECORD_REF_ROLES.CONTEXT,
-          ...buildSegmentOrderRefMetadata(segment),
-        },
-        label: getSegmentOrderRefLabel(segment),
-      };
-    }
+  function cancelReasonRefPick() {
+    clearPendingLiveRecordReasonRefPick();
+    refreshSelection?.();
+    return true;
+  }
 
-    const compositeSelection = getSelectedSegmentGroup();
-    if (compositeSelection) {
-      return {
-        ref: {
-          type: LIVE_RECORD_REF_TYPES.COMPOSITE,
-          id: compositeSelection.id,
-          role: LIVE_RECORD_REF_ROLES.CONTEXT,
-        },
-        label: 'Composite Move',
-      };
-    }
+  function linkPickedReasonRef(ref, label = 'Object') {
+    const pendingPick = getPendingLiveRecordReasonRefPick();
+    if (!pendingPick || !ref?.type || !ref?.id) return false;
+    const added = addLiveRecordReasonRef(pendingPick.liveRecordId, pendingPick.reasonIndex, ref);
+    clearPendingLiveRecordReasonRefPick({ silent: true });
+    bus.emit('status:update', {
+      text: added
+        ? `${label} linked to Live Record Reason ${pendingPick.reasonIndex + 1}`
+        : 'Link selected object failed',
+      isError: !added,
+    });
+    refreshSelection?.();
+    return Boolean(added);
+  }
 
-    const selectedSmtId = getSelectedSmtId?.();
-    if (selectedSmtId && getSmtRecordById(selectedSmtId)) {
-      return {
-        ref: {
-          type: LIVE_RECORD_REF_TYPES.SMT,
-          id: selectedSmtId,
-          role: LIVE_RECORD_REF_ROLES.CONTEXT,
-        },
-        label: 'SMT',
-      };
-    }
+  function buildPdaLiveRecordRef(annotation) {
+    return {
+      type: LIVE_RECORD_REF_TYPES.PDA,
+      id: annotation.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      ...buildPdaOrderRefMetadata(annotation),
+    };
+  }
 
-    return { error: 'No selected PDA / Segment / Composite / SMT' };
+  function buildSegmentLiveRecordRef(segment) {
+    return {
+      type: LIVE_RECORD_REF_TYPES.SEGMENT,
+      id: segment.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      ...buildSegmentOrderRefMetadata(segment),
+    };
+  }
+
+  function buildChartNoteLiveRecordRef(note) {
+    return {
+      type: LIVE_RECORD_REF_TYPES.CHART_NOTE,
+      id: note.id,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+      ...buildChartNoteOrderRefMetadata(note),
+    };
   }
 
   function removeLiveRecordReasonRef(liveRecordId, reasonIndex, refIndex) {
@@ -427,24 +451,35 @@ export function createLiveRecordActionController({
       return true;
     }
 
-    if (action === 'live-record-ref-add-selected-object') {
-      const selected = getSelectedLiveRecordRef();
-      if (selected.error) {
-        bus.emit('status:update', { text: selected.error, isError: true });
-        return true;
-      }
-      const reasonIndex = Number(actionEl.dataset.reasonIndex) || 0;
-      const added = addLiveRecordReasonRef(liveRecordId, reasonIndex, selected.ref);
-      bus.emit('status:update', {
-        text: added ? `${selected.label} linked to Live Record Reason ${reasonIndex + 1}` : 'Link selected object failed',
-        isError: !added,
-      });
-      refreshSelection?.();
-      return true;
+    if (action === 'live-record-ref-pick-start') {
+      return startReasonRefPick(actionEl);
+    }
+
+    if (action === 'live-record-ref-pick-cancel') {
+      return cancelReasonRefPick();
     }
 
     return false;
   }
 
-  return { handleChange, handleClick };
+  return {
+    clearRefPick: clearPendingLiveRecordReasonRefPick,
+    getPendingRefPick: getPendingLiveRecordReasonRefPick,
+    handleChange,
+    handleClick,
+    handlePickedPda: (annotation) => linkPickedReasonRef(buildPdaLiveRecordRef(annotation), getPdaOrderRefLabel(annotation)),
+    handlePickedSegment: (segment) => linkPickedReasonRef(buildSegmentLiveRecordRef(segment), getSegmentOrderRefLabel(segment)),
+    handlePickedChartNote: (note) => linkPickedReasonRef(buildChartNoteLiveRecordRef(note), getChartNoteOrderRefLabel(note)),
+    handlePickedComposite: (segmentGroup) => linkPickedReasonRef({
+      type: LIVE_RECORD_REF_TYPES.COMPOSITE,
+      id: segmentGroup?.id || segmentGroup,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+    }, 'Composite Move'),
+    handlePickedSmt: (record) => linkPickedReasonRef({
+      type: LIVE_RECORD_REF_TYPES.SMT,
+      id: record?.id || record,
+      role: LIVE_RECORD_REF_ROLES.CONTEXT,
+    }, 'SMT'),
+    isPicking: hasPendingLiveRecordReasonRefPick,
+  };
 }
