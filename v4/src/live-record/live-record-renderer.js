@@ -27,7 +27,7 @@ const SELECTED_ELEMENT_COLOR = '#ffd54f';
 const PLAN_LINE_WIDTH = 1;
 const ACTIVE_PLAN_LINE_WIDTH = 1.35;
 const SELECTED_PLAN_LINE_WIDTH = 1.85;
-const EXECUTION_TICK_HEIGHT = 13;
+const EXECUTION_DOT_RADIUS = 3.5;
 const RISK_ZONE = {
   fillColor: 'rgba(239, 83, 80, 0.15)',
   borderColor: 'rgba(239, 83, 80, 0.38)',
@@ -148,7 +148,8 @@ function renderPlanLine(
         lineStyle,
         endTime,
         showStartTick: true,
-        tickHeight: EXECUTION_TICK_HEIGHT,
+        endpointMarker: 'circle',
+        tickRadius: EXECUTION_DOT_RADIUS,
         tickColor: color,
         showLabel: true,
       }
@@ -174,7 +175,8 @@ function renderPriceHelper(timestamp, price, label, color, position = 'right') {
         lineLength: 10,
         lineWidth: 1,
         showStartTick: true,
-        tickHeight: EXECUTION_TICK_HEIGHT + 2,
+        endpointMarker: 'circle',
+        tickRadius: EXECUTION_DOT_RADIUS + 0.5,
         tickLineWidth: 1.75,
         tickColor: color,
         labelFont: getChartLabelFont(11),

@@ -9,7 +9,9 @@ const LIQUIDITY_DEFAULTS = {
   lineStyle: 'solid',
   showStartTick: false,
   showEndTick: false,
+  endpointMarker: 'tick',
   tickHeight: 12,
+  tickRadius: 3.5,
   tickLineWidth: 1.5,
   tickColor: null,
   tickHaloColor: 'rgba(3, 7, 18, 0.86)',
@@ -52,17 +54,38 @@ class LiquidityRenderer {
 
       const drawEndpointTick = (x) => {
         if (x === null || x === undefined) return;
-        const tickHeight = Math.max(6, Number(source._options.tickHeight) || LIQUIDITY_DEFAULTS.tickHeight) * vRatio;
+        const ratio = Math.min(hRatio, vRatio);
+        const marker = source._options.endpointMarker || LIQUIDITY_DEFAULTS.endpointMarker;
         const tickLineWidth = Math.max(1, Number(source._options.tickLineWidth) || LIQUIDITY_DEFAULTS.tickLineWidth)
-          * Math.min(hRatio, vRatio);
-        const halfHeight = tickHeight / 2;
+          * ratio;
         const tickColor = source._options.tickColor || source._lineColor;
         const haloWidth = Number(source._options.tickHaloWidth) || LIQUIDITY_DEFAULTS.tickHaloWidth;
 
         ctx.setLineDash([]);
+
+        if (marker === 'circle') {
+          const radius = Math.max(2.5, Number(source._options.tickRadius) || LIQUIDITY_DEFAULTS.tickRadius) * ratio;
+          if (source._options.tickHaloColor && haloWidth > 0) {
+            ctx.strokeStyle = source._options.tickHaloColor;
+            ctx.lineWidth = Math.max(tickLineWidth + haloWidth * ratio, tickLineWidth);
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+          ctx.strokeStyle = tickColor;
+          ctx.lineWidth = tickLineWidth;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.stroke();
+          return;
+        }
+
+        const tickHeight = Math.max(6, Number(source._options.tickHeight) || LIQUIDITY_DEFAULTS.tickHeight) * vRatio;
+        const halfHeight = tickHeight / 2;
         if (source._options.tickHaloColor && haloWidth > 0) {
           ctx.strokeStyle = source._options.tickHaloColor;
-          ctx.lineWidth = Math.max(tickLineWidth + haloWidth * Math.min(hRatio, vRatio), tickLineWidth);
+          ctx.lineWidth = Math.max(tickLineWidth + haloWidth * ratio, tickLineWidth);
           ctx.beginPath();
           ctx.moveTo(x, y - halfHeight);
           ctx.lineTo(x, y + halfHeight);
