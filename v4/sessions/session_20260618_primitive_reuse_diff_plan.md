@@ -387,6 +387,27 @@ Acceptance:
 - Replay On/Off does not leave future NDOG/NWOG bounds stale.
 - Progressive secondary replay still shows correct partial HTF bars.
 
+Status: complete.
+
+Audit:
+
+- Primary objective NDOG/NWOG bounds are still calculated inside `renderPdaAnnotations()` through `getNdogRenderBounds()` / `getNwogRenderBounds()`.
+- `replay:changed` still invokes `renderPdaAnnotationsOnReplay`, so cached Range primitives receive fresh `startTime` / `endTime` through `RangePrimitive.update(...)` instead of keeping old geometry.
+- Secondary progressive replay continues to update through `secondary-bars:loaded`; cached secondary PDA/Segment primitives update or detach from the latest secondary display bars.
+- `secondary-chart:reset` now clears secondary PDA/Segment caches before the secondary chart controller destroys the chart, due to the initialization-order fix in Step 297.5.
+
+Verification:
+
+- `node v4/tests/history-manager-smoke.js`
+- `node v4/tests/load-range-policy-smoke.js`
+- `node v4/tests/time-projection-smoke.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `git diff --check`
+
+Decision:
+
+- No forced cache clear is needed on every `replay:changed`; descriptor updates are sufficient for objective gap geometry, and full clears remain reserved for bars clear / unavailable chart state.
+
 ## Step 297.9: Benchmark And Visual Regression Pass
 
 Tasks:
