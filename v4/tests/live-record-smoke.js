@@ -231,6 +231,28 @@ const richRecord = addLiveRecord({
       price: '18320.25',
       endTimestamp: 1710770790,
     }],
+    orders: [{
+      id: 'order-rich-stop',
+      timestamp: 1710770520,
+      type: 'stop',
+      status: 'canceled',
+      side: 'sell',
+      price: '18370.75',
+      stopPrice: '18370.75',
+      limitPrice: '',
+      fillPrice: '',
+      note: 'protective stop',
+    }],
+    fills: [{
+      id: 'fill-rich-entry',
+      orderId: 'order-rich-entry',
+      timestamp: 1710770410,
+      side: 'buy',
+      price: '18360.5',
+      quantity: '1',
+      commission: '0.5',
+      note: 'entry fill',
+    }],
   },
   result: {
     status: 'profit',
@@ -246,6 +268,11 @@ assert.equal(richRecord.execution.marketStructureShift.timeframe, '1M', 'MSS tim
 assert.equal(richRecord.execution.stopLoss.visible, false, 'element visibility normalizes');
 assert.equal(richRecord.execution.targets[0].label, 'Target External 1', 'target role gets setup-like label');
 assert.equal(richRecord.execution.targets[0].targetType, 'external', 'target type derives from role');
+assert.equal(richRecord.execution.orders[0].type, 'stop', 'execution order type is preserved');
+assert.equal(richRecord.execution.orders[0].status, 'canceled', 'execution order status is preserved');
+assert.equal(richRecord.execution.orders[0].stopPrice, 18370.75, 'execution order stop price normalizes');
+assert.equal(richRecord.execution.fills[0].orderId, 'order-rich-entry', 'execution fill orderId is preserved');
+assert.equal(richRecord.execution.fills[0].commission, 0.5, 'execution fill commission normalizes');
 assert.equal(richRecord.result.status, 'win', 'result alias still normalizes');
 assert.equal(richRecord.result.exitType, 'unknown', 'missing live result exit type normalizes');
 assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe normalizes');
@@ -264,6 +291,7 @@ assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18361, 
 const richSet = createLiveRecordSet(getLiveRecordById('live-rich-shape'));
 assert.equal(richSet.execution.entry.endTimestamp, 1710770710, 'projection keeps entry end timestamp');
 assert.equal(richSet.execution.marketStructureShift.complete, true, 'projection includes MSS element');
+assert.equal(richSet.execution.stopLoss.complete, true, 'projection treats priced stop as renderable plan');
 assert.equal(richSet.execution.targets[0].role, 'targetExternal1', 'projection keeps target role');
 assert.equal(richSet.result.exitTimeframe, '1M', 'projection keeps result exit timeframe');
 

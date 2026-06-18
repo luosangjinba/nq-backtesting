@@ -222,6 +222,10 @@ function renderRangeZone(timestamp, endTimestamp, entryPrice, targetPrice, label
   );
 }
 
+function hasRenderablePriceElement(element = {}) {
+  return Number.isFinite(Number(element.price));
+}
+
 function getRewardTargetFromResult(result = {}) {
   const isProfit = result.exitType === 'profit' || result.status === 'win';
   if (!isProfit || !Number.isFinite(Number(result.exitPrice))) return null;
@@ -237,12 +241,12 @@ function renderRiskRewardBox(liveSet, entry, stopLoss, targets, result = {}) {
 
   const entryTimestamp = entry.timestamp || liveSet.anchor?.timestamp || liveSet.primaryTimestamp;
   const visibleTargets = (Array.isArray(targets) ? targets : [])
-    .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && target.complete);
+    .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && hasRenderablePriceElement(target));
   const rewardTarget = visibleTargets.find((target) => Number.isFinite(Number(target.price)))
     || getRewardTargetFromResult(result);
   const endTimestamp = getZoneEndTimestamp(entry, stopLoss, rewardTarget);
 
-  if (stopLoss.complete && Number.isFinite(Number(stopLoss.price))) {
+  if (hasRenderablePriceElement(stopLoss)) {
     renderRangeZone(entryTimestamp, endTimestamp, entry.price, stopLoss.price, 'Risk', RISK_ZONE);
   }
   if (rewardTarget) {
@@ -303,7 +307,7 @@ function renderLiveRecordSet(liveSet, isActive = false) {
     );
   }
 
-  if (isElementVisible(liveSet, 'stopLoss', stopLoss) && stopLoss.complete) {
+  if (isElementVisible(liveSet, 'stopLoss', stopLoss) && hasRenderablePriceElement(stopLoss)) {
     const selectedStop = isSelectedElement('stopLoss');
     renderPlanLine(
       stopLoss.timestamp || entryTimestamp,
@@ -319,7 +323,7 @@ function renderLiveRecordSet(liveSet, isActive = false) {
   }
 
   targets
-    .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && target.complete)
+    .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && hasRenderablePriceElement(target))
     .forEach((target, index) => {
       const selectedTarget = isSelectedElement(target.role || target.id);
       renderPlanLine(

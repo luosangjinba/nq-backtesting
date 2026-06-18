@@ -269,6 +269,13 @@ function normalizeExecution(input = {}) {
       ? input.orders.map((order, index) => ({
           id: normalizeString(order.id, `order_${index + 1}`),
           timestamp: normalizeTimestamp(order.timestamp),
+          type: normalizeString(order.type, ''),
+          status: normalizeString(order.status, ''),
+          side: normalizeString(order.side, ''),
+          price: normalizeNumber(order.price),
+          stopPrice: normalizeNumber(order.stopPrice),
+          limitPrice: normalizeNumber(order.limitPrice),
+          fillPrice: normalizeNumber(order.fillPrice),
           note: normalizeString(order.note, ''),
         }))
       : [],
@@ -276,8 +283,11 @@ function normalizeExecution(input = {}) {
       ? input.fills.map((fill, index) => ({
           id: normalizeString(fill.id, `fill_${index + 1}`),
           timestamp: normalizeTimestamp(fill.timestamp),
+          orderId: normalizeString(fill.orderId, ''),
+          side: normalizeString(fill.side, ''),
           price: normalizeNumber(fill.price),
           quantity: normalizeNumber(fill.quantity),
+          commission: normalizeNumber(fill.commission),
           note: normalizeString(fill.note, ''),
         }))
       : [],

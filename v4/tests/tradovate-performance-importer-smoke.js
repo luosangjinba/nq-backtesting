@@ -7,6 +7,7 @@ import {
   parseTradovateMoney,
   tradovateTimestampToEpochSeconds,
 } from '../src/live-record/tradovate-performance-importer.js';
+import { normalizeLiveRecord } from '../src/live-record/live-record-store.js';
 
 const csv = [
   'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',
@@ -129,6 +130,12 @@ assert.equal(enhancedEs.execution.targets[0].price, 7607.75, 'losing ES trade ke
 assert.equal(enhancedEs.execution.targets[0].complete, false, 'cancelled target is not complete');
 assert.equal(enhancedEs.execution.orders.length, 3, 'ES enhanced record includes entry/stop/target orders');
 assert.equal(enhancedEs.execution.fills[0].commission, 0.5, 'fills include commission');
+const normalizedEnhancedEs = normalizeLiveRecord(enhancedEs, { now: 1781529365000 });
+assert.equal(normalizedEnhancedEs.execution.orders[1].type, 'stop', 'normalized enhanced orders preserve order type');
+assert.equal(normalizedEnhancedEs.execution.orders[1].status, 'filled', 'normalized enhanced orders preserve order status');
+assert.equal(normalizedEnhancedEs.execution.orders[1].stopPrice, 7591.75, 'normalized enhanced orders preserve stop price');
+assert.equal(normalizedEnhancedEs.execution.fills[0].orderId, '509681603415', 'normalized enhanced fills preserve order id');
+assert.equal(normalizedEnhancedEs.execution.fills[0].commission, 0.5, 'normalized enhanced fills preserve commission');
 
 const enhancedNq = enhancedResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0];
 assert.equal(enhancedNq.execution.stopLoss.price, 30449, 'winning NQ trade keeps cancelled stop order');
