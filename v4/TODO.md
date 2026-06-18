@@ -957,7 +957,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 297.2: Add primitive mutation APIs：已给 Liquidity/Range/FVG/PointSet/Fib/Segment/VerticalLine primitive 增加最小 `update()` / `setOptions()` 能力，保持 constructor 兼容；新增 `primitive-mutation-smoke.js` 覆盖字段更新与 requestUpdate 触发。
   - [x] Step 297.3: Introduce renderer cache helper：已新增 `chart/primitive-cache.js`，支持 stable key、type diff、attach new、update existing、detach missing、clear all，并用 `primitive-cache-smoke.js` 覆盖 fake attach/detach/update 路径。
   - [x] Step 297.4: Migrate primary Segment renderer：已迁移 `segment-renderer.js` 到 primitive cache + descriptor diff，用 `segment:${id}:primary` / `segment-group:${id}:primary` 稳定 key；生命周期 smoke attach/detach `5/5`，selection benchmark 250 对象 Segment 降至 `227.6ms`。
-  - [ ] Step 297.5: Migrate secondary Segment renderer：迁移 `secondary-segment-renderer.js`，处理 Split reset / secondary bars clear。
+  - [x] Step 297.5: Migrate secondary Segment renderer：已迁移 `secondary-segment-renderer.js` 到 primitive cache + descriptor diff，用 `segment:${id}:secondary` / `segment-group:${id}:secondary` 稳定 key；扩展 lifecycle smoke 覆盖 secondary bars clear 与 secondary chart reset，修正 app 初始化顺序确保 reset 先 detach overlay 再 destroy chart；selection benchmark 250 对象 Segment `288ms`。
   - [ ] Step 297.6: Migrate primary PDA renderer by shape：按 liquidity -> range -> point set -> fib -> time-only projection 顺序迁移 `pda-renderer.js`。
   - [ ] Step 297.7: Migrate secondary PDA renderer：迁移 `secondary-pda-renderer.js`，保持 source instrument/timeframe projection 与 overlay visibility 正确。
   - [ ] Step 297.8: Replay and objective gap safety：专项验证 replay、NDOG/NWOG render bounds 和 secondary progressive replay 不残留旧几何。

@@ -137,9 +137,12 @@ async function main() {
         };
         try {
           const chart = await import('/src/chart/chart-manager.js');
+          const secondaryChart = await import('/src/chart/secondary-chart-manager.js');
           const store = await import('/src/data/bar-store.js');
+          const secondaryStore = await import('/src/data/secondary-chart-store.js');
           const segments = await import('/src/segment/segment-store.js');
           const pdaStore = await import('/src/pda/pda-store.js');
+          const { getBarChartTime } = await import('/src/chart/time-projection.js');
           await waitFor(() => document.querySelector('#chart canvas') && chart.getSeries(), 'primary chart series');
 
           const series = chart.getSeries();
@@ -288,7 +291,104 @@ async function main() {
           await waitFrame();
           assertEqual(active.size, 0, 'bars clear detached all tracked primitives');
 
-          return JSON.stringify({ error: '', attachCount, detachCount });
+          secondaryStore.setSecondaryEnabled(true);
+          const secondary = secondaryChart.initSecondaryChart();
+          const secondarySeries = secondary.series;
+          secondaryChart.setSecondaryData(bars.map((bar) => ({
+            time: getBarChartTime(bar, 1),
+            open: bar.open,
+            high: bar.high,
+            low: bar.low,
+            close: bar.close,
+          })));
+          secondaryStore.setSecondaryBars(bars, '2024-03-18 10:00', '2024-03-18 10:11', 1, {
+            startTs: bars[0].timestamp,
+            endTs: bars.at(-1).timestamp,
+          });
+
+          const originalSecondaryAttach = secondarySeries.attachPrimitive.bind(secondarySeries);
+          const originalSecondaryDetach = secondarySeries.detachPrimitive.bind(secondarySeries);
+          const secondaryActive = new Set();
+          const secondarySummary = () => Array.from(secondaryActive)
+            .map((primitive) => primitive?.constructor?.name || 'UnknownPrimitive')
+            .join(', ');
+          const assertSecondaryEqual = (actual, expected, label) => {
+            if (actual !== expected) {
+              throw new Error(label + ': expected ' + expected + ', got ' + actual + ' secondaryActive=[' + secondarySummary() + ']');
+            }
+          };
+          let secondaryAttachCount = 0;
+          let secondaryDetachCount = 0;
+          secondarySeries.attachPrimitive = (primitive) => {
+            if (primitive?.constructor?.name === 'SegmentPrimitive') {
+              secondaryActive.add(primitive);
+              secondaryAttachCount += 1;
+            }
+            return originalSecondaryAttach(primitive);
+          };
+          secondarySeries.detachPrimitive = (primitive) => {
+            if (secondaryActive.delete(primitive)) secondaryDetachCount += 1;
+            return originalSecondaryDetach(primitive);
+          };
+
+          segments.loadSegments([
+            {
+              id: 'primitive_smoke_secondary_segment_1',
+              source: 'smoke',
+              sourceChartId: 'primary',
+              instrument: 'NQ',
+              timeframe: '1M',
+              direction: 'up',
+              start: { timestamp: bars[1].timestamp, price: bars[1].low },
+              end: { timestamp: bars[5].timestamp, price: bars[5].high },
+              display: { showLabel: false },
+            },
+            {
+              id: 'primitive_smoke_secondary_segment_2',
+              source: 'smoke',
+              sourceChartId: 'primary',
+              instrument: 'NQ',
+              timeframe: '1M',
+              direction: 'down',
+              start: { timestamp: bars[6].timestamp, price: bars[6].high },
+              end: { timestamp: bars[9].timestamp, price: bars[9].low },
+              display: { showLabel: false },
+            },
+          ]);
+          await waitFrame();
+          assertSecondaryEqual(secondaryActive.size, 2, 'secondary segments attached');
+
+          segments.updateSegment('primitive_smoke_secondary_segment_1', {
+            end: { timestamp: bars[4].timestamp, price: bars[4].high },
+            display: { showLabel: false },
+          });
+          await waitFrame();
+          assertSecondaryEqual(secondaryActive.size, 2, 'secondary segment update reused primitive count');
+
+          secondaryStore.clearSecondaryBars();
+          await waitFrame();
+          assertSecondaryEqual(secondaryActive.size, 0, 'secondary bars clear detached segment primitives');
+
+          secondaryStore.setSecondaryEnabled(true);
+          secondaryChart.setSecondaryData(bars.map((bar) => ({
+            time: getBarChartTime(bar, 1),
+            open: bar.open,
+            high: bar.high,
+            low: bar.low,
+            close: bar.close,
+          })));
+          secondaryStore.setSecondaryBars(bars, '2024-03-18 10:00', '2024-03-18 10:11', 1, {
+            startTs: bars[0].timestamp,
+            endTs: bars.at(-1).timestamp,
+          });
+          await waitFrame();
+          assertSecondaryEqual(secondaryActive.size, 2, 'secondary segments reattached before reset');
+
+          secondaryStore.resetSecondaryChartState();
+          await waitFrame();
+          assertSecondaryEqual(secondaryActive.size, 0, 'secondary chart reset detached segment primitives');
+
+          return JSON.stringify({ error: '', attachCount, detachCount, secondaryAttachCount, secondaryDetachCount });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
         }
@@ -303,6 +403,7 @@ async function main() {
     if (value.error) throw new Error(value.error);
     console.log('primitive render lifecycle smoke ok');
     console.log(`primitive_attach_count=${value.attachCount} primitive_detach_count=${value.detachCount}`);
+    console.log(`secondary_primitive_attach_count=${value.secondaryAttachCount} secondary_primitive_detach_count=${value.secondaryDetachCount}`);
   } finally {
     client?.close();
     chrome.kill('SIGTERM');

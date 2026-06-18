@@ -3,28 +3,32 @@
 import * as bus from '../event-bus.js';
 import {
   attachSecondaryPrimitive,
-  clearSecondaryPrimitives,
+  detachSecondaryPrimitive,
   getSecondaryChart,
   getSecondarySeries,
 } from '../chart/secondary-chart-manager.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { getStructureOverlayVisibility } from '../display/overlay-visibility.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
+import { createPrimitiveCache } from '../chart/primitive-cache.js';
 import { getSegments } from './segment-store.js';
 import { getSegmentGroups } from './segment-group-store.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 
-let renderedPrimitives = [];
 const SEGMENT_LINE_STYLE = {
   lineDash: [6, 5],
   lineOpacity: 0.72,
   showMarkers: false,
 };
+const primitiveCache = createPrimitiveCache({
+  attach: (primitive) => attachSecondaryPrimitive(primitive),
+  detach: (primitive) => detachSecondaryPrimitive(primitive),
+});
 
 function clearRenderedPrimitives() {
-  renderedPrimitives = clearSecondaryPrimitives(renderedPrimitives);
+  primitiveCache.clear();
 }
 
 function getSegmentLabel(segment) {
@@ -48,27 +52,25 @@ function hasRenderablePoint(point) {
   return point && Number.isFinite(Number(point.price));
 }
 
-function attachSegmentPrimitive(primitive) {
-  attachSecondaryPrimitive(primitive);
-  primitive.requestUpdate();
-  renderedPrimitives.push(primitive);
-}
-
 export function renderSecondarySegments() {
-  clearRenderedPrimitives();
-
-  if (!secondaryStore.isSecondaryEnabled()) return;
+  if (!secondaryStore.isSecondaryEnabled()) {
+    clearRenderedPrimitives();
+    return;
+  }
 
   const chartInstance = getSecondaryChart();
   const series = getSecondarySeries();
-  if (!chartInstance || !series) return;
-  if (!secondaryStore.getSecondaryDisplayBars().length) return;
+  if (!chartInstance || !series || !secondaryStore.getSecondaryDisplayBars().length) {
+    clearRenderedPrimitives();
+    return;
+  }
 
   const secondaryTf = secondaryStore.getSecondaryTimeframe();
   const segments = getSegments();
   const groups = getSegmentGroups();
   const visibility = getStructureOverlayVisibility({ segments, groups });
   const segmentMap = new Map(segments.map((segment) => [segment.id, segment]));
+  const descriptors = [];
 
   groups.forEach((group) => {
     if (!visibility.visibleGroupIds.has(group.id)) return;
@@ -85,30 +87,43 @@ export function renderSecondarySegments() {
     const endTime = getSegmentPointRenderTime(last.end, secondaryTf);
     if (startTime === null || endTime === null) return;
 
-    const primitive = new SegmentPrimitive(
-      chartInstance,
-      series,
-      startTime,
-      first.start.price,
-      endTime,
-      last.end.price,
-      getGroupLabel(group, children.length),
-      {
-        ...SEGMENT_LINE_STYLE,
-        lineColor: isHighlighted
-          ? '#ffb74d'
-          : group.direction === 'down'
-            ? 'rgba(239, 83, 80, 0.34)'
-            : 'rgba(38, 166, 154, 0.34)',
-        textColor: isHighlighted ? '#f0f3fa' : '#b2b5be',
-        markerColor: isHighlighted ? '#ffb74d' : 'rgba(240, 243, 250, 0.48)',
-        lineWidth: isHighlighted ? 2 : 1,
-        markerSize: isHighlighted ? 5 : 3,
-        showLabel: group.display?.showLabel ?? true,
-        labelFont: getChartLabelFont(10),
-      }
-    );
-    attachSegmentPrimitive(primitive);
+    const label = getGroupLabel(group, children.length);
+    const options = {
+      ...SEGMENT_LINE_STYLE,
+      lineColor: isHighlighted
+        ? '#ffb74d'
+        : group.direction === 'down'
+          ? 'rgba(239, 83, 80, 0.34)'
+          : 'rgba(38, 166, 154, 0.34)',
+      textColor: isHighlighted ? '#f0f3fa' : '#b2b5be',
+      markerColor: isHighlighted ? '#ffb74d' : 'rgba(240, 243, 250, 0.48)',
+      lineWidth: isHighlighted ? 2 : 1,
+      markerSize: isHighlighted ? 5 : 3,
+      showLabel: group.display?.showLabel ?? true,
+      labelFont: getChartLabelFont(10),
+    };
+    descriptors.push({
+      key: `segment-group:${group.id}:secondary`,
+      type: 'segment-group',
+      create: () => new SegmentPrimitive(
+        chartInstance,
+        series,
+        startTime,
+        first.start.price,
+        endTime,
+        last.end.price,
+        label,
+        options
+      ),
+      update: (primitive) => primitive.update({
+        startTime,
+        startPrice: first.start.price,
+        endTime,
+        endPrice: last.end.price,
+        label,
+        options,
+      }),
+    });
   });
 
   segments.forEach((segment) => {
@@ -122,31 +137,46 @@ export function renderSecondarySegments() {
     const endTime = getSegmentPointRenderTime(segment.end, secondaryTf);
     if (startTime === null || endTime === null) return;
 
-    const primitive = new SegmentPrimitive(
-      chartInstance,
-      series,
-      startTime,
-      segment.start.price,
-      endTime,
-      segment.end.price,
-      getSegmentLabel(segment),
-      {
-        ...SEGMENT_LINE_STYLE,
-        lineColor: isHighlighted
-          ? '#ffb74d'
-          : segment.direction === 'down'
-            ? 'rgba(239, 83, 80, 0.78)'
-            : 'rgba(38, 166, 154, 0.78)',
-        textColor: '#f0f3fa',
-        markerColor: isHighlighted ? '#ffb74d' : 'rgba(240, 243, 250, 0.72)',
-        lineWidth: isHighlighted ? 3 : 2,
-        markerSize: isHighlighted ? 5 : 4,
-        showLabel: segment.display?.showLabel ?? true,
-        labelFont: getChartLabelFont(11),
-      }
-    );
-    attachSegmentPrimitive(primitive);
+    const label = getSegmentLabel(segment);
+    const options = {
+      ...SEGMENT_LINE_STYLE,
+      lineColor: isHighlighted
+        ? '#ffb74d'
+        : segment.direction === 'down'
+          ? 'rgba(239, 83, 80, 0.78)'
+          : 'rgba(38, 166, 154, 0.78)',
+      textColor: '#f0f3fa',
+      markerColor: isHighlighted ? '#ffb74d' : 'rgba(240, 243, 250, 0.72)',
+      lineWidth: isHighlighted ? 3 : 2,
+      markerSize: isHighlighted ? 5 : 4,
+      showLabel: segment.display?.showLabel ?? true,
+      labelFont: getChartLabelFont(11),
+    };
+    descriptors.push({
+      key: `segment:${segment.id}:secondary`,
+      type: 'segment',
+      create: () => new SegmentPrimitive(
+        chartInstance,
+        series,
+        startTime,
+        segment.start.price,
+        endTime,
+        segment.end.price,
+        label,
+        options
+      ),
+      update: (primitive) => primitive.update({
+        startTime,
+        startPrice: segment.start.price,
+        endTime,
+        endPrice: segment.end.price,
+        label,
+        options,
+      }),
+    });
   });
+
+  primitiveCache.sync(descriptors);
 }
 
 const renderSecondarySegmentsOnSelection = createRafThrottle(renderSecondarySegments);

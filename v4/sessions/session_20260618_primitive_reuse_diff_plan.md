@@ -224,6 +224,39 @@ Acceptance:
 - Split Screen Side/Stack on/off does not leave stale secondary primitives.
 - Secondary selection highlight mirrors primary behavior.
 
+Status: complete.
+
+Implementation:
+
+- Migrated `secondary-segment-renderer.js` to `createPrimitiveCache(...)`.
+- Builds stable secondary descriptors:
+  - `segment-group:${id}:secondary`
+  - `segment:${id}:secondary`
+- Clears cache when split is disabled, secondary chart/series/bars are unavailable, `secondary-bars:cleared`, and `secondary-chart:reset`.
+- Extended `primitive-render-lifecycle-smoke.js` to verify secondary Segment attach/update reuse, `secondary-bars:cleared`, and `secondary-chart:reset`.
+- Moved `initSecondaryChartController()` after secondary PDA/Segment renderer initialization so reset events detach overlay primitives before the controller destroys the secondary chart.
+
+Verification:
+
+- `node --check v4/src/app.js`
+- `node --check v4/src/segment/secondary-segment-renderer.js`
+- `node --check v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/primitive-mutation-smoke.js`
+- `node v4/tests/primitive-cache-smoke.js`
+- `node v4/tests/performance-selection-benchmark.js`
+- `node v4/tests/calendar-visibility-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/display-mode-smoke.js`
+- `git diff --check`
+
+Benchmark after this step:
+
+- 25 objects: Segment `83.4ms`, PDA `49ms`
+- 100 objects: Segment `147.7ms`, PDA `88.9ms`
+- 250 objects: Segment `288ms`, PDA `127.1ms`
+
 ## Step 297.6: Migrate PDA Renderer By Shape
 
 Rationale:

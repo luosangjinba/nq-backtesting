@@ -70,9 +70,6 @@ console.log('[V4] Display mode initialized');
 initToolbar();
 console.log('[V4] Toolbar initialized');
 
-initSecondaryChartController();
-console.log('[V4] Secondary chart controller initialized');
-
 // 初始化 Replay 控制条
 initReplayControls();
 initReplayHistoryPersistence();
@@ -123,6 +120,9 @@ initSegmentPersistence();
 initManualSegment();
 initSegmentSelection();
 console.log('[V4] Segment controls initialized');
+
+initSecondaryChartController();
+console.log('[V4] Secondary chart controller initialized');
 
 initSmtRenderer();
 initManualSmt();
