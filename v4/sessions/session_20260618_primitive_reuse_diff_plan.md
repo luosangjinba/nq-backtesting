@@ -1,0 +1,214 @@
+# Session 2026-06-18 - Step 297 Primitive Reuse / Diff Renderer Plan
+
+## Context
+
+Step 293 measured selection-triggered render latency as the largest current frontend performance issue. Step 296 reduced repeated work by coalescing selection events into one RAF render, but the renderer still detaches and recreates every primitive in a domain when only selection styling changes.
+
+The user has taken a full hard backup, so Step 297 can be more aggressive than Step 296. The plan still keeps verification checkpoints small so regressions can be isolated quickly.
+
+## Goal
+
+Replace full detach/recreate render passes for PDA and Segment overlays with cached primitive reuse and diffing, starting with selection-heavy paths and expanding only after measurable improvement.
+
+Expected outcome:
+
+- Selecting a PDA or Segment updates only the previously selected and newly selected primitives when geometry/visibility did not change.
+- Data changes, timeframe changes, bars reloads, display-mode changes, instrument changes, split reset, and replay/objective-gap render bounds still produce correct chart state.
+- Primary and secondary chart overlays remain visually consistent.
+- Performance benchmark at 250 PDA/Segment objects improves materially beyond Step 296.
+
+## Non-goals
+
+- No store schema changes.
+- No Review JSON or localStorage migration.
+- No visual redesign.
+- No hit-test rewrite unless needed to keep behavior aligned.
+- No backend/API changes.
+- No broad Lightweight Charts abstraction outside the PDA/Segment primitive render path.
+
+## Step 297.1: Freeze Baseline And Failure Tests
+
+Tasks:
+
+- Run and record current `performance-selection-benchmark.js` after Step 296.
+- Add or extend a focused renderer smoke that can detect:
+  - selecting A then B updates selected styling;
+  - deleting selected object removes its primitive;
+  - hiding/showing object removes/restores primitive;
+  - bars reload clears stale primitives;
+  - primary and secondary renderers do not leak detached primitives.
+
+Acceptance:
+
+- Baseline numbers are recorded in this session before implementation.
+- Smoke fails if a primitive remains after deletion or hidden display.
+
+## Step 297.2: Add Primitive Mutation APIs
+
+Tasks:
+
+- Add minimal `update(...)` / `setOptions(...)` APIs to reusable primitive classes:
+  - `LiquidityPrimitive`
+  - `RangePrimitive`
+  - `PointSetPrimitive`
+  - `FibPrimitive`
+  - `SegmentPrimitive`
+  - `VerticalLinePrimitive` only if time-only PDA projections need reuse.
+- Keep constructor compatibility unchanged.
+- Each update API must refresh source fields and call `requestUpdate()`.
+
+Acceptance:
+
+- Existing constructors and current renderers still work unchanged.
+- Unit/smoke coverage proves a primitive can update style and geometry without detach/attach.
+
+## Step 297.3: Introduce Renderer Cache Helper
+
+Tasks:
+
+- Add a small shared helper, likely under `v4/src/chart/primitive-cache.js`, that manages:
+  - stable key -> primitive entries;
+  - attach new;
+  - update existing;
+  - detach missing;
+  - clear all on chart reset/bars cleared.
+- The helper should not know PDA or Segment domain semantics.
+- It should support separate primary/secondary caches.
+
+Acceptance:
+
+- Helper has a focused smoke test with fake attach/detach/update functions.
+- It handles key changes and missing keys deterministically.
+
+## Step 297.4: Migrate Segment Renderer First
+
+Rationale:
+
+Segment primitives are simpler than PDA because they use one primitive class and fewer shapes. They are also the slower path in Step 293/296 benchmarks.
+
+Tasks:
+
+- Convert `segment-renderer.js` to build a render descriptor per visible segment/group.
+- Use stable keys:
+  - `segment:${id}:primary`
+  - `segment-group:${id}:primary`
+- Reuse existing primitive when descriptor shape remains `SegmentPrimitive`.
+- Detach only primitives whose keys disappear.
+- Preserve immediate clear on `bars:cleared`.
+
+Acceptance:
+
+- Segment selection changes update old/new selected style without rebuilding all segments.
+- Segment create/delete/hide/show, group selection, drawing-set focus, isolate mode, and display-mode filters still render correctly.
+- `segment-renderer.js` benchmark improves or at least does not regress.
+
+## Step 297.5: Migrate Secondary Segment Renderer
+
+Tasks:
+
+- Apply the same descriptor/cache model to `secondary-segment-renderer.js`.
+- Use keys:
+  - `segment:${id}:secondary`
+  - `segment-group:${id}:secondary`
+- Clear cache on `secondary-bars:cleared` and `secondary-chart:reset`.
+
+Acceptance:
+
+- Split Screen Side/Stack on/off does not leave stale secondary primitives.
+- Secondary selection highlight mirrors primary behavior.
+
+## Step 297.6: Migrate PDA Renderer By Shape
+
+Rationale:
+
+PDA has multiple shapes and projection fallbacks, so migrate incrementally.
+
+Order:
+
+1. Liquidity line PDA (`bsl`, `ssl`, `wick-ce`).
+2. Range PDA (`fvg`, `ifvg`, `ob`, `breaker`, `ndog`, `nwog`).
+3. Point sets (`eqh`, `eql`).
+4. Fib.
+5. Time-only projection vertical lines.
+
+Tasks:
+
+- Build one or more descriptors per annotation.
+- Use keys:
+  - `pda:${id}:${shape}:primary`
+  - for multi-primitive projections: `pda:${id}:projection:${index}:primary`
+- Rebuild only when shape or projection count changes.
+- Update primitive state when selection/link/highlight/display style changes.
+
+Acceptance:
+
+- PDA selection changes update selected style without rebuilding all PDA primitives.
+- PDA create/delete/hide/show, source-instrument time-only projection, CE toggle, label toggle, extend, objective NDOG/NWOG replay bounds, drawing-set focus, and display-mode filters remain correct.
+
+## Step 297.7: Migrate Secondary PDA Renderer
+
+Tasks:
+
+- Apply PDA descriptor/cache model to `secondary-pda-renderer.js`.
+- Use `:secondary` keys.
+- Respect `getStructureOverlayVisibility()` and secondary instrument/timeframe projection rules.
+
+Acceptance:
+
+- Secondary-created PDA and primary-created PDA render correctly on both charts.
+- Split reset and secondary chart settings changes clear or update cache correctly.
+
+## Step 297.8: Replay And Objective Gap Safety
+
+Tasks:
+
+- Audit replay-specific paths:
+  - `replay:changed`
+  - objective NDOG/NWOG render bounds
+  - primary/secondary progressive replay behavior.
+- Decide whether replay events should update cached range geometry or force domain cache clear for objective gaps.
+
+Acceptance:
+
+- Replay On/Off does not leave future NDOG/NWOG bounds stale.
+- Progressive secondary replay still shows correct partial HTF bars.
+
+## Step 297.9: Benchmark And Visual Regression Pass
+
+Tasks:
+
+- Run:
+  - `node v4/tests/performance-selection-benchmark.js`
+  - `node v4/tests/pda-hit-test-smoke.js`
+  - `node v4/tests/calendar-visibility-smoke.js`
+  - `node v4/tests/smt-selection-smoke.js`
+  - `node v4/tests/order-setup-smoke.js`
+  - `node v4/tests/live-record-browser-smoke.js`
+  - relevant split/replay browser smokes.
+- Compare benchmark against Step 293 and Step 296.
+
+Acceptance:
+
+- 250-object selection benchmark improves materially.
+- No smoke regressions.
+- Visual checks cover primary/secondary PDA and Segment selection.
+
+## Step 297.10: Closeout
+
+Tasks:
+
+- Update TODO and this session with actual benchmark numbers.
+- Document any primitive classes still not reused.
+- If needed, record a Step 298 follow-up for Chart Notes / Order Setup / Live Record renderer reuse.
+
+Acceptance:
+
+- Worktree clean after commit.
+- Step 297 scope remains limited to PDA/Segment primitive reuse unless explicitly expanded.
+
+## Risk Notes
+
+- The main risk is stale primitives: deleted/hidden objects remaining on chart.
+- The second risk is stale geometry after timeframe or bars reload.
+- The third risk is cache key collision between primary/secondary or between PDA shapes.
+- Mitigation is aggressive cache clearing on structural events first, then gradually narrowing clear paths after correctness is proven.
