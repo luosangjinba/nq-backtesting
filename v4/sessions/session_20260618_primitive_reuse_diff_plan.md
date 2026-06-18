@@ -182,6 +182,33 @@ Acceptance:
 - Segment create/delete/hide/show, group selection, drawing-set focus, isolate mode, and display-mode filters still render correctly.
 - `segment-renderer.js` benchmark improves or at least does not regress.
 
+Status: complete.
+
+Implementation:
+
+- Migrated `segment-renderer.js` from full clear/rebuild to `createPrimitiveCache(...)`.
+- Builds descriptors for visible segment groups and segments with stable primary keys:
+  - `segment-group:${id}:primary`
+  - `segment:${id}:primary`
+- Reuses `SegmentPrimitive` instances through `update(...)` when geometry or style changes.
+- Clears the cache when chart/series/display bars are unavailable and on `bars:cleared`.
+
+Verification:
+
+- `node --check v4/src/segment/segment-renderer.js`
+- `node v4/tests/primitive-render-lifecycle-smoke.js`
+- `node v4/tests/performance-selection-benchmark.js`
+- `node v4/tests/calendar-visibility-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `git diff --check`
+
+Benchmark after this step:
+
+- 25 objects: Segment `106.5ms`, PDA `63.4ms`
+- 100 objects: Segment `90.4ms`, PDA `50.8ms`
+- 250 objects: Segment `227.6ms`, PDA `121.5ms`
+
 ## Step 297.5: Migrate Secondary Segment Renderer
 
 Tasks:

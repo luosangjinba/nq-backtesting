@@ -4,6 +4,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { SegmentPrimitive } from '../chart/primitives.js';
+import { createPrimitiveCache } from '../chart/primitive-cache.js';
 import { getIsolatedSegment, getSegments } from './segment-store.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from './segment-selection.js';
 import { getIsolateCompanionSegments } from './segment-isolate-view.js';
@@ -18,7 +19,6 @@ import { getActiveDrawingSetVisibility } from './drawing-set-list.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 
-let renderedPrimitives = [];
 const SELECTED_COLOR = '#f0f3fa';
 const DRAFT_CHILD_COLOR = '#ffb74d';
 const DRAFT_TARGET_COLOR = '#ba68c8';
@@ -27,9 +27,13 @@ const SEGMENT_LINE_STYLE = {
   lineOpacity: 0.72,
   showMarkers: false,
 };
+const primitiveCache = createPrimitiveCache({
+  attach: (primitive) => chart.attachPrimitive(primitive),
+  detach: (primitive) => chart.detachPrimitive(primitive),
+});
 
 function clearRenderedPrimitives() {
-  renderedPrimitives = chart.clearPrimitives(renderedPrimitives);
+  primitiveCache.clear();
 }
 
 function getSegmentLabel(segment) {
@@ -55,12 +59,12 @@ function getGroupLabel(group, childCount) {
 }
 
 export function renderSegments() {
-  clearRenderedPrimitives();
-
   const chartInstance = chart.getChart();
   const series = chart.getSeries();
-  if (!chartInstance || !series) return;
-  if (!store.getDisplayBars().length) return;
+  if (!chartInstance || !series || !store.getDisplayBars().length) {
+    clearRenderedPrimitives();
+    return;
+  }
 
   const selected = getSelectedSegment();
   const selectedGroup = getSelectedSegmentGroup();
@@ -70,6 +74,7 @@ export function renderSegments() {
   const isolateVisibleIds = new Set(
     isolatedSegment ? [isolatedSegment.id, ...Array.from(isolateCompanionIds)] : []
   );
+  const descriptors = [];
 
   getSegmentGroups().forEach((group) => {
     if (group.display?.hidden) return;
@@ -83,38 +88,51 @@ export function renderSegments() {
 
     const first = children[0];
     const last = children[children.length - 1];
-    const primitive = new SegmentPrimitive(
-      chartInstance,
-      series,
-      getSegmentPointRenderTime(first.start),
-      first.start.price,
-      getSegmentPointRenderTime(last.end),
-      last.end.price,
-      getGroupLabel(group, children.length),
-      {
-        ...SEGMENT_LINE_STYLE,
-        lineColor: isCurrent
-          ? SELECTED_COLOR
-          : isDrawingSetActive
-            ? DRAFT_CHILD_COLOR
-          : group.direction === 'down'
-            ? 'rgba(239, 83, 80, 0.42)'
-            : 'rgba(38, 166, 154, 0.42)',
-        textColor: shouldHighlight ? SELECTED_COLOR : '#b2b5be',
-        markerColor: isCurrent
-          ? SELECTED_COLOR
-          : isDrawingSetActive
-            ? DRAFT_CHILD_COLOR
-            : 'rgba(240, 243, 250, 0.55)',
-        lineWidth: shouldHighlight ? 2 : 1,
-        markerSize: shouldHighlight ? 5 : 3,
-        showLabel: group.display?.showLabel ?? true,
-        labelFont: getChartLabelFont(10),
-      }
-    );
-    chart.attachPrimitive(primitive);
-    primitive.requestUpdate();
-    renderedPrimitives.push(primitive);
+    const startTime = getSegmentPointRenderTime(first.start);
+    const endTime = getSegmentPointRenderTime(last.end);
+    const label = getGroupLabel(group, children.length);
+    const options = {
+      ...SEGMENT_LINE_STYLE,
+      lineColor: isCurrent
+        ? SELECTED_COLOR
+        : isDrawingSetActive
+          ? DRAFT_CHILD_COLOR
+        : group.direction === 'down'
+          ? 'rgba(239, 83, 80, 0.42)'
+          : 'rgba(38, 166, 154, 0.42)',
+      textColor: shouldHighlight ? SELECTED_COLOR : '#b2b5be',
+      markerColor: isCurrent
+        ? SELECTED_COLOR
+        : isDrawingSetActive
+          ? DRAFT_CHILD_COLOR
+          : 'rgba(240, 243, 250, 0.55)',
+      lineWidth: shouldHighlight ? 2 : 1,
+      markerSize: shouldHighlight ? 5 : 3,
+      showLabel: group.display?.showLabel ?? true,
+      labelFont: getChartLabelFont(10),
+    };
+    descriptors.push({
+      key: `segment-group:${group.id}:primary`,
+      type: 'segment-group',
+      create: () => new SegmentPrimitive(
+        chartInstance,
+        series,
+        startTime,
+        first.start.price,
+        endTime,
+        last.end.price,
+        label,
+        options
+      ),
+      update: (existingPrimitive) => existingPrimitive.update({
+        startTime,
+        startPrice: first.start.price,
+        endTime,
+        endPrice: last.end.price,
+        label,
+        options,
+      }),
+    });
   });
 
   const draftChildIds = new Set(getDraftSegmentGroupChildIds());
@@ -153,37 +171,52 @@ export function renderSegments() {
           : segment.direction === 'down'
             ? '#ef5350'
             : '#26a69a';
-    const primitive = new SegmentPrimitive(
-      chartInstance,
-      series,
-      getSegmentPointRenderTime(segment.start),
-      segment.start.price,
-      getSegmentPointRenderTime(segment.end),
-      segment.end.price,
-      getSegmentLabel(segment),
-      {
-        ...SEGMENT_LINE_STYLE,
-        lineColor,
-        textColor: '#f0f3fa',
-        markerColor: isCurrent
-          ? SELECTED_COLOR
-          : isDrawingSetActive
-            ? DRAFT_CHILD_COLOR
+    const startTime = getSegmentPointRenderTime(segment.start);
+    const endTime = getSegmentPointRenderTime(segment.end);
+    const label = getSegmentLabel(segment);
+    const options = {
+      ...SEGMENT_LINE_STYLE,
+      lineColor,
+      textColor: '#f0f3fa',
+      markerColor: isCurrent
+        ? SELECTED_COLOR
+        : isDrawingSetActive
+          ? DRAFT_CHILD_COLOR
           : isGroupTargetContext
             ? DRAFT_TARGET_COLOR
             : isGroupChildContext
               ? DRAFT_CHILD_COLOR
               : '#f0f3fa',
-        lineWidth: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 3 : 2,
-        markerSize: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 5 : 4,
-        showLabel: segment.display?.showLabel ?? true,
-        labelFont: getChartLabelFont(11),
-      }
-    );
-    chart.attachPrimitive(primitive);
-    primitive.requestUpdate();
-    renderedPrimitives.push(primitive);
+      lineWidth: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 3 : 2,
+      markerSize: shouldHighlight || isGroupTargetContext || isGroupChildContext ? 5 : 4,
+      showLabel: segment.display?.showLabel ?? true,
+      labelFont: getChartLabelFont(11),
+    };
+    descriptors.push({
+      key: `segment:${segment.id}:primary`,
+      type: 'segment',
+      create: () => new SegmentPrimitive(
+        chartInstance,
+        series,
+        startTime,
+        segment.start.price,
+        endTime,
+        segment.end.price,
+        label,
+        options
+      ),
+      update: (primitive) => primitive.update({
+        startTime,
+        startPrice: segment.start.price,
+        endTime,
+        endPrice: segment.end.price,
+        label,
+        options,
+      }),
+    });
   });
+
+  primitiveCache.sync(descriptors);
 }
 
 const renderSegmentsOnSelection = createRafThrottle(renderSegments);
