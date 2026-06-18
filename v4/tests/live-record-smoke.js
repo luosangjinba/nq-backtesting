@@ -502,6 +502,7 @@ assert.match(detailHtml, /data-inspector-action="live-record-reason-delete"/, 'd
 assert.match(detailHtml, /Result/, 'detail renders Result');
 assert.match(detailHtml, /Profit/, 'detail renders live exit type option');
 assert.match(detailHtml, /Stop Loss/, 'detail renders live stop loss exit type option');
+assert.match(detailHtml, /Breakeven/, 'detail renders live breakeven exit type option');
 assert.match(detailHtml, /Hold/, 'detail renders result hold metric');
 assert.match(detailHtml, /Risk/, 'detail renders result risk metric');
 assert.match(detailHtml, /Points/, 'detail renders result points metric');

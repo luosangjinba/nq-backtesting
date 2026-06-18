@@ -35,6 +35,7 @@ export const LIVE_RECORD_EXIT_TYPES = Object.freeze({
   UNKNOWN: 'unknown',
   PROFIT: 'profit',
   STOP_LOSS: 'stopLoss',
+  BREAKEVEN: 'breakeven',
 });
 
 export const LIVE_RECORD_REASON_CATEGORIES = Object.freeze({
@@ -137,6 +138,10 @@ export const LIVE_RECORD_EXIT_TYPE_ALIASES = new Map([
   ['stop-loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
   ['stop_loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
   ['sl', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
+  ['breakeven', LIVE_RECORD_EXIT_TYPES.BREAKEVEN],
+  ['break-even', LIVE_RECORD_EXIT_TYPES.BREAKEVEN],
+  ['break_even', LIVE_RECORD_EXIT_TYPES.BREAKEVEN],
+  ['be', LIVE_RECORD_EXIT_TYPES.BREAKEVEN],
 ]);
 
 export const LIVE_RECORD_TIMEFRAME_ALIASES = new Map([

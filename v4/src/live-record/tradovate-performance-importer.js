@@ -13,6 +13,8 @@ const REQUIRED_COLUMNS = new Set([
   'soldTimestamp',
   'duration',
 ]);
+const ORDER_REQUIRED_COLUMNS = new Set(['Order ID', 'B/S', 'Contract', 'Product', 'Status', 'Timestamp', 'Type']);
+const FILL_REQUIRED_COLUMNS = new Set(['Fill ID', 'Order ID', 'Timestamp', 'B/S', 'Quantity', 'Price', 'Contract', 'Product']);
 
 function parseCsvLine(line = '') {
   const values = [];
@@ -38,6 +40,10 @@ function parseCsvLine(line = '') {
 }
 
 export function parseTradovatePerformanceCsv(text = '') {
+  return parseTradovateCsvWithRequiredColumns(text, REQUIRED_COLUMNS);
+}
+
+function parseTradovateCsvWithRequiredColumns(text = '', requiredColumns = new Set()) {
   const lines = String(text || '')
     .replace(/^\uFEFF/, '')
     .split(/\r?\n/)
@@ -45,7 +51,7 @@ export function parseTradovatePerformanceCsv(text = '') {
   if (!lines.length) throw new Error('CSV is empty');
 
   const columns = parseCsvLine(lines[0]).map((column) => column.trim());
-  const missing = [...REQUIRED_COLUMNS].filter((column) => !columns.includes(column));
+  const missing = [...requiredColumns].filter((column) => !columns.includes(column));
   if (missing.length) {
     throw new Error(`missing required columns: ${missing.join(', ')}`);
   }
@@ -54,6 +60,16 @@ export function parseTradovatePerformanceCsv(text = '') {
     const values = parseCsvLine(line);
     return Object.fromEntries(columns.map((column, index) => [column, values[index] ?? '']));
   });
+}
+
+export function parseTradovateOrdersCsv(text = '') {
+  if (!String(text || '').trim()) return [];
+  return parseTradovateCsvWithRequiredColumns(text, ORDER_REQUIRED_COLUMNS);
+}
+
+export function parseTradovateFillsCsv(text = '') {
+  if (!String(text || '').trim()) return [];
+  return parseTradovateCsvWithRequiredColumns(text, FILL_REQUIRED_COLUMNS);
 }
 
 export function parseTradovateMoney(value = '') {
@@ -69,6 +85,13 @@ function parseNumberField(value, field) {
   const parsed = Number(String(value ?? '').replace(/,/g, '').trim());
   if (!Number.isFinite(parsed)) throw new Error(`invalid ${field}: ${value}`);
   return parsed;
+}
+
+function parseOptionalNumberField(value) {
+  const text = String(value ?? '').replace(/,/g, '').trim();
+  if (!text) return null;
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function parseTradovateDateParts(value = '') {
@@ -174,6 +197,148 @@ function stableRecordId(row, instrument) {
   return `live_record_tradovate_${hashString(identity)}`;
 }
 
+function cleanField(value = '') {
+  return String(value || '').trim();
+}
+
+function getOrderId(row = {}) {
+  return cleanField(row['Order ID'] || row.orderId || row._orderId);
+}
+
+function getFillId(row = {}) {
+  return cleanField(row['Fill ID'] || row._id);
+}
+
+function getSide(row = {}) {
+  return cleanField(row['B/S']).toLowerCase();
+}
+
+function getOrderStatus(row = {}) {
+  return cleanField(row.Status).toLowerCase();
+}
+
+function getOrderType(row = {}) {
+  return cleanField(row.Type).toLowerCase();
+}
+
+function getOrderPrice(row = {}) {
+  return parseOptionalNumberField(
+    row.decimalFillAvg || row['Avg Fill Price'] || row.avgPrice || row.Price || row.decimalLimit || row['Limit Price'] || row.decimalStop || row['Stop Price']
+  );
+}
+
+function getStopPrice(row = {}) {
+  return parseOptionalNumberField(row.decimalStop || row['Stop Price']);
+}
+
+function getLimitPrice(row = {}) {
+  return parseOptionalNumberField(row.decimalLimit || row['Limit Price']);
+}
+
+function getTimestampValue(row = {}, field = 'Timestamp') {
+  return cleanField(row[field]);
+}
+
+function indexEnhancementRows({ ordersText = '', fillsText = '', timeZone = 'UTC' } = {}) {
+  const orders = parseTradovateOrdersCsv(ordersText);
+  const fills = parseTradovateFillsCsv(fillsText);
+  const ordersById = new Map(orders.map((order) => [getOrderId(order), order]).filter(([id]) => id));
+  const fillsById = new Map(fills.map((fill) => [getFillId(fill), fill]).filter(([id]) => id));
+  const ordersWithEpoch = orders.map((order) => {
+    let timestamp = null;
+    try {
+      timestamp = tradovateTimestampToEpochSeconds(getTimestampValue(order), timeZone);
+    } catch {
+      timestamp = null;
+    }
+    return { order, timestamp };
+  });
+  return { orders, fills, ordersById, fillsById, ordersWithEpoch };
+}
+
+function getOrderByFillId(fillId, enhancement) {
+  const fill = enhancement.fillsById.get(cleanField(fillId));
+  if (!fill) return null;
+  return enhancement.ordersById.get(getOrderId(fill)) || null;
+}
+
+function isSameContractOrder(order, sourceSymbol) {
+  return cleanField(order.Contract).toUpperCase() === cleanField(sourceSymbol).toUpperCase();
+}
+
+function findCompanionOrder({ enhancement, sourceSymbol, side, type, entryTs, exitTs, excludeOrderIds = new Set() }) {
+  const normalizedSide = String(side || '').toLowerCase();
+  const normalizedType = String(type || '').toLowerCase();
+  const candidates = enhancement.ordersWithEpoch
+    .filter(({ order, timestamp }) => (
+      timestamp !== null
+      && timestamp >= entryTs - 60
+      && timestamp <= exitTs + 60
+      && isSameContractOrder(order, sourceSymbol)
+      && getSide(order) === normalizedSide
+      && getOrderType(order) === normalizedType
+      && !excludeOrderIds.has(getOrderId(order))
+    ))
+    .sort((a, b) => a.timestamp - b.timestamp);
+  return candidates[0]?.order || null;
+}
+
+function buildExecutionOrder(row, timeZone) {
+  const timestampValue = getTimestampValue(row);
+  let timestamp = null;
+  try {
+    timestamp = timestampValue ? tradovateTimestampToEpochSeconds(timestampValue, timeZone) : null;
+  } catch {
+    timestamp = null;
+  }
+  const type = getOrderType(row) || 'order';
+  const status = getOrderStatus(row) || 'unknown';
+  const side = cleanField(row['B/S']);
+  const stopPrice = getStopPrice(row);
+  const limitPrice = getLimitPrice(row);
+  const fillPrice = getOrderPrice(row);
+  const price = fillPrice ?? stopPrice ?? limitPrice;
+  return {
+    id: getOrderId(row),
+    timestamp,
+    note: [
+      `Tradovate ${cleanField(row.Type) || type} ${side}`.trim(),
+      cleanField(row.Status) || status,
+      price !== null ? `price ${price}` : '',
+      cleanField(row.Contract),
+    ].filter(Boolean).join('; '),
+    type,
+    status,
+    side: side.toLowerCase(),
+    price,
+    stopPrice,
+    limitPrice,
+    fillPrice,
+  };
+}
+
+function buildExecutionFill(row, timeZone) {
+  const timestampValue = getTimestampValue(row);
+  const timestamp = tradovateTimestampToEpochSeconds(timestampValue, timeZone);
+  const commission = parseOptionalNumberField(row.commission);
+  const price = parseNumberField(row.Price || row._price, 'fill price');
+  const quantity = parseNumberField(row.Quantity || row._qty, 'fill quantity');
+  return {
+    id: getFillId(row),
+    timestamp,
+    price,
+    quantity,
+    note: [
+      `Tradovate ${cleanField(row['B/S'])} fill for ${cleanField(row.Contract)}.`.replace(/\s+/g, ' '),
+      commission !== null ? `commission ${commission}` : '',
+      getOrderId(row) ? `orderId ${getOrderId(row)}` : '',
+    ].filter(Boolean).join(' '),
+    orderId: getOrderId(row),
+    side: getSide(row),
+    commission,
+  };
+}
+
 function resultStatus(pnl) {
   if (pnl > 0) return 'win';
   if (pnl < 0) return 'loss';
@@ -183,41 +348,67 @@ function resultStatus(pnl) {
 function exitTypeFromPnl(pnl) {
   if (pnl > 0) return 'profit';
   if (pnl < 0) return 'stopLoss';
-  return 'unknown';
+  return 'breakeven';
 }
 
-function buildImportedStopLoss({ pnl, exitTs, exitPrice }) {
-  if (pnl >= 0) return {};
+function buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, timeZone }) {
+  const stopPrice = stopOrder ? getStopPrice(stopOrder) : null;
+  const stopStatus = stopOrder ? getOrderStatus(stopOrder) : '';
+  const stopTimestampText = stopOrder ? getTimestampValue(stopOrder, stopStatus === 'filled' ? 'Fill Time' : 'Timestamp') : '';
+  let stopTimestamp = exitTs;
+  if (stopTimestampText) {
+    try {
+      stopTimestamp = tradovateTimestampToEpochSeconds(stopTimestampText, timeZone);
+    } catch {
+      stopTimestamp = exitTs;
+    }
+  }
+  if (pnl >= 0 && stopPrice === null) return {};
   return {
     id: 'stopLoss',
     role: 'stopLoss',
     label: 'Stop Loss',
-    timestamp: exitTs,
+    timestamp: stopTimestamp,
     timeframe: DEFAULT_TIMEFRAME,
-    price: exitPrice,
+    price: stopPrice ?? exitPrice,
     endTimestamp: exitTs,
     endTimeframe: DEFAULT_TIMEFRAME,
     visible: true,
-    complete: true,
-    note: 'Imported losing trade: exit used as stop loss.',
+    complete: pnl < 0 || stopStatus === 'filled',
+    note: stopOrder
+      ? `Imported Tradovate stop order: ${stopStatus || 'unknown'}${pnl < 0 ? '; exit matched stop loss.' : '; cancelled after target/exit.'}`
+      : 'Imported losing trade: exit used as stop loss.',
   };
 }
 
-function buildImportedTargets({ pnl, exitTs, exitPrice }) {
-  if (pnl <= 0) return [];
+function buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone }) {
+  const targetPrice = targetOrder ? getLimitPrice(targetOrder) : null;
+  const targetStatus = targetOrder ? getOrderStatus(targetOrder) : '';
+  const targetTimestampText = targetOrder ? getTimestampValue(targetOrder, targetStatus === 'filled' ? 'Fill Time' : 'Timestamp') : '';
+  let targetTimestamp = exitTs;
+  if (targetTimestampText) {
+    try {
+      targetTimestamp = tradovateTimestampToEpochSeconds(targetTimestampText, timeZone);
+    } catch {
+      targetTimestamp = exitTs;
+    }
+  }
+  if (pnl <= 0 && targetPrice === null) return [];
   return [{
     id: 'targetInternal1',
     role: 'targetInternal1',
     targetType: 'internal',
     label: 'Target Internal 1',
-    timestamp: exitTs,
+    timestamp: targetTimestamp,
     timeframe: DEFAULT_TIMEFRAME,
-    price: exitPrice,
+    price: targetPrice ?? exitPrice,
     endTimestamp: exitTs,
     endTimeframe: DEFAULT_TIMEFRAME,
     visible: true,
-    complete: true,
-    note: 'Imported winning trade: exit used as Target Internal 1.',
+    complete: pnl > 0 || targetStatus === 'filled',
+    note: targetOrder
+      ? `Imported Tradovate limit target order: ${targetStatus || 'unknown'}${pnl > 0 ? '; exit matched target.' : '; cancelled after stop/exit.'}`
+      : 'Imported winning trade: exit used as Target Internal 1.',
   }];
 }
 
@@ -226,7 +417,7 @@ export function formatTradovatePnl(pnl) {
   return `${sign}$${Math.abs(pnl).toFixed(2)}`;
 }
 
-function buildLiveRecord(row, { instrument, timeZone, nowMs }) {
+function buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement }) {
   const buyTs = tradovateTimestampToEpochSeconds(row.boughtTimestamp, timeZone);
   const sellTs = tradovateTimestampToEpochSeconds(row.soldTimestamp, timeZone);
   const buyPrice = parseNumberField(row.buyPrice, 'buyPrice');
@@ -242,6 +433,50 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs }) {
   const sourceSymbol = String(row.symbol || '').trim();
   const duration = String(row.duration || '').trim();
   const pnlText = formatTradovatePnl(pnl);
+  const buyOrder = getOrderByFillId(row.buyFillId, enhancement);
+  const sellOrder = getOrderByFillId(row.sellFillId, enhancement);
+  const exitSide = isLong ? 'sell' : 'buy';
+  const usedOrderIds = new Set([buyOrder, sellOrder].filter(Boolean).map(getOrderId));
+  const exitOrder = isLong ? sellOrder : buyOrder;
+  const exitOrderType = getOrderType(exitOrder || {});
+  const stopOrder = exitOrderType === 'stop'
+    ? exitOrder
+    : findCompanionOrder({ enhancement, sourceSymbol, side: exitSide, type: 'stop', entryTs, exitTs, excludeOrderIds: usedOrderIds });
+  const targetOrder = exitOrderType === 'limit'
+    ? exitOrder
+    : findCompanionOrder({ enhancement, sourceSymbol, side: exitSide, type: 'limit', entryTs, exitTs, excludeOrderIds: usedOrderIds });
+  const executionOrders = [buyOrder, sellOrder, stopOrder, targetOrder]
+    .filter(Boolean)
+    .filter((order, index, rows) => rows.findIndex((candidate) => getOrderId(candidate) === getOrderId(order)) === index)
+    .map((order) => buildExecutionOrder(order, timeZone));
+  const buyFill = enhancement.fillsById.get(cleanField(row.buyFillId));
+  const sellFill = enhancement.fillsById.get(cleanField(row.sellFillId));
+  const executionFills = [buyFill, sellFill].filter(Boolean).map((fill) => buildExecutionFill(fill, timeZone));
+  const fallbackFills = [
+    {
+      id: String(row.buyFillId || '').trim() || 'buy_fill',
+      timestamp: buyTs,
+      price: buyPrice,
+      quantity,
+      note: `Tradovate buy fill for ${sourceSymbol}.`,
+    },
+    {
+      id: String(row.sellFillId || '').trim() || 'sell_fill',
+      timestamp: sellTs,
+      price: sellPrice,
+      quantity,
+      note: `Tradovate sell fill for ${sourceSymbol}.`,
+    },
+  ];
+  const commissionTotal = executionFills
+    .map((fill) => Number(fill.commission))
+    .filter(Number.isFinite)
+    .reduce((sum, value) => sum + value, 0);
+  const orderDetails = [
+    stopOrder ? `stop ${getOrderStatus(stopOrder)} @ ${getStopPrice(stopOrder) ?? 'unknown'}` : '',
+    targetOrder ? `target ${getOrderStatus(targetOrder)} @ ${getLimitPrice(targetOrder) ?? 'unknown'}` : '',
+    executionFills.length && commissionTotal ? `commission $${commissionTotal.toFixed(2)}` : '',
+  ].filter(Boolean).join('; ');
 
   return {
     version: 1,
@@ -273,25 +508,10 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs }) {
         note: `Imported entry fill from Tradovate ${sourceSymbol}.`,
       },
       marketStructureShift: {},
-      stopLoss: buildImportedStopLoss({ pnl, exitTs, exitPrice }),
-      targets: buildImportedTargets({ pnl, exitTs, exitPrice }),
-      orders: [],
-      fills: [
-        {
-          id: String(row.buyFillId || '').trim() || 'buy_fill',
-          timestamp: buyTs,
-          price: buyPrice,
-          quantity,
-          note: `Tradovate buy fill for ${sourceSymbol}.`,
-        },
-        {
-          id: String(row.sellFillId || '').trim() || 'sell_fill',
-          timestamp: sellTs,
-          price: sellPrice,
-          quantity,
-          note: `Tradovate sell fill for ${sourceSymbol}.`,
-        },
-      ],
+      stopLoss: buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, timeZone }),
+      targets: buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone }),
+      orders: executionOrders,
+      fills: executionFills.length ? executionFills : fallbackFills,
     },
     reasons: [{
       id: 'reason_1',
@@ -306,7 +526,7 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs }) {
       exitTimestamp: exitTs,
       exitTimeframe: DEFAULT_TIMEFRAME,
       exitPrice,
-      note: `Tradovate realized P/L ${pnlText}; qty ${quantity}; buyFillId ${row.buyFillId || ''}; sellFillId ${row.sellFillId || ''}; duration ${duration || 'unknown'}.`,
+      note: `Tradovate realized P/L ${pnlText}; qty ${quantity}; buyFillId ${row.buyFillId || ''}; sellFillId ${row.sellFillId || ''}; duration ${duration || 'unknown'}${orderDetails ? `; ${orderDetails}` : ''}.`,
       executionReviewNote: '',
     },
     display: {
@@ -322,6 +542,11 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
   let instrument = String(options.instrument || 'auto').trim().toUpperCase();
   const timeZone = options.timeZone || 'UTC';
   const nowMs = Number.isFinite(Number(options.nowMs)) ? Number(options.nowMs) : Date.now();
+  const enhancement = indexEnhancementRows({
+    ordersText: options.ordersText || '',
+    fillsText: options.fillsText || '',
+    timeZone,
+  });
   const detected = new Set(rows.map((row) => mapTradovateSymbolToInstrument(row.symbol)).filter(Boolean));
 
   if (instrument === 'AUTO') {
@@ -343,7 +568,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
       skippedRows += 1;
       return;
     }
-    const record = buildLiveRecord(row, { instrument, timeZone, nowMs });
+    const record = buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement });
     const pnl = parseTradovateMoney(row.pnl);
     liveRecords.push(record);
     totalPnl += pnl;
@@ -373,6 +598,8 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
       timezone: timeZone,
       rowCount: rows.length,
       skippedRows,
+      ordersRowCount: enhancement.orders.length,
+      fillsRowCount: enhancement.fills.length,
     },
   };
 
@@ -385,6 +612,8 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     losses,
     breakeven,
     totalPnl,
+    ordersRows: enhancement.orders.length,
+    fillsRows: enhancement.fills.length,
   };
 }
 

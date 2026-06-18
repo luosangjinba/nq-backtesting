@@ -414,6 +414,8 @@
         <div class="content">
           <div class="grid">
             <label>Performance CSV <input id="tradovateCsv" type="file" accept=".csv,text/csv"></label>
+            <label>Orders CSV optional <input id="tradovateOrdersCsv" type="file" accept=".csv,text/csv"></label>
+            <label>Fills CSV optional <input id="tradovateFillsCsv" type="file" accept=".csv,text/csv"></label>
             <label>
               Instrument
               <select id="tradovateInstrument">
@@ -437,6 +439,7 @@
             <button id="tradovateDownload" class="primary" type="button">Download Review JSON</button>
           </div>
           <p class="status">Each Tradovate Performance row becomes one closed Live Record. Losing exits become stop losses; winning exits become Target Internal 1. Setup links and reasons stay manual.</p>
+          <p class="status">Optional Orders/Fills CSV files enrich Live Records with stop/target order state, cancelled bracket orders, fill order IDs, and commissions.</p>
         </div>
       </section>
     </div>
@@ -1007,6 +1010,8 @@
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');
     const fileInput = document.getElementById('tradovateCsv');
+    const ordersFileInput = document.getElementById('tradovateOrdersCsv');
+    const fillsFileInput = document.getElementById('tradovateFillsCsv');
     const instrumentInput = document.getElementById('tradovateInstrument');
     const timezoneInput = document.getElementById('tradovateTimezone');
     const filenameInput = document.getElementById('tradovateFilename');
@@ -1032,9 +1037,17 @@
     async function buildArchivesFromSelectedFile() {
       const file = getTradovateFile();
       const text = await file.text();
+      const ordersText = ordersFileInput.files?.[0]
+        ? await ordersFileInput.files[0].text()
+        : '';
+      const fillsText = fillsFileInput.files?.[0]
+        ? await fillsFileInput.files[0].text()
+        : '';
       return buildTradovateLiveRecordArchives(text, {
         instrument: instrumentInput.value,
         timeZone: timezoneInput.value,
+        ordersText,
+        fillsText,
       });
     }
 
@@ -1101,6 +1114,8 @@
         `Instrument: ${result.payload.instrument}`,
         `Timestamp timezone: ${result.payload.source.timezone}`,
         `Source rows: ${result.sourceRows}`,
+        `Orders rows: ${result.ordersRows || 0}`,
+        `Fills rows: ${result.fillsRows || 0}`,
         `Live Records: ${result.liveRecords}`,
         `Skipped rows: ${result.skippedRows}`,
         `Wins / Losses / Breakeven: ${result.wins} / ${result.losses} / ${result.breakeven}`,
@@ -1126,8 +1141,9 @@
         'Import behavior',
         '---------------',
         'Status: closed',
-        'One CSV row becomes one Live Record.',
-        'Losing exits become stop losses; winning exits become Target Internal 1. Setup links and reasons stay manual.'
+        'Performance CSV is the trade-pair source; one Performance row becomes one Live Record.',
+        'Orders CSV enriches stop/limit target state, including cancelled bracket orders.',
+        'Fills CSV enriches fill/order IDs and commission. Setup links and reasons stay manual.'
       );
       if (resultList.length > 1) {
         lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Main instrument matches that file.');
