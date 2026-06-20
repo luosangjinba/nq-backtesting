@@ -281,6 +281,27 @@ Acceptance:
 - User can maintain all three catalog groups from the UI.
 - Inactive items disappear from new-selection dropdowns but remain resolvable for existing records.
 
+Completed:
+
+- Added `entry-context-catalog-panel.js` with a shared Inspector maintenance panel for `patterns`, `sessions`, and `lessons`.
+- Added `entry-context-catalog-actions.js` for add, rename, soft deactivate, reactivate, and sort actions.
+- Added `activateCatalogItem(...)` so soft-deleted items can be restored from the maintenance UI.
+- Added a home/archive Inspector entry point and page-stack route for `entry-context-catalog`.
+- Added compact CSS for catalog rows, inactive state, add controls, label edit, and sort input.
+- Extended `entry-context-catalog-smoke.js` to cover reactivate and maintenance-control rendering.
+
+Verification:
+
+- `node --check v4/src/entry-context/entry-context-catalog-store.js`
+- `node --check v4/src/ui/inspector/entry-context-catalog-panel.js`
+- `node --check v4/src/ui/inspector/entry-context-catalog-actions.js`
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `git diff --check`
+
 ## Step 298.7: Sync Events And Persistence
 
 Tasks:

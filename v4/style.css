@@ -333,6 +333,14 @@ html, body {
   --inspector-section-accent-soft: rgba(102, 187, 106, 0.1);
 }
 
+.inspector-section-entry-context-catalogs,
+.inspector-section-patterns,
+.inspector-section-sessions,
+.inspector-section-lessons {
+  --inspector-section-accent: #4fc3f7;
+  --inspector-section-accent-soft: rgba(79, 195, 247, 0.1);
+}
+
 .inspector-calendar {
   display: flex;
   flex-direction: column;
@@ -1378,6 +1386,62 @@ html, body {
 .drawing-set-empty {
   color: #787b86;
   font-size: var(--compact-font-size);
+}
+
+.entry-context-catalog-entry .inspector-button {
+  width: 100%;
+}
+
+.entry-context-catalog-panel,
+.entry-context-catalog-group,
+.entry-context-catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-row-gap);
+}
+
+.entry-context-catalog-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.entry-context-catalog-item {
+  display: grid;
+  gap: 6px;
+  padding: 7px 8px;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-left: 3px solid #4fc3f7;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(79, 195, 247, 0.08), #151922 34px);
+}
+
+.entry-context-catalog-item.inactive {
+  border-color: rgba(120, 123, 134, 0.35);
+  border-left-color: #787b86;
+  background: #151922;
+}
+
+.entry-context-catalog-item-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 6px;
+}
+
+.entry-context-catalog-item-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: #8d919b;
+  font-size: var(--compact-font-size);
+}
+
+.entry-context-catalog-item-meta span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .inspector-point-list {

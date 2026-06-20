@@ -57,9 +57,24 @@ assert.equal(
   true,
   'deactivated lesson remains in all items'
 );
+catalog.activateCatalogItem('lessons', 'late-entry');
+assert.equal(
+  catalog.getActiveCatalogItems('lessons').some((item) => item.id === 'late-entry'),
+  true,
+  'deactivated lesson can be reactivated from maintenance UI'
+);
 
 catalog.setCatalogItemSort('lessons', 'late-entry-2', 1);
 assert.equal(catalog.getCatalogItems('lessons', { includeInactive: true })[0].id, 'late-entry-2', 'sort order updates');
+
+const panel = await import('../src/ui/inspector/entry-context-catalog-panel.js');
+const entryHtml = panel.renderEntryContextCatalogEntry();
+assert.match(entryHtml, /entry-context-catalog-open/, 'catalog maintenance entry renders open action');
+const panelHtml = panel.renderEntryContextCatalogPanel();
+assert.match(panelHtml, /entry-context-catalog-add/, 'catalog panel renders add controls');
+assert.match(panelHtml, /entry-context-catalog-label/, 'catalog panel renders rename controls');
+assert.match(panelHtml, /entry-context-catalog-sort/, 'catalog panel renders sort controls');
+assert.match(panelHtml, /entry-context-catalog-deactivate/, 'catalog panel renders deactivate controls');
 
 const savedRaw = globalThis.localStorage.getItem(catalog.getEntryContextCatalogStorageKey());
 const saved = JSON.parse(savedRaw);

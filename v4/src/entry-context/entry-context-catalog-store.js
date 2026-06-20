@@ -220,6 +220,21 @@ export function deactivateCatalogItem(group, id) {
   })?.item || null;
 }
 
+export function activateCatalogItem(group, id) {
+  assertGroup(group);
+  const normalizedId = String(id || '').trim();
+  if (!normalizedId) return null;
+  return mutateCatalog('activate', () => {
+    let updated = null;
+    catalog[group] = catalog[group].map((item) => {
+      if (item.id !== normalizedId) return item;
+      updated = { ...item, active: true };
+      return updated;
+    });
+    return updated ? { group, item: cloneItem(updated) } : null;
+  })?.item || null;
+}
+
 export function setCatalogItemSort(group, id, sort) {
   assertGroup(group);
   const normalizedId = String(id || '').trim();

@@ -30,6 +30,11 @@ import { getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroupById } from '../segment/segment-group-store.js';
 import { renderArchiveActions } from './inspector/archive-panel.js';
 import { createDrawingSetActionController, renderDrawingSetList } from './inspector/drawing-set-panel.js';
+import { createEntryContextCatalogActionController } from './inspector/entry-context-catalog-actions.js';
+import {
+  renderEntryContextCatalogEntry,
+  renderEntryContextCatalogPanel,
+} from './inspector/entry-context-catalog-panel.js';
 import { renderAnnotationPanel } from './inspector/pda-panel.js';
 import { renderSegmentPanel } from './inspector/segment-panel.js';
 import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
@@ -171,6 +176,11 @@ const calendarActions = createCalendarActionController({
 });
 
 const drawingSetActions = createDrawingSetActionController();
+
+const entryContextCatalogActions = createEntryContextCatalogActionController({
+  renderCatalogPanel: renderEntryContextCatalogMaintenance,
+  recordInspectorHistory,
+});
 
 const smtActions = createSmtInspectorActionController({
   getSelectedSmtId: () => selectedSmtId,
@@ -484,6 +494,20 @@ function renderEconomicEventDetail(eventId) {
   return true;
 }
 
+function renderEntryContextCatalogMaintenance() {
+  currentPanel = 'entry-context-catalog';
+  replaceInspectorPage({
+    kind: 'entry-context-catalog',
+    selectedDate: calendarSelectedDate,
+    viewDate: calendarViewDate,
+    openGroups: Array.from(calendarOpenGroups),
+  });
+  setInspectorBody(`
+    ${renderInspectorBackAction()}
+    ${renderEntryContextCatalogPanel()}
+  `);
+}
+
 function renderEmpty() {
   currentPanel = 'empty';
   if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
@@ -496,6 +520,7 @@ function renderEmpty() {
   });
   setInspectorBody(`
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
+    ${renderEntryContextCatalogEntry()}
     ${renderArchiveActions()}
   `);
 }
@@ -512,6 +537,7 @@ function renderArchivePanel() {
   });
   setInspectorBody(`
     ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
+    ${renderEntryContextCatalogEntry()}
     ${renderArchiveActions()}
   `);
 }
@@ -559,6 +585,10 @@ function renderPageFromState(page = getInspectorPage()) {
   restoreCalendarStateFromPage(page);
   if (page.kind === 'archive') {
     renderArchivePanel();
+    return;
+  }
+  if (page.kind === 'entry-context-catalog') {
+    renderEntryContextCatalogMaintenance();
     return;
   }
   if (page.kind === 'detail') {
@@ -934,6 +964,10 @@ function handleInspectorChange(e) {
     return;
   }
 
+  if (entryContextCatalogActions.handleChange(action, e.target)) {
+    return;
+  }
+
   if (orderReviewActions.handleOrderReviewChange(action, e.target)) {
     return;
   }
@@ -965,6 +999,18 @@ function handleInspectorClick(e) {
   if (action === 'inspector-back') {
     renderPageFromState(popInspectorPage());
     bus.emit('status:update', { text: 'Returned', isError: false });
+    return;
+  }
+
+  if (action === 'entry-context-catalog-open') {
+    captureCalendarOpenGroups();
+    pushInspectorPage({
+      kind: 'entry-context-catalog',
+      selectedDate: calendarSelectedDate,
+      viewDate: calendarViewDate,
+      openGroups: Array.from(calendarOpenGroups),
+    });
+    renderEntryContextCatalogMaintenance();
     return;
   }
 
@@ -1015,6 +1061,10 @@ function handleInspectorClick(e) {
   }
 
   if (liveRecordActions.handleClick(action, actionEl)) {
+    return;
+  }
+
+  if (entryContextCatalogActions.handleClick(action, actionEl)) {
     return;
   }
 
