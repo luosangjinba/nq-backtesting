@@ -612,6 +612,8 @@ function buildExecutionOrder(row, timeZone) {
   const limitPrice = getLimitPrice(row);
   const fillPrice = getOrderPrice(row);
   const price = fillPrice ?? stopPrice ?? limitPrice;
+  const quantity = parseOptionalNumberField(row.Quantity || row.qty);
+  const filledQuantity = parseOptionalNumberField(row['Filled Qty'] || row.filledQty);
   return {
     id: getOrderId(row),
     timestamp,
@@ -628,6 +630,8 @@ function buildExecutionOrder(row, timeZone) {
     stopPrice,
     limitPrice,
     fillPrice,
+    quantity,
+    filledQuantity,
   };
 }
 

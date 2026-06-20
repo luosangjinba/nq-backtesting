@@ -247,6 +247,8 @@ const richRecord = addLiveRecord({
       stopPrice: '18370.75',
       limitPrice: '',
       fillPrice: '',
+      quantity: '1',
+      filledQuantity: '',
       note: 'protective stop',
       lessonIds: ['late-entry', 'late-entry'],
     }],
@@ -278,6 +280,8 @@ assert.equal(richRecord.execution.targets[0].targetType, 'external', 'target typ
 assert.equal(richRecord.execution.orders[0].type, 'stop', 'execution order type is preserved');
 assert.equal(richRecord.execution.orders[0].status, 'canceled', 'execution order status is preserved');
 assert.equal(richRecord.execution.orders[0].stopPrice, 18370.75, 'execution order stop price normalizes');
+assert.equal(richRecord.execution.orders[0].quantity, 1, 'execution order quantity normalizes');
+assert.equal(richRecord.execution.orders[0].filledQuantity, null, 'execution order empty filled quantity normalizes');
 assert.deepEqual(richRecord.execution.orders[0].lessonIds, ['late-entry'], 'execution order lesson ids normalize and dedupe');
 assert.equal(richRecord.execution.fills[0].orderId, 'order-rich-entry', 'execution fill orderId is preserved');
 assert.equal(richRecord.execution.fills[0].commission, 0.5, 'execution fill commission normalizes');
@@ -315,8 +319,8 @@ const flowRecord = addLiveRecord({
     orders: [
       { id: 'flow-entry', timestamp: 1710771055, type: 'market', status: 'filled', side: 'buy', price: 30368.5, fillPrice: 30368.5 },
       { id: 'flow-exit', timestamp: 1710771071, type: 'market', status: 'filled', side: 'sell', price: 30356.5, fillPrice: 30356.5 },
-      { id: 'flow-stop', timestamp: 1710771057, type: 'stop', status: 'canceled', side: 'sell', stopPrice: 30340 },
-      { id: 'flow-target', timestamp: 1710771061, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25, lessonIds: ['late-entry'] },
+      { id: 'flow-stop', timestamp: 1710771057, type: 'stop', status: 'canceled', side: 'sell', stopPrice: 30340, quantity: 5 },
+      { id: 'flow-target', timestamp: 1710771061, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25, quantity: 5, lessonIds: ['late-entry'] },
     ],
     fills: [
       { id: 'flow-fill-entry', orderId: 'flow-entry', timestamp: 1710771055, side: 'buy', quantity: 5, price: 30368.5 },
@@ -339,18 +343,18 @@ assert.equal(groupById.stopLoss.orders[0].id, 'flow-stop', 'execution flow detec
 assert.equal(groupById.target.orders[0].id, 'flow-target', 'execution flow detects target bracket');
 assert.equal(groupById.exit.orders[0].id, 'flow-exit', 'execution flow detects exit order');
 assert.equal(flow.outcome.type, 'manualExit', 'execution flow explains market exit before result label fallback');
-assert.equal(groupById.open.summary, '1 filled', 'execution orders group summarizes opened orders');
-assert.equal(groupById.stopLoss.summary, '1 set · 0 hit · 1 canceled', 'execution orders group summarizes stop set/canceled');
-assert.equal(groupById.target.summary, '1 set · 0 hit · 1 canceled', 'execution orders group summarizes target set/canceled');
-assert.equal(groupById.exit.summary, 'Manual/Market 1', 'execution orders group summarizes manual market exit');
+assert.equal(groupById.open.summary, '5 contracts · 1 filled order', 'execution orders group summarizes opened contracts');
+assert.equal(groupById.stopLoss.summary, '5 contracts set · 1 order · 0 hit · 5 contracts canceled', 'execution orders group summarizes stop contracts');
+assert.equal(groupById.target.summary, '5 contracts set · 1 order · 0 hit · 5 contracts canceled', 'execution orders group summarizes target contracts');
+assert.equal(groupById.exit.summary, '5 contracts · Manual/Market · 1 order', 'execution orders group summarizes manual market exit contracts');
 const flowHtml = renderLiveRecordDetailPanel(getLiveRecordById(flowRecord.id));
 assert.match(flowHtml, /Execution Orders/, 'flow detail renders unified execution orders heading');
 assert.doesNotMatch(flowHtml, /Execution Summary/, 'flow detail does not render separate execution summary');
 assert.doesNotMatch(flowHtml, /Protection/, 'flow detail does not render separate protection section');
-assert.match(flowHtml, /Open[\s\S]*1 filled[\s\S]*flow-entry/, 'flow detail renders open group summary and order');
-assert.match(flowHtml, /Stop Loss[\s\S]*1 set · 0 hit · 1 canceled[\s\S]*flow-stop/, 'flow detail renders stop group summary and order');
-assert.match(flowHtml, /Target[\s\S]*1 set · 0 hit · 1 canceled[\s\S]*flow-target/, 'flow detail renders target group summary and order');
-assert.match(flowHtml, /Exit[\s\S]*Manual\/Market 1[\s\S]*flow-exit/, 'flow detail renders exit group summary and order');
+assert.match(flowHtml, /Open[\s\S]*5 contracts · 1 filled order[\s\S]*flow-entry/, 'flow detail renders open group contracts and order');
+assert.match(flowHtml, /Stop Loss[\s\S]*5 contracts set · 1 order · 0 hit · 5 contracts canceled[\s\S]*flow-stop/, 'flow detail renders stop group contracts and order');
+assert.match(flowHtml, /Target[\s\S]*5 contracts set · 1 order · 0 hit · 5 contracts canceled[\s\S]*flow-target/, 'flow detail renders target group contracts and order');
+assert.match(flowHtml, /Exit[\s\S]*5 contracts · Manual\/Market · 1 order[\s\S]*flow-exit/, 'flow detail renders exit group contracts and order');
 assert.match(flowHtml, /Manual\/Market exit/, 'flow detail renders outcome label');
 assert.match(flowHtml, /Raw Tradovate Orders \(4\)/, 'flow detail keeps raw orders collapsed');
 assert.match(flowHtml, /flow-target/, 'flow detail shows target order');
@@ -363,14 +367,14 @@ const multiTargetFlow = buildLiveRecordExecutionFlow({
     orders: [
       { id: 'multi-entry', timestamp: 1710771500, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5 },
       { id: 'multi-exit', timestamp: 1710771600, type: 'market', status: 'filled', side: 'sell', fillPrice: 30356.5 },
-      { id: 'multi-target-1', timestamp: 1710771520, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30420 },
-      { id: 'multi-target-2', timestamp: 1710771530, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25 },
+      { id: 'multi-target-1', timestamp: 1710771520, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30420, quantity: 2 },
+      { id: 'multi-target-2', timestamp: 1710771530, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25, quantity: 3 },
     ],
   },
   result: { status: 'loss', exitTimestamp: 1710771600, exitType: 'stopLoss', exitPrice: 30356.5 },
 });
 const multiTargetGroups = Object.fromEntries(multiTargetFlow.groups.map((group) => [group.id, group]));
-assert.equal(multiTargetGroups.target.summary, '2 set · 0 hit · 2 canceled', 'multi target summary counts all target orders');
+assert.equal(multiTargetGroups.target.summary, '5 contracts set · 2 orders · 0 hit · 5 contracts canceled', 'multi target summary counts all target contracts');
 assert.deepEqual(
   multiTargetGroups.target.orders.map((order) => order.id),
   ['multi-target-1', 'multi-target-2'],
@@ -383,17 +387,17 @@ const stoppedFlow = buildLiveRecordExecutionFlow({
     entry: { timestamp: 1710772000, price: 30368.5 },
     orders: [
       { id: 'stop-entry', timestamp: 1710772000, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5 },
-      { id: 'stop-hit', timestamp: 1710772060, type: 'stop', status: 'filled', side: 'sell', stopPrice: 30340, fillPrice: 30340 },
-      { id: 'stop-target-cancel', timestamp: 1710772010, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25 },
+      { id: 'stop-hit', timestamp: 1710772060, type: 'stop', status: 'filled', side: 'sell', stopPrice: 30340, fillPrice: 30340, quantity: 5, filledQuantity: 5 },
+      { id: 'stop-target-cancel', timestamp: 1710772010, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25, quantity: 5 },
     ],
   },
   result: { status: 'loss', exitTimestamp: 1710772060, exitType: 'stopLoss', exitPrice: 30340 },
 });
 assert.equal(stoppedFlow.outcome.type, 'stoppedOut', 'stop filled flow outcome is stopped out');
 const stoppedGroups = Object.fromEntries(stoppedFlow.groups.map((group) => [group.id, group]));
-assert.equal(stoppedGroups.stopLoss.summary, '1 set · 1 hit · 0 canceled', 'stop filled summary counts hit');
-assert.equal(stoppedGroups.target.summary, '1 set · 0 hit · 1 canceled', 'stop filled summary counts canceled target');
-assert.equal(stoppedGroups.exit.summary, 'Stop hit 1', 'stop filled summary counts stop exit');
+assert.equal(stoppedGroups.stopLoss.summary, '5 contracts set · 1 order · 5 contracts hit · 0 canceled', 'stop filled summary counts hit contracts');
+assert.equal(stoppedGroups.target.summary, '5 contracts set · 1 order · 0 hit · 5 contracts canceled', 'stop filled summary counts canceled target contracts');
+assert.equal(stoppedGroups.exit.summary, '5 contracts · Stop hit 1', 'stop filled summary counts stop exit contracts');
 
 const targetFlow = buildLiveRecordExecutionFlow({
   direction: 'long',
@@ -401,17 +405,34 @@ const targetFlow = buildLiveRecordExecutionFlow({
     entry: { timestamp: 1710773000, price: 30368.5 },
     orders: [
       { id: 'target-entry', timestamp: 1710773000, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5 },
-      { id: 'target-stop-cancel', timestamp: 1710773010, type: 'stop', status: 'canceled', side: 'sell', stopPrice: 30340 },
-      { id: 'target-hit', timestamp: 1710773060, type: 'limit', status: 'filled', side: 'sell', limitPrice: 30463.25, fillPrice: 30463.25 },
+      { id: 'target-stop-cancel', timestamp: 1710773010, type: 'stop', status: 'canceled', side: 'sell', stopPrice: 30340, quantity: 5 },
+      { id: 'target-hit', timestamp: 1710773060, type: 'limit', status: 'filled', side: 'sell', limitPrice: 30463.25, fillPrice: 30463.25, quantity: 5, filledQuantity: 5 },
     ],
   },
   result: { status: 'win', exitTimestamp: 1710773060, exitType: 'profit', exitPrice: 30463.25 },
 });
 assert.equal(targetFlow.outcome.type, 'targetHit', 'target filled flow outcome is target hit');
 const targetGroups = Object.fromEntries(targetFlow.groups.map((group) => [group.id, group]));
-assert.equal(targetGroups.stopLoss.summary, '1 set · 0 hit · 1 canceled', 'target filled summary counts canceled stop');
-assert.equal(targetGroups.target.summary, '1 set · 1 hit · 0 canceled', 'target filled summary counts hit');
-assert.equal(targetGroups.exit.summary, 'Target hit 1', 'target filled summary counts target exit');
+assert.equal(targetGroups.stopLoss.summary, '5 contracts set · 1 order · 0 hit · 5 contracts canceled', 'target filled summary counts canceled stop contracts');
+assert.equal(targetGroups.target.summary, '5 contracts set · 1 order · 5 contracts hit · 0 canceled', 'target filled summary counts hit contracts');
+assert.equal(targetGroups.exit.summary, '5 contracts · Target hit 1', 'target filled summary counts target exit contracts');
+
+const partialFlow = buildLiveRecordExecutionFlow({
+  direction: 'long',
+  execution: {
+    entry: { timestamp: 1710774000, price: 30368.5 },
+    orders: [
+      { id: 'partial-entry', timestamp: 1710774000, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5, quantity: 5, filledQuantity: 5 },
+      { id: 'partial-target-hit', timestamp: 1710774060, type: 'limit', status: 'filled', side: 'sell', limitPrice: 30420, fillPrice: 30420, quantity: 2, filledQuantity: 2 },
+      { id: 'partial-exit', timestamp: 1710774120, type: 'market', status: 'filled', side: 'sell', fillPrice: 30390, quantity: 3, filledQuantity: 3 },
+    ],
+  },
+  result: { status: 'win', exitTimestamp: 1710774120, exitType: 'profit', exitPrice: 30390 },
+});
+const partialGroups = Object.fromEntries(partialFlow.groups.map((group) => [group.id, group]));
+assert.equal(partialGroups.open.summary, '5 contracts · 1 filled order', 'partial flow counts opened contracts');
+assert.equal(partialGroups.target.summary, '2 contracts set · 1 order · 2 contracts hit · 0 canceled', 'partial flow counts target hit contracts');
+assert.equal(partialGroups.exit.summary, '3 contracts · Manual/Market · 1 order', 'partial flow counts remaining manual exit contracts');
 
 updateLiveRecord('live-rich-shape', {
   execution: {

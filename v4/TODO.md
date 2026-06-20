@@ -1006,10 +1006,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 302.5: 更新样式，降低重复边框和卡片层级，让 Open/Stop/Target/Exit 看起来属于同一个组件。
   - [x] Step 302.6: Focused/browser smoke 覆盖：页面只有一个主执行订单组件；Open/Stop/Target/Exit 各自显示 summary + order；manual/stop/target exit 文案正确；raw orders 仍可折叠查看。
 
-- [ ] Step 303: Contract-first Execution Orders。目标是保留 order count，但让 Execution Orders summary 以 contract 数量为主，避免 `1 filled` / `1 set` 被误读成开了 1 手；Tradovate imported orders 写入并保留 `quantity` / `filledQuantity`。
-  - [ ] Step 303.1: Tradovate importer 在 `execution.orders[]` 写入 `quantity` 与 `filledQuantity`，来源为 Orders CSV 的 `Quantity`、`Filled Qty` / `filledQty`。
-  - [ ] Step 303.2: Live Record normalize 保留 order `quantity` / `filledQuantity`，刷新、导出、导入不丢字段。
-  - [ ] Step 303.3: Execution Orders summary 改为 contract-first 文案，例如 `5 contracts · 1 filled order`、`5 contracts · 1 set order · 0 hit · 1 canceled`。
-  - [ ] Step 303.4: 聚合 partial 场景需要的 `openedQty`、`setQty`、`hitQty`、`canceledQty`、`manualExitQty`，避免 partial target + manual exit 显示错误。
-  - [ ] Step 303.5: 订单行继续明确显示 `qty N`，Stop/Target canceled bracket 也显示 qty。
-  - [ ] Step 303.6: Smoke 覆盖 5 contracts open/stop/target/manual exit、stop hit、target hit、partial target + manual exit，并跑 importer/live/browser smoke 与 `git diff --check`。
+- [x] Step 303: Contract-first Execution Orders。目标是保留 order count，但让 Execution Orders summary 以 contract 数量为主，避免 `1 filled` / `1 set` 被误读成开了 1 手；Tradovate imported orders 写入并保留 `quantity` / `filledQuantity`。已完成 importer/store/helper/UI summary 与 full/partial smoke 覆盖。
+  - [x] Step 303.1: Tradovate importer 在 `execution.orders[]` 写入 `quantity` 与 `filledQuantity`，来源为 Orders CSV 的 `Quantity`、`Filled Qty` / `filledQty`。
+  - [x] Step 303.2: Live Record normalize 保留 order `quantity` / `filledQuantity`，刷新、导出、导入不丢字段。
+  - [x] Step 303.3: Execution Orders summary 改为 contract-first 文案，例如 `5 contracts · 1 filled order`、`5 contracts set · 1 order · 0 hit · 5 contracts canceled`。
+  - [x] Step 303.4: 聚合 partial 场景需要的 `openedQty`、`setQty`、`hitQty`、`canceledQty`、`manualExitQty`，避免 partial target + manual exit 显示错误。
+  - [x] Step 303.5: 订单行继续明确显示 `qty N`，Stop/Target canceled bracket 也显示 qty。
+  - [x] Step 303.6: Smoke 覆盖 5 contracts open/stop/target/manual exit、stop hit、target hit、partial target + manual exit，并跑 importer/live/browser smoke 与 `git diff --check`。

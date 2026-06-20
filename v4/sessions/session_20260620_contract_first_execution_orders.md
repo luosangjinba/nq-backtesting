@@ -46,3 +46,27 @@ Each order row should also show explicit `qty N`.
 - Do not change stored Live Record schema beyond adding fields to order objects.
 - Do not hide order counts; just make their unit explicit.
 - Do not infer risk sizing beyond raw contracts/order quantities.
+
+## Completed
+
+- Tradovate `buildExecutionOrder()` now stores:
+  - `quantity`;
+  - `filledQuantity`.
+- Live Record normalization preserves order `quantity` / `filledQuantity`.
+- Execution Orders summary is contract-first:
+  - Open: `N contracts · N filled order(s)`;
+  - Stop Loss: `N contracts set · N order(s) · N contracts hit · N contracts canceled`;
+  - Target: same contract-first structure;
+  - Exit: `N contracts · Manual/Market · N order(s)` or stop/target hit.
+- Stop/Target order rows now get `qty N` from order quantity, not only from fills.
+- Partial scenario is covered: target hit contracts and remaining manual-exit contracts are counted separately.
+
+## Verification
+
+- `node --check v4/src/live-record/live-record-execution-flow.js`
+- `node --check v4/src/live-record/tradovate-performance-importer.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `node v4/tests/entry-context-catalog-integration-smoke.js`
+- `git diff --check`

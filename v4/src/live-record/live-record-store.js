@@ -279,6 +279,8 @@ function normalizeExecution(input = {}) {
           stopPrice: normalizeNumber(order.stopPrice),
           limitPrice: normalizeNumber(order.limitPrice),
           fillPrice: normalizeNumber(order.fillPrice),
+          quantity: normalizeNumber(order.quantity),
+          filledQuantity: normalizeNumber(order.filledQuantity),
           note: normalizeString(order.note, ''),
           lessonIds: normalizeIdArray(order.lessonIds),
         }))

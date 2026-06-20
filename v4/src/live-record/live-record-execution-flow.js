@@ -25,6 +25,21 @@ function orderQuantity(order = {}, fills = []) {
   return numberOrNull(fill?.quantity);
 }
 
+function orderFilledQuantity(order = {}, fills = []) {
+  const direct = numberOrNull(order.filledQuantity ?? order.filledQty);
+  if (direct !== null) return direct;
+  if (isFilled(order)) return orderQuantity(order, fills);
+  return null;
+}
+
+function quantityForSummary(order = {}, fills = []) {
+  return orderQuantity(order, fills) ?? 0;
+}
+
+function filledQuantityForSummary(order = {}, fills = []) {
+  return orderFilledQuantity(order, fills) ?? 0;
+}
+
 function isFilled(order = {}) {
   return normalize(order.status) === 'filled';
 }
@@ -110,7 +125,31 @@ function countOrders(orders, predicate) {
   return orders.filter(({ order }) => predicate(order)).length;
 }
 
-function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType }) {
+function sumOrderQuantity(orders, predicate, fills = [], quantityGetter = quantityForSummary) {
+  return Number(orders
+    .filter(({ order }) => predicate(order))
+    .reduce((sum, { order }) => sum + quantityGetter(order, fills), 0)
+    .toFixed(2));
+}
+
+function formatCountLabel(count, singular, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function formatContracts(quantity) {
+  const value = Number(quantity);
+  const safe = Number.isFinite(value) ? value : 0;
+  const text = Number.isInteger(safe) ? String(safe) : String(Number(safe.toFixed(2)));
+  return `${text} ${safe === 1 ? 'contract' : 'contracts'}`;
+}
+
+function formatContractsAction(quantity, action) {
+  const value = Number(quantity);
+  if (!Number.isFinite(value) || value === 0) return `0 ${action}`;
+  return `${formatContracts(value)} ${action}`;
+}
+
+function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills }) {
   const isEntrySide = (order) => sameSide(order, entrySide);
   const isExitSide = (order) => sameSide(order, exitSide);
   const isStop = (order) => normalize(order.type) === 'stop' && isExitSide(order);
@@ -119,22 +158,31 @@ function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcome
   return {
     opened: {
       filled: countOrders(orders, (order) => isFilled(order) && isEntrySide(order)),
+      quantity: sumOrderQuantity(orders, (order) => isFilled(order) && isEntrySide(order), fills, filledQuantityForSummary),
     },
     stopLoss: {
       set: countOrders(orders, isStop),
       hit: countOrders(orders, (order) => isStop(order) && isFilled(order)),
       canceled: countOrders(orders, (order) => isStop(order) && isCanceled(order)),
+      setQuantity: sumOrderQuantity(orders, isStop, fills),
+      hitQuantity: sumOrderQuantity(orders, (order) => isStop(order) && isFilled(order), fills, filledQuantityForSummary),
+      canceledQuantity: sumOrderQuantity(orders, (order) => isStop(order) && isCanceled(order), fills),
     },
     target: {
       set: countOrders(orders, isTarget),
       hit: countOrders(orders, (order) => isTarget(order) && isFilled(order)),
       canceled: countOrders(orders, (order) => isTarget(order) && isCanceled(order)),
+      setQuantity: sumOrderQuantity(orders, isTarget, fills),
+      hitQuantity: sumOrderQuantity(orders, (order) => isTarget(order) && isFilled(order), fills, filledQuantityForSummary),
+      canceledQuantity: sumOrderQuantity(orders, (order) => isTarget(order) && isCanceled(order), fills),
     },
     exit: {
       manual: countOrders(orders, isManualExit),
       stopHit: outcomeType === 'stoppedOut' && exitOrder ? 1 : 0,
       targetHit: outcomeType === 'targetHit' && exitOrder ? 1 : 0,
       matched: exitOrder ? 1 : 0,
+      manualQuantity: sumOrderQuantity(orders, isManualExit, fills, filledQuantityForSummary),
+      matchedQuantity: exitOrder ? filledQuantityForSummary(exitOrder.order, fills) : 0,
     },
   };
 }
@@ -205,7 +253,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
     exitTimestamp
   );
   const outcomeType = outcomeFromExit(exitOrder, result);
-  const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType });
+  const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills });
   const entryOrders = matchingOrders(orders, (order) => isFilled(order) && isEntrySide(order), 'entry');
   const stopOrders = matchingOrders(orders, isStop, 'stopLoss');
   const targetOrders = matchingOrders(orders, isTarget, 'target');
@@ -220,16 +268,32 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
     .filter((item) => Array.isArray(item.order.lessonIds) && item.order.lessonIds.length)
     .map((item) => buildFlowOrder(item, 'reviewOrder'));
   const exitParts = [];
-  if (summary.exit.manual) exitParts.push(`Manual/Market ${summary.exit.manual}`);
-  if (summary.exit.stopHit) exitParts.push(`Stop hit ${summary.exit.stopHit}`);
-  if (summary.exit.targetHit) exitParts.push(`Target hit ${summary.exit.targetHit}`);
-  if (!exitParts.length && summary.exit.matched) exitParts.push(`Matched ${summary.exit.matched}`);
+  if (summary.exit.manual) {
+    exitParts.push(formatContracts(summary.exit.manualQuantity));
+    exitParts.push('Manual/Market');
+    exitParts.push(formatCountLabel(summary.exit.manual, 'order'));
+  }
+  if (summary.exit.stopHit) {
+    exitParts.push(formatContracts(summary.exit.matchedQuantity));
+    exitParts.push(`Stop hit ${summary.exit.stopHit}`);
+  }
+  if (summary.exit.targetHit) {
+    exitParts.push(formatContracts(summary.exit.matchedQuantity));
+    exitParts.push(`Target hit ${summary.exit.targetHit}`);
+  }
+  if (!exitParts.length && summary.exit.matched) {
+    exitParts.push(formatContracts(summary.exit.matchedQuantity));
+    exitParts.push(formatCountLabel(summary.exit.matched, 'matched order'));
+  }
   if (!exitParts.length) exitParts.push(outcomeLabel(outcomeType));
   const groups = [
     buildOrderGroup({
       id: 'open',
       label: 'Open',
-      summary: `${summary.opened.filled || 0} filled`,
+      summary: formatSummaryParts([
+        formatContracts(summary.opened.quantity),
+        formatCountLabel(summary.opened.filled || 0, 'filled order'),
+      ]),
       orders: entryOrders.map((order) => decorateOrder(order, {
         note: 'Entry order filled',
         quantity: orderQuantity(order, fills),
@@ -240,12 +304,14 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       id: 'stopLoss',
       label: 'Stop Loss',
       summary: formatSummaryParts([
-        `${summary.stopLoss.set || 0} set`,
-        `${summary.stopLoss.hit || 0} hit`,
-        `${summary.stopLoss.canceled || 0} canceled`,
+        formatContractsAction(summary.stopLoss.setQuantity, 'set'),
+        formatCountLabel(summary.stopLoss.set || 0, 'order'),
+        formatContractsAction(summary.stopLoss.hitQuantity, 'hit'),
+        formatContractsAction(summary.stopLoss.canceledQuantity, 'canceled'),
       ]),
       orders: stopOrders.map((order) => decorateOrder(order, {
         note: bracketNote({ order }, exitOrder),
+        quantity: orderQuantity(order, fills),
       })),
       emptyText: 'No stop-loss order found',
     }),
@@ -253,12 +319,14 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       id: 'target',
       label: 'Target',
       summary: formatSummaryParts([
-        `${summary.target.set || 0} set`,
-        `${summary.target.hit || 0} hit`,
-        `${summary.target.canceled || 0} canceled`,
+        formatContractsAction(summary.target.setQuantity, 'set'),
+        formatCountLabel(summary.target.set || 0, 'order'),
+        formatContractsAction(summary.target.hitQuantity, 'hit'),
+        formatContractsAction(summary.target.canceledQuantity, 'canceled'),
       ]),
       orders: targetOrders.map((order) => decorateOrder(order, {
         note: bracketNote({ order }, exitOrder),
+        quantity: orderQuantity(order, fills),
       })),
       emptyText: 'No target order found',
     }),
