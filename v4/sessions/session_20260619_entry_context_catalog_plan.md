@@ -206,6 +206,31 @@ Acceptance:
 
 - Pattern / Session vocabulary is shared and synchronized across both panels.
 
+Status: complete.
+
+Implementation:
+
+- `order-review-panel.js` now renders Entry Context Pattern / Session from the shared entry context catalog.
+- Pattern remains a multi-select checkbox group.
+- Session remains a single select.
+- Order Setup storage now normalizes to:
+  - `entryPlan.entryPatternIds`
+  - `entryPlan.entrySessionId`
+- `normalizeEntryPlan(...)` still accepts old `entryPatterns` / `entrySession` inputs as a lightweight fallback.
+- Dynamic Pattern / Session IDs are no longer validated against the old fixed enum sets, so user-maintained catalog items are preserved.
+- `order-review-utils.js` now collects checked Pattern IDs from `entryPatternIds`.
+- Existing Live Record and Order Setup smoke tests now assert that a custom catalog Pattern renders in both detail panels.
+
+Verification:
+
+- `node --check v4/src/order/order-review-store.js`
+- `node --check v4/src/ui/inspector/order-review-panel.js`
+- `node --check v4/src/ui/inspector/order-review-utils.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `git diff --check`
+
 ## Step 298.5: Live Record Order Lessons
 
 Tasks:

@@ -968,7 +968,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 298.1: Current-state audit：已审计 Live Record / Order Setup Entry Context 字段、选项来源、持久化结构和 Live Record order lessons 挂载点；当前两边共用 `ORDER_ENTRY_PATTERN_DEFINITIONS` / `ORDER_ENTRY_SESSION_DEFINITIONS`，Live Record 存 `entryContext.patterns/session`，Order Setup 存 `entryPlan.entryPatterns/entrySession`，Lessons 尚无字段。
   - [x] Step 298.2: Shared catalog store：已新增 `entry-context/entry-context-catalog-store.js`，管理 `patterns` / `sessions` / `lessons`，从现有 Pattern/Session definitions seed 默认项，支持 add/rename/deactivate/sort/active/all/resolve/localStorage persistence，并在 `app.js` 初始化；新增 `entry-context-catalog-smoke.js`。
   - [x] Step 298.3: Live Record Entry Context catalog integration：Live Record Detail Pattern / Session 改读共享 catalog，保存 `entryContext.patternIds` / `entryContext.sessionId`；normalize 仍接受旧 `patterns/session` 作为轻量输入 fallback；Live Record smoke、chart-actions smoke、catalog smoke 和 `git diff --check` 均通过。
-  - [ ] Step 298.4: Order Setup Entry Context catalog integration：Order Setup Detail Pattern / Session 改读同一 catalog，保证两边维护同步。
+  - [x] Step 298.4: Order Setup Entry Context catalog integration：Order Setup Detail Pattern / Session 已改读同一 catalog，保存 `entryPlan.entryPatternIds` / `entryPlan.entrySessionId`，不再用固定 enum set 限制动态 catalog IDs；order/live smoke 均加入 custom catalog item 同步显示断言并通过。
   - [ ] Step 298.5: Live Record order lessons：每个 live order 增加 `lessonIds`，支持多选、移除和 inactive 历史项显示。
   - [ ] Step 298.6: Catalog maintenance UI：新增维护 UI，支持 Pattern / Session / Lesson 新增、改名、停用和排序；不做硬删除。
   - [ ] Step 298.7: Sync events and persistence：catalog 编辑后 emit change 事件，Live Record / Order Setup 面板同步刷新，重载后保留维护项。

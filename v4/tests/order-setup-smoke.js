@@ -30,6 +30,8 @@ import {
   renderOrderSetupMenuItems,
 } from '../src/order/order-setup-chart-actions.js';
 import { getSetupSetById } from '../src/order/setup-set.js';
+import { renderOrderReviewDetailPanel } from '../src/ui/inspector/order-review-panel.js';
+import { addCatalogItem } from '../src/entry-context/entry-context-catalog-store.js';
 import {
   restoreOrderReviews,
   saveOrderReviews,
@@ -182,6 +184,12 @@ assert.equal(updatedBullish.explanationElements.notes.length, 2, 'reason notes b
 assert.equal(getOrderReviewById(bullish.id).summary, 'Opening reversal setup summary.', 'order setup summary persists');
 assert.equal(getOrderReviewById(bullish.id).setupThesis.reasons[0].category, ORDER_REASON_CATEGORIES.MACROS, 'reason category alias normalizes to macros');
 assert.equal(getOrderReviewById(bullish.id).setupThesis.reasons[1].category, ORDER_REASON_CATEGORIES.OTHER, 'invalid reason category falls back to other');
+addCatalogItem('patterns', 'Custom Continuation');
+assert.match(
+  renderOrderReviewDetailPanel(getOrderReviewById(bullish.id)),
+  /Custom Continuation/,
+  'order setup detail renders catalog-maintained entry pattern options'
+);
 
 const shiftOrderSetupMenu = renderOrderSetupMenuItems({
   bar: { timestamp: 1672756860 },

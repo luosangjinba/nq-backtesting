@@ -8,10 +8,6 @@ import {
   ORDER_DIRECTION_ALIASES,
   ORDER_ENTRY_MODELS,
   ORDER_ENTRY_MODEL_ALIASES,
-  ORDER_ENTRY_PATTERNS,
-  ORDER_ENTRY_PATTERN_ALIASES,
-  ORDER_ENTRY_SESSIONS,
-  ORDER_ENTRY_SESSION_ALIASES,
   ORDER_EVENT_TYPES,
   ORDER_EVENT_TYPE_ALIASES,
   ORDER_REF_ROLES,
@@ -31,8 +27,6 @@ import {
   VALID_ORDER_CONFIDENCE,
   VALID_ORDER_DIRECTIONS,
   VALID_ORDER_ENTRY_MODELS,
-  VALID_ORDER_ENTRY_PATTERNS,
-  VALID_ORDER_ENTRY_SESSIONS,
   VALID_ORDER_EVENT_TYPES,
   VALID_ORDER_REF_ROLES,
   VALID_ORDER_REF_TYPES,
@@ -53,11 +47,7 @@ export {
   ORDER_ENTRY_MODELS,
   ORDER_ENTRY_MODEL_ALIASES,
   ORDER_ENTRY_MODEL_DEFINITIONS,
-  ORDER_ENTRY_PATTERNS,
-  ORDER_ENTRY_PATTERN_ALIASES,
   ORDER_ENTRY_PATTERN_DEFINITIONS,
-  ORDER_ENTRY_SESSIONS,
-  ORDER_ENTRY_SESSION_ALIASES,
   ORDER_ENTRY_SESSION_DEFINITIONS,
   ORDER_EVENT_TYPES,
   ORDER_EVENT_TYPE_ALIASES,
@@ -86,8 +76,6 @@ export {
   VALID_ORDER_CONFIDENCE,
   VALID_ORDER_DIRECTIONS,
   VALID_ORDER_ENTRY_MODELS,
-  VALID_ORDER_ENTRY_PATTERNS,
-  VALID_ORDER_ENTRY_SESSIONS,
   VALID_ORDER_EVENT_TYPES,
   VALID_ORDER_REF_ROLES,
   VALID_ORDER_REF_TYPES,
@@ -144,6 +132,11 @@ function normalizeEnumArray(value, validSet, aliasMap) {
       .map((item) => resolveDefinitionValue(item, validSet, aliasMap, ''))
       .filter(Boolean)
   );
+}
+
+function normalizeIdArray(value) {
+  const values = Array.isArray(value) ? value : [value];
+  return uniqueBy(values.map((item) => normalizeString(item, '')).filter(Boolean));
 }
 
 export function uniqueBy(items = [], getKey = (item) => item) {
@@ -439,17 +432,8 @@ export function normalizeEntryPlan(input = {}) {
       ORDER_ENTRY_MODEL_ALIASES,
       ORDER_ENTRY_MODELS.MANUAL
     ),
-    entryPatterns: normalizeEnumArray(
-      input.entryPatterns,
-      VALID_ORDER_ENTRY_PATTERNS,
-      ORDER_ENTRY_PATTERN_ALIASES
-    ),
-    entrySession: normalizeEnum(
-      input.entrySession,
-      VALID_ORDER_ENTRY_SESSIONS,
-      ORDER_ENTRY_SESSION_ALIASES,
-      ORDER_ENTRY_SESSIONS.UNKNOWN
-    ),
+    entryPatternIds: normalizeIdArray(input.entryPatternIds ?? input.entryPatterns),
+    entrySessionId: normalizeString(input.entrySessionId || input.entrySession, 'unknown'),
     entryTimeframe: normalizeEnum(
       input.entryTimeframe,
       VALID_ORDER_TIMEFRAMES,

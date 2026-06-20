@@ -65,6 +65,7 @@ import { CALENDAR_OBJECT_TYPES } from '../src/calendar/calendar-types.js';
 import { renderLiveRecordDetailPanel } from '../src/ui/inspector/live-record-panel.js';
 import { renderCalendarPanel } from '../src/ui/inspector/calendar-panel.js';
 import { createLiveRecordActionController } from '../src/ui/inspector/live-record-actions.js';
+import { addCatalogItem } from '../src/entry-context/entry-context-catalog-store.js';
 import { recordHistory, redo, undo } from '../src/history/history-manager.js';
 import { addSmtRecord, clearSmtRecords } from '../src/smt/smt-store.js';
 import * as barStore from '../src/data/bar-store.js';
@@ -523,6 +524,7 @@ assert.match(calendarPanelHtml, /Close/, 'Calendar live row can close records');
 assert.match(calendarPanelHtml, /Mark Reviewed/, 'Calendar live row can mark reviewed');
 assert.match(calendarPanelHtml, /Open 1/, 'Calendar live group summarizes open records');
 
+addCatalogItem('patterns', 'Custom Continuation');
 const detailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
 assert.match(detailHtml, /Live Record Detail/, 'detail renders title');
 assert.match(detailHtml, /Active/, 'detail header renders lifecycle status');
@@ -542,6 +544,7 @@ assert.match(detailHtml, /End: /, 'detail renders normalized execution end metad
 assert.match(detailHtml, /Reasons/, 'detail renders Reasons');
 assert.match(detailHtml, /Entry Context/, 'detail renders Entry Context');
 assert.match(detailHtml, /Purge \+ OB/, 'detail renders live entry pattern options');
+assert.match(detailHtml, /Custom Continuation/, 'detail renders catalog-maintained live entry pattern options');
 assert.match(detailHtml, /Silver Bullet/, 'detail renders live entry session options');
 assert.match(detailHtml, /Chart Note/, 'detail renders linked chart note ref');
 assert.match(detailHtml, /Context · PDA · fvg · pda-live-link/, 'detail renders formatted PDA ref source');

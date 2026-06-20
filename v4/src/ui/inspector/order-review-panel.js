@@ -1,13 +1,15 @@
 import {
   getActiveDefinitions,
   ORDER_ENTRY_MODEL_DEFINITIONS,
-  ORDER_ENTRY_PATTERN_DEFINITIONS,
-  ORDER_ENTRY_SESSION_DEFINITIONS,
   ORDER_REASON_CATEGORIES,
   ORDER_REASON_CATEGORY_DEFINITIONS,
   ORDER_RESULT_DEFINITIONS,
   ORDER_RESULTS,
 } from '../../order/order-review-types.js';
+import {
+  getActiveCatalogItems,
+  getCatalogItems,
+} from '../../entry-context/entry-context-catalog-store.js';
 import {
   TARGET_EXECUTION_ACTION_LABELS,
   TARGET_EXECUTION_ACTIONS,
@@ -64,21 +66,41 @@ function renderSelect(order, sectionName, fieldName, definitions, value) {
   `;
 }
 
-function renderEntryPatternCheckboxes(order, selectedPatterns = []) {
-  const selected = new Set(Array.isArray(selectedPatterns) ? selectedPatterns : []);
+function getCatalogOptionsForSelection(group, selectedIds = []) {
+  const selected = new Set((Array.isArray(selectedIds) ? selectedIds : [selectedIds]).filter(Boolean));
+  const activeItems = getActiveCatalogItems(group);
+  const allItemsById = new Map(getCatalogItems(group, { includeInactive: true }).map((item) => [item.id, item]));
+  const options = [...activeItems];
+  selected.forEach((id) => {
+    if (options.some((item) => item.id === id)) return;
+    options.push(allItemsById.get(id) || { id, label: id, active: false, sort: Number.MAX_SAFE_INTEGER });
+  });
+  return options;
+}
+
+function renderCatalogOptions(group, selectedValue) {
+  return getCatalogOptionsForSelection(group, [selectedValue])
+    .map((item) =>
+      `<option value="${escapeHtml(item.id)}" ${item.id === selectedValue ? 'selected' : ''}>${escapeHtml(item.label)}</option>`
+    )
+    .join('');
+}
+
+function renderEntryPatternCheckboxes(order, selectedPatternIds = []) {
+  const selected = new Set(Array.isArray(selectedPatternIds) ? selectedPatternIds : []);
   return `
     <div class="order-entry-patterns">
-      ${getActiveDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS)
+      ${getCatalogOptionsForSelection('patterns', [...selected])
         .map(
-          (definition) => `
+          (item) => `
             <label class="order-entry-pattern-option">
               <input
-                ${orderFieldAttrs(order, 'entryPlan', 'entryPatterns')}
-                data-order-entry-pattern="${escapeHtml(definition.value)}"
+                ${orderFieldAttrs(order, 'entryPlan', 'entryPatternIds')}
+                data-order-entry-pattern="${escapeHtml(item.id)}"
                 type="checkbox"
-                ${selected.has(definition.value) ? 'checked' : ''}
+                ${selected.has(item.id) ? 'checked' : ''}
               />
-              <span>${escapeHtml(definition.label)}</span>
+              <span>${escapeHtml(item.label)}</span>
             </label>
           `
         )
@@ -304,8 +326,13 @@ function renderEntryContextPanel(order) {
   return `
     <div class="order-review-compact order-entry-context">
       <div class="order-review-compact-title">Entry Context</div>
-      ${controlField('Pattern', renderEntryPatternCheckboxes(order, entry.entryPatterns))}
-      ${controlField('Session', renderSelect(order, 'entryPlan', 'entrySession', ORDER_ENTRY_SESSION_DEFINITIONS, entry.entrySession))}
+      ${controlField('Pattern', renderEntryPatternCheckboxes(order, entry.entryPatternIds))}
+      ${controlField(
+        'Session',
+        `<select class="inspector-input" ${orderFieldAttrs(order, 'entryPlan', 'entrySessionId')}>
+          ${renderCatalogOptions('sessions', entry.entrySessionId || 'unknown')}
+        </select>`
+      )}
     </div>
   `;
 }

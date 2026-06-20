@@ -117,7 +117,7 @@ export function getSegmentTimestampRange(segment = {}) {
 
 export function parseOrderReviewFieldValue(target) {
   const field = target.dataset.orderReviewField;
-  if (field === 'entryPatterns') {
+  if (field === 'entryPatternIds') {
     const container = target.closest('.order-entry-patterns');
     return Array.from(container?.querySelectorAll('input[data-order-entry-pattern]:checked') || [])
       .map((input) => input.dataset.orderEntryPattern)
