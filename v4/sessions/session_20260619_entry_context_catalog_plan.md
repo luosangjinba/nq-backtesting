@@ -67,6 +67,43 @@ Acceptance:
 - No behavior changes.
 - TODO/session notes identify exact files and field names to migrate.
 
+Status: complete.
+
+Findings:
+
+- Shared hardcoded option source today:
+  - `v4/src/order/order-review-types.js`
+  - `ORDER_ENTRY_PATTERN_DEFINITIONS`
+  - `ORDER_ENTRY_SESSION_DEFINITIONS`
+- Live Record Detail render path:
+  - `v4/src/ui/inspector/live-record-panel.js`
+  - Pattern renders checkbox group from `ORDER_ENTRY_PATTERN_DEFINITIONS`.
+  - Session renders a select from `ORDER_ENTRY_SESSION_DEFINITIONS`.
+  - Existing storage shape is `entryContext.patterns` array and `entryContext.session` string.
+- Live Record action/write path:
+  - `v4/src/ui/inspector/live-record-actions.js`
+  - `live-record-entry-context-field` patches `entryContext.patterns` or `entryContext.session`.
+  - `v4/src/live-record/live-record-store.js` normalizes `entryContext.patterns` / `entryContext.session`, with `entryPatterns` / `entrySession` accepted as aliases.
+- Order Setup Detail render path:
+  - `v4/src/ui/inspector/order-review-panel.js`
+  - Pattern renders checkbox group from the same `ORDER_ENTRY_PATTERN_DEFINITIONS`.
+  - Session renders a select from the same `ORDER_ENTRY_SESSION_DEFINITIONS`.
+  - Existing storage shape is `entryPlan.entryPatterns` array and `entryPlan.entrySession` string.
+- Order Setup action/write path:
+  - `v4/src/ui/inspector/order-review-edit-actions.js`
+  - `v4/src/ui/inspector/order-review-utils.js`
+  - `order-review-edit-field` writes through `updateOrderReviewEntryField(...)`; `entryPatterns` is collected from checked inputs.
+  - `v4/src/order/order-review-store.js` validates against `VALID_ORDER_ENTRY_PATTERNS` / `VALID_ORDER_ENTRY_SESSIONS`.
+- Live Record order lessons target:
+  - There is no order-level lessons field yet.
+  - The clean target is Live Record store-level `lessonIds` on each record/order object, normalized as an array of stable catalog IDs.
+
+Migration direction:
+
+- Keep Pattern as multi-select and Session as single-select.
+- Introduce new normalized IDs as `entryContext.patternIds` / `entryContext.sessionId` and `entryPlan.entryPatternIds` / `entryPlan.entrySessionId`, or directly move existing array/string fields to catalog IDs if implementation stays simpler.
+- Since old data is not fixed, the implementation can update smoke expectations and storage shape directly, while preserving lightweight fallback aliases during the transition if cheaper than removing them.
+
 ## Step 298.2: Shared Catalog Store
 
 Tasks:

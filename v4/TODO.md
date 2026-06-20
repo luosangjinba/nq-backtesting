@@ -965,7 +965,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 297.10: Closeout：已记录最终 benchmark、验证清单、未迁移 renderer（Live Record、Order Review、Time Overlay、SMT）和 Step 298 候选；Step 297 scope 收敛为 PDA/Segment primitive reuse。
 
 - [ ] Step 298: Maintainable Entry Context Catalogs + Live Lessons。目标是把 Live Record Detail 与 Order Setup Detail 的 Entry Context Pattern / Session 改为同一套可维护 catalog，并给每个 Live Record order 增加可维护 Lessons 多选；catalog 使用稳定 ID、可改名、软删除、排序和 fallback resolve。计划见 `v4/sessions/session_20260619_entry_context_catalog_plan.md`。
-  - [ ] Step 298.1: Current-state audit：审计 Live Record / Order Setup Entry Context 字段、选项来源、持久化结构和 Live Record order lessons 挂载点。
+  - [x] Step 298.1: Current-state audit：已审计 Live Record / Order Setup Entry Context 字段、选项来源、持久化结构和 Live Record order lessons 挂载点；当前两边共用 `ORDER_ENTRY_PATTERN_DEFINITIONS` / `ORDER_ENTRY_SESSION_DEFINITIONS`，Live Record 存 `entryContext.patterns/session`，Order Setup 存 `entryPlan.entryPatterns/entrySession`，Lessons 尚无字段。
   - [ ] Step 298.2: Shared catalog store：新增共享 catalog store，管理 `patterns` / `sessions` / `lessons`，提供增删改排序、active/all list、label resolve 和持久化。
   - [ ] Step 298.3: Live Record Entry Context catalog integration：Live Record Detail Pattern / Session 下拉改读共享 catalog，保存 `patternId` / `sessionId`。
   - [ ] Step 298.4: Order Setup Entry Context catalog integration：Order Setup Detail Pattern / Session 改读同一 catalog，保证两边维护同步。
