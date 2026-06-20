@@ -1637,6 +1637,35 @@ html, body {
   background: rgba(30, 34, 45, 0.72);
 }
 
+.live-record-flow-summary {
+  display: grid;
+  gap: 3px;
+  padding: 6px 7px;
+  border: 1px solid rgba(38, 166, 154, 0.28);
+  border-radius: 4px;
+  background: rgba(17, 24, 39, 0.52);
+}
+
+.live-record-flow-summary-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  min-height: 18px;
+  font-size: var(--compact-font-size);
+}
+
+.live-record-flow-summary-row span {
+  color: #90a4ae;
+}
+
+.live-record-flow-summary-row strong {
+  min-width: 0;
+  color: #e0e3eb;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
 .live-record-flow-row.is-missing {
   border-left-color: rgba(144, 164, 174, 0.62);
   color: #9aa0aa;

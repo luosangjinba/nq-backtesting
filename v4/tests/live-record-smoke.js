@@ -338,13 +338,56 @@ assert.equal(flow.protection.stopLoss.order.id, 'flow-stop', 'execution flow det
 assert.equal(flow.protection.target.order.id, 'flow-target', 'execution flow detects target bracket');
 assert.equal(flow.exit.order.id, 'flow-exit', 'execution flow detects exit order');
 assert.equal(flow.outcome.type, 'manualExit', 'execution flow explains market exit before result label fallback');
+assert.deepEqual(flow.summary.opened, { filled: 1 }, 'execution summary counts opened orders');
+assert.deepEqual(flow.summary.stopLoss, { set: 1, hit: 0, canceled: 1 }, 'execution summary counts stop set/canceled');
+assert.deepEqual(flow.summary.target, { set: 1, hit: 0, canceled: 1 }, 'execution summary counts target set/canceled');
+assert.deepEqual(flow.summary.exit, { manual: 1, stopHit: 0, targetHit: 0, matched: 1 }, 'execution summary counts manual market exit');
 const flowHtml = renderLiveRecordDetailPanel(getLiveRecordById(flowRecord.id));
 assert.match(flowHtml, /Execution Flow/, 'flow detail renders execution flow heading');
+assert.match(flowHtml, /Execution Summary/, 'flow detail renders execution summary');
+assert.match(flowHtml, /Open[\s\S]*1 filled/, 'flow detail renders open count');
+assert.match(flowHtml, /Stop[\s\S]*1 set · 0 hit · 1 canceled/, 'flow detail renders stop count');
+assert.match(flowHtml, /Target[\s\S]*1 set · 0 hit · 1 canceled/, 'flow detail renders target count');
+assert.match(flowHtml, /Exit[\s\S]*Manual\/Market 1/, 'flow detail renders manual exit count');
 assert.match(flowHtml, /Protection/, 'flow detail renders protection group');
 assert.match(flowHtml, /Manual\/Market exit/, 'flow detail renders outcome label');
 assert.match(flowHtml, /Raw Tradovate Orders \(4\)/, 'flow detail keeps raw orders collapsed');
 assert.match(flowHtml, /flow-target/, 'flow detail shows target order');
 assert.match(flowHtml, /Late Entry/, 'flow detail shows lesson controls on flow rows');
+
+const stoppedFlow = buildLiveRecordExecutionFlow({
+  direction: 'long',
+  execution: {
+    entry: { timestamp: 1710772000, price: 30368.5 },
+    orders: [
+      { id: 'stop-entry', timestamp: 1710772000, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5 },
+      { id: 'stop-hit', timestamp: 1710772060, type: 'stop', status: 'filled', side: 'sell', stopPrice: 30340, fillPrice: 30340 },
+      { id: 'stop-target-cancel', timestamp: 1710772010, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25 },
+    ],
+  },
+  result: { status: 'loss', exitTimestamp: 1710772060, exitType: 'stopLoss', exitPrice: 30340 },
+});
+assert.equal(stoppedFlow.outcome.type, 'stoppedOut', 'stop filled flow outcome is stopped out');
+assert.deepEqual(stoppedFlow.summary.stopLoss, { set: 1, hit: 1, canceled: 0 }, 'stop filled summary counts hit');
+assert.deepEqual(stoppedFlow.summary.target, { set: 1, hit: 0, canceled: 1 }, 'stop filled summary counts canceled target');
+assert.deepEqual(stoppedFlow.summary.exit, { manual: 0, stopHit: 1, targetHit: 0, matched: 1 }, 'stop filled summary counts stop exit');
+
+const targetFlow = buildLiveRecordExecutionFlow({
+  direction: 'long',
+  execution: {
+    entry: { timestamp: 1710773000, price: 30368.5 },
+    orders: [
+      { id: 'target-entry', timestamp: 1710773000, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5 },
+      { id: 'target-stop-cancel', timestamp: 1710773010, type: 'stop', status: 'canceled', side: 'sell', stopPrice: 30340 },
+      { id: 'target-hit', timestamp: 1710773060, type: 'limit', status: 'filled', side: 'sell', limitPrice: 30463.25, fillPrice: 30463.25 },
+    ],
+  },
+  result: { status: 'win', exitTimestamp: 1710773060, exitType: 'profit', exitPrice: 30463.25 },
+});
+assert.equal(targetFlow.outcome.type, 'targetHit', 'target filled flow outcome is target hit');
+assert.deepEqual(targetFlow.summary.stopLoss, { set: 1, hit: 0, canceled: 1 }, 'target filled summary counts canceled stop');
+assert.deepEqual(targetFlow.summary.target, { set: 1, hit: 1, canceled: 0 }, 'target filled summary counts hit');
+assert.deepEqual(targetFlow.summary.exit, { manual: 0, stopHit: 0, targetHit: 1, matched: 1 }, 'target filled summary counts target exit');
 
 updateLiveRecord('live-rich-shape', {
   execution: {

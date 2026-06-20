@@ -33,6 +33,11 @@ function isFilled(order = {}) {
   return normalize(order.status) === 'filled';
 }
 
+function isCanceled(order = {}) {
+  const status = normalize(order.status);
+  return status === 'canceled' || status === 'cancelled';
+}
+
 function oppositeSide(direction = '') {
   if (direction === 'long') return 'sell';
   if (direction === 'short') return 'buy';
@@ -98,6 +103,39 @@ function buildFlowOrder(item, role) {
   };
 }
 
+function countOrders(orders, predicate) {
+  return orders.filter(({ order }) => predicate(order)).length;
+}
+
+function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType }) {
+  const isEntrySide = (order) => sameSide(order, entrySide);
+  const isExitSide = (order) => sameSide(order, exitSide);
+  const isStop = (order) => normalize(order.type) === 'stop' && isExitSide(order);
+  const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order);
+  const isManualExit = (order) => normalize(order.type) === 'market' && isFilled(order) && isExitSide(order);
+  return {
+    opened: {
+      filled: countOrders(orders, (order) => isFilled(order) && isEntrySide(order)),
+    },
+    stopLoss: {
+      set: countOrders(orders, isStop),
+      hit: countOrders(orders, (order) => isStop(order) && isFilled(order)),
+      canceled: countOrders(orders, (order) => isStop(order) && isCanceled(order)),
+    },
+    target: {
+      set: countOrders(orders, isTarget),
+      hit: countOrders(orders, (order) => isTarget(order) && isFilled(order)),
+      canceled: countOrders(orders, (order) => isTarget(order) && isCanceled(order)),
+    },
+    exit: {
+      manual: countOrders(orders, isManualExit),
+      stopHit: outcomeType === 'stoppedOut' && exitOrder ? 1 : 0,
+      targetHit: outcomeType === 'targetHit' && exitOrder ? 1 : 0,
+      matched: exitOrder ? 1 : 0,
+    },
+  };
+}
+
 export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   const execution = liveRecord.execution || {};
   const result = liveRecord.result || {};
@@ -136,6 +174,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
     exitTimestamp
   );
   const outcomeType = outcomeFromExit(exitOrder, result);
+  const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType });
   const matchedOrderIndexes = new Set(
     [entryOrder, stopOrder, targetOrder, exitOrder]
       .filter(Boolean)
@@ -178,6 +217,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       exitType: result.exitType || '',
       pnlText: clean(result.note).match(/P\/L\s+([^;]+)/)?.[1] || '',
     },
+    summary,
     reviewOrders,
     rawOrders: orders.map(({ order, orderIndex }) => ({ ...order, orderIndex })),
   };

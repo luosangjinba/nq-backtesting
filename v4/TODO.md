@@ -991,3 +991,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 300.3: Raw Tradovate Orders 改为默认收起的高级详情区，继续保留原始 order id、type、status、side、time、price。
   - [x] Step 300.4: Lessons 入口移动到 Execution Flow 的相关行，raw orders 中不再重复铺满 checkbox；未能归类但已有 lesson 的旧/简化 order 会显示为 Review Order，避免丢编辑入口。
   - [x] Step 300.5: 增加 focused smoke 覆盖 market exit、stop/target bracket、raw orders 折叠和 lesson 写入。
+
+- [x] Step 301: Execution Flow Summary Counts。目标是在 Step 300 的流程视图顶部明确展示开仓、止损设置/命中/取消、止盈设置/命中/取消、手动/市价平仓数量，让用户不用逐条 raw order 推断。已完成 summary 派生、Detail 渲染和三类 exit smoke 覆盖。
+  - [x] Step 301.1: 扩展 `buildLiveRecordExecutionFlow()`，增加 `summary.opened/stopLoss/target/exit` 统计，不改变持久化 schema。
+  - [x] Step 301.2: Live Record Detail 在 Execution Flow 顶部渲染紧凑 Execution Summary。
+  - [x] Step 301.3: Outcome 与 summary 保持一致，market filled exit 优先显示 Manual/Market exit，stop filled / target filled 分别统计为 hit。
+  - [x] Step 301.4: 增加 smoke 覆盖 manual market exit、stop filled、target filled 三类统计。

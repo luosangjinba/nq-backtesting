@@ -545,6 +545,38 @@ function renderExecutionFlowOrder(record, title, flowItem = {}, options = {}) {
   `;
 }
 
+function renderFlowSummaryRow(label, parts = []) {
+  const text = parts.filter(Boolean).join(' · ') || '—';
+  return `
+    <div class="live-record-flow-summary-row">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(text)}</strong>
+    </div>
+  `;
+}
+
+function renderExecutionFlowSummary(summary = {}, outcome = {}) {
+  const opened = summary.opened || {};
+  const stopLoss = summary.stopLoss || {};
+  const target = summary.target || {};
+  const exit = summary.exit || {};
+  const exitParts = [];
+  if (exit.manual) exitParts.push(`Manual/Market ${exit.manual}`);
+  if (exit.stopHit) exitParts.push(`Stop hit ${exit.stopHit}`);
+  if (exit.targetHit) exitParts.push(`Target hit ${exit.targetHit}`);
+  if (!exitParts.length && exit.matched) exitParts.push(`Matched ${exit.matched}`);
+  if (!exitParts.length) exitParts.push(outcome.label || 'Not matched');
+  return `
+    <div class="live-record-flow-summary">
+      <div class="live-record-flow-group-title">Execution Summary</div>
+      ${renderFlowSummaryRow('Open', [`${opened.filled || 0} filled`])}
+      ${renderFlowSummaryRow('Stop', [`${stopLoss.set || 0} set`, `${stopLoss.hit || 0} hit`, `${stopLoss.canceled || 0} canceled`])}
+      ${renderFlowSummaryRow('Target', [`${target.set || 0} set`, `${target.hit || 0} hit`, `${target.canceled || 0} canceled`])}
+      ${renderFlowSummaryRow('Exit', exitParts)}
+    </div>
+  `;
+}
+
 function renderExecutionFlowPanel(record, liveSet) {
   const flow = buildLiveRecordExecutionFlow(liveSet || record);
   if (!flow.rawOrders.length) return '';
@@ -562,6 +594,7 @@ function renderExecutionFlowPanel(record, liveSet) {
   return `
     <div class="order-review-compact live-record-flow-panel">
       <div class="order-review-compact-title">Execution Flow</div>
+      ${renderExecutionFlowSummary(flow.summary, flow.outcome)}
       ${renderExecutionFlowOrder(record, 'Entry', flow.entry, { kind: 'entry' })}
       <div class="live-record-flow-group-title">Protection</div>
       ${renderExecutionFlowOrder(record, 'Stop Loss', flow.protection.stopLoss, { kind: 'stop-loss', fallbackLabel: 'Stop Loss' })}
