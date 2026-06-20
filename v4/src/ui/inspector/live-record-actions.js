@@ -341,9 +341,9 @@ export function createLiveRecordActionController({
       if (!field) return true;
       const entryContext = record.entryContext || {};
       let value = target.value || 'unknown';
-      if (field === 'patterns') {
+      if (field === 'patternIds') {
         const pattern = target.dataset.liveRecordEntryPattern;
-        const selectedPatterns = new Set(Array.isArray(entryContext.patterns) ? entryContext.patterns : []);
+        const selectedPatterns = new Set(Array.isArray(entryContext.patternIds) ? entryContext.patternIds : []);
         if (target.checked) selectedPatterns.add(pattern);
         else selectedPatterns.delete(pattern);
         value = [...selectedPatterns].filter(Boolean);

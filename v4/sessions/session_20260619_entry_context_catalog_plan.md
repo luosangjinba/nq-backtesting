@@ -170,6 +170,30 @@ Acceptance:
 - Live Record Entry Context can select Pattern / Session from catalog.
 - Existing empty or partial records do not crash.
 
+Status: complete.
+
+Implementation:
+
+- `live-record-panel.js` now renders Entry Context Pattern / Session from the shared entry context catalog.
+- Pattern remains a multi-select checkbox group.
+- Session remains a single select.
+- Live Record storage now normalizes to:
+  - `entryContext.patternIds`
+  - `entryContext.sessionId`
+- `normalizeEntryContext(...)` still accepts old `patterns` / `session` / `entryPatterns` / `entrySession` inputs as a lightweight fallback.
+- `live-record-actions.js` writes `patternIds` and `sessionId`.
+- `live-record-smoke.js` expectations were updated to the new field names.
+
+Verification:
+
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/src/ui/inspector/live-record-actions.js`
+- `node --check v4/src/live-record/live-record-store.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `git diff --check`
+
 ## Step 298.4: Order Setup Entry Context Catalog Integration
 
 Tasks:

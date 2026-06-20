@@ -573,8 +573,8 @@ assert.equal(actions.handleChange('live-record-summary', makeTarget(chartLiveId,
 assert.equal(getLiveRecordById(chartLiveId).summary, 'Action summary', 'summary action updates');
 assert.equal(actions.handleChange('live-record-display-field', makeTarget(chartLiveId, { liveRecordField: 'showRiskRewardBox', checked: false })), true);
 assert.equal(getLiveRecordById(chartLiveId).display.showRiskRewardBox, false, 'display action updates');
-assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'patterns', liveRecordEntryPattern: 'ote', checked: true })), true);
-assert.deepEqual(getLiveRecordById(chartLiveId).entryContext.patterns, ['ote'], 'entry context pattern action updates');
+assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'patternIds', liveRecordEntryPattern: 'ote', checked: true })), true);
+assert.deepEqual(getLiveRecordById(chartLiveId).entryContext.patternIds, ['ote'], 'entry context pattern action updates');
 assert.equal(actions.handleClick('live-record-ref-pick-start', makeTarget(chartLiveId, { reasonIndex: '0' })), true);
 assert.equal(actions.isPicking(), true, 'live reason object picker starts');
 assert.match(lastStatus.text, /Select a chart object to link to reason 1/, 'live picker status prompts chart object selection');
@@ -601,8 +601,8 @@ assert.match(
   /Context · PDA · Main NQ 1M · fib-live-reason-link/,
   'detail renders linked live PDA ref'
 );
-assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'session', value: 'silver-bullet' })), true);
-assert.equal(getLiveRecordById(chartLiveId).entryContext.session, 'silver-bullet', 'entry context session action updates');
+assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'sessionId', value: 'silver-bullet' })), true);
+assert.equal(getLiveRecordById(chartLiveId).entryContext.sessionId, 'silver-bullet', 'entry context session action updates');
 assert.equal(actions.handleChange('live-record-result-status', makeTarget(chartLiveId, { value: 'win' })), true);
 assert.equal(getLiveRecordById(chartLiveId).result.status, 'win', 'result action updates');
 assert.equal(actions.handleChange('live-record-result-exit-type', makeTarget(chartLiveId, { value: 'profit' })), true);
@@ -637,8 +637,8 @@ const payloadLiveRecord = reviewPayload.liveRecords.find((item) => item.id === c
 assert.ok(payloadLiveRecord, 'Review JSON payload includes Live Records');
 assert.equal(payloadLiveRecord.status, 'active', 'Review JSON payload keeps lifecycle status');
 assert.equal(payloadLiveRecord.orderSetupId, setup.id, 'Review JSON payload keeps linked setup id');
-assert.deepEqual(payloadLiveRecord.entryContext.patterns, ['ote'], 'Review JSON payload keeps entry context patterns');
-assert.equal(payloadLiveRecord.entryContext.session, 'silver-bullet', 'Review JSON payload keeps entry context session');
+assert.deepEqual(payloadLiveRecord.entryContext.patternIds, ['ote'], 'Review JSON payload keeps entry context patterns');
+assert.equal(payloadLiveRecord.entryContext.sessionId, 'silver-bullet', 'Review JSON payload keeps entry context session');
 assert.equal(payloadLiveRecord.result.executionReviewNote, 'Execution was disciplined', 'Review JSON payload keeps execution review note');
 assert.equal(payloadLiveRecord.result.exitType, 'profit', 'Review JSON payload keeps result exit type');
 await importReviewArchive({

@@ -9,10 +9,9 @@ import {
   LIVE_RECORD_REASON_CATEGORIES,
 } from '../../live-record/live-record-types.js';
 import {
-  getActiveDefinitions,
-  ORDER_ENTRY_PATTERN_DEFINITIONS,
-  ORDER_ENTRY_SESSION_DEFINITIONS,
-} from '../../order/order-review-types.js';
+  getActiveCatalogItems,
+  getCatalogItems,
+} from '../../entry-context/entry-context-catalog-store.js';
 import { getSetupSetById, getSetupSets } from '../../order/setup-set.js';
 import { createLiveRecordSet } from '../../live-record/live-record-set.js';
 import { getSelectedLiveRecordElement } from '../../live-record/live-record-selection.js';
@@ -41,14 +40,6 @@ function titleCase(value, fallback = '—') {
     .join(' ');
 }
 
-function renderDefinitionOptions(definitions, selectedValue) {
-  return getActiveDefinitions(definitions)
-    .map((definition) =>
-      `<option value="${escapeHtml(definition.value)}" ${definition.value === selectedValue ? 'selected' : ''}>${escapeHtml(definition.label)}</option>`
-    )
-    .join('');
-}
-
 function liveRecordFieldAttrs(record, fieldName) {
   return [
     'data-inspector-action="live-record-entry-context-field"',
@@ -57,20 +48,40 @@ function liveRecordFieldAttrs(record, fieldName) {
   ].join(' ');
 }
 
-function renderEntryPatternCheckboxes(record, selectedPatterns = []) {
-  const selected = new Set(Array.isArray(selectedPatterns) ? selectedPatterns : []);
+function getCatalogOptionsForSelection(group, selectedIds = []) {
+  const selected = new Set((Array.isArray(selectedIds) ? selectedIds : [selectedIds]).filter(Boolean));
+  const activeItems = getActiveCatalogItems(group);
+  const allItemsById = new Map(getCatalogItems(group, { includeInactive: true }).map((item) => [item.id, item]));
+  const options = [...activeItems];
+  selected.forEach((id) => {
+    if (options.some((item) => item.id === id)) return;
+    options.push(allItemsById.get(id) || { id, label: id, active: false, sort: Number.MAX_SAFE_INTEGER });
+  });
+  return options;
+}
+
+function renderCatalogOptions(group, selectedValue) {
+  return getCatalogOptionsForSelection(group, [selectedValue])
+    .map((item) =>
+      `<option value="${escapeHtml(item.id)}" ${item.id === selectedValue ? 'selected' : ''}>${escapeHtml(item.label)}</option>`
+    )
+    .join('');
+}
+
+function renderEntryPatternCheckboxes(record, selectedPatternIds = []) {
+  const selected = new Set(Array.isArray(selectedPatternIds) ? selectedPatternIds : []);
   return `
     <div class="order-entry-patterns">
-      ${getActiveDefinitions(ORDER_ENTRY_PATTERN_DEFINITIONS)
-        .map((definition) => `
+      ${getCatalogOptionsForSelection('patterns', [...selected])
+        .map((item) => `
           <label class="order-entry-pattern-option">
             <input
-              ${liveRecordFieldAttrs(record, 'patterns')}
-              data-live-record-entry-pattern="${escapeHtml(definition.value)}"
+              ${liveRecordFieldAttrs(record, 'patternIds')}
+              data-live-record-entry-pattern="${escapeHtml(item.id)}"
               type="checkbox"
-              ${selected.has(definition.value) ? 'checked' : ''}
+              ${selected.has(item.id) ? 'checked' : ''}
             />
-            <span>${escapeHtml(definition.label)}</span>
+            <span>${escapeHtml(item.label)}</span>
           </label>
         `)
         .join('')}
@@ -463,11 +474,11 @@ function renderEntryContextPanel(record) {
   return `
     <div class="order-review-compact order-entry-context">
       <div class="order-review-compact-title">Entry Context</div>
-      ${controlField('Pattern', renderEntryPatternCheckboxes(record, entryContext.patterns))}
+      ${controlField('Pattern', renderEntryPatternCheckboxes(record, entryContext.patternIds))}
       ${controlField(
         'Session',
-        `<select class="inspector-input" ${liveRecordFieldAttrs(record, 'session')}>
-          ${renderDefinitionOptions(ORDER_ENTRY_SESSION_DEFINITIONS, entryContext.session || 'unknown')}
+        `<select class="inspector-input" ${liveRecordFieldAttrs(record, 'sessionId')}>
+          ${renderCatalogOptions('sessions', entryContext.sessionId || 'unknown')}
         </select>`
       )}
     </div>

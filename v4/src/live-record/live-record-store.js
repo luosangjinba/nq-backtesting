@@ -94,8 +94,8 @@ export function cloneLiveRecord(record) {
     },
     entryContext: {
       ...(record.entryContext || {}),
-      patterns: Array.isArray(record.entryContext?.patterns)
-        ? [...record.entryContext.patterns]
+      patternIds: Array.isArray(record.entryContext?.patternIds)
+        ? [...record.entryContext.patternIds]
         : [],
     },
     reasons: Array.isArray(record.reasons)
@@ -295,14 +295,16 @@ function normalizeExecution(input = {}) {
 }
 
 function normalizeEntryContext(input = {}) {
-  const rawPatterns = Array.isArray(input.patterns)
-    ? input.patterns
-    : Array.isArray(input.entryPatterns)
-      ? input.entryPatterns
-      : [];
+  const rawPatternIds = Array.isArray(input.patternIds)
+    ? input.patternIds
+    : Array.isArray(input.patterns)
+      ? input.patterns
+      : Array.isArray(input.entryPatterns)
+        ? input.entryPatterns
+        : [];
   return {
-    patterns: rawPatterns.map((pattern) => normalizeString(pattern, '')).filter(Boolean),
-    session: normalizeString(input.session || input.entrySession, 'unknown'),
+    patternIds: rawPatternIds.map((pattern) => normalizeString(pattern, '')).filter(Boolean),
+    sessionId: normalizeString(input.sessionId || input.session || input.entrySession, 'unknown'),
   };
 }
 
