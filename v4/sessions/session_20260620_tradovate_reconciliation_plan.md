@@ -186,6 +186,28 @@ Acceptance:
 
 - Existing 3-file import remains unchanged if no reconciliation files are selected.
 
+Completed:
+
+- Added optional file inputs in `data-maintenance.html`:
+  - Position History CSV;
+  - Cash History CSV;
+  - Account Balance CSV.
+- `buildArchivesFromSelectedFile()` now reads those optional files and passes:
+  - `positionHistoryText`;
+  - `cashHistoryText`;
+  - `accountBalanceHistoryText`.
+- Preview/Download output now summarizes:
+  - Position reconcile pair counts and warnings;
+  - Cash commission / Trade Paired differences;
+  - Balance day count and daily mismatch count.
+- Import behavior text now states that Position/Cash/Balance files are reconcile-only and do not change Live Records.
+
+Verification:
+
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `node --check v4/src/live-record/tradovate-performance-importer.js`
+- `git diff --check`
+
 ## Step 299.7: Smoke Tests
 
 Tasks:

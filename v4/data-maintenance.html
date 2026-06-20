@@ -416,6 +416,9 @@
             <label>Performance CSV <input id="tradovateCsv" type="file" accept=".csv,text/csv"></label>
             <label>Orders CSV optional <input id="tradovateOrdersCsv" type="file" accept=".csv,text/csv"></label>
             <label>Fills CSV optional <input id="tradovateFillsCsv" type="file" accept=".csv,text/csv"></label>
+            <label>Position History CSV optional <input id="tradovatePositionCsv" type="file" accept=".csv,text/csv"></label>
+            <label>Cash History CSV optional <input id="tradovateCashCsv" type="file" accept=".csv,text/csv"></label>
+            <label>Account Balance CSV optional <input id="tradovateBalanceCsv" type="file" accept=".csv,text/csv"></label>
             <label>
               Instrument
               <select id="tradovateInstrument">
@@ -440,6 +443,7 @@
           </div>
           <p class="status">Each Tradovate Performance row becomes one closed Live Record. Losing exits become stop losses; winning exits become Target Internal 1. Setup links and reasons stay manual.</p>
           <p class="status">Optional Orders/Fills CSV files enrich Live Records with stop/target order state, cancelled bracket orders, fill order IDs, and commissions.</p>
+          <p class="status">Optional Position/Cash/Account Balance CSV files are reconcile checks only. Warnings do not block Review JSON generation.</p>
         </div>
       </section>
     </div>
@@ -1012,6 +1016,9 @@
     const fileInput = document.getElementById('tradovateCsv');
     const ordersFileInput = document.getElementById('tradovateOrdersCsv');
     const fillsFileInput = document.getElementById('tradovateFillsCsv');
+    const positionFileInput = document.getElementById('tradovatePositionCsv');
+    const cashFileInput = document.getElementById('tradovateCashCsv');
+    const balanceFileInput = document.getElementById('tradovateBalanceCsv');
     const instrumentInput = document.getElementById('tradovateInstrument');
     const timezoneInput = document.getElementById('tradovateTimezone');
     const filenameInput = document.getElementById('tradovateFilename');
@@ -1043,11 +1050,23 @@
       const fillsText = fillsFileInput.files?.[0]
         ? await fillsFileInput.files[0].text()
         : '';
+      const positionHistoryText = positionFileInput.files?.[0]
+        ? await positionFileInput.files[0].text()
+        : '';
+      const cashHistoryText = cashFileInput.files?.[0]
+        ? await cashFileInput.files[0].text()
+        : '';
+      const accountBalanceHistoryText = balanceFileInput.files?.[0]
+        ? await balanceFileInput.files[0].text()
+        : '';
       return buildTradovateLiveRecordArchives(text, {
         instrument: instrumentInput.value,
         timeZone: timezoneInput.value,
         ordersText,
         fillsText,
+        positionHistoryText,
+        cashHistoryText,
+        accountBalanceHistoryText,
       });
     }
 
@@ -1110,6 +1129,7 @@
     }
 
     function formatSinglePreview(result) {
+      const reconcileLines = formatReconciliationPreview(result.reconciliation);
       return [
         `Instrument: ${result.payload.instrument}`,
         `Timestamp timezone: ${result.payload.source.timezone}`,
@@ -1120,7 +1140,39 @@
         `Skipped rows: ${result.skippedRows}`,
         `Wins / Losses / Breakeven: ${result.wins} / ${result.losses} / ${result.breakeven}`,
         `Total P/L: ${formatTradovatePnl(result.totalPnl)}`,
+        ...reconcileLines,
       ].join('\n');
+    }
+
+    function formatOk(value) {
+      return value ? 'ok' : 'warning';
+    }
+
+    function formatWarnings(warnings = []) {
+      return warnings.map((warning) => `  - ${warning}`);
+    }
+
+    function formatReconciliationPreview(reconciliation = {}) {
+      const lines = [];
+      const position = reconciliation.position || {};
+      if (position.provided) {
+        lines.push(`Position reconcile: ${formatOk(position.ok)} · performance=${position.performancePairs || 0} position=${position.positionPairs || 0} missing=${position.missingPairs?.length || 0} extra=${position.extraPairs?.length || 0} mismatched=${position.mismatchedPairs?.length || 0}`);
+        lines.push(...formatWarnings(position.warnings));
+      }
+      const cash = reconciliation.cash || {};
+      if (cash.provided) {
+        lines.push(`Cash reconcile: ${formatOk(cash.ok)} · commission cash=${cash.commissionTotal ?? 0} fills=${cash.fillsCommissionTotal ?? 0} diff=${cash.commissionDifference ?? 0} · tradePaired=${cash.tradePairedTotal ?? 0} performance=${cash.performancePnlTotal ?? 0} diff=${cash.tradePairedDifference ?? 0}`);
+        lines.push(...formatWarnings(cash.warnings));
+      }
+      const balance = reconciliation.balance || {};
+      if (balance.provided) {
+        const mismatches = Array.isArray(balance.dailyRows)
+          ? balance.dailyRows.filter((row) => !row.ok).length
+          : 0;
+        lines.push(`Balance reconcile: ${formatOk(balance.ok)} · days=${balance.dailyRows?.length || 0} mismatched=${mismatches}`);
+        lines.push(...formatWarnings(balance.warnings));
+      }
+      return lines;
     }
 
     function formatPreview(results, fileName) {
@@ -1143,7 +1195,8 @@
         'Status: closed',
         'Performance CSV is the trade-pair source; one Performance row becomes one Live Record.',
         'Orders CSV enriches stop/limit target state, including cancelled bracket orders.',
-        'Fills CSV enriches fill/order IDs and commission. Setup links and reasons stay manual.'
+        'Fills CSV enriches fill/order IDs and commission. Setup links and reasons stay manual.',
+        'Position/Cash/Account Balance CSV files are reconcile-only checks and do not change Live Records.'
       );
       if (resultList.length > 1) {
         lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Main instrument matches that file.');
