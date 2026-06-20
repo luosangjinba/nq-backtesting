@@ -149,6 +149,22 @@ function formatContractsAction(quantity, action) {
   return `${formatContracts(value)} ${action}`;
 }
 
+function orderTimestamp(order = {}) {
+  return numberOrNull(order.timestamp) ?? 0;
+}
+
+function sortOrderItems(left, right) {
+  return orderTimestamp(left.order) - orderTimestamp(right.order);
+}
+
+function positionStateLabel(openedQty, closedQty) {
+  const remainingQty = Number(Math.max(0, openedQty - closedQty).toFixed(2));
+  return {
+    remainingQty,
+    flat: remainingQty === 0 && openedQty > 0,
+  };
+}
+
 function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills }) {
   const isEntrySide = (order) => sameSide(order, entrySide);
   const isExitSide = (order) => sameSide(order, exitSide);
@@ -225,6 +241,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   const isExitSide = (order) => sameSide(order, exitSide);
   const isStop = (order) => normalize(order.type) === 'stop' && isExitSide(order);
   const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order);
+  const isManualExit = (order) => normalize(order.type) === 'market' && isFilled(order) && isExitSide(order);
   const isExitFilled = (order) => isFilled(order) && isExitSide(order);
 
   const entryOrder = findNearestOrder(
@@ -254,12 +271,36 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   );
   const outcomeType = outcomeFromExit(exitOrder, result);
   const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills });
-  const entryOrders = matchingOrders(orders, (order) => isFilled(order) && isEntrySide(order), 'entry');
+  const entryOrderItems = orders
+    .filter(({ order }) => isFilled(order) && isEntrySide(order))
+    .sort(sortOrderItems);
+  const initialEntryTimestamp = entryOrderItems.length ? orderTimestamp(entryOrderItems[0].order) : null;
+  const initialEntryItems = initialEntryTimestamp === null
+    ? []
+    : entryOrderItems.filter(({ order }) => orderTimestamp(order) === initialEntryTimestamp);
+  const addOnEntryItems = initialEntryTimestamp === null
+    ? []
+    : entryOrderItems.filter(({ order }) => orderTimestamp(order) !== initialEntryTimestamp);
+  const entryOrders = initialEntryItems.map((item) => buildFlowOrder(item, 'entry'));
+  const addOnOrders = addOnEntryItems.map((item) => buildFlowOrder(item, 'addOnReview'));
   const stopOrders = matchingOrders(orders, isStop, 'stopLoss');
   const targetOrders = matchingOrders(orders, isTarget, 'target');
-  const exitOrders = matchingOrders(orders, isExitFilled, 'exit');
+  const targetExitOrders = matchingOrders(orders, (order) => isTarget(order) && isFilled(order), 'targetExit');
+  const manualExitOrders = matchingOrders(orders, isManualExit, 'manualExit');
+  const allExitOrders = matchingOrders(orders, isExitFilled, 'exit');
+  const openedQty = sumOrderQuantity(initialEntryItems, () => true, fills, filledQuantityForSummary);
+  const closedQty = sumOrderQuantity(orders, isExitFilled, fills, filledQuantityForSummary);
+  const targetExitQty = sumOrderQuantity(orders, (order) => isTarget(order) && isFilled(order), fills, filledQuantityForSummary);
+  const manualExitQty = sumOrderQuantity(orders, isManualExit, fills, filledQuantityForSummary);
+  const stopExitQty = sumOrderQuantity(orders, (order) => isStop(order) && isFilled(order), fills, filledQuantityForSummary);
+  const addOnQty = sumOrderQuantity(addOnEntryItems, () => true, fills, filledQuantityForSummary);
+  const position = {
+    openedQty,
+    closedQty,
+    ...positionStateLabel(openedQty, closedQty),
+  };
   const matchedOrderIndexes = new Set(
-    [entryOrders, stopOrders, targetOrders, exitOrders]
+    [entryOrders, stopOrders, targetOrders, allExitOrders, addOnOrders]
       .flat()
       .map((order) => order.orderIndex)
   );
@@ -267,26 +308,18 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
     .filter((item) => !matchedOrderIndexes.has(item.orderIndex))
     .filter((item) => Array.isArray(item.order.lessonIds) && item.order.lessonIds.length)
     .map((item) => buildFlowOrder(item, 'reviewOrder'));
-  const exitParts = [];
-  if (summary.exit.manual) {
-    exitParts.push(formatContracts(summary.exit.manualQuantity));
-    exitParts.push('Manual/Market');
-    exitParts.push(formatCountLabel(summary.exit.manual, 'order'));
-  }
-  if (summary.exit.stopHit) {
-    exitParts.push(formatContracts(summary.exit.matchedQuantity));
-    exitParts.push(`Stop hit ${summary.exit.stopHit}`);
-  }
-  if (summary.exit.targetHit) {
-    exitParts.push(formatContracts(summary.exit.matchedQuantity));
-    exitParts.push(`Target hit ${summary.exit.targetHit}`);
-  }
-  if (!exitParts.length && summary.exit.matched) {
-    exitParts.push(formatContracts(summary.exit.matchedQuantity));
-    exitParts.push(formatCountLabel(summary.exit.matched, 'matched order'));
-  }
-  if (!exitParts.length) exitParts.push(outcomeLabel(outcomeType));
   const groups = [
+    buildOrderGroup({
+      id: 'position',
+      label: 'Position',
+      summary: formatSummaryParts([
+        `${formatContracts(position.openedQty)} opened`,
+        `${formatContracts(position.closedQty)} closed`,
+        position.flat ? 'flat' : `${formatContracts(position.remainingQty)} remaining`,
+      ]),
+      orders: [],
+      emptyText: '',
+    }),
     buildOrderGroup({
       id: 'open',
       label: 'Open',
@@ -301,6 +334,34 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       emptyText: 'Entry order not matched',
     }),
     buildOrderGroup({
+      id: 'targetExits',
+      label: 'Target Exits',
+      summary: formatSummaryParts([
+        formatContractsAction(targetExitQty, 'hit'),
+        formatCountLabel(targetOrders.length || 0, 'order'),
+        summary.target.canceledQuantity ? formatContractsAction(summary.target.canceledQuantity, 'canceled') : '',
+      ]),
+      orders: targetOrders.map((order) => decorateOrder(order, {
+        note: isFilled(order) ? 'Target exit filled' : bracketNote({ order }, exitOrder),
+        quantity: orderQuantity(order, fills),
+      })),
+      emptyText: 'No target exit order found',
+    }),
+    buildOrderGroup({
+      id: 'manualExits',
+      label: 'Manual Exits',
+      summary: formatSummaryParts([
+        formatContracts(manualExitQty),
+        'Manual/Market',
+        formatCountLabel(manualExitOrders.length || 0, 'order'),
+      ]),
+      orders: manualExitOrders.map((order) => decorateOrder(order, {
+        note: 'Manual/market exit filled',
+        quantity: orderQuantity(order, fills),
+      })),
+      emptyText: 'No manual/market exit order found',
+    }),
+    buildOrderGroup({
       id: 'stopLoss',
       label: 'Stop Loss',
       summary: formatSummaryParts([
@@ -310,37 +371,27 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
         formatContractsAction(summary.stopLoss.canceledQuantity, 'canceled'),
       ]),
       orders: stopOrders.map((order) => decorateOrder(order, {
-        note: bracketNote({ order }, exitOrder),
+        note: isFilled(order) ? 'Stop-loss exit filled' : bracketNote({ order }, exitOrder),
         quantity: orderQuantity(order, fills),
       })),
       emptyText: 'No stop-loss order found',
     }),
-    buildOrderGroup({
-      id: 'target',
-      label: 'Target',
-      summary: formatSummaryParts([
-        formatContractsAction(summary.target.setQuantity, 'set'),
-        formatCountLabel(summary.target.set || 0, 'order'),
-        formatContractsAction(summary.target.hitQuantity, 'hit'),
-        formatContractsAction(summary.target.canceledQuantity, 'canceled'),
-      ]),
-      orders: targetOrders.map((order) => decorateOrder(order, {
-        note: bracketNote({ order }, exitOrder),
-        quantity: orderQuantity(order, fills),
-      })),
-      emptyText: 'No target order found',
-    }),
-    buildOrderGroup({
-      id: 'exit',
-      label: 'Exit',
-      summary: formatSummaryParts(exitParts),
-      orders: exitOrders.map((order) => decorateOrder(order, {
-        note: 'Exit order filled',
-        quantity: orderQuantity(order, fills),
-      })),
-      emptyText: 'Exit order not matched',
-    }),
   ];
+  if (addOnOrders.length) {
+    groups.push(buildOrderGroup({
+      id: 'openReview',
+      label: 'Open Review',
+      summary: formatSummaryParts([
+        `${formatContracts(addOnQty)} same-side filled after entry`,
+        'unsupported add-on',
+      ]),
+      orders: addOnOrders.map((order) => decorateOrder(order, {
+        note: 'Unsupported add-on / scale-in order',
+        quantity: orderQuantity(order, fills),
+      })),
+      emptyText: '',
+    }));
+  }
   if (reviewOrders.length) {
     groups.push(buildOrderGroup({
       id: 'reviewOrders',
@@ -358,6 +409,12 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       status: result.status || '',
       exitType: result.exitType || '',
       pnlText: clean(result.note).match(/P\/L\s+([^;]+)/)?.[1] || '',
+    },
+    position,
+    exitBreakdown: {
+      targetQty: targetExitQty,
+      manualQty: manualExitQty,
+      stopQty: stopExitQty,
     },
     groups,
     rawOrders: orders.map(({ order, orderIndex }) => ({ ...order, orderIndex })),

@@ -538,13 +538,16 @@ function renderExecutionOrderGroup(record, group = {}, flow = {}) {
       note: order.note || '',
       quantity: order.quantity ?? null,
     }));
+  const emptyRow = group.emptyText
+    ? `<div class="drawing-set-empty">${escapeHtml(group.emptyText)}</div>`
+    : '';
   return `
     <div class="live-record-order-group live-record-order-group-${escapeHtml(group.id || 'unknown')}">
       <div class="live-record-order-group-header">
         <span>${escapeHtml(group.label || 'Orders')}</span>
         <strong>${escapeHtml(group.summary || '—')}</strong>
       </div>
-      ${orderRows.join('') || `<div class="drawing-set-empty">${escapeHtml(group.emptyText || 'No orders.')}</div>`}
+      ${orderRows.join('') || emptyRow}
     </div>
   `;
 }

@@ -133,3 +133,38 @@ Add or update smoke coverage for:
 - Live Result remains a total result; multi-exit detail lives in `Execution Orders`.
 - Add-on trades are clearly flagged instead of silently summarized as supported.
 - Focused and browser smoke tests pass.
+
+## Completed
+
+- `buildLiveRecordExecutionFlow()` now derives:
+  - `position.openedQty`;
+  - `position.closedQty`;
+  - `position.remainingQty`;
+  - `position.flat`;
+  - `exitBreakdown.targetQty/manualQty/stopQty`.
+- `Execution Orders` groups are now lifecycle-oriented:
+  - `Position`;
+  - `Open`;
+  - `Target Exits`;
+  - `Manual Exits`;
+  - `Stop Loss`;
+  - optional `Open Review` for unsupported add-ons;
+  - existing raw Tradovate diagnostics remain collapsed outside the main groups.
+- The generic `Exit` group was removed from the main live execution UI.
+- Target exits and manual exits are counted separately, so a trade such as 5 open / 1 target / 2 manual / 2 target reads as:
+  - `5 contracts opened · 5 contracts closed · flat`;
+  - `3 contracts hit · 2 orders`;
+  - `2 contracts · Manual/Market · 1 order`.
+- Canceled bracket orders remain visible in their functional group, e.g. canceled stop-loss protection after manual/target exits.
+- Same-side filled orders after the initial entry are shown in `Open Review` as unsupported add-ons instead of being merged into the normal single-entry model.
+- Backtesting Result and Live Result persistence were not changed.
+
+## Verification
+
+- `node --check v4/src/live-record/live-record-execution-flow.js`
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/entry-context-catalog-integration-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `git diff --check`

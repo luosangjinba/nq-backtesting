@@ -1014,10 +1014,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 303.5: 订单行继续明确显示 `qty N`，Stop/Target canceled bracket 也显示 qty。
   - [x] Step 303.6: Smoke 覆盖 5 contracts open/stop/target/manual exit、stop hit、target hit、partial target + manual exit，并跑 importer/live/browser smoke 与 `git diff --check`。
 
-- [ ] Step 304: Live Multi-exit Execution Orders。目标是只改 Live Record 的 `Execution Orders`，把实盘单解释为“单次开仓 + 多段平仓”的 position lifecycle；Backtesting Result 保持现状，Live Result 继续作为总结果，多段 exit 明细只放在 Execution Orders。计划见 `v4/sessions/session_20260620_live_multi_exit_execution_orders.md`。
-  - [ ] Step 304.1: Freeze scope and data contract：明确 backtesting 不改、Live Result 不承载多段明细、`execution.orders[]` / `fills[]` 是 live execution detail 来源；正常模型只支持 single initial entry，不支持加仓。
-  - [ ] Step 304.2: Derive position lifecycle：在 `buildLiveRecordExecutionFlow()` 派生 `openedQty`、`closedQty`、`remainingQty`、`flat`，并按 target/manual/stop 分类已成交 exit contracts。
-  - [ ] Step 304.3: Reshape Execution Orders groups：用 Position / Open / Target Exits / Manual Exits / Stop Loss / optional diagnostics 表达订单用途，移除容易误读的泛化 `Exit` group。
-  - [ ] Step 304.4: Contract-first UI copy：统一使用 `5 opened · 5 closed · flat`、`3 contracts hit · 2 orders` 这类文案，避免 `1 filled` / `1 set` 被误读成 contracts。
-  - [ ] Step 304.5: Add-on diagnostics：同向 filled order 出现在 initial entry 之后时，不合并进正常 no-add-on 模型，而是显示为 unsupported add-on / review diagnostic。
-  - [ ] Step 304.6: Focused and browser smoke：覆盖 5 open + target/manual/target 多段平仓、stop hit、partial remaining、canceled bracket after exit、add-on diagnostic 和 Live Record Detail 浏览器渲染；确认 Backtesting Detail 不受影响。
+- [x] Step 304: Live Multi-exit Execution Orders。目标是只改 Live Record 的 `Execution Orders`，把实盘单解释为“单次开仓 + 多段平仓”的 position lifecycle；Backtesting Result 保持现状，Live Result 继续作为总结果，多段 exit 明细只放在 Execution Orders。计划见 `v4/sessions/session_20260620_live_multi_exit_execution_orders.md`。已完成 Position/Open/Target Exits/Manual Exits/Stop Loss 分组、contract-first lifecycle summary、add-on diagnostic 和 smoke 覆盖。
+  - [x] Step 304.1: Freeze scope and data contract：明确 backtesting 不改、Live Result 不承载多段明细、`execution.orders[]` / `fills[]` 是 live execution detail 来源；正常模型只支持 single initial entry，不支持加仓。
+  - [x] Step 304.2: Derive position lifecycle：`buildLiveRecordExecutionFlow()` 已派生 `position.openedQty/closedQty/remainingQty/flat` 与 `exitBreakdown.targetQty/manualQty/stopQty`。
+  - [x] Step 304.3: Reshape Execution Orders groups：Execution Orders 已改为 Position / Open / Target Exits / Manual Exits / Stop Loss / optional Open Review / Diagnostics，移除泛化 `Exit` group。
+  - [x] Step 304.4: Contract-first UI copy：Position 使用 `5 contracts opened · 5 contracts closed · flat`，Target/Manual/Stop 继续 contract-first，避免 `1 filled` / `1 set` 被误读成 contracts。
+  - [x] Step 304.5: Add-on diagnostics：同向 filled order 出现在 initial entry 之后时显示为 `Open Review`，summary 标记 `unsupported add-on`，不合并进正常 no-add-on 模型。
+  - [x] Step 304.6: Focused and browser smoke：已覆盖 5 open + target/manual/target 多段平仓、stop hit、partial remaining、canceled bracket after exit、add-on diagnostic 和 Live Record Detail 浏览器渲染；Backtesting Result 未改动。
