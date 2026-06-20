@@ -4,6 +4,7 @@ import {
   buildTradovateLiveRecordArchive,
   buildTradovateLiveRecordArchives,
   mapTradovateSymbolToInstrument,
+  parseTradovateCashHistoryCsv,
   parseTradovatePositionHistoryCsv,
   parseTradovateMoney,
   tradovateTimestampToEpochSeconds,
@@ -151,12 +152,24 @@ const fillsCsv = [
   '509681603527,509681603508,1,2026-06-17 13:43:57.000Z,2026-06-17,1,1,30523.5,true,1,509681603527,509681603508,06/17/2026 09:43:57,6/17/26,acct, Sell,1,30523.50,-2,0,0.25,MNQU6,MNQ,Micro E-mini NASDAQ-100,0.5',
 ].join('\n');
 
+const cashHistoryCsv = [
+  'Account,Transaction ID,Timestamp,Date,Delta,Amount,Cash Change Type,Currency,Contract',
+  'acct,cash-1,06/17/2026 09:29:32,2026-06-17,-0.50,"25,000.00", Commission,USD,MESU6',
+  'acct,cash-2,06/17/2026 09:30:01,2026-06-17,-0.50,"24,984.50", Commission,USD,MESU6',
+  'acct,cash-3,06/17/2026 09:30:01,2026-06-17,-15.00,"24,969.50", Trade Paired,USD,MESU6',
+  'acct,cash-4,06/17/2026 09:41:04,2026-06-17,-0.50,"24,969.00", Commission,USD,MNQU6',
+  'acct,cash-5,06/17/2026 09:43:57,2026-06-17,-0.50,"25,118.50", Commission,USD,MNQU6',
+  'acct,cash-6,06/17/2026 09:43:57,2026-06-17,150.00,"25,268.50", Trade Paired,USD,MNQU6',
+].join('\n');
+
+assert.equal(parseTradovateCashHistoryCsv(cashHistoryCsv).length, 6, 'Cash History parser reads rows');
 const enhancedResults = buildTradovateLiveRecordArchives(performanceWithEnhancements, {
   instrument: 'auto',
   timeZone: 'UTC',
   nowMs: 1781529365000,
   ordersText: ordersCsv,
   fillsText: fillsCsv,
+  cashHistoryText: cashHistoryCsv,
 });
 
 const enhancedEs = enhancedResults.find((item) => item.payload.instrument === 'ES').payload.liveRecords[0];
@@ -172,6 +185,14 @@ assert.equal(normalizedEnhancedEs.execution.orders[1].status, 'filled', 'normali
 assert.equal(normalizedEnhancedEs.execution.orders[1].stopPrice, 7591.75, 'normalized enhanced orders preserve stop price');
 assert.equal(normalizedEnhancedEs.execution.fills[0].orderId, '509681603415', 'normalized enhanced fills preserve order id');
 assert.equal(normalizedEnhancedEs.execution.fills[0].commission, 0.5, 'normalized enhanced fills preserve commission');
+const enhancedEsReport = enhancedResults.find((item) => item.payload.instrument === 'ES').reconciliation.cash;
+assert.equal(enhancedEsReport.provided, true, 'cash reconciliation is enabled when provided');
+assert.equal(enhancedEsReport.ok, true, 'ES cash reconciliation matches after instrument filtering');
+assert.equal(enhancedEsReport.commissionTotal, -1, 'cash reconciliation filters cash commission rows to archive instrument');
+assert.equal(enhancedEsReport.fillsCommissionTotal, 1, 'cash reconciliation filters fill commission rows to archive instrument');
+assert.equal(enhancedEsReport.performancePnlTotal, -15, 'cash reconciliation filters performance P/L to archive instrument');
+assert.equal(enhancedEsReport.tradePairedTotal, -15, 'cash reconciliation filters Trade Paired rows to archive instrument');
+assert.equal(enhancedEsReport.tradePairedDifference, 0, 'cash reconciliation reports no P/L difference when filtered');
 
 const enhancedNq = enhancedResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0];
 assert.equal(enhancedNq.execution.stopLoss.price, 30449, 'winning NQ trade keeps cancelled stop order');

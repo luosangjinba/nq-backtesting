@@ -104,6 +104,25 @@ Acceptance:
 
 - Cash mismatches are warnings, not import blockers.
 
+Completed:
+
+- Added `parseTradovateCashHistoryCsv`.
+- Added Cash reconciliation:
+  - aggregate Cash `Commission`;
+  - aggregate Cash `Trade Paired`;
+  - compare absolute Cash commission vs Fills commission;
+  - compare Cash Trade Paired vs Performance P/L.
+- Reconciliation filters optional Cash/Fills rows by the current archive instrument for mixed Performance CSV imports.
+- Cash differences populate warnings and do not block Live Record output.
+- Extended importer smoke with mixed ES/NQ Cash History rows to verify instrument filtering.
+
+Verification:
+
+- `node --check v4/src/live-record/tradovate-performance-importer.js`
+- `node --check v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `git diff --check`
+
 ## Step 299.4: Account Balance Parser
 
 Tasks:

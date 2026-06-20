@@ -27,6 +27,16 @@ const POSITION_REQUIRED_COLUMNS = new Set([
   'Bought Timestamp',
   'Sold Timestamp',
 ]);
+const CASH_REQUIRED_COLUMNS = new Set([
+  'Transaction ID',
+  'Timestamp',
+  'Date',
+  'Delta',
+  'Amount',
+  'Cash Change Type',
+  'Currency',
+  'Contract',
+]);
 
 function parseCsvLine(line = '') {
   const values = [];
@@ -87,6 +97,11 @@ export function parseTradovateFillsCsv(text = '') {
 export function parseTradovatePositionHistoryCsv(text = '') {
   if (!String(text || '').trim()) return [];
   return parseTradovateCsvWithRequiredColumns(text, POSITION_REQUIRED_COLUMNS);
+}
+
+export function parseTradovateCashHistoryCsv(text = '') {
+  if (!String(text || '').trim()) return [];
+  return parseTradovateCsvWithRequiredColumns(text, CASH_REQUIRED_COLUMNS);
 }
 
 export function parseTradovateMoney(value = '') {
@@ -251,6 +266,22 @@ function createEmptyPositionReconciliation() {
   };
 }
 
+function createEmptyCashReconciliation() {
+  return {
+    provided: false,
+    ok: true,
+    warnings: [],
+    rows: 0,
+    byType: {},
+    commissionTotal: null,
+    fillsCommissionTotal: null,
+    commissionDifference: null,
+    tradePairedTotal: null,
+    performancePnlTotal: null,
+    tradePairedDifference: null,
+  };
+}
+
 function reconcilePositionHistory(performanceRows = [], positionRows = []) {
   const report = createEmptyPositionReconciliation();
   if (!positionRows.length) return report;
@@ -307,6 +338,59 @@ function reconcilePositionHistory(performanceRows = [], positionRows = []) {
   return report;
 }
 
+function aggregateCashRows(cashRows = []) {
+  const byType = {};
+  cashRows.forEach((row) => {
+    const type = cleanField(row['Cash Change Type']) || 'unknown';
+    const delta = parseTradovateMoney(row.Delta);
+    if (!byType[type]) byType[type] = { count: 0, total: 0 };
+    byType[type].count += 1;
+    byType[type].total += delta;
+  });
+  Object.values(byType).forEach((item) => {
+    item.total = Number(item.total.toFixed(2));
+  });
+  return byType;
+}
+
+function sumFillsCommission(fills = []) {
+  return Number(fills
+    .map((fill) => parseOptionalNumberField(fill.commission))
+    .filter((value) => value !== null)
+    .reduce((sum, value) => sum + value, 0)
+    .toFixed(2));
+}
+
+function sumPerformancePnl(rows = []) {
+  return Number(rows
+    .reduce((sum, row) => sum + parseTradovateMoney(row.pnl), 0)
+    .toFixed(2));
+}
+
+function reconcileCashHistory(performanceRows = [], fills = [], cashRows = []) {
+  const report = createEmptyCashReconciliation();
+  if (!cashRows.length) return report;
+
+  report.provided = true;
+  report.rows = cashRows.length;
+  report.byType = aggregateCashRows(cashRows);
+  report.commissionTotal = report.byType.Commission?.total ?? 0;
+  report.fillsCommissionTotal = sumFillsCommission(fills);
+  report.commissionDifference = Number((Math.abs(report.commissionTotal) - Math.abs(report.fillsCommissionTotal)).toFixed(2));
+  report.tradePairedTotal = report.byType['Trade Paired']?.total ?? 0;
+  report.performancePnlTotal = sumPerformancePnl(performanceRows);
+  report.tradePairedDifference = Number((report.tradePairedTotal - report.performancePnlTotal).toFixed(2));
+
+  if (!almostEqual(report.commissionDifference, 0, 0.01)) {
+    report.warnings.push(`Cash History commission differs from Fills commission by ${report.commissionDifference.toFixed(2)}`);
+  }
+  if (!almostEqual(report.tradePairedDifference, 0, 0.01)) {
+    report.warnings.push(`Cash History Trade Paired differs from Performance P/L by ${report.tradePairedDifference.toFixed(2)}`);
+  }
+  report.ok = report.warnings.length === 0;
+  return report;
+}
+
 function getSide(row = {}) {
   return cleanField(row['B/S']).toLowerCase();
 }
@@ -354,10 +438,32 @@ function indexEnhancementRows({ ordersText = '', fillsText = '', timeZone = 'UTC
   return { orders, fills, ordersById, fillsById, ordersWithEpoch };
 }
 
+function filterRowsByContractInstrument(rows = [], instrument = '') {
+  const target = String(instrument || '').trim().toUpperCase();
+  if (!target) return rows;
+  return rows.filter((row) => {
+    const contractInstrument = mapTradovateSymbolToInstrument(row.Contract || row.symbol || '');
+    return !contractInstrument || contractInstrument === target;
+  });
+}
+
 function buildReconciliationReport(rows, options = {}) {
-  const positionRows = parseTradovatePositionHistoryCsv(options.positionHistoryText || '');
+  const instrument = String(options.instrument || '').trim().toUpperCase();
+  const positionRows = filterRowsByContractInstrument(
+    parseTradovatePositionHistoryCsv(options.positionHistoryText || ''),
+    instrument
+  );
+  const cashRows = filterRowsByContractInstrument(
+    parseTradovateCashHistoryCsv(options.cashHistoryText || ''),
+    instrument
+  );
+  const fills = filterRowsByContractInstrument(
+    parseTradovateFillsCsv(options.fillsText || ''),
+    instrument
+  );
   return {
     position: reconcilePositionHistory(rows, positionRows),
+    cash: reconcileCashHistory(rows, fills, cashRows),
   };
 }
 
@@ -652,7 +758,6 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     fillsText: options.fillsText || '',
     timeZone,
   });
-  const reconciliation = buildReconciliationReport(rows, options);
   const detected = new Set(rows.map((row) => mapTradovateSymbolToInstrument(row.symbol)).filter(Boolean));
 
   if (instrument === 'AUTO') {
@@ -668,12 +773,14 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
   let wins = 0;
   let losses = 0;
   let breakeven = 0;
+  const importedRows = [];
 
   rows.forEach((row) => {
     if (mapTradovateSymbolToInstrument(row.symbol) !== instrument) {
       skippedRows += 1;
       return;
     }
+    importedRows.push(row);
     const record = buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement });
     const pnl = parseTradovateMoney(row.pnl);
     liveRecords.push(record);
@@ -682,6 +789,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     else if (pnl < 0) losses += 1;
     else breakeven += 1;
   });
+  const reconciliation = buildReconciliationReport(importedRows, { ...options, instrument });
 
   const payload = {
     app: REVIEW_ARCHIVE_APP,
