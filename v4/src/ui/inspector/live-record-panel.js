@@ -469,6 +469,57 @@ function renderExecutionPanel(liveSet) {
   `;
 }
 
+function renderOrderLessonCheckboxes(record, order, orderIndex) {
+  const selected = new Set(Array.isArray(order.lessonIds) ? order.lessonIds : []);
+  return `
+    <div class="order-entry-patterns live-record-order-lessons">
+      ${getCatalogOptionsForSelection('lessons', [...selected])
+        .map((item) => `
+          <label class="order-entry-pattern-option">
+            <input
+              data-inspector-action="live-record-order-lesson-field"
+              data-live-record-id="${escapeHtml(record.id)}"
+              data-live-record-order-index="${orderIndex}"
+              data-live-record-lesson-id="${escapeHtml(item.id)}"
+              type="checkbox"
+              ${selected.has(item.id) ? 'checked' : ''}
+            />
+            <span>${escapeHtml(item.label)}</span>
+          </label>
+        `)
+        .join('') || '<div class="drawing-set-empty">No lessons configured.</div>'}
+    </div>
+  `;
+}
+
+function renderLiveOrdersPanel(record, liveSet) {
+  const orders = Array.isArray(liveSet?.execution?.orders) ? liveSet.execution.orders : [];
+  if (!orders.length) return '';
+  const rows = orders.map((order, orderIndex) => {
+    const meta = [
+      order.type ? titleCase(order.type) : 'Order',
+      order.status ? titleCase(order.status) : '',
+      order.side ? titleCase(order.side) : '',
+      order.timestamp ? formatTime(order.timestamp) : '',
+    ].filter(Boolean).join(' · ');
+    return `
+      <div class="order-setup-reason-card live-record-order-card">
+        <div class="order-setup-reason-title-row">
+          <div class="order-setup-reason-title">${escapeHtml(order.id || `Order ${orderIndex + 1}`)}</div>
+        </div>
+        <div class="drawing-set-meta">${escapeHtml(meta || 'Order')}</div>
+        ${renderOrderLessonCheckboxes(record, order, orderIndex)}
+      </div>
+    `;
+  });
+  return `
+    <div class="order-review-compact live-record-orders-panel">
+      <div class="order-review-compact-title">Orders</div>
+      ${rows.join('')}
+    </div>
+  `;
+}
+
 function renderEntryContextPanel(record) {
   const entryContext = record.entryContext || {};
   return `
@@ -596,6 +647,7 @@ function renderLiveRecord(record, options = {}) {
       ${renderAnchorPanel(liveSet)}
       ${renderLinkedSetupPanel(record)}
       ${renderExecutionPanel(liveSet)}
+      ${renderLiveOrdersPanel(record, liveSet)}
       ${renderEntryContextPanel(record)}
       ${renderReasonRows(record, options)}
       ${renderResultPanel(record, liveSet)}

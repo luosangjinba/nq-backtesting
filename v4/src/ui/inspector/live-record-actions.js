@@ -358,6 +358,31 @@ export function createLiveRecordActionController({
       return true;
     }
 
+    if (action === 'live-record-order-lesson-field') {
+      const orderIndex = Number(target.dataset.liveRecordOrderIndex);
+      const lessonId = String(target.dataset.liveRecordLessonId || '').trim();
+      const orders = Array.isArray(record.execution?.orders) ? record.execution.orders : [];
+      if (!Number.isInteger(orderIndex) || orderIndex < 0 || orderIndex >= orders.length || !lessonId) return true;
+      const nextOrders = orders.map((order, index) => {
+        if (index !== orderIndex) return order;
+        const selected = new Set(Array.isArray(order.lessonIds) ? order.lessonIds : []);
+        if (target.checked) selected.add(lessonId);
+        else selected.delete(lessonId);
+        return {
+          ...order,
+          lessonIds: [...selected].filter(Boolean),
+        };
+      });
+      mutate('Edit Live Record Order Lessons', () => updateLiveRecord(liveRecordId, {
+        execution: {
+          ...(record.execution || {}),
+          orders: nextOrders,
+        },
+      }));
+      refreshSelection?.();
+      return true;
+    }
+
     if (action === 'live-record-match-setup') {
       const setupId = String(target.value || '').trim();
       if (setupId && !getSetupSetById(setupId)) {

@@ -246,6 +246,27 @@ Acceptance:
 - Lessons save and restore per live order.
 - Multiple lessons can be attached to one order.
 
+Status: complete.
+
+Implementation:
+
+- `live-record-store.js` normalizes `execution.orders[].lessonIds` as a deduped array of stable catalog IDs.
+- `cloneLiveRecord(...)` deep-copies `lessonIds`.
+- `live-record-panel.js` adds an Orders panel when `execution.orders[]` exists.
+- Each order renders Lessons as a multi-select checkbox group from the shared `lessons` catalog.
+- Selected inactive or unknown lesson IDs remain visible through the same catalog fallback helper.
+- `live-record-actions.js` handles `live-record-order-lesson-field` and patches only the selected order's `lessonIds`.
+
+Verification:
+
+- `node --check v4/src/live-record/live-record-store.js`
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node --check v4/src/ui/inspector/live-record-actions.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `git diff --check`
+
 ## Step 298.6: Catalog Maintenance UI
 
 Tasks:

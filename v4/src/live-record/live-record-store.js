@@ -86,7 +86,10 @@ export function cloneLiveRecord(record) {
         ? record.execution.targets.map((target) => ({ ...target }))
         : [],
       orders: Array.isArray(record.execution?.orders)
-        ? record.execution.orders.map((order) => ({ ...order }))
+        ? record.execution.orders.map((order) => ({
+            ...order,
+            lessonIds: Array.isArray(order.lessonIds) ? [...order.lessonIds] : [],
+          }))
         : [],
       fills: Array.isArray(record.execution?.fills)
         ? record.execution.fills.map((fill) => ({ ...fill }))
@@ -277,6 +280,7 @@ function normalizeExecution(input = {}) {
           limitPrice: normalizeNumber(order.limitPrice),
           fillPrice: normalizeNumber(order.fillPrice),
           note: normalizeString(order.note, ''),
+          lessonIds: normalizeIdArray(order.lessonIds),
         }))
       : [],
     fills: Array.isArray(input.fills)
@@ -306,6 +310,18 @@ function normalizeEntryContext(input = {}) {
     patternIds: rawPatternIds.map((pattern) => normalizeString(pattern, '')).filter(Boolean),
     sessionId: normalizeString(input.sessionId || input.session || input.entrySession, 'unknown'),
   };
+}
+
+function normalizeIdArray(value) {
+  const values = Array.isArray(value) ? value : [value];
+  const seen = new Set();
+  return values
+    .map((item) => normalizeString(item, ''))
+    .filter((item) => {
+      if (!item || seen.has(item)) return false;
+      seen.add(item);
+      return true;
+    });
 }
 
 function normalizeResult(input = {}) {

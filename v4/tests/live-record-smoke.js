@@ -107,6 +107,7 @@ function makeTarget(liveRecordId, dataset = {}) {
 
 resetState();
 initLiveRecordActive();
+addCatalogItem('lessons', 'Late Entry');
 
 assert.equal(getLiveRecordDefaultChartStatus(), 'active', 'chart-created live records default to active status');
 assert.equal(getLiveRecordStatusLabel('submitted'), 'Submitted', 'status helper formats known status');
@@ -246,6 +247,7 @@ const richRecord = addLiveRecord({
       limitPrice: '',
       fillPrice: '',
       note: 'protective stop',
+      lessonIds: ['late-entry', 'late-entry'],
     }],
     fills: [{
       id: 'fill-rich-entry',
@@ -275,6 +277,7 @@ assert.equal(richRecord.execution.targets[0].targetType, 'external', 'target typ
 assert.equal(richRecord.execution.orders[0].type, 'stop', 'execution order type is preserved');
 assert.equal(richRecord.execution.orders[0].status, 'canceled', 'execution order status is preserved');
 assert.equal(richRecord.execution.orders[0].stopPrice, 18370.75, 'execution order stop price normalizes');
+assert.deepEqual(richRecord.execution.orders[0].lessonIds, ['late-entry'], 'execution order lesson ids normalize and dedupe');
 assert.equal(richRecord.execution.fills[0].orderId, 'order-rich-entry', 'execution fill orderId is preserved');
 assert.equal(richRecord.execution.fills[0].commission, 0.5, 'execution fill commission normalizes');
 assert.equal(richRecord.result.status, 'win', 'result alias still normalizes');
@@ -283,6 +286,8 @@ assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe norma
 assert.equal(richRecord.result.executionReviewNote, 'Managed exit cleanly', 'execution review note normalizes');
 richRecord.execution.entry.price = 1;
 assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18360.5, 'execution clone is isolated');
+assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Orders/, 'detail renders live orders panel');
+assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Late Entry/, 'detail renders order lesson options');
 
 updateLiveRecord('live-rich-shape', {
   execution: {
@@ -576,6 +581,21 @@ assert.equal(actions.handleChange('live-record-summary', makeTarget(chartLiveId,
 assert.equal(getLiveRecordById(chartLiveId).summary, 'Action summary', 'summary action updates');
 assert.equal(actions.handleChange('live-record-display-field', makeTarget(chartLiveId, { liveRecordField: 'showRiskRewardBox', checked: false })), true);
 assert.equal(getLiveRecordById(chartLiveId).display.showRiskRewardBox, false, 'display action updates');
+updateLiveRecord(chartLiveId, {
+  execution: {
+    orders: [{
+      id: 'chart-live-order',
+      timestamp: 1710770460,
+      type: 'market',
+      status: 'filled',
+      lessonIds: ['late-entry'],
+    }],
+  },
+});
+assert.equal(actions.handleChange('live-record-order-lesson-field', makeTarget(chartLiveId, { liveRecordOrderIndex: '0', liveRecordLessonId: 'late-entry', checked: false })), true);
+assert.deepEqual(getLiveRecordById(chartLiveId).execution.orders[0].lessonIds, [], 'order lesson action removes lesson');
+assert.equal(actions.handleChange('live-record-order-lesson-field', makeTarget(chartLiveId, { liveRecordOrderIndex: '0', liveRecordLessonId: 'late-entry', checked: true })), true);
+assert.deepEqual(getLiveRecordById(chartLiveId).execution.orders[0].lessonIds, ['late-entry'], 'order lesson action adds lesson');
 assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'patternIds', liveRecordEntryPattern: 'ote', checked: true })), true);
 assert.deepEqual(getLiveRecordById(chartLiveId).entryContext.patternIds, ['ote'], 'entry context pattern action updates');
 assert.equal(actions.handleClick('live-record-ref-pick-start', makeTarget(chartLiveId, { reasonIndex: '0' })), true);
