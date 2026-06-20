@@ -472,12 +472,29 @@ function renderExecutionPanel(liveSet) {
   `;
 }
 
+function normalizeOrderLessonRole(role = '') {
+  if (role === 'stopExit') return 'stopLoss';
+  if (role === 'addOnReview') return 'entry';
+  return String(role || '').trim();
+}
+
+function getLessonOptionsForOrder(order = {}, selected = new Set()) {
+  const role = normalizeOrderLessonRole(order.role);
+  return getCatalogOptionsForSelection('lessons', [...selected])
+    .filter((item) => {
+      if (selected.has(item.id)) return true;
+      const scopes = Array.isArray(item.lessonRoles) ? item.lessonRoles : null;
+      return !scopes || scopes.length === 0 || scopes.includes(role);
+    });
+}
+
 function renderOrderLessonCheckboxes(record, order, orderIndex) {
   if (!Number.isInteger(Number(orderIndex)) || Number(orderIndex) < 0) return '';
   const selected = new Set(Array.isArray(order.lessonIds) ? order.lessonIds : []);
+  const lessonOptions = getLessonOptionsForOrder(order, selected);
   return `
     <div class="order-entry-patterns live-record-order-lessons">
-      ${getCatalogOptionsForSelection('lessons', [...selected])
+      ${lessonOptions
         .map((item) => `
           <label class="order-entry-pattern-option">
             <input

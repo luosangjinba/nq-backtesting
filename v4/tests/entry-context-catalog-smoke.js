@@ -42,6 +42,11 @@ assert.equal(catalog.resolveCatalogLabel('lessons', 'late-entry'), 'Late Entry',
 assert.equal(catalogEvents.at(-1)?.reason, 'add', 'catalog edits emit a changed event');
 assert.equal(catalogEvents.at(-1)?.group, 'lessons', 'catalog changed event includes edited group');
 
+const scopedLesson = catalog.addCatalogItem('lessons', 'Tight Stop-loss');
+assert.deepEqual(scopedLesson.lessonRoles, ['stopLoss'], 'known lesson labels get default role scopes');
+const scopedUpdate = catalog.setCatalogItemLessonRoles('lessons', scopedLesson.id, ['entry', 'stopLoss', 'entry']);
+assert.deepEqual(scopedUpdate.lessonRoles, ['entry', 'stopLoss'], 'lesson role scopes are maintained and deduped');
+
 const duplicate = catalog.addCatalogItem('lessons', 'Late Entry');
 assert.equal(duplicate.id, 'late-entry-2', 'duplicate ids are made unique');
 
@@ -81,12 +86,19 @@ const panelHtml = panel.renderEntryContextCatalogPanel();
 assert.match(panelHtml, /entry-context-catalog-add/, 'catalog panel renders add controls');
 assert.match(panelHtml, /entry-context-catalog-label/, 'catalog panel renders rename controls');
 assert.match(panelHtml, /entry-context-catalog-sort/, 'catalog panel renders sort controls');
+assert.match(panelHtml, /entry-context-catalog-lesson-role/, 'catalog panel renders lesson scope controls');
+assert.match(panelHtml, /Manual Exits/, 'catalog panel renders lesson scope labels');
 assert.match(panelHtml, /entry-context-catalog-deactivate/, 'catalog panel renders deactivate controls');
 
 const savedRaw = globalThis.localStorage.getItem(catalog.getEntryContextCatalogStorageKey());
 const saved = JSON.parse(savedRaw);
 assert.equal(saved.version, 1, 'catalog persistence version is stored');
-assert.equal(saved.catalog.lessons.length, 2, 'catalog persistence stores lessons');
+assert.equal(saved.catalog.lessons.length, 3, 'catalog persistence stores lessons');
+assert.deepEqual(
+  saved.catalog.lessons.find((item) => item.id === 'tight-stop-loss').lessonRoles,
+  ['entry', 'stopLoss'],
+  'catalog persistence stores lesson role scopes'
+);
 
 catalog.loadEntryContextCatalog({
   patterns: [{ id: 'custom-pattern', label: 'Custom Pattern', active: true, sort: 10 }],

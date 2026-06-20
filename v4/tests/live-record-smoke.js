@@ -109,6 +109,10 @@ function makeTarget(liveRecordId, dataset = {}) {
 resetState();
 initLiveRecordActive();
 addCatalogItem('lessons', 'Late Entry');
+addCatalogItem('lessons', 'Tight Stop-loss');
+addCatalogItem('lessons', 'Early Cut');
+addCatalogItem('lessons', 'Late Entry & Bad Stop');
+addCatalogItem('lessons', 'Revenge Trade');
 
 assert.equal(getLiveRecordDefaultChartStatus(), 'active', 'chart-created live records default to active status');
 assert.equal(getLiveRecordStatusLabel('submitted'), 'Submitted', 'status helper formats known status');
@@ -352,6 +356,17 @@ assert.equal(groupById.stopLoss.summary, '5 contracts set · 1 order · 0 hit ·
 assert.equal(groupById.targetExits.summary, '0 hit · 1 order · 5 contracts canceled', 'execution orders group summarizes canceled target contracts');
 assert.equal(groupById.manualExits.summary, '5 contracts · Manual/Market · 1 order', 'execution orders group summarizes manual market exit contracts');
 const flowHtml = renderLiveRecordDetailPanel(getLiveRecordById(flowRecord.id));
+function extractFlowGroupHtml(html, groupId) {
+  const marker = `live-record-order-group-${groupId}`;
+  const start = html.indexOf(marker);
+  if (start < 0) return '';
+  const next = html.indexOf('live-record-order-group live-record-order-group-', start + marker.length);
+  return next < 0 ? html.slice(start) : html.slice(start, next);
+}
+const openGroupHtml = extractFlowGroupHtml(flowHtml, 'open');
+const targetGroupHtml = extractFlowGroupHtml(flowHtml, 'targetExits');
+const manualGroupHtml = extractFlowGroupHtml(flowHtml, 'manualExits');
+const stopGroupHtml = extractFlowGroupHtml(flowHtml, 'stopLoss');
 assert.match(flowHtml, /Execution Orders/, 'flow detail renders unified execution orders heading');
 assert.doesNotMatch(flowHtml, /Execution Summary/, 'flow detail does not render separate execution summary');
 assert.doesNotMatch(flowHtml, /Protection/, 'flow detail does not render separate protection section');
@@ -365,6 +380,18 @@ assert.match(flowHtml, /Manual\/Market exit/, 'flow detail renders outcome label
 assert.match(flowHtml, /Raw Tradovate Orders \(4\)/, 'flow detail keeps raw orders collapsed');
 assert.match(flowHtml, /flow-target/, 'flow detail shows target order');
 assert.match(flowHtml, /Late Entry/, 'flow detail shows lesson controls on flow rows');
+assert.match(openGroupHtml, /Late Entry &amp; Bad Stop/, 'open group shows late-entry/bad-stop lesson');
+assert.match(openGroupHtml, /Revenge Trade/, 'open group shows revenge trade lesson');
+assert.doesNotMatch(openGroupHtml, /Tight Stop-loss/, 'open group hides stop-only lesson');
+assert.doesNotMatch(openGroupHtml, /Early Cut/, 'open group hides manual-exit lesson');
+assert.match(manualGroupHtml, /Early Cut/, 'manual exit group shows early cut lesson');
+assert.doesNotMatch(manualGroupHtml, /Tight Stop-loss/, 'manual exit group hides stop-only lesson');
+assert.doesNotMatch(manualGroupHtml, /Late Entry &amp; Bad Stop/, 'manual exit group hides open/stop lesson');
+assert.match(stopGroupHtml, /Tight Stop-loss/, 'stop group shows tight stop-loss lesson');
+assert.match(stopGroupHtml, /Late Entry &amp; Bad Stop/, 'stop group shows late-entry/bad-stop lesson');
+assert.doesNotMatch(stopGroupHtml, /Early Cut/, 'stop group hides manual-exit lesson');
+assert.doesNotMatch(stopGroupHtml, /Revenge Trade/, 'stop group hides open-only lesson');
+assert.doesNotMatch(targetGroupHtml, /Tight Stop-loss|Early Cut|Late Entry &amp; Bad Stop|Revenge Trade/, 'target group hides scoped lessons that do not apply to target exits');
 
 const multiTargetFlow = buildLiveRecordExecutionFlow({
   direction: 'long',

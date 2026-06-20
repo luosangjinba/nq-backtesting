@@ -1,5 +1,6 @@
 import {
   ENTRY_CONTEXT_CATALOG_GROUPS,
+  LESSON_ROLE_SCOPES,
   getCatalogItems,
 } from '../../entry-context/entry-context-catalog-store.js';
 import { escapeHtml, section } from './render-utils.js';
@@ -9,6 +10,27 @@ const GROUP_LABELS = Object.freeze({
   sessions: 'Sessions',
   lessons: 'Lessons',
 });
+
+function renderLessonRoleScopes(item = {}) {
+  const selected = new Set(Array.isArray(item.lessonRoles) ? item.lessonRoles : []);
+  return `
+    <div class="entry-context-catalog-scopes">
+      ${LESSON_ROLE_SCOPES.map((scope) => `
+        <label class="order-entry-pattern-option">
+          <input
+            data-inspector-action="entry-context-catalog-lesson-role"
+            data-entry-context-group="lessons"
+            data-entry-context-id="${escapeHtml(item.id)}"
+            data-entry-context-lesson-role="${escapeHtml(scope.value)}"
+            type="checkbox"
+            ${selected.has(scope.value) ? 'checked' : ''}
+          />
+          <span>${escapeHtml(scope.label)}</span>
+        </label>
+      `).join('')}
+    </div>
+  `;
+}
 
 function renderCatalogItem(group, item) {
   const activeText = item.active === false ? 'Inactive' : 'Active';
@@ -25,6 +47,7 @@ function renderCatalogItem(group, item) {
         <span>${activeText}</span>
         <button class="inspector-mini-btn" data-inspector-action="${toggleAction}" data-entry-context-group="${escapeHtml(group)}" data-entry-context-id="${escapeHtml(item.id)}" type="button">${toggleText}</button>
       </div>
+      ${group === 'lessons' ? renderLessonRoleScopes(item) : ''}
     </div>
   `;
 }

@@ -4,6 +4,7 @@ import {
   addCatalogItem,
   deactivateCatalogItem,
   renameCatalogItem,
+  setCatalogItemLessonRoles,
   setCatalogItemSort,
 } from '../../entry-context/entry-context-catalog-store.js';
 
@@ -49,6 +50,21 @@ export function createEntryContextCatalogActionController({
       if (updated) {
         refresh();
         emitStatus('Catalog item order updated');
+      }
+      return true;
+    }
+
+    if (action === 'entry-context-catalog-lesson-role') {
+      const { group, id } = getTargetMeta(target);
+      if (group !== 'lessons' || !id) return true;
+      const itemEl = target.closest('.entry-context-catalog-item');
+      const roles = [...(itemEl?.querySelectorAll('[data-inspector-action="entry-context-catalog-lesson-role"]:checked') || [])]
+        .map((input) => String(input.dataset?.entryContextLessonRole || '').trim())
+        .filter(Boolean);
+      const updated = mutate('Set Lesson Scope', () => setCatalogItemLessonRoles(group, id, roles));
+      if (updated) {
+        refresh();
+        emitStatus('Lesson scope updated');
       }
       return true;
     }

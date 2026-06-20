@@ -7,6 +7,12 @@ import { createLocalPersistence } from '../storage/local-persistence.js';
 
 export const ENTRY_CONTEXT_CATALOG_GROUPS = Object.freeze(['patterns', 'sessions', 'lessons']);
 export const ENTRY_CONTEXT_CATALOG_CHANGED = 'entry-context-catalog:changed';
+export const LESSON_ROLE_SCOPES = Object.freeze([
+  { value: 'entry', label: 'Open' },
+  { value: 'manualExit', label: 'Manual Exits' },
+  { value: 'targetExit', label: 'Target Exits' },
+  { value: 'stopLoss', label: 'Stop Loss' },
+]);
 
 const STORAGE_KEY = 'v4:entry-context-catalog';
 const STORAGE_VERSION = 1;
@@ -82,21 +88,47 @@ function normalizeSort(value, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function normalizeCatalogItem(input = {}, index = 0) {
+function normalizeIdList(values = []) {
+  const seen = new Set();
+  return (Array.isArray(values) ? values : [])
+    .map((value) => String(value || '').trim())
+    .filter((value) => {
+      if (!value || seen.has(value)) return false;
+      seen.add(value);
+      return true;
+    });
+}
+
+function inferLessonRoles(input = {}) {
+  const key = slugify(input.id ?? input.value ?? input.label ?? '');
+  if (key === 'tight-stop-loss') return ['stopLoss'];
+  if (key === 'early-cut') return ['manualExit'];
+  if (key === 'late-entry-bad-stop') return ['entry', 'stopLoss'];
+  if (key === 'revenge-trade' || key === 'ravenge-trade') return ['entry'];
+  return null;
+}
+
+function normalizeCatalogItem(input = {}, index = 0, group = '') {
   const rawId = input.id ?? input.value ?? input.label ?? '';
   const id = slugify(rawId);
-  return {
+  const item = {
     id,
     label: String(input.label ?? input.name ?? rawId ?? id).trim() || id,
     active: normalizeBoolean(input.active, true),
     sort: normalizeSort(input.sort, (index + 1) * 10),
   };
+  if (group === 'lessons') {
+    const hasLessonRoles = Object.prototype.hasOwnProperty.call(input, 'lessonRoles');
+    const lessonRoles = hasLessonRoles ? normalizeIdList(input.lessonRoles) : inferLessonRoles(input);
+    if (lessonRoles) item.lessonRoles = lessonRoles;
+  }
+  return item;
 }
 
-function normalizeCatalogGroup(items = []) {
+function normalizeCatalogGroup(items = [], group = '') {
   const seen = new Set();
   return (Array.isArray(items) ? items : [])
-    .map(normalizeCatalogItem)
+    .map((item, index) => normalizeCatalogItem(item, index, group))
     .filter((item) => {
       if (!item.id || seen.has(item.id)) return false;
       seen.add(item.id);
@@ -109,7 +141,7 @@ export function normalizeEntryContextCatalog(input = {}) {
   return Object.fromEntries(
     ENTRY_CONTEXT_CATALOG_GROUPS.map((group) => [
       group,
-      normalizeCatalogGroup(input[group] ?? DEFAULT_ENTRY_CONTEXT_CATALOG[group]),
+      normalizeCatalogGroup(input[group] ?? DEFAULT_ENTRY_CONTEXT_CATALOG[group], group),
     ])
   );
 }
@@ -184,6 +216,12 @@ export function addCatalogItem(group, label, options = {}) {
       active: options.active !== false,
       sort: normalizeSort(options.sort, maxSort + 10),
     };
+    if (group === 'lessons') {
+      const roles = Object.prototype.hasOwnProperty.call(options, 'lessonRoles')
+        ? normalizeIdList(options.lessonRoles)
+        : inferLessonRoles(item);
+      if (roles) item.lessonRoles = roles;
+    }
     catalog[group] = [...catalog[group], item];
     return { group, item: cloneItem(item) };
   })?.item || null;
@@ -245,6 +283,22 @@ export function setCatalogItemSort(group, id, sort) {
     catalog[group] = catalog[group].map((item) => {
       if (item.id !== normalizedId) return item;
       updated = { ...item, sort: parsedSort };
+      return updated;
+    });
+    return updated ? { group, item: cloneItem(updated) } : null;
+  })?.item || null;
+}
+
+export function setCatalogItemLessonRoles(group, id, lessonRoles = []) {
+  assertGroup(group);
+  if (group !== 'lessons') return null;
+  const normalizedId = String(id || '').trim();
+  if (!normalizedId) return null;
+  return mutateCatalog('lesson-roles', () => {
+    let updated = null;
+    catalog[group] = catalog[group].map((item) => {
+      if (item.id !== normalizedId) return item;
+      updated = { ...item, lessonRoles: normalizeIdList(lessonRoles) };
       return updated;
     });
     return updated ? { group, item: cloneItem(updated) } : null;
