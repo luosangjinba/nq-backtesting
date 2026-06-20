@@ -17,6 +17,7 @@ import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initDisplayMode } from './display/display-mode.js';
 import { initDisplayPreferences } from './display/display-preferences.js';
+import { initEntryContextCatalogStore } from './entry-context/entry-context-catalog-store.js';
 import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
@@ -58,6 +59,9 @@ console.log('[V4] Display preferences initialized');
 
 initPrimaryInstrumentStore();
 console.log('[V4] Primary instrument initialized');
+
+initEntryContextCatalogStore();
+console.log('[V4] Entry context catalog initialized');
 
 // 初始化图表
 chart.initChart('chart');

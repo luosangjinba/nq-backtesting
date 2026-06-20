@@ -121,6 +121,41 @@ Acceptance:
 - Store can be unit-smoked without UI.
 - Catalog persistence survives reload.
 
+Status: complete.
+
+Implementation:
+
+- Added `v4/src/entry-context/entry-context-catalog-store.js`.
+- Catalog groups:
+  - `patterns`
+  - `sessions`
+  - `lessons`
+- Pattern and Session defaults are seeded from the existing `ORDER_ENTRY_PATTERN_DEFINITIONS` and `ORDER_ENTRY_SESSION_DEFINITIONS`.
+- Lessons start empty.
+- Store APIs include:
+  - `getEntryContextCatalog()`
+  - `getCatalogItems(group, { includeInactive })`
+  - `getActiveCatalogItems(group)`
+  - `resolveCatalogLabel(group, id, fallback)`
+  - `addCatalogItem(group, label, options)`
+  - `renameCatalogItem(group, id, label)`
+  - `deactivateCatalogItem(group, id)`
+  - `setCatalogItemSort(group, id, sort)`
+  - `loadEntryContextCatalog(input)`
+  - `resetEntryContextCatalog()`
+  - `initEntryContextCatalogStore()`
+- Store persists to localStorage key `v4:entry-context-catalog`.
+- `app.js` initializes the catalog store on startup.
+- Added `v4/tests/entry-context-catalog-smoke.js`.
+
+Verification:
+
+- `node --check v4/src/app.js`
+- `node --check v4/src/entry-context/entry-context-catalog-store.js`
+- `node --check v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `git diff --check`
+
 ## Step 298.3: Live Record Entry Context Catalog Integration
 
 Tasks:
