@@ -382,6 +382,41 @@ Acceptance:
 - Worktree is clean after commit.
 - Step 298 scope is limited to shared Entry Context catalogs and Live Record order lessons.
 
+Completed:
+
+- Final catalog persistence shape:
+  - localStorage key: `v4:entry-context-catalog`;
+  - payload: `{ version, savedAt, catalog: { patterns, sessions, lessons } }`;
+  - catalog item: `{ id, label, active, sort }`.
+- Final Order Setup Entry Context shape:
+  - `entryPlan.entryPatternIds: string[]`;
+  - `entryPlan.entrySessionId: string`.
+- Final Live Record Entry Context shape:
+  - `entryContext.patternIds: string[]`;
+  - `entryContext.sessionId: string`.
+- Final Live Record order lessons shape:
+  - `execution.orders[].lessonIds: string[]`.
+- Catalog maintenance behavior:
+  - add, rename, soft deactivate, reactivate, and sort;
+  - inactive items are hidden from new selections;
+  - inactive/unknown selected IDs remain rendered by fallback option injection.
+- Old-data migration decision:
+  - no standalone migration was added because V4 data is still in testing;
+  - normalizers keep light aliases for recently used `patterns/session` and `entryPatterns/entrySession` inputs.
+
+Final verification:
+
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/entry-context-catalog-integration-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `git diff --check`
+
+Note:
+
+- Node still prints the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM smoke files; tests pass.
+
 ## Risk Notes
 
 - Avoid duplicate Pattern / Session vocabularies between Order Setup and Live Record.
