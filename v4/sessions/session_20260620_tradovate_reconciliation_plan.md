@@ -246,3 +246,20 @@ Tasks:
   - reconciliation files;
   - warnings do not block import;
   - Cash/Balance are not written into each Live Record.
+
+Completed:
+
+- Updated `v4/docs/README.md`.
+- Updated `v4/docs/user/USER_GUIDE.zh-CN.md`.
+- Updated `v4/docs/user/USER_GUIDE.en.md`.
+- Documented:
+  - Performance/Orders/Fills as primary sources;
+  - Position/Cash/Account Balance as reconcile-only sources;
+  - reconciliation warnings do not block Review JSON generation;
+  - Cash/Balance are not written into each Live Record.
+
+Final verification:
+
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `git diff --check`

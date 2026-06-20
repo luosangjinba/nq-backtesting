@@ -634,6 +634,24 @@ Use the Live Record Detail panel to write result notes, execution review notes, 
 
 A Live Record can stay standalone. Optionally link it to the active Order Setup to make it execution/review evidence. Linking does not mutate the Order Setup execution fields.
 
+### Tradovate Live Record Import
+
+The Data Maintenance page can convert Tradovate CSV files into Live Records inside a Review JSON archive.
+
+Primary sources:
+
+- `Performance CSV`: each paired-trade row becomes one closed Live Record.
+- `Orders CSV`: optional, enriches entry/stop/target order status, prices, and cancelled/filled state.
+- `Fills CSV`: optional, enriches fill order id, fill price, quantity, and commission.
+
+Reconciliation sources:
+
+- `Position History CSV`: optional, validates Performance buy/sell fill pairs, qty, prices, and P/L.
+- `Cash History CSV`: optional, validates commission and Trade Paired cash ledger totals.
+- `Account Balance CSV`: optional, validates daily Total Realized PNL by trade date.
+
+Position/Cash/Account Balance reconciliation warnings do not block Review JSON generation and are not written into each Live Record. They are there to catch missing export rows, mixed-instrument inputs, commission differences, or daily P/L mismatches.
+
 ## Saving And Import/Export
 
 V4 has two persistence layers.

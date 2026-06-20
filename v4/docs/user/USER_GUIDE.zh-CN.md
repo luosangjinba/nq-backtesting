@@ -632,6 +632,24 @@ Live Records 是 Order Setups 的 live execution / journal 伴随对象。它们
 
 Live Record 可以独立存在。也可以选择 link 到 active Order Setup，把它作为 execution/review evidence；link 不会改写 Order Setup 的 execution 字段。
 
+### Tradovate Live Record 导入
+
+Data Maintenance 页面可以把 Tradovate CSV 转成 Review JSON 中的 Live Records。
+
+主数据源：
+
+- `Performance CSV`：每一行配对交易生成一条 closed Live Record。
+- `Orders CSV`：可选，用于补充 entry/stop/target order 状态、价格和取消/成交状态。
+- `Fills CSV`：可选，用于补充 fill order id、fill price、quantity 和 commission。
+
+校验数据源：
+
+- `Position History CSV`：可选，只用于校验 Performance 的 buy/sell fill pair、qty、price 和 P/L。
+- `Cash History CSV`：可选，只用于校验 commission 与 Trade Paired 现金流水。
+- `Account Balance CSV`：可选，只用于按交易日校验 Total Realized PNL。
+
+Position/Cash/Account Balance 的 reconcile warning 不会阻止 Review JSON 生成，也不会写入每一条 Live Record。它们的作用是帮助发现 Tradovate 导出文件是否漏项、跨品种混入、手续费或每日 P/L 是否对不上。
+
 ## 保存与导入导出
 
 V4 有两种保存方式：

@@ -15,6 +15,8 @@ Recommended data ownership during this phase:
 
 DuckDB should become an analytics import target first, after the review schema has stabilized and there is enough real Review JSON history to analyze.
 
+Tradovate Live Record import currently uses Performance/Orders/Fills as the primary import sources. Position History, Cash History, and Account Balance History are optional reconciliation files only; warnings are reported in the maintenance output and do not block Review JSON generation.
+
 ## Current V4 Docs
 
 ### User
