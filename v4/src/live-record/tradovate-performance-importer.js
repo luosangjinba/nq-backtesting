@@ -663,13 +663,13 @@ function resultStatus(pnl) {
   return 'breakeven';
 }
 
-function exitTypeFromPnl(pnl) {
+function exitTypeFromPnl(pnl, exitOrder) {
   if (pnl > 0) return 'profit';
-  if (pnl < 0) return 'stopLoss';
+  if (pnl < 0) return getOrderType(exitOrder || {}) === 'stop' ? 'stopLoss' : 'manualLoss';
   return 'breakeven';
 }
 
-function buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, timeZone }) {
+function buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, exitType, timeZone }) {
   const stopPrice = stopOrder ? getStopPrice(stopOrder) : null;
   const stopStatus = stopOrder ? getOrderStatus(stopOrder) : '';
   const stopTimestampText = stopOrder ? getTimestampValue(stopOrder, stopStatus === 'filled' ? 'Fill Time' : 'Timestamp') : '';
@@ -682,6 +682,7 @@ function buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, timeZone }) 
     }
   }
   if (pnl >= 0 && stopPrice === null) return {};
+  if (exitType !== 'stopLoss' && !stopOrder) return {};
   return {
     id: 'stopLoss',
     role: 'stopLoss',
@@ -692,10 +693,10 @@ function buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, timeZone }) 
     endTimestamp: exitTs,
     endTimeframe: DEFAULT_TIMEFRAME,
     visible: true,
-    complete: pnl < 0 || stopStatus === 'filled',
+    complete: stopStatus === 'filled',
     note: stopOrder
-      ? `Imported Tradovate stop order: ${stopStatus || 'unknown'}${pnl < 0 ? '; exit matched stop loss.' : '; cancelled after target/exit.'}`
-      : 'Imported losing trade: exit used as stop loss.',
+      ? `Imported Tradovate stop order: ${stopStatus || 'unknown'}${exitType === 'stopLoss' ? '; exit matched stop loss.' : '; not the filled exit.'}`
+      : 'Imported losing trade: filled stop exit.',
   };
 }
 
@@ -757,10 +758,11 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement }) {
   const usedOrderIds = new Set([buyOrder, sellOrder].filter(Boolean).map(getOrderId));
   const exitOrder = isLong ? sellOrder : buyOrder;
   const exitOrderType = getOrderType(exitOrder || {});
+  const resultExitType = exitTypeFromPnl(pnl, exitOrder);
   const stopOrder = exitOrderType === 'stop'
     ? exitOrder
     : findCompanionOrder({ enhancement, sourceSymbol, side: exitSide, type: 'stop', entryTs, exitTs, excludeOrderIds: usedOrderIds });
-  const targetOrder = exitOrderType === 'limit'
+  const targetOrder = pnl > 0 && exitOrderType === 'limit'
     ? exitOrder
     : findCompanionOrder({ enhancement, sourceSymbol, side: exitSide, type: 'limit', entryTs, exitTs, excludeOrderIds: usedOrderIds });
   const executionOrders = [buyOrder, sellOrder, stopOrder, targetOrder]
@@ -826,7 +828,7 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement }) {
         note: `Imported entry fill from Tradovate ${sourceSymbol}.`,
       },
       marketStructureShift: {},
-      stopLoss: buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, timeZone }),
+      stopLoss: buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, exitType: resultExitType, timeZone }),
       targets: buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone }),
       orders: executionOrders,
       fills: executionFills.length ? executionFills : fallbackFills,
@@ -840,7 +842,7 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement }) {
     linkedObjectRefs: [],
     result: {
       status: resultStatus(pnl),
-      exitType: exitTypeFromPnl(pnl),
+      exitType: resultExitType,
       exitTimestamp: exitTs,
       exitTimeframe: DEFAULT_TIMEFRAME,
       exitPrice,

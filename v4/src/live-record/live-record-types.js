@@ -35,6 +35,7 @@ export const LIVE_RECORD_EXIT_TYPES = Object.freeze({
   UNKNOWN: 'unknown',
   PROFIT: 'profit',
   STOP_LOSS: 'stopLoss',
+  MANUAL_LOSS: 'manualLoss',
   BREAKEVEN: 'breakeven',
 });
 
@@ -133,8 +134,12 @@ export const LIVE_RECORD_EXIT_TYPE_ALIASES = new Map([
   ['win', LIVE_RECORD_EXIT_TYPES.PROFIT],
   ['winner', LIVE_RECORD_EXIT_TYPES.PROFIT],
   ['target', LIVE_RECORD_EXIT_TYPES.PROFIT],
-  ['loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
-  ['loser', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
+  ['loss', LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS],
+  ['loser', LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS],
+  ['manual-loss', LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS],
+  ['manual_loss', LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS],
+  ['manual stop', LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS],
+  ['manual stop-loss', LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS],
   ['stop-loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
   ['stop_loss', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],
   ['sl', LIVE_RECORD_EXIT_TYPES.STOP_LOSS],

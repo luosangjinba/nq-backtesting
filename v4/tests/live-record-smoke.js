@@ -442,6 +442,23 @@ assert.equal(partialGroups.position.summary, '5 contracts opened · 5 contracts 
 assert.equal(partialGroups.targetExits.summary, '2 contracts hit · 1 order', 'partial flow counts target hit contracts');
 assert.equal(partialGroups.manualExits.summary, '3 contracts · Manual/Market · 1 order', 'partial flow counts remaining manual exit contracts');
 
+const manualLimitLossFlow = buildLiveRecordExecutionFlow({
+  direction: 'long',
+  execution: {
+    entry: { timestamp: 1710774300, price: 30368.5 },
+    orders: [
+      { id: 'manual-limit-loss-entry', timestamp: 1710774300, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5, quantity: 1, filledQuantity: 1 },
+      { id: 'manual-limit-loss-exit', timestamp: 1710774360, type: 'limit', status: 'filled', side: 'sell', limitPrice: 30350, fillPrice: 30350, quantity: 1, filledQuantity: 1 },
+    ],
+  },
+  result: { status: 'loss', exitTimestamp: 1710774360, exitType: 'manualLoss', exitPrice: 30350 },
+});
+const manualLimitLossGroups = Object.fromEntries(manualLimitLossFlow.groups.map((group) => [group.id, group]));
+assert.equal(manualLimitLossFlow.outcome.type, 'manualLoss', 'manual limit loss outcome is explicit');
+assert.equal(manualLimitLossGroups.targetExits.summary, '0 hit · 0 orders', 'manual limit loss is not counted as target hit');
+assert.equal(manualLimitLossGroups.manualExits.summary, '1 contract · Manual/Market · 1 order', 'manual limit loss is counted as manual exit');
+assert.equal(manualLimitLossGroups.manualExits.orders[0].id, 'manual-limit-loss-exit', 'manual limit loss order stays reviewable');
+
 const multiExitFlow = buildLiveRecordExecutionFlow({
   direction: 'long',
   execution: {
@@ -781,6 +798,7 @@ assert.match(detailHtml, /data-inspector-action="live-record-reason-delete"/, 'd
 assert.match(detailHtml, /Result/, 'detail renders Result');
 assert.match(detailHtml, /Profit/, 'detail renders live exit type option');
 assert.match(detailHtml, /Stop Loss/, 'detail renders live stop loss exit type option');
+assert.match(detailHtml, /Manual Loss/, 'detail renders live manual loss exit type option');
 assert.match(detailHtml, /Breakeven/, 'detail renders live breakeven exit type option');
 assert.match(detailHtml, /Hold/, 'detail renders result hold metric');
 assert.match(detailHtml, /Risk/, 'detail renders result risk metric');

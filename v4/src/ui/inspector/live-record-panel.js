@@ -399,7 +399,7 @@ function getLiveRecordExitType(record = {}) {
   const explicit = record.result?.exitType || '';
   if (explicit) return explicit;
   if (record.result?.status === 'win') return LIVE_RECORD_EXIT_TYPES.PROFIT;
-  if (record.result?.status === 'loss') return LIVE_RECORD_EXIT_TYPES.STOP_LOSS;
+  if (record.result?.status === 'loss') return LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS;
   if (record.result?.status === 'breakeven') return LIVE_RECORD_EXIT_TYPES.BREAKEVEN;
   return LIVE_RECORD_EXIT_TYPES.UNKNOWN;
 }
@@ -409,6 +409,7 @@ function renderExitTypeOptions(selectedExitType) {
     [LIVE_RECORD_EXIT_TYPES.UNKNOWN]: 'Unknown',
     [LIVE_RECORD_EXIT_TYPES.PROFIT]: 'Profit',
     [LIVE_RECORD_EXIT_TYPES.STOP_LOSS]: 'Stop Loss',
+    [LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS]: 'Manual Loss',
     [LIVE_RECORD_EXIT_TYPES.BREAKEVEN]: 'Breakeven',
   };
   return Object.values(LIVE_RECORD_EXIT_TYPES)

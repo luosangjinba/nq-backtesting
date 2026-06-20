@@ -47,9 +47,8 @@ assert.equal(first.direction, 'long');
 assert.equal(first.execution.entry.price, 29320);
 assert.equal(first.result.exitPrice, 29291.75);
 assert.equal(first.result.status, 'loss');
-assert.equal(first.result.exitType, 'stopLoss');
-assert.equal(first.execution.stopLoss.price, 29291.75);
-assert.equal(first.execution.stopLoss.complete, true);
+assert.equal(first.result.exitType, 'manualLoss');
+assert.deepEqual(first.execution.stopLoss, {});
 assert.equal(first.execution.targets.length, 0);
 assert.equal(first.execution.fills[0].id, '524699600302');
 assert.match(first.summary, /Tradovate import/);
@@ -228,6 +227,7 @@ const enhancedResults = buildTradovateLiveRecordArchives(performanceWithEnhancem
 });
 
 const enhancedEs = enhancedResults.find((item) => item.payload.instrument === 'ES').payload.liveRecords[0];
+assert.equal(enhancedEs.result.exitType, 'stopLoss', 'filled stop order imports as stop loss result');
 assert.equal(enhancedEs.execution.stopLoss.price, 7591.75, 'losing ES trade uses filled stop order');
 assert.equal(enhancedEs.execution.stopLoss.complete, true, 'filled stop is complete');
 assert.equal(enhancedEs.execution.targets[0].price, 7607.75, 'losing ES trade keeps cancelled target order');
@@ -262,5 +262,29 @@ assert.equal(enhancedNq.execution.stopLoss.price, 30449, 'winning NQ trade keeps
 assert.equal(enhancedNq.execution.stopLoss.complete, false, 'cancelled stop is not complete');
 assert.equal(enhancedNq.execution.targets[0].price, 30523.5, 'winning NQ trade uses filled limit target');
 assert.equal(enhancedNq.execution.targets[0].complete, true, 'filled target is complete');
+
+const manualLimitLoss = buildTradovateLiveRecordArchive([
+  'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',
+  'MNQM6,-2,0,0.25,limit-loss-buy,limit-loss-sell,1,29320.00,29310.00,$(20.00),06/12/2026 09:49:42,06/12/2026 09:50:11,29sec',
+].join('\n'), {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  ordersText: [
+    'orderId,Account,Order ID,B/S,Contract,Product,Product Description,avgPrice,filledQty,Fill Time,lastCommandId,Status,_priceFormat,_priceFormatType,_tickSize,spreadDefinitionId,Version ID,Timestamp,Date,Quantity,Text,Type,Limit Price,Stop Price,decimalLimit,decimalStop,Filled Qty,Avg Fill Price,decimalFillAvg,Venue,Notional Value,Currency',
+    'limit-loss-entry,acct,limit-loss-entry, Buy,MNQM6,MNQ,Micro E-mini NASDAQ-100,29320.00,1,06/12/2026 09:49:42,limit-loss-entry, Filled,-2,0,0.25,,limit-loss-entry,06/12/2026 09:49:42,6/12/26,1,Chart, Market,,,,,1,29320.00,29320.00,,29320.00,USD',
+    'limit-loss-exit,acct,limit-loss-exit, Sell,MNQM6,MNQ,Micro E-mini NASDAQ-100,29310.00,1,06/12/2026 09:50:11,limit-loss-exit, Filled,-2,0,0.25,,limit-loss-exit,06/12/2026 09:50:11,6/12/26,1,Chart, Limit,29310.00,,29310.00,,1,29310.00,29310.00,,29310.00,USD',
+  ].join('\n'),
+  fillsText: [
+    '_id,_orderId,_contractId,_timestamp,_tradeDate,_action,_qty,_price,_active,_accountId,Fill ID,Order ID,Timestamp,Date,Account,B/S,Quantity,Price,_priceFormat,_priceFormatType,_tickSize,Contract,Product,Product Description,commission',
+    'limit-loss-buy,limit-loss-entry,1,2026-06-12 13:49:42.000Z,2026-06-12,0,1,29320,true,1,limit-loss-buy,limit-loss-entry,06/12/2026 09:49:42,6/12/26,acct, Buy,1,29320.00,-2,0,0.25,MNQM6,MNQ,Micro E-mini NASDAQ-100,0.5',
+    'limit-loss-sell,limit-loss-exit,1,2026-06-12 13:50:11.000Z,2026-06-12,1,1,29310,true,1,limit-loss-sell,limit-loss-exit,06/12/2026 09:50:11,6/12/26,acct, Sell,1,29310.00,-2,0,0.25,MNQM6,MNQ,Micro E-mini NASDAQ-100,0.5',
+  ].join('\n'),
+});
+const manualLimitLossRecord = manualLimitLoss.payload.liveRecords[0];
+assert.equal(manualLimitLossRecord.result.status, 'loss', 'manual limit loss remains a losing result');
+assert.equal(manualLimitLossRecord.result.exitType, 'manualLoss', 'filled limit loss imports as manual loss result');
+assert.equal(manualLimitLossRecord.execution.targets.length, 0, 'filled limit loss is not imported as a target');
+assert.deepEqual(manualLimitLossRecord.execution.stopLoss, {}, 'filled limit loss is not imported as preset stop loss');
 
 console.log('tradovate performance importer smoke passed');
