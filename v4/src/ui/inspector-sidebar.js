@@ -103,6 +103,7 @@ import {
 } from '../time-reaction/daily-time-review-store.js';
 import { recordHistory } from '../history/history-manager.js';
 import { getEconomicEventById } from '../economic-calendar/economic-calendar-store.js';
+import { ENTRY_CONTEXT_CATALOG_CHANGED } from '../entry-context/entry-context-catalog-store.js';
 
 let sidebarEl = null;
 let bodyEl = null;
@@ -705,6 +706,20 @@ function refreshSelectionUnlessEditingDailyTimeText() {
   refreshSelection();
 }
 
+function refreshOnEntryContextCatalogChange() {
+  const page = getInspectorPage();
+  if (page.kind === 'entry-context-catalog') {
+    renderEntryContextCatalogMaintenance();
+    return;
+  }
+  if (
+    page.kind === 'detail' &&
+    (page.objectType === 'order-setup' || page.objectType === 'live-record')
+  ) {
+    renderPageFromState(page);
+  }
+}
+
 function refreshOnReplayDayChange({ enabled } = {}) {
   const replayDate = enabled ? getReplayCalendarDate() : '';
   if (replayDate === lastReplayCalendarDate) return;
@@ -1214,6 +1229,7 @@ export function initInspectorSidebar() {
   });
   bus.on('order-review:changed', refreshSelection);
   bus.on('live-record:changed', refreshSelection);
+  bus.on(ENTRY_CONTEXT_CATALOG_CHANGED, refreshOnEntryContextCatalogChange);
   bus.on('daily-time-review:changed', refreshSelectionUnlessEditingDailyTimeText);
   bus.on('chart-notes:changed', refreshSelection);
   bus.on('economic-event-notes:changed', refreshSelection);

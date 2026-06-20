@@ -17,9 +17,14 @@ function createMemoryStorage() {
 
 globalThis.localStorage = createMemoryStorage();
 
+const bus = await import('../src/event-bus.js');
 const catalog = await import('../src/entry-context/entry-context-catalog-store.js');
 
 catalog.resetEntryContextCatalog();
+
+const catalogEvents = [];
+const catalogEventListener = (payload) => catalogEvents.push(payload);
+bus.on(catalog.ENTRY_CONTEXT_CATALOG_CHANGED, catalogEventListener);
 
 assert.ok(
   catalog.getActiveCatalogItems('patterns').some((item) => item.id === 'purge-ob' && item.label === 'Purge + OB'),
@@ -34,6 +39,8 @@ assert.deepEqual(catalog.getActiveCatalogItems('lessons'), [], 'lessons start em
 const lesson = catalog.addCatalogItem('lessons', 'Late Entry');
 assert.equal(lesson.id, 'late-entry', 'lesson id is generated from label');
 assert.equal(catalog.resolveCatalogLabel('lessons', 'late-entry'), 'Late Entry', 'lesson label resolves');
+assert.equal(catalogEvents.at(-1)?.reason, 'add', 'catalog edits emit a changed event');
+assert.equal(catalogEvents.at(-1)?.group, 'lessons', 'catalog changed event includes edited group');
 
 const duplicate = catalog.addCatalogItem('lessons', 'Late Entry');
 assert.equal(duplicate.id, 'late-entry-2', 'duplicate ids are made unique');
@@ -88,5 +95,7 @@ catalog.loadEntryContextCatalog({
 });
 assert.equal(catalog.resolveCatalogLabel('patterns', 'custom-pattern'), 'Custom Pattern');
 assert.equal(catalog.resolveCatalogLabel('sessions', 'missing-session', 'Snapshot Session'), 'Snapshot Session');
+
+bus.off(catalog.ENTRY_CONTEXT_CATALOG_CHANGED, catalogEventListener);
 
 console.log('entry context catalog smoke ok');

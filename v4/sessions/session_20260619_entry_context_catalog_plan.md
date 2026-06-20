@@ -315,6 +315,22 @@ Acceptance:
 - Editing the catalog updates both panels without manual refresh.
 - Reload preserves catalog edits.
 
+Completed:
+
+- `entry-context-catalog-store.js` continues to persist catalog state through `createLocalPersistence` on every mutation.
+- Catalog mutation events now include smoke coverage for `entry-context-catalog:changed`, including mutation reason and edited group.
+- `inspector-sidebar.js` subscribes to `ENTRY_CONTEXT_CATALOG_CHANGED`.
+- The Inspector refreshes the Catalog maintenance panel, Live Record Detail, and Order Setup Detail when catalog labels/options change.
+
+Verification:
+
+- `node --check v4/src/ui/inspector-sidebar.js`
+- `node --check v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `git diff --check`
+
 ## Step 298.8: Tests And Smoke
 
 Tasks:
