@@ -348,6 +348,27 @@ Acceptance:
 - New focused tests pass.
 - Existing `order-setup-smoke`, `live-record-smoke`, `live-record-chart-actions-smoke`, and `git diff --check` pass.
 
+Completed:
+
+- Added `v4/tests/entry-context-catalog-integration-smoke.js`.
+- Covered adding Pattern/Session/Lesson and rendering them in Order Setup Detail and Live Record Detail.
+- Covered Pattern/Lesson rename propagation to both detail panels.
+- Covered Pattern soft deactivation:
+  - existing selected records still render the inactive label;
+  - new unselected records no longer show that inactive option.
+- Covered catalog localStorage restore through `initEntryContextCatalogStore()`.
+- Covered Live Record order `lessonIds` surviving `loadLiveRecords(...)` reload normalization.
+
+Verification:
+
+- `node --check v4/tests/entry-context-catalog-integration-smoke.js`
+- `node v4/tests/entry-context-catalog-integration-smoke.js`
+- `node v4/tests/entry-context-catalog-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `git diff --check`
+
 ## Step 298.9: Closeout
 
 Tasks:

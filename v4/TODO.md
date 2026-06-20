@@ -972,5 +972,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 298.5: Live Record order lessons：已给 `execution.orders[]` 增加 `lessonIds`，Live Record Detail 新增 Orders 面板并按 order 渲染 Lessons 多选，支持添加/移除和 inactive/unknown fallback 显示；Live Record smoke、chart-actions smoke、catalog smoke 与 `git diff --check` 均通过。
   - [x] Step 298.6: Catalog maintenance UI：已新增 Inspector 维护入口和独立 catalog panel/action controller，支持 Pattern / Session / Lesson 新增、改名、停用、恢复启用和排序；仍为软删除，不做硬删除；catalog smoke 覆盖维护控件渲染。
   - [x] Step 298.7: Sync events and persistence：catalog store 已在 add/rename/deactivate/activate/sort/load/reset 后 emit `entry-context-catalog:changed` 并写入 localStorage；Inspector 订阅该事件，在 Catalog 维护页、Live Record Detail、Order Setup Detail 自动刷新；catalog smoke 覆盖 changed event。
-  - [ ] Step 298.8: Tests and smoke：覆盖新增/改名/停用同步、lesson 保存恢复，并跑 order/live focused smokes 与 `git diff --check`。
+  - [x] Step 298.8: Tests and smoke：新增 `entry-context-catalog-integration-smoke.js`，覆盖 Pattern/Session/Lesson 新增显示、Pattern/Lesson 改名同步、Pattern 停用后新选择隐藏但既有记录仍 fallback resolve、catalog storage restore、Live Record order `lessonIds` reload；相关 order/live/chart smoke 与 `git diff --check` 均通过。
   - [ ] Step 298.9: Closeout：更新 TODO/session，记录最终数据结构、验证结果和 deferred migration 决策。
