@@ -146,15 +146,12 @@ assert.equal(splitResults.find((item) => item.payload.instrument === 'NQ').total
 assert.equal(splitResults.find((item) => item.payload.instrument === 'ES').totalPnl, -25);
 assert.equal(
   splitResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0].result.exitType,
-  'profit'
+  'manualProfit'
 );
 assert.equal(
-  splitResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0].execution.targets[0].role,
-  'targetInternal1'
-);
-assert.equal(
-  splitResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0].execution.targets[0].price,
-  29330
+  splitResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0].execution.targets.length,
+  0,
+  'manual profit without target order does not create fallback target'
 );
 const splitWithBalance = buildTradovateLiveRecordArchives(mixedCsv, {
   instrument: 'auto',
@@ -258,6 +255,7 @@ assert.equal(enhancedEsReport.tradePairedTotal, -15, 'cash reconciliation filter
 assert.equal(enhancedEsReport.tradePairedDifference, 0, 'cash reconciliation reports no P/L difference when filtered');
 
 const enhancedNq = enhancedResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0];
+assert.equal(enhancedNq.result.exitType, 'profit', 'filled profitable limit order imports as target hit result');
 assert.equal(enhancedNq.execution.stopLoss.price, 30449, 'winning NQ trade keeps cancelled stop order');
 assert.equal(enhancedNq.execution.stopLoss.complete, false, 'cancelled stop is not complete');
 assert.equal(enhancedNq.execution.targets[0].price, 30523.5, 'winning NQ trade uses filled limit target');
@@ -286,5 +284,23 @@ assert.equal(manualLimitLossRecord.result.status, 'loss', 'manual limit loss rem
 assert.equal(manualLimitLossRecord.result.exitType, 'manualLoss', 'filled limit loss imports as manual loss result');
 assert.equal(manualLimitLossRecord.execution.targets.length, 0, 'filled limit loss is not imported as a target');
 assert.deepEqual(manualLimitLossRecord.execution.stopLoss, {}, 'filled limit loss is not imported as preset stop loss');
+
+const manualMarketProfit = buildTradovateLiveRecordArchive([
+  'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',
+  'MNQM6,-2,0,0.25,market-profit-buy,market-profit-sell,1,29320.00,29330.00,$20.00,06/12/2026 09:49:42,06/12/2026 09:50:11,29sec',
+].join('\n'), {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  ordersText: [
+    'orderId,Account,Order ID,B/S,Contract,Product,Product Description,avgPrice,filledQty,Fill Time,lastCommandId,Status,_priceFormat,_priceFormatType,_tickSize,spreadDefinitionId,Version ID,Timestamp,Date,Quantity,Text,Type,Limit Price,Stop Price,decimalLimit,decimalStop,Filled Qty,Avg Fill Price,decimalFillAvg,Venue,Notional Value,Currency',
+    'market-profit-entry,acct,market-profit-entry, Buy,MNQM6,MNQ,Micro E-mini NASDAQ-100,29320.00,1,06/12/2026 09:49:42,market-profit-entry, Filled,-2,0,0.25,,market-profit-entry,06/12/2026 09:49:42,6/12/26,1,Chart, Market,,,,,1,29320.00,29320.00,,29320.00,USD',
+    'market-profit-exit,acct,market-profit-exit, Sell,MNQM6,MNQ,Micro E-mini NASDAQ-100,29330.00,1,06/12/2026 09:50:11,market-profit-exit, Filled,-2,0,0.25,,market-profit-exit,06/12/2026 09:50:11,6/12/26,1,Chart, Market,,,,,1,29330.00,29330.00,,29330.00,USD',
+  ].join('\n'),
+});
+const manualMarketProfitRecord = manualMarketProfit.payload.liveRecords[0];
+assert.equal(manualMarketProfitRecord.result.status, 'win', 'manual market profit remains a winning result');
+assert.equal(manualMarketProfitRecord.result.exitType, 'manualProfit', 'filled market profit imports as manual profit result');
+assert.equal(manualMarketProfitRecord.execution.targets.length, 0, 'manual market profit is not imported as target hit');
 
 console.log('tradovate performance importer smoke passed');

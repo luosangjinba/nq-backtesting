@@ -83,6 +83,7 @@ function outcomeFromExit(exitOrder, result = {}) {
   const exitType = normalize(result.exitType);
   const status = normalize(result.status);
   const type = normalize(exitOrder?.order?.type);
+  if (exitType === 'manualprofit' || exitType === 'manual-profit') return 'manualProfit';
   if (exitType === 'manualloss' || exitType === 'manual-loss') return 'manualLoss';
   if (type === 'stop') return 'stoppedOut';
   if (type === 'limit') return 'targetHit';
@@ -97,6 +98,7 @@ function outcomeLabel(type) {
   if (type === 'stoppedOut') return 'Stop filled';
   if (type === 'targetHit') return 'Target filled';
   if (type === 'breakeven') return 'Breakeven exit';
+  if (type === 'manualProfit') return 'Manual profit exit';
   if (type === 'manualLoss') return 'Manual loss exit';
   if (type === 'manualExit') return 'Manual/Market exit';
   if (type === 'filledExit') return 'Filled exit';
@@ -171,14 +173,14 @@ function positionStateLabel(openedQty, closedQty, { unsupportedAddOn = false } =
   };
 }
 
-function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills, isManualLossResult = false }) {
+function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills, isManualResult = false }) {
   const isEntrySide = (order) => sameSide(order, entrySide);
   const isExitSide = (order) => sameSide(order, exitSide);
   const isStop = (order) => normalize(order.type) === 'stop' && isExitSide(order);
-  const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order) && !(isManualLossResult && isFilled(order));
+  const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order) && !(isManualResult && isFilled(order));
   const isManualExit = (order) => {
     const type = normalize(order.type);
-    return isFilled(order) && isExitSide(order) && (type === 'market' || (isManualLossResult && type === 'limit'));
+    return isFilled(order) && isExitSide(order) && (type === 'market' || (isManualResult && type === 'limit'));
   };
   return {
     opened: {
@@ -249,11 +251,13 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   const isEntrySide = (order) => sameSide(order, entrySide);
   const isExitSide = (order) => sameSide(order, exitSide);
   const isStop = (order) => normalize(order.type) === 'stop' && isExitSide(order);
-  const isManualLossResult = normalize(result.exitType) === 'manualloss' || normalize(result.exitType) === 'manual-loss';
-  const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order) && !(isManualLossResult && isFilled(order));
+  const normalizedExitType = normalize(result.exitType);
+  const isManualResult = normalizedExitType === 'manualprofit' || normalizedExitType === 'manual-profit'
+    || normalizedExitType === 'manualloss' || normalizedExitType === 'manual-loss';
+  const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order) && !(isManualResult && isFilled(order));
   const isManualExit = (order) => {
     const type = normalize(order.type);
-    return isFilled(order) && isExitSide(order) && (type === 'market' || (isManualLossResult && type === 'limit'));
+    return isFilled(order) && isExitSide(order) && (type === 'market' || (isManualResult && type === 'limit'));
   };
   const isExitFilled = (order) => isFilled(order) && isExitSide(order);
 
@@ -283,7 +287,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
     exitTimestamp
   );
   const outcomeType = outcomeFromExit(exitOrder, result);
-  const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills, isManualLossResult });
+  const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType, fills, isManualResult });
   const entryOrderItems = orders
     .filter(({ order }) => isFilled(order) && isEntrySide(order))
     .sort(sortOrderItems);

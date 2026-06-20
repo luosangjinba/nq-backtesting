@@ -407,7 +407,8 @@ function getLiveRecordExitType(record = {}) {
 function renderExitTypeOptions(selectedExitType) {
   const labels = {
     [LIVE_RECORD_EXIT_TYPES.UNKNOWN]: 'Unknown',
-    [LIVE_RECORD_EXIT_TYPES.PROFIT]: 'Profit',
+    [LIVE_RECORD_EXIT_TYPES.PROFIT]: 'Target Hit',
+    [LIVE_RECORD_EXIT_TYPES.MANUAL_PROFIT]: 'Manual Profit',
     [LIVE_RECORD_EXIT_TYPES.STOP_LOSS]: 'Stop Loss',
     [LIVE_RECORD_EXIT_TYPES.MANUAL_LOSS]: 'Manual Loss',
     [LIVE_RECORD_EXIT_TYPES.BREAKEVEN]: 'Breakeven',

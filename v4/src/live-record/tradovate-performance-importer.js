@@ -664,7 +664,7 @@ function resultStatus(pnl) {
 }
 
 function exitTypeFromPnl(pnl, exitOrder) {
-  if (pnl > 0) return 'profit';
+  if (pnl > 0) return getOrderType(exitOrder || {}) === 'limit' ? 'profit' : 'manualProfit';
   if (pnl < 0) return getOrderType(exitOrder || {}) === 'stop' ? 'stopLoss' : 'manualLoss';
   return 'breakeven';
 }
@@ -700,7 +700,7 @@ function buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, exitType, ti
   };
 }
 
-function buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone }) {
+function buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, exitType, timeZone }) {
   const targetPrice = targetOrder ? getLimitPrice(targetOrder) : null;
   const targetStatus = targetOrder ? getOrderStatus(targetOrder) : '';
   const targetTimestampText = targetOrder ? getTimestampValue(targetOrder, targetStatus === 'filled' ? 'Fill Time' : 'Timestamp') : '';
@@ -712,6 +712,7 @@ function buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone })
       targetTimestamp = exitTs;
     }
   }
+  if (exitType !== 'profit' && !targetOrder) return [];
   if (pnl <= 0 && targetPrice === null) return [];
   return [{
     id: 'targetInternal1',
@@ -724,9 +725,9 @@ function buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone })
     endTimestamp: exitTs,
     endTimeframe: DEFAULT_TIMEFRAME,
     visible: true,
-    complete: pnl > 0 || targetStatus === 'filled',
+    complete: targetStatus === 'filled',
     note: targetOrder
-      ? `Imported Tradovate limit target order: ${targetStatus || 'unknown'}${pnl > 0 ? '; exit matched target.' : '; cancelled after stop/exit.'}`
+      ? `Imported Tradovate limit target order: ${targetStatus || 'unknown'}${exitType === 'profit' ? '; exit matched target.' : '; cancelled after stop/exit.'}`
       : 'Imported winning trade: exit used as Target Internal 1.',
   }];
 }
@@ -829,7 +830,7 @@ function buildLiveRecord(row, { instrument, timeZone, nowMs, enhancement }) {
       },
       marketStructureShift: {},
       stopLoss: buildImportedStopLoss({ pnl, exitTs, exitPrice, stopOrder, exitType: resultExitType, timeZone }),
-      targets: buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, timeZone }),
+      targets: buildImportedTargets({ pnl, exitTs, exitPrice, targetOrder, exitType: resultExitType, timeZone }),
       orders: executionOrders,
       fills: executionFills.length ? executionFills : fallbackFills,
     },
