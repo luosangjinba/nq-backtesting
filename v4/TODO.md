@@ -974,3 +974,13 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 298.7: Sync events and persistence：catalog store 已在 add/rename/deactivate/activate/sort/load/reset 后 emit `entry-context-catalog:changed` 并写入 localStorage；Inspector 订阅该事件，在 Catalog 维护页、Live Record Detail、Order Setup Detail 自动刷新；catalog smoke 覆盖 changed event。
   - [x] Step 298.8: Tests and smoke：新增 `entry-context-catalog-integration-smoke.js`，覆盖 Pattern/Session/Lesson 新增显示、Pattern/Lesson 改名同步、Pattern 停用后新选择隐藏但既有记录仍 fallback resolve、catalog storage restore、Live Record order `lessonIds` reload；相关 order/live/chart smoke 与 `git diff --check` 均通过。
   - [x] Step 298.9: Closeout：已更新 TODO/session，记录最终数据结构、验证结果和旧数据迁移决策；Step 298 scope 收敛为 shared Entry Context catalogs + Live Record order lessons。
+
+- [ ] Step 299: Tradovate Import Reconciliation。目标是在现有 Performance + Orders + Fills 导入基础上，增加 Position History / Cash History / Account Balance History 的可选校验报告；不改变 Live Record 主 schema，不把现金/余额流水写入单笔记录。计划见 `v4/sessions/session_20260620_tradovate_reconciliation_plan.md`。
+  - [x] Step 299.1: Audit Tradovate CSV shapes：已审计 Performance、Orders、Fills、Position History、Cash History、Account Balance History 样本字段和行数；确认 Performance 与 Position History 的 fill pair/P&L 在样本中一一匹配，Cash/Balance 适合作为 reconcile warning 来源。
+  - [ ] Step 299.2: Position History parser：解析 Position History 并按 `(Buy Fill ID, Sell Fill ID)` 对比 Performance pair、qty、prices、P/L。
+  - [ ] Step 299.3: Cash History parser：解析 Cash History 并聚合 Commission / Trade Paired，与 Fills commission / Performance P&L 对比。
+  - [ ] Step 299.4: Account Balance parser：解析 Account Balance History，按交易日对比 Total Realized PNL。
+  - [ ] Step 299.5: Reconciliation report model：在 importer result 和 Review JSON source 中输出 reconciliation summary/warnings。
+  - [ ] Step 299.6: Data Maintenance UI inputs：增加 Position/Cash/Balance optional CSV inputs 并显示 reconcile summary。
+  - [ ] Step 299.7: Smoke tests：覆盖 clean/mismatch/omitted optional reconciliation inputs。
+  - [ ] Step 299.8: Docs：更新 README/User Guide，说明主数据源与 reconcile 文件职责。
