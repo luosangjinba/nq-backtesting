@@ -356,6 +356,27 @@ assert.match(flowHtml, /Raw Tradovate Orders \(4\)/, 'flow detail keeps raw orde
 assert.match(flowHtml, /flow-target/, 'flow detail shows target order');
 assert.match(flowHtml, /Late Entry/, 'flow detail shows lesson controls on flow rows');
 
+const multiTargetFlow = buildLiveRecordExecutionFlow({
+  direction: 'long',
+  execution: {
+    entry: { timestamp: 1710771500, price: 30368.5 },
+    orders: [
+      { id: 'multi-entry', timestamp: 1710771500, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5 },
+      { id: 'multi-exit', timestamp: 1710771600, type: 'market', status: 'filled', side: 'sell', fillPrice: 30356.5 },
+      { id: 'multi-target-1', timestamp: 1710771520, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30420 },
+      { id: 'multi-target-2', timestamp: 1710771530, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25 },
+    ],
+  },
+  result: { status: 'loss', exitTimestamp: 1710771600, exitType: 'stopLoss', exitPrice: 30356.5 },
+});
+const multiTargetGroups = Object.fromEntries(multiTargetFlow.groups.map((group) => [group.id, group]));
+assert.equal(multiTargetGroups.target.summary, '2 set · 0 hit · 2 canceled', 'multi target summary counts all target orders');
+assert.deepEqual(
+  multiTargetGroups.target.orders.map((order) => order.id),
+  ['multi-target-1', 'multi-target-2'],
+  'multi target group lists every target order counted by summary'
+);
+
 const stoppedFlow = buildLiveRecordExecutionFlow({
   direction: 'long',
   execution: {

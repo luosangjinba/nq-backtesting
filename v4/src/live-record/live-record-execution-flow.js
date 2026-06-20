@@ -57,6 +57,13 @@ function findNearestOrder(orders, predicate, timestamp) {
     .sort((left, right) => distance(left.order.timestamp, timestamp) - distance(right.order.timestamp, timestamp))[0] || null;
 }
 
+function matchingOrders(orders, predicate, role) {
+  return orders
+    .filter(({ order }) => predicate(order))
+    .sort((left, right) => (numberOrNull(left.order.timestamp) ?? 0) - (numberOrNull(right.order.timestamp) ?? 0))
+    .map((item) => buildFlowOrder(item, role));
+}
+
 function outcomeFromExit(exitOrder, result = {}) {
   const exitType = normalize(result.exitType);
   const status = normalize(result.status);
@@ -166,38 +173,47 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   const entrySide = direction === 'long' ? 'buy' : direction === 'short' ? 'sell' : '';
   const entryTimestamp = numberOrNull(execution.entry?.timestamp);
   const exitTimestamp = numberOrNull(result.exitTimestamp);
+  const isEntrySide = (order) => sameSide(order, entrySide);
+  const isExitSide = (order) => sameSide(order, exitSide);
+  const isStop = (order) => normalize(order.type) === 'stop' && isExitSide(order);
+  const isTarget = (order) => normalize(order.type) === 'limit' && isExitSide(order);
+  const isExitFilled = (order) => isFilled(order) && isExitSide(order);
 
   const entryOrder = findNearestOrder(
     orders,
-    (order) => isFilled(order) && normalize(order.type) === 'market' && sameSide(order, entrySide),
+    (order) => isFilled(order) && normalize(order.type) === 'market' && isEntrySide(order),
     entryTimestamp
   ) || findNearestOrder(
     orders,
-    (order) => isFilled(order) && sameSide(order, entrySide),
+    (order) => isFilled(order) && isEntrySide(order),
     entryTimestamp
   );
 
   const stopOrder = findNearestOrder(
     orders,
-    (order) => normalize(order.type) === 'stop' && sameSide(order, exitSide),
+    isStop,
     exitTimestamp ?? entryTimestamp
   );
   const targetOrder = findNearestOrder(
     orders,
-    (order) => normalize(order.type) === 'limit' && sameSide(order, exitSide),
+    isTarget,
     exitTimestamp ?? entryTimestamp
   );
   const exitOrder = findNearestOrder(
     orders,
-    (order) => isFilled(order) && sameSide(order, exitSide),
+    isExitFilled,
     exitTimestamp
   );
   const outcomeType = outcomeFromExit(exitOrder, result);
   const summary = buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcomeType });
+  const entryOrders = matchingOrders(orders, (order) => isFilled(order) && isEntrySide(order), 'entry');
+  const stopOrders = matchingOrders(orders, isStop, 'stopLoss');
+  const targetOrders = matchingOrders(orders, isTarget, 'target');
+  const exitOrders = matchingOrders(orders, isExitFilled, 'exit');
   const matchedOrderIndexes = new Set(
-    [entryOrder, stopOrder, targetOrder, exitOrder]
-      .filter(Boolean)
-      .map((item) => item.orderIndex)
+    [entryOrders, stopOrders, targetOrders, exitOrders]
+      .flat()
+      .map((order) => order.orderIndex)
   );
   const reviewOrders = orders
     .filter((item) => !matchedOrderIndexes.has(item.orderIndex))
@@ -209,19 +225,15 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   if (summary.exit.targetHit) exitParts.push(`Target hit ${summary.exit.targetHit}`);
   if (!exitParts.length && summary.exit.matched) exitParts.push(`Matched ${summary.exit.matched}`);
   if (!exitParts.length) exitParts.push(outcomeLabel(outcomeType));
-  const entryFlowOrder = buildFlowOrder(entryOrder, 'entry');
-  const stopFlowOrder = buildFlowOrder(stopOrder, 'stopLoss');
-  const targetFlowOrder = buildFlowOrder(targetOrder, 'target');
-  const exitFlowOrder = buildFlowOrder(exitOrder, 'exit');
   const groups = [
     buildOrderGroup({
       id: 'open',
       label: 'Open',
       summary: `${summary.opened.filled || 0} filled`,
-      orders: [decorateOrder(entryFlowOrder, {
-        note: entryOrder ? 'Entry order filled' : '',
-        quantity: entryOrder ? orderQuantity(entryOrder.order, fills) : null,
-      })],
+      orders: entryOrders.map((order) => decorateOrder(order, {
+        note: 'Entry order filled',
+        quantity: orderQuantity(order, fills),
+      })),
       emptyText: 'Entry order not matched',
     }),
     buildOrderGroup({
@@ -232,7 +244,9 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
         `${summary.stopLoss.hit || 0} hit`,
         `${summary.stopLoss.canceled || 0} canceled`,
       ]),
-      orders: [decorateOrder(stopFlowOrder, { note: bracketNote(stopOrder, exitOrder) })],
+      orders: stopOrders.map((order) => decorateOrder(order, {
+        note: bracketNote({ order }, exitOrder),
+      })),
       emptyText: 'No stop-loss order found',
     }),
     buildOrderGroup({
@@ -243,17 +257,19 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
         `${summary.target.hit || 0} hit`,
         `${summary.target.canceled || 0} canceled`,
       ]),
-      orders: [decorateOrder(targetFlowOrder, { note: bracketNote(targetOrder, exitOrder) })],
+      orders: targetOrders.map((order) => decorateOrder(order, {
+        note: bracketNote({ order }, exitOrder),
+      })),
       emptyText: 'No target order found',
     }),
     buildOrderGroup({
       id: 'exit',
       label: 'Exit',
       summary: formatSummaryParts(exitParts),
-      orders: [decorateOrder(exitFlowOrder, {
-        note: exitOrder ? 'Exit order filled' : '',
-        quantity: exitOrder ? orderQuantity(exitOrder.order, fills) : null,
-      })],
+      orders: exitOrders.map((order) => decorateOrder(order, {
+        note: 'Exit order filled',
+        quantity: orderQuantity(order, fills),
+      })),
       emptyText: 'Exit order not matched',
     }),
   ];
