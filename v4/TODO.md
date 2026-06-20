@@ -997,3 +997,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 301.2: Live Record Detail 在 Execution Flow 顶部渲染紧凑 Execution Summary。
   - [x] Step 301.3: Outcome 与 summary 保持一致，market filled exit 优先显示 Manual/Market exit，stop filled / target filled 分别统计为 hit。
   - [x] Step 301.4: 增加 smoke 覆盖 manual market exit、stop filled、target filled 三类统计。
+
+- [ ] Step 302: Unified Execution Orders Component。目标是把 Step 300/301 的 `Execution Summary`、`Entry/Protection/Exit` flow rows 和 `Raw Tradovate Orders` 三层信息整合成一个用户可读的 `Execution Orders` 主组件：每个订单功能分组同时显示统计与具体订单，raw Tradovate data 降级为底部 diagnostics。
+  - [ ] Step 302.1: 重塑 `buildLiveRecordExecutionFlow()` UI view-model，输出 `groups[]`：`open`、`stopLoss`、`target`、`exit`，每组包含 `label`、`summary`、`orders[]`、`emptyText`，保留 `rawOrders`。
+  - [ ] Step 302.2: Live Record Detail 将 `Execution Flow` 改为 `Execution Orders`，删除单独 `Execution Summary` 卡片和 `Protection` 标题，按 group 渲染 summary + matched orders。
+  - [ ] Step 302.3: 将 Lessons checkbox 保留在 group 内具体订单行；未归类但已有 lessons 的 order 显示为 `Review Orders` group，避免丢编辑入口。
+  - [ ] Step 302.4: Raw Tradovate Orders 移到组件底部或 Result 后的 `Diagnostics` 折叠区，视觉弱化，默认收起。
+  - [ ] Step 302.5: 更新样式，降低重复边框和卡片层级，让 Open/Stop/Target/Exit 看起来属于同一个组件。
+  - [ ] Step 302.6: Focused/browser smoke 覆盖：页面只有一个主执行订单组件；Open/Stop/Target/Exit 各自显示 summary + order；manual/stop/target exit 文案正确；raw orders 仍可折叠查看。
