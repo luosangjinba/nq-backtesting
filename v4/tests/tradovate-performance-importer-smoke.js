@@ -4,6 +4,7 @@ import {
   buildTradovateLiveRecordArchive,
   buildTradovateLiveRecordArchives,
   mapTradovateSymbolToInstrument,
+  parseTradovateAccountBalanceHistoryCsv,
   parseTradovateCashHistoryCsv,
   parseTradovatePositionHistoryCsv,
   parseTradovateMoney,
@@ -87,6 +88,23 @@ assert.equal(
   'pnl',
   'mismatch includes field name'
 );
+
+const accountBalanceHistoryCsv = [
+  'Account ID,Account Name,Trade Date,Total Amount,Total Realized PNL',
+  '1,acct,2026-06-12,"25,021.50",21.50',
+].join('\n');
+assert.equal(parseTradovateAccountBalanceHistoryCsv(accountBalanceHistoryCsv).length, 1, 'Account Balance parser reads rows');
+const balanceReconciled = buildTradovateLiveRecordArchive(csv, {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  accountBalanceHistoryText: accountBalanceHistoryCsv,
+});
+assert.equal(balanceReconciled.reconciliation.balance.provided, true, 'Account Balance reconciliation is enabled when provided');
+assert.equal(balanceReconciled.reconciliation.balance.ok, true, 'matching daily balance reconciles cleanly');
+assert.equal(balanceReconciled.reconciliation.balance.dailyRows[0].tradeDate, '2026-06-12', 'daily balance row reports trade date');
+assert.equal(balanceReconciled.reconciliation.balance.dailyRows[0].performancePnl, 21.5, 'daily balance compares Performance P/L');
+assert.equal(balanceReconciled.reconciliation.balance.dailyRows[0].difference, 0, 'daily balance difference is reported');
 
 const mixedCsv = [
   'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',

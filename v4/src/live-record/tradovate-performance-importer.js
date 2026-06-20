@@ -37,6 +37,11 @@ const CASH_REQUIRED_COLUMNS = new Set([
   'Currency',
   'Contract',
 ]);
+const BALANCE_REQUIRED_COLUMNS = new Set([
+  'Trade Date',
+  'Total Amount',
+  'Total Realized PNL',
+]);
 
 function parseCsvLine(line = '') {
   const values = [];
@@ -102,6 +107,11 @@ export function parseTradovatePositionHistoryCsv(text = '') {
 export function parseTradovateCashHistoryCsv(text = '') {
   if (!String(text || '').trim()) return [];
   return parseTradovateCsvWithRequiredColumns(text, CASH_REQUIRED_COLUMNS);
+}
+
+export function parseTradovateAccountBalanceHistoryCsv(text = '') {
+  if (!String(text || '').trim()) return [];
+  return parseTradovateCsvWithRequiredColumns(text, BALANCE_REQUIRED_COLUMNS);
 }
 
 export function parseTradovateMoney(value = '') {
@@ -282,6 +292,16 @@ function createEmptyCashReconciliation() {
   };
 }
 
+function createEmptyBalanceReconciliation() {
+  return {
+    provided: false,
+    ok: true,
+    warnings: [],
+    rows: 0,
+    dailyRows: [],
+  };
+}
+
 function reconcilePositionHistory(performanceRows = [], positionRows = []) {
   const report = createEmptyPositionReconciliation();
   if (!positionRows.length) return report;
@@ -391,6 +411,60 @@ function reconcileCashHistory(performanceRows = [], fills = [], cashRows = []) {
   return report;
 }
 
+function tradeDateFromPerformanceRow(row = {}) {
+  const text = String(row.boughtTimestamp || row.soldTimestamp || '').trim();
+  if (!text) return '';
+  try {
+    const parts = parseTradovateDateParts(text);
+    return [
+      String(parts.year).padStart(4, '0'),
+      String(parts.month).padStart(2, '0'),
+      String(parts.day).padStart(2, '0'),
+    ].join('-');
+  } catch {
+    return text.slice(0, 10);
+  }
+}
+
+function aggregatePerformancePnlByDate(rows = []) {
+  const byDate = new Map();
+  rows.forEach((row) => {
+    const date = tradeDateFromPerformanceRow(row);
+    if (!date) return;
+    byDate.set(date, Number(((byDate.get(date) || 0) + parseTradovateMoney(row.pnl)).toFixed(2)));
+  });
+  return byDate;
+}
+
+function reconcileAccountBalanceHistory(performanceRows = [], balanceRows = []) {
+  const report = createEmptyBalanceReconciliation();
+  if (!balanceRows.length) return report;
+
+  report.provided = true;
+  report.rows = balanceRows.length;
+  const performanceByDate = aggregatePerformancePnlByDate(performanceRows);
+  report.dailyRows = balanceRows.map((row) => {
+    const tradeDate = cleanField(row['Trade Date']);
+    const balanceRealizedPnl = parseTradovateMoney(row['Total Realized PNL']);
+    const performancePnl = Number((performanceByDate.get(tradeDate) || 0).toFixed(2));
+    const difference = Number((balanceRealizedPnl - performancePnl).toFixed(2));
+    return {
+      tradeDate,
+      totalAmount: parseTradovateMoney(row['Total Amount']),
+      balanceRealizedPnl,
+      performancePnl,
+      difference,
+      ok: almostEqual(difference, 0, 0.01),
+    };
+  });
+  const mismatches = report.dailyRows.filter((row) => !row.ok);
+  if (mismatches.length) {
+    report.warnings.push(`Account Balance daily realized P/L differs on ${mismatches.length} day(s)`);
+  }
+  report.ok = report.warnings.length === 0;
+  return report;
+}
+
 function getSide(row = {}) {
   return cleanField(row['B/S']).toLowerCase();
 }
@@ -461,9 +535,11 @@ function buildReconciliationReport(rows, options = {}) {
     parseTradovateFillsCsv(options.fillsText || ''),
     instrument
   );
+  const balanceRows = parseTradovateAccountBalanceHistoryCsv(options.accountBalanceHistoryText || '');
   return {
     position: reconcilePositionHistory(rows, positionRows),
     cash: reconcileCashHistory(rows, fills, cashRows),
+    balance: reconcileAccountBalanceHistory(rows, balanceRows),
   };
 }
 

@@ -979,8 +979,8 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 299.1: Audit Tradovate CSV shapes：已审计 Performance、Orders、Fills、Position History、Cash History、Account Balance History 样本字段和行数；确认 Performance 与 Position History 的 fill pair/P&L 在样本中一一匹配，Cash/Balance 适合作为 reconcile warning 来源。
   - [x] Step 299.2: Position History parser：已新增 `parseTradovatePositionHistoryCsv` 和 Position reconciliation，按 `(Buy Fill ID, Sell Fill ID)` 对比 Performance pair、qty、buy/sell price、P/L；report 写入 importer result 和 Review JSON source，omitted optional file 保持现有行为。
   - [x] Step 299.3: Cash History parser：已新增 `parseTradovateCashHistoryCsv`，按 instrument 过滤 Cash/Fills 后聚合 Commission 与 Trade Paired，并与 Fills commission / Performance P&L 对比；差异只进入 warnings，不阻止导入。
-  - [ ] Step 299.4: Account Balance parser：解析 Account Balance History，按交易日对比 Total Realized PNL。
-  - [ ] Step 299.5: Reconciliation report model：在 importer result 和 Review JSON source 中输出 reconciliation summary/warnings。
+  - [x] Step 299.4: Account Balance parser：已新增 `parseTradovateAccountBalanceHistoryCsv`，按交易日聚合 Performance P/L 并对比 Account Balance `Total Realized PNL`，输出 dailyRows/warnings，不写入每笔 Live Record。
+  - [x] Step 299.5: Reconciliation report model：已在 importer result 和 Review JSON `payload.source.reconciliation` 中输出 position/cash/balance summary、ok、warnings 和差异明细。
   - [ ] Step 299.6: Data Maintenance UI inputs：增加 Position/Cash/Balance optional CSV inputs 并显示 reconcile summary。
   - [ ] Step 299.7: Smoke tests：覆盖 clean/mismatch/omitted optional reconciliation inputs。
   - [ ] Step 299.8: Docs：更新 README/User Guide，说明主数据源与 reconcile 文件职责。

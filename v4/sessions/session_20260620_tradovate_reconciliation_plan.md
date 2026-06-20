@@ -136,6 +136,21 @@ Acceptance:
 - Daily differences appear in report.
 - Balance rows do not alter `payload.liveRecords`.
 
+Completed:
+
+- Added `parseTradovateAccountBalanceHistoryCsv`.
+- Added daily Performance P/L aggregation by normalized `YYYY-MM-DD` trade date.
+- Compared daily Performance P/L with Account Balance `Total Realized PNL`.
+- Added `dailyRows` with `tradeDate`, `totalAmount`, `balanceRealizedPnl`, `performancePnl`, `difference`, and `ok`.
+- Account Balance rows remain report-only and do not modify Live Records.
+
+Verification:
+
+- `node --check v4/src/live-record/tradovate-performance-importer.js`
+- `node --check v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `git diff --check`
+
 ## Step 299.5: Reconciliation Report Model
 
 Tasks:
@@ -146,6 +161,15 @@ Tasks:
 Acceptance:
 
 - UI can summarize report without reading raw CSV again.
+
+Completed:
+
+- Importer result now includes:
+  - `reconciliation.position`;
+  - `reconciliation.cash`;
+  - `reconciliation.balance`.
+- Review JSON source now carries the same `payload.source.reconciliation` object.
+- `ok` and `warnings` are report-only. They do not block Review JSON generation.
 
 ## Step 299.6: Data Maintenance UI Inputs
 
