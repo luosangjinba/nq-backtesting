@@ -2,6 +2,19 @@
 
 This directory is the documentation entry point for the current V4 backtesting workspace.
 
+## Current Operating Mode
+
+V4 is currently in a stability trial phase. The core workflow is functionally complete enough for several real trading days of use, so the next priority is to run real data, record friction, and fix only high-impact issues.
+
+Recommended data ownership during this phase:
+
+- DuckDB remains the market-data and economic-calendar store.
+- Browser localStorage remains the working draft store for manually entered review objects.
+- Review JSON remains the formal backup/archive format for PDA, Segment, SMT, Order Setup, Live Record, Chart Note, Daily Time Review, and Daily Regime data.
+- Manually entered review data should not be migrated into DuckDB as the primary write store yet.
+
+DuckDB should become an analytics import target first, after the review schema has stabilized and there is enough real Review JSON history to analyze.
+
 ## Current V4 Docs
 
 ### User

@@ -652,6 +652,19 @@ The browser automatically saves:
 
 This is a working draft, not a formal archive.
 
+### Current Storage Strategy
+
+At this stage, V4 should be treated as being in a stability trial phase. Use it with several real trading days, record friction around data recovery, import/export, UI flow, and startup, and prioritize only high-impact fixes such as data loss, broken import/export, obvious UI blockers, and service startup failures.
+
+Do not move manually entered review data into DuckDB as the primary write store yet:
+
+- DuckDB remains responsible for market data, economic calendar data, and other external/batch datasets.
+- localStorage remains the browser working draft.
+- Review JSON remains the formal backup, migration, and archive format.
+- Manually entered review data such as PDA, Segment, SMT, Order Setup, Live Record, Entry Context catalog, Chart Notes, and Daily Time Reviews should continue to be saved through Review JSON.
+
+After the field structure stabilizes and there is enough real Review JSON history, DuckDB can become an analytics import target for pattern, session, lesson, setup, and result analysis. Avoid making DuckDB the primary manual-entry database during the testing phase because that would introduce schema migration, conflict handling, and restore complexity too early.
+
 ### Review JSON
 
 Click `Archive` to use:
@@ -709,4 +722,5 @@ It does not include candle data.
 - SMT is currently manual evidence. It does not scan candidates automatically.
 - Order Setup is a review layer, not an order execution module; incomplete drafts are allowed in the first version.
 - Review JSON does not include candle data. Another machine still needs local DuckDB market data.
+- During the current stability trial, export Review JSON at the end of each real-use day as a hard backup. DuckDB should remain the market/economic data store and a future analytics import target.
 - Precision-review features such as actor-timeframe auto-fetching, canvas selection, and statistics pages are still deferred.

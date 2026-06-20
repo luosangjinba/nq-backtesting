@@ -650,6 +650,19 @@ V4 有两种保存方式：
 
 这是工作草稿，不是正式归档。
 
+### 当前存储策略
+
+现阶段 V4 建议进入稳定性观察期：先用真实交易日跑一段时间，记录卡顿、数据恢复、导入导出和 UI 操作问题；只优先修数据丢失、导入导出错误、明显 UI 阻塞和服务启动问题。
+
+手工录入数据暂不建议作为主写入迁入 DuckDB：
+
+- DuckDB 继续负责行情数据、经济日历等外部/批量数据。
+- localStorage 继续负责浏览器内的工作草稿。
+- Review JSON 继续作为正式备份、迁移和归档格式。
+- PDA、Segment、SMT、Order Setup、Live Record、Entry Context catalog、Chart Notes、Daily Time Reviews 等手工复盘数据，先通过 Review JSON 保存。
+
+等字段结构稳定、Review JSON 积累到足够样本后，再考虑把 Review JSON 导入 DuckDB 做分析库，例如统计 pattern、session、lesson、setup 类型和结果表现。不要在测试阶段直接把 DuckDB 变成手工录入主库，否则会过早引入 schema migration、冲突合并和恢复复杂度。
+
 ### Review JSON
 
 点击 `Archive` 后可以：
@@ -707,4 +720,5 @@ Review JSON 包含：
 - SMT 当前是手工 evidence，不会自动扫描候选。
 - Order Setup 是复盘层，不是下单执行模块；第一版允许不完整草稿。
 - Review JSON 不包含 K 线数据，迁移到其他机器时仍需要准备本地 DuckDB 行情数据。
+- 当前阶段建议每天真实使用结束后导出 Review JSON 作为硬备份；DuckDB 暂时只作为行情/经济日历库和未来分析导入目标。
 - 精确复盘相关的自动 actor TF 取数、canvas 框选和统计页仍属于后续阶段。
