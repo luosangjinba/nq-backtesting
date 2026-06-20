@@ -4,6 +4,7 @@ import {
   buildTradovateLiveRecordArchive,
   buildTradovateLiveRecordArchives,
   mapTradovateSymbolToInstrument,
+  parseTradovatePositionHistoryCsv,
   parseTradovateMoney,
   tradovateTimestampToEpochSeconds,
 } from '../src/live-record/tradovate-performance-importer.js';
@@ -50,6 +51,41 @@ assert.equal(first.execution.stopLoss.complete, true);
 assert.equal(first.execution.targets.length, 0);
 assert.equal(first.execution.fills[0].id, '524699600302');
 assert.match(first.summary, /Tradovate import/);
+assert.equal(result.reconciliation.position.provided, false, 'omitted Position History keeps reconciliation optional');
+
+const positionHistoryCsv = [
+  'Position ID,Timestamp,Trade Date,Net Pos,Net Price,Bought,Avg. Buy,Sold,Avg. Sell,Account,Contract,Product,Product Description,_priceFormat,_priceFormatType,_tickSize,Pair ID,Buy Fill ID,Sell Fill ID,Paired Qty,Buy Price,Sell Price,P/L,Currency,Bought Timestamp,Sold Timestamp',
+  'pos-1,06/12/2026 09:50:11,2026-06-12,0,,4,29320.00,4,29291.75,acct,MNQM6,MNQ,Micro E-mini NASDAQ-100,-2,0,0.25,pair-1,524699600302,524699600331,4,29320.00,29291.75,-226.00,USD,06/12/2026 09:49:42,06/12/2026 09:50:11',
+  'pos-2,06/12/2026 10:00:56,2026-06-12,0,,1,29310.00,1,29433.75,acct,MNQM6,MNQ,Micro E-mini NASDAQ-100,-2,0,0.25,pair-2,524699600400,524699600455,1,29310.00,29433.75,247.50,USD,06/12/2026 09:54:12,06/12/2026 10:00:56',
+].join('\n');
+
+assert.equal(parseTradovatePositionHistoryCsv(positionHistoryCsv).length, 2, 'Position History parser reads rows');
+const reconciled = buildTradovateLiveRecordArchive(csv, {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  positionHistoryText: positionHistoryCsv,
+});
+assert.equal(reconciled.reconciliation.position.provided, true, 'Position History reconciliation is enabled when provided');
+assert.equal(reconciled.reconciliation.position.ok, true, 'matching Position History reconciles cleanly');
+assert.equal(reconciled.reconciliation.position.performancePairs, 2, 'performance pair count is reported');
+assert.equal(reconciled.reconciliation.position.positionPairs, 2, 'position pair count is reported');
+assert.equal(reconciled.payload.source.reconciliation.position.ok, true, 'Review JSON source carries reconciliation summary');
+
+const mismatchedPositionHistoryCsv = positionHistoryCsv.replace('247.50,USD', '999.00,USD');
+const mismatched = buildTradovateLiveRecordArchive(csv, {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  positionHistoryText: mismatchedPositionHistoryCsv,
+});
+assert.equal(mismatched.reconciliation.position.ok, false, 'Position History mismatch is detected');
+assert.equal(mismatched.reconciliation.position.mismatchedPairs.length, 1, 'mismatched pair is reported');
+assert.equal(
+  mismatched.reconciliation.position.mismatchedPairs[0].mismatches[0].field,
+  'pnl',
+  'mismatch includes field name'
+);
 
 const mixedCsv = [
   'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',

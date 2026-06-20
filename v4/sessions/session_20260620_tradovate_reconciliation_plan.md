@@ -70,6 +70,24 @@ Acceptance:
 - Missing/extra/mismatched pairs appear in reconciliation output.
 - No optional Position History file keeps current import behavior.
 
+Completed:
+
+- Added `parseTradovatePositionHistoryCsv`.
+- Added Position reconciliation keyed by `(buyFillId, sellFillId)` / `(Buy Fill ID, Sell Fill ID)`.
+- Compared pair existence, qty, buy price, sell price, and P/L.
+- Added reconciliation report to importer result and `payload.source.reconciliation`.
+- Extended `tradovate-performance-importer-smoke.js` for:
+  - omitted Position History;
+  - clean Position History;
+  - P/L mismatch detection.
+
+Verification:
+
+- `node --check v4/src/live-record/tradovate-performance-importer.js`
+- `node --check v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `git diff --check`
+
 ## Step 299.3: Cash History Parser
 
 Tasks:

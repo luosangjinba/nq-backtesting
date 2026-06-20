@@ -977,7 +977,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 299: Tradovate Import Reconciliation。目标是在现有 Performance + Orders + Fills 导入基础上，增加 Position History / Cash History / Account Balance History 的可选校验报告；不改变 Live Record 主 schema，不把现金/余额流水写入单笔记录。计划见 `v4/sessions/session_20260620_tradovate_reconciliation_plan.md`。
   - [x] Step 299.1: Audit Tradovate CSV shapes：已审计 Performance、Orders、Fills、Position History、Cash History、Account Balance History 样本字段和行数；确认 Performance 与 Position History 的 fill pair/P&L 在样本中一一匹配，Cash/Balance 适合作为 reconcile warning 来源。
-  - [ ] Step 299.2: Position History parser：解析 Position History 并按 `(Buy Fill ID, Sell Fill ID)` 对比 Performance pair、qty、prices、P/L。
+  - [x] Step 299.2: Position History parser：已新增 `parseTradovatePositionHistoryCsv` 和 Position reconciliation，按 `(Buy Fill ID, Sell Fill ID)` 对比 Performance pair、qty、buy/sell price、P/L；report 写入 importer result 和 Review JSON source，omitted optional file 保持现有行为。
   - [ ] Step 299.3: Cash History parser：解析 Cash History 并聚合 Commission / Trade Paired，与 Fills commission / Performance P&L 对比。
   - [ ] Step 299.4: Account Balance parser：解析 Account Balance History，按交易日对比 Total Realized PNL。
   - [ ] Step 299.5: Reconciliation report model：在 importer result 和 Review JSON source 中输出 reconciliation summary/warnings。

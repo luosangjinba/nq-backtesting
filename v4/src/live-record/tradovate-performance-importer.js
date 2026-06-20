@@ -15,6 +15,18 @@ const REQUIRED_COLUMNS = new Set([
 ]);
 const ORDER_REQUIRED_COLUMNS = new Set(['Order ID', 'B/S', 'Contract', 'Product', 'Status', 'Timestamp', 'Type']);
 const FILL_REQUIRED_COLUMNS = new Set(['Fill ID', 'Order ID', 'Timestamp', 'B/S', 'Quantity', 'Price', 'Contract', 'Product']);
+const POSITION_REQUIRED_COLUMNS = new Set([
+  'Position ID',
+  'Pair ID',
+  'Buy Fill ID',
+  'Sell Fill ID',
+  'Paired Qty',
+  'Buy Price',
+  'Sell Price',
+  'P/L',
+  'Bought Timestamp',
+  'Sold Timestamp',
+]);
 
 function parseCsvLine(line = '') {
   const values = [];
@@ -70,6 +82,11 @@ export function parseTradovateOrdersCsv(text = '') {
 export function parseTradovateFillsCsv(text = '') {
   if (!String(text || '').trim()) return [];
   return parseTradovateCsvWithRequiredColumns(text, FILL_REQUIRED_COLUMNS);
+}
+
+export function parseTradovatePositionHistoryCsv(text = '') {
+  if (!String(text || '').trim()) return [];
+  return parseTradovateCsvWithRequiredColumns(text, POSITION_REQUIRED_COLUMNS);
 }
 
 export function parseTradovateMoney(value = '') {
@@ -209,6 +226,87 @@ function getFillId(row = {}) {
   return cleanField(row['Fill ID'] || row._id);
 }
 
+function getPerformancePairKey(row = {}) {
+  return `${cleanField(row.buyFillId)}:${cleanField(row.sellFillId)}`;
+}
+
+function getPositionPairKey(row = {}) {
+  return `${cleanField(row['Buy Fill ID'])}:${cleanField(row['Sell Fill ID'])}`;
+}
+
+function almostEqual(left, right, epsilon = 0.000001) {
+  return Math.abs(Number(left) - Number(right)) <= epsilon;
+}
+
+function createEmptyPositionReconciliation() {
+  return {
+    provided: false,
+    ok: true,
+    warnings: [],
+    performancePairs: 0,
+    positionPairs: 0,
+    missingPairs: [],
+    extraPairs: [],
+    mismatchedPairs: [],
+  };
+}
+
+function reconcilePositionHistory(performanceRows = [], positionRows = []) {
+  const report = createEmptyPositionReconciliation();
+  if (!positionRows.length) return report;
+
+  report.provided = true;
+  const performanceByPair = new Map(
+    performanceRows.map((row) => [getPerformancePairKey(row), row]).filter(([key]) => key !== ':')
+  );
+  const positionByPair = new Map(
+    positionRows.map((row) => [getPositionPairKey(row), row]).filter(([key]) => key !== ':')
+  );
+  report.performancePairs = performanceByPair.size;
+  report.positionPairs = positionByPair.size;
+
+  performanceByPair.forEach((performance, pairKey) => {
+    const position = positionByPair.get(pairKey);
+    if (!position) {
+      report.missingPairs.push(pairKey);
+      return;
+    }
+    const mismatches = [];
+    const performanceQty = parseNumberField(performance.qty, 'qty');
+    const positionQty = parseNumberField(position['Paired Qty'], 'Paired Qty');
+    const performanceBuyPrice = parseNumberField(performance.buyPrice, 'buyPrice');
+    const positionBuyPrice = parseNumberField(position['Buy Price'], 'Buy Price');
+    const performanceSellPrice = parseNumberField(performance.sellPrice, 'sellPrice');
+    const positionSellPrice = parseNumberField(position['Sell Price'], 'Sell Price');
+    const performancePnl = parseTradovateMoney(performance.pnl);
+    const positionPnl = parseTradovateMoney(position['P/L']);
+    if (!almostEqual(performanceQty, positionQty)) mismatches.push({ field: 'qty', performance: performanceQty, position: positionQty });
+    if (!almostEqual(performanceBuyPrice, positionBuyPrice)) mismatches.push({ field: 'buyPrice', performance: performanceBuyPrice, position: positionBuyPrice });
+    if (!almostEqual(performanceSellPrice, positionSellPrice)) mismatches.push({ field: 'sellPrice', performance: performanceSellPrice, position: positionSellPrice });
+    if (!almostEqual(performancePnl, positionPnl)) mismatches.push({ field: 'pnl', performance: performancePnl, position: positionPnl });
+    if (mismatches.length) {
+      report.mismatchedPairs.push({
+        pairKey,
+        positionId: cleanField(position['Position ID']),
+        pairId: cleanField(position['Pair ID']),
+        mismatches,
+      });
+    }
+  });
+
+  positionByPair.forEach((position, pairKey) => {
+    if (!performanceByPair.has(pairKey)) report.extraPairs.push(pairKey);
+  });
+
+  report.ok = !report.missingPairs.length && !report.extraPairs.length && !report.mismatchedPairs.length;
+  if (!report.ok) {
+    report.warnings.push(
+      `Position History mismatch: missing=${report.missingPairs.length}, extra=${report.extraPairs.length}, mismatched=${report.mismatchedPairs.length}`
+    );
+  }
+  return report;
+}
+
 function getSide(row = {}) {
   return cleanField(row['B/S']).toLowerCase();
 }
@@ -254,6 +352,13 @@ function indexEnhancementRows({ ordersText = '', fillsText = '', timeZone = 'UTC
     return { order, timestamp };
   });
   return { orders, fills, ordersById, fillsById, ordersWithEpoch };
+}
+
+function buildReconciliationReport(rows, options = {}) {
+  const positionRows = parseTradovatePositionHistoryCsv(options.positionHistoryText || '');
+  return {
+    position: reconcilePositionHistory(rows, positionRows),
+  };
 }
 
 function getOrderByFillId(fillId, enhancement) {
@@ -547,6 +652,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     fillsText: options.fillsText || '',
     timeZone,
   });
+  const reconciliation = buildReconciliationReport(rows, options);
   const detected = new Set(rows.map((row) => mapTradovateSymbolToInstrument(row.symbol)).filter(Boolean));
 
   if (instrument === 'AUTO') {
@@ -600,6 +706,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
       skippedRows,
       ordersRowCount: enhancement.orders.length,
       fillsRowCount: enhancement.fills.length,
+      reconciliation,
     },
   };
 
@@ -614,6 +721,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     totalPnl,
     ordersRows: enhancement.orders.length,
     fillsRows: enhancement.fills.length,
+    reconciliation,
   };
 }
 
