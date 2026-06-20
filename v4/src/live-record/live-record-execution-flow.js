@@ -157,11 +157,15 @@ function sortOrderItems(left, right) {
   return orderTimestamp(left.order) - orderTimestamp(right.order);
 }
 
-function positionStateLabel(openedQty, closedQty) {
+function positionStateLabel(openedQty, closedQty, { unsupportedAddOn = false } = {}) {
   const remainingQty = Number(Math.max(0, openedQty - closedQty).toFixed(2));
+  const overClosedQty = Number(Math.max(0, closedQty - openedQty).toFixed(2));
   return {
     remainingQty,
-    flat: remainingQty === 0 && openedQty > 0,
+    overClosedQty,
+    flat: remainingQty === 0 && openedQty > 0 && !unsupportedAddOn && overClosedQty === 0,
+    unsupportedAddOn,
+    imbalanced: unsupportedAddOn || overClosedQty > 0,
   };
 }
 
@@ -297,7 +301,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   const position = {
     openedQty,
     closedQty,
-    ...positionStateLabel(openedQty, closedQty),
+    ...positionStateLabel(openedQty, closedQty, { unsupportedAddOn: addOnEntryItems.length > 0 }),
   };
   const matchedOrderIndexes = new Set(
     [entryOrders, stopOrders, targetOrders, allExitOrders, addOnOrders]
@@ -315,6 +319,8 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       summary: formatSummaryParts([
         `${formatContracts(position.openedQty)} opened`,
         `${formatContracts(position.closedQty)} closed`,
+        position.overClosedQty ? `${formatContracts(position.overClosedQty)} over-closed` : '',
+        position.unsupportedAddOn ? 'unsupported add-on' : '',
         position.flat ? 'flat' : `${formatContracts(position.remainingQty)} remaining`,
       ]),
       orders: [],
@@ -324,8 +330,8 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       id: 'open',
       label: 'Open',
       summary: formatSummaryParts([
-        formatContracts(summary.opened.quantity),
-        formatCountLabel(summary.opened.filled || 0, 'filled order'),
+        formatContracts(openedQty),
+        formatCountLabel(entryOrders.length || 0, 'filled order'),
       ]),
       orders: entryOrders.map((order) => decorateOrder(order, {
         note: 'Entry order filled',

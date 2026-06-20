@@ -489,8 +489,25 @@ const addOnFlow = buildLiveRecordExecutionFlow({
   result: { status: 'win', exitTimestamp: 1710777120, exitType: 'profit', exitPrice: 30390 },
 });
 const addOnGroups = Object.fromEntries(addOnFlow.groups.map((group) => [group.id, group]));
+assert.equal(addOnGroups.position.summary, '5 contracts opened · 5 contracts closed · unsupported add-on · 0 contracts remaining', 'add-on flow does not present the position as normal flat');
+assert.equal(addOnGroups.open.summary, '5 contracts · 1 filled order', 'add-on flow keeps open summary scoped to initial entry');
 assert.equal(addOnGroups.openReview.summary, '1 contract same-side filled after entry · unsupported add-on', 'add-on order is shown as unsupported diagnostic');
 assert.equal(addOnGroups.openReview.orders[0].id, 'addon-later', 'add-on diagnostic keeps the same-side order row');
+
+const overClosedFlow = buildLiveRecordExecutionFlow({
+  direction: 'long',
+  execution: {
+    entry: { timestamp: 1710778000, price: 30368.5 },
+    orders: [
+      { id: 'over-entry', timestamp: 1710778000, type: 'market', status: 'filled', side: 'buy', fillPrice: 30368.5, quantity: 5, filledQuantity: 5 },
+      { id: 'over-exit', timestamp: 1710778060, type: 'market', status: 'filled', side: 'sell', fillPrice: 30390, quantity: 6, filledQuantity: 6 },
+    ],
+  },
+  result: { status: 'win', exitTimestamp: 1710778060, exitType: 'profit', exitPrice: 30390 },
+});
+const overClosedGroups = Object.fromEntries(overClosedFlow.groups.map((group) => [group.id, group]));
+assert.equal(overClosedGroups.position.summary, '5 contracts opened · 6 contracts closed · 1 contract over-closed · 0 contracts remaining', 'over-closed flow is not presented as normal flat');
+assert.equal(overClosedFlow.position.flat, false, 'over-closed flow is not flat');
 
 updateLiveRecord('live-rich-shape', {
   execution: {
