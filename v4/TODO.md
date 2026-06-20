@@ -984,3 +984,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 299.6: Data Maintenance UI inputs：已在 Data Maintenance Tradovate import 区域增加 Position History、Cash History、Account Balance optional CSV inputs，传入 importer，并在 Preview/Download summary 中显示 position/cash/balance reconcile ok/warnings。
   - [x] Step 299.7: Smoke tests：已扩展 `tradovate-performance-importer-smoke.js`，覆盖 omitted optional inputs、Position clean/mismatch、Cash aggregation/instrument filtering、Balance daily comparison，并跑 live-record smoke 与 `git diff --check`。
   - [x] Step 299.8: Docs：已更新 README 和中英文 User Guide，说明 Performance/Orders/Fills 是主导入源，Position/Cash/Account Balance 是 reconcile-only 文件，warnings 不阻止 Review JSON 生成。
+
+- [x] Step 300: Live Record Execution Flow UX。目标是把 Tradovate raw orders 从默认展开的数据列表改成用户可读的执行流程：Entry、Protection、Exit、Outcome 默认展示，Raw Tradovate Orders 折叠保留排查信息，Lessons 优先贴近流程中的 Stop/Target/Exit 等实际复盘对象。已完成 helper、Detail UI、raw orders 折叠、lesson fallback 和 focused/browser smoke。
+  - [x] Step 300.1: 新增 Execution Flow helper，从现有 `execution.orders[]` / `fills[]` / `entry` / `result` 派生 entry、stop loss、target、exit、outcome，不改变 Review JSON 主 schema。
+  - [x] Step 300.2: Live Record Detail 增加 Execution Flow 区块，默认展示交易故事而不是 raw order dump。
+  - [x] Step 300.3: Raw Tradovate Orders 改为默认收起的高级详情区，继续保留原始 order id、type、status、side、time、price。
+  - [x] Step 300.4: Lessons 入口移动到 Execution Flow 的相关行，raw orders 中不再重复铺满 checkbox；未能归类但已有 lesson 的旧/简化 order 会显示为 Review Order，避免丢编辑入口。
+  - [x] Step 300.5: 增加 focused smoke 覆盖 market exit、stop/target bracket、raw orders 折叠和 lesson 写入。

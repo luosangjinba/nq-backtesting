@@ -1166,6 +1166,10 @@
       }
       const balance = reconciliation.balance || {};
       if (balance.provided) {
+        if (balance.skipped) {
+          lines.push(`Balance reconcile: skipped · ${balance.skippedReason || 'not applicable'}`);
+          return lines;
+        }
         const mismatches = Array.isArray(balance.dailyRows)
           ? balance.dailyRows.filter((row) => !row.ok).length
           : 0;

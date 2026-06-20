@@ -14,6 +14,7 @@ import {
 } from '../../entry-context/entry-context-catalog-store.js';
 import { getSetupSetById, getSetupSets } from '../../order/setup-set.js';
 import { createLiveRecordSet } from '../../live-record/live-record-set.js';
+import { buildLiveRecordExecutionFlow } from '../../live-record/live-record-execution-flow.js';
 import { getSelectedLiveRecordElement } from '../../live-record/live-record-selection.js';
 import {
   controlField,
@@ -470,6 +471,7 @@ function renderExecutionPanel(liveSet) {
 }
 
 function renderOrderLessonCheckboxes(record, order, orderIndex) {
+  if (!Number.isInteger(Number(orderIndex)) || Number(orderIndex) < 0) return '';
   const selected = new Set(Array.isArray(order.lessonIds) ? order.lessonIds : []);
   return `
     <div class="order-entry-patterns live-record-order-lessons">
@@ -492,31 +494,115 @@ function renderOrderLessonCheckboxes(record, order, orderIndex) {
   `;
 }
 
+function formatFlowOrderMeta(order = {}, fallbackElement = {}, quantity = null) {
+  const price = orderPriceForDisplay(order, fallbackElement);
+  return [
+    order.type ? titleCase(order.type) : '',
+    order.status ? titleCase(order.status) : '',
+    order.side ? titleCase(order.side) : '',
+    quantity !== null ? `qty ${quantity}` : '',
+    price !== '—' ? `@ ${price}` : '',
+    order.timestamp ? formatTime(order.timestamp) : fallbackElement.timestamp ? formatTime(fallbackElement.timestamp) : '',
+  ].filter(Boolean).join(' · ') || '—';
+}
+
+function orderPriceForDisplay(order = {}, fallbackElement = {}) {
+  const value = order.fillPrice ?? order.price ?? order.stopPrice ?? order.limitPrice ?? fallbackElement.price ?? fallbackElement.exitPrice;
+  return formatNumber(value);
+}
+
+function renderExecutionFlowOrder(record, title, flowItem = {}, options = {}) {
+  const order = flowItem.order || null;
+  const element = flowItem.element || {};
+  const classes = [
+    'live-record-flow-row',
+    options.kind ? `live-record-flow-${options.kind}` : '',
+    order ? '' : 'is-missing',
+    order?.status ? `is-${String(order.status).toLowerCase()}` : '',
+  ].filter(Boolean).join(' ');
+  const label = order?.id || options.fallbackLabel || title;
+  const meta = order
+    ? formatFlowOrderMeta(order, element, flowItem.quantity)
+    : [
+      element.price ? `planned @ ${formatNumber(element.price)}` : '',
+      element.timestamp ? formatTime(element.timestamp) : '',
+    ].filter(Boolean).join(' · ') || 'No order matched';
+  const lessonControls = order
+    ? renderOrderLessonCheckboxes(record, order, order.orderIndex)
+    : '';
+  return `
+    <div class="${escapeHtml(classes)}">
+      <div class="live-record-flow-main">
+        <div class="live-record-flow-title-row">
+          <span class="live-record-flow-step">${escapeHtml(title)}</span>
+          <span class="live-record-flow-id">${escapeHtml(label)}</span>
+        </div>
+        <div class="drawing-set-meta">${escapeHtml(meta)}</div>
+        ${flowItem.note ? `<div class="live-record-flow-note">${escapeHtml(flowItem.note)}</div>` : ''}
+      </div>
+      ${lessonControls}
+    </div>
+  `;
+}
+
+function renderExecutionFlowPanel(record, liveSet) {
+  const flow = buildLiveRecordExecutionFlow(liveSet || record);
+  if (!flow.rawOrders.length) return '';
+  const reviewRows = (Array.isArray(flow.reviewOrders) ? flow.reviewOrders : [])
+    .map((order) => renderExecutionFlowOrder(record, 'Review Order', {
+      order,
+      element: {},
+      note: 'Manual review tag',
+    }, { kind: 'review-order' }));
+  const outcomeMeta = [
+    flow.outcome.status ? titleCase(flow.outcome.status) : '',
+    flow.outcome.exitType ? titleCase(flow.outcome.exitType) : '',
+    flow.outcome.pnlText || '',
+  ].filter(Boolean).join(' · ');
+  return `
+    <div class="order-review-compact live-record-flow-panel">
+      <div class="order-review-compact-title">Execution Flow</div>
+      ${renderExecutionFlowOrder(record, 'Entry', flow.entry, { kind: 'entry' })}
+      <div class="live-record-flow-group-title">Protection</div>
+      ${renderExecutionFlowOrder(record, 'Stop Loss', flow.protection.stopLoss, { kind: 'stop-loss', fallbackLabel: 'Stop Loss' })}
+      ${renderExecutionFlowOrder(record, 'Target', flow.protection.target, { kind: 'target', fallbackLabel: 'Target' })}
+      ${renderExecutionFlowOrder(record, 'Exit', flow.exit, { kind: 'exit' })}
+      ${reviewRows.join('')}
+      <div class="live-record-flow-outcome">
+        <span>${escapeHtml(flow.outcome.label)}</span>
+        <strong>${escapeHtml(outcomeMeta || '—')}</strong>
+      </div>
+    </div>
+  `;
+}
+
+function renderRawOrderRow(order, orderIndex) {
+  const meta = [
+    order.type ? titleCase(order.type) : 'Order',
+    order.status ? titleCase(order.status) : '',
+    order.side ? titleCase(order.side) : '',
+    order.timestamp ? formatTime(order.timestamp) : '',
+    orderPriceForDisplay(order) !== '—' ? `@ ${orderPriceForDisplay(order)}` : '',
+  ].filter(Boolean).join(' · ');
+  return `
+    <div class="order-setup-reason-card live-record-order-card">
+      <div class="order-setup-reason-title-row">
+        <div class="order-setup-reason-title">${escapeHtml(order.id || `Order ${orderIndex + 1}`)}</div>
+      </div>
+      <div class="drawing-set-meta">${escapeHtml(meta || 'Order')}</div>
+    </div>
+  `;
+}
+
 function renderLiveOrdersPanel(record, liveSet) {
   const orders = Array.isArray(liveSet?.execution?.orders) ? liveSet.execution.orders : [];
   if (!orders.length) return '';
-  const rows = orders.map((order, orderIndex) => {
-    const meta = [
-      order.type ? titleCase(order.type) : 'Order',
-      order.status ? titleCase(order.status) : '',
-      order.side ? titleCase(order.side) : '',
-      order.timestamp ? formatTime(order.timestamp) : '',
-    ].filter(Boolean).join(' · ');
-    return `
-      <div class="order-setup-reason-card live-record-order-card">
-        <div class="order-setup-reason-title-row">
-          <div class="order-setup-reason-title">${escapeHtml(order.id || `Order ${orderIndex + 1}`)}</div>
-        </div>
-        <div class="drawing-set-meta">${escapeHtml(meta || 'Order')}</div>
-        ${renderOrderLessonCheckboxes(record, order, orderIndex)}
-      </div>
-    `;
-  });
+  const rows = orders.map(renderRawOrderRow);
   return `
-    <div class="order-review-compact live-record-orders-panel">
-      <div class="order-review-compact-title">Orders</div>
+    <details class="order-review-compact live-record-orders-panel">
+      <summary class="order-review-compact-title">Raw Tradovate Orders (${orders.length})</summary>
       ${rows.join('')}
-    </div>
+    </details>
   `;
 }
 
@@ -647,6 +733,7 @@ function renderLiveRecord(record, options = {}) {
       ${renderAnchorPanel(liveSet)}
       ${renderLinkedSetupPanel(record)}
       ${renderExecutionPanel(liveSet)}
+      ${renderExecutionFlowPanel(record, liveSet)}
       ${renderLiveOrdersPanel(record, liveSet)}
       ${renderEntryContextPanel(record)}
       ${renderReasonRows(record, options)}

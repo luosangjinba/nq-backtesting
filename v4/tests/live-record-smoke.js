@@ -26,6 +26,7 @@ import {
   setActiveLiveRecord,
 } from '../src/live-record/live-record-active.js';
 import { createLiveRecordSet } from '../src/live-record/live-record-set.js';
+import { buildLiveRecordExecutionFlow } from '../src/live-record/live-record-execution-flow.js';
 import {
   cancelLiveRecord,
   closeLiveRecord,
@@ -286,8 +287,64 @@ assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe norma
 assert.equal(richRecord.result.executionReviewNote, 'Managed exit cleanly', 'execution review note normalizes');
 richRecord.execution.entry.price = 1;
 assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18360.5, 'execution clone is isolated');
-assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Orders/, 'detail renders live orders panel');
+assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Execution Flow/, 'detail renders execution flow panel');
+assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Raw Tradovate Orders \(1\)/, 'detail renders collapsed raw orders panel');
 assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Late Entry/, 'detail renders order lesson options');
+
+const flowRecord = addLiveRecord({
+  id: 'live-flow-shape',
+  instrument: 'NQ',
+  direction: 'long',
+  execution: {
+    entry: {
+      timestamp: 1710771055,
+      timeframe: '1M',
+      price: 30368.5,
+    },
+    stopLoss: {
+      timestamp: 1710771057,
+      timeframe: '1M',
+      price: 30340,
+    },
+    targets: [{
+      role: 'targetInternal1',
+      timestamp: 1710771061,
+      timeframe: '1M',
+      price: 30463.25,
+    }],
+    orders: [
+      { id: 'flow-entry', timestamp: 1710771055, type: 'market', status: 'filled', side: 'buy', price: 30368.5, fillPrice: 30368.5 },
+      { id: 'flow-exit', timestamp: 1710771071, type: 'market', status: 'filled', side: 'sell', price: 30356.5, fillPrice: 30356.5 },
+      { id: 'flow-stop', timestamp: 1710771057, type: 'stop', status: 'canceled', side: 'sell', stopPrice: 30340 },
+      { id: 'flow-target', timestamp: 1710771061, type: 'limit', status: 'canceled', side: 'sell', limitPrice: 30463.25, lessonIds: ['late-entry'] },
+    ],
+    fills: [
+      { id: 'flow-fill-entry', orderId: 'flow-entry', timestamp: 1710771055, side: 'buy', quantity: 5, price: 30368.5 },
+      { id: 'flow-fill-exit', orderId: 'flow-exit', timestamp: 1710771071, side: 'sell', quantity: 5, price: 30356.5 },
+    ],
+  },
+  result: {
+    status: 'loss',
+    exitType: 'stopLoss',
+    exitTimestamp: 1710771071,
+    exitTimeframe: '1M',
+    exitPrice: 30356.5,
+    note: 'Tradovate realized P/L -$120.00.',
+  },
+}, { now: 5 });
+const flow = buildLiveRecordExecutionFlow(getLiveRecordById(flowRecord.id));
+assert.equal(flow.entry.order.id, 'flow-entry', 'execution flow detects entry order');
+assert.equal(flow.protection.stopLoss.order.id, 'flow-stop', 'execution flow detects stop bracket');
+assert.equal(flow.protection.target.order.id, 'flow-target', 'execution flow detects target bracket');
+assert.equal(flow.exit.order.id, 'flow-exit', 'execution flow detects exit order');
+assert.equal(flow.outcome.type, 'manualExit', 'execution flow explains market exit before result label fallback');
+const flowHtml = renderLiveRecordDetailPanel(getLiveRecordById(flowRecord.id));
+assert.match(flowHtml, /Execution Flow/, 'flow detail renders execution flow heading');
+assert.match(flowHtml, /Protection/, 'flow detail renders protection group');
+assert.match(flowHtml, /Manual\/Market exit/, 'flow detail renders outcome label');
+assert.match(flowHtml, /Raw Tradovate Orders \(4\)/, 'flow detail keeps raw orders collapsed');
+assert.match(flowHtml, /flow-target/, 'flow detail shows target order');
+assert.match(flowHtml, /Late Entry/, 'flow detail shows lesson controls on flow rows');
 
 updateLiveRecord('live-rich-shape', {
   execution: {
@@ -333,10 +390,11 @@ addLiveRecord({
 }, { now: 3 });
 assert.equal(saveLiveRecords('ES'), true, 'ES live records save');
 loadLiveRecords([]);
-assert.equal(restoreLiveRecords('NQ'), 4, 'NQ restore loads instrument records');
+assert.equal(restoreLiveRecords('NQ'), 5, 'NQ restore loads instrument records');
 assert.equal(getLiveRecordById('live-smoke').instrument, 'NQ', 'NQ record restored');
 assert.equal(getLiveRecordById('live-short-timeframes').anchor.timeframe, '2M', 'NQ short timeframe record restored');
 assert.equal(getLiveRecordById('live-rich-shape').execution.targets[0].role, 'targetExternal1', 'NQ rich record shape restored');
+assert.equal(getLiveRecordById('live-flow-shape').execution.orders.length, 4, 'NQ flow record shape restored');
 loadLiveRecords([]);
 assert.equal(restoreLiveRecords('ES'), 1, 'ES restore loads one record');
 assert.equal(getLiveRecordById('live-es').instrument, 'ES', 'ES record restored');

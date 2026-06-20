@@ -296,6 +296,8 @@ function createEmptyBalanceReconciliation() {
   return {
     provided: false,
     ok: true,
+    skipped: false,
+    skippedReason: '',
     warnings: [],
     rows: 0,
     dailyRows: [],
@@ -411,8 +413,26 @@ function reconcileCashHistory(performanceRows = [], fills = [], cashRows = []) {
   return report;
 }
 
+function sortableTradovateTimestamp(value = '') {
+  const parts = parseTradovateDateParts(value);
+  return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+}
+
 function tradeDateFromPerformanceRow(row = {}) {
-  const text = String(row.boughtTimestamp || row.soldTimestamp || '').trim();
+  const candidates = [row.boughtTimestamp, row.soldTimestamp]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .map((text) => {
+      try {
+        return { text, sortValue: sortableTradovateTimestamp(text) };
+      } catch {
+        return { text, sortValue: null };
+      }
+    });
+  if (!candidates.length) return '';
+  const text = candidates
+    .filter((candidate) => candidate.sortValue !== null)
+    .sort((left, right) => right.sortValue - left.sortValue)[0]?.text || candidates[candidates.length - 1].text;
   if (!text) return '';
   try {
     const parts = parseTradovateDateParts(text);
@@ -436,12 +456,17 @@ function aggregatePerformancePnlByDate(rows = []) {
   return byDate;
 }
 
-function reconcileAccountBalanceHistory(performanceRows = [], balanceRows = []) {
+function reconcileAccountBalanceHistory(performanceRows = [], balanceRows = [], options = {}) {
   const report = createEmptyBalanceReconciliation();
   if (!balanceRows.length) return report;
 
   report.provided = true;
   report.rows = balanceRows.length;
+  if (options.skipReason) {
+    report.skipped = true;
+    report.skippedReason = options.skipReason;
+    return report;
+  }
   const performanceByDate = aggregatePerformancePnlByDate(performanceRows);
   report.dailyRows = balanceRows.map((row) => {
     const tradeDate = cleanField(row['Trade Date']);
@@ -539,7 +564,9 @@ function buildReconciliationReport(rows, options = {}) {
   return {
     position: reconcilePositionHistory(rows, positionRows),
     cash: reconcileCashHistory(rows, fills, cashRows),
-    balance: reconcileAccountBalanceHistory(rows, balanceRows),
+    balance: reconcileAccountBalanceHistory(rows, balanceRows, {
+      skipReason: options.balanceSkipReason || '',
+    }),
   };
 }
 
@@ -835,6 +862,9 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     timeZone,
   });
   const detected = new Set(rows.map((row) => mapTradovateSymbolToInstrument(row.symbol)).filter(Boolean));
+  const balanceSkipReason = detected.size > 1 && String(options.accountBalanceHistoryText || '').trim()
+    ? 'Account Balance History is account-wide; mixed-instrument auto imports skip per-instrument balance reconciliation.'
+    : '';
 
   if (instrument === 'AUTO') {
     if (detected.size !== 1) {
@@ -865,7 +895,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     else if (pnl < 0) losses += 1;
     else breakeven += 1;
   });
-  const reconciliation = buildReconciliationReport(importedRows, { ...options, instrument });
+  const reconciliation = buildReconciliationReport(importedRows, { ...options, instrument, balanceSkipReason });
 
   const payload = {
     app: REVIEW_ARCHIVE_APP,

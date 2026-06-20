@@ -108,6 +108,27 @@ assert.equal(balanceReconciled.reconciliation.balance.dailyRows[0].tradeDate, '2
 assert.equal(balanceReconciled.reconciliation.balance.dailyRows[0].performancePnl, 21.5, 'daily balance compares Performance P/L');
 assert.equal(balanceReconciled.reconciliation.balance.dailyRows[0].difference, 0, 'daily balance difference is reported');
 
+const overnightLongCsv = [
+  'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',
+  'MNQM6,-2,0,0.25,overnight-buy,overnight-sell,1,29320.00,29330.00,$20.00,06/12/2026 23:59:42,06/13/2026 00:01:11,1min 29sec',
+].join('\n');
+const overnightBalanceCsv = [
+  'Account ID,Account Name,Trade Date,Total Amount,Total Realized PNL',
+  '1,acct,2026-06-13,"25,020.00",20.00',
+].join('\n');
+const overnightBalanceReconciled = buildTradovateLiveRecordArchive(overnightLongCsv, {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  accountBalanceHistoryText: overnightBalanceCsv,
+});
+assert.equal(overnightBalanceReconciled.reconciliation.balance.ok, true, 'overnight long balance uses exit date');
+assert.equal(
+  overnightBalanceReconciled.reconciliation.balance.dailyRows[0].performancePnl,
+  20,
+  'overnight long P/L is grouped on the exit day'
+);
+
 const mixedCsv = [
   'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',
   'MNQM6,-2,0,0.25,nq-buy,nq-sell,1,29320.00,29330.00,$20.00,06/12/2026 09:49:42,06/12/2026 09:50:11,29sec',
@@ -136,6 +157,20 @@ assert.equal(
   splitResults.find((item) => item.payload.instrument === 'NQ').payload.liveRecords[0].execution.targets[0].price,
   29330
 );
+const splitWithBalance = buildTradovateLiveRecordArchives(mixedCsv, {
+  instrument: 'auto',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  accountBalanceHistoryText: [
+    'Account ID,Account Name,Trade Date,Total Amount,Total Realized PNL',
+    '1,acct,2026-06-12,"24,995.00",-5.00',
+  ].join('\n'),
+});
+splitWithBalance.forEach((item) => {
+  assert.equal(item.reconciliation.balance.provided, true, 'mixed auto balance input is acknowledged');
+  assert.equal(item.reconciliation.balance.skipped, true, 'mixed auto skips account-wide balance per instrument');
+  assert.equal(item.reconciliation.balance.ok, true, 'mixed auto balance skip does not produce false warnings');
+});
 
 const breakevenResult = buildTradovateLiveRecordArchive([
   'symbol,_priceFormat,_priceFormatType,_tickSize,buyFillId,sellFillId,qty,buyPrice,sellPrice,pnl,boughtTimestamp,soldTimestamp,duration',
