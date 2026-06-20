@@ -287,7 +287,7 @@ assert.equal(richRecord.result.exitTimeframe, '1M', 'result exit timeframe norma
 assert.equal(richRecord.result.executionReviewNote, 'Managed exit cleanly', 'execution review note normalizes');
 richRecord.execution.entry.price = 1;
 assert.equal(getLiveRecordById('live-rich-shape').execution.entry.price, 18360.5, 'execution clone is isolated');
-assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Execution Flow/, 'detail renders execution flow panel');
+assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Execution Orders/, 'detail renders execution orders panel');
 assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Raw Tradovate Orders \(1\)/, 'detail renders collapsed raw orders panel');
 assert.match(renderLiveRecordDetailPanel(getLiveRecordById('live-rich-shape')), /Late Entry/, 'detail renders order lesson options');
 
@@ -333,23 +333,24 @@ const flowRecord = addLiveRecord({
   },
 }, { now: 5 });
 const flow = buildLiveRecordExecutionFlow(getLiveRecordById(flowRecord.id));
-assert.equal(flow.entry.order.id, 'flow-entry', 'execution flow detects entry order');
-assert.equal(flow.protection.stopLoss.order.id, 'flow-stop', 'execution flow detects stop bracket');
-assert.equal(flow.protection.target.order.id, 'flow-target', 'execution flow detects target bracket');
-assert.equal(flow.exit.order.id, 'flow-exit', 'execution flow detects exit order');
+const groupById = Object.fromEntries(flow.groups.map((group) => [group.id, group]));
+assert.equal(groupById.open.orders[0].id, 'flow-entry', 'execution flow detects entry order');
+assert.equal(groupById.stopLoss.orders[0].id, 'flow-stop', 'execution flow detects stop bracket');
+assert.equal(groupById.target.orders[0].id, 'flow-target', 'execution flow detects target bracket');
+assert.equal(groupById.exit.orders[0].id, 'flow-exit', 'execution flow detects exit order');
 assert.equal(flow.outcome.type, 'manualExit', 'execution flow explains market exit before result label fallback');
-assert.deepEqual(flow.summary.opened, { filled: 1 }, 'execution summary counts opened orders');
-assert.deepEqual(flow.summary.stopLoss, { set: 1, hit: 0, canceled: 1 }, 'execution summary counts stop set/canceled');
-assert.deepEqual(flow.summary.target, { set: 1, hit: 0, canceled: 1 }, 'execution summary counts target set/canceled');
-assert.deepEqual(flow.summary.exit, { manual: 1, stopHit: 0, targetHit: 0, matched: 1 }, 'execution summary counts manual market exit');
+assert.equal(groupById.open.summary, '1 filled', 'execution orders group summarizes opened orders');
+assert.equal(groupById.stopLoss.summary, '1 set · 0 hit · 1 canceled', 'execution orders group summarizes stop set/canceled');
+assert.equal(groupById.target.summary, '1 set · 0 hit · 1 canceled', 'execution orders group summarizes target set/canceled');
+assert.equal(groupById.exit.summary, 'Manual/Market 1', 'execution orders group summarizes manual market exit');
 const flowHtml = renderLiveRecordDetailPanel(getLiveRecordById(flowRecord.id));
-assert.match(flowHtml, /Execution Flow/, 'flow detail renders execution flow heading');
-assert.match(flowHtml, /Execution Summary/, 'flow detail renders execution summary');
-assert.match(flowHtml, /Open[\s\S]*1 filled/, 'flow detail renders open count');
-assert.match(flowHtml, /Stop[\s\S]*1 set · 0 hit · 1 canceled/, 'flow detail renders stop count');
-assert.match(flowHtml, /Target[\s\S]*1 set · 0 hit · 1 canceled/, 'flow detail renders target count');
-assert.match(flowHtml, /Exit[\s\S]*Manual\/Market 1/, 'flow detail renders manual exit count');
-assert.match(flowHtml, /Protection/, 'flow detail renders protection group');
+assert.match(flowHtml, /Execution Orders/, 'flow detail renders unified execution orders heading');
+assert.doesNotMatch(flowHtml, /Execution Summary/, 'flow detail does not render separate execution summary');
+assert.doesNotMatch(flowHtml, /Protection/, 'flow detail does not render separate protection section');
+assert.match(flowHtml, /Open[\s\S]*1 filled[\s\S]*flow-entry/, 'flow detail renders open group summary and order');
+assert.match(flowHtml, /Stop Loss[\s\S]*1 set · 0 hit · 1 canceled[\s\S]*flow-stop/, 'flow detail renders stop group summary and order');
+assert.match(flowHtml, /Target[\s\S]*1 set · 0 hit · 1 canceled[\s\S]*flow-target/, 'flow detail renders target group summary and order');
+assert.match(flowHtml, /Exit[\s\S]*Manual\/Market 1[\s\S]*flow-exit/, 'flow detail renders exit group summary and order');
 assert.match(flowHtml, /Manual\/Market exit/, 'flow detail renders outcome label');
 assert.match(flowHtml, /Raw Tradovate Orders \(4\)/, 'flow detail keeps raw orders collapsed');
 assert.match(flowHtml, /flow-target/, 'flow detail shows target order');
@@ -368,9 +369,10 @@ const stoppedFlow = buildLiveRecordExecutionFlow({
   result: { status: 'loss', exitTimestamp: 1710772060, exitType: 'stopLoss', exitPrice: 30340 },
 });
 assert.equal(stoppedFlow.outcome.type, 'stoppedOut', 'stop filled flow outcome is stopped out');
-assert.deepEqual(stoppedFlow.summary.stopLoss, { set: 1, hit: 1, canceled: 0 }, 'stop filled summary counts hit');
-assert.deepEqual(stoppedFlow.summary.target, { set: 1, hit: 0, canceled: 1 }, 'stop filled summary counts canceled target');
-assert.deepEqual(stoppedFlow.summary.exit, { manual: 0, stopHit: 1, targetHit: 0, matched: 1 }, 'stop filled summary counts stop exit');
+const stoppedGroups = Object.fromEntries(stoppedFlow.groups.map((group) => [group.id, group]));
+assert.equal(stoppedGroups.stopLoss.summary, '1 set · 1 hit · 0 canceled', 'stop filled summary counts hit');
+assert.equal(stoppedGroups.target.summary, '1 set · 0 hit · 1 canceled', 'stop filled summary counts canceled target');
+assert.equal(stoppedGroups.exit.summary, 'Stop hit 1', 'stop filled summary counts stop exit');
 
 const targetFlow = buildLiveRecordExecutionFlow({
   direction: 'long',
@@ -385,9 +387,10 @@ const targetFlow = buildLiveRecordExecutionFlow({
   result: { status: 'win', exitTimestamp: 1710773060, exitType: 'profit', exitPrice: 30463.25 },
 });
 assert.equal(targetFlow.outcome.type, 'targetHit', 'target filled flow outcome is target hit');
-assert.deepEqual(targetFlow.summary.stopLoss, { set: 1, hit: 0, canceled: 1 }, 'target filled summary counts canceled stop');
-assert.deepEqual(targetFlow.summary.target, { set: 1, hit: 1, canceled: 0 }, 'target filled summary counts hit');
-assert.deepEqual(targetFlow.summary.exit, { manual: 0, stopHit: 0, targetHit: 1, matched: 1 }, 'target filled summary counts target exit');
+const targetGroups = Object.fromEntries(targetFlow.groups.map((group) => [group.id, group]));
+assert.equal(targetGroups.stopLoss.summary, '1 set · 0 hit · 1 canceled', 'target filled summary counts canceled stop');
+assert.equal(targetGroups.target.summary, '1 set · 1 hit · 0 canceled', 'target filled summary counts hit');
+assert.equal(targetGroups.exit.summary, 'Target hit 1', 'target filled summary counts target exit');
 
 updateLiveRecord('live-rich-shape', {
   execution: {

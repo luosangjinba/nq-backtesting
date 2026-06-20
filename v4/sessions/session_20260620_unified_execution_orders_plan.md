@@ -126,3 +126,30 @@ Browser smoke:
 - Do not change persisted Live Record schema.
 - Do not remove raw `execution.orders[]`.
 - Do not make Tradovate-specific data mandatory for manual Live Records.
+
+## Completed
+
+- `buildLiveRecordExecutionFlow()` now exposes a grouped UI view-model:
+  - `groups[]`;
+  - `outcome`;
+  - `rawOrders`.
+- Groups are:
+  - `Open`;
+  - `Stop Loss`;
+  - `Target`;
+  - `Exit`;
+  - optional `Review Orders` for tagged orders that are not part of the main execution path.
+- Live Record Detail now renders a single `Execution Orders` panel.
+- Removed separate `Execution Summary` card and standalone `Protection` heading from the runtime UI.
+- Raw orders now render under `Diagnostics · Raw Tradovate Orders (n)`.
+- Styling was flattened so Open / Stop Loss / Target / Exit read as parts of one component.
+
+## Verification
+
+- `node --check v4/src/live-record/live-record-execution-flow.js`
+- `node --check v4/src/ui/inspector/live-record-panel.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/live-record-browser-smoke.js`
+- `node v4/tests/entry-context-catalog-integration-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `git diff --check`

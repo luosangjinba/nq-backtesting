@@ -25,10 +25,6 @@ function orderQuantity(order = {}, fills = []) {
   return numberOrNull(fill?.quantity);
 }
 
-function orderTimestamp(order = {}) {
-  return numberOrNull(order.timestamp);
-}
-
 function isFilled(order = {}) {
   return normalize(order.status) === 'filled';
 }
@@ -136,6 +132,29 @@ function buildExecutionSummary({ orders, entrySide, exitSide, exitOrder, outcome
   };
 }
 
+function formatSummaryParts(parts = []) {
+  return parts.filter(Boolean).join(' · ');
+}
+
+function buildOrderGroup({ id, label, summary, orders = [], emptyText = '' }) {
+  return {
+    id,
+    label,
+    summary,
+    orders: orders.filter(Boolean),
+    emptyText,
+  };
+}
+
+function decorateOrder(order, { note = '', quantity = null } = {}) {
+  if (!order) return null;
+  return {
+    ...order,
+    note,
+    quantity,
+  };
+}
+
 export function buildLiveRecordExecutionFlow(liveRecord = {}) {
   const execution = liveRecord.execution || {};
   const result = liveRecord.result || {};
@@ -184,32 +203,71 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
     .filter((item) => !matchedOrderIndexes.has(item.orderIndex))
     .filter((item) => Array.isArray(item.order.lessonIds) && item.order.lessonIds.length)
     .map((item) => buildFlowOrder(item, 'reviewOrder'));
+  const exitParts = [];
+  if (summary.exit.manual) exitParts.push(`Manual/Market ${summary.exit.manual}`);
+  if (summary.exit.stopHit) exitParts.push(`Stop hit ${summary.exit.stopHit}`);
+  if (summary.exit.targetHit) exitParts.push(`Target hit ${summary.exit.targetHit}`);
+  if (!exitParts.length && summary.exit.matched) exitParts.push(`Matched ${summary.exit.matched}`);
+  if (!exitParts.length) exitParts.push(outcomeLabel(outcomeType));
+  const entryFlowOrder = buildFlowOrder(entryOrder, 'entry');
+  const stopFlowOrder = buildFlowOrder(stopOrder, 'stopLoss');
+  const targetFlowOrder = buildFlowOrder(targetOrder, 'target');
+  const exitFlowOrder = buildFlowOrder(exitOrder, 'exit');
+  const groups = [
+    buildOrderGroup({
+      id: 'open',
+      label: 'Open',
+      summary: `${summary.opened.filled || 0} filled`,
+      orders: [decorateOrder(entryFlowOrder, {
+        note: entryOrder ? 'Entry order filled' : '',
+        quantity: entryOrder ? orderQuantity(entryOrder.order, fills) : null,
+      })],
+      emptyText: 'Entry order not matched',
+    }),
+    buildOrderGroup({
+      id: 'stopLoss',
+      label: 'Stop Loss',
+      summary: formatSummaryParts([
+        `${summary.stopLoss.set || 0} set`,
+        `${summary.stopLoss.hit || 0} hit`,
+        `${summary.stopLoss.canceled || 0} canceled`,
+      ]),
+      orders: [decorateOrder(stopFlowOrder, { note: bracketNote(stopOrder, exitOrder) })],
+      emptyText: 'No stop-loss order found',
+    }),
+    buildOrderGroup({
+      id: 'target',
+      label: 'Target',
+      summary: formatSummaryParts([
+        `${summary.target.set || 0} set`,
+        `${summary.target.hit || 0} hit`,
+        `${summary.target.canceled || 0} canceled`,
+      ]),
+      orders: [decorateOrder(targetFlowOrder, { note: bracketNote(targetOrder, exitOrder) })],
+      emptyText: 'No target order found',
+    }),
+    buildOrderGroup({
+      id: 'exit',
+      label: 'Exit',
+      summary: formatSummaryParts(exitParts),
+      orders: [decorateOrder(exitFlowOrder, {
+        note: exitOrder ? 'Exit order filled' : '',
+        quantity: exitOrder ? orderQuantity(exitOrder.order, fills) : null,
+      })],
+      emptyText: 'Exit order not matched',
+    }),
+  ];
+  if (reviewOrders.length) {
+    groups.push(buildOrderGroup({
+      id: 'reviewOrders',
+      label: 'Review Orders',
+      summary: `${reviewOrders.length} tagged`,
+      orders: reviewOrders.map((order) => decorateOrder(order, { note: 'Manual review tag' })),
+      emptyText: '',
+    }));
+  }
 
   return {
-    entry: {
-      order: buildFlowOrder(entryOrder, 'entry'),
-      element: execution.entry || {},
-      quantity: entryOrder ? orderQuantity(entryOrder.order, fills) : null,
-      note: entryOrder ? 'Entry order filled' : 'Entry order not matched',
-    },
-    protection: {
-      stopLoss: {
-        order: buildFlowOrder(stopOrder, 'stopLoss'),
-        element: execution.stopLoss || {},
-        note: bracketNote(stopOrder, exitOrder),
-      },
-      target: {
-        order: buildFlowOrder(targetOrder, 'target'),
-        element: Array.isArray(execution.targets) ? execution.targets[0] || {} : {},
-        note: bracketNote(targetOrder, exitOrder),
-      },
-    },
-    exit: {
-      order: buildFlowOrder(exitOrder, 'exit'),
-      element: result,
-      quantity: exitOrder ? orderQuantity(exitOrder.order, fills) : null,
-      note: exitOrder ? 'Exit order filled' : 'Exit order not matched',
-    },
     outcome: {
       type: outcomeType,
       label: outcomeLabel(outcomeType),
@@ -217,8 +275,7 @@ export function buildLiveRecordExecutionFlow(liveRecord = {}) {
       exitType: result.exitType || '',
       pnlText: clean(result.note).match(/P\/L\s+([^;]+)/)?.[1] || '',
     },
-    summary,
-    reviewOrders,
+    groups,
     rawOrders: orders.map(({ order, orderIndex }) => ({ ...order, orderIndex })),
   };
 }
