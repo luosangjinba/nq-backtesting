@@ -862,12 +862,15 @@ export function renderCalendarPanel({ selectedDate = '', viewDate = '', openGrou
             if (cell.dateKey === activeDate) classes.push('selected');
             const overview = getDayObjectOverview(cell.dateKey, calendarIndex);
             const hasOrderSetup = overview.setupCount > 0;
+            const hasLiveRecord = overview.liveRecordCount > 0;
             if (hasOrderSetup) classes.push('has-order-setup');
+            if (hasLiveRecord) classes.push('has-live-record');
             if (overview.total) classes.push('has-calendar-objects');
             return `
               <button class="${classes.join(' ')}" data-inspector-action="calendar-select-date" data-calendar-date="${cell.dateKey}" type="button" title="${escapeHtml(getCalendarDayTitle(cell.dateKey, overview))}" ${cell.inRange ? '' : 'disabled'}>
                 <span class="calendar-day-number">${cell.day}</span>
                 ${hasOrderSetup ? '<span class="calendar-order-badge" aria-label="Order Setup"></span>' : ''}
+                ${hasLiveRecord ? '<span class="calendar-live-badge" aria-label="Live Record"></span>' : ''}
                 ${renderCalendarDayOverview(overview)}
               </button>
             `;

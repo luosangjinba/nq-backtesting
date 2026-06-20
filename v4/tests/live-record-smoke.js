@@ -782,6 +782,8 @@ assert.match(calendarPanelHtml, /data-inspector-action="live-record-status"/, 'C
 assert.match(calendarPanelHtml, /Close/, 'Calendar live row can close records');
 assert.match(calendarPanelHtml, /Mark Reviewed/, 'Calendar live row can mark reviewed');
 assert.match(calendarPanelHtml, /Open 1/, 'Calendar live group summarizes open records');
+assert.match(calendarPanelHtml, /calendar-live-badge/, 'Calendar month cell shows a distinct live record marker');
+assert.match(calendarPanelHtml, /Live Records: 1/, 'Calendar day title includes live record count');
 
 addCatalogItem('patterns', 'Custom Continuation');
 const detailHtml = renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId));
