@@ -54,6 +54,8 @@ assert.equal(first.execution.targets.length, 0);
 assert.equal(first.execution.fills[0].id, '524699600302');
 assert.match(first.summary, /Tradovate import/);
 assert.equal(result.reconciliation.position.provided, false, 'omitted Position History keeps reconciliation optional');
+assert.equal(result.reconciliation.cash.provided, false, 'omitted Cash History keeps reconciliation optional');
+assert.equal(result.reconciliation.balance.provided, false, 'omitted Account Balance keeps reconciliation optional');
 
 const positionHistoryCsv = [
   'Position ID,Timestamp,Trade Date,Net Pos,Net Price,Bought,Avg. Buy,Sold,Avg. Sell,Account,Contract,Product,Product Description,_priceFormat,_priceFormatType,_tickSize,Pair ID,Buy Fill ID,Sell Fill ID,Paired Qty,Buy Price,Sell Price,P/L,Currency,Bought Timestamp,Sold Timestamp',

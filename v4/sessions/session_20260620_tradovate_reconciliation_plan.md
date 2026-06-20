@@ -220,6 +220,23 @@ Tasks:
   - Balance daily comparison;
   - optional inputs omitted.
 
+Completed:
+
+- `tradovate-performance-importer-smoke.js` covers:
+  - omitted Position/Cash/Balance optional files;
+  - clean Position History match;
+  - Position History P/L mismatch;
+  - Cash History Commission / Trade Paired aggregation;
+  - mixed-instrument Cash/Fills filtering;
+  - Account Balance daily P/L comparison.
+
+Verification:
+
+- `node --check v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `git diff --check`
+
 ## Step 299.8: Docs
 
 Tasks:
