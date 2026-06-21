@@ -413,6 +413,7 @@
         <div class="section-header">Tradovate Live Records</div>
         <div class="content">
           <div class="grid">
+            <label>CSV ZIP package optional <input id="tradovateZip" type="file" accept=".zip,application/zip,application/x-zip-compressed"></label>
             <label>Performance CSV <input id="tradovateCsv" type="file" accept=".csv,text/csv"></label>
             <label>Orders CSV optional <input id="tradovateOrdersCsv" type="file" accept=".csv,text/csv"></label>
             <label>Fills CSV optional <input id="tradovateFillsCsv" type="file" accept=".csv,text/csv"></label>
@@ -438,12 +439,13 @@
             <label>Output filename <input id="tradovateFilename" value="tradovate-live-records.json"></label>
           </div>
           <div class="row">
-            <button id="tradovatePreview" type="button">Preview CSV</button>
+            <button id="tradovatePreview" type="button">Preview Import</button>
             <button id="tradovateDownload" class="primary" type="button">Download Review JSON</button>
           </div>
           <p class="status">Each Tradovate Performance row becomes one closed Live Record. Losing exits become stop losses; winning exits become Target Internal 1. Setup links and reasons stay manual.</p>
+          <p class="status">ZIP package import auto-detects Performance, Orders, Fills, Position History, Cash History, and Account Balance CSV files by filename. Individually selected CSV files override ZIP matches.</p>
           <p class="status">Optional Orders/Fills CSV files enrich Live Records with stop/target order state, cancelled bracket orders, fill order IDs, and commissions.</p>
-          <p class="status">Optional Position/Cash/Account Balance CSV files are reconcile checks only. Warnings do not block Review JSON generation.</p>
+          <p class="status">File alignment checks verify Performance fill IDs, Fills-to-Orders links, Position pairs, and reconcile-only Cash/Balance totals. Warnings do not block Review JSON generation.</p>
         </div>
       </section>
     </div>
@@ -1013,6 +1015,7 @@
 
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');
+    const zipFileInput = document.getElementById('tradovateZip');
     const fileInput = document.getElementById('tradovateCsv');
     const ordersFileInput = document.getElementById('tradovateOrdersCsv');
     const fillsFileInput = document.getElementById('tradovateFillsCsv');
@@ -1037,37 +1040,139 @@
 
     function getTradovateFile() {
       const file = fileInput.files?.[0];
-      if (!file) throw new Error('Choose a Tradovate Performance CSV first.');
+      if (!file && !zipFileInput.files?.[0]) throw new Error('Choose a Tradovate Performance CSV or CSV ZIP package first.');
       return file;
     }
 
+    function readUint16(view, offset) {
+      return view.getUint16(offset, true);
+    }
+
+    function readUint32(view, offset) {
+      return view.getUint32(offset, true);
+    }
+
+    async function inflateRawZipMember(bytes) {
+      if (!('DecompressionStream' in window)) {
+        throw new Error('This browser cannot inflate zipped CSV files. Select CSV files directly.');
+      }
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return await new Response(stream).text();
+    }
+
+    async function readZipCsvEntries(file) {
+      if (!file) return [];
+      const buffer = await file.arrayBuffer();
+      const view = new DataView(buffer);
+      const bytes = new Uint8Array(buffer);
+      let eocdOffset = -1;
+      for (let offset = bytes.length - 22; offset >= 0; offset -= 1) {
+        if (readUint32(view, offset) === 0x06054b50) {
+          eocdOffset = offset;
+          break;
+        }
+      }
+      if (eocdOffset < 0) throw new Error('Invalid ZIP package: end-of-central-directory not found.');
+      const entryCount = readUint16(view, eocdOffset + 10);
+      let centralOffset = readUint32(view, eocdOffset + 16);
+      const decoder = new TextDecoder();
+      const entries = [];
+      for (let index = 0; index < entryCount; index += 1) {
+        if (readUint32(view, centralOffset) !== 0x02014b50) throw new Error('Invalid ZIP package: central directory is malformed.');
+        const flags = readUint16(view, centralOffset + 8);
+        const method = readUint16(view, centralOffset + 10);
+        const compressedSize = readUint32(view, centralOffset + 20);
+        const nameLength = readUint16(view, centralOffset + 28);
+        const extraLength = readUint16(view, centralOffset + 30);
+        const commentLength = readUint16(view, centralOffset + 32);
+        const localOffset = readUint32(view, centralOffset + 42);
+        const nameBytes = bytes.slice(centralOffset + 46, centralOffset + 46 + nameLength);
+        const name = decoder.decode(nameBytes);
+        centralOffset += 46 + nameLength + extraLength + commentLength;
+        if (!name.toLowerCase().endsWith('.csv')) continue;
+        if (readUint32(view, localOffset) !== 0x04034b50) throw new Error(`Invalid ZIP package: local header missing for ${name}.`);
+        if (flags & 0x01) throw new Error(`Encrypted ZIP entry is not supported: ${name}`);
+        const localNameLength = readUint16(view, localOffset + 26);
+        const localExtraLength = readUint16(view, localOffset + 28);
+        const dataOffset = localOffset + 30 + localNameLength + localExtraLength;
+        const compressed = bytes.slice(dataOffset, dataOffset + compressedSize);
+        const text = method === 0
+          ? decoder.decode(compressed)
+          : method === 8
+            ? await inflateRawZipMember(compressed)
+            : (() => { throw new Error(`Unsupported ZIP compression method ${method} for ${name}.`); })();
+        entries.push({ name, text });
+      }
+      return entries;
+    }
+
+    function classifyTradovateCsvEntry(entry) {
+      const name = entry.name.toLowerCase();
+      if (name.includes('account') && name.includes('balance')) return 'accountBalanceHistoryText';
+      if (name.includes('position')) return 'positionHistoryText';
+      if (name.includes('cash')) return 'cashHistoryText';
+      if (name.includes('fill')) return 'fillsText';
+      if (name.includes('order')) return 'ordersText';
+      if (name.includes('performance')) return 'performanceText';
+      const header = String(entry.text || '').split(/\r?\n/, 1)[0].toLowerCase();
+      if (header.includes('buyfillid') && header.includes('sellfillid')) return 'performanceText';
+      if (header.includes('buy fill id') && header.includes('sell fill id')) return 'positionHistoryText';
+      if (header.includes('fill id') && header.includes('order id') && header.includes('commission')) return 'fillsText';
+      if (header.includes('order id') && header.includes('limit price') && header.includes('stop price')) return 'ordersText';
+      if (header.includes('cash change type')) return 'cashHistoryText';
+      if (header.includes('total realized pnl')) return 'accountBalanceHistoryText';
+      return '';
+    }
+
+    async function getTradovateInputTexts() {
+      const manualFile = getTradovateFile();
+      const zipFile = zipFileInput.files?.[0] || null;
+      const zipEntries = await readZipCsvEntries(zipFile);
+      const fromZip = {};
+      const zipMatches = [];
+      zipEntries.forEach((entry) => {
+        const key = classifyTradovateCsvEntry(entry);
+        if (!key) return;
+        if (!fromZip[key]) {
+          fromZip[key] = entry.text;
+          zipMatches.push(`${entry.name} -> ${key.replace(/Text$/, '')}`);
+        }
+      });
+      const texts = {
+        performanceText: fromZip.performanceText || '',
+        ordersText: fromZip.ordersText || '',
+        fillsText: fromZip.fillsText || '',
+        positionHistoryText: fromZip.positionHistoryText || '',
+        cashHistoryText: fromZip.cashHistoryText || '',
+        accountBalanceHistoryText: fromZip.accountBalanceHistoryText || '',
+      };
+      if (fileInput.files?.[0]) texts.performanceText = await fileInput.files[0].text();
+      if (ordersFileInput.files?.[0]) texts.ordersText = await ordersFileInput.files[0].text();
+      if (fillsFileInput.files?.[0]) texts.fillsText = await fillsFileInput.files[0].text();
+      if (positionFileInput.files?.[0]) texts.positionHistoryText = await positionFileInput.files[0].text();
+      if (cashFileInput.files?.[0]) texts.cashHistoryText = await cashFileInput.files[0].text();
+      if (balanceFileInput.files?.[0]) texts.accountBalanceHistoryText = await balanceFileInput.files[0].text();
+      if (!String(texts.performanceText || '').trim()) throw new Error('Performance CSV was not found. Select it directly or include it in the ZIP package.');
+      return {
+        ...texts,
+        sourceFileName: fileInput.files?.[0]?.name || zipFile?.name || 'tradovate-package.zip',
+        zipFileName: zipFile?.name || '',
+        zipMatches,
+      };
+    }
+
     async function buildArchivesFromSelectedFile() {
-      const file = getTradovateFile();
-      const text = await file.text();
-      const ordersText = ordersFileInput.files?.[0]
-        ? await ordersFileInput.files[0].text()
-        : '';
-      const fillsText = fillsFileInput.files?.[0]
-        ? await fillsFileInput.files[0].text()
-        : '';
-      const positionHistoryText = positionFileInput.files?.[0]
-        ? await positionFileInput.files[0].text()
-        : '';
-      const cashHistoryText = cashFileInput.files?.[0]
-        ? await cashFileInput.files[0].text()
-        : '';
-      const accountBalanceHistoryText = balanceFileInput.files?.[0]
-        ? await balanceFileInput.files[0].text()
-        : '';
-      return buildTradovateLiveRecordArchives(text, {
+      const input = await getTradovateInputTexts();
+      const results = buildTradovateLiveRecordArchives(input.performanceText, {
         instrument: instrumentInput.value,
         timeZone: timezoneInput.value,
-        ordersText,
-        fillsText,
-        positionHistoryText,
-        cashHistoryText,
-        accountBalanceHistoryText,
+        ordersText: input.ordersText,
+        fillsText: input.fillsText,
+        positionHistoryText: input.positionHistoryText,
+        cashHistoryText: input.cashHistoryText,
+        accountBalanceHistoryText: input.accountBalanceHistoryText,
       });
+      return { results, input };
     }
 
     function slugForFilename(value, fallback = 'performance') {
@@ -1129,6 +1234,7 @@
     }
 
     function formatSinglePreview(result) {
+      const alignmentLines = formatFileAlignmentPreview(result.fileAlignment);
       const reconcileLines = formatReconciliationPreview(result.reconciliation);
       return [
         `Instrument: ${result.payload.instrument}`,
@@ -1140,6 +1246,7 @@
         `Skipped rows: ${result.skippedRows}`,
         `Wins / Losses / Breakeven: ${result.wins} / ${result.losses} / ${result.breakeven}`,
         `Total P/L: ${formatTradovatePnl(result.totalPnl)}`,
+        ...alignmentLines,
         ...reconcileLines,
       ].join('\n');
     }
@@ -1150,6 +1257,21 @@
 
     function formatWarnings(warnings = []) {
       return warnings.map((warning) => `  - ${warning}`);
+    }
+
+    function formatFileAlignmentPreview(report = {}) {
+      if (!report) return [];
+      const lines = [
+        `File alignment: ${formatOk(report.ok)} · performance=${report.performanceRows || 0} orders=${report.ordersRows || 0} fills=${report.fillsRows || 0} position=${report.positionRows || 0} cash=${report.cashRows || 0} balance=${report.balanceRows || 0}`,
+      ];
+      if (report.missingPerformanceFillIds?.length) {
+        lines.push(`  - Missing Performance fill IDs in Fills CSV: ${report.missingPerformanceFillIds.slice(0, 8).join(', ')}${report.missingPerformanceFillIds.length > 8 ? '...' : ''}`);
+      }
+      if (report.fillsWithoutOrders?.length) {
+        lines.push(`  - Fills referencing missing Orders: ${report.fillsWithoutOrders.slice(0, 8).map((item) => `${item.fillId}->${item.orderId}`).join(', ')}${report.fillsWithoutOrders.length > 8 ? '...' : ''}`);
+      }
+      lines.push(...formatWarnings(report.warnings || []));
+      return lines;
     }
 
     function formatReconciliationPreview(reconciliation = {}) {
@@ -1179,15 +1301,19 @@
       return lines;
     }
 
-    function formatPreview(results, fileName) {
+    function formatPreview(results, input) {
       const resultList = Array.isArray(results) ? results : [results];
       const lines = [
         '> tradovate_live_record_preview',
         '',
         'Summary',
         '-------',
-        `File: ${fileName}`,
+        `Source: ${input.sourceFileName}`,
       ];
+      if (input.zipFileName) {
+        lines.push(`ZIP package: ${input.zipFileName}`);
+        lines.push(...(input.zipMatches.length ? input.zipMatches : ['No CSV files auto-matched from ZIP.']).map((line) => `  - ${line}`));
+      }
       resultList.forEach((result, index) => {
         if (index > 0) lines.push('');
         lines.push(formatSinglePreview(result));
@@ -1212,7 +1338,7 @@
       const rawName = filenameInput.value.trim() || `tradovate-live-records-${payload.instrument}.json`;
       const baseName = rawName.endsWith('.json') ? rawName.slice(0, -5) : rawName;
       return totalFiles > 1
-        ? filenameForResults([{ payload }], fileInput.files?.[0]?.name || baseName, payload.instrument)
+        ? filenameForResults([{ payload }], fileInput.files?.[0]?.name || zipFileInput.files?.[0]?.name || baseName, payload.instrument)
         : `${baseName}.json`;
     }
 
@@ -1233,13 +1359,18 @@
       if (file) updateFilenameFromSourceFile(file);
     });
 
+    zipFileInput.addEventListener('change', () => {
+      const file = zipFileInput.files?.[0];
+      if (file && !fileInput.files?.[0]) updateFilenameFromSourceFile(file);
+    });
+
     document.getElementById('tradovatePreview').addEventListener('click', async () => {
       try {
         setTradovateState('running', 'warn');
-        const file = getTradovateFile();
-        const results = await buildArchivesFromSelectedFile();
-        updateFilenameFromResults(results, file.name);
-        appendTradovateOutput(formatPreview(results, file.name));
+        getTradovateFile();
+        const { results, input } = await buildArchivesFromSelectedFile();
+        updateFilenameFromResults(results, input.sourceFileName);
+        appendTradovateOutput(formatPreview(results, input));
         setTradovateState('ok', 'ok');
       } catch (error) {
         appendTradovateOutput(`> tradovate_live_record_preview\n\nfailed: ${error.message}`);
@@ -1250,11 +1381,11 @@
     document.getElementById('tradovateDownload').addEventListener('click', async () => {
       try {
         setTradovateState('running', 'warn');
-        const file = getTradovateFile();
-        const results = await buildArchivesFromSelectedFile();
-        updateFilenameFromResults(results, file.name);
+        getTradovateFile();
+        const { results, input } = await buildArchivesFromSelectedFile();
+        updateFilenameFromResults(results, input.sourceFileName);
         results.forEach((result) => downloadJson(result.payload, results.length));
-        appendTradovateOutput(`${formatPreview(results, file.name)}\n\nwrite_status: downloaded ${results.length} review JSON file${results.length === 1 ? '' : 's'}`);
+        appendTradovateOutput(`${formatPreview(results, input)}\n\nwrite_status: downloaded ${results.length} review JSON file${results.length === 1 ? '' : 's'}`);
         setTradovateState('ok', 'ok');
       } catch (error) {
         appendTradovateOutput(`> tradovate_live_record_download\n\nfailed: ${error.message}`);

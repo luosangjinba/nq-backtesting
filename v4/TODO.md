@@ -1030,3 +1030,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 305.5: Calendar live marker：Inspector Calendar 月视图给 Live Record 增加独立青色菱形 marker，Order Setup 继续使用红色圆点。
   - [x] Step 305.6: Maintainable lesson scopes：Maintain Catalogs -> Lessons 增加适用动作配置，Live Record Execution Orders 按 `lessonRoles` 过滤 lesson；未设置 scope 的 lesson 仍全局显示，已选 lesson 保持可见。
   - [x] Step 305.7: Manual exit risk/reward box：`manualLoss` 的 Risk box endpoint 使用实际 `result.exitPrice/exitTimestamp`；`manualProfit` 的 Reward box endpoint 使用实际 `result.exitPrice/exitTimestamp`，不再用预设 stop/target 作为手动退出端点。
+
+- [x] Step 306: Tradovate Live Records ZIP import and file alignment。目标是在 Data Maintenance 的 Tradovate Live Records 导入区支持一个 ZIP 文件包导入，并在 Preview/Download 前明确校验 Performance / Orders / Fills / Position History / Cash History / Account Balance CSV 的对齐关系。收口见 `v4/sessions/session_20260621_tradovate_zip_alignment.md`。
+  - [x] Step 306.1: ZIP package input：页面新增 `CSV ZIP package optional`，支持从 ZIP 中自动识别 Performance、Orders、Fills、Position History、Cash History、Account Balance CSV；单独选择的 CSV 优先覆盖 ZIP 中同类文件。
+  - [x] Step 306.2: File alignment report：importer 新增 `fileAlignment`，统计各类文件行数，并检查 Performance fill id 是否存在于 Fills、Fills 的 Order ID 是否存在于 Orders、Position History 是否有 Performance 外 pair、Cash History 是否缺 Contract 粒度。
+  - [x] Step 306.3: Preview output：Tradovate preview 输出 ZIP 匹配列表、File alignment 摘要、关键缺失 ID 和现有 Position/Cash/Balance reconcile 摘要；warnings 不阻塞 Review JSON 下载。
+  - [x] Step 306.4: Review JSON source metadata：导出的 Review JSON `source.fileAlignment` 保存对齐报告，便于后续排查导入包质量。
+  - [x] Step 306.5: Verification：`tradovate-performance-importer-smoke` 覆盖 clean alignment 和缺失 Orders warning；Live Record smoke、module script syntax probe、`git diff --check` 均通过。

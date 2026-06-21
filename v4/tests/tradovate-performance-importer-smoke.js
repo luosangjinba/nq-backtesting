@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 
 import {
+  buildTradovateFileAlignmentReport,
   buildTradovateLiveRecordArchive,
   buildTradovateLiveRecordArchives,
   mapTradovateSymbolToInstrument,
@@ -55,6 +56,8 @@ assert.match(first.summary, /Tradovate import/);
 assert.equal(result.reconciliation.position.provided, false, 'omitted Position History keeps reconciliation optional');
 assert.equal(result.reconciliation.cash.provided, false, 'omitted Cash History keeps reconciliation optional');
 assert.equal(result.reconciliation.balance.provided, false, 'omitted Account Balance keeps reconciliation optional');
+assert.equal(result.fileAlignment.ok, true, 'minimal Performance-only import has clean file alignment');
+assert.equal(result.payload.source.fileAlignment.performanceRows, 2, 'Review JSON source carries file alignment summary');
 
 const positionHistoryCsv = [
   'Position ID,Timestamp,Trade Date,Net Pos,Net Price,Bought,Avg. Buy,Sold,Avg. Sell,Account,Contract,Product,Product Description,_priceFormat,_priceFormatType,_tickSize,Pair ID,Buy Fill ID,Sell Fill ID,Paired Qty,Buy Price,Sell Price,P/L,Currency,Bought Timestamp,Sold Timestamp',
@@ -222,6 +225,32 @@ const enhancedResults = buildTradovateLiveRecordArchives(performanceWithEnhancem
   fillsText: fillsCsv,
   cashHistoryText: cashHistoryCsv,
 });
+
+const cleanAlignment = enhancedResults.find((item) => item.payload.instrument === 'ES').fileAlignment;
+assert.equal(cleanAlignment.ok, true, 'matching Performance/Fills/Orders files align cleanly');
+assert.equal(cleanAlignment.performanceRows, 1, 'alignment report is filtered to archive instrument performance rows');
+assert.equal(cleanAlignment.ordersRows, 3, 'alignment report is filtered to archive instrument orders rows');
+assert.equal(cleanAlignment.fillsRows, 2, 'alignment report is filtered to archive instrument fills rows');
+
+const missingOrderAlignment = buildTradovateLiveRecordArchives(performanceWithEnhancements, {
+  instrument: 'ES',
+  timeZone: 'UTC',
+  nowMs: 1781529365000,
+  ordersText: ordersCsv.split('\n').filter((line) => !line.includes('509681603415,acct,509681603415')).join('\n'),
+  fillsText: fillsCsv,
+})[0].fileAlignment;
+assert.equal(missingOrderAlignment.ok, false, 'alignment detects Fills rows whose Order ID is absent from Orders CSV');
+assert.equal(missingOrderAlignment.fillsWithoutOrders.length, 1, 'missing order reference is reported');
+assert.match(missingOrderAlignment.warnings[0], /Orders CSV is missing/);
+
+const directAlignment = buildTradovateFileAlignmentReport({
+  performanceRows: parseTradovatePositionHistoryCsv(positionHistoryCsv).map((row) => ({
+    buyFillId: row['Buy Fill ID'],
+    sellFillId: row['Sell Fill ID'],
+  })),
+  fills: [],
+});
+assert.equal(directAlignment.performanceRows, 2, 'direct alignment helper accepts pre-parsed rows');
 
 const enhancedEs = enhancedResults.find((item) => item.payload.instrument === 'ES').payload.liveRecords[0];
 assert.equal(enhancedEs.result.exitType, 'stopLoss', 'filled stop order imports as stop loss result');

@@ -304,6 +304,103 @@ function createEmptyBalanceReconciliation() {
   };
 }
 
+function createEmptyFileAlignmentReport() {
+  return {
+    ok: true,
+    warnings: [],
+    performanceRows: 0,
+    ordersRows: 0,
+    fillsRows: 0,
+    positionRows: 0,
+    cashRows: 0,
+    balanceRows: 0,
+    missingPerformanceFillIds: [],
+    fillsWithoutOrders: [],
+    orderlessPerformanceFillIds: [],
+    positionOnlyPairs: [],
+    cashInstrumentRows: 0,
+  };
+}
+
+export function buildTradovateFileAlignmentReport({
+  performanceRows = [],
+  orders = [],
+  fills = [],
+  positionRows = [],
+  cashRows = [],
+  balanceRows = [],
+} = {}) {
+  const report = createEmptyFileAlignmentReport();
+  report.performanceRows = performanceRows.length;
+  report.ordersRows = orders.length;
+  report.fillsRows = fills.length;
+  report.positionRows = positionRows.length;
+  report.cashRows = cashRows.length;
+  report.balanceRows = balanceRows.length;
+  report.cashInstrumentRows = cashRows.filter((row) => cleanField(row.Contract)).length;
+
+  const performanceFillIds = new Set();
+  performanceRows.forEach((row) => {
+    const buyFillId = cleanField(row.buyFillId);
+    const sellFillId = cleanField(row.sellFillId);
+    if (buyFillId) performanceFillIds.add(buyFillId);
+    if (sellFillId) performanceFillIds.add(sellFillId);
+  });
+
+  const fillsById = new Map(fills.map((fill) => [getFillId(fill), fill]).filter(([id]) => id));
+  const ordersById = new Map(orders.map((order) => [getOrderId(order), order]).filter(([id]) => id));
+
+  if (fills.length) {
+    performanceFillIds.forEach((fillId) => {
+      if (!fillsById.has(fillId)) report.missingPerformanceFillIds.push(fillId);
+    });
+  }
+
+  if (orders.length && fills.length) {
+    fills.forEach((fill) => {
+      const orderId = getOrderId(fill);
+      if (orderId && !ordersById.has(orderId)) report.fillsWithoutOrders.push({
+        fillId: getFillId(fill),
+        orderId,
+      });
+    });
+
+    performanceFillIds.forEach((fillId) => {
+      const fill = fillsById.get(fillId);
+      if (!fill) return;
+      const orderId = getOrderId(fill);
+      if (orderId && !ordersById.has(orderId)) {
+        report.orderlessPerformanceFillIds.push(fillId);
+      }
+    });
+  }
+
+  if (positionRows.length) {
+    const performancePairs = new Set(
+      performanceRows.map((row) => getPerformancePairKey(row)).filter((key) => key !== ':')
+    );
+    positionRows.forEach((row) => {
+      const pairKey = getPositionPairKey(row);
+      if (pairKey !== ':' && !performancePairs.has(pairKey)) report.positionOnlyPairs.push(pairKey);
+    });
+  }
+
+  if (report.missingPerformanceFillIds.length) {
+    report.warnings.push(`Fills CSV is missing ${report.missingPerformanceFillIds.length} Performance fill id(s)`);
+  }
+  if (report.fillsWithoutOrders.length) {
+    report.warnings.push(`Orders CSV is missing ${report.fillsWithoutOrders.length} order id(s) referenced by Fills CSV`);
+  }
+  if (report.positionOnlyPairs.length) {
+    report.warnings.push(`Position History has ${report.positionOnlyPairs.length} pair(s) not present in Performance CSV`);
+  }
+  if (cashRows.length && report.cashInstrumentRows === 0) {
+    report.warnings.push('Cash History has no Contract values; instrument-level cash reconciliation may be account-wide');
+  }
+  report.ok = report.warnings.length === 0;
+  return report;
+}
+
 function reconcilePositionHistory(performanceRows = [], positionRows = []) {
   const report = createEmptyPositionReconciliation();
   if (!positionRows.length) return report;
@@ -546,25 +643,22 @@ function filterRowsByContractInstrument(rows = [], instrument = '') {
   });
 }
 
-function buildReconciliationReport(rows, options = {}) {
-  const instrument = String(options.instrument || '').trim().toUpperCase();
-  const positionRows = filterRowsByContractInstrument(
-    parseTradovatePositionHistoryCsv(options.positionHistoryText || ''),
-    instrument
-  );
-  const cashRows = filterRowsByContractInstrument(
-    parseTradovateCashHistoryCsv(options.cashHistoryText || ''),
-    instrument
-  );
-  const fills = filterRowsByContractInstrument(
-    parseTradovateFillsCsv(options.fillsText || ''),
-    instrument
-  );
+function getParsedSupportRows(options = {}, instrument = '') {
+  const targetInstrument = String(instrument || options.instrument || '').trim().toUpperCase();
+  const orders = filterRowsByContractInstrument(parseTradovateOrdersCsv(options.ordersText || ''), targetInstrument);
+  const fills = filterRowsByContractInstrument(parseTradovateFillsCsv(options.fillsText || ''), targetInstrument);
+  const positionRows = filterRowsByContractInstrument(parseTradovatePositionHistoryCsv(options.positionHistoryText || ''), targetInstrument);
+  const cashRows = filterRowsByContractInstrument(parseTradovateCashHistoryCsv(options.cashHistoryText || ''), targetInstrument);
   const balanceRows = parseTradovateAccountBalanceHistoryCsv(options.accountBalanceHistoryText || '');
+  return { orders, fills, positionRows, cashRows, balanceRows };
+}
+
+function buildReconciliationReport(rows, options = {}) {
+  const supportRows = getParsedSupportRows(options, options.instrument);
   return {
-    position: reconcilePositionHistory(rows, positionRows),
-    cash: reconcileCashHistory(rows, fills, cashRows),
-    balance: reconcileAccountBalanceHistory(rows, balanceRows, {
+    position: reconcilePositionHistory(rows, supportRows.positionRows),
+    cash: reconcileCashHistory(rows, supportRows.fills, supportRows.cashRows),
+    balance: reconcileAccountBalanceHistory(rows, supportRows.balanceRows, {
       skipReason: options.balanceSkipReason || '',
     }),
   };
@@ -902,6 +996,11 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     else if (pnl < 0) losses += 1;
     else breakeven += 1;
   });
+  const supportRows = getParsedSupportRows(options, instrument);
+  const fileAlignment = buildTradovateFileAlignmentReport({
+    performanceRows: importedRows,
+    ...supportRows,
+  });
   const reconciliation = buildReconciliationReport(importedRows, { ...options, instrument, balanceSkipReason });
 
   const payload = {
@@ -927,6 +1026,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
       skippedRows,
       ordersRowCount: enhancement.orders.length,
       fillsRowCount: enhancement.fills.length,
+      fileAlignment,
       reconciliation,
     },
   };
@@ -942,6 +1042,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     totalPnl,
     ordersRows: enhancement.orders.length,
     fillsRows: enhancement.fills.length,
+    fileAlignment,
     reconciliation,
   };
 }
