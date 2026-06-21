@@ -113,6 +113,19 @@ Files:
 - `v4/tests/entry-context-catalog-smoke.js`
 - `v4/tests/live-record-smoke.js`
 
+### Manual Exit Risk/Reward Box
+
+Commit: pending after this handoff update
+
+- `manualLoss` Risk box endpoint uses actual `result.exitPrice` / `result.exitTimestamp`.
+- `manualProfit` Reward box endpoint uses actual `result.exitPrice` / `result.exitTimestamp`.
+- Preset stop-loss / target elements are not used as the manual exit endpoint.
+
+Files:
+
+- `v4/src/live-record/live-record-renderer.js`
+- `v4/tests/live-record-smoke.js`
+
 ## Current Live Result Semantics
 
 - `profit`: target hit, normally a profitable filled limit target.
@@ -140,6 +153,7 @@ Backtesting Result remains unchanged. Live Result remains a total result; multi-
 
 - `node --check v4/src/live-record/live-record-types.js`
 - `node --check v4/src/live-record/live-record-execution-flow.js`
+- `node --check v4/src/live-record/live-record-renderer.js`
 - `node --check v4/src/live-record/tradovate-performance-importer.js`
 - `node --check v4/src/ui/inspector/live-record-panel.js`
 - `node --check v4/src/ui/inspector/calendar-panel.js`

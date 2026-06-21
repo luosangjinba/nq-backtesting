@@ -1029,3 +1029,4 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 305.4: Result dropdown copy：Result 下拉显示 `Target Hit` / `Manual Profit` / `Stop Loss` / `Manual Loss` / `Breakeven` / `Unknown`。
   - [x] Step 305.5: Calendar live marker：Inspector Calendar 月视图给 Live Record 增加独立青色菱形 marker，Order Setup 继续使用红色圆点。
   - [x] Step 305.6: Maintainable lesson scopes：Maintain Catalogs -> Lessons 增加适用动作配置，Live Record Execution Orders 按 `lessonRoles` 过滤 lesson；未设置 scope 的 lesson 仍全局显示，已选 lesson 保持可见。
+  - [x] Step 305.7: Manual exit risk/reward box：`manualLoss` 的 Risk box endpoint 使用实际 `result.exitPrice/exitTimestamp`；`manualProfit` 的 Reward box endpoint 使用实际 `result.exitPrice/exitTimestamp`，不再用预设 stop/target 作为手动退出端点。

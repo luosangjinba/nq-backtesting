@@ -59,6 +59,7 @@ import {
   renderLiveRecordMenuItems,
 } from '../src/live-record/live-record-chart-actions.js';
 import {
+  getRiskStopFromResult,
   getRewardTargetFromResult,
 } from '../src/live-record/live-record-renderer.js';
 import { getCalendarDayGroups } from '../src/calendar/calendar-review-index.js';
@@ -601,6 +602,27 @@ assert.deepEqual(
     endTimestamp: 1710770800,
   },
   'risk/reward reward uses matching target only for profit result'
+);
+assert.deepEqual(
+  getRewardTargetFromResult({ status: 'win', exitType: 'manualProfit', exitTimestamp: 1710770810, exitPrice: 18318.75 }, richSet.execution.targets),
+  {
+    price: 18318.75,
+    endTimestamp: 1710770810,
+  },
+  'risk/reward reward uses actual exit for manual profit'
+);
+assert.deepEqual(
+  getRiskStopFromResult({ status: 'loss', exitType: 'manualLoss', exitTimestamp: 1710770820, exitPrice: 18312.5 }, richSet.execution.stopLoss),
+  {
+    price: 18312.5,
+    endTimestamp: 1710770820,
+  },
+  'risk/reward risk uses actual exit for manual loss'
+);
+assert.deepEqual(
+  getRiskStopFromResult({ status: 'loss', exitType: 'stopLoss', exitTimestamp: 1710770830, exitPrice: 18312.5 }, richSet.execution.stopLoss),
+  richSet.execution.stopLoss,
+  'risk/reward risk keeps preset stop for stop-loss result'
 );
 
 assert.equal(saveLiveRecords('NQ'), true, 'NQ live records save');

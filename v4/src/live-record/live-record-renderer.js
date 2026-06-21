@@ -227,8 +227,14 @@ function hasRenderablePriceElement(element = {}) {
 }
 
 export function getRewardTargetFromResult(result = {}, targets = []) {
-  if (result.exitType !== 'profit' || !Number.isFinite(Number(result.exitPrice))) return null;
+  if (!['profit', 'manualProfit'].includes(result.exitType) || !Number.isFinite(Number(result.exitPrice))) return null;
   const exitPrice = Number(result.exitPrice);
+  if (result.exitType === 'manualProfit') {
+    return {
+      price: exitPrice,
+      endTimestamp: result.exitTimestamp,
+    };
+  }
   const matchingTarget = (Array.isArray(targets) ? targets : [])
     .find((target) => Number.isFinite(Number(target.price)) && Math.abs(Number(target.price) - exitPrice) < 0.00001);
   if (matchingTarget) {
@@ -244,6 +250,16 @@ export function getRewardTargetFromResult(result = {}, targets = []) {
   };
 }
 
+export function getRiskStopFromResult(result = {}, stopLoss = {}) {
+  if (result.exitType === 'manualLoss' && Number.isFinite(Number(result.exitPrice))) {
+    return {
+      price: Number(result.exitPrice),
+      endTimestamp: result.exitTimestamp,
+    };
+  }
+  return stopLoss;
+}
+
 function renderRiskRewardBox(liveSet, entry, stopLoss, targets, result = {}) {
   if (liveSet.display?.showRiskRewardBox === false) return;
   if (!entry.complete) return;
@@ -252,10 +268,11 @@ function renderRiskRewardBox(liveSet, entry, stopLoss, targets, result = {}) {
   const visibleTargets = (Array.isArray(targets) ? targets : [])
     .filter((target) => isElementVisible(liveSet, target.role || target.id, target) && hasRenderablePriceElement(target));
   const rewardTarget = getRewardTargetFromResult(result, visibleTargets);
-  const endTimestamp = getZoneEndTimestamp(entry, stopLoss, rewardTarget);
+  const riskStop = getRiskStopFromResult(result, stopLoss);
+  const endTimestamp = getZoneEndTimestamp(entry, riskStop, rewardTarget);
 
-  if (hasRenderablePriceElement(stopLoss)) {
-    renderRangeZone(entryTimestamp, endTimestamp, entry.price, stopLoss.price, 'Risk', RISK_ZONE);
+  if (hasRenderablePriceElement(riskStop)) {
+    renderRangeZone(entryTimestamp, endTimestamp, entry.price, riskStop.price, 'Risk', RISK_ZONE);
   }
   if (rewardTarget) {
     renderRangeZone(entryTimestamp, rewardTarget.endTimestamp || endTimestamp, entry.price, rewardTarget.price, 'Reward', REWARD_ZONE);
