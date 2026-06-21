@@ -1010,8 +1010,9 @@
   <script type="module">
     import {
       buildTradovateLiveRecordArchives,
-      formatTradovatePnl,
     } from './src/live-record/tradovate-performance-importer.js';
+    import { formatTradovateImportPreview } from './src/live-record/tradovate-import-preview.js';
+    import { readTradovateImportInputs } from './src/live-record/tradovate-zip-import.js';
 
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');
@@ -1044,121 +1045,16 @@
       return file;
     }
 
-    function readUint16(view, offset) {
-      return view.getUint16(offset, true);
-    }
-
-    function readUint32(view, offset) {
-      return view.getUint32(offset, true);
-    }
-
-    async function inflateRawZipMember(bytes) {
-      if (!('DecompressionStream' in window)) {
-        throw new Error('This browser cannot inflate zipped CSV files. Select CSV files directly.');
-      }
-      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-      return await new Response(stream).text();
-    }
-
-    async function readZipCsvEntries(file) {
-      if (!file) return [];
-      const buffer = await file.arrayBuffer();
-      const view = new DataView(buffer);
-      const bytes = new Uint8Array(buffer);
-      let eocdOffset = -1;
-      for (let offset = bytes.length - 22; offset >= 0; offset -= 1) {
-        if (readUint32(view, offset) === 0x06054b50) {
-          eocdOffset = offset;
-          break;
-        }
-      }
-      if (eocdOffset < 0) throw new Error('Invalid ZIP package: end-of-central-directory not found.');
-      const entryCount = readUint16(view, eocdOffset + 10);
-      let centralOffset = readUint32(view, eocdOffset + 16);
-      const decoder = new TextDecoder();
-      const entries = [];
-      for (let index = 0; index < entryCount; index += 1) {
-        if (readUint32(view, centralOffset) !== 0x02014b50) throw new Error('Invalid ZIP package: central directory is malformed.');
-        const flags = readUint16(view, centralOffset + 8);
-        const method = readUint16(view, centralOffset + 10);
-        const compressedSize = readUint32(view, centralOffset + 20);
-        const nameLength = readUint16(view, centralOffset + 28);
-        const extraLength = readUint16(view, centralOffset + 30);
-        const commentLength = readUint16(view, centralOffset + 32);
-        const localOffset = readUint32(view, centralOffset + 42);
-        const nameBytes = bytes.slice(centralOffset + 46, centralOffset + 46 + nameLength);
-        const name = decoder.decode(nameBytes);
-        centralOffset += 46 + nameLength + extraLength + commentLength;
-        if (!name.toLowerCase().endsWith('.csv')) continue;
-        if (readUint32(view, localOffset) !== 0x04034b50) throw new Error(`Invalid ZIP package: local header missing for ${name}.`);
-        if (flags & 0x01) throw new Error(`Encrypted ZIP entry is not supported: ${name}`);
-        const localNameLength = readUint16(view, localOffset + 26);
-        const localExtraLength = readUint16(view, localOffset + 28);
-        const dataOffset = localOffset + 30 + localNameLength + localExtraLength;
-        const compressed = bytes.slice(dataOffset, dataOffset + compressedSize);
-        const text = method === 0
-          ? decoder.decode(compressed)
-          : method === 8
-            ? await inflateRawZipMember(compressed)
-            : (() => { throw new Error(`Unsupported ZIP compression method ${method} for ${name}.`); })();
-        entries.push({ name, text });
-      }
-      return entries;
-    }
-
-    function classifyTradovateCsvEntry(entry) {
-      const name = entry.name.toLowerCase();
-      if (name.includes('account') && name.includes('balance')) return 'accountBalanceHistoryText';
-      if (name.includes('position')) return 'positionHistoryText';
-      if (name.includes('cash')) return 'cashHistoryText';
-      if (name.includes('fill')) return 'fillsText';
-      if (name.includes('order')) return 'ordersText';
-      if (name.includes('performance')) return 'performanceText';
-      const header = String(entry.text || '').split(/\r?\n/, 1)[0].toLowerCase();
-      if (header.includes('buyfillid') && header.includes('sellfillid')) return 'performanceText';
-      if (header.includes('buy fill id') && header.includes('sell fill id')) return 'positionHistoryText';
-      if (header.includes('fill id') && header.includes('order id') && header.includes('commission')) return 'fillsText';
-      if (header.includes('order id') && header.includes('limit price') && header.includes('stop price')) return 'ordersText';
-      if (header.includes('cash change type')) return 'cashHistoryText';
-      if (header.includes('total realized pnl')) return 'accountBalanceHistoryText';
-      return '';
-    }
-
     async function getTradovateInputTexts() {
-      const manualFile = getTradovateFile();
-      const zipFile = zipFileInput.files?.[0] || null;
-      const zipEntries = await readZipCsvEntries(zipFile);
-      const fromZip = {};
-      const zipMatches = [];
-      zipEntries.forEach((entry) => {
-        const key = classifyTradovateCsvEntry(entry);
-        if (!key) return;
-        if (!fromZip[key]) {
-          fromZip[key] = entry.text;
-          zipMatches.push(`${entry.name} -> ${key.replace(/Text$/, '')}`);
-        }
+      return readTradovateImportInputs({
+        zipFile: zipFileInput.files?.[0] || null,
+        performanceFile: fileInput.files?.[0] || null,
+        ordersFile: ordersFileInput.files?.[0] || null,
+        fillsFile: fillsFileInput.files?.[0] || null,
+        positionFile: positionFileInput.files?.[0] || null,
+        cashFile: cashFileInput.files?.[0] || null,
+        balanceFile: balanceFileInput.files?.[0] || null,
       });
-      const texts = {
-        performanceText: fromZip.performanceText || '',
-        ordersText: fromZip.ordersText || '',
-        fillsText: fromZip.fillsText || '',
-        positionHistoryText: fromZip.positionHistoryText || '',
-        cashHistoryText: fromZip.cashHistoryText || '',
-        accountBalanceHistoryText: fromZip.accountBalanceHistoryText || '',
-      };
-      if (fileInput.files?.[0]) texts.performanceText = await fileInput.files[0].text();
-      if (ordersFileInput.files?.[0]) texts.ordersText = await ordersFileInput.files[0].text();
-      if (fillsFileInput.files?.[0]) texts.fillsText = await fillsFileInput.files[0].text();
-      if (positionFileInput.files?.[0]) texts.positionHistoryText = await positionFileInput.files[0].text();
-      if (cashFileInput.files?.[0]) texts.cashHistoryText = await cashFileInput.files[0].text();
-      if (balanceFileInput.files?.[0]) texts.accountBalanceHistoryText = await balanceFileInput.files[0].text();
-      if (!String(texts.performanceText || '').trim()) throw new Error('Performance CSV was not found. Select it directly or include it in the ZIP package.');
-      return {
-        ...texts,
-        sourceFileName: fileInput.files?.[0]?.name || zipFile?.name || 'tradovate-package.zip',
-        zipFileName: zipFile?.name || '',
-        zipMatches,
-      };
     }
 
     async function buildArchivesFromSelectedFile() {
@@ -1233,107 +1129,6 @@
       filenameInput.value = filenameForResults(results, sourceFileName);
     }
 
-    function formatSinglePreview(result) {
-      const alignmentLines = formatFileAlignmentPreview(result.fileAlignment);
-      const reconcileLines = formatReconciliationPreview(result.reconciliation);
-      return [
-        `Instrument: ${result.payload.instrument}`,
-        `Timestamp timezone: ${result.payload.source.timezone}`,
-        `Source rows: ${result.sourceRows}`,
-        `Orders rows: ${result.ordersRows || 0}`,
-        `Fills rows: ${result.fillsRows || 0}`,
-        `Live Records: ${result.liveRecords}`,
-        `Skipped rows: ${result.skippedRows}`,
-        `Wins / Losses / Breakeven: ${result.wins} / ${result.losses} / ${result.breakeven}`,
-        `Total P/L: ${formatTradovatePnl(result.totalPnl)}`,
-        ...alignmentLines,
-        ...reconcileLines,
-      ].join('\n');
-    }
-
-    function formatOk(value) {
-      return value ? 'ok' : 'warning';
-    }
-
-    function formatWarnings(warnings = []) {
-      return warnings.map((warning) => `  - ${warning}`);
-    }
-
-    function formatFileAlignmentPreview(report = {}) {
-      if (!report) return [];
-      const lines = [
-        `File alignment: ${formatOk(report.ok)} · performance=${report.performanceRows || 0} orders=${report.ordersRows || 0} fills=${report.fillsRows || 0} position=${report.positionRows || 0} cash=${report.cashRows || 0} balance=${report.balanceRows || 0}`,
-      ];
-      if (report.missingPerformanceFillIds?.length) {
-        lines.push(`  - Missing Performance fill IDs in Fills CSV: ${report.missingPerformanceFillIds.slice(0, 8).join(', ')}${report.missingPerformanceFillIds.length > 8 ? '...' : ''}`);
-      }
-      if (report.fillsWithoutOrders?.length) {
-        lines.push(`  - Fills referencing missing Orders: ${report.fillsWithoutOrders.slice(0, 8).map((item) => `${item.fillId}->${item.orderId}`).join(', ')}${report.fillsWithoutOrders.length > 8 ? '...' : ''}`);
-      }
-      lines.push(...formatWarnings(report.warnings || []));
-      return lines;
-    }
-
-    function formatReconciliationPreview(reconciliation = {}) {
-      const lines = [];
-      const position = reconciliation.position || {};
-      if (position.provided) {
-        lines.push(`Position reconcile: ${formatOk(position.ok)} · performance=${position.performancePairs || 0} position=${position.positionPairs || 0} missing=${position.missingPairs?.length || 0} extra=${position.extraPairs?.length || 0} mismatched=${position.mismatchedPairs?.length || 0}`);
-        lines.push(...formatWarnings(position.warnings));
-      }
-      const cash = reconciliation.cash || {};
-      if (cash.provided) {
-        lines.push(`Cash reconcile: ${formatOk(cash.ok)} · commission cash=${cash.commissionTotal ?? 0} fills=${cash.fillsCommissionTotal ?? 0} diff=${cash.commissionDifference ?? 0} · tradePaired=${cash.tradePairedTotal ?? 0} performance=${cash.performancePnlTotal ?? 0} diff=${cash.tradePairedDifference ?? 0}`);
-        lines.push(...formatWarnings(cash.warnings));
-      }
-      const balance = reconciliation.balance || {};
-      if (balance.provided) {
-        if (balance.skipped) {
-          lines.push(`Balance reconcile: skipped · ${balance.skippedReason || 'not applicable'}`);
-          return lines;
-        }
-        const mismatches = Array.isArray(balance.dailyRows)
-          ? balance.dailyRows.filter((row) => !row.ok).length
-          : 0;
-        lines.push(`Balance reconcile: ${formatOk(balance.ok)} · days=${balance.dailyRows?.length || 0} mismatched=${mismatches}`);
-        lines.push(...formatWarnings(balance.warnings));
-      }
-      return lines;
-    }
-
-    function formatPreview(results, input) {
-      const resultList = Array.isArray(results) ? results : [results];
-      const lines = [
-        '> tradovate_live_record_preview',
-        '',
-        'Summary',
-        '-------',
-        `Source: ${input.sourceFileName}`,
-      ];
-      if (input.zipFileName) {
-        lines.push(`ZIP package: ${input.zipFileName}`);
-        lines.push(...(input.zipMatches.length ? input.zipMatches : ['No CSV files auto-matched from ZIP.']).map((line) => `  - ${line}`));
-      }
-      resultList.forEach((result, index) => {
-        if (index > 0) lines.push('');
-        lines.push(formatSinglePreview(result));
-      });
-      lines.push(
-        '',
-        'Import behavior',
-        '---------------',
-        'Status: closed',
-        'Performance CSV is the trade-pair source; one Performance row becomes one Live Record.',
-        'Orders CSV enriches stop/limit target state, including cancelled bracket orders.',
-        'Fills CSV enriches fill/order IDs and commission. Setup links and reasons stay manual.',
-        'Position/Cash/Account Balance CSV files are reconcile-only checks and do not change Live Records.'
-      );
-      if (resultList.length > 1) {
-        lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Main instrument matches that file.');
-      }
-      return lines.join('\n');
-    }
-
     function outputFilenameForPayload(payload, totalFiles = 1) {
       const rawName = filenameInput.value.trim() || `tradovate-live-records-${payload.instrument}.json`;
       const baseName = rawName.endsWith('.json') ? rawName.slice(0, -5) : rawName;
@@ -1370,7 +1165,7 @@
         getTradovateFile();
         const { results, input } = await buildArchivesFromSelectedFile();
         updateFilenameFromResults(results, input.sourceFileName);
-        appendTradovateOutput(formatPreview(results, input));
+        appendTradovateOutput(formatTradovateImportPreview(results, input));
         setTradovateState('ok', 'ok');
       } catch (error) {
         appendTradovateOutput(`> tradovate_live_record_preview\n\nfailed: ${error.message}`);
@@ -1385,7 +1180,7 @@
         const { results, input } = await buildArchivesFromSelectedFile();
         updateFilenameFromResults(results, input.sourceFileName);
         results.forEach((result) => downloadJson(result.payload, results.length));
-        appendTradovateOutput(`${formatPreview(results, input)}\n\nwrite_status: downloaded ${results.length} review JSON file${results.length === 1 ? '' : 's'}`);
+        appendTradovateOutput(`${formatTradovateImportPreview(results, input)}\n\nwrite_status: downloaded ${results.length} review JSON file${results.length === 1 ? '' : 's'}`);
         setTradovateState('ok', 'ok');
       } catch (error) {
         appendTradovateOutput(`> tradovate_live_record_download\n\nfailed: ${error.message}`);

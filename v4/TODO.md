@@ -1036,4 +1036,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 306.2: File alignment report：importer 新增 `fileAlignment`，统计各类文件行数，并检查 Performance fill id 是否存在于 Fills、Fills 的 Order ID 是否存在于 Orders、Position History 是否有 Performance 外 pair、Cash History 是否缺 Contract 粒度。
   - [x] Step 306.3: Preview output：Tradovate preview 输出 ZIP 匹配列表、File alignment 摘要、关键缺失 ID 和现有 Position/Cash/Balance reconcile 摘要；warnings 不阻塞 Review JSON 下载。
   - [x] Step 306.4: Review JSON source metadata：导出的 Review JSON `source.fileAlignment` 保存对齐报告，便于后续排查导入包质量。
-  - [x] Step 306.5: Verification：`tradovate-performance-importer-smoke` 覆盖 clean alignment 和缺失 Orders warning；Live Record smoke、module script syntax probe、`git diff --check` 均通过。
+  - [x] Step 306.5: Verification：`tradovate-performance-importer-smoke` 覆盖 clean alignment 和缺失 Orders warning；新增 `tradovate-zip-import-browser-smoke.js` 覆盖 Data Maintenance 页面 ZIP input -> Preview Import 真实 UI 路径，并支持 `TRADOVATE_ZIP_PATH=/path/to.zip` 对用户本地导出包做验收；Live Record smoke、module script syntax probe、`git diff --check` 均通过。
+  - [x] Step 306.6: Small refactor：将 Data Maintenance 中的 ZIP 解包/CSV 分类抽到 `live-record/tradovate-zip-import.js`，Preview 文案抽到 `live-record/tradovate-import-preview.js`；页面只保留 DOM wiring、调用 importer 和下载 JSON；新增 `tradovate-import-ui-modules-smoke.js` 覆盖模块边界。

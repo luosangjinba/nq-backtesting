@@ -25,6 +25,13 @@ Improve Data Maintenance -> Tradovate Live Records import so a user can provide 
   - Cash History files without Contract values.
 - Preview output now shows ZIP matches, file alignment summary, and existing reconcile summaries.
 - Review JSON source metadata now includes `source.fileAlignment`.
+- Added `v4/tests/tradovate-zip-import-browser-smoke.js`:
+  - default mode creates an anonymous synthetic Tradovate ZIP package;
+  - `TRADOVATE_ZIP_PATH=/path/to.zip` mode runs the same browser preview path against a real local export package.
+- Split the Data Maintenance Tradovate import helpers:
+  - `v4/src/live-record/tradovate-zip-import.js` owns ZIP parsing and CSV type detection.
+  - `v4/src/live-record/tradovate-import-preview.js` owns preview text formatting.
+  - `data-maintenance.html` now keeps DOM wiring, archive generation, and download behavior.
 
 ## Boundaries
 
@@ -36,9 +43,17 @@ Improve Data Maintenance -> Tradovate Live Records import so a user can provide 
 
 - `node --check v4/src/live-record/tradovate-performance-importer.js`
 - module script syntax probe for `v4/data-maintenance.html`
+- `node v4/tests/tradovate-import-ui-modules-smoke.js`
 - `node v4/tests/tradovate-performance-importer-smoke.js`
+- `node v4/tests/tradovate-zip-import-browser-smoke.js`
+- `TRADOVATE_ZIP_PATH=/home/leo/myworkspace/trading/backtesting/tmp/1.zip node v4/tests/tradovate-zip-import-browser-smoke.js`
 - `node v4/tests/live-record-smoke.js`
 - `git diff --check`
+
+## Test Data Note
+
+- `/home/leo/myworkspace/trading/backtesting/tmp/1.zip` was used as a local real-export validation package.
+- It is intentionally not committed because Tradovate exports can contain account, order, fill, position, cash, and balance data.
 
 ## Runtime Note
 
