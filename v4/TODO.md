@@ -1021,3 +1021,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 304.4: Contract-first UI copy：Position 使用 `5 contracts opened · 5 contracts closed · flat`，Target/Manual/Stop 继续 contract-first，避免 `1 filled` / `1 set` 被误读成 contracts。
   - [x] Step 304.5: Add-on diagnostics：同向 filled order 出现在 initial entry 之后时显示为 `Open Review`，summary 标记 `unsupported add-on`，不合并进正常 no-add-on 模型。
   - [x] Step 304.6: Focused and browser smoke：已覆盖 5 open + target/manual/target 多段平仓、stop hit、partial remaining、canceled bracket after exit、add-on diagnostic 和 Live Record Detail 浏览器渲染；Backtesting Result 未改动。
+
+- [x] Step 305: Live Result Exit Semantics。目标是把 Live Result 的总结果语义补齐为 Target Hit / Manual Profit / Stop Loss / Manual Loss / Breakeven / Unknown，避免手动盈利与 target hit 混淆、手动亏损与 stop hit 混淆。收口见 `v4/sessions/session_20260620_live_execution_result_handoff.md`。
+  - [x] Step 305.1: Fix add-on summaries：Open summary 只统计 initial entry；unsupported add-on / over-closed 不再显示为正常 flat。
+  - [x] Step 305.2: Distinguish manual loss：新增 `manualLoss`；只有真实 filled stop order 归 `stopLoss`；亏损 market/limit exit 归 `manualLoss` 并显示在 Manual Exits。
+  - [x] Step 305.3: Distinguish manual profit：新增 `manualProfit`；filled limit profit 归 Target Hit；filled market profit 或无 Orders CSV 证明的盈利导入归 Manual Profit。
+  - [x] Step 305.4: Result dropdown copy：Result 下拉显示 `Target Hit` / `Manual Profit` / `Stop Loss` / `Manual Loss` / `Breakeven` / `Unknown`。
+  - [x] Step 305.5: Calendar live marker：Inspector Calendar 月视图给 Live Record 增加独立青色菱形 marker，Order Setup 继续使用红色圆点。
+  - [x] Step 305.6: Maintainable lesson scopes：Maintain Catalogs -> Lessons 增加适用动作配置，Live Record Execution Orders 按 `lessonRoles` 过滤 lesson；未设置 scope 的 lesson 仍全局显示，已选 lesson 保持可见。
