@@ -16,6 +16,8 @@ async function inflateRawZipMember(bytes) {
 
 export async function readZipCsvEntries(file) {
   if (!file) return [];
+  // Keep ZIP parsing in-browser so Data Maintenance can work from a static
+  // page without uploading private Tradovate exports to the local API.
   const buffer = await file.arrayBuffer();
   const view = new DataView(buffer);
   const bytes = new Uint8Array(buffer);
@@ -65,6 +67,8 @@ export async function readZipCsvEntries(file) {
 }
 
 export function classifyTradovateCsvEntry(entry) {
+  // Tradovate exports are often renamed or wrapped in a directory by the user,
+  // so use filename hints first and fall back to required-column fingerprints.
   const name = String(entry?.name || '').toLowerCase();
   if (name.includes('account') && name.includes('balance')) return 'accountBalanceHistoryText';
   if (name.includes('position')) return 'positionHistoryText';
@@ -91,6 +95,8 @@ export async function readTradovateImportInputs({
   cashFile = null,
   balanceFile = null,
 } = {}) {
+  // ZIP content is the base package; manually selected CSV files override the
+  // matching file type for quick correction without repacking the ZIP.
   const zipEntries = await readZipCsvEntries(zipFile);
   const fromZip = {};
   const zipMatches = [];

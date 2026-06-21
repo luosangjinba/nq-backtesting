@@ -634,7 +634,13 @@ Live Record 可以独立存在。也可以选择 link 到 active Order Setup，�
 
 ### Tradovate Live Record 导入
 
-Data Maintenance 页面可以把 Tradovate CSV 转成 Review JSON 中的 Live Records。
+Data Maintenance 页面可以把 Tradovate CSV 转成 Review JSON 中的 Live Records。打开：
+
+```text
+http://127.0.0.1:8001/data-maintenance.html
+```
+
+可以逐个选择 CSV，也可以选择一个 `CSV ZIP package`，把 Tradovate 导出的 CSV 打包放进去。ZIP 导入会按文件名和表头自动识别文件类型，也支持 `1/Performance.csv` 这种带目录的压缩包。如果同时选择了 ZIP 和某个单独 CSV，单独 CSV 会覆盖 ZIP 里匹配到的同类文件，方便临时替换而不用重新打包。
 
 主数据源：
 
@@ -648,7 +654,20 @@ Data Maintenance 页面可以把 Tradovate CSV 转成 Review JSON 中的 Live Re
 - `Cash History CSV`：可选，只用于校验 commission 与 Trade Paired 现金流水。
 - `Account Balance CSV`：可选，只用于按交易日校验 Total Realized PNL。
 
-Position/Cash/Account Balance 的 reconcile warning 不会阻止 Review JSON 生成，也不会写入每一条 Live Record。它们的作用是帮助发现 Tradovate 导出文件是否漏项、跨品种混入、手续费或每日 P/L 是否对不上。
+Preview 会显示两类检查：
+
+- `File alignment`：检查 Performance 的 fill id 是否能在 Fills 找到、Fills 的 Order ID 是否能在 Orders 找到、Position History 的 pair 是否也存在于 Performance、Cash History 是否尽量保留 contract 粒度。
+- `Reconciliation`：用 Position/Cash/Account Balance 与 Performance/Fills 做数量、价格、P/L、手续费和每日 realized P/L 校验。
+
+warning 不会阻止 Review JSON 生成，也不会写入每一条 Live Record。它们的作用是帮助发现 Tradovate 导出文件是否漏项、跨品种混入、手续费或每日 P/L 是否对不上，或者 ZIP 包是否缺文件。
+
+如果要用真实导出的 ZIP 做本地验收，可以运行：
+
+```bash
+TRADOVATE_ZIP_PATH=/path/to/tradovate.zip node v4/tests/tradovate-zip-import-browser-smoke.js
+```
+
+不要把真实 Tradovate ZIP/CSV 提交到 git；这些文件可能包含账号、订单、成交、现金流水和余额信息。
 
 ## 保存与导入导出
 

@@ -10,6 +10,8 @@ function formatWarnings(warnings = []) {
 
 function formatFileAlignmentPreview(report = {}) {
   if (!report) return [];
+  // Alignment checks are intentionally separate from reconciliation totals:
+  // they answer whether the chosen files refer to the same fills/orders.
   const lines = [
     `File alignment: ${formatOk(report.ok)} · performance=${report.performanceRows || 0} orders=${report.ordersRows || 0} fills=${report.fillsRows || 0} position=${report.positionRows || 0} cash=${report.cashRows || 0} balance=${report.balanceRows || 0}`,
   ];
@@ -67,6 +69,8 @@ function formatSinglePreview(result) {
 }
 
 export function formatTradovateImportPreview(results, input) {
+  // Keep the maintenance-page output deterministic so browser smokes can assert
+  // the same text a user relies on before downloading Review JSON.
   const resultList = Array.isArray(results) ? results : [results];
   const lines = [
     '> tradovate_live_record_preview',

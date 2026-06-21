@@ -50,6 +50,10 @@ The database is runtime data and is not committed to git. You can override the p
 - [English user guide](v4/docs/user/USER_GUIDE.en.md)
 - [Current TODO](v4/TODO.md)
 
+## Live Record Imports
+
+The Data Maintenance page can convert Tradovate exports into V4 Live Records. It accepts either individual CSV files or one ZIP package containing `Performance`, `Orders`, `Fills`, `Position History`, `Cash History`, and `Account Balance History` CSVs. Preview runs file-alignment and reconciliation checks before downloading Review JSON; warnings are shown in the output and do not upload private export files to the API.
+
 ## Historical Material
 
 V2, V3, root-level legacy docs, and architecture notes were removed from this v4-only branch to keep the workspace focused. They remain recoverable from git history before the v4-only cleanup.

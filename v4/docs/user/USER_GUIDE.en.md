@@ -636,7 +636,13 @@ A Live Record can stay standalone. Optionally link it to the active Order Setup 
 
 ### Tradovate Live Record Import
 
-The Data Maintenance page can convert Tradovate CSV files into Live Records inside a Review JSON archive.
+The Data Maintenance page can convert Tradovate CSV files into Live Records inside a Review JSON archive. Open:
+
+```text
+http://127.0.0.1:8001/data-maintenance.html
+```
+
+You can select the CSV files one by one, or select one `CSV ZIP package` that contains the Tradovate exports. ZIP import auto-detects files by name and header, including files inside a folder such as `1/Performance.csv`. If you select both a ZIP package and an individual CSV field, the individual CSV overrides the matching file from the ZIP.
 
 Primary sources:
 
@@ -650,7 +656,20 @@ Reconciliation sources:
 - `Cash History CSV`: optional, validates commission and Trade Paired cash ledger totals.
 - `Account Balance CSV`: optional, validates daily Total Realized PNL by trade date.
 
-Position/Cash/Account Balance reconciliation warnings do not block Review JSON generation and are not written into each Live Record. They are there to catch missing export rows, mixed-instrument inputs, commission differences, or daily P/L mismatches.
+Preview shows two kinds of checks:
+
+- `File alignment`: verifies that Performance fill IDs exist in Fills, Fills order IDs exist in Orders, Position History pairs also exist in Performance, and Cash History has contract-level rows when possible.
+- `Reconciliation`: validates Position/Cash/Account Balance totals against Performance/Fills.
+
+Warnings do not block Review JSON generation and are not written into each Live Record. They are there to catch missing export rows, mixed-instrument inputs, commission differences, daily P/L mismatches, or an incomplete ZIP package.
+
+For local validation of a real ZIP export without committing private data, run:
+
+```bash
+TRADOVATE_ZIP_PATH=/path/to/tradovate.zip node v4/tests/tradovate-zip-import-browser-smoke.js
+```
+
+Do not commit real Tradovate ZIP/CSV exports to git; they may contain account, order, fill, cash, and balance data.
 
 ## Saving And Import/Export
 
