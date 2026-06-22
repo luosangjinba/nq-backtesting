@@ -148,6 +148,29 @@ async function main() {
     await client.send('Page.navigate', { url: PAGE_URL });
     await waitForExpression(client, `document.readyState === 'complete' || document.readyState === 'interactive'`);
     await waitForExpression(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
+    await evaluate(client, `
+      (() => {
+        window.__comparisonFetchCalls = 0;
+        const nativeFetch = window.fetch.bind(window);
+        window.fetch = (...args) => {
+          if (String(args[0]).includes('/v4/bars')) {
+            window.__comparisonFetchCalls += 1;
+            window.__comparisonLastBarsUrl = String(args[0]);
+            return Promise.resolve(new Response(JSON.stringify({
+              bars: [
+                { time: '2026-06-12 10:00', timestamp: 1781258400, tradingDay: '2026-06-12', open: 7383.25, high: 7443.5, low: 7380.25, close: 7440.5, volume: 200251 },
+              ],
+              requestedRange: { startTs: 1781256600, endTs: 1781258400 },
+            }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }));
+          }
+          return nativeFetch(...args);
+        };
+        return true;
+      })();
+    `);
 
     const initial = await evaluate(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
     assert.equal(initial, true, 'Compare toolbar toggle should exist');
@@ -157,12 +180,18 @@ async function main() {
       document.querySelector('#comparisonWindowToggle').click();
       const root = document.querySelector('#comparison-window-root');
       const win = document.querySelector('#comparison-window');
+      const instrument = document.querySelector('[data-comparison-instrument]');
+      const timeframe = document.querySelector('[data-comparison-timeframe]');
+      const status = document.querySelector('[data-comparison-status]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
       return {
         hidden: root.hidden,
         width: win.getBoundingClientRect().width,
         height: win.getBoundingClientRect().height,
+        instrumentValue: instrument.value,
+        timeframeValue: timeframe.value,
+        statusText: status.textContent,
         stackWidth: stack.width,
         stackHeight: stack.height,
         primaryWidth: primary.width,
@@ -173,6 +202,9 @@ async function main() {
     assert.equal(shown.hidden, false, 'Comparison window should be visible after toggle');
     assert.ok(shown.width >= 280, 'Comparison window should have stable width');
     assert.ok(shown.height >= 210, 'Comparison window should have stable height');
+    assert.equal(shown.instrumentValue, 'ES', 'Comparison window should expose independent instrument control');
+    assert.equal(shown.timeframeValue, '60', 'Comparison window should expose independent timeframe control');
+    assert.match(shown.statusText, /Choose a main date range/, 'Comparison window should wait for main range before loading');
 
     const dragStart = await evaluate(client, `
       (() => {
@@ -269,6 +301,34 @@ async function main() {
     `);
     assert.equal(stageMoved.afterLeft, stageMoved.beforeLeft, 'Dragging inside chart stage should not move outer window');
     assert.equal(stageMoved.afterTop, stageMoved.beforeTop, 'Dragging inside chart stage should not move outer window vertically');
+    const fetchCallsWithoutRange = await evaluate(client, `window.__comparisonFetchCalls`);
+    assert.equal(fetchCallsWithoutRange, 0, 'Comparison window should not request bars before a main range exists');
+
+    await evaluate(client, `
+      (async () => {
+        const store = await import('/src/data/bar-store.js');
+        store.setBars([
+          { time: '2026-06-12 09:30', timestamp: 1781256600, tradingDay: '2026-06-12', open: 29494.5, high: 29501, low: 29371, close: 29430.5, volume: 4223 },
+        ], '2026-06-12 09:30', '2026-06-12 10:00', 1, { startTs: 1781256600, endTs: 1781258400 }, { instrument: 'NQ' });
+        return true;
+      })();
+    `);
+    await waitForExpression(client, `window.__comparisonFetchCalls === 1 && document.querySelector('[data-comparison-placeholder]').hidden`);
+    const loaded = await evaluate(client, `
+      (() => {
+        return {
+          fetchCalls: window.__comparisonFetchCalls,
+          url: window.__comparisonLastBarsUrl,
+          info: document.querySelector('#comparison-chart-info').textContent,
+          placeholderHidden: document.querySelector('[data-comparison-placeholder]').hidden,
+        };
+      })();
+    `);
+    assert.equal(loaded.fetchCalls, 1, 'Comparison window should request bars after main range loads');
+    assert.match(loaded.url, /instrument=ES/, 'Comparison window should use its own default instrument');
+    assert.match(loaded.url, /tf=60/, 'Comparison window should use its own default timeframe');
+    assert.equal(loaded.info, 'ES 1H');
+    assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
 
     const reset = await evaluate(client, `
       (() => {

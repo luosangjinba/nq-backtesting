@@ -42,6 +42,14 @@ export function updateComparisonViewDescriptor(patch = {}) {
   return getComparisonViewDescriptor();
 }
 
+export function setComparisonInstrument(instrument) {
+  return updateComparisonViewDescriptor({ instrument });
+}
+
+export function setComparisonTimeframe(timeframe) {
+  return updateComparisonViewDescriptor({ timeframe: Number(timeframe) || descriptor.timeframe });
+}
+
 export function updateComparisonVisibleWindow(visibleWindow) {
   descriptor = {
     ...descriptor,

@@ -142,6 +142,15 @@ Implementation notes:
 - Sync by absolute time range.
 - Respond to primary range load, Calendar locate, and Replay History restore.
 
+Implementation notes:
+
+- Added a dedicated `comparison-chart-manager` for the new view instead of reusing the Split singleton chart manager.
+- Comparison Window now has independent instrument and timeframe controls in its header.
+- When the primary chart has a loaded range, Comparison Window fetches bars for the same absolute `start/end` with its own instrument/timeframe.
+- `bars:loaded` forces a reload; comparison settings changes reload only when the load signature changes.
+- Window dragging updates `visibleWindow` but does not refetch comparison bars.
+- Browser smoke verifies controls exist and no `/v4/bars` request is made before a main range exists.
+
 ### Step 307.7: Overlay Parity
 
 - Render existing PDA, Segment, FVG, Chart Notes, Order Setup, Live Record, and Time Overlay objects where applicable.

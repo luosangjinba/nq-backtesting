@@ -185,7 +185,25 @@ html, body {
 .comparison-window-actions {
   display: flex;
   flex: 0 0 auto;
+  align-items: center;
   gap: 6px;
+}
+
+.comparison-window-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #8d919b;
+  font-size: var(--compact-font-size);
+}
+
+.comparison-window-select {
+  height: var(--control-height);
+  color: #d1d4dc;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #131722;
+  font-size: var(--toolbar-font-size);
 }
 
 .comparison-window-btn {
@@ -234,6 +252,13 @@ html, body {
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+}
+
+.comparison-chart-canvas {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
   background:
     linear-gradient(90deg, rgba(120, 123, 134, 0.08) 1px, transparent 1px),
     linear-gradient(rgba(120, 123, 134, 0.08) 1px, transparent 1px),
@@ -245,6 +270,7 @@ html, body {
   position: absolute;
   left: 50%;
   top: 50%;
+  z-index: 5;
   width: min(80%, 360px);
   transform: translate(-50%, -50%);
   color: #8d919b;
@@ -260,6 +286,38 @@ html, body {
 .comparison-window-placeholder-meta {
   margin-top: 4px;
   font-size: var(--compact-font-size);
+}
+
+.comparison-window-placeholder-error .comparison-window-placeholder-meta {
+  color: #ef5350;
+}
+
+.comparison-chart-info,
+.comparison-ohlc-legend {
+  position: absolute;
+  left: 10px;
+  z-index: 6;
+  pointer-events: none;
+  background: rgba(19, 23, 34, 0.72);
+  border: 1px solid #2a2e39;
+  border-radius: 4px;
+}
+
+.comparison-chart-info {
+  top: 8px;
+  padding: 2px 6px;
+  color: #f0f3fa;
+  font-size: var(--chart-legend-font-size);
+  font-weight: 600;
+}
+
+.comparison-ohlc-legend {
+  top: 34px;
+  display: flex;
+  gap: 10px;
+  padding: 2px 6px;
+  color: #d1d4dc;
+  font-size: var(--chart-legend-font-size);
 }
 
 #ohlc-legend,
