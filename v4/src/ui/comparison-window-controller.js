@@ -5,18 +5,15 @@ import {
   clearComparisonData,
   getComparisonChart,
   hideComparisonCursor,
-  hideComparisonSyncCrosshairCursor,
   initComparisonChart,
   onComparisonCrosshairMove,
   setComparisonChartInfo,
   setComparisonData,
   showComparisonCursor,
   showComparisonEndOfData,
-  showComparisonSyncCrosshairCursor,
   showComparisonStartOfData,
 } from '../chart/comparison-chart-manager.js';
 import * as chart from '../chart/chart-manager.js';
-import { findDisplayBarFast, resolveExistingChartTimeFast } from '../chart/display-bar-lookup.js';
 import { getBarChartTime, mapTimestampToChartTime } from '../chart/time-projection.js';
 import { validateSingleWindowRange } from '../data/load-range-policy.js';
 import * as primaryStore from '../data/bar-store.js';
@@ -41,6 +38,7 @@ import {
   createComparisonWindowDragHandlers,
   syncComparisonLayoutGeometry,
 } from './comparison/comparison-window-layout.js';
+import { createComparisonCrosshairSync } from './comparison/comparison-crosshair-sync.js';
 
 let root = null;
 let windowEl = null;
@@ -49,10 +47,6 @@ let lastLoadSignature = null;
 let lastReplayState = { enabled: false, cursorTimestamp: null };
 let replaySourceBars = [];
 let replaySourceRequestedRange = null;
-let pendingPrimaryHoverTime = null;
-let pendingComparisonHoverTime = null;
-let primaryHoverFrame = null;
-let comparisonHoverFrame = null;
 let layoutResizeObserver = null;
 let layoutRefreshFrame = null;
 const dragHandlers = createComparisonWindowDragHandlers({
@@ -61,6 +55,9 @@ const dragHandlers = createComparisonWindowDragHandlers({
   getState: getComparisonWindowState,
   updateVisibleWindow: updateComparisonVisibleWindow,
   resetVisibleWindow: resetComparisonVisibleWindow,
+});
+const crosshairSync = createComparisonCrosshairSync({
+  getReplaySyncedBars,
 });
 
 function shouldLoadReplaySource(start, end, timeframe) {
@@ -77,8 +74,8 @@ export function initComparisonWindowController() {
   bus.on('bars:loaded', () => loadComparisonForPrimaryRange({ force: true }));
   bus.on('bars:cleared', clearComparisonView);
   bus.on('replay:changed', handleReplayChanged);
-  chart.onCrosshairMove((param) => scheduleComparisonHoverCursor(param?.time));
-  onComparisonCrosshairMove((param) => schedulePrimaryHoverCursor(param?.time));
+  chart.onCrosshairMove((param) => crosshairSync.scheduleComparisonHoverCursor(param?.time));
+  onComparisonCrosshairMove((param) => crosshairSync.schedulePrimaryHoverCursor(param?.time));
   window.addEventListener('resize', scheduleComparisonLayoutRefresh);
 }
 
@@ -224,84 +221,6 @@ function renderComparisonBars({ followReplay = false } = {}) {
   if (chartData.length > 0) {
     hideComparisonPlaceholder();
   }
-}
-
-function requestFrame(callback) {
-  const raf = globalThis.requestAnimationFrame || globalThis.window?.requestAnimationFrame;
-  if (typeof raf === 'function') return raf(callback);
-  callback();
-  return null;
-}
-
-function getPrimaryHoverTimestamp(time) {
-  if (time === undefined || time === null) return null;
-  const bar = findDisplayBarFast(primaryStore.getDisplayBars(), time, primaryStore.getCurrentTimeframe());
-  return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
-}
-
-function getComparisonHoverTimestamp(time) {
-  if (time === undefined || time === null) return null;
-  const state = getComparisonWindowState();
-  const bars = getReplaySyncedBars(state.displayBars || [], state.descriptor.timeframe);
-  const bar = findDisplayBarFast(bars, time, state.descriptor.timeframe);
-  return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
-}
-
-function syncComparisonHoverCursor(primaryTime) {
-  const state = getComparisonWindowState();
-  if (!state.enabled || !state.displayBars?.length) {
-    hideComparisonSyncCrosshairCursor();
-    return;
-  }
-  const hoverTimestamp = getPrimaryHoverTimestamp(primaryTime);
-  const syncedBars = getReplaySyncedBars(state.displayBars, state.descriptor.timeframe);
-  const hoverTime = resolveExistingChartTimeFast(hoverTimestamp, state.descriptor.timeframe, syncedBars);
-  if (hoverTime === null) {
-    hideComparisonSyncCrosshairCursor();
-    return;
-  }
-  showComparisonSyncCrosshairCursor(hoverTime);
-}
-
-function scheduleComparisonHoverCursor(primaryTime) {
-  pendingPrimaryHoverTime = primaryTime;
-  if (primaryHoverFrame !== null) return;
-  primaryHoverFrame = requestFrame(() => {
-    primaryHoverFrame = null;
-    const time = pendingPrimaryHoverTime;
-    pendingPrimaryHoverTime = null;
-    syncComparisonHoverCursor(time);
-  });
-}
-
-function syncPrimaryHoverCursor(comparisonTime) {
-  const state = getComparisonWindowState();
-  if (!state.enabled || !primaryStore.getDisplayBars().length) {
-    chart.hideSyncCrosshairCursor();
-    return;
-  }
-  const hoverTimestamp = getComparisonHoverTimestamp(comparisonTime);
-  const hoverTime = resolveExistingChartTimeFast(
-    hoverTimestamp,
-    primaryStore.getCurrentTimeframe(),
-    primaryStore.getDisplayBars()
-  );
-  if (hoverTime === null) {
-    chart.hideSyncCrosshairCursor();
-    return;
-  }
-  chart.showSyncCrosshairCursor(hoverTime);
-}
-
-function schedulePrimaryHoverCursor(comparisonTime) {
-  pendingComparisonHoverTime = comparisonTime;
-  if (comparisonHoverFrame !== null) return;
-  comparisonHoverFrame = requestFrame(() => {
-    comparisonHoverFrame = null;
-    const time = pendingComparisonHoverTime;
-    pendingComparisonHoverTime = null;
-    syncPrimaryHoverCursor(time);
-  });
 }
 
 function setComparisonStatus(text, isError = false) {
