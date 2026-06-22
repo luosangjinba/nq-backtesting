@@ -30,6 +30,7 @@ Comparison Window is now the preferred replacement candidate for the main NQ/ES 
 - [Local environment variables](user/LOCAL_ENVIRONMENT.zh-CN.md)
 - [Inspector help](user/INSPECTOR_HELP.md)
 - [Databento daily refresh](user/DATABENTO_DAILY_REFRESH.md)
+- [Comparison Window real-use audit](user/COMPARISON_WINDOW_REAL_USE_AUDIT.md)
 
 ### Design
 

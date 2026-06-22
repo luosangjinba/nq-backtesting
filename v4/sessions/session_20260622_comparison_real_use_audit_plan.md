@@ -74,6 +74,16 @@ Each row must include required action, pass signal, fail signal, observed result
 
 ## Step 313.2: Add Audit/readiness Docs
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 313 execution.
+
+Implemented:
+- Added `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md`.
+- Document includes audit window requirement, readiness decisions, checklist, session log template, and pass/fail rule.
+- Added the audit doc to `v4/docs/README.md`.
+
 Add `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md`.
 
 Include:
