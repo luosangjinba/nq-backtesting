@@ -27,7 +27,7 @@ Remove or migrate remaining secondary internals after user-facing Split removal 
 
 ## Step 322.1: Import Surface Audit
 
-Status: pending.
+Status: completed.
 
 Classify remaining secondary references:
 
@@ -47,6 +47,13 @@ Output:
 - `replace with comparison`;
 - `keep temporarily with reason`;
 - `test-only update`.
+
+Result:
+
+- `remove now`: outside-click guards and event listeners for removed DOM IDs (`#secondary-context-menu`, `#secondary-viewport-controls`, `#secondary-chart`) in PDA/Segment/SMT/Order/Live/Chart Note selection and Inspector sidebar.
+- `replace with comparison`: `secondary-locate-time`, secondary viewport target, secondary pick context target, SMT manual/render/hit-test branches that now need Comparison Window semantics.
+- `remove after migration`: `ui/secondary-chart-controller.js`, `chart/secondary-chart-manager.js`, `data/secondary-chart-store.js`, `pda/secondary-context-menu.js`, `pda/secondary-pda-renderer.js`, `segment/secondary-segment-renderer.js`, `chart/secondary-viewport-controller.js`.
+- `test-only update`: `viewport-router-smoke`, `pick-context-router-smoke`, and the secondary section of `primitive-render-lifecycle-smoke`.
 
 ## Step 322.2: Remove Dead DOM Guards and Unreachable Handlers
 
