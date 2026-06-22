@@ -59,3 +59,7 @@ Validation:
 ## Decision
 
 Do not remove legacy `secondary` metadata compatibility yet. It is low-cost and protects old Review JSON. Future Step 323.3 can remove or migrate these fields only after reviewing real exported Review JSON history.
+
+## Real-Use Follow-Up
+
+User confirmed real validation passed after Step 323.1/323.2. Decision remains: keep compatibility fields for now; do not run Step 323.3 unless old Review JSON compatibility is explicitly waived.

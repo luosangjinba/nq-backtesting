@@ -1170,4 +1170,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 323: Legacy secondary metadata compatibility cleanup（可选）。目标是审计并决定是否移除 `VIEWPORT_TARGETS.SECONDARY`、PDA locate result `secondary` skipped 字段、历史 `sourceChartId='secondary'` 显示兼容和测试里的旧 DOM 缺席断言；除非确认旧 Review JSON 不再需要这些兼容，否则不要删除。计划见 `v4/sessions/session_20260622_legacy_secondary_compatibility_plan.md`。
   - [x] Step 323.1: Compatibility surface audit：已确认 legacy secondary runtime 引用为零；剩余 `secondary` 是 route/result shape/metadata/test 兼容。修复 Time Reaction 用户面残留 `Sub`，改为 `Comparison`，并让旧 `locate.chart='secondary'` 归一化到 `comparison-window`。
   - [x] Step 323.2: Legacy data regression：已新增并通过 `legacy-secondary-compatibility-smoke`，覆盖旧 Daily Time Review locate、旧 PDA source metadata、PDA locate result shape、legacy viewport/pick 输入不加载旧 runtime。
-  - [ ] Step 323.3: Compatibility removal decision：只有在确认旧 Review JSON 不需要 `sourceChartId='secondary'` / `result.secondary` / `SECONDARY` route id 后，才删除或迁移这些兼容字段。
+  - [ ] Step 323.3: Compatibility removal decision：用户已确认真实验证通过；当前决定仍是暂缓删除兼容字段。只有在确认旧 Review JSON 不需要 `sourceChartId='secondary'` / `result.secondary` / `SECONDARY` route id 后，才删除或迁移这些兼容字段。
+
+- [x] Step 324: Post-Split release checkpoint。目标是在 Split removal / secondary internals cleanup / legacy compatibility audit 之后记录稳定状态并跑核心 smoke；不新增功能、不删除兼容层。计划见 `v4/sessions/session_20260622_post_split_release_checkpoint.md`。核心 smoke 全部通过；legacy secondary metadata compatibility 保留。
+  - [x] Step 324.1: Record readiness state：用户确认 Step 323 后真实验证通过；legacy secondary runtime 已删除，metadata compatibility 保留。
+  - [x] Step 324.2: Core smoke suite：comparison、replay history、replay sync、SMT、legacy secondary compatibility、Live Record、Tradovate zip 与 `git diff --check` 全部通过。
+  - [x] Step 324.3: Closeout：已记录 smoke 结果、最终工作区状态和下一步建议；下一步可走 Order Setup Optimal/Max Profit Exit 功能设计，或 Review JSON schema/versioning。
