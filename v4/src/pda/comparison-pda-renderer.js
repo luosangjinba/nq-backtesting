@@ -13,7 +13,7 @@ import { shouldRenderPda } from '../display/display-mode.js';
 import { LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
 import { buildCePrice } from '../price-utils.js';
 import { getComparisonDisplayBars, getComparisonWindowState } from '../comparison/comparison-window-store.js';
-import { canProjectPdaToComparison } from '../comparison/comparison-overlay-policy.js';
+import { canProjectPdaToComparison, canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
@@ -31,6 +31,10 @@ function clearRenderedPrimitives() {
 
 function isComparisonPda(annotation) {
   return annotation?.sourceChartId === 'comparison-window';
+}
+
+function canRenderInComparison(annotation, state) {
+  return isComparisonPda(annotation) || canRenderObjectOnChartTarget(annotation, 'comparison-window', state).ok;
 }
 
 function mapTimestampToComparisonTime(timestamp, timeframe, displayBars) {
@@ -191,7 +195,7 @@ export function renderComparisonPdaAnnotations() {
   const timeframe = descriptor.timeframe;
   const descriptors = [];
   getAnnotations().forEach((annotation) => {
-    if (!isComparisonPda(annotation)) return;
+    if (!canRenderInComparison(annotation, state)) return;
     if (annotation.display?.hidden) return;
     if (!shouldRenderPda(annotation)) return;
     if (!canProjectPdaToComparison(annotation, descriptor).ok) return;

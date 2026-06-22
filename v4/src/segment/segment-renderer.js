@@ -18,6 +18,7 @@ import { getSegmentPointRenderTime } from './segment-time.js';
 import { getActiveDrawingSetVisibility } from './drawing-set-list.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 
 const SELECTED_COLOR = '#f0f3fa';
 const DRAFT_CHILD_COLOR = '#ffb74d';
@@ -38,6 +39,10 @@ function clearRenderedPrimitives() {
 
 function isComparisonSource(object) {
   return object?.sourceChartId === 'comparison-window';
+}
+
+function canRenderOnPrimary(object) {
+  return !isComparisonSource(object) || canRenderObjectOnChartTarget(object, 'primary').ok;
 }
 
 function getSegmentLabel(segment) {
@@ -81,10 +86,10 @@ export function renderSegments() {
   const descriptors = [];
 
   getSegmentGroups().forEach((group) => {
-    if (isComparisonSource(group)) return;
+    if (!canRenderOnPrimary(group)) return;
     if (group.display?.hidden) return;
     const children = getSortedGroupChildren(group);
-    if (children.some(isComparisonSource)) return;
+    if (children.some((segment) => !canRenderOnPrimary(segment))) return;
     if (children.length < 2) return;
     if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
     const isDrawingSetActive = drawingSetVisibility.activeGroupIds.has(group.id);
@@ -149,7 +154,7 @@ export function renderSegments() {
   const selectedGroupChildIds = new Set(selectedGroupModel?.childSegmentIds || []);
   const selectedGroupTargetId = selectedGroupModel?.targetSegmentId || '';
   getSegments().forEach((segment) => {
-    if (isComparisonSource(segment)) return;
+    if (!canRenderOnPrimary(segment)) return;
     if (!segment.start || !segment.end) return;
     if (segment.display?.hidden) return;
     const isIsolated = isolatedSegment?.id === segment.id;

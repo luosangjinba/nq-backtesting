@@ -28,6 +28,7 @@ import { getReplayVisibleBars } from '../ui/replay-controls.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 
 const SELECTED_COLOR = '#f0f3fa';
 const LINKED_SEGMENT_COLOR = '#ffcc80';
@@ -43,6 +44,10 @@ function clearRenderedPrimitives() {
 
 function isComparisonSource(annotation) {
   return annotation?.sourceChartId === 'comparison-window';
+}
+
+function canRenderOnPrimary(annotation) {
+  return !isComparisonSource(annotation) || canRenderObjectOnChartTarget(annotation, 'primary').ok;
 }
 
 function mapTimestampToCurrentChartTime(timestamp) {
@@ -543,7 +548,7 @@ export function renderPdaAnnotations() {
   const drawingSetPdaIds = getActiveDrawingSetVisibility().activePdaIds;
   const descriptors = [];
   getAnnotations().forEach((annotation) => {
-    if (isComparisonSource(annotation)) return;
+    if (!canRenderOnPrimary(annotation)) return;
     if (annotation.display?.hidden) return;
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;

@@ -10,7 +10,7 @@ import {
 import { SegmentPrimitive } from '../chart/primitives.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { shouldRenderSegment } from '../display/display-mode.js';
-import { canProjectPriceObjectToComparison } from '../comparison/comparison-overlay-policy.js';
+import { canProjectPriceObjectToComparison, canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 import { getComparisonDisplayBars, getComparisonWindowState } from '../comparison/comparison-window-store.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
 import { getSegments } from './segment-store.js';
@@ -31,6 +31,10 @@ function clearRenderedPrimitives() {
 
 function isComparisonSegment(segment) {
   return segment?.sourceChartId === 'comparison-window';
+}
+
+function canRenderInComparison(segment, state) {
+  return isComparisonSegment(segment) || canRenderObjectOnChartTarget(segment, 'comparison-window', state).ok;
 }
 
 function hasRenderablePoint(point) {
@@ -61,7 +65,7 @@ export function renderComparisonSegments() {
   const selected = getSelectedSegment();
   const descriptors = [];
   getSegments().forEach((segment) => {
-    if (!isComparisonSegment(segment)) return;
+    if (!canRenderInComparison(segment, state)) return;
     if (!segment.start || !segment.end) return;
     if (segment.display?.hidden) return;
     if (!shouldRenderSegment(segment)) return;

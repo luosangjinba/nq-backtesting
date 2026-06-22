@@ -79,11 +79,20 @@ Implementation notes:
 
 ### Step 315.3: PDA/Segment Sync Rendering
 
+Status: completed.
+
 Update Main and Comparison PDA/Segment renderers:
 
 - Local: render only local-source objects.
 - Sync and safe: render Main and Comparison source objects on both charts.
 - Labels retain source prefix.
+
+Implementation notes:
+
+- Main PDA/Segment renderers now ask the sync policy before skipping Comparison-sourced objects.
+- Comparison PDA/Segment renderers now accept Main-sourced objects only when the sync policy allows projection.
+- Secondary chart rendering remains isolated; this step only covers Main <-> Comparison.
+- Verification: `git diff --check`, `node v4/tests/comparison-overlay-policy-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 315.4: Order Setup / Live Record Sync Rendering
 
