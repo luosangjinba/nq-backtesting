@@ -158,9 +158,11 @@ async function main() {
             window.__comparisonLastBarsUrl = String(args[0]);
             return Promise.resolve(new Response(JSON.stringify({
               bars: [
+                { time: '2026-06-12 09:00', timestamp: 1781254800, tradingDay: '2026-06-12', open: 7404.5, high: 7424.75, low: 7366.5, close: 7383.0, volume: 169817 },
                 { time: '2026-06-12 10:00', timestamp: 1781258400, tradingDay: '2026-06-12', open: 7383.25, high: 7443.5, low: 7380.25, close: 7440.5, volume: 200251 },
+                { time: '2026-06-12 11:00', timestamp: 1781262000, tradingDay: '2026-06-12', open: 7440.75, high: 7461.75, low: 7401.25, close: 7405.75, volume: 160953 },
               ],
-              requestedRange: { startTs: 1781256600, endTs: 1781258400 },
+              requestedRange: { startTs: 1781254800, endTs: 1781262000 },
             }), {
               status: 200,
               headers: { 'Content-Type': 'application/json' },
@@ -331,6 +333,111 @@ async function main() {
     assert.equal(loaded.info, 'ES 1H');
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
     assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');
+
+    const contextMenuResult = await evaluate(client, `
+      (async () => {
+        const { getComparisonChartContext } = await import('/src/chart/chart-context.js');
+        const context = getComparisonChartContext();
+        const chartEl = document.querySelector('#comparison-chart-canvas');
+        const rect = chartEl.getBoundingClientRect();
+        const bars = context.getDisplayBars();
+        const first = bars[0];
+        const last = bars[bars.length - 1];
+        const openAt = (bar, price) => {
+          const x = context.timeToCoordinate(bar.timestamp);
+          const y = context.priceToCoordinate(price);
+          chartEl.dispatchEvent(new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: rect.left + x,
+            clientY: rect.top + y,
+          }));
+        };
+
+        openAt(first, first.low);
+        document.querySelector('[data-comparison-action="comparison-pda-bsl"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 350));
+
+        openAt(first, first.low);
+        document.querySelector('[data-comparison-action="comparison-segment-start-low"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        openAt(last, last.high);
+        document.querySelector('[data-comparison-action="comparison-segment-finish-high"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 600));
+
+        const orderActive = await import('/src/order/order-review-active.js');
+        orderActive.createChartReviewSet({
+          bar: first,
+          price: first.close,
+          timeframe: '1H',
+        });
+        openAt(bars[1], bars[1].close);
+        document.querySelector('[data-comparison-action="comparison-order-add-bar-evidence"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        const pdaStore = await import('/src/pda/pda-store.js');
+        const segmentStore = await import('/src/segment/segment-store.js');
+        const annotations = pdaStore.getAnnotations();
+        const segments = segmentStore.getSegments();
+        const comparisonPda = annotations.find((annotation) => annotation.sourceChartId === 'comparison-window');
+        const comparisonSegment = segments.find((segment) => segment.sourceChartId === 'comparison-window');
+        const activeSetup = orderActive.getActiveReviewSet();
+        const comparisonEvidence = activeSetup.orderReview.setupThesis.manualEvents.find((event) => event.sourceChartId === 'comparison-window');
+        return {
+          menuExists: Boolean(document.querySelector('#comparison-context-menu')),
+          comparisonPda: comparisonPda ? {
+            type: comparisonPda.type,
+            sourceChartId: comparisonPda.sourceChartId,
+            sourceChartLabel: comparisonPda.sourceChartLabel,
+            sourceInstrument: comparisonPda.sourceInstrument,
+            sourceTimeframe: comparisonPda.sourceTimeframe,
+            sourceContext: comparisonPda.sourceContext,
+          } : null,
+          comparisonSegment: comparisonSegment ? {
+            sourceChartId: comparisonSegment.sourceChartId,
+            sourceChartLabel: comparisonSegment.sourceChartLabel,
+            sourceInstrument: comparisonSegment.sourceInstrument,
+            sourceTimeframe: comparisonSegment.sourceTimeframe,
+            sourceContext: comparisonSegment.sourceContext,
+            direction: comparisonSegment.direction,
+          } : null,
+          comparisonEvidence: comparisonEvidence ? {
+            sourceChartId: comparisonEvidence.sourceChartId,
+            sourceChartLabel: comparisonEvidence.sourceChartLabel,
+            sourceInstrument: comparisonEvidence.sourceInstrument,
+            sourceTimeframe: comparisonEvidence.sourceTimeframe,
+            sourceTimeframeLabel: comparisonEvidence.sourceTimeframeLabel,
+            sourceContext: comparisonEvidence.sourceContext,
+          } : null,
+        };
+      })();
+    `);
+    assert.equal(contextMenuResult.menuExists, true, 'Comparison context menu should exist');
+    assert.deepEqual(contextMenuResult.comparisonPda, {
+      type: 'bsl',
+      sourceChartId: 'comparison-window',
+      sourceChartLabel: 'Comparison',
+      sourceInstrument: 'ES',
+      sourceTimeframe: 60,
+      sourceContext: 'ES 1H',
+    });
+    assert.deepEqual(contextMenuResult.comparisonSegment, {
+      sourceChartId: 'comparison-window',
+      sourceChartLabel: 'Comparison',
+      sourceInstrument: 'ES',
+      sourceTimeframe: 60,
+      sourceContext: 'ES 1H',
+      direction: 'up',
+    });
+    assert.deepEqual(contextMenuResult.comparisonEvidence, {
+      sourceChartId: 'comparison-window',
+      sourceChartLabel: 'Comparison',
+      sourceInstrument: 'ES',
+      sourceTimeframe: 60,
+      sourceTimeframeLabel: '1H',
+      sourceContext: 'ES 1H',
+    });
 
     const reset = await evaluate(client, `
       (() => {

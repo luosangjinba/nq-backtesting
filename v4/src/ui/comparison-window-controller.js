@@ -93,6 +93,7 @@ function ensureDom() {
           <div id="comparison-chart-info" class="comparison-chart-info"></div>
           <div id="comparison-ohlc-legend" class="comparison-ohlc-legend"></div>
           <div class="comparison-overlay-status" data-comparison-overlay-status>Overlays waiting for comparison data</div>
+          <div id="comparison-context-menu" class="pda-menu comparison-context-menu" hidden></div>
           <div class="comparison-window-placeholder" data-comparison-placeholder>
             <div class="comparison-window-placeholder-title">Comparison chart view</div>
             <div class="comparison-window-placeholder-meta" data-comparison-status>Choose a main date range to load comparison data</div>
@@ -221,7 +222,7 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
     setComparisonChartInfo({ instrument, timeframe });
     const result = await fetchBars(start, end, timeframe, instrument);
     if (seq !== requestSeq || !getComparisonWindowState().enabled) return;
-    setComparisonBars(result.bars, result.requestedRange);
+    setComparisonBars(result.bars, result.requestedRange, { start, end });
     const displayBars = getDisplayBarsFromResult(result);
     const chartData = displayBars.map((bar) => toChartBar(bar, timeframe));
     setComparisonData(chartData);

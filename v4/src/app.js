@@ -8,6 +8,7 @@ import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initComparisonWindowController } from './ui/comparison-window-controller.js';
 import { initComparisonOverlayPolicy } from './comparison/comparison-overlay-policy.js';
+import { initComparisonContextMenu } from './comparison/comparison-context-menu.js';
 import {
   getReplayRestoreSnapshot,
   initReplayControls,
@@ -132,6 +133,7 @@ console.log('[V4] Secondary chart controller initialized');
 
 initComparisonWindowController();
 initComparisonOverlayPolicy();
+initComparisonContextMenu();
 console.log('[V4] Comparison window controller initialized');
 
 initSmtRenderer();

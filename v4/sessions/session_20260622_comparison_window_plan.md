@@ -177,6 +177,15 @@ Implementation notes:
   - `sourceContext`
 - Keep Review JSON and localStorage schema compatible.
 
+Implementation notes:
+
+- Added Comparison Window to the unified chart context registry.
+- Added a comparison context menu on the comparison chart canvas.
+- Migrated comparison-context creation actions for BSL/SSL, FVG/IFVG, Segment start/finish, copy time/price, and Add Comparison Bar Evidence to active setup.
+- Created PDA/Segment/evidence objects preserve `sourceChartId=comparison-window`, `sourceChartLabel=Comparison`, `sourceInstrument`, `sourceTimeframe`, `sourceTimeframeLabel`, and `sourceContext`.
+- Browser smoke now exercises comparison BSL creation, comparison Segment start/finish, and active setup evidence creation.
+- Full hit-test based linking of existing PDA/Segment/FVG to active setup remains a later refinement because it requires generalizing secondary hit-test/render assumptions.
+
 ### Step 307.9: SMT Migration
 
 - Replace Split-bound SMT assumptions with primary view / comparison view assumptions.

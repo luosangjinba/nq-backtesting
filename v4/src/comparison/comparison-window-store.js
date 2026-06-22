@@ -8,6 +8,8 @@ let descriptor = createComparisonViewDescriptor();
 let bars = [];
 let displayBars = [];
 let requestedRange = null;
+let currentStart = null;
+let currentEnd = null;
 
 export function isComparisonWindowEnabled() {
   return enabled;
@@ -77,9 +79,11 @@ export function resetComparisonVisibleWindow() {
   return descriptor.visibleWindow;
 }
 
-export function setComparisonBars(nextBars = [], range = null) {
+export function setComparisonBars(nextBars = [], range = null, options = {}) {
   bars = Array.isArray(nextBars) ? [...nextBars] : [];
   requestedRange = range || null;
+  currentStart = options.start ?? currentStart;
+  currentEnd = options.end ?? currentEnd;
   displayBars = deriveDisplayBars(bars, requestedRange);
   bus.emit('comparison-bars:loaded', {
     bars: getComparisonBars(),
@@ -93,6 +97,8 @@ export function clearComparisonBars() {
   bars = [];
   displayBars = [];
   requestedRange = null;
+  currentStart = null;
+  currentEnd = null;
   bus.emit('comparison-bars:cleared');
 }
 
@@ -102,6 +108,10 @@ export function getComparisonBars() {
 
 export function getComparisonDisplayBars() {
   return [...displayBars];
+}
+
+export function getComparisonCurrentRange() {
+  return { start: currentStart, end: currentEnd };
 }
 
 function deriveDisplayBars(sourceBars, range) {
