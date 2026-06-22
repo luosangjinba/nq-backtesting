@@ -1,5 +1,6 @@
 import * as viewport from './viewport-controller.js';
 import * as secondaryViewport from './secondary-viewport-controller.js';
+import * as comparisonViewport from './comparison-viewport-controller.js';
 
 export const VIEWPORT_TARGETS = Object.freeze({
   PRIMARY: 'primary',
@@ -54,6 +55,8 @@ function defaultHandlers() {
       viewport.locateTimestampRange(range.start, range.end, options),
     [VIEWPORT_TARGETS.SECONDARY]: (range, options) =>
       secondaryViewport.locateSecondaryTimestampRange(range.start, range.end, options),
+    [VIEWPORT_TARGETS.COMPARISON]: (range, options) =>
+      comparisonViewport.locateComparisonTimestampRange(range.start, range.end, options),
   };
 }
 

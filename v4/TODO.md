@@ -1065,7 +1065,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 309: Chart context locate routing implementation。目标是把 primary/secondary 专用 locate 分支迁到统一 viewport router，并让 Comparison Window 可以参与 Calendar / Inspector locate；保持旧 Split 行为不变。计划见 `v4/sessions/session_20260622_chart_context_locate_routing_plan.md`。
   - [x] Step 309.1: Add viewport router foundation：新增 `chart/viewport-router.js`，统一 `primary`、`secondary`、`comparison-window`、`both` 的 locate result contract；第一步保证 primary/secondary parity。已新增 router、target constants、structured locate result、testable `createViewportRouter()` 和 `viewport-router-smoke`；comparison target 暂返回 `unsupported-target`，待 309.2 接入。
-  - [ ] Step 309.2: Add comparison viewport locate support：为 Comparison Window 增加 range locate / optional flash 能力；不自动打开窗口，未启用或无数据时返回明确 reason。
+  - [x] Step 309.2: Add comparison viewport locate support：为 Comparison Window 增加 range locate / optional flash 能力；不自动打开窗口，未启用或无数据时返回明确 reason。已新增 `comparison-viewport-controller`，router 默认支持 `comparison-window` target，浮窗未启用/无数据时返回 `not-located`。
   - [ ] Step 309.3: Migrate PDA projection locate：`pda-locate-actions.js` 改用 viewport router，并支持 `sourceChartId=comparison-window` 的定位/flash。
   - [ ] Step 309.4: Migrate Calendar locate：`calendar-actions.js` 使用 router；普通 calendar object 和 PDA locate 保持旧 primary/secondary 行为，同时支持 comparison target。
   - [ ] Step 309.5: Migrate Order Review and Live Record reason locate：根据 linked ref/source object 的 `sourceChartId` 路由到 primary/secondary/comparison，不再让 comparison source fallback 到 primary。

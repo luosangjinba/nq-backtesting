@@ -172,6 +172,23 @@ export function getComparisonSeries() {
   return comparisonSeries;
 }
 
+export function getComparisonVisibleLogicalRange() {
+  return comparisonChart?.timeScale?.().getVisibleLogicalRange?.() ?? null;
+}
+
+export function setComparisonVisibleLogicalRange(from, to) {
+  if (!comparisonChart || !Number.isFinite(from) || !Number.isFinite(to) || from >= to) return;
+  comparisonChart.timeScale().setVisibleLogicalRange({ from, to });
+}
+
+export function getComparisonActiveDataCount() {
+  return comparisonSeries?.data?.()?.length ?? 0;
+}
+
+export function resetComparisonPriceScale() {
+  comparisonChart?.priceScale?.('right')?.applyOptions?.({ autoScale: true });
+}
+
 export function attachComparisonPrimitive(primitive) {
   if (!comparisonSeries || !primitive) return;
   comparisonSeries.attachPrimitive(primitive);

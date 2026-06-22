@@ -98,6 +98,17 @@ Verification:
 
 ### Step 309.2: Add Comparison Viewport Locate Support
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 309 execution.
+
+Implemented:
+- Added `chart/comparison-viewport-controller.js` with comparison range locate, optional locate flash, scroll/zoom helpers, and a comparison viewport readiness guard.
+- Extended `comparison-chart-manager.js` with minimal visible logical range, active data count, and price-scale reset helpers.
+- Wired `viewport-router` default handlers so `comparison-window` is a real target; disabled/no-data comparison windows now return `not-located` rather than `unsupported-target`.
+- Added `comparison-viewport-controller-smoke` to assert the disabled/no-data contract.
+
 Add Comparison Window range locate support.
 
 Implementation options:
