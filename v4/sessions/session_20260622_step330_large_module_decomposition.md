@@ -141,6 +141,46 @@ git diff --check
 
 Result: all passed. Existing Node `MODULE_TYPELESS_PACKAGE_JSON` warning remains unchanged.
 
+## Step 330.6 Inspector and Domain Module Triage
+
+Post-extraction large module list still includes:
+
+- `v4/src/ui/inspector-sidebar.js` - 1290 lines.
+  - Worth splitting, but only with browser coverage because it is the app-level sidebar coordinator.
+  - Suggested boundaries: sidebar shell/event wiring, selection routing, archive import/export actions, comparison chart pick forwarding.
+  - Baseline tests: `comparison-window-browser-smoke`, `live-record-browser-smoke`, calendar/day detail smoke paths.
+
+- `v4/src/review/review-archive.js` - 1070 lines.
+  - Worth splitting after archive schema tests are expanded.
+  - Suggested boundaries: payload builder, import normalization, export serialization, compatibility migration.
+  - Existing tests: `daily-time-review-archive-smoke`, `live-record-smoke`.
+
+- `v4/src/live-record/tradovate-performance-importer.js` - 1061 lines.
+  - Good candidate for pure-domain split because it already has a focused smoke.
+  - Suggested boundaries: CSV row parsers, timestamp/money/symbol normalization, file alignment report, execution/order matching, archive builders.
+  - Existing tests: `tradovate-performance-importer-smoke`, `tradovate-zip-import-browser-smoke`.
+
+- `v4/src/pda/manual-annotation.js` - 968 lines.
+  - Worth splitting only with chart interaction/browser coverage.
+  - Suggested boundaries: context menu dispatch, chart-note editor, PDA creation actions, segment creation state machine, global keyboard/click handling.
+  - Risk: high because it owns user drawing flows and shared chart context menu behavior.
+
+- `v4/src/time-reaction/daily-time-review-store.js` - 920 lines.
+  - Good candidate for store/normalizer separation.
+  - Suggested boundaries: schema normalization, query/index helpers, persistence-facing mutations, calendar aggregation helpers.
+  - Existing tests: `daily-time-review-store-smoke`, `legacy-secondary-compatibility-smoke`, `time-reaction-panel-smoke`.
+
+- `v4/src/ui/inspector/calendar-panel.js` - 917 lines.
+  - Worth splitting after sidebar shell is stable.
+  - Suggested boundaries: calendar grid rendering, day object group rendering, day detail rendering, date/timestamp helpers.
+  - Existing tests: `calendar-visibility-smoke`, `live-record-smoke`.
+
+Decision:
+
+- Do not continue mechanical splitting in Step 330.
+- Replay and Comparison were the highest-coupling files for the current work and are now below the immediate-risk threshold.
+- Future decomposition should be separate domain-specific steps with explicit test baselines.
+
 ## Comparison Controller Split Candidates
 
 Keep stable public export from `v4/src/ui/comparison-window-controller.js`:
