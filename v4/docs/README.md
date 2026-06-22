@@ -17,6 +17,8 @@ DuckDB should become an analytics import target first, after the review schema h
 
 Tradovate Live Record import currently uses Performance/Orders/Fills as the primary import sources. Position History, Cash History, and Account Balance History are optional reconciliation files only; warnings are reported in the maintenance output and do not block Review JSON generation.
 
+Comparison Window is now the preferred replacement candidate for the main NQ/ES and cross-timeframe comparison workflow. It supports sliding/floating comparison, comparison-source PDA/Segment/FVG creation, SMT, progressive HTF replay, and workspace restore. Old Split Screen remains available because several advanced secondary workflows are still Split-only.
+
 ## Current V4 Docs
 
 ### User

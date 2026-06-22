@@ -92,7 +92,7 @@ Replay Pick rules:
 - It does not load future candles.
 - It is intended for backing up a small amount after the market has moved too far.
 
-Replay History stores workspace state such as the primary window, cursor, and Split settings. It does not store candle data. Restore failures usually mean the API is not running.
+Replay History stores workspace state such as the primary window, cursor, Split settings, and Comparison Window settings. It does not store candle data. Restore failures usually mean the API is not running.
 
 ## Calendar / Daily Regime / Economic Events
 
@@ -122,6 +122,27 @@ Daily Regime appears in the day detail:
 The current ES Daily Regime file covers `2008-01-02` through `2026-06-11`. After refreshing candle data with Databento or another flow, regenerate the relevant instrument's `daily-regime-*.csv`; otherwise Calendar Trend/Range remains based on the older CSV.
 
 Economic Events are loaded from the local USD events CSV. High/Medium are visible by default, Low is hidden by default, and Holiday is visible by default. Economic events do not draw permanent chart lines; `Locate` moves the chart and flashes the event time.
+
+## Comparison Window
+
+Comparison Window is the new sliding/floating comparison view. It is not a resize patch on the old Split Screen. Dragging the outer window moves the window frame; candles and overlays inside the window do not rescale just because the frame moved. The old Split remains available until every high-frequency workflow has been migrated or intentionally dropped.
+
+Currently supported:
+
+- Primary NQ with Comparison ES cross-instrument review.
+- Primary 1M with Comparison 1H/4H and other cross-timeframe review, including same-instrument different-timeframe comparison.
+- Right-click in the Comparison Window to create BSL/SSL, FVG/IFVG, Segment, and add the comparison candle as active Order Setup evidence.
+- PDA, Segment, Chart Notes, Order Setup, Live Record, and Time Overlays are filtered by source instrument/timeframe before rendering in the Comparison Window, avoiding wrong price-axis projection.
+- SMT prefers `Main=NQ + Comparison=ES + same timeframe`; comparison-side SMT rendering, selection, Inspector, and Locate are supported.
+- During Replay On, higher-timeframe comparison candles use 1M source data for progressive HTF rendering, so future complete HTF candles are not shown early.
+- Local workspace state saves the window enabled state, position/size, instrument/timeframe, and sync mode. Replay History also restores the needed comparison state.
+
+Current limitations:
+
+- OB, Breaker, Fib, Range PDA drafts, and EQH/EQL Point Sets remain primarily in the primary chart or old Split secondary workflows.
+- Some Inspector/Calendar secondary locate actions, Order Setup edit picking, and Segment actor pick preview still use old secondary-specific Split paths.
+- Hit-test based Link To Active Setup for existing PDA/Segment/Composite evidence is still more complete in old Split. Comparison Window currently focuses on newly-created comparison-source objects and bar evidence.
+- Do not remove Split yet. A later removal step should first migrate or explicitly drop these Split-only workflows.
 
 ## Split Screen
 

@@ -94,7 +94,7 @@ Replay Pick 的规则：
 - 不会加载未来 K 线。
 - 适合“感觉行情走多了，回退一小段”。
 
-Replay History 会保存主图窗口、cursor、Split 设置等工作区状态，但不保存 K 线数据。恢复失败时通常是 API 没开。
+Replay History 会保存主图窗口、cursor、Split 和 Comparison Window 设置等工作区状态，但不保存 K 线数据。恢复失败时通常是 API 没开。
 
 ## Calendar / Daily Regime / Economic Events
 
@@ -124,6 +124,27 @@ Daily Regime 显示在 Calendar 日期详情中：
 当前 ES Daily Regime 文件覆盖 `2008-01-02` 到 `2026-06-11`。如果后续用 Databento 或其他流程刷新了 K 线数据库，需要重新生成对应 instrument 的 `daily-regime-*.csv`，否则 Calendar 里的 Trend/Range 仍停留在旧 CSV。
 
 Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默认隐藏，Holiday 默认显示。经济事件不会在图表上常驻竖线；点击 Locate 时才定位并快闪。
+
+## Comparison Window 对比窗口
+
+Comparison Window 是新的滑动/浮动对比窗口，不是在旧 Split Screen 上做 resize。拖动窗口外框时，只移动窗口位置；窗口内 K 线和 overlay 不会因为拖动外框而重新缩放。旧 Split 仍保留，直到所有高频 workflow 都确认迁移完成。
+
+当前支持：
+
+- 主图 NQ + 对比窗口 ES 跨品种对比。
+- 主图 1M + 对比窗口 1H/4H 等跨周期对比，也支持同品种不同周期。
+- 对比窗口右键创建 BSL/SSL、FVG/IFVG、Segment，并可把当前对比 K 线作为 active Order Setup evidence。
+- PDA、Segment、Chart Notes、Order Setup、Live Record、Time Overlays 会按来源 instrument/timeframe 过滤后投影到对比窗口，避免画到错误价格轴。
+- SMT 优先使用 `Main=NQ + Comparison=ES + 同周期`；支持对比窗口渲染、选择、Inspector 和 Locate。
+- Replay On 时，高周期对比窗口会用 1M source 做 progressive HTF candle，不提前显示未来完整高周期 K 线。
+- 会保存本地窗口开关、位置/大小、instrument/timeframe 和 sync mode；Replay History 也会恢复对比窗口必要状态。
+
+当前限制：
+
+- OB、Breaker、Fib、Range PDA draft、EQH/EQL Point Sets 仍主要在主图或旧 Split 副图 workflow 中。
+- 部分 Inspector/Calendar 的 secondary locate、Order Setup edit pick、Segment actor pick preview 仍走旧 Split 的 secondary 路径。
+- 已有 PDA/Segment/Composite 的 hit-test 直接 Link To Active Setup，在旧 Split 路径更完整；Comparison Window 当前主要支持新建对比来源对象和添加 bar evidence。
+- 因此现在不要删除 Split；后续若要移除，需要先迁移或明确放弃这些 Split-only workflow。
 
 ## Split Screen 副图
 

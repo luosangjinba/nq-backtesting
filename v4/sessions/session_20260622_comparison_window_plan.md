@@ -317,6 +317,20 @@ Update:
 
 Document current limitations and the conditions for retiring Split.
 
+Done in Step 307.14:
+
+- Updated `v4/docs/user/USER_GUIDE.zh-CN.md` and `v4/docs/user/USER_GUIDE.en.md` with a new Comparison Window section.
+- Updated Replay History wording in both user guides to mention Comparison Window restore state.
+- Updated `v4/docs/README.md` with the current Comparison Window / Split relationship.
+- Marked Step 307.14 complete in `v4/TODO.md`.
+- Closeout status: Comparison Window is the preferred replacement candidate for the main comparison workflow, but Split must stay until Split-only advanced workflows are migrated or intentionally dropped.
+
+Final Step 307 implementation status:
+
+- Completed: product boundary, secondary-stack audit, comparison view contract, MVP shell, sliding semantics, time sync/data loading, overlay parity, annotation workflows, SMT migration, replay HTF progressive parity, persistence/workspace restore, browser verification, replacement review, and documentation closeout.
+- Keep Split for now because OB/Breaker/Fib/Point Sets, secondary hit-test linking, Inspector/Calendar secondary locate, and secondary pick preview are not fully replaced.
+- Future work should be a new migration/removal plan, not an immediate Split deletion.
+
 ## Non-Goals For First Implementation
 
 - Do not remove old Split.
