@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: feature/comparison-window-mvp
-Status: planned
+Status: completed
 
 ## Goal
 
@@ -80,6 +80,8 @@ Implementation notes:
 
 ### Step 317.4: Focused Verification
 
+Status: completed.
+
 Update focused/browser smoke coverage:
 
 - default descriptor is `sync`;
@@ -91,6 +93,16 @@ Update focused/browser smoke coverage:
 Expected commands:
 
 - `git diff --check`
+- `node v4/tests/comparison-window-store-smoke.js`
 - `node v4/tests/comparison-overlay-policy-smoke.js`
 - `node v4/tests/comparison-window-persistence-smoke.js`
 - `node v4/tests/comparison-window-browser-smoke.js`
+
+Final result:
+
+- Default drawing sync mode is `sync`.
+- Header displays `Drawings` with `Sync` / `No Sync`.
+- Legacy persisted `local` values are normalized to `no-sync`.
+- `Sync` plus exact instrument/timeframe permits cross-window PDA/Segment projection and hit-test.
+- `No Sync` disables cross-window projection/hit-test even when instrument/timeframe match.
+- Instrument/timeframe mismatch remains guarded.
