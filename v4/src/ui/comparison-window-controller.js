@@ -86,6 +86,7 @@ function renderOverlaySyncOptions(selectedMode) {
 export function initComparisonWindowController() {
   ensureDom();
   render(getComparisonWindowState());
+  bus.emit('comparison-window:dom-ready', getComparisonWindowState());
   bus.on('comparison-window:changed', render);
   bus.on('comparison-window:changed', handleComparisonChanged);
   bus.on('bars:loaded', () => loadComparisonForPrimaryRange({ force: true }));

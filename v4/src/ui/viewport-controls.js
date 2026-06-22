@@ -153,5 +153,9 @@ export function initViewportControls() {
     ensureComparisonControls();
     render();
   });
+  bus.on('comparison-window:dom-ready', () => {
+    ensureComparisonControls();
+    render();
+  });
   render();
 }
