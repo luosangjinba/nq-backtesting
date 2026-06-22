@@ -2,6 +2,8 @@
 
 Date: 2026-06-22
 
+Superseded note: the custom DOM boundary price-axis described in this session was later replaced by the native Lightweight Charts price scale in `v4/sessions/session_20260622_native_comparison_price_axis.md`. The header/Close, Main OHLC offset, transparent resize handle, and layout-resize learnings remain relevant; the custom boundary-axis rendering and manual price-range interaction no longer apply.
+
 ## Issue
 
 User reported from a real browser screenshot:

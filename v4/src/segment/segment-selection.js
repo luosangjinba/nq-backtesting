@@ -73,6 +73,7 @@ function shouldIgnoreClick(e) {
       e.target.closest('#pda-context-menu') ||
       e.target.closest('#comparison-context-menu') ||
       e.target.closest('#viewport-controls') ||
+      e.target.closest('#comparison-viewport-controls') ||
       e.target.closest('#replay-controls') ||
       e.target.closest('#inspector-sidebar') ||
       e.target.closest('input, select, button, textarea')

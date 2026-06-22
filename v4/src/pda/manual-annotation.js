@@ -459,7 +459,11 @@ function hideContextMenu() {
 }
 
 function handleContextMenu(e) {
-  if (e.target.closest('#viewport-controls') || e.target.closest('.pda-menu')) return;
+  if (
+    e.target.closest('#viewport-controls') ||
+    e.target.closest('#comparison-viewport-controls') ||
+    e.target.closest('.pda-menu')
+  ) return;
 
   e.preventDefault();
   const chartEl = document.getElementById('chart');

@@ -4,24 +4,19 @@ import {
   INSTRUMENT_OPTIONS,
   TIMEFRAME_MAP,
 } from '../config.js';
-import { formatTickPrice } from '../price-utils.js';
 import {
   clearComparisonData,
   getComparisonChart,
-  getComparisonPriceRange,
-  getComparisonSeries,
   hideComparisonCursor,
   hideComparisonSyncCrosshairCursor,
   initComparisonChart,
   onComparisonCrosshairMove,
-  resetComparisonPriceScale,
   setComparisonChartInfo,
   setComparisonData,
   showComparisonCursor,
   showComparisonEndOfData,
   showComparisonSyncCrosshairCursor,
   showComparisonStartOfData,
-  zoomComparisonPriceScale,
 } from '../chart/comparison-chart-manager.js';
 import * as chart from '../chart/chart-manager.js';
 import { findDisplayBarFast, resolveExistingChartTimeFast } from '../chart/display-bar-lookup.js';
@@ -44,7 +39,6 @@ import { getReplaySyncedComparisonBars } from '../comparison/comparison-replay-s
 
 let root = null;
 let windowEl = null;
-let comparisonBoundaryPriceAxisEl = null;
 let dragState = null;
 let requestSeq = 0;
 let lastLoadSignature = null;
@@ -55,7 +49,6 @@ let pendingPrimaryHoverTime = null;
 let pendingComparisonHoverTime = null;
 let primaryHoverFrame = null;
 let comparisonHoverFrame = null;
-let priceAxisDragState = null;
 let layoutResizeObserver = null;
 let layoutRefreshFrame = null;
 
@@ -143,6 +136,7 @@ function ensureDom() {
         <div id="comparison-chart-canvas" class="comparison-chart-canvas">
           <div id="comparison-chart-info" class="comparison-chart-info"></div>
           <div id="comparison-ohlc-legend" class="comparison-ohlc-legend"></div>
+          <div id="comparison-viewport-controls"></div>
           <div class="comparison-overlay-status" data-comparison-overlay-status>Overlays waiting for comparison data</div>
           <div id="comparison-context-menu" class="pda-menu comparison-context-menu" hidden></div>
           <div class="comparison-window-placeholder" data-comparison-placeholder>
@@ -152,11 +146,9 @@ function ensureDom() {
         </div>
       </div>
     </section>
-    <div class="comparison-boundary-price-axis" data-comparison-boundary-price-axis aria-hidden="true"></div>
   `;
   host.appendChild(root);
   windowEl = root.querySelector('#comparison-window');
-  comparisonBoundaryPriceAxisEl = root.querySelector('[data-comparison-boundary-price-axis]');
   layoutResizeObserver = new ResizeObserver(scheduleComparisonLayoutRefresh);
   layoutResizeObserver.observe(host);
   root.querySelector('[data-comparison-close]')?.addEventListener('click', () => {
@@ -185,19 +177,13 @@ function ensureDom() {
     suppressComparisonDragEvent(event);
     resetComparisonVisibleWindow();
   });
-  comparisonBoundaryPriceAxisEl?.addEventListener('pointerdown', startComparisonPriceAxisScale);
-  comparisonBoundaryPriceAxisEl?.addEventListener('wheel', handleComparisonPriceAxisWheel, { passive: false });
-  comparisonBoundaryPriceAxisEl?.addEventListener('dblclick', resetComparisonPriceAxisScale);
 }
 
 function render(state) {
   ensureDom();
   if (!root || !windowEl) return;
   syncComparisonLayoutGeometry(state);
-  if (!state.enabled) {
-    renderComparisonBoundaryPriceAxis(state);
-    return;
-  }
+  if (!state.enabled) return;
   const { instrument, timeframe, syncMode, overlaySyncMode } = state.descriptor;
   windowEl.dataset.instrument = instrument;
   windowEl.dataset.timeframe = String(timeframe);
@@ -218,11 +204,9 @@ function render(state) {
     overlaySyncSelect.innerHTML = renderOverlaySyncOptions(overlaySyncMode);
     overlaySyncSelect.value = overlaySyncMode;
   }
-  renderComparisonBoundaryPriceAxis(state);
   requestAnimationFrame(() => {
     initComparisonChart();
     setComparisonChartInfo({ instrument, timeframe });
-    renderComparisonBoundaryPriceAxis(getComparisonWindowState());
   });
 }
 
@@ -232,16 +216,19 @@ function syncComparisonLayoutGeometry(state = getComparisonWindowState()) {
   root.hidden = !state.enabled;
   if (!state.enabled) {
     host?.style.setProperty('--primary-legend-left-offset', '0px');
+    host?.style.setProperty('--primary-viewport-center-left', '50%');
     return;
   }
   const { visibleWindow, layoutMode } = state.descriptor;
   const isSliding = layoutMode === 'sliding';
   const rootRect = root.getBoundingClientRect();
-  root.style.setProperty('--comparison-root-width', `${Math.max(1, Math.round(rootRect.width))}px`);
   const boundaryPx = isSliding
     ? ((Number(visibleWindow.x) + Number(visibleWindow.width)) / 100) * rootRect.width
     : 0;
   host?.style.setProperty('--primary-legend-left-offset', `${Math.max(0, Math.round(boundaryPx))}px`);
+  root.style.setProperty('--comparison-viewport-center-left', `${Math.max(0, Math.round(boundaryPx / 2))}px`);
+  const mainCenterPx = isSliding ? boundaryPx + Math.max(0, rootRect.width - boundaryPx) / 2 : rootRect.width / 2;
+  host?.style.setProperty('--primary-viewport-center-left', `${Math.max(0, Math.round(mainCenterPx))}px`);
   windowEl.classList.toggle('comparison-window-sliding', isSliding);
   windowEl.classList.toggle('comparison-window-floating', !isSliding);
   windowEl.style.left = `${visibleWindow.x}%`;
@@ -258,72 +245,7 @@ function scheduleComparisonLayoutRefresh() {
     layoutRefreshFrame = null;
     const state = getComparisonWindowState();
     syncComparisonLayoutGeometry(state);
-    renderComparisonBoundaryPriceAxis(state);
   });
-}
-
-function renderComparisonBoundaryPriceAxis(state = getComparisonWindowState()) {
-  if (!root || !comparisonBoundaryPriceAxisEl) return;
-  const descriptor = state?.descriptor || {};
-  const visibleWindow = descriptor.visibleWindow || {};
-  const isVisible = Boolean(state?.enabled) && descriptor.layoutMode === 'sliding';
-  comparisonBoundaryPriceAxisEl.hidden = !isVisible;
-  if (!isVisible) {
-    comparisonBoundaryPriceAxisEl.innerHTML = '';
-    return;
-  }
-
-  const rootRect = root.getBoundingClientRect();
-  const canvasEl = document.getElementById('comparison-chart-canvas');
-  const canvasRect = canvasEl?.getBoundingClientRect();
-  const axisWidth = 70;
-  const boundaryPx = ((Number(visibleWindow.x) + Number(visibleWindow.width)) / 100) * rootRect.width;
-  comparisonBoundaryPriceAxisEl.style.left = `${Math.max(0, Math.round(boundaryPx - axisWidth))}px`;
-  comparisonBoundaryPriceAxisEl.style.top = `${Math.max(0, Math.round((canvasRect?.top || rootRect.top) - rootRect.top))}px`;
-  comparisonBoundaryPriceAxisEl.style.height = `${Math.max(1, Math.round(canvasRect?.height || rootRect.height))}px`;
-  comparisonBoundaryPriceAxisEl.style.width = `${axisWidth}px`;
-
-  const height = canvasRect?.height || rootRect.height;
-  const comparisonSeries = getComparisonSeries();
-  if (!height || !comparisonSeries) {
-    comparisonBoundaryPriceAxisEl.innerHTML = '';
-    return;
-  }
-
-  const currentRange = getComparisonPriceRange();
-  const lowPrice = Number(currentRange?.minValue);
-  const highPrice = Number(currentRange?.maxValue);
-  const hasDataRange =
-    Number.isFinite(lowPrice) &&
-    Number.isFinite(highPrice) &&
-    highPrice > lowPrice;
-  const rangePadding = hasDataRange ? Math.max((highPrice - lowPrice) * 0.75, 100) : 0;
-  const isPlausiblePrice = (price) => {
-    if (!Number.isFinite(Number(price))) return false;
-    if (!hasDataRange) return true;
-    return price >= lowPrice - rangePadding && price <= highPrice + rangePadding;
-  };
-  const fallbackPriceAtY = (y) => {
-    if (!hasDataRange) return null;
-    const ratio = Math.max(0, Math.min(1, y / Math.max(1, height)));
-    return highPrice - ratio * (highPrice - lowPrice);
-  };
-
-  const ticks = [];
-  const step = Math.max(36, Math.round(height / 9));
-  for (let y = 28; y <= height - 20; y += step) {
-    const seriesPrice = Number(comparisonSeries.coordinateToPrice?.(y));
-    const price = isPlausiblePrice(seriesPrice) ? seriesPrice : fallbackPriceAtY(y);
-    if (!Number.isFinite(Number(price))) continue;
-    ticks.push({ y, price: Number(price) });
-  }
-
-  comparisonBoundaryPriceAxisEl.innerHTML = ticks
-    .map(
-      ({ y, price }) =>
-        `<span class="comparison-boundary-price-axis-label" style="top:${Math.round(y)}px">${formatTickPrice(price, descriptor.instrument)}</span>`
-    )
-    .join('');
 }
 
 function handleComparisonChanged(state) {
@@ -619,69 +541,6 @@ function startSlideResize(event) {
 }
 
 function suppressComparisonDragEvent(event) {
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function getComparisonPriceAxisAnchorRatio(event) {
-  const rect = comparisonBoundaryPriceAxisEl?.getBoundingClientRect();
-  if (!rect || rect.height <= 0) return 0.5;
-  return Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
-}
-
-function refreshComparisonBoundaryPriceAxis() {
-  renderComparisonBoundaryPriceAxis(getComparisonWindowState());
-}
-
-function startComparisonPriceAxisScale(event) {
-  if (!comparisonBoundaryPriceAxisEl || event.button !== 0) return;
-  priceAxisDragState = {
-    pointerId: event.pointerId,
-    lastClientY: event.clientY,
-    anchorRatio: getComparisonPriceAxisAnchorRatio(event),
-  };
-  comparisonBoundaryPriceAxisEl.setPointerCapture?.(event.pointerId);
-  comparisonBoundaryPriceAxisEl.addEventListener('pointermove', dragComparisonPriceAxisScale);
-  comparisonBoundaryPriceAxisEl.addEventListener('pointerup', stopComparisonPriceAxisScale, { once: true });
-  comparisonBoundaryPriceAxisEl.addEventListener('pointercancel', stopComparisonPriceAxisScale, { once: true });
-  root?.classList.add('comparison-price-axis-scaling');
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function dragComparisonPriceAxisScale(event) {
-  if (!priceAxisDragState || event.pointerId !== priceAxisDragState.pointerId) return;
-  const deltaY = event.clientY - priceAxisDragState.lastClientY;
-  priceAxisDragState.lastClientY = event.clientY;
-  if (Math.abs(deltaY) > 0) {
-    zoomComparisonPriceScale(deltaY, priceAxisDragState.anchorRatio);
-    refreshComparisonBoundaryPriceAxis();
-  }
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function stopComparisonPriceAxisScale(event) {
-  if (!priceAxisDragState || event.pointerId !== priceAxisDragState.pointerId) return;
-  comparisonBoundaryPriceAxisEl?.removeEventListener('pointermove', dragComparisonPriceAxisScale);
-  comparisonBoundaryPriceAxisEl?.releasePointerCapture?.(priceAxisDragState.pointerId);
-  root?.classList.remove('comparison-price-axis-scaling');
-  priceAxisDragState = null;
-  refreshComparisonBoundaryPriceAxis();
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function handleComparisonPriceAxisWheel(event) {
-  zoomComparisonPriceScale(event.deltaY, getComparisonPriceAxisAnchorRatio(event));
-  refreshComparisonBoundaryPriceAxis();
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function resetComparisonPriceAxisScale(event) {
-  resetComparisonPriceScale();
-  refreshComparisonBoundaryPriceAxis();
   event.stopPropagation();
   event.preventDefault();
 }

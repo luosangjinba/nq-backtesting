@@ -21,8 +21,6 @@ let lastLegendKey = '';
 let cursorPrimitive = null;
 let syncCrosshairPrimitive = null;
 let pickPreviewPrimitive = null;
-let activePriceRange = null;
-let manualPriceRange = null;
 const crosshairMoveCallbacks = new Set();
 
 function formatChartTime(time) {
@@ -89,64 +87,6 @@ function notifyCrosshairMove(param) {
   crosshairMoveCallbacks.forEach((callback) => callback(param));
 }
 
-function derivePriceRange(data = []) {
-  const lows = data.map((bar) => Number(bar?.low)).filter(Number.isFinite);
-  const highs = data.map((bar) => Number(bar?.high)).filter(Number.isFinite);
-  if (!lows.length || !highs.length) return null;
-  const minValue = Math.min(...lows);
-  const maxValue = Math.max(...highs);
-  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue) || maxValue <= minValue) return null;
-  const padding = Math.max((maxValue - minValue) * 0.08, getInstrumentTickSize(activeInstrument) * 8);
-  return {
-    minValue: minValue - padding,
-    maxValue: maxValue + padding,
-  };
-}
-
-function getCurrentPriceRange() {
-  if (manualPriceRange) return { ...manualPriceRange };
-  const height = comparisonContainer?.clientHeight || 0;
-  const topPrice = Number(comparisonSeries?.coordinateToPrice?.(0));
-  const bottomPrice = Number(comparisonSeries?.coordinateToPrice?.(height));
-  const coordinateRangeOk =
-    Number.isFinite(topPrice) &&
-    Number.isFinite(bottomPrice) &&
-    topPrice > bottomPrice;
-  if (coordinateRangeOk && activePriceRange) {
-    const activeSpan = activePriceRange.maxValue - activePriceRange.minValue;
-    const coordinateSpan = topPrice - bottomPrice;
-    const padding = Math.max(activeSpan * 1.5, getInstrumentTickSize(activeInstrument) * 32);
-    const plausible =
-      coordinateSpan >= activeSpan * 0.05 &&
-      coordinateSpan <= activeSpan * 20 &&
-      topPrice >= activePriceRange.minValue - padding &&
-      bottomPrice <= activePriceRange.maxValue + padding;
-    if (!plausible) return { ...activePriceRange };
-  }
-  if (coordinateRangeOk) {
-    return {
-      minValue: bottomPrice,
-      maxValue: topPrice,
-    };
-  }
-  return activePriceRange ? { ...activePriceRange } : null;
-}
-
-function applyComparisonPriceScale() {
-  if (!comparisonSeries) return;
-  comparisonSeries.applyOptions({
-    autoscaleInfoProvider: () => {
-      if (!manualPriceRange) return null;
-      return {
-        priceRange: {
-          minValue: manualPriceRange.minValue,
-          maxValue: manualPriceRange.maxValue,
-        },
-      };
-    },
-  });
-}
-
 export function initComparisonChart(containerId = 'comparison-chart-canvas') {
   if (comparisonChart && comparisonSeries) return { chart: comparisonChart, series: comparisonSeries };
   const container = document.getElementById(containerId);
@@ -182,15 +122,6 @@ export function initComparisonChart(containerId = 'comparison-chart-canvas') {
       precision: 2,
       minMove: getInstrumentTickSize(activeInstrument),
     },
-    autoscaleInfoProvider: () => {
-      if (!manualPriceRange) return null;
-      return {
-        priceRange: {
-          minValue: manualPriceRange.minValue,
-          maxValue: manualPriceRange.maxValue,
-        },
-      };
-    },
   });
   comparisonChart.subscribeCrosshairMove(notifyCrosshairMove);
 
@@ -225,15 +156,6 @@ export function setComparisonData(data = []) {
   if (!comparisonSeries) return;
   lastLegendKey = '';
   legendEl.innerHTML = '';
-  activePriceRange = derivePriceRange(data);
-  if (manualPriceRange && activePriceRange) {
-    const currentSpan = manualPriceRange.maxValue - manualPriceRange.minValue;
-    const dataSpan = activePriceRange.maxValue - activePriceRange.minValue;
-    if (!Number.isFinite(currentSpan) || currentSpan <= 0 || currentSpan > dataSpan * 30) {
-      manualPriceRange = null;
-      applyComparisonPriceScale();
-    }
-  }
   comparisonSeries.setData(data);
 }
 
@@ -266,37 +188,7 @@ export function getComparisonActiveDataCount() {
 }
 
 export function resetComparisonPriceScale() {
-  manualPriceRange = null;
-  applyComparisonPriceScale();
   comparisonChart?.priceScale?.('right')?.applyOptions?.({ autoScale: true });
-}
-
-export function getComparisonPriceRange() {
-  return getCurrentPriceRange();
-}
-
-export function setComparisonManualPriceRange(range) {
-  const minValue = Number(range?.minValue);
-  const maxValue = Number(range?.maxValue);
-  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue) || maxValue <= minValue) return null;
-  manualPriceRange = { minValue, maxValue };
-  applyComparisonPriceScale();
-  return getComparisonPriceRange();
-}
-
-export function zoomComparisonPriceScale(deltaY, anchorRatio = 0.5) {
-  const current = getCurrentPriceRange();
-  if (!current) return null;
-  const span = current.maxValue - current.minValue;
-  if (!Number.isFinite(span) || span <= 0) return null;
-  const ratio = Math.max(0.02, Math.min(0.98, Number(anchorRatio)));
-  const anchorPrice = current.maxValue - ratio * span;
-  const factor = Math.max(0.2, Math.min(5, Math.exp(Number(deltaY) * 0.003)));
-  const nextSpan = Math.max(getInstrumentTickSize(activeInstrument) * 16, span * factor);
-  return setComparisonManualPriceRange({
-    minValue: anchorPrice - (1 - ratio) * nextSpan,
-    maxValue: anchorPrice + ratio * nextSpan,
-  });
 }
 
 export function attachComparisonPrimitive(primitive) {

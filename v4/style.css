@@ -225,12 +225,6 @@ html, body {
   cursor: ew-resize;
 }
 
-.comparison-price-axis-scaling,
-.comparison-price-axis-scaling * {
-  cursor: ns-resize;
-  user-select: none;
-}
-
 .comparison-window-left-handle {
   position: absolute;
   top: 0;
@@ -242,27 +236,6 @@ html, body {
   cursor: ew-resize;
   background: rgba(77, 182, 172, 0.02);
   touch-action: none;
-}
-
-.comparison-boundary-price-axis {
-  position: absolute;
-  z-index: 3;
-  pointer-events: auto;
-  cursor: ns-resize;
-  border-right: 1px solid rgba(120, 123, 134, 0.48);
-  background: linear-gradient(90deg, rgba(19, 23, 34, 0), rgba(19, 23, 34, 0.82));
-  touch-action: none;
-}
-
-.comparison-boundary-price-axis-label {
-  position: absolute;
-  right: 6px;
-  transform: translateY(-50%);
-  color: #9aa0aa;
-  font-size: var(--chart-label-font-size);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 .comparison-window-left-handle::after {
@@ -298,13 +271,6 @@ html, body {
     linear-gradient(rgba(120, 123, 134, 0.08) 1px, transparent 1px),
     #131722;
   background-size: 64px 64px;
-}
-
-.comparison-window-sliding .comparison-chart-canvas {
-  left: 0;
-  right: auto;
-  width: var(--comparison-root-width, 100vw);
-  min-width: var(--comparison-root-width, 100vw);
 }
 
 .comparison-window-placeholder {
@@ -453,9 +419,9 @@ html, body {
 }
 
 #viewport-controls,
-#secondary-viewport-controls {
+#secondary-viewport-controls,
+#comparison-viewport-controls {
   position: absolute;
-  left: 50%;
   bottom: 46px;
   z-index: 8;
   padding: 14px 24px;
@@ -468,9 +434,24 @@ html, body {
 #viewport-controls:hover,
 #viewport-controls:focus-within,
 #secondary-viewport-controls:hover,
-#secondary-viewport-controls:focus-within {
+#secondary-viewport-controls:focus-within,
+#comparison-viewport-controls:hover,
+#comparison-viewport-controls:focus-within {
   opacity: 1;
   pointer-events: auto;
+}
+
+#viewport-controls {
+  left: var(--primary-viewport-center-left, 50%);
+}
+
+#secondary-viewport-controls,
+#comparison-viewport-controls {
+  left: 50%;
+}
+
+#comparison-viewport-controls {
+  left: var(--comparison-viewport-center-left, 50%);
 }
 
 #pda-context-menu,

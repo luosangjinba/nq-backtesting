@@ -3,11 +3,14 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as viewport from '../chart/viewport-controller.js';
+import * as comparisonViewport from '../chart/comparison-viewport-controller.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
 
 let controlsEl = null;
+let comparisonControlsEl = null;
+let comparisonControlsBound = false;
 
 const PRIMARY_ACTIONS = {
   prevWindow: () => loadAdjacentWindow('prev'),
@@ -17,6 +20,14 @@ const PRIMARY_ACTIONS = {
   scrollLeft: viewport.scrollLeft,
   scrollRight: viewport.scrollRight,
   reset: viewport.resetChartView,
+};
+
+const COMPARISON_ACTIONS = {
+  zoomOut: comparisonViewport.zoomOut,
+  zoomIn: comparisonViewport.zoomIn,
+  scrollLeft: comparisonViewport.scrollLeft,
+  scrollRight: comparisonViewport.scrollRight,
+  reset: comparisonViewport.resetChartView,
 };
 
 function setToolbarRange(start, end) {
@@ -86,8 +97,18 @@ function renderPrimary() {
   renderControls(controlsEl, viewport.canControlViewport, 'Reset chart view (Alt + R)', { showWindowControls: true });
 }
 
+function renderComparison() {
+  ensureComparisonControls();
+  renderControls(
+    comparisonControlsEl,
+    comparisonViewport.canControlComparisonViewport,
+    'Reset comparison chart view'
+  );
+}
+
 function render() {
   renderPrimary();
+  renderComparison();
 }
 
 function handleClick(actions, e) {
@@ -109,12 +130,28 @@ function handleKeydown(e) {
   }
 }
 
+function ensureComparisonControls() {
+  const nextEl = document.getElementById('comparison-viewport-controls');
+  if (!nextEl) return;
+  if (comparisonControlsEl === nextEl && comparisonControlsBound) return;
+  comparisonControlsEl = nextEl;
+  comparisonControlsEl.addEventListener('click', (e) => handleClick(COMPARISON_ACTIONS, e));
+  comparisonControlsBound = true;
+}
+
 export function initViewportControls() {
   controlsEl = document.getElementById('viewport-controls');
 
   controlsEl?.addEventListener('click', (e) => handleClick(PRIMARY_ACTIONS, e));
+  ensureComparisonControls();
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', render);
   bus.on('bars:cleared', render);
+  bus.on('comparison-bars:loaded', render);
+  bus.on('comparison-bars:cleared', render);
+  bus.on('comparison-window:changed', () => {
+    ensureComparisonControls();
+    render();
+  });
   render();
 }

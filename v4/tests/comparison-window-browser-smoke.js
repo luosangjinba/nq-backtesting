@@ -341,12 +341,45 @@ async function main() {
     assert.ok(moved.afterRight > moved.beforeRight, 'Sliding drag should move the right boundary right');
     assert.ok(moved.afterWidth > moved.beforeWidth, 'Sliding drag should increase the clipped visible width');
     assert.equal(Math.round(moved.afterTop), Math.round(moved.beforeTop), 'Sliding drag should not move window vertically');
-    assert.ok(moved.afterCanvasWidth > moved.afterWidth, 'Sliding drag should keep internal canvas wider than clipped shell');
-    assert.equal(Math.round(moved.afterCanvasWidth), Math.round(moved.beforeCanvasWidth), 'Sliding drag should not shrink internal chart canvas');
+    assert.ok(
+      Math.abs(moved.afterCanvasWidth - moved.afterWidth) <= 2,
+      'Sliding comparison chart canvas should use the visible window width so the native price axis stays visible'
+    );
+    assert.ok(moved.afterCanvasWidth > moved.beforeCanvasWidth, 'Sliding drag should resize the native comparison chart width');
     assert.equal(moved.stackWidth, dragStart.stackWidth, 'Dragging window should not resize chart stack width');
     assert.equal(moved.stackHeight, dragStart.stackHeight, 'Dragging window should not resize chart stack height');
     assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
     assert.equal(moved.primaryHeight, dragStart.primaryHeight, 'Dragging window should not resize primary panel height');
+    const viewportControlsPlacement = await evaluate(client, `
+      (() => {
+        const primaryControls = document.querySelector('#viewport-controls');
+        const comparisonControls = document.querySelector('#comparison-viewport-controls');
+        const primaryRect = primaryControls.getBoundingClientRect();
+        const comparisonRect = comparisonControls.getBoundingClientRect();
+        const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+        const win = document.querySelector('#comparison-window').getBoundingClientRect();
+        const primaryCenter = primaryRect.left + primaryRect.width / 2;
+        const comparisonCenter = comparisonRect.left + comparisonRect.width / 2;
+        return {
+          primaryButtonCount: primaryControls.querySelectorAll('button').length,
+          comparisonButtonCount: comparisonControls.querySelectorAll('button').length,
+          comparisonDisabledCount: comparisonControls.querySelectorAll('button:disabled').length,
+          primaryCenter,
+          expectedPrimaryCenter: win.right + (stack.right - win.right) / 2,
+          comparisonCenter,
+          expectedComparisonCenter: win.left + win.width / 2,
+        };
+      })();
+    `);
+    assert.ok(
+      Math.abs(viewportControlsPlacement.primaryCenter - viewportControlsPlacement.expectedPrimaryCenter) <= 3,
+      `Primary viewport controls should center in visible main area: ${JSON.stringify(viewportControlsPlacement)}`
+    );
+    assert.ok(
+      Math.abs(viewportControlsPlacement.comparisonCenter - viewportControlsPlacement.expectedComparisonCenter) <= 3,
+      `Comparison viewport controls should center inside comparison window: ${JSON.stringify(viewportControlsPlacement)}`
+    );
+    assert.equal(viewportControlsPlacement.comparisonButtonCount, 5, 'Comparison viewport controls should render zoom/reset/scroll buttons');
     const resizeHandleVisual = await evaluate(client, `
       (() => {
         const handle = document.querySelector('.comparison-window-left-handle');
@@ -362,32 +395,27 @@ async function main() {
     assert.ok(resizeHandleVisual.width >= 8, 'Comparison resize handle should keep a usable transparent hit target');
     assert.equal(resizeHandleVisual.afterContent, 'none', 'Comparison resize handle should not draw a second thick divider line');
 
-    const primaryPriceAxis = await evaluate(client, `
+    const nativePriceAxisLayout = await evaluate(client, `
       (() => {
         const win = document.querySelector('#comparison-window').getBoundingClientRect();
-        const header = document.querySelector('.comparison-window-header').getBoundingClientRect();
-        const axis = document.querySelector('[data-comparison-boundary-price-axis]');
-        const rect = axis.getBoundingClientRect();
+        const canvas = document.querySelector('#comparison-chart-canvas').getBoundingClientRect();
         return {
-          hidden: axis.hidden,
-          labelCount: axis.querySelectorAll('.comparison-boundary-price-axis-label').length,
-          axisTop: rect.top,
-          headerBottom: header.bottom,
-          axisRight: rect.right,
+          customAxisExists: Boolean(document.querySelector('[data-comparison-boundary-price-axis]')),
+          canvasRight: canvas.right,
           windowRight: win.right,
-          width: rect.width,
+          canvasWidth: canvas.width,
+          windowWidth: win.width,
         };
       })();
     `);
-    assert.equal(primaryPriceAxis.hidden, false, 'Sliding comparison should show a comparison price axis at the boundary');
-    assert.ok(primaryPriceAxis.width >= 60, 'Comparison boundary price axis should reserve readable label width');
+    assert.equal(nativePriceAxisLayout.customAxisExists, false, 'Comparison should use native Lightweight Charts price axis, not a custom DOM axis');
     assert.ok(
-      primaryPriceAxis.axisTop >= primaryPriceAxis.headerBottom - 1,
-      'Comparison boundary price axis should start below the comparison header'
+      Math.abs(nativePriceAxisLayout.canvasRight - nativePriceAxisLayout.windowRight) <= 2,
+      `Native comparison chart should end at the Comparison/Main boundary: ${JSON.stringify(nativePriceAxisLayout)}`
     );
     assert.ok(
-      Math.abs(primaryPriceAxis.axisRight - primaryPriceAxis.windowRight) <= 2,
-      'Comparison boundary price axis should align to the comparison right boundary'
+      Math.abs(nativePriceAxisLayout.canvasWidth - nativePriceAxisLayout.windowWidth) <= 2,
+      `Native comparison chart width should match the visible Comparison window: ${JSON.stringify(nativePriceAxisLayout)}`
     );
     const inspectorLayout = await evaluate(client, `
       (async () => {
@@ -395,22 +423,22 @@ async function main() {
         inspector?.classList.add('open');
         await new Promise((resolve) => setTimeout(resolve, 260));
         const win = document.querySelector('#comparison-window').getBoundingClientRect();
-        const axis = document.querySelector('[data-comparison-boundary-price-axis]').getBoundingClientRect();
+        const canvas = document.querySelector('#comparison-chart-canvas').getBoundingClientRect();
         const stack = document.querySelector('#chart-stack').getBoundingClientRect();
         inspector?.classList.remove('open');
         await new Promise((resolve) => setTimeout(resolve, 180));
         return {
           inspectorExists: Boolean(inspector),
           stackWidth: stack.width,
-          axisRight: axis.right,
+          canvasRight: canvas.right,
           windowRight: win.right,
         };
       })();
     `);
     assert.equal(inspectorLayout.inspectorExists, true, 'Inspector sidebar should exist for layout regression');
     assert.ok(
-      Math.abs(inspectorLayout.axisRight - inspectorLayout.windowRight) <= 2,
-      `Comparison boundary price axis should follow layout resize from Inspector: ${JSON.stringify(inspectorLayout)}`
+      Math.abs(inspectorLayout.canvasRight - inspectorLayout.windowRight) <= 2,
+      `Native comparison price axis should follow layout resize from Inspector: ${JSON.stringify(inspectorLayout)}`
     );
     const closeButtonHit = await evaluate(client, `
       (() => {
@@ -519,60 +547,37 @@ async function main() {
     assert.equal(loaded.info, 'ES 1H');
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
     assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');
-
-    const loadedBoundaryAxis = await evaluate(client, `
-      (() => ({
-        labelCount: document.querySelectorAll('.comparison-boundary-price-axis-label').length,
-        labels: [...document.querySelectorAll('.comparison-boundary-price-axis-label')]
-          .map((label) => label.textContent.trim()),
-      }))();
-    `);
-    assert.ok(loadedBoundaryAxis.labelCount > 0, 'Comparison boundary price axis should render labels after data loads');
-    assert.ok(
-      loadedBoundaryAxis.labels.some((label) => !/^0(?:\\.00)?$/.test(label)),
-      `Comparison boundary price axis should render real price labels: ${loadedBoundaryAxis.labels.join(', ')}`
-    );
-    const priceAxisScaleResult = await evaluate(client, `
+    const comparisonViewportAction = await evaluate(client, `
       (async () => {
         const manager = await import('/src/chart/comparison-chart-manager.js');
-        const axis = document.querySelector('[data-comparison-boundary-price-axis]');
-        const rect = axis.getBoundingClientRect();
-        const before = manager.getComparisonPriceRange();
-        axis.dispatchEvent(new WheelEvent('wheel', {
-          bubbles: true,
-          cancelable: true,
-          deltaY: -180,
-          clientX: rect.left + rect.width / 2,
-          clientY: rect.top + rect.height / 2,
-        }));
+        const before = manager.getComparisonVisibleLogicalRange();
+        const controls = document.querySelector('#comparison-viewport-controls');
+        const disabledCountBefore = controls.querySelectorAll('button:disabled').length;
+        controls.querySelector('[data-action="zoomIn"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 80));
+        const afterZoom = manager.getComparisonVisibleLogicalRange();
+        manager.setComparisonVisibleLogicalRange(before.from, before.to);
         await new Promise((resolve) => setTimeout(resolve, 120));
-        const afterWheel = manager.getComparisonPriceRange();
-        axis.dispatchEvent(new MouseEvent('dblclick', {
-          bubbles: true,
-          cancelable: true,
-          clientX: rect.left + rect.width / 2,
-          clientY: rect.top + rect.height / 2,
-        }));
-        await new Promise((resolve) => setTimeout(resolve, 120));
-        const afterReset = manager.getComparisonPriceRange();
-        const span = (range) => Number(range?.maxValue) - Number(range?.minValue);
+        const afterReset = manager.getComparisonVisibleLogicalRange();
         return {
+          disabledCountBefore,
           before,
-          afterWheel,
+          afterZoom,
           afterReset,
-          beforeSpan: span(before),
-          afterWheelSpan: span(afterWheel),
-          afterResetSpan: span(afterReset),
+          beforeWidth: Number(before?.to) - Number(before?.from),
+          afterZoomWidth: Number(afterZoom?.to) - Number(afterZoom?.from),
+          afterResetWidth: Number(afterReset?.to) - Number(afterReset?.from),
         };
       })();
     `);
+    assert.equal(comparisonViewportAction.disabledCountBefore, 0, 'Comparison viewport buttons should enable after comparison data loads');
     assert.ok(
-      priceAxisScaleResult.afterWheelSpan < priceAxisScaleResult.beforeSpan,
-      `Comparison boundary price axis wheel should zoom price scale: ${JSON.stringify(priceAxisScaleResult)}`
+      comparisonViewportAction.afterZoomWidth < comparisonViewportAction.beforeWidth,
+      `Comparison viewport zoom button should control comparison chart: ${JSON.stringify(comparisonViewportAction)}`
     );
     assert.ok(
-      Math.abs(priceAxisScaleResult.afterResetSpan - priceAxisScaleResult.beforeSpan) < priceAxisScaleResult.beforeSpan * 0.2,
-      `Comparison boundary price axis double-click should reset autoscale: ${JSON.stringify(priceAxisScaleResult)}`
+      Math.abs(comparisonViewportAction.afterResetWidth - comparisonViewportAction.beforeWidth) < 0.01,
+      `Comparison viewport test should restore the prior range: ${JSON.stringify(comparisonViewportAction)}`
     );
 
     const canvasHealth = await evaluate(client, `
