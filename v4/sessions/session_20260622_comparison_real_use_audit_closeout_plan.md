@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: feature/comparison-window-mvp
-Status: planned
+Status: completed
 
 ## Context
 
@@ -31,7 +31,7 @@ Convert the manual pass result into a documented readiness decision and identify
 
 ## Step 319.1: Record Real-use Audit Results
 
-Status: pending.
+Status: completed.
 
 Update `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md` from `Not audited yet` to the observed pass/fail result for the workflows that were manually tested:
 
@@ -43,9 +43,14 @@ Update `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md` from `Not audited yet`
 
 Use concrete notes, not generic “passed” text, so later Split-removal decisions have evidence.
 
+Result:
+
+- Recorded the 2026-06-22 manual regression pass for same-instrument cross-timeframe drawing sync, `No Sync` hiding, object selection, Comparison creation auto-sync, and Order/Live overlay display.
+- Kept untested workflows as `needs real-use data`.
+
 ## Step 319.2: Reconcile Audit Checklist With Current Semantics
 
-Status: pending.
+Status: completed.
 
 Update checklist wording that still assumes old same-timeframe-only sync:
 
@@ -53,9 +58,13 @@ Update checklist wording that still assumes old same-timeframe-only sync:
 - SMT remains time-alignment dependent and should be tested separately.
 - Replay HTF progressive behavior remains separate from drawing sync.
 
+Result:
+
+- Checklist notes now separate same-instrument drawing sync from SMT time alignment and replay progressive candle behavior.
+
 ## Step 319.3: Identify Split Removal Blockers
 
-Status: pending.
+Status: completed.
 
 Classify every audit row as one of:
 
@@ -71,9 +80,14 @@ Expected blocker candidates to explicitly confirm:
 - SMT locate/selection;
 - advanced PDA tools that still exist only in old Split/secondary workflows.
 
+Result:
+
+- No new code blocker was identified in the drawing sync regression.
+- Split removal remains blocked by missing real-use evidence for SMT, HTF replay, Replay History restore, fixed layout preference, and advanced PDA frequency.
+
 ## Step 319.4: Run Closeout Regression Suite
 
-Status: pending.
+Status: completed.
 
 Run the focused Comparison Window suite after audit doc updates:
 
@@ -85,9 +99,14 @@ Run the focused Comparison Window suite after audit doc updates:
 - `node v4/tests/smt-selection-smoke.js`
 - `git diff --check`
 
+Result:
+
+- Passed.
+- Node emitted the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM-style tests; this is pre-existing and not a Step 319 blocker.
+
 ## Step 319.5: Readiness Decision
 
-Status: pending.
+Status: completed.
 
 Write the final Step 319 decision into TODO/session:
 
@@ -96,3 +115,12 @@ Write the final Step 319 decision into TODO/session:
 - or `keep Split`.
 
 If ready, the next step should be Step 320: Split removal plan.
+
+Decision:
+
+- `needs more real-use data`.
+
+Next step:
+
+- Do not open Split removal planning yet.
+- Run one focused real-use audit session covering SMT, 1M + HTF replay, Replay History restore, fixed layout ergonomics, and advanced PDA frequency.

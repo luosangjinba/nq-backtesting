@@ -1137,9 +1137,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 318.5: Renderer policy leak fix：修复 Comparison PDA/Segment renderer 对 `sourceChartId === comparison-window` 的本地来源绕过；`No Sync` 时 Comparison 不再绘制任何 drawings，Main 仍按 canonical 规则显示兼容 drawings。
   - [x] Step 318.6: Cross-timeframe drawing sync：放宽 Drawings `Sync` guard，从“同品种 + 同周期”改为“同品种”；主图 1H PDA/Segment/Order/Live 可同步显示到 Comparison 1M，实际绘制仍由目标窗口时间轴映射决定。
 
-- [ ] Step 319: Comparison real-use audit closeout。目标是把已经通过的真实数据回归正式写入 audit/readiness 记录，校正 checklist 中旧的同周期假设，明确是否进入 Split removal planning；不在本步骤移除 Split。计划见 `v4/sessions/session_20260622_comparison_real_use_audit_closeout_plan.md`。
-  - [ ] Step 319.1: Record real-use audit results：把手动测试通过的 same-instrument cross-timeframe drawings sync、No Sync hiding、Main/Comparison selection、comparison creation auto-sync、Order/Live overlay display 写入 `COMPARISON_WINDOW_REAL_USE_AUDIT.md`。
-  - [ ] Step 319.2: Reconcile checklist semantics：把 audit 文案中仍暗含 same-timeframe-only drawing sync 的描述改为 same-instrument drawing sync；SMT/replay HTF progressive 仍作为独立工作流验证。
-  - [ ] Step 319.3: Identify Split removal blockers：逐项标记 pass/waived/needs fix/keep Split fallback，重点确认 fixed layout、SMT locate、replay HTF progressive、advanced PDA 工具是否阻塞。
-  - [ ] Step 319.4: Closeout regression suite：运行 comparison browser/policy/render/persistence、replay history comparison、SMT selection 与 `git diff --check`。
-  - [ ] Step 319.5: Readiness decision：写入 `ready for Split removal planning`、`needs focused fixes` 或 `keep Split`，决定是否开启 Step 320。
+- [x] Step 319: Comparison real-use audit closeout。目标是把已经通过的真实数据回归正式写入 audit/readiness 记录，校正 checklist 中旧的同周期假设，明确是否进入 Split removal planning；不在本步骤移除 Split。计划见 `v4/sessions/session_20260622_comparison_real_use_audit_closeout_plan.md`。结论：`needs more real-use data`，暂不进入 Split removal planning。
+  - [x] Step 319.1: Record real-use audit results：已把手动测试通过的 same-instrument cross-timeframe drawings sync、No Sync hiding、Main/Comparison selection、comparison creation auto-sync、Order/Live overlay display 写入 `COMPARISON_WINDOW_REAL_USE_AUDIT.md`。
+  - [x] Step 319.2: Reconcile checklist semantics：已把 audit 文案中仍暗含 same-timeframe-only drawing sync 的描述改为 same-instrument drawing sync；SMT/replay HTF progressive 仍作为独立工作流验证。
+  - [x] Step 319.3: Identify Split removal blockers：已标记剩余 blockers 为缺少真实使用证据：fixed layout、SMT locate、replay HTF progressive、Replay History restore、advanced PDA frequency。
+  - [x] Step 319.4: Closeout regression suite：comparison browser/policy/render/persistence、replay history comparison、SMT selection 与 `git diff --check` 通过。
+  - [x] Step 319.5: Readiness decision：写入 `needs more real-use data`；下一步应做一次 focused real-use audit session，而不是直接开启 Step 320。
