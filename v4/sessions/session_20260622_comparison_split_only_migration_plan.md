@@ -298,6 +298,79 @@ Test plan:
 - Map PDA, Segment, FVG, and Composite hit-test APIs to comparison chart context.
 - Plan context-menu actions and active setup link tests.
 
+Status: complete.
+
+Secondary behavior to preserve:
+
+- `secondary-context-menu` computes hit state at right-click time:
+  - `hitTestPdaAnnotations({ x, y, context })`;
+  - `hitTestSegments({ x, y, context })`;
+  - `hitTestSegmentGroups({ x, y, context })`.
+- It stores `contextMenuPdaHit`, `contextMenuSegmentHit`, and `contextMenuSegmentGroupHit`.
+- It renders active setup link actions:
+  - `secondary-order-link-pda`;
+  - `secondary-order-link-segment`;
+  - `secondary-order-link-composite`.
+- It delegates to `handleOrderSetupChartAction` with the existing action ids:
+  - `order-setup-link-pda`;
+  - `order-setup-link-segment`;
+  - `order-setup-link-composite`.
+
+Comparison gap:
+
+- `comparison-context-menu` currently stores only `contextMenuBar` and `contextMenuPrice`.
+- It supports new comparison-source object creation and bar evidence.
+- It does not compute existing-object hit state.
+- It does not expose Link PDA/Segment/Composite to Active Setup.
+
+Recommended implementation shape:
+
+1. Import `hitTestPdaAnnotations`, `hitTestSegments`, `hitTestSegmentGroups`, and `handleOrderSetupChartAction` into `comparison-context-menu.js`.
+2. Add stored hit state:
+   - `contextMenuPdaHit`;
+   - `contextMenuSegmentHit`;
+   - `contextMenuSegmentGroupHit`.
+3. In comparison right-click handler, compute hits using `getComparisonChartContext()`.
+4. Render an `Order Setup Evidence` menu section similar to secondary:
+   - `Add Comparison Bar Evidence`;
+   - `Link PDA To Active Setup`;
+   - `Link Segment To Active Setup`;
+   - `Link Composite To Active Setup`.
+5. Link actions should delegate to `handleOrderSetupChartAction` with:
+
+```js
+{
+  bar: contextMenuBar,
+  price: contextMenuPrice,
+  timeframe: context.timeframe,
+  pdaHit: contextMenuPdaHit,
+  segmentHit: contextMenuSegmentHit,
+  segmentGroupHit: contextMenuSegmentGroupHit
+}
+```
+
+Behavior rules:
+
+- Link actions stay disabled when no active setup exists or no matching hit exists.
+- Bar evidence remains available when there is an active setup and a comparison bar.
+- Hit-test must respect existing source instrument/timeframe guard behavior; do not link objects projected onto the wrong price axis.
+- Composite support depends on `hitTestSegmentGroups` producing stable comparison-context hits. If this is not reliable in implementation, explicitly defer Composite and keep the action disabled with a status message.
+
+Test plan:
+
+- Focused comparison hit-test smoke:
+  - comparison PDA hit returns expected id;
+  - comparison Segment hit returns expected id;
+  - comparison Composite hit either returns expected id or documented unsupported result.
+- Browser smoke:
+  - create active setup;
+  - render or create comparison PDA/FVG and Segment;
+  - right-click hit location;
+  - click Link PDA/Segment to active setup;
+  - verify active setup refs include `sourceChartId=comparison-window`.
+- Regression:
+  - existing secondary link smoke remains valid.
+
 ### Step 308.5: Advanced PDA Workflow Decision
 
 - Create the workflow decision table.
