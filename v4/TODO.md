@@ -1071,3 +1071,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 309.5: Migrate Order Review and Live Record reason locate：根据 linked ref/source object 的 `sourceChartId` 路由到 primary/secondary/comparison，不再让 comparison source fallback 到 primary。已迁移 reason linked PDA/Segment/Chart Note/Order Setup locate，PDA/Segment 按 source target 路由，Chart Note 与 Order Setup 继续 primary 合约。
   - [x] Step 309.6: Migrate Time Reaction locate：将 Time Reaction locate/ref locate 接到 router，保留 primary/secondary selector 行为，并为 comparison target 留出 UI/contract。已将 Time Reaction target/ref locate 接到 router，primary 路径保留 timeframe 自动切换，secondary/comparison 路径按已加载视图定位。
   - [x] Step 309.7: Verification and closeout：新增 focused router smoke、PDA projection smoke、browser comparison locate smoke；跑 comparison browser smoke 和旧 Split locate 相关回归。已完成 focused router/comparison/PDA smoke、comparison window browser smoke、live record smoke、SMT selection smoke 与 `git diff --check`。
+
+- [ ] Step 310: Pick-preview routing implementation。目标是把 Order Setup exit bar pick 与 Segment actor pick preview 从 primary/secondary 专用分支迁到统一 pick context router，并让 Comparison Window 可以作为已加载视图参与受支持 pick workflow；保持旧 Split 行为不变。计划见 `v4/sessions/session_20260622_pick_preview_routing_plan.md`。
+  - [ ] Step 310.1: Add pick-context router：新增 `chart/pick-context-router.js`，统一 primary/secondary/comparison 的 DOM target、coordinate time、display bars、timeframe、preview cursor show/hide 与 cursor cleanup contract；第一步保证 primary/secondary parity。
+  - [ ] Step 310.2: Add comparison pick preview cursor API：在 `comparison-chart-manager.js` 增加 dedicated pick preview cursor show/hide/has API，避免复用 replay/sync cursor 状态。
+  - [ ] Step 310.3: Migrate Order Setup exit pick：`order-review-edit-actions.js` 改用 pick router，保留 primary/secondary 行为，并支持 comparison chart hover/click 的 timestamp pick。
+  - [ ] Step 310.4: Migrate Segment actor pick preview：`segment-actions.js` 改用 pick router，保留 primary/secondary 行为，并支持 comparison chart hover/click 的 actor timestamp pick。
+  - [ ] Step 310.5: Browser and focused verification：新增/扩展 focused router smoke 与 comparison browser smoke，覆盖 comparison hover/click pick preview 和旧 primary/secondary 回归。
+  - [ ] Step 310.6: Closeout：更新 TODO/session，记录仍未迁移的 comparison existing-object hit-test link 与 advanced PDA workflows。
