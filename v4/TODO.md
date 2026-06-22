@@ -1134,3 +1134,4 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 318.2: Comparison creation auto-sync：Comparison 右键创建 PDA/Segment 前，如果当前 Drawings 是 `No Sync`，自动切换为 `Sync`；若 instrument/timeframe 不匹配则阻止创建并显示状态提示；browser smoke 覆盖 mismatch 创建被阻止。
   - [x] Step 318.3: Browser verification：覆盖 Comparison 创建对象在 No Sync 下自动切 Sync 并双窗显示；手动切回 No Sync 后对象留在 Main、从 Comparison 消失；browser smoke 已覆盖真实右键创建 PDA/Segment。
   - [x] Step 318.4: Closeout verification：更新 TODO/session，跑 policy/browser/persistence smoke；policy/persistence/browser smoke 与 `git diff --check` 通过。
+  - [x] Step 318.5: Renderer policy leak fix：修复 Comparison PDA/Segment renderer 对 `sourceChartId === comparison-window` 的本地来源绕过；`No Sync` 时 Comparison 不再绘制任何 drawings，Main 仍按 canonical 规则显示兼容 drawings。

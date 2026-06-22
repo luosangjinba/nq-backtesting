@@ -29,12 +29,8 @@ function clearRenderedPrimitives() {
   renderedPrimitives = clearComparisonPrimitives(renderedPrimitives) || [];
 }
 
-function isComparisonSegment(segment) {
-  return segment?.sourceChartId === 'comparison-window';
-}
-
-function canRenderInComparison(segment, state) {
-  return isComparisonSegment(segment) || canRenderObjectOnChartTarget(segment, 'comparison-window', state).ok;
+export function canRenderSegmentInComparison(segment, state) {
+  return canRenderObjectOnChartTarget(segment, 'comparison-window', state).ok;
 }
 
 function hasRenderablePoint(point) {
@@ -65,7 +61,7 @@ export function renderComparisonSegments() {
   const selected = getSelectedSegment();
   const descriptors = [];
   getSegments().forEach((segment) => {
-    if (!canRenderInComparison(segment, state)) return;
+    if (!canRenderSegmentInComparison(segment, state)) return;
     if (!segment.start || !segment.end) return;
     if (segment.display?.hidden) return;
     if (!shouldRenderSegment(segment)) return;

@@ -29,12 +29,8 @@ function clearRenderedPrimitives() {
   renderedPrimitives = clearComparisonPrimitives(renderedPrimitives) || [];
 }
 
-function isComparisonPda(annotation) {
-  return annotation?.sourceChartId === 'comparison-window';
-}
-
-function canRenderInComparison(annotation, state) {
-  return isComparisonPda(annotation) || canRenderObjectOnChartTarget(annotation, 'comparison-window', state).ok;
+export function canRenderPdaInComparison(annotation, state) {
+  return canRenderObjectOnChartTarget(annotation, 'comparison-window', state).ok;
 }
 
 function mapTimestampToComparisonTime(timestamp, timeframe, displayBars) {
@@ -195,7 +191,7 @@ export function renderComparisonPdaAnnotations() {
   const timeframe = descriptor.timeframe;
   const descriptors = [];
   getAnnotations().forEach((annotation) => {
-    if (!canRenderInComparison(annotation, state)) return;
+    if (!canRenderPdaInComparison(annotation, state)) return;
     if (annotation.display?.hidden) return;
     if (!shouldRenderPda(annotation)) return;
     if (!canProjectPdaToComparison(annotation, descriptor).ok) return;

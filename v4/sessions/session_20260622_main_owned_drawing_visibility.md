@@ -92,3 +92,17 @@ Final result:
 - Comparison drawing creation under `No Sync` automatically switches Drawings to `Sync`.
 - Comparison drawing creation is blocked when Main and Comparison instrument/timeframe do not match.
 - Browser smoke covers the full path: create from Comparison under `No Sync`, auto-switch to `Sync`, hit in both charts, switch back to `No Sync`, remain hittable in Main and disappear from Comparison.
+
+### Step 318.5: Renderer Policy Leak Fix
+
+Status: completed.
+
+Follow-up bug:
+
+- PDA/Segment objects created in Comparison were no longer selectable after switching to `No Sync`, but still remained visually rendered in the Comparison chart.
+
+Fix:
+
+- Removed the Comparison renderer local-source bypass for PDA and Segment overlays.
+- Both renderers now use the same chart-target policy as hit-test and selection.
+- `No Sync` hides all drawings from Comparison; Main remains the canonical chart for compatible drawings.
