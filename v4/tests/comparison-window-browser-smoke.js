@@ -253,6 +253,23 @@ async function main() {
       { value: 'no-sync', text: 'No Sync' },
     ]);
     assert.match(shown.statusText, /Choose a main date range/, 'Comparison window should wait for main range before loading');
+    const primaryLegendPlacement = await evaluate(client, `
+      (() => {
+        const legend = document.querySelector('#ohlc-legend');
+        legend.innerHTML = '<span class="ohlc-label">O</span><span class="ohlc-value">1.00</span>';
+        const legendRect = legend.getBoundingClientRect();
+        const winRect = document.querySelector('#comparison-window').getBoundingClientRect();
+        return {
+          legendLeft: legendRect.left,
+          windowRight: winRect.right,
+          cssOffset: getComputedStyle(document.querySelector('#chart-stack')).getPropertyValue('--primary-legend-left-offset').trim(),
+        };
+      })();
+    `);
+    assert.ok(
+      primaryLegendPlacement.legendLeft >= primaryLegendPlacement.windowRight + 8,
+      `Primary OHLC legend should shift outside the sliding comparison overlay: ${JSON.stringify(primaryLegendPlacement)}`
+    );
 
     const dragStart = await evaluate(client, `
       (() => {
@@ -330,15 +347,32 @@ async function main() {
     assert.equal(moved.stackHeight, dragStart.stackHeight, 'Dragging window should not resize chart stack height');
     assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
     assert.equal(moved.primaryHeight, dragStart.primaryHeight, 'Dragging window should not resize primary panel height');
+    const resizeHandleVisual = await evaluate(client, `
+      (() => {
+        const handle = document.querySelector('.comparison-window-left-handle');
+        const after = getComputedStyle(handle, '::after');
+        return {
+          display: getComputedStyle(handle).display,
+          width: handle.getBoundingClientRect().width,
+          afterContent: after.content,
+        };
+      })();
+    `);
+    assert.equal(resizeHandleVisual.display, 'block', 'Comparison resize handle should keep its hit target');
+    assert.ok(resizeHandleVisual.width >= 8, 'Comparison resize handle should keep a usable transparent hit target');
+    assert.equal(resizeHandleVisual.afterContent, 'none', 'Comparison resize handle should not draw a second thick divider line');
 
     const primaryPriceAxis = await evaluate(client, `
       (() => {
         const win = document.querySelector('#comparison-window').getBoundingClientRect();
+        const header = document.querySelector('.comparison-window-header').getBoundingClientRect();
         const axis = document.querySelector('[data-comparison-boundary-price-axis]');
         const rect = axis.getBoundingClientRect();
         return {
           hidden: axis.hidden,
           labelCount: axis.querySelectorAll('.comparison-boundary-price-axis-label').length,
+          axisTop: rect.top,
+          headerBottom: header.bottom,
           axisRight: rect.right,
           windowRight: win.right,
           width: rect.width,
@@ -348,8 +382,35 @@ async function main() {
     assert.equal(primaryPriceAxis.hidden, false, 'Sliding comparison should show a comparison price axis at the boundary');
     assert.ok(primaryPriceAxis.width >= 60, 'Comparison boundary price axis should reserve readable label width');
     assert.ok(
+      primaryPriceAxis.axisTop >= primaryPriceAxis.headerBottom - 1,
+      'Comparison boundary price axis should start below the comparison header'
+    );
+    assert.ok(
       Math.abs(primaryPriceAxis.axisRight - primaryPriceAxis.windowRight) <= 2,
       'Comparison boundary price axis should align to the comparison right boundary'
+    );
+    const closeButtonHit = await evaluate(client, `
+      (() => {
+        const close = document.querySelector('[data-comparison-close]');
+        const rect = close.getBoundingClientRect();
+        const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        const win = document.querySelector('#comparison-window').getBoundingClientRect();
+        const header = document.querySelector('.comparison-window-header').getBoundingClientRect();
+        return {
+          ok: Boolean(hit?.closest('[data-comparison-close]')),
+          hitTag: hit?.tagName || null,
+          hitClass: hit?.className || null,
+          hitAction: hit?.getAttribute?.('data-comparison-close') || null,
+          rect: { left: rect.left, right: rect.right, width: rect.width },
+          win: { left: win.left, right: win.right, width: win.width },
+          header: { left: header.left, right: header.right, width: header.width },
+        };
+      })();
+    `);
+    assert.equal(
+      closeButtonHit.ok,
+      true,
+      `Comparison close button should not be covered by boundary layers: ${JSON.stringify(closeButtonHit)}`
     );
 
     const handleContextMenu = await evaluate(client, `
@@ -439,9 +500,57 @@ async function main() {
     const loadedBoundaryAxis = await evaluate(client, `
       (() => ({
         labelCount: document.querySelectorAll('.comparison-boundary-price-axis-label').length,
+        labels: [...document.querySelectorAll('.comparison-boundary-price-axis-label')]
+          .map((label) => label.textContent.trim()),
       }))();
     `);
     assert.ok(loadedBoundaryAxis.labelCount > 0, 'Comparison boundary price axis should render labels after data loads');
+    assert.ok(
+      loadedBoundaryAxis.labels.some((label) => !/^0(?:\\.00)?$/.test(label)),
+      `Comparison boundary price axis should render real price labels: ${loadedBoundaryAxis.labels.join(', ')}`
+    );
+    const priceAxisScaleResult = await evaluate(client, `
+      (async () => {
+        const manager = await import('/src/chart/comparison-chart-manager.js');
+        const axis = document.querySelector('[data-comparison-boundary-price-axis]');
+        const rect = axis.getBoundingClientRect();
+        const before = manager.getComparisonPriceRange();
+        axis.dispatchEvent(new WheelEvent('wheel', {
+          bubbles: true,
+          cancelable: true,
+          deltaY: -180,
+          clientX: rect.left + rect.width / 2,
+          clientY: rect.top + rect.height / 2,
+        }));
+        await new Promise((resolve) => setTimeout(resolve, 120));
+        const afterWheel = manager.getComparisonPriceRange();
+        axis.dispatchEvent(new MouseEvent('dblclick', {
+          bubbles: true,
+          cancelable: true,
+          clientX: rect.left + rect.width / 2,
+          clientY: rect.top + rect.height / 2,
+        }));
+        await new Promise((resolve) => setTimeout(resolve, 120));
+        const afterReset = manager.getComparisonPriceRange();
+        const span = (range) => Number(range?.maxValue) - Number(range?.minValue);
+        return {
+          before,
+          afterWheel,
+          afterReset,
+          beforeSpan: span(before),
+          afterWheelSpan: span(afterWheel),
+          afterResetSpan: span(afterReset),
+        };
+      })();
+    `);
+    assert.ok(
+      priceAxisScaleResult.afterWheelSpan < priceAxisScaleResult.beforeSpan,
+      `Comparison boundary price axis wheel should zoom price scale: ${JSON.stringify(priceAxisScaleResult)}`
+    );
+    assert.ok(
+      Math.abs(priceAxisScaleResult.afterResetSpan - priceAxisScaleResult.beforeSpan) < priceAxisScaleResult.beforeSpan * 0.2,
+      `Comparison boundary price axis double-click should reset autoscale: ${JSON.stringify(priceAxisScaleResult)}`
+    );
 
     const canvasHealth = await evaluate(client, `
       (() => {
@@ -1220,6 +1329,10 @@ async function main() {
       })();
     `);
     assert.deepEqual(closed, { hidden: true, checked: false });
+    const primaryLegendReset = await evaluate(client, `
+      (() => getComputedStyle(document.querySelector('#chart-stack')).getPropertyValue('--primary-legend-left-offset').trim())();
+    `);
+    assert.equal(primaryLegendReset, '0px', 'Primary OHLC legend offset should reset when comparison closes');
   } finally {
     client?.close();
     chrome.kill('SIGTERM');

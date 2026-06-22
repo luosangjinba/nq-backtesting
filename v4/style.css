@@ -98,6 +98,7 @@ html, body {
 
 .comparison-window {
   position: absolute;
+  container-type: inline-size;
   min-width: 280px;
   min-height: 210px;
   display: flex;
@@ -119,6 +120,8 @@ html, body {
 }
 
 .comparison-window-header {
+  position: relative;
+  z-index: 14;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -137,6 +140,7 @@ html, body {
 }
 
 .comparison-window-title-block {
+  flex: 1 1 130px;
   min-width: 0;
 }
 
@@ -221,6 +225,12 @@ html, body {
   cursor: ew-resize;
 }
 
+.comparison-price-axis-scaling,
+.comparison-price-axis-scaling * {
+  cursor: ns-resize;
+  user-select: none;
+}
+
 .comparison-window-left-handle {
   position: absolute;
   top: 0;
@@ -237,9 +247,11 @@ html, body {
 .comparison-boundary-price-axis {
   position: absolute;
   z-index: 3;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: ns-resize;
   border-right: 1px solid rgba(120, 123, 134, 0.48);
   background: linear-gradient(90deg, rgba(19, 23, 34, 0), rgba(19, 23, 34, 0.82));
+  touch-action: none;
 }
 
 .comparison-boundary-price-axis-label {
@@ -254,14 +266,7 @@ html, body {
 }
 
 .comparison-window-left-handle::after {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 4px;
-  width: 2px;
-  background: rgba(77, 182, 172, 0.92);
-  box-shadow: 0 0 0 1px rgba(19, 23, 34, 0.72);
-  content: '';
+  content: none;
 }
 
 .comparison-window-sliding .comparison-window-left-handle {
@@ -328,6 +333,20 @@ html, body {
   color: #ef5350;
 }
 
+@container (max-width: 420px) {
+  .comparison-window-sliding .comparison-window-actions {
+    gap: 4px;
+  }
+
+  .comparison-window-sliding .comparison-window-field span {
+    display: none;
+  }
+
+  .comparison-window-sliding .comparison-window-btn {
+    padding: 0 6px;
+  }
+}
+
 .comparison-chart-info,
 .comparison-ohlc-legend {
   position: absolute;
@@ -379,7 +398,7 @@ html, body {
 #secondary-ohlc-legend {
   position: absolute;
   top: 8px;
-  left: 12px;
+  left: calc(var(--primary-legend-left-offset, 0px) + 12px);
   z-index: 5;
   font-size: var(--chart-legend-font-size);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
@@ -389,6 +408,7 @@ html, body {
 }
 
 #secondary-ohlc-legend {
+  left: 12px;
   top: 30px;
 }
 
