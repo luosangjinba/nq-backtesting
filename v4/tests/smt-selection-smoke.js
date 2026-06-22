@@ -2,8 +2,17 @@ import assert from 'node:assert/strict';
 
 import * as bus from '../src/event-bus.js';
 import { addSmtRecord, clearSmtRecords, SMT_DIRECTIONS, SMT_TYPES } from '../src/smt/smt-store.js';
+import { getSmtDisabledReason } from '../src/smt/manual-smt.js';
 import { hitTestSmtRecords } from '../src/smt/smt-hit-test.js';
 import { clearSmtSelection, getSelectedSmt, selectSmt } from '../src/smt/smt-selection.js';
+import { setBars, clearBars } from '../src/data/bar-store.js';
+import {
+  clearComparisonBars,
+  setComparisonBars,
+  setComparisonInstrument,
+  setComparisonTimeframe,
+  setComparisonWindowEnabled,
+} from '../src/comparison/comparison-window-store.js';
 
 function createContext({ chartId = 'primary', instrument = 'NQ', timeframe = 1 } = {}) {
   return {
@@ -58,6 +67,14 @@ const secondaryHit = hitTestSmtRecords({
 });
 assert.equal(secondaryHit?.id, liquidity.id, 'secondary liquidity SMT line can be hit-tested');
 
+const comparisonHit = hitTestSmtRecords({
+  x: 1050,
+  y: 129,
+  chartId: 'comparison-window',
+  context: createContext({ chartId: 'comparison-window', instrument: 'ES' }),
+});
+assert.equal(comparisonHit?.id, liquidity.id, 'comparison liquidity SMT line can be hit-tested');
+
 assert.equal(selectSmt(liquidity.id)?.id, liquidity.id, 'SMT can be selected');
 assert.equal(getSelectedSmt()?.id, liquidity.id, 'selected SMT state is stored');
 assert.equal(selectedEvent?.record.id, liquidity.id, 'selection event includes SMT record');
@@ -93,5 +110,29 @@ const secondaryFvgHit = hitTestSmtRecords({
   context: createContext({ chartId: 'secondary', instrument: 'ES' }),
 });
 assert.equal(secondaryFvgHit?.id, fvg.id, 'secondary FVG SMT range can be hit-tested');
+
+const comparisonFvgHit = hitTestSmtRecords({
+  x: 2025,
+  y: 120,
+  chartId: 'comparison-window',
+  context: createContext({ chartId: 'comparison-window', instrument: 'ES' }),
+});
+assert.equal(comparisonFvgHit?.id, fvg.id, 'comparison FVG SMT range can be hit-tested');
+assert.equal(comparisonFvgHit.reason, 'smt-comparison-fvg-range');
+
+setComparisonWindowEnabled(true);
+setComparisonInstrument('ES');
+setComparisonTimeframe(60);
+setBars([
+  { timestamp: 1000, time: '2026-06-12 10:00', open: 1, high: 2, low: 1, close: 2 },
+], '2026-06-12 10:00', '2026-06-12 10:00', 60, { startTs: 1000, endTs: 1000 });
+setComparisonBars([
+  { timestamp: 1000, time: '2026-06-12 10:00', open: 1, high: 2, low: 1, close: 2 },
+], { startTs: 1000, endTs: 1000 });
+assert.equal(getSmtDisabledReason({ requireLoadedBars: true }), '', 'comparison ES same TF satisfies SMT guard');
+
+clearComparisonBars();
+setComparisonWindowEnabled(false);
+clearBars();
 
 console.log('smt selection smoke ok');

@@ -1,10 +1,11 @@
 import * as chart from '../chart/chart-manager.js';
-import { getPrimaryChartContext, getSecondaryChartContext } from '../chart/chart-context.js';
+import { getComparisonChartContext, getPrimaryChartContext, getSecondaryChartContext } from '../chart/chart-context.js';
 import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { getSmtRecords, SMT_TYPES } from './smt-store.js';
 
 const LINE_TOLERANCE_PX = 7;
@@ -12,24 +13,33 @@ const VERTICAL_TOLERANCE_PX = 6;
 
 function getContext(chartId, context) {
   if (context) return context;
-  return chartId === 'secondary' ? getSecondaryChartContext() : getPrimaryChartContext();
+  if (chartId === 'secondary') return getSecondaryChartContext();
+  if (chartId === 'comparison-window') return getComparisonChartContext();
+  return getPrimaryChartContext();
 }
 
 function getContextInstrument(context, chartId) {
   if (context?.instrument) return context.instrument;
+  if (chartId === 'comparison-window') return comparisonStore.getComparisonWindowState().descriptor.instrument;
   return chartId === 'secondary' ? secondaryStore.getSecondaryInstrument() : getPrimaryInstrument();
 }
 
 function getContextTimeframe(context, chartId) {
   const tf = Number(context?.timeframe);
   if (Number.isFinite(tf) && tf > 0) return tf;
+  if (chartId === 'comparison-window') return comparisonStore.getComparisonWindowState().descriptor.timeframe;
   return chartId === 'secondary' ? secondaryStore.getSecondaryTimeframe() : store.getCurrentTimeframe();
 }
 
 function getContextDisplayBars(context, chartId) {
   const bars = context?.getDisplayBars?.();
   if (Array.isArray(bars)) return bars;
+  if (chartId === 'comparison-window') return comparisonStore.getComparisonDisplayBars();
   return chartId === 'secondary' ? secondaryStore.getSecondaryDisplayBars() : store.getDisplayBars();
+}
+
+function isCompareChart(chartId) {
+  return chartId === 'secondary' || chartId === 'comparison-window';
 }
 
 function getTimeCoordinate(time, context) {
@@ -57,8 +67,8 @@ function shouldHitRecord(record, chartId, context) {
   const timeframe = timeframeToString(getContextTimeframe(context, chartId));
   if (record.primaryInstrument !== getPrimaryInstrument()) return false;
   if (record.timeframe !== timeframe) return false;
-  if (chartId === 'secondary') {
-    return Boolean(context?.enabled ?? secondaryStore.isSecondaryEnabled()) && record.compareInstrument === instrument;
+  if (isCompareChart(chartId)) {
+    return Boolean(context?.enabled ?? true) && record.compareInstrument === instrument;
   }
   return record.primaryInstrument === instrument;
 }
@@ -68,8 +78,8 @@ function hitLiquidityRecord(record, x, y, chartId, context) {
   const bars = getContextDisplayBars(context, chartId);
   const leftTime = mapTimestampToChartTime(record.leftTimestamp, timeframe, bars);
   const rightTime = mapTimestampToChartTime(record.rightTimestamp, timeframe, bars);
-  const leftPrice = chartId === 'secondary' ? record.compareLeftPrice : record.primaryLeftPrice;
-  const rightPrice = chartId === 'secondary' ? record.compareRightPrice : record.primaryRightPrice;
+  const leftPrice = isCompareChart(chartId) ? record.compareLeftPrice : record.primaryLeftPrice;
+  const rightPrice = isCompareChart(chartId) ? record.compareRightPrice : record.primaryRightPrice;
   const x1 = getTimeCoordinate(leftTime, context);
   const y1 = getPriceCoordinate(leftPrice, context);
   const x2 = getTimeCoordinate(rightTime, context);
@@ -104,9 +114,9 @@ function hitPrimaryFvgRecord(record, x, y, context) {
   };
 }
 
-function hitSecondaryFvgRecord(record, x, y, context) {
-  const timeframe = getContextTimeframe(context, 'secondary');
-  const bars = getContextDisplayBars(context, 'secondary');
+function hitCompareFvgRecord(record, x, y, chartId, context) {
+  const timeframe = getContextTimeframe(context, chartId);
+  const bars = getContextDisplayBars(context, chartId);
   const startTime = mapTimestampToChartTime(record.fvgStartTimestamp, timeframe, bars);
   const endTime = mapTimestampToChartTime(record.fvgEndTimestamp, timeframe, bars);
   const x1 = getTimeCoordinate(startTime, context);
@@ -125,9 +135,9 @@ function hitSecondaryFvgRecord(record, x, y, context) {
     id: record.id,
     type: 'smt',
     smtType: record.type,
-    chartId: 'secondary',
+    chartId,
     distance: Math.max(0, edgeDistance),
-    reason: 'smt-secondary-fvg-range',
+    reason: chartId === 'comparison-window' ? 'smt-comparison-fvg-range' : 'smt-secondary-fvg-range',
   };
 }
 
@@ -141,8 +151,8 @@ export function hitTestSmtRecords({ x, y, context = null, chartId = 'primary' } 
       if (hit) hits.push(hit);
       return;
     }
-    const hit = chartId === 'secondary'
-      ? hitSecondaryFvgRecord(record, x, y, activeContext)
+  const hit = isCompareChart(chartId)
+      ? hitCompareFvgRecord(record, x, y, chartId, activeContext)
       : hitPrimaryFvgRecord(record, x, y, activeContext);
     if (hit) hits.push(hit);
   });

@@ -5,6 +5,7 @@ import * as chart from '../chart/chart-manager.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
@@ -23,27 +24,77 @@ function findPrimaryBarByChartTime(time) {
   return findDisplayBarFast(store.getDisplayBars(), time, store.getCurrentTimeframe());
 }
 
-function findSecondaryBar(timestamp) {
-  return secondaryStore.getSecondaryDisplayBars().find((bar) => Number(bar.timestamp) === Number(timestamp)) || null;
+function getComparisonSmtSource({ requireLoadedBars = false } = {}) {
+  const state = comparisonStore.getComparisonWindowState();
+  const displayBars = comparisonStore.getComparisonDisplayBars();
+  const primaryTimeframe = store.getCurrentTimeframe();
+  if (!state.enabled) return null;
+  if (state.descriptor.instrument !== 'ES') return null;
+  if (Number(state.descriptor.timeframe) !== Number(primaryTimeframe)) return null;
+  if (requireLoadedBars && !displayBars.length) return null;
+  return {
+    chartId: 'comparison-window',
+    label: 'Comparison Window',
+    instrument: state.descriptor.instrument,
+    timeframe: state.descriptor.timeframe,
+    getDisplayBars: comparisonStore.getComparisonDisplayBars,
+  };
+}
+
+function getSplitSmtSource({ requireLoadedBars = false } = {}) {
+  const primaryTimeframe = store.getCurrentTimeframe();
+  if (!secondaryStore.isSecondaryEnabled()) return null;
+  if (secondaryStore.getSecondaryInstrument() !== 'ES') return null;
+  if (Number(secondaryStore.getSecondaryTimeframe()) !== Number(primaryTimeframe)) return null;
+  if (requireLoadedBars && !secondaryStore.getSecondaryDisplayBars().length) return null;
+  return {
+    chartId: 'secondary',
+    label: 'Split',
+    instrument: secondaryStore.getSecondaryInstrument(),
+    timeframe: secondaryStore.getSecondaryTimeframe(),
+    getDisplayBars: secondaryStore.getSecondaryDisplayBars,
+  };
+}
+
+function getSmtCompareSource(options = {}) {
+  return getComparisonSmtSource(options) || getSplitSmtSource(options);
+}
+
+function findCompareBar(timestamp) {
+  const compareSource = getSmtCompareSource({ requireLoadedBars: true });
+  return compareSource?.getDisplayBars().find((bar) => Number(bar.timestamp) === Number(timestamp)) || null;
 }
 
 export function getSmtDisabledReason({ requireLoadedBars = false } = {}) {
   if (getPrimaryInstrument() !== 'NQ') {
     return 'SMT currently supports Main=NQ only';
   }
-  if (!secondaryStore.isSecondaryEnabled()) {
-    return 'SMT requires Split on with Sub=ES';
+  const compareSource = getSmtCompareSource({ requireLoadedBars });
+  if (compareSource) return '';
+
+  const comparisonState = comparisonStore.getComparisonWindowState();
+  if (comparisonState.enabled && comparisonState.descriptor.instrument !== 'ES') {
+    return 'SMT requires Comparison instrument ES';
   }
-  if (secondaryStore.getSecondaryInstrument() !== 'ES') {
-    return 'SMT requires Sub=ES';
+  if (comparisonState.enabled && Number(comparisonState.descriptor.timeframe) !== Number(store.getCurrentTimeframe())) {
+    return 'SMT requires Main TF and Comparison TF to match';
   }
-  if (secondaryStore.getSecondaryTimeframe() !== store.getCurrentTimeframe()) {
-    return 'SMT requires Main TF and Sub TF to match';
+  if (secondaryStore.isSecondaryEnabled() && secondaryStore.getSecondaryInstrument() !== 'ES') {
+    return 'SMT requires Split Sub=ES or Comparison=ES';
   }
-  if (requireLoadedBars && (!store.getDisplayBars().length || !secondaryStore.getSecondaryDisplayBars().length)) {
-    return 'SMT requires loaded NQ and ES bars';
+  if (secondaryStore.isSecondaryEnabled() && Number(secondaryStore.getSecondaryTimeframe()) !== Number(store.getCurrentTimeframe())) {
+    return 'SMT requires Main TF and Split/Comparison TF to match';
   }
-  return '';
+  if (!comparisonState.enabled && !secondaryStore.isSecondaryEnabled()) {
+    return 'SMT requires Comparison Window ES or Split Sub=ES';
+  }
+  if (requireLoadedBars && !store.getDisplayBars().length) {
+    return 'SMT requires loaded NQ bars';
+  }
+  if (requireLoadedBars) {
+    return 'SMT requires loaded ES comparison bars';
+  }
+  return 'SMT requires Comparison Window ES or Split Sub=ES';
 }
 
 function assertCanMarkSmt() {
@@ -63,8 +114,9 @@ function validateLiquidity(direction, primaryLeft, primaryRight, compareLeft, co
 }
 
 function createLiquidityRecord(leftBar, rightBar, direction) {
-  const compareLeft = findSecondaryBar(leftBar.timestamp);
-  const compareRight = findSecondaryBar(rightBar.timestamp);
+  const compareSource = getSmtCompareSource({ requireLoadedBars: true });
+  const compareLeft = findCompareBar(leftBar.timestamp);
+  const compareRight = findCompareBar(rightBar.timestamp);
   if (!compareLeft || !compareRight) {
     throw new Error('Could not find matching ES bars for selected NQ times');
   }
@@ -78,6 +130,8 @@ function createLiquidityRecord(leftBar, rightBar, direction) {
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     primaryInstrument: 'NQ',
     compareInstrument: 'ES',
+    compareChartId: compareSource?.chartId || 'secondary',
+    compareChartLabel: compareSource?.label || '',
     leftTimestamp: leftBar.timestamp,
     rightTimestamp: rightBar.timestamp,
     primaryLeftPrice: getDirectionPrice(leftBar, direction),
@@ -88,7 +142,7 @@ function createLiquidityRecord(leftBar, rightBar, direction) {
 }
 
 function findSecondaryFvg(timestamp, direction) {
-  const bars = secondaryStore.getSecondaryDisplayBars();
+  const bars = getSmtCompareSource({ requireLoadedBars: true })?.getDisplayBars() || [];
   const index = bars.findIndex((bar) => Number(bar.timestamp) === Number(timestamp));
   if (index < 0) return null;
 
@@ -114,6 +168,7 @@ function createFvgRecord(bar, direction) {
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     primaryInstrument: 'NQ',
     compareInstrument: 'ES',
+    compareChartId: getSmtCompareSource({ requireLoadedBars: true })?.chartId || 'secondary',
     timestamp: bar.timestamp,
     fvgStartTimestamp: fvg.startBar.timestamp,
     fvgEndTimestamp: fvg.endBar.timestamp,

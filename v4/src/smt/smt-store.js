@@ -60,6 +60,8 @@ export function normalizeSmtRecord(input = {}, { preserveId = false } = {}) {
     timeframe: normalizeTimeframe(input.timeframe),
     primaryInstrument: 'NQ',
     compareInstrument: 'ES',
+    compareChartId: input.compareChartId || '',
+    compareChartLabel: input.compareChartLabel || '',
     source: input.source || 'manual',
     note: input.note || '',
     display: {

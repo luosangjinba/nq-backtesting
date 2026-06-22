@@ -7,6 +7,7 @@ import { recordHistory } from '../history/history-manager.js';
 import { timeframeToString } from '../config.js';
 import { ORDER_EVENT_TYPES } from '../order/order-review-types.js';
 import { getActiveReviewSet, updateActiveReviewSet } from '../order/order-review-active.js';
+import { locateTimestampRange } from '../chart/viewport-controller.js';
 
 let menuEl = null;
 let contextMenuBar = null;
@@ -40,6 +41,16 @@ function buildEvidenceNote(bar, price, context) {
     formatContextTime(bar),
     priceLabel ? `@ ${priceLabel}` : '',
   ].filter(Boolean).join(' · ');
+}
+
+function formatPrimaryLocateRange(bar, context) {
+  const timestamp = Number(bar?.timestamp);
+  const timeframe = Number(context?.timeframe);
+  if (!Number.isFinite(timestamp) || !Number.isFinite(timeframe) || timeframe <= 0) return null;
+  return {
+    start: timestamp,
+    end: timestamp + Math.max(60, timeframe * 60) - 60,
+  };
 }
 
 function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
@@ -101,6 +112,7 @@ function renderMenu(bar, price, context) {
     </div>
     <div class="pda-menu-section">
       <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${disabled}>Add Comparison Bar Evidence</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Locate Time in Primary</button>
       <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Comparison Time</button>
       <button class="pda-menu-item" data-comparison-action="comparison-copy-price" ${priceLabel ? '' : 'disabled'}>Copy Price ${escapeHtml(priceLabel)}</button>
     </div>
@@ -184,6 +196,15 @@ async function handleMenuClick(event) {
     hideComparisonContextMenu();
   } else if (action === 'comparison-order-add-bar-evidence') {
     addComparisonBarEvidenceToActiveSetup(contextMenuBar, contextMenuPrice, context);
+    hideComparisonContextMenu();
+  } else if (action === 'comparison-locate-primary') {
+    const range = formatPrimaryLocateRange(contextMenuBar, context);
+    if (!range) {
+      bus.emit('status:update', { text: 'Primary locate failed: comparison time unavailable', isError: true });
+    } else {
+      locateTimestampRange(range.start, range.end);
+      bus.emit('status:update', { text: `Primary located to ${formatContextTime(contextMenuBar)}`, isError: false });
+    }
     hideComparisonContextMenu();
   } else if (action === 'comparison-copy-time') {
     navigator.clipboard?.writeText(String(contextMenuBar?.time || contextMenuBar?.timestamp || ''));

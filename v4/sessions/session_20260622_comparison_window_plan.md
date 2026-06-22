@@ -193,6 +193,15 @@ Implementation notes:
 - Preserve unsupported-combination warnings.
 - Support locate time, marker rendering, selection, Inspector detail, and link to active setup.
 
+Implementation notes:
+
+- Manual SMT guard now prefers Comparison Window as the ES compare source and falls back to old Split when comparison is unavailable.
+- Comparison SMT requires Primary=`NQ`, Comparison=`ES`, matching timeframe, and loaded bars.
+- SMT renderer now draws compare-side liquidity/FVG evidence on the Comparison Window.
+- SMT hit-test and selection now support `chartId=comparison-window`.
+- Comparison context menu includes `Locate Time in Primary`.
+- Smoke coverage verifies comparison SMT guard, comparison liquidity/FVG hit-test, and existing comparison browser workflows.
+
 ### Step 307.10: Replay And HTF Progressive Parity
 
 - Sync replay cursor.

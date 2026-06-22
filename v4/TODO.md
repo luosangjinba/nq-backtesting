@@ -1048,7 +1048,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 307.6: Time sync and data loading：comparison view 支持同品种/跨品种、同周期/跨周期加载；按主图绝对时间区间同步数据；切换 Main range、Calendar locate、Replay History restore 时同步 comparison view；保留独立 instrument/timeframe 控件。
   - [x] Step 307.7: Overlay parity：让 PDA、Segment、FVG、Chart Notes、Order Setup、Live Record、Time Overlays 在 comparison view 中按 source instrument/timeframe 正确投影或过滤；先只读渲染，验证主图对象不会画到错误价格轴。
   - [x] Step 307.8: Annotation workflow parity：把副图创建 BSL/SSL、Segment、FVG 和 link to active Order Setup 的工作流迁到 comparison view context；新对象保留 `sourceChartId/sourceInstrument/sourceTimeframe/sourceContext`，Review JSON 和 localStorage 行为不变。
-  - [ ] Step 307.9: SMT migration：把现有 `Main=NQ, Sub=ES, same TF` 的 SMT guard 从 Split 绑定改为 primary view / comparison view 绑定；支持在 comparison window 中 locate time、创建/选择 SMT、渲染连接/marker，并保持 Main=ES 或 unsupported 组合的降级提示。
+  - [x] Step 307.9: SMT migration：把现有 `Main=NQ, Sub=ES, same TF` 的 SMT guard 从 Split 绑定改为 primary view / comparison view 绑定；支持在 comparison window 中 locate time、创建/选择 SMT、渲染连接/marker，并保持 Main=ES 或 unsupported 组合的降级提示。
   - [ ] Step 307.10: Replay and HTF progressive parity：迁移副图 replay cursor、同步 hover、progressive HTF candle 聚合、secondary locate/flash；确认 Replay On 时 comparison view 不提前显示未来完整高周期 K 线。
   - [ ] Step 307.11: Persistence and workspace restore：保存 comparison window 的开关、position/size、instrument/timeframe、sync mode 和 last view state；Review JSON 不保存临时 UI window 位置，Replay History 可保存 workspace 恢复所需状态。
   - [ ] Step 307.12: Browser verification：新增 browser smoke 覆盖 window 非空、拖动不触发 chart resize、跨品种/跨周期加载、overlay 不错位、右键创建 secondary-like PDA/Segment/FVG、SMT locate、Replay progressive HTF、关闭/恢复窗口。

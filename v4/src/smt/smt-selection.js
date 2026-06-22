@@ -44,6 +44,7 @@ function shouldIgnoreClick(e) {
     e.target.closest('.pda-menu') ||
       e.target.closest('#pda-context-menu') ||
       e.target.closest('#secondary-context-menu') ||
+      e.target.closest('#comparison-context-menu') ||
       e.target.closest('#viewport-controls') ||
       e.target.closest('#secondary-viewport-controls') ||
       e.target.closest('#replay-controls') ||
@@ -80,6 +81,20 @@ function handleSecondaryChartClick(e) {
   else clearSmtSelection();
 }
 
+function handleComparisonChartClick(e) {
+  if (shouldIgnoreClick(e)) return;
+  const chartEl = document.getElementById('comparison-chart-canvas');
+  if (!chartEl) return;
+  const rect = chartEl.getBoundingClientRect();
+  const hit = hitTestSmtRecords({
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+    chartId: 'comparison-window',
+  });
+  if (hit?.id) selectSmt(hit.id, { chartId: 'comparison-window' });
+  else clearSmtSelection();
+}
+
 function handleKeydown(e) {
   if (e.key === 'Escape') clearSmtSelection();
 }
@@ -92,6 +107,7 @@ function handleSmtChanged() {
 export function initSmtSelection() {
   document.getElementById('chart')?.addEventListener('click', handleChartClick, true);
   document.getElementById('secondary-chart')?.addEventListener('click', handleSecondaryChartClick, true);
+  document.getElementById('comparison-chart-canvas')?.addEventListener('click', handleComparisonChartClick, true);
   window.addEventListener('keydown', handleKeydown);
   bus.on('smt:changed', handleSmtChanged);
   bus.on('pda:selected', clearSmtSelection);
@@ -101,4 +117,5 @@ export function initSmtSelection() {
   bus.on('live-record-element:selected', clearSmtSelection);
   bus.on('bars:cleared', clearSmtSelection);
   bus.on('secondary-bars:cleared', clearSmtSelection);
+  bus.on('comparison-bars:cleared', clearSmtSelection);
 }
