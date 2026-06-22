@@ -1,6 +1,5 @@
 import * as bus from '../../event-bus.js';
-import * as viewport from '../../chart/viewport-controller.js';
-import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
+import { VIEWPORT_TARGETS, locateChartRange } from '../../chart/viewport-router.js';
 import { updateTimeOverlaySettings } from '../../time-overlays/time-overlay-store.js';
 import * as store from '../../data/bar-store.js';
 import { getReplayVisibleBars } from '../replay-controls.js';
@@ -25,6 +24,20 @@ function getChartNoteFocusAnchorBars() {
   return Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
 }
 
+function getLocatedPdaTargetLabels(result = {}) {
+  return [
+    result.primary?.located ? 'primary' : '',
+    result.secondary?.located ? 'secondary' : '',
+    result.comparison?.located ? 'comparison' : '',
+  ].filter(Boolean);
+}
+
+function formatLocatedTargetList(targets = []) {
+  if (targets.length <= 1) return targets[0] || '';
+  if (targets.length === 2) return targets.join(' and ');
+  return `${targets.slice(0, -1).join(', ')} and ${targets.at(-1)}`;
+}
+
 export function createCalendarActionController({
   getSelectedDate,
   setSelectedDate,
@@ -41,14 +54,11 @@ export function createCalendarActionController({
     }
     const result = locatePdaProjection(annotation);
     const label = actionEl.dataset.objectLabel || 'PDA';
+    const targets = getLocatedPdaTargetLabels(result);
     bus.emit('status:update', {
-      text: result.primary.located && result.secondary.located
-        ? `Located ${label} on primary and secondary`
-        : result.primary.located
-          ? `Located ${label} on primary`
-          : result.secondary.located
-            ? `Located ${label} on secondary`
-            : `${label} has no locatable loaded chart`,
+      text: targets.length
+        ? `Located ${label} on ${formatLocatedTargetList(targets)}`
+        : `${label} has no locatable loaded chart`,
       isError: !result.located,
     });
     return true;
@@ -64,8 +74,7 @@ export function createCalendarActionController({
       bus.emit('status:update', { text: 'Calendar object has no locatable time', isError: true });
       return true;
     }
-    viewport.locateTimestampRange(start, end);
-    secondaryViewport.locateSecondaryTimestampRange(start, end);
+    locateChartRange(VIEWPORT_TARGETS.BOTH, { start, end });
     const dateKey = dateKeyFromTimestamp(start);
     if (dateKey) {
       setChartNoteFocusedDate(dateKey, getChartNoteFocusAnchorBars());
@@ -85,8 +94,7 @@ export function createCalendarActionController({
       renderChartNotes();
       const targetTimestamp = getCalendarDateTimestamp(date, '09:30');
       if (targetTimestamp !== null) {
-        viewport.locateTimestampRange(targetTimestamp, targetTimestamp);
-        secondaryViewport.locateSecondaryTimestampRange(targetTimestamp, targetTimestamp);
+        locateChartRange(VIEWPORT_TARGETS.BOTH, { start: targetTimestamp, end: targetTimestamp });
       }
       bus.emit('status:update', {
         text: targetTimestamp === null

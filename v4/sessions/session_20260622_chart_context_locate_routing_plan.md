@@ -165,6 +165,16 @@ Verification:
 
 ### Step 309.4: Migrate Calendar Locate
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 309 execution.
+
+Implemented:
+- Replaced direct primary/secondary viewport calls in `calendar-actions.js` with `viewport-router`.
+- Kept calendar object and date-selection behavior scoped to `VIEWPORT_TARGETS.BOTH`, which currently means primary + secondary.
+- Updated Calendar PDA locate status text so comparison targets are represented when a PDA locate result comes from `comparison-window`.
+
 Update `ui/inspector/calendar-actions.js`.
 
 Current behavior:
