@@ -1056,7 +1056,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 307.14: Documentation and closeout：更新 TODO/session、用户指南和必要设计文档，明确 Comparison Window 与旧 Split 的关系、当前限制、测试结果和后续移除 Split 的判定条件。已更新中英文用户指南和 `v4/docs/README.md`，明确 Comparison Window 是 Split replacement candidate 但暂不删除 Split；session 收口记录当前能力、限制、验证和后续 migration/removal 条件。
 
 - [ ] Step 308: Comparison Window Split-only workflow migration plan。目标是把 Step 307.13 中阻止删除 Split 的能力拆成后续可执行迁移步骤；先做计划，不直接删除 Split。计划见 `v4/sessions/session_20260622_comparison_split_only_migration_plan.md`。
-  - [ ] Step 308.1: Freeze removal boundary：确认当前只做 Split-only workflow migration planning；旧 Split 继续保留，不做 removal。
+  - [x] Step 308.1: Freeze removal boundary：确认当前只做 Split-only workflow migration planning；旧 Split 继续保留，不做 removal。已记录边界：Step 308 只能迁移/设计 Split-only workflow，不删除 Split、不破坏 primary/secondary 行为；任何 Split removal 必须另开计划并以真实工作流审计通过为前提。
   - [ ] Step 308.2: Chart context locate routing：设计 Calendar、Time Reaction、Order Review reason、Live Record locate 从 primary/secondary 分支迁到 chart context routing，并覆盖 Comparison Window locate/flash。
   - [ ] Step 308.3: Pick-preview routing：设计 Order Setup edit pick、Segment actor pick preview 从 primary/secondary 专用实现迁到 chart context routing，支持 comparison chart cursor/hover/pick。
   - [ ] Step 308.4: Comparison hit-test link：设计 Comparison Window 对已有 PDA/Segment/FVG/Composite 的 hit-test 与 Link To Active Setup 流程，补齐旧 Split 的 existing object link 能力。

@@ -145,6 +145,24 @@ Exit condition:
 - Confirm migration work must preserve old primary/secondary behavior.
 - Confirm Split removal requires a later dedicated plan.
 
+Status: complete.
+
+Frozen boundary:
+
+- Step 308 is a migration-planning and targeted migration track for Split-only workflows.
+- Do not delete or disable old Split in Step 308.
+- Do not remove Stack/Side layout controls in Step 308.
+- Every migration must preserve current primary and secondary behavior unless a later user-approved removal plan explicitly changes it.
+- New comparison routing should be additive: primary and old secondary remain valid chart targets.
+- Review JSON schema should not change for temporary UI state.
+- Split removal requires a later dedicated removal plan after the real-use audit checklist passes.
+
+Verification expectation for later substeps:
+
+- Focused tests should cover old primary/secondary behavior and the new comparison target.
+- Browser smoke should cover at least one user-facing comparison workflow for each migrated area.
+- Documentation must clearly distinguish migration completion from Split deletion.
+
 ### Step 308.2: Chart Context Locate Routing
 
 - Audit current locate call sites.
