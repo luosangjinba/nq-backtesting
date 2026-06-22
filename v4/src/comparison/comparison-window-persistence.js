@@ -60,10 +60,10 @@ function normalizeOverlaySyncMode(value) {
 }
 
 function normalizeLayoutMode(value) {
-  const normalized = normalizeString(value, COMPARISON_LAYOUT_MODE.floating);
+  const normalized = normalizeString(value, COMPARISON_LAYOUT_MODE.sliding);
   return Object.values(COMPARISON_LAYOUT_MODE).includes(normalized)
     ? normalized
-    : COMPARISON_LAYOUT_MODE.floating;
+    : COMPARISON_LAYOUT_MODE.sliding;
 }
 
 function normalizeRange(range = null) {

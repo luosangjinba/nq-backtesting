@@ -1178,7 +1178,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 324.3: Closeout：已记录 smoke 结果、最终工作区状态和下一步建议；下一步可走 Order Setup Optimal/Max Profit Exit 功能设计，或 Review JSON schema/versioning。
 
 - [ ] Step 325: TradingView-style Sliding Comparison Window。目标是把当前 floating MVP 改成右侧固定、左侧拖动边界的 sliding/clipped comparison window；拖动左边界时裁剪可见区域，不重新缩放 comparison chart 内部对象。计划见 `v4/sessions/session_20260622_sliding_comparison_window_plan.md`。
-  - [ ] Step 325.1: Sliding contract and persistence compatibility：默认 layout 切到 `sliding`，保留旧 `floating` workspace normalize。
+  - [x] Step 325.1: Sliding contract and persistence compatibility：默认 layout 已切到 `sliding`，reset/default 为右侧固定窗口；旧 `floating` workspace 仍可 normalize。
   - [ ] Step 325.2: Right-anchored sliding layout：实现右侧固定、左边界 handle、内部 chart canvas 右对齐/full-width clipping。
   - [ ] Step 325.3: Interaction guards：拖动左边界时不触发 chart pan/crosshair/context menu/selection，按钮和 select 保持可用。
   - [ ] Step 325.4: Browser verification：覆盖 default sliding、旧 Split DOM 缺席、左边界拖动右侧不动、内部 canvas 未被压缩、comparison 非空渲染。

@@ -22,7 +22,7 @@ Replace the default floating Comparison Window interaction with a sliding/clippe
 
 ## Step 325.1: Sliding Contract And Persistence Compatibility
 
-Status: pending.
+Status: completed.
 
 Update the comparison view contract so the default layout is `sliding`.
 
@@ -31,6 +31,13 @@ Required behavior:
 - old saved `floating` workspaces still normalize safely;
 - new/reset window defaults to a right-anchored sliding window;
 - visible window state represents the left edge and visible width for sliding mode.
+
+Result:
+
+- Default comparison descriptor now uses `layoutMode='sliding'`.
+- Reset/default visible window is right anchored by contract: `x=34`, `width=66`, `height=100`.
+- Persistence normalizes missing/invalid layout mode to `sliding`, while existing saved `floating` workspaces remain accepted.
+- Store and persistence smoke tests were updated for the new default.
 
 ## Step 325.2: Right-Anchored Sliding Layout
 

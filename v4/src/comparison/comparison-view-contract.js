@@ -21,27 +21,27 @@ export function createComparisonViewDescriptor(overrides = {}) {
     instrument: 'ES',
     timeframe: 60,
     range: null,
-    layoutMode: COMPARISON_LAYOUT_MODE.floating,
+    layoutMode: COMPARISON_LAYOUT_MODE.sliding,
     sourceContext: 'comparison-window',
     syncMode: COMPARISON_SYNC_MODE.primaryTime,
     overlaySyncMode: COMPARISON_OVERLAY_SYNC_MODE.sync,
     writable: false,
     visibleWindow: {
-      x: 18,
-      y: 10,
-      width: 48,
-      height: 46,
+      x: 34,
+      y: 0,
+      width: 66,
+      height: 100,
     },
     ...overrides,
   };
 }
 
 export function normalizeVisibleWindow(value = {}) {
-  const width = clampNumber(value.width, 24, 92, 48);
-  const height = clampNumber(value.height, 24, 88, 46);
+  const width = clampNumber(value.width, 18, 96, 66);
+  const height = clampNumber(value.height, 24, 100, 100);
   return {
-    x: clampNumber(value.x, 0, 100 - width, 18),
-    y: clampNumber(value.y, 0, 100 - height, 10),
+    x: clampNumber(value.x, 0, 100 - width, 34),
+    y: clampNumber(value.y, 0, 100 - height, 0),
     width,
     height,
   };

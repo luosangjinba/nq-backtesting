@@ -16,7 +16,7 @@ let state = setComparisonWindowEnabled(true);
 assert.equal(state.enabled, true);
 assert.equal(state.descriptor.viewId, 'comparison-window-1');
 assert.equal(state.descriptor.writable, false);
-assert.equal(state.descriptor.layoutMode, 'floating');
+assert.equal(state.descriptor.layoutMode, 'sliding');
 assert.equal(state.descriptor.syncMode, 'primary-time');
 assert.equal(state.descriptor.overlaySyncMode, 'sync');
 
@@ -30,11 +30,11 @@ const moved = updateComparisonVisibleWindow({ x: 999, y: -50, width: 50, height:
 assert.deepEqual(moved, { x: 50, y: 0, width: 50, height: 40 });
 
 const reset = resetComparisonVisibleWindow();
-assert.deepEqual(reset, { x: 18, y: 10, width: 48, height: 46 });
+assert.deepEqual(reset, { x: 34, y: 0, width: 66, height: 100 });
 
 const descriptor = getComparisonViewDescriptor();
 descriptor.visibleWindow.x = 1;
-assert.equal(getComparisonWindowState().descriptor.visibleWindow.x, 18);
+assert.equal(getComparisonWindowState().descriptor.visibleWindow.x, 34);
 
 setComparisonWindowEnabled(false);
 assert.equal(isComparisonWindowEnabled(), false);
