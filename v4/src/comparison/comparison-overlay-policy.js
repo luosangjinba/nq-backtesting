@@ -6,6 +6,9 @@ import { getOrderReviews } from '../order/order-review-store.js';
 import { getAnnotations } from '../pda/pda-store.js';
 import { canRenderPdaPriceProjection } from '../pda/pda-projection.js';
 import { getSegments } from '../segment/segment-store.js';
+import { getCurrentTimeframe } from '../data/bar-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { COMPARISON_OVERLAY_SYNC_MODE } from './comparison-view-contract.js';
 import { getComparisonWindowState } from './comparison-window-store.js';
 
 function normalizeInstrument(value, fallback = 'NQ') {
@@ -75,6 +78,61 @@ export function canProjectPdaToComparison(annotation = {}, descriptor = {}) {
     };
   }
   return canProjectPriceObjectToComparison(annotation, descriptor);
+}
+
+export function getComparisonOverlaySyncPolicy(state = getComparisonWindowState()) {
+  const descriptor = state?.descriptor || {};
+  const mode = descriptor.overlaySyncMode === COMPARISON_OVERLAY_SYNC_MODE.sync
+    ? COMPARISON_OVERLAY_SYNC_MODE.sync
+    : COMPARISON_OVERLAY_SYNC_MODE.local;
+  const primaryInstrument = normalizeInstrument(getPrimaryInstrument());
+  const comparisonInstrument = normalizeInstrument(descriptor.instrument);
+  const primaryTimeframe = normalizeTimeframeToMinutes(getCurrentTimeframe());
+  const comparisonTimeframe = normalizeTimeframeToMinutes(descriptor.timeframe);
+  const safe =
+    mode === COMPARISON_OVERLAY_SYNC_MODE.sync &&
+    primaryInstrument === comparisonInstrument &&
+    primaryTimeframe !== null &&
+    comparisonTimeframe !== null &&
+    primaryTimeframe === comparisonTimeframe;
+  return {
+    mode,
+    safe,
+    reason: safe ? 'match' : mode === COMPARISON_OVERLAY_SYNC_MODE.local ? 'local' : 'instrument-or-timeframe-mismatch',
+    primaryInstrument,
+    comparisonInstrument,
+    primaryTimeframe,
+    comparisonTimeframe,
+  };
+}
+
+function getSourceChartId(object = {}) {
+  return object.sourceChartId || object.chartId || 'primary';
+}
+
+function isComparisonSource(object = {}) {
+  return getSourceChartId(object) === 'comparison-window';
+}
+
+export function canRenderObjectOnChartTarget(object = {}, targetChartId = 'primary', state = getComparisonWindowState()) {
+  const sourceChartId = getSourceChartId(object);
+  if (sourceChartId === targetChartId) return { ok: true, reason: 'local-source' };
+
+  const policy = getComparisonOverlaySyncPolicy(state);
+  if (!policy.safe) return { ok: false, reason: policy.reason, policy };
+
+  const crossChartPair =
+    (targetChartId === 'primary' && isComparisonSource(object)) ||
+    (targetChartId === 'comparison-window' && sourceChartId === 'primary');
+  if (!crossChartPair) return { ok: false, reason: 'unsupported-source-target', policy };
+
+  const descriptor = targetChartId === 'comparison-window'
+    ? state?.descriptor
+    : { instrument: policy.primaryInstrument, timeframe: policy.primaryTimeframe };
+  const projection = canProjectPriceObjectToComparison(object, descriptor);
+  return projection.ok
+    ? { ok: true, reason: 'sync', policy }
+    : { ok: false, reason: projection.reason, policy };
 }
 
 function summarizeObjects(items, descriptor, projector = canProjectPriceObjectToComparison) {

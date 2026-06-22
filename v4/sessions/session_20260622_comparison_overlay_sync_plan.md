@@ -60,6 +60,8 @@ Verification:
 
 ### Step 315.2: Safe Sync Policy Helper
 
+Status: completed.
+
 Create a small helper that answers:
 
 - current Main instrument/timeframe;
@@ -67,6 +69,13 @@ Create a small helper that answers:
 - whether a given object can render on a given chart target.
 
 First version allows cross-chart sync only when instrument and timeframe match.
+
+Implementation notes:
+
+- `comparison-overlay-policy` now exposes a sync policy and chart-target render guard.
+- Local mode keeps cross-chart rendering disabled.
+- Sync mode allows only Main <-> Comparison with matching instrument and timeframe.
+- Verification: `git diff --check`, `node v4/tests/comparison-overlay-policy-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 315.3: PDA/Segment Sync Rendering
 
