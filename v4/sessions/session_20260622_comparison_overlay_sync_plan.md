@@ -96,7 +96,17 @@ Implementation notes:
 
 ### Step 315.4: Order Setup / Live Record Sync Rendering
 
+Status: completed.
+
 Update Order Setup and Live Record overlay rendering so Main-sourced execution overlays can show on Comparison when safe.
+
+Implementation notes:
+
+- Order Setup renderer now renders through a chart-context target and keeps separate primitive lists for Primary and Comparison.
+- Live Record renderer uses the same target pattern.
+- Comparison rendering is gated by the sync policy and treats these execution overlays as Main-sourced.
+- Source data, Inspector records, and active selection state are unchanged.
+- Verification: `git diff --check`, `node v4/tests/comparison-overlay-policy-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 315.5: Hit-test and Selection Routing
 

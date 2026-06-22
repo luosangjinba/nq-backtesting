@@ -1,7 +1,10 @@
 import * as bus from '../event-bus.js';
-import * as chart from '../chart/chart-manager.js';
-import * as store from '../data/bar-store.js';
 import { BarMarkerPrimitive, LiquidityPrimitive, RangePrimitive } from '../chart/primitives.js';
+import {
+  CHART_CONTEXT_IDS,
+  getComparisonChartContext,
+  getPrimaryChartContext,
+} from '../chart/chart-context.js';
 import { getChartLabelFont } from '../display/display-preferences.js';
 import { getActiveLiveRecordId } from './live-record-active.js';
 import { getSelectedLiveRecordElement } from './live-record-selection.js';
@@ -15,6 +18,7 @@ import {
   getLiveRecordProjectedChartTime,
   mapTimestampToLiveRecordChartTime,
 } from './live-record-projection.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 
 const ACTIVE_ANCHOR_COLOR = '#ffd54f';
 const LONG_ENTRY_COLOR = '#26a69a';
@@ -39,24 +43,28 @@ const REWARD_ZONE = {
   textColor: '#80cbc4',
 };
 
-let renderedPrimitives = [];
+const renderedPrimitivesByChartId = {
+  [CHART_CONTEXT_IDS.PRIMARY]: [],
+  [CHART_CONTEXT_IDS.COMPARISON]: [],
+};
+let activeRenderTarget = null;
 
 function getRenderContext() {
-  return {
-    timeframe: store.getCurrentTimeframe(),
-    getDisplayBars: store.getDisplayBars,
-  };
+  return activeRenderTarget || getPrimaryChartContext();
 }
 
-function clearRenderedPrimitives() {
-  renderedPrimitives = chart.clearPrimitives(renderedPrimitives) || [];
+function clearRenderedPrimitives(target = getPrimaryChartContext()) {
+  const chartId = target.chartId || CHART_CONTEXT_IDS.PRIMARY;
+  renderedPrimitivesByChartId[chartId] = target.clearPrimitives?.(renderedPrimitivesByChartId[chartId]) || [];
 }
 
 function attachPrimitive(primitive) {
   if (!primitive) return;
-  chart.attachPrimitive(primitive);
+  const target = getRenderContext();
+  const chartId = target.chartId || CHART_CONTEXT_IDS.PRIMARY;
+  target.attachPrimitive?.(primitive);
   primitive.requestUpdate?.();
-  renderedPrimitives.push(primitive);
+  renderedPrimitivesByChartId[chartId].push(primitive);
 }
 
 function mapTimestampToCurrentChartTime(timestamp) {
@@ -64,7 +72,8 @@ function mapTimestampToCurrentChartTime(timestamp) {
 }
 
 function hasRenderableChart() {
-  return Boolean(chart.getChart() && chart.getSeries() && store.getDisplayBars().length);
+  const target = getRenderContext();
+  return Boolean(target.enabled && target.getChart?.() && target.getSeries?.() && target.getDisplayBars?.().length);
 }
 
 function getLineLabelDirection(direction) {
@@ -81,7 +90,7 @@ function isElementVisible(liveSet, role, element = {}) {
 
 function getAnchorMarkerPrice(anchor = {}, direction = '') {
   const barIndex = getLiveRecordDisplayBarIndexForTimestamp(anchor.timestamp, getRenderContext());
-  const bar = barIndex >= 0 ? store.getDisplayBars()[barIndex] : null;
+  const bar = barIndex >= 0 ? getRenderContext().getDisplayBars()[barIndex] : null;
   const markerPrice = Number(direction === LIVE_RECORD_DIRECTIONS.SHORT ? bar?.high : bar?.low);
   const fallbackPrice = Number(anchor.price);
   return Number.isFinite(markerPrice) ? markerPrice : fallbackPrice;
@@ -95,8 +104,8 @@ function renderAnchorMarker(anchor = {}, direction = '', isActive = false) {
   const color = isActive ? ACTIVE_ANCHOR_COLOR : getEntryLineColor(direction);
   attachPrimitive(
     new BarMarkerPrimitive(
-      chart.getChart(),
-      chart.getSeries(),
+      getRenderContext().getChart(),
+      getRenderContext().getSeries(),
       time,
       price,
       {
@@ -132,8 +141,8 @@ function renderPlanLine(
 
   attachPrimitive(
     new LiquidityPrimitive(
-      chart.getChart(),
-      chart.getSeries(),
+      getRenderContext().getChart(),
+      getRenderContext().getSeries(),
       time,
       parsedPrice,
       color,
@@ -163,8 +172,8 @@ function renderPriceHelper(timestamp, price, label, color, position = 'right') {
   if (time === null || !Number.isFinite(parsedPrice)) return;
   attachPrimitive(
     new LiquidityPrimitive(
-      chart.getChart(),
-      chart.getSeries(),
+      getRenderContext().getChart(),
+      getRenderContext().getSeries(),
       time,
       parsedPrice,
       color,
@@ -204,8 +213,8 @@ function renderRangeZone(timestamp, endTimestamp, entryPrice, targetPrice, label
 
   attachPrimitive(
     new RangePrimitive(
-      chart.getChart(),
-      chart.getSeries(),
+      getRenderContext().getChart(),
+      getRenderContext().getSeries(),
       startTime,
       endTime,
       topPrice,
@@ -369,12 +378,28 @@ function renderLiveRecordSet(liveSet, isActive = false) {
   }
 }
 
-export function renderLiveRecords() {
-  clearRenderedPrimitives();
+function renderLiveRecordsForTarget(target, predicate = () => true) {
+  activeRenderTarget = target;
+  clearRenderedPrimitives(target);
   if (!hasRenderableChart()) return;
 
   const activeId = getActiveLiveRecordId();
-  getLiveRecordSets().forEach((liveSet) => renderLiveRecordSet(liveSet, liveSet.id === activeId));
+  getLiveRecordSets()
+    .filter(predicate)
+    .forEach((liveSet) => renderLiveRecordSet(liveSet, liveSet.id === activeId));
+}
+
+function canRenderLiveSetInComparison(liveSet) {
+  return canRenderObjectOnChartTarget({
+    ...liveSet,
+    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
+  }, CHART_CONTEXT_IDS.COMPARISON).ok;
+}
+
+export function renderLiveRecords() {
+  renderLiveRecordsForTarget(getPrimaryChartContext());
+  renderLiveRecordsForTarget(getComparisonChartContext(), canRenderLiveSetInComparison);
+  activeRenderTarget = null;
 }
 
 export function initLiveRecordRenderer() {
@@ -385,5 +410,11 @@ export function initLiveRecordRenderer() {
   bus.on('bars:loaded', renderLiveRecords);
   bus.on('display-preferences:changed', renderLiveRecords);
   bus.on('primary-instrument:changed', renderLiveRecords);
-  bus.on('bars:cleared', clearRenderedPrimitives);
+  bus.on('comparison-window:changed', renderLiveRecords);
+  bus.on('comparison-bars:loaded', renderLiveRecords);
+  bus.on('comparison-bars:cleared', () => clearRenderedPrimitives(getComparisonChartContext()));
+  bus.on('bars:cleared', () => {
+    clearRenderedPrimitives(getPrimaryChartContext());
+    clearRenderedPrimitives(getComparisonChartContext());
+  });
 }
