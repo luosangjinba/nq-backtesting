@@ -96,6 +96,29 @@ Include:
 
 ## Step 313.3: Run Readiness Smoke Suite
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 313 execution.
+
+Verification run:
+
+- `node v4/tests/viewport-router-smoke.js`
+- `node v4/tests/comparison-viewport-controller-smoke.js`
+- `node v4/tests/pda-locate-actions-smoke.js`
+- `node v4/tests/pick-context-router-smoke.js`
+- `node v4/tests/comparison-pick-preview-smoke.js`
+- `node v4/tests/comparison-window-persistence-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `git diff --check`
+
+Technical readiness result:
+
+- Passed.
+- Node emitted the existing MODULE_TYPELESS_PACKAGE_JSON warning for ESM-style test files; this is pre-existing and not a readiness blocker.
+
 Run:
 
 - `node v4/tests/viewport-router-smoke.js`
