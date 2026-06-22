@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: feature/comparison-window-mvp
-Status: planned
+Status: completed
 
 ## Goal
 
@@ -84,6 +84,8 @@ Implementation notes:
 
 ### Step 316.4: Verification
 
+Status: completed.
+
 Focused verification:
 
 - Local mode keeps source-window-only behavior;
@@ -95,6 +97,14 @@ Focused verification:
 Commands expected:
 
 - `git diff --check`
+- `node v4/tests/pda-source-format-smoke.js`
 - `node v4/tests/comparison-overlay-policy-smoke.js`
 - `node v4/tests/comparison-window-persistence-smoke.js`
 - `node v4/tests/comparison-window-browser-smoke.js`
+
+Final result:
+
+- PDA chart labels now hide chart-source by default while keeping instrument/timeframe visible.
+- Inspector/ref metadata still preserves chart source.
+- Sync rendering and hit-test still route to original object ids.
+- Browser smoke verifies cross-window hit, select, update, and delete on the original PDA/Segment records.
