@@ -1,6 +1,6 @@
 # V4 User Guide
 
-V4 is a chart-based review tool for replaying NQ/ES candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES secondary chart.
+V4 is a chart-based review tool for replaying NQ/ES candles, marking PDAs, drawing price legs, writing Chart Notes, building Order Setups, reviewing days through Calendar/Inspector, and manually marking SMT evidence with an ES Comparison Window.
 
 The current version is centered on manual review. It is not an automatic trading-signal system and does not decide whether a setup is valid. Most chart-review workflows are usable. The remaining "precision review" work is actor-timeframe auto-fetching, canvas selection of actor candle groups, final verdict workflow, and statistics pages.
 
@@ -136,7 +136,7 @@ Currently supported:
 
 Implementation note:
 
-- Some old secondary modules remain in the source tree temporarily while the staged cleanup verifies they are no longer shared by SMT, locate, pick preview, or replay internals. They are not user-facing Split controls.
+- The old Split Screen user entry points and legacy secondary runtime modules have been removed. Comparison Window is the supported comparison surface.
 
 ## Manual PDA Marking
 
@@ -523,11 +523,11 @@ How to mark:
 3. Choose `Mark Bearish FVG SMT` or `Mark Bullish FVG SMT`.
 4. Left-click the NQ candle at the matching ES FVG time.
 
-V4 searches the ES secondary bars for a same-direction FVG around that selected time.
+V4 searches the ES Comparison Window bars for a same-direction FVG around that selected time.
 
 On success:
 
-- ES renders the FVG range.
+- ES renders the FVG range in the Comparison Window.
 - NQ renders a vertical marker at the matching time.
 - The record appears in `SMT Evidence`.
 
@@ -539,7 +539,7 @@ The Inspector `SMT Evidence` section supports:
 - `Delete`: delete the SMT record.
 - `Note`: add a note.
 
-SMT records keep their original timeframe. The current version renders SMT only when the record timeframe matches the current primary/secondary timeframe.
+SMT records keep their original timeframe. The current version renders SMT only when the record timeframe matches the current primary/Comparison timeframe.
 
 ## Order Setup / Execution Lens
 

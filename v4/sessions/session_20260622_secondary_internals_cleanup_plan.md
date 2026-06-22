@@ -125,7 +125,7 @@ Result:
 
 ## Step 322.5: Test and Documentation Update
 
-Status: pending.
+Status: completed.
 
 Update tests away from secondary chart assumptions:
 
@@ -144,6 +144,20 @@ Required suite:
 - `node v4/tests/viewport-router-smoke.js`
 - `node v4/tests/primitive-render-lifecycle-smoke.js`
 - `git diff --check`
+
+Result:
+
+- Updated `pick-context-router-smoke`, `viewport-router-smoke`, `primitive-render-lifecycle-smoke`, and `smt-selection-smoke` away from secondary runtime assumptions.
+- Updated user-facing docs to state that Comparison Window is the supported comparison surface and legacy secondary runtime modules have been removed.
+- Required suite passed:
+  - `node v4/tests/comparison-window-browser-smoke.js`
+  - `node v4/tests/replay-history-comparison-smoke.js`
+  - `node v4/tests/comparison-replay-sync-smoke.js`
+  - `node v4/tests/smt-selection-smoke.js`
+  - `node v4/tests/pick-context-router-smoke.js`
+  - `node v4/tests/viewport-router-smoke.js`
+  - `node v4/tests/primitive-render-lifecycle-smoke.js`
+  - `git diff --check`
 
 ## Step 322.6: Closeout
 

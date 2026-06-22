@@ -1,6 +1,6 @@
 # V4 用户说明书
 
-V4 是图表式复盘工具，用来在 NQ/ES K 线图上回放行情、手工标注 PDA、绘制 price legs、记录 Chart Notes、建立 Order Setup、按 Calendar/Inspector 做每日复盘，并通过 ES 副图手工标注 SMT evidence。
+V4 是图表式复盘工具，用来在 NQ/ES K 线图上回放行情、手工标注 PDA、绘制 price legs、记录 Chart Notes、建立 Order Setup、按 Calendar/Inspector 做每日复盘，并通过 ES Comparison Window 手工标注 SMT evidence。
 
 当前版本以手工复盘为主。它不是自动交易信号系统，不自动判断 setup 是否成立。除精确复盘阶段的自动 actor TF 取数、canvas 框选 K 线群、最终 verdict 和统计页外，主要图表复盘流程已经可用。
 
@@ -138,7 +138,7 @@ Comparison Window 是当前支持的滑动/浮动对比窗口，不是在旧 Spl
 
 实现说明：
 
-- 部分旧 secondary 模块会暂时保留在源码中，直到后续分阶段清理确认它们不再被 SMT、locate、pick preview 或 replay 内部路径共用；它们不再是用户可见的 Split 控制。
+- 旧 Split Screen 用户入口和 legacy secondary runtime 模块已经移除。Comparison Window 是当前支持的对比界面。
 
 ## 手工 PDA 标注
 
@@ -496,7 +496,7 @@ Liquidity SMT 用来记录：
 3. 选择 `Start Bearish Liquidity SMT` 或 `Start Bullish Liquidity SMT`。
 4. 左键点击 NQ 主图右侧 K 线。
 
-系统会用相同的 left/right timestamp 在 ES 副图查找对应 K 线，并校验：
+系统会用相同的 left/right timestamp 在 ES Comparison Window 查找对应 K 线，并校验：
 
 - NQ no-sweep。
 - ES sweep。
@@ -504,7 +504,7 @@ Liquidity SMT 用来记录：
 成功后：
 
 - NQ 主图画 `NQ no sweep` 两点连线。
-- ES 副图画 `ES sweep` 两点连线。
+- ES Comparison Window 画 `ES sweep` 两点连线。
 - Inspector 的 `SMT Evidence` 列表显示该记录。
 
 ### FVG SMT
@@ -521,11 +521,11 @@ FVG SMT 用来记录：
 3. 选择 `Mark Bearish FVG SMT` 或 `Mark Bullish FVG SMT`。
 4. 左键点击 NQ 主图中与 ES FVG 对应的同时间 K 线。
 
-系统会在 ES 副图数据中查找该时间附近的同方向 FVG。
+系统会在 ES Comparison Window 数据中查找该时间附近的同方向 FVG。
 
 成功后：
 
-- ES 副图正常显示 FVG range。
+- ES Comparison Window 正常显示 FVG range。
 - NQ 主图显示同时间竖向 marker。
 - Inspector 的 `SMT Evidence` 列表显示该记录。
 
