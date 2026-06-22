@@ -83,6 +83,42 @@ The important architectural change is moving code away from hard-coded `primary`
 - Add sliding/floating window container, rail/handle, close action, and reset action.
 - First version is read-only and does not replace Split.
 
+### Step 307.1-307.4 Implementation Notes
+
+Status: implemented on `feature/comparison-window-mvp`.
+
+Product boundary:
+
+- Feature name is `Comparison Window`.
+- It is a new floating/sliding view system, not a patch on existing Split.
+- MVP is read-only and limited to window lifecycle/positioning plus a view descriptor.
+- Existing Split remains available and unchanged until later parity steps prove replacement readiness.
+
+Reusable secondary stack audit:
+
+| Area | Decision | Reason |
+| --- | --- | --- |
+| `ui/secondary-chart-controller.js` | Wrap later | Useful data loading, replay, hover-sync patterns, but currently assumes one Split secondary panel and `secondary-chart:*` events. |
+| `chart/secondary-chart-manager.js` | Rewrite or generalize later | Hard-coded DOM ids and singleton chart state make it unsuitable as-is for arbitrary comparison views. |
+| `data/secondary-chart-store.js` | Reference only | Captures secondary instrument/timeframe/layout shape, but state names and events are Split-specific. |
+| `pda/secondary-pda-renderer.js` and `segment/secondary-segment-renderer.js` | Wrap behind view context later | Rendering logic is reusable once chart context, source instrument/timeframe, and coordinate projection are no longer hard-coded to secondary. |
+| `pda/secondary-context-menu.js` | Rewrite behind view context later | Creation workflows need writable context and source metadata before they can safely run in Comparison Window. |
+| SMT guard/render paths | Wrap later | Existing Main/Sub timing assumptions are valuable, but binding should become primary view / comparison view instead of Split-specific. |
+| Progressive replay, locate, flash | Wrap later | Behavior should migrate, but first needs comparison data loading and chart context identity. |
+
+Comparison view contract:
+
+- Added `src/comparison/comparison-view-contract.js`.
+- Added `src/comparison/comparison-window-store.js`.
+- Current descriptor fields: `viewId`, `role`, `instrument`, `timeframe`, `range`, `layoutMode`, `sourceContext`, `syncMode`, `writable`, `visibleWindow`.
+
+MVP shell:
+
+- Added `src/ui/comparison-window-controller.js`.
+- Added toolbar `Compare` toggle.
+- Added floating window with drag handle, double-click reset, explicit reset, and close.
+- The window is deliberately a non-data placeholder until Step 307.6 introduces sync and loading.
+
 ### Step 307.5: Sliding Interaction Semantics
 
 - Dragging the outer window uses pointer capture.

@@ -6,6 +6,7 @@ import { getBarChartTime } from './chart/time-projection.js';
 import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
+import { initComparisonWindowController } from './ui/comparison-window-controller.js';
 import {
   getReplayRestoreSnapshot,
   initReplayControls,
@@ -127,6 +128,9 @@ console.log('[V4] Segment controls initialized');
 
 initSecondaryChartController();
 console.log('[V4] Secondary chart controller initialized');
+
+initComparisonWindowController();
+console.log('[V4] Comparison window controller initialized');
 
 initSmtRenderer();
 initManualSmt();

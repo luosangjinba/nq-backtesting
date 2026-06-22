@@ -54,6 +54,7 @@ html, body {
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .chart-panel {
@@ -126,6 +127,130 @@ html, body {
   min-width: 0;
   min-height: 0;
   position: relative;
+}
+
+.comparison-window-root {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  pointer-events: none;
+}
+
+.comparison-window {
+  position: absolute;
+  min-width: 280px;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  background: rgba(19, 23, 34, 0.98);
+  border: 1px solid #3d4656;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.36);
+}
+
+.comparison-window-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 38px;
+  padding: 7px 8px 7px 10px;
+  cursor: move;
+  user-select: none;
+  border-bottom: 1px solid #2a2e39;
+  background: #1e222d;
+}
+
+.comparison-window-title-block {
+  min-width: 0;
+}
+
+.comparison-window-title {
+  color: #f0f3fa;
+  font-size: var(--toolbar-font-size);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.comparison-window-subtitle {
+  margin-top: 2px;
+  color: #8d919b;
+  font-size: var(--compact-font-size);
+  line-height: 1.2;
+}
+
+.comparison-window-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.comparison-window-btn {
+  height: var(--control-height);
+  padding: 0 8px;
+  color: #d1d4dc;
+  border: 1px solid #363a45;
+  border-radius: 4px;
+  background: #131722;
+  font-size: var(--toolbar-font-size);
+  cursor: pointer;
+}
+
+.comparison-window-btn:hover {
+  border-color: #787b86;
+  color: #f0f3fa;
+}
+
+.comparison-window-close {
+  border-color: rgba(239, 83, 80, 0.48);
+}
+
+.comparison-window-rail {
+  height: 8px;
+  cursor: move;
+  background: #171b25;
+  border-bottom: 1px solid #2a2e39;
+}
+
+.comparison-window-rail-handle {
+  width: 54px;
+  height: 2px;
+  margin: 3px auto;
+  background: #4db6ac;
+}
+
+.comparison-window-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  background:
+    linear-gradient(90deg, rgba(120, 123, 134, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(120, 123, 134, 0.08) 1px, transparent 1px),
+    #131722;
+  background-size: 64px 64px;
+}
+
+.comparison-window-placeholder {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(80%, 360px);
+  transform: translate(-50%, -50%);
+  color: #8d919b;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.comparison-window-placeholder-title {
+  color: #d1d4dc;
+  font-weight: 600;
+}
+
+.comparison-window-placeholder-meta {
+  margin-top: 4px;
+  font-size: var(--compact-font-size);
 }
 
 #ohlc-legend,

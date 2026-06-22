@@ -9,6 +9,10 @@ import * as secondaryChartManager from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import {
+  isComparisonWindowEnabled,
+  setComparisonWindowEnabled,
+} from '../comparison/comparison-window-store.js';
 import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
@@ -127,6 +131,7 @@ function renderInstrumentOptions(selectedInstrument) {
 
 function renderSplitScreenControls() {
   const enabled = secondaryStore.isSecondaryEnabled();
+  const comparisonEnabled = isComparisonWindowEnabled();
   const timeframe = secondaryStore.getSecondaryTimeframe();
   const instrument = secondaryStore.getSecondaryInstrument();
   const layout = secondaryStore.getSplitLayout();
@@ -134,6 +139,10 @@ function renderSplitScreenControls() {
     <label class="toolbar-toggle" title="Show readonly secondary chart">
       <input id="splitScreenToggle" type="checkbox"${enabled ? ' checked' : ''} />
       <span>Split</span>
+    </label>
+    <label class="toolbar-toggle" title="Show floating comparison window">
+      <input id="comparisonWindowToggle" type="checkbox"${comparisonEnabled ? ' checked' : ''} />
+      <span>Compare</span>
     </label>
     <div class="toolbar-group">
       <span class="toolbar-label">Sub:</span>
@@ -254,6 +263,7 @@ export function initToolbar() {
   const toolbarSettingsBtn = document.getElementById('toolbarSettingsBtn');
   const toolbarSettingsPopover = document.getElementById('toolbarSettingsPopover');
   const splitScreenToggle = document.getElementById('splitScreenToggle');
+  const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
   const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
   const secondaryTfSelect = document.getElementById('secondaryTfSelect');
   const splitLayoutSelect = document.getElementById('splitLayoutSelect');
@@ -325,6 +335,10 @@ export function initToolbar() {
     secondaryStore.setSecondaryEnabled(e.target.checked);
     syncSplitScreenLayout();
   });
+  comparisonWindowToggle.addEventListener('change', (e) => {
+    setComparisonWindowEnabled(e.target.checked);
+    syncComparisonWindowToggle();
+  });
   secondaryInstrumentSelect.addEventListener('change', (e) => {
     secondaryStore.setSecondaryInstrument(e.target.value);
     syncSplitScreenLayout();
@@ -348,6 +362,7 @@ export function initToolbar() {
   });
   bus.on('history:changed', updateHistoryButtons);
   bus.on('secondary-chart:settings-changed', syncSplitScreenLayout);
+  bus.on('comparison-window:changed', syncComparisonWindowToggle);
   bus.on('primary-instrument:changed', ({ instrument }) => {
     const select = document.getElementById('primaryInstrumentSelect');
     if (select) select.value = instrument;
@@ -358,6 +373,13 @@ export function initToolbar() {
     if (e.key === 'Escape') closeSettingsPopover();
   });
   updateHistoryButtons();
+}
+
+function syncComparisonWindowToggle() {
+  const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
+  if (comparisonWindowToggle) {
+    comparisonWindowToggle.checked = isComparisonWindowEnabled();
+  }
 }
 
 function renderSettingsPopover() {

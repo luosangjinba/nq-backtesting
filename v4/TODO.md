@@ -1040,10 +1040,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 306.6: Small refactor：将 Data Maintenance 中的 ZIP 解包/CSV 分类抽到 `live-record/tradovate-zip-import.js`，Preview 文案抽到 `live-record/tradovate-import-preview.js`；页面只保留 DOM wiring、调用 importer 和下载 JSON；新增 `tradovate-import-ui-modules-smoke.js` 覆盖模块边界。
 
 - [ ] Step 307: Comparison Window / Sliding Window。目标是新建一套可滑动 comparison chart view，长期替代现有 Split 的视觉对比、跨品种/跨周期、secondary 标注、SMT 和 replay 同步能力；不在现有 Split 上打补丁。计划见 `v4/sessions/session_20260622_comparison_window_plan.md`。
-  - [ ] Step 307.1: Freeze product boundary：确认新功能名称、交互模型和替代目标。核心模型不是 resize split，而是一个可滑动/可浮动 comparison window；拖动窗口位置时 chart 内 K 线和 overlay 不因窗口拖动而缩放。旧 Split 保留到新功能覆盖真实 workflow 后再考虑移除。
-  - [ ] Step 307.2: Audit reusable secondary stack：审计 `secondary-chart-controller`、secondary chart manager/store、secondary PDA/Segment renderer、secondary context menu、SMT guard、secondary progressive replay、locate/flash 路径，列出可复用模块和必须解耦的 Split 假设。
-  - [ ] Step 307.3: Define comparison view contract：新增 view descriptor 概念，至少包含 `viewId`、`instrument`、`timeframe`、`range`、`layoutMode`、`sourceContext`、`syncMode`、`writable`、`visibleWindow`；主图与 comparison window 都通过 chart context 暴露统一能力，避免继续写死 primary/secondary。
-  - [ ] Step 307.4: Build MVP shell：新增 `comparison-window-controller` 与 UI 开关，创建一个独立 comparison chart view；支持 Stack/Side 之外的 floating/sliding 容器、拖动轨道、双击重置位置、关闭窗口；第一版只读，不迁移标注。
+  - [x] Step 307.1: Freeze product boundary：确认新功能名称、交互模型和替代目标。核心模型不是 resize split，而是一个可滑动/可浮动 comparison window；拖动窗口位置时 chart 内 K 线和 overlay 不因窗口拖动而缩放。旧 Split 保留到新功能覆盖真实 workflow 后再考虑移除。
+  - [x] Step 307.2: Audit reusable secondary stack：审计 `secondary-chart-controller`、secondary chart manager/store、secondary PDA/Segment renderer、secondary context menu、SMT guard、secondary progressive replay、locate/flash 路径，列出可复用模块和必须解耦的 Split 假设。
+  - [x] Step 307.3: Define comparison view contract：新增 view descriptor 概念，至少包含 `viewId`、`instrument`、`timeframe`、`range`、`layoutMode`、`sourceContext`、`syncMode`、`writable`、`visibleWindow`；主图与 comparison window 都通过 chart context 暴露统一能力，避免继续写死 primary/secondary。
+  - [x] Step 307.4: Build MVP shell：新增 `comparison-window-controller` 与 UI 开关，创建一个独立 comparison chart view；支持 Stack/Side 之外的 floating/sliding 容器、拖动轨道、双击重置位置、关闭窗口；第一版只读，不迁移标注。
   - [ ] Step 307.5: Sliding interaction semantics：实现 TradingView-like 滑动窗口体验。拖动外层 window/mask 时不触发 chart resize；只有窗口位置或裁切区域变化。窗口内部 zoom/scroll 仍由 chart 自己处理；拖动 handle 使用 pointer capture，避免图表误吞事件。
   - [ ] Step 307.6: Time sync and data loading：comparison view 支持同品种/跨品种、同周期/跨周期加载；按主图绝对时间区间同步数据；切换 Main range、Calendar locate、Replay History restore 时同步 comparison view；保留独立 instrument/timeframe 控件。
   - [ ] Step 307.7: Overlay parity：让 PDA、Segment、FVG、Chart Notes、Order Setup、Live Record、Time Overlays 在 comparison view 中按 source instrument/timeframe 正确投影或过滤；先只读渲染，验证主图对象不会画到错误价格轴。
