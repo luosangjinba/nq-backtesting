@@ -257,13 +257,18 @@ async function main() {
     const dragStart = await evaluate(client, `
       (() => {
       const before = document.querySelector('#comparison-window').getBoundingClientRect();
+      const handle = document.querySelector('.comparison-window-left-handle').getBoundingClientRect();
+      const canvas = document.querySelector('#comparison-chart-canvas').getBoundingClientRect();
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
       return {
-        x: before.left + 20,
-        y: before.top + 12,
+        x: handle.left + handle.width / 2,
+        y: handle.top + handle.height / 2,
         beforeLeft: before.left,
+        beforeRight: before.right,
+        beforeWidth: before.width,
         beforeTop: before.top,
+        beforeCanvasWidth: canvas.width,
         stackWidth: stack.width,
         stackHeight: stack.height,
         primaryWidth: primary.width,
@@ -281,26 +286,33 @@ async function main() {
     await client.send('Input.dispatchMouseEvent', {
       type: 'mouseMoved',
       x: dragStart.x + 80,
-      y: dragStart.y + 40,
+      y: dragStart.y,
       button: 'left',
     });
     await client.send('Input.dispatchMouseEvent', {
       type: 'mouseReleased',
       x: dragStart.x + 80,
-      y: dragStart.y + 40,
+      y: dragStart.y,
       button: 'left',
       clickCount: 1,
     });
     const moved = await evaluate(client, `
       (() => {
       const after = document.querySelector('#comparison-window').getBoundingClientRect();
+      const canvas = document.querySelector('#comparison-chart-canvas').getBoundingClientRect();
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
       return {
         beforeLeft: ${dragStart.beforeLeft},
         afterLeft: after.left,
+        beforeRight: ${dragStart.beforeRight},
+        afterRight: after.right,
+        beforeWidth: ${dragStart.beforeWidth},
+        afterWidth: after.width,
         beforeTop: ${dragStart.beforeTop},
         afterTop: after.top,
+        beforeCanvasWidth: ${dragStart.beforeCanvasWidth},
+        afterCanvasWidth: canvas.width,
         stackWidth: stack.width,
         stackHeight: stack.height,
         primaryWidth: primary.width,
@@ -308,8 +320,12 @@ async function main() {
       };
       })();
     `);
-    assert.ok(moved.afterLeft > moved.beforeLeft, 'Drag should move window horizontally');
-    assert.ok(moved.afterTop > moved.beforeTop, 'Drag should move window vertically');
+    assert.ok(moved.afterLeft > moved.beforeLeft, 'Sliding drag should move the left boundary right');
+    assert.equal(Math.round(moved.afterRight), Math.round(moved.beforeRight), 'Sliding drag should keep the right boundary fixed');
+    assert.ok(moved.afterWidth < moved.beforeWidth, 'Sliding drag should reduce the clipped visible width');
+    assert.equal(Math.round(moved.afterTop), Math.round(moved.beforeTop), 'Sliding drag should not move window vertically');
+    assert.ok(moved.afterCanvasWidth > moved.afterWidth, 'Sliding drag should keep internal canvas wider than clipped shell');
+    assert.equal(Math.round(moved.afterCanvasWidth), Math.round(moved.beforeCanvasWidth), 'Sliding drag should not shrink internal chart canvas');
     assert.equal(moved.stackWidth, dragStart.stackWidth, 'Dragging window should not resize chart stack width');
     assert.equal(moved.stackHeight, dragStart.stackHeight, 'Dragging window should not resize chart stack height');
     assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
@@ -1125,10 +1141,24 @@ async function main() {
       (() => {
       document.querySelector('[data-comparison-reset]').click();
       const win = document.querySelector('#comparison-window');
-      return { left: win.style.left, top: win.style.top, width: win.style.width, height: win.style.height };
+      return {
+        left: win.style.left,
+        right: win.style.right,
+        top: win.style.top,
+        width: win.style.width,
+        height: win.style.height,
+        layoutMode: win.dataset.layoutMode,
+      };
       })();
     `);
-    assert.deepEqual(reset, { left: '18%', top: '10%', width: '48%', height: '46%' });
+    assert.deepEqual(reset, {
+      left: '34%',
+      right: '0px',
+      top: '0%',
+      width: 'auto',
+      height: '100%',
+      layoutMode: 'sliding',
+    });
 
     const closed = await evaluate(client, `
       (() => {

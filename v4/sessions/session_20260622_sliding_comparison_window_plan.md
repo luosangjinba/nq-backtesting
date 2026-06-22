@@ -41,7 +41,7 @@ Result:
 
 ## Step 325.2: Right-Anchored Sliding Layout
 
-Status: pending.
+Status: completed.
 
 Change the controller/CSS so sliding mode:
 
@@ -49,6 +49,13 @@ Change the controller/CSS so sliding mode:
 - uses the left edge as the drag handle;
 - keeps the chart canvas internally full-width and right-aligned so dragging the left edge clips the visible area instead of rescaling chart content;
 - disables old full-window drag for sliding mode.
+
+Result:
+
+- Sliding mode positions the shell with `right: 0`; the left edge controls the visible width.
+- Added a dedicated left-edge drag handle.
+- Old full-window header/rail dragging is disabled in sliding mode and remains available only for legacy floating workspaces.
+- Comparison chart canvas is right-aligned and sized to the chart root width while the sliding shell clips it, so changing the left boundary does not shrink the internal chart canvas.
 
 ## Step 325.3: Interaction Guards
 

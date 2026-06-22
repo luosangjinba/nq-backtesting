@@ -109,6 +109,15 @@ html, body {
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.36);
 }
 
+.comparison-window-sliding {
+  min-width: 180px;
+  min-height: 100%;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  box-shadow: -12px 0 30px rgba(0, 0, 0, 0.28);
+}
+
 .comparison-window-header {
   display: flex;
   align-items: center;
@@ -121,6 +130,10 @@ html, body {
   border-bottom: 1px solid #2a2e39;
   background: #1e222d;
   touch-action: none;
+}
+
+.comparison-window-sliding .comparison-window-header {
+  cursor: default;
 }
 
 .comparison-window-title-block {
@@ -193,10 +206,46 @@ html, body {
   touch-action: none;
 }
 
+.comparison-window-sliding .comparison-window-rail {
+  display: none;
+}
+
 .comparison-window-dragging,
 .comparison-window-dragging * {
   cursor: move;
   user-select: none;
+}
+
+.comparison-window-dragging .comparison-window-left-handle,
+.comparison-window-dragging .comparison-window-left-handle * {
+  cursor: ew-resize;
+}
+
+.comparison-window-left-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -5px;
+  z-index: 4;
+  display: none;
+  width: 10px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.comparison-window-left-handle::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  background: rgba(77, 182, 172, 0.92);
+  box-shadow: 0 0 0 1px rgba(19, 23, 34, 0.72);
+  content: '';
+}
+
+.comparison-window-sliding .comparison-window-left-handle {
+  display: block;
 }
 
 .comparison-window-rail-handle {
@@ -211,6 +260,7 @@ html, body {
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .comparison-chart-canvas {
@@ -223,6 +273,13 @@ html, body {
     linear-gradient(rgba(120, 123, 134, 0.08) 1px, transparent 1px),
     #131722;
   background-size: 64px 64px;
+}
+
+.comparison-window-sliding .comparison-chart-canvas {
+  right: 0;
+  left: auto;
+  width: var(--comparison-root-width, 100vw);
+  min-width: var(--comparison-root-width, 100vw);
 }
 
 .comparison-window-placeholder {

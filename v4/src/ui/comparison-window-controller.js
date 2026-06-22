@@ -126,6 +126,7 @@ function ensureDom() {
           <button class="comparison-window-btn comparison-window-close" type="button" data-comparison-close title="Close Comparison Window">Close</button>
         </div>
       </header>
+      <div class="comparison-window-left-handle" data-comparison-left-handle aria-label="Resize comparison window"></div>
       <div class="comparison-window-rail" data-comparison-drag-handle aria-hidden="true">
         <div class="comparison-window-rail-handle"></div>
       </div>
@@ -164,6 +165,8 @@ function ensureDom() {
     handle.addEventListener('pointerdown', startDrag);
     handle.addEventListener('dblclick', () => resetComparisonVisibleWindow());
   });
+  root.querySelector('[data-comparison-left-handle]')?.addEventListener('pointerdown', startSlideResize);
+  root.querySelector('[data-comparison-left-handle]')?.addEventListener('dblclick', () => resetComparisonVisibleWindow());
 }
 
 function render(state) {
@@ -171,13 +174,20 @@ function render(state) {
   if (!root || !windowEl) return;
   root.hidden = !state.enabled;
   if (!state.enabled) return;
-  const { visibleWindow, instrument, timeframe, syncMode, overlaySyncMode } = state.descriptor;
+  const { visibleWindow, instrument, timeframe, syncMode, overlaySyncMode, layoutMode } = state.descriptor;
+  const isSliding = layoutMode === 'sliding';
+  const rootRect = root.getBoundingClientRect();
+  root.style.setProperty('--comparison-root-width', `${Math.max(1, Math.round(rootRect.width))}px`);
+  windowEl.classList.toggle('comparison-window-sliding', isSliding);
+  windowEl.classList.toggle('comparison-window-floating', !isSliding);
   windowEl.style.left = `${visibleWindow.x}%`;
   windowEl.style.top = `${visibleWindow.y}%`;
-  windowEl.style.width = `${visibleWindow.width}%`;
+  windowEl.style.right = isSliding ? '0' : 'auto';
+  windowEl.style.width = isSliding ? 'auto' : `${visibleWindow.width}%`;
   windowEl.style.height = `${visibleWindow.height}%`;
   windowEl.dataset.instrument = instrument;
   windowEl.dataset.timeframe = String(timeframe);
+  windowEl.dataset.layoutMode = layoutMode;
   windowEl.dataset.syncMode = syncMode;
   windowEl.dataset.overlaySyncMode = overlaySyncMode;
   const instrumentSelect = root.querySelector('[data-comparison-instrument]');
@@ -447,11 +457,36 @@ function handleReplayChanged({ enabled, cursorTimestamp }) {
 
 function startDrag(event) {
   if (!root || !windowEl || event.button !== 0) return;
+  if (getComparisonWindowState().descriptor.layoutMode === 'sliding') return;
   if (event.target.closest('button, select, input, textarea, label, .comparison-window-actions')) return;
   const bounds = root.getBoundingClientRect();
   const target = event.currentTarget;
   const current = getComparisonWindowState().descriptor.visibleWindow;
   dragState = {
+    mode: 'move',
+    pointerId: event.pointerId,
+    target,
+    startClientX: event.clientX,
+    startClientY: event.clientY,
+    startWindow: current,
+    bounds,
+  };
+  root.classList.add('comparison-window-dragging');
+  target.setPointerCapture?.(event.pointerId);
+  target.addEventListener('pointermove', dragWindow);
+  target.addEventListener('pointerup', stopDrag, { once: true });
+  target.addEventListener('pointercancel', stopDrag, { once: true });
+  event.stopPropagation();
+  event.preventDefault();
+}
+
+function startSlideResize(event) {
+  if (!root || !windowEl || event.button !== 0) return;
+  const bounds = root.getBoundingClientRect();
+  const target = event.currentTarget;
+  const current = getComparisonWindowState().descriptor.visibleWindow;
+  dragState = {
+    mode: 'slide-left',
     pointerId: event.pointerId,
     target,
     startClientX: event.clientX,
@@ -471,11 +506,22 @@ function startDrag(event) {
 function dragWindow(event) {
   if (!dragState || event.pointerId !== dragState.pointerId) return;
   const dx = ((event.clientX - dragState.startClientX) / Math.max(1, dragState.bounds.width)) * 100;
-  const dy = ((event.clientY - dragState.startClientY) / Math.max(1, dragState.bounds.height)) * 100;
-  updateComparisonVisibleWindow({
-    x: dragState.startWindow.x + dx,
-    y: dragState.startWindow.y + dy,
-  });
+  if (dragState.mode === 'slide-left') {
+    const minWidth = 18;
+    const nextX = Math.max(0, Math.min(100 - minWidth, dragState.startWindow.x + dx));
+    updateComparisonVisibleWindow({
+      x: nextX,
+      y: 0,
+      width: 100 - nextX,
+      height: 100,
+    });
+  } else {
+    const dy = ((event.clientY - dragState.startClientY) / Math.max(1, dragState.bounds.height)) * 100;
+    updateComparisonVisibleWindow({
+      x: dragState.startWindow.x + dx,
+      y: dragState.startWindow.y + dy,
+    });
+  }
   event.stopPropagation();
   event.preventDefault();
 }
