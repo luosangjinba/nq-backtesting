@@ -308,3 +308,61 @@ Use existing narrow smoke tests while extracting:
 - `git diff --check`
 
 Each extraction commit should be behavior-preserving. If a helper must change behavior, it should be split into a separate feature/fix step rather than hidden inside Step 330.
+
+## Step 330.7 Closeout
+
+Final module boundaries:
+
+- Replay:
+  - `v4/src/ui/replay-controls.js` keeps the replay state machine, public replay APIs, event wiring, and app-level initialization.
+  - `v4/src/ui/replay/replay-time-utils.js` owns pure replay timestamp/bar helpers.
+  - `v4/src/ui/replay/replay-controls-view.js` owns replay toolbar/history HTML rendering.
+  - `v4/src/ui/replay/replay-history-actions.js` owns Replay History load/restore side effects.
+- Comparison:
+  - `v4/src/ui/comparison-window-controller.js` keeps app-level initialization, root/window ownership, event wiring, header control events, and lightweight render glue.
+  - `v4/src/ui/comparison/comparison-window-view.js` owns DOM template and header control rendering.
+  - `v4/src/ui/comparison/comparison-window-layout.js` owns layout geometry and drag handlers.
+  - `v4/src/ui/comparison/comparison-crosshair-sync.js` owns crosshair synchronization.
+  - `v4/src/ui/comparison/comparison-window-data.js` owns data loading, replay source sync, clear/status, and comparison chart data rendering.
+
+Public API retained:
+
+- `initReplayControls`
+- `syncReplayData`
+- `restoreReplayToTimestamp`
+- `getReplayRestoreSnapshot`
+- `getReplayVisibleBars`
+- `getReplayCursorTimestamp`
+- `isReplayPicking`
+- `didReplayPickJustHandleClick`
+- `initComparisonWindowController`
+
+Line count summary:
+
+- `replay-controls.js`: 908 -> 648 lines.
+- `comparison-window-controller.js`: 580 -> 141 lines.
+
+Final verification:
+
+```bash
+node --check v4/src/ui/replay-controls.js
+node --check v4/src/ui/replay/replay-time-utils.js
+node --check v4/src/ui/replay/replay-controls-view.js
+node --check v4/src/ui/replay/replay-history-actions.js
+node --check v4/src/ui/comparison-window-controller.js
+node --check v4/src/ui/comparison/comparison-window-view.js
+node --check v4/src/ui/comparison/comparison-window-layout.js
+node --check v4/src/ui/comparison/comparison-crosshair-sync.js
+node --check v4/src/ui/comparison/comparison-window-data.js
+node v4/tests/replay-history-comparison-smoke.js
+node v4/tests/comparison-replay-sync-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Result: all passed. Existing Node `MODULE_TYPELESS_PACKAGE_JSON` warning remains unchanged.
+
+Deferred:
+
+- No mechanical splitting of remaining 900+ line modules in this step.
+- Future splits should be domain-specific tasks with dedicated smoke baselines, especially for Inspector, Tradovate import, review archive, daily time review store, and manual annotation.
