@@ -19,7 +19,7 @@ That does not match the intended model. Main is the canonical review chart. Draw
 - `No Sync`: Main shows compatible drawings; Comparison hides drawings.
 - Drawings created in Comparison are still workspace drawings and should not be trapped in Comparison-only visibility.
 - If the user draws from Comparison while `No Sync` is active, automatically switch Drawings to `Sync` before creating the object.
-- If Main/Comparison instrument or timeframe do not match, do not create Comparison drawings; show a status message instead.
+- If Main/Comparison instrument does not match, do not create Comparison drawings; show a status message instead.
 
 ## Steps
 
@@ -29,8 +29,8 @@ Status: completed.
 
 Update render/hit policy so chart target, not creation source, defines visibility:
 
-- Primary/Main target: allow compatible PDA/Segment objects regardless of source.
-- Comparison target: allow compatible PDA/Segment objects only when Drawings is `Sync`.
+- Primary/Main target: allow compatible same-instrument PDA/Segment objects regardless of source.
+- Comparison target: allow compatible same-instrument PDA/Segment objects only when Drawings is `Sync`.
 - Mismatch still blocks cross-context projection.
 
 Implementation notes:
@@ -90,7 +90,7 @@ Final result:
 - Main is now the canonical drawing visibility target.
 - `No Sync` hides drawings from Comparison instead of trapping them in their creation window.
 - Comparison drawing creation under `No Sync` automatically switches Drawings to `Sync`.
-- Comparison drawing creation is blocked when Main and Comparison instrument/timeframe do not match.
+- Comparison drawing creation is blocked when Main and Comparison instrument do not match.
 - Browser smoke covers the full path: create from Comparison under `No Sync`, auto-switch to `Sync`, hit in both charts, switch back to `No Sync`, remain hittable in Main and disappear from Comparison.
 
 ### Step 318.5: Renderer Policy Leak Fix

@@ -1130,8 +1130,8 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 317.4: Focused verification：更新 policy/persistence/browser smoke，覆盖默认 Sync、No Sync 不跨窗、旧 `local` persistence 兼容和 mismatch guard；store/persistence/policy/browser smoke 通过。
 
 - [x] Step 318: Main-owned drawing visibility semantics。目标是修复 Comparison 中创建 drawings 在 No Sync 下仍显示于 Comparison 的逻辑：PDA/Segment 无论来源都至少显示在 Main；`No Sync` 表示 Comparison 不显示 drawings；在 Comparison 中绘制时自动切换到 `Sync`，避免“刚画完就从当前窗口消失”。计划见 `v4/sessions/session_20260622_main_owned_drawing_visibility.md`。
-  - [x] Step 318.1: Policy semantics update：调整 render/hit policy，使 Main target 始终允许同 instrument/timeframe 的 PDA/Segment/Order/Live；Comparison target 只有 `Sync` 且同 instrument/timeframe 才显示；policy/browser smoke 通过。
-  - [x] Step 318.2: Comparison creation auto-sync：Comparison 右键创建 PDA/Segment 前，如果当前 Drawings 是 `No Sync`，自动切换为 `Sync`；若 instrument/timeframe 不匹配则阻止创建并显示状态提示；browser smoke 覆盖 mismatch 创建被阻止。
+  - [x] Step 318.1: Policy semantics update：调整 render/hit policy，使 Main target 始终允许同 instrument 的 PDA/Segment/Order/Live；Comparison target 只有 `Sync` 且同 instrument 才显示；policy/browser smoke 通过。
+  - [x] Step 318.2: Comparison creation auto-sync：Comparison 右键创建 PDA/Segment 前，如果当前 Drawings 是 `No Sync`，自动切换为 `Sync`；若 instrument 不匹配则阻止创建并显示状态提示；browser smoke 覆盖 mismatch 创建被阻止。
   - [x] Step 318.3: Browser verification：覆盖 Comparison 创建对象在 No Sync 下自动切 Sync 并双窗显示；手动切回 No Sync 后对象留在 Main、从 Comparison 消失；browser smoke 已覆盖真实右键创建 PDA/Segment。
   - [x] Step 318.4: Closeout verification：更新 TODO/session，跑 policy/browser/persistence smoke；policy/persistence/browser smoke 与 `git diff --check` 通过。
   - [x] Step 318.5: Renderer policy leak fix：修复 Comparison PDA/Segment renderer 对 `sourceChartId === comparison-window` 的本地来源绕过；`No Sync` 时 Comparison 不再绘制任何 drawings，Main 仍按 canonical 规则显示兼容 drawings。
