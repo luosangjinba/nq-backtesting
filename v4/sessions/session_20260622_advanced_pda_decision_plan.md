@@ -118,6 +118,24 @@ Reason:
 
 ## Step 312.4: Browser And Focused Verification
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 312 execution.
+
+Verification run:
+
+- `node --check v4/src/comparison/comparison-context-menu.js`
+- `node v4/tests/comparison-window-persistence-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `git diff --check`
+
+Notes:
+- OB Last Bar and Wick CE use existing context-aware helpers, so comparison source metadata is injected through `getComparisonChartContext()`.
+- Existing comparison browser smoke passed after the new menu actions were added.
+
 Run:
 
 - `node --check v4/src/comparison/comparison-context-menu.js`
