@@ -145,6 +145,25 @@ Rules match Step 310.3:
 
 ## Step 310.5: Browser And Focused Verification
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 310 execution.
+
+Verification run:
+
+- `node v4/tests/pick-context-router-smoke.js`
+- `node v4/tests/comparison-pick-preview-smoke.js`
+- `node v4/tests/comparison-window-persistence-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `git diff --check`
+
+Notes:
+- Existing comparison browser smoke passed after comparison pick hover/click wiring.
+- A narrower browser assertion for actually clicking comparison during exit/actor pick remains optional follow-up if this workflow becomes high-risk.
+
 Run focused checks:
 
 - router primary/secondary/comparison context smoke;
