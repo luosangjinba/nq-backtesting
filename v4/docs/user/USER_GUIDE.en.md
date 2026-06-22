@@ -122,7 +122,7 @@ Economic Events are loaded from the local USD events CSV. High/Medium are visibl
 
 ## Comparison Window
 
-Comparison Window is the supported sliding comparison view. It is not a resize patch on the old Split Screen. The right edge stays fixed to the chart area, and dragging the left edge changes the visible clipped area. Candles, drawings, and overlays inside the comparison chart do not rescale just because the left boundary moved. Legacy saved floating workspaces can still be normalized for compatibility, but new/reset windows use sliding mode. The old Split user entry points have been removed after the focused real-use audit passed.
+Comparison Window is the supported sliding comparison view. It is not a resize patch on the old Split Screen. The comparison chart sits on the left and the main chart remains visible on the right. Dragging the comparison right boundary changes the visible clipped area; candles, drawings, and overlays inside the comparison chart do not rescale just because the boundary moved. Legacy saved floating workspaces can still be normalized for compatibility, but new/reset windows use sliding mode. The old Split user entry points have been removed after the focused real-use audit passed.
 
 Currently supported:
 

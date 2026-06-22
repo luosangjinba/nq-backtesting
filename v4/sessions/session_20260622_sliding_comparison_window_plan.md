@@ -115,3 +115,9 @@ User validation showed an existing browser workspace could still restore `layout
 Status: completed.
 
 User validation showed the sliding comparison window covered the primary chart's native right-side price scale. Added a read-only primary price axis strip that follows the sliding left boundary, so the visible primary chart keeps price labels without resizing the primary chart canvas or changing comparison clipping behavior.
+
+## Follow-up Change: Left Comparison / Right Main
+
+Status: completed.
+
+User requested the final sliding orientation to be left-side Comparison Window and right-side Main chart. The sliding shell now defaults to `x=0,width=34`, the boundary handle sits on the comparison right edge, dragging expands/contracts the comparison clip while keeping its left edge fixed, and the comparison canvas stays full-width/left-aligned so chart content is clipped rather than rescaled. The prior primary boundary price-axis strip was replaced by a comparison boundary price-axis strip because the main chart's native right-side price scale is visible again.

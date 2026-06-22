@@ -124,7 +124,7 @@ Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默
 
 ## Comparison Window 对比窗口
 
-Comparison Window 是当前支持的滑动对比窗口，不是在旧 Split Screen 上做 resize。窗口右边界固定在图表区域右侧，拖动左边界只改变可见裁剪区域；窗口内 K 线、drawing 和 overlay 不会因为左边界移动而重新缩放。旧保存的 floating workspace 仍可兼容读取，但新建/Reset 窗口默认使用 sliding。聚焦真实审计通过后，旧 Split 用户入口已经移除。
+Comparison Window 是当前支持的滑动对比窗口，不是在旧 Split Screen 上做 resize。Comparison chart 位于左侧，Main chart 保持在右侧；拖动 Comparison 的右边界只改变可见裁剪区域。窗口内 K 线、drawing 和 overlay 不会因为边界移动而重新缩放。旧保存的 floating workspace 仍可兼容读取，但新建/Reset 窗口默认使用 sliding。聚焦真实审计通过后，旧 Split 用户入口已经移除。
 
 当前支持：
 

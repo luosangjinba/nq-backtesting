@@ -242,7 +242,7 @@ async function main() {
       })();
     `);
     assert.equal(shown.hidden, false, 'Comparison window should be visible after toggle');
-    assert.ok(shown.width >= 280, 'Comparison window should have stable width');
+    assert.ok(shown.width >= 180, 'Sliding comparison window should have stable width');
     assert.ok(shown.height >= 210, 'Comparison window should have stable height');
     assert.equal(shown.instrumentValue, 'ES', 'Comparison window should expose independent instrument control');
     assert.equal(shown.timeframeValue, '60', 'Comparison window should expose independent timeframe control');
@@ -320,9 +320,9 @@ async function main() {
       };
       })();
     `);
-    assert.ok(moved.afterLeft > moved.beforeLeft, 'Sliding drag should move the left boundary right');
-    assert.equal(Math.round(moved.afterRight), Math.round(moved.beforeRight), 'Sliding drag should keep the right boundary fixed');
-    assert.ok(moved.afterWidth < moved.beforeWidth, 'Sliding drag should reduce the clipped visible width');
+    assert.equal(Math.round(moved.afterLeft), Math.round(moved.beforeLeft), 'Sliding drag should keep the left boundary fixed');
+    assert.ok(moved.afterRight > moved.beforeRight, 'Sliding drag should move the right boundary right');
+    assert.ok(moved.afterWidth > moved.beforeWidth, 'Sliding drag should increase the clipped visible width');
     assert.equal(Math.round(moved.afterTop), Math.round(moved.beforeTop), 'Sliding drag should not move window vertically');
     assert.ok(moved.afterCanvasWidth > moved.afterWidth, 'Sliding drag should keep internal canvas wider than clipped shell');
     assert.equal(Math.round(moved.afterCanvasWidth), Math.round(moved.beforeCanvasWidth), 'Sliding drag should not shrink internal chart canvas');
@@ -334,23 +334,22 @@ async function main() {
     const primaryPriceAxis = await evaluate(client, `
       (() => {
         const win = document.querySelector('#comparison-window').getBoundingClientRect();
-        const axis = document.querySelector('[data-comparison-primary-price-axis]');
+        const axis = document.querySelector('[data-comparison-boundary-price-axis]');
         const rect = axis.getBoundingClientRect();
         return {
           hidden: axis.hidden,
-          labelCount: axis.querySelectorAll('.comparison-primary-price-axis-label').length,
+          labelCount: axis.querySelectorAll('.comparison-boundary-price-axis-label').length,
           axisRight: rect.right,
-          windowLeft: win.left,
+          windowRight: win.right,
           width: rect.width,
         };
       })();
     `);
-    assert.equal(primaryPriceAxis.hidden, false, 'Sliding comparison should show a primary price axis at the boundary');
-    assert.ok(primaryPriceAxis.labelCount > 0, 'Primary boundary price axis should render labels');
-    assert.ok(primaryPriceAxis.width >= 60, 'Primary boundary price axis should reserve readable label width');
+    assert.equal(primaryPriceAxis.hidden, false, 'Sliding comparison should show a comparison price axis at the boundary');
+    assert.ok(primaryPriceAxis.width >= 60, 'Comparison boundary price axis should reserve readable label width');
     assert.ok(
-      Math.abs(primaryPriceAxis.axisRight - primaryPriceAxis.windowLeft) <= 2,
-      'Primary boundary price axis should align to the comparison left boundary'
+      Math.abs(primaryPriceAxis.axisRight - primaryPriceAxis.windowRight) <= 2,
+      'Comparison boundary price axis should align to the comparison right boundary'
     );
 
     const handleContextMenu = await evaluate(client, `
@@ -437,6 +436,13 @@ async function main() {
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
     assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');
 
+    const loadedBoundaryAxis = await evaluate(client, `
+      (() => ({
+        labelCount: document.querySelectorAll('.comparison-boundary-price-axis-label').length,
+      }))();
+    `);
+    assert.ok(loadedBoundaryAxis.labelCount > 0, 'Comparison boundary price axis should render labels after data loads');
+
     const canvasHealth = await evaluate(client, `
       (() => {
         const canvases = [...document.querySelectorAll('#comparison-chart-canvas canvas')];
@@ -480,10 +486,19 @@ async function main() {
           }));
         };
         const openBlankAt = () => {
+          const shellRect = document.querySelector('#comparison-window').getBoundingClientRect();
+          const barXs = bars
+            .map((bar) => context.timeToCoordinate(bar.timestamp))
+            .filter((x) => Number.isFinite(Number(x)));
+          const minBarX = Math.min(...barXs);
+          const maxBarX = Math.max(...barXs);
+          const localX = maxBarX + 80 < shellRect.width - 12
+            ? maxBarX + 80
+            : Math.max(12, minBarX - 80);
           chartEl.dispatchEvent(new MouseEvent('contextmenu', {
             bubbles: true,
             cancelable: true,
-            clientX: rect.right + 120,
+            clientX: rect.left + localX,
             clientY: rect.top + rect.height / 2,
           }));
         };
@@ -1190,10 +1205,10 @@ async function main() {
       })();
     `);
     assert.deepEqual(reset, {
-      left: '34%',
-      right: '0px',
+      left: '0%',
+      right: 'auto',
       top: '0%',
-      width: 'auto',
+      width: '34%',
       height: '100%',
       layoutMode: 'sliding',
     });

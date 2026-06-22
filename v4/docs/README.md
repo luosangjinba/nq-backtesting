@@ -17,7 +17,7 @@ DuckDB should become an analytics import target first, after the review schema h
 
 Tradovate Live Record import currently uses Performance/Orders/Fills as the primary import sources. Position History, Cash History, and Account Balance History are optional reconciliation files only; warnings are reported in the maintenance output and do not block Review JSON generation.
 
-Comparison Window is now the supported comparison workflow for NQ/ES and cross-timeframe review. It uses a TradingView-style sliding window by default: the right edge stays fixed and dragging the left edge clips the visible area without rescaling the comparison chart. Legacy saved floating workspaces remain compatible, but new/reset windows use sliding mode. It supports comparison-source PDA/Segment/FVG creation, SMT, progressive HTF replay, and workspace restore. The old Split Screen user entry points and legacy secondary runtime internals have been removed.
+Comparison Window is now the supported comparison workflow for NQ/ES and cross-timeframe review. It uses a TradingView-style sliding window by default: the comparison chart sits on the left, the main chart remains on the right, and dragging the comparison right boundary clips the visible comparison area without rescaling its chart. Legacy saved floating workspaces remain compatible, but new/reset windows use sliding mode. It supports comparison-source PDA/Segment/FVG creation, SMT, progressive HTF replay, and workspace restore. The old Split Screen user entry points and legacy secondary runtime internals have been removed.
 
 ## Current V4 Docs
 

@@ -8,6 +8,7 @@ import { formatTickPrice } from '../price-utils.js';
 import {
   clearComparisonData,
   getComparisonChart,
+  getComparisonSeries,
   hideComparisonCursor,
   hideComparisonSyncCrosshairCursor,
   initComparisonChart,
@@ -40,7 +41,7 @@ import { getReplaySyncedComparisonBars } from '../comparison/comparison-replay-s
 
 let root = null;
 let windowEl = null;
-let primaryPriceAxisEl = null;
+let comparisonBoundaryPriceAxisEl = null;
 let dragState = null;
 let requestSeq = 0;
 let lastLoadSignature = null;
@@ -145,11 +146,11 @@ function ensureDom() {
         </div>
       </div>
     </section>
-    <div class="comparison-primary-price-axis" data-comparison-primary-price-axis aria-hidden="true"></div>
+    <div class="comparison-boundary-price-axis" data-comparison-boundary-price-axis aria-hidden="true"></div>
   `;
   host.appendChild(root);
   windowEl = root.querySelector('#comparison-window');
-  primaryPriceAxisEl = root.querySelector('[data-comparison-primary-price-axis]');
+  comparisonBoundaryPriceAxisEl = root.querySelector('[data-comparison-boundary-price-axis]');
   root.querySelector('[data-comparison-close]')?.addEventListener('click', () => {
     setComparisonWindowEnabled(false);
   });
@@ -183,7 +184,7 @@ function render(state) {
   if (!root || !windowEl) return;
   root.hidden = !state.enabled;
   if (!state.enabled) {
-    renderPrimarySlidingPriceAxis(state);
+    renderComparisonBoundaryPriceAxis(state);
     return;
   }
   const { visibleWindow, instrument, timeframe, syncMode, overlaySyncMode, layoutMode } = state.descriptor;
@@ -194,8 +195,8 @@ function render(state) {
   windowEl.classList.toggle('comparison-window-floating', !isSliding);
   windowEl.style.left = `${visibleWindow.x}%`;
   windowEl.style.top = `${visibleWindow.y}%`;
-  windowEl.style.right = isSliding ? '0' : 'auto';
-  windowEl.style.width = isSliding ? 'auto' : `${visibleWindow.width}%`;
+  windowEl.style.right = 'auto';
+  windowEl.style.width = `${visibleWindow.width}%`;
   windowEl.style.height = `${visibleWindow.height}%`;
   windowEl.dataset.instrument = instrument;
   windowEl.dataset.timeframe = String(timeframe);
@@ -217,22 +218,22 @@ function render(state) {
     overlaySyncSelect.innerHTML = renderOverlaySyncOptions(overlaySyncMode);
     overlaySyncSelect.value = overlaySyncMode;
   }
-  renderPrimarySlidingPriceAxis(state);
+  renderComparisonBoundaryPriceAxis(state);
   requestAnimationFrame(() => {
     initComparisonChart();
     setComparisonChartInfo({ instrument, timeframe });
-    renderPrimarySlidingPriceAxis(getComparisonWindowState());
+    renderComparisonBoundaryPriceAxis(getComparisonWindowState());
   });
 }
 
-function renderPrimarySlidingPriceAxis(state = getComparisonWindowState()) {
-  if (!root || !primaryPriceAxisEl) return;
+function renderComparisonBoundaryPriceAxis(state = getComparisonWindowState()) {
+  if (!root || !comparisonBoundaryPriceAxisEl) return;
   const descriptor = state?.descriptor || {};
   const visibleWindow = descriptor.visibleWindow || {};
   const isVisible = Boolean(state?.enabled) && descriptor.layoutMode === 'sliding';
-  primaryPriceAxisEl.hidden = !isVisible;
+  comparisonBoundaryPriceAxisEl.hidden = !isVisible;
   if (!isVisible) {
-    primaryPriceAxisEl.innerHTML = '';
+    comparisonBoundaryPriceAxisEl.innerHTML = '';
     return;
   }
 
@@ -240,30 +241,31 @@ function renderPrimarySlidingPriceAxis(state = getComparisonWindowState()) {
   const chartEl = document.getElementById('chart');
   const chartRect = chartEl?.getBoundingClientRect();
   const axisWidth = 70;
-  const leftPx = (Number(visibleWindow.x) / 100) * rootRect.width - axisWidth;
-  primaryPriceAxisEl.style.left = `${Math.max(0, Math.round(leftPx))}px`;
-  primaryPriceAxisEl.style.top = '0px';
-  primaryPriceAxisEl.style.height = `${Math.max(1, Math.round(chartRect?.height || rootRect.height))}px`;
-  primaryPriceAxisEl.style.width = `${axisWidth}px`;
+  const boundaryPx = ((Number(visibleWindow.x) + Number(visibleWindow.width)) / 100) * rootRect.width;
+  comparisonBoundaryPriceAxisEl.style.left = `${Math.max(0, Math.round(boundaryPx - axisWidth))}px`;
+  comparisonBoundaryPriceAxisEl.style.top = '0px';
+  comparisonBoundaryPriceAxisEl.style.height = `${Math.max(1, Math.round(chartRect?.height || rootRect.height))}px`;
+  comparisonBoundaryPriceAxisEl.style.width = `${axisWidth}px`;
 
   const height = chartRect?.height || rootRect.height;
-  if (!height || !chart.getSeries()) {
-    primaryPriceAxisEl.innerHTML = '';
+  const comparisonSeries = getComparisonSeries();
+  if (!height || !comparisonSeries) {
+    comparisonBoundaryPriceAxisEl.innerHTML = '';
     return;
   }
 
   const ticks = [];
   const step = Math.max(36, Math.round(height / 9));
   for (let y = 28; y <= height - 20; y += step) {
-    const price = chart.coordinateToPrice(y);
+    const price = comparisonSeries.coordinateToPrice?.(y);
     if (!Number.isFinite(Number(price))) continue;
     ticks.push({ y, price: Number(price) });
   }
 
-  primaryPriceAxisEl.innerHTML = ticks
+  comparisonBoundaryPriceAxisEl.innerHTML = ticks
     .map(
       ({ y, price }) =>
-        `<span class="comparison-primary-price-axis-label" style="top:${Math.round(y)}px">${formatTickPrice(price)}</span>`
+        `<span class="comparison-boundary-price-axis-label" style="top:${Math.round(y)}px">${formatTickPrice(price, descriptor.instrument)}</span>`
     )
     .join('');
 }
@@ -570,11 +572,11 @@ function dragWindow(event) {
   const dx = ((event.clientX - dragState.startClientX) / Math.max(1, dragState.bounds.width)) * 100;
   if (dragState.mode === 'slide-left') {
     const minWidth = 18;
-    const nextX = Math.max(0, Math.min(100 - minWidth, dragState.startWindow.x + dx));
+    const nextWidth = Math.max(minWidth, Math.min(96, dragState.startWindow.width + dx));
     updateComparisonVisibleWindow({
-      x: nextX,
+      x: 0,
       y: 0,
-      width: 100 - nextX,
+      width: nextWidth,
       height: 100,
     });
   } else {

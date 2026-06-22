@@ -61,7 +61,7 @@ setComparisonWindowEnabled(false);
 setComparisonInstrument('ES');
 setComparisonTimeframe(60);
 setComparisonOverlaySyncMode('no-sync');
-updateComparisonVisibleWindow({ x: 34, y: 0, width: 66, height: 100 });
+updateComparisonVisibleWindow({ x: 0, y: 0, width: 34, height: 100 });
 
 const restored = restoreComparisonWorkspaceState(readComparisonWorkspaceState());
 const descriptor = getComparisonViewDescriptor();
@@ -88,7 +88,7 @@ assert.equal(sanitized.descriptor.instrument, 'BAD');
 assert.equal(sanitized.descriptor.timeframe, 60);
 assert.equal(sanitized.descriptor.overlaySyncMode, 'sync');
 assert.equal(sanitized.descriptor.layoutMode, 'sliding');
-assert.deepEqual(sanitized.descriptor.visibleWindow, { x: 34, y: 0, width: 66, height: 100 });
+assert.deepEqual(sanitized.descriptor.visibleWindow, { x: 0, y: 0, width: 34, height: 100 });
 assert.deepEqual(sanitized.lastViewState.requestedRange, { startTs: 1_704_896_400, endTs: 1_704_900_000 });
 assert.equal(Object.hasOwn(sanitized, 'bars'), false);
 
@@ -108,6 +108,6 @@ const legacyFloating = serializeComparisonWorkspaceState({
   },
 });
 assert.equal(legacyFloating.descriptor.layoutMode, 'sliding');
-assert.deepEqual(legacyFloating.descriptor.visibleWindow, { x: 34, y: 0, width: 66, height: 100 });
+assert.deepEqual(legacyFloating.descriptor.visibleWindow, { x: 0, y: 0, width: 34, height: 100 });
 
 console.log('comparison-window-persistence-smoke passed');

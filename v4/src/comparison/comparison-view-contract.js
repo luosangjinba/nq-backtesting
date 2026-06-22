@@ -27,9 +27,9 @@ export function createComparisonViewDescriptor(overrides = {}) {
     overlaySyncMode: COMPARISON_OVERLAY_SYNC_MODE.sync,
     writable: false,
     visibleWindow: {
-      x: 34,
+      x: 0,
       y: 0,
-      width: 66,
+      width: 34,
       height: 100,
     },
     ...overrides,
@@ -37,10 +37,10 @@ export function createComparisonViewDescriptor(overrides = {}) {
 }
 
 export function normalizeVisibleWindow(value = {}) {
-  const width = clampNumber(value.width, 18, 96, 66);
+  const width = clampNumber(value.width, 18, 96, 34);
   const height = clampNumber(value.height, 24, 100, 100);
   return {
-    x: clampNumber(value.x, 0, 100 - width, 34),
+    x: clampNumber(value.x, 0, 100 - width, 0),
     y: clampNumber(value.y, 0, 100 - height, 0),
     width,
     height,
