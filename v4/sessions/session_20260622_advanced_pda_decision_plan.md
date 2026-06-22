@@ -149,6 +149,22 @@ If low-risk, add or extend a smoke to assert OB Last Bar / Wick CE comparison me
 
 ## Step 312.5: Closeout
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 312 execution.
+
+Completed:
+- Added low-risk Comparison Window OB Last Bar action.
+- Added low-risk Comparison Window Upper/Lower Wick CE actions.
+- Explicitly deferred OB/Breaker range drafts, Fib, Point Sets, and selected EQH/EQL append.
+- Verified comparison browser workflow after menu expansion.
+
+Remaining Split removal blockers:
+- Step 308.6 real-use audit still needs to pass.
+- Fixed Stack/Side layout preference still needs explicit review.
+- Deferred advanced PDA workflows must either be migrated later or explicitly waived before a Split removal plan.
+
 Update:
 
 - `v4/TODO.md`;
