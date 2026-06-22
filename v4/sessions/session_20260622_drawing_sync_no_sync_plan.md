@@ -64,10 +64,19 @@ Implementation notes:
 
 ### Step 317.3: Adjust Policy Semantics
 
+Status: completed.
+
 - `Sync` plus same instrument/timeframe means PDA/Segment cross-window display/hit-test is allowed by default.
 - `No Sync` means cross-window display/hit-test is disabled.
 - Mismatch instrument/timeframe disables cross-window display/hit-test even when `Sync`.
 - Source metadata remains unchanged and still identifies creation context.
+
+Implementation notes:
+
+- Policy now reports `no-sync` when cross-window drawing projection is disabled by the user setting.
+- Existing sync rendering/hit-test continues to use exact instrument/timeframe guard.
+- Browser smoke now verifies that switching to `No Sync` blocks cross-window PDA/Segment hits even when instrument/timeframe match.
+- Verification: `git diff --check`, `node v4/tests/comparison-overlay-policy-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 317.4: Focused Verification
 

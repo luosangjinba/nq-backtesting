@@ -849,6 +849,21 @@ async function main() {
             segmentCountAfterDelete,
           },
         };
+        comparisonStore.setComparisonOverlaySyncMode('no-sync');
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        result.noSyncIsolation = {
+          policySafe: (await import('/src/comparison/comparison-overlay-policy.js')).getComparisonOverlaySyncPolicy().safe,
+          primaryComparisonPdaHit: pdaHitTest.hitTestPdaAnnotations({
+            x: primaryContext.timeToCoordinate(first.timestamp),
+            y: primaryContext.priceToCoordinate(first.low),
+            context: primaryContext,
+          })?.id || null,
+          primaryComparisonSegmentHit: segmentHitTest.hitTestSegments({
+            x: primaryContext.timeToCoordinate(last.timestamp),
+            y: primaryContext.priceToCoordinate(last.low),
+            context: primaryContext,
+          })?.id || null,
+        };
         const esBars = primaryBars.map((bar, index) => ({
           ...bar,
           open: 7400 + index * 8,
@@ -856,7 +871,7 @@ async function main() {
           low: 7388 + index * 8,
           close: 7412 + index * 8,
         }));
-        comparisonStore.setComparisonOverlaySyncMode('local');
+        comparisonStore.setComparisonOverlaySyncMode('no-sync');
         comparisonStore.setComparisonInstrument('ES');
         comparisonStore.setComparisonTimeframe(60);
         comparisonStore.setComparisonBars(esBars, {
@@ -892,6 +907,11 @@ async function main() {
         editedSegmentNarrative: 'edited from comparison sync hit',
         segmentCountBeforeDelete: 1,
         segmentCountAfterDelete: 0,
+      },
+      noSyncIsolation: {
+        policySafe: false,
+        primaryComparisonPdaHit: null,
+        primaryComparisonSegmentHit: null,
       },
     }, 'Sync safe mode should make Main/Comparison overlays hit-test on both chart contexts');
 

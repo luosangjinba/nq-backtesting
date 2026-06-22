@@ -77,6 +77,15 @@ assert.equal(
   true
 );
 
+setComparisonOverlaySyncMode('no-sync');
+assert.equal(getComparisonOverlaySyncPolicy().safe, false);
+assert.equal(getComparisonOverlaySyncPolicy().reason, 'no-sync');
+assert.equal(
+  canRenderObjectOnChartTarget({ sourceChartId: 'primary', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
+  false
+);
+
+setComparisonOverlaySyncMode('sync');
 setComparisonTimeframe(240);
 assert.equal(getComparisonOverlaySyncPolicy().safe, false);
 assert.equal(
