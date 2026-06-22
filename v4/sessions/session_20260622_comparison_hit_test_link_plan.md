@@ -33,6 +33,20 @@ The next Split-only workflow from Step 308.4 is existing-object hit-test link:
 
 ## Step 311.1: Audit Secondary/Comparison Hit-test Link Flow
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 311 execution.
+
+Audit findings:
+- `secondary-context-menu.js` stores `contextMenuPdaHit`, `contextMenuSegmentHit`, and `contextMenuSegmentGroupHit`.
+- Secondary right-click computes hits with `hitTestPdaAnnotations({ x, y, context })`, `hitTestSegments({ x, y, context })`, and `hitTestSegmentGroups({ x, y, context })`.
+- Secondary link actions map to `order-setup-link-pda`, `order-setup-link-segment`, and `order-setup-link-composite`, then delegate to `handleOrderSetupChartAction`.
+- The reusable payload shape is `{ bar, price, timeframe, pdaHit, segmentHit, segmentGroupHit }`.
+- `handleOrderSetupChartAction` looks up PDA and Segment store records from hit ids; Composite can use the hit object directly when it has an id.
+- `comparison-context-menu.js` currently stores only bar/price and has no existing-object hit state.
+- Comparison already has an Order Setup evidence section for bar evidence, making the link actions a natural extension there.
+
 Confirm:
 
 - secondary link action ids and delegation shape;
