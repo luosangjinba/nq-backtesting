@@ -1,9 +1,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
-import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as comparisonChart from '../chart/comparison-chart-manager.js';
 import * as store from '../data/bar-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { KillzoneBandPrimitive } from './killzone-band-primitive.js';
 import { TimeMarkerPrimitive } from './time-marker-primitive.js';
@@ -17,7 +15,6 @@ import {
 import { getChartLabelFont } from '../display/display-preferences.js';
 
 let renderedPrimitives = [];
-let secondaryRenderedPrimitives = [];
 let comparisonRenderedPrimitives = [];
 const WEEKDAY_LABELS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 
@@ -31,10 +28,6 @@ function getKillzoneOptions() {
 
 function clearRenderedPrimitives() {
   renderedPrimitives = chart.clearPrimitives(renderedPrimitives) || [];
-}
-
-function clearSecondaryRenderedPrimitives() {
-  secondaryRenderedPrimitives = secondaryChart.clearSecondaryPrimitives(secondaryRenderedPrimitives) || [];
 }
 
 function clearComparisonRenderedPrimitives() {
@@ -228,44 +221,6 @@ export function renderTimeOverlays() {
   }
 }
 
-export function renderSecondaryTimeOverlays() {
-  clearSecondaryRenderedPrimitives();
-
-  const chartInstance = secondaryChart.getSecondaryChart();
-  const series = secondaryChart.getSecondarySeries();
-  const displayBars = secondaryStore.getSecondaryDisplayBars();
-  const timeframe = secondaryStore.getSecondaryTimeframe();
-  const settings = getTimeOverlaySettings();
-
-  if (!secondaryStore.isSecondaryEnabled() || !chartInstance || !series || !displayBars.length) return;
-  if (!settings.enabled || !isTimeOverlayTimeframe(timeframe)) return;
-
-  const markers = buildMarkers(displayBars, settings);
-  const killzoneDraftMarker = buildKillzoneDraftMarker(settings);
-  const killzoneBands = [...buildKillzoneBands(settings), ...(killzoneDraftMarker ? [killzoneDraftMarker] : [])];
-  if (!markers.length && !killzoneBands.length) return;
-
-  if (markers.length) {
-    const markerPrimitive = new TimeMarkerPrimitive(chartInstance, displayBars, timeframe, markers, getTimeMarkerOptions());
-    secondaryChart.attachSecondaryPrimitive(markerPrimitive);
-    markerPrimitive.requestUpdate?.();
-    secondaryRenderedPrimitives.push(markerPrimitive);
-  }
-
-  if (killzoneBands.length) {
-    const killzonePrimitive = new KillzoneBandPrimitive(
-      chartInstance,
-      displayBars,
-      timeframe,
-      killzoneBands,
-      getKillzoneOptions()
-    );
-    secondaryChart.attachSecondaryPrimitive(killzonePrimitive);
-    killzonePrimitive.requestUpdate?.();
-    secondaryRenderedPrimitives.push(killzonePrimitive);
-  }
-}
-
 export function renderComparisonTimeOverlays() {
   clearComparisonRenderedPrimitives();
 
@@ -307,18 +262,14 @@ export function renderComparisonTimeOverlays() {
 
 function renderAllTimeOverlays() {
   renderTimeOverlays();
-  renderSecondaryTimeOverlays();
   renderComparisonTimeOverlays();
 }
 
 export function initTimeOverlayRenderer() {
   bus.on('bars:loaded', renderTimeOverlays);
-  bus.on('secondary-bars:loaded', renderSecondaryTimeOverlays);
   bus.on('comparison-bars:loaded', renderComparisonTimeOverlays);
   bus.on('time-overlays:changed', renderAllTimeOverlays);
   bus.on('display-preferences:changed', renderAllTimeOverlays);
   bus.on('bars:cleared', clearRenderedPrimitives);
-  bus.on('secondary-bars:cleared', clearSecondaryRenderedPrimitives);
-  bus.on('secondary-chart:reset', clearSecondaryRenderedPrimitives);
   bus.on('comparison-bars:cleared', clearComparisonRenderedPrimitives);
 }

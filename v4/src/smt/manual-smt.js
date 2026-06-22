@@ -4,7 +4,6 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import * as store from '../data/bar-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getBarChartTime } from '../chart/time-projection.js';
@@ -41,23 +40,8 @@ function getComparisonSmtSource({ requireLoadedBars = false } = {}) {
   };
 }
 
-function getSplitSmtSource({ requireLoadedBars = false } = {}) {
-  const primaryTimeframe = store.getCurrentTimeframe();
-  if (!secondaryStore.isSecondaryEnabled()) return null;
-  if (secondaryStore.getSecondaryInstrument() !== 'ES') return null;
-  if (Number(secondaryStore.getSecondaryTimeframe()) !== Number(primaryTimeframe)) return null;
-  if (requireLoadedBars && !secondaryStore.getSecondaryDisplayBars().length) return null;
-  return {
-    chartId: 'secondary',
-    label: 'Split',
-    instrument: secondaryStore.getSecondaryInstrument(),
-    timeframe: secondaryStore.getSecondaryTimeframe(),
-    getDisplayBars: secondaryStore.getSecondaryDisplayBars,
-  };
-}
-
 function getSmtCompareSource(options = {}) {
-  return getComparisonSmtSource(options) || getSplitSmtSource(options);
+  return getComparisonSmtSource(options);
 }
 
 function findCompareBar(timestamp) {
@@ -79,14 +63,8 @@ export function getSmtDisabledReason({ requireLoadedBars = false } = {}) {
   if (comparisonState.enabled && Number(comparisonState.descriptor.timeframe) !== Number(store.getCurrentTimeframe())) {
     return 'SMT requires Main TF and Comparison TF to match';
   }
-  if (secondaryStore.isSecondaryEnabled() && secondaryStore.getSecondaryInstrument() !== 'ES') {
-    return 'SMT requires Split Sub=ES or Comparison=ES';
-  }
-  if (secondaryStore.isSecondaryEnabled() && Number(secondaryStore.getSecondaryTimeframe()) !== Number(store.getCurrentTimeframe())) {
-    return 'SMT requires Main TF and Split/Comparison TF to match';
-  }
-  if (!comparisonState.enabled && !secondaryStore.isSecondaryEnabled()) {
-    return 'SMT requires Comparison Window ES or Split Sub=ES';
+  if (!comparisonState.enabled) {
+    return 'SMT requires Comparison Window ES';
   }
   if (requireLoadedBars && !store.getDisplayBars().length) {
     return 'SMT requires loaded NQ bars';
@@ -94,7 +72,7 @@ export function getSmtDisabledReason({ requireLoadedBars = false } = {}) {
   if (requireLoadedBars) {
     return 'SMT requires loaded ES comparison bars';
   }
-  return 'SMT requires Comparison Window ES or Split Sub=ES';
+  return 'SMT requires Comparison Window ES';
 }
 
 function assertCanMarkSmt() {
@@ -130,7 +108,7 @@ function createLiquidityRecord(leftBar, rightBar, direction) {
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     primaryInstrument: 'NQ',
     compareInstrument: 'ES',
-    compareChartId: compareSource?.chartId || 'secondary',
+    compareChartId: compareSource?.chartId || 'comparison-window',
     compareChartLabel: compareSource?.label || '',
     leftTimestamp: leftBar.timestamp,
     rightTimestamp: rightBar.timestamp,
@@ -168,7 +146,7 @@ function createFvgRecord(bar, direction) {
     timeframe: timeframeToString(store.getCurrentTimeframe()),
     primaryInstrument: 'NQ',
     compareInstrument: 'ES',
-    compareChartId: getSmtCompareSource({ requireLoadedBars: true })?.chartId || 'secondary',
+    compareChartId: getSmtCompareSource({ requireLoadedBars: true })?.chartId || 'comparison-window',
     timestamp: bar.timestamp,
     fvgStartTimestamp: fvg.startBar.timestamp,
     fvgEndTimestamp: fvg.endBar.timestamp,
@@ -271,5 +249,5 @@ export function initManualSmt() {
   bus.on('bars:loaded', () => clearPickState({ silent: true }));
   bus.on('bars:cleared', () => clearPickState({ silent: true }));
   bus.on('primary-instrument:changed', () => clearPickState({ silent: true }));
-  bus.on('secondary-chart:settings-changed', () => clearPickState({ silent: true }));
+  bus.on('comparison-window:changed', () => clearPickState({ silent: true }));
 }

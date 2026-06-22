@@ -3,13 +3,11 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as viewport from '../chart/viewport-controller.js';
-import * as secondaryViewport from '../chart/secondary-viewport-controller.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
 
 let controlsEl = null;
-let secondaryControlsEl = null;
 
 const PRIMARY_ACTIONS = {
   prevWindow: () => loadAdjacentWindow('prev'),
@@ -19,14 +17,6 @@ const PRIMARY_ACTIONS = {
   scrollLeft: viewport.scrollLeft,
   scrollRight: viewport.scrollRight,
   reset: viewport.resetChartView,
-};
-
-const SECONDARY_ACTIONS = {
-  zoomOut: secondaryViewport.zoomOut,
-  zoomIn: secondaryViewport.zoomIn,
-  scrollLeft: secondaryViewport.scrollLeft,
-  scrollRight: secondaryViewport.scrollRight,
-  reset: secondaryViewport.resetChartView,
 };
 
 function setToolbarRange(start, end) {
@@ -96,13 +86,8 @@ function renderPrimary() {
   renderControls(controlsEl, viewport.canControlViewport, 'Reset chart view (Alt + R)', { showWindowControls: true });
 }
 
-function renderSecondary() {
-  renderControls(secondaryControlsEl, secondaryViewport.canControlViewport, 'Reset secondary chart view');
-}
-
 function render() {
   renderPrimary();
-  renderSecondary();
 }
 
 function handleClick(actions, e) {
@@ -126,16 +111,10 @@ function handleKeydown(e) {
 
 export function initViewportControls() {
   controlsEl = document.getElementById('viewport-controls');
-  secondaryControlsEl = document.getElementById('secondary-viewport-controls');
 
   controlsEl?.addEventListener('click', (e) => handleClick(PRIMARY_ACTIONS, e));
-  secondaryControlsEl?.addEventListener('click', (e) => handleClick(SECONDARY_ACTIONS, e));
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', render);
   bus.on('bars:cleared', render);
-  bus.on('secondary-bars:loaded', renderSecondary);
-  bus.on('secondary-bars:cleared', renderSecondary);
-  bus.on('secondary-chart:settings-changed', renderSecondary);
-  bus.on('secondary-chart:reset', renderSecondary);
   render();
 }

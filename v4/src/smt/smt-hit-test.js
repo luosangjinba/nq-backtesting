@@ -1,10 +1,9 @@
 import * as chart from '../chart/chart-manager.js';
-import { getComparisonChartContext, getPrimaryChartContext, getSecondaryChartContext } from '../chart/chart-context.js';
+import { getComparisonChartContext, getPrimaryChartContext } from '../chart/chart-context.js';
 import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as store from '../data/bar-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { getSmtRecords, SMT_TYPES } from './smt-store.js';
 
@@ -13,7 +12,6 @@ const VERTICAL_TOLERANCE_PX = 6;
 
 function getContext(chartId, context) {
   if (context) return context;
-  if (chartId === 'secondary') return getSecondaryChartContext();
   if (chartId === 'comparison-window') return getComparisonChartContext();
   return getPrimaryChartContext();
 }
@@ -21,25 +19,25 @@ function getContext(chartId, context) {
 function getContextInstrument(context, chartId) {
   if (context?.instrument) return context.instrument;
   if (chartId === 'comparison-window') return comparisonStore.getComparisonWindowState().descriptor.instrument;
-  return chartId === 'secondary' ? secondaryStore.getSecondaryInstrument() : getPrimaryInstrument();
+  return getPrimaryInstrument();
 }
 
 function getContextTimeframe(context, chartId) {
   const tf = Number(context?.timeframe);
   if (Number.isFinite(tf) && tf > 0) return tf;
   if (chartId === 'comparison-window') return comparisonStore.getComparisonWindowState().descriptor.timeframe;
-  return chartId === 'secondary' ? secondaryStore.getSecondaryTimeframe() : store.getCurrentTimeframe();
+  return store.getCurrentTimeframe();
 }
 
 function getContextDisplayBars(context, chartId) {
   const bars = context?.getDisplayBars?.();
   if (Array.isArray(bars)) return bars;
   if (chartId === 'comparison-window') return comparisonStore.getComparisonDisplayBars();
-  return chartId === 'secondary' ? secondaryStore.getSecondaryDisplayBars() : store.getDisplayBars();
+  return store.getDisplayBars();
 }
 
 function isCompareChart(chartId) {
-  return chartId === 'secondary' || chartId === 'comparison-window';
+  return chartId === 'comparison-window';
 }
 
 function getTimeCoordinate(time, context) {
@@ -137,7 +135,7 @@ function hitCompareFvgRecord(record, x, y, chartId, context) {
     smtType: record.type,
     chartId,
     distance: Math.max(0, edgeDistance),
-    reason: chartId === 'comparison-window' ? 'smt-comparison-fvg-range' : 'smt-secondary-fvg-range',
+    reason: 'smt-comparison-fvg-range',
   };
 }
 

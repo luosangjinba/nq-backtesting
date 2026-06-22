@@ -99,7 +99,7 @@ Result:
 
 ## Step 322.4: Remove Uninitialized Secondary Runtime Modules
 
-Status: pending.
+Status: completed.
 
 After references are migrated:
 
@@ -112,6 +112,16 @@ After references are migrated:
 - remove secondary CSS/test scaffolding that only exists for old Split.
 
 If any module remains needed by SMT internals, migrate that logic to Comparison first.
+
+Result:
+
+- Removed the old secondary chart controller, chart manager, store, context menu, PDA renderer, Segment renderer, and viewport controller modules.
+- Migrated SMT manual source selection to require Comparison Window ES instead of Split fallback.
+- Removed SMT secondary renderer and secondary hit-test branches; SMT now renders/selects on Primary and Comparison Window only.
+- Removed secondary time overlay rendering; existing primary and Comparison overlay rendering remain.
+- Removed secondary chart context construction/export from `chart-context`.
+- Removed old secondary viewport controls wiring.
+- Updated primitive lifecycle and SMT selection smoke tests away from secondary runtime assumptions.
 
 ## Step 322.5: Test and Documentation Update
 

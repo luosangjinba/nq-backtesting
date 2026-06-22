@@ -59,14 +59,6 @@ const primaryHit = hitTestSmtRecords({
 assert.equal(primaryHit?.id, liquidity.id, 'primary liquidity SMT line can be hit-tested');
 assert.equal(primaryHit.reason, 'smt-liquidity-line');
 
-const secondaryHit = hitTestSmtRecords({
-  x: 1050,
-  y: 129,
-  chartId: 'secondary',
-  context: createContext({ chartId: 'secondary', instrument: 'ES' }),
-});
-assert.equal(secondaryHit?.id, liquidity.id, 'secondary liquidity SMT line can be hit-tested');
-
 const comparisonHit = hitTestSmtRecords({
   x: 1050,
   y: 129,
@@ -102,14 +94,6 @@ const primaryFvgHit = hitTestSmtRecords({
   context: createContext(),
 });
 assert.equal(primaryFvgHit?.id, fvg.id, 'primary FVG SMT vertical marker can be hit-tested');
-
-const secondaryFvgHit = hitTestSmtRecords({
-  x: 2025,
-  y: 120,
-  chartId: 'secondary',
-  context: createContext({ chartId: 'secondary', instrument: 'ES' }),
-});
-assert.equal(secondaryFvgHit?.id, fvg.id, 'secondary FVG SMT range can be hit-tested');
 
 const comparisonFvgHit = hitTestSmtRecords({
   x: 2025,
