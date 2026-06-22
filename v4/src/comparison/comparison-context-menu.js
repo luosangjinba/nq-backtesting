@@ -18,6 +18,8 @@ import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { hitTestPdaAnnotations } from '../pda/pda-hit-test.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
 import { initContextMenuSubmenuPositioning } from '../pda/manual-context-menu.js';
+import { getComparisonOverlaySyncPolicy } from './comparison-overlay-policy.js';
+import { setComparisonOverlaySyncMode } from './comparison-window-store.js';
 
 let menuEl = null;
 let contextMenuBar = null;
@@ -132,6 +134,38 @@ function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
     });
     return updated;
   });
+}
+
+function ensureComparisonDrawingCreationEnabled() {
+  const policy = getComparisonOverlaySyncPolicy();
+  const matches =
+    policy.primaryInstrument === policy.comparisonInstrument &&
+    policy.primaryTimeframe !== null &&
+    policy.comparisonTimeframe !== null &&
+    policy.primaryTimeframe === policy.comparisonTimeframe;
+  if (!matches) {
+    bus.emit('status:update', {
+      text: 'Comparison drawings require matching instrument and timeframe',
+      isError: true,
+    });
+    return false;
+  }
+  if (policy.mode === 'no-sync') {
+    setComparisonOverlaySyncMode('sync');
+    bus.emit('status:update', {
+      text: 'Drawings switched to Sync for comparison drawing',
+      isError: false,
+    });
+  }
+  return true;
+}
+
+function isDrawingCreationAction(action) {
+  return (
+    action?.startsWith('comparison-pda-') ||
+    action?.startsWith('comparison-segment-start-') ||
+    action?.startsWith('comparison-segment-finish-')
+  );
 }
 
 function renderMenu(bar, price, context, hits = {}) {
@@ -295,6 +329,11 @@ async function handleMenuClick(event) {
   if (!action) return;
   event.stopPropagation();
   const context = getComparisonChartContext();
+
+  if (isDrawingCreationAction(action) && !ensureComparisonDrawingCreationEnabled()) {
+    hideComparisonContextMenu();
+    return;
+  }
 
   if (action === 'comparison-pda-bsl' || action === 'comparison-pda-ssl') {
     await addManualPoint(action === 'comparison-pda-bsl' ? 'bsl' : 'ssl', contextMenuBar, context, {

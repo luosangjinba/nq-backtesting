@@ -42,10 +42,20 @@ Implementation notes:
 
 ### Step 318.2: Comparison Creation Auto-Sync
 
+Status: completed.
+
 Before Comparison context-menu creates PDA/Segment:
 
 - if Drawings is `No Sync`, switch it to `Sync`;
 - if sync is impossible due to instrument/timeframe mismatch, block creation and surface a concise status message.
+
+Implementation notes:
+
+- Comparison context-menu drawing actions now call a preflight guard before creating PDA/Segment objects.
+- Matching Main/Comparison with `No Sync` automatically switches Drawings to `Sync`.
+- Instrument/timeframe mismatch blocks Comparison drawing creation and emits a status message.
+- Browser smoke now asserts mismatch Comparison PDA/FVG/Segment creation returns no object.
+- Verification: `git diff --check`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 318.3: Browser Verification
 

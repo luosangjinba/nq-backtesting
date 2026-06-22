@@ -536,10 +536,10 @@ async function main() {
           blankObDisabled,
           evidencePanelVisible,
           sourceIsolation: {
-            comparisonPdaHit: comparisonPdaHit?.id === comparisonPda?.id,
-            primaryPdaHit: primaryPdaHit?.id === comparisonPda?.id,
-            comparisonSegmentHit: comparisonSegmentHit?.id === comparisonSegment?.id,
-            primarySegmentHit: primarySegmentHit?.id === comparisonSegment?.id,
+            comparisonPdaHit: Boolean(comparisonPda && comparisonPdaHit?.id === comparisonPda.id),
+            primaryPdaHit: Boolean(comparisonPda && primaryPdaHit?.id === comparisonPda.id),
+            comparisonSegmentHit: Boolean(comparisonSegment && comparisonSegmentHit?.id === comparisonSegment.id),
+            primarySegmentHit: Boolean(comparisonSegment && primarySegmentHit?.id === comparisonSegment.id),
           },
           comparisonPda: comparisonPda ? {
             type: comparisonPda.type,
@@ -592,30 +592,9 @@ async function main() {
       comparisonSegmentHit: false,
       primarySegmentHit: false,
     }, 'Mismatch comparison-source PDA/Segment should not hit either chart context');
-    assert.deepEqual(contextMenuResult.comparisonPda, {
-      type: 'bsl',
-      sourceChartId: 'comparison-window',
-      sourceChartLabel: 'Comparison',
-      sourceInstrument: 'ES',
-      sourceTimeframe: 60,
-      sourceContext: 'ES 1H',
-    });
-    assert.deepEqual(contextMenuResult.comparisonFvg, {
-      type: 'fvg',
-      direction: 'bullish',
-      sourceChartId: 'comparison-window',
-      sourceInstrument: 'ES',
-      sourceTimeframe: 60,
-      sourceContext: 'ES 1H',
-    });
-    assert.deepEqual(contextMenuResult.comparisonSegment, {
-      sourceChartId: 'comparison-window',
-      sourceChartLabel: 'Comparison',
-      sourceInstrument: 'ES',
-      sourceTimeframe: 60,
-      sourceContext: 'ES 1H',
-      direction: 'up',
-    });
+    assert.equal(contextMenuResult.comparisonPda, null, 'Mismatch comparison PDA creation should be blocked');
+    assert.equal(contextMenuResult.comparisonFvg, null, 'Mismatch comparison FVG creation should be blocked');
+    assert.equal(contextMenuResult.comparisonSegment, null, 'Mismatch comparison Segment creation should be blocked');
     assert.deepEqual(contextMenuResult.comparisonEvidence, {
       sourceChartId: 'comparison-window',
       sourceChartLabel: 'Comparison',
