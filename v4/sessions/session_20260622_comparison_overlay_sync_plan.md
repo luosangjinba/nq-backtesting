@@ -36,12 +36,27 @@ This keeps the safety boundary for `NQ` vs `ES` and `1M` vs `1H/4H`, while allow
 
 ### Step 315.1: State and UI Contract
 
+Status: completed.
+
 Add `overlaySyncMode: local | sync` to the comparison descriptor/store/persistence. Add a compact header select:
 
 - `Overlays: Local`
 - `Overlays: Sync`
 
 Default remains `Local`.
+
+Implementation:
+
+- Added `COMPARISON_OVERLAY_SYNC_MODE` and descriptor default `overlaySyncMode: local`.
+- Added `setComparisonOverlaySyncMode()` to the comparison store.
+- Persisted and sanitized `overlaySyncMode` in comparison workspace localStorage.
+- Added `Overlays Local/Sync` select to the Comparison Window header.
+
+Verification:
+
+- `git diff --check`
+- `node v4/tests/comparison-window-persistence-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
 
 ### Step 315.2: Safe Sync Policy Helper
 

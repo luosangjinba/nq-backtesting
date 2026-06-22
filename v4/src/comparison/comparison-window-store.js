@@ -1,5 +1,9 @@
 import * as bus from '../event-bus.js';
-import { createComparisonViewDescriptor, normalizeVisibleWindow } from './comparison-view-contract.js';
+import {
+  COMPARISON_OVERLAY_SYNC_MODE,
+  createComparisonViewDescriptor,
+  normalizeVisibleWindow,
+} from './comparison-view-contract.js';
 
 const DEFAULT_DESCRIPTOR = createComparisonViewDescriptor();
 
@@ -56,6 +60,13 @@ export function setComparisonInstrument(instrument) {
 
 export function setComparisonTimeframe(timeframe) {
   return updateComparisonViewDescriptor({ timeframe: Number(timeframe) || descriptor.timeframe });
+}
+
+export function setComparisonOverlaySyncMode(overlaySyncMode) {
+  const normalized = Object.values(COMPARISON_OVERLAY_SYNC_MODE).includes(overlaySyncMode)
+    ? overlaySyncMode
+    : COMPARISON_OVERLAY_SYNC_MODE.local;
+  return updateComparisonViewDescriptor({ overlaySyncMode: normalized });
 }
 
 export function updateComparisonVisibleWindow(visibleWindow) {

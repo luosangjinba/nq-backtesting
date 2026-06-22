@@ -29,6 +29,7 @@ import {
   resetComparisonVisibleWindow,
   setComparisonInstrument,
   setComparisonBars,
+  setComparisonOverlaySyncMode,
   setComparisonTimeframe,
   setComparisonWindowEnabled,
   updateComparisonVisibleWindow,
@@ -70,6 +71,16 @@ function renderTimeframeOptions(selectedTimeframe) {
     .join('');
 }
 
+function renderOverlaySyncOptions(selectedMode) {
+  return [
+    ['local', 'Local'],
+    ['sync', 'Sync'],
+  ].map(
+    ([value, label]) =>
+      `<option value="${value}"${value === selectedMode ? ' selected' : ''}>${label}</option>`
+  ).join('');
+}
+
 export function initComparisonWindowController() {
   ensureDom();
   render(getComparisonWindowState());
@@ -107,6 +118,10 @@ function ensureDom() {
             <span>TF</span>
             <select class="comparison-window-select" data-comparison-timeframe></select>
           </label>
+          <label class="comparison-window-field">
+            <span>Overlays</span>
+            <select class="comparison-window-select" data-comparison-overlay-sync></select>
+          </label>
           <button class="comparison-window-btn" type="button" data-comparison-reset title="Reset window position">Reset</button>
           <button class="comparison-window-btn comparison-window-close" type="button" data-comparison-close title="Close Comparison Window">Close</button>
         </div>
@@ -142,6 +157,9 @@ function ensureDom() {
   root.querySelector('[data-comparison-timeframe]')?.addEventListener('change', (event) => {
     setComparisonTimeframe(event.target.value);
   });
+  root.querySelector('[data-comparison-overlay-sync]')?.addEventListener('change', (event) => {
+    setComparisonOverlaySyncMode(event.target.value);
+  });
   root.querySelectorAll('[data-comparison-drag-handle]').forEach((handle) => {
     handle.addEventListener('pointerdown', startDrag);
     handle.addEventListener('dblclick', () => resetComparisonVisibleWindow());
@@ -153,7 +171,7 @@ function render(state) {
   if (!root || !windowEl) return;
   root.hidden = !state.enabled;
   if (!state.enabled) return;
-  const { visibleWindow, instrument, timeframe, syncMode } = state.descriptor;
+  const { visibleWindow, instrument, timeframe, syncMode, overlaySyncMode } = state.descriptor;
   windowEl.style.left = `${visibleWindow.x}%`;
   windowEl.style.top = `${visibleWindow.y}%`;
   windowEl.style.width = `${visibleWindow.width}%`;
@@ -161,8 +179,10 @@ function render(state) {
   windowEl.dataset.instrument = instrument;
   windowEl.dataset.timeframe = String(timeframe);
   windowEl.dataset.syncMode = syncMode;
+  windowEl.dataset.overlaySyncMode = overlaySyncMode;
   const instrumentSelect = root.querySelector('[data-comparison-instrument]');
   const timeframeSelect = root.querySelector('[data-comparison-timeframe]');
+  const overlaySyncSelect = root.querySelector('[data-comparison-overlay-sync]');
   if (instrumentSelect) {
     instrumentSelect.innerHTML = renderInstrumentOptions(instrument);
     instrumentSelect.value = instrument;
@@ -170,6 +190,10 @@ function render(state) {
   if (timeframeSelect) {
     timeframeSelect.innerHTML = renderTimeframeOptions(timeframe);
     timeframeSelect.value = String(timeframe);
+  }
+  if (overlaySyncSelect) {
+    overlaySyncSelect.innerHTML = renderOverlaySyncOptions(overlaySyncMode);
+    overlaySyncSelect.value = overlaySyncMode;
   }
   requestAnimationFrame(() => {
     initComparisonChart();

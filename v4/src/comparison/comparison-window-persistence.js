@@ -6,6 +6,7 @@ import {
 } from './comparison-window-store.js';
 import {
   COMPARISON_LAYOUT_MODE,
+  COMPARISON_OVERLAY_SYNC_MODE,
   COMPARISON_SYNC_MODE,
   createComparisonViewDescriptor,
   normalizeVisibleWindow,
@@ -50,6 +51,13 @@ function normalizeSyncMode(value) {
     : COMPARISON_SYNC_MODE.primaryTime;
 }
 
+function normalizeOverlaySyncMode(value) {
+  const normalized = normalizeString(value, COMPARISON_OVERLAY_SYNC_MODE.local);
+  return Object.values(COMPARISON_OVERLAY_SYNC_MODE).includes(normalized)
+    ? normalized
+    : COMPARISON_OVERLAY_SYNC_MODE.local;
+}
+
 function normalizeLayoutMode(value) {
   const normalized = normalizeString(value, COMPARISON_LAYOUT_MODE.floating);
   return Object.values(COMPARISON_LAYOUT_MODE).includes(normalized)
@@ -74,6 +82,7 @@ export function serializeComparisonWorkspaceState(state = getComparisonWindowSta
       instrument: normalizeInstrument(descriptor.instrument),
       timeframe: normalizeNumber(descriptor.timeframe, 60),
       syncMode: normalizeSyncMode(descriptor.syncMode),
+      overlaySyncMode: normalizeOverlaySyncMode(descriptor.overlaySyncMode),
       layoutMode: normalizeLayoutMode(descriptor.layoutMode),
       visibleWindow: normalizeVisibleWindow(descriptor.visibleWindow),
     },
