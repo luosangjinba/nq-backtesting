@@ -131,6 +131,17 @@ Verification:
 
 ### Step 309.3: Migrate PDA Projection Locate
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 309 execution.
+
+Implemented:
+- Replaced direct primary/secondary viewport controller calls in `pda-locate-actions.js` with `viewport-router`.
+- Added comparison chart context support for PDA locate/flash.
+- Preserved old default `both` behavior as primary + secondary, while `sourceChartId=comparison-window` defaults to comparison-only locate.
+- Added `pda-locate-actions-smoke` for the comparison source and explicit primary target contracts.
+
 Update `pda/pda-locate-actions.js`.
 
 Current behavior:

@@ -1,7 +1,10 @@
-import { getPrimaryChartContext, getSecondaryChartContext } from '../chart/chart-context.js';
+import {
+  getComparisonChartContext,
+  getPrimaryChartContext,
+  getSecondaryChartContext,
+} from '../chart/chart-context.js';
 import { flashPdaAnnotation } from '../chart/pda-locate-flash.js';
-import * as viewport from '../chart/viewport-controller.js';
-import * as secondaryViewport from '../chart/secondary-viewport-controller.js';
+import { VIEWPORT_TARGETS, locateChartRange } from '../chart/viewport-router.js';
 import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
 
 export function getPdaTimestampRange(annotation = {}) {
@@ -13,26 +16,38 @@ export function getPdaTimestampRange(annotation = {}) {
   };
 }
 
-function locatePrimaryPda(annotation, range) {
-  const context = getPrimaryChartContext();
-  const canPriceFlash = canRenderPdaPriceProjection(annotation, context);
-  const located = viewport.locateTimestampRange(range.start, range.end, { flash: !canPriceFlash });
-  let flashed = false;
-  if (located && canPriceFlash) {
-    flashed = flashPdaAnnotation(annotation, context);
-    if (!flashed) viewport.locateTimestampRange(range.start, range.end);
-  }
-  return { located, flashed, canPriceFlash };
+const PDA_TARGET_CONTEXTS = {
+  [VIEWPORT_TARGETS.PRIMARY]: getPrimaryChartContext,
+  [VIEWPORT_TARGETS.SECONDARY]: getSecondaryChartContext,
+  [VIEWPORT_TARGETS.COMPARISON]: getComparisonChartContext,
+};
+
+function normalizePdaLocateTarget(annotation = {}, options = {}) {
+  if (options.chart) return options.chart;
+  if (annotation.sourceChartId === VIEWPORT_TARGETS.COMPARISON) return VIEWPORT_TARGETS.COMPARISON;
+  return VIEWPORT_TARGETS.BOTH;
 }
 
-function locateSecondaryPda(annotation, range) {
-  const context = getSecondaryChartContext();
+function expandPdaTargets(targetChart) {
+  if (targetChart === VIEWPORT_TARGETS.SECONDARY) return [VIEWPORT_TARGETS.SECONDARY];
+  if (targetChart === VIEWPORT_TARGETS.COMPARISON) return [VIEWPORT_TARGETS.COMPARISON];
+  if (targetChart === VIEWPORT_TARGETS.PRIMARY) return [VIEWPORT_TARGETS.PRIMARY];
+  return [VIEWPORT_TARGETS.PRIMARY, VIEWPORT_TARGETS.SECONDARY];
+}
+
+function createSkippedResult() {
+  return { located: false, flashed: false, canPriceFlash: false };
+}
+
+function locatePdaOnTarget(annotation, range, target) {
+  const context = PDA_TARGET_CONTEXTS[target]?.();
   const canPriceFlash = canRenderPdaPriceProjection(annotation, context);
-  const located = secondaryViewport.locateSecondaryTimestampRange(range.start, range.end, { flash: !canPriceFlash });
+  const locateResult = locateChartRange(target, range, { flash: !canPriceFlash });
+  const located = Boolean(locateResult.targets?.[target]?.located);
   let flashed = false;
   if (located && canPriceFlash) {
     flashed = flashPdaAnnotation(annotation, context);
-    if (!flashed) secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+    if (!flashed) locateChartRange(target, range);
   }
   return { located, flashed, canPriceFlash };
 }
@@ -40,15 +55,30 @@ function locateSecondaryPda(annotation, range) {
 export function locatePdaProjection(annotation = {}, options = {}) {
   const range = getPdaTimestampRange(annotation);
   if (!range) {
-    return { located: false, range: null, primary: { located: false }, secondary: { located: false } };
+    return {
+      located: false,
+      range: null,
+      primary: createSkippedResult(),
+      secondary: createSkippedResult(),
+      comparison: createSkippedResult(),
+    };
   }
-  const targetChart = options.chart || 'both';
-  const primary = targetChart === 'secondary' ? { located: false } : locatePrimaryPda(annotation, range);
-  const secondary = targetChart === 'primary' ? { located: false } : locateSecondaryPda(annotation, range);
+  const targetChart = normalizePdaLocateTarget(annotation, options);
+  const targets = expandPdaTargets(targetChart);
+  const primary = targets.includes(VIEWPORT_TARGETS.PRIMARY)
+    ? locatePdaOnTarget(annotation, range, VIEWPORT_TARGETS.PRIMARY)
+    : createSkippedResult();
+  const secondary = targets.includes(VIEWPORT_TARGETS.SECONDARY)
+    ? locatePdaOnTarget(annotation, range, VIEWPORT_TARGETS.SECONDARY)
+    : createSkippedResult();
+  const comparison = targets.includes(VIEWPORT_TARGETS.COMPARISON)
+    ? locatePdaOnTarget(annotation, range, VIEWPORT_TARGETS.COMPARISON)
+    : createSkippedResult();
   return {
-    located: primary.located || secondary.located,
+    located: primary.located || secondary.located || comparison.located,
     range,
     primary,
     secondary,
+    comparison,
   };
 }
