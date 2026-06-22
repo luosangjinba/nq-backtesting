@@ -116,19 +116,26 @@ function isComparisonSource(object = {}) {
 
 export function canRenderObjectOnChartTarget(object = {}, targetChartId = 'primary', state = getComparisonWindowState()) {
   const sourceChartId = getSourceChartId(object);
-  if (sourceChartId === targetChartId) return { ok: true, reason: 'local-source' };
-
   const policy = getComparisonOverlaySyncPolicy(state);
-  if (!policy.safe) return { ok: false, reason: policy.reason, policy };
-
-  const crossChartPair =
-    (targetChartId === 'primary' && isComparisonSource(object)) ||
-    (targetChartId === 'comparison-window' && sourceChartId === 'primary');
-  if (!crossChartPair) return { ok: false, reason: 'unsupported-source-target', policy };
-
   const descriptor = targetChartId === 'comparison-window'
     ? state?.descriptor
     : { instrument: policy.primaryInstrument, timeframe: policy.primaryTimeframe };
+
+  if (targetChartId === 'primary') {
+    const projection = canProjectPriceObjectToComparison(object, descriptor);
+    return projection.ok
+      ? { ok: true, reason: sourceChartId === targetChartId ? 'local-source' : 'main-owned', policy }
+      : { ok: false, reason: projection.reason, policy };
+  }
+
+  if (targetChartId !== 'comparison-window') {
+    return sourceChartId === targetChartId
+      ? { ok: true, reason: 'local-source' }
+      : { ok: false, reason: 'unsupported-source-target', policy };
+  }
+
+  if (!policy.safe) return { ok: false, reason: policy.reason, policy };
+
   const projection = canProjectPriceObjectToComparison(object, descriptor);
   return projection.ok
     ? { ok: true, reason: 'sync', policy }

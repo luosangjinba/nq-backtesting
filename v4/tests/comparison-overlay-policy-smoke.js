@@ -84,6 +84,14 @@ assert.equal(
   canRenderObjectOnChartTarget({ sourceChartId: 'primary', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
   false
 );
+assert.equal(
+  canRenderObjectOnChartTarget({ sourceChartId: 'comparison-window', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'primary').ok,
+  true
+);
+assert.equal(
+  canRenderObjectOnChartTarget({ sourceChartId: 'comparison-window', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
+  false
+);
 
 setComparisonOverlaySyncMode('sync');
 setComparisonTimeframe(240);

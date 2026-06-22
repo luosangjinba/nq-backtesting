@@ -25,11 +25,20 @@ That does not match the intended model. Main is the canonical review chart. Draw
 
 ### Step 318.1: Policy Semantics Update
 
+Status: completed.
+
 Update render/hit policy so chart target, not creation source, defines visibility:
 
 - Primary/Main target: allow compatible PDA/Segment objects regardless of source.
 - Comparison target: allow compatible PDA/Segment objects only when Drawings is `Sync`.
 - Mismatch still blocks cross-context projection.
+
+Implementation notes:
+
+- `canRenderObjectOnChartTarget(..., 'primary')` now checks only projection compatibility with Main, not Drawings sync mode.
+- `canRenderObjectOnChartTarget(..., 'comparison-window')` requires `Sync` plus instrument/timeframe match.
+- Existing mismatch comparison-source objects no longer hit in Comparison under the new Main-owned visibility semantics.
+- Verification: `git diff --check`, `node v4/tests/comparison-overlay-policy-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 318.2: Comparison Creation Auto-Sync
 

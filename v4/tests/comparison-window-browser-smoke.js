@@ -587,11 +587,11 @@ async function main() {
     assert.equal(contextMenuResult.blankObDisabled, true, 'Comparison OB Last Bar should be disabled without a comparison bar');
     assert.equal(contextMenuResult.evidencePanelVisible, true, 'Comparison Order Setup Evidence submenu should open');
     assert.deepEqual(contextMenuResult.sourceIsolation, {
-      comparisonPdaHit: true,
+      comparisonPdaHit: false,
       primaryPdaHit: false,
-      comparisonSegmentHit: true,
+      comparisonSegmentHit: false,
       primarySegmentHit: false,
-    }, 'Comparison-source PDA/Segment should hit only in the comparison chart context');
+    }, 'Mismatch comparison-source PDA/Segment should not hit either chart context');
     assert.deepEqual(contextMenuResult.comparisonPda, {
       type: 'bsl',
       sourceChartId: 'comparison-window',
@@ -910,8 +910,8 @@ async function main() {
       },
       noSyncIsolation: {
         policySafe: false,
-        primaryComparisonPdaHit: null,
-        primaryComparisonSegmentHit: null,
+        primaryComparisonPdaHit: 'sync-comparison-pda',
+        primaryComparisonSegmentHit: 'sync-comparison-segment',
       },
     }, 'Sync safe mode should make Main/Comparison overlays hit-test on both chart contexts');
 
