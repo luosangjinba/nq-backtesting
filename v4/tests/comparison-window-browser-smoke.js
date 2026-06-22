@@ -399,6 +399,19 @@ async function main() {
             clientY: rect.top + y,
           }));
         };
+        const openBlankAt = () => {
+          chartEl.dispatchEvent(new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: rect.right + 120,
+            clientY: rect.top + rect.height / 2,
+          }));
+        };
+
+        openBlankAt();
+        const blankObDisabled = document
+          .querySelector('[data-comparison-action="comparison-pda-ob-last-bar"]')
+          ?.hasAttribute('disabled');
 
         openAt(first, first.low);
         document.querySelector('[data-comparison-action="comparison-pda-bsl"]').click();
@@ -437,6 +450,7 @@ async function main() {
         const comparisonEvidence = activeSetup.orderReview.setupThesis.manualEvents.find((event) => event.sourceChartId === 'comparison-window');
         return {
           menuExists: Boolean(document.querySelector('#comparison-context-menu')),
+          blankObDisabled,
           comparisonPda: comparisonPda ? {
             type: comparisonPda.type,
             sourceChartId: comparisonPda.sourceChartId,
@@ -473,6 +487,7 @@ async function main() {
       })();
     `);
     assert.equal(contextMenuResult.menuExists, true, 'Comparison context menu should exist');
+    assert.equal(contextMenuResult.blankObDisabled, true, 'Comparison OB Last Bar should be disabled without a comparison bar');
     assert.deepEqual(contextMenuResult.comparisonPda, {
       type: 'bsl',
       sourceChartId: 'comparison-window',

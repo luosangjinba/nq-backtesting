@@ -141,7 +141,7 @@ Current limitations:
 
 - OB, Breaker, Fib, Range PDA drafts, and EQH/EQL Point Sets remain primarily in the primary chart or old Split secondary workflows.
 - Some Inspector/Calendar secondary locate actions, Order Setup edit picking, and Segment actor pick preview still use old secondary-specific Split paths.
-- Hit-test based Link To Active Setup for existing PDA/Segment/Composite evidence is still more complete in old Split. Comparison Window currently focuses on newly-created comparison-source objects and bar evidence.
+- Hit-test based Link To Active Setup for existing PDA/Segment/Composite evidence is supported in Comparison Window; old Split remains for the advanced secondary workflows that have not been migrated yet.
 - Do not remove Split yet. A later removal step should first migrate or explicitly drop these Split-only workflows.
 
 ## Split Screen

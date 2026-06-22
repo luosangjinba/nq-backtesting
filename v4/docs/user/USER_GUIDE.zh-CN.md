@@ -143,7 +143,7 @@ Comparison Window 是新的滑动/浮动对比窗口，不是在旧 Split Screen
 
 - OB、Breaker、Fib、Range PDA draft、EQH/EQL Point Sets 仍主要在主图或旧 Split 副图 workflow 中。
 - 部分 Inspector/Calendar 的 secondary locate、Order Setup edit pick、Segment actor pick preview 仍走旧 Split 的 secondary 路径。
-- 已有 PDA/Segment/Composite 的 hit-test 直接 Link To Active Setup，在旧 Split 路径更完整；Comparison Window 当前主要支持新建对比来源对象和添加 bar evidence。
+- Comparison Window 已支持已有 PDA/Segment/Composite 的 hit-test 直接 Link To Active Setup；旧 Split 仍保留给尚未迁移的高级副图 workflow。
 - 因此现在不要删除 Split；后续若要移除，需要先迁移或明确放弃这些 Split-only workflow。
 
 ## Split Screen 副图

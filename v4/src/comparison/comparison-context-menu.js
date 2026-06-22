@@ -144,7 +144,7 @@ function renderMenu(bar, price, context, hits = {}) {
       <button class="pda-menu-item" data-comparison-action="comparison-pda-ssl" ${disabled}>Mark SSL</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-ifvg" ${disabled}>Mark IFVG</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-ob-last-bar" ${priceLabel ? '' : 'disabled'}>Mark OB Last Bar</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-ob-last-bar" ${bar && priceLabel ? '' : 'disabled'}>Mark OB Last Bar</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
     </div>
