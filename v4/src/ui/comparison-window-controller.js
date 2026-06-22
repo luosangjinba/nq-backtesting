@@ -423,7 +423,7 @@ function handleReplayChanged({ enabled, cursorTimestamp }) {
 
 function startDrag(event) {
   if (!root || !windowEl || event.button !== 0) return;
-  if (event.target.closest('button')) return;
+  if (event.target.closest('button, select, input, textarea, label, .comparison-window-actions')) return;
   const bounds = root.getBoundingClientRect();
   const target = event.currentTarget;
   const current = getComparisonWindowState().descriptor.visibleWindow;
