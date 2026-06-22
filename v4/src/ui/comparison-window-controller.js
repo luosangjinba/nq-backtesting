@@ -96,7 +96,7 @@ function ensureDom() {
       <header class="comparison-window-header" data-comparison-drag-handle>
         <div class="comparison-window-title-block">
           <div class="comparison-window-title">Comparison Window</div>
-          <div class="comparison-window-subtitle">Read-only MVP shell</div>
+          <div class="comparison-window-subtitle">Comparison workspace</div>
         </div>
         <div class="comparison-window-actions">
           <label class="comparison-window-field">
