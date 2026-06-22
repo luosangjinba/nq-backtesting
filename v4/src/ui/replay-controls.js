@@ -1,7 +1,6 @@
 // TradingView-style bar replay controls — minimal version.
 
 import * as bus from '../event-bus.js';
-import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
@@ -10,7 +9,6 @@ import {
   setComparisonWindowEnabled,
   updateComparisonViewDescriptor,
 } from '../comparison/comparison-window-store.js';
-import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
 import {
   clearReplayHistory,
@@ -23,12 +21,12 @@ import {
   getReplayRestoreDisplayBars,
   getUtcDateKey,
   getUtcDateTimeTimestamp,
-  isTimestampInRange,
   normalizeTimeKey,
   normalizeTimestamp,
   parseReplayJumpTimestamp,
 } from './replay/replay-time-utils.js';
 import { renderReplayControlsView } from './replay/replay-controls-view.js';
+import { loadReplayHistoryItem as restoreReplayHistoryItem } from './replay/replay-history-actions.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -336,51 +334,6 @@ export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex)
   return true;
 }
 
-async function loadReplayHistoryItem(id) {
-  const item = getReplayHistory(getPrimaryInstrument()).find((historyItem) => historyItem.id === id);
-  if (!item) {
-    bus.emit('status:update', { text: 'Replay History item not found', isError: true });
-    return;
-  }
-
-  const cursorTimestamp = item.replay.cursorTimestamp;
-  let loadStart = item.primary.start;
-  let loadEnd = item.primary.end;
-  let outerRange = item.primary.outerRange;
-  const timeframe = Number(item.primary.timeframe);
-
-  if (!isTimestampInRange(cursorTimestamp, loadStart, loadEnd) && outerRange) {
-    const resolved = resolveWindowAroundTimestamp(outerRange, cursorTimestamp);
-    if (!resolved.ok) {
-      bus.emit('status:update', { text: resolved.message, isError: true });
-      return;
-    }
-    loadStart = resolved.start;
-    loadEnd = resolved.end;
-    outerRange = resolved.outerRange;
-  }
-
-  bus.emit('status:update', { text: '恢复 Replay History...', isError: false });
-  try {
-    const instrument = setToolbarPrimaryInstrument(item.primary.instrument);
-    const result = await fetchBars(loadStart, loadEnd, timeframe, instrument);
-    setToolbarRange(loadStart, loadEnd, timeframe);
-    store.setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
-
-    applyComparisonState(item.comparison);
-
-    if (!restoreReplayToTimestamp(cursorTimestamp, item.replay.speedIndex)) {
-      bus.emit('status:update', { text: 'Replay History restore failed: cursor is outside loaded window', isError: true });
-      return;
-    }
-    historyOpen = false;
-    render();
-    bus.emit('status:update', { text: `Replay History restored: ${item.label}`, isError: false });
-  } catch (err) {
-    bus.emit('status:update', { text: `Replay History restore failed: ${err.message}`, isError: true });
-  }
-}
-
 function enableReplay() {
   if (chartData.length === 0) return;
   const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
@@ -508,7 +461,18 @@ function handleControlClick(e) {
   }
   if (action === 'history-load') {
     const id = e.target.closest('[data-history-id]')?.dataset.historyId;
-    loadReplayHistoryItem(id);
+    restoreReplayHistoryItem(id, {
+      primaryInstrument: getPrimaryInstrument(),
+      setToolbarPrimaryInstrument,
+      setToolbarRange,
+      setBars: (...args) => store.setBars(...args),
+      applyComparisonState,
+      restoreReplayToTimestamp,
+      closeHistoryPanel: () => {
+        historyOpen = false;
+      },
+      render,
+    });
     return;
   }
 
