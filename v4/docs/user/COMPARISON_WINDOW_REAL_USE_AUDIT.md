@@ -1,23 +1,14 @@
 # Comparison Window Real-use Audit
 
-Use this audit before opening any Split removal plan.
+This document records the Comparison Window real-use audit that allowed staged Split removal.
 
 ## Audit Window
 
-- Run at least 1 full review session, preferably across 2 separate trading days.
-- Keep old Split available during the audit.
-- Record friction immediately after the workflow, not from memory.
-- Do not remove Split unless every required row passes or is explicitly waived.
+- Completed on 2026-06-22.
+- Focused real-use audit passed.
+- Staged Split removal is allowed, but remaining secondary internals should still be removed cautiously.
 
 ## Readiness Decision
-
-Choose exactly one after the audit:
-
-- `ready for removal plan`
-- `keep Split`
-- `needs more real-use data`
-
-Default decision without a completed real-use session: `needs more real-use data`.
 
 Current decision: `ready for removal plan`.
 

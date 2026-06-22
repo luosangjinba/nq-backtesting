@@ -1152,9 +1152,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 320.5: Advanced PDA frequency pass：用户确认没有阻塞 Split removal 的 advanced PDA 频率问题，或可接受 waiver。
   - [x] Step 320.6: Audit closeout：已更新 audit doc/TODO/session，写入 `ready for Split removal planning`。
 
-- [ ] Step 321: Split removal planning。目标是在 Comparison Window 真实审计通过后，制定分阶段移除旧 Split 的计划；先审计依赖、隐藏用户入口、迁移/删除 split-only runtime、更新测试和文档，不一次性删除所有 secondary 模块。计划见 `v4/sessions/session_20260622_split_removal_plan.md`。
-  - [ ] Step 321.1: Split dependency audit：盘点 toolbar Split toggle、secondary chart/store/rendering、split CSS、replay/locate/SMT 引用、docs/tests，输出 remove/keep temporarily/migrate first 清单。
-  - [ ] Step 321.2: Disable user-facing Split entry points：移除或隐藏 Split toggle 与旧 Stack/Side layout 入口，保留 Comparison Window 控制。
-  - [ ] Step 321.3: Migrate or remove split-only runtime paths：逐项迁移到 Comparison Window、删除死代码或标记 shared dependency。
-  - [ ] Step 321.4: Update tests：移除旧 Split UI 断言，增加 Comparison Window 无 Split 入口仍可用的 smoke，保持 SMT/replay/locate 通过。
-  - [ ] Step 321.5: Documentation closeout：更新 user guide/audit/TODO/session/README 中关于 Split 与 Comparison Window 的说明。
+- [x] Step 321: Split removal planning。目标是在 Comparison Window 真实审计通过后，分阶段移除旧 Split；本步骤完成用户可见 Split 入口移除，保留仍被 shared path 引用的 secondary internals 等 Step 322 清理。计划见 `v4/sessions/session_20260622_split_removal_plan.md`。
+  - [x] Step 321.1: Split dependency audit：已盘点 toolbar Split toggle、secondary chart/store/rendering、split CSS、replay/locate/SMT 引用、docs/tests，并输出 remove/keep temporarily/migrate first 清单。
+  - [x] Step 321.2: Disable user-facing Split entry points：已移除 Split toggle、Sub/Sub TF、Stack/Side layout、secondary chart DOM panel，保留 Comparison Window 控制。
+  - [x] Step 321.3: Migrate or remove split-only runtime paths：已停止初始化 secondary controller/renderers/context menu，并移除 Replay History split 存储/恢复/显示；secondary shared internals 留待 Step 322。
+  - [x] Step 321.4: Update tests：已更新 browser smoke 断言旧 Split UI 缺席且 Compare 可用，Replay History smoke 断言不再保存 split；SMT/replay/locate 回归通过。
+  - [x] Step 321.5: Documentation closeout：已更新 user guide、operation manual、docs README、TODO/session；下一步建议 Step 322 清理或迁移剩余 secondary internals。

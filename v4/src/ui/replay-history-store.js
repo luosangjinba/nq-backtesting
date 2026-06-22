@@ -54,15 +54,6 @@ function normalizeReplay(input = {}) {
   };
 }
 
-function normalizeSplit(input = {}) {
-  return {
-    enabled: normalizeBoolean(input.enabled),
-    instrument: normalizeString(input.instrument, 'ES').toUpperCase(),
-    timeframe: normalizeNumber(input.timeframe, 60),
-    layout: normalizeString(input.layout, 'side'),
-  };
-}
-
 function normalizeComparison(input = {}) {
   return {
     enabled: normalizeBoolean(input.enabled),
@@ -102,7 +93,6 @@ function createReplayHistoryKey(item) {
     replay: {
       cursorTimestamp: item.replay.cursorTimestamp,
     },
-    split: item.split,
     comparison: item.comparison,
   });
 }
@@ -121,7 +111,6 @@ export function normalizeReplayHistoryItem(input = {}, options = {}) {
   const now = normalizeNumber(options.now, Date.now());
   const primary = normalizePrimary(input.primary);
   const replay = normalizeReplay(input.replay);
-  const split = normalizeSplit(input.split);
   const comparison = normalizeComparison(input.comparison);
   const updatedAt = normalizeNumber(input.updatedAt, now);
   const createdAt = normalizeNumber(input.createdAt, updatedAt);
@@ -132,7 +121,6 @@ export function normalizeReplayHistoryItem(input = {}, options = {}) {
     updatedAt,
     primary,
     replay,
-    split,
     comparison,
   };
   normalized.key = createReplayHistoryKey(normalized);

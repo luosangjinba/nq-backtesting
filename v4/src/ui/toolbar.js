@@ -5,10 +5,8 @@ import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.
 import { fetchBars } from '../api.js';
 import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
-import * as secondaryChartManager from '../chart/secondary-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import {
   isComparisonWindowEnabled,
   setComparisonWindowEnabled,
@@ -55,15 +53,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function renderSecondaryTimeframeOptions(selectedTimeframe) {
-  return Object.entries(TIMEFRAME_MAP)
-    .map(
-      ([value, label]) =>
-        `<option value="${value}"${Number(value) === Number(selectedTimeframe) ? ' selected' : ''}>${label}</option>`
-    )
-    .join('\n        ');
 }
 
 function renderSettingsOptions(options, labels, current) {
@@ -129,40 +118,13 @@ function renderInstrumentOptions(selectedInstrument) {
   ).join('\n        ');
 }
 
-function renderSplitScreenControls() {
-  const enabled = secondaryStore.isSecondaryEnabled();
+function renderComparisonControls() {
   const comparisonEnabled = isComparisonWindowEnabled();
-  const timeframe = secondaryStore.getSecondaryTimeframe();
-  const instrument = secondaryStore.getSecondaryInstrument();
-  const layout = secondaryStore.getSplitLayout();
   return `
-    <label class="toolbar-toggle" title="Show readonly secondary chart">
-      <input id="splitScreenToggle" type="checkbox"${enabled ? ' checked' : ''} />
-      <span>Split</span>
-    </label>
     <label class="toolbar-toggle" title="Show floating comparison window">
       <input id="comparisonWindowToggle" type="checkbox"${comparisonEnabled ? ' checked' : ''} />
       <span>Compare</span>
     </label>
-    <div class="toolbar-group">
-      <span class="toolbar-label">Sub:</span>
-      <select id="secondaryInstrumentSelect" class="toolbar-select" title="Secondary chart instrument">
-        ${renderInstrumentOptions(instrument)}
-      </select>
-    </div>
-    <div class="toolbar-group">
-      <span class="toolbar-label">Sub TF:</span>
-      <select id="secondaryTfSelect" class="toolbar-select" title="Secondary chart timeframe">
-        ${renderSecondaryTimeframeOptions(timeframe)}
-      </select>
-    </div>
-    <div class="toolbar-group">
-      <span class="toolbar-label">Layout:</span>
-      <select id="splitLayoutSelect" class="toolbar-select toolbar-layout-select" title="Split screen layout">
-        <option value="stack"${layout === 'stack' ? ' selected' : ''}>Stack</option>
-        <option value="side"${layout === 'side' ? ' selected' : ''}>Side</option>
-      </select>
-    </div>
   `;
 }
 
@@ -226,8 +188,8 @@ export function initToolbar() {
       <input type="hidden" id="endInput" />
     </div>
     <div class="toolbar-separator"></div>
-    <div class="toolbar-section toolbar-section-split">
-      ${renderSplitScreenControls()}
+    <div class="toolbar-section toolbar-section-compare">
+      ${renderComparisonControls()}
     </div>
     <div class="toolbar-separator"></div>
     <div class="toolbar-section toolbar-section-primary">
@@ -262,17 +224,12 @@ export function initToolbar() {
   const redoBtn = document.getElementById('redoBtn');
   const toolbarSettingsBtn = document.getElementById('toolbarSettingsBtn');
   const toolbarSettingsPopover = document.getElementById('toolbarSettingsPopover');
-  const splitScreenToggle = document.getElementById('splitScreenToggle');
   const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
-  const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
-  const secondaryTfSelect = document.getElementById('secondaryTfSelect');
-  const splitLayoutSelect = document.getElementById('splitLayoutSelect');
   const dayBoundaryToggle = document.getElementById('dayBoundaryToggle');
   const chartGridToggle = document.getElementById('chartGridToggle');
   const displayModeSelect = document.getElementById('displayModeSelect');
   const displayRecentCountInput = document.getElementById('displayRecentCountInput');
 
-  syncSplitScreenLayout();
   initCalendarNavigator(dateRangeBtn);
   archiveBtn.addEventListener('click', () => {
     bus.emit('inspector:open-archive');
@@ -320,7 +277,6 @@ export function initToolbar() {
   chartGridToggle.addEventListener('change', (e) => {
     setGridVisible(e.target.checked);
     chartManager.applyGridVisibility();
-    secondaryChartManager.applyGridVisibility();
   });
 
   displayModeSelect.addEventListener('change', (e) => {
@@ -331,25 +287,9 @@ export function initToolbar() {
     e.target.value = getDisplayMode().recentCount;
   });
 
-  splitScreenToggle.addEventListener('change', (e) => {
-    secondaryStore.setSecondaryEnabled(e.target.checked);
-    syncSplitScreenLayout();
-  });
   comparisonWindowToggle.addEventListener('change', (e) => {
     setComparisonWindowEnabled(e.target.checked);
     syncComparisonWindowToggle();
-  });
-  secondaryInstrumentSelect.addEventListener('change', (e) => {
-    secondaryStore.setSecondaryInstrument(e.target.value);
-    syncSplitScreenLayout();
-  });
-  secondaryTfSelect.addEventListener('change', (e) => {
-    secondaryStore.setSecondaryTimeframe(e.target.value);
-    syncSplitScreenLayout();
-  });
-  splitLayoutSelect.addEventListener('change', (e) => {
-    secondaryStore.setSplitLayout(e.target.value);
-    syncSplitScreenLayout();
   });
 
   // 监听状态更新
@@ -361,7 +301,6 @@ export function initToolbar() {
     }
   });
   bus.on('history:changed', updateHistoryButtons);
-  bus.on('secondary-chart:settings-changed', syncSplitScreenLayout);
   bus.on('comparison-window:changed', syncComparisonWindowToggle);
   bus.on('primary-instrument:changed', ({ instrument }) => {
     const select = document.getElementById('primaryInstrumentSelect');
@@ -459,36 +398,6 @@ function updateHistoryButtons() {
   if (redoBtn) {
     redoBtn.disabled = !canRedo();
     redoBtn.title = getRedoLabel() ? `Redo: ${getRedoLabel()}` : 'Redo';
-  }
-}
-
-function syncSplitScreenLayout() {
-  const enabled = secondaryStore.isSecondaryEnabled();
-  const chartArea = document.getElementById('chart-area');
-  const secondaryPanel = document.getElementById('secondary-chart-panel');
-  const splitScreenToggle = document.getElementById('splitScreenToggle');
-  const secondaryInstrumentSelect = document.getElementById('secondaryInstrumentSelect');
-  const secondaryTfSelect = document.getElementById('secondaryTfSelect');
-  const splitLayoutSelect = document.getElementById('splitLayoutSelect');
-  const layout = secondaryStore.getSplitLayout();
-
-  chartArea?.classList.toggle('split-screen-enabled', enabled);
-  chartArea?.classList.toggle('split-screen-side', enabled && layout === 'side');
-  chartArea?.classList.toggle('split-screen-stack', enabled && layout === 'stack');
-  if (secondaryPanel) {
-    secondaryPanel.hidden = !enabled;
-  }
-  if (splitScreenToggle) {
-    splitScreenToggle.checked = enabled;
-  }
-  if (secondaryInstrumentSelect) {
-    secondaryInstrumentSelect.value = secondaryStore.getSecondaryInstrument();
-  }
-  if (secondaryTfSelect) {
-    secondaryTfSelect.value = String(secondaryStore.getSecondaryTimeframe());
-  }
-  if (splitLayoutSelect) {
-    splitLayoutSelect.value = layout;
   }
 }
 

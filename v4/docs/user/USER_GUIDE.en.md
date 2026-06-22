@@ -46,10 +46,7 @@ The top toolbar provides:
 - `Main TF`: primary chart timeframe, such as `1M`, `30M`, `1H`, `4H`, or `D`.
 - `加载`: load candles.
 - `Archive`: open import/export actions.
-- `Split`: show or hide the secondary chart.
-- `Sub`: secondary instrument, usually `ES`.
-- `Sub TF`: secondary timeframe.
-- `Layout`: stacked or side-by-side split layout.
+- `Compare`: show or hide the floating Comparison Window.
 
 Use this time format when possible:
 
@@ -92,7 +89,7 @@ Replay Pick rules:
 - It does not load future candles.
 - It is intended for backing up a small amount after the market has moved too far.
 
-Replay History stores workspace state such as the primary window, cursor, Split settings, and Comparison Window settings. It does not store candle data. Restore failures usually mean the API is not running.
+Replay History stores workspace state such as the primary window, cursor, and Comparison Window settings. It does not store candle data. Restore failures usually mean the API is not running.
 
 ## Calendar / Daily Regime / Economic Events
 
@@ -125,7 +122,7 @@ Economic Events are loaded from the local USD events CSV. High/Medium are visibl
 
 ## Comparison Window
 
-Comparison Window is the new sliding/floating comparison view. It is not a resize patch on the old Split Screen. Dragging the outer window moves the window frame; candles and overlays inside the window do not rescale just because the frame moved. The old Split remains available until every high-frequency workflow has been migrated or intentionally dropped.
+Comparison Window is the supported sliding/floating comparison view. It is not a resize patch on the old Split Screen. Dragging the outer window moves the window frame; candles and overlays inside the window do not rescale just because the frame moved. The old Split user entry points have been removed after the focused real-use audit passed.
 
 Currently supported:
 
@@ -137,32 +134,9 @@ Currently supported:
 - During Replay On, higher-timeframe comparison candles use 1M source data for progressive HTF rendering, so future complete HTF candles are not shown early.
 - Local workspace state saves the window enabled state, position/size, instrument/timeframe, and sync mode. Replay History also restores the needed comparison state.
 
-Current limitations:
+Implementation note:
 
-- OB, Breaker, Fib, Range PDA drafts, and EQH/EQL Point Sets remain primarily in the primary chart or old Split secondary workflows.
-- Some Inspector/Calendar secondary locate actions, Order Setup edit picking, and Segment actor pick preview still use old secondary-specific Split paths.
-- Hit-test based Link To Active Setup for existing PDA/Segment/Composite evidence is supported in Comparison Window; old Split remains for the advanced secondary workflows that have not been migrated yet.
-- Do not remove Split yet. A later removal step should first migrate or explicitly drop these Split-only workflows.
-
-## Split Screen
-
-Split Screen lets you compare the primary Main chart with a secondary NQ/ES chart over the same absolute time range.
-
-Common settings:
-
-- Primary `Main`: NQ or ES.
-- `Sub`: ES.
-- `Sub TF`: usually the same as the primary timeframe; SMT marking requires them to match.
-- `Layout`: `Stack` for vertical split, `Side` for side-by-side split.
-
-The secondary chart has its own limited context-menu workflow:
-
-- It can create BSL/SSL, Segment, and FVG objects.
-- Created objects keep `sourceChartId/sourceInstrument/sourceTimeframe` metadata.
-- They can render on primary/secondary charts, be selected, open Inspector details, and be linked as active Order Setup reasons/refs.
-- It can show synchronized hover cursor, replay cursor, and PDA/segment/composite overlays.
-
-Use `SMT -> Locate Time in Secondary` from the primary chart context menu to center the secondary chart around the clicked primary candle time.
+- Some old secondary modules remain in the source tree temporarily while the staged cleanup verifies they are no longer shared by SMT, locate, pick preview, or replay internals. They are not user-facing Split controls.
 
 ## Manual PDA Marking
 
@@ -501,14 +475,13 @@ It shows:
 
 ## SMT Evidence
 
-SMT is manual-only in the current version. The first version supports `NQ follows ES`: NQ is the primary trading chart, and ES is the comparison chart. ES follows NQ is intentionally out of scope. Even though the primary Main chart now supports regular ES review, SMT is enabled only when `Main=NQ`, `Sub=ES`, and the primary/sub timeframes match.
+SMT is manual-only in the current version. The first version supports `NQ follows ES`: NQ is the primary trading chart, and ES is the comparison chart. ES follows NQ is intentionally out of scope. Even though the primary Main chart now supports regular ES review, SMT is enabled for `Main=NQ`, `Comparison=ES`, and matching primary/comparison timeframes.
 
 Requirements:
 
-- Enable `Split`.
 - Set `Main` to `NQ`.
-- Set `Sub` to `ES`.
-- Primary timeframe and `Sub TF` must match.
+- Enable `Compare` and set Comparison to `ES`.
+- Primary timeframe and Comparison timeframe must match.
 - Both NQ and ES candles must be loaded.
 
 ### Liquidity SMT
@@ -761,7 +734,7 @@ It does not include candle data.
 9. Add Reaction Evidence under PDA Responses when needed.
 10. Create Composite Moves for multi-leg structures.
 11. Use isolate mode, Structure Sets focus, or Calendar Show/Hide Day Objects to inspect local context.
-12. If NQ/ES relationship evidence is needed, enable Split and manually mark SMT.
+12. If NQ/ES relationship evidence is needed, enable Compare and manually mark SMT.
 13. Create Order Setups for key opportunities and record setup, entry, stop, targets, and result.
 14. Create Live Records for live execution/journal observations; close, review, and optionally link them to Order Setups.
 14. Review the day through Calendar/Inspector and complete Chart Notes / Time Reaction Observation.

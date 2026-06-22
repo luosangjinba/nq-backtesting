@@ -6,7 +6,6 @@ import * as chart from '../chart/chart-manager.js';
 import { getBarChartTime, getBucketStart } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import {
   setComparisonWindowEnabled,
   updateComparisonViewDescriptor,
@@ -86,12 +85,6 @@ function formatHistoryDateRange(start, end) {
   return start || end || '--';
 }
 
-function formatSplitLabel(split) {
-  if (!split?.enabled) return 'Split Off';
-  const tf = timeframeToString(split.timeframe);
-  return `${split.instrument} ${tf} ${split.layout}`;
-}
-
 function parseDateTime(value) {
   const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
   if (!match) return null;
@@ -133,21 +126,6 @@ function setToolbarPrimaryInstrument(instrument) {
   const primaryInstrumentSelect = document.getElementById('primaryInstrumentSelect');
   if (primaryInstrumentSelect) primaryInstrumentSelect.value = normalizedInstrument;
   return normalizedInstrument;
-}
-
-function applySplitState(split) {
-  if (!split?.enabled) {
-    secondaryStore.setSecondaryEnabled(false);
-    secondaryStore.setSplitLayout(split?.layout);
-    secondaryStore.setSecondaryInstrument(split?.instrument);
-    secondaryStore.setSecondaryTimeframe(split?.timeframe);
-    return;
-  }
-
-  secondaryStore.setSplitLayout(split.layout);
-  secondaryStore.setSecondaryInstrument(split.instrument);
-  secondaryStore.setSecondaryTimeframe(split.timeframe);
-  secondaryStore.setSecondaryEnabled(true);
 }
 
 function applyComparisonState(comparison) {
@@ -562,7 +540,6 @@ async function loadReplayHistoryItem(id) {
     setToolbarRange(loadStart, loadEnd, timeframe);
     store.setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
 
-    applySplitState(item.split);
     applyComparisonState(item.comparison);
 
     if (!restoreReplayToTimestamp(cursorTimestamp, item.replay.speedIndex)) {
@@ -814,7 +791,7 @@ function renderHistoryPanel(history) {
       <div class="replay-history-row" data-history-id="${escapeHtml(item.id)}">
         <div class="replay-history-summary">
           <div class="replay-history-title">${escapeHtml(item.label || formatHistoryTime(item.replay.cursorTimestamp))}</div>
-          <div class="replay-history-meta">${escapeHtml(formatHistoryDateRange(item.primary.start, item.primary.end))} · ${escapeHtml(formatSplitLabel(item.split))}</div>
+          <div class="replay-history-meta">${escapeHtml(formatHistoryDateRange(item.primary.start, item.primary.end))}</div>
         </div>
         <button class="replay-history-action" data-action="history-load" type="button">Load</button>
         <button class="replay-history-action" data-action="history-delete" type="button">Delete</button>

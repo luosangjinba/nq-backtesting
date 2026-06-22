@@ -16,7 +16,6 @@ import {
   syncReplayData,
 } from './ui/replay-controls.js';
 import { initReplayHistoryPersistence } from './ui/replay-history-persistence.js';
-import { initSecondaryChartController } from './ui/secondary-chart-controller.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initDisplayMode } from './display/display-mode.js';
@@ -25,14 +24,11 @@ import { initEntryContextCatalogStore } from './entry-context/entry-context-cata
 import { initManualAnnotation } from './pda/manual-annotation.js';
 import { initPdaPersistence } from './pda/pda-persistence.js';
 import { initPdaRenderer } from './pda/pda-renderer.js';
-import { initSecondaryPdaRenderer } from './pda/secondary-pda-renderer.js';
 import { initComparisonPdaRenderer } from './pda/comparison-pda-renderer.js';
-import { initSecondaryContextMenu } from './pda/secondary-context-menu.js';
 import { initPdaSelection } from './pda/pda-selection.js';
 import { initManualSegment } from './segment/manual-segment.js';
 import { initSegmentPersistence } from './segment/segment-persistence.js';
 import { initSegmentRenderer } from './segment/segment-renderer.js';
-import { initSecondarySegmentRenderer } from './segment/secondary-segment-renderer.js';
 import { initComparisonSegmentRenderer } from './segment/comparison-segment-renderer.js';
 import { initSegmentSelection } from './segment/segment-selection.js';
 import { initSegmentGroups } from './segment/segment-group-store.js';
@@ -118,26 +114,20 @@ bus.on('bars:loaded', ({ bars }) => {
 
 // 初始化 PDA 手动标注和渲染
 initPdaRenderer();
-initSecondaryPdaRenderer();
 initComparisonPdaRenderer();
 initPdaPersistence();
 initManualAnnotation();
-initSecondaryContextMenu();
 initPdaSelection();
 initInspectorSidebar();
 console.log('[V4] PDA controls initialized');
 
 initSegmentRenderer();
-initSecondarySegmentRenderer();
 initComparisonSegmentRenderer();
 initSegmentGroups();
 initSegmentPersistence();
 initManualSegment();
 initSegmentSelection();
 console.log('[V4] Segment controls initialized');
-
-initSecondaryChartController();
-console.log('[V4] Secondary chart controller initialized');
 
 initComparisonWindowController();
 initComparisonOverlayPolicy();

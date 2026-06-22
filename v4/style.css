@@ -68,40 +68,6 @@ html, body {
   flex: 1 1 auto;
 }
 
-.secondary-chart-panel {
-  flex: 0 0 36%;
-  border-top: 1px solid #2a2e39;
-  background: #131722;
-}
-
-.secondary-chart-panel[hidden] {
-  display: none;
-}
-
-#chart-area.split-screen-enabled .primary-chart-panel {
-  flex: 1 1 64%;
-}
-
-#chart-area.split-screen-enabled .secondary-chart-panel {
-  display: flex;
-}
-
-#chart-area.split-screen-side #chart-stack {
-  flex-direction: row;
-}
-
-#chart-area.split-screen-side .primary-chart-panel {
-  flex: 1 1 60%;
-  order: 2;
-}
-
-#chart-area.split-screen-side .secondary-chart-panel {
-  flex: 0 0 40%;
-  order: 1;
-  border-top: none;
-  border-right: 1px solid #2a2e39;
-}
-
 #toolbar {
   display: flex;
   align-items: center;
@@ -116,13 +82,6 @@ html, body {
 }
 
 #chart {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  position: relative;
-}
-
-#secondary-chart {
   flex: 1;
   min-width: 0;
   min-height: 0;

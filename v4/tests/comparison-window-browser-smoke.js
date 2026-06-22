@@ -194,8 +194,24 @@ async function main() {
       })();
     `);
 
-    const initial = await evaluate(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
-    assert.equal(initial, true, 'Compare toolbar toggle should exist');
+    const initial = await evaluate(client, `
+      ({
+        compareToggle: Boolean(document.querySelector('#comparisonWindowToggle')),
+        splitToggle: Boolean(document.querySelector('#splitScreenToggle')),
+        secondaryInstrument: Boolean(document.querySelector('#secondaryInstrumentSelect')),
+        secondaryTimeframe: Boolean(document.querySelector('#secondaryTfSelect')),
+        splitLayout: Boolean(document.querySelector('#splitLayoutSelect')),
+        secondaryPanel: Boolean(document.querySelector('#secondary-chart-panel')),
+      })
+    `);
+    assert.deepEqual(initial, {
+      compareToggle: true,
+      splitToggle: false,
+      secondaryInstrument: false,
+      secondaryTimeframe: false,
+      splitLayout: false,
+      secondaryPanel: false,
+    }, 'Comparison window should remain available after old Split UI is removed');
 
     const shown = await evaluate(client, `
       (() => {

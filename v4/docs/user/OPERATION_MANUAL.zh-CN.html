@@ -218,10 +218,7 @@
           <thead><tr><th>项目</th><th>用途</th><th>使用说明</th></tr></thead>
           <tbody>
             <tr><td>Date Range</td><td>设置主图加载日期范围。</td><td>输入或选择开始/结束日期。1M 大范围会使用窗口化显示，避免浏览器一次加载太多 K 线。</td></tr>
-            <tr><td>Split</td><td>打开或关闭副图。</td><td>做 ES/NQ 对照、SMT 或同步 replay 时打开。</td></tr>
-            <tr><td>Sub</td><td>副图品种。</td><td>常用为 <code>ES</code>；主图为 NQ 时，用 ES 副图观察同步结构。</td></tr>
-            <tr><td>Sub TF</td><td>副图周期。</td><td>做 SMT 时建议与主图周期一致。</td></tr>
-            <tr><td>Layout</td><td>副图布局。</td><td><code>Stack</code> 上下分屏，<code>Side</code> 左右分屏。</td></tr>
+            <tr><td>Compare</td><td>打开或关闭 Comparison Window。</td><td>用于 ES/NQ 对照、跨周期观察、SMT 与 progressive HTF replay。</td></tr>
             <tr><td>Main</td><td>主图品种。</td><td>选择 <code>NQ</code> 或 <code>ES</code>。主图品种决定当前 workspace 的对象隔离。</td></tr>
             <tr><td>Main TF</td><td>主图周期。</td><td>常用 <code>1M</code>、<code>5M</code>、<code>1H</code>、<code>D</code>。</td></tr>
             <tr><td>Days</td><td>显示/隐藏交易日分隔。</td><td>日内复盘时建议打开。</td></tr>
@@ -275,7 +272,7 @@
             <tr><td>播放</td><td>自动播放。</td><td>再次点击可停止。</td></tr>
             <tr><td>&gt;</td><td>前进一根或一个步长。</td><td>用于逐根查看。</td></tr>
             <tr><td>Next</td><td>跳到下一个关键时间点。</td><td>例如 09:29、09:30 等 replay 时间节点。</td></tr>
-            <tr><td>History</td><td>恢复 replay workspace。</td><td>恢复视图、cursor、Split 设置，不保存 K 线本身。</td></tr>
+            <tr><td>History</td><td>恢复 replay workspace。</td><td>恢复视图、cursor、Comparison Window 设置，不保存 K 线本身。</td></tr>
           </tbody>
         </table>
       </section>

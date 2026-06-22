@@ -28,6 +28,7 @@ const {
 const normalized = normalizeReplayHistoryItem({
   primary: { instrument: 'NQ', timeframe: 1, start: '2024-01-08', end: '2024-01-09' },
   replay: { enabled: true, cursorTimestamp: 1_704_896_400 },
+  split: { enabled: true, instrument: 'ES', timeframe: 60, layout: 'side' },
   comparison: {
     enabled: true,
     instrument: 'es',
@@ -47,6 +48,7 @@ assert.deepEqual(normalized.comparison, {
   layoutMode: 'floating',
 });
 assert.equal(Object.hasOwn(normalized.comparison, 'visibleWindow'), false);
+assert.equal(Object.hasOwn(normalized, 'split'), false);
 
 clearReplayHistory();
 saveReplayHistoryItem({

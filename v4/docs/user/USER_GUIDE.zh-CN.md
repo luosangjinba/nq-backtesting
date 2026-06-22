@@ -48,10 +48,7 @@ bash start.sh stop
 - `Main TF`：选择主图 K 线周期，例如 `1M`、`30M`、`1H`、`4H`、`D`。
 - `加载`：请求并显示 K 线。
 - `Archive`：打开导入/导出区域。
-- `Split`：显示/隐藏副图。
-- `Sub`：副图品种，目前常用 `ES`。
-- `Sub TF`：副图周期。
-- `Layout`：副图布局，支持上下分屏和左右分屏。
+- `Compare`：显示/隐藏浮动 Comparison Window。
 
 时间建议使用：
 
@@ -94,7 +91,7 @@ Replay Pick 的规则：
 - 不会加载未来 K 线。
 - 适合“感觉行情走多了，回退一小段”。
 
-Replay History 会保存主图窗口、cursor、Split 和 Comparison Window 设置等工作区状态，但不保存 K 线数据。恢复失败时通常是 API 没开。
+Replay History 会保存主图窗口、cursor 和 Comparison Window 设置等工作区状态，但不保存 K 线数据。恢复失败时通常是 API 没开。
 
 ## Calendar / Daily Regime / Economic Events
 
@@ -127,7 +124,7 @@ Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默
 
 ## Comparison Window 对比窗口
 
-Comparison Window 是新的滑动/浮动对比窗口，不是在旧 Split Screen 上做 resize。拖动窗口外框时，只移动窗口位置；窗口内 K 线和 overlay 不会因为拖动外框而重新缩放。旧 Split 仍保留，直到所有高频 workflow 都确认迁移完成。
+Comparison Window 是当前支持的滑动/浮动对比窗口，不是在旧 Split Screen 上做 resize。拖动窗口外框时，只移动窗口位置；窗口内 K 线和 overlay 不会因为拖动外框而重新缩放。聚焦真实审计通过后，旧 Split 用户入口已经移除。
 
 当前支持：
 
@@ -139,32 +136,9 @@ Comparison Window 是新的滑动/浮动对比窗口，不是在旧 Split Screen
 - Replay On 时，高周期对比窗口会用 1M source 做 progressive HTF candle，不提前显示未来完整高周期 K 线。
 - 会保存本地窗口开关、位置/大小、instrument/timeframe 和 sync mode；Replay History 也会恢复对比窗口必要状态。
 
-当前限制：
+实现说明：
 
-- OB、Breaker、Fib、Range PDA draft、EQH/EQL Point Sets 仍主要在主图或旧 Split 副图 workflow 中。
-- 部分 Inspector/Calendar 的 secondary locate、Order Setup edit pick、Segment actor pick preview 仍走旧 Split 的 secondary 路径。
-- Comparison Window 已支持已有 PDA/Segment/Composite 的 hit-test 直接 Link To Active Setup；旧 Split 仍保留给尚未迁移的高级副图 workflow。
-- 因此现在不要删除 Split；后续若要移除，需要先迁移或明确放弃这些 Split-only workflow。
-
-## Split Screen 副图
-
-Split Screen 用来把主图 Main 与副图 NQ/ES 放在同一个绝对时间区间里观察。
-
-常用设置：
-
-- 主图 `Main`：NQ 或 ES。
-- 副图 `Sub`：ES。
-- 副图 `Sub TF`：通常与主图周期一致；做 SMT 标注时必须一致。
-- `Layout`：`Stack` 为上下分屏，`Side` 为左右分屏。
-
-副图有独立右键菜单，支持有限的结构标注 workflow：
-
-- 可在副图创建 BSL/SSL、Segment、FVG。
-- 标注会保留 `sourceChartId/sourceInstrument/sourceTimeframe` 等来源信息。
-- 可在主图/副图显示、选择、打开 Inspector，并可作为 active Order Setup 的 reason/ref。
-- 会显示同步 hover cursor、replay cursor，以及 PDA/segment/composite overlay。
-
-主图右键菜单的 `SMT -> Locate Time in Secondary` 可以把副图定位到当前主图 K 线附近，并显示副图 hover cursor。
+- 部分旧 secondary 模块会暂时保留在源码中，直到后续分阶段清理确认它们不再被 SMT、locate、pick preview 或 replay 内部路径共用；它们不再是用户可见的 Split 控制。
 
 ## 手工 PDA 标注
 
@@ -499,15 +473,14 @@ segment3: second up leg that breaks target
 
 ## SMT Evidence
 
-SMT 当前只做手工标注，第一版逻辑是 `NQ follows ES`，也就是以 NQ 做单为主，不做 ES follows NQ。即使主图 Main 已支持 ES 常规复盘，SMT 仍只在 `Main=NQ`、`Sub=ES`、主副图周期一致时启用。
+SMT 当前只做手工标注，第一版逻辑是 `NQ follows ES`，也就是以 NQ 做单为主，不做 ES follows NQ。即使主图 Main 已支持 ES 常规复盘，SMT 仍使用 `Main=NQ`、`Comparison=ES`、主图和 Comparison 周期一致的工作流。
 
 使用前提：
 
-- 开启 `Split`。
 - `Main` 选择 `NQ`。
-- `Sub` 选择 `ES`。
-- 主图周期与 `Sub TF` 必须一致。
-- 主图和副图都已经加载 K 线。
+- 开启 `Compare`，并把 Comparison 设置为 `ES`。
+- 主图周期与 Comparison 周期必须一致。
+- 主图和 Comparison 都已经加载 K 线。
 
 ### Liquidity SMT
 
@@ -564,7 +537,7 @@ FVG SMT 用来记录：
 - `Delete`：删除该 SMT。
 - `Note`：记录备注。
 
-SMT 记录带有原始周期。当前版本只在 record timeframe 与当前主图/副图周期一致时显示。
+SMT 记录带有原始周期。当前版本只在 record timeframe 与当前主图/Comparison 周期一致时显示。
 
 ## Order Setup / Execution Lens
 
@@ -759,7 +732,7 @@ Review JSON 包含：
 9. 必要时在 PDA Response 下添加 Reaction Evidence。
 10. 对多段式 move 创建 Composite Move。
 11. 使用 isolate、Structure Sets focus 或 Calendar Show/Hide Day Objects 检查局部结构。
-12. 如果需要 NQ/ES 关系证据，开启 Split 并手工标注 SMT。
+12. 如果需要 NQ/ES 关系证据，开启 Compare 并手工标注 SMT。
 13. 为关键机会创建 Order Setup，记录 setup、entry、stop、targets、result。
 14. 为 live execution / journal 观察创建 Live Record，关闭、复盘，并可选择 link 到对应 Order Setup。
 14. 在 Calendar/Inspector 中回看当天对象，补充 Chart Notes 与 Time Reaction Observation。
