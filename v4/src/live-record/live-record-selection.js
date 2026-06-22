@@ -38,9 +38,7 @@ function shouldIgnoreClick(e) {
   return Boolean(
     e.target.closest('.pda-menu') ||
       e.target.closest('#pda-context-menu') ||
-      e.target.closest('#secondary-context-menu') ||
       e.target.closest('#viewport-controls') ||
-      e.target.closest('#secondary-viewport-controls') ||
       e.target.closest('#replay-controls') ||
       e.target.closest('#inspector-sidebar') ||
       e.target.closest('input, select, button, textarea')

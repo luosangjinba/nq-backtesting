@@ -2,14 +2,11 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
-import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import * as comparisonChart from '../chart/comparison-chart-manager.js';
 import * as store from '../data/bar-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import {
   didReplayPickJustHandleClick,
-  getReplayCursorTimestamp,
   getReplayVisibleBars,
   isReplayPicking,
 } from './replay-controls.js';
@@ -335,23 +332,8 @@ function getPrimaryClickDate(param = {}) {
   return dateKeyFromTimestamp(bar?.timestamp);
 }
 
-function getSecondaryClickDate(param = {}) {
-  if (!secondaryStore.isSecondaryEnabled()) return '';
-  const cursorTimestamp = getReplayCursorTimestamp();
-  const displayBars = secondaryStore.getSecondaryDisplayBars();
-  const bars = Number.isFinite(Number(cursorTimestamp))
-    ? displayBars.filter((bar) => Number(bar?.timestamp) <= Number(cursorTimestamp))
-    : displayBars;
-  const bar = findDisplayBarFast(bars, param.time, secondaryStore.getSecondaryTimeframe());
-  return dateKeyFromTimestamp(bar?.timestamp);
-}
-
 function handlePrimaryCalendarClick(param = {}) {
   followCalendarDateFromChartClick(getPrimaryClickDate(param));
-}
-
-function handleSecondaryCalendarClick(param = {}) {
-  followCalendarDateFromChartClick(getSecondaryClickDate(param));
 }
 
 function renderAnnotation(annotation) {
@@ -1129,14 +1111,9 @@ export function initInspectorSidebar() {
   createSidebar();
   document.getElementById('chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
   document.getElementById('chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
-  document.getElementById('secondary-chart')?.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
-  document.getElementById('secondary-chart')?.addEventListener('click', segmentActions.handleActorPickChartClick, true);
   chart.onCrosshairMove(orderReviewActions.handleExitPickHover);
   chart.onCrosshairMove(segmentActions.handleActorPickHover);
   chart.onClick(handlePrimaryCalendarClick);
-  secondaryChart.onSecondaryCrosshairMove(orderReviewActions.handleSecondaryExitPickHover);
-  secondaryChart.onSecondaryCrosshairMove(segmentActions.handleSecondaryActorPickHover);
-  secondaryChart.onSecondaryClick(handleSecondaryCalendarClick);
   comparisonChart.onComparisonCrosshairMove(orderReviewActions.handleComparisonExitPickHover);
   comparisonChart.onComparisonCrosshairMove(segmentActions.handleComparisonActorPickHover);
   bindComparisonPickClickHandlers();

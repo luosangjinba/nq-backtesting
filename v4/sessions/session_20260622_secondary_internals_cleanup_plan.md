@@ -57,7 +57,7 @@ Result:
 
 ## Step 322.2: Remove Dead DOM Guards and Unreachable Handlers
 
-Status: pending.
+Status: completed.
 
 Remove references to IDs that no longer exist:
 
@@ -70,6 +70,13 @@ Expected areas:
 - PDA/Segment/SMT/Order/Live/Chart Note selection outside-click guards;
 - inspector sidebar click/crosshair listeners;
 - secondary chart click handlers in PDA/Segment/SMT selection.
+
+Result:
+
+- Removed dead `#secondary-context-menu` / `#secondary-viewport-controls` outside-click guards from PDA, Segment, SMT, Order Setup, Live Record, and Chart Note selection.
+- Removed unreachable `#secondary-chart` click handlers from PDA, Segment, and SMT selection.
+- Removed inspector sidebar secondary chart click/crosshair/calendar hooks, leaving primary and Comparison Window hooks as the active paths.
+- Removed the now-unused secondary calendar date helper and replay cursor import from inspector sidebar.
 
 ## Step 322.3: Migrate Locate/Pick Routing
 

@@ -43,10 +43,8 @@ function shouldIgnoreClick(e) {
   return Boolean(
     e.target.closest('.pda-menu') ||
       e.target.closest('#pda-context-menu') ||
-      e.target.closest('#secondary-context-menu') ||
       e.target.closest('#comparison-context-menu') ||
       e.target.closest('#viewport-controls') ||
-      e.target.closest('#secondary-viewport-controls') ||
       e.target.closest('#replay-controls') ||
       e.target.closest('#inspector-sidebar') ||
       e.target.closest('input, select, button, textarea')
@@ -64,20 +62,6 @@ function handleChartClick(e) {
     chartId: 'primary',
   });
   if (hit?.id) selectSmt(hit.id, { chartId: 'primary' });
-  else clearSmtSelection();
-}
-
-function handleSecondaryChartClick(e) {
-  if (shouldIgnoreClick(e)) return;
-  const chartEl = document.getElementById('secondary-chart');
-  if (!chartEl) return;
-  const rect = chartEl.getBoundingClientRect();
-  const hit = hitTestSmtRecords({
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top,
-    chartId: 'secondary',
-  });
-  if (hit?.id) selectSmt(hit.id, { chartId: 'secondary' });
   else clearSmtSelection();
 }
 
@@ -106,7 +90,6 @@ function handleSmtChanged() {
 
 export function initSmtSelection() {
   document.getElementById('chart')?.addEventListener('click', handleChartClick, true);
-  document.getElementById('secondary-chart')?.addEventListener('click', handleSecondaryChartClick, true);
   document.getElementById('comparison-chart-canvas')?.addEventListener('click', handleComparisonChartClick, true);
   window.addEventListener('keydown', handleKeydown);
   bus.on('smt:changed', handleSmtChanged);
@@ -116,6 +99,5 @@ export function initSmtSelection() {
   bus.on('order-setup-element:selected', clearSmtSelection);
   bus.on('live-record-element:selected', clearSmtSelection);
   bus.on('bars:cleared', clearSmtSelection);
-  bus.on('secondary-bars:cleared', clearSmtSelection);
   bus.on('comparison-bars:cleared', clearSmtSelection);
 }
