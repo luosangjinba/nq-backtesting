@@ -1062,3 +1062,12 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 308.4: Comparison hit-test link：设计 Comparison Window 对已有 PDA/Segment/FVG/Composite 的 hit-test 与 Link To Active Setup 流程，补齐旧 Split 的 existing object link 能力。已完成 secondary link workflow 审计和 comparison 设计：复用 `hitTestPdaAnnotations`、`hitTestSegments`、`hitTestSegmentGroups` 与 `handleOrderSetupChartAction`，在 comparison menu 增加 hit state 和 Link PDA/Segment/Composite actions。
   - [x] Step 308.5: Advanced PDA workflow decision：逐项决定 OB、Breaker、Fib、Range PDA draft、EQH/EQL Point Sets 是迁移到 Comparison Window、保留在主图/旧 Split，还是明确放弃对比窗口版本。已完成决策表：OB Last Bar/Wick CE 可迁移；OB/Breaker range draft、Fib、EQH/EQL Point Sets 暂保留主图/旧 Split，待真实使用确认后再决定是否迁移。
   - [x] Step 308.6: Real-use audit checklist：定义 1-2 个实际交易日工作流审计清单，用于判断 Comparison Window 是否足以进入后续 Split removal plan。已完成真实使用审计表：覆盖 NQ/ES SMT、1M/HTF replay、comparison annotation、Order evidence、Calendar/Inspector locate、Replay History restore、fixed Split preference 和 advanced PDA 使用频率；未通过前不得开启 Split removal plan。
+
+- [ ] Step 309: Chart context locate routing implementation。目标是把 primary/secondary 专用 locate 分支迁到统一 viewport router，并让 Comparison Window 可以参与 Calendar / Inspector locate；保持旧 Split 行为不变。计划见 `v4/sessions/session_20260622_chart_context_locate_routing_plan.md`。
+  - [ ] Step 309.1: Add viewport router foundation：新增 `chart/viewport-router.js`，统一 `primary`、`secondary`、`comparison-window`、`both` 的 locate result contract；第一步保证 primary/secondary parity。
+  - [ ] Step 309.2: Add comparison viewport locate support：为 Comparison Window 增加 range locate / optional flash 能力；不自动打开窗口，未启用或无数据时返回明确 reason。
+  - [ ] Step 309.3: Migrate PDA projection locate：`pda-locate-actions.js` 改用 viewport router，并支持 `sourceChartId=comparison-window` 的定位/flash。
+  - [ ] Step 309.4: Migrate Calendar locate：`calendar-actions.js` 使用 router；普通 calendar object 和 PDA locate 保持旧 primary/secondary 行为，同时支持 comparison target。
+  - [ ] Step 309.5: Migrate Order Review and Live Record reason locate：根据 linked ref/source object 的 `sourceChartId` 路由到 primary/secondary/comparison，不再让 comparison source fallback 到 primary。
+  - [ ] Step 309.6: Migrate Time Reaction locate：将 Time Reaction locate/ref locate 接到 router，保留 primary/secondary selector 行为，并为 comparison target 留出 UI/contract。
+  - [ ] Step 309.7: Verification and closeout：新增 focused router smoke、PDA projection smoke、browser comparison locate smoke；跑 comparison browser smoke 和旧 Split locate 相关回归。
