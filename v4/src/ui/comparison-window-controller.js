@@ -1,9 +1,6 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
-import {
-  INSTRUMENT_OPTIONS,
-  TIMEFRAME_MAP,
-} from '../config.js';
+import { TIMEFRAME_MAP } from '../config.js';
 import {
   clearComparisonData,
   getComparisonChart,
@@ -36,6 +33,10 @@ import {
 } from '../comparison/comparison-window-store.js';
 import { updateComparisonOverlayStatus } from '../comparison/comparison-overlay-policy.js';
 import { getReplaySyncedComparisonBars } from '../comparison/comparison-replay-sync.js';
+import {
+  renderComparisonWindowTemplate,
+  syncComparisonHeaderControls,
+} from './comparison/comparison-window-view.js';
 
 let root = null;
 let windowEl = null;
@@ -55,32 +56,6 @@ let layoutRefreshFrame = null;
 function shouldLoadReplaySource(start, end, timeframe) {
   if (Number(timeframe) <= 1) return false;
   return validateSingleWindowRange(start, end, 1).ok;
-}
-
-function renderInstrumentOptions(selectedInstrument) {
-  return INSTRUMENT_OPTIONS.map(
-    (instrument) =>
-      `<option value="${instrument}"${instrument === selectedInstrument ? ' selected' : ''}>${instrument}</option>`
-  ).join('');
-}
-
-function renderTimeframeOptions(selectedTimeframe) {
-  return Object.entries(TIMEFRAME_MAP)
-    .map(
-      ([value, label]) =>
-        `<option value="${value}"${Number(value) === Number(selectedTimeframe) ? ' selected' : ''}>${label}</option>`
-    )
-    .join('');
-}
-
-function renderOverlaySyncOptions(selectedMode) {
-  return [
-    ['sync', 'Sync'],
-    ['no-sync', 'No Sync'],
-  ].map(
-    ([value, label]) =>
-      `<option value="${value}"${value === selectedMode ? ' selected' : ''}>${label}</option>`
-  ).join('');
 }
 
 export function initComparisonWindowController() {
@@ -105,49 +80,7 @@ function ensureDom() {
   root.id = 'comparison-window-root';
   root.className = 'comparison-window-root';
   root.hidden = true;
-  root.innerHTML = `
-    <section id="comparison-window" class="comparison-window" aria-label="Comparison Window">
-      <header class="comparison-window-header" data-comparison-drag-handle>
-        <div class="comparison-window-title-block">
-          <div class="comparison-window-title">Comparison Window</div>
-          <div class="comparison-window-subtitle">Comparison workspace</div>
-        </div>
-        <div class="comparison-window-actions">
-          <label class="comparison-window-field">
-            <span>Inst</span>
-            <select class="comparison-window-select" data-comparison-instrument></select>
-          </label>
-          <label class="comparison-window-field">
-            <span>TF</span>
-            <select class="comparison-window-select" data-comparison-timeframe></select>
-          </label>
-          <label class="comparison-window-field">
-            <span>Drawings</span>
-            <select class="comparison-window-select" data-comparison-overlay-sync></select>
-          </label>
-          <button class="comparison-window-btn" type="button" data-comparison-reset title="Reset window position">Reset</button>
-          <button class="comparison-window-btn comparison-window-close" type="button" data-comparison-close title="Close Comparison Window">Close</button>
-        </div>
-      </header>
-      <div class="comparison-window-left-handle" data-comparison-left-handle aria-label="Resize comparison window"></div>
-      <div class="comparison-window-rail" data-comparison-drag-handle aria-hidden="true">
-        <div class="comparison-window-rail-handle"></div>
-      </div>
-      <div class="comparison-window-stage" id="comparison-chart-view" data-view-id="comparison-window-1">
-        <div id="comparison-chart-canvas" class="comparison-chart-canvas">
-          <div id="comparison-chart-info" class="comparison-chart-info"></div>
-          <div id="comparison-ohlc-legend" class="comparison-ohlc-legend"></div>
-          <div id="comparison-viewport-controls"></div>
-          <div class="comparison-overlay-status" data-comparison-overlay-status>Overlays waiting for comparison data</div>
-          <div id="comparison-context-menu" class="pda-menu comparison-context-menu" hidden></div>
-          <div class="comparison-window-placeholder" data-comparison-placeholder>
-            <div class="comparison-window-placeholder-title">Comparison chart view</div>
-            <div class="comparison-window-placeholder-meta" data-comparison-status>Choose a main date range to load comparison data</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  `;
+  root.innerHTML = renderComparisonWindowTemplate();
   host.appendChild(root);
   windowEl = root.querySelector('#comparison-window');
   layoutResizeObserver = new ResizeObserver(scheduleComparisonLayoutRefresh);
@@ -190,21 +123,7 @@ function render(state) {
   windowEl.dataset.timeframe = String(timeframe);
   windowEl.dataset.syncMode = syncMode;
   windowEl.dataset.overlaySyncMode = overlaySyncMode;
-  const instrumentSelect = root.querySelector('[data-comparison-instrument]');
-  const timeframeSelect = root.querySelector('[data-comparison-timeframe]');
-  const overlaySyncSelect = root.querySelector('[data-comparison-overlay-sync]');
-  if (instrumentSelect) {
-    instrumentSelect.innerHTML = renderInstrumentOptions(instrument);
-    instrumentSelect.value = instrument;
-  }
-  if (timeframeSelect) {
-    timeframeSelect.innerHTML = renderTimeframeOptions(timeframe);
-    timeframeSelect.value = String(timeframe);
-  }
-  if (overlaySyncSelect) {
-    overlaySyncSelect.innerHTML = renderOverlaySyncOptions(overlaySyncMode);
-    overlaySyncSelect.value = overlaySyncMode;
-  }
+  syncComparisonHeaderControls(root, state.descriptor);
   requestAnimationFrame(() => {
     initComparisonChart();
     setComparisonChartInfo({ instrument, timeframe });
