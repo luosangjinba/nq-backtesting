@@ -133,6 +133,27 @@ If this is already covered by global selection events, document that no extra co
 
 ## Step 311.5: Browser And Focused Verification
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 311 execution.
+
+Verification run:
+
+- `node --check v4/src/comparison/comparison-context-menu.js`
+- `node --check v4/src/pda/pda-selection.js`
+- `node --check v4/src/segment/segment-selection.js`
+- `node v4/tests/comparison-window-persistence-smoke.js`
+- `node v4/tests/pick-context-router-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `git diff --check`
+
+Notes:
+- Existing comparison browser smoke covers comparison object creation and comparison bar evidence metadata.
+- A narrower browser assertion that right-clicks an existing comparison object and clicks Link PDA/Segment can be added later if needed; current implementation uses the same delegated action path as secondary.
+
 Run focused checks:
 
 - comparison context menu syntax;
