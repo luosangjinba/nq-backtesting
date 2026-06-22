@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: feature/comparison-window-mvp
-Status: planned
+Status: completed
 
 ## Context
 
@@ -126,6 +126,8 @@ Implementation notes:
 
 ### Step 315.6: Verification
 
+Status: completed.
+
 Browser/focused coverage:
 
 - Local: Main and Comparison objects do not cross-render.
@@ -134,13 +136,16 @@ Browser/focused coverage:
 - Sync + `1M/1H`: price objects stay local.
 - Order Setup and Live Record overlays appear in Comparison only under safe sync.
 
+Final notes:
+
+- Browser smoke now covers Local isolation, Sync-safe PDA/Segment bidirectional hit-test, and Sync-safe Order/Live hit-test in the Comparison context.
+- The UI remains intentionally simpler than TradingView: `Local` vs `Sync`, with Sync guarded by exact instrument and timeframe match.
+
 ## Verification Commands
 
-Expected during implementation:
+Final verification:
 
 - `git diff --check`
+- `node v4/tests/comparison-overlay-policy-smoke.js`
+- `node v4/tests/comparison-window-persistence-smoke.js`
 - `node v4/tests/comparison-window-browser-smoke.js`
-- `node v4/tests/pda-locate-actions-smoke.js`
-- `node v4/tests/pick-context-router-smoke.js`
-- `node v4/tests/viewport-router-smoke.js`
-- targeted Order/Live smoke after Step 315.4

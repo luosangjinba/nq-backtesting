@@ -620,8 +620,12 @@ async function main() {
         const comparisonStore = await import('/src/comparison/comparison-window-store.js');
         const pdaStore = await import('/src/pda/pda-store.js');
         const segmentStore = await import('/src/segment/segment-store.js');
+        const orderStore = await import('/src/order/order-review-store.js');
+        const liveStore = await import('/src/live-record/live-record-store.js');
         const pdaHitTest = await import('/src/pda/pda-hit-test.js');
         const segmentHitTest = await import('/src/segment/segment-hit-test.js');
+        const orderHitTest = await import('/src/order/order-setup-hit-test.js');
+        const liveHitTest = await import('/src/live-record/live-record-hit-test.js');
         const chartContexts = await import('/src/chart/chart-context.js');
         const primaryContext = chartContexts.getPrimaryChartContext();
         const primaryBars = primaryContext.getDisplayBars();
@@ -697,6 +701,62 @@ async function main() {
           end: { timestamp: last.timestamp, time: last.timestamp, price: last.low },
           display: {},
         });
+        orderStore.addOrderReview({
+          id: 'sync-primary-order',
+          instrument: 'NQ',
+          setupThesis: {
+            primaryEventTimestamp: first.timestamp,
+            primaryEventTimeframe: '1M',
+            primaryEventPrice: first.low,
+          },
+          entryPlan: {
+            direction: 'long',
+            entryTimestamp: first.timestamp,
+            entryTimeframe: '1M',
+            entryPrice: first.close,
+            stopLossTimestamp: first.timestamp,
+            stopLossTimeframe: '1M',
+            stopLoss: first.low,
+            targets: [],
+          },
+          display: {
+            elementVisibility: {
+              entry: true,
+              stopLoss: true,
+            },
+          },
+        });
+        liveStore.addLiveRecord({
+          id: 'sync-primary-live',
+          instrument: 'NQ',
+          status: 'closed',
+          direction: 'long',
+          anchor: {
+            timestamp: first.timestamp,
+            timeframe: '1M',
+            price: first.low,
+          },
+          execution: {
+            entry: {
+              role: 'entry',
+              timestamp: first.timestamp,
+              timeframe: '1M',
+              price: first.open,
+              complete: true,
+            },
+            stopLoss: {
+              role: 'stopLoss',
+              timestamp: first.timestamp,
+              timeframe: '1M',
+              price: first.low,
+              complete: true,
+            },
+            targets: [],
+          },
+          result: {
+            exitType: 'unknown',
+          },
+        });
         await new Promise((resolve) => setTimeout(resolve, 350));
 
         const comparisonPrimaryPdaHit = pdaHitTest.hitTestPdaAnnotations({
@@ -719,12 +779,30 @@ async function main() {
           y: primaryContext.priceToCoordinate(last.low),
           context: primaryContext,
         });
+        const comparisonOrderHit = orderHitTest.hitTestOrderSetupElements({
+          x: comparisonContext.timeToCoordinate(first.timestamp),
+          y: comparisonContext.priceToCoordinate(first.close),
+          context: comparisonContext,
+        }).primaryHit;
+        const comparisonLiveHit = liveHitTest.hitTestLiveRecordElements({
+          x: comparisonContext.timeToCoordinate(first.timestamp),
+          y: comparisonContext.priceToCoordinate(first.open),
+          context: comparisonContext,
+        }).primaryHit;
         const result = {
           policySafe: (await import('/src/comparison/comparison-overlay-policy.js')).getComparisonOverlaySyncPolicy().safe,
           comparisonPrimaryPdaHit: comparisonPrimaryPdaHit?.id,
           primaryComparisonPdaHit: primaryComparisonPdaHit?.id,
           comparisonPrimarySegmentHit: comparisonPrimarySegmentHit?.id,
           primaryComparisonSegmentHit: primaryComparisonSegmentHit?.id,
+          comparisonOrderHit: comparisonOrderHit ? {
+            setupId: comparisonOrderHit.setupId,
+            element: comparisonOrderHit.element,
+          } : null,
+          comparisonLiveHit: comparisonLiveHit ? {
+            liveRecordId: comparisonLiveHit.liveRecordId,
+            element: comparisonLiveHit.element,
+          } : null,
         };
         const esBars = primaryBars.map((bar, index) => ({
           ...bar,
@@ -752,7 +830,15 @@ async function main() {
       primaryComparisonPdaHit: 'sync-comparison-pda',
       comparisonPrimarySegmentHit: 'sync-primary-segment',
       primaryComparisonSegmentHit: 'sync-comparison-segment',
-    }, 'Sync safe mode should make Main/Comparison PDA and Segment hit-test on both chart contexts');
+      comparisonOrderHit: {
+        setupId: 'sync-primary-order',
+        element: 'entry',
+      },
+      comparisonLiveHit: {
+        liveRecordId: 'sync-primary-live',
+        element: 'entry',
+      },
+    }, 'Sync safe mode should make Main/Comparison overlays hit-test on both chart contexts');
 
     const replayProgressive = await evaluate(client, `
       (async () => {
