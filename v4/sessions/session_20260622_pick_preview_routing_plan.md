@@ -100,6 +100,17 @@ The pick preview cursor must be separate from:
 
 ## Step 310.3: Migrate Order Setup Exit Pick
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 310 execution.
+
+Implemented:
+- Replaced local primary/secondary pick context logic in `order-review-edit-actions.js` with `pick-context-router`.
+- Exit pick cancel/completion now clears all preview cursors through the router.
+- Exit pick hover clears preview cursors on other charts through the router.
+- Added comparison crosshair and click binding in `inspector-sidebar.js`; comparison DOM click binding is lazy because the window shell may be created after inspector init.
+
 Update `ui/inspector/order-review-edit-actions.js`.
 
 Replace local `getPickChartContext(e)` with router calls.

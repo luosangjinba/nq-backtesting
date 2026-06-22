@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as secondaryChart from '../chart/secondary-chart-manager.js';
+import * as comparisonChart from '../chart/comparison-chart-manager.js';
 import * as store from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
 import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
@@ -1136,6 +1137,8 @@ export function initInspectorSidebar() {
   secondaryChart.onSecondaryCrosshairMove(orderReviewActions.handleSecondaryExitPickHover);
   secondaryChart.onSecondaryCrosshairMove(segmentActions.handleSecondaryActorPickHover);
   secondaryChart.onSecondaryClick(handleSecondaryCalendarClick);
+  comparisonChart.onComparisonCrosshairMove(orderReviewActions.handleComparisonExitPickHover);
+  bindComparisonPickClickHandlers();
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       orderReviewActions.clearExitPickState();
@@ -1292,4 +1295,17 @@ export function initInspectorSidebar() {
     calendarViewDate = calendarSelectedDate;
     refreshSelection();
   });
+}
+
+let comparisonPickClickBound = false;
+
+function bindComparisonPickClickHandlers() {
+  if (comparisonPickClickBound) return;
+  const chartEl = document.getElementById('comparison-chart-canvas');
+  if (!chartEl) {
+    requestAnimationFrame(bindComparisonPickClickHandlers);
+    return;
+  }
+  chartEl.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
+  comparisonPickClickBound = true;
 }

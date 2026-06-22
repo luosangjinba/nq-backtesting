@@ -1,8 +1,12 @@
 import * as bus from '../../event-bus.js';
-import * as chart from '../../chart/chart-manager.js';
-import * as secondaryChart from '../../chart/secondary-chart-manager.js';
 import * as store from '../../data/bar-store.js';
-import * as secondaryStore from '../../data/secondary-chart-store.js';
+import {
+  PICK_CONTEXT_TARGETS,
+  clearAllPickPreviewCursors,
+  clearOtherPickPreviewCursors,
+  getPickContext,
+  getPickContextFromCrosshairSource,
+} from '../../chart/pick-context-router.js';
 import { timeframeToString } from '../../config.js';
 import {
   clearOrderSetupElementSelection,
@@ -16,9 +20,7 @@ import { calculateAutoExitTime } from '../../order/auto-exit-time.js';
 import { getSetupSetById } from '../../order/setup-set.js';
 import { createRafThrottle } from '../../utils/raf-throttle.js';
 import {
-  findDisplayBarByChartTime,
   getAutoExitReasonMessage,
-  getBarChartTime,
   isAutoExitResult,
   parseDateTimeInput,
   parseOrderReviewFieldValue,
@@ -137,34 +139,6 @@ function getOrderSetupElementDeletePatch(role) {
   return null;
 }
 
-function getPickChartContext(e) {
-  const isSecondary = e?.currentTarget?.id === 'secondary-chart';
-  if (isSecondary) {
-    return {
-      chartId: 'secondary',
-      chartEl: document.getElementById('secondary-chart'),
-      coordinateToTime: (x) => secondaryChart.getSecondaryChart()?.timeScale().coordinateToTime(x),
-      findBar: (time) => findDisplayBarByChartTime(
-        time,
-        secondaryStore.getSecondaryDisplayBars(),
-        secondaryStore.getSecondaryTimeframe()
-      ),
-      showCursor: secondaryChart.showSecondaryPickPreviewCursor,
-      hideCursor: secondaryChart.hideSecondaryPickPreviewCursor,
-      timeframe: () => secondaryStore.getSecondaryTimeframe(),
-    };
-  }
-  return {
-    chartId: 'primary',
-    chartEl: document.getElementById('chart'),
-    coordinateToTime: chart.coordinateToTime,
-    findBar: (time) => findDisplayBarByChartTime(time),
-    showCursor: chart.showPickPreviewCursor,
-    hideCursor: chart.hidePickPreviewCursor,
-    timeframe: () => store.getCurrentTimeframe(),
-  };
-}
-
 export function createOrderReviewEditActionController({
   expandOrder,
   refreshSelection,
@@ -177,8 +151,7 @@ export function createOrderReviewEditActionController({
   function clearExitPickState({ silent = false } = {}) {
     if (!exitPickState) return false;
     exitPickState = null;
-    chart.hidePickPreviewCursor();
-    secondaryChart.hideSecondaryPickPreviewCursor();
+    clearAllPickPreviewCursors();
     if (!silent) {
       bus.emit('status:update', { text: 'Exit bar pick 已取消', isError: false });
     }
@@ -433,15 +406,15 @@ export function createOrderReviewEditActionController({
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    const pickContext = getPickChartContext(e);
-    if (!pickContext.chartEl) return;
+    const pickContext = getPickContext(e);
+    if (!pickContext?.chartEl || !pickContext.isEnabled()) return;
 
     const rect = pickContext.chartEl.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const time = pickContext.coordinateToTime(x);
     const bar = pickContext.findBar(time);
     if (!bar) {
-      pickContext.hideCursor();
+      pickContext.hidePreviewCursor();
       return;
     }
 
@@ -466,24 +439,25 @@ export function createOrderReviewEditActionController({
     refreshSelection?.();
   }
 
-  function handleExitPickHover(param, source = 'primary') {
+  function handleExitPickHover(param, source = PICK_CONTEXT_TARGETS.PRIMARY) {
     if (!exitPickState) return;
-    if (source === 'secondary') chart.hidePickPreviewCursor();
-    else secondaryChart.hideSecondaryPickPreviewCursor();
-    const pickContext = source === 'secondary'
-      ? getPickChartContext({ currentTarget: { id: 'secondary-chart' } })
-      : getPickChartContext({ currentTarget: { id: 'chart' } });
+    const pickContext = getPickContextFromCrosshairSource(source);
+    if (!pickContext?.isEnabled()) return;
+    clearOtherPickPreviewCursors(pickContext.chartId);
     const bar = pickContext.findBar(param?.time);
     if (!bar) {
-      pickContext.hideCursor();
+      pickContext.hidePreviewCursor();
       return;
     }
-    pickContext.showCursor(getBarChartTime(bar, pickContext.timeframe()));
+    pickContext.showPreviewCursor(pickContext.getBarChartTime(bar));
   }
 
   const handleExitPickHoverThrottled = createRafThrottle(handleExitPickHover);
   const handleSecondaryExitPickHoverThrottled = createRafThrottle((param) =>
-    handleExitPickHover(param, 'secondary')
+    handleExitPickHover(param, PICK_CONTEXT_TARGETS.SECONDARY)
+  );
+  const handleComparisonExitPickHoverThrottled = createRafThrottle((param) =>
+    handleExitPickHover(param, PICK_CONTEXT_TARGETS.COMPARISON)
   );
 
   return {
@@ -493,6 +467,7 @@ export function createOrderReviewEditActionController({
     handleExitPickChartClick,
     handleExitPickHover: handleExitPickHoverThrottled,
     handleSecondaryExitPickHover: handleSecondaryExitPickHoverThrottled,
+    handleComparisonExitPickHover: handleComparisonExitPickHoverThrottled,
     didExitPickJustHandleClick: () => Date.now() - lastExitPickHandledAt < 250,
     isExitPicking: () => Boolean(exitPickState),
   };
