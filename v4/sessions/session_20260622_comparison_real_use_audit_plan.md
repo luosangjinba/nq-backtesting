@@ -31,6 +31,34 @@ Step 308.6 still requires a real-use audit before any Split removal plan is allo
 
 ## Step 313.1: Build Executable Audit Checklist
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 313 execution.
+
+Executable row fields:
+
+- Workflow
+- Required Action
+- Pass Signal
+- Fail Signal
+- Observed Result
+- Notes
+- Decision
+
+Checklist:
+
+| Workflow | Required Action | Pass Signal | Fail Signal | Observed Result | Notes | Decision |
+| --- | --- | --- | --- | --- | --- | --- |
+| NQ/ES SMT | Use Main=NQ and Comparison=ES on the same timeframe; create or review SMT evidence; select and locate it from Inspector. | SMT renders on primary and comparison, selection opens Inspector, locate lands on expected time. | Need old Split to see SMT, selection misses comparison object, or locate only works on secondary. | Not audited yet |  | needs real-use data |
+| 1M + HTF replay | Use primary 1M with comparison 1H or 4H while Replay On. | Comparison HTF candle progresses without showing future complete candle; cursor/hover sync is usable. | Future HTF data appears early, chart desyncs, or comparison becomes visually misleading. | Not audited yet |  | needs real-use data |
+| Comparison annotation | Create BSL/SSL, FVG/IFVG, OB Last Bar, Wick CE, and Segment in Comparison Window. | Objects keep comparison source metadata and later render/select/filter correctly. | Metadata wrong, wrong price-axis projection, or Inspector cannot review object. | Not audited yet |  | needs real-use data |
+| Active Order Setup evidence | Add comparison bar evidence and link comparison-created PDA/Segment/FVG where supported. | Active setup records evidence/ref with `sourceChartId=comparison-window`. | Evidence loses source context or still requires old Split for normal setup review. | Not audited yet |  | needs real-use data |
+| Calendar/Inspector locate | Locate comparison-source objects from Calendar or Inspector. | Primary and comparison target behavior is predictable; status copy names target. | Locate silently falls back to primary or cannot reach comparison. | Not audited yet |  | needs real-use data |
+| Replay History restore | Save a replay state with Comparison Window enabled, reload, and restore from History. | Primary cursor/range and comparison instrument/timeframe/window state restore. | Comparison state is missing, stale, or loads wrong range. | Not audited yet |  | needs real-use data |
+| Fixed layout preference | During the same review, try the workflow without old Stack/Side Split. | Floating/sliding window is ergonomically acceptable for repeated comparison. | User still needs fixed Stack/Side layout for high-frequency work. | Not audited yet |  | needs real-use data |
+| Advanced PDA frequency | Track every need for OB/Breaker range draft, Fib, EQH/EQL Point Sets in comparison context. | These are low-frequency or acceptable on primary/old Split. | Any becomes frequent enough to block Split removal. | Not audited yet |  | needs real-use data |
+
 Create checklist rows for:
 
 - NQ/ES SMT;
