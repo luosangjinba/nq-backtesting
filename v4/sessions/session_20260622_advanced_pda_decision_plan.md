@@ -89,6 +89,19 @@ Rules:
 
 ## Step 312.3: Record High-risk Workflow Decisions
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 312 execution.
+
+Decision recorded:
+- OB range draft remains primary/old Split scoped because it needs multi-click draft state and clear cancel/finish affordances.
+- Breaker range draft remains primary/old Split scoped for the same reason, with extra visual ambiguity in a floating comparison view.
+- Fib remains primary/old Split scoped because two-click measurement is layout-sensitive and can conflict with floating/sliding drag/pan behavior.
+- EQH/EQL Point Sets remain primary/old Split scoped because comparison needs its own set lifecycle, selection append, cancel, and finish rules.
+- Existing selected EQH/EQL append remains primary/old Split scoped until comparison selected annotation routing is explicitly designed.
+- Split removal remains blocked unless these workflows are either migrated or explicitly waived after real-use audit.
+
 Document that these remain excluded from Comparison Window for now:
 
 - OB range draft;
