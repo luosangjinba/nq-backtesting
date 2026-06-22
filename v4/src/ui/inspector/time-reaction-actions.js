@@ -1,6 +1,5 @@
 import * as bus from '../../event-bus.js';
-import * as viewport from '../../chart/viewport-controller.js';
-import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
+import { VIEWPORT_TARGETS, locateChartRange } from '../../chart/viewport-router.js';
 import { fetchBars } from '../../api.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
@@ -9,7 +8,6 @@ import { getSegmentGroupById } from '../../segment/segment-group-store.js';
 import { locateSetupSet } from '../../order/setup-set.js';
 import * as store from '../../data/bar-store.js';
 import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
-import * as secondaryStore from '../../data/secondary-chart-store.js';
 import { resolveChartLoadRange } from '../../data/load-range-policy.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import {
@@ -52,6 +50,12 @@ import {
 import { getCalendarDateTimestamp } from './calendar-panel.js';
 
 let pendingDailyTimeRefPick = null;
+
+const VIEWPORT_TARGET_LABELS = {
+  [VIEWPORT_TARGETS.PRIMARY]: 'primary',
+  [VIEWPORT_TARGETS.SECONDARY]: 'secondary',
+  [VIEWPORT_TARGETS.COMPARISON]: 'comparison',
+};
 
 export function getPendingDailyTimeRefPick() {
   return pendingDailyTimeRefPick;
@@ -140,6 +144,35 @@ export function getDailyTimeTargetLabel(target = {}) {
   if (target.section === 'summaryItem') return '09:30-11:00 Summary';
   if (target.section === 'summary') return '09:30-11:00 Summary';
   return 'Pre 09:30 Context';
+}
+
+function toViewportTarget(chartId) {
+  if (chartId === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.SECONDARY;
+  if (chartId === VIEWPORT_TARGETS.COMPARISON) return VIEWPORT_TARGETS.COMPARISON;
+  return VIEWPORT_TARGETS.PRIMARY;
+}
+
+function getLocateChartFromElement(actionEl) {
+  return toViewportTarget(actionEl.dataset.locateChart);
+}
+
+function locateRangeOnTarget(target, range, options = {}) {
+  const result = locateChartRange(target, range, options);
+  return Boolean(result.targets?.[target]?.located);
+}
+
+function getLocatedPdaTargetLabels(result = {}) {
+  return [
+    result.primary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.PRIMARY] : '',
+    result.secondary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.SECONDARY] : '',
+    result.comparison?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.COMPARISON] : '',
+  ].filter(Boolean);
+}
+
+function formatLocatedTargetList(targets = []) {
+  if (targets.length <= 1) return targets[0] || '';
+  if (targets.length === 2) return targets.join(' and ');
+  return `${targets.slice(0, -1).join(', ')} and ${targets.at(-1)}`;
 }
 
 export function getDailyTimeTargetTime(target = {}) {
@@ -477,14 +510,14 @@ export function createDailyTimeInspectorActionController({
       return;
     }
 
-    if (locate.chart === 'secondary') {
-      const located = secondaryStore.isSecondaryEnabled()
-        && secondaryStore.getSecondaryDisplayBars().length > 0
-        && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+    const locateTarget = toViewportTarget(locate.chart);
+    if (locateTarget !== VIEWPORT_TARGETS.PRIMARY) {
+      const located = locateRangeOnTarget(locateTarget, range);
+      const targetLabel = VIEWPORT_TARGET_LABELS[locateTarget] || locateTarget;
       bus.emit('status:update', {
         text: located
-          ? `Located ${date} ${getDailyTimeTargetLabel(target)} on secondary`
-          : 'Secondary chart is not enabled or loaded for this locate target',
+          ? `Located ${date} ${getDailyTimeTargetLabel(target)} on ${targetLabel}`
+          : `${targetLabel[0].toUpperCase()}${targetLabel.slice(1)} chart cannot locate this time target`,
         isError: !located,
       });
       return;
@@ -492,7 +525,7 @@ export function createDailyTimeInspectorActionController({
 
     if (!(await ensurePrimaryTimeframe(locate.timeframe))) return;
     requestAnimationFrame(() => {
-      const located = viewport.locateTimestampRange(range.start, range.end);
+      const located = locateRangeOnTarget(VIEWPORT_TARGETS.PRIMARY, range);
       bus.emit('status:update', {
         text: located
           ? `Located ${date} ${getDailyTimeTargetLabel(target)}`
@@ -506,7 +539,7 @@ export function createDailyTimeInspectorActionController({
     const date = actionEl.dataset.dailyTimeDate;
     const target = getDailyTimeTargetFromElement(actionEl);
     const ref = getDailyTimeRefByTarget(date, target, actionEl.dataset.refIndex);
-    const locateChart = actionEl.dataset.locateChart === 'secondary' ? 'secondary' : 'primary';
+    const locateChart = getLocateChartFromElement(actionEl);
     if (!ref) {
       bus.emit('status:update', { text: 'Linked object not found', isError: true });
       return;
@@ -526,14 +559,11 @@ export function createDailyTimeInspectorActionController({
       range = getAnnotationTimestampRange(annotation);
       label = getPdaOrderRefLabel(annotation);
       const result = locatePdaProjection(annotation, { chart: locateChart });
+      const targets = getLocatedPdaTargetLabels(result);
       bus.emit('status:update', {
-        text: result.primary.located && result.secondary.located
-          ? `Located ${label} on primary and secondary`
-          : result.primary.located
-            ? `Located ${label} on primary`
-            : result.secondary.located
-              ? `Located ${label} on secondary`
-              : `${label} has no locatable loaded chart`,
+        text: targets.length
+          ? `Located ${label} on ${formatLocatedTargetList(targets)}`
+          : `${label} has no locatable loaded chart`,
         isError: !result.located,
       });
       return;
@@ -562,7 +592,7 @@ export function createDailyTimeInspectorActionController({
       range = getSmtTimestampRange(record);
       label = 'SMT';
     } else if (type === ORDER_REF_TYPES.ORDER_SETUP) {
-      if (locateChart === 'secondary') {
+      if (locateChart !== VIEWPORT_TARGETS.PRIMARY) {
         bus.emit('status:update', { text: 'Order Setup can only locate on primary', isError: true });
         return;
       }
@@ -573,7 +603,9 @@ export function createDailyTimeInspectorActionController({
       }
       const targetTimeframe = getRefTimeframe(ref, null);
       if (targetTimeframe && !(await ensurePrimaryTimeframe(targetTimeframe))) return;
-      const located = locateSetupSet(order.id, viewport.locateTimestampRange);
+      const located = locateSetupSet(order.id, (start, end, options = {}) => (
+        locateRangeOnTarget(VIEWPORT_TARGETS.PRIMARY, { start, end }, options)
+      ));
       bus.emit('status:update', {
         text: located ? 'Located Order Setup' : 'Order Setup has no locatable range',
         isError: !located,
@@ -586,16 +618,14 @@ export function createDailyTimeInspectorActionController({
       return;
     }
 
-    let secondaryLocated = false;
-    if (locateChart === 'secondary') {
-      secondaryLocated = secondaryStore.isSecondaryEnabled()
-        && secondaryStore.getSecondaryDisplayBars().length > 0
-        && secondaryViewport.locateSecondaryTimestampRange(range.start, range.end);
+    if (locateChart !== VIEWPORT_TARGETS.PRIMARY) {
+      const located = locateRangeOnTarget(locateChart, range);
+      const targetLabel = VIEWPORT_TARGET_LABELS[locateChart] || locateChart;
       bus.emit('status:update', {
-        text: secondaryLocated
-          ? `Located ${label} on secondary`
-          : 'Secondary chart is not enabled or loaded for this linked object',
-        isError: !secondaryLocated,
+        text: located
+          ? `Located ${label} on ${targetLabel}`
+          : `${targetLabel[0].toUpperCase()}${targetLabel.slice(1)} chart cannot locate this linked object`,
+        isError: !located,
       });
       return;
     }
@@ -603,7 +633,7 @@ export function createDailyTimeInspectorActionController({
     const targetTimeframe = getRefTimeframe(ref, store.getCurrentTimeframe());
     if (!(await ensurePrimaryTimeframe(targetTimeframe))) return;
     requestAnimationFrame(() => {
-      const primaryLocated = viewport.locateTimestampRange(range.start, range.end);
+      const primaryLocated = locateRangeOnTarget(VIEWPORT_TARGETS.PRIMARY, range);
       bus.emit('status:update', {
         text: primaryLocated ? `Located ${label} on primary` : 'Primary chart cannot locate this linked object',
         isError: !primaryLocated,

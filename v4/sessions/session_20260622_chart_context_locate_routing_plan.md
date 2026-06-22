@@ -233,6 +233,18 @@ Verification:
 
 ### Step 309.6: Migrate Time Reaction Locate
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 309 execution.
+
+Implemented:
+- Replaced direct primary/secondary viewport calls in `time-reaction-actions.js` with `viewport-router`.
+- Preserved primary timeframe auto-load before primary locate.
+- Preserved secondary locate selector behavior and added `comparison-window` as an accepted locate target contract.
+- Routed Time Reaction PDA locate status through the same primary/secondary/comparison status helper.
+- Kept Order Setup locate primary-only.
+
 Update `ui/inspector/time-reaction-actions.js`.
 
 Current behavior:
