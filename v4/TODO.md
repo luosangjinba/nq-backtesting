@@ -1116,3 +1116,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 315.4: Order Setup / Live Record sync rendering：让主图 Order Setup 与 Live Record overlay 在安全 sync 条件下显示到 Comparison Window；不改变 source metadata 和 Inspector 行为；comparison/browser smoke 通过。
   - [x] Step 315.5: Hit-test and selection routing：hit-test 跟随当前 overlay sync 策略；Sync 时允许选中同步显示的对象，Local 时保持图表来源隔离；browser smoke 覆盖 PDA/Segment 双向命中。
   - [x] Step 315.6: Browser/focused verification：覆盖 Local 不互显、Sync 同 NQ 1M 互显、Sync 跨品种/跨周期不互显、Order/Live 在安全 sync 下出现在 Comparison Window；policy/persistence/browser smoke 通过。
+
+- [ ] Step 316: Overlay Source Model Simplification。目标是保留 `sourceChartId/sourceContext` 作为内部 metadata，但把用户操作模型简化为“在哪个窗口画 + Local/Sync 是否同步”；不再把 Main/Comparison 来源作为用户必须理解的分叉。计划见 `v4/sessions/session_20260622_overlay_source_model_simplification.md`。
+  - [ ] Step 316.1: Source model audit：梳理 PDA/Segment/Order/Live 的 source metadata、label、Inspector、edit/delete 路由，记录必须保留的内部字段和可以弱化的 UI 文案。
+  - [ ] Step 316.2: Label/UI simplification：弱化 chart-source 噪音，PDA/Segment 图上 label 默认显示对象 + instrument/timeframe；Inspector/详情处保留来源说明。
+  - [ ] Step 316.3: Edit/delete routing verification：确保同步显示对象在任意窗口选中、编辑、删除时作用于同一个原对象，不产生同步副本。
+  - [ ] Step 316.4: Verification：覆盖 Local/Sync/mismatch、跨窗选中、编辑/删除同步对象和来源 metadata 保留。
