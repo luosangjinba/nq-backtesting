@@ -84,6 +84,17 @@ Update `comparison/comparison-context-menu.js`:
 
 ## Step 311.3: Add Link To Active Setup Menu Actions
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 311 execution.
+
+Implemented:
+- Added an Order Setup Evidence submenu to the Comparison Window context menu.
+- Kept Add Comparison Bar Evidence in that submenu.
+- Added Link PDA, Link Segment, and Link Composite actions with active setup and hit-state guards.
+- Delegated link actions to `handleOrderSetupChartAction` with comparison bar/price/timeframe/hit payload.
+
 Add an Order Setup Evidence section to Comparison Window menu:
 
 - keep `Add Comparison Bar Evidence`;

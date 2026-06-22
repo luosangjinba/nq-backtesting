@@ -7,6 +7,7 @@ import { recordHistory } from '../history/history-manager.js';
 import { timeframeToString } from '../config.js';
 import { ORDER_EVENT_TYPES } from '../order/order-review-types.js';
 import { getActiveReviewSet, updateActiveReviewSet } from '../order/order-review-active.js';
+import { handleOrderSetupChartAction } from '../order/order-setup-chart-actions.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { hitTestPdaAnnotations } from '../pda/pda-hit-test.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
@@ -46,6 +47,35 @@ function buildEvidenceNote(bar, price, context) {
     formatContextTime(bar),
     priceLabel ? `@ ${priceLabel}` : '',
   ].filter(Boolean).join(' · ');
+}
+
+function getActiveSetupLinkLabel() {
+  const active = getActiveReviewSet();
+  if (!active) return 'No active setup';
+  const direction = active.direction === 'long' ? 'Long' : active.direction === 'short' ? 'Short' : 'Setup';
+  return `${direction} · ${String(active.id || '').slice(0, 18)}`;
+}
+
+function renderOrderSetupEvidenceItems(bar, hits = {}) {
+  const active = getActiveReviewSet();
+  const activeDisabled = active ? '' : 'disabled';
+  const barDisabled = active && bar ? '' : 'disabled';
+  const pdaDisabled = active && hits.pdaHit ? '' : 'disabled';
+  const segmentDisabled = active && hits.segmentHit ? '' : 'disabled';
+  const compositeDisabled = active && hits.segmentGroupHit ? '' : 'disabled';
+
+  return `
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Evidence · ${escapeHtml(getActiveSetupLinkLabel())}</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${activeDisabled || barDisabled}>Add Comparison Bar Evidence</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" data-comparison-action="comparison-order-link-pda" ${activeDisabled || pdaDisabled}>Link PDA To Active Setup</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-order-link-segment" ${activeDisabled || segmentDisabled}>Link Segment To Active Setup</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-order-link-composite" ${activeDisabled || compositeDisabled}>Link Composite To Active Setup</button>
+      </div>
+    </div>
+  `;
 }
 
 function formatPrimaryLocateRange(bar, context) {
@@ -97,7 +127,7 @@ function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
   });
 }
 
-function renderMenu(bar, price, context) {
+function renderMenu(bar, price, context, hits = {}) {
   const disabled = bar ? '' : 'disabled';
   const contextLabel = getContextLabel(context);
   const priceLabel = formatPrice(price);
@@ -115,8 +145,8 @@ function renderMenu(bar, price, context) {
       <button class="pda-menu-item" data-comparison-action="comparison-segment-finish-low" ${disabled}>End Segment at Low</button>
       <button class="pda-menu-item" data-comparison-action="comparison-segment-finish-high" ${disabled}>End Segment at High</button>
     </div>
+    ${renderOrderSetupEvidenceItems(bar, hits)}
     <div class="pda-menu-section">
-      <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${disabled}>Add Comparison Bar Evidence</button>
       <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Locate Time in Primary</button>
       <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Comparison Time</button>
       <button class="pda-menu-item" data-comparison-action="comparison-copy-price" ${priceLabel ? '' : 'disabled'}>Copy Price ${escapeHtml(priceLabel)}</button>
@@ -147,7 +177,7 @@ function showComparisonContextMenu(x, y, bar, price, context, hits = {}) {
   contextMenuPdaHit = hits.pdaHit || null;
   contextMenuSegmentHit = hits.segmentHit || null;
   contextMenuSegmentGroupHit = hits.segmentGroupHit || null;
-  menuEl.innerHTML = renderMenu(bar, price, context);
+  menuEl.innerHTML = renderMenu(bar, price, context, hits);
   menuEl.hidden = false;
   positionMenu(x, y);
 }
@@ -216,6 +246,25 @@ async function handleMenuClick(event) {
     hideComparisonContextMenu();
   } else if (action === 'comparison-order-add-bar-evidence') {
     addComparisonBarEvidenceToActiveSetup(contextMenuBar, contextMenuPrice, context);
+    hideComparisonContextMenu();
+  } else if (
+    action === 'comparison-order-link-pda' ||
+    action === 'comparison-order-link-segment' ||
+    action === 'comparison-order-link-composite'
+  ) {
+    const actionMap = {
+      'comparison-order-link-pda': 'order-setup-link-pda',
+      'comparison-order-link-segment': 'order-setup-link-segment',
+      'comparison-order-link-composite': 'order-setup-link-composite',
+    };
+    handleOrderSetupChartAction(actionMap[action], {
+      bar: contextMenuBar,
+      price: contextMenuPrice,
+      timeframe: context.timeframe,
+      pdaHit: contextMenuPdaHit,
+      segmentHit: contextMenuSegmentHit,
+      segmentGroupHit: contextMenuSegmentGroupHit,
+    });
     hideComparisonContextMenu();
   } else if (action === 'comparison-locate-primary') {
     const range = formatPrimaryLocateRange(contextMenuBar, context);
