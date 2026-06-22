@@ -414,6 +414,49 @@ Removal implication:
 - Define pass/fail signals.
 - Decide whether a later Split removal plan is allowed.
 
+Status: complete.
+
+Real-use audit window:
+
+- Use at least 1 full review session and preferably 2 separate trading days.
+- Keep old Split available during the audit.
+- Record friction immediately in TODO/session notes instead of relying on memory.
+- Do not start Split removal until all required checklist rows pass or are explicitly waived.
+
+Checklist:
+
+| Workflow | Required action | Pass signal | Fail signal |
+| --- | --- | --- | --- |
+| NQ/ES SMT | Use Main=NQ and Comparison=ES on the same timeframe; create or review SMT evidence; select and locate it from Inspector. | SMT renders on primary and comparison, selection opens Inspector, locate lands on the expected time. | Need old Split to see SMT, selection misses comparison object, or locate only works on secondary. |
+| 1M + HTF replay | Use primary 1M with comparison 1H or 4H while Replay On. | Comparison HTF candle progresses without showing future complete candle; cursor/hover sync is usable. | Future HTF data appears early, chart desyncs, or comparison becomes visually misleading. |
+| Comparison annotation | Create BSL/SSL, FVG/IFVG, and Segment in Comparison Window. | Objects keep comparison source metadata and later render/select/filter correctly. | Metadata wrong, wrong price-axis projection, or Inspector cannot review the object. |
+| Active Order Setup evidence | Add comparison bar evidence and link comparison-created PDA/Segment/FVG where supported. | Active setup records the evidence with `sourceChartId=comparison-window`. | Evidence loses source context or still requires old Split for normal setup review. |
+| Calendar/Inspector locate | Locate comparison-source objects from Calendar or Inspector after the locate router migration. | Primary and comparison target behavior is predictable; status copy names the target. | Locate silently falls back to primary or cannot reach comparison. |
+| Replay History restore | Save a replay state with Comparison Window enabled, reload, and restore from History. | Primary cursor/range and comparison instrument/timeframe/window state restore. | Comparison state is missing, stale, or loads a wrong range. |
+| Fixed layout preference | During the same review, try doing the workflow without old Stack/Side Split. | Floating/sliding window is ergonomically acceptable for repeated comparison. | User still needs fixed Stack/Side layout for high-frequency work. |
+| Advanced PDA frequency | Track every need for OB, Breaker, Fib, Range PDA draft, EQH/EQL Point Sets in comparison context. | These are low-frequency or acceptable on primary/old Split. | Any becomes frequent enough to block Split removal. |
+
+Pass/fail rule:
+
+- Split removal plan is allowed only if all required workflows pass and any advanced PDA misses are either migrated or explicitly waived.
+- If a workflow fails, create a focused migration step rather than deleting Split.
+- If fixed Stack/Side layout remains preferred, keep Split or build a fixed-layout mode for Comparison Window before removal.
+
+Recommended next implementation order after Step 308:
+
+1. Implement chart context locate routing.
+2. Implement pick-preview routing.
+3. Implement comparison hit-test link to active setup.
+4. Optionally migrate OB Last Bar and Wick CE.
+5. Run the real-use audit.
+6. Only then decide whether to open a Split removal plan.
+
+Step 308 closeout:
+
+- Completed planning for all Split-only workflow gaps.
+- No production feature code was changed in Step 308.
+- Old Split remains available and should not be removed until the audit passes.
+
 ## Non-goals
 
 - Do not remove Split in Step 308.
