@@ -1143,3 +1143,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 319.3: Identify Split removal blockers：已标记剩余 blockers 为缺少真实使用证据：fixed layout、SMT locate、replay HTF progressive、Replay History restore、advanced PDA frequency。
   - [x] Step 319.4: Closeout regression suite：comparison browser/policy/render/persistence、replay history comparison、SMT selection 与 `git diff --check` 通过。
   - [x] Step 319.5: Readiness decision：写入 `needs more real-use data`；下一步应做一次 focused real-use audit session，而不是直接开启 Step 320。
+
+- [ ] Step 320: Focused Comparison real-use audit。目标是用一次聚焦真实使用审计补齐 Step 319 剩余证据：SMT、1M+HTF replay progressive、Replay History restore、fixed layout ergonomics、advanced PDA frequency；本步骤不移除 Split。计划见 `v4/sessions/session_20260622_focused_comparison_audit_plan.md`。
+  - [ ] Step 320.1: NQ/ES SMT real-use pass：Main=NQ、Comparison=ES、同 timeframe，创建/选择/locate SMT，确认不需要旧 Split。
+  - [ ] Step 320.2: 1M + HTF replay progressive pass：Main=NQ 1M、Comparison=NQ 1H/4H，Replay On 跨 HTF candle boundary，确认不偷看未来、hover/crosshair 可用。
+  - [ ] Step 320.3: Replay History restore pass：保存带 Comparison Window 的 replay state，reload 后从 History restore，确认 primary cursor/range 与 comparison instrument/timeframe/window state 恢复正确。
+  - [ ] Step 320.4: Fixed layout ergonomics pass：用 floating/sliding Comparison Window 完成一段 review，确认不再需要旧 Stack/Side Split 做高频 comparison。
+  - [ ] Step 320.5: Advanced PDA frequency pass：记录 OB/Breaker draft、Fib、EQH/EQL point sets 等 advanced PDA 是否频繁需要；低频可 waiver，高频则先迁移。
+  - [ ] Step 320.6: Audit closeout：更新 audit doc/TODO/session，写入 `ready for Split removal planning`、`needs focused fixes` 或 `keep Split`。
