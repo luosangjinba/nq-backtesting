@@ -1094,3 +1094,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 312.3: Record high-risk workflow decisions：把 OB/Breaker range draft、Fib、Point Sets 的保留原因写入 TODO/session，避免后续误以为 Split 可以删除。已记录 OB/Breaker range draft、Fib、EQH/EQL Point Sets 和 selected EQH/EQL append 继续保留主图/旧 Split，除非真实使用 audit 证明必须迁移或可明确放弃。
   - [x] Step 312.4: Browser and focused verification：跑 comparison context menu syntax、comparison browser smoke、live record smoke、SMT smoke；如低风险，补充 OB/Wick CE metadata 检查。已完成 comparison context menu syntax、comparison window persistence/browser smoke、live record smoke、SMT selection smoke 与 `git diff --check`；OB/Wick CE 复用 context-aware helper，metadata 由 comparison context 注入。
   - [x] Step 312.5: Closeout：更新 TODO/session，记录 Step 312 完成后 Split removal 仍被真实使用 audit 与固定布局偏好阻塞。已记录 Split removal 仍需通过 Step 308.6 真实使用 audit，并确认固定 Stack/Side 偏好需另行评估。
+
+- [ ] Step 313: Real-use audit execution / Split removal readiness review。目标是把 Step 308.6 的真实使用审计清单转成可执行记录与 readiness 结论；不删除 Split，不开启 removal plan，除非审计结论明确 ready。计划见 `v4/sessions/session_20260622_comparison_real_use_audit_plan.md`。
+  - [ ] Step 313.1: Build executable audit checklist：把 NQ/ES SMT、1M/HTF replay、comparison annotation、Order evidence、Calendar/Inspector locate、Replay History restore、fixed layout preference、advanced PDA frequency 转成可填写审计表。
+  - [ ] Step 313.2: Add audit/readiness docs：新增 `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md`，记录审计方法、pass/fail 标准、session log 模板和 readiness decision 选项。
+  - [ ] Step 313.3: Run readiness smoke suite：统一跑 Step 309-312 相关 smoke，生成技术 readiness 结果。
+  - [ ] Step 313.4: Record readiness decision：写入 `ready for removal plan` / `keep Split` / `needs more real-use data` 之一；默认没有真实交易日记录时不能 ready。
+  - [ ] Step 313.5: Closeout：更新 TODO/session/docs，明确下一步只能是继续真实使用审计或修复失败项。
