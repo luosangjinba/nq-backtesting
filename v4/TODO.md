@@ -1135,3 +1135,4 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 318.3: Browser verification：覆盖 Comparison 创建对象在 No Sync 下自动切 Sync 并双窗显示；手动切回 No Sync 后对象留在 Main、从 Comparison 消失；browser smoke 已覆盖真实右键创建 PDA/Segment。
   - [x] Step 318.4: Closeout verification：更新 TODO/session，跑 policy/browser/persistence smoke；policy/persistence/browser smoke 与 `git diff --check` 通过。
   - [x] Step 318.5: Renderer policy leak fix：修复 Comparison PDA/Segment renderer 对 `sourceChartId === comparison-window` 的本地来源绕过；`No Sync` 时 Comparison 不再绘制任何 drawings，Main 仍按 canonical 规则显示兼容 drawings。
+  - [x] Step 318.6: Cross-timeframe drawing sync：放宽 Drawings `Sync` guard，从“同品种 + 同周期”改为“同品种”；主图 1H PDA/Segment/Order/Live 可同步显示到 Comparison 1M，实际绘制仍由目标窗口时间轴映射决定。

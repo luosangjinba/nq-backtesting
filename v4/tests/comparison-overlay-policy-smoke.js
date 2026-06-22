@@ -31,8 +31,8 @@ assert.equal(
 );
 
 assert.equal(
-  canProjectPriceObjectToComparison({ sourceInstrument: 'ES', sourceTimeframeLabel: '4H' }, descriptor).reason,
-  'timeframe-mismatch'
+  canProjectPriceObjectToComparison({ sourceInstrument: 'ES', sourceTimeframeLabel: '4H' }, descriptor).ok,
+  true
 );
 
 assert.equal(
@@ -95,10 +95,10 @@ assert.equal(
 
 setComparisonOverlaySyncMode('sync');
 setComparisonTimeframe(240);
-assert.equal(getComparisonOverlaySyncPolicy().safe, false);
+assert.equal(getComparisonOverlaySyncPolicy().safe, true);
 assert.equal(
   canRenderObjectOnChartTarget({ sourceChartId: 'primary', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
-  false
+  true
 );
 
 clearComparisonBars();

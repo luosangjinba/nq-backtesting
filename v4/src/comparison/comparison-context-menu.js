@@ -138,14 +138,10 @@ function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
 
 function ensureComparisonDrawingCreationEnabled() {
   const policy = getComparisonOverlaySyncPolicy();
-  const matches =
-    policy.primaryInstrument === policy.comparisonInstrument &&
-    policy.primaryTimeframe !== null &&
-    policy.comparisonTimeframe !== null &&
-    policy.primaryTimeframe === policy.comparisonTimeframe;
+  const matches = policy.primaryInstrument === policy.comparisonInstrument;
   if (!matches) {
     bus.emit('status:update', {
-      text: 'Comparison drawings require matching instrument and timeframe',
+      text: 'Comparison drawings require matching instrument',
       isError: true,
     });
     return false;

@@ -36,8 +36,8 @@ assert.equal(canRenderPdaInComparison(comparisonPda), true);
 assert.equal(canRenderSegmentInComparison(comparisonSegment), true);
 
 setComparisonTimeframe(60);
-assert.equal(canRenderPdaInComparison(comparisonPda), false);
-assert.equal(canRenderSegmentInComparison(comparisonSegment), false);
+assert.equal(canRenderPdaInComparison(comparisonPda), true);
+assert.equal(canRenderSegmentInComparison(comparisonSegment), true);
 
 setComparisonWindowEnabled(false);
 

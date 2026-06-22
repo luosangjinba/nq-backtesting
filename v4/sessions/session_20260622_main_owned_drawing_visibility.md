@@ -106,3 +106,18 @@ Fix:
 - Removed the Comparison renderer local-source bypass for PDA and Segment overlays.
 - Both renderers now use the same chart-target policy as hit-test and selection.
 - `No Sync` hides all drawings from Comparison; Main remains the canonical chart for compatible drawings.
+
+### Step 318.6: Cross-Timeframe Drawing Sync
+
+Status: completed.
+
+Follow-up bug:
+
+- Main 1H + Comparison 1M with Drawings `Sync` did not show Main-created BSL/PDA in Comparison.
+
+Fix:
+
+- Relaxed Drawings `Sync` from same instrument plus same timeframe to same instrument.
+- PDA/Segment/Order/Live projection no longer rejects solely because source and target timeframes differ.
+- Comparison drawing creation preflight now requires matching instrument only.
+- Timeframe differences are handled by the target chart time mapping; objects with timestamps outside the visible target window naturally do not render.

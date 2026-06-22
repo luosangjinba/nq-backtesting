@@ -54,17 +54,6 @@ export function canProjectPriceObjectToComparison(object = {}, descriptor = {}) 
     };
   }
 
-  const sourceTimeframe = getObjectTimeframe(object);
-  const targetTimeframe = normalizeTimeframeToMinutes(descriptor.timeframe);
-  if (sourceTimeframe !== null && targetTimeframe !== null && sourceTimeframe !== targetTimeframe) {
-    return {
-      ok: false,
-      reason: 'timeframe-mismatch',
-      sourceTimeframe,
-      targetTimeframe,
-    };
-  }
-
   return { ok: true, reason: 'match', sourceInstrument, targetInstrument };
 }
 
@@ -91,14 +80,11 @@ export function getComparisonOverlaySyncPolicy(state = getComparisonWindowState(
   const comparisonTimeframe = normalizeTimeframeToMinutes(descriptor.timeframe);
   const safe =
     mode === COMPARISON_OVERLAY_SYNC_MODE.sync &&
-    primaryInstrument === comparisonInstrument &&
-    primaryTimeframe !== null &&
-    comparisonTimeframe !== null &&
-    primaryTimeframe === comparisonTimeframe;
+    primaryInstrument === comparisonInstrument;
   return {
     mode,
     safe,
-    reason: safe ? 'match' : mode === COMPARISON_OVERLAY_SYNC_MODE.noSync ? 'no-sync' : 'instrument-or-timeframe-mismatch',
+    reason: safe ? 'match' : mode === COMPARISON_OVERLAY_SYNC_MODE.noSync ? 'no-sync' : 'instrument-mismatch',
     primaryInstrument,
     comparisonInstrument,
     primaryTimeframe,
