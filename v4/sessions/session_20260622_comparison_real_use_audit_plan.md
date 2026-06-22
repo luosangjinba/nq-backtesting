@@ -163,6 +163,28 @@ Rule:
 
 ## Step 313.5: Closeout
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 313 execution.
+
+Completed:
+- Added executable real-use audit checklist.
+- Added user-facing audit/readiness guide.
+- Ran technical readiness smoke suite.
+- Recorded readiness decision as `needs more real-use data`.
+
+Next allowed action:
+
+- Use `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md` during at least one real review session.
+- If a workflow fails, open a focused fix/migration step.
+- If all rows pass across the audit window, then and only then create a dedicated Split removal plan.
+
+Current removal status:
+
+- Split remains enabled.
+- No Split removal plan should be opened yet.
+
 Update:
 
 - `v4/TODO.md`;
