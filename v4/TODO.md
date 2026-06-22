@@ -1159,10 +1159,12 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 321.4: Update tests：已更新 browser smoke 断言旧 Split UI 缺席且 Compare 可用，Replay History smoke 断言不再保存 split；SMT/replay/locate 回归通过。
   - [x] Step 321.5: Documentation closeout：已更新 user guide、operation manual、docs README、TODO/session；下一步建议 Step 322 清理或迁移剩余 secondary internals。
 
-- [ ] Step 322: Secondary internals cleanup / migration。目标是在用户可见 Split 已移除后，清理或迁移剩余 `secondary-*` internals；先迁移 selection/locate/pick/SMT 引用，再删除不再初始化的 secondary controller/store/manager/renderers/context menu。计划见 `v4/sessions/session_20260622_secondary_internals_cleanup_plan.md`。
+- [x] Step 322: Secondary internals cleanup / migration。目标是在用户可见 Split 已移除后，清理或迁移剩余 `secondary-*` internals；先迁移 selection/locate/pick/SMT 引用，再删除不再初始化的 secondary controller/store/manager/renderers/context menu。计划见 `v4/sessions/session_20260622_secondary_internals_cleanup_plan.md`。已删除 legacy secondary runtime modules；剩余 `secondary` 字符串仅用于旧数据/旧 route 输入兼容或测试确认旧 DOM 缺席。
   - [x] Step 322.1: Import surface audit：已分类剩余 secondary 引用为 remove now / replace with comparison / remove after migration / test-only update。
   - [x] Step 322.2: Remove dead DOM guards and unreachable handlers：已清理 `#secondary-context-menu`、`#secondary-viewport-controls`、`#secondary-chart` 等已不存在 DOM 的 outside-click guard 和 click/crosshair listener。
   - [x] Step 322.3: Migrate locate/pick routing：已将 `secondary-locate-time`、secondary viewport target、secondary pick context target 迁移/降级到 Comparison 路径。
   - [x] Step 322.4: Remove uninitialized secondary runtime modules：已删除 secondary chart controller/manager/store、secondary PDA/Segment renderer、secondary context menu，并把 SMT/time overlay/chart context 切到 Comparison。
   - [x] Step 322.5: Test and documentation update：已更新 pick/viewport/primitive/SMT tests 到 Comparison workflow，跑 comparison browser、replay history、replay sync、SMT、pick/viewport、primitive lifecycle 与 `git diff --check`。
-  - [ ] Step 322.6: Closeout：更新 TODO/session/docs，若仍保留 secondary internals，明确原因并开后续 focused migration。
+  - [x] Step 322.6: Closeout：已更新 TODO/session/docs；记录剩余 `secondary` 仅为 legacy metadata/route compatibility，不是旧 Split runtime。
+
+- [ ] Step 323: Legacy secondary metadata compatibility cleanup（可选）。目标是审计并决定是否移除 `VIEWPORT_TARGETS.SECONDARY`、PDA locate result `secondary` skipped 字段、历史 `sourceChartId='secondary'` 显示兼容和测试里的旧 DOM 缺席断言；除非确认旧 Review JSON 不再需要这些兼容，否则不要删除。

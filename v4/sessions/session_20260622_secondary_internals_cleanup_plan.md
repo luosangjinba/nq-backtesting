@@ -161,7 +161,7 @@ Result:
 
 ## Step 322.6: Closeout
 
-Status: pending.
+Status: completed.
 
 Update:
 
@@ -173,3 +173,13 @@ Decision:
 
 - If all secondary internals are removed, Step 323 can be broader cleanup/refactor.
 - If some are retained for SMT or shared routing, document exactly why and create a focused migration step.
+
+Result:
+
+- Legacy secondary runtime internals are removed: no source/test references remain for deleted secondary manager/store/controller/renderers/context menu modules or their runtime events.
+- Remaining `secondary` strings are compatibility surface, not old Split runtime:
+  - `VIEWPORT_TARGETS.SECONDARY` remains so old route inputs return `unsupported-target` or map to Comparison cleanly.
+  - `locatePdaProjection()` still returns a `secondary` skipped result field to preserve existing result shape for callers/tests.
+  - historical metadata/display helpers can still format old `sourceChartId='secondary'` records.
+  - browser/replay tests still assert removed Split/secondary DOM is absent.
+- Follow-up should be a smaller metadata compatibility cleanup only if we decide to remove legacy `secondary` ids from stored review data contracts.
