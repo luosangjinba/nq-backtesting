@@ -177,6 +177,24 @@ Run browser checks:
 
 ## Step 310.6: Closeout
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 310 execution.
+
+Completed:
+- Added shared pick context router.
+- Added Comparison Window pick preview cursor API.
+- Migrated Order Setup exit pick to router.
+- Migrated Segment actor pick preview to router.
+- Bound Comparison Window crosshair/click entry points for supported pick workflows.
+- Verified focused router/cursor tests and comparison browser smoke.
+
+Remaining limitations:
+- Comparison Window existing-object hit-test link is still not migrated; this remains the next Split-only workflow from Step 308.4.
+- Advanced PDA workflows such as OB/Breaker range drafts, Fib, and EQH/EQL Point Sets remain primary/old Split scoped pending real-use decisions.
+- The current browser coverage verifies the comparison window remains stable after wiring; a narrower comparison click-pick assertion can be added later if this path becomes high-risk.
+
 Update:
 
 - `v4/TODO.md`;
