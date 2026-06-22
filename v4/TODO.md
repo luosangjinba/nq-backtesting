@@ -1108,3 +1108,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 314.3: Order Setup Evidence submenu：接入主图/副图共用的 submenu 初始化，修复 `Order Setup Evidence` hover/focus 不展开的问题。
   - [x] Step 314.4: Floating submenu outside scroll box：修复主菜单滚动盒裁剪子菜单的问题；Comparison 子菜单现在以 fixed 方式浮在主菜单外，并按 comparison chart 边界定位。
   - [x] Step 314.5: Verification：扩展 `comparison-window-browser-smoke.js`，覆盖菜单可命中、紧凑窗口滚动、不越界、OB blank disabled 和 Order Setup Evidence 子菜单可展开/可点击；通过 `git diff --check`、comparison browser smoke 和 context menu position smoke。
+
+- [ ] Step 315: Comparison Overlay Sync controls。目标是把 TradingView-like overlay sync 简化为可控的 `Local / Sync`：默认 Local 防止跨品种/跨周期错投影；Sync 只在 Main 与 Comparison 同 instrument + 同 timeframe 时同步价格型 overlays。计划见 `v4/sessions/session_20260622_comparison_overlay_sync_plan.md`。
+  - [ ] Step 315.1: State and UI contract：在 comparison descriptor/store/persistence 中加入 `overlaySyncMode: local | sync`，Comparison Window header 增加 `Overlays` 控件，默认 Local。
+  - [ ] Step 315.2: Safe sync policy helper：新增统一 helper 判断 Main/Comparison 是否可同步价格型 overlay；第一版只允许同 instrument + 同 timeframe，其他组合保持 Local。
+  - [ ] Step 315.3: PDA/Segment sync rendering：Main/Comparison 的 PDA/Segment renderer 根据 sync policy 双向显示对象，并继续在 label 中保留 `Main` / `Comparison` 来源前缀。
+  - [ ] Step 315.4: Order Setup / Live Record sync rendering：让主图 Order Setup 与 Live Record overlay 在安全 sync 条件下显示到 Comparison Window；不改变 source metadata 和 Inspector 行为。
+  - [ ] Step 315.5: Hit-test and selection routing：hit-test 跟随当前 overlay sync 策略；Sync 时允许选中同步显示的对象，Local 时保持图表来源隔离。
+  - [ ] Step 315.6: Browser/focused verification：覆盖 Local 不互显、Sync 同 NQ 1M 互显、Sync 跨品种/跨周期不互显、Order/Live 在安全 sync 下出现在 Comparison Window。
