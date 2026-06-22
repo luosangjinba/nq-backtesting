@@ -230,6 +230,15 @@ Persist UI workspace state:
 
 Do not write transient window geometry into Review JSON. Replay History may store workspace state needed to restore the review view.
 
+Done in Step 307.11:
+
+- Added `comparison-window-persistence.js` with local workspace persistence for enabled state, instrument/timeframe, sync mode, layout mode, window position/size, and last requested range metadata.
+- App startup restores comparison workspace state before toolbar initialization so the Compare toggle matches saved state.
+- Replay History checkpoints now include comparison view state needed for restore, while intentionally omitting transient window geometry.
+- Replay History restore applies comparison instrument/timeframe/sync mode after loading primary bars so the comparison controller can reload against the restored primary range.
+- Added smoke coverage for comparison workspace persistence and Replay History comparison identity/normalization.
+- Verification passed: `node --check v4/src/comparison/comparison-window-persistence.js`, `node --check v4/src/ui/replay-controls.js`, `node v4/tests/comparison-window-persistence-smoke.js`, `node v4/tests/replay-history-comparison-smoke.js`, `node v4/tests/comparison-window-store-smoke.js`, `node v4/tests/primary-instrument-compat-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
+
 ### Step 307.12: Browser Verification
 
 Browser smoke must cover:

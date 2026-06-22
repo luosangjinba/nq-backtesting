@@ -7,6 +7,10 @@ import { getBarChartTime, getBucketStart } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import {
+  setComparisonWindowEnabled,
+  updateComparisonViewDescriptor,
+} from '../comparison/comparison-window-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
 import { dateKeyFromTimestamp, formatTimeInput } from '../utils.js';
@@ -144,6 +148,30 @@ function applySplitState(split) {
   secondaryStore.setSecondaryInstrument(split.instrument);
   secondaryStore.setSecondaryTimeframe(split.timeframe);
   secondaryStore.setSecondaryEnabled(true);
+}
+
+function applyComparisonState(comparison) {
+  if (!comparison) {
+    setComparisonWindowEnabled(false);
+    return;
+  }
+  const descriptorPatch = Object.fromEntries(
+    Object.entries({
+      viewId: comparison.viewId,
+      instrument: comparison.instrument,
+      timeframe: comparison.timeframe,
+      syncMode: comparison.syncMode,
+      layoutMode: comparison.layoutMode,
+    }).filter(([, value]) => value !== undefined && value !== null && value !== '')
+  );
+  if (!comparison?.enabled) {
+    if (Object.keys(descriptorPatch).length) updateComparisonViewDescriptor(descriptorPatch);
+    setComparisonWindowEnabled(false);
+    return;
+  }
+
+  updateComparisonViewDescriptor(descriptorPatch);
+  setComparisonWindowEnabled(true);
 }
 
 function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
@@ -535,6 +563,7 @@ async function loadReplayHistoryItem(id) {
     store.setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
 
     applySplitState(item.split);
+    applyComparisonState(item.comparison);
 
     if (!restoreReplayToTimestamp(cursorTimestamp, item.replay.speedIndex)) {
       bus.emit('status:update', { text: 'Replay History restore failed: cursor is outside loaded window', isError: true });

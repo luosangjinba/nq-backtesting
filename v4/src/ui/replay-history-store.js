@@ -63,6 +63,17 @@ function normalizeSplit(input = {}) {
   };
 }
 
+function normalizeComparison(input = {}) {
+  return {
+    enabled: normalizeBoolean(input.enabled),
+    viewId: normalizeString(input.viewId, 'comparison-window-1'),
+    instrument: normalizeString(input.instrument, 'ES').toUpperCase(),
+    timeframe: normalizeNumber(input.timeframe, 60),
+    syncMode: normalizeString(input.syncMode, 'primary-time'),
+    layoutMode: normalizeString(input.layoutMode, 'floating'),
+  };
+}
+
 function formatTimestamp(timestamp) {
   const parsed = normalizeNumber(timestamp);
   if (parsed === null) return '';
@@ -92,6 +103,7 @@ function createReplayHistoryKey(item) {
       cursorTimestamp: item.replay.cursorTimestamp,
     },
     split: item.split,
+    comparison: item.comparison,
   });
 }
 
@@ -110,6 +122,7 @@ export function normalizeReplayHistoryItem(input = {}, options = {}) {
   const primary = normalizePrimary(input.primary);
   const replay = normalizeReplay(input.replay);
   const split = normalizeSplit(input.split);
+  const comparison = normalizeComparison(input.comparison);
   const updatedAt = normalizeNumber(input.updatedAt, now);
   const createdAt = normalizeNumber(input.createdAt, updatedAt);
   const normalized = {
@@ -120,6 +133,7 @@ export function normalizeReplayHistoryItem(input = {}, options = {}) {
     primary,
     replay,
     split,
+    comparison,
   };
   normalized.key = createReplayHistoryKey(normalized);
   return normalized;

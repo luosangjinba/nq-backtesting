@@ -7,6 +7,7 @@ import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initComparisonWindowController } from './ui/comparison-window-controller.js';
+import { initComparisonWindowPersistence } from './comparison/comparison-window-persistence.js';
 import { initComparisonOverlayPolicy } from './comparison/comparison-overlay-policy.js';
 import { initComparisonContextMenu } from './comparison/comparison-context-menu.js';
 import {
@@ -73,6 +74,9 @@ console.log('[V4] Chart initialized');
 // 初始化工具栏
 initDisplayMode();
 console.log('[V4] Display mode initialized');
+
+initComparisonWindowPersistence();
+console.log('[V4] Comparison window workspace initialized');
 
 initToolbar();
 console.log('[V4] Toolbar initialized');

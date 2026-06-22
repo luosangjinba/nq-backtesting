@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import { getComparisonWindowState } from '../comparison/comparison-window-store.js';
 import { saveReplayHistoryItem } from './replay-history-store.js';
 
 const SAVE_DEBOUNCE_MS = 800;
@@ -31,6 +32,8 @@ export function createReplayHistoryCheckpoint(replayState = lastReplayState) {
 
   const currentRange = store.getCurrentRange();
   if (!currentRange.start || !currentRange.end) return null;
+  const comparisonState = getComparisonWindowState();
+  const comparisonDescriptor = comparisonState.descriptor || {};
 
   return {
     primary: {
@@ -51,6 +54,14 @@ export function createReplayHistoryCheckpoint(replayState = lastReplayState) {
       instrument: secondaryStore.getSecondaryInstrument(),
       timeframe: secondaryStore.getSecondaryTimeframe(),
       layout: secondaryStore.getSplitLayout(),
+    },
+    comparison: {
+      enabled: comparisonState.enabled,
+      viewId: comparisonDescriptor.viewId,
+      instrument: comparisonDescriptor.instrument,
+      timeframe: comparisonDescriptor.timeframe,
+      syncMode: comparisonDescriptor.syncMode,
+      layoutMode: comparisonDescriptor.layoutMode,
     },
   };
 }
@@ -89,5 +100,6 @@ export function initReplayHistoryPersistence() {
   bus.on('replay:changed', handleReplayChanged);
   bus.on('bars:loaded', scheduleReplayHistorySave);
   bus.on('secondary-chart:settings-changed', scheduleReplayHistorySave);
+  bus.on('comparison-window:changed', scheduleReplayHistorySave);
   getWindowObject()?.addEventListener('beforeunload', flushReplayHistoryCheckpoint);
 }
