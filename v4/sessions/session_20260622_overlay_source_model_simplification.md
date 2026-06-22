@@ -23,6 +23,8 @@ Keep chart source metadata for correctness, persistence, locate, and edit/delete
 
 ### Step 316.1: Source Model Audit
 
+Status: completed.
+
 Audit source metadata use across PDA, Segment, Order Setup, Live Record, labels, Inspector, locate, and edit/delete routing.
 
 Expected result:
@@ -30,6 +32,19 @@ Expected result:
 - identify metadata that must stay internal;
 - identify chart label text that can be simplified;
 - identify tests needed for edit/delete routing.
+
+Findings:
+
+- `sourceChartId`, `sourceChartLabel`, `sourceInstrument`, `sourceTimeframe`, `sourceTimeframeLabel`, and `sourceContext` must stay. They are used by sync projection, locate routing, Order/Live evidence metadata, Inspector details, persistence, and source-aware identity.
+- PDA on-chart labels currently use `formatPdaDisplayLabel()`, which includes `Main` / `Comparison` through `formatPdaSourceBadge()`. This is the main user-facing source noise to weaken.
+- Segment on-chart labels already do not include chart source; they use timeframe + direction. Segment Inspector still shows source chart details, which is appropriate.
+- Selection/edit/delete routing already uses object ids from the shared stores. Sync rendering and hit-test return original ids, not cloned ids.
+- Order Setup and Live Record sync rendering treats execution overlays as Main-sourced and does not create comparison copies.
+
+Implementation boundary:
+
+- Step 316.2 should split PDA source formatting into a chart-source badge for Inspector/details and a source-context label for on-chart display.
+- Step 316.3 should add explicit browser assertions that synced cross-window selection/edit/delete acts on original object ids and does not create duplicates.
 
 ### Step 316.2: Label/UI Simplification
 
