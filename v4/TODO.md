@@ -1079,3 +1079,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 310.4: Migrate Segment actor pick preview：`segment-actions.js` 改用 pick router，保留 primary/secondary 行为，并支持 comparison chart hover/click 的 actor timestamp pick。已迁移 Segment actor pick hover/click 到 pick router，并复用 Inspector 的 comparison crosshair/click 入口。
   - [x] Step 310.5: Browser and focused verification：新增/扩展 focused router smoke 与 comparison browser smoke，覆盖 comparison hover/click pick preview 和旧 primary/secondary 回归。已完成 pick router/comparison pick preview focused smoke、comparison window browser smoke、live record smoke、SMT selection smoke 与 `git diff --check`；comparison pick 入口已接入现有 browser workflow，后续可按需加更细点击断言。
   - [x] Step 310.6: Closeout：更新 TODO/session，记录仍未迁移的 comparison existing-object hit-test link 与 advanced PDA workflows。已记录剩余限制：Comparison Window existing-object hit-test link、OB/Breaker/Fib/Point Sets advanced PDA workflow 和更细粒度 comparison pick browser click assertion 仍留待后续。
+
+- [ ] Step 311: Comparison Window existing-object hit-test link。目标是把旧 Split/Secondary context menu 里的 existing PDA / Segment / Composite hit-test + Link To Active Setup workflow 迁移到 Comparison Window；保持 bar evidence 和新建 comparison object 行为不变。计划见 `v4/sessions/session_20260622_comparison_hit_test_link_plan.md`。
+  - [ ] Step 311.1: Audit secondary/comparison hit-test link flow：审计 `secondary-context-menu` 与 `comparison-context-menu` 的 hit-test、active setup link action 和 metadata contract，确定可复用边界。
+  - [ ] Step 311.2: Add comparison hit-test state：在 `comparison-context-menu.js` 存储 `contextMenuPdaHit`、`contextMenuSegmentHit`、`contextMenuSegmentGroupHit`，右键时基于 `getComparisonChartContext()` 计算命中。
+  - [ ] Step 311.3: Add Link To Active Setup menu actions：Comparison Window menu 增加 Link PDA / Segment / Composite To Active Setup，并委托 `handleOrderSetupChartAction`。
+  - [ ] Step 311.4: Integrate picker workflows：当 Order Reason / Live Record Reason / Time Reaction 正在 select object 时，comparison hit object 可被现有 picker workflow 接收；不能支持的对象给明确状态。
+  - [ ] Step 311.5: Browser and focused verification：新增/扩展 smoke，覆盖 comparison PDA/Segment hit-test link 到 active setup，并跑 comparison browser smoke、live record smoke、SMT smoke。
+  - [ ] Step 311.6: Closeout：更新 TODO/session，记录 advanced PDA workflows 与真实使用 audit 仍是 Split removal blocker。
