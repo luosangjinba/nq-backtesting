@@ -274,6 +274,38 @@ After real use, compare:
 
 Only then should a later task remove old Split code.
 
+Done in Step 307.13:
+
+Decision: keep old Split for now. Comparison Window is a strong replacement candidate for the main comparison workflow, but it is not yet a complete Split replacement.
+
+Covered by Comparison Window:
+
+- Cross-instrument comparison: primary NQ with comparison ES is implemented and browser-verified.
+- Cross-timeframe comparison: primary 1M with comparison HTF and same-instrument NQ 15M are browser-verified; HTF replay source loading is covered.
+- Sliding/floating behavior: dragging the outer window moves the frame without resizing the primary chart or the chart stack.
+- Basic annotation workflows: comparison right-click can create BSL/SSL, FVG/IFVG, Segment, and active Order Setup bar evidence with comparison source metadata.
+- Overlay projection/guarding: PDA, Segment, Chart Notes, Order Setup, Live Record, and Time Overlays are filtered by source instrument/timeframe before rendering in comparison.
+- SMT: manual SMT guard prefers Comparison Window, SMT rendering/hit-test/selection support `chartId=comparison-window`, and browser smoke verifies selected SMT inspector + Locate action.
+- Replay: comparison HTF progressive replay clips future bars and aggregates the current partial HTF candle from 1M source data.
+- Workspace restore: local comparison window state and Replay History comparison state are persisted/restored without writing transient geometry to Review JSON.
+
+Still Split-only or not yet equivalent:
+
+- Secondary PDA advanced creation menu has OB, Breaker, Fib, Range PDA drafts, and EQH/EQL Point Sets; Comparison Window currently has BSL/SSL, FVG/IFVG, Segment, and bar evidence only.
+- Secondary context menu can hit-test existing PDA, Segment, and Composite Move objects for direct Link To Active Setup; Comparison Window only adds bar evidence and newly-created comparison source objects.
+- Calendar, Time Reaction, Order Review reason locate, and Live Record locate still have explicit secondary viewport paths; equivalent comparison locate/flash routing is not generalized across those Inspector actions.
+- Order setup edit/pick flows and Segment actor pick preview have primary/secondary-specific implementations; they do not yet use a generic comparison chart context.
+- Split still offers Stack/Side layout as a fixed dual-panel comparison mode. Comparison Window intentionally uses floating/sliding semantics, so real-use preference should be checked before removing the fixed layout.
+- Some UI copy and guard messages still mention Main/Sub or secondary in older panels.
+
+Removal prerequisites before any later Split deletion:
+
+- Either migrate or intentionally drop OB/Breaker/Fib/Point Set workflows for comparison view.
+- Generalize Inspector locate/flash and pick-preview flows from `primary/secondary` branches to chart context routing, including comparison.
+- Add hit-test-based Link To Active Setup for existing comparison PDA/Segment/FVG/Composite evidence if that workflow remains important.
+- Run real-use review on at least the high-frequency workflows: NQ/ES SMT, 1M/HTF replay, comparison annotation creation, order evidence, Calendar/object locate, and workspace restore.
+- Only after those checks pass should a later task open a dedicated Split removal plan.
+
 ### Step 307.14: Documentation And Closeout
 
 Update:
