@@ -209,6 +209,15 @@ Implementation notes:
 - Preserve progressive higher-timeframe candle aggregation so future complete HTF candles are not displayed early.
 - Preserve locate/flash behavior in comparison view.
 
+Implementation notes:
+
+- Comparison Window now loads a 1M replay source for HTF comparison timeframes when the range policy allows it.
+- Replay On renders comparison bars through `comparison-replay-sync`, clipping future bars and aggregating only the current partial HTF candle up to the replay cursor.
+- Comparison chart manager now supports replay cursor primitives and end-of-data positioning.
+- Replay Off restores the full comparison dataset.
+- Comparison context menu includes primary locate for comparison time ranges.
+- Smoke coverage verifies HTF progressive replay does not show a future complete candle, lower-timeframe replay clipping, and browser loading of both comparison bars and replay source bars.
+
 ### Step 307.11: Persistence And Workspace Restore
 
 Persist UI workspace state:

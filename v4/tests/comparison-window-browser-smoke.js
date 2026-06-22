@@ -151,11 +151,13 @@ async function main() {
     await evaluate(client, `
       (() => {
         window.__comparisonFetchCalls = 0;
+        window.__comparisonBarsUrls = [];
         const nativeFetch = window.fetch.bind(window);
         window.fetch = (...args) => {
           if (String(args[0]).includes('/v4/bars')) {
             window.__comparisonFetchCalls += 1;
             window.__comparisonLastBarsUrl = String(args[0]);
+            window.__comparisonBarsUrls.push(String(args[0]));
             return Promise.resolve(new Response(JSON.stringify({
               bars: [
                 { time: '2026-06-12 09:00', timestamp: 1781254800, tradingDay: '2026-06-12', open: 7404.5, high: 7424.75, low: 7366.5, close: 7383.0, volume: 169817 },
@@ -315,21 +317,22 @@ async function main() {
         return true;
       })();
     `);
-    await waitForExpression(client, `window.__comparisonFetchCalls === 1 && document.querySelector('[data-comparison-placeholder]').hidden`);
+    await waitForExpression(client, `window.__comparisonFetchCalls === 2 && document.querySelector('[data-comparison-placeholder]').hidden`);
     const loaded = await evaluate(client, `
       (() => {
         return {
           fetchCalls: window.__comparisonFetchCalls,
           url: window.__comparisonLastBarsUrl,
+          urls: window.__comparisonBarsUrls,
           info: document.querySelector('#comparison-chart-info').textContent,
           placeholderHidden: document.querySelector('[data-comparison-placeholder]').hidden,
           overlayStatus: document.querySelector('[data-comparison-overlay-status]').textContent,
         };
       })();
     `);
-    assert.equal(loaded.fetchCalls, 1, 'Comparison window should request bars after main range loads');
-    assert.match(loaded.url, /instrument=ES/, 'Comparison window should use its own default instrument');
-    assert.match(loaded.url, /tf=60/, 'Comparison window should use its own default timeframe');
+    assert.equal(loaded.fetchCalls, 2, 'Comparison window should request comparison bars and replay source bars after main range loads');
+    assert.ok(loaded.urls.some((url) => /instrument=ES/.test(url) && /tf=60/.test(url)), 'Comparison window should request its own default timeframe');
+    assert.ok(loaded.urls.some((url) => /instrument=ES/.test(url) && /tf=1/.test(url)), 'Comparison window should request 1M replay source for HTF progressive replay');
     assert.equal(loaded.info, 'ES 1H');
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
     assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');

@@ -7,6 +7,7 @@ import {
 } from '../config.js';
 import { formatTickPrice, getInstrumentTickSize } from '../price-utils.js';
 import { getGridOptions } from './grid-visibility.js';
+import { VerticalLinePrimitive } from './primitives.js';
 
 let comparisonChart = null;
 let comparisonSeries = null;
@@ -17,6 +18,9 @@ let legendEl = null;
 let activeInstrument = 'ES';
 let activeTimeframe = 60;
 let lastLegendKey = '';
+let cursorPrimitive = null;
+let syncCrosshairPrimitive = null;
+const crosshairMoveCallbacks = new Set();
 
 function formatChartTime(time) {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -32,6 +36,18 @@ function formatChartTime(time) {
   const h = String(date.getUTCHours()).padStart(2, '0');
   const min = String(date.getUTCMinutes()).padStart(2, '0');
   return `${y}-${m}-${d} ${h}:${min} ${weekdays[date.getUTCDay()]}`;
+}
+
+function formatCursorTime(time) {
+  if (typeof time === 'string') return time;
+  if (!Number.isFinite(Number(time))) return '';
+  const date = new Date(Number(time) * 1000);
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  const h = String(date.getUTCHours()).padStart(2, '0');
+  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d} ${h}:${min}`;
 }
 
 function renderInfoLabel() {
@@ -63,6 +79,11 @@ function updateLegend(param) {
     `<span class="ohlc-label">H</span><span class="ohlc-value ${cls}">${fmt(data.high)}</span>` +
     `<span class="ohlc-label">L</span><span class="ohlc-value ${cls}">${fmt(data.low)}</span>` +
     `<span class="ohlc-label">C</span><span class="ohlc-value ${cls}">${fmt(data.close)}</span>`;
+}
+
+function notifyCrosshairMove(param) {
+  updateLegend(param);
+  crosshairMoveCallbacks.forEach((callback) => callback(param));
 }
 
 export function initComparisonChart(containerId = 'comparison-chart-canvas') {
@@ -101,7 +122,7 @@ export function initComparisonChart(containerId = 'comparison-chart-canvas') {
       minMove: getInstrumentTickSize(activeInstrument),
     },
   });
-  comparisonChart.subscribeCrosshairMove(updateLegend);
+  comparisonChart.subscribeCrosshairMove(notifyCrosshairMove);
 
   resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -138,6 +159,8 @@ export function setComparisonData(data = []) {
 }
 
 export function clearComparisonData() {
+  hideComparisonCursor();
+  hideComparisonSyncCrosshairCursor();
   setComparisonData([]);
 }
 
@@ -169,6 +192,77 @@ export function clearComparisonPrimitives(primitives) {
     }
   });
   return [];
+}
+
+export function showComparisonCursor(time) {
+  if (!comparisonChart || !comparisonSeries || time === undefined || time === null) return;
+  const label = formatCursorTime(time);
+  if (!cursorPrimitive) {
+    cursorPrimitive = new VerticalLinePrimitive(comparisonChart, time, { label });
+    comparisonSeries.attachPrimitive(cursorPrimitive);
+    return;
+  }
+  cursorPrimitive.setTime(time, { label });
+}
+
+export function hideComparisonCursor() {
+  if (!comparisonSeries || !cursorPrimitive) return;
+  try {
+    comparisonSeries.detachPrimitive(cursorPrimitive);
+  } catch (e) {
+    // primitive may already be detached during comparison chart reset
+  }
+  cursorPrimitive = null;
+}
+
+export function showComparisonSyncCrosshairCursor(time) {
+  if (!comparisonChart || !comparisonSeries || time === undefined || time === null) return;
+  if (!syncCrosshairPrimitive) {
+    syncCrosshairPrimitive = new VerticalLinePrimitive(comparisonChart, time, {
+      color: 'rgba(186, 151, 255, 0.22)',
+      lineWidth: 6,
+      lineDash: [],
+    });
+    comparisonSeries.attachPrimitive(syncCrosshairPrimitive);
+    return;
+  }
+  syncCrosshairPrimitive.setTime(time);
+}
+
+export function hideComparisonSyncCrosshairCursor() {
+  if (!comparisonSeries || !syncCrosshairPrimitive) return;
+  try {
+    comparisonSeries.detachPrimitive(syncCrosshairPrimitive);
+  } catch (e) {
+    // primitive may already be detached during comparison chart reset
+  }
+  syncCrosshairPrimitive = null;
+}
+
+export function onComparisonCrosshairMove(callback) {
+  if (typeof callback !== 'function') return () => {};
+  crosshairMoveCallbacks.add(callback);
+  return () => crosshairMoveCallbacks.delete(callback);
+}
+
+export function showComparisonEndOfData(dataCount, previousRange = null, previousDataCount = null) {
+  if (!comparisonChart || !comparisonContainer || dataCount <= 0) return;
+  const width = comparisonContainer.clientWidth || 800;
+  const barSpacing = comparisonChart.timeScale().options().barSpacing || TIME_SCALE_DISPLAY.barSpacing || 6;
+  const barsVisible = Math.ceil(width / barSpacing);
+  const rangeWidth =
+    previousRange && Number.isFinite(previousRange.to - previousRange.from)
+      ? previousRange.to - previousRange.from
+      : barsVisible;
+  const anchorOffset =
+    previousRange && previousDataCount !== null
+      ? previousRange.to - previousDataCount
+      : 7;
+
+  comparisonChart.timeScale().setVisibleLogicalRange({
+    from: dataCount - rangeWidth + anchorOffset,
+    to: dataCount + anchorOffset,
+  });
 }
 
 export function showComparisonStartOfData(dataCount) {

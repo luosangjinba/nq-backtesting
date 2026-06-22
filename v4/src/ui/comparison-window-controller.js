@@ -6,12 +6,22 @@ import {
 } from '../config.js';
 import {
   clearComparisonData,
+  getComparisonChart,
+  hideComparisonCursor,
+  hideComparisonSyncCrosshairCursor,
   initComparisonChart,
+  onComparisonCrosshairMove,
   setComparisonChartInfo,
   setComparisonData,
+  showComparisonCursor,
+  showComparisonEndOfData,
+  showComparisonSyncCrosshairCursor,
   showComparisonStartOfData,
 } from '../chart/comparison-chart-manager.js';
-import { getBarChartTime } from '../chart/time-projection.js';
+import * as chart from '../chart/chart-manager.js';
+import { findDisplayBarFast, resolveExistingChartTimeFast } from '../chart/display-bar-lookup.js';
+import { getBarChartTime, mapTimestampToChartTime } from '../chart/time-projection.js';
+import { validateSingleWindowRange } from '../data/load-range-policy.js';
 import * as primaryStore from '../data/bar-store.js';
 import {
   getComparisonWindowState,
@@ -24,12 +34,25 @@ import {
   updateComparisonVisibleWindow,
 } from '../comparison/comparison-window-store.js';
 import { updateComparisonOverlayStatus } from '../comparison/comparison-overlay-policy.js';
+import { getReplaySyncedComparisonBars } from '../comparison/comparison-replay-sync.js';
 
 let root = null;
 let windowEl = null;
 let dragState = null;
 let requestSeq = 0;
 let lastLoadSignature = null;
+let lastReplayState = { enabled: false, cursorTimestamp: null };
+let replaySourceBars = [];
+let replaySourceRequestedRange = null;
+let pendingPrimaryHoverTime = null;
+let pendingComparisonHoverTime = null;
+let primaryHoverFrame = null;
+let comparisonHoverFrame = null;
+
+function shouldLoadReplaySource(start, end, timeframe) {
+  if (Number(timeframe) <= 1) return false;
+  return validateSingleWindowRange(start, end, 1).ok;
+}
 
 function renderInstrumentOptions(selectedInstrument) {
   return INSTRUMENT_OPTIONS.map(
@@ -54,6 +77,9 @@ export function initComparisonWindowController() {
   bus.on('comparison-window:changed', handleComparisonChanged);
   bus.on('bars:loaded', () => loadComparisonForPrimaryRange({ force: true }));
   bus.on('bars:cleared', clearComparisonView);
+  bus.on('replay:changed', handleReplayChanged);
+  chart.onCrosshairMove((param) => scheduleComparisonHoverCursor(param?.time));
+  onComparisonCrosshairMove((param) => schedulePrimaryHoverCursor(param?.time));
   window.addEventListener('resize', () => render(getComparisonWindowState()));
 }
 
@@ -178,6 +204,134 @@ function toChartBar(bar, timeframe) {
   };
 }
 
+function getReplaySyncedBars(displayBars, timeframe) {
+  return getReplaySyncedComparisonBars({
+    displayBars,
+    timeframe,
+    replayEnabled: lastReplayState.enabled,
+    cursorTimestamp: lastReplayState.cursorTimestamp,
+    replaySourceBars,
+    replaySourceRequestedRange,
+  });
+}
+
+function mapTimestampToComparisonChartTime(timestamp, timeframe, displayBars) {
+  return mapTimestampToChartTime(timestamp, timeframe, displayBars);
+}
+
+function syncComparisonReplayCursor(timeframe, displayBars) {
+  if (!lastReplayState.enabled || lastReplayState.cursorTimestamp === null) {
+    hideComparisonCursor();
+    return;
+  }
+  const cursorTime = mapTimestampToComparisonChartTime(lastReplayState.cursorTimestamp, timeframe, displayBars);
+  if (cursorTime === null) {
+    hideComparisonCursor();
+    return;
+  }
+  showComparisonCursor(cursorTime);
+}
+
+function renderComparisonBars({ followReplay = false } = {}) {
+  const state = getComparisonWindowState();
+  if (!state.enabled) return;
+  initComparisonChart();
+  const { instrument, timeframe } = state.descriptor;
+  setComparisonChartInfo({ instrument, timeframe });
+  const displayBars = state.displayBars || [];
+  const syncedBars = getReplaySyncedBars(displayBars, timeframe);
+  const chartData = syncedBars.map((bar) => toChartBar(bar, timeframe));
+  const previousRange = getComparisonChart()?.timeScale?.().getVisibleLogicalRange?.() || null;
+  setComparisonData(chartData);
+  if (lastReplayState.enabled || followReplay) {
+    showComparisonEndOfData(chartData.length, previousRange, null);
+  } else {
+    showComparisonStartOfData(chartData.length);
+  }
+  syncComparisonReplayCursor(timeframe, syncedBars);
+  if (chartData.length > 0) {
+    hideComparisonPlaceholder();
+  }
+}
+
+function requestFrame(callback) {
+  const raf = globalThis.requestAnimationFrame || globalThis.window?.requestAnimationFrame;
+  if (typeof raf === 'function') return raf(callback);
+  callback();
+  return null;
+}
+
+function getPrimaryHoverTimestamp(time) {
+  if (time === undefined || time === null) return null;
+  const bar = findDisplayBarFast(primaryStore.getDisplayBars(), time, primaryStore.getCurrentTimeframe());
+  return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
+}
+
+function getComparisonHoverTimestamp(time) {
+  if (time === undefined || time === null) return null;
+  const state = getComparisonWindowState();
+  const bars = getReplaySyncedBars(state.displayBars || [], state.descriptor.timeframe);
+  const bar = findDisplayBarFast(bars, time, state.descriptor.timeframe);
+  return Number.isFinite(Number(bar?.timestamp)) ? Number(bar.timestamp) : null;
+}
+
+function syncComparisonHoverCursor(primaryTime) {
+  const state = getComparisonWindowState();
+  if (!state.enabled || !state.displayBars?.length) {
+    hideComparisonSyncCrosshairCursor();
+    return;
+  }
+  const hoverTimestamp = getPrimaryHoverTimestamp(primaryTime);
+  const syncedBars = getReplaySyncedBars(state.displayBars, state.descriptor.timeframe);
+  const hoverTime = resolveExistingChartTimeFast(hoverTimestamp, state.descriptor.timeframe, syncedBars);
+  if (hoverTime === null) {
+    hideComparisonSyncCrosshairCursor();
+    return;
+  }
+  showComparisonSyncCrosshairCursor(hoverTime);
+}
+
+function scheduleComparisonHoverCursor(primaryTime) {
+  pendingPrimaryHoverTime = primaryTime;
+  if (primaryHoverFrame !== null) return;
+  primaryHoverFrame = requestFrame(() => {
+    primaryHoverFrame = null;
+    const time = pendingPrimaryHoverTime;
+    pendingPrimaryHoverTime = null;
+    syncComparisonHoverCursor(time);
+  });
+}
+
+function syncPrimaryHoverCursor(comparisonTime) {
+  const state = getComparisonWindowState();
+  if (!state.enabled || !primaryStore.getDisplayBars().length) {
+    chart.hideSyncCrosshairCursor();
+    return;
+  }
+  const hoverTimestamp = getComparisonHoverTimestamp(comparisonTime);
+  const hoverTime = resolveExistingChartTimeFast(
+    hoverTimestamp,
+    primaryStore.getCurrentTimeframe(),
+    primaryStore.getDisplayBars()
+  );
+  if (hoverTime === null) {
+    chart.hideSyncCrosshairCursor();
+    return;
+  }
+  chart.showSyncCrosshairCursor(hoverTime);
+}
+
+function schedulePrimaryHoverCursor(comparisonTime) {
+  pendingComparisonHoverTime = comparisonTime;
+  if (comparisonHoverFrame !== null) return;
+  comparisonHoverFrame = requestFrame(() => {
+    comparisonHoverFrame = null;
+    const time = pendingComparisonHoverTime;
+    pendingComparisonHoverTime = null;
+    syncPrimaryHoverCursor(time);
+  });
+}
+
 function setComparisonStatus(text, isError = false) {
   const statusEl = root?.querySelector('[data-comparison-status]');
   const placeholder = root?.querySelector('[data-comparison-placeholder]');
@@ -197,6 +351,8 @@ function clearComparisonView() {
   requestSeq += 1;
   lastLoadSignature = null;
   clearComparisonBars();
+  replaySourceBars = [];
+  replaySourceRequestedRange = null;
   clearComparisonData();
   setComparisonStatus('Choose a main date range to load comparison data');
   updateComparisonOverlayStatus();
@@ -220,14 +376,18 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
   try {
     initComparisonChart();
     setComparisonChartInfo({ instrument, timeframe });
-    const result = await fetchBars(start, end, timeframe, instrument);
+    const shouldLoadSource = shouldLoadReplaySource(start, end, timeframe);
+    const [result, replaySourceResult] = await Promise.all([
+      fetchBars(start, end, timeframe, instrument),
+      shouldLoadSource ? fetchBars(start, end, 1, instrument) : Promise.resolve(null),
+    ]);
     if (seq !== requestSeq || !getComparisonWindowState().enabled) return;
+    replaySourceBars = replaySourceResult?.bars || [];
+    replaySourceRequestedRange = replaySourceResult?.requestedRange || null;
     setComparisonBars(result.bars, result.requestedRange, { start, end });
     const displayBars = getDisplayBarsFromResult(result);
-    const chartData = displayBars.map((bar) => toChartBar(bar, timeframe));
-    setComparisonData(chartData);
-    showComparisonStartOfData(chartData.length);
-    if (chartData.length > 0) {
+    renderComparisonBars();
+    if (displayBars.length > 0) {
       hideComparisonPlaceholder();
     } else {
       setComparisonStatus(`No ${instrument} data in main range`);
@@ -241,6 +401,8 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
     if (seq !== requestSeq) return;
     lastLoadSignature = null;
     clearComparisonBars();
+    replaySourceBars = [];
+    replaySourceRequestedRange = null;
     clearComparisonData();
     setComparisonStatus(`Comparison load failed: ${error.message}`, true);
     updateComparisonOverlayStatus();
@@ -249,6 +411,14 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
       isError: true,
     });
   }
+}
+
+function handleReplayChanged({ enabled, cursorTimestamp }) {
+  lastReplayState = {
+    enabled: Boolean(enabled),
+    cursorTimestamp: cursorTimestamp ?? null,
+  };
+  renderComparisonBars({ followReplay: true });
 }
 
 function startDrag(event) {
