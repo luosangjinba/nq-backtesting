@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: feature/comparison-window-mvp
-Status: planned
+Status: completed
 
 ## Problem
 
@@ -76,9 +76,19 @@ Implementation notes:
 
 ### Step 318.4: Closeout Verification
 
+Status: completed.
+
 Expected commands:
 
 - `git diff --check`
 - `node v4/tests/comparison-overlay-policy-smoke.js`
 - `node v4/tests/comparison-window-persistence-smoke.js`
 - `node v4/tests/comparison-window-browser-smoke.js`
+
+Final result:
+
+- Main is now the canonical drawing visibility target.
+- `No Sync` hides drawings from Comparison instead of trapping them in their creation window.
+- Comparison drawing creation under `No Sync` automatically switches Drawings to `Sync`.
+- Comparison drawing creation is blocked when Main and Comparison instrument/timeframe do not match.
+- Browser smoke covers the full path: create from Comparison under `No Sync`, auto-switch to `Sync`, hit in both charts, switch back to `No Sync`, remain hittable in Main and disappear from Comparison.
