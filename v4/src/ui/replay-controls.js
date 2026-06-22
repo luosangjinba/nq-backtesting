@@ -3,7 +3,7 @@
 import * as bus from '../event-bus.js';
 import { fetchBars } from '../api.js';
 import * as chart from '../chart/chart-manager.js';
-import { getBarChartTime, getBucketStart } from '../chart/time-projection.js';
+import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
@@ -12,12 +12,22 @@ import {
 } from '../comparison/comparison-window-store.js';
 import { resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { timeframeToString } from '../config.js';
-import { dateKeyFromTimestamp, formatTimeInput } from '../utils.js';
 import {
   clearReplayHistory,
   deleteReplayHistoryItem,
   getReplayHistory,
 } from './replay-history-store.js';
+import {
+  findBarIndexAtOrBeforeTimestamp,
+  formatReplayTime,
+  getReplayRestoreDisplayBars,
+  getUtcDateKey,
+  getUtcDateTimeTimestamp,
+  isTimestampInRange,
+  normalizeTimeKey,
+  normalizeTimestamp,
+  parseReplayJumpTimestamp,
+} from './replay/replay-time-utils.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -53,11 +63,6 @@ function toChartBar(bar) {
   };
 }
 
-function formatReplayTime(bar) {
-  if (!bar) return '--';
-  return bar.tradingDay || bar.time || '--';
-}
-
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -83,33 +88,6 @@ function formatHistoryDateRange(start, end) {
   const endDate = String(end || '').slice(0, 10);
   if (startDate && endDate) return `${startDate} - ${endDate}`;
   return start || end || '--';
-}
-
-function parseDateTime(value) {
-  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
-  if (!match) return null;
-  const timestamp = Date.UTC(
-    Number(match[1]),
-    Number(match[2]) - 1,
-    Number(match[3]),
-    Number(match[4] || 0),
-    Number(match[5] || 0),
-    0
-  );
-  return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-function isTimestampInRange(timestamp, start, end) {
-  const startMs = parseDateTime(start);
-  const endMs = parseDateTime(end);
-  const targetMs = Number(timestamp) * 1000;
-  return (
-    startMs !== null &&
-    endMs !== null &&
-    Number.isFinite(targetMs) &&
-    targetMs >= startMs &&
-    targetMs <= endMs
-  );
 }
 
 function setToolbarRange(start, end, timeframe) {
@@ -152,97 +130,6 @@ function applyComparisonState(comparison) {
   setComparisonWindowEnabled(true);
 }
 
-function findBarIndexAtOrBeforeTimestamp(bars, targetTimestamp) {
-  if (!bars.length || targetTimestamp === null || targetTimestamp === undefined) return -1;
-  const tfSeconds = store.getCurrentTimeframe() * 60;
-  const firstTimestamp = bars[0].timestamp;
-  const lastTimestamp = bars[bars.length - 1].timestamp;
-
-  if (targetTimestamp < firstTimestamp || targetTimestamp >= lastTimestamp + tfSeconds) {
-    return -1;
-  }
-
-  let matchedIndex = -1;
-  for (let i = 0; i < bars.length; i += 1) {
-    if (bars[i].timestamp > targetTimestamp) break;
-    matchedIndex = i;
-  }
-
-  return matchedIndex;
-}
-
-function getUtcDateKey(timestamp) {
-  return dateKeyFromTimestamp(timestamp);
-}
-
-function getUtcDateTimeTimestamp(dateKey, hour, minute) {
-  const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-  return Math.floor(Date.UTC(
-    Number(match[1]),
-    Number(match[2]) - 1,
-    Number(match[3]),
-    hour,
-    minute,
-    0
-  ) / 1000);
-}
-
-function makeTradingDay(timestamp) {
-  return dateKeyFromTimestamp(timestamp);
-}
-
-function aggregatePartialBar(sourceBars, bucketStart, cursorTimestamp, timeframe) {
-  const bucketEnd = bucketStart + timeframe * 60;
-  const bars = sourceBars.filter((bar) => (
-    Number(bar?.timestamp) >= bucketStart &&
-    Number(bar?.timestamp) <= cursorTimestamp &&
-    Number(bar?.timestamp) < bucketEnd
-  ));
-  if (!bars.length) return null;
-
-  return bars.reduce((partial, bar, index) => {
-    if (index === 0) {
-      return {
-        timestamp: bucketStart,
-        tradingDay: timeframe === 1440 ? makeTradingDay(bucketStart + 24 * 60 * 60) : bar.tradingDay,
-        open: bar.open,
-        high: bar.high,
-        low: bar.low,
-        close: bar.close,
-        volume: bar.volume || 0,
-      };
-    }
-    partial.high = Math.max(partial.high, bar.high);
-    partial.low = Math.min(partial.low, bar.low);
-    partial.close = bar.close;
-    partial.volume += bar.volume || 0;
-    return partial;
-  }, null);
-}
-
-function getReplayRestoreDisplayBars(baseBars, timeframe, cursorTimestamp, restoreSnapshot = null) {
-  if (!restoreSnapshot?.enabled || !Number.isFinite(Number(cursorTimestamp))) return baseBars;
-  const sourceTimeframe = Number(restoreSnapshot.sourceTimeframe);
-  const targetTimeframe = Number(timeframe);
-  if (
-    !Number.isFinite(sourceTimeframe) ||
-    !Number.isFinite(targetTimeframe) ||
-    targetTimeframe <= sourceTimeframe
-  ) {
-    return baseBars;
-  }
-
-  const sourceBars = Array.isArray(restoreSnapshot.sourceBars) ? restoreSnapshot.sourceBars : [];
-  if (!sourceBars.length) return baseBars;
-
-  const replayBucketStart = getBucketStart(Number(cursorTimestamp), timeframe);
-  const completedBars = baseBars.filter((bar) => Number(bar?.timestamp) < replayBucketStart);
-  const futureBars = baseBars.filter((bar) => Number(bar?.timestamp) > replayBucketStart);
-  const partialBar = aggregatePartialBar(sourceBars, replayBucketStart, Number(cursorTimestamp), timeframe);
-  return partialBar ? [...completedBars, partialBar, ...futureBars] : baseBars;
-}
-
 function findNextDailyTimeIndex(hour, minute) {
   if (!enabled || cursorIndex < 0 || !displayBars.length) return -1;
 
@@ -258,7 +145,7 @@ function findNextDailyTimeIndex(hour, minute) {
 
     const targetTimestamp = getUtcDateTimeTimestamp(dateKey, hour, minute);
     if (targetTimestamp === null) continue;
-    const targetIndex = findBarIndexAtOrBeforeTimestamp(displayBars, targetTimestamp);
+    const targetIndex = findBarIndexAtOrBeforeTimestamp(displayBars, targetTimestamp, store.getCurrentTimeframe());
     if (targetIndex >= index || getUtcDateKey(displayBars[targetIndex]?.timestamp) === dateKey) {
       return targetIndex;
     }
@@ -276,45 +163,11 @@ function findNextDailyTimeIndex(hour, minute) {
   return -1;
 }
 
-function parseReplayJumpTimestamp(value) {
-  const formatted = formatTimeInput(value.trim());
-  const match = formatted.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/);
-  if (!match) return { timestamp: null, formatted };
-
-  const [, year, month, day, hour, minute] = match;
-  const timestamp = Math.floor(
-    Date.UTC(
-      Number(year),
-      Number(month) - 1,
-      Number(day),
-      Number(hour),
-      Number(minute),
-      0
-    ) / 1000
-  );
-
-  return { timestamp, formatted };
-}
-
-function normalizeTimeKey(time) {
-  if (time && typeof time === 'object') {
-    const month = String(time.month).padStart(2, '0');
-    const day = String(time.day).padStart(2, '0');
-    return `${time.year}-${month}-${day}`;
-  }
-  return time;
-}
-
 function stopTimer() {
   if (timer) {
     window.clearInterval(timer);
     timer = null;
   }
-}
-
-function normalizeTimestamp(value) {
-  const timestamp = Number(value);
-  return Number.isFinite(timestamp) ? timestamp : null;
 }
 
 function getCursorTimestamp() {
@@ -481,7 +334,7 @@ function jumpToTime() {
     return;
   }
 
-  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp);
+  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp, store.getCurrentTimeframe());
   if (index < 0) {
     bus.emit('status:update', {
       text: 'Replay 跳转失败: 时间不在当前加载区间',
@@ -500,7 +353,7 @@ function jumpToTime() {
 }
 
 export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex) {
-  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp);
+  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp, store.getCurrentTimeframe());
   if (index < 0) return false;
   stopTimer();
   speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : speedIndex;
@@ -863,9 +716,9 @@ export function syncReplayData(restoreSnapshot = null) {
   activeTimeframe = nextTimeframe;
 
   if (shouldRestoreReplay && chartData.length > 0) {
-    const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp);
+    const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp, store.getCurrentTimeframe());
     if (restoredIndex >= 0) {
-      lastCursorIndex = findBarIndexAtOrBeforeTimestamp(displayBars, lastTimestamp);
+      lastCursorIndex = findBarIndexAtOrBeforeTimestamp(displayBars, lastTimestamp, store.getCurrentTimeframe());
       lastCursorTimestampAnchor = lastTimestamp;
       mode = 'idle';
       cursorIndex = -1;
