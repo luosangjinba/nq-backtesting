@@ -174,6 +174,24 @@ If low-risk, extend comparison browser smoke:
 
 ## Step 311.6: Closeout
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 311 execution.
+
+Completed:
+- Added Comparison Window existing-object hit state.
+- Added Link PDA / Segment / Composite To Active Setup actions.
+- Reused `handleOrderSetupChartAction` for active setup link delegation.
+- Wired Comparison Window hit selection into existing picker workflows through global selection events.
+- Verified focused syntax/smoke and comparison browser workflow.
+
+Remaining Split removal blockers:
+- Advanced PDA workflows remain primary/old Split scoped: OB/Breaker range drafts, Fib, and EQH/EQL Point Sets.
+- Real-use audit from Step 308.6 still needs to pass before opening a Split removal plan.
+- Fixed Stack/Side layout preference still needs explicit user workflow review.
+- A narrower browser click assertion for right-click Link PDA/Segment on Comparison Window is optional future test hardening.
+
 Update:
 
 - `v4/TODO.md`;
