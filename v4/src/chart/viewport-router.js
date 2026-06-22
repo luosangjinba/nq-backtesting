@@ -1,5 +1,4 @@
 import * as viewport from './viewport-controller.js';
-import * as secondaryViewport from './secondary-viewport-controller.js';
 import * as comparisonViewport from './comparison-viewport-controller.js';
 
 export const VIEWPORT_TARGETS = Object.freeze({
@@ -9,7 +8,7 @@ export const VIEWPORT_TARGETS = Object.freeze({
   BOTH: 'both',
 });
 
-const DEFAULT_TARGETS = [VIEWPORT_TARGETS.PRIMARY, VIEWPORT_TARGETS.SECONDARY];
+const DEFAULT_TARGETS = [VIEWPORT_TARGETS.PRIMARY, VIEWPORT_TARGETS.COMPARISON];
 
 function normalizeRange(rangeOrStart, end = null) {
   const input = typeof rangeOrStart === 'object' && rangeOrStart !== null
@@ -53,8 +52,6 @@ function defaultHandlers() {
   return {
     [VIEWPORT_TARGETS.PRIMARY]: (range, options) =>
       viewport.locateTimestampRange(range.start, range.end, options),
-    [VIEWPORT_TARGETS.SECONDARY]: (range, options) =>
-      secondaryViewport.locateSecondaryTimestampRange(range.start, range.end, options),
     [VIEWPORT_TARGETS.COMPARISON]: (range, options) =>
       comparisonViewport.locateComparisonTimestampRange(range.start, range.end, options),
   };

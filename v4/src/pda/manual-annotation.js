@@ -2,11 +2,9 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
-import * as secondaryChart from '../chart/secondary-chart-manager.js';
 import { getPrimaryChartContext } from '../chart/chart-context.js';
-import { getBarChartTime as getProjectedBarChartTime } from '../chart/time-projection.js';
+import { VIEWPORT_TARGETS, locateChartRange } from '../chart/viewport-router.js';
 import * as store from '../data/bar-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import { timeframeToString } from '../config.js';
 import { clearAnnotations, getAnnotationById } from './pda-store.js';
 import { clearPdaContextDataCache } from './pda-context-data.js';
@@ -245,25 +243,23 @@ function showChartNoteEditor({ title, defaultText = '', x = 20, y = 20, onSave }
   chartNoteEditorEl = editor;
 }
 
-function locateSecondaryAtBar(bar) {
+function locateComparisonAtBar(bar) {
   if (!bar) return;
-  if (!secondaryStore.isSecondaryEnabled() || !secondaryStore.getSecondaryDisplayBars().length) {
-    bus.emit('status:update', { text: '副图未开启或没有已加载 K 线', isError: true });
+  if (!Number.isFinite(Number(bar.timestamp))) {
+    bus.emit('status:update', { text: 'Comparison locate failed: no chart time selected', isError: true });
     return;
   }
-
-  const secondaryBar = secondaryChart.locateSecondaryTimestamp(
-    bar.timestamp,
-    secondaryStore.getSecondaryDisplayBars()
+  const result = locateChartRange(
+    VIEWPORT_TARGETS.COMPARISON,
+    { start: bar.timestamp, end: bar.timestamp }
   );
-  if (!secondaryBar) {
-    bus.emit('status:update', { text: '副图定位失败：未找到对应时间', isError: true });
-    return;
-  }
-  secondaryChart.showSecondaryHoverCursor(
-    getProjectedBarChartTime(secondaryBar, secondaryStore.getSecondaryTimeframe())
-  );
-  bus.emit('status:update', { text: `副图已定位到 ${bar.tradingDay || bar.time}`, isError: false });
+  const located = Boolean(result.targets?.[VIEWPORT_TARGETS.COMPARISON]?.located);
+  bus.emit('status:update', {
+    text: located
+      ? `Comparison located to ${bar.tradingDay || bar.time}`
+      : 'Comparison locate failed: window disabled or no matching bar',
+    isError: !located,
+  });
 }
 
 function renderTimeOverlayMenuItems(bar) {
@@ -529,8 +525,8 @@ async function handleControlClick(e) {
     orderSetupElement: e.target.closest('[data-order-setup-element]')?.dataset.orderSetupElement || '',
   })) {
     hideContextMenu();
-  } else if (action === 'secondary-locate-time') {
-    locateSecondaryAtBar(contextMenuBar);
+  } else if (action === 'comparison-locate-time') {
+    locateComparisonAtBar(contextMenuBar);
     hideContextMenu();
   } else if (action === 'calendar-locate-date') {
     if (!contextMenuBar || !Number.isFinite(Number(contextMenuBar.timestamp))) {

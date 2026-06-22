@@ -1,6 +1,5 @@
 import * as bus from '../../event-bus.js';
 import * as store from '../../data/bar-store.js';
-import * as secondaryStore from '../../data/secondary-chart-store.js';
 import {
   PICK_CONTEXT_TARGETS,
   clearAllPickPreviewCursors,
@@ -108,13 +107,12 @@ function startActorBarPick(segment, target) {
   if (!evidence) return;
 
   const currentTimeframe = timeframeToString(store.getCurrentTimeframe());
-  const secondaryTimeframe = timeframeToString(secondaryStore.getSecondaryTimeframe());
   const comparisonContext = getPickContextFromCrosshairSource(PICK_CONTEXT_TARGETS.COMPARISON);
   const comparisonTimeframe = comparisonContext?.isEnabled()
     ? timeframeToString(comparisonContext.timeframe())
     : '';
   const actorTimeframe = evidence.actor?.timeframe || currentTimeframe;
-  const allowedTimeframes = [currentTimeframe, secondaryTimeframe, comparisonTimeframe].filter(Boolean);
+  const allowedTimeframes = [currentTimeframe, comparisonTimeframe].filter(Boolean);
   if (!allowedTimeframes.includes(actorTimeframe)) {
     bus.emit('status:update', {
       text: `Actor TF ${actorTimeframe} 与可 pick 图表 TF ${allowedTimeframes.join(' / ')} 都不一致，不能 pick`,
@@ -201,9 +199,6 @@ export function createSegmentInspectorActionController({
   }
 
   const handleActorPickHoverThrottled = createRafThrottle(handleActorPickHover);
-  const handleSecondaryActorPickHoverThrottled = createRafThrottle((param) =>
-    handleActorPickHover(param, PICK_CONTEXT_TARGETS.SECONDARY)
-  );
   const handleComparisonActorPickHoverThrottled = createRafThrottle((param) =>
     handleActorPickHover(param, PICK_CONTEXT_TARGETS.COMPARISON)
   );
@@ -495,7 +490,6 @@ export function createSegmentInspectorActionController({
     clearActorPickState,
     handleActorPickChartClick,
     handleActorPickHover: handleActorPickHoverThrottled,
-    handleSecondaryActorPickHover: handleSecondaryActorPickHoverThrottled,
     handleComparisonActorPickHover: handleComparisonActorPickHoverThrottled,
     handleSegmentChange,
     handleSegmentClick,

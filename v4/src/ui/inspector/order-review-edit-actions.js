@@ -453,9 +453,6 @@ export function createOrderReviewEditActionController({
   }
 
   const handleExitPickHoverThrottled = createRafThrottle(handleExitPickHover);
-  const handleSecondaryExitPickHoverThrottled = createRafThrottle((param) =>
-    handleExitPickHover(param, PICK_CONTEXT_TARGETS.SECONDARY)
-  );
   const handleComparisonExitPickHoverThrottled = createRafThrottle((param) =>
     handleExitPickHover(param, PICK_CONTEXT_TARGETS.COMPARISON)
   );
@@ -466,7 +463,6 @@ export function createOrderReviewEditActionController({
     handleClick,
     handleExitPickChartClick,
     handleExitPickHover: handleExitPickHoverThrottled,
-    handleSecondaryExitPickHover: handleSecondaryExitPickHoverThrottled,
     handleComparisonExitPickHover: handleComparisonExitPickHoverThrottled,
     didExitPickJustHandleClick: () => Date.now() - lastExitPickHandledAt < 250,
     isExitPicking: () => Boolean(exitPickState),

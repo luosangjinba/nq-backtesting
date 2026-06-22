@@ -1,8 +1,6 @@
 import * as primaryChart from './chart-manager.js';
-import * as secondaryChart from './secondary-chart-manager.js';
 import * as comparisonChart from './comparison-chart-manager.js';
 import * as primaryStore from '../data/bar-store.js';
-import * as secondaryStore from '../data/secondary-chart-store.js';
 import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { findDisplayBarFast } from './display-bar-lookup.js';
 import { getBarChartTime as getProjectedBarChartTime } from './time-projection.js';
@@ -15,7 +13,6 @@ export const PICK_CONTEXT_TARGETS = Object.freeze({
 
 const TARGET_BY_ELEMENT_ID = Object.freeze({
   chart: PICK_CONTEXT_TARGETS.PRIMARY,
-  'secondary-chart': PICK_CONTEXT_TARGETS.SECONDARY,
   'comparison-chart-canvas': PICK_CONTEXT_TARGETS.COMPARISON,
   'comparison-chart-view': PICK_CONTEXT_TARGETS.COMPARISON,
 });
@@ -26,7 +23,6 @@ function getDocumentElement(id) {
 
 function normalizeTargetId(value) {
   const id = String(value || '').trim();
-  if (id === PICK_CONTEXT_TARGETS.SECONDARY) return PICK_CONTEXT_TARGETS.SECONDARY;
   if (id === PICK_CONTEXT_TARGETS.COMPARISON) return PICK_CONTEXT_TARGETS.COMPARISON;
   return PICK_CONTEXT_TARGETS.PRIMARY;
 }
@@ -77,21 +73,6 @@ function defaultDefinitions() {
       showPreviewCursor: primaryChart.showPickPreviewCursor,
       hidePreviewCursor: primaryChart.hidePickPreviewCursor,
       isEnabled: () => Boolean(primaryChart.getChart() && primaryChart.getSeries() && primaryStore.getDisplayBars().length),
-    },
-    [PICK_CONTEXT_TARGETS.SECONDARY]: {
-      label: 'secondary',
-      chartEl: () => getDocumentElement('secondary-chart'),
-      timeframe: secondaryStore.getSecondaryTimeframe,
-      getDisplayBars: secondaryStore.getSecondaryDisplayBars,
-      coordinateToTime: (x) => secondaryChart.getSecondaryChart()?.timeScale?.().coordinateToTime(x) ?? null,
-      showPreviewCursor: secondaryChart.showSecondaryPickPreviewCursor,
-      hidePreviewCursor: secondaryChart.hideSecondaryPickPreviewCursor,
-      isEnabled: () => Boolean(
-        secondaryStore.isSecondaryEnabled() &&
-        secondaryChart.getSecondaryChart() &&
-        secondaryChart.getSecondarySeries() &&
-        secondaryStore.getSecondaryDisplayBars().length
-      ),
     },
     [PICK_CONTEXT_TARGETS.COMPARISON]: {
       label: 'comparison',

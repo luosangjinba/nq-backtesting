@@ -80,13 +80,22 @@ Result:
 
 ## Step 322.3: Migrate Locate/Pick Routing
 
-Status: pending.
+Status: completed.
 
 Replace old secondary routing where the user workflow now expects Comparison:
 
 - remove `secondary-locate-time` menu item or route it to Comparison if appropriate;
 - update viewport router targets so unsupported secondary target returns a clean skipped result;
 - remove secondary pick context target or replace with Comparison target where call sites still need multi-chart picking.
+
+Result:
+
+- Main chart context menu now offers `Time in Comparison` instead of `Time in Secondary`.
+- PDA locate defaults now target Primary + Comparison; legacy secondary locate inputs map to Comparison while the `secondary` result field remains a skipped compatibility field.
+- Viewport router default `both` target now expands to Primary + Comparison; default secondary runtime handler was removed.
+- Pick context router no longer imports or defines secondary chart/store runtime wiring; active pick targets are Primary and Comparison.
+- Inspector locate/pick helpers map legacy secondary source ids to Comparison and no longer expose secondary hover handlers.
+- Router smoke tests were updated to assert Comparison behavior and clean unsupported secondary routing.
 
 ## Step 322.4: Remove Uninitialized Secondary Runtime Modules
 

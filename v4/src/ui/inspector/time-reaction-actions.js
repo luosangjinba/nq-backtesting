@@ -53,7 +53,6 @@ let pendingDailyTimeRefPick = null;
 
 const VIEWPORT_TARGET_LABELS = {
   [VIEWPORT_TARGETS.PRIMARY]: 'primary',
-  [VIEWPORT_TARGETS.SECONDARY]: 'secondary',
   [VIEWPORT_TARGETS.COMPARISON]: 'comparison',
 };
 
@@ -147,7 +146,7 @@ export function getDailyTimeTargetLabel(target = {}) {
 }
 
 function toViewportTarget(chartId) {
-  if (chartId === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.SECONDARY;
+  if (chartId === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.COMPARISON;
   if (chartId === VIEWPORT_TARGETS.COMPARISON) return VIEWPORT_TARGETS.COMPARISON;
   return VIEWPORT_TARGETS.PRIMARY;
 }
@@ -164,7 +163,6 @@ function locateRangeOnTarget(target, range, options = {}) {
 function getLocatedPdaTargetLabels(result = {}) {
   return [
     result.primary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.PRIMARY] : '',
-    result.secondary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.SECONDARY] : '',
     result.comparison?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.COMPARISON] : '',
   ].filter(Boolean);
 }

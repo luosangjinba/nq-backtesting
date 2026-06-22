@@ -259,7 +259,7 @@ export function renderManualContextMenu({
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="calendar-locate-date" ${disabled}>Date in Calendar</button>
-        <button class="pda-menu-item" data-pda-action="secondary-locate-time" ${disabled}>Time in Secondary</button>
+        <button class="pda-menu-item" data-pda-action="comparison-locate-time" ${disabled}>Time in Comparison</button>
         </div>
       </div>
       ${orderSetupItems}

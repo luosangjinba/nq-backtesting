@@ -1,7 +1,6 @@
 import {
   getComparisonChartContext,
   getPrimaryChartContext,
-  getSecondaryChartContext,
 } from '../chart/chart-context.js';
 import { flashPdaAnnotation } from '../chart/pda-locate-flash.js';
 import { VIEWPORT_TARGETS, locateChartRange } from '../chart/viewport-router.js';
@@ -18,21 +17,21 @@ export function getPdaTimestampRange(annotation = {}) {
 
 const PDA_TARGET_CONTEXTS = {
   [VIEWPORT_TARGETS.PRIMARY]: getPrimaryChartContext,
-  [VIEWPORT_TARGETS.SECONDARY]: getSecondaryChartContext,
   [VIEWPORT_TARGETS.COMPARISON]: getComparisonChartContext,
 };
 
 function normalizePdaLocateTarget(annotation = {}, options = {}) {
+  if (options.chart === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.COMPARISON;
   if (options.chart) return options.chart;
   if (annotation.sourceChartId === VIEWPORT_TARGETS.COMPARISON) return VIEWPORT_TARGETS.COMPARISON;
   return VIEWPORT_TARGETS.BOTH;
 }
 
 function expandPdaTargets(targetChart) {
-  if (targetChart === VIEWPORT_TARGETS.SECONDARY) return [VIEWPORT_TARGETS.SECONDARY];
+  if (targetChart === VIEWPORT_TARGETS.SECONDARY) return [VIEWPORT_TARGETS.COMPARISON];
   if (targetChart === VIEWPORT_TARGETS.COMPARISON) return [VIEWPORT_TARGETS.COMPARISON];
   if (targetChart === VIEWPORT_TARGETS.PRIMARY) return [VIEWPORT_TARGETS.PRIMARY];
-  return [VIEWPORT_TARGETS.PRIMARY, VIEWPORT_TARGETS.SECONDARY];
+  return [VIEWPORT_TARGETS.PRIMARY, VIEWPORT_TARGETS.COMPARISON];
 }
 
 function createSkippedResult() {
@@ -68,9 +67,7 @@ export function locatePdaProjection(annotation = {}, options = {}) {
   const primary = targets.includes(VIEWPORT_TARGETS.PRIMARY)
     ? locatePdaOnTarget(annotation, range, VIEWPORT_TARGETS.PRIMARY)
     : createSkippedResult();
-  const secondary = targets.includes(VIEWPORT_TARGETS.SECONDARY)
-    ? locatePdaOnTarget(annotation, range, VIEWPORT_TARGETS.SECONDARY)
-    : createSkippedResult();
+  const secondary = createSkippedResult();
   const comparison = targets.includes(VIEWPORT_TARGETS.COMPARISON)
     ? locatePdaOnTarget(annotation, range, VIEWPORT_TARGETS.COMPARISON)
     : createSkippedResult();

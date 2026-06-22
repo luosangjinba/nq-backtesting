@@ -44,7 +44,6 @@ let pendingLiveRecordReasonRefPick = null;
 
 const VIEWPORT_TARGET_LABELS = {
   [VIEWPORT_TARGETS.PRIMARY]: 'primary',
-  [VIEWPORT_TARGETS.SECONDARY]: 'secondary',
   [VIEWPORT_TARGETS.COMPARISON]: 'comparison',
 };
 
@@ -82,7 +81,7 @@ function createEmptyLiveRecordReason() {
 }
 
 function toViewportTarget(sourceChartId) {
-  if (sourceChartId === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.SECONDARY;
+  if (sourceChartId === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.COMPARISON;
   if (sourceChartId === VIEWPORT_TARGETS.COMPARISON) return VIEWPORT_TARGETS.COMPARISON;
   return VIEWPORT_TARGETS.PRIMARY;
 }
@@ -90,7 +89,6 @@ function toViewportTarget(sourceChartId) {
 function getLocatedPdaTargetLabels(result = {}) {
   return [
     result.primary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.PRIMARY] : '',
-    result.secondary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.SECONDARY] : '',
     result.comparison?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.COMPARISON] : '',
   ].filter(Boolean);
 }
