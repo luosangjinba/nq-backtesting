@@ -267,6 +267,18 @@ Verification:
 
 ### Step 309.7: Verification And Closeout
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 309 execution.
+
+Implemented:
+- Verified the viewport router foundation and comparison disabled/no-data contract.
+- Verified PDA projection locate routing, including comparison source contract.
+- Verified Comparison Window browser workflows after route migration.
+- Verified Live Record and SMT smoke coverage after reason locate routing.
+- Marked Step 309 complete in TODO.
+
 Run and record:
 
 - focused viewport router smoke;
@@ -274,6 +286,17 @@ Run and record:
 - comparison browser smoke;
 - SMT selection smoke if PDA/SMT locate interaction was touched;
 - `git diff --check`.
+
+Verification run:
+
+- `node v4/tests/viewport-router-smoke.js`
+- `node v4/tests/comparison-viewport-controller-smoke.js`
+- `node v4/tests/pda-locate-actions-smoke.js`
+- `node v4/tests/comparison-window-persistence-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `git diff --check`
 
 Closeout updates:
 
