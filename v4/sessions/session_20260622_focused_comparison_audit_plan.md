@@ -2,7 +2,7 @@
 
 Date: 2026-06-22
 Branch: feature/comparison-window-mvp
-Status: planned
+Status: completed
 
 ## Context
 
@@ -28,7 +28,7 @@ Run one focused real-use audit session covering the remaining Comparison Window 
 
 ## Step 320.1: NQ/ES SMT Real-use Pass
 
-Status: pending.
+Status: completed with technical pass; real-use evidence still required.
 
 Setup:
 
@@ -55,9 +55,15 @@ Fail:
 - Selection misses Comparison context.
 - Locate silently falls back to the wrong chart/time.
 
+Result:
+
+- `node v4/tests/smt-selection-smoke.js` passed.
+- `node v4/tests/comparison-window-browser-smoke.js` passed SMT selection/Inspector/locate coverage.
+- This is not enough to mark Split removal ready because the user-visible NQ/ES SMT review flow still needs a real session pass.
+
 ## Step 320.2: 1M + HTF Replay Progressive Pass
 
-Status: pending.
+Status: completed with technical pass; real-use evidence still required.
 
 Setup:
 
@@ -83,9 +89,15 @@ Fail:
 - Comparison chart desyncs from replay cursor.
 - User still needs old Split to reason about the replay.
 
+Result:
+
+- `node v4/tests/comparison-replay-sync-smoke.js` passed.
+- `node v4/tests/comparison-window-browser-smoke.js` passed the Comparison HTF replay source/progressive path.
+- This remains a Split-removal audit row until a real replay review confirms the visual workflow is not misleading.
+
 ## Step 320.3: Replay History Restore Pass
 
-Status: pending.
+Status: completed with technical pass; real-use evidence still required.
 
 Setup:
 
@@ -110,9 +122,14 @@ Fail:
 
 - Comparison state is missing, stale, wrong timeframe, wrong instrument, or wrong window state.
 
+Result:
+
+- `node v4/tests/replay-history-comparison-smoke.js` passed.
+- Real reload/restore review is still required before Split removal.
+
 ## Step 320.4: Fixed Layout Ergonomics Pass
 
-Status: pending.
+Status: completed with insufficient evidence.
 
 Setup:
 
@@ -133,9 +150,15 @@ Fail:
 - Fixed Side/Stack remains materially better.
 - Window movement/size management interrupts review enough to require a fixed layout mode.
 
+Result:
+
+- Cannot be validated by smoke tests.
+- Requires user review without old Stack/Side Split.
+- Remains a Split-removal blocker.
+
 ## Step 320.5: Advanced PDA Frequency Pass
 
-Status: pending.
+Status: completed with insufficient evidence.
 
 Track every need for Comparison-context:
 
@@ -156,9 +179,14 @@ Fail:
 
 - Any advanced PDA action is frequent enough that Comparison Window cannot replace Split without migrating it.
 
+Result:
+
+- Cannot be validated without a real review session.
+- Remains a Split-removal blocker unless explicitly waived or proven low-frequency.
+
 ## Step 320.6: Audit Closeout
 
-Status: pending.
+Status: completed.
 
 Update:
 
@@ -179,3 +207,17 @@ If ready:
 If not ready:
 
 - Open focused fix steps for the failed rows only.
+
+Result:
+
+- Decision: `needs more real-use data`.
+- Do not open Split removal planning yet.
+- Technical regression passed, but SMT/HTF replay/Replay History still need user-visible real-use confirmation, and fixed layout ergonomics plus advanced PDA frequency remain manual blockers.
+
+Verification:
+
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `node v4/tests/replay-history-comparison-smoke.js`
+- `node v4/tests/comparison-replay-sync-smoke.js`
+- `node v4/tests/smt-selection-smoke.js`
+- `git diff --check`
