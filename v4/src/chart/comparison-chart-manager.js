@@ -20,6 +20,7 @@ let activeTimeframe = 60;
 let lastLegendKey = '';
 let cursorPrimitive = null;
 let syncCrosshairPrimitive = null;
+let pickPreviewPrimitive = null;
 const crosshairMoveCallbacks = new Set();
 
 function formatChartTime(time) {
@@ -161,6 +162,7 @@ export function setComparisonData(data = []) {
 export function clearComparisonData() {
   hideComparisonCursor();
   hideComparisonSyncCrosshairCursor();
+  hideComparisonPickPreviewCursor();
   setComparisonData([]);
 }
 
@@ -234,6 +236,7 @@ export function hideComparisonCursor() {
 
 export function showComparisonSyncCrosshairCursor(time) {
   if (!comparisonChart || !comparisonSeries || time === undefined || time === null) return;
+  if (pickPreviewPrimitive) return;
   if (!syncCrosshairPrimitive) {
     syncCrosshairPrimitive = new VerticalLinePrimitive(comparisonChart, time, {
       color: 'rgba(186, 151, 255, 0.22)',
@@ -254,6 +257,37 @@ export function hideComparisonSyncCrosshairCursor() {
     // primitive may already be detached during comparison chart reset
   }
   syncCrosshairPrimitive = null;
+}
+
+export function showComparisonPickPreviewCursor(time) {
+  if (!comparisonChart || !comparisonSeries || time === undefined || time === null) return;
+  hideComparisonSyncCrosshairCursor();
+
+  if (!pickPreviewPrimitive) {
+    pickPreviewPrimitive = new VerticalLinePrimitive(comparisonChart, time, {
+      color: 'rgba(240, 243, 250, 0.18)',
+      lineWidth: 8,
+    });
+    comparisonSeries.attachPrimitive(pickPreviewPrimitive);
+    return;
+  }
+
+  pickPreviewPrimitive.setTime(time);
+}
+
+export function hideComparisonPickPreviewCursor() {
+  if (!comparisonSeries || !pickPreviewPrimitive) return;
+
+  try {
+    comparisonSeries.detachPrimitive(pickPreviewPrimitive);
+  } catch (e) {
+    // primitive may already be detached during comparison chart reset
+  }
+  pickPreviewPrimitive = null;
+}
+
+export function hasComparisonPickPreviewCursor() {
+  return Boolean(pickPreviewPrimitive);
 }
 
 export function onComparisonCrosshairMove(callback) {

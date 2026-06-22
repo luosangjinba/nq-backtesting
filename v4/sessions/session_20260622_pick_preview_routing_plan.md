@@ -74,6 +74,17 @@ First implementation should preserve primary/secondary parity and include compar
 
 ## Step 310.2: Add Comparison Pick Preview Cursor API
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 310 execution.
+
+Implemented:
+- Added dedicated comparison pick preview cursor state and show/hide/has APIs in `comparison-chart-manager.js`.
+- Pick preview hides comparison sync crosshair cursor, and sync cursor does not render while pick preview is active.
+- Wired the default pick context router to comparison store/chart manager.
+- Added disabled/no-chart comparison pick preview smoke.
+
 Update `chart/comparison-chart-manager.js`.
 
 Add:

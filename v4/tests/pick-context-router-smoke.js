@@ -31,6 +31,16 @@ const router = createPickContextRouter({
     hidePreviewCursor: () => calls.push(['secondary-hide']),
     isEnabled: () => true,
   },
+  [PICK_CONTEXT_TARGETS.COMPARISON]: {
+    label: 'comparison',
+    chartEl: () => ({ id: 'comparison-chart-canvas' }),
+    timeframe: () => 60,
+    getDisplayBars: () => bars,
+    coordinateToTime: (x) => x + 300,
+    showPreviewCursor: (time) => calls.push(['comparison-show', time]),
+    hidePreviewCursor: () => calls.push(['comparison-hide']),
+    isEnabled: () => true,
+  },
 });
 
 let context = router.getPickContext({ currentTarget: { id: 'secondary-chart' } });
@@ -45,9 +55,13 @@ assert.equal(context.chartId, PICK_CONTEXT_TARGETS.PRIMARY);
 assert.equal(context.getBarChartTime(bars[0]), 100);
 
 router.clearOtherPickPreviewCursors(PICK_CONTEXT_TARGETS.PRIMARY);
-assert.deepEqual(calls.at(-1), ['secondary-hide']);
+assert.deepEqual(calls.slice(-2), [['secondary-hide'], ['comparison-hide']]);
 
 router.clearAllPickPreviewCursors();
-assert.deepEqual(calls.slice(-2), [['primary-hide'], ['secondary-hide']]);
+assert.deepEqual(calls.slice(-3), [['primary-hide'], ['secondary-hide'], ['comparison-hide']]);
+
+context = router.getPickContext({ currentTarget: { id: 'comparison-chart-canvas' } });
+assert.equal(context.chartId, PICK_CONTEXT_TARGETS.COMPARISON);
+assert.equal(context.coordinateToTime(5), 305);
 
 console.log('pick-context-router-smoke passed');

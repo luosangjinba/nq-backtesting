@@ -1,7 +1,9 @@
 import * as primaryChart from './chart-manager.js';
 import * as secondaryChart from './secondary-chart-manager.js';
+import * as comparisonChart from './comparison-chart-manager.js';
 import * as primaryStore from '../data/bar-store.js';
 import * as secondaryStore from '../data/secondary-chart-store.js';
+import * as comparisonStore from '../comparison/comparison-window-store.js';
 import { findDisplayBarFast } from './display-bar-lookup.js';
 import { getBarChartTime as getProjectedBarChartTime } from './time-projection.js';
 
@@ -89,6 +91,21 @@ function defaultDefinitions() {
         secondaryChart.getSecondaryChart() &&
         secondaryChart.getSecondarySeries() &&
         secondaryStore.getSecondaryDisplayBars().length
+      ),
+    },
+    [PICK_CONTEXT_TARGETS.COMPARISON]: {
+      label: 'comparison',
+      chartEl: () => getDocumentElement('comparison-chart-canvas'),
+      timeframe: () => comparisonStore.getComparisonViewDescriptor().timeframe,
+      getDisplayBars: comparisonStore.getComparisonDisplayBars,
+      coordinateToTime: (x) => comparisonChart.getComparisonChart()?.timeScale?.().coordinateToTime(x) ?? null,
+      showPreviewCursor: comparisonChart.showComparisonPickPreviewCursor,
+      hidePreviewCursor: comparisonChart.hideComparisonPickPreviewCursor,
+      isEnabled: () => Boolean(
+        comparisonStore.isComparisonWindowEnabled() &&
+        comparisonChart.getComparisonChart() &&
+        comparisonChart.getComparisonSeries() &&
+        comparisonStore.getComparisonDisplayBars().length
       ),
     },
   };
