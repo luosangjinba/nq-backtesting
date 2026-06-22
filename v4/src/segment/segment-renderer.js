@@ -36,6 +36,10 @@ function clearRenderedPrimitives() {
   primitiveCache.clear();
 }
 
+function isComparisonSource(object) {
+  return object?.sourceChartId === 'comparison-window';
+}
+
 function getSegmentLabel(segment) {
   const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
   return `${segment.timeframe || '1H'} ${direction} LEG`;
@@ -77,8 +81,10 @@ export function renderSegments() {
   const descriptors = [];
 
   getSegmentGroups().forEach((group) => {
+    if (isComparisonSource(group)) return;
     if (group.display?.hidden) return;
     const children = getSortedGroupChildren(group);
+    if (children.some(isComparisonSource)) return;
     if (children.length < 2) return;
     if (isolatedSegment && !children.some((segment) => isolateVisibleIds.has(segment.id))) return;
     const isDrawingSetActive = drawingSetVisibility.activeGroupIds.has(group.id);
@@ -143,6 +149,7 @@ export function renderSegments() {
   const selectedGroupChildIds = new Set(selectedGroupModel?.childSegmentIds || []);
   const selectedGroupTargetId = selectedGroupModel?.targetSegmentId || '';
   getSegments().forEach((segment) => {
+    if (isComparisonSource(segment)) return;
     if (!segment.start || !segment.end) return;
     if (segment.display?.hidden) return;
     const isIsolated = isolatedSegment?.id === segment.id;

@@ -41,6 +41,10 @@ function clearRenderedPrimitives() {
   primitiveCache.clear();
 }
 
+function isComparisonSource(annotation) {
+  return annotation?.sourceChartId === 'comparison-window';
+}
+
 function mapTimestampToCurrentChartTime(timestamp) {
   if (timestamp === undefined || timestamp === null) return null;
   if (!Number.isFinite(Number(timestamp))) return null;
@@ -539,6 +543,7 @@ export function renderPdaAnnotations() {
   const drawingSetPdaIds = getActiveDrawingSetVisibility().activePdaIds;
   const descriptors = [];
   getAnnotations().forEach((annotation) => {
+    if (isComparisonSource(annotation)) return;
     if (annotation.display?.hidden) return;
     const pdaType = getPdaType(annotation.type);
     if (!pdaType) return;

@@ -31,6 +31,10 @@ function clearRenderedPrimitives() {
   primitiveCache.clear();
 }
 
+function isComparisonSource(object) {
+  return object?.sourceChartId === 'comparison-window';
+}
+
 function getSegmentLabel(segment) {
   const direction = segment.direction === 'down' ? 'DOWN' : segment.direction === 'up' ? 'UP' : 'FLAT';
   return `${segment.timeframe || '1H'} ${direction} LEG`;
@@ -73,9 +77,11 @@ export function renderSecondarySegments() {
   const descriptors = [];
 
   groups.forEach((group) => {
+    if (isComparisonSource(group)) return;
     if (!visibility.visibleGroupIds.has(group.id)) return;
 
     const children = getSortedGroupChildren(group, segmentMap);
+    if (children.some(isComparisonSource)) return;
     if (children.length < 2) return;
 
     const first = children[0];
@@ -127,6 +133,7 @@ export function renderSecondarySegments() {
   });
 
   segments.forEach((segment) => {
+    if (isComparisonSource(segment)) return;
     if (!segment.start || !segment.end) return;
     if (!visibility.visibleSegmentIds.has(segment.id)) return;
     if (visibility.hiddenSegmentIds.has(segment.id)) return;

@@ -36,6 +36,10 @@ function clearRenderedPrimitives() {
   primitiveCache.clear();
 }
 
+function isComparisonSource(annotation) {
+  return annotation?.sourceChartId === 'comparison-window';
+}
+
 function mapTimestampToSecondaryChartTime(timestamp) {
   if (timestamp === undefined || timestamp === null) return null;
   if (!Number.isFinite(Number(timestamp))) return null;
@@ -369,6 +373,7 @@ export function renderSecondaryPdaAnnotations() {
   const descriptors = [];
 
   annotations.forEach((annotation) => {
+    if (isComparisonSource(annotation)) return;
     if (!visibility.visiblePdaIds.has(annotation.id)) return;
     if (visibility.hiddenPdaIds.has(annotation.id)) return;
 

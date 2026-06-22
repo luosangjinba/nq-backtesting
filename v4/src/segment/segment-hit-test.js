@@ -15,6 +15,18 @@ function getHitContext(context) {
   return context || getPrimaryChartContext();
 }
 
+function getSourceChartId(object) {
+  return object?.sourceChartId || object?.chartId || 'primary';
+}
+
+function canHitInContext(object, context) {
+  const sourceChartId = getSourceChartId(object);
+  const targetChartId = getHitContext(context)?.chartId || 'primary';
+  if (sourceChartId === 'comparison-window') return targetChartId === 'comparison-window';
+  if (targetChartId === 'comparison-window') return sourceChartId === 'comparison-window';
+  return true;
+}
+
 function getHitTimeframe(context) {
   const timeframe = Number(context?.timeframe);
   return Number.isFinite(timeframe) ? timeframe : undefined;
@@ -83,6 +95,7 @@ export function hitTestSegments({ x, y, context = null }) {
   );
 
   getSegments().forEach((segment) => {
+    if (!canHitInContext(segment, context)) return;
     if (segment.display?.hidden) return;
     if (isolatedSegment && !isolateVisibleIds.has(segment.id)) return;
     if (!isolatedSegment && !shouldRenderSegment(segment)) return;
@@ -140,6 +153,7 @@ export function hitTestSegmentGroups({ x, y, context = null }) {
   );
 
   getSegmentGroups().forEach((group) => {
+    if (!canHitInContext(group, context)) return;
     if (group.display?.hidden) return;
     if (!isolatedSegment && !shouldRenderSegmentGroup(group)) return;
     if (isolatedSegment) {

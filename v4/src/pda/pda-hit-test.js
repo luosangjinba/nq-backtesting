@@ -23,6 +23,18 @@ function getHitContext(context) {
   return context || getPrimaryChartContext();
 }
 
+function getSourceChartId(object) {
+  return object?.sourceChartId || object?.chartId || 'primary';
+}
+
+function canHitInContext(object, context) {
+  const sourceChartId = getSourceChartId(object);
+  const targetChartId = getHitContext(context)?.chartId || 'primary';
+  if (sourceChartId === 'comparison-window') return targetChartId === 'comparison-window';
+  if (targetChartId === 'comparison-window') return sourceChartId === 'comparison-window';
+  return true;
+}
+
 function getHitTimeframe(context) {
   return Number(context?.timeframe) || store.getCurrentTimeframe();
 }
@@ -297,6 +309,7 @@ export function hitTestPdaAnnotations({ x, y, context = null }) {
 
   annotations.forEach((annotation) => {
     if (annotation.draft) return;
+    if (!canHitInContext(annotation, activeContext)) return;
     if (!visibility.visiblePdaIds.has(annotation.id)) return;
     if (visibility.hiddenPdaIds.has(annotation.id)) return;
     const pdaType = getPdaType(annotation.type);

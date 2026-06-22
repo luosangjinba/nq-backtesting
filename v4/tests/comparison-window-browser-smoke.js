@@ -475,6 +475,39 @@ async function main() {
         const comparisonSegment = segments.find((segment) => segment.sourceChartId === 'comparison-window');
         const activeSetup = orderActive.getActiveReviewSet();
         const comparisonEvidence = activeSetup.orderReview.setupThesis.manualEvents.find((event) => event.sourceChartId === 'comparison-window');
+        const pdaHitTest = await import('/src/pda/pda-hit-test.js');
+        const segmentHitTest = await import('/src/segment/segment-hit-test.js');
+        const chartContexts = await import('/src/chart/chart-context.js');
+        const primaryContext = chartContexts.getPrimaryChartContext();
+        const comparisonContext = chartContexts.getComparisonChartContext();
+        const pdaHitX = comparisonContext.timeToCoordinate(first.timestamp);
+        const pdaHitY = comparisonContext.priceToCoordinate(first.high);
+        const primaryPdaHitX = primaryContext.timeToCoordinate(first.timestamp);
+        const primaryPdaHitY = primaryContext.priceToCoordinate(first.high);
+        const comparisonPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: pdaHitX,
+          y: pdaHitY,
+          context: comparisonContext,
+        });
+        const primaryPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: primaryPdaHitX,
+          y: primaryPdaHitY,
+          context: primaryContext,
+        });
+        const segmentHitX = comparisonContext.timeToCoordinate(last.timestamp);
+        const segmentHitY = comparisonContext.priceToCoordinate(last.high);
+        const primarySegmentHitX = primaryContext.timeToCoordinate(last.timestamp);
+        const primarySegmentHitY = primaryContext.priceToCoordinate(last.high);
+        const comparisonSegmentHit = segmentHitTest.hitTestSegments({
+          x: segmentHitX,
+          y: segmentHitY,
+          context: comparisonContext,
+        });
+        const primarySegmentHit = segmentHitTest.hitTestSegments({
+          x: primarySegmentHitX,
+          y: primarySegmentHitY,
+          context: primaryContext,
+        });
         return {
           menuExists: Boolean(document.querySelector('#comparison-context-menu')),
           menuReachable: blankMenuReachable,
@@ -492,6 +525,12 @@ async function main() {
           },
           blankObDisabled,
           evidencePanelVisible,
+          sourceIsolation: {
+            comparisonPdaHit: comparisonPdaHit?.id === comparisonPda?.id,
+            primaryPdaHit: primaryPdaHit?.id === comparisonPda?.id,
+            comparisonSegmentHit: comparisonSegmentHit?.id === comparisonSegment?.id,
+            primarySegmentHit: primarySegmentHit?.id === comparisonSegment?.id,
+          },
           comparisonPda: comparisonPda ? {
             type: comparisonPda.type,
             sourceChartId: comparisonPda.sourceChartId,
@@ -537,7 +576,13 @@ async function main() {
     );
     assert.equal(contextMenuResult.blankObDisabled, true, 'Comparison OB Last Bar should be disabled without a comparison bar');
     assert.equal(contextMenuResult.evidencePanelVisible, true, 'Comparison Order Setup Evidence submenu should open');
-	    assert.deepEqual(contextMenuResult.comparisonPda, {
+    assert.deepEqual(contextMenuResult.sourceIsolation, {
+      comparisonPdaHit: true,
+      primaryPdaHit: false,
+      comparisonSegmentHit: true,
+      primarySegmentHit: false,
+    }, 'Comparison-source PDA/Segment should hit only in the comparison chart context');
+    assert.deepEqual(contextMenuResult.comparisonPda, {
       type: 'bsl',
       sourceChartId: 'comparison-window',
       sourceChartLabel: 'Comparison',
