@@ -48,7 +48,7 @@ bash start.sh stop
 - `Main TF`：选择主图 K 线周期，例如 `1M`、`30M`、`1H`、`4H`、`D`。
 - `加载`：请求并显示 K 线。
 - `Archive`：打开导入/导出区域。
-- `Compare`：显示/隐藏浮动 Comparison Window。
+- `Compare`：显示/隐藏滑动 Comparison Window。
 
 时间建议使用：
 
@@ -124,7 +124,7 @@ Economic Events 使用本地 USD 事件 CSV。High/Medium 默认显示，Low 默
 
 ## Comparison Window 对比窗口
 
-Comparison Window 是当前支持的滑动/浮动对比窗口，不是在旧 Split Screen 上做 resize。拖动窗口外框时，只移动窗口位置；窗口内 K 线和 overlay 不会因为拖动外框而重新缩放。聚焦真实审计通过后，旧 Split 用户入口已经移除。
+Comparison Window 是当前支持的滑动对比窗口，不是在旧 Split Screen 上做 resize。窗口右边界固定在图表区域右侧，拖动左边界只改变可见裁剪区域；窗口内 K 线、drawing 和 overlay 不会因为左边界移动而重新缩放。旧保存的 floating workspace 仍可兼容读取，但新建/Reset 窗口默认使用 sliding。聚焦真实审计通过后，旧 Split 用户入口已经移除。
 
 当前支持：
 
@@ -134,7 +134,7 @@ Comparison Window 是当前支持的滑动/浮动对比窗口，不是在旧 Spl
 - PDA、Segment、Chart Notes、Order Setup、Live Record、Time Overlays 会按来源 instrument/timeframe 过滤后投影到对比窗口，避免画到错误价格轴。
 - SMT 优先使用 `Main=NQ + Comparison=ES + 同周期`；支持对比窗口渲染、选择、Inspector 和 Locate。
 - Replay On 时，高周期对比窗口会用 1M source 做 progressive HTF candle，不提前显示未来完整高周期 K 线。
-- 会保存本地窗口开关、位置/大小、instrument/timeframe 和 sync mode；Replay History 也会恢复对比窗口必要状态。
+- 会保存本地窗口开关、滑动边界、instrument/timeframe 和 sync mode；Replay History 也会恢复对比窗口必要状态。
 
 实现说明：
 

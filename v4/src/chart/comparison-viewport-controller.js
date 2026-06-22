@@ -1,4 +1,4 @@
-// Viewport operations for the floating comparison chart.
+// Viewport operations for the comparison chart.
 
 import * as comparisonChart from './comparison-chart-manager.js';
 import * as comparisonStore from '../comparison/comparison-window-store.js';

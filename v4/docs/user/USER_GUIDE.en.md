@@ -46,7 +46,7 @@ The top toolbar provides:
 - `Main TF`: primary chart timeframe, such as `1M`, `30M`, `1H`, `4H`, or `D`.
 - `加载`: load candles.
 - `Archive`: open import/export actions.
-- `Compare`: show or hide the floating Comparison Window.
+- `Compare`: show or hide the sliding Comparison Window.
 
 Use this time format when possible:
 
@@ -122,7 +122,7 @@ Economic Events are loaded from the local USD events CSV. High/Medium are visibl
 
 ## Comparison Window
 
-Comparison Window is the supported sliding/floating comparison view. It is not a resize patch on the old Split Screen. Dragging the outer window moves the window frame; candles and overlays inside the window do not rescale just because the frame moved. The old Split user entry points have been removed after the focused real-use audit passed.
+Comparison Window is the supported sliding comparison view. It is not a resize patch on the old Split Screen. The right edge stays fixed to the chart area, and dragging the left edge changes the visible clipped area. Candles, drawings, and overlays inside the comparison chart do not rescale just because the left boundary moved. Legacy saved floating workspaces can still be normalized for compatibility, but new/reset windows use sliding mode. The old Split user entry points have been removed after the focused real-use audit passed.
 
 Currently supported:
 
@@ -132,7 +132,7 @@ Currently supported:
 - PDA, Segment, Chart Notes, Order Setup, Live Record, and Time Overlays are filtered by source instrument/timeframe before rendering in the Comparison Window, avoiding wrong price-axis projection.
 - SMT prefers `Main=NQ + Comparison=ES + same timeframe`; comparison-side SMT rendering, selection, Inspector, and Locate are supported.
 - During Replay On, higher-timeframe comparison candles use 1M source data for progressive HTF rendering, so future complete HTF candles are not shown early.
-- Local workspace state saves the window enabled state, position/size, instrument/timeframe, and sync mode. Replay History also restores the needed comparison state.
+- Local workspace state saves the window enabled state, sliding boundary, instrument/timeframe, and sync mode. Replay History also restores the needed comparison state.
 
 Implementation note:
 

@@ -121,7 +121,7 @@ function renderInstrumentOptions(selectedInstrument) {
 function renderComparisonControls() {
   const comparisonEnabled = isComparisonWindowEnabled();
   return `
-    <label class="toolbar-toggle" title="Show floating comparison window">
+    <label class="toolbar-toggle" title="Show sliding comparison window">
       <input id="comparisonWindowToggle" type="checkbox"${comparisonEnabled ? ' checked' : ''} />
       <span>Compare</span>
     </label>

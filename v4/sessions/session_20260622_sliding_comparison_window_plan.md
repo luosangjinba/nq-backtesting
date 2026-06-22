@@ -94,6 +94,12 @@ Result:
 
 ## Step 325.5: Docs And Closeout
 
-Status: pending.
+Status: completed.
 
 Update user-facing docs/TODO/session with the final behavior and note any retained floating compatibility.
+
+Result:
+
+- User guide and docs README now describe Comparison Window as sliding by default: right edge fixed, left edge controls clipping, and internal chart objects do not rescale while the window slides.
+- Toolbar tooltip and stale source comments no longer call the current window floating.
+- Floating layout remains accepted only as legacy persistence compatibility; new/reset windows and replay-history defaults use sliding.

@@ -1177,10 +1177,9 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 324.2: Core smoke suite：comparison、replay history、replay sync、SMT、legacy secondary compatibility、Live Record、Tradovate zip 与 `git diff --check` 全部通过。
   - [x] Step 324.3: Closeout：已记录 smoke 结果、最终工作区状态和下一步建议；下一步可走 Order Setup Optimal/Max Profit Exit 功能设计，或 Review JSON schema/versioning。
 
-- [ ] Step 325: TradingView-style Sliding Comparison Window。目标是把当前 floating MVP 改成右侧固定、左侧拖动边界的 sliding/clipped comparison window；拖动左边界时裁剪可见区域，不重新缩放 comparison chart 内部对象。计划见 `v4/sessions/session_20260622_sliding_comparison_window_plan.md`。
+- [x] Step 325: TradingView-style Sliding Comparison Window。目标是把当前 floating MVP 改成右侧固定、左侧拖动边界的 sliding/clipped comparison window；拖动左边界时裁剪可见区域，不重新缩放 comparison chart 内部对象。已完成默认 sliding contract、右侧固定 clipping layout、交互 guard、browser/replay smoke 验证和文档收口；legacy `floating` 仅保留为旧 workspace 兼容。计划见 `v4/sessions/session_20260622_sliding_comparison_window_plan.md`。
   - [x] Step 325.1: Sliding contract and persistence compatibility：默认 layout 已切到 `sliding`，reset/default 为右侧固定窗口；旧 `floating` workspace 仍可 normalize。
   - [x] Step 325.2: Right-anchored sliding layout：已实现右侧固定、左边界 handle、内部 chart canvas 右对齐/full-width clipping；旧整窗拖动仅保留给 legacy floating workspace。
   - [x] Step 325.3: Interaction guards：左边界 handle 已显式阻断 pointer/contextmenu 传播，拖动不触发 comparison context menu；按钮和 select 保持可用。
-  - [ ] Step 325.4: Browser verification：覆盖 default sliding、旧 Split DOM 缺席、左边界拖动右侧不动、内部 canvas 未被压缩、comparison 非空渲染。
   - [x] Step 325.4: Browser verification：browser smoke 已覆盖默认 sliding、旧 Split DOM 缺失、左边界拖动右边界固定、内部 canvas 不随裁剪 shell 缩小、chart 非空像素；Replay History 缺省 layout 也已改为 `sliding`，显式 legacy `floating` 仍保留兼容。
-  - [ ] Step 325.5: Docs and closeout：更新用户文档/TODO/session，记录 floating compatibility 是否保留。
+  - [x] Step 325.5: Docs and closeout：用户文档、docs README、toolbar tooltip 和源码注释已更新为 sliding 默认；记录 floating 仅作为 legacy persistence compatibility。
