@@ -32,6 +32,16 @@ Both files branch on primary versus `secondary-chart`, directly call chart manag
 
 ## Step 310.1: Add Pick-context Router
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 310 execution.
+
+Implemented:
+- Added `chart/pick-context-router.js` with injectable definitions and default primary/secondary pick contexts.
+- Added target constants, event/currentTarget routing, bar lookup, projected chart time, preview cursor show/hide, and cursor cleanup helpers.
+- Added `pick-context-router-smoke` for primary/secondary parity.
+
 Add `chart/pick-context-router.js`.
 
 Contract:

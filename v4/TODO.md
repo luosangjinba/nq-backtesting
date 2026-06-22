@@ -1073,7 +1073,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 309.7: Verification and closeout：新增 focused router smoke、PDA projection smoke、browser comparison locate smoke；跑 comparison browser smoke 和旧 Split locate 相关回归。已完成 focused router/comparison/PDA smoke、comparison window browser smoke、live record smoke、SMT selection smoke 与 `git diff --check`。
 
 - [ ] Step 310: Pick-preview routing implementation。目标是把 Order Setup exit bar pick 与 Segment actor pick preview 从 primary/secondary 专用分支迁到统一 pick context router，并让 Comparison Window 可以作为已加载视图参与受支持 pick workflow；保持旧 Split 行为不变。计划见 `v4/sessions/session_20260622_pick_preview_routing_plan.md`。
-  - [ ] Step 310.1: Add pick-context router：新增 `chart/pick-context-router.js`，统一 primary/secondary/comparison 的 DOM target、coordinate time、display bars、timeframe、preview cursor show/hide 与 cursor cleanup contract；第一步保证 primary/secondary parity。
+  - [x] Step 310.1: Add pick-context router：新增 `chart/pick-context-router.js`，统一 primary/secondary/comparison 的 DOM target、coordinate time、display bars、timeframe、preview cursor show/hide 与 cursor cleanup contract；第一步保证 primary/secondary parity。已新增可测试的 pick router、primary/secondary 默认 definitions、cursor cleanup helpers 与 focused smoke。
   - [ ] Step 310.2: Add comparison pick preview cursor API：在 `comparison-chart-manager.js` 增加 dedicated pick preview cursor show/hide/has API，避免复用 replay/sync cursor 状态。
   - [ ] Step 310.3: Migrate Order Setup exit pick：`order-review-edit-actions.js` 改用 pick router，保留 primary/secondary 行为，并支持 comparison chart hover/click 的 timestamp pick。
   - [ ] Step 310.4: Migrate Segment actor pick preview：`segment-actions.js` 改用 pick router，保留 primary/secondary 行为，并支持 comparison chart hover/click 的 actor timestamp pick。
