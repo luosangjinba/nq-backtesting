@@ -2,7 +2,7 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
-import { getSecondaryChartContext } from '../chart/chart-context.js';
+import { getComparisonChartContext, getSecondaryChartContext } from '../chart/chart-context.js';
 import { clearSelection as clearPdaSelection } from '../pda/pda-selection.js';
 import { getIsolatedSegment, getSegmentById, resetAllSegmentDisplayModes } from './segment-store.js';
 import { getSegmentGroupById } from './segment-group-store.js';
@@ -72,12 +72,37 @@ function shouldIgnoreClick(e) {
       e.target.closest('.pda-menu') ||
       e.target.closest('#pda-context-menu') ||
       e.target.closest('#secondary-context-menu') ||
+      e.target.closest('#comparison-context-menu') ||
       e.target.closest('#viewport-controls') ||
       e.target.closest('#secondary-viewport-controls') ||
       e.target.closest('#replay-controls') ||
       e.target.closest('#inspector-sidebar') ||
       e.target.closest('input, select, button, textarea')
   );
+}
+
+function handleComparisonChartClick(e) {
+  if (shouldIgnoreClick(e)) return;
+
+  const chartEl = document.getElementById('comparison-chart-canvas');
+  if (!chartEl) return;
+  const context = getComparisonChartContext();
+  if (!context.enabled) return;
+
+  const rect = chartEl.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const segmentHit = hitTestSegments({ x, y, context });
+  const groupHit = hitTestSegmentGroups({ x, y, context });
+
+  if (groupHit && (!segmentHit || groupHit.distance < segmentHit.distance)) {
+    selectSegmentGroup(groupHit.id);
+  } else if (segmentHit) {
+    selectSegment(segmentHit.id);
+  } else {
+    clearSegmentSelection();
+    clearSegmentGroupSelection();
+  }
 }
 
 function handleChartClick(e) {
@@ -146,6 +171,7 @@ function handleSegmentGroupChanged() {
 export function initSegmentSelection() {
   document.getElementById('chart')?.addEventListener('click', handleChartClick);
   document.getElementById('secondary-chart')?.addEventListener('click', handleSecondaryChartClick);
+  bindComparisonSegmentSelectionClick();
   window.addEventListener('keydown', handleKeydown);
   bus.on('segment:changed', handleSegmentChanged);
   bus.on('segment-group:changed', handleSegmentGroupChanged);
@@ -153,4 +179,17 @@ export function initSegmentSelection() {
   bus.on('pda:selected', clearSegmentGroupSelection);
   bus.on('bars:cleared', clearSegmentSelection);
   bus.on('bars:cleared', clearSegmentGroupSelection);
+}
+
+let comparisonSegmentSelectionBound = false;
+
+function bindComparisonSegmentSelectionClick() {
+  if (comparisonSegmentSelectionBound) return;
+  const chartEl = document.getElementById('comparison-chart-canvas');
+  if (!chartEl) {
+    requestAnimationFrame(bindComparisonSegmentSelectionClick);
+    return;
+  }
+  chartEl.addEventListener('click', handleComparisonChartClick);
+  comparisonSegmentSelectionBound = true;
 }

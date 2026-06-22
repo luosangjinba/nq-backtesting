@@ -110,6 +110,17 @@ Rules:
 
 ## Step 311.4: Integrate Picker Workflows
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 311 execution.
+
+Implemented:
+- Added Comparison Window click selection wiring for PDA hits.
+- Added Comparison Window click selection wiring for Segment and Composite hits.
+- Reused existing Inspector picker bus handlers: `pda:selected`, `segment:selected`, and `segment-group:selected`.
+- Comparison selection binding is lazy because the comparison chart canvas may be created after selection modules initialize.
+
 If existing picker workflows are active:
 
 - Order Review reason select object;
