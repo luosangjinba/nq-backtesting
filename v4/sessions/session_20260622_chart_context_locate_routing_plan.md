@@ -76,6 +76,26 @@ Verification:
 - Focused smoke covering primary success, secondary disabled, secondary success, invalid range, and `both`.
 - Existing primary/secondary callers are not migrated in this step unless needed for tests.
 
+Status: complete.
+
+Implemented:
+
+- Added `v4/src/chart/viewport-router.js`.
+- Added `VIEWPORT_TARGETS` constants for `primary`, `secondary`, `comparison-window`, and `both`.
+- Added structured result contract with per-target `{ located, reason }`.
+- Added `createViewportRouter()` so focused tests can verify routing without booting charts.
+- Default router currently routes:
+  - `primary` to `viewport.locateTimestampRange`;
+  - `secondary` to `secondaryViewport.locateSecondaryTimestampRange`;
+  - `both` to primary + secondary.
+- `comparison-window` currently returns `unsupported-target`; Step 309.2 wires the real comparison locate support.
+- Added `v4/tests/viewport-router-smoke.js`.
+
+Verification:
+
+- `node --check v4/src/chart/viewport-router.js`
+- `node v4/tests/viewport-router-smoke.js`
+
 ### Step 309.2: Add Comparison Viewport Locate Support
 
 Add Comparison Window range locate support.
