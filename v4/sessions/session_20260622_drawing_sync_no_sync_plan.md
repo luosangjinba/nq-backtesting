@@ -48,10 +48,19 @@ Implementation notes:
 
 ### Step 317.2: Update UI Copy
 
+Status: completed.
+
 - Rename header label from `Overlays` to `Drawings`.
 - Show options in the order `Sync`, `No Sync`.
 - Ensure default visible value is `Sync`.
 - Keep the same compact control footprint.
+
+Implementation notes:
+
+- Comparison Window header now displays `Drawings`.
+- Select options are `Sync` and `No Sync`, backed by `sync` and `no-sync`.
+- Browser smoke asserts the default selected value and option text.
+- Verification: `git diff --check`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 317.3: Adjust Policy Semantics
 

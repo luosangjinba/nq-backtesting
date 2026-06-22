@@ -204,6 +204,7 @@ async function main() {
       const win = document.querySelector('#comparison-window');
       const instrument = document.querySelector('[data-comparison-instrument]');
       const timeframe = document.querySelector('[data-comparison-timeframe]');
+      const overlaySync = document.querySelector('[data-comparison-overlay-sync]');
       const status = document.querySelector('[data-comparison-status]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
@@ -213,6 +214,9 @@ async function main() {
         height: win.getBoundingClientRect().height,
         instrumentValue: instrument.value,
         timeframeValue: timeframe.value,
+        overlaySyncValue: overlaySync.value,
+        overlaySyncLabel: overlaySync.closest('label')?.querySelector('span')?.textContent,
+        overlaySyncOptions: [...overlaySync.options].map((option) => ({ value: option.value, text: option.textContent })),
         statusText: status.textContent,
         stackWidth: stack.width,
         stackHeight: stack.height,
@@ -226,6 +230,12 @@ async function main() {
     assert.ok(shown.height >= 210, 'Comparison window should have stable height');
     assert.equal(shown.instrumentValue, 'ES', 'Comparison window should expose independent instrument control');
     assert.equal(shown.timeframeValue, '60', 'Comparison window should expose independent timeframe control');
+    assert.equal(shown.overlaySyncValue, 'sync', 'Comparison drawings should default to Sync');
+    assert.equal(shown.overlaySyncLabel, 'Drawings', 'Comparison drawing sync control should use user-facing Drawings label');
+    assert.deepEqual(shown.overlaySyncOptions, [
+      { value: 'sync', text: 'Sync' },
+      { value: 'no-sync', text: 'No Sync' },
+    ]);
     assert.match(shown.statusText, /Choose a main date range/, 'Comparison window should wait for main range before loading');
 
     const dragStart = await evaluate(client, `

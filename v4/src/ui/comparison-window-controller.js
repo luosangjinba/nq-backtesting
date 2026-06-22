@@ -73,8 +73,8 @@ function renderTimeframeOptions(selectedTimeframe) {
 
 function renderOverlaySyncOptions(selectedMode) {
   return [
-    ['local', 'Local'],
     ['sync', 'Sync'],
+    ['no-sync', 'No Sync'],
   ].map(
     ([value, label]) =>
       `<option value="${value}"${value === selectedMode ? ' selected' : ''}>${label}</option>`
@@ -119,7 +119,7 @@ function ensureDom() {
             <select class="comparison-window-select" data-comparison-timeframe></select>
           </label>
           <label class="comparison-window-field">
-            <span>Overlays</span>
+            <span>Drawings</span>
             <select class="comparison-window-select" data-comparison-overlay-sync></select>
           </label>
           <button class="comparison-window-btn" type="button" data-comparison-reset title="Reset window position">Reset</button>
