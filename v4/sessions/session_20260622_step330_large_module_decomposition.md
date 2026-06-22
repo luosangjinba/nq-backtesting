@@ -155,6 +155,58 @@ Candidate extraction boundaries:
 - Main/comparison crosshair synchronization.
 - Status and placeholder view helpers.
 
+## Step 330.4 Comparison Controller Extraction Plan
+
+Current `comparison-window-controller.js` structure:
+
+- Lines 55-84: replay-source loading guard and select-option rendering helpers.
+- Lines 86-98: app-level initialization and event wiring.
+- Lines 100-181: DOM template creation, ResizeObserver setup, header control events, drag-handle event binding.
+- Lines 183-212: state render, select option refresh, chart initialization.
+- Lines 214-250: sliding layout geometry, CSS variable sync, layout refresh scheduling.
+- Lines 252-327: comparison enabled/data change handling, display-bar derivation, chart data conversion, replay-synced rendering, replay cursor sync.
+- Lines 329-405: main/comparison crosshair sync with requestAnimationFrame throttling.
+- Lines 407-486: status/placeholder helpers, clear view, comparison data load, replay-source load, status updates.
+- Lines 488-494: replay event handling.
+- Lines 496-580: floating/sliding drag handlers and pointer capture lifecycle.
+
+Extraction order:
+
+1. Extract DOM/view helpers to `v4/src/ui/comparison/comparison-window-view.js`.
+   - Move option rendering and the static DOM template builder.
+   - Move select value refresh into a helper that accepts `root` and descriptor.
+   - Keep event listener registration in controller for the first pass.
+
+2. Extract layout/drag helpers to `v4/src/ui/comparison/comparison-window-layout.js`.
+   - Move geometry sync and CSS variable updates first.
+   - Move drag state handling only after geometry extraction passes browser smoke.
+   - Keep `updateComparisonVisibleWindow()` passed explicitly to avoid hidden store writes.
+
+3. Extract data/replay helpers to `v4/src/ui/comparison/comparison-window-data.js`.
+   - Move display-bar derivation, chart-bar conversion, replay-synced bar calculation, comparison load, clear view, and status callbacks.
+   - Keep `requestSeq`, `lastLoadSignature`, replay source state, and status callbacks explicit in a small controller-owned state object.
+
+4. Extract crosshair sync to `v4/src/ui/comparison/comparison-crosshair-sync.js`.
+   - Move requestFrame throttling and timestamp mapping.
+   - Pass primary/comparison stores and chart cursor functions explicitly.
+
+Stable app contract:
+
+- `initComparisonWindowController()` remains the only exported app entry.
+- Existing event names remain unchanged: `comparison-window:dom-ready`, `comparison-window:changed`, `bars:loaded`, `bars:cleared`, `replay:changed`.
+- Native LWC comparison price-axis behavior must remain unchanged.
+
+Baseline verification:
+
+```bash
+node --check v4/src/ui/comparison-window-controller.js
+node v4/tests/comparison-replay-sync-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+For layout/drag extraction, browser smoke is mandatory before commit because it covers Inspector resize, native price-axis alignment, viewport controls, drag behavior, and close-button hit target.
+
 ## Verification Baseline
 
 Use existing narrow smoke tests while extracting:
