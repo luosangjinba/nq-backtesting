@@ -40,7 +40,7 @@ export function normalizeVisibleWindow(value = {}) {
   const width = clampNumber(value.width, 18, 96, 34);
   const height = clampNumber(value.height, 24, 100, 100);
   return {
-    x: clampNumber(value.x, 0, 100 - width, 0),
+    x: 0,
     y: clampNumber(value.y, 0, 100 - height, 0),
     width,
     height,

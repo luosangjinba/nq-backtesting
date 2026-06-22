@@ -121,3 +121,5 @@ User validation showed the sliding comparison window covered the primary chart's
 Status: completed.
 
 User requested the final sliding orientation to be left-side Comparison Window and right-side Main chart. The sliding shell now defaults to `x=0,width=34`, the boundary handle sits on the comparison right edge, dragging expands/contracts the comparison clip while keeping its left edge fixed, and the comparison canvas stays full-width/left-aligned so chart content is clipped rather than rescaled. The prior primary boundary price-axis strip was replaced by a comparison boundary price-axis strip because the main chart's native right-side price scale is visible again.
+
+Follow-up migration: user validation showed existing saved sliding workspaces could still restore old right-side geometry such as `x=34,width=66`. `normalizeVisibleWindow()` now pins sliding windows to `x=0`, so old right-side sliding state migrates to left-side Comparison without requiring manual localStorage cleanup.

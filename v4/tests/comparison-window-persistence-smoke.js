@@ -51,7 +51,7 @@ updateComparisonVisibleWindow({ x: 12, y: 14, width: 55, height: 38 });
 const snapshot = saveComparisonWorkspaceState();
 assert.equal(snapshot.enabled, true);
 assert.equal(snapshot.descriptor.overlaySyncMode, 'sync');
-assert.deepEqual(snapshot.descriptor.visibleWindow, { x: 12, y: 14, width: 55, height: 38 });
+assert.deepEqual(snapshot.descriptor.visibleWindow, { x: 0, y: 14, width: 55, height: 38 });
 
 const raw = globalThis.localStorage.getItem(getComparisonWorkspaceStorageKey());
 assert.ok(raw.includes('"instrument":"NQ"'));
@@ -69,7 +69,7 @@ assert.equal(restored.enabled, true);
 assert.equal(descriptor.instrument, 'NQ');
 assert.equal(descriptor.timeframe, 240);
 assert.equal(descriptor.overlaySyncMode, 'sync');
-assert.deepEqual(descriptor.visibleWindow, { x: 12, y: 14, width: 55, height: 38 });
+assert.deepEqual(descriptor.visibleWindow, { x: 0, y: 14, width: 55, height: 38 });
 
 const sanitized = serializeComparisonWorkspaceState({
   enabled: true,
@@ -109,5 +109,15 @@ const legacyFloating = serializeComparisonWorkspaceState({
 });
 assert.equal(legacyFloating.descriptor.layoutMode, 'sliding');
 assert.deepEqual(legacyFloating.descriptor.visibleWindow, { x: 0, y: 0, width: 34, height: 100 });
+
+const legacyRightSliding = serializeComparisonWorkspaceState({
+  enabled: true,
+  descriptor: {
+    layoutMode: 'sliding',
+    visibleWindow: { x: 34, y: 0, width: 66, height: 100 },
+  },
+});
+assert.equal(legacyRightSliding.descriptor.layoutMode, 'sliding');
+assert.deepEqual(legacyRightSliding.descriptor.visibleWindow, { x: 0, y: 0, width: 66, height: 100 });
 
 console.log('comparison-window-persistence-smoke passed');
