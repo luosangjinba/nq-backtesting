@@ -843,6 +843,109 @@ async function main() {
             context: primaryContext,
           })?.id || null,
         };
+
+        const chartEl = document.querySelector('#comparison-chart-canvas');
+        const openComparisonAt = (bar, price) => {
+          const rect = chartEl.getBoundingClientRect();
+          chartEl.dispatchEvent(new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: rect.left + comparisonContext.timeToCoordinate(bar.timestamp),
+            clientY: rect.top + comparisonContext.priceToCoordinate(price),
+          }));
+        };
+
+        const second = primaryBars[1];
+        comparisonStore.setComparisonOverlaySyncMode('no-sync');
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        openComparisonAt(second, second.high);
+        document.querySelector('[data-comparison-action="comparison-pda-bsl"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 600));
+
+        openComparisonAt(first, first.low);
+        document.querySelector('[data-comparison-action="comparison-segment-start-low"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        openComparisonAt(last, last.high);
+        document.querySelector('[data-comparison-action="comparison-segment-finish-high"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 450));
+
+        const autoPda = pdaStore.getAnnotations()
+          .filter((annotation) =>
+            annotation.sourceChartId === 'comparison-window' &&
+            annotation.type === 'bsl'
+          )
+          .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))[0];
+        const autoSegment = segmentStore.getSegments()
+          .filter((segment) =>
+            segment.sourceChartId === 'comparison-window' &&
+            segment.direction === 'up'
+          )
+          .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))[0];
+        const normalizeAutoHit = (id, expectedId) => id && expectedId && id === expectedId ? 'auto' : id || null;
+        const autoPdaTimestamp = autoPda?.canonicalTimestamp ?? autoPda?.timestamp ?? second.timestamp;
+        const autoPdaPrice = autoPda?.price ?? second.high;
+        const autoSegmentTimestamp = autoSegment?.end?.timestamp ?? last.timestamp;
+        const autoSegmentPrice = autoSegment?.end?.price ?? last.high;
+        const autoComparisonPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: comparisonContext.timeToCoordinate(autoPdaTimestamp),
+          y: comparisonContext.priceToCoordinate(autoPdaPrice),
+          context: comparisonContext,
+        });
+        const autoPrimaryPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: primaryContext.timeToCoordinate(autoPdaTimestamp),
+          y: primaryContext.priceToCoordinate(autoPdaPrice),
+          context: primaryContext,
+        });
+        const autoComparisonSegmentHit = segmentHitTest.hitTestSegments({
+          x: comparisonContext.timeToCoordinate(autoSegmentTimestamp),
+          y: comparisonContext.priceToCoordinate(autoSegmentPrice),
+          context: comparisonContext,
+        });
+        const autoPrimarySegmentHit = segmentHitTest.hitTestSegments({
+          x: primaryContext.timeToCoordinate(autoSegmentTimestamp),
+          y: primaryContext.priceToCoordinate(autoSegmentPrice),
+          context: primaryContext,
+        });
+        result.autoSyncCreation = {
+          modeAfterCreate: comparisonStore.getComparisonWindowState().descriptor.overlaySyncMode,
+          comparisonPdaHit: normalizeAutoHit(autoComparisonPdaHit?.id, autoPda?.id),
+          primaryPdaHit: normalizeAutoHit(autoPrimaryPdaHit?.id, autoPda?.id),
+          comparisonSegmentHit: normalizeAutoHit(autoComparisonSegmentHit?.id, autoSegment?.id),
+          primarySegmentHit: normalizeAutoHit(autoPrimarySegmentHit?.id, autoSegment?.id),
+          autoPdaId: autoPda?.id ? 'auto' : null,
+          autoSegmentId: autoSegment?.id ? 'auto' : null,
+        };
+
+        comparisonStore.setComparisonOverlaySyncMode('no-sync');
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const autoNoSyncComparisonPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: comparisonContext.timeToCoordinate(autoPdaTimestamp),
+          y: comparisonContext.priceToCoordinate(autoPdaPrice),
+          context: comparisonContext,
+        });
+        const autoNoSyncPrimaryPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: primaryContext.timeToCoordinate(autoPdaTimestamp),
+          y: primaryContext.priceToCoordinate(autoPdaPrice),
+          context: primaryContext,
+        });
+        const autoNoSyncComparisonSegmentHit = segmentHitTest.hitTestSegments({
+          x: comparisonContext.timeToCoordinate(autoSegmentTimestamp),
+          y: comparisonContext.priceToCoordinate(autoSegmentPrice),
+          context: comparisonContext,
+        });
+        const autoNoSyncPrimarySegmentHit = segmentHitTest.hitTestSegments({
+          x: primaryContext.timeToCoordinate(autoSegmentTimestamp),
+          y: primaryContext.priceToCoordinate(autoSegmentPrice),
+          context: primaryContext,
+        });
+        result.autoSyncCreation.afterNoSync = {
+          mode: comparisonStore.getComparisonWindowState().descriptor.overlaySyncMode,
+          comparisonPdaHit: normalizeAutoHit(autoNoSyncComparisonPdaHit?.id, autoPda?.id),
+          primaryPdaHit: normalizeAutoHit(autoNoSyncPrimaryPdaHit?.id, autoPda?.id),
+          comparisonSegmentHit: normalizeAutoHit(autoNoSyncComparisonSegmentHit?.id, autoSegment?.id),
+          primarySegmentHit: normalizeAutoHit(autoNoSyncPrimarySegmentHit?.id, autoSegment?.id),
+        };
+
         const esBars = primaryBars.map((bar, index) => ({
           ...bar,
           open: 7400 + index * 8,
@@ -891,6 +994,22 @@ async function main() {
         policySafe: false,
         primaryComparisonPdaHit: 'sync-comparison-pda',
         primaryComparisonSegmentHit: 'sync-comparison-segment',
+      },
+      autoSyncCreation: {
+        modeAfterCreate: 'sync',
+        comparisonPdaHit: 'auto',
+        primaryPdaHit: 'auto',
+        comparisonSegmentHit: 'auto',
+        primarySegmentHit: 'auto',
+        autoPdaId: 'auto',
+        autoSegmentId: 'auto',
+        afterNoSync: {
+          mode: 'no-sync',
+          comparisonPdaHit: null,
+          primaryPdaHit: 'auto',
+          comparisonSegmentHit: null,
+          primarySegmentHit: 'auto',
+        },
       },
     }, 'Sync safe mode should make Main/Comparison overlays hit-test on both chart contexts');
 

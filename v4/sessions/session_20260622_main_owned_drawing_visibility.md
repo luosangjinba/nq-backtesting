@@ -59,11 +59,20 @@ Implementation notes:
 
 ### Step 318.3: Browser Verification
 
+Status: completed.
+
 Extend browser smoke:
 
 - Set `No Sync`, create PDA/Segment from Comparison, assert mode becomes `Sync`.
 - Assert object hits in Main and Comparison.
 - Switch back to `No Sync`, assert object still hits in Main and no longer hits in Comparison.
+
+Implementation notes:
+
+- Browser smoke now uses the actual Comparison context menu to create a PDA and Segment while Drawings is `No Sync`.
+- The test verifies the creation path auto-switches to `Sync`, then confirms both Main and Comparison hit the created objects.
+- After switching back to `No Sync`, the same created objects remain hittable in Main and disappear from Comparison hit-test.
+- Verification: `git diff --check`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 318.4: Closeout Verification
 
