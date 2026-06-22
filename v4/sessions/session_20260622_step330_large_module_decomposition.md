@@ -95,6 +95,52 @@ git diff --check
 
 If a browser smoke is too slow while iterating, run the first three checks before commit and run the browser smoke before marking the substep complete.
 
+## Step 330.3 Replay Controls Staged Extraction
+
+Completed behavior-preserving extractions:
+
+- `v4/src/ui/replay/replay-time-utils.js`
+  - replay time formatting;
+  - timestamp parsing/range checks;
+  - bar lookup at-or-before timestamp;
+  - progressive higher-timeframe partial-bar restore helpers;
+  - jump timestamp parsing;
+  - time key/timestamp normalization.
+- `v4/src/ui/replay/replay-controls-view.js`
+  - replay toolbar HTML rendering;
+  - replay history panel rendering;
+  - replay history row escaping/formatting.
+- `v4/src/ui/replay/replay-history-actions.js`
+  - Replay History item load;
+  - outer-range window resolution;
+  - primary data reload;
+  - comparison workspace restore;
+  - replay cursor restore.
+
+Kept in `v4/src/ui/replay-controls.js`:
+
+- replay state machine;
+- timer/play/step/pick actions;
+- public replay APIs used by app/renderers/Inspector;
+- app-level `initReplayControls()` wiring.
+
+Line count changed from 908 lines to 648 lines for `replay-controls.js`.
+
+Verification:
+
+```bash
+node --check v4/src/ui/replay-controls.js
+node --check v4/src/ui/replay/replay-time-utils.js
+node --check v4/src/ui/replay/replay-controls-view.js
+node --check v4/src/ui/replay/replay-history-actions.js
+node v4/tests/replay-history-comparison-smoke.js
+node v4/tests/comparison-replay-sync-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Result: all passed. Existing Node `MODULE_TYPELESS_PACKAGE_JSON` warning remains unchanged.
+
 ## Comparison Controller Split Candidates
 
 Keep stable public export from `v4/src/ui/comparison-window-controller.js`:
