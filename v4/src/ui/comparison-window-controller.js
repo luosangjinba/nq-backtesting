@@ -4,6 +4,7 @@ import {
   INSTRUMENT_OPTIONS,
   TIMEFRAME_MAP,
 } from '../config.js';
+import { formatTickPrice } from '../price-utils.js';
 import {
   clearComparisonData,
   getComparisonChart,
@@ -39,6 +40,7 @@ import { getReplaySyncedComparisonBars } from '../comparison/comparison-replay-s
 
 let root = null;
 let windowEl = null;
+let primaryPriceAxisEl = null;
 let dragState = null;
 let requestSeq = 0;
 let lastLoadSignature = null;
@@ -143,9 +145,11 @@ function ensureDom() {
         </div>
       </div>
     </section>
+    <div class="comparison-primary-price-axis" data-comparison-primary-price-axis aria-hidden="true"></div>
   `;
   host.appendChild(root);
   windowEl = root.querySelector('#comparison-window');
+  primaryPriceAxisEl = root.querySelector('[data-comparison-primary-price-axis]');
   root.querySelector('[data-comparison-close]')?.addEventListener('click', () => {
     setComparisonWindowEnabled(false);
   });
@@ -178,7 +182,10 @@ function render(state) {
   ensureDom();
   if (!root || !windowEl) return;
   root.hidden = !state.enabled;
-  if (!state.enabled) return;
+  if (!state.enabled) {
+    renderPrimarySlidingPriceAxis(state);
+    return;
+  }
   const { visibleWindow, instrument, timeframe, syncMode, overlaySyncMode, layoutMode } = state.descriptor;
   const isSliding = layoutMode === 'sliding';
   const rootRect = root.getBoundingClientRect();
@@ -210,10 +217,55 @@ function render(state) {
     overlaySyncSelect.innerHTML = renderOverlaySyncOptions(overlaySyncMode);
     overlaySyncSelect.value = overlaySyncMode;
   }
+  renderPrimarySlidingPriceAxis(state);
   requestAnimationFrame(() => {
     initComparisonChart();
     setComparisonChartInfo({ instrument, timeframe });
+    renderPrimarySlidingPriceAxis(getComparisonWindowState());
   });
+}
+
+function renderPrimarySlidingPriceAxis(state = getComparisonWindowState()) {
+  if (!root || !primaryPriceAxisEl) return;
+  const descriptor = state?.descriptor || {};
+  const visibleWindow = descriptor.visibleWindow || {};
+  const isVisible = Boolean(state?.enabled) && descriptor.layoutMode === 'sliding';
+  primaryPriceAxisEl.hidden = !isVisible;
+  if (!isVisible) {
+    primaryPriceAxisEl.innerHTML = '';
+    return;
+  }
+
+  const rootRect = root.getBoundingClientRect();
+  const chartEl = document.getElementById('chart');
+  const chartRect = chartEl?.getBoundingClientRect();
+  const axisWidth = 70;
+  const leftPx = (Number(visibleWindow.x) / 100) * rootRect.width - axisWidth;
+  primaryPriceAxisEl.style.left = `${Math.max(0, Math.round(leftPx))}px`;
+  primaryPriceAxisEl.style.top = '0px';
+  primaryPriceAxisEl.style.height = `${Math.max(1, Math.round(chartRect?.height || rootRect.height))}px`;
+  primaryPriceAxisEl.style.width = `${axisWidth}px`;
+
+  const height = chartRect?.height || rootRect.height;
+  if (!height || !chart.getSeries()) {
+    primaryPriceAxisEl.innerHTML = '';
+    return;
+  }
+
+  const ticks = [];
+  const step = Math.max(36, Math.round(height / 9));
+  for (let y = 28; y <= height - 20; y += step) {
+    const price = chart.coordinateToPrice(y);
+    if (!Number.isFinite(Number(price))) continue;
+    ticks.push({ y, price: Number(price) });
+  }
+
+  primaryPriceAxisEl.innerHTML = ticks
+    .map(
+      ({ y, price }) =>
+        `<span class="comparison-primary-price-axis-label" style="top:${Math.round(y)}px">${formatTickPrice(price)}</span>`
+    )
+    .join('');
 }
 
 function handleComparisonChanged(state) {

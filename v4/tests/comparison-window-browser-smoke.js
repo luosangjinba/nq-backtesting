@@ -331,6 +331,28 @@ async function main() {
     assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
     assert.equal(moved.primaryHeight, dragStart.primaryHeight, 'Dragging window should not resize primary panel height');
 
+    const primaryPriceAxis = await evaluate(client, `
+      (() => {
+        const win = document.querySelector('#comparison-window').getBoundingClientRect();
+        const axis = document.querySelector('[data-comparison-primary-price-axis]');
+        const rect = axis.getBoundingClientRect();
+        return {
+          hidden: axis.hidden,
+          labelCount: axis.querySelectorAll('.comparison-primary-price-axis-label').length,
+          axisRight: rect.right,
+          windowLeft: win.left,
+          width: rect.width,
+        };
+      })();
+    `);
+    assert.equal(primaryPriceAxis.hidden, false, 'Sliding comparison should show a primary price axis at the boundary');
+    assert.ok(primaryPriceAxis.labelCount > 0, 'Primary boundary price axis should render labels');
+    assert.ok(primaryPriceAxis.width >= 60, 'Primary boundary price axis should reserve readable label width');
+    assert.ok(
+      Math.abs(primaryPriceAxis.axisRight - primaryPriceAxis.windowLeft) <= 2,
+      'Primary boundary price axis should align to the comparison left boundary'
+    );
+
     const handleContextMenu = await evaluate(client, `
       (() => {
         const handle = document.querySelector('.comparison-window-left-handle');

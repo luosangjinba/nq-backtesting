@@ -109,3 +109,9 @@ Result:
 Status: completed.
 
 User validation showed an existing browser workspace could still restore `layoutMode='floating'`, keeping the old floating window visible after Step 325. The runtime now migrates any saved floating descriptor to sliding, resets legacy floating geometry to the default right-anchored sliding window, and prevents store updates from reintroducing floating layout mode.
+
+## Follow-up Fix: Primary Boundary Price Axis
+
+Status: completed.
+
+User validation showed the sliding comparison window covered the primary chart's native right-side price scale. Added a read-only primary price axis strip that follows the sliding left boundary, so the visible primary chart keeps price labels without resizing the primary chart canvas or changing comparison clipping behavior.
