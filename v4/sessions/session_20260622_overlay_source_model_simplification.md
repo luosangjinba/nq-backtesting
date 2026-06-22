@@ -67,11 +67,20 @@ Implementation notes:
 
 ### Step 316.3: Edit/Delete Routing Verification
 
+Status: completed.
+
 Verify synced objects still select and mutate the original object record:
 
 - selecting Main-sourced PDA/Segment from Comparison selects the original id;
 - deleting or hiding it removes/hides the same object from both windows under Sync;
 - no cloned synced object is created.
+
+Implementation notes:
+
+- Extended comparison browser smoke to hit Main-sourced PDA/Segment from the Comparison chart under Sync-safe mode.
+- The test selects the hit ids, updates the original store records, deletes those original ids, and verifies object counts go from 1 to 0.
+- This confirms synced rendering remains a projection of the original object, not a cloned Comparison object.
+- Verification: `git diff --check`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 316.4: Verification
 

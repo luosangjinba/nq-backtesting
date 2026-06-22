@@ -626,6 +626,8 @@ async function main() {
         const segmentHitTest = await import('/src/segment/segment-hit-test.js');
         const orderHitTest = await import('/src/order/order-setup-hit-test.js');
         const liveHitTest = await import('/src/live-record/live-record-hit-test.js');
+        const pdaSelection = await import('/src/pda/pda-selection.js');
+        const segmentSelection = await import('/src/segment/segment-selection.js');
         const chartContexts = await import('/src/chart/chart-context.js');
         const primaryContext = chartContexts.getPrimaryChartContext();
         const primaryBars = primaryContext.getDisplayBars();
@@ -789,6 +791,29 @@ async function main() {
           y: comparisonContext.priceToCoordinate(first.open),
           context: comparisonContext,
         }).primaryHit;
+        const pdaCountBeforeDelete = pdaStore.getAnnotations()
+          .filter((annotation) => annotation.id === 'sync-primary-pda')
+          .length;
+        pdaSelection.selectPda(comparisonPrimaryPdaHit?.id);
+        const selectedPdaAfterComparisonHit = pdaSelection.getSelectedPda();
+        pdaStore.updateAnnotation(comparisonPrimaryPdaHit?.id, { note: 'edited from comparison sync hit' });
+        const editedPda = pdaStore.getAnnotationById('sync-primary-pda');
+        pdaStore.deleteAnnotation('sync-primary-pda');
+        const pdaCountAfterDelete = pdaStore.getAnnotations()
+          .filter((annotation) => annotation.id === 'sync-primary-pda')
+          .length;
+
+        const segmentCountBeforeDelete = segmentStore.getSegments()
+          .filter((segment) => segment.id === 'sync-primary-segment')
+          .length;
+        segmentSelection.selectSegment(comparisonPrimarySegmentHit?.id);
+        const selectedSegmentAfterComparisonHit = segmentSelection.getSelectedSegment();
+        segmentStore.updateSegment(comparisonPrimarySegmentHit?.id, { narrative: 'edited from comparison sync hit' });
+        const editedSegment = segmentStore.getSegmentById('sync-primary-segment');
+        segmentStore.deleteSegment('sync-primary-segment');
+        const segmentCountAfterDelete = segmentStore.getSegments()
+          .filter((segment) => segment.id === 'sync-primary-segment')
+          .length;
         const result = {
           policySafe: (await import('/src/comparison/comparison-overlay-policy.js')).getComparisonOverlaySyncPolicy().safe,
           comparisonPrimaryPdaHit: comparisonPrimaryPdaHit?.id,
@@ -803,6 +828,16 @@ async function main() {
             liveRecordId: comparisonLiveHit.liveRecordId,
             element: comparisonLiveHit.element,
           } : null,
+          originalRouting: {
+            selectedPdaId: selectedPdaAfterComparisonHit?.id,
+            editedPdaNote: editedPda?.note,
+            pdaCountBeforeDelete,
+            pdaCountAfterDelete,
+            selectedSegmentId: selectedSegmentAfterComparisonHit?.id,
+            editedSegmentNarrative: editedSegment?.narrative,
+            segmentCountBeforeDelete,
+            segmentCountAfterDelete,
+          },
         };
         const esBars = primaryBars.map((bar, index) => ({
           ...bar,
@@ -837,6 +872,16 @@ async function main() {
       comparisonLiveHit: {
         liveRecordId: 'sync-primary-live',
         element: 'entry',
+      },
+      originalRouting: {
+        selectedPdaId: 'sync-primary-pda',
+        editedPdaNote: 'edited from comparison sync hit',
+        pdaCountBeforeDelete: 1,
+        pdaCountAfterDelete: 0,
+        selectedSegmentId: 'sync-primary-segment',
+        editedSegmentNarrative: 'edited from comparison sync hit',
+        segmentCountBeforeDelete: 1,
+        segmentCountAfterDelete: 0,
       },
     }, 'Sync safe mode should make Main/Comparison overlays hit-test on both chart contexts');
 
