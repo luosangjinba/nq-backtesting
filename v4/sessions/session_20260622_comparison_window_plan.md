@@ -252,6 +252,16 @@ Browser smoke must cover:
 - SMT locate and selection after SMT migration;
 - replay progressive HTF behavior.
 
+Done in Step 307.12:
+
+- Expanded `v4/tests/comparison-window-browser-smoke.js` instead of adding a parallel browser harness.
+- Browser smoke now asserts comparison canvas has painted, multi-color pixels after load.
+- It verifies default ES 1H cross-instrument/cross-timeframe loading and NQ 15M same-instrument/cross-timeframe loading, including 1M replay-source fetches for HTF progressive replay.
+- It keeps the existing drag checks proving window movement does not resize the chart stack or primary panel.
+- It verifies comparison right-click workflows create PDA, Segment, FVG, and active Order Setup evidence with comparison source metadata.
+- It adds a comparison-window SMT record, selects it through the SMT selection path, verifies the inspector row, and clicks the SMT Locate action.
+- Verification passed: `node v4/tests/comparison-window-browser-smoke.js`, `node v4/tests/comparison-replay-sync-smoke.js`, `node v4/tests/smt-selection-smoke.js`, `node v4/tests/comparison-window-persistence-smoke.js`, `node v4/tests/replay-history-comparison-smoke.js`.
+
 ### Step 307.13: Split Replacement Review
 
 After real use, compare:

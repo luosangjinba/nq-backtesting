@@ -152,19 +152,37 @@ async function main() {
       (() => {
         window.__comparisonFetchCalls = 0;
         window.__comparisonBarsUrls = [];
+        const makeBars = (instrument, timeframe) => {
+          const base = instrument === 'NQ' ? 29400 : 7400;
+          const step = Number(timeframe) * 60;
+          if (Number(timeframe) === 1) {
+            return [
+              { time: '2026-06-12 09:00', timestamp: 1781254800, tradingDay: '2026-06-12', open: base + 4, high: base + 18, low: base - 30, close: base + 8, volume: 1000 },
+              { time: '2026-06-12 09:30', timestamp: 1781256600, tradingDay: '2026-06-12', open: base + 8, high: base + 30, low: base - 15, close: base + 24, volume: 1200 },
+              { time: '2026-06-12 10:00', timestamp: 1781258400, tradingDay: '2026-06-12', open: base + 24, high: base + 45, low: base + 14, close: base + 35, volume: 1300 },
+              { time: '2026-06-12 10:30', timestamp: 1781260200, tradingDay: '2026-06-12', open: base + 35, high: base + 52, low: base + 22, close: base + 48, volume: 1100 },
+              { time: '2026-06-12 11:00', timestamp: 1781262000, tradingDay: '2026-06-12', open: base + 48, high: base + 60, low: base + 32, close: base + 40, volume: 900 },
+            ];
+          }
+          return [
+            { time: '2026-06-12 09:00', timestamp: 1781254800, tradingDay: '2026-06-12', open: base + 4.5, high: base + 24.75, low: base - 33.5, close: base - 17.0, volume: 169817 },
+            { time: '2026-06-12 10:00', timestamp: 1781254800 + step, tradingDay: '2026-06-12', open: base - 16.75, high: base + 43.5, low: base - 19.75, close: base + 40.5, volume: 200251 },
+            { time: '2026-06-12 11:00', timestamp: 1781254800 + step * 2, tradingDay: '2026-06-12', open: base + 40.75, high: base + 61.75, low: base + 30.25, close: base + 5.75, volume: 160953 },
+          ];
+        };
         const nativeFetch = window.fetch.bind(window);
         window.fetch = (...args) => {
           if (String(args[0]).includes('/v4/bars')) {
+            const url = new URL(String(args[0]), window.location.href);
+            const instrument = url.searchParams.get('instrument') || 'ES';
+            const timeframe = Number(url.searchParams.get('tf') || 60);
             window.__comparisonFetchCalls += 1;
             window.__comparisonLastBarsUrl = String(args[0]);
             window.__comparisonBarsUrls.push(String(args[0]));
+            const bars = makeBars(instrument, timeframe);
             return Promise.resolve(new Response(JSON.stringify({
-              bars: [
-                { time: '2026-06-12 09:00', timestamp: 1781254800, tradingDay: '2026-06-12', open: 7404.5, high: 7424.75, low: 7366.5, close: 7383.0, volume: 169817 },
-                { time: '2026-06-12 10:00', timestamp: 1781258400, tradingDay: '2026-06-12', open: 7383.25, high: 7443.5, low: 7380.25, close: 7440.5, volume: 200251 },
-                { time: '2026-06-12 11:00', timestamp: 1781262000, tradingDay: '2026-06-12', open: 7440.75, high: 7461.75, low: 7401.25, close: 7405.75, volume: 160953 },
-              ],
-              requestedRange: { startTs: 1781254800, endTs: 1781262000 },
+              bars,
+              requestedRange: { startTs: bars[0].timestamp, endTs: bars.at(-1).timestamp },
             }), {
               status: 200,
               headers: { 'Content-Type': 'application/json' },
@@ -313,7 +331,9 @@ async function main() {
         const store = await import('/src/data/bar-store.js');
         store.setBars([
           { time: '2026-06-12 09:30', timestamp: 1781256600, tradingDay: '2026-06-12', open: 29494.5, high: 29501, low: 29371, close: 29430.5, volume: 4223 },
-        ], '2026-06-12 09:30', '2026-06-12 10:00', 1, { startTs: 1781256600, endTs: 1781258400 }, { instrument: 'NQ' });
+          { time: '2026-06-12 10:00', timestamp: 1781258400, tradingDay: '2026-06-12', open: 29430.5, high: 29470, low: 29410, close: 29455.5, volume: 4123 },
+          { time: '2026-06-12 10:30', timestamp: 1781260200, tradingDay: '2026-06-12', open: 29455.5, high: 29520, low: 29448, close: 29510.25, volume: 4023 },
+        ], '2026-06-12 09:30', '2026-06-12 10:30', 1, { startTs: 1781256600, endTs: 1781260200 }, { instrument: 'NQ' });
         return true;
       })();
     `);
@@ -336,6 +356,29 @@ async function main() {
     assert.equal(loaded.info, 'ES 1H');
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
     assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');
+
+    const canvasHealth = await evaluate(client, `
+      (() => {
+        const canvases = [...document.querySelectorAll('#comparison-chart-canvas canvas')];
+        const colors = new Set();
+        let paintedPixels = 0;
+        for (const canvas of canvases) {
+          const ctx = canvas.getContext('2d');
+          if (!ctx || !canvas.width || !canvas.height) continue;
+          const image = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          for (let i = 0; i < image.length; i += 4 * 16) {
+            const alpha = image[i + 3];
+            if (!alpha) continue;
+            paintedPixels += 1;
+            colors.add([image[i], image[i + 1], image[i + 2], alpha].join(','));
+          }
+        }
+        return { canvasCount: canvases.length, paintedPixels, uniqueColors: colors.size };
+      })();
+    `);
+    assert.ok(canvasHealth.canvasCount > 0, 'Comparison chart should create canvas elements');
+    assert.ok(canvasHealth.paintedPixels > 0, 'Comparison canvas should contain painted pixels');
+    assert.ok(canvasHealth.uniqueColors > 2, 'Comparison canvas should not be a blank single-color surface');
 
     const contextMenuResult = await evaluate(client, `
       (async () => {
@@ -361,6 +404,10 @@ async function main() {
         document.querySelector('[data-comparison-action="comparison-pda-bsl"]').click();
         await new Promise((resolve) => setTimeout(resolve, 350));
 
+        openAt(bars[1], bars[1].close);
+        document.querySelector('[data-comparison-action="comparison-pda-fvg"]').click();
+        await new Promise((resolve) => setTimeout(resolve, 350));
+
         openAt(first, first.low);
         document.querySelector('[data-comparison-action="comparison-segment-start-low"]').click();
         await new Promise((resolve) => setTimeout(resolve, 100));
@@ -384,6 +431,7 @@ async function main() {
         const annotations = pdaStore.getAnnotations();
         const segments = segmentStore.getSegments();
         const comparisonPda = annotations.find((annotation) => annotation.sourceChartId === 'comparison-window');
+        const comparisonFvg = annotations.find((annotation) => annotation.sourceChartId === 'comparison-window' && annotation.type === 'fvg');
         const comparisonSegment = segments.find((segment) => segment.sourceChartId === 'comparison-window');
         const activeSetup = orderActive.getActiveReviewSet();
         const comparisonEvidence = activeSetup.orderReview.setupThesis.manualEvents.find((event) => event.sourceChartId === 'comparison-window');
@@ -396,6 +444,14 @@ async function main() {
             sourceInstrument: comparisonPda.sourceInstrument,
             sourceTimeframe: comparisonPda.sourceTimeframe,
             sourceContext: comparisonPda.sourceContext,
+          } : null,
+          comparisonFvg: comparisonFvg ? {
+            type: comparisonFvg.type,
+            direction: comparisonFvg.direction,
+            sourceChartId: comparisonFvg.sourceChartId,
+            sourceInstrument: comparisonFvg.sourceInstrument,
+            sourceTimeframe: comparisonFvg.sourceTimeframe,
+            sourceContext: comparisonFvg.sourceContext,
           } : null,
           comparisonSegment: comparisonSegment ? {
             sourceChartId: comparisonSegment.sourceChartId,
@@ -425,6 +481,14 @@ async function main() {
       sourceTimeframe: 60,
       sourceContext: 'ES 1H',
     });
+    assert.deepEqual(contextMenuResult.comparisonFvg, {
+      type: 'fvg',
+      direction: 'bullish',
+      sourceChartId: 'comparison-window',
+      sourceInstrument: 'ES',
+      sourceTimeframe: 60,
+      sourceContext: 'ES 1H',
+    });
     assert.deepEqual(contextMenuResult.comparisonSegment, {
       sourceChartId: 'comparison-window',
       sourceChartLabel: 'Comparison',
@@ -441,6 +505,98 @@ async function main() {
       sourceTimeframeLabel: '1H',
       sourceContext: 'ES 1H',
     });
+
+    const replayProgressive = await evaluate(client, `
+      (async () => {
+        const bus = await import('/src/event-bus.js');
+        bus.emit('replay:changed', { enabled: true, cursorTimestamp: 1781256600 });
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        const chart = await import('/src/chart/comparison-chart-manager.js');
+        return {
+          info: document.querySelector('#comparison-chart-info').textContent,
+          chartReady: Boolean(chart.getComparisonChart() && chart.getComparisonSeries()),
+          placeholderHidden: document.querySelector('[data-comparison-placeholder]').hidden,
+          replaySourceRequested: window.__comparisonBarsUrls.some((url) => /instrument=ES/.test(url) && /tf=1/.test(url)),
+        };
+      })();
+    `);
+    assert.deepEqual(replayProgressive, {
+      info: 'ES 1H',
+      chartReady: true,
+      placeholderHidden: true,
+      replaySourceRequested: true,
+    }, 'Replay progressive HTF path should keep the comparison chart rendered from 1M source data');
+
+    const smtResult = await evaluate(client, `
+      (async () => {
+        const smtStore = await import('/src/smt/smt-store.js');
+        const smtSelection = await import('/src/smt/smt-selection.js');
+        const chart = await import('/src/chart/chart-manager.js');
+        const record = smtStore.addSmtRecord({
+          type: smtStore.SMT_TYPES.LIQUIDITY,
+          direction: smtStore.SMT_DIRECTIONS.BEARISH,
+          timeframe: '1H',
+          primaryInstrument: 'NQ',
+          compareInstrument: 'ES',
+          compareChartId: 'comparison-window',
+          compareChartLabel: 'Comparison Window',
+          leftTimestamp: 1781254800,
+          rightTimestamp: 1781258400,
+          primaryLeftPrice: 29501,
+          primaryRightPrice: 29470,
+          compareLeftPrice: 7424.75,
+          compareRightPrice: 7443.5,
+        });
+        smtSelection.selectSmt(record.id, { chartId: 'comparison-window' });
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        const selectedBeforeLocate = smtSelection.getSelectedSmt();
+        const locateButton = document.querySelector('[data-inspector-action="smt-locate"][data-smt-id="' + record.id + '"]');
+        const beforeRange = chart.getVisibleLogicalRange();
+        locateButton?.click();
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        const afterRange = chart.getVisibleLogicalRange();
+        return {
+          selected: selectedBeforeLocate,
+          locateButtonExists: Boolean(locateButton),
+          inspectorText: document.querySelector('#inspector-sidebar')?.textContent || '',
+          beforeRange,
+          afterRange,
+        };
+      })();
+    `);
+    assert.equal(smtResult.selected?.id.startsWith('smt_liquidity_'), true, 'SMT selection should store comparison SMT id');
+    assert.equal(smtResult.selected?.chartId, 'comparison-window', 'SMT selection should preserve comparison chart id');
+    assert.equal(smtResult.locateButtonExists, true, 'SMT inspector should expose locate action');
+    assert.match(smtResult.inspectorText, /Bearish Liquidity SMT/, 'Inspector should render selected SMT');
+    assert.ok(smtResult.afterRange, 'SMT locate should leave primary chart with a visible range');
+
+    const sameInstrumentCrossTimeframe = await evaluate(client, `
+      (async () => {
+        const instrumentSelect = document.querySelector('[data-comparison-instrument]');
+        const timeframeSelect = document.querySelector('[data-comparison-timeframe]');
+        instrumentSelect.value = 'NQ';
+        instrumentSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        timeframeSelect.value = '15';
+        timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        return {
+          info: document.querySelector('#comparison-chart-info').textContent,
+          urls: window.__comparisonBarsUrls,
+          placeholderHidden: document.querySelector('[data-comparison-placeholder]').hidden,
+        };
+      })();
+    `);
+    assert.equal(sameInstrumentCrossTimeframe.info, 'NQ 15M');
+    assert.equal(sameInstrumentCrossTimeframe.placeholderHidden, true, 'Same-instrument cross-timeframe load should render data');
+    assert.ok(
+      sameInstrumentCrossTimeframe.urls.some((url) => /instrument=NQ/.test(url) && /tf=15/.test(url)),
+      'Comparison window should request same-instrument cross-timeframe bars'
+    );
+    assert.ok(
+      sameInstrumentCrossTimeframe.urls.some((url) => /instrument=NQ/.test(url) && /tf=1/.test(url)),
+      'Comparison window should request same-instrument 1M source for HTF replay'
+    );
 
     const reset = await evaluate(client, `
       (() => {
