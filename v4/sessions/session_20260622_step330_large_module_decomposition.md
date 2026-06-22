@@ -207,6 +207,55 @@ git diff --check
 
 For layout/drag extraction, browser smoke is mandatory before commit because it covers Inspector resize, native price-axis alignment, viewport controls, drag behavior, and close-button hit target.
 
+## Step 330.5 Comparison Controller Staged Extraction
+
+Completed behavior-preserving extractions:
+
+- `v4/src/ui/comparison/comparison-window-view.js`
+  - static Comparison Window DOM template;
+  - instrument/timeframe/drawing sync select option rendering;
+  - header control value refresh.
+- `v4/src/ui/comparison/comparison-window-layout.js`
+  - sliding/floating geometry sync;
+  - CSS variable updates for main legend and viewport controls;
+  - ResizeObserver refresh target behavior;
+  - floating/sliding drag handlers and pointer capture lifecycle.
+- `v4/src/ui/comparison/comparison-crosshair-sync.js`
+  - main-to-comparison crosshair sync;
+  - comparison-to-main crosshair sync;
+  - requestAnimationFrame throttling and timestamp resolution.
+- `v4/src/ui/comparison/comparison-window-data.js`
+  - comparison data loading;
+  - replay source loading for HTF progressive replay;
+  - replay-synced comparison bars;
+  - comparison replay cursor;
+  - clear/status/placeholder and overlay-status refresh.
+
+Kept in `v4/src/ui/comparison-window-controller.js`:
+
+- `initComparisonWindowController()` as the app-level entry;
+- root/window DOM ownership;
+- event bus wiring;
+- header control event handlers;
+- lightweight render glue that initializes the chart and syncs header state.
+
+Line count changed from 580 lines to 141 lines for `comparison-window-controller.js`.
+
+Verification:
+
+```bash
+node --check v4/src/ui/comparison-window-controller.js
+node --check v4/src/ui/comparison/comparison-window-view.js
+node --check v4/src/ui/comparison/comparison-window-layout.js
+node --check v4/src/ui/comparison/comparison-crosshair-sync.js
+node --check v4/src/ui/comparison/comparison-window-data.js
+node v4/tests/comparison-replay-sync-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Result: all passed. Existing Node `MODULE_TYPELESS_PACKAGE_JSON` warning remains unchanged.
+
 ## Verification Baseline
 
 Use existing narrow smoke tests while extracting:
