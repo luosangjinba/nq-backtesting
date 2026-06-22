@@ -79,19 +79,24 @@ function render(state) {
 
 function startDrag(event) {
   if (!root || !windowEl || event.button !== 0) return;
+  if (event.target.closest('button')) return;
   const bounds = root.getBoundingClientRect();
+  const target = event.currentTarget;
   const current = getComparisonWindowState().descriptor.visibleWindow;
   dragState = {
     pointerId: event.pointerId,
+    target,
     startClientX: event.clientX,
     startClientY: event.clientY,
     startWindow: current,
     bounds,
   };
-  event.currentTarget.setPointerCapture?.(event.pointerId);
-  event.currentTarget.addEventListener('pointermove', dragWindow);
-  event.currentTarget.addEventListener('pointerup', stopDrag, { once: true });
-  event.currentTarget.addEventListener('pointercancel', stopDrag, { once: true });
+  root.classList.add('comparison-window-dragging');
+  target.setPointerCapture?.(event.pointerId);
+  target.addEventListener('pointermove', dragWindow);
+  target.addEventListener('pointerup', stopDrag, { once: true });
+  target.addEventListener('pointercancel', stopDrag, { once: true });
+  event.stopPropagation();
   event.preventDefault();
 }
 
@@ -103,9 +108,15 @@ function dragWindow(event) {
     x: dragState.startWindow.x + dx,
     y: dragState.startWindow.y + dy,
   });
+  event.stopPropagation();
+  event.preventDefault();
 }
 
 function stopDrag(event) {
-  event.currentTarget.removeEventListener('pointermove', dragWindow);
+  if (!dragState || event.pointerId !== dragState.pointerId) return;
+  dragState.target.removeEventListener('pointermove', dragWindow);
+  dragState.target.releasePointerCapture?.(dragState.pointerId);
+  root?.classList.remove('comparison-window-dragging');
   dragState = null;
+  event.stopPropagation();
 }

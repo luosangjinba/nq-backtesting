@@ -1044,7 +1044,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 307.2: Audit reusable secondary stack：审计 `secondary-chart-controller`、secondary chart manager/store、secondary PDA/Segment renderer、secondary context menu、SMT guard、secondary progressive replay、locate/flash 路径，列出可复用模块和必须解耦的 Split 假设。
   - [x] Step 307.3: Define comparison view contract：新增 view descriptor 概念，至少包含 `viewId`、`instrument`、`timeframe`、`range`、`layoutMode`、`sourceContext`、`syncMode`、`writable`、`visibleWindow`；主图与 comparison window 都通过 chart context 暴露统一能力，避免继续写死 primary/secondary。
   - [x] Step 307.4: Build MVP shell：新增 `comparison-window-controller` 与 UI 开关，创建一个独立 comparison chart view；支持 Stack/Side 之外的 floating/sliding 容器、拖动轨道、双击重置位置、关闭窗口；第一版只读，不迁移标注。
-  - [ ] Step 307.5: Sliding interaction semantics：实现 TradingView-like 滑动窗口体验。拖动外层 window/mask 时不触发 chart resize；只有窗口位置或裁切区域变化。窗口内部 zoom/scroll 仍由 chart 自己处理；拖动 handle 使用 pointer capture，避免图表误吞事件。
+  - [x] Step 307.5: Sliding interaction semantics：实现 TradingView-like 滑动窗口体验。拖动外层 window/mask 时不触发 chart resize；只有窗口位置或裁切区域变化。窗口内部 zoom/scroll 仍由 chart 自己处理；拖动 handle 使用 pointer capture，避免图表误吞事件。
   - [ ] Step 307.6: Time sync and data loading：comparison view 支持同品种/跨品种、同周期/跨周期加载；按主图绝对时间区间同步数据；切换 Main range、Calendar locate、Replay History restore 时同步 comparison view；保留独立 instrument/timeframe 控件。
   - [ ] Step 307.7: Overlay parity：让 PDA、Segment、FVG、Chart Notes、Order Setup、Live Record、Time Overlays 在 comparison view 中按 source instrument/timeframe 正确投影或过滤；先只读渲染，验证主图对象不会画到错误价格轴。
   - [ ] Step 307.8: Annotation workflow parity：把副图创建 BSL/SSL、Segment、FVG 和 link to active Order Setup 的工作流迁到 comparison view context；新对象保留 `sourceChartId/sourceInstrument/sourceTimeframe/sourceContext`，Review JSON 和 localStorage 行为不变。

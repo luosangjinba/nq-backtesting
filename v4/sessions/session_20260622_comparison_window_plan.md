@@ -127,6 +127,13 @@ MVP shell:
 - Internal chart zoom/scroll remains a chart interaction.
 - Pointer coordinate mapping must be verified after window movement.
 
+Implementation notes:
+
+- Drag starts only from the Comparison Window header or rail; buttons and the chart stage do not start outer-window drag.
+- Drag uses pointer capture, stops propagation, and updates `visibleWindow` percentages only.
+- The chart stack and primary chart panel dimensions remain unchanged while the outer window moves.
+- Browser smoke now verifies header drag moves the window, chart-stage drag does not move the window, and chart container dimensions remain stable.
+
 ### Step 307.6: Time Sync And Data Loading
 
 - Support same instrument / same timeframe.

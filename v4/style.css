@@ -134,6 +134,7 @@ html, body {
   inset: 0;
   z-index: 24;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .comparison-window {
@@ -160,6 +161,7 @@ html, body {
   user-select: none;
   border-bottom: 1px solid #2a2e39;
   background: #1e222d;
+  touch-action: none;
 }
 
 .comparison-window-title-block {
@@ -211,6 +213,13 @@ html, body {
   cursor: move;
   background: #171b25;
   border-bottom: 1px solid #2a2e39;
+  touch-action: none;
+}
+
+.comparison-window-dragging,
+.comparison-window-dragging * {
+  cursor: move;
+  user-select: none;
 }
 
 .comparison-window-rail-handle {

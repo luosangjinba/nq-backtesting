@@ -157,7 +157,17 @@ async function main() {
       document.querySelector('#comparisonWindowToggle').click();
       const root = document.querySelector('#comparison-window-root');
       const win = document.querySelector('#comparison-window');
-      return { hidden: root.hidden, width: win.getBoundingClientRect().width, height: win.getBoundingClientRect().height };
+      const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+      const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
+      return {
+        hidden: root.hidden,
+        width: win.getBoundingClientRect().width,
+        height: win.getBoundingClientRect().height,
+        stackWidth: stack.width,
+        stackHeight: stack.height,
+        primaryWidth: primary.width,
+        primaryHeight: primary.height,
+      };
       })();
     `);
     assert.equal(shown.hidden, false, 'Comparison window should be visible after toggle');
@@ -167,7 +177,18 @@ async function main() {
     const dragStart = await evaluate(client, `
       (() => {
       const before = document.querySelector('#comparison-window').getBoundingClientRect();
-      return { x: before.left + 20, y: before.top + 12, beforeLeft: before.left, beforeTop: before.top };
+      const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+      const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
+      return {
+        x: before.left + 20,
+        y: before.top + 12,
+        beforeLeft: before.left,
+        beforeTop: before.top,
+        stackWidth: stack.width,
+        stackHeight: stack.height,
+        primaryWidth: primary.width,
+        primaryHeight: primary.height,
+      };
       })();
     `);
     await client.send('Input.dispatchMouseEvent', {
@@ -193,11 +214,61 @@ async function main() {
     const moved = await evaluate(client, `
       (() => {
       const after = document.querySelector('#comparison-window').getBoundingClientRect();
-      return { beforeLeft: ${dragStart.beforeLeft}, afterLeft: after.left, beforeTop: ${dragStart.beforeTop}, afterTop: after.top };
+      const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+      const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
+      return {
+        beforeLeft: ${dragStart.beforeLeft},
+        afterLeft: after.left,
+        beforeTop: ${dragStart.beforeTop},
+        afterTop: after.top,
+        stackWidth: stack.width,
+        stackHeight: stack.height,
+        primaryWidth: primary.width,
+        primaryHeight: primary.height,
+      };
       })();
     `);
     assert.ok(moved.afterLeft > moved.beforeLeft, 'Drag should move window horizontally');
     assert.ok(moved.afterTop > moved.beforeTop, 'Drag should move window vertically');
+    assert.equal(moved.stackWidth, dragStart.stackWidth, 'Dragging window should not resize chart stack width');
+    assert.equal(moved.stackHeight, dragStart.stackHeight, 'Dragging window should not resize chart stack height');
+    assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
+    assert.equal(moved.primaryHeight, dragStart.primaryHeight, 'Dragging window should not resize primary panel height');
+
+    const stageDrag = await evaluate(client, `
+      (() => {
+      const before = document.querySelector('#comparison-window').getBoundingClientRect();
+      return { x: before.left + before.width / 2, y: before.top + before.height / 2, beforeLeft: before.left, beforeTop: before.top };
+      })();
+    `);
+    await client.send('Input.dispatchMouseEvent', {
+      type: 'mousePressed',
+      x: stageDrag.x,
+      y: stageDrag.y,
+      button: 'left',
+      clickCount: 1,
+    });
+    await client.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: stageDrag.x + 90,
+      y: stageDrag.y + 50,
+      button: 'left',
+    });
+    await client.send('Input.dispatchMouseEvent', {
+      type: 'mouseReleased',
+      x: stageDrag.x + 90,
+      y: stageDrag.y + 50,
+      button: 'left',
+      clickCount: 1,
+    });
+    const stageMoved = await evaluate(client, `
+      (() => {
+      const after = document.querySelector('#comparison-window').getBoundingClientRect();
+      return { beforeLeft: ${stageDrag.beforeLeft}, afterLeft: after.left, beforeTop: ${stageDrag.beforeTop}, afterTop: after.top };
+      })();
+    `);
+    assert.equal(stageMoved.afterLeft, stageMoved.beforeLeft, 'Dragging inside chart stage should not move outer window');
+    assert.equal(stageMoved.afterTop, stageMoved.beforeTop, 'Dragging inside chart stage should not move outer window vertically');
 
     const reset = await evaluate(client, `
       (() => {
