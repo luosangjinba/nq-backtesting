@@ -1087,3 +1087,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 311.4: Integrate picker workflows：当 Order Reason / Live Record Reason / Time Reaction 正在 select object 时，comparison hit object 可被现有 picker workflow 接收；不能支持的对象给明确状态。已给 PDA/Segment selection 增加 comparison chart click wiring，复用现有 `pda:selected` / `segment:selected` / `segment-group:selected` picker handlers。
   - [x] Step 311.5: Browser and focused verification：新增/扩展 smoke，覆盖 comparison PDA/Segment hit-test link 到 active setup，并跑 comparison browser smoke、live record smoke、SMT smoke。已完成 comparison context/menu/selection focused checks、comparison window browser smoke、live record smoke、SMT selection smoke、pick router smoke 与 `git diff --check`；更细右键 Link click 断言留作可选后续测试增强。
   - [x] Step 311.6: Closeout：更新 TODO/session，记录 advanced PDA workflows 与真实使用 audit 仍是 Split removal blocker。已记录剩余 blocker：advanced PDA workflows、真实使用 audit、固定 Split 布局偏好和可选更细 browser click assertion。
+
+- [ ] Step 312: Advanced PDA workflow decision implementation。目标是落实 Step 308.5 的高级 PDA 决策：只把低风险单 bar/candle workflow 加到 Comparison Window，继续保留复杂 draft/set workflow 在主图/旧 Split，并明确 Split removal 仍需真实使用 audit。计划见 `v4/sessions/session_20260622_advanced_pda_decision_plan.md`。
+  - [ ] Step 312.1: Re-audit advanced PDA surface：重新对比 secondary menu 与 comparison menu，确认 OB Last Bar / Wick CE 可低风险迁移，OB/Breaker range draft、Fib、EQH/EQL Point Sets 暂不迁移。
+  - [ ] Step 312.2: Add low-risk comparison PDA actions：在 Comparison Window context menu 增加 OB Last Bar、Upper Wick CE、Lower Wick CE，复用 context-aware helper 并保留 source metadata。
+  - [ ] Step 312.3: Record high-risk workflow decisions：把 OB/Breaker range draft、Fib、Point Sets 的保留原因写入 TODO/session，避免后续误以为 Split 可以删除。
+  - [ ] Step 312.4: Browser and focused verification：跑 comparison context menu syntax、comparison browser smoke、live record smoke、SMT smoke；如低风险，补充 OB/Wick CE metadata 检查。
+  - [ ] Step 312.5: Closeout：更新 TODO/session，记录 Step 312 完成后 Split removal 仍被真实使用 audit 与固定布局偏好阻塞。
