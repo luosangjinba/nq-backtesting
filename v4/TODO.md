@@ -1082,7 +1082,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 311: Comparison Window existing-object hit-test link。目标是把旧 Split/Secondary context menu 里的 existing PDA / Segment / Composite hit-test + Link To Active Setup workflow 迁移到 Comparison Window；保持 bar evidence 和新建 comparison object 行为不变。计划见 `v4/sessions/session_20260622_comparison_hit_test_link_plan.md`。
   - [x] Step 311.1: Audit secondary/comparison hit-test link flow：审计 `secondary-context-menu` 与 `comparison-context-menu` 的 hit-test、active setup link action 和 metadata contract，确定可复用边界。已确认 comparison 可复用 secondary 的 `hitTestPdaAnnotations` / `hitTestSegments` / `hitTestSegmentGroups` 与 `handleOrderSetupChartAction` payload。
-  - [ ] Step 311.2: Add comparison hit-test state：在 `comparison-context-menu.js` 存储 `contextMenuPdaHit`、`contextMenuSegmentHit`、`contextMenuSegmentGroupHit`，右键时基于 `getComparisonChartContext()` 计算命中。
+  - [x] Step 311.2: Add comparison hit-test state：在 `comparison-context-menu.js` 存储 `contextMenuPdaHit`、`contextMenuSegmentHit`、`contextMenuSegmentGroupHit`，右键时基于 `getComparisonChartContext()` 计算命中。已新增 comparison hit state、右键 hit-test 计算和菜单隐藏清理；菜单 action 留到 311.3。
   - [ ] Step 311.3: Add Link To Active Setup menu actions：Comparison Window menu 增加 Link PDA / Segment / Composite To Active Setup，并委托 `handleOrderSetupChartAction`。
   - [ ] Step 311.4: Integrate picker workflows：当 Order Reason / Live Record Reason / Time Reaction 正在 select object 时，comparison hit object 可被现有 picker workflow 接收；不能支持的对象给明确状态。
   - [ ] Step 311.5: Browser and focused verification：新增/扩展 smoke，覆盖 comparison PDA/Segment hit-test link 到 active setup，并跑 comparison browser smoke、live record smoke、SMT smoke。

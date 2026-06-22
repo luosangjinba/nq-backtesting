@@ -63,6 +63,17 @@ Expected reusable APIs:
 
 ## Step 311.2: Add Comparison Hit-test State
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 311 execution.
+
+Implemented:
+- Added comparison context menu hit state for PDA, Segment, and Composite.
+- Right-click now computes comparison hits with the same hit-test functions used by secondary.
+- Hiding the comparison menu clears stored hit state.
+- Link actions are intentionally deferred to Step 311.3.
+
 Update `comparison/comparison-context-menu.js`:
 
 - add `contextMenuPdaHit`;

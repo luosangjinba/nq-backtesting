@@ -8,10 +8,15 @@ import { timeframeToString } from '../config.js';
 import { ORDER_EVENT_TYPES } from '../order/order-review-types.js';
 import { getActiveReviewSet, updateActiveReviewSet } from '../order/order-review-active.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
+import { hitTestPdaAnnotations } from '../pda/pda-hit-test.js';
+import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
 
 let menuEl = null;
 let contextMenuBar = null;
 let contextMenuPrice = null;
+let contextMenuPdaHit = null;
+let contextMenuSegmentHit = null;
+let contextMenuSegmentGroupHit = null;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -124,6 +129,9 @@ function hideComparisonContextMenu() {
   menuEl.hidden = true;
   contextMenuBar = null;
   contextMenuPrice = null;
+  contextMenuPdaHit = null;
+  contextMenuSegmentHit = null;
+  contextMenuSegmentGroupHit = null;
 }
 
 function positionMenu(x, y) {
@@ -132,13 +140,24 @@ function positionMenu(x, y) {
   menuEl.style.top = `${Math.max(0, y)}px`;
 }
 
-function showComparisonContextMenu(x, y, bar, price, context) {
+function showComparisonContextMenu(x, y, bar, price, context, hits = {}) {
   if (!menuEl) return;
   contextMenuBar = bar;
   contextMenuPrice = price;
+  contextMenuPdaHit = hits.pdaHit || null;
+  contextMenuSegmentHit = hits.segmentHit || null;
+  contextMenuSegmentGroupHit = hits.segmentGroupHit || null;
   menuEl.innerHTML = renderMenu(bar, price, context);
   menuEl.hidden = false;
   positionMenu(x, y);
+}
+
+function getComparisonContextHits(x, y, context) {
+  return {
+    pdaHit: hitTestPdaAnnotations({ x, y, context }),
+    segmentHit: hitTestSegments({ x, y, context }),
+    segmentGroupHit: hitTestSegmentGroups({ x, y, context }),
+  };
 }
 
 function handleContextMenu(event) {
@@ -155,7 +174,8 @@ function handleContextMenu(event) {
   const time = context.coordinateToTime(x);
   const bar = findDisplayBarInContext(context, time);
   const price = context.coordinateToPrice(y);
-  showComparisonContextMenu(x, y, bar, price, context);
+  const hits = getComparisonContextHits(x, y, context);
+  showComparisonContextMenu(x, y, bar, price, context, hits);
 }
 
 async function handleMenuClick(event) {
