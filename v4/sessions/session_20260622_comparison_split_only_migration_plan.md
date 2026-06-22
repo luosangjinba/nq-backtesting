@@ -377,6 +377,37 @@ Test plan:
 - Decide migrate/keep/drop for OB, Breaker, Fib, Range PDA drafts, and EQH/EQL Point Sets.
 - Convert migrate decisions into implementation steps.
 
+Status: complete.
+
+Decision principle:
+
+- Do not clone the full secondary context menu into Comparison Window by default.
+- Migrate workflows only when they are frequent in comparison review or low-risk because existing context-aware helpers already support them.
+- Keep complex draft/set workflows on primary and old Split until real-use audit proves they are needed in the floating/sliding window.
+
+Decision table:
+
+| Workflow | Decision | Rationale | Implementation if later migrated |
+| --- | --- | --- | --- |
+| OB Last Bar | Migrate candidate | Single-bar action; `addManualObLastBar(bar, context, price)` is already context-aware and low complexity. | Add comparison menu item; browser smoke asserts `sourceChartId=comparison-window`. |
+| Wick CE | Migrate candidate | Single-bar action; `addManualWickCe(side, bar, context)` is already context-aware and useful for candle-level review. | Add upper/lower Wick CE menu items; focused smoke can verify metadata and price. |
+| OB range draft | Keep primary/Split for now | Two-step range selection adds draft state to a small floating menu; current user value in comparison view is unproven. | If migrated, create comparison-specific range draft state and cancel behavior; smoke start/finish/cancel. |
+| Breaker range draft | Keep primary/Split for now | Same draft complexity as OB, with more visual ambiguity in a sliding window. | Migrate only together with a generic comparison range-draft controller. |
+| Fib | Keep primary/Split for now | Two-click measurement/draft workflow is layout-sensitive and may conflict with sliding/drag affordances. | Migrate only after pick/router work; verify no conflict with window drag and chart pan. |
+| EQH/EQL Point Sets | Keep primary/Split for now | Session-scoped point-set draft state exists per scope, but comparison scope needs selection, cancel, and selected-set append rules. | Generalize point-set scope to `comparison-window`; smoke start/add/finish/cancel and selected-set append. |
+| Existing selected EQH/EQL append | Keep primary/Split for now | Depends on selected annotation routing and source metadata; more complex than starting a new set. | Implement only after comparison hit-test link and selection paths are stable. |
+
+Near-term migration recommendation:
+
+1. Add OB Last Bar and Wick CE to Comparison Window only if the user wants richer single-candle marking there.
+2. Do not migrate OB/Breaker/Fib/Point Sets before the real-use audit.
+3. If any keep-only workflow becomes high-frequency during audit, create a dedicated implementation step rather than expanding the comparison menu opportunistically.
+
+Removal implication:
+
+- Since OB/Breaker/Fib/Point Sets remain primary/Split-only, Split removal remains blocked after Step 308.
+- A later Split removal plan must either migrate these workflows or explicitly decide that they do not need a non-primary comparison version.
+
 ### Step 308.6: Real-use Audit Checklist
 
 - Write the real-use audit checklist.
