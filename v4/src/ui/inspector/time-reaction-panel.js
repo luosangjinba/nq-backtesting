@@ -163,9 +163,9 @@ function renderRefList(review, target, refs = [], options = {}) {
             data-inspector-action="daily-time-ref-locate"
             ${targetAttrs(review, target)}
             data-ref-index="${refIndex}"
-            data-locate-chart="secondary"
+            data-locate-chart="comparison-window"
             type="button"
-          >Sub</button>
+          >Comparison</button>
           <button
             class="order-review-ref-menu-item danger"
             data-inspector-action="daily-time-ref-remove"
@@ -200,10 +200,12 @@ function renderTimeframeOptions(selectedTimeframe) {
 }
 
 function renderChartOptions(selectedChart) {
-  const selected = selectedChart === 'secondary' ? 'secondary' : 'primary';
-  return ['primary', 'secondary']
+  const selected = selectedChart === 'secondary' || selectedChart === 'comparison-window'
+    ? 'comparison-window'
+    : 'primary';
+  return ['primary', 'comparison-window']
     .map((value) => `
-      <option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(value === 'primary' ? 'Main' : 'Sub')}</option>
+      <option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(value === 'primary' ? 'Main' : 'Comparison')}</option>
     `)
     .join('');
 }

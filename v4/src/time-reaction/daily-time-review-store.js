@@ -55,7 +55,7 @@ export const DAILY_TIME_REACTION_TYPES = Object.freeze({
 });
 
 const VALID_REACTION_TYPES = new Set(Object.values(DAILY_TIME_REACTION_TYPES));
-const VALID_CHARTS = new Set(['primary', 'secondary']);
+const VALID_CHARTS = new Set(['primary', 'comparison-window']);
 const VALID_TIMEFRAMES = new Set(['1', '5', '15', '30', '60', '240', '1440']);
 
 let dailyTimeReviews = [];
@@ -115,6 +115,7 @@ function normalizeTimeframe(value, fallback = '1') {
 
 function normalizeChart(value) {
   const text = normalizeString(value, 'primary');
+  if (text === 'secondary') return 'comparison-window';
   return VALID_CHARTS.has(text) ? text : 'primary';
 }
 
