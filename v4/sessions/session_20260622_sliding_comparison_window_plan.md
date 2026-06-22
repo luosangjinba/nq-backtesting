@@ -76,7 +76,7 @@ Result:
 
 ## Step 325.4: Browser Verification
 
-Status: pending.
+Status: completed.
 
 Extend or add browser smoke for:
 
@@ -85,6 +85,12 @@ Extend or add browser smoke for:
 - dragging the left handle changes the shell left edge while right edge remains fixed;
 - the internal chart canvas width is not reduced to the clipped shell width;
 - comparison chart still loads and renders nonblank pixels.
+
+Result:
+
+- Browser smoke now verifies default sliding mode, removed Split DOM, right-edge fixed left-handle drag, unchanged primary stack dimensions, nonblank chart pixels, and full-width internal comparison canvas clipping.
+- Replay History comparison normalization now defaults missing comparison layout to `sliding`, while explicit legacy `floating` history entries remain accepted.
+- Focused browser/store/persistence/replay smoke tests passed.
 
 ## Step 325.5: Docs And Closeout
 

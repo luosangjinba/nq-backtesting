@@ -61,7 +61,7 @@ function normalizeComparison(input = {}) {
     instrument: normalizeString(input.instrument, 'ES').toUpperCase(),
     timeframe: normalizeNumber(input.timeframe, 60),
     syncMode: normalizeString(input.syncMode, 'primary-time'),
-    layoutMode: normalizeString(input.layoutMode, 'floating'),
+    layoutMode: normalizeString(input.layoutMode, 'sliding'),
   };
 }
 

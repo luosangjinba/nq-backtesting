@@ -50,6 +50,14 @@ assert.deepEqual(normalized.comparison, {
 assert.equal(Object.hasOwn(normalized.comparison, 'visibleWindow'), false);
 assert.equal(Object.hasOwn(normalized, 'split'), false);
 
+const defaultComparison = normalizeReplayHistoryItem({
+  primary: { instrument: 'NQ', timeframe: 1, start: '2024-01-08', end: '2024-01-09' },
+  replay: { enabled: true, cursorTimestamp: 1_704_896_400 },
+  comparison: { enabled: true },
+});
+
+assert.equal(defaultComparison.comparison.layoutMode, 'sliding');
+
 clearReplayHistory();
 saveReplayHistoryItem({
   primary: { instrument: 'NQ', timeframe: 1, start: '2024-01-08', end: '2024-01-09' },
