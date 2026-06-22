@@ -210,9 +210,10 @@ If not ready:
 
 Result:
 
-- Decision: `needs more real-use data`.
-- Do not open Split removal planning yet.
-- Technical regression passed, but SMT/HTF replay/Replay History still need user-visible real-use confirmation, and fixed layout ergonomics plus advanced PDA frequency remain manual blockers.
+- Initial decision: `needs more real-use data` after technical regression only.
+- Final user audit update: focused real-use audit passed.
+- Final decision: `ready for Split removal planning`.
+- Open the next step as a staged Split removal plan, not direct deletion.
 
 Verification:
 
@@ -221,3 +222,7 @@ Verification:
 - `node v4/tests/comparison-replay-sync-smoke.js`
 - `node v4/tests/smt-selection-smoke.js`
 - `git diff --check`
+
+Final manual audit:
+
+- User confirmed the Step 320 focused audit passed after the technical closeout.

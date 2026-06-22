@@ -1144,10 +1144,17 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 319.4: Closeout regression suite：comparison browser/policy/render/persistence、replay history comparison、SMT selection 与 `git diff --check` 通过。
   - [x] Step 319.5: Readiness decision：写入 `needs more real-use data`；下一步应做一次 focused real-use audit session，而不是直接开启 Step 320。
 
-- [x] Step 320: Focused Comparison real-use audit。目标是用一次聚焦真实使用审计补齐 Step 319 剩余证据：SMT、1M+HTF replay progressive、Replay History restore、fixed layout ergonomics、advanced PDA frequency；本步骤不移除 Split。计划见 `v4/sessions/session_20260622_focused_comparison_audit_plan.md`。结论：技术回归通过，但真实审计证据仍不足，暂不进入 Split removal planning。
-  - [x] Step 320.1: NQ/ES SMT real-use pass：SMT selection/browser smoke 通过；仍需要真实 NQ/ES SMT review 确认可替代旧 Split。
-  - [x] Step 320.2: 1M + HTF replay progressive pass：comparison replay sync/browser smoke 通过；仍需要真实 replay review 确认 HTF progressive 视觉不误导。
-  - [x] Step 320.3: Replay History restore pass：replay history comparison smoke 通过；仍需要真实 reload/restore review 确认工作流可用。
-  - [x] Step 320.4: Fixed layout ergonomics pass：无法由自动化验证；仍是 Split removal blocker，需用户完成不用旧 Stack/Side Split 的 review。
-  - [x] Step 320.5: Advanced PDA frequency pass：无法由自动化验证；仍是 Split removal blocker，需真实 review 判定低频/waive/迁移。
-  - [x] Step 320.6: Audit closeout：已更新 audit doc/TODO/session，写入 `needs more real-use data`；不开放 Split removal planning。
+- [x] Step 320: Focused Comparison real-use audit。目标是用一次聚焦真实使用审计补齐 Step 319 剩余证据：SMT、1M+HTF replay progressive、Replay History restore、fixed layout ergonomics、advanced PDA frequency；本步骤不移除 Split。计划见 `v4/sessions/session_20260622_focused_comparison_audit_plan.md`。结论：用户确认真实审计通过，允许进入 Split removal planning。
+  - [x] Step 320.1: NQ/ES SMT real-use pass：SMT selection/browser smoke 通过；用户确认真实 NQ/ES SMT review 可替代旧 Split。
+  - [x] Step 320.2: 1M + HTF replay progressive pass：comparison replay sync/browser smoke 通过；用户确认真实 replay review 可用且视觉不误导。
+  - [x] Step 320.3: Replay History restore pass：replay history comparison smoke 通过；用户确认真实 reload/restore workflow 可用。
+  - [x] Step 320.4: Fixed layout ergonomics pass：用户确认 floating/sliding Comparison Window 可替代旧 Stack/Side Split。
+  - [x] Step 320.5: Advanced PDA frequency pass：用户确认没有阻塞 Split removal 的 advanced PDA 频率问题，或可接受 waiver。
+  - [x] Step 320.6: Audit closeout：已更新 audit doc/TODO/session，写入 `ready for Split removal planning`。
+
+- [ ] Step 321: Split removal planning。目标是在 Comparison Window 真实审计通过后，制定分阶段移除旧 Split 的计划；先审计依赖、隐藏用户入口、迁移/删除 split-only runtime、更新测试和文档，不一次性删除所有 secondary 模块。计划见 `v4/sessions/session_20260622_split_removal_plan.md`。
+  - [ ] Step 321.1: Split dependency audit：盘点 toolbar Split toggle、secondary chart/store/rendering、split CSS、replay/locate/SMT 引用、docs/tests，输出 remove/keep temporarily/migrate first 清单。
+  - [ ] Step 321.2: Disable user-facing Split entry points：移除或隐藏 Split toggle 与旧 Stack/Side layout 入口，保留 Comparison Window 控制。
+  - [ ] Step 321.3: Migrate or remove split-only runtime paths：逐项迁移到 Comparison Window、删除死代码或标记 shared dependency。
+  - [ ] Step 321.4: Update tests：移除旧 Split UI 断言，增加 Comparison Window 无 Split 入口仍可用的 smoke，保持 SMT/replay/locate 通过。
+  - [ ] Step 321.5: Documentation closeout：更新 user guide/audit/TODO/session/README 中关于 Split 与 Comparison Window 的说明。
