@@ -37,10 +37,13 @@ import {
   renderComparisonWindowTemplate,
   syncComparisonHeaderControls,
 } from './comparison/comparison-window-view.js';
+import {
+  createComparisonWindowDragHandlers,
+  syncComparisonLayoutGeometry,
+} from './comparison/comparison-window-layout.js';
 
 let root = null;
 let windowEl = null;
-let dragState = null;
 let requestSeq = 0;
 let lastLoadSignature = null;
 let lastReplayState = { enabled: false, cursorTimestamp: null };
@@ -52,6 +55,13 @@ let primaryHoverFrame = null;
 let comparisonHoverFrame = null;
 let layoutResizeObserver = null;
 let layoutRefreshFrame = null;
+const dragHandlers = createComparisonWindowDragHandlers({
+  getRoot: () => root,
+  getWindowEl: () => windowEl,
+  getState: getComparisonWindowState,
+  updateVisibleWindow: updateComparisonVisibleWindow,
+  resetVisibleWindow: resetComparisonVisibleWindow,
+});
 
 function shouldLoadReplaySource(start, end, timeframe) {
   if (Number(timeframe) <= 1) return false;
@@ -101,14 +111,14 @@ function ensureDom() {
     setComparisonOverlaySyncMode(event.target.value);
   });
   root.querySelectorAll('[data-comparison-drag-handle]').forEach((handle) => {
-    handle.addEventListener('pointerdown', startDrag);
+    handle.addEventListener('pointerdown', dragHandlers.startDrag);
     handle.addEventListener('dblclick', () => resetComparisonVisibleWindow());
   });
   const leftHandle = root.querySelector('[data-comparison-left-handle]');
-  leftHandle?.addEventListener('pointerdown', startSlideResize);
-  leftHandle?.addEventListener('contextmenu', suppressComparisonDragEvent);
+  leftHandle?.addEventListener('pointerdown', dragHandlers.startSlideResize);
+  leftHandle?.addEventListener('contextmenu', dragHandlers.suppressComparisonDragEvent);
   leftHandle?.addEventListener('dblclick', (event) => {
-    suppressComparisonDragEvent(event);
+    dragHandlers.suppressComparisonDragEvent(event);
     resetComparisonVisibleWindow();
   });
 }
@@ -116,7 +126,7 @@ function ensureDom() {
 function render(state) {
   ensureDom();
   if (!root || !windowEl) return;
-  syncComparisonLayoutGeometry(state);
+  syncComparisonLayoutGeometry({ root, windowEl, state });
   if (!state.enabled) return;
   const { instrument, timeframe, syncMode, overlaySyncMode } = state.descriptor;
   windowEl.dataset.instrument = instrument;
@@ -130,41 +140,12 @@ function render(state) {
   });
 }
 
-function syncComparisonLayoutGeometry(state = getComparisonWindowState()) {
-  if (!root || !windowEl) return;
-  const host = document.getElementById('chart-stack');
-  root.hidden = !state.enabled;
-  if (!state.enabled) {
-    host?.style.setProperty('--primary-legend-left-offset', '0px');
-    host?.style.setProperty('--primary-viewport-center-left', '50%');
-    return;
-  }
-  const { visibleWindow, layoutMode } = state.descriptor;
-  const isSliding = layoutMode === 'sliding';
-  const rootRect = root.getBoundingClientRect();
-  const boundaryPx = isSliding
-    ? ((Number(visibleWindow.x) + Number(visibleWindow.width)) / 100) * rootRect.width
-    : 0;
-  host?.style.setProperty('--primary-legend-left-offset', `${Math.max(0, Math.round(boundaryPx))}px`);
-  root.style.setProperty('--comparison-viewport-center-left', `${Math.max(0, Math.round(boundaryPx / 2))}px`);
-  const mainCenterPx = isSliding ? boundaryPx + Math.max(0, rootRect.width - boundaryPx) / 2 : rootRect.width / 2;
-  host?.style.setProperty('--primary-viewport-center-left', `${Math.max(0, Math.round(mainCenterPx))}px`);
-  windowEl.classList.toggle('comparison-window-sliding', isSliding);
-  windowEl.classList.toggle('comparison-window-floating', !isSliding);
-  windowEl.style.left = `${visibleWindow.x}%`;
-  windowEl.style.top = `${visibleWindow.y}%`;
-  windowEl.style.right = 'auto';
-  windowEl.style.width = `${visibleWindow.width}%`;
-  windowEl.style.height = `${visibleWindow.height}%`;
-  windowEl.dataset.layoutMode = layoutMode;
-}
-
 function scheduleComparisonLayoutRefresh() {
   if (layoutRefreshFrame !== null) return;
   layoutRefreshFrame = requestAnimationFrame(() => {
     layoutRefreshFrame = null;
     const state = getComparisonWindowState();
-    syncComparisonLayoutGeometry(state);
+    syncComparisonLayoutGeometry({ root, windowEl, state });
   });
 }
 
@@ -410,90 +391,4 @@ function handleReplayChanged({ enabled, cursorTimestamp }) {
     cursorTimestamp: cursorTimestamp ?? null,
   };
   renderComparisonBars({ followReplay: true });
-}
-
-function startDrag(event) {
-  if (!root || !windowEl || event.button !== 0) return;
-  if (getComparisonWindowState().descriptor.layoutMode === 'sliding') return;
-  if (event.target.closest('button, select, input, textarea, label, .comparison-window-actions')) return;
-  const bounds = root.getBoundingClientRect();
-  const target = event.currentTarget;
-  const current = getComparisonWindowState().descriptor.visibleWindow;
-  dragState = {
-    mode: 'move',
-    pointerId: event.pointerId,
-    target,
-    startClientX: event.clientX,
-    startClientY: event.clientY,
-    startWindow: current,
-    bounds,
-  };
-  root.classList.add('comparison-window-dragging');
-  target.setPointerCapture?.(event.pointerId);
-  target.addEventListener('pointermove', dragWindow);
-  target.addEventListener('pointerup', stopDrag, { once: true });
-  target.addEventListener('pointercancel', stopDrag, { once: true });
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function startSlideResize(event) {
-  if (!root || !windowEl || event.button !== 0) return;
-  const bounds = root.getBoundingClientRect();
-  const target = event.currentTarget;
-  const current = getComparisonWindowState().descriptor.visibleWindow;
-  dragState = {
-    mode: 'slide-left',
-    pointerId: event.pointerId,
-    target,
-    startClientX: event.clientX,
-    startClientY: event.clientY,
-    startWindow: current,
-    bounds,
-  };
-  root.classList.add('comparison-window-dragging');
-  target.setPointerCapture?.(event.pointerId);
-  target.addEventListener('pointermove', dragWindow);
-  target.addEventListener('pointerup', stopDrag, { once: true });
-  target.addEventListener('pointercancel', stopDrag, { once: true });
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function suppressComparisonDragEvent(event) {
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function dragWindow(event) {
-  if (!dragState || event.pointerId !== dragState.pointerId) return;
-  const dx = ((event.clientX - dragState.startClientX) / Math.max(1, dragState.bounds.width)) * 100;
-  if (dragState.mode === 'slide-left') {
-    const minWidth = 18;
-    const nextWidth = Math.max(minWidth, Math.min(96, dragState.startWindow.width + dx));
-    updateComparisonVisibleWindow({
-      x: 0,
-      y: 0,
-      width: nextWidth,
-      height: 100,
-    });
-  } else {
-    const dy = ((event.clientY - dragState.startClientY) / Math.max(1, dragState.bounds.height)) * 100;
-    updateComparisonVisibleWindow({
-      x: dragState.startWindow.x + dx,
-      y: dragState.startWindow.y + dy,
-    });
-  }
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-function stopDrag(event) {
-  if (!dragState || event.pointerId !== dragState.pointerId) return;
-  dragState.target.removeEventListener('pointermove', dragWindow);
-  dragState.target.releasePointerCapture?.(dragState.pointerId);
-  root?.classList.remove('comparison-window-dragging');
-  dragState = null;
-  event.stopPropagation();
-  event.preventDefault();
 }
