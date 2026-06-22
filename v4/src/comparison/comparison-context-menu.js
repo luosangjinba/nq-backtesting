@@ -1,7 +1,13 @@
 import * as bus from '../event-bus.js';
 import { getComparisonChartContext } from '../chart/chart-context.js';
-import { getBarChartTime } from '../pda/manual-pda-actions.js';
-import { addManualFvg, addManualPoint, findDisplayBarInContext } from '../pda/manual-pda-actions.js';
+import {
+  addManualFvg,
+  addManualObLastBar,
+  addManualPoint,
+  addManualWickCe,
+  findDisplayBarInContext,
+  getBarChartTime,
+} from '../pda/manual-pda-actions.js';
 import { finishSegmentInContext, startSegmentInContext } from '../segment/manual-segment.js';
 import { recordHistory } from '../history/history-manager.js';
 import { timeframeToString } from '../config.js';
@@ -138,6 +144,9 @@ function renderMenu(bar, price, context, hits = {}) {
       <button class="pda-menu-item" data-comparison-action="comparison-pda-ssl" ${disabled}>Mark SSL</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-fvg" ${disabled}>Mark FVG</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-ifvg" ${disabled}>Mark IFVG</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-ob-last-bar" ${priceLabel ? '' : 'disabled'}>Mark OB Last Bar</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
     </div>
     <div class="pda-menu-section">
       <button class="pda-menu-item" data-comparison-action="comparison-segment-start-low" ${disabled}>Start Segment from Low</button>
@@ -225,6 +234,12 @@ async function handleMenuClick(event) {
     hideComparisonContextMenu();
   } else if (action === 'comparison-pda-ifvg') {
     addManualFvg(contextMenuBar, context, 'ifvg');
+    hideComparisonContextMenu();
+  } else if (action === 'comparison-pda-ob-last-bar') {
+    await addManualObLastBar(contextMenuBar, context, contextMenuPrice);
+    hideComparisonContextMenu();
+  } else if (action === 'comparison-pda-wick-ce-upper' || action === 'comparison-pda-wick-ce-lower') {
+    addManualWickCe(action === 'comparison-pda-wick-ce-upper' ? 'upper' : 'lower', contextMenuBar, context);
     hideComparisonContextMenu();
   } else if (action === 'comparison-segment-start-low' || action === 'comparison-segment-start-high') {
     recordHistory('Start Comparison Segment', () =>

@@ -57,6 +57,17 @@ Decision:
 
 ## Step 312.2: Add Low-risk Comparison PDA Actions
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 312 execution.
+
+Implemented:
+- Added `Mark OB Last Bar` to Comparison Window context menu.
+- Added `Mark Upper Wick CE` and `Mark Lower Wick CE` to Comparison Window context menu.
+- Reused `addManualObLastBar` and `addManualWickCe` so source metadata comes from `getComparisonChartContext()`.
+- Did not add draft state or multi-click workflows.
+
 Update `comparison/comparison-context-menu.js`.
 
 Add menu actions:
