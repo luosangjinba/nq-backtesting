@@ -1158,3 +1158,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 321.3: Migrate or remove split-only runtime paths：已停止初始化 secondary controller/renderers/context menu，并移除 Replay History split 存储/恢复/显示；secondary shared internals 留待 Step 322。
   - [x] Step 321.4: Update tests：已更新 browser smoke 断言旧 Split UI 缺席且 Compare 可用，Replay History smoke 断言不再保存 split；SMT/replay/locate 回归通过。
   - [x] Step 321.5: Documentation closeout：已更新 user guide、operation manual、docs README、TODO/session；下一步建议 Step 322 清理或迁移剩余 secondary internals。
+
+- [ ] Step 322: Secondary internals cleanup / migration。目标是在用户可见 Split 已移除后，清理或迁移剩余 `secondary-*` internals；先迁移 selection/locate/pick/SMT 引用，再删除不再初始化的 secondary controller/store/manager/renderers/context menu。计划见 `v4/sessions/session_20260622_secondary_internals_cleanup_plan.md`。
+  - [ ] Step 322.1: Import surface audit：分类剩余 secondary 引用为 remove now / replace with comparison / keep temporarily / test-only update。
+  - [ ] Step 322.2: Remove dead DOM guards and unreachable handlers：清理 `#secondary-context-menu`、`#secondary-viewport-controls`、`#secondary-chart` 等已不存在 DOM 的 outside-click guard 和 click/crosshair listener。
+  - [ ] Step 322.3: Migrate locate/pick routing：移除或迁移 `secondary-locate-time`、secondary viewport target、secondary pick context target，保持 Comparison 路径可用。
+  - [ ] Step 322.4: Remove uninitialized secondary runtime modules：删除或隔离 secondary chart controller/manager/store、secondary PDA/Segment renderer、secondary context menu；如 SMT 仍依赖则先迁移。
+  - [ ] Step 322.5: Test and documentation update：更新 pick/viewport/primitive/SMT tests 到 Comparison workflow，跑 comparison browser、replay history、replay sync、SMT、pick/viewport、primitive lifecycle 与 `git diff --check`。
+  - [ ] Step 322.6: Closeout：更新 TODO/session/docs，若仍保留 secondary internals，明确原因并开后续 focused migration。
