@@ -32,10 +32,19 @@ It must not be presented as the primary user-facing display boundary. The user-f
 
 ### Step 317.1: Rename State Contract
 
+Status: completed.
+
 - Replace `COMPARISON_OVERLAY_SYNC_MODE.local` with `COMPARISON_OVERLAY_SYNC_MODE.noSync`.
 - Keep `sync`.
 - Default `overlaySyncMode` to `sync`.
 - Add backward compatibility so persisted `local` is restored as `no-sync`.
+
+Implementation notes:
+
+- Descriptor default is now `overlaySyncMode: sync`.
+- `setComparisonOverlaySyncMode('local')` and persisted `local` values are mapped to `no-sync`.
+- Invalid persisted values fall back to `sync`.
+- Verification: `node v4/tests/comparison-window-store-smoke.js`, `node v4/tests/comparison-window-persistence-smoke.js`, `node v4/tests/comparison-overlay-policy-smoke.js`.
 
 ### Step 317.2: Update UI Copy
 

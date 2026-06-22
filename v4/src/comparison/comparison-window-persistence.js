@@ -52,10 +52,11 @@ function normalizeSyncMode(value) {
 }
 
 function normalizeOverlaySyncMode(value) {
-  const normalized = normalizeString(value, COMPARISON_OVERLAY_SYNC_MODE.local);
+  const normalized = normalizeString(value, COMPARISON_OVERLAY_SYNC_MODE.sync);
+  if (normalized === 'local') return COMPARISON_OVERLAY_SYNC_MODE.noSync;
   return Object.values(COMPARISON_OVERLAY_SYNC_MODE).includes(normalized)
     ? normalized
-    : COMPARISON_OVERLAY_SYNC_MODE.local;
+    : COMPARISON_OVERLAY_SYNC_MODE.sync;
 }
 
 function normalizeLayoutMode(value) {

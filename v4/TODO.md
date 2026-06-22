@@ -1124,7 +1124,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 316.4: Verification：覆盖 Local/Sync/mismatch、跨窗选中、编辑/删除同步对象和来源 metadata 保留；pda source format、comparison policy/persistence/browser smoke 通过。
 
 - [ ] Step 317: Drawing Sync / No Sync semantics。目标是把 Comparison Window header 的 `Overlays: Local/Sync` 改成 TradingView-like `Drawings: Sync/No Sync`：默认 Sync；PDA/Segment 不是窗口独占对象，只有 `No Sync` 才阻止同 instrument + 同 timeframe 的跨窗显示。计划见 `v4/sessions/session_20260622_drawing_sync_no_sync_plan.md`。
-  - [ ] Step 317.1: Rename state contract：把 `COMPARISON_OVERLAY_SYNC_MODE.local` 迁移为 `no-sync`，默认值改为 `sync`，兼容读取旧 persistence 中的 `local`。
+  - [x] Step 317.1: Rename state contract：把 `COMPARISON_OVERLAY_SYNC_MODE.local` 迁移为 `no-sync`，默认值改为 `sync`，兼容读取旧 persistence 中的 `local`；store/persistence/policy smoke 通过。
   - [ ] Step 317.2: Update UI copy：Comparison Window header 从 `Overlays` 改为 `Drawings`，下拉选项从 `Local/Sync` 改为 `Sync/No Sync`，默认展示 `Sync`。
   - [ ] Step 317.3: Adjust policy semantics：`Sync` + 同 instrument/timeframe 时 PDA/Segment 默认双向显示；`No Sync` 或 mismatch 时不跨窗显示；source 只作为 metadata，不作为默认显示边界。
   - [ ] Step 317.4: Focused verification：更新 policy/persistence/browser smoke，覆盖默认 Sync、No Sync 不跨窗、旧 `local` persistence 兼容和 mismatch guard。

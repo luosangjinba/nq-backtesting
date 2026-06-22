@@ -18,6 +18,7 @@ assert.equal(state.descriptor.viewId, 'comparison-window-1');
 assert.equal(state.descriptor.writable, false);
 assert.equal(state.descriptor.layoutMode, 'floating');
 assert.equal(state.descriptor.syncMode, 'primary-time');
+assert.equal(state.descriptor.overlaySyncMode, 'sync');
 
 setComparisonInstrument('NQ');
 setComparisonTimeframe('240');

@@ -43,7 +43,7 @@ assert.equal(
 setComparisonWindowEnabled(true);
 setComparisonInstrument('ES');
 setComparisonTimeframe(60);
-setComparisonOverlaySyncMode('local');
+setComparisonOverlaySyncMode('no-sync');
 setComparisonBars([
   { timestamp: 100, open: 1, high: 2, low: 1, close: 2 },
   { timestamp: 200, open: 2, high: 3, low: 2, close: 3 },
@@ -57,6 +57,7 @@ assert.equal(summary.timeOverlayReady, true);
 assert.match(formatComparisonOverlaySummary(summary), /Time overlays ready/);
 
 assert.equal(getComparisonOverlaySyncPolicy().safe, false);
+assert.equal(getComparisonOverlaySyncPolicy().mode, 'no-sync');
 assert.equal(
   canRenderObjectOnChartTarget({ sourceChartId: 'comparison-window', sourceInstrument: 'ES', sourceTimeframe: 60 }, 'primary').ok,
   false

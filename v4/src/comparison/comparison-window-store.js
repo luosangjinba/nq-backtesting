@@ -63,9 +63,10 @@ export function setComparisonTimeframe(timeframe) {
 }
 
 export function setComparisonOverlaySyncMode(overlaySyncMode) {
-  const normalized = Object.values(COMPARISON_OVERLAY_SYNC_MODE).includes(overlaySyncMode)
-    ? overlaySyncMode
-    : COMPARISON_OVERLAY_SYNC_MODE.local;
+  const requested = overlaySyncMode === 'local' ? COMPARISON_OVERLAY_SYNC_MODE.noSync : overlaySyncMode;
+  const normalized = Object.values(COMPARISON_OVERLAY_SYNC_MODE).includes(requested)
+    ? requested
+    : COMPARISON_OVERLAY_SYNC_MODE.sync;
   return updateComparisonViewDescriptor({ overlaySyncMode: normalized });
 }
 

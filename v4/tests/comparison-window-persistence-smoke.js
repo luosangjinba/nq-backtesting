@@ -60,7 +60,7 @@ assert.equal(raw.includes('"bars"'), false, 'workspace persistence must not stor
 setComparisonWindowEnabled(false);
 setComparisonInstrument('ES');
 setComparisonTimeframe(60);
-setComparisonOverlaySyncMode('local');
+setComparisonOverlaySyncMode('no-sync');
 updateComparisonVisibleWindow({ x: 18, y: 10, width: 48, height: 46 });
 
 const restored = restoreComparisonWorkspaceState(readComparisonWorkspaceState());
@@ -86,9 +86,17 @@ const sanitized = serializeComparisonWorkspaceState({
 });
 assert.equal(sanitized.descriptor.instrument, 'BAD');
 assert.equal(sanitized.descriptor.timeframe, 60);
-assert.equal(sanitized.descriptor.overlaySyncMode, 'local');
+assert.equal(sanitized.descriptor.overlaySyncMode, 'sync');
 assert.deepEqual(sanitized.descriptor.visibleWindow, { x: 0, y: 12, width: 24, height: 88 });
 assert.deepEqual(sanitized.lastViewState.requestedRange, { startTs: 1_704_896_400, endTs: 1_704_900_000 });
 assert.equal(Object.hasOwn(sanitized, 'bars'), false);
+
+const legacyLocal = serializeComparisonWorkspaceState({
+  enabled: true,
+  descriptor: {
+    overlaySyncMode: 'local',
+  },
+});
+assert.equal(legacyLocal.descriptor.overlaySyncMode, 'no-sync');
 
 console.log('comparison-window-persistence-smoke passed');

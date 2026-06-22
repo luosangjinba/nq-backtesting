@@ -10,7 +10,7 @@ export const COMPARISON_SYNC_MODE = Object.freeze({
 });
 
 export const COMPARISON_OVERLAY_SYNC_MODE = Object.freeze({
-  local: 'local',
+  noSync: 'no-sync',
   sync: 'sync',
 });
 
@@ -24,7 +24,7 @@ export function createComparisonViewDescriptor(overrides = {}) {
     layoutMode: COMPARISON_LAYOUT_MODE.floating,
     sourceContext: 'comparison-window',
     syncMode: COMPARISON_SYNC_MODE.primaryTime,
-    overlaySyncMode: COMPARISON_OVERLAY_SYNC_MODE.local,
+    overlaySyncMode: COMPARISON_OVERLAY_SYNC_MODE.sync,
     writable: false,
     visibleWindow: {
       x: 18,

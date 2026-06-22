@@ -84,7 +84,7 @@ export function getComparisonOverlaySyncPolicy(state = getComparisonWindowState(
   const descriptor = state?.descriptor || {};
   const mode = descriptor.overlaySyncMode === COMPARISON_OVERLAY_SYNC_MODE.sync
     ? COMPARISON_OVERLAY_SYNC_MODE.sync
-    : COMPARISON_OVERLAY_SYNC_MODE.local;
+    : COMPARISON_OVERLAY_SYNC_MODE.noSync;
   const primaryInstrument = normalizeInstrument(getPrimaryInstrument());
   const comparisonInstrument = normalizeInstrument(descriptor.instrument);
   const primaryTimeframe = normalizeTimeframeToMinutes(getCurrentTimeframe());
@@ -98,7 +98,7 @@ export function getComparisonOverlaySyncPolicy(state = getComparisonWindowState(
   return {
     mode,
     safe,
-    reason: safe ? 'match' : mode === COMPARISON_OVERLAY_SYNC_MODE.local ? 'local' : 'instrument-or-timeframe-mismatch',
+    reason: safe ? 'match' : mode === COMPARISON_OVERLAY_SYNC_MODE.noSync ? 'no-sync' : 'instrument-or-timeframe-mismatch',
     primaryInstrument,
     comparisonInstrument,
     primaryTimeframe,
