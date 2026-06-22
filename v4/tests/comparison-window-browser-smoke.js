@@ -409,6 +409,16 @@ async function main() {
         };
 
         openBlankAt();
+        const blankMenu = document.querySelector('#comparison-context-menu');
+        const blankMenuRect = blankMenu.getBoundingClientRect();
+        const chartRect = chartEl.getBoundingClientRect();
+        const blankMenuTopElement = document.elementFromPoint(
+          blankMenuRect.left + 10,
+          blankMenuRect.top + 10
+        );
+        const blankMenuReachable = Boolean(blankMenuTopElement?.closest('#comparison-context-menu'));
+        const blankMenuConstrained = blankMenu.classList.contains('is-scroll-constrained');
+        const blankMenuFitsVertically = blankMenuRect.bottom <= chartRect.bottom + 1;
         const blankObDisabled = document
           .querySelector('[data-comparison-action="comparison-pda-ob-last-bar"]')
           ?.hasAttribute('disabled');
@@ -436,6 +446,23 @@ async function main() {
           timeframe: '1H',
         });
         openAt(bars[1], bars[1].close);
+        const evidenceSubmenu = document
+          .querySelector('#comparison-context-menu .pda-menu-submenu-trigger')
+          ?.closest('.pda-menu-submenu');
+        evidenceSubmenu?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        evidenceSubmenu?.querySelector('.pda-menu-submenu-trigger')?.focus();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const evidencePanel = evidenceSubmenu?.querySelector('.pda-submenu-panel');
+        const evidencePanelRect = evidencePanel?.getBoundingClientRect();
+        const evidencePanelTopElement = evidencePanelRect
+          ? document.elementFromPoint(evidencePanelRect.left + 10, evidencePanelRect.top + 10)
+          : null;
+        const evidencePanelVisible = Boolean(
+          evidenceSubmenu?.classList.contains('is-open') &&
+            evidencePanelRect?.width > 0 &&
+            evidencePanelRect?.height > 0 &&
+            evidencePanelTopElement?.closest('.pda-submenu-panel') === evidencePanel
+        );
         document.querySelector('[data-comparison-action="comparison-order-add-bar-evidence"]').click();
         await new Promise((resolve) => setTimeout(resolve, 150));
 
@@ -450,7 +477,21 @@ async function main() {
         const comparisonEvidence = activeSetup.orderReview.setupThesis.manualEvents.find((event) => event.sourceChartId === 'comparison-window');
         return {
           menuExists: Boolean(document.querySelector('#comparison-context-menu')),
+          menuReachable: blankMenuReachable,
+          menuConstrained: blankMenuConstrained,
+          menuFitsVertically: blankMenuFitsVertically,
+          menuGeometry: {
+            menuTop: blankMenuRect.top,
+            menuBottom: blankMenuRect.bottom,
+            menuHeight: blankMenuRect.height,
+            chartTop: chartRect.top,
+            chartBottom: chartRect.bottom,
+            chartHeight: chartRect.height,
+            maxHeight: getComputedStyle(blankMenu).maxHeight,
+            overflowY: getComputedStyle(blankMenu).overflowY,
+          },
           blankObDisabled,
+          evidencePanelVisible,
           comparisonPda: comparisonPda ? {
             type: comparisonPda.type,
             sourceChartId: comparisonPda.sourceChartId,
@@ -487,8 +528,16 @@ async function main() {
       })();
     `);
     assert.equal(contextMenuResult.menuExists, true, 'Comparison context menu should exist');
+    assert.equal(contextMenuResult.menuReachable, true, 'Comparison context menu should render above the chart canvas');
+    assert.equal(contextMenuResult.menuConstrained, true, 'Comparison context menu should become scroll constrained in a compact window');
+    assert.equal(
+      contextMenuResult.menuFitsVertically,
+      true,
+      `Comparison context menu should stay inside the chart viewport: ${JSON.stringify(contextMenuResult.menuGeometry)}`
+    );
     assert.equal(contextMenuResult.blankObDisabled, true, 'Comparison OB Last Bar should be disabled without a comparison bar');
-    assert.deepEqual(contextMenuResult.comparisonPda, {
+    assert.equal(contextMenuResult.evidencePanelVisible, true, 'Comparison Order Setup Evidence submenu should open');
+	    assert.deepEqual(contextMenuResult.comparisonPda, {
       type: 'bsl',
       sourceChartId: 'comparison-window',
       sourceChartLabel: 'Comparison',

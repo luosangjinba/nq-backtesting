@@ -1101,3 +1101,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 313.3: Run readiness smoke suite：统一跑 Step 309-312 相关 smoke，生成技术 readiness 结果。已通过 viewport/router、comparison viewport、PDA locate、pick router、comparison pick preview、comparison persistence/browser、live record、SMT selection smoke 与 `git diff --check`。
   - [x] Step 313.4: Record readiness decision：写入 `ready for removal plan` / `keep Split` / `needs more real-use data` 之一；默认没有真实交易日记录时不能 ready。当前 decision 为 `needs more real-use data`：技术 readiness smoke 通过，但尚无至少 1 次完整真实 review session 审计记录，不能开启 Split removal plan。
   - [x] Step 313.5: Closeout：更新 TODO/session/docs，明确下一步只能是继续真实使用审计或修复失败项。已收口：Split 保留，下一步应使用 `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md` 记录真实 review session；若发现失败项，再开 focused fix/migration step。
+
+- [x] Step 314: Comparison Window context menu usability fixes。目标是修复真实 UI 测试中发现的 Comparison Window 右键菜单可见性、滚动和子菜单裁剪问题；不新增业务功能，只让现有 PDA/Segment/Order Setup Evidence 菜单可用。收口见 `v4/sessions/session_20260622_comparison_context_menu_usability.md`。
+  - [x] Step 314.1: Menu visibility and hit target：修复菜单可能被 chart canvas 覆盖或在窗口右侧/底部被裁掉的问题；Comparison 菜单现在有明确 z-index，并在 chart viewport 内 clamp。
+  - [x] Step 314.2: Compact-window scrolling：在浮动窗口高度较小时限制主菜单 max-height，并启用内部滚动，避免菜单底部动作不可达。
+  - [x] Step 314.3: Order Setup Evidence submenu：接入主图/副图共用的 submenu 初始化，修复 `Order Setup Evidence` hover/focus 不展开的问题。
+  - [x] Step 314.4: Floating submenu outside scroll box：修复主菜单滚动盒裁剪子菜单的问题；Comparison 子菜单现在以 fixed 方式浮在主菜单外，并按 comparison chart 边界定位。
+  - [x] Step 314.5: Verification：扩展 `comparison-window-browser-smoke.js`，覆盖菜单可命中、紧凑窗口滚动、不越界、OB blank disabled 和 Order Setup Evidence 子菜单可展开/可点击；通过 `git diff --check`、comparison browser smoke 和 context menu position smoke。

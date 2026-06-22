@@ -17,6 +17,7 @@ import { handleOrderSetupChartAction } from '../order/order-setup-chart-actions.
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { hitTestPdaAnnotations } from '../pda/pda-hit-test.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
+import { initContextMenuSubmenuPositioning } from '../pda/manual-context-menu.js';
 
 let menuEl = null;
 let contextMenuBar = null;
@@ -175,8 +176,78 @@ function hideComparisonContextMenu() {
 
 function positionMenu(x, y) {
   if (!menuEl) return;
-  menuEl.style.left = `${Math.max(0, x)}px`;
-  menuEl.style.top = `${Math.max(0, y)}px`;
+  const host = menuEl.parentElement;
+  const bounds = host?.getBoundingClientRect();
+  if (!bounds) return;
+
+  const margin = 4;
+  const submenuWidth = 236;
+  const availableHeight = Math.max(80, bounds.height - margin * 2);
+  const menuRect = menuEl.getBoundingClientRect();
+  const menuWidth = Math.max(220, menuRect.width);
+  const naturalHeight = Math.max(1, menuEl.scrollHeight || 0, menuRect.height);
+  const visibleHeight = Math.min(naturalHeight, availableHeight);
+  const maxX = Math.max(margin, bounds.width - menuWidth - margin);
+  const clampedX = Math.min(Math.max(margin, x), maxX);
+  let clampedY = y;
+  if (clampedY + visibleHeight + margin > bounds.height) {
+    clampedY = Math.max(margin, bounds.height - visibleHeight - margin);
+  }
+
+  const constrained = naturalHeight > availableHeight;
+  menuEl.classList.toggle('is-scroll-constrained', constrained);
+  menuEl.style.left = `${Math.round(clampedX)}px`;
+  menuEl.style.top = `${Math.round(Math.max(margin, clampedY))}px`;
+  menuEl.style.maxHeight = `${Math.round(availableHeight)}px`;
+  menuEl.classList.toggle('pda-menu-submenu-left', clampedX + menuWidth + submenuWidth + margin > bounds.width);
+  menuEl.classList.toggle('pda-menu-submenu-right', clampedX + menuWidth + submenuWidth + margin <= bounds.width);
+}
+
+function measurePanel(panel) {
+  const previousDisplay = panel.style.display;
+  const previousVisibility = panel.style.visibility;
+  const previousPointerEvents = panel.style.pointerEvents;
+  panel.style.display = 'block';
+  panel.style.visibility = 'hidden';
+  panel.style.pointerEvents = 'none';
+  const rect = panel.getBoundingClientRect();
+  panel.style.display = previousDisplay;
+  panel.style.visibility = previousVisibility;
+  panel.style.pointerEvents = previousPointerEvents;
+  return rect;
+}
+
+function positionComparisonSubmenu(submenuEl) {
+  const panel = submenuEl?.querySelector(':scope > .pda-submenu-panel');
+  const chartEl = document.getElementById('comparison-chart-canvas');
+  if (!panel || !chartEl) return;
+
+  const margin = 8;
+  const chartRect = chartEl.getBoundingClientRect();
+  const triggerRect = submenuEl.getBoundingClientRect();
+  const panelRect = measurePanel(panel);
+  const panelWidth = Math.max(236, panelRect.width);
+  const maxHeight = Math.max(80, chartRect.height - margin * 2);
+  const opensLeft = triggerRect.right + panelWidth + margin > chartRect.right;
+  const naturalLeft = opensLeft ? triggerRect.left - panelWidth + 2 : triggerRect.right - 2;
+  const maxLeft = chartRect.right - panelWidth - margin;
+  const left = Math.min(Math.max(chartRect.left + margin, naturalLeft), Math.max(chartRect.left + margin, maxLeft));
+  const visibleHeight = Math.min(panelRect.height || maxHeight, maxHeight);
+  const maxTop = chartRect.bottom - visibleHeight - margin;
+  const top = Math.min(Math.max(chartRect.top + margin, triggerRect.top - 4), Math.max(chartRect.top + margin, maxTop));
+
+  panel.style.position = 'fixed';
+  panel.style.left = `${Math.round(left)}px`;
+  panel.style.right = 'auto';
+  panel.style.top = `${Math.round(top)}px`;
+  panel.style.maxHeight = `${Math.round(maxHeight)}px`;
+}
+
+function initComparisonSubmenuPositioning() {
+  menuEl?.querySelectorAll('.pda-menu-submenu').forEach((submenuEl) => {
+    submenuEl.addEventListener('mouseenter', () => positionComparisonSubmenu(submenuEl));
+    submenuEl.addEventListener('focusin', () => positionComparisonSubmenu(submenuEl));
+  });
 }
 
 function showComparisonContextMenu(x, y, bar, price, context, hits = {}) {
@@ -188,6 +259,8 @@ function showComparisonContextMenu(x, y, bar, price, context, hits = {}) {
   contextMenuSegmentGroupHit = hits.segmentGroupHit || null;
   menuEl.innerHTML = renderMenu(bar, price, context, hits);
   menuEl.hidden = false;
+  initContextMenuSubmenuPositioning(menuEl);
+  initComparisonSubmenuPositioning();
   positionMenu(x, y);
 }
 
