@@ -1,6 +1,5 @@
 import * as bus from '../../event-bus.js';
-import * as viewport from '../../chart/viewport-controller.js';
-import * as secondaryViewport from '../../chart/secondary-viewport-controller.js';
+import { VIEWPORT_TARGETS, locateChartRange } from '../../chart/viewport-router.js';
 import { getChartNoteById } from '../../chart-notes/chart-note-store.js';
 import { flashChartNote } from '../../chart-notes/chart-note-renderer.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
@@ -43,6 +42,12 @@ import {
 
 let pendingLiveRecordReasonRefPick = null;
 
+const VIEWPORT_TARGET_LABELS = {
+  [VIEWPORT_TARGETS.PRIMARY]: 'primary',
+  [VIEWPORT_TARGETS.SECONDARY]: 'secondary',
+  [VIEWPORT_TARGETS.COMPARISON]: 'comparison',
+};
+
 export function getPendingLiveRecordReasonRefPick() {
   return pendingLiveRecordReasonRefPick;
 }
@@ -74,6 +79,26 @@ function createEmptyLiveRecordReason() {
     note: '',
     refs: [],
   };
+}
+
+function toViewportTarget(sourceChartId) {
+  if (sourceChartId === VIEWPORT_TARGETS.SECONDARY) return VIEWPORT_TARGETS.SECONDARY;
+  if (sourceChartId === VIEWPORT_TARGETS.COMPARISON) return VIEWPORT_TARGETS.COMPARISON;
+  return VIEWPORT_TARGETS.PRIMARY;
+}
+
+function getLocatedPdaTargetLabels(result = {}) {
+  return [
+    result.primary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.PRIMARY] : '',
+    result.secondary?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.SECONDARY] : '',
+    result.comparison?.located ? VIEWPORT_TARGET_LABELS[VIEWPORT_TARGETS.COMPARISON] : '',
+  ].filter(Boolean);
+}
+
+function formatLocatedTargetList(targets = []) {
+  if (targets.length <= 1) return targets[0] || '';
+  if (targets.length === 2) return targets.join(' and ');
+  return `${targets.slice(0, -1).join(', ')} and ${targets.at(-1)}`;
 }
 
 function getLiveRecordReasons(record) {
@@ -223,16 +248,14 @@ export function createLiveRecordActionController({
         bus.emit('status:update', { text: 'Linked PDA not found', isError: true });
         return true;
       }
-      const result = locatePdaProjection(annotation);
+      sourceChartId = ref.sourceChartId || annotation.sourceChartId || sourceChartId;
+      const result = locatePdaProjection(annotation, { chart: toViewportTarget(sourceChartId) });
       label = getPdaOrderRefLabel(annotation);
+      const targets = getLocatedPdaTargetLabels(result);
       bus.emit('status:update', {
-        text: result.primary.located && result.secondary.located
-          ? `Located ${label} on primary and secondary`
-          : result.primary.located
-            ? `Located ${label} on primary`
-            : result.secondary.located
-              ? `Located ${label} on secondary`
-              : `${label} has no locatable loaded chart`,
+        text: targets.length
+          ? `Located ${label} on ${formatLocatedTargetList(targets)}`
+          : `${label} has no locatable loaded chart`,
         isError: !result.located,
       });
       return true;
@@ -253,7 +276,8 @@ export function createLiveRecordActionController({
         bus.emit('status:update', { text: 'Linked Chart Note not found', isError: true });
         return true;
       }
-      const located = viewport.locateTimestampRange(note.timestamp, note.timestamp, { flash: false });
+      const result = locateChartRange(VIEWPORT_TARGETS.PRIMARY, { start: note.timestamp, end: note.timestamp }, { flash: false });
+      const located = Boolean(result.targets?.[VIEWPORT_TARGETS.PRIMARY]?.located);
       const flashed = located && flashChartNote(note.id);
       bus.emit('status:update', {
         text: flashed
@@ -280,21 +304,22 @@ export function createLiveRecordActionController({
       return true;
     }
 
-    const useSecondary = sourceChartId === 'secondary';
-    const located = useSecondary
-      ? secondaryViewport.locateSecondaryTimestampRange(range.start, range.end)
-      : viewport.locateTimestampRange(range.start, range.end);
+    const target = toViewportTarget(sourceChartId);
+    const locateResult = locateChartRange(target, range);
+    const located = Boolean(locateResult.targets?.[target]?.located);
     if (!located) {
+      const targetLabel = VIEWPORT_TARGET_LABELS[target] || 'chart';
       bus.emit('status:update', {
-        text: useSecondary
-          ? 'Secondary chart is not available for this linked object'
-          : 'Primary chart cannot locate this linked object',
+        text: `${targetLabel[0].toUpperCase()}${targetLabel.slice(1)} chart cannot locate this linked object`,
         isError: true,
       });
       return true;
     }
 
-    bus.emit('status:update', { text: `Located ${label}`, isError: false });
+    bus.emit('status:update', {
+      text: `Located ${label} on ${VIEWPORT_TARGET_LABELS[target] || target}`,
+      isError: false,
+    });
     return true;
   }
 

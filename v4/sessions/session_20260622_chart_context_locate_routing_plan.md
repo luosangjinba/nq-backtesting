@@ -196,6 +196,18 @@ Verification:
 
 ### Step 309.5: Migrate Order Review And Live Record Reason Locate
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 309 execution.
+
+Implemented:
+- Replaced direct primary/secondary viewport calls in Order Review reason locate with `viewport-router`.
+- Replaced direct primary/secondary viewport calls in Live Record reason locate with `viewport-router`.
+- Routed linked PDA/Segment refs by `sourceChartId`, including `comparison-window`.
+- Kept Chart Note locate primary-only and Live Record Order Setup locate primary-only, matching their current data contracts.
+- Updated status text to include the actual routed target.
+
 Update:
 
 - `ui/inspector/order-review-reason-actions.js`
