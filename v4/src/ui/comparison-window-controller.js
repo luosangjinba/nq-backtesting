@@ -56,6 +56,8 @@ let pendingComparisonHoverTime = null;
 let primaryHoverFrame = null;
 let comparisonHoverFrame = null;
 let priceAxisDragState = null;
+let layoutResizeObserver = null;
+let layoutRefreshFrame = null;
 
 function shouldLoadReplaySource(start, end, timeframe) {
   if (Number(timeframe) <= 1) return false;
@@ -98,7 +100,7 @@ export function initComparisonWindowController() {
   bus.on('replay:changed', handleReplayChanged);
   chart.onCrosshairMove((param) => scheduleComparisonHoverCursor(param?.time));
   onComparisonCrosshairMove((param) => schedulePrimaryHoverCursor(param?.time));
-  window.addEventListener('resize', () => render(getComparisonWindowState()));
+  window.addEventListener('resize', scheduleComparisonLayoutRefresh);
 }
 
 function ensureDom() {
@@ -155,6 +157,8 @@ function ensureDom() {
   host.appendChild(root);
   windowEl = root.querySelector('#comparison-window');
   comparisonBoundaryPriceAxisEl = root.querySelector('[data-comparison-boundary-price-axis]');
+  layoutResizeObserver = new ResizeObserver(scheduleComparisonLayoutRefresh);
+  layoutResizeObserver.observe(host);
   root.querySelector('[data-comparison-close]')?.addEventListener('click', () => {
     setComparisonWindowEnabled(false);
   });
@@ -189,31 +193,14 @@ function ensureDom() {
 function render(state) {
   ensureDom();
   if (!root || !windowEl) return;
-  const host = document.getElementById('chart-stack');
-  root.hidden = !state.enabled;
+  syncComparisonLayoutGeometry(state);
   if (!state.enabled) {
-    host?.style.setProperty('--primary-legend-left-offset', '0px');
     renderComparisonBoundaryPriceAxis(state);
     return;
   }
-  const { visibleWindow, instrument, timeframe, syncMode, overlaySyncMode, layoutMode } = state.descriptor;
-  const isSliding = layoutMode === 'sliding';
-  const rootRect = root.getBoundingClientRect();
-  root.style.setProperty('--comparison-root-width', `${Math.max(1, Math.round(rootRect.width))}px`);
-  const boundaryPx = isSliding
-    ? ((Number(visibleWindow.x) + Number(visibleWindow.width)) / 100) * rootRect.width
-    : 0;
-  host?.style.setProperty('--primary-legend-left-offset', `${Math.max(0, Math.round(boundaryPx))}px`);
-  windowEl.classList.toggle('comparison-window-sliding', isSliding);
-  windowEl.classList.toggle('comparison-window-floating', !isSliding);
-  windowEl.style.left = `${visibleWindow.x}%`;
-  windowEl.style.top = `${visibleWindow.y}%`;
-  windowEl.style.right = 'auto';
-  windowEl.style.width = `${visibleWindow.width}%`;
-  windowEl.style.height = `${visibleWindow.height}%`;
+  const { instrument, timeframe, syncMode, overlaySyncMode } = state.descriptor;
   windowEl.dataset.instrument = instrument;
   windowEl.dataset.timeframe = String(timeframe);
-  windowEl.dataset.layoutMode = layoutMode;
   windowEl.dataset.syncMode = syncMode;
   windowEl.dataset.overlaySyncMode = overlaySyncMode;
   const instrumentSelect = root.querySelector('[data-comparison-instrument]');
@@ -236,6 +223,42 @@ function render(state) {
     initComparisonChart();
     setComparisonChartInfo({ instrument, timeframe });
     renderComparisonBoundaryPriceAxis(getComparisonWindowState());
+  });
+}
+
+function syncComparisonLayoutGeometry(state = getComparisonWindowState()) {
+  if (!root || !windowEl) return;
+  const host = document.getElementById('chart-stack');
+  root.hidden = !state.enabled;
+  if (!state.enabled) {
+    host?.style.setProperty('--primary-legend-left-offset', '0px');
+    return;
+  }
+  const { visibleWindow, layoutMode } = state.descriptor;
+  const isSliding = layoutMode === 'sliding';
+  const rootRect = root.getBoundingClientRect();
+  root.style.setProperty('--comparison-root-width', `${Math.max(1, Math.round(rootRect.width))}px`);
+  const boundaryPx = isSliding
+    ? ((Number(visibleWindow.x) + Number(visibleWindow.width)) / 100) * rootRect.width
+    : 0;
+  host?.style.setProperty('--primary-legend-left-offset', `${Math.max(0, Math.round(boundaryPx))}px`);
+  windowEl.classList.toggle('comparison-window-sliding', isSliding);
+  windowEl.classList.toggle('comparison-window-floating', !isSliding);
+  windowEl.style.left = `${visibleWindow.x}%`;
+  windowEl.style.top = `${visibleWindow.y}%`;
+  windowEl.style.right = 'auto';
+  windowEl.style.width = `${visibleWindow.width}%`;
+  windowEl.style.height = `${visibleWindow.height}%`;
+  windowEl.dataset.layoutMode = layoutMode;
+}
+
+function scheduleComparisonLayoutRefresh() {
+  if (layoutRefreshFrame !== null) return;
+  layoutRefreshFrame = requestAnimationFrame(() => {
+    layoutRefreshFrame = null;
+    const state = getComparisonWindowState();
+    syncComparisonLayoutGeometry(state);
+    renderComparisonBoundaryPriceAxis(state);
   });
 }
 

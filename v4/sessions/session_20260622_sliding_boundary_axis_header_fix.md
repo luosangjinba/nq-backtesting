@@ -11,6 +11,7 @@ User reported from a real browser screenshot:
 - The boundary price-axis could not be used to scale the Comparison Window price range.
 - Opening the left-side Comparison Window made the Main chart OHLC legend appear to disappear.
 - The Main/Comparison divider showed two adjacent lines: a thick cyan resize-handle line and a thin boundary price-axis line.
+- Opening Inspector resizes the chart workspace correctly, but the custom Comparison boundary price-axis could remain at its pre-resize x position.
 
 ## Root Cause
 
@@ -21,6 +22,7 @@ User reported from a real browser screenshot:
 - The visible boundary price-axis was a custom read-only DOM overlay. The native Lightweight Charts right price scale lives at the far right edge of the full-width comparison canvas, which is clipped away by the sliding window, so dragging the visible boundary axis did not reach native price-scale interactions.
 - The Main OHLC legend stayed anchored to the full-width primary chart's original top-left corner. In sliding mode that point is behind the left-side Comparison overlay, so the legend was covered rather than cleared.
 - The resize hit target drew its own visible `::after` line while the boundary price-axis also drew a border line. The resize hit target is still useful, but its visible line is redundant.
+- Lightweight Charts canvases resize through their own observer, but the custom DOM boundary axis was only refreshed on comparison state changes/window resize. Inspector open/close changes flex layout without changing comparison state.
 
 ## Changes
 
@@ -50,6 +52,9 @@ User reported from a real browser screenshot:
 - Removed the visible resize-handle pseudo-line:
   - the 10px transparent resize hit target remains;
   - the visible divider is now the thin boundary price-axis line only.
+- Added a `ResizeObserver` on `#chart-stack`:
+  - layout-only refresh updates `--comparison-root-width`, Comparison window geometry, boundary price-axis position, and Main OHLC legend offset;
+  - it does not reload comparison bars or rebuild controls.
 - Extended `comparison-window-browser-smoke.js` to assert:
   - boundary price-axis starts below the header;
   - loaded boundary labels are not all `0.00`;
@@ -58,6 +63,7 @@ User reported from a real browser screenshot:
   - boundary price-axis double-click resets autoscale.
   - Main OHLC legend shifts outside the left-side Comparison overlay and resets after close.
   - resize handle remains hittable but does not draw a second thick divider.
+  - Inspector open/resized chart workspace keeps the boundary price-axis aligned to the Comparison right edge.
 
 ## Verification
 

@@ -389,6 +389,29 @@ async function main() {
       Math.abs(primaryPriceAxis.axisRight - primaryPriceAxis.windowRight) <= 2,
       'Comparison boundary price axis should align to the comparison right boundary'
     );
+    const inspectorLayout = await evaluate(client, `
+      (async () => {
+        const inspector = document.querySelector('#inspector-sidebar');
+        inspector?.classList.add('open');
+        await new Promise((resolve) => setTimeout(resolve, 260));
+        const win = document.querySelector('#comparison-window').getBoundingClientRect();
+        const axis = document.querySelector('[data-comparison-boundary-price-axis]').getBoundingClientRect();
+        const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+        inspector?.classList.remove('open');
+        await new Promise((resolve) => setTimeout(resolve, 180));
+        return {
+          inspectorExists: Boolean(inspector),
+          stackWidth: stack.width,
+          axisRight: axis.right,
+          windowRight: win.right,
+        };
+      })();
+    `);
+    assert.equal(inspectorLayout.inspectorExists, true, 'Inspector sidebar should exist for layout regression');
+    assert.ok(
+      Math.abs(inspectorLayout.axisRight - inspectorLayout.windowRight) <= 2,
+      `Comparison boundary price axis should follow layout resize from Inspector: ${JSON.stringify(inspectorLayout)}`
+    );
     const closeButtonHit = await evaluate(client, `
       (() => {
         const close = document.querySelector('[data-comparison-close]');
