@@ -231,6 +231,67 @@ Test plan:
 - Design chart-context preview cursor and click routing.
 - Define supported comparison pick workflows and non-goals.
 
+Status: complete.
+
+Pick call-site audit:
+
+| Area | Current route | Gap |
+| --- | --- | --- |
+| `ui/inspector/order-review-edit-actions.js` | Local `getPickChartContext(e)` branches on DOM id `secondary-chart`; primary uses `chart-manager`, secondary uses `secondary-chart-manager`. | Comparison Window is not a pick target; clear/hover logic hard-codes only primary/secondary preview cursors. |
+| `ui/inspector/segment-actions.js` | Has a separate local `getPickChartContext(e)` with the same primary/secondary assumptions. | Duplicate logic and no comparison support. |
+| `chart/chart-context.js` | Exposes chart/series/display bars/coordinate APIs for primary, secondary, comparison. | Does not expose chart DOM element or pick preview cursor functions. |
+| `chart/comparison-chart-manager.js` | Supports replay cursor and sync hover cursor. | Missing dedicated pick preview cursor API equivalent to primary/secondary. |
+
+Recommended implementation shape:
+
+1. Add `chart/pick-context-router.js`.
+2. Provide `getPickContext(chartIdOrEvent)` returning:
+
+```js
+{
+  chartId,
+  chartEl,
+  timeframe,
+  getDisplayBars,
+  coordinateToTime,
+  timeToCoordinate,
+  findBarByChartTime,
+  showPreviewCursor,
+  hidePreviewCursor,
+  isEnabled
+}
+```
+
+3. Provide `clearOtherPickPreviewCursors(activeChartId)` and `clearAllPickPreviewCursors()`.
+4. Reuse `chart-context.js` for common chart capabilities, but keep DOM element and preview cursor operations in the router because they are UI-specific.
+5. Add `showComparisonPickPreviewCursor`, `hideComparisonPickPreviewCursor`, and optionally `hasComparisonPickPreviewCursor` to `comparison-chart-manager.js`.
+
+Migration order:
+
+1. Implement the router for primary and secondary only.
+2. Migrate `order-review-edit-actions.js` to use the router; verify no behavior change.
+3. Migrate `segment-actions.js` to use the router; verify no behavior change.
+4. Add comparison preview cursor support.
+5. Enable comparison in the router.
+6. Add comparison support selectively:
+   - Order Setup exit bar pick can support comparison if the selected comparison bar timestamp is meaningful for the setup result.
+   - Segment actor pick should support comparison only when the actor timeframe matches the comparison timeframe.
+
+Behavior rules:
+
+- Pick state stays owned by each workflow controller; the router only provides chart targeting.
+- Cursor cleanup must clear all chart preview cursors when cancelling.
+- Hover in one chart must hide preview cursors in other charts.
+- Comparison Window must not auto-open for pick mode; it is a valid target only when enabled and loaded.
+- Unsupported comparison pick should return a clear status message, not silently fall back to primary.
+
+Test plan:
+
+- Focused smoke for router primary/secondary parity.
+- Order Setup edit pick smoke: primary pick still updates exit timestamp; secondary pick still updates exit timestamp.
+- Segment actor pick smoke: primary/secondary actor pick still updates actor timestamp/timeframe.
+- Comparison smoke after implementation: open Comparison Window, start supported pick, hover/click comparison chart, verify preview cursor and timestamp update.
+
 ### Step 308.4: Comparison Hit-test Link
 
 - Audit secondary hit-test link behavior.
