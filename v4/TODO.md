@@ -1099,5 +1099,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 313.1: Build executable audit checklist：把 NQ/ES SMT、1M/HTF replay、comparison annotation、Order evidence、Calendar/Inspector locate、Replay History restore、fixed layout preference、advanced PDA frequency 转成可填写审计表。已在 session 中定义每行的 Required Action / Pass Signal / Fail Signal / Observed Result / Notes / Decision 字段。
   - [x] Step 313.2: Add audit/readiness docs：新增 `v4/docs/user/COMPARISON_WINDOW_REAL_USE_AUDIT.md`，记录审计方法、pass/fail 标准、session log 模板和 readiness decision 选项。已新增用户审计文档并在 `v4/docs/README.md` 加入口。
   - [x] Step 313.3: Run readiness smoke suite：统一跑 Step 309-312 相关 smoke，生成技术 readiness 结果。已通过 viewport/router、comparison viewport、PDA locate、pick router、comparison pick preview、comparison persistence/browser、live record、SMT selection smoke 与 `git diff --check`。
-  - [ ] Step 313.4: Record readiness decision：写入 `ready for removal plan` / `keep Split` / `needs more real-use data` 之一；默认没有真实交易日记录时不能 ready。
+  - [x] Step 313.4: Record readiness decision：写入 `ready for removal plan` / `keep Split` / `needs more real-use data` 之一；默认没有真实交易日记录时不能 ready。当前 decision 为 `needs more real-use data`：技术 readiness smoke 通过，但尚无至少 1 次完整真实 review session 审计记录，不能开启 Split removal plan。
   - [ ] Step 313.5: Closeout：更新 TODO/session/docs，明确下一步只能是继续真实使用审计或修复失败项。

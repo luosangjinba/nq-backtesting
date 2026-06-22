@@ -134,6 +134,22 @@ Run:
 
 ## Step 313.4: Record Readiness Decision
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 313 execution.
+
+Decision:
+
+- `needs more real-use data`
+
+Reason:
+
+- Technical readiness smoke passed.
+- No completed real-use review session has been recorded in the audit checklist.
+- Step 308.6 requires at least 1 full review session, preferably 2 separate trading days, before a Split removal plan can be opened.
+- Therefore Split stays enabled and no removal branch/plan should be started yet.
+
 Allowed decisions:
 
 - `ready for removal plan`;
