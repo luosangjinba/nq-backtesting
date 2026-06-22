@@ -15,12 +15,15 @@ import { getBarChartTime } from '../chart/time-projection.js';
 import * as primaryStore from '../data/bar-store.js';
 import {
   getComparisonWindowState,
+  clearComparisonBars,
   resetComparisonVisibleWindow,
   setComparisonInstrument,
+  setComparisonBars,
   setComparisonTimeframe,
   setComparisonWindowEnabled,
   updateComparisonVisibleWindow,
 } from '../comparison/comparison-window-store.js';
+import { updateComparisonOverlayStatus } from '../comparison/comparison-overlay-policy.js';
 
 let root = null;
 let windowEl = null;
@@ -89,6 +92,7 @@ function ensureDom() {
         <div id="comparison-chart-canvas" class="comparison-chart-canvas">
           <div id="comparison-chart-info" class="comparison-chart-info"></div>
           <div id="comparison-ohlc-legend" class="comparison-ohlc-legend"></div>
+          <div class="comparison-overlay-status" data-comparison-overlay-status>Overlays waiting for comparison data</div>
           <div class="comparison-window-placeholder" data-comparison-placeholder>
             <div class="comparison-window-placeholder-title">Comparison chart view</div>
             <div class="comparison-window-placeholder-meta" data-comparison-status>Choose a main date range to load comparison data</div>
@@ -191,8 +195,10 @@ function hideComparisonPlaceholder() {
 function clearComparisonView() {
   requestSeq += 1;
   lastLoadSignature = null;
+  clearComparisonBars();
   clearComparisonData();
   setComparisonStatus('Choose a main date range to load comparison data');
+  updateComparisonOverlayStatus();
 }
 
 async function loadComparisonForPrimaryRange({ force = false } = {}) {
@@ -215,6 +221,7 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
     setComparisonChartInfo({ instrument, timeframe });
     const result = await fetchBars(start, end, timeframe, instrument);
     if (seq !== requestSeq || !getComparisonWindowState().enabled) return;
+    setComparisonBars(result.bars, result.requestedRange);
     const displayBars = getDisplayBarsFromResult(result);
     const chartData = displayBars.map((bar) => toChartBar(bar, timeframe));
     setComparisonData(chartData);
@@ -224,6 +231,7 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
     } else {
       setComparisonStatus(`No ${instrument} data in main range`);
     }
+    updateComparisonOverlayStatus();
     bus.emit('status:update', {
       text: `Comparison ${instrument} 已加载 ${displayBars.length} 根K线`,
       isError: false,
@@ -231,8 +239,10 @@ async function loadComparisonForPrimaryRange({ force = false } = {}) {
   } catch (error) {
     if (seq !== requestSeq) return;
     lastLoadSignature = null;
+    clearComparisonBars();
     clearComparisonData();
     setComparisonStatus(`Comparison load failed: ${error.message}`, true);
+    updateComparisonOverlayStatus();
     bus.emit('status:update', {
       text: `Comparison 加载失败: ${error.message}`,
       isError: true,

@@ -1,0 +1,151 @@
+import * as bus from '../event-bus.js';
+import { getChartNotes } from '../chart-notes/chart-note-store.js';
+import { TIMEFRAME_TO_SECONDS } from '../config.js';
+import { getLiveRecords } from '../live-record/live-record-store.js';
+import { getOrderReviews } from '../order/order-review-store.js';
+import { getAnnotations } from '../pda/pda-store.js';
+import { canRenderPdaPriceProjection } from '../pda/pda-projection.js';
+import { getSegments } from '../segment/segment-store.js';
+import { getComparisonWindowState } from './comparison-window-store.js';
+
+function normalizeInstrument(value, fallback = 'NQ') {
+  return String(value || fallback).trim().toUpperCase();
+}
+
+function normalizeTimeframe(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function normalizeTimeframeToMinutes(value) {
+  const numeric = normalizeTimeframe(value);
+  if (numeric !== null) return numeric;
+  const label = String(value || '').trim().toUpperCase();
+  const seconds = TIMEFRAME_TO_SECONDS[label];
+  return Number.isFinite(seconds) && seconds > 0 ? seconds / 60 : null;
+}
+
+function getObjectInstrument(object = {}) {
+  return normalizeInstrument(object.sourceInstrument || object.instrument || object.anchor?.instrument);
+}
+
+function getObjectTimeframe(object = {}) {
+  return normalizeTimeframeToMinutes(
+    object.sourceTimeframe ??
+      object.timeframe ??
+      object.anchor?.timeframe ??
+      object.sourceTimeframeLabel ??
+      object.timeframeLabel
+  );
+}
+
+export function canProjectPriceObjectToComparison(object = {}, descriptor = {}) {
+  const targetInstrument = normalizeInstrument(descriptor.instrument);
+  const sourceInstrument = getObjectInstrument(object);
+  if (sourceInstrument !== targetInstrument) {
+    return {
+      ok: false,
+      reason: 'instrument-mismatch',
+      sourceInstrument,
+      targetInstrument,
+    };
+  }
+
+  const sourceTimeframe = getObjectTimeframe(object);
+  const targetTimeframe = normalizeTimeframeToMinutes(descriptor.timeframe);
+  if (sourceTimeframe !== null && targetTimeframe !== null && sourceTimeframe !== targetTimeframe) {
+    return {
+      ok: false,
+      reason: 'timeframe-mismatch',
+      sourceTimeframe,
+      targetTimeframe,
+    };
+  }
+
+  return { ok: true, reason: 'match', sourceInstrument, targetInstrument };
+}
+
+export function canProjectPdaToComparison(annotation = {}, descriptor = {}) {
+  if (!canRenderPdaPriceProjection(annotation, descriptor.instrument)) {
+    return {
+      ok: false,
+      reason: 'instrument-mismatch',
+      sourceInstrument: getObjectInstrument(annotation),
+      targetInstrument: normalizeInstrument(descriptor.instrument),
+    };
+  }
+  return canProjectPriceObjectToComparison(annotation, descriptor);
+}
+
+function summarizeObjects(items, descriptor, projector = canProjectPriceObjectToComparison) {
+  return items.reduce(
+    (summary, item) => {
+      const result = projector(item, descriptor);
+      if (result.ok) summary.eligible += 1;
+      else summary.filtered += 1;
+      return summary;
+    },
+    { total: items.length, eligible: 0, filtered: 0 }
+  );
+}
+
+export function getComparisonOverlaySummary(state = getComparisonWindowState()) {
+  const descriptor = state.descriptor;
+  const pda = summarizeObjects(getAnnotations(), descriptor, canProjectPdaToComparison);
+  const segments = summarizeObjects(getSegments(), descriptor);
+  const chartNotes = summarizeObjects(getChartNotes(), descriptor);
+  const orders = summarizeObjects(getOrderReviews(), descriptor);
+  const liveRecords = summarizeObjects(getLiveRecords(), descriptor);
+  const priceTotal = pda.total + segments.total + chartNotes.total + orders.total + liveRecords.total;
+  const priceEligible = pda.eligible + segments.eligible + chartNotes.eligible + orders.eligible + liveRecords.eligible;
+  const priceFiltered = pda.filtered + segments.filtered + chartNotes.filtered + orders.filtered + liveRecords.filtered;
+
+  return {
+    enabled: state.enabled,
+    descriptor,
+    timeOverlayReady: state.enabled && state.displayBars.length > 0,
+    priceTotal,
+    priceEligible,
+    priceFiltered,
+    groups: {
+      pda,
+      segments,
+      chartNotes,
+      orders,
+      liveRecords,
+    },
+  };
+}
+
+export function formatComparisonOverlaySummary(summary = getComparisonOverlaySummary()) {
+  if (!summary.enabled) return 'Overlays idle';
+  if (!summary.timeOverlayReady) return 'Overlays waiting for comparison data';
+  const guarded = summary.priceTotal > 0
+    ? ` · price overlays guarded ${summary.priceEligible}/${summary.priceTotal}`
+    : ' · no price overlays';
+  return `Time overlays ready${guarded}`;
+}
+
+export function updateComparisonOverlayStatus() {
+  const el = document.querySelector('[data-comparison-overlay-status]');
+  if (!el) return;
+  const summary = getComparisonOverlaySummary();
+  el.textContent = formatComparisonOverlaySummary(summary);
+  el.dataset.priceEligible = String(summary.priceEligible);
+  el.dataset.priceFiltered = String(summary.priceFiltered);
+  el.dataset.priceTotal = String(summary.priceTotal);
+}
+
+export function initComparisonOverlayPolicy() {
+  [
+    'comparison-window:changed',
+    'comparison-bars:loaded',
+    'comparison-bars:cleared',
+    'pda:changed',
+    'segment:changed',
+    'chart-notes:changed',
+    'order-review:changed',
+    'live-record:changed',
+    'time-overlays:changed',
+  ].forEach((eventName) => bus.on(eventName, updateComparisonOverlayStatus));
+}

@@ -141,6 +141,36 @@ export function clearComparisonData() {
   setComparisonData([]);
 }
 
+export function getComparisonChart() {
+  return comparisonChart;
+}
+
+export function getComparisonSeries() {
+  return comparisonSeries;
+}
+
+export function attachComparisonPrimitive(primitive) {
+  if (!comparisonSeries || !primitive) return;
+  comparisonSeries.attachPrimitive(primitive);
+}
+
+export function detachComparisonPrimitive(primitive) {
+  if (!comparisonSeries || !primitive) return;
+  comparisonSeries.detachPrimitive(primitive);
+}
+
+export function clearComparisonPrimitives(primitives) {
+  if (!comparisonSeries || !primitives) return [];
+  primitives.forEach((primitive) => {
+    try {
+      comparisonSeries.detachPrimitive(primitive);
+    } catch (e) {
+      // primitive may already be detached during comparison chart reset
+    }
+  });
+  return [];
+}
+
 export function showComparisonStartOfData(dataCount) {
   if (!comparisonChart || !comparisonContainer) return;
   const width = comparisonContainer.clientWidth || 800;

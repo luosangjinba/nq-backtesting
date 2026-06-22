@@ -157,6 +157,14 @@ Implementation notes:
 - Filter or time-only-project cross-instrument objects so ES prices are not drawn on NQ price scale or vice versa.
 - Start read-only before enabling creation.
 
+Implementation notes:
+
+- Comparison Window now stores loaded/display bars in `comparison-window-store` so overlay renderers can use the same view context.
+- Time Overlays render read-only on Comparison Window using the comparison chart primitives.
+- Added `comparison-overlay-policy` to guard price-bearing PDA, Segment, Chart Note, Order Setup, and Live Record objects by source instrument/timeframe before any future price projection.
+- Cross-instrument or mismatched-timeframe price objects are counted as filtered instead of being drawn on the wrong price axis.
+- The browser smoke verifies the overlay status updates after comparison data loads; policy smoke covers guard decisions and display-range filtering.
+
 ### Step 307.8: Annotation Workflow Parity
 
 - Enable comparison-view BSL/SSL creation.

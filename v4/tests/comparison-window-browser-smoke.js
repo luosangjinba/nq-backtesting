@@ -321,6 +321,7 @@ async function main() {
           url: window.__comparisonLastBarsUrl,
           info: document.querySelector('#comparison-chart-info').textContent,
           placeholderHidden: document.querySelector('[data-comparison-placeholder]').hidden,
+          overlayStatus: document.querySelector('[data-comparison-overlay-status]').textContent,
         };
       })();
     `);
@@ -329,6 +330,7 @@ async function main() {
     assert.match(loaded.url, /tf=60/, 'Comparison window should use its own default timeframe');
     assert.equal(loaded.info, 'ES 1H');
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
+    assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');
 
     const reset = await evaluate(client, `
       (() => {

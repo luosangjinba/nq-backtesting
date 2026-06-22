@@ -7,6 +7,7 @@ import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initComparisonWindowController } from './ui/comparison-window-controller.js';
+import { initComparisonOverlayPolicy } from './comparison/comparison-overlay-policy.js';
 import {
   getReplayRestoreSnapshot,
   initReplayControls,
@@ -130,6 +131,7 @@ initSecondaryChartController();
 console.log('[V4] Secondary chart controller initialized');
 
 initComparisonWindowController();
+initComparisonOverlayPolicy();
 console.log('[V4] Comparison window controller initialized');
 
 initSmtRenderer();

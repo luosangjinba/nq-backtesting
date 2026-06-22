@@ -5,6 +5,9 @@ const DEFAULT_DESCRIPTOR = createComparisonViewDescriptor();
 
 let enabled = false;
 let descriptor = createComparisonViewDescriptor();
+let bars = [];
+let displayBars = [];
+let requestedRange = null;
 
 export function isComparisonWindowEnabled() {
   return enabled;
@@ -21,6 +24,9 @@ export function getComparisonWindowState() {
   return {
     enabled,
     descriptor: getComparisonViewDescriptor(),
+    bars: getComparisonBars(),
+    displayBars: getComparisonDisplayBars(),
+    requestedRange,
   };
 }
 
@@ -69,6 +75,39 @@ export function resetComparisonVisibleWindow() {
   };
   emitChanged();
   return descriptor.visibleWindow;
+}
+
+export function setComparisonBars(nextBars = [], range = null) {
+  bars = Array.isArray(nextBars) ? [...nextBars] : [];
+  requestedRange = range || null;
+  displayBars = deriveDisplayBars(bars, requestedRange);
+  bus.emit('comparison-bars:loaded', {
+    bars: getComparisonBars(),
+    displayBars: getComparisonDisplayBars(),
+    requestedRange,
+    descriptor: getComparisonViewDescriptor(),
+  });
+}
+
+export function clearComparisonBars() {
+  bars = [];
+  displayBars = [];
+  requestedRange = null;
+  bus.emit('comparison-bars:cleared');
+}
+
+export function getComparisonBars() {
+  return [...bars];
+}
+
+export function getComparisonDisplayBars() {
+  return [...displayBars];
+}
+
+function deriveDisplayBars(sourceBars, range) {
+  if (!range || sourceBars.length === 0) return sourceBars;
+  const { startTs, endTs } = range;
+  return sourceBars.filter((bar) => Number(bar?.timestamp) >= startTs && Number(bar?.timestamp) <= endTs);
 }
 
 function emitChanged() {
