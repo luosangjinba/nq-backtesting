@@ -169,6 +169,62 @@ Verification expectation for later substeps:
 - Design a chart-context locate API covering primary, secondary, and comparison.
 - Plan focused/browser coverage for comparison locate from Inspector.
 
+Status: complete.
+
+Locate call-site audit:
+
+| Area | Current route | Gap |
+| --- | --- | --- |
+| `ui/inspector/calendar-actions.js` | Calls primary `viewport.locateTimestampRange` and old secondary `locateSecondaryTimestampRange`; PDA uses `locatePdaProjection`. | No comparison target; status copy only knows primary/secondary. |
+| `ui/inspector/time-reaction-actions.js` | `locate.chart` supports `primary` or `secondary`; refs use `locatePdaProjection` or direct primary/secondary branches. | Locate selector cannot choose comparison; Order Setup locate is primary-only. |
+| `ui/inspector/order-review-reason-actions.js` | PDA uses `locatePdaProjection`; Segment uses `sourceChartId === secondary` branch; Chart Note is primary only. | `sourceChartId=comparison-window` falls back to primary. |
+| `ui/inspector/live-record-actions.js` | Mirrors Order Review reason locate behavior. | `sourceChartId=comparison-window` is not routed. |
+| `pda/pda-locate-actions.js` | Uses primary and secondary chart contexts only. | PDA projection cannot locate/flash comparison even when source metadata matches comparison. |
+| `comparison/comparison-context-menu.js` | Can locate comparison bar time in primary. | One-off primary locate helper, not a reusable router. |
+
+Recommended implementation shape:
+
+1. Add `chart/viewport-router.js`.
+2. Export constants using existing chart ids: `primary`, `secondary`, `comparison-window`, and `both`.
+3. Provide `locateChartRange(chartId, range, options = {})`.
+4. Provide `locateChartRangeMany(chartIds, range, options = {})`.
+5. Return a structured result:
+
+```js
+{
+  located: true,
+  targets: {
+    primary: { located: true, reason: '' },
+    secondary: { located: false, reason: 'not-enabled' },
+    'comparison-window': { located: true, reason: '' }
+  }
+}
+```
+
+Router behavior:
+
+- `primary`: call existing `viewport.locateTimestampRange`.
+- `secondary`: call existing `secondaryViewport.locateSecondaryTimestampRange`.
+- `comparison-window`: add a comparison viewport controller or generic context implementation that uses comparison chart, comparison display bars, and comparison primitives.
+- `both`: preserve current primary + secondary behavior first; only include comparison when explicitly requested or when source metadata points to comparison.
+- Do not auto-open Comparison Window just to locate; return `not-enabled` if it is closed or unloaded.
+- Keep `flash: false` support for Chart Note/PDA paths that use custom flash primitives.
+
+Migration order:
+
+1. Implement the router with primary/secondary parity tests first.
+2. Add comparison range locate support and focused test with comparison store/chart mocks.
+3. Migrate `pda-locate-actions.js` to use router and include comparison when source metadata permits it.
+4. Migrate Calendar object locate.
+5. Migrate Order Review reason and Live Record reason locate using `sourceChartId`.
+6. Migrate Time Reaction locate selector after the UI can expose `comparison-window` as a target.
+
+Test plan:
+
+- Focused router smoke: primary success, secondary disabled, secondary success, comparison disabled, comparison success.
+- PDA projection smoke: source primary, source secondary, and source comparison route to the expected targets.
+- Browser smoke: create comparison PDA/FVG or Segment, open Inspector/Calendar locate, verify the comparison chart range/flash path is reachable and old primary/secondary locate still works.
+
 ### Step 308.3: Pick-preview Routing
 
 - Audit Order Setup edit pick and Segment actor pick code paths.

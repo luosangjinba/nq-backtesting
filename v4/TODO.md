@@ -1057,7 +1057,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 308: Comparison Window Split-only workflow migration plan。目标是把 Step 307.13 中阻止删除 Split 的能力拆成后续可执行迁移步骤；先做计划，不直接删除 Split。计划见 `v4/sessions/session_20260622_comparison_split_only_migration_plan.md`。
   - [x] Step 308.1: Freeze removal boundary：确认当前只做 Split-only workflow migration planning；旧 Split 继续保留，不做 removal。已记录边界：Step 308 只能迁移/设计 Split-only workflow，不删除 Split、不破坏 primary/secondary 行为；任何 Split removal 必须另开计划并以真实工作流审计通过为前提。
-  - [ ] Step 308.2: Chart context locate routing：设计 Calendar、Time Reaction、Order Review reason、Live Record locate 从 primary/secondary 分支迁到 chart context routing，并覆盖 Comparison Window locate/flash。
+  - [x] Step 308.2: Chart context locate routing：设计 Calendar、Time Reaction、Order Review reason、Live Record locate 从 primary/secondary 分支迁到 chart context routing，并覆盖 Comparison Window locate/flash。已完成 locate call-site 审计和 router 设计：后续新增 `viewport-router`，统一 primary/secondary/comparison locate range 与 flash，优先迁移 Calendar、PDA projection、Order Review reason、Live Record、Time Reaction。
   - [ ] Step 308.3: Pick-preview routing：设计 Order Setup edit pick、Segment actor pick preview 从 primary/secondary 专用实现迁到 chart context routing，支持 comparison chart cursor/hover/pick。
   - [ ] Step 308.4: Comparison hit-test link：设计 Comparison Window 对已有 PDA/Segment/FVG/Composite 的 hit-test 与 Link To Active Setup 流程，补齐旧 Split 的 existing object link 能力。
   - [ ] Step 308.5: Advanced PDA workflow decision：逐项决定 OB、Breaker、Fib、Range PDA draft、EQH/EQL Point Sets 是迁移到 Comparison Window、保留在主图/旧 Split，还是明确放弃对比窗口版本。
