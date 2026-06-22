@@ -165,8 +165,13 @@ function ensureDom() {
     handle.addEventListener('pointerdown', startDrag);
     handle.addEventListener('dblclick', () => resetComparisonVisibleWindow());
   });
-  root.querySelector('[data-comparison-left-handle]')?.addEventListener('pointerdown', startSlideResize);
-  root.querySelector('[data-comparison-left-handle]')?.addEventListener('dblclick', () => resetComparisonVisibleWindow());
+  const leftHandle = root.querySelector('[data-comparison-left-handle]');
+  leftHandle?.addEventListener('pointerdown', startSlideResize);
+  leftHandle?.addEventListener('contextmenu', suppressComparisonDragEvent);
+  leftHandle?.addEventListener('dblclick', (event) => {
+    suppressComparisonDragEvent(event);
+    resetComparisonVisibleWindow();
+  });
 }
 
 function render(state) {
@@ -503,6 +508,11 @@ function startSlideResize(event) {
   event.preventDefault();
 }
 
+function suppressComparisonDragEvent(event) {
+  event.stopPropagation();
+  event.preventDefault();
+}
+
 function dragWindow(event) {
   if (!dragState || event.pointerId !== dragState.pointerId) return;
   const dx = ((event.clientX - dragState.startClientX) / Math.max(1, dragState.bounds.width)) * 100;
@@ -533,4 +543,5 @@ function stopDrag(event) {
   root?.classList.remove('comparison-window-dragging');
   dragState = null;
   event.stopPropagation();
+  event.preventDefault();
 }

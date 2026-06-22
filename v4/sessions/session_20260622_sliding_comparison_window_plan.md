@@ -59,7 +59,7 @@ Result:
 
 ## Step 325.3: Interaction Guards
 
-Status: pending.
+Status: completed.
 
 Ensure left-edge dragging:
 
@@ -67,6 +67,12 @@ Ensure left-edge dragging:
 - does not trigger chart pan, crosshair, context menu, or selection;
 - keeps buttons/selects usable;
 - reset returns to the default sliding position.
+
+Result:
+
+- Left-edge handle now suppresses pointer/contextmenu propagation explicitly.
+- Pointer release prevents default after capture cleanup.
+- Browser smoke asserts the left handle context menu is cancelled and does not open the comparison context menu.
 
 ## Step 325.4: Browser Verification
 

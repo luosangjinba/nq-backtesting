@@ -331,6 +331,22 @@ async function main() {
     assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
     assert.equal(moved.primaryHeight, dragStart.primaryHeight, 'Dragging window should not resize primary panel height');
 
+    const handleContextMenu = await evaluate(client, `
+      (() => {
+        const handle = document.querySelector('.comparison-window-left-handle');
+        const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+        const dispatchResult = handle.dispatchEvent(event);
+        return {
+          dispatchResult,
+          defaultPrevented: event.defaultPrevented,
+          menuHidden: document.querySelector('#comparison-context-menu').hidden,
+        };
+      })();
+    `);
+    assert.equal(handleContextMenu.dispatchResult, false, 'Left handle contextmenu should be cancelled');
+    assert.equal(handleContextMenu.defaultPrevented, true, 'Left handle contextmenu should prevent default');
+    assert.equal(handleContextMenu.menuHidden, true, 'Left handle contextmenu should not open comparison menu');
+
     const stageDrag = await evaluate(client, `
       (() => {
       const before = document.querySelector('#comparison-window').getBoundingClientRect();
