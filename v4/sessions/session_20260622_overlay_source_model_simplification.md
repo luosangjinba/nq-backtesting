@@ -48,6 +48,8 @@ Implementation boundary:
 
 ### Step 316.2: Label/UI Simplification
 
+Status: completed.
+
 Simplify on-chart PDA/Segment labels so the object label emphasizes instrument/timeframe, not source chart name.
 
 Expected behavior:
@@ -55,6 +57,13 @@ Expected behavior:
 - PDA label example: `BSL · NQ 1M`;
 - Segment label example: `1M UP LEG`;
 - source chart remains visible in Inspector/details, not as the primary user decision.
+
+Implementation notes:
+
+- Added `formatPdaChartLabel()` for on-chart PDA labels.
+- Kept `formatPdaSourceBadge()` and `formatPdaDisplayLabel()` for Inspector/details and evidence/ref contexts that still need chart source.
+- Primary, Secondary, and Comparison PDA renderers now use chart labels without `Main` / `Comparison` by default.
+- Verification: `git diff --check`, `node v4/tests/pda-source-format-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`, `node v4/tests/live-record-smoke.js`.
 
 ### Step 316.3: Edit/Delete Routing Verification
 

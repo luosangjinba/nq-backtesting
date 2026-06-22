@@ -11,7 +11,7 @@ import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getVisibleFibLevels } from './fib-levels.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
-import { formatPdaDisplayLabel } from './pda-source-format.js';
+import { formatPdaChartLabel } from './pda-source-format.js';
 import { canRenderPdaPriceProjection, getPdaProjectionTimestamps } from './pda-projection.js';
 import { getSelectedPda } from './pda-selection.js';
 import { getSelectedSegment, getSelectedSegmentGroup } from '../segment/segment-selection.js';
@@ -116,7 +116,7 @@ function getNestedPointRenderTime(point, fallbackTime) {
 }
 
 function getAnnotationLabel(annotation, pdaType, selected = false, linkedToSegment = false) {
-  const baseLabel = annotation.displayLabel || formatPdaDisplayLabel(annotation, pdaType.label);
+  const baseLabel = annotation.displayLabel || formatPdaChartLabel(annotation, pdaType.label);
   if (selected) return `● ${baseLabel}`;
   if (linkedToSegment) return `↔ ${baseLabel}`;
   return baseLabel;

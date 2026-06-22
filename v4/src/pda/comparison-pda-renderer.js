@@ -18,7 +18,7 @@ import { createRafThrottle } from '../utils/raf-throttle.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType, OB_COLORS } from './pda-types.js';
 import { getExtendBarsForTimeframe } from './pda-extend.js';
-import { formatPdaDisplayLabel } from './pda-source-format.js';
+import { formatPdaChartLabel } from './pda-source-format.js';
 import { getSelectedPda } from './pda-selection.js';
 
 const DEFAULT_EXTEND_BARS = 8;
@@ -57,7 +57,7 @@ function getRangeRenderTime(annotation, field, fallbackField, timeframe, display
 }
 
 function getAnnotationLabel(annotation, pdaType) {
-  return annotation.displayLabel || formatPdaDisplayLabel(annotation, pdaType.label);
+  return annotation.displayLabel || formatPdaChartLabel(annotation, pdaType.label);
 }
 
 function shouldShowLabel(annotation) {

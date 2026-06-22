@@ -1119,6 +1119,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 316: Overlay Source Model Simplification。目标是保留 `sourceChartId/sourceContext` 作为内部 metadata，但把用户操作模型简化为“在哪个窗口画 + Local/Sync 是否同步”；不再把 Main/Comparison 来源作为用户必须理解的分叉。计划见 `v4/sessions/session_20260622_overlay_source_model_simplification.md`。
   - [x] Step 316.1: Source model audit：梳理 PDA/Segment/Order/Live 的 source metadata、label、Inspector、edit/delete 路由，记录必须保留的内部字段和可以弱化的 UI 文案；确认来源字段保留为内部 metadata，主要弱化图上 PDA label 的 `Main/Comparison` 噪音。
-  - [ ] Step 316.2: Label/UI simplification：弱化 chart-source 噪音，PDA/Segment 图上 label 默认显示对象 + instrument/timeframe；Inspector/详情处保留来源说明。
+  - [x] Step 316.2: Label/UI simplification：弱化 chart-source 噪音，PDA/Segment 图上 label 默认显示对象 + instrument/timeframe；Inspector/详情处保留来源说明；新增 PDA chart label formatter，图上 label 不再默认拼 `Main/Comparison`。
   - [ ] Step 316.3: Edit/delete routing verification：确保同步显示对象在任意窗口选中、编辑、删除时作用于同一个原对象，不产生同步副本。
   - [ ] Step 316.4: Verification：覆盖 Local/Sync/mismatch、跨窗选中、编辑/删除同步对象和来源 metadata 保留。

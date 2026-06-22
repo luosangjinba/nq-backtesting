@@ -33,6 +33,12 @@ export function formatPdaSourceBadge(annotation = {}) {
   return [chartLabel, instrument, timeframeLabel].filter(Boolean).join(' ');
 }
 
+export function formatPdaChartLabel(annotation = {}, pdaLabel = 'PDA') {
+  const { instrument, timeframeLabel } = getPdaSourceParts(annotation);
+  const source = [instrument, timeframeLabel].filter(Boolean).join(' ');
+  return source ? `${pdaLabel} · ${source}` : pdaLabel;
+}
+
 export function formatPdaDisplayLabel(annotation = {}, pdaLabel = 'PDA') {
   const source = formatPdaSourceBadge(annotation);
   return source ? `${pdaLabel} · ${source}` : pdaLabel;
