@@ -124,6 +124,17 @@ Rules:
 
 ## Step 310.4: Migrate Segment Actor Pick Preview
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 310 execution.
+
+Implemented:
+- Replaced local primary/secondary pick context logic in `segment-actions.js` with `pick-context-router`.
+- Actor pick cancel/completion now clears all preview cursors through the router.
+- Actor pick hover clears preview cursors on other charts through the router.
+- Reused the Inspector comparison crosshair/click binding for Segment actor pick.
+
 Update `ui/inspector/segment-actions.js`.
 
 Rules match Step 310.3:

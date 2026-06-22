@@ -1138,6 +1138,7 @@ export function initInspectorSidebar() {
   secondaryChart.onSecondaryCrosshairMove(segmentActions.handleSecondaryActorPickHover);
   secondaryChart.onSecondaryClick(handleSecondaryCalendarClick);
   comparisonChart.onComparisonCrosshairMove(orderReviewActions.handleComparisonExitPickHover);
+  comparisonChart.onComparisonCrosshairMove(segmentActions.handleComparisonActorPickHover);
   bindComparisonPickClickHandlers();
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -1307,5 +1308,6 @@ function bindComparisonPickClickHandlers() {
     return;
   }
   chartEl.addEventListener('click', orderReviewActions.handleExitPickChartClick, true);
+  chartEl.addEventListener('click', segmentActions.handleActorPickChartClick, true);
   comparisonPickClickBound = true;
 }
