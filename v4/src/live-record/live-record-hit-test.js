@@ -1,4 +1,5 @@
-import { getPrimaryChartContext } from '../chart/chart-context.js';
+import { CHART_CONTEXT_IDS, getPrimaryChartContext } from '../chart/chart-context.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 import { LIVE_RECORD_DIRECTIONS } from './live-record-types.js';
 import { getLiveRecordSets } from './live-record-set.js';
 import {
@@ -15,6 +16,14 @@ const PLAN_LINE_HIT_TOLERANCE_PX = 8;
 
 function getHitContext(context) {
   return context || getPrimaryChartContext();
+}
+
+function canHitLiveSetInContext(liveSet, context) {
+  const targetChartId = getHitContext(context)?.chartId || CHART_CONTEXT_IDS.PRIMARY;
+  return canRenderObjectOnChartTarget({
+    ...liveSet,
+    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
+  }, targetChartId).ok;
 }
 
 function lineDistance(x, y, x1, x2, lineY) {
@@ -89,6 +98,7 @@ export function hitTestLiveRecordElements({ x, y, context = null } = {}) {
   const activeContext = getHitContext(context);
   const hits = [];
   getLiveRecordSets().forEach((liveSet) => {
+    if (!canHitLiveSetInContext(liveSet, activeContext)) return;
     if (liveSet.display?.hidden) return;
     const execution = liveSet.execution || {};
     const entryTimestamp = execution.entry?.timestamp || liveSet.anchor?.timestamp;

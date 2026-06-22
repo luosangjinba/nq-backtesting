@@ -110,10 +110,19 @@ Implementation notes:
 
 ### Step 315.5: Hit-test and Selection Routing
 
+Status: completed.
+
 Update PDA/Segment/Order/Live hit-test behavior to match overlay visibility:
 
 - Local: source-isolated hit-test.
 - Sync and safe: hit-test synced objects on both charts.
+
+Implementation notes:
+
+- PDA and Segment hit-test now use the same Main/Comparison sync policy as renderers.
+- Order Setup and Live Record hit-test filter comparison context hits through the sync policy.
+- Browser smoke now verifies Local isolation and Sync-safe PDA/Segment bidirectional hit-test.
+- Verification: `git diff --check`, `node v4/tests/comparison-overlay-policy-smoke.js`, `node v4/tests/comparison-window-browser-smoke.js`.
 
 ### Step 315.6: Verification
 

@@ -7,6 +7,7 @@ import { getSegmentGroups } from './segment-group-store.js';
 import { shouldRenderSegment, shouldRenderSegmentGroup } from '../display/display-mode.js';
 import { getIsolateCompanionSegments } from './segment-isolate-view.js';
 import { getSegmentPointRenderTime } from './segment-time.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 
 const LINE_TOLERANCE_PX = 7;
 const MARKER_TOLERANCE_PX = 8;
@@ -22,8 +23,9 @@ function getSourceChartId(object) {
 function canHitInContext(object, context) {
   const sourceChartId = getSourceChartId(object);
   const targetChartId = getHitContext(context)?.chartId || 'primary';
-  if (sourceChartId === 'comparison-window') return targetChartId === 'comparison-window';
-  if (targetChartId === 'comparison-window') return sourceChartId === 'comparison-window';
+  if (sourceChartId === 'comparison-window' || targetChartId === 'comparison-window') {
+    return canRenderObjectOnChartTarget(object, targetChartId).ok;
+  }
   return true;
 }
 

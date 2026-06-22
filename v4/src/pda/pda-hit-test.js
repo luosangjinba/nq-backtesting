@@ -4,6 +4,7 @@ import * as chart from '../chart/chart-manager.js';
 import { getPrimaryChartContext } from '../chart/chart-context.js';
 import { mapTimestampToChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 import { getAnnotations } from './pda-store.js';
 import { getPdaType } from './pda-types.js';
 import { getVisibleFibLevels } from './fib-levels.js';
@@ -30,8 +31,9 @@ function getSourceChartId(object) {
 function canHitInContext(object, context) {
   const sourceChartId = getSourceChartId(object);
   const targetChartId = getHitContext(context)?.chartId || 'primary';
-  if (sourceChartId === 'comparison-window') return targetChartId === 'comparison-window';
-  if (targetChartId === 'comparison-window') return sourceChartId === 'comparison-window';
+  if (sourceChartId === 'comparison-window' || targetChartId === 'comparison-window') {
+    return canRenderObjectOnChartTarget(object, targetChartId).ok;
+  }
   return true;
 }
 

@@ -1,6 +1,7 @@
 // Pixel hit testing for Order Setup chart elements.
 
-import { getPrimaryChartContext } from '../chart/chart-context.js';
+import { CHART_CONTEXT_IDS, getPrimaryChartContext } from '../chart/chart-context.js';
+import { canRenderObjectOnChartTarget } from '../comparison/comparison-overlay-policy.js';
 import { ORDER_DIRECTIONS } from './order-review-types.js';
 import { getSetupSets } from './setup-set.js';
 import {
@@ -86,10 +87,19 @@ function isOrderSetupElementVisible(setupSet, role) {
   return setupSet?.display?.elementVisibility?.[role] !== false;
 }
 
+function canHitSetupSetInContext(setupSet, context) {
+  const targetChartId = getHitContext(context)?.chartId || CHART_CONTEXT_IDS.PRIMARY;
+  return canRenderObjectOnChartTarget({
+    ...setupSet,
+    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
+  }, targetChartId).ok;
+}
+
 export function hitTestOrderSetupElements({ x, y, context = null } = {}) {
   const activeContext = getHitContext(context);
   const hits = [];
   getSetupSets().forEach((setupSet) => {
+    if (!canHitSetupSetInContext(setupSet, activeContext)) return;
     if (setupSet.display?.hidden) return;
     const elements = setupSet.orderElements || {};
     const entryTimestamp = elements.entry?.timestamp || elements.reversal?.timestamp;

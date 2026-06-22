@@ -615,6 +615,145 @@ async function main() {
       sourceContext: 'ES 1H',
     });
 
+    const syncedHitResult = await evaluate(client, `
+      (async () => {
+        const comparisonStore = await import('/src/comparison/comparison-window-store.js');
+        const pdaStore = await import('/src/pda/pda-store.js');
+        const segmentStore = await import('/src/segment/segment-store.js');
+        const pdaHitTest = await import('/src/pda/pda-hit-test.js');
+        const segmentHitTest = await import('/src/segment/segment-hit-test.js');
+        const chartContexts = await import('/src/chart/chart-context.js');
+        const primaryContext = chartContexts.getPrimaryChartContext();
+        const primaryBars = primaryContext.getDisplayBars();
+        const first = primaryBars[0];
+        const last = primaryBars[primaryBars.length - 1];
+        comparisonStore.setComparisonInstrument('NQ');
+        comparisonStore.setComparisonTimeframe(1);
+        comparisonStore.setComparisonOverlaySyncMode('sync');
+        comparisonStore.setComparisonBars(primaryBars, {
+          startTs: first.timestamp,
+          endTs: last.timestamp,
+        }, {
+          start: '2026-06-12 09:30',
+          end: '2026-06-12 10:30',
+        });
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const comparisonContext = chartContexts.getComparisonChartContext();
+        pdaStore.addAnnotation({
+          id: 'sync-primary-pda',
+          source: 'manual',
+          type: 'bsl',
+          sourceChartId: 'primary',
+          sourceChartLabel: 'Main',
+          sourceInstrument: 'NQ',
+          sourceTimeframe: 1,
+          sourceContext: 'NQ 1M',
+          timestamp: first.timestamp,
+          canonicalTimestamp: first.timestamp,
+          anchorTime: first.timestamp,
+          price: first.high,
+          display: { showLabel: true },
+        });
+        pdaStore.addAnnotation({
+          id: 'sync-comparison-pda',
+          source: 'manual',
+          type: 'ssl',
+          sourceChartId: 'comparison-window',
+          sourceChartLabel: 'Comparison',
+          sourceInstrument: 'NQ',
+          sourceTimeframe: 1,
+          sourceContext: 'NQ 1M',
+          timestamp: first.timestamp,
+          canonicalTimestamp: first.timestamp,
+          anchorTime: first.timestamp,
+          price: first.low,
+          display: { showLabel: true },
+        });
+        segmentStore.addSegment({
+          id: 'sync-primary-segment',
+          source: 'manual',
+          sourceChartId: 'primary',
+          sourceChartLabel: 'Main',
+          sourceInstrument: 'NQ',
+          sourceTimeframe: 1,
+          timeframe: 1,
+          sourceContext: 'NQ 1M',
+          direction: 'up',
+          start: { timestamp: first.timestamp, time: first.timestamp, price: first.low },
+          end: { timestamp: last.timestamp, time: last.timestamp, price: last.high },
+          display: {},
+        });
+        segmentStore.addSegment({
+          id: 'sync-comparison-segment',
+          source: 'manual',
+          sourceChartId: 'comparison-window',
+          sourceChartLabel: 'Comparison',
+          sourceInstrument: 'NQ',
+          sourceTimeframe: 1,
+          timeframe: 1,
+          sourceContext: 'NQ 1M',
+          direction: 'down',
+          start: { timestamp: first.timestamp, time: first.timestamp, price: first.high },
+          end: { timestamp: last.timestamp, time: last.timestamp, price: last.low },
+          display: {},
+        });
+        await new Promise((resolve) => setTimeout(resolve, 350));
+
+        const comparisonPrimaryPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: comparisonContext.timeToCoordinate(first.timestamp),
+          y: comparisonContext.priceToCoordinate(first.high),
+          context: comparisonContext,
+        });
+        const primaryComparisonPdaHit = pdaHitTest.hitTestPdaAnnotations({
+          x: primaryContext.timeToCoordinate(first.timestamp),
+          y: primaryContext.priceToCoordinate(first.low),
+          context: primaryContext,
+        });
+        const comparisonPrimarySegmentHit = segmentHitTest.hitTestSegments({
+          x: comparisonContext.timeToCoordinate(last.timestamp),
+          y: comparisonContext.priceToCoordinate(last.high),
+          context: comparisonContext,
+        });
+        const primaryComparisonSegmentHit = segmentHitTest.hitTestSegments({
+          x: primaryContext.timeToCoordinate(last.timestamp),
+          y: primaryContext.priceToCoordinate(last.low),
+          context: primaryContext,
+        });
+        const result = {
+          policySafe: (await import('/src/comparison/comparison-overlay-policy.js')).getComparisonOverlaySyncPolicy().safe,
+          comparisonPrimaryPdaHit: comparisonPrimaryPdaHit?.id,
+          primaryComparisonPdaHit: primaryComparisonPdaHit?.id,
+          comparisonPrimarySegmentHit: comparisonPrimarySegmentHit?.id,
+          primaryComparisonSegmentHit: primaryComparisonSegmentHit?.id,
+        };
+        const esBars = primaryBars.map((bar, index) => ({
+          ...bar,
+          open: 7400 + index * 8,
+          high: 7424 + index * 8,
+          low: 7388 + index * 8,
+          close: 7412 + index * 8,
+        }));
+        comparisonStore.setComparisonOverlaySyncMode('local');
+        comparisonStore.setComparisonInstrument('ES');
+        comparisonStore.setComparisonTimeframe(60);
+        comparisonStore.setComparisonBars(esBars, {
+          startTs: first.timestamp,
+          endTs: last.timestamp,
+        }, {
+          start: '2026-06-12 09:30',
+          end: '2026-06-12 10:30',
+        });
+        return result;
+      })();
+    `);
+    assert.deepEqual(syncedHitResult, {
+      policySafe: true,
+      comparisonPrimaryPdaHit: 'sync-primary-pda',
+      primaryComparisonPdaHit: 'sync-comparison-pda',
+      comparisonPrimarySegmentHit: 'sync-primary-segment',
+      primaryComparisonSegmentHit: 'sync-comparison-segment',
+    }, 'Sync safe mode should make Main/Comparison PDA and Segment hit-test on both chart contexts');
+
     const replayProgressive = await evaluate(client, `
       (async () => {
         const bus = await import('/src/event-bus.js');
