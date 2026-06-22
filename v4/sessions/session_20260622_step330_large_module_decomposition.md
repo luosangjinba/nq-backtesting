@@ -53,6 +53,48 @@ Candidate extraction boundaries:
 - Replay history bridge and restore actions.
 - Replay pick state helpers.
 
+## Step 330.2 Replay Controls Extraction Plan
+
+Current `replay-controls.js` structure:
+
+- Lines 45-153: chart bar formatting, HTML/date helpers, toolbar range/instrument setters, and comparison restore application.
+- Lines 155-297: replay timestamp lookup, UTC target time helpers, progressive higher-timeframe restore helpers, and jump timestamp parsing.
+- Lines 308-510: timer handling, cursor timestamp anchors, replay state transitions, render slice, step/back/play/jump actions, and public `restoreReplayToTimestamp`.
+- Lines 512-555: Replay History item load, data reload, comparison restore, and replay cursor restore.
+- Lines 557-726: replay enable/play/pick state machine plus click/keyboard dispatch.
+- Lines 728-811: replay controls DOM and replay history panel rendering.
+- Lines 813-842: public replay query APIs used by renderers/Inspector.
+- Lines 844-908: `syncReplayData` and initialization wiring.
+
+Extraction order:
+
+1. Extract pure time/bar helpers to `v4/src/ui/replay/replay-time-utils.js`.
+   - Move `formatReplayTime`, `parseDateTime`, `isTimestampInRange`, `findBarIndexAtOrBeforeTimestamp`, `getUtcDateTimeTimestamp`, `aggregatePartialBar`, `getReplayRestoreDisplayBars`, `parseReplayJumpTimestamp`, and `normalizeTimeKey`.
+   - Keep `getBarChartTime` dependent `toChartBar` in `replay-controls.js` for the first pass because it directly reads current timeframe from `bar-store`.
+
+2. Extract DOM rendering to `v4/src/ui/replay/replay-controls-view.js`.
+   - Move `escapeHtml`, `formatHistoryTime`, `formatHistoryDateRange`, `renderHistoryPanel`, and a new `renderReplayControlsView(state)` function.
+   - Keep event binding and action dispatch in `replay-controls.js`.
+
+3. Extract Replay History load bridge to `v4/src/ui/replay/replay-history-actions.js` only after helper/view extraction is stable.
+   - Pass dependencies explicitly: `fetchBars`, store setters, toolbar setters, comparison restore callback, and replay restore callback.
+   - Avoid hidden imports back into `replay-controls.js`.
+
+4. Leave state transitions in `replay-controls.js` during Step 330.3.
+   - `enabled`, `mode`, `cursorIndex`, timestamp anchors, `timer`, and `renderSlice` remain together to avoid splitting the core state machine while moving helpers.
+
+Baseline verification for each extraction commit:
+
+```bash
+node --check v4/src/ui/replay-controls.js
+node v4/tests/replay-history-comparison-smoke.js
+node v4/tests/comparison-replay-sync-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+If a browser smoke is too slow while iterating, run the first three checks before commit and run the browser smoke before marking the substep complete.
+
 ## Comparison Controller Split Candidates
 
 Keep stable public export from `v4/src/ui/comparison-window-controller.js`:
