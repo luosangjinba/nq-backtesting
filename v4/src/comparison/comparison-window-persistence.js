@@ -60,10 +60,7 @@ function normalizeOverlaySyncMode(value) {
 }
 
 function normalizeLayoutMode(value) {
-  const normalized = normalizeString(value, COMPARISON_LAYOUT_MODE.sliding);
-  return Object.values(COMPARISON_LAYOUT_MODE).includes(normalized)
-    ? normalized
-    : COMPARISON_LAYOUT_MODE.sliding;
+  return COMPARISON_LAYOUT_MODE.sliding;
 }
 
 function normalizeRange(range = null) {
@@ -76,6 +73,7 @@ function normalizeRange(range = null) {
 
 export function serializeComparisonWorkspaceState(state = getComparisonWindowState()) {
   const descriptor = state?.descriptor || createComparisonViewDescriptor();
+  const isSlidingDescriptor = descriptor.layoutMode === COMPARISON_LAYOUT_MODE.sliding;
   return {
     enabled: Boolean(state?.enabled),
     descriptor: {
@@ -85,7 +83,9 @@ export function serializeComparisonWorkspaceState(state = getComparisonWindowSta
       syncMode: normalizeSyncMode(descriptor.syncMode),
       overlaySyncMode: normalizeOverlaySyncMode(descriptor.overlaySyncMode),
       layoutMode: normalizeLayoutMode(descriptor.layoutMode),
-      visibleWindow: normalizeVisibleWindow(descriptor.visibleWindow),
+      visibleWindow: isSlidingDescriptor
+        ? normalizeVisibleWindow(descriptor.visibleWindow)
+        : normalizeVisibleWindow(createComparisonViewDescriptor().visibleWindow),
     },
     lastViewState: {
       requestedRange: normalizeRange(state?.requestedRange || state?.lastViewState?.requestedRange),

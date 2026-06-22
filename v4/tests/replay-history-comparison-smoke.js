@@ -34,7 +34,7 @@ const normalized = normalizeReplayHistoryItem({
     instrument: 'es',
     timeframe: 240,
     syncMode: 'primary-time',
-    layoutMode: 'floating',
+    layoutMode: 'sliding',
     visibleWindow: { x: 10, y: 10, width: 40, height: 40 },
   },
 });
@@ -45,7 +45,7 @@ assert.deepEqual(normalized.comparison, {
   instrument: 'ES',
   timeframe: 240,
   syncMode: 'primary-time',
-  layoutMode: 'floating',
+  layoutMode: 'sliding',
 });
 assert.equal(Object.hasOwn(normalized.comparison, 'visibleWindow'), false);
 assert.equal(Object.hasOwn(normalized, 'split'), false);

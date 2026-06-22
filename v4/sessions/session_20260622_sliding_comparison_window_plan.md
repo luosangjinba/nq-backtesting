@@ -103,3 +103,9 @@ Result:
 - User guide and docs README now describe Comparison Window as sliding by default: right edge fixed, left edge controls clipping, and internal chart objects do not rescale while the window slides.
 - Toolbar tooltip and stale source comments no longer call the current window floating.
 - Floating layout remains accepted only as legacy persistence compatibility; new/reset windows and replay-history defaults use sliding.
+
+## Follow-up Fix: Force Legacy Floating Workspace Migration
+
+Status: completed.
+
+User validation showed an existing browser workspace could still restore `layoutMode='floating'`, keeping the old floating window visible after Step 325. The runtime now migrates any saved floating descriptor to sliding, resets legacy floating geometry to the default right-anchored sliding window, and prevents store updates from reintroducing floating layout mode.

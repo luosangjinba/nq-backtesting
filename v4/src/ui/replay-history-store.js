@@ -26,6 +26,10 @@ function normalizeBoolean(value) {
   return Boolean(value);
 }
 
+function normalizeComparisonLayoutMode() {
+  return 'sliding';
+}
+
 function normalizeOuterRange(input = null) {
   if (!input) return null;
   const start = normalizeString(input.start);
@@ -61,7 +65,7 @@ function normalizeComparison(input = {}) {
     instrument: normalizeString(input.instrument, 'ES').toUpperCase(),
     timeframe: normalizeNumber(input.timeframe, 60),
     syncMode: normalizeString(input.syncMode, 'primary-time'),
-    layoutMode: normalizeString(input.layoutMode, 'sliding'),
+    layoutMode: normalizeComparisonLayoutMode(input.layoutMode),
   };
 }
 

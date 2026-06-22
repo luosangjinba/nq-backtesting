@@ -1182,4 +1182,4 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 325.2: Right-anchored sliding layout：已实现右侧固定、左边界 handle、内部 chart canvas 右对齐/full-width clipping；旧整窗拖动仅保留给 legacy floating workspace。
   - [x] Step 325.3: Interaction guards：左边界 handle 已显式阻断 pointer/contextmenu 传播，拖动不触发 comparison context menu；按钮和 select 保持可用。
   - [x] Step 325.4: Browser verification：browser smoke 已覆盖默认 sliding、旧 Split DOM 缺失、左边界拖动右边界固定、内部 canvas 不随裁剪 shell 缩小、chart 非空像素；Replay History 缺省 layout 也已改为 `sliding`，显式 legacy `floating` 仍保留兼容。
-  - [x] Step 325.5: Docs and closeout：用户文档、docs README、toolbar tooltip 和源码注释已更新为 sliding 默认；记录 floating 仅作为 legacy persistence compatibility。
+  - [x] Step 325.5: Docs and closeout：用户文档、docs README、toolbar tooltip 和源码注释已更新为 sliding 默认；记录 floating 仅作为 legacy persistence compatibility。用户验证发现旧 localStorage 仍会恢复 floating 后，已追加修复：运行时强制把 legacy floating workspace 迁移为默认 sliding，并阻止 store 再写回 floating layout。

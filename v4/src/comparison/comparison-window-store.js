@@ -1,5 +1,6 @@
 import * as bus from '../event-bus.js';
 import {
+  COMPARISON_LAYOUT_MODE,
   COMPARISON_OVERLAY_SYNC_MODE,
   createComparisonViewDescriptor,
   normalizeVisibleWindow,
@@ -45,9 +46,15 @@ export function setComparisonWindowEnabled(nextEnabled) {
 }
 
 export function updateComparisonViewDescriptor(patch = {}) {
+  const requestedLayout = patch.layoutMode || descriptor.layoutMode;
+  const layoutMode =
+    requestedLayout === COMPARISON_LAYOUT_MODE.sliding
+      ? COMPARISON_LAYOUT_MODE.sliding
+      : DEFAULT_DESCRIPTOR.layoutMode;
   descriptor = {
     ...descriptor,
     ...patch,
+    layoutMode,
     visibleWindow: normalizeVisibleWindow(patch.visibleWindow || descriptor.visibleWindow),
   };
   emitChanged();
