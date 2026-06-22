@@ -1038,3 +1038,19 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 306.4: Review JSON source metadata：导出的 Review JSON `source.fileAlignment` 保存对齐报告，便于后续排查导入包质量。
   - [x] Step 306.5: Verification：`tradovate-performance-importer-smoke` 覆盖 clean alignment 和缺失 Orders warning；新增 `tradovate-zip-import-browser-smoke.js` 覆盖 Data Maintenance 页面 ZIP input -> Preview Import 真实 UI 路径，并支持 `TRADOVATE_ZIP_PATH=/path/to.zip` 对用户本地导出包做验收；Live Record smoke、module script syntax probe、`git diff --check` 均通过。
   - [x] Step 306.6: Small refactor：将 Data Maintenance 中的 ZIP 解包/CSV 分类抽到 `live-record/tradovate-zip-import.js`，Preview 文案抽到 `live-record/tradovate-import-preview.js`；页面只保留 DOM wiring、调用 importer 和下载 JSON；新增 `tradovate-import-ui-modules-smoke.js` 覆盖模块边界。
+
+- [ ] Step 307: Comparison Window / Sliding Window。目标是新建一套可滑动 comparison chart view，长期替代现有 Split 的视觉对比、跨品种/跨周期、secondary 标注、SMT 和 replay 同步能力；不在现有 Split 上打补丁。计划见 `v4/sessions/session_20260622_comparison_window_plan.md`。
+  - [ ] Step 307.1: Freeze product boundary：确认新功能名称、交互模型和替代目标。核心模型不是 resize split，而是一个可滑动/可浮动 comparison window；拖动窗口位置时 chart 内 K 线和 overlay 不因窗口拖动而缩放。旧 Split 保留到新功能覆盖真实 workflow 后再考虑移除。
+  - [ ] Step 307.2: Audit reusable secondary stack：审计 `secondary-chart-controller`、secondary chart manager/store、secondary PDA/Segment renderer、secondary context menu、SMT guard、secondary progressive replay、locate/flash 路径，列出可复用模块和必须解耦的 Split 假设。
+  - [ ] Step 307.3: Define comparison view contract：新增 view descriptor 概念，至少包含 `viewId`、`instrument`、`timeframe`、`range`、`layoutMode`、`sourceContext`、`syncMode`、`writable`、`visibleWindow`；主图与 comparison window 都通过 chart context 暴露统一能力，避免继续写死 primary/secondary。
+  - [ ] Step 307.4: Build MVP shell：新增 `comparison-window-controller` 与 UI 开关，创建一个独立 comparison chart view；支持 Stack/Side 之外的 floating/sliding 容器、拖动轨道、双击重置位置、关闭窗口；第一版只读，不迁移标注。
+  - [ ] Step 307.5: Sliding interaction semantics：实现 TradingView-like 滑动窗口体验。拖动外层 window/mask 时不触发 chart resize；只有窗口位置或裁切区域变化。窗口内部 zoom/scroll 仍由 chart 自己处理；拖动 handle 使用 pointer capture，避免图表误吞事件。
+  - [ ] Step 307.6: Time sync and data loading：comparison view 支持同品种/跨品种、同周期/跨周期加载；按主图绝对时间区间同步数据；切换 Main range、Calendar locate、Replay History restore 时同步 comparison view；保留独立 instrument/timeframe 控件。
+  - [ ] Step 307.7: Overlay parity：让 PDA、Segment、FVG、Chart Notes、Order Setup、Live Record、Time Overlays 在 comparison view 中按 source instrument/timeframe 正确投影或过滤；先只读渲染，验证主图对象不会画到错误价格轴。
+  - [ ] Step 307.8: Annotation workflow parity：把副图创建 BSL/SSL、Segment、FVG 和 link to active Order Setup 的工作流迁到 comparison view context；新对象保留 `sourceChartId/sourceInstrument/sourceTimeframe/sourceContext`，Review JSON 和 localStorage 行为不变。
+  - [ ] Step 307.9: SMT migration：把现有 `Main=NQ, Sub=ES, same TF` 的 SMT guard 从 Split 绑定改为 primary view / comparison view 绑定；支持在 comparison window 中 locate time、创建/选择 SMT、渲染连接/marker，并保持 Main=ES 或 unsupported 组合的降级提示。
+  - [ ] Step 307.10: Replay and HTF progressive parity：迁移副图 replay cursor、同步 hover、progressive HTF candle 聚合、secondary locate/flash；确认 Replay On 时 comparison view 不提前显示未来完整高周期 K 线。
+  - [ ] Step 307.11: Persistence and workspace restore：保存 comparison window 的开关、position/size、instrument/timeframe、sync mode 和 last view state；Review JSON 不保存临时 UI window 位置，Replay History 可保存 workspace 恢复所需状态。
+  - [ ] Step 307.12: Browser verification：新增 browser smoke 覆盖 window 非空、拖动不触发 chart resize、跨品种/跨周期加载、overlay 不错位、右键创建 secondary-like PDA/Segment/FVG、SMT locate、Replay progressive HTF、关闭/恢复窗口。
+  - [ ] Step 307.13: Split replacement review：真实使用一段时间后列出 Split 剩余独有能力、Comparison Window 已覆盖能力、迁移风险和用户工作流差异；只有所有高频 Split 场景覆盖后，才另开步骤移除旧 Split。
+  - [ ] Step 307.14: Documentation and closeout：更新 TODO/session、用户指南和必要设计文档，明确 Comparison Window 与旧 Split 的关系、当前限制、测试结果和后续移除 Split 的判定条件。
