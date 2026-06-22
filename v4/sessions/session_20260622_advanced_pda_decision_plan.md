@@ -31,6 +31,19 @@ The remaining Comparison Window / Split replacement blocker from Step 308.5 is a
 
 ## Step 312.1: Re-audit Advanced PDA Surface
 
+Status: Completed in implementation.
+
+Commit:
+- Pending in current Step 312 execution.
+
+Audit findings:
+- `secondary-context-menu.js` exposes OB Last Bar, Upper/Lower Wick CE, OB/Breaker range drafts, Fib draft, and EQH/EQL Point Sets.
+- `comparison-context-menu.js` currently exposes BSL/SSL, FVG/IFVG, Segment start/end, active setup evidence/link, primary locate, and copy actions.
+- `addManualObLastBar(bar, context, price)` and `addManualWickCe(side, bar, context)` are already context-aware and low-risk to call from Comparison Window.
+- OB/Breaker range drafts and Fib require comparison-specific draft state and multi-click semantics.
+- Point Sets require comparison-scoped set selection/add/finish/cancel rules.
+- Therefore Step 312 should migrate only OB Last Bar and Wick CE, and explicitly defer the rest.
+
 Confirm current state:
 
 - Secondary has OB Last Bar, Wick CE, OB/Breaker range draft, Fib, and Point Sets.
