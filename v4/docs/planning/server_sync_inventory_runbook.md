@@ -149,6 +149,8 @@ Avoid running refresh jobs from client machines unless explicitly debugging.
 Remote browser operation:
 
 - Use `http://SERVER_HOST:8001/data-maintenance.html` for server-side refresh/maintenance actions.
+- Use `http://SERVER_HOST:8001/index.html` for normal chart work. If a date range shows no K-line data, first verify that the selected range actually has bars before treating it as an import/server failure.
+- For different monitor sizes, use `Display Setup` -> `UI Scale` as the short-term per-device adjustment. The page has layout guardrails, but full automatic responsive behavior is not the current design target.
 - K-line DB updates are performed by the Refresh Range `Dry Run` / `Write Data` actions; those run on the server and write the server-side `V4_TRADING_DB`.
 - Browser-selected Tradovate files are currently local browser inputs that generate Review JSON downloads. They do not upload source files to the server and do not import K-line bars into DuckDB.
 - If a maintenance action fails from a remote computer, copy the Output block. It should include the action, request URL, HTTP status, parse/network error, and raw backend output.

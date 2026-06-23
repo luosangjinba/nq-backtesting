@@ -13,9 +13,10 @@ http://192.168.1.111:8001/index.html
 User feedback from the remote computer:
 
 - The page can be loaded.
-- K-line data import cannot be completed.
-- No useful error message is shown.
-- The UI does not adapt well to different screen resolutions.
+- Initial test appeared to show K-line data could not be imported/loaded, but this was later clarified as a no-data date range selection.
+- The page itself can load K-line data from the remote server URL.
+- The main page does not have full automatic responsive behavior, but Display Setup provides a manual UI Scale control that is acceptable for the short-term multi-device workflow.
+- The useful follow-up is still to make Data Maintenance errors and operation boundaries clearer so similar confusion is easier to diagnose.
 
 ## Goal
 
@@ -23,18 +24,19 @@ Make remote server use operationally clear:
 
 - Remote Data Maintenance/import actions must either work or explain why they cannot work.
 - Failures must be visible and copyable.
-- The main V4 page and Data Maintenance page must remain usable at common desktop/laptop widths.
+- The main V4 page should retain a minimum layout guard at common desktop/laptop widths, while primary display tuning remains the existing Display Setup / UI Scale control.
+- The Data Maintenance page must remain usable at common desktop/laptop widths.
 
 ## Non-Goals
 
 - Do not build full workspace/localStorage sync in this step.
 - Do not expose the server to the public internet.
 - Do not redesign the entire app layout.
-- Do not move every local archive/import workflow server-side unless it is required to resolve the K-line import failure.
+- Do not move every local archive/import workflow server-side unless a real server-side import requirement is confirmed.
 
 ## Step 334.1 Remote Import Workflow Audit
 
-Questions to answer:
+Questions answered:
 
 - Which UI did the user call "import K-line data"?
   - Data Maintenance refresh/import action.
@@ -53,11 +55,11 @@ Questions to answer:
 
 Deliverable:
 
-- A short audit note in this session identifying the exact failing workflow and current expected behavior.
+- A short audit note in this session identifying the exact workflow and current expected behavior.
 
 Acceptance:
 
-- The failure is reproducible or classified as "needs user-provided file/steps".
+- The initial failure is classified accurately as a no-data date range misread.
 - The code path and user-facing gap are known before implementation.
 
 ## Step 334.2 Data Maintenance Error Visibility
@@ -92,14 +94,14 @@ Acceptance:
 
 Decision point:
 
-If the current K-line import is intended to be remote-capable:
+If a future K-line file import is intended to be remote-capable:
 
 - Add or fix the server-side endpoint/action needed to write the server DB.
 - Ensure the action uses `V4_TRADING_DB`.
 - Ensure file upload or server-side file path handling is explicit and safe.
 - Return structured stdout/stderr/status to the browser.
 
-If the current K-line import is not intended to be remote-capable yet:
+If browser-selected files are not intended to be remote-capable K-line imports:
 
 - Disable or label it clearly in the remote UI.
 - Explain the supported alternative:
@@ -109,7 +111,7 @@ If the current K-line import is not intended to be remote-capable yet:
 
 Acceptance:
 
-- Remote users are not left guessing whether import is broken, unsupported, or still running.
+- Remote users are not left guessing whether loading is broken, unsupported, empty for the selected range, or still running.
 - The UI communicates the supported path for updating K-line data.
 
 ## Step 334.4 Responsive Layout Baseline
@@ -127,6 +129,7 @@ Main page requirements:
 - Inspector does not make the chart unusable on narrow widths.
 - Comparison Window, if open, respects a minimum usable width.
 - Replay bar controls remain visible or scrollable without covering the chart.
+- Display Setup / UI Scale remains the short-term user-facing control for manual per-device scaling.
 
 Data Maintenance requirements:
 
@@ -175,6 +178,7 @@ Closeout should record:
 - If not supported, the exact supported alternative.
 - What errors are now surfaced.
 - Which viewport widths were verified.
+- Whether UI Scale is the recommended per-device resolution adjustment.
 - Remaining UX limitations.
 - Recommended Step 335.
 
@@ -192,6 +196,12 @@ Closeout should record:
 Date: 2026-06-23
 
 ### Remote Import Audit
+
+Clarification after user retest:
+
+- Remote `index.html` can load K-line data normally.
+- The earlier "cannot import/load K-line data" report was caused by selecting a date range with no available bars.
+- This step therefore did not fix a confirmed K-line loading defect; it hardened the page so future empty-range/API/error cases are easier to distinguish.
 
 The audited K-line update path is Data Maintenance -> Refresh Range:
 
@@ -232,6 +242,12 @@ The Refresh Range section now states:
 - Tradovate Live Records uploads only generate Review JSON and do not import K-line bars into the DB.
 
 ### Responsive Baseline
+
+Clarification after user retest:
+
+- Automatic responsive behavior in `index.html` is intentionally limited.
+- The current accepted per-device adjustment is Display Setup -> UI Scale.
+- The CSS changes in this step are minimum guardrails for overflow/visibility, not a replacement for the manual UI Scale workflow.
 
 Updated `v4/data-maintenance.html`:
 
@@ -284,7 +300,8 @@ Result:
 
 - There is still no browser-upload K-line CSV-to-server-DB workflow.
 - Data Maintenance Write Data still depends on server-side Databento/API key/roll-calendar validity.
-- Responsive work is a usability baseline, not a full mobile redesign.
+- Empty date ranges can still legitimately return no visible K-line data; this should be diagnosed as data availability, not import failure.
+- Responsive work is a guardrail, not a full mobile redesign. Display Setup / UI Scale remains the recommended per-device adjustment.
 
 ### Step 335 Candidates
 
