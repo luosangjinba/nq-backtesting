@@ -463,7 +463,12 @@
   </main>
 
   <script>
-    const API = 'http://127.0.0.1:8766/v4/data_maintenance/run';
+    function resolveApiBase() {
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      const hostname = window.location.hostname || '127.0.0.1';
+      return `${protocol}//${hostname}:8766`;
+    }
+    const API = `${resolveApiBase()}/v4/data_maintenance/run`;
     const REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
     const output = document.getElementById('output');
     const pill = document.getElementById('statePill');

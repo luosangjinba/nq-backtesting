@@ -54,6 +54,11 @@ Deliverable:
 
 - A short inventory document with each persistence item marked as `server-canonical`, `client-local-for-now`, or `unknown`.
 
+Status:
+
+- Completed as local preparation in `v4/docs/planning/server_sync_inventory_runbook.md`.
+- Real deployment still needs the actual server hostname/IP and canonical data path.
+
 ## Phase 2: Server Runtime Baseline
 
 Purpose: make one server run the same V4 app and API reliably.
@@ -72,6 +77,11 @@ Deliverable:
 - Server URL.
 - Start/stop/restart commands.
 - Health check commands.
+
+Status:
+
+- Client/API code now supports opening V4 from a remote server hostname.
+- Real server runtime smoke is pending actual server access.
 
 ## Phase 3: Centralize Data Refresh and Imports
 

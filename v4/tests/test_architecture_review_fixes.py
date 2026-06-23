@@ -108,6 +108,16 @@ class ArchitectureReviewFixTests(unittest.TestCase):
             "Origin": "http://evil.example",
         }))
 
+    def test_allowed_maintenance_origins_can_include_server_origin_from_env(self) -> None:
+        with patch.dict(v4_api.os.environ, {
+            "V4_ALLOWED_WEB_ORIGINS": "http://v4-server.local:8001, https://v4.example.com"
+        }):
+            origins = v4_api._parse_allowed_maintenance_origins()
+
+        self.assertIn("http://127.0.0.1:8001", origins)
+        self.assertIn("http://v4-server.local:8001", origins)
+        self.assertIn("https://v4.example.com", origins)
+
     def test_data_maintenance_post_guard_requires_header_and_allowed_origin(self) -> None:
         self.assertFalse(v4_api._is_allowed_maintenance_post({
             "Origin": "http://127.0.0.1:8001",

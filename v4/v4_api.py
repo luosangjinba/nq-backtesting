@@ -55,10 +55,19 @@ _MAINTENANCE_JOB = None
 _MAINTENANCE_PROCESS = None
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
-ALLOWED_MAINTENANCE_ORIGINS = {
-    "http://127.0.0.1:8001",
-    "http://localhost:8001",
-}
+def _parse_allowed_maintenance_origins():
+    origins = {
+        "http://127.0.0.1:8001",
+        "http://localhost:8001",
+    }
+    for raw in os.environ.get("V4_ALLOWED_WEB_ORIGINS", "").split(","):
+        origin = raw.strip().rstrip("/")
+        if origin:
+            origins.add(origin)
+    return origins
+
+
+ALLOWED_MAINTENANCE_ORIGINS = _parse_allowed_maintenance_origins()
 LOCAL_ENV_VARIABLES = {
     "DATABENTO_API_KEY": {
         "label": "Databento API key",
@@ -77,6 +86,18 @@ LOCAL_ENV_VARIABLES = {
         "secret": False,
         "requiresRestart": True,
         "description": "Optional web port override for start.sh.",
+    },
+    "V4_API_HOST": {
+        "label": "API bind host",
+        "secret": False,
+        "requiresRestart": True,
+        "description": "Optional API bind host. Use 0.0.0.0 on a trusted server/VPN network.",
+    },
+    "V4_ALLOWED_WEB_ORIGINS": {
+        "label": "Allowed web origins",
+        "secret": False,
+        "requiresRestart": True,
+        "description": "Comma-separated origins allowed to run data-maintenance POST actions.",
     },
 }
 
@@ -980,7 +1001,7 @@ class V4Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    host = V4_CONFIG["api"]["host"]
+    host = os.environ.get("V4_API_HOST", "").strip() or V4_CONFIG["api"]["host"]
     port = V4_CONFIG["api"]["port"]
     server = ThreadingHTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")

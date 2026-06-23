@@ -1,6 +1,12 @@
 // 全局常量 — 单一事实来源，替代 v3 中 4 处重复的 timeframe map
 
-export const API_BASE = 'http://127.0.0.1:8766';
+export function resolveApiBase(locationLike = globalThis.location) {
+  const protocol = locationLike?.protocol === 'https:' ? 'https:' : 'http:';
+  const hostname = locationLike?.hostname || '127.0.0.1';
+  return `${protocol}//${hostname}:8766`;
+}
+
+export const API_BASE = resolveApiBase();
 
 export const TIMEFRAME_MAP = {
   1: '1M',
