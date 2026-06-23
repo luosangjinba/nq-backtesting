@@ -96,6 +96,11 @@ html, body {
   cursor: pointer;
 }
 
+.comparison-pane-root .chart-pane-sync-toggle {
+  top: 8px;
+  right: 8px;
+}
+
 .chart-pane-sync-toggle:hover {
   border-color: rgba(47, 183, 164, 0.95);
   color: #ffffff;
@@ -252,6 +257,7 @@ html, body {
   flex: 0 0 auto;
   align-items: center;
   gap: 6px;
+  padding-right: 62px;
 }
 
 .comparison-window-field {
@@ -289,6 +295,15 @@ html, body {
 
 .comparison-window-close {
   border-color: rgba(239, 83, 80, 0.48);
+}
+
+.comparison-window-pane .comparison-window-legacy-field,
+.comparison-window-pane .comparison-window-legacy-action {
+  display: none;
+}
+
+.comparison-window-pane .comparison-window-header {
+  cursor: default;
 }
 
 .comparison-window-rail {

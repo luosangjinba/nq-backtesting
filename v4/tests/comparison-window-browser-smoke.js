@@ -221,6 +221,8 @@ async function main() {
       const instrument = document.querySelector('[data-comparison-instrument]');
       const timeframe = document.querySelector('[data-comparison-timeframe]');
       const overlaySync = document.querySelector('[data-comparison-overlay-sync]');
+      const close = document.querySelector('[data-comparison-close]');
+      const reset = document.querySelector('[data-comparison-reset]');
       const status = document.querySelector('[data-comparison-status]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
@@ -233,6 +235,12 @@ async function main() {
         overlaySyncValue: overlaySync.value,
         overlaySyncLabel: overlaySync.closest('label')?.querySelector('span')?.textContent,
         overlaySyncOptions: [...overlaySync.options].map((option) => ({ value: option.value, text: option.textContent })),
+        title: document.querySelector('.comparison-window-title')?.textContent,
+        subtitle: document.querySelector('.comparison-window-subtitle')?.textContent,
+        instrumentDisplay: getComputedStyle(instrument.closest('label')).display,
+        timeframeDisplay: getComputedStyle(timeframe.closest('label')).display,
+        closeDisplay: getComputedStyle(close).display,
+        resetDisplay: getComputedStyle(reset).display,
         statusText: status.textContent,
         stackWidth: stack.width,
         stackHeight: stack.height,
@@ -244,8 +252,14 @@ async function main() {
     assert.equal(shown.hidden, false, 'Comparison window should be visible after toggle');
     assert.ok(shown.width >= 180, 'Sliding comparison window should have stable width');
     assert.ok(shown.height >= 210, 'Comparison window should have stable height');
-    assert.equal(shown.instrumentValue, 'ES', 'Comparison window should expose independent instrument control');
-    assert.equal(shown.timeframeValue, '60', 'Comparison window should expose independent timeframe control');
+    assert.equal(shown.title, 'Pane 2', 'Comparison pane should no longer use old Comparison Window title');
+    assert.match(shown.subtitle, /top Symbol\/TF controls/, 'Comparison pane should point users to active-pane toolbar controls');
+    assert.equal(shown.instrumentValue, 'ES', 'Hidden legacy comparison instrument control should retain descriptor value');
+    assert.equal(shown.timeframeValue, '60', 'Hidden legacy comparison timeframe control should retain descriptor value');
+    assert.equal(shown.instrumentDisplay, 'none', 'Pane mode should hide legacy per-window instrument control');
+    assert.equal(shown.timeframeDisplay, 'none', 'Pane mode should hide legacy per-window timeframe control');
+    assert.equal(shown.closeDisplay, 'none', 'Pane mode should hide legacy Close action');
+    assert.equal(shown.resetDisplay, 'none', 'Pane mode should hide legacy Reset action');
     assert.equal(shown.overlaySyncValue, 'sync', 'Comparison drawings should default to Sync');
     assert.equal(shown.overlaySyncLabel, 'Drawings', 'Comparison drawing sync control should use user-facing Drawings label');
     assert.deepEqual(shown.overlaySyncOptions, [
@@ -419,29 +433,26 @@ async function main() {
       Math.abs(inspectorLayout.canvasRight - inspectorLayout.windowRight) <= 2,
       `Native comparison price axis should follow layout resize from Inspector: ${JSON.stringify(inspectorLayout)}`
     );
-    const closeButtonHit = await evaluate(client, `
+    const legacyPaneActions = await evaluate(client, `
       (() => {
         const close = document.querySelector('[data-comparison-close]');
-        const rect = close.getBoundingClientRect();
-        const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-        const win = document.querySelector('#comparison-window').getBoundingClientRect();
-        const header = document.querySelector('.comparison-window-header').getBoundingClientRect();
+        const reset = document.querySelector('[data-comparison-reset]');
+        const instrument = document.querySelector('[data-comparison-instrument]');
+        const timeframe = document.querySelector('[data-comparison-timeframe]');
         return {
-          ok: Boolean(hit?.closest('[data-comparison-close]')),
-          hitTag: hit?.tagName || null,
-          hitClass: hit?.className || null,
-          hitAction: hit?.getAttribute?.('data-comparison-close') || null,
-          rect: { left: rect.left, right: rect.right, width: rect.width },
-          win: { left: win.left, right: win.right, width: win.width },
-          header: { left: header.left, right: header.right, width: header.width },
+          closeDisplay: getComputedStyle(close).display,
+          resetDisplay: getComputedStyle(reset).display,
+          instrumentDisplay: getComputedStyle(instrument.closest('label')).display,
+          timeframeDisplay: getComputedStyle(timeframe.closest('label')).display,
         };
       })();
     `);
-    assert.equal(
-      closeButtonHit.ok,
-      true,
-      `Comparison close button should not be covered by boundary layers: ${JSON.stringify(closeButtonHit)}`
-    );
+    assert.deepEqual(legacyPaneActions, {
+      closeDisplay: 'none',
+      resetDisplay: 'none',
+      instrumentDisplay: 'none',
+      timeframeDisplay: 'none',
+    }, 'Pane mode should hide legacy window-specific controls');
 
     const handleContextMenu = await evaluate(client, `
       (() => {

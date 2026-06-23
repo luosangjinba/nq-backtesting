@@ -409,3 +409,33 @@ Results:
 
 - All checks passed.
 - Node emitted the existing typeless-package warning for ES module tests.
+
+### Follow-up - Remove visible legacy Comparison Window chrome
+
+User validation showed the right pane still exposed the old Comparison Window chrome:
+
+- `Comparison Window` title.
+- Separate Inst/TF controls.
+- Reset/Close window actions.
+- Pane-level Sync button duplicated with old comparison-specific controls.
+
+Follow-up changes:
+
+- Renamed visible right-pane title to `Pane 2`.
+- Added subtitle pointing users to the top Symbol/TF controls when the pane is active.
+- Hid legacy per-window Inst/TF controls in pane mode while keeping the hidden controls in DOM for existing controller/state compatibility.
+- Hid legacy Reset/Close actions in pane mode.
+- Kept Drawings Sync/No Sync visible because it controls overlay/drawing behavior, which is separate from pane-level viewport/crosshair Sync.
+- Kept pane-level Sync/No Sync button as the main pane sync switch.
+
+Verification:
+
+```bash
+node --check v4/src/ui/comparison/comparison-window-view.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Result:
+
+- Passed.
