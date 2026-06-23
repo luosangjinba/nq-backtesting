@@ -224,6 +224,7 @@ async function main() {
       const close = document.querySelector('[data-comparison-close]');
       const reset = document.querySelector('[data-comparison-reset]');
       const header = document.querySelector('.comparison-window-header');
+      const rail = document.querySelector('.comparison-window-rail');
       const status = document.querySelector('[data-comparison-status]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
@@ -236,6 +237,7 @@ async function main() {
         overlaySyncValue: overlaySync.value,
         overlaySyncOptions: [...overlaySync.options].map((option) => ({ value: option.value, text: option.textContent })),
         headerDisplay: getComputedStyle(header).display,
+        railDisplay: getComputedStyle(rail).display,
         overlaySyncDisplay: getComputedStyle(overlaySync.closest('label')).display,
         instrumentDisplay: getComputedStyle(instrument.closest('label')).display,
         timeframeDisplay: getComputedStyle(timeframe.closest('label')).display,
@@ -255,6 +257,7 @@ async function main() {
     assert.equal(shown.instrumentValue, 'ES', 'Hidden legacy comparison instrument control should retain descriptor value');
     assert.equal(shown.timeframeValue, '60', 'Hidden legacy comparison timeframe control should retain descriptor value');
     assert.equal(shown.headerDisplay, 'none', 'Pane mode should hide legacy comparison header');
+    assert.equal(shown.railDisplay, 'none', 'Pane mode should hide legacy comparison drag rail');
     assert.equal(shown.instrumentDisplay, 'none', 'Pane mode should hide legacy per-window instrument control');
     assert.equal(shown.timeframeDisplay, 'none', 'Pane mode should hide legacy per-window timeframe control');
     assert.equal(shown.closeDisplay, 'none', 'Pane mode should hide legacy Close action');
@@ -440,8 +443,10 @@ async function main() {
         const timeframe = document.querySelector('[data-comparison-timeframe]');
         const overlaySync = document.querySelector('[data-comparison-overlay-sync]');
         const header = document.querySelector('.comparison-window-header');
+        const rail = document.querySelector('.comparison-window-rail');
         return {
           headerDisplay: getComputedStyle(header).display,
+          railDisplay: getComputedStyle(rail).display,
           closeDisplay: getComputedStyle(close).display,
           resetDisplay: getComputedStyle(reset).display,
           instrumentDisplay: getComputedStyle(instrument.closest('label')).display,
@@ -452,6 +457,7 @@ async function main() {
     `);
     assert.deepEqual(legacyPaneActions, {
       headerDisplay: 'none',
+      railDisplay: 'none',
       closeDisplay: 'none',
       resetDisplay: 'none',
       instrumentDisplay: 'none',
