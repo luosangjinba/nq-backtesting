@@ -9,6 +9,7 @@ const ZOOM_FACTOR = 0.8;
 const SCROLL_FACTOR = 0.25;
 const LOCATE_PADDING_BARS = 8;
 const LOCATE_FLASH_DURATION_MS = 900;
+const MIN_RESET_RANGE_BARS = 12;
 
 let locateFlashPrimitive = null;
 let locateFlashFrame = null;
@@ -144,6 +145,11 @@ export function scrollToLatest() {
   if (!range || dataCount <= 0) return;
 
   const width = range.to - range.from;
+  if (!Number.isFinite(width) || width < MIN_RESET_RANGE_BARS) {
+    chart.showStartOfData(dataCount);
+    chart.resetPriceScale();
+    return;
+  }
   const to = dataCount + VIEWPORT_RIGHT_OFFSET_BARS;
   applyRange(to - width, to);
   chart.resetPriceScale();

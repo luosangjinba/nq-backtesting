@@ -4,6 +4,7 @@ import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
 import { getBarChartTime } from './chart/time-projection.js';
 import { initChartPaneDom } from './chart-panes/chart-pane-dom.js';
+import { CHART_PANE_LAYOUTS, getChartPaneState } from './chart-panes/chart-pane-store.js';
 import { initChartPaneRangeSync } from './chart-panes/chart-pane-range-sync.js';
 import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
@@ -118,6 +119,11 @@ bus.on('bars:loaded', ({ bars }) => {
   console.log(
     `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
   );
+});
+
+bus.on('chart-panes:changed', (state = getChartPaneState()) => {
+  if (state.reason !== 'layout' || state.layout !== CHART_PANE_LAYOUTS.TWO_COLUMN) return;
+  requestAnimationFrame(() => chart.normalizeVisibleLogicalRange());
 });
 
 // 初始化 PDA 手动标注和渲染

@@ -1634,6 +1634,27 @@ async function main() {
     assert.equal(singleRight.primaryDisplay, 'none', 'Single-pane layout should hide Pane 1');
     assert.ok(Math.abs(singleRight.rootWidth - singleRight.stackWidth) <= 3, 'Pane 2 should fill the chart stack in single-pane layout');
     assert.equal(singleRight.activePane, 'pane-2', 'Single-pane layout should keep Pane 2 active');
+    const primaryRangeAfterRestore = await evaluate(client, `
+      (async () => {
+        const chartManager = await import('/src/chart/chart-manager.js');
+        chartManager.setVisibleLogicalRange(0, 1);
+        document.querySelector('#chartLayoutBtn').click();
+        document.querySelector('[data-layout-action="two-column"]').click();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const range = chartManager.getVisibleLogicalRange();
+        return {
+          stackTwoPane: document.querySelector('#chart-stack').classList.contains('chart-stack-two-pane'),
+          primaryDisplay: getComputedStyle(document.querySelector('#primary-chart-panel')).display,
+          rangeWidth: range ? range.to - range.from : null,
+        };
+      })();
+    `);
+    assert.equal(primaryRangeAfterRestore.stackTwoPane, true, 'Two-column layout should restore after single Pane 2 mode');
+    assert.notEqual(primaryRangeAfterRestore.primaryDisplay, 'none', 'Pane 1 should be visible after restoring two-column layout');
+    assert.ok(
+      primaryRangeAfterRestore.rangeWidth > 2,
+      `Pane 1 should recover from a hidden-layout narrow range: ${JSON.stringify(primaryRangeAfterRestore)}`
+    );
     const primaryLegendReset = await evaluate(client, `
       (() => getComputedStyle(document.querySelector('#chart-stack')).getPropertyValue('--primary-legend-left-offset').trim())();
     `);

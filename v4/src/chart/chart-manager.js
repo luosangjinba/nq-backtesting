@@ -22,6 +22,21 @@ let syncCrosshairPrimitive = null;
 let activeDataCount = 0;
 let activeLastTime = null;
 
+function getChartContainerWidth(fallback = 800) {
+  const container = document.getElementById('chart');
+  const width = Number(container?.clientWidth);
+  if (Number.isFinite(width) && width > 0) return width;
+  const viewportWidth = typeof window === 'undefined' ? NaN : Number(window.innerWidth);
+  return Number.isFinite(viewportWidth) && viewportWidth > 0 ? viewportWidth : fallback;
+}
+
+function getVisibleBarsForContainer(fallback = 80) {
+  const barSpacing = chart?.timeScale?.().options?.().barSpacing || TIME_SCALE_DISPLAY.barSpacing || 6;
+  const width = getChartContainerWidth();
+  const count = Math.ceil(width / Math.max(1, Number(barSpacing)));
+  return Number.isFinite(count) && count > 0 ? count : fallback;
+}
+
 function updateLegend(param) {
   if (!legendEl || !param || !param.time || !param.seriesData) {
     return;
@@ -250,10 +265,7 @@ export function fitContent() {
 // 根据数据量选择显示策略：少量 bar 用 fitContent，大量 bar 从起始位置显示
 export function showStartOfData(dataCount) {
   if (!chart || !series) return;
-  const container = document.getElementById('chart');
-  const width = container ? container.clientWidth : 800;
-  const barSpacing = chart.timeScale().options().barSpacing || 6;
-  const barsVisible = Math.ceil(width / barSpacing);
+  const barsVisible = getVisibleBarsForContainer();
 
   if (dataCount <= barsVisible) {
     chart.timeScale().fitContent();
@@ -264,10 +276,7 @@ export function showStartOfData(dataCount) {
 
 export function showEndOfData(dataCount, previousRange = null, previousDataCount = null) {
   if (!chart || !series || dataCount <= 0) return;
-  const container = document.getElementById('chart');
-  const width = container ? container.clientWidth : 800;
-  const barSpacing = chart.timeScale().options().barSpacing || TIME_SCALE_DISPLAY.barSpacing || 6;
-  const barsVisible = Math.ceil(width / barSpacing);
+  const barsVisible = getVisibleBarsForContainer();
   const rangeWidth =
     previousRange && Number.isFinite(previousRange.to - previousRange.from)
       ? previousRange.to - previousRange.from
@@ -281,6 +290,16 @@ export function showEndOfData(dataCount, previousRange = null, previousDataCount
     from: dataCount - rangeWidth + anchorOffset,
     to: dataCount + anchorOffset,
   });
+}
+
+export function normalizeVisibleLogicalRange(minBars = 12) {
+  if (!chart || !series || activeDataCount <= 0) return false;
+  const range = chart.timeScale().getVisibleLogicalRange?.();
+  const width = Number(range?.to) - Number(range?.from);
+  if (range && Number.isFinite(width) && width >= minBars) return false;
+  showStartOfData(activeDataCount);
+  resetPriceScale();
+  return true;
 }
 
 export function getVisibleRange() {
