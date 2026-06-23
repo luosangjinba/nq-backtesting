@@ -5,6 +5,7 @@ import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
+import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
 import {
   dateKeyFromInput,
   dateKeyFromTimestamp,
@@ -40,6 +41,10 @@ let viewDateKey = '';
 let rangeStartDate = '';
 let rangeEndDate = '';
 let activeDateKey = '';
+
+function getPrimaryPaneTimeframe() {
+  return Number(getPaneById(CHART_PANE_IDS.PRIMARY)?.timeframe) || store.getCurrentTimeframe();
+}
 
 function dateTimePartsFromInput(value) {
   const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
@@ -483,7 +488,7 @@ function openPopover(button) {
 }
 
 async function loadRange(start, end, successText) {
-  const tf = parseInt(document.getElementById('tfSelect')?.value || store.getCurrentTimeframe(), 10);
+  const tf = getPrimaryPaneTimeframe();
   const loadRange = resolveChartLoadRange(start, end, tf);
   if (!loadRange.ok) {
     throw new Error(loadRange.message);
@@ -491,6 +496,7 @@ async function loadRange(start, end, successText) {
   bus.emit('status:update', { text: 'Loading...', isError: false });
   const result = await fetchBars(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
   setToolbarRange(loadRange.start, loadRange.end, false);
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
     outerRange: loadRange.outerRange,
   });
@@ -507,6 +513,7 @@ async function loadResolvedWindow(loadRange, successText) {
   bus.emit('status:update', { text: 'Loading...', isError: false });
   const result = await fetchBars(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
   setToolbarRange(loadRange.start, loadRange.end, false);
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
     outerRange: loadRange.outerRange,
   });
@@ -527,6 +534,9 @@ async function loadHistoryRange(index) {
   const tfSelect = document.getElementById('tfSelect');
   if (tfSelect && item.timeframe) {
     tfSelect.value = String(item.timeframe);
+  }
+  if (item.timeframe) {
+    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: item.timeframe });
   }
 
   try {

@@ -19,6 +19,7 @@ import {
   CHART_PANE_LAYOUTS,
   getActivePane,
   getChartPaneState,
+  getPaneById,
   getPaneLabel,
   setActivePane,
   setChartPaneLayout,
@@ -538,7 +539,8 @@ async function handleLoad() {
   endEl.value = formatTimeInput(endEl.value.trim());
   const start = startEl.value;
   const end = endEl.value;
-  const tf = parseInt(document.getElementById('tfSelect').value);
+  const primaryPane = getPaneById(CHART_PANE_IDS.PRIMARY);
+  const tf = Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME;
   const instrument = getPrimaryInstrument();
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
 

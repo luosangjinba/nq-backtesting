@@ -880,15 +880,15 @@ async function main() {
         const blankMenuConstrained = blankMenu.classList.contains('is-scroll-constrained');
         const blankMenuFitsVertically = blankMenuRect.bottom <= chartRect.bottom + 1;
         const blankObDisabled = document
-          .querySelector('[data-comparison-action="comparison-pda-ob-last-bar"]')
+          .querySelector('[data-pda-action="ob-last-bar"]')
           ?.hasAttribute('disabled');
 
         openAt(first, first.low);
-        document.querySelector('[data-comparison-action="comparison-pda-bsl"]').click();
+        document.querySelector('[data-pda-action="bsl"]').click();
         await new Promise((resolve) => setTimeout(resolve, 350));
 
         openAt(bars[1], bars[1].close);
-        document.querySelector('[data-comparison-action="comparison-pda-fvg"]').click();
+        document.querySelector('[data-pda-action="fvg"]').click();
         await new Promise((resolve) => setTimeout(resolve, 350));
 
         openAt(first, first.low);
@@ -1341,7 +1341,7 @@ async function main() {
         comparisonStore.setComparisonOverlaySyncMode('no-sync');
         await new Promise((resolve) => setTimeout(resolve, 100));
         openComparisonAt(second, second.high);
-        document.querySelector('[data-comparison-action="comparison-pda-bsl"]').click();
+        document.querySelector('[data-pda-action="bsl"]').click();
         await new Promise((resolve) => setTimeout(resolve, 600));
 
         openComparisonAt(first, first.low);

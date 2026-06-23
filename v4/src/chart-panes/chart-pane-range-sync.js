@@ -3,7 +3,7 @@ import * as primaryChart from '../chart/chart-manager.js';
 import { getComparisonChart } from '../chart/comparison-chart-manager.js';
 import {
   CHART_PANE_IDS,
-  updatePaneDescriptor,
+  updatePaneVisibleRange,
 } from './chart-pane-store.js';
 
 let primaryBound = false;
@@ -19,7 +19,7 @@ function bindPrimaryRangeSync() {
   primaryBound = true;
   chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
     if (!isValidRange(range)) return;
-    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { visibleRange: range });
+    updatePaneVisibleRange(CHART_PANE_IDS.PRIMARY, range);
   });
 }
 
@@ -29,7 +29,7 @@ function bindComparisonRangeSync() {
   comparisonBound = true;
   chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
     if (!isValidRange(range)) return;
-    updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { visibleRange: range });
+    updatePaneVisibleRange(CHART_PANE_IDS.COMPARISON, range);
   });
 }
 

@@ -14,7 +14,9 @@ import {
   setPaneSyncEnabled,
   togglePaneSync,
   updatePaneDescriptor,
+  updatePaneVisibleRange,
 } from '../src/chart-panes/chart-pane-store.js';
+import * as bus from '../src/event-bus.js';
 
 resetChartPaneStoreForTests();
 
@@ -46,6 +48,16 @@ const updated = updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, {
 assert.equal(updated.instrument, 'NQ');
 assert.equal(updated.timeframe, 1);
 assert.deepEqual(updated.visibleRange, { from: 10, to: 20 });
+
+let paneChangeCount = 0;
+const countPaneChange = () => {
+  paneChangeCount += 1;
+};
+bus.on('chart-panes:changed', countPaneChange);
+const rangeOnly = updatePaneVisibleRange(CHART_PANE_IDS.COMPARISON, { from: 20, to: 30 });
+bus.off('chart-panes:changed', countPaneChange);
+assert.deepEqual(rangeOnly.visibleRange, { from: 20, to: 30 });
+assert.equal(paneChangeCount, 0, 'visible range updates should not emit general pane changes');
 
 assert.deepEqual(
   getSyncPeerPanes(CHART_PANE_IDS.COMPARISON).map((pane) => pane.id),

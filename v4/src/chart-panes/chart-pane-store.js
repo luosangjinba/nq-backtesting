@@ -104,6 +104,13 @@ function emitChanged(reason = 'update') {
   bus.emit('chart-panes:changed', getChartPaneState(reason));
 }
 
+function rangesEqual(left, right) {
+  return (
+    Number(left?.from) === Number(right?.from) &&
+    Number(left?.to) === Number(right?.to)
+  );
+}
+
 export function getChartPaneState(reason = 'snapshot') {
   return {
     reason,
@@ -178,6 +185,25 @@ export function updatePaneDescriptor(paneId, patch = {}) {
   });
   emitChanged('descriptor');
   return getPaneById(normalized);
+}
+
+export function updatePaneVisibleRange(paneId, visibleRange = null) {
+  const normalized = normalizePaneId(paneId);
+  let updated = null;
+  panes = panes.map((pane) => {
+    if (pane.id !== normalized) return pane;
+    const nextRange = visibleRange ? { ...visibleRange } : null;
+    if (rangesEqual(pane.visibleRange, nextRange)) {
+      updated = pane;
+      return pane;
+    }
+    updated = {
+      ...pane,
+      visibleRange: nextRange,
+    };
+    return updated;
+  });
+  return updated ? clonePane(updated) : getPaneById(normalized);
 }
 
 export function setPaneLabel(paneId, label) {

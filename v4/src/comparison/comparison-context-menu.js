@@ -24,7 +24,14 @@ import { hitTestLiveRecordElements } from '../live-record/live-record-hit-test.j
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { hitTestPdaAnnotations } from '../pda/pda-hit-test.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
-import { initContextMenuSubmenuPositioning } from '../pda/manual-context-menu.js';
+import {
+  initContextMenuSubmenuPositioning,
+  renderPdaMenuSection,
+} from '../pda/manual-context-menu.js';
+import {
+  handleManualPdaAction,
+  handleManualPdaShiftContext,
+} from '../pda/manual-pda-workflow.js';
 import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 import { getComparisonOverlaySyncPolicy } from './comparison-overlay-policy.js';
 import { setComparisonOverlaySyncMode } from './comparison-window-store.js';
@@ -106,6 +113,23 @@ function isDrawingCreationAction(action) {
   );
 }
 
+function isManualPdaCreationAction(action) {
+  return [
+    'bsl',
+    'ssl',
+    'wick-ce-upper',
+    'wick-ce-lower',
+    'fvg',
+    'ifvg',
+    'ob-bullish',
+    'ob-bearish',
+    'ob-last-bar',
+    'breaker-bullish',
+    'breaker-bearish',
+    'fib-start',
+  ].includes(action);
+}
+
 function renderMenu(bar, price, context, hits = {}) {
   const disabled = bar ? '' : 'disabled';
   const contextLabel = getContextLabel(context);
@@ -139,23 +163,7 @@ function renderMenu(bar, price, context, hits = {}) {
       liveRecordHit: hits.liveRecordHit,
       isShift: contextMenuShiftKey,
     })}
-    <div class="pda-menu-section pda-menu-submenu">
-      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
-      <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-bsl" ${disabled}>Mark BSL</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-ssl" ${disabled}>Mark SSL</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-fvg" ${disabled}>Mark FVG</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-ifvg" ${disabled}>Mark IFVG</button>
-      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bullish OB</button>
-      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish OB</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-ob-last-bar" ${bar && priceLabel ? '' : 'disabled'}>Mark OB Last Bar</button>
-      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bullish Breaker</button>
-      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish Breaker</button>
-      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Fib</button>
-      </div>
-    </div>
+    ${renderPdaMenuSection(disabled)}
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
       <div class="pda-submenu-panel">
@@ -361,6 +369,9 @@ function handleContextMenu(event) {
   const price = context.coordinateToPrice(y);
   const hits = getComparisonContextHits(x, y, context);
   contextMenuShiftKey = event.shiftKey;
+  if (event.shiftKey && handleManualPdaShiftContext({ bar, context, hideContextMenu: hideComparisonContextMenu })) {
+    return;
+  }
   showComparisonContextMenu(x, y, bar, price, context, hits);
 }
 
@@ -372,6 +383,21 @@ async function handleMenuClick(event) {
   event.stopPropagation();
   const context = getComparisonChartContext();
   const timeframe = timeframeToString(context.timeframe);
+
+  if (pdaAction && isManualPdaCreationAction(pdaAction)) {
+    if (!ensureComparisonDrawingCreationEnabled()) {
+      hideComparisonContextMenu();
+      return;
+    }
+    if (await handleManualPdaAction(pdaAction, {
+      bar: contextMenuBar,
+      context,
+      price: contextMenuPrice,
+      hideContextMenu: hideComparisonContextMenu,
+    })) {
+      return;
+    }
+  }
 
   if (pdaAction && handleLiveRecordChartAction(pdaAction, {
     bar: contextMenuBar,
