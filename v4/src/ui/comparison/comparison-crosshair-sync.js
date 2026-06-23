@@ -6,6 +6,7 @@ import {
 import { findDisplayBarFast, resolveExistingChartTimeFast } from '../../chart/display-bar-lookup.js';
 import * as primaryStore from '../../data/bar-store.js';
 import { getComparisonWindowState } from '../../comparison/comparison-window-store.js';
+import { CHART_PANE_IDS, getSyncPeerPanes } from '../../chart-panes/chart-pane-store.js';
 
 function requestFrame(callback) {
   const raf = globalThis.requestAnimationFrame || globalThis.window?.requestAnimationFrame;
@@ -36,7 +37,8 @@ export function createComparisonCrosshairSync({ getReplaySyncedBars }) {
 
   function syncComparisonHoverCursor(primaryTime) {
     const state = getComparisonWindowState();
-    if (!state.enabled || !state.displayBars?.length) {
+    const peers = getSyncPeerPanes(CHART_PANE_IDS.PRIMARY);
+    if (!state.enabled || !state.displayBars?.length || !peers.some((pane) => pane.id === CHART_PANE_IDS.COMPARISON)) {
       hideComparisonSyncCrosshairCursor();
       return;
     }
@@ -63,7 +65,8 @@ export function createComparisonCrosshairSync({ getReplaySyncedBars }) {
 
   function syncPrimaryHoverCursor(comparisonTime) {
     const state = getComparisonWindowState();
-    if (!state.enabled || !primaryStore.getDisplayBars().length) {
+    const peers = getSyncPeerPanes(CHART_PANE_IDS.COMPARISON);
+    if (!state.enabled || !primaryStore.getDisplayBars().length || !peers.some((pane) => pane.id === CHART_PANE_IDS.PRIMARY)) {
       chart.hideSyncCrosshairCursor();
       return;
     }

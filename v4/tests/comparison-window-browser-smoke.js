@@ -253,110 +253,52 @@ async function main() {
       { value: 'no-sync', text: 'No Sync' },
     ]);
     assert.match(shown.statusText, /Choose a main date range/, 'Comparison window should wait for main range before loading');
-    const primaryLegendPlacement = await evaluate(client, `
+    const twoPaneLayout = await evaluate(client, `
       (() => {
         const legend = document.querySelector('#ohlc-legend');
         legend.innerHTML = '<span class="ohlc-label">O</span><span class="ohlc-value">1.00</span>';
         const legendRect = legend.getBoundingClientRect();
+        const root = document.querySelector('#comparison-window-root').getBoundingClientRect();
         const winRect = document.querySelector('#comparison-window').getBoundingClientRect();
+        const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
+        const stack = document.querySelector('#chart-stack').getBoundingClientRect();
         return {
+          stackTwoPane: document.querySelector('#chart-stack').classList.contains('chart-stack-two-pane'),
+          rootPane: document.querySelector('#comparison-window-root').classList.contains('comparison-pane-root'),
+          primaryLeft: primary.left,
+          primaryRight: primary.right,
+          primaryWidth: primary.width,
+          rootLeft: root.left,
+          rootRight: root.right,
+          rootWidth: root.width,
+          stackWidth: stack.width,
           legendLeft: legendRect.left,
+          windowLeft: winRect.left,
           windowRight: winRect.right,
+          windowWidth: winRect.width,
           cssOffset: getComputedStyle(document.querySelector('#chart-stack')).getPropertyValue('--primary-legend-left-offset').trim(),
         };
       })();
     `);
+    assert.equal(twoPaneLayout.stackTwoPane, true, 'Comparison should switch chart stack into two-pane layout');
+    assert.equal(twoPaneLayout.rootPane, true, 'Comparison root should be a pane flex child');
     assert.ok(
-      primaryLegendPlacement.legendLeft >= primaryLegendPlacement.windowRight + 8,
-      `Primary OHLC legend should shift outside the sliding comparison overlay: ${JSON.stringify(primaryLegendPlacement)}`
+      Math.abs(twoPaneLayout.primaryWidth - twoPaneLayout.rootWidth) <= 4,
+      `Primary and comparison panes should be equal width: ${JSON.stringify(twoPaneLayout)}`
     );
+    assert.ok(
+      Math.abs(twoPaneLayout.rootLeft - twoPaneLayout.primaryRight) <= 3,
+      `Comparison pane should sit to the right of primary pane: ${JSON.stringify(twoPaneLayout)}`
+    );
+    assert.equal(twoPaneLayout.cssOffset, '0px', 'Primary legend should not need overlay offset in two-pane layout');
 
-    const dragStart = await evaluate(client, `
-      (() => {
-      const before = document.querySelector('#comparison-window').getBoundingClientRect();
-      const handle = document.querySelector('.comparison-window-left-handle').getBoundingClientRect();
-      const canvas = document.querySelector('#comparison-chart-canvas').getBoundingClientRect();
-      const stack = document.querySelector('#chart-stack').getBoundingClientRect();
-      const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
-      return {
-        x: handle.left + handle.width / 2,
-        y: handle.top + handle.height / 2,
-        beforeLeft: before.left,
-        beforeRight: before.right,
-        beforeWidth: before.width,
-        beforeTop: before.top,
-        beforeCanvasWidth: canvas.width,
-        stackWidth: stack.width,
-        stackHeight: stack.height,
-        primaryWidth: primary.width,
-        primaryHeight: primary.height,
-      };
-      })();
-    `);
-    await client.send('Input.dispatchMouseEvent', {
-      type: 'mousePressed',
-      x: dragStart.x,
-      y: dragStart.y,
-      button: 'left',
-      clickCount: 1,
-    });
-    await client.send('Input.dispatchMouseEvent', {
-      type: 'mouseMoved',
-      x: dragStart.x + 80,
-      y: dragStart.y,
-      button: 'left',
-    });
-    await client.send('Input.dispatchMouseEvent', {
-      type: 'mouseReleased',
-      x: dragStart.x + 80,
-      y: dragStart.y,
-      button: 'left',
-      clickCount: 1,
-    });
-    const moved = await evaluate(client, `
-      (() => {
-      const after = document.querySelector('#comparison-window').getBoundingClientRect();
-      const canvas = document.querySelector('#comparison-chart-canvas').getBoundingClientRect();
-      const stack = document.querySelector('#chart-stack').getBoundingClientRect();
-      const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
-      return {
-        beforeLeft: ${dragStart.beforeLeft},
-        afterLeft: after.left,
-        beforeRight: ${dragStart.beforeRight},
-        afterRight: after.right,
-        beforeWidth: ${dragStart.beforeWidth},
-        afterWidth: after.width,
-        beforeTop: ${dragStart.beforeTop},
-        afterTop: after.top,
-        beforeCanvasWidth: ${dragStart.beforeCanvasWidth},
-        afterCanvasWidth: canvas.width,
-        stackWidth: stack.width,
-        stackHeight: stack.height,
-        primaryWidth: primary.width,
-        primaryHeight: primary.height,
-      };
-      })();
-    `);
-    assert.equal(Math.round(moved.afterLeft), Math.round(moved.beforeLeft), 'Sliding drag should keep the left boundary fixed');
-    assert.ok(moved.afterRight > moved.beforeRight, 'Sliding drag should move the right boundary right');
-    assert.ok(moved.afterWidth > moved.beforeWidth, 'Sliding drag should increase the clipped visible width');
-    assert.equal(Math.round(moved.afterTop), Math.round(moved.beforeTop), 'Sliding drag should not move window vertically');
-    assert.ok(
-      Math.abs(moved.afterCanvasWidth - moved.afterWidth) <= 2,
-      'Sliding comparison chart canvas should use the visible window width so the native price axis stays visible'
-    );
-    assert.ok(moved.afterCanvasWidth > moved.beforeCanvasWidth, 'Sliding drag should resize the native comparison chart width');
-    assert.equal(moved.stackWidth, dragStart.stackWidth, 'Dragging window should not resize chart stack width');
-    assert.equal(moved.stackHeight, dragStart.stackHeight, 'Dragging window should not resize chart stack height');
-    assert.equal(moved.primaryWidth, dragStart.primaryWidth, 'Dragging window should not resize primary panel width');
-    assert.equal(moved.primaryHeight, dragStart.primaryHeight, 'Dragging window should not resize primary panel height');
     const viewportControlsPlacement = await evaluate(client, `
       (() => {
         const primaryControls = document.querySelector('#viewport-controls');
         const comparisonControls = document.querySelector('#comparison-viewport-controls');
         const primaryRect = primaryControls.getBoundingClientRect();
         const comparisonRect = comparisonControls.getBoundingClientRect();
-        const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+        const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
         const win = document.querySelector('#comparison-window').getBoundingClientRect();
         const primaryCenter = primaryRect.left + primaryRect.width / 2;
         const comparisonCenter = comparisonRect.left + comparisonRect.width / 2;
@@ -365,7 +307,7 @@ async function main() {
           comparisonButtonCount: comparisonControls.querySelectorAll('button').length,
           comparisonDisabledCount: comparisonControls.querySelectorAll('button:disabled').length,
           primaryCenter,
-          expectedPrimaryCenter: win.right + (stack.right - win.right) / 2,
+          expectedPrimaryCenter: primary.left + primary.width / 2,
           comparisonCenter,
           expectedComparisonCenter: win.left + win.width / 2,
         };
@@ -380,20 +322,57 @@ async function main() {
       `Comparison viewport controls should center inside comparison window: ${JSON.stringify(viewportControlsPlacement)}`
     );
     assert.equal(viewportControlsPlacement.comparisonButtonCount, 5, 'Comparison viewport controls should render zoom/reset/scroll buttons');
-    const resizeHandleVisual = await evaluate(client, `
+    const paneSyncButtons = await evaluate(client, `
       (() => {
-        const handle = document.querySelector('.comparison-window-left-handle');
-        const after = getComputedStyle(handle, '::after');
+        const buttons = [...document.querySelectorAll('.chart-pane-sync-toggle')];
         return {
-          display: getComputedStyle(handle).display,
-          width: handle.getBoundingClientRect().width,
-          afterContent: after.content,
+          count: buttons.length,
+          labels: buttons.map((button) => button.textContent),
         };
       })();
     `);
-    assert.equal(resizeHandleVisual.display, 'block', 'Comparison resize handle should keep its hit target');
-    assert.ok(resizeHandleVisual.width >= 8, 'Comparison resize handle should keep a usable transparent hit target');
-    assert.equal(resizeHandleVisual.afterContent, 'none', 'Comparison resize handle should not draw a second thick divider line');
+    assert.equal(paneSyncButtons.count, 2, 'Each pane should render a pane-level Sync/No Sync button');
+    assert.deepEqual(paneSyncButtons.labels, ['Sync', 'Sync'], 'Both panes should default to Sync');
+    const activePaneFocus = await evaluate(client, `
+      (() => {
+        const comparisonRoot = document.querySelector('#comparison-window-root');
+        comparisonRoot.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        const comparisonActive = comparisonRoot.classList.contains('chart-pane-active');
+        const toolbarAfterComparison = {
+          instrument: document.querySelector('#primaryInstrumentSelect').value,
+          timeframe: document.querySelector('#tfSelect').value,
+        };
+        const primary = document.querySelector('#primary-chart-panel');
+        primary.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        return {
+          comparisonActive,
+          primaryActive: primary.classList.contains('chart-pane-active'),
+          toolbarAfterComparison,
+          toolbarAfterPrimary: {
+            instrument: document.querySelector('#primaryInstrumentSelect').value,
+            timeframe: document.querySelector('#tfSelect').value,
+          },
+        };
+      })();
+    `);
+    assert.equal(activePaneFocus.comparisonActive, true, 'Clicking comparison pane should make it active');
+    assert.deepEqual(activePaneFocus.toolbarAfterComparison, { instrument: 'ES', timeframe: '60' }, 'Toolbar should follow active comparison pane');
+    assert.equal(activePaneFocus.primaryActive, true, 'Clicking primary pane should make it active');
+    assert.deepEqual(activePaneFocus.toolbarAfterPrimary, { instrument: 'NQ', timeframe: '60' }, 'Toolbar should follow active primary pane');
+    const allNoSync = await evaluate(client, `
+      (() => {
+        const buttons = [...document.querySelectorAll('.chart-pane-sync-toggle')];
+        buttons.forEach((button) => button.click());
+        const labelsAfterOff = buttons.map((button) => button.textContent);
+        buttons.forEach((button) => button.click());
+        return {
+          labelsAfterOff,
+          labelsRestored: buttons.map((button) => button.textContent),
+        };
+      })();
+    `);
+    assert.deepEqual(allNoSync.labelsAfterOff, ['No Sync', 'No Sync'], 'Both panes may be No Sync at the same time');
+    assert.deepEqual(allNoSync.labelsRestored, ['Sync', 'Sync'], 'Pane sync buttons should toggle back independently');
 
     const nativePriceAxisLayout = await evaluate(client, `
       (() => {
@@ -1342,10 +1321,10 @@ async function main() {
       })();
     `);
     assert.deepEqual(reset, {
-      left: '0%',
+      left: 'auto',
       right: 'auto',
-      top: '0%',
-      width: '34%',
+      top: 'auto',
+      width: '100%',
       height: '100%',
       layoutMode: 'sliding',
     });

@@ -8,9 +8,19 @@ import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
+  getComparisonWindowState,
   isComparisonWindowEnabled,
+  setComparisonInstrument,
+  setComparisonTimeframe,
   setComparisonWindowEnabled,
 } from '../comparison/comparison-window-store.js';
+import {
+  CHART_PANE_IDS,
+  CHART_PANE_LAYOUTS,
+  getActivePane,
+  setChartPaneLayout,
+  updatePaneDescriptor,
+} from '../chart-panes/chart-pane-store.js';
 import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
@@ -128,22 +138,22 @@ function renderComparisonControls() {
   `;
 }
 
-function renderPrimaryTimeframeControls() {
-  const instrument = getPrimaryInstrument();
+function renderActivePaneTimeframeControls() {
+  const activePane = getActivePane();
   return `
     <div class="toolbar-group">
-      <span class="toolbar-label">Main:</span>
-      <select id="primaryInstrumentSelect" class="toolbar-select" title="Primary chart instrument">
-        ${renderInstrumentOptions(instrument)}
+      <span class="toolbar-label">Pane:</span>
+      <select id="primaryInstrumentSelect" class="toolbar-select" title="Active pane instrument">
+        ${renderInstrumentOptions(activePane.instrument)}
       </select>
     </div>
     <div class="toolbar-group">
-      <span class="toolbar-label">Main TF:</span>
-      <select id="tfSelect" class="toolbar-select" title="Primary chart timeframe">
+      <span class="toolbar-label">TF:</span>
+      <select id="tfSelect" class="toolbar-select" title="Active pane timeframe">
         ${Object.entries(TIMEFRAME_MAP)
           .map(
             ([v, l]) =>
-              `<option value="${v}"${parseInt(v) === DEFAULT_TIMEFRAME ? ' selected' : ''}>${l}</option>`
+              `<option value="${v}"${parseInt(v) === Number(activePane.timeframe) ? ' selected' : ''}>${l}</option>`
           )
           .join('\n        ')}
       </select>
@@ -180,6 +190,7 @@ function renderDisplayControls(displayMode) {
 export function initToolbar() {
   const container = document.getElementById('toolbar');
   const displayMode = getDisplayMode();
+  syncPaneStateFromComparison();
 
   container.innerHTML = `
     <div class="toolbar-section toolbar-section-date">
@@ -193,7 +204,7 @@ export function initToolbar() {
     </div>
     <div class="toolbar-separator"></div>
     <div class="toolbar-section toolbar-section-primary">
-      ${renderPrimaryTimeframeControls()}
+      ${renderActivePaneTimeframeControls()}
     </div>
     <div class="toolbar-separator"></div>
     <div class="toolbar-section toolbar-section-display">
@@ -256,18 +267,11 @@ export function initToolbar() {
   });
 
   primaryInstrumentSelect.addEventListener('change', () => {
-    const instrument = setPrimaryInstrument(primaryInstrumentSelect.value);
-    primaryInstrumentSelect.value = instrument;
-    bus.emit('status:update', { text: `Main ${instrument}`, isError: false });
-    if (store.getBars().length > 0) {
-      handleLoad();
-    }
+    applyActivePaneInstrument(primaryInstrumentSelect.value);
   });
 
   tfSelect.addEventListener('change', () => {
-    if (store.getBars().length > 0) {
-      handleLoad();
-    }
+    applyActivePaneTimeframe(tfSelect.value);
   });
 
   dayBoundaryToggle.addEventListener('change', (e) => {
@@ -289,6 +293,7 @@ export function initToolbar() {
 
   comparisonWindowToggle.addEventListener('change', (e) => {
     setComparisonWindowEnabled(e.target.checked);
+    setChartPaneLayout(e.target.checked ? CHART_PANE_LAYOUTS.TWO_COLUMN : CHART_PANE_LAYOUTS.SINGLE);
     syncComparisonWindowToggle();
   });
 
@@ -301,11 +306,16 @@ export function initToolbar() {
     }
   });
   bus.on('history:changed', updateHistoryButtons);
-  bus.on('comparison-window:changed', syncComparisonWindowToggle);
-  bus.on('primary-instrument:changed', ({ instrument }) => {
-    const select = document.getElementById('primaryInstrumentSelect');
-    if (select) select.value = instrument;
+  bus.on('comparison-window:changed', (state) => {
+    syncComparisonWindowToggle();
+    syncPaneStateFromComparison(state);
   });
+  bus.on('primary-instrument:changed', ({ instrument }) => {
+    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument });
+    const select = document.getElementById('primaryInstrumentSelect');
+    if (select && getActivePane().id === CHART_PANE_IDS.PRIMARY) select.value = instrument;
+  });
+  bus.on('chart-panes:changed', syncActivePaneToolbarControls);
   bus.on('display-preferences:changed', renderSettingsPopover);
   document.addEventListener('click', closeSettingsPopover);
   window.addEventListener('keydown', (e) => {
@@ -319,6 +329,23 @@ function syncComparisonWindowToggle() {
   if (comparisonWindowToggle) {
     comparisonWindowToggle.checked = isComparisonWindowEnabled();
   }
+}
+
+function syncPaneStateFromComparison(state = getComparisonWindowState()) {
+  setChartPaneLayout(state.enabled ? CHART_PANE_LAYOUTS.TWO_COLUMN : CHART_PANE_LAYOUTS.SINGLE);
+  const descriptor = state.descriptor || {};
+  updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, {
+    instrument: descriptor.instrument,
+    timeframe: descriptor.timeframe,
+  });
+}
+
+function syncActivePaneToolbarControls() {
+  const activePane = getActivePane();
+  const primaryInstrumentSelect = document.getElementById('primaryInstrumentSelect');
+  const tfSelect = document.getElementById('tfSelect');
+  if (primaryInstrumentSelect) primaryInstrumentSelect.value = activePane.instrument;
+  if (tfSelect) tfSelect.value = String(activePane.timeframe);
 }
 
 function renderSettingsPopover() {
@@ -410,6 +437,7 @@ async function handleLoad() {
   const end = endEl.value;
   const tf = parseInt(document.getElementById('tfSelect').value);
   const instrument = getPrimaryInstrument();
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
 
   if (!start || !end) {
     bus.emit('status:update', { text: 'Choose a date range first', isError: true });
@@ -439,5 +467,42 @@ async function handleLoad() {
     });
   } catch (err) {
     bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
+  }
+}
+
+function applyActivePaneInstrument(nextInstrument) {
+  const activePane = getActivePane();
+  if (activePane.id === CHART_PANE_IDS.COMPARISON) {
+    const descriptor = updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { instrument: nextInstrument });
+    setComparisonInstrument(descriptor.instrument);
+    bus.emit('status:update', { text: `Pane 2 ${descriptor.instrument}`, isError: false });
+    syncActivePaneToolbarControls();
+    return;
+  }
+
+  const instrument = setPrimaryInstrument(nextInstrument);
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument });
+  bus.emit('status:update', { text: `Pane 1 ${instrument}`, isError: false });
+  syncActivePaneToolbarControls();
+  if (store.getBars().length > 0) {
+    handleLoad();
+  }
+}
+
+function applyActivePaneTimeframe(nextTimeframe) {
+  const activePane = getActivePane();
+  const timeframe = Number(nextTimeframe) || DEFAULT_TIMEFRAME;
+  if (activePane.id === CHART_PANE_IDS.COMPARISON) {
+    updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { timeframe });
+    setComparisonTimeframe(timeframe);
+    bus.emit('status:update', { text: `Pane 2 ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}`, isError: false });
+    syncActivePaneToolbarControls();
+    return;
+  }
+
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe });
+  syncActivePaneToolbarControls();
+  if (store.getBars().length > 0) {
+    handleLoad();
   }
 }

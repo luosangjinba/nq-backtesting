@@ -315,3 +315,97 @@ Result:
 - `chart pane store smoke passed`.
 - `git diff --check` passed.
 - Node emitted the existing typeless-package warning for ES module tests.
+
+### Step 337.3 - Two-column layout shell
+
+Implemented:
+
+- `#chart-stack` gains `chart-stack-two-pane` when Compare is enabled.
+- Primary chart panel and Comparison root become equal flex children.
+- Comparison Window root gains `comparison-pane-root`.
+- Comparison Window itself gains `comparison-window-pane`, fills its pane, and no longer overlays the primary chart.
+- Primary OHLC legend offset is reset to `0px` because the primary pane is no longer covered by an overlay.
+- Primary and comparison viewport controls center inside their own panes.
+
+Deferred:
+
+- 3/4/8 pane layout presets.
+- Resizable pane splitters.
+- Replacing the old Compare toggle with a full TradingView-style layout menu.
+
+### Step 337.4 - Active pane toolbar and focus highlight
+
+Implemented:
+
+- Added `v4/src/chart-panes/chart-pane-dom.js`.
+- Clicking, context-menuing, or focusing primary/comparison pane sets active pane.
+- Active pane receives blue edge highlight with `chart-pane-active`.
+- Toolbar Symbol/TF controls now read `getActivePane()`.
+- Toolbar Symbol/TF updates primary pane through existing primary store/load path.
+- Toolbar Symbol/TF updates comparison pane through existing comparison descriptor path.
+- Existing comparison header controls still work and sync back into the pane model.
+
+### Step 337.5 - Pane-level Sync/No Sync
+
+Implemented:
+
+- Each pane renders `.chart-pane-sync-toggle`.
+- Toggling a button only changes that pane's `syncEnabled`.
+- Both panes can be `No Sync` at the same time.
+- The existing Drawings sync select remains a separate comparison overlay/drawing control.
+
+### Step 337.6 - Initial sync surface
+
+Implemented:
+
+- Added `v4/src/chart-panes/chart-pane-range-sync.js`.
+- Visible logical range changes broadcast only from a Sync On source pane to Sync On peer panes.
+- Existing comparison crosshair sync now checks pane sync peers before showing sync cursor on the other pane.
+- No Sync panes do not send or receive visible range/crosshair sync.
+
+Deferred:
+
+- Symbol/TF sync.
+- Date range sync.
+- Drawing/overlay sync unification.
+- Replay authority redesign.
+
+### Step 337.7 - Migration and compatibility
+
+Implemented compatibility strategy:
+
+- Existing Comparison Window enabled state still comes from `comparison-window-store`.
+- Existing comparison descriptor maps to Pane 2.
+- Existing Replay History comparison restore continues using the old comparison state and now renders as two-column pane.
+- Existing comparison overlay sync mode remains available as `Drawings` and is not merged into pane-level Sync.
+- Existing `secondary` compatibility remains untouched.
+
+### Step 337.8 - Verification
+
+Updated `v4/tests/comparison-window-browser-smoke.js`:
+
+- Asserts Compare switches chart stack into two-pane layout.
+- Asserts primary and comparison panes are equal width.
+- Asserts primary legend no longer needs overlay offset.
+- Asserts primary/comparison viewport controls center in their own panes.
+- Asserts each pane has a Sync button.
+- Asserts both panes can be No Sync at once and toggle back independently.
+- Asserts clicking comparison/primary changes active pane and toolbar values follow.
+- Keeps coverage for native comparison price axis, Inspector resize, close hit target, context menu, comparison data loading, Replay History comparison restore, and old Split DOM absence.
+
+Verification commands:
+
+```bash
+node --check v4/src/chart-panes/chart-pane-dom.js
+node --check v4/src/chart-panes/chart-pane-range-sync.js
+node --check v4/src/ui/toolbar.js
+node --check v4/src/ui/comparison/comparison-crosshair-sync.js
+node v4/tests/chart-pane-store-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Results:
+
+- All checks passed.
+- Node emitted the existing typeless-package warning for ES module tests.

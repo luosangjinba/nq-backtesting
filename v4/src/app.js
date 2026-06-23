@@ -3,6 +3,8 @@
 import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
 import { getBarChartTime } from './chart/time-projection.js';
+import { initChartPaneDom } from './chart-panes/chart-pane-dom.js';
+import { initChartPaneRangeSync } from './chart-panes/chart-pane-range-sync.js';
 import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
@@ -78,6 +80,12 @@ console.log('[V4] Comparison window workspace initialized');
 
 initToolbar();
 console.log('[V4] Toolbar initialized');
+
+initChartPaneDom();
+console.log('[V4] Chart pane DOM initialized');
+
+initChartPaneRangeSync();
+console.log('[V4] Chart pane range sync initialized');
 
 // 初始化 Replay 控制条
 initReplayControls();
