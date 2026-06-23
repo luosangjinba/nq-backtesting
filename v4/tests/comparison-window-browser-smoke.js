@@ -349,21 +349,50 @@ async function main() {
     `);
     assert.equal(paneSyncButtons.count, 2, 'Each pane should render a pane-level Sync/No Sync button');
     assert.deepEqual(paneSyncButtons.labels, ['Sync', 'Sync'], 'Both panes should default to Sync');
+    const paneBadges = await evaluate(client, `
+      (() => {
+        const primaryBadge = document.querySelector('[data-pane-badge="pane-1"]');
+        const comparisonBadge = document.querySelector('[data-pane-badge="pane-2"]');
+        const comparisonInfo = document.querySelector('#comparison-chart-info');
+        return {
+          primaryText: primaryBadge?.querySelector('[data-pane-badge-label="pane-1"]')?.textContent,
+          comparisonText: comparisonBadge?.querySelector('[data-pane-badge-label="pane-2"]')?.textContent,
+          primaryParent: primaryBadge?.parentElement?.id,
+          comparisonParent: comparisonBadge?.parentElement?.id,
+          comparisonInfoDisplay: getComputedStyle(comparisonInfo).display,
+        };
+      })();
+    `);
+    assert.deepEqual(paneBadges, {
+      primaryText: 'NQ 1H',
+      comparisonText: 'ES 1H',
+      primaryParent: 'primary-chart-panel',
+      comparisonParent: 'comparison-window-root',
+      comparisonInfoDisplay: 'none',
+    }, 'Both panes should render a unified Symbol/TF badge and hide old comparison-only info chrome');
     const activePaneFocus = await evaluate(client, `
       (() => {
         const comparisonRoot = document.querySelector('#comparison-window-root');
         comparisonRoot.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
         const comparisonActive = comparisonRoot.classList.contains('chart-pane-active');
+        document.querySelector('#tfSelect').value = '1';
+        document.querySelector('#tfSelect').dispatchEvent(new Event('change', { bubbles: true }));
         const toolbarAfterComparison = {
           instrument: document.querySelector('#primaryInstrumentSelect').value,
           timeframe: document.querySelector('#tfSelect').value,
         };
+        const comparisonBadgeAfterTf = document.querySelector('[data-pane-badge-label="pane-2"]')?.textContent;
+        document.querySelector('#tfSelect').value = '60';
+        document.querySelector('#tfSelect').dispatchEvent(new Event('change', { bubbles: true }));
+        const comparisonBadgeRestored = document.querySelector('[data-pane-badge-label="pane-2"]')?.textContent;
         const primary = document.querySelector('#primary-chart-panel');
         primary.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
         return {
           comparisonActive,
           primaryActive: primary.classList.contains('chart-pane-active'),
           toolbarAfterComparison,
+          comparisonBadgeAfterTf,
+          comparisonBadgeRestored,
           toolbarAfterPrimary: {
             instrument: document.querySelector('#primaryInstrumentSelect').value,
             timeframe: document.querySelector('#tfSelect').value,
@@ -372,7 +401,9 @@ async function main() {
       })();
     `);
     assert.equal(activePaneFocus.comparisonActive, true, 'Clicking comparison pane should make it active');
-    assert.deepEqual(activePaneFocus.toolbarAfterComparison, { instrument: 'ES', timeframe: '60' }, 'Toolbar should follow active comparison pane');
+    assert.deepEqual(activePaneFocus.toolbarAfterComparison, { instrument: 'ES', timeframe: '1' }, 'Toolbar should update active comparison pane timeframe');
+    assert.equal(activePaneFocus.comparisonBadgeAfterTf, 'ES 1M', 'Comparison badge should update when active pane timeframe changes');
+    assert.equal(activePaneFocus.comparisonBadgeRestored, 'ES 1H', 'Comparison badge should restore after active pane timeframe returns to 1H');
     assert.equal(activePaneFocus.primaryActive, true, 'Clicking primary pane should make it active');
     assert.deepEqual(activePaneFocus.toolbarAfterPrimary, { instrument: 'NQ', timeframe: '60' }, 'Toolbar should follow active primary pane');
     const allNoSync = await evaluate(client, `

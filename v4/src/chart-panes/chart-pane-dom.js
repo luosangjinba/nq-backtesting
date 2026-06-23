@@ -11,6 +11,35 @@ function syncButtonText(paneId) {
   return getPaneById(paneId)?.syncEnabled ? 'Sync' : 'No Sync';
 }
 
+function formatPaneTimeframe(timeframe) {
+  const value = Number(timeframe);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  if (value === 1440) return '1D';
+  if (value % 60 === 0) return `${value / 60}H`;
+  return `${value}M`;
+}
+
+function ensurePaneBadge(container, paneId) {
+  if (!container) return null;
+  let badge = container.querySelector(`[data-pane-badge="${paneId}"]`);
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.className = 'chart-pane-badge';
+    badge.dataset.paneBadge = paneId;
+    const label = document.createElement('span');
+    label.className = 'chart-pane-badge-label';
+    label.dataset.paneBadgeLabel = paneId;
+    badge.appendChild(label);
+    container.appendChild(badge);
+  }
+  const pane = getPaneById(paneId);
+  const label = badge.querySelector(`[data-pane-badge-label="${paneId}"]`);
+  if (pane && label) {
+    label.textContent = `${pane.instrument} ${formatPaneTimeframe(pane.timeframe)}`;
+  }
+  return badge;
+}
+
 function ensurePaneSyncButton(container, paneId) {
   if (!container) return;
   let button = container.querySelector(`[data-pane-sync-toggle="${paneId}"]`);
@@ -43,6 +72,8 @@ function markActivePane() {
     'chart-pane-active',
     activePaneId === CHART_PANE_IDS.COMPARISON
   );
+  ensurePaneBadge(primaryPane, CHART_PANE_IDS.PRIMARY);
+  ensurePaneBadge(comparisonPane, CHART_PANE_IDS.COMPARISON);
   ensurePaneSyncButton(primaryPane, CHART_PANE_IDS.PRIMARY);
   ensurePaneSyncButton(comparisonPane, CHART_PANE_IDS.COMPARISON);
 }
