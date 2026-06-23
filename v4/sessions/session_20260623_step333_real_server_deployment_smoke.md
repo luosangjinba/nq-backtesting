@@ -357,13 +357,20 @@ Restore check confirmed the extracted data directory contains:
 
 For a long-running server, move backup output to `/var/backups/trading/v4` or external storage instead of `/tmp`.
 
-### Remaining Work
+### Remote Device Feedback
 
-Step 333.5 is still pending because it requires a second physical device:
+The user confirmed that another computer can open:
 
-1. Open `http://192.168.1.111:8001/index.html` from another machine on the same LAN.
-2. Select the same instrument/timeframe/date range as this server machine.
-3. Confirm bars, calendar, VIX/regime-derived views match after reload.
-4. In DevTools Network, confirm requests target `192.168.1.111:8766`, not the second device's `127.0.0.1`.
+```text
+http://192.168.1.111:8001/index.html
+```
 
-Until this is confirmed, Step 333 should stay open even though the local server baseline is working.
+This closes the Step 333 server URL baseline.
+
+Follow-up issues found during that remote check:
+
+- K-line data import cannot be completed from the remote computer.
+- The UI does not show a useful error message for the failed import.
+- The app does not adapt well to different screen resolutions.
+
+These are not treated as Step 333 blockers because the server URL/API baseline is proven. They are moved to Step 334: Remote Data Maintenance and responsive UX hardening.

@@ -1205,10 +1205,18 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [x] Step 332: Server-centered multi-device sync short-term prep。目标是先用一台服务器集中承载 V4 API、数据库/数据目录、刷新任务和导入输出，让多台电脑访问同一个 server URL，解决主要数据源不同步问题；短期不做完整 workspace/localStorage 同步。已完成本地侧准备：前端 API base 改为跟随当前页面 hostname，Data Maintenance API URL 同步改为跟随 server hostname，API 支持 `V4_API_HOST=0.0.0.0` 与 `V4_ALLOWED_WEB_ORIGINS`，并新增 inventory/runbook。计划见 `v4/docs/planning/server_sync_short_term_plan.md`，执行记录见 `v4/docs/planning/server_sync_inventory_runbook.md`。真实服务器部署 smoke 等待实际 server hostname/IP 和数据路径。
 
-- [ ] Step 333: Real server deployment smoke。目标是在真实服务器上跑通 V4 server-centered baseline，证明两台设备访问同一个 server URL 时使用同一份 API、bars DB、calendar/VIX/regime 数据，并明确哪些 UI/workspace 状态仍是 device-local。当前本机 server baseline 已跑通，LAN URL 为 `http://192.168.1.111:8001/index.html`，API 为 `http://192.168.1.111:8766`；真实两台物理设备一致性 smoke 仍待用户用第二台设备确认。分步计划和执行记录见 `v4/sessions/session_20260623_step333_real_server_deployment_smoke.md`。
+- [x] Step 333: Real server deployment smoke。目标是在真实服务器上跑通 V4 server-centered baseline，证明两台设备访问同一个 server URL 时使用同一份 API、bars DB、calendar/VIX/regime 数据，并明确哪些 UI/workspace 状态仍是 device-local。当前本机 server baseline 已跑通，LAN URL 为 `http://192.168.1.111:8001/index.html`，API 为 `http://192.168.1.111:8766`；用户已在另一台电脑确认 server URL 可打开。远程导入 K 线无错误提示、不同分辨率自适应不足已转入 Step 334。分步计划和执行记录见 `v4/sessions/session_20260623_step333_real_server_deployment_smoke.md`。
   - [x] Step 333.1: Server identity and access decision。已选本机 LAN `192.168.1.111` 作为短期 server URL，允许 origin 包含 `http://192.168.1.111:8001`，canonical DB 使用 repo-local `v4/data/trading_data.duckdb`。
   - [x] Step 333.2: Runtime environment bootstrap。已在 ignored `v4/.env.local` 配置 `V4_API_HOST=0.0.0.0`、`V4_WEB_PORT=8001`、`V4_TRADING_DB`、`V4_ALLOWED_WEB_ORIGINS`；API 已按新配置重启。
   - [x] Step 333.3: Canonical data migration and ownership。本轮使用当前 repo-local data 作为 canonical smoke 数据源；bars DB、economic calendar、VIX、daily regime 文件存在并完成 API/文件检查。长期服务器可再迁移到 `/var/lib/trading-data/v4`。
   - [x] Step 333.4: Server start and single-client smoke。`0.0.0.0:8766` 和 `0.0.0.0:8001` 均可达；LAN health、`index.html`、`data-maintenance.html`、真实 bars/calendar API、浏览器 API host 和 Data Maintenance CORS 预检均通过。
-  - [ ] Step 333.5: Two-device consistency smoke。仍需第二台物理设备打开 `http://192.168.1.111:8001/index.html`，确认 bars/calendar/VIX/regime 一致，并在 Network 面板确认请求打到 `192.168.1.111:8766`。
+  - [x] Step 333.5: Two-device consistency smoke。用户已在第二台电脑确认 `http://192.168.1.111:8001/index.html` 可打开；远程导入 K 线和响应式问题不阻塞 server URL baseline，转入 Step 334 处理。
   - [x] Step 333.6: Backup, operations note, and closeout。已完成 `/tmp/v4-step333-backups` 本机备份和 `/tmp/v4-step333-restore-test` restore 检查；正式长期服务器仍建议把备份目录迁到 `/var/backups/trading/v4` 或外部磁盘。
+
+- [ ] Step 334: Remote Data Maintenance and responsive UX hardening。目标是在 Step 333 server URL 已可远程访问后，修复远程电脑无法导入 K 线且没有错误提示的问题，并让 V4 主页面和 Data Maintenance 页面在不同分辨率下达到最低可用自适应。计划见 `v4/sessions/session_20260623_step334_remote_maintenance_responsive_plan.md`。
+  - [ ] Step 334.1: Remote import workflow audit。明确“导入 K 线数据”当前对应的 UI 入口、后端脚本、文件/网络权限、是否应写 server DB，以及哪些导入仍是 client-local；复现远程无提示失败并记录 Network/console/API 输出。
+  - [ ] Step 334.2: Data Maintenance error visibility。所有远程 maintenance/import action 必须显示 pending/success/error 状态；fetch 失败、CORS、非 2xx、JSON parse、后端 stderr/stdout 都要进入可复制 Output，不允许静默失败。
+  - [ ] Step 334.3: Server-side K-line import contract。若当前入口应支持远程 K 线导入，则补齐 server-side upload/refresh/import path；若短期只支持 server refresh，不支持浏览器上传 K 线文件，则在 UI 中明确禁用或提示原因和替代命令。
+  - [ ] Step 334.4: Responsive layout baseline。为 `index.html` 和 `data-maintenance.html` 定义桌面大屏、笔记本、小宽度三档最低布局规则；修复 toolbar、Inspector、Comparison Window、Replay bar、Data Maintenance 双栏在窄屏下溢出/不可操作的问题。
+  - [ ] Step 334.5: Remote browser smoke coverage。新增或扩展 browser smoke，覆盖 LAN URL 下 `API_BASE`、Data Maintenance 错误输出、至少一个安全 dry-run action、以及两个 viewport 宽度的关键控件可见/可点击。
+  - [ ] Step 334.6: Docs and closeout。更新 Step 333/334 session、server sync runbook 和 TODO，记录远程导入支持边界、剩余不支持项、推荐操作流程和下一步 Step 335 候选。
