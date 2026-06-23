@@ -596,6 +596,38 @@ async function main() {
     assert.equal(loaded.info, 'ES 1H');
     assert.equal(loaded.placeholderHidden, true, 'Comparison placeholder should hide after data loads');
     assert.match(loaded.overlayStatus, /Time overlays ready/, 'Comparison overlay status should update after data loads');
+    const independentVisibleRanges = await evaluate(client, `
+      (async () => {
+        const primaryChart = await import('/src/chart/chart-manager.js');
+        const comparisonChart = await import('/src/chart/comparison-chart-manager.js');
+        const roundRange = (range) => ({
+          from: Number(Number(range?.from).toFixed(3)),
+          to: Number(Number(range?.to).toFixed(3)),
+        });
+        comparisonChart.setComparisonVisibleLogicalRange(0, 8);
+        primaryChart.setVisibleLogicalRange(0, 2);
+        await new Promise((resolve) => setTimeout(resolve, 120));
+        const comparisonAfterPrimaryMove = roundRange(comparisonChart.getComparisonVisibleLogicalRange());
+        primaryChart.setVisibleLogicalRange(0, 2);
+        comparisonChart.setComparisonVisibleLogicalRange(4, 12);
+        await new Promise((resolve) => setTimeout(resolve, 120));
+        const primaryAfterComparisonMove = roundRange(primaryChart.getVisibleLogicalRange());
+        return {
+          comparisonAfterPrimaryMove,
+          primaryAfterComparisonMove,
+        };
+      })();
+    `);
+    assert.deepEqual(
+      independentVisibleRanges.comparisonAfterPrimaryMove,
+      { from: 0, to: 8 },
+      'Primary time movement should not sync-scroll the comparison pane'
+    );
+    assert.deepEqual(
+      independentVisibleRanges.primaryAfterComparisonMove,
+      { from: 0, to: 2 },
+      'Comparison time movement should not sync-scroll the primary pane'
+    );
     const comparisonViewportAction = await evaluate(client, `
       (async () => {
         const manager = await import('/src/chart/comparison-chart-manager.js');
