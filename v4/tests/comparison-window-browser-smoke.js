@@ -278,9 +278,12 @@ async function main() {
         const winRect = document.querySelector('#comparison-window').getBoundingClientRect();
         const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
         const stack = document.querySelector('#chart-stack').getBoundingClientRect();
+        const divider = document.querySelector('[data-chart-pane-divider]').getBoundingClientRect();
         return {
           stackTwoPane: document.querySelector('#chart-stack').classList.contains('chart-stack-two-pane'),
           rootPane: document.querySelector('#comparison-window-root').classList.contains('comparison-pane-root'),
+          dividerVisible: !document.querySelector('[data-chart-pane-divider]').hidden,
+          dividerWidth: divider.width,
           primaryLeft: primary.left,
           primaryRight: primary.right,
           primaryWidth: primary.width,
@@ -298,6 +301,8 @@ async function main() {
     `);
     assert.equal(twoPaneLayout.stackTwoPane, true, 'Comparison should switch chart stack into two-pane layout');
     assert.equal(twoPaneLayout.rootPane, true, 'Comparison root should be a pane flex child');
+    assert.equal(twoPaneLayout.dividerVisible, true, 'Two-pane layout should show a draggable pane divider');
+    assert.ok(twoPaneLayout.dividerWidth >= 1, 'Pane divider should have a visible center line');
     assert.ok(
       Math.abs(twoPaneLayout.primaryWidth - twoPaneLayout.rootWidth) <= 4,
       `Primary and comparison panes should be equal width: ${JSON.stringify(twoPaneLayout)}`
@@ -307,6 +312,70 @@ async function main() {
       `Comparison pane should sit to the right of primary pane: ${JSON.stringify(twoPaneLayout)}`
     );
     assert.equal(twoPaneLayout.cssOffset, '0px', 'Primary legend should not need overlay offset in two-pane layout');
+
+    const paneDividerResize = await evaluate(client, `
+      (() => {
+        const divider = document.querySelector('[data-chart-pane-divider]');
+        const stack = document.querySelector('#chart-stack');
+        const primary = document.querySelector('#primary-chart-panel');
+        const comparison = document.querySelector('#comparison-window-root');
+        const stackRect = stack.getBoundingClientRect();
+        const before = {
+          primary: primary.getBoundingClientRect().width,
+          comparison: comparison.getBoundingClientRect().width,
+        };
+        const pointerId = 33;
+        divider.dispatchEvent(new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          pointerId,
+          clientX: stackRect.left + stackRect.width / 2,
+          clientY: stackRect.top + 40,
+        }));
+        divider.dispatchEvent(new PointerEvent('pointermove', {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          pointerId,
+          clientX: stackRect.left + stackRect.width * 0.62,
+          clientY: stackRect.top + 40,
+        }));
+        divider.dispatchEvent(new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          pointerId,
+          clientX: stackRect.left + stackRect.width * 0.62,
+          clientY: stackRect.top + 40,
+        }));
+        const afterDrag = {
+          primary: primary.getBoundingClientRect().width,
+          comparison: comparison.getBoundingClientRect().width,
+          cssWidth: getComputedStyle(stack).getPropertyValue('--primary-pane-width').trim(),
+        };
+        divider.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+        const afterReset = {
+          primary: primary.getBoundingClientRect().width,
+          comparison: comparison.getBoundingClientRect().width,
+          cssWidth: getComputedStyle(stack).getPropertyValue('--primary-pane-width').trim(),
+        };
+        return { before, afterDrag, afterReset };
+      })();
+    `);
+    assert.ok(
+      paneDividerResize.afterDrag.primary > paneDividerResize.before.primary + 40,
+      `Dragging divider right should widen primary pane: ${JSON.stringify(paneDividerResize)}`
+    );
+    assert.ok(
+      paneDividerResize.afterDrag.comparison < paneDividerResize.before.comparison - 40,
+      `Dragging divider right should narrow comparison pane: ${JSON.stringify(paneDividerResize)}`
+    );
+    assert.match(paneDividerResize.afterDrag.cssWidth, /^62\.00%$/, 'Pane divider drag should set primary pane width CSS variable');
+    assert.ok(
+      Math.abs(paneDividerResize.afterReset.primary - paneDividerResize.afterReset.comparison) <= 4,
+      `Double-clicking divider should restore equal pane widths: ${JSON.stringify(paneDividerResize)}`
+    );
 
     const viewportControlsPlacement = await evaluate(client, `
       (() => {

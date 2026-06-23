@@ -59,7 +59,7 @@ html, body {
 
 #chart-stack.chart-stack-two-pane {
   flex-direction: row;
-  gap: 1px;
+  gap: 0;
   background: #2a2e39;
 }
 
@@ -133,8 +133,49 @@ html, body {
 }
 
 #chart-stack.chart-stack-two-pane .primary-chart-panel {
-  flex: 1 1 50%;
+  flex: 0 0 var(--primary-pane-width, 50%);
   background: #131722;
+}
+
+.chart-pane-divider {
+  position: relative;
+  z-index: 32;
+  display: none;
+  flex: 0 0 1px;
+  width: 1px;
+  min-width: 1px;
+  cursor: ew-resize;
+  background: rgba(69, 76, 96, 0.85);
+  touch-action: none;
+}
+
+#chart-stack.chart-stack-two-pane .chart-pane-divider:not([hidden]) {
+  display: block;
+}
+
+.chart-pane-divider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -5px;
+  width: 11px;
+  background: transparent;
+}
+
+.chart-pane-divider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: rgba(120, 123, 134, 0.7);
+}
+
+.chart-pane-divider:hover::after,
+.chart-pane-divider-dragging .chart-pane-divider::after {
+  background: rgba(77, 182, 172, 0.95);
 }
 
 #toolbar {
@@ -175,7 +216,7 @@ html, body {
   inset: auto;
   z-index: 1;
   display: flex;
-  flex: 1 1 50%;
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
   pointer-events: auto;

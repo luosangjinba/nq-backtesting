@@ -7,6 +7,16 @@ import {
   togglePaneSync,
 } from './chart-pane-store.js';
 
+const DEFAULT_PRIMARY_WIDTH_PERCENT = 50;
+const MIN_PRIMARY_WIDTH_PERCENT = 20;
+const MAX_PRIMARY_WIDTH_PERCENT = 80;
+
+function clampPaneWidthPercent(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return DEFAULT_PRIMARY_WIDTH_PERCENT;
+  return Math.max(MIN_PRIMARY_WIDTH_PERCENT, Math.min(MAX_PRIMARY_WIDTH_PERCENT, number));
+}
+
 function syncButtonText(paneId) {
   return getPaneById(paneId)?.syncEnabled ? 'Sync' : 'No Sync';
 }
@@ -60,10 +70,88 @@ function ensurePaneSyncButton(container, paneId, badge = null) {
   button.classList.toggle('chart-pane-sync-toggle-off', syncButtonText(paneId) === 'No Sync');
 }
 
+function setPrimaryPaneWidthPercent(percent) {
+  const stack = document.getElementById('chart-stack');
+  stack?.style.setProperty('--primary-pane-width', `${clampPaneWidthPercent(percent).toFixed(2)}%`);
+}
+
+function resetPrimaryPaneWidth() {
+  setPrimaryPaneWidthPercent(DEFAULT_PRIMARY_WIDTH_PERCENT);
+}
+
+function ensurePaneDivider() {
+  const stack = document.getElementById('chart-stack');
+  const comparisonPane = document.getElementById('comparison-window-root');
+  if (!stack) return null;
+  let divider = stack.querySelector('[data-chart-pane-divider]');
+  if (!divider) {
+    divider = document.createElement('div');
+    divider.className = 'chart-pane-divider';
+    divider.dataset.chartPaneDivider = 'true';
+    divider.setAttribute('role', 'separator');
+    divider.setAttribute('aria-orientation', 'vertical');
+    divider.title = 'Drag to resize panes. Double-click to reset.';
+    divider.addEventListener('pointerdown', startPaneDividerDrag);
+    divider.addEventListener('dblclick', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      resetPrimaryPaneWidth();
+    });
+  }
+  if (comparisonPane && divider.nextElementSibling !== comparisonPane) {
+    stack.insertBefore(divider, comparisonPane);
+  } else if (!divider.parentElement) {
+    stack.appendChild(divider);
+  }
+  return divider;
+}
+
+function startPaneDividerDrag(event) {
+  if (event.button !== 0) return;
+  const stack = document.getElementById('chart-stack');
+  const divider = event.currentTarget;
+  const bounds = stack?.getBoundingClientRect();
+  if (!stack || !bounds?.width) return;
+
+  function moveDivider(moveEvent) {
+    if (moveEvent.pointerId !== event.pointerId) return;
+    const nextPercent = ((moveEvent.clientX - bounds.left) / bounds.width) * 100;
+    setPrimaryPaneWidthPercent(nextPercent);
+    moveEvent.stopPropagation();
+    moveEvent.preventDefault();
+  }
+
+  function stopDividerDrag(stopEvent) {
+    if (stopEvent.pointerId !== event.pointerId) return;
+    divider.removeEventListener('pointermove', moveDivider);
+    try {
+      divider.releasePointerCapture?.(event.pointerId);
+    } catch {
+      // Ignore non-captured synthetic pointer events.
+    }
+    stack.classList.remove('chart-pane-divider-dragging');
+    stopEvent.stopPropagation();
+    stopEvent.preventDefault();
+  }
+
+  stack.classList.add('chart-pane-divider-dragging');
+  try {
+    divider.setPointerCapture?.(event.pointerId);
+  } catch {
+    // Synthetic browser-smoke pointer events may not be capture-eligible.
+  }
+  divider.addEventListener('pointermove', moveDivider);
+  divider.addEventListener('pointerup', stopDividerDrag, { once: true });
+  divider.addEventListener('pointercancel', stopDividerDrag, { once: true });
+  event.stopPropagation();
+  event.preventDefault();
+}
+
 function markActivePane() {
   const activePaneId = getActivePaneId();
   const primaryPane = document.getElementById('primary-chart-panel');
   const comparisonPane = document.getElementById('comparison-window-root');
+  const divider = ensurePaneDivider();
   primaryPane?.classList.toggle(
     'chart-pane-active',
     activePaneId === CHART_PANE_IDS.PRIMARY
@@ -76,6 +164,7 @@ function markActivePane() {
   const comparisonBadge = ensurePaneBadge(comparisonPane, CHART_PANE_IDS.COMPARISON);
   ensurePaneSyncButton(primaryPane, CHART_PANE_IDS.PRIMARY, primaryBadge);
   ensurePaneSyncButton(comparisonPane, CHART_PANE_IDS.COMPARISON, comparisonBadge);
+  divider?.toggleAttribute('hidden', !comparisonPane || comparisonPane.hidden);
 }
 
 function bindPaneFocus(selector, paneId) {
@@ -93,6 +182,7 @@ export function initChartPaneDom() {
     bindPaneFocus('#comparison-window-root', CHART_PANE_IDS.COMPARISON);
     markActivePane();
   });
+  bus.on('comparison-window:changed', () => requestAnimationFrame(markActivePane));
   bus.on('chart-panes:changed', markActivePane);
   markActivePane();
 }
