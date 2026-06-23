@@ -90,6 +90,25 @@ function resetPrimaryPaneWidth() {
   setPrimaryPaneWidthPercent(DEFAULT_PRIMARY_WIDTH_PERCENT);
 }
 
+function ensurePaneDividerPreview(stack) {
+  if (!stack) return null;
+  let preview = stack.querySelector('[data-chart-pane-divider-preview]');
+  if (!preview) {
+    preview = document.createElement('div');
+    preview.className = 'chart-pane-divider-preview';
+    preview.dataset.chartPaneDividerPreview = 'true';
+    preview.hidden = true;
+    stack.appendChild(preview);
+  }
+  return preview;
+}
+
+function setDividerPreviewPosition(preview, stackBounds, percent) {
+  if (!preview || !stackBounds?.width) return;
+  const clamped = clampPaneWidthPercent(percent);
+  preview.style.left = `${Math.round((stackBounds.width * clamped) / 100)}px`;
+}
+
 function ensurePaneDivider() {
   const stack = document.getElementById('chart-stack');
   const comparisonPane = document.getElementById('comparison-window-root');
@@ -123,11 +142,22 @@ function startPaneDividerDrag(event) {
   const divider = event.currentTarget;
   const bounds = stack?.getBoundingClientRect();
   if (!stack || !bounds?.width) return;
+  const preview = ensurePaneDividerPreview(stack);
+  let nextPercent = DEFAULT_PRIMARY_WIDTH_PERCENT;
+  let previewFrame = null;
+
+  function scheduleDividerPreview(percent) {
+    nextPercent = clampPaneWidthPercent(percent);
+    if (previewFrame !== null) return;
+    previewFrame = requestAnimationFrame(() => {
+      previewFrame = null;
+      setDividerPreviewPosition(preview, bounds, nextPercent);
+    });
+  }
 
   function moveDivider(moveEvent) {
     if (moveEvent.pointerId !== event.pointerId) return;
-    const nextPercent = ((moveEvent.clientX - bounds.left) / bounds.width) * 100;
-    setPrimaryPaneWidthPercent(nextPercent);
+    scheduleDividerPreview(((moveEvent.clientX - bounds.left) / bounds.width) * 100);
     moveEvent.stopPropagation();
     moveEvent.preventDefault();
   }
@@ -135,6 +165,12 @@ function startPaneDividerDrag(event) {
   function stopDividerDrag(stopEvent) {
     if (stopEvent.pointerId !== event.pointerId) return;
     divider.removeEventListener('pointermove', moveDivider);
+    if (previewFrame !== null) {
+      cancelAnimationFrame(previewFrame);
+      previewFrame = null;
+    }
+    setPrimaryPaneWidthPercent(nextPercent);
+    if (preview) preview.hidden = true;
     try {
       divider.releasePointerCapture?.(event.pointerId);
     } catch {
@@ -146,6 +182,8 @@ function startPaneDividerDrag(event) {
   }
 
   stack.classList.add('chart-pane-divider-dragging');
+  scheduleDividerPreview(((event.clientX - bounds.left) / bounds.width) * 100);
+  if (preview) preview.hidden = false;
   try {
     divider.setPointerCapture?.(event.pointerId);
   } catch {
