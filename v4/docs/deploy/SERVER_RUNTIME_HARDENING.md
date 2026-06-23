@@ -37,7 +37,7 @@ v4/deploy/systemd/v4-api.service
 v4/deploy/systemd/v4-web.service
 ```
 
-Before installing, edit the templates if the repo path or user is different.
+Before installing, edit the templates if the repo path or user is different. The API service intentionally runs from the repo root because `v4_api.py` starts maintenance scripts through `v4/scripts/...`; the web service runs from `v4/` so `index.html` and `data-maintenance.html` are served as static files.
 
 Install:
 
@@ -121,3 +121,11 @@ python3 v4/scripts/verify_data_freshness.py --api-url http://127.0.0.1:8766
 
 Write actions require explicit confirmation flags and should be preceded by backup.
 
+Example confirmed writes:
+
+```bash
+python3 v4/scripts/daily_data_refresh.py --manual --write-es --write-vix --confirm-write
+python3 v4/scripts/daily_databento_refresh.py --write --confirm-write --verify-api --api-url http://127.0.0.1:8766
+python3 v4/scripts/update_vix_daily.py --write --confirm-write
+python3 v4/scripts/update_economic_calendar.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD --write --confirm-write
+```

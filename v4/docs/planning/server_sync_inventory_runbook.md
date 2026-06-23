@@ -143,17 +143,24 @@ The templates are not installed automatically. Review paths/users first, then in
 
 ## Refresh and Import Ownership
 
-Run these only on the server during normal use:
+Run these only on the server during normal use. Dry-run first:
 
 ```bash
 python3 v4/scripts/daily_data_refresh.py --manual
-python3 v4/scripts/daily_databento_refresh.py --instrument ES --write
-python3 v4/scripts/update_vix_daily.py --write
-python3 v4/scripts/update_economic_calendar.py --write
+python3 v4/scripts/daily_databento_refresh.py
 python3 v4/scripts/generate_daily_regime_csv.py --instrument ES
 python3 v4/scripts/generate_daily_regime_csv.py --instrument NQ
 python3 v4/scripts/verify_data_freshness.py
 python3 v4/scripts/verify_v4_bars_api.py --api-url http://127.0.0.1:8766
+```
+
+Confirmed writes require backup first and explicit `--confirm-write`:
+
+```bash
+python3 v4/scripts/daily_data_refresh.py --manual --write-es --write-vix --confirm-write
+python3 v4/scripts/daily_databento_refresh.py --write --confirm-write --verify-api --api-url http://127.0.0.1:8766
+python3 v4/scripts/update_vix_daily.py --write --confirm-write
+python3 v4/scripts/update_economic_calendar.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD --write --confirm-write
 ```
 
 Avoid running refresh jobs from client machines unless explicitly debugging.

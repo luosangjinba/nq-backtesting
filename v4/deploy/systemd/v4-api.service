@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/leo/myworkspace/trading/backtesting/v4
+WorkingDirectory=/home/leo/myworkspace/trading/backtesting
 EnvironmentFile=-/home/leo/myworkspace/trading/backtesting/v4/.env.local
 ExecStart=/usr/bin/python3 /home/leo/myworkspace/trading/backtesting/v4/v4_api.py
 Restart=on-failure
