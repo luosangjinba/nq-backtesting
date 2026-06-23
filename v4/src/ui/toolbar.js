@@ -451,7 +451,7 @@ function positionLayoutPopover() {
   const popover = document.getElementById('chartLayoutPopover');
   if (!button || !popover) return;
   const rect = button.getBoundingClientRect();
-  const width = Math.min(174, window.innerWidth - 16);
+  const width = Math.min(108, window.innerWidth - 16);
   popover.style.width = `${width}px`;
   popover.style.left = `${Math.max(8, Math.min(window.innerWidth - width - 8, rect.left))}px`;
   popover.style.top = `${rect.bottom + 8}px`;

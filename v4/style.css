@@ -3157,21 +3157,24 @@ html, body {
 }
 
 .toolbar-layout-popover {
-  width: 174px;
+  width: 108px;
   padding: 8px;
 }
 
 .toolbar-layout-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, 42px);
   gap: 6px;
+  justify-content: center;
 }
 
 .toolbar-layout-option {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 34px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
   color: #b2b5be;
   border: 1px solid #363a45;
   border-radius: 4px;
@@ -3188,11 +3191,18 @@ html, body {
 
 .toolbar-layout-icon {
   display: grid;
+  flex: 0 0 auto;
   width: 24px;
   height: 18px;
   overflow: hidden;
   border: 1px solid currentColor;
   border-radius: 3px;
+}
+
+.toolbar-layout-btn .toolbar-layout-icon,
+.toolbar-layout-option .toolbar-layout-icon {
+  width: 24px;
+  height: 18px;
 }
 
 .toolbar-layout-icon-single-right {
