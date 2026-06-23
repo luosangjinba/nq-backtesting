@@ -18,6 +18,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VIX_UPDATER = REPO_ROOT / "v4" / "scripts" / "update_vix_daily.py"
 FRESHNESS_VERIFIER = REPO_ROOT / "v4" / "scripts" / "verify_data_freshness.py"
 REFRESH_RUNNER = REPO_ROOT / "v4" / "scripts" / "daily_data_refresh.py"
+SERVER_STATUS = REPO_ROOT / "v4" / "scripts" / "server_status.py"
+BACKUP_V4_DATA = REPO_ROOT / "v4" / "scripts" / "backup_v4_data.py"
 
 
 def run_cli(args: list[str], *, cwd: Path = REPO_ROOT) -> subprocess.CompletedProcess[str]:
@@ -67,6 +69,21 @@ create table futures_1m (
 
 
 class DataFreshnessScriptTests(unittest.TestCase):
+    def create_fixture_data_dir(self, temp: Path, db_path: Path) -> Path:
+        data_dir = temp / "data"
+        data_dir.mkdir()
+        shutil_target = data_dir / "trading_data.duckdb"
+        shutil_target.write_bytes(db_path.read_bytes())
+        write_text(
+            data_dir / "economic_calendar" / "economic_calendar_usd_events.csv",
+            "event_date,currency,title,impact,event_type,all_day,default_visible\n2026-06-19,USD,Bank Holiday,Low,holiday,true,true\n",
+        )
+        write_text(data_dir / "vix-daily.csv", "DATE,OPEN,HIGH,LOW,CLOSE\n2026-06-12,1,2,0.5,1.5\n")
+        write_text(data_dir / "vix-monthly.csv", "DATE,OPEN,HIGH,LOW,CLOSE\n2026-06-01,1,2,0.5,1.5\n")
+        write_text(data_dir / "daily-regime-nq.csv", "date,trend_close\n2026-06-12,1\n")
+        write_text(data_dir / "daily-regime-es.csv", "date,trend_close\n2026-06-12,1\n")
+        return data_dir
+
     def test_vix_updater_dry_run_does_not_write_and_reports_merge(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
@@ -256,6 +273,55 @@ class DataFreshnessScriptTests(unittest.TestCase):
             self.assertIn("mode: manual", result.stdout)
             self.assertIn("== ES Databento refresh ==\nstage_status: skipped", result.stdout)
             self.assertIn("data_refresh_status: ok", result.stdout)
+
+    def test_server_status_offline_fixture_reports_ok(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            db_path = temp / "trading_data.duckdb"
+            create_test_db(db_path)
+            data_dir = self.create_fixture_data_dir(temp, db_path)
+
+            result = run_cli([
+                SERVER_STATUS,
+                "--skip-http",
+                "--db",
+                db_path,
+                "--data-dir",
+                data_dir,
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("server_status: ok", result.stdout)
+            self.assertIn("db_es_status: ok", result.stdout)
+            self.assertIn("db_nq_status: ok", result.stdout)
+            self.assertIn("file_status: vix-daily.csv ok", result.stdout)
+
+    def test_backup_v4_data_creates_backup_and_restore_smoke(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            db_path = temp / "trading_data.duckdb"
+            backup_dir = temp / "backups"
+            create_test_db(db_path)
+            data_dir = self.create_fixture_data_dir(temp, db_path)
+
+            result = run_cli([
+                BACKUP_V4_DATA,
+                "--db",
+                db_path,
+                "--data-dir",
+                data_dir,
+                "--backup-dir",
+                backup_dir,
+                "--label",
+                "test",
+                "--restore-smoke",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("backup_status: ok", result.stdout)
+            self.assertIn("restore_smoke_status: ok", result.stdout)
+            self.assertTrue(list(backup_dir.glob("trading_data.*-test.duckdb")))
+            self.assertTrue(list(backup_dir.glob("v4-data.*-test.tar.gz")))
 
     def test_refresh_runner_auto_state_and_lock(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

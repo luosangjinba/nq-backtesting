@@ -1,0 +1,17 @@
+[Unit]
+Description=V4 K-Line API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/leo/myworkspace/trading/backtesting/v4
+EnvironmentFile=-/home/leo/myworkspace/trading/backtesting/v4/.env.local
+ExecStart=/usr/bin/python3 /home/leo/myworkspace/trading/backtesting/v4/v4_api.py
+Restart=on-failure
+RestartSec=3
+User=leo
+Group=leo
+
+[Install]
+WantedBy=multi-user.target

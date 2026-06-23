@@ -129,6 +129,18 @@ Data Maintenance URL:
 http://SERVER_HOST:8001/data-maintenance.html
 ```
 
+For long-running daily use, prefer the Step 335 systemd templates and scripts:
+
+```text
+v4/docs/deploy/SERVER_RUNTIME_HARDENING.md
+v4/deploy/systemd/v4-api.service
+v4/deploy/systemd/v4-web.service
+v4/scripts/server_status.py
+v4/scripts/backup_v4_data.py
+```
+
+The templates are not installed automatically. Review paths/users first, then install them manually on the server.
+
 ## Refresh and Import Ownership
 
 Run these only on the server during normal use:
@@ -173,6 +185,26 @@ Restore test:
 mkdir -p /tmp/v4-restore-test
 tar -xzf /var/backups/trading/v4/v4-data.YYYYMMDD_HHMMSS.tar.gz -C /tmp/v4-restore-test
 ls -lh /tmp/v4-restore-test/v4
+```
+
+Step 335 backup helper:
+
+```bash
+python3 v4/scripts/backup_v4_data.py \
+  --db v4/data/trading_data.duckdb \
+  --data-dir v4/data \
+  --backup-dir /var/backups/trading/v4 \
+  --restore-smoke
+```
+
+Step 335 status helper:
+
+```bash
+python3 v4/scripts/server_status.py \
+  --web-url http://SERVER_HOST:8001/index.html \
+  --api-url http://SERVER_HOST:8766 \
+  --db v4/data/trading_data.duckdb \
+  --data-dir v4/data
 ```
 
 ## Client Usage Rules

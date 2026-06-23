@@ -1220,3 +1220,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 334.4: Responsive layout baseline。`index.html`/`style.css` 支持 1366 笔记本压缩 toolbar、1120 以下 toolbar wrap/Inspector overlay、760 以下进一步压缩；`data-maintenance.html` 在 1180 以下切单列，760 以下表单单列。
   - [x] Step 334.5: Remote browser smoke coverage。新增 `v4/tests/remote-maintenance-responsive-smoke.js`，覆盖 page-host API URL、Data Maintenance 500/plain-text 错误输出、K-line contract notice、server env options、1024/1366 布局无横向溢出；本地和 `V4_HOST_URL=http://192.168.1.111:8001` 均通过。
   - [x] Step 334.6: Docs and closeout。已更新 Step 334 session、server sync runbook 和 TODO；后续 Step 335 建议聚焦长期服务器化：systemd/backup path/refresh automation，或真正的 server-side file upload import。
+
+- [x] Step 335: Server runtime hardening。目标是把当前“手动可用”的 V4 server baseline 加固成可长期日常使用的服务：可安装的 systemd 模板、固定备份/restore smoke、状态检查脚本、刷新任务边界和操作文档。已新增 systemd 模板、server status 脚本、backup/restore-smoke 脚本、部署 runbook，并验证离线 fixture 和当前 LAN server status。计划与执行记录见 `v4/sessions/session_20260623_step335_server_runtime_hardening.md`。
+  - [x] Step 335.1: Runtime hardening plan and constraints。明确本轮不直接写 `/etc/systemd`，先提交 repo 内模板/脚本/runbook；真实安装由用户在服务器上执行。
+  - [x] Step 335.2: Service templates。新增 V4 API 与 Web 的 systemd unit 模板，覆盖工作目录、环境文件、重启策略、日志查看和安装命令。
+  - [x] Step 335.3: Server status script。新增只读状态检查脚本，检查 web/API health、`V4_TRADING_DB`、ES/NQ 最新 bars、calendar/VIX/daily-regime 文件，并输出可复制诊断；当前 LAN server status 通过。
+  - [x] Step 335.4: Backup and restore-smoke script。新增备份脚本，固定备份 DB 和 data tarball，并支持临时 restore smoke 检查关键文件；离线 fixture restore-smoke 通过，完整生产备份命令保留为手动执行项。
+  - [x] Step 335.5: Refresh operations boundary。更新 runbook，明确日常 refresh/import 只在 server 执行，先不默认启用 cron；列出手动刷新和验证命令。
+  - [x] Step 335.6: Verification and closeout。`test_data_freshness_scripts` 8 项通过，当前 LAN server status 通过；完整 `/tmp` 大数据备份 smoke 因耗时中断，未作为阻塞项。
