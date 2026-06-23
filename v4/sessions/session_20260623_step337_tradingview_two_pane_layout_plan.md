@@ -270,3 +270,48 @@ Browser smoke should cover:
 ## Initial Status
 
 Planned only. No runtime code changed.
+
+## Execution Log
+
+### Step 337.1 / 337.2 - Architecture audit and pane model
+
+Initial audit findings:
+
+- `index.html` has one static primary chart panel. The Comparison Window is injected at runtime by `initComparisonWindowController()`.
+- Primary chart state is owned by `chart-manager.js`, `bar-store.js`, and `primary-instrument-store.js`.
+- Comparison chart state is split across `comparison-window-store.js`, `comparison-chart-manager.js`, and the comparison controller/view/layout/data modules.
+- Toolbar currently hard-codes `Main` / `Main TF` and writes only the primary instrument/timeframe.
+- Comparison already has independent instrument/timeframe controls, native right price axis, viewport controls, right-click menu parity, and overlay/crosshair sync plumbing.
+- Full pane equality should therefore start as a wrapper model around existing Main/Comparison, not as a one-shot rewrite of every renderer.
+
+Implemented:
+
+- Added `v4/src/chart-panes/chart-pane-store.js`.
+- Added pane IDs `pane-1` and `pane-2`.
+- Added layouts `single` and `two-column`.
+- Added pane-local state fields: `instrument`, `timeframe`, `active`, `syncEnabled`, `visibleRange`, and `layoutSlot`.
+- Added active pane setters/getters.
+- Added pane descriptor update.
+- Added pane-level Sync/No Sync toggles.
+- Added `getSyncPeerPanes(sourcePaneId)` to encode the group broadcast rule.
+
+Model decisions:
+
+- Current Main maps to `pane-1`.
+- Current Comparison maps to `pane-2`.
+- The first model layer is intentionally independent from runtime UI so later steps can migrate one surface at a time.
+- It is valid for all panes to be No Sync.
+- A lone Sync On pane has no peers and therefore produces no visible synchronization.
+
+Verification:
+
+```bash
+node v4/tests/chart-pane-store-smoke.js
+git diff --check
+```
+
+Result:
+
+- `chart pane store smoke passed`.
+- `git diff --check` passed.
+- Node emitted the existing typeless-package warning for ES module tests.

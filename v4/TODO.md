@@ -1238,8 +1238,8 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 336.6: Docs and closeout。已更新 TODO/session/runbook，记录 Refresh Range 作为短期标准 K 线维护路径；浏览器上传 K 线 CSV 写库保留为后续外部/未支持品种 backlog。
 
 - [ ] Step 337: TradingView-style two-pane layout planning。目标是把当前 Main + Comparison 特殊窗口演进为等价 chart pane 架构的第一版计划：初期只支持 single / 左右双 pane；顶部只保留一套 Symbol/TF 控件并跟随 active pane；每个 pane 独立拥有 Sync/No Sync 开关，允许所有 pane 都 No Sync；active pane 用边缘高亮标识。计划见 `v4/sessions/session_20260623_step337_tradingview_two_pane_layout_plan.md`。
-  - [ ] Step 337.1: Current architecture audit。审计 Main chart 与 Comparison Window 的 DOM、store、controller、renderer、viewport controls、right-click menu、Replay History、overlay/crosshair sync 依赖，列出可复用与必须迁移的边界。
-  - [ ] Step 337.2: Pane model contract。设计 `chartPanes[]` 数据模型，包含 `id`、`instrument`、`timeframe`、`active`、`syncEnabled`、`visibleRange`、pane-local UI state；明确 legacy Main/Comparison 的迁移策略。
+  - [x] Step 337.1: Current architecture audit。审计 Main chart 与 Comparison Window 的 DOM、store、controller、renderer、viewport controls、right-click menu、Replay History、overlay/crosshair sync 依赖，列出可复用与必须迁移的边界；当前实现先把 Main/Comparison 包装为 Pane 1/Pane 2，避免一次重写所有 renderer。
+  - [x] Step 337.2: Pane model contract。已新增 `v4/src/chart-panes/chart-pane-store.js`，定义 `chartPanes[]`、`single/two-column`、active pane、pane-local `syncEnabled`、visible range 和 sync peer 规则；测试覆盖允许所有 pane No Sync。
   - [ ] Step 337.3: Layout shell scope。第一版只实现 `single` 与 `two-column`，不做 3/4/8 pane；保留未来 layout preset 扩展点，但不提前实现复杂网格。
   - [ ] Step 337.4: Active pane toolbar behavior。顶部 Symbol/TF 控件读取 active pane，并只修改 active pane；pane focus 可由 click/contextmenu/keyboard focus 触发；active pane 使用蓝色边缘高亮。
   - [ ] Step 337.5: Pane-level Sync/No Sync semantics。每个 pane header 放一个 Sync/No Sync 按钮；`syncEnabled=true` 的 pane 参与同步组广播，`syncEnabled=false` 的 pane 不发送也不接收同步；允许 0 个、1 个或多个 pane 处于 Sync。
