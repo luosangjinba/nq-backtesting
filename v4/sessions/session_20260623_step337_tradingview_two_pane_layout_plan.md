@@ -421,12 +421,12 @@ User validation showed the right pane still exposed the old Comparison Window ch
 
 Follow-up changes:
 
-- Renamed visible right-pane title to `Pane 2`.
-- Added subtitle pointing users to the top Symbol/TF controls when the pane is active.
+- Hid the full legacy Comparison Window header in pane mode.
 - Hid legacy per-window Inst/TF controls in pane mode while keeping the hidden controls in DOM for existing controller/state compatibility.
 - Hid legacy Reset/Close actions in pane mode.
-- Kept Drawings Sync/No Sync visible because it controls overlay/drawing behavior, which is separate from pane-level viewport/crosshair Sync.
+- Marked Drawings Sync/No Sync as legacy chrome in pane mode; the hidden control still keeps existing overlay/drawing state compatibility.
 - Kept pane-level Sync/No Sync button as the main pane sync switch.
+- Removed the old smoke assertions that expected `Pane 2` title/subtitle or visible `Drawings`; the regression now asserts the legacy header and controls are hidden.
 
 Verification:
 

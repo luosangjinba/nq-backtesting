@@ -223,6 +223,7 @@ async function main() {
       const overlaySync = document.querySelector('[data-comparison-overlay-sync]');
       const close = document.querySelector('[data-comparison-close]');
       const reset = document.querySelector('[data-comparison-reset]');
+      const header = document.querySelector('.comparison-window-header');
       const status = document.querySelector('[data-comparison-status]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
@@ -233,10 +234,9 @@ async function main() {
         instrumentValue: instrument.value,
         timeframeValue: timeframe.value,
         overlaySyncValue: overlaySync.value,
-        overlaySyncLabel: overlaySync.closest('label')?.querySelector('span')?.textContent,
         overlaySyncOptions: [...overlaySync.options].map((option) => ({ value: option.value, text: option.textContent })),
-        title: document.querySelector('.comparison-window-title')?.textContent,
-        subtitle: document.querySelector('.comparison-window-subtitle')?.textContent,
+        headerDisplay: getComputedStyle(header).display,
+        overlaySyncDisplay: getComputedStyle(overlaySync.closest('label')).display,
         instrumentDisplay: getComputedStyle(instrument.closest('label')).display,
         timeframeDisplay: getComputedStyle(timeframe.closest('label')).display,
         closeDisplay: getComputedStyle(close).display,
@@ -252,16 +252,15 @@ async function main() {
     assert.equal(shown.hidden, false, 'Comparison window should be visible after toggle');
     assert.ok(shown.width >= 180, 'Sliding comparison window should have stable width');
     assert.ok(shown.height >= 210, 'Comparison window should have stable height');
-    assert.equal(shown.title, 'Pane 2', 'Comparison pane should no longer use old Comparison Window title');
-    assert.match(shown.subtitle, /top Symbol\/TF controls/, 'Comparison pane should point users to active-pane toolbar controls');
     assert.equal(shown.instrumentValue, 'ES', 'Hidden legacy comparison instrument control should retain descriptor value');
     assert.equal(shown.timeframeValue, '60', 'Hidden legacy comparison timeframe control should retain descriptor value');
+    assert.equal(shown.headerDisplay, 'none', 'Pane mode should hide legacy comparison header');
     assert.equal(shown.instrumentDisplay, 'none', 'Pane mode should hide legacy per-window instrument control');
     assert.equal(shown.timeframeDisplay, 'none', 'Pane mode should hide legacy per-window timeframe control');
     assert.equal(shown.closeDisplay, 'none', 'Pane mode should hide legacy Close action');
     assert.equal(shown.resetDisplay, 'none', 'Pane mode should hide legacy Reset action');
     assert.equal(shown.overlaySyncValue, 'sync', 'Comparison drawings should default to Sync');
-    assert.equal(shown.overlaySyncLabel, 'Drawings', 'Comparison drawing sync control should use user-facing Drawings label');
+    assert.equal(shown.overlaySyncDisplay, 'none', 'Pane mode should hide legacy Drawings control');
     assert.deepEqual(shown.overlaySyncOptions, [
       { value: 'sync', text: 'Sync' },
       { value: 'no-sync', text: 'No Sync' },
@@ -439,19 +438,25 @@ async function main() {
         const reset = document.querySelector('[data-comparison-reset]');
         const instrument = document.querySelector('[data-comparison-instrument]');
         const timeframe = document.querySelector('[data-comparison-timeframe]');
+        const overlaySync = document.querySelector('[data-comparison-overlay-sync]');
+        const header = document.querySelector('.comparison-window-header');
         return {
+          headerDisplay: getComputedStyle(header).display,
           closeDisplay: getComputedStyle(close).display,
           resetDisplay: getComputedStyle(reset).display,
           instrumentDisplay: getComputedStyle(instrument.closest('label')).display,
           timeframeDisplay: getComputedStyle(timeframe.closest('label')).display,
+          overlaySyncDisplay: getComputedStyle(overlaySync.closest('label')).display,
         };
       })();
     `);
     assert.deepEqual(legacyPaneActions, {
+      headerDisplay: 'none',
       closeDisplay: 'none',
       resetDisplay: 'none',
       instrumentDisplay: 'none',
       timeframeDisplay: 'none',
+      overlaySyncDisplay: 'none',
     }, 'Pane mode should hide legacy window-specific controls');
 
     const handleContextMenu = await evaluate(client, `

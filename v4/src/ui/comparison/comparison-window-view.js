@@ -46,7 +46,7 @@ export function renderComparisonWindowTemplate() {
             <span>TF</span>
             <select class="comparison-window-select" data-comparison-timeframe></select>
           </label>
-          <label class="comparison-window-field">
+          <label class="comparison-window-field comparison-window-legacy-field">
             <span>Drawings</span>
             <select class="comparison-window-select" data-comparison-overlay-sync></select>
           </label>

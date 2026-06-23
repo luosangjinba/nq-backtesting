@@ -203,6 +203,10 @@ html, body {
   box-shadow: none;
 }
 
+.comparison-window-pane .comparison-window-header {
+  display: none;
+}
+
 .comparison-window-sliding {
   min-width: 180px;
   max-width: calc(100% - 260px);
@@ -300,10 +304,6 @@ html, body {
 .comparison-window-pane .comparison-window-legacy-field,
 .comparison-window-pane .comparison-window-legacy-action {
   display: none;
-}
-
-.comparison-window-pane .comparison-window-header {
-  cursor: default;
 }
 
 .comparison-window-rail {
