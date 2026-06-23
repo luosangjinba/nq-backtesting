@@ -63,11 +63,11 @@ export function renderComparisonWindowTemplate() {
           <div id="comparison-chart-info" class="comparison-chart-info"></div>
           <div id="comparison-ohlc-legend" class="comparison-ohlc-legend"></div>
           <div id="comparison-viewport-controls"></div>
-          <div class="comparison-overlay-status" data-comparison-overlay-status>Overlays waiting for comparison data</div>
+          <div class="comparison-overlay-status" data-comparison-overlay-status>Pane 2 overlays waiting for data</div>
           <div id="comparison-context-menu" class="pda-menu comparison-context-menu" hidden></div>
           <div class="comparison-window-placeholder" data-comparison-placeholder>
-            <div class="comparison-window-placeholder-title">Comparison chart view</div>
-            <div class="comparison-window-placeholder-meta" data-comparison-status>Choose a main date range to load comparison data</div>
+            <div class="comparison-window-placeholder-title">Pane 2 chart view</div>
+            <div class="comparison-window-placeholder-meta" data-comparison-status>Choose a date range to load Pane 2 data</div>
           </div>
         </div>
       </div>

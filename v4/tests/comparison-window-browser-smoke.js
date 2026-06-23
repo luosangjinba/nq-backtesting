@@ -226,6 +226,8 @@ async function main() {
       const header = document.querySelector('.comparison-window-header');
       const rail = document.querySelector('.comparison-window-rail');
       const status = document.querySelector('[data-comparison-status]');
+      const placeholderTitle = document.querySelector('.comparison-window-placeholder-title');
+      const overlayStatus = document.querySelector('[data-comparison-overlay-status]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
       return {
@@ -244,6 +246,8 @@ async function main() {
         closeDisplay: getComputedStyle(close).display,
         resetDisplay: getComputedStyle(reset).display,
         statusText: status.textContent,
+        placeholderTitle: placeholderTitle.textContent,
+        overlayStatusText: overlayStatus.textContent,
         stackWidth: stack.width,
         stackHeight: stack.height,
         primaryWidth: primary.width,
@@ -268,7 +272,9 @@ async function main() {
       { value: 'sync', text: 'Sync' },
       { value: 'no-sync', text: 'No Sync' },
     ]);
-    assert.match(shown.statusText, /Choose a main date range/, 'Comparison window should wait for main range before loading');
+    assert.equal(shown.placeholderTitle, 'Pane 2 chart view', 'Pane 2 empty state title should not use old Comparison wording');
+    assert.equal(shown.statusText, 'Choose a date range to load Pane 2 data', 'Pane 2 empty state should not mention main/comparison semantics');
+    assert.equal(shown.overlayStatusText, 'Pane 2 overlays waiting for data', 'Pane 2 overlay empty state should not use old comparison wording');
     const twoPaneLayout = await evaluate(client, `
       (() => {
         const legend = document.querySelector('#ohlc-legend');

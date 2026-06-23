@@ -170,7 +170,7 @@ export function getComparisonOverlaySummary(state = getComparisonWindowState()) 
 
 export function formatComparisonOverlaySummary(summary = getComparisonOverlaySummary()) {
   if (!summary.enabled) return 'Overlays idle';
-  if (!summary.timeOverlayReady) return 'Overlays waiting for comparison data';
+  if (!summary.timeOverlayReady) return 'Pane 2 overlays waiting for data';
   const guarded = summary.priceTotal > 0
     ? ` · price overlays guarded ${summary.priceEligible}/${summary.priceTotal}`
     : ' · no price overlays';

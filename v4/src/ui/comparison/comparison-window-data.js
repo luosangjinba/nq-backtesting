@@ -113,7 +113,7 @@ export function createComparisonWindowDataController({
     replaySourceBars = [];
     replaySourceRequestedRange = null;
     clearComparisonData();
-    setComparisonStatus('Choose a main date range to load comparison data');
+    setComparisonStatus('Choose a date range to load Pane 2 data');
     updateComparisonOverlayStatus();
   }
 
@@ -149,11 +149,11 @@ export function createComparisonWindowDataController({
       if (displayBars.length > 0) {
         hideComparisonPlaceholder();
       } else {
-        setComparisonStatus(`No ${instrument} data in main range`);
+        setComparisonStatus(`No ${instrument} data in selected range`);
       }
       updateComparisonOverlayStatus();
       bus.emit('status:update', {
-        text: `Comparison ${instrument} 已加载 ${displayBars.length} 根K线`,
+        text: `Pane 2 ${instrument} 已加载 ${displayBars.length} 根K线`,
         isError: false,
       });
     } catch (error) {
@@ -163,10 +163,10 @@ export function createComparisonWindowDataController({
       replaySourceBars = [];
       replaySourceRequestedRange = null;
       clearComparisonData();
-      setComparisonStatus(`Comparison load failed: ${error.message}`, true);
+      setComparisonStatus(`Pane 2 load failed: ${error.message}`, true);
       updateComparisonOverlayStatus();
       bus.emit('status:update', {
-        text: `Comparison 加载失败: ${error.message}`,
+        text: `Pane 2 加载失败: ${error.message}`,
         isError: true,
       });
     }
