@@ -18,7 +18,9 @@ import {
   CHART_PANE_IDS,
   CHART_PANE_LAYOUTS,
   getActivePane,
+  getChartPaneState,
   getPaneLabel,
+  setActivePane,
   setChartPaneLayout,
   updatePaneDescriptor,
 } from '../chart-panes/chart-pane-store.js';
@@ -130,12 +132,25 @@ function renderInstrumentOptions(selectedInstrument) {
 }
 
 function renderComparisonControls() {
-  const comparisonEnabled = isComparisonWindowEnabled();
+  const layout = getChartPaneState().layout;
+  const isTwoColumn = isComparisonWindowEnabled() && layout === CHART_PANE_LAYOUTS.TWO_COLUMN;
+  const isSingleComparison = isComparisonWindowEnabled() && layout === CHART_PANE_LAYOUTS.SINGLE_COMPARISON;
   return `
-    <label class="toolbar-toggle" title="Show Pane 2">
-      <input id="comparisonWindowToggle" type="checkbox"${comparisonEnabled ? ' checked' : ''} />
-      <span>Compare</span>
-    </label>
+    <div class="toolbar-layout-picker">
+      <button id="chartLayoutBtn" class="toolbar-btn toolbar-secondary-btn toolbar-layout-btn" type="button" title="Chart layout" aria-label="Chart layout" aria-expanded="false">
+        <span class="toolbar-layout-icon ${isTwoColumn ? 'toolbar-layout-icon-two-column' : 'toolbar-layout-icon-single-right'}"></span>
+      </button>
+      <div id="chartLayoutPopover" class="toolbar-calendar-popover toolbar-layout-popover" hidden>
+        <div class="toolbar-layout-grid">
+          <button class="toolbar-layout-option ${isSingleComparison ? 'active' : ''}" type="button" data-layout-action="single-comparison" title="${escapeHtml(getPaneLabel(CHART_PANE_IDS.COMPARISON))}">
+            <span class="toolbar-layout-icon toolbar-layout-icon-single-right"></span>
+          </button>
+          <button class="toolbar-layout-option ${isTwoColumn ? 'active' : ''}" type="button" data-layout-action="two-column" title="${escapeHtml(getPaneLabel(CHART_PANE_IDS.PRIMARY))} + ${escapeHtml(getPaneLabel(CHART_PANE_IDS.COMPARISON))}">
+            <span class="toolbar-layout-icon toolbar-layout-icon-two-column"></span>
+          </button>
+        </div>
+      </div>
+    </div>
   `;
 }
 
@@ -236,7 +251,8 @@ export function initToolbar() {
   const redoBtn = document.getElementById('redoBtn');
   const toolbarSettingsBtn = document.getElementById('toolbarSettingsBtn');
   const toolbarSettingsPopover = document.getElementById('toolbarSettingsPopover');
-  const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
+  const chartLayoutBtn = document.getElementById('chartLayoutBtn');
+  const chartLayoutPopover = document.getElementById('chartLayoutPopover');
   const dayBoundaryToggle = document.getElementById('dayBoundaryToggle');
   const chartGridToggle = document.getElementById('chartGridToggle');
   const displayModeSelect = document.getElementById('displayModeSelect');
@@ -292,10 +308,13 @@ export function initToolbar() {
     e.target.value = getDisplayMode().recentCount;
   });
 
-  comparisonWindowToggle.addEventListener('change', (e) => {
-    setComparisonWindowEnabled(e.target.checked);
-    setChartPaneLayout(e.target.checked ? CHART_PANE_LAYOUTS.TWO_COLUMN : CHART_PANE_LAYOUTS.SINGLE);
-    syncComparisonWindowToggle();
+  chartLayoutBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleLayoutPopover();
+  });
+  chartLayoutPopover.addEventListener('click', (e) => {
+    e.stopPropagation();
+    handleLayoutClick(e);
   });
 
   // 监听状态更新
@@ -308,7 +327,7 @@ export function initToolbar() {
   });
   bus.on('history:changed', updateHistoryButtons);
   bus.on('comparison-window:changed', (state) => {
-    syncComparisonWindowToggle();
+    syncLayoutControls();
     syncPaneStateFromComparison(state);
   });
   bus.on('primary-instrument:changed', ({ instrument }) => {
@@ -316,24 +335,65 @@ export function initToolbar() {
     const select = document.getElementById('primaryInstrumentSelect');
     if (select && getActivePane().id === CHART_PANE_IDS.PRIMARY) select.value = instrument;
   });
-  bus.on('chart-panes:changed', syncActivePaneToolbarControls);
+  bus.on('chart-panes:changed', () => {
+    syncActivePaneToolbarControls();
+    syncLayoutControls();
+  });
   bus.on('display-preferences:changed', renderSettingsPopover);
-  document.addEventListener('click', closeSettingsPopover);
+  document.addEventListener('click', () => {
+    closeSettingsPopover();
+    closeLayoutPopover();
+  });
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeSettingsPopover();
+    if (e.key === 'Escape') {
+      closeSettingsPopover();
+      closeLayoutPopover();
+    }
   });
   updateHistoryButtons();
 }
 
-function syncComparisonWindowToggle() {
-  const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
-  if (comparisonWindowToggle) {
-    comparisonWindowToggle.checked = isComparisonWindowEnabled();
+function applyChartLayout(layout) {
+  if (layout === CHART_PANE_LAYOUTS.TWO_COLUMN) {
+    setComparisonWindowEnabled(true);
+    setChartPaneLayout(CHART_PANE_LAYOUTS.TWO_COLUMN);
+    return;
   }
+  setComparisonWindowEnabled(true);
+  setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+  setActivePane(CHART_PANE_IDS.COMPARISON);
+}
+
+function handleLayoutClick(event) {
+  const action = event.target.closest('[data-layout-action]')?.dataset.layoutAction;
+  if (!action) return;
+  applyChartLayout(action === 'two-column' ? CHART_PANE_LAYOUTS.TWO_COLUMN : CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+  closeLayoutPopover();
+}
+
+function syncLayoutControls() {
+  const layout = getChartPaneState().layout;
+  const chartLayoutBtn = document.getElementById('chartLayoutBtn');
+  const chartLayoutPopover = document.getElementById('chartLayoutPopover');
+  const isTwoColumn = isComparisonWindowEnabled() && layout === CHART_PANE_LAYOUTS.TWO_COLUMN;
+  chartLayoutBtn
+    ?.querySelector('.toolbar-layout-icon')
+    ?.classList.toggle('toolbar-layout-icon-two-column', isTwoColumn);
+  chartLayoutBtn
+    ?.querySelector('.toolbar-layout-icon')
+    ?.classList.toggle('toolbar-layout-icon-single-right', !isTwoColumn);
+  chartLayoutPopover?.querySelectorAll('[data-layout-action]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.layoutAction === layout);
+  });
 }
 
 function syncPaneStateFromComparison(state = getComparisonWindowState()) {
-  setChartPaneLayout(state.enabled ? CHART_PANE_LAYOUTS.TWO_COLUMN : CHART_PANE_LAYOUTS.SINGLE);
+  const currentLayout = getChartPaneState().layout;
+  if (state.enabled && currentLayout === CHART_PANE_LAYOUTS.SINGLE) {
+    setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+  } else if (!state.enabled) {
+    setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE);
+  }
   const descriptor = state.descriptor || {};
   updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, {
     instrument: descriptor.instrument,
@@ -384,6 +444,48 @@ function closeSettingsPopover() {
   popover.hidden = true;
   button.classList.remove('active');
   button.setAttribute('aria-expanded', 'false');
+}
+
+function positionLayoutPopover() {
+  const button = document.getElementById('chartLayoutBtn');
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!button || !popover) return;
+  const rect = button.getBoundingClientRect();
+  const width = Math.min(174, window.innerWidth - 16);
+  popover.style.width = `${width}px`;
+  popover.style.left = `${Math.max(8, Math.min(window.innerWidth - width - 8, rect.left))}px`;
+  popover.style.top = `${rect.bottom + 8}px`;
+}
+
+function openLayoutPopover() {
+  const button = document.getElementById('chartLayoutBtn');
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!button || !popover) return;
+  syncLayoutControls();
+  popover.hidden = false;
+  button.classList.add('active');
+  button.setAttribute('aria-expanded', 'true');
+  positionLayoutPopover();
+}
+
+function closeLayoutPopover() {
+  const button = document.getElementById('chartLayoutBtn');
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!button || !popover) return;
+  popover.hidden = true;
+  button.classList.remove('active');
+  button.setAttribute('aria-expanded', 'false');
+}
+
+function toggleLayoutPopover() {
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!popover) return;
+  if (popover.hidden) {
+    closeSettingsPopover();
+    openLayoutPopover();
+  } else {
+    closeLayoutPopover();
+  }
 }
 
 function toggleSettingsPopover() {

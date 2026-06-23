@@ -1,17 +1,24 @@
+import { CHART_PANE_LAYOUTS, getChartPaneState } from '../../chart-panes/chart-pane-store.js';
+
 export function syncComparisonLayoutGeometry({ root, windowEl, state }) {
   if (!root || !windowEl) return;
   const host = document.getElementById('chart-stack');
-  root.hidden = !state.enabled;
-  host?.classList.toggle('chart-stack-two-pane', Boolean(state.enabled));
-  root.classList.toggle('comparison-pane-root', Boolean(state.enabled));
-  if (!state.enabled) {
+  const layout = getChartPaneState().layout;
+  const isTwoPane = state.enabled && layout === CHART_PANE_LAYOUTS.TWO_COLUMN;
+  const isSingleComparison = state.enabled && layout === CHART_PANE_LAYOUTS.SINGLE_COMPARISON;
+  const isVisiblePane = isTwoPane || isSingleComparison;
+  root.hidden = !isVisiblePane;
+  host?.classList.toggle('chart-stack-two-pane', isTwoPane);
+  host?.classList.toggle('chart-stack-single-comparison', isSingleComparison);
+  root.classList.toggle('comparison-pane-root', isVisiblePane);
+  if (!isVisiblePane) {
     host?.classList.remove('chart-stack-two-pane');
+    host?.classList.remove('chart-stack-single-comparison');
     root.classList.remove('comparison-pane-root');
     host?.style.setProperty('--primary-legend-left-offset', '0px');
     host?.style.setProperty('--primary-viewport-center-left', '50%');
     return;
   }
-  const { visibleWindow, layoutMode } = state.descriptor;
   const isSliding = false;
   const rootRect = root.getBoundingClientRect();
   host?.style.setProperty('--primary-legend-left-offset', '0px');
@@ -25,7 +32,7 @@ export function syncComparisonLayoutGeometry({ root, windowEl, state }) {
   windowEl.style.right = 'auto';
   windowEl.style.width = '100%';
   windowEl.style.height = '100%';
-  windowEl.dataset.layoutMode = layoutMode || 'two-column';
+  windowEl.dataset.layoutMode = isSingleComparison ? 'single-comparison' : 'two-column';
 }
 
 export function createComparisonWindowDragHandlers({

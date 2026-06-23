@@ -147,11 +147,11 @@ async function main() {
     await client.send('Network.setCacheDisabled', { cacheDisabled: true });
     await client.send('Page.navigate', { url: PAGE_URL });
     await waitForExpression(client, `document.readyState === 'complete' || document.readyState === 'interactive'`);
-    await waitForExpression(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
+    await waitForExpression(client, `Boolean(document.querySelector('#chartLayoutBtn'))`);
     await evaluate(client, `localStorage.removeItem('v4:chart-pane-labels')`);
     await client.send('Page.navigate', { url: PAGE_URL });
     await waitForExpression(client, `document.readyState === 'complete' || document.readyState === 'interactive'`);
-    await waitForExpression(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
+    await waitForExpression(client, `Boolean(document.querySelector('#chartLayoutBtn'))`);
     await evaluate(client, `
       (() => {
         window.__comparisonFetchCalls = 0;
@@ -200,7 +200,9 @@ async function main() {
 
     const initial = await evaluate(client, `
       ({
-        compareToggle: Boolean(document.querySelector('#comparisonWindowToggle')),
+        layoutButton: Boolean(document.querySelector('#chartLayoutBtn')),
+        layoutSingleRight: Boolean(document.querySelector('[data-layout-action="single-comparison"]')),
+        layoutTwoColumn: Boolean(document.querySelector('[data-layout-action="two-column"]')),
         splitToggle: Boolean(document.querySelector('#splitScreenToggle')),
         secondaryInstrument: Boolean(document.querySelector('#secondaryInstrumentSelect')),
         secondaryTimeframe: Boolean(document.querySelector('#secondaryTfSelect')),
@@ -209,7 +211,9 @@ async function main() {
       })
     `);
     assert.deepEqual(initial, {
-      compareToggle: true,
+      layoutButton: true,
+      layoutSingleRight: true,
+      layoutTwoColumn: true,
       splitToggle: false,
       secondaryInstrument: false,
       secondaryTimeframe: false,
@@ -219,7 +223,8 @@ async function main() {
 
     const shown = await evaluate(client, `
       (() => {
-      document.querySelector('#comparisonWindowToggle').click();
+      document.querySelector('#chartLayoutBtn').click();
+      document.querySelector('[data-layout-action="two-column"]').click();
       const root = document.querySelector('#comparison-window-root');
       const win = document.querySelector('#comparison-window');
       const instrument = document.querySelector('[data-comparison-instrument]');
@@ -901,25 +906,48 @@ async function main() {
           timeframe: '1H',
         });
         openAt(bars[1], bars[1].close);
-        const evidenceSubmenu = document
-          .querySelector('#comparison-context-menu .pda-menu-submenu-trigger')
-          ?.closest('.pda-menu-submenu');
-        evidenceSubmenu?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
-        evidenceSubmenu?.querySelector('.pda-menu-submenu-trigger')?.focus();
+        const submenuEntries = [...document.querySelectorAll('#comparison-context-menu .pda-menu-submenu')]
+          .map((submenu) => ({
+            submenu,
+            label: submenu.querySelector('.pda-menu-submenu-trigger')?.textContent.trim() || '',
+          }));
+        const orderSetupSubmenu = submenuEntries
+          .find((entry) => entry.label.startsWith('Order Setup ·'))
+          ?.submenu;
+        const liveRecordSubmenu = submenuEntries
+          .find((entry) => entry.label === 'Live Records')
+          ?.submenu;
+        orderSetupSubmenu?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        orderSetupSubmenu?.querySelector('.pda-menu-submenu-trigger')?.focus();
         await new Promise((resolve) => setTimeout(resolve, 50));
-        const evidencePanel = evidenceSubmenu?.querySelector('.pda-submenu-panel');
-        const evidencePanelRect = evidencePanel?.getBoundingClientRect();
-        const evidencePanelTopElement = evidencePanelRect
-          ? document.elementFromPoint(evidencePanelRect.left + 10, evidencePanelRect.top + 10)
+        const orderSetupPanel = orderSetupSubmenu?.querySelector('.pda-submenu-panel');
+        const orderSetupPanelRect = orderSetupPanel?.getBoundingClientRect();
+        const orderSetupPanelTopElement = orderSetupPanelRect
+          ? document.elementFromPoint(orderSetupPanelRect.left + 10, orderSetupPanelRect.top + 10)
           : null;
-        const evidencePanelVisible = Boolean(
-          evidenceSubmenu?.classList.contains('is-open') &&
-            evidencePanelRect?.width > 0 &&
-            evidencePanelRect?.height > 0 &&
-            evidencePanelTopElement?.closest('.pda-submenu-panel') === evidencePanel
+        const orderSetupPanelVisible = Boolean(
+          orderSetupSubmenu?.classList.contains('is-open') &&
+            orderSetupPanelRect?.width > 0 &&
+            orderSetupPanelRect?.height > 0 &&
+            orderSetupPanelTopElement?.closest('.pda-submenu-panel') === orderSetupPanel
         );
-        document.querySelector('[data-comparison-action="comparison-order-add-bar-evidence"]').click();
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        const orderSetupLabels = [...(orderSetupPanel?.querySelectorAll('.pda-menu-item') || [])]
+          .map((item) => item.textContent.trim());
+        liveRecordSubmenu?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        liveRecordSubmenu?.querySelector('.pda-menu-submenu-trigger')?.focus();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const liveRecordPanel = liveRecordSubmenu?.querySelector('.pda-submenu-panel');
+        const liveRecordPanelRect = liveRecordPanel?.getBoundingClientRect();
+        const liveRecordPanelVisible = Boolean(
+          liveRecordSubmenu?.classList.contains('is-open') &&
+            liveRecordPanelRect?.width > 0 &&
+            liveRecordPanelRect?.height > 0
+        );
+        const liveRecordLabels = [...(liveRecordPanel?.querySelectorAll('.pda-menu-item') || [])]
+          .map((item) => item.textContent.trim());
+        const oldEvidenceActionExists = Boolean(
+          document.querySelector('[data-comparison-action="comparison-order-add-bar-evidence"]')
+        );
 
         const pdaStore = await import('/src/pda/pda-store.js');
         const segmentStore = await import('/src/segment/segment-store.js');
@@ -928,8 +956,6 @@ async function main() {
         const comparisonPda = annotations.find((annotation) => annotation.sourceChartId === 'comparison-window');
         const comparisonFvg = annotations.find((annotation) => annotation.sourceChartId === 'comparison-window' && annotation.type === 'fvg');
         const comparisonSegment = segments.find((segment) => segment.sourceChartId === 'comparison-window');
-        const activeSetup = orderActive.getActiveReviewSet();
-        const comparisonEvidence = activeSetup.orderReview.setupThesis.manualEvents.find((event) => event.sourceChartId === 'comparison-window');
         const pdaHitTest = await import('/src/pda/pda-hit-test.js');
         const segmentHitTest = await import('/src/segment/segment-hit-test.js');
         const chartContexts = await import('/src/chart/chart-context.js');
@@ -980,7 +1006,11 @@ async function main() {
             overflowY: getComputedStyle(blankMenu).overflowY,
           },
           blankObDisabled,
-          evidencePanelVisible,
+          orderSetupPanelVisible,
+          orderSetupLabels,
+          liveRecordPanelVisible,
+          liveRecordLabels,
+          oldEvidenceActionExists,
           sourceIsolation: {
             comparisonPdaHit: Boolean(comparisonPda && comparisonPdaHit?.id === comparisonPda.id),
             primaryPdaHit: Boolean(comparisonPda && primaryPdaHit?.id === comparisonPda.id),
@@ -1011,14 +1041,6 @@ async function main() {
             sourceContext: comparisonSegment.sourceContext,
             direction: comparisonSegment.direction,
           } : null,
-          comparisonEvidence: comparisonEvidence ? {
-            sourceChartId: comparisonEvidence.sourceChartId,
-            sourceChartLabel: comparisonEvidence.sourceChartLabel,
-            sourceInstrument: comparisonEvidence.sourceInstrument,
-            sourceTimeframe: comparisonEvidence.sourceTimeframe,
-            sourceTimeframeLabel: comparisonEvidence.sourceTimeframeLabel,
-            sourceContext: comparisonEvidence.sourceContext,
-          } : null,
         };
       })();
     `);
@@ -1035,7 +1057,25 @@ async function main() {
       `Comparison context menu should stay inside the chart viewport: ${JSON.stringify(contextMenuResult.menuGeometry)}`
     );
     assert.equal(contextMenuResult.blankObDisabled, true, 'Comparison OB Last Bar should be disabled without a comparison bar');
-    assert.equal(contextMenuResult.evidencePanelVisible, true, 'Comparison Order Setup Evidence submenu should open');
+    assert.equal(contextMenuResult.orderSetupPanelVisible, true, 'Pane 2 Order Setup submenu should open');
+    assert.ok(
+      contextMenuResult.orderSetupLabels.includes('Create Bullish Setup Here'),
+      'Pane 2 should reuse the shared Order Setup creation menu'
+    );
+    assert.ok(
+      contextMenuResult.orderSetupLabels.includes('Set Entry Here'),
+      'Pane 2 should reuse the shared Order Setup edit menu'
+    );
+    assert.equal(contextMenuResult.liveRecordPanelVisible, true, 'Pane 2 Live Records submenu should open');
+    assert.ok(
+      contextMenuResult.liveRecordLabels.includes('Create Bullish Live Record Here'),
+      'Pane 2 should reuse the shared Live Records creation menu'
+    );
+    assert.ok(
+      contextMenuResult.liveRecordLabels.includes('Set Result / Exit Here'),
+      'Pane 2 should reuse the shared Live Records edit menu'
+    );
+    assert.equal(contextMenuResult.oldEvidenceActionExists, false, 'Pane 2 should not keep the old comparison-only evidence action');
     assert.deepEqual(contextMenuResult.sourceIsolation, {
       comparisonPdaHit: false,
       primaryPdaHit: false,
@@ -1045,14 +1085,6 @@ async function main() {
     assert.equal(contextMenuResult.comparisonPda, null, 'Mismatch comparison PDA creation should be blocked');
     assert.equal(contextMenuResult.comparisonFvg, null, 'Mismatch comparison FVG creation should be blocked');
     assert.equal(contextMenuResult.comparisonSegment, null, 'Mismatch comparison Segment creation should be blocked');
-    assert.deepEqual(contextMenuResult.comparisonEvidence, {
-      sourceChartId: 'comparison-window',
-      sourceChartLabel: 'Pane 2',
-      sourceInstrument: 'ES',
-      sourceTimeframe: 60,
-      sourceTimeframeLabel: '1H',
-      sourceContext: 'ES 1H',
-    });
 
     const syncedHitResult = await evaluate(client, `
       (async () => {
@@ -1575,16 +1607,33 @@ async function main() {
       top: 'auto',
       width: '100%',
       height: '100%',
-      layoutMode: 'sliding',
+      layoutMode: 'two-column',
     });
 
-    const closed = await evaluate(client, `
-      (() => {
-      document.querySelector('[data-comparison-close]').click();
-      return { hidden: document.querySelector('#comparison-window-root').hidden, checked: document.querySelector('#comparisonWindowToggle').checked };
+    const singleRight = await evaluate(client, `
+      (async () => {
+      document.querySelector('#chartLayoutBtn').click();
+      document.querySelector('[data-layout-action="single-comparison"]').click();
+      const stack = document.querySelector('#chart-stack');
+      const primary = document.querySelector('#primary-chart-panel');
+      const root = document.querySelector('#comparison-window-root');
+      return {
+        hidden: root.hidden,
+        stackSingleComparison: stack.classList.contains('chart-stack-single-comparison'),
+        stackTwoPane: stack.classList.contains('chart-stack-two-pane'),
+        primaryDisplay: getComputedStyle(primary).display,
+        rootWidth: root.getBoundingClientRect().width,
+        stackWidth: stack.getBoundingClientRect().width,
+        activePane: (await import('/src/chart-panes/chart-pane-store.js')).getActivePane().id,
+      };
       })();
     `);
-    assert.deepEqual(closed, { hidden: true, checked: false });
+    assert.equal(singleRight.hidden, false, 'Single-pane layout should keep Pane 2 visible');
+    assert.equal(singleRight.stackSingleComparison, true, 'Single-pane layout should use the Pane 2 workspace');
+    assert.equal(singleRight.stackTwoPane, false, 'Single-pane layout should not keep two-column class');
+    assert.equal(singleRight.primaryDisplay, 'none', 'Single-pane layout should hide Pane 1');
+    assert.ok(Math.abs(singleRight.rootWidth - singleRight.stackWidth) <= 3, 'Pane 2 should fill the chart stack in single-pane layout');
+    assert.equal(singleRight.activePane, 'pane-2', 'Single-pane layout should keep Pane 2 active');
     const primaryLegendReset = await evaluate(client, `
       (() => getComputedStyle(document.querySelector('#chart-stack')).getPropertyValue('--primary-legend-left-offset').trim())();
     `);

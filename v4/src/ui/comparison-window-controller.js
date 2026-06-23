@@ -50,6 +50,7 @@ export function initComparisonWindowController() {
   bus.emit('comparison-window:dom-ready', getComparisonWindowState());
   bus.on('comparison-window:changed', render);
   bus.on('comparison-window:changed', dataController.handleComparisonChanged);
+  bus.on('chart-panes:changed', () => render(getComparisonWindowState()));
   bus.on('bars:loaded', () => dataController.loadComparisonForPrimaryRange({ force: true }));
   bus.on('bars:cleared', dataController.clearComparisonView);
   bus.on('replay:changed', dataController.handleReplayChanged);

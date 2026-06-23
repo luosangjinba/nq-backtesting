@@ -8,6 +8,7 @@ export const CHART_PANE_IDS = Object.freeze({
 
 export const CHART_PANE_LAYOUTS = Object.freeze({
   SINGLE: 'single',
+  SINGLE_COMPARISON: 'single-comparison',
   TWO_COLUMN: 'two-column',
 });
 
@@ -140,11 +141,14 @@ export function setChartPaneLayout(nextLayout) {
   panes = panes.map((pane) => ({
     ...pane,
     layoutSlot:
-      normalized === CHART_PANE_LAYOUTS.SINGLE
-        ? (pane.id === CHART_PANE_IDS.PRIMARY ? 'single' : 'hidden')
-        : (pane.id === CHART_PANE_IDS.PRIMARY ? 'left' : 'right'),
+      normalized === CHART_PANE_LAYOUTS.TWO_COLUMN
+        ? (pane.id === CHART_PANE_IDS.PRIMARY ? 'left' : 'right')
+        : normalized === CHART_PANE_LAYOUTS.SINGLE_COMPARISON
+          ? (pane.id === CHART_PANE_IDS.COMPARISON ? 'single' : 'hidden')
+          : (pane.id === CHART_PANE_IDS.PRIMARY ? 'single' : 'hidden'),
   }));
   if (layout === CHART_PANE_LAYOUTS.SINGLE) activePaneId = CHART_PANE_IDS.PRIMARY;
+  if (layout === CHART_PANE_LAYOUTS.SINGLE_COMPARISON) activePaneId = CHART_PANE_IDS.COMPARISON;
   panes = panes.map((pane) => ({ ...pane, active: pane.id === activePaneId }));
   emitChanged('layout');
   return getChartPaneState('layout');
