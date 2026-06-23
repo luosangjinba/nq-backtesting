@@ -8,6 +8,7 @@ import { canRenderPdaPriceProjection } from '../pda/pda-projection.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getCurrentTimeframe } from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 import { COMPARISON_OVERLAY_SYNC_MODE } from './comparison-view-contract.js';
 import { getComparisonWindowState } from './comparison-window-store.js';
 
@@ -170,7 +171,7 @@ export function getComparisonOverlaySummary(state = getComparisonWindowState()) 
 
 export function formatComparisonOverlaySummary(summary = getComparisonOverlaySummary()) {
   if (!summary.enabled) return 'Overlays idle';
-  if (!summary.timeOverlayReady) return 'Pane 2 overlays waiting for data';
+  if (!summary.timeOverlayReady) return `${getPaneLabel(CHART_PANE_IDS.COMPARISON)} overlays waiting for data`;
   const guarded = summary.priceTotal > 0
     ? ` · price overlays guarded ${summary.priceEligible}/${summary.priceTotal}`
     : ' · no price overlays';

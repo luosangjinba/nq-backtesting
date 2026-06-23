@@ -18,6 +18,7 @@ import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { hitTestPdaAnnotations } from '../pda/pda-hit-test.js';
 import { hitTestSegments, hitTestSegmentGroups } from '../segment/segment-hit-test.js';
 import { initContextMenuSubmenuPositioning } from '../pda/manual-context-menu.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 import { getComparisonOverlaySyncPolicy } from './comparison-overlay-policy.js';
 import { setComparisonOverlaySyncMode } from './comparison-window-store.js';
 
@@ -49,10 +50,18 @@ function getContextLabel(context) {
   return `${context?.instrument || 'NQ'} ${timeframeToString(context?.timeframe)}`;
 }
 
+function getPrimaryPaneLabel() {
+  return getPaneLabel(CHART_PANE_IDS.PRIMARY);
+}
+
+function getComparisonPaneLabel() {
+  return getPaneLabel(CHART_PANE_IDS.COMPARISON);
+}
+
 function buildEvidenceNote(bar, price, context) {
   const priceLabel = formatPrice(price);
   return [
-    `Pane 2 ${getContextLabel(context)}`,
+    `${getComparisonPaneLabel()} ${getContextLabel(context)}`,
     formatContextTime(bar),
     priceLabel ? `@ ${priceLabel}` : '',
   ].filter(Boolean).join(' · ');
@@ -77,7 +86,7 @@ function renderOrderSetupEvidenceItems(bar, hits = {}) {
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Evidence · ${escapeHtml(getActiveSetupLinkLabel())}</div>
       <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${activeDisabled || barDisabled}>Add Pane 2 Bar Evidence</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${activeDisabled || barDisabled}>Add ${escapeHtml(getComparisonPaneLabel())} Bar Evidence</button>
       <div class="pda-menu-divider"></div>
       <button class="pda-menu-item" data-comparison-action="comparison-order-link-pda" ${activeDisabled || pdaDisabled}>Link PDA To Active Setup</button>
       <button class="pda-menu-item" data-comparison-action="comparison-order-link-segment" ${activeDisabled || segmentDisabled}>Link Segment To Active Setup</button>
@@ -100,7 +109,7 @@ function formatPrimaryLocateRange(bar, context) {
 function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
   const active = getActiveReviewSet();
   if (!active?.orderReview || !bar) {
-    bus.emit('status:update', { text: 'No active setup or Pane 2 bar for evidence', isError: true });
+    bus.emit('status:update', { text: `No active setup or ${getComparisonPaneLabel()} bar for evidence`, isError: true });
     return false;
   }
 
@@ -115,7 +124,7 @@ function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
     price: Number.isFinite(Number(price)) ? Number(price) : null,
     note: buildEvidenceNote(bar, price, context),
     sourceChartId: context?.chartId || context?.id || 'comparison-window',
-    sourceChartLabel: context?.label || 'Pane 2',
+    sourceChartLabel: context?.label || getComparisonPaneLabel(),
     sourceInstrument: context?.instrument || 'NQ',
     sourceTimeframe: context?.timeframe,
     sourceTimeframeLabel: tfLabel,
@@ -129,7 +138,7 @@ function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
       },
     });
     bus.emit('status:update', {
-      text: updated ? 'Pane 2 bar evidence added to active setup' : 'Pane 2 bar evidence add failed',
+      text: updated ? `${getComparisonPaneLabel()} bar evidence added to active setup` : `${getComparisonPaneLabel()} bar evidence add failed`,
       isError: !updated,
     });
     return updated;
@@ -141,7 +150,7 @@ function ensureComparisonDrawingCreationEnabled() {
   const matches = policy.primaryInstrument === policy.comparisonInstrument;
   if (!matches) {
     bus.emit('status:update', {
-      text: 'Pane 2 drawings require matching instrument',
+      text: `${getComparisonPaneLabel()} drawings require matching instrument`,
       isError: true,
     });
     return false;
@@ -149,7 +158,7 @@ function ensureComparisonDrawingCreationEnabled() {
   if (policy.mode === 'no-sync') {
     setComparisonOverlaySyncMode('sync');
     bus.emit('status:update', {
-      text: 'Drawings switched to Sync for Pane 2 drawing',
+      text: `Drawings switched to Sync for ${getComparisonPaneLabel()} drawing`,
       isError: false,
     });
   }
@@ -168,15 +177,15 @@ function renderMenu(bar, price, context, hits = {}) {
   const disabled = bar ? '' : 'disabled';
   const contextLabel = getContextLabel(context);
   const priceLabel = formatPrice(price);
-  const comparisonOnlyDisabled = 'disabled title="Pane 2 action not wired yet"';
+  const comparisonOnlyDisabled = `disabled title="${escapeHtml(getComparisonPaneLabel())} action not wired yet"`;
   return `
     <div class="pda-menu-title">${escapeHtml(contextLabel)}${bar ? ` · ${escapeHtml(formatContextTime(bar))}` : ''}${priceLabel ? ` · ${escapeHtml(priceLabel)}` : ''}</div>
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
       <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Time in Pane 1</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Time in ${escapeHtml(getPrimaryPaneLabel())}</button>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Date in Calendar</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Pane 2 Time</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy ${escapeHtml(getComparisonPaneLabel())} Time</button>
       <button class="pda-menu-item" data-comparison-action="comparison-copy-price" ${priceLabel ? '' : 'disabled'}>Copy Price ${escapeHtml(priceLabel)}</button>
       </div>
     </div>
@@ -201,7 +210,7 @@ function renderMenu(bar, price, context, hits = {}) {
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
       <div class="pda-submenu-panel">
-      <div class="pda-menu-subtitle">Use Pane 1 SMT actions for now.</div>
+      <div class="pda-menu-subtitle">Use ${escapeHtml(getPrimaryPaneLabel())} SMT actions for now.</div>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Bearish Liquidity SMT</button>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Bullish Liquidity SMT</button>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish FVG SMT</button>
@@ -428,7 +437,7 @@ async function handleMenuClick(event) {
     addManualWickCe(action === 'comparison-pda-wick-ce-upper' ? 'upper' : 'lower', contextMenuBar, context);
     hideComparisonContextMenu();
   } else if (action === 'comparison-segment-start-low' || action === 'comparison-segment-start-high') {
-    recordHistory('Start Pane 2 Segment', () =>
+    recordHistory(`Start ${getComparisonPaneLabel()} Segment`, () =>
       startSegmentInContext(
         contextMenuBar,
         action === 'comparison-segment-start-high' ? 'swing-high' : 'swing-low',
@@ -437,7 +446,7 @@ async function handleMenuClick(event) {
     );
     hideComparisonContextMenu();
   } else if (action === 'comparison-segment-finish-low' || action === 'comparison-segment-finish-high') {
-    await recordHistory('Finish Pane 2 Segment', () =>
+    await recordHistory(`Finish ${getComparisonPaneLabel()} Segment`, () =>
       finishSegmentInContext(
         contextMenuBar,
         action === 'comparison-segment-finish-high' ? 'swing-high' : 'swing-low',
@@ -470,19 +479,19 @@ async function handleMenuClick(event) {
   } else if (action === 'comparison-locate-primary') {
     const range = formatPrimaryLocateRange(contextMenuBar, context);
     if (!range) {
-      bus.emit('status:update', { text: 'Pane 1 locate failed: Pane 2 time unavailable', isError: true });
+      bus.emit('status:update', { text: `${getPrimaryPaneLabel()} locate failed: ${getComparisonPaneLabel()} time unavailable`, isError: true });
     } else {
       locateTimestampRange(range.start, range.end);
-      bus.emit('status:update', { text: `Pane 1 located to ${formatContextTime(contextMenuBar)}`, isError: false });
+      bus.emit('status:update', { text: `${getPrimaryPaneLabel()} located to ${formatContextTime(contextMenuBar)}`, isError: false });
     }
     hideComparisonContextMenu();
   } else if (action === 'comparison-copy-time') {
     navigator.clipboard?.writeText(String(contextMenuBar?.time || contextMenuBar?.timestamp || ''));
-    bus.emit('status:update', { text: 'Pane 2 time copied', isError: false });
+    bus.emit('status:update', { text: `${getComparisonPaneLabel()} time copied`, isError: false });
     hideComparisonContextMenu();
   } else if (action === 'comparison-copy-price') {
     navigator.clipboard?.writeText(formatPrice(contextMenuPrice));
-    bus.emit('status:update', { text: 'Pane 2 price copied', isError: false });
+    bus.emit('status:update', { text: `${getComparisonPaneLabel()} price copied`, isError: false });
     hideComparisonContextMenu();
   }
 }

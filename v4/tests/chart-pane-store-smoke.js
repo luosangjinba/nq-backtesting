@@ -5,10 +5,12 @@ import {
   CHART_PANE_LAYOUTS,
   getActivePane,
   getChartPaneState,
+  getPaneLabel,
   getSyncPeerPanes,
   resetChartPaneStoreForTests,
   setActivePane,
   setChartPaneLayout,
+  setPaneLabel,
   setPaneSyncEnabled,
   togglePaneSync,
   updatePaneDescriptor,
@@ -21,6 +23,11 @@ assert.equal(state.layout, CHART_PANE_LAYOUTS.SINGLE);
 assert.equal(state.activePaneId, CHART_PANE_IDS.PRIMARY);
 assert.equal(state.panes.length, 2);
 assert.equal(getActivePane().id, CHART_PANE_IDS.PRIMARY);
+assert.equal(getPaneLabel(CHART_PANE_IDS.PRIMARY), 'Pane 1');
+
+const renamed = setPaneLabel(CHART_PANE_IDS.PRIMARY, 'Execution');
+assert.equal(renamed.label, 'Execution');
+assert.equal(getPaneLabel(CHART_PANE_IDS.PRIMARY), 'Execution');
 
 state = setChartPaneLayout(CHART_PANE_LAYOUTS.TWO_COLUMN);
 assert.equal(state.layout, CHART_PANE_LAYOUTS.TWO_COLUMN);

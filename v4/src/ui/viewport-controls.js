@@ -7,6 +7,7 @@ import * as comparisonViewport from '../chart/comparison-viewport-controller.js'
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 
 let controlsEl = null;
 let comparisonControlsEl = null;
@@ -102,7 +103,7 @@ function renderComparison() {
   renderControls(
     comparisonControlsEl,
     comparisonViewport.canControlComparisonViewport,
-    'Reset Pane 2 chart view'
+    `Reset ${getPaneLabel(CHART_PANE_IDS.COMPARISON)} chart view`
   );
 }
 

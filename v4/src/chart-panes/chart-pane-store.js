@@ -11,6 +11,8 @@ export const CHART_PANE_LAYOUTS = Object.freeze({
   TWO_COLUMN: 'two-column',
 });
 
+const PANE_LABELS_STORAGE_KEY = 'v4:chart-pane-labels';
+
 const DEFAULT_PANES = Object.freeze([
   Object.freeze({
     id: CHART_PANE_IDS.PRIMARY,
@@ -37,7 +39,7 @@ const DEFAULT_PANES = Object.freeze([
 ]);
 
 let layout = CHART_PANE_LAYOUTS.SINGLE;
-let panes = clonePanes(DEFAULT_PANES);
+let panes = applyStoredPaneLabels(clonePanes(DEFAULT_PANES));
 let activePaneId = CHART_PANE_IDS.PRIMARY;
 
 function clonePane(pane) {
@@ -62,6 +64,39 @@ function normalizePaneId(paneId) {
 function normalizeTimeframe(value, fallback = DEFAULT_TIMEFRAME) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function normalizePaneLabel(value, fallback = '') {
+  const label = String(value ?? '').trim();
+  return label ? label.slice(0, 24) : fallback;
+}
+
+function readStoredPaneLabels() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PANE_LABELS_STORAGE_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistPaneLabels() {
+  try {
+    localStorage.setItem(
+      PANE_LABELS_STORAGE_KEY,
+      JSON.stringify(Object.fromEntries(panes.map((pane) => [pane.id, pane.label])))
+    );
+  } catch {
+    // Storage can be unavailable in private/sandboxed contexts; labels remain in memory.
+  }
+}
+
+function applyStoredPaneLabels(source) {
+  const labels = readStoredPaneLabels();
+  return source.map((pane) => ({
+    ...pane,
+    label: normalizePaneLabel(labels[pane.id], pane.label),
+  }));
 }
 
 function emitChanged(reason = 'update') {
@@ -92,6 +127,10 @@ export function getActivePane() {
 export function getPaneById(paneId) {
   const pane = panes.find((candidate) => candidate.id === paneId);
   return pane ? clonePane(pane) : null;
+}
+
+export function getPaneLabel(paneId) {
+  return getPaneById(paneId)?.label || String(paneId || '');
 }
 
 export function setChartPaneLayout(nextLayout) {
@@ -135,6 +174,22 @@ export function updatePaneDescriptor(paneId, patch = {}) {
   });
   emitChanged('descriptor');
   return getPaneById(normalized);
+}
+
+export function setPaneLabel(paneId, label) {
+  const normalized = normalizePaneId(paneId);
+  let updated = null;
+  panes = panes.map((pane) => {
+    if (pane.id !== normalized) return pane;
+    updated = {
+      ...pane,
+      label: normalizePaneLabel(label, pane.label),
+    };
+    return updated;
+  });
+  persistPaneLabels();
+  emitChanged('label');
+  return updated ? clonePane(updated) : getPaneById(normalized);
 }
 
 export function setPaneSyncEnabled(paneId, enabled) {

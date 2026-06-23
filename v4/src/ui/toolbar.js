@@ -18,6 +18,7 @@ import {
   CHART_PANE_IDS,
   CHART_PANE_LAYOUTS,
   getActivePane,
+  getPaneLabel,
   setChartPaneLayout,
   updatePaneDescriptor,
 } from '../chart-panes/chart-pane-store.js';
@@ -475,14 +476,14 @@ function applyActivePaneInstrument(nextInstrument) {
   if (activePane.id === CHART_PANE_IDS.COMPARISON) {
     const descriptor = updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { instrument: nextInstrument });
     setComparisonInstrument(descriptor.instrument);
-    bus.emit('status:update', { text: `Pane 2 ${descriptor.instrument}`, isError: false });
+    bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.COMPARISON)} ${descriptor.instrument}`, isError: false });
     syncActivePaneToolbarControls();
     return;
   }
 
   const instrument = setPrimaryInstrument(nextInstrument);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument });
-  bus.emit('status:update', { text: `Pane 1 ${instrument}`, isError: false });
+  bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.PRIMARY)} ${instrument}`, isError: false });
   syncActivePaneToolbarControls();
   if (store.getBars().length > 0) {
     handleLoad();
@@ -495,7 +496,7 @@ function applyActivePaneTimeframe(nextTimeframe) {
   if (activePane.id === CHART_PANE_IDS.COMPARISON) {
     updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { timeframe });
     setComparisonTimeframe(timeframe);
-    bus.emit('status:update', { text: `Pane 2 ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}`, isError: false });
+    bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.COMPARISON)} ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}`, isError: false });
     syncActivePaneToolbarControls();
     return;
   }

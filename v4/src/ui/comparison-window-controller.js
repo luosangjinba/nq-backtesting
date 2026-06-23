@@ -128,9 +128,9 @@ function scheduleComparisonLayoutRefresh() {
 function setComparisonStatus(text, isError = false) {
   const statusEl = root?.querySelector('[data-comparison-status]');
   const placeholder = root?.querySelector('[data-comparison-placeholder]');
-  if (statusEl) statusEl.textContent = text;
+  if (statusEl) statusEl.textContent = isError ? text : '';
   if (placeholder) {
-    placeholder.hidden = false;
+    placeholder.hidden = !isError;
     placeholder.classList.toggle('comparison-window-placeholder-error', Boolean(isError));
   }
 }

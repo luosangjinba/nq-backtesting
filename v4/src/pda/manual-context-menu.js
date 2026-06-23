@@ -7,6 +7,16 @@ import {
   getDraftSegmentGroupTargetId,
 } from '../segment/segment-group-store.js';
 import { getSmtDisabledReason } from '../smt/manual-smt.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
 
 export function clampMenuPosition(containerEl, x, y) {
   const rect = containerEl.parentElement.getBoundingClientRect();
@@ -259,7 +269,7 @@ export function renderManualContextMenu({
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="calendar-locate-date" ${disabled}>Date in Calendar</button>
-        <button class="pda-menu-item" data-pda-action="comparison-locate-time" ${disabled}>Time in Pane 2</button>
+        <button class="pda-menu-item" data-pda-action="comparison-locate-time" ${disabled}>Time in ${escapeHtml(getPaneLabel(CHART_PANE_IDS.COMPARISON))}</button>
         </div>
       </div>
       ${orderSetupItems}

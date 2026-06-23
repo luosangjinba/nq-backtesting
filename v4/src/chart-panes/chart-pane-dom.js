@@ -4,6 +4,7 @@ import {
   getPaneById,
   getActivePaneId,
   setActivePane,
+  setPaneLabel,
   togglePaneSync,
 } from './chart-pane-store.js';
 
@@ -40,12 +41,22 @@ function ensurePaneBadge(container, paneId) {
     label.className = 'chart-pane-badge-label';
     label.dataset.paneBadgeLabel = paneId;
     badge.appendChild(label);
+    badge.title = 'Double-click to rename pane';
+    badge.addEventListener('pointerdown', (event) => event.stopPropagation());
+    badge.addEventListener('dblclick', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      const pane = getPaneById(paneId);
+      const nextLabel = window.prompt('Pane name', pane?.label || '');
+      if (nextLabel === null) return;
+      setPaneLabel(paneId, nextLabel);
+    });
     container.appendChild(badge);
   }
   const pane = getPaneById(paneId);
   const label = badge.querySelector(`[data-pane-badge-label="${paneId}"]`);
   if (pane && label) {
-    label.textContent = `${pane.instrument} ${formatPaneTimeframe(pane.timeframe)}`;
+    label.textContent = `${pane.label} · ${pane.instrument} ${formatPaneTimeframe(pane.timeframe)}`;
   }
   return badge;
 }

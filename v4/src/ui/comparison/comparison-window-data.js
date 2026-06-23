@@ -22,6 +22,11 @@ import {
 } from '../../comparison/comparison-window-store.js';
 import { updateComparisonOverlayStatus } from '../../comparison/comparison-overlay-policy.js';
 import { getReplaySyncedComparisonBars } from '../../comparison/comparison-replay-sync.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../../chart-panes/chart-pane-store.js';
+
+function getComparisonPaneLabel() {
+  return getPaneLabel(CHART_PANE_IDS.COMPARISON);
+}
 
 function shouldLoadReplaySource(start, end, timeframe) {
   if (Number(timeframe) <= 1) return false;
@@ -113,7 +118,7 @@ export function createComparisonWindowDataController({
     replaySourceBars = [];
     replaySourceRequestedRange = null;
     clearComparisonData();
-    setComparisonStatus('Choose a date range to load Pane 2 data');
+    setComparisonStatus('');
     updateComparisonOverlayStatus();
   }
 
@@ -153,7 +158,7 @@ export function createComparisonWindowDataController({
       }
       updateComparisonOverlayStatus();
       bus.emit('status:update', {
-        text: `Pane 2 ${instrument} 已加载 ${displayBars.length} 根K线`,
+        text: `${getComparisonPaneLabel()} ${instrument} 已加载 ${displayBars.length} 根K线`,
         isError: false,
       });
     } catch (error) {
@@ -163,10 +168,10 @@ export function createComparisonWindowDataController({
       replaySourceBars = [];
       replaySourceRequestedRange = null;
       clearComparisonData();
-      setComparisonStatus(`Pane 2 load failed: ${error.message}`, true);
+      setComparisonStatus(`${getComparisonPaneLabel()} load failed: ${error.message}`, true);
       updateComparisonOverlayStatus();
       bus.emit('status:update', {
-        text: `Pane 2 加载失败: ${error.message}`,
+        text: `${getComparisonPaneLabel()} 加载失败: ${error.message}`,
         isError: true,
       });
     }

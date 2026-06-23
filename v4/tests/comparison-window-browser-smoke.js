@@ -148,6 +148,10 @@ async function main() {
     await client.send('Page.navigate', { url: PAGE_URL });
     await waitForExpression(client, `document.readyState === 'complete' || document.readyState === 'interactive'`);
     await waitForExpression(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
+    await evaluate(client, `localStorage.removeItem('v4:chart-pane-labels')`);
+    await client.send('Page.navigate', { url: PAGE_URL });
+    await waitForExpression(client, `document.readyState === 'complete' || document.readyState === 'interactive'`);
+    await waitForExpression(client, `Boolean(document.querySelector('#comparisonWindowToggle'))`);
     await evaluate(client, `
       (() => {
         window.__comparisonFetchCalls = 0;
@@ -228,6 +232,7 @@ async function main() {
       const status = document.querySelector('[data-comparison-status]');
       const placeholderTitle = document.querySelector('.comparison-window-placeholder-title');
       const overlayStatus = document.querySelector('[data-comparison-overlay-status]');
+      const placeholder = document.querySelector('[data-comparison-placeholder]');
       const stack = document.querySelector('#chart-stack').getBoundingClientRect();
       const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
       return {
@@ -247,6 +252,7 @@ async function main() {
         resetDisplay: getComputedStyle(reset).display,
         statusText: status.textContent,
         placeholderTitle: placeholderTitle.textContent,
+        placeholderHidden: placeholder.hidden,
         overlayStatusText: overlayStatus.textContent,
         stackWidth: stack.width,
         stackHeight: stack.height,
@@ -272,8 +278,9 @@ async function main() {
       { value: 'sync', text: 'Sync' },
       { value: 'no-sync', text: 'No Sync' },
     ]);
-    assert.equal(shown.placeholderTitle, 'Pane 2 chart view', 'Pane 2 empty state title should not use old Comparison wording');
-    assert.equal(shown.statusText, 'Choose a date range to load Pane 2 data', 'Pane 2 empty state should not mention main/comparison semantics');
+    assert.equal(shown.placeholderTitle, '', 'Pane 2 empty state title should stay quiet');
+    assert.equal(shown.statusText, '', 'Pane 2 empty state status should stay quiet');
+    assert.equal(shown.placeholderHidden, true, 'Pane 2 ordinary empty state should not show central placeholder text');
     assert.equal(shown.overlayStatusText, 'Pane 2 overlays waiting for data', 'Pane 2 overlay empty state should not use old comparison wording');
     const twoPaneLayout = await evaluate(client, `
       (() => {
@@ -438,7 +445,7 @@ async function main() {
     assert.deepEqual(paneSyncButtons.labels, ['Sync', 'Sync'], 'Both panes should default to Sync');
     assert.deepEqual(paneSyncButtons.badgeParents, ['pane-1', 'pane-2'], 'Pane Sync buttons should live inside their pane badges');
     assert.ok(
-      paneSyncButtons.offsets.every((offset) => offset.left >= 40 && offset.right <= 140),
+      paneSyncButtons.offsets.every((offset) => offset.left >= 80 && offset.right <= 210),
       `Pane Sync buttons should stay in the left badge area, away from right price axes: ${JSON.stringify(paneSyncButtons.offsets)}`
     );
     const paneBadges = await evaluate(client, `
@@ -456,12 +463,42 @@ async function main() {
       })();
     `);
     assert.deepEqual(paneBadges, {
-      primaryText: 'NQ 1H',
-      comparisonText: 'ES 1H',
+      primaryText: 'Pane 1 · NQ 1H',
+      comparisonText: 'Pane 2 · ES 1H',
       primaryParent: 'primary-chart-panel',
       comparisonParent: 'comparison-window-root',
       comparisonInfoDisplay: 'none',
     }, 'Both panes should render a unified Symbol/TF badge and hide old comparison-only info chrome');
+    const customPaneLabels = await evaluate(client, `
+      (async () => {
+        const paneStore = await import('/src/chart-panes/chart-pane-store.js');
+        paneStore.setPaneLabel('pane-1', 'Execution');
+        paneStore.setPaneLabel('pane-2', 'Context');
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        const renamed = {
+          primary: document.querySelector('[data-pane-badge-label="pane-1"]')?.textContent,
+          comparison: document.querySelector('[data-pane-badge-label="pane-2"]')?.textContent,
+        };
+        paneStore.setPaneLabel('pane-1', 'Pane 1');
+        paneStore.setPaneLabel('pane-2', 'Pane 2');
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        return {
+          renamed,
+          restored: {
+            primary: document.querySelector('[data-pane-badge-label="pane-1"]')?.textContent,
+            comparison: document.querySelector('[data-pane-badge-label="pane-2"]')?.textContent,
+          },
+        };
+      })();
+    `);
+    assert.deepEqual(customPaneLabels.renamed, {
+      primary: 'Execution · NQ 1H',
+      comparison: 'Context · ES 1H',
+    }, 'Pane badges should support custom pane labels');
+    assert.deepEqual(customPaneLabels.restored, {
+      primary: 'Pane 1 · NQ 1H',
+      comparison: 'Pane 2 · ES 1H',
+    }, 'Pane labels should restore for remaining regression coverage');
     const activePaneFocus = await evaluate(client, `
       (() => {
         const comparisonRoot = document.querySelector('#comparison-window-root');
@@ -494,8 +531,8 @@ async function main() {
     `);
     assert.equal(activePaneFocus.comparisonActive, true, 'Clicking comparison pane should make it active');
     assert.deepEqual(activePaneFocus.toolbarAfterComparison, { instrument: 'ES', timeframe: '1' }, 'Toolbar should update active comparison pane timeframe');
-    assert.equal(activePaneFocus.comparisonBadgeAfterTf, 'ES 1M', 'Comparison badge should update when active pane timeframe changes');
-    assert.equal(activePaneFocus.comparisonBadgeRestored, 'ES 1H', 'Comparison badge should restore after active pane timeframe returns to 1H');
+    assert.equal(activePaneFocus.comparisonBadgeAfterTf, 'Pane 2 · ES 1M', 'Comparison badge should update when active pane timeframe changes');
+    assert.equal(activePaneFocus.comparisonBadgeRestored, 'Pane 2 · ES 1H', 'Comparison badge should restore after active pane timeframe returns to 1H');
     assert.equal(activePaneFocus.primaryActive, true, 'Clicking primary pane should make it active');
     assert.deepEqual(activePaneFocus.toolbarAfterPrimary, { instrument: 'NQ', timeframe: '60' }, 'Toolbar should follow active primary pane');
     const allNoSync = await evaluate(client, `
