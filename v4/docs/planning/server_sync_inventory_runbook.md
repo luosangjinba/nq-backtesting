@@ -163,8 +163,12 @@ Remote browser operation:
 - Use `http://SERVER_HOST:8001/data-maintenance.html` for server-side refresh/maintenance actions.
 - Use `http://SERVER_HOST:8001/index.html` for normal chart work. If a date range shows no K-line data, first verify that the selected range actually has bars before treating it as an import/server failure.
 - For different monitor sizes, use `Display Setup` -> `UI Scale` as the short-term per-device adjustment. The page has layout guardrails, but full automatic responsive behavior is not the current design target.
-- K-line DB updates are performed by the Refresh Range `Dry Run` / `Write Data` actions; those run on the server and write the server-side `V4_TRADING_DB`.
+- K-line DB updates for currently supported automatic instruments ES/NQ are performed by the Refresh Range `Dry Run` / `Write Data` actions; those run on the server and write the server-side `V4_TRADING_DB`.
+- Step 336 verified the Refresh Range path with NQ `2026-06-19T09:30:00` -> `2026-06-19T10:00:00`: dry-run returned 30 Databento rows, all already existed in DB, and guarded write committed an insert-only transaction with `inserted_rows: 0`. Post-write `server_status.py` and `/v4/bars` spot check passed.
+- After any real write, verify with `v4/scripts/server_status.py` and a `/v4/bars` or page load spot check before assuming client browsers are stale.
+- No-data ranges are not automatically failures. Weekend/no-trading dry-runs should report zero candidate rows plus a Databento no-data/weekend warning.
 - Browser-selected Tradovate files are currently local browser inputs that generate Review JSON downloads. They do not upload source files to the server and do not import K-line bars into DuckDB.
+- Browser upload of arbitrary K-line CSV into DuckDB is deferred to a future external/unsupported-instrument workflow.
 - If a maintenance action fails from a remote computer, copy the Output block. It should include the action, request URL, HTTP status, parse/network error, and raw backend output.
 
 ## Backup Runbook

@@ -109,3 +109,199 @@ Record the decision:
 ## Initial Status
 
 Planned only. No runtime code changed yet.
+
+## Execution Results
+
+### Step 336.1 - Contract and scope
+
+Confirmed product contract:
+
+- `data-maintenance.html` is the K-line/data maintenance page.
+- Refresh Range `Dry Run` and `Write Data` run through `/v4/data_maintenance/run` on the server.
+- The backend command is `v4/scripts/update_databento_1m.py`.
+- The backend currently accepts `instrument` values `ES` and `NQ` for Refresh Range.
+- The target DB is the server-side `V4_TRADING_DB`.
+- Tradovate Live Records file inputs remain browser-local Review JSON generation and do not import K-line bars into DuckDB.
+- Browser upload of arbitrary K-line CSV is deferred to a future external/unsupported-instrument workflow.
+
+### Step 336.2 - UI copy audit
+
+`data-maintenance.html` already had the key K-line DB notice:
+
+- Dry Run and Write Data run on this server.
+- They write server-side `V4_TRADING_DB`.
+- Browser file uploads in Tradovate Live Records only generate Review JSON.
+
+Small closeout edit:
+
+- Added explicit wording that current automatic K-line maintenance supports ES/NQ.
+
+### Step 336.3 - Dry-run validation
+
+Command shape:
+
+```bash
+curl -s -X POST http://127.0.0.1:8766/v4/data_maintenance/run \
+  -H 'Content-Type: application/json' \
+  -H 'X-V4-Maintenance-Request: data-maintenance' \
+  -H 'Origin: http://127.0.0.1:8001' \
+  --data '{"action":"dry_run","instrument":"NQ","start":"2026-06-19T09:30:00","end":"2026-06-19T10:00:00","chunkDays":"1"}'
+```
+
+Result:
+
+- `ok: true`
+- `returncode: 0`
+- `dataset: GLBX.MDP3`
+- `schema: ohlcv-1m`
+- `instrument: NQ`
+- `db_max_ts: 2026-06-19 12:59:00`
+- `dry_run_range_et: 2026-06-19 09:30:00 -> 2026-06-19 10:00:00 (exclusive)`
+- `databento_end_et: 2026-06-22 16:07:00`
+- segment: `NQU6`, `status=manual_validated`
+- `downloaded_normalized_rows: 30`
+- `candidate_rows_after_dedupe: 30`
+- `duplicate_candidate_keys: 0`
+- `existing_candidate_keys: 30`
+- `would_insert_rows: 0`
+- `write_status: dry-run; no DB changes were made`
+
+Decision:
+
+- This range is safe for write-path validation because Databento and DB agree and the insert-only write should add zero rows.
+
+### Step 336.4 - Write validation
+
+Preflight command used the same NQ range.
+
+Result:
+
+- `roll_status_preflight: ok`
+- segment `NQU6`, `status=manual_validated`, `write_eligible=true`
+- `preflight_status: write-eligible`
+
+Guarded write command shape:
+
+```bash
+curl -s -X POST http://127.0.0.1:8766/v4/data_maintenance/run \
+  -H 'Content-Type: application/json' \
+  -H 'X-V4-Maintenance-Request: data-maintenance' \
+  -H 'Origin: http://127.0.0.1:8001' \
+  --data '{"action":"write","instrument":"NQ","start":"2026-06-19T09:30:00","end":"2026-06-19T10:00:00","chunkDays":"1","confirmText":"WRITE NQ"}'
+```
+
+Result:
+
+- `ok: true`
+- `returncode: 0`
+- `existing_candidate_keys: 30`
+- `would_insert_rows: 0`
+- `before_rows: 6125635`
+- `before_max_ts: 2026-06-19 12:59:00`
+- `inserted_rows: 0`
+- `after_rows: 6125635`
+- `after_max_ts: 2026-06-19 12:59:00`
+- `write_status: committed insert-only transaction`
+
+Post-write verification:
+
+```bash
+python3 v4/scripts/server_status.py \
+  --web-url http://127.0.0.1:8001/index.html \
+  --api-url http://127.0.0.1:8766 \
+  --db v4/data/trading_data.duckdb \
+  --data-dir v4/data
+```
+
+Result:
+
+- `web_status: ok`
+- `api_status: ok`
+- `database_status: ok`
+- `db_es_status: ok`, rows `6459105`, max `2026-06-19 12:59:00`
+- `db_nq_status: ok`, rows `6125635`, max `2026-06-19 12:59:00`
+- `data_dir_status: ok`
+- `hard_errors: 0`
+- `warnings: 0`
+- `server_status: ok`
+
+Bars API spot check:
+
+```bash
+curl -s "http://127.0.0.1:8766/v4/bars?instrument=NQ&start=2026-06-19%2009:30&end=2026-06-19%2010:00&tf=1"
+```
+
+Result:
+
+- Returned NQ 1m bars around the requested range.
+- Response included `requestedRange` with `startTs: 1781861400` and `endTs: 1781863200`.
+
+### Step 336.5 - Failure-mode validation
+
+Invalid instrument:
+
+```bash
+curl -s -X POST http://127.0.0.1:8766/v4/data_maintenance/run \
+  -H 'Content-Type: application/json' \
+  -H 'X-V4-Maintenance-Request: data-maintenance' \
+  -H 'Origin: http://127.0.0.1:8001' \
+  --data '{"action":"dry_run","instrument":"MES","start":"2026-06-19T09:30:00","end":"2026-06-19T10:00:00","chunkDays":"1"}'
+```
+
+Result:
+
+- `{"error": "Invalid instrument: MES"}`
+
+Busy lock:
+
+- Two maintenance calls were intentionally started in parallel during validation.
+- The second calls returned:
+  - `ok: false`
+  - `returncode: 423`
+  - `command: data_maintenance busy`
+  - `running_action: preflight`
+  - guidance to wait or restart the API if stale.
+
+Weekend/no-data range:
+
+```bash
+curl -s -X POST http://127.0.0.1:8766/v4/data_maintenance/run \
+  -H 'Content-Type: application/json' \
+  -H 'X-V4-Maintenance-Request: data-maintenance' \
+  -H 'Origin: http://127.0.0.1:8001' \
+  --data '{"action":"dry_run","instrument":"NQ","start":"2026-06-21T09:30:00","end":"2026-06-21T10:00:00","chunkDays":"1"}'
+```
+
+Result:
+
+- `ok: true`
+- `downloaded_normalized_rows: 0`
+- `candidate_rows_after_dedupe: 0`
+- `existing_candidate_keys: 0`
+- `would_insert_rows: 0`
+- warning: `No data found for the request you submitted. The request time range falls entirely inside a weekend.`
+- `write_status: dry-run; no DB changes were made`
+
+### Step 336.6 - Closeout decision
+
+Refresh Range is confirmed as the short-term standard K-line maintenance path for current server-centered V4 use:
+
+- Use Refresh Range for ES/NQ K-line dry-run/write.
+- Verify write effects with `server_status.py` and a bars API or page spot check.
+- Treat no-data date ranges as an expected data/domain outcome when output says zero candidate rows or weekend/no data, not as an import failure.
+- Keep browser K-line CSV upload as future backlog for unsupported instruments, third-party CSV exports, or one-off datasets.
+
+## Verification Commands
+
+```bash
+python3 v4/scripts/server_status.py --web-url http://127.0.0.1:8001/index.html --api-url http://127.0.0.1:8766 --db v4/data/trading_data.duckdb --data-dir v4/data
+node v4/tests/remote-maintenance-responsive-smoke.js
+git diff --check
+```
+
+Status:
+
+- `server_status.py`: passed.
+- `node v4/tests/remote-maintenance-responsive-smoke.js`: passed. Node emitted the existing typeless package warning, then `remote maintenance responsive smoke passed`.
+- `git diff --check`: passed.
+- Final worktree before commit: only Step 336 files modified.

@@ -1229,10 +1229,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 335.5: Refresh operations boundary。更新 runbook，明确日常 refresh/import 只在 server 执行，先不默认启用 cron；列出手动刷新和验证命令。
   - [x] Step 335.6: Verification and closeout。`test_data_freshness_scripts` 8 项通过，当前 LAN server status 通过；完整 `/tmp` 大数据备份 smoke 因耗时中断，未作为阻塞项。
 
-- [ ] Step 336: Data Maintenance Refresh Range real-use validation。目标是把 `data-maintenance.html` 的 Refresh Range 明确确认为标准 K 线维护入口，并通过真实 dry-run/write/server-status 验证它能为已支持品种更新 server canonical DB；短期不做浏览器上传 K 线 CSV 写库，上传类能力仅保留为后续“外部品种/第三方数据源”扩展。计划见 `v4/sessions/session_20260623_step336_refresh_range_validation_plan.md`。
-  - [ ] Step 336.1: Contract and scope。确认 Refresh Range 的产品语义：服务端执行、写入 `V4_TRADING_DB`、适用于已支持数据源/品种；明确不解决自定义 CSV/新品种导入。
-  - [ ] Step 336.2: UI copy audit。检查 `data-maintenance.html` 是否足够清楚地区分 Refresh Range、Tradovate Review JSON 导入、calendar/VIX/regime refresh，避免用户把无数据 date range 或 Review 文件导入误判为 K 线导入失败。
-  - [ ] Step 336.3: Dry-run validation。选择一个低风险日期范围，对 NQ/ES 至少一个主用品种执行 dry-run，记录请求 URL、响应摘要、预期写入行数或无变化原因。
-  - [ ] Step 336.4: Write validation。只在 dry-run 合理且有备份/可恢复边界后执行 write；写入后用 `server_status.py`、bars API spot check 和页面加载验证 canonical DB 状态。
-  - [ ] Step 336.5: Failure-mode validation。覆盖无数据 date range、无效 instrument/date、API/CORS/非 JSON 错误输出，确认 Data Maintenance 能给出足够可复制的诊断。
-  - [ ] Step 336.6: Docs and closeout。更新 TODO/session/runbook，记录 Refresh Range 作为短期标准 K 线维护路径；把浏览器上传 K 线 CSV 写库移到后续 backlog。
+- [x] Step 336: Data Maintenance Refresh Range real-use validation。目标是把 `data-maintenance.html` 的 Refresh Range 明确确认为标准 K 线维护入口，并通过真实 dry-run/write/server-status 验证它能为已支持品种更新 server canonical DB；短期不做浏览器上传 K 线 CSV 写库，上传类能力仅保留为后续“外部品种/第三方数据源”扩展。已验证 NQ 小范围 dry-run、preflight、guarded no-op write、server status、bars API spot check、invalid instrument、busy lock 与周末无数据输出；计划与结果见 `v4/sessions/session_20260623_step336_refresh_range_validation_plan.md`。
+  - [x] Step 336.1: Contract and scope。确认 Refresh Range 的产品语义：服务端执行、写入 `V4_TRADING_DB`、适用于已支持数据源/品种；明确不解决自定义 CSV/新品种导入。
+  - [x] Step 336.2: UI copy audit。`data-maintenance.html` 已明确区分 Refresh Range、Tradovate Review JSON 导入、calendar/VIX/regime refresh，并补充当前自动 K 线维护支持 ES/NQ。
+  - [x] Step 336.3: Dry-run validation。NQ `2026-06-19T09:30:00` -> `2026-06-19T10:00:00` dry-run 通过：Databento 返回 30 根、DB 已有 30 根、`would_insert_rows: 0`。
+  - [x] Step 336.4: Write validation。同一范围 preflight `write-eligible`，guarded write 提交 insert-only transaction，`inserted_rows: 0`，NQ 行数与 latest timestamp 不变；server status 与 bars API spot check 通过。
+  - [x] Step 336.5: Failure-mode validation。覆盖 invalid instrument、busy lock 与周末/no-data range；输出包含明确错误、running action、weekend/no data warning 和 `would_insert_rows: 0`。
+  - [x] Step 336.6: Docs and closeout。已更新 TODO/session/runbook，记录 Refresh Range 作为短期标准 K 线维护路径；浏览器上传 K 线 CSV 写库保留为后续外部/未支持品种 backlog。
