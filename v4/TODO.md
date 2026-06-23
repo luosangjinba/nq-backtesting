@@ -1247,6 +1247,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 337.7: Migration and compatibility plan。现有 Comparison Window workspace/Replay History 仍通过旧 store 读取，并映射到 Pane 2；旧 drawing overlay sync 暂时保留为独立 Drawings 控件，不混同 pane-level Sync。
   - [x] Step 337.8: Verification plan。已更新 comparison browser smoke 覆盖 two-column layout、active pane 高亮、toolbar 跟随 active pane、两个 pane 同时 No Sync、viewport controls、native price axis、旧 comparison workspace 恢复与数据加载。
 
-- [ ] Step 338: Unified pane badge and Sync placement。目标是统一左右 pane 的轻量 chrome：两个 pane 都显示 `Symbol TF` badge，并把 pane-level `Sync/No Sync` 从右侧价格轴附近移入 badge，避免遮挡价格轴；计划见 `v4/sessions/session_20260623_step338_pane_badge_sync_plan.md`。
+- [x] Step 338: Unified pane badge and Sync placement。目标是统一左右 pane 的轻量 chrome：两个 pane 都显示 `Symbol TF` badge，并把 pane-level `Sync/No Sync` 从右侧价格轴附近移入 badge，避免遮挡价格轴；计划见 `v4/sessions/session_20260623_step338_pane_badge_sync_plan.md`。
   - [x] Step 338.1: Unified pane badge。新增左右 pane 共享 badge，显示各自 `Instrument TF`；隐藏 pane 模式下旧 comparison-only info label；OHLC legend 下移到 badge 下方；browser smoke 覆盖左右 badge 文案与 active pane toolbar 更新。
-  - [ ] Step 338.2: Sync placement。把现有 pane-level `Sync/No Sync` 按钮移入 badge，移除右上角 floating 定位；保留 sync store 语义；browser smoke 覆盖按钮位于 badge 内且不遮挡右侧价格轴。
+  - [x] Step 338.2: Sync placement。把现有 pane-level `Sync/No Sync` 按钮移入 badge，移除右上角 floating 定位；保留 sync store 语义；browser smoke 覆盖按钮位于 badge 内且不遮挡右侧价格轴。

@@ -341,14 +341,31 @@ async function main() {
     const paneSyncButtons = await evaluate(client, `
       (() => {
         const buttons = [...document.querySelectorAll('.chart-pane-sync-toggle')];
+        const primary = document.querySelector('#primary-chart-panel').getBoundingClientRect();
+        const comparison = document.querySelector('#comparison-window-root').getBoundingClientRect();
         return {
           count: buttons.length,
           labels: buttons.map((button) => button.textContent),
+          badgeParents: buttons.map((button) => button.closest('[data-pane-badge]')?.dataset.paneBadge),
+          offsets: buttons.map((button) => {
+            const rect = button.getBoundingClientRect();
+            const paneRect = button.dataset.paneSyncToggle === 'pane-1' ? primary : comparison;
+            return {
+              paneId: button.dataset.paneSyncToggle,
+              left: Math.round(rect.left - paneRect.left),
+              right: Math.round(rect.right - paneRect.left),
+            };
+          }),
         };
       })();
     `);
     assert.equal(paneSyncButtons.count, 2, 'Each pane should render a pane-level Sync/No Sync button');
     assert.deepEqual(paneSyncButtons.labels, ['Sync', 'Sync'], 'Both panes should default to Sync');
+    assert.deepEqual(paneSyncButtons.badgeParents, ['pane-1', 'pane-2'], 'Pane Sync buttons should live inside their pane badges');
+    assert.ok(
+      paneSyncButtons.offsets.every((offset) => offset.left >= 40 && offset.right <= 140),
+      `Pane Sync buttons should stay in the left badge area, away from right price axes: ${JSON.stringify(paneSyncButtons.offsets)}`
+    );
     const paneBadges = await evaluate(client, `
       (() => {
         const primaryBadge = document.querySelector('[data-pane-badge="pane-1"]');

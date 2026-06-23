@@ -45,6 +45,34 @@ Result: passed. Node emitted the existing typeless-package warning for the ES mo
 - Keep existing pane sync store semantics unchanged.
 - Verify both sync buttons are inside badges, can both be `No Sync`, and no sync control overlaps the right price scale.
 
+Status: complete.
+
+Implementation:
+
+- `ensurePaneSyncButton()` now appends or moves each pane sync button into that pane's badge.
+- `.chart-pane-sync-toggle` is now a static pill inside the badge instead of an absolute top-right button.
+- Existing click behavior, active-pane update, and pane sync store semantics are unchanged.
+- Browser smoke asserts both sync buttons live inside `[data-pane-badge]`, stay in the left badge area, can both toggle to `No Sync`, and restore to `Sync`.
+
+Verification:
+
+```bash
+node --check v4/src/chart-panes/chart-pane-dom.js
+node --check v4/tests/comparison-window-browser-smoke.js
+git diff --check
+node v4/tests/comparison-window-browser-smoke.js
+```
+
+Result: passed. Node emitted the existing typeless-package warning for the ES module smoke test.
+
+## Closeout
+
+Step 338 is complete. The two-pane layout now has consistent left-top pane chrome:
+
+- Pane 1 and Pane 2 both show `Symbol TF`.
+- Pane-level `Sync/No Sync` is colocated with the pane identity badge.
+- No pane sync control sits near the right price axis.
+
 ## Verification
 
 Planned checks:

@@ -40,7 +40,7 @@ function ensurePaneBadge(container, paneId) {
   return badge;
 }
 
-function ensurePaneSyncButton(container, paneId) {
+function ensurePaneSyncButton(container, paneId, badge = null) {
   if (!container) return;
   let button = container.querySelector(`[data-pane-sync-toggle="${paneId}"]`);
   if (!button) {
@@ -54,8 +54,8 @@ function ensurePaneSyncButton(container, paneId) {
       setActivePane(paneId);
       togglePaneSync(paneId);
     });
-    container.appendChild(button);
   }
+  (badge || container).appendChild(button);
   button.textContent = syncButtonText(paneId);
   button.classList.toggle('chart-pane-sync-toggle-off', syncButtonText(paneId) === 'No Sync');
 }
@@ -72,10 +72,10 @@ function markActivePane() {
     'chart-pane-active',
     activePaneId === CHART_PANE_IDS.COMPARISON
   );
-  ensurePaneBadge(primaryPane, CHART_PANE_IDS.PRIMARY);
-  ensurePaneBadge(comparisonPane, CHART_PANE_IDS.COMPARISON);
-  ensurePaneSyncButton(primaryPane, CHART_PANE_IDS.PRIMARY);
-  ensurePaneSyncButton(comparisonPane, CHART_PANE_IDS.COMPARISON);
+  const primaryBadge = ensurePaneBadge(primaryPane, CHART_PANE_IDS.PRIMARY);
+  const comparisonBadge = ensurePaneBadge(comparisonPane, CHART_PANE_IDS.COMPARISON);
+  ensurePaneSyncButton(primaryPane, CHART_PANE_IDS.PRIMARY, primaryBadge);
+  ensurePaneSyncButton(comparisonPane, CHART_PANE_IDS.COMPARISON, comparisonBadge);
 }
 
 function bindPaneFocus(selector, paneId) {
