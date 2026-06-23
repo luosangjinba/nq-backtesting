@@ -636,6 +636,12 @@ function createOrderSetupFromContext(direction, context) {
       direction,
       timeframe: context.timeframe,
       eventType: ORDER_EVENT_TYPES.OTHER,
+      sourceChartId: context.sourceChartId || 'primary',
+      sourceChartLabel: context.sourceChartLabel || '',
+      sourceInstrument: context.sourceInstrument || getPrimaryInstrument(),
+      sourceTimeframe: context.sourceTimeframe ?? null,
+      sourceTimeframeLabel: context.sourceTimeframeLabel || context.timeframe || '',
+      sourceContext: context.sourceContext || '',
     });
     if (reviewSet) clearActiveLiveRecord();
     bus.emit('status:update', {

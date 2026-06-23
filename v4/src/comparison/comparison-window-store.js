@@ -8,8 +8,11 @@ import {
 
 const DEFAULT_DESCRIPTOR = createComparisonViewDescriptor();
 
-let enabled = false;
-let descriptor = createComparisonViewDescriptor();
+let enabled = true;
+let descriptor = createComparisonViewDescriptor({
+  instrument: 'NQ',
+  timeframe: 60,
+});
 let bars = [];
 let displayBars = [];
 let requestedRange = null;

@@ -16,17 +16,9 @@ function getHitContext(context) {
   return context || getPrimaryChartContext();
 }
 
-function getSourceChartId(object) {
-  return object?.sourceChartId || object?.chartId || 'primary';
-}
-
 function canHitInContext(object, context) {
-  const sourceChartId = getSourceChartId(object);
   const targetChartId = getHitContext(context)?.chartId || 'primary';
-  if (sourceChartId === 'comparison-window' || targetChartId === 'comparison-window') {
-    return canRenderObjectOnChartTarget(object, targetChartId).ok;
-  }
-  return true;
+  return canRenderObjectOnChartTarget(object, targetChartId).ok;
 }
 
 function getHitTimeframe(context) {

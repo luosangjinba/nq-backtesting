@@ -42,12 +42,8 @@ function clearRenderedPrimitives() {
   primitiveCache.clear();
 }
 
-function isComparisonSource(annotation) {
-  return annotation?.sourceChartId === 'comparison-window';
-}
-
 function canRenderOnPrimary(annotation) {
-  return !isComparisonSource(annotation) || canRenderObjectOnChartTarget(annotation, 'primary').ok;
+  return canRenderObjectOnChartTarget(annotation, 'primary').ok;
 }
 
 function mapTimestampToCurrentChartTime(timestamp) {
@@ -606,6 +602,7 @@ export function initPdaRenderer() {
   bus.on('drawing-set-focus:changed', renderPdaAnnotationsOnSelection);
   bus.on('display-mode:changed', renderPdaAnnotations);
   bus.on('display-preferences:changed', renderPdaAnnotations);
+  bus.on('chart-panes:changed', renderPdaAnnotations);
   bus.on('primary-instrument:changed', renderPdaAnnotations);
   bus.on('replay:changed', renderPdaAnnotationsOnReplay);
   bus.on('bars:loaded', renderPdaAnnotations);

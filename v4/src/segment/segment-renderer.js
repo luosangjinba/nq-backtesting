@@ -37,12 +37,8 @@ function clearRenderedPrimitives() {
   primitiveCache.clear();
 }
 
-function isComparisonSource(object) {
-  return object?.sourceChartId === 'comparison-window';
-}
-
 function canRenderOnPrimary(object) {
-  return !isComparisonSource(object) || canRenderObjectOnChartTarget(object, 'primary').ok;
+  return canRenderObjectOnChartTarget(object, 'primary').ok;
 }
 
 function getSegmentLabel(segment) {
@@ -243,6 +239,7 @@ export function initSegmentRenderer() {
   bus.on('drawing-set-focus:changed', renderSegmentsOnSelection);
   bus.on('display-mode:changed', renderSegments);
   bus.on('display-preferences:changed', renderSegments);
+  bus.on('chart-panes:changed', renderSegments);
   bus.on('bars:loaded', renderSegments);
   bus.on('bars:cleared', clearRenderedPrimitives);
 }

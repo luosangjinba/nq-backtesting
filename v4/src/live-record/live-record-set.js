@@ -64,6 +64,12 @@ export function createLiveRecordSet(record = {}) {
   return {
     id: record.id,
     sourceType: 'live-record',
+    sourceChartId: record.sourceChartId || 'legacy-shared',
+    sourceChartLabel: record.sourceChartLabel || '',
+    sourceInstrument: record.sourceInstrument || record.instrument || '',
+    sourceTimeframe: record.sourceTimeframe ?? null,
+    sourceTimeframeLabel: record.sourceTimeframeLabel || '',
+    sourceContext: record.sourceContext || '',
     liveRecord: record,
     instrument: record.instrument,
     direction: record.direction,

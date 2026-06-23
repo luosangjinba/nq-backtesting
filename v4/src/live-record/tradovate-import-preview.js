@@ -98,7 +98,7 @@ export function formatTradovateImportPreview(results, input) {
     'Position/Cash/Account Balance CSV files are reconcile-only checks and do not change Live Records.'
   );
   if (resultList.length > 1) {
-    lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Pane 1 instrument matches that file.');
+    lines.push('Mixed CSV detected: Auto creates one Review JSON per instrument. Import each JSON while the V4 Pane 2 instrument matches that file.');
   }
   return lines.join('\n');
 }

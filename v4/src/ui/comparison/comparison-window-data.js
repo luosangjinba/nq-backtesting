@@ -22,7 +22,7 @@ import {
 } from '../../comparison/comparison-window-store.js';
 import { updateComparisonOverlayStatus } from '../../comparison/comparison-overlay-policy.js';
 import { getReplaySyncedComparisonBars } from '../../comparison/comparison-replay-sync.js';
-import { CHART_PANE_IDS, getPaneLabel } from '../../chart-panes/chart-pane-store.js';
+import { CHART_PANE_IDS, getPaneLabel, getSyncPeerPanes } from '../../chart-panes/chart-pane-store.js';
 
 function getComparisonPaneLabel() {
   return getPaneLabel(CHART_PANE_IDS.COMPARISON);
@@ -122,9 +122,19 @@ export function createComparisonWindowDataController({
     updateComparisonOverlayStatus();
   }
 
-  async function loadComparisonForPrimaryRange({ force = false } = {}) {
+  function shouldFollowPrimaryPane() {
+    return getSyncPeerPanes(CHART_PANE_IDS.PRIMARY).some((pane) => pane.id === CHART_PANE_IDS.COMPARISON);
+  }
+
+  function clearComparisonViewForPrimary() {
+    if (!shouldFollowPrimaryPane()) return;
+    clearComparisonView();
+  }
+
+  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false } = {}) {
     const state = getComparisonWindowState();
     if (!state.enabled) return;
+    if (requirePaneSync && !shouldFollowPrimaryPane()) return;
     const { start, end } = primaryStore.getCurrentRange();
     if (!start || !end) {
       clearComparisonView();
@@ -198,6 +208,7 @@ export function createComparisonWindowDataController({
     getReplaySyncedBars,
     renderComparisonBars,
     clearComparisonView,
+    clearComparisonViewForPrimary,
     loadComparisonForPrimaryRange,
     handleComparisonChanged,
     handleReplayChanged,

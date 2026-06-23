@@ -92,7 +92,7 @@ import {
   renderSegmentPdaLinkItems,
   repositionContextMenu,
 } from './manual-context-menu.js';
-import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+import { CHART_PANE_IDS, getPaneById, getPaneLabel, setPaneSyncEnabled } from '../chart-panes/chart-pane-store.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -109,6 +109,48 @@ let chartNoteRangeDraft = null;
 
 function getPrimaryContext() {
   return getPrimaryChartContext();
+}
+
+function ensurePaneSyncForCreation(paneId) {
+  const pane = getPaneById(paneId);
+  if (!pane || pane.syncEnabled) return;
+  setPaneSyncEnabled(paneId, true);
+  bus.emit('status:update', {
+    text: `${pane.label} switched to Sync for new chart object`,
+    isError: false,
+  });
+}
+
+function isManualPdaCreationAction(action) {
+  return [
+    'bsl',
+    'ssl',
+    'wick-ce-upper',
+    'wick-ce-lower',
+    'fvg',
+    'ifvg',
+    'ob-bullish',
+    'ob-bearish',
+    'ob-last-bar',
+    'breaker-bullish',
+    'breaker-bearish',
+    'fib-start',
+  ].includes(action);
+}
+
+function isPaneObjectCreationAction(action) {
+  return (
+    isManualPdaCreationAction(action) ||
+    action === 'segment-start-low' ||
+    action === 'segment-start-high' ||
+    action === 'segment-finish-low' ||
+    action === 'segment-finish-high' ||
+    action === 'order-setup-create-bullish' ||
+    action === 'order-setup-create-bearish' ||
+    action === 'live-record-new-here' ||
+    action === 'live-record-create-bullish' ||
+    action === 'live-record-create-bearish'
+  );
 }
 
 function getBarChartTime(bar) {
@@ -499,6 +541,9 @@ async function handleControlClick(e) {
   const action = e.target.closest('[data-pda-action]')?.dataset.pdaAction;
   if (!action) return;
   e.stopPropagation();
+  if (isPaneObjectCreationAction(action)) {
+    ensurePaneSyncForCreation(CHART_PANE_IDS.PRIMARY);
+  }
 
   if (await handleManualPdaAction(action, {
     bar: contextMenuBar,
@@ -511,6 +556,12 @@ async function handleControlClick(e) {
     bar: contextMenuBar,
     price: contextMenuPrice,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
+    sourceChartId: 'primary',
+    sourceChartLabel: getPaneLabel(CHART_PANE_IDS.PRIMARY),
+    sourceInstrument: getPrimaryInstrument(),
+    sourceTimeframe: store.getCurrentTimeframe(),
+    sourceTimeframeLabel: timeframeToString(store.getCurrentTimeframe()),
+    sourceContext: `${getPrimaryInstrument()} ${timeframeToString(store.getCurrentTimeframe())}`,
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,
@@ -524,6 +575,12 @@ async function handleControlClick(e) {
     price: contextMenuPrice,
     priceToCoordinate: chart.priceToCoordinate,
     timeframe: timeframeToString(store.getCurrentTimeframe()),
+    sourceChartId: 'primary',
+    sourceChartLabel: getPaneLabel(CHART_PANE_IDS.PRIMARY),
+    sourceInstrument: getPrimaryInstrument(),
+    sourceTimeframe: store.getCurrentTimeframe(),
+    sourceTimeframeLabel: timeframeToString(store.getCurrentTimeframe()),
+    sourceContext: `${getPrimaryInstrument()} ${timeframeToString(store.getCurrentTimeframe())}`,
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,

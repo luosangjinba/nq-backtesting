@@ -687,6 +687,12 @@ export function normalizeOrderReview(input = {}, options = {}) {
   const normalized = {
     id,
     source: normalizeString(input.source, 'manual'),
+    sourceChartId: normalizeString(input.sourceChartId, ''),
+    sourceChartLabel: normalizeString(input.sourceChartLabel, ''),
+    sourceInstrument: normalizeString(input.sourceInstrument, ''),
+    sourceTimeframe: input.sourceTimeframe ?? null,
+    sourceTimeframeLabel: normalizeString(input.sourceTimeframeLabel, ''),
+    sourceContext: normalizeString(input.sourceContext, ''),
     instrument: normalizeString(input.instrument, DEFAULT_ORDER_INSTRUMENT),
     version: ORDER_REVIEW_VERSION,
     createdAt: normalizeTimestamp(input.createdAt, now),

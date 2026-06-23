@@ -77,7 +77,7 @@ initDisplayMode();
 console.log('[V4] Display mode initialized');
 
 initComparisonWindowPersistence();
-console.log('[V4] Pane 2 workspace initialized');
+console.log('[V4] Pane 1 workspace initialized');
 
 initToolbar();
 console.log('[V4] Toolbar initialized');
@@ -146,7 +146,7 @@ console.log('[V4] Segment controls initialized');
 initComparisonWindowController();
 initComparisonOverlayPolicy();
 initComparisonContextMenu();
-console.log('[V4] Pane 2 controller initialized');
+console.log('[V4] Pane 1 controller initialized');
 
 initSmtRenderer();
 initManualSmt();

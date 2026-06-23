@@ -783,6 +783,12 @@ export function handleLiveRecordChartAction(action, {
     instrument: getPrimaryInstrument(),
     direction: createDirection,
     summary: '',
+    sourceChartId: context.sourceChartId || 'primary',
+    sourceChartLabel: context.sourceChartLabel || '',
+    sourceInstrument: context.sourceInstrument || getPrimaryInstrument(),
+    sourceTimeframe: context.sourceTimeframe ?? null,
+    sourceTimeframeLabel: context.sourceTimeframeLabel || timeframe,
+    sourceContext: context.sourceContext || '',
   }));
   if (created?.id) clearActiveReviewSet();
   bus.emit('status:update', {

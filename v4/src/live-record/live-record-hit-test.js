@@ -20,10 +20,7 @@ function getHitContext(context) {
 
 function canHitLiveSetInContext(liveSet, context) {
   const targetChartId = getHitContext(context)?.chartId || CHART_CONTEXT_IDS.PRIMARY;
-  return canRenderObjectOnChartTarget({
-    ...liveSet,
-    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
-  }, targetChartId).ok;
+  return canRenderObjectOnChartTarget(liveSet, targetChartId).ok;
 }
 
 function lineDistance(x, y, x1, x2, lineY) {

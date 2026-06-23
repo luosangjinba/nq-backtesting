@@ -406,14 +406,15 @@ function renderOrderReviewsForTarget(target, predicate = () => true) {
 }
 
 function canRenderSetupSetInComparison(setupSet) {
-  return canRenderObjectOnChartTarget({
-    ...setupSet,
-    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
-  }, CHART_CONTEXT_IDS.COMPARISON).ok;
+  return canRenderObjectOnChartTarget(setupSet, CHART_CONTEXT_IDS.COMPARISON).ok;
+}
+
+function canRenderSetupSetInPrimary(setupSet) {
+  return canRenderObjectOnChartTarget(setupSet, CHART_CONTEXT_IDS.PRIMARY).ok;
 }
 
 export function renderOrderReviews() {
-  renderOrderReviewsForTarget(getPrimaryChartContext());
+  renderOrderReviewsForTarget(getPrimaryChartContext(), canRenderSetupSetInPrimary);
   renderOrderReviewsForTarget(getComparisonChartContext(), canRenderSetupSetInComparison);
   activeRenderTarget = null;
 }
@@ -425,6 +426,7 @@ export function initOrderReviewRenderer() {
   bus.on('order-setup-element:selection-cleared', renderOrderReviews);
   bus.on('bars:loaded', renderOrderReviews);
   bus.on('display-preferences:changed', renderOrderReviews);
+  bus.on('chart-panes:changed', renderOrderReviews);
   bus.on('comparison-window:changed', renderOrderReviews);
   bus.on('comparison-bars:loaded', renderOrderReviews);
   bus.on('comparison-bars:cleared', () => clearRenderedPrimitives(getComparisonChartContext()));

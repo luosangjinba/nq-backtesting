@@ -21,11 +21,12 @@ import * as bus from '../src/event-bus.js';
 resetChartPaneStoreForTests();
 
 let state = getChartPaneState();
-assert.equal(state.layout, CHART_PANE_LAYOUTS.SINGLE);
-assert.equal(state.activePaneId, CHART_PANE_IDS.PRIMARY);
+assert.equal(state.layout, CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+assert.equal(state.activePaneId, CHART_PANE_IDS.COMPARISON);
 assert.equal(state.panes.length, 2);
-assert.equal(getActivePane().id, CHART_PANE_IDS.PRIMARY);
-assert.equal(getPaneLabel(CHART_PANE_IDS.PRIMARY), 'Pane 1');
+assert.equal(getActivePane().id, CHART_PANE_IDS.COMPARISON);
+assert.equal(getPaneLabel(CHART_PANE_IDS.PRIMARY), 'Pane 2');
+assert.equal(getPaneLabel(CHART_PANE_IDS.COMPARISON), 'Pane 1');
 
 const renamed = setPaneLabel(CHART_PANE_IDS.PRIMARY, 'Execution');
 assert.equal(renamed.label, 'Execution');

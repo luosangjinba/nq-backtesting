@@ -54,6 +54,12 @@ export function loadActiveLiveRecordId(id = null) {
 
 export function createLiveRecordFromAnchor(anchor = {}, options = {}) {
   const record = addLiveRecord({
+    sourceChartId: options.sourceChartId || '',
+    sourceChartLabel: options.sourceChartLabel || '',
+    sourceInstrument: options.sourceInstrument || '',
+    sourceTimeframe: options.sourceTimeframe ?? null,
+    sourceTimeframeLabel: options.sourceTimeframeLabel || '',
+    sourceContext: options.sourceContext || '',
     instrument: options.instrument,
     direction: options.direction || LIVE_RECORD_DIRECTIONS.UNKNOWN,
     status: options.status || getLiveRecordDefaultChartStatus(),

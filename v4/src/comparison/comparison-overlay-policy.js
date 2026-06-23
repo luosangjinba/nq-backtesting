@@ -8,7 +8,7 @@ import { canRenderPdaPriceProjection } from '../pda/pda-projection.js';
 import { getSegments } from '../segment/segment-store.js';
 import { getCurrentTimeframe } from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
-import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+import { CHART_PANE_IDS, getPaneById, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 import { COMPARISON_OVERLAY_SYNC_MODE } from './comparison-view-contract.js';
 import { getComparisonWindowState } from './comparison-window-store.js';
 
@@ -75,16 +75,23 @@ export function getComparisonOverlaySyncPolicy(state = getComparisonWindowState(
   const mode = descriptor.overlaySyncMode === COMPARISON_OVERLAY_SYNC_MODE.sync
     ? COMPARISON_OVERLAY_SYNC_MODE.sync
     : COMPARISON_OVERLAY_SYNC_MODE.noSync;
+  const primaryPaneSyncEnabled = getPaneById(CHART_PANE_IDS.PRIMARY)?.syncEnabled ?? true;
+  const comparisonPaneSyncEnabled = getPaneById(CHART_PANE_IDS.COMPARISON)?.syncEnabled ?? true;
   const primaryInstrument = normalizeInstrument(getPrimaryInstrument());
   const comparisonInstrument = normalizeInstrument(descriptor.instrument);
   const primaryTimeframe = normalizeTimeframeToMinutes(getCurrentTimeframe());
   const comparisonTimeframe = normalizeTimeframeToMinutes(descriptor.timeframe);
+  const instrumentMatched = primaryInstrument === comparisonInstrument;
   const safe =
     mode === COMPARISON_OVERLAY_SYNC_MODE.sync &&
-    primaryInstrument === comparisonInstrument;
+    instrumentMatched;
+  const bothPanesNoSync = !primaryPaneSyncEnabled && !comparisonPaneSyncEnabled;
   return {
     mode,
     safe,
+    primaryPaneSyncEnabled,
+    comparisonPaneSyncEnabled,
+    bothPanesNoSync,
     reason: safe ? 'match' : mode === COMPARISON_OVERLAY_SYNC_MODE.noSync ? 'no-sync' : 'instrument-mismatch',
     primaryInstrument,
     comparisonInstrument,
@@ -93,39 +100,29 @@ export function getComparisonOverlaySyncPolicy(state = getComparisonWindowState(
   };
 }
 
-function getSourceChartId(object = {}) {
-  return object.sourceChartId || object.chartId || 'primary';
-}
-
-function isComparisonSource(object = {}) {
-  return getSourceChartId(object) === 'comparison-window';
-}
-
 export function canRenderObjectOnChartTarget(object = {}, targetChartId = 'primary', state = getComparisonWindowState()) {
-  const sourceChartId = getSourceChartId(object);
   const policy = getComparisonOverlaySyncPolicy(state);
   const descriptor = targetChartId === 'comparison-window'
     ? state?.descriptor
     : { instrument: policy.primaryInstrument, timeframe: policy.primaryTimeframe };
 
   if (targetChartId === 'primary') {
+    if (!policy.primaryPaneSyncEnabled) return { ok: false, reason: 'target-no-sync', policy };
     const projection = canProjectPriceObjectToComparison(object, descriptor);
     return projection.ok
-      ? { ok: true, reason: sourceChartId === targetChartId ? 'local-source' : 'main-owned', policy }
+      ? { ok: true, reason: 'target-match', policy }
       : { ok: false, reason: projection.reason, policy };
   }
 
   if (targetChartId !== 'comparison-window') {
-    return sourceChartId === targetChartId
-      ? { ok: true, reason: 'local-source' }
-      : { ok: false, reason: 'unsupported-source-target', policy };
+    return { ok: false, reason: 'unsupported-target', policy };
   }
 
-  if (!policy.safe) return { ok: false, reason: policy.reason, policy };
+  if (!policy.comparisonPaneSyncEnabled) return { ok: false, reason: 'target-no-sync', policy };
 
   const projection = canProjectPriceObjectToComparison(object, descriptor);
   return projection.ok
-    ? { ok: true, reason: 'sync', policy }
+    ? { ok: true, reason: 'target-match', policy }
     : { ok: false, reason: projection.reason, policy };
 }
 
@@ -141,13 +138,19 @@ function summarizeObjects(items, descriptor, projector = canProjectPriceObjectTo
   );
 }
 
+function summarizeRenderableObjects(items, state, targetChartId = 'comparison-window') {
+  return summarizeObjects(items, state?.descriptor, (item) =>
+    canRenderObjectOnChartTarget(item, targetChartId, state)
+  );
+}
+
 export function getComparisonOverlaySummary(state = getComparisonWindowState()) {
   const descriptor = state.descriptor;
-  const pda = summarizeObjects(getAnnotations(), descriptor, canProjectPdaToComparison);
-  const segments = summarizeObjects(getSegments(), descriptor);
-  const chartNotes = summarizeObjects(getChartNotes(), descriptor);
-  const orders = summarizeObjects(getOrderReviews(), descriptor);
-  const liveRecords = summarizeObjects(getLiveRecords(), descriptor);
+  const pda = summarizeRenderableObjects(getAnnotations(), state);
+  const segments = summarizeRenderableObjects(getSegments(), state);
+  const chartNotes = summarizeRenderableObjects(getChartNotes(), state);
+  const orders = summarizeRenderableObjects(getOrderReviews(), state);
+  const liveRecords = summarizeRenderableObjects(getLiveRecords(), state);
   const priceTotal = pda.total + segments.total + chartNotes.total + orders.total + liveRecords.total;
   const priceEligible = pda.eligible + segments.eligible + chartNotes.eligible + orders.eligible + liveRecords.eligible;
   const priceFiltered = pda.filtered + segments.filtered + chartNotes.filtered + orders.filtered + liveRecords.filtered;
@@ -193,6 +196,7 @@ export function initComparisonOverlayPolicy() {
     'comparison-window:changed',
     'comparison-bars:loaded',
     'comparison-bars:cleared',
+    'chart-panes:changed',
     'pda:changed',
     'segment:changed',
     'chart-notes:changed',

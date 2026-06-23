@@ -274,7 +274,7 @@ export function initToolbar() {
   });
   toolbarSettingsPopover.addEventListener('change', handleSettingsChange);
   toolbarSettingsPopover.addEventListener('click', handleSettingsClick);
-  // Keep hidden range fields normalized for reloads triggered by Pane 1 TF.
+  // Keep hidden range fields normalized for reloads triggered by the left pane TF.
   [startInput, endInput].forEach((input) => {
     input.addEventListener('blur', (e) => {
       const formatted = formatTimeInput(e.target.value);
@@ -393,7 +393,9 @@ function syncPaneStateFromComparison(state = getComparisonWindowState()) {
   if (state.enabled && currentLayout === CHART_PANE_LAYOUTS.SINGLE) {
     setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
   } else if (!state.enabled) {
-    setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE);
+    setComparisonWindowEnabled(true);
+    setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+    return;
   }
   const descriptor = state.descriptor || {};
   updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, {

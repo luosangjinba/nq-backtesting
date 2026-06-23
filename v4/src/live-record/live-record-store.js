@@ -435,6 +435,12 @@ export function normalizeLiveRecord(input = {}, options = {}) {
   return {
     version: LIVE_RECORD_VERSION,
     id: normalizeString(input.id, createLiveRecordId(now)),
+    sourceChartId: normalizeString(input.sourceChartId, ''),
+    sourceChartLabel: normalizeString(input.sourceChartLabel, ''),
+    sourceInstrument: normalizeString(input.sourceInstrument, ''),
+    sourceTimeframe: input.sourceTimeframe ?? null,
+    sourceTimeframeLabel: normalizeString(input.sourceTimeframeLabel, ''),
+    sourceContext: normalizeString(input.sourceContext, ''),
     instrument: normalizeString(input.instrument, DEFAULT_LIVE_RECORD_INSTRUMENT),
     createdAt,
     updatedAt,

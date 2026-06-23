@@ -32,7 +32,7 @@ import {
   handleManualPdaAction,
   handleManualPdaShiftContext,
 } from '../pda/manual-pda-workflow.js';
-import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+import { CHART_PANE_IDS, getPaneById, getPaneLabel, setPaneSyncEnabled } from '../chart-panes/chart-pane-store.js';
 import { getComparisonOverlaySyncPolicy } from './comparison-overlay-policy.js';
 import { setComparisonOverlaySyncMode } from './comparison-window-store.js';
 
@@ -73,6 +73,16 @@ function getPrimaryPaneLabel() {
 
 function getComparisonPaneLabel() {
   return getPaneLabel(CHART_PANE_IDS.COMPARISON);
+}
+
+function ensurePaneSyncForCreation(paneId) {
+  const pane = getPaneById(paneId);
+  if (!pane || pane.syncEnabled) return;
+  setPaneSyncEnabled(paneId, true);
+  bus.emit('status:update', {
+    text: `${pane.label} switched to Sync for new chart object`,
+    isError: false,
+  });
 }
 
 function formatPrimaryLocateRange(bar, context) {
@@ -128,6 +138,18 @@ function isManualPdaCreationAction(action) {
     'breaker-bearish',
     'fib-start',
   ].includes(action);
+}
+
+function isPaneObjectCreationAction(action) {
+  return (
+    isManualPdaCreationAction(action) ||
+    isDrawingCreationAction(action) ||
+    action === 'order-setup-create-bullish' ||
+    action === 'order-setup-create-bearish' ||
+    action === 'live-record-new-here' ||
+    action === 'live-record-create-bullish' ||
+    action === 'live-record-create-bearish'
+  );
 }
 
 function renderMenu(bar, price, context, hits = {}) {
@@ -383,6 +405,9 @@ async function handleMenuClick(event) {
   event.stopPropagation();
   const context = getComparisonChartContext();
   const timeframe = timeframeToString(context.timeframe);
+  if (isPaneObjectCreationAction(action)) {
+    ensurePaneSyncForCreation(CHART_PANE_IDS.COMPARISON);
+  }
 
   if (pdaAction && isManualPdaCreationAction(pdaAction)) {
     if (!ensureComparisonDrawingCreationEnabled()) {
@@ -403,6 +428,12 @@ async function handleMenuClick(event) {
     bar: contextMenuBar,
     price: contextMenuPrice,
     timeframe,
+    sourceChartId: context.chartId,
+    sourceChartLabel: context.label,
+    sourceInstrument: context.instrument,
+    sourceTimeframe: context.timeframe,
+    sourceTimeframeLabel: timeframe,
+    sourceContext: getContextLabel(context),
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,
@@ -419,6 +450,12 @@ async function handleMenuClick(event) {
     price: contextMenuPrice,
     priceToCoordinate: context.priceToCoordinate,
     timeframe,
+    sourceChartId: context.chartId,
+    sourceChartLabel: context.label,
+    sourceInstrument: context.instrument,
+    sourceTimeframe: context.timeframe,
+    sourceTimeframeLabel: timeframe,
+    sourceContext: getContextLabel(context),
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,

@@ -16,6 +16,7 @@ import {
   setComparisonTimeframe,
   setComparisonWindowEnabled,
 } from '../src/comparison/comparison-window-store.js';
+import { CHART_PANE_IDS, setPaneSyncEnabled } from '../src/chart-panes/chart-pane-store.js';
 import { setBars } from '../src/data/bar-store.js';
 
 const descriptor = { instrument: 'ES', timeframe: 60 };
@@ -82,7 +83,7 @@ assert.equal(getComparisonOverlaySyncPolicy().safe, false);
 assert.equal(getComparisonOverlaySyncPolicy().reason, 'no-sync');
 assert.equal(
   canRenderObjectOnChartTarget({ sourceChartId: 'primary', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
-  false
+  true
 );
 assert.equal(
   canRenderObjectOnChartTarget({ sourceChartId: 'comparison-window', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'primary').ok,
@@ -90,8 +91,15 @@ assert.equal(
 );
 assert.equal(
   canRenderObjectOnChartTarget({ sourceChartId: 'comparison-window', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
+  true
+);
+
+setPaneSyncEnabled(CHART_PANE_IDS.COMPARISON, false);
+assert.equal(
+  canRenderObjectOnChartTarget({ sourceChartId: 'comparison-window', sourceInstrument: 'NQ', sourceTimeframe: 60 }, 'comparison-window').ok,
   false
 );
+setPaneSyncEnabled(CHART_PANE_IDS.COMPARISON, true);
 
 setComparisonOverlaySyncMode('sync');
 setComparisonTimeframe(240);

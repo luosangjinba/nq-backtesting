@@ -390,14 +390,15 @@ function renderLiveRecordsForTarget(target, predicate = () => true) {
 }
 
 function canRenderLiveSetInComparison(liveSet) {
-  return canRenderObjectOnChartTarget({
-    ...liveSet,
-    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
-  }, CHART_CONTEXT_IDS.COMPARISON).ok;
+  return canRenderObjectOnChartTarget(liveSet, CHART_CONTEXT_IDS.COMPARISON).ok;
+}
+
+function canRenderLiveSetInPrimary(liveSet) {
+  return canRenderObjectOnChartTarget(liveSet, CHART_CONTEXT_IDS.PRIMARY).ok;
 }
 
 export function renderLiveRecords() {
-  renderLiveRecordsForTarget(getPrimaryChartContext());
+  renderLiveRecordsForTarget(getPrimaryChartContext(), canRenderLiveSetInPrimary);
   renderLiveRecordsForTarget(getComparisonChartContext(), canRenderLiveSetInComparison);
   activeRenderTarget = null;
 }
@@ -409,6 +410,7 @@ export function initLiveRecordRenderer() {
   bus.on('live-record-element:selection-cleared', renderLiveRecords);
   bus.on('bars:loaded', renderLiveRecords);
   bus.on('display-preferences:changed', renderLiveRecords);
+  bus.on('chart-panes:changed', renderLiveRecords);
   bus.on('primary-instrument:changed', renderLiveRecords);
   bus.on('comparison-window:changed', renderLiveRecords);
   bus.on('comparison-bars:loaded', renderLiveRecords);

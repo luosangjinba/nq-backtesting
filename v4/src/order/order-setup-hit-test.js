@@ -89,10 +89,7 @@ function isOrderSetupElementVisible(setupSet, role) {
 
 function canHitSetupSetInContext(setupSet, context) {
   const targetChartId = getHitContext(context)?.chartId || CHART_CONTEXT_IDS.PRIMARY;
-  return canRenderObjectOnChartTarget({
-    ...setupSet,
-    sourceChartId: CHART_CONTEXT_IDS.PRIMARY,
-  }, targetChartId).ok;
+  return canRenderObjectOnChartTarget(setupSet, targetChartId).ok;
 }
 
 export function hitTestOrderSetupElements({ x, y, context = null } = {}) {

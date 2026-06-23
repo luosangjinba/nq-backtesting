@@ -115,6 +115,7 @@ export function initComparisonSegmentRenderer() {
   bus.on('segment:selection-cleared', renderComparisonSegmentsOnSelection);
   bus.on('display-mode:changed', renderComparisonSegments);
   bus.on('display-preferences:changed', renderComparisonSegments);
+  bus.on('chart-panes:changed', renderComparisonSegments);
   bus.on('comparison-bars:loaded', renderComparisonSegments);
   bus.on('comparison-window:changed', renderComparisonSegments);
   bus.on('comparison-bars:cleared', clearRenderedPrimitives);

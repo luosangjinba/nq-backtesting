@@ -18,6 +18,17 @@ const DEFAULT_PANES = Object.freeze([
   Object.freeze({
     id: CHART_PANE_IDS.PRIMARY,
     role: 'primary',
+    label: 'Pane 2',
+    instrument: 'NQ',
+    timeframe: DEFAULT_TIMEFRAME,
+    active: false,
+    syncEnabled: true,
+    visibleRange: null,
+    layoutSlot: 'hidden',
+  }),
+  Object.freeze({
+    id: CHART_PANE_IDS.COMPARISON,
+    role: 'comparison',
     label: 'Pane 1',
     instrument: 'NQ',
     timeframe: DEFAULT_TIMEFRAME,
@@ -26,22 +37,11 @@ const DEFAULT_PANES = Object.freeze([
     visibleRange: null,
     layoutSlot: 'single',
   }),
-  Object.freeze({
-    id: CHART_PANE_IDS.COMPARISON,
-    role: 'comparison',
-    label: 'Pane 2',
-    instrument: 'ES',
-    timeframe: DEFAULT_TIMEFRAME,
-    active: false,
-    syncEnabled: true,
-    visibleRange: null,
-    layoutSlot: 'right',
-  }),
 ]);
 
-let layout = CHART_PANE_LAYOUTS.SINGLE;
+let layout = CHART_PANE_LAYOUTS.SINGLE_COMPARISON;
 let panes = applyStoredPaneLabels(clonePanes(DEFAULT_PANES));
-let activePaneId = CHART_PANE_IDS.PRIMARY;
+let activePaneId = CHART_PANE_IDS.COMPARISON;
 
 function clonePane(pane) {
   return {
@@ -75,7 +75,15 @@ function normalizePaneLabel(value, fallback = '') {
 function readStoredPaneLabels() {
   try {
     const parsed = JSON.parse(localStorage.getItem(PANE_LABELS_STORAGE_KEY) || '{}');
-    return parsed && typeof parsed === 'object' ? parsed : {};
+    if (!parsed || typeof parsed !== 'object') return {};
+    if (parsed[CHART_PANE_IDS.PRIMARY] === 'Pane 1' && parsed[CHART_PANE_IDS.COMPARISON] === 'Pane 2') {
+      return {
+        ...parsed,
+        [CHART_PANE_IDS.PRIMARY]: 'Pane 2',
+        [CHART_PANE_IDS.COMPARISON]: 'Pane 1',
+      };
+    }
+    return parsed;
   } catch {
     return {};
   }
@@ -152,9 +160,9 @@ export function setChartPaneLayout(nextLayout) {
         ? (pane.id === CHART_PANE_IDS.PRIMARY ? 'left' : 'right')
         : normalized === CHART_PANE_LAYOUTS.SINGLE_COMPARISON
           ? (pane.id === CHART_PANE_IDS.COMPARISON ? 'single' : 'hidden')
-          : (pane.id === CHART_PANE_IDS.PRIMARY ? 'single' : 'hidden'),
+          : (pane.id === CHART_PANE_IDS.COMPARISON ? 'single' : 'hidden'),
   }));
-  if (layout === CHART_PANE_LAYOUTS.SINGLE) activePaneId = CHART_PANE_IDS.PRIMARY;
+  if (layout === CHART_PANE_LAYOUTS.SINGLE) activePaneId = CHART_PANE_IDS.COMPARISON;
   if (layout === CHART_PANE_LAYOUTS.SINGLE_COMPARISON) activePaneId = CHART_PANE_IDS.COMPARISON;
   panes = panes.map((pane) => ({ ...pane, active: pane.id === activePaneId }));
   emitChanged('layout');
@@ -244,7 +252,7 @@ export function getSyncPeerPanes(sourcePaneId) {
 }
 
 export function resetChartPaneStoreForTests() {
-  layout = CHART_PANE_LAYOUTS.SINGLE;
+  layout = CHART_PANE_LAYOUTS.SINGLE_COMPARISON;
   panes = clonePanes(DEFAULT_PANES);
-  activePaneId = CHART_PANE_IDS.PRIMARY;
+  activePaneId = CHART_PANE_IDS.COMPARISON;
 }

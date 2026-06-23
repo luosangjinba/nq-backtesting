@@ -51,10 +51,22 @@ export function createChartReviewSet({
   direction = ORDER_DIRECTIONS.UNKNOWN,
   timeframe = 'manual',
   eventType = ORDER_EVENT_TYPES.OTHER,
+  sourceChartId = '',
+  sourceChartLabel = '',
+  sourceInstrument = '',
+  sourceTimeframe = null,
+  sourceTimeframeLabel = '',
+  sourceContext = '',
 } = {}) {
   if (!bar) return null;
   const order = addOrderReview({
     source: 'chart',
+    sourceChartId,
+    sourceChartLabel,
+    sourceInstrument,
+    sourceTimeframe,
+    sourceTimeframeLabel,
+    sourceContext,
     setupThesis: {
       primaryEventTimestamp: bar.timestamp,
       primaryEventTimeframe: timeframe,

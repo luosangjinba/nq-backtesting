@@ -221,6 +221,7 @@ export function initComparisonPdaRenderer() {
   bus.on('pda:selection-cleared', renderComparisonPdaAnnotationsOnSelection);
   bus.on('display-mode:changed', renderComparisonPdaAnnotations);
   bus.on('display-preferences:changed', renderComparisonPdaAnnotations);
+  bus.on('chart-panes:changed', renderComparisonPdaAnnotations);
   bus.on('comparison-bars:loaded', renderComparisonPdaAnnotations);
   bus.on('comparison-window:changed', renderComparisonPdaAnnotations);
   bus.on('comparison-bars:cleared', clearRenderedPrimitives);
