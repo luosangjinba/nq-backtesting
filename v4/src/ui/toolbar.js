@@ -131,7 +131,7 @@ function renderInstrumentOptions(selectedInstrument) {
 function renderComparisonControls() {
   const comparisonEnabled = isComparisonWindowEnabled();
   return `
-    <label class="toolbar-toggle" title="Show sliding comparison window">
+    <label class="toolbar-toggle" title="Show Pane 2">
       <input id="comparisonWindowToggle" type="checkbox"${comparisonEnabled ? ' checked' : ''} />
       <span>Compare</span>
     </label>
@@ -256,7 +256,7 @@ export function initToolbar() {
   });
   toolbarSettingsPopover.addEventListener('change', handleSettingsChange);
   toolbarSettingsPopover.addEventListener('click', handleSettingsClick);
-  // Keep hidden range fields normalized for reloads triggered by Main TF.
+  // Keep hidden range fields normalized for reloads triggered by Pane 1 TF.
   [startInput, endInput].forEach((input) => {
     input.addEventListener('blur', (e) => {
       const formatted = formatTimeInput(e.target.value);

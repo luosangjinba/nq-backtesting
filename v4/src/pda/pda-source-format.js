@@ -4,9 +4,12 @@ function normalizeChartLabel(annotation = {}) {
   const chartId = annotation.sourceChartId || annotation.chartId || 'primary';
   const rawLabel = annotation.sourceChartLabel || '';
   if (chartId === 'secondary') return 'Sub';
-  if (chartId === 'primary') return 'Main';
-  if (/^secondary$/i.test(rawLabel)) return 'Sub';
-  if (/^primary$/i.test(rawLabel)) return 'Main';
+  if (chartId === 'primary') return 'Pane 1';
+  if (chartId === 'comparison-window') return 'Pane 2';
+  if (/^secondary$/i.test(rawLabel)) return 'Pane 2';
+  if (/^primary$/i.test(rawLabel)) return 'Pane 1';
+  if (/^main$/i.test(rawLabel)) return 'Pane 1';
+  if (/^comparison(?: window)?$/i.test(rawLabel)) return 'Pane 2';
   return rawLabel || chartId;
 }
 

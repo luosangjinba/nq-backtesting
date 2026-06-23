@@ -33,7 +33,7 @@ function getComparisonSmtSource({ requireLoadedBars = false } = {}) {
   if (requireLoadedBars && !displayBars.length) return null;
   return {
     chartId: 'comparison-window',
-    label: 'Comparison Window',
+    label: 'Pane 2',
     instrument: state.descriptor.instrument,
     timeframe: state.descriptor.timeframe,
     getDisplayBars: comparisonStore.getComparisonDisplayBars,
@@ -51,28 +51,28 @@ function findCompareBar(timestamp) {
 
 export function getSmtDisabledReason({ requireLoadedBars = false } = {}) {
   if (getPrimaryInstrument() !== 'NQ') {
-    return 'SMT currently supports Main=NQ only';
+    return 'SMT currently supports Pane 1=NQ only';
   }
   const compareSource = getSmtCompareSource({ requireLoadedBars });
   if (compareSource) return '';
 
   const comparisonState = comparisonStore.getComparisonWindowState();
   if (comparisonState.enabled && comparisonState.descriptor.instrument !== 'ES') {
-    return 'SMT requires Comparison instrument ES';
+    return 'SMT requires Pane 2 instrument ES';
   }
   if (comparisonState.enabled && Number(comparisonState.descriptor.timeframe) !== Number(store.getCurrentTimeframe())) {
-    return 'SMT requires Main TF and Comparison TF to match';
+    return 'SMT requires Pane 1 TF and Pane 2 TF to match';
   }
   if (!comparisonState.enabled) {
-    return 'SMT requires Comparison Window ES';
+    return 'SMT requires Pane 2 ES';
   }
   if (requireLoadedBars && !store.getDisplayBars().length) {
     return 'SMT requires loaded NQ bars';
   }
   if (requireLoadedBars) {
-    return 'SMT requires loaded ES comparison bars';
+    return 'SMT requires loaded ES Pane 2 bars';
   }
-  return 'SMT requires Comparison Window ES';
+  return 'SMT requires Pane 2 ES';
 }
 
 function assertCanMarkSmt() {

@@ -1,4 +1,4 @@
-// Render manual SMT evidence on primary NQ and Comparison Window ES charts.
+// Render manual SMT evidence on Pane 1 NQ and Pane 2 ES charts.
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';

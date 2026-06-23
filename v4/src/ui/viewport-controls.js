@@ -102,7 +102,7 @@ function renderComparison() {
   renderControls(
     comparisonControlsEl,
     comparisonViewport.canControlComparisonViewport,
-    'Reset comparison chart view'
+    'Reset Pane 2 chart view'
   );
 }
 

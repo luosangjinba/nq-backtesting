@@ -31,7 +31,7 @@ function renderOverlaySyncOptions(selectedMode) {
 
 export function renderComparisonWindowTemplate() {
   return `
-    <section id="comparison-window" class="comparison-window" aria-label="Comparison Window">
+    <section id="comparison-window" class="comparison-window" aria-label="Pane 2">
       <header class="comparison-window-header" data-comparison-drag-handle>
         <div class="comparison-window-title-block">
           <div class="comparison-window-title">Pane 2</div>
@@ -51,10 +51,10 @@ export function renderComparisonWindowTemplate() {
             <select class="comparison-window-select" data-comparison-overlay-sync></select>
           </label>
           <button class="comparison-window-btn comparison-window-legacy-action" type="button" data-comparison-reset title="Reset window position">Reset</button>
-          <button class="comparison-window-btn comparison-window-close comparison-window-legacy-action" type="button" data-comparison-close title="Close Comparison Window">Close</button>
+          <button class="comparison-window-btn comparison-window-close comparison-window-legacy-action" type="button" data-comparison-close title="Close Pane 2">Close</button>
         </div>
       </header>
-      <div class="comparison-window-left-handle" data-comparison-left-handle aria-label="Resize comparison window"></div>
+      <div class="comparison-window-left-handle" data-comparison-left-handle aria-label="Resize Pane 2"></div>
       <div class="comparison-window-rail" data-comparison-drag-handle aria-hidden="true">
         <div class="comparison-window-rail-handle"></div>
       </div>

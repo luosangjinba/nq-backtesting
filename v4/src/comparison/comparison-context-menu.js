@@ -52,7 +52,7 @@ function getContextLabel(context) {
 function buildEvidenceNote(bar, price, context) {
   const priceLabel = formatPrice(price);
   return [
-    `Comparison ${getContextLabel(context)}`,
+    `Pane 2 ${getContextLabel(context)}`,
     formatContextTime(bar),
     priceLabel ? `@ ${priceLabel}` : '',
   ].filter(Boolean).join(' · ');
@@ -77,7 +77,7 @@ function renderOrderSetupEvidenceItems(bar, hits = {}) {
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Order Setup Evidence · ${escapeHtml(getActiveSetupLinkLabel())}</div>
       <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${activeDisabled || barDisabled}>Add Comparison Bar Evidence</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-order-add-bar-evidence" ${activeDisabled || barDisabled}>Add Pane 2 Bar Evidence</button>
       <div class="pda-menu-divider"></div>
       <button class="pda-menu-item" data-comparison-action="comparison-order-link-pda" ${activeDisabled || pdaDisabled}>Link PDA To Active Setup</button>
       <button class="pda-menu-item" data-comparison-action="comparison-order-link-segment" ${activeDisabled || segmentDisabled}>Link Segment To Active Setup</button>
@@ -100,7 +100,7 @@ function formatPrimaryLocateRange(bar, context) {
 function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
   const active = getActiveReviewSet();
   if (!active?.orderReview || !bar) {
-    bus.emit('status:update', { text: 'No active setup or comparison bar for evidence', isError: true });
+    bus.emit('status:update', { text: 'No active setup or Pane 2 bar for evidence', isError: true });
     return false;
   }
 
@@ -115,21 +115,21 @@ function addComparisonBarEvidenceToActiveSetup(bar, price, context) {
     price: Number.isFinite(Number(price)) ? Number(price) : null,
     note: buildEvidenceNote(bar, price, context),
     sourceChartId: context?.chartId || context?.id || 'comparison-window',
-    sourceChartLabel: context?.label || 'Comparison',
+    sourceChartLabel: context?.label || 'Pane 2',
     sourceInstrument: context?.instrument || 'NQ',
     sourceTimeframe: context?.timeframe,
     sourceTimeframeLabel: tfLabel,
     sourceContext: getContextLabel(context),
   };
 
-  return recordHistory('Add Comparison Bar Evidence', () => {
+  return recordHistory('Add Pane 2 Bar Evidence', () => {
     const updated = updateActiveReviewSet({
       setupThesis: {
         manualEvents: [...existingEvents, event],
       },
     });
     bus.emit('status:update', {
-      text: updated ? 'Comparison bar evidence added to active setup' : 'Comparison bar evidence add failed',
+      text: updated ? 'Pane 2 bar evidence added to active setup' : 'Pane 2 bar evidence add failed',
       isError: !updated,
     });
     return updated;
@@ -141,7 +141,7 @@ function ensureComparisonDrawingCreationEnabled() {
   const matches = policy.primaryInstrument === policy.comparisonInstrument;
   if (!matches) {
     bus.emit('status:update', {
-      text: 'Comparison drawings require matching instrument',
+      text: 'Pane 2 drawings require matching instrument',
       isError: true,
     });
     return false;
@@ -149,7 +149,7 @@ function ensureComparisonDrawingCreationEnabled() {
   if (policy.mode === 'no-sync') {
     setComparisonOverlaySyncMode('sync');
     bus.emit('status:update', {
-      text: 'Drawings switched to Sync for comparison drawing',
+      text: 'Drawings switched to Sync for Pane 2 drawing',
       isError: false,
     });
   }
@@ -168,7 +168,7 @@ function renderMenu(bar, price, context, hits = {}) {
   const disabled = bar ? '' : 'disabled';
   const contextLabel = getContextLabel(context);
   const priceLabel = formatPrice(price);
-  const comparisonOnlyDisabled = 'disabled title="Comparison Window action not wired yet"';
+  const comparisonOnlyDisabled = 'disabled title="Pane 2 action not wired yet"';
   return `
     <div class="pda-menu-title">${escapeHtml(contextLabel)}${bar ? ` · ${escapeHtml(formatContextTime(bar))}` : ''}${priceLabel ? ` · ${escapeHtml(priceLabel)}` : ''}</div>
     <div class="pda-menu-section pda-menu-submenu">
@@ -201,7 +201,7 @@ function renderMenu(bar, price, context, hits = {}) {
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
       <div class="pda-submenu-panel">
-      <div class="pda-menu-subtitle">Use Main chart SMT actions for now.</div>
+      <div class="pda-menu-subtitle">Use Pane 1 SMT actions for now.</div>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Bearish Liquidity SMT</button>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Bullish Liquidity SMT</button>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish FVG SMT</button>
@@ -428,7 +428,7 @@ async function handleMenuClick(event) {
     addManualWickCe(action === 'comparison-pda-wick-ce-upper' ? 'upper' : 'lower', contextMenuBar, context);
     hideComparisonContextMenu();
   } else if (action === 'comparison-segment-start-low' || action === 'comparison-segment-start-high') {
-    recordHistory('Start Comparison Segment', () =>
+    recordHistory('Start Pane 2 Segment', () =>
       startSegmentInContext(
         contextMenuBar,
         action === 'comparison-segment-start-high' ? 'swing-high' : 'swing-low',
@@ -437,7 +437,7 @@ async function handleMenuClick(event) {
     );
     hideComparisonContextMenu();
   } else if (action === 'comparison-segment-finish-low' || action === 'comparison-segment-finish-high') {
-    await recordHistory('Finish Comparison Segment', () =>
+    await recordHistory('Finish Pane 2 Segment', () =>
       finishSegmentInContext(
         contextMenuBar,
         action === 'comparison-segment-finish-high' ? 'swing-high' : 'swing-low',
@@ -470,19 +470,19 @@ async function handleMenuClick(event) {
   } else if (action === 'comparison-locate-primary') {
     const range = formatPrimaryLocateRange(contextMenuBar, context);
     if (!range) {
-      bus.emit('status:update', { text: 'Primary locate failed: comparison time unavailable', isError: true });
+      bus.emit('status:update', { text: 'Pane 1 locate failed: Pane 2 time unavailable', isError: true });
     } else {
       locateTimestampRange(range.start, range.end);
-      bus.emit('status:update', { text: `Primary located to ${formatContextTime(contextMenuBar)}`, isError: false });
+      bus.emit('status:update', { text: `Pane 1 located to ${formatContextTime(contextMenuBar)}`, isError: false });
     }
     hideComparisonContextMenu();
   } else if (action === 'comparison-copy-time') {
     navigator.clipboard?.writeText(String(contextMenuBar?.time || contextMenuBar?.timestamp || ''));
-    bus.emit('status:update', { text: 'Comparison time copied', isError: false });
+    bus.emit('status:update', { text: 'Pane 2 time copied', isError: false });
     hideComparisonContextMenu();
   } else if (action === 'comparison-copy-price') {
     navigator.clipboard?.writeText(formatPrice(contextMenuPrice));
-    bus.emit('status:update', { text: 'Comparison price copied', isError: false });
+    bus.emit('status:update', { text: 'Pane 2 price copied', isError: false });
     hideComparisonContextMenu();
   }
 }
