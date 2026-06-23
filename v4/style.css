@@ -79,6 +79,11 @@ html, body {
   min-width: 0;
   font-size: var(--toolbar-font-size);
   overflow-x: auto;
+  overflow-y: hidden;
+}
+
+#toolbar > * {
+  flex: 0 0 auto;
 }
 
 #chart {
@@ -112,6 +117,7 @@ html, body {
 
 .comparison-window-sliding {
   min-width: 180px;
+  max-width: calc(100% - 260px);
   min-height: 100%;
   border-top: 0;
   border-left: 0;
@@ -3422,6 +3428,125 @@ html, body {
   min-height: calc(var(--control-height) + 20px);
   background: #0f1014;
   border-top: 1px solid #2a2e39;
+}
+
+@media (max-width: 1366px) {
+  :root {
+    --inspector-width: 300px;
+    --toolbar-font-size: 11px;
+  }
+
+  #toolbar {
+    gap: 6px;
+    padding: 5px 8px;
+  }
+
+  .toolbar-section {
+    gap: 5px;
+  }
+
+  .toolbar-label {
+    display: none;
+  }
+
+  .toolbar-date-range-btn {
+    min-width: 160px;
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .toolbar-display-select {
+    max-width: 170px;
+  }
+}
+
+@media (max-width: 1120px) {
+  #toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    max-height: 92px;
+    overflow-y: auto;
+  }
+
+  .toolbar-separator {
+    display: none;
+  }
+
+  .status-bar {
+    flex: 1 1 100%;
+    min-width: 220px;
+    margin-left: 0;
+  }
+
+  #workspace {
+    position: relative;
+  }
+
+  #inspector-sidebar.open {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 32;
+    width: min(320px, 42vw);
+    flex-basis: min(320px, 42vw);
+    box-shadow: -16px 0 28px rgba(0, 0, 0, 0.36);
+  }
+
+  .comparison-window-sliding {
+    min-width: 160px;
+    max-width: calc(100% - 220px);
+  }
+
+  #viewport-controls,
+  #comparison-viewport-controls {
+    bottom: 34px;
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --inspector-width: 280px;
+    --ui-font-size: 12px;
+  }
+
+  #toolbar {
+    max-height: 132px;
+  }
+
+  .toolbar-section,
+  .toolbar-group {
+    min-width: 0;
+  }
+
+  .toolbar-select,
+  .toolbar-input,
+  .toolbar-btn {
+    max-width: 150px;
+  }
+
+  #inspector-sidebar.open {
+    width: min(300px, 86vw);
+    flex-basis: min(300px, 86vw);
+  }
+
+  .comparison-window-sliding {
+    min-width: 140px;
+    max-width: calc(100% - 160px);
+  }
+
+  .comparison-window-title-block {
+    display: none;
+  }
+
+  .comparison-ohlc-legend,
+  #ohlc-legend {
+    max-width: calc(100% - 24px);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 }
 
 .replay-main {

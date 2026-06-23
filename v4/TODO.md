@@ -1213,10 +1213,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 333.5: Two-device consistency smoke。用户已在第二台电脑确认 `http://192.168.1.111:8001/index.html` 可打开；远程导入 K 线和响应式问题不阻塞 server URL baseline，转入 Step 334 处理。
   - [x] Step 333.6: Backup, operations note, and closeout。已完成 `/tmp/v4-step333-backups` 本机备份和 `/tmp/v4-step333-restore-test` restore 检查；正式长期服务器仍建议把备份目录迁到 `/var/backups/trading/v4` 或外部磁盘。
 
-- [ ] Step 334: Remote Data Maintenance and responsive UX hardening。目标是在 Step 333 server URL 已可远程访问后，修复远程电脑无法导入 K 线且没有错误提示的问题，并让 V4 主页面和 Data Maintenance 页面在不同分辨率下达到最低可用自适应。计划见 `v4/sessions/session_20260623_step334_remote_maintenance_responsive_plan.md`。
-  - [ ] Step 334.1: Remote import workflow audit。明确“导入 K 线数据”当前对应的 UI 入口、后端脚本、文件/网络权限、是否应写 server DB，以及哪些导入仍是 client-local；复现远程无提示失败并记录 Network/console/API 输出。
-  - [ ] Step 334.2: Data Maintenance error visibility。所有远程 maintenance/import action 必须显示 pending/success/error 状态；fetch 失败、CORS、非 2xx、JSON parse、后端 stderr/stdout 都要进入可复制 Output，不允许静默失败。
-  - [ ] Step 334.3: Server-side K-line import contract。若当前入口应支持远程 K 线导入，则补齐 server-side upload/refresh/import path；若短期只支持 server refresh，不支持浏览器上传 K 线文件，则在 UI 中明确禁用或提示原因和替代命令。
-  - [ ] Step 334.4: Responsive layout baseline。为 `index.html` 和 `data-maintenance.html` 定义桌面大屏、笔记本、小宽度三档最低布局规则；修复 toolbar、Inspector、Comparison Window、Replay bar、Data Maintenance 双栏在窄屏下溢出/不可操作的问题。
-  - [ ] Step 334.5: Remote browser smoke coverage。新增或扩展 browser smoke，覆盖 LAN URL 下 `API_BASE`、Data Maintenance 错误输出、至少一个安全 dry-run action、以及两个 viewport 宽度的关键控件可见/可点击。
-  - [ ] Step 334.6: Docs and closeout。更新 Step 333/334 session、server sync runbook 和 TODO，记录远程导入支持边界、剩余不支持项、推荐操作流程和下一步 Step 335 候选。
+- [x] Step 334: Remote Data Maintenance and responsive UX hardening。目标是在 Step 333 server URL 已可远程访问后，修复远程电脑无法导入 K 线且没有错误提示的问题，并让 V4 主页面和 Data Maintenance 页面在不同分辨率下达到最低可用自适应。已完成：Data Maintenance 失败输出包含 action、URL、HTTP status、非 JSON 解析错误和 raw body；Refresh Range 明确是 server-side K-line DB update path，Tradovate 文件上传明确只生成 Review JSON；环境变量 UI 补齐 `V4_API_HOST` / `V4_ALLOWED_WEB_ORIGINS`；主页面和 Data Maintenance 增加 1366/1120/760 与 1180/760 响应式基线；新增 remote maintenance responsive smoke 并用本地/LAN URL 验证。记录见 `v4/sessions/session_20260623_step334_remote_maintenance_responsive_plan.md`。
+  - [x] Step 334.1: Remote import workflow audit。确认 K 线写库入口是 Data Maintenance Refresh Range 的 Dry Run/Write Data，运行于服务器并写 `V4_TRADING_DB`；Tradovate 文件输入是浏览器本地 Review JSON 生成，不写 K 线 DB。
+  - [x] Step 334.2: Data Maintenance error visibility。所有 maintenance action 结果输出加入 action、URL、HTTP status；fetch/CORS/timeout、非 2xx、非 JSON 响应和 raw body 都会进入可复制 Output。
+  - [x] Step 334.3: Server-side K-line import contract。短期不新增浏览器上传 K 线 CSV 到 DB；UI 明确支持路径为 Refresh Range server-side dry-run/write，文件上传类导入不等同于 K 线 DB 导入。
+  - [x] Step 334.4: Responsive layout baseline。`index.html`/`style.css` 支持 1366 笔记本压缩 toolbar、1120 以下 toolbar wrap/Inspector overlay、760 以下进一步压缩；`data-maintenance.html` 在 1180 以下切单列，760 以下表单单列。
+  - [x] Step 334.5: Remote browser smoke coverage。新增 `v4/tests/remote-maintenance-responsive-smoke.js`，覆盖 page-host API URL、Data Maintenance 500/plain-text 错误输出、K-line contract notice、server env options、1024/1366 布局无横向溢出；本地和 `V4_HOST_URL=http://192.168.1.111:8001` 均通过。
+  - [x] Step 334.6: Docs and closeout。已更新 Step 334 session、server sync runbook 和 TODO；后续 Step 335 建议聚焦长期服务器化：systemd/backup path/refresh automation，或真正的 server-side file upload import。

@@ -146,6 +146,13 @@ python3 v4/scripts/verify_v4_bars_api.py --api-url http://127.0.0.1:8766
 
 Avoid running refresh jobs from client machines unless explicitly debugging.
 
+Remote browser operation:
+
+- Use `http://SERVER_HOST:8001/data-maintenance.html` for server-side refresh/maintenance actions.
+- K-line DB updates are performed by the Refresh Range `Dry Run` / `Write Data` actions; those run on the server and write the server-side `V4_TRADING_DB`.
+- Browser-selected Tradovate files are currently local browser inputs that generate Review JSON downloads. They do not upload source files to the server and do not import K-line bars into DuckDB.
+- If a maintenance action fails from a remote computer, copy the Output block. It should include the action, request URL, HTTP status, parse/network error, and raw backend output.
+
 ## Backup Runbook
 
 Before daily multi-device use, back up the server canonical data:

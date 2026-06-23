@@ -42,6 +42,8 @@
       top: 0;
       z-index: 2;
       flex: 0 0 auto;
+      min-width: 0;
+      flex-wrap: wrap;
     }
     h1 {
       margin: 0;
@@ -51,7 +53,7 @@
     }
     main {
       display: grid;
-      grid-template-columns: minmax(380px, 520px) minmax(480px, 1fr);
+      grid-template-columns: minmax(340px, 500px) minmax(420px, 1fr);
       gap: 12px;
       flex: 1 1 auto;
       min-height: 0;
@@ -80,6 +82,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+      min-width: 0;
     }
     label {
       display: grid;
@@ -148,6 +151,21 @@
     .status {
       color: var(--muted);
       font-size: 12px;
+    }
+    .status strong {
+      color: #c8d6e3;
+      font-weight: 650;
+    }
+    .notice {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(47, 183, 164, 0.32);
+      border-left: 3px solid var(--accent);
+      border-radius: 5px;
+      background: rgba(47, 183, 164, 0.08);
+      color: #c8d6e3;
+      font-size: 12px;
+      line-height: 1.45;
     }
     .env-table {
       display: grid;
@@ -233,17 +251,42 @@
       word-break: break-word;
     }
     .compact { margin-top: 10px; }
-    @media (max-width: 920px) {
+    @media (max-width: 1180px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .output-panel {
+        height: min(50vh, 520px);
+        min-height: 360px;
+      }
+    }
+    @media (max-width: 760px) {
       body {
         height: auto;
         min-height: 100vh;
         overflow: auto;
         display: block;
       }
+      header {
+        align-items: flex-start;
+      }
+      .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+      .header-actions button {
+        flex: 1 1 140px;
+      }
       main {
-        grid-template-columns: 1fr;
+        padding: 8px;
         height: auto;
         min-height: 0;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .env-row {
+        grid-template-columns: 1fr;
       }
       .tools-column {
         overflow: visible;
@@ -278,6 +321,8 @@
                 <option value="DATABENTO_API_KEY">DATABENTO_API_KEY</option>
                 <option value="V4_TRADING_DB">V4_TRADING_DB</option>
                 <option value="V4_WEB_PORT">V4_WEB_PORT</option>
+                <option value="V4_API_HOST">V4_API_HOST</option>
+                <option value="V4_ALLOWED_WEB_ORIGINS">V4_ALLOWED_WEB_ORIGINS</option>
               </select>
             </label>
             <label>Value <input id="envValue" type="password" autocomplete="off" placeholder="New value"></label>
@@ -299,6 +344,9 @@
       <section>
         <div class="section-header">Refresh Range</div>
         <div class="content">
+          <div class="notice">
+            <strong>K-line DB update path:</strong> Dry Run and Write Data run on this server and write to the server-side <code>V4_TRADING_DB</code>. Browser file uploads in Tradovate Live Records only generate Review JSON and do not import K-line bars into the DB.
+          </div>
           <div class="grid">
             <label>Instrument <select id="refreshInstrument"><option>ES</option><option>NQ</option></select></label>
             <label>Chunk days <input id="chunkDays" type="number" min="1" max="30" value="3"></label>
@@ -607,6 +655,38 @@
       });
     }
 
+    async function parseMaintenanceResponse(response) {
+      const text = await response.text();
+      if (!text) return { data: {}, rawText: '' };
+      try {
+        return { data: JSON.parse(text), rawText: text };
+      } catch (error) {
+        return {
+          data: {
+            ok: false,
+            returncode: response.status,
+            error: `Response was not JSON: ${error.message}`,
+            parseError: `Response was not JSON: ${error.message}`,
+            output: text,
+          },
+          rawText: text,
+        };
+      }
+    }
+
+    function formatRequestFailure(payload, details = {}) {
+      return [
+        `> ${payload?.action || 'unknown'}`,
+        '',
+        'Request failed',
+        '--------------',
+        `URL: ${details.url || API}`,
+        `HTTP status: ${details.status || 'no response'}`,
+        details.error ? `Error: ${details.error}` : '',
+        details.body ? `Response body:\n${details.body}` : '',
+      ].filter(Boolean).join('\n');
+    }
+
     function setState(state, kind = '') {
       pill.textContent = state;
       pill.className = `pill ${kind}`;
@@ -632,19 +712,28 @@
           body: JSON.stringify(payload),
           signal: controller.signal
         });
-        const data = await response.json();
+        const { data, rawText } = await parseMaintenanceResponse(response);
         const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
         if (Array.isArray(data.environment)) {
           renderEnvironmentStatus(data.environment);
           if (payload.action === 'environment_write') setValue('envValue', '');
         }
-        append(formatResult(payload, data, response.status, header));
+        append(formatResult(payload, data, response.status, header, API));
         setState(data.ok ? 'ok' : 'failed', data.ok ? 'ok' : 'fail');
+        if (!response.ok && !rawText) {
+          append(formatRequestFailure(payload, { status: response.status, error: response.statusText }));
+        }
         return data;
       } catch (error) {
         append(error.name === 'AbortError'
-          ? `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds. The backend may still be finishing the action; use Status/Verify or restart the API if it stays busy.`
-          : `request failed: ${error.message}`);
+          ? formatRequestFailure(payload, {
+              status: 'timeout',
+              error: `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds. The backend may still be finishing the action; use Status/Verify or restart the API if it stays busy.`
+            })
+          : formatRequestFailure(payload, {
+              status: 'network/fetch error',
+              error: `${error.name || 'Error'}: ${error.message}. Check that the API is reachable from this browser and that V4_ALLOWED_WEB_ORIGINS includes ${window.location.origin}.`
+            }));
         setState('failed', 'fail');
         return null;
       } finally {
@@ -667,9 +756,9 @@
           body: JSON.stringify({ action: 'economic_status' }),
           signal: controller.signal
         });
-        const data = await response.json();
+        const { data } = await parseMaintenanceResponse(response);
         const header = `returncode=${data.returncode ?? response.status} ok=${Boolean(data.ok)}`;
-        append(formatResult({ action: 'economic_status' }, data, response.status, header));
+        append(formatResult({ action: 'economic_status' }, data, response.status, header, API));
         if (!data.ok) {
           setState('failed', 'fail');
           return;
@@ -681,8 +770,14 @@
         setState('ok', 'ok');
       } catch (error) {
         append(error.name === 'AbortError'
-          ? `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds.`
-          : `request failed: ${error.message}`);
+          ? formatRequestFailure({ action: 'economic_status' }, {
+              status: 'timeout',
+              error: `request timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds.`
+            })
+          : formatRequestFailure({ action: 'economic_status' }, {
+              status: 'network/fetch error',
+              error: `${error.name || 'Error'}: ${error.message}. Check API reachability and V4_ALLOWED_WEB_ORIGINS for ${window.location.origin}.`
+            }));
         setState('failed', 'fail');
       } finally {
         clearTimeout(timeoutId);
@@ -730,6 +825,8 @@
       const lines = [];
       const ok = Boolean(data.ok);
       lines.push(ok ? 'Result: completed.' : `Result: needs attention. HTTP/return status ${data.returncode ?? responseStatus}.`);
+      if (data.parseError) lines.push(data.parseError);
+      if (data.error && !data.parseError && !ok) lines.push(`Error: ${data.error}`);
 
       if (payload.action === 'environment_status' || payload.action === 'environment_write' || payload.action === 'environment_delete') {
         const file = extract(out, /^file:\s*(.+)$/m);
@@ -862,10 +959,17 @@
       return lines.join('\n');
     }
 
-    function formatResult(payload, data, responseStatus, header) {
+    function formatResult(payload, data, responseStatus, header, requestUrl = API) {
       const raw = data.output || data.error || '';
+      const diagnostics = [
+        data.parseError ? `parse_error: ${data.parseError}` : '',
+        data.error && data.error !== data.parseError ? `error: ${data.error}` : '',
+      ].filter(Boolean).join('\n');
       return [
         header,
+        `action=${payload.action || 'unknown'}`,
+        `url=${requestUrl}`,
+        `http_status=${responseStatus}`,
         '',
         'Summary',
         '-------',
@@ -873,8 +977,9 @@
         '',
         'Raw Output',
         '----------',
+        diagnostics,
         raw
-      ].join('\n');
+      ].filter((line, index, lines) => line !== '' || lines[index - 1] !== '').join('\n');
     }
 
     function rollPayload(action) {

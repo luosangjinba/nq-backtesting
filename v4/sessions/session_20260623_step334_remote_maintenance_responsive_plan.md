@@ -187,3 +187,107 @@ Closeout should record:
 5. Add remote browser smoke.
 6. Update docs and close out.
 
+## Execution Update
+
+Date: 2026-06-23
+
+### Remote Import Audit
+
+The audited K-line update path is Data Maintenance -> Refresh Range:
+
+- `Preflight`
+- `Dry Run`
+- `Write Data`
+
+These actions call `/v4/data_maintenance/run` and execute server-side scripts from `v4/v4_api.py`. Writes target the server-side `V4_TRADING_DB`.
+
+The Tradovate Live Records file inputs are not K-line DB imports. They read browser-selected files locally and generate downloadable Review JSON for the current browser. They do not write bars to DuckDB and do not upload the source files to the server.
+
+Decision for this step:
+
+- Do not add browser-upload K-line CSV import into server DB yet.
+- Make the supported K-line path explicit in Data Maintenance.
+- Treat a future browser-upload-to-server DB import as a separate step if still needed.
+
+### Data Maintenance Error Visibility
+
+Updated `v4/data-maintenance.html`:
+
+- Maintenance output now includes:
+  - `action`;
+  - request `url`;
+  - `http_status`;
+  - non-JSON response parse errors;
+  - raw response body.
+- Network/fetch/CORS failures now show a structured request failure block.
+- Timeout failures include the request context and guidance to verify/restart.
+- The environment variable dropdown now includes:
+  - `V4_API_HOST`;
+  - `V4_ALLOWED_WEB_ORIGINS`.
+
+The Refresh Range section now states:
+
+- Dry Run and Write Data run on the server.
+- They write to server-side `V4_TRADING_DB`.
+- Tradovate Live Records uploads only generate Review JSON and do not import K-line bars into the DB.
+
+### Responsive Baseline
+
+Updated `v4/data-maintenance.html`:
+
+- At `max-width: 1180px`, the maintenance page switches from two columns to one column.
+- At `max-width: 760px`, forms and environment rows become single-column and header actions wrap.
+- Output remains visible with a fixed usable height.
+
+Updated `v4/style.css`:
+
+- At `max-width: 1366px`, toolbar spacing/font is tightened and labels compress.
+- At `max-width: 1120px`, toolbar wraps, separators hide, status moves to its own row, Inspector becomes an overlay instead of consuming chart width, and Comparison Window max width is constrained.
+- At `max-width: 760px`, toolbar/control max widths shrink, Inspector uses most of the viewport width as overlay, and Comparison header/title/legends compress.
+
+### Smoke Coverage
+
+Added:
+
+```text
+v4/tests/remote-maintenance-responsive-smoke.js
+```
+
+Coverage:
+
+- Loads `index.html` at `1366x768`.
+- Calls browser-side `fetchBars()` and asserts the API URL follows the page hostname on port `8766`.
+- Confirms toolbar/chart visibility and no meaningful horizontal overflow.
+- Loads `data-maintenance.html` at `1024x768`.
+- Mocks a `500` plain-text maintenance failure.
+- Confirms Output includes request URL, HTTP status, parse error, and raw body.
+- Confirms K-line DB contract notice and server env options are visible.
+- Confirms Data Maintenance page has no meaningful horizontal overflow.
+
+Verification commands:
+
+```bash
+node --check v4/tests/remote-maintenance-responsive-smoke.js
+node --check v4/src/config.js
+git diff --check
+node v4/tests/remote-maintenance-responsive-smoke.js
+V4_HOST_URL=http://192.168.1.111:8001 node v4/tests/remote-maintenance-responsive-smoke.js
+node v4/tests/tradovate-zip-import-browser-smoke.js
+```
+
+Result:
+
+- All passed.
+- Existing Node `MODULE_TYPELESS_PACKAGE_JSON` warning remains unchanged.
+
+### Remaining Limitations
+
+- There is still no browser-upload K-line CSV-to-server-DB workflow.
+- Data Maintenance Write Data still depends on server-side Databento/API key/roll-calendar validity.
+- Responsive work is a usability baseline, not a full mobile redesign.
+
+### Step 335 Candidates
+
+- Server runtime hardening: systemd service, durable backup path, log rotation, health/status page.
+- Refresh automation: scheduled server-side data refresh with lock/state and visible last-run status.
+- Server-side upload import: explicit K-line CSV/ZIP upload endpoint that validates and writes `V4_TRADING_DB`.
