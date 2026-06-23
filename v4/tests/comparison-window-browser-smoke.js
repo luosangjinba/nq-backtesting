@@ -697,6 +697,33 @@ async function main() {
       { from: 0, to: 2 },
       'Comparison time movement should not sync-scroll the primary pane'
     );
+    const primaryMenuPaneLabels = await evaluate(client, `
+      (async () => {
+        const menu = await import('/src/pda/manual-context-menu.js');
+        const html = menu.renderManualContextMenu({
+          left: 0,
+          top: 0,
+          maxHeight: 400,
+          timeLabel: 'NQ 1M',
+          disabled: '',
+          orderSetupItems: '',
+          liveRecordItems: '',
+          pdaItems: '',
+          smtItems: '',
+          segmentItems: '',
+          pointSetItems: '',
+          chartNoteItems: '',
+          timeOverlayItems: '',
+          clearItems: '',
+        });
+        const host = document.createElement('div');
+        host.innerHTML = html;
+        return [...host.querySelectorAll('.pda-submenu-panel .pda-menu-item')]
+          .map((item) => item.textContent.trim());
+      })();
+    `);
+    assert.ok(primaryMenuPaneLabels.includes('Time in Pane 2'), 'Primary context menu should use pane terminology for cross-pane locate');
+    assert.equal(primaryMenuPaneLabels.includes('Time in Comparison'), false, 'Primary context menu should not show old Comparison locate wording');
     const comparisonViewportAction = await evaluate(client, `
       (async () => {
         const manager = await import('/src/chart/comparison-chart-manager.js');
@@ -792,6 +819,9 @@ async function main() {
 
         openBlankAt();
         const blankMenu = document.querySelector('#comparison-context-menu');
+        const locateSubmenu = blankMenu.querySelector('.pda-menu-submenu');
+        const locateLabels = [...locateSubmenu.querySelectorAll('.pda-submenu-panel .pda-menu-item')]
+          .map((item) => item.textContent.trim());
         const blankMenuRect = blankMenu.getBoundingClientRect();
         const chartRect = chartEl.getBoundingClientRect();
         const blankMenuTopElement = document.elementFromPoint(
@@ -893,6 +923,7 @@ async function main() {
         return {
           menuExists: Boolean(document.querySelector('#comparison-context-menu')),
           menuReachable: blankMenuReachable,
+          locateLabels,
           menuConstrained: blankMenuConstrained,
           menuFitsVertically: blankMenuFitsVertically,
           menuGeometry: {
@@ -950,6 +981,10 @@ async function main() {
     `);
     assert.equal(contextMenuResult.menuExists, true, 'Comparison context menu should exist');
     assert.equal(contextMenuResult.menuReachable, true, 'Comparison context menu should render above the chart canvas');
+    assert.ok(contextMenuResult.locateLabels.includes('Time in Pane 1'), 'Comparison context menu should use pane terminology for cross-pane locate');
+    assert.ok(contextMenuResult.locateLabels.includes('Copy Pane 2 Time'), 'Comparison context menu should use pane terminology for copy time');
+    assert.equal(contextMenuResult.locateLabels.includes('Time in Main'), false, 'Comparison context menu should not show old Main locate wording');
+    assert.equal(contextMenuResult.locateLabels.includes('Copy Comparison Time'), false, 'Comparison context menu should not show old Comparison copy wording');
     assert.equal(contextMenuResult.menuConstrained, true, 'Comparison context menu should become scroll constrained in a compact window');
     assert.equal(
       contextMenuResult.menuFitsVertically,

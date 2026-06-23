@@ -174,9 +174,9 @@ function renderMenu(bar, price, context, hits = {}) {
     <div class="pda-menu-section pda-menu-submenu">
       <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
       <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Time in Main</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Time in Pane 1</button>
       <button class="pda-menu-item" ${comparisonOnlyDisabled}>Date in Calendar</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Comparison Time</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Pane 2 Time</button>
       <button class="pda-menu-item" data-comparison-action="comparison-copy-price" ${priceLabel ? '' : 'disabled'}>Copy Price ${escapeHtml(priceLabel)}</button>
       </div>
     </div>
