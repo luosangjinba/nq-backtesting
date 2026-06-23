@@ -12,11 +12,20 @@ import { identifyFvg } from '../pda/fvg-identifier.js';
 import { addSmtRecord, SMT_DIRECTIONS, SMT_TYPES } from './smt-store.js';
 import { recordHistory } from '../history/history-manager.js';
 import { createRafThrottle } from '../utils/raf-throttle.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 
 let pickState = null;
 
 function getPrimaryChartTime(bar) {
   return getBarChartTime(bar, store.getCurrentTimeframe());
+}
+
+function getPrimaryPaneLabel() {
+  return getPaneLabel(CHART_PANE_IDS.PRIMARY);
+}
+
+function getComparisonPaneLabel() {
+  return getPaneLabel(CHART_PANE_IDS.COMPARISON);
 }
 
 function findPrimaryBarByChartTime(time) {
@@ -33,7 +42,7 @@ function getComparisonSmtSource({ requireLoadedBars = false } = {}) {
   if (requireLoadedBars && !displayBars.length) return null;
   return {
     chartId: 'comparison-window',
-    label: 'Comparison Window',
+    label: getComparisonPaneLabel(),
     instrument: state.descriptor.instrument,
     timeframe: state.descriptor.timeframe,
     getDisplayBars: comparisonStore.getComparisonDisplayBars,
@@ -51,28 +60,28 @@ function findCompareBar(timestamp) {
 
 export function getSmtDisabledReason({ requireLoadedBars = false } = {}) {
   if (getPrimaryInstrument() !== 'NQ') {
-    return 'SMT currently supports Main=NQ only';
+    return `SMT currently supports ${getPrimaryPaneLabel()}=NQ only`;
   }
   const compareSource = getSmtCompareSource({ requireLoadedBars });
   if (compareSource) return '';
 
   const comparisonState = comparisonStore.getComparisonWindowState();
   if (comparisonState.enabled && comparisonState.descriptor.instrument !== 'ES') {
-    return 'SMT requires Comparison instrument ES';
+    return `SMT requires ${getComparisonPaneLabel()} instrument ES`;
   }
   if (comparisonState.enabled && Number(comparisonState.descriptor.timeframe) !== Number(store.getCurrentTimeframe())) {
-    return 'SMT requires Main TF and Comparison TF to match';
+    return `SMT requires ${getPrimaryPaneLabel()} TF and ${getComparisonPaneLabel()} TF to match`;
   }
   if (!comparisonState.enabled) {
-    return 'SMT requires Comparison Window ES';
+    return `SMT requires ${getComparisonPaneLabel()} ES`;
   }
   if (requireLoadedBars && !store.getDisplayBars().length) {
     return 'SMT requires loaded NQ bars';
   }
   if (requireLoadedBars) {
-    return 'SMT requires loaded ES comparison bars';
+    return `SMT requires loaded ES ${getComparisonPaneLabel()} bars`;
   }
-  return 'SMT requires Comparison Window ES';
+  return `SMT requires ${getComparisonPaneLabel()} ES`;
 }
 
 function assertCanMarkSmt() {

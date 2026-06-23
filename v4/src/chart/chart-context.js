@@ -1,4 +1,4 @@
-// Unified chart context descriptors for primary and Comparison Window workflows.
+// Unified chart context descriptors for Pane 1 and Pane 2 workflows.
 // Step 118 foundation only: existing callers can opt in gradually.
 
 import * as primaryChart from './chart-manager.js';
@@ -6,6 +6,7 @@ import * as comparisonChart from './comparison-chart-manager.js';
 import * as primaryStore from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as comparisonStore from '../comparison/comparison-window-store.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 
 export const CHART_CONTEXT_IDS = Object.freeze({
   PRIMARY: 'primary',
@@ -57,7 +58,7 @@ function getComparisonContext() {
   return {
     id: CHART_CONTEXT_IDS.COMPARISON,
     chartId: CHART_CONTEXT_IDS.COMPARISON,
-    label: 'Comparison',
+    label: getPaneLabel(CHART_PANE_IDS.COMPARISON),
     instrument: state.descriptor.instrument,
     timeframe: state.descriptor.timeframe,
     enabled: Boolean(state.enabled && chart && series),

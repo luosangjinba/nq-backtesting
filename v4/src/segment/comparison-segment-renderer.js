@@ -1,4 +1,4 @@
-// Segment overlay renderer for the Comparison Window.
+// Segment overlay renderer for Pane 2.
 
 import * as bus from '../event-bus.js';
 import {

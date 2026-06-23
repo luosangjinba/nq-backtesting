@@ -7,6 +7,16 @@ import {
   getDraftSegmentGroupTargetId,
 } from '../segment/segment-group-store.js';
 import { getSmtDisabledReason } from '../smt/manual-smt.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
 
 export function clampMenuPosition(containerEl, x, y) {
   const rect = containerEl.parentElement.getBoundingClientRect();
@@ -228,6 +238,28 @@ export function renderSegmentGroupItems(segmentHit) {
   `;
 }
 
+export function renderPdaMenuSection(disabled = '') {
+  return `
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
+      <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
+      <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
+      <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
+      <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
+      <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
+      <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
+      <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
+      <button class="pda-menu-item" data-pda-action="ob-last-bar" ${disabled}>Mark OB Last Bar</button>
+      <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
+      <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
+      <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
+      </div>
+    </div>
+  `;
+}
+
 export function renderManualContextMenu({
   left,
   top,
@@ -259,28 +291,12 @@ export function renderManualContextMenu({
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
         <div class="pda-submenu-panel">
         <button class="pda-menu-item" data-pda-action="calendar-locate-date" ${disabled}>Date in Calendar</button>
-        <button class="pda-menu-item" data-pda-action="comparison-locate-time" ${disabled}>Time in Comparison</button>
+        <button class="pda-menu-item" data-pda-action="comparison-locate-time" ${disabled}>Time in ${escapeHtml(getPaneLabel(CHART_PANE_IDS.COMPARISON))}</button>
         </div>
       </div>
       ${orderSetupItems}
       ${liveRecordItems || ''}
-      <div class="pda-menu-section pda-menu-submenu">
-        <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
-        <div class="pda-submenu-panel">
-        <button class="pda-menu-item" data-pda-action="bsl" ${disabled}>Mark BSL</button>
-        <button class="pda-menu-item" data-pda-action="ssl" ${disabled}>Mark SSL</button>
-        <button class="pda-menu-item" data-pda-action="wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
-        <button class="pda-menu-item" data-pda-action="wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
-        <button class="pda-menu-item" data-pda-action="fvg" ${disabled}>Mark FVG</button>
-        <button class="pda-menu-item" data-pda-action="ifvg" ${disabled}>Mark IFVG</button>
-        <button class="pda-menu-item" data-pda-action="ob-bullish" ${disabled}>Mark Bullish OB</button>
-        <button class="pda-menu-item" data-pda-action="ob-bearish" ${disabled}>Mark Bearish OB</button>
-        <button class="pda-menu-item" data-pda-action="ob-last-bar" ${disabled}>Mark OB Last Bar</button>
-        <button class="pda-menu-item" data-pda-action="breaker-bullish" ${disabled}>Mark Bullish Breaker</button>
-        <button class="pda-menu-item" data-pda-action="breaker-bearish" ${disabled}>Mark Bearish Breaker</button>
-        <button class="pda-menu-item" data-pda-action="fib-start" ${disabled}>Start Fib</button>
-        </div>
-      </div>
+      ${renderPdaMenuSection(disabled)}
       <div class="pda-menu-section pda-menu-submenu">
         <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
         <div class="pda-submenu-panel">

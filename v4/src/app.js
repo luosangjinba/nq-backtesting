@@ -3,6 +3,9 @@
 import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
 import { getBarChartTime } from './chart/time-projection.js';
+import { initChartPaneDom } from './chart-panes/chart-pane-dom.js';
+import { CHART_PANE_LAYOUTS, getChartPaneState } from './chart-panes/chart-pane-store.js';
+import { initChartPaneRangeSync } from './chart-panes/chart-pane-range-sync.js';
 import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
 import { initToolbar } from './ui/toolbar.js';
@@ -74,10 +77,16 @@ initDisplayMode();
 console.log('[V4] Display mode initialized');
 
 initComparisonWindowPersistence();
-console.log('[V4] Comparison window workspace initialized');
+console.log('[V4] Pane 2 workspace initialized');
 
 initToolbar();
 console.log('[V4] Toolbar initialized');
+
+initChartPaneDom();
+console.log('[V4] Chart pane DOM initialized');
+
+initChartPaneRangeSync();
+console.log('[V4] Chart pane range sync initialized');
 
 // 初始化 Replay 控制条
 initReplayControls();
@@ -112,6 +121,11 @@ bus.on('bars:loaded', ({ bars }) => {
   );
 });
 
+bus.on('chart-panes:changed', (state = getChartPaneState()) => {
+  if (state.reason !== 'layout' || state.layout !== CHART_PANE_LAYOUTS.TWO_COLUMN) return;
+  requestAnimationFrame(() => chart.normalizeVisibleLogicalRange());
+});
+
 // 初始化 PDA 手动标注和渲染
 initPdaRenderer();
 initComparisonPdaRenderer();
@@ -132,7 +146,7 @@ console.log('[V4] Segment controls initialized');
 initComparisonWindowController();
 initComparisonOverlayPolicy();
 initComparisonContextMenu();
-console.log('[V4] Comparison window controller initialized');
+console.log('[V4] Pane 2 controller initialized');
 
 initSmtRenderer();
 initManualSmt();

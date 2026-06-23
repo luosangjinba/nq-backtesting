@@ -31,30 +31,30 @@ function renderOverlaySyncOptions(selectedMode) {
 
 export function renderComparisonWindowTemplate() {
   return `
-    <section id="comparison-window" class="comparison-window" aria-label="Comparison Window">
+    <section id="comparison-window" class="comparison-window" aria-label="Pane 2">
       <header class="comparison-window-header" data-comparison-drag-handle>
         <div class="comparison-window-title-block">
-          <div class="comparison-window-title">Comparison Window</div>
-          <div class="comparison-window-subtitle">Comparison workspace</div>
+          <div class="comparison-window-title">Pane 2</div>
+          <div class="comparison-window-subtitle">Use top Symbol/TF controls when this pane is active</div>
         </div>
         <div class="comparison-window-actions">
-          <label class="comparison-window-field">
+          <label class="comparison-window-field comparison-window-legacy-field">
             <span>Inst</span>
             <select class="comparison-window-select" data-comparison-instrument></select>
           </label>
-          <label class="comparison-window-field">
+          <label class="comparison-window-field comparison-window-legacy-field">
             <span>TF</span>
             <select class="comparison-window-select" data-comparison-timeframe></select>
           </label>
-          <label class="comparison-window-field">
+          <label class="comparison-window-field comparison-window-legacy-field">
             <span>Drawings</span>
             <select class="comparison-window-select" data-comparison-overlay-sync></select>
           </label>
-          <button class="comparison-window-btn" type="button" data-comparison-reset title="Reset window position">Reset</button>
-          <button class="comparison-window-btn comparison-window-close" type="button" data-comparison-close title="Close Comparison Window">Close</button>
+          <button class="comparison-window-btn comparison-window-legacy-action" type="button" data-comparison-reset title="Reset window position">Reset</button>
+          <button class="comparison-window-btn comparison-window-close comparison-window-legacy-action" type="button" data-comparison-close title="Close Pane 2">Close</button>
         </div>
       </header>
-      <div class="comparison-window-left-handle" data-comparison-left-handle aria-label="Resize comparison window"></div>
+      <div class="comparison-window-left-handle" data-comparison-left-handle aria-label="Resize Pane 2"></div>
       <div class="comparison-window-rail" data-comparison-drag-handle aria-hidden="true">
         <div class="comparison-window-rail-handle"></div>
       </div>
@@ -63,11 +63,11 @@ export function renderComparisonWindowTemplate() {
           <div id="comparison-chart-info" class="comparison-chart-info"></div>
           <div id="comparison-ohlc-legend" class="comparison-ohlc-legend"></div>
           <div id="comparison-viewport-controls"></div>
-          <div class="comparison-overlay-status" data-comparison-overlay-status>Overlays waiting for comparison data</div>
+          <div class="comparison-overlay-status" data-comparison-overlay-status>Pane 2 overlays waiting for data</div>
           <div id="comparison-context-menu" class="pda-menu comparison-context-menu" hidden></div>
-          <div class="comparison-window-placeholder" data-comparison-placeholder>
-            <div class="comparison-window-placeholder-title">Comparison chart view</div>
-            <div class="comparison-window-placeholder-meta" data-comparison-status>Choose a main date range to load comparison data</div>
+          <div class="comparison-window-placeholder" data-comparison-placeholder hidden>
+            <div class="comparison-window-placeholder-title"></div>
+            <div class="comparison-window-placeholder-meta" data-comparison-status></div>
           </div>
         </div>
       </div>

@@ -1,12 +1,16 @@
 import { timeframeToString } from '../config.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 
 function normalizeChartLabel(annotation = {}) {
   const chartId = annotation.sourceChartId || annotation.chartId || 'primary';
   const rawLabel = annotation.sourceChartLabel || '';
   if (chartId === 'secondary') return 'Sub';
-  if (chartId === 'primary') return 'Main';
-  if (/^secondary$/i.test(rawLabel)) return 'Sub';
-  if (/^primary$/i.test(rawLabel)) return 'Main';
+  if (chartId === 'primary') return getPaneLabel(CHART_PANE_IDS.PRIMARY);
+  if (chartId === 'comparison-window') return getPaneLabel(CHART_PANE_IDS.COMPARISON);
+  if (/^secondary$/i.test(rawLabel)) return getPaneLabel(CHART_PANE_IDS.COMPARISON);
+  if (/^primary$/i.test(rawLabel)) return getPaneLabel(CHART_PANE_IDS.PRIMARY);
+  if (/^main$/i.test(rawLabel)) return getPaneLabel(CHART_PANE_IDS.PRIMARY);
+  if (/^comparison(?: window)?$/i.test(rawLabel)) return getPaneLabel(CHART_PANE_IDS.COMPARISON);
   return rawLabel || chartId;
 }
 

@@ -265,7 +265,7 @@ function validateArchiveInstrument(payloadInstrument) {
   const archiveInstrument = String(payloadInstrument || 'NQ').trim().toUpperCase();
   const currentInstrument = getPrimaryInstrument();
   if (archiveInstrument !== currentInstrument) {
-    throw new Error(`archive instrument ${archiveInstrument} does not match current Main ${currentInstrument}`);
+    throw new Error(`archive instrument ${archiveInstrument} does not match current Pane 1 ${currentInstrument}`);
   }
 }
 

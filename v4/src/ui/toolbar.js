@@ -8,9 +8,23 @@ import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
+  getComparisonWindowState,
   isComparisonWindowEnabled,
+  setComparisonInstrument,
+  setComparisonTimeframe,
   setComparisonWindowEnabled,
 } from '../comparison/comparison-window-store.js';
+import {
+  CHART_PANE_IDS,
+  CHART_PANE_LAYOUTS,
+  getActivePane,
+  getChartPaneState,
+  getPaneById,
+  getPaneLabel,
+  setActivePane,
+  setChartPaneLayout,
+  updatePaneDescriptor,
+} from '../chart-panes/chart-pane-store.js';
 import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
@@ -119,31 +133,44 @@ function renderInstrumentOptions(selectedInstrument) {
 }
 
 function renderComparisonControls() {
-  const comparisonEnabled = isComparisonWindowEnabled();
+  const layout = getChartPaneState().layout;
+  const isTwoColumn = isComparisonWindowEnabled() && layout === CHART_PANE_LAYOUTS.TWO_COLUMN;
+  const isSingleComparison = isComparisonWindowEnabled() && layout === CHART_PANE_LAYOUTS.SINGLE_COMPARISON;
   return `
-    <label class="toolbar-toggle" title="Show sliding comparison window">
-      <input id="comparisonWindowToggle" type="checkbox"${comparisonEnabled ? ' checked' : ''} />
-      <span>Compare</span>
-    </label>
+    <div class="toolbar-layout-picker">
+      <button id="chartLayoutBtn" class="toolbar-btn toolbar-secondary-btn toolbar-layout-btn" type="button" title="Chart layout" aria-label="Chart layout" aria-expanded="false">
+        <span class="toolbar-layout-icon ${isTwoColumn ? 'toolbar-layout-icon-two-column' : 'toolbar-layout-icon-single-right'}"></span>
+      </button>
+      <div id="chartLayoutPopover" class="toolbar-calendar-popover toolbar-layout-popover" hidden>
+        <div class="toolbar-layout-grid">
+          <button class="toolbar-layout-option ${isSingleComparison ? 'active' : ''}" type="button" data-layout-action="single-comparison" title="${escapeHtml(getPaneLabel(CHART_PANE_IDS.COMPARISON))}">
+            <span class="toolbar-layout-icon toolbar-layout-icon-single-right"></span>
+          </button>
+          <button class="toolbar-layout-option ${isTwoColumn ? 'active' : ''}" type="button" data-layout-action="two-column" title="${escapeHtml(getPaneLabel(CHART_PANE_IDS.PRIMARY))} + ${escapeHtml(getPaneLabel(CHART_PANE_IDS.COMPARISON))}">
+            <span class="toolbar-layout-icon toolbar-layout-icon-two-column"></span>
+          </button>
+        </div>
+      </div>
+    </div>
   `;
 }
 
-function renderPrimaryTimeframeControls() {
-  const instrument = getPrimaryInstrument();
+function renderActivePaneTimeframeControls() {
+  const activePane = getActivePane();
   return `
     <div class="toolbar-group">
-      <span class="toolbar-label">Main:</span>
-      <select id="primaryInstrumentSelect" class="toolbar-select" title="Primary chart instrument">
-        ${renderInstrumentOptions(instrument)}
+      <span class="toolbar-label">Pane:</span>
+      <select id="primaryInstrumentSelect" class="toolbar-select" title="Active pane instrument">
+        ${renderInstrumentOptions(activePane.instrument)}
       </select>
     </div>
     <div class="toolbar-group">
-      <span class="toolbar-label">Main TF:</span>
-      <select id="tfSelect" class="toolbar-select" title="Primary chart timeframe">
+      <span class="toolbar-label">TF:</span>
+      <select id="tfSelect" class="toolbar-select" title="Active pane timeframe">
         ${Object.entries(TIMEFRAME_MAP)
           .map(
             ([v, l]) =>
-              `<option value="${v}"${parseInt(v) === DEFAULT_TIMEFRAME ? ' selected' : ''}>${l}</option>`
+              `<option value="${v}"${parseInt(v) === Number(activePane.timeframe) ? ' selected' : ''}>${l}</option>`
           )
           .join('\n        ')}
       </select>
@@ -180,6 +207,7 @@ function renderDisplayControls(displayMode) {
 export function initToolbar() {
   const container = document.getElementById('toolbar');
   const displayMode = getDisplayMode();
+  syncPaneStateFromComparison();
 
   container.innerHTML = `
     <div class="toolbar-section toolbar-section-date">
@@ -193,7 +221,7 @@ export function initToolbar() {
     </div>
     <div class="toolbar-separator"></div>
     <div class="toolbar-section toolbar-section-primary">
-      ${renderPrimaryTimeframeControls()}
+      ${renderActivePaneTimeframeControls()}
     </div>
     <div class="toolbar-separator"></div>
     <div class="toolbar-section toolbar-section-display">
@@ -224,7 +252,8 @@ export function initToolbar() {
   const redoBtn = document.getElementById('redoBtn');
   const toolbarSettingsBtn = document.getElementById('toolbarSettingsBtn');
   const toolbarSettingsPopover = document.getElementById('toolbarSettingsPopover');
-  const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
+  const chartLayoutBtn = document.getElementById('chartLayoutBtn');
+  const chartLayoutPopover = document.getElementById('chartLayoutPopover');
   const dayBoundaryToggle = document.getElementById('dayBoundaryToggle');
   const chartGridToggle = document.getElementById('chartGridToggle');
   const displayModeSelect = document.getElementById('displayModeSelect');
@@ -245,7 +274,7 @@ export function initToolbar() {
   });
   toolbarSettingsPopover.addEventListener('change', handleSettingsChange);
   toolbarSettingsPopover.addEventListener('click', handleSettingsClick);
-  // Keep hidden range fields normalized for reloads triggered by Main TF.
+  // Keep hidden range fields normalized for reloads triggered by Pane 1 TF.
   [startInput, endInput].forEach((input) => {
     input.addEventListener('blur', (e) => {
       const formatted = formatTimeInput(e.target.value);
@@ -256,18 +285,11 @@ export function initToolbar() {
   });
 
   primaryInstrumentSelect.addEventListener('change', () => {
-    const instrument = setPrimaryInstrument(primaryInstrumentSelect.value);
-    primaryInstrumentSelect.value = instrument;
-    bus.emit('status:update', { text: `Main ${instrument}`, isError: false });
-    if (store.getBars().length > 0) {
-      handleLoad();
-    }
+    applyActivePaneInstrument(primaryInstrumentSelect.value);
   });
 
   tfSelect.addEventListener('change', () => {
-    if (store.getBars().length > 0) {
-      handleLoad();
-    }
+    applyActivePaneTimeframe(tfSelect.value);
   });
 
   dayBoundaryToggle.addEventListener('change', (e) => {
@@ -287,9 +309,13 @@ export function initToolbar() {
     e.target.value = getDisplayMode().recentCount;
   });
 
-  comparisonWindowToggle.addEventListener('change', (e) => {
-    setComparisonWindowEnabled(e.target.checked);
-    syncComparisonWindowToggle();
+  chartLayoutBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleLayoutPopover();
+  });
+  chartLayoutPopover.addEventListener('click', (e) => {
+    e.stopPropagation();
+    handleLayoutClick(e);
   });
 
   // 监听状态更新
@@ -301,24 +327,87 @@ export function initToolbar() {
     }
   });
   bus.on('history:changed', updateHistoryButtons);
-  bus.on('comparison-window:changed', syncComparisonWindowToggle);
+  bus.on('comparison-window:changed', (state) => {
+    syncLayoutControls();
+    syncPaneStateFromComparison(state);
+  });
   bus.on('primary-instrument:changed', ({ instrument }) => {
+    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument });
     const select = document.getElementById('primaryInstrumentSelect');
-    if (select) select.value = instrument;
+    if (select && getActivePane().id === CHART_PANE_IDS.PRIMARY) select.value = instrument;
+  });
+  bus.on('chart-panes:changed', () => {
+    syncActivePaneToolbarControls();
+    syncLayoutControls();
   });
   bus.on('display-preferences:changed', renderSettingsPopover);
-  document.addEventListener('click', closeSettingsPopover);
+  document.addEventListener('click', () => {
+    closeSettingsPopover();
+    closeLayoutPopover();
+  });
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeSettingsPopover();
+    if (e.key === 'Escape') {
+      closeSettingsPopover();
+      closeLayoutPopover();
+    }
   });
   updateHistoryButtons();
 }
 
-function syncComparisonWindowToggle() {
-  const comparisonWindowToggle = document.getElementById('comparisonWindowToggle');
-  if (comparisonWindowToggle) {
-    comparisonWindowToggle.checked = isComparisonWindowEnabled();
+function applyChartLayout(layout) {
+  if (layout === CHART_PANE_LAYOUTS.TWO_COLUMN) {
+    setComparisonWindowEnabled(true);
+    setChartPaneLayout(CHART_PANE_LAYOUTS.TWO_COLUMN);
+    return;
   }
+  setComparisonWindowEnabled(true);
+  setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+  setActivePane(CHART_PANE_IDS.COMPARISON);
+}
+
+function handleLayoutClick(event) {
+  const action = event.target.closest('[data-layout-action]')?.dataset.layoutAction;
+  if (!action) return;
+  applyChartLayout(action === 'two-column' ? CHART_PANE_LAYOUTS.TWO_COLUMN : CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+  closeLayoutPopover();
+}
+
+function syncLayoutControls() {
+  const layout = getChartPaneState().layout;
+  const chartLayoutBtn = document.getElementById('chartLayoutBtn');
+  const chartLayoutPopover = document.getElementById('chartLayoutPopover');
+  const isTwoColumn = isComparisonWindowEnabled() && layout === CHART_PANE_LAYOUTS.TWO_COLUMN;
+  chartLayoutBtn
+    ?.querySelector('.toolbar-layout-icon')
+    ?.classList.toggle('toolbar-layout-icon-two-column', isTwoColumn);
+  chartLayoutBtn
+    ?.querySelector('.toolbar-layout-icon')
+    ?.classList.toggle('toolbar-layout-icon-single-right', !isTwoColumn);
+  chartLayoutPopover?.querySelectorAll('[data-layout-action]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.layoutAction === layout);
+  });
+}
+
+function syncPaneStateFromComparison(state = getComparisonWindowState()) {
+  const currentLayout = getChartPaneState().layout;
+  if (state.enabled && currentLayout === CHART_PANE_LAYOUTS.SINGLE) {
+    setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE_COMPARISON);
+  } else if (!state.enabled) {
+    setChartPaneLayout(CHART_PANE_LAYOUTS.SINGLE);
+  }
+  const descriptor = state.descriptor || {};
+  updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, {
+    instrument: descriptor.instrument,
+    timeframe: descriptor.timeframe,
+  });
+}
+
+function syncActivePaneToolbarControls() {
+  const activePane = getActivePane();
+  const primaryInstrumentSelect = document.getElementById('primaryInstrumentSelect');
+  const tfSelect = document.getElementById('tfSelect');
+  if (primaryInstrumentSelect) primaryInstrumentSelect.value = activePane.instrument;
+  if (tfSelect) tfSelect.value = String(activePane.timeframe);
 }
 
 function renderSettingsPopover() {
@@ -356,6 +445,48 @@ function closeSettingsPopover() {
   popover.hidden = true;
   button.classList.remove('active');
   button.setAttribute('aria-expanded', 'false');
+}
+
+function positionLayoutPopover() {
+  const button = document.getElementById('chartLayoutBtn');
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!button || !popover) return;
+  const rect = button.getBoundingClientRect();
+  const width = Math.min(108, window.innerWidth - 16);
+  popover.style.width = `${width}px`;
+  popover.style.left = `${Math.max(8, Math.min(window.innerWidth - width - 8, rect.left))}px`;
+  popover.style.top = `${rect.bottom + 8}px`;
+}
+
+function openLayoutPopover() {
+  const button = document.getElementById('chartLayoutBtn');
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!button || !popover) return;
+  syncLayoutControls();
+  popover.hidden = false;
+  button.classList.add('active');
+  button.setAttribute('aria-expanded', 'true');
+  positionLayoutPopover();
+}
+
+function closeLayoutPopover() {
+  const button = document.getElementById('chartLayoutBtn');
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!button || !popover) return;
+  popover.hidden = true;
+  button.classList.remove('active');
+  button.setAttribute('aria-expanded', 'false');
+}
+
+function toggleLayoutPopover() {
+  const popover = document.getElementById('chartLayoutPopover');
+  if (!popover) return;
+  if (popover.hidden) {
+    closeSettingsPopover();
+    openLayoutPopover();
+  } else {
+    closeLayoutPopover();
+  }
 }
 
 function toggleSettingsPopover() {
@@ -408,8 +539,10 @@ async function handleLoad() {
   endEl.value = formatTimeInput(endEl.value.trim());
   const start = startEl.value;
   const end = endEl.value;
-  const tf = parseInt(document.getElementById('tfSelect').value);
+  const primaryPane = getPaneById(CHART_PANE_IDS.PRIMARY);
+  const tf = Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME;
   const instrument = getPrimaryInstrument();
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
 
   if (!start || !end) {
     bus.emit('status:update', { text: 'Choose a date range first', isError: true });
@@ -439,5 +572,42 @@ async function handleLoad() {
     });
   } catch (err) {
     bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
+  }
+}
+
+function applyActivePaneInstrument(nextInstrument) {
+  const activePane = getActivePane();
+  if (activePane.id === CHART_PANE_IDS.COMPARISON) {
+    const descriptor = updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { instrument: nextInstrument });
+    setComparisonInstrument(descriptor.instrument);
+    bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.COMPARISON)} ${descriptor.instrument}`, isError: false });
+    syncActivePaneToolbarControls();
+    return;
+  }
+
+  const instrument = setPrimaryInstrument(nextInstrument);
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument });
+  bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.PRIMARY)} ${instrument}`, isError: false });
+  syncActivePaneToolbarControls();
+  if (store.getBars().length > 0) {
+    handleLoad();
+  }
+}
+
+function applyActivePaneTimeframe(nextTimeframe) {
+  const activePane = getActivePane();
+  const timeframe = Number(nextTimeframe) || DEFAULT_TIMEFRAME;
+  if (activePane.id === CHART_PANE_IDS.COMPARISON) {
+    updatePaneDescriptor(CHART_PANE_IDS.COMPARISON, { timeframe });
+    setComparisonTimeframe(timeframe);
+    bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.COMPARISON)} ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}`, isError: false });
+    syncActivePaneToolbarControls();
+    return;
+  }
+
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe });
+  syncActivePaneToolbarControls();
+  if (store.getBars().length > 0) {
+    handleLoad();
   }
 }

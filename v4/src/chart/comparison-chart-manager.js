@@ -90,7 +90,7 @@ function notifyCrosshairMove(param) {
 export function initComparisonChart(containerId = 'comparison-chart-canvas') {
   if (comparisonChart && comparisonSeries) return { chart: comparisonChart, series: comparisonSeries };
   const container = document.getElementById(containerId);
-  if (!container) throw new Error(`Comparison chart container #${containerId} not found`);
+  if (!container) throw new Error(`Pane 2 chart container #${containerId} not found`);
 
   comparisonContainer = container;
   infoEl = document.getElementById('comparison-chart-info');

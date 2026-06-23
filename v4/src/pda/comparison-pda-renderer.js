@@ -1,4 +1,4 @@
-// PDA overlay renderer for the Comparison Window.
+// PDA overlay renderer for Pane 2.
 
 import * as bus from '../event-bus.js';
 import {

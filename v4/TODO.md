@@ -1237,12 +1237,16 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 336.5: Failure-mode validation。覆盖 invalid instrument、busy lock 与周末/no-data range；输出包含明确错误、running action、weekend/no data warning 和 `would_insert_rows: 0`。
   - [x] Step 336.6: Docs and closeout。已更新 TODO/session/runbook，记录 Refresh Range 作为短期标准 K 线维护路径；浏览器上传 K 线 CSV 写库保留为后续外部/未支持品种 backlog。
 
-- [ ] Step 337: TradingView-style two-pane layout planning。目标是把当前 Main + Comparison 特殊窗口演进为等价 chart pane 架构的第一版计划：初期只支持 single / 左右双 pane；顶部只保留一套 Symbol/TF 控件并跟随 active pane；每个 pane 独立拥有 Sync/No Sync 开关，允许所有 pane 都 No Sync；active pane 用边缘高亮标识。计划见 `v4/sessions/session_20260623_step337_tradingview_two_pane_layout_plan.md`。
-  - [ ] Step 337.1: Current architecture audit。审计 Main chart 与 Comparison Window 的 DOM、store、controller、renderer、viewport controls、right-click menu、Replay History、overlay/crosshair sync 依赖，列出可复用与必须迁移的边界。
-  - [ ] Step 337.2: Pane model contract。设计 `chartPanes[]` 数据模型，包含 `id`、`instrument`、`timeframe`、`active`、`syncEnabled`、`visibleRange`、pane-local UI state；明确 legacy Main/Comparison 的迁移策略。
-  - [ ] Step 337.3: Layout shell scope。第一版只实现 `single` 与 `two-column`，不做 3/4/8 pane；保留未来 layout preset 扩展点，但不提前实现复杂网格。
-  - [ ] Step 337.4: Active pane toolbar behavior。顶部 Symbol/TF 控件读取 active pane，并只修改 active pane；pane focus 可由 click/contextmenu/keyboard focus 触发；active pane 使用蓝色边缘高亮。
-  - [ ] Step 337.5: Pane-level Sync/No Sync semantics。每个 pane header 放一个 Sync/No Sync 按钮；`syncEnabled=true` 的 pane 参与同步组广播，`syncEnabled=false` 的 pane 不发送也不接收同步；允许 0 个、1 个或多个 pane 处于 Sync。
-  - [ ] Step 337.6: Initial sync surface。第一版只同步 visible time range 与 crosshair；Symbol/TF 同步、date range 同步、drawings/overlay sync 作为后续选项，不混入第一版 pane shell。
-  - [ ] Step 337.7: Migration and compatibility plan。定义现有 Comparison Window workspace、Replay History comparison state、旧 overlay sync mode、No Sync/Drawing Sync 如何迁移或暂存；避免破坏旧 Review JSON 与 localStorage。
-  - [ ] Step 337.8: Verification plan。列出 browser smoke：single/two-column layout、active pane 高亮、toolbar 跟随 active pane、pane-local instrument/TF、Sync/No Sync 组合、viewport/crosshair sync、Comparison 旧 workspace 迁移。
+- [x] Step 337: TradingView-style two-pane layout planning。目标是把当前 Main + Comparison 特殊窗口演进为等价 chart pane 架构的第一版计划：初期只支持 single / 左右双 pane；顶部只保留一套 Symbol/TF 控件并跟随 active pane；每个 pane 独立拥有 Sync/No Sync 开关，允许所有 pane 都 No Sync；active pane 用边缘高亮标识。已完成第一版 two-column pane shell、active pane toolbar、高亮、pane-level Sync/No Sync 和 visible range/crosshair sync guard；计划与结果见 `v4/sessions/session_20260623_step337_tradingview_two_pane_layout_plan.md`。
+  - [x] Step 337.1: Current architecture audit。审计 Main chart 与 Comparison Window 的 DOM、store、controller、renderer、viewport controls、right-click menu、Replay History、overlay/crosshair sync 依赖，列出可复用与必须迁移的边界；当前实现先把 Main/Comparison 包装为 Pane 1/Pane 2，避免一次重写所有 renderer。
+  - [x] Step 337.2: Pane model contract。已新增 `v4/src/chart-panes/chart-pane-store.js`，定义 `chartPanes[]`、`single/two-column`、active pane、pane-local `syncEnabled`、visible range 和 sync peer 规则；测试覆盖允许所有 pane No Sync。
+  - [x] Step 337.3: Layout shell scope。已把 Compare enabled 状态切为左右 two-column flex shell；primary 与 comparison 等宽并且 comparison 不再 overlay 主图；仍不实现 3/4/8 pane。
+  - [x] Step 337.4: Active pane toolbar behavior。顶部 Symbol/TF 控件读取 active pane；点击 primary/comparison pane 会切换 active pane，蓝色边缘高亮跟随；toolbar 值跟随 Pane 1 / Pane 2。
+  - [x] Step 337.5: Pane-level Sync/No Sync semantics。每个 pane 渲染独立 Sync/No Sync 按钮；允许两个 pane 同时 No Sync；sync peer 规则由 pane store 控制。
+  - [x] Step 337.6: Initial sync surface。Visible logical range 同步与 crosshair sync 都已接入 pane-level sync guard；No Sync pane 不发送也不接收这两类同步。
+  - [x] Step 337.7: Migration and compatibility plan。现有 Comparison Window workspace/Replay History 仍通过旧 store 读取，并映射到 Pane 2；旧 drawing overlay sync 暂时保留为独立 Drawings 控件，不混同 pane-level Sync。
+  - [x] Step 337.8: Verification plan。已更新 comparison browser smoke 覆盖 two-column layout、active pane 高亮、toolbar 跟随 active pane、两个 pane 同时 No Sync、viewport controls、native price axis、旧 comparison workspace 恢复与数据加载。
+
+- [x] Step 338: Unified pane badge and Sync placement。目标是统一左右 pane 的轻量 chrome：两个 pane 都显示 `Symbol TF` badge，并把 pane-level `Sync/No Sync` 从右侧价格轴附近移入 badge，避免遮挡价格轴；计划见 `v4/sessions/session_20260623_step338_pane_badge_sync_plan.md`。
+  - [x] Step 338.1: Unified pane badge。新增左右 pane 共享 badge，显示各自 `Instrument TF`；隐藏 pane 模式下旧 comparison-only info label；OHLC legend 下移到 badge 下方；browser smoke 覆盖左右 badge 文案与 active pane toolbar 更新。
+  - [x] Step 338.2: Sync placement。把现有 pane-level `Sync/No Sync` 按钮移入 badge，移除右上角 floating 定位；保留 sync store 语义；browser smoke 覆盖按钮位于 badge 内且不遮挡右侧价格轴。

@@ -50,6 +50,7 @@ export function initComparisonWindowController() {
   bus.emit('comparison-window:dom-ready', getComparisonWindowState());
   bus.on('comparison-window:changed', render);
   bus.on('comparison-window:changed', dataController.handleComparisonChanged);
+  bus.on('chart-panes:changed', () => render(getComparisonWindowState()));
   bus.on('bars:loaded', () => dataController.loadComparisonForPrimaryRange({ force: true }));
   bus.on('bars:cleared', dataController.clearComparisonView);
   bus.on('replay:changed', dataController.handleReplayChanged);
@@ -128,9 +129,9 @@ function scheduleComparisonLayoutRefresh() {
 function setComparisonStatus(text, isError = false) {
   const statusEl = root?.querySelector('[data-comparison-status]');
   const placeholder = root?.querySelector('[data-comparison-placeholder]');
-  if (statusEl) statusEl.textContent = text;
+  if (statusEl) statusEl.textContent = isError ? text : '';
   if (placeholder) {
-    placeholder.hidden = false;
+    placeholder.hidden = !isError;
     placeholder.classList.toggle('comparison-window-placeholder-error', Boolean(isError));
   }
 }

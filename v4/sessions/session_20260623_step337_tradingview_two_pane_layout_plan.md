@@ -270,3 +270,172 @@ Browser smoke should cover:
 ## Initial Status
 
 Planned only. No runtime code changed.
+
+## Execution Log
+
+### Step 337.1 / 337.2 - Architecture audit and pane model
+
+Initial audit findings:
+
+- `index.html` has one static primary chart panel. The Comparison Window is injected at runtime by `initComparisonWindowController()`.
+- Primary chart state is owned by `chart-manager.js`, `bar-store.js`, and `primary-instrument-store.js`.
+- Comparison chart state is split across `comparison-window-store.js`, `comparison-chart-manager.js`, and the comparison controller/view/layout/data modules.
+- Toolbar currently hard-codes `Main` / `Main TF` and writes only the primary instrument/timeframe.
+- Comparison already has independent instrument/timeframe controls, native right price axis, viewport controls, right-click menu parity, and overlay/crosshair sync plumbing.
+- Full pane equality should therefore start as a wrapper model around existing Main/Comparison, not as a one-shot rewrite of every renderer.
+
+Implemented:
+
+- Added `v4/src/chart-panes/chart-pane-store.js`.
+- Added pane IDs `pane-1` and `pane-2`.
+- Added layouts `single` and `two-column`.
+- Added pane-local state fields: `instrument`, `timeframe`, `active`, `syncEnabled`, `visibleRange`, and `layoutSlot`.
+- Added active pane setters/getters.
+- Added pane descriptor update.
+- Added pane-level Sync/No Sync toggles.
+- Added `getSyncPeerPanes(sourcePaneId)` to encode the group broadcast rule.
+
+Model decisions:
+
+- Current Main maps to `pane-1`.
+- Current Comparison maps to `pane-2`.
+- The first model layer is intentionally independent from runtime UI so later steps can migrate one surface at a time.
+- It is valid for all panes to be No Sync.
+- A lone Sync On pane has no peers and therefore produces no visible synchronization.
+
+Verification:
+
+```bash
+node v4/tests/chart-pane-store-smoke.js
+git diff --check
+```
+
+Result:
+
+- `chart pane store smoke passed`.
+- `git diff --check` passed.
+- Node emitted the existing typeless-package warning for ES module tests.
+
+### Step 337.3 - Two-column layout shell
+
+Implemented:
+
+- `#chart-stack` gains `chart-stack-two-pane` when Compare is enabled.
+- Primary chart panel and Comparison root become equal flex children.
+- Comparison Window root gains `comparison-pane-root`.
+- Comparison Window itself gains `comparison-window-pane`, fills its pane, and no longer overlays the primary chart.
+- Primary OHLC legend offset is reset to `0px` because the primary pane is no longer covered by an overlay.
+- Primary and comparison viewport controls center inside their own panes.
+
+Deferred:
+
+- 3/4/8 pane layout presets.
+- Resizable pane splitters.
+- Replacing the old Compare toggle with a full TradingView-style layout menu.
+
+### Step 337.4 - Active pane toolbar and focus highlight
+
+Implemented:
+
+- Added `v4/src/chart-panes/chart-pane-dom.js`.
+- Clicking, context-menuing, or focusing primary/comparison pane sets active pane.
+- Active pane receives blue edge highlight with `chart-pane-active`.
+- Toolbar Symbol/TF controls now read `getActivePane()`.
+- Toolbar Symbol/TF updates primary pane through existing primary store/load path.
+- Toolbar Symbol/TF updates comparison pane through existing comparison descriptor path.
+- Existing comparison header controls still work and sync back into the pane model.
+
+### Step 337.5 - Pane-level Sync/No Sync
+
+Implemented:
+
+- Each pane renders `.chart-pane-sync-toggle`.
+- Toggling a button only changes that pane's `syncEnabled`.
+- Both panes can be `No Sync` at the same time.
+- The existing Drawings sync select remains a separate comparison overlay/drawing control.
+
+### Step 337.6 - Initial sync surface
+
+Implemented:
+
+- Added `v4/src/chart-panes/chart-pane-range-sync.js`.
+- Visible logical range changes broadcast only from a Sync On source pane to Sync On peer panes.
+- Existing comparison crosshair sync now checks pane sync peers before showing sync cursor on the other pane.
+- No Sync panes do not send or receive visible range/crosshair sync.
+
+Deferred:
+
+- Symbol/TF sync.
+- Date range sync.
+- Drawing/overlay sync unification.
+- Replay authority redesign.
+
+### Step 337.7 - Migration and compatibility
+
+Implemented compatibility strategy:
+
+- Existing Comparison Window enabled state still comes from `comparison-window-store`.
+- Existing comparison descriptor maps to Pane 2.
+- Existing Replay History comparison restore continues using the old comparison state and now renders as two-column pane.
+- Existing comparison overlay sync mode remains available as `Drawings` and is not merged into pane-level Sync.
+- Existing `secondary` compatibility remains untouched.
+
+### Step 337.8 - Verification
+
+Updated `v4/tests/comparison-window-browser-smoke.js`:
+
+- Asserts Compare switches chart stack into two-pane layout.
+- Asserts primary and comparison panes are equal width.
+- Asserts primary legend no longer needs overlay offset.
+- Asserts primary/comparison viewport controls center in their own panes.
+- Asserts each pane has a Sync button.
+- Asserts both panes can be No Sync at once and toggle back independently.
+- Asserts clicking comparison/primary changes active pane and toolbar values follow.
+- Keeps coverage for native comparison price axis, Inspector resize, close hit target, context menu, comparison data loading, Replay History comparison restore, and old Split DOM absence.
+
+Verification commands:
+
+```bash
+node --check v4/src/chart-panes/chart-pane-dom.js
+node --check v4/src/chart-panes/chart-pane-range-sync.js
+node --check v4/src/ui/toolbar.js
+node --check v4/src/ui/comparison/comparison-crosshair-sync.js
+node v4/tests/chart-pane-store-smoke.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Results:
+
+- All checks passed.
+- Node emitted the existing typeless-package warning for ES module tests.
+
+### Follow-up - Remove visible legacy Comparison Window chrome
+
+User validation showed the right pane still exposed the old Comparison Window chrome:
+
+- `Comparison Window` title.
+- Separate Inst/TF controls.
+- Reset/Close window actions.
+- Pane-level Sync button duplicated with old comparison-specific controls.
+
+Follow-up changes:
+
+- Hid the full legacy Comparison Window header in pane mode.
+- Hid legacy per-window Inst/TF controls in pane mode while keeping the hidden controls in DOM for existing controller/state compatibility.
+- Hid legacy Reset/Close actions in pane mode.
+- Marked Drawings Sync/No Sync as legacy chrome in pane mode; the hidden control still keeps existing overlay/drawing state compatibility.
+- Kept pane-level Sync/No Sync button as the main pane sync switch.
+- Removed the old smoke assertions that expected `Pane 2` title/subtitle or visible `Drawings`; the regression now asserts the legacy header and controls are hidden.
+
+Verification:
+
+```bash
+node --check v4/src/ui/comparison/comparison-window-view.js
+node v4/tests/comparison-window-browser-smoke.js
+git diff --check
+```
+
+Result:
+
+- Passed.

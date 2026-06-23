@@ -92,6 +92,7 @@ import {
   renderSegmentPdaLinkItems,
   repositionContextMenu,
 } from './manual-context-menu.js';
+import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 
 let controlsEl = null;
 let contextMenuBar = null;
@@ -244,9 +245,10 @@ function showChartNoteEditor({ title, defaultText = '', x = 20, y = 20, onSave }
 }
 
 function locateComparisonAtBar(bar) {
+  const label = getPaneLabel(CHART_PANE_IDS.COMPARISON);
   if (!bar) return;
   if (!Number.isFinite(Number(bar.timestamp))) {
-    bus.emit('status:update', { text: 'Comparison locate failed: no chart time selected', isError: true });
+    bus.emit('status:update', { text: `${label} locate failed: no chart time selected`, isError: true });
     return;
   }
   const result = locateChartRange(
@@ -256,8 +258,8 @@ function locateComparisonAtBar(bar) {
   const located = Boolean(result.targets?.[VIEWPORT_TARGETS.COMPARISON]?.located);
   bus.emit('status:update', {
     text: located
-      ? `Comparison located to ${bar.tradingDay || bar.time}`
-      : 'Comparison locate failed: window disabled or no matching bar',
+      ? `${label} located to ${bar.tradingDay || bar.time}`
+      : `${label} locate failed: window disabled or no matching bar`,
     isError: !located,
   });
 }
@@ -630,7 +632,7 @@ async function handleControlClick(e) {
       const timeframe = Number(chartNoteRangeDraft.timeframe);
       const instrument = getPrimaryInstrument();
       if (chartNoteRangeDraft.instrument && chartNoteRangeDraft.instrument !== instrument) {
-        bus.emit('status:update', { text: 'Range note must finish on the same Main instrument', isError: true });
+        bus.emit('status:update', { text: `Range note must finish on the same ${getPaneLabel(CHART_PANE_IDS.PRIMARY)} instrument`, isError: true });
         hideContextMenu();
         return;
       }
