@@ -1228,3 +1228,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 335.4: Backup and restore-smoke script。新增备份脚本，固定备份 DB 和 data tarball，并支持临时 restore smoke 检查关键文件；离线 fixture restore-smoke 通过，完整生产备份命令保留为手动执行项。
   - [x] Step 335.5: Refresh operations boundary。更新 runbook，明确日常 refresh/import 只在 server 执行，先不默认启用 cron；列出手动刷新和验证命令。
   - [x] Step 335.6: Verification and closeout。`test_data_freshness_scripts` 8 项通过，当前 LAN server status 通过；完整 `/tmp` 大数据备份 smoke 因耗时中断，未作为阻塞项。
+
+- [ ] Step 336: Data Maintenance Refresh Range real-use validation。目标是把 `data-maintenance.html` 的 Refresh Range 明确确认为标准 K 线维护入口，并通过真实 dry-run/write/server-status 验证它能为已支持品种更新 server canonical DB；短期不做浏览器上传 K 线 CSV 写库，上传类能力仅保留为后续“外部品种/第三方数据源”扩展。计划见 `v4/sessions/session_20260623_step336_refresh_range_validation_plan.md`。
+  - [ ] Step 336.1: Contract and scope。确认 Refresh Range 的产品语义：服务端执行、写入 `V4_TRADING_DB`、适用于已支持数据源/品种；明确不解决自定义 CSV/新品种导入。
+  - [ ] Step 336.2: UI copy audit。检查 `data-maintenance.html` 是否足够清楚地区分 Refresh Range、Tradovate Review JSON 导入、calendar/VIX/regime refresh，避免用户把无数据 date range 或 Review 文件导入误判为 K 线导入失败。
+  - [ ] Step 336.3: Dry-run validation。选择一个低风险日期范围，对 NQ/ES 至少一个主用品种执行 dry-run，记录请求 URL、响应摘要、预期写入行数或无变化原因。
+  - [ ] Step 336.4: Write validation。只在 dry-run 合理且有备份/可恢复边界后执行 write；写入后用 `server_status.py`、bars API spot check 和页面加载验证 canonical DB 状态。
+  - [ ] Step 336.5: Failure-mode validation。覆盖无数据 date range、无效 instrument/date、API/CORS/非 JSON 错误输出，确认 Data Maintenance 能给出足够可复制的诊断。
+  - [ ] Step 336.6: Docs and closeout。更新 TODO/session/runbook，记录 Refresh Range 作为短期标准 K 线维护路径；把浏览器上传 K 线 CSV 写库移到后续 backlog。
