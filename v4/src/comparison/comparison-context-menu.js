@@ -168,28 +168,106 @@ function renderMenu(bar, price, context, hits = {}) {
   const disabled = bar ? '' : 'disabled';
   const contextLabel = getContextLabel(context);
   const priceLabel = formatPrice(price);
+  const comparisonOnlyDisabled = 'disabled title="Comparison Window action not wired yet"';
   return `
     <div class="pda-menu-title">${escapeHtml(contextLabel)}${bar ? ` · ${escapeHtml(formatContextTime(bar))}` : ''}${priceLabel ? ` · ${escapeHtml(priceLabel)}` : ''}</div>
-    <div class="pda-menu-section">
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Locate</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Time in Main</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Date in Calendar</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Comparison Time</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-copy-price" ${priceLabel ? '' : 'disabled'}>Copy Price ${escapeHtml(priceLabel)}</button>
+      </div>
+    </div>
+    ${renderOrderSetupEvidenceItems(bar, hits)}
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">PDA</div>
+      <div class="pda-submenu-panel">
       <button class="pda-menu-item" data-comparison-action="comparison-pda-bsl" ${disabled}>Mark BSL</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-ssl" ${disabled}>Mark SSL</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-fvg" ${disabled}>Mark FVG</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-ifvg" ${disabled}>Mark IFVG</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-pda-ob-last-bar" ${bar && priceLabel ? '' : 'disabled'}>Mark OB Last Bar</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-upper" ${disabled}>Mark Upper Wick CE</button>
       <button class="pda-menu-item" data-comparison-action="comparison-pda-wick-ce-lower" ${disabled}>Mark Lower Wick CE</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-fvg" ${disabled}>Mark FVG</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-ifvg" ${disabled}>Mark IFVG</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bullish OB</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish OB</button>
+      <button class="pda-menu-item" data-comparison-action="comparison-pda-ob-last-bar" ${bar && priceLabel ? '' : 'disabled'}>Mark OB Last Bar</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bullish Breaker</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish Breaker</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Fib</button>
+      </div>
     </div>
-    <div class="pda-menu-section">
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">SMT</div>
+      <div class="pda-submenu-panel">
+      <div class="pda-menu-subtitle">Use Main chart SMT actions for now.</div>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Bearish Liquidity SMT</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Bullish Liquidity SMT</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bearish FVG SMT</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Mark Bullish FVG SMT</button>
+      </div>
+    </div>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Segment</div>
+      <div class="pda-submenu-panel">
       <button class="pda-menu-item" data-comparison-action="comparison-segment-start-low" ${disabled}>Start Segment from Low</button>
       <button class="pda-menu-item" data-comparison-action="comparison-segment-start-high" ${disabled}>Start Segment from High</button>
       <button class="pda-menu-item" data-comparison-action="comparison-segment-finish-low" ${disabled}>End Segment at Low</button>
       <button class="pda-menu-item" data-comparison-action="comparison-segment-finish-high" ${disabled}>End Segment at High</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Cancel Segment</button>
+      </div>
     </div>
-    ${renderOrderSetupEvidenceItems(bar, hits)}
-    <div class="pda-menu-section">
-      <button class="pda-menu-item" data-comparison-action="comparison-locate-primary" ${disabled}>Locate Time in Primary</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-copy-time" ${disabled}>Copy Comparison Time</button>
-      <button class="pda-menu-item" data-comparison-action="comparison-copy-price" ${priceLabel ? '' : 'disabled'}>Copy Price ${escapeHtml(priceLabel)}</button>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Point Sets</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start EQH Set</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start EQL Set</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Add Point Set Point</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Finish Point Set</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Cancel Set</button>
+      </div>
+    </div>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Chart Note</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Add Note Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Edit Note</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Delete Note</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Range Note Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Finish Range Note Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Edit Range Note</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Delete Range Note</button>
+      </div>
+    </div>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Time Overlays</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Add Time Line Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Delete Time Line</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Clear Time Lines</button>
+      <div class="pda-menu-divider"></div>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Start Killzone Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>End Killzone Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Rename Killzone Here</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Delete Killzone Here</button>
+      </div>
+    </div>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Objective Gaps</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Show/Hide Today NDOG</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Show/Hide This Week NWOG</button>
+      </div>
+    </div>
+    <div class="pda-menu-section pda-menu-submenu">
+      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Clear</div>
+      <div class="pda-submenu-panel">
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Clear PDA</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Clear Segments</button>
+      <button class="pda-menu-item" ${comparisonOnlyDisabled}>Clear Killzones</button>
+      </div>
     </div>
   `;
 }
