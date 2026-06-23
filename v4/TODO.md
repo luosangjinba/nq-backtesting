@@ -1205,10 +1205,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [x] Step 332: Server-centered multi-device sync short-term prep。目标是先用一台服务器集中承载 V4 API、数据库/数据目录、刷新任务和导入输出，让多台电脑访问同一个 server URL，解决主要数据源不同步问题；短期不做完整 workspace/localStorage 同步。已完成本地侧准备：前端 API base 改为跟随当前页面 hostname，Data Maintenance API URL 同步改为跟随 server hostname，API 支持 `V4_API_HOST=0.0.0.0` 与 `V4_ALLOWED_WEB_ORIGINS`，并新增 inventory/runbook。计划见 `v4/docs/planning/server_sync_short_term_plan.md`，执行记录见 `v4/docs/planning/server_sync_inventory_runbook.md`。真实服务器部署 smoke 等待实际 server hostname/IP 和数据路径。
 
-- [ ] Step 333: Real server deployment smoke。目标是在真实服务器上跑通 V4 server-centered baseline，证明两台设备访问同一个 server URL 时使用同一份 API、bars DB、calendar/VIX/regime 数据，并明确哪些 UI/workspace 状态仍是 device-local。分步计划见 `v4/sessions/session_20260623_step333_real_server_deployment_smoke.md`。
-  - [ ] Step 333.1: Server identity and access decision。确定 server hostname/IP、访问方式（优先 Tailscale 或可信 LAN）、允许的 web origins、canonical data path、是否需要临时防火墙放行 `8001/8766`，并记录最终 URL。
-  - [ ] Step 333.2: Runtime environment bootstrap。服务器 clone/sync repo，配置 Python/Node/系统依赖和 `v4/.env.local`，至少包含 `V4_API_HOST=0.0.0.0`、`V4_WEB_PORT=8001`、`V4_TRADING_DB`、`V4_ALLOWED_WEB_ORIGINS`、`DATABENTO_API_KEY`。
-  - [ ] Step 333.3: Canonical data migration and ownership。把当前可信的 `trading_data.duckdb`、economic calendar、VIX、daily regime CSV 迁移到服务器 canonical path；确认 refresh/import jobs 只在服务器执行，客户端机器不再作为日常数据源。
-  - [ ] Step 333.4: Server start and single-client smoke。通过 `bash v4/start.sh start` 启动，验证 server-local health、remote health、`index.html`、`data-maintenance.html`、主图 bars 渲染和 Data Maintenance POST allowlist。
-  - [ ] Step 333.5: Two-device consistency smoke。两台设备同时打开同一个 server URL，确认 bars 最新日期、calendar、VIX/regime 视图一致；验证浏览器网络请求使用 server host 的 `:8766`，没有回落到客户端 `127.0.0.1`。
-  - [ ] Step 333.6: Backup, operations note, and closeout。完成一次备份和临时 restore 检查，记录启动/停止/刷新/备份命令、device-local 状态清单、问题和后续 Step 334 候选。
+- [ ] Step 333: Real server deployment smoke。目标是在真实服务器上跑通 V4 server-centered baseline，证明两台设备访问同一个 server URL 时使用同一份 API、bars DB、calendar/VIX/regime 数据，并明确哪些 UI/workspace 状态仍是 device-local。当前本机 server baseline 已跑通，LAN URL 为 `http://192.168.1.111:8001/index.html`，API 为 `http://192.168.1.111:8766`；真实两台物理设备一致性 smoke 仍待用户用第二台设备确认。分步计划和执行记录见 `v4/sessions/session_20260623_step333_real_server_deployment_smoke.md`。
+  - [x] Step 333.1: Server identity and access decision。已选本机 LAN `192.168.1.111` 作为短期 server URL，允许 origin 包含 `http://192.168.1.111:8001`，canonical DB 使用 repo-local `v4/data/trading_data.duckdb`。
+  - [x] Step 333.2: Runtime environment bootstrap。已在 ignored `v4/.env.local` 配置 `V4_API_HOST=0.0.0.0`、`V4_WEB_PORT=8001`、`V4_TRADING_DB`、`V4_ALLOWED_WEB_ORIGINS`；API 已按新配置重启。
+  - [x] Step 333.3: Canonical data migration and ownership。本轮使用当前 repo-local data 作为 canonical smoke 数据源；bars DB、economic calendar、VIX、daily regime 文件存在并完成 API/文件检查。长期服务器可再迁移到 `/var/lib/trading-data/v4`。
+  - [x] Step 333.4: Server start and single-client smoke。`0.0.0.0:8766` 和 `0.0.0.0:8001` 均可达；LAN health、`index.html`、`data-maintenance.html`、真实 bars/calendar API、浏览器 API host 和 Data Maintenance CORS 预检均通过。
+  - [ ] Step 333.5: Two-device consistency smoke。仍需第二台物理设备打开 `http://192.168.1.111:8001/index.html`，确认 bars/calendar/VIX/regime 一致，并在 Network 面板确认请求打到 `192.168.1.111:8766`。
+  - [x] Step 333.6: Backup, operations note, and closeout。已完成 `/tmp/v4-step333-backups` 本机备份和 `/tmp/v4-step333-restore-test` restore 检查；正式长期服务器仍建议把备份目录迁到 `/var/backups/trading/v4` 或外部磁盘。

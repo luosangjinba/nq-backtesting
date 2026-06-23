@@ -196,3 +196,174 @@ Pick based on what Step 333 reveals:
 - Workspace/localStorage server sync if cross-device UI state is the biggest remaining issue.
 - Reverse proxy/HTTPS/auth if access must leave a private network.
 
+## Execution Update: Local Server Baseline Smoke
+
+Date: 2026-06-23
+
+### Server Identity
+
+Chosen short-term server endpoint for this smoke:
+
+```text
+Web: http://192.168.1.111:8001/index.html
+API: http://192.168.1.111:8766
+Data Maintenance: http://192.168.1.111:8001/data-maintenance.html
+```
+
+Access mode:
+
+- Trusted LAN for the current smoke.
+- Public internet exposure is still out of scope.
+
+### Local Environment
+
+Updated ignored machine-local `v4/.env.local` with:
+
+```bash
+V4_API_HOST=0.0.0.0
+V4_WEB_PORT=8001
+V4_TRADING_DB=/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb
+V4_ALLOWED_WEB_ORIGINS=http://127.0.0.1:8001,http://localhost:8001,http://192.168.1.111:8001
+```
+
+The secret API key remains in `v4/.env.local` and is not committed.
+
+### Runtime Checks
+
+API was restarted with:
+
+```bash
+bash v4/start.sh restart
+```
+
+Listener check:
+
+```text
+0.0.0.0:8001 - static web server
+0.0.0.0:8766 - V4 API
+```
+
+Health/page checks passed:
+
+```bash
+curl -s http://127.0.0.1:8766/v4/health
+curl -s http://192.168.1.111:8766/v4/health
+curl -s -I http://192.168.1.111:8001/index.html
+curl -s -I http://192.168.1.111:8001/data-maintenance.html
+```
+
+Observed health response:
+
+```json
+{"status": "ok", "version": "4.0"}
+```
+
+### Data Checks
+
+Canonical smoke data source:
+
+```text
+v4/data/trading_data.duckdb
+```
+
+Key files verified:
+
+- `v4/data/trading_data.duckdb`
+- `v4/data/economic_calendar/economic_calendar_usd_events.csv`
+- `v4/data/vix-daily.csv`
+- `v4/data/vix-monthly.csv`
+- `v4/data/daily-regime-nq.csv`
+- `v4/data/daily-regime-es.csv`
+
+Remote API data checks passed:
+
+```bash
+curl -s "http://192.168.1.111:8766/v4/bars?start=2026-06-19%2000:00&end=2026-06-19%2023:59&tf=60&instrument=NQ"
+curl -s "http://192.168.1.111:8766/v4/economic_events?date_from=2026-06-19&date_to=2026-06-19"
+```
+
+Bars returned real NQ data. Economic events returned the 2026-06-19 USD bank holiday event.
+
+### Browser API Host Smoke
+
+Created an ignored temporary browser smoke at:
+
+```text
+tmp/step333_server_browser_smoke.js
+```
+
+Ran:
+
+```bash
+node tmp/step333_server_browser_smoke.js
+```
+
+Result:
+
+- Page loaded from `http://192.168.1.111:8001/index.html`.
+- Browser-side `fetchBars()` called `http://192.168.1.111:8766/v4/bars?...`.
+- It did not call `http://127.0.0.1:8766`.
+- API returned 31 bars for the smoke range.
+
+### Data Maintenance Origin Check
+
+Allowed origin preflight passed:
+
+```bash
+curl -s -i -X OPTIONS \
+  -H "Origin: http://192.168.1.111:8001" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: X-V4-Maintenance-Request, Content-Type" \
+  http://192.168.1.111:8766/v4/data_maintenance/run
+```
+
+The response included:
+
+```text
+Access-Control-Allow-Origin: http://192.168.1.111:8001
+Access-Control-Allow-Methods: POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type, X-V4-Maintenance-Request
+```
+
+Unlisted origin preflight returned no allow-origin header.
+
+### Backup and Restore Smoke
+
+Backup location used for this local smoke:
+
+```text
+/tmp/v4-step333-backups
+```
+
+Created:
+
+- `/tmp/v4-step333-backups/trading_data.step333.duckdb`
+- `/tmp/v4-step333-backups/v4-data.step333.tar.gz`
+
+Restore test location:
+
+```text
+/tmp/v4-step333-restore-test
+```
+
+Restore check confirmed the extracted data directory contains:
+
+- `trading_data.duckdb`
+- `economic_calendar/economic_calendar_usd_events.csv`
+- `vix-daily.csv`
+- `vix-monthly.csv`
+- `daily-regime-nq.csv`
+- `daily-regime-es.csv`
+
+For a long-running server, move backup output to `/var/backups/trading/v4` or external storage instead of `/tmp`.
+
+### Remaining Work
+
+Step 333.5 is still pending because it requires a second physical device:
+
+1. Open `http://192.168.1.111:8001/index.html` from another machine on the same LAN.
+2. Select the same instrument/timeframe/date range as this server machine.
+3. Confirm bars, calendar, VIX/regime-derived views match after reload.
+4. In DevTools Network, confirm requests target `192.168.1.111:8766`, not the second device's `127.0.0.1`.
+
+Until this is confirmed, Step 333 should stay open even though the local server baseline is working.
