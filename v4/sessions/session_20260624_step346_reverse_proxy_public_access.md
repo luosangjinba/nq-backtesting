@@ -138,6 +138,7 @@ Behavior:
 - renders Caddyfile with the selected domain and optional ACME email;
 - renders systemd services with the current repo path and selected service user;
 - installs Caddy through `apt-get` on Debian/Ubuntu or `dnf` with the official Caddy COPR on RHEL-like hosts when Caddy is missing, unless `--skip-caddy-install` is set;
+- on Alibaba Cloud Linux 3 / OpenAnolis (`PLATFORM_ID=platform:al8`), enables the Caddy COPR with the explicit `epel-8` chroot to avoid dnf-copr selecting the nonexistent `epel-3` repository;
 - installs `/etc/caddy/Caddyfile`;
 - installs `/etc/systemd/system/v4-api.service` and `/etc/systemd/system/v4-web.service`;
 - runs `systemctl daemon-reload`;

@@ -54,6 +54,30 @@ sudo_cmd() {
   fi
 }
 
+detect_caddy_copr_chroot() {
+  local platform_id=""
+  local arch=""
+
+  arch="$(uname -m)"
+  [[ "$arch" == "x86_64" || "$arch" == "aarch64" ]] || return 0
+
+  if [[ -f /etc/os-release ]]; then
+    platform_id="$(. /etc/os-release && printf '%s' "${PLATFORM_ID:-}")"
+  fi
+
+  case "$platform_id" in
+    platform:al8|platform:el8)
+      printf 'epel-8-%s' "$arch"
+      ;;
+    platform:al9|platform:el9)
+      printf 'epel-9-%s' "$arch"
+      ;;
+    platform:el10)
+      printf 'epel-10-%s' "$arch"
+      ;;
+  esac
+}
+
 install_caddy() {
   if command -v apt-get >/dev/null 2>&1; then
     run_step sudo_cmd apt-get update
@@ -62,8 +86,14 @@ install_caddy() {
   fi
 
   if command -v dnf >/dev/null 2>&1; then
+    local caddy_copr_chroot=""
+    caddy_copr_chroot="$(detect_caddy_copr_chroot)"
     run_step sudo_cmd dnf install -y dnf-plugins-core
-    run_step sudo_cmd dnf copr enable -y @caddy/caddy
+    if [[ -n "$caddy_copr_chroot" ]]; then
+      run_step sudo_cmd dnf copr enable -y @caddy/caddy "$caddy_copr_chroot"
+    else
+      run_step sudo_cmd dnf copr enable -y @caddy/caddy
+    fi
     run_step sudo_cmd dnf install -y caddy
     return
   fi

@@ -1326,6 +1326,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 347.1: Server exposure precheck。已检查当前监听：`8001/8766` 仍为 LAN 模式监听 `0.0.0.0`，`80` 有监听，Caddy 未安装；本轮没有真实公网域名，DNS/外网端口映射需待域名确定后验证。
   - [x] Step 347.2: Public-mode env readiness check。已检查 `v4/.env.local` 的 `V4_*`：当前为 LAN 配置 `V4_API_HOST=0.0.0.0`、allowed origins 为本机/LAN HTTP；公网反代 apply 前需切到 `V4_API_HOST=127.0.0.1`、`V4_ALLOWED_WEB_ORIGINS=https://DOMAIN`、`V4_PUBLIC_DOMAIN=DOMAIN`。
   - [x] Step 347.3: Reverse-proxy dry-run smoke。已执行 `bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com`，必需文件检查、Caddy route preview、planned health checks 均通过；未写系统文件。
-  - [x] Step 347.4: RHEL-like VPS deploy compatibility。真实 VPS 为 Alibaba Cloud Linux 3/OpenAnolis，脚本已从仅支持 `apt-get` 扩展为 Debian/Ubuntu 走 `apt-get`、RHEL-like 走 `dnf` + 官方 Caddy COPR；文档已同步。
+  - [x] Step 347.4: RHEL-like VPS deploy compatibility。真实 VPS 为 Alibaba Cloud Linux 3/OpenAnolis，脚本已从仅支持 `apt-get` 扩展为 Debian/Ubuntu 走 `apt-get`、RHEL-like 走 `dnf` + 官方 Caddy COPR；并修正 Alibaba Cloud Linux 3 被 dnf-copr 误判为不存在的 `epel-3`，改为按 `platform:al8` 显式使用 `epel-8`；文档已同步。
   - [ ] Step 347.5: Real domain dry-run。拿到真实域名后执行 `--dry-run --domain DOMAIN` 并核对 Caddy 预览、DNS、80/443。
   - [ ] Step 347.6: Apply and browser smoke。真实域名 ready 后执行 `--apply --yes --domain DOMAIN`，验证 `https://DOMAIN/index.html`、`https://DOMAIN/v4/health`、K 线加载、workspace 保存、Data Maintenance 管理员入口。
