@@ -213,7 +213,42 @@ LocalStorage remains as rollback/fallback.
 
 ## Step 343.5 - Build LocalStorage Migration Path
 
-Status: pending.
+Status: complete.
+
+Implemented client modules:
+
+- `v4/src/storage/server-workspace-client.js`
+- `v4/src/display/display-preferences.js`
+
+Migration behavior:
+
+```text
+1. On startup, localStorage display preferences are applied immediately.
+2. The browser then asynchronously reads `GET /v4/workspace?domain=display-preferences`.
+3. If the server document exists, server preferences are applied and localStorage is refreshed as rollback/fallback.
+4. If the server document is missing but localStorage exists, the local payload is uploaded to the default server workspace.
+5. Future preference changes write localStorage first and then best-effort PUT the server workspace document.
+```
+
+Fallback behavior:
+
+- If fetch is unavailable, server sync is skipped.
+- If server sync fails, localStorage remains the active source.
+- Reset writes defaults locally and best-effort to server.
+
+Server payload shape for this domain:
+
+```json
+{
+  "version": 1,
+  "savedAt": "ISO timestamp",
+  "preferences": {
+    "uiScale": "100",
+    "chartTextScale": "normal",
+    "inspectorDensity": "compact"
+  }
+}
+```
 
 ## Step 343.6 - Conflict and Locking Rule
 

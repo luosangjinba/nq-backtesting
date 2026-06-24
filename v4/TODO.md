@@ -1290,7 +1290,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 343.2: Define workspace API contract。已定义 `GET /v4/workspace?domain=...` 与 `PUT /v4/workspace` contract；响应包含 `user_id=default`、`workspace_id=default`、domain、instrument、version、savedAt、revision、payload，且第一版只允许显式 safe domains，避免变成任意文件写入器。
   - [x] Step 343.3: Add server auth placeholder。已在 `v4_api.py` 增加 `current_user_id() -> "default"` / `current_workspace_id() -> "default"`，并实现 `GET/PUT /v4/workspace` 的 JSON document 读写；客户端不能传 user/workspace，domain 使用白名单，Data Maintenance 仍保持独立 admin-only guard。
   - [x] Step 343.4: Pick first low-risk domain。第一批迁移域选择 `display-preferences`，只包含 UI scale、chart text scale、inspector density；不先动 PDA/Order/Live，也暂不动 pane/comparison workspace，降低首个 server-backed preference 的风险。
-  - [ ] Step 343.5: Build localStorage migration path。支持从当前 localStorage 导入到 default server workspace，并保留 localStorage rollback。
+  - [x] Step 343.5: Build localStorage migration path。`display-preferences` 现在启动时先应用 localStorage，再异步读取 server workspace；server 有记录则覆盖并刷新 localStorage，server 缺失但本地有记录则上传本地 payload，后续设置变更 localStorage first、server best-effort。
   - [ ] Step 343.6: Conflict and locking rule。第一版定义 last-write-wins 或明确禁止多设备同时编辑同一 workspace；先不做复杂 merge。
   - [ ] Step 343.7: Tests and closeout。增加 API/storage smoke，确认刷新浏览器、换设备后首个低风险 domain 可恢复。
 

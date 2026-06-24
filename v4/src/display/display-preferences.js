@@ -1,5 +1,9 @@
 import * as bus from '../event-bus.js';
 import { createLocalPersistence } from '../storage/local-persistence.js';
+import {
+  getWorkspaceDocument,
+  putWorkspaceDocument,
+} from '../storage/server-workspace-client.js';
 
 export const UI_SCALE_OPTIONS = ['100', '110', '125', '140'];
 export const CHART_TEXT_SCALE_OPTIONS = ['normal', 'large', 'xl'];
@@ -13,6 +17,7 @@ export const DEFAULT_DISPLAY_PREFERENCES = Object.freeze({
 
 const STORAGE_KEY = 'v4:display-preferences';
 const STORAGE_VERSION = 1;
+const WORKSPACE_DOMAIN = 'display-preferences';
 const persistence = createLocalPersistence({
   key: STORAGE_KEY,
   fallback: null,
@@ -51,6 +56,8 @@ const DENSITY_SETTINGS = Object.freeze({
 });
 
 let preferences = { ...DEFAULT_DISPLAY_PREFERENCES };
+let serverSyncStarted = false;
+let applyingServerPreferences = false;
 
 function normalizeChoice(value, options, fallback) {
   const text = String(value ?? '').trim().toLowerCase();
@@ -83,6 +90,10 @@ export function getDisplayPreferences() {
 
 export function getDisplayPreferencesStorageKey() {
   return STORAGE_KEY;
+}
+
+export function getDisplayPreferencesWorkspaceDomain() {
+  return WORKSPACE_DOMAIN;
 }
 
 export function getDisplayPreferenceFactors(current = preferences) {
@@ -124,7 +135,23 @@ export function applyDisplayPreferences(nextPreferences = preferences) {
 
 export function setDisplayPreferences(nextPreferences = {}) {
   const normalized = applyDisplayPreferences({ ...preferences, ...nextPreferences });
-  persistence.write({
+  const payload = {
+    version: STORAGE_VERSION,
+    savedAt: new Date().toISOString(),
+    preferences: normalized,
+  };
+  persistence.write(payload);
+  if (!applyingServerPreferences) {
+    saveDisplayPreferencesToServer(payload);
+  }
+  bus.emit('display-preferences:changed', { preferences: getDisplayPreferences() });
+  return normalized;
+}
+
+export function resetDisplayPreferences() {
+  persistence.remove();
+  const normalized = applyDisplayPreferences(DEFAULT_DISPLAY_PREFERENCES);
+  saveDisplayPreferencesToServer({
     version: STORAGE_VERSION,
     savedAt: new Date().toISOString(),
     preferences: normalized,
@@ -133,20 +160,98 @@ export function setDisplayPreferences(nextPreferences = {}) {
   return normalized;
 }
 
-export function resetDisplayPreferences() {
-  persistence.remove();
-  const normalized = applyDisplayPreferences(DEFAULT_DISPLAY_PREFERENCES);
-  bus.emit('display-preferences:changed', { preferences: getDisplayPreferences() });
-  return normalized;
+function canUseServerWorkspace() {
+  return Boolean(globalThis.window?.location && typeof globalThis.fetch === 'function');
 }
 
-export function initDisplayPreferences() {
+function getStoredDisplayPreferencePayload() {
+  const saved = persistence.read();
+  if (!saved?.preferences) return null;
+  return {
+    version: Number(saved.version) || STORAGE_VERSION,
+    savedAt: saved.savedAt || null,
+    preferences: normalizeDisplayPreferences(saved.preferences),
+  };
+}
+
+function writeLocalDisplayPreferencePayload(payload) {
+  persistence.write({
+    version: Number(payload?.version) || STORAGE_VERSION,
+    savedAt: payload?.savedAt || new Date().toISOString(),
+    preferences: normalizeDisplayPreferences(payload?.preferences || {}),
+  });
+}
+
+export async function saveDisplayPreferencesToServer(payload = null, options = {}) {
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const normalizedPayload = payload || {
+    version: STORAGE_VERSION,
+    savedAt: new Date().toISOString(),
+    preferences: getDisplayPreferences(),
+  };
+  try {
+    return await putWorkspaceDocument({
+      domain: WORKSPACE_DOMAIN,
+      version: STORAGE_VERSION,
+      payload: normalizedPayload,
+      fetchImpl: options.fetchImpl,
+    });
+  } catch (error) {
+    console.warn('[display-preferences] server save failed', error);
+    return { ok: false, error };
+  }
+}
+
+export async function syncDisplayPreferencesFromServer(options = {}) {
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  try {
+    const document = await getWorkspaceDocument({
+      domain: WORKSPACE_DOMAIN,
+      fetchImpl: options.fetchImpl,
+    });
+    if (document?.found && document.payload?.preferences) {
+      applyingServerPreferences = true;
+      try {
+        const serverPayload = {
+          version: Number(document.payload.version) || STORAGE_VERSION,
+          savedAt: document.payload.savedAt || document.savedAt || new Date().toISOString(),
+          preferences: normalizeDisplayPreferences(document.payload.preferences),
+        };
+        applyDisplayPreferences(serverPayload.preferences);
+        writeLocalDisplayPreferencePayload(serverPayload);
+        bus.emit('display-preferences:changed', {
+          preferences: getDisplayPreferences(),
+          source: 'server',
+        });
+      } finally {
+        applyingServerPreferences = false;
+      }
+      return { ok: true, source: 'server', document };
+    }
+
+    const localPayload = getStoredDisplayPreferencePayload();
+    if (localPayload?.preferences) {
+      const saved = await saveDisplayPreferencesToServer(localPayload, options);
+      return { ok: Boolean(saved?.ok), source: 'local-migration', document: saved };
+    }
+    return { ok: true, source: 'empty' };
+  } catch (error) {
+    console.warn('[display-preferences] server sync failed', error);
+    return { ok: false, error };
+  }
+}
+
+export function initDisplayPreferences({ syncServer = true } = {}) {
   const saved = persistence.read();
   if (saved?.preferences) {
     persistence.runRestoring(() => {
       applyDisplayPreferences(saved.preferences);
     });
-    return;
+  } else {
+    applyDisplayPreferences(preferences);
   }
-  applyDisplayPreferences(preferences);
+  if (syncServer && !serverSyncStarted && canUseServerWorkspace()) {
+    serverSyncStarted = true;
+    syncDisplayPreferencesFromServer();
+  }
 }

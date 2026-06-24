@@ -71,4 +71,62 @@ display.resetDisplayPreferences();
 assert.equal(globalThis.localStorage.getItem(display.getDisplayPreferencesStorageKey()), null);
 assert.equal(globalThis.document.documentElement.dataset.uiScale, '100');
 
+const serverPayload = {
+  ok: true,
+  found: true,
+  user_id: 'default',
+  workspace_id: 'default',
+  domain: 'display-preferences',
+  instrument: null,
+  version: 1,
+  savedAt: '2026-06-23T20:00:00Z',
+  revision: '2026-06-23T20:00:00Z',
+  payload: {
+    version: 1,
+    savedAt: '2026-06-23T20:00:00Z',
+    preferences: {
+      uiScale: '140',
+      chartTextScale: 'xl',
+      inspectorDensity: 'normal',
+    },
+  },
+};
+await display.syncDisplayPreferencesFromServer({
+  fetchImpl: async (url, options = {}) => {
+    assert.match(url, /\/v4\/workspace\?domain=display-preferences$/);
+    assert.equal(options.method, 'GET');
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return serverPayload;
+      },
+    };
+  },
+});
+assert.equal(globalThis.document.documentElement.dataset.uiScale, '140');
+assert.equal(globalThis.document.documentElement.dataset.chartTextScale, 'xl');
+const serverSaved = JSON.parse(globalThis.localStorage.getItem(display.getDisplayPreferencesStorageKey()));
+assert.deepEqual(serverSaved.preferences, serverPayload.payload.preferences);
+
+const putCalls = [];
+await display.saveDisplayPreferencesToServer(null, {
+  fetchImpl: async (url, options = {}) => {
+    putCalls.push({ url, options });
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true, found: true };
+      },
+    };
+  },
+});
+assert.equal(putCalls.length, 1);
+assert.match(putCalls[0].url, /\/v4\/workspace$/);
+assert.equal(putCalls[0].options.method, 'PUT');
+const putBody = JSON.parse(putCalls[0].options.body);
+assert.equal(putBody.domain, display.getDisplayPreferencesWorkspaceDomain());
+assert.deepEqual(putBody.payload.preferences, serverPayload.payload.preferences);
+
 console.log('display preferences smoke passed');
