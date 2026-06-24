@@ -1289,7 +1289,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 343.1: Choose storage backend。第一版选择 `v4/data/users/default/workspaces/default` 下的 per-user JSON documents；理由是便于检查、天然纳入 Step 342 `v4/data` 备份、避免把 user workspace 写入大型市场数据 DuckDB。记录见 `v4/sessions/session_20260623_step343_default_workspace_foundation.md`。
   - [x] Step 343.2: Define workspace API contract。已定义 `GET /v4/workspace?domain=...` 与 `PUT /v4/workspace` contract；响应包含 `user_id=default`、`workspace_id=default`、domain、instrument、version、savedAt、revision、payload，且第一版只允许显式 safe domains，避免变成任意文件写入器。
   - [x] Step 343.3: Add server auth placeholder。已在 `v4_api.py` 增加 `current_user_id() -> "default"` / `current_workspace_id() -> "default"`，并实现 `GET/PUT /v4/workspace` 的 JSON document 读写；客户端不能传 user/workspace，domain 使用白名单，Data Maintenance 仍保持独立 admin-only guard。
-  - [ ] Step 343.4: Pick first low-risk domain。优先选择 display/pane/comparison workspace preferences，不先动 PDA/Order/Live。
+  - [x] Step 343.4: Pick first low-risk domain。第一批迁移域选择 `display-preferences`，只包含 UI scale、chart text scale、inspector density；不先动 PDA/Order/Live，也暂不动 pane/comparison workspace，降低首个 server-backed preference 的风险。
   - [ ] Step 343.5: Build localStorage migration path。支持从当前 localStorage 导入到 default server workspace，并保留 localStorage rollback。
   - [ ] Step 343.6: Conflict and locking rule。第一版定义 last-write-wins 或明确禁止多设备同时编辑同一 workspace；先不做复杂 merge。
   - [ ] Step 343.7: Tests and closeout。增加 API/storage smoke，确认刷新浏览器、换设备后首个低风险 domain 可恢复。

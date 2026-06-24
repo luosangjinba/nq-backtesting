@@ -176,7 +176,40 @@ Data Maintenance remains separate:
 
 ## Step 343.4 - Pick First Low-Risk Domain
 
-Status: pending.
+Status: complete.
+
+Selected first domain:
+
+```text
+display-preferences
+```
+
+What it contains today:
+
+- UI scale.
+- Chart text scale.
+- Inspector density.
+
+Why this domain:
+
+- It is user-private but low risk.
+- It does not affect market data, order review objects, PDA geometry, or replay behavior.
+- It already has a compact localStorage payload under `v4:display-preferences`.
+- If server sync fails, localStorage fallback is enough.
+
+Not selected for Step 343:
+
+- PDA annotations: important core research objects; defer to Step 344 after the workspace foundation is stable.
+- Order Setup / Live Records: too high impact for the first persistence foundation.
+- Pane/comparison workspace: useful, but it touches active layout and pane semantics; keep it after display preferences.
+
+Step 343 acceptance for this domain:
+
+```text
+Device/browser A saves display preferences to server.
+Device/browser B can load the same preferences from server.
+LocalStorage remains as rollback/fallback.
+```
 
 ## Step 343.5 - Build LocalStorage Migration Path
 
