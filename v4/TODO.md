@@ -1322,10 +1322,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 346.7: Reverse proxy docs closeout。已更新 `v4/docs/deploy/SERVER_RUNTIME_HARDENING.md`，补充 dry-run/apply 用法、端口开放边界、健康检查、日志检查、回滚轮廓和单用户安全边界。
   - [x] Step 346.8: Deployment verification checklist。已新增 `v4/docs/deploy/REVERSE_PROXY_DEPLOYMENT_VERIFICATION.md`，整理 apply 前检查、健康检查、浏览器检查、失败排查、回滚步骤和安全边界。
 
-- [ ] Step 347: Real server reverse-proxy preflight。目标是在真实公网域名 apply 前完成服务器环境、env、公网 dry-run 预检；不在域名和端口映射未确认前执行 `--apply`。
+- [ ] Step 347: Real VPS reverse-proxy rollout。目标是在真实 VPS 上先用公网 IP + HTTP-only 打通 Caddy/web/API 链路，再上传 canonical DuckDB 数据并完成 K 线/data-maintenance smoke；域名/HTTPS 作为后续收敛。
   - [x] Step 347.1: Server exposure precheck。已检查当前监听：`8001/8766` 仍为 LAN 模式监听 `0.0.0.0`，`80` 有监听，Caddy 未安装；本轮没有真实公网域名，DNS/外网端口映射需待域名确定后验证。
   - [x] Step 347.2: Public-mode env readiness check。已检查 `v4/.env.local` 的 `V4_*`：当前为 LAN 配置 `V4_API_HOST=0.0.0.0`、allowed origins 为本机/LAN HTTP；公网反代 apply 前需切到 `V4_API_HOST=127.0.0.1`、`V4_ALLOWED_WEB_ORIGINS=https://DOMAIN`、`V4_PUBLIC_DOMAIN=DOMAIN`。
   - [x] Step 347.3: Reverse-proxy dry-run smoke。已执行 `bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com`，必需文件检查、Caddy route preview、planned health checks 均通过；未写系统文件。
   - [x] Step 347.4: RHEL-like VPS deploy compatibility。真实 VPS 为 Alibaba Cloud Linux 3/OpenAnolis，脚本已从仅支持 `apt-get` 扩展为 Debian/Ubuntu 走 `apt-get`、RHEL-like 走 `dnf` + 官方 Caddy COPR；并修正 Alibaba Cloud Linux 3 被 dnf-copr 误判为不存在的 `epel-3`，改为按 `platform:al8` 显式使用 `epel-8`；文档已同步。
-  - [ ] Step 347.5: Real domain dry-run。拿到真实域名后执行 `--dry-run --domain DOMAIN` 并核对 Caddy 预览、DNS、80/443。
-  - [ ] Step 347.6: Apply and browser smoke。真实域名 ready 后执行 `--apply --yes --domain DOMAIN`，验证 `https://DOMAIN/index.html`、`https://DOMAIN/v4/health`、K 线加载、workspace 保存、Data Maintenance 管理员入口。
+  - [x] Step 347.5: VPS IP HTTP-only apply and static web smoke。VPS 路径 `/root/trading/backtesting`，公网 IP `43.110.32.34`；已切到 `origin/step-server-data-model-audit` 最新 `7916351`，执行 `bash v4/deploy/install_reverse_proxy.sh --apply --yes --domain 43.110.32.34 --http-only` 后网页可访问。Caddy 在 Alibaba Cloud Linux 3 上通过 `dnf copr enable -y @caddy/caddy epel-8-x86_64` 安装路径修复后通过。
+  - [ ] Step 347.6: Upload DuckDB and API/data smoke。当前明确阻塞是 VPS 尚未上传 `trading_data.duckdb`。下一步用 Xftp 上传本机 `/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb` 到 VPS `/root/trading/backtesting/v4/data/trading_data.duckdb`，确认 `V4_TRADING_DB=/root/trading/backtesting/v4/data/trading_data.duckdb`，重启 `systemctl restart v4-api.service`，验证 `http://43.110.32.34/v4/health`、K 线加载、`data-maintenance.html`。同时检查 `v4-api.service` 在 VPS 上的 Python/duckdb 依赖是否正常。
+  - [ ] Step 347.7: Domain/HTTPS cutover。IP HTTP-only + 数据 smoke 稳定后，再绑定域名、切回 `V4_ALLOWED_WEB_ORIGINS=https://DOMAIN`，执行非 `--http-only` 部署并验证 HTTPS/ACME。
