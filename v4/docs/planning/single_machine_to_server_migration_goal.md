@@ -133,6 +133,7 @@ These can be planned later after the server baseline is stable.
 - Restore smoke has been run into a temporary directory.
 - Backup location is outside the live data directory.
 - Backup scope includes any future `data/users/default` directory before server-side workspace data is introduced.
+- Real maintenance writes require the operator to identify the latest usable backup first.
 
 ### Multi-Device Acceptance
 
@@ -199,10 +200,14 @@ Deliverables:
 - Backup command.
 - Restore smoke command.
 - Backup retention note.
+- Rollback drill.
+- Pre-write backup guard.
 
 Exit criteria:
 
 - Restore smoke succeeds before relying on server data daily.
+- The runbook states when to use runtime fallback versus data restore.
+- The runbook states that browser `localStorage` is origin-scoped and Review JSON export is needed before switching origins/devices if draft objects matter.
 
 ### Phase 6: Default User Workspace Design
 
@@ -242,6 +247,13 @@ Return to local index/API.
 Restore DuckDB/data from backup if server writes caused a problem.
 Re-import browser-local JSON if needed.
 ```
+
+Step 342 baseline:
+
+- Backup helper successfully backed up the repo-local DuckDB and `v4/data`.
+- Restore smoke succeeded against a temporary restored data directory.
+- Runbook now requires a known usable backup before real maintenance writes.
+- Production still needs a persistent backup directory; the Step 342 `/tmp` backup is smoke-only.
 
 ## Open Decisions
 

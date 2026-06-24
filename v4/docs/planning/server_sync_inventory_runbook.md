@@ -236,6 +236,14 @@ tar -czf /var/backups/trading/v4/v4-data.$(date +%Y%m%d_%H%M%S).tar.gz -C /var/l
 
 If using the repo-local data directory instead of `/var/lib/trading-data`, archive `v4/data`.
 
+Backup cadence:
+
+- Before any real maintenance write, take or identify the latest usable backup.
+- During active server use, run one daily backup after normal refresh/maintenance.
+- For the first production cut, keep at least 7 daily backups and 4 weekly backups.
+- Store production backups outside the repo and outside the live data directory.
+- `/tmp/v4-step342-backups` is only a smoke-test location and is not durable.
+
 Restore test:
 
 ```bash
@@ -303,6 +311,12 @@ Browser workspace rule:
 - `localStorage` is origin-scoped. Draft PDA, Segment, Order Setup, Live Record, notes, and workspace state created under `http://SERVER_HOST:8001` will not automatically appear under `http://127.0.0.1:8001`.
 - Do not clear browser site data during rollback.
 - Export Review JSON before switching origins/devices if you need to carry draft review objects across.
+
+Rollback triggers:
+
+- Use runtime fallback if server start/restart fails, remote clients cannot load `index.html`, `/v4/health` is unavailable, or LAN/VPN access is unreliable.
+- Use data restore if a maintenance write corrupts data, writes the wrong range/instrument, removes expected bars/events, or `server_status.py`/freshness checks regress after a write.
+- If only browser-local workspace state is missing after switching URLs, first check origin-scoped `localStorage` and Review JSON export/import before restoring market data.
 
 ## Client Usage Rules
 

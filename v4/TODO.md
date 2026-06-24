@@ -1277,13 +1277,13 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 341.6: Failure-mode smoke。已覆盖 missing maintenance header、bad origin、invalid instrument、weekend/no-data range 和 busy lock；输出包含 403 guard 错误、明确 invalid instrument、weekend no-data warning、`would_insert_rows: 0`、busy `returncode: 423`。
   - [x] Step 341.7: Closeout docs。已更新 runbook，明确“正常使用只在 server 执行 refresh/import”、Data Maintenance 是 trusted-admin 功能、writes 保持手动且需备份门槛，下一步建议 Step 342 backup/restore/rollback gate。
 
-- [ ] Step 342: Backup, restore, and rollback gate。目标是在依赖 server 日常使用前，把备份/恢复从“有脚本”升级为“验收门槛”。
+- [x] Step 342: Backup, restore, and rollback gate。已完成短期备份目标选择、repo-local canonical data 备份、临时目录 restore smoke、runtime/data rollback drill、pre-write backup guard、runbook/migration closeout。当前 smoke 备份位于 `/tmp/v4-step342-backups`，生产仍需选择持久备份目录。
   - [x] Step 342.1: Select backup destination。短期 smoke 备份目标选 `/tmp/v4-step342-backups`，用于验证脚本和 restore smoke；生产目标仍建议 `/var/backups/trading/v4` 或外部磁盘/网络位置，必须在 live data directory 之外。记录见 `v4/sessions/session_20260623_step342_backup_restore_rollback_gate.md`。
   - [x] Step 342.2: Backup canonical data。已执行 `backup_v4_data.py` 备份 repo-local DuckDB 与 `v4/data` 到 `/tmp/v4-step342-backups`；生成 DB backup 945303552 bytes 与 data tarball 211705951 bytes。完整 data 归档耗时数分钟，生产备份需使用持久目录。
   - [x] Step 342.3: Restore smoke。已把 data tarball 恢复到 `/tmp/v4-step342-restore-test`，并用 `server_status.py --skip-http` 指向恢复目录验证 DuckDB 可读、ES/NQ 行数和 max_ts 正常、关键 CSV 存在；restore smoke hard_errors=0。记录见 `v4/sessions/session_20260623_step342_backup_restore_rollback_gate.md`。
   - [x] Step 342.4: Rollback drill。已记录 runtime fallback 与 data restore 是两件事；明确本地回退启动/验证步骤、恢复目录先 smoke 再替换 live data、以及 browser `localStorage` 按 origin 隔离，跨 server/local URL 前应导出 Review JSON 以保留 PDA/Segment/Order Setup/Live Record 草稿。
   - [x] Step 342.5: Add pre-write guard note。已把真实 maintenance write 前的备份门槛写入 session/runbook：操作者必须能指出最近可用备份、备份位置/时间/label、当前备份机制至少通过一次 restore smoke，且支持 dry-run/preflight 的写动作需先 dry-run/preflight。
-  - [ ] Step 342.6: Closeout docs。更新 migration/runbook，写明 backup cadence、restore smoke 命令和回退条件。
+  - [x] Step 342.6: Closeout docs。已更新 migration goal 与 server runbook，写明短期 backup cadence、restore smoke 命令、pre-write guard、rollback 条件，以及 `/tmp` 备份只用于 smoke、不作为生产持久备份。
 
 - [ ] Step 343: Default-user server workspace persistence foundation。目标是不做登录，但先把 server-side user-private persistence 设计成 `user_id=default` / `workspace_id=default`，为以后多用户降风险。
   - [ ] Step 343.1: Choose storage backend。比较 per-user JSON 与 DB 表；第一版建议先选一个可备份、可迁移、可加锁的实现。

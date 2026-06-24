@@ -231,4 +231,39 @@ This is valid only as a smoke backup. It is not durable because it lives under `
 
 ## Step 342.6 - Closeout Docs
 
-Status: pending.
+Status: complete.
+
+Closeout updates:
+
+- `v4/TODO.md` marks Step 342 complete.
+- `v4/docs/planning/server_sync_inventory_runbook.md` now contains:
+  - backup cadence;
+  - restore smoke command;
+  - pre-write guard;
+  - rollback drill;
+  - rollback trigger conditions.
+- `v4/docs/planning/single_machine_to_server_migration_goal.md` now treats backup/restore as a completed baseline gate, while keeping production backup directory selection as a later deployment decision.
+
+Short-term cadence:
+
+```text
+Before any real maintenance write: take or identify the latest usable backup.
+During active server use: run one daily backup after normal refresh/maintenance.
+Keep at least 7 daily backups and 4 weekly backups for the first production cut.
+```
+
+Rollback triggers:
+
+```text
+Use runtime fallback if the server runtime cannot start, remote clients cannot load the page/API, or LAN/VPN access is unreliable.
+Use data restore if a maintenance write corrupts data, writes the wrong range/instrument, or freshness/status checks regress after a write.
+Export Review JSON before changing browser origins if draft workspace objects matter.
+```
+
+Step 342 conclusion:
+
+```text
+Backup/restore is now an explicit gate for manual maintenance writes.
+The current `/tmp/v4-step342-backups` backup is valid for smoke validation only.
+Daily reliance still needs a persistent backup destination outside the repo/live data directory.
+```
