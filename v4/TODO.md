@@ -1286,7 +1286,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 342.6: Closeout docs。已更新 migration goal 与 server runbook，写明短期 backup cadence、restore smoke 命令、pre-write guard、rollback 条件，以及 `/tmp` 备份只用于 smoke、不作为生产持久备份。
 
 - [ ] Step 343: Default-user server workspace persistence foundation。目标是不做登录，但先把 server-side user-private persistence 设计成 `user_id=default` / `workspace_id=default`，为以后多用户降风险。
-  - [ ] Step 343.1: Choose storage backend。比较 per-user JSON 与 DB 表；第一版建议先选一个可备份、可迁移、可加锁的实现。
+  - [x] Step 343.1: Choose storage backend。第一版选择 `v4/data/users/default/workspaces/default` 下的 per-user JSON documents；理由是便于检查、天然纳入 Step 342 `v4/data` 备份、避免把 user workspace 写入大型市场数据 DuckDB。记录见 `v4/sessions/session_20260623_step343_default_workspace_foundation.md`。
   - [ ] Step 343.2: Define workspace API contract。设计 default-user workspace read/write endpoints，包含 user/workspace/instrument/domain/version/savedAt。
   - [ ] Step 343.3: Add server auth placeholder。实现 `current_user_id() -> "default"` 的边界，不引入登录；Data Maintenance 仍保持 admin-only 语义。
   - [ ] Step 343.4: Pick first low-risk domain。优先选择 display/pane/comparison workspace preferences，不先动 PDA/Order/Live。
