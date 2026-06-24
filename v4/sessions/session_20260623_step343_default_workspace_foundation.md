@@ -252,7 +252,37 @@ Server payload shape for this domain:
 
 ## Step 343.6 - Conflict and Locking Rule
 
-Status: pending.
+Status: complete.
+
+Conflict rule:
+
+```text
+Last write wins.
+```
+
+Why:
+
+- `display-preferences` is low risk and small.
+- Multi-device concurrent editing is not a first-cut requirement.
+- The first server workspace goal is ownership and backup coverage, not collaboration.
+
+Locking/write rule:
+
+- Server writes use `_WORKSPACE_LOCK` to serialize writes inside the running API process.
+- Server writes write a temp file first, then `os.replace` to atomically replace the document.
+- The response includes `savedAt` and `revision`; both currently use the server write timestamp.
+- The client does not yet send an expected revision.
+
+Operational rule:
+
+- Avoid editing the same workspace preference on two devices at exactly the same time.
+- If the value looks wrong, set it again from the intended browser; that becomes the latest server value.
+
+Future upgrade path:
+
+- Add `expectedRevision` to PUT.
+- Return `409 conflict` when the stored revision differs.
+- Add per-domain merge only where it is worth the complexity.
 
 ## Step 343.7 - Tests and Closeout
 
