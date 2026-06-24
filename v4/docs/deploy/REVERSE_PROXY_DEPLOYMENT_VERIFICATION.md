@@ -58,7 +58,7 @@ curl -fsS https://your-domain.example/index.html
 Local service checks:
 
 ```bash
-curl -fsS http://127.0.0.1:8766/health
+curl -fsS http://127.0.0.1:8766/v4/health
 curl -fsS http://127.0.0.1:8001/index.html
 ```
 
