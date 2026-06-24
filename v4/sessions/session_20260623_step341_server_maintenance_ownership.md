@@ -234,7 +234,91 @@ Operational decision:
 
 ## Step 341.4 - Validate Calendar/VIX/Regime Flow
 
-Status: pending.
+Status: complete.
+
+### Economic Calendar Verify
+
+Action:
+
+```text
+economic_verify
+```
+
+Result:
+
+```text
+ok: true
+economic_calendar_verify_status: ok
+rows: 24041
+date_min: 2007-01-01
+date_max: 2026-06-26
+duplicate_keys: 0
+malformed_rows: 0
+```
+
+### Economic Calendar Dry Run
+
+Action:
+
+```text
+economic_dry_run
+range: 2026-06-01 -> 2026-06-07
+```
+
+Result:
+
+```text
+ok: true
+fetch_month_start: 2026-06 jun.2026
+fetch_month_done: 2026-06 raw_rows=449 filtered_rows=117
+economic_calendar_dry_run_status: ok
+existing_rows: 24041
+existing_date_min: 2007-01-01
+existing_date_max: 2026-06-26
+candidate_rows: 37
+candidate_date_min: 2026-06-01
+candidate_date_max: 2026-06-06
+duplicate_candidate_keys: 0
+existing_candidate_keys: 37
+would_append_rows: 0
+write_status: dry-run; no CSV changes were made
+```
+
+Observation:
+
+- The dry-run took longer than simple status checks because it fetched the monthly source data.
+- It did not mutate the CSV.
+
+### VIX / Futures Freshness
+
+Command:
+
+```bash
+python3 v4/scripts/verify_data_freshness.py --api-url http://192.168.1.111:8766
+```
+
+Result:
+
+```text
+hard_errors: 0
+warnings: 1
+data_freshness_status: ok
+ES duplicate_timestamps: 0
+NQ duplicate_timestamps: 0
+ES api_status: ok
+NQ api_status: ok
+VIX rows: 9206
+VIX latest_date: 2026-06-12
+VIX duplicate_dates: 0
+VIX malformed_rows: 0
+warning: VIX latest date is older than 7 calendar days
+```
+
+Decision:
+
+- Treat VIX stale warning as an operational freshness warning, not a Step 341 blocker.
+- Any VIX write/update should still require backup awareness and explicit write confirmation in a later maintenance step.
+- Daily regime CSV files remain covered by `server_status.py` file checks in this step.
 
 ## Step 341.5 - Decide Automation Boundary
 
