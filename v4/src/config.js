@@ -1,8 +1,12 @@
 // 全局常量 — 单一事实来源，替代 v3 中 4 处重复的 timeframe map
 
 export function resolveApiBase(locationLike = globalThis.location) {
-  const protocol = locationLike?.protocol === 'https:' ? 'https:' : 'http:';
   const hostname = locationLike?.hostname || '127.0.0.1';
+  const isLocalDev = hostname === '127.0.0.1' || hostname === 'localhost';
+  if (!isLocalDev) {
+    return '';
+  }
+  const protocol = locationLike?.protocol === 'https:' ? 'https:' : 'http:';
   return `${protocol}//${hostname}:8766`;
 }
 
