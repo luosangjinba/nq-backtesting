@@ -61,7 +61,34 @@ This can be refined after actual disk usage is known.
 
 ## Step 342.2 - Backup Canonical Data
 
-Status: pending.
+Status: complete.
+
+Command:
+
+```bash
+python3 v4/scripts/backup_v4_data.py \
+  --db v4/data/trading_data.duckdb \
+  --data-dir v4/data \
+  --backup-dir /tmp/v4-step342-backups \
+  --label step342
+```
+
+Result:
+
+```text
+backup_status: ok
+database_source: /home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb
+data_dir_source: /home/leo/myworkspace/trading/backtesting/v4/data
+database_backup: /tmp/v4-step342-backups/trading_data.20260623_204307-step342.duckdb
+data_backup: /tmp/v4-step342-backups/v4-data.20260623_204307-step342.tar.gz
+database_backup_size: 945303552
+data_backup_size: 211705951
+```
+
+Observation:
+
+- Full `v4/data` archive completed successfully but took several minutes.
+- This reinforces that production backups should be scheduled deliberately and stored outside `/tmp`.
 
 ## Step 342.3 - Restore Smoke
 
