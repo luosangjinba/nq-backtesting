@@ -183,9 +183,20 @@ with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     assert entry_catalog_saved["domain"] == "entry-context-catalog"
     assert entry_catalog_saved["instrument"] is None
 
+    import_batches_saved = v4_api.write_workspace_document(
+        {
+            "domain": "import-batches",
+            "version": 1,
+            "payload": {"version": 1, "batches": [{"id": "import_batch_1", "sourceType": "review-json"}]},
+        }
+    )
+    assert import_batches_saved["domain"] == "import-batches"
+    assert import_batches_saved["instrument"] is None
+
     expect_value_error(lambda: v4_api.read_workspace_document("../../bad"))
     expect_value_error(lambda: v4_api.read_workspace_document("display-preferences", "NQ"))
     expect_value_error(lambda: v4_api.read_workspace_document("entry-context-catalog", "NQ"))
+    expect_value_error(lambda: v4_api.read_workspace_document("import-batches", "NQ"))
     expect_value_error(lambda: v4_api.read_workspace_document("chart-notes"))
     expect_value_error(lambda: v4_api.read_workspace_document("daily-time-reviews"))
     expect_value_error(lambda: v4_api.read_workspace_document("economic-event-notes"))

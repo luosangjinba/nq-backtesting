@@ -44,6 +44,7 @@ import {
   getDailyRegimes,
 } from '../daily-regime/daily-regime-store.js';
 import { getDailyRegimeIdentity, normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
+import { recordImportBatch } from '../import/import-batch-audit.js';
 import {
   getChartNoteIdentity,
   getChartNotes,
@@ -1055,6 +1056,39 @@ export async function importReviewArchive(file) {
       skippedInvalidChartNotes +
       skippedDailyRegimeDuplicates +
       skippedInvalidDailyRegimes;
+    recordImportBatch({
+      sourceType: payload.source?.type || 'review-json',
+      sourceFileName: file.name || '',
+      instrument: getPrimaryInstrument(),
+      counts: {
+        pdaAnnotations: annotations.length,
+        marketSegments: segments.length,
+        segmentGroups: groups.length,
+        smtRecords: smtRecords.length,
+        orderReviews: orders.length,
+        liveRecords: liveRecords.length,
+        dailyTimeReviews: dailyTimeReviews.length,
+        chartNotes: chartNotes.length,
+        dailyRegimes: dailyRegimes.length,
+      },
+      skipped: {
+        pdaAnnotations: skippedPdaDuplicates,
+        marketSegments: skippedSegmentDuplicates,
+        segmentGroups: skippedGroupDuplicates,
+        smtRecords: skippedSmtDuplicates + skippedInvalidSmt,
+        orderReviews: skippedOrderDuplicates + skippedInvalidOrders,
+        liveRecords: skippedLiveRecordDuplicates + skippedInvalidLiveRecords,
+        dailyTimeReviews: skippedDailyTimeDuplicates + skippedInvalidDailyTime,
+        chartNotes: skippedChartNoteDuplicates + skippedInvalidChartNotes,
+        dailyRegimes: skippedDailyRegimeDuplicates + skippedInvalidDailyRegimes,
+        total: skipped,
+      },
+      metadata: {
+        archiveVersion: payload.version,
+        archiveExportedAt: payload.exportedAt || '',
+        archiveSource: payload.source || null,
+      },
+    });
     bus.emit('status:update', {
       text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${liveRecords.length} 条 Live Record、${dailyTimeReviews.length} 条 Time Reaction、${chartNotes.length} 条 Chart Note，并校验 ${dailyRegimes.length} 条 Daily Regime${
         skipped ? `，跳过 ${skipped} 条重复对象` : ''

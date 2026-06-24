@@ -34,6 +34,7 @@ These domains are already server-backed with localStorage fallback and best-effo
 | `time-overlays` | instrument | User-defined time lines and killzones. |
 | `economic-event-notes` | instrument | User event review notes. |
 | `entry-context-catalog` | workspace | Shared catalog across instruments. |
+| `import-batches` | workspace | Audit trail for Review JSON and generated archive imports. |
 
 ## Keep Device-Local For Now
 

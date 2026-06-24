@@ -1021,6 +1021,7 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
     dailyRegimes: [],
     source: {
       type: 'tradovate-performance-csv',
+      sourceFileName: options.sourceFileName || '',
       timezone: timeZone,
       rowCount: rows.length,
       skippedRows,
@@ -1028,6 +1029,20 @@ export function buildTradovateLiveRecordArchive(text, options = {}) {
       fillsRowCount: enhancement.fills.length,
       fileAlignment,
       reconciliation,
+      importBatch: {
+        sourceType: 'tradovate-performance-csv',
+        sourceFileName: options.sourceFileName || '',
+        instrument,
+        counts: {
+          liveRecords: liveRecords.length,
+          sourceRows: rows.length,
+          ordersRows: enhancement.orders.length,
+          fillsRows: enhancement.fills.length,
+        },
+        skipped: {
+          sourceRows: skippedRows,
+        },
+      },
     },
   };
 

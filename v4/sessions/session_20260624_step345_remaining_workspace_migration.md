@@ -143,7 +143,37 @@ Decision:
 
 ## Step 345.5 - Add Import Batch Audit
 
-Status: pending.
+Status: complete.
+
+Workspace domain:
+
+```text
+import-batches
+```
+
+Scope:
+
+```text
+workspace-scoped
+```
+
+Implemented:
+
+- Added `import-batches` to the workspace API allowlist.
+- Added `src/import/import-batch-audit.js` with localStorage-first, server best-effort sync.
+- Initialized import batch audit during app startup.
+- Review JSON import records source type, source filename, imported object counts, skipped counts, and archive metadata after a successful import.
+- Tradovate archive generation now carries source filename and import batch summary metadata in `payload.source`.
+- Audit entries store metadata only; they do not store raw uploaded CSV/JSON contents.
+
+Validation:
+
+```bash
+node v4/tests/import-batch-audit-smoke.js
+node v4/tests/tradovate-import-ui-modules-smoke.js
+python3 v4/tests/workspace-api-smoke.py
+python3 -m py_compile v4/v4_api.py
+```
 
 ## Step 345.6 - Multi-User Login Readiness Review
 

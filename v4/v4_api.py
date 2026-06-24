@@ -67,6 +67,7 @@ ALLOWED_WORKSPACE_DOMAINS = {
     "display-preferences": {"instrumentScoped": False},
     "economic-event-notes": {"instrumentScoped": True},
     "entry-context-catalog": {"instrumentScoped": False},
+    "import-batches": {"instrumentScoped": False},
     "live-records": {"instrumentScoped": True},
     "market-segments": {"instrumentScoped": True},
     "order-reviews": {"instrumentScoped": True},
