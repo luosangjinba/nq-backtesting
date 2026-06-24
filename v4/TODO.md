@@ -1311,3 +1311,12 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 345.5: Add import batch audit。已新增 workspace-scoped `import-batches` domain 与 `import-batch-audit.js`，Review JSON 导入成功后记录来源、计数、跳过数量和 metadata；Tradovate archive source metadata 带 import batch 摘要；测试覆盖 server save/sync。
   - [x] Step 345.6: Multi-user login readiness review。已新增 `v4/docs/planning/multi_user_login_readiness_review.md`；结论：default-user 单用户服务器模式可继续，真实多用户登录需先完成 session identity、CSRF、admin-only maintenance、per-user backup/restore 和 upload limits。
   - [x] Step 345.7: Security hardening gate。已新增 `v4/docs/deploy/SECURITY_HARDENING_GATE.md`，明确当前只允许 trusted LAN/VPN 单用户，公网/多用户前必须完成 HTTPS/auth/session CSRF、admin-only Data Maintenance、upload limits、per-user backup/restore、audit/rate-limit/CORS 收敛。
+
+- [ ] Step 346: Reverse proxy public access deployment。目标是为未来 VPS/公网单用户访问建立方案 2：公网只开放 `80/443`，Caddy 反向代理到本机 web/API 服务；预留多用户安全系统资产序列，但不实现登录/多用户权限。
+  - [x] Step 346.1: Asset sequence and boundary definition。已新增 `v4/docs/deploy/REVERSE_PROXY_PUBLIC_ACCESS_ASSETS.md`，定义当前部署资产 `public_domain/reverse_proxy/web_service/api_service/workspace_data_dir/market_data_db/maintenance_admin_surface`，并预留未来 `users/sessions/roles/workspace_owners/upload_files/audit_logs/admin_actions`。
+  - [x] Step 346.2: Caddy reverse proxy template。已新增 `v4/deploy/caddy/Caddyfile.template`，约定 `/v4/* -> 127.0.0.1:8766`，其余请求 `-> 127.0.0.1:8001`，由 Caddy 处理 HTTPS。
+  - [x] Step 346.3: VPS environment example。已新增 `v4/deploy/env/vps.env.example`，推荐 `V4_API_HOST=127.0.0.1`、`V4_ALLOWED_WEB_ORIGINS=https://your-domain.example`、`V4_PUBLIC_DOMAIN=your-domain.example`。
+  - [ ] Step 346.4: One-command deploy script dry-run。新增 `install_reverse_proxy.sh --dry-run`，检查 domain/sudo/systemd/caddy/repo path，只打印计划动作。
+  - [ ] Step 346.5: One-command deploy apply mode。脚本支持真实安装 Caddy、渲染 Caddyfile、安装 systemd templates、重启服务。
+  - [ ] Step 346.6: Health checks and rollback hints。脚本输出 `https://domain/v4/health`、`https://domain/index.html` 检查结果、日志命令和回滚提示。
+  - [ ] Step 346.7: Reverse proxy docs closeout。补充完整公网反代部署文档，明确当前仍是单用户系统，Data Maintenance 仍是管理员入口。

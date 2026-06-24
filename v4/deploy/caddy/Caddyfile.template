@@ -1,0 +1,8 @@
+{$V4_PUBLIC_DOMAIN} {
+  encode gzip zstd
+
+  @v4_api path /v4/*
+  reverse_proxy @v4_api 127.0.0.1:8766
+
+  reverse_proxy 127.0.0.1:8001
+}

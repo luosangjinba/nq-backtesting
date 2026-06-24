@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Purpose: define the required gate before V4 is exposed beyond a trusted single-user LAN/VPN.
+Purpose: define the required gate before V4 exposes local service ports directly or moves beyond a trusted single-user/private reverse-proxy deployment.
 
 ## Current Allowed Deployment
 
@@ -10,15 +10,23 @@ Allowed:
 
 - Single trusted user.
 - Trusted LAN or VPN/Tailscale/WireGuard network.
+- Single-user public HTTPS reverse proxy when operated as a private system.
 - Server owns DuckDB and `v4/data/users/default`.
 - Client browsers access the server web/API endpoints.
 
 Not allowed:
 
-- Public internet exposure.
+- Direct public exposure of local service ports such as `8001` or `8766`.
+- Unauthenticated multi-user or public-product exposure.
 - Multiple unrelated users.
 - Shared accounts for different people.
 - Browser uploads that write arbitrary server files.
+
+Public reverse-proxy mode is documented as a single-user deployment asset, not a multi-user security system:
+
+```text
+v4/docs/deploy/REVERSE_PROXY_PUBLIC_ACCESS_ASSETS.md
+```
 
 ## Current Protections
 
@@ -33,9 +41,9 @@ Already present:
 - Workspace persistence domains are allowlisted.
 - Workspace persistence writes to `v4/data/users/default/workspaces/default`.
 
-These protections are enough for trusted single-user LAN/VPN operation, not for public or multi-user operation.
+These protections are enough for trusted single-user LAN/VPN operation and private single-user HTTPS reverse-proxy operation, not for multi-user operation.
 
-## Required Before Public Or Multi-User Access
+## Required Before Multi-User Or Public-Product Access
 
 Do not cross this gate until every item is done:
 
@@ -74,4 +82,4 @@ Before any server write-heavy maintenance:
 
 ## Operator Rule
 
-If the deployment is not protected by a trusted LAN/VPN, stop and add HTTPS/auth first.
+Do not expose local service ports directly outside a trusted LAN/VPN. If the deployment serves more than one trusted operator, stop and add authenticated identity, CSRF, and per-user data isolation first.

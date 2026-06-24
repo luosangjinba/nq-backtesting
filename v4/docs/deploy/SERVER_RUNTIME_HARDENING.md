@@ -10,6 +10,16 @@ These files are repo templates. Installing services still requires a manual serv
 
 Do not expose these ports to the public internet without a later HTTPS/auth step. The hard gate is documented in `v4/docs/deploy/SECURITY_HARDENING_GATE.md`.
 
+For public single-user access, prefer the reverse-proxy mode described by:
+
+```text
+v4/docs/deploy/REVERSE_PROXY_PUBLIC_ACCESS_ASSETS.md
+v4/deploy/caddy/Caddyfile.template
+v4/deploy/env/vps.env.example
+```
+
+In that mode, only `80/443` should be public. The static web service and API service should bind to localhost behind Caddy.
+
 ## Environment
 
 Server `v4/.env.local` should contain:
@@ -20,6 +30,14 @@ V4_WEB_PORT=8001
 V4_TRADING_DB=/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb
 V4_ALLOWED_WEB_ORIGINS=http://192.168.1.111:8001
 DATABENTO_API_KEY=...
+```
+
+For VPS reverse-proxy mode, use `v4/deploy/env/vps.env.example` as the starting point. The important differences are:
+
+```bash
+V4_API_HOST=127.0.0.1
+V4_ALLOWED_WEB_ORIGINS=https://your-domain.example
+V4_PUBLIC_DOMAIN=your-domain.example
 ```
 
 For a permanent server, replace `V4_TRADING_DB` with the chosen canonical path, for example:
