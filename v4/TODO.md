@@ -1270,7 +1270,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 341: Server maintenance and refresh ownership。目标是把 Refresh Range、economic calendar、VIX/daily regime 等维护动作收敛为 server-only 日常流程，并限制 Data Maintenance 作为 trusted admin 能力。
   - [x] Step 341.1: Inventory maintenance actions。已审计 `v4_api.py` 与 `data-maintenance.html`，将 maintenance actions 分为 read-only/status、dry-run/preview、write/mutating、runtime control；记录见 `v4/sessions/session_20260623_step341_server_maintenance_ownership.md`。
-  - [ ] Step 341.2: Confirm admin boundary。确认短期 trusted LAN/VPN 下谁可以访问 `data-maintenance.html`；记录它不是普通用户功能。
+  - [x] Step 341.2: Confirm admin boundary。确认 `data-maintenance.html` 是 trusted-admin 功能；当前单用户 LAN baseline 以网络/操作者作为边界，未来多用户或公网前必须 admin-only。已写入 session 与 runbook。
   - [ ] Step 341.3: Validate Refresh Range production flow。对 ES/NQ 各选一个安全范围，执行 dry-run、preflight、guarded write、post-write `server_status.py` 和 `/v4/bars` spot check。
   - [ ] Step 341.4: Validate calendar/VIX/regime flow。执行 economic calendar verify/dry-run，VIX/daily regime status 或 refresh dry-run；记录写入前备份要求。
   - [ ] Step 341.5: Decide automation boundary。决定是否暂缓 cron/systemd timer；若启用，先只做明确可回退的 refresh job。

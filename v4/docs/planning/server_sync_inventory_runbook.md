@@ -191,6 +191,7 @@ Avoid running refresh jobs from client machines unless explicitly debugging.
 Remote browser operation:
 
 - Use `http://SERVER_HOST:8001/data-maintenance.html` for server-side refresh/maintenance actions.
+- Treat `data-maintenance.html` as trusted-admin functionality. It can mutate `.env.local`, write the canonical DuckDB/CSV data, update roll decisions, and restart the API. In the current single-user LAN baseline the network/operator is the boundary; before real multi-user or public access it must become admin-only.
 - Use `http://SERVER_HOST:8001/index.html` for normal chart work. If a date range shows no K-line data, first verify that the selected range actually has bars before treating it as an import/server failure.
 - For different monitor sizes, use `Display Setup` -> `UI Scale` as the short-term per-device adjustment. The page has layout guardrails, but full automatic responsive behavior is not the current design target.
 - K-line DB updates for currently supported automatic instruments ES/NQ are performed by the Refresh Range `Dry Run` / `Write Data` actions; those run on the server and write the server-side `V4_TRADING_DB`.

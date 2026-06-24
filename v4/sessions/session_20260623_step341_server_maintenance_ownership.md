@@ -84,7 +84,35 @@ Runtime control:
 
 ## Step 341.2 - Confirm Admin Boundary
 
-Status: pending.
+Status: complete.
+
+Decision:
+
+```text
+Data Maintenance is trusted-admin functionality.
+```
+
+Current short-term boundary:
+
+- Access is limited to the trusted LAN server baseline.
+- The expected operator is the owner/admin user.
+- No public internet exposure.
+- No ordinary multi-user access.
+- No login boundary exists yet, so network trust is the short-term boundary.
+
+Why this matters:
+
+- `environment_write` and `environment_delete` mutate server-local `.env.local`.
+- `write` can insert bars into the canonical DuckDB.
+- `economic_write` can append to the economic calendar CSV.
+- `confirm_roll_write` can modify roll calendar decisions.
+- `api_restart` can interrupt active maintenance and restart the API.
+
+Future multi-user requirement:
+
+- Data Maintenance must become admin-only before real multi-user access.
+- Normal users should not be able to run refresh writes, env writes, roll writes, or API restart.
+- Public internet exposure requires HTTPS/reverse proxy/session/CSRF/upload hardening first.
 
 ## Step 341.3 - Validate Refresh Range Production Flow
 
