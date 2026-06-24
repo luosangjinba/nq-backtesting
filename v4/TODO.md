@@ -1278,7 +1278,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 341.7: Closeout docs。已更新 runbook，明确“正常使用只在 server 执行 refresh/import”、Data Maintenance 是 trusted-admin 功能、writes 保持手动且需备份门槛，下一步建议 Step 342 backup/restore/rollback gate。
 
 - [ ] Step 342: Backup, restore, and rollback gate。目标是在依赖 server 日常使用前，把备份/恢复从“有脚本”升级为“验收门槛”。
-  - [ ] Step 342.1: Select backup destination。确定备份目录、外部磁盘/网络位置、保留策略；必须在 live data directory 之外。
+  - [x] Step 342.1: Select backup destination。短期 smoke 备份目标选 `/tmp/v4-step342-backups`，用于验证脚本和 restore smoke；生产目标仍建议 `/var/backups/trading/v4` 或外部磁盘/网络位置，必须在 live data directory 之外。记录见 `v4/sessions/session_20260623_step342_backup_restore_rollback_gate.md`。
   - [ ] Step 342.2: Backup canonical data。备份 DuckDB、`v4/data`、未来 `data/users/default`、必要配置样例；不备份明文 secret 到 git。
   - [ ] Step 342.3: Restore smoke。把备份恢复到临时目录，检查 DuckDB 可读、关键 CSV 存在、server status 可指向恢复路径做只读检查。
   - [ ] Step 342.4: Rollback drill。记录从 server URL 回退到 local runtime 的步骤，包含 DB/data restore、browser localStorage 保留、Review/PDA JSON export。
