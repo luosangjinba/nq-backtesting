@@ -138,7 +138,41 @@ Future domains should be added deliberately as each persistence module is migrat
 
 ## Step 343.3 - Add Server Auth Placeholder
 
-Status: pending.
+Status: complete.
+
+Implemented in `v4/v4_api.py`:
+
+```text
+current_user_id() -> "default"
+current_workspace_id() -> "default"
+```
+
+Added server-side workspace document helpers:
+
+- `read_workspace_document(domain, instrument=None)`
+- `write_workspace_document(payload)`
+
+Added HTTP endpoints:
+
+```text
+GET /v4/workspace?domain=display-preferences
+PUT /v4/workspace
+```
+
+Safety boundaries:
+
+- Client cannot set `user_id`.
+- Client cannot set `workspace_id`.
+- Domain is validated and must be in `ALLOWED_WORKSPACE_DOMAINS`.
+- Initial allowed domain is only `display-preferences`.
+- Non-instrument-scoped domains reject an `instrument` parameter.
+- Payload must be a JSON object.
+- Writes use a process-local lock and atomic `os.replace`.
+
+Data Maintenance remains separate:
+
+- `/v4/data_maintenance/run` still requires the maintenance header and allowed origin.
+- Workspace endpoints are normal trusted-LAN app endpoints, not admin maintenance endpoints.
 
 ## Step 343.4 - Pick First Low-Risk Domain
 

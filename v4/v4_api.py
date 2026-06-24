@@ -11,6 +11,7 @@ API 返回 { bars, requestedRange } 格式，requestedRange 供前端过滤 padd
 import json
 import os
 import csv
+import re
 import yaml
 import subprocess
 import shlex
@@ -53,8 +54,16 @@ _ECONOMIC_EVENTS_CACHE = None
 _MAINTENANCE_LOCK = threading.Lock()
 _MAINTENANCE_JOB = None
 _MAINTENANCE_PROCESS = None
+_WORKSPACE_LOCK = threading.Lock()
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
+DEFAULT_WORKSPACE_ID = "default"
+WORKSPACE_BASE_DIR = os.path.join(V4_ROOT, "data", "users", "default", "workspaces", DEFAULT_WORKSPACE_ID)
+WORKSPACE_DOMAIN_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
+WORKSPACE_INSTRUMENT_RE = re.compile(r"^[A-Z][A-Z0-9._-]{0,15}$")
+ALLOWED_WORKSPACE_DOMAINS = {
+    "display-preferences": {"instrumentScoped": False},
+}
 def _parse_allowed_maintenance_origins():
     origins = {
         "http://127.0.0.1:8001",
@@ -199,6 +208,121 @@ def _read_json_body(handler):
     if not raw:
         return {}
     return json.loads(raw.decode("utf-8"))
+
+
+def current_user_id(handler=None):
+    return "default"
+
+
+def current_workspace_id(handler=None):
+    return DEFAULT_WORKSPACE_ID
+
+
+def _utc_now_iso():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _normalize_workspace_domain(value):
+    domain = str(value or "").strip()
+    if not WORKSPACE_DOMAIN_RE.match(domain):
+        raise ValueError("Invalid workspace domain")
+    if domain not in ALLOWED_WORKSPACE_DOMAINS:
+        raise ValueError(f"Unsupported workspace domain: {domain}")
+    return domain
+
+
+def _normalize_workspace_instrument(value, domain):
+    text = str(value or "").strip().upper()
+    domain_config = ALLOWED_WORKSPACE_DOMAINS[domain]
+    if not domain_config.get("instrumentScoped"):
+        if text:
+            raise ValueError(f"Workspace domain is not instrument-scoped: {domain}")
+        return None
+    if not WORKSPACE_INSTRUMENT_RE.match(text):
+        raise ValueError("Invalid workspace instrument")
+    return text
+
+
+def _workspace_document_path(domain, instrument=None):
+    if instrument:
+        return os.path.join(WORKSPACE_BASE_DIR, "instruments", instrument, f"{domain}.json")
+    return os.path.join(WORKSPACE_BASE_DIR, "preferences", f"{domain}.json")
+
+
+def _workspace_response(domain, instrument, document=None):
+    user_id = current_user_id()
+    workspace_id = current_workspace_id()
+    if not document:
+        return {
+            "ok": True,
+            "found": False,
+            "user_id": user_id,
+            "workspace_id": workspace_id,
+            "domain": domain,
+            "instrument": instrument,
+            "version": 1,
+            "savedAt": None,
+            "revision": None,
+            "payload": None,
+        }
+    return {
+        "ok": True,
+        "found": True,
+        "user_id": document.get("user_id", user_id),
+        "workspace_id": document.get("workspace_id", workspace_id),
+        "domain": document.get("domain", domain),
+        "instrument": document.get("instrument", instrument),
+        "version": int(document.get("version") or 1),
+        "savedAt": document.get("savedAt"),
+        "revision": document.get("revision"),
+        "payload": document.get("payload"),
+    }
+
+
+def read_workspace_document(domain, instrument=None):
+    domain = _normalize_workspace_domain(domain)
+    instrument = _normalize_workspace_instrument(instrument, domain)
+    path = _workspace_document_path(domain, instrument)
+    if not os.path.exists(path):
+        return _workspace_response(domain, instrument)
+    with _WORKSPACE_LOCK:
+        with open(path, "r", encoding="utf-8") as f:
+            document = json.load(f)
+    return _workspace_response(domain, instrument, document)
+
+
+def write_workspace_document(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("Workspace request body must be a JSON object")
+    domain = _normalize_workspace_domain(payload.get("domain"))
+    instrument = _normalize_workspace_instrument(payload.get("instrument"), domain)
+    value = payload.get("payload")
+    if not isinstance(value, dict):
+        raise ValueError("Workspace payload must be a JSON object")
+    version = int(payload.get("version") or 1)
+    if version <= 0:
+        raise ValueError("Workspace version must be positive")
+    saved_at = _utc_now_iso()
+    document = {
+        "user_id": current_user_id(),
+        "workspace_id": current_workspace_id(),
+        "domain": domain,
+        "instrument": instrument,
+        "version": version,
+        "savedAt": saved_at,
+        "revision": saved_at,
+        "payload": value,
+    }
+    path = _workspace_document_path(domain, instrument)
+    directory = os.path.dirname(path)
+    os.makedirs(directory, exist_ok=True)
+    temp_path = f"{path}.{os.getpid()}.{threading.get_ident()}.tmp"
+    with _WORKSPACE_LOCK:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(document, f, ensure_ascii=False, sort_keys=True, indent=2)
+            f.write("\n")
+        os.replace(temp_path, path)
+    return _workspace_response(domain, instrument, document)
 
 
 def _clean_text(value, max_length=500):
@@ -895,6 +1019,8 @@ class V4Handler(BaseHTTPRequestHandler):
             self._handle_price(params)
         elif path == "/v4/economic_events":
             self._handle_economic_events(params)
+        elif path == "/v4/workspace":
+            self._handle_workspace_get(params)
         else:
             self._send_error(f"Unknown endpoint: {path}", 404)
 
@@ -925,6 +1051,23 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(str(e), 400, cors_origin=allowed_origin)
         except Exception as e:
             self._send_error(str(e), 500, cors_origin=allowed_origin)
+
+    def do_PUT(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path != "/v4/workspace":
+            self._send_error(f"Unknown endpoint: {path}", 404)
+            return
+
+        try:
+            payload = _read_json_body(self)
+            result = write_workspace_document(payload)
+            self._send_json(result)
+        except (ValueError, json.JSONDecodeError) as e:
+            self._send_error(str(e), 400)
+        except Exception as e:
+            self._send_error(str(e), 500)
 
     def _handle_bars(self, params):
         start = params.get("start", [None])[0]
@@ -980,6 +1123,16 @@ class V4Handler(BaseHTTPRequestHandler):
         except Exception as e:
             self._send_error(str(e), 500)
 
+    def _handle_workspace_get(self, params):
+        try:
+            domain = params.get("domain", [None])[0]
+            instrument = params.get("instrument", [None])[0]
+            self._send_json(read_workspace_document(domain, instrument))
+        except ValueError as e:
+            self._send_error(str(e), 400)
+        except Exception as e:
+            self._send_error(str(e), 500)
+
     def do_OPTIONS(self):
         parsed = urlparse(self.path)
         allowed_origin = _get_allowed_cors_origin(self.headers)
@@ -992,7 +1145,7 @@ class V4Handler(BaseHTTPRequestHandler):
                 self.send_header("Access-Control-Allow-Headers", f"Content-Type, {MAINTENANCE_REQUEST_HEADER}")
         else:
             self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
@@ -1006,7 +1159,7 @@ def main():
     server = ThreadingHTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")
     print(f"[V4 API] DB: {DB_PATH}")
-    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/price, /v4/economic_events")
+    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/price, /v4/economic_events, /v4/workspace")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
