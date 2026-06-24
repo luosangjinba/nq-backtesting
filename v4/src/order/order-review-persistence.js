@@ -14,6 +14,7 @@ const STORAGE_KEY_BASE = 'v4:order-reviews';
 const STORAGE_VERSION = 1;
 const WORKSPACE_DOMAIN = 'order-reviews';
 let restoring = false;
+let localMutationVersion = 0;
 
 function getPersistableOrderReviews() {
   return getOrderReviews().filter((order) => order.source !== 'draft' && !order.draft);
@@ -47,6 +48,7 @@ function handleStorageError(error, action) {
 
 export function saveOrderReviews(instrument = getPrimaryInstrument()) {
   if (restoring) return false;
+  localMutationVersion += 1;
   const payload = buildOrderPayload(instrument);
   const saved = writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), payload, { onError: handleStorageError });
   saveOrderReviewsToServer(instrument, payload);
@@ -129,6 +131,7 @@ export async function saveOrderReviewsToServer(instrument = getPrimaryInstrument
 export async function syncOrderReviewsFromServer(instrument = getPrimaryInstrument(), options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
   const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({
       domain: WORKSPACE_DOMAIN,
@@ -136,6 +139,7 @@ export async function syncOrderReviewsFromServer(instrument = getPrimaryInstrume
       fetchImpl: options.fetchImpl,
     });
     if (document?.found && Array.isArray(document.payload?.orderReviews)) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       const serverPayload = {
         version: Number(document.payload.version) || STORAGE_VERSION,
         savedAt: document.payload.savedAt || document.savedAt || Date.now(),

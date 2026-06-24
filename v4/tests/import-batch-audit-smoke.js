@@ -72,8 +72,27 @@ assert.equal(body.payload.batches[0].sourceFileName, 'review.json');
 assert.equal(body.payload.batches[0].counts.liveRecords, 1);
 
 audit.loadImportBatches([]);
+audit.recordImportBatch({
+  id: 'import_batch_local_new',
+  sourceType: 'review-json',
+  sourceFileName: 'new-local.json',
+  instrument: 'NQ',
+  createdAt: 1780306202000,
+  counts: { pdaAnnotations: 1 },
+});
+const syncCalls = [];
 await audit.syncImportBatchesFromServer({
   fetchImpl: async (url, options = {}) => {
+    syncCalls.push({ url, options });
+    if (options.method === 'PUT') {
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return { ok: true, found: true };
+        },
+      };
+    }
     assert.match(url, /\/v4\/workspace\?domain=import-batches$/);
     assert.equal(options.method, 'GET');
     return {
@@ -92,6 +111,7 @@ await audit.syncImportBatchesFromServer({
               sourceType: 'tradovate-performance-csv',
               sourceFileName: 'tradovate.zip',
               instrument: 'ES',
+              createdAt: 1780306201000,
               counts: { liveRecords: 4 },
               skipped: {},
             }],
@@ -101,8 +121,13 @@ await audit.syncImportBatchesFromServer({
     };
   },
 });
-assert.equal(audit.getImportBatches().length, 1);
-assert.equal(audit.getImportBatches()[0].id, 'import_batch_2');
-assert.equal(audit.getImportBatches()[0].instrument, 'ES');
+assert.equal(audit.getImportBatches().length, 2);
+assert.equal(audit.getImportBatches()[0].id, 'import_batch_local_new');
+assert.equal(audit.getImportBatches()[1].id, 'import_batch_2');
+assert.equal(audit.getImportBatches()[1].instrument, 'ES');
+assert.equal(syncCalls.length, 2);
+assert.equal(syncCalls[1].options.method, 'PUT');
+body = JSON.parse(syncCalls[1].options.body);
+assert.deepEqual(body.payload.batches.map((item) => item.id), ['import_batch_local_new', 'import_batch_2']);
 
 console.log('import batch audit smoke passed');

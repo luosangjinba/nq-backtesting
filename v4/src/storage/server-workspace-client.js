@@ -1,5 +1,8 @@
 import { API_BASE } from '../config.js';
 
+export const WORKSPACE_REQUEST_HEADER = 'X-V4-Workspace-Request';
+export const WORKSPACE_REQUEST_VALUE = 'workspace';
+
 function getFetch(fetchImpl = null) {
   const candidate = typeof fetchImpl === 'function' ? fetchImpl : globalThis.fetch;
   return typeof candidate === 'function' ? candidate : null;
@@ -46,6 +49,7 @@ export async function putWorkspaceDocument({
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+      [WORKSPACE_REQUEST_HEADER]: WORKSPACE_REQUEST_VALUE,
     },
     body: JSON.stringify({
       domain,

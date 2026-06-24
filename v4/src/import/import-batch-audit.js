@@ -72,6 +72,14 @@ function normalizeImportBatches(input = []) {
     .slice(0, MAX_BATCHES);
 }
 
+function mergeImportBatches(...sources) {
+  return normalizeImportBatches(sources.flatMap((source) => (Array.isArray(source) ? source : [])));
+}
+
+function getBatchIds(input = []) {
+  return normalizeImportBatches(input).map((batch) => batch.id).join('|');
+}
+
 function buildPayload() {
   return {
     version: STORAGE_VERSION,
@@ -139,16 +147,21 @@ export async function syncImportBatchesFromServer(options = {}) {
   try {
     const document = await getWorkspaceDocument({ domain: WORKSPACE_DOMAIN, fetchImpl: options.fetchImpl });
     if (document?.found && Array.isArray(document.payload?.batches)) {
+      const serverBatches = normalizeImportBatches(document.payload.batches);
+      const mergedBatches = mergeImportBatches(batches, serverBatches);
       const payload = {
         version: Number(document.payload.version) || STORAGE_VERSION,
         savedAt: document.payload.savedAt || document.savedAt || Date.now(),
-        batches: normalizeImportBatches(document.payload.batches),
+        batches: mergedBatches,
       };
       persistence.runRestoring(() => {
         batches = payload.batches;
         persistence.write(payload);
       });
       bus.emit('import-batches:changed', { batches: getImportBatches() });
+      if (getBatchIds(mergedBatches) !== getBatchIds(serverBatches)) {
+        await saveImportBatchesToServer(payload, options);
+      }
       return { ok: true, source: 'server', document };
     }
     const localPayload = persistence.read();

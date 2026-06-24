@@ -29,6 +29,9 @@ def expect_value_error(fn):
 with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     v4_api.WORKSPACE_BASE_DIR = temp_dir
 
+    assert v4_api._is_valid_workspace_request({}) is False
+    assert v4_api._is_valid_workspace_request({"X-V4-Workspace-Request": "workspace"}) is True
+
     missing = v4_api.read_workspace_document("display-preferences")
     assert missing["ok"] is True
     assert missing["found"] is False

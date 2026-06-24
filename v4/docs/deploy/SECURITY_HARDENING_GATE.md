@@ -26,6 +26,8 @@ Already present:
 
 - Data Maintenance POST requires `X-V4-Maintenance-Request: data-maintenance`.
 - Data Maintenance POST checks an allowed Origin list.
+- Workspace PUT requires `X-V4-Workspace-Request: workspace`.
+- Workspace PUT checks the same allowed Origin list.
 - Data Maintenance actions are allowlisted server commands.
 - Data Maintenance actions are guarded by a single active maintenance lock.
 - Workspace persistence domains are allowlisted.

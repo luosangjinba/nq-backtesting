@@ -15,6 +15,7 @@ const STORAGE_KEY_BASE = 'v4:market-segments';
 const STORAGE_VERSION = 2;
 const WORKSPACE_DOMAIN = 'market-segments';
 let restoring = false;
+let localMutationVersion = 0;
 
 function getPersistableSegments() {
   return getSegments().filter((segment) => segment.source !== 'draft' && !segment.draft);
@@ -58,6 +59,7 @@ function handleStorageError(error, action) {
 
 export function saveSegments(instrument = getPrimaryInstrument()) {
   if (restoring) return false;
+  localMutationVersion += 1;
   const payload = buildSegmentPayload(instrument);
   const saved = writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), payload, { onError: handleStorageError });
   saveSegmentsToServer(instrument, payload);
@@ -143,6 +145,7 @@ export async function saveSegmentsToServer(instrument = getPrimaryInstrument(), 
 export async function syncSegmentsFromServer(instrument = getPrimaryInstrument(), options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
   const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({
       domain: WORKSPACE_DOMAIN,
@@ -150,6 +153,7 @@ export async function syncSegmentsFromServer(instrument = getPrimaryInstrument()
       fetchImpl: options.fetchImpl,
     });
     if (document?.found && (Array.isArray(document.payload?.segments) || Array.isArray(document.payload?.segmentGroups))) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       const serverPayload = {
         version: Number(document.payload.version) || STORAGE_VERSION,
         savedAt: document.payload.savedAt || document.savedAt || Date.now(),

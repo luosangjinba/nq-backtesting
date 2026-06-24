@@ -16,6 +16,7 @@ const STORAGE_VERSION = 1;
 const WORKSPACE_DOMAIN = 'live-records';
 let restoring = false;
 let initialized = false;
+let localMutationVersion = 0;
 
 function handleStorageError(error, action) {
   const label = action === 'read'
@@ -55,6 +56,7 @@ export function getLiveRecordStorageKey(instrument = getPrimaryInstrument()) {
 
 export function saveLiveRecords(instrument = getPrimaryInstrument()) {
   if (restoring) return false;
+  localMutationVersion += 1;
   const payload = buildLiveRecordPayload(instrument);
   const saved = writeLocalJson(getLiveRecordStorageKey(instrument), payload, { onError: handleStorageError });
   saveLiveRecordsToServer(instrument, payload);
@@ -142,6 +144,7 @@ export async function saveLiveRecordsToServer(instrument = getPrimaryInstrument(
 export async function syncLiveRecordsFromServer(instrument = getPrimaryInstrument(), options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
   const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({
       domain: WORKSPACE_DOMAIN,
@@ -149,6 +152,7 @@ export async function syncLiveRecordsFromServer(instrument = getPrimaryInstrumen
       fetchImpl: options.fetchImpl,
     });
     if (document?.found && Array.isArray(document.payload?.liveRecords)) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       const serverPayload = {
         version: Number(document.payload.version) || STORAGE_VERSION,
         savedAt: document.payload.savedAt || document.savedAt || Date.now(),

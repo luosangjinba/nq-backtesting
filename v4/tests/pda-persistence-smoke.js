@@ -20,6 +20,7 @@ globalThis.window = {
   location: { protocol: 'http:', hostname: '127.0.0.1' },
   localStorage: globalThis.localStorage,
 };
+globalThis.fetch = undefined;
 
 const store = await import('../src/pda/pda-store.js');
 const persistence = await import('../src/pda/pda-persistence.js');
@@ -65,6 +66,7 @@ await persistence.saveAnnotationsToServer('NQ', null, {
 assert.equal(putCalls.length, 1);
 assert.match(putCalls[0].url, /\/v4\/workspace$/);
 assert.equal(putCalls[0].options.method, 'PUT');
+assert.equal(putCalls[0].options.headers['X-V4-Workspace-Request'], 'workspace');
 const putBody = JSON.parse(putCalls[0].options.body);
 assert.equal(putBody.domain, persistence.getPdaWorkspaceDomain());
 assert.equal(putBody.instrument, 'NQ');
@@ -172,5 +174,40 @@ const explicitPutBody = JSON.parse(explicitMigrationCalls[0].options.body);
 assert.equal(explicitPutBody.domain, 'pda-annotations');
 assert.equal(explicitPutBody.instrument, 'NQ');
 assert.equal(explicitPutBody.payload.annotations[0].id, serverAnnotation.id);
+
+let resolveStaleFetch;
+const staleSync = persistence.syncAnnotationsFromServer('NQ', {
+  fetchImpl: async () => new Promise((resolve) => {
+    resolveStaleFetch = resolve;
+  }),
+});
+const newerAnnotation = {
+  ...localAnnotation,
+  id: 'newer_local_bsl_1',
+  price: 30600,
+};
+store.loadAnnotations([newerAnnotation]);
+persistence.saveAnnotations('NQ');
+resolveStaleFetch({
+  ok: true,
+  status: 200,
+  async json() {
+    return {
+      ok: true,
+      found: true,
+      domain: 'pda-annotations',
+      instrument: 'NQ',
+      payload: {
+        version: 1,
+        savedAt: 1780000100001,
+        instrument: 'NQ',
+        annotations: [serverAnnotation],
+      },
+    };
+  },
+});
+const staleResult = await staleSync;
+assert.equal(staleResult.stale, true);
+assert.equal(store.getAnnotations()[0].id, newerAnnotation.id);
 
 console.log('pda persistence smoke passed');

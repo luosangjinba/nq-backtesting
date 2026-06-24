@@ -57,6 +57,8 @@ _MAINTENANCE_PROCESS = None
 _WORKSPACE_LOCK = threading.Lock()
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
+WORKSPACE_REQUEST_HEADER = "X-V4-Workspace-Request"
+WORKSPACE_REQUEST_VALUE = "workspace"
 DEFAULT_WORKSPACE_ID = "default"
 WORKSPACE_BASE_DIR = os.path.join(V4_ROOT, "data", "users", "default", "workspaces", DEFAULT_WORKSPACE_ID)
 WORKSPACE_DOMAIN_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
@@ -800,6 +802,10 @@ def _is_valid_maintenance_request(headers):
     return headers.get(MAINTENANCE_REQUEST_HEADER, "") == MAINTENANCE_REQUEST_VALUE
 
 
+def _is_valid_workspace_request(headers):
+    return headers.get(WORKSPACE_REQUEST_HEADER, "") == WORKSPACE_REQUEST_VALUE
+
+
 def _is_allowed_maintenance_origin(headers):
     origin = str(headers.get("Origin", "") or "").strip()
     if not origin:
@@ -1070,14 +1076,23 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_error(f"Unknown endpoint: {path}", 404)
             return
 
+        allowed_origin = _get_allowed_cors_origin(self.headers)
+        if not _is_valid_workspace_request(self.headers):
+            self._send_error("Missing or invalid workspace request header", 403, cors_origin=allowed_origin)
+            return
+
+        if not _is_allowed_maintenance_origin(self.headers):
+            self._send_error("Origin is not allowed for workspace requests", 403, cors_origin="")
+            return
+
         try:
             payload = _read_json_body(self)
             result = write_workspace_document(payload)
-            self._send_json(result)
+            self._send_json(result, cors_origin=allowed_origin)
         except (ValueError, json.JSONDecodeError) as e:
-            self._send_error(str(e), 400)
+            self._send_error(str(e), 400, cors_origin=allowed_origin)
         except Exception as e:
-            self._send_error(str(e), 500)
+            self._send_error(str(e), 500, cors_origin=allowed_origin)
 
     def _handle_bars(self, params):
         start = params.get("start", [None])[0]
@@ -1153,9 +1168,15 @@ class V4Handler(BaseHTTPRequestHandler):
                 self.send_header("Vary", "Origin")
                 self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
                 self.send_header("Access-Control-Allow-Headers", f"Content-Type, {MAINTENANCE_REQUEST_HEADER}")
+        elif parsed.path == "/v4/workspace":
+            if allowed_origin:
+                self.send_header("Access-Control-Allow-Origin", allowed_origin)
+                self.send_header("Vary", "Origin")
+                self.send_header("Access-Control-Allow-Methods", "GET, PUT, OPTIONS")
+                self.send_header("Access-Control-Allow-Headers", f"Content-Type, {WORKSPACE_REQUEST_HEADER}")
         else:
             self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 

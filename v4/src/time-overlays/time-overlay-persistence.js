@@ -12,6 +12,7 @@ const STORAGE_KEY_BASE = 'v4:time-overlays';
 const STORAGE_VERSION = 1;
 const WORKSPACE_DOMAIN = 'time-overlays';
 let restoring = false;
+let localMutationVersion = 0;
 
 function handleStorageError(error, action) {
   const label = action === 'read'
@@ -38,6 +39,7 @@ function getPersistableSettings() {
 
 export function saveTimeOverlaySettings(instrument = getPrimaryInstrument()) {
   if (restoring) return false;
+  localMutationVersion += 1;
   const payload = {
     version: STORAGE_VERSION,
     savedAt: Date.now(),
@@ -110,9 +112,11 @@ export async function saveTimeOverlaySettingsToServer(instrument = getPrimaryIns
 export async function syncTimeOverlaySettingsFromServer(instrument = getPrimaryInstrument(), options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
   const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({ domain: WORKSPACE_DOMAIN, instrument: normalizedInstrument, fetchImpl: options.fetchImpl });
     if (document?.found && document.payload?.settings) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       const payload = { version: Number(document.payload.version) || STORAGE_VERSION, savedAt: document.payload.savedAt || document.savedAt || Date.now(), instrument: normalizedInstrument, settings: document.payload.settings };
       restoring = true;
       try {

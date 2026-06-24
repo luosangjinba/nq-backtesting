@@ -58,6 +58,7 @@ const DENSITY_SETTINGS = Object.freeze({
 let preferences = { ...DEFAULT_DISPLAY_PREFERENCES };
 let serverSyncStarted = false;
 let applyingServerPreferences = false;
+let localMutationVersion = 0;
 
 function normalizeChoice(value, options, fallback) {
   const text = String(value ?? '').trim().toLowerCase();
@@ -135,6 +136,7 @@ export function applyDisplayPreferences(nextPreferences = preferences) {
 
 export function setDisplayPreferences(nextPreferences = {}) {
   const normalized = applyDisplayPreferences({ ...preferences, ...nextPreferences });
+  if (!applyingServerPreferences) localMutationVersion += 1;
   const payload = {
     version: STORAGE_VERSION,
     savedAt: new Date().toISOString(),
@@ -150,6 +152,7 @@ export function setDisplayPreferences(nextPreferences = {}) {
 
 export function resetDisplayPreferences() {
   persistence.remove();
+  localMutationVersion += 1;
   const normalized = applyDisplayPreferences(DEFAULT_DISPLAY_PREFERENCES);
   saveDisplayPreferencesToServer({
     version: STORAGE_VERSION,
@@ -204,12 +207,14 @@ export async function saveDisplayPreferencesToServer(payload = null, options = {
 
 export async function syncDisplayPreferencesFromServer(options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({
       domain: WORKSPACE_DOMAIN,
       fetchImpl: options.fetchImpl,
     });
     if (document?.found && document.payload?.preferences) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       applyingServerPreferences = true;
       try {
         const serverPayload = {

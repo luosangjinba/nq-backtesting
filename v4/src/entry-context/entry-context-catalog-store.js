@@ -44,6 +44,7 @@ export const DEFAULT_ENTRY_CONTEXT_CATALOG = Object.freeze({
 });
 
 let catalog = normalizeEntryContextCatalog(DEFAULT_ENTRY_CONTEXT_CATALOG);
+let localMutationVersion = 0;
 
 function cloneItem(item) {
   return { ...item };
@@ -158,6 +159,7 @@ function compareCatalogItems(left, right) {
 }
 
 function saveCatalog() {
+  if (!persistence.isRestoring()) localMutationVersion += 1;
   const payload = {
     version: STORAGE_VERSION,
     savedAt: Date.now(),
@@ -375,9 +377,11 @@ export async function saveEntryContextCatalogToServer(payload = null, options = 
 
 export async function syncEntryContextCatalogFromServer(options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({ domain: WORKSPACE_DOMAIN, fetchImpl: options.fetchImpl });
     if (document?.found && document.payload?.catalog) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       const serverPayload = {
         version: Number(document.payload.version) || STORAGE_VERSION,
         savedAt: document.payload.savedAt || document.savedAt || Date.now(),

@@ -9,6 +9,7 @@ const STORAGE_KEY_BASE = 'v4:economic-event-notes';
 const STORAGE_VERSION = 1;
 const WORKSPACE_DOMAIN = 'economic-event-notes';
 let restoring = false;
+let localMutationVersion = 0;
 
 function handleStorageError(error, action) {
   const label = action === 'read' ? '读取' : '保存';
@@ -20,6 +21,7 @@ function handleStorageError(error, action) {
 
 export function saveEconomicEventNotes(instrument = getPrimaryInstrument()) {
   if (restoring) return false;
+  localMutationVersion += 1;
   const payload = {
     version: STORAGE_VERSION,
     savedAt: Date.now(),
@@ -73,9 +75,11 @@ export async function saveEconomicEventNotesToServer(instrument = getPrimaryInst
 export async function syncEconomicEventNotesFromServer(instrument = getPrimaryInstrument(), options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
   const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const syncToken = localMutationVersion;
   try {
     const document = await getWorkspaceDocument({ domain: WORKSPACE_DOMAIN, instrument: normalizedInstrument, fetchImpl: options.fetchImpl });
     if (document?.found && Array.isArray(document.payload?.notes)) {
+      if (localMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
       const payload = { version: Number(document.payload.version) || STORAGE_VERSION, savedAt: document.payload.savedAt || document.savedAt || Date.now(), instrument: normalizedInstrument, notes: document.payload.notes };
       restoring = true;
       try {
