@@ -66,6 +66,7 @@ WORKSPACE_INSTRUMENT_RE = re.compile(r"^[A-Z][A-Z0-9._-]{0,15}$")
 ALLOWED_WORKSPACE_DOMAINS = {
     "chart-notes": {"instrumentScoped": True},
     "daily-time-reviews": {"instrumentScoped": True},
+    "date-range-history": {"instrumentScoped": False},
     "display-preferences": {"instrumentScoped": False},
     "economic-event-notes": {"instrumentScoped": True},
     "entry-context-catalog": {"instrumentScoped": False},

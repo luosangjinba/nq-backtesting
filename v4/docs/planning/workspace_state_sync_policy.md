@@ -35,6 +35,7 @@ These domains are already server-backed with localStorage fallback and best-effo
 | `economic-event-notes` | instrument | User event review notes. |
 | `entry-context-catalog` | workspace | Shared catalog across instruments. |
 | `import-batches` | workspace | Audit trail for Review JSON and generated archive imports. |
+| `date-range-history` | workspace | Recent load ranges are useful across devices during the same review workflow; localStorage remains the fallback. |
 
 ## Keep Device-Local For Now
 
@@ -45,7 +46,6 @@ These should remain local unless a later step explicitly promotes them.
 | `v4:primary-instrument` | `primary-instrument-store.js` | Startup convenience; changing it on one computer should not surprise another computer. |
 | `v4:display-mode:<instrument>` | `display-mode.js` | Fast visual filter state; can vary by screen/workflow. |
 | `v4.replayHistory` | `replay-history-store.js` | Recent navigation history, not canonical research data. |
-| `v4.dateRangeHistory` | `calendar-navigator.js` | Input history, not canonical research data. |
 | `v4:comparison-window:workspace` | `comparison-window-persistence.js` | Pane/window layout is still actively changing; keep local until pane model stabilizes. |
 | `v4:chart-pane-labels` | `chart-pane-store.js` | Pane naming is layout preference; migrate together with pane/workspace layout later. |
 

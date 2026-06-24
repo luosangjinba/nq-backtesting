@@ -196,8 +196,22 @@ with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     assert import_batches_saved["domain"] == "import-batches"
     assert import_batches_saved["instrument"] is None
 
+    date_range_history_saved = v4_api.write_workspace_document(
+        {
+            "domain": "date-range-history",
+            "version": 1,
+            "payload": {
+                "version": 1,
+                "ranges": [{"start": "2026-06-01 00:00", "end": "2026-06-05 23:59", "timeframe": 1}],
+            },
+        }
+    )
+    assert date_range_history_saved["domain"] == "date-range-history"
+    assert date_range_history_saved["instrument"] is None
+
     expect_value_error(lambda: v4_api.read_workspace_document("../../bad"))
     expect_value_error(lambda: v4_api.read_workspace_document("display-preferences", "NQ"))
+    expect_value_error(lambda: v4_api.read_workspace_document("date-range-history", "NQ"))
     expect_value_error(lambda: v4_api.read_workspace_document("entry-context-catalog", "NQ"))
     expect_value_error(lambda: v4_api.read_workspace_document("import-batches", "NQ"))
     expect_value_error(lambda: v4_api.read_workspace_document("chart-notes"))

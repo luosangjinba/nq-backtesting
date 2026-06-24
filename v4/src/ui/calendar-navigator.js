@@ -6,6 +6,7 @@ import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/loa
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
+import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
 import {
   dateKeyFromInput,
   dateKeyFromTimestamp,
@@ -33,6 +34,8 @@ const FULL_DAY_START_TIME = '00:00';
 const FULL_DAY_END_TIME = '23:59';
 const LOAD_PADDING_DAYS = 3;
 const RANGE_HISTORY_STORAGE_KEY = 'v4.dateRangeHistory';
+const RANGE_HISTORY_STORAGE_VERSION = 1;
+const RANGE_HISTORY_WORKSPACE_DOMAIN = 'date-range-history';
 const RANGE_HISTORY_LIMIT = 8;
 
 let popover = null;
@@ -41,6 +44,8 @@ let viewDateKey = '';
 let rangeStartDate = '';
 let rangeEndDate = '';
 let activeDateKey = '';
+let rangeHistoryMutationVersion = 0;
+let applyingServerRangeHistory = false;
 
 function getPrimaryPaneTimeframe() {
   return Number(getPaneById(CHART_PANE_IDS.PRIMARY)?.timeframe) || store.getCurrentTimeframe();
@@ -173,31 +178,54 @@ function formatLoadedRangeLabel(range) {
   return formatRangeLabel(range.start, range.end);
 }
 
-function getRangeHistory() {
+function canUseServerWorkspace() {
+  return Boolean(globalThis.window?.location && typeof globalThis.fetch === 'function');
+}
+
+function normalizeRangeHistoryItems(items) {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item) => dateTimePartsFromInput(item?.start) && dateTimePartsFromInput(item?.end))
+    .map((item) => ({
+      start: formatTimeInput(String(item.start || '')),
+      end: formatTimeInput(String(item.end || '')),
+      timeframe: Number(item.timeframe) || 0,
+      loadedAt: Number(item.loadedAt) || 0,
+    }))
+    .filter((item) => item.start && item.end)
+    .slice(0, RANGE_HISTORY_LIMIT);
+}
+
+function getRangeHistoryPayload(items = getRangeHistory()) {
+  return {
+    version: RANGE_HISTORY_STORAGE_VERSION,
+    savedAt: Date.now(),
+    ranges: normalizeRangeHistoryItems(items),
+  };
+}
+
+export function getRangeHistory() {
   try {
-    const raw = window.localStorage.getItem(RANGE_HISTORY_STORAGE_KEY);
+    const storage = globalThis.window?.localStorage || globalThis.localStorage;
+    const raw = storage?.getItem(RANGE_HISTORY_STORAGE_KEY);
     const parsed = JSON.parse(raw || '[]');
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((item) => dateTimePartsFromInput(item?.start) && dateTimePartsFromInput(item?.end))
-      .map((item) => ({
-        start: formatTimeInput(String(item.start || '')),
-        end: formatTimeInput(String(item.end || '')),
-        timeframe: Number(item.timeframe) || 0,
-        loadedAt: Number(item.loadedAt) || 0,
-      }))
-      .filter((item) => item.start && item.end)
-      .slice(0, RANGE_HISTORY_LIMIT);
+    return normalizeRangeHistoryItems(Array.isArray(parsed) ? parsed : parsed?.ranges);
   } catch {
     return [];
   }
 }
 
-function saveRangeHistory(items) {
+function saveRangeHistory(items, options = {}) {
+  const normalized = normalizeRangeHistoryItems(items);
   try {
-    window.localStorage.setItem(RANGE_HISTORY_STORAGE_KEY, JSON.stringify(items.slice(0, RANGE_HISTORY_LIMIT)));
+    const storage = globalThis.window?.localStorage || globalThis.localStorage;
+    storage?.setItem(RANGE_HISTORY_STORAGE_KEY, JSON.stringify(normalized));
   } catch {
     // localStorage may be unavailable in restricted browser contexts
+  }
+  if (options.syncServer !== false && !applyingServerRangeHistory) {
+    rangeHistoryMutationVersion += 1;
+    saveRangeHistoryToServer(getRangeHistoryPayload(normalized));
   }
 }
 
@@ -231,6 +259,63 @@ function removeRangeHistoryItem(index) {
 
 function clearRangeHistory() {
   saveRangeHistory([]);
+}
+
+export function getDateRangeHistoryWorkspaceDomain() {
+  return RANGE_HISTORY_WORKSPACE_DOMAIN;
+}
+
+export async function saveRangeHistoryToServer(payload = null, options = {}) {
+  if (applyingServerRangeHistory) return { ok: false, skipped: true };
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const nextPayload = payload || getRangeHistoryPayload();
+  try {
+    return await putWorkspaceDocument({
+      domain: RANGE_HISTORY_WORKSPACE_DOMAIN,
+      version: RANGE_HISTORY_STORAGE_VERSION,
+      payload: {
+        version: Number(nextPayload.version) || RANGE_HISTORY_STORAGE_VERSION,
+        savedAt: nextPayload.savedAt || Date.now(),
+        ranges: normalizeRangeHistoryItems(nextPayload.ranges),
+      },
+      fetchImpl: options.fetchImpl,
+    });
+  } catch (error) {
+    console.warn('[calendar-navigator] date range history server save failed', error);
+    return { ok: false, error };
+  }
+}
+
+export async function syncRangeHistoryFromServer(options = {}) {
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const syncToken = rangeHistoryMutationVersion;
+  try {
+    const document = await getWorkspaceDocument({
+      domain: RANGE_HISTORY_WORKSPACE_DOMAIN,
+      fetchImpl: options.fetchImpl,
+    });
+    if (document?.found && Array.isArray(document.payload?.ranges)) {
+      if (rangeHistoryMutationVersion !== syncToken) return { ok: false, skipped: true, stale: true };
+      applyingServerRangeHistory = true;
+      try {
+        saveRangeHistory(document.payload.ranges, { syncServer: false });
+        if (popover && !popover.hidden) renderPopover();
+      } finally {
+        applyingServerRangeHistory = false;
+      }
+      return { ok: true, source: 'server', document };
+    }
+
+    const localHistory = getRangeHistory();
+    if (localHistory.length) {
+      const saved = await saveRangeHistoryToServer(getRangeHistoryPayload(localHistory), options);
+      return { ok: Boolean(saved?.ok), source: 'local-migration', document: saved };
+    }
+    return { ok: true, source: 'empty' };
+  } catch (error) {
+    console.warn('[calendar-navigator] date range history server sync failed', error);
+    return { ok: false, error };
+  }
 }
 
 function formatHistoryItemLabel(item) {
@@ -710,6 +795,7 @@ export function initCalendarNavigator(button) {
   anchorButton = button;
   ensurePopover();
   updateDateRangeButton();
+  syncRangeHistoryFromServer();
   button.addEventListener('click', () => {
     if (popover && !popover.hidden) {
       closePopover();
