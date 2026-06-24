@@ -1282,7 +1282,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 342.2: Backup canonical data。已执行 `backup_v4_data.py` 备份 repo-local DuckDB 与 `v4/data` 到 `/tmp/v4-step342-backups`；生成 DB backup 945303552 bytes 与 data tarball 211705951 bytes。完整 data 归档耗时数分钟，生产备份需使用持久目录。
   - [x] Step 342.3: Restore smoke。已把 data tarball 恢复到 `/tmp/v4-step342-restore-test`，并用 `server_status.py --skip-http` 指向恢复目录验证 DuckDB 可读、ES/NQ 行数和 max_ts 正常、关键 CSV 存在；restore smoke hard_errors=0。记录见 `v4/sessions/session_20260623_step342_backup_restore_rollback_gate.md`。
   - [x] Step 342.4: Rollback drill。已记录 runtime fallback 与 data restore 是两件事；明确本地回退启动/验证步骤、恢复目录先 smoke 再替换 live data、以及 browser `localStorage` 按 origin 隔离，跨 server/local URL 前应导出 Review JSON 以保留 PDA/Segment/Order Setup/Live Record 草稿。
-  - [ ] Step 342.5: Add pre-write guard note。所有真实 maintenance write 前必须能指出最近可用备份。
+  - [x] Step 342.5: Add pre-write guard note。已把真实 maintenance write 前的备份门槛写入 session/runbook：操作者必须能指出最近可用备份、备份位置/时间/label、当前备份机制至少通过一次 restore smoke，且支持 dry-run/preflight 的写动作需先 dry-run/preflight。
   - [ ] Step 342.6: Closeout docs。更新 migration/runbook，写明 backup cadence、restore smoke 命令和回退条件。
 
 - [ ] Step 343: Default-user server workspace persistence foundation。目标是不做登录，但先把 server-side user-private persistence 设计成 `user_id=default` / `workspace_id=default`，为以后多用户降风险。

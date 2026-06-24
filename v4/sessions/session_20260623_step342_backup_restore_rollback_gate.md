@@ -194,7 +194,40 @@ Browser workspace caveat:
 
 ## Step 342.5 - Add Pre-Write Guard Note
 
-Status: pending.
+Status: complete.
+
+Pre-write guard:
+
+```text
+Do not run a real maintenance write unless the operator can name the latest usable backup.
+```
+
+This applies to:
+
+- Data Maintenance `Write Data`.
+- Databento Refresh Range write.
+- Economic Calendar write.
+- VIX/daily regime write.
+- Roll decision writes.
+- `.env.local` writes/deletes from Data Maintenance.
+
+Minimum evidence before a write:
+
+```text
+1. Backup destination is known.
+2. Backup timestamp/label is known.
+3. Restore smoke has passed at least once for the current backup mechanism.
+4. The intended write has been dry-run/preflighted when the action supports it.
+```
+
+For the current Step 342 smoke run, the latest known usable backup is:
+
+```text
+/tmp/v4-step342-backups/trading_data.20260623_204307-step342.duckdb
+/tmp/v4-step342-backups/v4-data.20260623_204307-step342.tar.gz
+```
+
+This is valid only as a smoke backup. It is not durable because it lives under `/tmp`.
 
 ## Step 342.6 - Closeout Docs
 

@@ -188,6 +188,13 @@ python3 v4/scripts/update_economic_calendar.py --from-date YYYY-MM-DD --to-date 
 
 Avoid running refresh jobs from client machines unless explicitly debugging.
 
+Pre-write guard:
+
+- Do not run a real maintenance write unless the operator can name the latest usable backup.
+- Know the backup destination, timestamp/label, and restore-smoke status before writing.
+- Run dry-run/preflight first when the action supports it.
+- This guard applies to Refresh Range writes, economic calendar writes, VIX/daily regime writes, roll decision writes, and Data Maintenance `.env.local` writes/deletes.
+
 Remote browser operation:
 
 - Use `http://SERVER_HOST:8001/data-maintenance.html` for server-side refresh/maintenance actions.
