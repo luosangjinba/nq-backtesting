@@ -62,7 +62,15 @@ def restore_smoke(tar_path: Path) -> tuple[bool, str]:
                 missing.append(relative)
         if missing:
             return False, f"missing_after_restore: {', '.join(missing)}"
-        return True, f"restore_dir: {restore_dir} verified_files: {len(KEY_FILES)}"
+        user_workspace_dir = data_dir / "users" / "default"
+        user_workspace_files = 0
+        if user_workspace_dir.exists():
+            user_workspace_files = sum(1 for path in user_workspace_dir.rglob("*") if path.is_file())
+        return True, (
+            f"restore_dir: {restore_dir} "
+            f"verified_files: {len(KEY_FILES)} "
+            f"user_workspace_files: {user_workspace_files}"
+        )
 
 
 def main() -> int:

@@ -231,7 +231,32 @@ Validated:
 
 ## Step 344.6 - Backup/Restore Inclusion
 
-Status: pending.
+Status: complete.
+
+Conclusion:
+
+```text
+PDA server workspace data is stored under v4/data/users/default/...
+Step 342 backs up and restores the whole v4/data directory.
+Therefore PDA server workspace data is in backup scope.
+```
+
+Implementation hardening:
+
+- Updated `v4/scripts/backup_v4_data.py` restore smoke to report `user_workspace_files`.
+- Added `v4/tests/backup-user-workspace-smoke.py`.
+
+Smoke:
+
+```bash
+python3 v4/tests/backup-user-workspace-smoke.py
+```
+
+Validated:
+
+- A tarball containing `data/users/default/workspaces/default/instruments/NQ/pda-annotations.json` is restored.
+- Restore smoke reports `user_workspace_files: 1`.
+- Existing key data file checks remain unchanged.
 
 ## Step 344.7 - Closeout Decision
 

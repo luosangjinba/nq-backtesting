@@ -1300,7 +1300,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 344.3: Wrap existing persistence module。`pda-persistence.js` 现在 localStorage-first、server best-effort：启动先恢复本地，再异步读取 server；server 有 PDA document 则覆盖 store 并刷新 localStorage，server 缺失且本地有数据则上传本地 PDA；Review JSON/export/import 不变。新增 `pda-persistence-smoke.js` 覆盖。
   - [x] Step 344.4: Migration UI/command。Archive 面板新增 `Sync PDA to Server`，执行前提示先导出 Review JSON 或 PDA JSON；命令通过 `migrateCurrentPdaAnnotationsToServer()` 将当前非 draft PDA 写入 localStorage 并上传到当前 instrument 的 server workspace，自动 seed 逻辑仍保留。
   - [x] Step 344.5: Two-device PDA smoke。新增 `pda-two-device-workspace-smoke.js` 模拟设备 A 写入 NQ PDA workspace document、设备 B 空本地状态下从同一 server document 恢复；验证 PDA id、instrument、sourceChartId/sourceInstrument/sourceTimeframe 均保留，source pane metadata 不作为用户边界。
-  - [ ] Step 344.6: Backup/restore inclusion。确认 PDA server data 纳入 Step 342 的备份/restore smoke。
+  - [x] Step 344.6: Backup/restore inclusion。已确认 PDA server workspace 位于 `v4/data/users/default/...`，天然纳入 Step 342 的 `v4/data` 备份；同时增强 `backup_v4_data.py` restore smoke 输出 `user_workspace_files`，并新增 `backup-user-workspace-smoke.py` 验证 `pda-annotations.json` 可随 data tarball 恢复。
   - [ ] Step 344.7: Closeout decision。根据 PDA pilot 决定继续迁移 Segment/Order/Live，还是先补冲突/锁定机制。
 
 - [ ] Step 345: Remaining workspace migration and multi-user readiness。目标是在 PDA pilot 稳定后，按风险顺序迁移剩余 user-private domains，并在最后再考虑真实多用户登录。
