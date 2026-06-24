@@ -129,6 +129,29 @@ Data Maintenance URL:
 http://SERVER_HOST:8001/data-maintenance.html
 ```
 
+## Current Conservative Baseline
+
+Step 340A freezes the current short-term single-user server baseline:
+
+```text
+Web URL: http://192.168.1.111:8001/index.html
+Data Maintenance URL: http://192.168.1.111:8001/data-maintenance.html
+API URL: http://192.168.1.111:8766
+Canonical DB: v4/data/trading_data.duckdb
+Canonical data dir: v4/data
+Access: trusted LAN only
+Runtime: start.sh/current python processes
+```
+
+This baseline intentionally does not move data to `/var/lib/trading-data/v4` and does not install systemd yet. It is suitable as the short-term single-user server baseline because LAN health, static pages, bars API, economic events API, Data Maintenance environment status, and `server_status.py` have all been verified.
+
+Full long-term cutover remains deferred:
+
+- choose a long-term hostname or Tailscale name;
+- migrate canonical data to `/var/lib/trading-data/v4` if desired;
+- install systemd units as the default service manager;
+- rerun two-device smoke after those changes.
+
 For long-running daily use, prefer the Step 335 systemd templates and scripts:
 
 ```text

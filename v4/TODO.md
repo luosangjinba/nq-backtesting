@@ -1259,6 +1259,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 339.5: Record non-goals。暂不做完整登录、多用户权限、公网暴露、实时协作、离线冲突合并、任意用户上传 K 线作为共享数据。
 
 - [ ] Step 340: Server runtime and canonical data cutover。目标是把当前“本机 LAN 可用”的 server baseline 固化为真实日常 runtime：选择最终 server host、访问方式、canonical DB/data path，并完成两设备一致性验收。
+  - [x] Step 340A: Conservative single-user server baseline。先不迁移 `/var/lib`、不启用 systemd、不做公网；短期正式 baseline 固化为当前机器 LAN `http://192.168.1.111:8001/index.html`、API `http://192.168.1.111:8766`、repo-local `v4/data/trading_data.duckdb`、`bash v4/start.sh`/当前 python 进程管理。已验证 LAN health、`index.html`、`data-maintenance.html`、NQ bars API、economic events API、Data Maintenance environment status、`server_status.py` 均通过；记录见 `v4/sessions/session_20260623_step340a_server_baseline_cutover.md`。
   - [ ] Step 340.1: Choose deployment identity。确定 server hostname/IP、LAN-only 或 Tailscale/VPN-only、正式 client URL、API URL 和允许的 web origins。
   - [ ] Step 340.2: Choose canonical data path。确定 `V4_TRADING_DB` 和 `v4/data` 的正式路径；决定继续 repo-local 还是迁移到 `/var/lib/trading-data/v4`。
   - [ ] Step 340.3: Migrate/copy current data。复制 DuckDB、economic calendar、VIX、daily regime 到 canonical path；保留迁移前硬备份。
