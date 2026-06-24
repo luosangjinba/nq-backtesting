@@ -1271,7 +1271,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 341: Server maintenance and refresh ownership。目标是把 Refresh Range、economic calendar、VIX/daily regime 等维护动作收敛为 server-only 日常流程，并限制 Data Maintenance 作为 trusted admin 能力。
   - [x] Step 341.1: Inventory maintenance actions。已审计 `v4_api.py` 与 `data-maintenance.html`，将 maintenance actions 分为 read-only/status、dry-run/preview、write/mutating、runtime control；记录见 `v4/sessions/session_20260623_step341_server_maintenance_ownership.md`。
   - [x] Step 341.2: Confirm admin boundary。确认 `data-maintenance.html` 是 trusted-admin 功能；当前单用户 LAN baseline 以网络/操作者作为边界，未来多用户或公网前必须 admin-only。已写入 session 与 runbook。
-  - [ ] Step 341.3: Validate Refresh Range production flow。对 ES/NQ 各选一个安全范围，执行 dry-run、preflight、guarded write、post-write `server_status.py` 和 `/v4/bars` spot check。
+  - [x] Step 341.3: Validate Refresh Range production flow。已对 NQ/ES `2026-06-19T09:30:00` -> `10:00:00` 执行 dry-run、preflight、guarded no-op write、post-write `server_status.py` 和 `/v4/bars` spot check；两者 `would_insert_rows: 0`、`inserted_rows: 0`、server status OK。并确认 maintenance action 需串行执行，busy lock 正常返回 423。
   - [ ] Step 341.4: Validate calendar/VIX/regime flow。执行 economic calendar verify/dry-run，VIX/daily regime status 或 refresh dry-run；记录写入前备份要求。
   - [ ] Step 341.5: Decide automation boundary。决定是否暂缓 cron/systemd timer；若启用，先只做明确可回退的 refresh job。
   - [ ] Step 341.6: Failure-mode smoke。覆盖 API unreachable、bad origin、invalid input、no-data range、busy lock，确认输出可复制诊断。

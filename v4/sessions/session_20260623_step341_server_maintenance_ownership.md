@@ -116,7 +116,121 @@ Future multi-user requirement:
 
 ## Step 341.3 - Validate Refresh Range Production Flow
 
-Status: pending.
+Status: complete.
+
+Scope:
+
+- Instrument: `NQ`, `ES`
+- Range: `2026-06-19T09:30:00` -> `2026-06-19T10:00:00`
+- Chunk days: `1`
+- Origin: `http://192.168.1.111:8001`
+- API: `http://192.168.1.111:8766/v4/data_maintenance/run`
+
+### NQ Dry Run
+
+Result:
+
+```text
+ok: true
+instrument: NQ
+segment: NQU6 status=manual_validated
+downloaded_normalized_rows: 30
+candidate_rows_after_dedupe: 30
+duplicate_candidate_keys: 0
+existing_candidate_keys: 30
+would_insert_rows: 0
+write_status: dry-run; no DB changes were made
+```
+
+### ES Dry Run
+
+Result:
+
+```text
+ok: true
+instrument: ES
+segment: ESU6 status=manual_validated
+downloaded_normalized_rows: 30
+candidate_rows_after_dedupe: 30
+duplicate_candidate_keys: 0
+existing_candidate_keys: 30
+would_insert_rows: 0
+write_status: dry-run; no DB changes were made
+```
+
+### Preflight
+
+NQ:
+
+```text
+roll_status_preflight: ok
+NQU6 status=manual_validated write_eligible=true
+preflight_status: write-eligible
+```
+
+ES:
+
+```text
+roll_status_preflight: ok
+ESU6 status=manual_validated write_eligible=true
+preflight_status: write-eligible
+```
+
+### Guarded Write
+
+NQ:
+
+```text
+before_rows: 6127515
+before_max_ts: 2026-06-23 02:19:00
+inserted_rows: 0
+after_rows: 6127515
+after_max_ts: 2026-06-23 02:19:00
+write_status: committed insert-only transaction
+```
+
+ES:
+
+```text
+before_rows: 6460984
+before_max_ts: 2026-06-23 02:18:00
+inserted_rows: 0
+after_rows: 6460984
+after_max_ts: 2026-06-23 02:18:00
+write_status: committed insert-only transaction
+```
+
+### Post-Write Verification
+
+`server_status.py` after both writes:
+
+```text
+server_status: ok
+hard_errors: 0
+warnings: 0
+ES rows=6460984 max_ts=2026-06-23 02:18:00
+NQ rows=6127515 max_ts=2026-06-23 02:19:00
+```
+
+Bars API spot checks:
+
+- `NQ` `2026-06-19 09:30` -> `10:00`: returned bars and requested range.
+- `ES` `2026-06-19 09:30` -> `10:00`: returned bars and requested range.
+
+### Mutex Observation
+
+Parallel maintenance requests returned the expected busy response:
+
+```text
+returncode: 423
+command: data_maintenance busy
+running_action: dry_run / preflight
+```
+
+Operational decision:
+
+- Treat maintenance actions as single-flight.
+- Run production maintenance validations serially.
 
 ## Step 341.4 - Validate Calendar/VIX/Regime Flow
 
