@@ -63,6 +63,7 @@ WORKSPACE_DOMAIN_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 WORKSPACE_INSTRUMENT_RE = re.compile(r"^[A-Z][A-Z0-9._-]{0,15}$")
 ALLOWED_WORKSPACE_DOMAINS = {
     "display-preferences": {"instrumentScoped": False},
+    "market-segments": {"instrumentScoped": True},
     "pda-annotations": {"instrumentScoped": True},
 }
 def _parse_allowed_maintenance_origins():

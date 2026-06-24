@@ -94,9 +94,29 @@ with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     pda_loaded = v4_api.read_workspace_document("pda-annotations", "NQ")
     assert pda_loaded["payload"]["annotations"][0]["sourceChartId"] == "comparison-window"
 
+    segment_saved = v4_api.write_workspace_document(
+        {
+            "domain": "market-segments",
+            "instrument": "NQ",
+            "version": 2,
+            "payload": {
+                "version": 2,
+                "savedAt": "2026-06-24T05:00:00Z",
+                "instrument": "NQ",
+                "segments": [{"id": "seg_1"}],
+                "segmentGroups": [{"id": "group_1", "type": "composite-move", "childSegmentIds": ["seg_1", "seg_2"]}],
+            },
+        }
+    )
+    assert segment_saved["domain"] == "market-segments"
+    assert segment_saved["instrument"] == "NQ"
+    segment_loaded = v4_api.read_workspace_document("market-segments", "NQ")
+    assert segment_loaded["payload"]["segmentGroups"][0]["type"] == "composite-move"
+
     expect_value_error(lambda: v4_api.read_workspace_document("../../bad"))
     expect_value_error(lambda: v4_api.read_workspace_document("display-preferences", "NQ"))
     expect_value_error(lambda: v4_api.read_workspace_document("pda-annotations"))
+    expect_value_error(lambda: v4_api.read_workspace_document("market-segments"))
     expect_value_error(
         lambda: v4_api.write_workspace_document(
             {

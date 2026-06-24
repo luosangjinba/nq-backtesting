@@ -1304,7 +1304,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 344.7: Closeout decision。PDA pilot 证明 default-user workspace foundation 可承载核心研究对象；下一步建议继续 Step 345.1 迁移 segments/segment groups，仍采用 localStorage fallback + server best-effort + last-write-wins；Order/Live 迁移前再根据 PDA/Segment 使用反馈决定是否需要 expectedRevision/409 conflict。
 
 - [ ] Step 345: Remaining workspace migration and multi-user readiness。目标是在 PDA pilot 稳定后，按风险顺序迁移剩余 user-private domains，并在最后再考虑真实多用户登录。
-  - [ ] Step 345.1: Migrate segments and segment groups。保持 segment/group 关系、composite move、PDA response refs 和 Review JSON 兼容。
+  - [x] Step 345.1: Migrate segments and segment groups。已新增 instrument-scoped `market-segments` workspace domain，并让 `segment-persistence.js` localStorage-first、server best-effort 同步 `segments + segmentGroups`；保留 Composite Move `childSegmentIds`、segment PDA response refs、Review JSON 兼容。记录见 `v4/sessions/session_20260624_step345_remaining_workspace_migration.md`。
   - [ ] Step 345.2: Migrate Order Setup and Live Records。保留 `orderReviews` 兼容 schema、setup-set 派生、live record import/export 与 chart renderer 行为。
   - [ ] Step 345.3: Migrate notes and review domains。覆盖 Chart Notes、Daily Time Reviews、Time Overlays、Economic Event Notes、Entry Context Catalog。
   - [ ] Step 345.4: Migrate preferences/history by policy。决定哪些偏好跟 user workspace 同步，哪些保持 device-local，例如 replay/date range history。
