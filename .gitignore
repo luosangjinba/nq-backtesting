@@ -11,6 +11,7 @@ __pycache__/
 # V4 runtime data
 v4/.env.local
 v4/data/trading_data.duckdb
+v4/data/users/
 v4/data/vix-monthly.csv
 v4/data/economic_calendar/backups/
 v4/data/economic_calendar/forex_factory_raw/

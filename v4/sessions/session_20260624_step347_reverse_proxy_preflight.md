@@ -37,6 +37,9 @@ Known VPS progress:
 - Initial `dnf copr enable -y @caddy/caddy` failed because Alibaba Cloud Linux 3 was detected as nonexistent `epel-3-x86_64`.
 - Commit `7916351` fixed this by detecting `PLATFORM_ID=platform:al8` and enabling Caddy COPR with `epel-8-x86_64`.
 - User reran the HTTP-only apply after pulling the fix and confirmed the web page is accessible.
+- `trading_data.duckdb` has been uploaded/confirmed at `/root/trading/backtesting/v4/data/trading_data.duckdb`.
+- `v4-api.service` was fixed to use VPS Python 3.11 (`/usr/bin/python3.11`) instead of the workstation-only `/home/leo/miniconda3/bin/python3`.
+- Public `/v4/health` and `/v4/bars` now work through Caddy at `http://43.110.32.34/v4/...`.
 
 Expected VPS `.env.local` shape for current IP-mode smoke:
 
@@ -50,19 +53,19 @@ V4_TRADING_DB=/root/trading/backtesting/v4/data/trading_data.duckdb
 DATABENTO_API_KEY=<set on VPS if refresh actions are needed>
 ```
 
-Current blocker:
+Current status:
 
-- `trading_data.duckdb` has not been uploaded to the VPS yet.
-- Upload source on local workstation: `/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb`.
-- Upload target on VPS: `/root/trading/backtesting/v4/data/trading_data.duckdb`.
+- Step 347.6 API/data smoke is complete for the IP HTTP-only diagnostic deployment.
+- Browser/static web, API health, bars API via Caddy, and date range history workspace sync have been verified enough to move to real browser usage checks.
 
-Immediate next verification after upload:
+Useful verification commands:
 
 ```bash
 cd /root/trading/backtesting
 ls -lh v4/data/trading_data.duckdb
-systemctl restart v4-api.service
 curl -fsS http://43.110.32.34/v4/health
+curl -fsS "http://43.110.32.34/v4/bars?instrument=ES&start=2025-06-01+00:00&end=2025-06-20+16:00&tf=1440"
+curl -fsS "http://43.110.32.34/v4/workspace?domain=date-range-history"
 systemctl status v4-api.service v4-web.service caddy --no-pager
 ```
 
@@ -75,7 +78,8 @@ http://43.110.32.34/data-maintenance.html
 
 Important follow-up risk:
 
-- `v4-api.service` template currently uses the Python interpreter path committed for the workstation fix. If VPS API health fails after DB upload, first check `systemctl status v4-api.service` and `journalctl -u v4-api.service -n 80 --no-pager`; the likely fixes are installing Python dependencies on VPS or making the service interpreter path configurable/detected.
+- The repo systemd template still contains workstation-oriented defaults. The VPS-installed service has been manually fixed, but a future deploy-script run could overwrite it unless the template/script is made path/interpreter configurable.
+- The Databento key was shared in chat during setup. Treat it as exposed; rotate/revoke if it has production value.
 
 ## Step 347.1 - Server Exposure Precheck
 
@@ -206,7 +210,7 @@ Commit:
 
 ## Step 347.5 - VPS IP HTTP-Only Apply And Static Web Smoke
 
-Status: complete for static web; API/data smoke pending.
+Status: complete.
 
 VPS command:
 
@@ -220,14 +224,75 @@ Observed:
 
 - Caddy install path was fixed by the `epel-8-x86_64` COPR chroot.
 - User confirmed the web page is accessible at `http://43.110.32.34/`.
-- DuckDB market database is not uploaded yet, so K-line loading/data maintenance have not been verified.
+- DuckDB/API/data smoke was completed later in Step 347.6.
+
+## Step 347.6 - Upload DuckDB And API/Data Smoke
+
+Status: complete for IP HTTP-only diagnostic deployment.
+
+Observed failure:
+
+```text
+curl -fsS http://43.110.32.34/v4/health
+curl: (22) The requested URL returned error: 502 Bad Gateway
+```
+
+Root cause:
+
+```text
+ExecStart=/home/leo/miniconda3/bin/python3 /root/trading/backtesting/v4/v4_api.py
+status=203/EXEC
+```
+
+The installed `v4-api.service` used the workstation Python path. On the VPS, default `python3` is `3.6.8`, but `/usr/bin/python3.11` exists and is the intended runtime.
+
+Service fix applied on VPS:
+
+```bash
+systemctl stop v4-api.service
+sed -i 's|/home/leo/miniconda3/bin/python3|/usr/bin/python3.11|g' /etc/systemd/system/v4-api.service
+cd /root/trading/backtesting
+/usr/bin/python3.11 -m pip install -r v4/requirements-data.txt
+systemctl daemon-reload
+systemctl restart v4-api.service
+```
+
+Frontend API routing issue:
+
+- `src/config.js` previously returned `${protocol}//${hostname}:8766` for every hostname.
+- Public browsers at `http://43.110.32.34/` tried to call `http://43.110.32.34:8766/v4/...`, but `8766` is intentionally private.
+- Commit `a6077c9 Route public API calls through reverse proxy` changed `resolveApiBase()` so `localhost` / `127.0.0.1` keep local dev direct `:8766`, while non-local hosts use same-origin `/v4/*` through Caddy.
+
+Verified:
+
+```bash
+curl -fsS http://43.110.32.34/v4/health
+curl -fsS "http://43.110.32.34/v4/bars?instrument=ES&start=2025-06-01+00:00&end=2025-06-20+16:00&tf=1440"
+curl -I http://43.110.32.34/index.html
+```
+
+The `/v4/bars` smoke returned ES daily bars through the public Caddy route.
+
+Workspace sync follow-up:
+
+- Commit `41feb39 Sync date range history through workspace` added `date-range-history` as a workspace-scoped server domain.
+- Date Range History Ranges now keep localStorage fallback (`v4.dateRangeHistory`) but sync through `/v4/workspace?domain=date-range-history`.
+- User verified cross-device history range sync after pulling/restarting.
+
+Local verification before push:
+
+```text
+node v4/tests/api-base-smoke.js
+node v4/tests/date-range-history-workspace-smoke.js
+python3 v4/tests/workspace-api-smoke.py
+node v4/tests/notes-review-domains-persistence-smoke.js
+node --check v4/src/ui/calendar-navigator.js
+python3 -m py_compile v4/v4_api.py
+git diff --check
+```
 
 ## Next Steps
 
-1. Upload `trading_data.duckdb` to `/root/trading/backtesting/v4/data/trading_data.duckdb`.
-2. Confirm VPS `v4/.env.local` points `V4_TRADING_DB` to that exact path and uses `V4_ALLOWED_WEB_ORIGINS=http://43.110.32.34`.
-3. Restart API: `systemctl restart v4-api.service`.
-4. Verify API health: `curl -fsS http://43.110.32.34/v4/health`.
-5. If API fails, inspect `systemctl status v4-api.service v4-web.service caddy --no-pager` and `journalctl -u v4-api.service -n 80 --no-pager`; prioritize Python interpreter/dependency issues.
-6. Browser-smoke `index.html`, K-line date range loading, and `data-maintenance.html`.
-7. After IP HTTP-only data smoke passes, plan domain + HTTPS cutover.
+1. Do a focused two-device real browser smoke at `http://43.110.32.34/`: K-line loading, History Ranges sync, PDA/Segment/Order Setup server workspace sync, and `data-maintenance.html` visibility.
+2. Harden the deploy script/systemd template so VPS repo path, service user, and Python interpreter are configurable, preventing future apply runs from restoring workstation paths.
+3. After IP HTTP-only real-use smoke remains stable, plan Step 347.7 domain + HTTPS cutover.
