@@ -1305,7 +1305,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 345: Remaining workspace migration and multi-user readiness。目标是在 PDA pilot 稳定后，按风险顺序迁移剩余 user-private domains，并在最后再考虑真实多用户登录。
   - [x] Step 345.1: Migrate segments and segment groups。已新增 instrument-scoped `market-segments` workspace domain，并让 `segment-persistence.js` localStorage-first、server best-effort 同步 `segments + segmentGroups`；保留 Composite Move `childSegmentIds`、segment PDA response refs、Review JSON 兼容。记录见 `v4/sessions/session_20260624_step345_remaining_workspace_migration.md`。
-  - [ ] Step 345.2: Migrate Order Setup and Live Records。保留 `orderReviews` 兼容 schema、setup-set 派生、live record import/export 与 chart renderer 行为。
+  - [x] Step 345.2: Migrate Order Setup and Live Records。已新增 instrument-scoped `order-reviews` 与 `live-records` workspace domains，并让 Order Review / Live Record persistence localStorage-first、server best-effort；保留 `orderReviews` 兼容 schema、Setup Set 派生、Live Record import/export 和 Review JSON 兼容。
   - [ ] Step 345.3: Migrate notes and review domains。覆盖 Chart Notes、Daily Time Reviews、Time Overlays、Economic Event Notes、Entry Context Catalog。
   - [ ] Step 345.4: Migrate preferences/history by policy。决定哪些偏好跟 user workspace 同步，哪些保持 device-local，例如 replay/date range history。
   - [ ] Step 345.5: Add import batch audit。为 Review JSON/Tradovate/user uploads 记录 import batch，便于以后按用户恢复和排错。

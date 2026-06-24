@@ -113,10 +113,32 @@ with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     segment_loaded = v4_api.read_workspace_document("market-segments", "NQ")
     assert segment_loaded["payload"]["segmentGroups"][0]["type"] == "composite-move"
 
+    order_saved = v4_api.write_workspace_document(
+        {
+            "domain": "order-reviews",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {"version": 1, "instrument": "NQ", "orderReviews": [{"id": "order_1"}]},
+        }
+    )
+    assert order_saved["domain"] == "order-reviews"
+
+    live_saved = v4_api.write_workspace_document(
+        {
+            "domain": "live-records",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {"version": 1, "instrument": "NQ", "liveRecords": [{"id": "live_1"}]},
+        }
+    )
+    assert live_saved["domain"] == "live-records"
+
     expect_value_error(lambda: v4_api.read_workspace_document("../../bad"))
     expect_value_error(lambda: v4_api.read_workspace_document("display-preferences", "NQ"))
+    expect_value_error(lambda: v4_api.read_workspace_document("live-records"))
     expect_value_error(lambda: v4_api.read_workspace_document("pda-annotations"))
     expect_value_error(lambda: v4_api.read_workspace_document("market-segments"))
+    expect_value_error(lambda: v4_api.read_workspace_document("order-reviews"))
     expect_value_error(
         lambda: v4_api.write_workspace_document(
             {

@@ -50,7 +50,36 @@ node v4/tests/segment-persistence-smoke.js
 
 ## Step 345.2 - Migrate Order Setup and Live Records
 
-Status: pending.
+Status: complete.
+
+Workspace domains:
+
+```text
+order-reviews
+live-records
+```
+
+Scope:
+
+```text
+instrument-scoped
+```
+
+Implemented:
+
+- Added both domains to the workspace API allowlist.
+- Wrapped `order-review-persistence.js` with localStorage-first, server best-effort sync.
+- Wrapped `live-record-persistence.js` with localStorage-first, server best-effort sync.
+- Preserved the `orderReviews` compatibility schema used by Setup Set adapters.
+- Preserved Live Record import/export payload shape.
+- Review JSON import/export remains unchanged.
+
+Validation:
+
+```bash
+python3 v4/tests/workspace-api-smoke.py
+node v4/tests/order-live-persistence-smoke.js
+```
 
 ## Step 345.3 - Migrate Notes and Review Domains
 
