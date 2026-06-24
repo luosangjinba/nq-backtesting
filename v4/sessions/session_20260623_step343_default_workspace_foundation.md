@@ -50,7 +50,91 @@ Rejected for first cut:
 
 ## Step 343.2 - Define Workspace API Contract
 
-Status: pending.
+Status: complete.
+
+Endpoints:
+
+```text
+GET /v4/workspace?domain=<domain>[&instrument=<instrument>]
+PUT /v4/workspace
+```
+
+GET response when a document exists:
+
+```json
+{
+  "ok": true,
+  "found": true,
+  "user_id": "default",
+  "workspace_id": "default",
+  "domain": "display-preferences",
+  "instrument": null,
+  "version": 1,
+  "savedAt": "2026-06-23T20:00:00Z",
+  "revision": "2026-06-23T20:00:00Z",
+  "payload": {}
+}
+```
+
+GET response when missing:
+
+```json
+{
+  "ok": true,
+  "found": false,
+  "user_id": "default",
+  "workspace_id": "default",
+  "domain": "display-preferences",
+  "instrument": null,
+  "version": 1,
+  "savedAt": null,
+  "revision": null,
+  "payload": null
+}
+```
+
+PUT request:
+
+```json
+{
+  "domain": "display-preferences",
+  "instrument": null,
+  "version": 1,
+  "payload": {}
+}
+```
+
+PUT response:
+
+```json
+{
+  "ok": true,
+  "user_id": "default",
+  "workspace_id": "default",
+  "domain": "display-preferences",
+  "instrument": null,
+  "version": 1,
+  "savedAt": "2026-06-23T20:00:00Z",
+  "revision": "2026-06-23T20:00:00Z",
+  "payload": {}
+}
+```
+
+Validation rules:
+
+- `domain` is required and limited to lowercase letters, numbers, and hyphen.
+- `instrument` is optional; if present it must be an uppercase instrument symbol.
+- `payload` must be a JSON object.
+- The first implementation only allows explicit safe domains. It must not become a generic arbitrary file writer.
+- `user_id` and `workspace_id` are server-controlled, not client-controlled.
+
+Initial allowed domains:
+
+```text
+display-preferences
+```
+
+Future domains should be added deliberately as each persistence module is migrated.
 
 ## Step 343.3 - Add Server Auth Placeholder
 
