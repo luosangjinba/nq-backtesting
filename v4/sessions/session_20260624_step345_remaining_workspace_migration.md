@@ -177,7 +177,20 @@ python3 -m py_compile v4/v4_api.py
 
 ## Step 345.6 - Multi-User Login Readiness Review
 
-Status: pending.
+Status: complete.
+
+Review doc:
+
+```text
+v4/docs/planning/multi_user_login_readiness_review.md
+```
+
+Conclusion:
+
+- The project is ready to continue single-user server mode under `user_id=default`.
+- The project is not ready to expose multiple real users.
+- All migrated user-private domains now have a default-user workspace boundary.
+- Real login is blocked by session identity, CSRF, admin-only Data Maintenance, per-user backup/restore, upload limits, and user/workspace administration.
 
 ## Step 345.7 - Security Hardening Gate
 
