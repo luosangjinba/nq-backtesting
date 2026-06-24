@@ -125,7 +125,21 @@ python3 -m py_compile v4/v4_api.py
 
 ## Step 345.4 - Migrate Preferences/History by Policy
 
-Status: pending.
+Status: complete.
+
+Policy doc:
+
+```text
+v4/docs/planning/workspace_state_sync_policy.md
+```
+
+Decision:
+
+- Keep all migrated research/review domains server-backed with localStorage fallback.
+- Keep `primary-instrument`, `display-mode`, replay history, date range history, comparison workspace, and pane labels device-local for now.
+- Defer pane layout, custom pane names, and active pane defaults until the pane model is stable enough to avoid another schema churn.
+- Treat new review objects as server-backed by default.
+- Treat new histories/MRU lists as device-local by default.
 
 ## Step 345.5 - Add Import Batch Audit
 

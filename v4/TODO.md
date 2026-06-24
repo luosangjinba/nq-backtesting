@@ -1307,7 +1307,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 345.1: Migrate segments and segment groups。已新增 instrument-scoped `market-segments` workspace domain，并让 `segment-persistence.js` localStorage-first、server best-effort 同步 `segments + segmentGroups`；保留 Composite Move `childSegmentIds`、segment PDA response refs、Review JSON 兼容。记录见 `v4/sessions/session_20260624_step345_remaining_workspace_migration.md`。
   - [x] Step 345.2: Migrate Order Setup and Live Records。已新增 instrument-scoped `order-reviews` 与 `live-records` workspace domains，并让 Order Review / Live Record persistence localStorage-first、server best-effort；保留 `orderReviews` 兼容 schema、Setup Set 派生、Live Record import/export 和 Review JSON 兼容。
   - [x] Step 345.3: Migrate notes and review domains。已新增并接入 `chart-notes`、`daily-time-reviews`、`time-overlays`、`economic-event-notes`、`entry-context-catalog` workspace domains；所有模块保持 localStorage-first、server best-effort，修复 workspace client `fetch` fallback，并新增 `notes-review-domains-persistence-smoke.js` 覆盖保存/同步。
-  - [ ] Step 345.4: Migrate preferences/history by policy。决定哪些偏好跟 user workspace 同步，哪些保持 device-local，例如 replay/date range history。
+  - [x] Step 345.4: Migrate preferences/history by policy。已新增 `v4/docs/planning/workspace_state_sync_policy.md`，明确当前 server-backed domains、device-local histories/preferences，以及 pane/layout 之后再迁移的边界。
   - [ ] Step 345.5: Add import batch audit。为 Review JSON/Tradovate/user uploads 记录 import batch，便于以后按用户恢复和排错。
   - [ ] Step 345.6: Multi-user login readiness review。确认所有 user-private 数据都有 `user_id` 边界后，再设计 users/session/password/admin roles。
   - [ ] Step 345.7: Security hardening gate。真实多用户前必须处理 HTTPS/reverse proxy、CSRF、upload limits、admin-only Data Maintenance、backup per user restore。
