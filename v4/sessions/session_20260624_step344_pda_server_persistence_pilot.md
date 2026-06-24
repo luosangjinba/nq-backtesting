@@ -260,4 +260,46 @@ Validated:
 
 ## Step 344.7 - Closeout Decision
 
-Status: pending.
+Status: complete.
+
+Validation commands:
+
+```bash
+python3 -m py_compile v4/v4_api.py v4/scripts/backup_v4_data.py
+python3 v4/tests/workspace-api-smoke.py
+python3 v4/tests/backup-user-workspace-smoke.py
+node v4/tests/pda-persistence-smoke.js
+node v4/tests/pda-two-device-workspace-smoke.js
+node v4/tests/display-preferences-smoke.js
+node v4/tests/api-base-smoke.js
+```
+
+Pilot result:
+
+```text
+PDA annotations are now the first core research object backed by default-user server workspace persistence.
+```
+
+What is proven:
+
+- `pda-annotations` can be stored under `user_id=default` / `workspace_id=default`.
+- PDA workspace storage is instrument-scoped.
+- Existing localStorage remains the immediate fallback and rollback path.
+- Existing PDA/Review JSON export remains unchanged.
+- A second browser/device can restore the PDA document from server.
+- Backup/restore smoke includes user workspace files.
+
+Current limits:
+
+- Conflict handling is still last-write-wins.
+- PDA writes are full-document replacement, not per-record merge.
+- The UI migration command is explicit but still simple.
+
+Decision:
+
+```text
+Proceed to Segment / Segment Group migration next.
+Do not migrate Order Setup / Live Records until PDA and Segment server persistence have had real use.
+Do not add login yet.
+Do not add complex merge until there is evidence last-write-wins is insufficient.
+```

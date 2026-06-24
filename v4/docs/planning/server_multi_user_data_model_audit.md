@@ -245,8 +245,34 @@ Implemented scope:
 Current limitation:
 
 - Conflict handling is last-write-wins.
-- Only `display-preferences` is enabled.
-- PDA, Segment, Order Setup, Live Record, notes, and other review objects remain browser-local until their later migration steps.
+- `display-preferences` and `pda-annotations` are enabled.
+- Segment, Order Setup, Live Record, notes, and other review objects remain browser-local until their later migration steps.
+
+## Step 344 PDA Workspace Pilot
+
+PDA annotations are now the first core research object using the default workspace foundation:
+
+```text
+domain = pda-annotations
+instrument scoped = yes
+storage = v4/data/users/default/workspaces/default/instruments/<instrument>/pda-annotations.json
+```
+
+Important boundaries:
+
+- `sourceChartId`, pane labels, and Sync/No Sync are metadata only.
+- Ownership remains `user_id=default`, not pane-specific.
+- The persistence path is localStorage-first and server best-effort.
+- Review JSON and PDA JSON remain the hard manual backup/export path.
+- Conflict handling remains full-document last-write-wins.
+
+Next migration candidate:
+
+```text
+segments and segment groups
+```
+
+Delay Order Setup and Live Records until PDA and Segment persistence have had real usage.
 
 ## Next Practical Step
 

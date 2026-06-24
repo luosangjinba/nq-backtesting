@@ -238,6 +238,14 @@ Step 343 baseline:
 - Missing server data can be seeded from localStorage.
 - localStorage remains the rollback path.
 
+Step 344 baseline:
+
+- `pda-annotations` is the first core research object backed by server workspace persistence.
+- It is stored per instrument under `v4/data/users/default/workspaces/default/instruments/<instrument>/pda-annotations.json`.
+- Existing localStorage and PDA/Review JSON export remain the fallback and hard backup.
+- The first conflict rule is last-write-wins.
+- Backup restore smoke now reports default-user workspace files.
+
 ## Rollback Strategy
 
 Before switching daily work to the server:
