@@ -1250,3 +1250,63 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [x] Step 338: Unified pane badge and Sync placement。目标是统一左右 pane 的轻量 chrome：两个 pane 都显示 `Symbol TF` badge，并把 pane-level `Sync/No Sync` 从右侧价格轴附近移入 badge，避免遮挡价格轴；计划见 `v4/sessions/session_20260623_step338_pane_badge_sync_plan.md`。
   - [x] Step 338.1: Unified pane badge。新增左右 pane 共享 badge，显示各自 `Instrument TF`；隐藏 pane 模式下旧 comparison-only info label；OHLC legend 下移到 badge 下方；browser smoke 覆盖左右 badge 文案与 active pane toolbar 更新。
   - [x] Step 338.2: Sync placement。把现有 pane-level `Sync/No Sync` 按钮移入 badge，移除右上角 floating 定位；保留 sync store 语义；browser smoke 覆盖按钮位于 badge 内且不遮挡右侧价格轴。
+
+- [x] Step 339: Single-machine to server migration roadmap。目标是把“单机 -> 服务器”迁移目标一次性拆成可执行大步骤和子步骤，明确先做单用户 server baseline，再逐步引入 `user_id=default` 的 server-side workspace persistence，避免直接跳到完整多用户。路线图见 `v4/sessions/session_20260623_step339_server_migration_roadmap.md`，目标文档见 `v4/docs/planning/single_machine_to_server_migration_goal.md`，多用户数据边界审计见 `v4/docs/planning/server_multi_user_data_model_audit.md`。
+  - [x] Step 339.1: Freeze migration target。确认第一阶段目标是一台 trusted server 作为唯一 runtime/data center，多设备只访问 server URL；不承诺浏览器 localStorage 研究对象自动同步。
+  - [x] Step 339.2: Map completed groundwork。把已完成的 Step 332-336 纳入路线图：server URL/LAN smoke、remote maintenance UX、runtime hardening、Refresh Range validation。
+  - [x] Step 339.3: Define future execution steps。拆出 Step 340-345，覆盖 canonical runtime/data cutover、maintenance ownership、backup gate、default-user workspace persistence、PDA pilot、remaining workspace migration。
+  - [x] Step 339.4: Record acceptance gates。每个后续 step 都必须有明确验收：health/status、two-device bars/calendar consistency、backup restore smoke、localStorage migration/rollback。
+  - [x] Step 339.5: Record non-goals。暂不做完整登录、多用户权限、公网暴露、实时协作、离线冲突合并、任意用户上传 K 线作为共享数据。
+
+- [ ] Step 340: Server runtime and canonical data cutover。目标是把当前“本机 LAN 可用”的 server baseline 固化为真实日常 runtime：选择最终 server host、访问方式、canonical DB/data path，并完成两设备一致性验收。
+  - [ ] Step 340.1: Choose deployment identity。确定 server hostname/IP、LAN-only 或 Tailscale/VPN-only、正式 client URL、API URL 和允许的 web origins。
+  - [ ] Step 340.2: Choose canonical data path。确定 `V4_TRADING_DB` 和 `v4/data` 的正式路径；决定继续 repo-local 还是迁移到 `/var/lib/trading-data/v4`。
+  - [ ] Step 340.3: Migrate/copy current data。复制 DuckDB、economic calendar、VIX、daily regime 到 canonical path；保留迁移前硬备份。
+  - [ ] Step 340.4: Configure server `.env.local`。写入 `V4_API_HOST`、`V4_WEB_PORT`、`V4_TRADING_DB`、`V4_ALLOWED_WEB_ORIGINS`、Databento key；确认文件不入 git。
+  - [ ] Step 340.5: Start runtime through chosen manager。使用 `start.sh` 或 systemd 模板启动 web/API；确认 stop/restart 可用。
+  - [ ] Step 340.6: Two-device smoke。两台设备打开同一 server URL，验证同一 date range、bars latest、economic calendar、Data Maintenance page-host API URL。
+  - [ ] Step 340.7: Closeout docs。把正式 URL、canonical path、启动命令、健康检查命令写入 runbook/session。
+
+- [ ] Step 341: Server maintenance and refresh ownership。目标是把 Refresh Range、economic calendar、VIX/daily regime 等维护动作收敛为 server-only 日常流程，并限制 Data Maintenance 作为 trusted admin 能力。
+  - [ ] Step 341.1: Inventory maintenance actions。列出 Data Maintenance 和脚本中会写 DB/CSV/env 的 action，区分 read-only/status、dry-run、write、restart。
+  - [ ] Step 341.2: Confirm admin boundary。确认短期 trusted LAN/VPN 下谁可以访问 `data-maintenance.html`；记录它不是普通用户功能。
+  - [ ] Step 341.3: Validate Refresh Range production flow。对 ES/NQ 各选一个安全范围，执行 dry-run、preflight、guarded write、post-write `server_status.py` 和 `/v4/bars` spot check。
+  - [ ] Step 341.4: Validate calendar/VIX/regime flow。执行 economic calendar verify/dry-run，VIX/daily regime status 或 refresh dry-run；记录写入前备份要求。
+  - [ ] Step 341.5: Decide automation boundary。决定是否暂缓 cron/systemd timer；若启用，先只做明确可回退的 refresh job。
+  - [ ] Step 341.6: Failure-mode smoke。覆盖 API unreachable、bad origin、invalid input、no-data range、busy lock，确认输出可复制诊断。
+  - [ ] Step 341.7: Closeout docs。更新 runbook，明确“正常使用只在 server 执行 refresh/import”。
+
+- [ ] Step 342: Backup, restore, and rollback gate。目标是在依赖 server 日常使用前，把备份/恢复从“有脚本”升级为“验收门槛”。
+  - [ ] Step 342.1: Select backup destination。确定备份目录、外部磁盘/网络位置、保留策略；必须在 live data directory 之外。
+  - [ ] Step 342.2: Backup canonical data。备份 DuckDB、`v4/data`、未来 `data/users/default`、必要配置样例；不备份明文 secret 到 git。
+  - [ ] Step 342.3: Restore smoke。把备份恢复到临时目录，检查 DuckDB 可读、关键 CSV 存在、server status 可指向恢复路径做只读检查。
+  - [ ] Step 342.4: Rollback drill。记录从 server URL 回退到 local runtime 的步骤，包含 DB/data restore、browser localStorage 保留、Review/PDA JSON export。
+  - [ ] Step 342.5: Add pre-write guard note。所有真实 maintenance write 前必须能指出最近可用备份。
+  - [ ] Step 342.6: Closeout docs。更新 migration/runbook，写明 backup cadence、restore smoke 命令和回退条件。
+
+- [ ] Step 343: Default-user server workspace persistence foundation。目标是不做登录，但先把 server-side user-private persistence 设计成 `user_id=default` / `workspace_id=default`，为以后多用户降风险。
+  - [ ] Step 343.1: Choose storage backend。比较 per-user JSON 与 DB 表；第一版建议先选一个可备份、可迁移、可加锁的实现。
+  - [ ] Step 343.2: Define workspace API contract。设计 default-user workspace read/write endpoints，包含 user/workspace/instrument/domain/version/savedAt。
+  - [ ] Step 343.3: Add server auth placeholder。实现 `current_user_id() -> "default"` 的边界，不引入登录；Data Maintenance 仍保持 admin-only 语义。
+  - [ ] Step 343.4: Pick first low-risk domain。优先选择 display/pane/comparison workspace preferences，不先动 PDA/Order/Live。
+  - [ ] Step 343.5: Build localStorage migration path。支持从当前 localStorage 导入到 default server workspace，并保留 localStorage rollback。
+  - [ ] Step 343.6: Conflict and locking rule。第一版定义 last-write-wins 或明确禁止多设备同时编辑同一 workspace；先不做复杂 merge。
+  - [ ] Step 343.7: Tests and closeout。增加 API/storage smoke，确认刷新浏览器、换设备后首个低风险 domain 可恢复。
+
+- [ ] Step 344: PDA annotations server persistence pilot。目标是用 PDA 作为第一个核心研究对象，验证 `user_id=default` 的 instrument-scoped workspace persistence、localStorage migration、渲染恢复和备份纳入。
+  - [ ] Step 344.1: Freeze PDA server schema。定义 annotation payload、instrument、record_id、created/updated/deleted、source pane metadata 和 version。
+  - [ ] Step 344.2: Add PDA workspace endpoints。实现读取、保存、删除/软删除或全量保存策略；确保只能写 default user workspace。
+  - [ ] Step 344.3: Wrap existing persistence module。让 `pda-persistence.js` 可选择 server-backed mode；保留 localStorage fallback 和导出 JSON。
+  - [ ] Step 344.4: Migration UI/command。提供从 localStorage PDA 导入 server default workspace 的一次性路径，并提示先导出 JSON。
+  - [ ] Step 344.5: Two-device PDA smoke。设备 A 创建/编辑 PDA，设备 B reload 后看到同一对象；No Sync/pane source metadata 不作为用户边界。
+  - [ ] Step 344.6: Backup/restore inclusion。确认 PDA server data 纳入 Step 342 的备份/restore smoke。
+  - [ ] Step 344.7: Closeout decision。根据 PDA pilot 决定继续迁移 Segment/Order/Live，还是先补冲突/锁定机制。
+
+- [ ] Step 345: Remaining workspace migration and multi-user readiness。目标是在 PDA pilot 稳定后，按风险顺序迁移剩余 user-private domains，并在最后再考虑真实多用户登录。
+  - [ ] Step 345.1: Migrate segments and segment groups。保持 segment/group 关系、composite move、PDA response refs 和 Review JSON 兼容。
+  - [ ] Step 345.2: Migrate Order Setup and Live Records。保留 `orderReviews` 兼容 schema、setup-set 派生、live record import/export 与 chart renderer 行为。
+  - [ ] Step 345.3: Migrate notes and review domains。覆盖 Chart Notes、Daily Time Reviews、Time Overlays、Economic Event Notes、Entry Context Catalog。
+  - [ ] Step 345.4: Migrate preferences/history by policy。决定哪些偏好跟 user workspace 同步，哪些保持 device-local，例如 replay/date range history。
+  - [ ] Step 345.5: Add import batch audit。为 Review JSON/Tradovate/user uploads 记录 import batch，便于以后按用户恢复和排错。
+  - [ ] Step 345.6: Multi-user login readiness review。确认所有 user-private 数据都有 `user_id` 边界后，再设计 users/session/password/admin roles。
+  - [ ] Step 345.7: Security hardening gate。真实多用户前必须处理 HTTPS/reverse proxy、CSRF、upload limits、admin-only Data Maintenance、backup per user restore。
