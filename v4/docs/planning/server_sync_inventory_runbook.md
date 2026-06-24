@@ -262,6 +262,41 @@ python3 v4/scripts/server_status.py \
   --data-dir v4/data
 ```
 
+## Rollback Drill
+
+Treat runtime fallback and data restore separately.
+
+Runtime fallback from server URL to local runtime:
+
+```bash
+bash v4/start.sh stop
+bash v4/start.sh start
+python3 v4/scripts/server_status.py \
+  --web-url http://127.0.0.1:8001/index.html \
+  --api-url http://127.0.0.1:8766 \
+  --db v4/data/trading_data.duckdb \
+  --data-dir v4/data
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8001/index.html
+```
+
+Data restore rule:
+
+- Restore into a temporary directory first.
+- Run `server_status.py --skip-http` against the restored DB/data path.
+- Replace the live data directory only after the smoke passes and the API/web runtime is stopped.
+- After replacement, restart runtime, rerun `server_status.py`, and spot-check ES/NQ bars from the browser.
+
+Browser workspace rule:
+
+- `localStorage` is origin-scoped. Draft PDA, Segment, Order Setup, Live Record, notes, and workspace state created under `http://SERVER_HOST:8001` will not automatically appear under `http://127.0.0.1:8001`.
+- Do not clear browser site data during rollback.
+- Export Review JSON before switching origins/devices if you need to carry draft review objects across.
+
 ## Client Usage Rules
 
 - Normal work should use the server URL, not local `127.0.0.1`.

@@ -137,7 +137,60 @@ Note:
 
 ## Step 342.4 - Rollback Drill
 
-Status: pending.
+Status: complete.
+
+Rollback has two separate meanings:
+
+1. Runtime fallback: stop relying on the server URL and run the same V4 app locally again.
+2. Data restore: replace the canonical server data directory with a known-good backup.
+
+Runtime fallback drill:
+
+```bash
+bash v4/start.sh stop
+bash v4/start.sh start
+python3 v4/scripts/server_status.py \
+  --web-url http://127.0.0.1:8001/index.html \
+  --api-url http://127.0.0.1:8766 \
+  --db v4/data/trading_data.duckdb \
+  --data-dir v4/data
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8001/index.html
+```
+
+Data restore drill for the current repo-local baseline:
+
+```bash
+mkdir -p /tmp/v4-restore-test
+tar -xzf /tmp/v4-step342-backups/v4-data.20260623_204307-step342.tar.gz \
+  -C /tmp/v4-restore-test
+python3 v4/scripts/server_status.py \
+  --skip-http \
+  --db /tmp/v4-restore-test/data/trading_data.duckdb \
+  --data-dir /tmp/v4-restore-test/data
+```
+
+If the restore smoke passes, replace the live `v4/data` only during a maintenance window:
+
+```text
+1. Stop V4 API/web runtime.
+2. Move the current live data directory aside with a timestamp.
+3. Move the restored `data` directory into `v4/data`.
+4. Start runtime.
+5. Run `server_status.py` against the live DB/data path.
+6. Load `index.html` and spot-check ES/NQ bars.
+```
+
+Browser workspace caveat:
+
+- Browser `localStorage` is origin-scoped. State created under `http://192.168.1.111:8001` will not automatically appear under `http://127.0.0.1:8001`.
+- Do not clear browser site data during rollback.
+- Before switching origins for serious work, export Review JSON from the active browser if you need to carry PDA, Segment, Order Setup, Live Record, or review drafts to another origin/device.
+- If returning to the same server URL later, the old server-origin browser state should still be available unless browser data was cleared.
 
 ## Step 342.5 - Add Pre-Write Guard Note
 
