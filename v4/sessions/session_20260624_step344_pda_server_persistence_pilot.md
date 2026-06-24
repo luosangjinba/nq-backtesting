@@ -200,7 +200,34 @@ Smoke coverage:
 
 ## Step 344.5 - Two-Device PDA Smoke
 
-Status: pending.
+Status: complete.
+
+Automated smoke:
+
+```bash
+node v4/tests/pda-two-device-workspace-smoke.js
+```
+
+What it simulates:
+
+```text
+Device A:
+  - creates one NQ PDA annotation with sourceChartId=comparison-window
+  - saves it through PUT /v4/workspace
+
+Device B:
+  - starts with empty local PDA state
+  - reads the same server workspace document
+  - restores the PDA into pda-store and localStorage fallback
+```
+
+Validated:
+
+- PDA id survives the server round trip.
+- Instrument-scoped `pda-annotations` is used.
+- `sourceChartId`, `sourceInstrument`, and `sourceTimeframe` survive as metadata.
+- Source pane metadata does not affect `user_id=default` ownership.
+- No Sync/Sync pane state remains outside the user boundary.
 
 ## Step 344.6 - Backup/Restore Inclusion
 
