@@ -1316,7 +1316,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 346.1: Asset sequence and boundary definition。已新增 `v4/docs/deploy/REVERSE_PROXY_PUBLIC_ACCESS_ASSETS.md`，定义当前部署资产 `public_domain/reverse_proxy/web_service/api_service/workspace_data_dir/market_data_db/maintenance_admin_surface`，并预留未来 `users/sessions/roles/workspace_owners/upload_files/audit_logs/admin_actions`。
   - [x] Step 346.2: Caddy reverse proxy template。已新增 `v4/deploy/caddy/Caddyfile.template`，约定 `/v4/* -> 127.0.0.1:8766`，其余请求 `-> 127.0.0.1:8001`，由 Caddy 处理 HTTPS。
   - [x] Step 346.3: VPS environment example。已新增 `v4/deploy/env/vps.env.example`，推荐 `V4_API_HOST=127.0.0.1`、`V4_ALLOWED_WEB_ORIGINS=https://your-domain.example`、`V4_PUBLIC_DOMAIN=your-domain.example`。
-  - [ ] Step 346.4: One-command deploy script dry-run。新增 `install_reverse_proxy.sh --dry-run`，检查 domain/sudo/systemd/caddy/repo path，只打印计划动作。
+  - [x] Step 346.4: One-command deploy script dry-run。已新增 `v4/deploy/install_reverse_proxy.sh --dry-run --domain DOMAIN`，检查 domain/sudo/systemd/caddy/repo path 与必需模板，只打印计划动作，不安装、不复制、不重启服务。
   - [ ] Step 346.5: One-command deploy apply mode。脚本支持真实安装 Caddy、渲染 Caddyfile、安装 systemd templates、重启服务。
   - [ ] Step 346.6: Health checks and rollback hints。脚本输出 `https://domain/v4/health`、`https://domain/index.html` 检查结果、日志命令和回滚提示。
   - [ ] Step 346.7: Reverse proxy docs closeout。补充完整公网反代部署文档，明确当前仍是单用户系统，Data Maintenance 仍是管理员入口。

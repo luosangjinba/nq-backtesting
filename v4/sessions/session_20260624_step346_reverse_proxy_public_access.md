@@ -89,12 +89,45 @@ Docs updated:
 - `v4/docs/deploy/SERVER_RUNTIME_HARDENING.md`
 - `v4/docs/deploy/SECURITY_HARDENING_GATE.md`
 
-## Next Step
+## Step 346.4 - One-Command Deploy Script Dry-Run
 
-Step 346.4 should add a dry-run deploy script:
+Status: complete.
+
+Script:
 
 ```text
 v4/deploy/install_reverse_proxy.sh
 ```
 
-The dry-run should check domain input, sudo/systemd/Caddy availability, repo path, and the files it would render/install without mutating the host.
+Dry-run command:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh --dry-run --domain your-domain.example
+```
+
+Behavior:
+
+- validates the domain shape and repo path;
+- checks required Caddy/env/systemd/web/API files;
+- reports `systemctl`, `sudo`, and `caddy` availability;
+- prints the local port binding plan;
+- previews the rendered Caddy route contract;
+- prints the future apply-mode commands;
+- does not install packages, copy files, write `/etc/caddy`, reload systemd, or restart services.
+
+Validation:
+
+```text
+bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com
+git diff --check
+```
+
+## Next Step
+
+Step 346.5 should add apply mode to the deploy script:
+
+```text
+v4/deploy/install_reverse_proxy.sh
+```
+
+Apply mode should install or render the Caddyfile, install systemd service files, reload systemd, enable/restart services, and reload Caddy.
