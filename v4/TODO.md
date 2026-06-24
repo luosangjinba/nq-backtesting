@@ -1312,11 +1312,12 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 345.6: Multi-user login readiness review。已新增 `v4/docs/planning/multi_user_login_readiness_review.md`；结论：default-user 单用户服务器模式可继续，真实多用户登录需先完成 session identity、CSRF、admin-only maintenance、per-user backup/restore 和 upload limits。
   - [x] Step 345.7: Security hardening gate。已新增 `v4/docs/deploy/SECURITY_HARDENING_GATE.md`，明确当前只允许 trusted LAN/VPN 单用户，公网/多用户前必须完成 HTTPS/auth/session CSRF、admin-only Data Maintenance、upload limits、per-user backup/restore、audit/rate-limit/CORS 收敛。
 
-- [ ] Step 346: Reverse proxy public access deployment。目标是为未来 VPS/公网单用户访问建立方案 2：公网只开放 `80/443`，Caddy 反向代理到本机 web/API 服务；预留多用户安全系统资产序列，但不实现登录/多用户权限。
+- [x] Step 346: Reverse proxy public access deployment。目标是为未来 VPS/公网单用户访问建立方案 2：公网只开放 `80/443`，Caddy 反向代理到本机 web/API 服务；预留多用户安全系统资产序列，但不实现登录/多用户权限。
   - [x] Step 346.1: Asset sequence and boundary definition。已新增 `v4/docs/deploy/REVERSE_PROXY_PUBLIC_ACCESS_ASSETS.md`，定义当前部署资产 `public_domain/reverse_proxy/web_service/api_service/workspace_data_dir/market_data_db/maintenance_admin_surface`，并预留未来 `users/sessions/roles/workspace_owners/upload_files/audit_logs/admin_actions`。
   - [x] Step 346.2: Caddy reverse proxy template。已新增 `v4/deploy/caddy/Caddyfile.template`，约定 `/v4/* -> 127.0.0.1:8766`，其余请求 `-> 127.0.0.1:8001`，由 Caddy 处理 HTTPS。
   - [x] Step 346.3: VPS environment example。已新增 `v4/deploy/env/vps.env.example`，推荐 `V4_API_HOST=127.0.0.1`、`V4_ALLOWED_WEB_ORIGINS=https://your-domain.example`、`V4_PUBLIC_DOMAIN=your-domain.example`。
   - [x] Step 346.4: One-command deploy script dry-run。已新增 `v4/deploy/install_reverse_proxy.sh --dry-run --domain DOMAIN`，检查 domain/sudo/systemd/caddy/repo path 与必需模板，只打印计划动作，不安装、不复制、不重启服务。
   - [x] Step 346.5: One-command deploy apply mode。脚本已支持 `--apply --yes --domain DOMAIN`，可安装缺失的 Caddy、渲染 Caddyfile、安装 systemd service、daemon-reload、enable/restart web/API/Caddy。
   - [x] Step 346.6: Health checks and rollback hints。脚本 apply 后会检查 `https://domain/v4/health`、`https://domain/index.html`，并输出 status/journalctl/disable/remove/daemon-reload 回滚提示。
-  - [ ] Step 346.7: Reverse proxy docs closeout。补充完整公网反代部署文档，明确当前仍是单用户系统，Data Maintenance 仍是管理员入口。
+  - [x] Step 346.7: Reverse proxy docs closeout。已更新 `v4/docs/deploy/SERVER_RUNTIME_HARDENING.md`，补充 dry-run/apply 用法、端口开放边界、健康检查、日志检查、回滚轮廓和单用户安全边界。
+  - [x] Step 346.8: Deployment verification checklist。已新增 `v4/docs/deploy/REVERSE_PROXY_DEPLOYMENT_VERIFICATION.md`，整理 apply 前检查、健康检查、浏览器检查、失败排查、回滚步骤和安全边界。

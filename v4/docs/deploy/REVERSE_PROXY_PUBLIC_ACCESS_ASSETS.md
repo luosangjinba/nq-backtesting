@@ -71,3 +71,11 @@ It does not provide:
 2. Add a VPS environment example that binds web/API services to localhost.
 3. Add a deploy script that can render/install those assets.
 4. Add health checks for `https://$V4_PUBLIC_DOMAIN/index.html` and `https://$V4_PUBLIC_DOMAIN/v4/health`.
+
+## Operator Documents
+
+```text
+v4/docs/deploy/SERVER_RUNTIME_HARDENING.md
+v4/docs/deploy/REVERSE_PROXY_DEPLOYMENT_VERIFICATION.md
+v4/docs/deploy/SECURITY_HARDENING_GATE.md
+```

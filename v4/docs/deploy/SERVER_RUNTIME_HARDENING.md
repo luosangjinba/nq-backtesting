@@ -6,9 +6,9 @@ This document is the Step 335 operator runbook.
 
 ## Scope
 
-These files are repo templates. Installing services still requires a manual server command.
+These files are repo templates. Install them manually for LAN/server mode, or use `v4/deploy/install_reverse_proxy.sh` for public HTTPS reverse-proxy mode.
 
-Do not expose these ports to the public internet without a later HTTPS/auth step. The hard gate is documented in `v4/docs/deploy/SECURITY_HARDENING_GATE.md`.
+Do not expose `8001` or `8766` directly to the public internet. The hard gate is documented in `v4/docs/deploy/SECURITY_HARDENING_GATE.md`.
 
 For public single-user access, prefer the reverse-proxy mode described by:
 
@@ -39,6 +39,8 @@ V4_API_HOST=127.0.0.1
 V4_ALLOWED_WEB_ORIGINS=https://your-domain.example
 V4_PUBLIC_DOMAIN=your-domain.example
 ```
+
+`V4_ALLOWED_WEB_ORIGINS` must match the public HTTPS origin exactly. Do not include `:8001` or `:8766` in public browser URLs.
 
 For a permanent server, replace `V4_TRADING_DB` with the chosen canonical path, for example:
 
@@ -85,6 +87,71 @@ sudo systemctl disable --now v4-api.service v4-web.service
 sudo rm -f /etc/systemd/system/v4-api.service /etc/systemd/system/v4-web.service
 sudo systemctl daemon-reload
 ```
+
+## Public HTTPS Reverse Proxy
+
+Use this mode when the same single trusted operator needs to access V4 from outside the LAN/VPN through a domain name.
+
+Public exposure model:
+
+- open or forward only `80/tcp` and `443/tcp` to the server;
+- keep `8001/tcp` and `8766/tcp` private to localhost or a trusted LAN;
+- browser entrypoint is `https://DOMAIN/index.html`;
+- API entrypoint is same-origin under `https://DOMAIN/v4/...`;
+- Data Maintenance remains an administrator/operator surface, not a normal user feature.
+
+Dry-run from the repo root:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh --dry-run --domain your-domain.example
+```
+
+Apply on the server only after DNS and firewall/port-forwarding are ready:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh --apply --yes --domain your-domain.example
+```
+
+Optional ACME email and service user:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh \
+  --apply \
+  --yes \
+  --domain your-domain.example \
+  --email ops@example.com \
+  --service-user leo
+```
+
+The apply path may install Caddy through `apt-get`, render `/etc/caddy/Caddyfile`, install `v4-api.service` and `v4-web.service`, restart services, and run health checks. It backs up an existing `/etc/caddy/Caddyfile` before replacing it.
+
+Expected public checks:
+
+```bash
+curl -fsS https://your-domain.example/v4/health
+curl -fsS https://your-domain.example/index.html
+```
+
+Useful local checks:
+
+```bash
+systemctl status v4-api.service v4-web.service caddy
+sudo journalctl -u v4-api.service -n 80 --no-pager
+sudo journalctl -u v4-web.service -n 80 --no-pager
+sudo journalctl -u caddy -n 80 --no-pager
+```
+
+Rollback outline:
+
+```bash
+sudo systemctl disable --now v4-api.service v4-web.service
+sudo rm -f /etc/systemd/system/v4-api.service /etc/systemd/system/v4-web.service
+sudo systemctl daemon-reload
+sudo cp /etc/caddy/Caddyfile.v4-backup-YYYYMMDDHHMMSS /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+This reverse-proxy path is still single-user. It does not add login, per-user authorization, public multi-user safety, or ordinary-user access to Data Maintenance.
 
 ## Status Check
 

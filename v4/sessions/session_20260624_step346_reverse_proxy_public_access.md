@@ -176,12 +176,59 @@ git diff --check
 
 The real `--apply` path was implemented but not run in this workstation session because it writes `/etc/caddy`, `/etc/systemd/system`, may install packages, and needs the real public domain.
 
-## Next Step
+## Step 346.7 - Reverse Proxy Docs Closeout
 
-Step 346.7 should close the reverse-proxy documentation:
+Status: complete.
+
+Updated:
 
 ```text
 v4/docs/deploy/SERVER_RUNTIME_HARDENING.md
 ```
 
-The closeout should document dry-run/apply usage, firewall/port forwarding expectations, health checks, and the current single-user security boundary.
+Added:
+
+- public HTTPS reverse-proxy operation model;
+- dry-run and apply command examples;
+- optional email/service-user usage;
+- firewall/port-forwarding expectation: public `80/443`, private `8001/8766`;
+- public health checks;
+- service status and journal commands;
+- rollback outline;
+- explicit single-user boundary and Data Maintenance operator-only status.
+
+## Step 346.8 - Deployment Verification Checklist
+
+Status: complete.
+
+Added:
+
+```text
+v4/docs/deploy/REVERSE_PROXY_DEPLOYMENT_VERIFICATION.md
+```
+
+Checklist covers:
+
+- before-apply validation;
+- DNS/firewall/env checks;
+- apply expectations;
+- public and local health checks;
+- browser checks;
+- failure triage;
+- rollback steps;
+- single-user security boundary.
+
+Validation run in this session:
+
+```text
+bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com
+bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com --email ops@example.com
+bash -n v4/deploy/install_reverse_proxy.sh
+git diff --check
+```
+
+Real `--apply` verification remains server-only because it writes `/etc/caddy`, `/etc/systemd/system`, may install Caddy, and requires the real public domain.
+
+## Next Step
+
+Step 346 is ready for review or for a real server apply using the actual domain.
