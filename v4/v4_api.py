@@ -62,11 +62,16 @@ WORKSPACE_BASE_DIR = os.path.join(V4_ROOT, "data", "users", "default", "workspac
 WORKSPACE_DOMAIN_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 WORKSPACE_INSTRUMENT_RE = re.compile(r"^[A-Z][A-Z0-9._-]{0,15}$")
 ALLOWED_WORKSPACE_DOMAINS = {
+    "chart-notes": {"instrumentScoped": True},
+    "daily-time-reviews": {"instrumentScoped": True},
     "display-preferences": {"instrumentScoped": False},
+    "economic-event-notes": {"instrumentScoped": True},
+    "entry-context-catalog": {"instrumentScoped": False},
     "live-records": {"instrumentScoped": True},
     "market-segments": {"instrumentScoped": True},
     "order-reviews": {"instrumentScoped": True},
     "pda-annotations": {"instrumentScoped": True},
+    "time-overlays": {"instrumentScoped": True},
 }
 def _parse_allowed_maintenance_origins():
     origins = {

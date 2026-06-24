@@ -1,7 +1,8 @@
 import { API_BASE } from '../config.js';
 
-function getFetch(fetchImpl = globalThis.fetch) {
-  return typeof fetchImpl === 'function' ? fetchImpl : null;
+function getFetch(fetchImpl = null) {
+  const candidate = typeof fetchImpl === 'function' ? fetchImpl : globalThis.fetch;
+  return typeof candidate === 'function' ? candidate : null;
 }
 
 function encodeQuery(params = {}) {

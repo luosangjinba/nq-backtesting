@@ -133,12 +133,67 @@ with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     )
     assert live_saved["domain"] == "live-records"
 
+    chart_notes_saved = v4_api.write_workspace_document(
+        {
+            "domain": "chart-notes",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {"version": 1, "instrument": "NQ", "chartNotes": [{"id": "note_1"}]},
+        }
+    )
+    assert chart_notes_saved["domain"] == "chart-notes"
+
+    daily_time_saved = v4_api.write_workspace_document(
+        {
+            "domain": "daily-time-reviews",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {"version": 1, "instrument": "NQ", "dailyTimeReviews": [{"id": "dtr_1"}]},
+        }
+    )
+    assert daily_time_saved["domain"] == "daily-time-reviews"
+
+    time_overlay_saved = v4_api.write_workspace_document(
+        {
+            "domain": "time-overlays",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {"version": 1, "instrument": "NQ", "settings": {"eventTimes": [{"id": "time_1"}]}},
+        }
+    )
+    assert time_overlay_saved["domain"] == "time-overlays"
+
+    event_notes_saved = v4_api.write_workspace_document(
+        {
+            "domain": "economic-event-notes",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {"version": 1, "instrument": "NQ", "notes": [{"eventId": "event_1", "note": "review"}]},
+        }
+    )
+    assert event_notes_saved["domain"] == "economic-event-notes"
+
+    entry_catalog_saved = v4_api.write_workspace_document(
+        {
+            "domain": "entry-context-catalog",
+            "version": 1,
+            "payload": {"version": 1, "catalog": {"patterns": [{"id": "pattern_1"}]}},
+        }
+    )
+    assert entry_catalog_saved["domain"] == "entry-context-catalog"
+    assert entry_catalog_saved["instrument"] is None
+
     expect_value_error(lambda: v4_api.read_workspace_document("../../bad"))
     expect_value_error(lambda: v4_api.read_workspace_document("display-preferences", "NQ"))
+    expect_value_error(lambda: v4_api.read_workspace_document("entry-context-catalog", "NQ"))
+    expect_value_error(lambda: v4_api.read_workspace_document("chart-notes"))
+    expect_value_error(lambda: v4_api.read_workspace_document("daily-time-reviews"))
+    expect_value_error(lambda: v4_api.read_workspace_document("economic-event-notes"))
     expect_value_error(lambda: v4_api.read_workspace_document("live-records"))
     expect_value_error(lambda: v4_api.read_workspace_document("pda-annotations"))
     expect_value_error(lambda: v4_api.read_workspace_document("market-segments"))
     expect_value_error(lambda: v4_api.read_workspace_document("order-reviews"))
+    expect_value_error(lambda: v4_api.read_workspace_document("time-overlays"))
     expect_value_error(
         lambda: v4_api.write_workspace_document(
             {

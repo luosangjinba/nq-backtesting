@@ -4,6 +4,10 @@ import {
   ORDER_ENTRY_SESSION_DEFINITIONS,
 } from '../order/order-review-types.js';
 import { createLocalPersistence } from '../storage/local-persistence.js';
+import {
+  getWorkspaceDocument,
+  putWorkspaceDocument,
+} from '../storage/server-workspace-client.js';
 
 export const ENTRY_CONTEXT_CATALOG_GROUPS = Object.freeze(['patterns', 'sessions', 'lessons']);
 export const ENTRY_CONTEXT_CATALOG_CHANGED = 'entry-context-catalog:changed';
@@ -16,6 +20,7 @@ export const LESSON_ROLE_SCOPES = Object.freeze([
 
 const STORAGE_KEY = 'v4:entry-context-catalog';
 const STORAGE_VERSION = 1;
+const WORKSPACE_DOMAIN = 'entry-context-catalog';
 
 const persistence = createLocalPersistence({
   key: STORAGE_KEY,
@@ -153,11 +158,14 @@ function compareCatalogItems(left, right) {
 }
 
 function saveCatalog() {
-  return persistence.write({
+  const payload = {
     version: STORAGE_VERSION,
     savedAt: Date.now(),
     catalog,
-  });
+  };
+  const saved = persistence.write(payload);
+  saveEntryContextCatalogToServer(payload);
+  return saved;
 }
 
 function emitChanged(reason, detail = {}) {
@@ -178,6 +186,10 @@ function mutateCatalog(reason, mutator) {
 
 export function getEntryContextCatalogStorageKey() {
   return STORAGE_KEY;
+}
+
+export function getEntryContextCatalogWorkspaceDomain() {
+  return WORKSPACE_DOMAIN;
 }
 
 export function getEntryContextCatalog() {
@@ -325,8 +337,65 @@ export function initEntryContextCatalogStore() {
     persistence.runRestoring(() => {
       catalog = normalizeEntryContextCatalog(saved.catalog);
     });
+    syncEntryContextCatalogFromServer();
     return getEntryContextCatalog();
   }
   catalog = normalizeEntryContextCatalog(DEFAULT_ENTRY_CONTEXT_CATALOG);
+  syncEntryContextCatalogFromServer();
   return getEntryContextCatalog();
+}
+
+function canUseServerWorkspace() {
+  return Boolean(globalThis.window?.location && typeof globalThis.fetch === 'function');
+}
+
+export async function saveEntryContextCatalogToServer(payload = null, options = {}) {
+  if (persistence.isRestoring()) return { ok: false, skipped: true };
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const nextPayload = payload || {
+    version: STORAGE_VERSION,
+    savedAt: Date.now(),
+    catalog: getEntryContextCatalog(),
+  };
+  try {
+    return await putWorkspaceDocument({
+      domain: WORKSPACE_DOMAIN,
+      version: STORAGE_VERSION,
+      payload: {
+        ...nextPayload,
+        catalog: normalizeEntryContextCatalog(nextPayload.catalog || {}),
+      },
+      fetchImpl: options.fetchImpl,
+    });
+  } catch (error) {
+    console.warn('[entry-context-catalog] server save failed', error);
+    return { ok: false, error };
+  }
+}
+
+export async function syncEntryContextCatalogFromServer(options = {}) {
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  try {
+    const document = await getWorkspaceDocument({ domain: WORKSPACE_DOMAIN, fetchImpl: options.fetchImpl });
+    if (document?.found && document.payload?.catalog) {
+      const serverPayload = {
+        version: Number(document.payload.version) || STORAGE_VERSION,
+        savedAt: document.payload.savedAt || document.savedAt || Date.now(),
+        catalog: normalizeEntryContextCatalog(document.payload.catalog),
+      };
+      catalog = serverPayload.catalog;
+      persistence.write(serverPayload);
+      emitChanged('server-sync');
+      return { ok: true, source: 'server', document };
+    }
+    const localPayload = persistence.read();
+    if (localPayload?.catalog) {
+      const saved = await saveEntryContextCatalogToServer(localPayload, options);
+      return { ok: Boolean(saved?.ok), source: 'local-migration', document: saved };
+    }
+    return { ok: true, source: 'empty' };
+  } catch (error) {
+    console.warn('[entry-context-catalog] server sync failed', error);
+    return { ok: false, error };
+  }
 }

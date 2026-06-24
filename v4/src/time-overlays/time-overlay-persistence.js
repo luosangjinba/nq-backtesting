@@ -1,6 +1,7 @@
 import * as bus from '../event-bus.js';
 import { readLocalJson, removeLocalJson, writeLocalJson } from '../storage/local-persistence.js';
 import { getInstrumentStorageKey } from '../storage/instrument-storage.js';
+import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getTimeOverlaySettings,
@@ -9,6 +10,7 @@ import {
 
 const STORAGE_KEY_BASE = 'v4:time-overlays';
 const STORAGE_VERSION = 1;
+const WORKSPACE_DOMAIN = 'time-overlays';
 let restoring = false;
 
 function handleStorageError(error, action) {
@@ -36,14 +38,18 @@ function getPersistableSettings() {
 
 export function saveTimeOverlaySettings(instrument = getPrimaryInstrument()) {
   if (restoring) return false;
-  return writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), {
+  const payload = {
     version: STORAGE_VERSION,
     savedAt: Date.now(),
+    instrument,
     settings: getPersistableSettings(),
-  }, { onError: handleStorageError });
+  };
+  const saved = writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), payload, { onError: handleStorageError });
+  saveTimeOverlaySettingsToServer(instrument, payload);
+  return saved;
 }
 
-export function restoreTimeOverlaySettings(instrument = getPrimaryInstrument()) {
+export function restoreTimeOverlaySettings(instrument = getPrimaryInstrument(), options = {}) {
   const payload = readLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, instrument), null, { onError: handleStorageError });
 
   restoring = true;
@@ -65,11 +71,64 @@ export function restoreTimeOverlaySettings(instrument = getPrimaryInstrument()) 
       isError: false,
     });
   }
+  if (options.syncServer !== false) syncTimeOverlaySettingsFromServer(instrument);
 }
 
 export function clearSavedTimeOverlaySettings() {
   if (removeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE), { onError: handleStorageError })) {
     bus.emit('status:update', { text: 'Time Overlays 本地保存已清除', isError: false });
+  }
+}
+
+function canUseServerWorkspace() {
+  return Boolean(globalThis.window?.location && typeof globalThis.fetch === 'function');
+}
+
+export function getTimeOverlayWorkspaceDomain() {
+  return WORKSPACE_DOMAIN;
+}
+
+export async function saveTimeOverlaySettingsToServer(instrument = getPrimaryInstrument(), payload = null, options = {}) {
+  if (restoring) return { ok: false, skipped: true };
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const nextPayload = payload || { version: STORAGE_VERSION, savedAt: Date.now(), instrument: normalizedInstrument, settings: getPersistableSettings() };
+  try {
+    return await putWorkspaceDocument({
+      domain: WORKSPACE_DOMAIN,
+      instrument: normalizedInstrument,
+      version: STORAGE_VERSION,
+      payload: { ...nextPayload, instrument: normalizedInstrument, settings: nextPayload.settings || {} },
+      fetchImpl: options.fetchImpl,
+    });
+  } catch (error) {
+    console.warn('[time-overlay-persistence] server save failed', error);
+    return { ok: false, error };
+  }
+}
+
+export async function syncTimeOverlaySettingsFromServer(instrument = getPrimaryInstrument(), options = {}) {
+  if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
+  const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  try {
+    const document = await getWorkspaceDocument({ domain: WORKSPACE_DOMAIN, instrument: normalizedInstrument, fetchImpl: options.fetchImpl });
+    if (document?.found && document.payload?.settings) {
+      const payload = { version: Number(document.payload.version) || STORAGE_VERSION, savedAt: document.payload.savedAt || document.savedAt || Date.now(), instrument: normalizedInstrument, settings: document.payload.settings };
+      restoring = true;
+      try {
+        loadTimeOverlaySettings({ ...(payload.settings || {}), selectedDate: '', killzoneDraft: null });
+        writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, normalizedInstrument), payload, { onError: handleStorageError });
+      } finally {
+        restoring = false;
+      }
+      return { ok: true, source: 'server', document };
+    }
+    const localPayload = readLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, normalizedInstrument), null, { onError: handleStorageError });
+    if (localPayload?.settings) return { ok: Boolean((await saveTimeOverlaySettingsToServer(normalizedInstrument, { ...localPayload, instrument: normalizedInstrument }, options))?.ok), source: 'local-migration' };
+    return { ok: true, source: 'empty' };
+  } catch (error) {
+    console.warn('[time-overlay-persistence] server sync failed', error);
+    return { ok: false, error };
   }
 }
 

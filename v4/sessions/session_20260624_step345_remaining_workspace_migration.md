@@ -83,7 +83,45 @@ node v4/tests/order-live-persistence-smoke.js
 
 ## Step 345.3 - Migrate Notes and Review Domains
 
-Status: pending.
+Status: complete.
+
+Workspace domains:
+
+```text
+chart-notes
+daily-time-reviews
+time-overlays
+economic-event-notes
+entry-context-catalog
+```
+
+Scope:
+
+```text
+chart-notes: instrument-scoped
+daily-time-reviews: instrument-scoped
+time-overlays: instrument-scoped
+economic-event-notes: instrument-scoped
+entry-context-catalog: workspace-scoped
+```
+
+Implemented:
+
+- Added the five domains to the workspace API allowlist.
+- Wrapped Chart Notes, Daily Time Reviews, Time Overlays, and Economic Event Notes persistence with localStorage-first, server best-effort sync.
+- Wrapped Entry Context Catalog as a workspace-scoped document because the catalog is shared across instruments.
+- Preserved existing localStorage keys and payload fields so Review JSON and existing browser data remain compatible.
+- Fixed workspace client fetch fallback so browser calls without explicit `fetchImpl` use `globalThis.fetch`.
+
+Validation:
+
+```bash
+node v4/tests/notes-review-domains-persistence-smoke.js
+node v4/tests/order-live-persistence-smoke.js
+node v4/tests/segment-persistence-smoke.js
+python3 v4/tests/workspace-api-smoke.py
+python3 -m py_compile v4/v4_api.py
+```
 
 ## Step 345.4 - Migrate Preferences/History by Policy
 
