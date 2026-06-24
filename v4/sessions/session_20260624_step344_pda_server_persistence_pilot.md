@@ -175,7 +175,28 @@ Smoke coverage:
 
 ## Step 344.4 - Migration UI/Command
 
-Status: pending.
+Status: complete.
+
+Implemented explicit migration command:
+
+- Added `migrateCurrentPdaAnnotationsToServer()` in `v4/src/pda/pda-persistence.js`.
+- Added `Sync PDA to Server` in the Archive inspector panel.
+- The UI shows a confirmation prompt:
+
+```text
+Export Review JSON or PDA JSON before syncing PDA annotations to the server. Continue?
+```
+
+Behavior:
+
+- The command writes the current non-draft PDA annotations to localStorage.
+- Then it writes the same payload to the server `pda-annotations` workspace document for the current instrument.
+- Existing automatic local-to-server seed still runs when the server document is missing.
+- Existing PDA JSON / Review JSON export remains the recommended hard backup before migration.
+
+Smoke coverage:
+
+- `v4/tests/pda-persistence-smoke.js` covers explicit migration PUT payload.
 
 ## Step 344.5 - Two-Device PDA Smoke
 

@@ -125,6 +125,13 @@ export async function saveAnnotationsToServer(instrument = getPrimaryInstrument(
   }
 }
 
+export async function migrateCurrentPdaAnnotationsToServer(instrument = getPrimaryInstrument(), options = {}) {
+  const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();
+  const payload = buildPdaPayload(normalizedInstrument);
+  writeLocalJson(getInstrumentStorageKey(STORAGE_KEY_BASE, normalizedInstrument), payload, { onError: handleStorageError });
+  return saveAnnotationsToServer(normalizedInstrument, payload, options);
+}
+
 export async function syncAnnotationsFromServer(instrument = getPrimaryInstrument(), options = {}) {
   if (!canUseServerWorkspace() && !options.fetchImpl) return { ok: false, skipped: true };
   const normalizedInstrument = String(instrument || getPrimaryInstrument()).trim().toUpperCase();

@@ -153,4 +153,24 @@ assert.equal(migrationCalls[1].options.method, 'PUT');
 const migrationPutBody = JSON.parse(migrationCalls[1].options.body);
 assert.equal(migrationPutBody.payload.annotations[0].id, localAnnotation.id);
 
+store.loadAnnotations([serverAnnotation]);
+const explicitMigrationCalls = [];
+await persistence.migrateCurrentPdaAnnotationsToServer('NQ', {
+  fetchImpl: async (url, options = {}) => {
+    explicitMigrationCalls.push({ url, options });
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true, found: true };
+      },
+    };
+  },
+});
+assert.equal(explicitMigrationCalls.length, 1);
+const explicitPutBody = JSON.parse(explicitMigrationCalls[0].options.body);
+assert.equal(explicitPutBody.domain, 'pda-annotations');
+assert.equal(explicitPutBody.instrument, 'NQ');
+assert.equal(explicitPutBody.payload.annotations[0].id, serverAnnotation.id);
+
 console.log('pda persistence smoke passed');

@@ -10,6 +10,7 @@ export function renderArchiveActions() {
         <button class="inspector-secondary" data-inspector-action="import-review" type="button">Import Review JSON</button>
         <button class="inspector-secondary" data-inspector-action="export-pda" type="button">Export PDA JSON</button>
         <button class="inspector-secondary" data-inspector-action="import-pda" type="button">Import PDA JSON</button>
+        <button class="inspector-secondary" data-inspector-action="sync-pda-server" type="button">Sync PDA to Server</button>
         <button class="inspector-secondary" data-inspector-action="clear-saved" type="button">Clear Saved PDA</button>
         <input class="inspector-file-input" data-inspector-action="import-review-file" type="file" accept="application/json,.json" />
         <input class="inspector-file-input" data-inspector-action="import-pda-file" type="file" accept="application/json,.json" />

@@ -14,7 +14,7 @@ import { isSmtPicking } from '../smt/manual-smt.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
 import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
 import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
-import { clearSavedAnnotations } from '../pda/pda-persistence.js';
+import { clearSavedAnnotations, migrateCurrentPdaAnnotationsToServer } from '../pda/pda-persistence.js';
 import { getAnnotationById } from '../pda/pda-store.js';
 import {
   clearSegmentGroupSelection,
@@ -1041,6 +1041,20 @@ function handleInspectorClick(e) {
 
   if (action === 'import-pda') {
     bodyEl?.querySelector('[data-inspector-action="import-pda-file"]')?.click();
+    return;
+  }
+
+  if (action === 'sync-pda-server') {
+    const confirmed = globalThis.window?.confirm
+      ? globalThis.window.confirm('Export Review JSON or PDA JSON before syncing PDA annotations to the server. Continue?')
+      : true;
+    if (!confirmed) return;
+    migrateCurrentPdaAnnotationsToServer().then((result) => {
+      bus.emit('status:update', {
+        text: result?.ok ? 'PDA 标注已同步到服务器' : 'PDA 服务器同步未完成，请检查连接',
+        isError: !result?.ok,
+      });
+    });
     return;
   }
 
