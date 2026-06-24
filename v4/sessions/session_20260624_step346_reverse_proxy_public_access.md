@@ -137,7 +137,7 @@ Behavior:
 - apply requires both `--apply` and `--yes`;
 - renders Caddyfile with the selected domain and optional ACME email;
 - renders systemd services with the current repo path and selected service user;
-- installs Caddy through `apt-get` when Caddy is missing, unless `--skip-caddy-install` is set;
+- installs Caddy through `apt-get` on Debian/Ubuntu or `dnf` with the official Caddy COPR on RHEL-like hosts when Caddy is missing, unless `--skip-caddy-install` is set;
 - installs `/etc/caddy/Caddyfile`;
 - installs `/etc/systemd/system/v4-api.service` and `/etc/systemd/system/v4-web.service`;
 - runs `systemctl daemon-reload`;

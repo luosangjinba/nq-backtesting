@@ -123,7 +123,7 @@ bash v4/deploy/install_reverse_proxy.sh \
   --service-user leo
 ```
 
-The apply path may install Caddy through `apt-get`, render `/etc/caddy/Caddyfile`, install `v4-api.service` and `v4-web.service`, restart services, and run health checks. It backs up an existing `/etc/caddy/Caddyfile` before replacing it.
+The apply path may install Caddy through `apt-get` on Debian/Ubuntu hosts or `dnf` with the official Caddy COPR on RHEL-like hosts, render `/etc/caddy/Caddyfile`, install `v4-api.service` and `v4-web.service`, restart services, and run health checks. It backs up an existing `/etc/caddy/Caddyfile` before replacing it.
 
 Expected public checks:
 

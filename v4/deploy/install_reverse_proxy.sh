@@ -16,10 +16,11 @@ Options:
   --email EMAIL          Optional ACME account email to report in the plan.
   --service-user USER    systemd service user. Default: current user or SUDO_USER.
   --skip-caddy-install   Do not install Caddy when it is missing.
+  --http-only            Temporary diagnostic mode: serve HTTP only and skip ACME.
   --help                 Show this help.
 
 Dry-run is read-only. Apply mode requires sudo access and may install Caddy with
-apt-get on Debian/Ubuntu hosts.
+apt-get on Debian/Ubuntu hosts or dnf/COPR on RHEL-like hosts.
 USAGE
 }
 
@@ -53,17 +54,42 @@ sudo_cmd() {
   fi
 }
 
+install_caddy() {
+  if command -v apt-get >/dev/null 2>&1; then
+    run_step sudo_cmd apt-get update
+    run_step sudo_cmd apt-get install -y caddy
+    return
+  fi
+
+  if command -v dnf >/dev/null 2>&1; then
+    run_step sudo_cmd dnf install -y dnf-plugins-core
+    run_step sudo_cmd dnf copr enable -y @caddy/caddy
+    run_step sudo_cmd dnf install -y caddy
+    return
+  fi
+
+  if command -v yum >/dev/null 2>&1; then
+    die "caddy is missing and only yum was found; install Caddy manually or install dnf first"
+  fi
+
+  die "caddy is missing and no supported package manager was found; install Caddy manually first"
+}
+
 render_caddyfile() {
   local output="$1"
+  local site_address="$domain"
+  if [[ "$http_only" -eq 1 ]]; then
+    site_address="http://$domain"
+  fi
   if [[ -n "$email" ]]; then
     {
       printf '{\n'
       printf '  email %s\n' "$email"
       printf '}\n\n'
-      sed 's|{\$V4_PUBLIC_DOMAIN}|'"$domain"'|g' "$caddy_template"
+      sed 's|{\$V4_PUBLIC_DOMAIN}|'"$site_address"'|g' "$caddy_template"
     } > "$output"
   else
-    sed 's|{\$V4_PUBLIC_DOMAIN}|'"$domain"'|g' "$caddy_template" > "$output"
+    sed 's|{\$V4_PUBLIC_DOMAIN}|'"$site_address"'|g' "$caddy_template" > "$output"
   fi
 }
 
@@ -85,6 +111,7 @@ dry_run=0
 apply=0
 yes=0
 skip_caddy_install=0
+http_only=0
 service_user="${SUDO_USER:-$(id -un)}"
 service_group=""
 
@@ -124,6 +151,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-caddy-install)
       skip_caddy_install=1
+      shift
+      ;;
+    --http-only)
+      http_only=1
       shift
       ;;
     --help|-h)
@@ -168,6 +199,11 @@ printf '=================================\n\n'
 info "repo: $repo_root"
 info "domain: $domain"
 info "service user: $service_user:$service_group"
+if [[ "$http_only" -eq 1 ]]; then
+  info "mode: temporary HTTP-only diagnostic"
+else
+  info "mode: HTTPS reverse proxy"
+fi
 if [[ -n "$email" ]]; then
   info "ACME email: $email"
 else
@@ -210,6 +246,15 @@ else
     die "caddy is not installed and --skip-caddy-install was set"
   fi
   warn "caddy is not installed yet"
+  if command -v apt-get >/dev/null 2>&1; then
+    info "caddy install method: apt-get"
+  elif command -v dnf >/dev/null 2>&1; then
+    info "caddy install method: dnf + COPR @caddy/caddy"
+  elif command -v yum >/dev/null 2>&1; then
+    warn "caddy automatic install is not supported with yum-only hosts"
+  else
+    warn "no supported Caddy package manager was detected"
+  fi
 fi
 
 printf '\n'
@@ -218,7 +263,11 @@ printf '%s\n' '----------------------'
 printf 'API:  127.0.0.1:8766\n'
 printf 'Web:  127.0.0.1:8001\n'
 printf 'HTTP:  80 -> Caddy\n'
-printf 'HTTPS: 443 -> Caddy\n'
+if [[ "$http_only" -eq 1 ]]; then
+  printf 'HTTPS: disabled in --http-only mode\n'
+else
+  printf 'HTTPS: 443 -> Caddy\n'
+fi
 
 printf '\n'
 printf 'Planned files\n'
@@ -255,8 +304,13 @@ printf '%s\n' '-----------------------------'
 printf 'systemctl daemon-reload\n'
 printf 'systemctl enable --now v4-api.service v4-web.service\n'
 printf 'systemctl reload caddy\n'
-printf 'curl -fsS https://%s/v4/health\n' "$domain"
-printf 'curl -fsS https://%s/index.html\n' "$domain"
+if [[ "$http_only" -eq 1 ]]; then
+  printf 'curl -fsS http://%s/v4/health\n' "$domain"
+  printf 'curl -fsS http://%s/index.html\n' "$domain"
+else
+  printf 'curl -fsS https://%s/v4/health\n' "$domain"
+  printf 'curl -fsS https://%s/index.html\n' "$domain"
+fi
 
 printf '\n'
 if [[ "$dry_run" -eq 1 ]]; then
@@ -269,12 +323,7 @@ if ! command -v sudo >/dev/null 2>&1 && [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
 fi
 
 if ! command -v caddy >/dev/null 2>&1; then
-  if command -v apt-get >/dev/null 2>&1; then
-    run_step sudo_cmd apt-get update
-    run_step sudo_cmd apt-get install -y caddy
-  else
-    die "caddy is missing and apt-get is not available; install Caddy manually first"
-  fi
+  install_caddy
 fi
 
 if command -v caddy >/dev/null 2>&1; then
@@ -298,8 +347,13 @@ run_step sudo_cmd systemctl reload caddy
 printf '\n'
 printf 'Health checks\n'
 printf '%s\n' '-------------'
-api_health="https://$domain/v4/health"
-web_health="https://$domain/index.html"
+if [[ "$http_only" -eq 1 ]]; then
+  api_health="http://$domain/v4/health"
+  web_health="http://$domain/index.html"
+else
+  api_health="https://$domain/v4/health"
+  web_health="https://$domain/index.html"
+fi
 if curl -fsS "$api_health" >/dev/null; then
   ok "$api_health"
 else

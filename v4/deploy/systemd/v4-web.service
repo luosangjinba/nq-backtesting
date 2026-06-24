@@ -7,8 +7,9 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=/home/leo/myworkspace/trading/backtesting/v4
 Environment=V4_WEB_PORT=8001
+Environment=V4_WEB_HOST=127.0.0.1
 EnvironmentFile=-/home/leo/myworkspace/trading/backtesting/v4/.env.local
-ExecStart=/usr/bin/python3 -m http.server ${V4_WEB_PORT}
+ExecStart=/usr/bin/python3 -m http.server ${V4_WEB_PORT} --bind ${V4_WEB_HOST}
 Restart=on-failure
 RestartSec=3
 User=leo
