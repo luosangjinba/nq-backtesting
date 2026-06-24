@@ -234,8 +234,13 @@ Restore test:
 ```bash
 mkdir -p /tmp/v4-restore-test
 tar -xzf /var/backups/trading/v4/v4-data.YYYYMMDD_HHMMSS.tar.gz -C /tmp/v4-restore-test
-ls -lh /tmp/v4-restore-test/v4
+python3 v4/scripts/server_status.py \
+  --skip-http \
+  --db /tmp/v4-restore-test/v4/trading_data.duckdb \
+  --data-dir /tmp/v4-restore-test/v4
 ```
+
+If the archive was produced from repo-local `v4/data`, the restored directory may be `/tmp/v4-restore-test/data` instead of `/tmp/v4-restore-test/v4`.
 
 Step 335 backup helper:
 
