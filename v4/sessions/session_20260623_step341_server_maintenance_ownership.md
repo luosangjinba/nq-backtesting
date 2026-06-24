@@ -353,7 +353,91 @@ Future automation candidates:
 
 ## Step 341.6 - Failure-Mode Smoke
 
-Status: pending.
+Status: complete.
+
+### Missing Maintenance Header
+
+Request omitted `X-V4-Maintenance-Request`.
+
+Result:
+
+```text
+HTTP/1.0 403 Forbidden
+{"error": "Missing or invalid data maintenance request header"}
+```
+
+### Disallowed Origin
+
+Request used:
+
+```text
+Origin: http://evil.example
+```
+
+Result:
+
+```text
+HTTP/1.0 403 Forbidden
+{"error": "Origin is not allowed for data maintenance requests"}
+```
+
+### Invalid Instrument
+
+Request:
+
+```text
+dry_run instrument=YM
+```
+
+Result:
+
+```text
+{"error": "Invalid instrument: YM"}
+```
+
+### No-Data / Weekend Range
+
+Request:
+
+```text
+dry_run NQ 2026-06-20T09:30:00 -> 2026-06-20T10:00:00
+```
+
+Result:
+
+```text
+ok: true
+downloaded_normalized_rows: 0
+candidate_rows_after_dedupe: 0
+would_insert_rows: 0
+databento warnings:
+- No data found for the request you submitted. The request time range falls entirely inside a weekend.
+write_status: dry-run; no DB changes were made
+```
+
+Observation:
+
+- Weekend/no-data range is not a hard failure.
+- Output is explicit enough to distinguish no market data from API/server failure.
+- The script emitted an unclosed asyncio event loop ResourceWarning after completion; it did not affect return code or data state. This can be cleaned later but is not a Step 341 blocker.
+
+### Busy Lock
+
+Two maintenance dry-runs were started in parallel.
+
+Result:
+
+```text
+ok: false
+returncode: 423
+command: data_maintenance busy
+running_action: dry_run
+```
+
+Decision:
+
+- The mutex works.
+- Operational docs should tell users to wait for the current action to finish or restart API only if the job is known stale.
 
 ## Step 341.7 - Closeout Docs
 
