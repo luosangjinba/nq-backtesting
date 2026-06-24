@@ -202,6 +202,13 @@ Remote browser operation:
 - Browser upload of arbitrary K-line CSV into DuckDB is deferred to a future external/unsupported-instrument workflow.
 - If a maintenance action fails from a remote computer, copy the Output block. It should include the action, request URL, HTTP status, parse/network error, and raw backend output.
 
+Automation boundary:
+
+- Do not enable cron/systemd timer writes yet.
+- Manual status/verify/dry-run is allowed.
+- Real writes should remain manual until the backup/restore gate is complete.
+- A future read-only freshness verification timer can be considered before any write timer.
+
 ## Backup Runbook
 
 Before daily multi-device use, back up the server canonical data:

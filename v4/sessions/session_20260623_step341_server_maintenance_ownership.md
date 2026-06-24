@@ -322,7 +322,34 @@ Decision:
 
 ## Step 341.5 - Decide Automation Boundary
 
-Status: pending.
+Status: complete.
+
+Decision:
+
+```text
+Do not enable cron/systemd timer automation yet.
+```
+
+Current operating model:
+
+1. Run maintenance manually from the trusted server/Data Maintenance page.
+2. Prefer status/verify/dry-run first.
+3. Confirm a recent backup exists before any real write.
+4. Run guarded write only with the explicit confirmation text.
+5. Run `server_status.py` and a focused API/page spot check after write.
+
+Rationale:
+
+- The current server baseline is intentionally conservative.
+- Step 342 backup/restore gate is not complete yet.
+- Refresh Range and Economic Calendar writes are powerful enough that automation should wait for backup cadence and rollback drills.
+- VIX freshness currently has a warning; automatic writes should not be introduced while freshness policy is still being tuned.
+
+Future automation candidates:
+
+- A daily post-market freshness verify job can be considered first because it is read-only.
+- Write automation should wait until Step 342 backup/restore gate is complete.
+- Any timer should write logs to a known location and surface failures through `server_status.py` or a future status panel.
 
 ## Step 341.6 - Failure-Mode Smoke
 

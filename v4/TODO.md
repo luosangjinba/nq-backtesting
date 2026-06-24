@@ -1273,7 +1273,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 341.2: Confirm admin boundary。确认 `data-maintenance.html` 是 trusted-admin 功能；当前单用户 LAN baseline 以网络/操作者作为边界，未来多用户或公网前必须 admin-only。已写入 session 与 runbook。
   - [x] Step 341.3: Validate Refresh Range production flow。已对 NQ/ES `2026-06-19T09:30:00` -> `10:00:00` 执行 dry-run、preflight、guarded no-op write、post-write `server_status.py` 和 `/v4/bars` spot check；两者 `would_insert_rows: 0`、`inserted_rows: 0`、server status OK。并确认 maintenance action 需串行执行，busy lock 正常返回 423。
   - [x] Step 341.4: Validate calendar/VIX/regime flow。已执行 economic calendar verify 与 `2026-06-01 -> 2026-06-07` dry-run，CSV 无 malformed/duplicate，dry-run `would_append_rows: 0`；`verify_data_freshness.py --api-url http://192.168.1.111:8766` 无 hard errors，VIX latest `2026-06-12` 有 stale warning，作为后续 freshness 维护事项记录。
-  - [ ] Step 341.5: Decide automation boundary。决定是否暂缓 cron/systemd timer；若启用，先只做明确可回退的 refresh job。
+  - [x] Step 341.5: Decide automation boundary。决定暂缓 cron/systemd timer 写入自动化；当前只允许手动 status/verify/dry-run，真实 write 需先确认备份并手动执行，Step 342 backup/restore gate 完成后再考虑自动化；可优先考虑未来只读 freshness verify timer。
   - [ ] Step 341.6: Failure-mode smoke。覆盖 API unreachable、bad origin、invalid input、no-data range、busy lock，确认输出可复制诊断。
   - [ ] Step 341.7: Closeout docs。更新 runbook，明确“正常使用只在 server 执行 refresh/import”。
 
