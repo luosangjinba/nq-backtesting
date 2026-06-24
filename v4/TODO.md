@@ -1297,7 +1297,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 344: PDA annotations server persistence pilot。目标是用 PDA 作为第一个核心研究对象，验证 `user_id=default` 的 instrument-scoped workspace persistence、localStorage migration、渲染恢复和备份纳入。
   - [x] Step 344.1: Freeze PDA server schema。已冻结 `pda-annotations` 为 instrument-scoped workspace domain，存储在 `v4/data/users/default/workspaces/default/instruments/<instrument>/pda-annotations.json`；payload 保留现有 PDA annotation 对象数组，`record_id=annotation.id`，删除采用全量 document replacement，source pane metadata 只作为描述信息。记录见 `v4/sessions/session_20260624_step344_pda_server_persistence_pilot.md`。
   - [x] Step 344.2: Add PDA workspace endpoints。已把 `pda-annotations` 加入 `/v4/workspace` 白名单并标记为 instrument-scoped，支持 `GET /v4/workspace?domain=pda-annotations&instrument=NQ` 与 `PUT /v4/workspace` 全量 document replacement；server 仍强制 `user_id/workspace_id=default`，并在 `workspace-api-smoke.py` 覆盖写入/读取。
-  - [ ] Step 344.3: Wrap existing persistence module。让 `pda-persistence.js` 可选择 server-backed mode；保留 localStorage fallback 和导出 JSON。
+  - [x] Step 344.3: Wrap existing persistence module。`pda-persistence.js` 现在 localStorage-first、server best-effort：启动先恢复本地，再异步读取 server；server 有 PDA document 则覆盖 store 并刷新 localStorage，server 缺失且本地有数据则上传本地 PDA；Review JSON/export/import 不变。新增 `pda-persistence-smoke.js` 覆盖。
   - [ ] Step 344.4: Migration UI/command。提供从 localStorage PDA 导入 server default workspace 的一次性路径，并提示先导出 JSON。
   - [ ] Step 344.5: Two-device PDA smoke。设备 A 创建/编辑 PDA，设备 B reload 后看到同一对象；No Sync/pane source metadata 不作为用户边界。
   - [ ] Step 344.6: Backup/restore inclusion。确认 PDA server data 纳入 Step 342 的备份/restore smoke。

@@ -145,7 +145,33 @@ Smoke coverage:
 
 ## Step 344.3 - Wrap Existing Persistence Module
 
-Status: pending.
+Status: complete.
+
+Implemented in `v4/src/pda/pda-persistence.js`:
+
+- Existing localStorage persistence remains first-class.
+- `saveAnnotations()` writes localStorage first, then best-effort saves to server.
+- `restoreAnnotations()` reads localStorage immediately, then asynchronously syncs server unless disabled.
+- `syncAnnotationsFromServer(instrument)` loads server PDA annotations when found.
+- If the server document is missing and localStorage has PDA annotations, local annotations are seeded to server.
+- Draft annotations are filtered from both local and server persistence.
+
+New exports:
+
+- `getPdaWorkspaceDomain()`
+- `getPdaStorageKeyBase()`
+- `saveAnnotationsToServer(instrument, payload, options)`
+- `syncAnnotationsFromServer(instrument, options)`
+
+Fallback:
+
+- If `fetch` is unavailable or the server request fails, localStorage remains active.
+- Existing PDA Review JSON export/import is unchanged.
+
+Smoke coverage:
+
+- Added `v4/tests/pda-persistence-smoke.js`.
+- The smoke covers local restore, server PUT payload, server restore into store/localStorage, and local-to-server migration when the server document is missing.
 
 ## Step 344.4 - Migration UI/Command
 
