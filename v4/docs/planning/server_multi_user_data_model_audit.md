@@ -224,6 +224,30 @@ JSON files are simpler to start but need file locking and backup discipline. Rel
 - Design any new server-side workspace persistence around `user_id = default`.
 - Keep Data Maintenance as trusted-admin functionality.
 
+## Step 343 Default Workspace Foundation
+
+The first server-side user-private persistence foundation has been added for single-user server mode:
+
+```text
+user_id = default
+workspace_id = default
+storage = v4/data/users/default/workspaces/default
+```
+
+Implemented scope:
+
+- `GET /v4/workspace?domain=display-preferences`
+- `PUT /v4/workspace`
+- Per-user JSON document storage with atomic replace.
+- `display-preferences` as the first low-risk server-backed domain.
+- localStorage remains the immediate fallback and migration source.
+
+Current limitation:
+
+- Conflict handling is last-write-wins.
+- Only `display-preferences` is enabled.
+- PDA, Segment, Order Setup, Live Record, notes, and other review objects remain browser-local until their later migration steps.
+
 ## Next Practical Step
 
 Before coding multi-user support, choose the first persistence domain to serverize for the default user.

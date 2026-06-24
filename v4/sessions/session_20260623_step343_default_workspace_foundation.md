@@ -286,4 +286,32 @@ Future upgrade path:
 
 ## Step 343.7 - Tests and Closeout
 
-Status: pending.
+Status: complete.
+
+Validation commands:
+
+```bash
+python3 -m py_compile v4/v4_api.py
+python3 v4/tests/workspace-api-smoke.py
+node v4/tests/display-preferences-smoke.js
+node v4/tests/api-base-smoke.js
+```
+
+Validated:
+
+- Workspace helper returns missing default-user document without error.
+- Workspace helper writes and reads `display-preferences` under a temporary data directory.
+- Client cannot write arbitrary domains.
+- Non-instrument-scoped `display-preferences` rejects an instrument.
+- Payload must be a JSON object.
+- Display preferences can load a server workspace document into UI/localStorage.
+- Display preferences can PUT the current payload through the workspace client.
+
+Step 343 conclusion:
+
+```text
+The first default-user server workspace persistence foundation exists.
+It is intentionally limited to display-preferences.
+LocalStorage remains the immediate fallback and rollback path.
+PDA/Order/Live migration remains deferred to later steps.
+```

@@ -1285,14 +1285,14 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 342.5: Add pre-write guard note。已把真实 maintenance write 前的备份门槛写入 session/runbook：操作者必须能指出最近可用备份、备份位置/时间/label、当前备份机制至少通过一次 restore smoke，且支持 dry-run/preflight 的写动作需先 dry-run/preflight。
   - [x] Step 342.6: Closeout docs。已更新 migration goal 与 server runbook，写明短期 backup cadence、restore smoke 命令、pre-write guard、rollback 条件，以及 `/tmp` 备份只用于 smoke、不作为生产持久备份。
 
-- [ ] Step 343: Default-user server workspace persistence foundation。目标是不做登录，但先把 server-side user-private persistence 设计成 `user_id=default` / `workspace_id=default`，为以后多用户降风险。
+- [x] Step 343: Default-user server workspace persistence foundation。已完成 default-user workspace JSON 存储、`GET/PUT /v4/workspace` contract/API、`current_user_id() -> default` 边界、`display-preferences` 首个低风险迁移域、localStorage 迁移/回退路径、last-write-wins 规则和 smoke 验证。
   - [x] Step 343.1: Choose storage backend。第一版选择 `v4/data/users/default/workspaces/default` 下的 per-user JSON documents；理由是便于检查、天然纳入 Step 342 `v4/data` 备份、避免把 user workspace 写入大型市场数据 DuckDB。记录见 `v4/sessions/session_20260623_step343_default_workspace_foundation.md`。
   - [x] Step 343.2: Define workspace API contract。已定义 `GET /v4/workspace?domain=...` 与 `PUT /v4/workspace` contract；响应包含 `user_id=default`、`workspace_id=default`、domain、instrument、version、savedAt、revision、payload，且第一版只允许显式 safe domains，避免变成任意文件写入器。
   - [x] Step 343.3: Add server auth placeholder。已在 `v4_api.py` 增加 `current_user_id() -> "default"` / `current_workspace_id() -> "default"`，并实现 `GET/PUT /v4/workspace` 的 JSON document 读写；客户端不能传 user/workspace，domain 使用白名单，Data Maintenance 仍保持独立 admin-only guard。
   - [x] Step 343.4: Pick first low-risk domain。第一批迁移域选择 `display-preferences`，只包含 UI scale、chart text scale、inspector density；不先动 PDA/Order/Live，也暂不动 pane/comparison workspace，降低首个 server-backed preference 的风险。
   - [x] Step 343.5: Build localStorage migration path。`display-preferences` 现在启动时先应用 localStorage，再异步读取 server workspace；server 有记录则覆盖并刷新 localStorage，server 缺失但本地有记录则上传本地 payload，后续设置变更 localStorage first、server best-effort。
   - [x] Step 343.6: Conflict and locking rule。第一版明确采用 last-write-wins；服务端用进程内 `_WORKSPACE_LOCK` 与 temp file + `os.replace` 做原子替换，响应提供 `savedAt/revision`，但客户端暂不传 expected revision，也不做多设备 merge。
-  - [ ] Step 343.7: Tests and closeout。增加 API/storage smoke，确认刷新浏览器、换设备后首个低风险 domain 可恢复。
+  - [x] Step 343.7: Tests and closeout。新增 `v4/tests/workspace-api-smoke.py` 并运行后端 storage/API helper smoke、前端 display-preferences server sync smoke、API base smoke 和 `py_compile`；确认首个低风险 domain 可 server-backed 保存/恢复，同时保留 localStorage fallback。
 
 - [ ] Step 344: PDA annotations server persistence pilot。目标是用 PDA 作为第一个核心研究对象，验证 `user_id=default` 的 instrument-scoped workspace persistence、localStorage migration、渲染恢复和备份纳入。
   - [ ] Step 344.1: Freeze PDA server schema。定义 annotation payload、instrument、record_id、created/updated/deleted、source pane metadata 和 version。

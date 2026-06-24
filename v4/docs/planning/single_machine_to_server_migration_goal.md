@@ -229,6 +229,15 @@ Exit criteria:
 
 - The first user-private domain can survive browser/device changes because it is server-backed.
 
+Step 343 baseline:
+
+- `display-preferences` is the first server-backed user-private domain.
+- The server owns it under `v4/data/users/default/workspaces/default`.
+- The API exposes `GET/PUT /v4/workspace` for explicit allowed domains.
+- Startup applies localStorage immediately, then asynchronously loads server preferences.
+- Missing server data can be seeded from localStorage.
+- localStorage remains the rollback path.
+
 ## Rollback Strategy
 
 Before switching daily work to the server:
