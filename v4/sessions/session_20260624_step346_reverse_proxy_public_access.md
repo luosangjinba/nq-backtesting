@@ -122,12 +122,66 @@ bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com
 git diff --check
 ```
 
-## Next Step
+## Step 346.5 - One-Command Deploy Apply Mode
 
-Step 346.5 should add apply mode to the deploy script:
+Status: complete.
 
-```text
-v4/deploy/install_reverse_proxy.sh
+Command:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh --apply --yes --domain your-domain.example
 ```
 
-Apply mode should install or render the Caddyfile, install systemd service files, reload systemd, enable/restart services, and reload Caddy.
+Behavior:
+
+- apply requires both `--apply` and `--yes`;
+- renders Caddyfile with the selected domain and optional ACME email;
+- renders systemd services with the current repo path and selected service user;
+- installs Caddy through `apt-get` when Caddy is missing, unless `--skip-caddy-install` is set;
+- installs `/etc/caddy/Caddyfile`;
+- installs `/etc/systemd/system/v4-api.service` and `/etc/systemd/system/v4-web.service`;
+- runs `systemctl daemon-reload`;
+- enables and restarts V4 API/web services and Caddy.
+- backs up an existing `/etc/caddy/Caddyfile` to `/etc/caddy/Caddyfile.v4-backup-YYYYMMDDHHMMSS` before replacing it.
+
+## Step 346.6 - Health Checks And Rollback Hints
+
+Status: complete.
+
+Apply mode now checks:
+
+```text
+https://domain/v4/health
+https://domain/index.html
+```
+
+It also prints operator commands for:
+
+- service status;
+- API/web/Caddy logs;
+- disabling V4 services;
+- removing V4 systemd units;
+- daemon-reload after rollback;
+- restoring the Caddyfile backup created by the script, when one existed before apply.
+
+Validation:
+
+```text
+bash v4/deploy/install_reverse_proxy.sh --dry-run --domain example.com
+bash v4/deploy/install_reverse_proxy.sh --help
+bash v4/deploy/install_reverse_proxy.sh --apply --domain example.com  # expected refusal without --yes
+bash v4/deploy/install_reverse_proxy.sh --apply --yes --skip-caddy-install --domain example.com  # expected pre-write refusal when Caddy is missing
+git diff --check
+```
+
+The real `--apply` path was implemented but not run in this workstation session because it writes `/etc/caddy`, `/etc/systemd/system`, may install packages, and needs the real public domain.
+
+## Next Step
+
+Step 346.7 should close the reverse-proxy documentation:
+
+```text
+v4/docs/deploy/SERVER_RUNTIME_HARDENING.md
+```
+
+The closeout should document dry-run/apply usage, firewall/port forwarding expectations, health checks, and the current single-user security boundary.
