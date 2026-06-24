@@ -98,7 +98,50 @@ Rollback:
 
 ## Step 344.2 - Add PDA Workspace Endpoints
 
-Status: pending.
+Status: complete.
+
+Implementation:
+
+- Added `pda-annotations` to `ALLOWED_WORKSPACE_DOMAINS` in `v4/v4_api.py`.
+- Marked it as instrument-scoped:
+
+```python
+"pda-annotations": {"instrumentScoped": True}
+```
+
+The existing Step 343 workspace endpoints now support:
+
+```text
+GET /v4/workspace?domain=pda-annotations&instrument=NQ
+PUT /v4/workspace
+```
+
+Write request shape:
+
+```json
+{
+  "domain": "pda-annotations",
+  "instrument": "NQ",
+  "version": 1,
+  "payload": {
+    "version": 1,
+    "savedAt": "ISO timestamp",
+    "instrument": "NQ",
+    "annotations": []
+  }
+}
+```
+
+Validation:
+
+- `instrument` is required for `pda-annotations`.
+- The server still controls `user_id=default` and `workspace_id=default`.
+- Unsupported domains and invalid instruments are rejected by the shared workspace guard.
+- Full-document replacement remains the write strategy.
+
+Smoke coverage:
+
+- `v4/tests/workspace-api-smoke.py` now writes and reads an NQ `pda-annotations` workspace document.
 
 ## Step 344.3 - Wrap Existing Persistence Module
 

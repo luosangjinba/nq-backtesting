@@ -62,8 +62,41 @@ with tempfile.TemporaryDirectory(prefix="v4-workspace-smoke-") as temp_dir:
     loaded = v4_api.read_workspace_document("display-preferences")
     assert loaded["payload"]["preferences"]["uiScale"] == "125"
 
+    pda_saved = v4_api.write_workspace_document(
+        {
+            "domain": "pda-annotations",
+            "instrument": "NQ",
+            "version": 1,
+            "payload": {
+                "version": 1,
+                "savedAt": "2026-06-23T20:00:00Z",
+                "instrument": "NQ",
+                "annotations": [
+                    {
+                        "id": "manual_bsl_1",
+                        "type": "bsl",
+                        "price": 30400.25,
+                        "sourceChartId": "comparison-window",
+                        "sourceInstrument": "NQ",
+                        "sourceTimeframe": 1,
+                        "createdAt": 1780000000000,
+                        "updatedAt": 1780000000000,
+                    }
+                ],
+            },
+        }
+    )
+    assert pda_saved["domain"] == "pda-annotations"
+    assert pda_saved["instrument"] == "NQ"
+    assert pda_saved["user_id"] == "default"
+    assert pda_saved["workspace_id"] == "default"
+
+    pda_loaded = v4_api.read_workspace_document("pda-annotations", "NQ")
+    assert pda_loaded["payload"]["annotations"][0]["sourceChartId"] == "comparison-window"
+
     expect_value_error(lambda: v4_api.read_workspace_document("../../bad"))
     expect_value_error(lambda: v4_api.read_workspace_document("display-preferences", "NQ"))
+    expect_value_error(lambda: v4_api.read_workspace_document("pda-annotations"))
     expect_value_error(
         lambda: v4_api.write_workspace_document(
             {
