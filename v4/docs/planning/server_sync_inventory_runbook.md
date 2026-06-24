@@ -209,6 +209,14 @@ Automation boundary:
 - Real writes should remain manual until the backup/restore gate is complete.
 - A future read-only freshness verification timer can be considered before any write timer.
 
+Step 341 maintenance ownership closeout:
+
+- ES/NQ Refresh Range production path was validated with dry-run, preflight, guarded no-op write, post-write `server_status.py`, and `/v4/bars` spot checks.
+- Economic Calendar verify and dry-run were validated without CSV writes.
+- VIX/futures freshness verification returned no hard errors; VIX latest date was stale and remains an operational freshness warning.
+- Failure modes are actionable: missing header and bad origin return 403, invalid instrument is explicit, weekend/no-data dry-run reports zero candidates plus Databento warning, and concurrent maintenance returns busy `423`.
+- Maintenance actions should be run serially. If busy persists unexpectedly, restart API only when the active job is known stale.
+
 ## Backup Runbook
 
 Before daily multi-device use, back up the server canonical data:

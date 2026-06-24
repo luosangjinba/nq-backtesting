@@ -1268,14 +1268,14 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [ ] Step 340.6: Two-device smoke。两台设备打开同一 server URL，验证同一 date range、bars latest、economic calendar、Data Maintenance page-host API URL。
   - [ ] Step 340.7: Closeout docs。把正式 URL、canonical path、启动命令、健康检查命令写入 runbook/session。
 
-- [ ] Step 341: Server maintenance and refresh ownership。目标是把 Refresh Range、economic calendar、VIX/daily regime 等维护动作收敛为 server-only 日常流程，并限制 Data Maintenance 作为 trusted admin 能力。
+- [x] Step 341: Server maintenance and refresh ownership。目标是把 Refresh Range、economic calendar、VIX/daily regime 等维护动作收敛为 server-only 日常流程，并限制 Data Maintenance 作为 trusted admin 能力。已完成 action inventory、trusted-admin 边界、ES/NQ Refresh Range dry-run/preflight/no-op write/post-write 验证、Economic Calendar verify/dry-run、freshness verify、失败模式 smoke，并决定暂缓写入自动化直到 Step 342 backup/restore gate 完成。记录见 `v4/sessions/session_20260623_step341_server_maintenance_ownership.md`。
   - [x] Step 341.1: Inventory maintenance actions。已审计 `v4_api.py` 与 `data-maintenance.html`，将 maintenance actions 分为 read-only/status、dry-run/preview、write/mutating、runtime control；记录见 `v4/sessions/session_20260623_step341_server_maintenance_ownership.md`。
   - [x] Step 341.2: Confirm admin boundary。确认 `data-maintenance.html` 是 trusted-admin 功能；当前单用户 LAN baseline 以网络/操作者作为边界，未来多用户或公网前必须 admin-only。已写入 session 与 runbook。
   - [x] Step 341.3: Validate Refresh Range production flow。已对 NQ/ES `2026-06-19T09:30:00` -> `10:00:00` 执行 dry-run、preflight、guarded no-op write、post-write `server_status.py` 和 `/v4/bars` spot check；两者 `would_insert_rows: 0`、`inserted_rows: 0`、server status OK。并确认 maintenance action 需串行执行，busy lock 正常返回 423。
   - [x] Step 341.4: Validate calendar/VIX/regime flow。已执行 economic calendar verify 与 `2026-06-01 -> 2026-06-07` dry-run，CSV 无 malformed/duplicate，dry-run `would_append_rows: 0`；`verify_data_freshness.py --api-url http://192.168.1.111:8766` 无 hard errors，VIX latest `2026-06-12` 有 stale warning，作为后续 freshness 维护事项记录。
   - [x] Step 341.5: Decide automation boundary。决定暂缓 cron/systemd timer 写入自动化；当前只允许手动 status/verify/dry-run，真实 write 需先确认备份并手动执行，Step 342 backup/restore gate 完成后再考虑自动化；可优先考虑未来只读 freshness verify timer。
   - [x] Step 341.6: Failure-mode smoke。已覆盖 missing maintenance header、bad origin、invalid instrument、weekend/no-data range 和 busy lock；输出包含 403 guard 错误、明确 invalid instrument、weekend no-data warning、`would_insert_rows: 0`、busy `returncode: 423`。
-  - [ ] Step 341.7: Closeout docs。更新 runbook，明确“正常使用只在 server 执行 refresh/import”。
+  - [x] Step 341.7: Closeout docs。已更新 runbook，明确“正常使用只在 server 执行 refresh/import”、Data Maintenance 是 trusted-admin 功能、writes 保持手动且需备份门槛，下一步建议 Step 342 backup/restore/rollback gate。
 
 - [ ] Step 342: Backup, restore, and rollback gate。目标是在依赖 server 日常使用前，把备份/恢复从“有脚本”升级为“验收门槛”。
   - [ ] Step 342.1: Select backup destination。确定备份目录、外部磁盘/网络位置、保留策略；必须在 live data directory 之外。

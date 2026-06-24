@@ -441,4 +441,43 @@ Decision:
 
 ## Step 341.7 - Closeout Docs
 
-Status: pending.
+Status: complete.
+
+Updated:
+
+- `v4/TODO.md`
+- `v4/docs/planning/server_sync_inventory_runbook.md`
+- this session file
+
+## Closeout
+
+Step 341 is complete.
+
+Final operating decision:
+
+```text
+Server maintenance runs on the server only.
+Data Maintenance is trusted-admin functionality.
+Writes remain manual and guarded.
+Automation writes are deferred until backup/restore gate completion.
+```
+
+Validated:
+
+- Action inventory and write boundaries.
+- Admin boundary.
+- ES/NQ Refresh Range dry-run/preflight/no-op write/post-write verification.
+- Economic calendar verify/dry-run.
+- VIX/futures freshness verify, with VIX stale warning recorded.
+- Failure modes: missing header, bad origin, invalid instrument, weekend/no-data, busy lock.
+
+Next recommended step:
+
+```text
+Step 342 - Backup, restore, and rollback gate
+```
+
+Reason:
+
+- Step 341 deliberately keeps writes manual until backup/restore is a verified gate.
+- Step 342 should make backup destination, restore smoke, and rollback drill concrete before adding automation or server-side workspace persistence.
