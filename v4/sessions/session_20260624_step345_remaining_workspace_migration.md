@@ -194,4 +194,23 @@ Conclusion:
 
 ## Step 345.7 - Security Hardening Gate
 
-Status: pending.
+Status: complete.
+
+Gate doc:
+
+```text
+v4/docs/deploy/SECURITY_HARDENING_GATE.md
+```
+
+Implemented:
+
+- Documented current allowed deployment: trusted single-user LAN/VPN only.
+- Documented current protections: maintenance header/origin checks, command allowlist, maintenance lock, workspace domain allowlist, default-user storage path.
+- Documented required public/multi-user gates: HTTPS, auth/session identity, CSRF, admin-only Data Maintenance, upload limits, per-user path isolation, per-user backup/restore, audit log, non-wildcard CORS, rate limits, user-uploaded market data policy.
+- Updated `SERVER_RUNTIME_HARDENING.md` to point at the gate and reflect current server-backed workspace state.
+
+Validation:
+
+```text
+Docs-only closeout; no runtime validation needed.
+```

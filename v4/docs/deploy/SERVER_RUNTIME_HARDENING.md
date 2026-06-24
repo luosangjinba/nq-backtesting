@@ -8,7 +8,7 @@ This document is the Step 335 operator runbook.
 
 These files are repo templates. Installing services still requires a manual server command.
 
-Do not expose these ports to the public internet without a later HTTPS/auth step.
+Do not expose these ports to the public internet without a later HTTPS/auth step. The hard gate is documented in `v4/docs/deploy/SECURITY_HARDENING_GATE.md`.
 
 ## Environment
 
@@ -107,8 +107,9 @@ sudo chown -R "$USER":"$USER" /var/backups/trading
 - Data Maintenance runs on `http://SERVER_HOST:8001/data-maintenance.html`.
 - Refresh/write actions should run on the server only.
 - Do not run refresh scripts from client machines during normal use.
-- UI/workspace/localStorage state remains device-local.
+- Server-backed workspace data is stored under `v4/data/users/default`; remaining histories/layout conveniences can stay device-local.
 - Use Display Setup -> UI Scale for per-device screen-size adjustment.
+- This runtime remains a trusted single-user LAN/VPN deployment until HTTPS/auth/CSRF/admin gates are complete.
 
 ## Manual Refresh Commands
 
