@@ -15,6 +15,8 @@ Options:
   --repo PATH            Repository root. Default: auto-detected from this script.
   --email EMAIL          Optional ACME account email to report in the plan.
   --service-user USER    systemd service user. Default: current user or SUDO_USER.
+  --basic-auth-user USER Enable Caddy HTTP Basic Auth for all public routes.
+  --basic-auth-hash HASH Hashed password from: caddy hash-password --plaintext '...'
   --skip-caddy-install   Do not install Caddy when it is missing.
   --http-only            Temporary diagnostic mode: serve HTTP only and skip ACME.
   --help                 Show this help.
@@ -78,6 +80,35 @@ detect_caddy_copr_chroot() {
   esac
 }
 
+detect_caddy_basic_auth_directive() {
+  local version_raw=""
+  local version=""
+  local major=""
+  local minor=""
+
+  if ! command -v caddy >/dev/null 2>&1; then
+    printf 'basic_auth'
+    return
+  fi
+
+  version_raw="$(caddy version 2>/dev/null | awk '{print $1}')"
+  version="${version_raw#v}"
+  major="${version%%.*}"
+  minor="${version#*.}"
+  minor="${minor%%.*}"
+
+  if [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ ]]; then
+    if (( major > 2 || (major == 2 && minor >= 8) )); then
+      printf 'basic_auth'
+      return
+    fi
+    printf 'basicauth'
+    return
+  fi
+
+  printf 'basic_auth'
+}
+
 install_caddy() {
   if command -v apt-get >/dev/null 2>&1; then
     run_step sudo_cmd apt-get update
@@ -108,18 +139,34 @@ install_caddy() {
 render_caddyfile() {
   local output="$1"
   local site_address="$domain"
+  local auth_block=""
   if [[ "$http_only" -eq 1 ]]; then
     site_address="http://$domain"
   fi
+  if [[ -n "$basic_auth_user" ]]; then
+    auth_block="$(printf '  %s {\n    %s %s\n  }\n' "$basic_auth_directive" "$basic_auth_user" "$basic_auth_hash")"
+  fi
+  render_caddy_template() {
+    local line=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" == '{$V4_BASIC_AUTH_BLOCK}' ]]; then
+        if [[ -n "$auth_block" ]]; then
+          printf '%s\n' "$auth_block"
+        fi
+        continue
+      fi
+      printf '%s\n' "${line//\{\$V4_PUBLIC_DOMAIN\}/$site_address}"
+    done < "$caddy_template"
+  }
   if [[ -n "$email" ]]; then
     {
       printf '{\n'
       printf '  email %s\n' "$email"
       printf '}\n\n'
-      sed 's|{\$V4_PUBLIC_DOMAIN}|'"$site_address"'|g' "$caddy_template"
+      render_caddy_template
     } > "$output"
   else
-    sed 's|{\$V4_PUBLIC_DOMAIN}|'"$site_address"'|g' "$caddy_template" > "$output"
+    render_caddy_template > "$output"
   fi
 }
 
@@ -144,6 +191,9 @@ skip_caddy_install=0
 http_only=0
 service_user="${SUDO_USER:-$(id -un)}"
 service_group=""
+basic_auth_user=""
+basic_auth_hash=""
+basic_auth_directive=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -179,6 +229,16 @@ while [[ $# -gt 0 ]]; do
       service_user="$2"
       shift 2
       ;;
+    --basic-auth-user)
+      [[ $# -ge 2 ]] || die "--basic-auth-user requires a value"
+      basic_auth_user="$2"
+      shift 2
+      ;;
+    --basic-auth-hash)
+      [[ $# -ge 2 ]] || die "--basic-auth-hash requires a value"
+      basic_auth_hash="$2"
+      shift 2
+      ;;
     --skip-caddy-install)
       skip_caddy_install=1
       shift
@@ -205,6 +265,11 @@ fi
 [[ -n "$domain" ]] || die "--domain is required"
 [[ "$domain" != *"://"* ]] || die "--domain should be a hostname, not a URL"
 [[ "$domain" != *"/"* ]] || die "--domain should not include a path"
+if [[ -n "$basic_auth_user" || -n "$basic_auth_hash" ]]; then
+  [[ -n "$basic_auth_user" && -n "$basic_auth_hash" ]] || die "--basic-auth-user and --basic-auth-hash must be provided together"
+  [[ "$http_only" -ne 1 ]] || die "basic auth is not allowed with --http-only; use HTTPS mode first"
+  [[ "$basic_auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "--basic-auth-user may contain only letters, numbers, dot, underscore, and hyphen"
+fi
 [[ -d "$repo_root/.git" ]] || die "repo path does not look like a git checkout: $repo_root"
 service_group="$(id -gn "$service_user" 2>/dev/null || true)"
 [[ -n "$service_group" ]] || die "cannot determine primary group for service user: $service_user"
@@ -238,6 +303,11 @@ if [[ -n "$email" ]]; then
   info "ACME email: $email"
 else
   info "ACME email: not set"
+fi
+if [[ -n "$basic_auth_user" ]]; then
+  info "basic auth: enabled for user $basic_auth_user"
+else
+  info "basic auth: disabled"
 fi
 printf '\n'
 
@@ -286,6 +356,10 @@ else
     warn "no supported Caddy package manager was detected"
   fi
 fi
+basic_auth_directive="$(detect_caddy_basic_auth_directive)"
+if [[ -n "$basic_auth_user" ]]; then
+  info "Caddy auth directive: $basic_auth_directive"
+fi
 
 printf '\n'
 printf 'Planned local bindings\n'
@@ -297,6 +371,9 @@ if [[ "$http_only" -eq 1 ]]; then
   printf 'HTTPS: disabled in --http-only mode\n'
 else
   printf 'HTTPS: 443 -> Caddy\n'
+fi
+if [[ -n "$basic_auth_user" ]]; then
+  printf 'Auth:  Caddy HTTP Basic Auth protects all public routes\n'
 fi
 
 printf '\n'
@@ -337,6 +414,9 @@ printf 'systemctl reload caddy\n'
 if [[ "$http_only" -eq 1 ]]; then
   printf 'curl -fsS http://%s/v4/health\n' "$domain"
   printf 'curl -fsS http://%s/index.html\n' "$domain"
+elif [[ -n "$basic_auth_user" ]]; then
+  printf 'curl -fsS https://%s/v4/health # expected 401 without credentials\n' "$domain"
+  printf 'curl -fsS https://%s/index.html # expected 401 without credentials\n' "$domain"
 else
   printf 'curl -fsS https://%s/v4/health\n' "$domain"
   printf 'curl -fsS https://%s/index.html\n' "$domain"
@@ -354,6 +434,11 @@ fi
 
 if ! command -v caddy >/dev/null 2>&1; then
   install_caddy
+fi
+
+if [[ -n "$basic_auth_user" ]]; then
+  basic_auth_directive="$(detect_caddy_basic_auth_directive)"
+  render_caddyfile "$rendered_caddy"
 fi
 
 if command -v caddy >/dev/null 2>&1; then
@@ -384,15 +469,30 @@ else
   api_health="https://$domain/v4/health"
   web_health="https://$domain/index.html"
 fi
-if curl -fsS "$api_health" >/dev/null; then
-  ok "$api_health"
+if [[ -n "$basic_auth_user" ]]; then
+  api_status="$(curl -s -o /dev/null -w '%{http_code}' "$api_health" || true)"
+  web_status="$(curl -s -o /dev/null -w '%{http_code}' "$web_health" || true)"
+  if [[ "$api_status" == "401" ]]; then
+    ok "$api_health requires authentication"
+  else
+    warn "$api_health expected 401 without credentials, got ${api_status:-curl-failed}"
+  fi
+  if [[ "$web_status" == "401" ]]; then
+    ok "$web_health requires authentication"
+  else
+    warn "$web_health expected 401 without credentials, got ${web_status:-curl-failed}"
+  fi
 else
-  warn "$api_health failed"
-fi
-if curl -fsS "$web_health" >/dev/null; then
-  ok "$web_health"
-else
-  warn "$web_health failed"
+  if curl -fsS "$api_health" >/dev/null; then
+    ok "$api_health"
+  else
+    warn "$api_health failed"
+  fi
+  if curl -fsS "$web_health" >/dev/null; then
+    ok "$web_health"
+  else
+    warn "$web_health failed"
+  fi
 fi
 
 printf '\n'

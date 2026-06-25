@@ -29,6 +29,11 @@ Confirm externally:
 - no public forwarding is configured for `8001/tcp` or `8766/tcp`;
 - `v4/.env.local` uses `V4_API_HOST=127.0.0.1`;
 - `V4_ALLOWED_WEB_ORIGINS=https://your-domain.example`.
+- If public access is not IP-restricted, generate a Caddy Basic Auth hash and
+  deploy with `--basic-auth-user USER --basic-auth-hash HASH`.
+
+Do not enable Basic Auth for `--http-only` IP testing. Basic Auth credentials
+must only be used over HTTPS.
 
 ## Apply
 
@@ -37,6 +42,21 @@ Run on the server:
 ```bash
 bash v4/deploy/install_reverse_proxy.sh --apply --yes --domain your-domain.example
 ```
+
+Recommended single-user public deployment:
+
+```bash
+caddy hash-password --plaintext 'your-strong-password'
+bash v4/deploy/install_reverse_proxy.sh \
+  --apply \
+  --yes \
+  --domain your-domain.example \
+  --basic-auth-user leo \
+  --basic-auth-hash '$2a$14$...'
+```
+
+The script automatically renders the correct Caddy directive name for the
+installed Caddy version.
 
 Expected:
 
@@ -53,6 +73,13 @@ Public checks:
 ```bash
 curl -fsS https://your-domain.example/v4/health
 curl -fsS https://your-domain.example/index.html
+```
+
+If Basic Auth is enabled, unauthenticated public checks should return `401`:
+
+```bash
+curl -i https://your-domain.example/v4/health
+curl -i https://your-domain.example/index.html
 ```
 
 Local service checks:

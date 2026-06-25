@@ -123,6 +123,41 @@ bash v4/deploy/install_reverse_proxy.sh \
   --service-user leo
 ```
 
+Recommended public single-user protection is HTTPS plus Caddy Basic Auth. Do not
+enable Basic Auth in `--http-only` mode because credentials would cross the
+network without TLS.
+
+Generate a password hash on the server:
+
+```bash
+caddy hash-password --plaintext 'your-strong-password'
+```
+
+Then deploy with the username and hash. Quote the hash because it contains `$`
+characters:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh \
+  --apply \
+  --yes \
+  --domain your-domain.example \
+  --email ops@example.com \
+  --service-user root \
+  --basic-auth-user leo \
+  --basic-auth-hash '$2a$14$...'
+```
+
+The deploy script renders `basic_auth` for Caddy 2.8+ and falls back to the old
+`basicauth` directive for older Caddy 2.x installs.
+
+With Basic Auth enabled, unauthenticated public health checks should return
+`401`, while local service checks should still work:
+
+```bash
+curl -i https://your-domain.example/v4/health
+curl -fsS http://127.0.0.1:8766/v4/health
+```
+
 The apply path may install Caddy through `apt-get` on Debian/Ubuntu hosts or `dnf` with the official Caddy COPR on RHEL-like hosts, render `/etc/caddy/Caddyfile`, install `v4-api.service` and `v4-web.service`, restart services, and run health checks. Alibaba Cloud Linux 3 / OpenAnolis reports `PLATFORM_ID=platform:al8`, so the script enables Caddy COPR with the `epel-8` chroot explicitly. It backs up an existing `/etc/caddy/Caddyfile` before replacing it.
 
 Expected public checks:
