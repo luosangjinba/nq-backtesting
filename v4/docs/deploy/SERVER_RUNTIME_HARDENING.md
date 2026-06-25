@@ -123,6 +123,19 @@ bash v4/deploy/install_reverse_proxy.sh \
   --service-user leo
 ```
 
+If the server's default `python3` is too old, pass an explicit interpreter for
+the API service. Alibaba Cloud Linux 3 may have `/usr/bin/python3` as Python
+3.6, so use Python 3.11 when available:
+
+```bash
+bash v4/deploy/install_reverse_proxy.sh \
+  --apply \
+  --yes \
+  --domain your-domain.example \
+  --service-user root \
+  --python-bin /usr/bin/python3.11
+```
+
 Recommended public single-user protection is HTTPS plus Caddy Basic Auth. Do not
 enable Basic Auth in `--http-only` mode because credentials would cross the
 network without TLS.
@@ -143,6 +156,7 @@ bash v4/deploy/install_reverse_proxy.sh \
   --domain your-domain.example \
   --email ops@example.com \
   --service-user root \
+  --python-bin /usr/bin/python3.11 \
   --basic-auth-user leo \
   --basic-auth-hash '$2a$14$...'
 ```

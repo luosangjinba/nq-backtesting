@@ -15,6 +15,7 @@ Options:
   --repo PATH            Repository root. Default: auto-detected from this script.
   --email EMAIL          Optional ACME account email to report in the plan.
   --service-user USER    systemd service user. Default: current user or SUDO_USER.
+  --python-bin PATH      Python interpreter for v4-api.service. Default: python3.11 if available, else python3.
   --basic-auth-user USER Enable Caddy HTTP Basic Auth for all public routes.
   --basic-auth-hash HASH Hashed password from: caddy hash-password --plaintext '...'
   --skip-caddy-install   Do not install Caddy when it is missing.
@@ -109,6 +110,22 @@ detect_caddy_basic_auth_directive() {
   printf 'basic_auth'
 }
 
+detect_default_python_bin() {
+  if [[ -n "${PYTHON_BIN:-}" ]]; then
+    printf '%s' "$PYTHON_BIN"
+    return
+  fi
+  if command -v python3.11 >/dev/null 2>&1; then
+    command -v python3.11
+    return
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    command -v python3
+    return
+  fi
+  printf '/usr/bin/python3'
+}
+
 install_caddy() {
   if command -v apt-get >/dev/null 2>&1; then
     run_step sudo_cmd apt-get update
@@ -175,6 +192,7 @@ render_service_file() {
   local output="$2"
   sed \
     -e "s|/home/leo/myworkspace/trading/backtesting|$repo_root|g" \
+    -e "s|__PYTHON_BIN__|$python_bin|g" \
     -e "s|^User=.*|User=$service_user|g" \
     -e "s|^Group=.*|Group=$service_group|g" \
     "$input" > "$output"
@@ -191,6 +209,7 @@ skip_caddy_install=0
 http_only=0
 service_user="${SUDO_USER:-$(id -un)}"
 service_group=""
+python_bin="$(detect_default_python_bin)"
 basic_auth_user=""
 basic_auth_hash=""
 basic_auth_directive=""
@@ -227,6 +246,11 @@ while [[ $# -gt 0 ]]; do
     --service-user)
       [[ $# -ge 2 ]] || die "--service-user requires a value"
       service_user="$2"
+      shift 2
+      ;;
+    --python-bin)
+      [[ $# -ge 2 ]] || die "--python-bin requires a value"
+      python_bin="$2"
       shift 2
       ;;
     --basic-auth-user)
@@ -270,6 +294,7 @@ if [[ -n "$basic_auth_user" || -n "$basic_auth_hash" ]]; then
   [[ "$http_only" -ne 1 ]] || die "basic auth is not allowed with --http-only; use HTTPS mode first"
   [[ "$basic_auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "--basic-auth-user may contain only letters, numbers, dot, underscore, and hyphen"
 fi
+[[ "$python_bin" = /* ]] || die "--python-bin must be an absolute path"
 [[ -d "$repo_root/.git" ]] || die "repo path does not look like a git checkout: $repo_root"
 service_group="$(id -gn "$service_user" 2>/dev/null || true)"
 [[ -n "$service_group" ]] || die "cannot determine primary group for service user: $service_user"
@@ -293,6 +318,7 @@ printf '=================================\n\n'
 
 info "repo: $repo_root"
 info "domain: $domain"
+info "python: $python_bin"
 info "service user: $service_user:$service_group"
 if [[ "$http_only" -eq 1 ]]; then
   info "mode: temporary HTTP-only diagnostic"
@@ -400,6 +426,11 @@ render_caddyfile "$rendered_caddy"
 render_service_file "$api_service" "$rendered_api_service"
 render_service_file "$web_service" "$rendered_web_service"
 cat "$rendered_caddy"
+
+printf '\n'
+printf 'Rendered API service preview\n'
+printf '%s\n' '----------------------------'
+grep -E '^(WorkingDirectory|EnvironmentFile|ExecStart|User|Group)=' "$rendered_api_service"
 
 printf '\n'
 if [[ "$dry_run" -eq 1 ]]; then

@@ -51,6 +51,7 @@ bash v4/deploy/install_reverse_proxy.sh \
   --apply \
   --yes \
   --domain your-domain.example \
+  --python-bin /usr/bin/python3.11 \
   --basic-auth-user leo \
   --basic-auth-hash '$2a$14$...'
 ```
