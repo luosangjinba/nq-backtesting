@@ -15,6 +15,7 @@ v4/data/users/
 v4/data/vix-monthly.csv
 v4/data/economic_calendar/backups/
 v4/data/economic_calendar/forex_factory_raw/
+v4/data/economic_calendar/manual_import_exports/
 v4/.api.log
 v4/.api_pid
 v4/.api-restart.log
