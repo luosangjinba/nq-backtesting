@@ -512,8 +512,12 @@
 
   <script>
     function resolveApiBase() {
-      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
       const hostname = window.location.hostname || '127.0.0.1';
+      const isLocalDev = hostname === '127.0.0.1' || hostname === 'localhost';
+      if (!isLocalDev) {
+        return '';
+      }
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
       return `${protocol}//${hostname}:8766`;
     }
     const API = `${resolveApiBase()}/v4/data_maintenance/run`;
