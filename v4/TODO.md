@@ -1338,3 +1338,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 348.4: Smoke tests。新增 `economic-manual-import-smoke.py` 覆盖示例 CSV preview/write、重复跳过、非 USD 过滤；并跑 `py_compile`、`data-maintenance-api-base-smoke`、`workspace-api-smoke` 与 `git diff --check`。
 
 - [x] Step 349: Local weekly Economic Calendar manual export。目标是在本机每周自动抓取下周 ForexFactory events，生成 recap 手工导入 CSV，避免 VPS headless 被 Cloudflare 拦截，也减少人工导出当周 CSV 的遗忘风险。新增 `v4/scripts/export_weekly_economic_manual_csv.py`，默认导出下周一到周日 `Title,Country,Date,Time,Impact,Forecast,Previous,URL` schema 到 `v4/data/economic_calendar/manual_import_exports/`，不修改 V4 主 CSV；可配合 cron 周六运行。验证见 `v4/tests/economic-weekly-manual-export-smoke.py`。
+
+- [x] Step 350: Engineering runbook and smoke entry。工程化第一步先不做大重构，补齐可执行运维入口：新增 `v4/docs/runbook.md` 汇总 VPS pull/restart、health、502/203 排障、Economic Calendar 手工导入/cron、backup/write/security 边界；新增 `v4/scripts/smoke_all.py`，默认 `--suite local` 跑离线 smoke，`--suite api` 才检查运行中的 web/API。记录见 `v4/sessions/session_20260625_step350_engineering_runbook_smoke.md`。
