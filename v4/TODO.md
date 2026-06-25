@@ -1336,3 +1336,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 348.2: 后端 Data Maintenance actions。新增 `economic_manual_preview` / `economic_manual_write`，接收浏览器读取后的 CSV text，校验 header/日期/时间/impact，输出 candidate/existing/duplicate/would_append 统计；写入必须确认 `WRITE ECONOMIC`，并先备份现有 CSV。
   - [x] Step 348.3: Data Maintenance UI。新增 Manual Import file input、Preview Manual、Write Manual 按钮；保留现有自动 dry-run/write，但说明 VPS 可能被 Cloudflare 拦截。
   - [x] Step 348.4: Smoke tests。新增 `economic-manual-import-smoke.py` 覆盖示例 CSV preview/write、重复跳过、非 USD 过滤；并跑 `py_compile`、`data-maintenance-api-base-smoke`、`workspace-api-smoke` 与 `git diff --check`。
+
+- [x] Step 349: Local weekly Economic Calendar manual export。目标是在本机每周自动抓取下周 ForexFactory events，生成 recap 手工导入 CSV，避免 VPS headless 被 Cloudflare 拦截，也减少人工导出当周 CSV 的遗忘风险。新增 `v4/scripts/export_weekly_economic_manual_csv.py`，默认导出下周一到周日 `Title,Country,Date,Time,Impact,Forecast,Previous,URL` schema 到 `v4/data/economic_calendar/manual_import_exports/`，不修改 V4 主 CSV；可配合 cron 周六运行。验证见 `v4/tests/economic-weekly-manual-export-smoke.py`。
