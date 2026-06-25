@@ -11,16 +11,19 @@ API 返回 { bars, requestedRange } 格式，requestedRange 供前端过滤 padd
 import json
 import os
 import csv
+import io
 import re
 import yaml
 import subprocess
 import shlex
+import shutil
 import sys
 import threading
 import time
 from datetime import date, datetime, timezone, timedelta
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
+from zoneinfo import ZoneInfo
 
 from server.price_lookup import query_v2_bars, query_price, open_db, _parse_datetime
 
@@ -49,6 +52,7 @@ ECONOMIC_CALENDAR_PATH = os.path.join(
     "economic_calendar",
     "economic_calendar_usd_events.csv",
 )
+ECONOMIC_CALENDAR_BACKUP_DIR = os.path.join(V4_ROOT, "data", "economic_calendar", "backups")
 LOCAL_ENV_PATH = os.path.join(V4_ROOT, ".env.local")
 _ECONOMIC_EVENTS_CACHE = None
 _MAINTENANCE_LOCK = threading.Lock()
@@ -63,6 +67,23 @@ DEFAULT_WORKSPACE_ID = "default"
 WORKSPACE_BASE_DIR = os.path.join(V4_ROOT, "data", "users", "default", "workspaces", DEFAULT_WORKSPACE_ID)
 WORKSPACE_DOMAIN_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 WORKSPACE_INSTRUMENT_RE = re.compile(r"^[A-Z][A-Z0-9._-]{0,15}$")
+ECONOMIC_CALENDAR_COLUMNS = [
+    "event_date",
+    "event_time_et",
+    "event_time_utc",
+    "currency",
+    "title",
+    "impact",
+    "event_type",
+    "all_day",
+    "default_visible",
+    "actual",
+    "forecast",
+    "previous",
+]
+ECONOMIC_MANUAL_COLUMNS = ["Title", "Country", "Date", "Time", "Impact", "Forecast", "Previous", "URL"]
+ECONOMIC_EVENT_KEY_FIELDS = ["event_date", "event_time_et", "currency", "title"]
+ECONOMIC_IMPACT_VALUES = {"High", "Medium", "Low"}
 ALLOWED_WORKSPACE_DOMAINS = {
     "chart-notes": {"instrumentScoped": True},
     "daily-time-reviews": {"instrumentScoped": True},
@@ -628,6 +649,228 @@ def _run_api_restart_action(payload):
     }
 
 
+def _economic_event_key(row):
+    return tuple(str(row.get(field) or "").strip() for field in ECONOMIC_EVENT_KEY_FIELDS)
+
+
+def _read_economic_calendar_rows(path=None):
+    path = path or ECONOMIC_CALENDAR_PATH
+    if not os.path.exists(path):
+        return []
+    with open(path, newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        return list(reader)
+
+
+def _write_economic_calendar_rows(rows, path=None):
+    path = path or ECONOMIC_CALENDAR_PATH
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=ECONOMIC_CALENDAR_COLUMNS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def _max_economic_event_date(rows):
+    dates = [str(row.get("event_date") or "").strip() for row in rows if str(row.get("event_date") or "").strip()]
+    return max(dates) if dates else "n/a"
+
+
+def _min_economic_event_date(rows):
+    dates = [str(row.get("event_date") or "").strip() for row in rows if str(row.get("event_date") or "").strip()]
+    return min(dates) if dates else "n/a"
+
+
+def _count_economic_duplicates(rows):
+    seen = set()
+    duplicates = 0
+    for row in rows:
+        key = _economic_event_key(row)
+        if key in seen:
+            duplicates += 1
+        seen.add(key)
+    return duplicates
+
+
+def _parse_manual_economic_date(value):
+    text = str(value or "").strip()
+    for fmt in ("%m-%d-%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(text, fmt).date()
+        except ValueError:
+            continue
+    raise ValueError(f"Invalid manual economic Date {text!r}; expected MM-DD-YYYY")
+
+
+def _parse_manual_economic_time(value):
+    text = str(value or "").strip()
+    if not text or text.lower() in {"all day", "tentative"}:
+        return "", True
+    for fmt in ("%I:%M%p", "%I:%M %p"):
+        try:
+            return datetime.strptime(text.upper(), fmt).time(), False
+        except ValueError:
+            continue
+    raise ValueError(f"Invalid manual economic Time {text!r}; expected h:mmam or h:mmpm")
+
+
+def _normalize_manual_impact(value):
+    text = str(value or "").strip().lower()
+    if text == "high":
+        return "High"
+    if text == "medium":
+        return "Medium"
+    return "Low"
+
+
+def _manual_economic_rows_from_csv(csv_text, *, currency_filter="USD", timezone_name="America/New_York"):
+    text = str(csv_text or "")
+    if len(text.encode("utf-8")) > 2_000_000:
+        raise ValueError("Manual economic CSV is too large")
+    reader = csv.DictReader(io.StringIO(text.lstrip("\ufeff")))
+    fieldnames = [str(name or "").strip() for name in (reader.fieldnames or [])]
+    missing = [name for name in ECONOMIC_MANUAL_COLUMNS if name not in fieldnames]
+    if missing:
+        raise ValueError(f"Manual economic CSV missing columns: {', '.join(missing)}")
+    target_currency = str(currency_filter or "USD").strip().upper()
+    target_tz = ZoneInfo(timezone_name)
+    rows = []
+    skipped_currency = 0
+    skipped_empty = 0
+    for index, raw in enumerate(reader, start=2):
+        title = str(raw.get("Title") or "").strip()
+        currency = str(raw.get("Country") or "").strip().upper()
+        if not title or not currency:
+            skipped_empty += 1
+            continue
+        if target_currency and currency != target_currency:
+            skipped_currency += 1
+            continue
+        event_date = _parse_manual_economic_date(raw.get("Date"))
+        event_time, all_day = _parse_manual_economic_time(raw.get("Time"))
+        impact = _normalize_manual_impact(raw.get("Impact"))
+        event_time_et = ""
+        event_time_utc = ""
+        if not all_day:
+            dt_et = datetime.combine(event_date, event_time, tzinfo=target_tz)
+            event_time_et = dt_et.isoformat()
+            event_time_utc = dt_et.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        event_type = "holiday" if "holiday" in title.lower() else ("all_day" if all_day else "economic")
+        rows.append({
+            "event_date": event_date.isoformat(),
+            "event_time_et": event_time_et,
+            "event_time_utc": event_time_utc,
+            "currency": currency,
+            "title": title,
+            "impact": impact,
+            "event_type": event_type,
+            "all_day": "true" if all_day else "false",
+            "default_visible": "true" if event_type == "holiday" or impact in {"High", "Medium"} else "false",
+            "actual": "",
+            "forecast": str(raw.get("Forecast") or "").strip(),
+            "previous": str(raw.get("Previous") or "").strip(),
+            "_manual_row": str(index),
+            "_source_url": str(raw.get("URL") or "").strip(),
+        })
+    rows.sort(key=lambda row: (row["event_date"], row["event_time_et"], row["currency"], row["title"]))
+    return rows, {"skipped_currency": skipped_currency, "skipped_empty": skipped_empty, "currency_filter": target_currency}
+
+
+def _strip_internal_economic_fields(row):
+    return {key: str(row.get(key) or "") for key in ECONOMIC_CALENDAR_COLUMNS}
+
+
+def _build_manual_economic_import_result(payload, *, write=False):
+    csv_text = payload.get("csvText")
+    if not csv_text:
+        raise ValueError("Choose a manual economic CSV first")
+    currency_filter = _clean_text(payload.get("currency") or "USD", 12).upper() or "USD"
+    timezone_name = _clean_text(payload.get("timezone") or "America/New_York", 64) or "America/New_York"
+    candidate_rows, parse_stats = _manual_economic_rows_from_csv(
+        csv_text,
+        currency_filter=currency_filter,
+        timezone_name=timezone_name,
+    )
+    existing_rows = _read_economic_calendar_rows()
+    existing_latest = _max_economic_event_date(existing_rows)
+    existing_keys = {_economic_event_key(row) for row in existing_rows}
+    candidate_keys = [_economic_event_key(row) for row in candidate_rows]
+    existing_candidate_keys = sum(1 for key in candidate_keys if key in existing_keys)
+    duplicate_candidate_keys = _count_economic_duplicates(candidate_rows)
+    overlap_new_rows = [
+        row for row in candidate_rows
+        if existing_latest != "n/a"
+        and row["event_date"] <= existing_latest
+        and _economic_event_key(row) not in existing_keys
+    ]
+    append_rows = [
+        row for row in candidate_rows
+        if _economic_event_key(row) not in existing_keys
+        and (existing_latest == "n/a" or row["event_date"] > existing_latest)
+    ]
+
+    output_lines = [
+        "economic_manual_import_status: preview" if not write else "economic_manual_import_status: write",
+        f"source_filename: {_clean_text(payload.get('filename'), 200) or 'manual.csv'}",
+        f"currency_filter: {parse_stats['currency_filter']}",
+        f"timezone: {timezone_name}",
+        f"csv: {ECONOMIC_CALENDAR_PATH}",
+        f"existing_rows: {len(existing_rows)}",
+        f"existing_date_min: {_min_economic_event_date(existing_rows)}",
+        f"existing_date_max: {existing_latest}",
+        f"candidate_rows: {len(candidate_rows)}",
+        f"candidate_date_min: {_min_economic_event_date(candidate_rows)}",
+        f"candidate_date_max: {_max_economic_event_date(candidate_rows)}",
+        f"duplicate_candidate_keys: {duplicate_candidate_keys}",
+        f"existing_candidate_keys: {existing_candidate_keys}",
+        f"overlap_new_keys: {len(overlap_new_rows)}",
+        f"would_append_rows: {len(append_rows)}",
+        f"skipped_currency_rows: {parse_stats['skipped_currency']}",
+        f"skipped_empty_rows: {parse_stats['skipped_empty']}",
+    ]
+    if candidate_rows:
+        for row in candidate_rows[:5]:
+            output_lines.append(
+                "sample: "
+                f"{row['event_date']} {row['event_time_et'] or 'all-day'} "
+                f"{row['currency']} {row['impact']} {row['title']}"
+            )
+
+    appended = 0
+    if write:
+        confirm_text = _clean_text(payload.get("confirmText"), 120)
+        if confirm_text != "WRITE ECONOMIC":
+            raise ValueError("Type 'WRITE ECONOMIC' to enable manual economic import")
+        backup_path = "n/a"
+        if append_rows:
+            os.makedirs(ECONOMIC_CALENDAR_BACKUP_DIR, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_path = os.path.join(
+                ECONOMIC_CALENDAR_BACKUP_DIR,
+                f"economic_calendar_usd_events_{timestamp}.csv",
+            )
+            if os.path.exists(ECONOMIC_CALENDAR_PATH):
+                shutil.copy2(ECONOMIC_CALENDAR_PATH, backup_path)
+            merged = [*_read_economic_calendar_rows(), *[_strip_internal_economic_fields(row) for row in append_rows]]
+            merged.sort(key=lambda row: (row["event_date"], row["event_time_et"], row["currency"], row["title"]))
+            _write_economic_calendar_rows(merged)
+            global _ECONOMIC_EVENTS_CACHE
+            _ECONOMIC_EVENTS_CACHE = None
+            appended = len(append_rows)
+        output_lines.append(f"backup_csv: {backup_path}")
+        output_lines.append(f"appended_rows: {appended}")
+        output_lines.append("write_status: committed manual economic import" if appended else "write_status: no new rows to append")
+    else:
+        output_lines.append("write_status: preview only; no CSV changes were made")
+
+    return {
+        "ok": True,
+        "returncode": 0,
+        "command": "manual economic import",
+        "output": "\n".join(output_lines) + "\n",
+    }
+
+
 def run_data_maintenance_action(payload):
     action = _choice(payload.get("action"), {
         "environment_status",
@@ -648,6 +891,8 @@ def run_data_maintenance_action(payload):
         "economic_dry_run",
         "economic_write",
         "economic_verify",
+        "economic_manual_preview",
+        "economic_manual_write",
     }, "action")
 
     if action in {"environment_status", "environment_write", "environment_delete"}:
@@ -743,6 +988,9 @@ def run_data_maintenance_action(payload):
 
     if action in {"economic_status", "economic_verify"}:
         return _run_maintenance_command([python, "v4/scripts/verify_economic_calendar.py"])
+
+    if action in {"economic_manual_preview", "economic_manual_write"}:
+        return _build_manual_economic_import_result(payload, write=action == "economic_manual_write")
 
     if action in {"economic_dry_run", "economic_write"}:
         start = _iso_date(payload.get("fromDate"), "fromDate")

@@ -395,6 +395,18 @@
             </div>
           </div>
           <p class="status">Forecast/previous may remain blank with the current ForexFactory list-page source.</p>
+          <div class="compact">
+            <label>Manual CSV <input id="economicManualCsv" type="file" accept=".csv,text/csv"></label>
+            <div class="grid">
+              <label>Currency <input id="economicManualCurrency" value="USD"></label>
+              <label>Timezone <input id="economicManualTimezone" value="America/New_York"></label>
+            </div>
+            <div class="row">
+              <button id="economicManualPreview" type="button">Preview Manual CSV</button>
+              <button id="economicManualWrite" class="danger" type="button">Write Manual CSV</button>
+            </div>
+            <p class="status">Manual CSV schema: Title, Country, Date, Time, Impact, Forecast, Previous, URL. Write requires confirmation text WRITE ECONOMIC.</p>
+          </div>
         </div>
       </section>
 
@@ -941,22 +953,31 @@
         const malformed = extract(out, /^malformed_rows:\s*(.+)$/m);
         lines.push(`Economic calendar status: ${status || 'unknown'}; rows: ${rows || 'unknown'}; range: ${minDate || 'unknown'} -> ${maxDate || 'unknown'}.`);
         lines.push(`Duplicate keys: ${duplicates || 'unknown'}; malformed rows: ${malformed || 'unknown'}.`);
-      } else if (payload.action === 'economic_dry_run' || payload.action === 'economic_write') {
+      } else if (
+        payload.action === 'economic_dry_run' ||
+        payload.action === 'economic_write' ||
+        payload.action === 'economic_manual_preview' ||
+        payload.action === 'economic_manual_write'
+      ) {
         const existingMax = extract(out, /^existing_date_max:\s*(.+)$/m) || extract(out, /^date_max_before:\s*(.+)$/m);
         const requested = extract(out, /^requested_range:\s*(.+)$/m);
         const months = extract(out, /^months:\s*(.+)$/m);
         const candidateRows = extract(out, /^candidate_rows:\s*(.+)$/m);
         const wouldAppend = extract(out, /^would_append_rows:\s*(.+)$/m);
         const appended = extract(out, /^appended_rows:\s*(.+)$/m);
-        const skippedOverlap = extract(out, /^skipped_overlap_rows:\s*(.+)$/m);
+        const skippedOverlap = extract(out, /^skipped_overlap_rows:\s*(.+)$/m) || extract(out, /^overlap_new_keys:\s*(.+)$/m);
+        const skippedCurrency = extract(out, /^skipped_currency_rows:\s*(.+)$/m);
+        const duplicateCandidate = extract(out, /^duplicate_candidate_keys:\s*(.+)$/m);
         const afterMax = extract(out, /^date_max_after:\s*(.+)$/m);
         if (existingMax) lines.push(`Current economic calendar latest date: ${existingMax}.`);
         if (requested) lines.push(`Requested range: ${requested}.`);
         if (months) lines.push(`Months involved: ${months}.`);
         if (candidateRows) lines.push(`Candidate rows: ${candidateRows}.`);
+        if (duplicateCandidate) lines.push(`Duplicate candidate keys: ${duplicateCandidate}.`);
         if (wouldAppend) lines.push(`Rows that would be appended: ${wouldAppend}.`);
         if (appended) lines.push(`Rows appended: ${appended}.`);
         if (skippedOverlap) lines.push(`Skipped overlap rows: ${skippedOverlap}.`);
+        if (skippedCurrency) lines.push(`Skipped non-matching currency rows: ${skippedCurrency}.`);
         if (afterMax) lines.push(`Economic calendar latest date after write: ${afterMax}.`);
       }
 
@@ -1025,6 +1046,19 @@
         action,
         fromDate: value('economicFrom'),
         toDate: value('economicTo'),
+        confirmText: value('economicConfirmText')
+      };
+    }
+
+    async function economicManualPayload(action) {
+      const file = document.getElementById('economicManualCsv').files?.[0];
+      if (!file) throw new Error('Choose a manual economic CSV first.');
+      return {
+        action,
+        filename: file.name,
+        csvText: await file.text(),
+        currency: value('economicManualCurrency') || 'USD',
+        timezone: value('economicManualTimezone') || 'America/New_York',
         confirmText: value('economicConfirmText')
       };
     }
@@ -1100,6 +1134,20 @@
     document.getElementById('economicVerify').addEventListener('click', () => run({ action: 'economic_verify' }));
     document.getElementById('economicDryRun').addEventListener('click', () => run(economicPayload('economic_dry_run')));
     document.getElementById('economicWrite').addEventListener('click', () => run(economicPayload('economic_write')));
+    document.getElementById('economicManualPreview').addEventListener('click', async () => {
+      try {
+        await run(await economicManualPayload('economic_manual_preview'));
+      } catch (error) {
+        append(`Manual economic CSV error: ${error.message}`);
+      }
+    });
+    document.getElementById('economicManualWrite').addEventListener('click', async () => {
+      try {
+        await run(await economicManualPayload('economic_manual_write'));
+      } catch (error) {
+        append(`Manual economic CSV error: ${error.message}`);
+      }
+    });
     document.getElementById('clearOutput').addEventListener('click', () => {
       output.textContent = 'Ready.';
       setState('idle');
