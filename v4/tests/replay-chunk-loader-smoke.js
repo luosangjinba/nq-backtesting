@@ -20,6 +20,18 @@ assert.equal(chunks[0].end, '2012-01-03 00:00');
 assert.equal(chunks.at(-1).start, '2012-01-06 00:00');
 assert.equal(chunks.at(-1).end, '2012-01-06 09:30');
 
+const exactBoundaryChunks = resolveReplayChunks({
+  start: '2026-05-31 00:00',
+  end: '2026-06-04 00:00',
+  startTs: 1780185600,
+  endTs: 1780531200,
+  timeframe: 1,
+});
+assert.equal(exactBoundaryChunks.length, 4);
+assert.equal(exactBoundaryChunks.at(-1).start, '2026-06-03 00:00');
+assert.equal(exactBoundaryChunks.at(-1).end, '2026-06-04 00:00');
+assert.ok(exactBoundaryChunks.every((chunk) => chunk.endTs > chunk.startTs));
+
 const merged = mergeReplayChunkBars([
   { bars: [{ timestamp: 3, close: 3 }, { timestamp: 1, close: 1 }] },
   { bars: [{ timestamp: 2, close: 2 }, { timestamp: 3, close: 30 }] },

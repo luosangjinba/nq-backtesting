@@ -24,11 +24,11 @@ assert.equal(replay.outerRange.start, '2012-01-01 00:00');
 assert.equal(replay.outerRange.end, '2012-12-31 23:59');
 assert.equal(replay.windowRange.start, '2011-12-31 00:00');
 assert.equal(replay.windowRange.end, '2012-01-04 00:00');
-assert.equal(replay.loadedChunks.length, 5);
-assert.equal(calls.length, 5);
+assert.equal(replay.loadedChunks.length, 4);
+assert.equal(calls.length, 4);
 assert.equal(calls[0].instrument, 'NQ');
 assert.equal(calls[0].timeframe, 1);
 assert.equal(replay.activationTimestamp, 1325496600);
-assert.equal(replay.bars.length, 5);
+assert.equal(replay.bars.length, 4);
 
 console.log('replay first loader smoke passed');

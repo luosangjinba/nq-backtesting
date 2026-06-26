@@ -19,13 +19,15 @@ export function resolveReplayChunks(windowRange = {}, chunkSeconds = DAY_SECONDS
   while (cursor <= endTs) {
     const chunkStartTs = Math.max(startTs, cursor);
     const chunkEndTs = Math.min(endTs, cursor + size);
-    chunks.push({
-      start: formatReplayTimestamp(chunkStartTs),
-      end: formatReplayTimestamp(chunkEndTs),
-      startTs: chunkStartTs,
-      endTs: chunkEndTs,
-      timeframe,
-    });
+    if (chunkEndTs > chunkStartTs) {
+      chunks.push({
+        start: formatReplayTimestamp(chunkStartTs),
+        end: formatReplayTimestamp(chunkEndTs),
+        startTs: chunkStartTs,
+        endTs: chunkEndTs,
+        timeframe,
+      });
+    }
     cursor += size;
   }
   return chunks;
