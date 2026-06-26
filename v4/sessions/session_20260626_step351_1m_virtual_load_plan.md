@@ -1,5 +1,7 @@
 # Step 351 - 1m Range Cache / Virtual Load Plan
 
+Status: complete.
+
 ## Problem
 
 In public/server mode, selecting a long `1M` range can fail with:

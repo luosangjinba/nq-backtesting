@@ -1341,7 +1341,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [x] Step 350: Engineering runbook and smoke entry。工程化第一步先不做大重构，补齐可执行运维入口：新增 `v4/docs/runbook.md` 汇总 VPS pull/restart、health、502/203 排障、Economic Calendar 手工导入/cron、backup/write/security 边界；新增 `v4/scripts/smoke_all.py`，默认 `--suite local` 跑离线 smoke，`--suite api` 才检查运行中的 web/API。记录见 `v4/sessions/session_20260625_step350_engineering_runbook_smoke.md`。
 
-- [ ] Step 351: 1m Range Cache / Virtual Load。目标是让用户可以选择一年或更长的 1m 外层研究范围，但前端永远只向 `/v4/bars` 请求当前可用窗口，并缓存已加载窗口，避免服务器单次超大请求和浏览器拖拽卡顿。记录见 `v4/sessions/session_20260626_step351_1m_virtual_load_plan.md`。
+- [x] Step 351: 1m Range Cache / Virtual Load。目标是让用户可以选择一年或更长的 1m 外层研究范围，但前端永远只向 `/v4/bars` 请求当前可用窗口，并缓存已加载窗口，避免服务器单次超大请求和浏览器拖拽卡顿。记录见 `v4/sessions/session_20260626_step351_1m_virtual_load_plan.md`。
   - [x] Step 351.1: 明确边界：不取消后端 `/v4/bars` 单次请求上限；后端 `limit 64839` 继续作为安全保护。前端把用户选择的 date range 视为 outer range，把实际 K 线请求限制在 1m virtual window 内。
   - [x] Step 351.2: 降低 1m 当前渲染窗口。当前 45 天窗口在 1m 下约 6.5 万根，拖拽明显卡顿；前端 virtual window 已先收敛到 14 天，再用 Prev/Next Window、Calendar locate、Replay restore 自动切换窗口。
   - [x] Step 351.3: 增加内存 bars window cache。已按 `instrument + timeframe + windowStart + windowEnd` 缓存 API 结果；同一窗口重复进入时不重新请求；先做 LRU 内存缓存，暂不做 IndexedDB 持久化。
