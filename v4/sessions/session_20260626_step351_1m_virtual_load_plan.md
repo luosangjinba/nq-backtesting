@@ -85,3 +85,16 @@ Use `2012-01-01 - 2012-12-31`, `TF=1M`:
 - Do not load a full year of 1m candles into Lightweight Charts at once.
 - Do not build IndexedDB persistence in the first pass.
 - Do not change the formal K-line storage schema.
+
+## Step 351.1 Boundary Decision
+
+Status: complete.
+
+The backend `/v4/bars` single-request limit remains mandatory. Step 351 changes
+the frontend loading model, not the server safety guard:
+
+- long user-selected ranges are stored as `outerRange`;
+- API requests use the current bounded `windowRange`;
+- large 1m reviews move through the outer range by switching windows;
+- cache can avoid repeated API calls, but it is not a reason to send oversized
+  first requests.
