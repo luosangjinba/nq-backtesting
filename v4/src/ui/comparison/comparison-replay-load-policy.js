@@ -18,8 +18,10 @@ export function isReplayFirstPrimaryRange({ primaryTimeframe, outerRange, replay
     outer &&
     Number(outer.timeframe) === 1 &&
     Number(primaryTimeframe) === 1 &&
-    replayState?.enabled &&
-    Number.isFinite(Number(replayState.cursorTimestamp))
+    (
+      (replayState?.enabled && Number.isFinite(Number(replayState.cursorTimestamp))) ||
+      replayState?.allowOuterStartFallback
+    )
   );
 }
 
@@ -33,7 +35,8 @@ export function resolveReplayFirstComparisonRange({
   if (!isReplayFirstPrimaryRange({ primaryTimeframe, outerRange, replayState })) return null;
 
   const outer = normalizeReplayOuterRange(outerRange);
-  const cursor = Math.floor(Number(replayState.cursorTimestamp));
+  const rawCursor = Number(replayState?.cursorTimestamp);
+  const cursor = Number.isFinite(rawCursor) ? Math.floor(rawCursor) : outer.startTs;
   const leftSeconds = Math.max(0, Number(policy.leftHours ?? COMPARISON_REPLAY_SYNC_WINDOW.leftHours)) * HOUR_SECONDS;
   const rightSeconds = Math.max(0, Number(policy.rightHours ?? COMPARISON_REPLAY_SYNC_WINDOW.rightHours)) * HOUR_SECONDS;
   const timeframeSeconds = parseTimeframeMinutes(comparisonTimeframe) * 60;

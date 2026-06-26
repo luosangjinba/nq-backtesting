@@ -175,7 +175,10 @@ export function createComparisonWindowDataController({
     const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument, {
       primaryTimeframe: primaryStore.getCurrentTimeframe(),
       outerRange: primaryStore.getRequestedOuterRange(),
-      replayState: lastReplayState,
+      replayState: {
+        ...lastReplayState,
+        allowOuterStartFallback: true,
+      },
     });
     if (!loadRequest.ok) {
       clearComparisonBars();

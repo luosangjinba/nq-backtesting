@@ -17,6 +17,14 @@ const replayState = {
 assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 1, outerRange, replayState }), true);
 assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 60, outerRange, replayState }), false);
 assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 1, outerRange, replayState: { enabled: false } }), false);
+assert.equal(
+  isReplayFirstPrimaryRange({
+    primaryTimeframe: 1,
+    outerRange,
+    replayState: { enabled: false, allowOuterStartFallback: true },
+  }),
+  true
+);
 
 const oneMinuteRange = resolveReplayFirstComparisonRange({
   primaryTimeframe: 1,
@@ -36,5 +44,14 @@ const hourlyRange = resolveReplayFirstComparisonRange({
 });
 assert.equal(hourlyRange.start, '2012-01-02 09:30');
 assert.equal(hourlyRange.end, '2012-01-02 14:30');
+
+const fallbackRange = resolveReplayFirstComparisonRange({
+  primaryTimeframe: 1,
+  comparisonTimeframe: 60,
+  outerRange,
+  replayState: { enabled: false, allowOuterStartFallback: true },
+});
+assert.equal(fallbackRange.start, '2012-01-01 00:00');
+assert.equal(fallbackRange.end, '2012-01-01 03:00');
 
 console.log('comparison replay load policy smoke passed');
