@@ -4,6 +4,7 @@ import {
   getBars,
   getCurrentRange,
   getRequestedOuterRange,
+  appendBarsToCurrentRange,
   prependBarsToCurrentRange,
   setBars,
 } from '../src/data/bar-store.js';
@@ -50,5 +51,27 @@ assert.deepEqual(getCurrentRange(), {
   end: '2012-01-01 00:40',
 });
 assert.equal(getRequestedOuterRange().start, '2012-01-01 00:00');
+
+const appended = appendBarsToCurrentRange(
+  [
+    { timestamp: 40, close: 400 },
+    { timestamp: 50, close: 50 },
+  ],
+  '2012-01-01 00:50',
+  { instrument: 'NQ' }
+);
+
+assert.deepEqual(getBars().map((bar) => [bar.timestamp, bar.close]), [
+  [10, 10],
+  [20, 20],
+  [30, 30],
+  [40, 400],
+  [50, 50],
+]);
+assert.equal(appended.addedBars, 1);
+assert.deepEqual(getCurrentRange(), {
+  start: '2012-01-01 00:10',
+  end: '2012-01-01 00:50',
+});
 
 console.log('bar store prepend smoke passed');

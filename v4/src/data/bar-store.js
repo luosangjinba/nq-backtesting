@@ -65,6 +65,22 @@ export function prependBarsToCurrentRange(prefixBars = [], start = currentStart,
   };
 }
 
+export function appendBarsToCurrentRange(suffixBars = [], end = currentEnd, options = {}) {
+  const instrument = options.instrument || getPrimaryInstrument();
+  const previousCount = bars.length;
+  const mergedBars = mergeBarsByTimestamp(bars, suffixBars);
+  setBars(mergedBars, currentStart, end, currentTimeframe, requestedRange, {
+    outerRange: requestedOuterRange,
+    instrument,
+  });
+  return {
+    bars: mergedBars,
+    addedBars: Math.max(0, mergedBars.length - previousCount),
+    start: currentStart,
+    end,
+  };
+}
+
 export function getBars() {
   return bars;
 }
