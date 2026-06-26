@@ -98,3 +98,19 @@ the frontend loading model, not the server safety guard:
 - large 1m reviews move through the outer range by switching windows;
 - cache can avoid repeated API calls, but it is not a reason to send oversized
   first requests.
+
+## Step 351.2 Virtual Window Size
+
+Status: complete.
+
+The frontend 1m virtual window is now 14 days. The backend hard limit remains
+45 days / `64839` estimated bars. This means a user-selected 30-day, 60-day, or
+one-year 1m range is treated as an outer range, while the chart initially loads
+only the first 14-day window.
+
+Rationale:
+
+- 45 days is a server safety ceiling, not a good rendering target.
+- 14 days keeps the current visible dataset much smaller for drag/zoom.
+- Large reviews can still move through the full outer range with window
+  navigation.

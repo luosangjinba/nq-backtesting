@@ -10,7 +10,7 @@ const oneMinuteLongRange = resolveComparisonLoadRequest(
 assert.equal(oneMinuteLongRange.ok, true);
 assert.equal(oneMinuteLongRange.comparisonRange.windowed, true);
 assert.equal(oneMinuteLongRange.comparisonRange.start, '2012-01-01 00:00');
-assert.equal(oneMinuteLongRange.comparisonRange.end, '2012-02-15 00:00');
+assert.equal(oneMinuteLongRange.comparisonRange.end, '2012-01-15 00:00');
 assert.deepEqual(oneMinuteLongRange.comparisonRange.outerRange, {
   start: '2012-01-01 00:00',
   end: '2012-02-29 23:59',

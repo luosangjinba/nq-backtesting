@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import {
   estimateRequestedBars,
   getMaxEstimatedBars,
+  getVirtualLoadWindowDays,
   resolveChartLoadRange,
   validateSingleWindowRange,
 } from '../src/data/load-range-policy.js';
 
 assert.equal(estimateRequestedBars('2024-01-01 00:00', '2024-01-02 00:00', 1), 1479);
 assert.equal(getMaxEstimatedBars(1), 64839);
+assert.equal(getVirtualLoadWindowDays(1), 14);
+assert.equal(getVirtualLoadWindowDays(60), 730);
 assert.equal(getMaxEstimatedBars(2), 32439);
 assert.equal(getMaxEstimatedBars(3), 21639);
 assert.equal(getMaxEstimatedBars(4), 16239);
@@ -15,6 +18,13 @@ assert.equal(getMaxEstimatedBars(10), 25959);
 
 const normalOneMinute = validateSingleWindowRange('2024-01-01 00:00', '2024-01-15 00:00', 1);
 assert.equal(normalOneMinute.ok, true);
+
+const virtualOneMinute = resolveChartLoadRange('2024-01-01 00:00', '2024-01-31 00:00', 1);
+assert.equal(virtualOneMinute.ok, true);
+assert.equal(virtualOneMinute.windowed, true);
+assert.equal(virtualOneMinute.outerRange.start, '2024-01-01 00:00');
+assert.equal(virtualOneMinute.start, '2024-01-01 00:00');
+assert.equal(virtualOneMinute.end, '2024-01-15 00:00');
 
 const oversizedOneMinute = validateSingleWindowRange('2024-01-01 00:00', '2024-04-01 00:00', 1);
 assert.equal(oversizedOneMinute.ok, false);
@@ -26,7 +36,7 @@ assert.equal(windowed.ok, true);
 assert.equal(windowed.windowed, true);
 assert.equal(windowed.outerRange.start, '2024-01-01 00:00');
 assert.equal(windowed.start, '2024-01-01 00:00');
-assert.equal(windowed.end, '2024-02-15 00:00');
+assert.equal(windowed.end, '2024-01-15 00:00');
 
 const normalHourly = validateSingleWindowRange('2024-01-01 00:00', '2024-12-31 00:00', 60);
 assert.equal(normalHourly.ok, true);

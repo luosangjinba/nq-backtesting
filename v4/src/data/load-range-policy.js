@@ -16,6 +16,10 @@ export const LOAD_RANGE_LIMITS_DAYS = Object.freeze({
   10080: 3650,
 });
 
+export const VIRTUAL_LOAD_WINDOW_DAYS = Object.freeze({
+  1: 14,
+});
+
 const DEFAULT_LOAD_RANGE_LIMIT_DAYS = 365;
 const REQUEST_PADDING_BARS = 19;
 
@@ -46,6 +50,11 @@ export function getLoadRangeLimitDays(timeframe) {
   return LOAD_RANGE_LIMITS_DAYS[tf] || DEFAULT_LOAD_RANGE_LIMIT_DAYS;
 }
 
+export function getVirtualLoadWindowDays(timeframe) {
+  const tf = Number(timeframe);
+  return VIRTUAL_LOAD_WINDOW_DAYS[tf] || getLoadRangeLimitDays(timeframe);
+}
+
 export function estimateRequestedBars(start, end, timeframe, paddingBars = REQUEST_PADDING_BARS) {
   const tf = Number(timeframe);
   const startMs = parseDateTime(start);
@@ -66,7 +75,9 @@ export function getMaxEstimatedBars(timeframe, paddingBars = REQUEST_PADDING_BAR
 
 export function resolveChartLoadRange(start, end, timeframe) {
   const validation = validateSingleWindowRange(start, end, timeframe);
-  if (validation.ok) {
+  const tf = Number(timeframe);
+  const virtualWindowDays = getVirtualLoadWindowDays(tf);
+  if (validation.ok && (tf !== 1 || validation.days <= virtualWindowDays)) {
     return {
       ok: true,
       windowed: false,
@@ -77,7 +88,6 @@ export function resolveChartLoadRange(start, end, timeframe) {
     };
   }
 
-  const tf = Number(timeframe);
   if (tf !== 1 || validation.days === null) {
     return {
       ok: false,
@@ -102,7 +112,8 @@ export function resolveChartLoadRange(start, end, timeframe) {
     };
   }
 
-  const limitMs = validation.limitDays * DAY_MS;
+  const virtualWindowMs = getVirtualLoadWindowDays(tf) * DAY_MS;
+  const limitMs = Math.min(validation.limitDays * DAY_MS, virtualWindowMs);
   const windowEndMs = Math.min(endMs, startMs + limitMs);
   const windowStart = formatDateTime(startMs);
   const windowEnd = formatDateTime(windowEndMs);
@@ -141,7 +152,7 @@ export function resolveWindowAroundTimestamp(outerRange, timestamp) {
     };
   }
 
-  const limitDays = getLoadRangeLimitDays(tf);
+  const limitDays = getVirtualLoadWindowDays(tf);
   const limitMs = limitDays * DAY_MS;
   const targetDate = new Date(targetMs);
   const targetDayStartMs = Date.UTC(
@@ -195,7 +206,7 @@ export function resolveAdjacentWindow(outerRange, currentStart, currentEnd, dire
     };
   }
 
-  const windowMs = getLoadRangeLimitDays(tf) * DAY_MS;
+  const windowMs = getVirtualLoadWindowDays(tf) * DAY_MS;
   const isNext = direction === 'next';
   let windowStartMs = isNext ? currentEndMs : currentStartMs - windowMs;
   let windowEndMs = isNext ? windowStartMs + windowMs : currentStartMs;
