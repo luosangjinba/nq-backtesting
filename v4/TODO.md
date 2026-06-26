@@ -1364,4 +1364,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [ ] Step 352.11: Manual drag/FPS tuning。用真实浏览器人工拖拽一年 1m replay-first 视图，记录卡顿来源并决定是否继续调 chunk size、cache size、状态栏更新频率或 TradingView visible range 订阅节流。
     - [x] Step 352.11.1: Replay-first performance diagnostics。已新增可开关诊断，记录 set/prepend/append、prefix/forward chunk、visible range 事件频率和耗时；默认关闭，可用 `?replayPerf=1` 或 `window.v4ReplayPerfDiagnostics.enable()` 开启。
     - [x] Step 352.11.2: Real browser drag profile。已把诊断接入 `browser-real`；一年 1m NQ/ES replay-first 后执行 48 次 visible logical range 移动，记录 dragMs、visible range events、bar-store events、chunk events 和 active chart data count。
-    - [ ] Step 352.11.3: Tune measured bottleneck。根据 352.11.2 与人工浏览器 profile，优先优化最高影响项：visible range 事件节流、overlay/pane sync 降频、status 降噪或 replay chart data 裁剪。
+    - [x] Step 352.11.3: Tune measured bottleneck。已对主图 replay prefix 订阅和 Pane visible range sync 增加 animation-frame coalescing，拖拽时同一帧内多次 visible range 更新只触发一次业务处理；`browser-real` 与 `local` suite 已通过。
+    - [ ] Step 352.11.4: Manual confirmation。用真实浏览器手动拖拽一年 1m replay-first 页面，确认主观卡顿是否缓解；若仍卡，基于 diagnostics snapshot 继续定位 overlay/status/crosshair 或裁剪策略。

@@ -267,6 +267,7 @@ Planned substeps:
 - Step 352.11.1: add replay-first performance diagnostics.
 - Step 352.11.2: run/record real browser drag profile using the diagnostics.
 - Step 352.11.3: tune the highest-impact bottleneck based on measured data.
+- Step 352.11.4: manual confirmation in the real browser.
 
 ### Step 352.11.1 Replay-First Performance Diagnostics
 
@@ -336,3 +337,47 @@ Interpretation:
 Validation:
 
 - `python3 v4/scripts/smoke_all.py --suite browser-real`
+
+### Step 352.11.3 Visible Range Coalescing
+
+Status: complete.
+
+Change:
+
+- `chart-manager.subscribeVisibleLogicalRangeChange()` now coalesces callback
+  delivery to animation frames. Raw diagnostic events are still recorded, but
+  business handlers such as replay prefix loading receive only the latest
+  range for the frame.
+- `chart-pane-range-sync` now also coalesces primary/comparison pane visible
+  range writes to animation frames.
+
+Why:
+
+- Step 352.11.2 showed the chart series is not rendering the full one-year
+  dataset in replay mode (`activeDataCount=211`), so the first tuning target
+  should be interactive visible-range churn rather than API chunk size.
+- Coalescing keeps final range state correct while reducing same-frame work
+  during real drag gestures.
+
+Latest local result after tuning:
+
+- `NQ`: initial load about 423ms; forward chunk about 243ms; 48 drag moves
+  about 1587ms; 15 visible range events; 3 bar-store events; progressive
+  request span max 3h.
+- `ES`: initial load about 205ms; forward chunk about 98ms; 48 drag moves
+  about 1594ms; 14 visible range events; 3 bar-store events; progressive
+  request span max 2h.
+- `NQ` request shape was cleaner in this run: max request span 24h instead
+  of the previous occasional 96h initial sync request.
+
+Validation:
+
+- `python3 v4/scripts/smoke_all.py --suite browser-real`
+- `python3 v4/scripts/smoke_all.py --suite local`
+
+Remaining:
+
+- Headless programmatic drag does not fully represent subjective manual
+  dragging. Step 352.11.4 should manually confirm in Chrome with
+  `?replayPerf=1` and inspect `window.v4ReplayPerfDiagnostics.snapshot()`
+  if stutter remains.

@@ -316,6 +316,14 @@ export function getVisibleLogicalRange() {
 export function subscribeVisibleLogicalRangeChange(handler) {
   if (!chart || typeof handler !== 'function') return () => {};
   const timeScale = chart.timeScale();
+  let pendingRange = null;
+  let pendingFrame = null;
+  const schedule = typeof requestAnimationFrame === 'function'
+    ? requestAnimationFrame
+    : (callback) => setTimeout(callback, 16);
+  const cancel = typeof cancelAnimationFrame === 'function'
+    ? cancelAnimationFrame
+    : clearTimeout;
   const wrappedHandler = (range) => {
     recordReplayPerformanceEvent('chart:visible-logical-range', {
       from: Number(range?.from),
@@ -323,10 +331,21 @@ export function subscribeVisibleLogicalRangeChange(handler) {
       width: Number(range?.to) - Number(range?.from),
       activeDataCount,
     });
-    handler(range);
+    pendingRange = range;
+    if (pendingFrame !== null) return;
+    pendingFrame = schedule(() => {
+      pendingFrame = null;
+      const nextRange = pendingRange;
+      pendingRange = null;
+      handler(nextRange);
+    });
   };
   timeScale.subscribeVisibleLogicalRangeChange(wrappedHandler);
   return () => {
+    if (pendingFrame !== null) {
+      cancel(pendingFrame);
+      pendingFrame = null;
+    }
     timeScale.unsubscribeVisibleLogicalRangeChange(wrappedHandler);
   };
 }

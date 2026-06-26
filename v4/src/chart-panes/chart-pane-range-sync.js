@@ -8,9 +8,31 @@ import {
 
 let primaryBound = false;
 let comparisonBound = false;
+const pendingRangeFrames = new Map();
+const pendingRanges = new Map();
 
 function isValidRange(range) {
   return Number.isFinite(range?.from) && Number.isFinite(range?.to) && range.from < range.to;
+}
+
+function requestNextFrame(callback) {
+  if (typeof requestAnimationFrame === 'function') return requestAnimationFrame(callback);
+  return setTimeout(callback, 16);
+}
+
+function schedulePaneVisibleRangeUpdate(paneId, range) {
+  if (!isValidRange(range)) return;
+  pendingRanges.set(paneId, range);
+  if (pendingRangeFrames.has(paneId)) return;
+  const frameId = requestNextFrame(() => {
+    pendingRangeFrames.delete(paneId);
+    const pendingRange = pendingRanges.get(paneId);
+    pendingRanges.delete(paneId);
+    if (isValidRange(pendingRange)) {
+      updatePaneVisibleRange(paneId, pendingRange);
+    }
+  });
+  pendingRangeFrames.set(paneId, frameId);
 }
 
 function bindPrimaryRangeSync() {
@@ -18,8 +40,7 @@ function bindPrimaryRangeSync() {
   if (!chart || primaryBound) return;
   primaryBound = true;
   chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
-    if (!isValidRange(range)) return;
-    updatePaneVisibleRange(CHART_PANE_IDS.PRIMARY, range);
+    schedulePaneVisibleRangeUpdate(CHART_PANE_IDS.PRIMARY, range);
   });
 }
 
@@ -28,8 +49,7 @@ function bindComparisonRangeSync() {
   if (!chart || comparisonBound) return;
   comparisonBound = true;
   chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
-    if (!isValidRange(range)) return;
-    updatePaneVisibleRange(CHART_PANE_IDS.COMPARISON, range);
+    schedulePaneVisibleRangeUpdate(CHART_PANE_IDS.COMPARISON, range);
   });
 }
 
