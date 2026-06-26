@@ -161,11 +161,11 @@ export function createComparisonWindowDataController({
     clearComparisonView();
   }
 
-  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false } = {}) {
+  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false, primaryPayload = null } = {}) {
     const state = getComparisonWindowState();
     if (!state.enabled) return;
     if (requirePaneSync && !shouldFollowPrimaryPane()) return;
-    const { start, end } = primaryStore.getCurrentRange();
+    const { start, end } = primaryPayload || primaryStore.getCurrentRange();
     if (!start || !end) {
       clearComparisonView();
       return;
@@ -173,8 +173,8 @@ export function createComparisonWindowDataController({
 
     const { instrument, timeframe } = state.descriptor;
     const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument, {
-      primaryTimeframe: primaryStore.getCurrentTimeframe(),
-      outerRange: primaryStore.getRequestedOuterRange(),
+      primaryTimeframe: primaryPayload?.tf ?? primaryStore.getCurrentTimeframe(),
+      outerRange: primaryPayload?.requestedOuterRange ?? primaryStore.getRequestedOuterRange(),
       replayState: {
         ...lastReplayState,
         allowOuterStartFallback: true,
@@ -265,6 +265,13 @@ export function createComparisonWindowDataController({
     renderComparisonBars({ followReplay: true });
   }
 
+  function handleReplayPendingActivate({ timestamp } = {}) {
+    lastReplayState = {
+      enabled: true,
+      cursorTimestamp: timestamp ?? null,
+    };
+  }
+
   return {
     getReplaySyncedBars,
     renderComparisonBars,
@@ -272,6 +279,7 @@ export function createComparisonWindowDataController({
     clearComparisonViewForPrimary,
     loadComparisonForPrimaryRange,
     handleComparisonChanged,
+    handleReplayPendingActivate,
     handleReplayChanged,
   };
 }

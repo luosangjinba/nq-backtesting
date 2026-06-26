@@ -585,6 +585,7 @@ async function loadRange(start, end, successText) {
     }
     setToolbarRange(start, end, false);
     updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
+    bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
     store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
       outerRange: replay.outerRange,
       instrument,

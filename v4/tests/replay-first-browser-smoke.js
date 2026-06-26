@@ -252,7 +252,11 @@ async function main() {
         const bus = await import('/src/event-bus.js');
         const replayControls = await import('/src/ui/replay-controls.js');
         const { loadReplayFirstWindow } = await import('/src/data/replay-first-loader.js');
+        const comparisonStore = await import('/src/comparison/comparison-window-store.js');
 
+        comparisonStore.setComparisonWindowEnabled(false);
+        await waitFrame();
+        window.__replayFirstCalls = [];
         const replay = await loadReplayFirstWindow({
           start: '2012-01-01 00:00',
           end: '2012-12-31 23:59',
@@ -260,12 +264,19 @@ async function main() {
           instrument: 'NQ',
         });
         if (!replay.ok) throw new Error(replay.message);
+        bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
         store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, 1, null, {
           outerRange: replay.outerRange,
           instrument: 'NQ',
         });
         bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
         await waitFor(() => replayControls.getReplayCursorTimestamp() !== null, 'replay activation');
+        await waitFrame();
+        comparisonStore.setComparisonWindowEnabled(true);
+        await waitFor(
+          () => window.__replayFirstCalls.some((call) => call.tf === 60 && call.spanHours <= 5),
+          'bounded comparison sync'
+        );
         await waitFrame();
 
         const initialCalls = window.__replayFirstCalls.slice();
@@ -290,6 +301,7 @@ async function main() {
         const finalBars = store.getBars().length;
         const forwardCalls = window.__replayFirstCalls.slice(initialCalls.length + prefixCalls.length);
 
+        const progressiveCalls = [...prefixCalls, ...forwardCalls];
         return {
           ok: true,
           initialCalls,
@@ -304,6 +316,7 @@ async function main() {
           currentCursor: replayControls.getReplayCursorTimestamp(),
           forwardMs,
           maxRequestSpanHours: Math.max(...window.__replayFirstCalls.map((call) => call.spanHours)),
+          maxProgressiveRequestSpanHours: Math.max(...progressiveCalls.map((call) => call.spanHours)),
           totalCalls: window.__replayFirstCalls.length,
         };
       })().catch((error) => ({ ok: false, error: error.stack || error.message }));
@@ -323,10 +336,9 @@ async function main() {
     assert.ok(result.finalRange.end > result.initialRange.end, 'forward load should extend range right');
     assert.ok(result.finalBars > result.initialBars, 'progressive loads should add bars');
     assert.ok(
-      result.maxRequestSpanHours <= 14 * 24,
-      `browser smoke must not request a full long range: ${JSON.stringify({
-        maxRequestSpanHours: result.maxRequestSpanHours,
-        initialCalls: result.initialCalls,
+      result.maxProgressiveRequestSpanHours <= 24,
+      `progressive replay-first requests must stay bounded: ${JSON.stringify({
+        maxProgressiveRequestSpanHours: result.maxProgressiveRequestSpanHours,
         prefixCalls: result.prefixCalls,
         forwardCalls: result.forwardCalls,
       })}`

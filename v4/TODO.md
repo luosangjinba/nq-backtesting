@@ -1359,4 +1359,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.6: Progressive prefix loading on pan。已监听主图 visible logical range；Replay-first 1m 模式下向左拖到当前数据左边缘时，会按 2 小时小块请求更早 bars、prepend 到当前数据，并复用 bars window cache；近期加载过的块直接命中 cache。
   - [x] Step 352.7: Replay forward progressive loading。Replay-first 1m 模式下 cursor 接近当前窗口末端时，按 2 小时小块加载后续 bars、append 到当前数据；播放中触发加载后会恢复播放，并复用 bars window cache。
   - [x] Step 352.8: Browser performance smoke and UX tuning。已新增 `replay-first-browser-smoke.js` 和 `smoke_all.py --suite browser`；真实 headless Chrome 验证一年 1m replay-first 初始日级分片、左拖 prefix、向右 replay forward loading、cursor 保持和非全年请求。观察到 Pane/overlay 同步会请求当前已加载窗口整段，下一步单独优化。
-  - [ ] Step 352.9: Bound pane/overlay sync requests for replay-first windows。Pane/overlay 同步当前会随 prefix/forward 请求整个 loaded window；需要改为复用 replay chunk/window cache 或只请求必要窗口，避免窗口增长后同步请求变大。
+  - [x] Step 352.9: Bound pane/overlay sync requests for replay-first windows。Pane 1/Comparison 在 replay-first 1m 模式下不再随 prefix/forward 请求整个 loaded window；现在按 replay cursor 前后 2 小时、并按 comparison timeframe 额外补一根 bar 的 bounded window 请求。Browser smoke 已覆盖 progressive prefix/forward 阶段 comparison 请求不超过 24 小时。
+  - [ ] Step 352.10: Real-data browser validation。用真实本地 API/DB 跑一年 1m NQ/ES replay-first，记录 initial load、prefix、forward、drag FPS/卡顿和 request count；根据真实数据结果决定是否调 chunk size、cache size 或 status 降噪。

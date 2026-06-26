@@ -543,6 +543,7 @@ async function loadReplayFirstRange(start, end, tf, instrument) {
     bus.emit('status:update', { text: replay.message, isError: true });
     return;
   }
+  bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
   store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
     outerRange: replay.outerRange,
     instrument,

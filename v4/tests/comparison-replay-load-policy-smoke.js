@@ -16,7 +16,7 @@ const replayState = {
 
 assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 1, outerRange, replayState }), true);
 assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 60, outerRange, replayState }), false);
-assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 1, outerRange, replayState: { enabled: false } }), false);
+assert.equal(isReplayFirstPrimaryRange({ primaryTimeframe: 1, outerRange, replayState: { enabled: false } }), true);
 assert.equal(
   isReplayFirstPrimaryRange({
     primaryTimeframe: 1,
@@ -49,7 +49,7 @@ const fallbackRange = resolveReplayFirstComparisonRange({
   primaryTimeframe: 1,
   comparisonTimeframe: 60,
   outerRange,
-  replayState: { enabled: false, allowOuterStartFallback: true },
+  replayState: { enabled: false },
 });
 assert.equal(fallbackRange.start, '2012-01-01 00:00');
 assert.equal(fallbackRange.end, '2012-01-01 03:00');

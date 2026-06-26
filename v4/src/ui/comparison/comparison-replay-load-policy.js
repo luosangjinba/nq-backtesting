@@ -17,11 +17,7 @@ export function isReplayFirstPrimaryRange({ primaryTimeframe, outerRange, replay
   return Boolean(
     outer &&
     Number(outer.timeframe) === 1 &&
-    Number(primaryTimeframe) === 1 &&
-    (
-      (replayState?.enabled && Number.isFinite(Number(replayState.cursorTimestamp))) ||
-      replayState?.allowOuterStartFallback
-    )
+    Number(primaryTimeframe) === 1
   );
 }
 

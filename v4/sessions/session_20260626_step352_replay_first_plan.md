@@ -185,10 +185,37 @@ Observed during the smoke:
   window after prefix/forward growth. In the smoke this reached about 100
   hours, not a full year, but it is the next performance target.
 
+## Step 352.9 Bound Pane/Overlay Sync Requests
+
+Status: complete.
+
+Added `src/ui/comparison/comparison-replay-load-policy.js` and routed Pane 1
+load requests through it.
+
+Behavior:
+
+- Replay-first 1m comparison sync no longer uses the full current loaded
+  primary range.
+- It resolves a bounded comparison window around the Replay cursor:
+  cursor - 2 hours to cursor + 2 hours, plus one comparison timeframe bar on
+  the right side.
+- The policy can use `outerRange.start` as a fallback cursor when no active
+  Replay cursor is available.
+- Existing normal range behavior is unchanged outside replay-first 1m mode.
+- Browser smoke now asserts progressive prefix/forward-stage `/v4/bars`
+  requests stay within 24 hours during the mocked one-year replay-first
+  workflow.
+
+Result:
+
+- The previous browser-smoke observation of Pane/overlay sync reaching about
+  100 hours is fixed for progressive prefix/forward stages in the mocked
+  browser workflow.
+
 ## Non-Goals For Current Batch
 
 - No full overlay culling yet.
 - No IndexedDB persistent cache yet.
 - No removal of backend request limits.
 - No attempt to render a full year of 1m candles.
-- Pane/overlay sync request bounding remains open for Step 352.9.
+- Real-data browser profiling remains open for Step 352.10.
