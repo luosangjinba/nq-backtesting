@@ -11,6 +11,12 @@ import { recordReplayPerformanceEvent } from './replay-performance-diagnostics.j
 
 const EDGE_THRESHOLD_BARS = 24;
 const FORWARD_CHUNK_SECONDS = 2 * 60 * 60;
+const CHUNK_BARS = 120;
+
+function getChunkSeconds(chunkSeconds = FORWARD_CHUNK_SECONDS) {
+  const timeframeSeconds = Math.max(60, Number(store.getCurrentTimeframe()) * 60);
+  return Math.max(60, Math.floor(Number(chunkSeconds) || FORWARD_CHUNK_SECONDS), timeframeSeconds * CHUNK_BARS);
+}
 
 let loading = false;
 let lastRequestedKey = '';
@@ -23,7 +29,8 @@ function getOuterRange() {
 export function resolveReplayForwardWindow(currentEnd, outerRange, chunkSeconds = FORWARD_CHUNK_SECONDS) {
   const startTs = parseReplayDateTime(currentEnd);
   const outer = getOuterRange() || normalizeReplayOuterRange(outerRange);
-  const seconds = Math.max(60, Math.floor(Number(chunkSeconds) || FORWARD_CHUNK_SECONDS));
+  const timeframe = Number(store.getCurrentTimeframe()) || Number(outer?.timeframe) || 1;
+  const seconds = getChunkSeconds(chunkSeconds);
   if (!Number.isFinite(startTs) || !outer) return null;
   if (startTs >= outer.endTs) return null;
   const endTs = Math.min(outer.endTs, startTs + seconds);
@@ -33,14 +40,13 @@ export function resolveReplayForwardWindow(currentEnd, outerRange, chunkSeconds 
     end: formatReplayTimestamp(endTs),
     startTs,
     endTs,
-    timeframe: 1,
+    timeframe,
   };
 }
 
 function isReplayForwardLoadEligible(replayState = {}) {
   if (loading) return false;
   if (!replayState.enabled || replayState.cursorIndex < 0) return false;
-  if (Number(store.getCurrentTimeframe()) !== 1) return false;
   if (!getOuterRange()) return false;
   const remaining = Number(replayState.dataCount) - Number(replayState.cursorIndex) - 1;
   return Number.isFinite(remaining) && remaining <= EDGE_THRESHOLD_BARS;

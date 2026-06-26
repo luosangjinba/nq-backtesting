@@ -9,6 +9,12 @@ import { getReplayCursorTimestamp } from '../ui/replay-controls.js';
 
 const EDGE_THRESHOLD_BARS = 12;
 const PREFIX_CHUNK_SECONDS = 2 * 60 * 60;
+const CHUNK_BARS = 120;
+
+function getChunkSeconds(chunkSeconds = PREFIX_CHUNK_SECONDS) {
+  const timeframeSeconds = Math.max(60, Number(store.getCurrentTimeframe()) * 60);
+  return Math.max(60, Math.floor(Number(chunkSeconds) || PREFIX_CHUNK_SECONDS), timeframeSeconds * CHUNK_BARS);
+}
 
 let loading = false;
 let lastRequestedKey = '';
@@ -16,7 +22,6 @@ let pendingTimer = null;
 
 function isReplayPrefixLoadEligible(visibleRange) {
   if (!visibleRange || loading) return false;
-  if (Number(store.getCurrentTimeframe()) !== 1) return false;
   if (!store.getRequestedOuterRange()) return false;
   if (getReplayCursorTimestamp() === null) return false;
   return Number(visibleRange.from) <= EDGE_THRESHOLD_BARS;
@@ -24,7 +29,8 @@ function isReplayPrefixLoadEligible(visibleRange) {
 
 export function resolveReplayPrefixWindow(currentStart, chunkSeconds = PREFIX_CHUNK_SECONDS) {
   const endTs = parseReplayDateTime(currentStart);
-  const seconds = Math.max(60, Math.floor(Number(chunkSeconds) || PREFIX_CHUNK_SECONDS));
+  const timeframe = Number(store.getCurrentTimeframe()) || 1;
+  const seconds = getChunkSeconds(chunkSeconds);
   if (!Number.isFinite(endTs)) return null;
   const startTs = endTs - seconds;
   return {
@@ -32,7 +38,7 @@ export function resolveReplayPrefixWindow(currentStart, chunkSeconds = PREFIX_CH
     end: formatReplayTimestamp(endTs),
     startTs,
     endTs,
-    timeframe: 1,
+    timeframe,
   };
 }
 

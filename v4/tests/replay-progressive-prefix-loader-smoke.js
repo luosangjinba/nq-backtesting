@@ -11,10 +11,6 @@ import {
   setBars,
 } from '../src/data/bar-store.js';
 
-const window = resolveReplayPrefixWindow('2012-01-02 09:30');
-assert.equal(window.start, '2012-01-02 07:30');
-assert.equal(window.end, '2012-01-02 09:30');
-
 clearBars();
 resetReplayProgressivePrefixLoaderForTests();
 setBars(
@@ -35,6 +31,10 @@ setBars(
     instrument: 'NQ',
   }
 );
+
+const window = resolveReplayPrefixWindow('2012-01-02 09:30');
+assert.equal(window.start, '2012-01-02 07:30');
+assert.equal(window.end, '2012-01-02 09:30');
 
 const calls = [];
 const loaded = await loadReplayPrefixChunk({
@@ -64,5 +64,30 @@ assert.deepEqual(calls[0], {
 });
 assert.deepEqual(getBars().map((bar) => bar.close), [98, 99, 100, 101]);
 assert.equal(getCurrentRange().start, '2012-01-02 07:30');
+
+clearBars();
+resetReplayProgressivePrefixLoaderForTests();
+setBars(
+  [
+    { timestamp: 1325494800, close: 200 },
+    { timestamp: 1325498400, close: 201 },
+  ],
+  '2012-01-02 09:00',
+  '2012-01-02 10:00',
+  60,
+  null,
+  {
+    outerRange: {
+      start: '2012-01-02 09:00',
+      end: '2012-02-01 09:00',
+      timeframe: 60,
+    },
+    instrument: 'NQ',
+  }
+);
+
+const hourlyWindow = resolveReplayPrefixWindow('2012-01-02 09:00');
+assert.equal(hourlyWindow.timeframe, 60);
+assert.equal(hourlyWindow.start, '2011-12-28 09:00');
 
 console.log('replay progressive prefix loader smoke passed');

@@ -43,6 +43,16 @@ export function resolveComparisonLoadRequest(start, end, timeframe, instrument, 
   });
   const comparisonRange = replayFirstRange || resolveChartLoadRange(start, end, timeframe);
   if (!comparisonRange.ok) {
+    if (comparisonRange.replayFirstRequired && options.replayState?.enabled) {
+      return {
+        ok: false,
+        skipped: true,
+        message: comparisonRange.message,
+        comparisonRange,
+        replaySourceRange: null,
+        signature: `${start}|${end}|${instrument}|${timeframe}|replay-first-pending`,
+      };
+    }
     return {
       ok: false,
       message: comparisonRange.message,
@@ -181,6 +191,7 @@ export function createComparisonWindowDataController({
       },
     });
     if (!loadRequest.ok) {
+      if (loadRequest.skipped) return;
       clearComparisonBars();
       replaySourceBars = [];
       replaySourceRequestedRange = null;

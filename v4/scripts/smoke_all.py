@@ -94,6 +94,18 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify replay-first performance diagnostics can be enabled and records bar-store metrics.",
         ),
         SmokeCommand(
+            "replay_progressive_prefix_loader_smoke",
+            ["node", "v4/tests/replay-progressive-prefix-loader-smoke.js"],
+            "local",
+            "Verify replay prefix chunks use the active timeframe.",
+        ),
+        SmokeCommand(
+            "replay_progressive_forward_loader_smoke",
+            ["node", "v4/tests/replay-progressive-forward-loader-smoke.js"],
+            "local",
+            "Verify replay forward chunks use the active timeframe.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

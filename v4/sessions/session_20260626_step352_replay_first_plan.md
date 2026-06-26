@@ -269,7 +269,8 @@ Planned substeps:
 - Step 352.11.3: tune the highest-impact bottleneck based on measured data.
 - Step 352.11.4: enforce FX Replay start semantics.
 - Step 352.11.5: remove legacy 1m long-range window fallback.
-- Step 352.11.6: manual confirmation in the real browser.
+- Step 352.11.6: default Replay Bar for all timeframes.
+- Step 352.11.7: manual confirmation in the real browser.
 
 ### Step 352.11.1 Replay-First Performance Diagnostics
 
@@ -374,6 +375,38 @@ Latest local result after tuning:
 
 Validation:
 
+- `python3 v4/scripts/smoke_all.py --suite browser-real`
+- `python3 v4/scripts/smoke_all.py --suite local`
+
+### Step 352.11.6 Default Replay Bar For All Timeframes
+
+Status: complete.
+
+User-facing rule:
+
+- Any Date Range load, regardless of timeframe or outer range length, should
+  enter Replay Bar by default.
+- The visible chart can include prefix context before the operation start.
+- Replay operations still begin at the Date Range start / first available bar
+  after that start.
+
+Change:
+
+- Toolbar and Calendar load actions now route through `loadReplayFirstWindow`
+  by default instead of only using it for long 1m ranges.
+- Replay prefix and forward progressive loaders now request the active
+  timeframe instead of hard-coding `1m`.
+- Prefix/forward chunk size scales with timeframe, using at least 120 bars per
+  chunk.
+- Comparison loading skips transient `replayFirstRequired` failures while
+  replay activation is pending, preventing Pane 1 from showing a false load
+  error during Replay Bar startup.
+- `smoke_all.py --suite local` now includes prefix/forward progressive loader
+  smoke tests that verify non-1m timeframe requests.
+
+Validation:
+
+- `python3 v4/scripts/smoke_all.py --suite browser`
 - `python3 v4/scripts/smoke_all.py --suite browser-real`
 - `python3 v4/scripts/smoke_all.py --suite local`
 
