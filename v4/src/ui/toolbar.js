@@ -7,7 +7,7 @@ import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
 import { loadReplayFirstWindow } from '../data/replay-first-loader.js';
-import { isReplayFirstCandidate } from '../data/replay-range-model.js';
+import { shouldUseReplayFirstRange } from '../data/replay-range-model.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getComparisonWindowState,
@@ -582,7 +582,7 @@ async function handleLoad() {
     return;
   }
 
-  if (isReplayFirstCandidate(start, end, tf)) {
+  if (shouldUseReplayFirstRange(start, end, tf)) {
     try {
       await loadReplayFirstRange(start, end, tf, instrument);
     } catch (err) {

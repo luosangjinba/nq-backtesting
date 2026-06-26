@@ -268,7 +268,8 @@ Planned substeps:
 - Step 352.11.2: run/record real browser drag profile using the diagnostics.
 - Step 352.11.3: tune the highest-impact bottleneck based on measured data.
 - Step 352.11.4: enforce FX Replay start semantics.
-- Step 352.11.5: manual confirmation in the real browser.
+- Step 352.11.5: remove legacy 1m long-range window fallback.
+- Step 352.11.6: manual confirmation in the real browser.
 
 ### Step 352.11.1 Replay-First Performance Diagnostics
 
@@ -423,3 +424,31 @@ Latest real-data result:
   but `cursorIndex=210`, `replayStartIndex=210`, `progressIndex=1`.
 - `ES`: initial active chart data count 211 because prefix context is visible,
   but `cursorIndex=210`, `replayStartIndex=210`, `progressIndex=1`.
+
+### Step 352.11.5 Remove Legacy 1m Long-Range Window Fallback
+
+Status: complete.
+
+Problem:
+
+- A 1m date range longer than 14 days could still fall back to the older
+  virtual-window path and show status text like `1m 长区间已进入窗口模式`.
+- That behavior made the UI look like it was loading forward from the Date
+  Range start to a later window endpoint instead of starting Replay Bar at
+  Date Range start.
+
+Change:
+
+- `resolveChartLoadRange()` no longer returns a 14-day `windowed` range for
+  long 1m requests. It now returns `replayFirstRequired: true`.
+- Toolbar and Calendar continue to route long 1m ranges through replay-first.
+- Tests now assert that ordinary long 1m load-range fallback is rejected and
+  cannot silently reintroduce the old window mode.
+
+Validation:
+
+- `node v4/tests/load-range-policy-smoke.js`
+- `node v4/tests/comparison-load-range-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite browser`
+- `python3 v4/scripts/smoke_all.py --suite browser-real`
+- `python3 v4/scripts/smoke_all.py --suite local`

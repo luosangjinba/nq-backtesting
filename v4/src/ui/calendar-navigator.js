@@ -2,7 +2,7 @@ import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
 import { loadReplayFirstWindow } from '../data/replay-first-loader.js';
-import { isReplayFirstCandidate } from '../data/replay-range-model.js';
+import { shouldUseReplayFirstRange } from '../data/replay-range-model.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
@@ -576,7 +576,7 @@ function openPopover(button) {
 
 async function loadRange(start, end, successText) {
   const tf = getPrimaryPaneTimeframe();
-  if (isReplayFirstCandidate(start, end, tf)) {
+  if (shouldUseReplayFirstRange(start, end, tf)) {
     bus.emit('status:update', { text: 'Loading replay window...', isError: false });
     const instrument = getPrimaryInstrument();
     const replay = await loadReplayFirstWindow({ start, end, timeframe: tf, instrument });

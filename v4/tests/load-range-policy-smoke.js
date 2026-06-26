@@ -20,11 +20,11 @@ const normalOneMinute = validateSingleWindowRange('2024-01-01 00:00', '2024-01-1
 assert.equal(normalOneMinute.ok, true);
 
 const virtualOneMinute = resolveChartLoadRange('2024-01-01 00:00', '2024-01-31 00:00', 1);
-assert.equal(virtualOneMinute.ok, true);
-assert.equal(virtualOneMinute.windowed, true);
+assert.equal(virtualOneMinute.ok, false);
+assert.equal(virtualOneMinute.windowed, false);
+assert.equal(virtualOneMinute.replayFirstRequired, true);
 assert.equal(virtualOneMinute.outerRange.start, '2024-01-01 00:00');
-assert.equal(virtualOneMinute.start, '2024-01-01 00:00');
-assert.equal(virtualOneMinute.end, '2024-01-15 00:00');
+assert.match(virtualOneMinute.message, /Replay Bar/);
 
 const oversizedOneMinute = validateSingleWindowRange('2024-01-01 00:00', '2024-04-01 00:00', 1);
 assert.equal(oversizedOneMinute.ok, false);
@@ -32,11 +32,11 @@ assert.match(oversizedOneMinute.message, /1m/);
 assert.ok(oversizedOneMinute.estimatedBars > oversizedOneMinute.maxEstimatedBars);
 
 const windowed = resolveChartLoadRange('2024-01-01 00:00', '2024-04-01 00:00', 1);
-assert.equal(windowed.ok, true);
-assert.equal(windowed.windowed, true);
+assert.equal(windowed.ok, false);
+assert.equal(windowed.windowed, false);
+assert.equal(windowed.replayFirstRequired, true);
 assert.equal(windowed.outerRange.start, '2024-01-01 00:00');
-assert.equal(windowed.start, '2024-01-01 00:00');
-assert.equal(windowed.end, '2024-01-15 00:00');
+assert.match(windowed.message, /Replay Bar/);
 
 const normalHourly = validateSingleWindowRange('2024-01-01 00:00', '2024-12-31 00:00', 60);
 assert.equal(normalHourly.ok, true);

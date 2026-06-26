@@ -79,3 +79,7 @@ export function isReplayFirstCandidate(start, end, timeframe) {
   if (!outer || Number(outer.timeframe) !== 1) return false;
   return (outer.endTs - outer.startTs) > 14 * 24 * 60 * MINUTE_SECONDS;
 }
+
+export function shouldUseReplayFirstRange(start, end, timeframe) {
+  return isReplayFirstCandidate(start, end, timeframe);
+}
