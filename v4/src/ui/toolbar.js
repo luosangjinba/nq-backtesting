@@ -413,6 +413,11 @@ function syncActivePaneToolbarControls() {
   if (tfSelect) tfSelect.value = String(activePane.timeframe);
 }
 
+function getSelectedToolbarTimeframe(fallback = DEFAULT_TIMEFRAME) {
+  const selected = Number(document.getElementById('tfSelect')?.value);
+  return Number.isFinite(selected) && selected > 0 ? selected : fallback;
+}
+
 function renderSettingsPopover() {
   const popover = document.getElementById('toolbarSettingsPopover');
   if (!popover) return;
@@ -572,7 +577,7 @@ async function handleLoad() {
   const start = startEl.value;
   const end = endEl.value;
   const primaryPane = getPaneById(CHART_PANE_IDS.PRIMARY);
-  const tf = Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME;
+  const tf = getSelectedToolbarTimeframe(Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME);
   const instrument = getPrimaryInstrument();
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
 

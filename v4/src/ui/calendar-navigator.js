@@ -49,6 +49,8 @@ let rangeHistoryMutationVersion = 0;
 let applyingServerRangeHistory = false;
 
 function getPrimaryPaneTimeframe() {
+  const selected = Number(document.getElementById('tfSelect')?.value);
+  if (Number.isFinite(selected) && selected > 0) return selected;
   return Number(getPaneById(CHART_PANE_IDS.PRIMARY)?.timeframe) || store.getCurrentTimeframe();
 }
 
