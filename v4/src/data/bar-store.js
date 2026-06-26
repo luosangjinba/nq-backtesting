@@ -3,6 +3,7 @@
 import * as bus from '../event-bus.js';
 import { DEFAULT_TIMEFRAME } from '../config.js';
 import { getPrimaryInstrument } from './primary-instrument-store.js';
+import { recordReplayPerformanceEvent } from './replay-performance-diagnostics.js';
 
 let bars = [];
 let currentStart = null;
@@ -29,7 +30,9 @@ function mergeBarsByTimestamp(leftBars = [], rightBars = []) {
 }
 
 export function setBars(newBars, start, end, tf, range = null, options = {}) {
+  const startedAt = performance.now();
   const instrument = options.instrument || getPrimaryInstrument();
+  const previousCount = bars.length;
   bars = newBars;
   currentStart = start;
   currentEnd = end;
@@ -47,6 +50,19 @@ export function setBars(newBars, start, end, tf, range = null, options = {}) {
     instrument,
     isWindowedRange: Boolean(requestedOuterRange),
   });
+  recordReplayPerformanceEvent('bar-store:set-bars', {
+    operation: options.operation || 'setBars',
+    instrument,
+    tf,
+    start,
+    end,
+    previousCount,
+    sourceCount: Array.isArray(newBars) ? newBars.length : 0,
+    barsCount: bars.length,
+    displayBarsCount: displayBars.length,
+    isWindowedRange: Boolean(requestedOuterRange),
+    durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+  });
 }
 
 export function prependBarsToCurrentRange(prefixBars = [], start = currentStart, options = {}) {
@@ -56,6 +72,7 @@ export function prependBarsToCurrentRange(prefixBars = [], start = currentStart,
   setBars(mergedBars, start, currentEnd, currentTimeframe, requestedRange, {
     outerRange: requestedOuterRange,
     instrument,
+    operation: 'prepend',
   });
   return {
     bars: mergedBars,
@@ -72,6 +89,7 @@ export function appendBarsToCurrentRange(suffixBars = [], end = currentEnd, opti
   setBars(mergedBars, currentStart, end, currentTimeframe, requestedRange, {
     outerRange: requestedOuterRange,
     instrument,
+    operation: 'append',
   });
   return {
     bars: mergedBars,

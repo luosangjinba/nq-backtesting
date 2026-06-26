@@ -11,6 +11,7 @@ import {
 import { formatTickPrice, getInstrumentTickSize } from '../price-utils.js';
 import { VerticalLinePrimitive } from './primitives.js';
 import { getGridOptions } from './grid-visibility.js';
+import { recordReplayPerformanceEvent } from '../data/replay-performance-diagnostics.js';
 
 let chart = null;
 let series = null;
@@ -315,9 +316,18 @@ export function getVisibleLogicalRange() {
 export function subscribeVisibleLogicalRangeChange(handler) {
   if (!chart || typeof handler !== 'function') return () => {};
   const timeScale = chart.timeScale();
-  timeScale.subscribeVisibleLogicalRangeChange(handler);
+  const wrappedHandler = (range) => {
+    recordReplayPerformanceEvent('chart:visible-logical-range', {
+      from: Number(range?.from),
+      to: Number(range?.to),
+      width: Number(range?.to) - Number(range?.from),
+      activeDataCount,
+    });
+    handler(range);
+  };
+  timeScale.subscribeVisibleLogicalRangeChange(wrappedHandler);
   return () => {
-    timeScale.unsubscribeVisibleLogicalRangeChange(handler);
+    timeScale.unsubscribeVisibleLogicalRangeChange(wrappedHandler);
   };
 }
 

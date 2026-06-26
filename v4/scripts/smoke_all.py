@@ -88,6 +88,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify Pane 1 does not request a full long 1m outer range.",
         ),
         SmokeCommand(
+            "replay_performance_diagnostics_smoke",
+            ["node", "v4/tests/replay-performance-diagnostics-smoke.js"],
+            "local",
+            "Verify replay-first performance diagnostics can be enabled and records bar-store metrics.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

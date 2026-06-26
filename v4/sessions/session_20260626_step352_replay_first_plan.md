@@ -257,3 +257,43 @@ Interpretation:
 - Remaining user-visible drag/FPS tuning should be handled separately with
   manual browser profiling because headless smoke validates request shape and
   state correctness, not perceived drag smoothness.
+
+## Step 352.11 Manual Drag/FPS Tuning
+
+Status: in progress.
+
+Planned substeps:
+
+- Step 352.11.1: add replay-first performance diagnostics.
+- Step 352.11.2: run/record real browser drag profile using the diagnostics.
+- Step 352.11.3: tune the highest-impact bottleneck based on measured data.
+
+### Step 352.11.1 Replay-First Performance Diagnostics
+
+Status: complete.
+
+Added `src/data/replay-performance-diagnostics.js`.
+
+Behavior:
+
+- Diagnostics are off by default.
+- Enable in browser with `?replayPerf=1` or
+  `window.v4ReplayPerfDiagnostics.enable()`.
+- Inspect with `window.v4ReplayPerfDiagnostics.snapshot()`.
+- Disable with `window.v4ReplayPerfDiagnostics.disable()`.
+
+Captured events:
+
+- `bar-store:set-bars`: operation, instrument, timeframe, current bar count,
+  display bar count, windowed-range flag, and duration.
+- `replay-prefix:chunk`: prefix chunk range, fetched bars, added bars,
+  cache hit flag, and duration.
+- `replay-forward:chunk`: forward chunk range, fetched bars, added bars,
+  cache hit flag, and duration.
+- `chart:visible-logical-range`: visible logical range, width, and active
+  chart data count.
+
+Validation:
+
+- `node v4/tests/replay-performance-diagnostics-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`

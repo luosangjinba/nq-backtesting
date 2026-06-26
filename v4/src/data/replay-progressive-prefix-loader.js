@@ -4,6 +4,7 @@ import * as store from './bar-store.js';
 import { getPrimaryInstrument } from './primary-instrument-store.js';
 import { loadBarsWindow } from './load-bars-window.js';
 import { formatReplayTimestamp, parseReplayDateTime } from './replay-range-model.js';
+import { recordReplayPerformanceEvent } from './replay-performance-diagnostics.js';
 import { getReplayCursorTimestamp } from '../ui/replay-controls.js';
 
 const EDGE_THRESHOLD_BARS = 12;
@@ -40,6 +41,7 @@ export async function loadReplayPrefixChunk({
   loadWindow = loadBarsWindow,
   chunkSeconds = PREFIX_CHUNK_SECONDS,
 } = {}) {
+  const startedAt = performance.now();
   const currentRange = store.getCurrentRange();
   const prefixWindow = resolveReplayPrefixWindow(currentRange.start, chunkSeconds);
   if (!prefixWindow) {
@@ -62,6 +64,15 @@ export async function loadReplayPrefixChunk({
     );
     const bars = Array.isArray(result?.bars) ? result.bars : [];
     const prepend = store.prependBarsToCurrentRange(bars, prefixWindow.start, { instrument });
+    recordReplayPerformanceEvent('replay-prefix:chunk', {
+      instrument,
+      start: prefixWindow.start,
+      end: prefixWindow.end,
+      barsCount: bars.length,
+      addedBars: prepend.addedBars,
+      cacheHit: Boolean(cacheHit),
+      durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+    });
     return {
       ok: true,
       cacheHit: Boolean(cacheHit),

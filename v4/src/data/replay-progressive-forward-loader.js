@@ -7,6 +7,7 @@ import {
   normalizeReplayOuterRange,
   parseReplayDateTime,
 } from './replay-range-model.js';
+import { recordReplayPerformanceEvent } from './replay-performance-diagnostics.js';
 
 const EDGE_THRESHOLD_BARS = 24;
 const FORWARD_CHUNK_SECONDS = 2 * 60 * 60;
@@ -50,6 +51,7 @@ export async function loadReplayForwardChunk({
   loadWindow = loadBarsWindow,
   chunkSeconds = FORWARD_CHUNK_SECONDS,
 } = {}) {
+  const startedAt = performance.now();
   const currentRange = store.getCurrentRange();
   const forwardWindow = resolveReplayForwardWindow(currentRange.end, store.getRequestedOuterRange(), chunkSeconds);
   if (!forwardWindow) {
@@ -72,6 +74,15 @@ export async function loadReplayForwardChunk({
     );
     const bars = Array.isArray(result?.bars) ? result.bars : [];
     const append = store.appendBarsToCurrentRange(bars, forwardWindow.end, { instrument });
+    recordReplayPerformanceEvent('replay-forward:chunk', {
+      instrument,
+      start: forwardWindow.start,
+      end: forwardWindow.end,
+      barsCount: bars.length,
+      addedBars: append.addedBars,
+      cacheHit: Boolean(cacheHit),
+      durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+    });
     return {
       ok: true,
       cacheHit: Boolean(cacheHit),
