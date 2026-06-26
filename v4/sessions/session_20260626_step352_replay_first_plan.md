@@ -62,6 +62,22 @@ The first pass model separates:
 It also adds `isReplayFirstCandidate()` so 1m long ranges can be routed away
 from range-first loading.
 
+## Step 352.3 Replay Window Policy
+
+Status: complete.
+
+Added `src/data/replay-window-policy.js`.
+
+First-pass policy:
+
+- default left context: 1 day before cursor;
+- default right buffer: 3 days after cursor;
+- clamp to `outerRange.start` / `outerRange.end`;
+- return explicit `windowRange` for the actual bars request.
+
+This keeps the current chart dataset bounded by cursor context instead of the
+full selected outer range.
+
 ## Non-Goals For First Batch
 
 - No full overlay culling yet.
