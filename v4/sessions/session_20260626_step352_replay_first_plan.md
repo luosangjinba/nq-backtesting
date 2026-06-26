@@ -218,4 +218,42 @@ Result:
 - No IndexedDB persistent cache yet.
 - No removal of backend request limits.
 - No attempt to render a full year of 1m candles.
-- Real-data browser profiling remains open for Step 352.10.
+- Manual drag/FPS tuning remains open for Step 352.11.
+
+## Step 352.10 Real-Data Browser Validation
+
+Status: complete.
+
+Added `v4/tests/replay-first-real-data-browser-smoke.js` and wired it into
+`v4/scripts/smoke_all.py --suite browser-real`.
+
+Scope:
+
+- Uses the real local web/API endpoints instead of mocked `/v4/bars`.
+- Defaults to `2012-01-03 09:30` through `2012-12-31 16:00`, `TF=1m`,
+  instruments `NQ,ES`.
+- Disables comparison by default so the smoke validates the core replay-first
+  long-range path, not unrelated comparison overlay fetches.
+- For each instrument it validates initial replay window load, left-side
+  progressive prefix load, forward progressive chunk load, cursor validity,
+  request count, and progressive request span.
+
+Latest local result:
+
+- `NQ`: initial load about 395ms; forward chunk about 228ms; bars increased
+  from 3871 to 3991 after prefix/forward loading; 11 `/v4/bars` calls;
+  progressive request span max 3h.
+- `ES`: initial load about 260ms; forward chunk about 103ms; bars increased
+  from 4396 to 4516 after prefix/forward loading; 7 `/v4/bars` calls;
+  progressive request span max 2h.
+- Initial non-progressive pane/overlay sync can still issue a bounded 96h
+  request on `NQ`; this stays below the backend guard and is separate from
+  the 2h progressive prefix/forward chunks.
+
+Interpretation:
+
+- The one-year 1m path no longer depends on loading the full outer date range.
+- Backend request limits remain useful and are not bypassed.
+- Remaining user-visible drag/FPS tuning should be handled separately with
+  manual browser profiling because headless smoke validates request shape and
+  state correctness, not perceived drag smoothness.
