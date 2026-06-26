@@ -250,18 +250,26 @@ async function main() {
             instrument,
           });
           if (!replay.ok) throw new Error(replay.message);
-          bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
+          bus.emit('replay:pending-activate-at', {
+            timestamp: replay.activationTimestamp,
+            replayStartTimestamp: replay.outerRange.startTs,
+          });
           store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, 1, null, {
             outerRange: replay.outerRange,
             instrument,
           });
-          bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
+          bus.emit('replay:activate-at', {
+            timestamp: replay.activationTimestamp,
+            replayStartTimestamp: replay.outerRange.startTs,
+          });
           await waitFor(() => replayControls.getReplayCursorTimestamp() !== null, instrument + ' replay activation');
           await waitFrame();
           const initialMs = performance.now() - initialStartedAt;
           const initialRange = store.getCurrentRange();
           const initialBars = store.getBars().length;
           const initialCursor = replayControls.getReplayCursorTimestamp();
+          const initialActiveDataCount = chart.getActiveDataCount();
+          const initialReplayProgress = replayControls.getReplayProgressSnapshot();
           const initialCalls = calls.slice();
 
           const prefixResult = await prefixLoader.loadReplayPrefixChunk({ instrument });
@@ -313,6 +321,8 @@ async function main() {
             prefixRange,
             finalRange,
             initialBars,
+            initialActiveDataCount,
+            initialReplayProgress,
             finalBars,
             initialCursor,
             currentCursor: replayControls.getReplayCursorTimestamp(),
@@ -344,6 +354,9 @@ async function main() {
     assert.equal(result.runs.length, INSTRUMENTS.length);
     for (const run of result.runs) {
       assert.ok(run.initialBars > 0, `${run.instrument} initial bars should be non-empty`);
+      assert.equal(run.initialReplayProgress.progressIndex, 1, `${run.instrument} should start replay at Date Range start`);
+      assert.ok(run.initialReplayProgress.replayStartIndex >= 0, `${run.instrument} replay start index should be resolved`);
+      assert.ok(run.initialActiveDataCount >= 1, `${run.instrument} should render prefix context plus cursor initially`);
       assert.ok(run.finalBars > run.initialBars, `${run.instrument} progressive loads should add bars`);
       assert.ok(run.prefixRange.start < run.initialRange.start, `${run.instrument} prefix should extend left`);
       assert.ok(run.finalRange.end > run.prefixRange.end, `${run.instrument} forward should extend right after prefix`);

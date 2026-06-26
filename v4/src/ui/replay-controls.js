@@ -45,6 +45,8 @@ let cursorIndex = -1;
 let lastCursorIndex = -1;
 let cursorTimestampAnchor = null;
 let lastCursorTimestampAnchor = null;
+let replayStartTimestampAnchor = null;
+let replayStartIndex = 0;
 let activeTimeframe = store.getCurrentTimeframe();
 let lastReplayPickHandledAt = 0;
 let speedIndex = 2;
@@ -156,9 +158,37 @@ function emitReplayChanged() {
     cursorIndex,
     cursorTimestamp: enabled && cursorIndex >= 0 ? getCursorTimestamp() : null,
     dataCount: chartData.length,
+    replayStartIndex,
+    replayStartTimestamp: replayStartTimestampAnchor,
     isPlaying: Boolean(timer),
     speedIndex,
   });
+}
+
+function findBarIndexAtOrAfterTimestamp(bars, targetTimestamp) {
+  if (!bars.length || targetTimestamp === null || targetTimestamp === undefined) return -1;
+  const target = Number(targetTimestamp);
+  if (!Number.isFinite(target)) return -1;
+  for (let index = 0; index < bars.length; index += 1) {
+    if (Number(bars[index]?.timestamp) >= target) return index;
+  }
+  return -1;
+}
+
+function resolveReplayStartIndex(timestamp = replayStartTimestampAnchor) {
+  const target = normalizeTimestamp(timestamp);
+  const index = findBarIndexAtOrAfterTimestamp(displayBars, target);
+  if (index >= 0) return index;
+  return 0;
+}
+
+function getReplayProgressIndex() {
+  if (!enabled || cursorIndex < replayStartIndex) return 0;
+  return cursorIndex - replayStartIndex + 1;
+}
+
+function getReplayProgressCount() {
+  return Math.max(0, chartData.length - replayStartIndex);
 }
 
 function setMode(nextMode) {
@@ -181,6 +211,8 @@ function resetReplayState() {
   lastCursorIndex = -1;
   cursorTimestampAnchor = null;
   lastCursorTimestampAnchor = null;
+  replayStartTimestampAnchor = null;
+  replayStartIndex = 0;
   emitReplayChanged();
   render();
 }
@@ -232,7 +264,7 @@ function stepForward() {
   if (!enabled || chartData.length === 0) return;
 
   if (cursorIndex < 0) {
-    renderSlice(0);
+    renderSlice(replayStartIndex);
     return;
   }
 
@@ -256,14 +288,14 @@ function stepForward() {
 function stepBack() {
   if (!enabled || chartData.length === 0) return;
 
-  renderSlice(Math.max(0, cursorIndex - 1));
+  renderSlice(Math.max(replayStartIndex, cursorIndex - 1));
 }
 
 function jumpStart() {
   if (chartData.length === 0) return;
   stopTimer();
   mode = 'idle';
-  renderSlice(0, true, true);
+  renderSlice(replayStartIndex, true, true);
 }
 
 function jumpLastPosition() {
@@ -326,24 +358,28 @@ function jumpToTime() {
   });
 }
 
-export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex) {
+export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex, options = {}) {
+  if (options.replayStartTimestamp !== undefined) {
+    replayStartTimestampAnchor = normalizeTimestamp(options.replayStartTimestamp);
+    replayStartIndex = resolveReplayStartIndex(replayStartTimestampAnchor);
+  }
   const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp, store.getCurrentTimeframe());
   if (index < 0) return false;
   stopTimer();
   speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : speedIndex;
   mode = 'idle';
-  renderSlice(index, true, true);
+  renderSlice(Math.max(index, replayStartIndex), true, true);
   return true;
 }
 
-function activateReplayAtTimestamp({ timestamp, speedIndex: nextSpeedIndex } = {}) {
-  if (restoreReplayToTimestamp(timestamp, nextSpeedIndex)) return;
+function activateReplayAtTimestamp({ timestamp, speedIndex: nextSpeedIndex, replayStartTimestamp } = {}) {
+  if (restoreReplayToTimestamp(timestamp, nextSpeedIndex, { replayStartTimestamp })) return;
   bus.emit('status:update', { text: 'Replay 初始化失败: 时间不在当前加载窗口', isError: true });
 }
 
 function enableReplay() {
   if (chartData.length === 0) return;
-  const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
+  const startIndex = lastCursorIndex >= replayStartIndex ? lastCursorIndex : replayStartIndex;
   mode = 'idle';
   renderSlice(startIndex);
 }
@@ -544,8 +580,8 @@ function render() {
     hasData,
     enabled,
     currentBar,
-    cursorIndex,
-    dataCount: chartData.length,
+    cursorIndex: getReplayProgressIndex() - 1,
+    dataCount: getReplayProgressCount(),
     isPlaying,
     tfLabel,
     mode,
@@ -572,6 +608,7 @@ export function getReplayRestoreSnapshot() {
     enabled: true,
     cursorTimestamp: getCursorTimestamp(),
     lastTimestamp: lastCursorIndex >= 0 ? getLastCursorTimestamp() : null,
+    replayStartTimestamp: replayStartTimestampAnchor,
     sourceTimeframe: activeTimeframe,
     sourceBars: displayBars,
     visibleRange: chart.getVisibleLogicalRange(),
@@ -586,6 +623,18 @@ export function getReplayVisibleBars() {
 
 export function getReplayCursorTimestamp() {
   return enabled && cursorIndex >= 0 ? getCursorTimestamp() : null;
+}
+
+export function getReplayProgressSnapshot() {
+  return {
+    enabled,
+    cursorIndex,
+    replayStartIndex,
+    progressIndex: getReplayProgressIndex(),
+    progressCount: getReplayProgressCount(),
+    cursorTimestamp: enabled && cursorIndex >= 0 ? getCursorTimestamp() : null,
+    replayStartTimestamp: replayStartTimestampAnchor,
+  };
 }
 
 export function isReplayPicking() {
@@ -603,6 +652,7 @@ export function syncReplayData(restoreSnapshot = null) {
   const cursorTimestamp = normalizeTimestamp(restoreSnapshot?.cursorTimestamp ?? getCursorTimestamp());
   const lastTimestamp =
     normalizeTimestamp(restoreSnapshot?.lastTimestamp ?? (lastCursorIndex >= 0 ? getLastCursorTimestamp() : null));
+  const replayStartTimestamp = normalizeTimestamp(restoreSnapshot?.replayStartTimestamp ?? replayStartTimestampAnchor);
 
   stopTimer();
   chart.hideReplayCursor();
@@ -616,6 +666,8 @@ export function syncReplayData(restoreSnapshot = null) {
   );
   chartData = displayBars.map(toChartBar);
   activeTimeframe = nextTimeframe;
+  replayStartTimestampAnchor = replayStartTimestamp;
+  replayStartIndex = resolveReplayStartIndex(replayStartTimestamp);
 
   if (shouldRestoreReplay && chartData.length > 0) {
     const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp, store.getCurrentTimeframe());
@@ -624,10 +676,11 @@ export function syncReplayData(restoreSnapshot = null) {
       lastCursorTimestampAnchor = lastTimestamp;
       mode = 'idle';
       cursorIndex = -1;
-      renderSlice(restoredIndex, true, false, {
+      renderSlice(Math.max(restoredIndex, replayStartIndex), true, false, {
         ...restoreSnapshot,
         cursorTimestamp,
         lastTimestamp,
+        replayStartTimestamp,
       });
       bus.emit('status:update', {
         text: `Replay 对齐: ${formatReplayTime(displayBars[restoredIndex])}`,
@@ -643,6 +696,8 @@ export function syncReplayData(restoreSnapshot = null) {
   lastCursorIndex = -1;
   cursorTimestampAnchor = null;
   lastCursorTimestampAnchor = null;
+  replayStartTimestampAnchor = null;
+  replayStartIndex = 0;
   if (restoreSnapshot?.enabled && chartData.length > 0) {
     chart.showStartOfData(chartData.length);
   }

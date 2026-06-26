@@ -267,7 +267,8 @@ Planned substeps:
 - Step 352.11.1: add replay-first performance diagnostics.
 - Step 352.11.2: run/record real browser drag profile using the diagnostics.
 - Step 352.11.3: tune the highest-impact bottleneck based on measured data.
-- Step 352.11.4: manual confirmation in the real browser.
+- Step 352.11.4: enforce FX Replay start semantics.
+- Step 352.11.5: manual confirmation in the real browser.
 
 ### Step 352.11.1 Replay-First Performance Diagnostics
 
@@ -378,6 +379,47 @@ Validation:
 Remaining:
 
 - Headless programmatic drag does not fully represent subjective manual
-  dragging. Step 352.11.4 should manually confirm in Chrome with
+  dragging. Step 352.11.5 should manually confirm in Chrome with
   `?replayPerf=1` and inspect `window.v4ReplayPerfDiagnostics.snapshot()`
   if stutter remains.
+
+### Step 352.11.4 FX Replay Start Semantics
+
+Status: complete.
+
+User-facing rule:
+
+- Date Range `start` is the Replay Bar operation start.
+- Bars before Date Range `start` may be displayed as prefix context and may
+  be extended further left progressively.
+- Replay progress, First, Back, and initial cursor position must not count or
+  enter the prefix context.
+- Right side continues through Replay Bar one bar at a time, with forward
+  progressive chunks loaded as needed.
+
+Change:
+
+- `app.js` now recognizes `replay:pending-activate-at` and avoids first
+  rendering the full prefetched window as a normal chart before replay
+  activation.
+- Replay activation carries `replayStartTimestamp` from the outer Date Range
+  start.
+- `replay-controls.js` now tracks `replayStartIndex` separately from the
+  absolute chart cursor index. The chart may render prefix context plus the
+  cursor, but Replay Bar progress is calculated as
+  `cursorIndex - replayStartIndex + 1`.
+- First/Back clamp to `replayStartIndex`, so the user cannot step replay
+  backward into the prefix area.
+
+Validation:
+
+- `python3 v4/scripts/smoke_all.py --suite browser`
+- `python3 v4/scripts/smoke_all.py --suite browser-real`
+- `python3 v4/scripts/smoke_all.py --suite local`
+
+Latest real-data result:
+
+- `NQ`: initial active chart data count 211 because prefix context is visible,
+  but `cursorIndex=210`, `replayStartIndex=210`, `progressIndex=1`.
+- `ES`: initial active chart data count 211 because prefix context is visible,
+  but `cursorIndex=210`, `replayStartIndex=210`, `progressIndex=1`.

@@ -543,7 +543,10 @@ async function loadReplayFirstRange(start, end, tf, instrument) {
     bus.emit('status:update', { text: replay.message, isError: true });
     return;
   }
-  bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
+  bus.emit('replay:pending-activate-at', {
+    timestamp: replay.activationTimestamp,
+    replayStartTimestamp: replay.outerRange.startTs,
+  });
   store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
     outerRange: replay.outerRange,
     instrument,
@@ -552,7 +555,10 @@ async function loadReplayFirstRange(start, end, tf, instrument) {
   const endEl = document.getElementById('endInput');
   if (startEl) startEl.value = start;
   if (endEl) endEl.value = end;
-  bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
+  bus.emit('replay:activate-at', {
+    timestamp: replay.activationTimestamp,
+    replayStartTimestamp: replay.outerRange.startTs,
+  });
   bus.emit('status:update', {
     text: `${replay.message}; loaded ${replay.bars.length} bars in ${replay.loadedChunks.length} chunks`,
     isError: false,

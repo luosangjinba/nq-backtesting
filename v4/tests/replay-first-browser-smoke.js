@@ -264,12 +264,18 @@ async function main() {
           instrument: 'NQ',
         });
         if (!replay.ok) throw new Error(replay.message);
-        bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
+        bus.emit('replay:pending-activate-at', {
+          timestamp: replay.activationTimestamp,
+          replayStartTimestamp: replay.outerRange.startTs,
+        });
         store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, 1, null, {
           outerRange: replay.outerRange,
           instrument: 'NQ',
         });
-        bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
+        bus.emit('replay:activate-at', {
+          timestamp: replay.activationTimestamp,
+          replayStartTimestamp: replay.outerRange.startTs,
+        });
         await waitFor(() => replayControls.getReplayCursorTimestamp() !== null, 'replay activation');
         await waitFrame();
         comparisonStore.setComparisonWindowEnabled(true);
@@ -283,6 +289,8 @@ async function main() {
         const initialRange = store.getCurrentRange();
         const initialBars = store.getBars().length;
         const initialCursor = replayControls.getReplayCursorTimestamp();
+        const initialActiveDataCount = chart.getActiveDataCount();
+        const initialReplayProgress = replayControls.getReplayProgressSnapshot();
 
         chart.setVisibleLogicalRange(0, 20);
         await waitFor(() => store.getCurrentRange().start < initialRange.start, 'prefix load', 10_000);
@@ -311,6 +319,8 @@ async function main() {
           prefixRange,
           finalRange,
           initialBars,
+          initialActiveDataCount,
+          initialReplayProgress,
           finalBars,
           initialCursor,
           currentCursor: replayControls.getReplayCursorTimestamp(),
@@ -332,6 +342,9 @@ async function main() {
     assert.ok(result.prefixCalls.some((call) => call.spanHours <= 2), 'prefix should use a small chunk');
     assert.ok(result.forwardCalls.length >= 1, 'forward replay should load at least one chunk');
     assert.ok(result.forwardCalls.some((call) => call.spanHours <= 2), 'forward should use a small chunk');
+    assert.equal(result.initialReplayProgress.progressIndex, 1, `replay should start at Date Range start: ${JSON.stringify(result)}`);
+    assert.ok(result.initialReplayProgress.replayStartIndex >= 0, 'replay start index should be resolved');
+    assert.ok(result.initialActiveDataCount >= 1, 'prefix context plus cursor should render initially');
     assert.ok(result.prefixRange.start < result.initialRange.start, 'prefix load should extend range left');
     assert.ok(result.finalRange.end > result.initialRange.end, 'forward load should extend range right');
     assert.ok(result.finalBars > result.initialBars, 'progressive loads should add bars');

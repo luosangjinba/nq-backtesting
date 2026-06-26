@@ -585,13 +585,19 @@ async function loadRange(start, end, successText) {
     }
     setToolbarRange(start, end, false);
     updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
-    bus.emit('replay:pending-activate-at', { timestamp: replay.activationTimestamp });
+    bus.emit('replay:pending-activate-at', {
+      timestamp: replay.activationTimestamp,
+      replayStartTimestamp: replay.outerRange.startTs,
+    });
     store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
       outerRange: replay.outerRange,
       instrument,
     });
     recordRangeHistory(start, end, tf);
-    bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
+    bus.emit('replay:activate-at', {
+      timestamp: replay.activationTimestamp,
+      replayStartTimestamp: replay.outerRange.startTs,
+    });
     bus.emit('status:update', {
       text: `${successText || replay.message}; replay window loaded ${replay.bars.length} bars in ${replay.loadedChunks.length} chunks`,
       isError: false,
