@@ -189,12 +189,17 @@ function normalizeRangeHistoryItems(items) {
   if (!Array.isArray(items)) return [];
   return items
     .filter((item) => dateTimePartsFromInput(item?.start) && dateTimePartsFromInput(item?.end))
-    .map((item) => ({
-      start: formatTimeInput(String(item.start || '')),
-      end: formatTimeInput(String(item.end || '')),
-      timeframe: Number(item.timeframe) || 0,
-      loadedAt: Number(item.loadedAt) || 0,
-    }))
+    .map((item) => {
+      const rawStart = String(item.start || '').trim();
+      const rawEnd = String(item.end || '').trim();
+      const endParts = dateTimePartsFromInput(rawEnd);
+      return {
+        start: formatTimeInput(rawStart),
+        end: endParts?.time ? formatTimeInput(rawEnd) : `${endParts.dateKey} ${FULL_DAY_END_TIME}`,
+        timeframe: Number(item.timeframe) || 0,
+        loadedAt: Number(item.loadedAt) || 0,
+      };
+    })
     .filter((item) => item.start && item.end)
     .slice(0, RANGE_HISTORY_LIMIT);
 }

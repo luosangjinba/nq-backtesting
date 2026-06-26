@@ -106,6 +106,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify replay forward chunks use the active timeframe.",
         ),
         SmokeCommand(
+            "date_range_history_workspace_smoke",
+            ["node", "v4/tests/date-range-history-workspace-smoke.js"],
+            "local",
+            "Verify date range history workspace sync and legacy date-only normalization.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",
