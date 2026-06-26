@@ -78,6 +78,20 @@ First-pass policy:
 This keeps the current chart dataset bounded by cursor context instead of the
 full selected outer range.
 
+## Step 352.4 Chunk Loader
+
+Status: complete.
+
+Added `src/data/replay-chunk-loader.js`.
+
+The first pass chunk loader:
+
+- splits a replay window into natural-day chunks;
+- loads each chunk through `loadBarsWindow()`;
+- inherits cache LRU and in-flight dedupe from `bars-window-cache`;
+- merges bars by timestamp and sorts ascending;
+- returns chunk metadata for later status/prefetch UI.
+
 ## Non-Goals For First Batch
 
 - No full overlay culling yet.

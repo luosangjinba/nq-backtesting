@@ -1354,5 +1354,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.1: 冻结产品边界。1m 长区间不再尝试加载完整 range；后端 `/v4/bars` 单次上限保留；Date Range 只定义 `outerRange`；Replay Bar 成为长区间主入口；默认 cursor 为 outerRange start 或最近一次 replay cursor；已走过 bars 不保证常驻图表。
   - [x] Step 352.2: 定义四层 Range Model：已新增 `replay-range-model.js`，明确 `outerRange` / `cursorTimestamp` / `windowRange` / `visibleBars`，并为后续 chunk cache/prefetch 预留状态。
   - [x] Step 352.3: 设计 Replay Window 策略：已新增 `replay-window-policy.js`，1m 默认 cursor 前 1 天、后 3 天，并按 outerRange 边界裁剪；不依赖全年 bars 数组。
-  - [ ] Step 352.4: 新增 Chunk Loader：按 `instrument + tf + chunkStart + chunkEnd` 请求并缓存 bars，支持 in-flight dedupe、LRU 和 merge 去重。
+  - [x] Step 352.4: 新增 Chunk Loader：已新增 `replay-chunk-loader.js`，按自然日 chunk 请求并复用 bars window cache，支持 merge 去重排序；in-flight dedupe 和 LRU 由底层 cache 提供。
   - [ ] Step 352.5: Load Range 改成 Replay 初始化：长 1m Date Range 不再 fetch 全段，而是 set outerRange + cursor + cursor window，并打开 Replay Bar。
