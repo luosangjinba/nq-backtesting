@@ -133,3 +133,19 @@ The first pass cache:
 - does not use IndexedDB.
 
 Business load paths are connected in later Step 351 substeps.
+
+## Step 351.4 Primary Load Path Integration
+
+Status: complete.
+
+Added `data/load-bars-window.js` as the shared wrapper around `/v4/bars` and
+the in-memory window cache. The primary chart load paths now use it:
+
+- Toolbar Date Range;
+- Calendar selected/manual/history/week loads;
+- Viewport Prev/Next Window;
+- Replay History restore;
+- Time Reaction timeframe switch.
+
+Pane 1 / Comparison is left for Step 351.5 because its follow-primary behavior
+has separate replay-source and pane-status handling.

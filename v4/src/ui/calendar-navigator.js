@@ -1,6 +1,6 @@
 import * as bus from '../event-bus.js';
-import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
+import { loadBarsWindow } from '../data/load-bars-window.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
@@ -579,7 +579,7 @@ async function loadRange(start, end, successText) {
     throw new Error(loadRange.message);
   }
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await fetchBars(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
+  const { result, cacheHit } = await loadBarsWindow(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
   setToolbarRange(loadRange.start, loadRange.end, false);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
@@ -587,7 +587,9 @@ async function loadRange(start, end, successText) {
   });
   recordRangeHistory(start, end, tf);
   bus.emit('status:update', {
-    text: loadRange.windowed ? loadRange.message : successText || `Loaded ${result.bars.length} bars`,
+    text: loadRange.windowed
+      ? `${loadRange.message}${cacheHit ? ' (cache)' : ''}`
+      : successText || `Loaded ${result.bars.length} bars${cacheHit ? ' (cache)' : ''}`,
     isError: false,
   });
   closePopover();
@@ -596,14 +598,14 @@ async function loadRange(start, end, successText) {
 async function loadResolvedWindow(loadRange, successText) {
   const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await fetchBars(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
+  const { result, cacheHit } = await loadBarsWindow(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
   setToolbarRange(loadRange.start, loadRange.end, false);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
     outerRange: loadRange.outerRange,
   });
   bus.emit('status:update', {
-    text: successText || loadRange.message,
+    text: `${successText || loadRange.message}${cacheHit ? ' (cache)' : ''}`,
     isError: false,
   });
   closePopover();

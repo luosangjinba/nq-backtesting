@@ -1,12 +1,12 @@
 import * as bus from '../../event-bus.js';
 import { VIEWPORT_TARGETS, locateChartRange } from '../../chart/viewport-router.js';
-import { fetchBars } from '../../api.js';
 import { getAnnotationById } from '../../pda/pda-store.js';
 import { locatePdaProjection } from '../../pda/pda-locate-actions.js';
 import { getSegmentById } from '../../segment/segment-store.js';
 import { getSegmentGroupById } from '../../segment/segment-group-store.js';
 import { locateSetupSet } from '../../order/setup-set.js';
 import * as store from '../../data/bar-store.js';
+import { loadBarsWindow } from '../../data/load-bars-window.js';
 import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import { resolveChartLoadRange } from '../../data/load-range-policy.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
@@ -389,7 +389,7 @@ async function ensurePrimaryTimeframe(timeframe) {
   }
   bus.emit('status:update', { text: 'Loading primary timeframe...', isError: false });
   try {
-    const result = await fetchBars(loadRange.start, loadRange.end, targetTimeframe, getPrimaryInstrument());
+    const { result } = await loadBarsWindow(loadRange.start, loadRange.end, targetTimeframe, getPrimaryInstrument());
     syncPrimaryToolbarRange(loadRange.start, loadRange.end, targetTimeframe);
     store.setBars(result.bars, loadRange.start, loadRange.end, targetTimeframe, result.requestedRange, {
       outerRange: loadRange.outerRange,

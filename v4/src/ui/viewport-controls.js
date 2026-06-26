@@ -1,11 +1,11 @@
 // Floating chart viewport controls.
 
 import * as bus from '../event-bus.js';
-import { fetchBars } from '../api.js';
 import * as viewport from '../chart/viewport-controller.js';
 import * as comparisonViewport from '../chart/comparison-viewport-controller.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { loadBarsWindow } from '../data/load-bars-window.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
 import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
 
@@ -58,12 +58,12 @@ async function loadAdjacentWindow(direction) {
   bus.emit('status:update', { text: '加载中...', isError: false });
   try {
     const tf = Number(resolved.outerRange?.timeframe || store.getCurrentTimeframe());
-    const result = await fetchBars(resolved.start, resolved.end, tf, getPrimaryInstrument());
+    const { result, cacheHit } = await loadBarsWindow(resolved.start, resolved.end, tf, getPrimaryInstrument());
     setToolbarRange(resolved.start, resolved.end);
     store.setBars(result.bars, resolved.start, resolved.end, tf, result.requestedRange, {
       outerRange: resolved.outerRange,
     });
-    bus.emit('status:update', { text: resolved.message, isError: false });
+    bus.emit('status:update', { text: `${resolved.message}${cacheHit ? ' (cache)' : ''}`, isError: false });
   } catch (err) {
     bus.emit('status:update', { text: `窗口加载失败: ${err.message}`, isError: true });
   }
