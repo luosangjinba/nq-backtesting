@@ -181,3 +181,24 @@ Added/updated smoke coverage:
 
 Updated user guides to explain that large 1M ranges use virtual window loading
 with in-memory cache for already visited windows.
+
+## Step 351.6 Acceptance Record
+
+Status: automated acceptance complete; final drag feel requires browser reload
+and manual confirmation.
+
+Automated checks:
+
+- `2012-01-01 00:00` to `2012-12-31 23:59`, `TF=1M` resolves to a 14-day
+  current window: `2012-01-01 00:00` to `2012-01-15 00:00`.
+- Local API returns NQ 1m bars for that current window.
+- Local smoke suite includes load-range, cache, and Pane 1 range checks.
+
+Manual browser check still needed after reloading deployed/static assets:
+
+- hard refresh the page;
+- select `2012-01-01 - 2012-12-31`, `TF=1M`;
+- confirm no `estimated ... limit 64839` error appears;
+- confirm current-window candles render;
+- confirm dragging/zooming is usable;
+- use Prev/Next Window and confirm movement through the outer year.

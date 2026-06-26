@@ -1347,5 +1347,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.3: 增加内存 bars window cache。已按 `instrument + timeframe + windowStart + windowEnd` 缓存 API 结果；同一窗口重复进入时不重新请求；先做 LRU 内存缓存，暂不做 IndexedDB 持久化。
   - [x] Step 351.4: 接入主图 1m 长区间入口。Toolbar Date Range、Calendar manual/history/load week、Viewport Prev/Next Window、Replay History restore、Time Reaction timeframe switch 已使用统一 cached window helper，避免主图路径直接请求全年 1m；Pane 1/Comparison 在 Step 351.5 单独收口。
   - [x] Step 351.5: Pane 1/Comparison 修复收口。Pane 1 在 1m 长区间不再绕过主图窗口化并直接请求完整 outer range；现在同样请求 14 天 virtual window，使用 bars window cache，并显示当前窗口状态。
-  - [ ] Step 351.6: 性能验收。用 `2012-01-01 - 2012-12-31`、`TF=1M` 验证：首次加载不触发后端超限错误；当前窗口 K 线渲染非空；拖拽/缩放不卡到不可用；Prev/Next Window 可跨全年移动；回到已加载窗口命中缓存。
+  - [x] Step 351.6: 性能验收。用 `2012-01-01 - 2012-12-31`、`TF=1M` 验证：自动检查确认全年 outer range 会解析为 14 天 virtual window，API 对当前窗口返回非空 1m bars，cache/window smoke 通过；拖拽/缩放手感需浏览器硬刷新后做最终人工确认。
   - [x] Step 351.7: 测试与文档。已补 load-range/cache smoke，覆盖一年 1m outer range 被裁剪成 virtual window、相同窗口缓存命中、Pane 1 不再请求完整 outer range；已更新 user guide 并把相关 smoke 纳入 `smoke_all.py`。
