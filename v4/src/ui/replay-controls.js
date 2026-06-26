@@ -334,6 +334,11 @@ export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex)
   return true;
 }
 
+function activateReplayAtTimestamp({ timestamp, speedIndex: nextSpeedIndex } = {}) {
+  if (restoreReplayToTimestamp(timestamp, nextSpeedIndex)) return;
+  bus.emit('status:update', { text: 'Replay 初始化失败: 时间不在当前加载窗口', isError: true });
+}
+
 function enableReplay() {
   if (chartData.length === 0) return;
   const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
@@ -644,5 +649,6 @@ export function initReplayControls() {
   chart.onClick(handleChartClick);
   chart.onCrosshairMove(handleCrosshairMove);
   bus.on('bars:cleared', resetReplayState);
+  bus.on('replay:activate-at', activateReplayAtTimestamp);
   render();
 }

@@ -1,6 +1,8 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
+import { loadReplayFirstWindow } from '../data/replay-first-loader.js';
+import { isReplayFirstCandidate } from '../data/replay-range-model.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
@@ -574,6 +576,29 @@ function openPopover(button) {
 
 async function loadRange(start, end, successText) {
   const tf = getPrimaryPaneTimeframe();
+  if (isReplayFirstCandidate(start, end, tf)) {
+    bus.emit('status:update', { text: 'Loading replay window...', isError: false });
+    const instrument = getPrimaryInstrument();
+    const replay = await loadReplayFirstWindow({ start, end, timeframe: tf, instrument });
+    if (!replay.ok) {
+      throw new Error(replay.message);
+    }
+    setToolbarRange(start, end, false);
+    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
+    store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
+      outerRange: replay.outerRange,
+      instrument,
+    });
+    recordRangeHistory(start, end, tf);
+    bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
+    bus.emit('status:update', {
+      text: `${successText || replay.message}; replay window loaded ${replay.bars.length} bars in ${replay.loadedChunks.length} chunks`,
+      isError: false,
+    });
+    closePopover();
+    return;
+  }
+
   const loadRange = resolveChartLoadRange(start, end, tf);
   if (!loadRange.ok) {
     throw new Error(loadRange.message);

@@ -1353,6 +1353,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 352: Replay-first long range architecture。目标是完全放弃 1m 长区间“先加载完整 date range 再 replay”的模型，改为 FX Replay 类 cursor-first：Date Range 只定义 outer range，Replay cursor 决定当前加载窗口，图表只持有 cursor 附近数据。记录见 `v4/sessions/session_20260626_step352_replay_first_plan.md`。
   - [x] Step 352.1: 冻结产品边界。1m 长区间不再尝试加载完整 range；后端 `/v4/bars` 单次上限保留；Date Range 只定义 `outerRange`；Replay Bar 成为长区间主入口；默认 cursor 为 outerRange start 或最近一次 replay cursor；已走过 bars 不保证常驻图表。
   - [x] Step 352.2: 定义四层 Range Model：已新增 `replay-range-model.js`，明确 `outerRange` / `cursorTimestamp` / `windowRange` / `visibleBars`，并为后续 chunk cache/prefetch 预留状态。
-  - [x] Step 352.3: 设计 Replay Window 策略：已新增 `replay-window-policy.js`，1m 默认 cursor 前 1 天、后 3 天，并按 outerRange 边界裁剪；不依赖全年 bars 数组。
+  - [x] Step 352.3: 设计 Replay Window 策略：已新增 `replay-window-policy.js`，1m 默认 cursor 前 1 天、后 3 天；右侧按 outerRange 结束裁剪，左侧 prefix 不被 outerRange.start 截断；不依赖全年 bars 数组。
   - [x] Step 352.4: 新增 Chunk Loader：已新增 `replay-chunk-loader.js`，按自然日 chunk 请求并复用 bars window cache，支持 merge 去重排序；in-flight dedupe 和 LRU 由底层 cache 提供。
-  - [ ] Step 352.5: Load Range 改成 Replay 初始化：长 1m Date Range 不再 fetch 全段，而是 set outerRange + cursor + cursor window，并打开 Replay Bar。
+  - [x] Step 352.5: Load Range 改成 Replay 初始化：长 1m Date Range 不再 fetch 全段；Toolbar/Calendar 会保留用户选择的 outerRange，但只加载 cursor 附近 replay window，并自动打开 Replay Bar；outerRange.start 前的 prefix bars 作为正常上下文显示。
+  - [ ] Step 352.6: Progressive prefix loading on pan。向左拖到已加载窗口边缘时，按小块请求更早 bars、prepend 到当前数据，并复用 bars window cache；近期加载过的块应直接命中 cache，不再一块块闪现。

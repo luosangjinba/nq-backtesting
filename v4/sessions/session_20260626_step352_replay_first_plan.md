@@ -72,7 +72,10 @@ First-pass policy:
 
 - default left context: 1 day before cursor;
 - default right buffer: 3 days after cursor;
-- clamp to `outerRange.start` / `outerRange.end`;
+- right side clamps to `outerRange.end`;
+- left-side prefix is not clamped by `outerRange.start`, because the selected
+  date range is the replay study range, not the hard boundary for historical
+  context bars;
 - return explicit `windowRange` for the actual bars request.
 
 This keeps the current chart dataset bounded by cursor context instead of the
@@ -92,9 +95,33 @@ The first pass chunk loader:
 - merges bars by timestamp and sorts ascending;
 - returns chunk metadata for later status/prefetch UI.
 
+## Step 352.5 Replay Initialization Load
+
+Status: complete.
+
+Added `src/data/replay-first-loader.js` and routed long 1m Date Range loads
+through replay initialization.
+
+Behavior:
+
+- Toolbar Load and Calendar Date Range both detect long 1m ranges with
+  `isReplayFirstCandidate()`.
+- The selected date range remains the `outerRange` shown in the toolbar.
+- The actual API work loads only the replay cursor window.
+- Prefix bars before `outerRange.start` are loaded as normal context bars, not
+  discarded.
+- Replay windows are loaded by daily chunks through the existing bars window
+  cache.
+- After `store.setBars()`, the UI emits `replay:activate-at` so Replay Bar
+  starts at the first available cursor bar.
+- If the selected outer start is before the first market bar in the loaded
+  window, activation uses the first returned bar timestamp.
+
 ## Non-Goals For First Batch
 
 - No full overlay culling yet.
 - No IndexedDB persistent cache yet.
 - No removal of backend request limits.
 - No attempt to render a full year of 1m candles.
+- No drag-left progressive prefix loader yet; that is the next step after the
+  initial replay window is stable.

@@ -6,6 +6,8 @@ import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
+import { loadReplayFirstWindow } from '../data/replay-first-loader.js';
+import { isReplayFirstCandidate } from '../data/replay-range-model.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getComparisonWindowState,
@@ -534,6 +536,28 @@ function updateHistoryButtons() {
   }
 }
 
+async function loadReplayFirstRange(start, end, tf, instrument) {
+  bus.emit('status:update', { text: 'Loading replay window...', isError: false });
+  const replay = await loadReplayFirstWindow({ start, end, timeframe: tf, instrument });
+  if (!replay.ok) {
+    bus.emit('status:update', { text: replay.message, isError: true });
+    return;
+  }
+  store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
+    outerRange: replay.outerRange,
+    instrument,
+  });
+  const startEl = document.getElementById('startInput');
+  const endEl = document.getElementById('endInput');
+  if (startEl) startEl.value = start;
+  if (endEl) endEl.value = end;
+  bus.emit('replay:activate-at', { timestamp: replay.activationTimestamp });
+  bus.emit('status:update', {
+    text: `${replay.message}; loaded ${replay.bars.length} bars in ${replay.loadedChunks.length} chunks`,
+    isError: false,
+  });
+}
+
 async function handleLoad() {
   const startEl = document.getElementById('startInput');
   const endEl = document.getElementById('endInput');
@@ -548,6 +572,15 @@ async function handleLoad() {
 
   if (!start || !end) {
     bus.emit('status:update', { text: 'Choose a date range first', isError: true });
+    return;
+  }
+
+  if (isReplayFirstCandidate(start, end, tf)) {
+    try {
+      await loadReplayFirstRange(start, end, tf, instrument);
+    } catch (err) {
+      bus.emit('status:update', { text: `Replay load failed: ${err.message}`, isError: true });
+    }
     return;
   }
 

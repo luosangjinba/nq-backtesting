@@ -26,7 +26,7 @@ export function resolveReplayWindowAroundCursor(outerRange, cursorTimestamp, pol
   const cursor = clampReplayCursor(cursorTimestamp, outer);
   const leftDays = Math.max(0, Number(policy.leftDays ?? DEFAULT_REPLAY_WINDOW_POLICY.leftDays));
   const rightDays = Math.max(0, Number(policy.rightDays ?? DEFAULT_REPLAY_WINDOW_POLICY.rightDays));
-  const startTs = Math.max(outer.startTs, cursor - Math.floor(leftDays * DAY_SECONDS));
+  const startTs = cursor - Math.floor(leftDays * DAY_SECONDS);
   const endTs = Math.min(outer.endTs, cursor + Math.floor(rightDays * DAY_SECONDS));
   const start = formatReplayTimestamp(startTs);
   const end = formatReplayTimestamp(endTs);

@@ -16,7 +16,7 @@ assert.equal(middle.cursorTimestamp, 1325583000);
 const leftClamped = resolveReplayWindowAroundCursor(outer, 1);
 assert.equal(leftClamped.ok, true);
 assert.equal(leftClamped.cursorTimestamp, 1325376000);
-assert.equal(leftClamped.windowRange.start, '2012-01-01 00:00');
+assert.equal(leftClamped.windowRange.start, '2011-12-31 00:00');
 assert.equal(leftClamped.windowRange.end, '2012-01-04 00:00');
 
 const rightClamped = resolveReplayWindowAroundCursor(outer, 9999999999);
