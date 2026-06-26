@@ -42,6 +42,7 @@ export function resolveReplayFirstComparisonRange({
   if (endTs <= startTs) return null;
 
   return {
+    ok: true,
     start: formatReplayTimestamp(startTs),
     end: formatReplayTimestamp(endTs),
     timeframe: parseTimeframeMinutes(comparisonTimeframe),

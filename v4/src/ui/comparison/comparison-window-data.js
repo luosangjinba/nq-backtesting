@@ -23,6 +23,7 @@ import {
 import { updateComparisonOverlayStatus } from '../../comparison/comparison-overlay-policy.js';
 import { getReplaySyncedComparisonBars } from '../../comparison/comparison-replay-sync.js';
 import { CHART_PANE_IDS, getPaneLabel, getSyncPeerPanes } from '../../chart-panes/chart-pane-store.js';
+import { resolveReplayFirstComparisonRange } from './comparison-replay-load-policy.js';
 
 function getComparisonPaneLabel() {
   return getPaneLabel(CHART_PANE_IDS.COMPARISON);
@@ -33,8 +34,14 @@ function shouldLoadReplaySource(start, end, timeframe) {
   return validateSingleWindowRange(start, end, 1).ok;
 }
 
-export function resolveComparisonLoadRequest(start, end, timeframe, instrument) {
-  const comparisonRange = resolveChartLoadRange(start, end, timeframe);
+export function resolveComparisonLoadRequest(start, end, timeframe, instrument, options = {}) {
+  const replayFirstRange = resolveReplayFirstComparisonRange({
+    primaryTimeframe: options.primaryTimeframe,
+    comparisonTimeframe: timeframe,
+    outerRange: options.outerRange,
+    replayState: options.replayState,
+  });
+  const comparisonRange = replayFirstRange || resolveChartLoadRange(start, end, timeframe);
   if (!comparisonRange.ok) {
     return {
       ok: false,
@@ -165,7 +172,11 @@ export function createComparisonWindowDataController({
     }
 
     const { instrument, timeframe } = state.descriptor;
-    const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument);
+    const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument, {
+      primaryTimeframe: primaryStore.getCurrentTimeframe(),
+      outerRange: primaryStore.getRequestedOuterRange(),
+      replayState: lastReplayState,
+    });
     if (!loadRequest.ok) {
       clearComparisonBars();
       replaySourceBars = [];
