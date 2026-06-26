@@ -117,11 +117,31 @@ Behavior:
 - If the selected outer start is before the first market bar in the loaded
   window, activation uses the first returned bar timestamp.
 
-## Non-Goals For First Batch
+## Step 352.6 Progressive Prefix Loading
+
+Status: complete.
+
+Added `src/data/replay-progressive-prefix-loader.js` and wired it from
+`app.js`.
+
+Behavior:
+
+- The loader subscribes to primary chart visible logical range changes.
+- It is active only for 1m replay-first ranges with an active Replay cursor.
+- When the visible range approaches the left edge, it loads the previous
+  two-hour prefix window.
+- Prefix windows are requested through `loadBarsWindow()`, so existing memory
+  cache and in-flight dedupe apply.
+- Loaded prefix bars are prepended through `bar-store`, deduped by timestamp,
+  and `bars:loaded` restores Replay to the same cursor timestamp.
+- Empty prefix windows still move the loaded range boundary left, avoiding a
+  repeated request loop on gaps/weekends.
+
+## Non-Goals For Current Batch
 
 - No full overlay culling yet.
 - No IndexedDB persistent cache yet.
 - No removal of backend request limits.
 - No attempt to render a full year of 1m candles.
-- No drag-left progressive prefix loader yet; that is the next step after the
-  initial replay window is stable.
+- No forward progressive loading yet; Replay stops at the current loaded
+  window end until Step 352.7.
