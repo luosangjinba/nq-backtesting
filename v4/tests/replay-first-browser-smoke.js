@@ -354,7 +354,7 @@ async function main() {
       `initial viewport should include prefix context before replay start: ${JSON.stringify(result)}`
     );
     assert.ok(
-      result.initialVisibleRange.to - result.initialVisibleRange.from <= 180,
+      result.initialVisibleRange.to - result.initialVisibleRange.from <= 480,
       `initial replay viewport should not inherit a stale wide range: ${JSON.stringify(result)}`
     );
     assert.ok(result.prefixRange.start < result.initialRange.start, 'prefix load should extend range left');

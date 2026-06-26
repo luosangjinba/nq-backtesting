@@ -264,16 +264,13 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
   render();
 }
 
-function showReplayStartContext(previousRange = null) {
-  const previousWidth =
-    previousRange && Number.isFinite(previousRange.to - previousRange.from)
-      ? previousRange.to - previousRange.from
-      : null;
-  const width = Math.max(80, Math.min(180, Number(previousWidth) || 140));
-  const rightPadding = Math.max(8, Math.floor(width * 0.08));
+function showReplayStartContext() {
+  const prefixCount = Math.max(0, replayStartIndex);
+  const width = Math.max(120, Math.min(480, prefixCount + 60));
+  const rightPadding = Math.max(12, Math.floor(width * 0.12));
   const leftContext = Math.min(
-    replayStartIndex,
-    Math.max(20, Math.floor(width * 0.65))
+    prefixCount,
+    Math.max(60, width - rightPadding)
   );
   let from = Math.max(0, replayStartIndex - leftContext);
   let to = from + width;

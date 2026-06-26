@@ -270,6 +270,7 @@ async function main() {
           const initialCursor = replayControls.getReplayCursorTimestamp();
           const initialActiveDataCount = chart.getActiveDataCount();
           const initialReplayProgress = replayControls.getReplayProgressSnapshot();
+          const initialVisibleRange = chart.getVisibleLogicalRange();
           const initialCalls = calls.slice();
 
           const prefixResult = await prefixLoader.loadReplayPrefixChunk({ instrument });
@@ -323,6 +324,7 @@ async function main() {
             initialBars,
             initialActiveDataCount,
             initialReplayProgress,
+            initialVisibleRange,
             finalBars,
             initialCursor,
             currentCursor: replayControls.getReplayCursorTimestamp(),
@@ -357,6 +359,14 @@ async function main() {
       assert.equal(run.initialReplayProgress.progressIndex, 1, `${run.instrument} should start replay at Date Range start`);
       assert.ok(run.initialReplayProgress.replayStartIndex >= 0, `${run.instrument} replay start index should be resolved`);
       assert.ok(run.initialActiveDataCount >= 1, `${run.instrument} should render prefix context plus cursor initially`);
+      assert.ok(
+        run.initialVisibleRange.from < run.initialReplayProgress.replayStartIndex,
+        `${run.instrument} initial viewport should include prefix context`
+      );
+      assert.ok(
+        run.initialVisibleRange.to - run.initialVisibleRange.from <= 480,
+        `${run.instrument} initial viewport should stay bounded`
+      );
       assert.ok(run.finalBars > run.initialBars, `${run.instrument} progressive loads should add bars`);
       assert.ok(run.prefixRange.start < run.initialRange.start, `${run.instrument} prefix should extend left`);
       assert.ok(run.finalRange.end > run.prefixRange.end, `${run.instrument} forward should extend right after prefix`);
