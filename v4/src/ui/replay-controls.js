@@ -253,11 +253,35 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
     normalizeTimestamp(viewportSnapshot?.cursorTimestamp) ?? normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
   chart.setData(chartData.slice(0, cursorIndex + 1));
   if (followEnd) {
-    chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
+    if (viewportSnapshot?.anchorReplayStart) {
+      showReplayStartContext(previousRange);
+    } else {
+      chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
+    }
   }
   chart.showReplayCursor(chartData[cursorIndex].time);
   emitReplayChanged();
   render();
+}
+
+function showReplayStartContext(previousRange = null) {
+  const width =
+    previousRange && Number.isFinite(previousRange.to - previousRange.from)
+      ? Math.max(24, previousRange.to - previousRange.from)
+      : 140;
+  const rightPadding = Math.max(8, Math.floor(width * 0.08));
+  const leftContext = Math.min(
+    replayStartIndex,
+    Math.max(20, Math.floor(width * 0.65))
+  );
+  let from = Math.max(0, replayStartIndex - leftContext);
+  let to = from + width;
+  const minTo = cursorIndex + rightPadding;
+  if (to < minTo) {
+    to = minTo;
+    from = Math.max(0, to - width);
+  }
+  chart.setVisibleLogicalRange(from, to);
 }
 
 function stepForward() {

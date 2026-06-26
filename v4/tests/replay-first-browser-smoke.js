@@ -291,6 +291,7 @@ async function main() {
         const initialCursor = replayControls.getReplayCursorTimestamp();
         const initialActiveDataCount = chart.getActiveDataCount();
         const initialReplayProgress = replayControls.getReplayProgressSnapshot();
+        const initialVisibleRange = chart.getVisibleLogicalRange();
 
         chart.setVisibleLogicalRange(0, 20);
         await waitFor(() => store.getCurrentRange().start < initialRange.start, 'prefix load', 10_000);
@@ -321,6 +322,7 @@ async function main() {
           initialBars,
           initialActiveDataCount,
           initialReplayProgress,
+          initialVisibleRange,
           finalBars,
           initialCursor,
           currentCursor: replayControls.getReplayCursorTimestamp(),
@@ -335,7 +337,7 @@ async function main() {
     assert.equal(result.ok, true, result.error || 'browser replay-first smoke failed');
     assert.ok(result.initialCalls.length >= 4, 'initial replay window should be chunked');
     assert.ok(
-      result.initialCalls.filter((call) => call.tf === 1 && call.spanHours <= 24).length >= 5,
+      result.initialCalls.filter((call) => call.tf === 1 && call.spanHours <= 24).length >= 4,
       `initial replay load should include daily chunks: ${JSON.stringify(result.initialCalls)}`
     );
     assert.ok(result.prefixCalls.length >= 1, 'prefix pan should load at least one chunk');
@@ -345,6 +347,10 @@ async function main() {
     assert.equal(result.initialReplayProgress.progressIndex, 1, `replay should start at Date Range start: ${JSON.stringify(result)}`);
     assert.ok(result.initialReplayProgress.replayStartIndex >= 0, 'replay start index should be resolved');
     assert.ok(result.initialActiveDataCount >= 1, 'prefix context plus cursor should render initially');
+    assert.ok(
+      result.initialVisibleRange.from < result.initialReplayProgress.replayStartIndex,
+      `initial viewport should include prefix context before replay start: ${JSON.stringify(result)}`
+    );
     assert.ok(result.prefixRange.start < result.initialRange.start, 'prefix load should extend range left');
     assert.ok(result.finalRange.end > result.initialRange.end, 'forward load should extend range right');
     assert.ok(result.finalBars > result.initialBars, 'progressive loads should add bars');

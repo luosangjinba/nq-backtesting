@@ -85,6 +85,7 @@ function createPendingReplaySnapshot(pending) {
     sourceBars: store.getDisplayBars(),
     visibleRange: chart.getVisibleLogicalRange(),
     dataCount: 1,
+    anchorReplayStart: true,
   };
 }
 
