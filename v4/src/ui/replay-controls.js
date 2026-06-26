@@ -374,6 +374,14 @@ function togglePlay() {
   render();
 }
 
+function resumePlayback({ speedIndex: nextSpeedIndex } = {}) {
+  if (!enabled || chartData.length === 0 || timer) return;
+  speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : speedIndex;
+  mode = 'playing';
+  timer = window.setInterval(stepForward, SPEEDS[speedIndex].ms);
+  render();
+}
+
 function selectBar() {
   if (!enabled || chartData.length === 0) return;
   stopTimer();
@@ -652,5 +660,6 @@ export function initReplayControls() {
   chart.onCrosshairMove(handleCrosshairMove);
   bus.on('bars:cleared', resetReplayState);
   bus.on('replay:activate-at', activateReplayAtTimestamp);
+  bus.on('replay:resume-playback', resumePlayback);
   render();
 }

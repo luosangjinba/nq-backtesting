@@ -1357,4 +1357,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.4: 新增 Chunk Loader：已新增 `replay-chunk-loader.js`，按自然日 chunk 请求并复用 bars window cache，支持 merge 去重排序；in-flight dedupe 和 LRU 由底层 cache 提供。
   - [x] Step 352.5: Load Range 改成 Replay 初始化：长 1m Date Range 不再 fetch 全段；Toolbar/Calendar 会保留用户选择的 outerRange，但只加载 cursor 附近 replay window，并自动打开 Replay Bar；outerRange.start 前的 prefix bars 作为正常上下文显示。
   - [x] Step 352.6: Progressive prefix loading on pan。已监听主图 visible logical range；Replay-first 1m 模式下向左拖到当前数据左边缘时，会按 2 小时小块请求更早 bars、prepend 到当前数据，并复用 bars window cache；近期加载过的块直接命中 cache。
-  - [ ] Step 352.7: Replay forward progressive loading。向右 replay 接近当前窗口末端时，按小块加载后续 bars，并保持当前 replay cursor/viewport 不抖动。
+  - [x] Step 352.7: Replay forward progressive loading。Replay-first 1m 模式下 cursor 接近当前窗口末端时，按 2 小时小块加载后续 bars、append 到当前数据；播放中触发加载后会恢复播放，并复用 bars window cache。
+  - [ ] Step 352.8: Browser performance smoke and UX tuning。用真实浏览器验证一年 1m replay-first 的初始加载、左拖 prefix、向右 replay forward loading、cache hit 手感和拖拽卡顿情况；按结果调整 chunk size/threshold/status 噪音。

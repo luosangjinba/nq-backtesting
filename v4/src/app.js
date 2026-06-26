@@ -21,6 +21,7 @@ import {
 import { initReplayHistoryPersistence } from './ui/replay-history-persistence.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initReplayProgressivePrefixLoader } from './data/replay-progressive-prefix-loader.js';
+import { initReplayProgressiveForwardLoader } from './data/replay-progressive-forward-loader.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initDisplayMode } from './display/display-mode.js';
 import { initDisplayPreferences } from './display/display-preferences.js';
@@ -97,6 +98,7 @@ console.log('[V4] Chart pane range sync initialized');
 initReplayControls();
 initReplayHistoryPersistence();
 initReplayProgressivePrefixLoader();
+initReplayProgressiveForwardLoader();
 console.log('[V4] Replay controls initialized');
 
 // 初始化图表视口控制条

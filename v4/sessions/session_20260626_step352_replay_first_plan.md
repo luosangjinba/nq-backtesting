@@ -137,11 +137,34 @@ Behavior:
 - Empty prefix windows still move the loaded range boundary left, avoiding a
   repeated request loop on gaps/weekends.
 
+## Step 352.7 Progressive Forward Loading
+
+Status: complete.
+
+Added `src/data/replay-progressive-forward-loader.js` and wired it from
+`app.js`.
+
+Behavior:
+
+- The loader listens to `replay:changed`.
+- It is active only for 1m replay-first ranges with an active Replay cursor.
+- When the cursor is within 24 bars of the loaded window end, it loads the next
+  two-hour forward window.
+- The forward window is clamped by `outerRange.end`.
+- Forward windows use `loadBarsWindow()`, so existing memory cache and
+  in-flight dedupe apply.
+- Loaded bars are appended through `bar-store`, deduped by timestamp, and
+  `bars:loaded` restores Replay to the same cursor timestamp.
+- If the user was playing when the forward load started, the loader emits
+  `replay:resume-playback` after append so playback continues.
+- Empty forward windows still move the loaded range boundary right, avoiding a
+  repeated request loop on gaps/weekends.
+
 ## Non-Goals For Current Batch
 
 - No full overlay culling yet.
 - No IndexedDB persistent cache yet.
 - No removal of backend request limits.
 - No attempt to render a full year of 1m candles.
-- No forward progressive loading yet; Replay stops at the current loaded
-  window end until Step 352.7.
+- No full browser performance tuning yet; Step 352.8 will verify chunk size,
+  thresholds, and status noise in a real browser session.
