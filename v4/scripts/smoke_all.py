@@ -116,10 +116,21 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
         ),
     ]
 
+    browser = [
+        SmokeCommand(
+            "replay_first_browser_smoke",
+            ["node", "v4/tests/replay-first-browser-smoke.js"],
+            "browser",
+            "Exercise replay-first long 1m loading, prefix pan, and forward replay in headless Chrome.",
+        ),
+    ]
+
     if args.suite == "local":
         return local
     if args.suite == "api":
         return api
+    if args.suite == "browser":
+        return browser
     if args.suite == "all":
         return [*local, *api]
     raise ValueError(f"unknown suite: {args.suite}")
@@ -139,7 +150,7 @@ def run_command(command: SmokeCommand) -> int:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run grouped V4 smoke checks.")
-    parser.add_argument("--suite", choices=["local", "api", "all"], default="local", help="Smoke suite to run.")
+    parser.add_argument("--suite", choices=["local", "api", "browser", "all"], default="local", help="Smoke suite to run.")
     parser.add_argument("--api-url", default="http://127.0.0.1:8766", help="API base URL for api/all suites.")
     parser.add_argument("--web-url", default="http://127.0.0.1:8001/index.html", help="Web URL for api/all suites.")
     parser.add_argument("--list", action="store_true", help="List selected commands without running them.")

@@ -160,11 +160,35 @@ Behavior:
 - Empty forward windows still move the loaded range boundary right, avoiding a
   repeated request loop on gaps/weekends.
 
+## Step 352.8 Browser Performance Smoke
+
+Status: complete.
+
+Added `v4/tests/replay-first-browser-smoke.js` and exposed it through
+`v4/scripts/smoke_all.py --suite browser`.
+
+The browser smoke runs in headless Chrome against the local web page and mocks
+`/v4/bars` in the browser. It verifies:
+
+- one-year 1m replay-first initialization does not request the full outer
+  range;
+- initial replay loading includes day-sized chunks;
+- panning to the left edge triggers a two-hour prefix load;
+- replaying toward the loaded end triggers a two-hour forward load;
+- progressive loads extend the stored range and keep the Replay cursor valid;
+- no request grows beyond a bounded current-window span in the smoke.
+
+Observed during the smoke:
+
+- Replay chunks behave as intended.
+- Pane/overlay synchronization can still request the whole currently loaded
+  window after prefix/forward growth. In the smoke this reached about 100
+  hours, not a full year, but it is the next performance target.
+
 ## Non-Goals For Current Batch
 
 - No full overlay culling yet.
 - No IndexedDB persistent cache yet.
 - No removal of backend request limits.
 - No attempt to render a full year of 1m candles.
-- No full browser performance tuning yet; Step 352.8 will verify chunk size,
-  thresholds, and status noise in a real browser session.
+- Pane/overlay sync request bounding remains open for Step 352.9.
