@@ -114,3 +114,22 @@ Rationale:
 - 14 days keeps the current visible dataset much smaller for drag/zoom.
 - Large reviews can still move through the full outer range with window
   navigation.
+
+## Step 351.3 Window Cache
+
+Status: complete.
+
+Added an in-memory bars window cache keyed by:
+
+```text
+instrument | timeframe | windowStart | windowEnd
+```
+
+The first pass cache:
+
+- clones payloads before returning them to callers;
+- dedupes in-flight requests for the same key;
+- keeps a small LRU cap;
+- does not use IndexedDB.
+
+Business load paths are connected in later Step 351 substeps.
