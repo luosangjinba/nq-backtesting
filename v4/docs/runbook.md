@@ -72,6 +72,26 @@ python3 v4/scripts/smoke_all.py \
   --web-url https://recap.buddhiststudy.xyz/index.html
 ```
 
+## Browser Acceptance
+
+Use this before calling the HTTPS deployment healthy:
+
+- open `https://recap.buddhiststudy.xyz/index.html`;
+- confirm the browser shows HTTPS with no certificate warning;
+- load a recent `NQ` or `ES` range and confirm non-empty candlesticks render;
+- switch timeframe once and confirm the chart reloads without an API error;
+- open Calendar or Date Range and confirm the chart remains rendered;
+- open DevTools Network and confirm bars load from
+  `https://recap.buddhiststudy.xyz/v4/bars...`, not public `:8766`;
+- open `https://recap.buddhiststudy.xyz/data-maintenance.html`;
+- run a read-only Health or Status action and confirm structured output;
+- confirm manual Economic Calendar preview controls are visible and writes still
+  require explicit confirmation text.
+
+If the page opens but the chart is blank, requests hit public `:8766`, or the
+browser shows certificate/CORS/mixed-content errors, the deployment is not
+accepted even if `curl /v4/health` succeeds.
+
 ## 502 / API Down Triage
 
 If the browser shows `HTTP 502` or K-lines fail to load:

@@ -1,0 +1,87 @@
+# Step 351 - 1m Range Cache / Virtual Load Plan
+
+## Problem
+
+In public/server mode, selecting a long `1M` range can fail with:
+
+```text
+1m request is too large: estimated 527078 bars, limit 64839.
+```
+
+The backend limit is intentional and should stay. It prevents a single request
+from forcing the API, DuckDB, JSON serialization, Caddy, and the browser to
+handle hundreds of thousands of bars at once.
+
+There is also a local usability issue: even when data loads, dragging a large
+1m chart window is noticeably slow. The current 45-day 1m window can approach
+the backend max and still leaves the chart rendering too many bars for smooth
+interaction.
+
+## Goal
+
+Allow users to choose a large outer research range, such as one year of 1m
+data, while the app only loads and renders a smaller current window.
+
+The user-facing behavior should feel like the date range is not artificially
+limited. The implementation should remain bounded:
+
+- backend single-request limits stay enabled;
+- frontend requests only the current 1m virtual window;
+- already loaded windows are cached;
+- navigation can move across the outer range.
+
+## Proposed Design
+
+Keep two ranges:
+
+- `outerRange`: the user's full selected date range;
+- `windowRange`: the currently loaded/rendered 1m slice.
+
+For 1m long ranges:
+
+- initial load resolves to the first virtual window inside `outerRange`;
+- Prev/Next Window moves by one virtual window;
+- Calendar locate and Replay History restore load the window around the target
+  timestamp;
+- Pane 1 / Comparison follows the same resolved window, not the full outer
+  range.
+
+Use a smaller frontend virtual window than the backend hard limit. The current
+backend max is 45 days for 1m; the first frontend target should be about 10-14
+days to reduce chart drag latency.
+
+## Cache
+
+Add an in-memory bars window cache keyed by:
+
+```text
+instrument | timeframe | windowStart | windowEnd
+```
+
+The cache should:
+
+- return the same API payload for repeated visits to the same window;
+- dedupe in-flight requests for the same key;
+- use a small LRU cap so very long reviews do not grow memory without bound.
+
+Do not start with IndexedDB. Add persistent cache only if real use shows reload
+cost is still painful.
+
+## Acceptance
+
+Use `2012-01-01 - 2012-12-31`, `TF=1M`:
+
+- initial load does not request the full year from `/v4/bars`;
+- no backend `estimated ... limit 64839` error appears;
+- the chart renders a non-empty current window;
+- dragging and zooming are usable;
+- Prev/Next Window can move through the outer year;
+- returning to a previously loaded window uses cache;
+- Pane 1 / Comparison does not bypass virtual loading.
+
+## Non-Goals
+
+- Do not remove backend request limits.
+- Do not load a full year of 1m candles into Lightweight Charts at once.
+- Do not build IndexedDB persistence in the first pass.
+- Do not change the formal K-line storage schema.

@@ -1340,3 +1340,12 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [x] Step 349: Local weekly Economic Calendar manual export。目标是在本机每周自动抓取下周 ForexFactory events，生成 recap 手工导入 CSV，避免 VPS headless 被 Cloudflare 拦截，也减少人工导出当周 CSV 的遗忘风险。新增 `v4/scripts/export_weekly_economic_manual_csv.py`，默认导出下周一到周日 `Title,Country,Date,Time,Impact,Forecast,Previous,URL` schema 到 `v4/data/economic_calendar/manual_import_exports/`，不修改 V4 主 CSV；可配合 cron 周六运行。验证见 `v4/tests/economic-weekly-manual-export-smoke.py`。
 
 - [x] Step 350: Engineering runbook and smoke entry。工程化第一步先不做大重构，补齐可执行运维入口：新增 `v4/docs/runbook.md` 汇总 VPS pull/restart、health、502/203 排障、Economic Calendar 手工导入/cron、backup/write/security 边界；新增 `v4/scripts/smoke_all.py`，默认 `--suite local` 跑离线 smoke，`--suite api` 才检查运行中的 web/API。记录见 `v4/sessions/session_20260625_step350_engineering_runbook_smoke.md`。
+
+- [ ] Step 351: 1m Range Cache / Virtual Load。目标是让用户可以选择一年或更长的 1m 外层研究范围，但前端永远只向 `/v4/bars` 请求当前可用窗口，并缓存已加载窗口，避免服务器单次超大请求和浏览器拖拽卡顿。记录见 `v4/sessions/session_20260626_step351_1m_virtual_load_plan.md`。
+  - [ ] Step 351.1: 明确边界：不取消后端 `/v4/bars` 单次请求上限；后端 `limit 64839` 继续作为安全保护。前端把用户选择的 date range 视为 outer range，把实际 K 线请求限制在 1m virtual window 内。
+  - [ ] Step 351.2: 降低 1m 当前渲染窗口。当前 45 天窗口在 1m 下约 6.5 万根，拖拽明显卡顿；前端 virtual window 建议先收敛到约 10-14 天，再用 Prev/Next Window、Calendar locate、Replay restore 自动切换窗口。
+  - [ ] Step 351.3: 增加内存 bars window cache。按 `instrument + timeframe + windowStart + windowEnd` 缓存 API 结果；同一窗口重复进入时不重新请求；先做 LRU 内存缓存，暂不做 IndexedDB 持久化。
+  - [ ] Step 351.4: 接入所有 1m 长区间入口。Toolbar Date Range、Calendar manual/history/load week、Viewport Prev/Next Window、Replay History restore、Time Reaction timeframe switch、Pane 1/Comparison 跟随主范围加载都必须使用同一 virtual load helper，避免任何路径直接请求全年 1m。
+  - [ ] Step 351.5: Pane 1/Comparison 修复收口。当前发现 Pane 1 在 1m 长区间会绕过主图窗口化并直接请求完整 outer range，导致服务器报 `1m request is too large`；需要让 Pane 1 同样请求 virtual window，并显示当前窗口状态。
+  - [ ] Step 351.6: 性能验收。用 `2012-01-01 - 2012-12-31`、`TF=1M` 验证：首次加载不触发后端超限错误；当前窗口 K 线渲染非空；拖拽/缩放不卡到不可用；Prev/Next Window 可跨全年移动；回到已加载窗口命中缓存。
+  - [ ] Step 351.7: 测试与文档。补 load-range/cache smoke，覆盖一年 1m outer range 被裁剪成 virtual window、相同窗口缓存命中、Pane 1 不再请求完整 outer range；更新 runbook 或 user guide 说明 1m 长区间是虚拟窗口加载。

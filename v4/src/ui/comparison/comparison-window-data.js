@@ -13,7 +13,7 @@ import {
   showComparisonStartOfData,
 } from '../../chart/comparison-chart-manager.js';
 import { getBarChartTime, mapTimestampToChartTime } from '../../chart/time-projection.js';
-import { validateSingleWindowRange } from '../../data/load-range-policy.js';
+import { resolveChartLoadRange, validateSingleWindowRange } from '../../data/load-range-policy.js';
 import * as primaryStore from '../../data/bar-store.js';
 import {
   getComparisonWindowState,
@@ -31,6 +31,29 @@ function getComparisonPaneLabel() {
 function shouldLoadReplaySource(start, end, timeframe) {
   if (Number(timeframe) <= 1) return false;
   return validateSingleWindowRange(start, end, 1).ok;
+}
+
+export function resolveComparisonLoadRequest(start, end, timeframe, instrument) {
+  const comparisonRange = resolveChartLoadRange(start, end, timeframe);
+  if (!comparisonRange.ok) {
+    return {
+      ok: false,
+      message: comparisonRange.message,
+      comparisonRange,
+      replaySourceRange: null,
+      signature: `${start}|${end}|${instrument}|${timeframe}|invalid`,
+    };
+  }
+
+  return {
+    ok: true,
+    message: comparisonRange.message,
+    comparisonRange,
+    replaySourceRange: shouldLoadReplaySource(comparisonRange.start, comparisonRange.end, timeframe)
+      ? { start: comparisonRange.start, end: comparisonRange.end, timeframe: 1 }
+      : null,
+    signature: `${comparisonRange.start}|${comparisonRange.end}|${start}|${end}|${instrument}|${timeframe}`,
+  };
 }
 
 function getDisplayBarsFromResult(result) {
@@ -142,7 +165,23 @@ export function createComparisonWindowDataController({
     }
 
     const { instrument, timeframe } = state.descriptor;
-    const loadSignature = `${start}|${end}|${instrument}|${timeframe}`;
+    const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument);
+    if (!loadRequest.ok) {
+      clearComparisonBars();
+      replaySourceBars = [];
+      replaySourceRequestedRange = null;
+      clearComparisonData();
+      setComparisonStatus(`${getComparisonPaneLabel()} load failed: ${loadRequest.message}`, true);
+      updateComparisonOverlayStatus();
+      bus.emit('status:update', {
+        text: `${getComparisonPaneLabel()} 加载失败: ${loadRequest.message}`,
+        isError: true,
+      });
+      return;
+    }
+
+    const { comparisonRange, replaySourceRange } = loadRequest;
+    const loadSignature = loadRequest.signature;
     if (!force && loadSignature === lastLoadSignature) return;
     lastLoadSignature = loadSignature;
     const seq = (requestSeq += 1);
@@ -150,15 +189,19 @@ export function createComparisonWindowDataController({
     try {
       initComparisonChart();
       setComparisonChartInfo({ instrument, timeframe });
-      const shouldLoadSource = shouldLoadReplaySource(start, end, timeframe);
       const [result, replaySourceResult] = await Promise.all([
-        fetchBars(start, end, timeframe, instrument),
-        shouldLoadSource ? fetchBars(start, end, 1, instrument) : Promise.resolve(null),
+        fetchBars(comparisonRange.start, comparisonRange.end, timeframe, instrument),
+        replaySourceRange
+          ? fetchBars(replaySourceRange.start, replaySourceRange.end, replaySourceRange.timeframe, instrument)
+          : Promise.resolve(null),
       ]);
       if (seq !== requestSeq || !getComparisonWindowState().enabled) return;
       replaySourceBars = replaySourceResult?.bars || [];
       replaySourceRequestedRange = replaySourceResult?.requestedRange || null;
-      setComparisonBars(result.bars, result.requestedRange, { start, end });
+      setComparisonBars(result.bars, result.requestedRange, {
+        start: comparisonRange.start,
+        end: comparisonRange.end,
+      });
       const displayBars = getDisplayBarsFromResult(result);
       renderComparisonBars();
       if (displayBars.length > 0) {
@@ -168,7 +211,9 @@ export function createComparisonWindowDataController({
       }
       updateComparisonOverlayStatus();
       bus.emit('status:update', {
-        text: `${getComparisonPaneLabel()} ${instrument} 已加载 ${displayBars.length} 根K线`,
+        text: comparisonRange.windowed
+          ? `${getComparisonPaneLabel()} ${comparisonRange.message}`
+          : `${getComparisonPaneLabel()} ${instrument} 已加载 ${displayBars.length} 根K线`,
         isError: false,
       });
     } catch (error) {

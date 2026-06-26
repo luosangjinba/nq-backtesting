@@ -121,6 +121,39 @@ Expected:
 - Data Maintenance loads only for the trusted operator;
 - browser devtools show no mixed-content requests to `http://` public endpoints.
 
+## Visual Acceptance Standard
+
+Use this as the concrete pass/fail standard for the browser part of Step 347.7.
+
+On `https://your-domain.example/index.html`:
+
+- the address bar shows HTTPS with no browser certificate warning;
+- the main V4 toolbar is visible and usable;
+- the Main instrument selector shows `NQ` or `ES`;
+- selecting or loading a recent range renders non-empty candlesticks on the main chart;
+- changing timeframe, for example `1M` to `5M`, reloads the chart without a red API error banner;
+- opening Calendar or Date Range shows the expected popover and does not blank the chart;
+- opening the Inspector does not overlap the chart controls incoherently;
+- browser devtools Network entries for bars use `https://your-domain.example/v4/bars...`;
+- browser devtools Network entries do not call `http://your-domain.example:8766`,
+  `http://your-domain.example:8001`, or any other public direct service port.
+
+On `https://your-domain.example/data-maintenance.html`:
+
+- the page loads through HTTPS with no certificate warning;
+- Health or Status actions reach the API and return structured output;
+- Economic Calendar manual import controls are visible;
+- Preview actions can run without a CORS or mixed-content error;
+- write actions remain gated by the explicit confirmation text.
+
+The visual check fails if any of these are true:
+
+- the browser shows a certificate warning;
+- the page loads but the chart area is blank after a successful range load;
+- K-line requests go to public `:8766` instead of same-origin `/v4/*`;
+- Data Maintenance can run mutating writes without confirmation;
+- browser console shows repeated API/CORS/mixed-content errors during normal load.
+
 ## Failure Triage
 
 If `https://DOMAIN/index.html` fails:
