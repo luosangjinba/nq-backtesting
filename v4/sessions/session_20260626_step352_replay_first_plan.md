@@ -45,6 +45,23 @@ Rules:
 4. Add chunk loader.
 5. Convert long 1m Load Range into replay initialization.
 
+## Step 352.2 Range Model
+
+Status: complete.
+
+Added `src/data/replay-range-model.js`.
+
+The first pass model separates:
+
+- `outerRange`: the selected research boundary;
+- `cursorTimestamp`: the replay anchor;
+- `windowRange`: the actual loaded window;
+- `visibleBars`: the bars currently handed to the chart;
+- `loadedChunks` / `prefetchChunks`: reserved chunk metadata.
+
+It also adds `isReplayFirstCandidate()` so 1m long ranges can be routed away
+from range-first loading.
+
 ## Non-Goals For First Batch
 
 - No full overlay culling yet.
