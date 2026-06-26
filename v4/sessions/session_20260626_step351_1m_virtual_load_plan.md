@@ -165,3 +165,19 @@ The comparison loader now:
 - uses `loadBarsWindow()` for the comparison bars;
 - uses `loadBarsWindow()` for replay source bars when needed;
 - reports cache hits in the status message.
+
+## Step 351.7 Tests And Docs
+
+Status: complete.
+
+Added/updated smoke coverage:
+
+- `load-range-policy-smoke.js`: validates 14-day 1m virtual windows.
+- `bars-window-cache-smoke.js`: validates cache hits, in-flight dedupe, cloning,
+  and LRU eviction.
+- `comparison-load-range-smoke.js`: validates Pane 1 does not request the full
+  long 1m outer range.
+- `smoke_all.py --suite local`: includes the new 1m virtual-load smoke checks.
+
+Updated user guides to explain that large 1M ranges use virtual window loading
+with in-memory cache for already visited windows.

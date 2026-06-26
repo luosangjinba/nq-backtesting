@@ -70,6 +70,24 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify Data Maintenance resolves local/API proxy bases correctly.",
         ),
         SmokeCommand(
+            "load_range_policy_smoke",
+            ["node", "v4/tests/load-range-policy-smoke.js"],
+            "local",
+            "Verify long 1m ranges resolve to bounded virtual windows.",
+        ),
+        SmokeCommand(
+            "bars_window_cache_smoke",
+            ["node", "v4/tests/bars-window-cache-smoke.js"],
+            "local",
+            "Verify bars window cache hits, in-flight dedupe, and LRU eviction.",
+        ),
+        SmokeCommand(
+            "comparison_load_range_smoke",
+            ["node", "v4/tests/comparison-load-range-smoke.js"],
+            "local",
+            "Verify Pane 1 does not request a full long 1m outer range.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

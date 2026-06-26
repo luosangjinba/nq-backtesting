@@ -56,7 +56,7 @@ bash start.sh stop
 YYYY-MM-DD HH:mm
 ```
 
-1M 大范围加载会使用窗口化策略：图表只显示当前窗口，避免一次性把很长 1M 区间全部塞进浏览器。需要切换窗口时使用图表底部的窗口/定位控制。
+1M 大范围加载会使用虚拟窗口策略：可以选择全年这类较长 outer range，但图表只先加载和渲染较小的当前窗口，避免一次性把很长 1M 区间全部塞进浏览器。需要切换窗口时使用图表底部的 Prev/Next Window、Calendar 定位或 Replay History restore。同一页面会内存缓存已访问窗口，回到相同窗口时不需要再次请求 bars。
 
 ## Main Instrument
 

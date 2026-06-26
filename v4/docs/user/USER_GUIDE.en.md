@@ -54,7 +54,7 @@ Use this time format when possible:
 YYYY-MM-DD HH:mm
 ```
 
-Large 1M ranges use windowed loading. The chart shows the current window instead of loading the full long 1M range into the browser at once.
+Large 1M ranges use virtual window loading. You can select a long outer range, such as a full year, but the chart loads and renders a smaller current window first. Use Prev/Next Window, Calendar locate, or Replay History restore to move through the outer range. Recently visited windows are cached in memory, so returning to the same window does not need another bars request during the same page session.
 
 ## Main Instrument
 
