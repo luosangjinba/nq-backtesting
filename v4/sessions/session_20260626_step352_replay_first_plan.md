@@ -297,3 +297,42 @@ Validation:
 
 - `node v4/tests/replay-performance-diagnostics-smoke.js`
 - `python3 v4/scripts/smoke_all.py --suite local`
+
+### Step 352.11.2 Real Browser Drag Profile
+
+Status: complete.
+
+Extended `v4/tests/replay-first-real-data-browser-smoke.js` so the existing
+`browser-real` suite enables diagnostics during the real local API/DB NQ/ES
+workflow.
+
+Profile shape:
+
+- Load one-year `1m` replay-first window for `NQ` and `ES`.
+- Load one prefix chunk and one forward chunk.
+- Move the chart visible logical range 48 times after the progressive loads.
+- Record total drag profile time, visible range event count, bar-store event
+  count, chunk event count, and the last active chart data count.
+
+Latest local result:
+
+- `NQ`: initial load about 538ms; forward chunk about 212ms; 48 drag moves
+  about 1584ms; 15 visible range events; 3 bar-store events; active chart
+  data count 211.
+- `ES`: initial load about 183ms; forward chunk about 184ms; 48 drag moves
+  about 1600ms; 16 visible range events; 4 bar-store events; active chart
+  data count 211.
+
+Interpretation:
+
+- Headless programmatic drag is bounded and does not show a full-year render
+  problem.
+- Replay mode is rendering a small active slice (`activeDataCount=211`) even
+  though the store holds about 4k bars after prefix/forward loading.
+- Remaining manual-browser stutter is more likely tied to event/sync churn,
+  overlays, status updates, or the real interactive drag path than to a
+  simple "too many candles in the chart series" issue.
+
+Validation:
+
+- `python3 v4/scripts/smoke_all.py --suite browser-real`

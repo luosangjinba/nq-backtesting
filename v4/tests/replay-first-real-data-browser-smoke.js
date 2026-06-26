@@ -197,6 +197,7 @@ async function main() {
         };
 
         const store = await import('/src/data/bar-store.js');
+        const chart = await import('/src/chart/chart-manager.js');
         const bus = await import('/src/event-bus.js');
         const replayControls = await import('/src/ui/replay-controls.js');
         const { loadReplayFirstWindow } = await import('/src/data/replay-first-loader.js');
@@ -204,6 +205,7 @@ async function main() {
         const prefixLoader = await import('/src/data/replay-progressive-prefix-loader.js');
         const forwardLoader = await import('/src/data/replay-progressive-forward-loader.js');
         const primaryInstrumentStore = await import('/src/data/primary-instrument-store.js');
+        const diagnostics = await import('/src/data/replay-performance-diagnostics.js');
 
         const nativeFetch = window.fetch.bind(window);
         const calls = [];
@@ -238,6 +240,8 @@ async function main() {
           forwardLoader.resetReplayProgressiveForwardLoaderForTests();
           await sleep(500);
           calls.length = 0;
+          diagnostics.setReplayPerformanceDiagnosticsEnabled(true);
+          diagnostics.resetReplayPerformanceDiagnostics();
           const initialStartedAt = performance.now();
           const replay = await loadReplayFirstWindow({
             start: ${JSON.stringify(START)},
@@ -282,11 +286,29 @@ async function main() {
           const maxRequestSpanHours = Math.max(...allCalls.map((call) => Number(call.spanHours) || 0));
           const maxProgressiveRequestSpanHours = Math.max(...progressiveCalls.map((call) => Number(call.spanHours) || 0));
           const maxRequestMs = Math.max(...allCalls.map((call) => Number(call.ms) || 0));
+          const dragStartedAt = performance.now();
+          const dragSteps = 48;
+          const dragWidth = 180;
+          const maxFrom = Math.max(1, finalBars - dragWidth - 10);
+          for (let step = 0; step < dragSteps; step += 1) {
+            const ratio = step / Math.max(1, dragSteps - 1);
+            const from = step % 2 === 0
+              ? Math.floor(ratio * maxFrom)
+              : Math.floor((1 - ratio) * maxFrom);
+            chart.setVisibleLogicalRange(from, from + dragWidth);
+            await waitFrame();
+          }
+          const dragMs = performance.now() - dragStartedAt;
+          const diagnosticSnapshot = diagnostics.getReplayPerformanceDiagnosticsSnapshot();
+          const visibleRangeEvents = diagnosticSnapshot.events.filter((event) => event.type === 'chart:visible-logical-range');
+          const setBarsEvents = diagnosticSnapshot.events.filter((event) => event.type === 'bar-store:set-bars');
 
           runs.push({
             instrument,
             initialMs,
             forwardMs,
+            dragMs,
+            dragSteps,
             initialRange,
             prefixRange,
             finalRange,
@@ -298,6 +320,10 @@ async function main() {
             initialRequestCount: initialCalls.length,
             prefixRequestCount: prefixCalls.length,
             forwardRequestCount: forwardCalls.length,
+            diagnosticsCounters: diagnosticSnapshot.counters,
+            visibleRangeEventCount: visibleRangeEvents.length,
+            setBarsEventCount: setBarsEvents.length,
+            lastDiagnosticEvent: diagnosticSnapshot.lastEvent,
             maxRequestSpanHours,
             maxProgressiveRequestSpanHours,
             maxRequestMs,
@@ -323,12 +349,15 @@ async function main() {
       assert.ok(run.finalRange.end > run.prefixRange.end, `${run.instrument} forward should extend right after prefix`);
       assert.ok(run.forwardRequestCount > 0, `${run.instrument} forward should issue a bounded request`);
       assert.ok(run.currentCursor >= run.initialCursor, `${run.instrument} cursor should remain valid`);
+      assert.ok(run.visibleRangeEventCount > 0, `${run.instrument} drag profile should record visible range events`);
+      assert.ok(run.setBarsEventCount >= 3, `${run.instrument} diagnostics should record set/prepend/append`);
       assert.ok(
         run.maxProgressiveRequestSpanHours <= 24,
         `${run.instrument} progressive request span too large: ${JSON.stringify(run, null, 2)}`
       );
       assert.ok(run.initialMs < 20_000, `${run.instrument} initial load too slow: ${run.initialMs}ms`);
       assert.ok(run.forwardMs < 10_000, `${run.instrument} forward load too slow: ${run.forwardMs}ms`);
+      assert.ok(run.dragMs < 10_000, `${run.instrument} drag profile too slow: ${run.dragMs}ms`);
     }
 
     console.log(JSON.stringify(result, null, 2));

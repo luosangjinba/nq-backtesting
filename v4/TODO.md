@@ -1363,3 +1363,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.10: Real-data browser validation。已新增 `replay-first-real-data-browser-smoke.js` 和 `smoke_all.py --suite browser-real`；用真实本地 API/DB 跑一年 1m NQ/ES replay-first，覆盖 initial load、左侧 prefix、向右 replay forward、progressive request span、request count 和 cursor 保持。
   - [ ] Step 352.11: Manual drag/FPS tuning。用真实浏览器人工拖拽一年 1m replay-first 视图，记录卡顿来源并决定是否继续调 chunk size、cache size、状态栏更新频率或 TradingView visible range 订阅节流。
     - [x] Step 352.11.1: Replay-first performance diagnostics。已新增可开关诊断，记录 set/prepend/append、prefix/forward chunk、visible range 事件频率和耗时；默认关闭，可用 `?replayPerf=1` 或 `window.v4ReplayPerfDiagnostics.enable()` 开启。
+    - [x] Step 352.11.2: Real browser drag profile。已把诊断接入 `browser-real`；一年 1m NQ/ES replay-first 后执行 48 次 visible logical range 移动，记录 dragMs、visible range events、bar-store events、chunk events 和 active chart data count。
+    - [ ] Step 352.11.3: Tune measured bottleneck。根据 352.11.2 与人工浏览器 profile，优先优化最高影响项：visible range 事件节流、overlay/pane sync 降频、status 降噪或 replay chart data 裁剪。
