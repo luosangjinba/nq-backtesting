@@ -1349,3 +1349,10 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.5: Pane 1/Comparison 修复收口。Pane 1 在 1m 长区间不再绕过主图窗口化并直接请求完整 outer range；现在同样请求 14 天 virtual window，使用 bars window cache，并显示当前窗口状态。
   - [x] Step 351.6: 性能验收。用 `2012-01-01 - 2012-12-31`、`TF=1M` 验证：自动检查确认全年 outer range 会解析为 14 天 virtual window，API 对当前窗口返回非空 1m bars，cache/window smoke 通过；拖拽/缩放手感需浏览器硬刷新后做最终人工确认。
   - [x] Step 351.7: 测试与文档。已补 load-range/cache smoke，覆盖一年 1m outer range 被裁剪成 virtual window、相同窗口缓存命中、Pane 1 不再请求完整 outer range；已更新 user guide 并把相关 smoke 纳入 `smoke_all.py`。
+
+- [ ] Step 352: Replay-first long range architecture。目标是完全放弃 1m 长区间“先加载完整 date range 再 replay”的模型，改为 FX Replay 类 cursor-first：Date Range 只定义 outer range，Replay cursor 决定当前加载窗口，图表只持有 cursor 附近数据。记录见 `v4/sessions/session_20260626_step352_replay_first_plan.md`。
+  - [x] Step 352.1: 冻结产品边界。1m 长区间不再尝试加载完整 range；后端 `/v4/bars` 单次上限保留；Date Range 只定义 `outerRange`；Replay Bar 成为长区间主入口；默认 cursor 为 outerRange start 或最近一次 replay cursor；已走过 bars 不保证常驻图表。
+  - [ ] Step 352.2: 定义四层 Range Model：`outerRange` / `cursorTimestamp` / `windowRange` / `visibleBars`，并为后续 chunk cache/prefetch 预留状态。
+  - [ ] Step 352.3: 设计 Replay Window 策略：1m 默认 cursor 前 1 天、后 3 天，或等价小窗口；不依赖全年 bars 数组。
+  - [ ] Step 352.4: 新增 Chunk Loader：按 `instrument + tf + chunkStart + chunkEnd` 请求并缓存 bars，支持 in-flight dedupe、LRU 和 merge 去重。
+  - [ ] Step 352.5: Load Range 改成 Replay 初始化：长 1m Date Range 不再 fetch 全段，而是 set outerRange + cursor + cursor window，并打开 Replay Bar。
