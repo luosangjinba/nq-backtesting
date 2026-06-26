@@ -8,6 +8,9 @@ import {
   parseReplayDateTime,
 } from '../src/data/replay-range-model.js';
 
+assert.equal(normalizeReplayOuterRange(null), null);
+assert.equal(normalizeReplayOuterRange(undefined), null);
+
 assert.equal(parseReplayDateTime('2012-01-03 09:30'), 1325583000);
 assert.equal(formatReplayTimestamp(1325583000), '2012-01-03 09:30');
 

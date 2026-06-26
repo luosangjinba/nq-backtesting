@@ -36,9 +36,10 @@ export function formatReplayTimestamp(timestamp) {
 }
 
 export function normalizeReplayOuterRange(input = {}) {
-  const start = normalizeString(input.start);
-  const end = normalizeString(input.end);
-  const timeframe = normalizeTimeframe(input.timeframe, 1);
+  const source = input && typeof input === 'object' ? input : {};
+  const start = normalizeString(source.start);
+  const end = normalizeString(source.end);
+  const timeframe = normalizeTimeframe(source.timeframe, 1);
   const startTs = parseReplayDateTime(start);
   const endTs = parseReplayDateTime(end);
   if (!start || !end || startTs === null || endTs === null || endTs < startTs) return null;
