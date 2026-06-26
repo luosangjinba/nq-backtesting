@@ -51,11 +51,8 @@ export function initComparisonWindowController() {
   bus.on('comparison-window:changed', render);
   bus.on('comparison-window:changed', dataController.handleComparisonChanged);
   bus.on('chart-panes:changed', () => render(getComparisonWindowState()));
-  bus.on('bars:loaded', (primaryPayload) =>
-    dataController.loadComparisonForPrimaryRange({ force: true, requirePaneSync: true, primaryPayload })
-  );
+  bus.on('bars:loaded', () => dataController.loadComparisonForPrimaryRange({ force: true, requirePaneSync: true }));
   bus.on('bars:cleared', dataController.clearComparisonViewForPrimary);
-  bus.on('replay:pending-activate-at', dataController.handleReplayPendingActivate);
   bus.on('replay:changed', dataController.handleReplayChanged);
   chart.onCrosshairMove((param) => crosshairSync.scheduleComparisonHoverCursor(param?.time));
   onComparisonCrosshairMove((param) => crosshairSync.schedulePrimaryHoverCursor(param?.time));

@@ -20,8 +20,6 @@ import {
 } from './ui/replay-controls.js';
 import { initReplayHistoryPersistence } from './ui/replay-history-persistence.js';
 import { initViewportControls } from './ui/viewport-controls.js';
-import { initReplayProgressivePrefixLoader } from './data/replay-progressive-prefix-loader.js';
-import { initReplayProgressiveForwardLoader } from './data/replay-progressive-forward-loader.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
 import { initDisplayMode } from './display/display-mode.js';
 import { initDisplayPreferences } from './display/display-preferences.js';
@@ -60,35 +58,6 @@ import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
 
-let pendingReplayActivation = null;
-
-function normalizePendingReplayActivation(payload = {}) {
-  const timestamp = Number(payload?.timestamp);
-  if (!Number.isFinite(timestamp)) return null;
-  const replayStartTimestamp = Number(payload?.replayStartTimestamp);
-  return {
-    timestamp: Math.floor(timestamp),
-    replayStartTimestamp: Number.isFinite(replayStartTimestamp)
-      ? Math.floor(replayStartTimestamp)
-      : Math.floor(timestamp),
-  };
-}
-
-function createPendingReplaySnapshot(pending) {
-  if (!pending || !Number.isFinite(Number(pending.timestamp))) return null;
-  return {
-    enabled: true,
-    cursorTimestamp: Math.floor(Number(pending.timestamp)),
-    lastTimestamp: null,
-    replayStartTimestamp: Math.floor(Number(pending.replayStartTimestamp)),
-    sourceTimeframe: store.getCurrentTimeframe(),
-    sourceBars: store.getDisplayBars(),
-    visibleRange: chart.getVisibleLogicalRange(),
-    dataCount: 1,
-    anchorReplayStart: true,
-  };
-}
-
 console.log('[V4] app.js loaded');
 
 initDisplayPreferences();
@@ -126,8 +95,6 @@ console.log('[V4] Chart pane range sync initialized');
 // 初始化 Replay 控制条
 initReplayControls();
 initReplayHistoryPersistence();
-initReplayProgressivePrefixLoader();
-initReplayProgressiveForwardLoader();
 console.log('[V4] Replay controls initialized');
 
 // 初始化图表视口控制条
@@ -136,9 +103,7 @@ console.log('[V4] Viewport controls initialized');
 
 // 绑定 bars:loaded → chart.setData（用显示数据，不含 padding）
 bus.on('bars:loaded', ({ bars }) => {
-  const replaySnapshot =
-    getReplayRestoreSnapshot() ||
-    createPendingReplaySnapshot(pendingReplayActivation);
+  const replaySnapshot = getReplayRestoreSnapshot();
   const displayBars = store.getDisplayBars();
   const tf = store.getCurrentTimeframe();
   // 日线用 tradingDay 日期字符串作为 LightweightCharts time（显示交易日日期）
@@ -150,26 +115,14 @@ bus.on('bars:loaded', ({ bars }) => {
     low: b.low,
     close: b.close,
   }));
+  chart.setData(chartData);
   if (!replaySnapshot?.enabled) {
-    chart.setData(chartData);
     chart.showStartOfData(chartData.length);
   }
   syncReplayData(replaySnapshot);
   console.log(
     `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
   );
-});
-
-bus.on('replay:pending-activate-at', (payload) => {
-  pendingReplayActivation = normalizePendingReplayActivation(payload);
-});
-
-bus.on('replay:activate-at', () => {
-  pendingReplayActivation = null;
-});
-
-bus.on('bars:cleared', () => {
-  pendingReplayActivation = null;
 });
 
 bus.on('chart-panes:changed', (state = getChartPaneState()) => {

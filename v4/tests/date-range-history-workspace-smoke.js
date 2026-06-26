@@ -43,12 +43,7 @@ const storageKey = 'v4.dateRangeHistory';
 
 storage.setItem(storageKey, JSON.stringify([
   { start: '2026-06-01 00:00', end: '2026-06-05 23:59', timeframe: 1, loadedAt: 1 },
-  { start: '2012-01-01', end: '2012-12-31', timeframe: 1, loadedAt: 0 },
 ]));
-
-let localHistory = calendar.getRangeHistory();
-assert.equal(localHistory[1].start, '2012-01-01 00:00');
-assert.equal(localHistory[1].end, '2012-12-31 23:59');
 
 let recorder = makeFetchRecorder(() => ({
   ok: true,

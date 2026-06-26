@@ -6,7 +6,6 @@ import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
-import { loadReplayFirstWindow } from '../data/replay-first-loader.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getComparisonWindowState,
@@ -413,11 +412,6 @@ function syncActivePaneToolbarControls() {
   if (tfSelect) tfSelect.value = String(activePane.timeframe);
 }
 
-function getSelectedToolbarTimeframe(fallback = DEFAULT_TIMEFRAME) {
-  const selected = Number(document.getElementById('tfSelect')?.value);
-  return Number.isFinite(selected) && selected > 0 ? selected : fallback;
-}
-
 function renderSettingsPopover() {
   const popover = document.getElementById('toolbarSettingsPopover');
   if (!popover) return;
@@ -540,35 +534,6 @@ function updateHistoryButtons() {
   }
 }
 
-async function loadReplayFirstRange(start, end, tf, instrument) {
-  bus.emit('status:update', { text: 'Loading replay window...', isError: false });
-  const replay = await loadReplayFirstWindow({ start, end, timeframe: tf, instrument });
-  if (!replay.ok) {
-    bus.emit('status:update', { text: replay.message, isError: true });
-    return;
-  }
-  bus.emit('replay:pending-activate-at', {
-    timestamp: replay.activationTimestamp,
-    replayStartTimestamp: replay.outerRange.startTs,
-  });
-  store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
-    outerRange: replay.outerRange,
-    instrument,
-  });
-  const startEl = document.getElementById('startInput');
-  const endEl = document.getElementById('endInput');
-  if (startEl) startEl.value = start;
-  if (endEl) endEl.value = end;
-  bus.emit('replay:activate-at', {
-    timestamp: replay.activationTimestamp,
-    replayStartTimestamp: replay.outerRange.startTs,
-  });
-  bus.emit('status:update', {
-    text: `${replay.message}; loaded ${replay.bars.length} bars in ${replay.loadedChunks.length} chunks`,
-    isError: false,
-  });
-}
-
 async function handleLoad() {
   const startEl = document.getElementById('startInput');
   const endEl = document.getElementById('endInput');
@@ -577,7 +542,7 @@ async function handleLoad() {
   const start = startEl.value;
   const end = endEl.value;
   const primaryPane = getPaneById(CHART_PANE_IDS.PRIMARY);
-  const tf = getSelectedToolbarTimeframe(Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME);
+  const tf = Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME;
   const instrument = getPrimaryInstrument();
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
 
@@ -585,13 +550,6 @@ async function handleLoad() {
     bus.emit('status:update', { text: 'Choose a date range first', isError: true });
     return;
   }
-
-  try {
-    await loadReplayFirstRange(start, end, tf, instrument);
-  } catch (err) {
-    bus.emit('status:update', { text: `Replay load failed: ${err.message}`, isError: true });
-  }
-  return;
 
   const loadRange = resolveChartLoadRange(start, end, tf);
   if (!loadRange.ok) {

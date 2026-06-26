@@ -88,18 +88,6 @@ export function resolveChartLoadRange(start, end, timeframe) {
     };
   }
 
-  if (tf === 1 && validation.days !== null && validation.days > virtualWindowDays) {
-    return {
-      ok: false,
-      windowed: false,
-      start,
-      end,
-      outerRange: { start, end, timeframe: tf },
-      replayFirstRequired: true,
-      message: '1m 长区间必须使用 Replay Bar 模式加载',
-    };
-  }
-
   if (tf !== 1 || validation.days === null) {
     return {
       ok: false,

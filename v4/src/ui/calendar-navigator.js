@@ -1,7 +1,6 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
-import { loadReplayFirstWindow } from '../data/replay-first-loader.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
@@ -49,8 +48,6 @@ let rangeHistoryMutationVersion = 0;
 let applyingServerRangeHistory = false;
 
 function getPrimaryPaneTimeframe() {
-  const selected = Number(document.getElementById('tfSelect')?.value);
-  if (Number.isFinite(selected) && selected > 0) return selected;
   return Number(getPaneById(CHART_PANE_IDS.PRIMARY)?.timeframe) || store.getCurrentTimeframe();
 }
 
@@ -189,17 +186,12 @@ function normalizeRangeHistoryItems(items) {
   if (!Array.isArray(items)) return [];
   return items
     .filter((item) => dateTimePartsFromInput(item?.start) && dateTimePartsFromInput(item?.end))
-    .map((item) => {
-      const rawStart = String(item.start || '').trim();
-      const rawEnd = String(item.end || '').trim();
-      const endParts = dateTimePartsFromInput(rawEnd);
-      return {
-        start: formatTimeInput(rawStart),
-        end: endParts?.time ? formatTimeInput(rawEnd) : `${endParts.dateKey} ${FULL_DAY_END_TIME}`,
-        timeframe: Number(item.timeframe) || 0,
-        loadedAt: Number(item.loadedAt) || 0,
-      };
-    })
+    .map((item) => ({
+      start: formatTimeInput(String(item.start || '')),
+      end: formatTimeInput(String(item.end || '')),
+      timeframe: Number(item.timeframe) || 0,
+      loadedAt: Number(item.loadedAt) || 0,
+    }))
     .filter((item) => item.start && item.end)
     .slice(0, RANGE_HISTORY_LIMIT);
 }
@@ -582,36 +574,6 @@ function openPopover(button) {
 
 async function loadRange(start, end, successText) {
   const tf = getPrimaryPaneTimeframe();
-  {
-    bus.emit('status:update', { text: 'Loading replay window...', isError: false });
-    const instrument = getPrimaryInstrument();
-    const replay = await loadReplayFirstWindow({ start, end, timeframe: tf, instrument });
-    if (!replay.ok) {
-      throw new Error(replay.message);
-    }
-    setToolbarRange(start, end, false);
-    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
-    bus.emit('replay:pending-activate-at', {
-      timestamp: replay.activationTimestamp,
-      replayStartTimestamp: replay.outerRange.startTs,
-    });
-    store.setBars(replay.bars, replay.windowRange.start, replay.windowRange.end, tf, null, {
-      outerRange: replay.outerRange,
-      instrument,
-    });
-    recordRangeHistory(start, end, tf);
-    bus.emit('replay:activate-at', {
-      timestamp: replay.activationTimestamp,
-      replayStartTimestamp: replay.outerRange.startTs,
-    });
-    bus.emit('status:update', {
-      text: `${successText || replay.message}; replay window loaded ${replay.bars.length} bars in ${replay.loadedChunks.length} chunks`,
-      isError: false,
-    });
-    closePopover();
-    return;
-  }
-
   const loadRange = resolveChartLoadRange(start, end, tf);
   if (!loadRange.ok) {
     throw new Error(loadRange.message);

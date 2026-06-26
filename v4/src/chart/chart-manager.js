@@ -11,7 +11,6 @@ import {
 import { formatTickPrice, getInstrumentTickSize } from '../price-utils.js';
 import { VerticalLinePrimitive } from './primitives.js';
 import { getGridOptions } from './grid-visibility.js';
-import { recordReplayPerformanceEvent } from '../data/replay-performance-diagnostics.js';
 
 let chart = null;
 let series = null;
@@ -311,43 +310,6 @@ export function getVisibleRange() {
 export function getVisibleLogicalRange() {
   if (!chart) return null;
   return chart.timeScale().getVisibleLogicalRange();
-}
-
-export function subscribeVisibleLogicalRangeChange(handler) {
-  if (!chart || typeof handler !== 'function') return () => {};
-  const timeScale = chart.timeScale();
-  let pendingRange = null;
-  let pendingFrame = null;
-  const schedule = typeof requestAnimationFrame === 'function'
-    ? requestAnimationFrame
-    : (callback) => setTimeout(callback, 16);
-  const cancel = typeof cancelAnimationFrame === 'function'
-    ? cancelAnimationFrame
-    : clearTimeout;
-  const wrappedHandler = (range) => {
-    recordReplayPerformanceEvent('chart:visible-logical-range', {
-      from: Number(range?.from),
-      to: Number(range?.to),
-      width: Number(range?.to) - Number(range?.from),
-      activeDataCount,
-    });
-    pendingRange = range;
-    if (pendingFrame !== null) return;
-    pendingFrame = schedule(() => {
-      pendingFrame = null;
-      const nextRange = pendingRange;
-      pendingRange = null;
-      handler(nextRange);
-    });
-  };
-  timeScale.subscribeVisibleLogicalRangeChange(wrappedHandler);
-  return () => {
-    if (pendingFrame !== null) {
-      cancel(pendingFrame);
-      pendingFrame = null;
-    }
-    timeScale.unsubscribeVisibleLogicalRangeChange(wrappedHandler);
-  };
 }
 
 export function setVisibleRange(from, to) {

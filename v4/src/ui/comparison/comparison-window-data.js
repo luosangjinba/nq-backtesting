@@ -23,7 +23,6 @@ import {
 import { updateComparisonOverlayStatus } from '../../comparison/comparison-overlay-policy.js';
 import { getReplaySyncedComparisonBars } from '../../comparison/comparison-replay-sync.js';
 import { CHART_PANE_IDS, getPaneLabel, getSyncPeerPanes } from '../../chart-panes/chart-pane-store.js';
-import { resolveReplayFirstComparisonRange } from './comparison-replay-load-policy.js';
 
 function getComparisonPaneLabel() {
   return getPaneLabel(CHART_PANE_IDS.COMPARISON);
@@ -34,25 +33,9 @@ function shouldLoadReplaySource(start, end, timeframe) {
   return validateSingleWindowRange(start, end, 1).ok;
 }
 
-export function resolveComparisonLoadRequest(start, end, timeframe, instrument, options = {}) {
-  const replayFirstRange = resolveReplayFirstComparisonRange({
-    primaryTimeframe: options.primaryTimeframe,
-    comparisonTimeframe: timeframe,
-    outerRange: options.outerRange,
-    replayState: options.replayState,
-  });
-  const comparisonRange = replayFirstRange || resolveChartLoadRange(start, end, timeframe);
+export function resolveComparisonLoadRequest(start, end, timeframe, instrument) {
+  const comparisonRange = resolveChartLoadRange(start, end, timeframe);
   if (!comparisonRange.ok) {
-    if (comparisonRange.replayFirstRequired && options.replayState?.enabled) {
-      return {
-        ok: false,
-        skipped: true,
-        message: comparisonRange.message,
-        comparisonRange,
-        replaySourceRange: null,
-        signature: `${start}|${end}|${instrument}|${timeframe}|replay-first-pending`,
-      };
-    }
     return {
       ok: false,
       message: comparisonRange.message,
@@ -171,27 +154,19 @@ export function createComparisonWindowDataController({
     clearComparisonView();
   }
 
-  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false, primaryPayload = null } = {}) {
+  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false } = {}) {
     const state = getComparisonWindowState();
     if (!state.enabled) return;
     if (requirePaneSync && !shouldFollowPrimaryPane()) return;
-    const { start, end } = primaryPayload || primaryStore.getCurrentRange();
+    const { start, end } = primaryStore.getCurrentRange();
     if (!start || !end) {
       clearComparisonView();
       return;
     }
 
     const { instrument, timeframe } = state.descriptor;
-    const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument, {
-      primaryTimeframe: primaryPayload?.tf ?? primaryStore.getCurrentTimeframe(),
-      outerRange: primaryPayload?.requestedOuterRange ?? primaryStore.getRequestedOuterRange(),
-      replayState: {
-        ...lastReplayState,
-        allowOuterStartFallback: true,
-      },
-    });
+    const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument);
     if (!loadRequest.ok) {
-      if (loadRequest.skipped) return;
       clearComparisonBars();
       replaySourceBars = [];
       replaySourceRequestedRange = null;
@@ -276,13 +251,6 @@ export function createComparisonWindowDataController({
     renderComparisonBars({ followReplay: true });
   }
 
-  function handleReplayPendingActivate({ timestamp } = {}) {
-    lastReplayState = {
-      enabled: true,
-      cursorTimestamp: timestamp ?? null,
-    };
-  }
-
   return {
     getReplaySyncedBars,
     renderComparisonBars,
@@ -290,7 +258,6 @@ export function createComparisonWindowDataController({
     clearComparisonViewForPrimary,
     loadComparisonForPrimaryRange,
     handleComparisonChanged,
-    handleReplayPendingActivate,
     handleReplayChanged,
   };
 }
