@@ -18,6 +18,16 @@ function deriveDisplayBars(sourceBars, range) {
   return sourceBars.filter((bar) => bar.timestamp >= startTs && bar.timestamp <= endTs);
 }
 
+function mergeBarsByTimestamp(leftBars = [], rightBars = []) {
+  const byTimestamp = new Map();
+  for (const bar of [...leftBars, ...rightBars]) {
+    const timestamp = Number(bar?.timestamp);
+    if (!Number.isFinite(timestamp)) continue;
+    byTimestamp.set(timestamp, { ...bar });
+  }
+  return [...byTimestamp.values()].sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+}
+
 export function setBars(newBars, start, end, tf, range = null, options = {}) {
   const instrument = options.instrument || getPrimaryInstrument();
   bars = newBars;
@@ -37,6 +47,22 @@ export function setBars(newBars, start, end, tf, range = null, options = {}) {
     instrument,
     isWindowedRange: Boolean(requestedOuterRange),
   });
+}
+
+export function prependBarsToCurrentRange(prefixBars = [], start = currentStart, options = {}) {
+  const instrument = options.instrument || getPrimaryInstrument();
+  const previousCount = bars.length;
+  const mergedBars = mergeBarsByTimestamp(prefixBars, bars);
+  setBars(mergedBars, start, currentEnd, currentTimeframe, requestedRange, {
+    outerRange: requestedOuterRange,
+    instrument,
+  });
+  return {
+    bars: mergedBars,
+    addedBars: Math.max(0, mergedBars.length - previousCount),
+    start,
+    end: currentEnd,
+  };
 }
 
 export function getBars() {
