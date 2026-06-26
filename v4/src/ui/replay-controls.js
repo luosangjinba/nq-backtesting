@@ -155,6 +155,8 @@ function emitReplayChanged() {
     enabled,
     cursorIndex,
     cursorTimestamp: enabled && cursorIndex >= 0 ? getCursorTimestamp() : null,
+    dataCount: chartData.length,
+    isPlaying: Boolean(timer),
     speedIndex,
   });
 }
