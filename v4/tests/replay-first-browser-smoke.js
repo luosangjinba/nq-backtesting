@@ -293,6 +293,8 @@ async function main() {
         const initialReplayProgress = replayControls.getReplayProgressSnapshot();
         const initialVisibleRange = chart.getVisibleLogicalRange();
 
+        chart.setVisibleLogicalRange(5, 25);
+        await waitFrame();
         chart.setVisibleLogicalRange(0, 20);
         await waitFor(() => store.getCurrentRange().start < initialRange.start, 'prefix load', 10_000);
         const prefixRange = store.getCurrentRange();

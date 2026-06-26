@@ -393,12 +393,15 @@ export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex,
   stopTimer();
   speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : speedIndex;
   mode = 'idle';
-  renderSlice(Math.max(index, replayStartIndex), true, true);
+  renderSlice(Math.max(index, replayStartIndex), true, true, {
+    anchorReplayStart: Boolean(options.anchorReplayStart),
+    cursorTimestamp: timestamp,
+  });
   return true;
 }
 
 function activateReplayAtTimestamp({ timestamp, speedIndex: nextSpeedIndex, replayStartTimestamp } = {}) {
-  if (restoreReplayToTimestamp(timestamp, nextSpeedIndex, { replayStartTimestamp })) return;
+  if (restoreReplayToTimestamp(timestamp, nextSpeedIndex, { replayStartTimestamp, anchorReplayStart: true })) return;
   bus.emit('status:update', { text: 'Replay 初始化失败: 时间不在当前加载窗口', isError: true });
 }
 
