@@ -1,5 +1,4 @@
 import * as bus from '../../event-bus.js';
-import { fetchBars } from '../../api.js';
 import { TIMEFRAME_MAP } from '../../config.js';
 import {
   clearComparisonData,
@@ -14,6 +13,7 @@ import {
 } from '../../chart/comparison-chart-manager.js';
 import { getBarChartTime, mapTimestampToChartTime } from '../../chart/time-projection.js';
 import { resolveChartLoadRange, validateSingleWindowRange } from '../../data/load-range-policy.js';
+import { loadBarsWindow } from '../../data/load-bars-window.js';
 import * as primaryStore from '../../data/bar-store.js';
 import {
   getComparisonWindowState,
@@ -189,13 +189,15 @@ export function createComparisonWindowDataController({
     try {
       initComparisonChart();
       setComparisonChartInfo({ instrument, timeframe });
-      const [result, replaySourceResult] = await Promise.all([
-        fetchBars(comparisonRange.start, comparisonRange.end, timeframe, instrument),
+      const [loadedWindow, loadedReplaySource] = await Promise.all([
+        loadBarsWindow(comparisonRange.start, comparisonRange.end, timeframe, instrument),
         replaySourceRange
-          ? fetchBars(replaySourceRange.start, replaySourceRange.end, replaySourceRange.timeframe, instrument)
+          ? loadBarsWindow(replaySourceRange.start, replaySourceRange.end, replaySourceRange.timeframe, instrument)
           : Promise.resolve(null),
       ]);
       if (seq !== requestSeq || !getComparisonWindowState().enabled) return;
+      const result = loadedWindow.result;
+      const replaySourceResult = loadedReplaySource?.result || null;
       replaySourceBars = replaySourceResult?.bars || [];
       replaySourceRequestedRange = replaySourceResult?.requestedRange || null;
       setComparisonBars(result.bars, result.requestedRange, {
@@ -212,8 +214,8 @@ export function createComparisonWindowDataController({
       updateComparisonOverlayStatus();
       bus.emit('status:update', {
         text: comparisonRange.windowed
-          ? `${getComparisonPaneLabel()} ${comparisonRange.message}`
-          : `${getComparisonPaneLabel()} ${instrument} 已加载 ${displayBars.length} 根K线`,
+          ? `${getComparisonPaneLabel()} ${comparisonRange.message}${loadedWindow.cacheHit ? ' (cache)' : ''}`
+          : `${getComparisonPaneLabel()} ${instrument} 已加载 ${displayBars.length} 根K线${loadedWindow.cacheHit ? ' (cache)' : ''}`,
         isError: false,
       });
     } catch (error) {

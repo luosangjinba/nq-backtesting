@@ -149,3 +149,19 @@ the in-memory window cache. The primary chart load paths now use it:
 
 Pane 1 / Comparison is left for Step 351.5 because its follow-primary behavior
 has separate replay-source and pane-status handling.
+
+## Step 351.5 Pane 1 / Comparison Integration
+
+Status: complete.
+
+Pane 1 / Comparison now uses the same resolved window and cache wrapper as
+primary loads. A long 1m outer range no longer gets sent directly to
+`/v4/bars` from the comparison follow-primary path.
+
+The comparison loader now:
+
+- resolves the follow-primary range through `resolveChartLoadRange()`;
+- requests only the current virtual window;
+- uses `loadBarsWindow()` for the comparison bars;
+- uses `loadBarsWindow()` for replay source bars when needed;
+- reports cache hits in the status message.
