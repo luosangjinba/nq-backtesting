@@ -265,10 +265,11 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
 }
 
 function showReplayStartContext(previousRange = null) {
-  const width =
+  const previousWidth =
     previousRange && Number.isFinite(previousRange.to - previousRange.from)
-      ? Math.max(24, previousRange.to - previousRange.from)
-      : 140;
+      ? previousRange.to - previousRange.from
+      : null;
+  const width = Math.max(80, Math.min(180, Number(previousWidth) || 140));
   const rightPadding = Math.max(8, Math.floor(width * 0.08));
   const leftContext = Math.min(
     replayStartIndex,
