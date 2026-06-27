@@ -82,6 +82,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify bars window cache hits, in-flight dedupe, and LRU eviction.",
         ),
         SmokeCommand(
+            "replay_session_state_smoke",
+            ["node", "v4/tests/replay-session-state-smoke.js"],
+            "local",
+            "Verify FX Replay session state and cursor-bound chunk planning.",
+        ),
+        SmokeCommand(
             "comparison_load_range_smoke",
             ["node", "v4/tests/comparison-load-range-smoke.js"],
             "local",
