@@ -8,6 +8,7 @@ import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { loadBarsWindow } from '../data/load-bars-window.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
 import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+import { hasActiveReplaySession } from './replay/replay-session-state.js';
 
 let controlsEl = null;
 let comparisonControlsEl = null;
@@ -39,6 +40,7 @@ function setToolbarRange(start, end) {
 }
 
 function getWindowControlState(direction) {
+  if (hasActiveReplaySession()) return { visible: false, enabled: false };
   const outerRange = store.getRequestedOuterRange();
   if (!outerRange || Number(store.getCurrentTimeframe()) !== 1) return { visible: false, enabled: false };
   const currentRange = store.getCurrentRange();
@@ -47,6 +49,14 @@ function getWindowControlState(direction) {
 }
 
 async function loadAdjacentWindow(direction) {
+  if (hasActiveReplaySession()) {
+    bus.emit('status:update', {
+      text: 'Replay session active: legacy Prev/Next Window loading is disabled',
+      isError: true,
+    });
+    return;
+  }
+
   const outerRange = store.getRequestedOuterRange();
   const currentRange = store.getCurrentRange();
   const resolved = resolveAdjacentWindow(outerRange, currentRange.start, currentRange.end, direction);

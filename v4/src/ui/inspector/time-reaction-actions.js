@@ -9,6 +9,7 @@ import * as store from '../../data/bar-store.js';
 import { loadBarsWindow } from '../../data/load-bars-window.js';
 import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import { resolveChartLoadRange } from '../../data/load-range-policy.js';
+import { hasActiveReplaySession } from '../replay/replay-session-state.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import {
   getOrderReviewById,
@@ -375,6 +376,14 @@ function syncPrimaryToolbarRange(start, end, timeframe) {
 }
 
 async function ensurePrimaryTimeframe(timeframe) {
+  if (hasActiveReplaySession()) {
+    bus.emit('status:update', {
+      text: 'Replay session active: legacy timeframe range reload is disabled',
+      isError: true,
+    });
+    return false;
+  }
+
   const targetTimeframe = Number(timeframe) || store.getCurrentTimeframe();
   if (Number(store.getCurrentTimeframe()) === targetTimeframe) return true;
   const currentRange = store.getCurrentRange();

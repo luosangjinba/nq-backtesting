@@ -40,6 +40,7 @@ import {
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { canRedo, canUndo, getRedoLabel, getUndoLabel, redo, undo } from '../history/history-manager.js';
 import { initCalendarNavigator } from './calendar-navigator.js';
+import { hasActiveReplaySession } from './replay/replay-session-state.js';
 
 const UI_SCALE_LABELS = {
   100: '100%',
@@ -535,6 +536,14 @@ function updateHistoryButtons() {
 }
 
 async function handleLoad() {
+  if (hasActiveReplaySession()) {
+    bus.emit('status:update', {
+      text: 'Replay session active: legacy Date Range loading is disabled',
+      isError: true,
+    });
+    return;
+  }
+
   const startEl = document.getElementById('startInput');
   const endEl = document.getElementById('endInput');
   startEl.value = formatTimeInput(startEl.value.trim());

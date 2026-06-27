@@ -12,6 +12,8 @@ export const REPLAY_SESSION_CHUNK_REASONS = Object.freeze({
 
 const VALID_CHUNK_REASONS = new Set(Object.values(REPLAY_SESSION_CHUNK_REASONS));
 
+let activeReplaySession = null;
+
 function normalizeString(value, fallback = '') {
   const text = String(value ?? '').trim();
   return text || fallback;
@@ -130,6 +132,30 @@ export function updateReplaySession(session, patch = {}) {
 
 export function resetReplaySession() {
   return null;
+}
+
+export function setActiveReplaySession(session) {
+  activeReplaySession = session ? createReplaySession(session) : null;
+  return getActiveReplaySession();
+}
+
+export function updateActiveReplaySession(patch = {}) {
+  if (!activeReplaySession) return null;
+  activeReplaySession = updateReplaySession(activeReplaySession, patch);
+  return getActiveReplaySession();
+}
+
+export function clearActiveReplaySession() {
+  activeReplaySession = null;
+  return null;
+}
+
+export function getActiveReplaySession() {
+  return activeReplaySession ? serializeReplaySession(activeReplaySession) : null;
+}
+
+export function hasActiveReplaySession() {
+  return Boolean(activeReplaySession?.active);
 }
 
 export function serializeReplaySession(session) {

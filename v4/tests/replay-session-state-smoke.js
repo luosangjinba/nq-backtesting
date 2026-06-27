@@ -2,14 +2,19 @@ import assert from 'node:assert/strict';
 import {
   REPLAY_SESSION_CHUNK_REASONS,
   addReplaySessionChunk,
+  clearActiveReplaySession,
   createReplaySession,
   formatReplaySessionDateTime,
+  getActiveReplaySession,
+  hasActiveReplaySession,
   parseReplaySessionDateTime,
   planInitialPrefixRequest,
   planNextForwardBarRequest,
   planPreviousPrefixRequest,
   resetReplaySession,
   serializeReplaySession,
+  setActiveReplaySession,
+  updateActiveReplaySession,
   updateReplaySession,
 } from '../src/ui/replay/replay-session-state.js';
 
@@ -78,5 +83,17 @@ assert.deepEqual(serialized.loadedChunks, withInitialChunk.loadedChunks);
 serialized.loadedChunks[0].startTs = 1;
 assert.notEqual(serialized.loadedChunks[0].startTs, withInitialChunk.loadedChunks[0].startTs);
 assert.equal(resetReplaySession(), null);
+
+assert.equal(hasActiveReplaySession(), false);
+const active = setActiveReplaySession(session);
+assert.equal(hasActiveReplaySession(), true);
+assert.equal(active.cursor, session.cursor);
+const activeCopy = getActiveReplaySession();
+activeCopy.cursor = 1;
+assert.equal(getActiveReplaySession().cursor, session.cursor);
+const updatedActive = updateActiveReplaySession({ cursor: forward.request.startTs });
+assert.equal(updatedActive.cursor, forward.request.startTs);
+clearActiveReplaySession();
+assert.equal(hasActiveReplaySession(), false);
 
 console.log('replay session state smoke passed');

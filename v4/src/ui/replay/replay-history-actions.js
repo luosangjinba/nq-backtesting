@@ -2,6 +2,7 @@ import * as bus from '../../event-bus.js';
 import { loadBarsWindow } from '../../data/load-bars-window.js';
 import { resolveWindowAroundTimestamp } from '../../data/load-range-policy.js';
 import { getReplayHistory } from '../replay-history-store.js';
+import { hasActiveReplaySession } from './replay-session-state.js';
 import { isTimestampInRange } from './replay-time-utils.js';
 
 export async function loadReplayHistoryItem(id, {
@@ -14,6 +15,14 @@ export async function loadReplayHistoryItem(id, {
   closeHistoryPanel,
   render,
 }) {
+  if (hasActiveReplaySession()) {
+    bus.emit('status:update', {
+      text: 'Replay session active: legacy Replay History range restore is disabled',
+      isError: true,
+    });
+    return;
+  }
+
   const item = getReplayHistory(primaryInstrument).find((historyItem) => historyItem.id === id);
   if (!item) {
     bus.emit('status:update', { text: 'Replay History item not found', isError: true });

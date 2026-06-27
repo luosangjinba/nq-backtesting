@@ -7,6 +7,7 @@ import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
 import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
+import { hasActiveReplaySession } from './replay/replay-session-state.js';
 import {
   dateKeyFromInput,
   dateKeyFromTimestamp,
@@ -573,6 +574,10 @@ function openPopover(button) {
 }
 
 async function loadRange(start, end, successText) {
+  if (hasActiveReplaySession()) {
+    throw new Error('Replay session active: legacy Calendar range loading is disabled');
+  }
+
   const tf = getPrimaryPaneTimeframe();
   const loadRange = resolveChartLoadRange(start, end, tf);
   if (!loadRange.ok) {
@@ -596,6 +601,10 @@ async function loadRange(start, end, successText) {
 }
 
 async function loadResolvedWindow(loadRange, successText) {
+  if (hasActiveReplaySession()) {
+    throw new Error('Replay session active: legacy Calendar window loading is disabled');
+  }
+
   const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
   bus.emit('status:update', { text: 'Loading...', isError: false });
   const { result, cacheHit } = await loadBarsWindow(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
