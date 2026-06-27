@@ -1363,14 +1363,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [ ] Step 352.10: SKIPPED / reverted。原计划真实数据 browser validation；测试代码已回退。
   - [ ] Step 352.11: SKIPPED / reverted。原计划 Manual drag/FPS tuning；代码与诊断入口已回退。
 
-- [ ] Step 353: FX Replay-style session cursor model。目标是把 Date Range 从“要一次性加载的 K 线范围”改为“Replay session 边界”，进入图表时以 `session.start` 作为 replay cursor，右侧最多显示到 cursor，左侧历史上下文可按需无限懒加载；到 `session.end` 后停止 replay 并提示结束。记录见 `v4/sessions/session_20260626_step353_fx_replay_session_model.md`。
-  - [ ] Step 353.1: 只写设计与边界。明确 session state、cursor、context prefix、end boundary、缓存、周期切换、Pane/Comparison/overlay 的职责；确认 Step 351 继续作为当前稳定 fallback，Step 353 不复用 Step 352 代码。
-  - [ ] Step 353.2: 新增 session state，但暂不改 UI 行为。建立独立 `ReplaySessionState`/store，记录 instrument、timeframe、sessionStart、sessionEnd、cursor、autoUpdateEnd、loadedRanges、mode；只接入状态读写和测试，不改变现有 Load Range。
-  - [ ] Step 353.3: 初始 cursor 右边界裁剪。进入 session 后只允许主图显示 `bar.time <= cursor` 的 K 线；初始视图右侧停在 `session.start` 附近，左侧显示当前 canvas 所需上下文，不能提前显示 start 之后的 bars。
-  - [ ] Step 353.4: 左拖 prefix 懒加载。用户向左拖动接近已加载数据左边缘时，按当前 timeframe 分片请求更早 bars，prepend 并缓存；左侧不受 sessionStart 截断，只受数据源最早时间限制。
-  - [ ] Step 353.5: Replay forward append。Replay Bar 的 next/play 推进 cursor，按需加载 cursor 右侧下一段 bars，但 display 仍裁剪到 cursor；到 sessionEnd 停止并给出 session finished 提示。
-  - [ ] Step 353.6: 周期切换接入。切换 1M/5M/15M/1H/1D 等周期时保留同一个 sessionStart/sessionEnd/cursor 语义，按新 timeframe 重新加载 cursor 左侧上下文，并继续禁止显示 cursor 右侧未来 bars。
-  - [ ] Step 353.7: Auto-update end date。为 session 增加可选开关：当开启且 end 选择为 latest 时，sessionEnd 在加载前跟随当前 instrument 数据源最新 timestamp；不改变 cursor，只扩展可 replay 的结束边界。
-  - [ ] Step 353.8: Pane/Comparison/overlays 收口。Pane 1、Comparison、time overlays、price overlays、Calendar locate 只能请求当前可视/同步所需的小窗口，不能绕过 session cursor 直接加载完整 date range 或显示未来 bars。
-  - [ ] Step 353.9: Browser smoke。新增真实浏览器 smoke 覆盖：一年 1M session 初始右边界在 start、左拖 prefix 无限延伸、replay forward 逐根推进、到 end 停止、切换 1D 后仍不显示 cursor 右侧 bars、无超大 `/v4/bars` 请求。
-  - [ ] Step 353.10: Manual UX validation。用真实浏览器手动验证 FX Replay 对齐度、拖拽流畅度、周期切换、每日复盘 auto-update end date；记录是否需要继续做 IndexedDB cache、chunk size 调优或 TradingView visible range 节流。
+- [ ] Step 353: FX Replay-style session runtime。目标是彻底放弃“Date Range = 显示全部/加载全部范围”的主图逻辑，改成 FX Replay：Date Range 只定义 replay session 边界；进入图表后最新/最右 K 线就是 `sessionStart`，左侧只加载当前屏幕所需前缀；除非 replay next/play 推进 cursor，否则不请求、不缓存、不渲染 `cursor` 右侧未来 K 线；左拖时按需向前加载 prefix chunk；到 `sessionEnd` 停止 replay。记录见 `v4/sessions/session_20260626_step353_fx_replay_session_model.md`。
+  - [x] Step 353.1: 重写设计与边界。已冻结纠正后的 FX Replay 语义：Date Range 是 session boundary，不是 display range；初始加载请求必须以 `sessionStart` 为 end；后台不预加载 future bars；prefix bars 只为当前可见上下文和左拖按需加载；forward replay 默认只请求下一根需要 reveal 的 bar，不能把 cursor 右侧未 reveal bars 留在 active replay buffer；旧 full-range / 1m outer-range 显示逻辑在 replay-session 路径中必须删除或绕开。
+  - [ ] Step 353.2: 新增 session state 与 chunk policy，但暂不接 UI。建立独立 `ReplaySessionState`/store，记录 instrument、timeframe、sessionStart、sessionEnd、cursor、autoUpdateEnd、mode、loadedChunks、visibleChunkRange；实现 initial prefix / previous prefix / next-forward-bar 规划，并拒绝非 immediate replay reveal 原因加载 cursor 右侧 bars。
+  - [ ] Step 353.3: Step 351 bypass gate。为 active replay session 加显式旁路保护：Toolbar/Calendar/Viewport controls/Replay History/Comparison/Time Reaction 不得继续用 `outerRange`、`resolveWindowAroundTimestamp()`、`resolveAdjacentWindow()` 或 14 天 virtual window 驱动主图显示；Prev/Next Window 在 session 中隐藏或禁用；共享 chunk loader 可保留，但不得写回 `requestedOuterRange` 作为 session 显示模型。
+  - [ ] Step 353.4: 替换 Date Range 主图入口。选择长区间后不再加载完整 range，也不再加载旧 14 天 window；改为创建 replay session，并首次只请求以 `sessionStart` 结尾的屏幕可见 prefix window；右侧最新 K 线必须是 start/cursor，网络请求和 buffer 都不得包含 start 之后 bars。
+  - [ ] Step 353.5: 主图 all-in replay bars。active session 下主图 series 只消费 `replayVisibleBars`；旧 `store.getDisplayBars()` 的 full-range 假设移除或仅用于非 session；PDA/notes/order/live/calendar/replay cursor 都读取 session 可见 bars；退出 session 必须有明确行为，不允许静默显示完整 Date Range。
+  - [ ] Step 353.6: 左拖 prefix 懒加载。用户向左拖动接近已加载数据左边缘时，按当前 timeframe 请求更早 bounded chunk，prepend/merge 并跳过重复/in-flight chunk；不因 long Date Range 自动加载 prefix；允许释放远离视窗的旧 chunk 以节省内存。
+  - [ ] Step 353.7: Replay forward append。Replay Bar 的 next/play 是唯一加载未来 K 线的路径；按需只请求 cursor 右侧下一根 replay bar，不能超过 `sessionEnd`；请求结果只有成为新 cursor bar 时才进入 active replay buffer；到 sessionEnd 停止并提示 session finished。
+  - [ ] Step 353.8: 周期切换接入。切换 1M/5M/15M/1H/1D 时保留 sessionStart/sessionEnd/cursor，清空旧 timeframe chunks，重新请求以 cursor 结尾的可见 prefix window；继续禁止显示/请求 cursor 右侧未来 bars。
+  - [ ] Step 353.9: Pane/Comparison/Calendar/overlays 收口。Pane 1、Comparison、time overlays、price overlays、Calendar locate、Replay History restore 不能绕过 active session 加载或显示完整 Date Range；只能请求当前可见/同步所需的小窗口，并遵守 cursor future-bar 禁令。
+  - [ ] Step 353.10: Browser smoke。新增真实浏览器 smoke 覆盖：一年 1M session 初始请求 bounded 且 end=start；初始右边界在 start/cursor；无请求以 sessionEnd 作为初始加载 end；左拖加载更早 prefix；replay forward 每次只请求/显示下一根 bar；active replay buffer 不保留 cursor 右侧 future bars；到 end 停止；切换 1D 仍不显示 cursor 右侧 bars。
+  - [ ] Step 353.11: Manual UX validation。用真实浏览器对照 FX Replay 验证：进入后 start 是最新 K 线、有足够但不过量的 prefix context、左拖继续加载历史、play 前无未来 K 线泄漏、长 1m session 不压垮浏览器/服务器；剩余 chunk size、释放策略、节流调优另记。
