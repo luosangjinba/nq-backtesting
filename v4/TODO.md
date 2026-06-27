@@ -1362,3 +1362,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [ ] Step 352.9: SKIPPED / reverted。原计划限制 Pane/overlay sync 请求；代码已回退。
   - [ ] Step 352.10: SKIPPED / reverted。原计划真实数据 browser validation；测试代码已回退。
   - [ ] Step 352.11: SKIPPED / reverted。原计划 Manual drag/FPS tuning；代码与诊断入口已回退。
+
+- [ ] Step 353: FX Replay-style session cursor model。目标是把 Date Range 从“要一次性加载的 K 线范围”改为“Replay session 边界”，进入图表时以 `session.start` 作为 replay cursor，右侧最多显示到 cursor，左侧历史上下文可按需无限懒加载；到 `session.end` 后停止 replay 并提示结束。记录见 `v4/sessions/session_20260626_step353_fx_replay_session_model.md`。
+  - [ ] Step 353.1: 只写设计与边界。明确 session state、cursor、context prefix、end boundary、缓存、周期切换、Pane/Comparison/overlay 的职责；确认 Step 351 继续作为当前稳定 fallback，Step 353 不复用 Step 352 代码。
+  - [ ] Step 353.2: 新增 session state，但暂不改 UI 行为。建立独立 `ReplaySessionState`/store，记录 instrument、timeframe、sessionStart、sessionEnd、cursor、autoUpdateEnd、loadedRanges、mode；只接入状态读写和测试，不改变现有 Load Range。
+  - [ ] Step 353.3: 初始 cursor 右边界裁剪。进入 session 后只允许主图显示 `bar.time <= cursor` 的 K 线；初始视图右侧停在 `session.start` 附近，左侧显示当前 canvas 所需上下文，不能提前显示 start 之后的 bars。
+  - [ ] Step 353.4: 左拖 prefix 懒加载。用户向左拖动接近已加载数据左边缘时，按当前 timeframe 分片请求更早 bars，prepend 并缓存；左侧不受 sessionStart 截断，只受数据源最早时间限制。
+  - [ ] Step 353.5: Replay forward append。Replay Bar 的 next/play 推进 cursor，按需加载 cursor 右侧下一段 bars，但 display 仍裁剪到 cursor；到 sessionEnd 停止并给出 session finished 提示。
+  - [ ] Step 353.6: 周期切换接入。切换 1M/5M/15M/1H/1D 等周期时保留同一个 sessionStart/sessionEnd/cursor 语义，按新 timeframe 重新加载 cursor 左侧上下文，并继续禁止显示 cursor 右侧未来 bars。
+  - [ ] Step 353.7: Auto-update end date。为 session 增加可选开关：当开启且 end 选择为 latest 时，sessionEnd 在加载前跟随当前 instrument 数据源最新 timestamp；不改变 cursor，只扩展可 replay 的结束边界。
+  - [ ] Step 353.8: Pane/Comparison/overlays 收口。Pane 1、Comparison、time overlays、price overlays、Calendar locate 只能请求当前可视/同步所需的小窗口，不能绕过 session cursor 直接加载完整 date range 或显示未来 bars。
+  - [ ] Step 353.9: Browser smoke。新增真实浏览器 smoke 覆盖：一年 1M session 初始右边界在 start、左拖 prefix 无限延伸、replay forward 逐根推进、到 end 停止、切换 1D 后仍不显示 cursor 右侧 bars、无超大 `/v4/bars` 请求。
+  - [ ] Step 353.10: Manual UX validation。用真实浏览器手动验证 FX Replay 对齐度、拖拽流畅度、周期切换、每日复盘 auto-update end date；记录是否需要继续做 IndexedDB cache、chunk size 调优或 TradingView visible range 节流。
