@@ -1350,22 +1350,15 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.6: 性能验收。用 `2012-01-01 - 2012-12-31`、`TF=1M` 验证：自动检查确认全年 outer range 会解析为 14 天 virtual window，API 对当前窗口返回非空 1m bars，cache/window smoke 通过；拖拽/缩放手感需浏览器硬刷新后做最终人工确认。
   - [x] Step 351.7: 测试与文档。已补 load-range/cache smoke，覆盖一年 1m outer range 被裁剪成 virtual window、相同窗口缓存命中、Pane 1 不再请求完整 outer range；已更新 user guide 并把相关 smoke 纳入 `smoke_all.py`。
 
-- [ ] Step 352: Replay-first long range architecture。目标是完全放弃 1m 长区间“先加载完整 date range 再 replay”的模型，改为 FX Replay 类 cursor-first：Date Range 只定义 outer range，Replay cursor 决定当前加载窗口，图表只持有 cursor 附近数据。记录见 `v4/sessions/session_20260626_step352_replay_first_plan.md`。
-  - [x] Step 352.1: 冻结产品边界。1m 长区间不再尝试加载完整 range；后端 `/v4/bars` 单次上限保留；Date Range 只定义 `outerRange`；Replay Bar 成为长区间主入口；默认 cursor 为 outerRange start 或最近一次 replay cursor；已走过 bars 不保证常驻图表。
-  - [x] Step 352.2: 定义四层 Range Model：已新增 `replay-range-model.js`，明确 `outerRange` / `cursorTimestamp` / `windowRange` / `visibleBars`，并为后续 chunk cache/prefetch 预留状态。
-  - [x] Step 352.3: 设计 Replay Window 策略：已新增 `replay-window-policy.js`，1m 默认 cursor 前 1 天、后 3 天；右侧按 outerRange 结束裁剪，左侧 prefix 不被 outerRange.start 截断；不依赖全年 bars 数组。
-  - [x] Step 352.4: 新增 Chunk Loader：已新增 `replay-chunk-loader.js`，按自然日 chunk 请求并复用 bars window cache，支持 merge 去重排序；in-flight dedupe 和 LRU 由底层 cache 提供。
-  - [x] Step 352.5: Load Range 改成 Replay 初始化：长 1m Date Range 不再 fetch 全段；Toolbar/Calendar 会保留用户选择的 outerRange，但只加载 cursor 附近 replay window，并自动打开 Replay Bar；outerRange.start 前的 prefix bars 作为正常上下文显示。
-  - [x] Step 352.6: Progressive prefix loading on pan。已监听主图 visible logical range；Replay-first 1m 模式下向左拖到当前数据左边缘时，会按 2 小时小块请求更早 bars、prepend 到当前数据，并复用 bars window cache；近期加载过的块直接命中 cache。
-  - [x] Step 352.7: Replay forward progressive loading。Replay-first 1m 模式下 cursor 接近当前窗口末端时，按 2 小时小块加载后续 bars、append 到当前数据；播放中触发加载后会恢复播放，并复用 bars window cache。
-  - [x] Step 352.8: Browser performance smoke and UX tuning。已新增 `replay-first-browser-smoke.js` 和 `smoke_all.py --suite browser`；真实 headless Chrome 验证一年 1m replay-first 初始日级分片、左拖 prefix、向右 replay forward loading、cursor 保持和非全年请求。观察到 Pane/overlay 同步会请求当前已加载窗口整段，下一步单独优化。
-  - [x] Step 352.9: Bound pane/overlay sync requests for replay-first windows。Pane 1/Comparison 在 replay-first 1m 模式下不再随 prefix/forward 请求整个 loaded window；现在按 replay cursor 前后 2 小时、并按 comparison timeframe 额外补一根 bar 的 bounded window 请求。Browser smoke 已覆盖 progressive prefix/forward 阶段 comparison 请求不超过 24 小时。
-  - [x] Step 352.10: Real-data browser validation。已新增 `replay-first-real-data-browser-smoke.js` 和 `smoke_all.py --suite browser-real`；用真实本地 API/DB 跑一年 1m NQ/ES replay-first，覆盖 initial load、左侧 prefix、向右 replay forward、progressive request span、request count 和 cursor 保持。
-  - [ ] Step 352.11: Manual drag/FPS tuning。用真实浏览器人工拖拽一年 1m replay-first 视图，记录卡顿来源并决定是否继续调 chunk size、cache size、状态栏更新频率或 TradingView visible range 订阅节流。
-    - [x] Step 352.11.1: Replay-first performance diagnostics。已新增可开关诊断，记录 set/prepend/append、prefix/forward chunk、visible range 事件频率和耗时；默认关闭，可用 `?replayPerf=1` 或 `window.v4ReplayPerfDiagnostics.enable()` 开启。
-    - [x] Step 352.11.2: Real browser drag profile。已把诊断接入 `browser-real`；一年 1m NQ/ES replay-first 后执行 48 次 visible logical range 移动，记录 dragMs、visible range events、bar-store events、chunk events 和 active chart data count。
-    - [x] Step 352.11.3: Tune measured bottleneck。已对主图 replay prefix 订阅和 Pane visible range sync 增加 animation-frame coalescing，拖拽时同一帧内多次 visible range 更新只触发一次业务处理；`browser-real` 与 `local` suite 已通过。
-    - [x] Step 352.11.4: FX Replay start semantics。Replay-first 初始图表允许显示 Date Range start 前的 prefix context，但 Replay Bar 操作起点、进度、First/Back 都从 Date Range start 开始；browser/browser-real smoke 已断言初始 progressIndex=1。
-    - [x] Step 352.11.5: Remove legacy 1m long-range window fallback。主图/Pane 普通 load range 不再允许 1m 长区间进入旧 14 天窗口模式；超过 14 天的 1m range 必须走 replay-first，避免出现“向前加载到 date range 终点”的旧行为。
-    - [x] Step 352.11.6: Default replay for all timeframes。Toolbar/Calendar 的普通加载入口现在不论周期和 range 长度都默认进入 Replay Bar；prefix/forward progressive loader 使用当前 timeframe 分片，不再硬编码 1m；Pane 在 replay-first pending 阶段不会再把 `replayFirstRequired` 当成加载错误。
-    - [ ] Step 352.11.7: Manual confirmation。用真实浏览器手动拖拽一年 1m replay-first 页面，确认主观卡顿是否缓解；若仍卡，基于 diagnostics snapshot 继续定位 overlay/status/crosshair 或裁剪策略。
+- [x] Step 352: SKIPPED / REVERTED。Replay-first long range architecture 已整体越过，不作为当前路线继续执行；实现代码已在 `21b13b3 Revert step 352 replay-first changes` 回退。保留记录仅用于说明此前尝试，后续直接进入 Step 353 或重新设计新步骤。
+  - [ ] Step 352.1: SKIPPED / reverted。原计划冻结产品边界；当前不作为已完成能力。
+  - [ ] Step 352.2: SKIPPED / reverted。原计划新增 `replay-range-model.js`；代码已回退。
+  - [ ] Step 352.3: SKIPPED / reverted。原计划新增 `replay-window-policy.js`；代码已回退。
+  - [ ] Step 352.4: SKIPPED / reverted。原计划新增 `replay-chunk-loader.js`；代码已回退。
+  - [ ] Step 352.5: SKIPPED / reverted。原计划把 Load Range 改成 Replay 初始化；代码已回退。
+  - [ ] Step 352.6: SKIPPED / reverted。原计划 progressive prefix loading；代码已回退。
+  - [ ] Step 352.7: SKIPPED / reverted。原计划 replay forward progressive loading；代码已回退。
+  - [ ] Step 352.8: SKIPPED / reverted。原计划 replay-first browser smoke；测试代码已回退。
+  - [ ] Step 352.9: SKIPPED / reverted。原计划限制 Pane/overlay sync 请求；代码已回退。
+  - [ ] Step 352.10: SKIPPED / reverted。原计划真实数据 browser validation；测试代码已回退。
+  - [ ] Step 352.11: SKIPPED / reverted。原计划 Manual drag/FPS tuning；代码与诊断入口已回退。
