@@ -8,6 +8,7 @@ import { timeframeToString } from '../config.js';
 import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
 import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
 import { hasActiveReplaySession } from './replay/replay-session-state.js';
+import { openReplaySessionFromRange } from './replay/replay-session-loader.js';
 import {
   dateKeyFromInput,
   dateKeyFromTimestamp,
@@ -574,27 +575,19 @@ function openPopover(button) {
 }
 
 async function loadRange(start, end, successText) {
-  if (hasActiveReplaySession()) {
-    throw new Error('Replay session active: legacy Calendar range loading is disabled');
-  }
-
   const tf = getPrimaryPaneTimeframe();
-  const loadRange = resolveChartLoadRange(start, end, tf);
-  if (!loadRange.ok) {
-    throw new Error(loadRange.message);
-  }
-  bus.emit('status:update', { text: 'Loading...', isError: false });
-  const { result, cacheHit } = await loadBarsWindow(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
-  setToolbarRange(loadRange.start, loadRange.end, false);
-  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
-  store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
-    outerRange: loadRange.outerRange,
+  bus.emit('status:update', { text: 'Opening replay session...', isError: false });
+  const { bars, request, cacheHit } = await openReplaySessionFromRange({
+    instrument: getPrimaryInstrument(),
+    timeframe: tf,
+    sessionStart: start,
+    sessionEnd: end,
   });
+  setToolbarRange(start, end, false);
+  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   recordRangeHistory(start, end, tf);
   bus.emit('status:update', {
-    text: loadRange.windowed
-      ? `${loadRange.message}${cacheHit ? ' (cache)' : ''}`
-      : successText || `Loaded ${result.bars.length} bars${cacheHit ? ' (cache)' : ''}`,
+    text: `${successText || 'Replay session'}: ${bars.length} prefix bars ending ${request.end}${cacheHit ? ' (cache)' : ''}`,
     isError: false,
   });
   closePopover();

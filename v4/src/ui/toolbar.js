@@ -5,7 +5,6 @@ import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.
 import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
-import { loadBarsWindow } from '../data/load-bars-window.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getComparisonWindowState,
@@ -25,7 +24,6 @@ import {
   setChartPaneLayout,
   updatePaneDescriptor,
 } from '../chart-panes/chart-pane-store.js';
-import { resolveChartLoadRange } from '../data/load-range-policy.js';
 import { formatTimeInput } from '../utils.js';
 import { getDisplayMode, updateDisplayMode } from '../display/display-mode.js';
 import {
@@ -40,7 +38,7 @@ import {
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { canRedo, canUndo, getRedoLabel, getUndoLabel, redo, undo } from '../history/history-manager.js';
 import { initCalendarNavigator } from './calendar-navigator.js';
-import { hasActiveReplaySession } from './replay/replay-session-state.js';
+import { openReplaySessionFromRange } from './replay/replay-session-loader.js';
 
 const UI_SCALE_LABELS = {
   100: '100%',
@@ -536,14 +534,6 @@ function updateHistoryButtons() {
 }
 
 async function handleLoad() {
-  if (hasActiveReplaySession()) {
-    bus.emit('status:update', {
-      text: 'Replay session active: legacy Date Range loading is disabled',
-      isError: true,
-    });
-    return;
-  }
-
   const startEl = document.getElementById('startInput');
   const endEl = document.getElementById('endInput');
   startEl.value = formatTimeInput(startEl.value.trim());
@@ -560,31 +550,21 @@ async function handleLoad() {
     return;
   }
 
-  const loadRange = resolveChartLoadRange(start, end, tf);
-  if (!loadRange.ok) {
-    bus.emit('status:update', { text: loadRange.message, isError: true });
-    return;
-  }
-
-  bus.emit('status:update', { text: 'Loading...', isError: false });
+  bus.emit('status:update', { text: 'Opening replay session...', isError: false });
 
   try {
-    const { result, cacheHit } = await loadBarsWindow(loadRange.start, loadRange.end, tf, instrument);
-    store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
-      outerRange: loadRange.outerRange,
+    const { bars, request, cacheHit } = await openReplaySessionFromRange({
+      instrument,
+      timeframe: tf,
+      sessionStart: start,
+      sessionEnd: end,
     });
-    if (loadRange.windowed) {
-      startEl.value = loadRange.start;
-      endEl.value = loadRange.end;
-    }
     bus.emit('status:update', {
-      text: loadRange.windowed
-        ? `${loadRange.message}${cacheHit ? ' (cache)' : ''}`
-        : `Loaded ${result.bars.length} bars${cacheHit ? ' (cache)' : ''}`,
+      text: `Replay session opened: ${bars.length} prefix bars ending ${request.end}${cacheHit ? ' (cache)' : ''}`,
       isError: false,
     });
   } catch (err) {
-    bus.emit('status:update', { text: `Load failed: ${err.message}`, isError: true });
+    bus.emit('status:update', { text: `Replay session failed: ${err.message}`, isError: true });
   }
 }
 

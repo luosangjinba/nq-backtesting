@@ -2,7 +2,7 @@
 
 import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
-import { getBarChartTime } from './chart/time-projection.js';
+import { getBarChartTime, mapTimestampToChartTime } from './chart/time-projection.js';
 import { initChartPaneDom } from './chart-panes/chart-pane-dom.js';
 import { CHART_PANE_LAYOUTS, getChartPaneState } from './chart-panes/chart-pane-store.js';
 import { initChartPaneRangeSync } from './chart-panes/chart-pane-range-sync.js';
@@ -18,6 +18,7 @@ import {
   initReplayControls,
   syncReplayData,
 } from './ui/replay-controls.js';
+import { getActiveReplaySession, hasActiveReplaySession } from './ui/replay/replay-session-state.js';
 import { initReplayHistoryPersistence } from './ui/replay-history-persistence.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
@@ -116,10 +117,17 @@ bus.on('bars:loaded', ({ bars }) => {
     close: b.close,
   }));
   chart.setData(chartData);
-  if (!replaySnapshot?.enabled) {
+  if (hasActiveReplaySession()) {
+    const activeSession = getActiveReplaySession();
+    chart.showEndOfData(chartData.length);
+    const cursorTime = mapTimestampToChartTime(activeSession?.cursor, tf, displayBars);
+    if (cursorTime !== null) chart.showReplayCursor(cursorTime);
+  } else if (!replaySnapshot?.enabled) {
     chart.showStartOfData(chartData.length);
   }
-  syncReplayData(replaySnapshot);
+  if (!hasActiveReplaySession()) {
+    syncReplayData(replaySnapshot);
+  }
   console.log(
     `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
   );

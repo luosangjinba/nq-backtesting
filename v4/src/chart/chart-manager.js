@@ -37,6 +37,10 @@ function getVisibleBarsForContainer(fallback = 80) {
   return Number.isFinite(count) && count > 0 ? count : fallback;
 }
 
+export function getVisibleBarCapacity(fallback = 80) {
+  return getVisibleBarsForContainer(fallback);
+}
+
 function updateLegend(param) {
   if (!legendEl || !param || !param.time || !param.seriesData) {
     return;

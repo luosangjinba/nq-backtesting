@@ -17,6 +17,7 @@ import {
   updateActiveReplaySession,
   updateReplaySession,
 } from '../src/ui/replay/replay-session-state.js';
+import { getReplaySessionVisibleBarsFromResult } from '../src/ui/replay/replay-session-loader.js';
 
 const session = createReplaySession({
   instrument: 'nq',
@@ -95,5 +96,15 @@ const updatedActive = updateActiveReplaySession({ cursor: forward.request.startT
 assert.equal(updatedActive.cursor, forward.request.startTs);
 clearActiveReplaySession();
 assert.equal(hasActiveReplaySession(), false);
+
+const filteredBars = getReplaySessionVisibleBarsFromResult({
+  bars: [
+    { timestamp: initial.request.startTs - 60, close: 1 },
+    { timestamp: initial.request.startTs, close: 2 },
+    { timestamp: session.cursor, close: 3 },
+    { timestamp: session.cursor + 60, close: 4 },
+  ],
+}, initial.request);
+assert.deepEqual(filteredBars.map((bar) => bar.close), [2, 3]);
 
 console.log('replay session state smoke passed');
