@@ -14,6 +14,7 @@ import {
 } from './replay-session-state.js';
 
 const INITIAL_CURSOR_SEARCH_SECONDS = 7 * 24 * 60 * 60;
+const PREFIX_EMPTY_SCAN_LIMIT = 24;
 
 function filterBarsToRequest(bars, request) {
   const startTs = Number(request?.startTs);
@@ -32,6 +33,19 @@ function findFirstBarInSession(result, session) {
       return Number.isFinite(timestamp) && timestamp >= session.sessionStart && timestamp <= session.sessionEnd;
     })
     .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0] || null;
+}
+
+function shiftPrefixRequestEarlier(request, timeframeSeconds) {
+  const widthSeconds = Math.max(timeframeSeconds, Number(request.endTs) - Number(request.startTs));
+  const endTs = Number(request.startTs) - timeframeSeconds;
+  const startTs = endTs - widthSeconds;
+  return {
+    ...request,
+    startTs,
+    endTs,
+    start: formatReplaySessionDateTime(startTs),
+    end: formatReplaySessionDateTime(endTs),
+  };
 }
 
 export function getReplaySessionVisibleBarsFromResult(result, request) {
@@ -69,6 +83,42 @@ async function resolveFirstAvailableSessionCursor(session) {
   );
   const firstBar = findFirstBarInSession(result, session);
   return firstBar ? Number(firstBar.timestamp) : null;
+}
+
+async function loadPrefixWindowWithBackfill(request, targetBarCount = 1) {
+  const timeframeSeconds = Math.max(60, Number(request.timeframe) * 60);
+  const loadedResults = [];
+  let activeRequest = request;
+  let cacheHit = false;
+  let mergedBars = [];
+  let mergedStartTs = Number(request.startTs);
+
+  for (let attempt = 0; attempt < PREFIX_EMPTY_SCAN_LIMIT; attempt += 1) {
+    const loaded = await loadBarsWindow(activeRequest.start, activeRequest.end, activeRequest.timeframe, activeRequest.instrument);
+    cacheHit = cacheHit || Boolean(loaded.cacheHit);
+    loadedResults.push(loaded.result);
+    const visibleBars = getReplaySessionVisibleBarsFromResult(loaded.result, activeRequest);
+    if (visibleBars.length) {
+      mergedBars = mergeBarsByTimestamp(mergedBars, visibleBars);
+      mergedStartTs = Math.min(mergedStartTs, Number(activeRequest.startTs));
+      if (mergedBars.length >= targetBarCount) {
+        break;
+      }
+    }
+    activeRequest = shiftPrefixRequestEarlier(activeRequest, timeframeSeconds);
+  }
+
+  return {
+    request: {
+      ...request,
+      startTs: mergedStartTs,
+      start: formatReplaySessionDateTime(mergedStartTs),
+    },
+    result: loadedResults[0] || { bars: [], requestedRange: null },
+    cacheHit,
+    visibleBars: mergedBars,
+    scannedResults: loadedResults,
+  };
 }
 
 export async function openReplaySessionFromRange({
@@ -116,9 +166,11 @@ export async function openReplaySessionFromRange({
       throw new Error(resolvedPlan.message || 'Replay session initial prefix request failed');
     }
     request = resolvedPlan.request;
-    ({ result, cacheHit } = await loadBarsWindow(request.start, request.end, request.timeframe, request.instrument));
-    visibleBars = getReplaySessionVisibleBarsFromResult(result, request);
   }
+  const targetBarCount = Math.max(1, Math.floor(Number(viewportBarCapacity) || 0) + Math.floor(Number(paddingBars ?? 40)));
+  const loadedPrefix = await loadPrefixWindowWithBackfill(request, targetBarCount);
+  ({ result, cacheHit, visibleBars } = loadedPrefix);
+  request = loadedPrefix.request;
   if (!visibleBars.length) {
     throw new Error('No replay bars found in selected date range');
   }
@@ -174,8 +226,7 @@ export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
   if (!planned.ok) return { ok: false, message: planned.message };
 
   const { request } = planned;
-  const { result, cacheHit } = await loadBarsWindow(request.start, request.end, request.timeframe, request.instrument);
-  const prefixBars = getReplaySessionVisibleBarsFromResult(result, request);
+  const { cacheHit, visibleBars: prefixBars, request: loadedRequest } = await loadPrefixWindowWithBackfill(request, 1);
   if (!prefixBars.length) {
     return { ok: false, message: 'No older replay prefix bars found', request, cacheHit };
   }
@@ -185,9 +236,9 @@ export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
   const mergedBars = mergeBarsByTimestamp(existingBars, prefixBars);
   const addedBars = Math.max(0, mergedBars.length - existingBars.length);
   const sessionWithChunk = addReplaySessionChunk(session, {
-    reason: request.reason,
-    startTs: request.startTs,
-    endTs: request.endTs,
+    reason: loadedRequest.reason,
+    startTs: loadedRequest.startTs,
+    endTs: loadedRequest.endTs,
   });
   const requestedRange = {
     startTs: Number(mergedBars[0]?.timestamp ?? request.startTs),
@@ -195,8 +246,8 @@ export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
   };
 
   setActiveReplaySession(sessionWithChunk);
-  store.setBars(mergedBars, request.start, formatReplaySessionDateTime(sessionWithChunk.cursor), request.timeframe, requestedRange, {
-    instrument: request.instrument,
+  store.setBars(mergedBars, loadedRequest.start, formatReplaySessionDateTime(sessionWithChunk.cursor), loadedRequest.timeframe, requestedRange, {
+    instrument: loadedRequest.instrument,
     outerRange: null,
   });
   if (
@@ -212,7 +263,7 @@ export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
   return {
     ok: true,
     session: sessionWithChunk,
-    request,
+    request: loadedRequest,
     bars: mergedBars,
     prefixBars,
     cacheHit,
