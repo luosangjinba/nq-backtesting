@@ -1357,7 +1357,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.13: Backend API modularization。已新增 `server/bars_handler.py`、`server/workspace_handler.py`、`server/maintenance_handler.py`、`server/economic_calendar_handler.py`，把 `V4Handler` 的 endpoint 请求处理委托到 server handler；`v4_api.py` 保留路由、CORS、兼容测试导出和底层业务 helper。新增 `backend-handler-boundary-smoke.py`，并把新 server modules 纳入 py_compile/local smoke。
   - [x] Step 351.14: FX Replay design gate。已新增 `v4/sessions/session_20260628_step351_14_fx_replay_design_gate.md`，冻结 FX Replay session model、loading law、viewport law、module ownership、event contract、Step 352 implementation shape 与手动验收标准；本步不写实现代码。
 
-- [ ] Step 352: V4 module debt split follow-up。基于 351 完成后的全量审计，继续清理无用运行时噪音，并拆掉仍过大的协调器；本阶段仍不实现 FX Replay 行为，目标是为后续 FX Replay 和长期维护提供更干净的边界。完整计划见 `v4/sessions/session_20260628_step352_module_debt_split_plan.md`。
+- [x] Step 352: V4 module debt split follow-up。基于 351 完成后的全量审计，继续清理无用运行时噪音，并拆掉仍过大的协调器；本阶段仍不实现 FX Replay 行为，目标是为后续 FX Replay 和长期维护提供更干净的边界。完整计划见 `v4/sessions/session_20260628_step352_module_debt_split_plan.md`。已完成 352.1-352.13，并追加修复 economic calendar path 切换时缓存未失效的问题。
   - [x] Step 352.1: 清理运行时 debug 噪音。已新增 `v4/src/logger.js`，把 `app.js` 初始化日志和 `primary-chart-runtime.js` chart update 日志改为 `v4:debug` / `window.__V4_DEBUG__` 控制；保留真实 warn/error。
   - [x] Step 352.2: 明确 legacy replay 命名边界。已在 `chart-mode-store.js` 集中定义 `history` / `legacy-replay` / 预留 `fx-replay` 和 legacy replay source 常量，替换 `replay-controls.js` 内硬编码 source 字符串；不改变旧 Replay 行为。
   - [x] Step 352.3: 拆 `replay-controls.js`。已拆出 replay chart adapter、toolbar sync、history controller，并新增 boundary smoke 防止 `ui/replay-controls.js` 重新直接依赖 chart manager、primary chart runtime、comparison store 或 replay history store；legacy replay 行为保持不变。
@@ -1371,3 +1371,13 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.11: 拆 backend economic calendar services。已新增 `server/economic_calendar_service.py` 与 `server/economic_manual_import.py`，把 economic event file read/write、normalization/query、manual CSV parse/preview/write、duplicate/date helpers 从 `v4_api.py` 移出；新增 boundary smoke 并纳入 local smoke。
   - [x] Step 352.12: 拆 backend bars service。已新增 `server/bars_service.py`，把 load range limits、bars request validation、daily CME aggregation 和 `query_v4_bars` 从 `v4_api.py` 移出；新增 boundary smoke 并纳入 local smoke。
   - [x] Step 352.13: 收口边界测试。已新增 `module-boundary-closeout-smoke.py` 汇总检查 `v4_api.py` service 边界、Inspector routers、Replay adapter boundary、Toolbar controller boundary、Calendar panel data boundary，并纳入 local smoke。
+
+- [ ] Step 353: Post-352 unused-code cleanup and high-coupling split plan。基于 Step 352 后再次全量审计，先处理明确无引用代码，再继续拆最高风险协调器；仍不实现 FX Replay 行为。目标是让后续 FX Replay-style replay bars 实现不再被右键菜单、Data Maintenance、Inspector 或 archive/import 大模块牵连。完整计划见 `v4/sessions/session_20260628_step353_unused_code_and_split_plan.md`。
+  - [ ] Step 353.1: Resolve unused `daily-regime-range.js`。确认该模块是应接入 daily regime loader，还是删除未接入 ATR/range regime 计算；完成后补 smoke，避免保留“看起来可用但运行时无入口”的代码。
+  - [ ] Step 353.2: Split `manual-annotation.js` by workflow。把 chart note/range note、time overlays/killzones、segment/composite actions、context menu DOM routing 从 PDA/right-click shell 中拆出；`manual-annotation.js` 最终只保留右键入口组合、全局取消和 controller wiring。
+  - [ ] Step 353.3: Modularize `data-maintenance.html` scripts。把 API client、environment actions、refresh range、economic calendar、roll calendar、Tradovate import 迁入 `src/maintenance/` 模块；HTML 只保留静态结构和入口脚本。
+  - [ ] Step 353.4: Continue `inspector-sidebar.js` split。拆 detail render routing、page-state rendering、calendar sync/open-object coordination；sidebar 只负责 shell composition 和 controller wiring。
+  - [ ] Step 353.5: Split Tradovate importer domain。把 `tradovate-performance-importer.js` 拆成 CSV parsers、file alignment/reconciliation、live-record archive builder、format helpers，保持 Data Maintenance UI 和 smoke 行为不变。
+  - [ ] Step 353.6: Continue Review Archive import pipeline split。把 `review-archive.js` 中的 import prepare/remap/id-map/load orchestration 继续拆到 domain pipeline 模块；export payload 和 UI download 保持稳定。
+  - [ ] Step 353.7: CSS domain split planning and first safe extraction。先制定 `style.css` 域拆分顺序，再只抽低风险域样式，避免一次性移动 4000+ 行 CSS 造成视觉回归。
+  - [ ] Step 353.8: Closeout audit and boundary guards。更新 boundary smoke，重新跑 local suite，记录剩余 500+ 行文件和暂缓理由；如果仍有无引用源文件，必须明确 delete/connect/defer 决策。
