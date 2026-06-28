@@ -1381,3 +1381,14 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 353.6: Continue Review Archive import pipeline split。已把 import prepare/id-map/ref-remap/store-load 拆到 `review-archive-import-prepare.js`、`review-archive-import-maps.js`、`review-archive-store-loader.js`；`review-archive.js` 保留导出、文件读取、history transaction 和状态提示。Review archive/daily-time/notes smoke 与 local suite 通过；后续已修正 `live-record-smoke.js` 的 Pane label 断言。
   - [x] Step 353.7: CSS domain split planning and first safe extraction。已新增 `v4/docs/design/CSS_DOMAIN_SPLIT_PLAN.md`，建立 `style.css` `@import` 拆分模式，并先把 `.comparison-*` window/placeholder/overlay/context menu 样式抽到 `v4/styles/comparison-window.css`；local suite 与 `git diff --check` 通过。后续已修正 `comparison-window-browser-smoke.js` 的 store 隔离问题。
   - [x] Step 353.8: Closeout audit and boundary guards。已扩展 `module-boundary-closeout-smoke.py` 覆盖 Step 353 新边界，删除未接入的 `daily-regime-trend.js`，重新记录剩余 500+ 行文件和暂缓理由；local suite 与 `git diff --check` 通过。
+
+- [ ] Step 354: Remaining module debt split plan。基于 Step 353 后全量审计，没有发现明确无引用 `v4/src` JS 模块或运行时 debug 噪音；下一步继续拆仍过大的 store/coordinator/chart-action/Inspector/CSS/test 模块，避免 FX Replay 实现前继续背负大文件耦合。完整计划见 `v4/sessions/session_20260628_step354_remaining_module_debt_plan.md`。
+  - [ ] Step 354.1: Split Daily Time Review store。把 `time-reaction/daily-time-review-store.js` 拆为 types/normalize/selectors/store facade，保留现有 schema 与 legacy migration 行为。
+  - [ ] Step 354.2: Continue Inspector sidebar coordinator split。把 controller registry、open-object coordinator、calendar back-target coordination 从 `inspector-sidebar.js` 继续拆出。
+  - [ ] Step 354.3: Split Order Setup chart actions。把 `order-setup-chart-actions.js` 的 menu rendering、hit actions、chart mutation 分离。
+  - [ ] Step 354.4: Split Live Record chart actions。把 `live-record-chart-actions.js` 的 menu rendering、hit/lifecycle actions、execution element mutation 分离。
+  - [ ] Step 354.5: Split Inspector Time Reaction domain。把 Time Reaction Inspector actions/panel 按 section 拆分，降低 Daily Time Review UI 修改风险。
+  - [ ] Step 354.6: Split Inspector Live Record domain。把 Live Record Inspector panel/actions 按 header/display/anchor/execution/orders/reasons/result 拆分。
+  - [ ] Step 354.7: CSS second-stage extraction。按 `toolbar.css`、`chart-shell.css`、`context-menu.css`、`inspector.css`、`calendar.css` 顺序继续拆 `style.css`，每次只移动一个域。
+  - [ ] Step 354.8: Split comparison browser smoke。把 1900+ 行 `comparison-window-browser-smoke.js` 拆为 layout/context-menu/overlay/workspace/replay focused smoke。
+  - [ ] Step 354.9: Closeout audit。重新跑无引用、噪音、大文件审计，更新 boundary smoke、TODO/session 和剩余暂缓理由。
