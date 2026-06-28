@@ -159,6 +159,16 @@ Commit message:
 
 ### Step 354.3 - Split Order Setup chart actions
 
+Status: Done in commit pending, with one explicit residual. Extracted menu
+rendering to `order-setup-chart-menu.js` and hit-element actions to
+`order-setup-hit-actions.js`. `order-setup-chart-actions.js` remains the public
+facade and still owns chart mutation config/execution, because moving that block
+is higher risk and the smoke coverage is behavior-heavy. The closeout audit
+should decide whether this residual needs a follow-up split. Verified with
+`node v4/tests/order-setup-smoke.js`,
+`node v4/tests/context-menu-position-smoke.js`,
+`python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+
 `order-setup-chart-actions.js` mixes menu rendering, active setup mutation,
 hit-menu actions, element edits, source metadata, and status messages.
 
