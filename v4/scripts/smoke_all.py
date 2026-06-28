@@ -164,6 +164,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify legacy replay model state transitions.",
         ),
         SmokeCommand(
+            "fx_replay_model_smoke",
+            ["node", "v4/tests/fx-replay-model-smoke.js"],
+            "local",
+            "Verify FX Replay initial session model invariants.",
+        ),
+        SmokeCommand(
             "replay_controller_boundary_smoke",
             ["node", "v4/tests/replay-controller-boundary-smoke.js"],
             "local",

@@ -40,10 +40,10 @@ FX Replay session for NQ 1M and 1H and observe:
 
 ## Step 356.1 - FX Replay Model Foundation
 
-Planned:
+Completed:
 
-- Add `src/features/fx-replay/fx-replay-model.js`.
-- Define an explicit session state with at least:
+- Added `src/features/fx-replay/fx-replay-model.js`.
+- Defined an explicit session state with:
   - `sessionId`
   - `instrument`
   - `timeframe`
@@ -56,24 +56,25 @@ Planned:
   - `revealedForwardBars`
   - `loaderCache`
   - `viewportDemandRange`
-- Add model helpers for:
+- Added model helpers for:
   - creating a draft/session state;
   - applying resolved start bar;
   - applying prefix bars;
   - producing initial display bars.
-- Add invariant checks:
+- Added invariant checks:
   - initial display bars must not contain timestamps greater than
     `cursorTimestamp`;
   - start bar must be the latest initial display bar;
   - revealed future bars are empty before Next/Play exists.
-- Add `v4/tests/fx-replay-model-smoke.js`.
+- Added `v4/tests/fx-replay-model-smoke.js`.
+- Added the model smoke to `v4/scripts/smoke_all.py --suite local`.
 
-Manual check:
+Checks:
 
-- No visible UI behavior changes.
-- Legacy Replay still starts and exits as before.
-
-Commit after this step.
+- `node v4/tests/fx-replay-model-smoke.js`
+- `node v4/tests/replay-model-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 356.2 - Loader Request Planner
 
