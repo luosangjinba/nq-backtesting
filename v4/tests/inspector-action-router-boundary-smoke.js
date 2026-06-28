@@ -2,16 +2,23 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const sidebarSource = readFileSync('v4/src/ui/inspector-sidebar.js', 'utf8');
+const registrySource = readFileSync('v4/src/ui/inspector/inspector-controller-registry.js', 'utf8');
 const actionRouterSource = readFileSync('v4/src/ui/inspector/inspector-action-router.js', 'utf8');
 const changeRouterSource = readFileSync('v4/src/ui/inspector/inspector-change-router.js', 'utf8');
 const archiveActionsSource = readFileSync('v4/src/ui/inspector/inspector-archive-actions.js', 'utf8');
 
 for (const importPath of [
-  './inspector/inspector-action-router.js',
-  './inspector/inspector-change-router.js',
-  './inspector/inspector-archive-actions.js',
+  './inspector/inspector-controller-registry.js',
 ]) {
   assert.match(sidebarSource, new RegExp(importPath.replaceAll('.', '\\.')));
+}
+
+for (const importPath of [
+  './inspector-action-router.js',
+  './inspector-change-router.js',
+  './inspector-archive-actions.js',
+]) {
+  assert.match(registrySource, new RegExp(importPath.replaceAll('.', '\\.')));
 }
 
 for (const forbidden of [

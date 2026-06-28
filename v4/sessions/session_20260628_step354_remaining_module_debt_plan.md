@@ -115,6 +115,14 @@ Commit message:
 
 ### Step 354.2 - Continue Inspector sidebar coordinator split
 
+Status: Done in commit pending. Extracted controller/router composition into
+`inspector-controller-registry.js`, Calendar detail/back-target handling into
+`inspector-calendar-back-target.js`, and calendar object opening into
+`inspector-open-object-coordinator.js`. Updated Inspector boundary tests and
+the module closeout guard to assert the new composition points. Verified with
+the Inspector boundary smokes, `python3 v4/scripts/smoke_all.py --suite local`,
+and `git diff --check`.
+
 `inspector-sidebar.js` still imports many domains and owns controller
 composition, open-object coordination, back-target handling, and chart click
 calendar follow logic.

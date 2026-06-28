@@ -16,6 +16,8 @@ def read(relative_path: str) -> str:
 
 api_source = read("v4_api.py")
 inspector_source = read("src/ui/inspector-sidebar.js")
+inspector_controller_registry_source = read("src/ui/inspector/inspector-controller-registry.js")
+inspector_open_object_source = read("src/ui/inspector/inspector-open-object-coordinator.js")
 inspector_page_router_source = read("src/ui/inspector/inspector-page-router.js")
 replay_source = read("src/ui/replay-controls.js")
 toolbar_source = read("src/ui/toolbar.js")
@@ -55,13 +57,26 @@ for forbidden in [
 
 for expected in [
     "./inspector/inspector-selection-router.js",
-    "./inspector/inspector-action-router.js",
-    "./inspector/inspector-change-router.js",
-    "./inspector/inspector-archive-actions.js",
-    "./inspector/inspector-page-router.js",
-    "./inspector/inspector-calendar-sync.js",
+    "./inspector/inspector-controller-registry.js",
+    "./inspector/inspector-calendar-back-target.js",
+    "./inspector/inspector-open-object-coordinator.js",
 ]:
     assert expected in inspector_source, f"inspector-sidebar.js should compose router boundary: {expected}"
+
+for expected in [
+    "./inspector-action-router.js",
+    "./inspector-change-router.js",
+    "./inspector-archive-actions.js",
+    "./inspector-page-router.js",
+    "./inspector-calendar-sync.js",
+]:
+    assert expected in inspector_controller_registry_source, (
+        f"inspector-controller-registry.js should compose controller boundary: {expected}"
+    )
+
+assert "./inspector-panel-registry.js" in inspector_open_object_source, (
+    "inspector-open-object-coordinator.js should own detail object type mapping"
+)
 
 assert "./inspector-detail-renderer.js" in inspector_page_router_source, (
     "inspector-page-router.js should compose the extracted detail renderer"

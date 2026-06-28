@@ -22,14 +22,7 @@ import {
 } from '../segment/segment-selection.js';
 import { getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroupById } from '../segment/segment-group-store.js';
-import { createDrawingSetActionController, renderDrawingSetList } from './inspector/drawing-set-panel.js';
-import { createEntryContextCatalogActionController } from './inspector/entry-context-catalog-actions.js';
-import { createSmtInspectorActionController } from './inspector/smt-actions.js';
-import { createLiveRecordActionController } from './inspector/live-record-actions.js';
-import { createOrderReviewActionController } from './inspector/order-review-actions.js';
-import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
-import { createChartNoteInspectorActionController } from './inspector/chart-note-actions.js';
-import { createEconomicEventActionController } from './inspector/economic-event-actions.js';
+import { renderDrawingSetList } from './inspector/drawing-set-panel.js';
 import {
   canPopInspectorPage,
   getInspectorPage,
@@ -51,21 +44,15 @@ import {
   setInspectorShellBody,
 } from './inspector/inspector-shell.js';
 import { initInspectorSelectionRouter } from './inspector/inspector-selection-router.js';
-import { createInspectorArchiveActionController } from './inspector/inspector-archive-actions.js';
-import { createInspectorChangeRouter } from './inspector/inspector-change-router.js';
-import { createInspectorActionRouter } from './inspector/inspector-action-router.js';
 import { renderInspectorBackAction as renderBackAction } from './inspector/inspector-navigation.js';
-import { INSPECTOR_DETAIL_TYPES } from './inspector/inspector-panel-registry.js';
-import { createInspectorPageRouter } from './inspector/inspector-page-router.js';
-import { createInspectorCalendarSync } from './inspector/inspector-calendar-sync.js';
-import { createPdaInspectorActionController } from './inspector/pda-actions.js';
-import { createSegmentInspectorActionController } from './inspector/segment-actions.js';
+import { createInspectorControllerRegistry } from './inspector/inspector-controller-registry.js';
+import { createInspectorCalendarBackTarget } from './inspector/inspector-calendar-back-target.js';
+import { createInspectorOpenObjectCoordinator } from './inspector/inspector-open-object-coordinator.js';
 import {
   getDefaultCalendarDate,
   getNextCalendarViewDate,
   hydrateCalendarVisibilityControls,
 } from './inspector/calendar-panel.js';
-import { createCalendarActionController } from './inspector/calendar-actions.js';
 import {
   getAnnotationCalendarDate,
   getCompositeCalendarDate,
@@ -135,160 +122,139 @@ function setCalendarState(nextState = {}) {
   if (Array.isArray(nextState.openGroups)) calendarOpenGroups = new Set(nextState.openGroups);
 }
 
+function setCalendarDate(selectedDate, viewDate = selectedDate) {
+  calendarSelectedDate = selectedDate;
+  calendarViewDate = viewDate;
+}
+
 function renderInspectorBackAction() {
   return renderBackAction(canPopInspectorPage());
 }
 
-const orderReviewActions = createOrderReviewActionController({
+const {
+  syncCalendarToOrderReview,
+  prepareDetailBackTarget,
+  prepareSelectionBackTarget,
+} = createInspectorCalendarBackTarget({
+  getCalendarSelectedDate: () => calendarSelectedDate,
+  getCalendarViewDate: () => calendarViewDate,
+  getCalendarOpenGroups: () => calendarOpenGroups,
+  setCalendarDateContext,
+  setCalendarDate,
+  captureCalendarOpenGroups,
+  getInspectorPage,
+  resetInspectorPage,
+  pushInspectorPage,
+  getOrderReviewById,
+  getOrderReviewCalendarDate,
+});
+
+const { openCalendarObject } = createInspectorOpenObjectCoordinator({
+  getCalendarSelectedDate: () => calendarSelectedDate,
+  getCalendarViewDate: () => calendarViewDate,
+  setCalendarDateContext,
+  setSelectedSmtId,
+  setSuppressActiveReviewRender: (value) => {
+    suppressActiveReviewRender = Boolean(value);
+  },
+  setSuppressSelectionBackTarget: (value) => {
+    suppressSelectionBackTarget = Boolean(value);
+  },
+  syncCalendarToOrderReview,
+  pushInspectorPage,
+  clearPdaSelection,
+  clearSegmentSelection,
+  clearSegmentGroupSelection,
+  selectPda,
+  selectSegment,
+  selectSegmentGroup,
+  setActiveReviewSet,
+  setActiveLiveRecord,
+  getAnnotationById,
+  getSegmentById,
+  getSegmentGroupById,
+  getSmtRecordById,
+  getLiveRecordById,
+  getEconomicEventById,
+  renderOrderSetupDetail,
+  renderLiveRecordDetail,
+  renderSmtSelection,
+  renderDailyTimeReviewDetail,
+  renderEconomicEventDetail,
+});
+
+const {
+  orderReviewActions,
+  pdaActions,
+  segmentActions,
+  dailyTimeActions,
+  chartNoteActions,
+  economicEventActions,
+  liveRecordActions,
+  calendarActions,
+  drawingSetActions,
+  entryContextCatalogActions,
+  smtActions,
+  archiveActions,
+  changeRouter,
+  actionRouter,
+  pageRouter,
+  calendarSync,
+} = createInspectorControllerRegistry({
+  bus,
+  store,
   getExpandedOrderReviewId: () => expandedOrderReviewId,
   setExpandedOrderReviewId: (orderReviewId) => {
     expandedOrderReviewId = orderReviewId;
   },
   getSelectedSmtId: () => selectedSmtId,
+  setSelectedSmtId,
+  getCurrentPanel: () => currentPanel,
   getCompositeTimestamp,
   syncCalendarToOrderReview,
   refreshSelection,
-});
-
-const pdaActions = createPdaInspectorActionController({
   getCurrentAnnotation,
-  renderEmpty: renderAfterDetailDeleted,
-});
-
-const segmentActions = createSegmentInspectorActionController({
   getCurrentSegment,
   getCurrentSegmentGroup,
-  getBodyEl: getInspectorBodyElement,
-  renderEmpty: renderAfterDetailDeleted,
-});
-
-const dailyTimeActions = createDailyTimeInspectorActionController({
+  getInspectorBodyElement,
+  renderAfterDetailDeleted,
   renderDailyTimeReviewDetail,
-  refreshSelection,
   openSidebar,
   setCalendarDateContext,
   recordInspectorHistory,
-});
-const chartNoteActions = createChartNoteInspectorActionController({
-  handlePickedOrderReasonChartNote: (note) => orderReviewActions.handlePickedChartNote(note),
-  isOrderReasonPicking: () => orderReviewActions.isReasonRefPicking(),
-  recordInspectorHistory,
-});
-
-const economicEventActions = createEconomicEventActionController({
-  recordInspectorHistory,
-});
-
-const liveRecordActions = createLiveRecordActionController({
-  getSelectedSmtId: () => selectedSmtId,
-  refreshSelection,
   captureCalendarOpenGroups,
-  recordInspectorHistory,
-});
-
-const calendarActions = createCalendarActionController({
-  getSelectedDate: () => calendarSelectedDate,
-  setSelectedDate: (selectedDate, viewDate = selectedDate) => {
-    calendarSelectedDate = selectedDate;
-    calendarViewDate = viewDate;
-  },
-  refreshSelection,
-  captureCalendarOpenGroups,
-  recordInspectorHistory,
-  openCalendarObject,
-});
-
-const drawingSetActions = createDrawingSetActionController();
-
-const entryContextCatalogActions = createEntryContextCatalogActionController({
-  renderCatalogPanel: renderEntryContextCatalogMaintenance,
-  recordInspectorHistory,
-});
-
-const smtActions = createSmtInspectorActionController({
-  getSelectedSmtId: () => selectedSmtId,
-  setSelectedSmtId: (smtId) => {
-    selectedSmtId = smtId;
-  },
+  renderEntryContextCatalogMaintenance,
   getInspectorPage,
-  getCurrentPanel: () => currentPanel,
-  dailyTimeActions,
-  orderReviewActions,
   prepareDetailBackTarget,
   renderSmtSelection,
-  renderAfterDetailDeleted,
   renderArchivePanel,
-  openSidebar,
-  recordInspectorHistory,
-});
-
-const archiveActions = createInspectorArchiveActionController({
   clickInspectorBodyAction,
   confirmSync: () => (
     globalThis.window?.confirm
       ? globalThis.window.confirm('Export Review JSON or PDA JSON before syncing PDA annotations to the server. Continue?')
       : true
   ),
-});
-
-const changeRouter = createInspectorChangeRouter({
-  archiveActions,
-  smtActions,
-  dailyTimeActions,
-  chartNoteActions,
-  economicEventActions,
-  liveRecordActions,
-  entryContextCatalogActions,
-  orderReviewActions,
-  segmentActions,
-  pdaActions,
-});
-
-const actionRouter = createInspectorActionRouter({
   closeInspectorActionMenus,
-  calendarActions,
   renderPageFromState,
   popInspectorPage,
   emitStatus: (payload) => bus.emit('status:update', payload),
-  captureCalendarOpenGroups,
   pushInspectorPage,
   getCalendarSelectedDate: () => calendarSelectedDate,
   getCalendarViewDate: () => calendarViewDate,
   getCalendarOpenGroups: () => calendarOpenGroups,
-  renderEntryContextCatalogMaintenance,
-  dailyTimeActions,
-  chartNoteActions,
   getNextCalendarViewDate,
   getDefaultCalendarDate,
   setCalendarViewDate: (viewDate) => {
     calendarViewDate = viewDate;
   },
-  refreshSelection,
-  archiveActions,
-  smtActions,
-  liveRecordActions,
-  entryContextCatalogActions,
-  orderReviewActions,
-  drawingSetActions,
-  segmentActions,
-  pdaActions,
-  getCurrentSegment,
-  getCurrentSegmentGroup,
-  getCurrentAnnotation,
-});
-
-const pageRouter = createInspectorPageRouter({
-  getState: getInspectorSidebarState,
+  getInspectorSidebarState,
   setCalendarState,
   setCurrentPanel,
-  setSelectedSmtId,
-  setCalendarDateContext,
-  getDefaultCalendarDate,
+  setCalendarDate,
   getOrderReviewPanelOptions,
   renderInspectorBackAction,
   setInspectorBody,
   replaceInspectorPage,
-  popInspectorPage,
   getAnnotationById,
   getSegmentById,
   getSegmentGroupById,
@@ -299,36 +265,16 @@ const pageRouter = createInspectorPageRouter({
   getDailyTimeReviewByDate,
   getOrCreateDailyTimeReview,
   getEconomicEventById,
-  dailyTimeActions,
-  orderReviewActions,
-  liveRecordActions,
   clearPdaSelection,
   clearSegmentSelection,
   clearSegmentGroupSelection,
-});
-
-const calendarSync = createInspectorCalendarSync({
-  bus,
-  store,
   getReplayVisibleBars,
   updateTimeOverlaySettings,
-  getInspectorPage,
-  getCurrentPanel: () => currentPanel,
-  getCalendarState: getInspectorSidebarState,
-  setCalendarState,
-  captureCalendarOpenGroups,
-  refreshSelection,
   isInspectorShellOpen,
   isCalendarClickFollowBlocked,
-  clearPdaSelection,
-  clearSegmentSelection,
-  clearSegmentGroupSelection,
-  clearSelectedSmt: () => {
-    selectedSmtId = null;
-  },
   resetInspectorPage,
   renderEmpty,
-  openSidebar,
+  openCalendarObject,
 });
 
 function renderAnnotation(annotation) {
@@ -410,42 +356,6 @@ function getOrderReviewPanelOptions(extra = {}) {
     pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
     ...extra,
   };
-}
-
-function syncCalendarToOrderReview(orderReviewId) {
-  const order = getOrderReviewById(orderReviewId);
-  const dateKey = getOrderReviewCalendarDate(order);
-  if (!dateKey) return false;
-  calendarSelectedDate = dateKey;
-  calendarViewDate = dateKey;
-  return true;
-}
-
-function prepareDetailBackTarget(dateKey) {
-  if (!setCalendarDateContext(dateKey)) return false;
-  captureCalendarOpenGroups();
-  resetInspectorPage({
-    kind: 'home',
-    selectedDate: dateKey,
-    viewDate: dateKey,
-    openGroups: Array.from(calendarOpenGroups),
-  });
-  pushInspectorPage({ kind: 'detail', selectedDate: dateKey, viewDate: dateKey });
-  return true;
-}
-
-function prepareSelectionBackTarget(dateKey) {
-  const page = getInspectorPage();
-  if (page.kind === 'detail' && page.objectType && page.objectId) {
-    pushInspectorPage({
-      ...page,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-      openGroups: Array.from(calendarOpenGroups),
-    });
-    return true;
-  }
-  return prepareDetailBackTarget(dateKey);
 }
 
 function isCalendarClickFollowBlocked() {
@@ -619,154 +529,6 @@ function captureCalendarOpenGroups() {
 
 function closeInspectorActionMenus(exceptMenu = null) {
   closeShellActionMenus(exceptMenu);
-}
-
-function openCalendarObject(type, id, options = {}) {
-  if (!type || !id) return false;
-  if (type === 'order-setup') {
-    suppressActiveReviewRender = true;
-    let selected = false;
-    try {
-      selected = Boolean(setActiveReviewSet(id));
-    } finally {
-      suppressActiveReviewRender = false;
-    }
-    if (!selected) {
-      return false;
-    }
-    if (selected) {
-      clearPdaSelection();
-      clearSegmentSelection();
-      clearSegmentGroupSelection();
-      syncCalendarToOrderReview(id);
-      pushInspectorPage({
-        kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.ORDER_SETUP,
-        objectId: id,
-        selectedDate: calendarSelectedDate,
-        viewDate: calendarViewDate,
-      });
-      renderOrderSetupDetail(id);
-    }
-    return selected;
-  }
-  if (type === 'live-record') {
-    if (!getLiveRecordById(id)) return false;
-    setActiveLiveRecord(id);
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.LIVE_RECORD,
-      objectId: id,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    renderLiveRecordDetail(id);
-    return true;
-  }
-  if (type === 'pda') {
-    if (!getAnnotationById(id)) return false;
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.PDA,
-      objectId: id,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    suppressSelectionBackTarget = true;
-    try {
-      return Boolean(selectPda(id));
-    } finally {
-      suppressSelectionBackTarget = false;
-    }
-  }
-  if (type === 'segment') {
-    if (!getSegmentById(id)) return false;
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.SEGMENT,
-      objectId: id,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    suppressSelectionBackTarget = true;
-    try {
-      return Boolean(selectSegment(id));
-    } finally {
-      suppressSelectionBackTarget = false;
-    }
-  }
-  if (type === 'composite') {
-    if (!getSegmentGroupById(id)) return false;
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.COMPOSITE,
-      objectId: id,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    suppressSelectionBackTarget = true;
-    try {
-      return Boolean(selectSegmentGroup(id));
-    } finally {
-      suppressSelectionBackTarget = false;
-    }
-  }
-  if (type === 'smt') {
-    if (!getSmtRecordById(id)) return false;
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.SMT,
-      objectId: id,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    selectedSmtId = id;
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    renderSmtSelection();
-    return true;
-  }
-  if (type === 'time-reaction') {
-    if (!String(id || '').match(/^\d{4}-\d{2}-\d{2}$/)) return false;
-    setCalendarDateContext(id);
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    selectedSmtId = null;
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.TIME_REACTION,
-      objectId: id,
-      sectionKey: options.sectionKey || '',
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    renderDailyTimeReviewDetail(id, options.sectionKey || '');
-    return true;
-  }
-  if (type === 'economic-event') {
-    if (!getEconomicEventById(id)) return false;
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    selectedSmtId = null;
-    pushInspectorPage({
-      kind: 'detail',
-      objectType: INSPECTOR_DETAIL_TYPES.ECONOMIC_EVENT,
-      objectId: id,
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-    });
-    renderEconomicEventDetail(id);
-    return true;
-  }
-  return false;
 }
 
 function handleInspectorFocusOut(e) {
