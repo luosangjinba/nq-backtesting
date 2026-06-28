@@ -12,9 +12,6 @@ import {
 } from './replay-controls.js';
 import { isSmtPicking } from '../smt/manual-smt.js';
 import { clearSelection as clearPdaSelection, getSelectedPda, selectPda } from '../pda/pda-selection.js';
-import { exportPdaArchive, importPdaArchive } from '../pda/pda-archive.js';
-import { exportReviewArchive, importReviewArchive } from '../review/review-archive.js';
-import { clearSavedAnnotations, migrateCurrentPdaAnnotationsToServer } from '../pda/pda-persistence.js';
 import { getAnnotationById } from '../pda/pda-store.js';
 import {
   clearSegmentGroupSelection,
@@ -71,6 +68,9 @@ import {
   setInspectorShellBody,
 } from './inspector/inspector-shell.js';
 import { initInspectorSelectionRouter } from './inspector/inspector-selection-router.js';
+import { createInspectorArchiveActionController } from './inspector/inspector-archive-actions.js';
+import { createInspectorChangeRouter } from './inspector/inspector-change-router.js';
+import { createInspectorActionRouter } from './inspector/inspector-action-router.js';
 import { renderInspectorBackAction as renderBackAction } from './inspector/inspector-navigation.js';
 import { INSPECTOR_DETAIL_TYPES, isInspectorDetailType } from './inspector/inspector-panel-registry.js';
 import { createPdaInspectorActionController } from './inspector/pda-actions.js';
@@ -209,6 +209,61 @@ const smtActions = createSmtInspectorActionController({
   renderArchivePanel,
   openSidebar,
   recordInspectorHistory,
+});
+
+const archiveActions = createInspectorArchiveActionController({
+  clickInspectorBodyAction,
+  confirmSync: () => (
+    globalThis.window?.confirm
+      ? globalThis.window.confirm('Export Review JSON or PDA JSON before syncing PDA annotations to the server. Continue?')
+      : true
+  ),
+});
+
+const changeRouter = createInspectorChangeRouter({
+  archiveActions,
+  smtActions,
+  dailyTimeActions,
+  chartNoteActions,
+  economicEventActions,
+  liveRecordActions,
+  entryContextCatalogActions,
+  orderReviewActions,
+  segmentActions,
+  pdaActions,
+});
+
+const actionRouter = createInspectorActionRouter({
+  closeInspectorActionMenus,
+  calendarActions,
+  renderPageFromState,
+  popInspectorPage,
+  emitStatus: (payload) => bus.emit('status:update', payload),
+  captureCalendarOpenGroups,
+  pushInspectorPage,
+  getCalendarSelectedDate: () => calendarSelectedDate,
+  getCalendarViewDate: () => calendarViewDate,
+  getCalendarOpenGroups: () => calendarOpenGroups,
+  renderEntryContextCatalogMaintenance,
+  dailyTimeActions,
+  chartNoteActions,
+  getNextCalendarViewDate,
+  getDefaultCalendarDate,
+  setCalendarViewDate: (viewDate) => {
+    calendarViewDate = viewDate;
+  },
+  refreshSelection,
+  archiveActions,
+  smtActions,
+  liveRecordActions,
+  entryContextCatalogActions,
+  orderReviewActions,
+  drawingSetActions,
+  segmentActions,
+  pdaActions,
+  getCurrentSegment,
+  getCurrentSegmentGroup,
+  getCurrentAnnotation,
 });
 
 function getOrderReviewPanelOptions(extra = {}) {
@@ -726,8 +781,8 @@ function refreshOnReplayDayChange({ enabled } = {}) {
 function createSidebar() {
   createInspectorShell({
     onClose: closeSidebar,
-    onChange: handleInspectorChange,
-    onClick: handleInspectorClick,
+    onChange: changeRouter.handleChange,
+    onClick: actionRouter.handleClick,
     onFocusOut: handleInspectorFocusOut,
   });
   renderEmpty();
@@ -916,192 +971,6 @@ function openCalendarObject(type, id, options = {}) {
     return true;
   }
   return false;
-}
-
-function handleInspectorChange(e) {
-  const action = e.target.dataset.inspectorAction;
-  if (!action) return;
-
-  if (action === 'import-pda-file') {
-    importPdaArchive(e.target.files?.[0]);
-    e.target.value = '';
-    return;
-  }
-
-  if (action === 'import-review-file') {
-    importReviewArchive(e.target.files?.[0]);
-    e.target.value = '';
-    return;
-  }
-
-  if (smtActions.handleChange(action, e.target)) {
-    return;
-  }
-
-  if (dailyTimeActions.handleChange(action, e.target)) {
-    return;
-  }
-
-  if (chartNoteActions.handleChange(action, e.target)) {
-    return;
-  }
-
-  if (economicEventActions.handleChange(action, e.target)) {
-    return;
-  }
-
-  if (liveRecordActions.handleChange(action, e.target)) {
-    return;
-  }
-
-  if (entryContextCatalogActions.handleChange(action, e.target)) {
-    return;
-  }
-
-  if (orderReviewActions.handleOrderReviewChange(action, e.target)) {
-    return;
-  }
-
-  if (segmentActions.handleSegmentChange(action, e.target)) {
-    return;
-  }
-
-  pdaActions.handlePdaChange(action, e.target);
-}
-
-function handleInspectorClick(e) {
-  const actionMenu = e.target.closest('.order-review-ref-menu, .calendar-object-menu');
-  const actionEl = e.target.closest('[data-inspector-action]');
-  const isMenuAction = Boolean(actionEl?.closest('.order-review-ref-menu-panel, .calendar-object-menu-panel'));
-  closeInspectorActionMenus(isMenuAction ? null : actionMenu);
-
-  const action = actionEl?.dataset.inspectorAction;
-  if (!action) return;
-  if (action === 'calendar-day-group-toggle-hidden') {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  if (calendarActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  if (action === 'inspector-back') {
-    renderPageFromState(popInspectorPage());
-    bus.emit('status:update', { text: 'Returned', isError: false });
-    return;
-  }
-
-  if (action === 'entry-context-catalog-open') {
-    captureCalendarOpenGroups();
-    pushInspectorPage({
-      kind: 'entry-context-catalog',
-      selectedDate: calendarSelectedDate,
-      viewDate: calendarViewDate,
-      openGroups: Array.from(calendarOpenGroups),
-    });
-    renderEntryContextCatalogMaintenance();
-    return;
-  }
-
-  if (dailyTimeActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  if (chartNoteActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  if (action === 'calendar-prev-month' || action === 'calendar-next-month') {
-    calendarViewDate = getNextCalendarViewDate(
-      calendarViewDate || calendarSelectedDate || getDefaultCalendarDate(),
-      action === 'calendar-prev-month' ? 'prev' : 'next'
-    );
-    refreshSelection();
-    return;
-  }
-
-  if (action === 'export-pda') {
-    exportPdaArchive();
-    return;
-  }
-
-  if (action === 'export-review') {
-    exportReviewArchive();
-    return;
-  }
-
-  if (action === 'import-pda') {
-    clickInspectorBodyAction('import-pda-file');
-    return;
-  }
-
-  if (action === 'sync-pda-server') {
-    const confirmed = globalThis.window?.confirm
-      ? globalThis.window.confirm('Export Review JSON or PDA JSON before syncing PDA annotations to the server. Continue?')
-      : true;
-    if (!confirmed) return;
-    migrateCurrentPdaAnnotationsToServer().then((result) => {
-      bus.emit('status:update', {
-        text: result?.ok ? 'PDA 标注已同步到服务器' : 'PDA 服务器同步未完成，请检查连接',
-        isError: !result?.ok,
-      });
-    });
-    return;
-  }
-
-  if (action === 'import-review') {
-    clickInspectorBodyAction('import-review-file');
-    return;
-  }
-
-  if (action === 'clear-saved') {
-    clearSavedAnnotations();
-    return;
-  }
-
-  if (smtActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  if (liveRecordActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  if (entryContextCatalogActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  if (orderReviewActions.handleOrderReviewClick(action, actionEl)) {
-    return;
-  }
-
-  if (drawingSetActions.handleClick(action, actionEl)) {
-    return;
-  }
-
-  const segment = getCurrentSegment();
-  if (segment && orderReviewActions.handleOrderReviewClick(action, actionEl, { segment })) {
-    return;
-  }
-
-  const segmentGroup = getCurrentSegmentGroup();
-  if (segmentGroup && orderReviewActions.handleOrderReviewClick(action, actionEl, { segmentGroup })) {
-    return;
-  }
-
-  if (segmentActions.handleSegmentClick(action, actionEl)) {
-    return;
-  }
-
-  const annotation = getCurrentAnnotation();
-  if (!annotation) return;
-
-  if (orderReviewActions.handleOrderReviewClick(action, actionEl, { annotation })) {
-    return;
-  }
-
-  pdaActions.handlePdaClick(action, actionEl);
 }
 
 function handleInspectorFocusOut(e) {

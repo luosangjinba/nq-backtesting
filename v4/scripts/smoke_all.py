@@ -158,6 +158,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify selected-object event routing stays out of the inspector sidebar.",
         ),
         SmokeCommand(
+            "inspector_action_router_boundary_smoke",
+            ["node", "v4/tests/inspector-action-router-boundary-smoke.js"],
+            "local",
+            "Verify inspector click/change/archive routing stays out of the sidebar.",
+        ),
+        SmokeCommand(
             "review_archive_domain_boundary_smoke",
             ["node", "v4/tests/review-archive-domain-boundary-smoke.js"],
             "local",

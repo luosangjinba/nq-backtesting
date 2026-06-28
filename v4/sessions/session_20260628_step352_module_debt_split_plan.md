@@ -546,3 +546,14 @@ Commit message:
   selection router.
 - Added `inspector-selection-router-boundary-smoke.js` and included it in local
   smoke.
+
+### Step 352.7 Completed
+
+- Added `ui/inspector/inspector-action-router.js` for inspector click dispatch.
+- Added `ui/inspector/inspector-change-router.js` for inspector change dispatch.
+- Added `ui/inspector/inspector-archive-actions.js` for PDA/Review
+  import/export, PDA server sync, and clear-saved actions.
+- Updated `ui/inspector-sidebar.js` so it composes routers and keeps state plus
+  render callbacks instead of owning the click/change dispatch body.
+- Added `inspector-action-router-boundary-smoke.js` and included it in local
+  smoke.
