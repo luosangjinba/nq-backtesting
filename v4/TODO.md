@@ -1361,7 +1361,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.1: 清理运行时 debug 噪音。已新增 `v4/src/logger.js`，把 `app.js` 初始化日志和 `primary-chart-runtime.js` chart update 日志改为 `v4:debug` / `window.__V4_DEBUG__` 控制；保留真实 warn/error。
   - [x] Step 352.2: 明确 legacy replay 命名边界。已在 `chart-mode-store.js` 集中定义 `history` / `legacy-replay` / 预留 `fx-replay` 和 legacy replay source 常量，替换 `replay-controls.js` 内硬编码 source 字符串；不改变旧 Replay 行为。
   - [x] Step 352.3: 拆 `replay-controls.js`。已拆出 replay chart adapter、toolbar sync、history controller，并新增 boundary smoke 防止 `ui/replay-controls.js` 重新直接依赖 chart manager、primary chart runtime、comparison store 或 replay history store；legacy replay 行为保持不变。
-  - [ ] Step 352.4: 拆 Toolbar 交互控制器。把 settings、layout、pane、range reload 从 `toolbar.js` 拆到 `ui/toolbar/*controller.js`。
+  - [x] Step 352.4: 拆 Toolbar 交互控制器。已新增 settings、layout、pane、range controller；`toolbar.js` 只负责初始化组装、基础控件事件和状态显示；增强 toolbar boundary smoke 防止控制器逻辑回流。
   - [ ] Step 352.5: 拆 Calendar Navigator。把 date utils、range loader、popover lifecycle、history controller 从 `calendar-navigator.js` 拆出。
   - [ ] Step 352.6: 拆 Inspector selection routing。把 selected-object bus wiring 从 `inspector-sidebar.js` 移到 `inspector-selection-router.js`。
   - [ ] Step 352.7: 拆 Inspector action/change routing。把 click/change 巨型分发和 archive/import actions 从 `inspector-sidebar.js` 移出。

@@ -510,3 +510,16 @@ Commit message:
   runtime, comparison store, replay history store, and replay history actions
   directly.
 - Added `replay-controller-boundary-smoke.js` and included it in local smoke.
+
+### Step 352.4 Completed
+
+- Added `ui/toolbar/toolbar-range-controller.js` for primary range reloads.
+- Added `ui/toolbar/toolbar-pane-controller.js` for active pane
+  instrument/timeframe switching and comparison pane descriptor sync.
+- Added `ui/toolbar/toolbar-settings-controller.js` for the display settings
+  popover.
+- Added `ui/toolbar/toolbar-layout-controller.js` for layout popover behavior.
+- Reduced `ui/toolbar.js` to shell rendering, controller composition, simple
+  toggle wiring, status text, and undo/redo button state.
+- Strengthened `toolbar-split-boundary-smoke.js` to prevent moved controller
+  logic from returning to `toolbar.js`.

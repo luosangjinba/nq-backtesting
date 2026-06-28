@@ -11,6 +11,14 @@ const forbiddenPatterns = [
   /\bfunction\s+renderDisplayControls\b/,
   /\bfunction\s+renderSettingsOptions\b/,
   /\bfunction\s+renderSettingsSelect\b/,
+  /\bfunction\s+applyChartLayout\b/,
+  /\bfunction\s+handleLayoutClick\b/,
+  /\bfunction\s+renderSettingsPopover\b/,
+  /\bfunction\s+handleSettingsChange\b/,
+  /\bfunction\s+syncPaneStateFromComparison\b/,
+  /\bfunction\s+applyActivePaneInstrument\b/,
+  /\bfunction\s+applyActivePaneTimeframe\b/,
+  /\bfunction\s+handleLoad\b/,
   /\bconst\s+UI_SCALE_LABELS\b/,
   /\bconst\s+CHART_TEXT_LABELS\b/,
   /\bconst\s+INSPECTOR_DENSITY_LABELS\b/,
@@ -23,5 +31,9 @@ const violations = forbiddenPatterns
 
 assert.deepEqual(violations, []);
 assert.match(toolbarSource, /renderToolbarShell\(getToolbarRenderState\(\)\)/);
+assert.match(toolbarSource, /initToolbarSettingsController/);
+assert.match(toolbarSource, /initToolbarLayoutController/);
+assert.match(toolbarSource, /handleToolbarRangeLoad/);
+assert.match(toolbarSource, /applyActivePaneInstrument/);
 
 console.log('toolbar split boundary smoke passed');
