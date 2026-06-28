@@ -300,7 +300,11 @@ async function main() {
           viewportBarCapacity: 1,
           paddingBars: 0,
         });
-        const sparsePrefix = await loader.loadPreviousReplaySessionPrefix({ chunkBars: 5 });
+        const sparsePrefix = await loader.loadPreviousReplaySessionPrefix({
+          chunkBars: 5,
+          visibleLogicalRange: { from: -4, to: 1 },
+          retentionBars: 5,
+        });
         const sparseCalls = window.__replaySessionBarsCalls.slice(beforeSparseCallCount);
 
         return JSON.stringify({

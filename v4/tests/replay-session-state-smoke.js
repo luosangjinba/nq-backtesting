@@ -17,7 +17,10 @@ import {
   updateActiveReplaySession,
   updateReplaySession,
 } from '../src/ui/replay/replay-session-state.js';
-import { getReplaySessionVisibleBarsFromResult } from '../src/ui/replay/replay-session-loader.js';
+import {
+  getPrefixAdjustedLogicalRange,
+  getReplaySessionVisibleBarsFromResult,
+} from '../src/ui/replay/replay-session-loader.js';
 
 const session = createReplaySession({
   instrument: 'nq',
@@ -110,5 +113,16 @@ const filteredBars = getReplaySessionVisibleBarsFromResult({
   ],
 }, initial.request);
 assert.deepEqual(filteredBars.map((bar) => bar.close), [2, 3]);
+
+assert.deepEqual(
+  getPrefixAdjustedLogicalRange({ from: -4, to: 1 }, 5),
+  { from: 0, to: 5 },
+  'negative replay prefix range should fill left blank instead of hiding loaded bars'
+);
+assert.deepEqual(
+  getPrefixAdjustedLogicalRange({ from: 10, to: 20 }, 5),
+  { from: 15, to: 25 },
+  'non-blank replay prefix range should preserve the existing viewport anchor'
+);
 
 console.log('replay session state smoke passed');

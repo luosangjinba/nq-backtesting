@@ -88,6 +88,34 @@ function trimBarsAroundLogicalRange(bars, range, retentionBars = 0) {
   };
 }
 
+export function getPrefixAdjustedLogicalRange(previousRange, addedBars) {
+  if (
+    !previousRange ||
+    !Number.isFinite(Number(previousRange.from)) ||
+    !Number.isFinite(Number(previousRange.to))
+  ) {
+    return null;
+  }
+
+  const from = Number(previousRange.from);
+  const to = Number(previousRange.to);
+  const width = to - from;
+  if (!Number.isFinite(width) || width <= 0) return null;
+
+  if (from < 0) {
+    const nextFrom = Math.min(0, from + Math.max(0, addedBars));
+    return {
+      from: nextFrom,
+      to: nextFrom + width,
+    };
+  }
+
+  return {
+    from: from + addedBars,
+    to: to + addedBars,
+  };
+}
+
 function emitReplaySessionChanged(session, bars) {
   bus.emit('replay:changed', {
     enabled: true,
@@ -266,15 +294,7 @@ export async function loadPreviousReplaySessionPrefix({
   const previousRange = visibleLogicalRange || getVisibleLogicalRange();
   const mergedBars = mergeBarsByTimestamp(existingBars, prefixBars);
   const addedBars = Math.max(0, mergedBars.length - existingBars.length);
-  const shiftedRange =
-    previousRange &&
-    Number.isFinite(Number(previousRange.from)) &&
-    Number.isFinite(Number(previousRange.to))
-      ? {
-          from: Number(previousRange.from) + addedBars,
-          to: Number(previousRange.to) + addedBars,
-        }
-      : null;
+  const shiftedRange = getPrefixAdjustedLogicalRange(previousRange, addedBars);
   const trimmed = trimBarsAroundLogicalRange(mergedBars, shiftedRange, retentionBars);
   const nextBars = trimmed.bars;
   const sessionWithChunk = addReplaySessionChunk(session, {
