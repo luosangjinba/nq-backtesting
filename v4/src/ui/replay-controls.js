@@ -27,6 +27,11 @@ import {
 } from './replay/replay-time-utils.js';
 import { renderReplayControlsView } from './replay/replay-controls-view.js';
 import { loadReplayHistoryItem as restoreReplayHistoryItem } from './replay/replay-history-actions.js';
+import {
+  clearActiveReplaySession,
+  getActiveReplaySession,
+  hasActiveReplaySession,
+} from './replay/replay-session-state.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -151,6 +156,18 @@ function getLastCursorTimestamp() {
 }
 
 function emitReplayChanged() {
+  const activeSession = getActiveReplaySession();
+  if (activeSession) {
+    bus.emit('replay:changed', {
+      enabled: true,
+      cursorIndex: Math.max(0, store.getDisplayBars().length - 1),
+      cursorTimestamp: activeSession.cursor,
+      speedIndex,
+      session: activeSession,
+    });
+    return;
+  }
+
   bus.emit('replay:changed', {
     enabled,
     cursorIndex,
@@ -184,6 +201,24 @@ function resetReplayState() {
 }
 
 function restoreFullChart(savePosition = true) {
+  if (hasActiveReplaySession()) {
+    stopTimer();
+    clearActiveReplaySession();
+    enabled = false;
+    mode = 'idle';
+    cursorIndex = -1;
+    lastCursorIndex = -1;
+    cursorTimestampAnchor = null;
+    lastCursorTimestampAnchor = null;
+    chart.hideReplayCursor();
+    chart.hidePickPreviewCursor();
+    store.clearBars();
+    emitReplayChanged();
+    render();
+    bus.emit('status:update', { text: 'Replay session closed', isError: false });
+    return;
+  }
+
   stopTimer();
   if (savePosition && cursorIndex >= 0) {
     lastCursorIndex = cursorIndex;
@@ -476,6 +511,14 @@ function handleControlClick(e) {
     return;
   }
 
+  if (hasActiveReplaySession() && action !== 'close') {
+    bus.emit('status:update', {
+      text: 'Replay session active: legacy Replay Bar controls are disabled until forward append is enabled',
+      isError: true,
+    });
+    return;
+  }
+
   if (action === 'toggle') toggleReplayEnabled();
   if (action === 'pick') selectBar();
   if (action === 'first') jumpStart();
@@ -519,18 +562,22 @@ function handleKeydown(e) {
 function render() {
   if (!controlsEl) return;
 
-  const hasData = chartData.length > 0;
-  const currentBar = cursorIndex >= 0 ? displayBars[cursorIndex] : null;
+  const activeSession = getActiveReplaySession();
+  const sessionBars = activeSession ? store.getDisplayBars() : null;
+  const hasData = activeSession ? sessionBars.length > 0 : chartData.length > 0;
+  const currentBar = activeSession
+    ? sessionBars[sessionBars.length - 1] || null
+    : cursorIndex >= 0 ? displayBars[cursorIndex] : null;
   const isPlaying = Boolean(timer);
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
   const lastDisabled = !hasData || lastCursorIndex < 0;
   const history = getReplayHistory(getPrimaryInstrument());
   controlsEl.innerHTML = renderReplayControlsView({
     hasData,
-    enabled,
+    enabled: activeSession ? true : enabled,
     currentBar,
-    cursorIndex,
-    dataCount: chartData.length,
+    cursorIndex: activeSession ? Math.max(0, sessionBars.length - 1) : cursorIndex,
+    dataCount: activeSession ? sessionBars.length : chartData.length,
     isPlaying,
     tfLabel,
     mode,
@@ -539,6 +586,9 @@ function render() {
     historyOpen,
     history,
     speeds: SPEEDS,
+    replayDisabledOverride: activeSession ? true : null,
+    closeDisabledOverride: activeSession ? false : null,
+    toggleDisabledOverride: activeSession ? true : null,
   });
 
   controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);
@@ -565,11 +615,14 @@ export function getReplayRestoreSnapshot() {
 }
 
 export function getReplayVisibleBars() {
+  if (hasActiveReplaySession()) return store.getDisplayBars();
   if (!enabled || cursorIndex < 0) return null;
   return displayBars.slice(0, cursorIndex + 1);
 }
 
 export function getReplayCursorTimestamp() {
+  const activeSession = getActiveReplaySession();
+  if (activeSession) return activeSession.cursor;
   return enabled && cursorIndex >= 0 ? getCursorTimestamp() : null;
 }
 
@@ -644,5 +697,10 @@ export function initReplayControls() {
   chart.onClick(handleChartClick);
   chart.onCrosshairMove(handleCrosshairMove);
   bus.on('bars:cleared', resetReplayState);
+  bus.on('bars:loaded', () => {
+    if (!hasActiveReplaySession()) return;
+    emitReplayChanged();
+    render();
+  });
   render();
 }

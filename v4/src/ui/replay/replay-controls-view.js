@@ -66,13 +66,18 @@ export function renderReplayControlsView({
   historyOpen,
   history,
   speeds,
+  replayDisabledOverride = null,
+  closeDisabledOverride = null,
+  toggleDisabledOverride = null,
 }) {
-  const replayDisabled = !hasData || !enabled;
+  const replayDisabled = replayDisabledOverride ?? (!hasData || !enabled);
+  const closeDisabled = closeDisabledOverride ?? replayDisabled;
+  const toggleDisabled = toggleDisabledOverride ?? !hasData;
   const historyPanel = historyOpen ? renderHistoryPanel(history) : '';
 
   return `
     <div class="replay-main">
-      <button class="replay-btn replay-toggle ${enabled ? 'active' : ''}" data-action="toggle" ${hasData ? '' : 'disabled'}>
+      <button class="replay-btn replay-toggle ${enabled ? 'active' : ''}" data-action="toggle" ${toggleDisabled ? 'disabled' : ''}>
         Replay Bar ${enabled ? 'On' : 'Off'}
       </button>
       <span class="replay-divider"></span>
@@ -104,7 +109,7 @@ export function renderReplayControlsView({
       <button class="replay-btn replay-history-toggle ${historyOpen ? 'active' : ''}" data-action="history-toggle" title="Replay History">History</button>
       <span class="replay-tf">${tfLabel}</span>
       <span class="replay-info">${enabled && currentBar ? `${cursorIndex + 1}/${dataCount} ${formatReplayTime(currentBar)}` : 'Replay Trading'}</span>
-      <button class="replay-close" data-action="close" title="退出 Replay" ${replayDisabled ? 'disabled' : ''}>X</button>
+      <button class="replay-close" data-action="close" title="退出 Replay" ${closeDisabled ? 'disabled' : ''}>X</button>
     </div>
     ${historyPanel}
   `;

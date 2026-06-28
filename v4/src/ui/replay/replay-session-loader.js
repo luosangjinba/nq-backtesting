@@ -1,3 +1,4 @@
+import * as bus from '../../event-bus.js';
 import * as store from '../../data/bar-store.js';
 import { loadBarsWindow } from '../../data/load-bars-window.js';
 import { getVisibleBarCapacity } from '../../chart/chart-manager.js';
@@ -61,6 +62,13 @@ export async function openReplaySessionFromRange({
   }, {
     instrument: request.instrument,
     outerRange: null,
+  });
+  bus.emit('replay:changed', {
+    enabled: true,
+    cursorIndex: Math.max(0, visibleBars.length - 1),
+    cursorTimestamp: sessionWithChunk.cursor,
+    speedIndex: 0,
+    session: sessionWithChunk,
   });
 
   return {
