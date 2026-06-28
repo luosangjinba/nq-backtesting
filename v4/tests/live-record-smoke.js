@@ -928,7 +928,7 @@ assert.ok(
 );
 assert.match(
   renderLiveRecordDetailPanel(getLiveRecordById(chartLiveId)),
-  /Context · PDA · Main NQ 1M · fib-live-reason-link/,
+  /Context · PDA · Pane 2 NQ 1M · fib-live-reason-link/,
   'detail renders linked live PDA ref'
 );
 assert.equal(actions.handleChange('live-record-entry-context-field', makeTarget(chartLiveId, { liveRecordField: 'sessionId', value: 'silver-bullet' })), true);

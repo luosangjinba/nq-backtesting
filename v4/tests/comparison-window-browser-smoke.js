@@ -866,6 +866,10 @@ async function main() {
         const bars = context.getDisplayBars();
         const first = bars[0];
         const last = bars[bars.length - 1];
+        const pdaStore = await import('/src/pda/pda-store.js');
+        const segmentStore = await import('/src/segment/segment-store.js');
+        pdaStore.loadAnnotations([]);
+        segmentStore.loadSegments([]);
         const openAt = (bar, price) => {
           const x = context.timeToCoordinate(bar.timestamp);
           const y = context.priceToCoordinate(price);
@@ -978,8 +982,6 @@ async function main() {
           document.querySelector('[data-comparison-action="comparison-order-add-bar-evidence"]')
         );
 
-        const pdaStore = await import('/src/pda/pda-store.js');
-        const segmentStore = await import('/src/segment/segment-store.js');
         const annotations = pdaStore.getAnnotations();
         const segments = segmentStore.getSegments();
         const comparisonPda = annotations.find((annotation) => annotation.sourceChartId === 'comparison-window');

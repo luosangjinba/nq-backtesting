@@ -359,12 +359,9 @@ Completion notes:
   `node v4/tests/notes-review-domains-persistence-smoke.js`,
   `python3 v4/scripts/smoke_all.py --suite local`, and
   `git diff --check`.
-- Residual test note: `node v4/tests/live-record-smoke.js` still fails on the
-  existing `detail renders linked live PDA ref` assertion. The stored ref is
-  added, but the rendered detail output does not contain the expected legacy
-  `Context · PDA · Main NQ 1M · fib-live-reason-link` text. This smoke is not
-  part of the current local suite and the failure is outside the Step 353.6
-  review archive import pipeline split.
+- Follow-up fix: `node v4/tests/live-record-smoke.js` now passes. The linked
+  Live Record PDA ref was rendered with the current visible pane label
+  `Pane 2`, while the smoke still expected the old `Main` wording.
 
 ### Step 353.7 - CSS domain split planning and first safe extraction ✅
 
@@ -407,12 +404,10 @@ Completion notes:
   comparison-domain-only.
 - Validation passed:
   `python3 v4/scripts/smoke_all.py --suite local` and `git diff --check`.
-- Residual test note: `node v4/tests/comparison-window-browser-smoke.js` still
-  fails on the existing Pane 1 Segment hit-test assertion:
-  `comparisonSegmentHit` is false while the PDA isolation check passes. The CSS
-  step moved styles only and the failure is a chart context hit-test behavior
-  issue, so it is recorded for a focused comparison/segment follow-up instead
-  of being mixed into the stylesheet split.
+- Follow-up fix: `node v4/tests/comparison-window-browser-smoke.js` now passes.
+  The failing Segment hit-test assertion was caused by persisted PDA/Segment
+  store state in the browser smoke profile; the smoke now clears those stores
+  before creating the Pane 1 context-menu fixtures.
 
 ### Step 353.8 - Closeout audit and boundary guards ✅
 
@@ -491,8 +486,7 @@ Completion notes:
     already reduced to composition/adapter roles with boundary smoke coverage;
     defer further split until new FX Replay modules are introduced.
   - `comparison/comparison-context-menu.js` 543 lines: remaining comparison
-    workflow menu; known Segment hit-test smoke residual should be fixed before
-    broader comparison menu extraction.
+    workflow menu; further extraction should be a focused comparison menu pass.
   - `data-maintenance.html` 527 lines: static layout plus inline page CSS only;
     app logic has been moved to modules. Future CSS extraction can move its
     styles if needed.
@@ -502,13 +496,11 @@ Completion notes:
 - Validation passed:
   `python3 v4/tests/module-boundary-closeout-smoke.py`,
   `python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
-- Residual test notes remain:
-  - `node v4/tests/live-record-smoke.js` fails on the existing linked Live
-    Record PDA ref detail text assertion.
-  - `node v4/tests/comparison-window-browser-smoke.js` fails on the existing
-    Pane 1 Segment hit-test assertion while PDA hit isolation passes.
-  These are outside the Step 353 module-boundary cleanup and should be handled
-  by focused behavior-fix steps.
+- Follow-up residual cleanup:
+  - `node v4/tests/live-record-smoke.js` passes after updating the expected
+    linked-ref pane label from legacy `Main` to current `Pane 2`.
+  - `node v4/tests/comparison-window-browser-smoke.js` passes after clearing
+    PDA/Segment stores before the context-menu fixture creates Pane 1 objects.
 
 ## Recommended Execution Order
 
