@@ -430,6 +430,31 @@ Deliverables:
 - Extend boundary smoke to protect the new module seams.
 - Update TODO/session with completed substeps and remaining defer reasons.
 
+Completion notes:
+
+- Extended `module-boundary-closeout-smoke.py` to protect `styles/toolbar.css`
+  import ownership and the comparison browser aggregator/section files.
+- Noise scan found no new runtime `debugger`, `console.debug`, or accidental
+  TODO/FIXME/HACK markers in `v4/src`. Existing `legacy` references are
+  compatibility/migration vocabulary.
+- Large-file audit after Step 354 leaves these main candidates for future
+  splits: `tests/live-record-smoke.js`, `src/order/order-review-store.js`,
+  `src/ui/inspector/time-reaction-actions.js`,
+  `src/ui/inspector/live-record-panel.js`,
+  `src/segment/segment-review-metrics.js`,
+  `src/ui/inspector/live-record-actions.js`,
+  `src/ui/inspector-sidebar.js`, `src/order/order-setup-chart-actions.js`,
+  `src/ui/replay-controls.js`, and `src/comparison/comparison-context-menu.js`.
+- The Order Setup and Live Record chart action facades still retain mutation
+  execution/config orchestration; this is intentional until their mutation
+  domains are split in a later pass.
+- `style.css` still owns chart-shell/context-menu/inspector/calendar body styles
+  because those blocks are mixed with shared responsive rules; schedule a
+  dedicated CSS pass instead of moving them opportunistically.
+- Verified with `python3 v4/tests/module-boundary-closeout-smoke.py`,
+  `node v4/tests/comparison-window-browser-smoke.js`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+
 Automated checks:
 
 - `python3 v4/scripts/smoke_all.py --suite local`

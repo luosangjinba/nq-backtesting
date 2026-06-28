@@ -28,8 +28,19 @@ review_archive_source = read("src/review/review-archive.js")
 review_archive_prepare_source = read("src/review/review-archive-import-prepare.js")
 style_source = read("style.css")
 comparison_style_source = read("styles/comparison-window.css")
+toolbar_style_source = read("styles/toolbar.css")
+comparison_browser_smoke_source = read("tests/comparison-window-browser-smoke.js")
 daily_regime_range_path = V4_ROOT / "src/daily-regime/daily-regime-range.js"
 daily_regime_trend_path = V4_ROOT / "src/daily-regime/daily-regime-trend.js"
+comparison_browser_section_paths = [
+    V4_ROOT / "tests/helpers/browser-cdp-client.js",
+    V4_ROOT / "tests/helpers/comparison-window-fixtures.js",
+    V4_ROOT / "tests/helpers/comparison-window-section-layout.js",
+    V4_ROOT / "tests/helpers/comparison-window-section-data.js",
+    V4_ROOT / "tests/helpers/comparison-window-section-context-menu.js",
+    V4_ROOT / "tests/helpers/comparison-window-section-overlay-policy.js",
+    V4_ROOT / "tests/helpers/comparison-window-section-replay-workspace.js",
+]
 
 for expected in [
     "from server import bars_service",
@@ -170,6 +181,31 @@ assert ".comparison-window-root" not in style_source, (
 assert ".comparison-window-root" in comparison_style_source, (
     "styles/comparison-window.css should own comparison window styles"
 )
+assert '@import url("./styles/toolbar.css");' in style_source, (
+    "style.css should import the extracted toolbar stylesheet"
+)
+assert "\n#toolbar {" not in style_source, (
+    "toolbar root styles should stay in styles/toolbar.css; media overrides may remain in style.css"
+)
+assert "#toolbar {" in toolbar_style_source and ".toolbar-calendar-popover" in toolbar_style_source, (
+    "styles/toolbar.css should own toolbar and toolbar calendar styles"
+)
+
+assert len(comparison_browser_smoke_source.splitlines()) < 120, (
+    "comparison-window-browser-smoke.js should remain a small ordered aggregator"
+)
+for section_path in comparison_browser_section_paths:
+    assert section_path.exists(), f"comparison browser helper should exist: {section_path.name}"
+for expected in [
+    "verifyComparisonPaneLayout",
+    "verifyComparisonDataAndViewport",
+    "verifyComparisonContextMenu",
+    "verifyComparisonOverlayPolicy",
+    "verifyComparisonReplayWorkspace",
+]:
+    assert expected in comparison_browser_smoke_source, (
+        f"comparison-window-browser-smoke.js should call section helper: {expected}"
+    )
 
 assert not daily_regime_range_path.exists(), (
     "daily-regime-range.js should not return as an unconnected runtime module; "
