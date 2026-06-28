@@ -1,5 +1,9 @@
 import * as bus from '../../event-bus.js';
-import { getVisibleBarCapacity, onVisibleLogicalRangeChange } from '../../chart/chart-manager.js';
+import {
+  getVisibleBarCapacity,
+  getVisibleLogicalRange,
+  onVisibleLogicalRangeChange,
+} from '../../chart/chart-manager.js';
 import * as store from '../../data/bar-store.js';
 import { hasActiveReplaySession } from './replay-session-state.js';
 import { loadPreviousReplaySessionPrefix } from './replay-session-loader.js';
@@ -11,6 +15,7 @@ const MAX_PREFIX_REQUEST_BARS = 5000;
 let initialized = false;
 let inFlight = false;
 let lastAttemptEarliestTimestamp = null;
+let pendingRange = null;
 
 function getEarliestLoadedTimestamp() {
   const bars = store.getDisplayBars();
@@ -34,7 +39,11 @@ function getPrefixLoadPlan(range) {
 }
 
 async function maybeLoadPreviousPrefix(range) {
-  if (!hasActiveReplaySession() || inFlight || !range) return;
+  if (!hasActiveReplaySession() || !range) return;
+  if (inFlight) {
+    pendingRange = range;
+    return;
+  }
   const loadPlan = getPrefixLoadPlan(range);
   if (!loadPlan) return;
 
@@ -61,6 +70,11 @@ async function maybeLoadPreviousPrefix(range) {
     });
   } finally {
     inFlight = false;
+    const nextRange = pendingRange || getVisibleLogicalRange();
+    pendingRange = null;
+    if (getPrefixLoadPlan(nextRange)) {
+      globalThis.setTimeout?.(() => maybeLoadPreviousPrefix(nextRange), 0);
+    }
   }
 }
 
