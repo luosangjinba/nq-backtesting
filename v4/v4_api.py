@@ -26,6 +26,10 @@ from urllib.parse import urlparse, parse_qs
 from zoneinfo import ZoneInfo
 
 from server.price_lookup import query_v2_bars, query_price, open_db, _parse_datetime
+from server.bars_handler import handle_bars_request, handle_price_request
+from server.economic_calendar_handler import handle_economic_events_request
+from server.maintenance_handler import handle_data_maintenance_post_request
+from server.workspace_handler import handle_workspace_get_request, handle_workspace_put_request
 
 # 加载配置
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "v4_config.yaml")
@@ -1307,13 +1311,14 @@ class V4Handler(BaseHTTPRequestHandler):
             return
 
         try:
-            payload = _read_json_body(self)
-            result = run_data_maintenance_action_guarded(payload)
-            self._send_json(result, 200 if result.get("ok") else 409, cors_origin=allowed_origin)
-        except subprocess.TimeoutExpired:
-            self._send_error("Command timed out", 504, cors_origin=allowed_origin)
-        except (ValueError, json.JSONDecodeError) as e:
-            self._send_error(str(e), 400, cors_origin=allowed_origin)
+            handle_data_maintenance_post_request(
+                self,
+                send_json=self._send_json,
+                send_error=self._send_error,
+                cors_origin=allowed_origin,
+                read_json_body=_read_json_body,
+                run_action_guarded=run_data_maintenance_action_guarded,
+            )
         except Exception as e:
             self._send_error(str(e), 500, cors_origin=allowed_origin)
 
@@ -1335,77 +1340,52 @@ class V4Handler(BaseHTTPRequestHandler):
             return
 
         try:
-            payload = _read_json_body(self)
-            result = write_workspace_document(payload)
-            self._send_json(result, cors_origin=allowed_origin)
-        except (ValueError, json.JSONDecodeError) as e:
-            self._send_error(str(e), 400, cors_origin=allowed_origin)
+            handle_workspace_put_request(
+                self,
+                send_json=self._send_json,
+                send_error=self._send_error,
+                cors_origin=allowed_origin,
+                read_json_body=_read_json_body,
+                write_workspace_document=write_workspace_document,
+            )
         except Exception as e:
             self._send_error(str(e), 500, cors_origin=allowed_origin)
 
     def _handle_bars(self, params):
-        start = params.get("start", [None])[0]
-        end = params.get("end", [None])[0]
-        instrument = params.get("instrument", ["NQ"])[0]
-
-        if not start or not end:
-            self._send_error("Missing 'start' and/or 'end' parameter (format: YYYY-MM-DD HH:MM)")
-            return
-
-        try:
-            tf = int(params.get("tf", ["1"])[0])
-            validation = _validate_bars_request_range(start, end, tf)
-            bars = query_v4_bars(DB_PATH, TABLE_NAME, instrument, start, end, tf)
-            start_dt = validation["start_dt"]
-            end_dt = validation["end_dt"]
-            # 数据时间戳为美东时间语义，用 UTC epoch 避免系统时区偏移
-            requested_start_ts = int(start_dt.replace(tzinfo=timezone.utc).timestamp())
-            requested_end_ts = int(end_dt.replace(tzinfo=timezone.utc).timestamp())
-            self._send_json({
-                "bars": bars,
-                "requestedRange": {
-                    "startTs": requested_start_ts,
-                    "endTs": requested_end_ts,
-                },
-            })
-        except OverflowError as e:
-            self._send_error(str(e), 413)
-        except ValueError as e:
-            self._send_error(str(e), 400)
-        except Exception as e:
-            self._send_error(str(e), 500)
+        handle_bars_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            db_path=DB_PATH,
+            table_name=TABLE_NAME,
+            validate_range=_validate_bars_request_range,
+            query_bars=query_v4_bars,
+        )
 
     def _handle_price(self, params):
-        try:
-            timestamp, instrument = _parse_price_request(params)
-            result = query_price(timestamp, DB_PATH, TABLE_NAME, instrument)
-            self._send_json(result)
-        except ValueError as e:
-            self._send_error(str(e), 400)
-        except Exception as e:
-            self._send_error(str(e), 500)
+        handle_price_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            parse_price_request=_parse_price_request,
+            query_price=lambda timestamp, instrument: query_price(timestamp, DB_PATH, TABLE_NAME, instrument),
+        )
 
     def _handle_economic_events(self, params):
-        try:
-            events = query_economic_events(params)
-            self._send_json({
-                "events": events,
-                "count": len(events),
-            })
-        except ValueError as e:
-            self._send_error(str(e), 400)
-        except Exception as e:
-            self._send_error(str(e), 500)
+        handle_economic_events_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            query_economic_events=query_economic_events,
+        )
 
     def _handle_workspace_get(self, params):
-        try:
-            domain = params.get("domain", [None])[0]
-            instrument = params.get("instrument", [None])[0]
-            self._send_json(read_workspace_document(domain, instrument))
-        except ValueError as e:
-            self._send_error(str(e), 400)
-        except Exception as e:
-            self._send_error(str(e), 500)
+        handle_workspace_get_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            read_workspace_document=read_workspace_document,
+        )
 
     def do_OPTIONS(self):
         parsed = urlparse(self.path)

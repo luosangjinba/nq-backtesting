@@ -289,6 +289,9 @@ These exceptions are allowed temporarily while the refactor proceeds:
   `storage/workspace-domain-registry.js` as of Step 351.12. Persistence modules
   must reference registry name/scope/version instead of hard-coding workspace
   domain strings and schema versions.
+- Backend endpoint request handling lives under `v4/server/*_handler.py` as of
+  Step 351.13. `v4_api.py` remains the HTTP router/process entry and keeps
+  compatibility exports for existing offline smoke tests.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 

@@ -39,6 +39,10 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
                 "-m",
                 "py_compile",
                 "v4/v4_api.py",
+                "v4/server/bars_handler.py",
+                "v4/server/workspace_handler.py",
+                "v4/server/maintenance_handler.py",
+                "v4/server/economic_calendar_handler.py",
                 "v4/scripts/export_weekly_economic_manual_csv.py",
                 "v4/scripts/smoke_all.py",
             ),
@@ -50,6 +54,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             python("v4/tests/workspace-api-smoke.py"),
             "local",
             "Exercise workspace API helpers without a running server.",
+        ),
+        SmokeCommand(
+            "backend_handler_boundary_smoke",
+            python("v4/tests/backend-handler-boundary-smoke.py"),
+            "local",
+            "Verify v4_api delegates endpoint handling to server handler modules.",
         ),
         SmokeCommand(
             "economic_manual_import_smoke",
