@@ -497,3 +497,16 @@ Commit message:
 - Replaced hard-coded `legacy-replay-*` source strings in `ui/replay-controls.js`.
 - Extended `chart-mode-store-smoke.js` to cover the reserved `fx-replay` mode
   name and legacy source constants.
+
+### Step 352.3 Completed
+
+- Added `features/replay/replay-chart-adapter.js` for chart cursor, visible
+  range, and primary chart runtime delegation.
+- Added `features/replay/replay-toolbar-sync.js` for toolbar range/instrument
+  and comparison state restoration used by Replay History.
+- Added `features/replay/replay-history-controller.js` for Replay History
+  delete/clear/load actions.
+- Updated `ui/replay-controls.js` to stop importing chart manager, primary chart
+  runtime, comparison store, replay history store, and replay history actions
+  directly.
+- Added `replay-controller-boundary-smoke.js` and included it in local smoke.

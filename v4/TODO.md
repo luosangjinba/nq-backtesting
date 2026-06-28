@@ -1360,7 +1360,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 352: V4 module debt split follow-up。基于 351 完成后的全量审计，继续清理无用运行时噪音，并拆掉仍过大的协调器；本阶段仍不实现 FX Replay 行为，目标是为后续 FX Replay 和长期维护提供更干净的边界。完整计划见 `v4/sessions/session_20260628_step352_module_debt_split_plan.md`。
   - [x] Step 352.1: 清理运行时 debug 噪音。已新增 `v4/src/logger.js`，把 `app.js` 初始化日志和 `primary-chart-runtime.js` chart update 日志改为 `v4:debug` / `window.__V4_DEBUG__` 控制；保留真实 warn/error。
   - [x] Step 352.2: 明确 legacy replay 命名边界。已在 `chart-mode-store.js` 集中定义 `history` / `legacy-replay` / 预留 `fx-replay` 和 legacy replay source 常量，替换 `replay-controls.js` 内硬编码 source 字符串；不改变旧 Replay 行为。
-  - [ ] Step 352.3: 拆 `replay-controls.js`。拆出 replay session/control、chart adapter、toolbar sync、history controller；`ui/replay-controls.js` 只保留 DOM bind、事件分发和 render 调用。
+  - [x] Step 352.3: 拆 `replay-controls.js`。已拆出 replay chart adapter、toolbar sync、history controller，并新增 boundary smoke 防止 `ui/replay-controls.js` 重新直接依赖 chart manager、primary chart runtime、comparison store 或 replay history store；legacy replay 行为保持不变。
   - [ ] Step 352.4: 拆 Toolbar 交互控制器。把 settings、layout、pane、range reload 从 `toolbar.js` 拆到 `ui/toolbar/*controller.js`。
   - [ ] Step 352.5: 拆 Calendar Navigator。把 date utils、range loader、popover lifecycle、history controller 从 `calendar-navigator.js` 拆出。
   - [ ] Step 352.6: 拆 Inspector selection routing。把 selected-object bus wiring 从 `inspector-sidebar.js` 移到 `inspector-selection-router.js`。

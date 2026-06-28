@@ -122,6 +122,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify legacy replay model state transitions.",
         ),
         SmokeCommand(
+            "replay_controller_boundary_smoke",
+            ["node", "v4/tests/replay-controller-boundary-smoke.js"],
+            "local",
+            "Verify replay controls delegate chart, toolbar, and history boundaries.",
+        ),
+        SmokeCommand(
             "toolbar_split_boundary_smoke",
             ["node", "v4/tests/toolbar-split-boundary-smoke.js"],
             "local",

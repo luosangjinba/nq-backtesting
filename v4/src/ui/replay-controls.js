@@ -1,19 +1,9 @@
 // TradingView-style bar replay controls — minimal version.
 
 import * as bus from '../event-bus.js';
-import * as chart from '../chart/chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
-import {
-  setComparisonWindowEnabled,
-  updateComparisonViewDescriptor,
-} from '../comparison/comparison-window-store.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { timeframeToString } from '../config.js';
-import {
-  clearReplayHistory,
-  deleteReplayHistoryItem,
-  getReplayHistory,
-} from './replay-history-store.js';
 import {
   findBarIndexAtOrBeforeTimestamp,
   formatReplayTime,
@@ -24,7 +14,6 @@ import {
   normalizeTimestamp,
   parseReplayJumpTimestamp,
 } from '../features/replay/replay-time-utils.js';
-import { loadReplayHistoryItem as restoreReplayHistoryItem } from './replay/replay-history-actions.js';
 import {
   REPLAY_SPEEDS,
   getReplayActionFromEvent,
@@ -47,12 +36,15 @@ import {
 } from '../features/replay/replay-model.js';
 import { renderReplayControlsView } from '../features/replay/replay-view.js';
 import {
-  appendPrimaryChartBar,
-  clearPrimaryChartData,
-  projectPrimaryChartBars,
-  replacePrimaryChartData,
-  replacePrimaryChartSlice,
-} from '../runtime/primary-chart-runtime.js';
+  applyReplayComparisonState,
+  setReplayToolbarPrimaryInstrument,
+  setReplayToolbarRange,
+} from '../features/replay/replay-toolbar-sync.js';
+import {
+  getReplayHistoryForInstrument,
+  handleReplayHistoryControlAction,
+} from '../features/replay/replay-history-controller.js';
+import * as replayChart from '../features/replay/replay-chart-adapter.js';
 import {
   CHART_MODE_SOURCES,
   enterHistoryMode,
@@ -65,46 +57,6 @@ const replayState = createLegacyReplayState({
   speedIndex: 2,
 });
 let timer = null;
-
-function setToolbarRange(start, end, timeframe) {
-  const startInput = document.getElementById('startInput');
-  const endInput = document.getElementById('endInput');
-  const tfSelect = document.getElementById('tfSelect');
-  if (startInput) startInput.value = start;
-  if (endInput) endInput.value = end;
-  if (tfSelect && timeframe) tfSelect.value = String(timeframe);
-}
-
-function setToolbarPrimaryInstrument(instrument) {
-  const normalizedInstrument = setPrimaryInstrument(instrument);
-  const primaryInstrumentSelect = document.getElementById('primaryInstrumentSelect');
-  if (primaryInstrumentSelect) primaryInstrumentSelect.value = normalizedInstrument;
-  return normalizedInstrument;
-}
-
-function applyComparisonState(comparison) {
-  if (!comparison) {
-    setComparisonWindowEnabled(false);
-    return;
-  }
-  const descriptorPatch = Object.fromEntries(
-    Object.entries({
-      viewId: comparison.viewId,
-      instrument: comparison.instrument,
-      timeframe: comparison.timeframe,
-      syncMode: comparison.syncMode,
-      layoutMode: comparison.layoutMode,
-    }).filter(([, value]) => value !== undefined && value !== null && value !== '')
-  );
-  if (!comparison?.enabled) {
-    if (Object.keys(descriptorPatch).length) updateComparisonViewDescriptor(descriptorPatch);
-    setComparisonWindowEnabled(false);
-    return;
-  }
-
-  updateComparisonViewDescriptor(descriptorPatch);
-  setComparisonWindowEnabled(true);
-}
 
 function findNextDailyTimeIndex(hour, minute) {
   if (!replayState.enabled || replayState.cursorIndex < 0 || !replayState.displayBars.length) return -1;
@@ -165,8 +117,7 @@ function setMode(nextMode) {
 
 function resetReplayState() {
   stopTimer();
-  chart.hideReplayCursor();
-  chart.hidePickPreviewCursor();
+  replayChart.clearReplayChartCursors();
   resetReplayStateFields(replayState);
   enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_RESET });
   emitReplayChanged();
@@ -176,10 +127,9 @@ function resetReplayState() {
 function restoreFullChart(savePosition = true) {
   stopTimer();
   restoreFullChartState(replayState, { savePosition });
-  chart.hideReplayCursor();
-  chart.hidePickPreviewCursor();
+  replayChart.clearReplayChartCursors();
   if (replayState.chartData.length > 0) {
-    replacePrimaryChartData(replayState.chartData, { showStart: true });
+    replayChart.replacePrimaryChartData(replayState.chartData, { showStart: true });
   }
   enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_EXIT });
   emitReplayChanged();
@@ -188,7 +138,7 @@ function restoreFullChart(savePosition = true) {
 
 function renderSlice(index, followEnd = true, rememberPrevious = false, viewportSnapshot = null) {
   if (replayState.chartData.length === 0) return;
-  const previousRange = viewportSnapshot?.visibleRange || chart.getVisibleLogicalRange();
+  const previousRange = viewportSnapshot?.visibleRange || replayChart.getVisibleLogicalRange();
   const previousDataCount =
     viewportSnapshot?.dataCount ?? (replayState.cursorIndex >= 0 ? replayState.cursorIndex + 1 : null);
   if (rememberPrevious && replayState.cursorIndex >= 0) {
@@ -196,8 +146,8 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
   }
   enterLegacyReplayMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_SLICE });
   applyReplaySliceState(replayState, index, { viewportSnapshot });
-  replacePrimaryChartSlice(replayState.chartData, replayState.cursorIndex, { followEnd, previousRange, previousDataCount });
-  chart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
+  replayChart.replacePrimaryChartSlice(replayState.chartData, replayState.cursorIndex, { followEnd, previousRange, previousDataCount });
+  replayChart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
   emitReplayChanged();
   render();
 }
@@ -216,15 +166,15 @@ function stepForward() {
     return;
   }
 
-  const previousRange = chart.getVisibleLogicalRange();
+  const previousRange = replayChart.getVisibleLogicalRange();
   const previousDataCount = replayState.cursorIndex + 1;
   replayState.cursorIndex += 1;
   replayState.cursorTimestampAnchor = normalizeTimestamp(replayState.displayBars[replayState.cursorIndex]?.timestamp);
-  appendPrimaryChartBar(replayState.chartData[replayState.cursorIndex], replayState.cursorIndex + 1, {
+  replayChart.appendPrimaryChartBar(replayState.chartData[replayState.cursorIndex], replayState.cursorIndex + 1, {
     previousRange,
     previousDataCount,
   });
-  chart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
+  replayChart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
   emitReplayChanged();
   render();
 }
@@ -355,7 +305,7 @@ function selectBar() {
 function cancelPick() {
   if (replayState.mode !== REPLAY_CONTROL_MODES.PICKING) return false;
 
-  chart.hidePickPreviewCursor();
+  replayChart.hidePickPreviewCursor();
   setMode(REPLAY_CONTROL_MODES.IDLE);
   bus.emit('status:update', { text: 'Replay Pick 已取消', isError: false });
   return true;
@@ -372,23 +322,23 @@ function handleChartClick(param) {
   const index = findBarIndex(param?.time);
   if (index < 0) return;
 
-  const currentRange = chart.getVisibleLogicalRange();
+  const currentRange = replayChart.getVisibleLogicalRange();
   const keepIndex = index - 1;
-  chart.hidePickPreviewCursor();
+  replayChart.hidePickPreviewCursor();
   replayState.lastReplayPickHandledAt = Date.now();
   replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   if (keepIndex < 0) {
     applyBeforeFirstPickState(replayState);
     enterLegacyReplayMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_PICK_BEFORE_FIRST });
-    clearPrimaryChartData();
-    chart.hideReplayCursor();
+    replayChart.clearPrimaryChartData();
+    replayChart.hideReplayCursor();
     emitReplayChanged();
     render();
   } else {
     renderSlice(keepIndex, false, true);
   }
   if (currentRange) {
-    chart.setVisibleLogicalRange(currentRange.from, currentRange.to);
+    replayChart.setVisibleLogicalRange(currentRange.from, currentRange.to);
   }
   bus.emit('status:update', {
     text: keepIndex < 0
@@ -400,17 +350,17 @@ function handleChartClick(param) {
 
 function handleCrosshairMove(param) {
   if (!replayState.enabled || replayState.mode !== REPLAY_CONTROL_MODES.PICKING) {
-    if (chart.hasPickPreviewCursor()) chart.hidePickPreviewCursor();
+    if (replayChart.hasPickPreviewCursor()) replayChart.hidePickPreviewCursor();
     return;
   }
 
   const index = findBarIndex(param?.time);
   if (index < 0) {
-    if (chart.hasPickPreviewCursor()) chart.hidePickPreviewCursor();
+    if (replayChart.hasPickPreviewCursor()) replayChart.hidePickPreviewCursor();
     return;
   }
 
-  chart.showPickPreviewCursor(replayState.chartData[index].time);
+  replayChart.showPickPreviewCursor(replayState.chartData[index].time);
 }
 
 function handleControlClick(e) {
@@ -422,29 +372,19 @@ function handleControlClick(e) {
     render();
     return;
   }
-  if (action === 'history-delete') {
-    const id = e.target.closest('[data-history-id]')?.dataset.historyId;
-    if (deleteReplayHistoryItem(id)) render();
-    return;
-  }
-  if (action === 'history-clear') {
-    clearReplayHistory(getPrimaryInstrument());
-    render();
-    return;
-  }
-  if (action === 'history-load') {
-    const id = e.target.closest('[data-history-id]')?.dataset.historyId;
-    restoreReplayHistoryItem(id, {
-      primaryInstrument: getPrimaryInstrument(),
-      setToolbarPrimaryInstrument,
-      setToolbarRange,
-      applyComparisonState,
-      restoreReplayToTimestamp,
-      closeHistoryPanel: () => {
-        replayState.historyOpen = false;
-      },
-      render,
-    });
+  if (handleReplayHistoryControlAction({
+    action,
+    event: e,
+    primaryInstrument: getPrimaryInstrument(),
+    setToolbarPrimaryInstrument: setReplayToolbarPrimaryInstrument,
+    setToolbarRange: setReplayToolbarRange,
+    applyComparisonState: applyReplayComparisonState,
+    restoreReplayToTimestamp,
+    closeHistoryPanel: () => {
+      replayState.historyOpen = false;
+    },
+    render,
+  })) {
     return;
   }
 
@@ -496,7 +436,7 @@ function render() {
   const isPlaying = Boolean(timer);
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
   const lastDisabled = !hasData || replayState.lastCursorIndex < 0;
-  const history = getReplayHistory(getPrimaryInstrument());
+  const history = getReplayHistoryForInstrument(getPrimaryInstrument());
   controlsEl.innerHTML = renderReplayControlsView({
     hasData,
     enabled: replayState.enabled,
@@ -523,7 +463,7 @@ function render() {
 }
 
 export function getReplayRestoreSnapshot() {
-  return getReplayRestoreSnapshotState(replayState, chart.getVisibleLogicalRange());
+  return getReplayRestoreSnapshotState(replayState, replayChart.getVisibleLogicalRange());
 }
 
 export function getReplayVisibleBars() {
@@ -552,8 +492,7 @@ export function syncReplayData(restoreSnapshot = null) {
     normalizeTimestamp(restoreSnapshot?.lastTimestamp ?? (replayState.lastCursorIndex >= 0 ? getLastCursorTimestamp() : null));
 
   stopTimer();
-  chart.hideReplayCursor();
-  chart.hidePickPreviewCursor();
+  replayChart.clearReplayChartCursors();
   const nextTimeframe = store.getCurrentTimeframe();
   replayState.displayBars = getReplayRestoreDisplayBars(
     store.getDisplayBars(),
@@ -561,7 +500,7 @@ export function syncReplayData(restoreSnapshot = null) {
     cursorTimestamp,
     restoreSnapshot
   );
-  replayState.chartData = projectPrimaryChartBars(replayState.displayBars, nextTimeframe);
+  replayState.chartData = replayChart.projectPrimaryChartBars(replayState.displayBars, nextTimeframe);
   replayState.activeTimeframe = nextTimeframe;
 
   if (shouldRestoreReplay && replayState.chartData.length > 0) {
@@ -586,7 +525,7 @@ export function syncReplayData(restoreSnapshot = null) {
 
   clearReplayAfterSyncState(replayState);
   if (restoreSnapshot?.enabled && replayState.chartData.length > 0) {
-    replacePrimaryChartData(replayState.chartData, { showStart: true });
+    replayChart.replacePrimaryChartData(replayState.chartData, { showStart: true });
   }
   enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_SYNC });
   emitReplayChanged();
@@ -599,8 +538,8 @@ export function initReplayControls() {
 
   controlsEl.addEventListener('click', handleControlClick);
   window.addEventListener('keydown', handleKeydown);
-  chart.onClick(handleChartClick);
-  chart.onCrosshairMove(handleCrosshairMove);
+  replayChart.onReplayChartClick(handleChartClick);
+  replayChart.onReplayCrosshairMove(handleCrosshairMove);
   bus.on('bars:cleared', resetReplayState);
   render();
 }
