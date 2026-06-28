@@ -288,6 +288,14 @@ Commit message:
 
 ### Step 354.6 - Split Inspector Live Record domain
 
+Status: Done in commit pending, with remaining panel/action debt explicit.
+Extracted `live-record-header-panel.js` for active header and lifecycle controls.
+The main panel still owns display/anchor/execution/orders/reasons/result
+sections, and `live-record-actions.js` still owns reason ref-pick flow. Verified
+with `node v4/tests/live-record-smoke.js`,
+`node v4/tests/live-record-chart-actions-smoke.js`,
+`python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+
 `ui/inspector/live-record-panel.js` and `live-record-actions.js` are large
 feature modules mixing display sections, lifecycle, execution, reasons, linked
 refs, and result editing.
