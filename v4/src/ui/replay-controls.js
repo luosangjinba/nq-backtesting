@@ -23,9 +23,29 @@ import {
   normalizeTimeKey,
   normalizeTimestamp,
   parseReplayJumpTimestamp,
-} from './replay/replay-time-utils.js';
-import { renderReplayControlsView } from './replay/replay-controls-view.js';
+} from '../features/replay/replay-time-utils.js';
 import { loadReplayHistoryItem as restoreReplayHistoryItem } from './replay/replay-history-actions.js';
+import {
+  REPLAY_SPEEDS,
+  getReplayActionFromEvent,
+  getReplaySpeed,
+  isTextEditingTarget,
+} from '../features/replay/replay-controller.js';
+import {
+  REPLAY_CONTROL_MODES,
+  applyBeforeFirstPickState,
+  applyReplaySliceState,
+  clearReplayAfterSyncState,
+  createLegacyReplayState,
+  getCursorTimestamp as getReplayModelCursorTimestamp,
+  getLastCursorTimestamp as getReplayModelLastCursorTimestamp,
+  getReplayChangedPayload,
+  getReplayRestoreSnapshotState,
+  rememberCursor,
+  resetReplayStateFields,
+  restoreFullChartState,
+} from '../features/replay/replay-model.js';
+import { renderReplayControlsView } from '../features/replay/replay-view.js';
 import {
   appendPrimaryChartBar,
   clearPrimaryChartData,
@@ -35,28 +55,12 @@ import {
 } from '../runtime/primary-chart-runtime.js';
 import { enterHistoryMode, enterLegacyReplayMode } from '../runtime/chart-mode-store.js';
 
-const SPEEDS = [
-  { label: '1x', ms: 900 },
-  { label: '3x', ms: 500 },
-  { label: '5x', ms: 300 },
-  { label: '7x', ms: 180 },
-  { label: '10x', ms: 100 },
-];
-
 let controlsEl = null;
-let displayBars = [];
-let chartData = [];
-let mode = 'idle';
-let enabled = false;
-let cursorIndex = -1;
-let lastCursorIndex = -1;
-let cursorTimestampAnchor = null;
-let lastCursorTimestampAnchor = null;
-let activeTimeframe = store.getCurrentTimeframe();
-let lastReplayPickHandledAt = 0;
-let speedIndex = 2;
+const replayState = createLegacyReplayState({
+  timeframe: store.getCurrentTimeframe(),
+  speedIndex: 2,
+});
 let timer = null;
-let historyOpen = false;
 
 function setToolbarRange(start, end, timeframe) {
   const startInput = document.getElementById('startInput');
@@ -99,22 +103,22 @@ function applyComparisonState(comparison) {
 }
 
 function findNextDailyTimeIndex(hour, minute) {
-  if (!enabled || cursorIndex < 0 || !displayBars.length) return -1;
+  if (!replayState.enabled || replayState.cursorIndex < 0 || !replayState.displayBars.length) return -1;
 
-  const currentDate = getUtcDateKey(displayBars[cursorIndex]?.timestamp);
+  const currentDate = getUtcDateKey(replayState.displayBars[replayState.cursorIndex]?.timestamp);
   const tfSeconds = Number(store.getCurrentTimeframe()) * 60;
   const visitedDates = new Set();
 
-  for (let index = cursorIndex + 1; index < displayBars.length; index += 1) {
-    const bar = displayBars[index];
+  for (let index = replayState.cursorIndex + 1; index < replayState.displayBars.length; index += 1) {
+    const bar = replayState.displayBars[index];
     const dateKey = getUtcDateKey(bar?.timestamp);
     if (!dateKey || dateKey <= currentDate || visitedDates.has(dateKey)) continue;
     visitedDates.add(dateKey);
 
     const targetTimestamp = getUtcDateTimeTimestamp(dateKey, hour, minute);
     if (targetTimestamp === null) continue;
-    const targetIndex = findBarIndexAtOrBeforeTimestamp(displayBars, targetTimestamp, store.getCurrentTimeframe());
-    if (targetIndex >= index || getUtcDateKey(displayBars[targetIndex]?.timestamp) === dateKey) {
+    const targetIndex = findBarIndexAtOrBeforeTimestamp(replayState.displayBars, targetTimestamp, store.getCurrentTimeframe());
+    if (targetIndex >= index || getUtcDateKey(replayState.displayBars[targetIndex]?.timestamp) === dateKey) {
       return targetIndex;
     }
 
@@ -139,42 +143,27 @@ function stopTimer() {
 }
 
 function getCursorTimestamp() {
-  return normalizeTimestamp(cursorTimestampAnchor ?? displayBars[cursorIndex]?.timestamp);
+  return getReplayModelCursorTimestamp(replayState);
 }
 
 function getLastCursorTimestamp() {
-  return normalizeTimestamp(lastCursorTimestampAnchor ?? displayBars[lastCursorIndex]?.timestamp);
+  return getReplayModelLastCursorTimestamp(replayState);
 }
 
 function emitReplayChanged() {
-  bus.emit('replay:changed', {
-    enabled,
-    cursorIndex,
-    cursorTimestamp: enabled && cursorIndex >= 0 ? getCursorTimestamp() : null,
-    speedIndex,
-  });
+  bus.emit('replay:changed', getReplayChangedPayload(replayState));
 }
 
 function setMode(nextMode) {
-  mode = nextMode;
+  replayState.mode = nextMode;
   render();
-}
-
-function isTextEditingTarget(target) {
-  const tag = target?.tagName;
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable;
 }
 
 function resetReplayState() {
   stopTimer();
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
-  enabled = false;
-  mode = 'idle';
-  cursorIndex = -1;
-  lastCursorIndex = -1;
-  cursorTimestampAnchor = null;
-  lastCursorTimestampAnchor = null;
+  resetReplayStateFields(replayState);
   enterHistoryMode({ source: 'legacy-replay-reset' });
   emitReplayChanged();
   render();
@@ -182,18 +171,11 @@ function resetReplayState() {
 
 function restoreFullChart(savePosition = true) {
   stopTimer();
-  if (savePosition && cursorIndex >= 0) {
-    lastCursorIndex = cursorIndex;
-    lastCursorTimestampAnchor = getCursorTimestamp();
-  }
-  enabled = false;
-  mode = 'idle';
-  cursorIndex = -1;
-  cursorTimestampAnchor = null;
+  restoreFullChartState(replayState, { savePosition });
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
-  if (chartData.length > 0) {
-    replacePrimaryChartData(chartData, { showStart: true });
+  if (replayState.chartData.length > 0) {
+    replacePrimaryChartData(replayState.chartData, { showStart: true });
   }
   enterHistoryMode({ source: 'legacy-replay-exit' });
   emitReplayChanged();
@@ -201,75 +183,70 @@ function restoreFullChart(savePosition = true) {
 }
 
 function renderSlice(index, followEnd = true, rememberPrevious = false, viewportSnapshot = null) {
-  if (chartData.length === 0) return;
+  if (replayState.chartData.length === 0) return;
   const previousRange = viewportSnapshot?.visibleRange || chart.getVisibleLogicalRange();
   const previousDataCount =
-    viewportSnapshot?.dataCount ?? (cursorIndex >= 0 ? cursorIndex + 1 : null);
-  if (rememberPrevious && cursorIndex >= 0) {
-    lastCursorIndex = cursorIndex;
-    lastCursorTimestampAnchor = getCursorTimestamp();
+    viewportSnapshot?.dataCount ?? (replayState.cursorIndex >= 0 ? replayState.cursorIndex + 1 : null);
+  if (rememberPrevious && replayState.cursorIndex >= 0) {
+    rememberCursor(replayState);
   }
-  enabled = true;
   enterLegacyReplayMode({ source: 'legacy-replay-slice' });
-  mode = mode === 'playing' ? 'playing' : 'idle';
-  cursorIndex = Math.max(0, Math.min(index, chartData.length - 1));
-  cursorTimestampAnchor =
-    normalizeTimestamp(viewportSnapshot?.cursorTimestamp) ?? normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
-  replacePrimaryChartSlice(chartData, cursorIndex, { followEnd, previousRange, previousDataCount });
-  chart.showReplayCursor(chartData[cursorIndex].time);
+  applyReplaySliceState(replayState, index, { viewportSnapshot });
+  replacePrimaryChartSlice(replayState.chartData, replayState.cursorIndex, { followEnd, previousRange, previousDataCount });
+  chart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
   emitReplayChanged();
   render();
 }
 
 function stepForward() {
-  if (!enabled || chartData.length === 0) return;
+  if (!replayState.enabled || replayState.chartData.length === 0) return;
 
-  if (cursorIndex < 0) {
+  if (replayState.cursorIndex < 0) {
     renderSlice(0);
     return;
   }
 
-  if (cursorIndex >= chartData.length - 1) {
+  if (replayState.cursorIndex >= replayState.chartData.length - 1) {
     stopTimer();
-    setMode('idle');
+    setMode(REPLAY_CONTROL_MODES.IDLE);
     return;
   }
 
   const previousRange = chart.getVisibleLogicalRange();
-  const previousDataCount = cursorIndex + 1;
-  cursorIndex += 1;
-  cursorTimestampAnchor = normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
-  appendPrimaryChartBar(chartData[cursorIndex], cursorIndex + 1, {
+  const previousDataCount = replayState.cursorIndex + 1;
+  replayState.cursorIndex += 1;
+  replayState.cursorTimestampAnchor = normalizeTimestamp(replayState.displayBars[replayState.cursorIndex]?.timestamp);
+  appendPrimaryChartBar(replayState.chartData[replayState.cursorIndex], replayState.cursorIndex + 1, {
     previousRange,
     previousDataCount,
   });
-  chart.showReplayCursor(chartData[cursorIndex].time);
+  chart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
   emitReplayChanged();
   render();
 }
 
 function stepBack() {
-  if (!enabled || chartData.length === 0) return;
+  if (!replayState.enabled || replayState.chartData.length === 0) return;
 
-  renderSlice(Math.max(0, cursorIndex - 1));
+  renderSlice(Math.max(0, replayState.cursorIndex - 1));
 }
 
 function jumpStart() {
-  if (chartData.length === 0) return;
+  if (replayState.chartData.length === 0) return;
   stopTimer();
-  mode = 'idle';
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   renderSlice(0, true, true);
 }
 
 function jumpLastPosition() {
-  if (chartData.length === 0 || lastCursorIndex < 0) return;
+  if (replayState.chartData.length === 0 || replayState.lastCursorIndex < 0) return;
   stopTimer();
-  mode = 'idle';
-  renderSlice(lastCursorIndex, true, true);
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
+  renderSlice(replayState.lastCursorIndex, true, true);
 }
 
 function jumpNext0929() {
-  if (!enabled || chartData.length === 0) return;
+  if (!replayState.enabled || replayState.chartData.length === 0) return;
 
   const index = findNextDailyTimeIndex(9, 29);
   if (index < 0) {
@@ -281,16 +258,16 @@ function jumpNext0929() {
   }
 
   stopTimer();
-  mode = 'idle';
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   renderSlice(index, true, true);
   bus.emit('status:update', {
-    text: `Replay 跳转到下一日 09:29: ${formatReplayTime(displayBars[index])}`,
+    text: `Replay 跳转到下一日 09:29: ${formatReplayTime(replayState.displayBars[index])}`,
     isError: false,
   });
 }
 
 function jumpToTime() {
-  if (!enabled || chartData.length === 0) return;
+  if (!replayState.enabled || replayState.chartData.length === 0) return;
 
   const input = controlsEl?.querySelector('[data-replay-jump-input]');
   if (!input) return;
@@ -303,7 +280,7 @@ function jumpToTime() {
     return;
   }
 
-  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp, store.getCurrentTimeframe());
+  const index = findBarIndexAtOrBeforeTimestamp(replayState.displayBars, timestamp, store.getCurrentTimeframe());
   if (index < 0) {
     bus.emit('status:update', {
       text: 'Replay 跳转失败: 时间不在当前加载区间',
@@ -313,33 +290,33 @@ function jumpToTime() {
   }
 
   stopTimer();
-  mode = 'idle';
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   renderSlice(index, true, true);
   bus.emit('status:update', {
-    text: `Replay 跳转: ${formatReplayTime(displayBars[index])}`,
+    text: `Replay 跳转: ${formatReplayTime(replayState.displayBars[index])}`,
     isError: false,
   });
 }
 
-export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = speedIndex) {
-  const index = findBarIndexAtOrBeforeTimestamp(displayBars, timestamp, store.getCurrentTimeframe());
+export function restoreReplayToTimestamp(timestamp, nextSpeedIndex = replayState.speedIndex) {
+  const index = findBarIndexAtOrBeforeTimestamp(replayState.displayBars, timestamp, store.getCurrentTimeframe());
   if (index < 0) return false;
   stopTimer();
-  speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : speedIndex;
-  mode = 'idle';
+  replayState.speedIndex = Number.isFinite(Number(nextSpeedIndex)) ? Number(nextSpeedIndex) : replayState.speedIndex;
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   renderSlice(index, true, true);
   return true;
 }
 
 function enableReplay() {
-  if (chartData.length === 0) return;
-  const startIndex = lastCursorIndex >= 0 ? lastCursorIndex : 0;
-  mode = 'idle';
+  if (replayState.chartData.length === 0) return;
+  const startIndex = replayState.lastCursorIndex >= 0 ? replayState.lastCursorIndex : 0;
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   renderSlice(startIndex);
 }
 
 function toggleReplayEnabled() {
-  if (enabled) {
+  if (replayState.enabled) {
     restoreFullChart(true);
   } else {
     enableReplay();
@@ -347,35 +324,35 @@ function toggleReplayEnabled() {
 }
 
 function togglePlay() {
-  if (!enabled || chartData.length === 0) return;
+  if (!replayState.enabled || replayState.chartData.length === 0) return;
 
   if (timer) {
     stopTimer();
-    setMode('idle');
+    setMode(REPLAY_CONTROL_MODES.IDLE);
     return;
   }
 
-  if (cursorIndex < 0) {
+  if (replayState.cursorIndex < 0) {
     renderSlice(0);
   }
 
-  mode = 'playing';
-  timer = window.setInterval(stepForward, SPEEDS[speedIndex].ms);
+  replayState.mode = REPLAY_CONTROL_MODES.PLAYING;
+  timer = window.setInterval(stepForward, getReplaySpeed(replayState.speedIndex).ms);
   render();
 }
 
 function selectBar() {
-  if (!enabled || chartData.length === 0) return;
+  if (!replayState.enabled || replayState.chartData.length === 0) return;
   stopTimer();
-  setMode('picking');
+  setMode(REPLAY_CONTROL_MODES.PICKING);
   bus.emit('status:update', { text: '点击图表选择 Replay 回退位置', isError: false });
 }
 
 function cancelPick() {
-  if (mode !== 'picking') return false;
+  if (replayState.mode !== REPLAY_CONTROL_MODES.PICKING) return false;
 
   chart.hidePickPreviewCursor();
-  setMode('idle');
+  setMode(REPLAY_CONTROL_MODES.IDLE);
   bus.emit('status:update', { text: 'Replay Pick 已取消', isError: false });
   return true;
 }
@@ -383,28 +360,22 @@ function cancelPick() {
 function findBarIndex(time) {
   if (time === undefined || time === null) return -1;
   const target = normalizeTimeKey(time);
-  return chartData.findIndex((bar) => normalizeTimeKey(bar.time) === target);
+  return replayState.chartData.findIndex((bar) => normalizeTimeKey(bar.time) === target);
 }
 
 function handleChartClick(param) {
-  if (!enabled || mode !== 'picking') return;
+  if (!replayState.enabled || replayState.mode !== REPLAY_CONTROL_MODES.PICKING) return;
   const index = findBarIndex(param?.time);
   if (index < 0) return;
 
   const currentRange = chart.getVisibleLogicalRange();
   const keepIndex = index - 1;
   chart.hidePickPreviewCursor();
-  lastReplayPickHandledAt = Date.now();
-  mode = 'idle';
+  replayState.lastReplayPickHandledAt = Date.now();
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   if (keepIndex < 0) {
-    if (cursorIndex >= 0) {
-      lastCursorIndex = cursorIndex;
-      lastCursorTimestampAnchor = getCursorTimestamp();
-    }
-    enabled = true;
+    applyBeforeFirstPickState(replayState);
     enterLegacyReplayMode({ source: 'legacy-replay-pick-before-first' });
-    cursorIndex = -1;
-    cursorTimestampAnchor = null;
     clearPrimaryChartData();
     chart.hideReplayCursor();
     emitReplayChanged();
@@ -417,14 +388,14 @@ function handleChartClick(param) {
   }
   bus.emit('status:update', {
     text: keepIndex < 0
-      ? `Replay 位置: 0/${chartData.length} before ${formatReplayTime(displayBars[index])}`
-      : `Replay 位置: ${keepIndex + 1}/${chartData.length} before ${formatReplayTime(displayBars[index])}`,
+      ? `Replay 位置: 0/${replayState.chartData.length} before ${formatReplayTime(replayState.displayBars[index])}`
+      : `Replay 位置: ${keepIndex + 1}/${replayState.chartData.length} before ${formatReplayTime(replayState.displayBars[index])}`,
     isError: false,
   });
 }
 
 function handleCrosshairMove(param) {
-  if (!enabled || mode !== 'picking') {
+  if (!replayState.enabled || replayState.mode !== REPLAY_CONTROL_MODES.PICKING) {
     if (chart.hasPickPreviewCursor()) chart.hidePickPreviewCursor();
     return;
   }
@@ -435,15 +406,15 @@ function handleCrosshairMove(param) {
     return;
   }
 
-  chart.showPickPreviewCursor(chartData[index].time);
+  chart.showPickPreviewCursor(replayState.chartData[index].time);
 }
 
 function handleControlClick(e) {
-  const action = e.target.closest('[data-action]')?.dataset.action;
+  const action = getReplayActionFromEvent(e);
   if (!action) return;
 
   if (action === 'history-toggle') {
-    historyOpen = !historyOpen;
+    replayState.historyOpen = !replayState.historyOpen;
     render();
     return;
   }
@@ -466,7 +437,7 @@ function handleControlClick(e) {
       applyComparisonState,
       restoreReplayToTimestamp,
       closeHistoryPanel: () => {
-        historyOpen = false;
+        replayState.historyOpen = false;
       },
       render,
     });
@@ -486,7 +457,7 @@ function handleControlClick(e) {
 }
 
 function handleSpeedChange(e) {
-  speedIndex = Number(e.target.value);
+  replayState.speedIndex = Number(e.target.value);
   if (timer) {
     stopTimer();
     togglePlay();
@@ -496,7 +467,7 @@ function handleSpeedChange(e) {
 }
 
 function handleKeydown(e) {
-  if (isTextEditingTarget(e.target) || !enabled || chartData.length === 0) return;
+  if (isTextEditingTarget(e.target) || !replayState.enabled || replayState.chartData.length === 0) return;
 
   if (e.code === 'Space') {
     e.preventDefault();
@@ -516,26 +487,26 @@ function handleKeydown(e) {
 function render() {
   if (!controlsEl) return;
 
-  const hasData = chartData.length > 0;
-  const currentBar = cursorIndex >= 0 ? displayBars[cursorIndex] : null;
+  const hasData = replayState.chartData.length > 0;
+  const currentBar = replayState.cursorIndex >= 0 ? replayState.displayBars[replayState.cursorIndex] : null;
   const isPlaying = Boolean(timer);
   const tfLabel = timeframeToString(store.getCurrentTimeframe());
-  const lastDisabled = !hasData || lastCursorIndex < 0;
+  const lastDisabled = !hasData || replayState.lastCursorIndex < 0;
   const history = getReplayHistory(getPrimaryInstrument());
   controlsEl.innerHTML = renderReplayControlsView({
     hasData,
-    enabled,
+    enabled: replayState.enabled,
     currentBar,
-    cursorIndex,
-    dataCount: chartData.length,
+    cursorIndex: replayState.cursorIndex,
+    dataCount: replayState.chartData.length,
     isPlaying,
     tfLabel,
-    mode,
-    speedIndex,
+    mode: replayState.mode,
+    speedIndex: replayState.speedIndex,
     lastDisabled,
-    historyOpen,
+    historyOpen: replayState.historyOpen,
     history,
-    speeds: SPEEDS,
+    speeds: REPLAY_SPEEDS,
   });
 
   controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);
@@ -548,85 +519,70 @@ function render() {
 }
 
 export function getReplayRestoreSnapshot() {
-  if (!enabled || cursorIndex < 0) return null;
-
-  return {
-    enabled: true,
-    cursorTimestamp: getCursorTimestamp(),
-    lastTimestamp: lastCursorIndex >= 0 ? getLastCursorTimestamp() : null,
-    sourceTimeframe: activeTimeframe,
-    sourceBars: displayBars,
-    visibleRange: chart.getVisibleLogicalRange(),
-    dataCount: cursorIndex + 1,
-  };
+  return getReplayRestoreSnapshotState(replayState, chart.getVisibleLogicalRange());
 }
 
 export function getReplayVisibleBars() {
-  if (!enabled || cursorIndex < 0) return null;
-  return displayBars.slice(0, cursorIndex + 1);
+  if (!replayState.enabled || replayState.cursorIndex < 0) return null;
+  return replayState.displayBars.slice(0, replayState.cursorIndex + 1);
 }
 
 export function getReplayCursorTimestamp() {
-  return enabled && cursorIndex >= 0 ? getCursorTimestamp() : null;
+  return replayState.enabled && replayState.cursorIndex >= 0 ? getCursorTimestamp() : null;
 }
 
 export function isReplayPicking() {
-  return enabled && mode === 'picking';
+  return replayState.enabled && replayState.mode === REPLAY_CONTROL_MODES.PICKING;
 }
 
 export function didReplayPickJustHandleClick() {
-  return Date.now() - lastReplayPickHandledAt < 250;
+  return Date.now() - replayState.lastReplayPickHandledAt < 250;
 }
 
 export function syncReplayData(restoreSnapshot = null) {
   const shouldRestoreReplay =
     (restoreSnapshot?.enabled && restoreSnapshot.cursorTimestamp !== undefined) ||
-    (enabled && cursorIndex >= 0);
+    (replayState.enabled && replayState.cursorIndex >= 0);
   const cursorTimestamp = normalizeTimestamp(restoreSnapshot?.cursorTimestamp ?? getCursorTimestamp());
   const lastTimestamp =
-    normalizeTimestamp(restoreSnapshot?.lastTimestamp ?? (lastCursorIndex >= 0 ? getLastCursorTimestamp() : null));
+    normalizeTimestamp(restoreSnapshot?.lastTimestamp ?? (replayState.lastCursorIndex >= 0 ? getLastCursorTimestamp() : null));
 
   stopTimer();
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
   const nextTimeframe = store.getCurrentTimeframe();
-  displayBars = getReplayRestoreDisplayBars(
+  replayState.displayBars = getReplayRestoreDisplayBars(
     store.getDisplayBars(),
     nextTimeframe,
     cursorTimestamp,
     restoreSnapshot
   );
-  chartData = projectPrimaryChartBars(displayBars, nextTimeframe);
-  activeTimeframe = nextTimeframe;
+  replayState.chartData = projectPrimaryChartBars(replayState.displayBars, nextTimeframe);
+  replayState.activeTimeframe = nextTimeframe;
 
-  if (shouldRestoreReplay && chartData.length > 0) {
-    const restoredIndex = findBarIndexAtOrBeforeTimestamp(displayBars, cursorTimestamp, store.getCurrentTimeframe());
+  if (shouldRestoreReplay && replayState.chartData.length > 0) {
+    const restoredIndex = findBarIndexAtOrBeforeTimestamp(replayState.displayBars, cursorTimestamp, store.getCurrentTimeframe());
     if (restoredIndex >= 0) {
-      lastCursorIndex = findBarIndexAtOrBeforeTimestamp(displayBars, lastTimestamp, store.getCurrentTimeframe());
-      lastCursorTimestampAnchor = lastTimestamp;
-      mode = 'idle';
-      cursorIndex = -1;
+      replayState.lastCursorIndex = findBarIndexAtOrBeforeTimestamp(replayState.displayBars, lastTimestamp, store.getCurrentTimeframe());
+      replayState.lastCursorTimestampAnchor = lastTimestamp;
+      replayState.mode = REPLAY_CONTROL_MODES.IDLE;
+      replayState.cursorIndex = -1;
       renderSlice(restoredIndex, true, false, {
         ...restoreSnapshot,
         cursorTimestamp,
         lastTimestamp,
       });
       bus.emit('status:update', {
-        text: `Replay 对齐: ${formatReplayTime(displayBars[restoredIndex])}`,
+        text: `Replay 对齐: ${formatReplayTime(replayState.displayBars[restoredIndex])}`,
         isError: false,
       });
       return;
     }
   }
 
-  enabled = false;
-  mode = 'idle';
-  cursorIndex = -1;
-  lastCursorIndex = -1;
-  cursorTimestampAnchor = null;
-  lastCursorTimestampAnchor = null;
-  if (restoreSnapshot?.enabled && chartData.length > 0) {
-    replacePrimaryChartData(chartData, { showStart: true });
+  clearReplayAfterSyncState(replayState);
+  if (restoreSnapshot?.enabled && replayState.chartData.length > 0) {
+    replacePrimaryChartData(replayState.chartData, { showStart: true });
   }
   enterHistoryMode({ source: 'legacy-replay-sync' });
   emitReplayChanged();

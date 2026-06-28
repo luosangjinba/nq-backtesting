@@ -106,6 +106,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify chart mode transitions and fallback behavior.",
         ),
         SmokeCommand(
+            "replay_model_smoke",
+            ["node", "v4/tests/replay-model-smoke.js"],
+            "local",
+            "Verify legacy replay model state transitions.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

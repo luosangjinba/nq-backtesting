@@ -2,7 +2,7 @@ import * as bus from '../../event-bus.js';
 import { loadPrimaryRangeCommand } from '../../runtime/commands.js';
 import { resolveWindowAroundTimestamp } from '../../data/load-range-policy.js';
 import { getReplayHistory } from '../replay-history-store.js';
-import { isTimestampInRange } from './replay-time-utils.js';
+import { isTimestampInRange } from '../../features/replay/replay-time-utils.js';
 
 export async function loadReplayHistoryItem(id, {
   primaryInstrument,

@@ -267,9 +267,9 @@ These exceptions are allowed temporarily while the refactor proceeds:
   imports of `primary-bars-runtime.js` from `v4/src/ui` are blocked by
   `ui-command-boundary-smoke.js` as of Step 351.5.
 - `runtime/chart-mode-store.js` owns the global chart mode as of Step 351.6.
-  `replay-controls.js` may still own legacy replay state, cursor primitives, and
-  visible logical range restore until Step 351.7, but it must keep chart mode in
-  sync.
+- Legacy replay state/controller/view helpers live under
+  `features/replay/` as of Step 351.7. `ui/replay-controls.js` remains a DOM and
+  chart adapter until later cleanup, and must keep chart mode in sync.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 
