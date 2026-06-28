@@ -46,6 +46,8 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
                 "v4/server/maintenance_service.py",
                 "v4/server/local_env_service.py",
                 "v4/server/economic_calendar_handler.py",
+                "v4/server/economic_calendar_service.py",
+                "v4/server/economic_manual_import.py",
                 "v4/scripts/export_weekly_economic_manual_csv.py",
                 "v4/scripts/smoke_all.py",
             ),
@@ -87,6 +89,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             python("v4/tests/economic-manual-import-smoke.py"),
             "local",
             "Exercise manual economic CSV preview/write helpers in a temp directory.",
+        ),
+        SmokeCommand(
+            "economic_calendar_service_boundary_smoke",
+            python("v4/tests/economic-calendar-service-boundary-smoke.py"),
+            "local",
+            "Verify economic calendar query/manual import services stay out of v4_api.",
         ),
         SmokeCommand(
             "economic_weekly_manual_export_smoke",

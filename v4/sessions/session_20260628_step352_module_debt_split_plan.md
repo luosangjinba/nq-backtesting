@@ -595,3 +595,14 @@ Commit message:
   guarded execution paths delegate to service modules.
 - Added `maintenance-service-boundary-smoke.py` and
   `local-env-service-smoke.py`; included both in local smoke.
+
+### Step 352.11 Completed
+
+- Added `server/economic_calendar_service.py` for economic calendar file
+  read/write, event normalization, cache ownership, and query filtering.
+- Added `server/economic_manual_import.py` for manual CSV parse,
+  preview/write, duplicate/date helpers, backups, and cache invalidation.
+- Updated `v4_api.py` to retain compatibility wrappers while delegating
+  economic event query and manual import behavior to service modules.
+- Added `economic-calendar-service-boundary-smoke.py` and included it in local
+  smoke.
