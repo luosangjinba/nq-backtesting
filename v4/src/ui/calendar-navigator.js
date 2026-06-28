@@ -7,7 +7,7 @@ import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
 import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
-import { hasActiveReplaySession } from './replay/replay-session-state.js';
+import { getActiveReplaySession, hasActiveReplaySession } from './replay/replay-session-state.js';
 import { openReplaySessionFromRange } from './replay/replay-session-loader.js';
 import {
   dateKeyFromInput,
@@ -672,6 +672,31 @@ async function loadWeekAroundActiveDate() {
   }
 }
 
+function handleActiveSessionCalendarLocate(dateKey, targetTimestamp) {
+  const activeSession = getActiveReplaySession();
+  if (!activeSession) return false;
+  if (targetTimestamp > Number(activeSession.cursor)) {
+    bus.emit('status:update', {
+      text: `Calendar locate blocked: ${dateKey} is ahead of the replay cursor`,
+      isError: true,
+    });
+    return true;
+  }
+  if (!isTimestampLoaded(targetTimestamp)) {
+    bus.emit('status:update', {
+      text: `Calendar locate blocked: ${dateKey} is outside loaded replay prefix. Pan left to load more history.`,
+      isError: true,
+    });
+    return true;
+  }
+  closePopover();
+  requestAnimationFrame(() => {
+    locateTimestampRange(targetTimestamp, targetTimestamp);
+    bus.emit('status:update', { text: `Calendar: ${dateKey} ${TARGET_TIME}`, isError: false });
+  });
+  return true;
+}
+
 async function jumpToActiveDate() {
   const dateKey = activeDateKey || rangeStartDate || getInitialDateKey();
   const targetTimestamp = getCalendarDateTimestamp(dateKey, TARGET_TIME);
@@ -679,6 +704,7 @@ async function jumpToActiveDate() {
     bus.emit('status:update', { text: 'Calendar date is invalid', isError: true });
     return;
   }
+  if (handleActiveSessionCalendarLocate(dateKey, targetTimestamp)) return;
 
   try {
     if (!isTimestampLoaded(targetTimestamp)) {

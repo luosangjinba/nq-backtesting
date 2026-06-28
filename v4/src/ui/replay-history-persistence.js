@@ -3,6 +3,7 @@ import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getComparisonWindowState } from '../comparison/comparison-window-store.js';
 import { saveReplayHistoryItem } from './replay-history-store.js';
+import { formatReplaySessionDateTime, getActiveReplaySession } from './replay/replay-session-state.js';
 
 const SAVE_DEBOUNCE_MS = 800;
 
@@ -29,18 +30,29 @@ function isValidReplayState(replayState) {
 export function createReplayHistoryCheckpoint(replayState = lastReplayState) {
   if (!isValidReplayState(replayState)) return null;
 
+  const activeSession = getActiveReplaySession();
   const currentRange = store.getCurrentRange();
-  if (!currentRange.start || !currentRange.end) return null;
+  const sessionRange = activeSession
+    ? {
+        start: formatReplaySessionDateTime(activeSession.sessionStart),
+        end: formatReplaySessionDateTime(activeSession.sessionEnd),
+        timeframe: activeSession.timeframe,
+      }
+    : null;
+  const primaryStart = sessionRange?.start || currentRange.start;
+  const primaryEnd = sessionRange?.end || currentRange.end;
+  const primaryTimeframe = Number(sessionRange?.timeframe || store.getCurrentTimeframe());
+  if (!primaryStart || !primaryEnd) return null;
   const comparisonState = getComparisonWindowState();
   const comparisonDescriptor = comparisonState.descriptor || {};
 
   return {
     primary: {
       instrument: getPrimaryInstrument(),
-      timeframe: store.getCurrentTimeframe(),
-      start: currentRange.start,
-      end: currentRange.end,
-      outerRange: store.getRequestedOuterRange(),
+      timeframe: primaryTimeframe,
+      start: primaryStart,
+      end: primaryEnd,
+      outerRange: sessionRange || store.getRequestedOuterRange(),
     },
     replay: {
       enabled: true,

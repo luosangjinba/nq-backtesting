@@ -541,9 +541,7 @@ function handleControlClick(e) {
       primaryInstrument: getPrimaryInstrument(),
       setToolbarPrimaryInstrument,
       setToolbarRange,
-      setBars: (...args) => store.setBars(...args),
       applyComparisonState,
-      restoreReplayToTimestamp,
       closeHistoryPanel: () => {
         historyOpen = false;
       },

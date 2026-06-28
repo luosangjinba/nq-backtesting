@@ -23,7 +23,7 @@ import {
 import { updateComparisonOverlayStatus } from '../../comparison/comparison-overlay-policy.js';
 import { getReplaySyncedComparisonBars } from '../../comparison/comparison-replay-sync.js';
 import { CHART_PANE_IDS, getPaneLabel, getSyncPeerPanes } from '../../chart-panes/chart-pane-store.js';
-import { hasActiveReplaySession } from '../replay/replay-session-state.js';
+import { getActiveReplaySession, hasActiveReplaySession } from '../replay/replay-session-state.js';
 
 function getComparisonPaneLabel() {
   return getPaneLabel(CHART_PANE_IDS.COMPARISON);
@@ -155,19 +155,67 @@ export function createComparisonWindowDataController({
     clearComparisonView();
   }
 
-  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false } = {}) {
-    const state = getComparisonWindowState();
-    if (!state.enabled) return;
-    if (requirePaneSync && !shouldFollowPrimaryPane()) return;
-    if (hasActiveReplaySession()) {
+  async function loadReplaySessionComparisonForPrimaryRange({
+    start,
+    end,
+    instrument,
+    timeframe,
+    force,
+  }) {
+    const activeSession = getActiveReplaySession();
+    if (!activeSession) return false;
+    const loadSignature = `session|${start}|${end}|${instrument}|${timeframe}|${activeSession.cursor}`;
+    if (!force && loadSignature === lastLoadSignature) return true;
+    lastLoadSignature = loadSignature;
+    lastReplayState = {
+      enabled: true,
+      cursorTimestamp: activeSession.cursor ?? null,
+    };
+    replaySourceBars = [];
+    replaySourceRequestedRange = null;
+    const seq = (requestSeq += 1);
+    setComparisonStatus(`Loading ${instrument} ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`} session window...`);
+    try {
+      initComparisonChart();
+      setComparisonChartInfo({ instrument, timeframe });
+      const { result, cacheHit } = await loadBarsWindow(start, end, timeframe, instrument);
+      if (seq !== requestSeq || !getComparisonWindowState().enabled) return true;
+      const displayBars = getDisplayBarsFromResult(result)
+        .filter((bar) => Number(bar?.timestamp) <= Number(activeSession.cursor));
+      setComparisonBars(displayBars, result.requestedRange, { start, end });
+      renderComparisonBars({ followReplay: true });
+      if (displayBars.length > 0) {
+        hideComparisonPlaceholder();
+      } else {
+        setComparisonStatus(`No ${instrument} data in replay session window`);
+      }
+      updateComparisonOverlayStatus();
+      bus.emit('status:update', {
+        text: `${getComparisonPaneLabel()} session window loaded ${displayBars.length} bars${cacheHit ? ' (cache)' : ''}`,
+        isError: false,
+      });
+      return true;
+    } catch (error) {
+      if (seq !== requestSeq) return true;
+      lastLoadSignature = null;
       clearComparisonBars();
       replaySourceBars = [];
       replaySourceRequestedRange = null;
       clearComparisonData();
-      setComparisonStatus(`${getComparisonPaneLabel()} waits for replay session sync`);
+      setComparisonStatus(`${getComparisonPaneLabel()} session load failed: ${error.message}`, true);
       updateComparisonOverlayStatus();
-      return;
+      bus.emit('status:update', {
+        text: `${getComparisonPaneLabel()} session 加载失败: ${error.message}`,
+        isError: true,
+      });
+      return true;
     }
+  }
+
+  async function loadComparisonForPrimaryRange({ force = false, requirePaneSync = false } = {}) {
+    const state = getComparisonWindowState();
+    if (!state.enabled) return;
+    if (requirePaneSync && !shouldFollowPrimaryPane()) return;
 
     const { start, end } = primaryStore.getCurrentRange();
     if (!start || !end) {
@@ -176,6 +224,11 @@ export function createComparisonWindowDataController({
     }
 
     const { instrument, timeframe } = state.descriptor;
+    if (hasActiveReplaySession()) {
+      await loadReplaySessionComparisonForPrimaryRange({ start, end, instrument, timeframe, force });
+      return;
+    }
+
     const loadRequest = resolveComparisonLoadRequest(start, end, timeframe, instrument);
     if (!loadRequest.ok) {
       clearComparisonBars();

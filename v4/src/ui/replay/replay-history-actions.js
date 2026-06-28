@@ -1,28 +1,29 @@
 import * as bus from '../../event-bus.js';
-import { loadBarsWindow } from '../../data/load-bars-window.js';
-import { resolveWindowAroundTimestamp } from '../../data/load-range-policy.js';
 import { getReplayHistory } from '../replay-history-store.js';
-import { hasActiveReplaySession } from './replay-session-state.js';
-import { isTimestampInRange } from './replay-time-utils.js';
+import { openReplaySessionFromRange } from './replay-session-loader.js';
+
+function getHistorySessionRange(item) {
+  const outerRange = item?.primary?.outerRange;
+  if (outerRange?.start && outerRange?.end) {
+    return {
+      start: outerRange.start,
+      end: outerRange.end,
+    };
+  }
+  return {
+    start: item?.primary?.start || '',
+    end: item?.primary?.end || '',
+  };
+}
 
 export async function loadReplayHistoryItem(id, {
   primaryInstrument,
   setToolbarPrimaryInstrument,
   setToolbarRange,
-  setBars,
   applyComparisonState,
-  restoreReplayToTimestamp,
   closeHistoryPanel,
   render,
 }) {
-  if (hasActiveReplaySession()) {
-    bus.emit('status:update', {
-      text: 'Replay session active: legacy Replay History range restore is disabled',
-      isError: true,
-    });
-    return;
-  }
-
   const item = getReplayHistory(primaryInstrument).find((historyItem) => historyItem.id === id);
   if (!item) {
     bus.emit('status:update', { text: 'Replay History item not found', isError: true });
@@ -30,35 +31,25 @@ export async function loadReplayHistoryItem(id, {
   }
 
   const cursorTimestamp = item.replay.cursorTimestamp;
-  let loadStart = item.primary.start;
-  let loadEnd = item.primary.end;
-  let outerRange = item.primary.outerRange;
   const timeframe = Number(item.primary.timeframe);
-
-  if (!isTimestampInRange(cursorTimestamp, loadStart, loadEnd) && outerRange) {
-    const resolved = resolveWindowAroundTimestamp(outerRange, cursorTimestamp);
-    if (!resolved.ok) {
-      bus.emit('status:update', { text: resolved.message, isError: true });
-      return;
-    }
-    loadStart = resolved.start;
-    loadEnd = resolved.end;
-    outerRange = resolved.outerRange;
+  const sessionRange = getHistorySessionRange(item);
+  if (!sessionRange.start || !sessionRange.end) {
+    bus.emit('status:update', { text: 'Replay History restore failed: missing session range', isError: true });
+    return;
   }
 
   bus.emit('status:update', { text: '恢复 Replay History...', isError: false });
   try {
     const instrument = setToolbarPrimaryInstrument(item.primary.instrument);
-    const { result } = await loadBarsWindow(loadStart, loadEnd, timeframe, instrument);
-    setToolbarRange(loadStart, loadEnd, timeframe);
-    setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
-
+    await openReplaySessionFromRange({
+      instrument,
+      timeframe,
+      sessionStart: sessionRange.start,
+      sessionEnd: sessionRange.end,
+      cursor: cursorTimestamp,
+    });
+    setToolbarRange(sessionRange.start, sessionRange.end, timeframe);
     applyComparisonState(item.comparison);
-
-    if (!restoreReplayToTimestamp(cursorTimestamp, item.replay.speedIndex)) {
-      bus.emit('status:update', { text: 'Replay History restore failed: cursor is outside loaded window', isError: true });
-      return;
-    }
     closeHistoryPanel();
     render();
     bus.emit('status:update', { text: `Replay History restored: ${item.label}`, isError: false });
