@@ -1397,3 +1397,11 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 355.2: Split Order Setup mutation execution。已抽出 `order-setup-mutation-actions.js`，`order-setup-chart-actions.js` 从 567 行降到 11 行，仅保留 hit-action 与 mutation-action 路由。
   - [x] Step 355.3: Split Live Record mutation execution。已抽出 `live-record-mutation-actions.js`，`live-record-chart-actions.js` 从 504 行降到 16 行，仅保留 hit-action 与 mutation-action 路由并 re-export action constants。
   - [x] Step 355.4: Replay integration readiness audit。已扩展 `module-boundary-closeout-smoke.py` 保护 replay controls dispatcher/renderer、Order Setup mutation facade、Live Record mutation facade；确认下一轮 FX Replay 主要入口边界已足够。剩余暂缓项：`replay-controls.js` 仍有 496 行状态机、`order-setup-mutation-actions.js`/`live-record-mutation-actions.js` 仍大但已隔离，`comparison-context-menu.js` 未拆。
+- [ ] Step 356: FX Replay initial loading law。第一阶段只跑顺 FX Replay session 初始加载：可视前缀 + start bar；不后台预加载、不渲染、不暴露 future bars；不做 Next/Play、不做无限左拖完整体验。计划见 `v4/sessions/session_20260628_step356_fx_replay_initial_loading.md`。
+  - [ ] Step 356.1: FX Replay model foundation。新增独立 `features/fx-replay/fx-replay-model.js` 与 model smoke，定义 session/start/cursor/prefix/revealed/future invariants；不接 UI，不改变 legacy Replay。
+  - [ ] Step 356.2: Loader request planner。新增 `fx-replay-loader.js` 初始请求计划，只允许 start-bar resolve 与 `end <= startBarTimestamp` 的 prefix 请求；禁止 full date range 与 start 后 future 请求进入 initial plan。
+  - [ ] Step 356.3: Viewport prefix policy。新增 `fx-replay-viewport-policy.js`，用当前 chart viewport 宽度/bar spacing/visible demand 估算初始可视前缀数量；允许 4K/1080p 前缀范围不同，但不能按固定 1 天/2 天 cap。
+  - [ ] Step 356.4: Initial session chart projection。新增最小 FX Replay controller/command，把初始 session 投影到主图：display bars 只能是 `prefixBars + startBar`，start bar 为最右侧/latest replay bar。
+  - [ ] Step 356.5: No-future-bars guards。新增 smoke 保护 initial display 最大 timestamp 等于 `startBarTimestamp`，loader cache 不暴露 future bars，chart projection 不包含 `timestamp > cursorTimestamp`。
+  - [ ] Step 356.6: Real-data browser smoke。新增真实数据 browser smoke 覆盖 NQ 1M/1H 初始 session：有 prefix、start bar 最新、future visible 为 0、没有 full date range load。
+  - [ ] Step 356.7: Closeout and manual acceptance。更新 TODO/session，记录 left drag older-prefix、retention/release、Next/Play、right-bound clamp 留到 Step 357/358；手动验收只要求第一屏像 FX Replay。
