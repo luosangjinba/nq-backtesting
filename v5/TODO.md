@@ -1,0 +1,148 @@
+# V5 TODO
+
+## Step 357 - MVP Architecture And V5 Bootstrap
+
+Goal: start V5 with a fixed modular framework before implementation begins.
+
+- [x] Step 357.1: Create V5 workspace skeleton.
+- [x] Step 357.2: Write MVP architecture review.
+- [x] Step 357.3: Freeze module ownership and forbidden dependencies.
+- [x] Step 357.4: Define MVP product scope and non-goals.
+- [x] Step 357.5: Define multi-user baseline model.
+- [x] Step 357.6: Define phased implementation plan with manual acceptance
+  standards.
+
+Manual acceptance:
+
+- V5 has its own README, architecture document, TODO, and session handoff.
+- The document explicitly prevents V4-style coupling:
+  - UI cannot directly write chart data;
+  - features cannot directly request bars;
+  - replay cursor state has one owner;
+  - features cannot directly control each other.
+- MVP starts with a setup page and a chart replay page.
+- Multi-user is represented in the model from day one, even if auth is deferred.
+
+## Step 358 - V5 App Shell Skeleton
+
+Goal: create the V5 frontend shell without business features.
+
+- [ ] Step 358.1: Add V5 static entry page and source directory.
+- [ ] Step 358.2: Add runtime command bus and event bus.
+- [ ] Step 358.3: Add module registry and lifecycle hooks.
+- [ ] Step 358.4: Add route shell for Session Setup and Chart Replay.
+- [ ] Step 358.5: Add smoke tests that fail if features bypass runtime
+  boundaries.
+
+Manual acceptance:
+
+- Opening the V5 entry shows a working shell with setup/chart routes.
+- No chart, replay, or bars behavior is implemented yet.
+- Boundary tests exist before feature implementation.
+
+## Step 359 - V5 Session And User Model
+
+Goal: add default-user session persistence APIs and frontend session state.
+
+- [ ] Step 359.1: Define users, workspaces, replay sessions, and session cursor
+  schema.
+- [ ] Step 359.2: Add default user/workspace bootstrap.
+- [ ] Step 359.3: Add create/list/get replay session API.
+- [ ] Step 359.4: Add frontend session runtime and command contracts.
+- [ ] Step 359.5: Add persistence smoke tests.
+
+Manual acceptance:
+
+- A replay session can be created and reloaded by session id.
+- All user-owned records belong to a user or workspace.
+- No UI code writes session state directly.
+
+## Step 360 - V5 Session Setup Page
+
+Goal: build the FX Replay session setup page.
+
+- [ ] Step 360.1: Build instrument/timeframe/date range form.
+- [ ] Step 360.2: Validate session start/end without loading full chart data.
+- [ ] Step 360.3: Create session and navigate to chart replay route.
+- [ ] Step 360.4: Add browser smoke for setup-to-session creation.
+
+Manual acceptance:
+
+- Setup resembles the FX Replay session creation flow.
+- Creating a session does not load the whole date range into a chart.
+- The chart route receives only a session id.
+
+## Step 361 - V5 Chart Runtime Foundation
+
+Goal: add the only chart-writing runtime.
+
+- [ ] Step 361.1: Initialize chart in chart replay route.
+- [ ] Step 361.2: Add chart runtime commands for replace/append/clear series.
+- [ ] Step 361.3: Add viewport metric reader.
+- [ ] Step 361.4: Add tests that feature modules cannot import chart internals.
+
+Manual acceptance:
+
+- Chart can render injected test bars.
+- No feature module can directly call chart series APIs.
+
+## Step 362 - V5 Bar Data Runtime
+
+Goal: add the only runtime that talks to bars API and owns loaded windows.
+
+- [ ] Step 362.1: Wrap existing V4 bars endpoint/client for V5.
+- [ ] Step 362.2: Add bounded request planner.
+- [ ] Step 362.3: Add window cache and release policy.
+- [ ] Step 362.4: Add smoke tests against full-date-range preloading.
+
+Manual acceptance:
+
+- Runtime can load bounded bar windows.
+- There is no API path that loads the entire session range for initial replay.
+
+## Step 363 - V5 FX Replay Initial Load
+
+Goal: implement the first replay behavior slice on the clean V5 runtime.
+
+- [ ] Step 363.1: Resolve session start bar.
+- [ ] Step 363.2: Load viewport-sized prefix bars.
+- [ ] Step 363.3: Render prefix plus start through chart runtime.
+- [ ] Step 363.4: Guard against future bars in display state.
+- [ ] Step 363.5: Add real-data browser smoke.
+
+Manual acceptance:
+
+- Entering chart replay shows prefix bars plus start.
+- Start bar is the latest visible replay bar.
+- No bars after start are loaded into display state.
+- Different screen widths may request different prefix counts.
+
+## Step 364 - V5 Replay Navigation
+
+Goal: implement controlled replay progression after initial loading is stable.
+
+- [ ] Step 364.1: Next reveals exactly one active-timeframe bar.
+- [ ] Step 364.2: Play repeatedly reveals one active-timeframe bar.
+- [ ] Step 364.3: Stop at session end.
+- [ ] Step 364.4: Prevent right-pan into unrevealed future.
+
+Manual acceptance:
+
+- 1M advances by one minute, 5M by five minutes, 1H by one hour.
+- Future data is not rendered before reveal.
+
+## Step 365 - V5 Prefix Demand And Retention
+
+Goal: make left drag request older prefix windows and release off-screen data.
+
+- [ ] Step 365.1: Detect viewport demand when user pans left.
+- [ ] Step 365.2: Request older prefix chunks through bar data runtime.
+- [ ] Step 365.3: Merge sparse prefix chunks without full-range arrays.
+- [ ] Step 365.4: Release off-screen chunks according to explicit retention.
+
+Manual acceptance:
+
+- Dragging left can continue loading older prefix until data availability ends.
+- Prefix loading is not capped by fixed day counts.
+- Off-screen release is observable in runtime state.
+
