@@ -164,6 +164,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify inspector click/change/archive routing stays out of the sidebar.",
         ),
         SmokeCommand(
+            "inspector_calendar_panel_boundary_smoke",
+            ["node", "v4/tests/inspector-calendar-panel-boundary-smoke.js"],
+            "local",
+            "Verify inspector calendar panel data, view, and group boundaries.",
+        ),
+        SmokeCommand(
             "review_archive_domain_boundary_smoke",
             ["node", "v4/tests/review-archive-domain-boundary-smoke.js"],
             "local",

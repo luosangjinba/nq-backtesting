@@ -557,3 +557,19 @@ Commit message:
   render callbacks instead of owning the click/change dispatch body.
 - Added `inspector-action-router-boundary-smoke.js` and included it in local
   smoke.
+
+### Step 352.8 Completed
+
+- Added `ui/inspector/calendar/calendar-daily-time-summary.js` for Time
+  Reaction calendar rows, timestamps, previews, and group insertion.
+- Added `ui/inspector/calendar/calendar-day-groups.js` for Chart Notes group
+  insertion, auxiliary Calendar object groups, day overview markers, and bulk
+  chart-object counts.
+- Added `ui/inspector/calendar/calendar-panel-data.js` for loaded range,
+  month cells, active dates, overlay/regime state, and panel data assembly.
+- Added `ui/inspector/calendar/calendar-panel-view.js` for outer Calendar shell
+  rendering.
+- Reduced `ui/inspector/calendar-panel.js` to object row/group rendering,
+  visibility hydration, economic filters, and compatibility exports.
+- Added `inspector-calendar-panel-boundary-smoke.js` and included it in local
+  smoke.
