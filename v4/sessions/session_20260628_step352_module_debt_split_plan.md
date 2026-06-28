@@ -523,3 +523,16 @@ Commit message:
   toggle wiring, status text, and undo/redo button state.
 - Strengthened `toolbar-split-boundary-smoke.js` to prevent moved controller
   logic from returning to `toolbar.js`.
+
+### Step 352.5 Completed
+
+- Added `ui/calendar/calendar-date-utils.js` for date parsing, date shifting,
+  range labels, history labels, target timestamps, and month cells.
+- Added `ui/calendar/calendar-range-loader.js` for primary range loading and
+  resolved-window loading from the calendar surface.
+- Updated `ui/calendar-navigator.js` so it no longer owns pure date/label
+  helpers or direct `resolveChartLoadRange` / `loadPrimaryRangeCommand` calls.
+- Strengthened `calendar-split-boundary-smoke.js` to guard those boundaries.
+- Left popover lifecycle in `calendar-navigator.js` for now because its DOM
+  anchor and render callbacks are still tightly coupled; that can be split in a
+  later smaller follow-up if needed.

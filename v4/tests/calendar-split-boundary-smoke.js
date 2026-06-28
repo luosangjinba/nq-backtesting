@@ -6,6 +6,8 @@ const navigatorSource = readFileSync('v4/src/ui/calendar-navigator.js', 'utf8');
 const requiredImports = [
   './calendar/calendar-date-range-history.js',
   './calendar/calendar-date-range-store.js',
+  './calendar/calendar-date-utils.js',
+  './calendar/calendar-range-loader.js',
   './calendar/calendar-navigator-view.js',
 ];
 
@@ -21,6 +23,11 @@ const forbiddenInNavigator = [
   'function renderRangeHistory',
   'function renderMonth',
   'function escapeHtml',
+  'function dateTimePartsFromInput',
+  'function formatLoadedRangeLabel',
+  'function getMonthCells',
+  'resolveChartLoadRange',
+  'loadPrimaryRangeCommand',
   'const dateRangeState',
   'function selectRangeDate',
 ];
