@@ -1342,7 +1342,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [x] Step 350: Engineering runbook and smoke entry。工程化第一步先不做大重构，补齐可执行运维入口：新增 `v4/docs/runbook.md` 汇总 VPS pull/restart、health、502/203 排障、Economic Calendar 手工导入/cron、backup/write/security 边界；新增 `v4/scripts/smoke_all.py`，默认 `--suite local` 跑离线 smoke，`--suite api` 才检查运行中的 web/API。记录见 `v4/sessions/session_20260625_step350_engineering_runbook_smoke.md`。
 
 - [ ] Step 351: V4 module boundary refactor。Step 351-353 旧路线已回退到 Step 350 基线后重新规划；新 Step 351 先彻底拆清 V4 运行时边界，再重新设计 FX Replay。计划见 `v4/sessions/session_20260628_step351_v4_module_boundary_refactor_plan.md`。
-  - [ ] Step 351.1: Runtime inventory and contracts。梳理允许 fetch bars、写 primary bars、改 chart series、改 visible logical range、发核心事件的模块，形成 `v4/docs/planning/v4_module_boundaries.md` 和核心 event contract；不改运行行为。
+  - [x] Step 351.1: Runtime inventory and contracts。已梳理允许 fetch bars、写 primary bars、改 chart series、改 visible logical range、发核心事件的模块，新增 `v4/docs/planning/v4_module_boundaries.md` 记录当前高风险耦合、目标 owner、核心 event contract 与后续 boundary review checklist；不改运行行为。
   - [ ] Step 351.2: Bars API client boundary。新增 bars client/request 边界，禁止 UI 模块直接 import `api.js` 发 K 线请求。
   - [ ] Step 351.3: Primary bars runtime。新增唯一 primary bars runtime，收口所有主图 `fetchBars + store.setBars` 写入路径。
   - [ ] Step 351.4: Chart series runtime。把 `bars:loaded -> chart.setData` 与 bar projection 从 `app.js`/replay controls 移到 primary chart runtime。
