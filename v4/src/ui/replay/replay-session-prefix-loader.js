@@ -4,8 +4,7 @@ import {
   getVisibleLogicalRange,
   onVisibleLogicalRangeChange,
 } from '../../chart/chart-manager.js';
-import * as store from '../../data/bar-store.js';
-import { hasActiveReplaySession } from './replay-session-state.js';
+import { getActiveReplaySession, hasActiveReplaySession } from './replay-session-state.js';
 import { loadPreviousReplaySessionPrefix } from './replay-session-loader.js';
 
 const LEFT_EDGE_THRESHOLD_BARS = 12;
@@ -18,8 +17,7 @@ let lastAttemptEarliestTimestamp = null;
 let pendingRange = null;
 
 function getEarliestLoadedTimestamp() {
-  const bars = store.getDisplayBars();
-  const timestamp = Number(bars[0]?.timestamp);
+  const timestamp = Number(getActiveReplaySession()?.dataEarliestTimestamp);
   return Number.isFinite(timestamp) ? timestamp : null;
 }
 
