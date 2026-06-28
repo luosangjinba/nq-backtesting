@@ -12,6 +12,7 @@ export const CHART_MODE_SOURCES = Object.freeze({
   LEGACY_REPLAY_SLICE: 'legacy-replay-slice',
   LEGACY_REPLAY_PICK_BEFORE_FIRST: 'legacy-replay-pick-before-first',
   LEGACY_REPLAY_SYNC: 'legacy-replay-sync',
+  FX_REPLAY_INITIAL_LOAD: 'fx-replay-initial-load',
 });
 
 const VALID_MODES = new Set(Object.values(CHART_MODES));
@@ -52,4 +53,8 @@ export function enterHistoryMode(metadata = {}) {
 
 export function enterLegacyReplayMode(metadata = {}) {
   return setChartMode(CHART_MODES.LEGACY_REPLAY, metadata);
+}
+
+export function enterFxReplayMode(metadata = {}) {
+  return setChartMode(CHART_MODES.FX_REPLAY, metadata);
 }

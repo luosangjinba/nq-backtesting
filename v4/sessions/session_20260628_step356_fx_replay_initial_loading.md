@@ -126,14 +126,19 @@ Checks:
 
 ## Step 356.4 - Initial Session Chart Projection
 
-Planned:
+Completed:
 
-- Add `src/features/fx-replay/fx-replay-controller.js` for minimal session start.
-- Add a runtime command for starting an FX Replay session.
-- Enter `fx-replay` chart mode only for this new flow.
-- Load start bar and viewport-demand prefix through the FX Replay loader.
-- Project only `prefixBars + startBar` to the primary chart runtime.
-- Emit `fx-replay:changed` with minimum payload:
+- Added `src/features/fx-replay/fx-replay-controller.js` for minimal session
+  start.
+- Added `fxReplay.startInitialSession` runtime command.
+- Added chart mode helper/source for `fx-replay` initial load.
+- Added a chart-manager viewport metrics reader for the runtime command.
+- Primary chart projection now supports `showEnd`, so the start bar can be the
+  latest visible replay bar.
+- Loads start bar and viewport-demand prefix through injected loader
+  dependency.
+- Projects only `prefixBars + startBar` to the primary chart runtime.
+- Emits `fx-replay:changed` with minimum payload:
   - `enabled`
   - `sessionId`
   - `instrument`
@@ -145,15 +150,16 @@ Planned:
   - `prefixRange`
   - `revealedCount`
   - `mode: "fx-replay"`
+- Added `v4/tests/fx-replay-controller-smoke.js`.
+- Added the controller smoke to `v4/scripts/smoke_all.py --suite local`.
 
-Manual check:
+Checks:
 
-- Starting a session shows prefix bars on the left.
-- The start bar is the rightmost/latest visible replay bar.
-- No visible future bars exist to the right.
-- Legacy Replay remains available separately.
-
-Commit after this step.
+- `node v4/tests/fx-replay-controller-smoke.js`
+- `node v4/tests/chart-mode-store-smoke.js`
+- `node v4/tests/runtime-commands-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 356.5 - No-Future-Bars Guards
 

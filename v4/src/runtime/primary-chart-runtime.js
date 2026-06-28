@@ -20,11 +20,13 @@ export function projectPrimaryChartBars(bars, timeframe = store.getCurrentTimefr
   return (bars || []).map((bar) => toPrimaryChartBar(bar, timeframe));
 }
 
-export function replacePrimaryChartData(chartData, { showStart = false } = {}) {
+export function replacePrimaryChartData(chartData, { showStart = false, showEnd = false } = {}) {
   const nextData = chartData || [];
   chart.setData(nextData);
   if (showStart) {
     chart.showStartOfData(nextData.length);
+  } else if (showEnd) {
+    chart.showEndOfData(nextData.length);
   }
   return nextData;
 }

@@ -182,6 +182,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify FX Replay viewport-driven prefix demand planning.",
         ),
         SmokeCommand(
+            "fx_replay_controller_smoke",
+            ["node", "v4/tests/fx-replay-controller-smoke.js"],
+            "local",
+            "Verify FX Replay initial session chart projection.",
+        ),
+        SmokeCommand(
             "replay_controller_boundary_smoke",
             ["node", "v4/tests/replay-controller-boundary-smoke.js"],
             "local",

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {
   CHART_MODE_SOURCES,
   CHART_MODES,
+  enterFxReplayMode,
   enterHistoryMode,
   enterLegacyReplayMode,
   getChartMode,
@@ -18,6 +19,9 @@ assert.equal(CHART_MODE_SOURCES.LEGACY_REPLAY_SLICE, 'legacy-replay-slice');
 assert.equal(enterLegacyReplayMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_SLICE }), CHART_MODES.LEGACY_REPLAY);
 assert.equal(getChartMode(), CHART_MODES.LEGACY_REPLAY);
 assert.equal(isChartMode(CHART_MODES.LEGACY_REPLAY), true);
+assert.equal(enterFxReplayMode({ source: CHART_MODE_SOURCES.FX_REPLAY_INITIAL_LOAD }), CHART_MODES.FX_REPLAY);
+assert.equal(getChartMode(), CHART_MODES.FX_REPLAY);
+assert.equal(isChartMode(CHART_MODES.FX_REPLAY), true);
 
 assert.equal(setChartMode('bad-mode'), CHART_MODES.HISTORY);
 assert.equal(getChartMode(), CHART_MODES.HISTORY);

@@ -312,6 +312,16 @@ export function getVisibleLogicalRange() {
   return chart.timeScale().getVisibleLogicalRange();
 }
 
+export function getChartViewportMetrics() {
+  const timeScale = chart?.timeScale?.();
+  const barSpacing = Number(timeScale?.options?.().barSpacing);
+  return {
+    viewportWidthPx: getChartContainerWidth(),
+    barSpacingPx: Number.isFinite(barSpacing) && barSpacing > 0 ? barSpacing : TIME_SCALE_DISPLAY.barSpacing || 6,
+    visibleLogicalRange: timeScale?.getVisibleLogicalRange?.() || null,
+  };
+}
+
 export function setVisibleRange(from, to) {
   if (!chart) return;
   chart.timeScale().setVisibleRange({ from, to });
