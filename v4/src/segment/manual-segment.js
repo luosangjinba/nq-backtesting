@@ -5,7 +5,7 @@ import * as store from '../data/bar-store.js';
 import { getPrimaryChartContext } from '../chart/chart-context.js';
 import { getBarChartTime as getProjectedBarChartTime } from '../chart/time-projection.js';
 import { timeframeToString } from '../config.js';
-import { fetchBars } from '../api.js';
+import { loadBars } from '../data/bars/bars-api-client.js';
 import { addSegment, clearSegments } from './segment-store.js';
 
 const SEGMENT_TIMEFRAME = 60;
@@ -97,12 +97,12 @@ async function resolveEndpointOccurrence(bar, kind, price, context) {
   const endTimestamp = startTimestamp + timeframe * 60;
 
   try {
-    const result = await fetchBars(
-      formatTimestampInput(startTimestamp),
-      formatTimestampInput(endTimestamp),
-      OCCURRENCE_SOURCE_TIMEFRAME,
-      instrument
-    );
+    const result = await loadBars({
+      start: formatTimestampInput(startTimestamp),
+      end: formatTimestampInput(endTimestamp),
+      timeframe: OCCURRENCE_SOURCE_TIMEFRAME,
+      instrument,
+    });
     const occurrenceBar = getOccurrenceBar(
       Array.isArray(result.bars) ? result.bars : [],
       price,

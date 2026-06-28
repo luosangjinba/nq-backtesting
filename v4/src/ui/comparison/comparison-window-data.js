@@ -1,5 +1,4 @@
 import * as bus from '../../event-bus.js';
-import { fetchBars } from '../../api.js';
 import { TIMEFRAME_MAP } from '../../config.js';
 import {
   clearComparisonData,
@@ -15,6 +14,7 @@ import {
 import { getBarChartTime, mapTimestampToChartTime } from '../../chart/time-projection.js';
 import { validateSingleWindowRange } from '../../data/load-range-policy.js';
 import * as primaryStore from '../../data/bar-store.js';
+import { loadBars } from '../../data/bars/bars-api-client.js';
 import {
   getComparisonWindowState,
   clearComparisonBars,
@@ -152,8 +152,8 @@ export function createComparisonWindowDataController({
       setComparisonChartInfo({ instrument, timeframe });
       const shouldLoadSource = shouldLoadReplaySource(start, end, timeframe);
       const [result, replaySourceResult] = await Promise.all([
-        fetchBars(start, end, timeframe, instrument),
-        shouldLoadSource ? fetchBars(start, end, 1, instrument) : Promise.resolve(null),
+        loadBars({ start, end, timeframe, instrument }),
+        shouldLoadSource ? loadBars({ start, end, timeframe: 1, instrument }) : Promise.resolve(null),
       ]);
       if (seq !== requestSeq || !getComparisonWindowState().enabled) return;
       replaySourceBars = replaySourceResult?.bars || [];

@@ -1343,7 +1343,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 351: V4 module boundary refactor。Step 351-353 旧路线已回退到 Step 350 基线后重新规划；新 Step 351 先彻底拆清 V4 运行时边界，再重新设计 FX Replay。计划见 `v4/sessions/session_20260628_step351_v4_module_boundary_refactor_plan.md`。
   - [x] Step 351.1: Runtime inventory and contracts。已梳理允许 fetch bars、写 primary bars、改 chart series、改 visible logical range、发核心事件的模块，新增 `v4/docs/planning/v4_module_boundaries.md` 记录当前高风险耦合、目标 owner、核心 event contract 与后续 boundary review checklist；不改运行行为。
-  - [ ] Step 351.2: Bars API client boundary。新增 bars client/request 边界，禁止 UI 模块直接 import `api.js` 发 K 线请求。
+  - [x] Step 351.2: Bars API client boundary。已新增 `v4/src/data/bars/bars-api-client.js` 与 `bars-request.js`，把 UI/PDA/Order/Segment/Comparison 等现有 K 线请求迁移到 `loadBars()`；新增 `bars-api-boundary-smoke.js` 并纳入 local smoke，禁止 UI/feature 模块直接 import `api.js` 或引用 `fetchBars`。
   - [ ] Step 351.3: Primary bars runtime。新增唯一 primary bars runtime，收口所有主图 `fetchBars + store.setBars` 写入路径。
   - [ ] Step 351.4: Chart series runtime。把 `bars:loaded -> chart.setData` 与 bar projection 从 `app.js`/replay controls 移到 primary chart runtime。
   - [ ] Step 351.5: Command bus and UI command boundary。Toolbar/Calendar/Viewport/Replay controls 只发命令或调用 command handlers，不直接编排 store/chart/API。

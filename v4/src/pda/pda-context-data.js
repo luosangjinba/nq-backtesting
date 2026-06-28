@@ -1,6 +1,6 @@
 // PDA-only data fetches. These requests do not update the chart display store.
 
-import { fetchBars } from '../api.js';
+import { loadBars } from '../data/bars/bars-api-client.js';
 import { dateKeyFromUtcParts } from '../utils.js';
 
 const dayCache = new Map();
@@ -73,7 +73,12 @@ export async function fetchTradingDayBars(timestamp, timeframe, instrument = 'NQ
     return dayCache.get(key);
   }
 
-  const result = await fetchBars(range.start, range.end, timeframe, instrument);
+  const result = await loadBars({
+    start: range.start,
+    end: range.end,
+    timeframe,
+    instrument,
+  });
   const bars = filterRequestedBars(result);
   dayCache.set(key, bars);
   return bars;
@@ -92,7 +97,12 @@ export async function fetchTradingDaySourceBars(timestamp, instrument = 'NQ') {
     return dayCache.get(key);
   }
 
-  const result = await fetchBars(range.start, range.end, CONTEXT_SOURCE_TIMEFRAME, instrument);
+  const result = await loadBars({
+    start: range.start,
+    end: range.end,
+    timeframe: CONTEXT_SOURCE_TIMEFRAME,
+    instrument,
+  });
   const bars = filterRequestedBars(result);
   dayCache.set(key, bars);
   return bars;

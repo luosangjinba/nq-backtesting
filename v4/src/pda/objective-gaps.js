@@ -1,5 +1,5 @@
 import * as bus from '../event-bus.js';
-import { fetchBars } from '../api.js';
+import { loadBars } from '../data/bars/bars-api-client.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import * as store from '../data/bar-store.js';
 import { getReplayVisibleBars } from '../ui/replay-controls.js';
@@ -97,7 +97,12 @@ async function getNwogReferenceBars(allBars, weekStart) {
 
   const start = formatApiDateTime(weekStart - 3 * SECONDS_PER_DAY);
   const end = formatApiDateTime(weekStart + 2 * 60 * 60);
-  const result = await fetchBars(start, end, 60, getPrimaryInstrument());
+  const result = await loadBars({
+    start,
+    end,
+    timeframe: 60,
+    instrument: getPrimaryInstrument(),
+  });
   return mergeBars(referenceBars, result.bars || []);
 }
 
@@ -110,7 +115,12 @@ async function getNdogReferenceBars(allBars, sessionStart) {
 
   const start = formatApiDateTime(sessionStart - 2 * SECONDS_PER_DAY);
   const end = formatApiDateTime(sessionStart + 2 * 60 * 60);
-  const result = await fetchBars(start, end, 60, getPrimaryInstrument());
+  const result = await loadBars({
+    start,
+    end,
+    timeframe: 60,
+    instrument: getPrimaryInstrument(),
+  });
   return mergeBars(referenceBars, result.bars || []);
 }
 

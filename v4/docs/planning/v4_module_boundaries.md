@@ -232,12 +232,15 @@ Target owner:
 
 These exceptions are allowed temporarily while the refactor proceeds:
 
-- `toolbar.js` may still call `fetchBars()` and `store.setBars()` until
-  Steps 351.2 and 351.3.
+- `toolbar.js`, `calendar-navigator.js`, `viewport-controls.js`, replay history,
+  time reaction, comparison, PDA, order, and segment modules now use
+  `data/bars/bars-api-client.js` for K-line requests as of Step 351.2.
+- Primary chart writers may still call `store.setBars()` directly until
+  Step 351.3.
 - `app.js` may still update the chart on `bars:loaded` until Step 351.4.
 - `replay-controls.js` may still mutate chart data until Step 351.7.
-- Feature modules may still call `fetchBars()` for context-only reads until a
-  feature data-service policy is introduced.
+- Feature modules may still request context-only bars through `loadBars()` until
+  a feature data-service policy is introduced.
 
 Each exception must either be removed or explicitly reclassified by the end of
 Step 351.
@@ -254,4 +257,3 @@ Use this checklist when reviewing future refactor commits:
 6. Can the app still load a normal toolbar date range?
 7. Can comparison still follow the primary range?
 8. Can legacy replay still enter, step, and exit?
-

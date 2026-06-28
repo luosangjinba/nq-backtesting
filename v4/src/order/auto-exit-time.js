@@ -1,4 +1,4 @@
-import { fetchBars } from '../api.js';
+import { loadBars } from '../data/bars/bars-api-client.js';
 import { ORDER_DIRECTIONS, ORDER_RESULTS } from './order-review-types.js';
 import { isTargetResult } from './target-progress.js';
 
@@ -98,7 +98,12 @@ export async function calculateAutoExitTime(criteria = {}, options = {}) {
   const start = formatApiTime(entryTimestamp);
   const end = formatApiTime(entryTimestamp + lookaheadHours * SECONDS_PER_HOUR);
   const instrument = criteria.instrument || options.instrument || 'NQ';
-  const payload = await fetchBars(start, end, 1, instrument);
+  const payload = await loadBars({
+    start,
+    end,
+    timeframe: 1,
+    instrument,
+  });
   const bars = Array.isArray(payload?.result) ? payload.result : Array.isArray(payload?.bars) ? payload.bars : [];
   return findFirstAutoExitTouchBar(bars, criteria);
 }

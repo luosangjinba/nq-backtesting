@@ -1,6 +1,6 @@
 import * as bus from '../event-bus.js';
-import { fetchBars } from '../api.js';
 import * as store from '../data/bar-store.js';
+import { loadBars } from '../data/bars/bars-api-client.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
@@ -579,7 +579,12 @@ async function loadRange(start, end, successText) {
     throw new Error(loadRange.message);
   }
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await fetchBars(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
+  const result = await loadBars({
+    start: loadRange.start,
+    end: loadRange.end,
+    timeframe: tf,
+    instrument: getPrimaryInstrument(),
+  });
   setToolbarRange(loadRange.start, loadRange.end, false);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
@@ -596,7 +601,12 @@ async function loadRange(start, end, successText) {
 async function loadResolvedWindow(loadRange, successText) {
   const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await fetchBars(loadRange.start, loadRange.end, tf, getPrimaryInstrument());
+  const result = await loadBars({
+    start: loadRange.start,
+    end: loadRange.end,
+    timeframe: tf,
+    instrument: getPrimaryInstrument(),
+  });
   setToolbarRange(loadRange.start, loadRange.end, false);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
   store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
