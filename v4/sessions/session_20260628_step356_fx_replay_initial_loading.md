@@ -102,24 +102,27 @@ Checks:
 
 ## Step 356.3 - Viewport Prefix Policy
 
-Planned:
+Completed:
 
-- Add `src/features/fx-replay/fx-replay-viewport-policy.js`.
-- Estimate initial prefix demand from visible chart capacity:
+- Added `src/features/fx-replay/fx-replay-viewport-policy.js`.
+- Estimated initial prefix demand from visible chart capacity:
   - chart/container width;
   - bar spacing or visible logical range width;
   - active timeframe;
   - current desired start-bar right edge.
-- Allow different screen sizes to request different prefix counts.
-- Do not cap by fixed days such as 1 day for 1M or 2 days for 2M.
-- Add policy smoke coverage for 1080p-like and 4K-like inputs.
+- Allows different screen sizes to request different prefix counts.
+- Does not cap by fixed days such as 1 day for 1M or 2 days for 2M.
+- Added policy smoke coverage for 1080p-like and 4K-like inputs, logical
+  range priority, and max request guard.
+- Added the policy smoke to `v4/scripts/smoke_all.py --suite local`.
 
-Manual check:
+Checks:
 
-- 1080p and 4K demand calculations differ because viewport capacity differs.
-- Demand is still bounded by backend safety/request limits.
-
-Commit after this step.
+- `node v4/tests/fx-replay-viewport-policy-smoke.js`
+- `node v4/tests/fx-replay-loader-smoke.js`
+- `node v4/tests/fx-replay-model-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 356.4 - Initial Session Chart Projection
 

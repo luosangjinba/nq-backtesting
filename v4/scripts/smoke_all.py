@@ -176,6 +176,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify FX Replay initial loader request planning.",
         ),
         SmokeCommand(
+            "fx_replay_viewport_policy_smoke",
+            ["node", "v4/tests/fx-replay-viewport-policy-smoke.js"],
+            "local",
+            "Verify FX Replay viewport-driven prefix demand planning.",
+        ),
+        SmokeCommand(
             "replay_controller_boundary_smoke",
             ["node", "v4/tests/replay-controller-boundary-smoke.js"],
             "local",
