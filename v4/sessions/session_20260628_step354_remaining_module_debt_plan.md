@@ -392,6 +392,19 @@ Final responsibility:
 - The old smoke is deleted or becomes a very small aggregator only if useful.
 - Shared browser/CDP helpers should be extracted if it avoids copy-paste.
 
+Completion notes:
+
+- Kept one browser process because the assertions intentionally build on shared
+  chart/window state.
+- Reduced `tests/comparison-window-browser-smoke.js` from 1933 lines to a 69-line
+  ordered aggregator.
+- Extracted `tests/helpers/browser-cdp-client.js` and
+  `tests/helpers/comparison-window-fixtures.js`.
+- Extracted focused section modules for layout, data/viewport, context menu,
+  overlay policy, and replay/workspace coverage.
+- Verified with `node v4/tests/comparison-window-browser-smoke.js`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+
 Automated checks:
 
 - Run every new comparison browser smoke.
