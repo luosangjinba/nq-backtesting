@@ -1389,6 +1389,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 354.4: Split Live Record chart actions。已拆出 `live-record-chart-menu.js` 与 `live-record-hit-actions.js`，`live-record-chart-actions.js` 继续作为对外 facade 并保留 execution mutation/link/create 调度；文件从 805 行降到 504 行。`live-record-chart-actions-smoke`、`live-record-smoke`、local suite 与 `git diff --check` 通过。
   - [x] Step 354.5: Split Inspector Time Reaction domain。已拆出 `time-reaction-targets.js` 与 `time-reaction-chart-notes-section.js`，actions/panel 分别降到 765/598 行。`time-reaction-panel-smoke`、daily time review store/archive smoke、local suite 与 `git diff --check` 通过。
   - [x] Step 354.6: Split Inspector Live Record domain。已拆出 `live-record-header-panel.js`，集中 Live Record header/lifecycle controls，panel 从 771 行降到 711 行；reason/action 大块暂不移动。`live-record-smoke`、`live-record-chart-actions-smoke`、local suite 与 `git diff --check` 通过。
-  - [ ] Step 354.7: CSS second-stage extraction。按 `toolbar.css`、`chart-shell.css`、`context-menu.css`、`inspector.css`、`calendar.css` 顺序继续拆 `style.css`，每次只移动一个域。
+  - [x] Step 354.7: CSS second-stage extraction。已抽出 `styles/toolbar.css`，集中 toolbar/replay/history/calendar-toolbar 样式，`style.css` 降到 3109 行；chart-shell/context-menu/inspector/calendar 主体仍留在 `style.css`，避免在同一提交内移动混合响应式块。local suite 与 `git diff --check` 通过。
   - [ ] Step 354.8: Split comparison browser smoke。把 1900+ 行 `comparison-window-browser-smoke.js` 拆为 layout/context-menu/overlay/workspace/replay focused smoke。
   - [ ] Step 354.9: Closeout audit。重新跑无引用、噪音、大文件审计，更新 boundary smoke、TODO/session 和剩余暂缓理由。

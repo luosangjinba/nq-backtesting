@@ -360,9 +360,19 @@ Manual check:
 - Open app on desktop and narrow viewport; verify toolbar, chart stack, context
   menus, Inspector, Calendar panel, and Comparison pane retain layout.
 
+Completion notes:
+
+- Extracted `styles/toolbar.css`, including the toolbar root, toolbar controls,
+  replay controls/history, and toolbar calendar picker styles.
+- Left chart-shell/context-menu/inspector/calendar body styles in `style.css`
+  because the remaining blocks are interleaved with shared responsive rules.
+  They should be handled in a later CSS-only pass with smaller visual checks.
+- Verified with `python3 v4/scripts/smoke_all.py --suite local` and
+  `git diff --check`.
+
 Commit message:
 
-- `Extract additional CSS domains`
+- `Extract toolbar CSS domain`
 
 ### Step 354.8 - Split comparison browser smoke
 
