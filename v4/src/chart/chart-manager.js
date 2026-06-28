@@ -316,6 +316,13 @@ export function getVisibleLogicalRange() {
   return chart.timeScale().getVisibleLogicalRange();
 }
 
+export function onVisibleLogicalRangeChange(handler) {
+  if (!chart || typeof handler !== 'function') return () => {};
+  const timeScale = chart.timeScale();
+  timeScale.subscribeVisibleLogicalRangeChange(handler);
+  return () => timeScale.unsubscribeVisibleLogicalRangeChange?.(handler);
+}
+
 export function setVisibleRange(from, to) {
   if (!chart) return;
   chart.timeScale().setVisibleRange({ from, to });

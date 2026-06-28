@@ -19,6 +19,7 @@ import {
   syncReplayData,
 } from './ui/replay-controls.js';
 import { getActiveReplaySession, hasActiveReplaySession } from './ui/replay/replay-session-state.js';
+import { initReplaySessionPrefixLoader } from './ui/replay/replay-session-prefix-loader.js';
 import { initReplayHistoryPersistence } from './ui/replay-history-persistence.js';
 import { initViewportControls } from './ui/viewport-controls.js';
 import { initInspectorSidebar } from './ui/inspector-sidebar.js';
@@ -95,6 +96,7 @@ console.log('[V4] Chart pane range sync initialized');
 
 // 初始化 Replay 控制条
 initReplayControls();
+initReplaySessionPrefixLoader();
 initReplayHistoryPersistence();
 console.log('[V4] Replay controls initialized');
 
