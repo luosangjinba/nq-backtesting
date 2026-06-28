@@ -192,7 +192,19 @@ async function main() {
           window.__replaySessionBarsCalls.push(call);
           const bars = [];
           let index = 0;
+          const gapStart = parseDateTime('2026-08-01 00:00');
+          const gapFloor = parseDateTime('2026-08-01 03:00');
+          if (endTs <= gapStart && endTs >= gapStart - step * 4) {
+            return new Response(JSON.stringify({
+              bars,
+              requestedRange: { startTs, endTs },
+            }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
           for (let ts = startTs - step * 2; ts <= endTs + step * 3; ts += step) {
+            if (ts >= gapStart && ts < gapFloor) continue;
             bars.push(makeBar(ts, index, instrument));
             index += 1;
           }
@@ -264,6 +276,18 @@ async function main() {
         const finished = await loader.loadNextReplaySessionBar();
         const afterFinished = summarize();
 
+        const beforeGapCallCount = window.__replaySessionBarsCalls.length;
+        const gapOpened = await loader.openReplaySessionFromRange({
+          instrument: 'NQ',
+          timeframe: 1,
+          sessionStart: '2026-08-01 00:00',
+          sessionEnd: '2026-08-02 00:00',
+          viewportBarCapacity: 3,
+          paddingBars: 0,
+        });
+        const gapCalls = window.__replaySessionBarsCalls.slice(beforeGapCallCount);
+        const afterGapOpen = summarize();
+
         return JSON.stringify({
           calls: window.__replaySessionBarsCalls,
           openedRequest: opened.request,
@@ -281,6 +305,9 @@ async function main() {
           shortForwardRequest: shortForward.request,
           finished,
           afterFinished,
+          gapRequest: gapOpened.request,
+          gapCalls,
+          afterGapOpen,
         });
       })()
     `);
@@ -315,6 +342,12 @@ async function main() {
     assert.equal(value.afterFinished.session.cursor, value.afterFinished.session.sessionEnd, 'short session should stop at sessionEnd');
     assert.equal(value.finished.finished, true, 'next forward after sessionEnd should report finished');
     assert.equal(value.afterFinished.max, value.afterFinished.session.sessionEnd, 'finished session must not retain future padding');
+
+    assert.ok(value.gapCalls.length >= 3, 'empty initial prefix should trigger cursor search and prefix reload');
+    assert.equal(value.afterGapOpen.count > 0, true, 'gap range should open on the first available bar');
+    assert.equal(value.afterGapOpen.session.cursor, Date.UTC(2026, 7, 1, 3, 0, 0) / 1000);
+    assert.equal(value.afterGapOpen.max, value.afterGapOpen.session.cursor);
+    assert.equal(value.gapRequest.end, '2026-08-01 03:00');
   } finally {
     client?.close();
     chrome.kill('SIGTERM');
