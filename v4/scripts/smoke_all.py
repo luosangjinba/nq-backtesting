@@ -130,6 +130,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify date range history workspace sync and local migration behavior.",
         ),
         SmokeCommand(
+            "inspector_shell_boundary_smoke",
+            ["node", "v4/tests/inspector-shell-boundary-smoke.js"],
+            "local",
+            "Verify the inspector sidebar delegates shell DOM ownership to inspector shell modules.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

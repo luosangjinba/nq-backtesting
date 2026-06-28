@@ -277,6 +277,10 @@ These exceptions are allowed temporarily while the refactor proceeds:
   rendering live under `ui/calendar/` as of Step 351.9.
   `ui/calendar-navigator.js` remains the DOM event and primary-load command
   coordination adapter.
+- Inspector shell DOM ownership, navigation chrome, and detail type registry
+  live under `ui/inspector/` as of Step 351.10.
+  `ui/inspector-sidebar.js` remains the feature action dispatch and page
+  orchestration adapter until the feature panels are split further.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 

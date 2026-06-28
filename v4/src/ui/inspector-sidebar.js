@@ -58,6 +58,20 @@ import {
   replaceInspectorPage,
   resetInspectorPage,
 } from './inspector/page-stack.js';
+import {
+  captureInspectorOpenGroups,
+  clickInspectorBodyAction,
+  closeInspectorActionMenus as closeShellActionMenus,
+  closeInspectorShell,
+  createInspectorShell,
+  focusInspectorBodySelector,
+  getInspectorBodyElement,
+  isInspectorShellOpen,
+  openInspectorShell,
+  setInspectorShellBody,
+} from './inspector/inspector-shell.js';
+import { renderInspectorBackAction as renderBackAction } from './inspector/inspector-navigation.js';
+import { INSPECTOR_DETAIL_TYPES, isInspectorDetailType } from './inspector/inspector-panel-registry.js';
 import { createPdaInspectorActionController } from './inspector/pda-actions.js';
 import { createSegmentInspectorActionController } from './inspector/segment-actions.js';
 import {
@@ -103,8 +117,6 @@ import { recordHistory } from '../history/history-manager.js';
 import { getEconomicEventById } from '../economic-calendar/economic-calendar-store.js';
 import { ENTRY_CONTEXT_CATALOG_CHANGED } from '../entry-context/entry-context-catalog-store.js';
 
-let sidebarEl = null;
-let bodyEl = null;
 let currentPanel = 'empty';
 let expandedOrderReviewId = null;
 let selectedSmtId = null;
@@ -134,7 +146,7 @@ const pdaActions = createPdaInspectorActionController({
 const segmentActions = createSegmentInspectorActionController({
   getCurrentSegment,
   getCurrentSegmentGroup,
-  getBodyEl: () => bodyEl,
+  getBodyEl: getInspectorBodyElement,
   renderEmpty: renderAfterDetailDeleted,
 });
 
@@ -209,14 +221,7 @@ function getOrderReviewPanelOptions(extra = {}) {
 }
 
 function renderInspectorBackAction() {
-  if (!canPopInspectorPage()) return '';
-  return `
-    <div class="inspector-return-bar">
-      <button class="inspector-button secondary" data-inspector-action="inspector-back" type="button">
-        Back
-      </button>
-    </div>
-  `;
+  return renderBackAction(canPopInspectorPage());
 }
 
 function syncCalendarToOrderReview(orderReviewId) {
@@ -306,7 +311,7 @@ function isCalendarClickFollowBlocked() {
 }
 
 function canFollowCalendarChartClick() {
-  if (!sidebarEl?.classList.contains('open')) return false;
+  if (!isInspectorShellOpen()) return false;
   if (isCalendarClickFollowBlocked()) return false;
   const page = getInspectorPage();
   return (
@@ -340,7 +345,7 @@ function renderAnnotation(annotation) {
   currentPanel = 'selection';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'pda',
+    objectType: INSPECTOR_DETAIL_TYPES.PDA,
     objectId: annotation.id,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -355,7 +360,7 @@ function renderSegment(segment) {
   currentPanel = 'selection';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'segment',
+    objectType: INSPECTOR_DETAIL_TYPES.SEGMENT,
     objectId: segment.id,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -370,7 +375,7 @@ function renderSegmentGroup(segmentGroup) {
   currentPanel = 'selection';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'composite',
+    objectType: INSPECTOR_DETAIL_TYPES.COMPOSITE,
     objectId: segmentGroup.id,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -385,7 +390,7 @@ function renderSmtSelection() {
   currentPanel = 'selection';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'smt',
+    objectType: INSPECTOR_DETAIL_TYPES.SMT,
     objectId: selectedSmtId,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -401,7 +406,7 @@ function renderOrderSetupDetail(orderReviewId) {
   currentPanel = 'detail';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'order-setup',
+    objectType: INSPECTOR_DETAIL_TYPES.ORDER_SETUP,
     objectId: orderReviewId,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -419,7 +424,7 @@ function renderLiveRecordDetail(liveRecordId) {
   currentPanel = 'detail';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'live-record',
+    objectType: INSPECTOR_DETAIL_TYPES.LIVE_RECORD,
     objectId: liveRecordId,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -438,7 +443,7 @@ function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
   setCalendarDateContext(dateKey);
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'time-reaction',
+    objectType: INSPECTOR_DETAIL_TYPES.TIME_REACTION,
     objectId: dateKey,
     sectionKey,
     selectedDate: calendarSelectedDate,
@@ -466,7 +471,7 @@ function renderEconomicEventDetail(eventId) {
   currentPanel = 'economic-event-detail';
   replaceInspectorPage({
     kind: 'detail',
-    objectType: 'economic-event',
+    objectType: INSPECTOR_DETAIL_TYPES.ECONOMIC_EVENT,
     objectId: eventId,
     selectedDate: calendarSelectedDate,
     viewDate: calendarViewDate,
@@ -527,16 +532,15 @@ function renderArchivePanel() {
 }
 
 function openSidebar() {
-  sidebarEl?.classList.add('open');
+  openInspectorShell();
 }
 
 function closeSidebar() {
-  sidebarEl?.classList.remove('open');
+  closeInspectorShell();
 }
 
 function focusActiveOrderSetupPanel() {
-  const section = bodyEl?.querySelector('[data-inspector-section="order-setup-detail"]');
-  section?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  focusInspectorBodySelector('[data-inspector-section="order-setup-detail"]');
 }
 
 function showActiveOrderSetupPanel() {
@@ -576,46 +580,50 @@ function renderPageFromState(page = getInspectorPage()) {
     return;
   }
   if (page.kind === 'detail') {
-    if (page.objectType === 'order-setup') {
+    if (!isInspectorDetailType(page.objectType)) {
+      renderPageFromState(popInspectorPage());
+      return;
+    }
+    if (page.objectType === INSPECTOR_DETAIL_TYPES.ORDER_SETUP) {
       if (getOrderReviewById(page.objectId)) {
         renderOrderSetupDetail(page.objectId);
         return;
       }
-    } else if (page.objectType === 'live-record') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.LIVE_RECORD) {
       if (getLiveRecordById(page.objectId)) {
         renderLiveRecordDetail(page.objectId);
         return;
       }
-    } else if (page.objectType === 'pda') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.PDA) {
       const annotation = getAnnotationById(page.objectId);
       if (annotation) {
         renderAnnotation(annotation);
         return;
       }
-    } else if (page.objectType === 'segment') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.SEGMENT) {
       const segment = getSegmentById(page.objectId);
       if (segment) {
         renderSegment(segment);
         return;
       }
-    } else if (page.objectType === 'composite') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.COMPOSITE) {
       const segmentGroup = getSegmentGroupById(page.objectId);
       if (segmentGroup) {
         renderSegmentGroup(segmentGroup);
         return;
       }
-    } else if (page.objectType === 'smt') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.SMT) {
       if (getSmtRecordById(page.objectId)) {
         selectedSmtId = page.objectId;
         renderSmtSelection();
         return;
       }
-    } else if (page.objectType === 'time-reaction') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.TIME_REACTION) {
       if (String(page.objectId || '').match(/^\d{4}-\d{2}-\d{2}$/)) {
         renderDailyTimeReviewDetail(page.objectId, page.sectionKey || '');
         return;
       }
-    } else if (page.objectType === 'economic-event') {
+    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.ECONOMIC_EVENT) {
       if (renderEconomicEventDetail(page.objectId)) {
         return;
       }
@@ -715,21 +723,12 @@ function refreshOnReplayDayChange({ enabled } = {}) {
 }
 
 function createSidebar() {
-  sidebarEl = document.createElement('aside');
-  sidebarEl.id = 'inspector-sidebar';
-  sidebarEl.innerHTML = `
-    <div class="inspector-header">
-      <div class="inspector-title">Inspector</div>
-      <button class="inspector-close" type="button" title="Close inspector">X</button>
-    </div>
-    <div class="inspector-body"></div>
-  `;
-  document.getElementById('workspace')?.appendChild(sidebarEl);
-  bodyEl = sidebarEl.querySelector('.inspector-body');
-  sidebarEl.querySelector('.inspector-close')?.addEventListener('click', closeSidebar);
-  sidebarEl.addEventListener('change', handleInspectorChange);
-  sidebarEl.addEventListener('click', handleInspectorClick);
-  sidebarEl.addEventListener('focusout', handleInspectorFocusOut);
+  createInspectorShell({
+    onClose: closeSidebar,
+    onChange: handleInspectorChange,
+    onClick: handleInspectorClick,
+    onFocusOut: handleInspectorFocusOut,
+  });
   renderEmpty();
 }
 
@@ -753,29 +752,21 @@ function recordInspectorHistory(label, mutator) {
 }
 
 function hydrateInspector() {
+  const bodyEl = getInspectorBodyElement();
   if (!bodyEl) return;
   hydrateCalendarVisibilityControls(bodyEl);
 }
 
 function setInspectorBody(html) {
-  if (!bodyEl) return;
-  bodyEl.innerHTML = html;
-  hydrateInspector();
+  setInspectorShellBody(html, hydrateCalendarVisibilityControls);
 }
 
 function captureCalendarOpenGroups() {
-  if (!bodyEl) return;
-  calendarOpenGroups = new Set(
-    Array.from(bodyEl.querySelectorAll('.calendar-object-group[open][data-calendar-group-type]'))
-      .map((groupEl) => groupEl.dataset.calendarGroupType)
-      .filter(Boolean)
-  );
+  calendarOpenGroups = captureInspectorOpenGroups();
 }
 
 function closeInspectorActionMenus(exceptMenu = null) {
-  bodyEl?.querySelectorAll('.order-review-ref-menu[open], .calendar-object-menu[open]').forEach((menu) => {
-    if (menu !== exceptMenu) menu.removeAttribute('open');
-  });
+  closeShellActionMenus(exceptMenu);
 }
 
 function openCalendarObject(type, id, options = {}) {
@@ -798,7 +789,7 @@ function openCalendarObject(type, id, options = {}) {
       syncCalendarToOrderReview(id);
       pushInspectorPage({
         kind: 'detail',
-        objectType: 'order-setup',
+      objectType: INSPECTOR_DETAIL_TYPES.ORDER_SETUP,
         objectId: id,
         selectedDate: calendarSelectedDate,
         viewDate: calendarViewDate,
@@ -815,7 +806,7 @@ function openCalendarObject(type, id, options = {}) {
     clearSegmentGroupSelection();
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'live-record',
+      objectType: INSPECTOR_DETAIL_TYPES.LIVE_RECORD,
       objectId: id,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
@@ -829,7 +820,7 @@ function openCalendarObject(type, id, options = {}) {
     clearSegmentGroupSelection();
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'pda',
+      objectType: INSPECTOR_DETAIL_TYPES.PDA,
       objectId: id,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
@@ -845,7 +836,7 @@ function openCalendarObject(type, id, options = {}) {
     if (!getSegmentById(id)) return false;
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'segment',
+      objectType: INSPECTOR_DETAIL_TYPES.SEGMENT,
       objectId: id,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
@@ -861,7 +852,7 @@ function openCalendarObject(type, id, options = {}) {
     if (!getSegmentGroupById(id)) return false;
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'composite',
+      objectType: INSPECTOR_DETAIL_TYPES.COMPOSITE,
       objectId: id,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
@@ -877,7 +868,7 @@ function openCalendarObject(type, id, options = {}) {
     if (!getSmtRecordById(id)) return false;
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'smt',
+      objectType: INSPECTOR_DETAIL_TYPES.SMT,
       objectId: id,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
@@ -898,7 +889,7 @@ function openCalendarObject(type, id, options = {}) {
     selectedSmtId = null;
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'time-reaction',
+      objectType: INSPECTOR_DETAIL_TYPES.TIME_REACTION,
       objectId: id,
       sectionKey: options.sectionKey || '',
       selectedDate: calendarSelectedDate,
@@ -915,7 +906,7 @@ function openCalendarObject(type, id, options = {}) {
     selectedSmtId = null;
     pushInspectorPage({
       kind: 'detail',
-      objectType: 'economic-event',
+      objectType: INSPECTOR_DETAIL_TYPES.ECONOMIC_EVENT,
       objectId: id,
       selectedDate: calendarSelectedDate,
       viewDate: calendarViewDate,
@@ -1040,7 +1031,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'import-pda') {
-    bodyEl?.querySelector('[data-inspector-action="import-pda-file"]')?.click();
+    clickInspectorBodyAction('import-pda-file');
     return;
   }
 
@@ -1059,7 +1050,7 @@ function handleInspectorClick(e) {
   }
 
   if (action === 'import-review') {
-    bodyEl?.querySelector('[data-inspector-action="import-review-file"]')?.click();
+    clickInspectorBodyAction('import-review-file');
     return;
   }
 
