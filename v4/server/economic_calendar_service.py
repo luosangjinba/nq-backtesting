@@ -30,7 +30,10 @@ _ECONOMIC_EVENTS_CACHE = None
 def configure_economic_calendar(*, path=None):
     global ECONOMIC_CALENDAR_PATH
     if path:
-        ECONOMIC_CALENDAR_PATH = str(path)
+        next_path = str(path)
+        if next_path != ECONOMIC_CALENDAR_PATH:
+            ECONOMIC_CALENDAR_PATH = next_path
+            clear_economic_events_cache()
 
 
 def clear_economic_events_cache():
