@@ -143,7 +143,7 @@ Completion notes:
   `handleLiveRecordChartAction()` to accept the source metadata already passed
   by callers.
 
-### Step 353.3 - Modularize `data-maintenance.html` scripts
+### Step 353.3 - Modularize `data-maintenance.html` scripts ✅
 
 Move the 800+ lines of inline script into explicit maintenance modules.
 
@@ -178,6 +178,29 @@ Manual check:
 Commit message:
 
 - `Split data maintenance scripts`
+
+Completion notes:
+
+- Replaced the two large inline `data-maintenance.html` scripts with one
+  module entry: `src/maintenance/data-maintenance-app.js`.
+- Added `src/maintenance/maintenance-api-client.js`,
+  `environment-panel.js`, `refresh-range-panel.js`,
+  `economic-calendar-panel.js`, `roll-calendar-panel.js`,
+  `tradovate-import-panel.js`, and `output-panel.js`.
+- Kept the HTML as static layout plus entry script; API request handling,
+  output summarization, form payload builders, date helpers, and Tradovate
+  import UI logic now live behind module boundaries.
+- Updated `data-maintenance-api-base-smoke.js` to test the exported API client
+  instead of regex-extracting code from HTML.
+- Added `data-maintenance-boundary-smoke.js` and included it in
+  `smoke_all.py --suite local`.
+- Validation passed:
+  `node v4/tests/data-maintenance-api-base-smoke.js`,
+  `node v4/tests/data-maintenance-boundary-smoke.js`,
+  `node v4/tests/tradovate-import-ui-modules-smoke.js`,
+  `node v4/tests/tradovate-performance-importer-smoke.js`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and
+  `git diff --check`.
 
 ### Step 353.4 - Continue `inspector-sidebar.js` split
 

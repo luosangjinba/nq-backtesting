@@ -110,6 +110,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify Data Maintenance resolves local/API proxy bases correctly.",
         ),
         SmokeCommand(
+            "data_maintenance_boundary_smoke",
+            ["node", "v4/tests/data-maintenance-boundary-smoke.js"],
+            "local",
+            "Verify Data Maintenance page scripts stay behind maintenance modules.",
+        ),
+        SmokeCommand(
             "bars_api_boundary_smoke",
             ["node", "v4/tests/bars-api-boundary-smoke.js"],
             "local",

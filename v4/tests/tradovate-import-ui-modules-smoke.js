@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import { formatTradovateImportPreview } from '../src/live-record/tradovate-import-preview.js';
 import { classifyTradovateCsvEntry } from '../src/live-record/tradovate-zip-import.js';
+import { filenameForResults } from '../src/maintenance/tradovate-import-panel.js';
 
 assert.equal(
   classifyTradovateCsvEntry({
@@ -62,5 +63,16 @@ const preview = formatTradovateImportPreview([{
 assert.match(preview, /ZIP package: tradovate\.zip/);
 assert.match(preview, /File alignment: ok/);
 assert.match(preview, /Live Records: 1/);
+
+const filename = filenameForResults([{
+  payload: {
+    instrument: 'NQ',
+    liveRecords: [{
+      anchor: { timestamp: 1717200000 },
+      result: { exitTimestamp: 1717286400 },
+    }],
+  },
+}], 'Performance Export.csv');
+assert.equal(filename, 'tradovate-live-records-nq-20240601-20240602-performance-export.json');
 
 console.log('tradovate import UI modules smoke passed');
