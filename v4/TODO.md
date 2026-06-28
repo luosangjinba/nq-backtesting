@@ -1340,3 +1340,19 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [x] Step 349: Local weekly Economic Calendar manual export。目标是在本机每周自动抓取下周 ForexFactory events，生成 recap 手工导入 CSV，避免 VPS headless 被 Cloudflare 拦截，也减少人工导出当周 CSV 的遗忘风险。新增 `v4/scripts/export_weekly_economic_manual_csv.py`，默认导出下周一到周日 `Title,Country,Date,Time,Impact,Forecast,Previous,URL` schema 到 `v4/data/economic_calendar/manual_import_exports/`，不修改 V4 主 CSV；可配合 cron 周六运行。验证见 `v4/tests/economic-weekly-manual-export-smoke.py`。
 
 - [x] Step 350: Engineering runbook and smoke entry。工程化第一步先不做大重构，补齐可执行运维入口：新增 `v4/docs/runbook.md` 汇总 VPS pull/restart、health、502/203 排障、Economic Calendar 手工导入/cron、backup/write/security 边界；新增 `v4/scripts/smoke_all.py`，默认 `--suite local` 跑离线 smoke，`--suite api` 才检查运行中的 web/API。记录见 `v4/sessions/session_20260625_step350_engineering_runbook_smoke.md`。
+
+- [ ] Step 351: V4 module boundary refactor。Step 351-353 旧路线已回退到 Step 350 基线后重新规划；新 Step 351 先彻底拆清 V4 运行时边界，再重新设计 FX Replay。计划见 `v4/sessions/session_20260628_step351_v4_module_boundary_refactor_plan.md`。
+  - [ ] Step 351.1: Runtime inventory and contracts。梳理允许 fetch bars、写 primary bars、改 chart series、改 visible logical range、发核心事件的模块，形成 `v4/docs/planning/v4_module_boundaries.md` 和核心 event contract；不改运行行为。
+  - [ ] Step 351.2: Bars API client boundary。新增 bars client/request 边界，禁止 UI 模块直接 import `api.js` 发 K 线请求。
+  - [ ] Step 351.3: Primary bars runtime。新增唯一 primary bars runtime，收口所有主图 `fetchBars + store.setBars` 写入路径。
+  - [ ] Step 351.4: Chart series runtime。把 `bars:loaded -> chart.setData` 与 bar projection 从 `app.js`/replay controls 移到 primary chart runtime。
+  - [ ] Step 351.5: Command bus and UI command boundary。Toolbar/Calendar/Viewport/Replay controls 只发命令或调用 command handlers，不直接编排 store/chart/API。
+  - [ ] Step 351.6: Mode runtime。建立 `history`、`legacy-replay` 等显式 chart modes，避免不同加载语义共享含糊状态。
+  - [ ] Step 351.7: Replay domain split。把现有 legacy replay 拆成 model/controller/view，不改变当前 replay 行为。
+  - [ ] Step 351.8: Toolbar split。拆出 toolbar view/events/state/settings/pane/date-range controls。
+  - [ ] Step 351.9: Calendar split。拆出 date range history/store/view/controller，并让加载路径走 runtime commands。
+  - [ ] Step 351.10: Inspector shell split。把 `inspector-sidebar.js` 收敛成 shell + panel registry + feature panels。
+  - [ ] Step 351.11: Feature domain cleanup。拆 PDA、Order、Live Record、Review Archive、Time Reaction 等超大 domain modules。
+  - [ ] Step 351.12: Persistence boundary。统一 local/server workspace persistence schema、scope、migration、conflict 行为。
+  - [ ] Step 351.13: Backend API modularization。把 `v4_api.py` 拆成 bars/workspace/maintenance/economic calendar handlers。
+  - [ ] Step 351.14: FX Replay design gate。运行时边界稳定后，再写新的 FX Replay session design，不在拆分阶段夹带实现。
