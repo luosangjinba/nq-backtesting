@@ -537,6 +537,11 @@ function updateHistoryButtons() {
   }
 }
 
+function getToolbarSelectedTimeframe(fallback = DEFAULT_TIMEFRAME) {
+  const selected = Number(document.getElementById('tfSelect')?.value);
+  return Number.isFinite(selected) && selected > 0 ? selected : fallback;
+}
+
 async function handleLoad() {
   const startEl = document.getElementById('startInput');
   const endEl = document.getElementById('endInput');
@@ -545,7 +550,7 @@ async function handleLoad() {
   const start = startEl.value;
   const end = endEl.value;
   const primaryPane = getPaneById(CHART_PANE_IDS.PRIMARY);
-  const tf = Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME;
+  const tf = getToolbarSelectedTimeframe(Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME);
   const instrument = getPrimaryInstrument();
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
 
@@ -599,6 +604,23 @@ function applyActivePaneTimeframe(nextTimeframe) {
     setComparisonTimeframe(timeframe);
     bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.COMPARISON)} ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}`, isError: false });
     syncActivePaneToolbarControls();
+    if (hasActiveReplaySession()) {
+      updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe });
+      bus.emit('status:update', { text: 'Reloading replay session timeframe...', isError: false });
+      reloadReplaySessionTimeframe({ timeframe })
+        .then(({ bars, request, cacheHit }) => {
+          bus.emit('status:update', {
+            text: `Replay session ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}: ${bars.length} prefix bars ending ${request.end}${cacheHit ? ' (cache)' : ''}`,
+            isError: false,
+          });
+        })
+        .catch((err) => {
+          bus.emit('status:update', {
+            text: `Replay timeframe reload failed: ${err.message}`,
+            isError: true,
+          });
+        });
+    }
     return;
   }
 

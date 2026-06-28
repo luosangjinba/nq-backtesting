@@ -50,7 +50,12 @@ let rangeHistoryMutationVersion = 0;
 let applyingServerRangeHistory = false;
 
 function getPrimaryPaneTimeframe() {
-  return Number(getPaneById(CHART_PANE_IDS.PRIMARY)?.timeframe) || store.getCurrentTimeframe();
+  const selected = Number(document.getElementById('tfSelect')?.value);
+  return (
+    (Number.isFinite(selected) && selected > 0 ? selected : null) ||
+    Number(getPaneById(CHART_PANE_IDS.PRIMARY)?.timeframe) ||
+    store.getCurrentTimeframe()
+  );
 }
 
 function dateTimePartsFromInput(value) {
