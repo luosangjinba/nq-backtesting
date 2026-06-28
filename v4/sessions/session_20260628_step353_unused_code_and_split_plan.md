@@ -366,7 +366,7 @@ Completion notes:
   part of the current local suite and the failure is outside the Step 353.6
   review archive import pipeline split.
 
-### Step 353.7 - CSS domain split planning and first safe extraction
+### Step 353.7 - CSS domain split planning and first safe extraction ✅
 
 Do not move all of `style.css` at once. Start with a low-risk extraction and a
 style import pattern that can be repeated.
@@ -394,6 +394,25 @@ Manual check:
 Commit message:
 
 - `Plan CSS domain split`
+
+Completion notes:
+
+- Added `docs/design/CSS_DOMAIN_SPLIT_PLAN.md` to define the extraction order,
+  shared-token rules, import order, validation matrix, and rollback strategy.
+- Added the first stylesheet import from `style.css` to
+  `styles/comparison-window.css`.
+- Extracted the `.comparison-*` window, placeholder, overlay status, and
+  comparison context menu styles. Shared chart legend, viewport control,
+  chart-pane, and responsive rules remain in `style.css` because they are not
+  comparison-domain-only.
+- Validation passed:
+  `python3 v4/scripts/smoke_all.py --suite local` and `git diff --check`.
+- Residual test note: `node v4/tests/comparison-window-browser-smoke.js` still
+  fails on the existing Pane 1 Segment hit-test assertion:
+  `comparisonSegmentHit` is false while the PDA isolation check passes. The CSS
+  step moved styles only and the failure is a chart context hit-test behavior
+  issue, so it is recorded for a focused comparison/segment follow-up instead
+  of being mixed into the stylesheet split.
 
 ### Step 353.8 - Closeout audit and boundary guards
 
