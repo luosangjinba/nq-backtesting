@@ -40,6 +40,7 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
                 "py_compile",
                 "v4/v4_api.py",
                 "v4/server/bars_handler.py",
+                "v4/server/bars_service.py",
                 "v4/server/workspace_handler.py",
                 "v4/server/workspace_store.py",
                 "v4/server/maintenance_handler.py",
@@ -113,6 +114,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             ["node", "v4/tests/bars-api-boundary-smoke.js"],
             "local",
             "Verify UI and feature modules use the bars API client boundary.",
+        ),
+        SmokeCommand(
+            "bars_service_boundary_smoke",
+            python("v4/tests/bars-service-boundary-smoke.py"),
+            "local",
+            "Verify bars validation/query implementation stays out of v4_api.",
         ),
         SmokeCommand(
             "primary_bars_runtime_boundary_smoke",

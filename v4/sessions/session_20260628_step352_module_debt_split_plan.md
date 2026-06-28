@@ -606,3 +606,12 @@ Commit message:
   economic event query and manual import behavior to service modules.
 - Added `economic-calendar-service-boundary-smoke.py` and included it in local
   smoke.
+
+### Step 352.12 Completed
+
+- Added `server/bars_service.py`.
+- Moved load range limits, estimated bar counts, bars request validation, and
+  `query_v4_bars()` including CME daily aggregation out of `v4_api.py`.
+- Kept `v4_api.py` compatibility wrappers for handler injection while
+  delegating bars behavior to `bars_service`.
+- Added `bars-service-boundary-smoke.py` and included it in local smoke.
