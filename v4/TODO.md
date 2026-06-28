@@ -1373,7 +1373,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.13: 收口边界测试。已新增 `module-boundary-closeout-smoke.py` 汇总检查 `v4_api.py` service 边界、Inspector routers、Replay adapter boundary、Toolbar controller boundary、Calendar panel data boundary，并纳入 local smoke。
 
 - [ ] Step 353: Post-352 unused-code cleanup and high-coupling split plan。基于 Step 352 后再次全量审计，先处理明确无引用代码，再继续拆最高风险协调器；仍不实现 FX Replay 行为。目标是让后续 FX Replay-style replay bars 实现不再被右键菜单、Data Maintenance、Inspector 或 archive/import 大模块牵连。完整计划见 `v4/sessions/session_20260628_step353_unused_code_and_split_plan.md`。
-  - [ ] Step 353.1: Resolve unused `daily-regime-range.js`。确认该模块是应接入 daily regime loader，还是删除未接入 ATR/range regime 计算；完成后补 smoke，避免保留“看起来可用但运行时无入口”的代码。
+  - [x] Step 353.1: Resolve unused `daily-regime-range.js`。已确认当前 Daily Regime range/trend 数据由 `data/daily-regime-*.csv` 提供，删除未接入的 ATR/range runtime 计算模块，并在 closeout smoke 中加入 guard，防止无入口模块回流。
   - [ ] Step 353.2: Split `manual-annotation.js` by workflow。把 chart note/range note、time overlays/killzones、segment/composite actions、context menu DOM routing 从 PDA/right-click shell 中拆出；`manual-annotation.js` 最终只保留右键入口组合、全局取消和 controller wiring。
   - [ ] Step 353.3: Modularize `data-maintenance.html` scripts。把 API client、environment actions、refresh range、economic calendar、roll calendar、Tradovate import 迁入 `src/maintenance/` 模块；HTML 只保留静态结构和入口脚本。
   - [ ] Step 353.4: Continue `inspector-sidebar.js` split。拆 detail render routing、page-state rendering、calendar sync/open-object coordination；sidebar 只负责 shell composition 和 controller wiring。

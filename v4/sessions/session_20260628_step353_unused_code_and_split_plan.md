@@ -52,7 +52,7 @@ Large modules still needing attention:
 
 ## Step Plan
 
-### Step 353.1 - Resolve unused `daily-regime-range.js`
+### Step 353.1 - Resolve unused `daily-regime-range.js` ✅
 
 Decision step: either connect the module to the daily-regime loader or remove it.
 
@@ -79,6 +79,15 @@ Manual check:
 Commit message:
 
 - `Resolve unused daily regime range module`
+
+Completion notes:
+
+- Decision: remove the unused module. Current Daily Regime trend/range values
+  are CSV-owned via `data/daily-regime-*.csv` and parsed by
+  `daily-regime-vix-loader.js`.
+- Deleted `src/daily-regime/daily-regime-range.js`.
+- Extended `module-boundary-closeout-smoke.py` with a guard so the deleted
+  module does not return as unconnected runtime code.
 
 ### Step 353.2 - Split `manual-annotation.js` by workflow
 

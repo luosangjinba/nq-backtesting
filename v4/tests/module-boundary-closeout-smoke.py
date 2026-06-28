@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Closeout guard for Step 352 module boundaries."""
+"""Closeout guard for V4 module boundaries and resolved dead-code decisions."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ inspector_source = read("src/ui/inspector-sidebar.js")
 replay_source = read("src/ui/replay-controls.js")
 toolbar_source = read("src/ui/toolbar.js")
 calendar_panel_source = read("src/ui/inspector/calendar-panel.js")
+daily_regime_range_path = V4_ROOT / "src/daily-regime/daily-regime-range.js"
 
 for expected in [
     "from server import bars_service",
@@ -85,5 +86,10 @@ for forbidden in [
     "function addChartNotesGroup",
 ]:
     assert forbidden not in calendar_panel_source, f"calendar-panel.js regained split data implementation: {forbidden}"
+
+assert not daily_regime_range_path.exists(), (
+    "daily-regime-range.js should not return as an unconnected runtime module; "
+    "daily range regime is currently loaded from data/daily-regime-*.csv"
+)
 
 print("module boundary closeout smoke passed")
