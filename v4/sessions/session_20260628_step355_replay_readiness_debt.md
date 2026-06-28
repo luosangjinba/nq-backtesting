@@ -49,11 +49,20 @@ Checks:
 
 ## Step 355.3 - Split Live Record mutation execution
 
-Planned:
+Completed:
 
-- Move remaining mutation/link/create execution helpers out of
-  `live-record-chart-actions.js`.
-- Keep the facade responsible for chart menu/action routing only.
+- Added `src/live-record/live-record-mutation-actions.js` for status, target,
+  link, patch, and create mutation execution.
+- Reduced `src/live-record/live-record-chart-actions.js` from 504 to 16 lines.
+- The facade now only composes hit-action routing and mutation-action routing
+  while re-exporting `LIVE_RECORD_CHART_ACTIONS`.
+
+Checks:
+
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 355.4 - Replay readiness audit
 

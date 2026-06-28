@@ -1395,5 +1395,5 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 - [ ] Step 355: FX Replay readiness debt。只处理会直接影响下一轮 FX Replay 实现风险的关键债务，计划见 `v4/sessions/session_20260628_step355_replay_readiness_debt.md`。
   - [x] Step 355.1: Split replay controls。已抽出 `replay-toolbar-renderer.js` 与 `replay-control-dispatcher.js`，`replay-controls.js` 从 545 行降到 496 行，并更新 replay controller boundary smoke 保护新边界。
   - [x] Step 355.2: Split Order Setup mutation execution。已抽出 `order-setup-mutation-actions.js`，`order-setup-chart-actions.js` 从 567 行降到 11 行，仅保留 hit-action 与 mutation-action 路由。
-  - [ ] Step 355.3: Split Live Record mutation execution。拆出 `live-record-chart-actions.js` 剩余 mutation/link/create 调度。
+  - [x] Step 355.3: Split Live Record mutation execution。已抽出 `live-record-mutation-actions.js`，`live-record-chart-actions.js` 从 504 行降到 16 行，仅保留 hit-action 与 mutation-action 路由并 re-export action constants。
   - [ ] Step 355.4: Replay integration readiness audit。确认 replay 前置关键边界和剩余暂缓项。
