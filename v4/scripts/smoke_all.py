@@ -41,6 +41,7 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
                 "v4/v4_api.py",
                 "v4/server/bars_handler.py",
                 "v4/server/workspace_handler.py",
+                "v4/server/workspace_store.py",
                 "v4/server/maintenance_handler.py",
                 "v4/server/economic_calendar_handler.py",
                 "v4/scripts/export_weekly_economic_manual_csv.py",
@@ -54,6 +55,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             python("v4/tests/workspace-api-smoke.py"),
             "local",
             "Exercise workspace API helpers without a running server.",
+        ),
+        SmokeCommand(
+            "workspace_store_boundary_smoke",
+            python("v4/tests/workspace-store-boundary-smoke.py"),
+            "local",
+            "Verify workspace persistence implementation stays out of v4_api.",
         ),
         SmokeCommand(
             "backend_handler_boundary_smoke",

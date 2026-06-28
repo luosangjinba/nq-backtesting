@@ -573,3 +573,14 @@ Commit message:
   visibility hydration, economic filters, and compatibility exports.
 - Added `inspector-calendar-panel-boundary-smoke.js` and included it in local
   smoke.
+
+### Step 352.9 Completed
+
+- Added `server/workspace_store.py`.
+- Moved workspace domain/instrument normalization, document path resolution,
+  response shaping, read/write implementation, and workspace lock ownership out
+  of `v4_api.py`.
+- Kept `v4_api.py` compatibility wrappers for `read_workspace_document()` and
+  `write_workspace_document()` so existing tests and handler wiring continue to
+  work while delegating implementation to `workspace_store`.
+- Added `workspace-store-boundary-smoke.py` and included it in local smoke.

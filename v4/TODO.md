@@ -1366,7 +1366,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.6: 拆 Inspector selection routing。已新增 `inspector-selection-router.js`，把 PDA/Segment/SMT/Order/Live/Replay/Bars 等 selected-object 与刷新事件订阅移出 `inspector-sidebar.js`；新增 boundary smoke 并纳入 local smoke。
   - [x] Step 352.7: 拆 Inspector action/change routing。已新增 `inspector-action-router.js`、`inspector-change-router.js` 与 `inspector-archive-actions.js`，把 click/change 分发、PDA/Review import/export、PDA server sync/clear saved 从 `inspector-sidebar.js` 移出；新增 boundary smoke 并纳入 local smoke。
   - [x] Step 352.8: 拆 Inspector Calendar Panel。已新增 `calendar/calendar-panel-data.js`、`calendar/calendar-panel-view.js`、`calendar/calendar-day-groups.js` 与 `calendar/calendar-daily-time-summary.js`，把 loaded range/month cells/day overview/object groups/Daily Time summary/外层 calendar view 从 `calendar-panel.js` 拆出；新增 boundary smoke 并纳入 local smoke。
-  - [ ] Step 352.9: 拆 backend workspace store。把 workspace domain normalize、path、read/write、response shape 从 `v4_api.py` 移到 `server/workspace_store.py`。
+  - [x] Step 352.9: 拆 backend workspace store。已新增 `server/workspace_store.py`，把 workspace domain/instrument normalize、path、response shape、read/write 和 workspace lock 从 `v4_api.py` 移出；`v4_api.py` 仅保留兼容 wrapper 和 handler wiring；新增 boundary smoke 并纳入 local smoke。
   - [ ] Step 352.10: 拆 backend maintenance services。把 maintenance command、local env、restart action 从 `v4_api.py` 移到 service modules。
   - [ ] Step 352.11: 拆 backend economic calendar services。把 economic events query、manual import preview/write 从 `v4_api.py` 移到 economic service modules。
   - [ ] Step 352.12: 拆 backend bars service。把 bars range validation、limits、`query_v4_bars` 从 `v4_api.py` 移到 `server/bars_service.py`。
