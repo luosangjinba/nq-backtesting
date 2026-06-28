@@ -4,10 +4,10 @@ import * as bus from '../event-bus.js';
 import * as viewport from '../chart/viewport-controller.js';
 import * as comparisonViewport from '../chart/comparison-viewport-controller.js';
 import * as store from '../data/bar-store.js';
-import { loadBars } from '../data/bars/bars-api-client.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveAdjacentWindow } from '../data/load-range-policy.js';
 import { CHART_PANE_IDS, getPaneLabel } from '../chart-panes/chart-pane-store.js';
+import { loadPrimaryBars } from '../runtime/primary-bars-runtime.js';
 
 let controlsEl = null;
 let comparisonControlsEl = null;
@@ -58,16 +58,14 @@ async function loadAdjacentWindow(direction) {
   bus.emit('status:update', { text: '加载中...', isError: false });
   try {
     const tf = Number(resolved.outerRange?.timeframe || store.getCurrentTimeframe());
-    const result = await loadBars({
+    await loadPrimaryBars({
       start: resolved.start,
       end: resolved.end,
       timeframe: tf,
       instrument: getPrimaryInstrument(),
-    });
-    setToolbarRange(resolved.start, resolved.end);
-    store.setBars(result.bars, resolved.start, resolved.end, tf, result.requestedRange, {
       outerRange: resolved.outerRange,
     });
+    setToolbarRange(resolved.start, resolved.end);
     bus.emit('status:update', { text: resolved.message, isError: false });
   } catch (err) {
     bus.emit('status:update', { text: `窗口加载失败: ${err.message}`, isError: true });

@@ -5,8 +5,8 @@ import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.
 import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
-import { loadBars } from '../data/bars/bars-api-client.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { loadPrimaryBars } from '../runtime/primary-bars-runtime.js';
 import {
   getComparisonWindowState,
   isComparisonWindowEnabled,
@@ -560,13 +560,11 @@ async function handleLoad() {
   bus.emit('status:update', { text: 'Loading...', isError: false });
 
   try {
-    const result = await loadBars({
+    const result = await loadPrimaryBars({
       start: loadRange.start,
       end: loadRange.end,
       timeframe: tf,
       instrument,
-    });
-    store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
       outerRange: loadRange.outerRange,
     });
     if (loadRange.windowed) {

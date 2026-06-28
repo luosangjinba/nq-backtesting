@@ -6,9 +6,9 @@ import { getSegmentById } from '../../segment/segment-store.js';
 import { getSegmentGroupById } from '../../segment/segment-group-store.js';
 import { locateSetupSet } from '../../order/setup-set.js';
 import * as store from '../../data/bar-store.js';
-import { loadBars } from '../../data/bars/bars-api-client.js';
 import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import { resolveChartLoadRange } from '../../data/load-range-policy.js';
+import { loadPrimaryBars } from '../../runtime/primary-bars-runtime.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import {
   getOrderReviewById,
@@ -389,16 +389,14 @@ async function ensurePrimaryTimeframe(timeframe) {
   }
   bus.emit('status:update', { text: 'Loading primary timeframe...', isError: false });
   try {
-    const result = await loadBars({
+    await loadPrimaryBars({
       start: loadRange.start,
       end: loadRange.end,
       timeframe: targetTimeframe,
       instrument: getPrimaryInstrument(),
-    });
-    syncPrimaryToolbarRange(loadRange.start, loadRange.end, targetTimeframe);
-    store.setBars(result.bars, loadRange.start, loadRange.end, targetTimeframe, result.requestedRange, {
       outerRange: loadRange.outerRange,
     });
+    syncPrimaryToolbarRange(loadRange.start, loadRange.end, targetTimeframe);
     return true;
   } catch (err) {
     bus.emit('status:update', { text: `Timeframe load failed: ${err.message}`, isError: true });

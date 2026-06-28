@@ -1,5 +1,5 @@
 import * as bus from '../../event-bus.js';
-import { loadBars } from '../../data/bars/bars-api-client.js';
+import { loadPrimaryBars } from '../../runtime/primary-bars-runtime.js';
 import { resolveWindowAroundTimestamp } from '../../data/load-range-policy.js';
 import { getReplayHistory } from '../replay-history-store.js';
 import { isTimestampInRange } from './replay-time-utils.js';
@@ -8,7 +8,6 @@ export async function loadReplayHistoryItem(id, {
   primaryInstrument,
   setToolbarPrimaryInstrument,
   setToolbarRange,
-  setBars,
   applyComparisonState,
   restoreReplayToTimestamp,
   closeHistoryPanel,
@@ -40,14 +39,14 @@ export async function loadReplayHistoryItem(id, {
   bus.emit('status:update', { text: '恢复 Replay History...', isError: false });
   try {
     const instrument = setToolbarPrimaryInstrument(item.primary.instrument);
-    const result = await loadBars({
+    await loadPrimaryBars({
       start: loadStart,
       end: loadEnd,
       timeframe,
       instrument,
+      outerRange,
     });
     setToolbarRange(loadStart, loadEnd, timeframe);
-    setBars(result.bars, loadStart, loadEnd, timeframe, result.requestedRange, { outerRange });
 
     applyComparisonState(item.comparison);
 

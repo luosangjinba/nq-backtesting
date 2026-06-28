@@ -235,8 +235,9 @@ These exceptions are allowed temporarily while the refactor proceeds:
 - `toolbar.js`, `calendar-navigator.js`, `viewport-controls.js`, replay history,
   time reaction, comparison, PDA, order, and segment modules now use
   `data/bars/bars-api-client.js` for K-line requests as of Step 351.2.
-- Primary chart writers may still call `store.setBars()` directly until
-  Step 351.3.
+- Primary chart writers must call `runtime/primary-bars-runtime.js`; direct
+  `store.setBars()` calls outside `bar-store.js` and the runtime are blocked by
+  `primary-bars-runtime-boundary-smoke.js` as of Step 351.3.
 - `app.js` may still update the chart on `bars:loaded` until Step 351.4.
 - `replay-controls.js` may still mutate chart data until Step 351.7.
 - Feature modules may still request context-only bars through `loadBars()` until

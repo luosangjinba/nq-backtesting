@@ -76,6 +76,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify UI and feature modules use the bars API client boundary.",
         ),
         SmokeCommand(
+            "primary_bars_runtime_boundary_smoke",
+            ["node", "v4/tests/primary-bars-runtime-boundary-smoke.js"],
+            "local",
+            "Verify primary bars writes go through the primary bars runtime.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

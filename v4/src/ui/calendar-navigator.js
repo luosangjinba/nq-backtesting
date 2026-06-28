@@ -1,8 +1,8 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
-import { loadBars } from '../data/bars/bars-api-client.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
+import { loadPrimaryBars } from '../runtime/primary-bars-runtime.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
@@ -579,17 +579,15 @@ async function loadRange(start, end, successText) {
     throw new Error(loadRange.message);
   }
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await loadBars({
+  const result = await loadPrimaryBars({
     start: loadRange.start,
     end: loadRange.end,
     timeframe: tf,
     instrument: getPrimaryInstrument(),
+    outerRange: loadRange.outerRange,
   });
   setToolbarRange(loadRange.start, loadRange.end, false);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
-  store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
-    outerRange: loadRange.outerRange,
-  });
   recordRangeHistory(start, end, tf);
   bus.emit('status:update', {
     text: loadRange.windowed ? loadRange.message : successText || `Loaded ${result.bars.length} bars`,
@@ -601,17 +599,15 @@ async function loadRange(start, end, successText) {
 async function loadResolvedWindow(loadRange, successText) {
   const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await loadBars({
+  const result = await loadPrimaryBars({
     start: loadRange.start,
     end: loadRange.end,
     timeframe: tf,
     instrument: getPrimaryInstrument(),
+    outerRange: loadRange.outerRange,
   });
   setToolbarRange(loadRange.start, loadRange.end, false);
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
-  store.setBars(result.bars, loadRange.start, loadRange.end, tf, result.requestedRange, {
-    outerRange: loadRange.outerRange,
-  });
   bus.emit('status:update', {
     text: successText || loadRange.message,
     isError: false,
