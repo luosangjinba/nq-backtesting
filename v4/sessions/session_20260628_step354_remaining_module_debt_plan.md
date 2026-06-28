@@ -243,6 +243,16 @@ Commit message:
 
 ### Step 354.5 - Split Inspector Time Reaction domain
 
+Status: Done in commit pending. Extracted Daily Time target parsing/labels/range
+helpers to `time-reaction-targets.js` and Chart Notes section rendering to
+`time-reaction-chart-notes-section.js`. The main action and panel modules still
+own broader Daily Time Review editing/rendering, but the new seams isolate two
+previously repeated or independent responsibilities. Verified with
+`node v4/tests/time-reaction-panel-smoke.js`,
+`node v4/tests/daily-time-review-store-smoke.js`,
+`node v4/tests/daily-time-review-archive-smoke.js`,
+`python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+
 `ui/inspector/time-reaction-actions.js` and `time-reaction-panel.js` are large
 feature modules with multiple Daily Time Review sections mixed together.
 
