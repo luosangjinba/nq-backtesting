@@ -292,6 +292,10 @@ These exceptions are allowed temporarily while the refactor proceeds:
 - Backend endpoint request handling lives under `v4/server/*_handler.py` as of
   Step 351.13. `v4_api.py` remains the HTTP router/process entry and keeps
   compatibility exports for existing offline smoke tests.
+- FX Replay implementation must follow the Step 351.14 design gate in
+  `v4/sessions/session_20260628_step351_14_fx_replay_design_gate.md`: it needs a
+  separate `fx-replay` mode/domain and must not reuse legacy replay's full-range
+  slicing semantics.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 
