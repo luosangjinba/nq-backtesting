@@ -520,8 +520,8 @@ html, body {
 
 .comparison-overlay-status {
   position: absolute;
-  right: 10px;
-  bottom: 8px;
+  top: 8px;
+  right: 64px;
   z-index: 6;
   max-width: min(72%, 420px);
   padding: 2px 6px;
