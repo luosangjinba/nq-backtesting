@@ -194,6 +194,8 @@ async function main() {
           let index = 0;
           const gapStart = parseDateTime('2026-08-01 00:00');
           const gapFloor = parseDateTime('2026-08-01 03:00');
+          const sparseFloor = parseDateTime('2026-09-01 09:55');
+          const sparseCeiling = parseDateTime('2026-09-01 09:59');
           if (endTs <= gapStart && endTs >= gapStart - step * 4) {
             return new Response(JSON.stringify({
               bars,
@@ -205,6 +207,7 @@ async function main() {
           }
           for (let ts = startTs - step * 2; ts <= endTs + step * 3; ts += step) {
             if (ts >= gapStart && ts < gapFloor) continue;
+            if (instrument === 'SPARSE' && ts >= sparseFloor && ts < sparseCeiling) continue;
             bars.push(makeBar(ts, index, instrument));
             index += 1;
           }
@@ -288,6 +291,18 @@ async function main() {
         const gapCalls = window.__replaySessionBarsCalls.slice(beforeGapCallCount);
         const afterGapOpen = summarize();
 
+        const beforeSparseCallCount = window.__replaySessionBarsCalls.length;
+        await loader.openReplaySessionFromRange({
+          instrument: 'SPARSE',
+          timeframe: 1,
+          sessionStart: '2026-09-01 10:00',
+          sessionEnd: '2026-09-01 10:30',
+          viewportBarCapacity: 1,
+          paddingBars: 0,
+        });
+        const sparsePrefix = await loader.loadPreviousReplaySessionPrefix({ chunkBars: 5 });
+        const sparseCalls = window.__replaySessionBarsCalls.slice(beforeSparseCallCount);
+
         return JSON.stringify({
           calls: window.__replaySessionBarsCalls,
           openedRequest: opened.request,
@@ -308,6 +323,8 @@ async function main() {
           gapRequest: gapOpened.request,
           gapCalls,
           afterGapOpen,
+          sparsePrefix,
+          sparseCalls,
         });
       })()
     `);
@@ -348,6 +365,8 @@ async function main() {
     assert.equal(value.afterGapOpen.session.cursor, Date.UTC(2026, 7, 1, 3, 0, 0) / 1000);
     assert.equal(value.afterGapOpen.max, value.afterGapOpen.session.cursor);
     assert.equal(value.gapRequest.end, '2026-08-01 03:00');
+    assert.ok(value.sparseCalls.length >= 3, 'sparse prefix should keep scanning after a partial first prefix hit');
+    assert.ok(value.sparsePrefix.prefixBars.length >= 5, 'sparse prefix should fill the requested chunk before stopping');
   } finally {
     client?.close();
     chrome.kill('SIGTERM');

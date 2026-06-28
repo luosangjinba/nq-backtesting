@@ -49,7 +49,6 @@ async function maybeLoadPreviousPrefix(range) {
   if (earliestTimestamp === null || earliestTimestamp === lastAttemptEarliestTimestamp) return;
 
   inFlight = true;
-  lastAttemptEarliestTimestamp = earliestTimestamp;
   try {
     const result = await loadPreviousReplaySessionPrefix(loadPlan);
     if (result?.ok) {
@@ -59,9 +58,11 @@ async function maybeLoadPreviousPrefix(range) {
         isError: false,
       });
     } else if (result?.message) {
+      lastAttemptEarliestTimestamp = earliestTimestamp;
       bus.emit('status:update', { text: result.message, isError: true });
     }
   } catch (error) {
+    lastAttemptEarliestTimestamp = earliestTimestamp;
     bus.emit('status:update', {
       text: `Replay prefix load failed: ${error.message}`,
       isError: true,

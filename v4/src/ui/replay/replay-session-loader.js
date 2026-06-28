@@ -256,7 +256,8 @@ export async function loadPreviousReplaySessionPrefix({
   if (!planned.ok) return { ok: false, message: planned.message };
 
   const { request } = planned;
-  const { cacheHit, visibleBars: prefixBars, request: loadedRequest } = await loadPrefixWindowWithBackfill(request, 1);
+  const targetBarCount = Math.max(1, Math.floor(Number(chunkBars) || 0));
+  const { cacheHit, visibleBars: prefixBars, request: loadedRequest } = await loadPrefixWindowWithBackfill(request, targetBarCount);
   if (!prefixBars.length) {
     return { ok: false, message: 'No older replay prefix bars found', request, cacheHit };
   }
