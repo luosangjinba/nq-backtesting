@@ -1374,7 +1374,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
 
 - [ ] Step 353: Post-352 unused-code cleanup and high-coupling split plan。基于 Step 352 后再次全量审计，先处理明确无引用代码，再继续拆最高风险协调器；仍不实现 FX Replay 行为。目标是让后续 FX Replay-style replay bars 实现不再被右键菜单、Data Maintenance、Inspector 或 archive/import 大模块牵连。完整计划见 `v4/sessions/session_20260628_step353_unused_code_and_split_plan.md`。
   - [x] Step 353.1: Resolve unused `daily-regime-range.js`。已确认当前 Daily Regime range/trend 数据由 `data/daily-regime-*.csv` 提供，删除未接入的 ATR/range runtime 计算模块，并在 closeout smoke 中加入 guard，防止无入口模块回流。
-  - [ ] Step 353.2: Split `manual-annotation.js` by workflow。把 chart note/range note、time overlays/killzones、segment/composite actions、context menu DOM routing 从 PDA/right-click shell 中拆出；`manual-annotation.js` 最终只保留右键入口组合、全局取消和 controller wiring。
+  - [x] Step 353.2: Split `manual-annotation.js` by workflow。已先拆出 Chart Note/Range Note 与 Time Overlay/Killzone controllers，`manual-annotation.js` 改为组合新 workflow；新增 `manual-annotation-boundary-smoke.js` 并纳入 local suite，顺手修复 Live Record chart action 创建分支未接收 source metadata 的 `context is not defined` bug。
   - [ ] Step 353.3: Modularize `data-maintenance.html` scripts。把 API client、environment actions、refresh range、economic calendar、roll calendar、Tradovate import 迁入 `src/maintenance/` 模块；HTML 只保留静态结构和入口脚本。
   - [ ] Step 353.4: Continue `inspector-sidebar.js` split。拆 detail render routing、page-state rendering、calendar sync/open-object coordination；sidebar 只负责 shell composition 和 controller wiring。
   - [ ] Step 353.5: Split Tradovate importer domain。把 `tradovate-performance-importer.js` 拆成 CSV parsers、file alignment/reconciliation、live-record archive builder、format helpers，保持 Data Maintenance UI 和 smoke 行为不变。

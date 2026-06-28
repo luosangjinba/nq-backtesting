@@ -176,6 +176,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify calendar history, state, and rendering stay split from the navigator.",
         ),
         SmokeCommand(
+            "manual_annotation_boundary_smoke",
+            ["node", "v4/tests/manual-annotation-boundary-smoke.js"],
+            "local",
+            "Verify chart-note and time-overlay workflows stay out of manual annotation shell.",
+        ),
+        SmokeCommand(
             "date_range_history_workspace_smoke",
             ["node", "v4/tests/date-range-history-workspace-smoke.js"],
             "local",

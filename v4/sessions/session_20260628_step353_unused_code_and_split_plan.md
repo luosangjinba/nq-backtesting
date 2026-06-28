@@ -89,7 +89,7 @@ Completion notes:
 - Extended `module-boundary-closeout-smoke.py` with a guard so the deleted
   module does not return as unconnected runtime code.
 
-### Step 353.2 - Split `manual-annotation.js` by workflow
+### Step 353.2 - Split `manual-annotation.js` by workflow ✅
 
 `manual-annotation.js` currently owns unrelated workflows: PDA context menu
 composition, chart notes, range notes, time overlays, killzones, segments,
@@ -127,6 +127,21 @@ Manual check:
 Commit message:
 
 - `Split manual annotation workflows`
+
+Completion notes:
+
+- Extracted Chart Note / Range Chart Note workflow to
+  `pda/manual-chart-note-actions.js`.
+- Extracted Time Line / Killzone workflow to
+  `pda/manual-time-overlay-actions.js`.
+- `manual-annotation.js` now composes those controllers for menu rendering,
+  action dispatch, Escape handling, and bars loaded/cleared reset.
+- Added `manual-annotation-boundary-smoke.js` and included it in
+  `smoke_all.py --suite local`.
+- During Step 353.2 validation, `live-record-chart-actions-smoke.js` exposed an
+  existing `context is not defined` bug in Live Record creation. Fixed
+  `handleLiveRecordChartAction()` to accept the source metadata already passed
+  by callers.
 
 ### Step 353.3 - Modularize `data-maintenance.html` scripts
 

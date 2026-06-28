@@ -595,6 +595,12 @@ export function handleLiveRecordChartAction(action, {
   chartNote = null,
   liveRecordId = '',
   liveRecordElement = '',
+  sourceChartId = 'primary',
+  sourceChartLabel = '',
+  sourceInstrument = '',
+  sourceTimeframe = null,
+  sourceTimeframeLabel = '',
+  sourceContext = '',
 } = {}) {
   if (LIVE_RECORD_STATUS_ACTIONS[action]) {
     const targetId = liveRecordId || getActiveLiveRecord()?.id || '';
@@ -783,12 +789,12 @@ export function handleLiveRecordChartAction(action, {
     instrument: getPrimaryInstrument(),
     direction: createDirection,
     summary: '',
-    sourceChartId: context.sourceChartId || 'primary',
-    sourceChartLabel: context.sourceChartLabel || '',
-    sourceInstrument: context.sourceInstrument || getPrimaryInstrument(),
-    sourceTimeframe: context.sourceTimeframe ?? null,
-    sourceTimeframeLabel: context.sourceTimeframeLabel || timeframe,
-    sourceContext: context.sourceContext || '',
+    sourceChartId,
+    sourceChartLabel,
+    sourceInstrument: sourceInstrument || getPrimaryInstrument(),
+    sourceTimeframe,
+    sourceTimeframeLabel: sourceTimeframeLabel || timeframe,
+    sourceContext,
   }));
   if (created?.id) clearActiveReviewSet();
   bus.emit('status:update', {

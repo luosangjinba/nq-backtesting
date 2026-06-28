@@ -60,28 +60,8 @@ import {
 import { hitTestLiveRecordElements } from '../live-record/live-record-hit-test.js';
 import { hitTestOrderSetupElements } from '../order/order-setup-hit-test.js';
 import { recordHistory } from '../history/history-manager.js';
-import {
-  addKillzone,
-  addEventTime,
-  clearEventTimes,
-  clearKillzones,
-  clearKillzoneDraft,
-  deleteEventTime,
-  deleteKillzone,
-  getTimeOverlaySettings,
-  normalizeEventTimeValue,
-  setKillzoneDraft,
-  updateKillzone,
-  updateTimeOverlaySettings,
-} from '../time-overlays/time-overlay-store.js';
-import {
-  deleteChartNote,
-  getChartNoteForBar,
-  getChartNoteRangesForBar,
-  updateChartNote,
-  upsertChartNote,
-} from '../chart-notes/chart-note-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import { createManualChartNoteController } from './manual-chart-note-actions.js';
 import {
   clampMenuPosition,
   getPdaLabel,
@@ -92,6 +72,7 @@ import {
   renderSegmentPdaLinkItems,
   repositionContextMenu,
 } from './manual-context-menu.js';
+import { createManualTimeOverlayController } from './manual-time-overlay-actions.js';
 import { CHART_PANE_IDS, getPaneById, getPaneLabel, setPaneSyncEnabled } from '../chart-panes/chart-pane-store.js';
 
 let controlsEl = null;
@@ -104,8 +85,17 @@ let contextMenuOrderSetupHit = null;
 let contextMenuLiveRecordHit = null;
 let contextMenuShiftKey = false;
 let contextMenuPoint = null;
-let chartNoteEditorEl = null;
-let chartNoteRangeDraft = null;
+
+const chartNoteActions = createManualChartNoteController({
+  getContextBar: () => contextMenuBar,
+  getContextPoint: () => contextMenuPoint,
+  hideContextMenu,
+});
+
+const timeOverlayActions = createManualTimeOverlayController({
+  getContextBar: () => contextMenuBar,
+  hideContextMenu,
+});
 
 function getPrimaryContext() {
   return getPrimaryChartContext();
@@ -157,14 +147,6 @@ function getBarChartTime(bar) {
   return getContextBarChartTime(getPrimaryContext(), bar);
 }
 
-function getBarEventTime(bar) {
-  if (!bar || !Number.isFinite(Number(bar.timestamp))) return '';
-  const date = new Date(Number(bar.timestamp) * 1000);
-  const hour = String(date.getUTCHours()).padStart(2, '0');
-  const minute = String(date.getUTCMinutes()).padStart(2, '0');
-  return `${hour}:${minute}`;
-}
-
 function getBarEventDate(bar) {
   if (!bar || !Number.isFinite(Number(bar.timestamp))) return '';
   const date = new Date(Number(bar.timestamp) * 1000);
@@ -174,116 +156,8 @@ function getBarEventDate(bar) {
   return `${year}-${month}-${day}`;
 }
 
-function getEventTimeLabel(time) {
-  return normalizeEventTimeValue(time, '').replace(':', '').replace(/^0/, '');
-}
-
-function getContextEventTime() {
-  return normalizeEventTimeValue(getBarEventTime(contextMenuBar), '');
-}
-
-function getContextEventDate() {
-  return getBarEventDate(contextMenuBar);
-}
-
-function getEventTimeAtContextBar() {
-  const time = getContextEventTime();
-  const date = getContextEventDate();
-  if (!time || !date) return null;
-  return (
-    getTimeOverlaySettings().eventTimes.find(
-      (eventTime) => eventTime.date === date && eventTime.time === time
-    ) || null
-  );
-}
-
-function getKillzoneAtContextBar() {
-  const time = getContextEventTime();
-  const date = getContextEventDate();
-  if (!time || !date) return null;
-  return (
-    (getTimeOverlaySettings().killzones || []).find((killzone) => {
-      if (killzone.date !== date || killzone.enabled === false) return false;
-      const start = killzone.startTime <= killzone.endTime ? killzone.startTime : killzone.endTime;
-      const end = killzone.startTime <= killzone.endTime ? killzone.endTime : killzone.startTime;
-      return time >= start && time <= end;
-    }) || null
-  );
-}
-
-function promptKillzoneLabel(defaultLabel = 'Killzone') {
-  const value = window.prompt('Killzone name', defaultLabel);
-  if (value === null) return null;
-  return value.trim() || defaultLabel;
-}
-
 function findDisplayBar(time) {
   return findDisplayBarInContext(getPrimaryContext(), time);
-}
-
-function closeChartNoteEditor() {
-  chartNoteEditorEl?.remove();
-  chartNoteEditorEl = null;
-}
-
-function showChartNoteEditor({ title, defaultText = '', x = 20, y = 20, onSave }) {
-  const chartEl = document.getElementById('chart');
-  if (!chartEl) return;
-
-  closeChartNoteEditor();
-
-  const editor = document.createElement('div');
-  editor.className = 'chart-note-editor';
-  editor.innerHTML = `
-    <div class="chart-note-editor-title"></div>
-    <textarea class="chart-note-editor-text" rows="4" spellcheck="false"></textarea>
-    <div class="chart-note-editor-actions">
-      <button class="chart-note-editor-btn chart-note-editor-save" type="button">Save</button>
-      <button class="chart-note-editor-btn" type="button" data-action="cancel">Cancel</button>
-    </div>
-  `;
-
-  const titleEl = editor.querySelector('.chart-note-editor-title');
-  const textarea = editor.querySelector('.chart-note-editor-text');
-  const saveBtn = editor.querySelector('.chart-note-editor-save');
-  const cancelBtn = editor.querySelector('[data-action="cancel"]');
-  titleEl.textContent = title || 'Chart Note';
-  textarea.value = defaultText || '';
-
-  chartEl.appendChild(editor);
-  const width = 260;
-  const height = 154;
-  const rect = chartEl.getBoundingClientRect();
-  editor.style.left = `${Math.min(Math.max(6, x), Math.max(6, rect.width - width - 6))}px`;
-  editor.style.top = `${Math.min(Math.max(6, y), Math.max(6, rect.height - height - 6))}px`;
-
-  const save = () => {
-    const text = textarea.value.trim();
-    if (!text) {
-      bus.emit('status:update', { text: 'Chart Note 内容不能为空', isError: true });
-      textarea.focus();
-      return;
-    }
-    onSave?.(text);
-    closeChartNoteEditor();
-  };
-
-  saveBtn.addEventListener('click', save);
-  cancelBtn.addEventListener('click', closeChartNoteEditor);
-  editor.addEventListener('keydown', (event) => {
-    event.stopPropagation();
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      closeChartNoteEditor();
-    } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'enter') {
-      event.preventDefault();
-      save();
-    }
-  });
-
-  textarea.focus();
-  textarea.select();
-  chartNoteEditorEl = editor;
 }
 
 function locateComparisonAtBar(bar) {
@@ -306,91 +180,11 @@ function locateComparisonAtBar(bar) {
   });
 }
 
-function renderTimeOverlayMenuItems(bar) {
-  const time = normalizeEventTimeValue(getBarEventTime(bar), '');
-  const date = getBarEventDate(bar);
-  const settings = getTimeOverlaySettings();
-  const existingEventTime = time
-    ? settings.eventTimes.find(
-        (eventTime) => eventTime.date === date && eventTime.time === time
-      )
-    : null;
-  const disabled = time && date ? '' : 'disabled';
-  const removeDisabled = existingEventTime ? '' : 'disabled';
-  const clearDisabled = settings.eventTimes.length ? '' : 'disabled';
-  const label = time ? getEventTimeLabel(time) : '';
-  const hitKillzone = getKillzoneAtContextBar();
-  const killzoneDraft = settings.killzoneDraft;
-  const endDisabled = killzoneDraft && date === killzoneDraft.date && time ? '' : 'disabled';
-  const editKillzoneDisabled = hitKillzone ? '' : 'disabled';
-  const draftLabel = killzoneDraft ? ` · ${killzoneDraft.date} ${getEventTimeLabel(killzoneDraft.startTime)}` : '';
-  return `
-    <div class="pda-menu-section pda-menu-submenu">
-      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Time Overlays</div>
-      <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-pda-action="time-overlay-add-event" ${disabled}>Add ${label || 'Time'} Line Here</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-delete-event" ${removeDisabled}>Delete ${label || 'Time'} Line</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-clear-events" ${clearDisabled}>Clear Time Lines</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-start" ${disabled}>Start Killzone Here</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-end" ${endDisabled}>End Killzone Here${draftLabel}</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-rename" ${editKillzoneDisabled}>Rename Killzone Here</button>
-      <button class="pda-menu-item" data-pda-action="time-overlay-killzone-delete" ${editKillzoneDisabled}>Delete Killzone Here</button>
-      </div>
-    </div>
-  `;
-}
-
-function getChartNoteAtContextBar() {
-  if (!contextMenuBar) return null;
-  return getChartNoteForBar({
-    instrument: getPrimaryInstrument(),
-    timeframe: store.getCurrentTimeframe(),
-    timestamp: contextMenuBar.timestamp,
-  });
-}
-
-function getChartNoteRangeAtContextBar() {
-  if (!contextMenuBar) return null;
-  return getChartNoteRangesForBar({
-    instrument: getPrimaryInstrument(),
-    timeframe: store.getCurrentTimeframe(),
-    timestamp: contextMenuBar.timestamp,
-  })[0] || null;
-}
-
-function renderChartNoteMenuItems(bar) {
-  const disabled = bar ? '' : 'disabled';
-  const existingNote = bar ? getChartNoteAtContextBar() : null;
-  const existingRangeNote = bar ? getChartNoteRangeAtContextBar() : null;
-  const rangeDraftLabel = chartNoteRangeDraft
-    ? ` · ${chartNoteRangeDraft.label || chartNoteRangeDraft.timestamp}`
-    : '';
-  const finishRangeDisabled = bar && chartNoteRangeDraft ? '' : 'disabled';
-  return `
-    <div class="pda-menu-section pda-menu-submenu">
-      <div class="pda-menu-item pda-menu-submenu-trigger" tabindex="0">Chart Note</div>
-      <div class="pda-submenu-panel">
-      <button class="pda-menu-item" data-pda-action="chart-note-add" ${existingNote ? 'disabled' : disabled}>Add Note Here</button>
-      <button class="pda-menu-item" data-pda-action="chart-note-edit" ${existingNote ? '' : 'disabled'}>Edit Note</button>
-      <button class="pda-menu-item" data-pda-action="chart-note-delete" ${existingNote ? '' : 'disabled'}>Delete Note</button>
-      <div class="pda-menu-divider"></div>
-      <button class="pda-menu-item" data-pda-action="chart-note-range-start" ${disabled}>Start Range Note Here</button>
-      <button class="pda-menu-item" data-pda-action="chart-note-range-finish" ${finishRangeDisabled}>Finish Range Note Here${rangeDraftLabel}</button>
-      <button class="pda-menu-item" data-pda-action="chart-note-range-edit" ${existingRangeNote ? '' : 'disabled'}>Edit Range Note</button>
-      <button class="pda-menu-item" data-pda-action="chart-note-range-delete" ${existingRangeNote ? '' : 'disabled'}>Delete Range Note</button>
-      </div>
-    </div>
-  `;
-}
-
 function renderClearMenuItems() {
-  const settings = getTimeOverlaySettings();
-  const clearKillzonesDisabled = settings.killzones?.length ? '' : 'disabled';
   return `
     <button class="pda-menu-item" data-pda-action="clear">Clear PDA</button>
     <button class="pda-menu-item" data-pda-action="segment-clear">Clear Segments</button>
-    <button class="pda-menu-item" data-pda-action="time-overlay-killzone-clear" ${clearKillzonesDisabled}>Clear Killzones</button>
+    ${timeOverlayActions.renderClearMenuItems()}
   `;
 }
 
@@ -470,7 +264,7 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
       pdaHit,
       segmentHit,
       segmentGroupHit,
-      chartNote: getChartNoteAtContextBar() || getChartNoteRangeAtContextBar(),
+      chartNote: chartNoteActions.getChartNoteAtContextBar() || chartNoteActions.getChartNoteRangeAtContextBar(),
       liveRecordHit: contextMenuLiveRecordHit,
       isShift: contextMenuShiftKey,
     }),
@@ -478,8 +272,8 @@ function showContextMenu(x, y, bar, pdaHit = null, segmentHit = null, segmentGro
     segmentGroupItems,
     segmentItems,
     pointSetItems,
-    chartNoteItems: renderChartNoteMenuItems(bar),
-    timeOverlayItems: renderTimeOverlayMenuItems(bar),
+    chartNoteItems: chartNoteActions.renderMenuItems(bar),
+    timeOverlayItems: timeOverlayActions.renderMenuItems(bar),
     clearItems: renderClearMenuItems(),
   });
   const menuEl = controlsEl.querySelector('.pda-menu');
@@ -565,7 +359,7 @@ async function handleControlClick(e) {
     pdaHit: contextMenuPdaHit,
     segmentHit: contextMenuSegmentHit,
     segmentGroupHit: contextMenuSegmentGroupHit,
-    chartNote: getChartNoteAtContextBar() || getChartNoteRangeAtContextBar(),
+    chartNote: chartNoteActions.getChartNoteAtContextBar() || chartNoteActions.getChartNoteRangeAtContextBar(),
     liveRecordId: e.target.closest('[data-live-record-id]')?.dataset.liveRecordId || '',
     liveRecordElement: e.target.closest('[data-live-record-element]')?.dataset.liveRecordElement || '',
   })) {
@@ -608,261 +402,10 @@ async function handleControlClick(e) {
   } else if (action === 'smt-fvg-bearish' || action === 'smt-fvg-bullish') {
     startFvgSmt(action === 'smt-fvg-bullish' ? 'bullish' : 'bearish');
     hideContextMenu();
-  } else if (action === 'chart-note-add') {
-    if (!contextMenuBar) {
-      bus.emit('status:update', { text: '无法添加 Chart Note：没有可用 K 线', isError: true });
-    } else {
-      const bar = contextMenuBar;
-      const timeframe = store.getCurrentTimeframe();
-      const instrument = getPrimaryInstrument();
-      const point = contextMenuPoint || { x: 20, y: 20 };
-      hideContextMenu();
-      showChartNoteEditor({
-        title: `Add Note · ${bar.tradingDay || bar.time || ''}`,
-        x: point.x,
-        y: point.y,
-        onSave: (text) => {
-          recordHistory('Add Chart Note', () =>
-            upsertChartNote({
-              instrument,
-              timeframe,
-              timestamp: bar.timestamp,
-              text,
-            })
-          );
-          bus.emit('status:update', { text: 'Chart Note 已添加', isError: false });
-        },
-      });
-      return;
-    }
-    hideContextMenu();
-  } else if (action === 'chart-note-edit') {
-    const note = getChartNoteAtContextBar();
-    if (!note) {
-      bus.emit('status:update', { text: '当前 K 线没有可编辑的 Chart Note', isError: true });
-    } else {
-      const bar = contextMenuBar;
-      const point = contextMenuPoint || { x: 20, y: 20 };
-      hideContextMenu();
-      showChartNoteEditor({
-        title: `Edit Note · ${bar?.tradingDay || bar?.time || ''}`,
-        defaultText: note.text,
-        x: point.x,
-        y: point.y,
-        onSave: (text) => {
-          recordHistory('Edit Chart Note', () => updateChartNote(note.id, { text }));
-          bus.emit('status:update', { text: 'Chart Note 已更新', isError: false });
-        },
-      });
-      return;
-    }
-    hideContextMenu();
-  } else if (action === 'chart-note-delete') {
-    const note = getChartNoteAtContextBar();
-    if (!note) {
-      bus.emit('status:update', { text: '当前 K 线没有可删除的 Chart Note', isError: true });
-    } else {
-      recordHistory('Delete Chart Note', () => deleteChartNote(note.id));
-      bus.emit('status:update', { text: 'Chart Note 已删除', isError: false });
-    }
-    hideContextMenu();
-  } else if (action === 'chart-note-range-start') {
-    if (!contextMenuBar) {
-      bus.emit('status:update', { text: 'Cannot start range note: no chart bar selected', isError: true });
-    } else {
-      chartNoteRangeDraft = {
-        timestamp: Number(contextMenuBar.timestamp),
-        timeframe: store.getCurrentTimeframe(),
-        instrument: getPrimaryInstrument(),
-        label: contextMenuBar.tradingDay || contextMenuBar.time || '',
-      };
-      bus.emit('status:update', { text: 'Range note start selected', isError: false });
-    }
-    hideContextMenu();
-  } else if (action === 'chart-note-range-finish') {
-    if (!contextMenuBar || !chartNoteRangeDraft) {
-      bus.emit('status:update', { text: 'Cannot finish range note: missing start or end bar', isError: true });
-      hideContextMenu();
-    } else {
-      const startTimestamp = Number(chartNoteRangeDraft.timestamp);
-      const endTimestamp = Number(contextMenuBar.timestamp);
-      const timeframe = Number(chartNoteRangeDraft.timeframe);
-      const instrument = getPrimaryInstrument();
-      if (chartNoteRangeDraft.instrument && chartNoteRangeDraft.instrument !== instrument) {
-        bus.emit('status:update', { text: `Range note must finish on the same ${getPaneLabel(CHART_PANE_IDS.PRIMARY)} instrument`, isError: true });
-        hideContextMenu();
-        return;
-      }
-      if (Number(store.getCurrentTimeframe()) !== timeframe) {
-        bus.emit('status:update', { text: 'Range note must finish on the same timeframe', isError: true });
-        hideContextMenu();
-        return;
-      }
-      if (!Number.isFinite(startTimestamp) || !Number.isFinite(endTimestamp) || startTimestamp === endTimestamp) {
-        bus.emit('status:update', { text: 'Range note needs two different bars', isError: true });
-        hideContextMenu();
-        return;
-      }
-      const point = contextMenuPoint || { x: 20, y: 20 };
-      const rangeStart = Math.min(startTimestamp, endTimestamp);
-      const rangeEnd = Math.max(startTimestamp, endTimestamp);
-      chartNoteRangeDraft = null;
-      hideContextMenu();
-      showChartNoteEditor({
-        title: 'Add Range Note',
-        x: point.x,
-        y: point.y,
-        onSave: (text) => {
-          recordHistory('Add Range Chart Note', () =>
-            upsertChartNote({
-              kind: 'range',
-              instrument,
-              timeframe,
-              timestamp: rangeStart,
-              startTimestamp: rangeStart,
-              endTimestamp: rangeEnd,
-              text,
-            })
-          );
-          bus.emit('status:update', { text: 'Range Chart Note added', isError: false });
-        },
-      });
-      return;
-    }
-  } else if (action === 'chart-note-range-edit') {
-    const note = getChartNoteRangeAtContextBar();
-    if (!note) {
-      bus.emit('status:update', { text: 'No editable range Chart Note at this bar', isError: true });
-    } else {
-      const point = contextMenuPoint || { x: 20, y: 20 };
-      hideContextMenu();
-      showChartNoteEditor({
-        title: 'Edit Range Note',
-        defaultText: note.text,
-        x: point.x,
-        y: point.y,
-        onSave: (text) => {
-          recordHistory('Edit Range Chart Note', () => updateChartNote(note.id, { text }));
-          bus.emit('status:update', { text: 'Range Chart Note updated', isError: false });
-        },
-      });
-      return;
-    }
-    hideContextMenu();
-  } else if (action === 'chart-note-range-delete') {
-    const note = getChartNoteRangeAtContextBar();
-    if (!note) {
-      bus.emit('status:update', { text: 'No deletable range Chart Note at this bar', isError: true });
-    } else {
-      recordHistory('Delete Range Chart Note', () => deleteChartNote(note.id));
-      bus.emit('status:update', { text: 'Range Chart Note deleted', isError: false });
-    }
-    hideContextMenu();
-  } else if (action === 'time-overlay-add-event') {
-    const time = getContextEventTime();
-    const date = getContextEventDate();
-    if (!time || !date) {
-      bus.emit('status:update', { text: '无法添加时间线：没有可用 K 线时间', isError: true });
-    } else if (getEventTimeAtContextBar()) {
-      updateTimeOverlaySettings({ selectedDate: '' });
-      bus.emit('status:update', { text: `${date} ${getEventTimeLabel(time)} 时间线已存在`, isError: false });
-    } else {
-      recordHistory('Add Time Line', () => {
-        updateTimeOverlaySettings({ selectedDate: '' });
-        return addEventTime({ date, time, label: getEventTimeLabel(time) });
-      });
-      bus.emit('status:update', { text: `已添加 ${date} ${getEventTimeLabel(time)} 时间线`, isError: false });
-    }
-    hideContextMenu();
-  } else if (action === 'time-overlay-delete-event') {
-    const eventTime = getEventTimeAtContextBar();
-    if (!eventTime) {
-      bus.emit('status:update', { text: '当前时间没有可删除的时间线', isError: true });
-    } else {
-      recordHistory('Delete Time Line', () => deleteEventTime(eventTime.id));
-      bus.emit('status:update', {
-        text: `已删除 ${eventTime.date} ${eventTime.label || getEventTimeLabel(eventTime.time)} 时间线`,
-        isError: false,
-      });
-    }
-    hideContextMenu();
-  } else if (action === 'time-overlay-clear-events') {
-    const cleared = await recordHistory('Clear Time Lines', () => clearEventTimes());
-    bus.emit('status:update', {
-      text: cleared ? '已清除所有时间线' : '没有可清除的时间线',
-      isError: false,
-    });
-    hideContextMenu();
-  } else if (action === 'time-overlay-killzone-start') {
-    const time = getContextEventTime();
-    const date = getContextEventDate();
-    if (!time || !date) {
-      bus.emit('status:update', { text: '无法设置 Killzone：没有可用 K 线时间', isError: true });
-    } else {
-      recordHistory('Start Killzone', () => setKillzoneDraft({ date, startTime: time }));
-      bus.emit('status:update', {
-        text: `Killzone 起点: ${date} ${getEventTimeLabel(time)}`,
-        isError: false,
-      });
-    }
-    hideContextMenu();
-  } else if (action === 'time-overlay-killzone-end') {
-    const time = getContextEventTime();
-    const date = getContextEventDate();
-    const killzoneDraft = getTimeOverlaySettings().killzoneDraft;
-    if (!time || !date || !killzoneDraft || killzoneDraft.date !== date) {
-      bus.emit('status:update', { text: '无法完成 Killzone：请先在同一天设置起点', isError: true });
-    } else if (time === killzoneDraft.startTime) {
-      bus.emit('status:update', { text: 'Killzone 起点和终点不能相同', isError: true });
-    } else {
-      const label = promptKillzoneLabel('Killzone');
-      if (label !== null) {
-        const killzone = await recordHistory('Create Killzone', () => {
-          const nextKillzone = addKillzone({
-            date,
-            label,
-            startTime: killzoneDraft.startTime,
-            endTime: time,
-          });
-          clearKillzoneDraft();
-          return nextKillzone;
-        });
-        bus.emit('status:update', {
-          text: killzone
-            ? `已创建 Killzone: ${killzone.label} ${date} ${getEventTimeLabel(killzone.startTime)}-${getEventTimeLabel(killzone.endTime)}`
-            : 'Killzone 创建失败',
-          isError: !killzone,
-        });
-      }
-    }
-    hideContextMenu();
-  } else if (action === 'time-overlay-killzone-rename') {
-    const killzone = getKillzoneAtContextBar();
-    if (!killzone) {
-      bus.emit('status:update', { text: '当前位置没有 Killzone', isError: true });
-    } else {
-      const label = promptKillzoneLabel(killzone.label || 'Killzone');
-      if (label !== null) {
-        recordHistory('Rename Killzone', () => updateKillzone(killzone.id, { label }));
-        bus.emit('status:update', { text: `Killzone 已重命名为 ${label}`, isError: false });
-      }
-    }
-    hideContextMenu();
-  } else if (action === 'time-overlay-killzone-delete') {
-    const killzone = getKillzoneAtContextBar();
-    const deleted = killzone ? await recordHistory('Delete Killzone', () => deleteKillzone(killzone.id)) : false;
-    bus.emit('status:update', {
-      text: deleted ? `已删除 Killzone: ${killzone.label}` : '当前位置没有可删除的 Killzone',
-      isError: !deleted,
-    });
-    hideContextMenu();
-  } else if (action === 'time-overlay-killzone-clear') {
-    const cleared = await recordHistory('Clear Killzones', () => clearKillzones());
-    bus.emit('status:update', {
-      text: cleared ? 'Killzones 已清除' : '没有可清除的 Killzone',
-      isError: false,
-    });
-    hideContextMenu();
+  } else if (chartNoteActions.handleAction(action)) {
+    // handled by chart note workflow
+  } else if (await timeOverlayActions.handleAction(action)) {
+    // handled by time overlay workflow
   } else if (action === 'eqh-start' || action === 'eql-start') {
     recordHistory(`Start ${action === 'eqh-start' ? 'EQH' : 'EQL'} Set`, () =>
       startPointSet(action === 'eqh-start' ? 'eqh' : 'eql', contextMenuBar, getBarChartTime)
@@ -985,17 +528,16 @@ function handleGlobalClick(e) {
 
 function handleKeydown(e) {
   if (e.key === 'Escape') {
-    if (chartNoteEditorEl) {
-      closeChartNoteEditor();
+    if (chartNoteActions.closeEditor()) {
+      // handled by chart note workflow
     } else if (cancelManualPdaWorkflow()) {
       // handled by PDA workflow
     } else if (getPointSetSelectionSummary()) {
       clearPointSetSelection();
     } else if (getSegmentSelectionSummary()) {
       cancelSegmentSelection();
-    } else if (getTimeOverlaySettings().killzoneDraft) {
-      clearKillzoneDraft();
-      bus.emit('status:update', { text: 'Killzone 选择已取消', isError: false });
+    } else if (timeOverlayActions.cancelDraftIfActive()) {
+      // handled by time overlay workflow
     }
     hideContextMenu();
   }
@@ -1011,17 +553,17 @@ export function initManualAnnotation() {
   window.addEventListener('keydown', handleKeydown);
   bus.on('bars:loaded', () => {
     clearManualPdaWorkflowState();
-    clearKillzoneDraft();
+    timeOverlayActions.clearDraft();
     clearPointSetSelection({ silent: true });
     hideContextMenu();
-    closeChartNoteEditor();
+    chartNoteActions.reset();
   });
   bus.on('bars:cleared', () => {
     clearManualPdaWorkflowState();
-    clearKillzoneDraft();
+    timeOverlayActions.clearDraft();
     clearPointSetSelection({ silent: true });
     clearPdaContextDataCache();
     hideContextMenu();
-    closeChartNoteEditor();
+    chartNoteActions.reset();
   });
 }
