@@ -201,6 +201,15 @@ Commit message:
 
 ### Step 354.4 - Split Live Record chart actions
 
+Status: Done in commit pending, with mutation dispatch intentionally still in
+the facade. Extracted `live-record-chart-menu.js` for menu rendering and
+`live-record-hit-actions.js` for hit element selection/hide/delete/activate
+actions. `live-record-chart-actions.js` remains the public API and owns
+execution mutation, linking, lifecycle, and create dispatch. Verified with
+`node v4/tests/live-record-chart-actions-smoke.js`,
+`node v4/tests/live-record-smoke.js`, `python3 v4/scripts/smoke_all.py --suite
+local`, and `git diff --check`.
+
 `live-record-chart-actions.js` mixes menu rendering, active record mutation,
 execution element mutation, lifecycle/status actions, hit actions, and linked
 refs.
