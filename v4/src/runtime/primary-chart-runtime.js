@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
+import { debugLog } from '../logger.js';
 
 let initialized = false;
 
@@ -74,7 +75,7 @@ export function initPrimaryChartRuntime({
       showStart: !replaySnapshot?.enabled,
     });
     syncReplayData(replaySnapshot);
-    console.log(
+    debugLog(
       `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
     );
     return chartData;

@@ -56,51 +56,52 @@ import { initEconomicEventNotePersistence } from './economic-calendar/economic-e
 import { initHistoryManager } from './history/history-manager.js';
 import { initEconomicCalendarLoader } from './economic-calendar/economic-calendar-loader.js';
 import { initDailyRegimeVixLoader } from './daily-regime/daily-regime-vix-loader.js';
+import { debugLog } from './logger.js';
 
-console.log('[V4] app.js loaded');
+debugLog('[V4] app.js loaded');
 
 initDisplayPreferences();
-console.log('[V4] Display preferences initialized');
+debugLog('[V4] Display preferences initialized');
 
 initPrimaryInstrumentStore();
-console.log('[V4] Primary instrument initialized');
+debugLog('[V4] Primary instrument initialized');
 
 initEntryContextCatalogStore();
-console.log('[V4] Entry context catalog initialized');
+debugLog('[V4] Entry context catalog initialized');
 
 initImportBatchAudit();
-console.log('[V4] Import batch audit initialized');
+debugLog('[V4] Import batch audit initialized');
 
 // 初始化图表
 chart.initChart('chart');
-console.log('[V4] Chart initialized');
+debugLog('[V4] Chart initialized');
 
 // 初始化工具栏
 initDisplayMode();
-console.log('[V4] Display mode initialized');
+debugLog('[V4] Display mode initialized');
 
 initComparisonWindowPersistence();
-console.log('[V4] Pane 1 workspace initialized');
+debugLog('[V4] Pane 1 workspace initialized');
 
 initToolbar();
-console.log('[V4] Toolbar initialized');
+debugLog('[V4] Toolbar initialized');
 
 initChartPaneDom();
-console.log('[V4] Chart pane DOM initialized');
+debugLog('[V4] Chart pane DOM initialized');
 
 initChartPaneRangeSync();
-console.log('[V4] Chart pane range sync initialized');
+debugLog('[V4] Chart pane range sync initialized');
 
 // 初始化 Replay 控制条
 initReplayControls();
 initReplayHistoryPersistence();
 initPrimaryChartRuntime({ getReplayRestoreSnapshot, syncReplayData });
-console.log('[V4] Primary chart runtime initialized');
-console.log('[V4] Replay controls initialized');
+debugLog('[V4] Primary chart runtime initialized');
+debugLog('[V4] Replay controls initialized');
 
 // 初始化图表视口控制条
 initViewportControls();
-console.log('[V4] Viewport controls initialized');
+debugLog('[V4] Viewport controls initialized');
 
 bus.on('chart-panes:changed', (state = getChartPaneState()) => {
   if (state.reason !== 'layout' || state.layout !== CHART_PANE_LAYOUTS.TWO_COLUMN) return;
@@ -114,7 +115,7 @@ initPdaPersistence();
 initManualAnnotation();
 initPdaSelection();
 initInspectorSidebar();
-console.log('[V4] PDA controls initialized');
+debugLog('[V4] PDA controls initialized');
 
 initSegmentRenderer();
 initComparisonSegmentRenderer();
@@ -122,48 +123,48 @@ initSegmentGroups();
 initSegmentPersistence();
 initManualSegment();
 initSegmentSelection();
-console.log('[V4] Segment controls initialized');
+debugLog('[V4] Segment controls initialized');
 
 initComparisonWindowController();
 initComparisonOverlayPolicy();
 initComparisonContextMenu();
-console.log('[V4] Pane 1 controller initialized');
+debugLog('[V4] Pane 1 controller initialized');
 
 initSmtRenderer();
 initManualSmt();
 initSmtSelection();
-console.log('[V4] SMT controls initialized');
+debugLog('[V4] SMT controls initialized');
 
 initOrderReviewPersistence();
 initOrderReviewActive();
 initOrderSetupElementSelection();
 initOrderReviewRenderer();
-console.log('[V4] Order Review controls initialized');
+debugLog('[V4] Order Review controls initialized');
 
 initLiveRecordPersistence();
 initLiveRecordActive();
 initLiveRecordRenderer();
 initLiveRecordElementSelection();
-console.log('[V4] Live Record controls initialized');
+debugLog('[V4] Live Record controls initialized');
 
 initDailyTimeReviewPersistence();
-console.log('[V4] Daily Time Reaction controls initialized');
+debugLog('[V4] Daily Time Reaction controls initialized');
 
 initTimeOverlayPersistence();
 initTimeOverlayRenderer();
-console.log('[V4] Time Overlay controls initialized');
+debugLog('[V4] Time Overlay controls initialized');
 
 initChartNotePersistence();
 initChartNoteRenderer();
 initChartNoteSelection();
-console.log('[V4] Chart Notes controls initialized');
+debugLog('[V4] Chart Notes controls initialized');
 
 initEconomicCalendarLoader();
 initEconomicEventNotePersistence();
-console.log('[V4] Economic Calendar loader initialized');
+debugLog('[V4] Economic Calendar loader initialized');
 
 initDailyRegimeVixLoader();
-console.log('[V4] Daily Regime VIX loader initialized');
+debugLog('[V4] Daily Regime VIX loader initialized');
 
 initHistoryManager();
-console.log('[V4] History controls initialized');
+debugLog('[V4] History controls initialized');

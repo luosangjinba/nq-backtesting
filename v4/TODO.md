@@ -1358,7 +1358,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.14: FX Replay design gate。已新增 `v4/sessions/session_20260628_step351_14_fx_replay_design_gate.md`，冻结 FX Replay session model、loading law、viewport law、module ownership、event contract、Step 352 implementation shape 与手动验收标准；本步不写实现代码。
 
 - [ ] Step 352: V4 module debt split follow-up。基于 351 完成后的全量审计，继续清理无用运行时噪音，并拆掉仍过大的协调器；本阶段仍不实现 FX Replay 行为，目标是为后续 FX Replay 和长期维护提供更干净的边界。完整计划见 `v4/sessions/session_20260628_step352_module_debt_split_plan.md`。
-  - [ ] Step 352.1: 清理运行时 debug 噪音。把 `app.js` 初始化日志和 `primary-chart-runtime.js` chart update 日志改为 debug flag / logger 控制；保留真实 warn/error。
+  - [x] Step 352.1: 清理运行时 debug 噪音。已新增 `v4/src/logger.js`，把 `app.js` 初始化日志和 `primary-chart-runtime.js` chart update 日志改为 `v4:debug` / `window.__V4_DEBUG__` 控制；保留真实 warn/error。
   - [ ] Step 352.2: 明确 legacy replay 命名边界。集中定义当前旧 replay mode/source 命名，区分 `history`、legacy slice replay 和未来 `fx-replay`，不改变行为。
   - [ ] Step 352.3: 拆 `replay-controls.js`。拆出 replay session/control、chart adapter、toolbar sync、history controller；`ui/replay-controls.js` 只保留 DOM bind、事件分发和 render 调用。
   - [ ] Step 352.4: 拆 Toolbar 交互控制器。把 settings、layout、pane、range reload 从 `toolbar.js` 拆到 `ui/toolbar/*controller.js`。

@@ -476,3 +476,15 @@ Commit message:
 - Keep each commit scoped to one boundary.
 - Do not start FX Replay implementation until Step 352.3 and the relevant
   toolbar/calendar boundaries are stable.
+
+## Progress Log
+
+### Step 352.1 Completed
+
+- Added `v4/src/logger.js`.
+- Replaced `app.js` initialization `console.log` calls with `debugLog()`.
+- Replaced `primary-chart-runtime.js` chart update `console.log` with
+  `debugLog()`.
+- Runtime debug logs are now off by default and can be enabled with
+  `localStorage.setItem('v4:debug', '1')` or `window.__V4_DEBUG__ = true`.
+- User-facing warnings/errors remain on normal console paths.
