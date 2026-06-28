@@ -27,6 +27,7 @@ import {
 } from './replay/replay-time-utils.js';
 import { renderReplayControlsView } from './replay/replay-controls-view.js';
 import { loadReplayHistoryItem as restoreReplayHistoryItem } from './replay/replay-history-actions.js';
+import { loadNextReplaySessionBar } from './replay/replay-session-loader.js';
 import {
   clearActiveReplaySession,
   getActiveReplaySession,
@@ -286,6 +287,34 @@ function stepForward() {
   render();
 }
 
+async function stepReplaySessionForward() {
+  if (!hasActiveReplaySession()) return;
+  try {
+    const result = await loadNextReplaySessionBar();
+    if (result?.ok) {
+      bus.emit('status:update', {
+        text: `Replay advanced: ${formatReplayTime(result.nextBar)}`,
+        isError: false,
+      });
+      render();
+      return;
+    }
+    stopTimer();
+    setMode('idle');
+    bus.emit('status:update', {
+      text: result?.finished ? 'Replay session finished' : `Replay advance failed: ${result?.message || 'unknown error'}`,
+      isError: !result?.finished,
+    });
+  } catch (error) {
+    stopTimer();
+    setMode('idle');
+    bus.emit('status:update', {
+      text: `Replay advance failed: ${error.message}`,
+      isError: true,
+    });
+  }
+}
+
 function stepBack() {
   if (!enabled || chartData.length === 0) return;
 
@@ -385,6 +414,18 @@ function toggleReplayEnabled() {
 }
 
 function togglePlay() {
+  if (hasActiveReplaySession()) {
+    if (timer) {
+      stopTimer();
+      setMode('idle');
+      return;
+    }
+    mode = 'playing';
+    timer = window.setInterval(stepReplaySessionForward, SPEEDS[speedIndex].ms);
+    render();
+    return;
+  }
+
   if (!enabled || chartData.length === 0) return;
 
   if (timer) {
@@ -511,7 +552,10 @@ function handleControlClick(e) {
     return;
   }
 
-  if (hasActiveReplaySession() && action !== 'close') {
+  if (
+    hasActiveReplaySession() &&
+    !['close', 'play', 'forward'].includes(action)
+  ) {
     bus.emit('status:update', {
       text: 'Replay session active: legacy Replay Bar controls are disabled until forward append is enabled',
       isError: true,
@@ -526,7 +570,10 @@ function handleControlClick(e) {
   if (action === 'next-0929') jumpNext0929();
   if (action === 'back') stepBack();
   if (action === 'play') togglePlay();
-  if (action === 'forward') stepForward();
+  if (action === 'forward') {
+    if (hasActiveReplaySession()) stepReplaySessionForward();
+    else stepForward();
+  }
   if (action === 'jump') jumpToTime();
   if (action === 'close') restoreFullChart();
 }
@@ -589,6 +636,18 @@ function render() {
     replayDisabledOverride: activeSession ? true : null,
     closeDisabledOverride: activeSession ? false : null,
     toggleDisabledOverride: activeSession ? true : null,
+    actionDisabled: activeSession
+      ? {
+          first: true,
+          last: true,
+          pick: true,
+          next0929: true,
+          back: true,
+          play: false,
+          forward: false,
+          jump: true,
+        }
+      : {},
   });
 
   controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);

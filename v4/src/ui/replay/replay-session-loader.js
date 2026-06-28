@@ -8,6 +8,7 @@ import {
   formatReplaySessionDateTime,
   getActiveReplaySession,
   planInitialPrefixRequest,
+  planNextForwardBarRequest,
   planPreviousPrefixRequest,
   setActiveReplaySession,
 } from './replay-session-state.js';
@@ -146,6 +147,57 @@ export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
     request,
     bars: mergedBars,
     prefixBars,
+    cacheHit,
+  };
+}
+
+export async function loadNextReplaySessionBar() {
+  const session = getActiveReplaySession();
+  if (!session) return { ok: false, message: 'No active replay session' };
+
+  const planned = planNextForwardBarRequest(session);
+  if (!planned.ok) return { ok: false, message: planned.message, finished: planned.finished };
+
+  const { request } = planned;
+  const { result, cacheHit } = await loadBarsWindow(request.start, request.end, request.timeframe, request.instrument);
+  const nextBar = (Array.isArray(result?.bars) ? result.bars : [])
+    .filter((bar) => {
+      const timestamp = Number(bar?.timestamp);
+      return Number.isFinite(timestamp) && timestamp > session.cursor && timestamp <= session.sessionEnd;
+    })
+    .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0] || null;
+  if (!nextBar) {
+    return { ok: false, message: 'No next replay bar found', request, cacheHit };
+  }
+
+  const existingBars = store.getDisplayBars();
+  const mergedBars = mergeBarsByTimestamp(existingBars, [nextBar]);
+  const sessionWithChunk = addReplaySessionChunk({
+    ...session,
+    cursor: Number(nextBar.timestamp),
+  }, {
+    reason: request.reason,
+    startTs: Number(nextBar.timestamp),
+    endTs: Number(nextBar.timestamp),
+  });
+  const requestedRange = {
+    startTs: Number(mergedBars[0]?.timestamp ?? request.startTs),
+    endTs: sessionWithChunk.cursor,
+  };
+
+  setActiveReplaySession(sessionWithChunk);
+  store.setBars(mergedBars, formatReplaySessionDateTime(requestedRange.startTs), formatReplaySessionDateTime(sessionWithChunk.cursor), request.timeframe, requestedRange, {
+    instrument: request.instrument,
+    outerRange: null,
+  });
+  emitReplaySessionChanged(sessionWithChunk, mergedBars);
+
+  return {
+    ok: true,
+    session: sessionWithChunk,
+    request,
+    bars: mergedBars,
+    nextBar,
     cacheHit,
   };
 }

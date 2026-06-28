@@ -69,6 +69,7 @@ export function renderReplayControlsView({
   replayDisabledOverride = null,
   closeDisabledOverride = null,
   toggleDisabledOverride = null,
+  actionDisabled = {},
 }) {
   const replayDisabled = replayDisabledOverride ?? (!hasData || !enabled);
   const closeDisabled = closeDisabledOverride ?? replayDisabled;
@@ -81,16 +82,16 @@ export function renderReplayControlsView({
         Replay Bar ${enabled ? 'On' : 'Off'}
       </button>
       <span class="replay-divider"></span>
-      <button class="replay-btn replay-action" data-action="first" title="回退到区间第一根K线" ${replayDisabled ? 'disabled' : ''}>First</button>
-      <button class="replay-btn replay-action" data-action="last" title="回到上次操作位置" ${lastDisabled ? 'disabled' : ''}>Last Pos</button>
-      <button class="replay-btn replay-action ${mode === 'picking' ? 'active' : ''}" data-action="pick" title="点击图表选择回退位置" ${replayDisabled ? 'disabled' : ''}>Pick</button>
-      <button class="replay-btn replay-action" data-action="next-0929" title="跳转到下一日 09:29" ${replayDisabled ? 'disabled' : ''}>Next 09:29</button>
+      <button class="replay-btn replay-action" data-action="first" title="回退到区间第一根K线" ${actionDisabled.first ?? replayDisabled ? 'disabled' : ''}>First</button>
+      <button class="replay-btn replay-action" data-action="last" title="回到上次操作位置" ${actionDisabled.last ?? lastDisabled ? 'disabled' : ''}>Last Pos</button>
+      <button class="replay-btn replay-action ${mode === 'picking' ? 'active' : ''}" data-action="pick" title="点击图表选择回退位置" ${actionDisabled.pick ?? replayDisabled ? 'disabled' : ''}>Pick</button>
+      <button class="replay-btn replay-action" data-action="next-0929" title="跳转到下一日 09:29" ${actionDisabled.next0929 ?? replayDisabled ? 'disabled' : ''}>Next 09:29</button>
       <span class="replay-divider"></span>
-      <button class="replay-icon-btn" data-action="back" title="上一根" ${replayDisabled ? 'disabled' : ''}>&lt;</button>
-      <button class="replay-icon-btn replay-play" data-action="play" title="${isPlaying ? '暂停' : '播放'}" ${replayDisabled ? 'disabled' : ''}>
+      <button class="replay-icon-btn" data-action="back" title="上一根" ${actionDisabled.back ?? replayDisabled ? 'disabled' : ''}>&lt;</button>
+      <button class="replay-icon-btn replay-play" data-action="play" title="${isPlaying ? '暂停' : '播放'}" ${actionDisabled.play ?? replayDisabled ? 'disabled' : ''}>
         ${isPlaying ? '||' : '▶'}
       </button>
-      <button class="replay-icon-btn" data-action="forward" title="下一根" ${replayDisabled ? 'disabled' : ''}>&gt;</button>
+      <button class="replay-icon-btn" data-action="forward" title="下一根" ${actionDisabled.forward ?? replayDisabled ? 'disabled' : ''}>&gt;</button>
       <span class="replay-divider"></span>
       <select class="replay-speed" ${replayDisabled ? 'disabled' : ''}>
         ${speeds.map(
@@ -103,9 +104,9 @@ export function renderReplayControlsView({
         type="text"
         placeholder="YYYY-MM-DD HH:mm"
         title="跳转到指定时间"
-        ${replayDisabled ? 'disabled' : ''}
+        ${actionDisabled.jump ?? replayDisabled ? 'disabled' : ''}
       />
-      <button class="replay-btn replay-jump-btn" data-action="jump" title="跳转到指定时间" ${replayDisabled ? 'disabled' : ''}>Go</button>
+      <button class="replay-btn replay-jump-btn" data-action="jump" title="跳转到指定时间" ${actionDisabled.jump ?? replayDisabled ? 'disabled' : ''}>Go</button>
       <button class="replay-btn replay-history-toggle ${historyOpen ? 'active' : ''}" data-action="history-toggle" title="Replay History">History</button>
       <span class="replay-tf">${tfLabel}</span>
       <span class="replay-info">${enabled && currentBar ? `${cursorIndex + 1}/${dataCount} ${formatReplayTime(currentBar)}` : 'Replay Trading'}</span>
