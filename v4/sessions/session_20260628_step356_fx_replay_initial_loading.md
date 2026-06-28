@@ -213,24 +213,48 @@ Checks:
 
 ## Step 356.7 - Closeout And Manual Acceptance
 
-Planned:
+Completed:
 
-- Update TODO/session with completed checks and any implementation notes.
-- Record deferred work:
+- Updated TODO/session with completed checks and implementation notes.
+- Recorded deferred work:
   - Step 357: left drag older-prefix demand loading and prefix release;
   - Step 358: Next/Play reveal and timeframe-correct stepping;
   - later: right-bound clamp, retention policy, history/session persistence.
-- Run:
-  - FX Replay model/loader/policy/browser smokes;
-  - `python3 v4/scripts/smoke_all.py --suite local`;
-  - `git diff --check`.
 
-Manual acceptance:
+Automated checks:
 
-- 1M and 1H sessions start with FX Replay-like first screen:
+- `node v4/tests/fx-replay-model-smoke.js`
+- `node v4/tests/fx-replay-loader-smoke.js`
+- `node v4/tests/fx-replay-viewport-policy-smoke.js`
+- `node v4/tests/fx-replay-controller-smoke.js`
+- `node v4/tests/fx-replay-no-future-bars-smoke.js`
+- `node v4/tests/fx-replay-initial-load-browser-smoke.js`
+- `python3 v4/tests/module-boundary-closeout-smoke.py`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
+
+Manual acceptance target for this step:
+
+- 1M and 1H sessions can start with an FX Replay-like first screen:
   - prefix bars to the left;
   - start bar latest;
   - future bars absent;
   - no full selected date range load.
 
-Commit after this step.
+Implementation notes:
+
+- The runtime entry is `COMMANDS.START_FX_REPLAY_SESSION`.
+- The feature owner is `src/features/fx-replay/`.
+- `fx-replay-controller.js` remains dependency-injected; `runtime/commands.js`
+  composes real `loadBars`, viewport metrics, chart projection, and chart mode.
+- The browser smoke uses `2025-06-02 10:00` because Sunday open has no older
+  prefix data and would not validate prefix loading.
+- This step intentionally does not add toolbar UI for starting FX Replay.
+
+Deferred:
+
+- Step 357 should add viewport-left demand loading for older prefix and release
+  policy for prefix chunks outside the retained viewport buffer.
+- Step 358 should add Next/Play reveal and timeframe-correct stepping.
+- A later step should add right-bound clamp, history/session persistence, and
+  user-facing controls once the loading/reveal laws are stable.
