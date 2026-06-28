@@ -218,6 +218,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify workspace domain metadata is centralized in the frontend registry.",
         ),
         SmokeCommand(
+            "module_boundary_closeout_smoke",
+            python("v4/tests/module-boundary-closeout-smoke.py"),
+            "local",
+            "Closeout guard for Step 352 module boundaries.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

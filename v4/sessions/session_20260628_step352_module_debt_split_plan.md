@@ -615,3 +615,13 @@ Commit message:
 - Kept `v4_api.py` compatibility wrappers for handler injection while
   delegating bars behavior to `bars_service`.
 - Added `bars-service-boundary-smoke.py` and included it in local smoke.
+
+### Step 352.13 Completed
+
+- Added `module-boundary-closeout-smoke.py` as a consolidated guard for the
+  Step 352 module boundaries.
+- The closeout smoke verifies `v4_api.py` composes service modules instead of
+  owning workspace/economic/bars/maintenance implementations.
+- It also guards Inspector router composition, Replay adapter boundaries,
+  Toolbar controller boundaries, and Calendar panel data boundaries.
+- Included the closeout smoke in local smoke.
