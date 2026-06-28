@@ -3,6 +3,15 @@ import * as bus from '../event-bus.js';
 export const CHART_MODES = Object.freeze({
   HISTORY: 'history',
   LEGACY_REPLAY: 'legacy-replay',
+  FX_REPLAY: 'fx-replay',
+});
+
+export const CHART_MODE_SOURCES = Object.freeze({
+  LEGACY_REPLAY_RESET: 'legacy-replay-reset',
+  LEGACY_REPLAY_EXIT: 'legacy-replay-exit',
+  LEGACY_REPLAY_SLICE: 'legacy-replay-slice',
+  LEGACY_REPLAY_PICK_BEFORE_FIRST: 'legacy-replay-pick-before-first',
+  LEGACY_REPLAY_SYNC: 'legacy-replay-sync',
 });
 
 const VALID_MODES = new Set(Object.values(CHART_MODES));

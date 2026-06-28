@@ -488,3 +488,12 @@ Commit message:
 - Runtime debug logs are now off by default and can be enabled with
   `localStorage.setItem('v4:debug', '1')` or `window.__V4_DEBUG__ = true`.
 - User-facing warnings/errors remain on normal console paths.
+
+### Step 352.2 Completed
+
+- Added `CHART_MODES.FX_REPLAY` as a future mode name without wiring any FX
+  Replay behavior.
+- Added `CHART_MODE_SOURCES` for the current legacy replay transitions.
+- Replaced hard-coded `legacy-replay-*` source strings in `ui/replay-controls.js`.
+- Extended `chart-mode-store-smoke.js` to cover the reserved `fx-replay` mode
+  name and legacy source constants.

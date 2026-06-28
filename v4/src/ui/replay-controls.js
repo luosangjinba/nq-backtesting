@@ -53,7 +53,11 @@ import {
   replacePrimaryChartData,
   replacePrimaryChartSlice,
 } from '../runtime/primary-chart-runtime.js';
-import { enterHistoryMode, enterLegacyReplayMode } from '../runtime/chart-mode-store.js';
+import {
+  CHART_MODE_SOURCES,
+  enterHistoryMode,
+  enterLegacyReplayMode,
+} from '../runtime/chart-mode-store.js';
 
 let controlsEl = null;
 const replayState = createLegacyReplayState({
@@ -164,7 +168,7 @@ function resetReplayState() {
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
   resetReplayStateFields(replayState);
-  enterHistoryMode({ source: 'legacy-replay-reset' });
+  enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_RESET });
   emitReplayChanged();
   render();
 }
@@ -177,7 +181,7 @@ function restoreFullChart(savePosition = true) {
   if (replayState.chartData.length > 0) {
     replacePrimaryChartData(replayState.chartData, { showStart: true });
   }
-  enterHistoryMode({ source: 'legacy-replay-exit' });
+  enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_EXIT });
   emitReplayChanged();
   render();
 }
@@ -190,7 +194,7 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
   if (rememberPrevious && replayState.cursorIndex >= 0) {
     rememberCursor(replayState);
   }
-  enterLegacyReplayMode({ source: 'legacy-replay-slice' });
+  enterLegacyReplayMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_SLICE });
   applyReplaySliceState(replayState, index, { viewportSnapshot });
   replacePrimaryChartSlice(replayState.chartData, replayState.cursorIndex, { followEnd, previousRange, previousDataCount });
   chart.showReplayCursor(replayState.chartData[replayState.cursorIndex].time);
@@ -375,7 +379,7 @@ function handleChartClick(param) {
   replayState.mode = REPLAY_CONTROL_MODES.IDLE;
   if (keepIndex < 0) {
     applyBeforeFirstPickState(replayState);
-    enterLegacyReplayMode({ source: 'legacy-replay-pick-before-first' });
+    enterLegacyReplayMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_PICK_BEFORE_FIRST });
     clearPrimaryChartData();
     chart.hideReplayCursor();
     emitReplayChanged();
@@ -584,7 +588,7 @@ export function syncReplayData(restoreSnapshot = null) {
   if (restoreSnapshot?.enabled && replayState.chartData.length > 0) {
     replacePrimaryChartData(replayState.chartData, { showStart: true });
   }
-  enterHistoryMode({ source: 'legacy-replay-sync' });
+  enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_SYNC });
   emitReplayChanged();
   render();
 }
