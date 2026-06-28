@@ -142,6 +142,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify review archive format and date-key helpers stay split from import/export orchestration.",
         ),
         SmokeCommand(
+            "workspace_domain_registry_smoke",
+            ["node", "v4/tests/workspace-domain-registry-smoke.js"],
+            "local",
+            "Verify workspace domain metadata is centralized in the frontend registry.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

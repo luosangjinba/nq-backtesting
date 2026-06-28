@@ -2,6 +2,7 @@ import * as bus from '../event-bus.js';
 import { readLocalJson, removeLocalJson, writeLocalJson } from '../storage/local-persistence.js';
 import { getInstrumentStorageKey } from '../storage/instrument-storage.js';
 import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
+import { WORKSPACE_DOMAINS } from '../storage/workspace-domain-registry.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
   getTimeOverlaySettings,
@@ -9,8 +10,9 @@ import {
 } from './time-overlay-store.js';
 
 const STORAGE_KEY_BASE = 'v4:time-overlays';
-const STORAGE_VERSION = 1;
-const WORKSPACE_DOMAIN = 'time-overlays';
+const WORKSPACE_DOMAIN_CONFIG = WORKSPACE_DOMAINS.TIME_OVERLAYS;
+const STORAGE_VERSION = WORKSPACE_DOMAIN_CONFIG.version;
+const WORKSPACE_DOMAIN = WORKSPACE_DOMAIN_CONFIG.name;
 let restoring = false;
 let localMutationVersion = 0;
 

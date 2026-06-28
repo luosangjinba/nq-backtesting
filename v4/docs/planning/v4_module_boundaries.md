@@ -285,6 +285,10 @@ These exceptions are allowed temporarily while the refactor proceeds:
   dedicated `review/` helpers as of Step 351.11.
   `review-archive.js` remains the import/export orchestration adapter and owns
   the order in which feature stores are loaded.
+- Frontend workspace domain metadata lives in
+  `storage/workspace-domain-registry.js` as of Step 351.12. Persistence modules
+  must reference registry name/scope/version instead of hard-coding workspace
+  domain strings and schema versions.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 

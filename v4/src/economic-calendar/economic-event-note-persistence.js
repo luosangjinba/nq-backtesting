@@ -2,12 +2,14 @@ import * as bus from '../event-bus.js';
 import { readLocalJson, writeLocalJson } from '../storage/local-persistence.js';
 import { getInstrumentStorageKey } from '../storage/instrument-storage.js';
 import { getWorkspaceDocument, putWorkspaceDocument } from '../storage/server-workspace-client.js';
+import { WORKSPACE_DOMAINS } from '../storage/workspace-domain-registry.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getEconomicEventNotes, loadEconomicEventNotes } from './economic-event-note-store.js';
 
 const STORAGE_KEY_BASE = 'v4:economic-event-notes';
-const STORAGE_VERSION = 1;
-const WORKSPACE_DOMAIN = 'economic-event-notes';
+const WORKSPACE_DOMAIN_CONFIG = WORKSPACE_DOMAINS.ECONOMIC_EVENT_NOTES;
+const STORAGE_VERSION = WORKSPACE_DOMAIN_CONFIG.version;
+const WORKSPACE_DOMAIN = WORKSPACE_DOMAIN_CONFIG.name;
 let restoring = false;
 let localMutationVersion = 0;
 

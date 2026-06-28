@@ -1,9 +1,11 @@
 import { getWorkspaceDocument, putWorkspaceDocument } from '../../storage/server-workspace-client.js';
+import { WORKSPACE_DOMAINS } from '../../storage/workspace-domain-registry.js';
 import { formatTimeInput } from '../../utils.js';
 
 const RANGE_HISTORY_STORAGE_KEY = 'v4.dateRangeHistory';
-const RANGE_HISTORY_STORAGE_VERSION = 1;
-const RANGE_HISTORY_WORKSPACE_DOMAIN = 'date-range-history';
+const RANGE_HISTORY_WORKSPACE_DOMAIN_CONFIG = WORKSPACE_DOMAINS.DATE_RANGE_HISTORY;
+const RANGE_HISTORY_STORAGE_VERSION = RANGE_HISTORY_WORKSPACE_DOMAIN_CONFIG.version;
+const RANGE_HISTORY_WORKSPACE_DOMAIN = RANGE_HISTORY_WORKSPACE_DOMAIN_CONFIG.name;
 const RANGE_HISTORY_LIMIT = 8;
 
 let rangeHistoryMutationVersion = 0;

@@ -7,13 +7,15 @@ import {
   getWorkspaceDocument,
   putWorkspaceDocument,
 } from '../storage/server-workspace-client.js';
+import { WORKSPACE_DOMAINS } from '../storage/workspace-domain-registry.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { getSegments, loadSegments } from './segment-store.js';
 import { getSegmentGroups, loadSegmentGroups } from './segment-group-store.js';
 
 const STORAGE_KEY_BASE = 'v4:market-segments';
-const STORAGE_VERSION = 2;
-const WORKSPACE_DOMAIN = 'market-segments';
+const WORKSPACE_DOMAIN_CONFIG = WORKSPACE_DOMAINS.MARKET_SEGMENTS;
+const STORAGE_VERSION = WORKSPACE_DOMAIN_CONFIG.version;
+const WORKSPACE_DOMAIN = WORKSPACE_DOMAIN_CONFIG.name;
 let restoring = false;
 let localMutationVersion = 0;
 

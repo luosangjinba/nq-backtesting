@@ -4,6 +4,7 @@ import {
   getWorkspaceDocument,
   putWorkspaceDocument,
 } from '../storage/server-workspace-client.js';
+import { WORKSPACE_DOMAINS } from '../storage/workspace-domain-registry.js';
 
 export const UI_SCALE_OPTIONS = ['100', '110', '125', '140'];
 export const CHART_TEXT_SCALE_OPTIONS = ['normal', 'large', 'xl'];
@@ -16,8 +17,9 @@ export const DEFAULT_DISPLAY_PREFERENCES = Object.freeze({
 });
 
 const STORAGE_KEY = 'v4:display-preferences';
-const STORAGE_VERSION = 1;
-const WORKSPACE_DOMAIN = 'display-preferences';
+const WORKSPACE_DOMAIN_CONFIG = WORKSPACE_DOMAINS.DISPLAY_PREFERENCES;
+const STORAGE_VERSION = WORKSPACE_DOMAIN_CONFIG.version;
+const WORKSPACE_DOMAIN = WORKSPACE_DOMAIN_CONFIG.name;
 const persistence = createLocalPersistence({
   key: STORAGE_KEY,
   fallback: null,

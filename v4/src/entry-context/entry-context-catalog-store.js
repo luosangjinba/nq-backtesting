@@ -8,6 +8,7 @@ import {
   getWorkspaceDocument,
   putWorkspaceDocument,
 } from '../storage/server-workspace-client.js';
+import { WORKSPACE_DOMAINS } from '../storage/workspace-domain-registry.js';
 
 export const ENTRY_CONTEXT_CATALOG_GROUPS = Object.freeze(['patterns', 'sessions', 'lessons']);
 export const ENTRY_CONTEXT_CATALOG_CHANGED = 'entry-context-catalog:changed';
@@ -19,8 +20,9 @@ export const LESSON_ROLE_SCOPES = Object.freeze([
 ]);
 
 const STORAGE_KEY = 'v4:entry-context-catalog';
-const STORAGE_VERSION = 1;
-const WORKSPACE_DOMAIN = 'entry-context-catalog';
+const WORKSPACE_DOMAIN_CONFIG = WORKSPACE_DOMAINS.ENTRY_CONTEXT_CATALOG;
+const STORAGE_VERSION = WORKSPACE_DOMAIN_CONFIG.version;
+const WORKSPACE_DOMAIN = WORKSPACE_DOMAIN_CONFIG.name;
 
 const persistence = createLocalPersistence({
   key: STORAGE_KEY,
