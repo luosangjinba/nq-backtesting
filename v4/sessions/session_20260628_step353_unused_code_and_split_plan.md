@@ -414,7 +414,7 @@ Completion notes:
   issue, so it is recorded for a focused comparison/segment follow-up instead
   of being mixed into the stylesheet split.
 
-### Step 353.8 - Closeout audit and boundary guards
+### Step 353.8 - Closeout audit and boundary guards ✅
 
 Record the new baseline after cleanup and splits.
 
@@ -439,6 +439,76 @@ Manual check:
 Commit message:
 
 - `Close Step 353 module cleanup`
+
+Completion notes:
+
+- Extended `tests/module-boundary-closeout-smoke.py` so Step 353 boundaries are
+  guarded in the shared local suite:
+  - Inspector sidebar must compose selection/action/change/page/calendar sync
+    routers, while page router composes detail rendering.
+  - Data Maintenance HTML must remain a static page with one module entry.
+  - Tradovate importer must remain a small compatibility facade.
+  - Review Archive shell must compose import prepare/store loader modules; import
+    prepare owns linked-ref maps.
+  - `style.css` must keep the comparison stylesheet import and must not regain
+    `.comparison-window-root`.
+  - Deleted daily-regime range/trend runtime derivation modules must not return
+    as unconnected source files.
+- Deleted unused `src/daily-regime/daily-regime-trend.js`. Like the already
+  removed range module, it derived regime values from bars but had no runtime,
+  test, or HTML import. Current Daily Regime values are CSV/data-loader owned.
+- Rough no-import audit results:
+  - `src/maintenance/data-maintenance-app.js` is intentionally referenced by
+    `data-maintenance.html` as a module entry.
+  - No remaining unreferenced source module required delete/connect/defer after
+    removing `daily-regime-trend.js`.
+- Remaining 500+ line files and defer reasons:
+  - `style.css` 3722 lines: planned staged extraction; only comparison window
+    moved in Step 353.7 to avoid large visual regression.
+  - `time-reaction/daily-time-review-store.js` 920 lines: store plus legacy
+    workspace compatibility/migration behavior; defer until Daily Time Review
+    domain pass.
+  - `ui/inspector-sidebar.js` 859 lines: still large, but now delegates shell,
+    selection, actions, changes, detail rendering, page routing, and calendar
+    sync; remaining code is cross-domain open-object coordination.
+  - `ui/inspector/time-reaction-actions.js` 854 lines,
+    `ui/inspector/time-reaction-panel.js` 693 lines,
+    `ui/inspector/live-record-panel.js` 771 lines,
+    `ui/inspector/live-record-actions.js` 650 lines,
+    `ui/inspector/segment-panel.js` 632 lines,
+    `ui/inspector/order-review-reason-actions.js` 632 lines, and
+    `ui/inspector/order-review-panel.js` 501 lines: feature-specific Inspector
+    domains; defer to dedicated Inspector feature passes, not replay prep.
+  - `order/order-setup-chart-actions.js` 811 lines and
+    `live-record/live-record-chart-actions.js` 805 lines: chart action menus and
+    mutation workflows; defer to a chart-action domain split.
+  - `order/order-review-store.js` 776 lines and
+    `live-record/live-record-store.js` 540 lines: persistence/normalization
+    stores with compatibility fields; defer to store schema pass.
+  - `segment/segment-review-metrics.js` 687 lines and `pda/pda-renderer.js`
+    610 lines: rendering/metric domain logic; not directly blocking FX Replay.
+  - `pda/manual-annotation.js` 569 lines and `ui/replay-controls.js` 545 lines:
+    already reduced to composition/adapter roles with boundary smoke coverage;
+    defer further split until new FX Replay modules are introduced.
+  - `comparison/comparison-context-menu.js` 543 lines: remaining comparison
+    workflow menu; known Segment hit-test smoke residual should be fixed before
+    broader comparison menu extraction.
+  - `data-maintenance.html` 527 lines: static layout plus inline page CSS only;
+    app logic has been moved to modules. Future CSS extraction can move its
+    styles if needed.
+  - `review/review-archive-import-prepare.js` 514 lines: import normalization
+    by domain in one place; acceptable after archive shell split, but candidate
+    for per-domain prepare modules if it grows.
+- Validation passed:
+  `python3 v4/tests/module-boundary-closeout-smoke.py`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+- Residual test notes remain:
+  - `node v4/tests/live-record-smoke.js` fails on the existing linked Live
+    Record PDA ref detail text assertion.
+  - `node v4/tests/comparison-window-browser-smoke.js` fails on the existing
+    Pane 1 Segment hit-test assertion while PDA hit isolation passes.
+  These are outside the Step 353 module-boundary cleanup and should be handled
+  by focused behavior-fix steps.
 
 ## Recommended Execution Order
 

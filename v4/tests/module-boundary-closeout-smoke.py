@@ -16,10 +16,18 @@ def read(relative_path: str) -> str:
 
 api_source = read("v4_api.py")
 inspector_source = read("src/ui/inspector-sidebar.js")
+inspector_page_router_source = read("src/ui/inspector/inspector-page-router.js")
 replay_source = read("src/ui/replay-controls.js")
 toolbar_source = read("src/ui/toolbar.js")
 calendar_panel_source = read("src/ui/inspector/calendar-panel.js")
+data_maintenance_html = read("data-maintenance.html")
+tradovate_importer_source = read("src/live-record/tradovate-performance-importer.js")
+review_archive_source = read("src/review/review-archive.js")
+review_archive_prepare_source = read("src/review/review-archive-import-prepare.js")
+style_source = read("style.css")
+comparison_style_source = read("styles/comparison-window.css")
 daily_regime_range_path = V4_ROOT / "src/daily-regime/daily-regime-range.js"
+daily_regime_trend_path = V4_ROOT / "src/daily-regime/daily-regime-trend.js"
 
 for expected in [
     "from server import bars_service",
@@ -50,12 +58,21 @@ for expected in [
     "./inspector/inspector-action-router.js",
     "./inspector/inspector-change-router.js",
     "./inspector/inspector-archive-actions.js",
+    "./inspector/inspector-page-router.js",
+    "./inspector/inspector-calendar-sync.js",
 ]:
     assert expected in inspector_source, f"inspector-sidebar.js should compose router boundary: {expected}"
+
+assert "./inspector-detail-renderer.js" in inspector_page_router_source, (
+    "inspector-page-router.js should compose the extracted detail renderer"
+)
 
 for forbidden in [
     "function handleInspectorClick",
     "function handleInspectorChange",
+    "function renderDetailPanel",
+    "function renderCalendarPage",
+    "function setupCalendarDateSync",
     "bus.on('pda:selected'",
     "bus.on('segment:selected'",
     "action === 'export-pda'",
@@ -87,9 +104,65 @@ for forbidden in [
 ]:
     assert forbidden not in calendar_panel_source, f"calendar-panel.js regained split data implementation: {forbidden}"
 
+assert '<script type="module" src="./src/maintenance/data-maintenance-app.js"></script>' in data_maintenance_html, (
+    "data-maintenance.html should keep a single maintenance module entry"
+)
+for forbidden in [
+    "function resolveApiBase(",
+    "function summarize(",
+    "buildTradovateLiveRecordArchives",
+]:
+    assert forbidden not in data_maintenance_html, f"data-maintenance.html regained inline app logic: {forbidden}"
+
+assert len(tradovate_importer_source.splitlines()) < 80, (
+    "tradovate-performance-importer.js should remain a small compatibility facade"
+)
+for expected in [
+    "./tradovate-csv-parsers.js",
+    "./tradovate-file-alignment.js",
+    "./tradovate-live-record-builder.js",
+]:
+    assert expected in tradovate_importer_source, f"Tradovate facade should re-export split module: {expected}"
+for forbidden in [
+    "function parseCsvRows",
+    "function alignTradovateFiles",
+    "function buildLiveRecordSet",
+]:
+    assert forbidden not in tradovate_importer_source, f"Tradovate facade regained implementation: {forbidden}"
+
+for expected in [
+    "./review-archive-import-prepare.js",
+    "./review-archive-store-loader.js",
+]:
+    assert expected in review_archive_source, f"review-archive.js should compose import boundary: {expected}"
+assert "./review-archive-import-maps.js" in review_archive_prepare_source, (
+    "review-archive-import-prepare.js should compose linked-ref map helpers"
+)
+for forbidden in [
+    "function prepareImportedOrderReviews",
+    "function prepareImportedLiveRecords",
+    "function remapOrderReviewRef",
+    "function loadPreparedReviewImport",
+]:
+    assert forbidden not in review_archive_source, f"review-archive.js regained import implementation: {forbidden}"
+
+assert '@import url("./styles/comparison-window.css");' in style_source, (
+    "style.css should import the extracted comparison window stylesheet"
+)
+assert ".comparison-window-root" not in style_source, (
+    "comparison window root styles should stay in styles/comparison-window.css"
+)
+assert ".comparison-window-root" in comparison_style_source, (
+    "styles/comparison-window.css should own comparison window styles"
+)
+
 assert not daily_regime_range_path.exists(), (
     "daily-regime-range.js should not return as an unconnected runtime module; "
     "daily range regime is currently loaded from data/daily-regime-*.csv"
+)
+assert not daily_regime_trend_path.exists(), (
+    "daily-regime-trend.js should not return as an unconnected runtime module; "
+    "daily trend regime is currently loaded from data/daily-regime-*.csv"
 )
 
 print("module boundary closeout smoke passed")

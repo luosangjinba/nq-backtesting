@@ -233,7 +233,7 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "module_boundary_closeout_smoke",
             python("v4/tests/module-boundary-closeout-smoke.py"),
             "local",
-            "Closeout guard for Step 352 module boundaries.",
+            "Closeout guard for Step 352/353 module boundaries.",
         ),
         SmokeCommand(
             "git_diff_check",
