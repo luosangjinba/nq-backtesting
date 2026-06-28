@@ -300,17 +300,18 @@ async function main() {
     assert.equal(value.afterPrefix.max, value.initial.session.cursor, 'prefix load must not add future bars');
     assert.equal(value.afterPrefix.session.cursor, value.initial.session.cursor);
 
-    assert.equal(value.forwardCall.start, '2026-06-01 21:56', 'forward request must target the immediate next bar');
-    assert.equal(value.forwardCall.end, '2026-06-01 21:56', 'forward request must only ask for one next bar');
-    assert.equal(value.afterForward.session.cursor, value.forwardCall.startTs);
-    assert.equal(value.afterForward.max, value.forwardCall.startTs, 'forward buffer must ignore fetch padding beyond next bar');
+    assert.equal(value.forwardCall.start, '2026-06-01 21:55', 'forward request must start at current cursor');
+    assert.equal(value.forwardCall.end, '2026-06-01 21:56', 'forward request must end at the immediate next bar');
+    assert.equal(value.afterForward.session.cursor, value.forwardCall.endTs);
+    assert.equal(value.afterForward.max, value.forwardCall.endTs, 'forward buffer must ignore fetch padding beyond next bar');
 
     assert.equal(value.dailyCall.timeframe, 1440, 'timeframe reload should request the selected timeframe');
     assert.equal(value.dailyCall.endTs, value.afterForward.session.cursor, 'timeframe reload must still end at cursor');
     assert.notEqual(value.dailyCall.end, '2027-06-01 21:55', 'timeframe reload must not request sessionEnd as end');
     assert.ok(value.afterDaily.max <= value.afterDaily.session.cursor, 'daily reload must not show bars after cursor');
 
-    assert.equal(value.shortForwardRequest.start, '2026-07-01 10:01', 'short session forward should reveal sessionEnd bar');
+    assert.equal(value.shortForwardRequest.start, '2026-07-01 10:00', 'short session forward should start at current cursor');
+    assert.equal(value.shortForwardRequest.end, '2026-07-01 10:01', 'short session forward should reveal sessionEnd bar');
     assert.equal(value.afterFinished.session.cursor, value.afterFinished.session.sessionEnd, 'short session should stop at sessionEnd');
     assert.equal(value.finished.finished, true, 'next forward after sessionEnd should report finished');
     assert.equal(value.afterFinished.max, value.afterFinished.session.sessionEnd, 'finished session must not retain future padding');

@@ -192,15 +192,15 @@ function makeChunkRequest({ session, reason, startTs, endTs }) {
 
   if (reason === REPLAY_SESSION_CHUNK_REASONS.NEXT_FORWARD_BAR) {
     const tfSeconds = getTimeframeSeconds(session.timeframe);
-    const expectedStart = cursor + tfSeconds;
-    if (startTs !== expectedStart || endTs !== expectedStart) {
+    const expectedEnd = cursor + tfSeconds;
+    if (startTs !== cursor || endTs !== expectedEnd) {
       return {
         ok: false,
-        message: 'Forward replay request must target exactly the next reveal bar',
+        message: 'Forward replay request must target the minimal cursor-to-next-bar window',
         request: null,
       };
     }
-    if (startTs > session.sessionEnd) {
+    if (endTs > session.sessionEnd) {
       return {
         ok: false,
         message: 'Replay session finished',
@@ -266,7 +266,7 @@ export function planNextForwardBarRequest(session) {
   return makeChunkRequest({
     session: normalized,
     reason: REPLAY_SESSION_CHUNK_REASONS.NEXT_FORWARD_BAR,
-    startTs: nextTs,
+    startTs: normalized.cursor,
     endTs: nextTs,
   });
 }
