@@ -187,26 +187,29 @@ Checks:
 
 ## Step 356.6 - Real-Data Browser Smoke
 
-Planned:
+Completed:
 
-- Add `v4/tests/fx-replay-initial-load-browser-smoke.js`.
-- Use real bars through the normal app/API path.
-- Cover at least:
+- Added `v4/tests/fx-replay-initial-load-browser-smoke.js`.
+- Uses real bars through the normal app/API path and runtime command.
+- Covers:
   - NQ 1M initial session;
   - NQ 1H initial session;
   - prefix bars exist;
   - start bar is latest visible replay bar;
   - no future bars visible;
   - initial loading does not trigger full date range chart load.
+- Uses `2025-06-02 10:00` as session start because `2025-06-01 18:00` is
+  Sunday open and has no older prefix data, which would create a false negative
+  for the first-prefix browser smoke.
 
-Manual check:
+Checks:
 
-- Run on desktop browser and compare 4K vs 1080p:
-  - prefix count/range may differ;
-  - neither is fixed by an arbitrary day cap;
-  - right side after start is blank/unrevealed.
-
-Commit after this step.
+- `node --check v4/tests/fx-replay-initial-load-browser-smoke.js`
+- `node v4/tests/fx-replay-initial-load-browser-smoke.js`
+- `node v4/tests/fx-replay-no-future-bars-smoke.js`
+- `node v4/tests/fx-replay-controller-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 356.7 - Closeout And Manual Acceptance
 
