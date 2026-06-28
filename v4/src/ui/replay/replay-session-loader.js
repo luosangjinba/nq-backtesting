@@ -62,6 +62,32 @@ function mergeBarsByTimestamp(existingBars, prefixBars) {
   return [...byTimestamp.values()].sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 }
 
+function trimBarsAroundLogicalRange(bars, range, retentionBars = 0) {
+  if (!Array.isArray(bars) || !bars.length || !range) {
+    return { bars, droppedBefore: 0, range };
+  }
+  const from = Number(range.from);
+  const to = Number(range.to);
+  const retention = Math.max(0, Math.floor(Number(retentionBars) || 0));
+  if (!Number.isFinite(from) || !Number.isFinite(to)) {
+    return { bars, droppedBefore: 0, range };
+  }
+  const keepFrom = Math.max(0, Math.floor(from) - retention);
+  const keepTo = Math.min(bars.length - 1, Math.ceil(to) + retention);
+  if (keepFrom === 0 && keepTo === bars.length - 1) {
+    return { bars, droppedBefore: 0, range };
+  }
+  const nextBars = bars.slice(keepFrom, keepTo + 1);
+  return {
+    bars: nextBars,
+    droppedBefore: keepFrom,
+    range: {
+      from: from - keepFrom,
+      to: to - keepFrom,
+    },
+  };
+}
+
 function emitReplaySessionChanged(session, bars) {
   bus.emit('replay:changed', {
     enabled: true,
@@ -218,7 +244,11 @@ export async function reloadReplaySessionTimeframe({
   });
 }
 
-export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
+export async function loadPreviousReplaySessionPrefix({
+  chunkBars,
+  visibleLogicalRange = null,
+  retentionBars = 0,
+} = {}) {
   const session = getActiveReplaySession();
   if (!session) return { ok: false, message: 'No active replay session' };
 
@@ -232,40 +262,47 @@ export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
   }
 
   const existingBars = store.getDisplayBars();
-  const previousRange = getVisibleLogicalRange();
+  const previousRange = visibleLogicalRange || getVisibleLogicalRange();
   const mergedBars = mergeBarsByTimestamp(existingBars, prefixBars);
   const addedBars = Math.max(0, mergedBars.length - existingBars.length);
+  const shiftedRange =
+    previousRange &&
+    Number.isFinite(Number(previousRange.from)) &&
+    Number.isFinite(Number(previousRange.to))
+      ? {
+          from: Number(previousRange.from) + addedBars,
+          to: Number(previousRange.to) + addedBars,
+        }
+      : null;
+  const trimmed = trimBarsAroundLogicalRange(mergedBars, shiftedRange, retentionBars);
+  const nextBars = trimmed.bars;
   const sessionWithChunk = addReplaySessionChunk(session, {
     reason: loadedRequest.reason,
     startTs: loadedRequest.startTs,
     endTs: loadedRequest.endTs,
   });
   const requestedRange = {
-    startTs: Number(mergedBars[0]?.timestamp ?? request.startTs),
-    endTs: sessionWithChunk.cursor,
+    startTs: Number(nextBars[0]?.timestamp ?? loadedRequest.startTs),
+    endTs: Number(nextBars[nextBars.length - 1]?.timestamp ?? sessionWithChunk.cursor),
   };
 
   setActiveReplaySession(sessionWithChunk);
-  store.setBars(mergedBars, loadedRequest.start, formatReplaySessionDateTime(sessionWithChunk.cursor), loadedRequest.timeframe, requestedRange, {
+  store.setBars(nextBars, formatReplaySessionDateTime(requestedRange.startTs), formatReplaySessionDateTime(requestedRange.endTs), loadedRequest.timeframe, requestedRange, {
     instrument: loadedRequest.instrument,
     outerRange: null,
   });
-  if (
-    previousRange &&
-    addedBars > 0 &&
-    Number.isFinite(previousRange.from) &&
-    Number.isFinite(previousRange.to)
-  ) {
-    setVisibleLogicalRange(previousRange.from + addedBars, previousRange.to + addedBars);
+  if (trimmed.range) {
+    setVisibleLogicalRange(trimmed.range.from, trimmed.range.to);
   }
-  emitReplaySessionChanged(sessionWithChunk, mergedBars);
+  emitReplaySessionChanged(sessionWithChunk, nextBars);
 
   return {
     ok: true,
     session: sessionWithChunk,
     request: loadedRequest,
-    bars: mergedBars,
+    bars: nextBars,
     prefixBars,
+    droppedBars: Math.max(0, mergedBars.length - nextBars.length),
     cacheHit,
   };
 }
