@@ -26,6 +26,8 @@ order_setup_chart_actions_source = read("src/order/order-setup-chart-actions.js"
 order_setup_mutation_actions_source = read("src/order/order-setup-mutation-actions.js")
 live_record_chart_actions_source = read("src/live-record/live-record-chart-actions.js")
 live_record_mutation_actions_source = read("src/live-record/live-record-mutation-actions.js")
+fx_replay_controller_source = read("src/features/fx-replay/fx-replay-controller.js")
+runtime_commands_source = read("src/runtime/commands.js")
 data_maintenance_html = read("data-maintenance.html")
 tradovate_importer_source = read("src/live-record/tradovate-performance-importer.js")
 review_archive_source = read("src/review/review-archive.js")
@@ -152,6 +154,28 @@ assert "LIVE_RECORD_TARGET_ACTIONS" not in live_record_chart_actions_source, (
 )
 assert "LIVE_RECORD_TARGET_ACTIONS" in live_record_mutation_actions_source, (
     "live-record-mutation-actions.js should own Live Record mutation config"
+)
+
+for forbidden in [
+    "../features/fx-replay",
+    "fxReplay.startInitialSession",
+    "fx-replay-initial-load",
+]:
+    assert forbidden not in replay_source, f"legacy replay controls should not own FX Replay semantics: {forbidden}"
+
+for forbidden in [
+    "../../runtime/",
+    "../../chart/chart-manager.js",
+    "../../data/bar-store.js",
+    "../replay/replay-model.js",
+    "../../ui/replay-controls.js",
+]:
+    assert forbidden not in fx_replay_controller_source, (
+        f"fx-replay-controller.js should stay feature-owned and dependency-injected: {forbidden}"
+    )
+
+assert "../features/fx-replay/fx-replay-controller.js" in runtime_commands_source, (
+    "runtime commands should compose the FX Replay controller boundary"
 )
 
 for forbidden in [

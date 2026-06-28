@@ -1402,6 +1402,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 356.2: Loader request planner。已新增 `fx-replay-loader.js` 与 loader smoke，初始请求计划只允许 start-bar resolve 与 `end < startBarTimestamp` 的 prefix 请求；禁止 full date range 与未解析 start bar 时误生成 prefix。
   - [x] Step 356.3: Viewport prefix policy。已新增 `fx-replay-viewport-policy.js` 与 viewport policy smoke，用当前 chart viewport 宽度/bar spacing/visible logical range 估算初始可视前缀数量；4K/1080p 前缀范围不同，不按固定 1 天/2 天 cap。
   - [x] Step 356.4: Initial session chart projection。已新增最小 FX Replay controller/command，把初始 session 投影到主图：display bars 只能是 `prefixBars + startBar`，start bar 为最右侧/latest replay bar；新增 controller smoke 覆盖 future bars 不进入投影。
-  - [ ] Step 356.5: No-future-bars guards。新增 smoke 保护 initial display 最大 timestamp 等于 `startBarTimestamp`，loader cache 不暴露 future bars，chart projection 不包含 `timestamp > cursorTimestamp`。
+  - [x] Step 356.5: No-future-bars guards。已新增 no-future-bars smoke 和 model/controller 断言，保护 initial display 最大 timestamp 等于 `startBarTimestamp`、loader cache 不经 display helper 暴露 future bars、chart projection 不包含 `timestamp > cursorTimestamp`；closeout smoke 防止 FX Replay 语义回流到 legacy replay controls。
   - [ ] Step 356.6: Real-data browser smoke。新增真实数据 browser smoke 覆盖 NQ 1M/1H 初始 session：有 prefix、start bar 最新、future visible 为 0、没有 full date range load。
   - [ ] Step 356.7: Closeout and manual acceptance。更新 TODO/session，记录 left drag older-prefix、retention/release、Next/Play、right-bound clamp 留到 Step 357/358；手动验收只要求第一屏像 FX Replay。

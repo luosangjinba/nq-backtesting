@@ -138,6 +138,21 @@ export function getFxReplayInitialDisplayBars(state) {
   return [...prefixBars, startBar];
 }
 
+export function assertFxReplayBarsDoNotExceedCursor(bars = [], cursorTimestamp, label = 'FX Replay bars') {
+  const cursor = normalizeFxReplayTimestamp(cursorTimestamp);
+  if (cursor === null) {
+    throw new Error(`${label} require a valid cursor timestamp`);
+  }
+  const futureBar = (bars || [])
+    .map(normalizeBar)
+    .filter(Boolean)
+    .find((bar) => bar.timestamp > cursor);
+  if (futureBar) {
+    throw new Error(`${label} must not include future bars after cursor`);
+  }
+  return true;
+}
+
 export function getFxReplayPrefixRange(state) {
   const prefixBars = sortBarsAscending(state.prefixBars);
   if (!prefixBars.length) return null;
@@ -182,6 +197,7 @@ export function assertFxReplayInitialInvariants(state) {
   if (displayBars.some((bar) => bar.timestamp > cursorTimestamp)) {
     throw new Error('FX Replay initial display bars must not include future bars');
   }
+  assertFxReplayBarsDoNotExceedCursor(displayBars, cursorTimestamp, 'FX Replay initial display bars');
   if (Array.isArray(state.revealedForwardBars) && state.revealedForwardBars.length > 0) {
     throw new Error('FX Replay initial state must not expose revealed forward bars');
   }

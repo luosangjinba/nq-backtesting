@@ -163,21 +163,27 @@ Checks:
 
 ## Step 356.5 - No-Future-Bars Guards
 
-Planned:
+Completed:
 
-- Add smoke coverage that fails if:
+- Added smoke coverage that fails if:
   - initial display max timestamp is greater than `startBarTimestamp`;
   - chart projection receives bars after `cursorTimestamp`;
   - loader cache exposes unrevealed future bars through display helpers.
-- Extend module boundary smoke if needed to keep FX Replay semantics out of UI
-  shells and legacy replay controls.
+- Added `assertFxReplayBarsDoNotExceedCursor()` and called it before initial
+  chart projection.
+- Extended module boundary smoke to keep FX Replay semantics out of legacy
+  replay controls and keep the FX Replay controller dependency-injected rather
+  than coupled to runtime/chart-store modules.
+- Added `v4/tests/fx-replay-no-future-bars-smoke.js`.
+- Added the no-future smoke to `v4/scripts/smoke_all.py --suite local`.
 
-Manual check:
+Checks:
 
-- Starting FX Replay reports/derives `futureVisible=0`.
-- Switching timeframe for initial session still respects the same invariant.
-
-Commit after this step.
+- `node v4/tests/fx-replay-no-future-bars-smoke.js`
+- `node v4/tests/fx-replay-controller-smoke.js`
+- `python3 v4/tests/module-boundary-closeout-smoke.py`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 356.6 - Real-Data Browser Smoke
 

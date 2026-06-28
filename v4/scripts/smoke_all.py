@@ -188,6 +188,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify FX Replay initial session chart projection.",
         ),
         SmokeCommand(
+            "fx_replay_no_future_bars_smoke",
+            ["node", "v4/tests/fx-replay-no-future-bars-smoke.js"],
+            "local",
+            "Verify FX Replay initial display never exposes future bars.",
+        ),
+        SmokeCommand(
             "replay_controller_boundary_smoke",
             ["node", "v4/tests/replay-controller-boundary-smoke.js"],
             "local",

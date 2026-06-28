@@ -2,6 +2,7 @@ import * as bus from '../../event-bus.js';
 import {
   applyFxReplayPrefixBars,
   applyFxReplayStartBar,
+  assertFxReplayBarsDoNotExceedCursor,
   assertFxReplayInitialInvariants,
   createFxReplaySessionState,
   getFxReplayChangedPayload,
@@ -105,6 +106,7 @@ export async function startFxReplayInitialSession({
   assertFxReplayInitialInvariants(state);
 
   const displayBars = getFxReplayInitialDisplayBars(state);
+  assertFxReplayBarsDoNotExceedCursor(displayBars, state.cursorTimestamp, 'FX Replay projected display bars');
   enterMode({ source: 'fx-replay-initial-load', sessionId: state.sessionId });
   projectBars(displayBars, { timeframe: state.timeframe, showEnd: true });
 
