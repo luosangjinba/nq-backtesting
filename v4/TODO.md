@@ -1394,6 +1394,6 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 354.9: Closeout audit。已重跑噪音/大文件/边界审计，并扩展 `module-boundary-closeout-smoke.py` 保护 toolbar CSS 与 comparison browser section 边界。未发现新增运行时 debug 噪音；剩余主要候选为 `live-record-smoke.js`、`order-review-store.js`、`time-reaction-actions.js`、`live-record-panel.js`、`segment-review-metrics.js`、`live-record-actions.js`、`inspector-sidebar.js`、`order-setup-chart-actions.js`、`replay-controls.js`、`comparison-context-menu.js`。local suite、`comparison-window-browser-smoke`、`module-boundary-closeout-smoke` 与 `git diff --check` 通过。
 - [ ] Step 355: FX Replay readiness debt。只处理会直接影响下一轮 FX Replay 实现风险的关键债务，计划见 `v4/sessions/session_20260628_step355_replay_readiness_debt.md`。
   - [x] Step 355.1: Split replay controls。已抽出 `replay-toolbar-renderer.js` 与 `replay-control-dispatcher.js`，`replay-controls.js` 从 545 行降到 496 行，并更新 replay controller boundary smoke 保护新边界。
-  - [ ] Step 355.2: Split Order Setup mutation execution。拆出 `order-setup-chart-actions.js` 剩余 mutation 配置/执行逻辑。
+  - [x] Step 355.2: Split Order Setup mutation execution。已抽出 `order-setup-mutation-actions.js`，`order-setup-chart-actions.js` 从 567 行降到 11 行，仅保留 hit-action 与 mutation-action 路由。
   - [ ] Step 355.3: Split Live Record mutation execution。拆出 `live-record-chart-actions.js` 剩余 mutation/link/create 调度。
   - [ ] Step 355.4: Replay integration readiness audit。确认 replay 前置关键边界和剩余暂缓项。

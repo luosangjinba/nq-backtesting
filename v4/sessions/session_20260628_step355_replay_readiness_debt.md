@@ -33,11 +33,19 @@ Checks:
 
 ## Step 355.2 - Split Order Setup mutation execution
 
-Planned:
+Completed:
 
-- Move remaining mutation configuration/execution helpers out of
-  `order-setup-chart-actions.js`.
-- Keep the facade responsible for chart menu/action routing only.
+- Added `src/order/order-setup-mutation-actions.js` for creation, patch, link,
+  and manual event mutation execution.
+- Reduced `src/order/order-setup-chart-actions.js` from 567 to 11 lines.
+- The facade now only composes hit-action routing and mutation-action routing.
+
+Checks:
+
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/context-menu-position-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 355.3 - Split Live Record mutation execution
 
