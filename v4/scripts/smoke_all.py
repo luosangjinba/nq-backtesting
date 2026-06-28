@@ -152,6 +152,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify the inspector sidebar delegates shell DOM ownership to inspector shell modules.",
         ),
         SmokeCommand(
+            "inspector_selection_router_boundary_smoke",
+            ["node", "v4/tests/inspector-selection-router-boundary-smoke.js"],
+            "local",
+            "Verify selected-object event routing stays out of the inspector sidebar.",
+        ),
+        SmokeCommand(
             "review_archive_domain_boundary_smoke",
             ["node", "v4/tests/review-archive-domain-boundary-smoke.js"],
             "local",

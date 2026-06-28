@@ -536,3 +536,13 @@ Commit message:
 - Left popover lifecycle in `calendar-navigator.js` for now because its DOM
   anchor and render callbacks are still tightly coupled; that can be split in a
   later smaller follow-up if needed.
+
+### Step 352.6 Completed
+
+- Added `ui/inspector/inspector-selection-router.js`.
+- Moved selected-object and selection-refresh `bus.on(...)` wiring out of
+  `ui/inspector-sidebar.js`.
+- Sidebar now passes render callbacks and mutable state setters into the
+  selection router.
+- Added `inspector-selection-router-boundary-smoke.js` and included it in local
+  smoke.

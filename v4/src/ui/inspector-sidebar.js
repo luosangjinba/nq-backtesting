@@ -70,6 +70,7 @@ import {
   openInspectorShell,
   setInspectorShellBody,
 } from './inspector/inspector-shell.js';
+import { initInspectorSelectionRouter } from './inspector/inspector-selection-router.js';
 import { renderInspectorBackAction as renderBackAction } from './inspector/inspector-navigation.js';
 import { INSPECTOR_DETAIL_TYPES, isInspectorDetailType } from './inspector/inspector-panel-registry.js';
 import { createPdaInspectorActionController } from './inspector/pda-actions.js';
@@ -1131,152 +1132,50 @@ export function initInspectorSidebar() {
       dailyTimeActions.clearRefPick({ silent: true });
     }
   });
-  bus.on('pda:selected', ({ annotation }) => {
-    if (dailyTimeActions.isPicking()) {
-      dailyTimeActions.handlePickedPda(annotation);
-      return;
-    }
-    if (orderReviewActions.isReasonRefPicking()) {
-      orderReviewActions.handlePickedPda(annotation);
-      return;
-    }
-    if (liveRecordActions.isPicking()) {
-      liveRecordActions.handlePickedPda(annotation);
-      return;
-    }
-    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getAnnotationCalendarDate(annotation));
-    renderAnnotation(annotation);
-    openSidebar();
-  });
-  bus.on('pda:selection-cleared', refreshSelection);
-  bus.on('pda:changed', refreshSelection);
-  bus.on('segment:selected', ({ segment }) => {
-    if (dailyTimeActions.isPicking()) {
-      dailyTimeActions.handlePickedSegment(segment);
-      return;
-    }
-    if (orderReviewActions.isReasonRefPicking()) {
-      orderReviewActions.handlePickedSegment(segment);
-      return;
-    }
-    if (liveRecordActions.isPicking()) {
-      liveRecordActions.handlePickedSegment(segment);
-      return;
-    }
-    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSegmentCalendarDate(segment));
-    renderSegment(segment);
-    openSidebar();
-  });
-  bus.on('segment-group:selected', ({ segmentGroup }) => {
-    if (dailyTimeActions.isPicking()) {
-      dailyTimeActions.handlePickedComposite(segmentGroup);
-      return;
-    }
-    if (orderReviewActions.isReasonRefPicking()) {
-      orderReviewActions.handlePickedComposite(segmentGroup);
-      return;
-    }
-    if (liveRecordActions.isPicking()) {
-      liveRecordActions.handlePickedComposite(segmentGroup);
-      return;
-    }
-    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getCompositeCalendarDate(segmentGroup));
-    renderSegmentGroup(segmentGroup);
-    openSidebar();
-  });
-  bus.on('segment:selection-cleared', refreshSelection);
-  bus.on('segment-group:selection-cleared', refreshSelection);
-  bus.on('segment:changed', refreshSelection);
-  bus.on('segment-group:changed', refreshSelection);
-  bus.on('drawing-set-focus:changed', refreshSelection);
-  bus.on('smt:changed', refreshSelection);
-  bus.on('smt:selected', ({ record }) => {
-    if (!record) return;
-    if (dailyTimeActions.isPicking()) {
-      dailyTimeActions.handlePickedSmt(record);
-      return;
-    }
-    if (orderReviewActions.isReasonRefPicking()) {
-      orderReviewActions.handlePickedSmt(record);
-      return;
-    }
-    if (liveRecordActions.isPicking()) {
-      liveRecordActions.handlePickedSmt(record);
-      return;
-    }
-    if (!suppressSelectionBackTarget) prepareSelectionBackTarget(getSmtCalendarDate(record));
-    selectedSmtId = record.id;
-    renderSmtSelection();
-    openSidebar();
-  });
-  bus.on('smt:selection-cleared', () => {
-    selectedSmtId = null;
-    refreshSelection();
-  });
-  bus.on('order-review:changed', refreshSelection);
-  bus.on('live-record:changed', refreshSelection);
-  bus.on(ENTRY_CONTEXT_CATALOG_CHANGED, refreshOnEntryContextCatalogChange);
-  bus.on('daily-time-review:changed', refreshSelectionUnlessEditingDailyTimeText);
-  bus.on('chart-notes:changed', refreshSelection);
-  bus.on('economic-event-notes:changed', refreshSelection);
-  bus.on('chart-note:selected', ({ note }) => {
-    if (orderReviewActions.isReasonRefPicking()) {
-      orderReviewActions.handlePickedChartNote(note);
-      return;
-    }
-    if (liveRecordActions.isPicking()) {
-      liveRecordActions.handlePickedChartNote(note);
-    }
-  });
-  bus.on('economic-calendar:changed', refreshSelection);
-  bus.on('daily-regime:changed', refreshSelection);
-  bus.on('time-overlays:changed', refreshSelection);
-  bus.on('replay:changed', refreshOnReplayDayChange);
-  bus.on('inspector:open-calendar-date', openCalendarDate);
-  bus.on('order-setup-element:selected', () => {
-    if (dailyTimeActions.isPicking()) {
-      const order = getOrderReviewById(getSelectedOrderSetupElement()?.setupId);
-      if (order) dailyTimeActions.handlePickedOrderSetup(order);
-      return;
-    }
-    showActiveOrderSetupPanel();
-  });
-  bus.on('order-setup-element:selection-cleared', refreshSelection);
-  bus.on('live-record-element:selected', showSelectedLiveRecordPanel);
-  bus.on('live-record-element:selection-cleared', refreshSelection);
-  bus.on('order-review-active:changed', ({ activeReviewSetId }) => {
-    if (suppressActiveReviewRender) return;
-    if (dailyTimeActions.isPicking() && activeReviewSetId) {
-      const order = getOrderReviewById(activeReviewSetId);
-      if (order) dailyTimeActions.handlePickedOrderSetup(order);
-      return;
-    }
-    if (activeReviewSetId) {
-      showActiveOrderSetupPanel();
-      return;
-    }
-    refreshSelection();
-  });
-  bus.on('inspector:open-archive', () => {
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    renderArchivePanel();
-    openSidebar();
-  });
-  bus.on('bars:cleared', () => {
-    segmentActions.clearActorPickState({ silent: true });
-    clearPdaSelection();
-    clearSegmentSelection();
-    clearSegmentGroupSelection();
-    calendarSelectedDate = '';
-    calendarViewDate = '';
-    renderEmpty();
-  });
-  bus.on('bars:loaded', () => {
-    calendarSelectedDate = getDefaultCalendarDate();
-    calendarViewDate = calendarSelectedDate;
-    refreshSelection();
+  initInspectorSelectionRouter({
+    dailyTimeActions,
+    orderReviewActions,
+    liveRecordActions,
+    segmentActions,
+    clearPdaSelection,
+    clearSegmentSelection,
+    clearSegmentGroupSelection,
+    getSelectedOrderSetupElement,
+    getOrderReviewById,
+    getDefaultCalendarDate,
+    getSuppressSelectionBackTarget: () => suppressSelectionBackTarget,
+    getSuppressActiveReviewRender: () => suppressActiveReviewRender,
+    prepareSelectionBackTarget,
+    renderAnnotation,
+    renderSegment,
+    renderSegmentGroup,
+    renderSmtSelection,
+    renderArchivePanel,
+    renderEmpty,
+    renderSelectedLiveRecordPanel: showSelectedLiveRecordPanel,
+    showActiveOrderSetupPanel,
+    openSidebar,
+    refreshSelection,
+    refreshOnEntryContextCatalogChange,
+    refreshSelectionUnlessEditingDailyTimeText,
+    refreshOnReplayDayChange,
+    openCalendarDate,
+    setSelectedSmtId: (smtId) => {
+      selectedSmtId = smtId;
+    },
+    setCalendarDate: (selectedDate, viewDate = selectedDate) => {
+      calendarSelectedDate = selectedDate;
+      calendarViewDate = viewDate;
+    },
+    clearCalendarDate: () => {
+      calendarSelectedDate = '';
+      calendarViewDate = '';
+    },
+    getAnnotationCalendarDate,
+    getSegmentCalendarDate,
+    getCompositeCalendarDate,
+    getSmtCalendarDate,
+    entryContextCatalogChangedEvent: ENTRY_CONTEXT_CATALOG_CHANGED,
   });
 }
 

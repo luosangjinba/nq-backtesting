@@ -1363,7 +1363,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 352.3: 拆 `replay-controls.js`。已拆出 replay chart adapter、toolbar sync、history controller，并新增 boundary smoke 防止 `ui/replay-controls.js` 重新直接依赖 chart manager、primary chart runtime、comparison store 或 replay history store；legacy replay 行为保持不变。
   - [x] Step 352.4: 拆 Toolbar 交互控制器。已新增 settings、layout、pane、range controller；`toolbar.js` 只负责初始化组装、基础控件事件和状态显示；增强 toolbar boundary smoke 防止控制器逻辑回流。
   - [x] Step 352.5: 拆 Calendar Navigator。已新增 `calendar-date-utils.js` 与 `calendar-range-loader.js`，把日期/标签/month cells 和主图 range loading 从 `calendar-navigator.js` 移出；增强 calendar boundary smoke 防止 date utils / range loader 回流。
-  - [ ] Step 352.6: 拆 Inspector selection routing。把 selected-object bus wiring 从 `inspector-sidebar.js` 移到 `inspector-selection-router.js`。
+  - [x] Step 352.6: 拆 Inspector selection routing。已新增 `inspector-selection-router.js`，把 PDA/Segment/SMT/Order/Live/Replay/Bars 等 selected-object 与刷新事件订阅移出 `inspector-sidebar.js`；新增 boundary smoke 并纳入 local smoke。
   - [ ] Step 352.7: 拆 Inspector action/change routing。把 click/change 巨型分发和 archive/import actions 从 `inspector-sidebar.js` 移出。
   - [ ] Step 352.8: 拆 Inspector Calendar Panel。把 calendar panel data derivation、view rendering、day groups、Daily Time summary 拆成独立模块。
   - [ ] Step 352.9: 拆 backend workspace store。把 workspace domain normalize、path、read/write、response shape 从 `v4_api.py` 移到 `server/workspace_store.py`。
