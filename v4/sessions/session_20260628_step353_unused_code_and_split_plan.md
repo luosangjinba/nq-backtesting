@@ -308,7 +308,7 @@ Completion notes:
   `python3 v4/scripts/smoke_all.py --suite local`, and
   `git diff --check`.
 
-### Step 353.6 - Continue Review Archive import pipeline split
+### Step 353.6 - Continue Review Archive import pipeline split ✅
 
 `review-archive.js` still owns export payload, import validation, id mapping,
 ref remapping, per-domain prepare logic, store loading, and UI file handling.
@@ -341,6 +341,30 @@ Manual check:
 Commit message:
 
 - `Split review archive import pipeline`
+
+Completion notes:
+
+- Added `review/review-archive-import-prepare.js` for per-domain import
+  normalization, duplicate detection, id remapping, and prepared object sets.
+- Added `review/review-archive-import-maps.js` for Order Setup, Live Record,
+  and Daily Time Review linked-ref remapping.
+- Added `review/review-archive-store-loader.js` for batch loading prepared
+  import results into domain stores.
+- `review-archive.js` now keeps export payload construction, file IO, payload
+  validation, history transaction orchestration, import audit, and status
+  messages.
+- Validation passed:
+  `node v4/tests/review-archive-domain-boundary-smoke.js`,
+  `node v4/tests/daily-time-review-archive-smoke.js`,
+  `node v4/tests/notes-review-domains-persistence-smoke.js`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and
+  `git diff --check`.
+- Residual test note: `node v4/tests/live-record-smoke.js` still fails on the
+  existing `detail renders linked live PDA ref` assertion. The stored ref is
+  added, but the rendered detail output does not contain the expected legacy
+  `Context · PDA · Main NQ 1M · fib-live-reason-link` text. This smoke is not
+  part of the current local suite and the failure is outside the Step 353.6
+  review archive import pipeline split.
 
 ### Step 353.7 - CSS domain split planning and first safe extraction
 

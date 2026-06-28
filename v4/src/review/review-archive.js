@@ -11,45 +11,28 @@ import {
   getImportableAnnotations,
   readFileAsText,
 } from '../pda/pda-archive.js';
-import { getAnnotationIdentity, getAnnotations, loadAnnotations } from '../pda/pda-store.js';
-import { getSegmentIdentity, getSegments, loadSegments } from '../segment/segment-store.js';
-import { getSegmentGroups, loadSegmentGroups } from '../segment/segment-group-store.js';
-import { normalizeReactionEvidenceList } from '../segment/reaction-evidence.js';
+import { getAnnotations } from '../pda/pda-store.js';
+import { getSegments } from '../segment/segment-store.js';
+import { getSegmentGroups } from '../segment/segment-group-store.js';
 import {
-  getSmtRecordIdentity,
   getSmtRecords,
-  loadSmtRecords,
-  normalizeSmtRecord,
 } from '../smt/smt-store.js';
 import {
-  getOrderReviewIdentity,
   getOrderReviews,
-  loadOrderReviews,
-  normalizeOrderReview,
 } from '../order/order-review-store.js';
 import {
   getLiveRecords,
-  loadLiveRecords,
-  normalizeLiveRecord,
 } from '../live-record/live-record-store.js';
-import { ORDER_REF_TYPES } from '../order/order-review-types.js';
 import {
-  getDailyTimeReviewIdentity,
   getDailyTimeReviews,
   getDailyTimeReviewsWithContent,
-  loadDailyTimeReviews,
-  normalizeDailyTimeReview,
 } from '../time-reaction/daily-time-review-store.js';
 import {
   getDailyRegimes,
 } from '../daily-regime/daily-regime-store.js';
-import { getDailyRegimeIdentity, normalizeDailyRegime } from '../daily-regime/daily-regime-types.js';
 import { recordImportBatch } from '../import/import-batch-audit.js';
 import {
-  getChartNoteIdentity,
   getChartNotes,
-  loadChartNotes,
-  normalizeChartNote,
 } from '../chart-notes/chart-note-store.js';
 import { recordHistory } from '../history/history-manager.js';
 import { collectReviewObjectDateKeys } from './review-archive-date-keys.js';
@@ -61,8 +44,21 @@ import {
   REVIEW_ARCHIVE_VERSION,
   validateReviewPayload,
 } from './review-archive-format.js';
-
-const DISPLAY_MODES = new Set(['highlight', 'normal', 'hidden']);
+import {
+  isImportableSegment,
+  normalizeImportedGroup,
+  normalizeImportedSegment,
+  prepareImportedAnnotationsWithIdMap,
+  prepareImportedChartNotes,
+  prepareImportedDailyRegimes,
+  prepareImportedDailyTimeReviews,
+  prepareImportedGroups,
+  prepareImportedLiveRecords,
+  prepareImportedOrderReviews,
+  prepareImportedSegments,
+  prepareImportedSmtRecords,
+} from './review-archive-import-prepare.js';
+import { loadReviewArchiveStores } from './review-archive-store-loader.js';
 
 function getExportableSegments() {
   return getSegments().filter((segment) => segment.source !== 'draft' && !segment.draft);
@@ -154,617 +150,6 @@ function validateArchiveInstrument(payloadInstrument) {
   }
 }
 
-function prepareImportedAnnotationsWithIdMap(existingAnnotations, importedAnnotations) {
-  const usedIds = new Set(existingAnnotations.map((annotation) => annotation.id).filter(Boolean));
-  const existingByIdentity = new Map(
-    existingAnnotations.map((annotation) => [getAnnotationIdentity(annotation), annotation])
-  );
-  const idMap = new Map();
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-
-  const annotations = [];
-  importedAnnotations.forEach((annotation, index) => {
-    const originalId = annotation.id;
-    const identity = getAnnotationIdentity(annotation);
-    const existing = existingByIdentity.get(identity);
-    if (existing) {
-      skippedDuplicates += 1;
-      idMap.set(originalId, existing.id);
-      return;
-    }
-
-    let nextAnnotation = annotation;
-    if (usedIds.has(originalId)) {
-      const nextId = `${originalId}-import-${importStamp}-${index + 1}`;
-      nextAnnotation = {
-        ...annotation,
-        id: nextId,
-        importedFromId: originalId,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(nextAnnotation.id);
-    existingByIdentity.set(identity, nextAnnotation);
-    idMap.set(originalId, nextAnnotation.id);
-    annotations.push(nextAnnotation);
-  });
-
-  return { annotations, skippedDuplicates, idMap };
-}
-
-function isImportableSegment(segment) {
-  if (!segment || typeof segment !== 'object') return false;
-  if (!segment.id) return false;
-  return (
-    segment.start &&
-    segment.end &&
-    Number.isFinite(Number(segment.start.price)) &&
-    Number.isFinite(Number(segment.end.price)) &&
-    (segment.start.timestamp || segment.start.time) &&
-    (segment.end.timestamp || segment.end.time)
-  );
-}
-
-function normalizeDisplayMode(value, fallback = 'highlight') {
-  return DISPLAY_MODES.has(value) ? value : fallback;
-}
-
-function normalizeImportedResponse(response, pdaIdMap, availablePdaIds) {
-  const originalPdaId = response?.pdaId;
-  const pdaId = pdaIdMap.get(originalPdaId) || originalPdaId;
-  if (!pdaId || !availablePdaIds.has(pdaId)) return null;
-
-  const displayMode = normalizeDisplayMode(
-    response?.displayMode,
-    response?.selected === false ? 'normal' : 'highlight'
-  );
-  const reactionEvidence = normalizeReactionEvidenceList(response.reactionEvidence).map((evidence) => ({
-    ...evidence,
-    pdaId,
-  }));
-
-  return {
-    pdaId,
-    pdaType: response.pdaType || 'unknown',
-    relation: response.relation || 'approached',
-    note: response.note || '',
-    displayMode,
-    selected: displayMode === 'highlight',
-    linkedAt: response.linkedAt || Date.now(),
-    ...(reactionEvidence.length ? { reactionEvidence } : {}),
-  };
-}
-
-function normalizeImportedSegment(segment, pdaIdMap, availablePdaIds) {
-  const responses = Array.isArray(segment.pdaResponses)
-    ? segment.pdaResponses
-        .map((response) => normalizeImportedResponse(response, pdaIdMap, availablePdaIds))
-        .filter(Boolean)
-    : [];
-
-  return {
-    ...segment,
-    source: segment.source || 'manual',
-    timeframe: segment.timeframe || '1H',
-    tags: Array.isArray(segment.tags) ? segment.tags.filter((tag) => typeof tag === 'string') : [],
-    pdaResponses: responses,
-    display: {
-      ...(segment.display || {}),
-      isolate: false,
-      isolateDisplayMode: normalizeDisplayMode(segment.display?.isolateDisplayMode),
-    },
-  };
-}
-
-function prepareImportedSegments(existingSegments, importedSegments) {
-  const usedIds = new Set(existingSegments.map((segment) => segment.id).filter(Boolean));
-  const existingByIdentity = new Map(existingSegments.map((segment) => [getSegmentIdentity(segment), segment]));
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  const idMap = new Map();
-
-  const segments = [];
-  importedSegments.forEach((segment, index) => {
-    const identity = getSegmentIdentity(segment);
-    const existing = existingByIdentity.get(identity);
-    if (existing) {
-      skippedDuplicates += 1;
-      idMap.set(segment.id, existing.id);
-      return;
-    }
-
-    let nextSegment = segment;
-    if (usedIds.has(segment.id)) {
-      const nextId = `${segment.id}-import-${importStamp}-${index + 1}`;
-      nextSegment = {
-        ...segment,
-        id: nextId,
-        importedFromId: segment.id,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(nextSegment.id);
-    existingByIdentity.set(identity, nextSegment);
-    idMap.set(segment.id, nextSegment.id);
-    segments.push(nextSegment);
-  });
-
-  return { segments, skippedDuplicates, idMap };
-}
-
-function normalizeImportedGroup(group, segmentIdMap, availableSegmentIds) {
-  if (!group || group.type !== 'composite-move' || !Array.isArray(group.childSegmentIds)) return null;
-  const childSegmentIds = group.childSegmentIds
-    .map((id) => segmentIdMap.get(id) || id)
-    .filter((id, index, ids) => availableSegmentIds.has(id) && ids.indexOf(id) === index);
-  if (childSegmentIds.length < 2) return null;
-
-  const targetSegmentId = segmentIdMap.get(group.targetSegmentId) || group.targetSegmentId || '';
-  return {
-    ...group,
-    type: 'composite-move',
-    childSegmentIds,
-    targetSegmentId: availableSegmentIds.has(targetSegmentId) ? targetSegmentId : '',
-    objective: group.objective || 'break-previous-extreme',
-    outcome: group.outcome || 'pending',
-    notes: group.notes || '',
-    display: {
-      ...(group.display || {}),
-      showLabel: group.display?.showLabel ?? true,
-    },
-  };
-}
-
-function prepareImportedGroups(existingGroups, importedGroups) {
-  const usedIds = new Set(existingGroups.map((group) => group.id).filter(Boolean));
-  const existingIdentities = new Set(
-    existingGroups.map((group) => `${group.type}:${(group.childSegmentIds || []).join(',')}:${group.targetSegmentId || ''}`)
-  );
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  const idMap = new Map();
-  const groups = [];
-
-  importedGroups.forEach((group, index) => {
-    const identity = `${group.type}:${(group.childSegmentIds || []).join(',')}:${group.targetSegmentId || ''}`;
-    if (existingIdentities.has(identity)) {
-      skippedDuplicates += 1;
-      const existing = existingGroups.find(
-        (candidate) =>
-          `${candidate.type}:${(candidate.childSegmentIds || []).join(',')}:${candidate.targetSegmentId || ''}` === identity
-      );
-      if (existing) idMap.set(group.id, existing.id);
-      return;
-    }
-
-    const originalId = group.id;
-    let nextGroup = group;
-    if (usedIds.has(group.id)) {
-      nextGroup = {
-        ...group,
-        id: `${group.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: originalId,
-        updatedAt: Date.now(),
-      };
-    }
-    usedIds.add(nextGroup.id);
-    existingIdentities.add(identity);
-    idMap.set(originalId, nextGroup.id);
-    groups.push(nextGroup);
-  });
-
-  return { groups, skippedDuplicates, idMap };
-}
-
-function prepareImportedSmtRecords(existingRecords, importedRecords) {
-  const usedIds = new Set(existingRecords.map((record) => record.id).filter(Boolean));
-  const existingByIdentity = new Map(existingRecords.map((record) => [getSmtRecordIdentity(record), record]));
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  let skippedInvalid = 0;
-  const idMap = new Map();
-  const records = [];
-
-  importedRecords.forEach((record, index) => {
-    let normalized;
-    try {
-      normalized = normalizeSmtRecord(record, { preserveId: true });
-    } catch {
-      skippedInvalid += 1;
-      return;
-    }
-
-    const identity = getSmtRecordIdentity(normalized);
-    const existing = existingByIdentity.get(identity);
-    if (existing) {
-      skippedDuplicates += 1;
-      idMap.set(normalized.id, existing.id);
-      return;
-    }
-
-    const originalId = normalized.id;
-    if (usedIds.has(normalized.id)) {
-      normalized = {
-        ...normalized,
-        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: originalId,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(normalized.id);
-    existingByIdentity.set(identity, normalized);
-    idMap.set(originalId, normalized.id);
-    records.push(normalized);
-  });
-
-  return { records, skippedDuplicates, skippedInvalid, idMap };
-}
-
-function remapOrderReviewRef(ref, refIdMaps = {}) {
-  if (ref.type === ORDER_REF_TYPES.PDA) {
-    return { ...ref, id: refIdMaps.pdaIdMap?.get(ref.id) || ref.id };
-  }
-  if (ref.type === ORDER_REF_TYPES.SEGMENT) {
-    return { ...ref, id: refIdMaps.segmentIdMap?.get(ref.id) || ref.id };
-  }
-  if (ref.type === ORDER_REF_TYPES.COMPOSITE) {
-    return { ...ref, id: refIdMaps.groupIdMap?.get(ref.id) || ref.id };
-  }
-  if (ref.type === ORDER_REF_TYPES.SMT) {
-    return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
-  }
-  if (ref.type === ORDER_REF_TYPES.CHART_NOTE) {
-    return { ...ref, id: refIdMaps.chartNoteIdMap?.get(ref.id) || ref.id };
-  }
-  if (ref.type === ORDER_REF_TYPES.ORDER_SETUP) {
-    return { ...ref, id: refIdMaps.orderIdMap?.get(ref.id) || ref.id };
-  }
-  return ref;
-}
-
-function remapOrderReviewLinkedRefs(order, refIdMaps = {}) {
-  const refs = Array.isArray(order.setupThesis?.linkedObjectRefs)
-    ? order.setupThesis.linkedObjectRefs.map((ref) => remapOrderReviewRef(ref, refIdMaps))
-    : [];
-  const reasons = Array.isArray(order.setupThesis?.reasons)
-    ? order.setupThesis.reasons.map((reason) => ({
-        ...reason,
-        refs: Array.isArray(reason.refs)
-          ? reason.refs.map((ref) => remapOrderReviewRef(ref, refIdMaps))
-          : [],
-      }))
-    : order.setupThesis?.reasons;
-
-  return {
-    ...order,
-    setupThesis: {
-      ...(order.setupThesis || {}),
-      linkedObjectRefs: refs,
-      ...(reasons !== undefined ? { reasons } : {}),
-    },
-  };
-}
-
-function prepareImportedOrderReviews(existingOrders, importedOrders, refIdMaps = {}) {
-  const usedIds = new Set(existingOrders.map((order) => order.id).filter(Boolean));
-  const existingByIdentity = new Map(
-    existingOrders
-      .map((order) => [getOrderReviewIdentity(order), order])
-      .filter(([identity]) => identity)
-  );
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  let skippedInvalid = 0;
-  const idMap = new Map();
-  const orders = [];
-
-  importedOrders.forEach((order, index) => {
-    let normalized;
-    try {
-      normalized = normalizeOrderReview(
-        remapOrderReviewLinkedRefs(order, refIdMaps),
-        { now: Date.now() }
-      );
-    } catch {
-      skippedInvalid += 1;
-      return;
-    }
-
-    const identity = getOrderReviewIdentity(normalized);
-    if (identity && existingByIdentity.has(identity)) {
-      skippedDuplicates += 1;
-      const existing = existingByIdentity.get(identity);
-      if (existing) idMap.set(normalized.id, existing.id);
-      return;
-    }
-
-    const originalId = normalized.id;
-    if (usedIds.has(normalized.id)) {
-      normalized = {
-        ...normalized,
-        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: normalized.importedFromId || originalId,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(normalized.id);
-    if (identity) existingByIdentity.set(identity, normalized);
-    idMap.set(originalId, normalized.id);
-    orders.push(normalized);
-  });
-
-  return { orders, skippedDuplicates, skippedInvalid, idMap };
-}
-
-function remapLiveRecordRef(ref = {}, refIdMaps = {}) {
-  if (!ref?.id) return ref;
-  if (ref.type === 'pda') return { ...ref, id: refIdMaps.pdaIdMap?.get(ref.id) || ref.id };
-  if (ref.type === 'segment') return { ...ref, id: refIdMaps.segmentIdMap?.get(ref.id) || ref.id };
-  if (ref.type === 'composite') return { ...ref, id: refIdMaps.groupIdMap?.get(ref.id) || ref.id };
-  if (ref.type === 'smt') return { ...ref, id: refIdMaps.smtIdMap?.get(ref.id) || ref.id };
-  if (ref.type === 'chart-note') return { ...ref, id: refIdMaps.chartNoteIdMap?.get(ref.id) || ref.id };
-  if (ref.type === 'order-setup') return { ...ref, id: refIdMaps.orderIdMap?.get(ref.id) || ref.id };
-  return ref;
-}
-
-function remapLiveRecordRefs(record = {}, refIdMaps = {}) {
-  const reasons = Array.isArray(record.reasons)
-    ? record.reasons.map((reason) => ({
-        ...reason,
-        refs: Array.isArray(reason.refs)
-          ? reason.refs.map((ref) => remapLiveRecordRef(ref, refIdMaps))
-          : [],
-      }))
-    : record.reasons;
-  return {
-    ...record,
-    orderSetupId: refIdMaps.orderIdMap?.get(record.orderSetupId) || record.orderSetupId || '',
-    reasons,
-    linkedObjectRefs: Array.isArray(record.linkedObjectRefs)
-      ? record.linkedObjectRefs.map((ref) => remapLiveRecordRef(ref, refIdMaps))
-      : [],
-  };
-}
-
-function getLiveRecordImportIdentity(record = {}) {
-  return [
-    record.instrument || '',
-    record.direction || '',
-    record.anchor?.timestamp || '',
-    record.anchor?.price ?? '',
-    record.execution?.entry?.timestamp || '',
-    record.execution?.entry?.price ?? '',
-    record.result?.exitTimestamp || '',
-  ].join('|');
-}
-
-function prepareImportedLiveRecords(existingRecords, importedRecords, refIdMaps = {}) {
-  const instrument = getPrimaryInstrument();
-  const usedIds = new Set(existingRecords.map((record) => record.id).filter(Boolean));
-  const existingByIdentity = new Map(
-    existingRecords
-      .map((record) => [getLiveRecordImportIdentity(record), record])
-      .filter(([identity]) => identity)
-  );
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  let skippedInvalid = 0;
-  const records = [];
-
-  (Array.isArray(importedRecords) ? importedRecords : []).forEach((record, index) => {
-    const recordInstrument = String(record?.instrument || '').trim().toUpperCase();
-    if (recordInstrument && recordInstrument !== instrument) {
-      skippedInvalid += 1;
-      return;
-    }
-    let normalized;
-    try {
-      normalized = normalizeLiveRecord(
-        { ...remapLiveRecordRefs(record, refIdMaps), instrument: recordInstrument || instrument },
-        { now: Date.now() }
-      );
-    } catch {
-      skippedInvalid += 1;
-      return;
-    }
-    if (normalized.instrument !== instrument) {
-      skippedInvalid += 1;
-      return;
-    }
-
-    const identity = getLiveRecordImportIdentity(normalized);
-    if (identity && existingByIdentity.has(identity)) {
-      skippedDuplicates += 1;
-      return;
-    }
-
-    const originalId = normalized.id;
-    if (usedIds.has(normalized.id)) {
-      normalized = {
-        ...normalized,
-        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: normalized.importedFromId || originalId,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(normalized.id);
-    if (identity) existingByIdentity.set(identity, normalized);
-    records.push(normalized);
-  });
-
-  return { records, skippedDuplicates, skippedInvalid };
-}
-
-function remapDailyTimeReviewRefs(review, refIdMaps = {}) {
-  const remapRefs = (refs = []) => (Array.isArray(refs) ? refs.map((ref) => remapOrderReviewRef(ref, refIdMaps)) : []);
-  return {
-    ...review,
-    pre0930Context: {
-      ...(review.pre0930Context || {}),
-      refs: remapRefs(review.pre0930Context?.refs),
-      items: Array.isArray(review.pre0930Context?.items)
-        ? review.pre0930Context.items.map((item) => ({
-            ...item,
-            refs: remapRefs(item.refs),
-          }))
-        : review.pre0930Context?.items,
-    },
-    reactions: Array.isArray(review.reactions)
-      ? review.reactions.map((reaction) => ({
-          ...reaction,
-          refs: remapRefs(reaction.refs),
-          items: Array.isArray(reaction.items)
-            ? reaction.items.map((item) => ({
-                ...item,
-                refs: remapRefs(item.refs),
-              }))
-            : reaction.items,
-        }))
-      : [],
-    summary0930To1100: {
-      ...(review.summary0930To1100 || {}),
-      refs: remapRefs(review.summary0930To1100?.refs),
-      items: Array.isArray(review.summary0930To1100?.items)
-        ? review.summary0930To1100.items.map((item) => ({
-            ...item,
-            refs: remapRefs(item.refs),
-          }))
-        : review.summary0930To1100?.items,
-    },
-  };
-}
-
-function prepareImportedDailyTimeReviews(existingReviews, importedReviews, refIdMaps = {}) {
-  const existingByIdentity = new Map(existingReviews.map((review) => [getDailyTimeReviewIdentity(review), review]));
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  let skippedInvalid = 0;
-  const usedIds = new Set(existingReviews.map((review) => review.id).filter(Boolean));
-  const reviews = [];
-
-  importedReviews.forEach((review, index) => {
-    let normalized;
-    try {
-      normalized = normalizeDailyTimeReview(
-        remapDailyTimeReviewRefs(review, refIdMaps),
-        { preserveId: true, preserveUpdatedAt: true }
-      );
-    } catch {
-      skippedInvalid += 1;
-      return;
-    }
-
-    if (!normalized.date) {
-      skippedInvalid += 1;
-      return;
-    }
-
-    const identity = getDailyTimeReviewIdentity(normalized);
-    if (existingByIdentity.has(identity)) {
-      skippedDuplicates += 1;
-      return;
-    }
-
-    const originalId = normalized.id;
-    if (usedIds.has(normalized.id)) {
-      normalized = {
-        ...normalized,
-        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: originalId,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(normalized.id);
-    existingByIdentity.set(identity, normalized);
-    reviews.push(normalized);
-  });
-
-  return { reviews, skippedDuplicates, skippedInvalid };
-}
-
-function prepareImportedDailyRegimes(existingRegimes, importedRegimes) {
-  const existingByIdentity = new Map(existingRegimes.map((regime) => [getDailyRegimeIdentity(regime), regime]));
-  let skippedDuplicates = 0;
-  let skippedInvalid = 0;
-  const regimes = [];
-
-  (Array.isArray(importedRegimes) ? importedRegimes : []).forEach((regime) => {
-    let normalized;
-    try {
-      normalized = normalizeDailyRegime(regime);
-    } catch {
-      skippedInvalid += 1;
-      return;
-    }
-
-    if (!normalized.date) {
-      skippedInvalid += 1;
-      return;
-    }
-
-    const identity = getDailyRegimeIdentity(normalized);
-    if (existingByIdentity.has(identity)) {
-      skippedDuplicates += 1;
-      return;
-    }
-
-    existingByIdentity.set(identity, normalized);
-    regimes.push(normalized);
-  });
-
-  return { regimes, skippedDuplicates, skippedInvalid };
-}
-
-function prepareImportedChartNotes(existingNotes, importedNotes) {
-  const usedIds = new Set(existingNotes.map((note) => note.id).filter(Boolean));
-  const existingByIdentity = new Map(existingNotes.map((note) => [getChartNoteIdentity(note), note]));
-  const importStamp = Date.now();
-  let skippedDuplicates = 0;
-  let skippedInvalid = 0;
-  const notes = [];
-  const idMap = new Map();
-
-  (Array.isArray(importedNotes) ? importedNotes : []).forEach((note, index) => {
-    const normalized = normalizeChartNote(note);
-    if (!normalized) {
-      skippedInvalid += 1;
-      return;
-    }
-
-    const identity = getChartNoteIdentity(normalized);
-    if (existingByIdentity.has(identity)) {
-      skippedDuplicates += 1;
-      idMap.set(normalized.id, existingByIdentity.get(identity).id);
-      return;
-    }
-
-    let nextNote = normalized;
-    const originalId = normalized.id;
-    if (usedIds.has(normalized.id)) {
-      nextNote = {
-        ...normalized,
-        id: `${normalized.id}-import-${importStamp}-${index + 1}`,
-        importedFromId: originalId,
-        updatedAt: Date.now(),
-      };
-    }
-
-    usedIds.add(nextNote.id);
-    existingByIdentity.set(identity, nextNote);
-    idMap.set(originalId, nextNote.id);
-    notes.push(nextNote);
-  });
-
-  return { notes, skippedDuplicates, skippedInvalid, idMap };
-}
-
 export function exportReviewArchive() {
   const payload = buildReviewPayload();
   if (!hasExportableReviewPayload(payload)) {
@@ -820,7 +205,6 @@ export async function importReviewArchive(file) {
       annotations = preparedPda.annotations;
       skippedPdaDuplicates = preparedPda.skippedDuplicates;
       const idMap = preparedPda.idMap;
-      loadAnnotations([...existingAnnotations, ...annotations]);
 
       const existingSegments = getSegments();
       const availablePdaIds = new Set(
@@ -836,7 +220,6 @@ export async function importReviewArchive(file) {
       segments = preparedSegments.segments;
       skippedSegmentDuplicates = preparedSegments.skippedDuplicates;
       const segmentIdMap = preparedSegments.idMap;
-      loadSegments([...existingSegments, ...segments]);
 
       const availableSegmentIds = new Set([...existingSegments, ...segments].map((segment) => segment.id));
       const existingGroups = getSegmentGroups();
@@ -850,7 +233,6 @@ export async function importReviewArchive(file) {
       groups = preparedGroups.groups;
       skippedGroupDuplicates = preparedGroups.skippedDuplicates;
       const groupIdMap = preparedGroups.idMap;
-      loadSegmentGroups([...existingGroups, ...groups]);
 
       const existingSmtRecords = getSmtRecords();
       const preparedSmt = prepareImportedSmtRecords(existingSmtRecords, Array.isArray(payload.smtRecords) ? payload.smtRecords : []);
@@ -858,7 +240,6 @@ export async function importReviewArchive(file) {
       skippedSmtDuplicates = preparedSmt.skippedDuplicates;
       skippedInvalidSmt = preparedSmt.skippedInvalid;
       const smtIdMap = preparedSmt.idMap;
-      loadSmtRecords([...existingSmtRecords, ...smtRecords]);
 
       const existingChartNotes = getChartNotes();
       const preparedChartNotes = prepareImportedChartNotes(
@@ -869,7 +250,6 @@ export async function importReviewArchive(file) {
       skippedChartNoteDuplicates = preparedChartNotes.skippedDuplicates;
       skippedInvalidChartNotes = preparedChartNotes.skippedInvalid;
       const chartNoteIdMap = preparedChartNotes.idMap;
-      loadChartNotes([...existingChartNotes, ...chartNotes]);
 
       const existingOrderReviews = getOrderReviews();
       const preparedOrders = prepareImportedOrderReviews(
@@ -881,7 +261,6 @@ export async function importReviewArchive(file) {
       skippedOrderDuplicates = preparedOrders.skippedDuplicates;
       skippedInvalidOrders = preparedOrders.skippedInvalid;
       const orderIdMap = preparedOrders.idMap;
-      loadOrderReviews([...existingOrderReviews, ...orders]);
 
       const existingLiveRecords = getLiveRecords();
       const preparedLiveRecords = prepareImportedLiveRecords(
@@ -892,7 +271,6 @@ export async function importReviewArchive(file) {
       liveRecords = preparedLiveRecords.records;
       skippedLiveRecordDuplicates = preparedLiveRecords.skippedDuplicates;
       skippedInvalidLiveRecords = preparedLiveRecords.skippedInvalid;
-      loadLiveRecords([...existingLiveRecords, ...liveRecords]);
 
       const existingDailyTimeReviews = getDailyTimeReviews();
       const preparedDailyTimeReviews = prepareImportedDailyTimeReviews(
@@ -903,7 +281,6 @@ export async function importReviewArchive(file) {
       dailyTimeReviews = preparedDailyTimeReviews.reviews;
       skippedDailyTimeDuplicates = preparedDailyTimeReviews.skippedDuplicates;
       skippedInvalidDailyTime = preparedDailyTimeReviews.skippedInvalid;
-      loadDailyTimeReviews([...existingDailyTimeReviews, ...dailyTimeReviews], { preserveUpdatedAt: true });
 
       const existingDailyRegimes = getDailyRegimes();
       const preparedDailyRegimes = prepareImportedDailyRegimes(
@@ -913,6 +290,29 @@ export async function importReviewArchive(file) {
       dailyRegimes = preparedDailyRegimes.regimes;
       skippedDailyRegimeDuplicates = preparedDailyRegimes.skippedDuplicates;
       skippedInvalidDailyRegimes = preparedDailyRegimes.skippedInvalid;
+
+      loadReviewArchiveStores(
+        {
+          annotations: existingAnnotations,
+          segments: existingSegments,
+          groups: existingGroups,
+          smtRecords: existingSmtRecords,
+          chartNotes: existingChartNotes,
+          orders: existingOrderReviews,
+          liveRecords: existingLiveRecords,
+          dailyTimeReviews: existingDailyTimeReviews,
+        },
+        {
+          annotations,
+          segments,
+          groups,
+          smtRecords,
+          chartNotes,
+          orders,
+          liveRecords,
+          dailyTimeReviews,
+        }
+      );
     });
 
     const skipped =
