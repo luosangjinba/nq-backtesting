@@ -38,7 +38,11 @@ import {
 import { getTimeOverlaySettings, updateTimeOverlaySettings } from '../time-overlays/time-overlay-store.js';
 import { canRedo, canUndo, getRedoLabel, getUndoLabel, redo, undo } from '../history/history-manager.js';
 import { initCalendarNavigator } from './calendar-navigator.js';
-import { openReplaySessionFromRange } from './replay/replay-session-loader.js';
+import {
+  openReplaySessionFromRange,
+  reloadReplaySessionTimeframe,
+} from './replay/replay-session-loader.js';
+import { hasActiveReplaySession } from './replay/replay-session-state.js';
 
 const UI_SCALE_LABELS = {
   100: '100%',
@@ -600,6 +604,24 @@ function applyActivePaneTimeframe(nextTimeframe) {
 
   updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe });
   syncActivePaneToolbarControls();
+  if (hasActiveReplaySession()) {
+    bus.emit('status:update', { text: 'Reloading replay session timeframe...', isError: false });
+    reloadReplaySessionTimeframe({ timeframe })
+      .then(({ bars, request, cacheHit }) => {
+        bus.emit('status:update', {
+          text: `Replay session ${TIMEFRAME_MAP[timeframe] || `${timeframe}M`}: ${bars.length} prefix bars ending ${request.end}${cacheHit ? ' (cache)' : ''}`,
+          isError: false,
+        });
+      })
+      .catch((err) => {
+        bus.emit('status:update', {
+          text: `Replay timeframe reload failed: ${err.message}`,
+          isError: true,
+        });
+      });
+    return;
+  }
+
   if (store.getBars().length > 0) {
     handleLoad();
   }

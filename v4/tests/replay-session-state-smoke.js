@@ -65,6 +65,9 @@ const moved = updateReplaySession(session, { cursor: forward.request.startTs });
 assert.equal(moved.cursor, forward.request.startTs);
 const nextForward = planNextForwardBarRequest(moved);
 assert.equal(nextForward.request.start, '2026-06-01 21:57');
+const movedInitial = planInitialPrefixRequest(moved, { viewportBarCapacity: 2, paddingBars: 0 });
+assert.equal(movedInitial.request.end, '2026-06-01 21:56');
+assert.equal(movedInitial.request.start, '2026-06-01 21:55');
 
 const finished = createReplaySession({
   ...session,

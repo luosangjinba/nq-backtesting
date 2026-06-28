@@ -52,6 +52,7 @@ export async function openReplaySessionFromRange({
   timeframe,
   sessionStart,
   sessionEnd,
+  cursor = sessionStart,
   viewportBarCapacity = getVisibleBarCapacity(),
   paddingBars,
 } = {}) {
@@ -60,7 +61,7 @@ export async function openReplaySessionFromRange({
     timeframe,
     sessionStart,
     sessionEnd,
-    cursor: sessionStart,
+    cursor,
   });
   const planned = planInitialPrefixRequest(session, {
     viewportBarCapacity,
@@ -96,6 +97,25 @@ export async function openReplaySessionFromRange({
     result,
     cacheHit,
   };
+}
+
+export async function reloadReplaySessionTimeframe({
+  timeframe,
+  viewportBarCapacity = getVisibleBarCapacity(),
+  paddingBars,
+} = {}) {
+  const activeSession = getActiveReplaySession();
+  if (!activeSession) return { ok: false, message: 'No active replay session' };
+
+  return openReplaySessionFromRange({
+    instrument: activeSession.instrument,
+    timeframe,
+    sessionStart: activeSession.sessionStart,
+    sessionEnd: activeSession.sessionEnd,
+    cursor: activeSession.cursor,
+    viewportBarCapacity,
+    paddingBars,
+  });
 }
 
 export async function loadPreviousReplaySessionPrefix({ chunkBars } = {}) {
