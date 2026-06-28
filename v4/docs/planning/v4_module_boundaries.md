@@ -273,6 +273,10 @@ These exceptions are allowed temporarily while the refactor proceeds:
 - Toolbar rendering and render-state collection live under `ui/toolbar/` as of
   Step 351.8. `ui/toolbar.js` remains the DOM event and command coordination
   adapter.
+- Date range history persistence, calendar range selection state, and popover
+  rendering live under `ui/calendar/` as of Step 351.9.
+  `ui/calendar-navigator.js` remains the DOM event and primary-load command
+  coordination adapter.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 

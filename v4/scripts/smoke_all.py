@@ -118,6 +118,18 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify toolbar rendering stays split from the toolbar controller.",
         ),
         SmokeCommand(
+            "calendar_split_boundary_smoke",
+            ["node", "v4/tests/calendar-split-boundary-smoke.js"],
+            "local",
+            "Verify calendar history, state, and rendering stay split from the navigator.",
+        ),
+        SmokeCommand(
+            "date_range_history_workspace_smoke",
+            ["node", "v4/tests/date-range-history-workspace-smoke.js"],
+            "local",
+            "Verify date range history workspace sync and local migration behavior.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",
