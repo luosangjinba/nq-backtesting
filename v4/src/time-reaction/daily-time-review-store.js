@@ -1,62 +1,43 @@
 import * as bus from '../event-bus.js';
 import { normalizeLinkedObjectRef } from '../order/order-review-store.js';
+import {
+  DAILY_TIME_REVIEW_SECTION_KEYS,
+} from './daily-time-review-types.js';
+import {
+  getWeekStartDateKey,
+  isWeekStartDateKey,
+  makeContextItemId,
+  normalizeContextItem,
+  normalizeDailyTimeReview,
+  normalizeDateKey,
+  normalizeFixedTimeItem,
+  normalizeString,
+  normalizeTimeText,
+} from './daily-time-review-normalize.js';
+import {
+  getDailyTimeReviewIdentity,
+  hasDailyTimeReviewContent,
+} from './daily-time-review-selectors.js';
 
-export const DAILY_TIME_REACTION_TIMES = Object.freeze(['09:30', '09:50', '10:00', '10:30']);
-export const DEFAULT_FIXED_TIME_STATE_TIMES = Object.freeze(['09:30', '09:50', '10:00', '10:30']);
+export {
+  DAILY_TIME_REACTION_TIMES,
+  DAILY_TIME_REVIEW_SECTIONS,
+  DAILY_TIME_REVIEW_SECTION_KEYS,
+  DAILY_TIME_REACTION_TYPES,
+  DEFAULT_FIXED_TIME_STATE_TIMES,
+  getDailyTimeReviewSectionDefinition,
+} from './daily-time-review-types.js';
 
-export const DAILY_TIME_REVIEW_SECTIONS = Object.freeze([
-  {
-    key: 'weeklyBias',
-    label: '周 Bias 分析',
-    fallbackTime: '00:00',
-  },
-  {
-    key: 'dailyBias',
-    label: '日 Bias 分析',
-    fallbackTime: '00:00',
-  },
-  {
-    key: 'pre0930Analysis',
-    label: '09:30 前状态分析',
-    fallbackTime: '00:00',
-    rangeEndTime: '09:30',
-  },
-  {
-    key: 'fixedTimeState',
-    label: '固定时点状态',
-    fallbackTime: '09:30',
-    rangeEndTime: '11:00',
-  },
-  {
-    key: 'summary0930To1100',
-    label: '09:30-11:00 Summary',
-    fallbackTime: '09:30',
-    rangeEndTime: '11:00',
-  },
-  {
-    key: 'fullDaySummary',
-    label: '全天 Summary',
-    fallbackTime: '00:00',
-    rangeEndTime: '16:59',
-  },
-]);
+export {
+  getWeekStartDateKey,
+  isWeekStartDateKey,
+  normalizeDailyTimeReview,
+} from './daily-time-review-normalize.js';
 
-export const DAILY_TIME_REVIEW_SECTION_KEYS = Object.freeze(
-  DAILY_TIME_REVIEW_SECTIONS.map((section) => section.key)
-);
-
-export const DAILY_TIME_REACTION_TYPES = Object.freeze({
-  OTHER: 'other',
-  REVERSAL: 'reversal',
-  CONTINUATION: 'continuation',
-  SWEEP_REVERSE: 'sweep-reverse',
-  NO_TRADE: 'no-trade',
-  NOISE: 'noise',
-});
-
-const VALID_REACTION_TYPES = new Set(Object.values(DAILY_TIME_REACTION_TYPES));
-const VALID_CHARTS = new Set(['primary', 'comparison-window']);
-const VALID_TIMEFRAMES = new Set(['1', '5', '15', '30', '60', '240', '1440']);
+export {
+  getDailyTimeReviewIdentity,
+  hasDailyTimeReviewContent,
+} from './daily-time-review-selectors.js';
 
 let dailyTimeReviews = [];
 
@@ -70,333 +51,6 @@ function emitChanged(reason, review = null) {
     review: clone(review),
     dailyTimeReviews: getDailyTimeReviews(),
   });
-}
-
-function normalizeString(value, fallback = '') {
-  const text = String(value ?? '').trim();
-  return text || fallback;
-}
-
-function normalizeDateKey(value) {
-  const text = normalizeString(value);
-  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : '';
-}
-
-export function getWeekStartDateKey(value) {
-  const dateKey = normalizeDateKey(value);
-  if (!dateKey) return '';
-  const date = new Date(`${dateKey}T00:00:00Z`);
-  if (Number.isNaN(date.getTime())) return '';
-  const weekday = date.getUTCDay();
-  const daysFromMonday = (weekday + 6) % 7;
-  date.setUTCDate(date.getUTCDate() - daysFromMonday);
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-}
-
-export function isWeekStartDateKey(value) {
-  const dateKey = normalizeDateKey(value);
-  return Boolean(dateKey && getWeekStartDateKey(dateKey) === dateKey);
-}
-
-function normalizeTimeText(value, fallback = '09:30') {
-  const text = normalizeString(value);
-  return /^\d{2}:\d{2}$/.test(text) ? text : fallback;
-}
-
-function normalizeTimestamp(value, fallback = null) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
-}
-
-function normalizeTimeframe(value, fallback = '1') {
-  const text = normalizeString(value, fallback).toLowerCase().replace(/m$/, '').replace('1h', '60').replace('4h', '240').replace('d', '1440');
-  return VALID_TIMEFRAMES.has(text) ? text : fallback;
-}
-
-function normalizeChart(value) {
-  const text = normalizeString(value, 'primary');
-  if (text === 'secondary') return 'comparison-window';
-  return VALID_CHARTS.has(text) ? text : 'primary';
-}
-
-function normalizeRefs(refs = []) {
-  return Array.isArray(refs) ? refs.map(normalizeLinkedObjectRef).filter(Boolean) : [];
-}
-
-function normalizeSection(input = {}, dateKey = '', fallbackTime = '09:30') {
-  return {
-    note: normalizeString(input.note),
-    refs: normalizeRefs(input.refs),
-    locate: normalizeLocate(input.locate, dateKey, fallbackTime),
-  };
-}
-
-function normalizeBias(input = {}, legacySections = {}) {
-  const dailyBiasPrediction = normalizeString(
-    input.dailyBiasPrediction,
-    normalizeString(input.dailyBias, normalizeString(legacySections.dailyBias?.note))
-  );
-  const weeklyBiasPrediction = normalizeString(
-    input.weeklyBiasPrediction,
-    normalizeString(input.weeklyBias, normalizeString(legacySections.weeklyBias?.note))
-  );
-  return {
-    dailyBiasPrediction,
-    dailyBiasReview: normalizeString(input.dailyBiasReview, normalizeString(input.biasReview)),
-    weeklyBiasPrediction,
-    weeklyBiasReview: normalizeString(input.weeklyBiasReview),
-    weeklyBias: weeklyBiasPrediction,
-    dailyBias: dailyBiasPrediction,
-    biasReview: normalizeString(input.biasReview),
-  };
-}
-
-function normalizeOpeningThesisReview(input = {}, legacySections = {}) {
-  return {
-    preOpenThesis: normalizeString(input.preOpenThesis, normalizeString(legacySections.pre0930Analysis?.note)),
-    morningSummary0930To1100: normalizeString(
-      input.morningSummary0930To1100,
-      normalizeString(legacySections.summary0930To1100?.note)
-    ),
-    fullDaySummary: normalizeString(input.fullDaySummary, normalizeString(legacySections.fullDaySummary?.note)),
-    thesisReview: normalizeString(input.thesisReview),
-  };
-}
-
-export function getDailyTimeReviewSectionDefinition(sectionName) {
-  return DAILY_TIME_REVIEW_SECTIONS.find((section) => section.key === sectionName) || null;
-}
-
-function normalizeReviewSection(sectionName, input = {}, dateKey = '') {
-  const definition = getDailyTimeReviewSectionDefinition(sectionName);
-  return normalizeSection(input, dateKey, definition?.fallbackTime || '09:30');
-}
-
-function makeContextItemId() {
-  return `context_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function normalizeContextItem(input = {}, dateKey = '', fallbackTime = '09:30') {
-  return {
-    id: normalizeString(input.id, makeContextItemId()),
-    note: normalizeString(input.note),
-    refs: normalizeRefs(input.refs),
-    locate: normalizeLocate(input.locate, dateKey, fallbackTime),
-  };
-}
-
-function normalizeContextItems(input = {}, dateKey = '') {
-  const explicitItems = Array.isArray(input.items)
-    ? input.items.map((item) => normalizeContextItem(item, dateKey)).filter((item) => item.id)
-    : [];
-  if (explicitItems.length) return explicitItems;
-  if (input.note || (Array.isArray(input.refs) && input.refs.length)) {
-    return [normalizeContextItem({
-      id: 'context_1',
-      note: input.note,
-      refs: input.refs,
-      locate: input.locate,
-    }, dateKey)];
-  }
-  return [normalizeContextItem({ id: 'context_1' }, dateKey)];
-}
-
-function normalizeObservationItems(input = {}, dateKey = '', fallbackTime = '09:30', fallbackId = 'event_1') {
-  const explicitItems = Array.isArray(input.items)
-    ? input.items.map((item) => normalizeContextItem(item, dateKey, fallbackTime)).filter((item) => item.id)
-    : [];
-  if (explicitItems.length) return explicitItems;
-  if (input.note || (Array.isArray(input.refs) && input.refs.length)) {
-    return [normalizeContextItem({
-      id: fallbackId,
-      note: input.note,
-      refs: input.refs,
-      locate: input.locate,
-    }, dateKey, fallbackTime)];
-  }
-  return [normalizeContextItem({ id: fallbackId }, dateKey, fallbackTime)];
-}
-
-function normalizePre0930Context(input = {}, dateKey = '') {
-  return {
-    note: '',
-    refs: [],
-    locate: normalizeLocate(input.locate, dateKey, '09:30'),
-    items: normalizeContextItems(input, dateKey),
-  };
-}
-
-function getTimestampForDateTime(dateKey, timeText) {
-  const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-  const [hour, minute] = String(timeText || '').split(':').map(Number);
-  if (![hour, minute].every(Number.isFinite)) return null;
-  return Math.floor(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), hour, minute, 0) / 1000);
-}
-
-function normalizeLocate(input = {}, dateKey, timeText, fallbackTimeframe = '1') {
-  const timestamp = normalizeTimestamp(input.timestamp, getTimestampForDateTime(dateKey, timeText));
-  return {
-    timestamp,
-    timeframe: normalizeTimeframe(input.timeframe, fallbackTimeframe),
-    chart: normalizeChart(input.chart),
-  };
-}
-
-function normalizeReaction(input = {}, dateKey, fallbackTime = '09:30') {
-  const time = normalizeTimeText(input.time, fallbackTime);
-  const reactionType = VALID_REACTION_TYPES.has(input.reactionType)
-    ? input.reactionType
-    : DAILY_TIME_REACTION_TYPES.OTHER;
-  return {
-    time,
-    reactionType,
-    note: normalizeString(input.note),
-    refs: normalizeRefs(input.refs),
-    locate: normalizeLocate(input.locate, dateKey, time),
-    items: normalizeObservationItems(input, dateKey, time),
-  };
-}
-
-function normalizeReactions(input = [], dateKey) {
-  const byTime = new Map();
-  (Array.isArray(input) ? input : []).forEach((reaction) => {
-    const normalized = normalizeReaction(reaction, dateKey);
-    byTime.set(normalized.time, normalized);
-  });
-  return DAILY_TIME_REACTION_TIMES.map((time) => byTime.get(time) || normalizeReaction({ time }, dateKey, time));
-}
-
-function reactionNotesToSectionNote(reactions = []) {
-  return (Array.isArray(reactions) ? reactions : [])
-    .map((reaction) => {
-      const itemNotes = (Array.isArray(reaction.items) ? reaction.items : [])
-        .map((item) => normalizeString(item.note))
-        .filter(Boolean);
-      const notes = [
-        normalizeString(reaction.note),
-        ...itemNotes,
-      ].filter(Boolean);
-      return notes.length ? `${normalizeString(reaction.time, 'Time')}: ${notes.join(' / ')}` : '';
-    })
-    .filter(Boolean)
-    .join('\n');
-}
-
-function reactionRefsToSectionRefs(reactions = []) {
-  return (Array.isArray(reactions) ? reactions : [])
-    .flatMap((reaction) => [
-      ...(Array.isArray(reaction.refs) ? reaction.refs : []),
-      ...(Array.isArray(reaction.items) ? reaction.items.flatMap((item) => item.refs || []) : []),
-    ]);
-}
-
-function normalizeFixedTimeState(input = {}, reactions = [], dateKey = '') {
-  const normalized = normalizeReviewSection('fixedTimeState', input, dateKey);
-  return {
-    ...normalized,
-    note: '',
-    refs: [],
-    items: normalizeFixedTimeItems(input, reactions, dateKey),
-  };
-}
-
-function normalizeFixedTimeItem(input = {}, dateKey = '', fallbackTime = '09:30') {
-  const time = normalizeTimeText(input.time, fallbackTime);
-  return {
-    id: normalizeString(input.id, makeContextItemId()),
-    time,
-    note: normalizeString(input.note),
-    refs: normalizeRefs(input.refs),
-    locate: normalizeLocate(input.locate, dateKey, time, '1'),
-  };
-}
-
-function normalizeFixedTimeItems(input = {}, reactions = [], dateKey = '') {
-  const legacyNote = normalizeString(input.note);
-  const legacyRefs = normalizeRefs(input.refs);
-  const explicitItems = Array.isArray(input.items)
-    ? input.items
-        .map((item, index) => normalizeFixedTimeItem(item, dateKey, DEFAULT_FIXED_TIME_STATE_TIMES[index] || '09:30'))
-        .filter((item) => item.id)
-    : [];
-  if (explicitItems.length) {
-    if (!legacyNote && !legacyRefs.length) return explicitItems;
-    return explicitItems.map((item, index) => (
-      index === 0
-        ? {
-            ...item,
-            note: item.note || legacyNote,
-            refs: [...legacyRefs, ...(item.refs || [])],
-          }
-        : item
-    ));
-  }
-
-  const reactionItems = (Array.isArray(reactions) ? reactions.filter(reactionHasContent) : [])
-    .map((reaction) => normalizeFixedTimeItem({
-      id: `fixed_${normalizeTimeText(reaction.time).replace(':', '')}`,
-      time: reaction.time,
-      note: [
-        normalizeString(reaction.note),
-        ...(Array.isArray(reaction.items) ? reaction.items.map((item) => normalizeString(item.note)).filter(Boolean) : []),
-      ].filter(Boolean).join(' / '),
-      refs: [
-        ...(Array.isArray(reaction.refs) ? reaction.refs : []),
-        ...(Array.isArray(reaction.items) ? reaction.items.flatMap((item) => item.refs || []) : []),
-      ],
-      locate: reaction.locate,
-    }, dateKey, reaction.time))
-    .filter((item) => item.id);
-  if (reactionItems.length) return reactionItems;
-
-  return DEFAULT_FIXED_TIME_STATE_TIMES.map((time, index) => normalizeFixedTimeItem({
-    id: `fixed_${time.replace(':', '')}`,
-    time,
-    note: index === 0 ? legacyNote : '',
-    refs: index === 0 ? legacyRefs : [],
-  }, dateKey, time));
-}
-
-export function getDailyTimeReviewIdentity(review = {}) {
-  return `${review.instrument || 'NQ'}:${review.date || ''}`;
-}
-
-export function normalizeDailyTimeReview(input = {}, options = {}) {
-  const now = Date.now();
-  const date = normalizeDateKey(input.date);
-  const instrument = normalizeString(input.instrument, 'NQ');
-  const id = options.preserveId && input.id
-    ? normalizeString(input.id)
-    : `daily_time_review_${instrument}_${date || now}`;
-  return {
-    id,
-    date,
-    instrument,
-    source: normalizeString(input.source, 'manual'),
-    createdAt: normalizeTimestamp(input.createdAt, now),
-    updatedAt: options.preserveUpdatedAt ? normalizeTimestamp(input.updatedAt, now) : now,
-    weeklyBias: normalizeReviewSection('weeklyBias', input.weeklyBias, date),
-    dailyBias: normalizeReviewSection('dailyBias', input.dailyBias, date),
-    bias: normalizeBias(input.bias, {
-      weeklyBias: input.weeklyBias,
-      dailyBias: input.dailyBias,
-    }),
-    fixedTimeState: normalizeFixedTimeState(input.fixedTimeState, input.reactions, date),
-    pre0930Analysis: normalizeReviewSection('pre0930Analysis', input.pre0930Analysis || input.pre0930Context, date),
-    openingThesisReview: normalizeOpeningThesisReview(input.openingThesisReview, {
-      pre0930Analysis: input.pre0930Analysis || input.pre0930Context,
-      summary0930To1100: input.summary0930To1100,
-      fullDaySummary: input.fullDaySummary,
-    }),
-    pre0930Context: normalizePre0930Context(input.pre0930Context, date),
-    reactions: normalizeReactions(input.reactions, date),
-    summary0930To1100: {
-      ...normalizeReviewSection('summary0930To1100', input.summary0930To1100, date),
-      items: normalizeObservationItems(input.summary0930To1100, date, '11:00', 'summary_1'),
-    },
-    fullDaySummary: normalizeReviewSection('fullDaySummary', input.fullDaySummary, date),
-  };
 }
 
 function ensureUniqueReviewId(review, reviews = dailyTimeReviews) {
@@ -421,55 +75,6 @@ function getStoredDailyTimeReview(date, instrument = 'NQ') {
 
 export function getDailyTimeReviews() {
   return dailyTimeReviews.map(clone);
-}
-
-function refsHaveContent(refs = []) {
-  return Array.isArray(refs) && refs.length > 0;
-}
-
-function sectionHasContent(sectionData = {}) {
-  if (normalizeString(sectionData.note)) return true;
-  if (refsHaveContent(sectionData.refs)) return true;
-  return Array.isArray(sectionData.items)
-    && sectionData.items.some((item) => normalizeString(item.note) || refsHaveContent(item.refs));
-}
-
-function reactionHasContent(reaction = {}) {
-  if (normalizeString(reaction.note)) return true;
-  if (refsHaveContent(reaction.refs)) return true;
-  return Array.isArray(reaction.items)
-    && reaction.items.some((item) => normalizeString(item.note) || refsHaveContent(item.refs));
-}
-
-function biasHasContent(bias = {}) {
-  return Boolean(
-    normalizeString(bias.dailyBiasPrediction)
-      || normalizeString(bias.dailyBiasReview)
-      || normalizeString(bias.weeklyBiasPrediction)
-      || normalizeString(bias.weeklyBiasReview)
-      || normalizeString(bias.weeklyBias)
-      || normalizeString(bias.dailyBias)
-      || normalizeString(bias.biasReview)
-  );
-}
-
-function openingThesisReviewHasContent(openingThesisReview = {}) {
-  return Boolean(
-    normalizeString(openingThesisReview.preOpenThesis)
-      || normalizeString(openingThesisReview.morningSummary0930To1100)
-      || normalizeString(openingThesisReview.fullDaySummary)
-      || normalizeString(openingThesisReview.thesisReview)
-  );
-}
-
-export function hasDailyTimeReviewContent(review = {}) {
-  if (!review || typeof review !== 'object') return false;
-  return DAILY_TIME_REVIEW_SECTION_KEYS.some((sectionName) => sectionHasContent(review[sectionName]))
-    || biasHasContent(review.bias)
-    || openingThesisReviewHasContent(review.openingThesisReview)
-    || sectionHasContent(review.pre0930Context)
-    || sectionHasContent(review.summary0930To1100)
-    || (Array.isArray(review.reactions) && review.reactions.some(reactionHasContent));
 }
 
 export function getDailyTimeReviewsWithContent() {

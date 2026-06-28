@@ -1383,7 +1383,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 353.8: Closeout audit and boundary guards。已扩展 `module-boundary-closeout-smoke.py` 覆盖 Step 353 新边界，删除未接入的 `daily-regime-trend.js`，重新记录剩余 500+ 行文件和暂缓理由；local suite 与 `git diff --check` 通过。
 
 - [ ] Step 354: Remaining module debt split plan。基于 Step 353 后全量审计，没有发现明确无引用 `v4/src` JS 模块或运行时 debug 噪音；下一步继续拆仍过大的 store/coordinator/chart-action/Inspector/CSS/test 模块，避免 FX Replay 实现前继续背负大文件耦合。完整计划见 `v4/sessions/session_20260628_step354_remaining_module_debt_plan.md`。
-  - [ ] Step 354.1: Split Daily Time Review store。把 `time-reaction/daily-time-review-store.js` 拆为 types/normalize/selectors/store facade，保留现有 schema 与 legacy migration 行为。
+  - [x] Step 354.1: Split Daily Time Review store。已拆出 `daily-time-review-types.js`、`daily-time-review-normalize.js`、`daily-time-review-selectors.js`，`daily-time-review-store.js` 保留状态、mutation、event facade；store 从 920 行降到 525 行。`daily-time-review-store-smoke`、`daily-time-review-archive-smoke`、local suite 与 `git diff --check` 通过。
   - [ ] Step 354.2: Continue Inspector sidebar coordinator split。把 controller registry、open-object coordinator、calendar back-target coordination 从 `inspector-sidebar.js` 继续拆出。
   - [ ] Step 354.3: Split Order Setup chart actions。把 `order-setup-chart-actions.js` 的 menu rendering、hit actions、chart mutation 分离。
   - [ ] Step 354.4: Split Live Record chart actions。把 `live-record-chart-actions.js` 的 menu rendering、hit/lifecycle actions、execution element mutation 分离。

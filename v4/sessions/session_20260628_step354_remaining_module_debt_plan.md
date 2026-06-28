@@ -72,6 +72,14 @@ Audit findings:
 
 ### Step 354.1 - Split Daily Time Review store
 
+Status: Done in commit pending. Extracted `daily-time-review-types.js`,
+`daily-time-review-normalize.js`, and `daily-time-review-selectors.js`.
+`daily-time-review-store.js` now owns state, mutations, event emission, and the
+compatibility facade; schema normalization and content selectors are pure helper
+modules. Verified with `node v4/tests/daily-time-review-store-smoke.js`,
+`node v4/tests/daily-time-review-archive-smoke.js`,
+`python3 v4/scripts/smoke_all.py --suite local`, and `git diff --check`.
+
 `time-reaction/daily-time-review-store.js` mixes constants, schema
 normalization, legacy migration, selectors/content detection, and store
 mutation.
