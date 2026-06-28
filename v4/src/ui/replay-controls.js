@@ -33,6 +33,7 @@ import {
   replacePrimaryChartData,
   replacePrimaryChartSlice,
 } from '../runtime/primary-chart-runtime.js';
+import { enterHistoryMode, enterLegacyReplayMode } from '../runtime/chart-mode-store.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -174,6 +175,7 @@ function resetReplayState() {
   lastCursorIndex = -1;
   cursorTimestampAnchor = null;
   lastCursorTimestampAnchor = null;
+  enterHistoryMode({ source: 'legacy-replay-reset' });
   emitReplayChanged();
   render();
 }
@@ -193,6 +195,7 @@ function restoreFullChart(savePosition = true) {
   if (chartData.length > 0) {
     replacePrimaryChartData(chartData, { showStart: true });
   }
+  enterHistoryMode({ source: 'legacy-replay-exit' });
   emitReplayChanged();
   render();
 }
@@ -207,6 +210,7 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
     lastCursorTimestampAnchor = getCursorTimestamp();
   }
   enabled = true;
+  enterLegacyReplayMode({ source: 'legacy-replay-slice' });
   mode = mode === 'playing' ? 'playing' : 'idle';
   cursorIndex = Math.max(0, Math.min(index, chartData.length - 1));
   cursorTimestampAnchor =
@@ -398,6 +402,7 @@ function handleChartClick(param) {
       lastCursorTimestampAnchor = getCursorTimestamp();
     }
     enabled = true;
+    enterLegacyReplayMode({ source: 'legacy-replay-pick-before-first' });
     cursorIndex = -1;
     cursorTimestampAnchor = null;
     clearPrimaryChartData();
@@ -623,6 +628,7 @@ export function syncReplayData(restoreSnapshot = null) {
   if (restoreSnapshot?.enabled && chartData.length > 0) {
     replacePrimaryChartData(chartData, { showStart: true });
   }
+  enterHistoryMode({ source: 'legacy-replay-sync' });
   emitReplayChanged();
   render();
 }

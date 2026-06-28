@@ -100,6 +100,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify UI modules use runtime commands for primary bar loading.",
         ),
         SmokeCommand(
+            "chart_mode_store_smoke",
+            ["node", "v4/tests/chart-mode-store-smoke.js"],
+            "local",
+            "Verify chart mode transitions and fallback behavior.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

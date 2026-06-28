@@ -1347,7 +1347,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.3: Primary bars runtime。已新增 `v4/src/runtime/primary-bars-runtime.js`，收口 Toolbar、Calendar、Viewport、Replay History、Time Reaction 等主图 `loadBars + store.setBars` 写入路径；新增 `primary-bars-runtime-boundary-smoke.js` 并纳入 local smoke，防止 UI/feature 模块直接写 primary bars。
   - [x] Step 351.4: Chart series runtime。已新增 `v4/src/runtime/primary-chart-runtime.js`，收口 `bars:loaded -> chart.setData`、主图 bar projection、legacy replay 的 `setData/updateBar/showStart/showEnd` series 写入路径；新增 `primary-chart-runtime-boundary-smoke.js` 并纳入 local smoke。
   - [x] Step 351.5: Command bus and UI command boundary。已新增 `v4/src/runtime/commands.js`，把 Toolbar、Calendar、Viewport、Replay History、Time Reaction 的 primary range load / adjacent window load / primary instrument-timeframe 写入迁到 command handlers；新增 `runtime-commands-smoke.js` 与 `ui-command-boundary-smoke.js` 并纳入 local smoke，阻止 UI 绕过 commands 直接调用 `primary-bars-runtime`。
-  - [ ] Step 351.6: Mode runtime。建立 `history`、`legacy-replay` 等显式 chart modes，避免不同加载语义共享含糊状态。
+  - [x] Step 351.6: Mode runtime。已新增 `v4/src/runtime/chart-mode-store.js`，定义 `history` / `legacy-replay` 全局 chart mode，并让 legacy Replay 进入切片/回放时切到 `legacy-replay`、退出/清空/同步失败时回到 `history`；新增 `chart-mode-store-smoke.js` 并纳入 local smoke。
   - [ ] Step 351.7: Replay domain split。把现有 legacy replay 拆成 model/controller/view，不改变当前 replay 行为。
   - [ ] Step 351.8: Toolbar split。拆出 toolbar view/events/state/settings/pane/date-range controls。
   - [ ] Step 351.9: Calendar split。拆出 date range history/store/view/controller，并让加载路径走 runtime commands。

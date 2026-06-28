@@ -206,6 +206,25 @@ Target owner:
 - Future FX replay controller must emit a separate compatible payload or a
   versioned event, but must not overload legacy full-range replay semantics.
 
+### `chart-mode:changed`
+
+Current emitter:
+
+- `runtime/chart-mode-store.js`
+
+Current payload:
+
+- `mode`
+- `previousMode`
+- `metadata`
+
+Target owner:
+
+- Chart mode runtime owns the active chart behavior mode.
+- Current modes are `history` and `legacy-replay`.
+- Future FX replay must add a separate mode instead of reusing
+  `legacy-replay`.
+
 ### `status:update`
 
 Current emitters:
@@ -247,8 +266,10 @@ These exceptions are allowed temporarily while the refactor proceeds:
 - UI modules must call `runtime/commands.js` for primary range loading. Direct
   imports of `primary-bars-runtime.js` from `v4/src/ui` are blocked by
   `ui-command-boundary-smoke.js` as of Step 351.5.
-- `replay-controls.js` may still own legacy replay state, cursor primitives, and
-  visible logical range restore until Step 351.7.
+- `runtime/chart-mode-store.js` owns the global chart mode as of Step 351.6.
+  `replay-controls.js` may still own legacy replay state, cursor primitives, and
+  visible logical range restore until Step 351.7, but it must keep chart mode in
+  sync.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 
