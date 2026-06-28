@@ -270,6 +270,9 @@ These exceptions are allowed temporarily while the refactor proceeds:
 - Legacy replay state/controller/view helpers live under
   `features/replay/` as of Step 351.7. `ui/replay-controls.js` remains a DOM and
   chart adapter until later cleanup, and must keep chart mode in sync.
+- Toolbar rendering and render-state collection live under `ui/toolbar/` as of
+  Step 351.8. `ui/toolbar.js` remains the DOM event and command coordination
+  adapter.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 

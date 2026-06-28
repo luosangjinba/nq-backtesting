@@ -1349,7 +1349,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.5: Command bus and UI command boundary。已新增 `v4/src/runtime/commands.js`，把 Toolbar、Calendar、Viewport、Replay History、Time Reaction 的 primary range load / adjacent window load / primary instrument-timeframe 写入迁到 command handlers；新增 `runtime-commands-smoke.js` 与 `ui-command-boundary-smoke.js` 并纳入 local smoke，阻止 UI 绕过 commands 直接调用 `primary-bars-runtime`。
   - [x] Step 351.6: Mode runtime。已新增 `v4/src/runtime/chart-mode-store.js`，定义 `history` / `legacy-replay` 全局 chart mode，并让 legacy Replay 进入切片/回放时切到 `legacy-replay`、退出/清空/同步失败时回到 `history`；新增 `chart-mode-store-smoke.js` 并纳入 local smoke。
   - [x] Step 351.7: Replay domain split。已新增 `v4/src/features/replay/replay-model.js`、`replay-controller.js`、`replay-view.js`，把 legacy replay 状态/速度与 action helper/view 渲染移出 `ui/replay-controls.js`；`ui/replay-controls.js` 保留为 DOM 初始化与图表适配层，不改变当前 Replay 行为。新增 `replay-model-smoke.js` 并纳入 local smoke。
-  - [ ] Step 351.8: Toolbar split。拆出 toolbar view/events/state/settings/pane/date-range controls。
+  - [x] Step 351.8: Toolbar split。已新增 `v4/src/ui/toolbar/toolbar-view.js` 与 `toolbar-state.js`，把 toolbar shell、settings popover、pane/timeframe/display controls 的 HTML 渲染和初始化 render state 移出 `toolbar.js`；`toolbar.js` 保留 DOM 事件绑定、runtime command 调用、pane/layout/settings 行为协调。新增 `toolbar-split-boundary-smoke.js` 并纳入 local smoke。
   - [ ] Step 351.9: Calendar split。拆出 date range history/store/view/controller，并让加载路径走 runtime commands。
   - [ ] Step 351.10: Inspector shell split。把 `inspector-sidebar.js` 收敛成 shell + panel registry + feature panels。
   - [ ] Step 351.11: Feature domain cleanup。拆 PDA、Order、Live Record、Review Archive、Time Reaction 等超大 domain modules。

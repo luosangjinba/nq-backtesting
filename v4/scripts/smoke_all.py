@@ -112,6 +112,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify legacy replay model state transitions.",
         ),
         SmokeCommand(
+            "toolbar_split_boundary_smoke",
+            ["node", "v4/tests/toolbar-split-boundary-smoke.js"],
+            "local",
+            "Verify toolbar rendering stays split from the toolbar controller.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",
