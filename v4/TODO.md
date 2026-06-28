@@ -1345,7 +1345,7 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.1: Runtime inventory and contracts。已梳理允许 fetch bars、写 primary bars、改 chart series、改 visible logical range、发核心事件的模块，新增 `v4/docs/planning/v4_module_boundaries.md` 记录当前高风险耦合、目标 owner、核心 event contract 与后续 boundary review checklist；不改运行行为。
   - [x] Step 351.2: Bars API client boundary。已新增 `v4/src/data/bars/bars-api-client.js` 与 `bars-request.js`，把 UI/PDA/Order/Segment/Comparison 等现有 K 线请求迁移到 `loadBars()`；新增 `bars-api-boundary-smoke.js` 并纳入 local smoke，禁止 UI/feature 模块直接 import `api.js` 或引用 `fetchBars`。
   - [x] Step 351.3: Primary bars runtime。已新增 `v4/src/runtime/primary-bars-runtime.js`，收口 Toolbar、Calendar、Viewport、Replay History、Time Reaction 等主图 `loadBars + store.setBars` 写入路径；新增 `primary-bars-runtime-boundary-smoke.js` 并纳入 local smoke，防止 UI/feature 模块直接写 primary bars。
-  - [ ] Step 351.4: Chart series runtime。把 `bars:loaded -> chart.setData` 与 bar projection 从 `app.js`/replay controls 移到 primary chart runtime。
+  - [x] Step 351.4: Chart series runtime。已新增 `v4/src/runtime/primary-chart-runtime.js`，收口 `bars:loaded -> chart.setData`、主图 bar projection、legacy replay 的 `setData/updateBar/showStart/showEnd` series 写入路径；新增 `primary-chart-runtime-boundary-smoke.js` 并纳入 local smoke。
   - [ ] Step 351.5: Command bus and UI command boundary。Toolbar/Calendar/Viewport/Replay controls 只发命令或调用 command handlers，不直接编排 store/chart/API。
   - [ ] Step 351.6: Mode runtime。建立 `history`、`legacy-replay` 等显式 chart modes，避免不同加载语义共享含糊状态。
   - [ ] Step 351.7: Replay domain split。把现有 legacy replay 拆成 model/controller/view，不改变当前 replay 行为。

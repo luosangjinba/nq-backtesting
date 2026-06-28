@@ -238,8 +238,14 @@ These exceptions are allowed temporarily while the refactor proceeds:
 - Primary chart writers must call `runtime/primary-bars-runtime.js`; direct
   `store.setBars()` calls outside `bar-store.js` and the runtime are blocked by
   `primary-bars-runtime-boundary-smoke.js` as of Step 351.3.
-- `app.js` may still update the chart on `bars:loaded` until Step 351.4.
-- `replay-controls.js` may still mutate chart data until Step 351.7.
+- Primary chart series writes must call `runtime/primary-chart-runtime.js`;
+  direct `chart.setData()`, `chart.updateBar()`, `chart.showStartOfData()`, and
+  `chart.showEndOfData()` calls outside `chart-manager.js`, `chart/viewport-controller.js`,
+  and the runtime are blocked by `primary-chart-runtime-boundary-smoke.js` as of
+  Step 351.4. `viewport-controller.js` remains a temporary visible-range
+  exception until Step 351.6.
+- `replay-controls.js` may still own legacy replay state, cursor primitives, and
+  visible logical range restore until Step 351.7.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 

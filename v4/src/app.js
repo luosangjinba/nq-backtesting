@@ -2,12 +2,11 @@
 
 import * as bus from './event-bus.js';
 import * as chart from './chart/chart-manager.js';
-import { getBarChartTime } from './chart/time-projection.js';
 import { initChartPaneDom } from './chart-panes/chart-pane-dom.js';
 import { CHART_PANE_LAYOUTS, getChartPaneState } from './chart-panes/chart-pane-store.js';
 import { initChartPaneRangeSync } from './chart-panes/chart-pane-range-sync.js';
-import * as store from './data/bar-store.js';
 import { initPrimaryInstrumentStore } from './data/primary-instrument-store.js';
+import { initPrimaryChartRuntime } from './runtime/primary-chart-runtime.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initComparisonWindowController } from './ui/comparison-window-controller.js';
 import { initComparisonWindowPersistence } from './comparison/comparison-window-persistence.js';
@@ -95,35 +94,13 @@ console.log('[V4] Chart pane range sync initialized');
 // 初始化 Replay 控制条
 initReplayControls();
 initReplayHistoryPersistence();
+initPrimaryChartRuntime({ getReplayRestoreSnapshot, syncReplayData });
+console.log('[V4] Primary chart runtime initialized');
 console.log('[V4] Replay controls initialized');
 
 // 初始化图表视口控制条
 initViewportControls();
 console.log('[V4] Viewport controls initialized');
-
-// 绑定 bars:loaded → chart.setData（用显示数据，不含 padding）
-bus.on('bars:loaded', ({ bars }) => {
-  const replaySnapshot = getReplayRestoreSnapshot();
-  const displayBars = store.getDisplayBars();
-  const tf = store.getCurrentTimeframe();
-  // 日线用 tradingDay 日期字符串作为 LightweightCharts time（显示交易日日期）
-  // 低周期用 timestamp 数值（显示精确时间）
-  const chartData = displayBars.map((b) => ({
-    time: getBarChartTime(b, tf),
-    open: b.open,
-    high: b.high,
-    low: b.low,
-    close: b.close,
-  }));
-  chart.setData(chartData);
-  if (!replaySnapshot?.enabled) {
-    chart.showStartOfData(chartData.length);
-  }
-  syncReplayData(replaySnapshot);
-  console.log(
-    `[V4] Chart updated with ${displayBars.length} display bars (${bars.length} total with padding)`
-  );
-});
 
 bus.on('chart-panes:changed', (state = getChartPaneState()) => {
   if (state.reason !== 'layout' || state.layout !== CHART_PANE_LAYOUTS.TWO_COLUMN) return;

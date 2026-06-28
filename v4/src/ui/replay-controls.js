@@ -2,7 +2,6 @@
 
 import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
-import { getBarChartTime } from '../chart/time-projection.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
 import {
@@ -27,6 +26,13 @@ import {
 } from './replay/replay-time-utils.js';
 import { renderReplayControlsView } from './replay/replay-controls-view.js';
 import { loadReplayHistoryItem as restoreReplayHistoryItem } from './replay/replay-history-actions.js';
+import {
+  appendPrimaryChartBar,
+  clearPrimaryChartData,
+  projectPrimaryChartBars,
+  replacePrimaryChartData,
+  replacePrimaryChartSlice,
+} from '../runtime/primary-chart-runtime.js';
 
 const SPEEDS = [
   { label: '1x', ms: 900 },
@@ -50,17 +56,6 @@ let lastReplayPickHandledAt = 0;
 let speedIndex = 2;
 let timer = null;
 let historyOpen = false;
-
-function toChartBar(bar) {
-  const tf = store.getCurrentTimeframe();
-  return {
-    time: getBarChartTime(bar, tf),
-    open: bar.open,
-    high: bar.high,
-    low: bar.low,
-    close: bar.close,
-  };
-}
 
 function setToolbarRange(start, end, timeframe) {
   const startInput = document.getElementById('startInput');
@@ -196,8 +191,7 @@ function restoreFullChart(savePosition = true) {
   chart.hideReplayCursor();
   chart.hidePickPreviewCursor();
   if (chartData.length > 0) {
-    chart.setData(chartData);
-    chart.showStartOfData(chartData.length);
+    replacePrimaryChartData(chartData, { showStart: true });
   }
   emitReplayChanged();
   render();
@@ -217,10 +211,7 @@ function renderSlice(index, followEnd = true, rememberPrevious = false, viewport
   cursorIndex = Math.max(0, Math.min(index, chartData.length - 1));
   cursorTimestampAnchor =
     normalizeTimestamp(viewportSnapshot?.cursorTimestamp) ?? normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
-  chart.setData(chartData.slice(0, cursorIndex + 1));
-  if (followEnd) {
-    chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
-  }
+  replacePrimaryChartSlice(chartData, cursorIndex, { followEnd, previousRange, previousDataCount });
   chart.showReplayCursor(chartData[cursorIndex].time);
   emitReplayChanged();
   render();
@@ -244,8 +235,10 @@ function stepForward() {
   const previousDataCount = cursorIndex + 1;
   cursorIndex += 1;
   cursorTimestampAnchor = normalizeTimestamp(displayBars[cursorIndex]?.timestamp);
-  chart.updateBar(chartData[cursorIndex]);
-  chart.showEndOfData(cursorIndex + 1, previousRange, previousDataCount);
+  appendPrimaryChartBar(chartData[cursorIndex], cursorIndex + 1, {
+    previousRange,
+    previousDataCount,
+  });
   chart.showReplayCursor(chartData[cursorIndex].time);
   emitReplayChanged();
   render();
@@ -407,7 +400,7 @@ function handleChartClick(param) {
     enabled = true;
     cursorIndex = -1;
     cursorTimestampAnchor = null;
-    chart.setData([]);
+    clearPrimaryChartData();
     chart.hideReplayCursor();
     emitReplayChanged();
     render();
@@ -598,7 +591,7 @@ export function syncReplayData(restoreSnapshot = null) {
     cursorTimestamp,
     restoreSnapshot
   );
-  chartData = displayBars.map(toChartBar);
+  chartData = projectPrimaryChartBars(displayBars, nextTimeframe);
   activeTimeframe = nextTimeframe;
 
   if (shouldRestoreReplay && chartData.length > 0) {
@@ -628,7 +621,7 @@ export function syncReplayData(restoreSnapshot = null) {
   cursorTimestampAnchor = null;
   lastCursorTimestampAnchor = null;
   if (restoreSnapshot?.enabled && chartData.length > 0) {
-    chart.showStartOfData(chartData.length);
+    replacePrimaryChartData(chartData, { showStart: true });
   }
   emitReplayChanged();
   render();
