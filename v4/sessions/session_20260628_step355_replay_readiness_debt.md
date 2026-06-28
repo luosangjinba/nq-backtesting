@@ -66,7 +66,31 @@ Checks:
 
 ## Step 355.4 - Replay readiness audit
 
-Planned:
+Completed:
 
-- Re-run boundary, replay, comparison, and local smoke checks.
-- Update TODO/session with remaining debt and defer reasons.
+- Extended `module-boundary-closeout-smoke.py` to protect:
+  - replay controls dispatcher/renderer boundaries;
+  - Order Setup chart action facade vs mutation action module;
+  - Live Record chart action facade vs mutation action module.
+- Confirmed the next FX Replay pass no longer has the highest-risk UI routing
+  and chart mutation execution mixed into the same facade files.
+- Remaining intentional debt:
+  - `replay-controls.js` still owns the legacy replay state machine and is 496
+    lines; do not split it further until the new FX Replay behavior shape is
+    clear.
+  - `order-setup-mutation-actions.js` and `live-record-mutation-actions.js`
+    are large, but their blast radius is now isolated behind small facades.
+  - `comparison-context-menu.js` remains a future split candidate, but it is not
+    required before the next replay-data-loading pass.
+
+Checks:
+
+- `node v4/tests/replay-controller-boundary-smoke.js`
+- `node v4/tests/replay-model-smoke.js`
+- `node v4/tests/order-setup-smoke.js`
+- `node v4/tests/live-record-chart-actions-smoke.js`
+- `node v4/tests/live-record-smoke.js`
+- `node v4/tests/comparison-window-browser-smoke.js`
+- `python3 v4/tests/module-boundary-closeout-smoke.py`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`

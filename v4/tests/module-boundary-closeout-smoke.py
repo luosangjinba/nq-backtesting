@@ -22,6 +22,10 @@ inspector_page_router_source = read("src/ui/inspector/inspector-page-router.js")
 replay_source = read("src/ui/replay-controls.js")
 toolbar_source = read("src/ui/toolbar.js")
 calendar_panel_source = read("src/ui/inspector/calendar-panel.js")
+order_setup_chart_actions_source = read("src/order/order-setup-chart-actions.js")
+order_setup_mutation_actions_source = read("src/order/order-setup-mutation-actions.js")
+live_record_chart_actions_source = read("src/live-record/live-record-chart-actions.js")
+live_record_mutation_actions_source = read("src/live-record/live-record-mutation-actions.js")
 data_maintenance_html = read("data-maintenance.html")
 tradovate_importer_source = read("src/live-record/tradovate-performance-importer.js")
 review_archive_source = read("src/review/review-archive.js")
@@ -111,6 +115,8 @@ for forbidden in [
     "../chart/primary-chart-runtime.js",
     "../data/comparison-store.js",
     "../replay/replay-history-store.js",
+    "../features/replay/replay-history-controller.js",
+    "../features/replay/replay-toolbar-sync.js",
 ]:
     assert forbidden not in replay_source, f"replay-controls.js bypassed replay boundary: {forbidden}"
 
@@ -121,6 +127,32 @@ for forbidden in [
     "function renderSettingsMenu",
 ]:
     assert forbidden not in toolbar_source, f"toolbar.js regained controller implementation: {forbidden}"
+
+assert len(order_setup_chart_actions_source.splitlines()) < 40, (
+    "order-setup-chart-actions.js should remain a small action facade"
+)
+assert "./order-setup-mutation-actions.js" in order_setup_chart_actions_source, (
+    "order-setup-chart-actions.js should compose the mutation action boundary"
+)
+assert "ORDER_SETUP_PATCH_ACTIONS" not in order_setup_chart_actions_source, (
+    "Order Setup mutation config should stay out of the chart action facade"
+)
+assert "ORDER_SETUP_PATCH_ACTIONS" in order_setup_mutation_actions_source, (
+    "order-setup-mutation-actions.js should own Order Setup mutation config"
+)
+
+assert len(live_record_chart_actions_source.splitlines()) < 40, (
+    "live-record-chart-actions.js should remain a small action facade"
+)
+assert "./live-record-mutation-actions.js" in live_record_chart_actions_source, (
+    "live-record-chart-actions.js should compose the mutation action boundary"
+)
+assert "LIVE_RECORD_TARGET_ACTIONS" not in live_record_chart_actions_source, (
+    "Live Record mutation config should stay out of the chart action facade"
+)
+assert "LIVE_RECORD_TARGET_ACTIONS" in live_record_mutation_actions_source, (
+    "live-record-mutation-actions.js should own Live Record mutation config"
+)
 
 for forbidden in [
     "function getLoadedDateRange",
