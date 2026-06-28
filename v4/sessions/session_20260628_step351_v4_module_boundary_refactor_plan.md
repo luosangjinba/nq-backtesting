@@ -466,4 +466,3 @@ Run this checklist after every step that changes runtime behavior:
 - Do not mix feature behavior changes with mechanical moves.
 - If a manual check fails, fix or revert before starting the next substep.
 - Keep `backup/step353-before-rollback-bbe36d3` untouched as a reference only.
-
