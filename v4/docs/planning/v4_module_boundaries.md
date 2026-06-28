@@ -244,6 +244,9 @@ These exceptions are allowed temporarily while the refactor proceeds:
   and the runtime are blocked by `primary-chart-runtime-boundary-smoke.js` as of
   Step 351.4. `viewport-controller.js` remains a temporary visible-range
   exception until Step 351.6.
+- UI modules must call `runtime/commands.js` for primary range loading. Direct
+  imports of `primary-bars-runtime.js` from `v4/src/ui` are blocked by
+  `ui-command-boundary-smoke.js` as of Step 351.5.
 - `replay-controls.js` may still own legacy replay state, cursor primitives, and
   visible logical range restore until Step 351.7.
 - Feature modules may still request context-only bars through `loadBars()` until

@@ -5,8 +5,12 @@ import { DEFAULT_TIMEFRAME, INSTRUMENT_OPTIONS, TIMEFRAME_MAP } from '../config.
 import * as chartManager from '../chart/chart-manager.js';
 import { isGridVisible, setGridVisible } from '../chart/grid-visibility.js';
 import * as store from '../data/bar-store.js';
-import { getPrimaryInstrument, setPrimaryInstrument } from '../data/primary-instrument-store.js';
-import { loadPrimaryBars } from '../runtime/primary-bars-runtime.js';
+import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
+import {
+  loadPrimaryRangeCommand,
+  setPrimaryInstrumentCommand,
+  setPrimaryTimeframeCommand,
+} from '../runtime/commands.js';
 import {
   getComparisonWindowState,
   isComparisonWindowEnabled,
@@ -544,7 +548,8 @@ async function handleLoad() {
   const primaryPane = getPaneById(CHART_PANE_IDS.PRIMARY);
   const tf = Number(primaryPane?.timeframe) || DEFAULT_TIMEFRAME;
   const instrument = getPrimaryInstrument();
-  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument, timeframe: tf });
+  setPrimaryInstrumentCommand({ instrument });
+  setPrimaryTimeframeCommand({ timeframe: tf });
 
   if (!start || !end) {
     bus.emit('status:update', { text: 'Choose a date range first', isError: true });
@@ -560,7 +565,7 @@ async function handleLoad() {
   bus.emit('status:update', { text: 'Loading...', isError: false });
 
   try {
-    const result = await loadPrimaryBars({
+    const result = await loadPrimaryRangeCommand({
       start: loadRange.start,
       end: loadRange.end,
       timeframe: tf,
@@ -590,8 +595,7 @@ function applyActivePaneInstrument(nextInstrument) {
     return;
   }
 
-  const instrument = setPrimaryInstrument(nextInstrument);
-  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { instrument });
+  const instrument = setPrimaryInstrumentCommand({ instrument: nextInstrument });
   bus.emit('status:update', { text: `${getPaneLabel(CHART_PANE_IDS.PRIMARY)} ${instrument}`, isError: false });
   syncActivePaneToolbarControls();
   if (store.getBars().length > 0) {
@@ -610,7 +614,7 @@ function applyActivePaneTimeframe(nextTimeframe) {
     return;
   }
 
-  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe });
+  setPrimaryTimeframeCommand({ timeframe });
   syncActivePaneToolbarControls();
   if (store.getBars().length > 0) {
     handleLoad();

@@ -1,5 +1,5 @@
 import * as bus from '../../event-bus.js';
-import { loadPrimaryBars } from '../../runtime/primary-bars-runtime.js';
+import { loadPrimaryRangeCommand } from '../../runtime/commands.js';
 import { resolveWindowAroundTimestamp } from '../../data/load-range-policy.js';
 import { getReplayHistory } from '../replay-history-store.js';
 import { isTimestampInRange } from './replay-time-utils.js';
@@ -39,7 +39,7 @@ export async function loadReplayHistoryItem(id, {
   bus.emit('status:update', { text: '恢复 Replay History...', isError: false });
   try {
     const instrument = setToolbarPrimaryInstrument(item.primary.instrument);
-    await loadPrimaryBars({
+    await loadPrimaryRangeCommand({
       start: loadStart,
       end: loadEnd,
       timeframe,

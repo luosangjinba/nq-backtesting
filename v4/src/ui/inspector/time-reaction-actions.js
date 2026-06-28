@@ -8,7 +8,7 @@ import { locateSetupSet } from '../../order/setup-set.js';
 import * as store from '../../data/bar-store.js';
 import { getPrimaryInstrument } from '../../data/primary-instrument-store.js';
 import { resolveChartLoadRange } from '../../data/load-range-policy.js';
-import { loadPrimaryBars } from '../../runtime/primary-bars-runtime.js';
+import { loadPrimaryRangeCommand } from '../../runtime/commands.js';
 import { getSmtRecordById } from '../../smt/smt-store.js';
 import {
   getOrderReviewById,
@@ -389,7 +389,7 @@ async function ensurePrimaryTimeframe(timeframe) {
   }
   bus.emit('status:update', { text: 'Loading primary timeframe...', isError: false });
   try {
-    await loadPrimaryBars({
+    await loadPrimaryRangeCommand({
       start: loadRange.start,
       end: loadRange.end,
       timeframe: targetTimeframe,

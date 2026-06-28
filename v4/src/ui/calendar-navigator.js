@@ -2,7 +2,7 @@ import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
 import { resolveChartLoadRange, resolveWindowAroundTimestamp } from '../data/load-range-policy.js';
-import { loadPrimaryBars } from '../runtime/primary-bars-runtime.js';
+import { loadPrimaryRangeCommand, setPrimaryTimeframeCommand } from '../runtime/commands.js';
 import { locateTimestampRange } from '../chart/viewport-controller.js';
 import { timeframeToString } from '../config.js';
 import { CHART_PANE_IDS, getPaneById, updatePaneDescriptor } from '../chart-panes/chart-pane-store.js';
@@ -579,7 +579,7 @@ async function loadRange(start, end, successText) {
     throw new Error(loadRange.message);
   }
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await loadPrimaryBars({
+  const result = await loadPrimaryRangeCommand({
     start: loadRange.start,
     end: loadRange.end,
     timeframe: tf,
@@ -587,7 +587,7 @@ async function loadRange(start, end, successText) {
     outerRange: loadRange.outerRange,
   });
   setToolbarRange(loadRange.start, loadRange.end, false);
-  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
+  setPrimaryTimeframeCommand({ timeframe: tf });
   recordRangeHistory(start, end, tf);
   bus.emit('status:update', {
     text: loadRange.windowed ? loadRange.message : successText || `Loaded ${result.bars.length} bars`,
@@ -599,7 +599,7 @@ async function loadRange(start, end, successText) {
 async function loadResolvedWindow(loadRange, successText) {
   const tf = Number(loadRange.outerRange?.timeframe || store.getCurrentTimeframe());
   bus.emit('status:update', { text: 'Loading...', isError: false });
-  const result = await loadPrimaryBars({
+  const result = await loadPrimaryRangeCommand({
     start: loadRange.start,
     end: loadRange.end,
     timeframe: tf,
@@ -607,7 +607,7 @@ async function loadResolvedWindow(loadRange, successText) {
     outerRange: loadRange.outerRange,
   });
   setToolbarRange(loadRange.start, loadRange.end, false);
-  updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: tf });
+  setPrimaryTimeframeCommand({ timeframe: tf });
   bus.emit('status:update', {
     text: successText || loadRange.message,
     isError: false,
@@ -627,7 +627,7 @@ async function loadHistoryRange(index) {
     tfSelect.value = String(item.timeframe);
   }
   if (item.timeframe) {
-    updatePaneDescriptor(CHART_PANE_IDS.PRIMARY, { timeframe: item.timeframe });
+    setPrimaryTimeframeCommand({ timeframe: item.timeframe });
   }
 
   try {

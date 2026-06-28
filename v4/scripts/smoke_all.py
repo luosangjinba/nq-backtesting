@@ -88,6 +88,18 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify primary chart series writes go through the primary chart runtime.",
         ),
         SmokeCommand(
+            "runtime_commands_smoke",
+            ["node", "v4/tests/runtime-commands-smoke.js"],
+            "local",
+            "Verify runtime command validation and no-op behavior.",
+        ),
+        SmokeCommand(
+            "ui_command_boundary_smoke",
+            ["node", "v4/tests/ui-command-boundary-smoke.js"],
+            "local",
+            "Verify UI modules use runtime commands for primary bar loading.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",
