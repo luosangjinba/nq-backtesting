@@ -34,6 +34,7 @@ import {
 import { handleReplayControlClick } from '../features/replay/replay-control-dispatcher.js';
 import { renderReplayToolbarControls } from '../features/replay/replay-toolbar-renderer.js';
 import * as replayChart from '../features/replay/replay-chart-adapter.js';
+import { COMMANDS, executeCommand } from '../runtime/commands.js';
 import {
   CHART_MODE_SOURCES,
   enterHistoryMode,
@@ -46,6 +47,7 @@ const replayState = createLegacyReplayState({
   speedIndex: 2,
 });
 let timer = null;
+let fxReplayActive = false;
 
 function findNextDailyTimeIndex(hour, minute) {
   if (!replayState.enabled || replayState.cursorIndex < 0 || !replayState.displayBars.length) return -1;
@@ -115,6 +117,19 @@ function resetReplayState() {
 
 function restoreFullChart(savePosition = true) {
   stopTimer();
+  if (fxReplayActive) {
+    fxReplayActive = false;
+    resetReplayStateFields(replayState);
+    replayChart.clearReplayChartCursors();
+    replayChart.replacePrimaryChartBars(store.getDisplayBars(), {
+      timeframe: store.getCurrentTimeframe(),
+      showStart: true,
+    });
+    enterHistoryMode({ source: CHART_MODE_SOURCES.LEGACY_REPLAY_EXIT });
+    emitReplayChanged();
+    render();
+    return;
+  }
   restoreFullChartState(replayState, { savePosition });
   replayChart.clearReplayChartCursors();
   if (replayState.chartData.length > 0) {
@@ -258,11 +273,52 @@ function enableReplay() {
   renderSlice(startIndex);
 }
 
+async function enableFxReplayInitialSession() {
+  const range = store.getCurrentRange();
+  if (!range.start || !range.end) return false;
+
+  stopTimer();
+  const result = await executeCommand(COMMANDS.START_FX_REPLAY_SESSION, {
+    sessionId: `fx-replay-${Date.now()}`,
+    instrument: getPrimaryInstrument(),
+    timeframe: store.getCurrentTimeframe(),
+    sessionStart: range.start,
+    sessionEnd: range.end,
+  });
+  const displayBars = result.displayBars || [];
+  if (!displayBars.length) return false;
+
+  fxReplayActive = true;
+  replayState.enabled = true;
+  replayState.mode = REPLAY_CONTROL_MODES.IDLE;
+  replayState.displayBars = displayBars;
+  replayState.chartData = replayChart.projectPrimaryChartBars(displayBars, store.getCurrentTimeframe());
+  replayState.cursorIndex = displayBars.length - 1;
+  replayState.cursorTimestampAnchor = result.state?.cursorTimestamp ?? displayBars.at(-1)?.timestamp ?? null;
+  replayState.lastCursorIndex = -1;
+  replayState.lastCursorTimestampAnchor = null;
+  replayState.activeTimeframe = store.getCurrentTimeframe();
+  replayChart.showReplayCursor(replayState.chartData[replayState.cursorIndex]?.time);
+  emitReplayChanged();
+  render();
+  bus.emit('status:update', {
+    text: `FX Replay 初始加载: prefix ${Math.max(0, displayBars.length - 1)} + start`,
+    isError: false,
+  });
+  return true;
+}
+
 function toggleReplayEnabled() {
   if (replayState.enabled) {
     restoreFullChart(true);
   } else {
-    enableReplay();
+    enableFxReplayInitialSession().catch((error) => {
+      bus.emit('status:update', {
+        text: `FX Replay 初始加载失败: ${error?.message || error}`,
+        isError: true,
+      });
+      enableReplay();
+    });
   }
 }
 
@@ -418,6 +474,7 @@ export function getReplayRestoreSnapshot() {
 }
 
 export function getReplayVisibleBars() {
+  if (fxReplayActive) return replayState.displayBars;
   if (!replayState.enabled || replayState.cursorIndex < 0) return null;
   return replayState.displayBars.slice(0, replayState.cursorIndex + 1);
 }
@@ -443,6 +500,7 @@ export function syncReplayData(restoreSnapshot = null) {
     normalizeTimestamp(restoreSnapshot?.lastTimestamp ?? (replayState.lastCursorIndex >= 0 ? getLastCursorTimestamp() : null));
 
   stopTimer();
+  fxReplayActive = false;
   replayChart.clearReplayChartCursors();
   const nextTimeframe = store.getCurrentTimeframe();
   replayState.displayBars = getReplayRestoreDisplayBars(

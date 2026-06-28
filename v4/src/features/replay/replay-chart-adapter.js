@@ -3,6 +3,7 @@ import {
   appendPrimaryChartBar,
   clearPrimaryChartData,
   projectPrimaryChartBars,
+  replacePrimaryChartBars,
   replacePrimaryChartData,
   replacePrimaryChartSlice,
 } from '../../runtime/primary-chart-runtime.js';
@@ -11,6 +12,7 @@ export {
   appendPrimaryChartBar,
   clearPrimaryChartData,
   projectPrimaryChartBars,
+  replacePrimaryChartBars,
   replacePrimaryChartData,
   replacePrimaryChartSlice,
 };
