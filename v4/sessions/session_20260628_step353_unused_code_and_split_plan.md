@@ -202,7 +202,7 @@ Completion notes:
   `python3 v4/scripts/smoke_all.py --suite local`, and
   `git diff --check`.
 
-### Step 353.4 - Continue `inspector-sidebar.js` split
+### Step 353.4 - Continue `inspector-sidebar.js` split ✅
 
 The sidebar still owns page render routing, detail render functions, calendar
 sync, and controller composition.
@@ -235,6 +235,25 @@ Manual check:
 Commit message:
 
 - `Split inspector page routing`
+
+Completion notes:
+
+- Added `ui/inspector/inspector-detail-renderer.js` for detail/home/archive
+  body composition.
+- Added `ui/inspector/inspector-page-router.js` for Inspector page kind/detail
+  type routing and Back fallback rendering.
+- Added `ui/inspector/inspector-calendar-sync.js` for Calendar date context,
+  open-date events, and primary chart click date-follow behavior.
+- `inspector-sidebar.js` now keeps controller construction, selection refresh,
+  and remaining cross-domain open-object coordination; detail rendering and
+  page routing are delegated.
+- Validation passed:
+  `node v4/tests/inspector-shell-boundary-smoke.js`,
+  `node v4/tests/inspector-selection-router-boundary-smoke.js`,
+  `node v4/tests/inspector-action-router-boundary-smoke.js`,
+  `node v4/tests/inspector-calendar-panel-boundary-smoke.js`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and
+  `git diff --check`.
 
 ### Step 353.5 - Split Tradovate importer domain
 

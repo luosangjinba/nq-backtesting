@@ -4,7 +4,6 @@ import * as bus from '../event-bus.js';
 import * as chart from '../chart/chart-manager.js';
 import * as comparisonChart from '../chart/comparison-chart-manager.js';
 import * as store from '../data/bar-store.js';
-import { findDisplayBarFast } from '../chart/display-bar-lookup.js';
 import {
   didReplayPickJustHandleClick,
   getReplayVisibleBars,
@@ -23,26 +22,10 @@ import {
 } from '../segment/segment-selection.js';
 import { getSegmentById } from '../segment/segment-store.js';
 import { getSegmentGroupById } from '../segment/segment-group-store.js';
-import { renderArchiveActions } from './inspector/archive-panel.js';
 import { createDrawingSetActionController, renderDrawingSetList } from './inspector/drawing-set-panel.js';
 import { createEntryContextCatalogActionController } from './inspector/entry-context-catalog-actions.js';
-import {
-  renderEntryContextCatalogEntry,
-  renderEntryContextCatalogPanel,
-} from './inspector/entry-context-catalog-panel.js';
-import { renderAnnotationPanel } from './inspector/pda-panel.js';
-import { renderSegmentPanel } from './inspector/segment-panel.js';
-import { renderSegmentGroupPanel } from './inspector/segment-group-panel.js';
-import { renderSmtPanel } from './inspector/smt-panel.js';
 import { createSmtInspectorActionController } from './inspector/smt-actions.js';
-import { renderOrderReviewDetailPanel } from './inspector/order-review-panel.js';
-import { renderLiveRecordDetailPanel } from './inspector/live-record-panel.js';
 import { createLiveRecordActionController } from './inspector/live-record-actions.js';
-import {
-  renderDailyTimeReviewPanel,
-  renderDailyTimeReviewSectionPanel,
-} from './inspector/time-reaction-panel.js';
-import { renderEconomicEventDetailPanel } from './inspector/economic-event-panel.js';
 import { createOrderReviewActionController } from './inspector/order-review-actions.js';
 import { createDailyTimeInspectorActionController } from './inspector/time-reaction-actions.js';
 import { createChartNoteInspectorActionController } from './inspector/chart-note-actions.js';
@@ -72,18 +55,18 @@ import { createInspectorArchiveActionController } from './inspector/inspector-ar
 import { createInspectorChangeRouter } from './inspector/inspector-change-router.js';
 import { createInspectorActionRouter } from './inspector/inspector-action-router.js';
 import { renderInspectorBackAction as renderBackAction } from './inspector/inspector-navigation.js';
-import { INSPECTOR_DETAIL_TYPES, isInspectorDetailType } from './inspector/inspector-panel-registry.js';
+import { INSPECTOR_DETAIL_TYPES } from './inspector/inspector-panel-registry.js';
+import { createInspectorPageRouter } from './inspector/inspector-page-router.js';
+import { createInspectorCalendarSync } from './inspector/inspector-calendar-sync.js';
 import { createPdaInspectorActionController } from './inspector/pda-actions.js';
 import { createSegmentInspectorActionController } from './inspector/segment-actions.js';
 import {
   getDefaultCalendarDate,
   getNextCalendarViewDate,
   hydrateCalendarVisibilityControls,
-  renderCalendarPanel,
 } from './inspector/calendar-panel.js';
 import { createCalendarActionController } from './inspector/calendar-actions.js';
 import {
-  dateKeyFromTimestamp,
   getAnnotationCalendarDate,
   getCompositeCalendarDate,
   getCompositeTimestamp,
@@ -127,6 +110,34 @@ let calendarOpenGroups = new Set();
 let suppressActiveReviewRender = false;
 let suppressSelectionBackTarget = false;
 let lastReplayCalendarDate = '';
+
+function getInspectorSidebarState() {
+  return {
+    currentPanel,
+    selectedSmtId,
+    calendarSelectedDate,
+    calendarViewDate,
+    calendarOpenGroups,
+  };
+}
+
+function setCurrentPanel(nextPanel) {
+  currentPanel = nextPanel;
+}
+
+function setSelectedSmtId(nextSmtId) {
+  selectedSmtId = nextSmtId;
+}
+
+function setCalendarState(nextState = {}) {
+  if (Object.hasOwn(nextState, 'selectedDate')) calendarSelectedDate = nextState.selectedDate;
+  if (Object.hasOwn(nextState, 'viewDate')) calendarViewDate = nextState.viewDate;
+  if (Array.isArray(nextState.openGroups)) calendarOpenGroups = new Set(nextState.openGroups);
+}
+
+function renderInspectorBackAction() {
+  return renderBackAction(canPopInspectorPage());
+}
 
 const orderReviewActions = createOrderReviewActionController({
   getExpandedOrderReviewId: () => expandedOrderReviewId,
@@ -266,6 +277,131 @@ const actionRouter = createInspectorActionRouter({
   getCurrentAnnotation,
 });
 
+const pageRouter = createInspectorPageRouter({
+  getState: getInspectorSidebarState,
+  setCalendarState,
+  setCurrentPanel,
+  setSelectedSmtId,
+  setCalendarDateContext,
+  getDefaultCalendarDate,
+  getOrderReviewPanelOptions,
+  renderInspectorBackAction,
+  setInspectorBody,
+  replaceInspectorPage,
+  popInspectorPage,
+  getAnnotationById,
+  getSegmentById,
+  getSegmentGroupById,
+  getSmtRecordById,
+  getSmtRecords,
+  getOrderReviewById,
+  getLiveRecordById,
+  getDailyTimeReviewByDate,
+  getOrCreateDailyTimeReview,
+  getEconomicEventById,
+  dailyTimeActions,
+  orderReviewActions,
+  liveRecordActions,
+  clearPdaSelection,
+  clearSegmentSelection,
+  clearSegmentGroupSelection,
+});
+
+const calendarSync = createInspectorCalendarSync({
+  bus,
+  store,
+  getReplayVisibleBars,
+  updateTimeOverlaySettings,
+  getInspectorPage,
+  getCurrentPanel: () => currentPanel,
+  getCalendarState: getInspectorSidebarState,
+  setCalendarState,
+  captureCalendarOpenGroups,
+  refreshSelection,
+  isInspectorShellOpen,
+  isCalendarClickFollowBlocked,
+  clearPdaSelection,
+  clearSegmentSelection,
+  clearSegmentGroupSelection,
+  clearSelectedSmt: () => {
+    selectedSmtId = null;
+  },
+  resetInspectorPage,
+  renderEmpty,
+  openSidebar,
+});
+
+function renderAnnotation(annotation) {
+  return pageRouter.renderAnnotation(annotation);
+}
+
+function renderSegment(segment) {
+  return pageRouter.renderSegment(segment);
+}
+
+function renderSegmentGroup(segmentGroup) {
+  return pageRouter.renderSegmentGroup(segmentGroup);
+}
+
+function renderSmtSelection() {
+  return pageRouter.renderSmtSelection();
+}
+
+function renderOrderSetupDetail(orderReviewId) {
+  return pageRouter.renderOrderSetupDetail(orderReviewId);
+}
+
+function renderLiveRecordDetail(liveRecordId) {
+  return pageRouter.renderLiveRecordDetail(liveRecordId);
+}
+
+function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
+  return pageRouter.renderDailyTimeReviewDetail(dateKey, sectionKey);
+}
+
+function renderEconomicEventDetail(eventId) {
+  return pageRouter.renderEconomicEventDetail(eventId);
+}
+
+function renderEntryContextCatalogMaintenance() {
+  return pageRouter.renderEntryContextCatalogMaintenance();
+}
+
+function renderEmpty() {
+  return pageRouter.renderEmpty();
+}
+
+function renderArchivePanel() {
+  return pageRouter.renderArchivePanel();
+}
+
+function renderPageFromState(page = getInspectorPage()) {
+  restoreCalendarStateFromPage(page);
+  return pageRouter.renderPageFromState(page);
+}
+
+function renderAfterDetailDeleted() {
+  return pageRouter.renderAfterDetailDeleted();
+}
+
+function setCalendarDateContext(dateKey) {
+  return calendarSync.setCalendarDateContext(dateKey);
+}
+
+function openCalendarDate(payload = {}) {
+  return calendarSync.openCalendarDate(payload);
+}
+
+function handlePrimaryCalendarClick(param = {}) {
+  return calendarSync.handlePrimaryCalendarClick(param);
+}
+
+function restoreCalendarStateFromPage(page = {}) {
+  if (page.selectedDate) calendarSelectedDate = page.selectedDate;
+  if (page.viewDate) calendarViewDate = page.viewDate;
+  if (Array.isArray(page.openGroups)) calendarOpenGroups = new Set(page.openGroups);
+}
+
 function getOrderReviewPanelOptions(extra = {}) {
   return {
     expandedOrderReviewId,
@@ -276,24 +412,12 @@ function getOrderReviewPanelOptions(extra = {}) {
   };
 }
 
-function renderInspectorBackAction() {
-  return renderBackAction(canPopInspectorPage());
-}
-
 function syncCalendarToOrderReview(orderReviewId) {
   const order = getOrderReviewById(orderReviewId);
   const dateKey = getOrderReviewCalendarDate(order);
   if (!dateKey) return false;
   calendarSelectedDate = dateKey;
   calendarViewDate = dateKey;
-  return true;
-}
-
-function setCalendarDateContext(dateKey) {
-  if (!dateKey) return false;
-  calendarSelectedDate = dateKey;
-  calendarViewDate = dateKey;
-  updateTimeOverlaySettings({ selectedDate: dateKey });
   return true;
 }
 
@@ -324,34 +448,6 @@ function prepareSelectionBackTarget(dateKey) {
   return prepareDetailBackTarget(dateKey);
 }
 
-function normalizeCalendarDatePayload(payload = {}) {
-  const dateKey = String(payload.dateKey || '').match(/^\d{4}-\d{2}-\d{2}$/)
-    ? String(payload.dateKey)
-    : dateKeyFromTimestamp(payload.timestamp);
-  return dateKey || '';
-}
-
-function openCalendarDate(payload = {}) {
-  const dateKey = normalizeCalendarDatePayload(payload);
-  if (!dateKey) {
-    bus.emit('status:update', { text: 'Cannot locate Calendar date: missing chart time', isError: true });
-    return false;
-  }
-  setCalendarDateContext(dateKey);
-  clearPdaSelection();
-  clearSegmentSelection();
-  clearSegmentGroupSelection();
-  selectedSmtId = null;
-  resetInspectorPage({ kind: 'home', selectedDate: dateKey, viewDate: dateKey });
-  renderEmpty();
-  openSidebar();
-  bus.emit('status:update', {
-    text: `Calendar selected ${dateKey}${payload.source ? ` from ${payload.source}` : ''}`,
-    isError: false,
-  });
-  return true;
-}
-
 function isCalendarClickFollowBlocked() {
   return Boolean(
     isReplayPicking() ||
@@ -364,227 +460,6 @@ function isCalendarClickFollowBlocked() {
       segmentActions.isActorPicking?.() ||
       segmentActions.didActorPickJustHandleClick?.()
   );
-}
-
-function canFollowCalendarChartClick() {
-  if (!isInspectorShellOpen()) return false;
-  if (isCalendarClickFollowBlocked()) return false;
-  const page = getInspectorPage();
-  return (
-    (currentPanel === 'empty' && page.kind === 'home') ||
-    (currentPanel === 'archive' && page.kind === 'archive')
-  );
-}
-
-function followCalendarDateFromChartClick(dateKey) {
-  if (!dateKey || !canFollowCalendarChartClick()) return false;
-  if (calendarSelectedDate === dateKey && calendarViewDate === dateKey) return false;
-  captureCalendarOpenGroups();
-  calendarSelectedDate = dateKey;
-  calendarViewDate = dateKey;
-  refreshSelection();
-  return true;
-}
-
-function getPrimaryClickDate(param = {}) {
-  const replayBars = getReplayVisibleBars();
-  const bars = Array.isArray(replayBars) ? replayBars : store.getDisplayBars();
-  const bar = findDisplayBarFast(bars, param.time, store.getCurrentTimeframe());
-  return dateKeyFromTimestamp(bar?.timestamp);
-}
-
-function handlePrimaryCalendarClick(param = {}) {
-  followCalendarDateFromChartClick(getPrimaryClickDate(param));
-}
-
-function renderAnnotation(annotation) {
-  currentPanel = 'selection';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.PDA,
-    objectId: annotation.id,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderAnnotationPanel(annotation, renderArchiveActions())}
-  `);
-}
-
-function renderSegment(segment) {
-  currentPanel = 'selection';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.SEGMENT,
-    objectId: segment.id,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderSegmentPanel(segment)}
-  `);
-}
-
-function renderSegmentGroup(segmentGroup) {
-  currentPanel = 'selection';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.COMPOSITE,
-    objectId: segmentGroup.id,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderSegmentGroupPanel(segmentGroup)}
-  `);
-}
-
-function renderSmtSelection() {
-  currentPanel = 'selection';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.SMT,
-    objectId: selectedSmtId,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderSmtPanel(getSmtRecords(), { selectedSmtId })}
-  `);
-}
-
-function renderOrderSetupDetail(orderReviewId) {
-  const order = getOrderReviewById(orderReviewId);
-  currentPanel = 'detail';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.ORDER_SETUP,
-    objectId: orderReviewId,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderOrderReviewDetailPanel(order, getOrderReviewPanelOptions({
-      activeOrderReviewId: orderReviewId,
-    }))}
-  `);
-}
-
-function renderLiveRecordDetail(liveRecordId) {
-  const record = getLiveRecordById(liveRecordId);
-  currentPanel = 'detail';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.LIVE_RECORD,
-    objectId: liveRecordId,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderLiveRecordDetailPanel(record, {
-      pendingReasonRefPick: liveRecordActions.getPendingRefPick?.(),
-    })}
-  `);
-}
-
-function renderDailyTimeReviewDetail(dateKey, sectionKey = '') {
-  const review = getDailyTimeReviewByDate(dateKey) || getOrCreateDailyTimeReview(dateKey);
-  currentPanel = 'detail';
-  setCalendarDateContext(dateKey);
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.TIME_REACTION,
-    objectId: dateKey,
-    sectionKey,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${
-      sectionKey
-        ? renderDailyTimeReviewSectionPanel(review, sectionKey, {
-            pendingRefPick: dailyTimeActions.getPendingRefPick(),
-            pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
-          })
-        : renderDailyTimeReviewPanel(review, {
-            pendingRefPick: dailyTimeActions.getPendingRefPick(),
-            pendingReasonRefPick: orderReviewActions.getPendingReasonRefPick(),
-          })
-    }
-  `);
-}
-
-function renderEconomicEventDetail(eventId) {
-  const event = getEconomicEventById(eventId);
-  if (!event) return false;
-  currentPanel = 'economic-event-detail';
-  replaceInspectorPage({
-    kind: 'detail',
-    objectType: INSPECTOR_DETAIL_TYPES.ECONOMIC_EVENT,
-    objectId: eventId,
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderEconomicEventDetailPanel(event)}
-  `);
-  return true;
-}
-
-function renderEntryContextCatalogMaintenance() {
-  currentPanel = 'entry-context-catalog';
-  replaceInspectorPage({
-    kind: 'entry-context-catalog',
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-    openGroups: Array.from(calendarOpenGroups),
-  });
-  setInspectorBody(`
-    ${renderInspectorBackAction()}
-    ${renderEntryContextCatalogPanel()}
-  `);
-}
-
-function renderEmpty() {
-  currentPanel = 'empty';
-  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
-  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
-  replaceInspectorPage({
-    kind: 'home',
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-    openGroups: Array.from(calendarOpenGroups),
-  });
-  setInspectorBody(`
-    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
-    ${renderEntryContextCatalogEntry()}
-    ${renderArchiveActions()}
-  `);
-}
-
-function renderArchivePanel() {
-  currentPanel = 'archive';
-  if (!calendarSelectedDate) calendarSelectedDate = getDefaultCalendarDate();
-  if (!calendarViewDate) calendarViewDate = calendarSelectedDate;
-  replaceInspectorPage({
-    kind: 'archive',
-    selectedDate: calendarSelectedDate,
-    viewDate: calendarViewDate,
-    openGroups: Array.from(calendarOpenGroups),
-  });
-  setInspectorBody(`
-    ${renderCalendarPanel({ selectedDate: calendarSelectedDate, viewDate: calendarViewDate, openGroups: calendarOpenGroups })}
-    ${renderEntryContextCatalogEntry()}
-    ${renderArchiveActions()}
-  `);
 }
 
 function openSidebar() {
@@ -617,85 +492,6 @@ function showSelectedLiveRecordPanel() {
   prepareDetailBackTarget(getLiveRecordCalendarDate(record));
   renderLiveRecordDetail(liveRecordId);
   openSidebar();
-}
-
-function restoreCalendarStateFromPage(page = {}) {
-  if (page.selectedDate) calendarSelectedDate = page.selectedDate;
-  if (page.viewDate) calendarViewDate = page.viewDate;
-  if (Array.isArray(page.openGroups)) calendarOpenGroups = new Set(page.openGroups);
-}
-
-function renderPageFromState(page = getInspectorPage()) {
-  restoreCalendarStateFromPage(page);
-  if (page.kind === 'archive') {
-    renderArchivePanel();
-    return;
-  }
-  if (page.kind === 'entry-context-catalog') {
-    renderEntryContextCatalogMaintenance();
-    return;
-  }
-  if (page.kind === 'detail') {
-    if (!isInspectorDetailType(page.objectType)) {
-      renderPageFromState(popInspectorPage());
-      return;
-    }
-    if (page.objectType === INSPECTOR_DETAIL_TYPES.ORDER_SETUP) {
-      if (getOrderReviewById(page.objectId)) {
-        renderOrderSetupDetail(page.objectId);
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.LIVE_RECORD) {
-      if (getLiveRecordById(page.objectId)) {
-        renderLiveRecordDetail(page.objectId);
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.PDA) {
-      const annotation = getAnnotationById(page.objectId);
-      if (annotation) {
-        renderAnnotation(annotation);
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.SEGMENT) {
-      const segment = getSegmentById(page.objectId);
-      if (segment) {
-        renderSegment(segment);
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.COMPOSITE) {
-      const segmentGroup = getSegmentGroupById(page.objectId);
-      if (segmentGroup) {
-        renderSegmentGroup(segmentGroup);
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.SMT) {
-      if (getSmtRecordById(page.objectId)) {
-        selectedSmtId = page.objectId;
-        renderSmtSelection();
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.TIME_REACTION) {
-      if (String(page.objectId || '').match(/^\d{4}-\d{2}-\d{2}$/)) {
-        renderDailyTimeReviewDetail(page.objectId, page.sectionKey || '');
-        return;
-      }
-    } else if (page.objectType === INSPECTOR_DETAIL_TYPES.ECONOMIC_EVENT) {
-      if (renderEconomicEventDetail(page.objectId)) {
-        return;
-      }
-    }
-    renderPageFromState(popInspectorPage());
-    return;
-  }
-  clearPdaSelection();
-  clearSegmentSelection();
-  clearSegmentGroupSelection();
-  selectedSmtId = null;
-  renderEmpty();
-}
-
-function renderAfterDetailDeleted() {
-  renderPageFromState(popInspectorPage());
 }
 
 function refreshSelection() {
