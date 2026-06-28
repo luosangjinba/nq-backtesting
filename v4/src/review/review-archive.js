@@ -52,10 +52,16 @@ import {
   normalizeChartNote,
 } from '../chart-notes/chart-note-store.js';
 import { recordHistory } from '../history/history-manager.js';
-import { dateKeyFromTimestamp } from '../utils.js';
+import { collectReviewObjectDateKeys } from './review-archive-date-keys.js';
+import {
+  formatReviewExportStatus,
+  formatReviewImportStatus,
+  hasExportableReviewPayload,
+  REVIEW_ARCHIVE_APP,
+  REVIEW_ARCHIVE_VERSION,
+  validateReviewPayload,
+} from './review-archive-format.js';
 
-const REVIEW_ARCHIVE_VERSION = 1;
-const REVIEW_ARCHIVE_APP = 'trading-v4-review';
 const DISPLAY_MODES = new Set(['highlight', 'normal', 'hidden']);
 
 function getExportableSegments() {
@@ -64,89 +70,6 @@ function getExportableSegments() {
 
 function getExportableSegmentGroups() {
   return getSegmentGroups().filter((group) => group.type === 'composite-move');
-}
-
-function addDateKeyFromTimestamp(keys, timestamp) {
-  const dateKey = dateKeyFromTimestamp(timestamp);
-  if (dateKey) keys.add(dateKey);
-}
-
-function collectReviewObjectDateKeys({
-  pdaAnnotations = [],
-  marketSegments = [],
-  segmentGroups = [],
-  smtRecords = [],
-  orderReviews = [],
-  liveRecords = [],
-  dailyTimeReviews = [],
-} = {}) {
-  const keys = new Set();
-
-  pdaAnnotations.forEach((annotation) => {
-    addDateKeyFromTimestamp(keys, annotation.canonicalTimestamp);
-    addDateKeyFromTimestamp(keys, annotation.timestamp);
-    addDateKeyFromTimestamp(keys, annotation.anchorTime);
-    addDateKeyFromTimestamp(keys, annotation.start?.timestamp ?? annotation.start?.time);
-    addDateKeyFromTimestamp(keys, annotation.end?.timestamp ?? annotation.end?.time);
-    if (Array.isArray(annotation.points)) {
-      annotation.points.forEach((point) => {
-        addDateKeyFromTimestamp(keys, point?.canonicalTimestamp ?? point?.timestamp ?? point?.anchorTime ?? point?.time);
-      });
-    }
-  });
-
-  marketSegments.forEach((segment) => {
-    addDateKeyFromTimestamp(keys, segment.start?.timestamp ?? segment.start?.time);
-    addDateKeyFromTimestamp(keys, segment.end?.timestamp ?? segment.end?.time);
-  });
-
-  segmentGroups.forEach((group) => {
-    if (Array.isArray(group.childSegmentIds)) {
-      group.childSegmentIds.forEach((segmentId) => {
-        const segment = marketSegments.find((candidate) => candidate.id === segmentId);
-        addDateKeyFromTimestamp(keys, segment?.start?.timestamp ?? segment?.start?.time);
-        addDateKeyFromTimestamp(keys, segment?.end?.timestamp ?? segment?.end?.time);
-      });
-    }
-  });
-
-  smtRecords.forEach((record) => {
-    addDateKeyFromTimestamp(keys, record.leftTimestamp);
-    addDateKeyFromTimestamp(keys, record.rightTimestamp);
-    addDateKeyFromTimestamp(keys, record.timestamp);
-    addDateKeyFromTimestamp(keys, record.fvgStartTimestamp);
-    addDateKeyFromTimestamp(keys, record.fvgEndTimestamp);
-  });
-
-  orderReviews.forEach((order) => {
-    addDateKeyFromTimestamp(keys, order.entryPlan?.entryTimestamp);
-    addDateKeyFromTimestamp(keys, order.setupThesis?.primaryEventTimestamp);
-    addDateKeyFromTimestamp(keys, order.resultReview?.exitTimestamp);
-  });
-
-  liveRecords.forEach((record) => {
-    addDateKeyFromTimestamp(keys, record.anchor?.timestamp);
-    addDateKeyFromTimestamp(keys, record.execution?.entry?.timestamp);
-    addDateKeyFromTimestamp(keys, record.execution?.entry?.endTimestamp);
-    addDateKeyFromTimestamp(keys, record.execution?.marketStructureShift?.timestamp);
-    addDateKeyFromTimestamp(keys, record.execution?.marketStructureShift?.endTimestamp);
-    addDateKeyFromTimestamp(keys, record.execution?.stopLoss?.timestamp);
-    addDateKeyFromTimestamp(keys, record.execution?.stopLoss?.endTimestamp);
-    if (Array.isArray(record.execution?.targets)) {
-      record.execution.targets.forEach((target) => {
-        addDateKeyFromTimestamp(keys, target.timestamp);
-        addDateKeyFromTimestamp(keys, target.endTimestamp);
-      });
-    }
-    addDateKeyFromTimestamp(keys, record.result?.exitTimestamp);
-  });
-
-  dailyTimeReviews.forEach((review) => {
-    const date = String(review.date || '').trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) keys.add(date);
-  });
-
-  return keys;
 }
 
 function getExportableDailyRegimes(reviewObjectDateKeys) {
@@ -221,45 +144,6 @@ function downloadReviewJson(payload) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-}
-
-function validateReviewPayload(payload) {
-  if (!payload || typeof payload !== 'object') {
-    throw new Error('review archive payload must be an object');
-  }
-  if (payload.app !== REVIEW_ARCHIVE_APP) {
-    throw new Error(`unsupported review archive app: ${payload.app || 'unknown'}`);
-  }
-  if (payload.version !== REVIEW_ARCHIVE_VERSION) {
-    throw new Error(`unsupported review archive version: ${payload.version || 'unknown'}`);
-  }
-  if (!Array.isArray(payload.pdaAnnotations)) {
-    throw new Error('review archive pdaAnnotations must be an array');
-  }
-  if (!Array.isArray(payload.marketSegments)) {
-    throw new Error('review archive marketSegments must be an array');
-  }
-  if (payload.segmentGroups !== undefined && !Array.isArray(payload.segmentGroups)) {
-    throw new Error('review archive segmentGroups must be an array');
-  }
-  if (payload.smtRecords !== undefined && !Array.isArray(payload.smtRecords)) {
-    throw new Error('review archive smtRecords must be an array');
-  }
-  if (payload.orderReviews !== undefined && !Array.isArray(payload.orderReviews)) {
-    throw new Error('review archive orderReviews must be an array');
-  }
-  if (payload.liveRecords !== undefined && !Array.isArray(payload.liveRecords)) {
-    throw new Error('review archive liveRecords must be an array');
-  }
-  if (payload.dailyTimeReviews !== undefined && !Array.isArray(payload.dailyTimeReviews)) {
-    throw new Error('review archive dailyTimeReviews must be an array');
-  }
-  if (payload.chartNotes !== undefined && !Array.isArray(payload.chartNotes)) {
-    throw new Error('review archive chartNotes must be an array');
-  }
-  if (payload.dailyRegimes !== undefined && !Array.isArray(payload.dailyRegimes)) {
-    throw new Error('review archive dailyRegimes must be an array');
-  }
 }
 
 function validateArchiveInstrument(payloadInstrument) {
@@ -883,23 +767,14 @@ function prepareImportedChartNotes(existingNotes, importedNotes) {
 
 export function exportReviewArchive() {
   const payload = buildReviewPayload();
-  if (
-    payload.pdaAnnotations.length === 0 &&
-    payload.marketSegments.length === 0 &&
-    payload.segmentGroups.length === 0 &&
-    payload.smtRecords.length === 0 &&
-    payload.orderReviews.length === 0 &&
-    payload.liveRecords.length === 0 &&
-    payload.dailyTimeReviews.length === 0 &&
-    payload.chartNotes.length === 0
-  ) {
+  if (!hasExportableReviewPayload(payload)) {
     bus.emit('status:update', { text: '没有可导出的复盘对象', isError: true });
     return;
   }
 
   downloadReviewJson(payload);
   bus.emit('status:update', {
-    text: `已导出 ${payload.pdaAnnotations.length} 条 PDA、${payload.marketSegments.length} 条 Segment、${payload.segmentGroups.length} 个 Composite Move、${payload.smtRecords.length} 条 SMT、${payload.orderReviews.length} 条 Order Setup、${payload.liveRecords.length} 条 Live Record、${payload.dailyTimeReviews.length} 条 Time Reaction、${payload.chartNotes.length} 条 Chart Note 与 ${payload.dailyRegimes.length} 条 Daily Regime`,
+    text: formatReviewExportStatus(payload),
     isError: false,
   });
 }
@@ -1090,9 +965,18 @@ export async function importReviewArchive(file) {
       },
     });
     bus.emit('status:update', {
-      text: `已导入 ${annotations.length} 条 PDA、${segments.length} 条 Segment、${groups.length} 个 Composite Move、${smtRecords.length} 条 SMT、${orders.length} 条 Order Setup、${liveRecords.length} 条 Live Record、${dailyTimeReviews.length} 条 Time Reaction、${chartNotes.length} 条 Chart Note，并校验 ${dailyRegimes.length} 条 Daily Regime${
-        skipped ? `，跳过 ${skipped} 条重复对象` : ''
-      }`,
+      text: formatReviewImportStatus({
+        annotations,
+        segments,
+        groups,
+        smtRecords,
+        orders,
+        liveRecords,
+        dailyTimeReviews,
+        chartNotes,
+        dailyRegimes,
+        skipped,
+      }),
       isError: false,
     });
   } catch (err) {

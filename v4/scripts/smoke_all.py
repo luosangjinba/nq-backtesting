@@ -136,6 +136,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify the inspector sidebar delegates shell DOM ownership to inspector shell modules.",
         ),
         SmokeCommand(
+            "review_archive_domain_boundary_smoke",
+            ["node", "v4/tests/review-archive-domain-boundary-smoke.js"],
+            "local",
+            "Verify review archive format and date-key helpers stay split from import/export orchestration.",
+        ),
+        SmokeCommand(
             "git_diff_check",
             ["git", "diff", "--check"],
             "local",

@@ -281,6 +281,10 @@ These exceptions are allowed temporarily while the refactor proceeds:
   live under `ui/inspector/` as of Step 351.10.
   `ui/inspector-sidebar.js` remains the feature action dispatch and page
   orchestration adapter until the feature panels are split further.
+- Review Archive format/schema/status helpers and date-key derivation live under
+  dedicated `review/` helpers as of Step 351.11.
+  `review-archive.js` remains the import/export orchestration adapter and owns
+  the order in which feature stores are loaded.
 - Feature modules may still request context-only bars through `loadBars()` until
   a feature data-service policy is introduced.
 
