@@ -584,3 +584,14 @@ Commit message:
   `write_workspace_document()` so existing tests and handler wiring continue to
   work while delegating implementation to `workspace_store`.
 - Added `workspace-store-boundary-smoke.py` and included it in local smoke.
+
+### Step 352.10 Completed
+
+- Added `server/maintenance_service.py` for maintenance command execution,
+  active process tracking, busy lock/job state, and API restart scheduling.
+- Added `server/local_env_service.py` for local `.env.local`
+  parse/write/status/update/delete behavior.
+- Updated `v4_api.py` so maintenance command, local env, API restart, and
+  guarded execution paths delegate to service modules.
+- Added `maintenance-service-boundary-smoke.py` and
+  `local-env-service-smoke.py`; included both in local smoke.

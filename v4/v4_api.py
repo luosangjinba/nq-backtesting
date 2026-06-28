@@ -13,12 +13,8 @@ import os
 import csv
 import io
 import yaml
-import subprocess
-import shlex
 import shutil
 import sys
-import threading
-import time
 from datetime import date, datetime, timezone, timedelta
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -28,6 +24,8 @@ from server.price_lookup import query_v2_bars, query_price, open_db, _parse_date
 from server.bars_handler import handle_bars_request, handle_price_request
 from server.economic_calendar_handler import handle_economic_events_request
 from server.maintenance_handler import handle_data_maintenance_post_request
+from server import local_env_service
+from server import maintenance_service
 from server.workspace_handler import handle_workspace_get_request, handle_workspace_put_request
 from server import workspace_store
 
@@ -59,9 +57,6 @@ ECONOMIC_CALENDAR_PATH = os.path.join(
 ECONOMIC_CALENDAR_BACKUP_DIR = os.path.join(V4_ROOT, "data", "economic_calendar", "backups")
 LOCAL_ENV_PATH = os.path.join(V4_ROOT, ".env.local")
 _ECONOMIC_EVENTS_CACHE = None
-_MAINTENANCE_LOCK = threading.Lock()
-_MAINTENANCE_JOB = None
-_MAINTENANCE_PROCESS = None
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
 WORKSPACE_REQUEST_HEADER = "X-V4-Workspace-Request"
@@ -98,38 +93,6 @@ def _parse_allowed_maintenance_origins():
 
 
 ALLOWED_MAINTENANCE_ORIGINS = _parse_allowed_maintenance_origins()
-LOCAL_ENV_VARIABLES = {
-    "DATABENTO_API_KEY": {
-        "label": "Databento API key",
-        "secret": True,
-        "requiresRestart": False,
-        "description": "Used by Refresh Range dry-run/write and roll volume scans.",
-    },
-    "V4_TRADING_DB": {
-        "label": "Trading DB path",
-        "secret": False,
-        "requiresRestart": True,
-        "description": "Optional override for data/trading_data.duckdb.",
-    },
-    "V4_WEB_PORT": {
-        "label": "Web port",
-        "secret": False,
-        "requiresRestart": True,
-        "description": "Optional web port override for start.sh.",
-    },
-    "V4_API_HOST": {
-        "label": "API bind host",
-        "secret": False,
-        "requiresRestart": True,
-        "description": "Optional API bind host. Use 0.0.0.0 on a trusted server/VPN network.",
-    },
-    "V4_ALLOWED_WEB_ORIGINS": {
-        "label": "Allowed web origins",
-        "secret": False,
-        "requiresRestart": True,
-        "description": "Comma-separated origins allowed to run data-maintenance POST actions.",
-    },
-}
 
 # CME 交易日分界：18:00 ET（数据时间戳就是美东时间）
 # 日线 = 前一天18:00 ~ 当天16:59
@@ -281,262 +244,15 @@ def _iso_date(value, field):
 
 
 def _run_maintenance_command(args, timeout=600):
-    global _MAINTENANCE_PROCESS
-    env = os.environ.copy()
-    process = subprocess.Popen(
-        args,
-        cwd=REPO_ROOT,
-        env=env,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    _MAINTENANCE_PROCESS = process
-    try:
-        output, _ = process.communicate(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        output, _ = process.communicate()
-        raise
-    finally:
-        if _MAINTENANCE_PROCESS is process:
-            _MAINTENANCE_PROCESS = None
-    command_label = " ".join(args[:3] + (["..."] if len(args) > 3 else []))
-    return {
-        "ok": process.returncode == 0,
-        "returncode": process.returncode,
-        "command": command_label,
-        "output": output,
-    }
-
-
-def _parse_local_env_lines(path=LOCAL_ENV_PATH):
-    entries = []
-    if not os.path.exists(path):
-        return entries
-    with open(path, "r", encoding="utf-8") as f:
-        for raw_line in f.read().splitlines():
-            stripped = raw_line.strip()
-            if not stripped or stripped.startswith("#") or "=" not in raw_line:
-                entries.append({"kind": "raw", "line": raw_line})
-                continue
-            key, value = raw_line.split("=", 1)
-            key = key.strip()
-            if not key.replace("_", "A").isalnum() or key[:1].isdigit():
-                entries.append({"kind": "raw", "line": raw_line})
-                continue
-            value = value.strip()
-            try:
-                parts = shlex.split(value, posix=True)
-                value = parts[0] if parts else ""
-            except ValueError:
-                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-                    value = value[1:-1]
-            entries.append({"kind": "entry", "key": key, "value": value, "line": raw_line})
-    return entries
-
-
-def _format_env_line(key, value):
-    clean_value = _clean_text(value, 1000)
-    return f"{key}={shlex.quote(clean_value)}"
-
-
-def _write_local_env_entries(entries, path=LOCAL_ENV_PATH):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    lines = []
-    for entry in entries:
-        if entry.get("kind") == "entry":
-            lines.append(_format_env_line(entry["key"], entry.get("value", "")))
-        else:
-            lines.append(entry.get("line", ""))
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(lines).rstrip() + "\n")
-
-
-def _mask_env_value(value, secret=False):
-    if value is None or value == "":
-        return "unset"
-    text = str(value)
-    if not secret:
-        return "set"
-    suffix = text[-4:] if len(text) >= 4 else "****"
-    return f"set ****{suffix} length={len(text)}"
-
-
-def _get_local_env_status(path=LOCAL_ENV_PATH):
-    entries = _parse_local_env_lines(path)
-    file_values = {
-        entry["key"]: entry.get("value", "")
-        for entry in entries
-        if entry.get("kind") == "entry" and entry.get("key") in LOCAL_ENV_VARIABLES
-    }
-    rows = []
-    for key, definition in LOCAL_ENV_VARIABLES.items():
-        file_value = file_values.get(key, "")
-        process_value = os.environ.get(key, "")
-        rows.append({
-            "key": key,
-            "label": definition["label"],
-            "secret": definition["secret"],
-            "requiresRestart": definition["requiresRestart"],
-            "description": definition["description"],
-            "fileSet": bool(file_value),
-            "processSet": bool(process_value),
-            "fileMasked": _mask_env_value(file_value, definition["secret"]),
-            "processMasked": _mask_env_value(process_value, definition["secret"]),
-        })
-    return rows
-
-
-def _format_local_env_status(rows, path=LOCAL_ENV_PATH):
-    lines = [
-        "local_environment_status: ok",
-        f"file: {path}",
-        f"file_exists: {str(os.path.exists(path)).lower()}",
-        "",
-        "variables",
-    ]
-    for row in rows:
-        restart = " restart_required" if row["requiresRestart"] else ""
-        lines.append(
-            f"- {row['key']}: file={row['fileMasked']} process={row['processMasked']}{restart}"
-        )
-    return "\n".join(lines) + "\n"
-
-
-def _set_local_env_value(key, value, path=LOCAL_ENV_PATH):
-    if key not in LOCAL_ENV_VARIABLES:
-        raise ValueError(f"Unsupported local environment key: {key}")
-    clean_value = _clean_text(value, 1000)
-    entries = _parse_local_env_lines(path)
-    updated = False
-    next_entries = []
-    for entry in entries:
-        if entry.get("kind") == "entry" and entry.get("key") == key:
-            if not updated:
-                next_entries.append({"kind": "entry", "key": key, "value": clean_value})
-                updated = True
-            continue
-        next_entries.append(entry)
-    if not updated:
-        if next_entries and next_entries[-1].get("line", "") != "":
-            next_entries.append({"kind": "raw", "line": ""})
-        next_entries.append({"kind": "entry", "key": key, "value": clean_value})
-    _write_local_env_entries(next_entries, path)
-    os.environ[key] = clean_value
-    return _get_local_env_status(path)
-
-
-def _delete_local_env_value(key, path=LOCAL_ENV_PATH):
-    if key not in LOCAL_ENV_VARIABLES:
-        raise ValueError(f"Unsupported local environment key: {key}")
-    entries = _parse_local_env_lines(path)
-    next_entries = [
-        entry for entry in entries
-        if not (entry.get("kind") == "entry" and entry.get("key") == key)
-    ]
-    _write_local_env_entries(next_entries, path)
-    os.environ.pop(key, None)
-    return _get_local_env_status(path)
+    return maintenance_service.run_maintenance_command(args, timeout=timeout)
 
 
 def _run_local_env_action(payload):
-    action = _choice(payload.get("action"), {"environment_status", "environment_write", "environment_delete"}, "action")
-    if action == "environment_status":
-        rows = _get_local_env_status()
-        return {
-            "ok": True,
-            "returncode": 0,
-            "command": "local environment status",
-            "output": _format_local_env_status(rows),
-            "environment": rows,
-        }
-    key = _choice(payload.get("key"), set(LOCAL_ENV_VARIABLES), "key")
-    if action == "environment_write":
-        value = _clean_text(payload.get("value"), 1000)
-        if not value:
-            raise ValueError("Environment value cannot be empty; use Delete to remove a value")
-        rows = _set_local_env_value(key, value)
-        return {
-            "ok": True,
-            "returncode": 0,
-            "command": "local environment write",
-            "output": _format_local_env_status(rows) + f"write_status: saved\nupdated_key: {key}\n",
-            "environment": rows,
-        }
-    rows = _delete_local_env_value(key)
-    return {
-        "ok": True,
-        "returncode": 0,
-        "command": "local environment delete",
-        "output": _format_local_env_status(rows) + f"delete_status: deleted\nupdated_key: {key}\n",
-        "environment": rows,
-    }
-
-
-def _terminate_active_maintenance_process(timeout=2.0):
-    process = _MAINTENANCE_PROCESS
-    if not process or process.poll() is not None:
-        return "none"
-    process.terminate()
-    try:
-        process.wait(timeout=timeout)
-        return "terminated"
-    except subprocess.TimeoutExpired:
-        process.kill()
-        process.wait(timeout=timeout)
-        return "killed"
-
-
-def _schedule_api_restart():
-    def restart_later():
-        time.sleep(0.6)
-        log_path = os.path.join(V4_ROOT, ".api-restart.log")
-        try:
-            log = open(log_path, "a", encoding="utf-8")
-            log.write(f"\n[{datetime.now(timezone.utc).isoformat()}] scheduled restart\n")
-            log.flush()
-            subprocess.Popen(
-                ["bash", "start.sh", "restart"],
-                cwd=V4_ROOT,
-                env=os.environ.copy(),
-                stdin=subprocess.DEVNULL,
-                stdout=log,
-                stderr=subprocess.STDOUT,
-                start_new_session=True,
-            )
-        except Exception as exc:
-            try:
-                with open(log_path, "a", encoding="utf-8") as f:
-                    f.write(f"restart_schedule_error: {exc}\n")
-            except Exception:
-                pass
-
-    thread = threading.Thread(target=restart_later, name="v4-api-restart", daemon=True)
-    thread.start()
+    return local_env_service.run_local_env_action(payload, path=LOCAL_ENV_PATH)
 
 
 def _run_api_restart_action(payload):
-    confirm_text = _clean_text(payload.get("confirmText"), 80)
-    if confirm_text != "RESTART API":
-        raise ValueError("Type 'RESTART API' to restart the V4 API")
-    if os.name == "nt":
-        raise ValueError("Restart API from data-maintenance.html is only supported on Linux; use v4/start_windows.ps1 restart on Windows")
-    child_status = _terminate_active_maintenance_process()
-    _schedule_api_restart()
-    return {
-        "ok": True,
-        "returncode": 0,
-        "command": "api restart scheduled",
-        "output": (
-            "api_restart_status: scheduled\n"
-            "restart_delay_seconds: 0.6\n"
-            f"active_maintenance_process: {child_status}\n"
-            "service: V4 API\n"
-            "health_url: http://127.0.0.1:8766/v4/health\n"
-            "note: The API may be unavailable for a few seconds while start.sh restarts it.\n"
-        ),
-    }
+    return maintenance_service.run_api_restart_action(payload, v4_root=V4_ROOT)
 
 
 def _economic_event_key(row):
@@ -907,34 +623,10 @@ def run_data_maintenance_action(payload):
 
 
 def run_data_maintenance_action_guarded(payload):
-    global _MAINTENANCE_JOB
-    action = str(payload.get("action") or "unknown")
-    if action == "api_restart":
-        return run_data_maintenance_action(payload)
-    if not _MAINTENANCE_LOCK.acquire(blocking=False):
-        job = _MAINTENANCE_JOB or {}
-        started_at = job.get("startedAt", "unknown")
-        running_action = job.get("action", "unknown")
-        return {
-            "ok": False,
-            "returncode": 423,
-            "command": "data_maintenance busy",
-            "output": (
-                "Another data maintenance action is already running.\n"
-                f"running_action: {running_action}\n"
-                f"started_at: {started_at}\n"
-                "Wait for it to finish, or restart the V4 API if the job is known to be stale."
-            ),
-        }
-    _MAINTENANCE_JOB = {
-        "action": action,
-        "startedAt": datetime.now(timezone.utc).isoformat(),
-    }
-    try:
-        return run_data_maintenance_action(payload)
-    finally:
-        _MAINTENANCE_JOB = None
-        _MAINTENANCE_LOCK.release()
+    return maintenance_service.run_data_maintenance_action_guarded(
+        payload,
+        run_action=run_data_maintenance_action,
+    )
 
 
 def _is_valid_maintenance_request(headers):

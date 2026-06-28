@@ -43,6 +43,8 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
                 "v4/server/workspace_handler.py",
                 "v4/server/workspace_store.py",
                 "v4/server/maintenance_handler.py",
+                "v4/server/maintenance_service.py",
+                "v4/server/local_env_service.py",
                 "v4/server/economic_calendar_handler.py",
                 "v4/scripts/export_weekly_economic_manual_csv.py",
                 "v4/scripts/smoke_all.py",
@@ -67,6 +69,18 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             python("v4/tests/backend-handler-boundary-smoke.py"),
             "local",
             "Verify v4_api delegates endpoint handling to server handler modules.",
+        ),
+        SmokeCommand(
+            "maintenance_service_boundary_smoke",
+            python("v4/tests/maintenance-service-boundary-smoke.py"),
+            "local",
+            "Verify maintenance execution and local env services stay out of v4_api.",
+        ),
+        SmokeCommand(
+            "local_env_service_smoke",
+            python("v4/tests/local-env-service-smoke.py"),
+            "local",
+            "Exercise local env status/write/delete helpers in a temp path.",
         ),
         SmokeCommand(
             "economic_manual_import_smoke",
