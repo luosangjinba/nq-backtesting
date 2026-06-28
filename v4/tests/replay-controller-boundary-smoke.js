@@ -9,6 +9,9 @@ const replayControls = readFileSync('v4/src/ui/replay-controls.js', 'utf8');
   './replay-history-store.js',
   './replay/replay-history-actions.js',
   '../comparison/comparison-window-store.js',
+  '../features/replay/replay-history-controller.js',
+  '../features/replay/replay-toolbar-sync.js',
+  '../features/replay/replay-view.js',
 ].forEach((forbiddenImport) => {
   assert.equal(
     replayControls.includes(forbiddenImport),
@@ -19,8 +22,8 @@ const replayControls = readFileSync('v4/src/ui/replay-controls.js', 'utf8');
 
 [
   '../features/replay/replay-chart-adapter.js',
-  '../features/replay/replay-history-controller.js',
-  '../features/replay/replay-toolbar-sync.js',
+  '../features/replay/replay-control-dispatcher.js',
+  '../features/replay/replay-toolbar-renderer.js',
 ].forEach((requiredImport) => {
   assert.equal(
     replayControls.includes(requiredImport),

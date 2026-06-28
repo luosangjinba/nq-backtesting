@@ -3,7 +3,6 @@
 import * as bus from '../event-bus.js';
 import * as store from '../data/bar-store.js';
 import { getPrimaryInstrument } from '../data/primary-instrument-store.js';
-import { timeframeToString } from '../config.js';
 import {
   findBarIndexAtOrBeforeTimestamp,
   formatReplayTime,
@@ -15,8 +14,6 @@ import {
   parseReplayJumpTimestamp,
 } from '../features/replay/replay-time-utils.js';
 import {
-  REPLAY_SPEEDS,
-  getReplayActionFromEvent,
   getReplaySpeed,
   isTextEditingTarget,
 } from '../features/replay/replay-controller.js';
@@ -34,16 +31,8 @@ import {
   resetReplayStateFields,
   restoreFullChartState,
 } from '../features/replay/replay-model.js';
-import { renderReplayControlsView } from '../features/replay/replay-view.js';
-import {
-  applyReplayComparisonState,
-  setReplayToolbarPrimaryInstrument,
-  setReplayToolbarRange,
-} from '../features/replay/replay-toolbar-sync.js';
-import {
-  getReplayHistoryForInstrument,
-  handleReplayHistoryControlAction,
-} from '../features/replay/replay-history-controller.js';
+import { handleReplayControlClick } from '../features/replay/replay-control-dispatcher.js';
+import { renderReplayToolbarControls } from '../features/replay/replay-toolbar-renderer.js';
 import * as replayChart from '../features/replay/replay-chart-adapter.js';
 import {
   CHART_MODE_SOURCES,
@@ -364,40 +353,24 @@ function handleCrosshairMove(param) {
 }
 
 function handleControlClick(e) {
-  const action = getReplayActionFromEvent(e);
-  if (!action) return;
-
-  if (action === 'history-toggle') {
-    replayState.historyOpen = !replayState.historyOpen;
-    render();
-    return;
-  }
-  if (handleReplayHistoryControlAction({
-    action,
+  handleReplayControlClick({
     event: e,
-    primaryInstrument: getPrimaryInstrument(),
-    setToolbarPrimaryInstrument: setReplayToolbarPrimaryInstrument,
-    setToolbarRange: setReplayToolbarRange,
-    applyComparisonState: applyReplayComparisonState,
+    replayState,
     restoreReplayToTimestamp,
-    closeHistoryPanel: () => {
-      replayState.historyOpen = false;
-    },
     render,
-  })) {
-    return;
-  }
-
-  if (action === 'toggle') toggleReplayEnabled();
-  if (action === 'pick') selectBar();
-  if (action === 'first') jumpStart();
-  if (action === 'last') jumpLastPosition();
-  if (action === 'next-0929') jumpNext0929();
-  if (action === 'back') stepBack();
-  if (action === 'play') togglePlay();
-  if (action === 'forward') stepForward();
-  if (action === 'jump') jumpToTime();
-  if (action === 'close') restoreFullChart();
+    actions: {
+      toggle: toggleReplayEnabled,
+      pick: selectBar,
+      first: jumpStart,
+      last: jumpLastPosition,
+      'next-0929': jumpNext0929,
+      back: stepBack,
+      play: togglePlay,
+      forward: stepForward,
+      jump: jumpToTime,
+      close: restoreFullChart,
+    },
+  });
 }
 
 function handleSpeedChange(e) {
@@ -429,36 +402,14 @@ function handleKeydown(e) {
 }
 
 function render() {
-  if (!controlsEl) return;
-
-  const hasData = replayState.chartData.length > 0;
-  const currentBar = replayState.cursorIndex >= 0 ? replayState.displayBars[replayState.cursorIndex] : null;
-  const isPlaying = Boolean(timer);
-  const tfLabel = timeframeToString(store.getCurrentTimeframe());
-  const lastDisabled = !hasData || replayState.lastCursorIndex < 0;
-  const history = getReplayHistoryForInstrument(getPrimaryInstrument());
-  controlsEl.innerHTML = renderReplayControlsView({
-    hasData,
-    enabled: replayState.enabled,
-    currentBar,
-    cursorIndex: replayState.cursorIndex,
-    dataCount: replayState.chartData.length,
-    isPlaying,
-    tfLabel,
-    mode: replayState.mode,
-    speedIndex: replayState.speedIndex,
-    lastDisabled,
-    historyOpen: replayState.historyOpen,
-    history,
-    speeds: REPLAY_SPEEDS,
-  });
-
-  controlsEl.querySelector('.replay-speed')?.addEventListener('change', handleSpeedChange);
-  controlsEl.querySelector('[data-replay-jump-input]')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      jumpToTime();
-    }
+  renderReplayToolbarControls({
+    controlsEl,
+    replayState,
+    currentTimeframe: store.getCurrentTimeframe(),
+    primaryInstrument: getPrimaryInstrument(),
+    isPlaying: Boolean(timer),
+    onSpeedChange: handleSpeedChange,
+    onJumpEnter: jumpToTime,
   });
 }
 
