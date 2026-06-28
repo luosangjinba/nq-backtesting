@@ -1356,3 +1356,18 @@ Phase 16 暂缓项：不做 persistence manager 统一、不迁移 `orderReviews
   - [x] Step 351.12: Persistence boundary。已新增 `storage/workspace-domain-registry.js`，集中前端 workspace domain 的 name/scope/version；PDA、Segment、Order、Live Record、Chart Notes、Daily Time Review、Time Overlays、Economic Event Notes、Display Preferences、Import Batches、Entry Context Catalog、Date Range History 等 persistence 模块改为引用 registry，保持现有数据格式兼容。新增 `workspace-domain-registry-smoke.js` 并纳入 local smoke。
   - [x] Step 351.13: Backend API modularization。已新增 `server/bars_handler.py`、`server/workspace_handler.py`、`server/maintenance_handler.py`、`server/economic_calendar_handler.py`，把 `V4Handler` 的 endpoint 请求处理委托到 server handler；`v4_api.py` 保留路由、CORS、兼容测试导出和底层业务 helper。新增 `backend-handler-boundary-smoke.py`，并把新 server modules 纳入 py_compile/local smoke。
   - [x] Step 351.14: FX Replay design gate。已新增 `v4/sessions/session_20260628_step351_14_fx_replay_design_gate.md`，冻结 FX Replay session model、loading law、viewport law、module ownership、event contract、Step 352 implementation shape 与手动验收标准；本步不写实现代码。
+
+- [ ] Step 352: V4 module debt split follow-up。基于 351 完成后的全量审计，继续清理无用运行时噪音，并拆掉仍过大的协调器；本阶段仍不实现 FX Replay 行为，目标是为后续 FX Replay 和长期维护提供更干净的边界。完整计划见 `v4/sessions/session_20260628_step352_module_debt_split_plan.md`。
+  - [ ] Step 352.1: 清理运行时 debug 噪音。把 `app.js` 初始化日志和 `primary-chart-runtime.js` chart update 日志改为 debug flag / logger 控制；保留真实 warn/error。
+  - [ ] Step 352.2: 明确 legacy replay 命名边界。集中定义当前旧 replay mode/source 命名，区分 `history`、legacy slice replay 和未来 `fx-replay`，不改变行为。
+  - [ ] Step 352.3: 拆 `replay-controls.js`。拆出 replay session/control、chart adapter、toolbar sync、history controller；`ui/replay-controls.js` 只保留 DOM bind、事件分发和 render 调用。
+  - [ ] Step 352.4: 拆 Toolbar 交互控制器。把 settings、layout、pane、range reload 从 `toolbar.js` 拆到 `ui/toolbar/*controller.js`。
+  - [ ] Step 352.5: 拆 Calendar Navigator。把 date utils、range loader、popover lifecycle、history controller 从 `calendar-navigator.js` 拆出。
+  - [ ] Step 352.6: 拆 Inspector selection routing。把 selected-object bus wiring 从 `inspector-sidebar.js` 移到 `inspector-selection-router.js`。
+  - [ ] Step 352.7: 拆 Inspector action/change routing。把 click/change 巨型分发和 archive/import actions 从 `inspector-sidebar.js` 移出。
+  - [ ] Step 352.8: 拆 Inspector Calendar Panel。把 calendar panel data derivation、view rendering、day groups、Daily Time summary 拆成独立模块。
+  - [ ] Step 352.9: 拆 backend workspace store。把 workspace domain normalize、path、read/write、response shape 从 `v4_api.py` 移到 `server/workspace_store.py`。
+  - [ ] Step 352.10: 拆 backend maintenance services。把 maintenance command、local env、restart action 从 `v4_api.py` 移到 service modules。
+  - [ ] Step 352.11: 拆 backend economic calendar services。把 economic events query、manual import preview/write 从 `v4_api.py` 移到 economic service modules。
+  - [ ] Step 352.12: 拆 backend bars service。把 bars range validation、limits、`query_v4_bars` 从 `v4_api.py` 移到 `server/bars_service.py`。
+  - [ ] Step 352.13: 收口边界测试。新增/加强 smoke，防止 UI 绕过 runtime commands、replay 直接写 store/chart、sidebar 重新膨胀、`v4_api.py` 重新承载业务实现。
