@@ -78,25 +78,27 @@ Checks:
 
 ## Step 356.2 - Loader Request Planner
 
-Planned:
+Completed:
 
-- Add `src/features/fx-replay/fx-replay-loader.js`.
-- Implement request planning only; avoid chart integration in this step.
-- Initial plan must include:
+- Added `src/features/fx-replay/fx-replay-loader.js`.
+- Implemented request planning only; no chart integration in this step.
+- Initial plan supports:
   - a bounded start-bar resolve request around `sessionStart`;
-  - one prefix request ending at or before `startBarTimestamp`.
-- Initial plan must not include:
+  - one prefix request ending before `startBarTimestamp` after start bar is
+    resolved.
+- Initial plan guards against:
   - full date range load;
   - request beginning at session start and ending at session end;
-  - future request after `startBarTimestamp`.
-- Add loader planner smoke coverage.
+  - prefix generation before `startBarTimestamp` is resolved.
+- Added `v4/tests/fx-replay-loader-smoke.js`.
+- Added the loader smoke to `v4/scripts/smoke_all.py --suite local`.
 
-Manual check:
+Checks:
 
-- Test/debug output proves initial plan only asks for start resolve + prefix.
-- No network/browser integration yet.
-
-Commit after this step.
+- `node v4/tests/fx-replay-loader-smoke.js`
+- `node v4/tests/fx-replay-model-smoke.js`
+- `python3 v4/scripts/smoke_all.py --suite local`
+- `git diff --check`
 
 ## Step 356.3 - Viewport Prefix Policy
 

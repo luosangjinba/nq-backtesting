@@ -170,6 +170,12 @@ def build_commands(args: argparse.Namespace) -> list[SmokeCommand]:
             "Verify FX Replay initial session model invariants.",
         ),
         SmokeCommand(
+            "fx_replay_loader_smoke",
+            ["node", "v4/tests/fx-replay-loader-smoke.js"],
+            "local",
+            "Verify FX Replay initial loader request planning.",
+        ),
+        SmokeCommand(
             "replay_controller_boundary_smoke",
             ["node", "v4/tests/replay-controller-boundary-smoke.js"],
             "local",
