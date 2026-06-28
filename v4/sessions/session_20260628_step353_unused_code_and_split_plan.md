@@ -255,7 +255,7 @@ Completion notes:
   `python3 v4/scripts/smoke_all.py --suite local`, and
   `git diff --check`.
 
-### Step 353.5 - Split Tradovate importer domain
+### Step 353.5 - Split Tradovate importer domain ✅
 
 `tradovate-performance-importer.js` mixes CSV parsing, file alignment,
 reconciliation, PnL helpers, and archive building.
@@ -288,6 +288,25 @@ Manual check:
 Commit message:
 
 - `Split Tradovate importer domain`
+
+Completion notes:
+
+- Replaced `live-record/tradovate-performance-importer.js` with a compatibility
+  facade that preserves existing public imports.
+- Added `tradovate-csv-parsers.js` for CSV parsing, timestamp conversion,
+  money parsing, symbol mapping, and row id helpers.
+- Added `tradovate-file-alignment.js` for file alignment and
+  position/cash/balance reconciliation.
+- Added `tradovate-format.js` for Review JSON constants, stable imported
+  record ids, and PnL display formatting.
+- Added `tradovate-live-record-builder.js` for Live Record and Review archive
+  construction.
+- Validation passed:
+  `node v4/tests/tradovate-performance-importer-smoke.js`,
+  `node v4/tests/tradovate-import-ui-modules-smoke.js`,
+  `node v4/tests/tradovate-zip-import-browser-smoke.js`,
+  `python3 v4/scripts/smoke_all.py --suite local`, and
+  `git diff --check`.
 
 ### Step 353.6 - Continue Review Archive import pipeline split
 
