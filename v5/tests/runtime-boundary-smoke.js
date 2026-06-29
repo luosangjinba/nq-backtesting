@@ -8,33 +8,60 @@ const replayRuntimeSource = readFileSync(
   'utf8'
 );
 
-const eventMutationViolations = [
-  {
-    event: 'CHART_EVENTS.PREFIX_DEMAND',
-    forbiddenCall: 'loadPrefixDemand(',
-    requiredCommand: 'REPLAY_COMMANDS.LOAD_PREFIX_DEMAND',
-  },
-  {
-    event: 'CHART_EVENTS.VISIBLE_RANGE_CHANGED',
-    forbiddenCall: 'applyPrefixRetention(',
-    requiredCommand: 'REPLAY_COMMANDS.APPLY_PREFIX_RETENTION',
-  },
-].flatMap(({ event, forbiddenCall, requiredCommand }) => {
-  const subscriptionIndex = replayRuntimeSource.indexOf(`subscribeEvent(${event}`);
-  assert.notEqual(subscriptionIndex, -1, `replay runtime must subscribe to ${event}`);
+const mutationHelperCalls = [
+  'resolveStartBar(',
+  'loadInitialPrefix(',
+  'loadInitialSession(',
+  'loadPrefixDemand(',
+  'applyPrefixRetention(',
+  'next(',
+  'play(',
+  'pause(',
+  'setPlayback(',
+];
 
-  const nextSubscriptionIndex = replayRuntimeSource.indexOf('subscribeEvent(', subscriptionIndex + 1);
-  const handlerSource = replayRuntimeSource.slice(
-    subscriptionIndex,
-    nextSubscriptionIndex === -1 ? replayRuntimeSource.length : nextSubscriptionIndex
-  );
+function extractCallSource(source, startIndex) {
+  let depth = 0;
+  for (let index = startIndex; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === '(') depth += 1;
+    if (char === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        return source.slice(startIndex, index + 1);
+      }
+    }
+  }
+  throw new Error('subscribeEvent call is not balanced.');
+}
+
+function listSubscribeEventCalls(source) {
+  const calls = [];
+  let searchFrom = 0;
+  while (searchFrom < source.length) {
+    const index = source.indexOf('subscribeEvent(', searchFrom);
+    if (index === -1) break;
+    calls.push(extractCallSource(source, index));
+    searchFrom = index + 'subscribeEvent('.length;
+  }
+  return calls;
+}
+
+const subscribeEventCalls = listSubscribeEventCalls(replayRuntimeSource);
+assert.ok(subscribeEventCalls.length > 0, 'replay runtime must have event subscriptions to guard');
+
+const eventMutationViolations = subscribeEventCalls.flatMap((callSource) => {
+  const eventMatch = callSource.match(/subscribeEvent\(([^,\n]+)/);
+  const eventName = eventMatch?.[1]?.trim() || 'unknown event';
 
   const violations = [];
-  if (handlerSource.includes(forbiddenCall)) {
-    violations.push(`${event}: handler must not call ${forbiddenCall} directly`);
+  for (const helperCall of mutationHelperCalls) {
+    if (callSource.includes(helperCall)) {
+      violations.push(`${eventName}: handler must not call ${helperCall} directly`);
+    }
   }
-  if (!handlerSource.includes(`dispatchCommand(${requiredCommand}`)) {
-    violations.push(`${event}: handler must dispatch ${requiredCommand}`);
+  if (!callSource.includes('dispatchCommand(')) {
+    violations.push(`${eventName}: handler must dispatch a command for mutation`);
   }
   return violations;
 });
