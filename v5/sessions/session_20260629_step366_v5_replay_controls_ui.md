@@ -22,6 +22,8 @@ Status: complete.
 - UI must not directly request bars or write chart series.
 - Show in-flight disabled state while the command is running.
 
+Status: complete.
+
 ### Step 366.3 - Play/Pause Controls
 
 - Add Play and Pause controls.

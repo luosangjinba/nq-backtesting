@@ -29,16 +29,50 @@ export function createChartReplayRoute() {
         <p data-replay-load-status>Waiting for replay session.</p>
       `;
       const status = section.querySelector('[data-replay-load-status]');
+      const nextButton = section.querySelector('[data-replay-next]');
+      let commandInFlight = false;
+      let replayLoaded = false;
+
+      function setControlsDisabled(disabled) {
+        nextButton.disabled = disabled || !replayLoaded || !params.sessionId;
+      }
+
+      async function runReplayCommand(action) {
+        if (commandInFlight || !params.sessionId) return null;
+        commandInFlight = true;
+        setControlsDisabled(true);
+        try {
+          return await action();
+        } finally {
+          commandInFlight = false;
+          setControlsDisabled(false);
+        }
+      }
+
+      nextButton.addEventListener('click', async () => {
+        const state = await runReplayCommand(() => dispatchCommand('replay.next', {
+          sessionId: params.sessionId,
+        }));
+        if (!state) return;
+        status.textContent = state.advanced
+          ? `Loaded ${state.displayBars.length} bars.`
+          : `Replay stopped: ${state.reason || 'no next bar'}.`;
+      });
+
       if (params.sessionId) {
         setTimeout(async () => {
           status.textContent = 'Loading replay start...';
+          setControlsDisabled(true);
           try {
             const state = await dispatchCommand('replay.loadInitialSession', {
               sessionId: params.sessionId,
             });
+            replayLoaded = true;
             status.textContent = `Loaded ${state.displayBars.length} bars.`;
           } catch (error) {
             status.textContent = error?.message || String(error);
+          } finally {
+            setControlsDisabled(false);
           }
         }, 0);
       }

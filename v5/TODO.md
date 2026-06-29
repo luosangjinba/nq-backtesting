@@ -222,7 +222,7 @@ Goal: expose the completed replay runtime behavior through usable chart-page
 controls without weakening runtime ownership boundaries.
 
 - [x] Step 366.1: Add chart replay controls shell.
-- [ ] Step 366.2: Wire Next through replay runtime command dispatch.
+- [x] Step 366.2: Wire Next through replay runtime command dispatch.
 - [ ] Step 366.3: Wire Play/Pause through replay runtime command dispatch.
 - [ ] Step 366.4: Render replay status from runtime state/events.
 - [ ] Step 366.5: Add browser smoke for controls-driven replay progression.
