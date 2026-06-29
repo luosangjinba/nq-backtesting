@@ -59,6 +59,17 @@ Status: complete.
 - Spec should document command ownership, disabled/loading behavior, and browser
   smoke expectations.
 
+Status: complete.
+
+## Completed
+
+- Added chart replay controls shell.
+- Wired Next through command dispatch.
+- Wired Play/Pause through command dispatch.
+- Rendered read-only replay status from runtime state/events.
+- Added `v5/tests/replay-controls-browser-smoke.js`.
+- Added `v5/docs/specs/fx-replay-controls-ui.md`.
+
 ## Boundaries
 
 - UI dispatches commands and subscribes to events only.
