@@ -5,6 +5,7 @@ import {
   normalizeReplayCursor,
   normalizeReplaySession,
 } from '../domain/session-model.js';
+import { createMemorySessionStorage } from './session-storage.js';
 
 function createId(prefix) {
   const random = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
@@ -15,10 +16,31 @@ function clone(value) {
   return structuredClone(value);
 }
 
-export function createSessionRepository(seed = {}) {
-  const context = bootstrapDefaultWorkspace(seed.defaultContext);
+export function createSessionRepository(options = {}) {
+  const context = bootstrapDefaultWorkspace(options.defaultContext);
+  const storage = options.storage || createMemorySessionStorage(options.initialSnapshot);
+  const snapshot = storage.load();
   const sessions = new Map();
   const cursors = new Map();
+
+  for (const session of snapshot.sessions || []) {
+    const normalized = normalizeReplaySession(session);
+    assertSessionBelongsToWorkspace(normalized, context.workspace);
+    sessions.set(normalized.id, normalized);
+  }
+  for (const cursor of snapshot.cursors || []) {
+    const normalized = normalizeReplayCursor(cursor);
+    if (sessions.has(normalized.sessionId)) {
+      cursors.set(normalized.sessionId, normalized);
+    }
+  }
+
+  function persist() {
+    storage.save({
+      sessions: [...sessions.values()],
+      cursors: [...cursors.values()],
+    });
+  }
 
   function getDefaultContext() {
     return clone(context);
@@ -42,6 +64,7 @@ export function createSessionRepository(seed = {}) {
     });
     sessions.set(session.id, session);
     cursors.set(session.id, cursor);
+    persist();
     return clone({ session, cursor });
   }
 

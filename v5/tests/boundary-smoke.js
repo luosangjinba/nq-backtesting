@@ -30,6 +30,8 @@ for (const file of featureFiles) {
     'bars-api',
     'bars-client',
     'replay-runtime',
+    'session-repository',
+    'session-storage',
   ].forEach((forbidden) => {
     if (source.includes(forbidden)) {
       violations.push(`${path}: feature must not import or name ${forbidden}`);

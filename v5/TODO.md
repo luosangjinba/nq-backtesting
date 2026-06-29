@@ -52,18 +52,28 @@ Checks:
 
 Goal: add default-user session persistence APIs and frontend session state.
 
-- [ ] Step 359.1: Define users, workspaces, replay sessions, and session cursor
+- [x] Step 359.1: Define users, workspaces, replay sessions, and session cursor
   schema.
-- [ ] Step 359.2: Add default user/workspace bootstrap.
-- [ ] Step 359.3: Add create/list/get replay session API.
-- [ ] Step 359.4: Add frontend session runtime and command contracts.
-- [ ] Step 359.5: Add persistence smoke tests.
+- [x] Step 359.2: Add default user/workspace bootstrap.
+- [x] Step 359.3: Add create/list/get replay session API.
+- [x] Step 359.4: Add frontend session runtime and command contracts.
+- [x] Step 359.5: Add persistence smoke tests.
 
 Manual acceptance:
 
 - A replay session can be created and reloaded by session id.
 - All user-owned records belong to a user or workspace.
 - No UI code writes session state directly.
+
+Checks:
+
+- `node v5/tests/session-model-smoke.js`
+- `node v5/tests/default-workspace-smoke.js`
+- `node v5/tests/session-repository-smoke.js`
+- `node v5/tests/session-runtime-smoke.js`
+- `node v5/tests/session-persistence-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 360 - V5 Session Setup Page
 
