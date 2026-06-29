@@ -6,6 +6,8 @@ import { createBarDataRuntime } from './runtime/bar-data-runtime.js';
 import { createChartRuntime } from './runtime/chart-runtime.js';
 import { createReplayRuntime } from './runtime/replay-runtime.js';
 import { createSessionRuntime } from './runtime/session-runtime.js';
+import { createSessionRepository } from './session/session-repository.js';
+import { createLocalSessionStorage } from './session/session-storage.js';
 import { APP_COMMANDS } from './contracts/app-contracts.js';
 import { createChartReplayRoute } from './features/chart-replay/chart-replay-route.js';
 import { createSessionSetupRoute } from './features/session-setup/session-setup-route.js';
@@ -37,7 +39,9 @@ registerModule({
 });
 registerModule(createChartRuntime());
 registerModule(createBarDataRuntime());
-registerModule(createSessionRuntime());
+registerModule(createSessionRuntime(createSessionRepository({
+  storage: createLocalSessionStorage(),
+})));
 registerModule(createReplayRuntime());
 
 root.addEventListener('click', (event) => {

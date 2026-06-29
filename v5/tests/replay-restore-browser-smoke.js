@@ -85,36 +85,45 @@ async function main() {
 
     const value = JSON.parse(await evaluate(client, `
       (async () => {
-        const originalFetch = window.fetch.bind(window);
-        const barRequests = [];
-        window.fetch = async (...args) => {
-          const url = String(args[0] || '');
-          if (!url.includes('/v4/bars')) {
-            return originalFetch(...args);
-          }
-          const parsed = new URL(url, window.location.href);
-          const startText = parsed.searchParams.get('start');
-          const endText = parsed.searchParams.get('end');
-          barRequests.push({ start: startText, end: endText, tf: parsed.searchParams.get('tf') });
-          const start = Date.parse(startText.replace(' ', 'T') + ':00.000Z') / 1000;
-          const end = Date.parse(endText.replace(' ', 'T') + ':00.000Z') / 1000;
-          const step = Number(parsed.searchParams.get('tf') || 1) * 60;
-          const bars = [];
-          for (let timestamp = start; timestamp <= end; timestamp += step) {
-            const index = Math.round((timestamp - start) / step);
-            const open = 100 + index;
-            bars.push({
-              timestamp,
-              open,
-              high: open + 1,
-              low: open - 1,
-              close: open + 0.5,
+        const installBarsFetchStub = () => {
+          if (window.__v5OriginalFetch) return;
+          window.__v5OriginalFetch = window.fetch.bind(window);
+          window.__v5BarRequests = [];
+          window.fetch = async (...args) => {
+            const url = String(args[0] || '');
+            if (!url.includes('/v4/bars')) {
+              return window.__v5OriginalFetch(...args);
+            }
+            const parsed = new URL(url, window.location.href);
+            const startText = parsed.searchParams.get('start');
+            const endText = parsed.searchParams.get('end');
+            window.__v5BarRequests.push({ start: startText, end: endText, tf: parsed.searchParams.get('tf') });
+            const start = Date.parse(startText.replace(' ', 'T') + ':00.000Z') / 1000;
+            const end = Date.parse(endText.replace(' ', 'T') + ':00.000Z') / 1000;
+            const step = Number(parsed.searchParams.get('tf') || 1) * 60;
+            const bars = [];
+            for (let timestamp = start; timestamp <= end; timestamp += step) {
+              const index = Math.round((timestamp - start) / step);
+              const open = 100 + index;
+              bars.push({
+                timestamp,
+                open,
+                high: open + 1,
+                low: open - 1,
+                close: open + 0.5,
+              });
+            }
+            return new Response(JSON.stringify({ bars }), {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
             });
-          }
-          return new Response(JSON.stringify({ bars }), {
-            status: 200,
-            headers: { 'content-type': 'application/json' },
-          });
+          };
+        };
+        installBarsFetchStub();
+        const barRequests = [];
+        const flushBarRequests = () => {
+          barRequests.push(...(window.__v5BarRequests || []));
+          window.__v5BarRequests = [];
         };
 
         async function waitFor(label, predicate, timeoutMs = 8000) {
@@ -198,6 +207,7 @@ async function main() {
           const restoredAfterReset = await commands.dispatchCommand('replay.getState');
           const restoredAfterResetCursorText = document.querySelector('[data-replay-cursor]')?.textContent || '';
           const restoredAfterResetRevealedText = document.querySelector('[data-replay-revealed-count]')?.textContent || '';
+          flushBarRequests();
 
           const events = await import('/v5/src/runtime/events.js');
           await commands.dispatchCommand('app.navigate', { routeId: 'setup' });
@@ -228,8 +238,6 @@ async function main() {
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
-        } finally {
-          window.fetch = originalFetch;
         }
       })()
     `));
@@ -257,6 +265,95 @@ async function main() {
       reset: 0,
       playbackChanged: 0,
     });
+
+    await client.send('Page.reload', { ignoreCache: true });
+    await waitForExpression(client, `document.querySelector('[data-v5-root]')?.dataset.booted === 'true'`, 8_000);
+    const reloadValue = JSON.parse(await evaluate(client, `
+      (async () => {
+        const installBarsFetchStub = () => {
+          if (window.__v5OriginalFetch) return;
+          window.__v5OriginalFetch = window.fetch.bind(window);
+          window.__v5BarRequests = [];
+          window.fetch = async (...args) => {
+            const url = String(args[0] || '');
+            if (!url.includes('/v4/bars')) {
+              return window.__v5OriginalFetch(...args);
+            }
+            const parsed = new URL(url, window.location.href);
+            const startText = parsed.searchParams.get('start');
+            const endText = parsed.searchParams.get('end');
+            window.__v5BarRequests.push({ start: startText, end: endText, tf: parsed.searchParams.get('tf') });
+            const start = Date.parse(startText.replace(' ', 'T') + ':00.000Z') / 1000;
+            const end = Date.parse(endText.replace(' ', 'T') + ':00.000Z') / 1000;
+            const step = Number(parsed.searchParams.get('tf') || 1) * 60;
+            const bars = [];
+            for (let timestamp = start; timestamp <= end; timestamp += step) {
+              const index = Math.round((timestamp - start) / step);
+              const open = 100 + index;
+              bars.push({
+                timestamp,
+                open,
+                high: open + 1,
+                low: open - 1,
+                close: open + 0.5,
+              });
+            }
+            return new Response(JSON.stringify({ bars }), {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            });
+          };
+        };
+
+        async function waitFor(label, predicate, timeoutMs = 8000) {
+          const deadline = Date.now() + timeoutMs;
+          while (Date.now() < deadline) {
+            const value = await predicate();
+            if (value) return value;
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+          throw new Error('waitFor timed out: ' + label);
+        }
+
+        try {
+          installBarsFetchStub();
+          const commands = await import('/v5/src/runtime/commands.js');
+          const record = await commands.dispatchCommand('session.get', { sessionId: 'browser-replay-restore' });
+          await commands.dispatchCommand('app.navigate', {
+            routeId: 'chart',
+            params: { sessionId: 'browser-replay-restore' },
+          });
+          await waitFor('reload restored', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.cursorTimestamp === '2026-06-01T09:30:00.000Z'
+              && state.revealedCount === 0
+              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01T09:30:00.000Z';
+          });
+          const restored = await commands.dispatchCommand('replay.getState');
+          return JSON.stringify({
+            error: '',
+            persistedSessionId: record?.session?.id || null,
+            persistedCursor: record?.cursor?.cursorTimestamp || null,
+            restoredCursor: restored.cursorTimestamp,
+            restoredRevealedCount: restored.revealedCount,
+            restoredCount: restored.displayBars.length,
+            barRequests: window.__v5BarRequests || [],
+          });
+        } catch (error) {
+          return JSON.stringify({ error: error?.stack || error?.message || String(error) });
+        }
+      })()
+    `));
+    assert.equal(reloadValue.error, '', reloadValue.error || 'browser reload smoke failed');
+    assert.equal(reloadValue.persistedSessionId, 'browser-replay-restore');
+    assert.equal(reloadValue.persistedCursor, '2026-06-01T09:30:00.000Z');
+    assert.equal(reloadValue.restoredCursor, '2026-06-01T09:30:00.000Z');
+    assert.equal(reloadValue.restoredRevealedCount, 0);
+    assert.equal(reloadValue.restoredCount, value.initialCount);
+    assert.equal(
+      reloadValue.barRequests.some((request) => request.start === '2026-06-01 09:30' && request.end === '2026-06-01 09:35'),
+      false
+    );
   } finally {
     client?.close();
     chrome.kill('SIGTERM');
