@@ -7,6 +7,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   RESOLVE_START_BAR: 'replay.resolveStartBar',
   LOAD_INITIAL_PREFIX: 'replay.loadInitialPrefix',
   LOAD_INITIAL_SESSION: 'replay.loadInitialSession',
+  NEXT: 'replay.next',
   GET_STATE: 'replay.getState',
 });
 
@@ -14,6 +15,7 @@ export const REPLAY_EVENTS = Object.freeze({
   START_BAR_RESOLVED: 'replay:startBarResolved',
   PREFIX_LOADED: 'replay:prefixLoaded',
   INITIAL_LOADED: 'replay:initialLoaded',
+  NEXT: 'replay:next',
 });
 
 const DEFAULT_PREFIX_BARS = 119;
@@ -38,7 +40,10 @@ function clone(value) {
 }
 
 function timestampSeconds(value) {
-  const parsed = Date.parse(value);
+  const normalized = typeof value === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(value)
+    ? `${value.replace(' ', 'T')}:00.000Z`
+    : value;
+  const parsed = Date.parse(normalized);
   if (!Number.isFinite(parsed)) {
     throw new Error('replay timestamp must be valid.');
   }
@@ -55,6 +60,14 @@ function selectStartBar(bars = [], sessionStart) {
     throw new Error('Unable to resolve replay start bar.');
   }
   return startBar;
+}
+
+function selectNextBar(bars = [], cursorTimestamp) {
+  const cursor = timestampSeconds(cursorTimestamp);
+  const candidates = bars
+    .filter((bar) => Number(bar?.timestamp) > cursor)
+    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+  return candidates[0] || null;
 }
 
 export function computePrefixBarCount(metrics = {}) {
@@ -182,12 +195,71 @@ export function createReplayRuntime() {
     return clone(state);
   }
 
+  async function next({ sessionId = state.sessionId } = {}) {
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    if (state.sessionId !== sessionId || state.status === 'idle') {
+      await loadInitialSession({ sessionId });
+    }
+    if (!state.displayBars.length || !state.cursorTimestamp) {
+      throw new Error('replay initial session must be loaded before Next.');
+    }
+
+    const sessionEndTimestamp = timestampSeconds(state.session.sessionEnd);
+    const cursorTimestamp = timestampSeconds(state.cursorTimestamp);
+    if (cursorTimestamp >= sessionEndTimestamp) {
+      return {
+        ...clone(state),
+        advanced: false,
+        reason: 'session-end',
+      };
+    }
+
+    const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+      instrument: state.session.instrument,
+      timeframe: state.session.timeframe,
+      anchor: state.cursorTimestamp,
+      direction: 'forward',
+      count: 2,
+    });
+    const nextBar = selectNextBar(window.bars, state.cursorTimestamp);
+    if (!nextBar || Number(nextBar.timestamp) > sessionEndTimestamp) {
+      return {
+        ...clone(state),
+        advanced: false,
+        reason: 'session-end',
+      };
+    }
+
+    const displayBars = [
+      ...state.displayBars,
+      nextBar,
+    ];
+    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+
+    state = {
+      ...state,
+      cursorTimestamp: nextBar.time,
+      displayBars: clone(displayBars),
+      status: 'replay-ready',
+    };
+    const result = {
+      ...clone(state),
+      advanced: true,
+      revealedBar: clone(nextBar),
+    };
+    emit(REPLAY_EVENTS.NEXT, result);
+    return result;
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
       registerCommand(REPLAY_COMMANDS.RESOLVE_START_BAR, (payload) => resolveStartBar(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
+      registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state))
     );
   }

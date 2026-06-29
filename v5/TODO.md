@@ -173,7 +173,7 @@ Checks:
 
 Goal: implement controlled replay progression after initial loading is stable.
 
-- [ ] Step 364.1: Next reveals exactly one active-timeframe bar.
+- [x] Step 364.1: Next reveals exactly one active-timeframe bar.
 - [ ] Step 364.2: Play repeatedly reveals one active-timeframe bar.
 - [ ] Step 364.3: Stop at session end.
 - [ ] Step 364.4: Prevent right-pan into unrevealed future.
@@ -182,6 +182,12 @@ Manual acceptance:
 
 - 1M advances by one minute, 5M by five minutes, 1H by one hour.
 - Future data is not rendered before reveal.
+
+Checks:
+
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 365 - V5 Prefix Demand And Retention
 
