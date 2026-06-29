@@ -49,6 +49,11 @@ assert.equal(
   false,
   'runtime/router.js must not import feature modules'
 );
+assert.equal(
+  runtimeRouter.includes('document.querySelectorAll'),
+  false,
+  'runtime/router.js must not scan global document for route links'
+);
 
 assert.deepEqual(violations, []);
 

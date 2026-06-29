@@ -18,6 +18,7 @@ if (!root) {
 
 const outlet = root.querySelector('[data-route-outlet]');
 const router = createRouter({
+  root,
   outlet,
   routes: [
     createSessionSetupRoute(),

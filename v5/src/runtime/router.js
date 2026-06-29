@@ -1,4 +1,4 @@
-export function createRouter({ outlet, routes, fallbackRouteId }) {
+export function createRouter({ root, outlet, routes, fallbackRouteId }) {
   if (!outlet) {
     throw new Error('Router outlet is required.');
   }
@@ -11,6 +11,7 @@ export function createRouter({ outlet, routes, fallbackRouteId }) {
   let currentRouteId = null;
   let currentParams = {};
   let currentElement = null;
+  const routeLinkRoot = root || outlet;
 
   function render(routeId, params = {}) {
     const route = routeMap.get(routeId) || routeMap.get(fallbackRouteId);
@@ -19,7 +20,7 @@ export function createRouter({ outlet, routes, fallbackRouteId }) {
     currentParams = { ...params };
     currentElement = route.render({ params: currentParams });
     outlet.replaceChildren(currentElement);
-    document.querySelectorAll('[data-route-link]').forEach((button) => {
+    routeLinkRoot.querySelectorAll?.('[data-route-link]').forEach((button) => {
       button.toggleAttribute('aria-current', button.dataset.routeLink === currentRouteId);
     });
   }

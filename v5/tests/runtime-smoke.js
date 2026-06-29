@@ -67,15 +67,31 @@ const buttons = [
     toggleAttribute(name, value) {
       this[name] = value;
     },
+    scoped: false,
   },
   {
     dataset: { routeLink: 'chart' },
     toggleAttribute(name, value) {
       this[name] = value;
     },
+    scoped: false,
   },
 ];
-globalThis.document = { querySelectorAll: () => buttons };
+const outsideButtons = [
+  {
+    dataset: { routeLink: 'chart' },
+    toggleAttribute() {
+      this.scoped = true;
+    },
+    scoped: false,
+  },
+];
+globalThis.document = {
+  querySelectorAll: () => outsideButtons,
+};
+const root = {
+  querySelectorAll: () => buttons,
+};
 const outlet = {
   child: null,
   replaceChildren(node) {
@@ -84,6 +100,7 @@ const outlet = {
 };
 const makeRoute = (id) => ({ id, render: () => ({ id }) });
 const router = createRouter({
+  root,
   outlet,
   routes: [makeRoute('setup'), makeRoute('chart')],
   fallbackRouteId: 'setup',
@@ -97,5 +114,6 @@ assert.equal(outlet.child.id, 'chart');
 assert.deepEqual(router.getCurrentParams(), { sessionId: 'session-1' });
 router.navigate('missing');
 assert.equal(router.getCurrentRouteId(), 'setup');
+assert.equal(outsideButtons[0].scoped, false);
 
 console.log('v5 runtime smoke passed');
