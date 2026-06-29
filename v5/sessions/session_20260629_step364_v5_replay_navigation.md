@@ -34,9 +34,22 @@ Commit: `2c640a6 Add V5 replay play command`
 - Added smoke coverage for 1m, 5m, and 1h exact-end cases, plus a case where
   the next active-timeframe bar would overshoot session end.
 
+Commit: `017940f Stop V5 replay at session end`
+
+### Step 364.4 - Prevent Right Pan Into Unrevealed Future
+
+- Added chart runtime commands for visible range and the replay right-edge
+  limit.
+- Chart runtime clamps visible range `to` at the latest revealed replay bar.
+- Replay runtime syncs that right-edge limit after initial load and each
+  successful `Next`.
+- Added smoke coverage proving attempted right-pan is clamped at start before
+  reveal, then moves forward by one bar after `Next`.
+
 ## Checks
 
 - `node v5/tests/replay-session-end-smoke.js`
+- `node v5/tests/replay-right-pan-smoke.js`
 - `node v5/tests/replay-next-smoke.js`
 - `node v5/tests/replay-play-smoke.js`
 - `node v5/scripts/smoke_all.js`
@@ -49,9 +62,10 @@ Commit: `2c640a6 Add V5 replay play command`
 - If the next active-timeframe bar would be after `sessionEnd`, replay does not
   reveal it.
 - The same stop behavior is available to Play because Play uses `Next`.
+- Right-pan cannot move the visible range beyond the latest revealed replay bar.
 
 ## Next Step
 
-Step 364.4 should prevent right-pan into unrevealed future. Keep viewport or
-time-scale restrictions owned by chart runtime commands/events, while replay
-runtime remains the source of cursor and reveal state.
+Step 365 should add prefix demand and retention. Keep left-drag demand detection
+owned by chart runtime events/commands, older-bar requests behind bar data
+runtime, and replay cursor ownership inside replay runtime.

@@ -5,16 +5,53 @@ export const CHART_COMMANDS = Object.freeze({
   APPEND_BARS: 'chart.appendBars',
   CLEAR_BARS: 'chart.clearBars',
   GET_VIEWPORT_METRICS: 'chart.getViewportMetrics',
+  SET_RIGHT_EDGE_LIMIT: 'chart.setRightEdgeLimit',
+  SET_VISIBLE_RANGE: 'chart.setVisibleRange',
+  GET_VISIBLE_RANGE: 'chart.getVisibleRange',
 });
 
 export const CHART_EVENTS = Object.freeze({
   READY: 'chart:ready',
   BARS_CHANGED: 'chart:barsChanged',
+  VISIBLE_RANGE_CHANGED: 'chart:visibleRangeChanged',
 });
 
 function createEmptyState() {
   return {
     bars: [],
+    rightEdgeLimit: null,
+    visibleRange: null,
+  };
+}
+
+function timestampSeconds(value, label) {
+  const parsed = typeof value === 'number' ? value * 1000 : Date.parse(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`${label} must be a valid chart timestamp.`);
+  }
+  return Math.floor(parsed / 1000);
+}
+
+function normalizeRange(range) {
+  if (!range || typeof range !== 'object') {
+    throw new Error('chart visible range must be an object.');
+  }
+  const from = timestampSeconds(range.from, 'chart visible range from');
+  const to = timestampSeconds(range.to, 'chart visible range to');
+  if (to < from) {
+    throw new Error('chart visible range to must be greater than or equal to from.');
+  }
+  return { from, to };
+}
+
+function clampVisibleRange(range, rightEdgeLimit) {
+  if (!range || !Number.isFinite(rightEdgeLimit) || range.to <= rightEdgeLimit) {
+    return range;
+  }
+  const span = Math.max(0, range.to - range.from);
+  return {
+    from: rightEdgeLimit - span,
+    to: rightEdgeLimit,
   };
 }
 
@@ -151,6 +188,32 @@ export function createChartRuntime() {
     return readHostMetrics(host);
   }
 
+  function updateVisibleRange(range) {
+    const visibleRange = clampVisibleRange(normalizeRange(range), state.rightEdgeLimit);
+    state.visibleRange = visibleRange;
+    emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
+    return { visibleRange: { ...visibleRange } };
+  }
+
+  function setRightEdgeLimit({ rightEdge } = {}) {
+    state.rightEdgeLimit = timestampSeconds(rightEdge, 'chart right edge limit');
+    if (state.visibleRange) {
+      state.visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
+      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
+    }
+    return {
+      rightEdgeLimit: state.rightEdgeLimit,
+      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+    };
+  }
+
+  function getVisibleRange() {
+    return {
+      rightEdgeLimit: state.rightEdgeLimit,
+      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+    };
+  }
+
   function start({ root, emitEvent } = {}) {
     rootElement = root;
     emit = emitEvent || emit;
@@ -161,7 +224,10 @@ export function createChartRuntime() {
         ...normalizeBars(bars),
       ])),
       registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
-      registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, () => getViewportMetrics())
+      registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, () => getViewportMetrics()),
+      registerCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, (payload) => setRightEdgeLimit(payload)),
+      registerCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, (payload) => updateVisibleRange(payload)),
+      registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange())
     );
     mountAvailableHosts();
 

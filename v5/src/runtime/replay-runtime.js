@@ -1,4 +1,4 @@
-import { dispatchCommand, registerCommand } from './commands.js';
+import { dispatchCommand, hasCommand, registerCommand } from './commands.js';
 import { BAR_DATA_COMMANDS } from './bar-data-runtime.js';
 import { CHART_COMMANDS } from './chart-runtime.js';
 import { SESSION_COMMANDS } from './session-runtime.js';
@@ -114,6 +114,12 @@ export function createReplayRuntime() {
   };
   let emit = () => {};
 
+  async function syncChartRightEdgeLimit(rightEdge) {
+    if (hasCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT)) {
+      await dispatchCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, { rightEdge });
+    }
+  }
+
   async function resolveStartBar({ sessionId } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -200,6 +206,7 @@ export function createReplayRuntime() {
     ];
     assertNoFutureDisplayBars(displayBars, state.startBar);
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await syncChartRightEdgeLimit(state.startBar.time);
 
     state = {
       ...state,
@@ -255,6 +262,7 @@ export function createReplayRuntime() {
       nextBar,
     ];
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await syncChartRightEdgeLimit(nextBar.time);
 
     state = {
       ...state,

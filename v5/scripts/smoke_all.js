@@ -17,6 +17,7 @@ const commands = [
   ['node', ['v5/tests/replay-next-smoke.js']],
   ['node', ['v5/tests/replay-play-smoke.js']],
   ['node', ['v5/tests/replay-session-end-smoke.js']],
+  ['node', ['v5/tests/replay-right-pan-smoke.js']],
   ['node', ['v5/tests/boundary-smoke.js']],
   ['node', ['v5/tests/bar-data-boundary-smoke.js']],
   ['node', ['v5/tests/bar-data-preload-boundary-smoke.js']],
