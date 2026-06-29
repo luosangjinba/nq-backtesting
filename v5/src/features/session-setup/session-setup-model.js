@@ -1,12 +1,21 @@
-function datetimeLocalToIso(value, fieldName) {
+function datetimeLocalToWallClock(value, fieldName) {
   if (typeof value !== 'string' || !value.trim()) {
     throw new Error(`${fieldName} is required.`);
   }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
+  const normalized = value.trim();
+  const match = normalized.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/);
+  const parsed = match ? new Date(normalized) : null;
+  const isValid = parsed
+    && !Number.isNaN(parsed.getTime())
+    && parsed.getFullYear() === Number(match[1].slice(0, 4))
+    && parsed.getMonth() + 1 === Number(match[1].slice(5, 7))
+    && parsed.getDate() === Number(match[1].slice(8, 10))
+    && parsed.getHours() === Number(match[2].slice(0, 2))
+    && parsed.getMinutes() === Number(match[2].slice(3, 5));
+  if (!match || !isValid) {
     throw new Error(`${fieldName} must be a valid date/time.`);
   }
-  return parsed.toISOString();
+  return `${match[1]} ${match[2]}`;
 }
 
 function positiveTimeframe(value) {
@@ -24,8 +33,8 @@ export function readSessionSetupForm(form) {
     throw new Error('instrument is required.');
   }
 
-  const sessionStart = datetimeLocalToIso(String(data.get('sessionStart') || ''), 'sessionStart');
-  const sessionEnd = datetimeLocalToIso(String(data.get('sessionEnd') || ''), 'sessionEnd');
+  const sessionStart = datetimeLocalToWallClock(String(data.get('sessionStart') || ''), 'sessionStart');
+  const sessionEnd = datetimeLocalToWallClock(String(data.get('sessionEnd') || ''), 'sessionEnd');
   if (Date.parse(sessionStart) >= Date.parse(sessionEnd)) {
     throw new Error('sessionStart must be before sessionEnd.');
   }

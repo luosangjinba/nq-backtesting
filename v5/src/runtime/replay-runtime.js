@@ -137,7 +137,8 @@ export function createReplayRuntime() {
     const startTimestamp = Number(state.startBar.timestamp);
     const prefixBars = window.bars
       .filter((bar) => Number(bar?.timestamp) < startTimestamp)
-      .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+      .sort((left, right) => Number(left.timestamp) - Number(right.timestamp))
+      .slice(-prefixCount);
 
     state = {
       ...state,

@@ -22,8 +22,8 @@ const payload = readSessionSetupForm({
 
 assert.equal(payload.instrument, 'NQ');
 assert.equal(payload.timeframe, 1);
-assert.equal(payload.sessionStart, new Date('2026-06-01T09:30').toISOString());
-assert.equal(payload.sessionEnd, new Date('2026-06-05T16:00').toISOString());
+assert.equal(payload.sessionStart, '2026-06-01 09:30');
+assert.equal(payload.sessionEnd, '2026-06-05 16:00');
 
 assert.throws(() => readSessionSetupForm({
   instrument: 'NQ',
@@ -38,5 +38,12 @@ assert.throws(() => readSessionSetupForm({
   sessionStart: '2026-06-01T09:30',
   sessionEnd: '2026-06-05T16:00',
 }), /timeframe/);
+
+assert.throws(() => readSessionSetupForm({
+  instrument: 'NQ',
+  timeframe: '1',
+  sessionStart: '2026-02-31T09:30',
+  sessionEnd: '2026-06-05T16:00',
+}), /valid date/);
 
 console.log('v5 session setup model smoke passed');

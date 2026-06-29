@@ -37,6 +37,8 @@ const barDataRuntime = createBarDataRuntime({
     }
     return {
       bars: [
+        { timestamp: timestamp('2026-06-01T09:25:00.000Z'), open: 95, high: 96, low: 94, close: 95.5 },
+        { timestamp: timestamp('2026-06-01T09:26:00.000Z'), open: 96, high: 97, low: 95, close: 96.5 },
         { timestamp: timestamp('2026-06-01T09:27:00.000Z'), open: 97, high: 98, low: 96, close: 97.5 },
         { timestamp: timestamp('2026-06-01T09:28:00.000Z'), open: 98, high: 99, low: 97, close: 98.5 },
         { timestamp: timestamp('2026-06-01T09:29:00.000Z'), open: 99, high: 100, low: 98, close: 99.5 },
