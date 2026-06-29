@@ -197,7 +197,7 @@ Checks:
 Goal: make left drag request older prefix windows and release off-screen data.
 
 - [x] Step 365.1: Detect viewport demand when user pans left.
-- [ ] Step 365.2: Request older prefix chunks through bar data runtime.
+- [x] Step 365.2: Request older prefix chunks through bar data runtime.
 - [ ] Step 365.3: Merge sparse prefix chunks without full-range arrays.
 - [ ] Step 365.4: Release off-screen chunks according to explicit retention.
 
@@ -210,5 +210,6 @@ Manual acceptance:
 Checks:
 
 - `node v5/tests/prefix-demand-detect-smoke.js`
+- `node v5/tests/prefix-demand-load-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

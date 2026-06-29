@@ -1,12 +1,14 @@
 import { dispatchCommand, hasCommand, registerCommand } from './commands.js';
+import { subscribeEvent } from './events.js';
 import { BAR_DATA_COMMANDS } from './bar-data-runtime.js';
-import { CHART_COMMANDS } from './chart-runtime.js';
+import { CHART_COMMANDS, CHART_EVENTS } from './chart-runtime.js';
 import { SESSION_COMMANDS } from './session-runtime.js';
 
 export const REPLAY_COMMANDS = Object.freeze({
   RESOLVE_START_BAR: 'replay.resolveStartBar',
   LOAD_INITIAL_PREFIX: 'replay.loadInitialPrefix',
   LOAD_INITIAL_SESSION: 'replay.loadInitialSession',
+  LOAD_PREFIX_DEMAND: 'replay.loadPrefixDemand',
   NEXT: 'replay.next',
   PLAY: 'replay.play',
   PAUSE: 'replay.pause',
@@ -17,6 +19,7 @@ export const REPLAY_COMMANDS = Object.freeze({
 export const REPLAY_EVENTS = Object.freeze({
   START_BAR_RESOLVED: 'replay:startBarResolved',
   PREFIX_LOADED: 'replay:prefixLoaded',
+  PREFIX_CHUNK_LOADED: 'replay:prefixChunkLoaded',
   INITIAL_LOADED: 'replay:initialLoaded',
   NEXT: 'replay:next',
   PLAYBACK_CHANGED: 'replay:playbackChanged',
@@ -33,6 +36,7 @@ function emptyState() {
     startBarTimestamp: null,
     cursorTimestamp: null,
     prefixBars: [],
+    prefixChunks: [],
     displayBars: [],
     viewportMetrics: null,
     status: 'idle',
@@ -113,6 +117,8 @@ export function createReplayRuntime() {
     advancing: false,
   };
   let emit = () => {};
+  const loadedPrefixAnchors = new Set();
+  const loadingPrefixAnchors = new Set();
 
   async function syncChartRightEdgeLimit(rightEdge) {
     if (hasCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT)) {
@@ -220,6 +226,74 @@ export function createReplayRuntime() {
       viewportMetrics: clone(state.viewportMetrics),
     });
     return clone(state);
+  }
+
+  async function loadPrefixDemand({ prefixDemand } = {}) {
+    if (!state.session || !state.sessionId) {
+      return {
+        ...clone(state),
+        loaded: false,
+        reason: 'no-session',
+      };
+    }
+    if (!prefixDemand?.anchor) {
+      throw new Error('replay prefix demand anchor is required.');
+    }
+
+    const anchor = prefixDemand.anchor;
+    if (loadedPrefixAnchors.has(anchor) || loadingPrefixAnchors.has(anchor)) {
+      return {
+        ...clone(state),
+        loaded: false,
+        reason: 'duplicate-prefix-demand',
+      };
+    }
+
+    const suggestedCount = Number(prefixDemand.suggestedCount || DEFAULT_PREFIX_BARS);
+    const count = Math.min(Math.max(1, Math.ceil(suggestedCount)), MAX_PREFIX_BARS);
+    loadingPrefixAnchors.add(anchor);
+    try {
+      const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+        instrument: state.session.instrument,
+        timeframe: state.session.timeframe,
+        anchor,
+        direction: 'backward',
+        count,
+      });
+      const earliestLoadedTimestamp = Number(prefixDemand.earliestLoadedTimestamp);
+      const bars = window.bars
+        .filter((bar) => !Number.isFinite(earliestLoadedTimestamp) || Number(bar?.timestamp) < earliestLoadedTimestamp)
+        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+      const chunk = {
+        anchor,
+        earliestLoadedTimestamp: Number.isFinite(earliestLoadedTimestamp) ? earliestLoadedTimestamp : null,
+        bars: clone(bars),
+        window: {
+          key: window.key,
+          start: window.start,
+          end: window.end,
+          direction: window.direction,
+          estimatedBars: window.estimatedBars,
+        },
+      };
+      state = {
+        ...state,
+        prefixChunks: [
+          chunk,
+          ...state.prefixChunks,
+        ],
+      };
+      loadedPrefixAnchors.add(anchor);
+      const result = {
+        ...clone(state),
+        loaded: true,
+        prefixChunk: clone(chunk),
+      };
+      emit(REPLAY_EVENTS.PREFIX_CHUNK_LOADED, result);
+      return result;
+    } finally {
+      loadingPrefixAnchors.delete(anchor);
+    }
   }
 
   async function next({ sessionId = state.sessionId } = {}) {
@@ -348,11 +422,19 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.RESOLVE_START_BAR, (payload) => resolveStartBar(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
+      registerCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, (payload) => loadPrefixDemand(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
       registerCommand(REPLAY_COMMANDS.PAUSE, () => pause()),
       registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
-      registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state))
+      registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state)),
+      subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
+        loadPrefixDemand(payload).catch((error) => {
+          queueMicrotask(() => {
+            throw error;
+          });
+        });
+      })
     );
   }
 
@@ -362,6 +444,8 @@ export function createReplayRuntime() {
     }
     pause();
     state = emptyState();
+    loadedPrefixAnchors.clear();
+    loadingPrefixAnchors.clear();
   }
 
   return {
