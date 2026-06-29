@@ -551,14 +551,14 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state)),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
-        loadPrefixDemand(payload).catch((error) => {
+        dispatchCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, payload).catch((error) => {
           queueMicrotask(() => {
             throw error;
           });
         });
       }),
       subscribeEvent(CHART_EVENTS.VISIBLE_RANGE_CHANGED, (payload) => {
-        applyPrefixRetention(payload).catch((error) => {
+        dispatchCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, payload).catch((error) => {
           queueMicrotask(() => {
             throw error;
           });
