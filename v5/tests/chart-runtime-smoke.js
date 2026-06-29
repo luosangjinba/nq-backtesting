@@ -14,6 +14,8 @@ function createElement(tagName) {
     title: '',
     textContent: '',
     isConnected: true,
+    clientWidth: 800,
+    clientHeight: 420,
     append(child) {
       this.children.push(child);
     },
@@ -22,6 +24,12 @@ function createElement(tagName) {
     },
     setAttribute(name, value) {
       this.attributes[name] = value;
+    },
+    getBoundingClientRect() {
+      return {
+        width: this.clientWidth,
+        height: this.clientHeight,
+      };
     },
     querySelectorAll(selector) {
       if (selector !== '[data-chart-host]') return [];
@@ -65,8 +73,17 @@ runtime.start({
 });
 
 assert.equal(hasCommand(CHART_COMMANDS.REPLACE_BARS), true);
+assert.equal(hasCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS), true);
 assert.equal(host.dataset.chartRuntimeMounted, 'true');
 assert.equal(host.children[0].dataset.chartCanvas, 'true');
+
+const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS);
+assert.deepEqual(metrics, {
+  width: 800,
+  height: 420,
+  estimatedVisibleBars: 80,
+  mounted: true,
+});
 
 const firstBars = [
   { time: '2026-06-01T09:30:00.000Z', open: 100, high: 104, low: 99, close: 103 },

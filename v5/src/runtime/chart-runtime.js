@@ -4,6 +4,7 @@ export const CHART_COMMANDS = Object.freeze({
   REPLACE_BARS: 'chart.replaceBars',
   APPEND_BARS: 'chart.appendBars',
   CLEAR_BARS: 'chart.clearBars',
+  GET_VIEWPORT_METRICS: 'chart.getViewportMetrics',
 });
 
 export const CHART_EVENTS = Object.freeze({
@@ -91,6 +92,20 @@ function renderChartFrame(host, state) {
   host.append(canvas);
 }
 
+function readHostMetrics(host) {
+  const rect = host?.getBoundingClientRect?.() || {};
+  const width = Math.max(0, Math.round(Number(rect.width) || host?.clientWidth || 0));
+  const height = Math.max(0, Math.round(Number(rect.height) || host?.clientHeight || 0));
+  const estimatedBarWidth = 10;
+
+  return {
+    width,
+    height,
+    estimatedVisibleBars: Math.max(0, Math.floor(width / estimatedBarWidth)),
+    mounted: Boolean(host?.isConnected),
+  };
+}
+
 export function createChartRuntime() {
   const mountedHosts = new WeakSet();
   const mountedHostList = new Set();
@@ -131,6 +146,11 @@ export function createChartRuntime() {
     return { bars: [...state.bars] };
   }
 
+  function getViewportMetrics() {
+    const host = [...mountedHostList].find((candidate) => candidate.isConnected);
+    return readHostMetrics(host);
+  }
+
   function start({ root, emitEvent } = {}) {
     rootElement = root;
     emit = emitEvent || emit;
@@ -140,7 +160,8 @@ export function createChartRuntime() {
         ...state.bars,
         ...normalizeBars(bars),
       ])),
-      registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([]))
+      registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
+      registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, () => getViewportMetrics())
     );
     mountAvailableHosts();
 
