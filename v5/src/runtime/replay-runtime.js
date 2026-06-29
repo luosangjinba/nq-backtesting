@@ -15,6 +15,7 @@ function emptyState() {
   return {
     sessionId: null,
     session: null,
+    persistedCursor: null,
     startBar: null,
     startBarTimestamp: null,
     cursorTimestamp: null,
@@ -72,11 +73,20 @@ export function computePrefixBarCount(metrics = {}) {
 }
 
 export function assertNoFutureDisplayBars(displayBars = [], startBar) {
-  const startTimestamp = Number(startBar?.timestamp);
-  if (!Number.isFinite(startTimestamp)) {
-    throw new Error('replay start bar timestamp is required.');
+  return assertNoDisplayBarsAfter(displayBars, startBar);
+}
+
+export function assertNoDisplayBarsAfter(displayBars = [], cursorBarOrTimestamp) {
+  const rawTimestamp = typeof cursorBarOrTimestamp === 'object'
+    ? cursorBarOrTimestamp?.timestamp
+    : cursorBarOrTimestamp;
+  const cursorTimestamp = typeof rawTimestamp === 'number'
+    ? rawTimestamp
+    : timestampSeconds(rawTimestamp);
+  if (!Number.isFinite(cursorTimestamp)) {
+    throw new Error('replay cursor timestamp is required.');
   }
-  const futureBar = displayBars.find((bar) => Number(bar?.timestamp) > startTimestamp);
+  const futureBar = displayBars.find((bar) => Number(bar?.timestamp) > cursorTimestamp);
   if (futureBar) {
     throw new Error('replay display state must not include future bars.');
   }
@@ -172,6 +182,7 @@ export function createReplayRuntime() {
 
     const record = await dispatchCommand(SESSION_COMMANDS.GET, { sessionId });
     const session = record?.session;
+    const cursor = record?.cursor;
     if (!session) {
       throw new Error(`Replay session "${sessionId}" was not found.`);
     }
@@ -189,6 +200,7 @@ export function createReplayRuntime() {
       ...state,
       sessionId: session.id,
       session: clone(session),
+      persistedCursor: clone(cursor),
       startBar: clone(startBar),
       startBarTimestamp: startBar.time,
       cursorTimestamp: startBar.time,
@@ -203,6 +215,42 @@ export function createReplayRuntime() {
       startBar: clone(startBar),
     });
     return clone(state);
+  }
+
+  async function loadPersistedRevealBars(cursor) {
+    if (!cursor?.cursorTimestamp || !state.startBar) return [];
+    const startTimestamp = Number(state.startBar.timestamp);
+    const targetTimestamp = timestampSeconds(cursor.cursorTimestamp);
+    if (targetTimestamp <= startTimestamp) return [];
+
+    const targetRevealCount = Math.max(1, Number(cursor.revealedCount) || 0);
+    const revealedBars = [];
+    let anchor = state.startBar.time;
+    while (revealedBars.length < targetRevealCount) {
+      const remaining = targetRevealCount - revealedBars.length;
+      const count = Math.min(remaining + 1, MAX_PREFIX_BARS);
+      const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+        instrument: state.session.instrument,
+        timeframe: state.session.timeframe,
+        anchor,
+        direction: 'forward',
+        count,
+      });
+      const nextBars = window.bars
+        .filter((bar) => Number(bar?.timestamp) > timestampSeconds(anchor))
+        .filter((bar) => Number(bar?.timestamp) <= targetTimestamp)
+        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+      if (!nextBars.length) break;
+      revealedBars.push(...nextBars);
+      anchor = nextBars[nextBars.length - 1].time;
+      if (Number(nextBars[nextBars.length - 1].timestamp) >= targetTimestamp) break;
+    }
+
+    const latest = revealedBars[revealedBars.length - 1];
+    if (!latest || Number(latest.timestamp) < targetTimestamp) {
+      throw new Error('Unable to restore replay cursor from bounded bar windows.');
+    }
+    return revealedBars.slice(0, targetRevealCount);
   }
 
   async function loadInitialPrefix({ sessionId } = {}) {
@@ -246,22 +294,33 @@ export function createReplayRuntime() {
       await loadInitialPrefix({ sessionId });
     }
 
+    const persistedRevealBars = await loadPersistedRevealBars(state.persistedCursor);
+    const restoredCursor = persistedRevealBars.length
+      ? persistedRevealBars[persistedRevealBars.length - 1]
+      : state.startBar;
+    const restoredCursorTimestamp = restoredCursor.time;
+    const revealedCount = persistedRevealBars.length;
     const displayBars = [
       ...state.prefixBars,
       state.startBar,
+      ...persistedRevealBars,
     ];
-    assertNoFutureDisplayBars(displayBars, state.startBar);
+    assertNoDisplayBarsAfter(displayBars, restoredCursorTimestamp);
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
-    await syncChartRightEdgeLimit(state.startBar.time);
+    await syncChartRightEdgeLimit(restoredCursorTimestamp);
 
     state = {
       ...state,
+      cursorTimestamp: restoredCursorTimestamp,
+      revealedCount,
       displayBars: clone(displayBars),
       status: 'initial-loaded',
     };
     emit(REPLAY_EVENTS.INITIAL_LOADED, {
       session: clone(state.session),
       startBar: clone(state.startBar),
+      cursorTimestamp: state.cursorTimestamp,
+      revealedCount: state.revealedCount,
       displayBars: clone(displayBars),
       viewportMetrics: clone(state.viewportMetrics),
     });
