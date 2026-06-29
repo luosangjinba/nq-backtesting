@@ -146,11 +146,11 @@ Checks:
 
 Goal: implement the first replay behavior slice on the clean V5 runtime.
 
-- [ ] Step 363.1: Resolve session start bar.
-- [ ] Step 363.2: Load viewport-sized prefix bars.
-- [ ] Step 363.3: Render prefix plus start through chart runtime.
-- [ ] Step 363.4: Guard against future bars in display state.
-- [ ] Step 363.5: Add real-data browser smoke.
+- [x] Step 363.1: Resolve session start bar.
+- [x] Step 363.2: Load viewport-sized prefix bars.
+- [x] Step 363.3: Render prefix plus start through chart runtime.
+- [x] Step 363.4: Guard against future bars in display state.
+- [x] Step 363.5: Add real-data browser smoke.
 
 Manual acceptance:
 
@@ -158,6 +158,16 @@ Manual acceptance:
 - Start bar is the latest visible replay bar.
 - No bars after start are loaded into display state.
 - Different screen widths may request different prefix counts.
+
+Checks:
+
+- `node v5/tests/replay-start-bar-smoke.js`
+- `node v5/tests/replay-prefix-load-smoke.js`
+- `node v5/tests/replay-initial-render-smoke.js`
+- `node v5/tests/replay-no-future-bars-smoke.js`
+- `node v5/tests/replay-initial-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 364 - V5 Replay Navigation
 

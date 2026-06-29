@@ -96,6 +96,9 @@ async function main() {
         while (!document.querySelector('[data-route="chart"]') && Date.now() < deadline) {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
+        while (!document.querySelector('[data-chart-bar-count]') && Date.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         const chart = document.querySelector('[data-route="chart"]');
         return JSON.stringify({
           route: chart?.dataset.route || '',
@@ -104,6 +107,7 @@ async function main() {
           hasBarsRuntime: Boolean(window.barDataRuntime),
           hasReplayRuntime: Boolean(window.replayRuntime),
           hasChartCanvas: Boolean(chart?.querySelector('[data-chart-canvas]')),
+          chartBarCount: Number(chart?.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0),
           text: chart?.textContent || '',
         });
       })()
@@ -115,7 +119,8 @@ async function main() {
     assert.equal(value.hasBarsRuntime, false);
     assert.equal(value.hasReplayRuntime, false);
     assert.equal(value.hasChartCanvas, true);
-    assert.match(value.text, /Chart runtime ready/);
+    assert.ok(value.chartBarCount > 1, 'chart route should load initial replay bars');
+    assert.match(value.text, /Loaded \d+ bars\./);
   } finally {
     client?.close();
     chrome.kill('SIGTERM');
