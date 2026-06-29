@@ -15,3 +15,7 @@ Specs should explain:
 - what is forbidden;
 - how to verify it.
 
+## Active Specs
+
+- `fx-replay-initial-load.md`: stable rules for replay chart entry, wall-clock
+  time semantics, initial display invariants, and verification harnesses.
