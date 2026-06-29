@@ -153,6 +153,11 @@ export function createChartReplayRoute() {
         while (unsubscribeCallbacks.length) {
           unsubscribeCallbacks.pop()();
         }
+        dispatchCommand(REPLAY_COMMANDS.PAUSE).catch((error) => {
+          queueMicrotask(() => {
+            throw error;
+          });
+        });
       };
 
       if (params.sessionId) {

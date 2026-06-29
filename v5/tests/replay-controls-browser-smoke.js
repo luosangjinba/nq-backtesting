@@ -200,6 +200,42 @@ async function main() {
           const terminalRevealedText = document.querySelector('[data-replay-revealed-count]')?.textContent || '';
           const terminalPlaybackText = document.querySelector('[data-replay-playback]')?.textContent || '';
 
+          const disposeCreated = await commands.dispatchCommand('session.create', {
+            id: 'browser-replay-dispose-pause',
+            instrument: 'NQ',
+            timeframe: 1,
+            sessionStart: '2026-06-01T10:00:00.000Z',
+            sessionEnd: '2026-06-01T10:05:00.000Z',
+          });
+          await commands.dispatchCommand('app.navigate', {
+            routeId: 'chart',
+            params: { sessionId: disposeCreated.session.id },
+          });
+          await waitFor('dispose session initial loaded', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.sessionId === disposeCreated.session.id
+              && state.status === 'initial-loaded'
+              && !document.querySelector('[data-replay-play]')?.disabled;
+          });
+          document.querySelector('[data-replay-play]').click();
+          await waitFor('dispose session playback started', async () => {
+            const playback = await commands.dispatchCommand('replay.getPlaybackState');
+            return playback.playing === true;
+          });
+          await waitFor('dispose session advanced once', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.revealedCount >= 1;
+          }, 4000);
+          const beforeDisposeNavigate = await commands.dispatchCommand('replay.getState');
+          await commands.dispatchCommand('app.navigate', { routeId: 'setup' });
+          await waitFor('dispose paused playback', async () => {
+            const playback = await commands.dispatchCommand('replay.getPlaybackState');
+            return playback.playing === false;
+          });
+          await new Promise((resolve) => setTimeout(resolve, 700));
+          const afterDisposeWait = await commands.dispatchCommand('replay.getState');
+          const afterDisposePlayback = await commands.dispatchCommand('replay.getPlaybackState');
+
           const events = await import('/v5/src/runtime/events.js');
           await commands.dispatchCommand('app.navigate', { routeId: 'setup' });
           const listenerCountsAfterNavigate = {
@@ -224,6 +260,11 @@ async function main() {
             endText: terminalEndText,
             revealedText: terminalRevealedText,
             playbackText: terminalPlaybackText,
+            beforeDisposeCursor: beforeDisposeNavigate.cursorTimestamp,
+            afterDisposeCursor: afterDisposeWait.cursorTimestamp,
+            beforeDisposeRevealedCount: beforeDisposeNavigate.revealedCount,
+            afterDisposeRevealedCount: afterDisposeWait.revealedCount,
+            afterDisposePlaying: afterDisposePlayback.playing,
             chartCount: chartCountAfterPause,
             listenerCountsAfterNavigate,
           });
@@ -253,6 +294,9 @@ async function main() {
     assert.equal(value.endText, '2026-06-01T09:40:00.000Z');
     assert.equal(value.revealedText, String(value.terminalRevealedCount));
     assert.equal(value.playbackText, 'Paused');
+    assert.equal(value.afterDisposePlaying, false);
+    assert.equal(value.afterDisposeCursor, value.beforeDisposeCursor);
+    assert.equal(value.afterDisposeRevealedCount, value.beforeDisposeRevealedCount);
   } finally {
     client?.close();
     chrome.kill('SIGTERM');
