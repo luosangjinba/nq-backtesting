@@ -22,6 +22,7 @@ const commands = [
   ['node', ['v5/tests/app-shell-browser-smoke.js']],
   ['node', ['v5/tests/session-setup-browser-smoke.js']],
   ['node', ['v5/tests/replay-initial-browser-smoke.js']],
+  ['node', ['v5/tests/chart-overflow-browser-smoke.js']],
 ];
 
 function run(command, args) {
