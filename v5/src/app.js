@@ -6,6 +6,7 @@ import { createBarDataRuntime } from './runtime/bar-data-runtime.js';
 import { createChartRuntime } from './runtime/chart-runtime.js';
 import { createReplayRuntime } from './runtime/replay-runtime.js';
 import { createSessionRuntime } from './runtime/session-runtime.js';
+import { APP_COMMANDS } from './contracts/app-contracts.js';
 import { createChartReplayRoute } from './features/chart-replay/chart-replay-route.js';
 import { createSessionSetupRoute } from './features/session-setup/session-setup-route.js';
 
@@ -25,7 +26,7 @@ const router = createRouter({
   fallbackRouteId: 'setup',
 });
 
-registerCommand('app.navigate', ({ routeId, params } = {}) => router.navigate(routeId, params));
+registerCommand(APP_COMMANDS.NAVIGATE, ({ routeId, params } = {}) => router.navigate(routeId, params));
 
 registerModule({
   id: 'app.router',
@@ -41,7 +42,7 @@ registerModule(createReplayRuntime());
 root.addEventListener('click', (event) => {
   const trigger = event.target.closest('[data-route-link]');
   if (!trigger) return;
-  dispatchCommand('app.navigate', { routeId: trigger.dataset.routeLink });
+  dispatchCommand(APP_COMMANDS.NAVIGATE, { routeId: trigger.dataset.routeLink });
 });
 
 startModules({

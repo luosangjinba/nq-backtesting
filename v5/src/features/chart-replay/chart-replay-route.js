@@ -1,5 +1,6 @@
 import { dispatchCommand } from '../../runtime/commands.js';
 import { subscribeEvent } from '../../runtime/events.js';
+import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 
 export function createChartReplayRoute() {
   return {
@@ -50,8 +51,8 @@ export function createChartReplayRoute() {
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
         const [state, playback] = await Promise.all([
-          dispatchCommand('replay.getState').catch(() => null),
-          dispatchCommand('replay.getPlaybackState').catch(() => null),
+          dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null),
+          dispatchCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE).catch(() => null),
         ]);
         playbackPlaying = Boolean(playback?.playing);
         terminalReason = playback?.stoppedReason || terminalReason;
@@ -84,7 +85,7 @@ export function createChartReplayRoute() {
       }
 
       nextButton.addEventListener('click', async () => {
-        const state = await runReplayCommand(() => dispatchCommand('replay.next', {
+        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
           sessionId: params.sessionId,
         }));
         if (!state) return;
@@ -96,7 +97,7 @@ export function createChartReplayRoute() {
       });
 
       playButton.addEventListener('click', async () => {
-        const playback = await runReplayCommand(() => dispatchCommand('replay.play', {
+        const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PLAY, {
           sessionId: params.sessionId,
           intervalMs: 500,
         }));
@@ -108,7 +109,7 @@ export function createChartReplayRoute() {
       });
 
       pauseButton.addEventListener('click', async () => {
-        const playback = await runReplayCommand(() => dispatchCommand('replay.pause'));
+        const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PAUSE));
         if (!playback) return;
         playbackPlaying = Boolean(playback.playing);
         status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
@@ -116,9 +117,9 @@ export function createChartReplayRoute() {
       });
 
       [
-        'replay:initialLoaded',
-        'replay:next',
-        'replay:playbackChanged',
+        REPLAY_EVENTS.INITIAL_LOADED,
+        REPLAY_EVENTS.NEXT,
+        REPLAY_EVENTS.PLAYBACK_CHANGED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, () => {
           refreshReplayStatus();
@@ -136,7 +137,7 @@ export function createChartReplayRoute() {
           status.textContent = 'Loading replay start...';
           setControlsDisabled(true);
           try {
-            const state = await dispatchCommand('replay.loadInitialSession', {
+            const state = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
               sessionId: params.sessionId,
             });
             replayLoaded = true;

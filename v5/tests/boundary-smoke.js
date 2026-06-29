@@ -20,10 +20,14 @@ function listJsFiles(root) {
 
 const featureFiles = listJsFiles(resolve(v5Root, 'features'));
 const violations = [];
+const forbiddenRuntimeImportPattern = /from\s+['"][^'"]*runtime\/(?!commands\.js|events\.js)[^'"]+['"]/;
 
 for (const file of featureFiles) {
   const source = readFileSync(file, 'utf8');
   const path = relative(repoRoot, file);
+  if (forbiddenRuntimeImportPattern.test(source)) {
+    violations.push(`${path}: feature must import runtime contracts, not runtime implementations`);
+  }
   [
     'chart-runtime',
     'bar-data-runtime',

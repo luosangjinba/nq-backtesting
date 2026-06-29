@@ -1,5 +1,6 @@
 import { dispatchCommand } from '../../runtime/commands.js';
-import { SESSION_COMMANDS } from '../../runtime/session-runtime.js';
+import { APP_COMMANDS } from '../../contracts/app-contracts.js';
+import { SESSION_COMMANDS } from '../../contracts/session-contracts.js';
 import { readSessionSetupForm } from './session-setup-model.js';
 
 export function createSessionSetupRoute() {
@@ -60,7 +61,7 @@ export function createSessionSetupRoute() {
         try {
           const created = await dispatchCommand(SESSION_COMMANDS.CREATE, readSessionSetupForm(form));
           status.textContent = `Created ${created.session.id}`;
-          await dispatchCommand('app.navigate', {
+          await dispatchCommand(APP_COMMANDS.NAVIGATE, {
             routeId: 'chart',
             params: { sessionId: created.session.id },
           });
