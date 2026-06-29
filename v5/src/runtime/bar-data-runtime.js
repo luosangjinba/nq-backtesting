@@ -1,17 +1,7 @@
 import { registerCommand } from './commands.js';
+import { BAR_DATA_COMMANDS, BAR_DATA_EVENTS } from '../contracts/bar-data-contracts.js';
 
-export const BAR_DATA_COMMANDS = Object.freeze({
-  PLAN_WINDOW: 'barData.planWindow',
-  LOAD_WINDOW: 'barData.loadWindow',
-  GET_WINDOW: 'barData.getWindow',
-  RELEASE_WINDOW: 'barData.releaseWindow',
-  GET_CACHE_SUMMARY: 'barData.getCacheSummary',
-});
-
-export const BAR_DATA_EVENTS = Object.freeze({
-  WINDOW_LOADED: 'barData:windowLoaded',
-  WINDOW_RELEASED: 'barData:windowReleased',
-});
+export { BAR_DATA_COMMANDS, BAR_DATA_EVENTS };
 
 const DEFAULT_MAX_BARS_PER_WINDOW = 500;
 const DEFAULT_WINDOW_BARS = 120;

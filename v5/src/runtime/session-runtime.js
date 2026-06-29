@@ -1,13 +1,9 @@
 import { registerCommand } from './commands.js';
 import { emitEvent } from './events.js';
+import { SESSION_COMMANDS, SESSION_EVENTS } from '../contracts/session-contracts.js';
 import { createSessionRepository } from '../session/session-repository.js';
 
-export const SESSION_COMMANDS = Object.freeze({
-  GET_CONTEXT: 'session.getContext',
-  CREATE: 'session.create',
-  LIST: 'session.list',
-  GET: 'session.get',
-});
+export { SESSION_COMMANDS, SESSION_EVENTS };
 
 export function createSessionRuntime(repository = createSessionRepository()) {
   const unregisterCallbacks = [];
@@ -17,7 +13,7 @@ export function createSessionRuntime(repository = createSessionRepository()) {
       registerCommand(SESSION_COMMANDS.GET_CONTEXT, () => repository.getDefaultContext()),
       registerCommand(SESSION_COMMANDS.CREATE, (payload) => {
         const created = repository.createReplaySession(payload);
-        emitEvent('session:created', created);
+        emitEvent(SESSION_EVENTS.CREATED, created);
         return created;
       }),
       registerCommand(SESSION_COMMANDS.LIST, () => repository.listReplaySessions()),
