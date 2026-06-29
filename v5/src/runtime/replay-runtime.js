@@ -6,12 +6,14 @@ import { SESSION_COMMANDS } from './session-runtime.js';
 export const REPLAY_COMMANDS = Object.freeze({
   RESOLVE_START_BAR: 'replay.resolveStartBar',
   LOAD_INITIAL_PREFIX: 'replay.loadInitialPrefix',
+  LOAD_INITIAL_SESSION: 'replay.loadInitialSession',
   GET_STATE: 'replay.getState',
 });
 
 export const REPLAY_EVENTS = Object.freeze({
   START_BAR_RESOLVED: 'replay:startBarResolved',
   PREFIX_LOADED: 'replay:prefixLoaded',
+  INITIAL_LOADED: 'replay:initialLoaded',
 });
 
 const DEFAULT_PREFIX_BARS = 119;
@@ -25,6 +27,7 @@ function emptyState() {
     startBarTimestamp: null,
     cursorTimestamp: null,
     prefixBars: [],
+    displayBars: [],
     viewportMetrics: null,
     status: 'idle',
   };
@@ -95,6 +98,7 @@ export function createReplayRuntime() {
       startBarTimestamp: startBar.time,
       cursorTimestamp: startBar.time,
       prefixBars: [],
+      displayBars: [],
       viewportMetrics: null,
       status: 'start-resolved',
     };
@@ -127,6 +131,7 @@ export function createReplayRuntime() {
     state = {
       ...state,
       prefixBars: clone(prefixBars),
+      displayBars: [],
       viewportMetrics: clone(metrics),
       status: 'prefix-loaded',
     };
@@ -139,11 +144,37 @@ export function createReplayRuntime() {
     return clone(state);
   }
 
+  async function loadInitialSession({ sessionId } = {}) {
+    if (state.status !== 'prefix-loaded' || state.sessionId !== sessionId) {
+      await loadInitialPrefix({ sessionId });
+    }
+
+    const displayBars = [
+      ...state.prefixBars,
+      state.startBar,
+    ];
+    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+
+    state = {
+      ...state,
+      displayBars: clone(displayBars),
+      status: 'initial-loaded',
+    };
+    emit(REPLAY_EVENTS.INITIAL_LOADED, {
+      session: clone(state.session),
+      startBar: clone(state.startBar),
+      displayBars: clone(displayBars),
+      viewportMetrics: clone(state.viewportMetrics),
+    });
+    return clone(state);
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
       registerCommand(REPLAY_COMMANDS.RESOLVE_START_BAR, (payload) => resolveStartBar(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
+      registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state))
     );
   }

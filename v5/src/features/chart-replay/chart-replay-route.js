@@ -1,3 +1,5 @@
+import { dispatchCommand } from '../../runtime/commands.js';
+
 export function createChartReplayRoute() {
   return {
     id: 'chart',
@@ -19,8 +21,22 @@ export function createChartReplayRoute() {
           <span>Starting chart...</span>
         </div>
         <p>Session: <strong>${sessionId}</strong></p>
-        <p>Bars and replay runtime are intentionally absent in Step 361.</p>
+        <p data-replay-load-status>Waiting for replay session.</p>
       `;
+      const status = section.querySelector('[data-replay-load-status]');
+      if (params.sessionId) {
+        setTimeout(async () => {
+          status.textContent = 'Loading replay start...';
+          try {
+            const state = await dispatchCommand('replay.loadInitialSession', {
+              sessionId: params.sessionId,
+            });
+            status.textContent = `Loaded ${state.displayBars.length} bars.`;
+          } catch (error) {
+            status.textContent = error?.message || String(error);
+          }
+        }, 0);
+      }
       return section;
     },
   };
