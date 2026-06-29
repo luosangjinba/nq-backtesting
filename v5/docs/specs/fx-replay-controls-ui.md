@@ -9,6 +9,7 @@ Applies to the chart replay route controls for:
 - Next;
 - Play;
 - Pause;
+- Reset;
 - read-only replay status.
 
 It does not define chart rendering internals, bar request planning, or prefix
@@ -31,7 +32,8 @@ The chart replay route exposes compact controls:
 
 - `Next` dispatches `replay.next`;
 - `Play` dispatches `replay.play`;
-- `Pause` dispatches `replay.pause`.
+- `Pause` dispatches `replay.pause`;
+- `Reset` dispatches `replay.reset`.
 
 Rules:
 
@@ -41,6 +43,8 @@ Rules:
   still in flight;
 - Play is disabled while playback is active;
 - Pause is disabled while playback is inactive;
+- Reset is disabled until initial replay loading completes or while another
+  command is in flight;
 - terminal replay state must not expose future bars.
 
 ## Status
@@ -48,7 +52,7 @@ Rules:
 The controls UI renders read-only status from runtime state/events:
 
 - session id is shown by the route;
-- cursor comes from `replay.getState`;
+- start, cursor, end, and revealed count come from `replay.getState`;
 - playback state comes from `replay.getPlaybackState` and replay playback
   events;
 - terminal reason comes from replay runtime playback state.
@@ -71,8 +75,9 @@ Rules:
 - route render may attach event subscriptions;
 - route replacement must call the rendered route element's cleanup hook when it
   exists;
-- replay controls must not leave `replay:initialLoaded`, `replay:next`, or
-  `replay:playbackChanged` listeners behind after navigating away.
+- replay controls must not leave `replay:initialLoaded`, `replay:next`,
+  `replay:reset`, or `replay:playbackChanged` listeners behind after navigating
+  away.
 
 ## Browser Verification
 
@@ -87,7 +92,8 @@ chain:
 6. click Pause and verify advancement stops;
 7. verify chart bar count matches replay display count;
 8. resume Play and verify automatic stop at `session-end`;
-9. navigate away and verify replay event subscriptions are cleaned up.
+9. verify progress labels reflect runtime state;
+10. navigate away and verify replay event subscriptions are cleaned up.
 
 The browser smoke may use synthetic bars to isolate controls behavior from V4
 data availability. Wall-clock request semantics are covered by the initial-load
@@ -101,6 +107,7 @@ spec and related harnesses.
 - Controls requesting bars directly.
 - Controls mutating replay state directly.
 - Controls using events as hidden mutation channels.
+- Controls persisting cursor state directly.
 
 ## Verification
 
@@ -112,6 +119,8 @@ Current harnesses:
   - runtime Play/Pause behavior.
 - `v5/tests/replay-controls-browser-smoke.js`
   - browser-level controls interaction.
+- `v5/tests/replay-restore-browser-smoke.js`
+  - browser-level re-enter restore and Reset interaction.
 - `v5/tests/boundary-smoke.js`
   - feature modules do not import forbidden runtime internals.
 - `v5/scripts/smoke_all.js`

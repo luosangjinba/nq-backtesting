@@ -20,12 +20,12 @@ Completed foundation:
 - controls dispatch replay commands and show read-only status;
 - runtime contracts and boundary smokes are in place.
 
-Remaining usability gap:
+Usability gap addressed in this step:
 
-- replay cursor changes are runtime-local;
-- re-entering a session route does not yet restore an advanced cursor;
-- the chart page shows minimal progress context;
-- there is no explicit reset/restart command.
+- replay cursor changes now persist through session runtime commands;
+- re-entering a session route restores an advanced cursor;
+- the chart page shows start, cursor, end, and revealed count;
+- `replay.reset` returns the session to the start bar and clears progression.
 
 ## Planned Steps
 
@@ -36,7 +36,7 @@ Remaining usability gap:
 - Play should persist through the same Next path.
 - UI must not persist replay cursor directly.
 
-Status: pending.
+Status: complete.
 
 ### Step 368.2 - Restore Replay From Cursor
 
@@ -45,7 +45,7 @@ Status: pending.
 - Restoration must remain bounded and must not load the full session range.
 - Start bar and no-future-bars invariants still apply.
 
-Status: pending.
+Status: complete.
 
 ### Step 368.3 - Read-Only Replay Progress UI
 
@@ -53,7 +53,7 @@ Status: pending.
 - Values come from replay/session runtime state.
 - UI keeps only local view state for loading/disabled labels.
 
-Status: pending.
+Status: complete.
 
 ### Step 368.4 - Reset/Restart Command
 
@@ -61,7 +61,7 @@ Status: pending.
 - Reset clears persisted cursor progression and re-renders prefix plus start.
 - UI may dispatch the command, but must not mutate replay/session state.
 
-Status: pending.
+Status: complete.
 
 ### Step 368.5 - Restore Browser Smoke
 
@@ -72,7 +72,7 @@ Status: pending.
   - verify cursor/display restore;
   - reset back to start.
 
-Status: pending.
+Status: complete.
 
 ### Step 368.6 - Persistence Spec
 
@@ -80,7 +80,25 @@ Status: pending.
 - Include ownership boundaries and no-full-range preload constraints.
 - Update this session and TODO when complete.
 
-Status: pending.
+Status: complete.
+
+## Completed
+
+- Added `session.updateCursor` and `session:cursorUpdated` for persisted replay
+  cursor updates.
+- Persisted successful `replay.next` advancement through session runtime; Play
+  persists by reusing the same Next path.
+- Restored chart replay from stored cursor state with bounded forward windows
+  and no full-session date range preload.
+- Added read-only chart route progress values for start, cursor, end, revealed
+  count, playback, and state.
+- Added `replay.reset`, `replay:reset`, and a Reset control that returns display
+  and persisted cursor state to the start bar.
+- Added browser coverage for advance, route re-entry restore, reset, and
+  post-reset re-entry.
+- Added `v5/docs/specs/fx-replay-cursor-persistence.md` and updated controls
+  UI specs.
+- Added new Step 368 smokes to `v5/scripts/smoke_all.js`.
 
 ## Manual Acceptance
 
@@ -93,9 +111,22 @@ Status: pending.
 
 ## Checks
 
-- `node v5/tests/replay-cursor-persistence-smoke.js` if added in this step
-- `node v5/tests/replay-restore-smoke.js` if added in this step
-- `node v5/tests/replay-reset-smoke.js` if added in this step
+- `node v5/tests/replay-cursor-persistence-smoke.js`
+- `node v5/tests/replay-restore-smoke.js`
+- `node v5/tests/replay-reset-smoke.js`
+- `node v5/tests/replay-restore-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Verified:
+
+- `node v5/tests/replay-restore-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Next Step
+
+Define the next MVP slice in `v5/TODO.md`. A practical next slice is improving
+session setup/listing usability now that replay progression can persist and
+restore, while preserving the same command/event runtime boundaries.
