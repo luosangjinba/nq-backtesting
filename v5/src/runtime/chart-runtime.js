@@ -8,19 +8,24 @@ export const CHART_COMMANDS = Object.freeze({
   SET_RIGHT_EDGE_LIMIT: 'chart.setRightEdgeLimit',
   SET_VISIBLE_RANGE: 'chart.setVisibleRange',
   GET_VISIBLE_RANGE: 'chart.getVisibleRange',
+  GET_PREFIX_DEMAND: 'chart.getPrefixDemand',
 });
 
 export const CHART_EVENTS = Object.freeze({
   READY: 'chart:ready',
   BARS_CHANGED: 'chart:barsChanged',
   VISIBLE_RANGE_CHANGED: 'chart:visibleRangeChanged',
+  PREFIX_DEMAND: 'chart:prefixDemand',
 });
+
+const PREFIX_DEMAND_THRESHOLD_BARS = 2;
 
 function createEmptyState() {
   return {
     bars: [],
     rightEdgeLimit: null,
     visibleRange: null,
+    prefixDemand: null,
   };
 }
 
@@ -52,6 +57,44 @@ function clampVisibleRange(range, rightEdgeLimit) {
   return {
     from: rightEdgeLimit - span,
     to: rightEdgeLimit,
+  };
+}
+
+function estimateBarSpacingSeconds(bars) {
+  const timestamps = bars
+    .map((bar) => timestampSeconds(bar.time, 'chart bar time'))
+    .sort((left, right) => left - right);
+  const gaps = timestamps
+    .slice(1)
+    .map((timestamp, index) => timestamp - timestamps[index])
+    .filter((gap) => gap > 0);
+  return gaps[0] || 60;
+}
+
+function computePrefixDemand(state) {
+  if (!state.visibleRange || !state.bars.length) {
+    return null;
+  }
+
+  const earliestLoadedTimestamp = Math.min(
+    ...state.bars.map((bar) => timestampSeconds(bar.time, 'chart bar time'))
+  );
+  const barSpacingSeconds = estimateBarSpacingSeconds(state.bars);
+  const thresholdSeconds = barSpacingSeconds * PREFIX_DEMAND_THRESHOLD_BARS;
+  if (state.visibleRange.from > earliestLoadedTimestamp + thresholdSeconds) {
+    return null;
+  }
+
+  return {
+    direction: 'backward',
+    anchor: new Date(earliestLoadedTimestamp * 1000).toISOString(),
+    earliestLoadedTimestamp,
+    visibleFrom: state.visibleRange.from,
+    thresholdSeconds,
+    suggestedCount: Math.max(
+      PREFIX_DEMAND_THRESHOLD_BARS + 1,
+      Math.ceil((earliestLoadedTimestamp + thresholdSeconds - state.visibleRange.from) / barSpacingSeconds) + 1
+    ),
   };
 }
 
@@ -178,6 +221,7 @@ export function createChartRuntime() {
 
   function updateBars(nextBars) {
     state.bars = nextBars;
+    state.prefixDemand = computePrefixDemand(state);
     rerenderMountedHosts();
     emit(CHART_EVENTS.BARS_CHANGED, { bars: [...state.bars] });
     return { bars: [...state.bars] };
@@ -191,8 +235,15 @@ export function createChartRuntime() {
   function updateVisibleRange(range) {
     const visibleRange = clampVisibleRange(normalizeRange(range), state.rightEdgeLimit);
     state.visibleRange = visibleRange;
+    state.prefixDemand = computePrefixDemand(state);
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
-    return { visibleRange: { ...visibleRange } };
+    if (state.prefixDemand) {
+      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
+    }
+    return {
+      visibleRange: { ...visibleRange },
+      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+    };
   }
 
   function setRightEdgeLimit({ rightEdge } = {}) {
@@ -214,6 +265,13 @@ export function createChartRuntime() {
     };
   }
 
+  function getPrefixDemand() {
+    state.prefixDemand = computePrefixDemand(state);
+    return {
+      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+    };
+  }
+
   function start({ root, emitEvent } = {}) {
     rootElement = root;
     emit = emitEvent || emit;
@@ -227,7 +285,8 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, () => getViewportMetrics()),
       registerCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, (payload) => setRightEdgeLimit(payload)),
       registerCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, (payload) => updateVisibleRange(payload)),
-      registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange())
+      registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
+      registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand())
     );
     mountAvailableHosts();
 
