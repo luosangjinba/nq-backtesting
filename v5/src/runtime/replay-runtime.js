@@ -105,6 +105,18 @@ export function canRevealBar(bar, sessionEnd) {
   return Number(bar?.timestamp) <= timestampSeconds(sessionEnd);
 }
 
+export function mergeSparseDisplayBars(displayBars = [], prefixChunks = [], cursorTimestamp) {
+  const cursor = timestampSeconds(cursorTimestamp);
+  return [...new Map([
+    ...prefixChunks.flatMap((chunk) => chunk.bars || []),
+    ...displayBars,
+  ]
+    .filter((bar) => Number(bar?.timestamp) <= cursor)
+    .map((bar) => [Number(bar.timestamp), bar]))
+    .values()]
+    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+}
+
 export function createReplayRuntime() {
   const unregisterCallbacks = [];
   const setTimer = globalThis.setInterval?.bind(globalThis);
@@ -276,12 +288,16 @@ export function createReplayRuntime() {
           estimatedBars: window.estimatedBars,
         },
       };
+      const prefixChunks = [
+        chunk,
+        ...state.prefixChunks,
+      ];
+      const displayBars = mergeSparseDisplayBars(state.displayBars, prefixChunks, state.cursorTimestamp);
+      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
       state = {
         ...state,
-        prefixChunks: [
-          chunk,
-          ...state.prefixChunks,
-        ],
+        prefixChunks,
+        displayBars: clone(displayBars),
       };
       loadedPrefixAnchors.add(anchor);
       const result = {

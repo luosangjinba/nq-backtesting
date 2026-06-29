@@ -27,15 +27,25 @@ Commit: `23ccd2e Detect V5 prefix demand`
   to Step 365.3.
 - Added `v5/tests/prefix-demand-load-smoke.js`.
 
+Commit: `9978b5e Load V5 prefix demand chunks`
+
+### Step 365.3 - Merge Sparse Prefix Chunks
+
+- Added sparse display merge for replay bars keyed by timestamp.
+- Older prefix chunks are merged with current display bars without constructing
+  a dense session-wide array.
+- Merged display bars are written through chart runtime only.
+- Added `v5/tests/prefix-demand-merge-smoke.js`.
+
 ## Checks
 
 - `node v5/tests/prefix-demand-detect-smoke.js`
 - `node v5/tests/prefix-demand-load-smoke.js`
+- `node v5/tests/prefix-demand-merge-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
 ## Next Step
 
-Step 365.3 should merge sparse prefix chunks without converting the whole
-session range into a dense array. Keep chart writes behind chart runtime
-commands.
+Step 365.4 should release off-screen chunks according to explicit retention.
+Keep release decisions observable in runtime state and bar data cache summary.

@@ -3,7 +3,11 @@ import { clearCommandsForTest, dispatchCommand } from '../src/runtime/commands.j
 import { clearEventsForTest, emitEvent } from '../src/runtime/events.js';
 import { createBarDataRuntime } from '../src/runtime/bar-data-runtime.js';
 import { CHART_COMMANDS, createChartRuntime } from '../src/runtime/chart-runtime.js';
-import { REPLAY_COMMANDS, createReplayRuntime } from '../src/runtime/replay-runtime.js';
+import {
+  REPLAY_COMMANDS,
+  createReplayRuntime,
+  mergeSparseDisplayBars,
+} from '../src/runtime/replay-runtime.js';
 import { SESSION_COMMANDS, createSessionRuntime } from '../src/runtime/session-runtime.js';
 import { createSessionRepository } from '../src/session/session-repository.js';
 
@@ -79,6 +83,17 @@ async function waitFor(predicate) {
   throw new Error('condition was not met before timeout');
 }
 
+const baseTimestamp = timestamp('2026-06-01T09:30:00.000Z');
+const sparseMerged = mergeSparseDisplayBars(
+  [bar(baseTimestamp, 100), bar(baseTimestamp + 60, 101)],
+  [{ bars: [bar(baseTimestamp - 120, 98), bar(baseTimestamp, 100)] }],
+  iso(baseTimestamp + 60)
+);
+assert.deepEqual(
+  sparseMerged.map((entry) => entry.timestamp),
+  [baseTimestamp - 120, baseTimestamp, baseTimestamp + 60]
+);
+
 clearCommandsForTest();
 clearEventsForTest();
 
@@ -93,13 +108,12 @@ const host = createElement('div');
 host.dataset.chartHost = '';
 root.append(host);
 
-const startTimestamp = timestamp('2026-06-01T09:30:00.000Z');
 const requests = [];
 const barDataRuntime = createBarDataRuntime({
   fetchBars: async (window) => {
     requests.push(window);
     if (window.direction === 'forward') {
-      return { bars: makeBars(startTimestamp, 2) };
+      return { bars: makeBars(baseTimestamp, 2) };
     }
     const anchorTimestamp = timestamp(window.anchor);
     return { bars: makeBars(anchorTimestamp - ((window.estimatedBars - 1) * 60), window.estimatedBars, 80) };
@@ -115,7 +129,7 @@ chartRuntime.start({ root, emitEvent });
 replayRuntime.start({ emitEvent });
 
 const created = await dispatchCommand(SESSION_COMMANDS.CREATE, {
-  id: 'prefix-demand-load-test',
+  id: 'prefix-demand-merge-test',
   instrument: 'NQ',
   timeframe: 1,
   sessionStart: '2026-06-01 09:30',
@@ -125,43 +139,45 @@ const created = await dispatchCommand(SESSION_COMMANDS.CREATE, {
 const initial = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
   sessionId: created.session.id,
 });
-assert.equal(requests.length, 2);
+assert.deepEqual(
+  initial.displayBars.map((entry) => entry.timestamp),
+  [
+    baseTimestamp - 240,
+    baseTimestamp - 180,
+    baseTimestamp - 120,
+    baseTimestamp - 60,
+    baseTimestamp,
+  ]
+);
 
-const earliestInitial = initial.displayBars[0].timestamp;
 await dispatchCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, {
-  from: earliestInitial + 60,
-  to: startTimestamp,
+  from: initial.displayBars[0].timestamp + 60,
+  to: baseTimestamp,
 });
 await waitFor(async () => {
   const replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
-  return requests.length === 3 && replayState.prefixChunks.length === 1;
+  return replayState.prefixChunks.length === 1 && replayState.displayBars.length === 7;
 });
 
-const olderRequest = requests[2];
-assert.equal(olderRequest.instrument, 'NQ');
-assert.equal(olderRequest.timeframe, 1);
-assert.equal(olderRequest.direction, 'backward');
-assert.equal(olderRequest.anchor, iso(earliestInitial));
-assert.equal(olderRequest.estimatedBars, 3);
-assert.notEqual(olderRequest.start, '2026-06-01 09:30');
-assert.notEqual(olderRequest.end, '2026-06-01 09:40');
-
 const replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
-assert.equal(replayState.prefixChunks.length, 1);
-assert.equal(replayState.prefixChunks[0].anchor, iso(earliestInitial));
 assert.deepEqual(
-  replayState.prefixChunks[0].bars.map((entry) => entry.timestamp),
-  [earliestInitial - 120, earliestInitial - 60]
+  replayState.displayBars.map((entry) => entry.timestamp),
+  [
+    baseTimestamp - 360,
+    baseTimestamp - 300,
+    baseTimestamp - 240,
+    baseTimestamp - 180,
+    baseTimestamp - 120,
+    baseTimestamp - 60,
+    baseTimestamp,
+  ]
 );
-assert.equal(replayState.displayBars.length, initial.displayBars.length + 2);
-assert.equal(
-  replayState.displayBars.every((entry) => entry.timestamp <= startTimestamp),
-  true
-);
+assert.equal(host.children[0].children[0].dataset.chartBarCount, '7');
+assert.equal(requests.length, 3);
 
 replayRuntime.stop();
 chartRuntime.stop();
 sessionRuntime.stop();
 barDataRuntime.stop();
 
-console.log('v5 prefix demand load smoke passed');
+console.log('v5 prefix demand merge smoke passed');
