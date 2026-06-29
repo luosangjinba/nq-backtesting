@@ -124,15 +124,23 @@ Checks:
 
 Goal: add the only runtime that talks to bars API and owns loaded windows.
 
-- [ ] Step 362.1: Wrap existing V4 bars endpoint/client for V5.
-- [ ] Step 362.2: Add bounded request planner.
-- [ ] Step 362.3: Add window cache and release policy.
-- [ ] Step 362.4: Add smoke tests against full-date-range preloading.
+- [x] Step 362.1: Wrap existing V4 bars endpoint/client for V5.
+- [x] Step 362.2: Add bounded request planner.
+- [x] Step 362.3: Add window cache and release policy.
+- [x] Step 362.4: Add smoke tests against full-date-range preloading.
 
 Manual acceptance:
 
 - Runtime can load bounded bar windows.
 - There is no API path that loads the entire session range for initial replay.
+
+Checks:
+
+- `node v5/tests/bar-data-runtime-smoke.js`
+- `node v5/tests/bar-data-boundary-smoke.js`
+- `node v5/tests/bar-data-preload-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 363 - V5 FX Replay Initial Load
 
