@@ -288,3 +288,40 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 368 - V5 Replay Usability And State Persistence
+
+Goal: make replay sessions resumable and easier to understand without weakening
+the session-first runtime boundaries.
+
+- [ ] Step 368.1: Persist replay cursor updates after Next/Play advances.
+- [ ] Step 368.2: Restore chart replay from stored cursor state when entering a
+  session route.
+- [ ] Step 368.3: Add read-only replay progress UI for start, cursor, end, and
+  revealed count.
+- [ ] Step 368.4: Add a replay reset/restart command that returns a session to
+  its start bar.
+- [ ] Step 368.5: Add browser smoke for advance, reload/renavigate, and restore.
+- [ ] Step 368.6: Add or update specs/session docs for cursor persistence,
+  restore, and reset boundaries.
+
+Manual acceptance:
+
+- Next/Play progression updates the session cursor through session/runtime
+  commands, not direct UI state.
+- Re-entering a chart replay session can restore cursor/display state without
+  loading the full session date range.
+- Progress display is read-only and derived from runtime state.
+- Reset/restart goes through a replay command and clears persisted progression
+  back to the start bar.
+- Existing no-future-bars, prefix demand, retention, and controls behavior remain
+  unchanged.
+
+Checks:
+
+- `node v5/tests/replay-cursor-persistence-smoke.js` if added in this step
+- `node v5/tests/replay-restore-smoke.js` if added in this step
+- `node v5/tests/replay-reset-smoke.js` if added in this step
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
