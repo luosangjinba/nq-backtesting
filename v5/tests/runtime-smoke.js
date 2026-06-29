@@ -91,9 +91,10 @@ const router = createRouter({
 router.start();
 assert.equal(router.getCurrentRouteId(), 'setup');
 assert.equal(outlet.child.id, 'setup');
-router.navigate('chart');
+router.navigate('chart', { sessionId: 'session-1' });
 assert.equal(router.getCurrentRouteId(), 'chart');
 assert.equal(outlet.child.id, 'chart');
+assert.deepEqual(router.getCurrentParams(), { sessionId: 'session-1' });
 router.navigate('missing');
 assert.equal(router.getCurrentRouteId(), 'setup');
 

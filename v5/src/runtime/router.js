@@ -9,11 +9,13 @@ export function createRouter({ outlet, routes, fallbackRouteId }) {
   }
 
   let currentRouteId = null;
+  let currentParams = {};
 
-  function render(routeId) {
+  function render(routeId, params = {}) {
     const route = routeMap.get(routeId) || routeMap.get(fallbackRouteId);
     currentRouteId = route.id;
-    outlet.replaceChildren(route.render());
+    currentParams = { ...params };
+    outlet.replaceChildren(route.render({ params: currentParams }));
     document.querySelectorAll('[data-route-link]').forEach((button) => {
       button.toggleAttribute('aria-current', button.dataset.routeLink === currentRouteId);
     });
@@ -23,12 +25,15 @@ export function createRouter({ outlet, routes, fallbackRouteId }) {
     start() {
       render(fallbackRouteId);
     },
-    navigate(routeId) {
-      render(routeId);
-      return { routeId: currentRouteId };
+    navigate(routeId, params = {}) {
+      render(routeId, params);
+      return { routeId: currentRouteId, params: { ...currentParams } };
     },
     getCurrentRouteId() {
       return currentRouteId;
+    },
+    getCurrentParams() {
+      return { ...currentParams };
     },
   };
 }

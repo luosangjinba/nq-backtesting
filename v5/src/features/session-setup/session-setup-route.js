@@ -1,3 +1,7 @@
+import { dispatchCommand } from '../../runtime/commands.js';
+import { SESSION_COMMANDS } from '../../runtime/session-runtime.js';
+import { readSessionSetupForm } from './session-setup-model.js';
+
 export function createSessionSetupRoute() {
   return {
     id: 'setup',
@@ -42,12 +46,28 @@ export function createSessionSetupRoute() {
             </label>
           </div>
           <div class="form-actions">
-            <button type="submit" disabled>Create Session</button>
-            <span class="form-status">Creation action starts in Step 360.3</span>
+            <button type="submit">Create Session</button>
+            <span class="form-status" data-session-setup-status>No bars are loaded on create.</span>
           </div>
         </form>
-        <p>Session setup is UI-only in Step 360.1. No bars are loaded here.</p>
+        <p>Create stores session metadata and opens the chart route by session id.</p>
       `;
+      const form = section.querySelector('[data-session-setup-form]');
+      const status = section.querySelector('[data-session-setup-status]');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        status.textContent = 'Creating session...';
+        try {
+          const created = await dispatchCommand(SESSION_COMMANDS.CREATE, readSessionSetupForm(form));
+          status.textContent = `Created ${created.session.id}`;
+          await dispatchCommand('app.navigate', {
+            routeId: 'chart',
+            params: { sessionId: created.session.id },
+          });
+        } catch (error) {
+          status.textContent = error?.message || String(error);
+        }
+      });
       return section;
     },
   };

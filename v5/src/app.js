@@ -22,7 +22,7 @@ const router = createRouter({
   fallbackRouteId: 'setup',
 });
 
-registerCommand('app.navigate', ({ routeId } = {}) => router.navigate(routeId));
+registerCommand('app.navigate', ({ routeId, params } = {}) => router.navigate(routeId, params));
 
 registerModule({
   id: 'app.router',
