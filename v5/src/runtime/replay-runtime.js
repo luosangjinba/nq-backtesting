@@ -65,6 +65,17 @@ export function computePrefixBarCount(metrics = {}) {
   return Math.min(Math.max(1, Math.floor(estimatedVisibleBars) - 1), MAX_PREFIX_BARS);
 }
 
+export function assertNoFutureDisplayBars(displayBars = [], startBar) {
+  const startTimestamp = Number(startBar?.timestamp);
+  if (!Number.isFinite(startTimestamp)) {
+    throw new Error('replay start bar timestamp is required.');
+  }
+  const futureBar = displayBars.find((bar) => Number(bar?.timestamp) > startTimestamp);
+  if (futureBar) {
+    throw new Error('replay display state must not include future bars.');
+  }
+}
+
 export function createReplayRuntime() {
   const unregisterCallbacks = [];
   let state = emptyState();
@@ -153,6 +164,7 @@ export function createReplayRuntime() {
       ...state.prefixBars,
       state.startBar,
     ];
+    assertNoFutureDisplayBars(displayBars, state.startBar);
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
 
     state = {
