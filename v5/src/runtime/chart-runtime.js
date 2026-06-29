@@ -1,11 +1,72 @@
+import { registerCommand } from './commands.js';
+
+export const CHART_COMMANDS = Object.freeze({
+  REPLACE_BARS: 'chart.replaceBars',
+  APPEND_BARS: 'chart.appendBars',
+  CLEAR_BARS: 'chart.clearBars',
+});
+
 export const CHART_EVENTS = Object.freeze({
   READY: 'chart:ready',
+  BARS_CHANGED: 'chart:barsChanged',
 });
 
 function createEmptyState() {
   return {
     bars: [],
   };
+}
+
+function normalizeBar(bar) {
+  if (!bar || typeof bar !== 'object') {
+    throw new Error('chart bar must be an object.');
+  }
+
+  const time = bar.time || bar.timestamp;
+  if (typeof time !== 'string' || !time.trim()) {
+    throw new Error('chart bar time is required.');
+  }
+
+  const open = Number(bar.open);
+  const high = Number(bar.high);
+  const low = Number(bar.low);
+  const close = Number(bar.close);
+  if (![open, high, low, close].every(Number.isFinite)) {
+    throw new Error('chart bar OHLC values must be finite numbers.');
+  }
+
+  return { time, open, high, low, close };
+}
+
+function normalizeBars(bars) {
+  if (!Array.isArray(bars)) {
+    throw new Error('chart bars payload must be an array.');
+  }
+  return bars.map(normalizeBar);
+}
+
+function renderBars(canvas, bars) {
+  const plot = document.createElement('div');
+  plot.className = 'chart-bar-plot';
+  plot.dataset.chartBarCount = String(bars.length);
+
+  const values = bars.flatMap((bar) => [bar.open, bar.high, bar.low, bar.close]);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+
+  bars.forEach((bar) => {
+    const candle = document.createElement('div');
+    const top = ((max - bar.high) / range) * 100;
+    const height = Math.max(((bar.high - bar.low) / range) * 100, 4);
+    candle.className = `chart-candle ${bar.close >= bar.open ? 'is-up' : 'is-down'}`;
+    candle.style.top = `${top}%`;
+    candle.style.height = `${height}%`;
+    candle.title = `${bar.time} O:${bar.open} H:${bar.high} L:${bar.low} C:${bar.close}`;
+    plot.append(candle);
+  });
+
+  canvas.append(plot);
 }
 
 function renderChartFrame(host, state) {
@@ -18,16 +79,22 @@ function renderChartFrame(host, state) {
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', 'Chart runtime canvas');
 
-  const empty = document.createElement('span');
-  empty.className = 'chart-empty-state';
-  empty.textContent = state.bars.length ? '' : 'Chart runtime ready';
-  canvas.append(empty);
+  if (state.bars.length) {
+    renderBars(canvas, state.bars);
+  } else {
+    const empty = document.createElement('span');
+    empty.className = 'chart-empty-state';
+    empty.textContent = 'Chart runtime ready';
+    canvas.append(empty);
+  }
 
   host.append(canvas);
 }
 
 export function createChartRuntime() {
   const mountedHosts = new WeakSet();
+  const mountedHostList = new Set();
+  const unregisterCallbacks = [];
   const state = createEmptyState();
   let rootElement = null;
   let observer = null;
@@ -36,6 +103,7 @@ export function createChartRuntime() {
   function mountHost(host) {
     if (!host || mountedHosts.has(host)) return;
     mountedHosts.add(host);
+    mountedHostList.add(host);
     renderChartFrame(host, state);
     emit(CHART_EVENTS.READY, { host });
   }
@@ -46,9 +114,34 @@ export function createChartRuntime() {
       .forEach((host) => mountHost(host));
   }
 
+  function rerenderMountedHosts() {
+    for (const host of mountedHostList) {
+      if (host.isConnected) {
+        renderChartFrame(host, state);
+      } else {
+        mountedHostList.delete(host);
+      }
+    }
+  }
+
+  function updateBars(nextBars) {
+    state.bars = nextBars;
+    rerenderMountedHosts();
+    emit(CHART_EVENTS.BARS_CHANGED, { bars: [...state.bars] });
+    return { bars: [...state.bars] };
+  }
+
   function start({ root, emitEvent } = {}) {
     rootElement = root;
     emit = emitEvent || emit;
+    unregisterCallbacks.push(
+      registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars } = {}) => updateBars(normalizeBars(bars))),
+      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars } = {}) => updateBars([
+        ...state.bars,
+        ...normalizeBars(bars),
+      ])),
+      registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([]))
+    );
     mountAvailableHosts();
 
     observer = new MutationObserver(() => {
@@ -62,6 +155,10 @@ export function createChartRuntime() {
 
   function stop() {
     observer?.disconnect();
+    while (unregisterCallbacks.length) {
+      unregisterCallbacks.pop()();
+    }
+    mountedHostList.clear();
     observer = null;
     rootElement = null;
   }
