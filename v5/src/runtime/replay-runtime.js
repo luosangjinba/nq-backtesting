@@ -515,13 +515,14 @@ export function createReplayRuntime() {
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
     await syncChartRightEdgeLimit(nextBar.time);
     const revealedCount = state.revealedCount + 1;
-    await persistReplayCursor({
+    const persisted = await persistReplayCursor({
       cursorTimestamp: nextBar.time,
       revealedCount,
     });
 
     state = {
       ...state,
+      persistedCursor: clone(persisted.cursor),
       cursorTimestamp: nextBar.time,
       revealedCount,
       displayBars: clone(displayBars),

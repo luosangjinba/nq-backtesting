@@ -16,6 +16,9 @@ const commands = [
   ['node', ['v5/tests/replay-no-future-bars-smoke.js']],
   ['node', ['v5/tests/replay-next-smoke.js']],
   ['node', ['v5/tests/replay-play-smoke.js']],
+  ['node', ['v5/tests/replay-cursor-persistence-smoke.js']],
+  ['node', ['v5/tests/replay-restore-smoke.js']],
+  ['node', ['v5/tests/replay-reset-smoke.js']],
   ['node', ['v5/tests/replay-session-end-smoke.js']],
   ['node', ['v5/tests/replay-right-pan-smoke.js']],
   ['node', ['v5/tests/prefix-demand-detect-smoke.js']],
@@ -31,6 +34,7 @@ const commands = [
   ['node', ['v5/tests/session-setup-browser-smoke.js']],
   ['node', ['v5/tests/replay-initial-browser-smoke.js']],
   ['node', ['v5/tests/replay-controls-browser-smoke.js']],
+  ['node', ['v5/tests/replay-restore-browser-smoke.js']],
   ['node', ['v5/tests/chart-overflow-browser-smoke.js']],
 ];
 
