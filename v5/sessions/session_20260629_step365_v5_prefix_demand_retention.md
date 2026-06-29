@@ -37,15 +37,28 @@ Commit: `9978b5e Load V5 prefix demand chunks`
 - Merged display bars are written through chart runtime only.
 - Added `v5/tests/prefix-demand-merge-smoke.js`.
 
+Commit: `feb6ad8 Merge V5 sparse prefix chunks`
+
+### Step 365.4 - Release Off-Screen Chunks
+
+- Added explicit prefix retention based on two visible-range spans.
+- Replay runtime releases prefix chunks that are older than the retention range
+  when chart visible range changes.
+- Released chunks are removed from replay `prefixChunks`, recorded in
+  `releasedPrefixChunks`, removed from display bars, and released from bar data
+  cache through `barData.releaseWindow`.
+- Added `v5/tests/prefix-retention-smoke.js`.
+
 ## Checks
 
 - `node v5/tests/prefix-demand-detect-smoke.js`
 - `node v5/tests/prefix-demand-load-smoke.js`
 - `node v5/tests/prefix-demand-merge-smoke.js`
+- `node v5/tests/prefix-retention-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
 ## Next Step
 
-Step 365.4 should release off-screen chunks according to explicit retention.
-Keep release decisions observable in runtime state and bar data cache summary.
+Step 366 should start turning the V5 replay navigation into usable UI controls
+or define the next MVP slice in `v5/TODO.md`.

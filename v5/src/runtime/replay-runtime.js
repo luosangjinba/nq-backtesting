@@ -9,6 +9,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   LOAD_INITIAL_PREFIX: 'replay.loadInitialPrefix',
   LOAD_INITIAL_SESSION: 'replay.loadInitialSession',
   LOAD_PREFIX_DEMAND: 'replay.loadPrefixDemand',
+  APPLY_PREFIX_RETENTION: 'replay.applyPrefixRetention',
   NEXT: 'replay.next',
   PLAY: 'replay.play',
   PAUSE: 'replay.pause',
@@ -20,6 +21,7 @@ export const REPLAY_EVENTS = Object.freeze({
   START_BAR_RESOLVED: 'replay:startBarResolved',
   PREFIX_LOADED: 'replay:prefixLoaded',
   PREFIX_CHUNK_LOADED: 'replay:prefixChunkLoaded',
+  PREFIX_CHUNK_RELEASED: 'replay:prefixChunkReleased',
   INITIAL_LOADED: 'replay:initialLoaded',
   NEXT: 'replay:next',
   PLAYBACK_CHANGED: 'replay:playbackChanged',
@@ -27,6 +29,7 @@ export const REPLAY_EVENTS = Object.freeze({
 
 const DEFAULT_PREFIX_BARS = 119;
 const MAX_PREFIX_BARS = 499;
+const PREFIX_RETENTION_VISIBLE_SPANS = 2;
 
 function emptyState() {
   return {
@@ -37,6 +40,7 @@ function emptyState() {
     cursorTimestamp: null,
     prefixBars: [],
     prefixChunks: [],
+    releasedPrefixChunks: [],
     displayBars: [],
     viewportMetrics: null,
     status: 'idle',
@@ -115,6 +119,38 @@ export function mergeSparseDisplayBars(displayBars = [], prefixChunks = [], curs
     .map((bar) => [Number(bar.timestamp), bar]))
     .values()]
     .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+}
+
+export function splitRetainedPrefixChunks(prefixChunks = [], visibleRange = {}) {
+  const from = Number(visibleRange.from);
+  const to = Number(visibleRange.to);
+  if (!Number.isFinite(from) || !Number.isFinite(to) || to <= from) {
+    return {
+      retained: prefixChunks,
+      released: [],
+      releaseBefore: null,
+    };
+  }
+
+  const visibleSpan = to - from;
+  const releaseBefore = from - (visibleSpan * PREFIX_RETENTION_VISIBLE_SPANS);
+  const retained = [];
+  const released = [];
+  for (const chunk of prefixChunks) {
+    const latestTimestamp = Math.max(
+      ...((chunk.bars || []).map((bar) => Number(bar?.timestamp)).filter(Number.isFinite))
+    );
+    if (Number.isFinite(latestTimestamp) && latestTimestamp < releaseBefore) {
+      released.push(chunk);
+    } else {
+      retained.push(chunk);
+    }
+  }
+  return {
+    retained,
+    released,
+    releaseBefore,
+  };
 }
 
 export function createReplayRuntime() {
@@ -282,8 +318,11 @@ export function createReplayRuntime() {
         bars: clone(bars),
         window: {
           key: window.key,
+          instrument: window.instrument,
+          timeframe: window.timeframe,
           start: window.start,
           end: window.end,
+          anchor: window.anchor,
           direction: window.direction,
           estimatedBars: window.estimatedBars,
         },
@@ -310,6 +349,68 @@ export function createReplayRuntime() {
     } finally {
       loadingPrefixAnchors.delete(anchor);
     }
+  }
+
+  async function applyPrefixRetention({ visibleRange } = {}) {
+    if (!state.session || !state.prefixChunks.length) {
+      return {
+        ...clone(state),
+        released: false,
+        releasedPrefixChunks: [],
+      };
+    }
+
+    const { retained, released, releaseBefore } = splitRetainedPrefixChunks(state.prefixChunks, visibleRange);
+    if (!released.length) {
+      return {
+        ...clone(state),
+        released: false,
+        releasedPrefixChunks: [],
+        releaseBefore,
+      };
+    }
+
+    for (const chunk of released) {
+      if (chunk.window) {
+        await dispatchCommand(BAR_DATA_COMMANDS.RELEASE_WINDOW, {
+          instrument: chunk.window.instrument,
+          timeframe: chunk.window.timeframe,
+          anchor: chunk.window.anchor || chunk.anchor,
+          direction: chunk.window.direction,
+          count: chunk.window.estimatedBars,
+        });
+      }
+      loadedPrefixAnchors.delete(chunk.anchor);
+    }
+    const displayBars = mergeSparseDisplayBars([
+      ...state.prefixBars,
+      state.startBar,
+      ...state.displayBars.filter((bar) => Number(bar?.timestamp) >= Number(state.startBar?.timestamp)),
+    ], retained, state.cursorTimestamp);
+    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+
+    const releasedSummaries = released.map((chunk) => ({
+      anchor: chunk.anchor,
+      window: clone(chunk.window),
+      barCount: chunk.bars?.length || 0,
+    }));
+    state = {
+      ...state,
+      prefixChunks: retained,
+      releasedPrefixChunks: [
+        ...state.releasedPrefixChunks,
+        ...releasedSummaries,
+      ],
+      displayBars: clone(displayBars),
+    };
+    const result = {
+      ...clone(state),
+      released: true,
+      releasedPrefixChunks: clone(releasedSummaries),
+      releaseBefore,
+    };
+    emit(REPLAY_EVENTS.PREFIX_CHUNK_RELEASED, result);
+    return result;
   }
 
   async function next({ sessionId = state.sessionId } = {}) {
@@ -439,6 +540,7 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, (payload) => loadPrefixDemand(payload)),
+      registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => applyPrefixRetention(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
       registerCommand(REPLAY_COMMANDS.PAUSE, () => pause()),
@@ -446,6 +548,13 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state)),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
         loadPrefixDemand(payload).catch((error) => {
+          queueMicrotask(() => {
+            throw error;
+          });
+        });
+      }),
+      subscribeEvent(CHART_EVENTS.VISIBLE_RANGE_CHANGED, (payload) => {
+        applyPrefixRetention(payload).catch((error) => {
           queueMicrotask(() => {
             throw error;
           });
