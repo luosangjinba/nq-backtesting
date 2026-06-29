@@ -18,6 +18,7 @@ function emptyState() {
     startBar: null,
     startBarTimestamp: null,
     cursorTimestamp: null,
+    revealedCount: 0,
     prefixBars: [],
     prefixChunks: [],
     releasedPrefixChunks: [],
@@ -155,6 +156,15 @@ export function createReplayRuntime() {
     }
   }
 
+  async function persistReplayCursor({ cursorTimestamp, revealedCount }) {
+    return dispatchCommand(SESSION_COMMANDS.UPDATE_CURSOR, {
+      sessionId: state.sessionId,
+      startBarTimestamp: state.startBar?.time || state.startBarTimestamp,
+      cursorTimestamp,
+      revealedCount,
+    });
+  }
+
   async function resolveStartBar({ sessionId } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -182,6 +192,7 @@ export function createReplayRuntime() {
       startBar: clone(startBar),
       startBarTimestamp: startBar.time,
       cursorTimestamp: startBar.time,
+      revealedCount: 0,
       prefixBars: [],
       displayBars: [],
       viewportMetrics: null,
@@ -435,10 +446,16 @@ export function createReplayRuntime() {
     ];
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
     await syncChartRightEdgeLimit(nextBar.time);
+    const revealedCount = state.revealedCount + 1;
+    await persistReplayCursor({
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
 
     state = {
       ...state,
       cursorTimestamp: nextBar.time,
+      revealedCount,
       displayBars: clone(displayBars),
       status: 'replay-ready',
     };

@@ -17,7 +17,12 @@ export function createSessionRuntime(repository = createSessionRepository()) {
         return created;
       }),
       registerCommand(SESSION_COMMANDS.LIST, () => repository.listReplaySessions()),
-      registerCommand(SESSION_COMMANDS.GET, ({ sessionId } = {}) => repository.getReplaySession(sessionId))
+      registerCommand(SESSION_COMMANDS.GET, ({ sessionId } = {}) => repository.getReplaySession(sessionId)),
+      registerCommand(SESSION_COMMANDS.UPDATE_CURSOR, (payload) => {
+        const updated = repository.updateReplayCursor(payload);
+        emitEvent(SESSION_EVENTS.CURSOR_UPDATED, updated);
+        return updated;
+      })
     );
   }
 

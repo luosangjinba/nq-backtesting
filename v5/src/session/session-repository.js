@@ -83,10 +83,31 @@ export function createSessionRepository(options = {}) {
     });
   }
 
+  function updateReplayCursor(input = {}) {
+    const session = sessions.get(input.sessionId);
+    if (!session) {
+      throw new Error(`Replay session "${input.sessionId}" was not found.`);
+    }
+    const previous = cursors.get(session.id) || { sessionId: session.id };
+    const cursor = normalizeReplayCursor({
+      ...previous,
+      ...input,
+      sessionId: session.id,
+      updatedAt: input.updatedAt || new Date().toISOString(),
+    });
+    cursors.set(session.id, cursor);
+    persist();
+    return clone({
+      session,
+      cursor,
+    });
+  }
+
   return {
     getDefaultContext,
     createReplaySession,
     listReplaySessions,
     getReplaySession,
+    updateReplayCursor,
   };
 }
