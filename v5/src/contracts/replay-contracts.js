@@ -7,6 +7,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   NEXT: 'replay.next',
   PLAY: 'replay.play',
   PAUSE: 'replay.pause',
+  RESET: 'replay.reset',
   GET_PLAYBACK_STATE: 'replay.getPlaybackState',
   GET_STATE: 'replay.getState',
 });
@@ -18,5 +19,6 @@ export const REPLAY_EVENTS = Object.freeze({
   PREFIX_CHUNK_RELEASED: 'replay:prefixChunkReleased',
   INITIAL_LOADED: 'replay:initialLoaded',
   NEXT: 'replay:next',
+  RESET: 'replay:reset',
   PLAYBACK_CHANGED: 'replay:playbackChanged',
 });

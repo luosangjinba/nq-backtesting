@@ -23,6 +23,7 @@ export function createChartReplayRoute() {
           <button type="button" data-replay-next disabled>Next</button>
           <button type="button" data-replay-play disabled>Play</button>
           <button type="button" data-replay-pause disabled>Pause</button>
+          <button type="button" data-replay-reset disabled>Reset</button>
         </div>
         <div class="chart-host" data-chart-host>
           <span>Starting chart...</span>
@@ -48,6 +49,7 @@ export function createChartReplayRoute() {
       const nextButton = section.querySelector('[data-replay-next]');
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
+      const resetButton = section.querySelector('[data-replay-reset]');
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
@@ -79,6 +81,7 @@ export function createChartReplayRoute() {
         nextButton.disabled = unavailable;
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
+        resetButton.disabled = unavailable;
       }
 
       async function runReplayCommand(action) {
@@ -125,9 +128,20 @@ export function createChartReplayRoute() {
         await refreshReplayStatus();
       });
 
+      resetButton.addEventListener('click', async () => {
+        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.RESET, {
+          sessionId: params.sessionId,
+        }));
+        if (!state) return;
+        terminalReason = '';
+        status.textContent = `Loaded ${state.displayBars.length} bars.`;
+        await refreshReplayStatus();
+      });
+
       [
         REPLAY_EVENTS.INITIAL_LOADED,
         REPLAY_EVENTS.NEXT,
+        REPLAY_EVENTS.RESET,
         REPLAY_EVENTS.PLAYBACK_CHANGED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, () => {

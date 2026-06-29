@@ -175,6 +175,15 @@ export function createReplayRuntime() {
     });
   }
 
+  async function clearPersistedReplayCursor() {
+    return dispatchCommand(SESSION_COMMANDS.UPDATE_CURSOR, {
+      sessionId: state.sessionId,
+      startBarTimestamp: state.startBar?.time || state.startBarTimestamp,
+      cursorTimestamp: state.startBar?.time || state.startBarTimestamp,
+      revealedCount: 0,
+    });
+  }
+
   async function resolveStartBar({ sessionId } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -527,6 +536,44 @@ export function createReplayRuntime() {
     return result;
   }
 
+  async function reset({ sessionId = state.sessionId } = {}) {
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    pause();
+    if (!state.startBar || state.sessionId !== sessionId) {
+      await loadInitialPrefix({ sessionId });
+    }
+    const displayBars = [
+      ...state.prefixBars,
+      state.startBar,
+    ];
+    assertNoFutureDisplayBars(displayBars, state.startBar);
+    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await syncChartRightEdgeLimit(state.startBar.time);
+
+    state = {
+      ...state,
+      persistedCursor: {
+        sessionId,
+        startBarTimestamp: state.startBar.time,
+        cursorTimestamp: state.startBar.time,
+        revealedCount: 0,
+      },
+      cursorTimestamp: state.startBar.time,
+      revealedCount: 0,
+      displayBars: clone(displayBars),
+      status: 'initial-loaded',
+    };
+    await clearPersistedReplayCursor();
+    const result = {
+      ...clone(state),
+      reset: true,
+    };
+    emit(REPLAY_EVENTS.RESET, result);
+    return result;
+  }
+
   function playbackSnapshot() {
     return {
       playing: playback.playing,
@@ -604,6 +651,7 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
       registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => pause(payload)),
+      registerCommand(REPLAY_COMMANDS.RESET, (payload) => reset(payload)),
       registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state)),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
