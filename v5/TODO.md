@@ -27,11 +27,11 @@ Manual acceptance:
 
 Goal: create the V5 frontend shell without business features.
 
-- [ ] Step 358.1: Add V5 static entry page and source directory.
-- [ ] Step 358.2: Add runtime command bus and event bus.
-- [ ] Step 358.3: Add module registry and lifecycle hooks.
-- [ ] Step 358.4: Add route shell for Session Setup and Chart Replay.
-- [ ] Step 358.5: Add smoke tests that fail if features bypass runtime
+- [x] Step 358.1: Add V5 static entry page and source directory.
+- [x] Step 358.2: Add runtime command bus and event bus.
+- [x] Step 358.3: Add module registry and lifecycle hooks.
+- [x] Step 358.4: Add route shell for Session Setup and Chart Replay.
+- [x] Step 358.5: Add smoke tests that fail if features bypass runtime
   boundaries.
 
 Manual acceptance:
@@ -39,6 +39,14 @@ Manual acceptance:
 - Opening the V5 entry shows a working shell with setup/chart routes.
 - No chart, replay, or bars behavior is implemented yet.
 - Boundary tests exist before feature implementation.
+
+Checks:
+
+- `node v5/tests/runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 359 - V5 Session And User Model
 
@@ -145,4 +153,3 @@ Manual acceptance:
 - Dragging left can continue loading older prefix until data availability ends.
 - Prefix loading is not capped by fixed day counts.
 - Off-screen release is observable in runtime state.
-
