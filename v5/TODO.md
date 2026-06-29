@@ -79,16 +79,23 @@ Checks:
 
 Goal: build the FX Replay session setup page.
 
-- [ ] Step 360.1: Build instrument/timeframe/date range form.
-- [ ] Step 360.2: Validate session start/end without loading full chart data.
-- [ ] Step 360.3: Create session and navigate to chart replay route.
-- [ ] Step 360.4: Add browser smoke for setup-to-session creation.
+- [x] Step 360.1: Build instrument/timeframe/date range form.
+- [x] Step 360.2: Validate session start/end without loading full chart data.
+- [x] Step 360.3: Create session and navigate to chart replay route.
+- [x] Step 360.4: Add browser smoke for setup-to-session creation.
 
 Manual acceptance:
 
 - Setup resembles the FX Replay session creation flow.
 - Creating a session does not load the whole date range into a chart.
 - The chart route receives only a session id.
+
+Checks:
+
+- `node v5/tests/session-setup-model-smoke.js`
+- `node v5/tests/session-setup-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 361 - V5 Chart Runtime Foundation
 

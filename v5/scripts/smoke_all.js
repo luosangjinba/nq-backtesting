@@ -7,8 +7,10 @@ const commands = [
   ['node', ['v5/tests/session-repository-smoke.js']],
   ['node', ['v5/tests/session-runtime-smoke.js']],
   ['node', ['v5/tests/session-persistence-smoke.js']],
+  ['node', ['v5/tests/session-setup-model-smoke.js']],
   ['node', ['v5/tests/boundary-smoke.js']],
   ['node', ['v5/tests/app-shell-browser-smoke.js']],
+  ['node', ['v5/tests/session-setup-browser-smoke.js']],
 ];
 
 function run(command, args) {
