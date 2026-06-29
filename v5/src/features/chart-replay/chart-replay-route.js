@@ -28,7 +28,7 @@ export function createChartReplayRoute() {
         <div class="chart-host" data-chart-host>
           <span>Starting chart...</span>
         </div>
-        <p>Session: <strong>${sessionId}</strong></p>
+        <p>Session: <strong data-session-id-label></strong></p>
         <div class="replay-status-grid" data-replay-status>
           <span>Start <strong data-replay-start>--</strong></span>
           <span>Cursor <strong data-replay-cursor>--</strong></span>
@@ -40,6 +40,7 @@ export function createChartReplayRoute() {
         <p data-replay-load-status>Waiting for replay session.</p>
       `;
       const status = section.querySelector('[data-replay-load-status]');
+      const sessionIdLabel = section.querySelector('[data-session-id-label]');
       const startLabel = section.querySelector('[data-replay-start]');
       const cursorLabel = section.querySelector('[data-replay-cursor]');
       const endLabel = section.querySelector('[data-replay-end]');
@@ -55,6 +56,7 @@ export function createChartReplayRoute() {
       let playbackPlaying = false;
       let terminalReason = '';
       const unsubscribeCallbacks = [];
+      sessionIdLabel.textContent = sessionId;
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;

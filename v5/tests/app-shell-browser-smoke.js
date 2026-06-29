@@ -94,11 +94,21 @@ async function main() {
         document.querySelector('[data-route-link="setup"]')?.click();
         await new Promise((resolve) => setTimeout(resolve, 100));
         const setupAgain = document.querySelector('[data-route="setup"]');
+        const commands = await import('/v5/src/runtime/commands.js');
+        const unsafeSessionId = '<img data-injected-session-id src=x>';
+        await commands.dispatchCommand('app.navigate', {
+          routeId: 'chart',
+          params: { sessionId: unsafeSessionId },
+        });
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const sessionIdLabel = document.querySelector('[data-session-id-label]');
         return JSON.stringify({
           booted: root?.dataset.booted || '',
           hasSetup: Boolean(setup),
           hasChartAfterClick: Boolean(chart),
           hasSetupAfterReturn: Boolean(setupAgain),
+          escapedSessionId: sessionIdLabel?.textContent || '',
+          injectedSessionNodeCount: document.querySelectorAll('[data-injected-session-id]').length,
           title: document.querySelector('h1')?.textContent?.trim() || '',
         });
       })()
@@ -108,6 +118,8 @@ async function main() {
     assert.equal(value.hasSetup, true);
     assert.equal(value.hasChartAfterClick, true);
     assert.equal(value.hasSetupAfterReturn, true);
+    assert.equal(value.escapedSessionId, '<img data-injected-session-id src=x>');
+    assert.equal(value.injectedSessionNodeCount, 0);
     assert.equal(value.title, 'FX Replay');
   } finally {
     client?.close();
