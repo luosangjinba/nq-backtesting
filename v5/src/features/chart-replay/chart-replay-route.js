@@ -17,6 +17,11 @@ export function createChartReplayRoute() {
           </div>
           <span class="runtime-badge">Chart Route</span>
         </div>
+        <div class="replay-controls" data-replay-controls>
+          <button type="button" data-replay-next disabled>Next</button>
+          <button type="button" data-replay-play disabled>Play</button>
+          <button type="button" data-replay-pause disabled>Pause</button>
+        </div>
         <div class="chart-host" data-chart-host>
           <span>Starting chart...</span>
         </div>

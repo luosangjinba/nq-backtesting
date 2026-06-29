@@ -13,6 +13,8 @@ without weakening V5 runtime ownership boundaries.
 - Keep layout consistent with the existing V5 shell.
 - Do not wire runtime behavior yet beyond rendering a stable surface.
 
+Status: complete.
+
 ### Step 366.2 - Next Control
 
 - Add a Next button.
