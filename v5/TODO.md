@@ -175,7 +175,7 @@ Goal: implement controlled replay progression after initial loading is stable.
 
 - [x] Step 364.1: Next reveals exactly one active-timeframe bar.
 - [x] Step 364.2: Play repeatedly reveals one active-timeframe bar.
-- [ ] Step 364.3: Stop at session end.
+- [x] Step 364.3: Stop at session end.
 - [ ] Step 364.4: Prevent right-pan into unrevealed future.
 
 Manual acceptance:

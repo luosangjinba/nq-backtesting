@@ -93,6 +93,14 @@ export function assertNoFutureDisplayBars(displayBars = [], startBar) {
   }
 }
 
+export function isAtOrAfterSessionEnd(cursorTimestamp, sessionEnd) {
+  return timestampSeconds(cursorTimestamp) >= timestampSeconds(sessionEnd);
+}
+
+export function canRevealBar(bar, sessionEnd) {
+  return Number(bar?.timestamp) <= timestampSeconds(sessionEnd);
+}
+
 export function createReplayRuntime() {
   const unregisterCallbacks = [];
   const setTimer = globalThis.setInterval?.bind(globalThis);
@@ -218,9 +226,7 @@ export function createReplayRuntime() {
       throw new Error('replay initial session must be loaded before Next.');
     }
 
-    const sessionEndTimestamp = timestampSeconds(state.session.sessionEnd);
-    const cursorTimestamp = timestampSeconds(state.cursorTimestamp);
-    if (cursorTimestamp >= sessionEndTimestamp) {
+    if (isAtOrAfterSessionEnd(state.cursorTimestamp, state.session.sessionEnd)) {
       return {
         ...clone(state),
         advanced: false,
@@ -236,7 +242,7 @@ export function createReplayRuntime() {
       count: 2,
     });
     const nextBar = selectNextBar(window.bars, state.cursorTimestamp);
-    if (!nextBar || Number(nextBar.timestamp) > sessionEndTimestamp) {
+    if (!nextBar || !canRevealBar(nextBar, state.session.sessionEnd)) {
       return {
         ...clone(state),
         advanced: false,
