@@ -101,15 +101,24 @@ Checks:
 
 Goal: add the only chart-writing runtime.
 
-- [ ] Step 361.1: Initialize chart in chart replay route.
-- [ ] Step 361.2: Add chart runtime commands for replace/append/clear series.
-- [ ] Step 361.3: Add viewport metric reader.
-- [ ] Step 361.4: Add tests that feature modules cannot import chart internals.
+- [x] Step 361.1: Initialize chart in chart replay route.
+- [x] Step 361.2: Add chart runtime commands for replace/append/clear series.
+- [x] Step 361.3: Add viewport metric reader.
+- [x] Step 361.4: Add tests that feature modules cannot import chart internals.
 
 Manual acceptance:
 
 - Chart can render injected test bars.
 - No feature module can directly call chart series APIs.
+
+Checks:
+
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-boundary-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
 
 ## Step 362 - V5 Bar Data Runtime
 

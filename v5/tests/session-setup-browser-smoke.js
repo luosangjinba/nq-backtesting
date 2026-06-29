@@ -103,6 +103,7 @@ async function main() {
           hasChartRuntime: Boolean(window.chartRuntime),
           hasBarsRuntime: Boolean(window.barDataRuntime),
           hasReplayRuntime: Boolean(window.replayRuntime),
+          hasChartCanvas: Boolean(chart?.querySelector('[data-chart-canvas]')),
           text: chart?.textContent || '',
         });
       })()
@@ -113,7 +114,8 @@ async function main() {
     assert.equal(value.hasChartRuntime, false);
     assert.equal(value.hasBarsRuntime, false);
     assert.equal(value.hasReplayRuntime, false);
-    assert.match(value.text, /Chart runtime starts in Step 361/);
+    assert.equal(value.hasChartCanvas, true);
+    assert.match(value.text, /Chart runtime ready/);
   } finally {
     client?.close();
     chrome.kill('SIGTERM');
