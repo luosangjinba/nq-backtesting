@@ -117,6 +117,36 @@ h1 {
   margin-bottom: 16px;
 }
 
+.session-form {
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #2d3745;
+  border-radius: 6px;
+  background: #12304a;
+  color: #eff6ff;
+  font-weight: 700;
+}
+
+.form-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.form-status {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
 label {
   display: grid;
   gap: 6px;

@@ -13,29 +13,40 @@ export function createSessionSetupRoute() {
           </div>
           <span class="runtime-badge">Setup Route</span>
         </div>
-        <div class="form-grid" aria-label="Session setup placeholder">
-          <label>
-            Instrument
-            <select disabled>
-              <option>NQ</option>
-            </select>
-          </label>
-          <label>
-            Timeframe
-            <select disabled>
-              <option>1M</option>
-            </select>
-          </label>
-          <label>
-            Start
-            <input disabled value="Pending Step 360">
-          </label>
-          <label>
-            End
-            <input disabled value="Pending Step 360">
-          </label>
-        </div>
-        <p>Session creation UI is reserved for Step 360. No bars are loaded here.</p>
+        <form class="session-form" data-session-setup-form>
+          <div class="form-grid" aria-label="Session setup">
+            <label>
+              Instrument
+              <select name="instrument">
+                <option value="NQ">NQ</option>
+                <option value="ES">ES</option>
+              </select>
+            </label>
+            <label>
+              Timeframe
+              <select name="timeframe">
+                <option value="1">1M</option>
+                <option value="2">2M</option>
+                <option value="5">5M</option>
+                <option value="15">15M</option>
+                <option value="60">1H</option>
+              </select>
+            </label>
+            <label>
+              Start
+              <input name="sessionStart" type="datetime-local" value="2026-06-01T09:30">
+            </label>
+            <label>
+              End
+              <input name="sessionEnd" type="datetime-local" value="2026-06-05T16:00">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" disabled>Create Session</button>
+            <span class="form-status">Creation action starts in Step 360.3</span>
+          </div>
+        </form>
+        <p>Session setup is UI-only in Step 360.1. No bars are loaded here.</p>
       `;
       return section;
     },
