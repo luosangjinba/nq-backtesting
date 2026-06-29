@@ -246,3 +246,44 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 367 - V5 Runtime Boundary Tightening
+
+Goal: tighten the architecture seams found during audit before adding more replay
+features, so V5 keeps commands as the explicit mutation path and avoids runtime
+contract drift.
+
+- [ ] Step 367.1: Convert replay runtime chart-event reactions to explicit
+  command dispatches, or document the exception with an ADR if the event-driven
+  mutation remains intentional.
+- [ ] Step 367.2: Add a boundary smoke that fails when event handlers directly
+  call replay mutation helpers instead of dispatching replay commands.
+- [ ] Step 367.3: Extract command/event names used by features into pure
+  contract modules so features do not import runtime implementation modules for
+  constants.
+- [ ] Step 367.4: Update existing features to use the new contracts while
+  preserving command/event behavior.
+- [ ] Step 367.5: Scope router navigation state updates to the app shell/root
+  instead of querying the full document.
+- [ ] Step 367.6: Add or update specs/ADR for runtime command contracts,
+  event-notification rules, and router lifecycle boundaries.
+
+Manual acceptance:
+
+- Events remain notifications; runtime state mutation happens through registered
+  commands except for any explicitly documented ADR exception.
+- Feature modules import only command/event contracts and generic command/event
+  bus APIs, not runtime implementations.
+- Router does not rely on global document scans for route-link state.
+- Existing replay controls, prefix demand, retention, and no-future-bars behavior
+  remain unchanged.
+
+Checks:
+
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/chart-boundary-smoke.js`
+- `node v5/tests/bar-data-boundary-smoke.js`
+- `node v5/tests/runtime-boundary-smoke.js` if added in this step
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
