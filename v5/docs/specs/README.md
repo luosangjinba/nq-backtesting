@@ -19,3 +19,5 @@ Specs should explain:
 
 - `fx-replay-initial-load.md`: stable rules for replay chart entry, wall-clock
   time semantics, initial display invariants, and verification harnesses.
+- `fx-replay-prefix-demand-retention.md`: stable rules for left-side prefix
+  demand detection, bounded older chunk loading, sparse merge, and retention.
