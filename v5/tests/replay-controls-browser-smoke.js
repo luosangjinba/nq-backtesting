@@ -194,7 +194,10 @@ async function main() {
           const terminalState = await commands.dispatchCommand('replay.getState');
           const terminalPlayback = await commands.dispatchCommand('replay.getPlaybackState');
           const terminalStatusText = document.querySelector('[data-replay-load-status]')?.textContent || '';
+          const terminalStartText = document.querySelector('[data-replay-start]')?.textContent || '';
           const terminalCursorText = document.querySelector('[data-replay-cursor]')?.textContent || '';
+          const terminalEndText = document.querySelector('[data-replay-end]')?.textContent || '';
+          const terminalRevealedText = document.querySelector('[data-replay-revealed-count]')?.textContent || '';
           const terminalPlaybackText = document.querySelector('[data-replay-playback]')?.textContent || '';
 
           const events = await import('/v5/src/runtime/events.js');
@@ -213,9 +216,13 @@ async function main() {
             pausedCount: paused.displayBars.length,
             afterPauseWaitCount: afterPauseWait.displayBars.length,
             terminalCount: terminalState.displayBars.length,
+            terminalRevealedCount: terminalState.revealedCount,
             terminalStoppedReason: terminalPlayback.stoppedReason,
             terminalStatusText,
+            startText: terminalStartText,
             cursorText: terminalCursorText,
+            endText: terminalEndText,
+            revealedText: terminalRevealedText,
             playbackText: terminalPlaybackText,
             chartCount: chartCountAfterPause,
             listenerCountsAfterNavigate,
@@ -236,12 +243,15 @@ async function main() {
     assert.ok(value.terminalCount > value.afterPauseWaitCount, 'Play should continue to session end');
     assert.equal(value.terminalStoppedReason, 'session-end');
     assert.equal(value.terminalStatusText, 'Replay stopped: session-end.');
+    assert.equal(value.startText, '2026-06-01T09:30:00.000Z');
     assert.deepEqual(value.listenerCountsAfterNavigate, {
       initialLoaded: 0,
       next: 0,
       playbackChanged: 0,
     });
-    assert.match(value.cursorText, /^2026-06-01T09:/);
+    assert.equal(value.cursorText, '2026-06-01T09:40:00.000Z');
+    assert.equal(value.endText, '2026-06-01T09:40:00.000Z');
+    assert.equal(value.revealedText, String(value.terminalRevealedCount));
     assert.equal(value.playbackText, 'Paused');
   } finally {
     client?.close();

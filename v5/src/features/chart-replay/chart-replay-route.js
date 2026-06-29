@@ -29,14 +29,20 @@ export function createChartReplayRoute() {
         </div>
         <p>Session: <strong>${sessionId}</strong></p>
         <div class="replay-status-grid" data-replay-status>
+          <span>Start <strong data-replay-start>--</strong></span>
           <span>Cursor <strong data-replay-cursor>--</strong></span>
+          <span>End <strong data-replay-end>--</strong></span>
+          <span>Revealed <strong data-replay-revealed-count>0</strong></span>
           <span>Playback <strong data-replay-playback>Paused</strong></span>
           <span>State <strong data-replay-state>Idle</strong></span>
         </div>
         <p data-replay-load-status>Waiting for replay session.</p>
       `;
       const status = section.querySelector('[data-replay-load-status]');
+      const startLabel = section.querySelector('[data-replay-start]');
       const cursorLabel = section.querySelector('[data-replay-cursor]');
+      const endLabel = section.querySelector('[data-replay-end]');
+      const revealedCountLabel = section.querySelector('[data-replay-revealed-count]');
       const playbackLabel = section.querySelector('[data-replay-playback]');
       const stateLabel = section.querySelector('[data-replay-state]');
       const nextButton = section.querySelector('[data-replay-next]');
@@ -56,7 +62,10 @@ export function createChartReplayRoute() {
         ]);
         playbackPlaying = Boolean(playback?.playing);
         terminalReason = playback?.stoppedReason || terminalReason;
+        startLabel.textContent = state?.startBarTimestamp || '--';
         cursorLabel.textContent = state?.cursorTimestamp || '--';
+        endLabel.textContent = state?.session?.sessionEnd || '--';
+        revealedCountLabel.textContent = String(state?.revealedCount || 0);
         playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
         stateLabel.textContent = terminalReason || state?.status || 'Idle';
         if (terminalReason) {
