@@ -215,3 +215,34 @@ Checks:
 - `node v5/tests/prefix-retention-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 366 - V5 Replay Controls UI
+
+Goal: expose the completed replay runtime behavior through usable chart-page
+controls without weakening runtime ownership boundaries.
+
+- [ ] Step 366.1: Add chart replay controls shell.
+- [ ] Step 366.2: Wire Next through replay runtime command dispatch.
+- [ ] Step 366.3: Wire Play/Pause through replay runtime command dispatch.
+- [ ] Step 366.4: Render replay status from runtime state/events.
+- [ ] Step 366.5: Add browser smoke for controls-driven replay progression.
+- [ ] Step 366.6: Add controls UI spec if behavior stabilizes.
+
+Manual acceptance:
+
+- Chart replay route shows compact controls for Next, Play, and Pause.
+- Controls dispatch replay commands only; UI does not mutate chart, bars, or
+  replay state directly.
+- Next reveals one active-timeframe bar and updates status.
+- Play advances repeatedly and Pause stops playback.
+- Controls show disabled/loading state while commands are in flight.
+- Browser smoke verifies user clicks, chart bar count/cursor movement, and
+  pause behavior.
+
+Checks:
+
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-play-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
