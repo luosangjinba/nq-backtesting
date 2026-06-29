@@ -92,14 +92,14 @@ try {
     sessionId: created.session.id,
     intervalMs: 25,
   });
-  assert.deepEqual(playing, { playing: true, intervalMs: 25 });
+  assert.deepEqual(playing, { playing: true, intervalMs: 25, stoppedReason: null });
   assert.equal(timers.size, 1);
 
   const duplicate = await dispatchCommand(REPLAY_COMMANDS.PLAY, {
     sessionId: created.session.id,
     intervalMs: 10,
   });
-  assert.deepEqual(duplicate, { playing: true, intervalMs: 25 });
+  assert.deepEqual(duplicate, { playing: true, intervalMs: 25, stoppedReason: null });
   assert.equal(timers.size, 1);
 
   const timer = timers.get(1);
@@ -112,7 +112,7 @@ try {
   assert.equal(timer.cleared, true);
   assert.deepEqual(
     await dispatchCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE),
-    { playing: false, intervalMs: 25 }
+    { playing: false, intervalMs: 25, stoppedReason: null }
   );
 
   const pausedCount = chartBars.length;
@@ -136,7 +136,7 @@ try {
   assert.equal(secondTimer.cleared, true);
   assert.deepEqual(
     await dispatchCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE),
-    { playing: false, intervalMs: 30 }
+    { playing: false, intervalMs: 30, stoppedReason: 'session-end' }
   );
 
   replayRuntime.stop();

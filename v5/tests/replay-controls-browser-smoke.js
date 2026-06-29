@@ -181,6 +181,29 @@ async function main() {
           const paused = await commands.dispatchCommand('replay.getState');
           await new Promise((resolve) => setTimeout(resolve, 700));
           const afterPauseWait = await commands.dispatchCommand('replay.getState');
+          const chartCountAfterPause = Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0);
+
+          document.querySelector('[data-replay-play]').click();
+          await waitFor('playback auto stopped at end', async () => {
+            const playback = await commands.dispatchCommand('replay.getPlaybackState');
+            return playback.playing === false && playback.stoppedReason === 'session-end';
+          }, 8000);
+          await waitFor('terminal label updated', () =>
+            document.querySelector('[data-replay-state]')?.textContent === 'session-end'
+          );
+          const terminalState = await commands.dispatchCommand('replay.getState');
+          const terminalPlayback = await commands.dispatchCommand('replay.getPlaybackState');
+          const terminalStatusText = document.querySelector('[data-replay-load-status]')?.textContent || '';
+          const terminalCursorText = document.querySelector('[data-replay-cursor]')?.textContent || '';
+          const terminalPlaybackText = document.querySelector('[data-replay-playback]')?.textContent || '';
+
+          const events = await import('/v5/src/runtime/events.js');
+          await commands.dispatchCommand('app.navigate', { routeId: 'setup' });
+          const listenerCountsAfterNavigate = {
+            initialLoaded: events.listenerCount('replay:initialLoaded'),
+            next: events.listenerCount('replay:next'),
+            playbackChanged: events.listenerCount('replay:playbackChanged'),
+          };
 
           return JSON.stringify({
             error: '',
@@ -189,9 +212,13 @@ async function main() {
             duringPlayCount: duringPlay.displayBars.length,
             pausedCount: paused.displayBars.length,
             afterPauseWaitCount: afterPauseWait.displayBars.length,
-            cursorText: document.querySelector('[data-replay-cursor]')?.textContent || '',
-            playbackText: document.querySelector('[data-replay-playback]')?.textContent || '',
-            chartCount: Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0),
+            terminalCount: terminalState.displayBars.length,
+            terminalStoppedReason: terminalPlayback.stoppedReason,
+            terminalStatusText,
+            cursorText: terminalCursorText,
+            playbackText: terminalPlaybackText,
+            chartCount: chartCountAfterPause,
+            listenerCountsAfterNavigate,
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -206,6 +233,14 @@ async function main() {
     assert.ok(value.duringPlayCount > value.afterNextCount, 'Play should advance replay');
     assert.equal(value.afterPauseWaitCount, value.pausedCount, 'Pause should stop replay advancement');
     assert.equal(value.chartCount, value.afterPauseWaitCount);
+    assert.ok(value.terminalCount > value.afterPauseWaitCount, 'Play should continue to session end');
+    assert.equal(value.terminalStoppedReason, 'session-end');
+    assert.equal(value.terminalStatusText, 'Replay stopped: session-end.');
+    assert.deepEqual(value.listenerCountsAfterNavigate, {
+      initialLoaded: 0,
+      next: 0,
+      playbackChanged: 0,
+    });
     assert.match(value.cursorText, /^2026-06-01T09:/);
     assert.equal(value.playbackText, 'Paused');
   } finally {

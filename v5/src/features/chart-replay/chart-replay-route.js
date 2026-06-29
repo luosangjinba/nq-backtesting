@@ -45,6 +45,7 @@ export function createChartReplayRoute() {
       let replayLoaded = false;
       let playbackPlaying = false;
       let terminalReason = '';
+      const unsubscribeCallbacks = [];
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
@@ -53,14 +54,18 @@ export function createChartReplayRoute() {
           dispatchCommand('replay.getPlaybackState').catch(() => null),
         ]);
         playbackPlaying = Boolean(playback?.playing);
+        terminalReason = playback?.stoppedReason || terminalReason;
         cursorLabel.textContent = state?.cursorTimestamp || '--';
         playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
         stateLabel.textContent = terminalReason || state?.status || 'Idle';
-        setControlsDisabled(false);
+        if (terminalReason) {
+          status.textContent = `Replay stopped: ${terminalReason}.`;
+        }
+        setControlsDisabled();
       }
 
-      function setControlsDisabled(disabled) {
-        const unavailable = disabled || !replayLoaded || !params.sessionId;
+      function setControlsDisabled(disabled = false) {
+        const unavailable = disabled || commandInFlight || !replayLoaded || !params.sessionId;
         nextButton.disabled = unavailable;
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
@@ -97,6 +102,7 @@ export function createChartReplayRoute() {
         }));
         if (!playback) return;
         playbackPlaying = Boolean(playback.playing);
+        terminalReason = '';
         status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
         await refreshReplayStatus();
       });
@@ -114,10 +120,16 @@ export function createChartReplayRoute() {
         'replay:next',
         'replay:playbackChanged',
       ].forEach((eventName) => {
-        subscribeEvent(eventName, () => {
+        const unsubscribe = subscribeEvent(eventName, () => {
           refreshReplayStatus();
         });
+        unsubscribeCallbacks.push(unsubscribe);
       });
+      section.dispose = () => {
+        while (unsubscribeCallbacks.length) {
+          unsubscribeCallbacks.pop()();
+        }
+      };
 
       if (params.sessionId) {
         setTimeout(async () => {

@@ -163,6 +163,7 @@ export function createReplayRuntime() {
     intervalMs: 500,
     timerId: null,
     advancing: false,
+    stoppedReason: null,
   };
   let emit = () => {};
   const loadedPrefixAnchors = new Set();
@@ -474,6 +475,7 @@ export function createReplayRuntime() {
     return {
       playing: playback.playing,
       intervalMs: playback.intervalMs,
+      stoppedReason: playback.stoppedReason,
     };
   }
 
@@ -493,7 +495,7 @@ export function createReplayRuntime() {
     try {
       const result = await next({ sessionId });
       if (!result.advanced) {
-        pause();
+        pause({ reason: result.reason || 'stopped' });
       }
     } finally {
       playback.advancing = false;
@@ -520,16 +522,18 @@ export function createReplayRuntime() {
       playing: true,
       intervalMs: normalizedInterval,
       timerId,
+      stoppedReason: null,
     });
   }
 
-  function pause() {
+  function pause({ reason = null } = {}) {
     if (playback.timerId !== null && typeof clearTimer === 'function') {
       clearTimer(playback.timerId);
     }
     return setPlayback({
       playing: false,
       timerId: null,
+      stoppedReason: reason,
     });
   }
 
@@ -543,7 +547,7 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => applyPrefixRetention(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
-      registerCommand(REPLAY_COMMANDS.PAUSE, () => pause()),
+      registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => pause(payload)),
       registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state)),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
