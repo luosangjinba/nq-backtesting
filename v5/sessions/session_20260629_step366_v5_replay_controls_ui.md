@@ -69,6 +69,8 @@ Status: complete.
 - Rendered read-only replay status from runtime state/events.
 - Added `v5/tests/replay-controls-browser-smoke.js`.
 - Added `v5/docs/specs/fx-replay-controls-ui.md`.
+- Review follow-up: documented command in-flight refresh locking, playback
+  terminal stopped reasons, and route subscription cleanup in the controls spec.
 
 ## Boundaries
 
@@ -86,3 +88,13 @@ Status: complete.
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Review Follow-Up
+
+- Controls must stay disabled while a command is in flight, even if replay events
+  refresh status before the command resolves.
+- Play auto-stop at session end must surface `stoppedReason: "session-end"` from
+  replay runtime playback state; manual Pause leaves stopped reason empty.
+- Chart replay route event subscriptions must be disposed when navigating away.
+- `v5/tests/replay-controls-browser-smoke.js` covers terminal stop display and
+  listener cleanup.

@@ -37,6 +37,8 @@ Rules:
 
 - controls remain disabled until initial replay loading completes;
 - controls are disabled while a command is in flight;
+- event-driven status refreshes must not re-enable controls while a command is
+  still in flight;
 - Play is disabled while playback is active;
 - Pause is disabled while playback is inactive;
 - terminal replay state must not expose future bars.
@@ -49,10 +51,28 @@ The controls UI renders read-only status from runtime state/events:
 - cursor comes from `replay.getState`;
 - playback state comes from `replay.getPlaybackState` and replay playback
   events;
-- terminal reason may be shown after a command returns no advancement.
+- terminal reason comes from replay runtime playback state.
 
 The UI may keep local view state for command in-flight handling and labels, but
 must not treat local state as authoritative replay state.
+
+When Play advances to session end, replay runtime exposes
+`stoppedReason: "session-end"` through `replay.getPlaybackState`. The controls
+UI must show that terminal reason in the replay state label and status message.
+Manual Pause does not set a terminal stopped reason.
+
+## Route Lifecycle
+
+The chart replay route may subscribe to replay events for read-only refreshes.
+Those subscriptions must be disposed when the route is replaced.
+
+Rules:
+
+- route render may attach event subscriptions;
+- route replacement must call the rendered route element's cleanup hook when it
+  exists;
+- replay controls must not leave `replay:initialLoaded`, `replay:next`, or
+  `replay:playbackChanged` listeners behind after navigating away.
 
 ## Browser Verification
 
@@ -65,7 +85,9 @@ chain:
 4. click Next and verify one-bar advancement;
 5. click Play and verify repeated advancement;
 6. click Pause and verify advancement stops;
-7. verify chart bar count matches replay display count.
+7. verify chart bar count matches replay display count;
+8. resume Play and verify automatic stop at `session-end`;
+9. navigate away and verify replay event subscriptions are cleaned up.
 
 The browser smoke may use synthetic bars to isolate controls behavior from V4
 data availability. Wall-clock request semantics are covered by the initial-load
