@@ -3,6 +3,11 @@
 This spec defines the stable V5 rules for loading older replay context after the
 initial replay display has been rendered.
 
+Status: this is the Step 365 MVP rule set. It remains the current implemented
+baseline until Step 369 replaces prefix-only history loading with viewport
+display windows and cache reuse. For the Step 369 target behavior, read
+`fx-replay-viewport-display-cache.md`.
+
 ## Scope
 
 Applies after initial chart entry:

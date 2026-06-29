@@ -326,3 +326,56 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 369 - V5 Viewport-Based Multi-Timeframe Display Cache
+
+Goal: make FX Replay display history behave like a viewport-driven chart across
+all display timeframes, without weakening replay cursor ownership or preloading
+full history.
+
+- [ ] Step 369.1: Write the viewport display cache spec.
+- [ ] Step 369.2: Define `replayTimeframe` versus `displayTimeframe` contracts.
+- [ ] Step 369.3: Replace prefix-only demand semantics with viewport missing
+  window demand.
+- [ ] Step 369.4: Add display-window cache retention that keeps recently loaded
+  windows available for smooth right-drag return.
+- [ ] Step 369.5: Support arbitrary display timeframe switching through replay
+  runtime commands.
+- [ ] Step 369.6: Guard higher-timeframe bars against future leakage relative to
+  the replay cursor.
+- [ ] Step 369.7: Add chart controls for display timeframe switching through
+  command dispatch only.
+- [ ] Step 369.8: Add smoke/browser coverage for viewport lazy loading,
+  timeframe switching, cache reuse, and no-future display.
+
+Manual acceptance:
+
+- Session creation still does not load bars or full date ranges into chart
+  state.
+- `session.timeframe` remains the replay progression timeframe; Next/Play reveal
+  exactly one replay-timeframe bar at a time.
+- `displayTimeframe` can be changed independently across supported chart
+  timeframes.
+- For every display timeframe, visible chart bars must not expose data to the
+  right of the current replay cursor.
+- Session start is not a left boundary. Users can pan left and keep requesting
+  older display windows until the data source has no more bars.
+- Leftward history loading is viewport-driven and bounded; V5 must not preload
+  all left history or the whole replay session range.
+- Loaded display windows are cached by instrument/timeframe/range. Dragging back
+  into a cached area should re-render from cache without a new bars fetch.
+- Cache release is delayed and explicit, based on capacity/distance policy, not
+  immediate off-screen release.
+- Feature/UI modules dispatch commands and subscribe to events; they do not
+  request bars, mutate replay cursor/display state, or write chart series
+  directly.
+
+Checks:
+
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-window-cache-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
