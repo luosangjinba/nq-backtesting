@@ -204,6 +204,8 @@ export function createReplayRuntime() {
       count: 2,
     });
     const startBar = selectStartBar(window.bars, session.sessionStart);
+    loadedPrefixAnchors.clear();
+    loadingPrefixAnchors.clear();
 
     state = {
       ...state,
@@ -215,6 +217,8 @@ export function createReplayRuntime() {
       cursorTimestamp: startBar.time,
       revealedCount: 0,
       prefixBars: [],
+      prefixChunks: [],
+      releasedPrefixChunks: [],
       displayBars: [],
       viewportMetrics: null,
       status: 'start-resolved',

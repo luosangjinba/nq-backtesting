@@ -19,6 +19,7 @@ const commands = [
   ['node', ['v5/tests/replay-cursor-persistence-smoke.js']],
   ['node', ['v5/tests/replay-restore-smoke.js']],
   ['node', ['v5/tests/replay-reset-smoke.js']],
+  ['node', ['v5/tests/replay-session-switch-smoke.js']],
   ['node', ['v5/tests/replay-session-end-smoke.js']],
   ['node', ['v5/tests/replay-right-pan-smoke.js']],
   ['node', ['v5/tests/prefix-demand-detect-smoke.js']],
