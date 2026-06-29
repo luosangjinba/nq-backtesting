@@ -42,6 +42,8 @@ Status: complete.
   - terminal state when session end is reached.
 - Keep status display read-only.
 
+Status: complete.
+
 ### Step 366.5 - Browser Smoke
 
 - Add `v5/tests/replay-controls-browser-smoke.js`.

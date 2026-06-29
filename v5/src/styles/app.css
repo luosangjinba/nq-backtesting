@@ -209,6 +209,31 @@ input {
   opacity: 0.45;
 }
 
+.replay-status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.replay-status-grid span {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid #28313d;
+  border-radius: 6px;
+  background: #101722;
+}
+
+.replay-status-grid strong {
+  color: #dbeafe;
+  font-weight: 700;
+}
+
 .chart-runtime-canvas {
   width: 100%;
   max-width: 100%;

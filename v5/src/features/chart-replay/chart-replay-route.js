@@ -1,4 +1,5 @@
 import { dispatchCommand } from '../../runtime/commands.js';
+import { subscribeEvent } from '../../runtime/events.js';
 
 export function createChartReplayRoute() {
   return {
@@ -26,15 +27,37 @@ export function createChartReplayRoute() {
           <span>Starting chart...</span>
         </div>
         <p>Session: <strong>${sessionId}</strong></p>
+        <div class="replay-status-grid" data-replay-status>
+          <span>Cursor <strong data-replay-cursor>--</strong></span>
+          <span>Playback <strong data-replay-playback>Paused</strong></span>
+          <span>State <strong data-replay-state>Idle</strong></span>
+        </div>
         <p data-replay-load-status>Waiting for replay session.</p>
       `;
       const status = section.querySelector('[data-replay-load-status]');
+      const cursorLabel = section.querySelector('[data-replay-cursor]');
+      const playbackLabel = section.querySelector('[data-replay-playback]');
+      const stateLabel = section.querySelector('[data-replay-state]');
       const nextButton = section.querySelector('[data-replay-next]');
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
+      let terminalReason = '';
+
+      async function refreshReplayStatus() {
+        if (!section.isConnected && section.parentElement === null) return;
+        const [state, playback] = await Promise.all([
+          dispatchCommand('replay.getState').catch(() => null),
+          dispatchCommand('replay.getPlaybackState').catch(() => null),
+        ]);
+        playbackPlaying = Boolean(playback?.playing);
+        cursorLabel.textContent = state?.cursorTimestamp || '--';
+        playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
+        stateLabel.textContent = terminalReason || state?.status || 'Idle';
+        setControlsDisabled(false);
+      }
 
       function setControlsDisabled(disabled) {
         const unavailable = disabled || !replayLoaded || !params.sessionId;
@@ -60,9 +83,11 @@ export function createChartReplayRoute() {
           sessionId: params.sessionId,
         }));
         if (!state) return;
+        terminalReason = state.advanced ? '' : state.reason || 'stopped';
         status.textContent = state.advanced
           ? `Loaded ${state.displayBars.length} bars.`
           : `Replay stopped: ${state.reason || 'no next bar'}.`;
+        await refreshReplayStatus();
       });
 
       playButton.addEventListener('click', async () => {
@@ -73,7 +98,7 @@ export function createChartReplayRoute() {
         if (!playback) return;
         playbackPlaying = Boolean(playback.playing);
         status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
-        setControlsDisabled(false);
+        await refreshReplayStatus();
       });
 
       pauseButton.addEventListener('click', async () => {
@@ -81,7 +106,17 @@ export function createChartReplayRoute() {
         if (!playback) return;
         playbackPlaying = Boolean(playback.playing);
         status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
-        setControlsDisabled(false);
+        await refreshReplayStatus();
+      });
+
+      [
+        'replay:initialLoaded',
+        'replay:next',
+        'replay:playbackChanged',
+      ].forEach((eventName) => {
+        subscribeEvent(eventName, () => {
+          refreshReplayStatus();
+        });
       });
 
       if (params.sessionId) {
@@ -94,6 +129,7 @@ export function createChartReplayRoute() {
             });
             replayLoaded = true;
             status.textContent = `Loaded ${state.displayBars.length} bars.`;
+            await refreshReplayStatus();
           } catch (error) {
             status.textContent = error?.message || String(error);
           } finally {
@@ -101,6 +137,7 @@ export function createChartReplayRoute() {
           }
         }, 0);
       }
+      refreshReplayStatus();
       return section;
     },
   };
