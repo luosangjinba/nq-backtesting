@@ -13,16 +13,15 @@
           <div class="eyebrow">V5</div>
           <h1>FX Replay</h1>
         </div>
-        <div class="runtime-badge">Shell</div>
+        <nav class="route-tabs" aria-label="V5 routes">
+          <button type="button" data-route-link="setup">Setup</button>
+          <button type="button" data-route-link="chart">Chart</button>
+        </nav>
       </header>
-      <main class="workspace">
+      <main class="workspace" data-route-outlet>
         <section class="panel">
-          <h2>Session Setup</h2>
-          <p>V5 shell is ready for the setup route.</p>
-        </section>
-        <section class="panel panel-muted">
-          <h2>Chart Replay</h2>
-          <p>Chart, bars, and replay runtime are intentionally not loaded yet.</p>
+          <h2>Loading</h2>
+          <p>Starting V5 shell.</p>
         </section>
       </main>
     </div>

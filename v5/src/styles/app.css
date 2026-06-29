@@ -54,7 +54,8 @@ h1 {
   line-height: 1.2;
 }
 
-.runtime-badge {
+.runtime-badge,
+.route-tabs button {
   padding: 5px 10px;
   border: 1px solid #334155;
   border-radius: 6px;
@@ -62,23 +63,32 @@ h1 {
   font-size: 12px;
 }
 
+.route-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.route-tabs button {
+  cursor: pointer;
+  background: #101722;
+}
+
+.route-tabs button[aria-current] {
+  border-color: #38bdf8;
+  color: #eff6ff;
+  background: #12304a;
+}
+
 .workspace {
-  display: grid;
-  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
-  gap: 16px;
   padding: 16px;
 }
 
 .panel {
-  min-height: 240px;
+  min-height: calc(100vh - 96px);
   padding: 16px;
   border: 1px solid #2d3745;
   border-radius: 8px;
   background: #141a22;
-}
-
-.panel-muted {
-  background: #111821;
 }
 
 .panel h2 {
@@ -92,8 +102,57 @@ h1 {
   line-height: 1.5;
 }
 
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+select,
+input {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #2d3745;
+  border-radius: 6px;
+  background: #0f141b;
+  color: #dbeafe;
+}
+
+.chart-placeholder {
+  min-height: 420px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  border: 1px solid #28313d;
+  background: #0d1219;
+  color: #64748b;
+  font-size: 13px;
+}
+
 @media (max-width: 760px) {
-  .workspace {
+  .top-bar,
+  .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-grid {
     grid-template-columns: 1fr;
   }
 }
