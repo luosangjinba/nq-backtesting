@@ -51,6 +51,8 @@ Status: complete.
   verify chart bars/cursor advance, click Play, verify repeated advance, click
   Pause, and verify playback stops.
 
+Status: complete.
+
 ### Step 366.6 - Controls Spec
 
 - Add a short controls UI spec only after the interaction model stabilizes.
