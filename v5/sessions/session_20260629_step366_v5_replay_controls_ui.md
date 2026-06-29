@@ -31,6 +31,8 @@ Status: complete.
 - Playback state comes from replay runtime command/event state, not UI-owned
   replay state.
 
+Status: complete.
+
 ### Step 366.4 - Replay Status
 
 - Render status from replay runtime state/events:

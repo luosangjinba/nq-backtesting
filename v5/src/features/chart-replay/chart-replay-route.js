@@ -30,11 +30,17 @@ export function createChartReplayRoute() {
       `;
       const status = section.querySelector('[data-replay-load-status]');
       const nextButton = section.querySelector('[data-replay-next]');
+      const playButton = section.querySelector('[data-replay-play]');
+      const pauseButton = section.querySelector('[data-replay-pause]');
       let commandInFlight = false;
       let replayLoaded = false;
+      let playbackPlaying = false;
 
       function setControlsDisabled(disabled) {
-        nextButton.disabled = disabled || !replayLoaded || !params.sessionId;
+        const unavailable = disabled || !replayLoaded || !params.sessionId;
+        nextButton.disabled = unavailable;
+        playButton.disabled = unavailable || playbackPlaying;
+        pauseButton.disabled = unavailable || !playbackPlaying;
       }
 
       async function runReplayCommand(action) {
@@ -57,6 +63,25 @@ export function createChartReplayRoute() {
         status.textContent = state.advanced
           ? `Loaded ${state.displayBars.length} bars.`
           : `Replay stopped: ${state.reason || 'no next bar'}.`;
+      });
+
+      playButton.addEventListener('click', async () => {
+        const playback = await runReplayCommand(() => dispatchCommand('replay.play', {
+          sessionId: params.sessionId,
+          intervalMs: 500,
+        }));
+        if (!playback) return;
+        playbackPlaying = Boolean(playback.playing);
+        status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
+        setControlsDisabled(false);
+      });
+
+      pauseButton.addEventListener('click', async () => {
+        const playback = await runReplayCommand(() => dispatchCommand('replay.pause'));
+        if (!playback) return;
+        playbackPlaying = Boolean(playback.playing);
+        status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
+        setControlsDisabled(false);
       });
 
       if (params.sessionId) {
