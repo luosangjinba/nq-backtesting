@@ -8,6 +8,9 @@ export const REPLAY_COMMANDS = Object.freeze({
   LOAD_INITIAL_PREFIX: 'replay.loadInitialPrefix',
   LOAD_INITIAL_SESSION: 'replay.loadInitialSession',
   NEXT: 'replay.next',
+  PLAY: 'replay.play',
+  PAUSE: 'replay.pause',
+  GET_PLAYBACK_STATE: 'replay.getPlaybackState',
   GET_STATE: 'replay.getState',
 });
 
@@ -16,6 +19,7 @@ export const REPLAY_EVENTS = Object.freeze({
   PREFIX_LOADED: 'replay:prefixLoaded',
   INITIAL_LOADED: 'replay:initialLoaded',
   NEXT: 'replay:next',
+  PLAYBACK_CHANGED: 'replay:playbackChanged',
 });
 
 const DEFAULT_PREFIX_BARS = 119;
@@ -91,7 +95,15 @@ export function assertNoFutureDisplayBars(displayBars = [], startBar) {
 
 export function createReplayRuntime() {
   const unregisterCallbacks = [];
+  const setTimer = globalThis.setInterval?.bind(globalThis);
+  const clearTimer = globalThis.clearInterval?.bind(globalThis);
   let state = emptyState();
+  let playback = {
+    playing: false,
+    intervalMs: 500,
+    timerId: null,
+    advancing: false,
+  };
   let emit = () => {};
 
   async function resolveStartBar({ sessionId } = {}) {
@@ -253,6 +265,69 @@ export function createReplayRuntime() {
     return result;
   }
 
+  function playbackSnapshot() {
+    return {
+      playing: playback.playing,
+      intervalMs: playback.intervalMs,
+    };
+  }
+
+  function setPlayback(nextPlayback) {
+    playback = {
+      ...playback,
+      ...nextPlayback,
+    };
+    const snapshot = playbackSnapshot();
+    emit(REPLAY_EVENTS.PLAYBACK_CHANGED, snapshot);
+    return snapshot;
+  }
+
+  async function playTick(sessionId) {
+    if (playback.advancing || !playback.playing) return;
+    playback.advancing = true;
+    try {
+      const result = await next({ sessionId });
+      if (!result.advanced) {
+        pause();
+      }
+    } finally {
+      playback.advancing = false;
+    }
+  }
+
+  function play({ sessionId = state.sessionId, intervalMs = 500 } = {}) {
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    const normalizedInterval = Number(intervalMs);
+    if (!Number.isFinite(normalizedInterval) || normalizedInterval <= 0) {
+      throw new Error('replay play intervalMs must be a positive number.');
+    }
+    if (playback.playing) {
+      return playbackSnapshot();
+    }
+    if (typeof setTimer !== 'function' || typeof clearTimer !== 'function') {
+      throw new Error('replay playback timers are unavailable.');
+    }
+
+    const timerId = setTimer(() => playTick(sessionId), normalizedInterval);
+    return setPlayback({
+      playing: true,
+      intervalMs: normalizedInterval,
+      timerId,
+    });
+  }
+
+  function pause() {
+    if (playback.timerId !== null && typeof clearTimer === 'function') {
+      clearTimer(playback.timerId);
+    }
+    return setPlayback({
+      playing: false,
+      timerId: null,
+    });
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
@@ -260,6 +335,9 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
+      registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
+      registerCommand(REPLAY_COMMANDS.PAUSE, () => pause()),
+      registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state))
     );
   }
@@ -268,6 +346,7 @@ export function createReplayRuntime() {
     while (unregisterCallbacks.length) {
       unregisterCallbacks.pop()();
     }
+    pause();
     state = emptyState();
   }
 
