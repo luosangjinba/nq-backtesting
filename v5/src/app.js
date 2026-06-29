@@ -2,6 +2,7 @@ import { dispatchCommand, registerCommand } from './runtime/commands.js';
 import { emitEvent } from './runtime/events.js';
 import { registerModule, startModules } from './runtime/module-registry.js';
 import { createRouter } from './runtime/router.js';
+import { createChartRuntime } from './runtime/chart-runtime.js';
 import { createSessionRuntime } from './runtime/session-runtime.js';
 import { createChartReplayRoute } from './features/chart-replay/chart-replay-route.js';
 import { createSessionSetupRoute } from './features/session-setup/session-setup-route.js';
@@ -30,6 +31,7 @@ registerModule({
     router.start();
   },
 });
+registerModule(createChartRuntime());
 registerModule(createSessionRuntime());
 
 root.addEventListener('click', (event) => {

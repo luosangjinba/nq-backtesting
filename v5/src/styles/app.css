@@ -164,13 +164,29 @@ input {
   color: #dbeafe;
 }
 
-.chart-placeholder {
+.chart-host {
   min-height: 420px;
-  display: grid;
-  place-items: center;
   margin-bottom: 16px;
   border: 1px solid #28313d;
   background: #0d1219;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.chart-runtime-canvas {
+  min-height: 418px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(#16202c 1px, transparent 1px),
+    linear-gradient(90deg, #16202c 1px, transparent 1px),
+    #0d1219;
+  background-size: 48px 48px;
+}
+
+.chart-empty-state {
   color: #64748b;
   font-size: 13px;
 }

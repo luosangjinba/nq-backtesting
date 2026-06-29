@@ -15,11 +15,11 @@ export function createChartReplayRoute() {
           </div>
           <span class="runtime-badge">Chart Route</span>
         </div>
-        <div class="chart-placeholder" role="img" aria-label="Chart runtime placeholder">
-          <span>Chart runtime starts in Step 361</span>
+        <div class="chart-host" data-chart-host>
+          <span>Starting chart...</span>
         </div>
         <p>Session: <strong>${sessionId}</strong></p>
-        <p>Chart, bars, and replay runtime are intentionally absent in Step 360.</p>
+        <p>Bars and replay runtime are intentionally absent in Step 361.</p>
       `;
       return section;
     },
