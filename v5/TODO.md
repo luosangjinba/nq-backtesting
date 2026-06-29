@@ -253,19 +253,19 @@ Goal: tighten the architecture seams found during audit before adding more repla
 features, so V5 keeps commands as the explicit mutation path and avoids runtime
 contract drift.
 
-- [ ] Step 367.1: Convert replay runtime chart-event reactions to explicit
+- [x] Step 367.1: Convert replay runtime chart-event reactions to explicit
   command dispatches, or document the exception with an ADR if the event-driven
   mutation remains intentional.
-- [ ] Step 367.2: Add a boundary smoke that fails when event handlers directly
+- [x] Step 367.2: Add a boundary smoke that fails when event handlers directly
   call replay mutation helpers instead of dispatching replay commands.
-- [ ] Step 367.3: Extract command/event names used by features into pure
+- [x] Step 367.3: Extract command/event names used by features into pure
   contract modules so features do not import runtime implementation modules for
   constants.
-- [ ] Step 367.4: Update existing features to use the new contracts while
+- [x] Step 367.4: Update existing features to use the new contracts while
   preserving command/event behavior.
-- [ ] Step 367.5: Scope router navigation state updates to the app shell/root
+- [x] Step 367.5: Scope router navigation state updates to the app shell/root
   instead of querying the full document.
-- [ ] Step 367.6: Add or update specs/ADR for runtime command contracts,
+- [x] Step 367.6: Add or update specs/ADR for runtime command contracts,
   event-notification rules, and router lifecycle boundaries.
 
 Manual acceptance:
@@ -277,13 +277,14 @@ Manual acceptance:
 - Router does not rely on global document scans for route-link state.
 - Existing replay controls, prefix demand, retention, and no-future-bars behavior
   remain unchanged.
+- Runtime boundary rules are documented in `runtime-boundary-contracts.md`.
 
 Checks:
 
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/chart-boundary-smoke.js`
 - `node v5/tests/bar-data-boundary-smoke.js`
-- `node v5/tests/runtime-boundary-smoke.js` if added in this step
+- `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

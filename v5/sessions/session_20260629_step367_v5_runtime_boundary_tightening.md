@@ -33,7 +33,7 @@ more user-facing replay behavior.
 - If direct event-driven mutation is intentionally kept, write an ADR that
   names the exception and its limits.
 
-Status: pending.
+Status: complete.
 
 ### Step 367.2 - Event Mutation Boundary Harness
 
@@ -42,7 +42,7 @@ Status: pending.
 - If an ADR exception is chosen in 367.1, the harness should enforce the
   documented exception shape rather than a vague rule.
 
-Status: pending.
+Status: complete.
 
 ### Step 367.3 - Pure Command/Event Contracts
 
@@ -52,7 +52,7 @@ Status: pending.
 - Runtime implementation modules can continue to import and register the same
   contract names.
 
-Status: pending.
+Status: complete.
 
 ### Step 367.4 - Feature Contract Migration
 
@@ -60,7 +60,7 @@ Status: pending.
 - Preserve existing command names and browser behavior.
 - Keep feature modules free of runtime implementation imports.
 
-Status: pending.
+Status: complete.
 
 ### Step 367.5 - Router Root Scope
 
@@ -69,7 +69,7 @@ Status: pending.
   shell updates nav UI.
 - Preserve route dispose behavior added during Step 366 review follow-up.
 
-Status: pending.
+Status: complete.
 
 ### Step 367.6 - Boundary Docs
 
@@ -78,12 +78,22 @@ Status: pending.
   - events as notifications, not hidden mutations;
   - router lifecycle/root-scoping rules.
 
-Status: pending.
+Status: complete.
+
+## Completed
+
+- Routed replay runtime chart-event reactions through replay command dispatch.
+- Added `v5/tests/runtime-boundary-smoke.js` and included it in
+  `v5/scripts/smoke_all.js`.
+- Added pure command/event contracts under `v5/src/contracts/`.
+- Migrated feature routes to contract imports plus generic command/event buses.
+- Scoped router route-link updates to the app shell/root.
+- Added `v5/docs/specs/runtime-boundary-contracts.md`.
 
 ## Manual Acceptance
 
-- Events remain notification channels unless a narrow ADR exception says
-  otherwise.
+- Events remain notification channels; direct event-driven mutation exceptions
+  require a future ADR.
 - Runtime state mutation remains observable through registered commands.
 - Feature routes import command/event contracts and generic buses, not runtime
   implementation modules.
@@ -95,7 +105,7 @@ Status: pending.
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/chart-boundary-smoke.js`
 - `node v5/tests/bar-data-boundary-smoke.js`
-- `node v5/tests/runtime-boundary-smoke.js` if added in this step
+- `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

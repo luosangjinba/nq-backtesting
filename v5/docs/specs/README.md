@@ -23,3 +23,5 @@ Specs should explain:
   demand detection, bounded older chunk loading, sparse merge, and retention.
 - `fx-replay-controls-ui.md`: stable rules for chart replay controls, command
   dispatch, read-only status, and browser verification.
+- `runtime-boundary-contracts.md`: stable rules for pure command/event
+  contracts, event notification boundaries, and router root-scoped lifecycle.
