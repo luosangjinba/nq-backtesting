@@ -60,7 +60,7 @@ display choices.
 - [x] Step 373.3: Wire chart runtime/status presentation consumers for time
   format, status fields, chart margins, right offset, and crosshair readout
   state.
-- [ ] Step 373.4: Add lightweight UI controls/browser coverage, full smoke,
+- [x] Step 373.4: Add lightweight UI controls/browser coverage, full smoke,
   and final handoff updates.
 
 Manual acceptance:

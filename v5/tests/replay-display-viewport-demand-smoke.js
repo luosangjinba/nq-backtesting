@@ -110,6 +110,13 @@ assert.deepEqual(context.displayContext, {
   loadedCoverage: null,
   displayTimezone: 'Exchange',
   exchangeTimezone: 'America/New_York',
+  timeFormat: '24h',
+  showCrosshairReadout: true,
+  margins: {
+    topPercent: 10,
+    bottomPercent: 8,
+  },
+  rightOffsetBars: 10,
 });
 assert.equal(context.viewportDemand, null);
 

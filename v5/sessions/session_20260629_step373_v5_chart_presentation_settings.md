@@ -65,7 +65,50 @@ Completed:
   replay state.
 - Run full V5 smoke and update this handoff.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added lightweight chart-route presentation controls for `24h/12h`, OHLC,
+  change, crosshair, compact margins, and right offset.
+- Added CSS so presentation controls share the existing compact chart-control
+  treatment.
+- Added `v5/tests/chart-presentation-browser-smoke.js`.
+- Added the browser smoke to `v5/scripts/smoke_all.js`.
+- Browser coverage verifies presentation changes update labels/layout while
+  replay cursor, display bar count, and `/v4/bars` request count remain
+  unchanged.
+
+## Completed
+
+- Added `v5/docs/specs/chart-presentation-settings.md`.
+- Added chart presentation command/event contracts.
+- Added `createChartPresentationRuntime` and registered it in the V5 app shell.
+- Chart runtime now consumes presentation settings for candle title time format,
+  chart margins, right offset, and crosshair readout state.
+- Chart replay route status now exposes OHLC/change rows controlled by
+  presentation settings.
+- Added lightweight route controls for the initial presentation settings
+  foundation.
+- Added runtime, chart runtime, and browser smoke coverage.
+
+## Verified
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Notes For Next Session
+
+Step 373 is complete. Future FXReplay-style settings should extend the
+presentation settings schema/runtime instead of adding one-off feature state.
+Reasonable next additions are axis formatter wiring, richer crosshair readout,
+and persisted user/workspace settings. Avoid template systems and full color
+editors until the chart runtime has a real axis/tooltip surface.
 
 ## Manual Acceptance
 

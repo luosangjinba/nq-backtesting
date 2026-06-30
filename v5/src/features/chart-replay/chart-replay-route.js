@@ -44,6 +44,15 @@ export function createChartReplayRoute() {
           <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
           <button type="button" data-display-timezone="America/Los_Angeles" aria-pressed="false">Los Angeles</button>
         </div>
+        <div class="presentation-controls" data-presentation-controls>
+          <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
+          <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
+          <button type="button" data-presentation-toggle="showStatusOhlc" aria-pressed="false">OHLC</button>
+          <button type="button" data-presentation-toggle="showStatusChange" aria-pressed="false">Change</button>
+          <button type="button" data-presentation-toggle="showCrosshairReadout" aria-pressed="false">Crosshair</button>
+          <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
+          <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
+        </div>
         <div class="chart-host" data-chart-host>
           <span>Starting chart...</span>
         </div>
@@ -78,6 +87,10 @@ export function createChartReplayRoute() {
       const resetButton = section.querySelector('[data-replay-reset]');
       const displayTimeframeButtons = Array.from(section.querySelectorAll('[data-display-timeframe]'));
       const displayTimezoneButtons = Array.from(section.querySelectorAll('[data-display-timezone]'));
+      const presentationTimeFormatButtons = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
+      const presentationToggleButtons = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
+      const presentationMarginButtons = Array.from(section.querySelectorAll('[data-presentation-margin]'));
+      const presentationRightOffsetButtons = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
@@ -133,6 +146,7 @@ export function createChartReplayRoute() {
         }
         updateDisplayTimeframeButtons();
         updateDisplayTimezoneButtons();
+        updatePresentationButtons();
         setControlsDisabled();
       }
 
@@ -181,6 +195,28 @@ export function createChartReplayRoute() {
       function updateDisplayTimezoneButtons() {
         displayTimezoneButtons.forEach((button) => {
           const pressed = button.dataset.displayTimezone === displayTimezone;
+          button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        });
+      }
+
+      function updatePresentationButtons() {
+        presentationTimeFormatButtons.forEach((button) => {
+          button.setAttribute(
+            'aria-pressed',
+            button.dataset.presentationTimeFormat === presentationSettings.timeFormat ? 'true' : 'false'
+          );
+        });
+        presentationToggleButtons.forEach((button) => {
+          const key = button.dataset.presentationToggle;
+          button.setAttribute('aria-pressed', presentationSettings[key] ? 'true' : 'false');
+        });
+        presentationMarginButtons.forEach((button) => {
+          const compact = presentationSettings.margins?.topPercent === 6
+            && presentationSettings.margins?.bottomPercent === 6;
+          button.setAttribute('aria-pressed', compact ? 'true' : 'false');
+        });
+        presentationRightOffsetButtons.forEach((button) => {
+          const pressed = Number(button.dataset.presentationRightOffset) === Number(presentationSettings.rightOffsetBars);
           button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
         });
       }
@@ -284,6 +320,53 @@ export function createChartReplayRoute() {
           await syncChartDisplayTimezone();
           updateDisplayTimezoneButtons();
           await refreshReplayStatus();
+        });
+      });
+
+      presentationTimeFormatButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const timeFormat = button.dataset.presentationTimeFormat;
+          if (!timeFormat || timeFormat === presentationSettings.timeFormat) return;
+          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { timeFormat });
+          await syncChartPresentationSettings();
+          updatePresentationButtons();
+          await refreshReplayStatus();
+        });
+      });
+
+      presentationToggleButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const key = button.dataset.presentationToggle;
+          if (!key) return;
+          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
+            [key]: !presentationSettings[key],
+          });
+          await syncChartPresentationSettings();
+          updatePresentationButtons();
+          await refreshReplayStatus();
+        });
+      });
+
+      presentationMarginButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
+            margins: {
+              topPercent: 6,
+              bottomPercent: 6,
+            },
+          });
+          await syncChartPresentationSettings();
+          updatePresentationButtons();
+        });
+      });
+
+      presentationRightOffsetButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
+            rightOffsetBars: Number(button.dataset.presentationRightOffset),
+          });
+          await syncChartPresentationSettings();
+          updatePresentationButtons();
         });
       });
 
