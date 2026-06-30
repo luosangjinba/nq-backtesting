@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 378 is complete.
-- Next candidate: Step 379 should continue Phase 3 chart interaction, likely
-  crosshair readout or axis/tooltip formatting, unless a review-foundation
-  planning step is explicitly promoted before Phase 4.
-- Step 378 advanced Historical Replay Review by adding minimal real chart
-  drag/zoom input without weakening no-future replay boundaries.
+- Current status: Step 379 is in progress.
+- Current step: Step 379 introduces a local Lightweight Charts production load
+  path for V5 before further chart interaction polish.
+- Step 379 advances Historical Replay Review by replacing the visible default
+  DOM fallback with the real chart engine while preserving no-future replay
+  boundaries.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -763,5 +763,42 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 379 - V5 Lightweight Charts Production Load
+
+Goal: make V5's static page load the real Lightweight Charts engine by default,
+while retaining the DOM fallback for offline/unit harnesses and preserving the
+chart/replay/bar-data ownership boundaries.
+
+- [x] Step 379.1: Add Step 379 TODO/session plan and update chart-engine spec.
+- [ ] Step 379.2: Vendor a pinned Lightweight Charts standalone build and load
+  it before the V5 app module.
+- [ ] Step 379.3: Verify the browser route uses the `lightweight-charts` adapter
+  path by default and still preserves manual follow/no-future invariants.
+- [ ] Step 379.4: Run full smoke, update handoff, and mark the step complete.
+
+Manual acceptance:
+
+- Opening `v5/index.html` with the local server loads `window.LightweightCharts`
+  before `v5/src/app.js`.
+- The chart host reports `data-chart-engine="lightweight-charts"` in the normal
+  browser route.
+- The DOM fallback remains available for deterministic unit/runtime tests when
+  `window.LightweightCharts` is absent.
+- Chart runtime remains the only module creating/calling chart-engine instances.
+- Replay runtime still owns cursor, reveal state, and no-future display
+  invariants.
+- Bar data runtime remains the only owner of `/v4/bars` requests and cache.
+- Production chart packaging, crosshair polish, axis labels, go-to time,
+  orders, journal, dashboard, AI, SaaS auth, and billing remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

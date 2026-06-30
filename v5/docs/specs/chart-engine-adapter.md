@@ -8,12 +8,15 @@ without letting UI, replay, or bar-data modules own chart internals.
 ## Scope
 
 Step 377 introduces a chart-engine adapter boundary.
+Step 379 introduces the normal static-page loading path for the real
+Lightweight Charts standalone build.
 
 In scope:
 
 - a small adapter contract for mounting, setting bars, setting visible range,
   applying presentation settings, and destroying chart instances;
 - optional use of `window.LightweightCharts` when a real engine is available;
+- a local, pinned Lightweight Charts standalone script for the V5 static page;
 - a DOM fallback so local static smoke tests remain deterministic without
   network or package installation;
 - harnesses proving feature modules still do not call chart-engine APIs.
@@ -38,6 +41,9 @@ Out of scope:
   unavailable.
 - The fallback is a test/runtime compatibility path, not a separate product
   feature.
+- The default `v5/index.html` path should load a pinned local Lightweight Charts
+  script before `v5/src/app.js`, so normal browser use exercises the real chart
+  engine without a network dependency.
 - Visible range changes from the engine must be converted into chart-runtime
   manual visible range state before they affect the rest of V5.
 - Engine visible range changes may emit viewport demand, but must not request
@@ -72,6 +78,7 @@ Expected checks:
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
