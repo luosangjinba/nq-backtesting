@@ -60,7 +60,7 @@ Important correction from product review:
 - Define viewport demand windows and cache reuse rules.
 - Define no-future display semantics for all timeframes.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.2 - Contracts
 
@@ -157,6 +157,20 @@ Status: pending.
   - replay runtime owns cursor and display state;
   - UI dispatches commands and subscribes to events.
 
+## Completed
+
+- Added `v5/docs/specs/fx-replay-viewport-display-cache.md`.
+- Documented `replayTimeframe` versus `displayTimeframe`.
+- Documented viewport demand as missing display windows rather than prefix-only
+  demand.
+- Documented display-window cache reuse and delayed release as the Step 369
+  target behavior.
+- Documented cursor-bound no-future display rules for all supported timeframes,
+  including the higher-timeframe bar-completion caveat.
+- Updated `v5/docs/specs/README.md`.
+- Marked the older prefix demand/retention spec as the Step 365 MVP baseline
+  that Step 369 will supersede.
+
 ## Checks
 
 - `node v5/tests/replay-display-timeframe-smoke.js`
@@ -167,9 +181,14 @@ Status: pending.
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
+Verified for Step 369.1:
+
+- `git diff --check`
+
 ## Notes For Next Session
 
-Start by writing the spec and harness expectations before changing runtime code.
-The most important design choice is how to determine whether a higher-timeframe
-bar is complete relative to the replay cursor. Do not implement timeframe
-switching before that rule is explicit.
+Start Step 369.2 by defining command/event contracts and harness expectations
+before changing runtime behavior. The most important remaining design choice is
+how to determine whether a higher-timeframe bar is complete relative to the
+replay cursor. Do not implement timeframe switching before that rule is
+explicit.

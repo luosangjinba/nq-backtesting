@@ -333,7 +333,7 @@ Goal: make FX Replay display history behave like a viewport-driven chart across
 all display timeframes, without weakening replay cursor ownership or preloading
 full history.
 
-- [ ] Step 369.1: Write the viewport display cache spec.
+- [x] Step 369.1: Write the viewport display cache spec.
 - [ ] Step 369.2: Define `replayTimeframe` versus `displayTimeframe` contracts.
 - [ ] Step 369.3: Replace prefix-only demand semantics with viewport missing
   window demand.
