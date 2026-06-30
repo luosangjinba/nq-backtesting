@@ -48,6 +48,39 @@ Checks:
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
+## Step 376 - V5 Chart Interaction Runtime Contracts
+
+Goal: start Phase 3 by defining and implementing chart-owned interaction
+contracts for manual visible-range movement before adding richer crosshair,
+tooltip, toolbar, order, or journal UI.
+
+- [x] Step 376.1: Add chart interaction spec plus TODO/session plan.
+- [ ] Step 376.2: Add chart runtime interaction state and commands for manual
+  visible-range movement and follow resume.
+- [ ] Step 376.3: Wire replay/chart behavior so manual movement pauses
+  auto-follow without mutating replay cursor or `displayBars`.
+- [ ] Step 376.4: Add browser verification, run full smoke, and update handoff.
+
+Manual acceptance:
+
+- Chart runtime owns manual visible-range interaction state.
+- Manual visible-range movement pauses auto-follow until an explicit resume
+  command.
+- Replay runtime continues to own cursor and reveal state.
+- Manual movement may emit viewport demand, but it must not request bars
+  directly.
+- UI does not directly slice bars, mutate replay state, or call bar-data APIs.
+- Crosshair, axis labels, go-to time, toolbar polish, orders, journal, SaaS
+  auth, and billing remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
 
 Goal: close Phase 2 deliberately after viewport follow, fix documentation drift,
