@@ -53,7 +53,20 @@ Completed:
 - Ensure explicit resume returns to cursor-follow rendering.
 - Add replay smoke coverage for cursor/displayBars invariants.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added replay/chart integration smoke for manual viewport follow behavior.
+- Verified manual visible-range movement does not mutate replay cursor or
+  `displayBars`.
+- Verified Next can advance replay while chart remains in manual mode.
+- Verified replay follow sync does not auto-resume chart follow after manual
+  movement.
+- Verified explicit `chart.resumeViewportFollow` restores cursor-follow
+  rendering.
+- Added `v5/tests/replay-manual-viewport-follow-smoke.js`.
+- Added the replay/manual follow smoke to `v5/scripts/smoke_all.js`.
 
 ### Step 376.4 - Browser Coverage And Handoff
 

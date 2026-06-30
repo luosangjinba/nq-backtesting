@@ -57,7 +57,7 @@ tooltip, toolbar, order, or journal UI.
 - [x] Step 376.1: Add chart interaction spec plus TODO/session plan.
 - [x] Step 376.2: Add chart runtime interaction state and commands for manual
   visible-range movement and follow resume.
-- [ ] Step 376.3: Wire replay/chart behavior so manual movement pauses
+- [x] Step 376.3: Wire replay/chart behavior so manual movement pauses
   auto-follow without mutating replay cursor or `displayBars`.
 - [ ] Step 376.4: Add browser verification, run full smoke, and update handoff.
 
