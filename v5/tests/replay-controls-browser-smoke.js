@@ -182,6 +182,7 @@ async function main() {
           await new Promise((resolve) => setTimeout(resolve, 700));
           const afterPauseWait = await commands.dispatchCommand('replay.getState');
           const chartCountAfterPause = Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0);
+          const fullChartCountAfterPause = Number(document.querySelector('[data-chart-bar-count]')?.dataset.fullChartBarCount || 0);
 
           document.querySelector('[data-replay-play]').click();
           await waitFor('playback auto stopped at end', async () => {
@@ -266,6 +267,7 @@ async function main() {
             afterDisposeRevealedCount: afterDisposeWait.revealedCount,
             afterDisposePlaying: afterDisposePlayback.playing,
             chartCount: chartCountAfterPause,
+            fullChartCount: fullChartCountAfterPause,
             listenerCountsAfterNavigate,
           });
         } catch (error) {
@@ -280,7 +282,9 @@ async function main() {
     assert.equal(value.afterNextCount, value.initialCount + 1);
     assert.ok(value.duringPlayCount > value.afterNextCount, 'Play should advance replay');
     assert.equal(value.afterPauseWaitCount, value.pausedCount, 'Pause should stop replay advancement');
-    assert.equal(value.chartCount, value.afterPauseWaitCount);
+    assert.equal(value.fullChartCount, value.afterPauseWaitCount);
+    assert.ok(value.chartCount > 0, 'Chart should render a visible replay window');
+    assert.ok(value.chartCount <= value.fullChartCount, 'Chart rendered bars should be a viewport subset');
     assert.ok(value.terminalCount > value.afterPauseWaitCount, 'Play should continue to session end');
     assert.equal(value.terminalStoppedReason, 'session-end');
     assert.equal(value.terminalStatusText, 'Replay stopped: session-end.');

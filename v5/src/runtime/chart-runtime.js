@@ -481,6 +481,10 @@ export function createChartRuntime() {
       },
       rightOffsetBars: Number(rightOffsetBars ?? DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars),
     };
+    state.viewportFollow = {
+      ...state.viewportFollow,
+      rightOffsetBars: state.displayContext.rightOffsetBars,
+    };
     state.viewportDemand = computeViewportDemand(state);
     rerenderMountedHosts();
     return {

@@ -59,7 +59,7 @@ cursor near the right side and older bars roll out of the rendered chart.
   that keeps full bars state while rendering a rolling visible subset.
 - [x] Step 374.3: Wire replay runtime to sync viewport follow after initial
   load, Next/Play, Reset, and display projection.
-- [ ] Step 374.4: Add browser coverage proving rolling visible chart behavior
+- [x] Step 374.4: Add browser coverage proving rolling visible chart behavior
   without mutating cursor/displayBars or adding bars requests; run full smoke and
   update handoff.
 

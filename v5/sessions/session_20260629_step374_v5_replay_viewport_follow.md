@@ -63,7 +63,20 @@ Completed:
 - Verify no extra `/v4/bars` requests from follow updates.
 - Run full smoke and update this handoff.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added `v5/tests/replay-viewport-follow-browser-smoke.js` to prove the chart
+  renders a rolling visible window while replay-owned `displayBars` continues to
+  grow.
+- Verified viewport follow does not add bars requests; Next may use cache or
+  request the normal forward window, but follow sync itself is chart-only.
+- Synced chart viewport follow `rightOffsetBars` with chart presentation
+  settings so display controls and follow rendering share the same offset.
+- Updated older smoke assertions to distinguish rendered chart count from full
+  chart/display count after the Step 374 contract change.
+- Added the browser viewport follow smoke to `v5/scripts/smoke_all.js`.
 
 ## Manual Acceptance
 
@@ -83,3 +96,5 @@ Status: pending.
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Result: all checks passed.

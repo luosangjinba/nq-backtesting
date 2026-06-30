@@ -195,7 +195,9 @@ async function main() {
 
           const state = await commands.dispatchCommand('replay.getState');
           const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
-          const chartCount = Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0);
+          const chartBarCountElement = document.querySelector('[data-chart-bar-count]');
+          const chartCount = Number(chartBarCountElement?.dataset.chartBarCount || 0);
+          const fullChartCount = Number(chartBarCountElement?.dataset.fullChartBarCount || 0);
           const displayBars = displayContext.displayBars || [];
           const lastDisplayBar = displayBars.at(-1);
           const leftPanRequests = requests.slice(requestCountBeforePan);
@@ -206,6 +208,7 @@ async function main() {
             contextDisplayTimeframe: displayContext.displayTimeframe,
             cursorTimestamp: state.cursorTimestamp,
             chartCount,
+            fullChartCount,
             displayCount: displayBars.length,
             beforePanDisplayCount,
             beforeNextDisplayCount: beforeNextContext.displayBars.length,
@@ -231,7 +234,9 @@ async function main() {
     assert.equal(value.contextDisplayTimeframe, 5);
     assert.equal(value.cursorTimestamp, '2026-06-01T09:31:00.000Z');
     assert.equal(value.selected, 'true');
-    assert.equal(value.chartCount, value.displayCount);
+    assert.equal(value.fullChartCount, value.displayCount);
+    assert.ok(value.chartCount > 0, 'Chart should render a visible display-timeframe window');
+    assert.ok(value.chartCount <= value.fullChartCount, 'Chart rendered bars should be a viewport subset');
     assert.ok(value.displayCount > value.beforePanDisplayCount, 'Left pan should merge older display bars');
     assert.equal(value.hasReplayOneMinuteBar, false, 'Next must not mix 1m replay bars into 5m display');
     assert.equal(value.allDisplayBarsOn5mBoundary, true, 'Display bars should remain 5m bars after Next');

@@ -113,7 +113,9 @@ const state = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
 assert.equal(state.status, 'initial-loaded');
 assert.equal(state.displayBars.length, 4);
 assert.equal(state.displayBars.at(-1).timestamp, state.startBar.timestamp);
-assert.equal(host.children[0].children[0].dataset.chartBarCount, '4');
+assert.equal(host.children[0].children[0].dataset.fullChartBarCount, '4');
+assert.ok(Number(host.children[0].children[0].dataset.chartBarCount) > 0);
+assert.ok(Number(host.children[0].children[0].dataset.chartBarCount) <= 4);
 assert.equal(changedEvent.bars.length, 4);
 
 replayRuntime.stop();

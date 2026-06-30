@@ -172,7 +172,9 @@ assert.deepEqual(
     baseTimestamp,
   ]
 );
-assert.equal(host.children[0].children[0].dataset.chartBarCount, '7');
+assert.equal(host.children[0].children[0].dataset.fullChartBarCount, '7');
+assert.ok(Number(host.children[0].children[0].dataset.chartBarCount) > 0);
+assert.ok(Number(host.children[0].children[0].dataset.chartBarCount) <= 7);
 assert.equal(requests.length, 3);
 
 replayRuntime.stop();

@@ -116,7 +116,9 @@ async function main() {
           const state = await commands.dispatchCommand('replay.getState');
           const displayBars = state.displayBars || [];
           const startTimestamp = Number(state.startBar?.timestamp);
-          const chartCount = Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0);
+          const chartBarCountElement = document.querySelector('[data-chart-bar-count]');
+          const chartCount = Number(chartBarCountElement?.dataset.chartBarCount || 0);
+          const fullChartCount = Number(chartBarCountElement?.dataset.fullChartBarCount || 0);
           const parsedRequests = barsRequests.map((url) => {
             const parsed = new URL(url, window.location.href);
             return {
@@ -131,6 +133,7 @@ async function main() {
             status: state.status,
             displayCount: displayBars.length,
             chartCount,
+            fullChartCount,
             startTimestamp,
             latestTimestamp: Number(displayBars.at(-1)?.timestamp),
             prefixCount: displayBars.filter((bar) => Number(bar.timestamp) < startTimestamp).length,
@@ -149,7 +152,9 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.status, 'initial-loaded');
     assert.ok(value.displayCount > 1, 'initial replay should display prefix plus start');
-    assert.equal(value.chartCount, value.displayCount);
+    assert.equal(value.fullChartCount, value.displayCount);
+    assert.ok(value.chartCount > 0, 'Chart should render a visible initial replay window');
+    assert.ok(value.chartCount <= value.fullChartCount, 'Chart rendered bars should be a viewport subset');
     assert.ok(value.prefixCount > 0, 'initial replay should include prefix bars');
     assert.equal(value.futureCount, 0, 'initial replay should not display future bars');
     assert.equal(value.latestTimestamp, value.startTimestamp, 'latest visible replay bar should be start');

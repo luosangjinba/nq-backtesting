@@ -164,7 +164,9 @@ assert.deepEqual(
   replayState.displayBars.map((entry) => entry.timestamp),
   initial.displayBars.map((entry) => entry.timestamp)
 );
-assert.equal(host.children[0].children[0].dataset.chartBarCount, String(initial.displayBars.length));
+assert.equal(host.children[0].children[0].dataset.fullChartBarCount, String(initial.displayBars.length));
+assert.ok(Number(host.children[0].children[0].dataset.chartBarCount) > 0);
+assert.ok(Number(host.children[0].children[0].dataset.chartBarCount) <= initial.displayBars.length);
 
 const cacheSummary = await dispatchCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY);
 assert.equal(cacheSummary.windowCount, 2);
