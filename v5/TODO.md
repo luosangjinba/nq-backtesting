@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 379 is in progress.
-- Current step: Step 379 introduces a local Lightweight Charts production load
-  path for V5 before further chart interaction polish.
-- Step 379 advances Historical Replay Review by replacing the visible default
+- Current status: Step 379 is complete.
+- Next candidate: Step 380 should continue Phase 3 chart interaction, likely
+  crosshair readout or axis/tooltip formatting, while keeping order, journal,
+  dashboard, AI, and SaaS concerns out of Phase 3.
+- Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
 - New steps should state whether they advance Historical Replay Review, Live
@@ -773,11 +774,11 @@ while retaining the DOM fallback for offline/unit harnesses and preserving the
 chart/replay/bar-data ownership boundaries.
 
 - [x] Step 379.1: Add Step 379 TODO/session plan and update chart-engine spec.
-- [ ] Step 379.2: Vendor a pinned Lightweight Charts standalone build and load
+- [x] Step 379.2: Vendor a pinned Lightweight Charts standalone build and load
   it before the V5 app module.
-- [ ] Step 379.3: Verify the browser route uses the `lightweight-charts` adapter
+- [x] Step 379.3: Verify the browser route uses the `lightweight-charts` adapter
   path by default and still preserves manual follow/no-future invariants.
-- [ ] Step 379.4: Run full smoke, update handoff, and mark the step complete.
+- [x] Step 379.4: Run full smoke, update handoff, and mark the step complete.
 
 Manual acceptance:
 

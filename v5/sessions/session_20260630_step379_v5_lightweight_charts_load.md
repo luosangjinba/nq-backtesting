@@ -27,7 +27,17 @@ Status: complete.
 - Keep DOM fallback behavior for tests and environments without
   `window.LightweightCharts`.
 
-Status: pending.
+Completed:
+
+- Added `v5/vendor/lightweight-charts.standalone.production.js`.
+- Added `v5/vendor/README.md` with version, source, hash, and license note.
+- Updated `v5/index.html` to load the local standalone script before the V5 app
+  module.
+- Updated the adapter to ignore programmatic Lightweight visible-range events
+  unless they follow recent user input, preventing initial `setData` from
+  forcing manual mode.
+
+Status: complete.
 
 ### Step 379.3 - Browser Verification
 
@@ -36,7 +46,14 @@ Status: pending.
 - Preserve checks that drag/zoom/manual follow behavior stays within chart
   runtime ownership and no-future replay boundaries.
 
-Status: pending.
+Completed:
+
+- Updated `v5/tests/chart-interaction-browser-smoke.js` to assert the normal
+  browser route uses `data-chart-engine="lightweight-charts"`.
+- Kept manual follow/no-future checks in the browser route.
+- Kept DOM fallback interaction coverage in runtime/fallback-specific smoke.
+
+Status: complete.
 
 ### Step 379.4 - Closeout
 
@@ -44,7 +61,13 @@ Status: pending.
 - Run full `v5/scripts/smoke_all.js`.
 - Update this handoff and TODO to mark Step 379 complete.
 
-Status: pending.
+Completed:
+
+- Ran relevant adapter, runtime, browser, and boundary checks.
+- Ran full V5 smoke and whitespace checks.
+- Updated TODO and this handoff.
+
+Status: complete.
 
 ## Manual Acceptance
 
@@ -69,3 +92,5 @@ Status: pending.
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Result: all checks passed.
