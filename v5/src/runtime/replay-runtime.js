@@ -79,6 +79,16 @@ function timeframeSeconds(timeframe) {
   return normalizeTimeframe(timeframe) * 60;
 }
 
+function isoFromTimestamp(timestampValue) {
+  return new Date(timestampValue * 1000).toISOString();
+}
+
+function alignTimestampToTimeframe(value, timeframe) {
+  const timestamp = timestampSeconds(value);
+  const seconds = timeframeSeconds(timeframe);
+  return Math.floor(timestamp / seconds) * seconds;
+}
+
 export function isDisplayBarAllowed(bar, {
   cursorTimestamp,
   displayTimeframe,
@@ -437,7 +447,8 @@ export function createReplayRuntime() {
       ? Number(requestedCount)
       : computePrefixBarCount(metrics) + 1;
     const normalizedCount = Math.min(Math.max(1, Math.ceil(displayCount)), MAX_PREFIX_BARS);
-    const normalizedAnchor = missingWindow.anchor || anchor;
+    const normalizedAnchor = missingWindow.anchor
+      || isoFromTimestamp(alignTimestampToTimeframe(anchor, normalizedDisplayTimeframe));
     const normalizedDirection = missingWindow.direction || viewportDemand?.direction || direction;
     const demandKey = [
       sessionId,
@@ -457,58 +468,79 @@ export function createReplayRuntime() {
 
     loadingDisplayWindowKeys.add(demandKey);
     try {
-    const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
-      instrument: state.session.instrument,
-      timeframe: normalizedDisplayTimeframe,
-      anchor: normalizedAnchor,
-      direction: normalizedDirection,
-      count: normalizedCount,
-    });
-    const displayContext = {
-      cursorTimestamp: state.cursorTimestamp,
-      displayTimeframe: normalizedDisplayTimeframe,
-      replayTimeframe: state.replayTimeframe || state.session.timeframe,
-    };
-    const windowDisplayBars = filterDisplayBarsForCursor(window.bars, displayContext);
-    const shouldMergeDisplayBars = state.displayBarsTimeframe === normalizedDisplayTimeframe;
-    const displayBars = shouldMergeDisplayBars
-      ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
-      : windowDisplayBars;
-    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
-    await syncChartRightEdgeLimit(state.cursorTimestamp);
-    await syncChartDisplayContext({
-      displayTimeframe: normalizedDisplayTimeframe,
-      bars: displayBars,
-    });
+      const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+        instrument: state.session.instrument,
+        timeframe: normalizedDisplayTimeframe,
+        anchor: normalizedAnchor,
+        direction: normalizedDirection,
+        count: normalizedCount,
+      });
+      const displayContext = {
+        cursorTimestamp: state.cursorTimestamp,
+        displayTimeframe: normalizedDisplayTimeframe,
+        replayTimeframe: state.replayTimeframe || state.session.timeframe,
+      };
+      const windowDisplayBars = filterDisplayBarsForCursor(window.bars, displayContext);
+      const shouldMergeDisplayBars = state.displayBarsTimeframe === normalizedDisplayTimeframe;
+      const displayBars = shouldMergeDisplayBars
+        ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
+        : windowDisplayBars;
+      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await syncChartRightEdgeLimit(state.cursorTimestamp);
+      await syncChartDisplayContext({
+        displayTimeframe: normalizedDisplayTimeframe,
+        bars: displayBars,
+      });
 
-    state = {
-      ...state,
-      displayTimeframe: normalizedDisplayTimeframe,
-      displayBarsTimeframe: normalizedDisplayTimeframe,
-      displayBars: clone(displayBars),
-      viewportMetrics: clone(metrics),
-      status: 'display-loaded',
-    };
-    const result = {
-      ...clone(state),
-      displayWindow: {
-        key: window.key,
-        instrument: window.instrument,
-        timeframe: window.timeframe,
-        start: window.start,
-        end: window.end,
-        anchor: window.anchor,
-        direction: window.direction,
-        estimatedBars: window.estimatedBars,
-        cached: Boolean(window.cached),
-      },
-    };
-    emit(REPLAY_EVENTS.DISPLAY_WINDOW_LOADED, result);
-    emit(REPLAY_EVENTS.DISPLAY_RELOADED, result);
-    return result;
+      state = {
+        ...state,
+        displayTimeframe: normalizedDisplayTimeframe,
+        displayBarsTimeframe: normalizedDisplayTimeframe,
+        displayBars: clone(displayBars),
+        viewportMetrics: clone(metrics),
+        status: 'display-loaded',
+      };
+      const result = {
+        ...clone(state),
+        displayWindow: {
+          key: window.key,
+          instrument: window.instrument,
+          timeframe: window.timeframe,
+          start: window.start,
+          end: window.end,
+          anchor: window.anchor,
+          direction: window.direction,
+          estimatedBars: window.estimatedBars,
+          cached: Boolean(window.cached),
+        },
+      };
+      emit(REPLAY_EVENTS.DISPLAY_WINDOW_LOADED, result);
+      emit(REPLAY_EVENTS.DISPLAY_RELOADED, result);
+      return result;
     } finally {
       loadingDisplayWindowKeys.delete(demandKey);
     }
+  }
+
+  async function projectDisplayForCursor({
+    sessionId = state.sessionId,
+    displayTimeframe = state.displayTimeframe || state.session?.timeframe,
+    cursorTimestamp = state.cursorTimestamp,
+  } = {}) {
+    const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
+    const normalizedReplayTimeframe = normalizeTimeframe(
+      state.replayTimeframe || state.session?.timeframe,
+      'replay timeframe'
+    );
+    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      return clone(state);
+    }
+    return loadDisplayWindow({
+      sessionId,
+      displayTimeframe: normalizedDisplayTimeframe,
+      anchor: isoFromTimestamp(alignTimestampToTimeframe(cursorTimestamp, normalizedDisplayTimeframe)),
+      direction: 'backward',
+    });
   }
 
   async function setDisplayTimeframe({
@@ -724,26 +756,47 @@ export function createReplayRuntime() {
       };
     }
 
-    const displayBars = [
-      ...state.displayBars,
-      nextBar,
-    ];
-    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
-    await syncChartRightEdgeLimit(nextBar.time);
     const revealedCount = state.revealedCount + 1;
     const persisted = await persistReplayCursor({
       cursorTimestamp: nextBar.time,
       revealedCount,
     });
+    const normalizedDisplayTimeframe = normalizeTimeframe(
+      state.displayTimeframe || state.session.timeframe,
+      'display timeframe'
+    );
+    const normalizedReplayTimeframe = normalizeTimeframe(
+      state.replayTimeframe || state.session.timeframe,
+      'replay timeframe'
+    );
+    const displayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
+      ? [
+        ...state.displayBars,
+        nextBar,
+      ]
+      : state.displayBars;
+    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await syncChartRightEdgeLimit(nextBar.time);
+    }
 
     state = {
       ...state,
       persistedCursor: clone(persisted.cursor),
       cursorTimestamp: nextBar.time,
       revealedCount,
+      displayBarsTimeframe: normalizedDisplayTimeframe,
       displayBars: clone(displayBars),
       status: 'replay-ready',
     };
+    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
+      await syncChartRightEdgeLimit(nextBar.time);
+      await projectDisplayForCursor({
+        sessionId,
+        displayTimeframe: normalizedDisplayTimeframe,
+        cursorTimestamp: nextBar.time,
+      });
+    }
     const result = {
       ...clone(state),
       advanced: true,
@@ -761,13 +814,23 @@ export function createReplayRuntime() {
     if (!state.startBar || state.sessionId !== sessionId) {
       await loadInitialPrefix({ sessionId });
     }
-    const displayBars = [
+    const normalizedDisplayTimeframe = normalizeTimeframe(
+      state.displayTimeframe || state.session.timeframe,
+      'display timeframe'
+    );
+    const normalizedReplayTimeframe = normalizeTimeframe(
+      state.replayTimeframe || state.session.timeframe,
+      'replay timeframe'
+    );
+    let displayBars = [
       ...state.prefixBars,
       state.startBar,
     ];
-    assertNoFutureDisplayBars(displayBars, state.startBar);
-    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
-    await syncChartRightEdgeLimit(state.startBar.time);
+    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      assertNoFutureDisplayBars(displayBars, state.startBar);
+      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await syncChartRightEdgeLimit(state.startBar.time);
+    }
 
     state = {
       ...state,
@@ -779,11 +842,20 @@ export function createReplayRuntime() {
       },
       cursorTimestamp: state.startBar.time,
       revealedCount: 0,
-      displayBarsTimeframe: state.displayTimeframe || state.session.timeframe,
+      displayBarsTimeframe: normalizedDisplayTimeframe,
       displayBars: clone(displayBars),
       status: 'initial-loaded',
     };
     await clearPersistedReplayCursor();
+    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
+      await syncChartRightEdgeLimit(state.startBar.time);
+      await projectDisplayForCursor({
+        sessionId,
+        displayTimeframe: normalizedDisplayTimeframe,
+        cursorTimestamp: state.startBar.time,
+      });
+      displayBars = state.displayBars;
+    }
     const result = {
       ...clone(state),
       reset: true,

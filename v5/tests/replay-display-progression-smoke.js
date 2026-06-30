@@ -148,6 +148,21 @@ assert.equal(
   'Display projection must not request the full session range'
 );
 
+const reset = await dispatchCommand(REPLAY_COMMANDS.RESET, {
+  sessionId: created.session.id,
+});
+assert.equal(reset.cursorTimestamp, '2026-06-01T09:30:00.000Z');
+assert.equal(reset.displayTimeframe, 5);
+assert.deepEqual(
+  reset.displayBars.map((entry) => entry.timestamp),
+  [
+    timestamp('2026-06-01T09:15:00.000Z'),
+    timestamp('2026-06-01T09:20:00.000Z'),
+    timestamp('2026-06-01T09:25:00.000Z'),
+  ]
+);
+assert.deepEqual(chartBars, reset.displayBars);
+
 replayRuntime.stop();
 unregisterDisplayContext();
 unregisterRightEdge();

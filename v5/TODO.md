@@ -432,10 +432,10 @@ different display timeframe.
 
 - [x] Step 371.1: Add a smoke proving `Next` on a non-replay display timeframe
   does not mix replay-timeframe bars into display bars.
-- [ ] Step 371.2: Refactor replay progression to advance cursor first, persist
+- [x] Step 371.2: Refactor replay progression to advance cursor first, persist
   it, then reload/project the active display timeframe through bounded display
   windows.
-- [ ] Step 371.3: Preserve one-bar replay progression, cursor persistence,
+- [x] Step 371.3: Preserve one-bar replay progression, cursor persistence,
   session-end behavior, and reset semantics under the projection path.
 - [ ] Step 371.4: Add Play/browser coverage for display projection and update
   the session handoff after full smoke verification.

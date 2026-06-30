@@ -57,7 +57,16 @@ Red check:
 - Keep chart writes inside chart runtime commands.
 - Keep bar requests inside bar data runtime.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added display anchor alignment to display timeframe boundaries.
+- `Next` now advances and persists the replay cursor before display projection.
+- When display timeframe differs from replay timeframe, `Next` reloads/projects
+  the active display timeframe through bounded display-window loading.
+- When display timeframe equals replay timeframe, existing append behavior is
+  preserved.
 
 ### Step 371.3 - Existing Replay Semantics
 
@@ -67,7 +76,15 @@ Status: planned.
 - Preserve reset/restart no-future behavior.
 - Keep display projection bounded and cursor-filtered.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Existing 1m replay/display Next, Play, Reset, and session-end semantics remain
+  covered by existing smokes.
+- Reset now projects the active non-replay display timeframe at the start cursor
+  instead of replacing chart state with replay-timeframe prefix bars.
+- The display progression smoke covers reset under a 5m display timeframe.
 
 ### Step 371.4 - Browser Coverage And Handoff
 
