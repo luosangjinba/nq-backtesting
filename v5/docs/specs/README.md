@@ -15,6 +15,21 @@ Specs should explain:
 - what is forbidden;
 - how to verify it.
 
+## Spec Phase Discipline
+
+Specs must align with `v5/docs/V5_PHASE_ROADMAP.md`.
+
+When adding or materially changing a spec, include or preserve:
+
+- the phase the behavior belongs to;
+- the phase gate it protects or advances;
+- what is intentionally out of scope for the current phase;
+- verification that the behavior does not violate runtime ownership boundaries.
+
+If a spec idea belongs to a later phase, record it in that phase's backlog
+instead of implementing it in the current step. This keeps V5 from being pulled
+around by local UI observations or one-off FXReplay parity details.
+
 ## Active Specs
 
 - `fx-replay-initial-load.md`: stable rules for replay chart entry, wall-clock
