@@ -29,6 +29,11 @@ Requests to `/v4/bars` use exchange wall-clock strings:
 
 Changing display timezone must not alter request ranges.
 
+Request planning and bar response normalization must use the same canonical
+wall-clock parser. Strings such as `2026-06-01 09:30` and pseudo-ISO anchors
+such as `2026-06-01T09:30:00.000Z` preserve their wall-clock fields and must not
+pass through browser local timezone conversion.
+
 ### Display Timezone
 
 Display timezone is a presentation preference for labels such as chart axis,
@@ -44,6 +49,12 @@ Supported initial values:
 For the current NQ/ES MVP, `Exchange` maps to `America/New_York` because that is
 the current V4 data convention.
 
+Chart runtime owns chart presentation labels. It consumes display timezone
+context through commands/events and formats candle titles and future
+tooltip/axis-style labels from canonical chart timestamps. Changing the display
+timezone may rerender chart presentation text, but it must not replace,
+append, remove, or re-request bars.
+
 ## Rules
 
 - Display timezone changes must not mutate replay cursor.
@@ -53,6 +64,11 @@ the current V4 data convention.
 - No-future checks use canonical cursor/bar timestamps, not formatted labels.
 - Higher-timeframe completion checks use canonical timestamps.
 - UI changes timezone through commands/events, not direct state mutation.
+- Chart runtime applies display timezone to chart-owned labels and rerenders
+  mounted hosts without mutating chart bars.
+- Bar-data request planning and response normalization share canonical
+  wall-clock parsing so string timestamps cannot shift through browser local
+  timezone.
 
 ## Verification
 
@@ -66,6 +82,14 @@ the current V4 data convention.
   - verifies runtime state and events;
   - verifies timezone change does not request bars or mutate replay display
     state.
+- `v5/tests/chart-runtime-smoke.js`
+  - verifies chart candle titles format with the active display timezone;
+  - verifies chart runtime accepts numeric canonical timestamps from replay
+    display bars.
+- `v5/tests/bar-data-runtime-smoke.js`
+  - verifies request planning preserves exchange wall-clock anchors;
+  - verifies string bar timestamps normalize through canonical wall-clock
+    parsing.
 - `v5/tests/display-timezone-browser-smoke.js`
-  - verifies visible labels change while bars/cursor/request counts remain
-    unchanged.
+  - verifies visible labels and current candle title change while bars, cursor,
+    and request counts remain unchanged.
