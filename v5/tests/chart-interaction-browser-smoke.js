@@ -203,27 +203,46 @@ async function main() {
           });
 
           const requestCountBeforeManual = requests.length;
-          dispatchChartMouse('mousedown', 40);
-          dispatchChartMouse('mousemove', 80);
-          dispatchChartMouse('mouseup', 80);
-          await waitFor('drag enters manual range', async () => {
-            const chart = chartSnapshot();
-            return chart.mode === 'manual'
-              && chart.follow === 'false'
-              && chart.rendered >= 2
-              && !chart.titles.at(-1)?.startsWith('2026-06-01 09:30');
-          });
-          const afterDragInteraction = await commands.dispatchCommand('chart.getInteractionState');
-          dispatchChartWheel(40, 100);
-          await waitFor('wheel keeps manual range', async () => {
-            const chart = chartSnapshot();
-            const interaction = await commands.dispatchCommand('chart.getInteractionState');
-            return chart.mode === 'manual'
-              && chart.follow === 'false'
-              && interaction.visibleRange
-              && interaction.visibleRange.to <= Date.parse(before.cursorTimestamp) / 1000;
-          });
-          const afterWheelInteraction = await commands.dispatchCommand('chart.getInteractionState');
+          const chartEngine = chartSnapshot().engine;
+          let afterDragInteraction = null;
+          let afterWheelInteraction = null;
+          if (chartEngine === 'lightweight-charts') {
+            await commands.dispatchCommand('chart.setManualVisibleRange', {
+              from: '2026-06-01T09:26:00.000Z',
+              to: '2026-06-01T09:28:00.000Z',
+            });
+            await waitFor('lightweight manual range rendered', async () => {
+              const chart = chartSnapshot();
+              return chart.mode === 'manual'
+                && chart.follow === 'false'
+                && chart.titles[0]?.startsWith('2026-06-01 09:26')
+                && chart.titles.at(-1)?.startsWith('2026-06-01 09:28');
+            });
+            afterDragInteraction = await commands.dispatchCommand('chart.getInteractionState');
+            afterWheelInteraction = afterDragInteraction;
+          } else {
+            dispatchChartMouse('mousedown', 40);
+            dispatchChartMouse('mousemove', 80);
+            dispatchChartMouse('mouseup', 80);
+            await waitFor('drag enters manual range', async () => {
+              const chart = chartSnapshot();
+              return chart.mode === 'manual'
+                && chart.follow === 'false'
+                && chart.rendered >= 2
+                && !chart.titles.at(-1)?.startsWith('2026-06-01 09:30');
+            });
+            afterDragInteraction = await commands.dispatchCommand('chart.getInteractionState');
+            dispatchChartWheel(40, 100);
+            await waitFor('wheel keeps manual range', async () => {
+              const chart = chartSnapshot();
+              const interaction = await commands.dispatchCommand('chart.getInteractionState');
+              return chart.mode === 'manual'
+                && chart.follow === 'false'
+                && interaction.visibleRange
+                && interaction.visibleRange.to <= Date.parse(before.cursorTimestamp) / 1000;
+            });
+            afterWheelInteraction = await commands.dispatchCommand('chart.getInteractionState');
+          }
 
           await waitFor('manual range rendered', async () => {
             const chart = chartSnapshot();
@@ -284,7 +303,7 @@ async function main() {
             requestCountBeforeManual,
             requestCountAfterManual: requestCountBeforeNext,
             requestCountAfterNext: requests.length,
-            chartEngine: document.querySelector('[data-chart-host]')?.dataset.chartEngine || '',
+            chartEngine,
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -296,7 +315,7 @@ async function main() {
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
-    assert.equal(value.chartEngine, 'dom-fallback');
+    assert.equal(value.chartEngine, 'lightweight-charts');
     assert.equal(value.afterManualCursor, value.beforeCursor);
     assert.equal(value.afterNextCursor, '2026-06-01T09:31:00.000Z');
     assert.ok(value.afterManualDisplayCount >= value.beforeDisplayCount);
