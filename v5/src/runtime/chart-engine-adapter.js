@@ -1,5 +1,6 @@
 import { DEFAULT_DISPLAY_TIMEZONE, DEFAULT_EXCHANGE_TIMEZONE } from '../contracts/timezone-contracts.js';
 import { DEFAULT_CHART_PRESENTATION_SETTINGS } from '../contracts/chart-presentation-contracts.js';
+import { formatCandleTitle, formatPrice } from '../domain/chart-formatting.js';
 import { formatDisplayTimestamp } from '../domain/timezone-format.js';
 
 const LIGHTWEIGHT_REPLAY_TIMESCALE = Object.freeze({
@@ -23,6 +24,12 @@ const LIGHTWEIGHT_REPLAY_SCALE = Object.freeze({
   axisPressedMouseMove: true,
   mouseWheel: true,
   pinch: true,
+});
+
+const LIGHTWEIGHT_PRICE_FORMAT = Object.freeze({
+  type: 'price',
+  precision: 2,
+  minMove: 0.01,
 });
 
 function timestampSeconds(value, label) {
@@ -94,6 +101,9 @@ function lightweightOptionsForContext(context) {
   return {
     handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
     handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
+    localization: {
+      priceFormatter: (price) => formatPrice(price),
+    },
     timeScale: {
       ...LIGHTWEIGHT_REPLAY_TIMESCALE,
       rightOffset: context.rightOffsetBars,
@@ -111,6 +121,8 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.handleScrollPressedMouseMove = String(LIGHTWEIGHT_REPLAY_SCROLL.pressedMouseMove);
   canvas.dataset.handleScaleMouseWheel = String(LIGHTWEIGHT_REPLAY_SCALE.mouseWheel);
   canvas.dataset.timeScaleRightOffset = String(context.rightOffsetBars);
+  canvas.dataset.pricePrecision = String(LIGHTWEIGHT_PRICE_FORMAT.precision);
+  canvas.dataset.priceMinMove = String(LIGHTWEIGHT_PRICE_FORMAT.minMove);
 }
 
 function createRuntimeCanvas(documentRef) {
@@ -151,7 +163,9 @@ function renderFallbackBars(documentRef, canvas, bars, context, fullBarCount = b
     candle.className = `chart-candle ${bar.close >= bar.open ? 'is-up' : 'is-down'}`;
     candle.style.top = `${top}%`;
     candle.style.height = `${height}%`;
-    candle.title = `${formatChartBarTime(bar, context)} O:${bar.open} H:${bar.high} L:${bar.low} C:${bar.close}`;
+    candle.title = formatCandleTitle(bar, {
+      timeText: formatChartBarTime(bar, context),
+    });
     plot.append(candle);
   });
 
@@ -414,10 +428,14 @@ function createLightweightInstance({ engine, documentRef }) {
 
   function createSeries(nextChart) {
     if (typeof nextChart.addCandlestickSeries === 'function') {
-      return nextChart.addCandlestickSeries();
+      return nextChart.addCandlestickSeries({
+        priceFormat: { ...LIGHTWEIGHT_PRICE_FORMAT },
+      });
     }
     if (typeof nextChart.addSeries === 'function' && engine.CandlestickSeries) {
-      return nextChart.addSeries(engine.CandlestickSeries);
+      return nextChart.addSeries(engine.CandlestickSeries, {
+        priceFormat: { ...LIGHTWEIGHT_PRICE_FORMAT },
+      });
     }
     throw new Error('Lightweight Charts candlestick series API is unavailable.');
   }

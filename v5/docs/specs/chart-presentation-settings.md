@@ -13,8 +13,9 @@ The initial presentation settings foundation covers:
   future axis labels;
 - status line field visibility;
 - chart margins and right offset;
-- crosshair readout enablement.
+- crosshair readout enablement;
 - chart-owned crosshair readout visibility and formatting.
+- shared price, OHLC, change, candle-title, and inspection formatting.
 
 It does not implement a full FXReplay/TradingView settings panel, template
 system, drawing-tool preferences, screenshot controls, or complete color/theme
@@ -58,6 +59,10 @@ space for replay progression.
 - Crosshair movement may update chart-owned inspection/readout state.
 - Crosshair movement must not request bars, mutate replay cursor, mutate
   `displayBars`, or change visible range/follow state.
+- Price, OHLC, change, candle-title, and inspection formatting must be pure
+  presentation behavior.
+- Formatting changes must not alter canonical timestamps, request ranges, bar
+  cache keys, replay cursor, or display-bar identity.
 - UI may display crosshair readout by subscribing to chart events or reading
   chart commands, but it must not call chart-engine APIs directly.
 - Time labels use the display timezone contract from

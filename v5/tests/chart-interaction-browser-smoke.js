@@ -344,7 +344,7 @@ async function main() {
     assert.ok(value.wheelRightEdge <= Date.parse(value.beforeCursor) / 1000);
     assert.equal(value.manualMode, 'manual');
     assert.ok(value.manualRendered >= 1);
-    assert.notEqual(value.manualLastTitle, '2026-06-01 09:30 O:300 H:301 L:299 C:300.5');
+    assert.notEqual(value.manualLastTitle, '2026-06-01 09:30 O 300.00 H 301.00 L 299.00 C 300.50');
     assert.equal(value.afterNextMode, 'manual');
     assert.equal(value.afterNextFirstTitle, value.manualFirstTitle);
     assert.equal(value.afterNextLastTitle, value.manualLastTitle);

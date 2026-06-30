@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 381: `session_20260630_step381_v5_crosshair_readout.md`
+- Step 382: `session_20260630_step382_v5_axis_tooltip_formatting.md`
 
 ## Completed Session Index
 
@@ -46,3 +46,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 379: `session_20260630_step379_v5_lightweight_charts_load.md`
 - Step 380: `session_20260630_step380_v5_lightweight_timescale_tuning.md`
 - Step 381: `session_20260630_step381_v5_crosshair_readout.md`
+- Step 382: `session_20260630_step382_v5_axis_tooltip_formatting.md`

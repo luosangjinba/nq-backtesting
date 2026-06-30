@@ -158,7 +158,7 @@ assert.equal(host.children[0].dataset.viewportFollow, 'true');
 assert.equal(host.children[0].dataset.interactionMode, 'follow');
 assert.equal(host.children[0].dataset.renderedBarCount, '2');
 assert.equal(host.children[0].children[1].children[0].dataset.chartBarCount, '2');
-assert.equal(host.children[0].children[1].children[0].children[0].title, '2026-06-01 09:32 O:102 H:103 L:101 C:102.5');
+assert.equal(host.children[0].children[1].children[0].children[0].title, '2026-06-01 09:32 O 102.00 H 103.00 L 101.00 C 102.50');
 
 host.children[0].dispatchEvent({
   type: 'mousedown',

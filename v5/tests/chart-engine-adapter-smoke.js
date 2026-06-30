@@ -152,7 +152,8 @@ const fakeLightweightCharts = {
     lightweightCalls.host = host;
     lightweightCalls.options = options;
     return {
-      addCandlestickSeries() {
+      addCandlestickSeries(options = {}) {
+        lightweightCalls.seriesOptions = options;
         lightweightCalls.series = {
           setData(data) {
             lightweightCalls.setData.push(data);
@@ -248,6 +249,7 @@ assert.deepEqual(lightweightCalls.options.handleScale, {
   mouseWheel: true,
   pinch: true,
 });
+assert.equal(lightweightCalls.options.localization.priceFormatter(103.5), '103.50');
 assert.deepEqual(lightweightCalls.options.timeScale, {
   borderColor: '#2b2f36',
   barSpacing: 10,
@@ -259,6 +261,13 @@ assert.deepEqual(lightweightCalls.options.timeScale, {
   fixRightEdge: false,
   rightOffset: 3,
 });
+assert.deepEqual(lightweightCalls.seriesOptions, {
+  priceFormat: {
+    type: 'price',
+    precision: 2,
+    minMove: 0.01,
+  },
+});
 assert.equal(lightweightHost.children[0].dataset.timeScaleBarSpacing, '10');
 assert.equal(lightweightHost.children[0].dataset.timeScaleMinBarSpacing, '3');
 assert.equal(lightweightHost.children[0].dataset.timeScaleLockOnResize, 'true');
@@ -267,6 +276,8 @@ assert.equal(lightweightHost.children[0].dataset.handleScrollMouseWheel, 'false'
 assert.equal(lightweightHost.children[0].dataset.handleScrollPressedMouseMove, 'true');
 assert.equal(lightweightHost.children[0].dataset.handleScaleMouseWheel, 'true');
 assert.equal(lightweightHost.children[0].dataset.timeScaleRightOffset, '4');
+assert.equal(lightweightHost.children[0].dataset.pricePrecision, '2');
+assert.equal(lightweightHost.children[0].dataset.priceMinMove, '0.01');
 assert.deepEqual(
   lightweightCalls.setData[0].map((item) => item.time),
   [
@@ -285,6 +296,9 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     axisPressedMouseMove: true,
     mouseWheel: true,
     pinch: true,
+  },
+  localization: {
+    priceFormatter: lightweightCalls.applyOptions[0].localization.priceFormatter,
   },
   timeScale: {
     barSpacing: 10,

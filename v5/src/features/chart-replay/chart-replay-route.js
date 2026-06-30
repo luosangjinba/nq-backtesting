@@ -7,6 +7,7 @@ import {
 } from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
+import { formatChange, formatInspectionReadout, formatOhlc } from '../../domain/chart-formatting.js';
 import { formatDisplayTimestamp } from '../../domain/timezone-format.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
@@ -173,10 +174,10 @@ export function createChartReplayRoute() {
           statusChangeLabel.textContent = '--';
           return;
         }
-        statusOhlcLabel.textContent = `O ${latest.open} H ${latest.high} L ${latest.low} C ${latest.close}`;
+        statusOhlcLabel.textContent = formatOhlc(latest);
         const previous = state.displayBars.length > 1 ? state.displayBars.at(-2) : null;
         const change = previous ? Number(latest.close) - Number(previous.close) : 0;
-        statusChangeLabel.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}`;
+        statusChangeLabel.textContent = formatChange(change);
       }
 
       function refreshCrosshairReadout() {
@@ -188,14 +189,7 @@ export function createChartReplayRoute() {
         const bar = crosshairState.bar;
         const timeText = formatReplayTimestamp(crosshairState.time || bar?.time);
         const price = crosshairState.price == null ? bar?.close : crosshairState.price;
-        const parts = [timeText];
-        if (price != null && Number.isFinite(Number(price))) {
-          parts.push(`P ${Number(price).toFixed(2)}`);
-        }
-        if (bar) {
-          parts.push(`O ${bar.open} H ${bar.high} L ${bar.low} C ${bar.close}`);
-        }
-        crosshairReadoutLabel.textContent = parts.filter(Boolean).join('  ');
+        crosshairReadoutLabel.textContent = formatInspectionReadout({ timeText, price, bar });
       }
 
       function setControlsDisabled(disabled = false) {

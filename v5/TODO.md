@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 381 is complete.
-- Next candidate: Step 382 should continue Phase 3 chart interaction work with
-  axis/tooltip formatting polish before go-to time, order, journal, dashboard,
-  AI, or SaaS work.
+- Current status: Step 382 is complete.
+- Next candidate: Step 383 should continue Phase 3 chart interaction work with
+  go-to time / jump-to-cursor navigation before order, journal, dashboard, AI,
+  or SaaS work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -23,8 +23,8 @@
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
 - Known next issue: visible UI is still an engineering shell, not final product
-  UI. Crosshair readout is chart-owned, but axis labels and tooltip formatting
-  still need product-grade presentation.
+  UI. Formatting is consistent, but users still need intentional time
+  navigation such as go-to time / jump-to-cursor.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -890,6 +890,43 @@ Checks:
 
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 382 - V5 Axis And Tooltip Formatting Polish
+
+Goal: make chart inspection formatting consistent across status text,
+crosshair readout, candle titles, and the real chart engine without changing
+replay identity, bar loading, or chart ownership boundaries.
+
+- [x] Step 382.1: Add Step 382 TODO/session plan and update presentation specs
+  with formatting ownership rules.
+- [x] Step 382.2: Add shared chart formatting helpers for price, OHLC, change,
+  and compact inspection text.
+- [x] Step 382.3: Apply formatting helpers to chart route status/crosshair
+  readout and adapter candle titles.
+- [x] Step 382.4: Add adapter-owned Lightweight localization/price formatting
+  defaults behind the chart-engine boundary.
+- [x] Step 382.5: Strengthen browser/runtime smoke coverage and close the step.
+
+Manual acceptance:
+
+- Status OHLC, Change, candle titles, and crosshair inspection use consistent
+  price precision and signs.
+- Display timezone and 12h/24h settings still affect all visible time labels.
+- Formatting changes do not request bars, mutate replay cursor, mutate
+  `displayBars`, or change visible range/follow state.
+- Lightweight formatting options remain inside `chart-engine-adapter.js`.
+- Go-to time, orders, journal, dashboard, AI, SaaS auth, billing, and full
+  settings templates remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-formatting-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`

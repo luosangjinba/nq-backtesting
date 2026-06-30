@@ -100,7 +100,7 @@ assert.equal(host.children[0].dataset.renderedBarCount, '3');
 assert.equal(host.children[0].dataset.fullBarCount, '6');
 assert.equal(host.children[0].children[0].dataset.chartBarCount, '3');
 assert.equal(host.children[0].children[0].dataset.fullChartBarCount, '6');
-assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 09:32 O:102 H:103 L:101 C:102.5');
+assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 09:32 O 102.00 H 103.00 L 101.00 C 102.50');
 
 const advanced = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
   cursorTimestamp: '2026-06-01T09:35:00.000Z',
