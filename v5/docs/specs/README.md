@@ -37,7 +37,9 @@ below explain where a spec entered or materially changed V5; they do not imply
 that future work must follow this file order.
 
 - `product-review-loop.md`: cross-phase product north star defining Historical
-  Replay Review and Live Execution Review as the two core training workflows.
+  Replay Review and Live Execution Review as the two core review workflows,
+  their shared foundation, and the V4 lesson V5 must preserve without copying
+  V4 coupling.
 - `fx-replay-initial-load.md`: stable rules for replay chart entry, wall-clock
   time semantics, initial display invariants, and verification harnesses.
 - `fx-replay-prefix-demand-retention.md`: stable rules for left-side prefix

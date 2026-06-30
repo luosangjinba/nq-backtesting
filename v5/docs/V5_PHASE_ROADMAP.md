@@ -23,7 +23,7 @@ Until the replay training loop is validated, new work should preserve
 user/workspace ownership and server-replaceable storage boundaries, but defer
 public auth, billing, production multi-tenancy, and entitlement systems.
 
-Product north star: V5 serves two training workflows:
+Product north star: V5 serves two core review workflows:
 
 - Historical Replay Review: no-future-information replay for pattern
   recognition, patience, and decision practice.
@@ -31,7 +31,8 @@ Product north star: V5 serves two training workflows:
   process correctness from PnL outcome.
 
 New steps should state which workflow they advance, or why the work is necessary
-infrastructure for that review loop.
+shared infrastructure for the review loop. Historical Replay Review and Live
+Execution Review are the product center, not later add-on modules.
 
 ## Phase Gates
 
