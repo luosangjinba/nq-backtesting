@@ -387,7 +387,7 @@ Goal: route actual chart viewport demand events into bounded replay
 display-window loading, so left panning loads older display history through the
 runtime ownership chain instead of remaining a test-only demand signal.
 
-- [ ] Step 370.1: Add a runtime smoke proving a `chart:viewportDemand` event is
+- [x] Step 370.1: Add a runtime smoke proving a `chart:viewportDemand` event is
   translated into `replay.loadDisplayWindow` through command dispatch only.
 - [ ] Step 370.2: Add the route/app-shell wiring that subscribes to chart
   viewport demand while a chart replay session is active.

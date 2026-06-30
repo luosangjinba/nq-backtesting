@@ -34,7 +34,13 @@ display-window loading.
   instead of calling bars/chart internals directly.
 - Keep the first harness focused on the command/event bridge.
 
-Status: planned.
+Status: complete.
+
+Red check:
+
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js` fails because
+  `v5/src/features/chart-replay/viewport-demand-wiring.js` is not implemented
+  yet.
 
 ### Step 370.2 - Active Route Wiring
 
