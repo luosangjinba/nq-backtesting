@@ -8,6 +8,7 @@ const commands = [
   ['node', ['v5/tests/session-runtime-smoke.js']],
   ['node', ['v5/tests/session-persistence-smoke.js']],
   ['node', ['v5/tests/session-setup-model-smoke.js']],
+  ['node', ['v5/tests/chart-presentation-runtime-smoke.js']],
   ['node', ['v5/tests/timezone-contracts-smoke.js']],
   ['node', ['v5/tests/display-timezone-runtime-smoke.js']],
   ['node', ['v5/tests/bar-data-runtime-smoke.js']],

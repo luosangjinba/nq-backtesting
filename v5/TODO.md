@@ -55,7 +55,7 @@ axis, tooltip, order, journal, and annotation workflows depend on scattered
 display choices.
 
 - [ ] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
-- [ ] Step 373.2: Add presentation settings contracts/runtime with normalized
+- [x] Step 373.2: Add presentation settings contracts/runtime with normalized
   defaults and command/event smoke coverage.
 - [ ] Step 373.3: Wire chart runtime/status presentation consumers for time
   format, status fields, chart margins, right offset, and crosshair readout

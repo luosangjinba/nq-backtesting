@@ -3,6 +3,7 @@ import { emitEvent } from './runtime/events.js';
 import { registerModule, startModules } from './runtime/module-registry.js';
 import { createRouter } from './runtime/router.js';
 import { createBarDataRuntime } from './runtime/bar-data-runtime.js';
+import { createChartPresentationRuntime } from './runtime/chart-presentation-runtime.js';
 import { createChartRuntime } from './runtime/chart-runtime.js';
 import { createDisplayTimezoneRuntime } from './runtime/display-timezone-runtime.js';
 import { createReplayRuntime } from './runtime/replay-runtime.js';
@@ -39,6 +40,7 @@ registerModule({
   },
 });
 registerModule(createChartRuntime());
+registerModule(createChartPresentationRuntime());
 registerModule(createBarDataRuntime());
 registerModule(createDisplayTimezoneRuntime());
 registerModule(createSessionRuntime(createSessionRepository({

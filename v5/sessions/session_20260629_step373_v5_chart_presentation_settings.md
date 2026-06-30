@@ -26,7 +26,16 @@ Status: complete.
 - Add a runtime that owns normalized presentation settings.
 - Add smoke coverage proving settings events do not mutate bars/replay state.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added chart presentation command/event contracts.
+- Added `createChartPresentationRuntime`.
+- Registered presentation settings runtime in the V5 app shell.
+- Added runtime smoke coverage for defaults, partial updates, reset,
+  normalization, event emission, and invalid values.
+- Added the runtime smoke to `v5/scripts/smoke_all.js`.
 
 ### Step 373.3 - Chart And Status Consumers
 
