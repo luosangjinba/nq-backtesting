@@ -120,7 +120,9 @@ async function main() {
 
         function chartSnapshot() {
           const canvas = document.querySelector('[data-chart-canvas]');
+          const host = document.querySelector('[data-chart-host]');
           return {
+            engine: host?.dataset.chartEngine || '',
             mode: canvas?.dataset.interactionMode || '',
             follow: canvas?.dataset.viewportFollow || '',
             rendered: Number(canvas?.dataset.renderedBarCount || 0),
@@ -224,6 +226,7 @@ async function main() {
             requestCountBeforeManual,
             requestCountAfterManual: requestCountBeforeNext,
             requestCountAfterNext: requests.length,
+            chartEngine: document.querySelector('[data-chart-host]')?.dataset.chartEngine || '',
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -235,6 +238,7 @@ async function main() {
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
+    assert.equal(value.chartEngine, 'dom-fallback');
     assert.equal(value.afterManualCursor, value.beforeCursor);
     assert.equal(value.afterNextCursor, '2026-06-01T09:31:00.000Z');
     assert.ok(value.afterManualDisplayCount >= value.beforeDisplayCount);

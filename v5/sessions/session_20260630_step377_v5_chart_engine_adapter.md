@@ -75,7 +75,15 @@ Status: complete.
 - Run full V5 smoke and `git diff --check`.
 - Update this handoff.
 
-Status: pending.
+Completed:
+
+- Added `v5/tests/chart-engine-boundary-smoke.js`.
+- Added the chart-engine boundary smoke to `v5/scripts/smoke_all.js`.
+- Updated chart interaction browser smoke to verify the static route uses the
+  adapter DOM fallback when no external chart engine is present.
+- Ran full V5 smoke and whitespace checks.
+
+Status: complete.
 
 ## Manual Acceptance
 
@@ -100,3 +108,5 @@ Status: pending.
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Result: all checks passed.

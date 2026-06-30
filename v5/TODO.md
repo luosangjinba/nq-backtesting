@@ -10,7 +10,7 @@ drag/zoom, crosshair, go-to time, orders, or journal overlays.
   fake Lightweight Charts integration.
 - [x] Step 377.3: Wire chart runtime through the adapter without changing
   replay/bar-data ownership contracts.
-- [ ] Step 377.4: Add boundary/browser verification, run full smoke, and update
+- [x] Step 377.4: Add boundary/browser verification, run full smoke, and update
   handoff.
 
 Manual acceptance:

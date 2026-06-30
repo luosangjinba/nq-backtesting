@@ -52,6 +52,7 @@ const commands = [
   ['node', ['v5/tests/bar-data-boundary-smoke.js']],
   ['node', ['v5/tests/bar-data-preload-boundary-smoke.js']],
   ['node', ['v5/tests/chart-boundary-smoke.js']],
+  ['node', ['v5/tests/chart-engine-boundary-smoke.js']],
   ['node', ['v5/tests/app-shell-browser-smoke.js']],
   ['node', ['v5/tests/session-setup-browser-smoke.js']],
   ['node', ['v5/tests/replay-initial-browser-smoke.js']],
