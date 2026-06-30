@@ -97,6 +97,8 @@ Step 376 should add or update harnesses proving:
 - Next/Play does not auto-resume follow after manual movement;
 - resume follow returns rendering to cursor-follow behavior;
 - manual movement emits viewport demand without requesting bars directly.
+- right-edge limit changes clamp manual visible range, readback state, and
+  rendered bars together.
 
 Expected checks:
 

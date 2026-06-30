@@ -110,3 +110,14 @@ Completed:
 - `git diff --check`
 
 Result: all checks passed.
+
+## Review Follow-Up
+
+Accepted audit fix:
+
+- `chart.setRightEdgeLimit` now clamps `interaction.manualVisibleRange` together
+  with `visibleRange` when manual mode is active.
+- Right-edge limit changes now recompute viewport/prefix demand and rerender
+  mounted chart hosts.
+- Added smoke coverage proving manual readback and rendered bars stay aligned
+  after the replay right edge moves left.

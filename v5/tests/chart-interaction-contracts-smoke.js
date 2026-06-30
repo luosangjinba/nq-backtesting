@@ -127,6 +127,34 @@ assert.deepEqual(
   ]
 );
 
+await dispatchCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, {
+  from: '2026-06-01T09:33:00.000Z',
+  to: '2026-06-01T09:35:00.000Z',
+});
+const clampedRightEdge = await dispatchCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, {
+  rightEdge: '2026-06-01T09:34:00.000Z',
+});
+assert.deepEqual(clampedRightEdge.visibleRange, {
+  from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:34:00.000Z') / 1000,
+});
+assert.deepEqual(clampedRightEdge.interaction.manualVisibleRange, clampedRightEdge.visibleRange);
+assert.deepEqual(
+  clampedRightEdge.renderedBars.map((item) => item.time),
+  [
+    '2026-06-01T09:32:00.000Z',
+    '2026-06-01T09:33:00.000Z',
+    '2026-06-01T09:34:00.000Z',
+  ]
+);
+assert.equal(host.children[0].dataset.renderedBarCount, '3');
+
+await dispatchCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, {
+  rightEdge: '2026-06-01T09:35:00.000Z',
+});
+visibleRangeEvents.length = 0;
+viewportDemandEvents.length = 0;
+
 const manual = await dispatchCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, {
   from: '2026-06-01T09:25:00.000Z',
   to: '2026-06-01T09:27:00.000Z',

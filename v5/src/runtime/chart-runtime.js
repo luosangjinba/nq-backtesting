@@ -78,6 +78,11 @@ function clampVisibleRange(range, rightEdgeLimit) {
   };
 }
 
+function rangesEqual(left, right) {
+  if (!left || !right) return left === right;
+  return left.from === right.from && left.to === right.to;
+}
+
 function estimateBarSpacingSeconds(bars) {
   const timestamps = bars
     .map((bar) => timestampSeconds(bar.time, 'chart bar time'))
@@ -425,13 +430,50 @@ export function createChartRuntime() {
 
   function setRightEdgeLimit({ rightEdge } = {}) {
     state.rightEdgeLimit = timestampSeconds(rightEdge, 'chart right edge limit');
+    let visibleRangeChanged = false;
+
     if (state.visibleRange) {
-      state.visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
+      const visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
+      visibleRangeChanged = !rangesEqual(state.visibleRange, visibleRange);
+      state.visibleRange = visibleRange;
+    }
+
+    if (state.interaction.mode === 'manual' && state.interaction.manualVisibleRange) {
+      const manualVisibleRange = clampVisibleRange(
+        state.interaction.manualVisibleRange,
+        state.rightEdgeLimit
+      );
+      visibleRangeChanged = visibleRangeChanged
+        || !rangesEqual(state.interaction.manualVisibleRange, manualVisibleRange)
+        || !rangesEqual(state.visibleRange, manualVisibleRange);
+      state.interaction = {
+        ...state.interaction,
+        manualVisibleRange: { ...manualVisibleRange },
+      };
+      state.visibleRange = { ...manualVisibleRange };
+    }
+
+    state.prefixDemand = computePrefixDemand(state);
+    state.viewportDemand = computeViewportDemand(state);
+    rerenderMountedHosts();
+
+    if (state.visibleRange && visibleRangeChanged) {
       emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
     }
+    if (state.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
+    }
+    if (state.prefixDemand) {
+      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
+    }
+
     return {
       rightEdgeLimit: state.rightEdgeLimit,
       visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+      interaction: structuredClone(state.interaction),
+      renderedBars: computeRenderedBars(state),
+      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
     };
   }
 

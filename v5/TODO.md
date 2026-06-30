@@ -71,6 +71,8 @@ Manual acceptance:
   directly.
 - Replay-owned viewport demand consumption may grow `displayBars` without
   resuming follow.
+- Replay right-edge changes keep manual visible range, interaction readback, and
+  rendered bars aligned.
 - UI does not directly slice bars, mutate replay state, or call bar-data APIs.
 - Crosshair, axis labels, go-to time, toolbar polish, orders, journal, SaaS
   auth, and billing remain out of scope.
