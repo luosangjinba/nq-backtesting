@@ -476,7 +476,7 @@ annotation work makes time handling harder to change.
 
 - [x] Step 372.1: Add a timezone spec, pure timezone contracts, and formatter
   smoke that separate canonical/request/display time.
-- [ ] Step 372.2: Add display timezone preference runtime commands/events with
+- [x] Step 372.2: Add display timezone preference runtime commands/events with
   default `Exchange` while proving timezone changes do not reload bars.
 - [ ] Step 372.3: Apply display timezone formatting to replay/chart labels and
   add browser coverage that timezone changes alter labels only.

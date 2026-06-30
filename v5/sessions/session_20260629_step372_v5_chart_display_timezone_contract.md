@@ -49,7 +49,15 @@ Completed:
   replay display state.
 - Add `v5/tests/display-timezone-runtime-smoke.js`.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added `createDisplayTimezoneRuntime`.
+- Registered display timezone runtime in the V5 app shell.
+- Added `v5/tests/display-timezone-runtime-smoke.js`.
+- Verified timezone changes emit events without changing bar requests, chart
+  bars, replay cursor, or replay display bars.
 
 ### Step 372.3 - UI Formatting
 
