@@ -11,12 +11,15 @@
 ## Current / Next
 
 - Current status: Step 379 is complete.
-- Next candidate: Step 380 should continue Phase 3 chart interaction, likely
-  crosshair readout or axis/tooltip formatting, while keeping order, journal,
-  dashboard, AI, and SaaS concerns out of Phase 3.
+- Next candidate: Step 380 should tune real Lightweight Charts timeScale and
+  interaction behavior before crosshair, axis/tooltip formatting, order,
+  journal, dashboard, AI, or SaaS work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
+- Known next issue: visible UI is still an engineering shell, not final product
+  UI. Lightweight chart drag/zoom is connected, but timeScale, right-edge,
+  manual/follow, and replay-workstation behavior still need tuning.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can

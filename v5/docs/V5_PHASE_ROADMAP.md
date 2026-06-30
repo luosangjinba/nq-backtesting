@@ -167,13 +167,14 @@ Out-of-phase backlog:
 
 ## Phase 3 - Real Chart Interaction
 
-Status: ready to start.
+Status: in progress.
 
 Goal: make the chart interaction surface feel like a usable replay workstation.
 
 Planned:
 
 - true visible-range drag and zoom;
+- Lightweight Charts timeScale/right-edge interaction tuning;
 - crosshair readout;
 - axis labels and tooltip formatting;
 - go-to time;
@@ -187,10 +188,13 @@ Gate:
 
 Entry checklist:
 
-- First Phase 3 step should define chart interaction runtime contracts for true
+- Completed: first Phase 3 step defined chart interaction runtime contracts for true
   visible-range drag/zoom.
-- Drag/zoom must decide how manual movement pauses or resumes replay
+- Completed: drag/zoom contracts decide how manual movement pauses replay
   auto-follow.
+- Current next: tune real Lightweight Charts timeScale behavior so native
+  pan/zoom feels like a replay workstation while preserving the chart runtime
+  right-edge/no-future boundary.
 - Chart runtime still owns visible range observation and chart rendering.
 - Replay runtime still owns cursor, reveal state, and no-future display
   invariants.

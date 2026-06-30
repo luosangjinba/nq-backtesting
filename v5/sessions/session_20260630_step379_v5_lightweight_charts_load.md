@@ -94,3 +94,14 @@ Status: complete.
 - `git diff --check`
 
 Result: all checks passed.
+
+## Handoff Notes
+
+- V5 now loads the real Lightweight Charts engine by default in the browser.
+- The visible UI is still an engineering shell, not final product UI.
+- Drag/zoom is no longer the DOM fallback path in normal browser use, but
+  Lightweight timeScale behavior has not yet been tuned for replay workstation
+  feel.
+- Recommended next step: Step 380 should tune Lightweight timeScale/right-edge
+  interaction behavior before crosshair, tooltip, order, journal, dashboard, AI,
+  or SaaS work.
