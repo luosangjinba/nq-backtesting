@@ -339,9 +339,9 @@ full history.
   window demand.
 - [x] Step 369.4: Add display-window cache retention that keeps recently loaded
   windows available for smooth right-drag return.
-- [ ] Step 369.5: Support arbitrary display timeframe switching through replay
+- [x] Step 369.5: Support arbitrary display timeframe switching through replay
   runtime commands.
-- [ ] Step 369.6: Guard higher-timeframe bars against future leakage relative to
+- [x] Step 369.6: Guard higher-timeframe bars against future leakage relative to
   the replay cursor.
 - [ ] Step 369.7: Add chart controls for display timeframe switching through
   command dispatch only.

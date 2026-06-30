@@ -20,6 +20,8 @@ function emptyState() {
     startBarTimestamp: null,
     cursorTimestamp: null,
     revealedCount: 0,
+    replayTimeframe: null,
+    displayTimeframe: null,
     prefixBars: [],
     prefixChunks: [],
     releasedPrefixChunks: [],
@@ -62,6 +64,40 @@ function selectNextBar(bars = [], cursorTimestamp) {
     .filter((bar) => Number(bar?.timestamp) > cursor)
     .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
   return candidates[0] || null;
+}
+
+function normalizeTimeframe(value, fieldName = 'replay timeframe') {
+  const normalized = Number(value);
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error(`${fieldName} must be a positive number.`);
+  }
+  return normalized;
+}
+
+function timeframeSeconds(timeframe) {
+  return normalizeTimeframe(timeframe) * 60;
+}
+
+export function isDisplayBarAllowed(bar, {
+  cursorTimestamp,
+  displayTimeframe,
+  replayTimeframe,
+} = {}) {
+  const barTimestamp = Number(bar?.timestamp);
+  if (!Number.isFinite(barTimestamp)) return false;
+  const cursor = timestampSeconds(cursorTimestamp);
+  const displayTf = normalizeTimeframe(displayTimeframe, 'display timeframe');
+  const replayTf = normalizeTimeframe(replayTimeframe, 'replay timeframe');
+  if (displayTf > replayTf) {
+    return barTimestamp + timeframeSeconds(displayTf) <= cursor;
+  }
+  return barTimestamp <= cursor;
+}
+
+function filterDisplayBarsForCursor(bars = [], context = {}) {
+  return bars
+    .filter((bar) => isDisplayBarAllowed(bar, context))
+    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
 }
 
 export function computePrefixBarCount(metrics = {}) {
@@ -166,6 +202,21 @@ export function createReplayRuntime() {
     }
   }
 
+  async function syncChartDisplayContext({ displayTimeframe, bars }) {
+    if (!hasCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT)) return;
+    const timestamps = (bars || [])
+      .map((bar) => Number(bar?.timestamp))
+      .filter(Number.isFinite)
+      .sort((left, right) => left - right);
+    await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
+      instrument: state.session?.instrument || null,
+      displayTimeframe,
+      loadedCoverage: timestamps.length
+        ? { from: timestamps[0], to: timestamps[timestamps.length - 1] }
+        : null,
+    });
+  }
+
   async function persistReplayCursor({ cursorTimestamp, revealedCount }) {
     return dispatchCommand(SESSION_COMMANDS.UPDATE_CURSOR, {
       sessionId: state.sessionId,
@@ -216,6 +267,8 @@ export function createReplayRuntime() {
       startBarTimestamp: startBar.time,
       cursorTimestamp: startBar.time,
       revealedCount: 0,
+      replayTimeframe: session.timeframe,
+      displayTimeframe: session.timeframe,
       prefixBars: [],
       prefixChunks: [],
       releasedPrefixChunks: [],
@@ -321,9 +374,15 @@ export function createReplayRuntime() {
     assertNoDisplayBarsAfter(displayBars, restoredCursorTimestamp);
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
     await syncChartRightEdgeLimit(restoredCursorTimestamp);
+    await syncChartDisplayContext({
+      displayTimeframe: state.displayTimeframe || state.session.timeframe,
+      bars: displayBars,
+    });
 
     state = {
       ...state,
+      replayTimeframe: state.session.timeframe,
+      displayTimeframe: state.displayTimeframe || state.session.timeframe,
       cursorTimestamp: restoredCursorTimestamp,
       revealedCount,
       displayBars: clone(displayBars),
@@ -338,6 +397,110 @@ export function createReplayRuntime() {
       viewportMetrics: clone(state.viewportMetrics),
     });
     return clone(state);
+  }
+
+  async function loadDisplayWindow({
+    sessionId = state.sessionId,
+    displayTimeframe = state.displayTimeframe || state.session?.timeframe,
+    anchor = state.cursorTimestamp,
+    direction = 'backward',
+    count,
+  } = {}) {
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    if (state.sessionId !== sessionId || state.status === 'idle') {
+      await loadInitialSession({ sessionId });
+    }
+    const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
+    const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS);
+    const displayCount = Number.isInteger(Number(count))
+      ? Number(count)
+      : computePrefixBarCount(metrics) + 1;
+    const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+      instrument: state.session.instrument,
+      timeframe: normalizedDisplayTimeframe,
+      anchor,
+      direction,
+      count: displayCount,
+    });
+    const displayBars = filterDisplayBarsForCursor(window.bars, {
+      cursorTimestamp: state.cursorTimestamp,
+      displayTimeframe: normalizedDisplayTimeframe,
+      replayTimeframe: state.replayTimeframe || state.session.timeframe,
+    });
+    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await syncChartRightEdgeLimit(state.cursorTimestamp);
+    await syncChartDisplayContext({
+      displayTimeframe: normalizedDisplayTimeframe,
+      bars: displayBars,
+    });
+
+    state = {
+      ...state,
+      displayTimeframe: normalizedDisplayTimeframe,
+      displayBars: clone(displayBars),
+      viewportMetrics: clone(metrics),
+      status: 'display-loaded',
+    };
+    const result = {
+      ...clone(state),
+      displayWindow: {
+        key: window.key,
+        instrument: window.instrument,
+        timeframe: window.timeframe,
+        start: window.start,
+        end: window.end,
+        anchor: window.anchor,
+        direction: window.direction,
+        estimatedBars: window.estimatedBars,
+        cached: Boolean(window.cached),
+      },
+    };
+    emit(REPLAY_EVENTS.DISPLAY_WINDOW_LOADED, result);
+    emit(REPLAY_EVENTS.DISPLAY_RELOADED, result);
+    return result;
+  }
+
+  async function setDisplayTimeframe({
+    sessionId = state.sessionId,
+    displayTimeframe,
+    count,
+  } = {}) {
+    const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    if (state.sessionId !== sessionId || state.status === 'idle') {
+      await loadInitialSession({ sessionId });
+    }
+    if (state.displayTimeframe === normalizedDisplayTimeframe && state.status === 'display-loaded') {
+      return getDisplayContext();
+    }
+    state = {
+      ...state,
+      displayTimeframe: normalizedDisplayTimeframe,
+    };
+    emit(REPLAY_EVENTS.DISPLAY_TIMEFRAME_CHANGED, getDisplayContext());
+    return loadDisplayWindow({
+      sessionId,
+      displayTimeframe: normalizedDisplayTimeframe,
+      anchor: state.cursorTimestamp,
+      direction: 'backward',
+      count,
+    });
+  }
+
+  function getDisplayContext() {
+    return {
+      sessionId: state.sessionId,
+      replayTimeframe: state.replayTimeframe || state.session?.timeframe || null,
+      displayTimeframe: state.displayTimeframe || state.session?.timeframe || null,
+      cursorTimestamp: state.cursorTimestamp,
+      displayBars: clone(state.displayBars),
+      viewportMetrics: clone(state.viewportMetrics),
+      status: state.status,
+    };
   }
 
   async function loadPrefixDemand({ prefixDemand } = {}) {
@@ -652,6 +815,9 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, (payload) => loadPrefixDemand(payload)),
+      registerCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, (payload) => setDisplayTimeframe(payload)),
+      registerCommand(REPLAY_COMMANDS.GET_DISPLAY_CONTEXT, () => getDisplayContext()),
+      registerCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, (payload) => loadDisplayWindow(payload)),
       registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => applyPrefixRetention(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),

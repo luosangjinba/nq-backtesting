@@ -108,7 +108,7 @@ Status: complete.
   - replace chart bars through chart runtime;
   - update right-edge limit for that display timeframe.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.6 - No-Future Higher-Timeframe Guard
 
@@ -118,7 +118,7 @@ Status: pending.
 - If partial higher-timeframe bars become product-approved later, document that
   as an explicit exception before implementation.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.7 - UI Controls
 
@@ -195,6 +195,18 @@ Status: pending.
   - `pruneCache` performs explicit delayed release.
 - Added `v5/tests/replay-display-window-cache-smoke.js`.
 - Added the display window cache smoke to `v5/scripts/smoke_all.js`.
+- Added replay runtime display state and commands:
+  - `replay.setDisplayTimeframe`;
+  - `replay.getDisplayContext`;
+  - `replay.loadDisplayWindow`.
+- Display timeframe defaults to the session replay timeframe.
+- Display timeframe switching loads bounded display windows through bar data
+  runtime and writes chart bars through chart runtime.
+- Added cursor-bound display filtering. Display timeframes larger than the
+  replay timeframe require bars to be complete before the replay cursor.
+- Added `v5/tests/replay-display-timeframe-smoke.js`.
+- Added `v5/tests/replay-display-timeframe-no-future-smoke.js`.
+- Added both display timeframe smokes to `v5/scripts/smoke_all.js`.
 
 ## Checks
 
@@ -231,11 +243,17 @@ Verified for Step 369.4:
 - `node v5/tests/prefix-retention-smoke.js`
 - `git diff --check`
 
+Verified for Step 369.5/369.6:
+
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-initial-render-smoke.js`
+- `node v5/tests/replay-next-smoke.js`
+- `git diff --check`
+
 ## Notes For Next Session
 
-Start Step 369.5/369.6 by implementing replay-owned display timeframe state,
-display window loading, and cursor-bound no-future filtering around the new
-viewport demand/cache foundation. The most important remaining design choice is
-how to determine whether a higher-timeframe bar is complete relative to the
-replay cursor. Do not implement timeframe switching before that rule is
-explicit.
+Start Step 369.7 by wiring display timeframe controls in the chart route. The
+runtime commands now exist; UI must only dispatch those commands and derive
+state from runtime responses/events. Step 369.8 should add browser coverage and
+final full-suite verification.
