@@ -108,6 +108,8 @@ assert.deepEqual(context.displayContext, {
   instrument: 'NQ',
   displayTimeframe: 1,
   loadedCoverage: null,
+  displayTimezone: 'Exchange',
+  exchangeTimezone: 'America/New_York',
 });
 assert.equal(context.viewportDemand, null);
 

@@ -128,12 +128,30 @@ Completed:
 - Added timezone contract, runtime, and browser smokes.
 - Added timezone smokes to `v5/scripts/smoke_all.js`.
 
+## Review Fixes
+
+- Chart runtime now carries display timezone context and formats candle titles
+  through the display timezone formatter.
+- Chart runtime subscribes to display timezone changes and rerenders mounted
+  hosts without changing chart bars.
+- Chart runtime now accepts numeric canonical bar timestamps from replay display
+  bars as first-class chart times.
+- Added shared canonical wall-clock parsing for timezone formatting and bar-data
+  request/response normalization.
+- Added timezone-control CSS so selected timezone state is visually consistent
+  with display-timeframe controls.
+- Strengthened browser coverage to verify the current/cursor candle title
+  changes with timezone while cursor, display bars, and `/v4/bars` requests do
+  not.
+
 ## Verified
 
 - `node v5/tests/timezone-contracts-smoke.js`
 - `node v5/tests/display-timezone-runtime-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
 - `node v5/tests/bar-data-runtime-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/replay-start-bar-smoke.js`
 - `node v5/tests/app-shell-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`

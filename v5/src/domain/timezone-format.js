@@ -3,26 +3,14 @@ import {
   DEFAULT_DISPLAY_TIMEZONE,
   DISPLAY_TIMEZONES,
 } from '../contracts/timezone-contracts.js';
+import { parseCanonicalTimeMs } from './canonical-time.js';
 
 function timestampSeconds(value) {
   if (typeof value === 'number') {
     return Math.floor(value);
   }
 
-  const text = typeof value === 'string' ? value.trim() : '';
-  const wallClockMatch = text.match(
-    /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d{3}Z)?$/
-  );
-  const parsed = wallClockMatch
-    ? Date.UTC(
-      Number(wallClockMatch[1]),
-      Number(wallClockMatch[2]) - 1,
-      Number(wallClockMatch[3]),
-      Number(wallClockMatch[4]),
-      Number(wallClockMatch[5]),
-      Number(wallClockMatch[6] || 0)
-    ) / 1000
-    : Date.parse(value) / 1000;
+  const parsed = parseCanonicalTimeMs(value) / 1000;
 
   if (!Number.isFinite(parsed)) {
     throw new Error('timezone timestamp must be valid.');

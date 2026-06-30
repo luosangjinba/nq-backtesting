@@ -92,6 +92,10 @@ const firstBars = [
 const replaced = await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: firstBars });
 assert.equal(replaced.bars.length, 2);
 assert.equal(host.children[0].children[0].dataset.chartBarCount, '2');
+assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 09:30 O:100 H:104 L:99 C:103');
+
+await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, { displayTimezone: 'UTC' });
+assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 13:30 O:100 H:104 L:99 C:103');
 
 const appended = await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [{ time: '2026-06-01T09:32:00.000Z', open: 102, high: 106, low: 102, close: 105 }],

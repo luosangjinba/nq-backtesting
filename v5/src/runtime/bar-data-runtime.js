@@ -1,5 +1,6 @@
 import { registerCommand } from './commands.js';
 import { BAR_DATA_COMMANDS, BAR_DATA_EVENTS } from '../contracts/bar-data-contracts.js';
+import { parseCanonicalTimeMs } from '../domain/canonical-time.js';
 
 export { BAR_DATA_COMMANDS, BAR_DATA_EVENTS };
 
@@ -32,20 +33,7 @@ function normalizeTimeframe(timeframe = 1) {
 }
 
 function parseTime(value, name) {
-  const text = typeof value === 'string' ? value.trim() : '';
-  const wallClockMatch = text.match(
-    /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d{3}Z)?$/
-  );
-  const timestamp = wallClockMatch
-    ? Date.UTC(
-      Number(wallClockMatch[1]),
-      Number(wallClockMatch[2]) - 1,
-      Number(wallClockMatch[3]),
-      Number(wallClockMatch[4]),
-      Number(wallClockMatch[5]),
-      Number(wallClockMatch[6] || 0)
-    )
-    : Date.parse(value);
+  const timestamp = parseCanonicalTimeMs(value);
   if (!Number.isFinite(timestamp)) {
     throw new Error(`bar data ${name} must be a valid date/time.`);
   }
@@ -62,7 +50,7 @@ function normalizeBar(bar) {
   }
 
   const timestamp = bar.timestamp ?? bar.time;
-  const parsedTime = typeof timestamp === 'number' ? timestamp * 1000 : Date.parse(timestamp);
+  const parsedTime = typeof timestamp === 'number' ? timestamp * 1000 : parseCanonicalTimeMs(timestamp);
   if (!Number.isFinite(parsedTime)) {
     throw new Error('bar data response bar timestamp is required.');
   }

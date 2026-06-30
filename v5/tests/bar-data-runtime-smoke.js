@@ -21,12 +21,12 @@ const runtime = createBarDataRuntime({
   fetchBars: async (window) => {
     requests.push(window);
     return {
-      requestedRange: { startTs: 1780315800, endTs: 1780315920 },
+      requestedRange: { startTs: 1780306200, endTs: 1780306320 },
       bars: [
-        { timestamp: 1780315920, open: 102, high: 103, low: 101, close: 102.5 },
-        { timestamp: 1780315800, open: 100, high: 101, low: 99, close: 100.5 },
-        { timestamp: 1780315860, open: 100.5, high: 102, low: 100, close: 101.5 },
-        { timestamp: 1780315860, open: 100.5, high: 102, low: 100, close: 101.5 },
+        { timestamp: 1780306320, open: 102, high: 103, low: 101, close: 102.5 },
+        { timestamp: 1780306200, open: 100, high: 101, low: 99, close: 100.5 },
+        { time: '2026-06-01 09:31', open: 100.5, high: 102, low: 100, close: 101.5 },
+        { time: '2026-06-01 09:31', open: 100.5, high: 102, low: 100, close: 101.5 },
       ],
     };
   },
@@ -79,7 +79,7 @@ assert.deepEqual(plannedWallClock, planned);
 const loaded = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, planned);
 assert.equal(requests.length, 1);
 assert.equal(loaded.bars.length, 3);
-assert.deepEqual(loaded.bars.map((bar) => bar.timestamp), [1780315800, 1780315860, 1780315920]);
+assert.deepEqual(loaded.bars.map((bar) => bar.timestamp), [1780306200, 1780306260, 1780306320]);
 assert.equal(loadedEvent.key, loaded.key);
 
 const cached = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, planned);

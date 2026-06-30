@@ -1,5 +1,12 @@
 import { registerCommand } from './commands.js';
+import { subscribeEvent } from './events.js';
 import { CHART_COMMANDS, CHART_EVENTS } from '../contracts/chart-contracts.js';
+import {
+  DEFAULT_DISPLAY_TIMEZONE,
+  DEFAULT_EXCHANGE_TIMEZONE,
+  DISPLAY_TIMEZONE_EVENTS,
+} from '../contracts/timezone-contracts.js';
+import { formatDisplayTimestamp } from '../domain/timezone-format.js';
 
 export { CHART_COMMANDS, CHART_EVENTS };
 
@@ -16,6 +23,8 @@ function createEmptyState() {
       instrument: null,
       displayTimeframe: null,
       loadedCoverage: null,
+      displayTimezone: DEFAULT_DISPLAY_TIMEZONE,
+      exchangeTimezone: DEFAULT_EXCHANGE_TIMEZONE,
     },
   };
 }
@@ -163,7 +172,9 @@ function normalizeBar(bar) {
   }
 
   const time = bar.time || bar.timestamp;
-  if (typeof time !== 'string' || !time.trim()) {
+  const hasStringTime = typeof time === 'string' && time.trim();
+  const hasNumericTime = typeof time === 'number' && Number.isFinite(time);
+  if (!hasStringTime && !hasNumericTime) {
     throw new Error('chart bar time is required.');
   }
 
@@ -175,7 +186,7 @@ function normalizeBar(bar) {
     throw new Error('chart bar OHLC values must be finite numbers.');
   }
 
-  return { time, open, high, low, close };
+  return { time: hasStringTime ? time.trim() : time, open, high, low, close };
 }
 
 function normalizeBars(bars) {
@@ -185,7 +196,17 @@ function normalizeBars(bars) {
   return bars.map(normalizeBar);
 }
 
-function renderBars(canvas, bars) {
+function formatChartBarTime(bar, displayContext) {
+  if (typeof bar.time === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(bar.time)) {
+    return bar.time;
+  }
+  return formatDisplayTimestamp(bar.time, {
+    displayTimezone: displayContext.displayTimezone,
+    exchangeTimezone: displayContext.exchangeTimezone,
+  });
+}
+
+function renderBars(canvas, bars, displayContext) {
   const plot = document.createElement('div');
   plot.className = 'chart-bar-plot';
   plot.dataset.chartBarCount = String(bars.length);
@@ -202,7 +223,7 @@ function renderBars(canvas, bars) {
     candle.className = `chart-candle ${bar.close >= bar.open ? 'is-up' : 'is-down'}`;
     candle.style.top = `${top}%`;
     candle.style.height = `${height}%`;
-    candle.title = `${bar.time} O:${bar.open} H:${bar.high} L:${bar.low} C:${bar.close}`;
+    candle.title = `${formatChartBarTime(bar, displayContext)} O:${bar.open} H:${bar.high} L:${bar.low} C:${bar.close}`;
     plot.append(candle);
   });
 
@@ -220,7 +241,7 @@ function renderChartFrame(host, state) {
   canvas.setAttribute('aria-label', 'Chart runtime canvas');
 
   if (state.bars.length) {
-    renderBars(canvas, state.bars);
+    renderBars(canvas, state.bars, state.displayContext);
   } else {
     const empty = document.createElement('span');
     empty.className = 'chart-empty-state';
@@ -341,17 +362,29 @@ export function createChartRuntime() {
     instrument = state.displayContext.instrument,
     displayTimeframe = state.displayContext.displayTimeframe,
     loadedCoverage = state.displayContext.loadedCoverage,
+    displayTimezone = state.displayContext.displayTimezone,
+    exchangeTimezone = state.displayContext.exchangeTimezone,
   } = {}) {
     state.displayContext = {
       instrument: instrument == null ? null : String(instrument),
       displayTimeframe: normalizeDisplayTimeframe(displayTimeframe),
       loadedCoverage: normalizeLoadedCoverage(loadedCoverage),
+      displayTimezone: displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
+      exchangeTimezone: exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
     };
     state.viewportDemand = computeViewportDemand(state);
+    rerenderMountedHosts();
     return {
       displayContext: structuredClone(state.displayContext),
       viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
     };
+  }
+
+  function updateDisplayTimezoneContext(payload = {}) {
+    return setDisplayContext({
+      displayTimezone: payload.displayTimezone,
+      exchangeTimezone: payload.exchangeTimezone,
+    });
   }
 
   function getViewportDemand() {
@@ -377,7 +410,8 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
-      registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand())
+      registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand()),
+      subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload))
     );
     mountAvailableHosts();
 

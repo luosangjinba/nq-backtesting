@@ -1,5 +1,6 @@
 import { dispatchCommand } from '../../runtime/commands.js';
 import { subscribeEvent } from '../../runtime/events.js';
+import { CHART_COMMANDS } from '../../contracts/chart-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
 import { formatDisplayTimestamp } from '../../domain/timezone-format.js';
@@ -150,6 +151,13 @@ export function createChartReplayRoute() {
         });
       }
 
+      async function syncChartDisplayTimezone() {
+        await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
+          displayTimezone,
+          exchangeTimezone,
+        }).catch(() => null);
+      }
+
       async function runReplayCommand(action) {
         if (commandInFlight || !params.sessionId) return null;
         commandInFlight = true;
@@ -229,6 +237,7 @@ export function createChartReplayRoute() {
           });
           displayTimezone = timezone.displayTimezone;
           exchangeTimezone = timezone.exchangeTimezone;
+          await syncChartDisplayTimezone();
           updateDisplayTimezoneButtons();
           await refreshReplayStatus();
         });
@@ -245,6 +254,16 @@ export function createChartReplayRoute() {
         DISPLAY_TIMEZONE_EVENTS.CHANGED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, () => {
+          if (eventName === DISPLAY_TIMEZONE_EVENTS.CHANGED) {
+            dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.GET)
+              .then((timezone) => {
+                displayTimezone = timezone.displayTimezone || displayTimezone;
+                exchangeTimezone = timezone.exchangeTimezone || exchangeTimezone;
+                return syncChartDisplayTimezone();
+              })
+              .finally(() => refreshReplayStatus());
+            return;
+          }
           refreshReplayStatus();
         });
         unsubscribeCallbacks.push(unsubscribe);

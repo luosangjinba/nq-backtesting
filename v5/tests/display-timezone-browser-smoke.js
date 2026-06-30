@@ -126,10 +126,11 @@ async function main() {
             await new Promise((resolve) => setTimeout(resolve, 100));
           }
           const timezone = await window.__v5Commands?.dispatchCommand('displayTimezone.get').catch(() => null);
-          throw new Error('waitFor timed out: ' + label + ' ' + JSON.stringify({
+              throw new Error('waitFor timed out: ' + label + ' ' + JSON.stringify({
             timezone,
             cursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             endLabel: document.querySelector('[data-replay-end]')?.textContent || '',
+            candleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
             selectedUtc: document.querySelector('[data-display-timezone="UTC"]')?.getAttribute('aria-pressed') || '',
           }));
         }
@@ -156,10 +157,12 @@ async function main() {
           const before = await commands.dispatchCommand('replay.getState');
           const beforeCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
           const beforeEndLabel = document.querySelector('[data-replay-end]')?.textContent || '';
+          const beforeCandleTitle = Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '';
           const requestCount = requests.length;
           document.querySelector('[data-display-timezone="UTC"]').click();
           await waitFor('utc label', async () =>
             document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 13:30'
+              && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith('2026-06-01 13:30')
           );
 
           const after = await commands.dispatchCommand('replay.getState');
@@ -167,8 +170,10 @@ async function main() {
             error: '',
             beforeCursorLabel,
             beforeEndLabel,
+            beforeCandleTitle,
             afterCursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             afterEndLabel: document.querySelector('[data-replay-end]')?.textContent || '',
+            afterCandleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
             selectedUtc: document.querySelector('[data-display-timezone="UTC"]')?.getAttribute('aria-pressed') || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
@@ -190,6 +195,8 @@ async function main() {
     assert.equal(value.afterCursorLabel, '2026-06-01 13:30');
     assert.equal(value.beforeEndLabel, '2026-06-01 09:40');
     assert.equal(value.afterEndLabel, '2026-06-01 13:40');
+    assert.match(value.beforeCandleTitle, /^2026-06-01 09:30/);
+    assert.match(value.afterCandleTitle, /^2026-06-01 13:30/);
     assert.equal(value.selectedUtc, 'true');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);

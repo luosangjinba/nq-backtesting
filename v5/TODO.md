@@ -482,6 +482,9 @@ annotation work makes time handling harder to change.
   add browser coverage that timezone changes alter labels only.
 - [x] Step 372.4: Add timezone smokes to `smoke_all`, run full verification,
   and update the session handoff.
+- [x] Step 372 review fix: Apply display timezone to chart candle titles,
+  style timezone controls, and share canonical wall-clock parsing across request
+  planning and response normalization.
 
 Manual acceptance:
 
@@ -503,6 +506,8 @@ Checks:
 - `node v5/tests/timezone-contracts-smoke.js`
 - `node v5/tests/display-timezone-runtime-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/bar-data-runtime-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
