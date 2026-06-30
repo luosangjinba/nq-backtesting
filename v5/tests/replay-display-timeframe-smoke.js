@@ -125,6 +125,33 @@ assert.equal(barRequests.at(-1).estimatedBars, 4);
 assert.notEqual(barRequests.at(-1).start, '2026-06-01 09:30');
 assert.notEqual(barRequests.at(-1).end, '2026-06-01 09:40');
 
+const viewportDemandLoad = await dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, {
+  sessionId: created.session.id,
+  viewportDemand: {
+    instrument: 'NQ',
+    displayTimeframe: 5,
+    direction: 'backward',
+    visibleFrom: timestamp('2026-06-01T09:05:00.000Z'),
+    visibleTo: timestamp('2026-06-01T09:20:00.000Z'),
+    loadedCoverage: {
+      from: timestamp('2026-06-01T09:15:00.000Z'),
+      to: timestamp('2026-06-01T09:25:00.000Z'),
+    },
+    missingWindow: {
+      direction: 'backward',
+      anchor: '2026-06-01T09:15:00.000Z',
+      from: timestamp('2026-06-01T09:05:00.000Z'),
+      to: timestamp('2026-06-01T09:15:00.000Z'),
+      suggestedCount: 3,
+    },
+  },
+});
+assert.equal(viewportDemandLoad.displayTimeframe, 5);
+assert.equal(barRequests.at(-1).timeframe, 5);
+assert.equal(barRequests.at(-1).anchor, '2026-06-01T09:15:00.000Z');
+assert.equal(barRequests.at(-1).direction, 'backward');
+assert.equal(barRequests.at(-1).estimatedBars, 3);
+
 const display1h = await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
   sessionId: created.session.id,
   displayTimeframe: 60,

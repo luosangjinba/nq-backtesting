@@ -67,7 +67,15 @@ Completed:
 - Deduplicate duplicate/in-flight demand keys.
 - Keep all bar-data requests bounded by count/window.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- `replay.loadDisplayWindow` accepts `viewportDemand`.
+- `viewportDemand.missingWindow` supplies bounded anchor, direction, display
+  timeframe, and suggested count.
+- Replay runtime dedupes identical in-flight display-window demand keys.
+- The display timeframe smoke verifies viewport demand normalization.
 
 ### Step 370.4 - Display Merge And Cache Reuse
 

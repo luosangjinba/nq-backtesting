@@ -195,6 +195,7 @@ export function createReplayRuntime() {
   let emit = () => {};
   const loadedPrefixAnchors = new Set();
   const loadingPrefixAnchors = new Set();
+  const loadingDisplayWindowKeys = new Set();
 
   async function syncChartRightEdgeLimit(rightEdge) {
     if (hasCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT)) {
@@ -405,6 +406,7 @@ export function createReplayRuntime() {
     anchor = state.cursorTimestamp,
     direction = 'backward',
     count,
+    viewportDemand,
   } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -412,17 +414,43 @@ export function createReplayRuntime() {
     if (state.sessionId !== sessionId || state.status === 'idle') {
       await loadInitialSession({ sessionId });
     }
-    const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
+    const missingWindow = viewportDemand?.missingWindow || {};
+    const normalizedDisplayTimeframe = normalizeTimeframe(
+      viewportDemand?.displayTimeframe || displayTimeframe,
+      'display timeframe'
+    );
     const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS);
-    const displayCount = Number.isInteger(Number(count))
-      ? Number(count)
+    const requestedCount = count ?? missingWindow.suggestedCount;
+    const displayCount = Number.isInteger(Number(requestedCount))
+      ? Number(requestedCount)
       : computePrefixBarCount(metrics) + 1;
+    const normalizedCount = Math.min(Math.max(1, Math.ceil(displayCount)), MAX_PREFIX_BARS);
+    const normalizedAnchor = missingWindow.anchor || anchor;
+    const normalizedDirection = missingWindow.direction || viewportDemand?.direction || direction;
+    const demandKey = [
+      sessionId,
+      state.session.instrument,
+      normalizedDisplayTimeframe,
+      normalizedAnchor,
+      normalizedDirection,
+      normalizedCount,
+    ].join('|');
+    if (loadingDisplayWindowKeys.has(demandKey)) {
+      return {
+        ...clone(state),
+        loaded: false,
+        reason: 'duplicate-display-window-demand',
+      };
+    }
+
+    loadingDisplayWindowKeys.add(demandKey);
+    try {
     const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
       instrument: state.session.instrument,
       timeframe: normalizedDisplayTimeframe,
-      anchor,
-      direction,
-      count: displayCount,
+      anchor: normalizedAnchor,
+      direction: normalizedDirection,
+      count: normalizedCount,
     });
     const displayBars = filterDisplayBarsForCursor(window.bars, {
       cursorTimestamp: state.cursorTimestamp,
@@ -460,6 +488,9 @@ export function createReplayRuntime() {
     emit(REPLAY_EVENTS.DISPLAY_WINDOW_LOADED, result);
     emit(REPLAY_EVENTS.DISPLAY_RELOADED, result);
     return result;
+    } finally {
+      loadingDisplayWindowKeys.delete(demandKey);
+    }
   }
 
   async function setDisplayTimeframe({

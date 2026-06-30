@@ -391,7 +391,7 @@ runtime ownership chain instead of remaining a test-only demand signal.
   translated into `replay.loadDisplayWindow` through command dispatch only.
 - [x] Step 370.2: Add the route/app-shell wiring that subscribes to chart
   viewport demand while a chart replay session is active.
-- [ ] Step 370.3: Teach replay display-window loading to consume viewport
+- [x] Step 370.3: Teach replay display-window loading to consume viewport
   missing-window payloads, dedupe in-flight demand, and keep requests bounded.
 - [ ] Step 370.4: Merge newly loaded display windows with existing display bars
   and reuse cached bar windows when panning back into known history.
