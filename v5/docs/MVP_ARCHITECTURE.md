@@ -59,6 +59,12 @@ V5 is multi-user by model from day one.
 The first implementation can use a `default_user`, but user-owned records must
 already be scoped correctly.
 
+V5 is SaaS-ready, not SaaS-heavy, during the replay workstation MVP. This means
+domain records and repositories must be shaped so they can move to a server
+later, but public auth, billing, entitlement, and production multi-tenancy are
+not part of the current MVP. Those systems should wait until replay, chart
+interaction, orders, and journal workflows prove a repeatable training loop.
+
 Minimum entities:
 
 - `users`
@@ -101,6 +107,10 @@ Minimum entities:
 
 Rule: every user-owned record must contain `user_id` directly or belong to a
 record that contains `user_id`.
+
+Rule: feature modules must not couple directly to `localStorage` or future
+server APIs. They use commands/events and runtime/repository contracts so the
+storage backend can change without rewriting feature ownership.
 
 ## Runtime Boundaries
 
@@ -332,4 +342,3 @@ Step 357 is complete when:
 - TODO defines the staged MVP path;
 - session handoff records the decisions;
 - git status is clean after commit.
-

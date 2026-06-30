@@ -182,6 +182,12 @@ V5 is multi-user by model from day one.
 The first MVP may use a default user, but all user-owned records must already be
 scoped to `user_id` or to a parent record that has `user_id`.
 
+The implementation strategy is SaaS-ready, not SaaS-heavy. Keep ownership,
+repositories, canonical replay time, and bounded data loading compatible with a
+future hosted product, but do not introduce public auth, billing, entitlement,
+or production multi-tenancy before the replay + order + journal training loop is
+validated.
+
 Minimum model:
 
 - `users`
@@ -198,6 +204,10 @@ Future model:
 - `preferences`
 
 Rule: no user-owned global singleton state.
+
+Rule: no feature module directly owns persistence. Local storage is an
+implementation detail behind repositories/runtimes until server persistence is
+introduced.
 
 ## 6. Documentation System
 
@@ -472,4 +482,3 @@ The V5 framework is successful when:
 - FX Replay initial load behaves like the intended FX Replay model;
 - later features can plug into runtime commands/events without taking control of
   the framework.
-

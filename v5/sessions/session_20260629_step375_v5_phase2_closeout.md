@@ -64,3 +64,26 @@ Completed:
 - `git diff --check`
 
 Result: all checks passed.
+
+## Follow-up SaaS Strategy Decision
+
+After Phase 2 closeout, the product direction was clarified:
+
+- V5 should remain SaaS-ready, not SaaS-heavy, during Phase 3 and Phase 4.
+- The SaaS-worthy value is the trading training loop: replay plus simulated
+  orders, journal, analytics, and durable practice history.
+- Replay alone is not enough differentiation to justify early auth, billing, or
+  production multi-tenant infrastructure.
+- Phase 3 remains chart interaction runtime work.
+- Phase 4 should validate order/journal training value with server-ready models.
+- Phase 6 is the earliest phase for public auth, billing, entitlement, hosted
+  persistence, and multi-user maturity.
+
+Updated documents:
+
+- `v5/docs/specs/saas-readiness-strategy.md`
+- `v5/docs/specs/README.md`
+- `v5/docs/V5_PHASE_ROADMAP.md`
+- `v5/docs/MVP_ARCHITECTURE.md`
+- `v5/docs/EXECUTION_FRAMEWORK.md`
+- `v5/TODO.md`

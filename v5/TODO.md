@@ -74,6 +74,23 @@ Checks:
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
+## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
+
+Goal: preserve the option to become a hosted SaaS without slowing the current
+replay workstation MVP with premature auth, billing, or server infrastructure.
+
+- [x] Add SaaS readiness strategy to specs and phase docs.
+
+Manual acceptance:
+
+- New durable models keep user/workspace/session ownership paths.
+- Feature modules use commands/events and repositories/runtimes, not direct
+  persistence access.
+- Phase 3 remains chart interaction work.
+- Phase 4 validates replay + order + journal training value.
+- Phase 6 is the earliest phase for public auth, billing, entitlement, and
+  server-backed multi-user maturity.
+
 ## Step 374 - V5 Replay Viewport Follow And Rolling Window
 
 Goal: close the Phase 2 viewport/display gate by separating revealed

@@ -18,6 +18,11 @@ instead of implementing it immediately. Do not add a feature because it is
 visible in FXReplay unless it closes a current phase gate or is explicitly
 promoted by updating this roadmap.
 
+SaaS direction: V5 should stay SaaS-ready without becoming SaaS-heavy too early.
+Until the replay training loop is validated, new work should preserve
+user/workspace ownership and server-replaceable storage boundaries, but defer
+public auth, billing, production multi-tenancy, and entitlement systems.
+
 ## Phase Gates
 
 A phase is not complete because all planned code exists. It is complete only
@@ -167,6 +172,9 @@ Entry checklist:
 - Bar data runtime remains the only source of `/v4/bars` requests.
 - Toolbar polish, order/journal overlays, rich drawings, and full settings
   templates must wait until their target phases unless this roadmap is updated.
+- SaaS infrastructure is not Phase 3 work. Interaction state should be designed
+  so it can later be persisted, but public auth, billing, and server persistence
+  remain out of scope.
 
 ## Phase 4 - Trading And Journal MVP
 
@@ -187,6 +195,10 @@ Gate:
 
 - Orders and journal entries are tied to canonical replay time and remain stable
   under timezone, timeframe, and viewport changes.
+- Orders and journal entries have explicit user/workspace/session ownership so
+  they can move from local persistence to server persistence later.
+- This phase validates the SaaS product thesis: replay plus order/journal
+  training history, not replay alone.
 
 ## Phase 5 - Review And Annotation Tools
 
@@ -216,6 +228,11 @@ Goal: turn the MVP into a durable multi-user workspace.
 
 Planned:
 
+- server-backed workspace/session/order/journal persistence;
+- auth and account identity;
+- subscription and billing experiments only after the training loop has proven
+  repeated value;
+- market data entitlement, usage limits, and hosted cost controls;
 - persisted user/workspace chart settings;
 - chart presentation templates;
 - layout persistence;
@@ -227,6 +244,8 @@ Gate:
 
 - A user can leave and return to a workspace with replay, chart presentation,
   journal, orders, and layouts restored through explicit storage contracts.
+- Hosted SaaS concerns are introduced behind existing repositories/runtimes
+  without feature modules directly reading server APIs or persistence.
 
 ## Step Selection Protocol
 
@@ -238,7 +257,7 @@ Before starting a new V5 step:
 4. Keep the step bounded enough to commit substeps independently.
 5. Add or update smoke/browser coverage before closing the step.
 
-Current active phase: Phase 2.
+Current active phase: Phase 3.
 
-Current recommended next step: Step 374 - Replay viewport follow / rolling
-visible window.
+Current recommended next step: Step 376 - Chart interaction runtime contracts
+for true visible-range drag/zoom.

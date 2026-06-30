@@ -53,3 +53,7 @@ around by local UI observations or one-off FXReplay parity details.
 - `chart-presentation-settings.md`: stable rules for chart display preferences
   such as time label format, status fields, margins, right offset, and crosshair
   readouts without mutating replay/bar state.
+- `saas-readiness-strategy.md`: cross-phase rule that V5 stays SaaS-ready
+  through ownership, repositories, and canonical replay time, while deferring
+  auth, billing, and server-backed multi-tenancy until the training loop is
+  validated.
