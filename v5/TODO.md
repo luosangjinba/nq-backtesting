@@ -468,3 +468,41 @@ Checks:
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 372 - V5 Chart Display Timezone Contract
+
+Goal: freeze V5 timezone semantics before more chart, order, journal, and
+annotation work makes time handling harder to change.
+
+- [ ] Step 372.1: Add a timezone spec, pure timezone contracts, and formatter
+  smoke that separate canonical/request/display time.
+- [ ] Step 372.2: Add display timezone preference runtime commands/events with
+  default `Exchange` while proving timezone changes do not reload bars.
+- [ ] Step 372.3: Apply display timezone formatting to replay/chart labels and
+  add browser coverage that timezone changes alter labels only.
+- [ ] Step 372.4: Add timezone smokes to `smoke_all`, run full verification,
+  and update the session handoff.
+
+Manual acceptance:
+
+- Internal replay/cursor/bar identity remains canonical and does not change when
+  display timezone changes.
+- `/v4/bars` requests continue to use exchange wall-clock `YYYY-MM-DD HH:mm`.
+- `Exchange` defaults to the current V4 data convention:
+  `America/New_York` wall-clock for NQ/ES.
+- Display timezone affects labels only: axis/status/tooltip-style text can
+  change, but `displayBars`, cursor timestamp, cache keys, and request ranges do
+  not.
+- Timezone changes dispatch commands/events; UI does not mutate runtime state
+  directly.
+- Higher-timeframe no-future checks continue to use canonical cursor/bar
+  timestamps, not formatted display labels.
+
+Checks:
+
+- `node v5/tests/timezone-contracts-smoke.js`
+- `node v5/tests/display-timezone-runtime-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
