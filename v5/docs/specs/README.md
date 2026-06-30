@@ -36,6 +36,8 @@ Specs are grouped by stable behavior area, not by step number. The step notes
 below explain where a spec entered or materially changed V5; they do not imply
 that future work must follow this file order.
 
+- `product-review-loop.md`: cross-phase product north star defining Historical
+  Replay Review and Live Execution Review as the two core training workflows.
 - `fx-replay-initial-load.md`: stable rules for replay chart entry, wall-clock
   time semantics, initial display invariants, and verification harnesses.
 - `fx-replay-prefix-demand-retention.md`: stable rules for left-side prefix
@@ -70,6 +72,7 @@ that future work must follow this file order.
 
 ## Step Source Map
 
+- Product north star: `product-review-loop.md`
 - Step 363: `fx-replay-initial-load.md`
 - Step 365: `fx-replay-prefix-demand-retention.md`
 - Step 366: `fx-replay-controls-ui.md`

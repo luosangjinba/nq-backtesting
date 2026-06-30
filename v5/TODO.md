@@ -13,6 +13,8 @@
 - Current status: Step 377 is complete and reviewed.
 - Next candidate: Step 378 should continue Phase 3 real chart interaction from the chart-engine adapter foundation.
 - Before starting Step 378, add its TODO/session plan and keep the implementation bounded to the Phase 3 gate.
+- New steps should state whether they advance Historical Replay Review, Live
+  Execution Review, both, or necessary infrastructure.
 
 ## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
 

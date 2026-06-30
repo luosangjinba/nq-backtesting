@@ -12,6 +12,8 @@ Read this index before working on V5.
 - `v5/TODO.md`: current step plan and manual acceptance standards.
 - `v5/sessions/README.md`: session handoff ordering and targeted lookup rules.
 - `v5/docs/specs/README.md`: stable spec index and step source map.
+- `v5/docs/specs/product-review-loop.md`: product north star for Historical
+  Replay Review and Live Execution Review.
 
 ## Current Direction
 

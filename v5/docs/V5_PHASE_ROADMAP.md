@@ -23,6 +23,16 @@ Until the replay training loop is validated, new work should preserve
 user/workspace ownership and server-replaceable storage boundaries, but defer
 public auth, billing, production multi-tenancy, and entitlement systems.
 
+Product north star: V5 serves two training workflows:
+
+- Historical Replay Review: no-future-information replay for pattern
+  recognition, patience, and decision practice.
+- Live Execution Review: review of past real-time execution quality, separating
+  process correctness from PnL outcome.
+
+New steps should state which workflow they advance, or why the work is necessary
+infrastructure for that review loop.
+
 ## Phase Gates
 
 A phase is not complete because all planned code exists. It is complete only
@@ -180,7 +190,7 @@ Entry checklist:
 
 Status: pending Phase 3 gate.
 
-Goal: add the core trading simulator and journal workflow.
+Goal: add the core trading simulator and Live Execution Review workflow.
 
 Planned:
 
@@ -188,7 +198,9 @@ Planned:
 - order markers;
 - position and PnL state;
 - account balance display;
-- journal entry tied to replay cursor;
+- execution review entry tied to replay cursor and decision context;
+- process-quality tags such as early entry, correct execution, stop too tight,
+  hesitation, and profitable mistake;
 - news/economic event baseline.
 
 Gate:
@@ -197,8 +209,11 @@ Gate:
   under timezone, timeframe, and viewport changes.
 - Orders and journal entries have explicit user/workspace/session ownership so
   they can move from local persistence to server persistence later.
-- This phase validates the SaaS product thesis: replay plus order/journal
-  training history, not replay alone.
+- Live Execution Review separates process quality from PnL outcome so a winning
+  trade can still be marked as an execution error and a losing trade can still be
+  marked as correct execution.
+- This phase validates the SaaS product thesis: Historical Replay Review plus
+  Live Execution Review training history, not replay alone.
 
 ## Phase 5 - Review And Annotation Tools
 
@@ -213,6 +228,7 @@ Planned:
 - drawing tools;
 - order review;
 - evidence/segment/PDA-style study tools;
+- topical Historical Replay Review and Live Execution Review comparison sets;
 - selective V4 workflow migration through V5 contracts.
 
 Gate:
