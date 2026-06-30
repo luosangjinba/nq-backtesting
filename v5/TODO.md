@@ -380,3 +380,45 @@ Checks:
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 370 - V5 Viewport Demand Runtime Wiring
+
+Goal: route actual chart viewport demand events into bounded replay
+display-window loading, so left panning loads older display history through the
+runtime ownership chain instead of remaining a test-only demand signal.
+
+- [ ] Step 370.1: Add a runtime smoke proving a `chart:viewportDemand` event is
+  translated into `replay.loadDisplayWindow` through command dispatch only.
+- [ ] Step 370.2: Add the route/app-shell wiring that subscribes to chart
+  viewport demand while a chart replay session is active.
+- [ ] Step 370.3: Teach replay display-window loading to consume viewport
+  missing-window payloads, dedupe in-flight demand, and keep requests bounded.
+- [ ] Step 370.4: Merge newly loaded display windows with existing display bars
+  and reuse cached bar windows when panning back into known history.
+- [ ] Step 370.5: Add browser coverage for user-visible left pan demand and
+  update the session handoff after full smoke verification.
+
+Manual acceptance:
+
+- A chart visible-range change that crosses loaded left coverage causes one
+  bounded replay display-window load.
+- The wiring dispatches replay commands only; it does not request bars or write
+  chart series from the feature layer.
+- Replay runtime remains the owner of display state and no-future filtering.
+- Bar data runtime remains the only owner of bar requests and cache hits.
+- Newly loaded display windows merge with existing display bars instead of
+  replacing useful visible context with a single isolated window.
+- Duplicate or overlapping viewport demand does not create duplicate in-flight
+  bar requests.
+- Cached display windows are reused when the viewport returns to known coverage.
+- No request loads the full replay session range or full left-side history.
+
+Checks:
+
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/replay-display-window-cache-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
