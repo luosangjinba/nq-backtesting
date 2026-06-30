@@ -1,6 +1,7 @@
 import { dispatchCommand } from '../../runtime/commands.js';
 import { subscribeEvent } from '../../runtime/events.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
+import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
 export function createChartReplayRoute() {
   return {
@@ -64,6 +65,16 @@ export function createChartReplayRoute() {
       let terminalReason = '';
       let displayTimeframe = null;
       const unsubscribeCallbacks = [];
+      const viewportDemandBridge = createReplayViewportDemandBridge({
+        getSessionId: () => params.sessionId || '',
+        onLoaded: (state) => {
+          status.textContent = `Loaded ${state.displayBars?.length || 0} bars.`;
+          refreshReplayStatus();
+        },
+        onError: (error) => {
+          status.textContent = error?.message || String(error);
+        },
+      });
       sessionIdLabel.textContent = sessionId;
 
       async function refreshReplayStatus() {
@@ -195,6 +206,7 @@ export function createChartReplayRoute() {
         unsubscribeCallbacks.push(unsubscribe);
       });
       section.dispose = () => {
+        viewportDemandBridge.stop();
         while (unsubscribeCallbacks.length) {
           unsubscribeCallbacks.pop()();
         }
@@ -204,6 +216,7 @@ export function createChartReplayRoute() {
           });
         });
       };
+      viewportDemandBridge.start();
 
       if (params.sessionId) {
         setTimeout(async () => {

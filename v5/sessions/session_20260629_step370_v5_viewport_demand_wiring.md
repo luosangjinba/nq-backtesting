@@ -49,7 +49,16 @@ Red check:
 - Dispatch `REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW` with the viewport demand.
 - Clean up the subscription on route disposal.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added `createReplayViewportDemandBridge`.
+- The bridge subscribes to `chart:viewportDemand`.
+- The bridge dispatches `replay.loadDisplayWindow` with `{ sessionId,
+  viewportDemand }`.
+- The bridge dedupes identical in-flight demand keys.
+- The chart replay route starts/stops the bridge with route lifecycle.
 
 ### Step 370.3 - Replay Demand Normalization
 

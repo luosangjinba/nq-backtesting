@@ -389,7 +389,7 @@ runtime ownership chain instead of remaining a test-only demand signal.
 
 - [x] Step 370.1: Add a runtime smoke proving a `chart:viewportDemand` event is
   translated into `replay.loadDisplayWindow` through command dispatch only.
-- [ ] Step 370.2: Add the route/app-shell wiring that subscribes to chart
+- [x] Step 370.2: Add the route/app-shell wiring that subscribes to chart
   viewport demand while a chart replay session is active.
 - [ ] Step 370.3: Teach replay display-window loading to consume viewport
   missing-window payloads, dedupe in-flight demand, and keep requests bounded.
