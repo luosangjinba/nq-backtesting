@@ -185,6 +185,36 @@ assert.equal(lightweight.readState().engineType, 'lightweight-charts');
 assert.equal(lightweight.readState().barCount, 2);
 assert.equal(lightweightCalls.created, 1);
 assert.equal(lightweightHost.dataset.chartEngine, 'lightweight-charts');
+assert.deepEqual(lightweightCalls.options.handleScroll, {
+  mouseWheel: false,
+  pressedMouseMove: true,
+  horzTouchDrag: true,
+  vertTouchDrag: false,
+});
+assert.deepEqual(lightweightCalls.options.handleScale, {
+  axisPressedMouseMove: true,
+  mouseWheel: true,
+  pinch: true,
+});
+assert.deepEqual(lightweightCalls.options.timeScale, {
+  borderColor: '#2b2f36',
+  barSpacing: 10,
+  minBarSpacing: 3,
+  lockVisibleTimeRangeOnResize: true,
+  rightBarStaysOnScroll: true,
+  shiftVisibleRangeOnNewBar: false,
+  fixLeftEdge: false,
+  fixRightEdge: false,
+  rightOffset: 3,
+});
+assert.equal(lightweightHost.children[0].dataset.timeScaleBarSpacing, '10');
+assert.equal(lightweightHost.children[0].dataset.timeScaleMinBarSpacing, '3');
+assert.equal(lightweightHost.children[0].dataset.timeScaleLockOnResize, 'true');
+assert.equal(lightweightHost.children[0].dataset.timeScaleRightBarStaysOnScroll, 'true');
+assert.equal(lightweightHost.children[0].dataset.handleScrollMouseWheel, 'false');
+assert.equal(lightweightHost.children[0].dataset.handleScrollPressedMouseMove, 'true');
+assert.equal(lightweightHost.children[0].dataset.handleScaleMouseWheel, 'true');
+assert.equal(lightweightHost.children[0].dataset.timeScaleRightOffset, '4');
 assert.deepEqual(
   lightweightCalls.setData[0].map((item) => item.time),
   [
@@ -193,7 +223,27 @@ assert.deepEqual(
   ]
 );
 assert.deepEqual(lightweightCalls.applyOptions[0], {
-  timeScale: { rightOffset: 4 },
+  handleScroll: {
+    mouseWheel: false,
+    pressedMouseMove: true,
+    horzTouchDrag: true,
+    vertTouchDrag: false,
+  },
+  handleScale: {
+    axisPressedMouseMove: true,
+    mouseWheel: true,
+    pinch: true,
+  },
+  timeScale: {
+    barSpacing: 10,
+    minBarSpacing: 3,
+    lockVisibleTimeRangeOnResize: true,
+    rightBarStaysOnScroll: true,
+    shiftVisibleRangeOnNewBar: false,
+    fixLeftEdge: false,
+    fixRightEdge: false,
+    rightOffset: 4,
+  },
 });
 assert.deepEqual(lightweightCalls.setVisibleRange[0], {
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,

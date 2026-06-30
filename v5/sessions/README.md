@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 379: `session_20260630_step379_v5_lightweight_charts_load.md`
+- Step 380: `session_20260630_step380_v5_lightweight_timescale_tuning.md`
 
 ## Completed Session Index
 
@@ -44,3 +44,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 377: `session_20260630_step377_v5_chart_engine_adapter.md`
 - Step 378: `session_20260630_step378_v5_minimal_chart_drag_zoom.md`
 - Step 379: `session_20260630_step379_v5_lightweight_charts_load.md`
+- Step 380: `session_20260630_step380_v5_lightweight_timescale_tuning.md`

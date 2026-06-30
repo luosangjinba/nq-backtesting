@@ -127,6 +127,14 @@ async function main() {
             follow: canvas?.dataset.viewportFollow || '',
             rendered: Number(canvas?.dataset.renderedBarCount || 0),
             full: Number(canvas?.dataset.fullBarCount || 0),
+            timeScaleBarSpacing: canvas?.dataset.timeScaleBarSpacing || '',
+            timeScaleMinBarSpacing: canvas?.dataset.timeScaleMinBarSpacing || '',
+            timeScaleLockOnResize: canvas?.dataset.timeScaleLockOnResize || '',
+            timeScaleRightBarStaysOnScroll: canvas?.dataset.timeScaleRightBarStaysOnScroll || '',
+            handleScrollMouseWheel: canvas?.dataset.handleScrollMouseWheel || '',
+            handleScrollPressedMouseMove: canvas?.dataset.handleScrollPressedMouseMove || '',
+            handleScaleMouseWheel: canvas?.dataset.handleScaleMouseWheel || '',
+            timeScaleRightOffset: canvas?.dataset.timeScaleRightOffset || '',
             titles: Array.from(document.querySelectorAll('.chart-candle')).map((item) => item.title),
           };
         }
@@ -300,6 +308,14 @@ async function main() {
             afterNextLastTitle: afterNextChart.titles.at(-1) || '',
             resumedMode: resumedChart.mode,
             resumedLastTitle: resumedChart.titles.at(-1) || '',
+            timeScaleBarSpacing: resumedChart.timeScaleBarSpacing,
+            timeScaleMinBarSpacing: resumedChart.timeScaleMinBarSpacing,
+            timeScaleLockOnResize: resumedChart.timeScaleLockOnResize,
+            timeScaleRightBarStaysOnScroll: resumedChart.timeScaleRightBarStaysOnScroll,
+            handleScrollMouseWheel: resumedChart.handleScrollMouseWheel,
+            handleScrollPressedMouseMove: resumedChart.handleScrollPressedMouseMove,
+            handleScaleMouseWheel: resumedChart.handleScaleMouseWheel,
+            timeScaleRightOffset: resumedChart.timeScaleRightOffset,
             requestCountBeforeManual,
             requestCountAfterManual: requestCountBeforeNext,
             requestCountAfterNext: requests.length,
@@ -334,6 +350,14 @@ async function main() {
     assert.equal(value.afterNextLastTitle, value.manualLastTitle);
     assert.equal(value.resumedMode, 'follow');
     assert.match(value.resumedLastTitle, /^2026-06-01 09:31/);
+    assert.equal(value.timeScaleBarSpacing, '10');
+    assert.equal(value.timeScaleMinBarSpacing, '3');
+    assert.equal(value.timeScaleLockOnResize, 'true');
+    assert.equal(value.timeScaleRightBarStaysOnScroll, 'true');
+    assert.equal(value.handleScrollMouseWheel, 'false');
+    assert.equal(value.handleScrollPressedMouseMove, 'true');
+    assert.equal(value.handleScaleMouseWheel, 'true');
+    assert.equal(value.timeScaleRightOffset, '10');
     assert.ok(value.requestCountAfterManual >= value.requestCountBeforeManual);
     assert.ok(
       value.requestCountAfterNext === value.requestCountAfterManual

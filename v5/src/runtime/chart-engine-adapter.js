@@ -2,6 +2,29 @@ import { DEFAULT_DISPLAY_TIMEZONE, DEFAULT_EXCHANGE_TIMEZONE } from '../contract
 import { DEFAULT_CHART_PRESENTATION_SETTINGS } from '../contracts/chart-presentation-contracts.js';
 import { formatDisplayTimestamp } from '../domain/timezone-format.js';
 
+const LIGHTWEIGHT_REPLAY_TIMESCALE = Object.freeze({
+  barSpacing: 10,
+  minBarSpacing: 3,
+  lockVisibleTimeRangeOnResize: true,
+  rightBarStaysOnScroll: true,
+  shiftVisibleRangeOnNewBar: false,
+  fixLeftEdge: false,
+  fixRightEdge: false,
+});
+
+const LIGHTWEIGHT_REPLAY_SCROLL = Object.freeze({
+  mouseWheel: false,
+  pressedMouseMove: true,
+  horzTouchDrag: true,
+  vertTouchDrag: false,
+});
+
+const LIGHTWEIGHT_REPLAY_SCALE = Object.freeze({
+  axisPressedMouseMove: true,
+  mouseWheel: true,
+  pinch: true,
+});
+
 function timestampSeconds(value, label) {
   const parsed = typeof value === 'number' ? value * 1000 : Date.parse(value);
   if (!Number.isFinite(parsed)) {
@@ -52,6 +75,29 @@ function applyFallbackMetadata(canvas, metadata = {}) {
   Object.entries(metadata).forEach(([key, value]) => {
     canvas.dataset[key] = String(value);
   });
+}
+
+function lightweightOptionsForContext(context) {
+  return {
+    handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
+    handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
+    timeScale: {
+      ...LIGHTWEIGHT_REPLAY_TIMESCALE,
+      rightOffset: context.rightOffsetBars,
+    },
+  };
+}
+
+function applyLightweightMetadata(canvas, context) {
+  canvas.dataset.timeScaleBarSpacing = String(LIGHTWEIGHT_REPLAY_TIMESCALE.barSpacing);
+  canvas.dataset.timeScaleMinBarSpacing = String(LIGHTWEIGHT_REPLAY_TIMESCALE.minBarSpacing);
+  canvas.dataset.timeScaleLockOnResize = String(LIGHTWEIGHT_REPLAY_TIMESCALE.lockVisibleTimeRangeOnResize);
+  canvas.dataset.timeScaleRightBarStaysOnScroll = String(LIGHTWEIGHT_REPLAY_TIMESCALE.rightBarStaysOnScroll);
+  canvas.dataset.timeScaleShiftOnNewBar = String(LIGHTWEIGHT_REPLAY_TIMESCALE.shiftVisibleRangeOnNewBar);
+  canvas.dataset.handleScrollMouseWheel = String(LIGHTWEIGHT_REPLAY_SCROLL.mouseWheel);
+  canvas.dataset.handleScrollPressedMouseMove = String(LIGHTWEIGHT_REPLAY_SCROLL.pressedMouseMove);
+  canvas.dataset.handleScaleMouseWheel = String(LIGHTWEIGHT_REPLAY_SCALE.mouseWheel);
+  canvas.dataset.timeScaleRightOffset = String(context.rightOffsetBars);
 }
 
 function createRuntimeCanvas(documentRef) {
@@ -356,6 +402,7 @@ function createLightweightInstance({ engine, documentRef }) {
       host.dataset.chartRuntimeMounted = 'true';
       host.dataset.chartEngine = 'lightweight-charts';
       host.append(canvas);
+      const replayOptions = lightweightOptionsForContext(displayContext);
       chart = engine.createChart(engineSurface, {
         autoSize: true,
         layout: {
@@ -365,9 +412,10 @@ function createLightweightInstance({ engine, documentRef }) {
         rightPriceScale: {
           borderColor: '#2b2f36',
         },
+        ...replayOptions,
         timeScale: {
           borderColor: '#2b2f36',
-          rightOffset: displayContext.rightOffsetBars,
+          ...replayOptions.timeScale,
         },
       });
       series = createSeries(chart);
@@ -398,6 +446,7 @@ function createLightweightInstance({ engine, documentRef }) {
       });
       if (canvas) {
         applyFallbackPresentation(canvas, displayContext);
+        applyLightweightMetadata(canvas, displayContext);
         applyFallbackMetadata(canvas, metadata);
         canvas.dataset.renderedBarCount = String(bars.length);
         canvas.dataset.fullBarCount = String(fullBarCount);
@@ -412,15 +461,12 @@ function createLightweightInstance({ engine, documentRef }) {
       }
     },
     setPresentation(context = {}) {
-      const displayContext = normalizeContext(context);
+      displayContext = normalizeContext(context);
       if (canvas) {
         applyFallbackPresentation(canvas, displayContext);
+        applyLightweightMetadata(canvas, displayContext);
       }
-      chart?.applyOptions?.({
-        timeScale: {
-          rightOffset: displayContext.rightOffsetBars,
-        },
-      });
+      chart?.applyOptions?.(lightweightOptionsForContext(displayContext));
     },
     readState() {
       return {

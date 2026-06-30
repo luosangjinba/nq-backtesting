@@ -10,16 +10,19 @@
 
 ## Current / Next
 
-- Current status: Step 379 is complete.
-- Next candidate: Step 380 should tune real Lightweight Charts timeScale and
-  interaction behavior before crosshair, axis/tooltip formatting, order,
-  journal, dashboard, AI, or SaaS work.
+- Current status: Step 380 is complete.
+- Next candidate: Step 381 should continue Phase 3 chart interaction work with
+  crosshair readout and time/price inspection before axis/tooltip formatting,
+  go-to time, order, journal, dashboard, AI, or SaaS work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
+- Step 380 advances Historical Replay Review by making the real chart engine's
+  pan/zoom/right-edge behavior obey replay-workstation boundaries.
 - Known next issue: visible UI is still an engineering shell, not final product
-  UI. Lightweight chart drag/zoom is connected, but timeScale, right-edge,
-  manual/follow, and replay-workstation behavior still need tuning.
+  UI. Lightweight chart timeScale has replay-workstation defaults, but there is
+  still no product-grade crosshair readout, axis/tooltip formatting, or go-to
+  time.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -802,6 +805,52 @@ Checks:
 
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 380 - V5 Lightweight TimeScale Interaction Tuning
+
+Goal: tune the real Lightweight Charts timeScale and interaction defaults so
+native pan/zoom behaves like a replay workstation while preserving chart runtime
+ownership and replay no-future boundaries.
+
+- [x] Step 380.1: Add Step 380 TODO/session plan and update chart-engine spec
+  with the real timeScale tuning rules.
+- [x] Step 380.2: Tune Lightweight Charts adapter options for horizontal
+  pan/zoom, right offset, right-edge stability, resize behavior, and stable
+  bar spacing.
+- [x] Step 380.3: Keep native engine visible-range changes inside chart runtime
+  manual/follow state and clamped to the replay right-edge limit.
+- [x] Step 380.4: Strengthen adapter/runtime/browser smoke coverage for
+  timeScale options, normal Lightweight engine use, manual mode, resume follow,
+  and no direct bar requests from chart interaction.
+- [x] Step 380.5: Run full smoke, update handoff, and mark the step complete.
+
+Manual acceptance:
+
+- Normal browser use still reports `data-chart-engine="lightweight-charts"`.
+- Lightweight timeScale has replay-workstation defaults for horizontal
+  drag/zoom, stable spacing, right offset, and resize behavior.
+- User-originated Lightweight visible-range changes become chart-runtime manual
+  visible-range state.
+- Manual chart movement pauses viewport follow until explicit resume.
+- Manual chart movement remains clamped to the replay right-edge limit.
+- Chart interaction may emit viewport demand, but it does not request bars
+  directly.
+- Replay runtime still owns cursor, reveal state, and no-future display
+  invariants.
+- DOM fallback remains available for deterministic unit/runtime tests.
+- Crosshair, axis labels, tooltips, go-to time, order, journal, dashboard, AI,
+  SaaS auth, billing, and production packaging remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`

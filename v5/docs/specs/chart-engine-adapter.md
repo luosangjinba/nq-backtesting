@@ -10,6 +10,8 @@ without letting UI, replay, or bar-data modules own chart internals.
 Step 377 introduces a chart-engine adapter boundary.
 Step 379 introduces the normal static-page loading path for the real
 Lightweight Charts standalone build.
+Step 380 tunes the real Lightweight Charts timeScale and interaction defaults
+for replay-workstation behavior.
 
 In scope:
 
@@ -17,6 +19,8 @@ In scope:
   applying presentation settings, and destroying chart instances;
 - optional use of `window.LightweightCharts` when a real engine is available;
 - a local, pinned Lightweight Charts standalone script for the V5 static page;
+- adapter-owned Lightweight Charts timeScale defaults for horizontal pan/zoom,
+  right offset, stable spacing, and resize behavior;
 - a DOM fallback so local static smoke tests remain deterministic without
   network or package installation;
 - harnesses proving feature modules still do not call chart-engine APIs.
@@ -44,6 +48,14 @@ Out of scope:
 - The default `v5/index.html` path should load a pinned local Lightweight Charts
   script before `v5/src/app.js`, so normal browser use exercises the real chart
   engine without a network dependency.
+- Lightweight timeScale and interaction options must be configured inside the
+  adapter, not in UI or feature modules.
+- The chart presentation `rightOffsetBars` setting remains the source of the
+  engine timeScale right offset.
+- The real engine path should enable horizontal drag/zoom while keeping vertical
+  chart movement out of scope for the replay MVP.
+- Programmatic runtime visible-range sync must not be treated as user manual
+  interaction.
 - Visible range changes from the engine must be converted into chart-runtime
   manual visible range state before they affect the rest of V5.
 - Engine visible range changes may emit viewport demand, but must not request
