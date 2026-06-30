@@ -167,21 +167,38 @@ async function main() {
             return displayContext?.displayTimeframe === 5 && selected === 'true';
           });
 
+          const beforePanContext = await commands.dispatchCommand('replay.getDisplayContext');
+          const beforePanDisplayCount = beforePanContext.displayBars.length;
+          const requestCountBeforePan = requests.length;
+          await commands.dispatchCommand('chart.setVisibleRange', {
+            from: Date.parse('2026-06-01T03:40:00.000Z') / 1000,
+            to: Date.parse('2026-06-01T03:50:00.000Z') / 1000,
+          });
+          await waitFor('left pan display window loaded', async () => {
+            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
+            return displayContext.displayTimeframe === 5
+              && displayContext.displayBars.length > beforePanDisplayCount
+              && requests.length > requestCountBeforePan;
+          });
+
           const state = await commands.dispatchCommand('replay.getState');
           const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
           const chartCount = Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0);
           const displayBars = displayContext.displayBars || [];
           const lastDisplayBar = displayBars.at(-1);
+          const leftPanRequests = requests.slice(requestCountBeforePan);
           return JSON.stringify({
             error: '',
             stateDisplayTimeframe: state.displayTimeframe,
             contextDisplayTimeframe: displayContext.displayTimeframe,
             chartCount,
             displayCount: displayBars.length,
+            beforePanDisplayCount,
             lastDisplayTimestamp: lastDisplayBar?.timestamp || null,
             selected: document.querySelector('[data-display-timeframe="5"]')?.getAttribute('aria-pressed') || '',
             statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
             requests,
+            leftPanRequests,
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -196,10 +213,14 @@ async function main() {
     assert.equal(value.contextDisplayTimeframe, 5);
     assert.equal(value.selected, 'true');
     assert.equal(value.chartCount, value.displayCount);
-    assert.ok(value.displayCount > 0, 'Display window should render bars');
+    assert.ok(value.displayCount > value.beforePanDisplayCount, 'Left pan should merge older display bars');
     assert.equal(value.lastDisplayTimestamp, Date.parse('2026-06-01T09:25:00.000Z') / 1000);
-    assert.equal(value.statusText, `Loaded ${value.displayCount} 5m bars.`);
+    assert.equal(value.statusText, `Loaded ${value.displayCount} bars.`);
     assert.ok(value.requests.some((request) => request.timeframe === 5), '5m display load should request 5m bars');
+    assert.ok(
+      value.leftPanRequests.some((request) => request.timeframe === 5),
+      'left pan should request a bounded 5m display window'
+    );
     assert.equal(
       value.requests.some((request) =>
         request.timeframe === 5
@@ -208,6 +229,14 @@ async function main() {
       ),
       false,
       'Display timeframe switch must not request the full session date range'
+    );
+    assert.equal(
+      value.leftPanRequests.some((request) =>
+        request.start === '2026-06-01 09:30'
+          && request.end === '2026-06-01 09:40'
+      ),
+      false,
+      'Left pan must not request the full session date range'
     );
   } finally {
     client?.close();

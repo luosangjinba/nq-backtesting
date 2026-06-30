@@ -101,7 +101,15 @@ Completed:
 - Add the new smoke to `v5/scripts/smoke_all.js`.
 - Run the Step 370 check set and update this handoff with completed status.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added the viewport demand wiring smoke to `v5/scripts/smoke_all.js`.
+- Extended the display timeframe browser smoke to simulate a left visible-range
+  change after 5m display load.
+- Browser coverage verifies the route bridge loads and merges older display
+  bars without requesting the full session range.
 
 ## Manual Acceptance
 
@@ -127,3 +135,38 @@ Status: planned.
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Completed
+
+- Added Step 370 plan to `v5/TODO.md`.
+- Added `v5/tests/replay-display-viewport-demand-wiring-smoke.js`.
+- Added `createReplayViewportDemandBridge` for chart replay route lifecycle.
+- Wired `chart:viewportDemand` to `replay.loadDisplayWindow` through command
+  dispatch.
+- Added replay runtime normalization for `viewportDemand.missingWindow`.
+- Added replay runtime in-flight display-window demand dedupe.
+- Added same-timeframe display-window merge by timestamp.
+- Kept display timeframe switching as a replace path to avoid mixing bars from
+  different timeframes.
+- Extended browser display timeframe smoke to cover left visible-range demand,
+  bounded bar request, and merged display bars.
+- Added the new wiring smoke to `v5/scripts/smoke_all.js`.
+
+## Verified
+
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/replay-display-window-cache-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Notes For Next Session
+
+Step 370 is complete. The next V5 slice should likely address how replay
+progression interacts with non-replay display timeframes. Today `Next` advances
+the replay cursor and appends the replay-timeframe bar to the current display
+bars; a future step should make display reload/projection explicit when
+`displayTimeframe !== replayTimeframe`.

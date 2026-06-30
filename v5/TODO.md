@@ -395,7 +395,7 @@ runtime ownership chain instead of remaining a test-only demand signal.
   missing-window payloads, dedupe in-flight demand, and keep requests bounded.
 - [x] Step 370.4: Merge newly loaded display windows with existing display bars
   and reuse cached bar windows when panning back into known history.
-- [ ] Step 370.5: Add browser coverage for user-visible left pan demand and
+- [x] Step 370.5: Add browser coverage for user-visible left pan demand and
   update the session handoff after full smoke verification.
 
 Manual acceptance:
