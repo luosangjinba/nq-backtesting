@@ -21,7 +21,13 @@ This step must preserve the V5 ownership model:
 - Add Step 377 to `v5/TODO.md`.
 - Create this session handoff.
 
-Status: in progress.
+Completed:
+
+- Added the chart-engine adapter spec.
+- Updated specs index and TODO.
+- Created this Step 377 handoff.
+
+Status: complete.
 
 ### Step 377.2 - Adapter Module
 
@@ -31,7 +37,16 @@ Status: in progress.
   adapter contract.
 - Add adapter smoke coverage.
 
-Status: pending.
+Completed:
+
+- Added `v5/src/runtime/chart-engine-adapter.js`.
+- Added DOM fallback rendering behind the adapter contract.
+- Added optional `window.LightweightCharts`/fake-engine integration behind the
+  same contract.
+- Added `v5/tests/chart-engine-adapter-smoke.js`.
+- Added the adapter smoke to `v5/scripts/smoke_all.js`.
+
+Status: complete.
 
 ### Step 377.3 - Chart Runtime Wiring
 

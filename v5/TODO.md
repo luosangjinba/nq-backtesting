@@ -5,8 +5,8 @@
 Goal: introduce a real chart-engine adapter boundary before implementing richer
 drag/zoom, crosshair, go-to time, orders, or journal overlays.
 
-- [ ] Step 377.1: Add chart-engine adapter spec plus TODO/session plan.
-- [ ] Step 377.2: Add adapter module and smoke coverage for DOM fallback plus
+- [x] Step 377.1: Add chart-engine adapter spec plus TODO/session plan.
+- [x] Step 377.2: Add adapter module and smoke coverage for DOM fallback plus
   fake Lightweight Charts integration.
 - [ ] Step 377.3: Wire chart runtime through the adapter without changing
   replay/bar-data ownership contracts.
