@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 388 is complete.
-- Next candidate: Step 389 should continue Phase 3 with remaining chart
-  readability polish after price scale margins are stable.
+- Current status: Step 389 is complete.
+- Next candidate: Step 390 should continue Phase 3 with screenshot-level visual
+  acceptance and remaining chart readability checks across more viewport sizes.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -21,9 +21,8 @@
 - Step 381 added chart-owned crosshair readout; follow-up fix removed
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
-- Known next issue: chart readability still needs product polish around
-  overlays, time-axis visibility near the floating navigation toolbar, and
-  screenshot-level visual acceptance across more viewport sizes.
+- Known next issue: chart readability still needs screenshot-level visual
+  acceptance across more viewport sizes and browser zoom/system UI conditions.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1196,5 +1195,43 @@ Checks:
 - `node v5/tests/chart-price-scale-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/chart-display-usability-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 389 - V5 Chart Overlay Visibility
+
+Goal: keep chart navigation controls available without covering the time axis,
+bottom chart area, or right price axis across common desktop and low-height
+viewports.
+
+This step advances Historical Replay Review by polishing chart readability. It
+is an overlay/layout step, not a chart runtime command or replay state change.
+
+- [x] Step 389.1: Add Step 389 TODO/session plan and update chart interaction
+  specs with overlay visibility requirements.
+- [x] Step 389.2: Move the chart zoom/pan/reset overlay from bottom center to
+  the chart's upper-right area with price-axis clearance.
+- [x] Step 389.3: Reduce overlay button footprint while preserving existing
+  chart command wiring and selectors.
+- [x] Step 389.4: Add multi-viewport browser smoke coverage for overlay
+  clearance from top, price axis, time axis, and footer.
+- [x] Step 389.5: Keep existing chart navigation and workstation layout smoke
+  passing.
+
+Manual acceptance:
+
+- The chart zoom/pan/reset controls do not cover the time axis.
+- The overlay has clearance from the right price axis.
+- The overlay remains visible and usable on desktop and low-height desktop
+  viewports.
+- Existing zoom/pan/reset commands, native Lightweight interaction, replay
+  cursor, and bar-data ownership remain unchanged.
+
+Checks:
+
+- `node v5/tests/chart-overlay-visibility-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

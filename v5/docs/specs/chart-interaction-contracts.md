@@ -20,6 +20,8 @@ Step 387 consolidates replay workstation layout so controls and status do not
 crowd the main chart surface.
 Step 388 tunes Lightweight price scale margins for more natural initial K-line
 vertical placement while preserving native price-axis scaling.
+Step 389 moves chart navigation overlays away from the time axis and price axis
+critical regions.
 
 In scope:
 
@@ -32,6 +34,7 @@ In scope:
 - chart display readability required for native interaction to be usable;
 - compact replay workstation layout around the chart;
 - chart adapter/presentation price scale margin tuning;
+- chart navigation overlay placement that preserves axis readability;
 - jump-to-cursor as explicit resume-follow behavior;
 - viewport demand emission after manual range changes;
 - harnesses proving ownership boundaries.
@@ -101,6 +104,9 @@ Out of scope:
   read-only with respect to replay/chart/bar-data state.
 - The visible chart route should not expose engineering shell labels as product
   UI.
+- Chart navigation overlays must not obscure the time axis, bottom chart area,
+  or right price axis. Overlay placement may change visually, but command
+  dispatch and chart runtime ownership must remain unchanged.
 - Jump-to-cursor resumes chart viewport follow explicitly. It does not advance
   replay cursor.
 - If viewport demand is consumed, replay runtime may update `displayBars`
@@ -183,6 +189,8 @@ When native Lightweight Charts pan/zoom is observed:
 - Reimplementing price-axis vertical scaling in V5 shell code when Lightweight
   already owns native price scale interaction.
 - Tuning price placement by shrinking the Lightweight DOM surface.
+- Placing chart navigation overlays where they cover the time axis or right
+  price axis.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification
@@ -208,6 +216,8 @@ Step 376 should add or update harnesses proving:
   chart remains the dominant surface.
 - price scale margins are applied through Lightweight price scale APIs and stay
   compatible with native interaction.
+- chart navigation overlays keep measurable clearance from the time axis and
+  right price axis across desktop and low-height desktop viewports.
 
 Expected checks:
 
@@ -219,5 +229,6 @@ Expected checks:
 - `node v5/tests/chart-display-usability-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/chart-overlay-visibility-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
