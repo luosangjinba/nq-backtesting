@@ -10,7 +10,7 @@ import {
   CHART_PRESENTATION_EVENTS,
   DEFAULT_CHART_PRESENTATION_SETTINGS,
 } from '../contracts/chart-presentation-contracts.js';
-import { formatDisplayTimestamp } from '../domain/timezone-format.js';
+import { createChartEngineAdapter } from './chart-engine-adapter.js';
 
 export { CHART_COMMANDS, CHART_EVENTS };
 
@@ -275,79 +275,6 @@ function normalizeBars(bars) {
   return bars.map(normalizeBar);
 }
 
-function formatChartBarTime(bar, displayContext) {
-  if (typeof bar.time === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(bar.time)) {
-    return bar.time;
-  }
-  return formatDisplayTimestamp(bar.time, {
-    displayTimezone: displayContext.displayTimezone,
-    exchangeTimezone: displayContext.exchangeTimezone,
-    timeFormat: displayContext.timeFormat,
-  });
-}
-
-function applyPresentationLayout(canvas, displayContext) {
-  canvas.dataset.crosshairReadout = displayContext.showCrosshairReadout ? 'true' : 'false';
-  canvas.dataset.rightOffsetBars = String(displayContext.rightOffsetBars);
-  canvas.style.paddingTop = `${displayContext.margins.topPercent}%`;
-  canvas.style.paddingBottom = `${displayContext.margins.bottomPercent}%`;
-  canvas.style.paddingRight = `${displayContext.rightOffsetBars * 10}px`;
-}
-
-function renderBars(canvas, bars, displayContext, fullBarCount = bars.length) {
-  const plot = document.createElement('div');
-  plot.className = 'chart-bar-plot';
-  plot.dataset.chartBarCount = String(bars.length);
-  plot.dataset.fullChartBarCount = String(fullBarCount);
-
-  const values = bars.flatMap((bar) => [bar.open, bar.high, bar.low, bar.close]);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-
-  bars.forEach((bar) => {
-    const candle = document.createElement('div');
-    const top = ((max - bar.high) / range) * 100;
-    const height = Math.max(((bar.high - bar.low) / range) * 100, 4);
-    candle.className = `chart-candle ${bar.close >= bar.open ? 'is-up' : 'is-down'}`;
-    candle.style.top = `${top}%`;
-    candle.style.height = `${height}%`;
-    candle.title = `${formatChartBarTime(bar, displayContext)} O:${bar.open} H:${bar.high} L:${bar.low} C:${bar.close}`;
-    plot.append(candle);
-  });
-
-  canvas.append(plot);
-}
-
-function renderChartFrame(host, state) {
-  host.replaceChildren();
-  host.dataset.chartRuntimeMounted = 'true';
-
-  const canvas = document.createElement('div');
-  canvas.className = 'chart-runtime-canvas';
-  canvas.dataset.chartCanvas = 'true';
-  canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', 'Chart runtime canvas');
-  applyPresentationLayout(canvas, state.displayContext);
-
-  const renderedBars = computeRenderedBars(state);
-  canvas.dataset.viewportFollow = state.viewportFollow.enabled ? 'true' : 'false';
-  canvas.dataset.interactionMode = state.interaction.mode;
-  canvas.dataset.renderedBarCount = String(renderedBars.length);
-  canvas.dataset.fullBarCount = String(state.bars.length);
-
-  if (renderedBars.length) {
-    renderBars(canvas, renderedBars, state.displayContext, state.bars.length);
-  } else {
-    const empty = document.createElement('span');
-    empty.className = 'chart-empty-state';
-    empty.textContent = 'Chart runtime ready';
-    canvas.append(empty);
-  }
-
-  host.append(canvas);
-}
-
 function readHostMetrics(host) {
   const rect = host?.getBoundingClientRect?.() || {};
   const width = Math.max(0, Math.round(Number(rect.width) || host?.clientWidth || 0));
@@ -365,17 +292,51 @@ function readHostMetrics(host) {
 export function createChartRuntime() {
   const mountedHosts = new WeakSet();
   const mountedHostList = new Set();
+  const chartAdapters = new Map();
   const unregisterCallbacks = [];
   const state = createEmptyState();
   let rootElement = null;
   let observer = null;
   let emit = () => {};
+  let applyingRuntimeVisibleRange = false;
+
+  function syncChartHost(host) {
+    const adapter = chartAdapters.get(host);
+    if (!adapter) return;
+    const renderedBars = computeRenderedBars(state);
+    adapter.setPresentation(state.displayContext);
+    adapter.setBars(renderedBars, {
+      fullBarCount: state.bars.length,
+      displayContext: state.displayContext,
+      metadata: {
+        viewportFollow: state.viewportFollow.enabled ? 'true' : 'false',
+        interactionMode: state.interaction.mode,
+        renderedBarCount: renderedBars.length,
+        fullBarCount: state.bars.length,
+      },
+    });
+    applyingRuntimeVisibleRange = true;
+    try {
+      adapter.setVisibleRange(state.visibleRange);
+    } finally {
+      applyingRuntimeVisibleRange = false;
+    }
+  }
 
   function mountHost(host) {
     if (!host || mountedHosts.has(host)) return;
     mountedHosts.add(host);
     mountedHostList.add(host);
-    renderChartFrame(host, state);
+    const adapter = createChartEngineAdapter();
+    chartAdapters.set(host, adapter);
+    adapter.mount(host, {
+      displayContext: state.displayContext,
+      onVisibleRangeChange: (visibleRange) => {
+        if (applyingRuntimeVisibleRange) return;
+        setManualVisibleRange(visibleRange);
+      },
+    });
+    syncChartHost(host);
     emit(CHART_EVENTS.READY, { host });
   }
 
@@ -388,8 +349,10 @@ export function createChartRuntime() {
   function rerenderMountedHosts() {
     for (const host of mountedHostList) {
       if (host.isConnected) {
-        renderChartFrame(host, state);
+        syncChartHost(host);
       } else {
+        chartAdapters.get(host)?.destroy();
+        chartAdapters.delete(host);
         mountedHostList.delete(host);
       }
     }
@@ -414,6 +377,7 @@ export function createChartRuntime() {
     state.visibleRange = visibleRange;
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
+    rerenderMountedHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -679,6 +643,10 @@ export function createChartRuntime() {
     while (unregisterCallbacks.length) {
       unregisterCallbacks.pop()();
     }
+    for (const adapter of chartAdapters.values()) {
+      adapter.destroy();
+    }
+    chartAdapters.clear();
     mountedHostList.clear();
     observer = null;
     rootElement = null;

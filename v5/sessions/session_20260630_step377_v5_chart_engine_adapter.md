@@ -54,7 +54,18 @@ Status: complete.
 - Preserve existing chart commands, events, and readback payloads.
 - Preserve viewport follow and manual visible-range behavior.
 
-Status: pending.
+Completed:
+
+- Chart runtime now creates one chart-engine adapter per mounted chart host.
+- Chart runtime still computes `renderedBars`, viewport follow state, and manual
+  interaction state before passing bars to the adapter.
+- Removed old direct DOM rendering functions from chart runtime.
+- Added runtime-level fake Lightweight Charts coverage proving engine visible
+  range changes become chart-owned manual visible range state.
+- Added `v5/tests/chart-runtime-engine-adapter-smoke.js`.
+- Added the runtime-engine adapter smoke to `v5/scripts/smoke_all.js`.
+
+Status: complete.
 
 ### Step 377.4 - Browser And Boundary Verification
 
@@ -84,6 +95,7 @@ Status: pending.
 
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`

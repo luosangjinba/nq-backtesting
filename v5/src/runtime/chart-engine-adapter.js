@@ -48,6 +48,12 @@ function applyFallbackPresentation(canvas, context) {
   canvas.style.paddingRight = `${context.rightOffsetBars * 10}px`;
 }
 
+function applyFallbackMetadata(canvas, metadata = {}) {
+  Object.entries(metadata).forEach(([key, value]) => {
+    canvas.dataset[key] = String(value);
+  });
+}
+
 function formatChartBarTime(bar, context) {
   if (typeof bar.time === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(bar.time)) {
     return bar.time;
@@ -91,11 +97,13 @@ function createFallbackInstance({ documentRef }) {
   let fullBarCount = 0;
   let displayContext = normalizeContext();
   let visibleRange = null;
+  let metadata = {};
 
   function render() {
     if (!host || !canvas) return;
     canvas.replaceChildren();
     applyFallbackPresentation(canvas, displayContext);
+    applyFallbackMetadata(canvas, metadata);
     canvas.dataset.chartCanvas = 'true';
     canvas.dataset.renderedBarCount = String(bars.length);
     canvas.dataset.fullBarCount = String(fullBarCount);
@@ -132,6 +140,7 @@ function createFallbackInstance({ documentRef }) {
       if (options.displayContext) {
         displayContext = normalizeContext(options.displayContext);
       }
+      metadata = options.metadata ? { ...options.metadata } : metadata;
       render();
     },
     setVisibleRange(range) {
@@ -167,6 +176,7 @@ function createLightweightInstance({ engine }) {
   let bars = [];
   let fullBarCount = 0;
   let visibleRange = null;
+  let metadata = {};
   let unsubscribeVisibleRange = null;
 
   function createSeries(nextChart) {
@@ -217,6 +227,12 @@ function createLightweightInstance({ engine }) {
     setBars(nextBars = [], options = {}) {
       bars = [...nextBars];
       fullBarCount = Number(options.fullBarCount ?? bars.length);
+      metadata = options.metadata ? { ...options.metadata } : metadata;
+      Object.entries(metadata).forEach(([key, value]) => {
+        if (host?.dataset) {
+          host.dataset[key] = String(value);
+        }
+      });
       series?.setData(bars.map(toEngineBar));
     },
     setVisibleRange(range) {
@@ -267,4 +283,3 @@ export function createChartEngineAdapter({
   }
   return createFallbackInstance({ documentRef });
 }
-

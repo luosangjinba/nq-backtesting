@@ -8,7 +8,7 @@ drag/zoom, crosshair, go-to time, orders, or journal overlays.
 - [x] Step 377.1: Add chart-engine adapter spec plus TODO/session plan.
 - [x] Step 377.2: Add adapter module and smoke coverage for DOM fallback plus
   fake Lightweight Charts integration.
-- [ ] Step 377.3: Wire chart runtime through the adapter without changing
+- [x] Step 377.3: Wire chart runtime through the adapter without changing
   replay/bar-data ownership contracts.
 - [ ] Step 377.4: Add boundary/browser verification, run full smoke, and update
   handoff.
@@ -31,6 +31,7 @@ Checks:
 
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
