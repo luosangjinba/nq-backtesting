@@ -60,20 +60,22 @@ async function main() {
     '--bind',
     '127.0.0.1',
   ], { cwd: process.cwd(), stdio: 'ignore' });
-  await waitForHttpOk(pageUrl);
-
-  const chrome = spawn(CHROME_BIN, [
-    '--headless=new',
-    '--disable-gpu',
-    '--no-sandbox',
-    '--disable-dev-shm-usage',
-    `--remote-debugging-port=${DEBUG_PORT}`,
-    `--user-data-dir=${PROFILE_DIR}`,
-    pageUrl,
-  ], { stdio: 'ignore' });
 
   let client = null;
+  let chrome = null;
   try {
+    await waitForHttpOk(pageUrl);
+
+    chrome = spawn(CHROME_BIN, [
+      '--headless=new',
+      '--disable-gpu',
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      `--remote-debugging-port=${DEBUG_PORT}`,
+      `--user-data-dir=${PROFILE_DIR}`,
+      pageUrl,
+    ], { stdio: 'ignore' });
+
     const target = await waitForTargets(DEBUG_PORT);
     client = createCdpClient(target.webSocketDebuggerUrl);
     await client.open();
@@ -159,10 +161,15 @@ async function main() {
               && chart.mode === 'follow'
               && chart.follow === 'true';
           });
+          document.querySelector('[data-display-timezone="UTC"]').click();
+          await waitFor('utc display timezone', async () => {
+            const timezone = await commands.dispatchCommand('displayTimezone.get');
+            return timezone.displayTimezone === 'UTC';
+          });
           const before = await commands.dispatchCommand('replay.getState');
           const requestCountBeforeGo = requests.length;
           const input = document.querySelector('[data-chart-go-to-input]');
-          input.value = '2026-06-01T09:29';
+          input.value = '2026-06-01T13:29';
           input.dispatchEvent(new Event('input', { bubbles: true }));
           document.querySelector('[data-chart-go-to]').click();
           await waitFor('go-to manual', async () => {
@@ -193,6 +200,7 @@ async function main() {
             afterGoMode: afterGoInteraction.interaction.mode,
             afterGoFollow: afterGoInteraction.viewportFollow.enabled,
             afterGoRightEdge: afterGoInteraction.visibleRange?.to || null,
+            afterGoVisibleFrom: afterGoInteraction.visibleRange?.from || null,
             afterJumpMode: afterJumpInteraction.interaction.mode,
             afterJumpFollow: afterJumpInteraction.viewportFollow.enabled,
             requestCountBeforeGo,
@@ -215,13 +223,15 @@ async function main() {
     assert.equal(value.afterGoMode, 'manual');
     assert.equal(value.afterGoFollow, false);
     assert.ok(value.afterGoRightEdge <= Date.parse(value.beforeCursor) / 1000);
+    assert.ok(value.afterGoVisibleFrom <= Date.parse('2026-06-01T09:29:00.000Z') / 1000);
+    assert.ok(value.afterGoRightEdge >= Date.parse('2026-06-01T09:29:00.000Z') / 1000);
     assert.equal(value.afterJumpMode, 'follow');
     assert.equal(value.afterJumpFollow, true);
     assert.ok(value.requestCountAfterGo >= value.requestCountBeforeGo);
   } finally {
     client?.close();
-    chrome.kill('SIGTERM');
-    await waitForProcessExit(chrome);
+    chrome?.kill('SIGTERM');
+    if (chrome) await waitForProcessExit(chrome);
     web.kill('SIGTERM');
     await waitForProcessExit(web);
     await rm(PROFILE_DIR, {

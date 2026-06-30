@@ -952,6 +952,8 @@ Manual acceptance:
 
 - Entering a time moves the chart viewport to a manual visible range around the
   requested time.
+- Go-to input is interpreted in the selected display timezone and converted to
+  chart canonical time before dispatching the chart command.
 - Go-to time pauses viewport follow and does not directly mutate replay cursor
   or `displayBars`; replay runtime may grow `displayBars` if viewport demand is
   consumed.
@@ -963,6 +965,7 @@ Manual acceptance:
 
 Checks:
 
+- `node v5/tests/timezone-contracts-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`

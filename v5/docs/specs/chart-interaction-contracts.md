@@ -101,7 +101,8 @@ When go-to time is requested:
 - Chart runtime requesting bars in response to manual movement.
 - Auto-resuming follow on Next/Play after manual movement without an explicit
   resume command.
-- Go-to time changing replay cursor, replay reveal state, or display bars.
+- Go-to time directly changing replay cursor, replay reveal state, or display
+  bars. Replay-owned viewport demand handling may grow `displayBars`.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification

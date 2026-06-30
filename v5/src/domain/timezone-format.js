@@ -30,6 +30,22 @@ function getUtcWallParts(timestamp) {
   };
 }
 
+function parseWallClockInput(value) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+  if (!match) {
+    throw new Error('display wall-clock timestamp must use datetime-local format.');
+  }
+  return {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3]),
+    hour: Number(match[4]),
+    minute: Number(match[5]),
+    second: Number(match[6] || 0),
+  };
+}
+
 function getTimeZoneParts(epochMs, timeZone) {
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -64,6 +80,13 @@ function getOffsetMs(epochMs, timeZone) {
   return partsToUtcMs(getTimeZoneParts(epochMs, timeZone)) - epochMs;
 }
 
+function wallClockPartsToInstantMs(parts, timeZone) {
+  const wallUtcMs = partsToUtcMs(parts);
+  let instantMs = wallUtcMs - getOffsetMs(wallUtcMs, timeZone);
+  instantMs = wallUtcMs - getOffsetMs(instantMs, timeZone);
+  return instantMs;
+}
+
 export function resolveDisplayTimezone(displayTimezone = DEFAULT_DISPLAY_TIMEZONE, {
   exchangeTimezone = DEFAULT_EXCHANGE_TIMEZONE,
 } = {}) {
@@ -77,10 +100,18 @@ export function canonicalTimestampToInstantMs(timestamp, {
   exchangeTimezone = DEFAULT_EXCHANGE_TIMEZONE,
 } = {}) {
   const wallParts = getUtcWallParts(timestamp);
-  const wallUtcMs = partsToUtcMs(wallParts);
-  let instantMs = wallUtcMs - getOffsetMs(wallUtcMs, exchangeTimezone);
-  instantMs = wallUtcMs - getOffsetMs(instantMs, exchangeTimezone);
-  return instantMs;
+  return wallClockPartsToInstantMs(wallParts, exchangeTimezone);
+}
+
+export function displayWallClockToCanonicalTimestamp(value, {
+  displayTimezone = DEFAULT_DISPLAY_TIMEZONE,
+  exchangeTimezone = DEFAULT_EXCHANGE_TIMEZONE,
+} = {}) {
+  const displayParts = parseWallClockInput(value);
+  const timeZone = resolveDisplayTimezone(displayTimezone, { exchangeTimezone });
+  const instantMs = wallClockPartsToInstantMs(displayParts, timeZone);
+  const exchangeParts = getTimeZoneParts(instantMs, exchangeTimezone);
+  return new Date(partsToUtcMs(exchangeParts)).toISOString();
 }
 
 export function formatDisplayTimestamp(timestamp, {

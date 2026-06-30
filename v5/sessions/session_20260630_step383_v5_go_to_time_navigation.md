@@ -87,6 +87,8 @@ Status: complete.
 
 - Entering a time moves the chart viewport to a manual visible range around the
   requested time.
+- Go-to input is interpreted in the selected display timezone and converted to
+  chart canonical time before dispatching the chart command.
 - Go-to time pauses viewport follow and does not directly mutate replay cursor
   or `displayBars`; replay runtime may grow `displayBars` if viewport demand is
   consumed.
@@ -98,6 +100,7 @@ Status: complete.
 
 ## Checks
 
+- `node v5/tests/timezone-contracts-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
@@ -112,6 +115,8 @@ Result: all checks passed.
 - Step 383 is complete.
 - Go-to time is chart-owned and creates a manual visible range around the target
   timestamp.
+- Post-review fix: Go input now converts from selected display timezone to chart
+  canonical time, and future requests report the clamped cursor edge.
 - Jump-to-cursor resumes chart follow explicitly through chart runtime.
 - Recommended next step: Step 384 should continue Phase 3 with replay toolbar
   and interaction-control polish before order, journal, dashboard, AI, or SaaS

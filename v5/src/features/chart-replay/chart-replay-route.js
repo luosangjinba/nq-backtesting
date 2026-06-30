@@ -8,7 +8,10 @@ import {
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
 import { formatChange, formatInspectionReadout, formatOhlc } from '../../domain/chart-formatting.js';
-import { formatDisplayTimestamp } from '../../domain/timezone-format.js';
+import {
+  displayWallClockToCanonicalTimestamp,
+  formatDisplayTimestamp,
+} from '../../domain/timezone-format.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
 export function createChartReplayRoute() {
@@ -412,12 +415,22 @@ export function createChartReplayRoute() {
         setControlsDisabled(true);
         try {
           const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null);
-          const targetTimestamp = `${goToInput.value}:00.000Z`;
+          const targetTimestamp = displayWallClockToCanonicalTimestamp(goToInput.value, {
+            displayTimezone,
+            exchangeTimezone,
+          });
           const result = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
             targetTimestamp,
             estimatedVisibleBars: metrics?.estimatedVisibleBars || null,
           });
-          status.textContent = `Viewing ${formatReplayTimestamp(new Date(result.targetTimestamp * 1000).toISOString())}.`;
+          const visibleTo = result.visibleRange?.to
+            ? new Date(result.visibleRange.to * 1000).toISOString()
+            : targetTimestamp;
+          const requestedText = formatReplayTimestamp(targetTimestamp);
+          const visibleText = formatReplayTimestamp(visibleTo);
+          status.textContent = result.visibleRange?.to && result.targetTimestamp > result.visibleRange.to
+            ? `Viewing ${visibleText}; requested ${requestedText} is beyond cursor.`
+            : `Viewing ${requestedText}.`;
         } catch (error) {
           status.textContent = error?.message || String(error);
         } finally {

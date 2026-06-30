@@ -8,6 +8,7 @@ import {
 } from '../src/contracts/timezone-contracts.js';
 import {
   canonicalTimestampToInstantMs,
+  displayWallClockToCanonicalTimestamp,
   formatDisplayTimestamp,
   resolveDisplayTimezone,
 } from '../src/domain/timezone-format.js';
@@ -51,6 +52,25 @@ assert.equal(
 assert.equal(
   formatDisplayTimestamp(canonicalNewYork0930Winter, { displayTimezone: DISPLAY_TIMEZONES.UTC }),
   '2026-01-05 14:30'
+);
+
+assert.equal(
+  displayWallClockToCanonicalTimestamp('2026-06-01T09:30', {
+    displayTimezone: DISPLAY_TIMEZONES.EXCHANGE,
+  }),
+  '2026-06-01T09:30:00.000Z'
+);
+assert.equal(
+  displayWallClockToCanonicalTimestamp('2026-06-01T13:30', {
+    displayTimezone: DISPLAY_TIMEZONES.UTC,
+  }),
+  '2026-06-01T09:30:00.000Z'
+);
+assert.equal(
+  displayWallClockToCanonicalTimestamp('2026-06-01T06:30', {
+    displayTimezone: DISPLAY_TIMEZONES.LOS_ANGELES,
+  }),
+  '2026-06-01T09:30:00.000Z'
 );
 
 console.log('v5 timezone contracts smoke passed');
