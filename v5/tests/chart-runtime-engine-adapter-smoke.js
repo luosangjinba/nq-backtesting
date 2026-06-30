@@ -184,6 +184,7 @@ assert.equal(host.dataset.viewportFollow, 'false');
 assert.equal(host.children[0].dataset.interactionMode, 'manual');
 assert.equal(host.children[0].dataset.viewportFollow, 'false');
 
+const setDataCallsBeforeCrosshair = engineCalls.setData.length;
 engineCalls.crosshairHandler({
   time: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
   price: 101.25,
@@ -197,13 +198,12 @@ assert.equal(crosshair.crosshair.price, 101.25);
 assert.equal(crosshair.interaction.mode, 'manual');
 assert.equal(crosshair.viewportFollow.enabled, false);
 assert.deepEqual(crosshair.visibleRange, interaction.visibleRange);
-assert.equal(host.children[0].dataset.crosshairActive, 'true');
-assert.equal(host.children[0].dataset.crosshairTime, '2026-06-01T09:31:00.000Z');
-assert.equal(host.children[0].dataset.crosshairPrice, '101.25');
+assert.equal(engineCalls.setData.length, setDataCallsBeforeCrosshair);
 
 engineCalls.crosshairHandler({});
 const clearedCrosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE);
 assert.equal(clearedCrosshair.crosshair.active, false);
+assert.equal(engineCalls.setData.length, setDataCallsBeforeCrosshair);
 
 host.isConnected = false;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {

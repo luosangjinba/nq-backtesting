@@ -114,6 +114,9 @@ Result: all checks passed.
 - Step 381 is complete.
 - Crosshair inspection state is chart-owned and exposed through chart
   commands/events.
+- Follow-up fix: crosshair changes no longer call `rerenderMountedHosts()`.
+  Hover inspection must not call chart `setData()` or sync visible range on
+  every mouse move.
 - The route displays a compact Inspect readout and honors the Crosshair
   presentation toggle.
 - Lightweight engine crosshair APIs remain behind `chart-engine-adapter.js`.

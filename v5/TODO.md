@@ -19,6 +19,9 @@
   boundaries.
 - Step 380 advances Historical Replay Review by making the real chart engine's
   pan/zoom/right-edge behavior obey replay-workstation boundaries.
+- Step 381 added chart-owned crosshair readout; follow-up fix removed
+  crosshair-triggered chart rerenders so hover inspection cannot call
+  `setData()` on every mouse move.
 - Known next issue: visible UI is still an engineering shell, not final product
   UI. Crosshair readout is chart-owned, but axis labels and tooltip formatting
   still need product-grade presentation.

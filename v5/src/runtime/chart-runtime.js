@@ -589,7 +589,6 @@ export function createChartRuntime() {
 
   function updateCrosshair(payload = {}) {
     state.crosshair = normalizeCrosshair(payload);
-    rerenderMountedHosts();
     emit(CHART_EVENTS.CROSSHAIR_CHANGED, { crosshair: structuredClone(state.crosshair) });
     return {
       crosshair: structuredClone(state.crosshair),
