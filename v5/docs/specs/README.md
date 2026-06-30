@@ -33,3 +33,6 @@ Specs should explain:
   contracts, event notification boundaries, and router root-scoped lifecycle.
 - `chart-display-timezone.md`: stable rules for canonical/request/display time,
   display timezone preferences, and label-only timezone changes.
+- `chart-presentation-settings.md`: stable rules for chart display preferences
+  such as time label format, status fields, margins, right offset, and crosshair
+  readouts without mutating replay/bar state.

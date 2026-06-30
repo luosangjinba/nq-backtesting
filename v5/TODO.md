@@ -48,6 +48,41 @@ Checks:
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
+## Step 373 - V5 Chart Presentation Settings Foundation
+
+Goal: establish a small chart presentation settings foundation before chart
+axis, tooltip, order, journal, and annotation workflows depend on scattered
+display choices.
+
+- [ ] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
+- [ ] Step 373.2: Add presentation settings contracts/runtime with normalized
+  defaults and command/event smoke coverage.
+- [ ] Step 373.3: Wire chart runtime/status presentation consumers for time
+  format, status fields, chart margins, right offset, and crosshair readout
+  state.
+- [ ] Step 373.4: Add lightweight UI controls/browser coverage, full smoke,
+  and final handoff updates.
+
+Manual acceptance:
+
+- Presentation settings changes do not request bars, mutate replay cursor, or
+  mutate `displayBars`.
+- UI changes presentation settings through commands/events.
+- Chart runtime consumes chart-owned presentation settings and rerenders
+  presentation/layout without feature modules mutating chart internals.
+- Time labels continue to use the display timezone contract.
+- The foundation is intentionally smaller than FXReplay's full settings panel:
+  no template system, drawing settings, screenshot controls, or complete theme
+  editor in this step.
+
+Checks:
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
 ## Step 359 - V5 Session And User Model
 
 Goal: add default-user session persistence APIs and frontend session state.
