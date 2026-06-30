@@ -60,18 +60,28 @@ export function createChartReplayRoute() {
             <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
           </div>
           <div class="replay-floating-controls" data-replay-floating-controls aria-label="Replay controls">
+            <div class="replay-drag-handle" aria-hidden="true">::</div>
             <div class="replay-controls" data-replay-controls>
-              <button type="button" data-replay-next disabled>Next</button>
-              <button type="button" data-replay-play disabled>Play</button>
-              <button type="button" data-replay-pause disabled>Pause</button>
-              <button type="button" data-replay-reset disabled>Reset</button>
+              <button type="button" data-replay-reset title="Reset replay" aria-label="Reset replay" disabled>|&lt;</button>
+              <button type="button" data-replay-play title="Play replay" aria-label="Play replay" disabled>&#9654;</button>
+              <button type="button" data-replay-pause title="Pause replay" aria-label="Pause replay" disabled>&#10073;&#10073;</button>
+              <button type="button" data-replay-next title="Next bar" aria-label="Next bar" disabled>&gt;|</button>
             </div>
-            <div class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
-              <button type="button" data-display-timeframe="1" aria-pressed="false" disabled>1m</button>
-              <button type="button" data-display-timeframe="5" aria-pressed="false" disabled>5m</button>
-              <button type="button" data-display-timeframe="60" aria-pressed="false" disabled>1H</button>
-              <button type="button" data-display-timeframe="1440" aria-pressed="false" disabled>1D</button>
-            </div>
+            <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
+              <span class="sr-only">Display timeframe</span>
+              <select data-display-timeframe-select disabled>
+                <optgroup label="Minutes">
+                  <option value="1" data-display-timeframe="1">1m</option>
+                  <option value="5" data-display-timeframe="5">5m</option>
+                </optgroup>
+                <optgroup label="Hours">
+                  <option value="60" data-display-timeframe="60">1H</option>
+                </optgroup>
+                <optgroup label="Days">
+                  <option value="1440" data-display-timeframe="1440">1D</option>
+                </optgroup>
+              </select>
+            </label>
           </div>
           <div class="chart-go-to-popover" data-chart-go-to-popover hidden>
             <div class="chart-go-to-panel" role="dialog" aria-modal="false" aria-label="Go to time">
@@ -125,7 +135,7 @@ export function createChartReplayRoute() {
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
       const resetButton = section.querySelector('[data-replay-reset]');
-      const displayTimeframeButtons = Array.from(section.querySelectorAll('[data-display-timeframe]'));
+      const displayTimeframeSelect = section.querySelector('[data-display-timeframe-select]');
       const displayTimezoneButtons = Array.from(section.querySelectorAll('[data-display-timezone]'));
       const presentationTimeFormatButtons = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
       const presentationToggleButtons = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
@@ -254,16 +264,11 @@ export function createChartReplayRoute() {
         chartToolbarButtons.forEach((button) => {
           button.disabled = unavailable;
         });
-        displayTimeframeButtons.forEach((button) => {
-          button.disabled = unavailable;
-        });
+        displayTimeframeSelect.disabled = unavailable;
       }
 
       function updateDisplayTimeframeButtons() {
-        displayTimeframeButtons.forEach((button) => {
-          const pressed = Number(button.dataset.displayTimeframe) === displayTimeframe;
-          button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
-        });
+        displayTimeframeSelect.value = displayTimeframe ? String(displayTimeframe) : '1';
       }
 
       function updateDisplayTimezoneButtons() {
@@ -366,20 +371,19 @@ export function createChartReplayRoute() {
         await refreshReplayStatus();
       });
 
-      displayTimeframeButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-          const nextDisplayTimeframe = Number(button.dataset.displayTimeframe);
-          if (!nextDisplayTimeframe || nextDisplayTimeframe === displayTimeframe) return;
-          const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-            sessionId: params.sessionId,
-            displayTimeframe: nextDisplayTimeframe,
-          }));
-          if (!state) return;
-          displayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
-          status.textContent = `Loaded ${state.displayBars?.length || 0} ${button.textContent} bars.`;
-          updateDisplayTimeframeButtons();
-          await refreshReplayStatus();
-        });
+      displayTimeframeSelect.addEventListener('change', async () => {
+        const nextDisplayTimeframe = Number(displayTimeframeSelect.value);
+        if (!nextDisplayTimeframe || nextDisplayTimeframe === displayTimeframe) return;
+        const selectedOption = displayTimeframeSelect.selectedOptions[0];
+        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+          sessionId: params.sessionId,
+          displayTimeframe: nextDisplayTimeframe,
+        }));
+        if (!state) return;
+        displayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
+        status.textContent = `Loaded ${state.displayBars?.length || 0} ${selectedOption?.textContent || ''} bars.`;
+        updateDisplayTimeframeButtons();
+        await refreshReplayStatus();
       });
 
       displayTimezoneButtons.forEach((button) => {

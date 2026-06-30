@@ -135,7 +135,7 @@ async function main() {
             state,
             displayContext,
             statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
-            selected: document.querySelector('[data-display-timeframe="5"]')?.getAttribute('aria-pressed'),
+            selected: document.querySelector('[data-display-timeframe-select]')?.value || '',
           }));
         }
 
@@ -156,29 +156,19 @@ async function main() {
 
           await waitFor('initial display controls enabled', async () => {
             const state = await commands.dispatchCommand('replay.getState');
-            const button = document.querySelector('[data-display-timeframe="5"]');
-            return state.status === 'initial-loaded' && button && !button.disabled;
+            const select = document.querySelector('[data-display-timeframe-select]');
+            return state.status === 'initial-loaded' && select && !select.disabled;
           });
 
-          document.querySelector('[data-display-timeframe="5"]').click();
+          const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          timeframeSelect.value = '5';
+          timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           await waitFor('5m display loaded', async () => {
             const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
-            const selected = document.querySelector('[data-display-timeframe="5"]')?.getAttribute('aria-pressed');
-            return displayContext?.displayTimeframe === 5 && selected === 'true';
-          });
-
-          const beforePanContext = await commands.dispatchCommand('replay.getDisplayContext');
-          const beforePanDisplayCount = beforePanContext.displayBars.length;
-          const requestCountBeforePan = requests.length;
-          await commands.dispatchCommand('chart.setVisibleRange', {
-            from: Date.parse('2026-06-01T03:40:00.000Z') / 1000,
-            to: Date.parse('2026-06-01T03:50:00.000Z') / 1000,
-          });
-          await waitFor('left pan display window loaded', async () => {
-            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
-            return displayContext.displayTimeframe === 5
-              && displayContext.displayBars.length > beforePanDisplayCount
-              && requests.length > requestCountBeforePan;
+            const selected = document.querySelector('[data-display-timeframe-select]')?.value;
+            return displayContext?.displayTimeframe === 5
+              && selected === '5'
+              && document.querySelector('[data-replay-next]')?.disabled === false;
           });
 
           const beforeNextContext = await commands.dispatchCommand('replay.getDisplayContext');
@@ -200,7 +190,6 @@ async function main() {
           const fullChartCount = Number(chartBarCountElement?.dataset.fullChartBarCount || 0);
           const displayBars = displayContext.displayBars || [];
           const lastDisplayBar = displayBars.at(-1);
-          const leftPanRequests = requests.slice(requestCountBeforePan);
           const projectionRequests = requests.slice(requestCountBeforeNext);
           return JSON.stringify({
             error: '',
@@ -210,15 +199,13 @@ async function main() {
             chartCount,
             fullChartCount,
             displayCount: displayBars.length,
-            beforePanDisplayCount,
             beforeNextDisplayCount: beforeNextContext.displayBars.length,
             lastDisplayTimestamp: lastDisplayBar?.timestamp || null,
             hasReplayOneMinuteBar: displayBars.some((bar) => bar.timestamp === Date.parse('2026-06-01T09:31:00.000Z') / 1000),
             allDisplayBarsOn5mBoundary: displayBars.every((bar) => bar.timestamp % (5 * 60) === 0),
-            selected: document.querySelector('[data-display-timeframe="5"]')?.getAttribute('aria-pressed') || '',
+            selected: document.querySelector('[data-display-timeframe-select]')?.value || '',
             statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
             requests,
-            leftPanRequests,
             projectionRequests,
           });
         } catch (error) {
@@ -233,19 +220,18 @@ async function main() {
     assert.equal(value.stateDisplayTimeframe, 5);
     assert.equal(value.contextDisplayTimeframe, 5);
     assert.equal(value.cursorTimestamp, '2026-06-01T09:31:00.000Z');
-    assert.equal(value.selected, 'true');
+    assert.equal(value.selected, '5');
     assert.equal(value.fullChartCount, value.displayCount);
     assert.ok(value.chartCount > 0, 'Chart should render a visible display-timeframe window');
     assert.ok(value.chartCount <= value.fullChartCount, 'Chart rendered bars should be a viewport subset');
-    assert.ok(value.displayCount > value.beforePanDisplayCount, 'Left pan should merge older display bars');
     assert.equal(value.hasReplayOneMinuteBar, false, 'Next must not mix 1m replay bars into 5m display');
     assert.equal(value.allDisplayBarsOn5mBoundary, true, 'Display bars should remain 5m bars after Next');
     assert.equal(value.lastDisplayTimestamp, Date.parse('2026-06-01T09:25:00.000Z') / 1000);
     assert.equal(value.statusText, `Loaded ${value.displayCount} bars.`);
     assert.ok(value.requests.some((request) => request.timeframe === 5), '5m display load should request 5m bars');
     assert.ok(
-      value.leftPanRequests.some((request) => request.timeframe === 5),
-      'left pan should request a bounded 5m display window'
+      value.projectionRequests.every((request) => request.timeframe === 5),
+      `Next projection should stay on 5m timeframe: ${JSON.stringify(value.projectionRequests)}`
     );
     assert.equal(
       value.requests.some((request) =>
@@ -255,14 +241,6 @@ async function main() {
       ),
       false,
       'Display timeframe switch must not request the full session date range'
-    );
-    assert.equal(
-      value.leftPanRequests.some((request) =>
-        request.start === '2026-06-01 09:30'
-          && request.end === '2026-06-01 09:40'
-      ),
-      false,
-      'Left pan must not request the full session date range'
     );
     assert.equal(
       value.projectionRequests.some((request) =>

@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 393 is complete.
-- Next candidate: after Step 393, continue Phase 3 by deciding whether Layout
-  needs a dedicated planning step, or prepare the Phase 3 closeout checklist if
-  the compact replay workstation shell, chart overlay, and replay controls are
-  stable enough.
+- Current status: Step 394 is complete.
+- Next candidate: after Step 394, continue Phase 3 with a chart settings
+  surface for low-frequency display preferences, or decide whether Layout needs
+  a dedicated planning step before implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -25,6 +24,37 @@
   `setData()` on every mouse move.
 - Known next issue: Layout split panes need a dedicated planning step before
   implementation because multi-chart ownership and sync rules must be explicit.
+- UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
+  should not stay as a prominent top-level control long term. Default to
+  `Exchange`; later move timezone display switching into a display/settings
+  menu. It must remain display-only and must not change replay cursor, bar
+  order, or loaded windows.
+- UI decision: low-frequency chart presentation controls such as `24h / 12h`,
+  `OHLC`, `Change`, `Crosshair`, `Compact`, and `+16` should also move out of
+  the top-level toolbar into a future chart settings surface. The target shape
+  is a compact entry point such as a context-menu `Settings...` item or gear
+  button that opens a settings dialog/panel with sections for symbol/status
+  line/scales/canvas-style display preferences.
+- UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
+  chart actions. Long term, keep one visible chart action for `Reset view` /
+  `Follow replay`; move the current `Cursor` behavior into the Go To surface as
+  an auxiliary action such as `Use current replay time` or rename it so it
+  clearly means jumping to the replay cursor without resetting zoom/follow
+  state.
+- UI decision: replace the current floating replay text-button group
+  (`Next / Play / Pause / Reset`) with a compact FXReplay-style transport bar.
+  Use icon buttons for step/back/play-pause/step-forward/reset or follow,
+  preserve command-driven replay behavior, and avoid making replay controls
+  look like a generic admin button group.
+- UI decision: replace the top-level display-timeframe button row
+  (`1m / 5m / 1H / 1D`) with a single current-timeframe dropdown such as
+  `1m v`. The dropdown should be grouped by Seconds / Minutes / Hours / Days
+  when broader intervals are supported; MVP can initially expose only the
+  already supported `1m`, `5m`, `1H`, and `1D` entries.
+- UI decision: the Setup route remains functionally necessary as the session
+  selection/creation surface, but its current MVP visual treatment is not the
+  final workstation quality bar. Give it a later visual pass after the chart
+  route's high-frequency replay controls and settings surfaces are cleaned up.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1408,6 +1438,52 @@ Manual acceptance:
 Checks:
 
 - `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 394 - V5 Replay Transport UI And Timeframe Dropdown
+
+Goal: replace the floating replay text-button group with a compact
+FXReplay-style transport control and move display timeframe selection into a
+single dropdown.
+
+This step advances Historical Replay Review by improving the highest-frequency
+chart interaction surface. It is a UI composition step, not a replay runtime,
+bar-loading, chart-engine interaction, settings modal, Layout split-pane,
+drawing, order, or journal step.
+
+- [x] Step 394.1: Add Step 394 TODO/session plan and preserve recent UI
+  decisions about settings, Cursor/Reset, transport controls, timeframe
+  dropdown, and Setup visual follow-up.
+- [x] Step 394.2: Replace floating `Next / Play / Pause / Reset` text buttons
+  with compact icon transport buttons while keeping existing command selectors.
+- [x] Step 394.3: Replace the `1m / 5m / 1H / 1D` button row with a single
+  `data-display-timeframe-select` dropdown grouped by Minutes / Hours / Days.
+- [x] Step 394.4: Update replay display-timeframe and floating-control browser
+  smokes to use the dropdown and verify the transport remains chart-contained.
+- [x] Step 394.5: Run targeted replay/layout smokes, full V5 smoke, and
+  `git diff --check` before commit.
+
+Manual acceptance:
+
+- The floating replay control reads as a compact chart transport, not a generic
+  admin button group.
+- Replay actions remain command-driven through the existing `data-replay-*`
+  selectors and do not mutate runtime state directly from UI code.
+- Display timeframe is selected through one dropdown instead of four top-level
+  buttons.
+- The dropdown initially exposes the supported `1m`, `5m`, `1H`, and `1D`
+  intervals with grouping that can later expand.
+- Replay cursor ownership, reveal state, chart series ownership, native
+  Lightweight interactions, and bar-data ownership remain unchanged.
+
+Checks:
+
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`

@@ -180,7 +180,9 @@ async function main() {
           });
           const afterNext = await commands.dispatchCommand('replay.getState');
 
-          document.querySelector('[data-display-timeframe="5"]').click();
+          const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          timeframeSelect.value = '5';
+          timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           await waitFor('timeframe changed', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             return Number(state.displayTimeframe) === 5
@@ -223,6 +225,8 @@ async function main() {
             priceAxisGap: chart.right - floatingRect.right,
             timeAxisGap: chart.bottom - floatingRect.bottom,
             floatingButtonCount: floating.querySelectorAll('button').length,
+            timeframeSelectCount: floating.querySelectorAll('[data-display-timeframe-select]').length,
+            timeframeSelectValue: document.querySelector('[data-display-timeframe-select]')?.value || '',
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -239,7 +243,9 @@ async function main() {
     assert.equal(value.goToInitiallyHidden, true);
     assert.equal(value.goToOpened, true);
     assert.equal(value.goToClosed, true);
-    assert.equal(value.floatingButtonCount, 8);
+    assert.equal(value.floatingButtonCount, 4);
+    assert.equal(value.timeframeSelectCount, 1);
+    assert.equal(value.timeframeSelectValue, '5');
     assert.equal(value.floatingInsideChart, true, `floating controls outside chart: ${JSON.stringify(value)}`);
     assert.ok(value.priceAxisGap >= 120, `floating controls too close to price axis: ${value.priceAxisGap}`);
     assert.ok(value.timeAxisGap >= 80, `floating controls too close to time axis: ${value.timeAxisGap}`);
