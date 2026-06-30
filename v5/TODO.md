@@ -10,9 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 389 is complete.
-- Next candidate: Step 390 should continue Phase 3 with screenshot-level visual
-  acceptance and remaining chart readability checks across more viewport sizes.
+- Current status: Step 390 is complete.
+- Next candidate: after Step 390, continue Phase 3 by tightening any remaining
+  real-chart interaction/readability issues found during manual use, or prepare
+  the Phase 3 closeout checklist if chart navigation is stable enough.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -21,8 +22,8 @@
 - Step 381 added chart-owned crosshair readout; follow-up fix removed
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
-- Known next issue: chart readability still needs screenshot-level visual
-  acceptance across more viewport sizes and browser zoom/system UI conditions.
+- Known next issue: decide whether remaining Phase 3 chart feedback needs a
+  focused fix, or whether the phase is ready for closeout planning.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1233,5 +1234,50 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 390 - V5 Responsive Chart Visual Acceptance
+
+Goal: add screenshot-level responsive acceptance for the replay workstation
+chart across desktop, laptop, low-height, narrow, and high-DPI viewport
+conditions.
+
+This step advances Historical Replay Review by making the real chart surface
+visually dependable across common browser sizes. It is a browser harness and
+layout verification step, not a replay cursor, bar-loading, order, journal, or
+new chart-feature step.
+
+- [x] Step 390.1: Add Step 390 TODO/session plan with Phase 3 scope and
+  non-goals.
+- [x] Step 390.2: Add a responsive visual browser smoke that loads the real
+  Lightweight chart across multiple viewport/device-scale scenarios.
+- [x] Step 390.3: Assert no horizontal page overflow, non-collapsed chart
+  dimensions, visible rendered bars, toolbar containment, price-axis clearance,
+  footer/status placement, and non-empty screenshot capture.
+- [x] Step 390.4: Add the new smoke to `v5/scripts/smoke_all.js`.
+- [x] Step 390.5: Run targeted layout/chart smokes, full V5 smoke, and update
+  the session handoff with actual results.
+
+Manual acceptance:
+
+- The chart remains the dominant visible replay surface across common desktop
+  and laptop viewport sizes.
+- Low-height and narrow viewport scenarios do not collapse the chart or create
+  horizontal document overflow.
+- Chart zoom/pan/reset overlay remains inside the chart viewport and clear of
+  the right price-axis area.
+- Footer/status information remains below the chart instead of overlaying it.
+- The harness captures a non-empty browser screenshot for each scenario and
+  confirms the chart rendered real bars through the chart runtime.
+- Replay cursor, reveal state, native Lightweight interactions, and bar-data
+  ownership remain unchanged.
+
+Checks:
+
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/tests/chart-overlay-visibility-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

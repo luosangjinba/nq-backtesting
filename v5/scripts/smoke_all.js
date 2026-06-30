@@ -48,6 +48,7 @@ const commands = [
   ['node', ['v5/tests/replay-workstation-layout-browser-smoke.js']],
   ['node', ['v5/tests/chart-price-scale-browser-smoke.js']],
   ['node', ['v5/tests/chart-overlay-visibility-browser-smoke.js']],
+  ['node', ['v5/tests/chart-responsive-visual-browser-smoke.js']],
   ['node', ['v5/tests/replay-restore-smoke.js']],
   ['node', ['v5/tests/replay-reset-smoke.js']],
   ['node', ['v5/tests/replay-session-switch-smoke.js']],
