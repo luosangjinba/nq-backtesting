@@ -26,43 +26,45 @@ export function createChartReplayRoute() {
       section.innerHTML = `
         <div class="panel-heading">
           <div>
-            <div class="eyebrow">Replay</div>
-            <h2>Chart Replay Shell</h2>
+            <div class="eyebrow">Replay workstation</div>
+            <h2>FX Session Replay</h2>
           </div>
-          <span class="runtime-badge">Chart Route</span>
+          <span class="runtime-badge">Historical Review</span>
         </div>
-        <div class="replay-controls" data-replay-controls>
-          <button type="button" data-replay-next disabled>Next</button>
-          <button type="button" data-replay-play disabled>Play</button>
-          <button type="button" data-replay-pause disabled>Pause</button>
-          <button type="button" data-replay-reset disabled>Reset</button>
-        </div>
-        <div class="display-timeframe-controls" data-display-timeframe-controls>
-          <button type="button" data-display-timeframe="1" aria-pressed="false" disabled>1m</button>
-          <button type="button" data-display-timeframe="5" aria-pressed="false" disabled>5m</button>
-          <button type="button" data-display-timeframe="60" aria-pressed="false" disabled>1H</button>
-          <button type="button" data-display-timeframe="1440" aria-pressed="false" disabled>1D</button>
-        </div>
-        <div class="display-timezone-controls" data-display-timezone-controls>
-          <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
-          <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
-        </div>
-        <div class="presentation-controls" data-presentation-controls>
-          <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
-          <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
-          <button type="button" data-presentation-toggle="showStatusOhlc" aria-pressed="false">OHLC</button>
-          <button type="button" data-presentation-toggle="showStatusChange" aria-pressed="false">Change</button>
-          <button type="button" data-presentation-toggle="showCrosshairReadout" aria-pressed="false">Crosshair</button>
-          <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
-          <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
-        </div>
-        <div class="chart-navigation-controls" data-chart-navigation-controls>
-          <label>
-            Go to
-            <input type="datetime-local" data-chart-go-to-input>
-          </label>
-          <button type="button" data-chart-go-to disabled>Go</button>
-          <button type="button" data-chart-jump-cursor disabled>Cursor</button>
+        <div class="replay-workstation-toolbar" data-replay-workstation-toolbar>
+          <div class="replay-controls" data-replay-controls aria-label="Replay controls">
+            <button type="button" data-replay-next disabled>Next</button>
+            <button type="button" data-replay-play disabled>Play</button>
+            <button type="button" data-replay-pause disabled>Pause</button>
+            <button type="button" data-replay-reset disabled>Reset</button>
+          </div>
+          <div class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
+            <button type="button" data-display-timeframe="1" aria-pressed="false" disabled>1m</button>
+            <button type="button" data-display-timeframe="5" aria-pressed="false" disabled>5m</button>
+            <button type="button" data-display-timeframe="60" aria-pressed="false" disabled>1H</button>
+            <button type="button" data-display-timeframe="1440" aria-pressed="false" disabled>1D</button>
+          </div>
+          <div class="display-timezone-controls" data-display-timezone-controls aria-label="Display timezone">
+            <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
+            <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
+          </div>
+          <div class="presentation-controls" data-presentation-controls aria-label="Chart presentation">
+            <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
+            <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
+            <button type="button" data-presentation-toggle="showStatusOhlc" aria-pressed="false">OHLC</button>
+            <button type="button" data-presentation-toggle="showStatusChange" aria-pressed="false">Change</button>
+            <button type="button" data-presentation-toggle="showCrosshairReadout" aria-pressed="false">Crosshair</button>
+            <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
+            <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
+          </div>
+          <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
+            <label>
+              Go to
+              <input type="datetime-local" data-chart-go-to-input>
+            </label>
+            <button type="button" data-chart-go-to disabled>Go</button>
+            <button type="button" data-chart-jump-cursor disabled>Cursor</button>
+          </div>
         </div>
         <div class="chart-viewport">
           <div class="chart-host" data-chart-host>
@@ -76,19 +78,21 @@ export function createChartReplayRoute() {
             <button type="button" data-chart-reset-view title="Reset to cursor" aria-label="Reset to cursor" disabled>&#8634;</button>
           </div>
         </div>
-        <p>Session: <strong data-session-id-label></strong></p>
-        <div class="replay-status-grid" data-replay-status>
-          <span>Start <strong data-replay-start>--</strong></span>
-          <span>Cursor <strong data-replay-cursor>--</strong></span>
-          <span>End <strong data-replay-end>--</strong></span>
-          <span>Revealed <strong data-replay-revealed-count>0</strong></span>
-          <span>Playback <strong data-replay-playback>Paused</strong></span>
-          <span>State <strong data-replay-state>Idle</strong></span>
-          <span data-status-ohlc-row>OHLC <strong data-status-ohlc>--</strong></span>
-          <span data-status-change-row>Change <strong data-status-change>--</strong></span>
-          <span data-crosshair-row>Inspect <strong data-crosshair-inspection-readout>--</strong></span>
+        <div class="replay-footer" data-replay-footer>
+          <div class="session-chip">Session <strong data-session-id-label></strong></div>
+          <div class="replay-status-grid" data-replay-status>
+            <span>Start <strong data-replay-start>--</strong></span>
+            <span>Cursor <strong data-replay-cursor>--</strong></span>
+            <span>End <strong data-replay-end>--</strong></span>
+            <span>Revealed <strong data-replay-revealed-count>0</strong></span>
+            <span>Playback <strong data-replay-playback>Paused</strong></span>
+            <span>State <strong data-replay-state>Idle</strong></span>
+            <span data-status-ohlc-row>OHLC <strong data-status-ohlc>--</strong></span>
+            <span data-status-change-row>Change <strong data-status-change>--</strong></span>
+            <span data-crosshair-row>Inspect <strong data-crosshair-inspection-readout>--</strong></span>
+          </div>
+          <p data-replay-load-status>Waiting for replay session.</p>
         </div>
-        <p data-replay-load-status>Waiting for replay session.</p>
       `;
       const status = section.querySelector('[data-replay-load-status]');
       const sessionIdLabel = section.querySelector('[data-session-id-label]');

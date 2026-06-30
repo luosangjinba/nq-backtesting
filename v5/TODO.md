@@ -10,10 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 386 is complete.
-- Next candidate: Step 387 should continue Phase 3 with replay toolbar/status
-  layout consolidation now that native chart interaction and main chart
-  readability are stable.
+- Current status: Step 387 is complete.
+- Next candidate: Step 388 should continue Phase 3 with chart scale/readability
+  polish after the replay workstation layout is consolidated.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -22,12 +21,9 @@
 - Step 381 added chart-owned crosshair readout; follow-up fix removed
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
-- Known next issue: visible UI is still an engineering shell, not final product
-  UI. Chart navigation is functional, but replay toolbar and interaction
-  controls still need product-level layout and ergonomics.
-- Known next issue: replay controls, presentation controls, navigation controls,
-  and status rows are still separate engineering rows. They should be
-  consolidated into a denser product-level replay workstation layout.
+- Known next issue: chart scale/readability still needs product polish. The
+  initial price placement can leave too much empty space, and future work should
+  tune price scale margins/fit behavior without breaking native interactions.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1111,6 +1107,52 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-display-usability-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 387 - V5 Replay Workstation Layout Consolidation
+
+Goal: consolidate the chart replay route from stacked engineering rows into a
+denser replay workstation layout while preserving chart/replay/bar-data runtime
+ownership boundaries.
+
+This step advances Historical Replay Review by making the replay surface closer
+to an actual workstation: controls are compact, the main chart keeps priority,
+and status remains visible without competing with the chart.
+
+- [x] Step 387.1: Add Step 387 TODO/session plan and update interaction specs
+  with workstation layout requirements.
+- [x] Step 387.2: Replace engineering shell copy with product-facing replay
+  workstation copy.
+- [x] Step 387.3: Consolidate replay, timeframe, timezone, presentation, and
+  go-to controls into one compact toolbar while preserving existing command
+  wiring and selectors.
+- [x] Step 387.4: Move session/status/load information into a compact footer
+  status band below the chart.
+- [x] Step 387.5: Keep the chart navigation toolbar as an overlay with bottom
+  clearance and increase desktop chart priority.
+- [x] Step 387.6: Add browser smoke coverage for toolbar height, chart height,
+  footer visibility, and removal of engineering shell text.
+
+Manual acceptance:
+
+- The chart route no longer shows `Chart Replay Shell` or `Chart Route`.
+- Replay controls, timeframe, timezone, presentation, and go-to controls are
+  consolidated into a compact workstation toolbar.
+- The main chart remains the dominant surface on desktop.
+- The bottom zoom/pan/reset toolbar is not flush with the bottom edge.
+- Session/status/load information is visible in a compact footer band.
+- Existing chart navigation, native Lightweight interaction, go-to time, and
+  presentation controls still use commands/events and do not mutate replay or
+  bar data directly.
+
+Checks:
+
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-display-usability-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
