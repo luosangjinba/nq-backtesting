@@ -48,6 +48,32 @@ Checks:
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
+## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
+
+Goal: close Phase 2 deliberately after viewport follow, fix documentation drift,
+and define the first Phase 3 step so local UI observations do not pull the
+project into random feature order.
+
+- [x] Step 375.1: Add Step 375 TODO/session plan.
+- [ ] Step 375.2: Update roadmap/TODO to mark Phase 2 gate status and fix
+  Step 373 documentation drift.
+- [ ] Step 375.3: Record Phase 3 entry checklist, run verification, and update
+  handoff.
+
+Manual acceptance:
+
+- Phase 2 status reflects Step 374 completion and the explicit manual viewport
+  rule: auto-follow remains active until Phase 3 defines real drag/zoom.
+- Step 373 TODO state matches the completed spec/session work.
+- Phase 3 starts with chart interaction runtime contracts, not ad hoc toolbar
+  polish or FXReplay parity details.
+- No runtime code changes are made in this closeout step.
+
+Checks:
+
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
 ## Step 374 - V5 Replay Viewport Follow And Rolling Window
 
 Goal: close the Phase 2 viewport/display gate by separating revealed
