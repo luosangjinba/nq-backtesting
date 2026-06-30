@@ -9,6 +9,7 @@ export const CHART_COMMANDS = Object.freeze({
   SET_DISPLAY_CONTEXT: 'chart.setDisplayContext',
   SET_VIEWPORT_FOLLOW: 'chart.setViewportFollow',
   SET_MANUAL_VISIBLE_RANGE: 'chart.setManualVisibleRange',
+  GO_TO_TIME: 'chart.goToTime',
   RESUME_VIEWPORT_FOLLOW: 'chart.resumeViewportFollow',
   GET_RENDERED_BARS: 'chart.getRenderedBars',
   GET_INTERACTION_STATE: 'chart.getInteractionState',

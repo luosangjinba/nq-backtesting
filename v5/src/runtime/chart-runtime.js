@@ -168,6 +168,20 @@ function normalizePositiveInteger(value, fallback, label) {
   return normalized;
 }
 
+function normalizeGoToPayload(payload = {}) {
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('chart go-to time payload must be an object.');
+  }
+  return {
+    targetTimestamp: timestampSeconds(payload.targetTimestamp ?? payload.time, 'chart go-to target time'),
+    estimatedVisibleBars: normalizePositiveInteger(
+      payload.estimatedVisibleBars,
+      null,
+      'chart go-to estimatedVisibleBars'
+    ),
+  };
+}
+
 function normalizeViewportFollow(payload = {}, state) {
   const enabled = payload.enabled == null ? state.viewportFollow.enabled : Boolean(payload.enabled);
   return {
@@ -213,6 +227,25 @@ function computeRenderedBars(state) {
   const endIndex = cursorIndex + 1;
   const startIndex = Math.max(0, endIndex - visibleCapacity);
   return state.bars.slice(startIndex, endIndex);
+}
+
+function deriveGoToRange(state, {
+  targetTimestamp,
+  estimatedVisibleBars,
+}) {
+  const barSpacingSeconds = estimateBarSpacingSeconds(state.bars);
+  const capacity = Math.max(
+    3,
+    estimatedVisibleBars
+      || state.viewportFollow.estimatedVisibleBars
+      || state.bars.length
+      || 20
+  );
+  const halfSpan = Math.max(barSpacingSeconds, Math.floor((capacity * barSpacingSeconds) / 2));
+  return clampVisibleRange({
+    from: targetTimestamp - halfSpan,
+    to: targetTimestamp + halfSpan,
+  }, state.rightEdgeLimit);
 }
 
 function computeViewportDemand(state) {
@@ -550,6 +583,16 @@ export function createChartRuntime() {
     };
   }
 
+  function goToTime(payload = {}) {
+    const goTo = normalizeGoToPayload(payload);
+    const visibleRange = deriveGoToRange(state, goTo);
+    const result = setManualVisibleRange(visibleRange);
+    return {
+      ...result,
+      targetTimestamp: goTo.targetTimestamp,
+    };
+  }
+
   function resumeViewportFollow() {
     state.interaction = {
       mode: 'follow',
@@ -688,6 +731,7 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
       registerCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, (payload) => setViewportFollow(payload)),
       registerCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, (payload) => setManualVisibleRange(payload)),
+      registerCommand(CHART_COMMANDS.GO_TO_TIME, (payload) => goToTime(payload)),
       registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, () => resumeViewportFollow()),
       registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
       registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),

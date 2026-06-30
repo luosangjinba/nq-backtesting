@@ -10,10 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 382 is complete.
-- Next candidate: Step 383 should continue Phase 3 chart interaction work with
-  go-to time / jump-to-cursor navigation before order, journal, dashboard, AI,
-  or SaaS work.
+- Current status: Step 383 is complete.
+- Next candidate: Step 384 should continue Phase 3 with replay toolbar and
+  interaction-control polish before order, journal, dashboard, AI, or SaaS work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -23,8 +22,8 @@
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
 - Known next issue: visible UI is still an engineering shell, not final product
-  UI. Formatting is consistent, but users still need intentional time
-  navigation such as go-to time / jump-to-cursor.
+  UI. Chart navigation is functional, but replay toolbar and interaction
+  controls still need product-level layout and ergonomics.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -929,6 +928,44 @@ Checks:
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 383 - V5 Go-To Time And Cursor Navigation
+
+Goal: add chart-owned intentional time navigation so users can inspect a known
+time and return to the replay cursor without mutating replay state or bypassing
+runtime boundaries.
+
+- [x] Step 383.1: Add Step 383 TODO/session plan and update interaction specs
+  with go-to time / jump-to-cursor rules.
+- [x] Step 383.2: Add a chart runtime `goToTime` command that derives and
+  clamps a manual visible range around a target timestamp.
+- [x] Step 383.3: Add chart route controls for go-to time and jump-to-cursor
+  using commands/events only.
+- [x] Step 383.4: Preserve viewport demand behavior without direct bar requests
+  and preserve replay cursor/display bars.
+- [x] Step 383.5: Strengthen runtime/browser smoke coverage and close the step.
+
+Manual acceptance:
+
+- Entering a time moves the chart viewport to a manual visible range around the
+  requested time.
+- Go-to time pauses viewport follow and does not directly mutate replay cursor
+  or `displayBars`; replay runtime may grow `displayBars` if viewport demand is
+  consumed.
+- Go-to time remains clamped to the replay right-edge limit.
+- Jump-to-cursor resumes follow through chart runtime commands.
+- Go-to time may emit viewport demand, but it must not request bars directly.
+- Order, journal, dashboard, AI, SaaS auth, billing, and full settings
+  templates remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

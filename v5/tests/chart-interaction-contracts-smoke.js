@@ -81,6 +81,7 @@ const runtime = createChartRuntime();
 runtime.start({ root, emitEvent });
 
 assert.equal(hasCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE), true);
+assert.equal(hasCommand(CHART_COMMANDS.GO_TO_TIME), true);
 assert.equal(hasCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW), true);
 assert.equal(hasCommand(CHART_COMMANDS.GET_INTERACTION_STATE), true);
 
@@ -174,6 +175,32 @@ assert.equal(host.children[0].dataset.viewportFollow, 'false');
 assert.equal(visibleRangeEvents.length, 1);
 assert.equal(viewportDemandEvents.length, 1);
 
+visibleRangeEvents.length = 0;
+viewportDemandEvents.length = 0;
+const goTo = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
+  targetTimestamp: '2026-06-01T09:34:00.000Z',
+  estimatedVisibleBars: 5,
+});
+assert.equal(goTo.interaction.mode, 'manual');
+assert.equal(goTo.viewportFollow.enabled, false);
+assert.equal(goTo.targetTimestamp, Date.parse('2026-06-01T09:34:00.000Z') / 1000);
+assert.deepEqual(goTo.visibleRange, {
+  from: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:35:00.000Z') / 1000,
+});
+assert.deepEqual(
+  goTo.renderedBars.map((item) => item.time),
+  [
+    '2026-06-01T09:30:00.000Z',
+    '2026-06-01T09:31:00.000Z',
+    '2026-06-01T09:32:00.000Z',
+    '2026-06-01T09:33:00.000Z',
+    '2026-06-01T09:34:00.000Z',
+    '2026-06-01T09:35:00.000Z',
+  ]
+);
+assert.equal(visibleRangeEvents.length, 1);
+
 const replayFollowSync = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
   enabled: true,
   cursorTimestamp: '2026-06-01T09:35:00.000Z',
@@ -183,7 +210,7 @@ assert.equal(replayFollowSync.interaction.mode, 'manual');
 assert.equal(replayFollowSync.viewportFollow.enabled, false);
 assert.deepEqual(
   replayFollowSync.renderedBars.map((item) => item.time),
-  manual.renderedBars.map((item) => item.time)
+  goTo.renderedBars.map((item) => item.time)
 );
 
 const resumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);

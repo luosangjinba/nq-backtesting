@@ -53,6 +53,14 @@ export function createChartReplayRoute() {
           <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
           <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
         </div>
+        <div class="chart-navigation-controls" data-chart-navigation-controls>
+          <label>
+            Go to
+            <input type="datetime-local" data-chart-go-to-input>
+          </label>
+          <button type="button" data-chart-go-to disabled>Go</button>
+          <button type="button" data-chart-jump-cursor disabled>Cursor</button>
+        </div>
         <div class="chart-host" data-chart-host>
           <span>Starting chart...</span>
         </div>
@@ -94,6 +102,9 @@ export function createChartReplayRoute() {
       const presentationToggleButtons = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
       const presentationMarginButtons = Array.from(section.querySelectorAll('[data-presentation-margin]'));
       const presentationRightOffsetButtons = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
+      const goToInput = section.querySelector('[data-chart-go-to-input]');
+      const goToButton = section.querySelector('[data-chart-go-to]');
+      const jumpCursorButton = section.querySelector('[data-chart-jump-cursor]');
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
@@ -198,6 +209,9 @@ export function createChartReplayRoute() {
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
         resetButton.disabled = unavailable;
+        goToInput.disabled = unavailable;
+        goToButton.disabled = unavailable || !goToInput.value;
+        jumpCursorButton.disabled = unavailable;
         displayTimeframeButtons.forEach((button) => {
           button.disabled = unavailable;
         });
@@ -386,6 +400,46 @@ export function createChartReplayRoute() {
           await syncChartPresentationSettings();
           updatePresentationButtons();
         });
+      });
+
+      goToInput.addEventListener('input', () => {
+        setControlsDisabled();
+      });
+
+      goToButton.addEventListener('click', async () => {
+        if (!goToInput.value || commandInFlight) return;
+        commandInFlight = true;
+        setControlsDisabled(true);
+        try {
+          const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null);
+          const targetTimestamp = `${goToInput.value}:00.000Z`;
+          const result = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
+            targetTimestamp,
+            estimatedVisibleBars: metrics?.estimatedVisibleBars || null,
+          });
+          status.textContent = `Viewing ${formatReplayTimestamp(new Date(result.targetTimestamp * 1000).toISOString())}.`;
+        } catch (error) {
+          status.textContent = error?.message || String(error);
+        } finally {
+          commandInFlight = false;
+          setControlsDisabled(false);
+        }
+      });
+
+      jumpCursorButton.addEventListener('click', async () => {
+        if (commandInFlight) return;
+        commandInFlight = true;
+        setControlsDisabled(true);
+        try {
+          await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
+          const state = await dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null);
+          status.textContent = `Following cursor ${formatReplayTimestamp(state?.cursorTimestamp)}.`;
+        } catch (error) {
+          status.textContent = error?.message || String(error);
+        } finally {
+          commandInFlight = false;
+          setControlsDisabled(false);
+        }
       });
 
       [

@@ -9,11 +9,14 @@ reveal boundaries or causing implicit bar loads outside the bar data runtime.
 
 Step 376 introduces chart-owned interaction contracts for manual visible-range
 movement.
+Step 383 adds chart-owned go-to time / jump-to-cursor navigation.
 
 In scope:
 
 - manual visible-range movement as a runtime command;
 - explicit follow pause/resume state;
+- go-to time as a chart runtime command that derives a manual visible range;
+- jump-to-cursor as explicit resume-follow behavior;
 - viewport demand emission after manual range changes;
 - harnesses proving ownership boundaries.
 
@@ -22,7 +25,6 @@ Out of scope:
 - full drag/zoom pointer implementation;
 - crosshair readout;
 - axis labels and tooltip polish;
-- go-to time UI;
 - replay toolbar polish;
 - orders, journal, annotations, SaaS auth, billing, and server persistence.
 
@@ -50,6 +52,12 @@ Out of scope:
 - Resume follow is explicit.
 - Manual movement may emit viewport demand, but must not request bars by itself.
 - Manual movement must not directly mutate replay cursor or `displayBars`.
+- Go-to time follows the same manual movement rules: it pauses auto-follow,
+  clamps to the replay right-edge limit, and must not directly mutate replay
+  cursor or `displayBars`. If viewport demand is consumed, replay runtime may
+  grow `displayBars` through its bounded display-load path.
+- Jump-to-cursor resumes chart viewport follow explicitly. It does not advance
+  replay cursor.
 - If viewport demand is consumed, replay runtime may update `displayBars`
   through a bounded replay-owned display load.
 - Manual visible ranges remain clamped to the replay right-edge limit.
@@ -59,6 +67,7 @@ Out of scope:
 Chart runtime should expose commands for:
 
 - setting a manual visible range;
+- going to a target time;
 - resuming viewport follow;
 - reading interaction/follow state.
 
@@ -76,6 +85,14 @@ When follow is resumed:
 - manual visible range is cleared;
 - chart rendering returns to cursor-follow behavior.
 
+When go-to time is requested:
+
+- the target time is normalized as chart canonical time;
+- chart runtime derives a visible range around the target;
+- the derived range is clamped to the right-edge limit;
+- auto-follow becomes disabled;
+- viewport/prefix demand may be emitted.
+
 ## Forbidden
 
 - UI slicing `displayBars`.
@@ -84,6 +101,7 @@ When follow is resumed:
 - Chart runtime requesting bars in response to manual movement.
 - Auto-resuming follow on Next/Play after manual movement without an explicit
   resume command.
+- Go-to time changing replay cursor, replay reveal state, or display bars.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification
