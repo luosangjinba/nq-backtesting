@@ -26,7 +26,15 @@ Status: complete.
 - Route both through the existing adapter `onVisibleRangeChange` callback.
 - Do not expose chart-engine internals to UI, replay, or bar-data modules.
 
-Status: pending.
+Completed:
+
+- Added fallback mouse drag handling on the adapter-owned chart canvas.
+- Added fallback wheel zoom handling with a minimum one-minute visible span.
+- Fallback input reports visible-range changes through the existing adapter
+  callback.
+- Updated adapter smoke coverage for drag and wheel events.
+
+Status: complete.
 
 ### Step 378.3 - Runtime Invariants
 
@@ -35,7 +43,15 @@ Status: pending.
 - Add or update smoke coverage proving drag/zoom range changes do not request
   bars directly and do not mutate replay cursor/display state.
 
-Status: pending.
+Completed:
+
+- Added `v5/tests/chart-runtime-fallback-input-smoke.js`.
+- Covered fallback drag entering manual mode and disabling viewport follow.
+- Covered fallback wheel retaining manual mode.
+- Covered replay follow sync not auto-resuming after manual interaction.
+- Registered the smoke in `v5/scripts/smoke_all.js`.
+
+Status: complete.
 
 ### Step 378.4 - Browser Verification And Closeout
 
@@ -43,7 +59,15 @@ Status: pending.
 - Run relevant smoke checks and `git diff --check`.
 - Update this handoff and TODO to mark Step 378 complete.
 
-Status: pending.
+Completed:
+
+- Updated `v5/tests/chart-interaction-browser-smoke.js` to trigger real DOM
+  mouse and wheel events on the fallback chart canvas.
+- Browser smoke verifies drag/wheel enters manual mode, pauses follow, stays
+  clamped to the replay cursor/right edge, and Next does not resume follow.
+- Ran full V5 smoke and whitespace checks.
+
+Status: complete.
 
 ## Manual Acceptance
 
@@ -67,3 +91,5 @@ Status: pending.
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Result: all checks passed.

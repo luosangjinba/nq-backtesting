@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 378 is in progress.
-- Current step: Step 378 continues Phase 3 real chart interaction from the
-  chart-engine adapter foundation.
-- Step 378 advances Historical Replay Review by making chart navigation usable
-  without weakening no-future replay boundaries.
+- Current status: Step 378 is complete.
+- Next candidate: Step 379 should continue Phase 3 chart interaction, likely
+  crosshair readout or axis/tooltip formatting, unless a review-foundation
+  planning step is explicitly promoted before Phase 4.
+- Step 378 advanced Historical Replay Review by adding minimal real chart
+  drag/zoom input without weakening no-future replay boundaries.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -736,11 +737,11 @@ manually navigate visible time without breaking replay reveal boundaries or
 letting UI own chart internals.
 
 - [x] Step 378.1: Add Step 378 TODO/session plan.
-- [ ] Step 378.2: Add adapter-owned DOM fallback drag and wheel zoom input that
+- [x] Step 378.2: Add adapter-owned DOM fallback drag and wheel zoom input that
   reports visible-range changes through the existing chart runtime callback.
-- [ ] Step 378.3: Preserve replay/manual-follow invariants and add runtime
+- [x] Step 378.3: Preserve replay/manual-follow invariants and add runtime
   smoke coverage for clamped drag/zoom changes.
-- [ ] Step 378.4: Add browser verification, run full smoke, and update handoff.
+- [x] Step 378.4: Add browser verification, run full smoke, and update handoff.
 
 Manual acceptance:
 
