@@ -61,8 +61,15 @@ Chart runtime should expose a command for replay runtime to set follow state:
 
 - enabled flag;
 - cursor timestamp;
-- estimated visible bar capacity;
-- right offset bars.
+- estimated visible bar capacity.
+
+`rightOffsetBars` is a chart presentation setting. Replay runtime should not
+read presentation settings solely to sync follow state. Chart runtime applies
+the current chart presentation/display context when deriving `visibleBars`.
+
+The follow command may accept an explicit `rightOffsetBars` override for tests
+or future chart-owned callers, but the default ownership remains chart
+presentation, not replay state.
 
 Chart runtime may store all received bars, but rendering should use the follow
 state to derive `visibleBars`.

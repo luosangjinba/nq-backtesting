@@ -78,6 +78,12 @@ Completed:
   chart/display count after the Step 374 contract change.
 - Added the browser viewport follow smoke to `v5/scripts/smoke_all.js`.
 
+Follow-up audit decision:
+
+- Use Scheme B for `rightOffsetBars` ownership: replay sync sends cursor and
+  viewport capacity, while chart runtime applies the current chart presentation
+  context when deriving rendered `visibleBars`.
+
 ## Manual Acceptance
 
 - `displayBars` remains replay-owned revealed history.
